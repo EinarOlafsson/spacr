@@ -162,3 +162,71 @@ NOT BUILT YET, and this is the honest remainder:
 
 46 tests across the model and the button; 424 pass over the hyperparam, umap
 and search suites.
+
+--------------------------------------------------------------------------------
+2026-08-14 - COMPLETE
+--------------------------------------------------------------------------------
+
+THE VIEWER IS BUILT, and the old static end state is no longer the Image UMAP
+search's end state:
+
+  * `spacr/qt/widgets/umap_search_viewer.py` is a native Qt, black-background
+    coordinate renderer. It accepts 2-D and 3-D arrays, preserves aspect ratio,
+    spins a 3-D map by dragging, zooms with the wheel, and recolours the same
+    coordinates with cluster labels. It deliberately has no pyqtgraph/OpenGL
+    dependency: spaCR removed that unused second GUI stack, and QPainter keeps
+    this usable and testable on the offscreen platform.
+  * the table is on the LEFT of that viewer. Every row holds the real `Trial`,
+    whose `extra_metrics['embedding']` is the exact ndarray that was scored.
+    Selecting a row hands that same object to the viewer; it never refits UMAP.
+    Dedicated `backend` and `clusters` columns make both provenance and the
+    current partition visible rather than burying either in a tooltip.
+  * `Grid` opens every retained table map together, all on black. Each tile
+    holds its originating Trial; clicking a tile loads that exact trial into
+    the main 2-D/3-D container and selects its table row.
+  * `Cluster this map` runs HDBSCAN on the selected embedding without moving a
+    point. `Walk clusters` tries a bounded set of `min_cluster_size` values,
+    ranks separation discounted by HDBSCAN noise, retains every score, and
+    colours the selected partition. `Cluster during search` runs that same
+    walk as each UMAP finishes, so both requested workflows exist.
+  * the dimensions chooser makes 2-D and 3-D explicit. 2-D remains the default
+    for compatibility with existing runs; choosing 3-D records three
+    components on every row and produces a map that spins.
+  * Image UMAP no longer creates per-trial PNGs, mounts `SearchFigureGrid`,
+    draws the finished Matplotlib small-multiples summary, or exposes the
+    `maximum graph panels`/figure-generation control. The generic figure path
+    remains intact for Activation and classifier searches, where the result
+    really is a figure rather than an interactive coordinate set.
+
+THE GPU BUTTON NOW RUNS THE GPU. `SearchRequest` carries `umap_backend`, and
+`run_search_for_app` routes a checked GPU run through
+`gpu_reduce.make_reducer('umap', prefer_gpu=True)`. A requested GPU run refuses
+to mix in CPU rows if cuML construction fails. CuPy/cuDF outputs are copied
+back explicitly for scoring and viewing. Every successful trial, checkpoint
+signature, visible table row and viewer caption records `cpu`, `cuml`, or
+`custom`; a mixed-backend result gets an explicit warning that its rows are
+not one comparable walk. The compact `GPU` control is immediately LEFT of
+`Run search`, and is kept in sync with the settings-window copy. The already
+built ready/install/wrong-Python/no-device decision and restart warning remain
+the only installation path.
+
+STARPLAST'S useful contracts were carried across: coordinates travel with the
+row; the gallery holds the map rather than screenshots alone; the clustering
+walk partitions a fixed embedding; and the backend is recipe provenance. Its
+PyQt6/pyqtgraph/OpenGL stack was not copied into this PySide6 application.
+
+TESTED:
+
+  * 576 related UMAP, hyperparameter, gallery, annotation-explorer, GPU-plan,
+    model-regression, validation and end-to-end tests pass. The real end-to-end
+    test runs two successive adaptive searches from a measurements database
+    and checks every retained embedding.
+  * New normal/edge coverage includes 2-D and 3-D projection, aspect ratio,
+    black gallery pixels, dragging a 3-D camera, exact Trial identity through
+    row and gallery clicks, label-length refusal, HDBSCAN on both dimensions,
+    invalid/NaN coordinates, impossible cluster scales, during-search and
+    after-selection walks, table provenance, GPU argument forwarding, cuML
+    output conversion, unavailable GPU refusal, and no silent mixed backend.
+  * Source catalogs were regenerated (`settings=694`, `categories=163`,
+    `ui=1409`; English API manifest `symbols=6481`), compileall and
+    `git diff --check` pass.

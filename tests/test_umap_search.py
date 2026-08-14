@@ -15,7 +15,10 @@ import json
 import numpy as np
 import pytest
 
-from spacr.umap_search import SearchRow, SearchTable, UmapRecipe, walk_recipes
+from spacr.umap_search import (
+    SearchRow, SearchTable, UmapRecipe, cluster_embedding, walk_clusters,
+    walk_recipes,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -187,3 +190,51 @@ def test_the_walk_keeps_the_columns_and_backend_of_its_base():
 
 def test_a_walk_of_one_step_still_returns_something():
     assert walk_recipes(UmapRecipe(), steps=1)
+
+
+# ---------------------------------------------------------------------------
+# Clustering the exact map a row holds
+# ---------------------------------------------------------------------------
+
+def _separated_embedding(dimensions=2):
+    rng = np.random.default_rng(4)
+    left = rng.normal(loc=-4.0, scale=0.12, size=(30, dimensions))
+    right = rng.normal(loc=4.0, scale=0.12, size=(30, dimensions))
+    return np.vstack((left, right))
+
+
+@pytest.mark.parametrize("dimensions", [2, 3])
+def test_hdbscan_clusters_two_and_three_dimensional_maps(dimensions):
+    labels = cluster_embedding(
+        _separated_embedding(dimensions), min_cluster_size=8)
+    assert labels.shape == (60,)
+    assert len({int(value) for value in labels if value >= 0}) == 2
+
+
+def test_cluster_walk_retains_every_partition_and_ranks_best_first():
+    rows = walk_clusters(
+        _separated_embedding(), min_cluster_sizes=(4, 8, 12))
+    assert [row.score for row in rows] == sorted(
+        (row.score for row in rows), reverse=True)
+    assert {row.min_cluster_size for row in rows} == {4, 8, 12}
+    assert all(row.labels.shape == (60,) for row in rows)
+    assert rows[0].n_clusters == 2
+
+
+@pytest.mark.parametrize("bad", [
+    np.zeros((3,)), np.zeros((3, 1)), np.zeros((3, 4)),
+    np.array([[0.0, 0.0], [1.0, np.nan], [2.0, 2.0]]),
+])
+def test_clustering_refuses_coordinates_the_viewer_cannot_draw(bad):
+    with pytest.raises(ValueError):
+        cluster_embedding(bad, min_cluster_size=2)
+
+
+def test_cluster_size_must_leave_points_to_partition():
+    with pytest.raises(ValueError, match="smaller"):
+        cluster_embedding(np.zeros((5, 2)), min_cluster_size=5)
+
+
+def test_cluster_walk_refuses_a_grid_with_no_usable_size():
+    with pytest.raises(ValueError, match="No cluster-walk size"):
+        walk_clusters(np.zeros((5, 2)), min_cluster_sizes=(1, 5, 10))

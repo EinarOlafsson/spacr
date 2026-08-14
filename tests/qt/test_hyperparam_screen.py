@@ -670,13 +670,15 @@ class TestRunningASearch:
             panel.run_search()
         assert "• scripted" in panel._notes.text()
 
-    def test_a_preview_image_is_drawn(self, panel, qtbot):
+    def test_umap_uses_the_native_viewer_not_a_static_preview(self, panel,
+                                                              qtbot):
         self._prep(panel)
         panel.set_search_fn(scripted_search([0.9, 0.5, 0.7, 0.6]))
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
-        pm = panel._preview.pixmap()
-        assert pm is not None and not pm.isNull()
+        assert panel._umap_explorer is not None
+        assert panel._preview.isHidden()
+        assert panel._figure_grid is None
 
     def test_a_second_run_clears_the_previous_table(self, panel, qtbot):
         self._prep(panel)

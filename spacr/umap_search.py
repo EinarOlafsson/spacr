@@ -37,6 +37,9 @@ __all__ = [
     "UmapRecipe",
     "SearchRow",
     "SearchTable",
+    "ClusterWalkRow",
+    "cluster_embedding",
+    "walk_clusters",
     "walk_recipes",
 ]
 
@@ -172,6 +175,134 @@ class SearchTable:
         return [{"recipe": r.recipe.to_dict(), "scores": dict(r.scores),
                  "clusters": r.cluster_count(), "note": r.note}
                 for r in self._rows]
+
+
+@dataclass
+class ClusterWalkRow:
+    """One clustering tried against one fixed embedding.
+
+    The coordinates are deliberately not stored here: a clustering walk
+    changes the partition, not the map.  Keeping that distinction explicit
+    prevents a cluster button from quietly refitting UMAP and making the row
+    the user selected cease to be the row they are looking at.
+    """
+
+    min_cluster_size: int
+    labels: np.ndarray
+    silhouette: float
+    n_clusters: int
+    noise_fraction: float
+
+    @property
+    def score(self) -> float:
+        """Ranking score: separation, discounted by unassigned points."""
+        if not np.isfinite(self.silhouette):
+            return float("-inf")
+        return float(self.silhouette) * (1.0 - float(self.noise_fraction))
+
+
+def _embedding_array(embedding: Any) -> np.ndarray:
+    """Validate coordinates at the clustering/viewer boundary."""
+    values = np.asarray(embedding, dtype=float)
+    if values.ndim != 2 or values.shape[1] not in (2, 3):
+        raise ValueError(
+            "An Image UMAP embedding must have shape (rows, 2) or (rows, 3).")
+    if len(values) < 3:
+        raise ValueError("Clustering an Image UMAP needs at least 3 points.")
+    if not np.isfinite(values).all():
+        raise ValueError("The Image UMAP contains NaN or infinite coordinates.")
+    return values
+
+
+def cluster_embedding(
+    embedding: Any,
+    *,
+    min_cluster_size: int = 15,
+    min_samples: Optional[int] = None,
+) -> np.ndarray:
+    """Cluster a fixed 2-D or 3-D embedding with HDBSCAN.
+
+    scikit-learn's implementation is used because it is already a spaCR core
+    dependency (spaCR requires a version new enough to provide HDBSCAN). No
+    DBSCAN substitution is made: changing the algorithm while keeping the
+    HDBSCAN label would make the cluster count beside a map false provenance.
+    """
+    values = _embedding_array(embedding)
+    size = int(min_cluster_size)
+    if size < 2:
+        raise ValueError("min_cluster_size must be at least 2.")
+    if size >= len(values):
+        raise ValueError(
+            f"min_cluster_size must be smaller than the {len(values)} points.")
+    samples = None if min_samples in (None, 0) else int(min_samples)
+    if samples is not None and samples < 1:
+        raise ValueError("min_samples must be at least 1 when supplied.")
+    from sklearn.cluster import HDBSCAN
+
+    estimator = HDBSCAN(
+        min_cluster_size=size,
+        min_samples=samples,
+        store_centers=None,
+        copy=True,
+    )
+    labels = np.asarray(estimator.fit_predict(values), dtype=int)
+    if labels.shape != (len(values),):
+        raise RuntimeError(
+            "HDBSCAN returned one label count that does not match the map.")
+    return labels
+
+
+def walk_clusters(
+    embedding: Any,
+    *,
+    min_cluster_sizes: Sequence[int] = (5, 10, 15, 25, 40),
+    min_samples: Optional[int] = None,
+) -> List[ClusterWalkRow]:
+    """Try HDBSCAN scales on one map and return them best-first.
+
+    This is the clustering half of the Starplast-style walk.  It can run for
+    every UMAP trial as that trial arrives, or later against the table row the
+    user chose.  Failed/oversized scales are skipped individually; if no scale
+    is meaningful the result is empty rather than a fabricated one-cluster
+    winner.
+    """
+    values = _embedding_array(embedding)
+    candidates: List[int] = []
+    for raw in min_cluster_sizes:
+        try:
+            size = int(raw)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Cluster-walk sizes must be whole numbers; got {raw!r}.") from exc
+        if 2 <= size < len(values) and size not in candidates:
+            candidates.append(size)
+    if not candidates:
+        raise ValueError(
+            f"No cluster-walk size is between 2 and {len(values) - 1}.")
+
+    from sklearn.metrics import silhouette_score
+
+    rows: List[ClusterWalkRow] = []
+    for size in candidates:
+        labels = cluster_embedding(
+            values, min_cluster_size=size, min_samples=min_samples)
+        cluster_ids = sorted({int(value) for value in labels if value >= 0})
+        keep = labels >= 0
+        silhouette = float("nan")
+        if len(cluster_ids) >= 2 and int(keep.sum()) > len(cluster_ids):
+            try:
+                silhouette = float(silhouette_score(values[keep], labels[keep]))
+            except ValueError:
+                silhouette = float("nan")
+        rows.append(ClusterWalkRow(
+            min_cluster_size=size,
+            labels=labels,
+            silhouette=silhouette,
+            n_clusters=len(cluster_ids),
+            noise_fraction=float(np.mean(labels < 0)),
+        ))
+    rows.sort(key=lambda row: (-row.score, row.min_cluster_size))
+    return rows
 
 
 def walk_recipes(base: UmapRecipe, *, steps: int = 12,
