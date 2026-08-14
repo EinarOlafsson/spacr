@@ -2862,25 +2862,96 @@ def _widen_table_for(conn, table, frame):
 DB_APPEND_REPAIRS = 4
 
 
+def _sqlite_identifier(value):
+    """Quote one SQLite identifier without treating data as SQL.
+
+    SQLite accepts double quotes inside an identifier when they are doubled.
+    NUL cannot occur in an SQLite identifier and is rejected explicitly so a
+    malformed frame cannot produce a confusing parser error later.
+    """
+    value = str(value)
+    if '\x00' in value:
+        raise ValueError("SQLite identifiers cannot contain NUL")
+    return '"' + value.replace('"', '""') + '"'
+
+
+def _sqlite_value(value):
+    """Return a sqlite3-compatible scalar with pandas nulls normalised."""
+    if value is None:
+        return None
+    missing = pd.isna(value)
+    if isinstance(missing, (bool, np.bool_)) and bool(missing):
+        return None
+    if isinstance(value, pd.Timedelta):
+        # Match pandas.to_sql: timedelta64 values are stored as nanoseconds.
+        return int(value.value)
+    if isinstance(value, pd.Timestamp):
+        return value.to_pydatetime()
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def _insert_frame(conn, table, frame):
+    """Insert ``frame`` without pandas' per-append table-existence query.
+
+    ``DataFrame.to_sql(if_exists='append')`` performs a ``sqlite_master`` read
+    before every write. On a shared filesystem that read can hold a SHARED
+    lock while another worker is trying to commit, creating the writer
+    starvation reported in issue #15. A parameterised INSERT needs no schema
+    read and keeps values out of the SQL text.
+
+    Table creation and schema repair remain :func:`_append_frame`'s job. The
+    transaction is committed here to retain ``to_sql``'s all-or-error append
+    contract; sqlite rolls it back if ``executemany`` or ``commit`` fails.
+    """
+    if frame.empty:
+        return
+    columns = [str(column) for column in frame.columns]
+    if len(columns) != len(set(columns)):
+        raise ValueError("duplicate names in measurement frame columns")
+    quoted_table = _sqlite_identifier(table)
+    quoted_columns = ', '.join(_sqlite_identifier(col) for col in columns)
+    placeholders = ', '.join('?' for _ in columns)
+    statement = (
+        f'INSERT INTO {quoted_table} ({quoted_columns}) '
+        f'VALUES ({placeholders})'
+    )
+    values_by_column = []
+    for _name, series in frame.items():
+        if series.dtype.kind == 'm':
+            # pandas.to_sql deliberately writes NaT as numpy's iNaT sentinel
+            # for unsupported timedelta columns; preserve that compatibility.
+            values = series.to_numpy(dtype='timedelta64[ns]').view('i8')
+            values_by_column.append(values.astype(object))
+        else:
+            values_by_column.append(
+                np.asarray(
+                    [_sqlite_value(value) for value in series],
+                    dtype=object,
+                )
+            )
+    rows = zip(*values_by_column)
+    try:
+        conn.executemany(statement, rows)
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+
+
 def _append_frame(conn, table, frame):
-    """``to_sql(if_exists='append')`` that survives two concurrent-writer hazards.
+    """Append without a per-write schema read, repairing concurrent hazards.
 
-    ``pandas.DataFrame.to_sql`` is check-then-act: ``SQLTable.create`` asks
-    whether the table exists and issues ``CREATE TABLE`` when it does not.
-    measure_crop runs one worker process per field against a single
-    measurements.db, so on the first fields of a fresh run several workers pass
-    that check together, all issue the CREATE, and every one but the winner
-    gets ``OperationalError: table "cell" already exists``. That is not a lock,
-    so the caller's "report it and continue" branch threw the entire frame --
-    one field's measurements -- away, silently, while the field still counted
-    as a success on the run ledger. Measured with four workers released from a
-    barrier: 30 of 30 runs lost rows.
+    The normal path is a direct parameterised INSERT, avoiding pandas'
+    ``sqlite_master`` existence probe on every field. Only a genuinely absent
+    table uses ``to_sql`` to create its schema, without rows, then retries the
+    direct insert. Several first-field workers can race during that one-time
+    creation; the loser sees ``table already exists`` and retries safely.
 
-    Retrying is the whole fix: on the next pass the table exists, ``create()``
-    is a no-op and the insert proceeds. Nothing is inserted before the CREATE,
-    so there is no half-written frame to undo. The same loop covers the schema
-    widening, which can need a second pass of its own when the worker that won
-    the race created the table from a narrower frame than ours.
+    The same bounded loop covers schema widening when the worker that won the
+    creation race used a narrower frame. A failed INSERT is rolled back before
+    ALTER/retry, so a frame cannot be partly duplicated or silently lost.
 
     :param conn: open sqlite3 connection.
     :param table: destination table.
@@ -2890,13 +2961,22 @@ def _append_frame(conn, table, frame):
     last = None
     for _ in range(DB_APPEND_REPAIRS):
         try:
-            frame.to_sql(table, conn, if_exists='append', index=False)
+            _insert_frame(conn, table, frame)
             return
         except sqlite3.OperationalError as e:
             last = e
-            message = str(e)
-            if 'already exists' in message:
-                continue          # lost the create race; the table is there now
+            message = str(e).lower()
+            if 'no such table' in message:
+                try:
+                    # Schema only. Rows are written exactly once by the direct
+                    # INSERT on the next pass.
+                    frame.iloc[:0].to_sql(
+                        table, conn, if_exists='append', index=False)
+                except sqlite3.OperationalError as create_error:
+                    if 'already exists' not in str(create_error).lower():
+                        raise
+                    last = create_error
+                continue
             # Widen ONLY when the append actually complains about a column.
             # Probing PRAGMA table_info on every write cost a round trip per
             # field per table and is pure waste on the overwhelmingly common
