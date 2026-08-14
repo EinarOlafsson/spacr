@@ -263,8 +263,12 @@ def test_the_visible_count_went_down_and_this_is_the_number():
     decision applied to two objects rather than two unrelated knobs. What is
     left under Organelle is the channel-shaped choices only.
     """
-    assert len(categories["Organelle"]) == 3
-    assert len(categories["Organelle advanced"]) == 35
+    from spacr.object_roles import ORGANELLE_ROLES
+    assert len(categories["Organelle"]) == 3 * len(ORGANELLE_ROLES)
+    # summarize_organelles_by is shared, while every detection knob is cloned
+    # once per slot.
+    assert len(categories["Organelle advanced"]) == \
+        35 + 34 * (len(ORGANELLE_ROLES) - 1)
     # Still 53 + organelle_type, just spread across four headings now.
     total = sum(len(categories[c]) for c in
                 ("Organelle", "Organelle advanced",

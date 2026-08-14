@@ -24,35 +24,38 @@ import importlib
 import pytest
 
 from spacr.object_roles import (
-    ALL_ROLES, DERIVED_ROLES, SEGMENTED_ROLES, is_segmented, ordered,
+    ALL_ROLES, DERIVED_ROLES, ORGANELLE_ROLES, SEGMENTED_ROLES,
+    is_segmented, ordered,
 )
+
+ORG2 = ORGANELLE_ROLES[1:]
 
 
 #: The exact tuples as they were before the registry existed, captured from a
 #: running import. A change here is a behaviour change, not a refactor.
 FROZEN = {
     ("measure_hooks", "OBJECT_TYPES"):
-        ("cell", "nucleus", "pathogen", "organelle", "cytoplasm"),
+        ("cell", "nucleus", "pathogen", "organelle", *ORG2, "cytoplasm"),
     ("feature_dict", "OBJECT_TYPES"):
-        ("cell", "nucleus", "pathogen", "organelle", "cytoplasm"),
+        ("cell", "nucleus", "pathogen", "organelle", *ORG2, "cytoplasm"),
     ("schema", "OBJECT_TYPES"):
-        ("cell", "cytoplasm", "nucleus", "pathogen", "organelle"),
+        ("cell", "cytoplasm", "nucleus", "pathogen", "organelle", *ORG2),
     ("schema", "OBJECT_TABLES"):
-        ("cell", "cytoplasm", "nucleus", "pathogen", "organelle"),
+        ("cell", "cytoplasm", "nucleus", "pathogen", "organelle", *ORG2),
     ("crops", "OBJECT_TYPES"):
-        ("cell", "nucleus", "pathogen", "organelle", "cytoplasm"),
+        ("cell", "nucleus", "pathogen", "organelle", *ORG2, "cytoplasm"),
     ("io", "CROP_OBJECT_TYPES"):
-        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle"),
+        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle", *ORG2),
     ("measure", "CROP_MODES"):
-        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle"),
+        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle", *ORG2),
     ("filters", "OBJECT_TABLES"):
-        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle"),
+        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle", *ORG2),
     ("merge_tables", "OBJECT_TABLES"):
-        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle"),
+        ("cell", "nucleus", "pathogen", "cytoplasm", "organelle", *ORG2),
     ("diameter", "OBJECT_TYPES"):
-        ("cell", "nucleus", "pathogen", "organelle"),
+        ("cell", "nucleus", "pathogen", "organelle", *ORG2),
     ("validate", "OBJECT_NAMES"):
-        ("cell", "nucleus", "pathogen", "organelle"),
+        ("cell", "nucleus", "pathogen", "organelle", *ORG2),
 }
 
 

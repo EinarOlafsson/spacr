@@ -461,13 +461,12 @@ def test_the_measure_demos_organelle_plane_is_summarised_but_not_tabulated(
         "— the measure demo is back to measuring its organelle plane into "
         "nothing, which is the regression this test was inverted to catch.")
     # Still open: the value that writes the raw table cannot be shipped.
-    assert expected_types["summarize_organelles_by"] is str
+    assert expected_types["summarize_organelles_by"] == (
+        str, list, type(None))
     with_list = dict(shipped)
     with_list["summarize_organelles_by"] = ["cell", "organelle"]
     typed = [p for p in validate_settings(with_list, "measure") if p.is_error]
-    assert typed, (
-        "expected_types no longer rejects a list for summarize_organelles_by; "
-        "the demo can ship it now")
+    assert not typed
 
     def _tables(settings: dict, folder: str) -> dict:
         """Run measure_crop on a private copy of the dataset, return counts."""
@@ -489,17 +488,12 @@ def test_the_measure_demos_organelle_plane_is_summarised_but_not_tabulated(
     assert as_shipped["cell_organelle_summary"] == as_shipped["cell"], (
         "a shipped measure run must summarise organelles per cell now that "
         "the key is defaulted")
-    assert "organelle" not in as_shipped, (
-        "'cell' is a *string*; measure.py's `\"organelle\" in value` is a "
-        "substring test, so the raw per-organelle table stays opt-in")
+    assert as_shipped["organelle"] == n_organelles
 
     # The mask app's default spelled out: the same run, by definition.
     as_str = _tables({**shipped, "summarize_organelles_by": "cell"}, "as_str")
     assert as_str["cell_organelle_summary"] == as_shipped["cell"]
-    assert "organelle" not in as_str, (
-        "'cell' is a *string*; measure.py's `\"organelle\" in value` is a "
-        "substring test, so this must not write the per-organelle table — if "
-        "it now does, the gate changed and the fix note is stale")
+    assert as_str["organelle"] == n_organelles
 
     # The value that actually works, proving the demo's data is measurable.
     as_list = _tables(

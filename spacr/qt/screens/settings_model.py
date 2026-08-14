@@ -40,6 +40,7 @@ from ..widgets.class_editor import ClassEditorWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
+from ...object_roles import ORGANELLE_ROLES, setting_label
 
 
 LOGGER = logging.getLogger(__name__)
@@ -399,7 +400,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "mask": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
-            "organelle_channel", "channels", "magnification",
+            "organelle_channel",
+            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
         ("Workflow & Test Run", (
@@ -446,7 +449,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input & Experiment", ("src", "experiment")),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
-            "pathogen_mask_dim", "organelle_mask_dim", "cytoplasm",
+            "pathogen_mask_dim", "organelle_mask_dim",
+            *(f"{role}_mask_dim" for role in ORGANELLE_ROLES[1:]),
+            "cytoplasm",
             "timelapse", "timelapse_objects",
         )),
         ("Measurement Features", (
@@ -469,6 +474,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Object Filtering", (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
             "nucleus_min_size", "pathogen_min_size", "organelle_min_size",
+            *(f"{role}_min_size" for role in ORGANELLE_ROLES[1:]),
             "merge_edge_pathogen_cells",
         )),
         ("Crop Output", (
@@ -490,7 +496,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     "timelapse": (
         ("Input & Metadata", (
             "src", "cell_channel", "nucleus_channel", "pathogen_channel",
-            "organelle_channel", "channels", "magnification",
+            "organelle_channel",
+            *(f"{role}_channel" for role in ORGANELLE_ROLES[1:]),
+            "channels", "magnification",
             "metadata_type", "custom_regex",
         )),
         # `timelapse` is not offered here. This module IS the timelapse
@@ -2505,7 +2513,7 @@ def _type_hint(key: str) -> str:
 
 
 def _humanize(key: str) -> str:
-    return key.replace("_", " ").strip().capitalize() if key else ""
+    return setting_label(key) if key else ""
 
 
 def _strip_type_prefix(text: str) -> str:
@@ -4189,7 +4197,7 @@ class SettingsWidgets:
                 return "Exclude"
             if key == "exclude":
                 return "Exclude features"
-        return key.replace("_", " ").capitalize()
+        return setting_label(key)
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:

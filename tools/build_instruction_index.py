@@ -55,7 +55,6 @@ STAGE: Dict[str, str] = {
     "52": "controls rebuilt 2026-08-13; geometry was already right",
     "60": "scoped by the maintainer to mask, utils, measure, deep_spacr",
     "75": "SUPERSEDED by 95 -- can be closed",
-    "76": "not started",
     "93": "filed, not started",
     "94": "~40% -- ladder built, five sites still ungrouped",
     "95": "model + GPU button built; viewer, grid, walk NOT",

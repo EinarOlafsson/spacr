@@ -38,6 +38,8 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .object_roles import ORGANELLE_ROLES
+
 LOG = logging.getLogger("spacr.filters")
 
 #: The table this module owns.
@@ -47,7 +49,7 @@ FILTERS_TABLE = "filters"
 #: requirement: the whole point is that a database with ONLY nuclei, or only
 #: pathogens, or only organelles works exactly as well as the usual one.
 OBJECT_TABLES: Tuple[str, ...] = (
-    "cell", "nucleus", "pathogen", "cytoplasm", "organelle",
+    "cell", "nucleus", "pathogen", "cytoplasm", *ORGANELLE_ROLES,
 )
 
 #: The crop table, joined on the same keys when it exists.

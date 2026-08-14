@@ -27,6 +27,7 @@ import pandas as pd
 import pytest
 
 from spacr import measure_hooks as mh
+from spacr.schema import CANONICAL_OBJECT_TABLES
 from spacr.settings import get_measure_crop_settings
 
 
@@ -140,6 +141,11 @@ def _tables(project):
         names = [row[0] for row in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
         for name in names:
+            # Provenance/bookkeeping tables share measurements.db but are not
+            # region-filtered object measurements.  Keep this helper scoped
+            # to the contract its callers compare.
+            if name not in CANONICAL_OBJECT_TABLES:
+                continue
             frame = pd.read_sql(f'SELECT * FROM "{name}"', con)
             frames[name] = frame.drop(columns=["path_name"], errors="ignore")
     finally:

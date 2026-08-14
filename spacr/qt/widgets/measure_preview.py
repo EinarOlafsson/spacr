@@ -53,11 +53,13 @@ from .preview_contract import (
 )
 from .toggle import Toggle
 from ..job_runner import JobRunner
+from ...crops import DEFAULT_MASK_DIMS
+from ...object_roles import ALL_ROLES, ORGANELLE_ROLES, organelle_label
 
 LOG = logging.getLogger("spacr.qt.measure_preview")
 
-_MASK_DIMS = {"cell": 4, "nucleus": 5, "pathogen": 6, "organelle": 7}
-_OBJECTS = ("cell", "nucleus", "pathogen", "cytoplasm", "organelle")
+_MASK_DIMS = dict(DEFAULT_MASK_DIMS)
+_OBJECTS = tuple(ALL_ROLES)
 _SUPPORTED = (".npy",)
 
 
@@ -376,7 +378,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._object_box.addItems(_OBJECTS)
         self._mask_dims = {
             name: self._spin(
-                -1, 64, value if name != "organelle" else -1,
+                -1, 64, value if name not in ORGANELLE_ROLES else -1,
                 special="Not present", parent=self,
             )
             for name, value in _MASK_DIMS.items()
@@ -843,11 +845,8 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         return {
             "experiment": self._experiment.text().strip() or "exp",
             "channels": _parse_channels(self._measurement_channels.text()),
-            "cell_mask_dim": _optional_spin_value(self._mask_dims["cell"]),
-            "nucleus_mask_dim": _optional_spin_value(self._mask_dims["nucleus"]),
-            "pathogen_mask_dim": _optional_spin_value(self._mask_dims["pathogen"]),
-            "organelle_mask_dim": _optional_spin_value(
-                self._mask_dims["organelle"]),
+            **{f"{name}_mask_dim": _optional_spin_value(widget)
+               for name, widget in self._mask_dims.items()},
             "cytoplasm": self._cytoplasm.isChecked(),
             "plot": self._plot.isChecked(),
             "test_mode": self._test_mode.isChecked(),
@@ -1280,10 +1279,10 @@ class CropSettingsDialog(QDialog):
         form.addRow("Experiment", panel._experiment)
         form.addRow("Measured channels", panel._measurement_channels)
         form.addRow("Preview object", panel._object_box)
-        form.addRow("Cell mask slice", panel._mask_dims["cell"])
-        form.addRow("Nucleus mask slice", panel._mask_dims["nucleus"])
-        form.addRow("Pathogen mask slice", panel._mask_dims["pathogen"])
-        form.addRow("Organelle mask slice", panel._mask_dims["organelle"])
+        for name, widget in panel._mask_dims.items():
+            label = (organelle_label(name) if name in ORGANELLE_ROLES
+                     else name.capitalize())
+            form.addRow(f"{label} mask slice", widget)
         form.addRow("Measure cytoplasm", panel._cytoplasm)
         form.addRow("Plot run diagnostics", panel._plot)
         form.addRow("Test mode", panel._test_mode)
@@ -1342,10 +1341,8 @@ class CropSettingsDialog(QDialog):
             panel._experiment: "experiment",
             panel._measurement_channels: "channels",
             panel._object_box: "crop_mode",
-            panel._mask_dims["cell"]: "cell_mask_dim",
-            panel._mask_dims["nucleus"]: "nucleus_mask_dim",
-            panel._mask_dims["pathogen"]: "pathogen_mask_dim",
-            panel._mask_dims["organelle"]: "organelle_mask_dim",
+            **{widget: f"{name}_mask_dim"
+               for name, widget in panel._mask_dims.items()},
             panel._cytoplasm: "cytoplasm",
             panel._plot: "plot",
             panel._test_mode: "test_mode",

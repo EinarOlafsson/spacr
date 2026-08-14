@@ -36,21 +36,21 @@ def test_every_mask_plane_is_written_back_including_organelle():
     measurement table had already dropped.
     """
     source = measure_source()
-    for role in ("cell", "nucleus", "pathogen", "organelle"):
+    for role in ("cell", "nucleus", "pathogen"):
         needle = f"data[..., settings['{role}_mask_dim']] = {role}_mask"
         alt = f"data[..., settings.get('{role}_mask_dim')] = {role}_mask"
         assert needle in source or alt in source, (
             f"the {role} plane is not written back; its crops will show "
             f"objects the measurements filtered out")
+    assert "for organelle_role, current_mask in organelle_masks.items()" in source
+    assert "data[..., dim] = current_mask.astype(data_type)" in source
 
 
 def test_the_organelle_write_back_follows_the_filter():
     """Writing back BEFORE the filter would put the unfiltered plane in."""
     source = measure_source()
-    filtered_at = source.index(
-        "organelle_mask = _filter_object(organelle_mask")
-    written_at = source.index(
-        "data[..., settings['organelle_mask_dim']] = organelle_mask")
+    filtered_at = source.index("current_mask = _filter_object(current_mask")
+    written_at = source.index("data[..., dim] = current_mask.astype(data_type)")
     assert filtered_at < written_at
 
 
@@ -79,13 +79,13 @@ def test_the_cytoplasm_summary_no_longer_reads_a_key_that_does_not_exist():
 
 def test_it_gates_on_the_boolean_instead():
     source = measure_source()
-    marker = '"cytoplasm" in settings[\'summarize_organelles_by\']'
+    marker = "for parent_name, parent_mask in parent_masks.items():"
     assert marker in source
     # Comments strip first: the fix's own comment explains at length why
     # there is no dim, which pushes the code line well past any fixed window.
     after = source[source.index(marker):source.index(marker) + 2000]
     code = "\n".join(line.split("#", 1)[0] for line in after.splitlines())
-    assert "settings['cytoplasm']" in code
+    assert "parent_enabled[parent_name]" in code
 
 
 # ---------------------------------------------------------------------------
@@ -115,11 +115,10 @@ def test_the_first_filter_runs_before_the_cytoplasm_is_built():
     a silent change to a measured area.
     """
     source = measure_source()
-    first_filter = source.index(
-        "organelle_mask = _filter_object(organelle_mask")
+    first_filter = source.index("current_mask = _filter_object(current_mask")
     cytoplasm_built = source.index("cytoplasm_mask = np.where(interior, 0, cell_mask)")
     second_filter = source.index(
-        "organelle_mask = _filter_object(organelle_mask",
+        "organelle_masks[organelle_role] = _filter_object(",
         first_filter + 1)
 
     assert first_filter < cytoplasm_built < second_filter

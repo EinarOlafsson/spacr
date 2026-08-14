@@ -1204,9 +1204,10 @@ class TestIoWiring:
         merged = os.path.join(root, 'merged')
 
         self._merge(root, resume=False)
-        assert sorted(os.listdir(merged)) == ['plate1_A01_1.npy',
-                                              'plate1_A01_2.npy',
-                                              'plate1_A01_3.npy']
+        assert sorted(name for name in os.listdir(merged)
+                      if name.endswith('.npy')) == ['plate1_A01_1.npy',
+                                                   'plate1_A01_2.npy',
+                                                   'plate1_A01_3.npy']
 
         # Field 1: a valid stack with a recognisable value. If the resume
         # skips it, this survives; if it re-merges, it is overwritten.

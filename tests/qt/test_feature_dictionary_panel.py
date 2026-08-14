@@ -22,6 +22,7 @@ from PySide6.QtWidgets import QTableWidget, QWidget  # noqa: E402
 from PySide6.QtCore import Qt  # noqa: E402
 
 from spacr.qt.widgets import feature_dictionary as fd  # noqa: E402
+from spacr.feature_dict import OBJECT_TYPES  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
@@ -116,7 +117,7 @@ def test_show_column_explains_that_column_not_just_its_feature(panel):
     assert "native image intensity units" in text          # unit
     assert "spacr.measure" in text                          # module
     assert "intensity" in text                              # family
-    assert "cell, nucleus, pathogen, organelle, cytoplasm" in text
+    assert ", ".join(OBJECT_TYPES) in text
 
 
 def test_show_column_says_where_a_feature_is_NOT_written(panel):
