@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-83 done / 4 open (95%).
+84 done / 3 open (96%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -27,10 +27,6 @@ OPEN
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
        [LAST]
        58_remove_claude_as_a_github_contributor.txt
-
-   59  PUBLISH spaCR ON CONDA-FORGE
-       [BLOCKED: needs the maintainer's accounts]
-       59_publish_spacr_on_conda_forge.txt
 
    82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
        [SECOND TO LAST]
@@ -92,6 +88,7 @@ DONE
    55  A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
    56  THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
    57  IMAGE UMAP: DROP THE API LINK DOTS FROM THE SETTINGS
+   59  PUBLISH spaCR ON CONDA-FORGE
    60  EVERY MODULE AT 100% TEST COVERAGE
    61  A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
    62  THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
