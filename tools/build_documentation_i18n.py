@@ -4415,6 +4415,15 @@ API_SHARED_PHRASE_ALLOWLIST_BY_LANGUAGE = {
         "warm page cache ms",
         "zarr format zarr format",
     }),
+    "sv": frozenset({
+        "cp cp cp cp",
+        "information houlsby et al",
+        "pro chatgpt plus pro team google",
+        "sigma max min h w",
+        "test t test mann whitney anova kruskal",
+        "urllib botocore tensorflow asyncio",
+        "zarr format zarr format",
+    }),
 }
 
 _COPIED_ENGLISH_GRAMMAR_WORDS = frozenset({

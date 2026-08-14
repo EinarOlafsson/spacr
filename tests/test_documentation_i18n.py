@@ -219,6 +219,59 @@ def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
         builder.reviewed_api_block_translations(docs, "pt")
 
 
+def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
+    tmp_path, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+
+    source = "Choose the output directory."
+    target = "Välj utdatakatalogen."
+    reviewed = tmp_path / "reviewed"
+    sv = reviewed / "sv"
+    sv.mkdir(parents=True)
+    evidence = {
+        "schema": 1,
+        "language": "sv",
+        "records": [{
+            "table": "setting_tooltips",
+            "key": "output_directory",
+            "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
+            "source": source,
+            "translation": target,
+        }],
+    }
+    evidence_path = sv / "tail.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    monkeypatch.setattr(builder, "REVIEWED_RUNTIME_DIR", reviewed)
+    monkeypatch.setattr(
+        builder,
+        "canonical_sources",
+        lambda: {"setting_tooltips": {"output_directory": source}},
+    )
+    builder.reviewed_runtime_translations.cache_clear()
+
+    assert builder.reviewed_runtime_translations("sv") == {source: target}
+    assert builder._reviewed_translation(source, "sv") == target
+    assert builder._translation_candidate_valid(
+        source, target, "sv", force=True,
+    )
+
+    evidence["records"][0]["source_sha256"] = "0" * 64
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    builder.reviewed_runtime_translations.cache_clear()
+    with pytest.raises(ValueError, match="stale reviewed runtime hash"):
+        builder.reviewed_runtime_translations("sv")
+
+    evidence["records"][0]["source_sha256"] = hashlib.sha256(
+        source.encode()
+    ).hexdigest()
+    evidence["records"][0]["translation"] = source
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    builder.reviewed_runtime_translations.cache_clear()
+    with pytest.raises(ValueError, match="rejected reviewed runtime target"):
+        builder.reviewed_runtime_translations("sv")
+
+
 def test_api_translation_source_disambiguates_model_input_and_hashes_it():
     import build_documentation_i18n as builder
 
@@ -1987,6 +2040,27 @@ def test_german_software_loanwords_do_not_hide_english_fragments():
         "Use drag and drop when the caller chooses a file.",
         "Drag-and-drop verwenden when the caller chooses a file.",
         "de",
+    )
+
+
+def test_swedish_technical_names_do_not_hide_english_fragments():
+    from build_documentation_i18n import _copied_english_phrases
+
+    accepted_terms = {
+        "Use a Mann-Whitney U test with ANOVA and Kruskal.":
+            "Använd Mann–Whitneys U-test tillsammans med ANOVA och Kruskal.",
+        "The urllib3, botocore, tensorflow and asyncio libraries are quiet.":
+            "Biblioteken urllib3, botocore, tensorflow och asyncio är tysta.",
+        "Compute sigma = max(32, min(H, W) / 4).":
+            "Beräkna sigma = max(32, min(H, W) / 4).",
+    }
+    for source, target in accepted_terms.items():
+        assert not _copied_english_phrases(source, target, "sv")
+
+    assert _copied_english_phrases(
+        "Use a Mann-Whitney U test when the caller selects it.",
+        "Använd Mann–Whitneys U-test when the caller selects it.",
+        "sv",
     )
 
 
