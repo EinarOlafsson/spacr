@@ -37,6 +37,38 @@ Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see
            2026-08-10 — "the audio is now available but it is verry hacky when i listen on my phone. i havnt tested a desktop yet. but it should be smooth on my phone. the highlight windows look good! the first one with the pypi spacr box now starts at the right place bit dosnt encasulate all the text assoceated with the releas so it needs to be widened to the right to do this. also i heared that the pronounsiation of Nvidia and CUDA was strange.CPU Nvidia CUDA all sound super wierd thevoice slows down on certain sylables, please find a phonetic reference for these types of words so the video sounds normal. the pronounciation of spacr is fine though."
            2026-08-13 — "continue where you left of please complete the tutorials task"
            2026-08-13 — "og go through what is left and dont stop untill it is done.  this is tour goal."
+           2026-08-14 — "the screens and tests that you have done, I hope you are saving them so they can be applied later next time I order an audit of the tutorials, save them in the package if you have not already done so, as tests, as a skill, or in whatever format you want as long as all this effor you have put in to building quality controlls for the Tutorials can be reapplied."
+
+--------------------------------------------------------------------------------
+CURRENT CLOSEOUT CHECKPOINT — 2026-08-14
+--------------------------------------------------------------------------------
+
+The rebuilt release itself is complete: 69 lessons, 487 purposeful scenes,
+eight narration languages, 50 intentional voices, 3,450 strict-freshness audio
+tracks, and 69 4K masters. Hosted media is published at Hugging Face commit
+``17af9e67b7dbd16c465e7f494091eb830728e161``. The derived Pages bundle was
+committed to nightly at ``de4d0f9940861f1a96b328f0e595e655ba799a3d`` and
+merged to main through PR #95 at
+``6c42b3a84725c89400830a7709f1735ef106744f``.
+
+The reusable quality controls are now part of the repository at
+``a732988b``: ``.claude/skills/tutorial-release-audit`` records the complete
+release contract, ``tools/sample_tutorial_frames.py`` deterministically
+recreates all scene-review stills and a hash manifest from the committed
+masters and hosted timings, ``tools/verify_tutorial_live.py`` checks exact
+published hashes plus real phone-sized narration/caption/pause/end/replay
+behavior, and ``tests/test_tutorial_release_audit.py`` pins the inventory and
+the tools. This avoids committing a second 700+ MiB screenshot archive while
+making the full screen audit repeatable.
+
+Local acceptance is green, including the reusable 390 x 844 browser audit.
+The public Pages site has not advanced because the standard main-only docs
+workflow correctly stopped at instruction 83's stale API/runtime localization
+catalogs before uploading a Pages artifact. Do not bypass that gate. The only
+remaining tutorial closeout sequence is: finish and merge the localization
+batch, rerun the standard main docs workflow, require the live asset hashes and
+mobile browser audit to pass, then move this instruction to done and refresh
+the ledger.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -62,7 +94,7 @@ aborted whenever the lesson or voice changes.
 
 Sphinx does not copy the complete production library. The current media policy
 stages the player, posters, captions, and 1440p silent videos, with no narration
-duplicated into GitHub Pages. All 53 supported voices, their timing sidecars, and the 4K
+duplicated into GitHub Pages. All 50 supported voices, their timing sidecars, and the 4K
 masters are served from Hugging Face. `.github/workflows/docs.yml` builds on
 main and nightly but deploys GitHub Pages only from main.
 
