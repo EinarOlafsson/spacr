@@ -70,7 +70,9 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
     }
     assert set(tool.OWNERS) <= open_numbers
     for number in tool.OWNERS:
-        block = [b for b in text.split("\n\n") if b.strip().startswith(number)]
+        paths = list((INSTRUCTIONS / "open").glob(f"{number}_*.txt"))
+        assert len(paths) == 1, number
+        block = [b for b in text.split("\n\n") if paths[0].name in b]
         assert block, f"instruction {number} is not in the index"
         assert "DO NOT TOUCH" in block[0], number
 
