@@ -108,19 +108,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     ) == _NEW_VISIBLE_DIGEST
     assert dunders | assignments <= docs.keys()
 
-    # 6238 canonical bodies plus 119 exact materialized aliases. The 29 shared
-    # bodies are the shared live-view contract — `spacr.qt.widgets.
-    # preview_contract` and its members (14), and the run/cancel/blocked-reason
-    # API the four preview panels gained when they adopted it (15). The final
-    # body is Measure's now-public settings-seeding contract; the latest one
-    # documents the class-folder naming helper. Catalog regeneration must
-    # include all 6,357 records; the two WAL-safety helpers are intentionally
-    # public because callers need to inspect and apply the same policy, and
-    # ``cellpose_rescale`` documents the cross-version Cellpose adaptation.
-    # ``MergePolicy.how_for`` is public because every table reader must apply
-    # the same object-cardinality contract.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6238
-    assert len(docs) == 6357
+    # Freeze the complete public API surface together with its exact aliases.
+    # Any intentional public docstring addition must update this count and
+    # regenerate all target catalogs in the same change; otherwise localized
+    # API pages would silently omit the new contract.
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6397
+    assert len(docs) == 6516
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

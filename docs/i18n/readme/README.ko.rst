@@ -120,8 +120,8 @@ Linux에서 다운로드된 설치기를 열기 전에 실행할 수 있도록 �
 
 .. code-block:: bash
 
-   chmod +x SpaCR-*-Linux-x86_64-Online.run
-   ./SpaCR-*-Linux-x86_64-Online.run
+   chmod +x spaCR-*-Linux-x86_64-Online.run
+   ./spaCR-*-Linux-x86_64-Online.run
 
 macOS에서는 다운로드한 ``.pkg`` 파일을 여십시오. 현재 베타 설치 프로그램이 공증되지 않아 Gatekeeper에서 차단되면 **시스템 설정 → 개인정보 보호 및 보안** 을 열고 spaCR에 대해 **그래도 열기** 를 선택한 다음 패키지를 다시 실행하십시오.
 
