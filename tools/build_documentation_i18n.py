@@ -25,6 +25,8 @@ from typing import Callable, Iterable, Mapping
 
 from build_i18n_catalogs import (
     MODEL_SPECS,
+    SECONDARY_LICENSE,
+    SECONDARY_MODEL,
     _COMPUTE_RUN_SOURCE,
     _COMPUTE_THREAD_SOURCE,
     _CONTEXT_HARD_PROTECT_RE,
@@ -4748,6 +4750,8 @@ def write_language(
         "language": language,
         "generator": model,
         "license": license_name,
+        "secondary_generator": SECONDARY_MODEL,
+        "secondary_license": SECONDARY_LICENSE,
         **({"normalizer": "OpenCC 1.1+ t2s"}
            if language == "zh_CN" else {}),
         "symbols": symbols,
@@ -5197,6 +5201,14 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         payload = json.loads(path.read_text(encoding="utf-8"))
         if payload.get("schema") != 2:
             failures.append(f"{language}: API manifest schema is not 2")
+        if payload.get("secondary_generator") != SECONDARY_MODEL:
+            failures.append(
+                f"{language}: API secondary generator provenance is stale"
+            )
+        if payload.get("secondary_license") != SECONDARY_LICENSE:
+            failures.append(
+                f"{language}: API secondary license provenance is stale"
+            )
         if language == "zh_CN" and payload.get("normalizer") != (
             "OpenCC 1.1+ t2s"
         ):

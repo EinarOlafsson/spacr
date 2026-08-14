@@ -1579,6 +1579,55 @@ def test_translation_rejection_reasons_separate_mechanical_and_linguistic():
     ) == {"caller_gate"}
 
 
+def test_context_repairs_cannot_disguise_an_exact_english_fallback():
+    from build_i18n_catalogs import _translation_rejection_reasons
+
+    source = "Record the export. Default True."
+    reasons = _translation_rejection_reasons(
+        source, source, "pt", force=True,
+    )
+
+    assert "exact" in reasons
+
+
+def test_reviewed_context_repair_clears_the_wrong_scientific_screen_sense():
+    from build_i18n_catalogs import (
+        _contextualize,
+        _semantic_false_friends,
+        _translation_rejection_reasons,
+    )
+
+    source = "Classify a pooled screen before regression."
+    raw = "Classifique uma tela agrupada antes da regressão."
+    corrected = _contextualize(raw, "pt", source)
+
+    assert _semantic_false_friends(source, raw, "pt")
+    assert corrected == "Classifique uma triagem agrupada antes da regressão."
+    assert not _translation_rejection_reasons(
+        source, corrected, "pt", force=True,
+    )
+
+
+def test_portuguese_exception_and_dictionary_senses_are_reviewed():
+    from build_i18n_catalogs import _contextualize, _semantic_false_friends
+
+    exception_source = "A typo changes the result rather than raising."
+    exception = _contextualize(
+        "Um erro muda o resultado em vez de aumentar.",
+        "pt",
+        exception_source,
+    )
+    assert exception.endswith("em vez de gerar um erro.")
+    assert not _semantic_false_friends(exception_source, exception, "pt")
+
+    dictionary_source = "The Classes dict names each class."
+    dictionary = _contextualize(
+        "O ditado Classes nomeia cada classe.", "pt", dictionary_source,
+    )
+    assert dictionary == "O dicionário Classes nomeia cada classe."
+    assert not _semantic_false_friends(dictionary_source, dictionary, "pt")
+
+
 def test_rejected_models_use_the_reviewed_permissive_replacement():
     from build_i18n_catalogs import MODEL_SPECS
 

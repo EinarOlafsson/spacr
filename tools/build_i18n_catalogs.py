@@ -10,7 +10,8 @@ their canonical English sources:
 * static text owned by Qt widgets, actions, dialogs and notices.
 
 Translations are generated with permissively licensed Helsinki OPUS models
-or M2M100, according to the target language.  Those checkpoints use
+or M2M100, according to the target language. Strictly rejected hard tails may
+be retried with the Apache-2.0 MADLAD-400 checkpoint. Those checkpoints use
 Apache-2.0, CC-BY-4.0 or MIT terms, unlike the
 research-only NLLB checkpoint used by the separate non-commercial tutorial
 project.  Identifiers, paths, URLs, format fields, units and scientific brand
@@ -73,6 +74,19 @@ MODEL_SPECS = {
     "ko": ("facebook/m2m100_418M", "../m2m100_418M", "MIT", ""),
     "is": ("facebook/m2m100_418M", "../m2m100_418M", "MIT", ""),
     "fr": ("Helsinki-NLP/opus-mt-en-fr", "en-fr", "Apache-2.0", ""),
+}
+
+# OPUS and M2M remain the stable primary routes and preserve existing cache
+# identity. MADLAD is a local-only, permissively licensed secondary route for
+# entries that still fail every primary whole-sentence, clause, and fragment
+# attempt. Its output receives exactly the same structural and semantic gates;
+# its presence can never turn a failed candidate into an accepted one.
+SECONDARY_MODEL = "google/madlad400-3b-mt"
+SECONDARY_MODEL_FOLDER = "../madlad400-3b-mt"
+SECONDARY_LICENSE = "Apache-2.0"
+SECONDARY_LANGUAGE_TAGS = {
+    "sv": "sv", "de": "de", "es": "es", "zh_CN": "zh",
+    "pt": "pt", "hi": "hi", "ko": "ko", "is": "is", "fr": "fr",
 }
 
 NATIVE_LANGUAGE_NAMES = {
@@ -1213,7 +1227,8 @@ def _raise_sense_counts(source: str) -> tuple[int, int, int]:
     )
     quantitative_after = re.compile(
         r"^\s+(?:the\s+)?(?:reported\s+)?(?:power|threshold|value|count|"
-        r"rate|score|number|limit|amount|share|mean|floor|ceiling|contrast)\b|"
+        r"rate|score|number|limit|amount|share|mean|floor|ceiling|contrast|"
+        r"tolerance|failure\s+tolerance)\b|"
         r"^.{0,70}\b(?:by|to)\s+[-+]?\d",
         re.IGNORECASE,
     )
@@ -1500,8 +1515,12 @@ def _translation_rejection_reasons(
         and _has_traditional_chinese_prose(candidate)
     ):
         failures.add("target_script")
+    # Context repair must never disguise an English fallback as a translation.
+    # Several source-conditioned substitutions also match canonical English
+    # (for example ``Default`` -> ``Padrão``); checking only the repaired value
+    # admitted a mostly-English source after changing that one word.
     if (
-        candidate == source_text
+        (raw_value == source_text or candidate == source_text)
         and (force or _looks_translatable(source_text))
     ):
         failures.add("exact")
@@ -1739,6 +1758,13 @@ SOURCE_CONTEXT_REGEX_REPLACEMENTS: Mapping[
         (r"\bwells?\b", r"井", "孔"),
     ),
     "pt": (
+        (
+            r"(?is)\b(?:rather than|instead of|without)\s+raising\b",
+            r"\b(?:em|ao) vez de aumentar\b",
+            "em vez de gerar um erro",
+        ),
+        (_DICTIONARY_SOURCE, r"\b[Dd]itad(?:o|os|a|as)\b", "dicionário"),
+        (r"(?is)\bwell matches\b", r"\bcombina bem com\b", "o poço corresponde a"),
         (r"\bcrops?\b", r"\bcolheitas\b", "recortes"),
         (r"\bcrops?\b", r"\bcolheita\b", "recorte"),
         (r"\bcrops?\b", r"\bculturas\b", "recortes"),
@@ -3857,15 +3883,12 @@ def _translate_batches(
     def evaluate_raw_candidate(
         source: str, raw_value: str,
     ) -> tuple[str, frozenset[str]]:
-        raw_semantic_failure = bool(
-            _semantic_false_friends(source, raw_value, language)
-        )
+        # Source-conditioned terminology review is the correction mechanism,
+        # not evidence that a candidate must remain rejected. Validate the
+        # corrected value; the semantic gate below still rejects any wrong
+        # sense not covered by an exact reviewed source rule.
         candidate = normalize_candidate(source, raw_value)
-        failures = candidate_failures(
-            source,
-            candidate,
-            raw_semantic_failure=raw_semantic_failure,
-        )
+        failures = candidate_failures(source, candidate)
         if not failures and not candidate_valid(source, candidate):
             failures = frozenset({"caller_gate"})
         return candidate, failures
@@ -4302,9 +4325,6 @@ def _translate_batches(
                 translated[source] = source
                 finalized.add(source)
                 return
-            raw_semantic_failure = _semantic_false_friends(
-                source, raw_candidate, language,
-            )
             candidate = _contextualize(raw_candidate, language, source)
             if language == "zh_CN":
                 candidate = _simplify_chinese_prose(candidate)
@@ -4326,7 +4346,7 @@ def _translate_batches(
                 )
                 cache.pop(cache_key(source), None)
                 translated[source] = source
-            elif raw_semantic_failure or _semantic_false_friends(
+            elif _semantic_false_friends(
                 source, candidate, language,
             ):
                 rejected_reasons["semantic"] += 1
@@ -4433,12 +4453,174 @@ def _translate_batches(
                 flush=True,
             )
 
+    # Primary checkpoints are intentionally conservative around scientific
+    # prose. A model can be fluent yet repeatedly drop the last literal or use
+    # a technically wrong everyday sense (for example ``stale`` as an
+    # impasse). Retry only the still-invalid hard tail with MADLAD-400 when the
+    # reviewed local checkpoint is present. This is not a gate bypass: every
+    # recomposed paragraph goes back through ``evaluate_raw_candidate``, which
+    # includes the caller's API-context contract when one was supplied.
+    secondary_path = model_root / SECONDARY_MODEL_FOLDER
+    secondary_sources = [] if not (
+        allow_secondary_repairs and secondary_path.is_dir()
+    ) else _current_invalid_sources(
+        all_generated_sources, translated, candidate_valid,
+    )
+    primary_model_loaded = True
+    if secondary_sources:
+        del model
+        primary_model_loaded = False
+        if device == "cuda":
+            torch.cuda.empty_cache()
+
+        secondary_tokenizer = AutoTokenizer.from_pretrained(
+            secondary_path, local_files_only=True,
+        )
+        secondary_model = AutoModelForSeq2SeqLM.from_pretrained(
+            secondary_path, local_files_only=True,
+        )
+        if device == "cuda":
+            secondary_model = secondary_model.half().to("cuda")
+        secondary_model.eval()
+        secondary_tag = SECONDARY_LANGUAGE_TAGS[language]
+
+        secondary_inputs: list[str] = []
+        secondary_protected: list[str] = []
+        secondary_maps: list[dict[str, str]] = []
+        secondary_owners: list[tuple[str, int]] = []
+        secondary_chunks: dict[str, list[str]] = {}
+        for source in secondary_sources:
+            chunks = _translation_chunks(source, limit=280)
+            secondary_chunks[source] = chunks
+            for index, chunk in enumerate(chunks):
+                protected, mapping = _protect(
+                    chunk, marker_style="numeric",
+                )
+                secondary_inputs.append(f"<2{secondary_tag}> {protected}")
+                secondary_protected.append(protected)
+                secondary_maps.append(mapping)
+                secondary_owners.append((source, index))
+
+        secondary_values: dict[str, list[list[str | None]]] = {
+            source: [[None] * rank_count for _chunk in chunks]
+            for source, chunks in secondary_chunks.items()
+        }
+        secondary_failures: defaultdict[str, set[str]] = defaultdict(set)
+        secondary_batch_size = max(1, min(batch_size, 12))
+        for start in range(0, len(secondary_inputs), secondary_batch_size):
+            batch = secondary_inputs[start:start + secondary_batch_size]
+            encoded = secondary_tokenizer(
+                batch, return_tensors="pt", padding=True, truncation=False,
+            )
+            if device == "cuda":
+                encoded = {
+                    key: value.to("cuda") for key, value in encoded.items()
+                }
+            input_width = int(encoded["input_ids"].shape[1])
+            with torch.inference_mode():
+                output = secondary_model.generate(
+                    **encoded,
+                    max_new_tokens=min(480, max(64, input_width * 3 + 48)),
+                    **ranked_generation,
+                    **generation_kwargs,
+                )
+            decoded = secondary_tokenizer.batch_decode(
+                output, skip_special_tokens=True,
+            )
+            ranked_outputs = _group_ranked_outputs(
+                output, decoded, len(batch), rank_count,
+            )
+            secondary_eos = secondary_tokenizer.eos_token_id
+            for offset, candidates in enumerate(ranked_outputs):
+                owner, chunk_index = secondary_owners[start + offset]
+                for rank, (sequence, value) in enumerate(candidates):
+                    if (
+                        secondary_eos is not None
+                        and int(secondary_eos)
+                        not in sequence.detach().cpu().tolist()
+                    ):
+                        secondary_failures[owner].add("eos")
+                        continue
+                    try:
+                        secondary_values[owner][chunk_index][rank] = _restore(
+                            value,
+                            secondary_maps[start + offset],
+                            protected_text=secondary_protected[start + offset],
+                        )
+                    except ValueError:
+                        secondary_failures[owner].add("marker_restore")
+            print(
+                f"{language}: MADLAD pieces="
+                f"{min(start + len(batch), len(secondary_inputs))}/"
+                f"{len(secondary_inputs)}",
+                flush=True,
+            )
+
+        secondary_accepted = 0
+        for source, chunk_values in secondary_values.items():
+            raw_candidates = _rank_aligned_joins(
+                chunk_values,
+                lambda pieces: " ".join(piece.strip() for piece in pieces),
+            )
+            # A rank can be rejected for one sentence while being the only
+            # beam that preserved a literal in another. Add bounded
+            # one-coordinate variants around the first complete combination;
+            # never take an unbounded Cartesian product of a long tooltip.
+            baseline = [
+                next((value for value in values if value is not None), None)
+                for values in chunk_values
+            ]
+            if all(value is not None for value in baseline):
+                raw_candidates.append(
+                    " ".join(str(value).strip() for value in baseline)
+                )
+                for chunk_index, values in enumerate(chunk_values):
+                    for value in values[1:]:
+                        if value is None:
+                            continue
+                        variant = list(baseline)
+                        variant[chunk_index] = value
+                        raw_candidates.append(
+                            " ".join(str(piece).strip() for piece in variant)
+                        )
+
+            candidate = None
+            seen: set[str] = set()
+            for raw_candidate in raw_candidates:
+                if raw_candidate is None or raw_candidate in seen:
+                    continue
+                seen.add(raw_candidate)
+                evaluated, failures = evaluate_raw_candidate(
+                    source, raw_candidate,
+                )
+                if not failures:
+                    candidate = evaluated
+                    break
+                secondary_failures[source].update(failures)
+            if candidate is None:
+                translated[source] = source
+                cache.pop(cache_key(source), None)
+                continue
+            translated[source] = candidate
+            checkpoint_candidate(source, candidate)
+            secondary_accepted += 1
+        checkpoint_cache()
+        print(
+            f"{language}: MADLAD retry accepted={secondary_accepted}/"
+            f"{len(secondary_sources)}",
+            flush=True,
+        )
+        del secondary_model
+        if device == "cuda":
+            torch.cuda.empty_cache()
+
     for source, value in tuple(translated.items()):
         if not candidate_valid(source, value):
             translated[source] = source
             cache.pop(cache_key(source), None)
 
-    del model
+    if primary_model_loaded:
+        del model
     if device == "cuda":
         torch.cuda.empty_cache()
     return translated
@@ -4515,9 +4697,12 @@ def write_language(
     text = (
         f'"""spaCR localization catalog for {language}.\n\n'
         f"Drafted with {model_id} ({license_name}) and corrected by spaCR's "
-        "technical-context review. Generated by tools/build_i18n_catalogs.py.\n"
+        f"technical-context review. Rejected tails may use {SECONDARY_MODEL} "
+        f"({SECONDARY_LICENSE}). Generated by tools/build_i18n_catalogs.py.\n"
         '"""\n\n'
         + f'MODEL = {model_id!r}\nLICENSE = {license_name!r}\n'
+        + f'SECONDARY_MODEL = {SECONDARY_MODEL!r}\n'
+        + f'SECONDARY_LICENSE = {SECONDARY_LICENSE!r}\n'
         + ('NORMALIZER = "OpenCC 1.1+ t2s"\n'
            if language == "zh_CN" else '')
         + "\n"
@@ -4616,6 +4801,14 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
         except FileNotFoundError:
             failures.append(f"{language}: catalog module is missing")
             continue
+        if getattr(module, "SECONDARY_MODEL", None) != SECONDARY_MODEL:
+            failures.append(
+                f"{language}: secondary translation model provenance is stale"
+            )
+        if getattr(module, "SECONDARY_LICENSE", None) != SECONDARY_LICENSE:
+            failures.append(
+                f"{language}: secondary translation license provenance is stale"
+            )
         tables = {
             "SETTING_LABELS": expected_labels,
             "SETTING_TOOLTIPS": expected_tips,
