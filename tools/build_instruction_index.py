@@ -78,7 +78,12 @@ def _entries(folder: str) -> List[Tuple[str, str, str]]:
         lines = path.read_text(errors="replace").splitlines()
         title = lines[1].strip() if len(lines) > 1 else path.stem
         out.append((number, title, path.name))
-    return sorted(out, key=lambda row: int(row[0]))
+    # Instruction 84 exists twice, so the numeric id is not a unique sort
+    # key.  ``Path.glob`` preserves the filesystem's directory-entry order,
+    # which is not stable between a developer checkout and a GitHub runner.
+    # Include the filename as the tie-breaker so a checkout cannot make the
+    # committed index appear stale without any content changing.
+    return sorted(out, key=lambda row: (int(row[0]), row[2]))
 
 
 def _note_for(number: str) -> str:
