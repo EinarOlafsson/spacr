@@ -2245,6 +2245,8 @@ def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
                     source_folder, crop_mode='cell', timelapse=None,
                     object_id=None):
     """Build the ``(image_name, folder_path, table_name)`` tuple for a cropped object."""
+    file_name = schema.escape_field_stem_plate(
+        file_name, timelapse=bool(timelapse))
     non_zero_cell_ids = cell_id[cell_id != 0]
     cell_id_str = "multi" if non_zero_cell_ids.size > 1 else str(non_zero_cell_ids[0]) if non_zero_cell_ids.size == 1 else "none"
     cell_nucleus_ids = cell_nucleus_ids[cell_nucleus_ids != 0]

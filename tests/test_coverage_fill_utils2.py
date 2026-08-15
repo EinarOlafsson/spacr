@@ -420,6 +420,15 @@ def test_generate_names_cell():
     assert "single_nucleus" in fldr and "single_pathogen" in fldr
 
 
+def test_generate_names_escapes_an_underscored_plate():
+    img_name, _fldr, _table = U._generate_names(
+        "my_plate_A01_1", np.array([5]), np.array([2]), np.array([3]),
+        "/src", crop_mode="cell")
+    assert img_name == "my%5Fplate_A01_1_5.png"
+    parsed = __import__("spacr.schema", fromlist=["parse_object_stem"])
+    assert parsed.parse_object_stem(img_name).plateID == "my_plate"
+
+
 def test_generate_names_nucleus_multi():
     img_name, fldr, table = U._generate_names(
         "plate1_A01_1", np.array([5]), np.array([2, 3]), np.array([0]),
@@ -429,7 +438,7 @@ def test_generate_names_nucleus_multi():
 
 def test_generate_names_pathogen_timelapse():
     img_name, fldr, table = U._generate_names(
-        "plate1_A01_2", np.array([5]), np.array([0]), np.array([3]),
+        "plate1_A01_1_2", np.array([5]), np.array([0]), np.array([3]),
         "/src", crop_mode="pathogen", timelapse=True)
     assert "infected" in fldr
 
