@@ -120,8 +120,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # +14: the shared metadata resolver and the two desktop picker surfaces.
     # +5: explicit regression input pairing, generated setting-applicability
     # rules, and the paired-file table/pairing proposal helpers.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6524
-    assert len(docs) == 6643
+    # +5: the regression settings sweep in spacr.regression_search --
+    # SearchSpace, SearchSpace.size, build_trials, run_search and
+    # summarise_search. Enumerated rather than counted: this ratchet is only
+    # worth having if a bump names what it admitted.
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6529
+    assert len(docs) == 6648
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
