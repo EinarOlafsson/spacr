@@ -423,15 +423,36 @@ def test_an_empty_component_is_refused(field, position):
 
 
 @given(plate=plate_names, row=row_indices, column=column_indices)
-def test_a_plate_containing_the_separator_is_refused(plate, row, column):
-    """The key is separator-joined, so the plate may not contain one.
+def test_a_plate_containing_the_separator_is_escaped_and_round_trips(
+        plate, row, column):
+    """The key is separator-joined, so the plate may not *carry* one raw.
 
-    Refusing at *compose* time is what makes the round-trip and injectivity
-    properties above true at all: a plate called ``'a_b'`` and a plate called
-    ``'a'`` with row ``'b'`` would otherwise write the same key.
+    This used to demand a ``KeyParseError``, because refusing at compose time
+    was what made the round-trip and injectivity properties above true: a
+    plate called ``'a_b'`` and a plate called ``'a'`` with row ``'b'`` would
+    otherwise write the same key.
+
+    Escaping keeps that guarantee and drops the refusal, which is the better
+    trade for a name that comes off disk: a user cannot go back and rename a
+    plate in a database they already have, so refusing turned a readable run
+    into one that raises. ``'a_b'`` composes to ``'a%5Fb_r1_c1'`` and parses
+    back to ``'a_b'``, so the separator never reaches the key and the plate
+    is not lost — which is strictly more than refusing delivered.
+
+    The property is therefore now the thing refusal was protecting, stated
+    directly: compose, split, and get the same plate back.
     """
-    with pytest.raises(S.KeyParseError):
-        S.compose_prc(plate.strip() + SEP + 'x', row, column)
+    original = plate.strip() + SEP + 'x'
+
+    # The raw separator never reaches the key: exactly the two the composer
+    # put there itself, between plate, row and column.
+    assert S.compose_prc(original, row, column).count(SEP) == 2
+
+    # And the plate survives the trip. prcf is the shortest key with a
+    # parser (there is no parse_prc), so the round trip is asserted there.
+    key = S.compose_prcf(original, row, column, 1)
+    assert key.count(SEP) == 3, key
+    assert S.parse_prcf(key).plateID == original
 
 
 @given(field=field_ids())
