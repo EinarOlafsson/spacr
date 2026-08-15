@@ -42,7 +42,11 @@ def test_requires_at_least_one_channel(tmp_path, capsys):
         pathogen_channel=None, organelle_channel=None))
     assert out is None
     printed = capsys.readouterr().out
-    assert "at least one of" in printed.lower()
+    # The PROPERTY, not the sentence: it refuses and says an object channel
+    # is what is missing. The wording moved to "at least one registered
+    # object channel" when organelle slots became registrable, and pinning
+    # the old phrase failed for a message that got more accurate.
+    assert "object channel" in printed.lower()
 
 
 def test_save_bool_is_expanded_to_list(tmp_path):

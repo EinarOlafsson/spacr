@@ -68,7 +68,13 @@ def test_codex_owned_open_files_are_marked_do_not_touch():
         path.name.split("_", 1)[0]
         for path in (INSTRUCTIONS / "open").glob("*.txt")
     }
-    assert set(tool.OWNERS) <= open_numbers
+    # An owner whose instruction has since been DONE is the normal end state.
+    # Asserting every owner is still open made the index fail for work being
+    # finished, which is the opposite of what this guard is for.
+    stale = {n for n in tool.OWNERS if n not in open_numbers}
+    assert not stale, (
+        f"OWNERS names {sorted(stale)}, which are no longer open; remove "
+        f"them so the marking tracks the folder")
     for number in tool.OWNERS:
         paths = list((INSTRUCTIONS / "open").glob(f"{number}_*.txt"))
         assert len(paths) == 1, number
