@@ -44,6 +44,7 @@ _KEY_SPEED = "ai/response_speed"
 _KEY_PROMPT = "ai/system_prompt"
 _KEY_AUTO_ISSUE = "ai/auto_file_issues"
 _KEY_ROUTE_ERRORS = "ai/route_errors_through_ai"
+_KEY_CONSOLE_AWARE = "ai/console_aware"
 
 VALID_SPEEDS = ("fast", "balanced", "deep")
 DEFAULT_SPEED = "balanced"
@@ -201,3 +202,34 @@ def get_route_errors_through_ai() -> bool:
 def set_route_errors_through_ai(enabled: bool) -> None:
     """Persist the route-errors-through-AI toggle."""
     _settings().setValue(_KEY_ROUTE_ERRORS, bool(enabled))
+
+
+def get_console_aware() -> bool:
+    """Return True iff the console goes to the AI with a question.
+
+    On by default, because the chat is switched on AFTER something goes
+    wrong -- that is the only time anyone switches it on -- and the question
+    it exists to answer is "what went wrong, explain based on the console".
+    A chat that cannot see the error it was opened for answers nothing.
+
+    This replaced a three-mode dropdown (Auto / Include / Off) that sat
+    permanently beside the chat input. Auto and Include differed only in HOW
+    MUCH was sent, which is an implementation concern rather than something
+    to ask a user about on every question; and the answer to "should the AI
+    see my console" is the same for every question a given user ever asks,
+    which is what makes it a preference and not a mode selector.
+
+    How much is sent, and the tail/traceback rules that decide it, are
+    ``ConsolePanel``'s business -- see
+    :meth:`spacr.qt.widgets.console_panel.ConsolePanel._console_context_for_question`.
+    What was actually attached is reported on the message it went with.
+    """
+    raw = _settings().value(_KEY_CONSOLE_AWARE, True)   # default ON
+    if isinstance(raw, bool):
+        return raw
+    return str(raw).lower() in ("true", "1", "yes")
+
+
+def set_console_aware(enabled: bool) -> None:
+    """Persist the console-aware toggle."""
+    _settings().setValue(_KEY_CONSOLE_AWARE, bool(enabled))
