@@ -130,6 +130,10 @@ def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None):
     src = _one_field(tmp_path)
     _RecordingPool.created = []
     monkeypatch.setattr(mp, 'Pool', _RecordingPool)
+    # These assertions cover resolution of the requested worker count, not
+    # the separate spawn/forkserver optimization that caps workers to files.
+    # Python 3.14 changed Linux's default away from fork, so pin this seam.
+    monkeypatch.setattr(mp, 'get_start_method', lambda: 'fork')
     if cpu_count is not None:
         monkeypatch.setattr(mp, 'cpu_count', lambda: cpu_count)
     from spacr.settings import get_measure_crop_settings
