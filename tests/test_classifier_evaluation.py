@@ -42,6 +42,20 @@ def test_sample_identity_parses_canonical_prcfo_row_and_column_tokens():
     assert identity["well"] == "plate1_r1_c1"
     assert identity["field"] == "plate1_r1_c1_f2"
 
+    underscored = sample_identity("screen_1_r1_c1_f2_o7.png")
+    assert underscored["plate"] == "screen_1"
+    assert underscored["well"] == "screen_1_r1_c1"
+    assert underscored["field"] == "screen_1_r1_c1_f2"
+
+
+def test_sample_identity_parses_separate_letter_and_number_well_tokens():
+    from spacr.classifier_evaluation import sample_identity
+
+    identity = sample_identity("screen_1_A_01_1_7.png")
+    assert identity["plate"] == "screen_1"
+    assert identity["well"] == "screen_1_A_01"
+    assert identity["field"] == "screen_1_A_01_1"
+
 
 def test_leakage_audit_finds_object_and_requested_group_overlap():
     from spacr.classifier_evaluation import audit_split_leakage

@@ -22,6 +22,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -76,9 +77,12 @@ def test_the_committed_notebooks_match_what_the_tool_generates():
     """
     import subprocess
 
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("SPACR_")}
+    env["PYTHONPATH"] = str(REPO)
     result = subprocess.run(
         [sys.executable, str(TOOL), "--check"],
-        cwd=str(REPO), capture_output=True, text=True)
+        cwd=str(REPO), env=env, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
