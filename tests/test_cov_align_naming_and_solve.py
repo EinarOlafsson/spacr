@@ -233,7 +233,6 @@ PER_WELL_GRID_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=PER_WELL_GRID_BUG)
 def test_grid_describes_one_wells_acquisition_not_the_whole_folder(tmp_path):
     """``grid=(2, 2)`` on a two-well plate means 2x2 *per well*.
 

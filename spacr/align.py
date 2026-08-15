@@ -1019,7 +1019,8 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
                order: str = 'row-major',
                recursive: bool = False,
                positions: Optional[Mapping[int, Sequence[float]]] = None,
-               reference_channel: Optional[int] = None) -> List[Tile]:
+               reference_channel: Optional[int] = None,
+               group_by_well: bool = False) -> List[Tile]:
     """Return one :class:`Tile` per stage position, **without reading pixels**.
 
     Every file's shape and dtype comes out of its header. A folder of
@@ -1045,6 +1046,15 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
         microscope's real coordinates when you have them.
     :param reference_channel: which channel drives registration. Defaults
         to the lowest channel present.
+    :param group_by_well: lay ``grid`` out **once per well** instead of once
+        across the whole folder. A grid is a property of the acquisition and
+        the acquisition is per well — the same field pattern is repeated in
+        every well — so a folder holding two wells imaged 2x2 is two 2x2
+        grids, not one 2x4. With this off, such a folder was refused with
+        "grid 2x2 has room for 4 tiles but 8 were found", and ``grid=None``
+        inferred a single 2x4 that laid each well out as a 1x4 strip and put
+        its vertical neighbours outside the overlap. :func:`align_folder`
+        passes its own ``group_by_well`` setting through.
     :returns: tiles in grid order, each with ``index`` set.
     :raises ConfigurationError: ``src`` does not exist, or ``grid`` is too
         small for the tiles found.
@@ -1075,7 +1085,22 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
         record['paths'][int(meta['channel'])] = path
 
     keys = sorted(order_seen, key=lambda k: (sites[k]['first'],))
-    rows, cols = _grid_shape(len(keys), grid)
+
+    # The grid is laid out once per well when the caller groups by well, and
+    # once across the folder otherwise. `index` stays globally unique either
+    # way -- it keys the reader cache and names tiles in pair results -- so
+    # only the position WITHIN a grid is per group.
+    if group_by_well:
+        groups: "Dict[Tuple[str, str], List[Tuple[str, str, int]]]" = {}
+        for key in keys:
+            groups.setdefault((key[0], key[1]), []).append(key)
+    else:
+        groups = {('', ''): list(keys)}
+    layout: "Dict[Tuple[str, str, int], Tuple[int, int]]" = {}
+    for members in groups.values():
+        rows, cols = _grid_shape(len(members), grid)
+        for position_in_group, key in enumerate(members):
+            layout[key] = _grid_position(position_in_group, rows, cols, order)
 
     tiles: List[Tile] = []
     for k, key in enumerate(keys):
@@ -1086,7 +1111,7 @@ def scan_tiles(src: Union[str, os.PathLike, Sequence[Any]],
             ref = channels[0]
         ref_path = record['paths'][ref]
         plate, well, field = key
-        grid_row, grid_col = _grid_position(k, rows, cols, order)
+        grid_row, grid_col = layout[key]
 
         error = ''
         try:
@@ -2484,7 +2509,8 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
                        overlap=float(resolved.get('overlap') or 0.0),
                        order=str(resolved.get('order') or 'row-major'),
                        recursive=bool(resolved.get('recursive')),
-                       reference_channel=None)
+                       reference_channel=None,
+                       group_by_well=bool(resolved.get('group_by_well')))
     groups = (group_tiles(tiles) if resolved.get('group_by_well')
               else {('', ''): tiles})
 
