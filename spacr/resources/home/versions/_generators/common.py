@@ -411,7 +411,8 @@ CATS_BROAD3 = _with_late_registrations([
                 "train_compare", "classifier_evaluation", "model_compare",
                 "run_history", "db_browser", "data_manager", "report",
                 "pipeline_graph", "hit_list", "profiler",
-                "methods_export", "image_scatter"]),
+                "methods_export", "image_scatter", "explain_cv",
+                "investigate_hit"]),
 ], fallback="Review")
 
 #: Five stages of a run. Variants 02 and 23 draw these as one seven-wide
@@ -433,11 +434,12 @@ CATS_BROAD3 = _with_late_registrations([
 #:   argument it prints.
 #:
 #: The cap was eight, which kept that to ONE wrapped row per band, then
-#: nine, then ten, and it is now ELEVEN. Each rise is the same arithmetic:
+#: nine, ten, eleven, and it is now TWELVE. Each rise is the same arithmetic:
 #: the cap is the smallest number that can hold the registry over five
 #: bands, so forty-two apps forced nine, forty-nine forced ten and
-#: fifty-one force eleven. Eleven is still one wrapped row (seven, then
-#: four) rather than a third, which is what the rule was ever about: the
+#: fifty-one force eleven, and fifty-six force twelve. Twelve is still one
+#: wrapped row (seven, then five) rather than a third, which is what the rule
+#: was ever about: the
 #: ceiling for "one wrapped row" is fourteen, and each cap is simply the
 #: smallest number that fitted the registry of the day. Both alternatives
 #: are still refused for the reasons below — a sixth band breaks the
@@ -476,6 +478,12 @@ CATS_BROAD3 = _with_late_registrations([
 #: two originals in Analyse and Activation came out of that band to
 #: Segment, which is the one move the counts left available and is argued
 #: on its own terms below. 11/10/11/11/11.
+#:
+#: Explain CV Model and Investigate Hit then took the registry to fifty-six.
+#: Both are explicitly filed rather than left in Report's fallback: Explain
+#: CV sits beside Activation because both interpret a trained vision model,
+#: while Investigate Hit follows Regression in Analyse. The resulting
+#: 11/11/11/12/11 distribution has the required arithmetic floor of twelve.
 CATS_STAGE5 = _with_late_registrations([
     # Illumination is a correction of the sensor, applied to the pixels
     # before anything is segmented or measured — it belongs with the
@@ -522,7 +530,7 @@ CATS_STAGE5 = _with_late_registrations([
     # classifier" models).
     ("Segment", ["mask", "timelapse", "cellpose_masks", "make_masks",
                  "train_cellpose", "model_zoo", "model_compare",
-                 "layer_viewer", "curate", "activation"]),
+                 "layer_viewer", "curate", "activation", "explain_cv"]),
     # Annotator Agreement moves here from Report, beside Annotate. It is
     # not a report on the screen, it is the check on the labelling step:
     # kappa between two annotation columns says whether the labels this
@@ -578,7 +586,7 @@ CATS_STAGE5 = _with_late_registrations([
     # Segment; the note there says why.
     ("Analyse", ["classify_merged", "classify", "ml_analyze", "map_barcodes",
                  "barcode_qc", "regression", "umap", "graph_builder",
-                 "anndata_export", "profiler", "pca"]),
+                 "anndata_export", "profiler", "pca", "investigate_hit"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
@@ -621,7 +629,7 @@ CATS_NARROW8 = _with_late_registrations([
     # swallowing it.
     ("Classify",         ["classify_merged", "classify", "ml_analyze",
                           "activation", "train_compare",
-                          "classifier_evaluation"]),
+                          "classifier_evaluation", "explain_cv"]),
     # The Prediction Profiler goes here rather than under "Classify":
     # what it sweeps is a screen's regression, which is this band's
     # subject, and variant 04's argument is that "Classify" is exactly
@@ -630,7 +638,7 @@ CATS_NARROW8 = _with_late_registrations([
                            "umap", "graph_builder", "layer_viewer",
                            "anndata_export", "plate_view", "report",
                            "hit_list", "methods_export", "pipeline_graph",
-                           "profiler"]),
+                           "profiler", "investigate_hit"]),
     # Power / Design and Run Compare are both "things you do around a run
     # rather than to the images": one decides how big the run has to be,
     # the other reads two of them against each other. This is variant 04's
@@ -662,7 +670,7 @@ CATS_QUESTIONS = _with_late_registrations([
     ("I have a screen. Which genes matter?",
      ["classify_merged", "classify", "ml_analyze", "map_barcodes",
       "regression", "umap", "activation", "graph_builder", "anndata_export",
-      "hit_list", "profiler"]),
+      "hit_list", "profiler", "investigate_hit"]),
     # Pipeline Graph belongs here for the literal reason: it marks the
     # outputs that no longer follow from their inputs, which is the
     # question in the heading. Methods & Results is the other half — what
@@ -671,7 +679,7 @@ CATS_QUESTIONS = _with_late_registrations([
      ["plate_view", "barcode_qc", "train_compare", "classifier_evaluation",
       "report", "run_history", "run_compare", "db_browser", "data_manager",
       "queue", "batch", "distributed_jobs", "pipeline_graph",
-      "methods_export"]),
+      "methods_export", "explain_cv"]),
 ], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [

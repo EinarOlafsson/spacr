@@ -570,6 +570,8 @@ class ModelExplanationScreen(QWidget):
             instruction="Start with fidelity; only then interpret importance or candidate cells."))
         self.explain = ExplainCvPanel(host=host)
         outer.addWidget(self.explain, 1)
+        from ..dnd import install_for
+        install_for(self, "explain_cv")
 
 
 class InvestigateHitScreen(QWidget):
@@ -591,6 +593,8 @@ class InvestigateHitScreen(QWidget):
                 "promotion is explicit, fresh-column only, and reversible.")))
         self.investigate = InvestigateHitPanel(host=host)
         outer.addWidget(self.investigate, 1)
+        from ..dnd import install_for
+        install_for(self, "investigate_hit")
 
     def configure_hit(self, **request) -> None:
         self.investigate.configure_hit(**request)

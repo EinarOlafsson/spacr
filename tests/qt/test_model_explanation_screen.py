@@ -115,16 +115,20 @@ def test_umap_handoff_uses_the_promoted_annotation(qtbot, tmp_path):
                                 "color_by": "eaf1_hit_like"})]
 
 
-def test_registered_explain_app_uses_the_combined_factory():
+def test_registered_explain_app_uses_the_combined_factory(qtbot):
     from spacr.qt.app import registered_factory
     factory = registered_factory("explain_cv")
-    assert factory is make_model_explanation_screen
+    screen = factory()
+    qtbot.addWidget(screen)
+    assert isinstance(screen, ModelExplanationScreen)
 
 
-def test_registered_hit_app_uses_dedicated_reversible_workbench():
+def test_registered_hit_app_uses_dedicated_reversible_workbench(qtbot):
     from spacr.qt.app import registered_factory
     factory = registered_factory("investigate_hit")
-    assert factory is make_investigate_hit_screen
+    screen = factory()
+    qtbot.addWidget(screen)
+    assert isinstance(screen, InvestigateHitScreen)
 
 
 def test_hit_screen_accepts_exact_hit_list_seed(qtbot):

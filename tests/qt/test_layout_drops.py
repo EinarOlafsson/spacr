@@ -30,6 +30,7 @@ code that reads it.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import sqlite3
 import time
 
@@ -522,6 +523,50 @@ def test_the_new_screens_are_all_covered():
     for key in landed:
         assert isinstance(dh.get_handler(key), dh.LayoutDropHandler), (
             f"{key} has a handler that does not resolve through the layout")
+
+
+def test_explain_cv_drop_keeps_database_and_predictions_distinct(
+        qtbot, project, tmp_path):
+    from spacr.qt.screens.model_explanation import ModelExplanationScreen
+
+    screen = ModelExplanationScreen()
+    qtbot.addWidget(screen)
+    handler = dh.get_handler("explain_cv")
+    database = Path(project) / "measurements" / "measurements.db"
+    predictions = tmp_path / "predictions.csv"
+    predictions.write_text("path,pred\na.png,1\n", encoding="utf-8")
+
+    handler.apply(Path(project), screen)
+    handler.apply(predictions, screen)
+
+    assert screen.explain.database.text() == str(database)
+    assert screen.explain.predictions.text() == str(predictions)
+    assert screen.explain.prediction_column.currentText() == "pred"
+
+
+def test_investigate_hit_drop_identifies_fraction_table_by_schema(
+        qtbot, project, tmp_path):
+    from spacr.qt.screens.model_explanation import InvestigateHitScreen
+
+    screen = InvestigateHitScreen()
+    qtbot.addWidget(screen)
+    handler = dh.get_handler("investigate_hit")
+    fractions = tmp_path / "fractions.csv"
+    fractions.write_text(
+        "plateID,rowID,columnID,guide,fraction\np1,A,01,g1,0.5\n",
+        encoding="utf-8",
+    )
+    results = tmp_path / "regression-results"
+    results.mkdir()
+
+    handler.apply(Path(project), screen)
+    handler.apply(fractions, screen)
+    handler.apply(results, screen)
+
+    assert screen.investigate.database.text().endswith(
+        "measurements/measurements.db")
+    assert screen.investigate.fractions.text() == str(fractions)
+    assert screen.investigate.regression_folder.text() == str(results)
 
 
 @pytest.mark.parametrize("key", [
