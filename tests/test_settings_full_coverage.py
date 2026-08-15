@@ -32,28 +32,11 @@ def test_bundled_barcode_path_points_at_a_real_reference_csv(kind):
     import pandas as pd
     df = pd.read_csv(path)
     assert {"sequence", "name"}.issubset(df.columns)
+    assert not df["sequence"].duplicated().any(), (
+        f"the shipped {kind} reference assigns one sequence more than once")
 
 
-@pytest.mark.parametrize("kind", ["column", "row", pytest.param(
-    "grna",
-    marks=pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "The shipped barcodes_grna.csv contains three protospacers that "
-            "each appear under two or three different gene names "
-            "(GCCGGCGATAGAGCCCCGCCC -> TGGT1_241310_2 / TGGT1_411210_2 / "
-            "TGGT1_411710_2; GCGATAGAGCCCCGCCCTGG -> TGGT1_411210_3 / "
-            "TGGT1_411710_3; GTCGCTAGGACATCCTCCAAG -> TGGT1_241310_10 / "
-            "TGGT1_411210_10 / TGGT1_411710_10). "
-            "map_sequences_to_names refuses a reference with duplicate "
-            "sequences -- correctly, since one read would otherwise be "
-            "assigned to whichever name the dict happened to keep -- so "
-            "generate_barecode_mapping raises ValueError on its first chunk "
-            "when run with the SHIPPED defaults and nothing else changed. "
-            "Fixing it means deciding which gene a shared protospacer counts "
-            "for, which is a screen-design call, not a code change, and the "
-            "data file is outside this task's edit scope."))),
-])
+@pytest.mark.parametrize("kind", ["column", "row", "grna"])
 def test_the_shipped_barcode_references_load_through_the_pipeline(kind):
     """The shipped default must be loadable by the code that loads it."""
     from spacr.sequencing import map_sequences_to_names
