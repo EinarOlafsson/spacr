@@ -439,3 +439,69 @@ def test_the_legend_control_survives_an_unlabelled_figure(qtbot, queue):
     qtbot.addWidget(dialog)
     # Building the dialog must not have emitted a warning or lost the legend.
     assert axis.get_legend() is not None
+
+
+def test_many_series_get_a_rule_instead_of_a_control_each(qtbot, queue):
+    """A volcano scatters once per compartment, so an axes holds ~27 of them.
+
+    A control block each is 135 controls, and styling a screen one series at a
+    time is not a thing anyone wants to do -- it reads as colouring individual
+    data points. Past the threshold the dialog must offer a palette rule that
+    reaches every series instead.
+    """
+    import numpy as np
+    from matplotlib.figure import Figure
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = Figure()
+    axis = figure.add_subplot(111)
+    rng = np.random.default_rng(0)
+    for index in range(27):
+        axis.scatter(rng.normal(size=20), rng.normal(size=20), label=f"c{index}")
+
+    queue.add_figure(figure)
+    live = queue.figure_for(0)
+    dialog = FigureSettingsDialog(live, queue)
+    qtbot.addWidget(dialog)
+
+    # Not one block per series.
+    combos = dialog.findChildren(QComboBox)
+    assert len(combos) < 27, f"{len(combos)} combo boxes for 27 series"
+
+    palette = [w for w in combos if w.findData("tab20") != -1]
+    assert palette, "no palette rule offered for a many-series axes"
+
+    live_axis = live.axes[0]
+    before = [tuple(c.get_facecolor()[0]) for c in live_axis.collections]
+    palette[0].setCurrentIndex(palette[0].findData("tab20"))
+    after = [tuple(c.get_facecolor()[0]) for c in live_axis.collections]
+
+    # The rule reaches the whole series set, not one member of it.
+    assert sum(b != a for b, a in zip(before, after)) > 20
+    assert len(set(after)) > 10, "the palette collapsed the series to one colour"
+
+
+def test_few_series_are_still_named_individually(qtbot, queue):
+    """The rule replaces per-series controls only when there are too many.
+
+    Four lines on a QC plot are worth naming; the collapse must not eat them.
+    """
+    from matplotlib.figure import Figure
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = Figure()
+    axis = figure.add_subplot(111)
+    for index in range(4):
+        axis.plot([0, 1], [index, index + 1], label=f"line{index}")
+
+    queue.add_figure(figure)
+    dialog = FigureSettingsDialog(queue.figure_for(0), queue)
+    qtbot.addWidget(dialog)
+
+    combos = dialog.findChildren(QComboBox)
+    assert not [w for w in combos if w.findData("tab20") != -1], \
+        "four series were collapsed into a rule"
