@@ -24,7 +24,7 @@ def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
     )
 
 
-def test_swedish_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
+def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     from build_i18n_catalogs import (
         _looks_translatable,
         _translation_rejection_reasons,
@@ -33,11 +33,13 @@ def test_swedish_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
     )
 
     reviewed = reviewed_runtime_translations("sv")
-    sources = canonical_sources()["setting_tooltips"]
+    sources = canonical_sources()
+    current_values = set(sources["setting_labels"].values())
+    current_values.update(sources["setting_tooltips"].values())
 
-    assert len(reviewed) == 23
+    assert len(reviewed) == 28
     for source, translated in reviewed.items():
-        assert source in sources.values()
+        assert source in current_values
         assert not _translation_rejection_reasons(
             source,
             translated,
@@ -46,7 +48,7 @@ def test_swedish_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
         )
 
 
-def test_french_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
+def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     from build_i18n_catalogs import (
         _looks_translatable,
         _translation_rejection_reasons,
@@ -56,10 +58,11 @@ def test_french_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
 
     reviewed = reviewed_runtime_translations("fr")
     sources = canonical_sources()
-    current_values = set(sources["setting_tooltips"].values())
+    current_values = set(sources["setting_labels"].values())
+    current_values.update(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    assert len(reviewed) == 7
+    assert len(reviewed) == 13
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

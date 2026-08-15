@@ -197,11 +197,17 @@ threshold was loosened, and the rejected OPUS Korean checkpoint was not used.
 Post-closure source sync, 2026-08-15: subsequent reviewed feature work added
 public model-explanation and hit-attribution contracts. All English and target
 artifacts were regenerated rather than leaving instruction 83's completed
-catalogs stale. The current exact inventory is 6,582 API records and 3,598
-runtime entries per locale (959 labels, 944 tooltips, 183 category explanations,
+catalogs stale. The current exact inventory is 6,584 API records and 3,604
+runtime entries per locale (962 labels, 947 tooltips, 183 category explanations,
 1,456 UI strings, and 56 module summaries); every installer remains 57/57.
 The strict documentation and runtime audits, source hashes, coverage report,
 frontend/loader checks, and Sphinx build were rerun at this expanded freeze.
+The final CI sweep then exposed three shared error-policy settings whose
+registration depended on whether another test had imported ``spacr.runctx``.
+The generator now imports that registrar explicitly, and exact-source reviewed
+translations for those three labels and three tooltips are retained for every
+locale under ``docs/i18n/reviewed/runtime``. This is the six-entry increase
+from 3,598 to the final 3,604-entry runtime inventory.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
@@ -236,16 +242,18 @@ VERIFIED
 --------------------------------------------------------------------------------
 
 * ``python tools/build_documentation_i18n.py --audit`` exits zero for all nine
-  target catalogs at 6,582 symbols.
+  target catalogs at 6,584 symbols.
 * ``python tools/build_i18n_catalogs.py --audit`` exits zero for all nine target
-  catalogs at 959 labels, 944 tooltips, 183 categories, 1,456 UI strings, and
+  catalogs at 962 labels, 947 tooltips, 183 categories, 1,456 UI strings, and
   56 modules.
-* ``python tools/audit_i18n_coverage.py --write`` reports 3,598/3,598 runtime
-  entries, 57/57 installer strings, and 6,582/6,582 fresh API docstrings for
+* ``python tools/audit_i18n_coverage.py --write`` reports 3,604/3,604 runtime
+  entries, 57/57 installer strings, and 6,584/6,584 fresh API docstrings for
   every locale.
 * The combined parser, extractor, browser/frontend, runtime-loader, installer,
   packaging, and README selection passes 285 tests. The two new checkout/order
   regressions and the corrected API cardinality assertion also pass directly.
+  The final Qt/home/runtime/performance regression selection passes 904 tests
+  with two expected path-fixture skips under four-worker xdist load.
 * ``sphinx-build -E -b html --keep-going`` exits zero, produces
   ``docs/_build/html/index.html`` and 645 HTML pages (eight warnings).
 * ``git diff --check`` and Python compilation of both changed tools pass.
