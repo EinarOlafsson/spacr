@@ -594,20 +594,29 @@ class FigureQueue(QWidget):
         """
         self._propagate_cb = callback
 
-    def refresh_current_figure(self) -> bool:
+    def refresh_current_figure(self, preview: bool = False) -> bool:
         """Re-rasterise the figure on screen after something restyled it.
 
         Writes through :meth:`_render_figure`, so the PNG (at the preference
         DPI) and its sibling vector page are both rewritten — the format the
         user asked for is the format the view and the export agree on.
 
+        :param preview: render the raster only, skipping the vector page. A
+            full render writes the PNG *and* exports a PDF at the preference
+            DPI, which is the better part of a second on a large figure. That
+            is right once; it is ruinous while a control is moving, and doing
+            it per change is what made the settings dialog hang. The vector
+            page is rewritten when the dialog closes, so nothing stays stale.
         :returns: True when the view was updated.
         """
-        fig = self._figures.get(self._current)
+        # figure_for, not a dict lookup: an evicted figure is restored from
+        # its spill, so restyling an old figure redraws it too.
+        fig = self.figure_for(self._current)
         png = self._png_paths.get(self._current)
         if fig is None or not png:
             return False
-        pixmap = self._render_figure(fig, Path(png))
+        pixmap = (self._render_preview(fig, Path(png)) if preview
+                  else self._render_figure(fig, Path(png)))
         if pixmap is None:
             return False
         self._cache_pixmap(self._current, pixmap)
@@ -977,6 +986,35 @@ class FigureQueue(QWidget):
             return None
         pm = QPixmap(str(png_path))
         return pm if not pm.isNull() else None
+
+    #: Longest edge of the throwaway raster drawn while a control is moving.
+    #: Small enough to be instant, large enough to judge a legend or a colour
+    #: by. The real render lands the moment the dialog closes.
+    PREVIEW_MAX_PX = 1100
+
+    def _render_preview(self, fig, png_path: Path) -> Optional[QPixmap]:
+        """A fast raster for live restyling: no vector page, capped size.
+
+        :func:`render_figure_to_png` also exports the sibling PDF at the
+        preference DPI, which is most of the cost of a render and pointless
+        twenty times a second while a slider moves. This draws straight to a
+        buffer at a modest size and does not touch the disk at all, so the
+        saved files keep the last FULL render until the dialog closes.
+        """
+        try:
+            from io import BytesIO
+
+            longest = max(fig.get_size_inches()) or 1.0
+            dpi = max(min(self.PREVIEW_MAX_PX / longest, 160.0), 40.0)
+            buffer = BytesIO()
+            fig.savefig(buffer, format="png", dpi=dpi,
+                        facecolor=fig.get_facecolor(), bbox_inches="tight")
+            pixmap = QPixmap()
+            if pixmap.loadFromData(buffer.getvalue(), "PNG"):
+                return pixmap
+        except Exception as error:  # noqa: BLE001 - a preview may always fail
+            LOG.debug("preview render failed: %s", error)
+        return None
 
     def _cache_pixmap(self, idx: int, pixmap: QPixmap) -> None:
         """Insert into the LRU RAM cache, evicting the oldest beyond the

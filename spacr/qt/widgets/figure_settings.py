@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
+from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtGui import QAction, QColor
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -109,12 +110,24 @@ def _series_of(axis):
 class FigureSettingsDialog(QDialog):
     """Every appearance control the given figure can support."""
 
+    #: Milliseconds of quiet before a restyle is actually drawn. Dragging a
+    #: spin box emits a value per step; re-rendering each one froze the app,
+    #: because a render rewrites the raster AND the vector page.
+    REDRAW_DELAY_MS = 220
+
     def __init__(self, figure, parent=None, *, on_change: Optional[Callable] = None):
         super().__init__(parent)
         self.setWindowTitle("Figure settings")
         self._figure = figure
         self._on_change = on_change
         self.resize(520, 640)
+
+        # Coalesce redraws. Every control calls _changed(); this restarts a
+        # single-shot timer, so a burst of twenty value changes costs one
+        # render instead of twenty.
+        self._redraw = QTimer(self)
+        self._redraw.setSingleShot(True)
+        self._redraw.timeout.connect(self._redraw_now)
 
         layout = QVBoxLayout(self)
         self.tabs = QTabWidget(self)
@@ -125,10 +138,48 @@ class FigureSettingsDialog(QDialog):
             name = axis.get_title() or f"Axes {index + 1}"
             self.tabs.addTab(self._scroll(self._axes_tab(axis)), name[:18])
 
+        # Scrolling the panel must scroll it, not edit whatever is under the
+        # pointer. Qt gives spin boxes and combos the wheel by default, so a
+        # scroll gesture over this dialog changed a dozen settings and
+        # triggered a render for each -- which is what made it unusable.
+        self._block_wheel_on_inputs()
+
         buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
         buttons.rejected.connect(self.accept)
         buttons.accepted.connect(self.accept)
         layout.addWidget(buttons)
+
+    #: Input types that steal the wheel from the scroll area beneath them.
+    _WHEEL_STEALERS = (QSpinBox, QDoubleSpinBox, QComboBox)
+
+    def _block_wheel_on_inputs(self) -> None:
+        """Let inputs take the wheel only once they are deliberately focused.
+
+        ``findChildren`` takes ONE type per call in PySide6, not a tuple, so
+        this loops -- passing a tuple raises TypeError and the whole dialog
+        fails to construct.
+        """
+        for kind in self._WHEEL_STEALERS:
+            for widget in self.findChildren(kind):
+                widget.setFocusPolicy(Qt.StrongFocus)
+                widget.installEventFilter(self)
+
+    def eventFilter(self, obj, event):  # noqa: N802 - Qt name
+        if (event.type() == QEvent.Wheel
+                and isinstance(obj, self._WHEEL_STEALERS)
+                and not obj.hasFocus()):
+            event.ignore()
+            return True
+        return super().eventFilter(obj, event)
+
+    def closeEvent(self, event):  # noqa: N802 - Qt name
+        """Land any pending redraw at full quality before going away."""
+        if self._redraw.isActive():
+            self._redraw.stop()
+            self._redraw_now(preview=False)
+        else:
+            self._redraw_now(preview=False)
+        super().closeEvent(event)
 
     # ------------------------------------------------------------- plumbing
 
@@ -140,13 +191,24 @@ class FigureSettingsDialog(QDialog):
         return area
 
     def _changed(self) -> None:
-        """Apply: every control calls this, and it redraws immediately.
+        """Ask for a redraw. Every control calls this.
 
         Live feedback rather than an OK button, because restyling is a
         judgement made by looking -- 'is this legend small enough yet' is not
-        answerable from a dialog that only applies on close.
+        answerable from a dialog that only applies on close. But *immediate*
+        feedback is what froze the app: a render rewrites the raster and the
+        vector page, and a spin box emits a value per step. So the redraw is
+        debounced, and the one that lands mid-edit is a cheap preview.
         """
-        if self._on_change is not None:
+        self._redraw.start(self.REDRAW_DELAY_MS)
+
+    def _redraw_now(self, preview: bool = True) -> None:
+        if self._on_change is None:
+            return
+        try:
+            self._on_change(preview=preview)
+        except TypeError:
+            # A caller that does not know about preview rendering.
             self._on_change()
 
     # ----------------------------------------------------------------- tabs
