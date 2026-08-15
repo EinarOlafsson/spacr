@@ -151,6 +151,8 @@ Contents
    run_history
    batch_correction
    classifier_evaluation
+   guide_permutation
+   model_explanation
    umap_multiobjective
    distributed_execution
    plugin_sdk

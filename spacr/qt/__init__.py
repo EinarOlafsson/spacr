@@ -277,6 +277,8 @@ SELF_REGISTERING_MODULES = (
     # chaining's screen rather than the other way round; both orders work.
     "spacr.qt.prerun",
     "spacr.qt.screens.run_compare",
+    "spacr.qt.screens.explain_cv",
+    "spacr.qt.screens.investigate_hit",
     # Three Explore screens built on the Graph Builder's spec engine. Each
     # owns a tested, idempotent register() that fans its name, intro, CLI
     # note, api_module and nine translations out of one register_app call.

@@ -1534,13 +1534,15 @@ def _register() -> None:
     not a duplicate registration; a genuine second claimant on the key
     would be a different module, and that still raises.
     """
-    from .settings import has_registered_defaults, register_defaults
+    from .settings import (has_registered_defaults, register_defaults,
+                           tooltips as shared_tooltips)
 
     if has_registered_defaults(APP_KEY):
         return
     register_defaults(APP_KEY, barcode_qc_defaults,
                       expected_types=_EXPECTED_TYPES,
-                      tooltips=_TOOLTIPS,
+                      tooltips={key: value for key, value in _TOOLTIPS.items()
+                                if key not in shared_tooltips},
                       description=_DESCRIPTION)
 
 

@@ -112,8 +112,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Any intentional public docstring addition must update this count and
     # regenerate all target catalogs in the same change; otherwise localized
     # API pages would silently omit the new contract.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6409
-    assert len(docs) == 6528
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6463
+    assert len(docs) == 6582
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

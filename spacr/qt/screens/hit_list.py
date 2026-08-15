@@ -168,6 +168,8 @@ class HitListScreen(QWidget):
     hits_loaded = Signal(object)
     #: Emitted with the filtered list every time the filters change.
     hits_filtered = Signal(object)
+    #: Exact selected hit handed to MainWindow for the explanation workbench.
+    investigate_requested = Signal(dict)
 
     def __init__(self, parent=None, folder: str = "",
                  metadata_files: Sequence[str] = (),
@@ -318,6 +320,10 @@ class HitListScreen(QWidget):
         self._summary.setWordWrap(True)
         strip.addWidget(self._summary, 1)
         for label, tip, slot in (
+                ("Investigate selected…",
+                 "Resolve the selected hit back to candidate single cells "
+                 "with held-out wells and guide-fraction evidence.",
+                 "_on_investigate_selected"),
                 ("Export CSV…", "The exact table above, as CSV.",
                  "_on_export_csv"),
                 ("Export Markdown…",
@@ -531,6 +537,31 @@ class HitListScreen(QWidget):
     def _on_export_html(self) -> None:               # pragma: no cover - modal
         self._ask_and_export("html", "Export hit list", "HTML (*.html)")
 
+    def _on_investigate_selected(self) -> None:
+        """Send one exact provenance-bearing result row to its workbench."""
+        item = self._table.currentItem()
+        if item is None or self._shown is None:
+            self._set_summary("Select one hit to investigate.", problem=True)
+            return
+        gene = str(item.data(0, Qt.UserRole) or "")
+        hit = self._shown.gene(gene)
+        if hit is None:
+            self._set_summary(
+                f"The selected gene {gene!r} is no longer in the filtered list.",
+                problem=True)
+            return
+        self.investigate_requested.emit({
+            "folder": self._shown.source,
+            "gene": hit.gene,
+            "effect": hit.effect,
+            "guides": hit.agreeing_guides,
+            "guide_agreement": hit.agreement,
+            "n_guides": hit.n_guides,
+            "well_support": hit.n_obs,
+            "fdr": hit.q_value,
+            "phenotype": "",
+        })
+
     # -- slots ------------------------------------------------------------
 
     def _on_folder_entered(self) -> None:
@@ -599,9 +630,12 @@ def _number(value: Any) -> str:
 # Registration
 # ---------------------------------------------------------------------------
 
-def make_hit_list_screen(app_key: Optional[str] = None) -> QWidget:
+def make_hit_list_screen(app_key: Optional[str] = None, host=None) -> QWidget:
     """Factory the registry calls to build this screen."""
-    return HitListScreen()
+    screen = HitListScreen()
+    if host is not None and hasattr(host, "_on_investigate_hit_requested"):
+        screen.investigate_requested.connect(host._on_investigate_hit_requested)
+    return screen
 
 
 def register() -> bool:
