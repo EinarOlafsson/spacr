@@ -168,10 +168,11 @@ evidence; no weak draft has been promoted. Korean runtime, Simplified Chinese,
 Hindi, and Icelandic remained unfinished at that checkpoint.
 
 2026-08-15 completion checkpoint: all of the red/stale states above are
-historical. The final English API inventory is 6,528 records (6,409 canonical
-plus 119 exact aliases), and every Swedish, German, Spanish, Simplified
-Chinese, Portuguese, Hindi, Korean, Icelandic, and French API catalog passes
-the strict source/hash/schema/syntax/semantic audit at that exact freeze. The
+historical. The completion-time English API inventory was 6,528 records
+(6,409 canonical plus 119 exact aliases), and every Swedish, German, Spanish,
+Simplified Chinese, Portuguese, Hindi, Korean, Icelandic, and French API catalog
+passes the strict source/hash/schema/syntax/semantic audit at that exact freeze.
+The
 same nine runtime catalogs pass with 910 setting labels, 895 authored setting
 tooltips, 170 category explanations, 1,413 static UI strings, and 54 module
 summaries, for 3,442 current entries per locale. All installers remain 57/57.
@@ -190,8 +191,17 @@ spaCR installation happens to be active.
 Reviewed hard tails remain durable, exact-source evidence under
 ``docs/i18n/reviewed``. No anonymous cache output was promoted, no audit
 threshold was loosened, and the rejected OPUS Korean checkpoint was not used.
-``docs/i18n/COVERAGE.md`` is regenerated from the final artifacts and reports
+``docs/i18n/COVERAGE.md`` was regenerated from those artifacts and reported
 3,442/3,442 runtime entries and 6,528/6,528 API docstrings for every locale.
+
+Post-closure source sync, 2026-08-15: subsequent reviewed feature work added
+public model-explanation and hit-attribution contracts. All English and target
+artifacts were regenerated rather than leaving instruction 83's completed
+catalogs stale. The current exact inventory is 6,582 API records and 3,588
+runtime entries per locale (959 labels, 941 tooltips, 176 category explanations,
+1,456 UI strings, and 56 module summaries); every installer remains 57/57.
+The strict documentation and runtime audits, source hashes, coverage report,
+frontend/loader checks, and Sphinx build were rerun at this expanded freeze.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
@@ -225,12 +235,13 @@ WHAT WAS DONE
 VERIFIED
 --------------------------------------------------------------------------------
 
-* ``python tools/build_documentation_i18n.py --audit`` exits zero:
-  ``verified API catalogs: languages=9 symbols=6528``.
-* ``python tools/build_i18n_catalogs.py --audit`` exits zero:
-  ``languages=9 settings=895 categories=170 ui=1413 modules=54``.
-* ``python tools/audit_i18n_coverage.py --write`` reports 3,442/3,442 runtime
-  entries, 57/57 installer strings, and 6,528/6,528 fresh API docstrings for
+* ``python tools/build_documentation_i18n.py --audit`` exits zero for all nine
+  target catalogs at 6,582 symbols.
+* ``python tools/build_i18n_catalogs.py --audit`` exits zero for all nine target
+  catalogs at 959 labels, 941 tooltips, 176 categories, 1,456 UI strings, and
+  56 modules.
+* ``python tools/audit_i18n_coverage.py --write`` reports 3,588/3,588 runtime
+  entries, 57/57 installer strings, and 6,582/6,582 fresh API docstrings for
   every locale.
 * The combined parser, extractor, browser/frontend, runtime-loader, installer,
   packaging, and README selection passes 285 tests. The two new checkout/order
