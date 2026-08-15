@@ -65,7 +65,8 @@ def test_plot_lorenz_curves_smoke_synthetic_csvs(tmp_path):
         assert (x[-1], y[-1]) == pytest.approx((1.0, 1.0))
         assert np.all(np.diff(y) >= -1e-12)
         assert np.all(y <= x + 1e-12)          # bows below the diagonal
-        areas.append(float(np.trapz(y, x)))
+        trapezoid = getattr(np, "trapezoid", None) or np.trapz
+        areas.append(float(trapezoid(y, x)))
         ginis.append(float(label.split("Gini: ")[1].rstrip(")")))
 
     # The whole point of the fixture: plate 2 is the unequal one.

@@ -216,6 +216,16 @@ def test_an_unrepresentable_default_is_flagged_not_silently_wrong():
     ast.parse(rendered)
 
 
+def test_bundled_resource_defaults_are_portable():
+    """Generated notebooks must not contain the checkout that built them."""
+    tool = _tool()
+    resource = REPO / "spacr" / "resources" / "data" / "barcodes_row.csv"
+    rendered = tool._literal(str(resource))
+    assert str(REPO) not in rendered
+    assert "importlib.resources" in rendered
+    assert eval(rendered) == str(resource.resolve())
+
+
 def test_check_mode_is_what_the_drift_guard_calls():
     """--check is the contract; the guard above runs it as a subprocess."""
     source = TOOL.read_text()

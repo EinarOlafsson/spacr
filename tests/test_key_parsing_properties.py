@@ -655,6 +655,8 @@ def test_selection_keys_agree_with_the_schema_row_key(field, label):
     object I pointed at", so the key the UMAP publishes has to be the key the
     plate view resolves.
     """
+    assume(all('%' not in value for value in (
+        field.plateID, field.rowID, field.columnID, field.fieldID)))
     frame = pd.DataFrame([{
         S.PLATE_KEY: field.plateID,
         S.ROW_KEY: field.rowID,
@@ -838,6 +840,10 @@ def test_a_typed_object_key_is_the_prcfo_of_the_same_object(field, label,
     a key copied out of a crop table names the same object as one built from
     a measurement table.
     """
+    # selection's documented percent-escape exception has its own injectivity
+    # property below; schema's legacy composer deliberately preserves it.
+    assume(all('%' not in value for value in (
+        field.plateID, field.rowID, field.columnID, field.fieldID)))
     frame = pd.DataFrame([{
         S.PLATE_KEY: field.plateID, S.ROW_KEY: field.rowID,
         S.COLUMN_KEY: field.columnID, S.FIELD_KEY: field.fieldID,
