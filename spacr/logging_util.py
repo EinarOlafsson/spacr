@@ -63,6 +63,13 @@ STREAM_FORMAT = "%(levelname)s %(name)s: %(message)s"
 QUIET_LOGGERS: tuple[str, ...] = (
     "PIL",
     "matplotlib",
+    # fontTools.subset logs about FORTY lines for every figure saved -- each
+    # glyph name and glyph ID, twice, for MATH then GSUB then glyf, followed
+    # by a line per font table. A regression run saves a dozen figures, so
+    # thousands of lines of glyph inventory bury the run's own output and the
+    # user cannot see what happened. "matplotlib" does not cover this:
+    # fontTools is a separate top-level logger that matplotlib calls into.
+    "fontTools",
     "urllib3",
     "asyncio",
     "torch",

@@ -1036,8 +1036,12 @@ def test_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
     assert call["kwargs"]["save_path"].endswith("volcano_plot.pdf")
     assert call["kwargs"]["metadata_column"] == "tagm_location"
     # the duplicated tail block calls the phenotype/heatmap plots twice
-    assert len(toxo_stubs["phenotypes"]) == 2
-    assert len(toxo_stubs["heatmaps"]) == 2
+    # Once, not twice. The phenotype/heatmap block used to be duplicated
+    # verbatim, so every report was built twice and the second copy was
+    # unguarded -- a run with fewer than two metadata files died in it after
+    # the volcano had already been drawn.
+    assert len(toxo_stubs["phenotypes"]) == 1
+    assert len(toxo_stubs["heatmaps"]) == 1
     assert toxo_stubs["heatmaps"][0]["columns"][0] == "sense - Tachyzoites"
 
 
@@ -1053,9 +1057,9 @@ def test_toxo_block_skips_unknown_volcano_mode(screen, toxo_stubs, capsys):
     assert "Skipping volcano plot" in printed
     assert "No gene_list produced" in printed
     assert toxo_stubs["volcano"] == []
-    # the unguarded duplicate block still fires once with gene_list=None
-    assert len(toxo_stubs["phenotypes"]) == 1
-    assert toxo_stubs["phenotypes"][0]["gene_list"] is None
+    # No volcano means no gene list, so nothing downstream is drawn. The
+    # duplicate block used to fire anyway with gene_list=None.
+    assert toxo_stubs["phenotypes"] == []
 
 
 def test_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
@@ -1068,7 +1072,8 @@ def test_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
 
     printed = capsys.readouterr().out
     assert "No gene_list produced" in printed
-    assert len(toxo_stubs["phenotypes"]) == 1   # only the unguarded duplicate
+    # An empty gene list draws nothing; there is no second unguarded copy.
+    assert toxo_stubs["phenotypes"] == []
 
 
 # ---------------------------------------------------------------------------

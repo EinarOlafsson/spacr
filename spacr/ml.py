@@ -3459,8 +3459,13 @@ def perform_regression(settings):
 
     save_settings(settings, name='regression', show=True)
 
+    # The volcano goes with the rest of the run's output, not beside the INPUT
+    # data. Writing it to the count CSV's folder put the module's headline
+    # figure two directories away from every table and plot it belongs with --
+    # so a run that had produced it perfectly well looked like it had produced
+    # no graph at all, which is exactly how it was reported.
     count_source = os.path.dirname(settings['count_data'][0])
-    volcano_path = os.path.join(count_source, 'volcano_plot.pdf')
+    volcano_path = os.path.join(res_folder, 'volcano_plot.pdf')
 
     if isinstance(settings['filter_value'], list):
         filter_value = settings['filter_value']
@@ -3847,6 +3852,21 @@ def perform_regression(settings):
     if isinstance(settings['metadata_files'], str):
         settings['metadata_files'] = [settings['metadata_files']]
 
+    # THE VOLCANO MUST NOT DEPEND ON HAVING A METADATA FILE.
+    #
+    # These three names were bound ONLY inside the loop below. With no
+    # metadata file the loop never ran, and the toxo block -- which reads all
+    # three unconditionally -- raised NameError before drawing anything. The
+    # run otherwise completed, wrote its histograms, heatmaps and every
+    # results CSV, and simply produced no volcano: the one figure the module
+    # exists to make, missing with no error the user could see.
+    #
+    # The results tables are the correct default. Metadata is an annotation
+    # join that adds columns; it is not what makes a volcano plottable.
+    merged_df = pd.read_csv(results_path)
+    gene_merged_df = pd.read_csv(results_path_gene)
+    grna_merged_df = pd.read_csv(results_path_grna)
+
     for metadata_file in settings['metadata_files']:
         file = os.path.basename(metadata_file)
         filename, _ = os.path.splitext(file)
@@ -3893,37 +3913,44 @@ def perform_regression(settings):
 
         phenotype_plot = os.path.join(res_folder, 'phenotype_plot.pdf')
         transcription_heatmap = os.path.join(res_folder, 'transcription_heatmap.pdf')
-        data_GT1 = pd.read_csv(settings['metadata_files'][1], low_memory=False)
-        data_ME49 = pd.read_csv(settings['metadata_files'][0], low_memory=False)
+        # These two OPTIONAL reports need two specific curated tables -- a GT1
+        # phenotype table and an ME49 expression table, in that positional
+        # order. Indexing [1] and [0] unconditionally meant a run with no
+        # metadata files died with `IndexError: list index out of range`
+        # AFTER the volcano had been drawn, so the run was reported as failed
+        # and the figure it had just produced looked like it was never made.
+        # They are extras; missing them is not a failure.
+        metadata_files = list(settings.get('metadata_files') or [])
+        have_curated_tables = len(metadata_files) >= 2
+        if not have_curated_tables:
+            print(f"Skipping the phenotype and transcription reports: they "
+                  f"need two curated metadata tables (GT1 phenotypes and "
+                  f"ME49 expression) and {len(metadata_files)} were given. "
+                  f"The volcano and every results table are unaffected.")
+        data_GT1 = (pd.read_csv(metadata_files[1], low_memory=False)
+                    if have_curated_tables else None)
+        data_ME49 = (pd.read_csv(metadata_files[0], low_memory=False)
+                     if have_curated_tables else None)
         columns = ['sense - Tachyzoites', 'sense - Tissue cysts',
                 'sense - EES1', 'sense - EES2', 'sense - EES3',
                 'sense - EES4', 'sense - EES5']
 
-        if gene_list:
+        # The whole block was duplicated verbatim below this point: the same
+        # two reports were built twice, the second copy unguarded, so a run
+        # that survived the first died in the second. One copy, guarded.
+        if gene_list and have_curated_tables:
             print('Plotting gene phenotypes and heatmaps')
             print(gene_list)
-            plot_gene_phenotypes(data=data_GT1, gene_list=gene_list, save_path=phenotype_plot)
+            plot_gene_phenotypes(data=data_GT1, gene_list=gene_list,
+                                 save_path=phenotype_plot)
             plot_gene_heatmaps(
                 data=data_ME49, gene_list=gene_list, columns=columns,
-                x_column='Gene ID', normalize=True, save_path=transcription_heatmap,
+                x_column='Gene ID', normalize=True,
+                save_path=transcription_heatmap,
             )
-        else:
+        elif not gene_list:
             print("No gene_list produced; skipping phenotype and heatmap plots.")
-        
-        phenotype_plot = os.path.join(res_folder,'phenotype_plot.pdf')
-        transcription_heatmap = os.path.join(res_folder,'transcription_heatmap.pdf')
-        data_GT1 = pd.read_csv(settings['metadata_files'][1], low_memory=False)
-        data_ME49 = pd.read_csv(settings['metadata_files'][0], low_memory=False)
-        
-        columns = ['sense - Tachyzoites', 'sense - Tissue cysts', 'sense - EES1', 'sense - EES2', 'sense - EES3', 'sense - EES4', 'sense - EES5']
-        
-        if gene_list:
-            print('Plotting gene phenotypes and heatmaps')
-            print(gene_list)
 
-        plot_gene_phenotypes(data=data_GT1, gene_list=gene_list, save_path=phenotype_plot)
-        plot_gene_heatmaps(data=data_ME49, gene_list=gene_list, columns=columns, x_column='Gene ID', normalize=True, save_path=transcription_heatmap)
-        
         #if len(significant) > 2:
         #    metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
         #    go_term_enrichment_by_column(significant, metadata_path)
