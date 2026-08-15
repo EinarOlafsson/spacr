@@ -279,6 +279,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "gpu_reduce",
     "merge_tables",
     "model_check",
+    "openmp_guard",
     "surrogate",
     "training_basis",
 )
