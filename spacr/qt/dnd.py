@@ -423,26 +423,50 @@ def _route_data_csv_to_inputs(path: Path, screen):
 
     header = set(_csv_header(path))
     is_count = bool({"grna", "grna_name"} & header) and "count" in header
+
+    # An ANNOTATION table is neither side of the pairing.
+    #
+    # Classifying only count-vs-score meant everything that was not a count
+    # became a score, so a gRNA barcode export (name, sequence) landed in the
+    # score column of the pairing table. It has no plate, no well and no
+    # response; it annotates results after the fit. Recognised by carrying an
+    # identifier and no per-well coordinates.
+    identifiers = {"name", "gene id", "gene_id", "geneid", "gene", "grna",
+                   "grna_name"}
+    coordinates = {"row", "rowid", "row_name", "col", "column", "columnid",
+                   "column_name", "prc", "well", "plate", "plateid"}
+    is_metadata = (not is_count
+                   and bool(identifiers & header)
+                   and not (coordinates & header))
+    if is_metadata:
+        widget = widgets.get("metadata_files")
+        if isinstance(widget, FilePathListWidget):
+            widget.add_paths([str(path)])
+            return "metadata_files"
+
+    # THE PAIRED TABLE IS TRIED FIRST, and that ordering is the whole fix.
+    #
+    # The regression panel replaced its separate score_data / count_data
+    # lists with one paired_data table. This router looked for those two keys
+    # as FilePathListWidgets, found neither, and fell through to
+    # metadata_files -- the only FilePathListWidget left on the screen. So
+    # every CSV dropped on the regression panel went to metadata: score
+    # tables, count tables, all of it.
+    paired = widgets.get("paired_data")
+    adder = getattr(paired, "add_paths_for_side", None)
+    if callable(adder):
+        adder([str(path)], "count" if is_count else "score")
+        return "paired_data (count)" if is_count else "paired_data (score)"
+
     # Most specific first: a count table must not land in the score slot just
     # because that widget happens to come first in the panel.
     preferred = ("count_data", "score_data") if is_count else \
         ("score_data", "count_data")
-
     for key in (*preferred, "metadata_files"):
         widget = widgets.get(key)
         if isinstance(widget, FilePathListWidget):
             widget.add_paths([str(path)])
             return key
-
-    paired = widgets.get("paired_data")
-    adder = getattr(paired, "add_paths_for_side", None) or \
-        getattr(paired, "add_paths", None)
-    if callable(adder):
-        try:
-            adder([str(path)], "count" if is_count else "score")
-        except TypeError:
-            adder([str(path)])
-        return "paired_data"
     return None
 
 
