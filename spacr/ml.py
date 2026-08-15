@@ -2318,9 +2318,21 @@ def _split_prc(text):
       so ``columnID`` is filled with the **row** token for every well of every
       other plate and the per-well QC counts are grouped on nonsense.
 
-    Tokens are returned exactly as they appear — nothing is canonicalised,
-    because the caller rebuilds ``prc`` from these columns and a rewritten
-    token would change the identity rows are joined on.
+    The row and column are returned exactly as they appear — nothing is
+    canonicalised, because the caller rebuilds ``prc`` from these columns and
+    a rewritten token would change the identity rows are joined on.
+
+    THE PLATE IS UNESCAPED, which is the one exception and is not a
+    canonicalisation: :func:`spacr.schema.compose_prc` percent-escapes the
+    plate on the way in, so returning it raw would hand back ``'a%5Fb'`` for a
+    plate named ``'a_b'``. :func:`spacr.schema.parse_prcf` already unescapes,
+    so leaving it here made the two parsers disagree on exactly the keys this
+    differential pair exists to protect.
+
+    Callers in this module rebuild ``prc`` by hand and are NOT escaped, so a
+    plate id holding the separator still round-trips through the
+    four-component path below rather than through an escape. That asymmetry
+    is real and is recorded in instruction 100.
 
     **Four components are not automatically an underscored plate.** A key with
     more than three components is one of two things, and they mean opposite
@@ -2384,7 +2396,7 @@ def _split_prc(text):
             f'{schema.KEY_SEPARATOR!r}, its row and column must be written '
             f'the way spaCR writes them (r<N>/letters and c<N>/digits) for '
             f'the plate to be separable from them.')
-    return plate, row, column
+    return schema.unescape_filename_component(plate), row, column
 
 
 def _is_row_column_pair(row, column):
@@ -3762,7 +3774,54 @@ def perform_regression(settings):
         )
         significant = significant[~significant['feature'].str.contains('row|column')]
     else:
-        significant = coef_df.loc[coef_df['p_value'] <= 0.05].copy()
+        # THE CORRECTION IS APPLIED HERE, and until now it never was.
+        #
+        # `multiple_testing_method` has existed as a setting, been offered in
+        # the panel and been named in Methods sections, while this branch
+        # called a hit on the RAW OLS p-value. With 1,208 coefficients an
+        # uncorrected 0.05 expects about sixty false positives from noise
+        # alone, and that is the defect behind a published volcano whose
+        # figure showed a P = 0.05 line while its Methods claimed BH q < 0.05.
+        #
+        # The family is the guide/gene coefficients actually being tested --
+        # not the intercept and not the row/column nuisance terms, which are
+        # covariates rather than hypotheses and would only inflate the family.
+        #
+        # 'none' reproduces the historical rule exactly, so a run that wants
+        # the old behaviour can still ask for it and is on record as having
+        # asked.
+        from .multiple_testing import adjust_p_values, canonical_method
+
+        method = canonical_method(settings.get('multiple_testing_method',
+                                               'fdr_bh'))
+        alpha = float(settings.get('fdr_alpha', 0.05))
+        tested = ~coef_df['feature'].astype(str).str.contains(
+            'row|column|Intercept', case=False, regex=True)
+        coef_df['q_value'] = np.nan
+        coef_df['multiple_testing_method'] = method
+        if tested.any():
+            adjusted, _rejected = adjust_p_values(
+                coef_df.loc[tested, 'p_value'].to_numpy(dtype=float),
+                method=method, alpha=alpha)
+            coef_df.loc[tested, 'q_value'] = adjusted
+        raw_hits = int((coef_df.loc[tested, 'p_value'] <= alpha).sum())
+        corrected_hits = int((coef_df.loc[tested, 'q_value'] < alpha).sum())
+        print(f"Multiple testing: {method} across {int(tested.sum())} tested "
+              f"coefficients at alpha={alpha:g} — {raw_hits} pass the raw P "
+              f"value, {corrected_hits} pass correction.")
+        # Rewrite the tables so the corrected value is in the file, not only
+        # in the hit list: a volcano drawn from results.csv must be able to
+        # plot the quantity the hits were called on.
+        for frame, path in ((coef_df, results_path),
+                            (gene_coef_df, results_path_gene),
+                            (grna_coef_df, results_path_grna)):
+            if frame is not coef_df and 'feature' in frame.columns:
+                frame['q_value'] = frame['feature'].map(
+                    coef_df.set_index('feature')['q_value'])
+                frame['multiple_testing_method'] = method
+            frame.to_csv(path, index=False)
+
+        significant = coef_df.loc[coef_df['q_value'] < alpha].copy()
         if settings['controls'] is not None:
             significant_high = significant.loc[
                 significant['coefficient'] >= reg_threshold]
