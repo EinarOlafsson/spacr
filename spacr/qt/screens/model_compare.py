@@ -382,6 +382,11 @@ class ModelCompareScreen(QWidget):
             "Choose a folder of fields, configure both models, then Compare. "
             "Neither model is treated as ground truth.")
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
