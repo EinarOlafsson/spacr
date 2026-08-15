@@ -228,7 +228,12 @@ def test_apply_cellpose_model_writes_measurements_and_summary(tmp_path, monkeypa
     assert first["min_size"] == 5
     assert first["augment"] is True
     assert first["tile_overlap"] == 0.2
-    assert first["bsize"] == 224
+    # bsize is NOT configured: 990c8a3d stopped passing bsize=224, so cellpose
+    # uses its own 256 -- which is cpsam's native tile size. bsize is in
+    # model_compare.HONOURED_EVAL_ARGUMENTS, i.e. it changes the masks, so
+    # this is a segmentation change and not a dead-kwarg cleanup.
+    assert "bsize" not in record["eval_configured"][0]
+    assert first["bsize"] == 256
     # the dataset hands cellpose float32 arrays resized to target_size
     for arr in first["x"]:
         assert arr.shape == (IMG_SIZE, IMG_SIZE)

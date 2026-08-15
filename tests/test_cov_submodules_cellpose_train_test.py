@@ -499,7 +499,10 @@ def test_test_cellpose_model_forwards_eval_parameters(tmp_path, cp_stub, monkeyp
     assert call["min_size"] == 5
     assert call["augment"] is True
     assert call["tile_overlap"] == 0.2
-    assert call["bsize"] == 224
+    # See the sibling in test_cov_submodules_cellpose_apply.py: spaCR stopped
+    # passing bsize=224, so cellpose's own 256 applies. bsize is honoured by
+    # eval, so the tile size really did change.
+    assert call["bsize"] == 256
     assert len(call["x"]) == 1
     assert call["x"][0].shape == (32, 32)
     assert call["x"][0].dtype == np.float32

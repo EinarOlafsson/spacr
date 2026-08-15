@@ -1,0 +1,88 @@
+================================================================================
+CLICK A CONSOLE SECTION HEADING TO BRING IT TO THE TOP AND EXPAND IT
+================================================================================
+
+Status:    filed 2026-08-15, not started.
+Requested: 2026-08-15 - "add to instructions, the user should be able to click
+           on a console section heading to bring it to the top of the console
+           and expoand it"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The console is a stack of sections, each introduced by a `_TopicBar`
+(spacr/qt/widgets/console_panel.py:322). A section is a real, named thing
+already: it has a header with an accent colour, a per-section copy button that
+knows its own span (`section_text`), and a drag handle that resizes it
+(`_BlockHeightHandle`, line 644).
+
+What it does not have is a way to GET TO ONE. A long run leaves many sections
+and the only navigation is scrolling. The header is the obvious handle and it
+is inert -- everything in it responds to a click except the heading itself.
+
+There is no collapse/expand concept in the file today (the only `collaps`
+hits are about splitter state), so "expand it" has to be defined here rather
+than reused.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. CLICK THE HEADING -> THAT SECTION GOES TO THE TOP OF THE VIEWPORT and is
+   expanded. One click, both effects, because the request is one gesture.
+
+   "To the top" means scroll it to the top of the scroll area, not reorder the
+   sections. The console is a transcript and its order is chronological; a
+   heading that physically moved would destroy the one property a log has.
+   Scroll, do not reorder.
+
+2. WHAT "EXPANDED" MEANS. Two things must be decided together, because a
+   section that is expanded has to be able to be un-expanded:
+
+   * a section has a collapsed state and an expanded state, and the heading
+     toggles it;
+   * `_BlockHeightHandle` already pins a section to a user-chosen height, and
+     expand must not silently discard a height the user dragged. Expanding
+     restores the auto height (which double-clicking the handle already
+     means), and re-collapsing returns to the pinned one.
+
+   Show the state in the heading -- a disclosure triangle or chevron. A
+   toggle with no indicator is a control users find by accident.
+
+3. THE HEADING IS ALREADY CROWDED. It carries the label, an optional trailing
+   widget, and the copy button. Clicking the copy button must NOT also raise
+   and expand the section, so the click has to be on the heading proper and
+   the child buttons must swallow their own clicks.
+
+4. IT MUST STILL BEHAVE WHILE OUTPUT IS ARRIVING. The console appends
+   continuously and autoscrolls. If a user clicks a heading to read something,
+   incoming output must not yank the viewport away from it -- raising a
+   section is a statement that the user is reading THERE. Suspend autoscroll
+   while a section is deliberately raised, and resume when they scroll back to
+   the bottom, which is the convention every log viewer uses.
+
+5. KEYBOARD AND ACCESSIBILITY. The heading becomes an interactive control, so
+   it needs a focus state and Enter/Space activation, not mouse only.
+
+--------------------------------------------------------------------------------
+WORTH DOING AT THE SAME TIME, IF CHEAP
+--------------------------------------------------------------------------------
+
+Once headings are clickable targets, a list of them is a table of contents for
+the run. That is not what was asked for and should not be built speculatively,
+but if the section registry needed for point 1 makes it nearly free, say so
+rather than building it silently.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Clicking a heading in a long console scrolls that section to the top of the
+  viewport and expands it, in one click.
+* Clicking its copy button copies the section and does NOT move the viewport.
+* A section resized by dragging its handle keeps that height when collapsed
+  and returns to it after an expand/collapse cycle.
+* With a run actively printing, raising a section keeps the viewport there;
+  scrolling back to the bottom resumes following the output.
+* The heading can be focused and activated from the keyboard.
