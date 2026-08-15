@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.methods_export.check_draft#1",
+      "source_sha256": "e6c2f54532b0bb388bee3ed37cfae3d2ea49f9f559d872e62816853b050d5dc8",
+      "source": "The methods section additionally has to state the run's caveats.",
+      "context": "The methods section additionally has to state the run's caveats.",
+      "translation": "Aðferðahlutinn þarf einnig að greina frá fyrirvörum keyrslunnar."
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.well_info_text#0",
+      "source_sha256": "e2361edf048327ce84e27200f83f910d634ea760f1b16bd4104dd1a7f8e26416",
+      "source": "The per-well readout line (test/introspection helper).",
+      "context": "The per-microplate sample position readout line (test/introspection helper).",
+      "translation": "Útlesturslína fyrir hverja sýnisstöðu á örplötu (hjálparfall fyrir próf og innri skoðun)."
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.resolve_crop_path#0",
+      "source_sha256": "bd244d349af7670adca07f5a72f9d4ada7269303543564373021ac9ac033401f",
+      "source": "The crop's path on *this* machine, re-anchored if the dataset moved.",
+      "context": "The extracted image region's path on *this* machine, re-anchored if the dataset moved.",
+      "translation": "Slóð útdregna myndsvæðisins á *þessari* vél, endurtengd við nýja rót ef gagnasafnið hefur verið fært."
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation#0",
+      "source_sha256": "5cc03935f6dfa2f4b29a28a1741636a5f47b03ce72c057dc61baa0bb6a4f4a02",
+      "source": "Classifier Evaluation workbench for out-of-fold result bundles.",
+      "context": "Machine-learning classification model Evaluation workbench for out-of-fold result bundles.",
+      "translation": "Vinnuborð til að meta flokkara með niðurstöðupökkum utan fellingar."
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#0",
+      "source_sha256": "e2536b59483cfd352bcf0b5096f93952a96c80e5c82a50ee834dc99053a10df4",
+      "source": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.",
+      "context": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-microplate sample position summaries.",
+      "translation": "Mæla söfnun flúrmerkis við sýklabólu og búa til samantektir fyrir hverja sýklabólu og hverja sýnisstöðu á örplötu."
+    },
+    {
+      "label": "spacr.foreign.ImportResult.summary#0",
+      "source_sha256": "63761be06eebc630e97a2e9a9b37d9ce1c0a796aaa0eebfb198db26b01cab849",
+      "source": "The end-of-run block: what landed, and everything that did not.",
+      "context": "The end-of-run block: what landed, and everything that did not.",
+      "translation": "Lokasamantekt keyrslunnar: hvað tókst að flytja inn og allt sem ekki tókst."
+    },
+    {
+      "label": "spacr.qt.linked_selection.open_objects#1",
+      "source_sha256": "9cc537f119ebc797ce442ba318a142bd809b01623935663e9a335d3830f07341",
+      "source": "The half of the routing contract a *caller* uses. A scatter plot",
+      "context": "The half of the routing contract a *caller* uses. A scatter plot",
+      "translation": "Sá helmingur leiðslusamningsins sem *kallandi* notar. Dreifirit"
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.animation_view#0",
+      "source_sha256": "464f71095245240db277a9b4c429fb4e67fb21dfd3c88015892b249e7b6f9018",
+      "source": "The square animation panel — exposed for layout tests.",
+      "context": "The square animation panel — exposed for layout tests.",
+      "translation": "Ferhyrnda hreyfimyndaspjaldið — gert aðgengilegt fyrir útlitspróf."
+    },
+    {
+      "label": "spacr.run_journal.Run.record_warning#0",
+      "source_sha256": "08505441d5e9225adca26e5642917fa98875ab14b8edaf924d6dc6bb99b231f5",
+      "source": "Retain a distinct warning for the run-history dashboard.",
+      "context": "Retain a distinct warning for the run-history dashboard.",
+      "translation": "Geyma sérstaka viðvörun fyrir mælaborð keyrslusögunnar."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.snap_to_nearest_axis#1",
+      "source_sha256": "2da868c9682af8ac2a16c077b498ab7604819c6ac89d15acb4c8cc9b4fd4f1b2",
+      "source": "A volume stopped at an arbitrary angle cannot be read off at all -- the point of snapping is that a 3D gate is always finally judged from a view where one measurement is flat.",
+      "context": "A volume stopped at an arbitrary angle cannot be read off at all -- the point of snapping is that a 3D data-selection boundary is always finally judged from a view where one measurement is flat.",
+      "translation": "Rúmmál sem stöðvast við handahófskennt horn er alls ekki hægt að lesa af. Tilgangur festingarinnar er að 3D-gagnavalsmörk séu að lokum alltaf metin í sýn þar sem ein mæling liggur flöt."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model.OutlierResult.filtered#2",
+      "source_sha256": "862dd3dc19bab6f6fd5ac3df6046bf0a8b1eb7580714e61cbaf852e298fb774f",
+      "source": "Objects that could not be scored are **kept** — they were not flagged, and dropping them here would delete rows for missingness under the name of outlier removal.",
+      "context": "Objects that could not be scored are **kept** — they were not flagged, and dropping them here would delete rows for missingness under the name of outlier removal.",
+      "translation": "Hlutir sem ekki var hægt að gefa stig eru **geymdir** — þeir voru ekki merktir og ef þeim væri hent hér yrðu raðir fjarlægðar vegna gagnaskorts undir yfirskini frávikahreinsunar."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_mapping_value#1",
+      "source_sha256": "5f6c264763b0e45c9d69a68c0363f6cfcb3ee0a50b2d8ec800b7addf4c458c70",
+      "source": "The screen's own edit path, exposed so a test drives the same code an editor widget does rather than reaching into the model.",
+      "context": "The application view's own edit path, exposed so a test drives the same code an editor widget does rather than reaching into the model.",
+      "translation": "Eigin breytingarleið forritssýnarinnar, gerð aðgengileg svo próf keyri sama kóða og ritilviðmótið í stað þess að seilast inn í líkanið."
+    },
+    {
+      "label": "spacr.ome_zarr.Level#5",
+      "source_sha256": "8d57407354ff2fe036b2a84140d05a9984ab4874e88448dca9388c1145c8e15d",
+      "source": "the numpy dtype string as stored, e.g. ``\"<u2\"``. Kept as written, byte order included.",
+      "context": "the numpy dtype string as stored, e.g. ``\"<u2\"``. Kept as written, byte order included.",
+      "translation": "numpy-gagnategundarstrengurinn eins og hann er geymdur, til dæmis ``\"<u2\"``. Honum er haldið óbreyttum, þar með talinni bætaröð."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#4",
+      "source_sha256": "cdd4a910bd968ecfa4a240aab1899738a4aeb740e00b38b70ea111aff9e7a352",
+      "source": "Intensity channel the cell mask belongs to, or ``None`` when there is no cell mask.",
+      "context": "Intensity image data channel the cell mask belongs to, or ``None`` when there is no cell mask.",
+      "translation": "Styrkleikarásin sem frumugríman tilheyrir, eða ``None`` ef engin frumugríma er til."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines#4",
+      "source_sha256": "cdd4a910bd968ecfa4a240aab1899738a4aeb740e00b38b70ea111aff9e7a352",
+      "source": "Intensity channel the cell mask belongs to, or ``None`` when there is no cell mask.",
+      "context": "Intensity image data channel the cell mask belongs to, or ``None`` when there is no cell mask.",
+      "translation": "Styrkleikarásin sem frumugríman tilheyrir, eða ``None`` ef engin frumugríma er til."
+    },
+    {
+      "label": "spacr.updater.find_uv#0",
+      "source_sha256": "619a7c997ffc55cd836f533a76b4aa9b5355b27a3bc3876abc3d784d81cdcbbf",
+      "source": "The ``uv`` the desktop installers bootstrap, if this is such an install.",
+      "context": "The ``uv`` the desktop installers bootstrap, if this is such an install.",
+      "translation": "``uv``-forritið sem skjáborðsuppsetningarforritin setja upp, ef um slíka uppsetningu er að ræða."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.gate_at#0",
+      "source_sha256": "9e60c4327ac27602990bf3fe20b98fc443c09c0f023fe651a99c054411b24835",
+      "source": "Name of the topmost gate containing ``(x, y)``, or None.",
+      "context": "Name of the topmost data-selection boundary containing ``(x, y)``, or None.",
+      "translation": "Nafn efstu gagnavalsmarkanna sem innihalda ``(x, y)``, eða None."
+    },
+    {
+      "label": "spacr.active_learning.margin#1",
+      "source_sha256": "8bddc16cd924ae1b5412f7ac2b47eb806f07e0f7b5c8896b2df24e00ba506727",
+      "source": "This returns an uncertainty score, **not** the margin: a small margin (the two leading classes neck and neck) is a large return value, so it is oriented like every other measure here. Minimum 0 at a one-hot row, maximum 1 at any row whose top two classes tie.",
+      "context": "This returns an uncertainty score, **not** the margin: a small margin (the two leading classes neck and neck) is a large return value, so it is oriented like every other measure here. Minimum 0 at a one-hot row, maximum 1 at any row whose top two classes tie.",
+      "translation": "Þetta skilar óvissustigi, **ekki** bilinu: lítið bil milli tveggja efstu flokkanna gefur hátt skilagildi, svo stefnan er sú sama og hjá öllum öðrum mælingum hér. Lágmarkið er 0 fyrir röð með einu gildinu 1; hámarkið er 1 þegar tveir efstu flokkarnir eru jafnir."
+    },
+    {
+      "label": "spacr.ports.register_module_ports#1",
+      "source_sha256": "58a2ac7ab997a93cc3d1f00edcb6f2367f1b7b71398286096c5a3d751d8389b0",
+      "source": "The seam a plugin — or a module written after this one — uses to join the graph, so :data:`PORTS` never has to be edited by hand.",
+      "context": "The seam a plugin — or a module written after this one — uses to join the graph, so :data:`PORTS` never has to be edited by hand.",
+      "translation": "Saumurinn sem viðbót — eða eining skrifuð á eftir þessari — notar til að tengjast grafinu, svo aldrei þurfi að breyta :data:`PORTS` handvirkt."
+    },
+    {
+      "label": "spacr.qt.walkthrough.register_steps#1",
+      "source_sha256": "44daff5d17b5c1ed06593be16cd03eb43fcf0ae8eb6c6940ab4f1da41805e9dd",
+      "source": "The seam a module uses to say something the layout cannot — \"run test mode on three fields before committing a plate\" is advice, not structure, and no amount of reading the settings map produces it.",
+      "context": "The seam a module uses to say something the layout cannot — \"run test mode on three microscope fields of view before committing a laboratory microplate\" is advice, not structure, and no amount of reading the settings map produces it.",
+      "translation": "Saumurinn sem eining notar til að segja það sem útlitið getur ekki sagt — \"keyrðu prófunarham á þremur sjónsviðum áður en örplatan er staðfest\" er ráðlegging en ekki formgerð, og lestur stillingavörpunarinnar leiðir hana aldrei í ljós."
+    },
+    {
+      "label": "spacr.predictions.migrate_prediction_columns#2",
+      "source_sha256": "2e4aca84a25eacee6508a33b9afa631f16e373a97ad466410de568aab422b97b",
+      "source": "**Idempotent.** After the repair the column holds 0s and 1s, which is not the encoding this looks for, so a second pass does nothing.",
+      "context": "**Idempotent.** After the repair the column holds 0s and 1s, which is not the encoding this looks for, so a second pass does nothing.",
+      "translation": "**Óbreytanlegt.** Eftir viðgerðina inniheldur dálkurinn núll og einn; það er ekki kóðunin sem leitað er að, svo önnur umferð gerir ekkert."
+    },
+    {
+      "label": "spacr.qt.widgets.pca_model.PCAResult.scores_frame#1",
+      "source_sha256": "b2b6de2fcf3179b32bba5ba567d8198d8220a311321751185257eddcbfc0492a",
+      "source": "Every original column is kept, which is the whole point: it is what lets the scores plot colour by ``gene``, facet by ``plateID`` and publish a real object-key selection when a cluster is brushed. The Graph Builder then draws it with no knowledge that it is a PCA.",
+      "context": "Every original column is kept, which is the whole point: it is what lets the scores plot colour by ``gene``, facet by ``plateID`` and publish a real object-structured-data name selection when a cluster is brushed. The Graph Builder then draws it with no knowledge that it is a PCA.",
+      "translation": "Öllum upprunalegum dálkum er haldið, sem er einmitt tilgangurinn: þá getur stigadreifiritið litað eftir ``gene``, flokkað eftir ``plateID`` og birt raunverulegt val hlutalykils þegar klasi er burstaður. Graph Builder teiknar það síðan án þess að vita að um PCA sé að ræða."
+    },
+    {
+      "label": "spacr.filters.gate_mask_over_table#0",
+      "source_sha256": "b7dfb069e61dec57f6cfc4417e29b92829b919b32b1fbf702a2daab12056d91c",
+      "source": "Apply a gate to EVERY object, reading only the columns it needs.",
+      "context": "Apply a data-selection boundary to EVERY object, reading only the columns it needs.",
+      "translation": "Beita gagnavalsmörkum á HVERT hlut og lesa aðeins dálkana sem þarf."
+    },
+    {
+      "label": "spacr.qt.chaining#6",
+      "source_sha256": "acbb3c4d56bb19625515348fc7d31d0a7113b9351a8ff5d682e3566d1ee0db5a",
+      "source": ":func:`register` is the whole of the installation and is idempotent, so a build whose launch list has not yet learned about this module can call it from anywhere that runs before the first window.",
+      "context": ":func:`register` is the whole of the installation and is idempotent, so a build whose launch list has not yet learned about this module can call it from anywhere that executes before the first window.",
+      "translation": ":func:`register` sér um alla uppsetninguna og er óbreytanlegt, svo smíði sem hefur ekki enn bætt þessari einingu við ræsilistann getur kallað það hvar sem er áður en fyrsti glugginn opnast."
+    },
+    {
+      "label": "spacr.object_roles.organelle_settings_view#1",
+      "source_sha256": "56c26e42fc1fadd0c9c835c6463b5d1d01ec4f3fde9e82cec6af0f2f183a1b7f",
+      "source": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` keys. Keeping that well-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
+      "context": "The classical organelle segmenter predates slots and reads roughly forty ``organelle_*`` structured-data names. Keeping that microplate sample position-tested implementation and adapting one settings view at its boundary prevents four copies of the algorithm.",
+      "translation": "Klassíska frumulíffærahlutunarlíkanið er eldra en hlutverkaraufarnar og les um fjörutíu ``organelle_*`` stillingarlykla. Með því að halda vel prófaðri útfærslu og aðlaga eina stillingasýn við mörk hennar þarf ekki fjögur afrit af reikniritinu."
+    }
+  ]
+}

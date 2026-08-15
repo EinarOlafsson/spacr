@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.hyperparam.classify_cv_fit_fn#1",
+      "source_sha256": "46dab7da0983c1cf1a65f75f7b9771e7b84de9b321f43dda23c17a751c3fad23",
+      "source": "The Classify (CV) app trains Torch CNNs, so the search does not roll its own folds: it hands each configuration to :func:`spacr.deep_spacr. train_test_model` with ``cross_validation_folds`` forced to at least two and ``cv_group_by`` left alone, then reads the per-fold CSV that run writes. That keeps a single implementation of grouped k-fold — spaCR's — and means the search splits the data exactly the way the training run will.",
+      "context": "The Classify (CV) app trains Torch CNNs, so the search does not roll its own folds: it hands each configuration to :func:`spacr.deep_spacr. train_test_model` with ``cross_validation_folds`` forced to at least two and ``cv_group_by`` left alone, then reads the per-fold CSV that processing session writes. That keeps a single implementation of grouped k-fold — spaCR's — and means the search splits the data exactly the way the training processing session will.",
+      "translation": "Forritið Classify (CV) þjálfar Torch CNNs, svo leit fer ekki sínar eigin lykkjur: það afhendir hverja uppsetningu til :func:`spacr.deep_spacr. train_test_model` með ``cross_validation_folds`` þvingaða í að minnsta kosti tvö og ``cv_group_by`` látinn óhaggaðan, og les svo CSV fyrir hverja lykkju sem vinnslufundurinn skrifar. Það heldur einni útfærslu af hópaðri k-fylkingu — spaCR's — og þýðir að leit skiptir gögnunum nákvæmlega á þann hátt sem vinnslufundurinn fyrir þjálfun mun gera."
+    },
+    {
+      "label": "spacr.errors#9",
+      "source_sha256": "55c5b0716cfb489d547bf4716f0aabe6c39078d94c25626f682791c13a71f9d1",
+      "source": "The module is deliberately **stdlib-only**. It is imported by ``io``/``core``/``measure``/``deep_spacr``/``plot`` at module scope, so it must never drag in torch, cellpose, pandas or numpy.",
+      "context": "The module is deliberately **stdlib-only**. It is imported by ``io``/``core``/``measure``/``deep_spacr``/``plot`` at module scope, so it must never drag in torch, cellpose, pandas or numpy.",
+      "translation": "Módúlið er viljandi **aðeins með sjálfgefnum bókasöfnum**. Það er flutt inn af ``io``/``core``/``measure``/``deep_spacr``/``plot`` á modúlstigi, svo það má aldrei draga inn torch, cellpose, pandas eða numpy."
+    },
+    {
+      "label": "spacr.omero.WellPosition#5",
+      "source_sha256": "3faa3413cf1a708c70e47097b98fe7baca51c1b79fb7f747794ed97fb94d9237",
+      "source": "the well name, e.g. ``'A01'`` — zero padded to two column digits, which is what spaCR's strict Yokogawa regex requires.",
+      "context": "The well name, for example ``'A01'``. It is zero-padded to two column digits, as required by spaCR's strict Yokogawa filename pattern.",
+      "translation": "Nafn brunnsins, til dæmis ``'A01'``. Það er núllfyllt upp að tveimur dálkstöfum, eins og krafist er af ströngu skráarnafni spaCR Yokogawa."
+    },
+    {
+      "label": "spacr.zstack#6",
+      "source_sha256": "7f24bc07f1aabb96c45dd2b79d6dafd6ecca6e2457d7f736599d7f8b80f57987",
+      "source": "**Objects touching the first or last plane are truncated.** Exactly as an object touching the xy field edge is truncated. Their volume is a lower bound and their shape statistics are meaningless. :func:`flag_truncated_z` marks them, mirroring the reasoning ``spacr.seg_qc`` already established for xy border objects (see ``seg_qc._score_labels``, which counts border objects and then excludes them from every size statistic).",
+      "context": "**Objects touching the first or last image layer are truncated.** Exactly as an object touching the xy microscope field of view edge is truncated. Their volume is a lower bound and their shape statistics are meaningless. :func:`flag_truncated_z` marks them, mirroring the reasoning ``spacr.seg_qc`` already established for xy border objects (see ``seg_qc._score_labels``, which counts border objects and then excludes them from every size statistic).",
+      "translation": "**Hlutur sem snertir fyrsta eða síðasta myndarlagið er skorinn.** Nákvæmlega eins og hlutur sem snertir jaðri xy smásjársjónsviðsins er skorinn. Rúmmál þeirra er neðri mörk og lögunartölfræði þeirra er merkingarlaus. :func:`flag_truncated_z` merkir þá, líkt og rökstuðningurinn ``spacr.seg_qc`` sem þegar hefur verið lagður fram fyrir xy jaðarhluti (sjá ``seg_qc._score_labels``, sem telur jaðarhluti og útilokar þá síðan úr hverri stærðartölfræði)."
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec#6",
+      "source_sha256": "038e6beb6b8703cc8d9b2345bed33aa675ad73b5730e9b6ed729e24fbafe8614",
+      "source": "The Graph Builder already facets — it has to, since dragging a column onto Facet ↓ has to do something. What is here and not there:",
+      "context": "The Graph Builder already facets — it has to, since dragging a column onto Facet ↓ has to do something. What is here and not there:",
+      "translation": "Grafasmiðurinn hefur þegar andlit — það verður að gera það, þar sem það að draga dálk yfir á Facet ↓ verður að gera eitthvað. Hvað er hérna og ekki þarna:"
+    },
+    {
+      "label": "spacr.resume#3",
+      "source_sha256": "fcbf5e9638d491995348a1749671539bacaa804382cd69edecb56c0f6d475cb8",
+      "source": "**A file that exists is not a file that finished.** ``spacr.io._load_and_concatenate_arrays`` writes ``merged/<field>.npy`` with a bare ``np.save`` straight onto the destination path, so a crash mid-write leaves a short, structurally valid-looking ``.npy`` on disk. A resume that skips on ``os.path.exists`` would accept that truncated field, measure whatever bytes happened to land, and put the result in the same table as the good fields. So :func:`completed_fields_in_merged` *validates*: it parses the ``.npy`` header and checks that the file is actually as long as its own shape claims. Anything short is reported as rejected and re-queued, never skipped. (io.py now also writes merged arrays atomically, so files produced from here on cannot be truncated — but the ones already on disk from previous runs can be.)",
+      "context": "**A file that exists is not a file that finished.** ``spacr.io._load_and_concatenate_arrays`` writes ``merged/<field>.npy`` with a bare ``np.save`` straight onto the destination path, so a crash mid-write leaves a short, structurally valid-looking ``.npy`` on disk. A resume that skips on ``os.path.exists`` would accept that truncated field, measure whatever bytes happened to land, and put the result in the same table as the good fields. So :func:`completed_fields_in_merged` *validates*: it parses the ``.npy`` header and checks that the file is actually as long as its own shape claims. Anything short is reported as rejected and re-queued, never skipped. (io.py now also writes merged arrays atomically, so files produced from here on cannot be truncated — but the ones already on disk from previous processing sessions can be.)",
+      "translation": "**Skrá sem til er er ekki skrá sem er lokið.** ``spacr.io._load_and_concatenate_arrays`` skrifar ``merged/<field>.npy`` með berum ``np.save`` beint á áfangaleiðina, svo bilun á miðju-skrifunni skilur eftir stutta, uppbyggingarlega réttlátlega ``.npy`` á disknum. Endurupptaka sem sleppir ``os.path.exists`` myndi samþykkja þá stuttu reit, mæla hvað byte-lengdir lentu tilviljunarkennt, og setja niðurstöðuna í sama töflu og góðu reitina. Svo :func:`completed_fields_in_merged` *staðfestir*: hún les ``.npy`` hausinn og athugar að skráin sé í raun eins löng og lögun hennar segist vera. Allt sem er styttra er tilkynnt sem hafnað og sett aftur í biðröð, aldrei sleppt. (io.py skrifar nú einnig samrunna fylki á atómska hátt, svo skrár sem framleiddar eru héðan í frá geta ekki verið styttar — en þær sem eru þegar á disknum frá fyrri vinnslutímum geta verið það.)"
+    },
+    {
+      "label": "spacr.qt.screens.graph_builder.register#3",
+      "source_sha256": "cb0053c1bf45447e6f8ada2cfdd16686cec200aeb4e59a312bd77c16a8e3755c",
+      "source": "Everything after ``SECTION_EXPLORE`` below is a table this key used to need a hand-edit in: the screen header and blurb (``app_screen.APP_TITLES`` / ``APP_INTROS``), the \"no headless run\" sentence (``cli.INTERACTIVE_ONLY``), the API doc link (``settings_model._APP_API_MODULE``) and the nine translations of the display name (``i18n._ROWS``). :func:`spacr.qt.app.register_app` distributes them.",
+      "context": "Everything after ``SECTION_EXPLORE`` below is a table this structured-data name used to need a hand-edit in: the application view header and blurb (``app_screen.APP_TITLES`` / ``APP_INTROS``), the \"no headless run\" sentence (``cli.INTERACTIVE_ONLY``), the API doc link (``settings_model._APP_API_MODULE``) and the nine translations of the display name (``i18n._ROWS``). :func:`spacr.qt.app.register_app` distributes them.",
+      "translation": "Allt sem kemur eftir ``SECTION_EXPLORE`` hér að neðan er tafla þetta structured-data nafn notaðist við að þurfa handbreytingu í: forritssýnishátt haus og inngang (``app_screen.APP_TITLES`` / ``APP_INTROS``), \"no headless run\" setningu (``cli.INTERACTIVE_ONLY``), API skjalsnúning (``settings_model._APP_API_MODULE``) og níu þýðingar á sýningarheiti (``i18n._ROWS``). :func:`spacr.qt.app.register_app` dreifir þeim."
+    },
+    {
+      "label": "spacr.ome_zarr#3",
+      "source_sha256": "dfab753c50b67db0ad7e6b2df5bb7552f012e6176e15e106f6d1754f62c2d9ea",
+      "source": "**Multiscale.** The group holds a resolution pyramid, so drawing a 200 px plate overview does not decode full resolution. :meth:`OmeZarrImage.level_for_size` picks the level, and the per-level ``scale`` transformation is what makes the picked level land in the same world coordinates as level 0.",
+      "context": "**Multiscale.** The group holds a resolution pyramid, so drawing a 200 px plate overview does not decode full resolution. :meth:`OmeZarrImage.level_for_size` picks the level, and the per-level ``scale`` transformation is what makes the picked level land in the same world coordinates as level 0.",
+      "translation": "**Margskala.** Hópurinn heldur á upplausnarpýramída, svo að þegar teiknuð er yfirlitsplata á 200 px afkóðar hún ekki fulla upplausn. :meth:`OmeZarrImage.level_for_size` velur stigið, og ``scale`` umbreytingin á hverju stigi er það sem fær valda stigið til að lenda á sama heimshnitum og stig 0."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model#34",
+      "source_sha256": "e52c3b4972766c0bd6e2aae58f9105d607b653f2816d0d4992e117ac2390c091",
+      "source": ":func:`detect_outliers` **adds columns**; it never drops a row and never changes one. :meth:`OutlierResult.object_frame` returns the input frame with ``outlier`` / ``outlier_score`` / ``outlier_reason`` / ``outlier_method`` appended, and ``len()`` of it always equals ``len()`` of the input. A name that would collide with an existing column is suffixed rather than overwritten, and the substitution is reported in :attr:`OutlierResult.column_names` and in the notes — a QC pass that silently overwrote a user's own ``outlier`` column would be a data-loss bug.",
+      "context": ":func:`detect_outliers` **adds columns**; it never drops a row and never changes one. :meth:`OutlierResult.object_frame` returns the input frame with ``outlier`` / ``outlier_score`` / ``outlier_reason`` / ``outlier_method`` appended, and ``len()`` of it always equals ``len()`` of the input. A name that would collide with an existing column is suffixed rather than overwritten, and the substitution is reported in :attr:`OutlierResult.column_names` and in the notes — a QC pass that silently overwrote a user's own ``outlier`` column would be a data-loss bug.",
+      "translation": ":func:`detect_outliers` **bætir við dálkum**; það fjarlægir aldrei röð og breytir henni aldrei. :meth:`OutlierResult.object_frame` skilar inntaksglugganum með ``outlier`` / ``outlier_score`` / ``outlier_reason`` / ``outlier_method`` bætt við, og ``len()`` þess er alltaf jafnt ``len()`` inntaksins. Nafn sem myndi rekast á núverandi dálk er með viðskeyti í stað þess að vera skrifað yfir, og breytingin er skráð í :attr:`OutlierResult.column_names` og í athugasemdunum — QC keyrsla sem þegjandi skrifaði yfir eigin ``outlier`` dálk notanda væri gagnatapsvillur."
+    },
+    {
+      "label": "spacr.qt.screens.lineage#1",
+      "source_sha256": "4b734b78cb7ff32a4203c95c0b15cf9a11bd0da98ddfdf5e07a3eac6b0eced6b",
+      "source": "The links have been in ``measurements.db`` since the first Measure run: ``nucleus`` and ``pathogen`` rows carry a ``cell_id`` naming the cell they sit inside (:data:`spacr.schema.CHILD_OBJECT_TABLES`). Nothing has ever shown them. \"This cell holds one nucleus and four pathogens\" was a fact you could compute and could not see, and the questions that follow from it — which cells are uninfected, which pathogen is impossibly large for the cell around it, which nucleus belongs to no cell at all — had no view.",
+      "context": "The links have been in ``measurements.db`` since the first Measure run: ``nucleus`` and ``pathogen`` rows carry a ``cell_id`` naming the cell they sit inside (:data:`spacr.schema.CHILD_OBJECT_TABLES`). Nothing has ever shown them. \"This cell holds one nucleus and four pathogens\" was a fact you could compute and could not see, and the questions that follow from it — which cells are uninfected, which pathogen is impossibly large for the cell around it, which nucleus belongs to no cell at all — had no view.",
+      "translation": "Tenglarnir hafa verið í ``measurements.db`` síðan fyrsta Measure keyrslan: ``nucleus`` og ``pathogen`` raðir bera ``cell_id`` sem nefnir frumuna sem þær sitja innan (:data:`spacr.schema.CHILD_OBJECT_TABLES`). Ekkert hefur nokkurn tíma sýnt þau. „Þessi fruma inniheldur eina kjarna og fjóra sjúkdómsvaldanda“ var staðreynd sem þú gætir reiknað út en sá ekki, og spurningarnar sem fylgja henni — hvaða frumur eru ónæmar fyrir sýkingu, hvaða sjúkdómsvaldur er ómögulega stór fyrir frumuna í kringum sig, hvaða kjarni tilheyrir ekki neinni frumu alls — höfðu enga sýn."
+    },
+    {
+      "label": "spacr.qt.theme#4",
+      "source_sha256": "e90ec1a18061a0428a2e1aea67f7a4df834391a753df43d54952718a887e36cd",
+      "source": "Space, Cell and Glass are :data:`IMAGE_THEMES`: dark themes with a visual backdrop — a generated deep-space render or downloaded photograph for Space (see :mod:`spacr.qt.space`), one of the user's own micrographs for Cell (see :mod:`spacr.qt.imagery`), and a built-in neutral light field for Glass. Panels, cards and inputs are drawn as translucent scrims so text always lands on a readable surface while the backdrop shows through the chrome and empty areas.",
+      "context": "Space, Cell and Glass are :data:`IMAGE_THEMES`: dark themes with a visual backdrop — a generated deep-space render or downloaded photograph for Space (see :mod:`spacr.qt.space`), one of the user's own micrographs for Cell (see :mod:`spacr.qt.imagery`), and a built-in neutral light field for Glass. Panels, cards and inputs are drawn as translucent scrims so text always lands on a readable surface while the backdrop shows through the chrome and empty areas.",
+      "translation": "Rými, Fruma og Gler eru :data:`IMAGE_THEMES`: dökk þemu með sjónrænum bakgrunni — tölvubúin djúprýmismynd eða niðurhalaður ljósmynd fyrir Rými (sjá :mod:`spacr.qt.space`), ein af eigin örsmásjármyndum notandans fyrir Frumu (sjá :mod:`spacr.qt.imagery`), og innbyggt hlutlaust ljósasvið fyrir Gler. Gluggar, spil og inntaksreitir eru teiknað sem gegnsæir skjáir svo texti sé alltaf á læsilegu yfirborði á meðan bakgrunnurinn sést í gegnum króm og tóm svæði."
+    },
+    {
+      "label": "spacr.hyperparam.SearchSpace.describe#0",
+      "source_sha256": "294b578a0c762affec6a73f386c95a59609d3f5464d37ecf85ec0e89aff9fa9c",
+      "source": "One-line human summary of the space and its size.",
+      "context": "One-line user-facing summary of the space and its size.",
+      "translation": "Einn lína notendavæns samantekt á rýminu og stærð þess."
+    },
+    {
+      "label": "spacr.predictions#6",
+      "source_sha256": "7c2c95f19963e853528b59214c17f534e8e3da63ed71664c35b80e6def2f888e",
+      "source": "The merge used to live in :mod:`spacr.deep_spacr`, which is an odd home for something :mod:`spacr.ml` needs just as much --- importing ``deep_spacr`` pulls in torch and torchvision, which the classical-ML path has no use for. The obvious alternative, :mod:`spacr.utils`, already owns the database *write* helpers (``_append_to_measurements_db``, ``rename_columns_in_db``), but it is also 8000 lines and imports most of the package; adding a third database concern there would make it harder, not easier, to see that CV and ML share one code path. This module is small, imports nothing from spaCR at module scope except :mod:`spacr.utils` helpers pulled in lazily, and is what both callers import.",
+      "context": "The merge used to live in :mod:`spacr.deep_spacr`, which is an odd home for something :mod:`spacr.ml` needs just as much --- importing ``deep_spacr`` pulls in torch and torchvision, which the classical-ML path has no use for. The obvious alternative, :mod:`spacr.utils`, already owns the database *write* helpers (``_append_to_measurements_db``, ``rename_columns_in_db``), but it is also 8000 lines and imports most of the package; adding a third database concern there would make it harder, not easier, to see that CV and ML share one code path. This module is small, imports nothing from spaCR at module scope except :mod:`spacr.utils` helpers pulled in lazily, and is what both callers import.",
+      "translation": "Sameiningin bjó áður í :mod:`spacr.deep_spacr`, sem er undarlegt heimili fyrir eitthvað :mod:`spacr.ml` þarfnast jafn mikið --- að flytja inn ``deep_spacr`` dregur inn torch og torchvision, sem klassíska ML leiðin hefur enga notkun fyrir. Auðvitað valkosturinn, :mod:`spacr.utils`, á þegar gagnagrunninn *write* hjálparforrit (``_append_to_measurements_db``, ``rename_columns_in_db``), en það er líka 8000 línur og flytur inn mest af pakkanum; að bæta við þriðja gagnagrunninum þar myndi gera það erfiðara, ekki auðveldara, að sjá að CV og ML deila einum kóðavegi. Þessi eining er lítil, flytur ekki inn neitt frá spaCR í einingarskema nema :mod:`spacr.utils` hjálparhluti sem eru sóttir á latan hátt, og er það sem báðir köllarnir flytja inn."
+    },
+    {
+      "label": "spacr.utils.rename_columns_in_db#4",
+      "source_sha256": "e1231966e11157c6cd7e805fd24c80c600d75e0cbf82fbf9413954392f586767",
+      "source": "**All or nothing.** SQLite's DDL *is* transactional, but Python's sqlite3 driver only opens an implicit transaction for DML (INSERT/UPDATE/DELETE/ REPLACE) — an ``ALTER TABLE`` runs in autocommit and lands immediately. So the previous version, which relied on a trailing ``con.commit()``, left a database half-migrated when a later rename raised. The transaction is opened explicitly here and rolled back on any error, and the connection is closed in a ``finally``.",
+      "context": "**All or nothing.** SQLite's DDL *is* transactional, but Python's sqlite3 driver only opens an implicit transaction for DML (INSERT/UPDATE/DELETE/ REPLACE) — an ``ALTER TABLE`` runs in autocommit and lands immediately. So the previous version, which relied on a trailing ``con.commit()``, left a database half-migrated when a later rename raised. The transaction is opened explicitly here and rolled back on any error, and the connection is closed in a ``finally``.",
+      "translation": "**Allt eða ekkert.** SQLite's DDL *er* viðskiptafræðilegt, en sqlite3 bílstjóri Python opnar aðeins sjálfgefið viðskipti fyrir DML (INSERT/UPDATE/DELETE/REPLACE) — ``ALTER TABLE`` keyrir í sjálfvirkri staðfestingu og lendir strax. Þannig að fyrri útgáfa, sem reyndist á bakendanum á ``con.commit()``, skildi gagnagrunninn hálfmótaðan þegar síðar umnefning kom upp. Viðskiptin eru opnuð sérstaklega hér og afturkölluð við einhverja villu, og tengingin er lokuð í ``finally``."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.SearchRequest#1",
+      "source_sha256": "7df3b92a0eb1365eae97c6d6fbd44a37d4fc0f11bfde413451766b741d84542e",
+      "source": "Kept as a plain dataclass so tests can construct one directly, exactly the way :class:`spacr.qt.widgets.live_preview.PreviewRequest` is used.",
+      "context": "Kept as a plain dataclass so tests can construct one directly, exactly the way :class:`spacr.qt.widgets.live_preview.PreviewRequest` is used.",
+      "translation": "Halt sem einfaldur gagnaflokkur svo prófanir geti sett hann saman beint, nákvæmlega eins og :class:`spacr.qt.widgets.live_preview.PreviewRequest` er notað."
+    },
+    {
+      "label": "spacr.attribution.ClassScoreModel#1",
+      "source_sha256": "6e86687e0ea1def6553d45834460bb0167944434ef3f3dbad2915425aafcb4b7",
+      "source": "A head emitting one logit ``z`` is presented as ``[-z, +z]``: column 1 is the evidence for class 1, column 0 the evidence for class 0, and ``argmax`` reproduces the ``z > 0`` rule spaCR's binary models use. The obvious alternative, ``[0, z]``, is exactly equivalent under softmax but has zero gradient for class 0, so every attribution for class 0 would be an all-zero map — a silent, plausible-looking wrong answer.",
+      "context": "A head emitting one logit ``z`` is presented as ``[-z, +z]``: column 1 is the evidence for class 1, column 0 the evidence for class 0, and ``argmax`` reproduces the ``z > 0`` rule spaCR's binary models use. The obvious alternative, ``[0, z]``, is exactly equivalent under softmax but has zero gradient for class 0, so every attribution for class 0 would be an all-zero map — a silent, plausible-looking wrong answer.",
+      "translation": "Haus sem gefur frá sér eitt logits ``z`` er sýndur sem ``[-z, +z]``: dálkur 1 er sönnun fyrir flokki 1, dálkur 0 sönnun fyrir flokki 0, og ``argmax`` endurgerir regluna ``z > 0`` sem spaCR's tvíundarlíkön nota. Augljós valkosturinn, ``[0, z]``, er nákvæmlega jafngildur undir softmax en hefur núllhalla fyrir flokk 0, þannig að hver tilvísun fyrir flokk 0 myndi vera algjörlega núll kort — þögult, trúverðugt útlit rangs svars."
+    },
+    {
+      "label": "spacr.utils.cluster_feature_analysis#1",
+      "source_sha256": "4195d971e49af8ca7783b218d40709592bf0134b416c5d648008727290425fdc",
+      "source": "DataFrame holding the numeric feature columns *and* ``cluster_col``, one row per object. The same frame is passed to the Random Forest and to the statistical tests, so the two rankings describe the same rows. The features are selected by ``schema.model_feature_columns(..., allow_unknown=True)``, which means stray numeric bookkeeping columns (row/column indices, object IDs) are picked up as features unless you drop them first. Because each feature is routed to *either* ANOVA or Kruskal-Wallis, the merged output has exactly one of the two p-value pairs filled per row and ``NaN`` in the other.",
+      "context": "DataFrame holding the numeric feature columns *and* ``cluster_col``, one row per object. The same frame is passed to the Random Forest and to the statistical tests, so the two rankings describe the same rows. The features are selected by ``schema.model_feature_columns(..., allow_unknown=True)``, which means stray numeric bookkeeping columns (row/column indices, object IDs) are picked up as features unless you drop them first. Because each feature is routed to *either* ANOVA or Kruskal-Wallis, the merged output has exactly one of the two p-value pairs filled per row and ``NaN`` in the other.",
+      "translation": "DataFrame sem heldur á tölulegum eiginleika dálkum *og* ``cluster_col``, ein lína fyrir hvert hlut. Sama ramma er komið til Random Forest og til tölfræðilegra prófa, þannig að báðar röðunar lýsa sömu línum. Eiginleikarnir eru valdir af ``schema.model_feature_columns(..., allow_unknown=True)``, sem þýðir að villandi tölulegir bókhaldssúlur (lína/dálkarnúmer, auðkenni hluta) eru teknar upp sem eiginleikar nema þú fjarlægir þær fyrst. Þar sem hver eiginleiki er stýrt til *annaðhvort* ANOVA eða Kruskal-Wallis, hefur sameinaður útgangur nákvæmlega eitt af tveimur p-gildapörum fyllt fyrir hverja línu og ``NaN`` í hinum."
+    },
+    {
+      "label": "spacr.deep_spacr.train_test_model#16",
+      "source_sha256": "3d20050de2db98c2206ab586f32006e858f82ebc04f656ff311edd6534448b4f",
+      "source": "See Also: :func:`spacr.deep_spacr.deep_spacr` — full end-to-end training + activation-map pipeline. :func:`spacr.io.generate_dataset` — build the ``train/``/``test/`` folder tree.",
+      "context": "See Also: :func:`spacr.deep_spacr.deep_spacr` — full end-to-end training + activation-map workflow. :func:`spacr.io.generate_dataset` — build the ``train/``/``test/`` folder tree.",
+      "translation": "Sjá einnig: :func:`spacr.deep_spacr.deep_spacr` — full þjálfun frá upphafi til enda + virkni-korts vinnuflæði. :func:`spacr.io.generate_dataset` — byggja upp ``train/``/``test/`` möpputré."
+    },
+    {
+      "label": "spacr.qt.prerun.SegQCBanner#1",
+      "source_sha256": "f48e30b290470fbb0309528b5951347c5157f75368a7d4585e93333942088051",
+      "source": "Reads ``<plate>/qc/segmentation_qc_<object>.csv`` — the card :mod:`spacr.seg_qc` wrote when the masks were made — and shows what it says: the plate, the wells, the likely cause and what to do. It scores nothing on its own; the *Score the masks now* button is the only path in this class that opens a mask, and it exists because \"no card\" and \"a card older than the masks\" are both answers a user should be able to fix from here.",
+      "context": "Reads ``<plate>/qc/segmentation_qc_<object>.csv`` — the card :mod:`spacr.seg_qc` wrote when the masks were made — and shows what it says: the laboratory microplate, the microplate sample positions, the likely cause and what to do. It scores nothing on its own; the *Score the masks now* button is the only path in this class that opens a mask, and it exists because \"no card\" and \"a card older than the masks\" are both answers a user should be able to fix from here.",
+      "translation": "Les ``<plate>/qc/segmentation_qc_<object>.csv`` — kortið sem :mod:`spacr.seg_qc` skrifaði þegar grímurnar voru gerðar — og sýnir hvað stendur: rannsóknarstofu örplatan, sýnaposar örplatunnar, líklegan orsök og hvað á að gera. Hún gefur ekkert stig sjálf; hnappurinn *Stigagjöf grímanna núna* er eina leiðin í þessari flokk sem opnar grímu, og hann er til vegna þess að \"no card\" og „kort eldri en grímurnar“ eru bæði svör sem notandi ætti að geta lagað héðan."
+    },
+    {
+      "label": "spacr.batch#1",
+      "source_sha256": "b9d2537c20c918db20d3e1d89b72721e85ffe840f08680cb0773062406e94717",
+      "source": "The Plate Queue (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* pipeline with *one* settings dict. This module is the other axis: a queue of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.",
+      "context": "The Plate-processing list (:mod:`spacr.qt.plate_queue`) chains *plates* through *one* workflow with *one* settings key-value mapping. This module is the other axis: a software job list of arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — which is what a night of plate-scale work actually looks like.",
+      "translation": "Diskahandbókunarlistinn (:mod:`spacr.qt.plate_queue`) keðjar *diskar* í gegnum *eina* vinnuflæði með *einni* stillingarlyklum-gildamerkingu. Þessi eining er hinn ásinn: hugbúnaðarvinnulisti af handahófskenndum ``(module, settings)`` verkefnum í hvaða röð sem er — ``Mask → Measure → Classify (CV) → Classify (ML)``, síðan sömu fjórar aftur með öðru þvermáli, síðan fimmti diskurinn Mask — sem er það sem nótt á diskastigi vinnu raunverulega lítur út eins og."
+    },
+    {
+      "label": "spacr.schema.is_positional_pair#1",
+      "source_sha256": "48b159ee6a2eabe6015aee7888700018dd010288d58d8e16c592512205b47def",
+      "source": ":func:`parse_well` puts an unrecognisable well into *both* slots verbatim, so an unprefixed pair of equal values is that passthrough and not a real row and column. Without this check ``('12', '12')`` looks like row 12 / column 12 and :func:`well_id` happily renders it ``'L12'`` — a well name for a well that was never identified.",
+      "context": ":func:`parse_well` puts an unrecognisable well into *both* slots verbatim, so an unprefixed pair of equal values is that passthrough and not a real row and column. Without this check ``('12', '12')`` looks like row 12 / column 12 and :func:`well_id` happily renders it ``'L12'`` — a well name for a well that was never identified.",
+      "translation": ":func:`parse_well` setur óþekkjanlega brunna í *báða* reitina orðrétt, svo óforskeytt par af jöfnum gildum er það að fara í gegn og ekki raunveruleg röð og dálkur. Án þessa athugunar lítur ``('12', '12')`` út eins og röð 12 / dálkur 12 og :func:`well_id` birtir það glaðlega sem ``'L12'`` — vel nafn fyrir vel sem aldrei var greint."
+    },
+    {
+      "label": "spacr.power_model#8",
+      "source_sha256": "cc3fd005b4cc50dd53f8b2b6434d3921fe62d01b4afb3812f6fbe56fded09ced",
+      "source": "``beta_g`` is the evidence that gene *g* is a hit: higher means the wells carrying more of gene *g* had more positive cells than their cell count alone explains.  There are far more genes than wells (``p >> n``), so ``beta`` is given a **regularized horseshoe** prior (Piironen & Vehtari, *Electron. J. Statist.* 11(2), 2017) — heavy tails so genuine hits escape shrinkage, a sharp spike at zero so the hundreds of non-hits collapse onto it, and a Student-t slab so the tails stay proper.",
+      "context": "Evidence score: *``beta_g``*. Higher values mean that wells carrying more of a gene have more positive cells than cell count alone explains. The relation ``p >> n`` means that genes greatly outnumber wells. Therefore *``beta``* uses a **regularized horseshoe prior** (Piironen & Vehtari, *Electron. J. Statist.* 11(2), 2017). Heavy tails preserve genuine hits, a sharp zero spike shrinks non-hits, and a Student-t slab keeps the tails proper.",
+      "translation": "Stig sönnunnar: *``beta_g``*. Hærri gildi þýða að brunnar sem bera fleiri gens hafa fleiri jákvæðar frumur en fjöldi frumna útskýrir einn og sér. Tengingin ``p >> n`` þýðir að gen eru miklu fleiri en brunnar. Þess vegna notar *``beta``* **reglulegan hestaskóttur fyrirfram** (Piironen & Vehtari, *Electron. J. Statist.* 11(2), 2017). Þykkir sporður varðveita raunveruleg högg, skarpur núll-toppur dregur saman óhögg, og Student-t pláss heldur sporðunum réttum."
+    },
+    {
+      "label": "spacr.ome_zarr.write_ome_zarr#3",
+      "source_sha256": "1adc358c9c59a4f62876b30e122909a3ad0008df42a467bd4ade9878ca3cdbfe",
+      "source": "**The transformations.** Level *k*'s ``scale`` is level 0's multiplied by 2^k on each downsampled axis — writing level 0's scale on every level is the most common NGFF bug there is, and it renders as coarse levels that are a quarter the size of the fine ones and slide off the corner as you zoom. The ``translation`` moves too, and differently per method: a block mean centres its first output element half a level-0 pixel inside the edge, so level *k* gets ``translate_0 + scale_0 * (2^k - 1) / 2``, while a strided level samples element 0 exactly and keeps ``translate_0``.",
+      "context": "**The transformations.** Level *k*'s ``scale`` is level 0's multiplied by 2^k on each downsampled axis — writing level 0's scale on every level is the most common NGFF bug there is, and it renders as coarse levels that are a quarter the size of the fine ones and slide off the corner as you zoom. The ``translation`` moves too, and differently per method: a block mean centres its first output element half a level-0 pixel inside the edge, so level *k* gets ``translate_0 + scale_0 * (2^k - 1) / 2``, while a strided level samples element 0 exactly and keeps ``translate_0``.",
+      "translation": "**Breytingarnar.** Stig *k*'s ``scale`` er tvöfaldan (2^k) af stigi 0 á hverri niðurprunnum ás — að skrifa kvarða stigs 0 á hverju stigi er algengasti NGFF villan, og það birtist sem gróf stig sem eru fjórðungur af stærð þeirra fínni og renna af horninu þegar þú stækkar. ``translation`` hreyfist líka, og á mismunandi hátt eftir aðferð: blokkameðaltal miðjar fyrsta úttakselement sitt hálfum stigi-0 pixl innan brúnarinnar, svo stig *k* fær ``translate_0 + scale_0 * (2^k - 1) / 2``, meðan strikað stig sækir element 0 nákvæmlega og heldur ``translate_0``."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls#9",
+      "source_sha256": "0492878f3259ba4bf18bfaeb053df18c90eefa5d8f2ff95bced8f8bace87bfc9",
+      "source": ":func:`sibling_sources` lists **every** comparable file in the folder, and the panels fed that straight into their field-of-view dropdown. Measured on a 384-well plate at 16 fields and 4 channels (24 576 files) and on one four times larger (98 304 files):",
+      "context": ":func:`sibling_sources` returns **every** comparable file in the folder. The panels previously sent that complete list directly to their field-of-view selector. We measured this behavior on a 384-well plate with 16 fields and 4 channels (24 576 files), and on another plate four times larger (98 304 files):",
+      "translation": ":func:`sibling_sources` skilar **hverju** samanburðarhæfu skrá í möppunni. Húsgluggarnir sem sendu áður þá fullkomnu skrá beint til sjónsviðsvalkvarðans síns. Við mældum þessa hegðun á 384-gataplötu með 16 sviðum og 4 rásum (24 576 skrár), og á annarri plötu fjórum sinnum stærri (98 304 skrár):"
+    },
+    {
+      "label": "spacr.selection.object_keys#3",
+      "source_sha256": "d9297227fc7a64a2fd1afec789f4beb4007caf3c272f3305cbff067fd36cf13d",
+      "source": "the object table these rows came from. Overrides :data:`OBJECT_TYPE_COLUMN` when the frame also carries one. ``None`` means \"read it off the frame, and leave the keys untyped if it does not say\" — *not* \"these are cells\".",
+      "context": "the object table these rows came from. Overrides :data:`OBJECT_TYPE_COLUMN` when the frame also carries one. ``None`` means \"read it off the frame, and leave the structured-data names untyped if it does not say\" — *not* \"these are cells\".",
+      "translation": "hlutataflan sem þessar raðir komu frá. Yfirskrifar :data:`OBJECT_TYPE_COLUMN` þegar ramminn ber einnig einn. ``None`` þýðir „lesið það af rammann, og látið nafn gagna í strúktúrlausum ekki hafa tegund ef það segir ekki“ — *ekki* \"these are cells\"."
+    }
+  ]
+}

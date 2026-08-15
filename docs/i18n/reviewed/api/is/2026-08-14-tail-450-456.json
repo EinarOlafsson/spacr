@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.pipeline_v2#1",
+      "source_sha256": "1d84874381a6a4db4aaab63b21eee36ec3ab2dbd4629741ce55ccecc1c91dd02",
+      "source": "Replaces the multi-copy disk chain that ``preprocess_generate_masks`` has run since day one:",
+      "context": "Replaces the multi-copy disk chain that ``preprocess_generate_masks`` has run since day one:",
+      "translation": "Kemur í stað margföldu diskakeðjunnar sem ``preprocess_generate_masks`` hefur keyrt frá upphafi:"
+    },
+    {
+      "label": "spacr.pipeline_v2#2",
+      "source_sha256": "68c1c62607530574df5efab5bc3c56f07bacf69e2be2242b55dc698305cfdef3",
+      "source": "…with a two-pass streaming pipeline that keeps only what the downstream measure module actually reads:",
+      "context": "…with a two-pass streaming workflow that keeps only what the downstream measure module actually reads:",
+      "translation": "…með tveggja umferða straumvinnslu sem geymir aðeins það sem Measure-einingin neðar í ferlinu les í raun:"
+    },
+    {
+      "label": "spacr.pipeline_v2#3",
+      "source_sha256": "a39d4193908e4ffa530b05d18516c44d58792c251b34d62d94b6c48e8a9b5864",
+      "source": "Pass 1 — assemble walk originals, parse metadata regex, build one npy stack per field with all image channels in the C axis. Emit ``filename_map.csv`` recording every original → stack mapping.",
+      "context": "Pass 1 — assemble walk originals, parse metadata regex, build one npy stack per microscope field of view with all image data channels in the C axis. Emit ``filename_map.csv`` recording every original → stack mapping.",
+      "translation": "Umferð 1 — safna upprunalegum myndum, túlka lýsigagnareglulega segð og búa til einn npy-stafla á hvert sjónsvið með öllum myndrásum á C-ás. Skrifa ``filename_map.csv`` sem skráir sérhverja vörpun upprunalegrar skráar → stafla."
+    },
+    {
+      "label": "spacr.pipeline_v2#4",
+      "source_sha256": "3702d4d4869394fe72204221df40dbc90afdb76f0da2f66f918cb937ad471d87",
+      "source": "Pass 2 — segment stream the plate in batches of N fields, hand each batch to Cellpose, append the mask channels to the SAME stack file. Each batch is written to a scratch NPZ on the way through and deleted again unless ``keep_npz=True``.",
+      "context": "Pass 2 — segment stream the laboratory microplate in batches of N microscope fields of view, hand each batch to Cellpose, append the mask image data channels to the SAME stack file. Each batch is written to a scratch NPZ on the way through and deleted again unless ``keep_npz=True``.",
+      "translation": "Umferð 2 — hluta plötuna í straumi í lotum með N sjónsviðum, senda hverja lotu til Cellpose og bæta grímurásunum við SÖMU staflaskrá. Hver lota er skrifuð tímabundið í NPZ-vinnuskrá og henni eytt aftur nema ``keep_npz=True``."
+    },
+    {
+      "label": "spacr.pipeline_v2#5",
+      "source_sha256": "28be8e0862eb7bcca2d50184141a651488827718b660dc64b4bf24d2c575f61f",
+      "source": "Output — ``merged/`` folder holds one file per field, each shape ``(H, W, C_image + C_mask)`` in uint16, plus:",
+      "context": "Output — ``merged/`` folder holds one file per field, each shape ``(H, W, C_image + C_mask)`` in uint16, plus:",
+      "translation": "Úttak — mappan ``merged/`` geymir eina skrá á hvert sjónsvið, hver með lögunina ``(H, W, C_image + C_mask)`` í uint16, auk:"
+    },
+    {
+      "label": "spacr.pipeline_v2#6",
+      "source_sha256": "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+      "source": "Public API",
+      "context": "Public API",
+      "translation": "Opinbert API"
+    },
+    {
+      "label": "spacr.pipeline_v2#7",
+      "source_sha256": "0d72825d4a7e807bdb0ad1ebfb5d33da4c2fb5e1f2772ac71779bde81f2510de",
+      "source": "This module is opt-in for one release cycle. Once the follow-up commit wires it as the default in :func:`spacr.core.preprocess_generate_masks` the whole disk chain above collapses to ``merged/`` alone.",
+      "context": "This module is opt-in for one release cycle. Once the follow-up commit wires it as the default in :func:`spacr.core.preprocess_generate_masks` the whole disk chain above collapses to ``merged/`` alone.",
+      "translation": "Þessi eining er valkvæð í eina útgáfulotu. Þegar næsta breyting gerir hana að sjálfgefnu leiðinni í :func:`spacr.core.preprocess_generate_masks` fellur öll diskakeðjan hér að ofan saman í aðeins ``merged/``."
+    }
+  ]
+}

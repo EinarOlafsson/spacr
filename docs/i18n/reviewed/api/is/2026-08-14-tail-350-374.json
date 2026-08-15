@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.screens.profiler#3",
+      "source_sha256": "bb3520824cfd6f39fe2eea4766dfdff5e63d1cf08a53d63103db4d4eb904edd8",
+      "source": "**Nothing is re-fitted.** The screen reads a coefficient table a regression run already wrote and wraps it in :class:`spacr.profiler.FittedLinear`, which is *reading* the fit. A profiler that re-fits is showing a second model under the first one's name, and on a penalised backend with ``alpha='auto'`` it is not even the same model. A caller that has a live fitted object can hand it straight to :meth:`ProfilerScreen.set_model` and skip the file entirely.",
+      "context": "**Nothing is re-fitted.** The screen reads a coefficient table a regression processing session already wrote and wraps it in :class:`spacr.profiler.FittedLinear`, which is *reading* the fit. A profiler that re-fits is showing a second model under the first one's name, and on a penalised backend with ``alpha='auto'`` it is not even the same model. A caller that has a live fitted object can hand it straight to :meth:`ProfilerScreen.set_model` and skip the file entirely.",
+      "translation": "**Ekkert er endurbætt.** Skjárinn les fylkisfallatafla sem afturhvarfsvinnslufundur hefur þegar skrifað og umvefur hana í :class:`spacr.profiler.FittedLinear`, sem er *að lesa* aðlöðunina. Greinandi sem endurstillingar sýnir annað líkan undir nafni fyrsta líkansins, og á refsaðri bakenda með ``alpha='auto'`` er það ekki einu sinni sama líkan. Kallari sem hefur lifandi aðlagaðar hlut getur afhent það beint til :meth:`ProfilerScreen.set_model` og sleppt skránni alveg."
+    },
+    {
+      "label": "spacr.updater.find_uv#1",
+      "source_sha256": "2ff0cf6507c629338edd915fbe5609aba65b86387d95bf6eb5092c951d1307c1",
+      "source": "The native installers build their environment with ``uv venv``, which does **not** seed ``pip``. On those installs ``python -m pip`` fails before it starts, so the updater has to use the same tool the installer did. ``uv`` is bootstrapped one level above the venv",
+      "context": "The native installers build their environment with ``uv venv``, which does **not** seed ``pip``. On those installs ``python -m pip`` fails before it starts, so the updater has to use the same tool the installer did. ``uv`` is bootstrapped one level above the venv",
+      "translation": "Innfæddu uppsetningaraðilarnir byggja umhverfi sitt með ``uv venv``, sem gerir **ekki** sá ``pip``. Á þeim uppsetningum bilar ``python -m pip`` áður en það byrjar, svo uppfærslutækið þarf að nota sömu tólið sem uppsetningaraðilinn notaði. ``uv`` er ræstur upp eitt stig ofar en venv"
+    },
+    {
+      "label": "spacr.gate_library#1",
+      "source_sha256": "0d7e29fcbc615fc4d5177de2bb720fd2b08b5210f21bf23d370f9b51f35f824b",
+      "source": "Instruction 31's \"saveable filter sets\". The Gate Editor could already write a strategy to a path and read one back, but only through a file chooser, which makes reuse a matter of remembering where you put it. A screen is gated the same way over and over -- \"live singlets\", \"infected cells\", \"the debris filter I always apply\" -- and that is a LIBRARY, not a file.",
+      "context": "Instruction 31's \"saveable filter sets\". The Data-selection boundary Editor could already write a strategy to a path and read one back, but only through a file chooser, which makes reuse a matter of remembering where you put it. A screen is gated the same way over and over -- \"live singlets\", \"infected cells\", \"the debris filter I always apply\" -- and that is a LIBRARY, not a file.",
+      "translation": "Leiðbeining 31's \"saveable filter sets\". Gagnaúrvalsbrúnaritillinn gat þegar skrifað stefnu á slóð og lesið eina aftur, en aðeins í gegnum skráarval, sem gerir endurnotkun að spurningunni um að muna hvar þú settir hana. Skjár er lokaður á sama hátt aftur og aftur -- \"live singlets\", \"infected cells\", „ruslsíun sem ég nota alltaf“ -- og það er BÓKASAFN, ekki skrá."
+    },
+    {
+      "label": "spacr.regression_qc.RegressionQCContext#13",
+      "source_sha256": "ae1cf8c1ef48f73d03d9b068cbea3cd4885169365f1893c1240d843e33280116",
+      "source": "The continuous score wells are RANKED by, which is not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label, and an ROC computed on hard labels has exactly two operating points and understates the model. ``build_context`` sets this to ``decision_function(X)`` for a classifier and to ``fitted`` for everything else, oriented so that LARGER means MORE LIKELY POSITIVE for both.",
+      "context": "The continuous score microplate sample positions are RANKED by, which is not always ``fitted``: a hinge/SVM's ``fitted`` is the hard 0/1 label, and an ROC computed on hard labels has exactly two operating points and understates the model. ``build_context`` sets this to ``decision_function(X)`` for a machine-learning classification model and to ``fitted`` for everything else, oriented so that LARGER means MORE LIKELY POSITIVE for both.",
+      "translation": "Stöðugar stigagreiningar sýnaplötustöður eru RANKAÐAR eftir, sem er ekki alltaf ``fitted``: samband/hinge-SVM ``fitted`` er harða 0/1 merkið, og ROC reiknað með hörðum merkjum hefur nákvæmlega tvo rekspunkta og vanmetur líkanið. ``build_context`` stillir þetta á ``decision_function(X)`` fyrir vélarnáms flokkunarlíkan og á ``fitted`` fyrir allt annað, staðsett þannig að STÆRRI þýðir MEIRA LÍKLEGUR JÁKVÆÐUR fyrir báða."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#7",
+      "source_sha256": "5793de15bd4b9fefde8265827f8b58755dcff392cc8f3581e8e55c90b840f73a",
+      "source": "Intensity channel the organelle mask belongs to, or ``None``. Default ``None``.",
+      "context": "Intensity image data channel the organelle mask belongs to, or ``None``. Default ``None``.",
+      "translation": "Styrkleikagagnakanali myndarinnar sem frumulíffæravörn tilheyrir, eða ``None``. Sjálfgefið ``None``."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview#5",
+      "source_sha256": "5878326aaecbc6206f51afe49dbfe609a31a6785544a929b16f3e6bf98eb32c0",
+      "source": "**Model-aware options.** Every model shows the full segmentation set. Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that killed that belief.",
+      "context": "**Model-aware options.** Every model shows the full segmentation set. Cellpose-SAM does *not* ignore ``flow_threshold``, ``cellprob`` or ``diameter`` — see :data:`DIAMETER_TOOLTIP` for the measurement that killed that belief.",
+      "translation": "**Valkostir sem vita af líkönum.** Hvert líkan sýnir allan aðskilnaðarsafninn. Cellpose-SAM hunsar *ekki* ``flow_threshold``, ``cellprob`` eða ``diameter`` — sjá :data:`DIAMETER_TOOLTIP` fyrir mælinguna sem drap þá trú."
+    },
+    {
+      "label": "spacr.qt.job_runner.JobRunner#0",
+      "source_sha256": "8910cf72a115abde1ce47627f46226b8d8f4891b352a6e6eb53290b3c0154698",
+      "source": "Run callables off the GUI thread; deliver their results on it.",
+      "context": "Run callables off the main GUI execution path; deliver their results on it.",
+      "translation": "Keyrðu köllanlega utan aðal GUI keyrslustígsins; afhentu niðurstöður þeirra á honum."
+    },
+    {
+      "label": "spacr.utils.measure_test_mode#1",
+      "source_sha256": "1f27d53c353cc8075536e924fb6258e65380205e51aa623ce6f54ed50b0ee386",
+      "source": "Fewer files than ``test_nr`` is not an error. test_mode is the setting a user reaches for on a SMALL plate, and ``random.sample`` raised ``ValueError: Sample larger than population or is negative`` on exactly that case -- so the one folder you most want to smoke-test first was the one folder test_mode refused to run on.",
+      "context": "Fewer files than ``test_nr`` is not an error. test_mode is the setting a user reaches for on a SMALL plate, and ``random.sample`` raised ``ValueError: Sample larger than population or is negative`` on exactly that case -- so the one folder you most want to smoke-test first was the one folder test_mode refused to execute on.",
+      "translation": "Færri skrár en ``test_nr`` er ekki villa. test_mode er stillingin sem notandi velur á LITLU diskinum, og ``random.sample`` vakti ``ValueError: Sample larger than population or is negative`` á einmitt því tilviki -- svo eini möppan sem þú vildir mest prófa fyrst var einmitt sú möppa sem test_mode neitaði að keyra á."
+    },
+    {
+      "label": "spacr.batch.Problem#1",
+      "source_sha256": "e0868c75dd90e3df1803ea45ad7780a617a48b0bffd41dae1cdb0a03a28b2df6",
+      "source": "Deliberately the same shape as :class:`spacr.validate.Problem` — severity, message, fix — plus the ``job_id`` needed to say *which* of twelve jobs is at fault. Problems produced by :func:`spacr.validate.validate_settings` are wrapped into this, not re-invented.",
+      "context": "Deliberately the same shape as :class:`spacr.validate.Problem` — severity, message, fix — plus the ``job_id`` needed to say *which* of twelve jobs is at fault. Problems produced by :func:`spacr.validate.validate_settings` are wrapped into this, not re-invented.",
+      "translation": "Viljandi sömu lögun og :class:`spacr.validate.Problem` — alvarleiki, skilaboð, lagfæring — plús ``job_id`` sem þarf til að segja *hver* af tólf störfum er að kenna. Vandamál sem :func:`spacr.validate.validate_settings` framkallar eru innifalin í þessu, ekki enduruppfundin."
+    },
+    {
+      "label": "spacr.io.spacrDataLoader#1",
+      "source_sha256": "cf6e9d5abdd472d6a2ee5a1a930b4fe76dbfd6a988a70434281730e15d1cb100",
+      "source": "Wraps ``torch.utils.data.DataLoader`` and runs a daemon thread that stays one or more batches ahead of consumption to hide I/O latency. End-of-stream is signalled with a sentinel, so the full batch stream is always delivered.",
+      "context": "Wraps ``torch.utils.data.DataLoader`` and runs a daemon thread that stays one or more batches ahead of consumption to hide I/O latency. End-of-stream is signalled with a sentinel, so the full batch stream is always delivered.",
+      "translation": "Umlykur ``torch.utils.data.DataLoader`` og keyrir bakgrunnsþráð sem er eitt eða fleiri köst á undan neyslu til að fela I/O töf. Endi straums er tilkynntur með vörðum, svo fullur straumur hauganna er alltaf afhentur."
+    },
+    {
+      "label": "spacr.runctx#2",
+      "source_sha256": "5f176ea81ee615430f3dd8f2640b17afe533e2fa86d81c8fbb10e2fb25ac9228",
+      "source": "**One run id, on every log line and every output.** A run used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the run that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per-run JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
+      "context": "**One processing-session id, on every log line and every output.** A processing session used to be untraceable. The log said a field failed; the registry said an artifact existed; nothing connected them, so \"show me everything from the processing session that produced this file\" had no answer. :func:`run_context` mints one id, stamps it onto every :class:`logging.LogRecord` created anywhere in the process, writes a per processing session JSONL log that :func:`read_run_log` reads back, and hands the *same* id to :func:`spacr.artifacts.register_run_outputs`. A log line and an output can therefore be joined on ``run_id``, which is the whole point.",
+      "translation": "**Eitt auðkenni vinnslufundar, á hverri skráar línu og hverju úttaki.** Vinnslufundur var áður ómögulegt að rekja. Dagbókin sagði að reitur mistókst; skráningin sagði að listi væri til; ekkert tengdi þau, svo „sýndu mér allt frá vinnslufundinum sem framleiddi þessa skrá“ hafði ekkert svar. :func:`run_context` býr til eitt auðkenni, stimplar það á hvert :class:`logging.LogRecord` sem er búið til hvert sem er í ferlinu, skrifar JSONL dagbók fyrir hvern vinnslufund sem :func:`read_run_log` les aftur, og afhendir *sama* auðkennið til :func:`spacr.artifacts.register_run_outputs`. Ská línu og úttak er því hægt að tengja á ``run_id``, sem er allt punkturinn."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview#3",
+      "source_sha256": "1b411ad01ce9412110203c6f31091c76e7feedd759b92eecc4c202f2a0d06916",
+      "source": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
+      "context": "**Units.** The assay converts pixels per frame into physical units with ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` and only when *both* are known; otherwise it reports ``px/frame``. A preview that printed \"velocity 4.2\" while the user was thinking in µm/s would be worse than printing nothing, so the calibration fields start **unset**, every velocity carries its unit, and while the calibration is unknown the panel says so in words instead of quietly borrowing the 1.78 px/µm default.",
+      "translation": "**Einingar.** Greiningin breytir pixlum á ramma í eðlisfræðilegar einingar með ``factor = (1 / pixels_per_um) * (60 / seconds_per_frame)`` og aðeins þegar *bæði* eru þekkt; annars skilar hún ``px/frame``. Forskoðun sem prentaði \"velocity 4.2\" á meðan notandinn hugsaði í µm/s væri verri en að prenta ekkert, svo stillingarsvið byrja **óstillt**, hver hraði ber sína einingu, og meðan stillingin er óþekkt segir spjaldið það í orðum í stað þess að lána þögull 1,78 px/µm sjálfgefnu."
+    },
+    {
+      "label": "spacr.pipeline_v2.StackFile#1",
+      "source_sha256": "683bc8fb1bb373929b1122e0622a1841615b2f4251b556245931a6b37b2168c2",
+      "source": "Populated by :func:`stream_originals_to_stack` before Cellpose runs (C = image channels only). After :func:`stream_masks_from_stack` the same file has additional mask channels appended.",
+      "context": "Populated by :func:`stream_originals_to_stack` before Cellpose runs (C = image data channels only). After :func:`stream_masks_from_stack` the same file has additional mask image data channels appended.",
+      "translation": "Fylt af :func:`stream_originals_to_stack` áður en Cellpose keyrir (C = aðeins myndgagnarásar). Eftir :func:`stream_masks_from_stack` hefur sama skrá fleiri rásir með grímu myndagögnum bætt við."
+    },
+    {
+      "label": "spacr.resume#16",
+      "source_sha256": "c7dbe80819c119b7845aa8fde3124a0e7d2b2f20052ddb74541a0ada8b9cdc79",
+      "source": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",
+      "context": "The module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.",
+      "translation": "Módúlið er viljandi **aðeins stdlib** — ``os``/``sqlite3``/``ast`` og ekkert annað við innflutning. Það er skoðað efst í ``measure_crop``, löngu áður en módel er hlaðið, og það má aldrei vera það sem dregur torch eða cellpose inn í ferli."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec#2",
+      "source_sha256": "2c789e90aaf234a6d132a9083630c8f9def6da408ae0b89d0220569b82c1ed2e",
+      "source": "Like :mod:`spacr.qt.widgets.graph_spec`, this half is **pure pandas and numpy with no Qt** — testable without a display, usable from a notebook, and available to whatever screen wants a summary table without inheriting a drag-and-drop panel.",
+      "context": "Like :mod:`spacr.qt.widgets.graph_spec`, this half is **pure pandas and numpy with no Qt** — testable without a display, usable from a notebook, and available to whatever application view wants a summary table without inheriting a drag-and-drop panel.",
+      "translation": "Eins og :mod:`spacr.qt.widgets.graph_spec`, er þessi helmingur **hreinn pandas og numpy án Qt** — hægt að prófa án skjás, nota úr glósubók, og fáanlegur fyrir hvaða forritasýn sem vill yfirlitstöflu án þess að erfa draga-og-sleppa glugga."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls#3",
+      "source_sha256": "2594301460d491f41f6027b56ede25bf1542fddc00670fa0e2a20496eb29a4b5",
+      "source": ":class:`FlatComboBox` / :class:`FlatButton` / :class:`FlatSpinBox` — chrome-free controls that read like the **Live** toggle (:class:`~spacr.qt.widgets.ai_toggle_label.AiToggleLabel`): the theme's foreground colour, 600 weight, body font size, transparent background, no border, pointing-hand cursor. The accent colour on hover is the only affordance, exactly like the toggles they sit beside.",
+      "context": ":class:`FlatComboBox` / :class:`FlatButton` / :class:`FlatSpinBox` — chrome-free controls that read like the **Live** toggle (:class:`~spacr.qt.widgets.ai_toggle_label.AiToggleLabel`): the theme's foreground colour, 600 weight, body font size, transparent background, no border, pointing-hand cursor. The accent colour on hover is the only affordance, exactly like the toggles they sit beside.",
+      "translation": ":class:`FlatComboBox` / :class:`FlatButton` / :class:`FlatSpinBox` — króm-laus stjórntæki sem lesa eins og **Live** rofinn (:class:`~spacr.qt.widgets.ai_toggle_label.AiToggleLabel`): forgrunnslitur þemans, 600 þyngd, líkamstextastærð, gegnsær bakgrunnur, engin rammi, bendihnappur bendir. Kjarnalit á hover er eina vísbendingin, nákvæmlega eins og rofarnir sem þau sitja við hliðina á."
+    },
+    {
+      "label": "spacr.qt.widgets.tile#3",
+      "source_sha256": "75bb960f7999252e94edd643a2a5b524d22e68ba5119e4a4fbd527d1c9cabc8f",
+      "source": ":class:`HTile` Horizontal card — icon on the LEFT, name on top, one-line description underneath. Minimalist look inspired by iOS Settings and the VS Code command palette. This is what the startup screen uses by default.",
+      "context": ":class:`HTile` Horizontal card — icon on the LEFT, name on top, one-line description underneath. Minimalist look inspired by iOS Settings and the VS Code command palette. This is what the startup application view uses by default.",
+      "translation": ":class:`HTile` Lárétt spil — tákn til vinstri, nafn efst, einlínulýsing undir. Lágmarksútlit innblásið af iOS Stillingum og VS Code skipanapallettu. Þetta er það sem startforritsskoðunin notar sjálfgefið."
+    },
+    {
+      "label": "spacr.schema#14",
+      "source_sha256": "cd158263b3966cf583aa08fc51f6d4eea63a27e5be5c1b7d4f46b147a13e9761",
+      "source": "``spacr.resume`` is the reason the last dependency went too. It runs at the top of ``measure_crop``, in a process that may never load a model, and ``tests/test_resume.py`` asserts that importing it pulls in **no numpy and no pandas** — so a module-scope ``import pandas`` here would have made the one call site this module was written for the one call site that could not use it. The two frame helpers at the bottom import pandas themselves; everything above them is strings and integers and needs nothing.",
+      "context": "``spacr.resume`` is the reason the last dependency went too. It executes at the top of ``measure_crop``, in a process that may never load a model, and ``tests/test_resume.py`` asserts that importing it pulls in **no numpy and no pandas** — so a module-scope ``import pandas`` here would have made the one call site this module was written for the one call site that could not use it. The two frame helpers at the bottom import pandas themselves; everything above them is strings and integers and needs nothing.",
+      "translation": "``spacr.resume`` er ástæðan fyrir því að síðasta háð fór líka. Það keyrir efst í ``measure_crop``, í ferli sem gæti aldrei hlaðið líkani, og ``tests/test_resume.py`` staðfestir að innflutningur þess dregur inn **ekkert numpy og ekkert pandas** — svo modul-svið ``import pandas`` hér hefði gert eitt köllunarstaðinn sem þetta modul var skrifað fyrir að vera sá einn köllunarstaður sem gat ekki notað það. Tvö rammastuðningshjálparforritin neðst flytja inn pandas sjálfar; allt fyrir ofan þau eru strengi og heiltölur og þarf ekkert."
+    },
+    {
+      "label": "spacr.qt.screens.annotate#8",
+      "source_sha256": "481b45de70b5503170f9f51ca0554ed4f27d905ba7358946a3585b7d4311fb2a",
+      "source": "Advanced features that are *not* yet ported (marked as TODOs in the UI): UMAP window, Deep spaCR training launcher, measurement-threshold filtering (the threshold filter can be entered in settings but only plain per-page fetch is used at query time in this MVP).",
+      "context": "Advanced features that are *not* yet ported (marked as TODOs in the UI): UMAP window, Deep spaCR training launcher, measurement-threshold filtering (the threshold filter can be entered in settings but only plain per-page fetch is used at query time in this MVP).",
+      "translation": "Ítarlegir eiginleikar sem hafa *ekki* enn verið fluttir (merkt sem TODOs í UI): UMAP gluggi, Deep spaCR þjálfunarhvatari, mælinga-threshold síun (threshold sían má slá inn í stillingum en aðeins einfaldar per-síðu sóttingar eru notaðar við fyrirspurnartíma í þessu MVP)."
+    },
+    {
+      "label": "spacr.qt.screens.tabulate.register#3",
+      "source_sha256": "5667dc9f318afc8e775e1972c8102b6232488c459ec9d962535b75cb1d40e13f",
+      "source": "**Not called at import**, for the reason ``app.py``'s ``_SELF_REGISTERING_APPS`` table documents: a registration made anywhere else is one that some importer's snapshot of ``APPS`` predates. Turning this screen on is **one row** in that table",
+      "context": "**Not called at import**, for the reason ``app.py``'s ``_SELF_REGISTERING_APPS`` table documents: a registration made anywhere else is one that some importer's snapshot of ``APPS`` predates. Turning this screen on is **one row** in that table",
+      "translation": "**Ekki kallað við innflutning**, af ástæðu ``app.py``'s ``_SELF_REGISTERING_APPS`` tafla skráir: skráning gerð annars staðar er sú sem einhver innflytjanda augnabliksmynd af ``APPS`` er frá áður. Að virkja þessa skjámynd er **einn röð** í þeirri töflu"
+    },
+    {
+      "label": "spacr.qt.linked_selection.LinkedSelection.unregister_object_opener#2",
+      "source_sha256": "9d1a3fbf509f9e7769db235d928dd11e07f8c40bab8c1d9b8e9dbd11f269de67",
+      "source": "Compared with ``==``, not ``is``. The pattern this module documents — ``register_object_opener(\"annotate\", self.open_object_request)`` in the constructor and ``unregister_object_opener(\"annotate\", self.open_object_request)`` in ``closeEvent`` — hands over a *different bound-method object* each time, because Python builds a new one on every attribute access. Under an identity check that made every withdrawal a silent no-op, so the process-wide registry kept a reference to a destroyed screen and the next ``open_objects`` reached it. Bound methods compare equal exactly when their ``__self__`` and ``__func__`` match, which is the question being asked; anything that does not define ``__eq__`` (a lambda, a ``partial``) still falls back to identity, so the two-screen guarantee above is unchanged.",
+      "context": "Compared with ``==``, not ``is``. The pattern this module documents — ``register_object_opener(\"annotate\", self.open_object_request)`` in the constructor and ``unregister_object_opener(\"annotate\", self.open_object_request)`` in ``closeEvent`` — hands over a *different bound-method object* each time, because Python builds a new one on every attribute access. Under an identity check that made every withdrawal a silent no-op, so the process-wide registry kept a reference to a destroyed application view and the next ``open_objects`` reached it. Bound methods compare equal exactly when their ``__self__`` and ``__func__`` match, which is the question being asked; anything that does not define ``__eq__`` (a lambda, a ``partial``) still falls back to identity, so the two-application view guarantee above is unchanged.",
+      "translation": "Borið saman við ``==``, ekki ``is``. Mynstrið sem þessi eining skráir — ``register_object_opener(\"annotate\", self.open_object_request)`` í smiðnum og ``unregister_object_opener(\"annotate\", self.open_object_request)`` í ``closeEvent`` — skilar *ólíkum bundnum aðferðahlutum* í hvert sinn, því Python býr til nýjan við hvert aðgang að eiginleika. Undir auðkennisprófi sem gerði allt úttekt að þögðu engri aðgerð, hélt skráning yfir allt ferli áfram tilvísun í eyðilagða forritssýn og næsta ``open_objects`` náði til hennar. Bundnar aðferðir bera saman jafngildi nákvæmlega þegar ``__self__`` og ``__func__`` passa saman, sem er spurningin sem verið er að spyrja; allt sem skilgreinir ekki ``__eq__`` (lambda, ``partial``) fellur samt til auðkennis, svo tveggja-forritssýnarábyrgðin hér að ofan breytist ekki."
+    },
+    {
+      "label": "spacr.spacr_cellpose.save_results_and_figure#3",
+      "source_sha256": "bdeef40905a6ec6bc160156ea2911586812c2f9e8094fd8d3398cf913e7ac810",
+      "source": "DataFrame or list-of-dicts of comparison metrics.",
+      "context": "DataFrame or list-of-key-value mappings of comparison metrics.",
+      "translation": "DataFrame eða lista af lykil-gildi samsetningum samanburðarmælikvarða."
+    },
+    {
+      "label": "spacr.power_simulate#15",
+      "source_sha256": "afd7e54db95572cc07f05aed78cf59b7e1655f218f068813325e890d1a946083",
+      "source": "1. **``imaging_n_cells_per_well`` did not exist.** ``R/fit_model.R`` reads ``well_data$imaging_n_cells_per_well[1]`` as the Poisson offset, but ``simulate_imaging_plate`` emits only ``..._mu``, ``..._var`` and ``..._gene_per_well``; R's ``$`` partial matching is ambiguous across those three and yields ``NULL``, so the offset column vanishes and the simulate → fit path does not run as committed. :func:`simulate_imaging_plate` emits the column for real, as the realised per-well cell total. 2. **Reads per well were divided by the gene count, not the well count.** ``round(n_reads_total / nrow(well_data))`` groups by well, so ``nrow`` is the library size; with 452 genes and ``n_reads_total = 128318`` that is 284 reads per well against a real screen near 3e4. The parameter was also documented as \"total reads\" in one vignette and \"geometric mean of well reads\" in another. :func:`simulate_sequencing_plate` takes an unambiguous ``n_reads_per_well`` and derives ``n_reads_total``. 3. **The hypergeometric draw size could exceed the urn.** Upstream guards ``rmvhyper`` with ``k = min(n_cells_in_well * pcr_factor, n_reads_per_well)``, but the urn is ``round(cells * pcr)`` computed **element-wise**, whose sum is not ``round(sum(cells) * pcr)``. The guard here is computed from the actual colour vector. 4. **The COM-Poisson branch is unusable.** ``COMPoissonReg::rcmp`` is called but not declared in the R package's ``DESCRIPTION``, and has no maintained Python equivalent inside spaCR's dependency set. :func:`sample_count_mean_variance` replaces the ``nu`` dispersion knob with a mean/variance pair dispatched to negative-binomial / Poisson / binomial, which spans the same over-, equi- and under-dispersed range in closed form with no new dependency. Third and higher moments differ from COM-Poisson; nothing upstream used them.",
+      "context": "1. **``imaging_n_cells_per_well`` did not exist.** ``R/fit_model.R`` reads ``well_data$imaging_n_cells_per_well[1]`` as the Poisson offset, but ``simulate_imaging_plate`` emits only ``..._mu``, ``..._var`` and ``..._gene_per_well``; R's ``$`` partial matching is ambiguous across those three and yields ``NULL``, so the offset column vanishes and the simulate → fit path does not run as committed. :func:`simulate_imaging_plate` emits the column for real, as the realised per-well cell total. 2. **Reads per well were divided by the gene count, not the well count.** ``round(n_reads_total / nrow(well_data))`` groups by well, so ``nrow`` is the library size; with 452 genes and ``n_reads_total = 128318`` that is 284 reads per well against a real screening experiment near 3e4. The parameter was also documented as \"total reads\" in one vignette and \"geometric mean of well reads\" in another. :func:`simulate_sequencing_plate` takes an unambiguous ``n_reads_per_well`` and derives ``n_reads_total``. 3. **The hypergeometric draw size could exceed the urn.** Upstream guards ``rmvhyper`` with ``k = min(n_cells_in_well * pcr_factor, n_reads_per_well)``, but the urn is ``round(cells * pcr)`` computed **element-wise**, whose sum is not ``round(sum(cells) * pcr)``. The guard here is computed from the actual colour vector. 4. **The COM-Poisson branch is unusable.** ``COMPoissonReg::rcmp`` is called but not declared in the R package's ``DESCRIPTION``, and has no maintained Python equivalent inside spaCR's dependency set. :func:`sample_count_mean_variance` replaces the ``nu`` dispersion knob with a mean/variance pair dispatched to negative-binomial / Poisson / binomial, which spans the same over-, equi- and under-dispersed range in closed form with no new dependency. Third and higher moments differ from COM-Poisson; nothing upstream used them.",
+      "translation": "1. **``imaging_n_cells_per_well`` var ekki til.** ``R/fit_model.R`` les ``well_data$imaging_n_cells_per_well[1]`` sem Poisson fært., en ``simulate_imaging_plate`` sendir aðeins frá sér ``..._mu``, ``..._var`` og ``..._gene_per_well``; hlutbundin samsvörun ``$`` í R er tvíræða yfir þessa þrjá og skilar ``NULL``, svo að fráviks dálkurinn hverfur og herma → passa leiðin keyrir ekki eins og ætlað var. :func:`simulate_imaging_plate` sendir dálkinn fyrir alvöru, sem raunverulega heild farsíma á hverja brunn. 2. **Lestrar á brunn voru deildir með genatali, ekki brunnatali.** ``round(n_reads_total / nrow(well_data))`` hópar eftir brunn, svo ``nrow`` er bókasafnsstærðin; með 452 genum og ``n_reads_total = 128318`` sem er 284 lestrar á brunn á móti raunverulegu skimunartilraun nær 3e4. Breytan var einnig skráð sem \"total reads\" í einni kennslugrein og „stærðfræðilegt meðaltal brunalestra“ í annarri. :func:`simulate_sequencing_plate` tekur ótvírætt ``n_reads_per_well`` og dregur ``n_reads_total``. 3. **Stærð tilviljunarkennds úrtaks gæti farið yfir krukkuna.** Upstream varðveislur ``rmvhyper`` með ``k = min(n_cells_in_well * pcr_factor, n_reads_per_well)``, en urna er ``round(cells * pcr)`` reiknuð **stak-fyrir-stak**, þar sem summa hennar er ekki ``round(sum(cells) * pcr)``. Gæslan hér er reiknuð út frá raunverulegum litavigri. 4. **COM-Poisson greinin er ónothæf.** ``COMPoissonReg::rcmp`` er kölluð en ekki tilgreint í ``DESCRIPTION`` R-pakkans, og hefur engan viðhaldan Python jafngildi innan spaCR's háðar sett. :func:`sample_count_mean_variance` kemur í stað ``nu`` dreifingarhjólsins með meðalfalla/dreifni pör sem send eru til neikvæðra tvíbaugadeilda / Poisson / tvíbaugadeilda, sem spannar sama yfir-, jöfnu- og undirdreifða svið í lokuðu formi án nýrrar háðs. Þriðja og hærri augnablik eru önnur en hjá COM-Poisson; ekkert fyrir ofan notaði þau."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.perform_statistical_tests#3",
+      "source_sha256": "160537d6fc4994d4d48495b2daab98eeac4092198bde5e708e282d9f74abb964",
+      "source": "One result dict per data column, with keys ``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``, ``n_object`` and ``n_well``. Statistic and p-value are ``nan`` when the data cannot support the chosen test.",
+      "context": "One result key-value mapping per data column, with structured-data names ``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``, ``n_object`` and ``n_well``. Statistic and p-value are ``nan`` when the data cannot support the chosen test.",
+      "translation": "Einn niðurstaðulykil-gildi töfluútlit fyrir hverja gagnastiku, með nafn á uppbyggðum gögnum ``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``, ``n_object`` og ``n_well``. Tölfræði og p-gildi eru ``nan`` þegar gögnin styðja ekki valið próf."
+    },
+    {
+      "label": "spacr.qt.shutdown#1",
+      "source_sha256": "22e7c4a48ecd1f8d4996ce5cc1ea09e140713ae1438cb59ec817a010d4664ab4",
+      "source": "``RunRegistry.cancel_all`` is cooperative: it sets a flag, interrupts the thread, and waits. That is the right default -- a pipeline killed mid-write leaves a half-written ``.npy`` or a database row with no rows behind it, and recovering from that costs more than waiting. But cooperative cancellation has one failure mode with no way out from inside the application: a worker that is wedged in a C extension never checks the flag, so it never stops, and ``closeEvent`` refuses to close for as long as it lives.",
+      "context": "``RunRegistry.cancel_all`` is cooperative: it sets a flag, interrupts the independent execution path, and waits. That is the right default -- a workflow killed mid-write leaves a half-written ``.npy`` or a database row with no rows behind it, and recovering from that costs more than waiting. But cooperative cancellation has one failure mode with no way out from inside the application: a worker that is wedged in a C extension never checks the flag, so it never stops, and ``closeEvent`` refuses to close for as long as it lives.",
+      "translation": "``RunRegistry.cancel_all`` er samstarfsfús: það setur fána, truflar sjálfstæða keyrsluleið og bíður. Það er rétt sjálfgefið -- vinnuflæði sem er stöðvað miðja skrárgerð skilur eftir sig hálfskrifað ``.npy`` eða gagnagrindarröð án baklaga, og að ná sér af því kostar meira en að bíða. En samstarfsfús afbókun hefur eitt bilunarmynstur með engin úrræði innan forritsins: vinnari sem er fastur í C viðbót athugar aldrei fánann, svo hann hættir aldrei, og ``closeEvent`` neitar að lokast svo lengi sem hann lifir."
+    }
+  ]
+}

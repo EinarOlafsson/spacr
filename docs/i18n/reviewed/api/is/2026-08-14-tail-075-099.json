@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.verbose_logger.apply_console_levels#2",
+      "source_sha256": "0d05a6893313c7ae0ef7efd4f56988d4491d2f1f07fbc8f8c9ab4432d9d22abe",
+      "source": "The handler keeps passing everything and a filter decides, so the set can change while another thread is mid-log without the handler being swapped underneath it.",
+      "context": "The handler keeps passing everything and a filter decides, so the set can change while another thread is mid-log without the handler being swapped underneath it.",
+      "translation": "Meðhöndlarinn heldur áfram að senda allt og síu ákveður, svo settið getur breyst á meðan annar þræðir er í miðju skrárriti án þess að handfangið sé skipt út undir því."
+    },
+    {
+      "label": "spacr.qt.walkthrough#7",
+      "source_sha256": "5fda77a72cb36ac344862fdabd0dac1fa3a14e39cbad9b8eb1177ff23c72fca2",
+      "source": "Reuses :class:`spacr.qt.first_run._TourOverlay` for the rendering, because a second dimmed-overlay-with-a-card would be a second thing to keep looking like the first one.",
+      "context": "Reuses :class:`spacr.qt.first_run._TourOverlay` for the rendering, because a second dimmed-overlay-with-a-card would be a second thing to keep looking like the first one.",
+      "translation": "Endurnýtir :class:`spacr.qt.first_run._TourOverlay` fyrir útlitið, því annað dofna-yfirlag-með-spjaldi væri annað fyrirbæri sem þyrfti að líta út eins og hið fyrsta."
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain_settings#1",
+      "source_sha256": "a6f2b5931cd7c5673099c711944ef8bf9ae81d23dd11901f1ad3933313f62a8a",
+      "source": "The DNA rain's controls used to be a bar pinned to the bottom of the sequencing screen: four sliders and a swatch, permanently on show, under a settings form the user is actually there to fill in. A backdrop is not worth a strip of chrome — so the controls moved behind a button.",
+      "context": "The DNA rain's controls used to be a bar pinned to the bottom of the sequencing application view: four sliders and a swatch, permanently on show, under a settings form the user is actually there to fill in. A backdrop is not worth a strip of chrome — so the controls moved behind a button.",
+      "translation": "Stýringar DNA rigningarinnar voru áður bar festur neðst í útsýni raðvinnslu-forritsins: fjórir sleðastýringar og litapanel, alltaf sýnilegt, undir stillingaformi sem notandinn er í raun að fylla út. Bakgrunnur er ekki þess virði að hafa rekka af króm — svo stýringarnar færðust á bak við hnapp."
+    },
+    {
+      "label": "spacr.qt.widgets.qc_summary.QCCard#8",
+      "source_sha256": "3fdf15a7f53982d25ac2f71e2e36032474acb36cf40f6e539d0abd25f5a7de5a",
+      "source": "whether its inputs are newer than it is. A stale card is *not* downgraded to a worse verdict -- it describes the previous run accurately, and pretending otherwise would hide which of the two is the problem.",
+      "context": "whether its inputs are newer than it is. A stale card is *not* downgraded to a worse verdict -- it describes the previous processing session accurately, and pretending otherwise would hide which of the two is the problem.",
+      "translation": "hvort inntak þess er nýrra en það sjálft. Úrelt kort er *ekki* afnumið til lakari niðurstöðu -- það lýsir fyrri vinnslufundinum nákvæmlega, og að þykjast annað væri að fela hvor tveggja er vandamálið."
+    },
+    {
+      "label": "spacr.qt.folder_metadata.assign_missing_fields#1",
+      "source_sha256": "303a6d539b06c6145188d85af0b621a6486b139c9f96d356bb3e1df83e33a2ec",
+      "source": "Filenames are grouped into \"sets\" of (well × field) — one entry per file. Ordering is stable (sorted alphabetically) so re-running on the same folder yields the same canonical names.",
+      "context": "Filenames are grouped into \"sets\" of (well × microscope field of view) — one entry per file. Ordering is stable (sorted alphabetically) so re-executing on the same folder yields the same canonical names.",
+      "translation": "Skrárheiti eru flokkuð í \"sets\" af (vel × smásjáarsýn) — eitt skráarskráðar atriði á skrá. Röðun er stöðug (raðað eftir stafrófsröð) þannig að endurtaka framkvæmd á sama möppu gefur sömu kanónísku nöfn."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar#0",
+      "source_sha256": "3f5acd9116b1de17f89bce83675535df50a2d81adcefaa70e5521b42283895a8",
+      "source": "Search box, Modified filter, Essentials/All switch, and a count line.",
+      "context": "Search field, Modified filter, Essentials/All switch, and result count.",
+      "translation": "Leitarreitur, Breytt síu, Nauðsynjar/Allt rofi, og fjöldi niðurstaðna."
+    },
+    {
+      "label": "spacr.sp_stats.perform_normality_tests#0",
+      "source_sha256": "edce5b01681123605cfb37504e6644fee8d659bec4b16daf018a5a406a1220ae",
+      "source": "Run per-group normality tests for each requested data column.",
+      "context": "Run per-group normality tests for each requested data column.",
+      "translation": "Keyrðu normalíutest fyrir hverja gagnasúlu sem óskað er eftir fyrir hverja hópa."
+    },
+    {
+      "label": "spacr.gui_utils.download_dataset#3",
+      "source_sha256": "fe0b51cdda30f1315042111588d0bb5b63821495d2f65cdd25e8022b7037cec3",
+      "source": "HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).",
+      "context": "HF dataset repo id (e.g. ``'einarolafsson/toxo_mito'``).",
+      "translation": "HF gagnasafnsfyrirspurn auðkenni (t.d. ``'einarolafsson/toxo_mito'``)."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.ControlChartSpec.from_dict#1",
+      "source_sha256": "ac6f3245ff402ded0188f4b6d95e807726db1f7f0c418436c458c578c79211ac",
+      "source": "Unknown keys ignored, missing keys defaulted, so a configuration written by another build still opens: a QC chart nobody can reload is a QC chart nobody re-runs.",
+      "context": "Unknown structured-data names ignored, missing structured-data names defaulted, so a configuration written by another build still opens: a QC chart nobody can reload is a QC chart nobody re-runs.",
+      "translation": "Óþekkt heiti skipulagðra gagna eru hunsuð, skortandi heiti skipulagðra gagna eru sett sem sjálfgefin, svo uppsetning sem önnur útgáfa skrifaði opnast samt: QC töflu sem enginn getur hlaðið aftur er QC töflu sem enginn keyrir aftur."
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor#4",
+      "source_sha256": "0f5379dbec7912890d3475a6528865875124cf9c9a056a01f7a60afb5506fb32",
+      "source": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
+      "context": "**The random complement.** One row can be \"everything not claimed, chosen at random\", which is what the retired ``write_random_annotation_column`` used to arrange. It is a KIND OF ROW here rather than a button pressed beforehand, because it is a way of defining a class and belongs where the other class definitions are.",
+      "translation": "**Tilviljanakennd viðhengi.**Einn röð getur verið „allt sem ekki er krafist, valið af handahófi“, sem er það sem eftirlaunaður ``write_random_annotation_column`` var vanur að útvega. Þetta er TEGUND RÖÐAR hér frekar en hnappur sem er ýtt áður, vegna þess að það er leið til að skilgreina flokk og á heima þar sem aðrar flokks skilgreiningar eru."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset#24",
+      "source_sha256": "e6ac29d352608d45a78d13af86714e86e41867df5c263b405034e2dd687d75a1",
+      "source": "**The crop keeps the merged array's dtype.** A ``uint16`` field gives ``uint16`` crops, in the manifest and in the ``.npy`` written for more than three channels; ``normalize`` stretches into that dtype's full range, not into 0-255. The single narrowing to 8 bit happens in :func:`_save_object_crop`, where PIL needs it, and it *rescales* (:func:`_crop_to_uint8`).",
+      "context": "**The extracted image region keeps the merged array's dtype.** A ``uint16`` microscope field of view gives ``uint16`` extracted image regions, in the manifest and in the ``.npy`` written for more than three image data channels; ``normalize`` stretches into that dtype's full range, not into 0-255. The single narrowing to 8 bit happens in :func:`_save_object_crop`, where PIL needs it, and it *rescales* (:func:`_crop_to_uint8`).",
+      "translation": "**Útdregið myndasvæði heldur áfram með gagnagerð sameinaða fylkisins.** Sjónsvið ``uint16`` smásjárinnar skilar ``uint16`` útdregnum myndasvæðum, í yfirlitinu og í ``.npy`` skrifað fyrir fleiri en þrjár myndagagnarásir; ``normalize`` teygist yfir alla þessa gagnagerð, ekki yfir 0-255. Einangruð þrenging í 8 bita gerist í :func:`_save_object_crop`, þar sem PIL þarfnast þess, og það *endurskalar* (:func:`_crop_to_uint8`)."
+    },
+    {
+      "label": "spacr.batch.Job.copy#1",
+      "source_sha256": "ab716343673c8428f5e20a8a39a50695c3c205e41555064b90d75b4a12497f7a",
+      "source": "The GUI's \"Duplicate\" button: the common way to build a queue is one job, then eleven variations of it.",
+      "context": "The GUI's \"Duplicate\" button: the common way to build a software job list is one job, then eleven variations of it.",
+      "translation": "Hnappurinn \"Duplicate\" hjá GUI: algengasta leiðin til að búa til lista af hugbúnaðarverkefnum er eitt verkefni, og síðan ellefu afbrigði af því."
+    },
+    {
+      "label": "spacr.qt.widgets.animation_zoom.content_extent#1",
+      "source_sha256": "c3b4686cfb96504c12928ff60e8cba0356551863aa62df840c3048dd9c24494a",
+      "source": "This is *the* number the 70-80 % requirement is stated in, and the same function measures the source and the zoomed result — a target the transform is checked against rather than one it defines for itself.",
+      "context": "This is *the* number the 70-80 % requirement is stated in, and the same function measures the source and the zoomed result — a target the transform is checked against rather than one it defines for itself.",
+      "translation": "Þetta er *númerið* þar sem 70-80 % kröfan er tilgreind, og sama fallið mælir uppsprettuna og stækkaða niðurstöðuna — markmið sem umbreytingin er skoðuð gagnvart frekar en eitt sem hún skilgreinir sjálf."
+    },
+    {
+      "label": "spacr.filters.sampling_clause#2",
+      "source_sha256": "9543422feb2664e395b80433c8b30a21de77f35df5ec8f2c456d9e2724c12b7e",
+      "source": "The bias this trades for is that row id order is insertion order, i.e. roughly well by well. For drawing a gate on a cloud of a million objects that is not a distinction that matters; for anything where it might, the export applies the gate to every row regardless of what was sampled.",
+      "context": "The bias this trades for is that row id order is insertion order, i.e. roughly well by well. For drawing a data-selection boundary on a cloud of a million objects that is not a distinction that matters; for anything where it might, the export applies the data-selection boundary to every row regardless of what was sampled.",
+      "translation": "Skekkjan sem þetta gengur út á er að röð raða er innsetningaröð, þ.e. að mestu leyti brunn fyrir brunn. Fyrir að draga gagna-valmark á ský af milljón hlutum skiptir það ekki máli; fyrir hvað sem það gæti skipt máli, beitir útflutningurinn gagna-valmarkinu á hverja röð óháð því hvað var tekið sýnishorn af."
+    },
+    {
+      "label": "spacr.qt.synthetic.generate_measure_demo#4",
+      "source_sha256": "bda7edd2d15cb544af86cda331dea856d77f19b5accea8883af40998bec3c8a2",
+      "source": "That much was already known. What was *wrong* was the remedy: \"default it for measure the way the Mask app does\" does not fix this, and cannot, for two reasons that have to be fixed together.",
+      "context": "That much was already known. The proposed remedy copied measurement defaults from the Mask app. That remedy was *incorrect*: it cannot solve the problem, for two reasons that must be fixed together.",
+      "translation": "Það var þegar vitað. Tillaga lausnarinnar tók afrit af mæliaðgangsstillingum úr Mask forritinu. Sú lausn var *röng*: hún getur ekki leyst vandamálið, vegna tveggja ástæðna sem þarf að laga saman."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam#2",
+      "source_sha256": "e0e0c5af154d79d1e6d9905ff233d0c81f2d7742a7135f9bd08d947e3b3d23dc",
+      "source": "What it deliberately does *not* do is announce a winner and stop talking. The table is ordered by the criterion the user picked, but the panel also draws the small-multiples panel (embeddings for UMAP, score-versus-trial with the noise band for the classifiers) and prints the spread, the within-noise flag and the failure count, because those are the parts that say whether the winner means anything. See :mod:`spacr.hyperparam` for why.",
+      "context": "What it deliberately does *not* do is announce a winner and stop talking. The table is ordered by the criterion the user picked, but the panel also draws the small-multiples panel (embeddings for UMAP, score-versus-trial with the noise band for the machine-learning classification models) and prints the spread, the within-noise flag and the failure count, because those are the parts that say whether the winner means anything. See :mod:`spacr.hyperparam` for why.",
+      "translation": "Það sem það gerir *ekki* viljandi er að tilkynna sigurvegara og hætta að tala. Taflan er röðuð eftir því viðmiði sem notandinn valdi, en pallborðið dregur einnig fram litla-margfaldan pall (embedding fyrir UMAP, skor-versus-prófun með hávaðabaugnum fyrir vélarnámsflokkunarlíkanin) og prentar út dreifinguna, hávaðainnan-merkið og fjölda mistaka, því þetta eru hlutarnir sem segja til hvort sigurvegari þýðir eitthvað. Sjá :mod:`spacr.hyperparam` til að sjá hvers vegna."
+    },
+    {
+      "label": "spacr.power_simulate.misassign_reads#3",
+      "source_sha256": "f44b975da16589491bbcca06f56d0e6b93866d772a599e25b7c76a6ec913d7ea",
+      "source": "The consequence that is *not* obvious, and is much larger, is what it does to the genes that were never testable. A gene that landed in every well, or in none, has a constant read-fraction column; its coefficient is confounded with the intercept and ``power_model.prepare_model_data`` reports it as unidentified rather than as a non-hit. That check is the one honest thing standing between a thin design and a page of confident negative results — and mis-assignment defeats it, because phantom reads give every gene a covariate that *varies*. On the same reference design, 0.5 % error takes the scored library from 317 genes to all 452: the 135 genes that were correctly flagged \"untested\" become scored non-hits with a covariate made entirely of noise, and the screen-wide separation falls from 0.799 to 0.723 — fourteen times the direct dilution, and all of it from a safeguard being switched off rather than from any loss of signal.",
+      "context": "The consequence that is *not* obvious, and is much larger, is what it does to the genes that were never testable. A gene that landed in every microplate sample position, or in none, has a constant read-fraction column; its coefficient is confounded with the intercept and ``power_model.prepare_model_data`` reports it as unidentified rather than as a non-hit. That check is the one honest thing standing between a thin design and a page of confident negative results — and mis-assignment defeats it, because phantom reads give every gene a covariate that *varies*. On the same reference design, 0.5 % error takes the scored library from 317 genes to all 452: the 135 genes that were correctly flagged \"untested\" become scored non-hits with a covariate made entirely of noise, and the screening experiment-wide separation falls from 0.799 to 0.723 — fourteen times the direct dilution, and all of it from a safeguard being switched off rather than from any loss of signal.",
+      "translation": "Afleiðingin sem er *ekki* augljós og er mun stærri, er hvað hún gerir við genin sem aldrei voru prófanleg. Gen sem lenti í hverri sýnishorni ördiskífu eða engri, hefur fastan dálk fyrir lestrahlutfall; stuðull þess er ruglaður með skurðpunktinum og ``power_model.prepare_model_data`` skráir það sem óþekkt frekar en sem ósigrandi. Þessi athugun er það eina heiðarlega sem stendur á milli þunns hönnunar og blaðs af öruggum neikvæðum niðurstöðum — og rangt úthlutun gerir það að engu, því skugga-lestrar gefa hverju geni fylgibreytu sem *breytist*. Á sama tilvísunarhönnun, tekur 0,5% villa bókasafn sem var metið frá 317 genum til allra 452: þau 135 gen sem voru rétt merkt \"untested\" verða metin sem ósigrandi með fylgibreytu gerða alfarið úr hávaða, og aðskilnaður alls skimunarprófsins fellur úr 0,799 í 0,723 — fjórtán sinnum beint þynningu, og allt vegna þess að öryggisráðstöfun var virk af en ekki vegna taps á einhverju merki."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.add_trailing_widget#1",
+      "source_sha256": "290e6463e3cf62702ef1b21e97a6c06ae479dd31bb5afcf0162a9dfb0a395381",
+      "source": "The seam other modules use to put a settings-scoped control where the settings are, instead of inventing a second strip. Reparents ``widget`` onto the bar.",
+      "context": "The seam other modules use to put a settings-scoped control where the settings are, instead of inventing a second strip. Reparents ``widget`` onto the bar.",
+      "translation": "Saumurinn sem aðrir hlutir nota til að setja stillingarstýrt stjórntæki þar sem stillingarnar eru, í stað þess að finna upp annað borð. Endurforeldrar ``widget`` á stöngina."
+    },
+    {
+      "label": "spacr.qt.tutorial.engine.Recorder.snap#1",
+      "source_sha256": "100a963c87dd3b558422bfab7d2cffd1a9cbc36b1b696ae118c0ec05e6ac270e",
+      "source": "A clean screenshot is captured lazily on the first call and after each scripted UI action. Pointer-only frames therefore avoid repainting and re-grabbing an otherwise unchanged interface.",
+      "context": "A clean screenshot is captured lazily on the first call and after each scripted UI action. Pointer-only frames therefore avoid repainting and re-grabbing an otherwise unchanged interface.",
+      "translation": "Hreinn skjáskot er tekið leti við fyrstu köllun og eftir hverja skipulagða UI aðgerð. Rammar með aðeins bendinum forðast því að teikna aftur og taka aftur skjáskot af annars óbreyttri viðmóti."
+    },
+    {
+      "label": "spacr.crashreport.CrashReport#1",
+      "source_sha256": "5551623872eb217722925c5b36c0b348ecce641155630f0714cae8d3ffdf5896",
+      "source": "Kept as data rather than written straight to a zip so that a caller — a test, the Qt layer, a support script — can inspect or re-render it without a temporary file, and so that :func:`write_crash_report` has nothing in it but serialisation.",
+      "context": "Kept as data rather than written straight to a zip so that a caller — a test, the Qt layer, a support script — can inspect or re-render it without a temporary file, and so that :func:`write_crash_report` has nothing in it but serialisation.",
+      "translation": "Geymt sem gögn frekar en skrifað beint í zip svo að kölluð aðili — próf, Qt lagið, stuðningsskrift — geti skoðað eða endurskapað það án tímabundins skráars, og svo að :func:`write_crash_report` hafi ekkert í sér nema raðvinnslu."
+    },
+    {
+      "label": "spacr.classifier_evaluation.evaluate_predictions#13",
+      "source_sha256": "78cf598b175be8f8a81c9e0108f9f47017de5a1894b4dff604dbbe28d37664eb",
+      "source": "``confusion_normalized`` — the same matrix divided by its true-class row totals, with all-zero rows left at zero;",
+      "context": "``confusion_normalized`` — the same matrix divided by its true-class row totals, with all-zero rows left at zero;",
+      "translation": "``confusion_normalized`` — sama fylki deilt með raunverulegum röðarsummum rétts flokks, með öllum núllröðum eftir sem núll;"
+    },
+    {
+      "label": "spacr.omero#28",
+      "source_sha256": "3d34c34884546ad294fbd157c467f80180ca282ada64e0cf393d0022780b729c",
+      "source": "**FileAnnotations always append.** The bytes of an OriginalFile cannot be rewritten in place through the gateway, and the alternative — delete the old attachment — is exactly the destructive behaviour ruled out above. The namespace plus the timestamp in the description identify the newest.",
+      "context": "**FileAnnotations always append.** The bytes of an OriginalFile cannot be rewritten in place through the gateway, and the alternative — delete the old attachment — is exactly the destructive behaviour ruled out above. The namespace plus the timestamp in the description identify the newest.",
+      "translation": "**FileAnnotations bæta alltaf við.** Bæti OriginalFile er ekki hægt að endurskrifa á staðnum í gegnum gáttina, og valkosturinn — eyða eldri viðhenginu — er nákvæmlega hið eyðileggjandi viðhorf sem var útilokað hér að ofan. Nafnarýmið ásamt tímapunktinum í lýsingunni bera kennsl á það nýjasta."
+    },
+    {
+      "label": "spacr.schema.parse_prcfo#1",
+      "source_sha256": "5ee009d50686beaaaa1f6f558bc7c39930d095db9337423b0a98ccfbeb685368",
+      "source": "The object prefix is stripped before the label is re-canonicalised, which is what makes this the inverse of :func:`compose_prcfo` for **every** label rather than only the numeric ones. :func:`object_id` reads an already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` → ``'o7'``), but it cannot do that for a preserved non-numeric token, so handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'`` parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``. A key that grows every time it passes through the parser joins to nothing.",
+      "context": "The object prefix is stripped before the label is re-canonicalised, which is what makes this the inverse of :func:`compose_prcfo` for **every** label rather than only the numeric ones. :func:`object_id` reads an already-prefixed numeric id back out of its prefix (``'o7'`` → ``7`` → ``'o7'``), but it cannot do that for a preserved non-numeric token, so handing it ``'oxy'`` used to yield ``'ooxy'``: the key ``'p_r1_c1_f1_oxy'`` parsed to ``'p_r1_c1_f1_ooxy'``, and parsing that yielded ``'ooooxy'``. A key that grows every time it passes through the parser joins to nothing.",
+      "translation": "Hluturforskeytið er fjarlægt áður en merkið er endurstaðfest, sem gerir þetta að öfugri útgáfu af :func:`compose_prcfo` fyrir **hverja** merkingu frekar en aðeins tölulegu. :func:`object_id` les þegar fyrirsagnaða tölulegu auðkenni aftur úr forliðinu (``'o7'`` → ``7`` → ``'o7'``), en það getur ekki gert það fyrir varðveitt ótölulegt merki, svo að afhending þess ``'oxy'`` gaf venjulega ``'ooxy'``: lykillinn ``'p_r1_c1_f1_oxy'`` greindur sem ``'p_r1_c1_f1_ooxy'``, og að greina sem gaf ``'ooooxy'``. Lykill sem vex í hvert skipti sem hann fer í gegnum greinarann tengist engu."
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.run_pre_run_cleanup#3",
+      "source_sha256": "bbb87f93fc03076ccfabaa966e3e0136fe1b7882b34b2a2a9686b2f857376fa1",
+      "source": "It does not run at all while another run is in flight. The caches this drops are the ones a running job is reading, and a cleanup that competes with the work it is supposed to be helping is worse than no cleanup.",
+      "context": "It does not execute at all while another processing session is in flight. The caches this drops are the ones an executing job is reading, and a cleanup that competes with the work it is supposed to be helping is worse than no cleanup.",
+      "translation": "Það keyrir ekki yfirleitt meðan önnur vinnslufundi er í gangi. Cache-minnið sem þetta fjarlægir eru þau sem vinnandi verkefni er að lesa, og hreinsun sem keppir við verkið sem hún á að hjálpa er verri en engin hreinsun."
+    },
+    {
+      "label": "spacr.io.concatenate_and_normalize#4",
+      "source_sha256": "83d1c230a84c8889e9d447df805ba5d82a0317f0b09c3047a561220e0af6dbc6",
+      "source": "Preprocessing settings dict. **Required** — it must contain the background, signal-to-noise, randomize, timelapse, batch_size and plotting keys used elsewhere in preprocessing. The ``None`` in the signature is kept only so the argument can still be passed positionally; omitting it is an error.",
+      "context": "Preprocessing settings key-value mapping. **Required** — it must contain the background, signal-to-noise, randomize, timelapse, batch_size and plotting structured-data names used elsewhere in preprocessing. The ``None`` in the signature is kept only so the argument can still be passed positionally; omitting it is an error.",
+      "translation": "Fyrirvinnslustillingar lykil-gildi kortlagning. **Skylt** — það verður að innihalda bakgrunn, styrk-til-snjós, slembiröðun, tímaraðir, batch_size og nafngreiningu á uppsettu gögnum sem notuð eru annars staðar í fyrirvinnslu. ``None`` í undirskriftinni er haldið aðeins til að hægt sé að senda röksemdina eftir stöðu; að sleppa henni er villa."
+    }
+  ]
+}

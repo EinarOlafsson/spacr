@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAPanel.scores_frame#0",
+      "source_sha256": "9cd2564adc53f58f61df94abd6ed2c1a05d416ecc0bb6af64467b1bdb7f30238",
+      "source": "The frame the scores plot is drawn from — every original column plus ``PC1…PCk``. What \"export the scores\" writes.",
+      "context": "The frame the scores plot is drawn from — every original column plus ``PC1…PCk``. What \"export the scores\" writes.",
+      "translation": "Rammann sem stigaflǫttið er dregið úr — hver sú upprunalega dálkur plús ``PC1…PCk``. Hvað \"export the scores\" skrifar."
+    },
+    {
+      "label": "spacr.qt.ingest_preview#3",
+      "source_sha256": "e0d11f1f96a7ca6a5ad634b4c5f91f1f1e4d596363aaab095dfc15fdffcc4b9f",
+      "source": "The canonical names match :func:`spacr.io.convert_to_yokogawa` (the pipeline's own container extractor) so the preview the user edits is the layout the extraction will actually produce. The rows feed the editable metadata table (:mod:`spacr.qt.widgets.metadata_table`) and can be written to a ``filename_map.csv`` via :func:`rows_to_mappings` + :func:`spacr.qt.folder_metadata.save_filename_map`.",
+      "context": "The canonical names match :func:`spacr.io.convert_to_yokogawa` (the workflow's own container extractor) so the preview the user edits is the layout the extraction will actually produce. The rows feed the editable metadata table (:mod:`spacr.qt.widgets.metadata_table`) and can be written to a ``filename_map.csv`` via :func:`rows_to_mappings` + :func:`spacr.qt.folder_metadata.save_filename_map`.",
+      "translation": "Hin kanónísku nöfn passa við :func:`spacr.io.convert_to_yokogawa` (eigin ílátadragi vinnuflæðisins) þannig að forskoðun sem notandinn breytir er útlitið sem útdrátturinn mun raunverulega framleiða. Raðirnar fæða breytanlega gagnatöflu (:mod:`spacr.qt.widgets.metadata_table`) og geta verið skrifaðar í ``filename_map.csv`` í gegnum :func:`rows_to_mappings` + :func:`spacr.qt.folder_metadata.save_filename_map`."
+    },
+    {
+      "label": "spacr.errors.read_run_status#8",
+      "source_sha256": "0f0ca71f9112b1d95715babbe2df17e35d1bc2fd36e4ee730c00501de4da4895",
+      "source": "one dict per recorded run, oldest first. Each has ``status`` / ``n_attempted`` / ``n_succeeded`` / ``n_failed`` / ``failure_rate`` / ``summary`` and a ``failures`` list. An artifact that was never stamped returns ``[]``.",
+      "context": "one key-value mapping per recorded run, oldest first. Each has ``status`` / ``n_attempted`` / ``n_succeeded`` / ``n_failed`` / ``failure_rate`` / ``summary`` and a ``failures`` list. An artifact that was never stamped returns ``[]``.",
+      "translation": "einn lykil-gildi samsvörun fyrir hvert skráð keyrslu, elsta fyrst. Hvert hefur ``status`` / ``n_attempted`` / ``n_succeeded`` / ``n_failed`` / ``failure_rate`` / ``summary`` og lista ``failures``. Listaverk sem var aldrei stimplað skilar ``[]``."
+    },
+    {
+      "label": "spacr.ome_zarr#2",
+      "source_sha256": "900d6a40e110bdc7336217dabd65f870c7810120cebace3b7646403580a7c4d7",
+      "source": "**Chunked.** The array is stored as a grid of independently compressed blocks, so a 100 GB plate is readable a tile at a time. Nothing here ever reads an array to answer a question about it: :func:`read_ome_zarr` opens a handful of small JSON files and returns the levels, their shapes, their voxel sizes and their chunk grids without touching a single chunk, and :meth:`OmeZarrImage.read` with a ``region=`` decodes only the chunks that region intersects. Every byte of chunk data in the pure-Python path passes through one function, :func:`_read_chunk_bytes`, precisely so that \"it is lazy\" is a countable claim rather than a sentence in a docstring — ``tests/test_ome_zarr.py`` counts its calls.",
+      "context": "**Chunked storage.** Independently compressed blocks make a 100 GB plate readable one tile at a time. Metadata queries do not load array data. :func:`read_ome_zarr` reads small JSON files and reports levels, shapes, voxel sizes, and chunk grids without reading a chunk. :meth:`OmeZarrImage.read` with ``region=`` decodes only intersecting chunks. In the pure-Python path, all chunk bytes pass through :func:`_read_chunk_bytes`. Therefore ``tests/test_ome_zarr.py`` can count calls and verify lazy loading directly.",
+      "translation": "**Hlutbundið geymsla.** Sjálfstætt þjappaðir kubbar gera 100 GB diska læsanlegan eina flís í einu. Fyrirspurnir á lýsigögnum hlaða ekki fylkismögnun. :func:`read_ome_zarr` les lítil JSON skrár og skilar upplýsingum um stig, form, voxel-stærðir og kubbagrind án þess að lesa kubb. :meth:`OmeZarrImage.read` með ``region=`` afkóðar aðeins skurðpunkti kubba. Í hreinu Python-brautinni fara öll kubba-bæti í gegnum :func:`_read_chunk_bytes`. Þess vegna getur ``tests/test_ome_zarr.py`` talið köll og staðfest seinkaða hleðslu beint."
+    },
+    {
+      "label": "spacr.qt.resource_cleanup#1",
+      "source_sha256": "f2c0680e6f3215e3c933f31f9789a721ca25e288b489afca22fc98d9d3b258c1",
+      "source": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "context": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",
+      "translation": "Fjórir takkar í Stillingum — **hreinsa RAM**, **hreinsa VRAM**, **hreinsa CPU**, **athuga pláss á diski** — og tveir afköstarmátar sem ýta á þá fyrir þig. Þetta viðbót er það sem þeir kalla."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#25",
+      "source_sha256": "dffa982cdbe8e318eb3f679f338af4dad8c8af1985a132daccabf5a3a3aba535",
+      "source": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
+      "context": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
+      "translation": "Hvert útkoma ber með sér eftirleitni staðalvilluna, R², og — þegar útlitið hefur endurtekningar — **fit-F próf á móti hreinni villu**. Sá síðasti er tölfræðin sem svarar spurningunni sem fólk heldur að R² svari."
+    },
+    {
+      "label": "spacr.active_learning.predict_probabilities#1",
+      "source_sha256": "584cf48f8483acd6ba9614a6be40306d773c3288be1ee34cbed2f16b47a294d1",
+      "source": "A convenience for scoring crops that are not in the database yet. The queue does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
+      "context": "A convenience for scoring extracted image regions that are not in the database yet. The work list does **not** need this — :func:`build_queue` works from the ``pred`` column that :func:`spacr.deep_spacr.merge_predictions_into_db` already wrote, which is the normal path.",
+      "translation": "Þægindi fyrir stigagjöf á útdregnum myndasvæðum sem eru ekki enn í gagnagrunninum. Vinnulistinn þarf **ekki** þetta — :func:`build_queue` vinnur úr ``pred`` dálkinum sem :func:`spacr.deep_spacr.merge_predictions_into_db` hefur þegar skrifað, sem er venjuleg leið."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset#1",
+      "source_sha256": "0c2c1fa333ffca1c15adddde065c7d7d03fe5feacbb53518eae672c758a8b12b",
+      "source": "spaCR's ``merged/`` arrays store the image channels first and then one integer label-mask slice per object class (cell, nucleus, pathogen, organelle). The measurements database records, for every object, its integer ``object_label``, the merged ``.npy`` it came from (``path_name``), its well/field metadata, and its features (e.g. ``cell_area``). This function queries that database for the objects you want, then for each hit slices the object out of its array using ``object_label`` and the class mask, assembles the channels you ask for into an image, and saves a PNG.",
+      "context": "spaCR's ``merged/`` arrays store the image data channels first and then one integer label-mask slice per object class (cell, nucleus, pathogen, organelle). The measurements database records, for every object, its integer ``object_label``, the merged ``.npy`` it came from (``path_name``), its well/microscope field of view metadata, and its features (e.g. ``cell_area``). This function queries that database for the objects you want, then for each hit slices the object out of its array using ``object_label`` and the class mask, assembles the image data channels you ask for into an image, and saves a PNG.",
+      "translation": "spaCR's ``merged/`` fylki geyma fyrst myndagagnarásana og síðan eina heiltölumerkjaskjá-sneið fyrir hverja hlutflokkun hlut (fruma, kjarni, meinvaldur, frumulíffæri). Mælingagagnagrunnurinn skráir, fyrir hvern hlut, heiltölu ``object_label`` hans, samrunna ``.npy`` sem hann kom frá (``path_name``), metadata um brunn/sjársviðsmyndavélarsvæði, og eiginleika hans (t.d. ``cell_area``). Þessi aðgerð spyr gagnagrunninn fyrir þá hluti sem þú vilt, síðan sneiðir hún hlutinn úr fylki með ``object_label`` og flokkasniðinu, setur saman þá myndagagnarása sem þú baðst um í mynd, og vistar PNG."
+    },
+    {
+      "label": "spacr.ml.scale_variables#1",
+      "source_sha256": "4c551bb8d5f4354a2f329ed883c43eebf1e8e0b3e796a756004fed98473e77fa",
+      "source": "Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a column with zero range to all-zeros, and patsy's intercept is exactly such a column, so scaling a design matrix used to silently delete its intercept: statsmodels then fitted a model through the origin and still printed an ``Intercept`` row, of 0.000, in the summary. Every coefficient in that fit absorbs the mean it can no longer estimate.",
+      "context": "Constant columns are passed through UNCHANGED. ``MinMaxScaler`` maps a column with zero range to all-zeros, and patsy's intercept is exactly such a column, so scaling a design matrix used to silently delete its intercept: statsmodels then fitted a model through the origin and still printed an ``Intercept`` row, of 0.000, in the summary. Every coefficient in that fit absorbs the mean it can no longer estimate.",
+      "translation": "Stöðugir dálkar eru fluttir óbreyttir. ``MinMaxScaler`` kortleggur dálk með núlli bil yfir á alla-núll, og skurðpunktur patsy er nákvæmlega slíkur dálkur, svo að skalun hönnunarmatriks sem áður fjarlægði þöglu skurðpunktinn: statsmodels þá passaði líkan í gegnum upphafspunktinn og prentaði samt ``Intercept`` röð, með 0,000, í samantektinni. Hvert stuðull í þeirri passu gleypir meðaltal sem það getur ekki lengur áætlað."
+    },
+    {
+      "label": "spacr.chaining.chained_inputs#4",
+      "source_sha256": "0c09d81be8ce0571e9b2929091dcb2398dc608123ea16fe69745065a65828b66",
+      "source": "the settings dict being edited. Used for the current values (list-or-string, and \"is it already filled?\") and for the module's own project root.",
+      "context": "the settings key-value mapping being edited. Used for the current values (list-or-string, and \"is it already filled?\") and for the module's own project root.",
+      "translation": "stillingarlykill-gildis kortlagningin sem verið er að breyta. Notað fyrir núverandi gildi (lista-eða-streng, og „er það þegar fyllt?“) og fyrir eigin verkefnarót modulesins."
+    },
+    {
+      "label": "spacr.qt.ai.keys#1",
+      "source_sha256": "609d95d27173239f310010073784dc0d36e743355c496b77dc46112a44398b89",
+      "source": "The AI Console now shells out to the vendor coding-agent CLIs (claude / codex / gemini), each of which authenticates against the user's chat subscription instead of a metered API key. Nothing in the Qt GUI uses API keys anymore.",
+      "context": "The AI Console launches the vendor coding-agent CLIs (claude / codex / gemini). Each CLI authenticates with the user's chat subscription, not a metered API key. The Qt GUI no longer uses API keys.",
+      "translation": "AI Console ræsir söluaðila kóðunar-umboðs CLI (claude / codex / gemini). Hvert CLI auðkennir sig með spjalláskrift notandans, ekki með mældri API lykli. Qt GUI notar ekki lengur API lykla."
+    },
+    {
+      "label": "spacr.openmp_guard.guarded_n_jobs#2",
+      "source_sha256": "955fe4da06ce5e380ca87963c2f0baae34c31b9436ae45169282aea87f8153b8",
+      "source": "The clamp is a per-thread ICV, so a joblib worker thread starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 threads parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling thread keeps the clamp meaningful.",
+      "context": "The clamp is a per-independent execution path ICV, so a joblib background execution unit starts with the process default (10 here, not 1) and builds a team the region was supposed to prevent. Measured on this repository's own ``ml_analysis``: 19 independent execution paths parked in ``__kmp_launch_worker`` unguarded, still 10 with only the region clamp, and those 10 belong to Homebrew's libomp — xgboost's runtime, the one that crashed. Keeping joblib on the calling independent execution path keeps the clamp meaningful.",
+      "translation": "Klemman er per sjálfstæðum útfærsluleið ICV, svo joblib bakgrunnsútfærslu-eining byrjar með sjálfgefið ferli (10 hér, ekki 1) og byggir upp lið sem svæðið átti að koma í veg fyrir. Mælt á þessum eigin gagnageymslu ``ml_analysis``: 19 sjálfstæðar útfærsluleiðir staðsettar í ``__kmp_launch_worker`` óvarðar, samt 10 aðeins með klemmu svæðisins, og þau 10 tilheyra Homebrew's libomp — keyrslutíma xgboost, sá sem hrundi. Að halda joblib á köllunarsjálfstæðu útfærsluleiðinni gerir klemmuna merkingarbæra."
+    },
+    {
+      "label": "spacr.plot.plot_proportion_stacked_bars#1",
+      "source_sha256": "88d7c7f5a69e88c240fed07245fa273c0ecaf55ebf56331a7ff9deb69c048831",
+      "source": "Settings dict — ``verbose`` toggles pairwise chi-squared verbosity.",
+      "context": "Settings key-value mapping — ``verbose`` toggles pairwise chi-squared verbosity.",
+      "translation": "Stillingar lykil-gildi kortlagning — ``verbose`` skiptir um pöraskiptan chi-squared ítarlega skýrslugjöf."
+    },
+    {
+      "label": "spacr.foreign.ResolvedColumn#5",
+      "source_sha256": "ae1f1202d569208dffc511734a0110be9f5146d525df244976c2b7b28619b8cf",
+      "source": "False when the stored values are *not* in ``unit_out`` — the flag that stops a µm² column being read as px².",
+      "context": "False when the stored values are *not* in ``unit_out`` — the flag that stops a µm² column being read as px².",
+      "translation": "False þegar geymd gildi eru *ekki* í ``unit_out`` — fáni sem kemur í veg fyrir að µm² dálkur sé lesinn sem px²."
+    },
+    {
+      "label": "spacr.core.generate_image_umap#3",
+      "source_sha256": "eadc212b57016612f184653207c913bc9802f96d4ac425bc0fd3ce89668b3998",
+      "source": "Configuration dict; canonicalized via :func:`spacr.settings.set_default_umap_image_settings`. Common keys: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` or ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.",
+      "context": "Configuration key-value mapping; canonicalized via :func:`spacr.settings.set_default_umap_image_settings`. Common structured-data names: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` or ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.",
+      "translation": "Uppsetning lykil-gildi kortlagning; staðlað með :func:`spacr.settings.set_default_umap_image_settings`. Algeng nöfn á uppbyggðum gögnum: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` eða ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``."
+    },
+    {
+      "label": "spacr.attribution#1",
+      "source_sha256": "fdc88f023e7bd455438c7feb2dd3d98383426ac47a1ec0aa817f5797e371b351",
+      "source": "spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``, ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This module is the library those two were the first entries in: the CAM family (Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), the gradient family (saliency, integrated gradients, guided backprop, input×gradient, DeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family (occlusion, feature ablation) and attention rollout for transformer backbones that have no convolution for a CAM to hook.",
+      "context": "spaCR already drew Grad-CAM and saliency maps (``spacr.utils.GradCAMGenerator``, ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). This module is the library those two were the first entries in: the CAM family (Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), the gradient family (saliency, integrated gradients, guided backprop, input×gradient, DeepLIFT, and SmoothGrad wrapped around any of them), the perturbation family (occlusion, feature ablation) and attention rollout for transformer backbones that have no convolution for a CAM to hook.",
+      "translation": "spaCR hefur þegar teiknað Grad-CAM og áherslukort (``spacr.utils.GradCAMGenerator``, ``spacr.utils.SaliencyMapGenerator``, ``spacr.utils.IntegratedGradients``). Þessi eining er bókasafnið sem þessir tveir voru fyrstu færslurnar í: CAM fjölskyldan (Grad-CAM, Grad-CAM++, Score-CAM, XGrad-CAM, Layer-CAM, Eigen-CAM), hallafjölskyldan (áherslu, samþætt halli, leiðbeint afturför, inntak×halli, DeepLIFT og SmoothGrad umbúðir utan um hvaða þá sem er), truflunarfjölskyldan (útfærslu, eiginleikaniðurbrot) og athygli útrullun fyrir transformer-aðalhluta sem hafa enga meðferð fyrir CAM til að tengjast."
+    },
+    {
+      "label": "spacr.object.generate_organelle_masks_sam#2",
+      "source_sha256": "aeffc8dc29252fa99fd56800db0083ca9a23cc0ff37bd12e393f41c894adcd44",
+      "source": "``spots``: punctate structures (lipid droplets, vesicles, peroxisomes) via ``otsu``, ``adaptive``, ``log``, ``dog``, ``cellpose``.",
+      "context": "``spots``: punctate structures (lipid droplets, vesicles, peroxisomes) via ``otsu``, ``adaptive``, ``log``, ``dog``, ``cellpose``.",
+      "translation": "``spots``: punktuð byggingar (fitudropar, blöðrur, peroxísóm) með ``otsu``, ``adaptive``, ``log``, ``dog``, ``cellpose``."
+    },
+    {
+      "label": "spacr.schema.legacy_safe_int_convert#3",
+      "source_sha256": "f4832cd65f0aff81feaa510ea70c3b56d2047d041d629ebab5977a4486719fd2",
+      "source": "what to return on ``ValueError``. Note that ``TypeError`` — which is what ``None`` raises — is *not* caught, here or in the original.",
+      "context": "what to return on ``ValueError``. Note that ``TypeError`` — which is what ``None`` raises — is *not* caught, here or in the original.",
+      "translation": "hvað á að skila á ``ValueError``. Athugaðu að ``TypeError`` — sem ``None`` vekur — er *ekki* handtekið, hér eða í upprunalegu."
+    },
+    {
+      "label": "spacr.profiler.Profile.slope#1",
+      "source_sha256": "0ba98a7055c369028830a59c28128dea3465fe0237f7b706cdc6d931723a9516",
+      "source": "End to end rather than fitted: for a linear model they are the same number, and for a GLM the end-to-end value is the honest summary of a curve whose local slope changes.",
+      "context": "End to end rather than fitted: for a linear model they are the same number, and for a GLM the end-to-end value is the honest summary of a curve whose local slope changes.",
+      "translation": "Frá enda til enda frekar en passað: fyrir línulegt líkan eru þau sama talan, og fyrir GLM er endi-til-enda gildið heiðarlegt yfirlit yfir kúrfu þar sem staðbundinn halli breytist."
+    },
+    {
+      "label": "spacr.validate#4",
+      "source_sha256": "b1713db9bace8f25c915d07de37f863c1b4c7d2536c977f65818e1bdf83b3245",
+      "source": "``Problem`` One thing that is wrong, with the fix. ``validate_settings(settings, app_key)`` Returns a list of :class:`Problem`, errors and warnings mixed. ``format_report(problems, settings, app_key)`` Human-readable report; errors first, each with its fix line. ``describe_plan(settings, app_key)`` \"Here is what would actually happen\" summary.",
+      "context": "``Problem`` One thing that is wrong, with the fix. ``validate_settings(settings, app_key)`` Returns a list of :class:`Problem`, errors and warnings mixed. ``format_report(problems, settings, app_key)`` Easy-to-read report; errors first, each with its fix line. ``describe_plan(settings, app_key)`` \"Here is what would actually happen\" summary.",
+      "translation": "``Problem`` Eitt sem er rangt, með lagfæringuna. ``validate_settings(settings, app_key)`` Skilar lista af :class:`Problem`, villum og viðvörunum blönduðum saman. ``format_report(problems, settings, app_key)`` Auðveldur til að lesa skýrsla; villur fyrst, hver með línu lagfæringarinnar. ``describe_plan(settings, app_key)`` \"Hér er hvað myndi raunverulega gerast\" samantekt."
+    },
+    {
+      "label": "spacr.hyperparam.walk_search#0",
+      "source_sha256": "813fe73850798c945f42375a9779949bb9f044e85613932ceac385e0a8ccc8c8",
+      "source": "Walk N-dimensional hyperparameter space toward a better score.",
+      "context": "Walk N-dimensional hyperparameter space toward a better score.",
+      "translation": "Gakktu um N-dimensionað hyperparameter-rýmið í átt að betri skori."
+    },
+    {
+      "label": "spacr.mask_io#0",
+      "source_sha256": "8b35ff4d18fdce4e97ff91c0301b6ea57b866cdca00fa8c4e2f4ad6cc148893c",
+      "source": "Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.",
+      "context": "Cellpose mask I/O — write + read masks as EITHER TIFF or NumPy.",
+      "translation": "Cellpose grímu I/O — skrifa + lesa grímur sem EÐA TIFF eða NumPy."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters#2",
+      "source_sha256": "caaddd5ba419c9c299f816ee984f8812017f22186dc0692869c50cf7f710c631",
+      "source": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that runs but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
+      "context": "**A point that fails is reported as failed.**  A fit that raises lands as ``status=\"failed\"`` with the exception text in ``error``; a fit that executes but does not meet its convergence criterion lands as ``status=\"not_converged\"``.  Both carry ``NaN`` metrics.  This is the whole point: a sweep that backfilled 0.5 for its broken points would plot as a design sitting at chance, and \"this design cannot find its hits\" and \"this fit crashed\" are conclusions with opposite consequences.",
+      "translation": "**Punktur sem mistekst er skráður sem misheppnaður.** Mátun sem veldur undantekningu fær ``status=\"failed\"`` og texta undantekningarinnar í ``error``; mátun sem keyrir en uppfyllir ekki samleitniskröfuna fær ``status=\"not_converged\"``. Báðar fá ``NaN`` mæligildi. Þetta er tilgangurinn: leit sem fyllti inn 0,5 fyrir bilaða punkta myndi sýna hönnun við tilviljunarstig, en niðurstöðurnar \"þessi hönnun finnur ekki jákvæðu tilvikin\" og \"this fit crashed\" hafa gagnstæðar afleiðingar."
+    },
+    {
+      "label": "spacr.qt.folder_metadata.iter_image_files#1",
+      "source_sha256": "5a6e01fc0bcb990a4a7664e3bce3e11aa66dc5ed0a221b6a153e254324451426",
+      "source": "**Lazy, and that is the whole point.** The drop handlers need two things from a dropped folder — a small probe to guess the layout from, and (only if the guess succeeds) the full file list to plan an extraction. Pulling both off one generator means the tree is traversed once; abandoning the generator after the probe means a folder with no layout to detect is never fully walked at all. The previous shape returned lists, and the same tree was walked three times per drop.",
+      "context": "**File iteration is deferred until needed.** Drag-and-drop handlers need a small layout probe from a dropped folder and, only after a successful probe, the complete file list for extraction planning. Both come from one generator, so the folder tree is traversed once. Abandoning the generator after a failed probe avoids a complete traversal. The previous list-based design traversed the same tree three times for each drop operation.",
+      "translation": "**Skráayfirferð er frestað þar til hennar er þörf.** Draga-og-sleppa meðhöndlarar þurfa fyrst lítið útlitspróf úr möppu sem var sleppt og, aðeins ef prófið tekst, allan skráalistann fyrir útdráttaráætlun. Hvort tveggja kemur úr einum ítrara, svo möpputréð er aðeins yfirfarið einu sinni. Ef hætt er við ítrarann eftir misheppnað próf er full yfirferð óþörf. Eldri listahönnun fór þrisvar yfir sama tré fyrir hverja sleppiaðgerð."
+    },
+    {
+      "label": "spacr.qt.synthetic.generate_classify_demo#3",
+      "source_sha256": "ea8b8bf7f8c98d348e62a40be1ba3f69711eeb356b1810376880a0b1a096fad4",
+      "source": "**The ``cell_png`` leaf matches.** measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell crop does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Crops written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the run died on \"got 0 classes\".",
+      "context": "**The ``cell_png`` leaf matches.** measure_crop appends ``f\"{crop_mode}_png/\"`` to the folder, so a real cell extracted image region does live under ``cell_png/`` — which is what :func:`spacr.io.generate_training_dataset`'s ``png_path.str.contains(png_type)`` filter (``png_type='cell_png'``) needs to see. Extracted image regions written flat as ``data/crop_000.png``, the layout this replaced, were all filtered away and the processing session died on \"got 0 classes\".",
+      "translation": "**Undirmappan ``cell_png`` passar.** measure_crop bætir ``f\"{crop_mode}_png/\"`` við möppuna, þannig að raunverulegt útdregið frumusvæði er undir ``cell_png/``. Það er það sem :func:`spacr.io.generate_training_dataset` þarf að sjá í síunni ``png_path.str.contains(png_type)`` þegar ``png_type='cell_png'``. Útdregin myndsvæði sem voru skrifuð beint sem ``data/crop_000.png`` í eldra útlitinu voru öll síuð frá og vinnslukeyrslan stöðvaðist með \"got 0 classes\"."
+    }
+  ]
+}

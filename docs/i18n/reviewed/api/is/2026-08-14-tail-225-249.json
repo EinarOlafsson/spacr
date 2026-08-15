@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.theme.mark_surface#7",
+      "source_sha256": "405fca7e058980e779c359fd1797353de6907dff83dcb4253acc3c208d44ddf3",
+      "source": "One Qt rule has to be paid on the way. A **subclass** of ``QWidget`` ignores a QSS background entirely unless ``WA_StyledBackground`` is set, which is why Power's caveat panel still measured the backdrop untouched with a matching rule sitting in the sheet. The attribute is set here for those, and deliberately NOT for a ``QAbstractScrollArea``: a view already paints its background through its viewport, and a second styled fill on top of that is the two-surfaces-stacked fault again. Measured both ways rather than reasoned about.",
+      "context": "One Qt rule has to be paid on the way. A **subclass** of ``QWidget`` ignores a QSS background entirely unless ``WA_StyledBackground`` is set, which is why Power's caveat panel still measured the backdrop untouched with a matching rule sitting in the sheet. The attribute is set here for those, and deliberately NOT for a ``QAbstractScrollArea``: a view already paints its background through its viewport, and a second styled fill on top of that is the two-surfaces-stacked fault again. Measured both ways rather than reasoned about.",
+      "translation": "Ein Qt regla verður að greiða á leiðinni. **undirflokk** af ``QWidget`` hunsar QSS bakgrunninn alveg nema ``WA_StyledBackground`` sé stillt, sem er ástæðan fyrir því að viðvörunarpanel Power mældi samt bakgrunninn óhreyfðan með samsvarandi reglu í blaðinu. Eiginleikinn er stilltur hér fyrir þá, og meðvitað EKKI fyrir ``QAbstractScrollArea``: sýn þegar málar bakgrunn sinn í gegnum útsýnisglugga, og önnur stíluð fylling ofan á því er aftur tvöfaldur yfirborðsbrestur. Mælt á báða vegu fremur en rökstutt."
+    },
+    {
+      "label": "spacr.spacrops.StitchedMultiAligner#3",
+      "source_sha256": "00dbbe5b2dd4fd97c7758d44b9643c419d945b36e7691fdeb34c0287750fdc4e",
+      "source": "detector : {\"ORB\",\"SIFT\"} Feature detector for keypoint matching. nfeatures : int Feature budget for detector. max_keypoints : Optional[int] Hard cap on kept keypoints after detection (by detector’s internal ranking). downsample : float in (0,1] Downsample factor for feature/score pass. ransac_thresh_px : float Reprojection threshold (pixels) for affine estimation (downsampled space). allow_scale : bool If False, constrain to rotation+translation (or translation only if allow_rotation=False). allow_rotation : bool If False, constrain to translation only. outdir : str Output directory for images/csv. opencv_threads : int Limit OpenCV internal threading (avoid oversubscription).",
+      "context": "detector : {\"ORB\",\"SIFT\"} Keypoint detector. nfeatures : int Detector feature budget. max_keypoints : Optional[int] Hard cap on keypoints kept after detection, using the detector’s ranking. downsample : float in (0,1] Factor for feature detection and scoring. ransac_thresh_px : float Pixel reprojection threshold for affine estimation in downsampled space. allow_scale : bool If False, permit rotation and translation but no scaling; if allow_rotation=False, permit translation only. allow_rotation : bool If False, permit translation only. outdir : str Directory for image and csv output. opencv_threads : int OpenCV thread limit used to prevent oversubscription.",
+      "translation": "skynjari : {\"ORB\",\"SIFT\"} Lykilpunkta skynjari. nfeatures : int Fjöldi skynjara eiginleika. max_keypoints : Valfrjálst[int] Hámark fjölda lykilpunkta sem haldið er eftir skynjun, með því að nota raðaða lista skynjarans. downsample : float í (0,1] Stuðull fyrir eiginleika skynjun og stigagjöf. ransac_thresh_px : float Piksladreifingarþröskuldur fyrir afléttimat í niðurdæmdu rými. allow_scale : bool Ef False, leyfa snúning og þýðingu en ekki stækkun; ef allow_rotation=False, leyfa aðeins þýðingu. allow_rotation : bool Ef False, leyfa aðeins þýðingu. outdir : str Skrárasafn fyrir myndir og csv úttak. opencv_threads : int Takmörk OpenCV þráða sem notuð eru til að koma í veg fyrir ofnotkun."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.set_gate_enabled#1",
+      "source_sha256": "0e4f96b860f456ccc6eaf5fe928983e700639a5d8ede9f452aaa6cfa93eb049c",
+      "source": "Off means NOT DRAWN, never deleted and never removed from the set: the gate keeps its shape, its parent and its children, and comes back exactly as it was. Its rows stay on the plot either way -- toggling changes what is marked, not what exists.",
+      "context": "Off means NOT DRAWN, never deleted and never removed from the set: the data-selection boundary keeps its shape, its parent and its children, and comes back exactly as it was. Its rows stay on the plot either way -- toggling changes what is marked, not what exists.",
+      "translation": "Slökkt þýðir EKKI TEIKNAÐ, aldrei eytt og aldrei fjarlægt úr safninu: gagnavalið heldur lögun sinni, foreldri sínu og börnum, og kemur nákvæmlega aftur eins og það var. Raðir þess halda sér á línuritinu hvoru tveggja -- kveikja/slökkva breytir því sem er merkt, ekki því sem er til."
+    },
+    {
+      "label": "spacr.qt.widgets.power_design#4",
+      "source_sha256": "0777de0dcc2056713e40d7d9b3432edb22e66ddf8d8ebea3dc64ebe3a8ba34a2",
+      "source": ":func:`simulator_kwargs` — that description as the keyword arguments :func:`spacr.power_model.scan_parameters` takes. **This is the only place the translation happens.** The screen never builds simulator arguments of its own and never computes a metric of its own; it calls the library and renders what comes back.",
+      "context": ":func:`simulator_kwargs` — that description as the keyword arguments :func:`spacr.power_model.scan_parameters` takes. **This is the only place the translation happens.** The application view never builds simulator arguments of its own and never computes a metric of its own; it calls the library and renders what comes back.",
+      "translation": ":func:`simulator_kwargs` — þessar lýsingar sem lykilrök :func:`spacr.power_model.scan_parameters` tekur. **Þetta er eina staðurinn þar sem þýðingin á sér stað.** Forritaviðmótið býr aldrei til eigin hermilíkansrök og reiknar aldrei eigin mælikvarða; það kallar á bókasafnið og birtir það sem kemur til baka."
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.recompute#2",
+      "source_sha256": "b34312823a3b717883f63d36c27b9546b05b75cf740fba82663fd6835abedad5",
+      "source": "THE CONTRACT. ``recompute()`` returns a bool that a caller reads, and it now means \"a plate was drawn **or is being drawn**\" rather than \"a plate was drawn\". The refusals -- no frame yet, and a failed aggregation -- are unchanged and still synchronous, because the first does no work and the second is reported by the completion handler in exactly the place it was reported before. So the only caller-visible difference is that ``True`` may arrive before the grid is painted.",
+      "context": "THE CONTRACT. ``recompute()`` returns a bool that a caller reads, and it now means \"a plate was drawn **or is being drawn**\" rather than \"a plate was drawn\". The refusals -- no frame yet, and a failed aggregation -- are unchanged and still synchronous, because the first does no work and the second is reported by the completion handler in exactly the place it was reported before. So the only caller-visible difference is that ``True`` may arrive before the grid is painted.",
+      "translation": "SAMNINGURINN. ``recompute()`` skilar bool sem kallari les, og það þýðir nú „diskur var dreginn **eða er verið að draga**“ frekar en \"a plate was drawn\". Neitunin -- engin rammi enn, og misheppnuð samantekt -- er óbreytt og enn samstillt, því að fyrsta gerir ekkert vinnu og seinna er skráð af viðbótarhöndlaranum nákvæmlega á sama stað og áður var skráð. Þannig að eina breytingin sem kallara sér er að ``True`` kann að berast áður en grunnið er málað."
+    },
+    {
+      "label": "spacr.qt.widgets.home#2",
+      "source_sha256": "4aff2d89fae852517baecf191290b43a329ec52e8199d088d234d6e85980f6e4",
+      "source": "1. **The first tab is everything, in the same categories as the rest.** Home is not a summary of the other tabs — it holds every app, at a density that fits one screen, banded by the *same* sections the category tabs use. It used to band them into Prepare / Run / Review instead, a second grouping that existed nowhere else: an app read as \"Prepare\" on the first tab and \"Data\" on the second, and adding a section meant editing two tables that could disagree. There is one table now (:data:`spacr.qt.app.APPS`) and both the bands and the tabs are computed from it, by the *registry*, and handed in — this widget takes ``categories`` and ``bands`` already grouped and does not know what a section means.",
+      "context": "1. **The first tab is everything, in the same categories as the rest.** Home is not a summary of the other tabs — it holds every app, at a density that fits one application view, banded by the *same* sections the category tabs use. It used to band them into Prepare / Run / Review instead, a second grouping that existed nowhere else: an app read as \"Prepare\" on the first tab and \"Data\" on the second, and adding a section meant editing two tables that could disagree. There is one table now (:data:`spacr.qt.app.APPS`) and both the bands and the tabs are computed from it, by the *registry*, and handed in — this widget takes ``categories`` and ``bands`` already grouped and does not know what a section means.",
+      "translation": "1. **Fyrsti flipinn er allt, í sömu flokkum og hinir.** Heim er ekki samantekt yfir hina flipa — hann heldur utan um öll forrit, á þéttleika sem passar fyrir einn forritasýn, skipta í *sama* kafla og flokkarfliparnir nota. Hann skipti þeim áður í Undirbúa / Keyra / Yfirfara í staðinn, annan hópun sem var hvergi annars staðar: forrit lesið sem \"Prepare\" á fyrsta flipanum og \"Data\" á öðrum, og að bæta við kafla þýddi að breyta tveimur töflum sem gátu verið ósamræmdar. Nú er ein tafla (:data:`spacr.qt.app.APPS`) og bæði hóparnir og fliparnir eru reiknaðir út frá henni, af *skránni*, og afhent — þessi vidgerð tekur ``categories`` og ``bands`` sem þegar eru flokkaðir og veit ekki hvað kafli þýðir."
+    },
+    {
+      "label": "spacr.qt.linked_selection#10",
+      "source_sha256": "dd471fc141ee75dae7ff02578d6030bf35dc74d9a4aae8a75bc1867c9e02842f",
+      "source": "The point of routing it is that neither end imports the other. A scatter plot that wants a crop shown, and a confusion matrix that wants a cell's errors shown, both call :func:`open_objects`; the Annotate screen calls :func:`register_object_opener` once. Neither plot has to know Annotate exists, and Annotate does not grow a method per caller.",
+      "context": "The point of routing it is that neither end imports the other. A scatter plot that wants a crop shown, and a confusion matrix that wants a cell's errors shown, both call :func:`open_objects`; the Annotate application view calls :func:`register_object_opener` once. Neither plot has to know Annotate exists, and Annotate does not grow a method per caller.",
+      "translation": "Markmið leiðsagnarinnar er að hvor endi flytji ekki inn hinn. Dreifirit sem vill sýna uppskeru og ruglingsfylki sem vill sýna villur frumunnar, báðir kalla :func:`open_objects`; sjónarhorn Annotate-forritsins kallar :func:`register_object_opener` einu sinni. Hvorugur grafinn þarf að vita af Annotate og Annotate bætir ekki við aðferð fyrir hvern kallara."
+    },
+    {
+      "label": "spacr.qt.i18n.install_dialog_translation#1",
+      "source_sha256": "165aa3ab40b7babebe3e2a7408778c526480e34fd03b0edd407217bf3293bbd9",
+      "source": "File pickers, message boxes, input prompts and progress dialogs are often constructed and executed in one expression, so they do not exist during the main-window language pass.  An application event filter catches only top-level ``QDialog`` show events and applies the same conservative exact catalog translation to their title, labels, buttons and accessible text. Dynamic paths, table data and user text remain outside that traversal.",
+      "context": "File pickers, message boxes, input prompts and progress dialogs are often constructed and executed in one expression, so they do not exist during the main-window language pass.  An application event filter catches only top-level ``QDialog`` show events and applies the same conservative exact catalog translation to their title, labels, buttons and accessible text. Dynamic paths, table data and user text remain outside that traversal.",
+      "translation": "Skráavallarvalkostir, skilaboðagluggar, innsláttarspurningar og framvindugluggaar eru oft smíðaðir og framkvæmdir í einni fullyrðingu, svo þau eru ekki til staðar á meðan megingluggamálsferð fer fram. Forritaviðburðar síun grípur aðeins til efstu ``QDialog`` sýningarviðburði og beitir sama íhaldssama nákvæma þýðingu úr skráasafni á titil þeirra, merkimiða, takka og aðgengilegan texta. Hreyfanlegar slóðir, tafla gögn og notendatexti verða utan þessarar umferðar."
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel#13",
+      "source_sha256": "b5cbe1137afb874dd2385eaeeedb94f7f957927d143dc795197e420901f00105",
+      "source": "Every entry in this console is a QWidget, so every method that appends one has to run on the GUI thread. Log records do not: Python's logging module calls handlers inline on whatever thread logged, and a pipeline worker logging a warning used to reach :meth:`ConsolePanel.append_stdout` directly. :meth:`ConsolePanel.append_stdout` and :meth:`ConsolePanel.append_error` therefore bounce off-thread calls back through a queued signal instead of building the widget where they stand.",
+      "context": "Every entry in this console is a QWidget, so every method that appends one has to execute on the main GUI execution path. Log records do not: Python's logging module calls handlers inline on whatever independent execution path logged, and a workflow worker logging a warning used to reach :meth:`ConsolePanel.append_stdout` directly. :meth:`ConsolePanel.append_stdout` and :meth:`ConsolePanel.append_error` therefore bounce off-execution-path calls back through a queued signal instead of building the widget where they stand.",
+      "translation": "Hver færsla í þessum stjórnborði er QWidget, svo hver aðferð sem bætir einum við verður að keyra á aðal GUI keyrsluleiðinni. Skráningarupplýsingar gera það ekki: Python's skráningarvél kallar á handlera beint á hvaða sjálfstæðu keyrsluleið sem skráning var gerð á, og workflow worker sem skráir viðvörun náði áður beint til :meth:`ConsolePanel.append_stdout`. :meth:`ConsolePanel.append_stdout` og :meth:`ConsolePanel.append_error` kasta því köllum sem eru utan keyrsluleiðar aftur í gegnum raðað merki í stað þess að byggja widgetið þar sem þau standa."
+    },
+    {
+      "label": "spacr.illumination#10",
+      "source_sha256": "cc52a7dc19b8c65e630047ff5ed2d7626b491d928c5dfa8f7d61f5f7bb694e55",
+      "source": "*Why the surface fit on top.* Illumination is a physically smooth, low-frequency function of position: a lamp profile plus a vignette. Fitting a low-order 2-D polynomial (default degree 4, 15 terms) to the per-pixel median imposes exactly that prior, so residual object structure and photon noise cannot leak into the gain map and be baked into every measurement on the plate. The fit is trimmed twice against a MAD threshold, so a persistent bright artefact -- a fluorescent speck in the same place on every field -- is rejected rather than smeared into the surface. For illumination that is genuinely not polynomial (a dust shadow, a sharply structured lamp) pass ``estimator='smooth'``: the same per-pixel median, Gaussian-smoothed at 1/16 of the short side and interpolated back to full resolution.",
+      "context": "*Why the surface fit on top.* Illumination is a physically smooth, low-frequency function of position: a lamp profile plus a vignette. Fitting a low-order 2-D polynomial (default degree 4, 15 terms) to the per-pixel median imposes exactly that prior, so residual object structure and photon noise cannot leak into the gain map and be baked into every measurement on the laboratory microplate. The fit is trimmed twice against a MAD threshold, so a persistent bright artefact -- a fluorescent speck in the same place on every microscope field of view -- is rejected rather than smeared into the surface. For illumination that is genuinely not polynomial (a dust shadow, a sharply structured lamp) pass ``estimator='smooth'``: the same per-pixel median, Gaussian-smoothed at 1/16 of the short side and interpolated back to full resolution.",
+      "translation": "*Af hverju yfirborðspassinn á toppnum.* Lýsing er eðlisfræðilega slétt, lágtíðnifall af staðsetningu: lampa prófíll plús vignett. Að passa lágröð 2-D pólýhömma (fyrirframvalin stig 4, 15 liðir) við miðgildi píxilsins setur nákvæmlega þessa fyrri forsendu, svo eftirfarandi hlutaverk og ljóseindirhljóð geta ekki lekið inn í styrkmappa og verið bakaðar inn í hverja mælingu á rannsóknarstofu smáplötunni. Passið er skorið tvisvar gegn MAD þrepi, svo viðvarandi bjart fyrirbæri -- flúrljómandi blettur á sama stað á hverju smásjársviði -- er hafnað fremur en að dreifast inn í yfirborðið. Fyrir lýsingu sem er raunverulega ekki pólýhönnuð (rykieik, skarpstrúktúra lampa) gefaðu ``estimator='smooth'``: sama miðgildi píxilsins, Gauss-sléttað við 1/16 af stutta hlið og endurvegt aftur í fulla upplausn."
+    },
+    {
+      "label": "spacr.qt.screens.project_browser#5",
+      "source_sha256": "2aefb4219d26dff0c9900f9d98713f98a63c40ea87c7707434da3b7f0a01ec18",
+      "source": "**The scan never blocks the window.** Walking a plate folder is tens of thousands of ``stat`` calls, and doing it on the GUI thread is a frozen application for however long the filesystem takes. Everything goes through :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are **bound methods** — read that module's docstring for what a closure connected to ``thread.finished`` costs. The background activity spinner follows the run registry on its own, so nothing here has to drive it.",
+      "context": "**The scan never blocks the window.** Walking a plate folder is tens of thousands of ``stat`` calls, and doing it on the main GUI execution path is a frozen application for however long the filesystem takes. Everything goes through :class:`spacr.qt.job_runner.JobRunner`, whose completion handlers here are **bound methods** — read that module's docstring for what a closure connected to ``thread.finished`` costs. The background activity spinner follows the processing session registry on its own, so nothing here has to drive it.",
+      "translation": "**Skönnunin blokkar aldrei gluggann.** Að ganga í gegnum plötufoldara þýðir tugþúsundir ``stat`` köll, og að gera það á aðal GUI keyrsluleiðinni er frosið forrit á meðan skráarkerfið tekur. Allt fer í gegnum :class:`spacr.qt.job_runner.JobRunner`, þar sem fullkomnunaraðilar hér eru **bundnar aðferðir** — lestu docstring þessa modules til að sjá hvað loka tengd ``thread.finished`` kostar. Bakgrunnsvirknissnúran fylgir skráningarskrá vinnslusessíons sjálf, svo ekkert hér þarf að stýra því."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart#25",
+      "source_sha256": "2df3cf18e784e69c2e61ac650c2a65b3a0fca942e35c18276df3d98f6b912e1b",
+      "source": "\"Plate by plate over time\" means the x axis is **run order**, and rules 2, 3, 4, 6, 7 and 8 are statements about a sequence — get the order wrong and they are statements about nothing. An explicit order or date column (:attr:`ControlChartSpec.order`) is used when given. Without one the plate id is sorted with a natural, digit-aware key so plate 2 comes before plate 10, and :attr:`ControlChartResult.order_inferred` is set, the note is in :attr:`ControlChartResult.notes`, and :meth:`ControlChartResult.report` says it in capitals. An inferred order is a guess about the experiment, not a detail.",
+      "context": "\"Laboratory microplate by laboratory microplate over time\" means the x axis is **run order**, and rules 2, 3, 4, 6, 7 and 8 are statements about a sequence — get the order wrong and they are statements about nothing. An explicit order or date column (:attr:`ControlChartSpec.order`) is used when given. Without one the laboratory microplate id is sorted with a natural, digit-aware structured-data name so laboratory microplate 2 comes before laboratory microplate 10, and :attr:`ControlChartResult.order_inferred` is set, the note is in :attr:`ControlChartResult.notes`, and :meth:`ControlChartResult.report` says it in capitals. An inferred order is a guess about the experiment, not a detail.",
+      "translation": "\"Rannsóknarstofu smáplata eftir rannsóknarstofu smáplata yfir tíma\" þýðir að x-ásinn er **röð keyrslna**, og reglur 2, 3, 4, 6, 7 og 8 eru yfirlýsingar um röð — ef röðinni er rangt farið eru þær yfirlýsingar um ekkert. Skýr röð eða dagsetningardálkur (:attr:`ControlChartSpec.order`) er notaður þegar hann er gefinn. Án hans er rannsóknarstofu smáplötunúmeri raðað með náttúrulegu, tölvuvænu, uppbyggðu nafni þannig að rannsóknarstofu smáplata 2 kemur á undan rannsóknarstofu smáplata 10, og :attr:`ControlChartResult.order_inferred` er stillt, athugasemdin er í :attr:`ControlChartResult.notes`, og :meth:`ControlChartResult.report` segir það með hástöfum. Ályktunar röð er ágiskun um tilraunina, ekki smáatriði."
+    },
+    {
+      "label": "spacr.qt.prerun#6",
+      "source_sha256": "735429e35254bebd90cdf07bb9272653b2245e3a2db040ff67631e39ee93d0f2",
+      "source": "The banner **reads** a verdict; it does not compute one.  Opening a plate's masks costs seconds to minutes, and a screen that pays that on every visit is a screen nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run already wrote, dates each one against its mask stack, and reports a card older than its masks as OUT OF DATE rather than believing it.  Only the *Score the masks now* button scores anything, only when pressed, and it does it on a worker thread and writes the card so the next open is cheap again.",
+      "context": "The banner **reads** a verdict; it does not compute one.  Opening a plate's masks costs seconds to minutes, and an application view that pays that on every visit is an application view nobody keeps.  So :func:`spacr.seg_qc.read_digest` parses the CSVs the mask run already wrote, dates each one against its mask stack, and reports a card older than its masks as OUT OF DATE rather than believing it.  Only the *Score the masks now* button scores anything, only when pressed, and it does it on a background execution unit and writes the card so the next open is cheap again.",
+      "translation": "Fáninn **lest** dóm; hann reiknar ekki einn. Að opna grímur diskur kostar sekúndur til mínútur, og forritssýn sem greiðir það við hvert heimsókn er forritssýn sem enginn heldur. Svo :func:`spacr.seg_qc.read_digest` greinir CSVs sem maskinn sem keyrslan hefur þegar skrifað, dagsetur hvern og einn með tilliti til maskastaks hans, og skráir kort sem er eldri en grímurnar sínar sem ÚRGÁTT frekar en að trúa því. Aðeins *Skoraðu grímurnar núna* hnappurinn skorar eitthvað, aðeins þegar hann er ýtt á, og það gerir það á bakgrunnseiningu og skrifar á kortið svo næsta opnun verði ódýr aftur."
+    },
+    {
+      "label": "spacr.active_learning.round_features#1",
+      "source_sha256": "63429b1fcc277a76e27238807bec931ac7b6cfa380a755ac381ca9d5cc480aec",
+      "source": "The feature matrix an in-screen retrain fits on. Measurement features rather than pixels on purpose: the point of retraining from inside Annotate is to get a fresh ranking in seconds, on the machine the annotator is sitting at, without a GPU and without leaving the screen. A CNN retrain is the right thing to do at the *end* of the loop, not between two pages of crops.",
+      "context": "The feature matrix an in-application view retrain fits on. Measurement features rather than pixels on purpose: the point of retraining from inside Annotate is to get a fresh ranking in seconds, on the machine the annotator is sitting at, without a GPU and without leaving the application view. A CNN retrain is the right thing to do at the *end* of the loop, not between two pages of extracted image regions.",
+      "translation": "Lögunarmatrísin sem endurþjálfun innan forritsins passar á. Mæligögn frekar en pixla með ásetningi: tilgangurinn með því að endurþjálfa innan Annotate er að fá ferska röðun á sekúndum, á vélinni þar sem merkingarmaðurinn situr, án GPU og án þess að yfirgefa sýn forritsins. CNN endurþjálfun er rétt aðgerð við *enda* lykkjunnar, ekki á milli tveggja pagina af unnum myndasvæðum."
+    },
+    {
+      "label": "spacr._v1_v2_bridge.v2_channels_from_settings#1",
+      "source_sha256": "cb8f80df83ccf4e23deb34ab9120ee0df0c32b8008cc623c8d4372c410387783",
+      "source": "Order is fixed: nucleus, cell, pathogen, organelle (drops any that are None or absent). Uses the same C-axis convention that ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows end-to-end through v2 unchanged.",
+      "context": "Order is fixed: nucleus, cell, pathogen, organelle (drops any that are None or absent). Uses the same C-axis convention that ``spacr.qt.synthetic.CHANNEL_LAYOUT`` uses so demo data flows end-to-end through v2 unchanged.",
+      "translation": "Röð er föst: kjarni, fruma, sýkill, frumulíffæri (sleppir öllum sem eru None eða fjarverandi). Notar sama C-ás samviseinu og ``spacr.qt.synthetic.CHANNEL_LAYOUT`` notar svo sýnidata flæðir óbreytt í gegnum v2 frá upphafi til enda."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset#21",
+      "source_sha256": "e2d868911bb70706815ced94a0b95521a53e05dbea4f22096e6b8017ecf45e0a",
+      "source": "The resulting ``class_folder_names`` and ``nr_classes`` are written back into the dict for downstream training. A pre-split list-shaped ``classes`` entry is retired only after those folders are written; dict-shaped class definitions remain untouched.",
+      "context": "The resulting ``class_folder_names`` and ``nr_classes`` are written back into the key-value mapping for downstream training. A pre-split list-shaped ``classes`` entry is retired only after those folders are written; key-value mapping-shaped class definitions remain untouched.",
+      "translation": "Niðurstaðan ``class_folder_names`` og ``nr_classes`` er skrifuð aftur inn í lykil-gildi kortlagningu fyrir frekari þjálfun. Fyrir-skipt lista-laga ``classes`` skrá er afskráð aðeins eftir að þessar möppur hafa verið skrifaðar; lykil-gildi kortlagningu-laga flokks skilgreiningar eru óbreyttar."
+    },
+    {
+      "label": "spacr.qt.space.sample_star_fluxes#2",
+      "source_sha256": "bf1c0361add138e895785483fa1148731e100cdf82e956c80cb35f8d5c09885e",
+      "source": "The resulting distribution is emphatically *not* uniform: by construction the fraction brighter than ``k·F_min`` is ``k^-1.5``, i.e. ~65 % of stars sit in the faintest factor-of-two bin while only ~4 % are 8x brighter than the limit.",
+      "context": "The resulting distribution is emphatically *not* uniform: by construction the fraction brighter than ``k·F_min`` is ``k^-1.5``, i.e. ~65 % of stars sit in the faintest factor-of-two bin while only ~4 % are 8x brighter than the limit.",
+      "translation": "Niðurstaðan dreifing er áberandi *ekki* jöfn: að uppbyggingu er hlutfallið sem er bjartara en ``k·F_min`` ``k^-1.5``, þ.e.a.s. um 65 % stjarnanna sitja í dimmustu tveggja-sinnis kassa á meðan aðeins um 4 % eru 8x bjartari en mörkin."
+    },
+    {
+      "label": "spacr.ml.binarise_response#1",
+      "source_sha256": "dbf3bf8e2c451d02d68652a94c4eabae0acbd60df7d22c49272b923620ffc571",
+      "source": "The hinge backend fits a decision boundary, so it needs two classes. There are exactly two ways to get them and this function will not invent a third:",
+      "context": "The hinge backend fits a decision boundary, so it needs two classes. There are exactly two ways to get them and this function will not invent a third:",
+      "translation": "Hnakkabakhliðin passar við ákvörðunarmörk, svo það þarf tvær klasser. Það eru nákvæmlega tvær leiðir til að fá þær og þessi fall mun ekki finna upp þriðju:"
+    },
+    {
+      "label": "spacr.pipeline_graph.build_graph#3",
+      "source_sha256": "d2e4626fa029828414ea6d86fcd562e32f3bf71216dabd0f88c10e1384e1ea62",
+      "source": "the settings a caller is about to run with. When given, every node is additionally checked against them, so a graph can show \"this would be stale if you ran now\" before anything is overwritten. Note that this compares EVERY node's recorded settings against the one dict, which is what \"would my current settings reproduce this?\" means.",
+      "context": "the settings a caller is about to execute with. When given, every node is additionally checked against them, so a graph can show \"this would be stale if you ran now\" before anything is overwritten. Note that this compares EVERY node's recorded settings against the one key-value mapping, which is what \"would my current settings reproduce this?\" means.",
+      "translation": "stillingarnar sem símtalandi ætlar að framkvæma með. Þegar þær eru gefnar, er einnig athugað hverjum hnút út frá þeim, svo graf getur sýnt „þetta væri úrelt ef þú keyrðir núna“ áður en neitt er skrifað yfir. Athugaðu að þetta ber saman stillingar allra hnúta við eina lykil-gildi samsetningu, sem er það sem „myndu núverandi stillingar mínar endurskapa þetta?“ þýðir."
+    },
+    {
+      "label": "spacr.zstack.estimate_peak_bytes#1",
+      "source_sha256": "21ccb1a51006b14100e47d322b764e298a14515056c5b820aada880e70b2dbbb",
+      "source": "spaCR processes one field at a time and never holds a plate, so this is the number that matters. The multipliers are the live copies each mode keeps: the input volume, the segmenter's float working copy, and the label output.",
+      "context": "spaCR processes one microscope field of view at a time and never holds a laboratory microplate, so this is the number that matters. The multipliers are the live copies each mode keeps: the input volume, the segmenter's float working copy, and the label output.",
+      "translation": "spaCR vinnur úr einum smásjárreitum í einu og heldur aldrei á rannsóknarstofuplatta, svo þetta er talan sem skiptir máli. Margfaldararnir eru þær lifandi afrit sem hver stilling heldur: inntaksrúmmál, fljótandi vinnuafrit deilarans og merkjaúttak."
+    },
+    {
+      "label": "spacr.crashreport.find_last_run_id#1",
+      "source_sha256": "b8f8c3cd7f1e07f49bf9e5122f02c5d36a9689473c0e0b7a4b6755e67d265b88",
+      "source": "The run ids live one JSONL file per run under :func:`spacr.runctx.runs_log_dir`, so \"the last run\" is the newest file there. An active run wins over it: inside a ``run_context`` the crash being reported is *this* run, not the one before it.",
+      "context": "The run ids live one JSONL file per run under :func:`spacr.runctx.runs_log_dir`, so \"the last run\" is the newest file there. An active run wins over it: inside a ``run_context`` the crash being reported is *this* run, not the one before it.",
+      "translation": "Run auðkennin lifa í einni JSONL skrá fyrir hvert run undir :func:`spacr.runctx.runs_log_dir`, svo \"the last run\" er nýjasta skráin þar. Virk keyrsla vinnur yfir hana: innan ``run_context`` er bilunin sem er skráð *þessi* keyrsla, ekki sú sem var á undan henni."
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage#5",
+      "source_sha256": "bcb46c45f76f3c3bb0603977c0bf43f2e7f6161bd6182a261069e4b30d7784bc",
+      "source": "optional ordered ``(title, [app key])`` — one entry per tab after Home. Defaults to grouping ``apps`` by their section in first-appearance order, which is what every test that builds a HomePage out of a handful of tuples wants.",
+      "context": "Optional ordered ``(title, [app key])`` with one entry for each tab after Home. When omitted, group ``apps`` by section in first-appearance order. This matches tests that construct a HomePage from a small set of tuples.",
+      "translation": "Valfrjáls röðuð ``(title, [app key])`` með einni færslu fyrir hvern flipa eftir Heim. Þegar sleppt er, raðaðu hóp ``apps`` eftir kafla í fyrsta útlitsröð. Þetta samsvarar prófum sem búa til HomePage úr litlu sett af tupplum."
+    },
+    {
+      "label": "spacr.object.generate_organelle_masks_sam#4",
+      "source_sha256": "14561a9ce4babef868eaca4310e9ee91a89471ec36c9a9fc9d9c25afeec74235",
+      "source": "``irregular``: irregular-shaped organelles (Golgi, ER cisternae, lysosomes) via ``otsu``, ``adaptive``, ``cellpose``.",
+      "context": "``irregular``: irregular-shaped organelles (Golgi, ER cisternae, lysosomes) via ``otsu``, ``adaptive``, ``cellpose``.",
+      "translation": "``irregular``: óreglulegt lögun frumulíffæri (Golgi, ER cisternae, leysósóm) í gegnum ``otsu``, ``adaptive``, ``cellpose``."
+    },
+    {
+      "label": "spacr.submodules.analyze_invasion#1",
+      "source_sha256": "35cc5af8d792edd7260dea313fbcf01ff5284a5ab65e01efd95d2ee2102f97d8",
+      "source": "The red/green invasion assay stains twice. Before permeabilisation an antibody reaches only the parasites still **outside** the host cell, so those are positive in both channels; the cells are then permeabilised and a second antibody stains **all** parasites, so a parasite positive only in the post-permeabilisation channel was inside. Hence:",
+      "context": "The red/green invasion assay stains twice. Before permeabilisation an antibody reaches only the parasites still **outside** the host cell, so those are positive in both image data channels; the cells are then permeabilised and a second antibody stains **all** parasites, so a parasite positive only in the post-permeabilisation image data channel was inside. Hence:",
+      "translation": "Rauða/græna innrásarprófið litast tvisvar. Áður en gegndræpi er framkvæmt nær mótefni aðeins til sníkla sem eru enn **utan** hýsilfrumunnar, svo þeir eru jákvæðir í báðum myndgagna rásum; síðan er frumum gert gegndræpar og annað mótefni litast **allar** sníkla, svo sníkill sem er jákvæður aðeins í myndgagna rás eftir gegndræpinguna var inni. Því:"
+    },
+    {
+      "label": "spacr.qt.widgets.power_design.DesignSpec.validate#1",
+      "source_sha256": "73678a8e1be738381fb99a25a3b5a740827ad33d6a69ff89c91536901b5b8d83",
+      "source": "Called before the run starts. The library would raise on each of these too — but it raises inside ``scan_parameters``, which records the point as ``status=\"failed\"`` and carries on, so a design that is simply impossible would come back as a full grid of failures rather than as one sentence saying which box is wrong.",
+      "context": "Called before the run starts. The library would throw an exception on each of these too — but it raises inside ``scan_parameters``, which records the point as ``status=\"failed\"`` and carries on, so a design that is simply impossible would come back as a full grid of failures rather than as one sentence saying which box is wrong.",
+      "translation": "Kallað áður en keyrslan hefst. Bókasafnið myndi einnig kasta undantekningu á hverju þessara. — en það rís innan ``scan_parameters``, sem skráir punktinn sem ``status=\"failed\"`` og heldur áfram, svo hönnun sem er einfaldlega ómöguleg myndi koma til baka sem fullur rammi af mistökum frekar en sem ein setning sem segir hvaða kassinn er röngur."
+    }
+  ]
+}

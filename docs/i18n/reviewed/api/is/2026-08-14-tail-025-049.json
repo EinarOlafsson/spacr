@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#6",
+      "source_sha256": "0dd1ac342583c3acf145e9af1acdcce76b05e9eba7306181ffd8ded7337e4ddf",
+      "source": "Intensity channel the pathogen mask belongs to, or ``None``.",
+      "context": "Intensity image data channel the pathogen mask belongs to, or ``None``.",
+      "translation": "Styrkleikarásin sem sýklagríman tilheyrir, eða ``None``."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines#6",
+      "source_sha256": "0dd1ac342583c3acf145e9af1acdcce76b05e9eba7306181ffd8ded7337e4ddf",
+      "source": "Intensity channel the pathogen mask belongs to, or ``None``.",
+      "context": "Intensity image data channel the pathogen mask belongs to, or ``None``.",
+      "translation": "Styrkleikarásin sem sýklagríman tilheyrir, eða ``None``."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay#5",
+      "source_sha256": "533bbd05554970da02eef22380b8d29682190f560e3f9ecb0dd1d129d813c6a0",
+      "source": "Intensity channel the nucleus mask belongs to, or ``None``.",
+      "context": "Intensity image data channel the nucleus mask belongs to, or ``None``.",
+      "translation": "Styrkleikarásin sem kjarnagríman tilheyrir, eða ``None``."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines#5",
+      "source_sha256": "533bbd05554970da02eef22380b8d29682190f560e3f9ecb0dd1d129d813c6a0",
+      "source": "Intensity channel the nucleus mask belongs to, or ``None``.",
+      "context": "Intensity image data channel the nucleus mask belongs to, or ``None``.",
+      "translation": "Styrkleikarásin sem kjarnagríman tilheyrir, eða ``None``."
+    },
+    {
+      "label": "spacr.classify#0",
+      "source_sha256": "3ec3ba4e3244804b8b4564d59e48dbc04478081c4321adad6d9761cf84d4f1aa",
+      "source": "One Classify entry point over both classifier families.",
+      "context": "One Classify entry point over both machine-learning classification model families.",
+      "translation": "Einn Classify-inngangur fyrir báðar fjölskyldur flokkunarlíkana."
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview#0",
+      "source_sha256": "b8d633f4d8a6001104c4bb381636691972c0d2d5f91b827df3af5ac3e08f15ed",
+      "source": "Interactive Measure crop preview with a pipeline-compatible settings panel.",
+      "context": "Interactive Measure extracted-image-region preview with a workflow-compatible settings panel.",
+      "translation": "Gagnvirk forskoðun útdreginna myndsvæða fyrir Measure, með stillingaspjaldi sem samræmist vinnslurásinni."
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#3",
+      "source_sha256": "d677c2117583955bb8308d9cde6a3b5ea7e81b214e47e69b1c41b356a7005fa2",
+      "source": "Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two`` bucket that is always reported and never folded into a neighbouring bucket. That bucket is the assay's own quality control: a well where 30% of vacuoles are off the power-of-two ladder has a segmentation problem, and its replication number should not be trusted.",
+      "context": "Rosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two`` bucket that is always reported and never folded into a neighbouring bucket. That bucket is the assay's own quality control: a microplate sample position where 30% of vacuoles are off the power-of-two ladder has a segmentation problem, and its replication number should not be trusted.",
+      "translation": "Rósettur með 3, 5, 6 eða 7 sýklum eru taldar í sérstakan ``non_power_of_two`` flokk sem er alltaf birtur og aldrei sameinaður nágrannaflokki. Þessi flokkur er eigið gæðaeftirlit mælingarinnar: ef 30% sýklabóla í sýnisstöðu á örplötu eru utan veldisraðar tveggja er hlutunin gölluð og ekki ætti að treysta fjölgunartölunni."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_backdrop#1",
+      "source_sha256": "e90cd3c8ea410bfef65a92c452902574a262cd3a8c5ba23707d11a6ba25fb14e",
+      "source": "The animation composites (adds on dark, multiplies on light), so a wallpaper handed in here shows *through* it rather than being replaced. ``None`` goes back to the flat fill.",
+      "context": "The animation composites (adds on dark, multiplies on light), so a wallpaper handed in here shows *through* it rather than being replaced. ``None`` goes back to the flat fill.",
+      "translation": "Hreyfimyndin er lögð saman við dökkan bakgrunn en margfölduð við ljósan, svo veggfóður sem er sett hér sést *í gegnum* hana í stað þess að henni sé skipt út. ``None`` endurheimtir flata fyllingu."
+    },
+    {
+      "label": "spacr.qt.i18n.retranslate_widget_tree#1",
+      "source_sha256": "397a7daab4c62df3cee86d9239ae247a79c15f642d40c311036b9007e4fffe9b",
+      "source": "The function is intentionally best-effort and idempotent. It never edits line-edit contents, text editors, table cells, model data, filenames or console output.",
+      "context": "The function is intentionally best-effort and idempotent. It never edits line-edit contents, text editors, table cells, model data, filenames or console output.",
+      "translation": "Fallið er viljandi eftir bestu getu og óbreytanlegt. Það breytir aldrei innihaldi innsláttarlína, textaritla, töflureita, líkangögnum, skráarheitum eða úttaki stjórnborðs."
+    },
+    {
+      "label": "spacr.qt.widgets.home.AppTile#0",
+      "source_sha256": "299f55fd252ab010aa1675f45732efdf739ff4e4e82109a71fa96b1f1a966887",
+      "source": "**The** tile: a large square-ish button, icon over module name.",
+      "context": "**The** tile: a large square-ish button, icon over module name.",
+      "translation": "**Flísin sjálf**: stór, nærri ferhyrndur hnappur með tákni fyrir ofan heiti einingarinnar."
+    },
+    {
+      "label": "spacr.sp_stats.chi_pairwise#0",
+      "source_sha256": "28bc5d05fd74fc3dad11ce51d34d7e84c700ab71fa0f984d91ea26462b2fdfc7",
+      "source": "Run pairwise chi-square (or Fisher's exact) tests across group pairs.",
+      "context": "Run pairwise chi-square (or Fisher's exact) tests across group pairs.",
+      "translation": "Keyra kí-kvaðratpróf parað milli allra hópapara, eða nákvæmt próf Fishers þegar við á."
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.strip_report_paths#1",
+      "source_sha256": "193b55d7bc30a06f531b75b7c0709dfc2559a48f1c7199aa0863925ae8261b69",
+      "source": "The ordinary sanitizer abbreviates the home directory so a traceback is still useful. Public reports default to the stricter form: traceback file fields and remaining absolute path-like tokens become ``<PATH>``. The preview lets the user restore the useful names before sending.",
+      "context": "The ordinary sanitizer abbreviates the home directory so a traceback is still useful. Public reports default to the stricter form: traceback file fields and remaining absolute path-like tokens become ``<PATH>``. The preview lets the user restore the useful names before sending.",
+      "translation": "Venjulega hreinsunin styttir heimamöppuna svo staflarakningin haldist gagnleg. Opinberar skýrslur nota sjálfgefið strangari gerð: skráarreitir staflarakningar og önnur algild slóðarlík tákn verða ``<PATH>``. Forskoðunin gerir notandanum kleift að endurheimta gagnleg heiti áður en sent er."
+    },
+    {
+      "label": "spacr.hits#0",
+      "source_sha256": "706bfdd347732a50483e288668ac0f13494df849545cffa46163be9b3fee659b",
+      "source": "The hit list: the ranked, annotated, filterable deliverable of a screen.",
+      "context": "The hit list: the ranked, annotated, filterable deliverable of a screening experiment.",
+      "translation": "Listi jákvæðra niðurstaðna: raðaða, skýrða og síanlega afurð skimunar."
+    },
+    {
+      "label": "spacr.plate_qc.detect_edge_effect#2",
+      "source_sha256": "69df5b4bdcf3087c3b2085b629e82bf82c1e87ce39dfd8e862945de3cbba7b43",
+      "source": "Detection deliberately needs *both* ``p < alpha`` **and** ``|cliffs_delta| >= min_effect``. On 384 wells a p-value on its own flags drifts far below the level at which anyone would act.",
+      "context": "Detection deliberately needs *both* ``p < alpha`` **and** ``|cliffs_delta| >= min_effect``. On 384 microplate sample positions a p-value on its own flags drifts far below the level at which anyone would act.",
+      "translation": "Greiningin krefst viljandi *bæði* ``p < alpha`` **og** ``|cliffs_delta| >= min_effect``. Á örplötu með 384 sýnisstöðum merkir p-gildi eitt og sér frávik langt undir því sem nokkur myndi bregðast við."
+    },
+    {
+      "label": "spacr.batch.resolve_job_settings#1",
+      "source_sha256": "7911d8b785aefe2636d6f70e4ad0e1d85e1184ee64780aff9404cc5cc62ac597",
+      "source": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline dict), then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader and coercion so a value the CLI accepts is a value the queue accepts.",
+      "context": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline key-value mapping), then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader and coercion so a value the CLI accepts is a value the work list accepts.",
+      "translation": "Lögin eru nákvæmlega eins og hjá ``spacr-run``: fyrst sjálfgefnar einingarstillingar, síðan stillingaskráin eða innbyggða lyklagildavörpunin og loks ``--set`` yfirskriftirnar. Eiginn hleðslukóði og gerðarþvingun :mod:`spacr.cli` eru notuð, svo gildi sem CLI samþykkir samþykkir verkefnalistinn líka."
+    },
+    {
+      "label": "spacr.deep_spacr.summarize_cv_metrics#1",
+      "source_sha256": "1f220ab913ada1b62298ab338e92305e6bdc79fae1628574ec4e96be16ee7d6c",
+      "source": "The spread is the whole point of k-fold: a single split can be lucky, and only the fold-to-fold standard deviation and range say by how much.",
+      "context": "The spread is the whole point of k-fold: a single split can be lucky, and only the fold-to-fold standard deviation and range say by how much.",
+      "translation": "Dreifingin er sjálfur tilgangur k-faldrar krossprófunar: ein skipting getur verið heppin og aðeins staðalfrávik og spönn milli fellinga sýna hversu mikið."
+    },
+    {
+      "label": "spacr.align.AlignResult.summary#0",
+      "source_sha256": "9709066848bba501319ca99283566b72b22c5893246aa0cd19cd2aeb011ea039",
+      "source": "One-block human summary of the write.",
+      "context": "One-block user-facing summary of the write.",
+      "translation": "Notendavæn samantekt skrifunarinnar í einum textablokk."
+    },
+    {
+      "label": "spacr.custom_features#5",
+      "source_sha256": "c1a00da6b3bdbf1c9378e4ed2f06c51fe88bfc4bbcf51f0ad87394aa2ea38dae",
+      "source": "Errors are logged and swallowed: a feature that raises simply yields an empty mapping, so one bad function cannot break the caller's loop.",
+      "context": "Errors are logged and swallowed: a feature that raises simply yields an empty mapping, so one bad function cannot break the caller's loop.",
+      "translation": "Villur eru skráðar en látnar ekki berast áfram: eiginleiki sem veldur undantekningu skilar einfaldlega tómri vörpun, svo eitt gallað fall getur ekki stöðvað lykkju kallandans."
+    },
+    {
+      "label": "spacr.schema.model_feature_frame#1",
+      "source_sha256": "2bd347243ddeced92ce7daf806db81b027c2849234f821827647bc9be7e3919c",
+      "source": "Unlike :func:`model_feature_columns` this owns the data it hands back, so it repairs what is losslessly repairable first (:func:`coerce_model_feature_types`) instead of refusing a frame whose only fault is that pandas typed an all-NULL measurement ``object``.",
+      "context": "Unlike :func:`model_feature_columns` this owns the data it hands back, so it repairs what is losslessly repairable first (:func:`coerce_model_feature_types`) instead of refusing a frame whose only fault is that pandas typed an all-NULL measurement ``object``.",
+      "translation": "Ólíkt :func:`model_feature_columns` á þetta gögnin sem það skilar og lagar því fyrst það sem hægt er að laga án taps með :func:`coerce_model_feature_types`. Það hafnar ekki gagnaramma einungis vegna þess að pandas gaf mælingu sem er öll NULL gerðina ``object``."
+    },
+    {
+      "label": "spacr.qt.screens.profiler#5",
+      "source_sha256": "9a826095c6da34896134ff50c3ab8e0a32031b3dab5464527c751c374ad877a0",
+      "source": "**Where there is no design, the assumption is stated.** Without the original design matrix the observed range of each input is unknown, so the screen sweeps 0-1 — the range a per-gRNA fraction lives in — and says so in the status strip rather than implying it measured something.",
+      "context": "**Where there is no design, the assumption is stated.** Without the original design matrix the observed range of each input is unknown, so the screening experiment sweeps 0-1 — the range a per-gRNA fraction lives in — and says so in the status strip rather than implying it measured something.",
+      "translation": "**Þegar hönnun vantar er forsendan skýrð.** Án upprunalega hönnunarfylkisins er mælt bil hvers inntaks óþekkt, svo forritssýnin fer yfir 0–1 — bilið sem hlutfall fyrir hvert gRNA liggur á — og segir það í stöðustikunni í stað þess að gefa í skyn að eitthvað hafi verið mælt."
+    },
+    {
+      "label": "spacr.sim.validate_and_adjust_beta_params#0",
+      "source_sha256": "e29e74ac52a53aabea3a30d3ce3f77114f204f056c5a4f6dba34a4c63c65b02c",
+      "source": "Clamp per-run Beta variances so the requested mean/variance is feasible.",
+      "context": "Clamp per-run Beta variances so the requested mean/variance is feasible.",
+      "translation": "Takmarka Beta-dreifni hverrar keyrslu svo umbeðið meðaltal og dreifni séu framkvæmanleg."
+    },
+    {
+      "label": "spacr.power_simulate.drop_low_cell_wells#2",
+      "source_sha256": "0f47b482aa0646d93340e66160f97585caa54ac35d4b6b51eed29e890009c9a5",
+      "source": "The Poisson offset does part of the job: a well with three cells has a small expected count, so it does not dominate the *scale* of the fit. What the offset does not do is stop the well's read-fraction covariate from being paired with a response that is almost pure noise, and a screen with a long tail of thin wells is a screen whose covariate-response relationship is being averaged against nothing.",
+      "context": "The Poisson offset does part of the job: a microplate sample position with three cells has a small expected count, so it does not dominate the *scale* of the fit. What the offset does not do is stop the microplate sample position's read-fraction covariate from being paired with a response that is almost pure noise, and a screen with a long tail of thin microplate sample positions is a screen whose covariate-response relationship is being averaged against nothing.",
+      "translation": "Poisson-hliðrunin vinnur hluta verksins: sýnisstaða með þrjár frumur hefur lága vænta talningu og ræður því ekki *kvarða* mátunarinnar. Hliðrunin kemur hins vegar ekki í veg fyrir að leshlutfall sýnisstöðunnar sé parað við svörun sem er nær hreint suð. Skimun með langan hala af fámennum sýnisstöðum er því að meðaltala samband skýribreytu og svörunar við nánast engar upplýsingar."
+    },
+    {
+      "label": "spacr.qt.app.make_home_page#1",
+      "source_sha256": "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23",
+      "source": "The grouping, the stages, the notes and the icon provider are four arguments that have to agree, and a test that assembles its own HomePage is testing a page that does not ship — which is the exact class of bug #16i was: Home grouped by one table and the tabs by another. One constructor call, used by :class:`MainWindow` and by the suite.",
+      "context": "The grouping, the stages, the notes and the icon provider are four arguments that have to agree, and a test that assembles its own HomePage is testing a page that does not ship — which is the exact class of bug #16i was: Home grouped by one table and the tabs by another. One constructor call, used by :class:`MainWindow` and by the suite.",
+      "translation": "Flokkunin, stigin, athugasemdirnar og táknveitan eru fjögur rök sem verða að samræmast. Próf sem setur saman sína eigin HomePage prófar síðu sem er ekki afhent; það er nákvæmlega sú villugerð sem #16i var, þegar Home flokkaði eftir einni töflu en fliparnir eftir annarri. Eitt smíðakall er notað bæði af :class:`MainWindow` og prófasafninu."
+    },
+    {
+      "label": "spacr.confusion#3",
+      "source_sha256": "9f17529101728531e935683c2165d60e21d2975b0aa433c877cfba9e39218296",
+      "source": "**A cell is a set of objects.** :func:`cell_rows` is the whole primitive: the rows of the out-of-fold prediction table whose true class is *this* and whose predicted class is *that*. Everything else here is a way of ordering, splitting or counting that set.",
+      "context": "**A cell is a set of objects.** :func:`cell_rows` is the whole primitive: the rows of the out-of-fold prediction table whose true class is *this* and whose predicted class is *that*. Everything else here is a way of ordering, splitting or counting that set.",
+      "translation": "**Reitur er mengi hluta.** :func:`cell_rows` er allur frumhlutinn: raðirnar í forspártöflunni utan fellingar þar sem sannur flokkur er *þessi* og spáður flokkur er *hinn*. Allt annað hér raðar, skiptir eða telur þetta mengi."
+    },
+    {
+      "label": "spacr.qt.layer_viewer#2",
+      "source_sha256": "b78e7495f4fa535ba72b70fb72f69a5e2e45ea324835848fbad59dbeccce009a",
+      "source": "The split is not tidiness. Five later features build on the layer model — ROI shapes read by Measure, a counting points layer, a label brush with timelapse track curation, orthogonal views with dimension sliders, and a synchronised comparison grid — and every one of them is a change to the model with a small widget on top. Putting the compositing rules in a ``paintEvent`` would make all five untestable without a running ``QApplication``.",
+      "context": "The split is not tidiness. Five later features build on the layer model — ROI shapes read by Measure, a counting points layer, a label brush with timelapse track curation, orthogonal views with dimension sliders, and a synchronised comparison grid — and every one of them is a change to the model with a small widget on top. Putting the compositing rules in a ``paintEvent`` would make all five untestable without a running ``QApplication``.",
+      "translation": "Aðskilnaðurinn er ekki til snyrtis. Fimm síðari eiginleikar byggja á lagalíkaninu: ROI-form sem Measure les, talningarpunktalag, merkipensill með ritun tímarásarferla, hornréttar sýnir með víddarsleðum og samstillt samanburðarnet. Hver þeirra breytir líkaninu og setur lítið viðmót ofan á. Ef samsetningarreglurnar væru í ``paintEvent`` yrði ómögulegt að prófa alla fimm án keyrandi ``QApplication``."
+    }
+  ]
+}
