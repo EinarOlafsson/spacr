@@ -383,6 +383,62 @@ def test_submit_with_ai_off_never_starts_a_thread(qtbot, qt_theme_applied):
     assert not panel.is_ai_streaming()
 
 
+def test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The failure may precede enabling AI; toggle order must not matter."""
+    from spacr.qt.widgets.console_panel import (
+        AI_CONSOLE_CONTEXT_CHARS, ConsolePanel)
+
+    fake = _make_short_provider("unused")
+    _swap_provider(monkeypatch, fake)
+    panel = ConsolePanel()
+    qtbot.addWidget(panel)
+    monkeypatch.setattr(panel, "_start_stream", lambda system: None)
+
+    old_stdout = "BEGIN_OLD_OUTPUT\n" + "x" * (AI_CONSOLE_CONTEXT_CHARS + 500)
+    traceback = ("Traceback (most recent call last):\n"
+                 + "frame\n" * (AI_CONSOLE_CONTEXT_CHARS // 4)
+                 + "RuntimeError: segmentation failed")
+    panel.append_stdout(old_stdout)
+    panel.append_error(traceback)
+    panel.set_ai_provider("claude")
+    panel.set_ai_active(True)
+
+    panel._send_to_ai("What went wrong? Explain based on the console")
+    first = panel._ai_messages[-1]["content"]
+    assert "RuntimeError: segmentation failed" in first
+    assert "Traceback (most recent call last)" in first
+    assert "earlier characters dropped" in first
+    assert "chars sent" in panel._console_context_status.text()
+
+    panel.append_stdout("\nONLY_NEW_OUTPUT")
+    panel._send_to_ai("debug the new console output")
+    second = panel._ai_messages[-1]["content"]
+    assert "ONLY_NEW_OUTPUT" in second
+    assert "BEGIN_OLD_OUTPUT" not in second
+    assert "RuntimeError: segmentation failed" not in second
+
+
+def test_console_context_auto_is_visible_and_overridable(
+        qtbot, qt_theme_applied):
+    from spacr.qt.widgets.console_panel import ConsolePanel
+
+    panel = ConsolePanel()
+    qtbot.addWidget(panel)
+    panel.append_stdout("diameter diagnostic")
+
+    context, status = panel._console_context_for_question(
+        "How do I set the diameter?")
+    assert context == ""
+    assert "Auto" in status
+
+    panel._console_context_mode.setCurrentIndex(1)
+    context, status = panel._console_context_for_question(
+        "How do I set the diameter?")
+    assert "diameter diagnostic" in context
+    assert "chars sent" in status
+
+
 # ---------------------------------------------------------------------------
 # 10. AppScreen: AI toggle drives ConsolePanel state
 # ---------------------------------------------------------------------------
