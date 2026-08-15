@@ -753,22 +753,64 @@ def test_unsupported_threshold_method_raises(screen, stubs):
 
 
 def test_controls_none_skips_the_threshold_block(screen, stubs):
-    """With controls=None every p<0.05 coefficient survives unfiltered."""
+    """With controls=None every q<alpha coefficient survives unfiltered.
+
+    This used to assert against the RAW p value, and passed only because the
+    Intercept -- p = 1.7e-18, and not a hypothesis about any guide -- was
+    being counted as a screen hit. The correction is now applied across the
+    tested coefficients only, so the intercept and the row/column nuisance
+    terms are excluded from both the family and the hit list.
+    """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, controls=None)
+    settings = base_settings(screen, controls=None,
+                             multiple_testing_method="none")
     out = perform_regression(settings)
 
+    results = out["results"]
+    tested = ~results["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
     sig = out["significant"]
-    assert len(sig) == int((out["results"]["p_value"] <= 0.05).sum())
-    assert (sig["p_value"] <= 0.05).all()
+    assert len(sig) == int((results.loc[tested, "q_value"] < 0.05).sum())
+    assert (sig["q_value"] < 0.05).all()
+    # No nuisance term can reach the hit list, whatever its p value.
+    assert not sig["feature"].astype(str).str.contains(
+        "Intercept", case=False).any()
+
+
+def test_the_correction_is_actually_applied_to_the_parametric_fit():
+    """multiple_testing_method must change the parametric hit list.
+
+    It existed as a setting, was offered in the panel and named in Methods
+    sections, while this branch called hits on the raw OLS p value. On the
+    real screen that is 56 uncorrected hits against 10 under
+    Benjamini-Hochberg -- the defect behind a published volcano that drew a
+    P = 0.05 line while its Methods claimed BH q < 0.05.
+    """
+    import numpy as np
+    from spacr.multiple_testing import adjust_p_values
+
+    # 1,200 coefficients, 60 of which beat 0.05 by chance alone.
+    rng = np.random.default_rng(0)
+    p = rng.uniform(0, 1, 1200)
+    raw = int((p <= 0.05).sum())
+    corrected, _ = adjust_p_values(p, "fdr_bh", 0.05)
+    assert raw > 40, "the premise is that uncorrected testing finds noise"
+    assert int((corrected < 0.05).sum()) == 0
 
 
 def test_min_n_filters_the_significant_hits(screen, stubs):
     """results_significant_filtered.csv keeps only well-covered features."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, min_n=1000)
+    # alpha=1 makes every tested coefficient a hit, so there is something for
+    # min_n to filter. The fixture's only sub-0.05 p value belonged to the
+    # Intercept, which is now correctly excluded from the tested family --
+    # so a filter test can no longer borrow it, and asks for hits explicitly
+    # instead of depending on one arriving by accident.
+    settings = base_settings(screen, min_n=1000,
+                             multiple_testing_method="none",
+                             fdr_alpha=0.999)
     out = perform_regression(settings)
 
     sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
@@ -777,6 +819,9 @@ def test_min_n_filters_the_significant_hits(screen, stubs):
     # hits exist, but none has >1000 wells of gRNA or gene support
     assert len(sig) == len(out["significant"]) > 0
     assert len(filt) == 0
+    # And no nuisance term reached the hit list even at alpha=0.999.
+    assert not sig["feature"].astype(str).str.contains(
+        "Intercept|row|column", case=False).any()
 
 
 # ---------------------------------------------------------------------------
