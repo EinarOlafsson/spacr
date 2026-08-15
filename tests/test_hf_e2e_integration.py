@@ -65,7 +65,11 @@ def _require_gpu_cellpose():
         cuda_available,
         package_available,
     )
-    if not cuda_available():
+    # The real microscopy dataset remains GPU-only. The four-field stub is a
+    # release-gate contract and is deliberately small enough for Cellpose CPU,
+    # so a hosted runner can execute it rather than skip the only assertion
+    # that proves masks survive the stage.
+    if not _stubbed_mode() and not cuda_available():
         pytest.skip("no CUDA — this E2E chain is GPU-only")
     if not package_available("cellpose"):
         pytest.skip("cellpose unavailable")
@@ -125,10 +129,23 @@ def _make_stub_settings(dst: Path) -> Path:
         "plot,false\n"
         "test_mode,false\n"
         "batch_size,2\n"
+        # The mask stage normally deletes its intermediate stacks after they
+        # have been merged. This test explicitly asserts the stack contract,
+        # so keep the artefact it is looking for instead of calling a planned
+        # cleanup "no masks were produced".
+        "keep_intermediate,true\n"
     )
     (settings / _PACK_CSV["measure"]).write_text(
         "Key,Value\n"
         "src,\n"
+        # Three image channels are merged first, then cell and nucleus masks.
+        # The generic Measure defaults assume four image channels; spelling
+        # the fixture's actual layout exercises the same provenance check a
+        # real settings pack must satisfy.
+        "cell_mask_dim,3\n"
+        "nucleus_mask_dim,4\n"
+        "pathogen_mask_dim,None\n"
+        "organelle_mask_dim,None\n"
         "plot,false\n"
     )
     (settings / "annotate_settings.csv").write_text("Key,Value\nsrc,\n")
@@ -218,6 +235,9 @@ def test_hf_e2e_mask_stage(_prepared_workspace):
     from spacr.run_journal import open_run
 
     settings = _load_settings_for("mask", settings_root, dataset)
+    # The downloaded pack may choose production cleanup. An E2E output test
+    # must retain the output it asserts in both stub and real-data modes.
+    settings["keep_intermediate"] = True
     t0 = time.time()
     with open_run("mask", settings) as run:
         preprocess_generate_masks(settings)
