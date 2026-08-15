@@ -166,7 +166,7 @@ jobs:
             Write-Host "NSIS process exit code: $($Process.ExitCode)"
             $CandidateRoots = @(
               $InstallRoot,
-              (Join-Path $env:LOCALAPPDATA "SpaCR")
+              (Join-Path $env:LOCALAPPDATA "spaCR")
             ) | Select-Object -Unique
             foreach ($CandidateRoot in $CandidateRoots) {
               Write-Host "Installer candidate root: $CandidateRoot"
