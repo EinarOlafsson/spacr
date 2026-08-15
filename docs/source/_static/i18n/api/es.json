@@ -8680,22 +8680,22 @@
     },
     "spacr.core.generate_image_umap": {
       "source_blocks_sha256": [
-        "2b3992181ed5b27475bf6c2b8b8b278c52ca0dfe0238d26756a11b6f8cb6fe15",
+        "8f43a4241cdbc6b6a0e7f859596133458b9371c382e81490ada135a7c811a515",
         "52172f821c4999b3611e3605fc1dca6a9b29ad5bf93c98143587e752113b2b5b",
         "ace67b90b222a9a1093f50b5c0b87b42888f2208475f1540c2af83a80627a006",
-        "eadc212b57016612f184653207c913bc9802f96d4ac425bc0fd3ce89668b3998",
+        "1579ce2066e7498e62d3b86f7df0030420a017d7d141242db1153f41c7aaff10",
         "39fc4fa7b3a48a8807ced0c6aa584a8ebd2f5599a5c47a235d28bbb4035bb0af",
         "9200779f0a6708cce7552f83676d55b928331e61ed886f4180e25545f41361d6",
         "6544fbfdee34b8585502a9bf455793ebc690cc6a5fec8297b3a46f882f39ff55",
         "01778164233f1191e47f8c5590c196bdee52e9a8cfacb513cbadb3d48d3caef8"
       ],
-      "source_sha256": "bdba80352175f4104f6fba8968714f1e3298d9fa00c4f9f12cf2d17a6210119b",
-      "text": "Generar una incrustación UMAP o tSNE de características por objeto y trazarlo.\n\nLee las mediciones del motor o motores SQLite, aplica la reducción de preprocesamiento y dimensionalidad, agrupa la integración y renderiza las parcelas de dispersión/malla de los cúmulos resultantes.\n\nLas miniaturas superpuestas en la incrustación provienen de cualquiera que sea la fuente de imagen-región extraída ``crop_source`` nombres: ``'png'`` (y ``'auto'`` donde exista una carpeta de región de imagen extraída) lee la pregenerada PNGs, ``'merged'`` (y ``'auto'`` sin carpeta) corta cada uno de ``merged/*.npy`` bajo demanda a través de :mod:`spacr.crops`, por lo que la inserción se puede dibujar en un proyecto que nunca mantuvo una carpeta región de imágenes extraídas — ``png_list`` no es necesario en ese caso. De cualquier manera los píxeles llegan a través del :mod:`spacr.crops`, así que una carpeta heredada (pre-341f446) es un canal de datos de imagen corregido a carga y el montaje muestra la misma imagen que la vista de aplicación Annotate.\n\n:param settings: Configuración de la asignación de valor clave; canonizado a través de :func:`spacr.settings.set_default_umap_image_settings`. Nombres comunes de datos estructurados: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` o ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.\n:param return_fig: Cuando True, devuelve la figura de Matplotlib en lugar de la cifra anotada DataFrame.\n:returns: DataFrame de las filas de entrada más una columna ``cluster``, o una Matplotlib ``Figure`` cuando ``return_fig`` es True. Con ``remove_cluster_noise`` los objetos de ruido se sueltan del marco así como de la incrustación, por lo que los dos siempre describen los mismos objetos.\n:raises ValueError: cuando una fuente no tiene ``measurements.db`` utilizable — véase :func:`_validate_umap_source_db` para obtener exactamente lo que se requiere.\n:raises NotImplementedError: cuando se establece ``resnet_features``; no se implementa la integración de regiones de imagen extraída en bruto con características de ResNet.",
+      "source_sha256": "b9620fbca1fe86c02968a5d7fe40de8ba62b7815ae74f7b81157d6f7e15ac278",
+      "text": "Reducir las características por objeto y trazar la inserción 2-D resultante.\n\nLee las mediciones del motor o motores SQLite, aplica la reducción de preprocesamiento y dimensionalidad, agrupa la integración y renderiza las parcelas de dispersión/malla de los cúmulos resultantes.\n\nLas miniaturas superpuestas en la incrustación provienen de cualquiera que sea la fuente de imagen-región extraída ``crop_source`` nombres: ``'png'`` (y ``'auto'`` donde exista una carpeta de región de imagen extraída) lee la pregenerada PNGs, ``'merged'`` (y ``'auto'`` sin carpeta) corta cada uno de ``merged/*.npy`` bajo demanda a través de :mod:`spacr.crops`, por lo que la inserción se puede dibujar en un proyecto que nunca mantuvo una carpeta región de imágenes extraídas — ``png_list`` no es necesario en ese caso. De cualquier manera los píxeles llegan a través del :mod:`spacr.crops`, así que una carpeta heredada (pre-341f446) es un canal de datos de imagen corregido a carga y el montaje muestra la misma imagen que la vista de aplicación Annotate.\n\n:param settings: Configuración de la asignación de valor clave; canonizado a través de :func:`spacr.settings.set_default_umap_image_settings`. Nombres comunes de datos estructurados: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (UMAP, t-SNE, PCA, Isomap o Spectral), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.\n:param return_fig: Cuando True, devuelve la figura de Matplotlib en lugar de la cifra anotada DataFrame.\n:returns: DataFrame de las filas de entrada más una columna ``cluster``, o una Matplotlib ``Figure`` cuando ``return_fig`` es True. Con ``remove_cluster_noise`` los objetos de ruido se sueltan del marco así como de la incrustación, por lo que los dos siempre describen los mismos objetos.\n:raises ValueError: cuando una fuente no tiene ``measurements.db`` utilizable — véase :func:`_validate_umap_source_db` para obtener exactamente lo que se requiere.\n:raises NotImplementedError: cuando se establece ``resnet_features``; no se implementa la integración de regiones de imagen extraída en bruto con características de ResNet.",
       "translation_source_blocks_sha256": [
-        "2b3992181ed5b27475bf6c2b8b8b278c52ca0dfe0238d26756a11b6f8cb6fe15",
+        "8f43a4241cdbc6b6a0e7f859596133458b9371c382e81490ada135a7c811a515",
         "52172f821c4999b3611e3605fc1dca6a9b29ad5bf93c98143587e752113b2b5b",
         "8c61f6fb1da9e4b6725537217abe5e0dc67b222da80d397d4c175939e8643fcb",
-        "88be989a8267b58d7f831a855f667229b758bf19c9b367a6bbd6ad5ad35c102e",
+        "abd32186e2abe9d5b444edd384d2ea47cdd7ac53cf92d46035c9dd9b8938e817",
         "39fc4fa7b3a48a8807ced0c6aa584a8ebd2f5599a5c47a235d28bbb4035bb0af",
         "9200779f0a6708cce7552f83676d55b928331e61ed886f4180e25545f41361d6",
         "6544fbfdee34b8585502a9bf455793ebc690cc6a5fec8297b3a46f882f39ff55",
@@ -54451,14 +54451,12 @@
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.gpu_backend": {
       "source_blocks_sha256": [
-        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
-        "53a87d81c3a2e0c4ce6464ee3e5101adc1e462841e3dc2b107f389552b4b837d"
+        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd"
       ],
-      "source_sha256": "a7302ef41ca1e5931dc8c4960b73ea2bdffc5d29256762044ca428c2482cdebb",
-      "text": "Qué motor usará la siguiente búsqueda: ``'cuml'`` o ``'cpu'``.\n\nLea desde el botón en lugar de desde lo que está instalado: el cuML importable no es lo mismo que el usuario que lo pidió, y una tabla cuyas filas provienen de ambos motores compara dos bibliotecas, así como los ajustes que variaba.",
+      "source_sha256": "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
+      "text": "Qué motor usará la siguiente búsqueda: ``'cuml'`` o ``'cpu'``.",
       "translation_source_blocks_sha256": [
-        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
-        "53a87d81c3a2e0c4ce6464ee3e5101adc1e462841e3dc2b107f389552b4b837d"
+        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd"
       ]
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.open_settings": {
@@ -54489,6 +54487,18 @@
       "text": "Abre el selector de ejes. Devuelve el diálogo, o None cuando no UMAP.",
       "translation_source_blocks_sha256": [
         "487e2ec0b56bab46ffa9b9a4acd10dee77dd258f1f302a76ff429f83ae9b3c74"
+      ]
+    },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.request_gpu_enabled": {
+      "source_blocks_sha256": [
+        "fb0a4b3b650819c1810df3dce5a40f7b8e32d8e1e4c7078110353af384931ffb",
+        "e46516e4951c24df6768c740d205223b29b6e1c2fba5ac88cd57071ed9bdc25f"
+      ],
+      "source_sha256": "d413443b91a8603321b3ba7cae7bab69295bb8e7b324ecb9aeca446a29ff38e3",
+      "text": "Aplique la palanca compartida GPU o explique por qué no puede encenderse.\n\nLa persona que llama utiliza el estado devuelto para mantener la etiqueta de la pista de acción y la configuración oculta de ejecución principal sincronizada con este panel de búsqueda.",
+      "translation_source_blocks_sha256": [
+        "fb0a4b3b650819c1810df3dce5a40f7b8e32d8e1e4c7078110353af384931ffb",
+        "e46516e4951c24df6768c740d205223b29b6e1c2fba5ac88cd57071ed9bdc25f"
       ]
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.result": {
@@ -58829,6 +58839,18 @@
         "6048419e52228d29678509acc3acbd8bcc237ee537dc9fda76fd92e40956a788",
         "1e486ee629de0014f7d25db84a8958a9714bd79ecf7f25701c8b80ed70d9f897",
         "79730c15a7b095958f83bbfff80171d4e59947d84cd8ba826c7ddead506d975b"
+      ]
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
+      "source_blocks_sha256": [
+        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
+        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+      ],
+      "source_sha256": "688c56c0998839f686d2ad866036a867e087fc2fcdd41a241dff73f7d32c632d",
+      "text": "Actualizar una configuración de ejecución deliberadamente oculta.\n\nAlgunos valores tienen un control dedicado fuera de la forma. Imagen UMAP's action-strip GPU conmutador es uno: duplicarlo como una casilla de verificación de formulario crearía dos fuentes de verdad. Oculto no significa ausente (invariante 6), por lo que el valor vive en ``_defaults`` y todavía alcanza collect().",
+      "translation_source_blocks_sha256": [
+        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
+        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
       ]
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
@@ -79789,6 +79811,16 @@
         "a987265bf19ac227bbf8804ce02196cea2a3aed3b47702b7434e46f8a6232f20"
       ]
     },
+    "spacr.qt.widgets.umap_search_viewer.UmapAppearanceDialog": {
+      "source_blocks_sha256": [
+        "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee"
+      ],
+      "source_sha256": "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee",
+      "text": "Controles de renderizador de puntos no modales para una vista de incrustación.",
+      "translation_source_blocks_sha256": [
+        "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee"
+      ]
+    },
     "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView": {
       "source_blocks_sha256": [
         "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb"
@@ -79797,6 +79829,16 @@
       "text": "Una vista de punto 2D/3-D del fondo negro; arrastre un mapa 3D para girarlo.",
       "translation_source_blocks_sha256": [
         "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb"
+      ]
+    },
+    "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.set_appearance": {
+      "source_blocks_sha256": [
+        "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6"
+      ],
+      "source_sha256": "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6",
+      "text": "Aplicar cambios de solo renderizado sin cambiar la incrustación.",
+      "translation_source_blocks_sha256": [
+        "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6"
       ]
     },
     "spacr.qt.widgets.umap_search_viewer.UmapExplorer": {
@@ -79817,6 +79859,26 @@
       "text": "Todas las incrustaciones de la tabla en negro, con un clic devolver la prueba real.",
       "translation_source_blocks_sha256": [
         "883bfde8f49f773e4c1f7f99280b26f58a4ed2016b030328a6a41f3afe288baf"
+      ]
+    },
+    "spacr.qt.widgets.umap_search_viewer.available_colormaps": {
+      "source_blocks_sha256": [
+        "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e"
+      ],
+      "source_sha256": "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e",
+      "text": "Cada mapa de color de Matplotlib instalado, más la paleta nativa de spaCR.",
+      "translation_source_blocks_sha256": [
+        "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e"
+      ]
+    },
+    "spacr.qt.widgets.umap_search_viewer.axis_frame": {
+      "source_blocks_sha256": [
+        "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f"
+      ],
+      "source_sha256": "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f",
+      "text": "Devuelve las líneas de rejilla proyectadas y exactamente dos o tres ejes primarios.",
+      "translation_source_blocks_sha256": [
+        "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f"
       ]
     },
     "spacr.qt.widgets.umap_search_viewer.colors_for_labels": {
@@ -96062,41 +96124,13 @@
     "spacr.utils.reduction_and_clustering": {
       "source_blocks_sha256": [
         "7ae6b2478f3d8d44b7d788a7a1f8d0171b0d6f6be14099b934d62a58e17869d7",
-        "5850f42fa771360b39ed4b0c26f464a89f086dc1c4984c1c900e2d61e28c08c7",
-        "9e6673035d81349e258f83bf87371d17fb7097d7bdede42aeec334b15cb8ea85",
-        "97f3c1a8b776a2acc75c9fdc2d1afcda7d4ea601dd8d13c45713e00268e34506",
-        "33ad9daaa25ac38638bd5bbb6d26746c681ffed8f83a6a04a13413cb0b205c8d",
-        "695f95d6c52e01692d234782f14b65a1f15cab9dff94992a955bc2f4b23b4de2",
-        "89db784000204b5a80fa9855aec0b8c5b2f407431644cface1115ee025e3b884",
-        "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
-        "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
-        "68e5e33f9696afea4e19d289107feab9689a6693e8ffef84d50e7ee04673dac7",
-        "554c0e62d0a70689adec4304b7acd10e72c48d647ab0462f631e0d98507d5ac4",
-        "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
-        "3fbe245a694ec5b52531040ea49db1499cd66878bec9ef4d1d81ce7c212a73fd",
-        "e3a52e553a3862051a39c13af9e2b3ae279059b677ab25189b3af90b06aa66de",
-        "d9ab00ecc29999db001f5da4dcc976f834bf0f697500abe7ebf7078560814271",
-        "df7bbef3f6ea7ebb1e983f998a1bd12b0da64436cca687531ba9f339376a687f"
+        "65f5613c25f10fa6fb46a8e5d019ed0ac35aa5fabe635ef58e72fb08d8c4b287"
       ],
-      "source_sha256": "e62d53752c37bfb82bc8951bc085fc32f5e2e030fbe906f2c143f4e5b64b05a1",
-      "text": "Reducir ``numeric_data`` a 2-D y agrupar la incrustación.\n\n:param numeric_data: matriz de datos numéricos.\n:param n_neighbors: Perplejidad UMAP ``n_neighbors`` o t-SNE (fracción o int).\n:param min_dist: UMAP ``min_dist``.\n:param metric: métrica de distancia utilizada por UMAP/DBSCAN.\n:param eps: DBSCAN ``eps``.\n:param min_samples: DBSCAN ``min_samples`` o KMeans cluster count.\n:param clustering: ``'dbscan'`` or ``'kmeans'``.\n:param reduction_method: ``'umap'`` or ``'tsne'``.\n:param verbose: imprimir el progreso.\n:param embedding: incrustación precomputada (ajuste del reductor de los cortes).\n:param n_jobs: conteo paralelo de procesos de trabajo.\n:param mode: ``'fit'`` para entrenar un nuevo reductor, de lo contrario se transforma con ``model``.\n:param model: reductor existente para reutilizar cuando ``mode != 'fit'``.\n:returns: ``(embedding, labels, reducer)``.\n:raises ValueError: en modelo no soportado ``reduction_method`` o modelo que falta.",
+      "source_sha256": "c190f93b11eecbcc13ae27e72e8f61924eec694d05367d26ab1fc1b82ff15daa",
+      "text": "Reducir ``numeric_data`` a 2-D y agrupar la incrustación.\n\nLos reductores soportados son UMAP, t-SNE, PCA, Isomap y Spectral Embedding. ``reducer_options`` lleva solamente ajustes específicos del método; las opciones irrelevantes nunca se envían. RAPIDS es opt-in y se aplica a UMAP, t-SNE y PCA, con el motor real retenido en el reductor instalado.",
       "translation_source_blocks_sha256": [
         "7ae6b2478f3d8d44b7d788a7a1f8d0171b0d6f6be14099b934d62a58e17869d7",
-        "5850f42fa771360b39ed4b0c26f464a89f086dc1c4984c1c900e2d61e28c08c7",
-        "9e6673035d81349e258f83bf87371d17fb7097d7bdede42aeec334b15cb8ea85",
-        "97f3c1a8b776a2acc75c9fdc2d1afcda7d4ea601dd8d13c45713e00268e34506",
-        "33ad9daaa25ac38638bd5bbb6d26746c681ffed8f83a6a04a13413cb0b205c8d",
-        "695f95d6c52e01692d234782f14b65a1f15cab9dff94992a955bc2f4b23b4de2",
-        "89db784000204b5a80fa9855aec0b8c5b2f407431644cface1115ee025e3b884",
-        "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
-        "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
-        "68e5e33f9696afea4e19d289107feab9689a6693e8ffef84d50e7ee04673dac7",
-        "554c0e62d0a70689adec4304b7acd10e72c48d647ab0462f631e0d98507d5ac4",
-        "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
-        "3fbe245a694ec5b52531040ea49db1499cd66878bec9ef4d1d81ce7c212a73fd",
-        "e3a52e553a3862051a39c13af9e2b3ae279059b677ab25189b3af90b06aa66de",
-        "d9ab00ecc29999db001f5da4dcc976f834bf0f697500abe7ebf7078560814271",
-        "df7bbef3f6ea7ebb1e983f998a1bd12b0da64436cca687531ba9f339376a687f"
+        "65f5613c25f10fa6fb46a8e5d019ed0ac35aa5fabe635ef58e72fb08d8c4b287"
       ]
     },
     "spacr.utils.remove_canvas": {

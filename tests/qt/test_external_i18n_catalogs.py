@@ -13,12 +13,21 @@ ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 API_EXACT_TEXT_ALLOWLIST = {
     "spacr.align.CanvasSpec.shape",
+    "spacr.errors.RunLedger.status",
     "spacr.hits.HitList.flag_counts",
     "spacr.macro.MacroStep.entry",
+    "spacr.qt.iconset.themed_pixmap",
+    "spacr.qt.screens.report.ReportScreen.output_format",
+    "spacr.qt.settings_search.SettingsSearchBar.level",
+    "spacr.qt.widgets.dose_response.DoseResponseResult.status",
+    "spacr.qt.widgets.formula.Unary",
     "spacr.qt.widgets.plate_layout.PlateDesign.shape",
     "spacr.resources.home.versions._generators.common.app_map",
     "spacr.run_compare.HitList.by_key",
+    "spacr.runctx.RunContext.__str__",
+    "spacr.runctx.SkipRecord.__str__",
     "spacr.schema.field_index",
+    "spacr.seg_qc.Scorecard.verdict",
 }
 
 
@@ -41,6 +50,20 @@ def test_external_runtime_catalogs_have_exact_current_source_keys():
         }
         assert set(catalog.SOURCE_HASHES) == expected_hash_keys
         assert catalog.SOURCE_HASHES == english.SOURCE_HASHES
+
+
+def test_runtime_source_inventory_is_complete_before_optional_module_imports():
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    sources = builder.canonical_sources()
+    assert "barcode_qc" in sources["setting_tooltips"]
+    from spacr.qt.i18n_catalogs import en
+    assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
 
 
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(
@@ -78,7 +101,7 @@ def test_runtime_uses_external_static_and_context_keyed_setting_text():
 
     assert tr("Remove selected", "sv") == "Ta bort markerade"
     assert _translated_setting_name("plate", "zh_CN") == "孔板"
-    assert _translated_setting_name("organelle_CP_prob", "ko") == "소기관 — CP"
+    assert _translated_setting_name("organelle_CP_prob", "ko") == "소기관 1 — CP"
     assert _translated_setting_name("FT", "sv") == "Flödeströskel (FT)"
     key = "cell_diameter"
     source = SETTING_TOOLTIPS[key]
