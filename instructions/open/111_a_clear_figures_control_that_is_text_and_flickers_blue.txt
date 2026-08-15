@@ -1,0 +1,75 @@
+================================================================================
+A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
+================================================================================
+
+Status:    filed 2026-08-15, not started.
+Requested: 2026-08-15 - "add to instructions list, if the there shoud be a
+           clear figures button button like just text that lights up blue when
+           you click it, so it should just 'flicker blue'"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`FigureQueue.clear()` already exists (spacr/qt/widgets/figure_queue.py:695)
+and does the whole job -- it empties the list, the RAM cache, the PNG paths,
+the figure index and the PDF state. There is no way to ASK for it. A run's
+figures accumulate and the only way to be rid of them is to leave the screen
+or restart.
+
+So this is a control for an action that is already implemented, not a new
+feature underneath.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. IT IS TEXT, NOT A BUTTON. No frame, no fill, no raised chrome -- the words
+   "Clear figures" sitting in the layout. Clearing is a destructive action
+   nobody performs often; giving it button chrome puts it at the same visual
+   weight as the controls people use constantly, and it should sit quieter
+   than those.
+
+   A pointing-hand cursor on hover, so it is discoverable as clickable
+   without needing a border to say so. `_CopyGlyphButton` already does exactly
+   this (`setCursor(Qt.PointingHandCursor)`, console_panel.py:282).
+
+2. IT FLICKERS BLUE ON CLICK. The feedback is a brief blue flash, then back
+   to normal. Not a toggle, not a sustained highlight -- a flicker.
+
+   THE PATTERN IS ALREADY IN THE TREE, and it should be reused rather than
+   reinvented: `_CopyGlyphButton.flash_copied()` (console_panel.py:288) sets a
+   flag, repaints, and clears it on a 650 ms `QTimer.singleShot`. It exists
+   for the same reason this does -- to make a silent action visible. Lift that
+   into something both can use rather than writing a second timer.
+
+   650 ms is the established value; use it unless it reads as slow for a
+   flicker, in which case change both and say so.
+
+   The blue is the theme's accent, taken from the palette, NOT a literal
+   colour. It has to be legible in light and dark, and the repository's
+   wordmark blue is a known quantity -- see [[spacr_wordmark_styling]].
+
+3. WHERE IT GOES. Beside the figure queue it clears. If more than one screen
+   hosts a figure queue, the control belongs with the queue widget so every
+   host gets it, rather than being added per screen.
+
+4. NO CONFIRMATION DIALOG. It is a flicker, not a modal. Figures are
+   regenerable output, the queue is a view rather than the source of truth,
+   and a confirmation on a low-stakes action trains people to dismiss
+   confirmations on high-stakes ones. If clearing turns out to be able to
+   destroy something not on disk, say so here and reconsider -- but the state
+   `clear()` drops today is caches, paths and an index.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The words "Clear figures" appear beside the figure queue with no button
+  chrome, and the cursor becomes a pointing hand over them.
+* Clicking empties the queue and flashes the text blue, once, briefly.
+* The flash is legible in both the light and dark themes.
+* A second click on an empty queue is harmless and still flickers -- the
+  feedback is about the click being received, not about there being work.
+* The flash timer is one implementation shared with the console's copy glyph,
+  not a second copy of it.
