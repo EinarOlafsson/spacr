@@ -200,7 +200,7 @@ def test_editing_the_dialog_emits_the_whole_settings_object(qtbot):
     assert dialog.settings().sample_fraction == seen[-1].sample_fraction
 
 
-def test_the_dialog_has_the_three_tabs(qtbot):
+def test_the_dialog_has_a_tab_per_gating_mode(qtbot):
     from spacr.qt.widgets.gate_settings import (
         GateEditorSettings, GateSettingsDialog,
     )
@@ -208,7 +208,12 @@ def test_the_dialog_has_the_three_tabs(qtbot):
     dialog = GateSettingsDialog(GateEditorSettings())
     qtbot.addWidget(dialog)
     titles = [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())]
-    assert titles == ["General", "2D", "3D"]
+    # xD joined them in instruction 49: it is where the column picker and the
+    # projection's own hyperparameters live, and those belong beside the
+    # selection they depend on rather than on the 3D tab they were squatting
+    # in. The name of this test said "three" and pinned the count, so it
+    # failed for the tab being ADDED rather than for anything being wrong.
+    assert titles == ["General", "2D", "3D", "xD"]
 
 
 def test_merge_keys_stay_in_join_order_not_click_order(qtbot):

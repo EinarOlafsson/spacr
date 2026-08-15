@@ -51,11 +51,12 @@ PACKAGE = REPO / "spacr"
 #: than deleted because 52 is what will read them, and `snap_to_axis` in
 #: particular encodes a real decision -- a 3D gate is finally read square-on,
 #: so the shape drawn is the shape stored.
-KNOWN_UNREAD = {
-    ("GateEditorSettings", "voxel_bins"): "instruction 52 (3D gates)",
-    ("GateEditorSettings", "snap_to_axis"): "instruction 52 (3D gates)",
-    ("GateEditorSettings", "spin_speed"): "instruction 52 (3D gates)",
-}
+#: Settings declared ahead of the code that reads them, with the instruction
+#: that will read them. EMPTY, and that is the point: instruction 52 wired
+#: voxel_bins, snap_to_axis and spin_speed, so all three came off this list.
+#: A control that turns nothing is a promise the application does not keep,
+#: and this dict is where that promise is tracked until it is met.
+KNOWN_UNREAD = {}
 
 
 def _is_dataclass(node: ast.ClassDef) -> bool:

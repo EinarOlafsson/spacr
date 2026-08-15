@@ -187,7 +187,10 @@ def test_a_matplotlib_that_cannot_draw_it_does_not_break_the_view(canvas,
         raise RuntimeError("no 3d collections here")
 
     axes.add_collection3d = boom
-    canvas._draw_anchor_aura(axes)              # the assertion is no raise
+    canvas._draw_anchor_aura(axes)
+    # Nothing drawn, and nothing raised: an aura that cannot be painted costs
+    # the view nothing, which is the whole point of guarding it.
+    assert axes.added == []
 
 
 # ---------------------------------------------------------------------------

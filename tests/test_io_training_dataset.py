@@ -51,7 +51,7 @@ def train_src(tmp_path, rng):
     meas = src / "measurements"; meas.mkdir(parents=True)
     pngs = src / "data" / "cell_png"; pngs.mkdir(parents=True)
 
-    # SPACR-SHAPED CROP NAMES: plate_row_column_field_object. The split by
+    # spaCR-SHAPED CROP NAMES: plate_row_column_field_object. The split by
     # well reads the well out of the filename, so a crop called "o1.png" is
     # one spaCR could not have produced and a fixture built from those was
     # testing a situation that cannot arise. The prcfo column below already
