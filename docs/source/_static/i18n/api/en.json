@@ -26801,6 +26801,13 @@
       "source_sha256": "e52defd1e2d91920770a3c0b051545abf43b075ebe23a52e4d3ef707bdd0b7ae",
       "text": "Put ``value`` into the screen. Runs on the GUI thread.\n\n:param screen: the screen the drop landed on.\n:param value: the resolved path.\n:param target: the :class:`spacr.chaining.DropTarget` it came from,\n    or None for a file the user dropped directly."
     },
+    "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler": {
+      "source_blocks_sha256": [
+        "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132"
+      ],
+      "source_sha256": "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132",
+      "text": "Fill Explain CV's database or prediction input from one drop."
+    },
     "spacr.qt.dnd_handlers.ExternalMasksDropHandler": {
       "source_blocks_sha256": [
         "59e47b5cd04149450b07d31ea3362789f83dc4d09017d5429bfc5fac242696a8"
@@ -26909,6 +26916,13 @@
       ],
       "source_sha256": "f7adf4b6aaaaa0332e56f28422cdae5a7dd3165ab8d8189d223207922e9476e0",
       "text": "Human-friendly explanation for why ``path`` can't be used."
+    },
+    "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler": {
+      "source_blocks_sha256": [
+        "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48"
+      ],
+      "source_sha256": "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48",
+      "text": "Fill Investigate Hit's provenance inputs without guessing a hit."
     },
     "spacr.qt.dnd_handlers.LabelMaskDropHandler": {
       "source_blocks_sha256": [

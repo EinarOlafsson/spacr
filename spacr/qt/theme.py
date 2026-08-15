@@ -3465,15 +3465,14 @@ QProgressBar::chunk {{
     border-radius: 4px;
 }}
 QProgressBar#UsageBar {{
-    /* Match the System card body (surface_alt) so the RAM/GPU/CPU/VRAM track
-       blends into the box it sits in (only the filled chunk stands out)
-       instead of reading as a separate black bar. */
-    background: {P["surface_alt"]};
+    /* The System card already paints surface_alt. A second translucent fill
+       here compounds the page opacity and makes each track a darker slab. */
+    background: transparent;
     height: 6px;
     max-height: 6px;
 }}
 QProgressBar#UsageBarWarn, QProgressBar#UsageBarError {{
-    background: {P["surface_alt"]};
+    background: transparent;
     height: 6px;
     max-height: 6px;
 }}

@@ -62,8 +62,9 @@ N_VARIANTS = 30
 SCROLLBARS_ALLOWED = {1, 25, 30}
 
 #: The variants that do NOT fit 1440x900 at the reference zoom, measured
-#: at a registry of fifty-four apps. Eighteen of the thirty are clean and
-#: this is the record of the other twelve.
+#: with fifty-six apps in the candidate bands (sixty-five in the launched
+#: registry). Seventeen of the thirty are clean and this records the other
+#: thirteen.
 #:
 #: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
 #: overflows`` compares the audit against this table with ``==``, so all
@@ -1688,7 +1689,7 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
     It asserted zero everywhere, which is what it should assert and what
     it did for as long as thirty-four apps fitted. The registry is at
-    fifty-four and twelve of the thirty do not fit any more, so a bare
+    fifty-six and thirteen of the thirty do not fit any more, so a bare
     "assert nothing is wrong" stopped on the first of them and said
     nothing about the other twenty-nine — a red test that measured one
     variant. :data:`KNOWN_LAYOUT_DEFECTS` is that measurement written
@@ -1696,7 +1697,7 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
     appearing, worsening OR being fixed all fail here.
 
     Nothing is excused by being listed. See the note on the table for why
-    these twelve are a design decision rather than a defect to tune away.
+    these thirteen are a design decision rather than a defect to tune away.
     """
     # Pin zoom to 1.0 for this measurement. The test builds widgets at
     # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
@@ -1737,9 +1738,9 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
         # is the property the test was written for and still holds. Nine
         # and twenty-one when the registry held forty-nine apps; eleven
         # and nineteen at fifty-three in the bands; twelve and eighteen
-        # since the merged Classify module took it to fifty-four on
-        # 2026-08-06 and v22, the A-to-Z index, ran out of canvas; now
-        # thirteen and seventeen at fifty-six apps. Both
+        # after the merged Classify module took it to fifty-four, then
+        # thirteen and seventeen at fifty-six after the explanation tools
+        # were filed explicitly. Both
         # numbers are asserted rather than derived so that a variant
         # quietly joining the defective set is a failure and not a
         # subtraction that still adds up.

@@ -170,6 +170,15 @@ def du(path: str) -> int:
     return total
 
 
+def registry_bytes(path: str) -> int:
+    """Current registry storage, including transient SQLite sidecars."""
+    return sum(
+        os.path.getsize(candidate)
+        for candidate in (path, f"{path}-wal", f"{path}-shm")
+        if os.path.isfile(candidate)
+    )
+
+
 def n_files(path: str) -> int:
     """Files under ``path``, symlinks excluded."""
     if os.path.isfile(path):
@@ -462,13 +471,19 @@ def test_the_plan_frees_exactly_the_bytes_it_promised(project):
     """The size the user was shown is the size the disk gives back."""
     root, registry = project
     before = du(root)
+    before_registry = registry_bytes(registry.path)
     plan = DM.plan_prune(root, registry=registry)
     promised = plan.total_bytes
     assert promised > 0
 
     result = DM.prune(plan, confirm=plan.token, registry=registry)
     assert result.freed_bytes == promised
-    assert du(root) == before - promised
+    # Pruning intentionally records its audit facts in the registry before
+    # deleting files. SQLite may reuse a page or allocate one plus WAL/SHM
+    # sidecars, so the registry's own byte delta is not deleted payload. The
+    # promised artifact bytes must disappear exactly either way.
+    assert du(root) - registry_bytes(registry.path) == (
+        before - before_registry - promised)
 
 
 def test_a_prune_without_the_token_refuses_and_deletes_nothing(project):
