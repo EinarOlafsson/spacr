@@ -788,7 +788,12 @@ def test_parse_field_value_lists(tmp_path):
 
     assert parse("anything", "1,2.5,abc") == [1, 2.5, "abc"]
     assert parse("anything", "a,,b") == ["a", "b"]          # empty token skipped
-    assert parse("classes", "nc") == ["nc"]                 # listy key, no comma
+    # `classes` is NOT listy any more: since instruction 37 it maps a class
+    # name to {column, value}, and splitting a dict on commas produced a list
+    # of fragments the pipeline then refused. `class_folder_names` is the
+    # list that used to live under that name.
+    assert parse("class_folder_names", "nc") == ["nc"]      # listy, no comma
+    assert parse("classes", "nc") == "nc"                   # left alone
     assert parse("train_channels", "r,g,b") == ["r", "g", "b"]
     assert parse("tables", "1e2,3") == [100.0, 3]
 
