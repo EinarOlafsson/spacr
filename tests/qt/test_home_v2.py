@@ -795,6 +795,10 @@ ALPHA_MODULES = {
     # trusted, but the merged screen itself has not been run on real data.
     # Signing it off means deleting its line there and here.
     "classify_merged",
+    # Post-classifier interpretation and post-regression cell investigation.
+    # Both are reachable and tested, but have not yet been trusted end to end
+    # on an independent production run, so they arrive alpha on purpose.
+    "explain_cv", "investigate_hit",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -803,7 +807,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """37 alpha, 9 beta, named one at a time.
+    """39 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot. It read 36 until the merged Classify
@@ -815,7 +819,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 37 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 39 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
@@ -1186,9 +1190,16 @@ def test_a_job_that_polls_the_gate_can_genuinely_be_paused(qtbot):
         assert state["n"] == total
     finally:
         worker.gate.resume()
-        if thread.isRunning():
-            with qtbot.waitSignal(thread.finished, timeout=10000):
-                pass
+        # Poll state rather than attaching a late signal waiter. The thread
+        # can finish between ``isRunning()`` and connecting waitSignal,
+        # especially on a loaded shard, leaving a waiter for a signal that
+        # already happened.
+        def stopped():
+            try:
+                return not thread.isRunning()
+            except RuntimeError:
+                return True
+        qtbot.waitUntil(stopped, timeout=30000)
 
 
 def test_a_paused_job_still_shows_as_paused_on_home(home, qapp):

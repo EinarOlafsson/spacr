@@ -129,13 +129,15 @@ def test_rapid_repeated_start_cancel_retires_every_thread(
         qtbot, qt_theme_applied):
     """Fifty immediate Stop cycles must not leak or destroy a live QThread."""
     for index in range(50):
+        started = threading.Event()
         thread, worker = make_thread(
-            lambda _settings: cancellation_checkpoint(),
+            _cooperative_job(started),
             {},
             app_key=f"stress-{index}",
             journal=False,
         )
         thread.start()
+        assert started.wait(10), f"cycle {index} never entered the worker"
         worker.request_cancel("rapid stop")
         thread.requestInterruption()
         _join(qtbot, thread)

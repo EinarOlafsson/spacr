@@ -1520,6 +1520,7 @@ def test_the_dna_button_is_the_ai_button_not_a_lookalike(qtbot,
     assert button.text() == "DNA"
     # And it inks like one: off is the theme fg, on is the accent.
     button.setChecked(False)
+    screen._ai_switch.setChecked(False)
     off = button.styleSheet()
     button.setChecked(True)
     assert button.styleSheet() != off

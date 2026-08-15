@@ -26,8 +26,8 @@ from __future__ import annotations
 
 import pytest
 
-from PySide6.QtCore import QPoint, QPointF
-from PySide6.QtGui import QColor, QEnterEvent
+from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QColor, QEnterEvent, QImage
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QLabel
 
@@ -157,7 +157,9 @@ def _rim_pixel(page, tile) -> QColor:
     From the page, the rim is composited over the panel it sits on,
     which is what the eye sees.
     """
-    image = page.grab().toImage()
+    image = QImage(page.size(), QImage.Format_ARGB32_Premultiplied)
+    image.fill(Qt.transparent)
+    page.render(image)
     origin = tile.mapTo(page, QPoint(0, 0))
     y = origin.y() + tile.height() // 2
     # The tile's own first column, at mid-height where the corner radius
@@ -183,7 +185,9 @@ def _rim_and_behind(page, tile):
     against a background that had already drifted -- the numbers came out
     tens of points apart and moved every run.
     """
-    image = page.grab().toImage()
+    image = QImage(page.size(), QImage.Format_ARGB32_Premultiplied)
+    image.fill(Qt.transparent)
+    page.render(image)
     origin = tile.mapTo(page, QPoint(0, 0))
     y = origin.y() + tile.height() // 2
     rim = image.pixelColor(origin.x(), y)

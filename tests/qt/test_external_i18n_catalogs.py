@@ -66,6 +66,23 @@ def test_runtime_source_inventory_is_complete_before_optional_module_imports():
     assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
 
 
+def test_runtime_source_inventory_is_stable_after_runctx_import():
+    """Headless run controls have no panel row and cannot alter UI catalogs."""
+    import spacr.runctx  # noqa: F401 - the import is the condition under test
+
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    from spacr.qt.i18n_catalogs import en
+    sources = builder.canonical_sources()
+    assert set(sources["setting_tooltips"]) == set(en.SETTING_TOOLTIPS)
+    assert "on_error" not in sources["setting_tooltips"]
+
+
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(
     monkeypatch,
 ):

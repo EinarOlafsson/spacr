@@ -15,15 +15,15 @@ A comment is not a guarantee. This file asserts it:
 what is guarded                            documented  measured  ceiling
 =========================================  =========  ========  ==========
 ``import spacr.utils``, wall clock            3.2 s     3.3 s      15 s
-``import spacr.utils``, peak resident          3.6 GB     3.6 GB      4.6 GB
+``import spacr.utils``, resident after import  3.6 GB     3.6 GB      4.6 GB
 the ``spacr-qt`` launch path, wall clock      --        0.57 s     4 s
-the ``spacr-qt`` launch path, peak resident   --        172 MB     600 MB
+the ``spacr-qt`` launch path, current resident --       172 MB     600 MB
 ``spacr.utils`` after the Qt launch path      absent    absent     absent
 ``spacr.utils`` after importing every one
 of the 127 ``spacr.qt`` modules               absent    absent     absent
 =========================================  =========  ========  ==========
 
-Every measurement is taken in a **fresh subprocess** running the same
+Every measurement is taken in a **fresh exec** running the same
 interpreter as this test. By the time this file runs, pytest has imported most
 of spaCR, so ``sys.modules`` in this process says nothing at all about what a
 launch costs — and a timing taken here would be timing an import that already
@@ -65,14 +65,28 @@ HEAVY = ("spacr.utils", "torch", "cellpose", "tensorflow", "cv2", "tkinter",
          "IPython", "matplotlib.pyplot")
 
 _PREAMBLE = f"""
-import json, resource, sys, time
+import json, os, resource, sys, time
 HEAVY = {HEAVY!r}
 
 
 def report(**values):
-    values["rss_mb"] = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                        / (1024.0 * 1024.0 if sys.platform == "darwin"
-                           else 1024.0))
+    if sys.platform.startswith("linux"):
+        # ru_maxrss survives fork+exec as a high-water mark. Under xdist the
+        # parent worker may already hold several GB, so a genuinely 200 MB
+        # fresh interpreter was reported as 1-3 GB depending on which tests
+        # preceded it. The imported modules stay resident, making current RSS
+        # the exact quantity this guard needs and /proc/self/statm the value
+        # belonging to this exec rather than its parent.
+        with open("/proc/self/statm", "r", encoding="ascii") as stream:
+            resident_pages = int(stream.read().split()[1])
+        values["rss_mb"] = (
+            resident_pages * os.sysconf("SC_PAGE_SIZE") / (1024.0 * 1024.0)
+        )
+    else:
+        values["rss_mb"] = (
+            resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            / (1024.0 * 1024.0 if sys.platform == "darwin" else 1024.0)
+        )
     values["heavy"] = [m for m in HEAVY if m in sys.modules]
     values["modules"] = len(sys.modules)
     print({SENTINEL!r} + json.dumps(values))
@@ -193,8 +207,8 @@ def test_importing_spacr_utils_stays_within_its_time_and_memory_ceiling():
     """Measured 3.3 s and 3.6 GB with current torch; ceilings 15 s and 4.6 GB.
 
     Both halves matter and they fail differently. The seconds are what a user
-    waits when a pipeline starts; the resident memory is what the GUI would
-    have to hold for the rest of the session if any Qt module ever imported
+    waits when a pipeline starts; resident memory after import is what the GUI
+    would have to hold for the rest of the session if any Qt module ever imported
     this. 3.6 GB is more than every widget, screen and image in the interface
     put together (172 MB, asserted below).
 

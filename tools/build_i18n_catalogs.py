@@ -2720,6 +2720,15 @@ def canonical_sources() -> dict[str, object]:
             continue
 
     raw_tooltips = get_tooltips()
+    # ``spacr.runctx`` registers CLI/settings-file help when that module is
+    # imported, but its own contract deliberately does not inject those keys
+    # into any application's defaults. They therefore have no settings-panel
+    # row to translate. Excluding them here keeps the runtime catalog source
+    # inventory independent of whether an unrelated test imported runctx
+    # first. ``random_seed`` is intentionally retained: it is a real setting
+    # owned by many applications.
+    for non_panel_key in ("on_error", "on_error_attempts", "on_error_backoff"):
+        raw_tooltips.pop(non_panel_key, None)
     tooltips = {
         str(key): " ".join(_strip_type_prefix(text).split())
         for key, text in raw_tooltips.items()

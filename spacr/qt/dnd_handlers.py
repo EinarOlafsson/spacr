@@ -1084,6 +1084,119 @@ class SourceDropHandler(DropHandler):
         _log(screen, f"[drop] src = {path}\n")
 
 
+def _measurement_database(path: Path) -> Optional[Path]:
+    """Return a canonical measurements database at or immediately below path."""
+    if path.is_file() and path.suffix.lower() in {".db", ".sqlite", ".sqlite3"}:
+        return path
+    if not path.is_dir():
+        return None
+    for candidate in (
+        path / "measurements.db",
+        path / "measurements" / "measurements.db",
+    ):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+class ModelExplanationDropHandler(DropHandler):
+    """Fill the two provenance-bearing inputs on Explain CV Model.
+
+    Database and prediction artifacts stay distinct: a database drop can
+    never silently become a prediction source, and multiple file drops are
+    accepted so users can select both exact inputs in one gesture.
+    """
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        return bool(
+            _measurement_database(path)
+            or (path.is_file() and path.suffix.lower() == ".csv")
+        )
+
+    def error_message(self, path: Path) -> str:
+        return (
+            "Explain CV Model accepts measurements.db, its project folder, "
+            "or an existing per-object prediction CSV."
+        )
+
+    def apply(self, path: Path, screen) -> None:
+        panel = getattr(screen, "explain", None)
+        if panel is None:
+            raise TypeError("Explain CV Model has no input panel.")
+        database = _measurement_database(path)
+        if database is not None:
+            panel.database.setText(str(database))
+            _log(screen, f"[drop] explain_cv database = {database}\n")
+            return
+        panel.predictions.setText(str(path))
+        panel._refresh_prediction_columns()
+        _log(screen, f"[drop] explain_cv predictions = {path}\n")
+
+
+class HitInvestigationDropHandler(DropHandler):
+    """Fill exact database, prediction, fraction, and regression inputs.
+
+    Fraction tables are identified from their header vocabulary; all other
+    CSVs are treated as per-object predictions. A results directory remains
+    a directory so its complete CSV/JSON byte set can be provenance-hashed.
+    """
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        return bool(
+            _measurement_database(path)
+            or path.is_dir()
+            or (path.is_file() and path.suffix.lower() == ".csv")
+        )
+
+    def error_message(self, path: Path) -> str:
+        return (
+            "Investigate Hit accepts measurements.db, a prediction or "
+            "well/guide-fraction CSV, or the exact regression-results folder."
+        )
+
+    @staticmethod
+    def _looks_like_fractions(path: Path) -> bool:
+        try:
+            with path.open("r", encoding="utf-8-sig", errors="replace") as stream:
+                header = stream.readline()
+        except OSError:
+            return False
+        fields = {field.strip().casefold() for field in header.split(",")}
+        has_guide = any("guide" in field or "grna" in field for field in fields)
+        has_fraction = any("fraction" in field or "abundance" in field
+                           for field in fields)
+        has_well = ({"plateid", "rowid", "columnid"} <= fields
+                    or "prc" in fields or "well" in fields)
+        return has_guide and has_fraction and has_well
+
+    def apply(self, path: Path, screen) -> None:
+        panel = getattr(screen, "investigate", None)
+        if panel is None:
+            raise TypeError("Investigate Hit has no input panel.")
+        database = _measurement_database(path)
+        if database is not None:
+            panel.database.setText(str(database))
+            _log(screen, f"[drop] investigate_hit database = {database}\n")
+            return
+        if path.is_dir():
+            panel.regression_folder.setText(str(path))
+            _log(screen, f"[drop] investigate_hit regression results = {path}\n")
+            return
+        if self._looks_like_fractions(path):
+            panel.fractions.setText(str(path))
+            _log(screen, f"[drop] investigate_hit guide fractions = {path}\n")
+            return
+        panel.predictions.setText(str(path))
+        panel._refresh_prediction_columns()
+        _log(screen, f"[drop] investigate_hit predictions = {path}\n")
+
+
 class ExternalMasksDropHandler(DropHandler):
     """Append mixed intensity images and external label masks to the mapper."""
 
@@ -2093,6 +2206,8 @@ _HANDLERS = {
     "layer_viewer":     LayerStackDropHandler,
     "classifier_evaluation": EvaluationBundleDropHandler,
     "distributed_jobs": SubmissionSettingsDropHandler,
+    "explain_cv":       ModelExplanationDropHandler,
+    "investigate_hit":  HitInvestigationDropHandler,
 }
 
 #: Screens where a drop is genuinely meaningless, recorded rather than left
