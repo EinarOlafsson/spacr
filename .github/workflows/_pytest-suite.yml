@@ -131,6 +131,8 @@ jobs:
             --ignore=tests/test_perf_guard.py \
             --ignore=tests/qt/test_gui_responsiveness.py \
             --ignore=tests/qt/test_home_stage_and_dock.py \
+            --ignore=tests/qt/test_figure_queue.py \
+            --ignore=tests/qt/test_pca.py \
             "${xdist_args[@]}" -v --tb=short
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
             # These files measure process-local memory, event-loop latency,
@@ -143,5 +145,7 @@ jobs:
               tests/test_perf_guard.py \
               tests/qt/test_gui_responsiveness.py \
               tests/qt/test_home_stage_and_dock.py \
+              tests/qt/test_figure_queue.py \
+              tests/qt/test_pca.py \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi
