@@ -38,6 +38,7 @@ from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.channel_mapping import ChannelMappingWidget
 from ..widgets.class_editor import ClassEditorWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
+from ..widgets.file_list import FilePathListWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 from ...object_roles import ORGANELLE_ROLES, setting_label
@@ -334,6 +335,20 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
             "combat",
         ],
         "batch_missing_control": ["error", "skip"],
+        # Filled from the modules that own each inventory in _widget_for, so
+        # a family added to spacr.ml or a correction added to
+        # spacr.multiple_testing appears here without a second edit.
+        "regression_type": ["ols"],
+        "multiple_testing_method": ["fdr_bh"],
+        "inference": ["auto", "parametric", "nonparametric"],
+        "analysis_unit": ["well", "cell"],
+        # Exactly the branches process_scores implements; anything else
+        # reaches the pipeline and is silently ignored rather than applied.
+        "agg_type": ["mean", "median", "quantile", None],
+        "transform": [None, "log", "sqrt", "square"],
+        "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
+        "threshold_method": ["std", "var"],
+        "volcano": ["gene", "grna"],
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
@@ -762,28 +777,51 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "batch_combat_mean_only", "batch_min_samples",
             "batch_missing_control",
         )),
-        ("Model & Covariates", (
-            "analysis_mode", "regression_type", "dependent_variable", "score_column",
-            "invert_dependent_variable", "agg_type", "transform",
-            "alpha", "cov_type", "random_row_column_effects",
-            "guide_permutation_block", "guide_nuisance_columns",
+        # WHAT IS BEING MODELLED, before HOW. The response was previously
+        # interleaved with the estimator settings under "Model & Covariates",
+        # so the two questions a user actually asks in order -- what am I
+        # measuring, and how should it be tested -- were answered in one
+        # twelve-row block.
+        ("Response", (
+            "dependent_variable", "score_column", "invert_dependent_variable",
+            "analysis_unit", "agg_type", "transform",
+        )),
+        # `inference` leads because it decides whether "Estimator Tuning" or
+        # "Permutation Test" below is the section that does anything.
+        ("Model & Inference", (
+            "inference", "analysis_mode", "regression_type",
+            "random_row_column_effects", "cov_type",
         )),
         # The estimator-specific knobs, added by the robust and regularised
         # fits after this layout was first written. They landed in
         # "Additional Settings" -- the bucket a layout exists to keep empty --
         # because only the shared estimator settings above were named.
         ("Estimator Tuning", (
-            "l1_ratio", "quantile", "huber_t", "tolerance",
+            "alpha", "l1_ratio", "quantile", "huber_t",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
-            "lasso_selection_threshold", "guide_permutations",
-            "guide_permutation_seed", "guide_permutation_batch_size",
+            "lasso_selection_threshold",
         )),
-        ("Hit Calling & Outliers", (
-            "min_cell_count", "fraction_threshold", "target_unique_count",
-            "outlier_detection", "threshold_method", "threshold_multiplier",
-            "min_n", "toxo", "guide_min_wells",
-            "guide_primary_min_wells", "guide_presence_threshold",
-            "multiple_testing_method", "fdr_alpha",
+        # The permutation test's own settings, previously split across three
+        # sections: its block and nuisance columns sat under the model, its
+        # permutation count and seed under estimator tuning, and its support
+        # thresholds under hit calling. Nothing here is read unless inference
+        # resolves to the nonparametric test.
+        ("Permutation Test", (
+            "guide_min_wells", "guide_primary_min_wells",
+            "guide_permutations", "guide_permutation_seed",
+            "guide_permutation_block", "guide_nuisance_columns",
+            "guide_presence_threshold", "guide_permutation_batch_size",
+        )),
+        ("Significance & Hit Calling", (
+            "multiple_testing_method", "fdr_alpha", "threshold_method",
+            "threshold_multiplier", "toxo",
+        )),
+        # Every setting that drops rows, together, because each one shrinks
+        # the dataset the model finally sees and they were previously spread
+        # between the estimator knobs and the hit-calling rules.
+        ("Quality Filters", (
+            "min_cell_count", "min_n", "fraction_threshold",
+            "target_unique_count", "tolerance", "outlier_detection",
         )),
         ("Regression Plots", (
             "volcano", "log_x", "log_y", "x_lim", "y_lims",
@@ -1780,11 +1818,67 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "features are selected and the filter windows applied to tracks. "
         "Only worth opening once the basic assay runs and the tracks look "
         "wrong in a specific way.",
-    "REGRESSION":
-        "The model that maps screen scores onto gRNA or well effect sizes, "
-        "its covariates, and the control-based threshold used to call a "
-        "hit. Change the family when the score distribution breaks the "
-        "assumptions the default makes.",
+    # The Qt regression layout's own section names. The shared
+    # spacr.settings.categories names for the same six groups are the
+    # "REGRESSION: ..." entries below; both maps are rendered, so both need a
+    # curated blurb or the section shows the generic fallback.
+    "RESPONSE":
+        "What is being modelled: which score column (or columns — name "
+        "several and each is fitted and corrected as its own family), "
+        "whether one row is a well or a single cell, and how the values are "
+        "collapsed and transformed before the model sees them.",
+    "MODEL & INFERENCE":
+        "How the effect is estimated. 'Inference' is the top-level choice: a "
+        "parametric model fits every guide simultaneously, a nonparametric "
+        "one tests each guide by plate-blocked permutation, and 'auto' picks "
+        "whichever the design can actually support — a simultaneous fit needs "
+        "more wells than guides. 'Regression type' then selects the family.",
+    "PERMUTATION TEST":
+        "Read only when inference resolves to the nonparametric test. These "
+        "control the permutation itself: how many, what is held fixed "
+        "(normally the plate), the random seed, and how many wells a guide "
+        "must appear in before it is testable.",
+    "SIGNIFICANCE & HIT CALLING":
+        "What counts as a hit: the multiple-testing correction applied across "
+        "the tested family, the level it targets, and the control-based "
+        "effect-size threshold. With hundreds of guides an uncorrected P "
+        "value is not evidence, so this is the section to get right.",
+    "QUALITY FILTERS":
+        "Everything that decides which rows reach the model — minimum cells "
+        "per well, minimum observations per guide, the read-fraction cutoff "
+        "and outlier removal. Each one silently shrinks the dataset, so "
+        "check the diagnostics after changing any of them.",
+    "REGRESSION: RESPONSE":
+        "What is being modelled: which score column (or columns — name "
+        "several and each is fitted and corrected as its own family), "
+        "whether one row is a well or a single cell, and how the values are "
+        "collapsed and transformed before the model sees them.",
+    "REGRESSION: MODEL":
+        "How the effect is estimated. 'Inference' is the top-level choice: a "
+        "parametric model fits every guide simultaneously, a nonparametric "
+        "one tests each guide by plate-blocked permutation, and 'auto' picks "
+        "whichever the design can actually support — a simultaneous fit needs "
+        "more wells than guides. 'Regression type' then selects the family.",
+    "REGRESSION: MODEL TUNING":
+        "Per-family knobs. Each applies to only some regression types, and a "
+        "family refuses a setting it cannot read rather than ignoring it, so "
+        "nothing here changes a fit silently. Leave them alone unless the "
+        "chosen family documents the one you are changing.",
+    "REGRESSION: PERMUTATION TEST":
+        "Read only when inference resolves to the nonparametric test. These "
+        "control the permutation itself: how many, what is held fixed "
+        "(normally the plate), the random seed, and how many wells a guide "
+        "must appear in before it is testable.",
+    "REGRESSION: SIGNIFICANCE":
+        "What counts as a hit: the multiple-testing correction applied across "
+        "the tested family, the level it targets, and the control-based "
+        "effect-size threshold. With hundreds of guides an uncorrected P "
+        "value is not evidence, so this is the section to get right.",
+    "REGRESSION: QUALITY FILTERS":
+        "Everything that decides which rows reach the model — minimum cells "
+        "per well, minimum observations per guide, the read-fraction cutoff "
+        "and outlier removal. Each one silently shrinks the dataset, so "
+        "check the diagnostics after changing any of them.",
     "INVASION ASSAY":
         "The two-colour invasion readout: which channels carry the outside "
         "and total stains, how the outside signal is measured, how its "
@@ -2019,16 +2113,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The plate identifier, which wells are the positive and negative "
         "controls, and any row filter applied before fitting. The controls "
         "set the scale the effect sizes are reported on.",
-    "MODEL & COVARIATES":
-        "The regression family, the response variable, how replicates are "
-        "aggregated and transformed, regularisation, and the covariance "
-        "structure. Switch families when the residuals are clearly not what "
-        "the default assumes.",
-    "HIT CALLING & OUTLIERS":
-        "How much evidence a gRNA needs before it can be a hit — minimum "
-        "cell and well counts, the control-derived threshold and its "
-        "multiplier, and outlier rejection. Tighten these when the hit list "
-        "fills up with low-count noise.",
+    # "MODEL & COVARIATES", "HIT CALLING & OUTLIERS" and the flat "REGRESSION"
+    # heading were retired when the regression layout was split into Response
+    # / Model & Inference / Estimator Tuning / Permutation Test / Significance
+    # & Hit Calling / Quality Filters. Their replacements are above.
     "REGRESSION PLOTS":
         "The volcano plot, and the axis transforms and ranges used to draw "
         "the regression output. Cosmetic: the fitted coefficients do not "
@@ -3718,6 +3806,46 @@ class _ChipStrip(QWidget):
 EXCLUDE_LIST_KEYS: Tuple[str, ...] = ("exclude",)
 
 
+#: Settings that name one or more input FILES, mapped to the kind of file each
+#: one wants. They get :class:`FilePathListWidget`: a real file dialog that can
+#: be pressed repeatedly to gather sources from several folders, plus
+#: drag-and-drop.
+#:
+#: These previously rendered as the free-text chip strip, which meant a
+#: four-plate screen was configured by typing four absolute paths by hand --
+#: and ``score_data``/``count_data`` shipped the literal default string
+#: ``'list of paths'``, so the first thing every user had to do was delete a
+#: placeholder that looked like a value. A mistyped path was not detected
+#: until the run had already read the other CSVs and died.
+#:
+#: The value stays a plain ``list[str]``, so settings CSVs written by the Tk
+#: panel or by hand still load, and the CLI is unaffected.
+PATH_LIST_KEYS: Dict[str, str] = {
+    "score_data": "table",
+    "count_data": "table",
+    "metadata_files": "table",
+    "grna_csv": "csv",
+    "row_csv": "csv",
+    "column_csv": "csv",
+    "barcodes": "csv",
+    "grna": "csv",
+}
+
+
+#: Human-readable dialog titles, so the file chooser says what it is for
+#: instead of "Choose input files" four times in one panel.
+PATH_LIST_TITLES: Dict[str, str] = {
+    "score_data": "Choose per-object score CSVs",
+    "count_data": "Choose gRNA count CSVs (one per plate)",
+    "metadata_files": "Choose metadata CSVs",
+    "grna_csv": "Choose the gRNA barcode CSV",
+    "row_csv": "Choose the row barcode CSV",
+    "column_csv": "Choose the column barcode CSV",
+    "barcodes": "Choose the barcode CSV",
+    "grna": "Choose the gRNA CSV",
+}
+
+
 #: Settings whose legal values are a short, closed, ordered set.
 #:
 #: ``train_channels`` is the reason this table exists. It is declared a plain
@@ -4454,10 +4582,38 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
+        # A setting that names input files gets a file dialog and a drop
+        # target, not a box to type absolute paths into. Checked before the
+        # chip-editor and combo paths below, because several of these keys are
+        # declared ``list`` and would otherwise take the free-text route.
+        if key in PATH_LIST_KEYS:
+            return FilePathListWidget(
+                value=self._defaults.get(key, default),
+                kind=PATH_LIST_KEYS[key],
+                title=PATH_LIST_TITLES.get(key, "Choose input files"),
+                parent=parent,
+            )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
             options = app_options[key]
+        # Two inventories are owned by the modules that implement them, so the
+        # dropdown cannot list a model spaCR cannot fit or omit a correction it
+        # can apply. Both imports are cheap: REGRESSION_TYPES is a tuple
+        # literal and multiple_testing imports only numpy at module scope.
+        if key == "regression_type":
+            from spacr.ml import REGRESSION_TYPES
+            kind = "combo"
+            # 'auto' is the readable spelling of the historical None, which
+            # ml.regression turns into check_distribution(response). It is
+            # normalised back to None in
+            # settings.get_perform_regression_default_settings, so the fit
+            # path is unchanged and old settings CSVs holding None still work.
+            options = ["auto", *REGRESSION_TYPES]
+        elif key == "multiple_testing_method":
+            from spacr.multiple_testing import method_choices
+            kind = "combo"
+            options = method_choices()
         if self.app_key == "umap" and key == "metric":
             # One closed alphabet rather than a text field that accepts a
             # typo and fails after the reducer starts.  Importing the constant
@@ -4700,7 +4856,7 @@ class SettingsWidgets:
                     _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
-                    ClassEditorWidget,
+                    ClassEditorWidget, FilePathListWidget,
                 ),
             ):
                 w.set_value(value)
@@ -4909,7 +5065,7 @@ class SettingsWidgets:
             (
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
-                ChannelMappingWidget, ClassEditorWidget,
+                ChannelMappingWidget, ClassEditorWidget, FilePathListWidget,
             ),
         ):
             return w.get_value()

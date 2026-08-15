@@ -1661,6 +1661,76 @@ def set_generate_dataset_defaults(settings):
     settings.setdefault('crop_source', 'auto')
     return settings
 
+#: ``inference`` -> the ``analysis_mode`` it selects. 'auto' is decided from
+#: the design at run time by :func:`spacr.ml.resolve_auto_inference`, not here,
+#: because the number of guides and wells is not known until the CSVs are read.
+INFERENCE_MODES = {
+    'auto': None,
+    'parametric': 'regression',
+    'nonparametric': 'guide_permutation',
+    # Accepted spellings so a settings CSV can say either.
+    'permutation': 'guide_permutation',
+    'regression': 'regression',
+    'guide_permutation': 'guide_permutation',
+}
+
+#: ``analysis_unit`` -> whether scores are collapsed per well before fitting.
+ANALYSIS_UNITS = ('well', 'cell')
+
+
+def _resolve_regression_analysis_choices(settings):
+    """Map ``inference`` / ``analysis_unit`` / ``regression_type='auto'``.
+
+    These three are the readable spellings of decisions spaCR already made,
+    and this is the single place they are translated:
+
+    * ``inference`` selects ``analysis_mode``. ``'auto'`` is left for
+      :func:`spacr.ml.resolve_auto_inference`, which can count the guides and
+      wells that this function cannot see.
+    * ``analysis_unit='cell'`` sets ``agg_type=None``, which is how spaCR has
+      always meant "fit per object instead of per well". Spelling it out stops
+      a user clearing a dropdown and silently changing the unit of analysis.
+    * ``regression_type='auto'`` becomes ``None``, the historical value that
+      makes :func:`spacr.ml.regression` pick the family from the response.
+
+    An explicit ``analysis_mode`` in the same dict wins over a non-auto
+    ``inference`` only when ``inference`` was left at its default, so a CSV
+    written by an older spaCR keeps its meaning.
+    """
+    inference = str(settings.get('inference', 'auto')).strip().lower()
+    if inference not in INFERENCE_MODES:
+        raise ValueError(
+            f"inference={settings.get('inference')!r} is not one of "
+            f"{sorted(set(INFERENCE_MODES))}. 'parametric' fits the "
+            f"simultaneous model, 'nonparametric' runs the plate-blocked "
+            f"permutation test, and 'auto' picks whichever the design can "
+            f"support.")
+    settings['inference'] = inference
+    selected = INFERENCE_MODES[inference]
+    if selected is not None:
+        settings['analysis_mode'] = selected
+
+    unit = str(settings.get('analysis_unit', 'well')).strip().lower()
+    if unit not in ANALYSIS_UNITS:
+        raise ValueError(
+            f"analysis_unit={settings.get('analysis_unit')!r} must be 'well' "
+            f"or 'cell'. 'well' collapses each well's objects with agg_type "
+            f"first; 'cell' regresses the individual objects.")
+    settings['analysis_unit'] = unit
+    if unit == 'cell':
+        # Per-object fitting is exactly agg_type=None. Recorded rather than
+        # silently applied, because it changes what one row of the design is.
+        settings['agg_type'] = None
+    elif settings.get('agg_type') is None and unit == 'well':
+        # A well-level run needs a statistic. 'mean' is the historical default.
+        settings['agg_type'] = 'mean'
+
+    if isinstance(settings.get('regression_type'), str) and \
+            settings['regression_type'].strip().lower() == 'auto':
+        settings['regression_type'] = None
+    return settings
+
+
 def get_perform_regression_default_settings(settings):
     """Populate default settings for gRNA/score regression analysis.
 
@@ -1680,14 +1750,53 @@ def get_perform_regression_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    settings.setdefault('count_data','list of paths')
-    settings.setdefault('score_data','list of paths')
+    # Empty lists, not the string 'list of paths'. The placeholder was never a
+    # legal value: it reached the loader as a path, and every user's first
+    # action was to delete it. The Qt panel now renders these two with a file
+    # picker (settings_model.PATH_LIST_KEYS), so there is nothing to type.
+    settings.setdefault('count_data', [])
+    settings.setdefault('score_data', [])
     # ``regression`` preserves the historical simultaneous model.  The
     # alternative is a plate-blocked marginal guide test with empirical
     # P-values and an explicit multiple-testing family; it consumes the same
     # score/count inputs and therefore belongs at this entry point rather than
     # in a disconnected manuscript-only script.
     settings.setdefault('analysis_mode', 'regression')
+    # THE TWO CHOICES THAT DECIDE THE ANALYSIS, in the words a biologist uses.
+    #
+    # `inference` and `analysis_unit` are the plain-language front ends for
+    # two decisions that were previously spelled as side effects of other
+    # keys: analysis_mode ('regression' vs 'guide_permutation') and agg_type
+    # (a statistic vs the None that silently switched the whole model from
+    # per-well to per-object). Both are resolved to those historical keys at
+    # the bottom of this function, so ml.perform_regression is unchanged and a
+    # settings CSV written before this still loads and runs.
+    #
+    # inference='auto' is not a coin flip. It measures the design: a
+    # simultaneous fit needs more wells than guides, and this screen has 824
+    # guides in 587 wells, which is rank deficient -- the fit returns a
+    # coefficient per guide that is not identifiable from the data. Auto
+    # therefore chooses the permutation test whenever the design cannot
+    # support the simultaneous model, and says so in the log.
+    #
+    # The DEFAULT is 'parametric', not 'auto', and that is deliberate.
+    # Defaulting to 'auto' would silently switch existing settings files from
+    # the simultaneous fit to the permutation test the first time they were
+    # re-run -- a different estimand, different columns and different numbers,
+    # with nothing in the file changed. A user opts into auto; they are never
+    # moved onto it. What the default DOES do is refuse to be quiet about a
+    # design it cannot support: perform_regression prints an unmissable
+    # warning naming the counts when the parametric path is asked to fit more
+    # parameters than it has wells. See ml.resolve_auto_inference.
+    settings.setdefault('inference', 'parametric')
+    # Preserve the historical, public ``agg_type=None`` spelling for a
+    # per-cell analysis.  New settings use the explicit dropdown, but an old
+    # CSV must not silently become per-well merely because this readable
+    # front-end key did not exist when it was written.
+    if 'analysis_unit' not in settings:
+        settings['analysis_unit'] = (
+            'cell' if 'agg_type' in settings and settings['agg_type'] is None
+            else 'well')
     settings.setdefault('guide_min_wells', [1, 2, 3, 4])
     settings.setdefault('guide_primary_min_wells', None)
     settings.setdefault('guide_permutations', 200000)
@@ -1782,6 +1891,8 @@ def get_perform_regression_default_settings(settings):
     # toxo.custom_volcano_plot's y limits: None auto-scales, [lo, hi] fixes the
     # axis, [[lo1, hi1], [lo2, hi2]] draws a broken axis.
     settings.setdefault('y_lims', None)
+
+    _resolve_regression_analysis_choices(settings)
 
     if settings['regression_type'] == 'quantile':
         # alpha USED to double as the quantile here, which was a silent
@@ -2148,8 +2259,15 @@ expected_types = {
     "downstream": str,
     "grna": str,
     "barcodes": str,
-    "dependent_variable": str,
+    # A list fits every named response in one run, correcting each as its own
+    # multiple-testing family. The screen this was built for has two
+    # independently trained classifiers (XGBoost and MaxViT) whose agreement
+    # is the evidence, and running them as two separate jobs made that
+    # comparison a manual step.
+    "dependent_variable": (str, list),
     "analysis_mode": str,
+    "inference": str,
+    "analysis_unit": str,
     "guide_min_wells": (int, list),
     "guide_primary_min_wells": (int, type(None)),
     "guide_permutations": int,
@@ -2808,7 +2926,9 @@ tooltips = {
     "nucleus_min_size": "(int) - (Depreceated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer nucleus_min_area, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the per-object score CSV minimum_cell_simulation resamples when it works out how many objects a well needs before its mean stops moving. It must name the same measurement as dependent_variable, or the simulated min_cell_count describes a different quantity than the one the regression fits and wells are kept or dropped on the wrong evidence; the regression defaults therefore follow dependent_variable. In the interpret-vision-model helper the same key names the CNN score column instead, default 'cv_predictions'.",
-    "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Default 'regression'.",
+    "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Normally set for you by 'inference'; set it directly only to override that choice. Default 'regression'.",
+    "inference": "(str) - The top-level choice of how effects are tested, and the readable front end for analysis_mode. 'parametric' fits every guide simultaneously in the chosen regression_type, which needs more wells than guides to be identifiable. 'nonparametric' tests each guide separately as a plate-blocked marginal association with Freedman-Lane permutations and an empirical P value, which stays valid however many guides there are. 'auto' counts the guides and analysed wells and picks the simultaneous model only when the design can support it, printing which it chose and why - the screen this was written for has 824 guides in 587 wells, where the simultaneous fit is rank deficient and its per-guide coefficients are not identifiable. Default 'auto'.",
+    "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
     "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family. Default [1, 2, 3, 4].",
     "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. Default None chooses the smallest requested threshold.",
     "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. More permutations improve tail resolution but take longer. Default 200000.",
@@ -3564,11 +3684,66 @@ categories = {
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "visualize", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
-    # The per-model knobs (l1_ratio ... lasso_selection_threshold) sit here
-    # beside regression_type because that is the setting that decides whether
-    # each of them does anything at all: spacr.ml.REGRESSION_SETTINGS_USED says
-    # which type reads which, and a type refuses the ones it cannot read.
-    "Regression": ["analysis_mode", "regression_type", "dependent_variable", "score_column", "invert_dependent_variable", "agg_type", "transform", "alpha", "l1_ratio", "quantile", "hinge_threshold", "hinge_n_boot", "huber_t", "lasso_n_boot", "lasso_selection_threshold", "cov_type", "random_row_column_effects", "min_cell_count", "tolerance", "fraction_threshold", "guide_min_wells", "guide_primary_min_wells", "guide_permutations", "guide_permutation_seed", "guide_permutation_block", "guide_nuisance_columns", "guide_presence_threshold", "guide_permutation_batch_size", "guide_permutation_plot", "multiple_testing_method", "fdr_alpha", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
+    # REGRESSION, SPLIT IN SIX.
+    #
+    # This was one heading holding thirty-eight settings, ordered by the
+    # accident of when each was added. Reading it, you could not tell that
+    # `alpha` does nothing unless regression_type is one of four penalised
+    # families, that the nine `guide_*` keys do nothing unless the permutation
+    # test is selected, or that `agg_type=None` silently changes the unit of
+    # analysis from the well to the cell. Three settings named a threshold and
+    # none of them thresholded the same thing.
+    #
+    # The split follows the order the questions are actually asked:
+    #
+    #   1. What am I measuring?      -> Response
+    #   2. How should it be tested?  -> Model
+    #   3. ...with which knobs?      -> Model Tuning     (per-family)
+    #   4. ...or which permutation?  -> Permutation Test (per-mode)
+    #   5. What counts as a hit?     -> Significance
+    #   6. What gets thrown away?    -> Quality Filters
+    #
+    # MOVED, NOT REMOVED. Every one of the thirty-eight is still here, still
+    # editable, still in the settings dict, under the same key -- this is a
+    # regrouping, not a redesign. Two keys are new (`inference`,
+    # `analysis_unit`) and both are readable front ends for decisions that
+    # were previously side effects of `analysis_mode` and `agg_type`; see
+    # _resolve_regression_analysis_choices.
+    "Regression: Response": [
+        "dependent_variable", "score_column", "invert_dependent_variable",
+        "analysis_unit", "agg_type", "transform",
+    ],
+    # inference and regression_type lead: they decide whether anything in
+    # "Model Tuning" or "Permutation Test" does anything at all.
+    "Regression: Model": [
+        "inference", "analysis_mode", "regression_type",
+        "random_row_column_effects", "cov_type",
+    ],
+    # Per-family knobs. spacr.ml.REGRESSION_SETTINGS_USED says which family
+    # reads which, and a family REFUSES the ones it cannot read rather than
+    # ignoring them, so a wrong setting here is an error and not a silent no-op.
+    "Regression: Model Tuning": [
+        "alpha", "l1_ratio", "quantile", "huber_t", "hinge_threshold",
+        "hinge_n_boot", "lasso_n_boot", "lasso_selection_threshold",
+    ],
+    # Read only when inference resolves to the permutation test.
+    "Regression: Permutation Test": [
+        "guide_min_wells", "guide_primary_min_wells", "guide_permutations",
+        "guide_permutation_seed", "guide_permutation_block",
+        "guide_nuisance_columns", "guide_presence_threshold",
+        "guide_permutation_batch_size", "guide_permutation_plot",
+    ],
+    "Regression: Significance": [
+        "multiple_testing_method", "fdr_alpha", "threshold_method",
+        "threshold_multiplier", "volcano", "toxo",
+    ],
+    # Everything that decides which rows reach the model. These were spread
+    # across the old list with the fitting knobs between them, so it was not
+    # obvious that four separate settings each drop data.
+    "Regression: Quality Filters": [
+        "min_cell_count", "min_n", "fraction_threshold",
+        "target_unique_count", "tolerance", "outlier_detection", "other",
+    ],
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 

@@ -19,21 +19,12 @@ from typing import Iterable, Mapping, Sequence
 
 import numpy as np
 import pandas as pd
-from statsmodels.stats.multitest import multipletests
 
-
-_FDR_ALIASES = {
-    "bh": "fdr_bh",
-    "benjamini-hochberg": "fdr_bh",
-    "benjamini_hochberg": "fdr_bh",
-    "by": "fdr_by",
-    "benjamini-yekutieli": "fdr_by",
-    "benjamini_yekutieli": "fdr_by",
-    "bonferroni": "bonferroni",
-    "holm": "holm",
-    "none": "none",
-    "raw": "none",
-}
+from .multiple_testing import (
+    METHODS as _MULTIPLE_TESTING_METHODS,
+    adjust_p_values,
+    canonical_method,
+)
 
 
 def _normalise_thresholds(min_wells) -> tuple[int, ...]:
@@ -49,40 +40,36 @@ def _normalise_thresholds(min_wells) -> tuple[int, ...]:
     return tuple(sorted(set(values)))
 
 
-def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
-    """Return adjusted P values and rejection calls.
+#: Re-exported so existing importers of this module keep working; the
+#: inventory itself lives in :mod:`spacr.multiple_testing` so the GUI
+#: dropdown, the CLI and this analysis cannot offer different method sets.
+MULTIPLE_TESTING_METHODS = _MULTIPLE_TESTING_METHODS
 
-    ``method`` accepts the statsmodels names ``fdr_bh``, ``fdr_by``,
-    ``bonferroni`` and ``holm``, plus their common aliases and ``none``.
-    Missing P values remain missing and do not enter the correction family.
+
+def adjusted_value_label(method) -> str:
+    """Axis/legend label for the adjusted value produced by ``method``.
+
+    An FDR method yields a q value, a family-wise method an adjusted P, and
+    ``none`` leaves the raw P value. Labelling every correction "BH q" -- as
+    this module did while it offered only four methods -- mislabels the axis
+    of every plot drawn with any other correction.
     """
-    values = np.asarray(p_values, dtype=float)
-    if not 0 < float(alpha) < 1:
-        raise ValueError("alpha must be strictly between 0 and 1")
-    key = str(method).strip().lower()
-    canonical = _FDR_ALIASES.get(key, key)
-    supported = {"fdr_bh", "fdr_by", "bonferroni", "holm", "none"}
-    if canonical not in supported:
-        raise ValueError(
-            f"Unsupported multiple-testing method {method!r}; choose one of "
-            f"{sorted(supported)}."
-        )
-
-    adjusted = np.full(values.shape, np.nan, dtype=float)
-    rejected = np.zeros(values.shape, dtype=bool)
-    finite = np.isfinite(values)
-    if not finite.any():
-        return adjusted, rejected
-    if canonical == "none":
-        adjusted[finite] = values[finite]
-        rejected[finite] = values[finite] < alpha
-    else:
-        call, corrected, _, _ = multipletests(
-            values[finite], alpha=alpha, method=canonical
-        )
-        adjusted[finite] = corrected
-        rejected[finite] = call
-    return adjusted, rejected
+    key = canonical_method(method)
+    if key == "none":
+        return "P"
+    short = {
+        "fdr_bh": "BH q",
+        "fdr_by": "BY q",
+        "fdr_tsbh": "TSBH q",
+        "fdr_tsbky": "TSBKY q",
+        "fdr_gbs": "GBS q",
+        "storey": "Storey q",
+    }
+    if key in short:
+        return short[key]
+    # Every remaining method controls the family-wise error rate, which
+    # adjusts the P value rather than producing a q value.
+    return "adjusted P"
 
 
 def prepare_long_guide_data(
@@ -355,10 +342,7 @@ def guide_freedman_lane_test(
         )
         family["minimum_wells_threshold"] = threshold
         family["tested_guides_in_family"] = len(family)
-        family["multiple_testing_method"] = _FDR_ALIASES.get(
-            str(multiple_testing).strip().lower(),
-            str(multiple_testing).strip().lower(),
-        )
+        family["multiple_testing_method"] = canonical_method(multiple_testing)
         family["adjusted_p_value"] = corrected
         family["significant"] = rejected
         family["alpha"] = float(alpha)
@@ -476,8 +460,7 @@ def plot_guide_permutation_volcano(
         np.clip(data["adjusted_p_value"], np.finfo(float).tiny, 1.0)
     )
     significant = data["significant"].astype(bool)
-    method = str(data["multiple_testing_method"].iloc[0]).lower()
-    adjusted_label = "BH q" if method == "fdr_bh" else "adjusted P"
+    adjusted_label = adjusted_value_label(data["multiple_testing_method"].iloc[0])
     fig, axis = plt.subplots(figsize=(6.2, 4.8))
     axis.scatter(
         data.loc[~significant, "standardized_marginal_effect"],
