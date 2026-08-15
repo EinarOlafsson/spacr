@@ -3063,13 +3063,35 @@ def perform_regression(settings):
             print(f"Independent variable: {len(count_data_df)}")
 
             if settings['dependent_variable'] not in score_data_df.columns:
-                print('Columns in DataFrame:')
-                for col in score_data_df.columns:
-                    print(col)
                 if not settings['dependent_variable'] == 'pathogen_nucleus_shortest_distance':
+                    # Name the likeliest cause, not only the symptom. A count
+                    # table has grna/count columns and no score column, so a
+                    # score slot holding one is a swapped input -- the
+                    # commonest way to reach this error, and invisible in a
+                    # bare "not found in the DataFrame" followed by a column
+                    # dump the user has to interpret themselves.
+                    looks_like_counts = sorted(
+                        {'grna', 'grna_name', 'count'}.intersection(
+                            score_data_df.columns))
+                    if looks_like_counts:
+                        hint = (
+                            f"\n\nThe score table has {looks_like_counts} and "
+                            f"no score column, which is the shape of a COUNT "
+                            f"file. The score and count inputs look swapped.")
+                    else:
+                        numeric = [
+                            column for column in score_data_df.columns
+                            if pd.api.types.is_numeric_dtype(
+                                score_data_df[column])
+                            and column not in {'plateID', 'rowID', 'columnID',
+                                               'fieldID', 'objectID', 'count'}]
+                        hint = (f"\n\nColumns that could be the response: "
+                                f"{numeric[:12]}") if numeric else ""
                     raise ValueError(
-                        f"Dependent variable {settings['dependent_variable']} not found in the DataFrame"
-                    )
+                        f"dependent_variable="
+                        f"{settings['dependent_variable']!r} is not a column "
+                        f"of the score table, which has "
+                        f"{list(score_data_df.columns)[:15]}.{hint}")
 
             # The whitelist is REGRESSION_TYPES itself, not a copy of it. The
             # copy that used to live here disagreed with the dispatcher in
