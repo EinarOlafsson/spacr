@@ -31,9 +31,25 @@ on:
 # starved every runner, and blocked the docs deploy behind them -- the public
 # site sat on a four-day-old build while CI churned through commits nobody
 # was waiting on. Only the newest commit on a branch is worth testing.
+#
+# BUT A DISPATCHED RUN IS NEVER CANCELLED, and that is the whole of the
+# exception. A full suite takes ~95 minutes; during active work the gap
+# between pushes to nightly is 5-25 minutes. Cancel-on-push therefore does
+# not degrade the signal on the integration branch, it removes it: on
+# 2026-08-15 the last thirty `tests` runs on nightly were twenty-nine
+# cancellations and one still running, and the newest run that had reached
+# any verdict at all was from the day before. `docs` takes ~26 minutes, fits
+# in the gaps, and passed throughout -- the suites that outlast a gap are
+# exactly the ones that never finished.
+#
+# Splitting the group by event keeps the 5 August protection exactly as it
+# was -- a push still cancels the previous PUSH run -- while giving a way to
+# ask "is this branch actually green?" and get an answer that survives the
+# next commit. That question is instruction 82, and answering it is what a
+# release gates on.
 concurrency:
-  group: tests-${{ github.ref }}
-  cancel-in-progress: true
+  group: tests-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   fast:
