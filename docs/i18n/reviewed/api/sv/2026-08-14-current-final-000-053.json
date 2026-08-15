@@ -360,7 +360,7 @@
       "translation": "``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter."
     },
     {
-      "label": "spacr.ml.perform_regression#5",
+      "label": "spacr.ml.perform_regression#4",
       "source_sha256": "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
       "source": "``dependent_variable`` — column of ``score_data`` to regress (e.g. ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).",
       "context": "``dependent_variable`` — column of ``score_data`` to regress (e.g. ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).",
