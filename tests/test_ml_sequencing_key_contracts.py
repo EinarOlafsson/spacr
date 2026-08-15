@@ -448,7 +448,8 @@ def test_graph_sequencing_stats_survives_a_mixed_row_id_column(tmp_path):
         pd.Series(["plate1_r1", "r2", "r3"]).apply(lambda x: x.split("_")[1])
 
 
-def test_graph_sequencing_stats_keeps_the_row_of_an_underscored_plate(tmp_path):
+def test_graph_sequencing_stats_keeps_the_row_of_an_underscored_plate(
+        tmp_path, monkeypatch):
     """'exp1_plate1_r2' reduces to 'r2', not to 'plate1'."""
     from spacr.sequencing import graph_sequencing_stats
 
@@ -465,18 +466,19 @@ def test_graph_sequencing_stats_keeps_the_row_of_an_underscored_plate(tmp_path):
     pd.DataFrame(recs).to_csv(csv, index=False)
 
     seen = {}
-    import spacr.sequencing as SEQ
-    real_plot = SEQ.plot_plates
-    SEQ.plot_plates = lambda df, **kw: seen.update(
-        rows=sorted(df["rowID"].unique()))
-    try:
-        graph_sequencing_stats({
-            "count_data": str(csv), "target_unique_count": 5,
-            "filter_column": "columnID", "control_wells": ["c1"],
-            "log_x": False, "log_y": False,
-        })
-    finally:
-        SEQ.plot_plates = real_plot
+    # Patch the callable's actual globals.  Package-lazy-loader tests can
+    # replace ``spacr.sequencing`` in sys.modules, leaving a separately
+    # imported module object whose ``plot_plates`` is not the global this
+    # already-imported function resolves at call time.
+    monkeypatch.setitem(
+        graph_sequencing_stats.__globals__, "plot_plates",
+        lambda df, **kw: seen.update(rows=sorted(df["rowID"].unique())),
+    )
+    graph_sequencing_stats({
+        "count_data": str(csv), "target_unique_count": 5,
+        "filter_column": "columnID", "control_wells": ["c1"],
+        "log_x": False, "log_y": False,
+    })
 
     assert seen["rows"] == ["r1", "r2", "r3"]
     # The old [1] index would have handed plot_plates the plate's second token.
@@ -584,7 +586,8 @@ def test_process_reads_well_total_merge_is_many_to_one():
     assert out["fraction"].sum() == pytest.approx(1.0)
 
 
-def test_graph_sequencing_stats_unique_count_merge_is_many_to_one(tmp_path):
+def test_graph_sequencing_stats_unique_count_merge_is_many_to_one(
+        tmp_path, monkeypatch):
     """The per-well unique-gRNA count must not fan the read table out.
 
     ``unique_counts`` comes straight off a groupby on the join key, so it is
@@ -611,16 +614,15 @@ def test_graph_sequencing_stats_unique_count_merge_is_many_to_one(tmp_path):
     pd.DataFrame(recs).to_csv(csv, index=False)
 
     seen = {}
-    real_plot = SEQ.plot_plates
-    SEQ.plot_plates = lambda df, **kw: seen.update(n=len(df))
-    try:
-        SEQ.graph_sequencing_stats({
-            "count_data": str(csv), "target_unique_count": 4,
-            "filter_column": "columnID", "control_wells": ["c1"],
-            "log_x": False, "log_y": False,
-        })
-    finally:
-        SEQ.plot_plates = real_plot
+    monkeypatch.setitem(
+        SEQ.graph_sequencing_stats.__globals__, "plot_plates",
+        lambda df, **kw: seen.update(n=len(df)),
+    )
+    SEQ.graph_sequencing_stats({
+        "count_data": str(csv), "target_unique_count": 4,
+        "filter_column": "columnID", "control_wells": ["c1"],
+        "log_x": False, "log_y": False,
+    })
 
     # The merge is the last thing to touch the row count before plot_plates,
     # and it is a LEFT many-to-one: it can never add a row.
