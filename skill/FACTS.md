@@ -6,11 +6,11 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 
 ## This checkout
 
-- version: **get_version()**
-- branch: `nightly` at `b6f95d83`
+- version: **1.5.0.4**
+- branch: `codex/final-integration5` at `b78f3c07`
 - Python modules under `spacr/`: 342
 - of those under `spacr/qt/`: 198 (47 screens, 70 widgets)
-- test files: 797 (274 under `tests/qt/`)
+- test files: 798 (274 under `tests/qt/`)
 
 ## The biggest modules
 
@@ -19,15 +19,15 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - `spacr/utils.py` — 10554 lines
 - `spacr/timelapse.py` — 8247 lines
 - `spacr/io.py` — 7859 lines
-- `spacr/qt/i18n_catalogs/zh_CN.py` — 7224 lines
-- `spacr/qt/i18n_catalogs/sv.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/pt.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/ko.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/is.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/hi.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/fr.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/es.py` — 7223 lines
-- `spacr/qt/i18n_catalogs/de.py` — 7223 lines
+- `spacr/qt/i18n_catalogs/zh_CN.py` — 7236 lines
+- `spacr/qt/i18n_catalogs/sv.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/pt.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/ko.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/is.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/hi.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/fr.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/es.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/de.py` — 7235 lines
 
 ## Invariant checks
 

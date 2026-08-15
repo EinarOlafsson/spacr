@@ -35,7 +35,7 @@ def test_swedish_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
     reviewed = reviewed_runtime_translations("sv")
     sources = canonical_sources()["setting_tooltips"]
 
-    assert len(reviewed) == 22
+    assert len(reviewed) == 23
     for source, translated in reviewed.items():
         assert source in sources.values()
         assert not _translation_rejection_reasons(
