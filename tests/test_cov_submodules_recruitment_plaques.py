@@ -345,8 +345,16 @@ def test_analyze_recruitment_plots_first_n_merged_files(tmp_path,
     # (file_path, channel_dims, cell_chann_dim, nucleus_chann_dim, pathogen_chann_dim)
     assert args[1] == [0, 1, 2, 3]
     assert args[2:] == (3, 0, 2)
-    assert kwargs == {"figuresize": 10, "normalize": True, "thickness": 3,
-                      "save_pdf": True}
+    # `normalize=True` used to be here, and plot_image_mask_overlay has no
+    # such parameter -- every call raised TypeError into a bare except, so
+    # this branch printed a failure instead of drawing a single overlay and
+    # the test asserted a call that could never have worked. It wanted
+    # percentile normalisation, which is `percentiles`. `outline_palette`
+    # arrived with it, so a colour-blind reader can be given outlines they
+    # can tell apart.
+    assert kwargs == {"figuresize": 10, "percentiles": (1, 99),
+                      "thickness": 3, "save_pdf": True,
+                      "outline_palette": "default"}
 
 
 def test_analyze_recruitment_missing_merged_dir_skips_plotting(tmp_path,
