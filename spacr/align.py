@@ -194,18 +194,48 @@ DEFAULT_ANCHOR_WEIGHT = 1e-3
 #: edge still receives that tile's value instead of a zero.
 _WEIGHT_FLOOR = 1e-3
 
+#: A well token: up to TWO letters, then the column digits. Two, not one,
+#: because a 1536-well plate runs past Z into ``AA01``. With one letter
+#: ``AA01`` never matched, the last-resort branch below read the trailing
+#: digits of the *channel* token as the field, and every field of the well
+#: collapsed onto one site -- only the last file read survived.
+#: ``spacr.schema.parse_well`` has always accepted two (``AA01`` -> r27/c1),
+#: so this makes align agree with the rest of spaCR rather than widening
+#: anything.
+#:
+#: The leading ``(?![Cc][Hh]\d)`` is the one token a second letter would
+#: otherwise steal from :data:`_CHANNEL_TOKEN`: ``ch2``. With a one-letter
+#: well ``some_image_ch2_12`` fell through to the last-resort branch and read
+#: channel 2 correctly; without this guard it would parse as well "ch2".
+#: Nothing else collides -- the other channel spellings are one letter
+#: (``c``, ``w``), which a one-letter well already matched before this
+#: change, or too long to be a well at all (``channel``). Real two-letter
+#: wells start at ``AA`` and stop at ``AF`` even on a 1536-well plate, so no
+#: plate format loses a well to this.
+_WELL_TOKEN = r'(?![Cc][Hh]\d)[A-Za-z]{0,2}\d+'
+
 #: Yokogawa CV7000/CV8000 output, the naming spaCR's pipeline expects.
 _YOKOGAWA = re.compile(
-    r'^(?P<plate>.+)_(?P<well>[A-Za-z]?\d+)_T(?P<t>\d+)F(?P<field>\d+)'
+    r'^(?P<plate>.+)_(?P<well>' + _WELL_TOKEN + r')_T(?P<t>\d+)F(?P<field>\d+)'
     r'L(?P<l>\d+)A(?P<a>\d+)Z(?P<z>\d+)C(?P<c>\d+)$')
 
 #: The same, without the ``A##`` action id (some exports drop it).
 _YOKOGAWA_SHORT = re.compile(
-    r'^(?P<plate>.+)_(?P<well>[A-Za-z]?\d+)_T(?P<t>\d+)F(?P<field>\d+)'
+    r'^(?P<plate>.+)_(?P<well>' + _WELL_TOKEN + r')_T(?P<t>\d+)F(?P<field>\d+)'
     r'L(?P<l>\d+)C(?P<c>\d+)$')
 
 #: spaCR's merged-stack naming: ``<plate>_<well>_<field>.npy``.
-_MERGED = re.compile(r'^(?P<plate>[^_]+)_(?P<well>[A-Za-z]?\d+)_(?P<field>\d+)$')
+#:
+#: The plate is ``.+`` and not ``[^_]+`` so the name is split RIGHT TO LEFT,
+#: which is what the other patterns here already do and what
+#: ``spacr.schema.parse_prcf`` calls "what makes it correct". A plate token
+#: holding the separator -- ``exp1_plate1`` -- did not match at all, fell to
+#: the last-resort branch, and had its WELL read as a channel: ``B07`` and
+#: ``C08`` of one plate both keyed to site ``('', '', 1)`` as channels 1 and
+#: 8, so write_stack composited one well into the other's canvas and every
+#: align_coordinates row carried an empty plateID/rowID/columnID.
+_MERGED = re.compile(
+    r'^(?P<plate>.+)_(?P<well>' + _WELL_TOKEN + r')_(?P<field>\d+)$')
 
 #: Last resort: a trailing integer is the field, a ``_C##`` token the channel.
 _TRAILING_FIELD = re.compile(r'(?P<field>\d+)\s*$')
