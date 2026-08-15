@@ -63,6 +63,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QAbstractButton,
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -83,6 +84,18 @@ from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, SPACING, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
+
+
+#: Soft budget for pipeline scrollback attached to one AI turn. A complete
+#: traceback is never cut to satisfy it; ordinary stdout yields first.
+AI_CONSOLE_CONTEXT_CHARS = 24_000
+
+#: A deliberately small, visible heuristic for the Auto context mode. The
+#: adjacent dropdown is the override when wording falls outside this set.
+_CONSOLE_QUESTION_TERMS = (
+    "console", "traceback", "error", "exception", "failed", "failure",
+    "went wrong", "what happened", "why did", "debug", "log output",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -884,6 +897,10 @@ class ConsolePanel(QWidget):
         self._ai_buf: List[str] = []
         self._ai_thread: Optional[QThread] = None
         self._ai_worker: Optional[StreamWorker] = None
+        # Per rendered pipeline block, how much has already accompanied an AI
+        # turn. The blocks themselves remain the only history store: context
+        # is read from their QTextDocuments at ask time.
+        self._console_sent_lengths: Dict[int, int] = {}
         # Retired stream (thread, worker) pairs — we hold these until
         # thread.finished actually emits so Python doesn't GC the
         # QThread while its OS thread is still winding down (which is
@@ -1028,6 +1045,19 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
+        self._console_context_mode = QComboBox()
+        self._console_context_mode.setObjectName("ConsoleContextMode")
+        self._console_context_mode.addItems(
+            ["Console: Auto", "Console: Include", "Console: Off"])
+        self._console_context_mode.setToolTip(
+            "Auto sends new console output for diagnostic questions. "
+            "Include always sends it; Off never sends it.")
+        row.addWidget(self._console_context_mode)
+        self._console_context_status = QLabel("Console available")
+        self._console_context_status.setObjectName("ConsoleContextStatus")
+        self._console_context_status.setToolTip(
+            "Reports how much console context accompanied the last question.")
+        row.addWidget(self._console_context_status)
         self._split.addWidget(input_row)
 
         # Only the console stretches when the WINDOW resizes. Giving both
@@ -1254,7 +1284,10 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         if console_write_in_progress():
             return
         with console_write():
-            if self._current_stdout is None:
+            if (self._current_stdout is None
+                    or self._needs_topic("stdout")
+                    or self._current_stdout.property(
+                        "consoleContextKind") != "stdout"):
                 # Open a "spaCR output — <module> — <function>" banner + a
                 # fresh blue-text block. Reused until a different entry type
                 # breaks it.
@@ -1262,6 +1295,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                 self.begin_topic(self._output_banner("spaCR output"),
                                  accent=accent)
                 self._current_stdout = _StdoutBlock(text_color=accent)
+                self._current_stdout.setProperty(
+                    "consoleContextKind", "stdout")
                 self._insert_entry(self._current_stdout)
                 self._last_entry_kind = "stdout"
             self._current_stdout.append(text)
@@ -1326,6 +1361,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             red = color_error()
             self.begin_topic(self._output_banner("spaCR ERROR"), accent=red)
             block = _StdoutBlock(tb, error=True, text_color=red)
+            block.setProperty("consoleContextKind", "traceback")
             self._insert_entry(block)
             self._last_entry_kind = "stdout"
 
@@ -1409,6 +1445,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._last_entry_kind = ""
         self._current_stdout = None
         self._ai_messages.clear()
+        self._console_sent_lengths.clear()
 
     # ------------------------------------------------------------------
     # AI toggle + provider — external setters called by AppScreen.
@@ -1460,9 +1497,15 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             # Silent no-op: another stream is running. The AppScreen
             # actions row exposes the Cancel button, not us.
             return
-        self._ai_messages.append({"role": "user", "content": text})
+        context, status = self._console_context_for_question(text)
+        prompt = text
+        if context:
+            prompt += (
+                "\n\n<spacr_console_context>\n" + context
+                + "\n</spacr_console_context>")
+        self._ai_messages.append({"role": "user", "content": prompt})
         # User message — green "spaCR user" text.
-        self._append_user(text)
+        self._append_user(text + f"\n\n[{status}]")
         # AI reply — a "spaCR AI" banner tinted in the provider colour, with a
         # three-dot working indicator that cycles until the stream finishes,
         # followed by the reply text in the same provider colour.
@@ -1475,6 +1518,80 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._insert_entry(self._current_stdout)
         self._last_entry_kind = "ai"
         self._start_stream(system=ai_settings.get_system_prompt())
+
+    def _pipeline_console_blocks(self):
+        """Yield rendered pipeline blocks that are eligible as AI context."""
+        last = self._entries.count() - 1
+        for index in range(last):
+            item = self._entries.itemAt(index)
+            widget = item.widget() if item is not None else None
+            kind = widget.property("consoleContextKind") if widget else None
+            if kind in {"stdout", "traceback"} and hasattr(
+                    widget, "toPlainText"):
+                yield widget, str(kind), widget.toPlainText()
+
+    def _console_context_for_question(self, question: str):
+        """Read and package new console text at ask time.
+
+        Returns ``(context, visible_status)``. Complete traceback blocks take
+        priority over ordinary stdout and may exceed the soft context budget.
+        Text is marked sent only when it is actually attached.
+        """
+        mode = self._console_context_mode.currentIndex()
+        wants_context = mode == 1 or (
+            mode == 0 and any(term in question.casefold()
+                              for term in _CONSOLE_QUESTION_TERMS))
+        if not wants_context:
+            label = "Console context not sent (Off)" if mode == 2 else (
+                "Console available; context not needed (Auto)")
+            self._console_context_status.setText(label)
+            return "", label
+
+        pieces = []
+        current_lengths = {}
+        for block, kind, full_text in self._pipeline_console_blocks():
+            key = id(block)
+            sent = min(self._console_sent_lengths.get(key, 0), len(full_text))
+            fresh = full_text[sent:]
+            if not fresh:
+                continue
+            anchor = ""
+            if kind == "stdout" and sent:
+                anchor = full_text[max(0, sent - 400):sent]
+            pieces.append((kind, anchor + fresh, len(fresh)))
+            current_lengths[key] = len(full_text)
+
+        if not pieces:
+            label = "Console context: no new output"
+            self._console_context_status.setText(label)
+            return "", label
+
+        tracebacks = [text for kind, text, _fresh in pieces
+                      if kind == "traceback"]
+        stdout = "\n".join(text for kind, text, _fresh in pieces
+                           if kind == "stdout")
+        traceback_text = "\n\n".join(
+            f"--- complete traceback ---\n{text}" for text in tracebacks)
+        remaining = max(0, AI_CONSOLE_CONTEXT_CHARS - len(traceback_text))
+        kept_stdout = stdout[-remaining:] if remaining else ""
+        dropped = max(0, len(stdout) - len(kept_stdout))
+        sections = []
+        if dropped:
+            sections.append(
+                f"[Console tail; {dropped:,} earlier characters dropped]")
+        elif stdout:
+            sections.append("[New console output]")
+        if kept_stdout:
+            sections.append(kept_stdout)
+        if traceback_text:
+            sections.append(traceback_text)
+        context = "\n".join(sections)
+        self._console_sent_lengths.update(current_lengths)
+        label = f"Console context: {len(context):,} chars sent"
+        if dropped:
+            label += f", {dropped:,} dropped"
+        self._console_context_status.setText(label)
+        return context, label
 
     def _ensure_stdout_block(self) -> None:
         """Open a new plain stdout block if the last entry was not one."""
