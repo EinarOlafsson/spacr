@@ -540,13 +540,16 @@ jobs:
           QT_QPA_PLATFORM: offscreen
           MPLBACKEND: Agg
           PYTHONPATH: ${{ github.workspace }}
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
         run: |
           python -m pytest tests/ \
             -m "not slow and not heavy" \
-            -q --no-header --tb=short
+            -n 3 --dist loadfile -q --no-header --tb=short
           python -m pytest tests/ \
             -m "(slow or heavy) and (gpu or network or nas)" \
-            -q --no-header --tb=short
+            -n 3 --dist loadfile -q --no-header --tb=short
 
   # -------------------------------------------------------------------------
   # 4. Upstream wheel availability. Informational, never blocking.

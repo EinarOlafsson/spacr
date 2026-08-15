@@ -191,10 +191,13 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
         run: |
           python -m pytest tests/ \
             -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            -v --tb=short
+            -n 4 --dist loadfile -v --tb=short
 
   integration:
     name: Integration
@@ -225,6 +228,7 @@ jobs:
       extras: "qt,dev,zernike,attribution,btrack,czi"
       marker_expression: "qt and not slow and not heavy and not gpu and not network and not nas and not gui"
       timeout_minutes: 60
+      xdist_workers: 4
 
   gpu:
     name: GPU
@@ -385,10 +389,13 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
         run: |
           python -m pytest tests/ \
             -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            -v --tb=short
+            -n 4 --dist loadfile -v --tb=short
 
   release-gate:
     name: Release gate / zero unexpected failures
