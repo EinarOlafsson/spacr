@@ -45,9 +45,6 @@ OPEN
   107  SCORE AND COUNT CSVs ARE PAIRED WHEN THEY ARE ADDED, NOT BY LIST POSITION
        107_score_and_count_csvs_are_paired_when_they_are_added.txt
 
-  108  A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
-       108_docstring_and_translation_correctness_sweep.txt
-
   108  RIGHT-CLICK ANY FIGURE AND CHANGE HOW IT LOOKS, WITHOUT RE-RUNNING ANYTHING
        108_right_click_any_figure_to_restyle_it.txt
 
@@ -59,6 +56,9 @@ OPEN
 
   111  A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
        111_a_clear_figures_control_that_is_text_and_flickers_blue.txt
+
+  112  A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
+       112_docstring_and_translation_correctness_sweep.txt
 
 --------------------------------------------------------------------------------
 DONE
