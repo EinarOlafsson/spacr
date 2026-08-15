@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.anndata_export.register_anndata_app#3",
+      "source_sha256": "9710be2c0ecfad968a8c0e087713ce7438e2d6177a3c7233113f0fe33c0425ac",
+      "source": "**No screen of its own, and none is wanted.** The app registers no ``factory``, so it gets the generic settings-driven ``AppScreen`` -- and every knob this module has is already a typed, tooltipped key in :func:`register_anndata_settings`, so that generic form IS the export dialog. ``defaults_module`` is what makes it appear: it tells ``settings_model`` to import this module before asking whether the key has defaults. The Run button runs :func:`run_anndata_export`, which is also what ``spacr-run anndata_export`` runs -- an export is a batch step you want on the cluster after Measure, not an interactive tool.",
+      "context": "**No application view of its own, and none is wanted.** The app registers no ``factory``, so it gets the generic settings-driven ``AppScreen`` -- and every knob this module has is already a typed, tooltipped structured-data name in :func:`register_anndata_settings`, so that generic form IS the export dialog. ``defaults_module`` is what makes it appear: it tells ``settings_model`` to import this module before asking whether the structured-data name has defaults. The processing session button runs :func:`run_anndata_export`, which is also what ``spacr-run anndata_export`` runs -- an export is a batch step you want on the cluster after Measure, not an interactive tool.",
+      "translation": "**Engin eigin forritaskjánýting, og engin er óskað eftir.** Forritið skráir engin ``factory``, svo það fær almennu, stillingamiðuðu ``AppScreen`` -- og hver hnappur sem þessi eining hefur er þegar týpufestur, með verkfærishjálp (tooltipped) nafn á uppbyggðu gögnum í :func:`register_anndata_settings`, svo sú almennu form er Útflutningsglugginn. ``defaults_module`` er það sem gerir það sýnilegt: það segir ``settings_model`` að flytja inn þessa einingu áður en spurt er hvort nafnið á uppbyggðu gögnunum hafi sjálfgefna stillingu. Vinnslufundarhnappurinn keyrir :func:`run_anndata_export`, sem er líka það sem ``spacr-run anndata_export`` keyrir -- útflutningur er lotuskref sem þú vilt á klasa eftir Mælingu, ekki gagnvirkt verkfæri."
+    },
+    {
+      "label": "spacr.chaining.PinStore#1",
+      "source_sha256": "faff240eca0d1a5848c97f015075102cd3468c2c6262c7acc6f5061296b692d0",
+      "source": "Auto-chaining is only welcome while it is filling in a blank.  The moment a user types a path of their own, that path is theirs: it survives a reopen, a restart, and every subsequent upstream run.  This is the record that makes that true, and it is deliberately *not* the settings dict — a settings dict cannot distinguish \"the user chose this\" from \"we put it there\".",
+      "context": "Auto-chaining fills only blank values. Once a user enters a path, that path belongs to the user and survives reopening, restarting, and later upstream runs. This *separate record* stores that choice. The settings collection cannot distinguish \"the user chose this\" from \"we put it there\".",
+      "translation": "Sjálfvirk tenging fyllir aðeins tóma reiti. Þegar notandi slær inn slóð, tilheyrir sú slóð notandanum og helst við að opna aftur, endurræsa og seinni keyrslur uppstreymis. Þessi *aðskilda skrá* geymir þá ákvörðun. Stillingasafnið getur ekki greint á milli „notandinn valdi þetta“ og „við settum það þarna“."
+    },
+    {
+      "label": "spacr.train_compare.is_env_key#1",
+      "source_sha256": "fd15311ccf6b61d16e861e556890c5c18fb47cb5605adc14a74c452b55629e16",
+      "source": "Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not. ``src`` deliberately does **not** match — a run on a different dataset is a real difference and belongs in ``changed``, even though it is a path.",
+      "context": "Token-wise, not substring: ``start_time`` matches, ``update_freq`` does not. ``src`` deliberately does **not** match — a run on a different dataset is a real difference and belongs in ``changed``, even though it is a path.",
+      "translation": "Merkjatexta-vísar, ekki undirteki: ``start_time`` passar, ``update_freq`` passar ekki. ``src`` passar með ásetningi **ekki** — keyrsla á öðru gagnasafni er raunveruleg munur og á heima í ``changed``, jafnvel þó það sé slóði."
+    },
+    {
+      "label": "spacr.organelle_types#4",
+      "source_sha256": "24ea76ea0b6cb95e60d7a7d3e67c314d8a5e3002a71c76e74010fb7667134017",
+      "source": "\"Vesicular\" is a CELL-BIOLOGY category -- a membrane-bound compartment that carries cargo -- and spots/ring/network/irregular is an IMAGE-APPEARANCE category: what the segmentation has to find. They do not nest, because the same biological family looks different at different sizes. A 200 nm transport vesicle is a diffraction-limited dot. A 2 um vacuole is a visible ring. Both are Vesicular.",
+      "context": "\"Vesicular\" is a CELL-BIOLOGY category -- a membrane-bound compartment that carries cargo -- and spots/ring/network/irregular is an IMAGE-APPEARANCE category: what the segmentation has to find. They do not nest, because the same biological family looks different at different sizes. A 200 nm transport vesicle is a diffraction-limited dot. A 2 um vacuole is a visible ring. Both are Vesicular.",
+      "translation": "\"Vesicular\" er flokkur í FRUMU-LÍFFRÆÐI -- himnubundin eining sem flytur farangur -- og flekkur/hringur/netskipulag/óreglulegt er flokkur í MYND-ÚTLIT: það sem skurðurinn á að finna. Þau eru ekki innbyrðis, því sama líffræðilega fjölskyldan lítur öðruvísi út í mismunandi stærðum. 200 nm flutningsbólur er dreifiljósmörkuð punktur. 2 μm leysu er sýnilegur hringur. Bæði tilheyra bóluformuðum einingum."
+    },
+    {
+      "label": "spacr.hyperparam.local_direction_search#3",
+      "source_sha256": "fb78718e30c967eb3788943aa63a73e87b7c4b7f92ddececb4c9d465bedaf428",
+      "source": "needs ``n_neighbors`` and ``min_dist`` -- missing or non-numeric raises. Out-of-range values are clamped rather than rejected (``n_neighbors`` up to at least 2, ``min_dist`` into ``[0, 1]``). Any other key is held fixed and passed to every fit unchanged.",
+      "context": "needs ``n_neighbors`` and ``min_dist`` -- missing or non-numeric raises. Out-of-range values are clamped rather than rejected (``n_neighbors`` up to at least 2, ``min_dist`` into ``[0, 1]``). Any other structured-data name is held fixed and passed to every fit unchanged.",
+      "translation": "þarf ``n_neighbors`` og ``min_dist`` -- vantar eða ekki-númerískt veldur villu. Gildi utan við mörk eru takmörkuð frekar en tekin út (``n_neighbors`` allt að að minnsta kosti 2, ``min_dist`` inn í ``[0, 1]``). Önnur heiti á uppbyggðum gögnum eru haldin föst og send til allra aðlögunaraðgerða óbreytt."
+    },
+    {
+      "label": "spacr.qt.widgets.column_picker#10",
+      "source_sha256": "6334d748fa69f30b7c9ed1573dcba6216cfd2c96689acecca5006178c4f19150",
+      "source": "**No modal errors.** A missing database, a file that isn't SQLite, a database with no tables, a name SQLite would refuse — every one of them is reported in a banner inside the dialog. The dialog itself is the one deliberate modal, and it is injectable (:meth:`ColumnPickerButton. set_dialog_runner`) so a headless test drives it without ever entering an event loop.",
+      "context": "**No modal errors.** A missing database, a file that isn't SQLite, a database with no tables, a name SQLite would refuse — every one of them is reported in a banner inside the dialog. The dialog itself is the one deliberate modal, and it is injectable (:meth:`ColumnPickerButton. set_dialog_runner`) so a headless test drives it without ever entering an event loop.",
+      "translation": "**Engar möndlufrangar.** Vantar gagnagrunn, skrá sem er ekki SQLite, gagnagrunnur með engum töflum, nafn SQLite myndi neita — Hver og einn þeirra er tilkynntur í borða inni í samtalinu. Sjálft samtalið er sá ásetta gluggi., og það er innsprautanlegt (:meth:`ColumnPickerButton. set_dialog_runner`) þannig að höfuðlaust próf keyrir það án þess nokkurn tímann að fara inn í viðburðalykkju."
+    },
+    {
+      "label": "spacr.chaining.stale_inputs#1",
+      "source_sha256": "9454ee0815a756cccf6f08e4559195e22d61b4b4e1cfc3316247c8e0151a56fb",
+      "source": "Running on a stale input produces a stale result, so this is the warning that saves the twenty minutes rather than explaining them afterwards. Settings are deliberately *not* compared here: this module's settings say nothing about whether the previous module's output is current.",
+      "context": "Executing on a stale input produces a stale result, so this is the warning that saves the twenty minutes rather than explaining them afterwards. Settings are deliberately *not* compared here: this module's settings say nothing about whether the previous module's output is current.",
+      "translation": "Að keyra á úreltum inntaki gefur úrelt niðurstöðu, svo þetta er viðvörunin sem sparar tuttugu mínútur frekar en að útskýra þær í eftirgang. Stillingar eru vísvitandi *ekki* bornar saman hér: Stillingar þessa módúls segja ekki neitt um hvort niðurstaða fyrri módúlsins sé nýleg."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.SearchFigureGrid.add_figure#1",
+      "source_sha256": "61699fb3f4ee29073d9d0d3b07507177a1b7c73c2e802e29f01e572869eee0da",
+      "source": "The PNG is produced by whoever ran the trial, on the worker thread that ran it. This method only loads and places it -- a search that rendered its figures here would render them on the GUI thread.",
+      "context": "The PNG is produced by whoever ran the trial, on the background execution unit that ran it. This method only loads and places it -- a search that rendered its figures here would render them on the main GUI execution path.",
+      "translation": "PNG er framleitt af þeim sem framkvæmdi tilraunina, á bakgrunnseiningunni sem keyrði hana. Þessi aðferð hleður hana aðeins og staðsetur hana -- leit sem skilaði tölum hennar hér myndi skila þeim á aðal GUI keyrsluleiðina."
+    },
+    {
+      "label": "spacr.filters.column_name_for#1",
+      "source_sha256": "e638fd4bd080cdee4dad4fded3c98e2ca22c3eb1bf3a12ab22e7d387948e4c87",
+      "source": "The gate's own name, with anything that is not a letter, digit or underscore collapsed to an underscore. The name is what the user reads in both places, so it is kept recognisable rather than hashed.",
+      "context": "The data-selection boundary's own name, with anything that is not a letter, digit or underscore collapsed to an underscore. The name is what the user reads in both places, so it is kept recognisable rather than hashed.",
+      "translation": "Sjálft nafn gagnavalssviðsins, þar sem allt sem ekki er stafur, tölustafur eða undirstrik er sameinað undirstriki. Nafnið er það sem notandinn les á báðum stöðum, svo það er haldið auðþekkjanlegt frekar en að það sé dulritað."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.sets_from_paths#1",
+      "source_sha256": "37c7da212a93e47447fbdebc3dc376c93bf47f23c2b653106bd7e710aeb78305",
+      "source": "The Timelapse and Motility previews' sources are whole *folders* of frames or stacked arrays — one source already is one field of view, so there is nothing to group. They still want the cap and the reproducible draw, so they feed their own listing through here and share the sampler.",
+      "context": "The Timelapse and Motility previews' sources are whole *folders* of frames or stacked arrays — one source already is one field of view, so there is nothing to group. They still want the cap and the reproducible draw, so they feed their own listing through here and share the sampler.",
+      "translation": "Uppruni forskoðana Timelapse og Motility eru heilar *möppur* af rammum eða staflaðri fylki — einn uppspretta er þegar eitt sjónsvið, svo það er ekkert að flokka. Þeir vilja samt hattinn og endurgeranlega dráttinn, þannig að þeir mata eigin skráningu sína í gegnum þetta og deila sýnishorninu."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model#10",
+      "source_sha256": "2d1be3895fdc4dbbe6219a50ee44e2ce1ec44e3870980c1b2d43a4c6793dabff",
+      "source": "A column with **no** variation at all (mean absolute deviation zero too) is scored 0 everywhere and flagged nowhere. One value cannot be an outlier from itself.",
+      "context": "A column with **no** variation at all (mean absolute deviation zero too) is scored 0 everywhere and flagged nowhere. One value cannot be an outlier from itself.",
+      "translation": "Dálkur með **engin** aflögun alls (meðaltalsalgilt frávik einnig núll) fær 0 alls staðar og er ekki merktur neinstaðar. Einn gildis geta ekki verið útlag frá sjálfum sér."
+    },
+    {
+      "label": "spacr.deep_spacr.merge_predictions_into_db#1",
+      "source_sha256": "9cd91296e97b24457b544d60e5be47d6f368f06ba7451b6cee13dc4138249265",
+      "source": "Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, which is the one merge path Classify (CV) and Classify (ML) share. It used to be implemented here, keyed on ``basename(png_path)``, and collapsed repeated basenames with a plain ``dict`` assignment -- so a run over two source folders whose plates were both called ``plate1`` scored one plate with the other one's predictions and said nothing. The replacement keys on ``prcfo``, refuses a key that arrives with two different values instead of letting the last one win, counts every row it could not place, and runs in one transaction. See :mod:`spacr.predictions`.",
+      "context": "Thin wrapper over :func:`spacr.predictions.merge_cv_predictions`, which is the one merge path Classify (CV) and Classify (ML) share. It used to be implemented here, indexed by ``basename(png_path)``, and collapsed repeated basenames with a plain ``dict`` assignment -- so a processing session over two source folders whose laboratory microplates were both called ``plate1`` scored one laboratory microplate with the other one's predictions and said nothing. The replacement is indexed by ``prcfo``, refuses a structured-data name that arrives with two different values instead of letting the last one win, counts every row it could not place, and runs in one transaction. See :mod:`spacr.predictions`.",
+      "translation": "Þunnar umbúðir yfir :func:`spacr.predictions.merge_cv_predictions`, sem er sameiginlega samþættingarleiðin sem Classify (CV) og Classify (ML) deila. Það var áður útfært hér, skráð með ``basename(png_path)``, og samlagaði endurtekna grunnnafn með einfaldri ``dict`` úthlutun -- þannig að vinnslufundi yfir tveimur upprunalegum möppum þar sem rannsóknarstofa örplötur voru báðar kallaðar ``plate1`` gaf eina rannsóknarstofa örplötu með spár annarrar og sagði ekkert. Fyllingareiningin er skráð með ``prcfo``, hafnar nafn-grein sem kemur með tvær mismunandi gildi í staðinn fyrir að láta síðasta vinna, telur hverja röð sem hún gat ekki sett og keyrir í einni viðskiptaleysi. Sjá :mod:`spacr.predictions`."
+    },
+    {
+      "label": "spacr.crops.MergedField#1",
+      "source_sha256": "5a9e18a5f0b85569113ca98e5d7eb8c482980368c0346c67aaeef3140c406f61",
+      "source": "The array is opened with ``mmap_mode='r'``: cutting one object reads the object's mask plane once (cached) and then only the crop window, never the whole field. A 2048x2048x5 uint16 field is 40 MB; materialising it per object would make an on-demand grid slower than the PNG folder it replaces.",
+      "context": "The array is opened with ``mmap_mode='r'``: cutting one object reads the object's mask image layer once (cached) and then only the extracted image region window, never the whole microscope field of view. A 2048x2048x5 uint16 microscope field of view is 40 MB; materialising it per object would make an on-demand grid slower than the PNG folder it replaces.",
+      "translation": "Fylkið er opnað með ``mmap_mode='r'``: að skera einn hlut les lag myndarinnar sem táknar hlutarhlutinn einu sinni (skýmt) og síðan aðeins útdrættið myndarými glugga, aldrei allt smásjársviðið. Smásjársvið 2048x2048x5 uint16 er 40 MB; að materialísera það fyrir hvern hlut myndi gera beiðnirit ristina hægari en PNG möppuna sem hún kemur í staðinn."
+    },
+    {
+      "label": "spacr.qt.tutorial.engine#2",
+      "source_sha256": "9e4fcda7a23c67f193054e37680fb9f0bb17a561b9020096d46ffe5265db86c2",
+      "source": "1. Synthesize each Step's narration through Piper → WAV, know duration 2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080 3. Walk through the Steps, capturing a clean screenshot only when a scripted action changes the UI. Build 30 fps video frames from those cached keyframes while a circular focus marker animates to the target and a spotlight dims everything except the highlighted widget. A step can opt into live capture when the app itself is genuinely animated. 4. Concatenate all step WAVs → one audio track 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Emit matching .srt sidecar",
+      "context": "1. Synthesize each Step's narration through Piper → WAV, know duration 2. Spin up the MainWindow (on real DISPLAY or under Xvfb) at 1920x1080 3. Walk through the Steps, capturing a clean screenshot only when a scripted action changes the UI. Build 30 fps video frames from those cached keyframes while a circular focus marker animates to the target and a spotlight dims everything except the highlighted widget. A step can opt into live capture when the app itself is genuinely animated. 4. Concatenate all step WAVs → one audio track 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Emit matching .srt sidecar",
+      "translation": "1. Sameina frásögn hvers skrefs í gegnum Piper → WAV, vita lengd 2. Ræsdu MainWindow (á raunverulegu SKJÁ eða undir Xvfb) í 1920x1080 3. Fara í gegnum skrefin, taka hreina skjámynd aðeins þegar handritað aðgerð breytir UI. Búðu til 30 röframma á sekúndu myndskeið úr þeim geymdu lykilrammum á meðan hringlaga fókusmerki hreyfist að markinu og leitt ljós dregur úr birtu annars en á valið viðmótseiningu. Skref getur valið að taka lifandi upptöku þegar appið sjálft er raunverulega þróað. 4. Sameina öll skref WAV → í eina hljóðrás 5. `ffmpeg -framerate 30 -i frames/%06d.png -i audio.wav ... out.mp4` 6. Framleiða samsvarandi .srt aukaskrá"
+    },
+    {
+      "label": "spacr.filters.annotate_from_gates#1",
+      "source_sha256": "2eb4cbd2763e589b0065a5a23b388256f9ae79c575fe93b8ebbde10d38d98b68",
+      "source": "``binary`` 1 when the object is inside EVERY chosen gate, 0 otherwise. The intersection, because that is what \"annotate based on all the gates\" means when the answer has to be one column. ``multiclass`` one class per observed combination of memberships. Only combinations that actually occur become classes -- enumerating all 2^n would offer classes with no objects in them, which no classifier can learn and every class-balance report would then have to explain.",
+      "context": "``binary`` 1 when the object is inside EVERY chosen data-selection boundary, 0 otherwise. The intersection, because that is what \"annotate based on all the data-selection boundaries\" means when the answer has to be one column. ``multiclass`` one class per observed combination of memberships. Only combinations that actually occur become classes -- enumerating all 2^n would offer classes with no objects in them, which no machine-learning classification model can learn and every class-balance report would then have to explain.",
+      "translation": "``binary`` 1 þegar hluturinn er innan ALLRA valinna gagna-valsvæða, 0 annars. Skurðurinn, vegna þess að það er það sem „merkja miðað við öll gagna-valsvæði“ þýðir þegar svarið þarf að vera í einni dálki. ``multiclass`` ein flokkun fyrir hverja staðfesta samsetningu aðildar. Aðeins þær samsetningar sem raunverulega eiga sér stað verða að flokkum – að telja upp öll 2^n myndi bjóða upp á flokka með engum hlutum í þeim, sem engin vélarnáms flokkunarlíkan getur lært og hvert skýrsla um jafnvægi flokka þyrfti þá að útskýra."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_pdf_to_image#1",
+      "source_sha256": "770aac2fb00306abff4e131547fcd6f1696fccd5b7eaa894522e8e5cbc322389",
+      "source": "Touches no widget and builds no ``QPixmap`` — both are GUI-thread-only — so this is SAFE TO CALL FROM A WORKER THREAD, which is the entire point. The caller turns the returned QImage into a QPixmap on the GUI thread.",
+      "context": "Touches no widget and builds no ``QPixmap`` — both are allowed only in the main GUI execution path — so this is SAFE TO CALL FROM A background execution unit, which is the entire point. The caller turns the returned QImage into a QPixmap on the main GUI execution path.",
+      "translation": "Snertir ekki neitt smáforrit og byggir ekki ``QPixmap`` — bæði eru leyfð aðeins í aðal GUI framkvæmdarleið — svo þetta er ÖRUGGT AÐ KALLA FRÁ bakgrunnsframmkvæmdareiningu, sem er allt markmiðið. Kallari breytir skilaða QImage í QPixmap á aðal GUI framkvæmdarleið."
+    },
+    {
+      "label": "spacr.qt.ingest_preview.plan_container_extraction#1",
+      "source_sha256": "3c265c2b6cdd147b2c7296bb553a4574d8029beb9640b30579488961c96ddedd",
+      "source": "Mirrors :func:`spacr.io.convert_to_yokogawa`: a single container file is assigned one well, and its fields / channels / timepoints become the ``F`` / ``C`` / ``T`` indices of the generated TIFFs. Z-slices are max-projected (MIP) by the converter, so they are *not* enumerated here.",
+      "context": "Mirrors :func:`spacr.io.convert_to_yokogawa`: a single container file is assigned one microplate sample position, and its microscope fields of view / channels / timepoints become the ``F`` / ``C`` / ``T`` indices of the generated TIFFs. Z-slices are max-projected (MIP) by the converter, so they are *not* enumerated here.",
+      "translation": "Speglar :func:`spacr.io.convert_to_yokogawa`: einum ílátsskrá er úthlutað einum sýnisstað á örplatunni, og smásjársviðin / rásirnar / tímabilin verða ``F`` / ``C`` / ``T`` vísitölur af framleiddum TIFFs. Z-lögum er raðað saman með hámarksverkefni (MIP) af umbreytaranum, svo þau eru *ekki* talin upp hér."
+    },
+    {
+      "label": "spacr.errors.ConfigurationError#1",
+      "source_sha256": "2ad5b6457f90379afc75a1214c35e7065388d78031542714674152ef9dc8f9cf",
+      "source": "A missing ``src`` folder, an unparseable regex, a metadata column that does not exist. These are *not* per-item failures: continuing past one produces garbage for every item, so :meth:`RunLedger.item` re-raises this instead of recording it.",
+      "context": "A missing ``src`` folder, an unparseable regex, a metadata column that does not exist. These are *not* per-item failures: continuing past one produces garbage for every item, so :meth:`RunLedger.item` throws this same exception again instead of recording it.",
+      "translation": "Vantar ``src`` möppu, óleysanlegt reglulegt tjáning, gagnamál dálkur sem er ekki til. Þetta eru *ekki* mistök á hverja einingu: að halda áfram eftir eitt framkallar rusl fyrir hverja einingu, svo :meth:`RunLedger.item` kastar þessari sömu undantekningu aftur í stað þess að skrá hana."
+    },
+    {
+      "label": "spacr.active_learning.record_labels#1",
+      "source_sha256": "015a546b7de279330f4043653e1dc2acd53700a96c1e1d5d17e7b2db911f7e9c",
+      "source": "Called by the Annotate screen every time it flushes a batch. The round a label came from is what makes early-round bias auditable: the first round's labels are drawn from whatever ordering existed before any model had seen this screen, and if 80 % of a class's labels carry round 0 then the \"active learning\" was mostly not active.",
+      "context": "Called by the Annotate application view every time it flushes a batch. The round a label came from is what makes early-round bias auditable: the first round's labels are drawn from whatever ordering existed before any model had seen this application view, and if 80 % of a class's labels carry round 0 then the \"active learning\" was mostly not active.",
+      "translation": "Kallað af Annotate-forritinu þegar það hreinsar hóp af gögn. Hver umferð merktanna kom frá gerir byrjunarumferðarskekkju endurskoðanlega: Merki fyrstu umferðar eru dregin úr hvaða röð sem var áður en einhver líkan hafði séð þessa forritssýningu, og ef 80 % merkja flokks búa til umferð 0 þá var \"active learning\" að mestu leyti ekki virkt."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_builder.sequential_colours#0",
+      "source_sha256": "288ce4ed4d4514164e3d3122d2d3a1f9d50dd83aabc404317b7b14868b127226",
+      "source": "The single-hue magnitude ramp for the active theme, light → dark.",
+      "context": "The single-hue magnitude ramp for the active theme, light → dark.",
+      "translation": "Einhverfu litastigastigi fyrir virka þemað, ljós → dökk."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_editor.GateEditorPanel.publish#4",
+      "source_sha256": "18f177cbe74d0689cc81f494d7449c9e14ada9c744d9f1ea8b5564b1ed9b66fb",
+      "source": "That is a SELECTION, not a filter, and the distinction already exists: `link.set_selection` rings rows and keeps every one of them on screen, while `link.set_filter` removes them. The Graph Builder's own test states both behaviours side by side. Switching this to a selection is what makes the axes stop moving for the right reason, rather than because rescaling was suppressed.",
+      "context": "That is a SELECTION, not a filter, and the distinction already exists: `link.set_selection` rings rows and keeps every one of them on application view, while `link.set_filter` removes them. The Graph Builder's own test states both behaviours side by side. Switching this to a selection is what makes the axes stop moving for the right reason, rather than because rescaling was suppressed.",
+      "translation": "Það er VAL, ekki síu, og munurinn er þegar til: `link.set_selection` raðar röðum og heldur hverri þeirra sýnilegri í forritinu, á meðan `link.set_filter` fjarlægir þau. Eigin próf Graph Builder sýnir bæði hegðunina hlið við hlið. Að breyta þessu í valkost er það sem fær ásana til að hætta að hreyfast af réttum ástæðum, frekar en vegna þess að endurmæling var bæld."
+    },
+    {
+      "label": "spacr.qt.hf_download#3",
+      "source_sha256": "fb3463e414ea360890f7a39936a382f0d4293a9d31933324664fda82a3243d74",
+      "source": "The classic Tk downloader in :mod:`spacr.gui_utils` uses a queue- based background thread. This module reimplements the same behaviour using Qt's threading + signals so the Qt GUI doesn't need to spin up a Tk mainloop just to see download progress.",
+      "context": "The classic Tk downloader in :mod:`spacr.gui_utils` uses a work-list-based background execution unit. This module reimplements the same behaviour using Qt's execution concurrency + signals so the Qt GUI doesn't need to spin up a Tk mainloop just to see download progress.",
+      "translation": "Hin klassíska Tk niðurhala í :mod:`spacr.gui_utils` notar vinnulista-bundna bakgrunnseiningu. Þessi eining endurhugbúar sömu hegðun með Qt framkvæmdasamkeppni + merkjum svo að Qt GUI þurfi ekki að ræsa Tk aðallykkju bara til að sjá framvindu niðurhals."
+    },
+    {
+      "label": "spacr.hits#6",
+      "source_sha256": "316d7b195e2e8c85bc16de147b6790e7512adfe434229de20765217968e631f0",
+      "source": "**One row per gene. Enforced, not assumed.** The bundled ``toxoplasma_metadata.csv`` lists a gene once per transcript: 30 Gene IDs repeat between 2 and 32 times. Joined as-is, those genes came back two to thirty-two times and every consumer counted each copy as an independent hit. :func:`load_gene_metadata` collapses the annotation to one row per gene *before* the join and says how many rows it dropped, and :func:`join_metadata` asks pandas to ``validate=\"many_to_one\"`` so a future annotation file that breaks the assumption fails loudly instead of silently multiplying the hits. :func:`build_hit_list` asserts the same invariant on its own output.",
+      "context": "**One row per gene. Enforced, not assumed.** The bundled ``toxoplasma_metadata.csv`` lists a gene once per transcript: 30 Gene IDs repeat between 2 and 32 times. Joined as-is, those genes came back two to thirty-two times and every consumer counted each copy as an independent hit. :func:`load_gene_metadata` collapses the annotation to one row per gene *before* the join and says how many rows it dropped, and :func:`join_metadata` asks pandas to ``validate=\"many_to_one\"`` so a future annotation file that breaks the assumption fails loudly instead of silently multiplying the hits. :func:`build_hit_list` asserts the same invariant on its own output.",
+      "translation": "**Einn röð á gen. Framkvæmt, ekki gert ráð fyrir.** Bundna ``toxoplasma_metadata.csv`` listar genið einu sinni fyrir hverja umritun: 30 genanámskenni endurtaka sig á bilinu 2 til 32 sinnum. Þegar sameinað var eins og það var, komu þessi gen aftur tvö til þrjátíu og tvö sinnum og hver notandi taldi hverja eintak sem sjálfstaka skráningu. :func:`load_gene_metadata` sameinar skráninguna í eina röð á gen *fyrir* sameininguna og segir hversu margar raðir voru fjarlægðar, og :func:`join_metadata` biður pandas um ``validate=\"many_to_one\"`` svo framtíðar skráningarskrá sem brýtur þessa forsendu mistakist háværlega í stað þess að margfalda skráningarnar hljóðlaust. :func:`build_hit_list` staðfestir sama ósveigjanlega regluna á eigin úttaki."
+    },
+    {
+      "label": "spacr.model_compare.ModelConfig#1",
+      "source_sha256": "f9362a8709630c63476a675513dab3462e1e6c4003023660ab12adf8f53b610e",
+      "source": "Only the fields below and the honoured keys of :attr:`extra` reach ``CellposeModel.eval``. Anything in :attr:`extra` that Cellpose 4 ignores is kept, reported and *not* passed on, so it shows up in the report as the no-op it is instead of quietly making two runs look identical.",
+      "context": "Only the fields below and the honoured structured-data names of :attr:`extra` reach ``CellposeModel.eval``. Anything in :attr:`extra` that Cellpose 4 ignores is kept, reported and *not* passed on, so it shows up in the report as the no-op it is instead of quietly making two runs look identical.",
+      "translation": "Aðeins reitirnir hér að neðan og virðulegu nöfnin á uppbyggðum gögnum :attr:`extra` ná til ``CellposeModel.eval``. Allt í :attr:`extra` sem Cellpose 4 hunsar er varðveitt, skráð og *ekki* áfram sent, þannig að það kemur fram í skýrslunni sem engin aðgerð sem það er í stað þess að láta tvo keyrslur líta út eins án þess að segja frá."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.Ctx.apply_theme#2",
+      "source_sha256": "c1b2518edd6ff9556d8353fa1044a74d6fb3abf8fc116a22aac2b1431aa432f9",
+      "source": "A stylesheet set on a widget cascades to its children, so styling the root being rendered is equivalent for our purposes and touches nothing else. The application-wide path is used only when bootstrap() created the application, i.e. in the standalone generator.",
+      "context": "A stylesheet set on a widget cascades to its children, so styling the root being rendered is equivalent for our purposes and touches nothing else. The application-wide path is used only when bootstrap() created the application, i.e. in the standalone generator.",
+      "translation": "Stílsnið sett á viðmótsefni flæðir niður til barna þess, svo stíll á rót sem er renderaður er jafngildur fyrir okkar tilgangi og snertir ekkert annað. Helsti leiðin til forritsins er aðeins notuð þegar bootstrap() bjó til forritið, þ.e. í sjálfstæða framleiðanda."
+    }
+  ]
+}

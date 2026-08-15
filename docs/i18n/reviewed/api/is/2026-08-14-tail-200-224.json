@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.omero.format_map_value#0",
+      "source_sha256": "0af13cc92f6cae8773a6c04bbcc2eed68a95f13844b0d52044289d89f086e87a",
+      "source": "Render ``value`` as the **string** an OMERO map annotation stores.",
+      "context": "Render ``value`` as the **string** an OMERO map annotation stores.",
+      "translation": "Sýndu ``value`` sem **streng** sem OMERO kortamerking geymir."
+    },
+    {
+      "label": "spacr.train_compare#11",
+      "source_sha256": "928294cfbe1d1ac93579b210d3d17eb44ec83b448518be0ab2c3ef991945952f",
+      "source": "**k-fold runs keep their folds.** ``folds='per_fold'`` (the default) draws every fold; ``folds='mean'`` draws the fold mean with a ±1 sd band and labels it ``mean of k folds ±sd``; ``folds='both'`` draws both. A mean curve rendered as if it were a single run hides precisely the fold-to-fold variance k-fold was added to expose — and because folds can stop at different epochs (early stopping), the mean carries an ``n_folds`` column so a tail computed from two of five folds is visible rather than implied.",
+      "context": "**k-fold runs keep their folds.** ``folds='per_fold'`` (the default) draws every fold; ``folds='mean'`` draws the fold mean with a ±1 sd band and labels it ``mean of k folds ±sd``; ``folds='both'`` draws both. A mean curve rendered as if it were a single run hides precisely the fold-to-fold variance k-fold was added to expose — and because folds can stop at different epochs (early stopping), the mean carries an ``n_folds`` column so a tail computed from two of five folds is visible rather than implied.",
+      "translation": "**K-falda keyrslur halda faldunum sínum.** ``folds='per_fold'`` (sjálfgefið) teiknar alla faldas; ``folds='mean'`` teiknar meðalfalda með ±1 staðalfrávik bandi og merkir það ``mean of k folds ±sd``; ``folds='both'`` teiknar bæði. Meðal-lúna sem sýnd er eins og hún væri ein keyrsla leynir nákvæmlega þeim breytileika milli falda sem k-falda var bætt við til að sýna — og vegna þess að faldar geta hætt á mismunandi tímamótum (snemmhætting), inniheldur meðal-tálinn ``n_folds`` dálk svo aftantesla reiknuð úr tveimur af fimm földum sjáist frekar en aðeins gefist í skyn."
+    },
+    {
+      "label": "spacr.qt.screens.agreement#1",
+      "source_sha256": "0018d72fb1aea1a213642e301c5711871998c86c227555b57ea0e2116ce16df6",
+      "source": "The Annotate app writes one ``INTEGER`` column per pass into ``png_list``. Two people labelling the same crops therefore leave two columns side by side, and the only question that matters before either set is used as ground truth is: *do they agree, and where don't they?*",
+      "context": "The Annotate app writes one ``INTEGER`` column per pass into ``png_list``. Two people labelling the same extracted image regions therefore leave two columns side by side, and the only question that matters before either set is used as ground truth is: *do they agree, and where don't they?*",
+      "translation": "Forritið Annotate skrifar eina ``INTEGER`` dálk á hverja umferð í ``png_list``. Því skilja tveir einstaklingar sem merkja sömu útdrættu myndasvæðin eftir tvo dálka hlið við hlið, og eina spurningin sem skiptir máli áður en annað settið er notað sem raunverulegur sannleikur er: *eru þeir sammála, og hvar gera þau það ekki?*"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.candidate_concentration_columns#2",
+      "source_sha256": "74432707126cc6bc796af2a37bd1cb9545d9b79ad72022fcd32424c86efad94e",
+      "source": "Note what is *not* required: :data:`~spacr.qt.widgets.graph_spec. CONTINUOUS`. The shared classifier calls a low-cardinality numeric column categorical, which is the right call for ``cell_count`` and the wrong one here — an eight-point dilution series has exactly eight levels *by design*, so the classifier's own rule would hide every concentration column in the project. The classifier is still what excludes object keys and free text (:data:`~spacr.qt.widgets.graph_spec.UNPLOTTABLE`), which is the part of its judgement that transfers; the continuous/categorical split is simply not the cut a dose column falls on.",
+      "context": "Note what is *not* required: :data:`~spacr.qt.widgets.graph_spec. CONTINUOUS`. The shared machine-learning classification model calls a low-cardinality numeric column categorical, which is the right call for ``cell_count`` and the wrong one here — an eight-point dilution series has exactly eight levels *by design*, so the machine-learning classification model's own rule would hide every concentration column in the project. The machine-learning classification model is still what excludes object identifiers and free text (:data:`~spacr.qt.widgets.graph_spec.UNPLOTTABLE`), which is the part of its judgement that transfers; the continuous/categorical split is simply not the cut a dose column falls on.",
+      "translation": "Taktu eftir því hvað er *ekki* krafist: :data:`~spacr.qt.widgets.graph_spec. CONTINUOUS`. Sameiginlegi vélanámstýpuflokkunarlíkanið kallar lággildi tölugrein flokkun, sem er rétt ákvörðun fyrir ``cell_count`` og röng hér — átta þynningarröð hefur nákvæmlega átta stig *eftir hönnun*, þannig að reglan sjálf hjá vélanámstýpuflokkunarlíkaninu myndi fela allar styrkleikagreinarnar í verkefninu. Vélanámstýpuflokkunarlíkaninu er enn um það bil að útiloka hlutagrunnanatæki og frjálsa texta (:data:`~spacr.qt.widgets.graph_spec.UNPLOTTABLE`), sem er sú ákvörðun þess sem flyst; skiptingin í samfellda/flokkaða er einfaldlega ekki sú sem skammtaröðin lendir á."
+    },
+    {
+      "label": "spacr.qt.screens.annotate.on_dark_theme#1",
+      "source_sha256": "517886aa1a18fd89d4f36b4a6cb0aa9b796b19f72ed9001e1c17a1b3b07a021c",
+      "source": "The Annotate grid paints raw colours rather than being QSS-styled, so it resolves this itself -- see :func:`tile_palette`, which does the same for the tile chrome.",
+      "context": "The Annotate grid paints raw colours rather than being QSS-styled, so it resolves this itself -- see :func:`tile_palette`, which does the same for the tile chrome.",
+      "translation": "Annotate-grindin málar hráa liti frekar en að vera QSS-stíluð, svo hún leysir þetta sjálf -- sjá :func:`tile_palette`, sem gerir það sama fyrir flísakrómann."
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation#5",
+      "source_sha256": "1b3ba02312a2bd2d9c95a849ddc1ca54018734b751f47c109e6c350801abad90",
+      "source": "And before either: where did the errors come from. A cell broken down per well and per plate answers the question that makes re-labelling worth doing at all — 43 errors from 20 wells is the model's problem, 43 errors from one well is the bench's.",
+      "context": "And before either: where did the errors come from. A cell broken down per microplate sample position and per laboratory microplate answers the question that makes re-labelling worth doing at all — 43 errors from 20 microplate sample positions is the model's problem, 43 errors from one microplate sample position is the bench's.",
+      "translation": "Og áður en annað: hvaðan komu villurnar. Fruma sem brotnar niður eftir sýnisstöðu á örplötu og eftir örplötu á rannsóknarstofu svarar spurningunni sem gerir endurnefningu þess virði yfirhöfuð — 43 villur frá 20 sýnisstöðum á örplötu eru vandamál líkansins, 43 villur frá einum sýnisstað á örplötu eru vandamál við borðið."
+    },
+    {
+      "label": "spacr.crops.MergedCropSource.get_array#1",
+      "source_sha256": "0d2a77cc38b9d4e279376bad830b2cdb2aa233d142df3b0fa44b17a7f5d42ef7",
+      "source": "a measurement row; :meth:`spec_for` says which fields it has to carry. What comes back is the *pre-write* array -- the merged file's dtype (``uint16`` on a normal run) and as many channels as the spec selects -- not 8-bit RGB. Use :meth:`get` for something a viewer or a classifier can take.",
+      "context": "a measurement row; :meth:`spec_for` says which microscope fields of view it has to carry. What comes back is the *pre-write* array -- the merged file's dtype (``uint16`` on a normal run) and as many image data channels as the spec selects -- not 8-bit RGB. Use :meth:`get` for something a viewer or a machine-learning classification model can take.",
+      "translation": "mælingarröð; :meth:`spec_for` segir hvaða smásjársvið það þarf að bera. Það sem kemur til baka er *forritunarfyrir* fylkið -- dgerð sameinaða skráarsins (``uint16`` við venjulegan keyrslu) og eins margar myndagögnrásir og tilgreiningin velur -- ekki 8-bita RGB. Notaðu :meth:`get` fyrir eitthvað sem áhorfandi eða vélarnáms flokkunarlíkan getur tekið."
+    },
+    {
+      "label": "spacr.hits.load_gene_metadata#1",
+      "source_sha256": "c3aed787e4b9b6a22137f3e59f94b3cf99a5e8dc01d590df9a34e15e56ba8b7b",
+      "source": "A curated export lists a gene once per transcript. The bundled ``toxoplasma_metadata.csv`` repeats 30 Gene IDs between 2 and 32 times, each copy carrying a different protein length and GO-term set. Joined as-is, every one of those genes multiplies in the results — which is a hit list that counts the same gene as up to 32 independent findings.",
+      "context": "A curated export lists a gene once per transcript. The bundled ``toxoplasma_metadata.csv`` repeats 30 Gene IDs between 2 and 32 times, each copy carrying a different protein length and GO-term set. Joined as-is, every one of those genes multiplies in the results — which is a hit list that counts the same gene as up to 32 independent findings.",
+      "translation": "Úrval útflutnings listar gen eitt sinn fyrir hverja umritun. Einingin ``toxoplasma_metadata.csv`` endurtekur 30 genanúmer á milli 2 og 32 sinnum, hver eintak ber mismunandi prótínlengd og GO-orðasett. Ef sameinað eins og það er, fjölgar hvert af þessum genum í niðurstöðunum — sem er skotlisti sem telur sama gen upp að 32 sinnum sem sjálfstæðar niðurstöður."
+    },
+    {
+      "label": "spacr.qt.i18n_module_summaries_other#1",
+      "source_sha256": "de698abe380f1c33284e5a3b7666452c929dce80ba567a750dd9b05e08349c4e",
+      "source": "The keys mirror the built-in rows in :data:`spacr.qt.app.APPS`. Keeping these longer scientific descriptions in a dedicated catalog makes them easier for fluent speakers to review without mixing them into the general UI catalog.",
+      "context": "The structured-data names mirror the built-in rows in :data:`spacr.qt.app.APPS`. Keeping these longer scientific descriptions in a dedicated catalog makes them easier for fluent speakers to review without mixing them into the general UI catalog.",
+      "translation": "Nöfnin í uppbyggðum gögnum endurspegla innbyggðu raðirnar í :data:`spacr.qt.app.APPS`. Að halda þessum lengri vísindalegu lýsingum í sérstökum skráarsafni gerir þeim auðveldara fyrir reynda notendur að fara yfir þær án þess að blanda þeim inn í almenna UI skráarsafnið."
+    },
+    {
+      "label": "spacr.feature_dict.FeatureEntry#12",
+      "source_sha256": "5b20ee942f14afc1e76443c7ae90f57c47f22cdc0ce79c2cb42b43ba62486db4",
+      "source": "The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` key this column resolved through — the *feature*, as opposed to this one instantiation of it. ``None`` for an unrecognised column.",
+      "context": "The curated :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` structured-data name this column resolved through — the *feature*, as opposed to this one instantiation of it. ``None`` for an unrecognised column.",
+      "translation": "Heimfærða :data:`KNOWN_PROPERTIES` / :data:`META_COLUMNS` uppbyggða gagnanafninu í þessari dálk leyst í gegnum — *eiginleikann*, í stað þessarar einingar hans. ``None`` fyrir óþekkta dálk."
+    },
+    {
+      "label": "spacr.qt.screens.outliers#7",
+      "source_sha256": "2f47dd4e281264ebdb55c04c5df7fa74fc6149740a68fadc9cb48d91cb50e93e",
+      "source": "The **Objects** tab is the per-object flags; the **Wells** tab is the across-well pass. They are separate tabs rather than one merged view because they answer different questions and routinely disagree: a well shifted as a whole flags almost none of its individual objects and is nevertheless the loudest point among wells. The engine's ``report()`` is shown verbatim in the third tab, caveats included — the share flagged is not interpretable without the sentence saying whether a symmetric fence on skewed data produced it.",
+      "context": "The **Objects** tab is the per-object flags; the **Microplate sample positions** tab is the across-well pass. They are separate tabs rather than one merged view because they answer different questions and routinely disagree: a well shifted as a whole flags almost none of its individual objects and is nevertheless the loudest point among microplate sample positions. The engine's ``report()`` is shown verbatim in the third tab, caveats included — the share flagged is not interpretable without the sentence saying whether a symmetric fence on skewed data produced it.",
+      "translation": "Flipa **Objects** sýnir fánana fyrir hvert hlut; flipa **Microplate sample positions** sýnir flæði yfir öll holin. Þær eru aðskildar flipar í stað þess að vera sameinaður útsýni því þær svara mismunandi spurningum og eru gjarnan ósammála: hola sem hvolfað er sem heild flaggar næstum engum einstaklingshlutum sínum en er engu að síður háværasti punkturinn meðal sýninga á microplate-stökum hlutum. Vélin ``report()`` er sýnd orðrétt á þriðja flipanum, með fyrirvara — hver hluti flaggaður er túlkunarlaus án setningar sem segir hvort samhverfur girðing á skakkaðri gögn hafi framkallað það."
+    },
+    {
+      "label": "spacr.qt.screens.dose_response#5",
+      "source_sha256": "e157315e560f481916c5553c82f3b654284faad463ade47c9467e245d0461088",
+      "source": "**The fit runs off the GUI thread** through :class:`spacr.qt.job_runner.JobRunner`, like every other read and compute in the Qt layer. A profile-likelihood interval on a 96-compound plate is seconds, not milliseconds, and ``threaded=False`` runs the identical code inline so a test drives the same path the shipped screen does.",
+      "context": "**The fit runs off the main GUI execution path** through :class:`spacr.qt.job_runner.JobRunner`, like every other read and compute in the Qt layer. A profile-likelihood interval on a 96-compound laboratory microplate is seconds, not milliseconds, and ``threaded=False`` runs the identical code inline so a test drives the same path the shipped application view does.",
+      "translation": "**Framkvæmdin fer af aðal GUI framkvæmdarleið** í gegnum :class:`spacr.qt.job_runner.JobRunner`, eins og allt annað lestur og útreikningur í Qt laginu. Þekju-líkinda bilið á 96-sambandshátt smáskiefu í tilraunastofu er sekúndur, ekki millisekúndur, og ``threaded=False`` keyrir nákvæmlega sama kóða innlínulega þannig að próf keyrir sömu leið og sýnilega forritið sem sent var út gerir."
+    },
+    {
+      "label": "spacr.qt.bridge.prune_job_pairs#2",
+      "source_sha256": "ae203c5f1954fd93f74eef4d3436e1b569cebfb6e29653d8a1b1598347c62828",
+      "source": "The slot is queued onto the GUI thread, so it runs *after* the OS thread has gone. ``make_thread`` also wires ``thread.finished -> thread.deleteLater``, and the same pump that delivers this call flushes that deferred delete first — so ``isRunning()`` raises ``RuntimeError: Internal C++ object already deleted`` from inside a Qt slot. The list comprehension never completes and **every** pair is retained, forever, along with its worker.",
+      "context": "The slot is queued onto the main GUI execution path, so it executes *after* the OS independent execution path has gone. ``make_thread`` also wires ``thread.finished -> thread.deleteLater``, and the same pump that delivers this call flushes that deferred delete first — so ``isRunning()`` raises ``RuntimeError: Internal C++ object already deleted`` from inside a Qt slot. The list comprehension never completes and **every** pair is retained, forever, along with its worker.",
+      "translation": "Raufin er raðað inn á aðal GUI framkvæmdarleið, svo hún framkvæmist *eftir* að stýrikerfisóháða framkvæmdarleiðin hefur farið. ``make_thread`` tengir einnig ``thread.finished -> thread.deleteLater``, og sama dælan sem sendir þetta kall hreinsar þá sjálfgefið brottfar fyrst — svo ``isRunning()`` kallar á ``RuntimeError: Internal C++ object already deleted`` innan Qt raftar. Listasamsetningin lýkur aldrei og **hverjum** pörum er haldið, að eilífu, ásamt vinnumanni sínum."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.SourceDropHandler#1",
+      "source_sha256": "5516204b11aefbe7c4777ad01a3d0c03c1697ac1a52fcac26958739fed398c59",
+      "source": "Every standard :class:`AppScreen` has a ``src`` field. Accepting a real directory here gives newer and less-specialised modules drag-and-drop support automatically instead of requiring a registry edit for every screen. A dropped file is only accepted for known data extensions and is normalised to its containing directory.",
+      "context": "Every standard :class:`AppScreen` has a ``src`` field. Accepting a real directory here gives newer and less-specialised modules drag-and-drop support automatically instead of requiring a registry edit for every application view. A dropped file is only accepted for known data extensions and is normalised to its containing directory.",
+      "translation": "Hver staðall :class:`AppScreen` hefur ``src`` reit. Að samþykkja raunverulegan möppu hér gefur nýrri og minna sérhæfðum einingum draga-og-sleppa stuðning sjálfkrafa í stað þess að krefjast breytinga í skráarskrá fyrir hvert forritaug. Höggið skrá er aðeins samþykkt fyrir þekkt gögnendingar og er stöðulssett í möppu sem hún tilheyrir."
+    },
+    {
+      "label": "spacr.io.TarImageDataset#1",
+      "source_sha256": "7b3f2b93286eb1f83145b218281b83228a7c5243431cb2a377647033d23262c3",
+      "source": "A tar written by :func:`generate_dataset` from on-demand crops carries a ``.spacr_crop_format.json`` member -- the same marker :mod:`spacr.crops` writes into a crop folder, travelling with the bytes it describes. It is **not** an image, so it is excluded from the sample list and surfaced as :attr:`crop_format` instead; an archive without one reports None, which is every tar written before this existed.",
+      "context": "A tar written by :func:`generate_dataset` from on-demand extracted image regions carries a ``.spacr_crop_format.json`` member -- the same marker :mod:`spacr.crops` writes into an extracted image region folder, travelling with the bytes it describes. It is **not** an image, so it is excluded from the sample list and surfaced as :attr:`crop_format` instead; an archive without one reports None, which is every tar written before this existed.",
+      "translation": "Tar-skrá skrifuð af :func:`generate_dataset` úr eftirspurnardregnum myndasvæðum ber með sér ``.spacr_crop_format.json`` meðlim -- sami merki :mod:`spacr.crops` skrifar inn í möppu fyrir dregin myndasvæði, ferðast með byte-um sem hún lýsir. Hún er **ekki** mynd, svo hún er undanskilin úr sýnisskránni og birt sem :attr:`crop_format` í staðinn; skjalasafn án hennar skráir None, sem er hver tar-skrá sem skrifuð var áður en þetta til var."
+    },
+    {
+      "label": "spacr.organelle_types#3",
+      "source_sha256": "621ddd56d2f8e2995908f07bbc3c3978e6871589ceb1f9117152a9ca263b6dc1",
+      "source": "'spots'      punctate (vesicles, lipid droplets) 'network'    filamentous (mitochondria, ER tubules) 'irregular'  solid blobby (Golgi, lysosomes) 'ring'       hollow (endosomes, autophagosomes)",
+      "context": "'spots'      punctate (vesicles, lipid droplets) 'network'    filamentous (mitochondria, ER tubules) 'irregular'  solid blobby (Golgi, lysosomes) 'ring'       hollow (endosomes, autophagosomes)",
+      "translation": "'spots' punktótt (bólur, fitudropar) 'network' þræðilaga (hvatberar, ER píplur) 'irregular' fast og klumpótt (Golgi, leysibólur) 'ring' hol (endósóm, sjálfsátsbólu)"
+    },
+    {
+      "label": "spacr.surrogate#9",
+      "source_sha256": "ee8387fd08827210034fd9a21ec21393479df49bb36babad51cd9f717a7f4cf0",
+      "source": "**The join goes through ``png_list``.** A CV model keys on the crop it scored; the features key on the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
+      "context": "**The join goes through ``png_list``.** A CV model is indexed by the extracted image region it scored; the features are indexed by the object. ``png_list`` is the only table that holds both, so it is the bridge — and joining on ``png_path`` alone is not enough, because a path is not stable across machines.",
+      "translation": "**Samanlagningin fer í gegnum ``png_list``.** CV-líkan er skráð með því svæði myndarinnar sem það fékk stig fyrir; eiginleikarnir eru skráðir með hlutnum. ``png_list`` er eini tafla sem heldur bæði, svo hún er brúin — og að sameina aðeins á ``png_path`` er ekki nóg, því slóðin er ekki stöðug milli véla."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#4",
+      "source_sha256": "f0ec947f2f5a5581ed380d566d18f0aa4ea7f933af28047b3a7d9877d7548daf",
+      "source": "long-form per-epoch metrics with identity columns ``run_id``, ``split``, ``fold`` and ``epoch``, one row per logged epoch. Empty (with the identity columns present) when the run logged nothing.",
+      "context": "long-form per-epoch metrics with identity columns ``run_id``, ``split``, ``fold`` and ``epoch``, one row per logged epoch. Empty (with the identity columns present) when the run logged nothing.",
+      "translation": "Langformaðar mælikvarðar fyrir hverja lotu með auðkennisdálkum ``run_id``, ``split``, ``fold`` og ``epoch``, einn röð fyrir hverja skráða lotu. Tóm (með auðkennisdálkunum til staðar) þegar keyrsla skráði ekkert."
+    },
+    {
+      "label": "spacr.model_zoo.default_local_roots#1",
+      "source_sha256": "13db91cf82b5c398f593023beb05c288c73fe0a4a7bd11c72c4ca058c02d2a40",
+      "source": "The bundled pack, the Cellpose user folder, and spaCR's own model cache. Only the ones that exist come back.",
+      "context": "The bundled pack, the Cellpose user folder, and spaCR's own model cache. Only the ones that exist come back.",
+      "translation": "Pakkinn sem fylgir, Cellpose notendamöppan og eigin módelcachið hjá spaCR. Aðeins þau sem eru til koma aftur."
+    },
+    {
+      "label": "spacr.resume.SettingsComparison#1",
+      "source_sha256": "979b8ec322ce6ee55cf08a3fa46d3087c8aa17ba5da19fc268a9c2ab6b88ca17",
+      "source": "Bucketed by *consequence*, not by key, following the same reasoning as :func:`spacr.run_journal.diff_runs`: a flat dict diff of two runs is mostly schema noise, and the one change that matters drowns in it.",
+      "context": "Bucketed by *consequence*, not by structured-data name, following the same reasoning as :func:`spacr.run_journal.diff_runs`: a flat key-value mapping diff of two runs is mostly schema noise, and the one change that matters drowns in it.",
+      "translation": "Flokkað eftir *afleiðingu*, ekki eftir nafni uppbyggðra gagna, í samræmi við sama röksemdafærsla og :func:`spacr.run_journal.diff_runs`: flöt lyklagildis kortadiff tveggja keyrslna er mest skemmun á skema, og ein breytingin sem skiptir máli drukknar í henni."
+    },
+    {
+      "label": "spacr.plate_qc.detect_edge_effect#3",
+      "source_sha256": "e9e793f5ce2ea7e42afabdbed9c9e56247a47e47dffbef0b9bd59d5ceb4ebcba",
+      "source": "The ring-by-ring profile then walks inward, comparing each ring against the plate core (depth >= ``core_depth``), because evaporation reaches past the outermost well and a single outer-vs-rest test would average that away.",
+      "context": "The ring-by-ring profile then walks inward, comparing each ring against the laboratory microplate core (depth >= ``core_depth``), because evaporation reaches past the outermost well and a single outer-vs-rest test would average that away.",
+      "translation": "Kringlan á móti kringleprófílinn gengur þá inn á við og ber hverja kringu saman við kjarna rannsóknarstofu örplötu (dýpt >= ``core_depth``), því uppgufun nær framhjá ysta holunni og ein ysta-með-rest próf myndi meðaltali það út."
+    },
+    {
+      "label": "spacr.qt.screens.dose_response.register#3",
+      "source_sha256": "487e6bd7ca8645d18573adb546d64467976d0033b1216b910de3e8e797700b89",
+      "source": "``SECTION_DESIGN``, which is not the obvious answer and is the right one. Design is \"everything that happens before the microscope: power, sample size, plate layout, controls and replicates\", and it already holds Power / Design. A dose–response series is the *other* pre-experiment calculation a screening lab runs: nobody fits an EC50 to admire it, they fit it to pick the concentration the actual screen will use, exactly as they run a power calculation to pick n. The output of this screen is an input to the next experiment, which is what the section means.",
+      "context": "``SECTION_DESIGN``, which is not the obvious answer and is the right one. Design is \"everything that happens before the microscope: statistical detection sensitivity, sample size, laboratory microplate layout, controls and replicates\", and it already holds statistical detection sensitivity / Design. A dose–response series is the *other* pre-experiment calculation a screening lab runs: nobody fits an EC50 to admire it, they fit it to pick the concentration the actual screen will use, exactly as they run a statistical detection sensitivity calculation to pick n. The output of this screen is an input to the next experiment, which is what the section means.",
+      "translation": "``SECTION_DESIGN``, sem er ekki augljós svar en er rétt svar. Hönnun er „allt sem gerist áður en smásjáran kemur: tölfræðileg uppgötvunarviðkvæmni, sýnisstærð, uppsetning á rannsóknarstofulínum, stjórn- og endurtekningarsýni“, og hún inniheldur þegar tölfræðilega uppgötvunarviðkvæmni / hönnun. Skammt–svar röð er *önnur* for-tilraun útreikningur sem skimunarstofan keyrir: enginn passar EC50 til að dáast að henni, þeir passa hana til að velja styrkinn sem raunverulega skimunin mun nota, nákvæmlega eins og þeir framkvæma tölfræðilega uppgötvunarviðkvæmnisútreikning til að velja n. Úttak þessarar skimunar er inntak í næstu tilraun, sem er það sem kaflinn á við."
+    },
+    {
+      "label": "spacr.layers#1",
+      "source_sha256": "2c39a0941cd5d5db5b2f2a7133207290655a25f5157204babd4d0cfb255a967d",
+      "source": "Every viewer spaCR has ever shipped draws one thing. The live preview draws an image with outlines burnt into it; the timelapse preview draws a frame with tracks burnt into it; Make Masks draws an image with a brush burnt into it. \"Burnt in\" is the problem: the mask is not a *thing* you can hide, fade, recolour or put underneath something else — it is pixels that were already RGB by the time the widget saw them.",
+      "context": "Every viewer spaCR has ever shipped draws one thing. The live preview draws an image with outlines burnt into it; the timelapse preview draws a frame with tracks burnt into it; Make Masks draws an image with a brush burnt into it. \"Burnt in\" is the problem: the mask is not a *thing* you can hide, fade, recolour or put underneath something else — it is pixels that were already RGB by the time the widget saw them.",
+      "translation": "Allur áhorfandi spaCR hefur nokkurn tíma sent teiknar eitt hlut. Rauntíma forskoðunin teiknar mynd með útlínum brenndum inn í hana; tímaröðaforskoðunin teiknar ramma með sporum brenndum inn í hana; Gerðu grímur teiknar mynd með burstabaug brenndum inn í hana. \"Burnt in\" er vandamálið: gríman er ekki *hlutur* sem þú getur falið, dofnað, endurlitað eða lagt undir eitthvað annað — hún er pixlar sem voru þegar RGB þegar viðmótið sá þau."
+    },
+    {
+      "label": "spacr.crops.crop_spec_from_settings#2",
+      "source_sha256": "fcac1344c7697b17d630166bdc8c21842f86e695c64855caa69e772337eb8737",
+      "source": "the ``measure_crop`` settings. The per-``crop_mode`` lists (``png_size``, ``dialate_pngs``, ``dialate_png_ratios``) are indexed by where the chosen object type sits in ``crop_mode``, and fall back to entry 0 when it is not listed there. The crop's channels come from ``png_channel_mapping`` -- or the legacy ``png_dims`` -- via :func:`channels_from_settings`, so the spec is in colour order, not ``png_dims`` list order. A ``normalize`` that is a sequence of any length but 2 is discarded as ``False``.",
+      "context": "the ``measure_crop`` settings. The per-``crop_mode`` lists (``png_size``, ``dialate_pngs``, ``dialate_png_ratios``) are indexed by where the chosen object type sits in ``crop_mode``, and fall back to entry 0 when it is not listed there. The extracted image region's channels come from ``png_channel_mapping`` -- or the legacy ``png_dims`` -- via :func:`channels_from_settings`, so the spec is in colour order, not ``png_dims`` list order. A ``normalize`` that is a sequence of any length but 2 is discarded as ``False``.",
+      "translation": "``measure_crop`` stillingarnar. Listarnir á hverja ``crop_mode`` (``png_size``, ``dialate_pngs``, ``dialate_png_ratios``) eru skráðir eftir því hvar valinn hlutatýpur situr í ``crop_mode``, og falla til skráar 0 þegar hann er ekki skráður þar. Rásir þeirrar myndar sem er unnin eru fengnar úr ``png_channel_mapping`` -- eða hið eldri ``png_dims`` -- í gegnum :func:`channels_from_settings`, þannig að forskriftin er í litarröð, ekki ``png_dims`` lista röð. ``normalize`` sem er röð af hvaða lengd sem er en ekki 2 er hent sem ``False``."
+    },
+    {
+      "label": "spacr.qt.widgets.data_filter_panel.classify_columns#2",
+      "source_sha256": "755e66dcb4ab2ddb082aeaf855e062cacfd6cdbd9e2f760528ef5177b2da9914",
+      "source": "**Memoised per frame object.** The classification runs ``Series.nunique()`` over every column, which on a 200 000-row x 48-column measurement table costs 230 ms. Loading one table used to pay that *four* times inside a single ``set_frame`` — this function, plus :func:`spacr.qt.widgets.graph_spec.column_kinds`, plus ``GraphSpec.kinds_for``, plus ``plottable_columns``, each re-deriving the same answer from the same object — 0.9 s of the ~1.9 s the GUI thread spent delivering a freshly loaded frame.",
+      "context": "**Memoised per frame object.** The classification runs ``Series.nunique()`` over every column, which on a 200 000-row x 48-column measurement table costs 230 ms. Loading one table used to pay that *four* times inside a single ``set_frame`` — this function, plus :func:`spacr.qt.widgets.graph_spec.column_kinds`, plus ``GraphSpec.kinds_for``, plus ``plottable_columns``, each re-deriving the same answer from the same object — 0.9 s of the ~1.9 s the main GUI execution path spent delivering a freshly loaded frame.",
+      "translation": "**Minnt á hverri rammaugurðu.** Flokkunin keyrir ``Series.nunique()`` yfir hverja dálk, sem á mælingatöflu með 200.000 röðum x 48 dálkum kostar 230 ms. Að hlaða eina töflu gerði áður *fjórum* sinnum inni í einum ``set_frame`` — þessi aðgerð, auk :func:`spacr.qt.widgets.graph_spec.column_kinds`, auk ``GraphSpec.kinds_for``, auk ``plottable_columns``, hver og einn reiknar sama svarið aftur úr sama hlut — 0,9 s af ~1,9 s sem aðal GUI framkvæmdarleiðin eyddi í að skila nýlega hlaðnu rammagrind."
+    }
+  ]
+}
