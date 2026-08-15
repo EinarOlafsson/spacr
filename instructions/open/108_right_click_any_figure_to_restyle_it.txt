@@ -1,0 +1,139 @@
+================================================================================
+RIGHT-CLICK ANY FIGURE AND CHANGE HOW IT LOOKS, WITHOUT RE-RUNNING ANYTHING
+================================================================================
+
+Status:    not started — one worked example exists, the general mechanism does not
+Requested: 2026-08-15 — "i want to be able to right click on each graph and have
+           access to as many settings for the graph as possible: ledgend on/off,
+           grid on/off, colors, symbols, line width, line color, font size, logx,
+           logy, etc. so depending on the graph as many as many settings as
+           possible"
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+A spaCR figure is drawn once, by whichever module produced it, from settings
+fixed before the run started. Changing a legend, an axis scale or a marker
+colour means editing the settings and re-running the analysis -- minutes to an
+hour for a regression -- or opening the PDF in Illustrator.
+
+ONE figure already works the way this asks for. The Volcano Explorer
+(`spacr/qt/widgets/volcano_explorer.py`, screen at `qt/screens/volcano.py`)
+exposes 55 controls over a live plot: axis scales and log, inversion, split
+axis, four threshold rules with multipliers, 15 marker shapes, 29 colormaps,
+colour-by and shape-by from any column, line width/colour/style, font
+family/size/weight, titles, grid, legend, figure size, dpi -- plus click-a-
+point-for-its-record and vector export. It is the worked example this
+instruction generalises.
+
+What makes it work is worth stating, because it is the whole design:
+
+  * `spacr/volcano_style.py` holds the appearance as DATA -- a dataclass of
+    ~60 fields, serialisable to JSON, with `render_volcano(results, style)` a
+    pure function of the two. The headless pipeline and the live canvas call
+    the SAME renderer, so they cannot drift.
+  * The widget writes into the style object and asks for a redraw. Export
+    re-renders from the same object at print size rather than screenshotting.
+
+Nothing else in spaCR has this. Every other figure is a `savefig` at the end
+of a plotting function, with its styling inline.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The immediate cost is that a figure the user cannot read is a figure they
+cannot fix. The volcano's legend was 27 double-spaced entries at the axis font
+size, running taller than the plot and squeezing the data into a strip. That
+was a two-line change in `toxo.py` -- but from the GUI it was unfixable, and
+the user's report was simply "I can't really see the results".
+
+The larger cost is that every figure spaCR produces is a take-it-or-leave-it
+render. A screen produces a dozen figures; the ones destined for a paper get
+re-made by hand in Illustrator, which breaks the link between the figure and
+the analysis that produced it. That is precisely how a published volcano came
+to show a P = 0.05 line while its Methods claimed BH q < 0.05.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A SHARED STYLE BASE. Generalise `volcano_style.VolcanoStyle` into
+   `spacr/figure_style.py`: a base dataclass carrying what every figure has
+   (axes labels and scales, log flags, limits, grid, legend on/off and
+   position, fonts, line width/colour/style, figure size, dpi, background)
+   and per-figure subclasses adding what only they have (a volcano's
+   thresholds, a heatmap's colormap and normalisation, a jitter-bar's point
+   size and jitter width). JSON round-trip and forwards-compatible loading
+   come from the base, as `VolcanoStyle.from_dict` already does.
+
+2. A RENDERER CONTRACT. Each plot type gets `render(data, style, figure=None,
+   save_path=None)`. Existing plotting functions become thin callers of it,
+   so the pipeline's saved figure and the interactive one are the same code.
+   Do this per figure type, starting with the ones a screen actually
+   produces: volcano (done), jitter-bar, plate heatmap, histogram.
+
+3. THE CONTEXT MENU. A mixin for the Qt canvas that adds a right-click menu
+   built FROM THE STYLE OBJECT'S FIELDS rather than from a hand-written list
+   per figure: a bool renders a checkbox, a bounded float a spin box, a field
+   with a declared choice set a submenu. Then "as many settings as possible,
+   depending on the graph" is automatic -- a style gains a field, the menu
+   gains an entry, and the two cannot fall out of step.
+
+4. FIGURES MUST STAY LIVE. The menu can only exist where the GUI holds a
+   matplotlib Figure. Where a screen currently shows a saved image, it must
+   hold the figure instead. This is the actual prerequisite -- see
+   DELIBERATELY NOT DONE on why it is not about PDF.
+
+5. SAVE AND REUSE A STYLE. `Save style` / `Load style` as the Volcano
+   Explorer already has, plus a per-project default so a lab's house style is
+   applied to every figure of that type without re-setting it each time.
+
+6. CLOSE THE PREFERENCE LEAK while in here. `spacr.plot.save_figure` honours
+   the "Figure format" and "Resolution" preferences, but TWENTY-ONE
+   `savefig` calls across the package bypass it (`classifier_evaluation.py`,
+   `illumination.py`, `spacrops.py`, `regression_qc.py`, `sequencing.py`,
+   `sim.py`, `spacr_cellpose.py` and others), several hard-coding a format.
+   Those figures ignore the preference entirely. Route them through
+   `save_figure` unless they have a documented reason not to.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Right-clicking a jitter-bar, a plate heatmap and a volcano each opens a
+    menu whose entries match that figure's style fields -- asserted by
+    comparing the menu's actions against `dataclasses.fields(style)`, so a
+    new field cannot be silently missing from the menu.
+  * Toggling `legend` off and back on returns the figure to its original
+    state (the style is the single source of truth; nothing is lost).
+  * A style saved from one figure and loaded into another of the same type
+    reproduces it exactly.
+  * Export after restyling produces a file matching what is on screen,
+    verified by rendering both and comparing, not by eye.
+  * `grep -rn "\.savefig(" spacr/*.py | grep -v save_figure` returns only
+    calls with a comment saying why they bypass the preference.
+  * `pytest tests/qt/test_all_module_smoke.py -q` still passes 60/60.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not making this depend on PDF. The request says "this will only be possible
+if the graphs are PDFs and not PNGs", and that is not the constraint. Neither
+format is editable once written -- a PDF is vector, so it scales and its text
+stays selectable in Illustrator, but nothing in a saved PDF can be changed by
+spaCR either. What makes restyling possible is the GUI holding a live
+matplotlib Figure and a style object, which is point 4. Format matters for
+export quality and for Illustrator, and PDF should stay the default for
+publication figures -- it is simply a separate concern from interactivity.
+
+Not a general-purpose plot editor. The menu is generated from declared style
+fields, so it offers exactly what that figure type supports. An editor that
+lets any property of any artist be changed produces figures the analysis
+cannot reproduce, which is the problem this is meant to remove.
+
+Not rewriting all sixty-odd plotting functions at once. Point 2 is per figure
+type, in the order a screen actually produces them.
