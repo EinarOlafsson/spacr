@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler#0",
+      "source_sha256": "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132",
+      "source": "Fill Explain CV's database or prediction input from one drop.",
+      "context": "Fill Explain CV's database or prediction input from one drop.",
+      "translation": "通过一次拖放填写 Explain CV 的数据库或预测输入。"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler#0",
+      "source_sha256": "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48",
+      "source": "Fill Investigate Hit's provenance inputs without guessing a hit.",
+      "context": "Fill Investigate Hit's provenance inputs without guessing a hit.",
+      "translation": "填写 Investigate Hit 的来源输入，不猜测命中项。"
+    }
+  ]
+}
