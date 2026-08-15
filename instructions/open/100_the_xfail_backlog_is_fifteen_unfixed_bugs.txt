@@ -212,3 +212,51 @@ B4 -- per-well acquisition grid. Real, and the fix is a restructure rather
 
 D2 -- the maintainer's, unchanged. Which gene does a shared protospacer count
   for?
+
+--------------------------------------------------------------------------------
+2026-08-15 - AN OPEN ASYMMETRY LEFT BY THE C3 ESCAPE. NEEDS A DECISION.
+--------------------------------------------------------------------------------
+
+C3 was fixed by escaping the plate id in the composer, which was the right
+call. It left two spellings of one well key in the tree, and they are not
+interchangeable:
+
+    schema.compose_prc('exp1_plate2', 'rB', 'c3')  ->  exp1%5Fplate2_rB_c3
+    ml.py's three hand-joins                        ->  exp1_plate2_rB_c3
+
+Both parse. `_split_prc` now unescapes, so it reads either one correctly, and
+`schema.parse_prcf` always did. Nothing is broken TODAY. But the two are
+different strings for the same well, so anything that joins a key from one
+source to a key from the other matches nothing, silently -- which is the
+failure mode `prc` exists to prevent.
+
+WHY IT WAS NOT JUST FIXED. Routing the hand-joins through an escaping
+composer was implemented and reverted, because it changes the `prc` string
+WRITTEN INTO DATABASES, and two tests assert the un-escaped form on purpose:
+
+    test_an_underscored_plate_id_keeps_the_regression_qc_tables
+    test_a_row_id_carrying_a_plate_whose_name_has_an_underscore
+
+Those tests are not wrong; they encode the older contract, under which an
+underscored plate is carried as a FOUR-component key and separated by the
+row/column guard in `_split_prc`. The escape carries it as three. Both are
+coherent designs. They cannot both be the stored format.
+
+THE DECISION NEEDED, and it is the maintainer's because it is about data on
+disk rather than about code:
+
+  (a) ESCAPE EVERYWHERE. One spelling, three components always, and
+      `_split_prc`'s four-component path becomes legacy-only. Databases
+      written before this hold the old spelling, so it needs a migration or
+      a reader that accepts both -- and `database_schema` already has the
+      machinery for exactly that kind of rename.
+
+  (b) HAND-JOIN EVERYWHERE. Revert the escape in `compose_prc`, keep the
+      four-component key, and rely on the row/column guard. Cheaper today,
+      but it is the design C3 was filed against: it cannot represent a plate
+      whose name contains BOTH the separator and something that parses as a
+      row/column pair.
+
+(a) is the better end state and the more expensive one. Until it is chosen,
+do not "tidy" the hand-joins -- that is the revert described above, and it
+will look like a cleanup while changing what is written to disk.
