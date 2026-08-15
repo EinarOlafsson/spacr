@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "categories",
+      "key": "Tune UMAP's neighbourhood size and minimum distance to trade fine local structure against a smoother view of global relationships.",
+      "source_sha256": "97c4f54100d782ffadd72aa0a9e5bbb8fc2ee8e6a2dd223dbe449bcbf7760313",
+      "source": "Tune UMAP's neighbourhood size and minimum distance to trade fine local structure against a smoother view of global relationships.",
+      "translation": "Ajusta el tamaño del vecindario y la distancia mínima de UMAP para equilibrar la estructura local fina con una representación más suave de las relaciones globales."
+    },
+    {
+      "table": "categories",
+      "key": "Tune t-SNE's perplexity, learning rate, exaggeration and iteration budget when its neighbourhoods collapse or fail to separate.",
+      "source_sha256": "58df33ef692b0b69b15292e2451b06fcd394c7319e44425f130bbf01a00512ee",
+      "source": "Tune t-SNE's perplexity, learning rate, exaggeration and iteration budget when its neighbourhoods collapse or fail to separate.",
+      "translation": "Ajusta la perplejidad, la tasa de aprendizaje, la exageración y el número de iteraciones de t-SNE cuando sus vecindarios colapsan o no se separan."
+    }
+  ]
+}
