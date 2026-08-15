@@ -1099,13 +1099,8 @@ def _measurement_database(path: Path) -> Optional[Path]:
     return None
 
 
-class ModelExplanationDropHandler(DropHandler):
-    """Fill the two provenance-bearing inputs on Explain CV Model.
-
-    Database and prediction artifacts stay distinct: a database drop can
-    never silently become a prediction source, and multiple file drops are
-    accepted so users can select both exact inputs in one gesture.
-    """
+class ExplainCvInputsDropHandler(DropHandler):
+    """Fill Explain CV's database or prediction input from one drop."""
 
     def accepts_multiple(self) -> bool:
         return True
@@ -1136,13 +1131,8 @@ class ModelExplanationDropHandler(DropHandler):
         _log(screen, f"[drop] explain_cv predictions = {path}\n")
 
 
-class HitInvestigationDropHandler(DropHandler):
-    """Fill exact database, prediction, fraction, and regression inputs.
-
-    Fraction tables are identified from their header vocabulary; all other
-    CSVs are treated as per-object predictions. A results directory remains
-    a directory so its complete CSV/JSON byte set can be provenance-hashed.
-    """
+class InvestigateHitInputsDropHandler(DropHandler):
+    """Fill Investigate Hit's provenance inputs without guessing a hit."""
 
     def accepts_multiple(self) -> bool:
         return True
@@ -2204,8 +2194,8 @@ _HANDLERS = {
     "layer_viewer":     LayerStackDropHandler,
     "classifier_evaluation": EvaluationBundleDropHandler,
     "distributed_jobs": SubmissionSettingsDropHandler,
-    "explain_cv":       ModelExplanationDropHandler,
-    "investigate_hit":  HitInvestigationDropHandler,
+    "explain_cv":       ExplainCvInputsDropHandler,
+    "investigate_hit":  InvestigateHitInputsDropHandler,
 }
 
 #: Screens where a drop is genuinely meaningless, recorded rather than left
