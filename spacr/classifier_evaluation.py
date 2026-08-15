@@ -448,15 +448,15 @@ def sample_identity(path: Any) -> Dict[str, str]:
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
-    # A spaCR crop is plate_row_column_field_object: the same five-token
-    # shape as the prcfo key annotate_conditions builds. A well is therefore
-    # plate + row + column. Reading it as plate_row silently groups every
-    # column of a row together, so the grouped split must parse this exactly.
+    # Exported PNG names use plate_well_field_object, where the well token
+    # already combines row and column (for example ``A01``).  Treating the
+    # field token as part of the well defeats well-grouped leakage checks by
+    # splitting two fields from one physical well into different groups.
     family = augmentation_family(path)
     parts = family.split("_")
     plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    well = "_".join(parts[:3]) if len(parts) >= 3 else ""
-    field_id = "_".join(parts[:4]) if len(parts) >= 4 else ""
+    well = "_".join(parts[:2]) if len(parts) >= 2 else ""
+    field_id = "_".join(parts[:3]) if len(parts) >= 3 else ""
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),
