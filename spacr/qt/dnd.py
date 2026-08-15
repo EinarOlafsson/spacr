@@ -379,13 +379,98 @@ def _mime_local_paths(mime: QMimeData) -> List[Path]:
 # Universal CSV → settings importer
 # ---------------------------------------------------------------------------
 
+#: Header shapes that identify a CSV as a spaCR SETTINGS export rather than
+#: data. Everything else dropped on a screen is data for one of its inputs.
+_SETTINGS_HEADER_PAIRS = (("key", "value"), ("setting_key", "setting_value"))
+
+
+def _csv_header(path: Path) -> list:
+    """The first row's column names, read without loading the file."""
+    try:
+        import csv as _csv
+        with open(path, newline="", encoding="utf-8", errors="replace") as fh:
+            row = next(_csv.reader(fh), [])
+        return [str(name).strip().lower() for name in row]
+    except OSError:
+        return []
+
+
+def _looks_like_settings_csv(path: Path) -> bool:
+    header = set(_csv_header(path))
+    return any(set(pair) <= header for pair in _SETTINGS_HEADER_PAIRS)
+
+
+def _route_data_csv_to_inputs(path: Path, screen):
+    """Offer a data CSV to the screen's file inputs. Returns the key it took.
+
+    Dropping ``plate1_dv.csv`` on the regression screen used to go to the
+    settings importer, which reported "CSV file must contain setting_key and
+    setting_value columns" -- an accurate statement about a file that never
+    claimed to be settings, and a dead end for the very gesture the input
+    widgets exist to support.
+
+    Score and count tables are told apart by their header: a count export
+    carries a gRNA name and a count, a score export carries neither.
+    """
+    model = getattr(screen, "_settings_model", None)
+    widgets = getattr(model, "_widgets", {}) if model is not None else {}
+    if not widgets:
+        return None
+    try:
+        from .widgets.file_list import FilePathListWidget
+    except Exception:  # pragma: no cover - Qt import guard
+        return None
+
+    header = set(_csv_header(path))
+    is_count = bool({"grna", "grna_name"} & header) and "count" in header
+    # Most specific first: a count table must not land in the score slot just
+    # because that widget happens to come first in the panel.
+    preferred = ("count_data", "score_data") if is_count else \
+        ("score_data", "count_data")
+
+    for key in (*preferred, "metadata_files"):
+        widget = widgets.get(key)
+        if isinstance(widget, FilePathListWidget):
+            widget.add_paths([str(path)])
+            return key
+
+    paired = widgets.get("paired_data")
+    adder = getattr(paired, "add_paths_for_side", None) or \
+        getattr(paired, "add_paths", None)
+    if callable(adder):
+        try:
+            adder([str(path)], "count" if is_count else "score")
+        except TypeError:
+            adder([str(path)])
+        return "paired_data"
+    return None
+
+
 def _apply_settings_csv(path: Path, screen) -> None:
-    """Load a settings CSV and push into ``screen.apply_settings_dict``.
+    """Import a settings CSV, or route a data CSV to the screen's inputs.
 
     Silent no-op if the screen doesn't have that method (AnnotateScreen,
     MakeMasksScreen — they don't use the SettingsWidgets model).
     """
     if not hasattr(screen, "apply_settings_dict"):
+        return
+    # A dropped file is DATA unless its header says it is settings. Deciding
+    # by header rather than by extension is what lets the regression screen
+    # accept four score CSVs and four count CSVs by drag and drop.
+    if not _looks_like_settings_csv(path):
+        taken = _route_data_csv_to_inputs(path, screen)
+        if taken:
+            if hasattr(screen, "_console"):
+                screen._console.append_stdout(
+                    f"[drop] added {path.name} to {taken}\n")
+            return
+        _report_drop_problem(
+            screen, path,
+            f"{path.name} is not a settings CSV, and this screen has no file "
+            f"input that accepts it.",
+            "Settings CSVs have Key/Value or setting_key/setting_value "
+            "columns. Data CSVs can be dropped on a screen that has a score, "
+            "count or metadata input.")
         return
     try:
         from spacr.utils import load_settings
