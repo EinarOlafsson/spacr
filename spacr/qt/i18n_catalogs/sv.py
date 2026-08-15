@@ -2534,7 +2534,7 @@ UI = {
     'Evidence': 'Bevis',
     'Exclude values from another database column': 'Uteslut värden från en annan databaskolumn',
     'Experiment Design': 'Experimentdesign',
-    'Explain CV Model': 'Förklara CV- modell',
+    'Explain CV Model': 'Förklara CV-modell',
     'Explain model': 'Förklara modell',
     'Export CSV…': 'Export CSV...',
     'Export Markdown…': 'Exportera markering...',
