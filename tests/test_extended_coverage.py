@@ -167,7 +167,6 @@ SECOND_TK_ROOT_ICON_BUG = (
 
 
 @pytest.mark.gui
-@pytest.mark.xfail(strict=True, reason=SECOND_TK_ROOT_ICON_BUG)
 def test_gui_main_app_constructs(tk_root):
     """MainApp is a tk.Tk subclass — verify its default construction
     initializes the app dicts."""
@@ -193,7 +192,6 @@ def test_gui_main_app_constructs(tk_root):
 
 
 @pytest.mark.gui
-@pytest.mark.xfail(strict=True, reason=SECOND_TK_ROOT_ICON_BUG)
 def test_gui_main_app_carries_color_settings(tk_root):
     from spacr.gui import MainApp
     # Unguarded, for the same reason: the display precondition is the marker's

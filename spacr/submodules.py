@@ -431,8 +431,7 @@ def test_cellpose_model(settings):
                                           anisotropy=None,
                                           min_size=5,
                                           augment=True,
-                                          tile_overlap=0.2,
-                                          bsize=224)
+                                          tile_overlap=0.2)
 
         for j, (img, lbl, pred, flow) in enumerate(zip(images, labels, masks_pred, flows)):
             # Cellpose 4 returns one AJI value per mask as a 1-D ndarray;
@@ -633,8 +632,7 @@ def apply_cellpose_model(settings):
                                           anisotropy=None,
                                           min_size=5,
                                           augment=True,
-                                          tile_overlap=0.2,
-                                          bsize=224)
+                                          tile_overlap=0.2)
         
         for j, (img, pred, flow) in enumerate(zip(images, masks_pred, flows)):
             fname = os.path.basename(image_files[i + j])
