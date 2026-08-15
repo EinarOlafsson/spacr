@@ -2,10 +2,10 @@
 THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
 ================================================================================
 
-Status:    filed 2026-08-15. BUILT by the concurrent session (e5739730), then
-           REFINED by the maintainer the same day -- the three-mode dropdown
-           it shipped is not wanted. See THE CONTROL IS ONE YES/NO SETTING at
-           the end, which supersedes the interaction described below.
+Status:    DONE 2026-08-15. Plumbing built by the concurrent session
+           (e5739730); the three-mode dropdown it shipped was refused by the
+           maintainer and replaced with one Console aware setting. See
+           RESULT at the very end.
 Requested: 2026-08-15 - "add to instructions, the AI chatbot, when on should
            allways have access to the console, eaven if turned on after a
            console message. this way the user can allways ask what when wrong
@@ -176,3 +176,44 @@ HOW TO KNOW IT WORKED
 * With it off, no console text is sent.
 * The setting survives a restart, like every other value in
   `spacr/qt/ai/settings.py`.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15)
+--------------------------------------------------------------------------------
+
+`ai.settings.get_console_aware` / `set_console_aware`, QSettings-backed,
+default True, alongside `get_auto_file_issues` and
+`get_route_errors_through_ai` -- no new storage mechanism for one flag. The
+toggle is on the AI settings dialog's Settings tab beside its siblings, and
+is registered for API tooltips and retranslation like the rest.
+
+The QComboBox and the "Console available" label are gone from the console
+input row; that row is the input and nothing else.
+
+AUTO IS DELETED, NOT HIDDEN. `_console_context_for_question` no longer
+inspects the question text at all. It was the one behaviour worth being
+careful about, because it decided from the user's WORDING whether the model
+was allowed to see the error -- and being wrong in the "no" direction is the
+exact failure this instruction was filed against. Verified directly: with
+console aware on, "how do I set the diameter" now carries the traceback just
+as "what went wrong" does.
+
+The per-question status ("Console context: 146 chars sent, N dropped") is
+returned and stamped on the user message it accompanied, which answers point
+4 above without permanent furniture that is stale from the moment the next
+question is typed.
+
+Two existing tests encoded the old design and were dealt with differently,
+which is the distinction worth recording:
+
+  * `test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text`
+    was RIGHT about the substance and only read the deleted label. Repaired
+    to read the message stamp.
+  * `test_console_context_auto_is_visible_and_overridable` WAS the Auto
+    behaviour -- it asserted that a non-diagnostic question gets no context.
+    Replaced rather than repaired, asserting the opposite, with the reason in
+    its docstring.
+
+tests/test_console_aware_setting.py pins the default, persistence, both
+on/off paths, the absence of both widgets, and that a non-diagnostic question
+still carries the console. 328 console/AI tests pass.

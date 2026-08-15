@@ -126,6 +126,7 @@ class _ProvidersDialog(QDialog):
             self._speed_combo: "response_speed",
             self._auto_issue_chk: "auto_file_issues",
             self._route_errors_chk: "route_errors_through_ai",
+            self._console_aware_chk: "console_aware",
             self._prompt_edit: "system_prompt",
         })
         retranslate_widget_tree(self)
@@ -225,6 +226,20 @@ class _ProvidersDialog(QDialog):
             lambda _s: ai_settings.set_route_errors_through_ai(
                 self._route_errors_chk.isChecked()))
         col.addWidget(self._route_errors_chk)
+
+        # Console aware — replaces the three-mode combo that used to sit
+        # beside the chat input. On by default: the chat gets switched on
+        # after something has already gone wrong, so the question it exists
+        # to answer needs the console that is already on screen.
+        self._console_aware_chk = Toggle(
+            "Console aware — send the console with your question so the AI "
+            "can explain what went wrong"
+        )
+        self._console_aware_chk.setChecked(ai_settings.get_console_aware())
+        self._console_aware_chk.stateChanged.connect(
+            lambda _s: ai_settings.set_console_aware(
+                self._console_aware_chk.isChecked()))
+        col.addWidget(self._console_aware_chk)
 
         # GitHub sign-in — the official CLI owns credential storage --------
         col.addWidget(Divider())
