@@ -101,7 +101,14 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: tooltips. What the record is for is making the growth visible when it
 #: happens rather than at the end, so the counts move with it.
 #:
-#: Re-measured 2026-08-10 at fifty-four apps, the merged Classify module
+#: Re-measured 2026-08-15 at fifty-six apps. Explain CV Model and Investigate
+#: Hit were filed explicitly in every category table rather than being left
+#: in a fallback band. These are non-shipping design-review renders on a fixed
+#: 1440x900 canvas; the counts below record exactly how that canvas responds
+#: to the two additional rows. Variant 24 joins the recorded set, leaving
+#: seventeen candidates without any measured defect.
+#:
+#: Previously measured at fifty-four apps, the merged Classify module
 #: having joined the registry on 2026-08-06 (2d4da7df). Exactly one number
 #: moved and it is v22's, which is the interesting part: v22 is the A-to-Z
 #: index, a flat alphabetical list over every key with no category table
@@ -115,19 +122,19 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # New since the last record: v01 clips four descriptions and overflows.
     1:  {"clipped": 4, "overflow": 1},
     # Five bands of seven, all five now wrapping to a second row.
-    2:  {"elided": 21, "overflow": 1},
+    2:  {"elided": 23, "overflow": 1},
     3:  {"elided": 6, "overflow": 1},
-    # Not names: ten one-line descriptions given 6-9 px of a 15 px need.
-    4:  {"clipped": 10},
+    # Not names: one-line descriptions given less height than they need.
+    4:  {"clipped": 17},
     5:  {"elided": 7},
-    # 1 -> 10: the extra apps push nine more descriptions under their need.
-    13: {"clipped": 10},
+    13: {"clipped": 11},
     17: {"overflow": 1},
     19: {"clipped": 1},
     20: {"elided": 1, "overflow": 1},
-    # New at fifty-four apps: the A-to-Z index has no bands to grow into,
-    # so the fifty-fourth row is one DenseRow past what 1440x900 holds.
-    22: {"clipped": 1},
+    # The A-to-Z index has no bands to absorb added rows; at fifty-six apps
+    # its fixed three-column canvas clips the descriptions below the fold.
+    22: {"clipped": 36},
+    24: {"clipped": 2},
     28: {"elided": 5, "overflow": 1},
     30: {"elided": 5},
 }
@@ -405,16 +412,22 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     Experiment Design beside Power in Acquire, the QC Dashboard in Report
     -- and the result is 11/9/10/10/11, the floor exactly. Eleven is
     seven, then four. Fifteen is where a third row starts.
+
+    Explain CV Model and Investigate Hit take the registry from fifty-four
+    to fifty-six, so the arithmetic floor is now TWELVE. Both are filed on
+    their merits: model explanation beside Activation in Segment, and hit
+    investigation beside Regression in Analyse. The resulting
+    11/11/11/12/11 distribution remains at most two seven-column rows.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 11, (
+        assert len(keys) <= 12, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
     # ...and the floor is real: any cap below it would be unsatisfiable.
     total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert -(-total // 5) == 11, (
-        f"{total} apps over five bands no longer needs an eleven-wide band; "
+    assert -(-total // 5) == 12, (
+        f"{total} apps over five bands no longer needs a twelve-wide band; "
         f"tighten the cap above rather than leaving the slack unused")
 
 
@@ -1725,11 +1738,12 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
         # and twenty-one when the registry held forty-nine apps; eleven
         # and nineteen at fifty-three in the bands; twelve and eighteen
         # since the merged Classify module took it to fifty-four on
-        # 2026-08-06 and v22, the A-to-Z index, ran out of canvas. Both
+        # 2026-08-06 and v22, the A-to-Z index, ran out of canvas; now
+        # thirteen and seventeen at fifty-six apps. Both
         # numbers are asserted rather than derived so that a variant
         # quietly joining the defective set is a failure and not a
         # subtraction that still adds up.
-        assert len(measured) == 12 and N_VARIANTS - len(measured) == 18
+        assert len(measured) == 13 and N_VARIANTS - len(measured) == 17
     finally:
         _prefs.set_font_scale(_original_zoom)
 

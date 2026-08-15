@@ -21,17 +21,20 @@ APP_TRANSLATIONS = (
 __all__ = ["APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "register"]
 
 
+def _make_screen(app_key=None, host=None):
+    """Import attribution and dataframe dependencies only when opened."""
+    from .model_explanation import make_investigate_hit_screen
+    return make_investigate_hit_screen(app_key=app_key, host=host)
+
+
 def register() -> bool:
     """Add Investigate Hit through the common application registry."""
     from ..app import APPS, SECTION_RESULTS, STAGE_ALPHA, register_app
     if any(row[0] == APP_KEY for row in APPS):
         return False
-    from ...hit_investigation import register_settings
-    from .model_explanation import make_investigate_hit_screen
-    register_settings()
     register_app(
         APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
-        factory=make_investigate_hit_screen,
+        factory=_make_screen,
         stage=STAGE_ALPHA, title=APP_NAME, intro=APP_INTRO,
         api_module="hit_investigation",
         entry="spacr.hit_investigation:investigate_hit",

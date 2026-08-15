@@ -185,7 +185,7 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
         "an app is missing from Home, or drawn on it twice")
 
     staged = [k for k in keys if app_stage(k) != "stable"]
-    # Forty-three, and it moved for two reasons at once, which is why it is
+    # Forty-five, and it moved for two reasons at once, which is why it is
     # worth writing down. Apps kept arriving alpha — Pipeline Graph, Hit
     # List, Prediction Profiler and Methods & Results, then Control Charts,
     # Dose Response, Trellis, Gate Editor, Feature Explorer, Outliers,
@@ -202,8 +202,11 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     # absence of a line in APP_STAGE and the merged screen has not been run
     # on real data. It is the only one that has ever moved this number UP
     # by arriving rather than by the registry being read differently.
-    assert len(staged) == 43, (
-        f"{len(staged)} apps staged, not 43 — if that is intended, say so "
+    # Explain CV Model and Investigate Hit joined as alpha applications: both
+    # are reachable and tested, but neither has yet earned the absence from
+    # APP_STAGE that means stable. That deliberately takes 43 to 45.
+    assert len(staged) == 45, (
+        f"{len(staged)} apps staged, not 45 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 
