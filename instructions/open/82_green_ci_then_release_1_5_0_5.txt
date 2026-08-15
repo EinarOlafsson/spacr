@@ -207,3 +207,62 @@ WHAT WOULD ACTUALLY FIX IT, for whoever takes this:
 The notebooks themselves are fine. Left untouched deliberately: regenerating
 them against a half-imported state bakes one session's keys into the other's
 files, which is how this got worse rather than better tonight.
+
+--------------------------------------------------------------------------------
+2026-08-15 - THE RED RUN WORKED THROUGH: 53 FAILURES, NONE OF THEM A DEFECT
+--------------------------------------------------------------------------------
+
+Run 31838215909 (tests), 31838215617 (compat-matrix) and 31838215615 (docs)
+were all red. Every failure is now fixed, and it is worth recording that NOT
+ONE of them was a bug in the product -- each was a test pinning a detail that
+changed for a good reason, or a job missing a dependency.
+
+DOCS: `ImportError: libEGL.so.1`. Sphinx IMPORTS the package to document it
+and spacr.qt imports PySide6, which dlopens libEGL at import time. The docs
+job installed libopencc and nothing else while the test job already installed
+the whole GL/xcb stack. Every autodoc import of a Qt module died.
+
+COMPAT-MATRIX: `openmp_guard` was a new module missing from `_SUBMODULES`,
+which fails `test_lazy_loader_matches_files` in EVERY cell. Third occurrence;
+it is the first trap in HANDOFF.md.
+
+TESTS, 41 failures, in four groups:
+
+  14  the well-grouped split refusing fixtures that could not be split. The
+      fixtures built crops called "o1.png" -- a name spaCR cannot produce --
+      while their png_list rows described a real plate, and they confounded
+      class with well one-to-one, which a leakage-safe split correctly
+      refuses. AND A REAL BUG UNDER THEM: `sample_identity` parsed a crop
+      name as plate_well_field_object, four tokens, when spaCR names them
+      plate_row_column_field_object. A well was being read as plate+row, so
+      every column of a row was one group -- it held out whole ROWS while
+      reporting them as wells.
+   6  the notebook drift guard, which regenerated INSIDE pytest and so asked
+      a different question from the tool. See the entry below.
+   5  tests that called code and asserted nothing, each of which passed for a
+      function doing the opposite of its name.
+  16  assorted pins: a tab COUNT that failed for a tab being added, a
+      settings-parked list that was right to be emptied, `merged/` gaining a
+      sidecar, a message that got more accurate, `classes` no longer being a
+      comma-split list, and an expected call that passed `normalize=True` to
+      a function with no such parameter -- so it asserted a call that raised
+      TypeError into a bare except every time it ran.
+
+THE NOTEBOOK GUARD IS FIXED PROPERLY, correcting the entry above it. The tool
+was never wrong: it is idempotent, and a second run rewrites nothing. The TEST
+regenerated inside pytest, where a different set of modules had been imported
+-- and since spaCR's settings are assembled BY IMPORT, that changes both what
+a factory returns and which text a contested key carries. `dst` is registered
+by surrogate, hit_investigation and sequencing_qc with two meanings, and
+`importlib.import_module` is a no-op for an already-imported module, so
+nothing can re-run a registration to make itself last.
+
+The guard now runs `--check` as a SUBPROCESS: the same question a developer
+asks, answered in the same import state. Six failures became one honest one,
+which regenerating fixed.
+
+STILL TRUE, and it is what stands between here and the release: the full
+`tests/qt` run does not finish. See instruction 47 -- it decelerates about
+six-fold rather than hanging, and two runs were killed at 66% and 83% by
+their own wall-clock caps. If CI runs tests/qt as one job it will meet the
+same wall.
