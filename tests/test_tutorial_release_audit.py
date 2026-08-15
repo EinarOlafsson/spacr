@@ -67,7 +67,10 @@ print(json.dumps(sorted({row[0] for row in APPS})))
         if lesson.get("app_key")
     ]
     assert len(lesson_keys) == len(set(lesson_keys))
-    assert set(lesson_keys) == registry
+    # The Pages deployment is main-based and may publish lessons for modules
+    # that have reached nightly but not main yet. Every module shipped by the
+    # checked-out product must nevertheless have exactly one lesson.
+    assert registry <= set(lesson_keys)
 
 
 def test_scene_midpoint_stays_inside_speech():
