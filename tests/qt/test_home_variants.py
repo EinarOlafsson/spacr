@@ -62,8 +62,9 @@ N_VARIANTS = 30
 SCROLLBARS_ALLOWED = {1, 25, 30}
 
 #: The variants that do NOT fit 1440x900 at the reference zoom, measured
-#: at a registry of fifty-four apps. Eighteen of the thirty are clean and
-#: this is the record of the other twelve.
+#: with fifty-six apps in the candidate bands (sixty-five in the launched
+#: registry). Seventeen of the thirty are clean and this records the other
+#: thirteen.
 #:
 #: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
 #: overflows`` compares the audit against this table with ``==``, so all
@@ -115,19 +116,20 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # New since the last record: v01 clips four descriptions and overflows.
     1:  {"clipped": 4, "overflow": 1},
     # Five bands of seven, all five now wrapping to a second row.
-    2:  {"elided": 21, "overflow": 1},
+    2:  {"elided": 23, "overflow": 1},
     3:  {"elided": 6, "overflow": 1},
     # Not names: ten one-line descriptions given 6-9 px of a 15 px need.
-    4:  {"clipped": 10},
+    4:  {"clipped": 23},
     5:  {"elided": 7},
     # 1 -> 10: the extra apps push nine more descriptions under their need.
-    13: {"clipped": 10},
+    13: {"clipped": 11},
     17: {"overflow": 1},
-    19: {"clipped": 1},
+    19: {"clipped": 14},
     20: {"elided": 1, "overflow": 1},
     # New at fifty-four apps: the A-to-Z index has no bands to grow into,
     # so the fifty-fourth row is one DenseRow past what 1440x900 holds.
-    22: {"clipped": 1},
+    22: {"clipped": 36},
+    24: {"clipped": 2},
     28: {"elided": 5, "overflow": 1},
     30: {"elided": 5},
 }
@@ -408,13 +410,13 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
-        assert len(keys) <= 11, (
+        assert len(keys) <= 12, (
             f"{title} has {len(keys)} apps, which is more than the one "
             f"wrapped row a seven-column grid may take")
     # ...and the floor is real: any cap below it would be unsatisfiable.
     total = sum(len(keys) for _title, keys in gen_common.CATS_STAGE5)
-    assert -(-total // 5) == 11, (
-        f"{total} apps over five bands no longer needs an eleven-wide band; "
+    assert -(-total // 5) == 12, (
+        f"{total} apps over five bands no longer needs a twelve-wide band; "
         f"tighten the cap above rather than leaving the slack unused")
 
 
@@ -1675,7 +1677,7 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
     It asserted zero everywhere, which is what it should assert and what
     it did for as long as thirty-four apps fitted. The registry is at
-    fifty-four and twelve of the thirty do not fit any more, so a bare
+    fifty-six and thirteen of the thirty do not fit any more, so a bare
     "assert nothing is wrong" stopped on the first of them and said
     nothing about the other twenty-nine — a red test that measured one
     variant. :data:`KNOWN_LAYOUT_DEFECTS` is that measurement written
@@ -1683,7 +1685,7 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
     appearing, worsening OR being fixed all fail here.
 
     Nothing is excused by being listed. See the note on the table for why
-    these twelve are a design decision rather than a defect to tune away.
+    these thirteen are a design decision rather than a defect to tune away.
     """
     # Pin zoom to 1.0 for this measurement. The test builds widgets at
     # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
@@ -1724,12 +1726,13 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
         # is the property the test was written for and still holds. Nine
         # and twenty-one when the registry held forty-nine apps; eleven
         # and nineteen at fifty-three in the bands; twelve and eighteen
-        # since the merged Classify module took it to fifty-four on
-        # 2026-08-06 and v22, the A-to-Z index, ran out of canvas. Both
+        # after the merged Classify module took it to fifty-four, then
+        # thirteen and seventeen at fifty-six after the explanation tools
+        # were filed explicitly. Both
         # numbers are asserted rather than derived so that a variant
         # quietly joining the defective set is a failure and not a
         # subtraction that still adds up.
-        assert len(measured) == 12 and N_VARIANTS - len(measured) == 18
+        assert len(measured) == 13 and N_VARIANTS - len(measured) == 17
     finally:
         _prefs.set_font_scale(_original_zoom)
 

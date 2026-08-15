@@ -795,6 +795,10 @@ ALPHA_MODULES = {
     # trusted, but the merged screen itself has not been run on real data.
     # Signing it off means deleting its line there and here.
     "classify_merged",
+    # Instruction 99's explanation and hit-resolution workflows are usable
+    # and tested, but remain alpha until they have been exercised on a real
+    # screen end to end.
+    "explain_cv", "investigate_hit",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -803,7 +807,7 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """37 alpha, 9 beta, named one at a time.
+    """39 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot. It read 36 until the merged Classify
@@ -815,7 +819,7 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 37 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 39 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 

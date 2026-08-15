@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "reviewed_at": "2026-08-15",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "on_error",
+      "source_sha256": "76d4dc13227f86dcf496876b19faa30290aa3622dbef2fcb321ccd707e9e7970",
+      "source": "What a failed unit of work does to the run, checked at every batch boundary (field, well, plate). 'stop' aborts on the first failure - the default, because a run that quietly drops a third of its plates produces a number that looks exactly like a good one. 'skip' records the unit, the stage and the reason, then carries on; what was skipped is listed at the end and stamped into the run ledger. 'retry' re-attempts the unit on_error_attempts times with a doubling backoff and then behaves like 'stop'. Default 'stop'.",
+      "translation": "किसी कार्य इकाई के विफल होने पर रन में क्या किया जाए; इसे हर batch सीमा (फ़ील्ड, वेल, प्लेट) पर जाँचा जाता है। 'stop' पहली विफलता पर रोक देता है—यही डिफ़ॉल्ट है, क्योंकि जो रन चुपचाप अपनी एक तिहाई प्लेटें छोड़ देता है, वह ऐसा मान दे सकता है जो सही मान जैसा ही दिखता है। 'skip' इकाई, चरण और कारण दर्ज करके आगे बढ़ता है; छोड़ी गई चीज़ें अंत में सूचीबद्ध होती हैं और रन लेज़र में दर्ज की जाती हैं। 'retry' दोगुने backoff के साथ इकाई को on_error_attempts बार फिर आज़माता है और फिर 'stop' की तरह व्यवहार करता है। डिफ़ॉल्ट 'stop' है।"
+    }
+  ]
+}

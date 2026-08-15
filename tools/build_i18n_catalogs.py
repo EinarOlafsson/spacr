@@ -2690,6 +2690,11 @@ def extract_static_ui_sources() -> tuple[str, ...]:
 
 def canonical_sources() -> dict[str, object]:
     """Read every canonical English source from the application."""
+    # Run-control settings are registered by importing runctx rather than by
+    # an individual app factory.  Import it explicitly so a clean catalog
+    # build and a long-lived GUI/test process expose the same source set.
+    import spacr.runctx  # noqa: F401
+
     from spacr.qt.screens.settings_model import (
         CATEGORY_TOOLTIPS,
         CATEGORY_TOOLTIPS_BY_APP,

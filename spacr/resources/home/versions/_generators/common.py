@@ -578,7 +578,7 @@ CATS_STAGE5 = _with_late_registrations([
     # Segment; the note there says why.
     ("Analyse", ["classify_merged", "classify", "ml_analyze", "map_barcodes",
                  "barcode_qc", "regression", "umap", "graph_builder",
-                 "anndata_export", "profiler", "pca"]),
+                 "anndata_export", "profiler", "pca", "explain_cv"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
@@ -600,7 +600,7 @@ CATS_STAGE5 = _with_late_registrations([
     ("Report",  ["plate_view", "train_compare", "classifier_evaluation",
                  "run_history", "run_compare", "db_browser", "report",
                  "pipeline_graph", "hit_list", "methods_export",
-                 "qc_dashboard"]),
+                 "qc_dashboard", "investigate_hit"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([

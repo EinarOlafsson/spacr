@@ -2025,16 +2025,30 @@ def analyze_endodyogeny(settings):
 
         bin_labels = [f"{bins[i]:.2f}-{bins[i+1]:.2f}" for i in range(len(bins) - 1)]
 
+        # NumPy/pandas versions do not all round ``area ** 1.5`` at the
+        # same last bit as ``min_area ** 1.5 * 2**n``.  A value exactly on a
+        # theoretical doubling edge could consequently fall into the lower
+        # bin on one supported Python stack and the upper bin on another.
+        # Snap only machine-precision neighbours to the authoritative edge;
+        # values meaningfully below it remain in the lower interval.
+        cut_values = df[volume_column].to_numpy(dtype=float, copy=True)
+        edge_tolerance = 16 * np.finfo(float).eps
+        for edge in bins:
+            on_edge = np.isclose(
+                cut_values, edge, rtol=edge_tolerance, atol=0.0,
+            )
+            cut_values[on_edge] = edge
+
         if verbose:
             print('Volume bins:', bins)
             print('Volume bin labels:', bin_labels)
 
         # Cut into bins; values outside the range become NaN
         df[bin_column] = pd.cut(
-            df[volume_column], bins=bins, labels=bin_labels, right=False
+            cut_values, bins=bins, labels=bin_labels, right=False
         )
         df['bin_index'] = pd.cut(
-            df[volume_column], bins=bins, labels=range(1, len(bins)), right=False
+            cut_values, bins=bins, labels=range(1, len(bins)), right=False
         )
 
         # Coerce to float so NaN is preserved (int would raise)
