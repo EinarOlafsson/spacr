@@ -384,7 +384,16 @@ def ds_src(tmp_path, rng):
         (src / "measurements").mkdir(parents=True)
         png_dir = src / "data" / "cell_png"
         png_dir.mkdir(parents=True)
-        paths = [_png(png_dir / f"{name}_o{i + 1}.png", rng) for i in range(n)]
+        # SPACR-SHAPED NAMES: plate_row_column_field_object. Instruction 94's
+        # split reads the well out of the filename, and "plate1_o1.png" is a
+        # name spaCR cannot produce -- a fixture built from those was testing
+        # a plate that cannot exist. Rows vary and columns alternate, so the
+        # crops span several independent wells per condition rather than
+        # confounding the two.
+        row = lambda i: (i % 10) % 5 + 1
+        col = lambda i: (i % 10) // 5 + 1
+        paths = [_png(png_dir / f"{name}_r{row(i)}_c{col(i)}_f1_o{i + 1}.png",
+                      rng) for i in range(n)]
         with sqlite3.connect(src / "measurements" / "measurements.db") as con:
             pd.DataFrame({"png_path": paths,
                           "cell_id": [f"o{i + 1}" for i in range(n)]}
@@ -525,20 +534,32 @@ def _build_png_src(root, rng, n=N, prefix="o", extra_cols=None,
     png_dir = src / "data" / "cell_png"
     png_dir.mkdir(parents=True, exist_ok=True)
 
-    real_paths = [_png(png_dir / f"{prefix}{i + 1}.png", rng) for i in range(n)]
+    # A REAL PLATE SHAPE, and the FILENAMES carry it. Instruction 94's split
+    # reads the well out of the crop name, so "o1.png" is a name spaCR cannot
+    # produce -- and the row/column columns below described a plate the files
+    # did not. Five rows per column means each condition spans five
+    # independent wells, so a well-grouped split can hold one out and still
+    # train on the rest; two wells confounded with two classes is a design
+    # the split correctly refuses.
+    _row = lambda i: (i % 10) % 5 + 1
+    _col = lambda i: (i % 10) // 5 + 1
+    real_paths = [
+        _png(png_dir / f"plate1_r{_row(i)}_c{_col(i)}_f1_{prefix}{i + 1}.png",
+             rng)
+        for i in range(n)]
     stored = list(real_paths) if png_paths is None else list(png_paths)
 
     df = pd.DataFrame({
         "png_path": stored,
         "cell_id": [f"o{i + 1}" for i in range(n)],
         "plateID": ["plate1"] * n,
-        "rowID": [f"r{(i % 2) + 1}" for i in range(n)],
-        "columnID": [f"c{(i % 2) + 1}" for i in range(n)],
+        "rowID": [f"r{_row(i)}" for i in range(n)],
+        "columnID": [f"c{_col(i)}" for i in range(n)],
         "fieldID": ["f1"] * n,
-        "test": [1 if i % 2 == 0 else 2 for i in range(n)],
+        "test": [_col(i) for i in range(n)],
     })
     if with_condition:
-        df["condition"] = ["c1" if i % 2 == 0 else "c2" for i in range(n)]
+        df["condition"] = [f"c{_col(i)}" for i in range(n)]
     for key, values in (extra_cols or {}).items():
         df[key] = values
 
@@ -594,8 +615,17 @@ def test_generate_training_dataset_named_metadata_rules(tmp_path, rng, monkeypat
     counts = _class_counts(train_dir, test_dir)
     assert sorted(counts) == ["colc1", "colc2", "everything", "hightest",
                               "lowtest", "notr2"]
-    # balanced down to the smallest class (20) then split 80/20
-    assert all(counts[c] == (16, 4) for c in counts)
+    # Balanced down to the smallest class (20), then split about 80/20.
+    #
+    # ABOUT, not exactly: instruction 94 splits by WELL, so whole wells move
+    # and the fraction is granular. Five of these classes span five wells and
+    # land on (16, 4); 'notr2' is every row but r2, so it spans four and one
+    # held-out well is 25%. Pinning (16, 4) for all six would be asserting a
+    # precision a leakage-safe split cannot offer, and the property that
+    # matters is that each class is balanced and roughly a fifth is held out.
+    for name, (n_train, n_test) in counts.items():
+        assert n_train + n_test == 20, (name, counts[name])
+        assert 0.15 <= n_test / 20 <= 0.30, (name, counts[name])
 
 
 def test_generate_training_dataset_unknown_column_aborts(tmp_path, rng, capsys):
@@ -779,7 +809,12 @@ def test_generate_training_dataset_repairs_png_paths(tmp_path, rng):
     """png_paths recorded on another machine are re-rooted under src; paths
     that cannot be repaired are dropped by the png_type filter."""
     src_dir = tmp_path / "plate1"
-    names = [f"o{i + 1}.png" for i in range(N)]
+    # The names have to match the files _build_png_src writes, which are
+    # spaCR-shaped -- this test is about REPAIRING a path's root, not about
+    # renaming the crop, and a name that no file has would test neither.
+    _row = lambda i: (i % 10) % 5 + 1
+    _col = lambda i: (i % 10) // 5 + 1
+    names = [f"plate1_r{_row(i)}_c{_col(i)}_f1_o{i + 1}.png" for i in range(N)]
     stored = []
     for i, name in enumerate(names):
         if i < 10:                                    # already correct
@@ -864,8 +899,14 @@ def test_training_dataset_from_annotation_metadata_rowid_filter(anno_db, tmp_pat
         anno_db, str(tmp_path / "dst"), annotation_column="test",
         annotated_classes=(1, 2), metadata_type_by="rowID",
         class_metadata=["r1"])
-    # rowID r1 and test==1 select the same even rows
-    assert len(out[0]) == 10 and len(out[1]) == 0
+    # The fixture is five rows x two columns now, so r1 is 4 of the 20 rows
+    # and test==1 is the c1 half -- their intersection is 2. It used to be 10
+    # because rowID alternated r1/r2 in step with test, which made the two
+    # filters the same filter and could not have caught one being ignored.
+    # Both classes appear: r1 spans two columns now, so the test==1 and
+    # test==2 halves each contribute. With the old two-row fixture r1 was
+    # entirely test==1, which is why the second list used to be empty.
+    assert len(out[0]) == 2 and len(out[1]) == 2
 
 
 def test_training_dataset_from_annotation_metadata_bad_key(anno_db, tmp_path):

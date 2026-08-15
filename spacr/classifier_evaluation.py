@@ -445,14 +445,28 @@ def augmentation_family(path: Any) -> str:
 def sample_identity(path: Any) -> Dict[str, str]:
     """Parse plate/well/field/object identities from a crop filename.
 
+    A spaCR crop is named ``plate_row_column_field_object`` -- FIVE tokens,
+    the same shape as the ``prcfo`` key that
+    :func:`spacr.utils.annotate_conditions` builds::
+
+        df['prcfo'] = plateID + '_' + rowID + '_' + columnID + '_'
+                    + fieldID + '_o' + object_label
+
+    so A WELL IS plate + row + column. Reading it as ``plate_row`` -- which
+    this did -- makes every column of a row one group: it holds out whole
+    ROWS while reporting them as wells, and a plate measured in a single row
+    comes back as "every cell is from one well" when it has twelve. The
+    grouped split is the one place a name has to be parsed exactly, because
+    a wrong grouping is invisible in every number downstream.
+
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
     family = augmentation_family(path)
     parts = family.split("_")
     plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    well = "_".join(parts[:2]) if len(parts) >= 2 else ""
-    field_id = "_".join(parts[:3]) if len(parts) >= 3 else ""
+    well = "_".join(parts[:3]) if len(parts) >= 3 else ""
+    field_id = "_".join(parts[:4]) if len(parts) >= 4 else ""
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),
