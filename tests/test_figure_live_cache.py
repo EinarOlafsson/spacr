@@ -697,3 +697,104 @@ def test_a_fresh_render_is_not_discarded_by_its_own_successor(qtbot, queue):
     queue._on_preview_rendered((0, 7, None))
     assert painted, "the finished render was never painted"
     assert painted[0][1] == 7, "painted a stale token"
+
+
+def test_cancel_puts_the_figure_back(qtbot, queue):
+    """Live apply with no way out is a trap.
+
+    The dialog this replaced restored the figure on Cancel and said exactly
+    why: "the user drags a spin box to see what it does and there is no longer
+    an 'as it was'". This one changes far more, so the trap is worse -- and
+    the Close-only button box it shipped with had no way out at all.
+    """
+    from matplotlib.figure import Figure
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = Figure()
+    axis = figure.add_subplot(111)
+    axis.plot([0, 1, 2], [0, 5, 3], color="blue")
+    axis.set_title("original")
+
+    queue.add_figure(figure)
+    live = queue.figure_for(0)
+    dialog = FigureSettingsDialog(live, queue)
+    qtbot.addWidget(dialog)
+
+    # Mangle it the way a user exploring the controls would.
+    live_axis = live.axes[0]
+    live_axis.lines[0].set_color("red")
+    live_axis.set_title("mangled")
+    live_axis.set_yscale("log")
+
+    dialog.reject()
+
+    assert live.axes, "the restore left the figure with no axes at all"
+    restored = live.axes[0]
+    assert restored.get_title() == "original"
+    assert restored.lines[0].get_color() == "blue"
+    assert restored.get_yscale() == "linear"
+
+
+def test_the_dialog_can_still_propagate_into_the_settings_panel(qtbot, queue):
+    """A feature the swap to this dialog silently dropped.
+
+    "Propagate settings" writes the values into the module's settings panel so
+    the next run starts from them.
+    """
+    from matplotlib.figure import Figure
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+
+    sent = []
+    dialog = FigureSettingsDialog(
+        figure, propagate_callback=lambda values: sent.append(values))
+    qtbot.addWidget(dialog)
+    assert dialog._propagate_btn.isEnabled()
+    dialog._propagate_btn.click()
+    assert sent, "propagate did not reach the callback"
+
+    # ...and it is offered but disabled when there is nowhere to write.
+    plain = FigureSettingsDialog(figure)
+    qtbot.addWidget(plain)
+    assert not plain._propagate_btn.isEnabled()
+
+
+def test_a_umap_figure_still_gets_its_live_umap_controls(qtbot, queue):
+    """Instruction 75, dropped when this dialog replaced the old one.
+
+    Every Image UMAP setting, live against the figure -- offered only for a
+    figure carrying the embedding it was drawn from, because without it
+    "live" would mean re-running the reduction and every point would move.
+    """
+    import numpy as np
+    from matplotlib.figure import Figure
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    rng = np.random.default_rng(0)
+    embedding = rng.normal(size=(30, 2))
+    figure = Figure(figsize=(4, 4))
+    figure.subplots().scatter(embedding[:, 0], embedding[:, 1])
+    figure._spacr_umap_payload = {
+        "embedding": embedding,
+        "labels": list(range(30)),
+        "settings": {},
+    }
+
+    dialog = FigureSettingsDialog(figure, queue)
+    qtbot.addWidget(dialog)
+    tabs = [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())]
+    assert "Image UMAP" in tabs, f"no live UMAP controls; tabs were {tabs}"
+    assert dialog.umap_values()
+
+    # A figure without the embedding must not offer them.
+    plain = Figure()
+    plain.subplots().plot([0, 1], [0, 1])
+    other = FigureSettingsDialog(plain, queue)
+    qtbot.addWidget(other)
+    assert "Image UMAP" not in [
+        other.tabs.tabText(i) for i in range(other.tabs.count())]

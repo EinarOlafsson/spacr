@@ -140,12 +140,27 @@ class FigureSettingsDialog(QDialog):
     #: It was 220 ms when the render blocked, and that still felt like lag.
     REDRAW_DELAY_MS = 60
 
-    def __init__(self, figure, parent=None, *, on_change: Optional[Callable] = None):
+    def __init__(self, figure, parent=None, *, on_change: Optional[Callable] = None,
+                 propagate_callback: Optional[Callable] = None):
         super().__init__(parent)
         self.setWindowTitle("Figure settings")
         self._figure = figure
         self._on_change = on_change
+        self._propagate_cb = propagate_callback
         self.resize(520, 640)
+
+        # A SNAPSHOT TO GO BACK TO. The dialog this replaced restored the
+        # figure on Cancel, and said why: "live apply with no way out is a
+        # trap: the user drags a spin box to see what it does and there is no
+        # longer an 'as it was'". This dialog changes far more than that one
+        # did, so the trap is correspondingly worse. The copy is the same one
+        # the preview renderer takes, ~14 ms, and buys a working Cancel.
+        self._snapshot = None
+        try:
+            import pickle
+            self._snapshot = pickle.dumps(figure)
+        except Exception:  # pragma: no cover - artists that will not pickle
+            pass
 
         # Coalesce redraws. Every control calls _changed(); this restarts a
         # single-shot timer, so a burst of twenty value changes costs one
@@ -167,16 +182,109 @@ class FigureSettingsDialog(QDialog):
             name = axis.get_title() or f"Axes {index + 1}"
             self.tabs.addTab(self._scroll(self._axes_tab(axis)), name[:18])
 
+        # The Image UMAP half (instruction 75): every UMAP setting, live
+        # against this figure. Only for a figure carrying the embedding it was
+        # drawn from -- without it "live" would mean re-running the reduction
+        # and every point would move.
+        self._umap_settings = None
+        self._umap_payload = getattr(figure, "_spacr_umap_payload", None)
+        self._umap_applied = {}
+        if isinstance(self._umap_payload, dict):
+            self._build_umap_tab()
+
         # Scrolling the panel must scroll it, not edit whatever is under the
         # pointer. Qt gives spin boxes and combos the wheel by default, so a
         # scroll gesture over this dialog changed a dozen settings and
         # triggered a render for each -- which is what made it unusable.
         self._block_wheel_on_inputs()
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
-        buttons.rejected.connect(self.accept)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self._propagate_btn = QPushButton("Propagate settings")
+        if callable(propagate_callback):
+            self._propagate_btn.setToolTip(
+                "Write these values into the module's settings panel, so the "
+                "next run starts from them and they are saved with it.")
+        else:
+            self._propagate_btn.setEnabled(False)
+            self._propagate_btn.setToolTip(
+                "Only available for a figure opened from a module that has a "
+                "settings panel to write into.")
+        self._propagate_btn.clicked.connect(self._propagate)
+        buttons.addButton(self._propagate_btn, QDialogButtonBox.ActionRole)
         buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+    # ------------------------------------------------------- UMAP, propagate
+
+    def _build_umap_tab(self) -> None:
+        """Add every Image UMAP setting, live against this figure."""
+        try:
+            from .umap_figure_settings import UmapFigureSettings
+        except Exception:  # pragma: no cover - UMAP support absent
+            return
+        values = dict(self._umap_payload.get("settings") or {})
+        self._umap_settings = UmapFigureSettings(values, self)
+        self._umap_settings.settings_changed.connect(self._on_umap_changed)
+        self.tabs.addTab(self._scroll(self._umap_settings), "Image UMAP")
+        self._umap_applied = dict(self._umap_settings.values())
+
+    def _on_umap_changed(self, values: dict) -> None:
+        """Push a changed Image UMAP setting at the figure, now.
+
+        The embedding is read, never recomputed -- see
+        :func:`spacr.qt.widgets.umap_figure_settings.redraw_umap_figure`.
+        """
+        from .umap_figure_settings import apply_to_figure
+
+        mode = apply_to_figure(self._figure, self._umap_payload, values,
+                               self._umap_applied)
+        self._umap_applied = dict(values)
+        if mode:
+            self._changed()
+
+    def umap_values(self) -> dict:
+        """Every Image UMAP setting the window holds, or ``{}``."""
+        if self._umap_settings is None:
+            return {}
+        return self._umap_settings.values()
+
+    def _propagate(self) -> None:
+        """Send the current values into the module's settings panel."""
+        if not callable(self._propagate_cb):
+            return
+        values = dict(self.umap_values())
+        try:
+            self._propagate_cb(values)
+        except Exception:
+            pass
+
+    def reject(self):
+        """Put the figure back the way the window found it, then close.
+
+        Live apply with no way out is a trap: the user drags a spin box to see
+        what it does and there is no longer an "as it was".
+        """
+        if self._snapshot is not None:
+            try:
+                import pickle
+
+                restored = pickle.loads(self._snapshot)
+                # Copy the restored state back INTO the figure the queue
+                # holds, rather than swapping the object -- everything else
+                # refers to the original by identity.
+                self._figure.clear()
+                for axis in restored.axes:
+                    self._figure._axstack.add(axis)
+                    axis.figure = self._figure
+                    axis.set_figure(self._figure)
+                self._figure.patch.set_facecolor(restored.patch.get_facecolor())
+                self._figure.set_size_inches(*restored.get_size_inches())
+                self._changed()
+            except Exception:  # pragma: no cover - restore is best-effort
+                pass
+        super().reject()
 
     #: Input types that steal the wheel from the scroll area beneath them.
     _WHEEL_STEALERS = (QSpinBox, QDoubleSpinBox, QComboBox)
