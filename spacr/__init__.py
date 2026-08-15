@@ -311,3 +311,30 @@ def __getattr__(name: str):
 def __dir__() -> list[str]:
     """Include lazy submodule names in ``dir(spacr)`` for tab-completion."""
     return sorted(set(globals()) | {"download_models"} | set(_SUBMODULES))
+
+
+def _silence_glyph_logging() -> None:
+    """Pin fontTools at WARNING as soon as spaCR is imported.
+
+    ``fontTools.subset`` emits about forty INFO lines for every figure saved
+    -- each glyph name and glyph ID, twice, for MATH then GSUB then glyf, then
+    one line per font table. A regression run saves a dozen figures, so
+    thousands of lines of glyph inventory bury the run's own output, and the
+    line the user is actually looking for scrolls past unread.
+
+    ``logging_util.QUIET_LOGGERS`` lists it too, but that only applies when
+    ``setup_logging()`` runs, it short-circuits on ``_INITIALISED`` if
+    something configured logging first, and a script or notebook that never
+    calls it gets no protection at all. Doing it at import means importing
+    spaCR is sufficient, whatever the startup order.
+
+    This sets a floor, not a lock: anyone who genuinely wants glyph traces can
+    lower the level again after importing.
+    """
+    import logging
+
+    for name in ("fontTools", "fontTools.subset", "fontTools.ttLib"):
+        logging.getLogger(name).setLevel(logging.WARNING)
+
+
+_silence_glyph_logging()

@@ -3909,6 +3909,19 @@ def perform_regression(settings):
             print(f"Skipping volcano plot: settings['volcano']={settings['volcano']!r} "
                 f"is not one of 'all', 'gene', 'grna'.")
 
+        # SAY WHERE IT WENT. Every other artifact this module writes announces
+        # itself ("Saved regression data to ...", "Plot -> ..."), and the
+        # volcano -- the figure the module exists to produce -- was written
+        # silently. With nothing naming it, a run that had drawn one perfectly
+        # well was indistinguishable from a run that had drawn none, and was
+        # reported as "I can't see the regression plot".
+        if os.path.exists(volcano_path):
+            print(f"Saved volcano plot to {volcano_path}")
+        elif settings['volcano'] in ('all', 'gene', 'grna'):
+            print(f"WARNING: the volcano plot was requested "
+                  f"(volcano={settings['volcano']!r}) but no file was written "
+                  f"to {volcano_path}")
+
         display(gene_list) if gene_list is not None else None
 
         phenotype_plot = os.path.join(res_folder, 'phenotype_plot.pdf')
