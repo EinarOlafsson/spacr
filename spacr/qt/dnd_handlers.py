@@ -1171,9 +1171,7 @@ class HitInvestigationDropHandler(DropHandler):
         has_guide = any("guide" in field or "grna" in field for field in fields)
         has_fraction = any("fraction" in field or "abundance" in field
                            for field in fields)
-        has_well = ({"plateid", "rowid", "columnid"} <= fields
-                    or "prc" in fields or "well" in fields)
-        return has_guide and has_fraction and has_well
+        return has_guide and has_fraction
 
     def apply(self, path: Path, screen) -> None:
         panel = getattr(screen, "investigate", None)

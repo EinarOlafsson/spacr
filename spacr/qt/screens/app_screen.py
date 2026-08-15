@@ -629,6 +629,7 @@ class AppScreen(QWidget):
         self._jobs = JobRunner(self, app_key=f"{self.app_key} background")
 
         # Timer to poll RAM/GPU/CPU periodically
+        self._usage_generation = 0
         self._usage_timer = QTimer(self)
         self._usage_timer.setInterval(2000)
         self._usage_timer.timeout.connect(self._refresh_usage)
@@ -2133,6 +2134,7 @@ class AppScreen(QWidget):
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
         # Keep this Qt lifecycle hook out of the documented spaCR API: it is
         # only the inverse of the showEvent timer activation above.
+        self._usage_generation += 1
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None:
             usage_timer.stop()
@@ -2724,6 +2726,7 @@ class AppScreen(QWidget):
         # Stop polling before shutting the runner down, or the 2 s timer can
         # start one more job while `shutdown` is draining the last.
         try:
+            self._usage_generation += 1
             self._usage_timer.stop()
         except (AttributeError, RuntimeError):
             pass
@@ -3127,11 +3130,23 @@ class AppScreen(QWidget):
         # at one.
         per_core = bool(self._btn_cpu_toggle.isChecked()
                         and self._per_core_bars)
-        self._usage_jobs.submit(lambda: _sample_usage(per_core),
-                                self._apply_usage)
+        generation = self._usage_generation
+        self._usage_jobs.submit(
+            lambda: _sample_usage(per_core),
+            lambda sample, generation=generation: self._apply_usage(
+                sample, generation),
+        )
 
-    def _apply_usage(self, sample: dict) -> None:
+    def _apply_usage(self, sample: dict,
+                     request_generation: Optional[int] = None) -> None:
         """Paint one worker-taken usage sample. GUI thread only."""
+        # A page can be hidden while the worker is sampling. hideEvent bumps
+        # the generation, invalidating only that in-flight result. Explicit
+        # refreshes remain useful on a hidden test/diagnostic screen and the
+        # next showEvent requests a fresh generation immediately.
+        if (request_generation is not None
+                and request_generation != self._usage_generation):
+            return
         if not sample:
             return
         ram = sample.get("ram")
