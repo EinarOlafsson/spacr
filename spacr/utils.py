@@ -9372,7 +9372,28 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     # Apply the function to the feature column
     df_results['gene'] = df_results['feature'].apply(extract_and_clean_gene)
     
-    df_metadata['gene'] = df_metadata['Gene ID'].apply(lambda x: x.split('_')[1] if '_' in x else None)
+    # The identifier column is DETECTED, not assumed.
+    #
+    # 'Gene ID' is the header of the bundled toxoplasma_metadata.csv, and
+    # hard-coding it meant any other annotation table died on
+    # `KeyError: 'Gene ID'` -- a message naming a column the user's file does
+    # not have and never claimed to, after the whole regression had already
+    # run. A gRNA barcode export keyed on 'name' (TGGT1_225160_2) carries
+    # exactly the same identifier in exactly the same shape.
+    identifier_column = next(
+        (column for column in ('Gene ID', 'gene_id', 'GeneID', 'gene', 'name',
+                               'grna', 'grna_name')
+         if column in df_metadata.columns), None)
+    if identifier_column is None:
+        raise ValueError(
+            f"{os.path.basename(metadata_file)} has no column holding a gene "
+            f"or gRNA identifier. Looked for 'Gene ID', 'gene_id', 'GeneID', "
+            f"'gene', 'name', 'grna' and 'grna_name'; the file has "
+            f"{list(df_metadata.columns)}. The identifier is parsed as the "
+            f"middle field of e.g. 'TGGT1_225160_2', so any column in that "
+            f"form will do.")
+    df_metadata['gene'] = df_metadata[identifier_column].astype(str).apply(
+        lambda value: value.split('_')[1] if '_' in value else None)
     
     # Drop rows where gene extraction failed
     #df_results = df_results.dropna(subset=['gene'])

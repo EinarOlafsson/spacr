@@ -365,7 +365,10 @@ def test_missing_dependent_variable_raises(screen, stubs):
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, dependent_variable="not_a_column")
-    with pytest.raises(ValueError, match="not_a_column not found in the DataFrame"):
+    # The message names the setting and the columns actually present, and --
+    # when the score slot holds a count table -- says the inputs look swapped,
+    # which is how this error is usually reached.
+    with pytest.raises(ValueError, match="'not_a_column' is not a column"):
         perform_regression(settings)
 
 

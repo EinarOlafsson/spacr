@@ -1,0 +1,161 @@
+================================================================================
+SCORE AND COUNT CSVs ARE PAIRED WHEN THEY ARE ADDED, NOT BY LIST POSITION
+================================================================================
+
+Status:    not started — the two silent failures are fixed, the design is not built
+Requested: 2026-08-15 — "instead of just having 2 fields an a for loop where csvs
+           are matched by possition. i wnt them matched from the start, in some
+           intuitive way. also this removes the need for the plateid setting so
+           remove it. if there is no plateID in one file copy it from its
+           partner, and if neither have a plateID just add plate ID by their
+           import or der kind of like before."
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Two independent list settings, `score_data` and `count_data`, each rendered as
+its own `FilePathListWidget`. `perform_regression` loops over each list
+separately, stamps a plate ID, concatenates, and joins the two frames on
+`prc = plateID_rowID_columnID`.
+
+Plate ID today comes from `_assign_plate` (`spacr/ml.py`), in priority order:
+an explicit `plates_score`/`plates_count` list (not exposed anywhere), then
+`plate_from_order`, then the file's own `plateID` column, then `plate{i+1}` by
+LIST POSITION.
+
+The `plateID` SETTING is separate from all of that: a single scalar (default
+`'plate1'`) passed to `process_scores` and `process_reads` as the fallback
+plate for a frame that has no `plateID` column. On a multi-plate run it is
+already ignored, with a warning:
+
+    Warning: process_scores received plate='plate1' but the input DataFrame
+    already contains 4 distinct plateIDs. Ignoring the 'plate' argument...
+
+Two silent failures were fixed on 2026-08-15 and should not be re-derived:
+
+  * `spacr/utils.py`, `correct_metadata`: the `^pp` -> `p` repair ran before
+    the legacy `plate` -> `plateID` promotion and only over `plateID`. Score
+    files stamped `pplate1` met counts stamped `plate1`, the join returned
+    ZERO rows, and the run died 200 lines later in `plot_plates` with
+    `KeyError: 0`. Now repaired after promotion, over `plateID`/`prcfo`/`prc`.
+  * `spacr/ml.py`, `_check_score_count_pairing`: refuses an empty join, or one
+    keeping under 50% of count wells, naming the plate IDs on each side.
+
+Neither of those catches the case this file exists for: two lists of equal
+length added in DIFFERENT orders. The join succeeds, the row count looks
+right, and every effect size is attached to the wrong plate.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Position is an invisible contract. Nothing in the panel states it, nothing
+shows it, and the file picker added on 2026-08-15 hands files over in the
+file manager's order rather than plate order -- so the contract is easy to
+break and impossible to see broken.
+
+The TSG101 screen is running on it today: its count CSVs carry no `plateID`
+column, so all four plates are identified purely by the order they were added.
+It worked because they happened to be added in plate order.
+
+The `plateID` setting makes this worse by looking like the answer. A user
+whose plates are mismatched sees a setting called `plateID` and reasonably
+expects it to fix the problem. It cannot: it is one scalar for a run with four
+plates, and the pipeline discards it.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. ONE PAIRED INPUT CONTROL, replacing the two independent lists. A table with
+   one row per plate:
+
+       plate        score CSV                        count CSV
+       ---------------------------------------------------------------
+       plate1       ..._plate1_..._result.csv        plate_1_unique...csv
+       plate2       ..._plate2_..._result.csv        plate_2_unique...csv
+
+   Adding files fills rows; a row is a pair. Rows are reorderable, and either
+   cell can be re-picked or cleared without disturbing the other. This is the
+   "matched from the start" the request asks for: the pairing is stated when
+   the files are chosen, not inferred at run time.
+
+   Make the obvious case free. When a batch is dropped, offer a suggested
+   pairing (by longest common filename token, e.g. `plate1`/`plate_1`) and
+   show it as a proposal the user confirms or corrects -- never as a silent
+   auto-match, which is the same invisible contract in a new place.
+
+2. PLATE ID RESOLUTION, per pair, in this order:
+     a. the file's own `plateID` column, when it has one;
+     b. its PARTNER's plate ID, when only one side declares it;
+     c. `plate{n}` from the row's position in the table, when neither does.
+   Record which rule fired for each pair and print it, so the log says
+   "plate2: taken from the count file" rather than leaving it to be inferred.
+   Conflict -- both sides declare a plate ID and they differ -- is an error,
+   not a preference: it means the user paired two files that disagree.
+
+3. REMOVE the `plateID` setting from the regression defaults
+   (`get_perform_regression_default_settings` in `spacr/settings.py`) and from
+   the regression layout in `spacr/qt/screens/settings_model.py`. Rule 2c
+   supersedes it entirely.
+
+   It is INDEXED, not `.get()`-ed, at `spacr/ml.py` in the calls to
+   `process_scores` and `process_reads`, so both call sites must change in the
+   same commit or regression becomes unstartable from every entry point. Pass
+   the pair's resolved plate ID instead. Leave the `plate` PARAMETER of those
+   two functions alone -- other modules still call them -- and leave
+   `settings['plateID']` alone in `spacr/submodules.py`, which is a different
+   module with its own defaults.
+
+4. KEEP THE JOIN ON THE WELL. Pairing resolves plate identity; it does not
+   replace the merge. The frames are still concatenated and still joined on
+   `prc`, because sequencing routinely covers wells that were never imaged and
+   one score file may legitimately cover several plates. A pair with an empty
+   cell is therefore legal: one score file paired with four count files is
+   expressed as four rows sharing that score file, and the plate comes from
+   the count side by rule 2b.
+
+5. MIGRATE, do not break. A settings CSV holding flat `score_data` and
+   `count_data` lists must still load: zip them positionally into pairs, which
+   is exactly today's behaviour, and say so in the log. Write the new paired
+   form going forward. `plates_score`, `plates_count` and `plate_from_order`
+   become unnecessary and should be dropped once the pairing is authoritative.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Two score files and two count files, added in OPPOSITE orders, produce the
+    correct pairing -- the case no current guard catches. This is the test
+    that justifies the whole change.
+  * Each of the three plate-ID rules has a test: own column; copied from
+    partner; assigned by row order. Plus the conflict case raising.
+  * A settings CSV written before this change loads, pairs positionally, and
+    produces byte-identical results to today.
+  * `plateID` is absent from `get_perform_regression_default_settings`, and
+    `pytest tests/test_settings_categories.py tests/test_dead_settings.py -q`
+    is green -- both police settings that exist but are never read.
+  * The real screen runs end to end: the four `*_maxvit_*_result.csv` paired
+    with the four `plate_*_unique_combinations.csv`, log reports 1,366 paired
+    wells, and the log names the resolution rule used for each plate.
+  * `pytest tests/test_regression_workbench.py tests/test_cov_ml_perform_regression.py -q`
+    stays green.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not inferring the plate from the filename as an authoritative rule. It is fine
+as the SUGGESTION in step 1, where the user confirms it. It is not fine as a
+silent rule: a filename is not data, the next naming convention breaks it
+without a symptom, and a wrong plate parsed from a filename is
+indistinguishable from a right one.
+
+Not requiring the two lists to be the same length. See step 4 -- they have no
+reason to be, and enforcing it would reject valid screens.
+
+Not auto-matching without confirmation. The whole defect being fixed here is
+an invisible pairing rule; replacing positional matching with filename
+matching, equally unstated, would move the bug rather than remove it.
