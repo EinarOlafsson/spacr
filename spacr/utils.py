@@ -8924,9 +8924,21 @@ def perform_statistical_tests(all_df, cluster_col='cluster'):
     kruskal_results = []
 
     for feature in numeric_features:
-        groups = [all_df[all_df[cluster_col] == label][feature] for label in np.unique(all_df[cluster_col])]
-        
-        if check_normality(all_df[feature]):
+        groups = [
+            all_df.loc[all_df[cluster_col] == label, feature]
+            for label in np.unique(all_df[cluster_col])
+        ]
+        is_normal = check_normality(all_df[feature])
+        # A clustering algorithm is allowed to find one population. Neither
+        # ANOVA nor Kruskal-Wallis is defined for fewer than two groups, but
+        # that must not turn an otherwise valid embedding into an exception.
+        # Keep the feature in its normality-selected result table and mark the
+        # unavailable statistic explicitly; ``combine_results`` then retains
+        # the feature importance and its stable one-row schema.
+        if len(groups) < 2:
+            result = (feature, np.nan, np.nan)
+            (anova_results if is_normal else kruskal_results).append(result)
+        elif is_normal:
             stat, p = f_oneway(*groups)
             anova_results.append((feature, stat, p))
         else:
