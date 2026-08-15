@@ -682,21 +682,9 @@ def test_selection_keys_agree_with_the_schema_row_key(field, label):
 # was fixed, and an xfail nobody removes is a property nobody is testing.
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema, unfixed): compose_prcf writes a timepoint key that '
-    'parse_prcf refuses. compose_prcf("p", 1, 1, 1, time="xy") -> '
-    '"p_r1_c1_f1_txy"; parse_prcf of that raises "\'txy\' is not a field id". '
-    'The graded-failure policy promises a preserved token is "still a valid '
-    'join key", and it is for the FIELD slot ("fxy" reads back fine) but not '
-    'for the TIME slot: the parser recognises a timepoint by time_index() '
-    'returning a number, which a preserved token never does, so the token '
-    'falls through into the field slot and fails the field check. The repair '
-    'is a decision about the time-detection heuristic -- the obvious one, '
-    '"a trailing t-token preceded by an f-token is a timepoint", widens what '
-    'counts as a timelapse key for every reader of every database, and that '
-    'is the owner\'s call, not a test\'s.'))
 @given(token=unparseable_tokens)
 def test_a_preserved_timepoint_token_reads_back(token):
+    """A preserved time token is still a valid, round-trippable join key."""
     key = S.compose_prcf('p', 1, 1, 1, time=token)
     assert S.parse_prcf(key).prcf == key
 

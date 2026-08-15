@@ -488,7 +488,7 @@ def test_strict_promotes_an_unparseable_token_to_an_error():
 
 def test_a_preserved_token_cannot_break_the_key_separator():
     """A token holding ``_`` would silently add a prcf component."""
-    assert S.field_id('a_b') == 'fa-b'
+    assert S.field_id('a_b') == 'fa%5Fb'
     assert S.compose_prcf('plate1', 'r1', 'c1', 'a_b').count(KEY_SEPARATOR) == 3
 
 

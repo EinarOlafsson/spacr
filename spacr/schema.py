@@ -1445,7 +1445,14 @@ def parse_prcf(text: Any) -> FieldID:
             f'{text!r} is not a prcf: expected at least '
             f'plate_row_column_field, got {len(parts)} part(s).')
     time_key = None
-    if parts[-1][:1].lower() == 't' and time_index(parts[-1]) is not None:
+    # The composer deliberately preserves a non-numeric time token (``xy``
+    # becomes ``txy``) so an imperfect instrument export still has a stable
+    # join key. Detect the optional time component by grammar, not by whether
+    # its payload happens to be numeric: a trailing t-component immediately
+    # after an f-component can only be the timepoint in
+    # plate_row_column_field[_time].
+    if (parts[-2][:1].lower() == 'f'
+            and parts[-1][:1].lower() == 't'):
         time_key = parts.pop()
     field_key = parts.pop()
     column_key = parts.pop()
