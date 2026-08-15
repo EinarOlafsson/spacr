@@ -2452,13 +2452,6 @@ def holdout_report(y_true: Any, probs: Any,
     }
 
 
-from .classifier_evaluation import (
-    SPLIT_LEVELS,
-    grouped_split as _shared_grouped_split,
-    split_group_values as _shared_split_group_values,
-)
-
-
 def round_features(db_path: str, table: str = PNG_TABLE,
                    key: str = PNG_KEY,
                    tables: Sequence[str] = ("cell", "nucleus", "pathogen",
@@ -2727,6 +2720,15 @@ def retrain_round(db_path: str, annotation_column: str = "annotate", *,
                       posinf=0.0, neginf=0.0)
 
     labelled_crops = crops.loc[labelled_mask]
+    # Keep sklearn/scipy off the import-only queue-ranking path. Recent SciPy
+    # probes optional array backends while importing sklearn; that path must
+    # not run merely to rank an existing score column (and breaks a legitimate
+    # no-torch process where ``sys.modules['torch']`` is explicitly blocked).
+    from .classifier_evaluation import (
+        grouped_split as _shared_grouped_split,
+        split_group_values as _shared_split_group_values,
+    )
+
     group_name, groups = _shared_split_group_values(
         group_by=group_by, frame=labelled_crops, table=table)
     train_idx, test_idx, split_provenance = _shared_grouped_split(

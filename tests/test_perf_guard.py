@@ -2,7 +2,8 @@
 
 ``spacr.utils`` is the scientific stack's front door: importing it pulls
 torch, cv2, pandas, matplotlib, sklearn and skimage, and costs a measured
-**3.2 s and ~900 MB of resident memory**. The Qt interface is deliberately
+**3.2 s and ~3.6 GB of resident memory** with the current torch 2.13 CPU
+wheel. The Qt interface is deliberately
 built never to touch it — a pipeline run imports it on a worker, a GUI that
 is only drawing a window must not — and half a dozen modules in ``spacr/qt``
 carry comments saying so (``preview_controls._get_regex_callable`` goes as far
@@ -14,7 +15,7 @@ A comment is not a guarantee. This file asserts it:
 what is guarded                            documented  measured  ceiling
 =========================================  =========  ========  ==========
 ``import spacr.utils``, wall clock            3.2 s     3.3 s      15 s
-``import spacr.utils``, peak resident         900 MB    833 MB     1600 MB
+``import spacr.utils``, peak resident          3.6 GB     3.6 GB      4.6 GB
 the ``spacr-qt`` launch path, wall clock      --        0.57 s     4 s
 the ``spacr-qt`` launch path, peak resident   --        172 MB     600 MB
 ``spacr.utils`` after the Qt launch path      absent    absent     absent
@@ -126,7 +127,8 @@ def run_payload(code: str) -> dict:
 
     The GPU is hidden from the subprocess, and that is what makes the numbers
     in this file mean the same thing everywhere. Every ceiling here was
-    measured on a CPU-only runner, where ``import spacr.utils`` holds 833 MB.
+    measured on a CPU-only runner, where current torch makes
+    ``import spacr.utils`` hold about 3.6 GB.
     On a workstation with a CUDA device the same import can initialise a CUDA
     context — the driver, cuBLAS and cuDNN, not spaCR — and the identical
     import measures **3721 MB**, four and a half times the ceiling.
@@ -188,12 +190,12 @@ def best_of(code: str, runs: int, key: str = "seconds") -> dict:
 
 @pytest.mark.heavy
 def test_importing_spacr_utils_stays_within_its_time_and_memory_ceiling():
-    """Measured 3.3 s and 833 MB; ceilings 15 s and 1600 MB.
+    """Measured 3.3 s and 3.6 GB with current torch; ceilings 15 s and 4.6 GB.
 
     Both halves matter and they fail differently. The seconds are what a user
     waits when a pipeline starts; the resident memory is what the GUI would
     have to hold for the rest of the session if any Qt module ever imported
-    this. 900 MB is more than every widget, screen and image in the interface
+    this. 3.6 GB is more than every widget, screen and image in the interface
     put together (172 MB, asserted below).
 
     The time ceiling is deliberately loose — 4.5x — because import time is
@@ -206,14 +208,14 @@ def test_importing_spacr_utils_stays_within_its_time_and_memory_ceiling():
         f"importing spacr.utils took {result['seconds']:.1f} s; it is "
         f"documented at 3.2 s and measured 3.3 s. It pulls "
         f"{', '.join(result['heavy'])}")
-    assert result["rss_mb"] < 1600.0, (
+    assert result["rss_mb"] < 4600.0, (
         f"importing spacr.utils held {result['rss_mb']:.0f} MB resident; it "
-        "is documented at ~900 MB and measured 833 MB")
+        "is documented at ~3.6 GB with current torch")
     # The reason it is expensive, asserted so the ceilings above stay legible:
     # if torch ever stops arriving here, these numbers should be re-taken
     # rather than left standing.
     assert "torch" in result["heavy"], (
-        "spacr.utils no longer imports torch — its 3.2 s / 900 MB figures, "
+        "spacr.utils no longer imports torch — its 3.2 s / 3.6 GB figures, "
         "and every ceiling in this file that is justified by them, need "
         "re-measuring")
 
@@ -270,7 +272,7 @@ def test_the_spacr_qt_launch_path_never_imports_spacr_utils():
     result = best_of(QT_LAUNCH_PATH, runs=2)
     assert result["heavy"] == [], (
         f"starting spacr-qt imported {', '.join(result['heavy'])}. The Qt "
-        "layer is built never to: spacr.utils alone is 3.2 s and 900 MB "
+        "layer is built never to: spacr.utils alone is 3.2 s and 3.6 GB "
         "before the first window is drawn. Whatever needs it must import it "
         "inside the function that runs, not at module level")
     # The registration pass really ran — otherwise the four self-registering
