@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.utils.calculate_iou#0",
+      "source_sha256": "686f903561865b0a7fbda0d9297fb0a6bf5d8d58d59a0bed26a01eb52a325ea3",
+      "source": "Return the intersection-over-union of two binary masks after zero-padding to a common shape.",
+      "context": "Return the intersection-over-union of two binary masks after zero-padding to a common shape.",
+      "translation": "Skila skurðpunkti-deilingu tveggja tvíkosta grímna eftir núllfyllingu í sameiginlega stærð."
+    },
+    {
+      "label": "spacr.omero.omero_indices#2",
+      "source_sha256": "00922777e01ea7f5ec146505291e798ba908d676422c0d2b90802821fefe5675",
+      "source": "a well name (``'A01'``, ``'aa1'``, ``'AF48'``) or a spaCR ``(rowID, columnID)`` pair already joined, e.g. ``'r1_c1'`` is *not* accepted — pass the well name.",
+      "context": "a microplate sample position name (``'A01'``, ``'aa1'``, ``'AF48'``) or a spaCR ``(rowID, columnID)`` pair already joined, e.g. ``'r1_c1'`` is *not* accepted — pass the microplate sample position name.",
+      "translation": "nafn á sýnastöðu í örplötu (``'A01'``, ``'aa1'``, ``'AF48'``) eða spaCR ``(rowID, columnID)`` par sem þegar er tengt, t.d. ``'r1_c1'`` er *ekki* samþykkt — gefðu nafn á sýnastöðu í örplötu."
+    },
+    {
+      "label": "spacr.qt.screens.annotate#1",
+      "source_sha256": "8be43545b91ddd00e66155b63797747c14c725b488d3006f6993a7990c854acd",
+      "source": "Displays a paginated grid of clickable image thumbnails backed by `png_list` in a `measurements/measurements.db`. Left-click = value 1, right-click = value 2, re-click the same value = clear. Annotations are persisted through a background SaveWorker (see `spacr.qt.annotate_engine.SaveWorker`).",
+      "context": "Displays a paginated grid of clickable image thumbnails backed by `png_list` in a `measurements/measurements.db`. Left-click = value 1, right-click = value 2, re-click the same value = clear. Annotations are persisted through a background SaveWorker (see `spacr.qt.annotate_engine.SaveWorker`).",
+      "translation": "Sýnir flettanlegt reit af smámyndum sem hægt er að smella á, studdar af `png_list` í `measurements/measurements.db`. Vinstri smellur = gildi 1, hægri smellur = gildi 2, að smella aftur á sama gildið = hreinsa. Lýsingar eru varðveittar í bakgrunns SaveWorker (sjá `spacr.qt.annotate_engine.SaveWorker`)."
+    },
+    {
+      "label": "spacr.napari_bridge.correct_mask#1",
+      "source_sha256": "b42b9042bdca39283d7c20e44f381150e10a0c5492dd02d1526184d4311736f1",
+      "source": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI screen calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",
+      "context": "For a script or a notebook. **Not** for use from inside spaCR's own Qt application with ``block=True`` — see :func:`run_event_loop`; the GUI application view calls :func:`open_in_napari` and :func:`labels_from_viewer` separately, driven by the user.",
+      "translation": "Fyrir handrit eða glósubók. **Ekki** til notkunar innan eigin Qt forrits spaCR með ``block=True`` — sjá :func:`run_event_loop`; GUI forritssýn kallar :func:`open_in_napari` og :func:`labels_from_viewer` sérstaklega, stjórnað af notanda."
+    },
+    {
+      "label": "spacr.foreign#7",
+      "source_sha256": "e4c9abb8667b75cb71d722007ceccb6581a52d3f1cf55b715221604e3e5925fb",
+      "source": "1. **A guessed mapping applied without review.** Their ``Area`` in µm² written into spaCR's ``cell_area`` in px² is a number that is wrong by a factor of a few hundred and looks completely plausible. So :func:`infer_column_map` only ever *proposes*; the proposal is a file the user edits (:func:`save_column_map` / :func:`load_column_map`); and :func:`run_import` applies what was agreed, nothing else. 2. **Units.** spaCR's intensities are raw uncalibrated counts, and its geometry is px²/px for a 2-D run — but a 3-D run measures volumes, in µm³ when it was given voxel_size_z_um/voxel_size_xy_um, under the same column names; the row's ``measurement_units`` says which, and :mod:`spacr.feature_dict` resolves it per table. A foreign table in µm needs a scale factor unless the target rows are µm too, and every mapping therefore carries ``unit_in`` / ``unit_out``. When a conversion is declared but the pixel size is unknown, the value is **not** multiplied by 1.0 and pretended to be pixels: the column is redirected to the ``foreign_`` prefix, recorded with its own unit and ``calibrated = 0``, and named in the plan and the summary. 3. **Columns that could not be mapped.** They are listed by name in the plan, in :meth:`ImportResult.summary`, and in the ``foreign_columns`` table — and they are still *imported*, under the ``foreign_`` prefix. Dropping a column the user cared about, quietly, is the failure mode this exists to prevent. 4. **Name collisions.** A foreign column called ``cell_area`` that means something else would corrupt every downstream analysis with no error at all. Targets are checked against :func:`spacr.feature_dict.parse_column` and against spaCR's reserved key columns; a collision is a :class:`Conflict` that either refuses the import (``on_conflict='refuse'``, the default) or renames the column (``on_conflict='rename'``) — never an overwrite. 5. **A destination that is already somebody's project.** The same argument one level up: a *table* collision. See below.",
+      "context": "1. **A guessed mapping applied without review.** Their ``Area`` in µm² written into spaCR's ``cell_area`` in px² is a number that is wrong by a factor of a few hundred and looks completely plausible. So :func:`infer_column_map` only ever *proposes*; the proposal is a file the user edits (:func:`save_column_map` / :func:`load_column_map`); and :func:`run_import` applies what was agreed, nothing else. 2. **Units.** spaCR's intensities are raw uncalibrated counts, and its geometry is px²/px for a 2-D run — but a 3-D run measures volumes, in µm³ when it was given voxel_size_z_um/voxel_size_xy_um, under the same column names; the row's ``measurement_units`` says which, and :mod:`spacr.feature_dict` resolves it per table. A foreign table in µm needs a scale factor unless the target rows are µm too, and every mapping therefore carries ``unit_in`` / ``unit_out``. When a conversion is declared but the pixel size is unknown, the value is **not** multiplied by 1.0 and pretended to be pixels: the column is redirected to the ``foreign_`` prefix, recorded with its own unit and ``calibrated = 0``, and named in the plan and the summary. 3. **Columns that could not be mapped.** They are listed by name in the plan, in :meth:`ImportResult.summary`, and in the ``foreign_columns`` table — and they are still *imported*, under the ``foreign_`` prefix. Dropping a column the user cared about, quietly, is the failure mode this exists to prevent. 4. **Name collisions.** A foreign column called ``cell_area`` that means something else would corrupt every downstream analysis with no error at all. Targets are checked against :func:`spacr.feature_dict.parse_column` and against spaCR's reserved identifier columns; a collision is a :class:`Conflict` that either refuses the import (``on_conflict='refuse'``, the default) or renames the column (``on_conflict='rename'``) — never an overwrite. 5. **A destination that is already somebody's project.** The same argument one level up: a *table* collision. See below.",
+      "translation": "1. **Giskað kortlagning beitt án yfirferðar.** ``Area`` þeirra í µm² skrifað í spaCR's ``cell_area`` í px² er tala sem er röng um nokkra hundruð sinnum og virðist alveg trúverðug. Svo :func:`infer_column_map` bara nokkurn tímann *stinga upp*; tillagan er skrá sem notandinn breytir (:func:`save_column_map` / :func:`load_column_map`); og :func:`run_import` beitir því sem var samið um, ekkert annað. 2. **Einingar.** spaCR's styrk er hráir ómældir talningar, og rúmfræði þess er px²/px fyrir 2-D keyrslu — en 3-D keyrsla mælir rúmmál, í µm³ þegar því var gefið voxel_size_z_um/voxel_size_xy_um, undir sömu dálkanafni; röðin ``measurement_units`` segir hvaða, og :mod:`spacr.feature_dict` leysir það út frá töflunni. Erlend tafla í µm þarf mælikvarða nema markröðurnar séu µm líka, og hver kortlagning ber því ``unit_in`` / ``unit_out``. Þegar umbreyting er lýst en pixilstærð er óþekkt, er gildið **ekki** margfaldað með 1,0 og látin líta út eins og pixlar: dálkurinn er beint á ``foreign_`` forskeyti, skráður með eigin einingu og ``calibrated = 0``, og nefndur í áætluninni og samantektinni. 3. **Dálkar sem ekki tókst að kortleggja.** Þeir eru skráðir eftir nafni í áætluninni, í :meth:`ImportResult.summary`, og í ``foreign_columns`` töflunni — og þeir eru samt *fluttir inn*, undir ``foreign_`` forskeytinu. Að henda dálki sem notandinn hafði áhuga á, hljóðlega, er mistakanna sem þetta á að koma í veg fyrir. 4. **Nafnrekstrar.** Erlendur dálkur kallaður ``cell_area`` sem merkir eitthvað annað myndi skemma alla niðurstreymis greiningu án villu. Markmið eru skoðuð miðað við :func:`spacr.feature_dict.parse_column` og miðað við spaCR's fyrirfram skilgreindu auðkennisdálka; árekstur er :class:`Conflict` sem annaðhvort hafnar innflutningi (``on_conflict='refuse'``, sjálfgefið) eða endurnefnir dálkinn (``on_conflict='rename'``) — aldrei yfirskrifa. 5. **Áfangastaður sem er þegar verkefni einhvers annars.** Sama rökstig einn level upp: *tafla* árekstur. Sjá hér að neðan."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart#21",
+      "source_sha256": "42a25ba0a7f74ef5d13d21d8cf704830f0653b27e9fd27d6cf674870bb8bf82b",
+      "source": "The Nelson / Western Electric set, all eight, each a named constant with what it physically detects and its approximate false-alarm rate: :data:`RULE_BEYOND_3_SIGMA`, :data:`RULE_NINE_ONE_SIDE`, :data:`RULE_SIX_TRENDING`, :data:`RULE_FOURTEEN_ALTERNATING`, :data:`RULE_TWO_OF_THREE_BEYOND_2`, :data:`RULE_FOUR_OF_FIVE_BEYOND_1`, :data:`RULE_FIFTEEN_WITHIN_1`, :data:`RULE_EIGHT_BEYOND_1`.",
+      "context": "The Nelson / Western Electric set, all eight, each a named constant with what it physically detects and its approximate false-alarm rate: :data:`RULE_BEYOND_3_SIGMA`, :data:`RULE_NINE_ONE_SIDE`, :data:`RULE_SIX_TRENDING`, :data:`RULE_FOURTEEN_ALTERNATING`, :data:`RULE_TWO_OF_THREE_BEYOND_2`, :data:`RULE_FOUR_OF_FIVE_BEYOND_1`, :data:`RULE_FIFTEEN_WITHIN_1`, :data:`RULE_EIGHT_BEYOND_1`.",
+      "translation": "Nelson / Western Electric sett, öll átta, hvert sem nafnsett fast gildi með því sem það skynjar líkamlega og um það bil villuviðvörunartíðni: :data:`RULE_BEYOND_3_SIGMA`, :data:`RULE_NINE_ONE_SIDE`, :data:`RULE_SIX_TRENDING`, :data:`RULE_FOURTEEN_ALTERNATING`, :data:`RULE_TWO_OF_THREE_BEYOND_2`, :data:`RULE_FOUR_OF_FIVE_BEYOND_1`, :data:`RULE_FIFTEEN_WITHIN_1`, :data:`RULE_EIGHT_BEYOND_1`."
+    },
+    {
+      "label": "spacr.validate.validate_settings#3",
+      "source_sha256": "fad6bec91382ecfdd8ed503d20248361e21d9251db47961309277791a795807a",
+      "source": "which pipeline, e.g. ``'mask'``, ``'measure'``, ``'classify'``, ``'umap'``, ``'map_barcodes'``. The ``settings_type`` strings used by the GUI all work, as do a few aliases (``'sequencing'``, ``'measure_crop'``, ...).",
+      "context": "which workflow, e.g. ``'mask'``, ``'measure'``, ``'classify'``, ``'umap'``, ``'map_barcodes'``. The ``settings_type`` strings used by the GUI all work, as do a few aliases (``'sequencing'``, ``'measure_crop'``, ...).",
+      "translation": "hvaða vinnuflæði, t.d. ``'mask'``, ``'measure'``, ``'classify'``, ``'umap'``, ``'map_barcodes'``. ``settings_type`` strengirnir sem GUI notar virka allir, eins og nokkur gælunöfn (``'sequencing'``, ``'measure_crop'``, ...)."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec.PivotResult.to_frame#1",
+      "source_sha256": "bffa9be8cb0ed9efe8386c6a3cf6adf50fcf20ecec8314ce3628c58b2b77c55f",
+      "source": "What the CSV export writes and what a user pastes into a slide. The multi-level column header is flattened into one readable string because a CSV has one header row, and a reader who has to reassemble three of them has been handed a puzzle rather than a table.",
+      "context": "What the CSV export writes and what a user pastes into a slide. The multi-level column header is flattened into one readable string because a CSV has one header row, and a reader who has to reassemble three of them has been handed a puzzle rather than a table.",
+      "translation": "Hvað CSV útflutningurinn skrifar og hvað notandi límir inn í glæruna. Marghátta dálkafyrirsögnin er flött niður í eitt lesanlegt streng vegna þess að CSV hefur eina fyrirsagnaröð, og lesandi sem þarf að setja saman þrjár þeirra hefur fengið afhentan þraut í stað töflu."
+    },
+    {
+      "label": "spacr.lineage.tree_for#4",
+      "source_sha256": "048698f408a37985f657cb107a1343fa94e4aace696663706816641e88bcfa99",
+      "source": "a shared object key, compared against :attr:`LineageNode.key` after ``str()``. It is *not* compared against :attr:`LineageNode.node_id`, so the table-prefixed spelling of the same identity finds nothing and returns ``None``.",
+      "context": "a shared object identifier, compared against :attr:`LineageNode.key` after ``str()``. It is *not* compared against :attr:`LineageNode.node_id`, so the table-prefixed spelling of the same identity finds nothing and returns ``None``.",
+      "translation": "sameiginleg auðkenni hlutar, borið saman við :attr:`LineageNode.key` eftir ``str()``. Það er *ekki* borið saman við :attr:`LineageNode.node_id`, þannig að töflufrétt sögn sama auðkennis finnur ekki neitt og skilar ``None``."
+    },
+    {
+      "label": "spacr.batch.run_queue#10",
+      "source_sha256": "b3616aeadf3a5ed431b5181c982a35a11b74cb427b4336d37348583a6df632e8",
+      "source": "run even though validation found errors. The escape hatch for a check that is wrong about your data — it is not the default for a reason.",
+      "context": "run even though validation found errors. The escape hatch for a check that is wrong about your data — it is not the default for a reason.",
+      "translation": "keyra jafnvel þótt sannprófun hafi fundið villur. Flóttahurðin fyrir tékk sem er röng um gögnin þín — hún er ekki sjálfgefin af ástæðu."
+    },
+    {
+      "label": "spacr.sequencing_qc.library_depth#3",
+      "source_sha256": "34941e3a51ce5f36712828299d8714d297903dd3fc7ce445c2a582c6f3a5dfcc",
+      "source": "dict with ``n_grnas_observed``, ``n_grnas_expected``, ``dropout_fraction``, ``dropped_grnas`` (sorted names), ``gini``, ``skew_ratio`` (90th/10th percentile of per-gRNA read totals — the standard pooled-library evenness number), ``top_decile_share`` and ``reads_per_grna`` (a Series, descending).",
+      "context": "key-value mapping with ``n_grnas_observed``, ``n_grnas_expected``, ``dropout_fraction``, ``dropped_grnas`` (sorted names), ``gini``, ``skew_ratio`` (90th/10th percentile of per-gRNA read totals — the standard pooled-library evenness number), ``top_decile_share`` and ``reads_per_grna`` (a Series, descending).",
+      "translation": "lykil-gildi kortlagning með ``n_grnas_observed``, ``n_grnas_expected``, ``dropout_fraction``, ``dropped_grnas`` (raðað nöfnum), ``gini``, ``skew_ratio`` (90./10. prósentil af heildarlestur á gRNA — staðlað jafnvægistala sameinuðrar safns), ``top_decile_share`` og ``reads_per_grna`` (Seríu, stiglækkandi)."
+    },
+    {
+      "label": "spacr.qt.screens.plate_view.PlateViewScreen.recompute#3",
+      "source_sha256": "d6d6d33e43b246acec31704f9be79500673ef622ae15cba63f2f1c766684efd4",
+      "source": "That was made safe rather than assumed safe: ``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was threaded, and this is the same promise.",
+      "context": "That was made safe rather than assumed safe: ``threaded=False`` (which every test in ``test_plate_view.py`` and ``test_plate_view_linked_filter.py`` constructs the screen with) runs the job inline through :meth:`_run_job`, so those callers still get the old meaning exactly. A caller that needs to know the grid is up waits on :meth:`active_jobs`, as ``render_plate``'s callers already do -- ``render_plate`` has returned \"started, not finished\" since the database read was with worker execution, and this is the same promise.",
+      "translation": "Það var gert öruggt frekar en talið öruggt: ``threaded=False`` (sem hver prófun í ``test_plate_view.py`` og ``test_plate_view_linked_filter.py`` byggir skjáinn með) keyrir verkefnið beint í gegnum :meth:`_run_job`, þannig að þeir köllendur fá enn nákvæmlega gamla merkingu. Köllandi sem þarf að vita að grindin er komin upp bíður á :meth:`active_jobs`, eins og köllendur ``render_plate`` gera þegar þegar -- ``render_plate`` hefur skilað \"hafið, ekki lokið\" þar sem gagnagrunnslesningin var með vinnslu frá starfsliðinu, og þetta er sama loforð."
+    },
+    {
+      "label": "spacr.measure.measure_crop#15",
+      "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+      "source": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
+      "context": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
+      "translation": "aðeins í ströngu ham (``settings['strict_errors']``, eða ``SPACR_STRICT_ERRORS`` umhverfisbreytan). Annars prenta ``normalize``, ``normalize_by``, maska-mál/min-stærð og ``channels`` tegundarprófanir VIÐVARANIR og skila ``None`` án þess að mæla neitt."
+    },
+    {
+      "label": "spacr.qt.synthetic.generate_measure_demo#2",
+      "source_sha256": "66fe8f515ba0c1c5cf4bc55c493d4bc7a72bc358db012bda09fb60d63f82351c",
+      "source": "**The organelle plane this writes is measured into nothing, and the defect is not in this module.** Plane ``organelle_mask_dim`` of every merged stack carries 64 real labels, but a measure run over this folder writes ``cell``/``nucleus``/``pathogen``/``cytoplasm`` and no ``organelle`` table at all (verified: 4 fields → cell 64, nucleus 64, pathogen 71, cytoplasm 64, organelle absent).",
+      "context": "**The organelle image layer this writes is measured into nothing, and the defect is not in this module.** Image layer ``organelle_mask_dim`` of every merged stack carries 64 real labels, but a measure run over this folder writes ``cell``/``nucleus``/``pathogen``/``cytoplasm`` and no ``organelle`` table at all (verified: 4 microscope fields of view → cell 64, nucleus 64, pathogen 71, cytoplasm 64, organelle absent).",
+      "translation": "**Þessi líffærakornamyndarlagslag sem skrifar er ekki mælt fyrir neitt, og galla er ekki í þessum hugbúnaðareiningu.** Myndarlag ``organelle_mask_dim`` af hverri sameinuðu stafla ber 64 raunveruleg merki, en málamæling yfir þessa möppu skrifar ``cell``/``nucleus``/``pathogen``/``cytoplasm`` og enga ``organelle`` töflu yfirleitt (staðfest: 4 smásjársvið → fruma 64, kjarni 64, sýkill 71, umfrymi 64, líffæri fjarverandi)."
+    },
+    {
+      "label": "spacr.power_simulate.rnbinom_mean_variance#8",
+      "source_sha256": "9e9e635df6a9ce022d555220528bdbf7be77e8704f817a002593876a0e8143b5",
+      "source": "If ``var <= mean``. The negative binomial is over-dispersed by construction: at ``var == mean`` the size parameter is ``+inf`` (the Poisson limit, which numpy cannot sample as an NB), and below it the size is negative. R's ``assertthat`` allows ``var == mean`` and then hands ``Inf`` to ``rnbinom``, which returns ``NA`` — a whole column of silently missing counts. Use :func:`sample_count_mean_variance` if you want the equi- and under-dispersed cases handled for you.",
+      "context": "If ``var <= mean``. The negative binomial is over-dispersed by construction: at ``var == mean`` the size parameter is ``+inf`` (the Poisson limit, which numpy cannot sample as an NB), and below it the size is negative. R's ``assertthat`` allows ``var == mean`` and then hands ``Inf`` to ``rnbinom``, which returns ``NA`` — a whole column of silently missing counts. Use :func:`sample_count_mean_variance` if you want the equi- and under-dispersed cases handled for you.",
+      "translation": "Ef ``var <= mean``. Neikvæða tvíliðunin er ofdreifð samkvæmt uppbyggingu: við ``var == mean`` er stærðarbreytan ``+inf`` (Poisson-mörkin, sem numpy getur ekki tekið sýni af sem NB), og fyrir neðan það er stærðin neikvæð. ``assertthat`` í R leyfir ``var == mean`` og skilar síðan ``Inf`` til ``rnbinom``, sem skilar ``NA`` — heilt dálki af hljóðlátum vöntunartölum. Notaðu :func:`sample_count_mean_variance` ef þú vilt fá meðhöndlun jafndreifðra og undir-dreifðra tilvika."
+    },
+    {
+      "label": "spacr.timelapse.analyze_calcium_oscillations#1",
+      "source_sha256": "b90cd43a8ce8445187fedde8ead2e3504cfd36688289ed196e85f57872ce93fc",
+      "source": "Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables, filters transient tracks, detects peaks on the chosen intensity trace, and writes the per-peak, per-cell and per-well tables to CSV in a ``results`` folder beside the database.",
+      "context": "Loads the ``cell`` (and optionally ``pathogen``/``cytoplasm``) tables, filters transient tracks, detects peaks on the chosen intensity trace, and writes the per-peak, per-cell and per-microplate sample position tables to CSV in a ``results`` folder beside the database.",
+      "translation": "Hleður ``cell`` (og valfrjálst ``pathogen``/``cytoplasm``) töflunum, síar tímabundna braut, greinir toppa á valinni styrksspori, og skrifar töflur yfir hvern topp, hverja frumu og hverja örplötu sýnishorna í CSV í ``results`` möppu við hlið gagnagrunnsins."
+    },
+    {
+      "label": "spacr.utils.show_cam_on_image#3",
+      "source_sha256": "93b60229ebb7912d34b2c878d6b79bdc493f37e76eca1d476bbe57aadba85bc3",
+      "source": "``(H, W)`` activation map in ``[0, 1]``, matching ``img`` in height and width. Values outside that range are CLIPPED to it, with a :class:`RuntimeWarning`, so an un-normalized CAM saturates at the hot end instead of wrapping the ``np.uint8`` cast: before this was clipped, ``1.1`` landed at the cold end of jet, ``1.5`` in the middle and ``2.0`` back at the top, which could render the hottest region of a map as the coldest colour. An all-zero mask does not produce a black overlay: jet maps 0 to a non-zero color, so a zero mask over a zero image renormalizes to a saturated flat field.",
+      "context": "``(H, W)`` activation map in ``[0, 1]``, matching ``img`` in height and width. Values outside that range are CLIPPED to it, with a :class:`RuntimeWarning`, so an un-normalized CAM saturates at the hot end instead of wrapping the ``np.uint8`` cast: before this was clipped, ``1.1`` landed at the cold end of jet, ``1.5`` in the middle and ``2.0`` back at the top, which could render the hottest region of a map as the coldest colour. An all-zero mask does not produce a black overlay: jet maps 0 to a non-zero color, so a zero mask over a zero image renormalizes to a saturated flat field.",
+      "translation": "``(H, W)`` örvunar-kort í ``[0, 1]``, sem passar ``img`` í hæð og breidd. Gildi utan þess sviðs eru KLIPPT til þess, með :class:`RuntimeWarning`, svo ó-staðlað CAM mettar í heitasta enda í stað þess að vefja ``np.uint8`` cast: áður en þetta var klippt, lenti ``1.1`` í köldum enda jetsins, ``1.5`` í miðjunni og ``2.0`` aftur efst, sem gæti gert heitasta svæði kortsins að köldustu litunum. Allt-núll gríma framkallar ekki svartan yfirborðslag: jets korta 0 í lit sem er ekki núll, svo núll gríma yfir núll mynd endurstillir í mettað jafnt svið."
+    },
+    {
+      "label": "spacr.omero#5",
+      "source_sha256": "2e21ad4f8df5cdb6a805fb198b9d144f40e6ad68e9ce567cc8c60d0a99f2d9f6",
+      "source": "**Export.** :func:`export_map_annotation`, :func:`export_file_annotation` and :func:`export_tag_annotation` push spaCR's own output back onto the OMERO objects it came from: a key/value MapAnnotation per image or per well (what OMERO.web actually renders), a FileAnnotation for the results CSV or the figure PDF, and a TagAnnotation for a categorical verdict.",
+      "context": "**Export.** :func:`export_map_annotation`, :func:`export_file_annotation` and :func:`export_tag_annotation` push spaCR's own output back onto the OMERO objects it came from: a name/value MapAnnotation per image or per microplate sample position (what OMERO.web actually renders), a FileAnnotation for the results CSV or the figure PDF, and a TagAnnotation for a categorical verdict.",
+      "translation": "**Útflutningur.** :func:`export_map_annotation`, :func:`export_file_annotation` og :func:`export_tag_annotation` ýta eigin úttaki spaCR aftur á OMERO hlutina sem það kom frá: nafn/gildi MapAnnotation fyrir hverja mynd eða fyrir hverja sýnishornsstöðu á örplötu (sem OMERO.web myndar í raun), FileAnnotation fyrir niðurstöðurnar CSV eða myndina PDF, og TagAnnotation fyrir flokkandi úrskurð."
+    },
+    {
+      "label": "spacr.qt.space#13",
+      "source_sha256": "982d5146ac4f5f252f82b4d9ff09a5552dde03c7a4725c9388aa388d40e899ee",
+      "source": ":mod:`spacr.qt.imagery` has always run every photographic master through :func:`spacr.qt.imagery.solve_dim` against :func:`spacr.qt.imagery.exposure_target` — the brightest a bare window background may be before white text on it drops under WCAG AA. The generated sky never went through it, and it showed: measured at 1440x900, the brightest text-line-sized region of the ``galaxy`` sky was 0.4879 against a 0.0586 limit (8.3x over), ``sun`` 0.8201 (14.0x) and ``stars`` 0.5041 (8.6x). Bare white text over that measured 1.20-1.96:1 where 4.5:1 is required — the \"AI\" toggle in the title bar sat on the sun's halo. :func:`render` now solves it, and :func:`legibility` reports the same measured dict :func:`spacr.qt.imagery.legibility` returns for a photograph.",
+      "context": ":mod:`spacr.qt.imagery` has always run every photographic master through :func:`spacr.qt.imagery.solve_dim` against :func:`spacr.qt.imagery.exposure_target` — the brightest a bare window background may be before white text on it drops under WCAG AA. The generated sky never went through it, and it showed: measured at 1440x900, the brightest text-line-sized region of the ``galaxy`` sky was 0.4879 against a 0.0586 limit (8.3x over), ``sun`` 0.8201 (14.0x) and ``stars`` 0.5041 (8.6x). Bare white text over that measured 1.20-1.96:1 where 4.5:1 is required — the \"AI\" toggle in the title bar sat on the sun's halo. :func:`render` now solves it, and :func:`legibility` reports the same measured key-value mapping :func:`spacr.qt.imagery.legibility` returns for a photograph.",
+      "translation": ":mod:`spacr.qt.imagery` hefur alltaf keyrt alla ljósmyndameistara í gegnum :func:`spacr.qt.imagery.solve_dim` gegn :func:`spacr.qt.imagery.exposure_target` — bjartasta bakgrunns glugga áður en hvítur texti á því fellur undir WCAG AA. Himninn sem var búinn til fór aldrei í gegnum það, og það kom í ljós: mælt á 1440x900, bjartasta textalínustærðar svæði ``galaxy`` himinsins var 0,4879 á móti 0,0586 marki (8,3x yfir), ``sun`` 0,8201 (14,0x) og ``stars`` 0,5041 (8,6x). Bare hvítur texti yfir því mældist 1,20-1,96:1 þar sem 4,5:1 er krafist — \"AI\" rofinn í titilstikunni sat á hringljóma sólarinnar. :func:`render` leysir það núna, og :func:`legibility` skilar sama mælda lykil-gildi kortlagningu sem :func:`spacr.qt.imagery.legibility` skilar fyrir ljósmynd."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart#14",
+      "source_sha256": "9c546371733d2953f5b99441e0aa2c92b740b94fe899ac9f8a404c22bc4eab30",
+      "source": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "context": "The two robust constants are *not* interchangeable and the module refuses to pretend they are. 1.4826 (:data:`MAD_SCALE`) is ``1/Φ⁻¹(0.75)``, the factor that makes the MAD of a normal sample an unbiased estimate of its SD. A moving range is ``|x_i - x_{i-1}|``, the absolute value of a *difference* of two observations, so its scale is ``sqrt(2)·sigma`` and its median is ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Multiplying a median moving range by 1.4826 overestimates sigma by exactly ``sqrt(2)`` — 41% wider limits, which is the difference between catching a drift and not. Both constants are computed from ``Φ⁻¹(0.75)`` here for the same reason c4 is computed from the gamma function.",
+      "translation": "Tvær traustar fastar stærðir eru *ekki* skiptanlegar og móðullinn neitar að láta eins og þær séu það. 1,4826 (:data:`MAD_SCALE`) er ``1/Φ⁻¹(0.75)``, þátturinn sem gerir MAD venjulegs úrtaks að hlutlausri ágiskun á staðalfráviki þess. Hreyfanlegt svið er ``|x_i - x_{i-1}|``, algildi *munar* tveggja mælinga, svo mælikvarði þess er ``sqrt(2)·sigma`` og miðgildi þess er ``sqrt(2)·Φ⁻¹(0.75)·sigma = 0.9539·sigma`` (:data:`MEDIAN_MR_CONSTANT`). Með því að margfalda miðgildi hreyfanlegs sviðs með 1,4826 ofmetur sigma nákvæmlega um ``sqrt(2)`` — 41% breiðari mörk, sem er munurinn á því að grípa breytingu eða ekki. Báðar fastar stærðir eru reiknaðar úr ``Φ⁻¹(0.75)`` hér af sama ástæðu og c4 er reiknað úr gammafallinu."
+    },
+    {
+      "label": "spacr.sequencing.map_sequences_to_names#7",
+      "source_sha256": "8b59a73a3d81f7a74274d346f41998c6d3347b297c08a199971c189eea58a0a2",
+      "source": "See Also: :func:`generate_barecode_mapping` — full end-to-end read -> (row, column, gRNA) name pipeline.",
+      "context": "See Also: :func:`generate_barecode_mapping` — full end-to-end read -> (row, column, gRNA) name workflow.",
+      "translation": "Sjá einnig: :func:`generate_barecode_mapping` — full lestri frá enda til enda -> (röð, dálkur, gRNA) nafn vinnuflæði."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_contract#59",
+      "source_sha256": "dafaaef77ac6d37613064bd418b6f5420a03e6866d162a01fede8c7fbf8df480",
+      "source": "A **live view** is a panel that re-renders the module's own output from the current settings, on real input, before a run. That is Mask, Timelapse, Measure and Motility, and it is what the **Live** toggle opens. The Image UMAP explorer is not one: it makes an already-computed embedding clickable, and no setting changes what it draws. Its toggle therefore says **Interactive**, not Live — the same word had been on both.",
+      "context": "A **live view** is a panel that re-renders the module's own output from the current settings, on real input, before a processing session. That is Mask, Timelapse, Measure and Motility, and it is what the **Live** toggle opens. The Image UMAP explorer is not one: it makes an already-computed embedding clickable, and no setting changes what it draws. Its toggle therefore says **Interactive**, not Live — the same word had been on both.",
+      "translation": "A **lifandi sýn** er spjald sem teiknar útgangs gögn modulesins sjálfs aftur frá núverandi stillingum, á raunverulegum inntaki, áður en vinnslufundur hefst. Það er Mask, Timelapse, Measure og Motility, og það er það sem **Live** rofinn opnar. Mynd UMAP kannarinn er ekki einn slíkur: hann gerir þegar reiknað embedding smellanlegt, og engin stilling breytir því sem hann teiknar. Rofinn hans segir því **Gagnvirk**, ekki Live — sama orð hafði verið á báðum."
+    },
+    {
+      "label": "spacr.qt.crop_thumbs#4",
+      "source_sha256": "fd27668c2b8cefc4872867b9377485866c6cea9bb65b838abc31123dfcb5a7b7",
+      "source": ":meth:`CropThumbnails.pixmap` decodes on a miss. A caller runs it behind a short debounce (or on a click), never once per mouse-move event.",
+      "context": ":meth:`CropThumbnails.pixmap` decodes on a miss. A caller runs it behind a short debounce (or on a click), never once per mouse-move event.",
+      "translation": ":meth:`CropThumbnails.pixmap` afkóðar við miss. Kallarinn keyrir það á eftir stuttri aflæsingu (eða við smell), aldrei einu sinni á hvert músarhreyfingatburðar."
+    },
+    {
+      "label": "spacr.sp_stats.perform_posthoc_tests#0",
+      "source_sha256": "475d99a0ec28725e5ca02168ecd39c86fe307ba3ffea9c669d45c7b95a74a016",
+      "source": "Run pairwise post-hoc tests across groups with p-value adjustment.",
+      "context": "Run pairwise post-hoc tests across groups with p-value adjustment.",
+      "translation": "Keyrðu pörun eftir-færsluprófa milli hópa með p-gildisleiðréttingu."
+    },
+    {
+      "label": "spacr.qt.screens.db_browser.column_affinity#1",
+      "source_sha256": "827b7e5947843ec371aa5a8414cef176d6dcd771e8c8c24438e79c52dd7f0a61",
+      "source": "The five rules are the ones in the SQLite file-format spec, in order: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT, ``BLOB`` or no type at all → BLOB, ``REAL``/``FLOA``/``DOUB`` → REAL, otherwise NUMERIC. Knowing the affinity is what lets :func:`coerce_for_column` refuse a value SQLite would otherwise store with the wrong type.",
+      "context": "The five rules are the ones in the SQLite file-format spec, in order: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT, ``BLOB`` or no type at all → BLOB, ``REAL``/``FLOA``/``DOUB`` → REAL, otherwise NUMERIC. Knowing the affinity is what lets :func:`coerce_for_column` refuse a value SQLite would otherwise store with the wrong type.",
+      "translation": "Fimm reglurnar eru þær sem eru í SQLite skráarformi, í þessari röð: ``INT`` → INTEGER, ``CHAR``/``CLOB``/``TEXT`` → TEXT, ``BLOB`` eða ekkert týpu yfir höfuð → BLOB, ``REAL``/``FLOA``/``DOUB`` → REAL, annars NUMERIC. Að vita um aðlaðandi eiginleika er það sem gerir :func:`coerce_for_column` kleift að neita gildi sem SQLite myndi annars vista með röngum týpu."
+    }
+  ]
+}

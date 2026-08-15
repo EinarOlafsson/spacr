@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.train_compare.TrainingRun#6",
+      "source_sha256": "ac160a3a390f8911db65fc7d7e5144a568fb3cf76b03529d1bdbe5443d5e168f",
+      "source": "``{series_label: {...}}`` — per split and fold, the epoch count and **both** the last-epoch and best-epoch value of every metric. See :func:`format_comparison` for why both.",
+      "context": "``{series_label: {...}}`` — per split and fold, the epoch count and **both** the last-epoch and best-epoch value of every metric. See :func:`format_comparison` for why both.",
+      "translation": "``{series_label: {...}}`` — fyrir hverja skiptingu og fellingu: fjöldi tímabila og **bæði** gildi síðasta tímabils og besta tímabils fyrir hvert mæligildi. Sjá :func:`format_comparison` um ástæðu þess að bæði eru geymd."
+    },
+    {
+      "label": "spacr.layers.Canvas.pixel_at#0",
+      "source_sha256": "66bab12746a6b6bed5bfc695858c12864e506a25fe6631bb1334221ff41bbf67",
+      "source": "The (fractional) canvas pixel a world point falls on.",
+      "context": "The (fractional) canvas pixel a world point falls on.",
+      "translation": "Strigapixillinn, sem getur verið brottala, sem heimspunktur lendir á."
+    },
+    {
+      "label": "spacr.submodules.analyze_replication#11",
+      "source_sha256": "e69239fa60b793cb9337127d607becded455cd0cc107d29d798056aadd832f7e",
+      "source": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
+      "context": "``max_parasites_per_vacuole`` — largest named power-of-two bucket.",
+      "translation": "``max_parasites_per_vacuole`` — stærsti nafngreindi flokkurinn sem er veldi af tveimur."
+    },
+    {
+      "label": "spacr.agreement.annotation_columns#1",
+      "source_sha256": "1e74d44e7e65c42c0dfe3a284d3bf05709eca4413d182fe34af840cfa5ed4053",
+      "source": "The Annotate app adds a plain ``INTEGER`` column per annotation pass, so an annotation column is one that is *not* part of the crop metadata, *not* written by a model, holds few distinct values, and has at least one non-NULL.",
+      "context": "The Annotate app adds a plain ``INTEGER`` column per annotation pass, so an annotation column is one that is *not* part of the extracted-image-region metadata, *not* written by a model, holds few distinct values, and has at least one non-NULL.",
+      "translation": "Annotate-forritið bætir við einföldum ``INTEGER`` dálki fyrir hverja umferð merkinga. Merkingardálkur er því dálkur sem er *ekki* hluti af lýsigögnum útdregna myndsvæðisins, *ekki* skrifaður af líkani, hefur fá aðgreind gildi og inniheldur að minnsta kosti eitt gildi sem er ekki NULL."
+    },
+    {
+      "label": "spacr.qt.ingest_preview.summarize_rows#0",
+      "source_sha256": "17ade70bebf575445721a38fc403a644bbb61cb729821a31c48606baf786db2c",
+      "source": "One-line count summary of a preview (wells / fields / channels).",
+      "context": "One-line count summary of a preview (microplate sample positions / microscope fields of view / channels).",
+      "translation": "Einlínu talnasamantekt forskoðunar: sýnisstöður á örplötu, sjónsvið og myndrásir."
+    },
+    {
+      "label": "spacr.qt.tutorial.engine.Recorder#1",
+      "source_sha256": "02e9e305e21197a0727a49879a4d586aca0da874443b3a007c2e2f0d3f2030c2",
+      "source": "The clean MainWindow pixmap is cached until a scripted action changes the UI. Each output frame copies that keyframe, then composites the spotlight, highlight ring, and synthetic cursor.",
+      "context": "The clean MainWindow pixmap is cached until a scripted action changes the UI. Each output frame copies that keyframe, then composites the spotlight, highlight ring, and synthetic cursor.",
+      "translation": "Hreint pixmap MainWindow er geymt þar til forskrifuð aðgerð breytir UI-viðmótinu. Hver úttaksrammi afritar lykilrammann og leggur síðan ofan á kastljós, áhersluhring og tilbúinn bendil."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#19",
+      "source_sha256": "b12bc0004afe90e99a7abfc68303f554edb51688cdb120db00c70b7a9a4db97a",
+      "source": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
+      "context": "The profile is the default for one reason that outweighs its cost: **the Wald interval is finite by construction.** It is ``L ± t·SE``, so it returns a tidy, symmetric, entirely fictional interval for a curve whose midpoint the data does not locate at all — which is exactly the case this module exists to catch. The profile interval can *fail to close*: the residual sum of squares stays under the threshold all the way out to a concentration ten thousand times the highest dose tested, and that failure is the diagnostic. It is reported as an open bound, not smoothed into a number.",
+      "translation": "Prófílbil er sjálfgefið af einni ástæðu sem vegur þyngra en kostnaðurinn: **Wald-bilið er endanlegt samkvæmt skilgreiningu.** Það er ``L ± t·SE`` og skilar því snyrtilegu, samhverfu en algerlega ímynduðu bili fyrir feril sem gögnin staðsetja alls ekki miðpunktinn á — einmitt tilvikið sem þessi eining á að greina. Prófílbilið getur *ekki lokast*: summa kvaðratleifa helst undir þröskuldinum allt að styrk sem er tíu þúsund sinnum hæsti prófaði skammtur, og sú bilun er sjálf greiningarniðurstaðan. Hún er birt sem opin mörk en ekki sléttuð yfir í tölu."
+    },
+    {
+      "label": "spacr.crops#3",
+      "source_sha256": "d5b4847b318b3a6b7f309426e86679333caf173a584510ad2691cc7d54c9b4aa",
+      "source": "The ``merged/`` array already contains everything needed to cut the same crop on demand: the intensity planes *and* the integer label-mask planes. This module is that alternative source. It is deliberately **additive** -- :class:`PngCropSource` wraps the existing behaviour unchanged, :class:`MergedCropSource` is the new one, and :func:`resolve_crop_source` picks between them and says which it picked.",
+      "context": "The ``merged/`` array already contains everything needed to cut the same extracted image region on demand: the intensity image layers *and* the integer label-mask image layers. This module is that alternative source. It is deliberately **additive** -- :class:`PngCropSource` wraps the existing behaviour unchanged, :class:`MergedCropSource` is the new one, and :func:`resolve_crop_source` picks between them and says which it picked.",
+      "translation": "``merged/`` fylkið inniheldur þegar allt sem þarf til að skera sama útdregna myndsvæðið eftir þörfum: styrkleikamyndlögin *og* myndlög heiltölu-merkingagríma. Þessi eining veitir þá aðra uppsprettu. Hún er viljandi **viðbót** -- :class:`PngCropSource` umlykur eldri hegðunina óbreytta, :class:`MergedCropSource` er nýja leiðin og :func:`resolve_crop_source` velur á milli þeirra og greinir frá valinu."
+    },
+    {
+      "label": "spacr.report#7",
+      "source_sha256": "7ee2408880b1e96349e190c8c9abe52e627377158d03dc2565576e30da5b6869",
+      "source": "**Nothing is recomputed.** Every number here was produced by the pipeline and read back off disk. The one exception is deliberate and narrow: the segmentation scorecard CSV is re-fed to :func:`spacr.seg_qc.summarize_qc`, the same function that printed the verdict at run time, so the plate verdict in the report is the verdict spaCR gave — not a second opinion. No p-value, no effect size and no aggregate statistic is invented by this module. Where a check exists but has to be run on demand (plate edge effects, inter-annotator κ), the report says so and names the tool.",
+      "context": "**Nothing is recomputed.** Every number here was produced by the workflow and read back off disk. The one exception is deliberate and narrow: the segmentation scorecard CSV is re-fed to :func:`spacr.seg_qc.summarize_qc`, the same function that printed the verdict at run time, so the plate verdict in the report is the verdict spaCR gave — not a second opinion. No p-value, no effect size and no aggregate statistic is invented by this module. Where a check exists but has to be executed on demand (plate edge effects, inter-annotator κ), the report says so and names the tool.",
+      "translation": "**Ekkert er endurreiknað.** Sérhver tala var framleidd af vinnslurásinni og lesin aftur af diski. Eina undantekningin er viljandi og afmörkuð: CSV-stigatafla hlutunargæða er send aftur í :func:`spacr.seg_qc.summarize_qc`, sama fall og birti niðurstöðuna við keyrslu. Niðurstaða örplötunnar í skýrslunni er því niðurstaða spaCR en ekki annað álit. Einingin býr ekki til p-gildi, áhrifastærð eða samantektartölfræði. Ef athugun er til en þarf að keyra sérstaklega, svo sem jaðaráhrif örplötu eða κ milli merkjara, segir skýrslan það og nefnir verkfærið."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue#5",
+      "source_sha256": "e91099b8a3a329181ac0bb574bcf72c0182f31943ee77b073a46ba1dc83a41d1",
+      "source": "**RAM cap + temp spill** — the 100 most-recent figures keep their full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's pixmap is dropped from RAM (its PNG stays on disk in a temp dir); #102 evicts #2, and so on — a 100-wide sliding window. Navigating back to an evicted figure reloads it from its temp PNG on demand.",
+      "context": "**RAM cap + temp spill** — the 100 most-recent figures keep their full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's pixmap is dropped from RAM (its PNG stays on disk in a temp dir); #102 evicts #2, and so on — a 100-wide sliding window. Navigating back to an evicted figure reloads it from its temp PNG on demand.",
+      "translation": "**RAM-takmörk og tímabundin geymsla** — 100 nýjustu myndirnar halda QPixmap í fullri upplausn í RAM. Þegar mynd #101 kemur er pixmap myndar #1 fjarlægt úr RAM en PNG-skráin geymd í tímabundinni möppu; #102 ryður #2 og svo koll af kolli í 100 mynda renniglugga. Ef farið er aftur að mynd sem var rýmd er henni hlaðið eftir þörfum úr tímabundnu PNG-skránni."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.has_curated_layout#2",
+      "source_sha256": "ea805fb14688872371cac888fce113abca7536091da0000b86942471a7703c50",
+      "source": "Falling back to the shared category map is *not* curated. That map is keyed by what a setting is (a path, a plot option, \"Advanced\"), not by what the module does with it, so a module that relies on it renders as however many buckets its keys happen to fall into — which for Cellpose Masks was thirteen knobs under one \"Cellpose\" heading.",
+      "context": "Falling back to the shared category map is *not* curated. That map is keyed by what a setting is (a path, a plot option, \"Advanced\"), not by what the module does with it, so a module that relies on it renders as however many buckets its structured-data names happen to fall into — which for Cellpose Masks was thirteen knobs under one \"Cellpose\" heading.",
+      "translation": "Að falla aftur á sameiginlegu flokkavörpunina er *ekki* sérsniðið útlit. Vörpunin flokkast eftir því hvað stilling er, til dæmis slóð, teiknivalkostur eða \"Advanced\", en ekki hvernig einingin notar hana. Eining sem treystir á vörpunina birtist því í jafnmörgum hólfum og lyklar hennar lenda í; fyrir Cellpose Masks urðu það þrettán stýringar undir einni \"Cellpose\" fyrirsögn."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.ImageSetSampler.enumerate#1",
+      "source_sha256": "39976c1b8114d8bccbe4876f6ebbe150fc9ce530a32dbc526589bc62834e9ec7",
+      "source": "The cache key includes the naming dialect: keying on the folder alone meant that confirming a different regex re-used the grouping built with the old one, so the fix appeared to do nothing until the user opened a different folder.",
+      "context": "The cache structured-data name includes the naming dialect: keying on the folder alone meant that confirming a different regex re-used the grouping built with the old one, so the fix appeared to do nothing until the user opened a different folder.",
+      "translation": "Skyndiminnislykillinn inniheldur nafnamynstrið. Þegar aðeins mappan var lykill endurnýtti staðfesting á annarri reglulegri segð hópun sem hafði verið byggð með þeirri gömlu. Lagfæringin virtist því ekki virka fyrr en notandinn opnaði aðra möppu."
+    },
+    {
+      "label": "spacr.qt.widgets.drawer#4",
+      "source_sha256": "6893a6b13cb09a84455a309a9457789fe4654cefc1d48b88b97217c59a90104d",
+      "source": "**A generous close.** Leaving does *not* close immediately — :data:`EdgeDrawer.CLOSE_DELAY_MS` covers the gap between the panel and wherever the pointer wobbled to, and any re-entry cancels it. Panels that snap shut the instant the pointer strays are unusable with a trackpad.",
+      "context": "**A generous close.** Leaving does *not* close immediately — :data:`EdgeDrawer.CLOSE_DELAY_MS` covers the gap between the panel and wherever the pointer wobbled to, and any re-entry cancels it. Panels that snap shut the instant the pointer strays are unusable with a trackpad.",
+      "translation": "**Rúmur lokunarfrestur.** Spjaldið lokast *ekki* strax þegar bendillinn fer af því — :data:`EdgeDrawer.CLOSE_DELAY_MS` brúar bilið milli spjaldsins og staðarins sem bendillinn hvarf til, og ef hann kemur aftur er lokun hætt við. Spjöld sem skella aftur um leið og bendillinn villist eru ónothæf með snertiborði."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient#96",
+      "source_sha256": "1b2ae74e2cc48c4e8f3a13576c21937ddc3c935efef01aad1eb674f35f067df0",
+      "source": "Four candidate themes were cut on the same kind of numbers rather than shipped slow — a mesh lattice (3.2–8.1 ms), contour polylines (10.8 ms), a linked constellation and a branching mycelium (5.7–8.2 ms; see the theme list above). All four are crisp line work, and in Qt's raster engine a translucent antialiased line costs an order of magnitude more than the same pixels as a gradient — a vertical line is a thousand one-pixel spans. Painting them into the small buffer instead makes them cheap and also makes them not lines any more. The rule that fell out: *soft is cheap, crisp is expensive*, and ``drift`` is crisp only because a couple of hundred dots light 0.65 % of the page.",
+      "context": "Four candidate themes were cut on the same kind of numbers rather than shipped slow — a mesh lattice (3.2–8.1 ms), contour polylines (10.8 ms), a linked constellation and a branching mycelium (5.7–8.2 ms; see the theme list above). All four are crisp line work, and in Qt's raster engine a translucent antialiased line costs an order of magnitude more than the same pixels as a gradient — a vertical line is a thousand one-pixel spans. Painting them into the small buffer instead makes them cheap and also makes them not lines any more. The rule that fell out: *soft is cheap, crisp is expensive*, and ``drift`` is crisp only because a couple of hundred dots light 0.65 % of the page.",
+      "translation": "Fjórum mögulegum þemum var hafnað á grundvelli sambærilegra mælinga í stað þess að afhenda þau hæg: möskvanet (3,2–8,1 ms), útlínufjöllínur (10,8 ms), tengt stjörnumerki og greinótt sveppþráðanet (5,7–8,2 ms; sjá þemalistann að ofan). Öll fjögur eru skörp línuvinna og í rastervél Qt kostar hálfgegnsæ, afjöðruð lína stærðargráðu meira en sömu pixlar sem litstigull; lóðrétt lína er þúsund eins pixils spönn. Ef þau eru máluð í litla biðminnið verða þau ódýr en hætta líka að vera línur. Reglan varð: *mjúkt er ódýrt, skarpt er dýrt*, og ``drift`` er aðeins skarpt vegna þess að nokkur hundruð punktar lýsa 0,65 % síðunnar."
+    },
+    {
+      "label": "spacr.training_basis#4",
+      "source_sha256": "680fdd8caedd458a766f5473648dc5d598ee2809aa6e2bbd5a23d409af602abf",
+      "source": "**Backward compatibility is the whole difficulty.** A settings CSV written before this exists in every user's project folder, and INVARIANTS §6 is the trap: a key *absent* from the dict means the pipeline falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a run from an old CSV does exactly what it did before.",
+      "context": "**Backward compatibility is the whole difficulty.** A settings CSV written before this exists in every user's project folder, and INVARIANTS §6 is the trap: a structured-data name *absent* from the key-value mapping means the workflow falls back to its own default, which can differ from the GUI's, and nothing says so. Every rename here is therefore an alias, not a replacement — :func:`normalize_settings` translates the old name and the old *implicit* basis into the new explicit one, and a processing session from an old CSV does exactly what it did before.",
+      "translation": "**Afturvirk samhæfni er allur vandinn.** Stillinga-CSV frá því áður en þetta var til er í verkefnamöppu hvers notanda, og INVARIANTS §6 er gildran: ef lykil *vantar* í vörpunina notar vinnslurásin sitt eigið sjálfgefna gildi, sem getur verið annað en sjálfgefið gildi GUI, án viðvörunar. Hvert endurnefni hér er því samheiti en ekki staðgengill — :func:`normalize_settings` þýðir gamla heitið og gamla *óskráða* grunninn yfir í nýja skýra grunninn, svo keyrsla úr gömlu CSV hagar sér nákvæmlega eins og áður."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_spec#1",
+      "source_sha256": "d95f874e5bb730cf872707783d0923e4bb5d1040276cd0f32e5667799fa6d431",
+      "source": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by plate down the rows\". This module is the second one, kept deliberately apart from the first.",
+      "context": "A JMP-style graph builder is two things that want very much to be one thing: a pile of drag-and-drop chrome, and a small declarative object saying \"``area`` is on x, ``gene`` is on colour, facet by laboratory microplate down the rows\". This module is the second one, kept deliberately apart from the first.",
+      "translation": "Grafhönnuður að hætti JMP er tvennt sem vill helst vera eitt: safn draga-og-sleppa viðmótshluta og lítill lýsandi hlutur sem segir að ``area`` sé á x-ás, ``gene`` stýri lit og örplötur myndi hliðar niður raðirnar. Þessi eining er síðari hlutinn og er viljandi aðskilin frá þeim fyrri."
+    },
+    {
+      "label": "spacr.database_concurrency#1",
+      "source_sha256": "2b28636fccebc02a8565e5f241ea1adfaee4bff9789b54314c1b82c5eddbde7c",
+      "source": "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer thread, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:",
+      "context": "spaCR uses one SQLite database as the meeting point for Measure worker processes, the annotator writer independent execution path, read-only GUI queries, run-status stamps, and schema migrations.  This module provides the rules those paths share:",
+      "translation": "spaCR notar einn SQLite-gagnagrunn sem sameiginlegan fundarstað Measure-vinnsluferla, skrifþráðar merkingarforritsins, lesfyrirspurna GUI, stöðumerkja keyrslna og skemaflutninga. Þessi eining skilgreinir reglurnar sem þessar leiðir deila:"
+    },
+    {
+      "label": "spacr.submodules.analyze_invasion#10",
+      "source_sha256": "e6a6d3d91f0431a4b7841a20f119cbf9d5105660aa8475f4a3ab499f30b569d1",
+      "source": "**Statistics use the well as the unit of replication.** Parasites within a well share a coverslip, an antibody bath and a focal plane, so they are not independent; the reported test is a Mann-Whitney U on the per-well efficiencies. A pooled-parasite chi-squared is reported beside it purely so its inflation is visible. See :func:`_invasion_compare_conditions`.",
+      "context": "**Statistics use the microplate sample position as the unit of replication.** Parasites within a microplate sample position share a coverslip, an antibody bath and a focal image layer, so they are not independent; the reported test is a Mann-Whitney U on the per-microplate sample position efficiencies. A pooled-parasite chi-squared is reported beside it purely so its inflation is visible. See :func:`_invasion_compare_conditions`.",
+      "translation": "**Tölfræðin notar sýnisstöðuna sem endurtekningareiningu.** Sýklar í sömu sýnisstöðu deila þekjugleri, mótefnabaði og fókusmyndlagi og eru því ekki óháðir. Birta prófið er Mann–Whitney U-próf á skilvirkni hverrar sýnisstöðu. Kí-kvaðratpróf á öllum sameinuðum sýklum er birt við hlið þess eingöngu svo sjáist hve ýkt niðurstaða þess er. Sjá :func:`_invasion_compare_conditions`."
+    },
+    {
+      "label": "spacr.qt.i18n_module_summaries#1",
+      "source_sha256": "7a345dc17e57a6cd4ee4e6ff73a23410b28bb355c06ff7e029ae2eb0ce7ba638",
+      "source": "The stable application key is the lookup key.  Keeping these longer strings outside the compact UI catalog makes them reviewable by fluent speakers and prevents term-by-term translation from corrupting scientific descriptions.",
+      "context": "The stable application structured-data name is the lookup structured-data name.  Keeping these longer strings outside the compact UI catalog makes them reviewable by fluent speakers and prevents term-by-term translation from corrupting scientific descriptions.",
+      "translation": "Stöðugur umsóknarnöfn strúktúr-gagna er uppflettingarnöfn strúktúr-gagna. Að halda þessum lengri strengjum utan hins þétta UI skráarlists gerir flæðandi málfróðum kleift að yfirfara þau og kemur í veg fyrir að þýðing orð fyrir orð spillir vísindalegum lýsingum."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.is_valid_theme#1",
+      "source_sha256": "7f450c53f529aa1a56d7fbae11c3e72c6b694e5c4c91fda0ac21c129b7b8d671",
+      "source": "The predicate exists so a caller validating stored preferences does not have to catch :class:`ValueError` from the strict accessors below.",
+      "context": "The predicate exists so a caller validating stored preferences does not have to catch :class:`ValueError` from the strict accessors below.",
+      "translation": "Forskeytið er til svo að kallaður aðili sem sannprófar vistaðar óskir þurfi ekki að ná :class:`ValueError` frá strangri aðgangsfærum hér að neðan."
+    },
+    {
+      "label": "spacr.qt.iconset.reink#1",
+      "source_sha256": "374b6a5618693f9cd06ea30ade0f09f6bda1a048a6805a7af3988024c414be9a",
+      "source": "The **alpha channel is the shape**, always. RGB is consulted only when :func:`carries_tonal_structure` says it holds real shading, so swapping in different artwork later cannot break this — a redrawn monochrome mask keeps working with no code change.",
+      "context": "The **alpha image data channel is the shape**, always. RGB is consulted only when :func:`carries_tonal_structure` says it holds real shading, so swapping in different artwork later cannot break this — a redrawn monochrome mask keeps working with no code change.",
+      "translation": "**alfa myndgagnarásinn er lögunin**, alltaf. RGB er aðeins vísað til þegar :func:`carries_tonal_structure` segir að það innihaldi raunverulegt skygging, svo að það að skipta út öðru listaverki síðar getur ekki brotið þetta — endurteiknuð einlita maski heldur áfram að virka án breytinga á kóða."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview.load_source_payload#5",
+      "source_sha256": "9e804aab51147be0c0629b9d964ef93afd7676dfcbc3b9855b79ee32707ccd08",
+      "source": "``False`` skips the folder scan entirely. The FOV dropdown hands out a path from a set the sampler already produced, so re-scanning for it would burn a full pass over a 98 000-file plate to rediscover what is already cached.",
+      "context": "``False`` skips the folder scan entirely. The FOV (microscope field of view) dropdown hands out a path from a set the sampler already produced, so re-scanning for it would burn a full pass over a 98 000-file plate to rediscover what is already cached.",
+      "translation": "``False`` sleppir möppuskönnuninni algjörlega. FOV (sýnissvið smásjár) fellilisti skilar stíg úr safni sem sýnisberinn hefur þegar búið til, svo að endurskönnun þess myndi kosta heilt far yfir 98.000 skráa plötu til að enduruppgötva það sem nú þegar er í skyndiminni."
+    },
+    {
+      "label": "spacr.pipeline_v2.stream_masks_from_stack#0",
+      "source_sha256": "6c71855a74e9e00dd905a25e974b039b781f85e88d0a24ecd35cfa0a787aa195",
+      "source": "Batch the field stacks through Cellpose, then append the mask channel(s) to the SAME npy files.",
+      "context": "Batch the microscope field of view stacks through Cellpose, then append the mask image data channel(s) to the SAME npy files.",
+      "translation": "Fjöldvinnsla á stakmyndasviðsstaplum gegnum Cellpose, og bæta síðan við gagnrás(-um) fyrir grímumyndina í SÖMU npy skrá(-ar)."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.points_in_polygon#2",
+      "source_sha256": "f482d7e0d0d4d26c169a926ca091c5c602cc3a4d76c8c8305b0ee5970bee8a35",
+      "source": "a boolean array. A point with a non-finite coordinate is **outside**, always.",
+      "context": "a boolean array. A point with a non-finite coordinate is **outside**, always.",
+      "translation": "bólean fylki. Punktur með óendanlega samræmda hnita er **utan**, alltaf."
+    },
+    {
+      "label": "spacr.qt.dnd.install_for#2",
+      "source_sha256": "caf8ed2b748f012527691c63b9d87194828011eca5c4fe82be72e33025fcbf6c",
+      "source": "Failure is a missing convenience, not a broken screen — a Qt build with no drag-and-drop, or a handler whose import fails, must not stop the screen being constructed. It is logged and the screen goes up without a dropzone.",
+      "context": "Failure is a missing convenience, not a broken application view — a Qt build with no drag-and-drop, or a handler whose import fails, must not stop the application view being constructed. It is logged and the application view goes up without a dropzone.",
+      "translation": "Mistök eru skortur á þægindum, ekki brotið forritasýn — Qt útgáfa án draga-og-sleppa, eða stjórnandi sem innflutningur mistakast, má ekki stöðva uppbyggingu forritasýnar. Það er skráð og forritasýnin fer upp án sleppisvæðis."
+    }
+  ]
+}
