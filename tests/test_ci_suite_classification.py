@@ -98,6 +98,8 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
         "tests/test_perf_guard.py",
         "tests/qt/test_gui_responsiveness.py",
         "tests/qt/test_home_stage_and_dock.py",
+        "tests/qt/test_figure_queue.py",
+        "tests/qt/test_pca.py",
     ):
         assert f"--ignore={path}" in workflow
         assert workflow.count(path) >= 2
