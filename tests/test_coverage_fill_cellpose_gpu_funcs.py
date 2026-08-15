@@ -639,13 +639,6 @@ class TestRemainingBranches:
         assert _plot_calls == []
         assert [c["shape"] for c in model2.eval_calls] == [(32, 32, 3)] * 2
 
-    @pytest.mark.xfail(strict=True, reason=(
-        "generate_masks_from_imgs discards the loader's orig_dims. On the "
-        "normalize=True branch it overwrites them with the shapes of the "
-        "ALREADY target-resized images, so `if resize: resize back to "
-        "orig_dims` is a no-op and masks are written at target_height x "
-        "target_width instead of the source resolution. identify_masks_finetune "
-        "keeps the loader's orig_dims and restores correctly."))
     def test_generate_normalize_resize_restores_source_resolution(
             self, tmp_path, _mock_cellpose, _quiet_resize_preview):
         """A saved mask must line up with the image it segmented.

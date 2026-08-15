@@ -331,7 +331,13 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
         if normalize:
             images, _, image_names, _, orig_dims = _load_normalized_images_and_labels(image_files, None, channels, percentiles, invert, plot, remove_background, background, Signal_to_noise, target_height, target_width)
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]
-            orig_dims = [(image.shape[0], image.shape[1]) for image in images]
+            # orig_dims is deliberately NOT recomputed from `images` here.
+            # The loader was handed target_height/target_width, so it has
+            # already resized them; measuring them now records the TARGET
+            # size as the original, which makes the `resize back to
+            # orig_dims` below a no-op and writes every mask at target
+            # resolution instead of the source's. identify_masks_finetune
+            # keeps the loader's dims for exactly this reason.
         else:
             images, _, image_names, _ = _load_images_and_labels(image_files, None, invert) 
             images = [np.squeeze(img) if img.shape[-1] == 1 else img for img in images]

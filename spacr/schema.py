@@ -252,6 +252,21 @@ _OBJECT_TYPE_MATCH: Tuple[str, ...] = tuple(
 #: this character cannot be round-tripped; :func:`compose_prc` refuses it.
 KEY_SEPARATOR = '_'
 
+#: How a key component that *does* contain the separator is made safe, in
+#: application order. ``%`` first, or the escape can be forged: without it a
+#: plate literally named ``p%5Fx`` would decode to the same thing as a plate
+#: named ``p_x``.
+#:
+#: One table, because there are two callers who must agree — ``selection``
+#: escapes whole components when composing an object key, and
+#: :func:`_sanitise_token` escapes a single unparseable token. They were
+#: written separately, reached the same answer for the same reason, and are
+#: exactly the kind of pair that drifts apart later.
+KEY_ESCAPES: Tuple[Tuple[str, str], ...] = (
+    ('%', '%25'),
+    (KEY_SEPARATOR, '%5F'),
+)
+
 # Validate the registry where it is declared. Typed object ids concatenate
 # role and numeric label without a separator, so a digit in a role is
 # ambiguous (``cell1`` + 7 versus ``cell`` + 17), while an underscore would
@@ -558,12 +573,44 @@ def letters_from_row_index(index: int) -> str:
 def _sanitise_token(token: Any) -> str:
     """Make an unparseable token safe to embed in a separator-joined key.
 
-    Whitespace is stripped and the separator is replaced, because a token
+    Whitespace is stripped and the separator is escaped, because a token
     containing ``'_'`` would silently add a component to ``prcf`` and make
     the key unsplittable.
+
+    **The escape is reversible.** It used to replace the separator with
+    ``'-'``, which mapped field ``a_b`` and field ``a-b`` onto the single id
+    ``fa-b`` — two fields in, one out, which is the exact failure this module
+    exists to end, reached through the escape hatch instead of through
+    ``_safe_int_convert``. The tier-2 contract in :func:`_prefixed_id`
+    promises a token that is "distinct per input", and a lossy substitution
+    cannot keep that promise.
+
+    ``%`` is escaped before the separator so the escape cannot be forged: a
+    literal ``a%5Fb`` becomes ``a%255Fb`` and stays distinct from ``a_b``,
+    which becomes ``a%5Fb``. Nothing in spaCR matches key columns with SQL
+    ``LIKE``, so a ``%`` in a stored id is an ordinary character.
+
+    The table is :data:`KEY_ESCAPES`, shared with
+    :mod:`spacr.selection`, which reached the same answer for the same reason
+    when ``object_keys`` was found merging two objects onto one key.
     """
     text = str(token).strip()
-    return text.replace(KEY_SEPARATOR, '-')
+    for character, escape in KEY_ESCAPES:
+        text = text.replace(character, escape)
+    return text
+
+
+def _desanitise_token(token: str) -> str:
+    """Invert :func:`_sanitise_token`.
+
+    The reason the escape above is worth its awkwardness: a tier-2 id can be
+    read back to the token the instrument actually produced, which a lossy
+    ``'-'`` substitution made impossible.
+    """
+    text = str(token)
+    for character, escape in reversed(KEY_ESCAPES):
+        text = text.replace(escape, character)
+    return text
 
 
 def _prefixed_id(kind: str, token: Any, *, strict: bool) -> str:
