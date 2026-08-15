@@ -2531,6 +2531,254 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
 _IDENTIFIABILITY_MARGIN = 2.0
 
 
+#: Fraction of count wells that must survive the score join before the run is
+#: allowed to continue. Below this the two inputs are describing different
+#: plates, and every number downstream is computed on whatever happened to
+#: overlap.
+_MINIMUM_PAIRED_WELL_FRACTION = 0.5
+
+
+def normalize_regression_input_pairs(settings):
+    """Return explicit ``score``/``count`` rows, migrating legacy lists.
+
+    New settings store ``paired_data``. Older files remain valid: their flat
+    lists are zipped positionally, exactly matching the former behaviour, and
+    the migration is reported so the invisible legacy assumption is visible.
+    """
+    from itertools import zip_longest
+
+    rows = settings.get('paired_data') or []
+    migrated = False
+    if rows:
+        if not isinstance(rows, (list, tuple)):
+            raise ValueError("paired_data must be a list of score/count rows")
+        pairs = []
+        for index, raw in enumerate(rows):
+            if not isinstance(raw, dict):
+                raise ValueError(f"paired_data[{index}] must be a mapping")
+            pairs.append({
+                'score': raw.get('score') or raw.get('score_data'),
+                'count': raw.get('count') or raw.get('count_data'),
+                'plate': raw.get('plate') or raw.get('plateID'),
+            })
+    else:
+        def paths(value):
+            if value is None:
+                return []
+            return list(value) if isinstance(value, (list, tuple)) else [value]
+
+        scores = paths(settings.get('score_data'))
+        counts = paths(settings.get('count_data'))
+        pairs = [
+            {'score': score, 'count': count, 'plate': None}
+            for score, count in zip_longest(scores, counts)
+        ]
+        migrated = bool(pairs)
+        if migrated:
+            print("Legacy score_data/count_data lists were paired by position. "
+                  "Review and save the new paired_data table to make that "
+                  "relationship explicit.")
+
+    if not pairs or not any(row['score'] for row in pairs) or not any(
+            row['count'] for row in pairs):
+        raise ValueError(
+            "Regression needs at least one score CSV and one count CSV in "
+            "paired_data.")
+    settings['paired_data'] = pairs
+
+    def unique(key):
+        return list(dict.fromkeys(
+            os.fspath(row[key]) for row in pairs if row.get(key)))
+
+    # Existing downstream threshold/path helpers still consume these flat
+    # views. They are projections of the explicit pairs, not a second pairing
+    # mechanism, and repeated shared files are read only once there.
+    settings['score_data'] = unique('score')
+    settings['count_data'] = unique('count')
+    return pairs, migrated
+
+
+def load_regression_input_pairs(pairs):
+    """Read paired inputs and resolve plate identity without filename guesses.
+
+    Resolution order is own column, partner column, then pair-row order.
+    Conflicting declarations are refused. Returns ``(count_frame,
+    score_frame, audit_rows)``.
+    """
+    from .utils import correct_metadata
+
+    score_frames = []
+    count_frames = []
+    seen_score_parts = set()
+    seen_count_parts = set()
+    audit = []
+
+    def read(path):
+        if not path:
+            return None
+        return correct_metadata(pd.read_csv(os.fspath(path)))
+
+    def plates(frame):
+        if frame is None or 'plateID' not in frame.columns:
+            return set()
+        return {str(value) for value in frame['plateID'].dropna().unique()}
+
+    for index, pair in enumerate(pairs):
+        score = read(pair.get('score'))
+        count = read(pair.get('count'))
+        score_plates = plates(score)
+        count_plates = plates(count)
+        fallback = f'plate{index + 1}'
+
+        if score_plates and count_plates:
+            if score_plates == count_plates:
+                resolved = score_plates
+                rule = 'both files agree'
+            elif count_plates < score_plates:
+                # A single consolidated score file may intentionally be
+                # reused in several rows, one per plate-specific count file.
+                score = score[score['plateID'].astype(str).isin(count_plates)]
+                resolved = count_plates
+                rule = 'matched score rows to count-file plate subset'
+            elif score_plates < count_plates:
+                count = count[count['plateID'].astype(str).isin(score_plates)]
+                resolved = score_plates
+                rule = 'matched count rows to score-file plate subset'
+            else:
+                raise ValueError(
+                    f"paired_data row {index + 1} conflicts: score file "
+                    f"declares {sorted(score_plates)}, count file declares "
+                    f"{sorted(count_plates)}. Pair files from the same "
+                    "plate.")
+        elif score_plates:
+            resolved = score_plates
+            rule = 'copied from score file'
+        elif count_plates:
+            resolved = count_plates
+            rule = 'copied from count file'
+        else:
+            resolved = {fallback}
+            rule = 'assigned from pair row order'
+
+        if (score is not None and count is not None and len(resolved) != 1
+                and (not score_plates or not count_plates)):
+            raise ValueError(
+                f"paired_data row {index + 1} cannot copy {sorted(resolved)} "
+                "onto a partner with no plateID: one file contains several "
+                "plates. Split that partner or give it an explicit plateID.")
+        if score is not None and not score_plates:
+            score['plateID'] = next(iter(resolved))
+        if count is not None and not count_plates:
+            count['plateID'] = next(iter(resolved))
+        label = ', '.join(sorted(resolved))
+        pair['plate'] = label
+        audit.append({'row': index + 1, 'plate': label, 'rule': rule,
+                      'score': pair.get('score'), 'count': pair.get('count')})
+        print(f"Input pair {index + 1} ({label}): {rule}.")
+        score_part = (os.fspath(pair.get('score')), tuple(sorted(resolved))) \
+            if score is not None else None
+        count_part = (os.fspath(pair.get('count')), tuple(sorted(resolved))) \
+            if count is not None else None
+        if score is not None and score_part not in seen_score_parts:
+            score_frames.append(score)
+            seen_score_parts.add(score_part)
+        if count is not None and count_part not in seen_count_parts:
+            count_frames.append(count)
+            seen_count_parts.add(count_part)
+
+    return (pd.concat(count_frames, ignore_index=True),
+            pd.concat(score_frames, ignore_index=True), audit)
+
+
+def _check_score_count_pairing(independent_df, dependent_df, merged_df, *,
+                               well_column='prc'):
+    """Fail loudly when the score and count tables describe different wells.
+
+    The two inputs are never paired file-to-file: each list is concatenated
+    and the two are joined on ``prc`` (``plateID_rowID_columnID``). So the
+    plate ID is the pairing key, and a plate ID that differs by one character
+    between the two sides silently produces an empty join.
+
+    That is not hypothetical. A legacy score CSV carries its plate in a
+    ``plate`` column stamped ``pplate1``, while the sequencing counts carry
+    ``plate1``. Before :func:`spacr.utils.correct_metadata` was fixed to
+    normalise that after the legacy promotion, the join returned zero rows and
+    the run continued for another two hundred lines before dying inside a plot
+    with ``KeyError: 0`` -- an error naming neither the plates, the files, nor
+    the join.
+
+    :raises ValueError: when the join is empty, or keeps less than
+        :data:`_MINIMUM_PAIRED_WELL_FRACTION` of the count wells.
+    """
+    def _plates(frame):
+        if well_column not in frame.columns:
+            return []
+        return sorted(frame[well_column].astype(str).str.split('_').str[0]
+                      .dropna().unique())
+
+    count_wells = independent_df[well_column].nunique() if \
+        well_column in independent_df.columns else 0
+    score_wells = dependent_df[well_column].nunique() if \
+        well_column in dependent_df.columns else 0
+    score_plates = _plates(dependent_df)
+    count_plates = _plates(independent_df)
+    matched = merged_df[well_column].nunique() if \
+        well_column in merged_df.columns else 0
+
+    # THE DENOMINATOR IS THE SMALLER SIDE, and getting that wrong made this
+    # guard reject a correct run.
+    #
+    # The two sides are not expected to be the same size. Sequencing covers
+    # every well on the plate; imaging keeps only the wells that survive
+    # segmentation and the minimum-cell filter. On the TSG101 screen that is
+    # 463 score wells against 1,344 count wells -- and all 463 found a
+    # partner, which is a perfect join. Measured against the count side it
+    # reads as 34%, and the guard refused to run a screen that was completely
+    # paired.
+    #
+    # What actually matters is whether the wells that CAN be fitted found
+    # their partner, so the denominator is the smaller side. An unusually
+    # large unused remainder on either side is worth saying out loud, but it
+    # is not an error: those wells simply contribute nothing.
+    comparable = min(score_wells, count_wells)
+    if comparable and matched / comparable >= _MINIMUM_PAIRED_WELL_FRACTION:
+        unused_counts = count_wells - matched
+        unused_scores = score_wells - matched
+        if unused_counts or unused_scores:
+            print(
+                f"Paired {matched} wells. "
+                f"{unused_counts} sequencing well(s) and {unused_scores} "
+                f"imaging well(s) have no partner and take no part in the "
+                f"regression.")
+        return
+
+    shared = sorted(set(score_plates) & set(count_plates))
+    detail = (
+        f"score wells:   {score_wells} on plates {score_plates}\n"
+        f"  count wells:   {count_wells} on plates {count_plates}\n"
+        f"  shared plates: {shared or 'NONE'}\n"
+        f"  paired wells:  {matched}"
+    )
+    if matched == 0:
+        raise ValueError(
+            f"The score and count tables have no well in common, so the "
+            f"regression has nothing to fit.\n\n"
+            f"  {detail}\n\n"
+            f"They are joined on prc = plateID_rowID_columnID, so the plate "
+            f"ID is what pairs them -- the ORDER you listed the files in does "
+            f"not matter, and the two lists need not be the same length. Make "
+            f"the plate IDs agree: give every input a plateID column with "
+            f"matching values, or state the pairing explicitly.")
+    raise ValueError(
+        f"Only {matched} of {comparable} pairable wells "
+        f"({matched / comparable:.1%}) found a partner, which is below the "
+        f"{_MINIMUM_PAIRED_WELL_FRACTION:.0%} required. The two inputs are "
+        f"probably describing different plates or different well layouts.\n\n"
+        f"  {detail}\n\n"
+        f"Continuing would fit the model on whichever wells happened to "
+        f"overlap and report it as the whole screen.")
+
+
 def _identifiability_warning(data, settings, *, well_column='prc',
                              guide_column='grna'):
     """Warn when a simultaneous fit is about to be run on too few wells.
@@ -2740,8 +2988,11 @@ def perform_regression(settings):
         :func:`spacr.settings.get_perform_regression_default_settings`.
         Key entries:
 
-        - ``score_data`` (str or list) — CSV(s) of per-well scores.
-        - ``count_data`` (str or list) — CSV(s) of per-well sgRNA counts.
+        - ``paired_data`` — ordered rows that explicitly pair one score CSV
+          with one sgRNA-count CSV. Plate identity comes from the files when
+          they agree, from the partner when only one declares it, or from the
+          pair-row order when neither does. Legacy ``score_data`` and
+          ``count_data`` lists are migrated positionally with a visible log.
         - ``dependent_variable`` — column of ``score_data`` to regress
           (e.g. ``'pred'``, ``'recruitment'``,
           ``'pathogen_nucleus_shortest_distance'``).
@@ -2757,10 +3008,6 @@ def perform_regression(settings):
           ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``.
           A setting the chosen type cannot read is refused rather than
           ignored; see :data:`REGRESSION_SETTINGS_USED`.
-        - ``plates_score`` / ``plates_count`` — optional explicit plate
-          IDs aligned by file position.
-        - ``plate_from_order`` — auto-assign ``plate{i+1}`` from file
-          order.
         - ``batch_correction`` — optional ``combat``, ``center``, ``zscore``,
           ``robust_zscore`` or reference-control ``control_center``
           normalization of the dependent variable before well aggregation.
@@ -2771,19 +3018,20 @@ def perform_regression(settings):
         (also written to ``results/<score_source>/<regression_type>/
         results.csv``). Related gene/gRNA CSVs and significance calls
         are saved alongside.
-    :raises ValueError: if ``score_data`` and ``plates_score`` (or
-        ``count_data`` and ``plates_count``) lengths disagree, if
-        ``dependent_variable`` is not a column of the score CSV, or if
-        ``regression_type`` is unsupported, or a guide-permutation support
-        family or correction setting is invalid.
+    :raises ValueError: if paired files declare incompatible plate IDs,
+        ``dependent_variable`` is not a score column, ``regression_type`` is
+        unsupported, or a guide-permutation support family or correction
+        setting is invalid.
 
     Example:
         .. code-block:: python
 
             from spacr.ml import perform_regression
             settings = {
-                'score_data': ['/data/plate01/results/xgb_scores.csv'],
-                'count_data': ['/data/plate01/sequencing/counts.csv'],
+                'paired_data': [{
+                    'score': '/data/plate01/results/xgb_scores.csv',
+                    'count': '/data/plate01/sequencing/counts.csv',
+                }],
                 'dependent_variable': 'pred',
                 'regression_type': 'mixed',
             }
@@ -2800,68 +3048,16 @@ def perform_regression(settings):
     from .toxo import custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
 
     def _perform_regression_read_data(settings):
+            pairs, _migrated = normalize_regression_input_pairs(settings)
+            count_data_df, score_data_df, audit = \
+                load_regression_input_pairs(pairs)
+            settings['paired_data'] = pairs
+            settings['input_pair_audit'] = audit
 
-            if not isinstance(settings['score_data'], list):
-                settings['score_data'] = [settings['score_data']]
-            if not isinstance(settings['count_data'], list):
-                settings['count_data'] = [settings['count_data']]
-
-            plate_from_order = bool(settings.get('plate_from_order', False))
-            plates_score = settings.get('plates_score', None)
-            plates_count = settings.get('plates_count', None)
-
-            def _normalise_plate_id(p):
-                if isinstance(p, (int, np.integer)):
-                    return f'plate{int(p)}'
-                return str(p)
-
-            def _validate_plates_list(plates_list, files_list, name):
-                if plates_list is None:
-                    return None
-                if len(plates_list) != len(files_list):
-                    raise ValueError(
-                        f"{name} has {len(plates_list)} entries but {len(files_list)} input "
-                        f"file(s) were provided. They must be the same length and aligned by "
-                        f"position."
-                    )
-                return [_normalise_plate_id(p) for p in plates_list]
-
-            plates_score = _validate_plates_list(plates_score, settings['score_data'], 'plates_score')
-            plates_count = _validate_plates_list(plates_count, settings['count_data'], 'plates_count')
-
-            def _assign_plate(df, index, plates_list):
-                # Priority order:
-                #   1. Explicit plates list (e.g. plates_count=[1, 2, 4]) overrides everything.
-                #   2. plate_from_order=True forces 'plate{i+1}' by list position.
-                #   3. Otherwise, use the existing plateID column if present,
-                #      else fill with 'plate{i+1}'.
-                if plates_list is not None:
-                    df['plateID'] = plates_list[index]
-                elif plate_from_order:
-                    df['plateID'] = f'plate{index + 1}'
-                elif 'plateID' not in df.columns:
-                    df['plateID'] = f'plate{index + 1}'
-                return df
-
-            score_data_df = pd.DataFrame()
-            for i, score_data in enumerate(settings['score_data']):
-                df = pd.read_csv(score_data)
-                df = correct_metadata(df)
-                df = _assign_plate(df, i, plates_score)
-                score_data_df = pd.concat([score_data_df, df])
-                print(f"Score data: {len(score_data_df)} "
-                    f"(file {i + 1}/{len(settings['score_data'])}, "
-                    f"plate={df['plateID'].iloc[0]})")
-
-            count_data_df = pd.DataFrame()
-            for i, count_data in enumerate(settings['count_data']):
-                df = pd.read_csv(count_data)
-                df = correct_metadata(df)
-                df = _assign_plate(df, i, plates_count)
-                count_data_df = pd.concat([count_data_df, df])
-                print(f"Count data: {len(count_data_df)} "
-                    f"(file {i + 1}/{len(settings['count_data'])}, "
-                    f"plate={df['plateID'].iloc[0]})")
+            print(f"Score data: {len(score_data_df)} rows from "
+                  f"{len(settings['score_data'])} file(s)")
+            print(f"Count data: {len(count_data_df)} rows from "
+                  f"{len(settings['count_data'])} file(s)")
 
             print(f"Dependent variable: {len(score_data_df)}")
             print(f"Independent variable: {len(count_data_df)}")
@@ -3166,114 +3362,8 @@ def perform_regression(settings):
             .str.rsplit(schema.KEY_SEPARATOR, n=1).str[-1]
         )
 
-    #if "prc" in score_data_df.columns:
-    #    num_parts = len(score_data_df['prc'].iloc[0].split('_'))
-    #    if num_parts == 3:
-    #        split = score_data_df['prc'].str.split('_', expand=True)
-    #        score_data_df['plateID'] = settings['plateID']
-    #        score_data_df['prc'] = score_data_df['plateID'] + '_' + split[1] + '_' + split[2]
-    
-    plate_from_order = bool(settings.get('plate_from_order', False))
-
-    if plate_from_order:
-        # plateID was set by input-list position inside _perform_regression_read_data.
-        # Parse rowID and columnID from the well token in 'path'
-        # (e.g. PLATE1_A14_1_1_111.png -> well = 'A14' -> rowID='r1', columnID='c14').
-        if 'path' in score_data_df.columns:
-            # The well is the second underscore-separated token of the crop
-            # name, and spacr.schema decides what it means. The inline
-            # `([A-Pa-p])(\d+)` + `ord(x) - ord('A')` this replaces understood
-            # only rows A..P of a plate literally named "plate<n>": a 384-plate
-            # row past P, a 1536 row ('AA14') and any plate called anything
-            # else all failed to match and silently kept whatever rowID and
-            # columnID they already had.
-            #
-            # THIS POSITIONAL READ IS NOT THE ONE _split_prc REPLACED. A prc is
-            # a KEY, which has a fixed number of components and is therefore
-            # parseable right to left; this is a crop FILE NAME, whose grammar
-            # is <plate>_<well>_<field>[_<time>]_<object> — a variable-length
-            # tail with no right anchor, so the well can only be found by
-            # counting from the left. That is exactly how the package's own
-            # file-name parsers do it (schema.parse_field_stem and
-            # schema.parse_object_stem both take parts[0] as the plate and
-            # parts[1] as the well), so counting from the left here is the
-            # documented grammar rather than a second guess at it. What the
-            # token MEANS is still schema's decision: parse_well with
-            # strict=True, so a token that is not <letters><digits> is refused
-            # instead of being passed through into both slots.
-            #
-            # Residual limitation, stated rather than papered over: a plate id
-            # that itself contains '_' shifts every position, and the crop-name
-            # grammar carries nothing that can undo that. 'exp1_plate1_A14_...'
-            # is caught — 'plate1' is not a well, so the row is counted in the
-            # warning below and its rowID is left alone — but 'exp1_pl1_A14_...'
-            # is not, because 'pl1' parses as a well. That hole is in the
-            # grammar, not in this call site, and it is identical in
-            # schema.parse_object_stem; the fix belongs there (make the crop
-            # writer escape the separator, or record the plate id length), so
-            # ml.py does not grow a private crop-name parser that disagrees
-            # with the one the crop writer uses. NEEDS FOLLOW-UP IN
-            # spacr/schema.py.
-            def _row_column(path):
-                stem = os.path.splitext(os.path.basename(str(path)))[0]
-                parts = stem.split(schema.KEY_SEPARATOR)
-                if len(parts) < 2:
-                    return (None, None)
-                try:
-                    return schema.parse_well(parts[1], strict=True)
-                except schema.WellParseError:
-                    return (None, None)
-
-            well = pd.DataFrame(
-                [_row_column(p) for p in score_data_df['path']],
-                columns=['row_id', 'column_id'], index=score_data_df.index)
-            missing = well['row_id'].isna().sum()
-            if missing:
-                print(f"Warning: {missing} of {len(score_data_df)} rows did not match "
-                      f"the expected PLATEn_<letter><digits>_ pattern in 'path'; "
-                      f"their rowID and columnID will be left unchanged. If the "
-                      f"plate id contains '_', every token is shifted and the well "
-                      f"cannot be located there - rename the plate or set "
-                      f"plate_from_order=False.")
-
-            row_ids = well['row_id']
-            col_ids = well['column_id']
-
-            if 'rowID' in score_data_df.columns:
-                score_data_df['rowID'] = row_ids.fillna(score_data_df['rowID'].astype(str))
-            else:
-                score_data_df['rowID'] = row_ids
-            if 'columnID' in score_data_df.columns:
-                score_data_df['columnID'] = col_ids.fillna(score_data_df['columnID'].astype(str))
-            else:
-                score_data_df['columnID'] = col_ids
-
-        if settings.get('verbose'):
-            print("plate_from_order=True; plateID from input-list position, "
-                  "rowID and columnID parsed from 'path' well token.")
-    else:
-        # Recover the true plateID per row from the 'path' column
-        # (e.g. PLATE4_P13_8_1_75.png), rather than overwriting all rows
-        # with settings['plateID']. Falls back to the existing plateID column
-        # for any row whose path lacks a PLATEn_ prefix.
-        if 'path' in score_data_df.columns:
-            plate_from_path = (
-                score_data_df['path']
-                .astype(str)
-                .str.extract(r'^(?i:plate)(\d+)_', expand=False)
-            )
-            missing = plate_from_path.isna().sum()
-            if missing:
-                print(f"Warning: {missing} of {len(score_data_df)} rows have no PLATEn_ "
-                      f"prefix in 'path'; falling back to existing plateID for those rows.")
-            recovered = ('plate' + plate_from_path)
-            if 'plateID' in score_data_df.columns:
-                score_data_df['plateID'] = recovered.fillna(score_data_df['plateID'].astype(str))
-            else:
-                score_data_df['plateID'] = recovered.fillna(f"plate{settings.get('plateID', 1)}")
-
-    # Rebuild prc from per-row plateID, rowID, columnID so it reflects the real plate.
-    # Runs in both modes so prc is always consistent with plateID.
+    # Pair resolution is authoritative. Filenames are suggestions in the UI,
+    # never a second silent source of plate identity here.
     if {'plateID', 'rowID', 'columnID'}.issubset(score_data_df.columns):
         score_data_df['prc'] = (
             score_data_df['plateID'].astype(str)
@@ -3365,7 +3455,11 @@ def perform_regression(settings):
 
     orig_dv = settings['dependent_variable']
 
-    dependent_df, dependent_variable = process_scores(score_data_df, settings['dependent_variable'], settings['plateID'], settings['min_cell_count'], settings['agg_type'], settings['transform'], settings['regression_type'], settings['invert_dependent_variable'])
+    dependent_df, dependent_variable = process_scores(
+        score_data_df, settings['dependent_variable'], None,
+        settings['min_cell_count'], settings['agg_type'],
+        settings['transform'], settings['regression_type'],
+        settings['invert_dependent_variable'])
     
     if settings['verbose']:
         print(f"Dependent variable after process_scores: {len(dependent_df)}")
@@ -3374,7 +3468,9 @@ def perform_regression(settings):
     if settings['fraction_threshold'] is None:
         settings['fraction_threshold'] = _graph_sequencing_stats(settings)
 
-    independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plateID'], filter_column=filter_column, filter_value=filter_value)
+    independent_df = process_reads(
+        count_data_df, settings['fraction_threshold'], None,
+        filter_column=filter_column, filter_value=filter_value)
         
     if settings['verbose']:
         print("independent_df columns:", list(independent_df.columns))
@@ -3407,6 +3503,8 @@ def perform_regression(settings):
         'many_to_many' if settings['agg_type'] is None else 'many_to_one')
     merged_df = pd.merge(independent_df, dependent_df, on='prc',
                          validate=merge_validate)
+
+    _check_score_count_pairing(independent_df, dependent_df, merged_df)
 
     if settings['verbose']:
         display(independent_df)

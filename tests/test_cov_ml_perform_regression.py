@@ -311,39 +311,46 @@ def test_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
     assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
 
 
-def test_plates_score_length_mismatch_raises(screen, stubs):
-    """plates_score must be aligned by position with score_data."""
-    from spacr.ml import perform_regression
+def test_legacy_score_list_longer_than_count_list_migrates(screen):
+    """An unpaired tail remains legal because the final join is by well."""
+    from spacr.ml import normalize_regression_input_pairs
 
-    settings = base_settings(screen, plates_score=[1, 2])
-    with pytest.raises(ValueError, match=r"plates_score has 2 entries but 1 input"):
-        perform_regression(settings)
-
-
-def test_plates_count_length_mismatch_raises(screen, stubs):
-    """plates_count must be aligned by position with count_data."""
-    from spacr.ml import perform_regression
-
-    settings = base_settings(screen, plates_count=["plate1", "plate2", "plate3"])
-    with pytest.raises(ValueError, match=r"plates_count has 3 entries but 1 input"):
-        perform_regression(settings)
+    settings = base_settings(
+        screen, score_data=[screen["score"], screen["score"]])
+    pairs, migrated = normalize_regression_input_pairs(settings)
+    assert migrated
+    assert pairs[1] == {"score": screen["score"], "count": None,
+                        "plate": None}
 
 
-def test_explicit_plate_lists_override_plate_ids(tmp_path, stubs):
-    """Integer plates_score becomes 'plateN'; string plates_count is used as-is."""
+def test_legacy_count_list_longer_than_score_list_migrates(screen):
+    """The opposite unpaired tail is retained too."""
+    from spacr.ml import normalize_regression_input_pairs
+
+    settings = base_settings(
+        screen, count_data=[screen["count"], screen["count"]])
+    pairs, migrated = normalize_regression_input_pairs(settings)
+    assert migrated
+    assert pairs[1] == {"score": None, "count": screen["count"],
+                        "plate": None}
+
+
+def test_paired_input_copies_plate_identity_from_its_partner(tmp_path, stubs):
+    """A score file without plateID inherits the count file's declared plate."""
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
     cdir = tmp_path / "c"
     sdir.mkdir()
     cdir.mkdir()
-    score = write_scores(sdir / "scores.csv", plate="plateZZ")
-    count = write_counts(cdir / "counts.csv", plate="plateZZ")
+    score = write_scores(sdir / "scores.csv", plate="ignored",
+                         drop=("plateID",))
+    count = write_counts(cdir / "counts.csv", plate="plate2")
     meta = write_metadata(tmp_path / "md.csv")
     scr = {"score": score, "count": count, "meta": meta}
 
-    settings = base_settings(scr, plates_score=[2], plates_count=["plate2"],
-                             plateID="plate2")
+    settings = base_settings(
+        scr, paired_data=[{"score": score, "count": count}])
     out = perform_regression(settings)
 
     data = pd.read_csv(os.path.join(str(cdir), "results", "scores", "ols",
@@ -410,43 +417,34 @@ def test_rowid_with_plate_prefix_is_split(tmp_path, stubs):
     assert len(out["results"]) > 0
 
 
-def test_plate_from_order_parses_wells_from_path(tmp_path, stubs, capsys):
-    """plate_from_order assigns plateN by file order and parses rowID/columnID."""
-    from spacr.ml import perform_regression
+def test_one_multiplate_score_file_can_be_paired_to_plate_count_files(tmp_path):
+    """A consolidated score export may be reused without duplicating plates."""
+    from spacr.ml import load_regression_input_pairs
 
     sdir = tmp_path / "s"
     cdir = tmp_path / "c"
     sdir.mkdir()
     cdir.mkdir()
-    # Both score files carry a *wrong* plateID column and PLATE1_/PLATE2_ paths;
-    # 6 rows of file 1 have unparsable paths so the warning branch runs.
-    s1 = write_scores(sdir / "s1.csv", plate="bogus", seed=3, with_path=True,
-                      plate_token="PLATE1", n_bad_paths=6)
-    s2 = write_scores(sdir / "s2.csv", plate="bogus", seed=4, with_path=True,
-                      plate_token="PLATE2")
-    c1 = write_counts(cdir / "c1.csv", plate="ignored", seed=5)
-    c2 = write_counts(cdir / "c2.csv", plate="ignored", seed=6)
-    meta = write_metadata(tmp_path / "md.csv")
+    score_path = sdir / "scores.csv"
+    pd.concat([
+        pd.DataFrame(_score_records("plate1", 3)),
+        pd.DataFrame(_score_records("plate2", 4)),
+    ], ignore_index=True).to_csv(score_path, index=False)
+    c1 = write_counts(cdir / "c1.csv", plate="plate1", seed=5)
+    c2 = write_counts(cdir / "c2.csv", plate="plate2", seed=6)
 
-    settings = base_settings({"score": s1, "count": c1, "meta": meta},
-                             score_data=[s1, s2], count_data=[c1, c2],
-                             plate_from_order=True, verbose=True)
-    out = perform_regression(settings)
-    printed = capsys.readouterr().out
-    assert "Warning: 6 of 216 rows did not match" in printed
-    assert "plate_from_order=True" in printed
-
-    data = pd.read_csv(os.path.join(str(cdir), "results", "s1", "ols",
-                                    "list", "regression_data.csv"))
-    assert set(data["plateID"].unique()) == {"plate1", "plate2"}
-    # 'A04' -> rowID r1 / columnID c4 as parsed out of the path token.
-    assert set(data["rowID"].unique()) <= set(ROWS)
-    assert set(data["columnID"].unique()) == set(KEPT_COLS)
-    assert len(out["results"]) > 0
+    counts, scores, audit = load_regression_input_pairs([
+        {"score": str(score_path), "count": c1},
+        {"score": str(score_path), "count": c2},
+    ])
+    assert set(scores["plateID"]) == {"plate1", "plate2"}
+    assert len(scores) == 2 * len(_score_records("plate1", 3))
+    assert set(counts["plateID"]) == {"plate1", "plate2"}
+    assert all("subset" in row["rule"] for row in audit)
 
 
-def test_plate_from_order_creates_missing_row_and_column_columns(tmp_path, stubs):
-    """With no rowID/columnID columns at all they are created from 'path'."""
+def test_path_is_not_used_to_guess_missing_well_columns(tmp_path, stubs):
+    """Filename parsing is a picker hint, not runtime metadata authority."""
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -458,19 +456,14 @@ def test_plate_from_order_creates_missing_row_and_column_columns(tmp_path, stubs
     c1 = write_counts(cdir / "c1.csv", plate="p", seed=5)
     meta = write_metadata(tmp_path / "md.csv")
 
-    settings = base_settings({"score": s1, "count": c1, "meta": meta},
-                             plate_from_order=True)
-    out = perform_regression(settings)
-
-    data = pd.read_csv(os.path.join(str(cdir), "results", "s1", "ols",
-                                    "list", "regression_data.csv"))
-    assert set(data["rowID"].unique()) <= set(ROWS)
-    assert set(data["columnID"].unique()) == set(KEPT_COLS)
-    assert len(out["results"]) > 0
+    settings = base_settings({"score": s1, "count": c1, "meta": meta})
+    with pytest.raises(ValueError, match="rowID.*columnID"):
+        perform_regression(settings)
 
 
-def test_plate_recovered_per_row_from_path(tmp_path, stubs, capsys):
-    """Without plate_from_order, plateID comes from the PLATEn_ path prefix."""
+def test_declared_plate_is_kept_without_inspecting_image_paths(
+        tmp_path, stubs, capsys):
+    """Runtime identity comes from CSV columns even when paths are malformed."""
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -486,8 +479,7 @@ def test_plate_recovered_per_row_from_path(tmp_path, stubs, capsys):
                              verbose=True)
     out = perform_regression(settings)
     printed = capsys.readouterr().out
-    assert "Warning: 6 of 108 rows have no PLATEn_ prefix" in printed
-    assert "score_data_df plateID counts" in printed
+    assert "PLATEn_ prefix" not in printed
 
     data = pd.read_csv(os.path.join(str(cdir), "results", "scores", "ols",
                                     "list", "regression_data.csv"))
