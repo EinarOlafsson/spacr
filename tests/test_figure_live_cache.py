@@ -108,3 +108,65 @@ def test_both_controls_exist_in_the_preferences_dialog(qtbot):
               if "load its PDF page" in (w.toolTip() or "")]
     assert len(spins) == 1 and len(checks) == 1
     assert spins[0].minimum() >= 1
+
+
+# ------------------------------------------------- restoring an old figure
+
+
+def test_an_evicted_figure_comes_back_fully_editable(queue, monkeypatch):
+    """The point of spilling a Figure rather than only its picture.
+
+    A saved vector page allows a stroke to be recoloured, a width changed, a
+    font resized. It does NOT allow anything data-bound: a log axis has to
+    recompute every position. A restored Figure allows all of it.
+    """
+    monkeypatch.setattr(queue, "live_figure_cap", lambda: 3)
+    monkeypatch.setattr(queue, "dynamic_figures_enabled", lambda: True)
+    _add(queue, 10)
+
+    assert not queue.has_live_figure(0), "figure 0 should have been evicted"
+    assert queue.is_restorable(0)
+
+    figure = queue.figure_for(0)
+    assert figure is not None
+    axis = figure.axes[0]
+
+    # Every appearance change the user asked for...
+    axis.grid(False)
+    axis.spines["left"].set_linewidth(3)
+    axis.tick_params(labelsize=16)
+    for line in axis.lines:
+        line.set_color("crimson")
+    # ...plus the data-bound one that a PDF could never give back.
+    axis.set_yscale("log")
+    assert axis.get_yscale() == "log"
+
+
+def test_restoring_puts_the_figure_back_in_the_live_set(queue, monkeypatch):
+    """Repeated edits must not re-read the disk each time."""
+    monkeypatch.setattr(queue, "live_figure_cap", lambda: 3)
+    monkeypatch.setattr(queue, "dynamic_figures_enabled", lambda: True)
+    _add(queue, 8)
+    queue.figure_for(0)
+    assert queue.has_live_figure(0)
+    # And the cap still holds afterwards.
+    assert queue.live_figure_count() <= 3
+
+
+def test_dynamic_figures_off_does_not_restore(queue, monkeypatch):
+    monkeypatch.setattr(queue, "live_figure_cap", lambda: 2)
+    monkeypatch.setattr(queue, "dynamic_figures_enabled", lambda: False)
+    _add(queue, 6)
+    assert queue.is_restorable(0), "the spill is still on disk"
+    assert queue.figure_for(0) is None, "but the option says do not use it"
+
+
+def test_an_unpicklable_figure_does_not_break_the_cap(queue, monkeypatch):
+    """Failing to spill must never stop old figures being released."""
+    monkeypatch.setattr(queue, "live_figure_cap", lambda: 2)
+    monkeypatch.setattr(queue, "_spill_figure", lambda idx, fig: False)
+    _add(queue, 7)
+    assert queue.live_figure_count() == 2
+    assert queue.figure_for(0) is None
+    # It is still viewable from its rendered page.
+    assert queue._png_paths.get(0)
