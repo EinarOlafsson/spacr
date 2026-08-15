@@ -51,7 +51,29 @@ def train_src(tmp_path, rng):
     meas = src / "measurements"; meas.mkdir(parents=True)
     pngs = src / "data" / "cell_png"; pngs.mkdir(parents=True)
 
-    paths = [_png(pngs / f"o{i+1}.png", rng) for i in range(N)]
+    # SPACR-SHAPED CROP NAMES: plate_row_column_field_object. The split by
+    # well reads the well out of the filename, so a crop called "o1.png" is
+    # one spaCR could not have produced and a fixture built from those was
+    # testing a situation that cannot arise. The prcfo column below already
+    # encoded the same identity; the files did not.
+    # A REAL PLATE SHAPE: five rows x two columns = ten wells, and the
+    # CONDITION is the column, which is how a screen is actually laid out.
+    #
+    # This matters for instruction 94's well-grouped split, in two ways the
+    # old fixture hid. `metadata_type_by: columnID` makes the class the
+    # COLUMN -- so with a single row each class sat in exactly one well, and
+    # a leakage-safe split correctly refuses that: holding out the only well
+    # of a class leaves the class untrained. Across five rows the same
+    # column is five independent wells, which is what a plate really is.
+    #
+    # And because whole wells move, the held-out fraction is granular: five
+    # wells per class makes the 20% asked for land on one well per class,
+    # which is what the size assertions below expect.
+    _row = lambda i: (i % 10) % 5 + 1
+    _col = lambda i: (i % 10) // 5 + 1
+    _cond = lambda i: f"c{_col(i)}"
+    paths = [_png(pngs / f"plate1_r{_row(i)}_c{_col(i)}_f1_o{i+1}.png", rng)
+             for i in range(N)]
     con = sqlite3.connect(meas / "measurements.db")
     try:
         for e in ("cell", "nucleus", "pathogen", "cytoplasm"):
@@ -60,17 +82,17 @@ def train_src(tmp_path, rng):
             "cell_id": [f"o{i+1}" for i in range(N)],
             "png_path": paths,
             "plateID": ["plate1"] * N,
-            "rowID": ["r1"] * N,
-            "columnID": ["c1" if i % 2 == 0 else "c2" for i in range(N)],
+            "rowID": [f"r{_row(i)}" for i in range(N)],
+            "columnID": [_cond(i) for i in range(N)],
             "fieldID": ["f1"] * N,
-            "prcfo": [f"plate1_r1_c{(i % 2) + 1}_f1_o{i+1}" for i in range(N)],
-            "prcf": [f"plate1_r1_c{(i % 2) + 1}_f1" for i in range(N)],
-            "test": [1 if i % 2 == 0 else 2 for i in range(N)],
+            "prcfo": [f"plate1_r{_row(i)}_c{_col(i)}_f1_o{i+1}" for i in range(N)],
+            "prcf": [f"plate1_r{_row(i)}_c{_col(i)}_f1" for i in range(N)],
+            "test": [_col(i) for i in range(N)],
             # legacy metadata mode buckets png_list rows by 'condition'
-            "condition": ["c1" if i % 2 == 0 else "c2" for i in range(N)],
+            "condition": [_cond(i) for i in range(N)],
             # measurement mode filters png_list columns directly (_load_png_table
             # reads png_list only), so the measured feature has to live here.
-            "cell_area": [1000.0 if i % 2 == 0 else 3000.0 for i in range(N)],
+            "cell_area": [1000.0 if _col(i) == 1 else 3000.0 for i in range(N)],
         })
         png_list.to_sql("png_list", con, index=False)
     finally:
