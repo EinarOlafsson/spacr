@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-87 done / 3 open (96%).
+88 done / 2 open (97%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -31,9 +31,6 @@ OPEN
    82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
        [SECOND TO LAST]
        82_green_ci_then_release_1_5_0_5.txt
-
-   99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
-       99_explain_cv_models_and_resolve_hits_back_to_cells.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -126,3 +123,4 @@ DONE
    96  CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
    97  CLASSIFY SEGFAULTS IN libomp: THREE OpenMP RUNTIMES IN ONE PROCESS
    98  CLASSIFY DIES WITH SIGBUS: A QThread GETS 512 KB OF STACK, LAPACK WANTS MORE
+   99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS

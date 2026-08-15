@@ -355,6 +355,16 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "single_direction": ["R1", "R2"],
         "comp_type": ["zlib", "lzo", "bzip2", "blosc"],
     },
+    "explain_cv": {
+        "surrogate_model": [
+            "random_forest", "hist_gradient_boosting", "xgboost",
+        ],
+        "surrogate_split_by": ["well", "plate"],
+    },
+    "investigate_hit": {
+        "hit_direction": ["positive", "negative"],
+        "hit_split_by": ["auto", "plate", "well"],
+    },
 }
 
 
@@ -407,6 +417,44 @@ except Exception:      # pragma: no cover - keeps the GUI importable
 # dictionaries remain unchanged — this controls only the order and grouping in
 # Qt, just like the Classify (CV) regroup below.
 _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
+    "explain_cv": (
+        ("Source & provenance", (
+            "db_path", "predictions_file", "path_column",
+            "prediction_column",
+        )),
+        ("Surrogate & validation", (
+            "surrogate_model", "surrogate_split_by", "surrogate_test_size",
+            "surrogate_n_estimators", "surrogate_random_seed",
+            "surrogate_min_fidelity_improvement",
+        )),
+        ("Importance & diagnostics", (
+            "surrogate_n_repeats", "surrogate_shap_max_samples",
+            "surrogate_exclude", "surrogate_correlation_threshold",
+        )),
+        ("Output & runtime", ("dst", "verbose")),
+    ),
+    "investigate_hit": (
+        ("Source & provenance", (
+            "db_path", "predictions_file", "guide_fractions_file",
+            "results_folder", "path_column", "score_column",
+        )),
+        ("Selected hit", (
+            "target_gene", "target_guides", "hit_phenotype",
+            "hit_effect", "hit_fdr", "hit_guide_agreement",
+            "hit_n_guides", "hit_well_support", "hit_direction",
+        )),
+        ("Attribution model", (
+            "hit_feature_columns", "hit_include_original_score",
+            "hit_probability_threshold", "hit_split_by",
+            "hit_random_seed",
+        )),
+        ("Evidence & output", (
+            "hit_bootstrap", "hit_permutations",
+            "hit_pipeline_permutations",
+            "hit_gallery_per_stratum", "hit_store_database", "dst",
+            "verbose",
+        )),
+    ),
     "umap": (
         ("Input Data", (
             "src", "tables", "crop_source", "filter_by", "row_limit",
@@ -715,9 +763,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "batch_missing_control",
         )),
         ("Model & Covariates", (
-            "regression_type", "dependent_variable", "score_column",
+            "analysis_mode", "regression_type", "dependent_variable", "score_column",
             "invert_dependent_variable", "agg_type", "transform",
             "alpha", "cov_type", "random_row_column_effects",
+            "guide_permutation_block", "guide_nuisance_columns",
         )),
         # The estimator-specific knobs, added by the robust and regularised
         # fits after this layout was first written. They landed in
@@ -726,16 +775,19 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Estimator Tuning", (
             "l1_ratio", "quantile", "huber_t", "tolerance",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
-            "lasso_selection_threshold",
+            "lasso_selection_threshold", "guide_permutations",
+            "guide_permutation_seed", "guide_permutation_batch_size",
         )),
         ("Hit Calling & Outliers", (
             "min_cell_count", "fraction_threshold", "target_unique_count",
             "outlier_detection", "threshold_method", "threshold_multiplier",
-            "min_n", "toxo",
+            "min_n", "toxo", "guide_min_wells",
+            "guide_primary_min_wells", "guide_presence_threshold",
+            "multiple_testing_method", "fdr_alpha",
         )),
         ("Regression Plots", (
             "volcano", "log_x", "log_y", "x_lim", "y_lims",
-            "split_axis_lims",
+            "split_axis_lims", "guide_permutation_plot",
         )),
         ("Runtime & Reliability", (
             "strict_errors", "max_failure_rate", "on_error",
@@ -2187,6 +2239,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "cut-off, the convergence tolerance, and the bootstrap counts behind "
         "the hinge and lasso selection thresholds. Only the ones matching "
         "the model chosen above have any effect.",
+    "SOURCE & PROVENANCE":
+        "The exact database, prediction, sequencing and result artifacts used "
+        "by this run. Preserve these paths and hashes so the explanation can "
+        "be reproduced instead of silently following the newest file.",
+    "SURROGATE & VALIDATION":
+        "The interpretable estimator and grouped held-out test used to decide "
+        "whether it reproduces the CV model well enough to explain it.",
+    "IMPORTANCE & DIAGNOSTICS":
+        "Permutation, SHAP and correlation controls. These are only "
+        "interpretable after the held-out fidelity gate passes.",
+    "SELECTED HIT":
+        "The gene, guides, direction and regression evidence carried forward "
+        "from the exact selected result.",
+    "ATTRIBUTION MODEL":
+        "Cross-fit grouping, independent morphology features and probability "
+        "threshold for hit-like candidates; these are not genotype calls.",
+    "EVIDENCE & OUTPUT":
+        "Well-level bootstrap/permutation evidence, blinded gallery sampling, "
+        "versioned database storage and exported artifacts.",
     # -- Power / Design ----------------------------------------------------
     #
     # "Power analysis" is the single heading `spacr/qt/screens/power.py`
