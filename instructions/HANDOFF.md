@@ -8,16 +8,20 @@ Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
 taking. The authoritative status is the current ledger and each instruction's
 latest dated record; older sections below are preserved as history.
 
-Current checkpoint: branch `nightly`, 82 done / 4 open after instruction 48's
+Current checkpoint: branch `nightly`, 87 done / 2 open after instruction 83's
 closure. The complete 69-lesson, 487-scene, 50-voice tutorial release is live
 at `https://einarolafsson.github.io/spacr/tutorials/`; its reusable audit skill,
 scene sampler, live verifier, and tests are committed. Hosted tutorial media is
 at Hugging Face commit `17af9e67b7dbd16c465e7f494091eb830728e161`, and live
 mobile playback passed the full 69.6-second default narration, captions,
-pause/resume, end, and replay contract. Instruction 83 remains independently
-open for the current API/runtime localization catalogs; the tutorial-only
-deployment preserved the prior non-tutorial documentation baseline rather than
-publishing those stale catalogs. The other open records are 58, 59, and 82.
+pause/resume, end, and replay contract. Instruction 83 is now complete: all
+nine API catalogs are current at 6,528 symbols, all nine runtime catalogs are
+current at 3,442 entries, coverage is regenerated, the combined release
+selection passes 285 tests, and the Sphinx build exits zero with 645 pages.
+The coherent catalog, evidence, builder, and test batch is commit
+``a09ebe90``.
+The only open records are 58 (history/contributor cleanup, intentionally last)
+and 82 (green CI and the 1.5.0.5 release).
 
 The remainder of this handoff contains historical investigation notes. Its old
 69-done / 17-open count and hands-off ownership table are superseded.
