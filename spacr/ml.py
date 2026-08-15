@@ -2460,6 +2460,119 @@ def _assign_prc_parts(df, column=schema.PRC_KEY,
     return df
 
 
+def resolve_auto_inference(data, settings, *, well_column='prc',
+                           guide_column='grna'):
+    """Choose ``analysis_mode`` for ``inference='auto'`` from the design.
+
+    The simultaneous model estimates one coefficient per guide from the wells,
+    so it needs more wells than guides -- with an intercept and any plate fixed
+    effects on top -- before those coefficients are identifiable at all. Below
+    that the design matrix is rank deficient: statsmodels still returns a
+    number for every guide, but the numbers are one arbitrary solution out of
+    infinitely many, and their P values describe nothing.
+
+    That is not a hypothetical. The screen this was written for has 824 guides
+    in 587 analysed wells; the published fit had 825 parameters, rank 579 and
+    8 residual degrees of freedom, and refitting it did not reproduce its own
+    coefficients.
+
+    ``auto`` therefore picks the permutation test whenever the simultaneous fit
+    would be unidentifiable, and says so. It is deliberately conservative: it
+    needs a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather
+    than a bare majority, because a design that only just fits is one dropped
+    well away from not fitting.
+
+    Anything other than ``inference='auto'`` is returned untouched, so an
+    explicit choice is never overridden.
+
+    :returns: ``(analysis_mode, reason)``. ``reason`` is a sentence naming the
+        counts, suitable for the log and for the Methods section.
+    """
+    inference = str(settings.get('inference', 'auto')).strip().lower()
+    if inference != 'auto':
+        return settings.get('analysis_mode', 'regression'), (
+            f"inference={inference!r} was set explicitly.")
+
+    try:
+        n_wells = int(data[well_column].nunique())
+        n_guides = int(data[guide_column].nunique())
+    except (KeyError, TypeError):
+        # Cannot measure the design; the safe default is the test that stays
+        # valid at any width.
+        return 'guide_permutation', (
+            "The design could not be measured, so the permutation test was "
+            "used because it is valid regardless of the number of guides.")
+
+    blocks = 0
+    block_column = str(settings.get('guide_permutation_block', 'plateID'))
+    if block_column in getattr(data, 'columns', ()):
+        blocks = max(int(data[block_column].nunique()) - 1, 0)
+    # intercept + block fixed effects + one coefficient per guide
+    parameters = 1 + blocks + n_guides
+    required = parameters * _IDENTIFIABILITY_MARGIN
+
+    if n_wells >= required:
+        return 'regression', (
+            f"auto chose the simultaneous model: {n_wells} analysed wells for "
+            f"{parameters} parameters ({n_guides} guides + intercept + "
+            f"{blocks} block terms), at least the {_IDENTIFIABILITY_MARGIN}x "
+            f"margin required.")
+    return 'guide_permutation', (
+        f"auto chose the plate-blocked permutation test: {n_wells} analysed "
+        f"wells cannot identify {parameters} simultaneous parameters "
+        f"({n_guides} guides + intercept + {blocks} block terms). Each guide "
+        f"is tested as a marginal association instead. Set "
+        f"inference='parametric' to force the simultaneous fit.")
+
+
+#: How many wells per estimated parameter ``auto`` insists on before it will
+#: choose the simultaneous model. 1.0 would accept a design with zero residual
+#: degrees of freedom, which fits perfectly and tests nothing.
+_IDENTIFIABILITY_MARGIN = 2.0
+
+
+def _identifiability_warning(data, settings, *, well_column='prc',
+                             guide_column='grna'):
+    """Warn when a simultaneous fit is about to be run on too few wells.
+
+    Returns the warning text, or ``None`` when the design is fine. Kept
+    separate from :func:`resolve_auto_inference` because this one never
+    changes what runs -- it only makes sure the user cannot miss what they
+    are about to get.
+    """
+    try:
+        n_wells = int(data[well_column].nunique())
+        n_guides = int(data[guide_column].nunique())
+    except (KeyError, TypeError):
+        return None
+    blocks = 0
+    block_column = str(settings.get('guide_permutation_block', 'plateID'))
+    if block_column in getattr(data, 'columns', ()):
+        blocks = max(int(data[block_column].nunique()) - 1, 0)
+    parameters = 1 + blocks + n_guides
+    if n_wells > parameters:
+        return None
+    return (
+        "\n"
+        "  ###############################################################\n"
+        "  #  WARNING: this regression is not identifiable.              #\n"
+        "  ###############################################################\n"
+        f"  {n_wells} analysed wells are being used to estimate "
+        f"{parameters} parameters\n"
+        f"  ({n_guides} guides + intercept + {blocks} block terms).\n"
+        "\n"
+        "  With fewer wells than parameters the fit still returns a\n"
+        "  coefficient and a P value for every guide, but they are one\n"
+        "  arbitrary solution out of infinitely many: refitting the same\n"
+        "  data can give different numbers, and neither set is wrong.\n"
+        "\n"
+        "  Set inference='nonparametric' to test each guide as a\n"
+        "  plate-blocked marginal association, which stays valid at any\n"
+        "  width, or inference='auto' to let spaCR choose. The design\n"
+        "  diagnostics written beside the results show the rank, the\n"
+        "  residual degrees of freedom and the collinear guide pairs.\n")
+
+
 def _run_guide_permutation_analysis(data, outcome, destination, settings):
     """Run and persist the plate-blocked marginal guide analysis.
 
@@ -2492,9 +2605,20 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
 
     destination = os.path.abspath(os.path.expanduser(os.fspath(destination)))
     os.makedirs(destination, exist_ok=True)
+    # One or several responses. Naming more than one fits each independently
+    # and corrects each as its OWN multiple-testing family -- pooling them
+    # would make two correlated readouts of the same wells look like twice as
+    # many tests. Concordance between independently trained classifiers is
+    # evidence precisely because the families are separate.
+    outcomes = [outcome] if isinstance(outcome, str) else list(outcome)
+    missing = [column for column in outcomes if column not in data.columns]
+    if missing:
+        raise ValueError(
+            f"dependent_variable names {missing} which are not columns of the "
+            f"merged table. Available: {sorted(data.columns)[:20]}")
     results = analyse_long_guide_table(
         data,
-        outcome,
+        outcomes,
         min_wells=thresholds,
         block_column=str(settings.get('guide_permutation_block', 'plateID')),
         nuisance_columns=list(settings.get('guide_nuisance_columns') or []),
@@ -2508,17 +2632,66 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     paths = dict(save_guide_permutation_results(
         results, destination, prefix='guide_permutation'))
     if settings.get('guide_permutation_plot', True):
-        for threshold in thresholds:
-            for suffix in ('pdf', 'png'):
-                key = f'plot_min_{threshold}_{suffix}'
-                paths[key] = plot_guide_permutation_volcano(
-                    results,
-                    outcome=outcome,
-                    minimum_wells=threshold,
-                    save_path=os.path.join(
-                        destination,
-                        f'guide_permutation_min_{threshold}_wells.{suffix}'),
-                )
+        single = len(outcomes) == 1
+        for response in outcomes:
+            for threshold in thresholds:
+                for suffix in ('pdf', 'png'):
+                    # One response keeps the historical filenames and keys, so
+                    # scripts that look for guide_permutation_min_1_wells.pdf
+                    # still find it.
+                    stem = (f'guide_permutation_min_{threshold}_wells'
+                            if single else
+                            f'guide_permutation_{response}_min_'
+                            f'{threshold}_wells')
+                    key = (f'plot_min_{threshold}_{suffix}' if single else
+                           f'plot_{response}_min_{threshold}_{suffix}')
+                    paths[key] = plot_guide_permutation_volcano(
+                        results,
+                        outcome=response,
+                        minimum_wells=threshold,
+                        save_path=os.path.join(
+                            destination, f'{stem}.{suffix}'),
+                    )
+
+    # Diagnostics are written for every run, not on request. The failure this
+    # analysis mode exists to prevent -- a confident coefficient from a
+    # rank-deficient design -- is invisible on the volcano and obvious on the
+    # design panel, so the design panel has to be produced by default.
+    try:
+        from .guide_permutation import prepare_long_guide_data
+        from .regression_diagnostics import write_diagnostic_suite
+
+        fractions, well_outcomes, _metadata = prepare_long_guide_data(
+            data, outcomes,
+            block_column=str(settings.get('guide_permutation_block', 'plateID')),
+            nuisance_columns=list(settings.get('guide_nuisance_columns') or []))
+        for response in outcomes:
+            family = results.loc[
+                (results['outcome'] == response)
+                & (results['minimum_wells_threshold'] == primary)]
+            written = write_diagnostic_suite(
+                os.path.join(destination, 'diagnostics'),
+                fractions=fractions,
+                block=well_outcomes[
+                    str(settings.get('guide_permutation_block', 'plateID'))],
+                p_values=family['permutation_p_value'].to_numpy(),
+                adjusted=family['adjusted_p_value'].to_numpy(),
+                alpha=float(settings.get('fdr_alpha', 0.05)),
+                label=response if len(outcomes) > 1 else '',
+                presence_threshold=float(
+                    settings.get('guide_presence_threshold', 0.0)),
+            )
+            # Namespace the KEYS per response as well as the filenames. Both
+            # responses write distinct files, but they returned the same keys,
+            # so a two-classifier run reported only the second one's paths and
+            # the first classifier's diagnostics looked as if they were never
+            # produced.
+            prefix = f'{response}_' if len(outcomes) > 1 else ''
+            paths.update({f'{prefix}{key}': value
+                          for key, value in written.items()})
+    except Exception as error:  # noqa: BLE001 - diagnostics are advisory
+        print(f"Regression diagnostics were skipped: "
+              f"{type(error).__name__}: {error}")
 
     primary_table = results.loc[
         results['minimum_wells_threshold'] == primary
@@ -3321,6 +3494,22 @@ def perform_regression(settings):
         
     except Exception as e:
         print(e)
+
+    # inference='auto' is decided here and not in settings.py, because it is
+    # the first point at which the guides and analysed wells can be counted.
+    if str(settings.get('inference', 'parametric')).lower() == 'auto':
+        resolved_mode, reason = resolve_auto_inference(merged_df, settings)
+        settings['analysis_mode'] = resolved_mode
+        print(f"inference='auto': {reason}")
+    elif settings.get('analysis_mode') == 'regression':
+        # The user chose the simultaneous fit. It is theirs to choose, and it
+        # runs -- but a fit with more parameters than wells returns one
+        # arbitrary solution out of infinitely many, and saying nothing is how
+        # a published figure came to carry coefficients that could not be
+        # reproduced from their own inputs. So: run it, and say so loudly.
+        warning = _identifiability_warning(merged_df, settings)
+        if warning:
+            print(warning)
 
     if settings.get('analysis_mode') == 'guide_permutation':
         output = _run_guide_permutation_analysis(
