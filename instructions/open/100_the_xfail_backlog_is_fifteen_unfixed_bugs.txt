@@ -1,0 +1,165 @@
+================================================================================
+THE XFAIL BACKLOG IS FIFTEEN UNFIXED BUGS THE LEDGER CANNOT SEE
+================================================================================
+
+Status:    filed 2026-08-15, not started. Found while running the CI fast leg
+           locally to pre-verify instruction 82.
+Requested: 2026-08-15 - "please look through the instructions list then take a
+           look at the state of the spacr code, do a sweep (not to deep) and
+           tell me what you think."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The fast leg is green: 16345 passed, 8 skipped, 0 failed on py3.10.
+
+It is also carrying FIFTEEN xfails, and every one of them is a written-up,
+reproducible defect in shipped code. They pass CI because `xfail` means "known
+to fail", so a suite full of them is indistinguishable from a suite with none.
+
+This matters right now because `instructions/open/` was empty when this was
+filed, and "0 open / 90 done" was being read as "nothing left". Fifteen real
+bugs were sitting one directory away in a form no ledger counts.
+
+An xfail is the correct way to RECORD a defect you have decided not to fix
+yet. It is not a way to CLOSE one.
+
+--------------------------------------------------------------------------------
+THE DEFECTS
+--------------------------------------------------------------------------------
+
+GROUP A -- CELLPOSE 3 LEFTOVERS. Four sites pass `channels=` to
+`CellposeModel.eval`. Cellpose 4.0.7 logs "channels deprecated in v4.0.1+"
+and never reads the value. `spacr.model_compare.IGNORED_ARGUMENTS` already
+lists 'channels' as exactly this no-op, and `spacr/object.py:1913` (the SAM
+sibling) already omits it, so the correct shape is in the tree twice over.
+
+    spacr/object.py:1251      generate_cellpose_masks   channels=channels
+    spacr/object.py:1853      segment_cellpose          channels=[0, 1]
+    spacr/submodules.py:421   test_cellpose_model       channels=[0, 0]
+    spacr/submodules.py:621   apply_cellpose_model      channels=[0, 0]
+
+Mechanical. Delete the argument; select the planes before the handover, as
+object.py:1913 does. The remap that FEEDS the batch is still needed -- only
+the kwarg is dead.
+
+GROUP B -- align.py SILENTLY MIXES OR DROPS DATA. Five defects, two of them
+verified by hand on 2026-08-15:
+
+  B1. TWO WELLS BECOME ONE SITE  [VERIFIED]
+      `_MERGED`'s (?P<plate>[^_]+) cannot match a plate token containing the
+      separator, so the last-resort branch reads the WELL token as a channel:
+
+          _parse_name('exp1_plate1_B07_001') -> ('','',1) as channel 1
+          _parse_name('exp1_plate1_C08_001') -> ('','',1) as channel 8
+
+      Both key to site ('','',1). `write_stack` composites well C08 into well
+      B07's canvas as another plane, and every `align_coordinates` row carries
+      an empty plateID/rowID/columnID, so nothing downstream can separate them
+      again. Any plate named with an underscore contaminates across wells.
+
+  B2. A 1536-WELL EXPORT KEEPS ONE TILE PER WELL  [VERIFIED]
+      `_YOKOGAWA`'s (?P<well>[A-Za-z]?\d+) allows at most one letter, so
+      'AA01' never matches; the trailing digits of the CHANNEL token become
+      the field, and F001..F004 all key to the same site. Only the last file
+      read survives. `spacr.schema.parse_well('AA01') == ('r27','c1')`, so the
+      rest of spaCR handles 1536 plates -- only align's regex does not.
+
+  B3. `scan_tiles(reference_channel=N)` is documented as "which channel drives
+      registration" and stored as `Tile.channel`, but nothing in align.py ever
+      reads `Tile.channel`. `estimate_offsets` uses its own parameter, default
+      0. Choosing the reference channel at scan time silently does nothing.
+
+  B4. `align_folder` applies `grid` to the whole folder and splits by well
+      afterwards, so a per-well acquisition grid cannot be expressed: two
+      wells acquired 2x2 are refused as "grid 2x2 has room for 4 tiles but 8
+      were found". `scan_tiles` is called before `group_tiles`.
+
+  B5. `estimate_offsets(max_open_tiles=1)` registers nothing. A pair needs
+      both tiles open; `_ReaderCache` evicts and closes tile A while
+      `_register_pair` still holds it. The AttributeError is swallowed into
+      `PairResult.note`, every tile falls back to its stage position, and the
+      run looks like a plate that simply would not register.
+
+GROUP C -- schema.py KEY AND COLUMN HAZARDS. Four defects, one verified:
+
+  C1. `canonicalise_columns` CREATES A COLLISION SQLITE REFUSES  [VERIFIED]
+
+          canonicalise_columns(['row','rowid']) -> ['rowID','rowid']
+          to_sql -> OperationalError: duplicate column name: rowid
+
+      SQLite compares identifiers case-insensitively -- this is how a column
+      named rowID once shadowed the implicit rowid and made a DELETE remove a
+      whole table. The rename guard is exact while the collision it must avoid
+      is case-folded. The fix must land in BOTH `schema.canonicalise_columns`
+      and `utils.canonicalize_measurement_columns` in one commit, or the two
+      frame canonicalisers disagree.
+
+  C2. `compose_prcf(..., time="xy")` writes `p_r1_c1_f1_txy`, which
+      `parse_prcf` refuses with "'txy' is not a field id". A preserved token
+      round-trips in the FIELD slot but not the TIME slot.
+
+  C3. `parse_field_stem` / `parse_object_stem` read a file name LEFT to right
+      at fixed positions while `parse_prcf` reads right to left. So
+      `parse_field_stem('my_plate_A01_3')` gives plateID='my', rowID='plate',
+      and surplus components are dropped outright:
+      `parse_field_stem('plate1_A01_3_junk') == parse_field_stem('plate1_A01_3')`.
+
+  C4. `_sanitise_token` maps field 'a_b' and field 'a-b' onto one id, 'fa-b'.
+      Two fields go in, one comes out -- via the escape hatch rather than via
+      `_safe_int_convert`. Tier-2 path only, so QC-visible.
+
+GROUP D -- RESOLUTION AND SHIPPED DATA. Two:
+
+  D1. `generate_masks_from_imgs` discards the loader's `orig_dims`: on the
+      normalize=True branch it overwrites them with the shapes of the ALREADY
+      target-resized images, so "resize back to orig_dims" is a no-op and
+      masks are written at target resolution instead of source.
+      `identify_masks_finetune` keeps them and restores correctly.
+
+  D2. THE SHIPPED DEFAULTS DO NOT RUN. `barcodes_grna.csv` contains three
+      protospacers that each appear under two or three gene names, and
+      `map_sequences_to_names` correctly refuses a reference with duplicate
+      sequences, so `generate_barecode_mapping` raises ValueError on its first
+      chunk with the shipped defaults and nothing else changed. Deciding which
+      gene a shared protospacer counts for is a screen-design call, not a code
+      change -- this one needs the maintainer, not a commit.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+In this order, because it is also increasing order of judgement required:
+
+1. Group A. Delete four dead kwargs. Flip the four xfails to plain passing
+   tests in the same commit -- an xfail that now passes is XPASS, which is
+   not a green signal either.
+
+2. C1. One commit touching both canonicalisers, with a test that asserts
+   `to_sql` succeeds rather than asserting on the column list. Make the guard
+   case-insensitive while still letting a column be renamed onto its own
+   case-folded name.
+
+3. B1 and B2. Both are cross-well or cross-field contamination and both are
+   regex repairs with a clear correct answer. Prefer refusing an unparseable
+   name over the last-resort branch that invents a channel from a well.
+
+4. B3, B4, B5, C2, C3, C4, D1. Each needs a small design decision recorded in
+   the commit message.
+
+5. D2 is the maintainer's. Ask which gene each shared protospacer counts for,
+   or ship a reference with the duplicates removed and say which were dropped.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`python -m pytest tests/ -m "not integration and not slow and not heavy and
+not qt and not gpu and not network and not nas and not gui" -n 4 --dist
+loadfile` reports ZERO xfailed and zero xpassed, or reports only xfails whose
+reason names a maintainer decision that has been asked and not yet answered.
+
+A defect that has been decided against is closed by DELETING the test and
+recording the decision here, not by leaving an xfail behind to be recounted
+by the next sweep.
