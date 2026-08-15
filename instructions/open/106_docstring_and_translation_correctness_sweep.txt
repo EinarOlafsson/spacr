@@ -1,0 +1,129 @@
+================================================================================
+A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
+================================================================================
+
+Status:    filed 2026-08-15, not started. Two failures already reproduced --
+           see WHERE IT IS ALREADY WRONG.
+Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings
+           and translations make sure everything is correct."
+
+--------------------------------------------------------------------------------
+WHAT THIS IS, AND WHAT IT IS NOT
+--------------------------------------------------------------------------------
+
+This is an AUDIT of work already marked done, not a request to write more
+docs. Four instructions built this surface and all four are closed:
+
+    61  tooltip and documentation sweep
+    63  the API documentation page
+    65  translation coverage: UI, docs, installer
+    83  finish the multilingual catalogs
+    86  the API docs are not a roadmap
+
+The ask is whether what they produced is CORRECT. That is a different
+question from whether it exists, and the coverage guards those instructions
+left behind answer the second one, not the first: a docstring can be present,
+counted, extracted, translated into eight languages and wrong in all of them.
+
+There is direct reason to run it. In one week this repository found eight
+instruction files that were wrong about their own state, an API-docs page
+that was a roadmap rather than documentation (86), and -- during the sweep
+that produced this file -- fifteen recorded defects sitting behind xfails
+whose reasons were themselves partly wrong (100, C3). Prose in this
+repository has not been reliable. Assume the same of the docstrings until
+each is checked against the code beside it.
+
+--------------------------------------------------------------------------------
+WHERE IT IS ALREADY WRONG (reproduced 2026-08-15)
+--------------------------------------------------------------------------------
+
+Two guards fail on the current tree, so the sweep starts with real work
+rather than a search:
+
+  1. tests/test_api_i18n_extractor.py
+     test_public_docstrings_matches_reviewed_visible_coverage
+
+         assert (6648 - 119) == 6524
+
+     6,529 against a reviewed 6,524. Five public docstrings have appeared or
+     changed without passing whatever review that number represents. Find out
+     WHICH five and whether the reviewed number or the code is the stale one
+     -- do not simply move the constant to 6529, which is how a review
+     ratchet becomes a rubber stamp.
+
+  2. tests/test_tooltip_length_and_shape.py::test_no_tooltip_is_an_archive
+
+         tooltips over 600 chars: {'inference': 746}
+
+     The `inference` tooltip is 746 characters. The test states the fix in its
+     own message: "Lead with the consequence, then the action, then the edge
+     case." Instruction 61 asked for short and informative; 746 characters is
+     an archive.
+
+--------------------------------------------------------------------------------
+WHAT TO CHECK
+--------------------------------------------------------------------------------
+
+DOCSTRINGS -- correctness, in this order, because the order is by how much
+damage a wrong one does:
+
+  * DOES IT DESCRIBE THE CODE UNDERNEATH IT? The failure mode this repository
+    actually has is documented-behaviour-that-changed. Spot-check every
+    module touched in the last month first; those are the ones whose prose
+    has had the most chance to drift.
+  * DO THE :param: NAMES MATCH THE SIGNATURE? Mechanically checkable, so
+    check it mechanically rather than by eye, and keep the check.
+  * DO THE CROSS-REFERENCES RESOLVE? `:func:` and `:mod:` targets that were
+    renamed silently become dead links. There is already a guard for tooltip
+    API links (`test_tooltip_api_links_resolve.py`) which SKIPS without a
+    fresh docs build -- so it is not currently proving anything. Either make
+    it run in CI with a built docs tree or stop counting it as coverage.
+  * DOES IT NAME A DEFAULT THAT IS STILL THE DEFAULT? A docstring saying
+    "defaults to 0" beside `param=None` is worse than no docstring: it is
+    believed.
+
+TRANSLATIONS -- the catalogs live in `packaging/i18n/*.json` (de, en, es, fr,
+hi, ko, sv, zh_CN), and there is no `spacr/i18n/` runtime catalog directory,
+so establish first WHERE the runtime actually reads its strings from before
+auditing the wrong files.
+
+  * SAME PLACEHOLDERS, EVERY LANGUAGE. A translated string that drops or
+    renames a `{field}` throws at runtime in that locale only, which means it
+    ships. Mechanically checkable across all eight; check it mechanically.
+  * NO UNTRANSLATED-BUT-PRESENT ENTRIES. A key whose value is the English
+    string is not translated; it is a placeholder that passes a coverage
+    count. Distinguish deliberate ones (proper nouns, "spaCR") from the rest,
+    and list the deliberate ones somewhere so the distinction survives.
+  * THE TERMS THAT MUST NOT BE TRANSLATED. Column names, object types,
+    settings keys, `prcfo`, the object roles. A translated `columnID` is a
+    broken database, not a localised one.
+  * THE NAME IS spaCR (instruction 85) in every locale, and the wordmark
+    rule from `[[spacr_wordmark_styling]]` still applies where it renders.
+
+--------------------------------------------------------------------------------
+HOW TO DO IT WITHOUT IT BEING THEATRE
+--------------------------------------------------------------------------------
+
+Every check that CAN be mechanical must end as a test, not as a pass someone
+did once. This sweep will be asked for again -- it already has been, for
+work that was closed -- and the only durable answer is a guard that fails
+when the prose drifts from the code.
+
+Where a check cannot be mechanical (does this sentence describe what the
+function does?), sample rather than pretend to be exhaustive, say what was
+sampled and how, and put the unreviewed remainder in writing. "Swept" with
+no statement of coverage is the claim this instruction exists to distrust.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The two failures above pass, and pass for the right reason -- the docstring
+  ratchet moved because five docstrings were reviewed, not because a constant
+  was edited.
+* A placeholder-parity check runs over all eight catalogs in CI.
+* A `:param:`-vs-signature check runs in CI.
+* `test_tooltip_api_links_resolve.py` either runs for real or is retired; it
+  currently skips and counts as coverage while proving nothing.
+* A written statement of what was checked by hand, over what fraction, with
+  the remainder named.

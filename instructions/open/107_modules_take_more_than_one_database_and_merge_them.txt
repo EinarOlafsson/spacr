@@ -1,0 +1,99 @@
+================================================================================
+IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
+================================================================================
+
+Status:    filed 2026-08-15, not started.
+Requested: 2026-08-15 - "add to instructions, make user that moduals like
+           image UMAP and gate editor can take multiple databases and gerge
+           them."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+One database per run. A screen that was acquired as three plates is three
+separate sessions in the Gate Editor and three separate UMAPs, and the
+comparison the user actually wants -- all of it in one embedding, one gate,
+one figure -- cannot be made inside spaCR at all.
+
+This is NOT instruction 41. That one merges TABLES within one database
+(cell + nucleus + pathogen into one working set) and it is done. This is
+merging DATABASES: the same tables, from different files, stacked.
+
+They compose, and 41 is the foundation: once several databases are one
+frame, 41's working-set and merge-rule machinery is what turns their tables
+into the analysis frame. Build on it rather than beside it.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. TAKE A LIST, NOT A PATH. Wherever a module accepts one database, accept
+   several: add, remove, and see what is loaded. The Gate Editor already has
+   the interaction vocabulary for this from 41 -- the little rounded box with
+   an x per member of a working set -- so use it for databases too rather
+   than inventing a second idiom for the same idea.
+
+2. THE ROW MUST REMEMBER WHERE IT CAME FROM. Every row carries its source
+   database, and that source is available as a grouping/colouring variable.
+   A merged UMAP whose clusters turn out to be the three plates is the single
+   most important thing this feature can show, and it cannot show it if the
+   provenance was dropped at load time.
+
+   This is also the batch-effect question, so it should compose with whatever
+   `spacr/batch_correction.py` already does rather than duplicating it.
+
+3. KEYS MUST NOT COLLIDE. Two plates both named `plate1` in two databases are
+   two different plates, and `plate1_r1_c1_f1_o1` is one key. If the merge
+   pools them, every per-well number afterwards is computed over two
+   experiments at once, silently.
+
+   REFUSE OR DISAMBIGUATE, NEVER POOL SILENTLY. If plate ids collide across
+   the chosen databases, say so and make the user resolve it -- and note that
+   `schema.KEY_ESCAPES` now gives a reversible way to qualify a plate id
+   without breaking the key grammar, which is what a per-source prefix needs.
+
+4. THE SCHEMAS WILL NOT MATCH. Databases written by different spaCR versions,
+   or with different measurement settings, have different columns. Decide and
+   state the rule: intersect (safe, silently drops), union with nulls (keeps
+   everything, changes what "missing" means), or refuse. Show the user which
+   columns are common and which are not BEFORE the merge, because that set is
+   the analysis they are about to run.
+
+   `schema.canonical_rename_plan` is the one canonicaliser to route through,
+   so that a column spelled differently across two databases becomes one
+   column rather than two.
+
+5. IT MUST NOT LOAD EVERYTHING INTO MEMORY. Three plates is three times the
+   rows. Whatever the current single-database path does about size, the
+   multi-database path has to do more of it.
+
+--------------------------------------------------------------------------------
+WHICH MODULES
+--------------------------------------------------------------------------------
+
+The request names Image UMAP and the Gate Editor and says "modules LIKE"
+them, so the pattern is the deliverable, not the two instances. Do those two
+first, but put the loading and merging behind one shared thing so the next
+module gets it for free -- if it lands as two private implementations, the
+third module will be a third one, and they will disagree about key
+collisions.
+
+Everything that reads a measurements database is a candidate: the annotator,
+the database browser, the classifier, the plots.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Three databases from three plates load into one Image UMAP; the embedding
+  can be coloured by source database; a gate drawn on the merged embedding
+  selects cells from all three.
+* The same three load into the Gate Editor as a working set, removable
+  individually, and 41's merge rules apply to the combined frame.
+* Two databases that both contain a plate called `plate1` do NOT silently
+  merge those plates. The user is told, and what they choose is recorded.
+* Two databases with different column sets report what is common and what is
+  dropped or nulled, before anything is computed.
+* A per-source count after the merge equals the per-source count before it,
+  for every source -- the test that catches silent pooling.
