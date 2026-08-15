@@ -1,0 +1,125 @@
+================================================================================
+A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
+================================================================================
+
+Status:    filed 2026-08-15, not started.
+Requested: 2026-08-15 - "add to instructions for all moduals when error occurs
+           because metadata column (plateID, wellID, fieldID, coulmnID,RowID,
+           etc.) is not found the user should be prompted and asked which
+           columnn is e.g. columnID and then they should be able to click on
+           or type in a column that is actually columnID that will then cahnge
+           the name to column ID so the code can continue, if multiple are not
+           found they should be able to do this for multiple metadatacolumns
+           at once. if they only have wellID they should be able to based on
+           the wellID generate real columnID and rowID columns or pseudo
+           columnID and rowID (if the wellID format is not recognized or if
+           they do not have wellID and only have e.g. folders each from a
+           different condition). pseudo just makes their structure compatible
+           with spacr and spacr generates a map of their values to the seudo
+           values, here the important thing is that different conditions get
+           different wells asn dont get mixed."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+A missing metadata column is a dead end. The run raises somewhere inside
+whichever module reached for it, the message names a column the user may
+never have heard of, and the only way forward is to leave spaCR, rename a
+column by hand, and start again. Their data was fine -- it just spelled
+something differently.
+
+This is not one module's problem. EVERY module that reads
+plateID / rowID / columnID / fieldID / wellID / objectID has the same cliff,
+so the repair has to be one shared mechanism they all route through, not a
+prompt bolted onto whichever module the user happened to run first.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+THREE THINGS, IN THIS ORDER. Each is useful without the ones after it.
+
+1. ASK, DO NOT RAISE.
+
+   When a required metadata column is missing, stop and ask which of the
+   columns actually present is that column. The user picks by clicking a
+   column name or typing it. spaCR then RENAMES it to the canonical name and
+   continues the run -- no restart.
+
+   * All at once. If four are missing, the user resolves four in one dialog,
+     not four dialogs in sequence.
+   * Show what is there. List the frame's real columns with a few example
+     values per column, because "which of these is the column id" is a
+     question about the VALUES, not the names.
+   * Offer a guess, do not impose one. `schema.canonical_column_name` and
+     `LEGACY_COLUMN_NAMES` already resolve the known spellings, so those
+     never reach this dialog at all. What reaches it is genuinely unknown,
+     and the guess should be pre-selected but overridable.
+   * Remember the answer for the run, and offer to save it, so the same
+     plate does not ask twice.
+
+2. DERIVE row/column FROM A WELL.
+
+   A user with only `wellID` should not have to invent the other two.
+   `schema.parse_well` already turns 'A01' -> ('r1', 'c1') and handles two
+   letters ('AA01' -> r27), so when the well parses, offer to GENERATE real
+   rowID and columnID from it. Show the mapping before writing it, because a
+   plate read the wrong way round is silent and expensive.
+
+3. PSEUDO row/column WHEN NOTHING PARSES.
+
+   The case the user named twice, so it is the one that matters: a well
+   format spaCR does not recognise, or no well at all -- just folders, one
+   per condition.
+
+   Generate PSEUDO rowID/columnID that make the structure spaCR-compatible,
+   and record a map from the user's real values to the pseudo ones, stored
+   with the data and shown on request. The pseudo well is a container, not a
+   claim about a physical plate.
+
+   THE ONE INVARIANT, IN THE USER'S WORDS: "different conditions get
+   different wells and don't get mixed." The mapping must be injective. Two
+   conditions sharing a pseudo well is the failure this whole feature exists
+   to avoid -- it silently pools two experimental groups, and every
+   per-well statistic computed afterwards is a number for something that
+   never existed. Refuse to write a mapping that is not injective; do not
+   round-robin, do not truncate, do not reuse.
+
+--------------------------------------------------------------------------------
+WHERE IT GOES
+--------------------------------------------------------------------------------
+
+One resolver, called from wherever a metadata column is first required, so
+every module inherits it:
+
+* The canonical names and the known aliases are already in
+  :mod:`spacr.schema` -- `canonical_column_name`, `LEGACY_COLUMN_NAMES`,
+  `canonical_rename_plan`, `parse_well`. The resolver decides only what those
+  cannot.
+* The rename must go through `schema.canonical_rename_plan`, which is now the
+  one definition of the "target already exists, keep both" rule and folds
+  case -- renaming a user's column onto a name that differs only in case is
+  how a frame becomes unwritable to SQLite (instruction 100, C1).
+* The Qt GUI gets the picker. The headless/CLI path must not hang waiting for
+  a human: it fails with a message that names the columns it found, the
+  columns it needed, and the flag or settings key that supplies the mapping
+  without a prompt. A pipeline that blocks on a dialog nobody is watching is
+  worse than one that stops.
+* The legacy Tk GUI accommodates the change rather than blocking it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A frame whose column is spelled `Column` runs to completion after one
+  answer, and the answer is not asked again for the same plate.
+* A frame missing four metadata columns asks once, not four times.
+* wellID='A01' with no rowID/columnID generates r1/c1, and the mapping is
+  shown before it is written.
+* Four folders, one condition each, no wells: four DISTINCT pseudo wells, a
+  stored map back to the folder names, and a test that asserts no two
+  conditions share a pseudo well -- including when the condition names
+  collide after whatever normalisation the mapper applies.
+* The headless path never blocks; it exits with a message naming what it
+  found, what it needed, and how to supply the mapping non-interactively.
