@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -29,14 +32,45 @@ def test_release_audit_parsers_pin_the_current_inventory():
     languages, voices = live._voice_inventory(
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
-    assert len(catalog["lessons"]) == 69
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 487
+    assert len(catalog["lessons"]) == 73
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 507
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
     assert live.EXPECTED_CACHE_KEY in (
         tutorial_root / "index.html"
     ).read_text(encoding="utf-8")
+
+
+def test_every_registered_gui_module_has_exactly_one_tutorial_lesson():
+    """Fail when product modules move ahead of the published learning path."""
+    code = """
+import json
+import spacr.qt
+spacr.qt.register_self_registering_modules()
+from spacr.qt.app import APPS
+print(json.dumps(sorted({row[0] for row in APPS})))
+"""
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
+               PYTHONDONTWRITEBYTECODE="1")
+    result = subprocess.run(
+        [sys.executable, "-c", code], cwd=ROOT, env=env,
+        check=True, capture_output=True, text=True,
+    )
+    registry = set(json.loads(result.stdout.strip().splitlines()[-1]))
+    catalog = frames.load_catalog(
+        ROOT / "docs" / "source" / "_extra" / "tutorials" /
+        "lesson_catalog.js"
+    )
+    lesson_keys = [
+        lesson["app_key"] for lesson in catalog["lessons"]
+        if lesson.get("app_key")
+    ]
+    assert len(lesson_keys) == len(set(lesson_keys))
+    # The Pages deployment is main-based and may publish lessons for modules
+    # that have reached nightly but not main yet. Every module shipped by the
+    # checked-out product must nevertheless have exactly one lesson.
+    assert registry <= set(lesson_keys)
 
 
 def test_scene_midpoint_stays_inside_speech():
