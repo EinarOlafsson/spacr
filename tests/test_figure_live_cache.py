@@ -798,3 +798,91 @@ def test_a_umap_figure_still_gets_its_live_umap_controls(qtbot, queue):
     qtbot.addWidget(other)
     assert "Image UMAP" not in [
         other.tabs.tabText(i) for i in range(other.tabs.count())]
+
+
+def test_a_live_figure_is_shown_by_matplotlib_not_as_a_picture_of_itself(
+        qtbot, queue):
+    """"i dont get why you cant have it be vector based" -- it can, and now is.
+
+    The raster pipeline draws the figure, encodes it, and stretches the
+    resulting pixmap into the view: blurry whenever the view is not exactly
+    the size the raster was drawn at, which is most of the time and always
+    when zoomed. A canvas redraws from the Figure at the widget's own
+    resolution, so it is crisp at any size, and showing a figure costs no
+    render at all.
+    """
+    from matplotlib.figure import Figure
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+    queue.add_figure(figure)
+
+    assert queue._canvas is not None, "a live figure fell back to the raster"
+    assert queue._stack.currentIndex() == 1
+    assert queue._canvas.figure is queue._figures[0]
+    # Zoom and pan re-render from the figure rather than magnifying pixels.
+    assert queue._canvas_toolbar is not None
+
+
+def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
+    """draw_idle schedules; matplotlib coalesces to one draw per loop turn.
+
+    The raster path paid a full render per change no matter how it was
+    debounced or threaded.
+    """
+    import time
+
+    import numpy as np
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(20, 20))
+    axis = figure.add_subplot(111)
+    rng = np.random.default_rng(0)
+    for index in range(27):
+        axis.scatter(rng.normal(size=45), rng.normal(size=45), label=f"c{index}")
+    queue.add_figure(figure)
+    live = queue._figures[0]
+
+    worst = 0.0
+    for step in range(40):
+        for collection in live.axes[0].collections:
+            collection.set_alpha(0.3 + 0.01 * step)
+        start = time.perf_counter()
+        queue.refresh_current_figure(preview=True)
+        worst = max(worst, (time.perf_counter() - start) * 1000)
+
+    assert worst < 20, f"a restyle request cost {worst:.1f} ms"
+
+
+def test_navigating_does_not_un_spill_a_figure(qtbot, queue):
+    """has_live_figure, not figure_for.
+
+    figure_for restores a spilled figure from disk. Using it to decide how to
+    DISPLAY one would un-spill a figure merely because the user navigated past
+    it, which is exactly what the live-figure cap exists to prevent.
+    """
+    from matplotlib.figure import Figure
+
+    for index in range(queue.live_figure_cap() + 3):
+        figure = Figure()
+        figure.add_subplot(111).plot([0, 1], [index, index + 1])
+        queue.add_figure(figure)
+
+    assert not queue.has_live_figure(0), "figure 0 should have spilled"
+    queue.show_index(0)
+    assert not queue.has_live_figure(0), \
+        "merely looking at an old figure restored it into memory"
+    assert queue._stack.currentIndex() == 0, "a picture-only figure needs the raster"
+
+
+def test_the_raster_path_is_still_reachable(qtbot, queue):
+    """It is not legacy: a spilled or PDF-only figure has no Figure to draw."""
+    from matplotlib.figure import Figure
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+    queue.set_live_canvas_enabled(False)
+    queue.add_figure(figure)
+
+    assert queue._canvas is None
+    assert queue._stack.currentIndex() == 0
