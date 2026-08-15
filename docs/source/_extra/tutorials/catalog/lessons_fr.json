@@ -4487,6 +4487,198 @@
           "speech_text": "Lorsque le flux de travail est terminé, les paramètres de courbe, l'incertitude, le diagnostic et les données de source peuvent être exportés ensemble."
         }
       ]
+    },
+    {
+      "id": "70_explain_cv",
+      "number": 70,
+      "slug": "explain_cv",
+      "title": "Explain CV Model",
+      "series": 5,
+      "app_key": "explain_cv",
+      "section": "Results and quality control",
+      "description": "Reproduisez les prédictions de vision par ordinateur à partir des caractéristiques mesurées et vérifiez que les explications obtenues sont fidèles et exemptes de fuite d’information.",
+      "objectives": [
+        "Comprendre quand utiliser Explain CV Model.",
+        "Configurer les entrées et réglages importants.",
+        "Exécutez le flux de travail et localiser ses sorties."
+      ],
+      "prerequisite": "Suivez les leçons de flux de travail précédentes lorsque ce module a besoin de résultats en amont.",
+      "scenes": [
+        {
+          "narration": "Ce tutoriel présente Explain CV Model. Reproduisez les prédictions de vision par ordinateur à partir des caractéristiques mesurées et vérifiez que les explications obtenues sont fidèles et exemptes de fuite d’information.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Ce tutoriel présente Explain CV Model. Reproduisez les prédictions de vision par ordinateur à partir des caractéristiques mesurées et vérifiez que les explications obtenues sont fidèles et exemptes de fuite d’information."
+        },
+        {
+          "narration": "Choisissez le fichier de prédictions par objet, sa base de données de mesures, la classe ou le score prédit, ainsi que le regroupement par puits de microplaque ou par plaque qui doit rester intact.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Choisissez le fichier de prédictions par objet, sa base de données de mesures, la classe ou le score prédit, ainsi que le regroupement par puits de microplaque ou par plaque qui doit rester intact."
+        },
+        {
+          "narration": "Dans la zone de configuration principale, sélectionnez le moteur du modèle de substitution, les groupes réservés à la validation, les caractéristiques à exclure, le nombre de répétitions de permutation et le budget SHAP limité.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Dans la zone de configuration principale, sélectionnez le moteur du modèle de substitution, les groupes réservés à la validation, les caractéristiques à exclure, le nombre de répétitions de permutation et le budget SHAP limité."
+        },
+        {
+          "narration": "Validez les exclusions destinées à empêcher les fuites et le découpage par groupes. Ajustez ensuite le modèle de substitution et comparez sa fidélité sur l’ensemble de validation à la référence de la classe majoritaire avant d’interpréter l’importance des caractéristiques.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Validez les exclusions destinées à empêcher les fuites et le découpage par groupes. Ajustez ensuite le modèle de substitution et comparez sa fidélité sur l’ensemble de validation à la référence de la classe majoritaire avant d’interpréter l’importance des caractéristiques."
+        },
+        {
+          "narration": "À la fin du flux de travail, l’exécution consigne la fidélité, l’importance par permutation sur l’ensemble de validation, les résumés SHAP, les colonnes exclues, le regroupement, le moteur et la provenance. Une fidélité faible est signalée explicitement, jamais dissimulée.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "À la fin du flux de travail, l’exécution consigne la fidélité, l’importance par permutation sur l’ensemble de validation, les résumés SHAP, les colonnes exclues, le regroupement, le moteur et la provenance. Une fidélité faible est signalée explicitement, jamais dissimulée."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "section": "Results and quality control",
+      "description": "Reliez un résultat de régression sélectionné aux cellules candidates et aux preuves quantitatives par puits de microplaque, sans écraser les annotations validées.",
+      "objectives": [
+        "Comprendre quand utiliser Investigate Hit.",
+        "Configurer les entrées et réglages importants.",
+        "Exécutez le flux de travail et localiser ses sorties."
+      ],
+      "prerequisite": "Suivez les leçons de flux de travail précédentes lorsque ce module a besoin de résultats en amont.",
+      "scenes": [
+        {
+          "narration": "Ce tutoriel présente Investigate Hit. Reliez un résultat de régression sélectionné aux cellules candidates et aux preuves quantitatives par puits de microplaque, sans écraser les annotations validées.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Ce tutoriel présente Investigate Hit. Reliez un résultat de régression sélectionné aux cellules candidates et aux preuves quantitatives par puits de microplaque, sans écraser les annotations validées."
+        },
+        {
+          "narration": "Choisissez l’exécution de régression, le résultat sélectionné au niveau du gène ou du guide, le sens du phénotype, le seuil de fausses découvertes, la concordance entre guides et la base de données de mesures correspondante.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Choisissez l’exécution de régression, le résultat sélectionné au niveau du gène ou du guide, le sens du phénotype, le seuil de fausses découvertes, la concordance entre guides et la base de données de mesures correspondante."
+        },
+        {
+          "narration": "Dans la zone de configuration principale, examinez la table des objets, la colonne de score, le regroupement par puits de microplaque, les seuils de preuve, les covariables et le mélange hiérarchique avec validation croisée facultative.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Dans la zone de configuration principale, examinez la table des objets, la colonne de score, le regroupement par puits de microplaque, les seuils de preuve, les covariables et le mélange hiérarchique avec validation croisée facultative."
+        },
+        {
+          "narration": "Prévisualisez les cellules candidates classées par score et les résumés par puits de microplaque. N’exécutez le modèle avec validation croisée que lorsque le résultat sélectionné et le contrat de preuve sont corrects.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Prévisualisez les cellules candidates classées par score et les résumés par puits de microplaque. N’exécutez le modèle avec validation croisée que lorsque le résultat sélectionné et le contrat de preuve sont corrects."
+        },
+        {
+          "narration": "À la fin du flux de travail, spaCR enregistre les cellules candidates classées, les comparaisons entre puits indépendants, les probabilités facultatives que chaque cellule corresponde au phénotype sélectionné, l’incertitude et une classification versionnée qui ne remplace jamais les annotations manuelles.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "À la fin du flux de travail, spakeur enregistre les cellules candidates classées, les comparaisons entre puits indépendants, les probabilités facultatives que chaque cellule corresponde au phénotype sélectionné, l’incertitude et une classification versionnée qui ne remplace jamais les annotations manuelles."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "section": "Results and quality control",
+      "description": "Ouvrez une régression terminée, examinez chaque point, modifiez le style du graphique et exportez une figure vectorielle au format de publication sans relancer l’analyse.",
+      "objectives": [
+        "Comprendre quand utiliser Volcano Explorer.",
+        "Configurer les entrées et réglages importants.",
+        "Exécutez le flux de travail et localiser ses sorties."
+      ],
+      "prerequisite": "Suivez les leçons de flux de travail précédentes lorsque ce module a besoin de résultats en amont.",
+      "scenes": [
+        {
+          "narration": "Ce tutoriel présente Volcano Explorer. Ouvrez une régression terminée, examinez chaque point, modifiez le style du graphique et exportez une figure vectorielle au format de publication sans relancer l’analyse.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Ce tutoriel présente Volcano Explorer. Ouvrez une régression terminée, examinez chaque point, modifiez le style du graphique et exportez une figure vectorielle au format de publication sans relancer l’analyse."
+        },
+        {
+          "narration": "Choisissez un dossier de régression terminé ou un fichier CSV de résultats. Confirmez le résultat, la table au niveau des guides, la famille de support, la colonne d’effet et la colonne de valeur P ajustée.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Choisissez un dossier de régression terminé ou un fichier CSV de résultats. Confirmez le résultat, la table au niveau des guides, la famille de support, la colonne d’effet et la colonne de valeur P ajustée."
+        },
+        {
+          "narration": "Dans la zone de configuration principale, examinez les seuils de significativité et d’effet, les transformations des axes, les libellés, les couleurs, les formes, les annotations, les options d’axe discontinu, les polices et les dimensions de sortie.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Dans la zone de configuration principale, examinez les seuils de significativité et d’effet, les transformations des axes, les libellés, les couleurs, les formes, les annotations, les options d’axe discontinu, les polices et les dimensions de sortie."
+        },
+        {
+          "narration": "Sélectionnez des points représentatifs pour examiner leurs lignes complètes, fusionner les annotations facultatives et vérifier que les changements de style conservent les valeurs et les seuils sous-jacents.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Sélectionnez des points représentatifs pour examiner leurs lignes complètes, fusionner les annotations facultatives et vérifier que les changements de style conservent les valeurs et les seuils sous-jacents."
+        },
+        {
+          "narration": "À la fin du flux de travail, les exports PDF et PNG sont recréés aux dimensions demandées à partir des données et du style enregistrés, tandis que les résultats de régression d’origine restent inchangés.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "À la fin du flux de travail, les exports PDF et PNG sont recréés aux dimensions demandées à partir des données et du style enregistrés, tandis que les résultats de régression d’origine restent inchangés."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "description": "Exécutez une exploration limitée des paramètres de régression et comparez les conclusions qui résistent à des choix d’analyse défendables.",
+      "objectives": [
+        "Comprendre quand utiliser Parameter Sweep.",
+        "Configurer les entrées et réglages importants.",
+        "Exécutez le flux de travail et localiser ses sorties."
+      ],
+      "prerequisite": "Suivez les leçons de flux de travail précédentes lorsque ce module a besoin de résultats en amont.",
+      "scenes": [
+        {
+          "narration": "Ce tutoriel présente Parameter Sweep. Exécutez une exploration limitée des paramètres de régression et comparez les conclusions qui résistent à des choix d’analyse défendables.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Ce tutoriel présente Parameter Sweep. Exécutez une exploration limitée des paramètres de régression et comparez les conclusions qui résistent à des choix d’analyse défendables."
+        },
+        {
+          "narration": "Associez, pour chaque plaque, le fichier CSV des scores par objet et celui des comptages de guides. Choisissez la colonne de réponse et définissez un dossier de sortie distinct.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Associez, pour chaque plaque, le fichier CSV des scores par objet et celui des comptages de guides. Choisissez la colonne de réponse et définissez un dossier de sortie distinct."
+        },
+        {
+          "narration": "Dans la zone de configuration principale, choisissez les axes à faire varier, fixez toutes les autres valeurs, sélectionnez un échantillonnage en grille ou aléatoire, limitez le nombre d’essais, enregistrez la graine et acceptez la limite de processus imposée par la mémoire.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Dans la zone de configuration principale, choisissez les axes à faire varier, fixez toutes les autres valeurs, sélectionnez un échantillonnage en grille ou aléatoire, limitez le nombre d’essais, enregistrez la graine et acceptez la limite de processus imposée par la mémoire."
+        },
+        {
+          "narration": "Utilisez d’abord Estimate pour vérifier la taille et le coût de la recherche autorisée. Lancez ensuite une petite exploration limitée et suivez les essais réussis, rejetés et échoués.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Utilisez d’abord Estimate pour vérifier la taille et le coût de la recherche autorisée. Lancez ensuite une petite exploration limitée et suivez les essais réussis, rejetés et échoués."
+        },
+        {
+          "narration": "À la fin du flux de travail, la table de résultats reprenable consigne, pour chaque essai, les paramètres, l’état, le nombre de découvertes, le classement des contrôles positifs, la durée, le dossier de sortie et la cause de l’échec.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "À la fin du flux de travail, la table de résultats reprenable consigne, pour chaque essai, les paramètres, l’état, le nombre de découvertes, le classement des contrôles positifs, la durée, le dossier de sortie et la cause de l’échec."
+        }
+      ]
     }
   ],
   "language": "fr"
