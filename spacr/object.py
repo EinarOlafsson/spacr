@@ -1282,7 +1282,11 @@ def generate_cellpose_masks(src, settings, object_type):
                                 batch_size=batch_size,
                                 normalize=False,
                                 channel_axis=-1,
-                                channels=channels,
+                                # No channels=: Cellpose 4 logs "channels
+                                # deprecated in v4.0.1+" and never reads it, so
+                                # the pair configured nothing. The planes are
+                                # already chosen above by stack[..., channels],
+                                # which is what the remap was always for.
                                 # <obj>_min_area is documented as "passed to
                                 # Cellpose as min_size"; this generator never
                                 # passed it, so Cellpose used its own default of
@@ -1917,7 +1921,8 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
         batch_size=settings['batch_size'],
         normalize=False,
         channel_axis=-1,
-        channels=[0, 1],
+        # No channels=: Cellpose 4 never reads it, so [0, 1] configured
+        # nothing. cp_batch already holds the planes this call should see.
         diameter=settings['organelle_diameter'],
         flow_threshold=settings['organelle_FT'],
         cellprob_threshold=settings['organelle_CP_prob'],
