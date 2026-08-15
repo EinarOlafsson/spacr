@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import logging
 import os
+from importlib import import_module
 from pathlib import Path
 from typing import Union
 
@@ -76,7 +77,11 @@ def save_mask(path: PathLike, mask: np.ndarray,
     if fmt in ("tif", "tiff"):
         p = p.with_suffix(f".{fmt}")
         try:
-            from .tiff_io import write_tiff
+            # Resolve through sys.modules rather than the package attribute.
+            # Python leaves ``spacr.tiff_io`` attached to the parent package
+            # after its module-cache entry is removed, which could otherwise
+            # make an optional dependency look available after it vanished.
+            write_tiff = import_module(".tiff_io", __package__).write_tiff
         except Exception:
             LOG.warning("tifffile missing — falling back to npy for %s", p)
             return save_mask(path, mask, fmt="npy")
