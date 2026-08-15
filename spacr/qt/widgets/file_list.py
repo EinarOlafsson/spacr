@@ -116,7 +116,114 @@ class PairedFileTableWidget(QWidget):
             buttons.addWidget(button)
         buttons.addStretch(1)
         layout.addLayout(buttons)
+        # The table is the drop target the user aims at, so the widget takes
+        # drops and the table does not swallow them first.
+        self.setAcceptDrops(True)
+        self.table.setAcceptDrops(False)
         self.set_value(value)
+
+    #: Column index of each side in the table, so a drop lands where the user
+    #: aimed it rather than in whichever input the router reached first.
+    SIDE_COLUMNS = {"score": 1, "count": 2}
+
+    def add_paths_for_side(self, paths, side: str = "score") -> int:
+        """Add files to the score or count column and re-propose the pairing.
+
+        The drop targets the user asked for -- "a dependent variable square I
+        can drop into and an independent variable square I can drop into" --
+        resolve to this. It is also what the drop router calls once it has
+        decided which side a file belongs to from its header, so dropping a
+        count table anywhere on the widget still fills the count column.
+
+        Returns how many files were added.
+        """
+        if side not in self.SIDE_COLUMNS:
+            raise ValueError(
+                f"side must be 'score' or 'count'; got {side!r}.")
+        incoming = [os.fspath(p) for p in (paths or [])]
+        if not incoming:
+            return 0
+        current = self.get_value()
+        self._scores = list(dict.fromkeys(
+            row["score"] for row in current if row.get("score")))
+        self._counts = list(dict.fromkeys(
+            row["count"] for row in current if row.get("count")))
+        target = self._scores if side == "score" else self._counts
+        added = 0
+        for path in incoming:
+            if path not in target:
+                target.append(path)
+                added += 1
+        if added:
+            # Re-propose so a count dropped after its score lands on the same
+            # row: the pairing is by filename token, not by drop order.
+            self.set_value(suggest_file_pairs(self._scores, self._counts))
+            self.value_changed.emit()
+        return added
+
+    def _side_for_header(self, path) -> str:
+        """'count' when the file's header names a gRNA and a count.
+
+        Read from the header rather than the filename: a count export carries
+        a gRNA name and a count, a score export carries neither, and that is
+        true whatever the file is called.
+        """
+        try:
+            import csv as _csv
+            with open(path, newline="", encoding="utf-8",
+                      errors="replace") as handle:
+                header = {str(name).strip().lower()
+                          for name in next(_csv.reader(handle), [])}
+        except OSError:
+            return "score"
+        return ("count" if {"grna", "grna_name"} & header and "count" in header
+                else "score")
+
+    # ---------------------------------------------------------- drag / drop
+
+    @staticmethod
+    def _dropped(event):
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return []
+        return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
+
+    def dragEnterEvent(self, event):  # noqa: N802 - Qt name
+        if self._dropped(event):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):  # noqa: N802 - Qt name
+        if self._dropped(event):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):  # noqa: N802 - Qt name
+        """Route each dropped file to the column it belongs in.
+
+        A drop over the score or count column goes there regardless of what
+        the file looks like -- the user aimed it. A drop anywhere else is
+        sorted by header, so dropping the whole set at once still fills both
+        columns correctly.
+        """
+        paths = self._dropped(event)
+        if not paths:
+            event.ignore()
+            return
+        aimed = None
+        position = event.position().toPoint() if hasattr(event, "position") \
+            else event.pos()
+        local = self.table.mapFrom(self, position)
+        column = self.table.columnAt(local.x())
+        for side, index in self.SIDE_COLUMNS.items():
+            if column == index and self.table.rect().contains(local):
+                aimed = side
+                break
+        for path in paths:
+            self.add_paths_for_side([path], aimed or self._side_for_header(path))
+        event.acceptProposedAction()
 
     def _pick(self, side: str) -> None:
         paths, _ = QFileDialog.getOpenFileNames(
