@@ -24,14 +24,14 @@ from spacr.qt.screens.classifier_evaluation import ClassifierEvaluationScreen
 #
 #   truth  ·  probability of "infected"  ·  well
 _ROWS = [
-    ("plate1_A01_1_1.png", 0, 0.98, ),   # uninfected, called infected, SURE
-    ("plate1_A01_1_2.png", 0, 0.92, ),   # uninfected, called infected, SURE
-    ("plate1_A01_1_3.png", 0, 0.55, ),   # uninfected, called infected, unsure
-    ("plate1_B02_1_4.png", 0, 0.02, ),   # uninfected, right
-    ("plate2_A01_1_5.png", 1, 0.99, ),   # infected, right
-    ("plate2_A01_1_6.png", 1, 0.96, ),   # infected, right
-    ("plate2_B02_1_7.png", 1, 0.40, ),   # infected, called uninfected, unsure
-    ("plate2_B02_1_8.png", 1, 0.85, ),   # infected, right
+    ("plate1_A_01_1_1.png", 0, 0.98, ),  # uninfected, called infected, SURE
+    ("plate1_A_01_1_2.png", 0, 0.92, ),  # uninfected, called infected, SURE
+    ("plate1_A_01_1_3.png", 0, 0.55, ),  # uninfected, called infected, unsure
+    ("plate1_B_02_1_4.png", 0, 0.02, ),  # uninfected, right
+    ("plate2_A_01_1_5.png", 1, 0.99, ),  # infected, right
+    ("plate2_A_01_1_6.png", 1, 0.96, ),  # infected, right
+    ("plate2_B_02_1_7.png", 1, 0.40, ),  # infected, called uninfected, unsure
+    ("plate2_B_02_1_8.png", 1, 0.85, ),  # infected, right
 ]
 
 
@@ -121,7 +121,8 @@ def test_clicking_the_class_name_column_explains_rather_than_guessing(screen):
 def test_a_cell_holds_exactly_the_objects_it_counted(screen):
     cell = _cell(screen, "uninfected", "infected")
     assert sorted(cell.rows["basename"]) == [
-        "plate1_A01_1_1.png", "plate1_A01_1_2.png", "plate1_A01_1_3.png"]
+        "plate1_A_01_1_1.png", "plate1_A_01_1_2.png",
+        "plate1_A_01_1_3.png"]
 
 
 def test_the_two_lists_partition_the_cell_on_screen(screen):
@@ -129,8 +130,8 @@ def test_the_two_lists_partition_the_cell_on_screen(screen):
     assert len(cell.high) + len(cell.low) == len(cell.rows)
     assert set(cell.high.index).isdisjoint(cell.low.index)
     assert list(cell.high["basename"]) == [
-        "plate1_A01_1_1.png", "plate1_A01_1_2.png"]
-    assert list(cell.low["basename"]) == ["plate1_A01_1_3.png"]
+        "plate1_A_01_1_1.png", "plate1_A_01_1_2.png"]
+    assert list(cell.low["basename"]) == ["plate1_A_01_1_3.png"]
 
 
 def test_moving_the_threshold_re_splits_the_open_cell(screen):
@@ -148,8 +149,8 @@ def test_the_breakdown_names_both_the_well_and_the_plate(screen):
     text = screen._cell_breakdown.text()
     assert text.startswith("well:")
     assert "\nplate:" in text
-    # All three came from plate1_A01 — the point of the breakdown.
-    assert "worst is plate1_A01 with 3 (100%)" in text
+    # All three came from plate1 / row A / column 01.
+    assert "worst is plate1_A_01 with 3 (100%)" in text
     assert "worst is plate1 with 3 (100%)" in text
     # ...but three is too few to call it a bench problem. The verdict has a
     # floor for exactly this reason; see `_CONCENTRATION_FLOOR`.
@@ -167,7 +168,8 @@ def test_opening_the_sure_list_routes_exactly_those_objects_in_order(
 
     assert len(opener) == 1
     request = opener[0]
-    assert list(request.keys) == ["plate1_A01_1_1.png", "plate1_A01_1_2.png"]
+    assert list(request.keys) == [
+        "plate1_A_01_1_1.png", "plate1_A_01_1_2.png"]
     assert request.source == "classifier_evaluation"
     assert "suspect the label" in request.reason
     assert request.context["which"] == "high"
@@ -179,7 +181,7 @@ def test_opening_the_unsure_list_routes_the_other_half_and_only_it(
     _cell(screen, "uninfected", "infected")
     screen.open_cell("low")
 
-    assert list(opener[0].keys) == ["plate1_A01_1_3.png"]
+    assert list(opener[0].keys) == ["plate1_A_01_1_3.png"]
     assert "suspect the boundary" in opener[0].reason
 
 
@@ -200,7 +202,7 @@ def test_the_request_carries_the_confidence_that_produced_the_order(
     _cell(screen, "uninfected", "infected")
     screen.open_cell("high")
     scores = opener[0].context["scores"]
-    assert scores["plate1_A01_1_1.png"] > scores["plate1_A01_1_2.png"]
+    assert scores["plate1_A_01_1_1.png"] > scores["plate1_A_01_1_2.png"]
     assert opener[0].context["threshold"] == pytest.approx(0.75)
 
 

@@ -2336,24 +2336,54 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "over a new plate.",
     },
     "umap": {
-        "PATHS":
-            "The measurements database the embedding is built from. One "
-            "setting, and every other group depends on it.",
-        "MEASUREMENTS":
-            "Which tables and feature columns enter the embedding, and "
-            "which are excluded or dropped for being redundant. The single "
-            "most effective place to change what the map looks like.",
-        "PLATE LAYOUT & CONTROLS":
-            "Rules that drop whole rows out of the embedding by column "
-            "value — a failed well, an untreated control, a plate you are "
-            "not interested in today.",
-        "PLOT":
-            "How many rows are drawn and which column colours the points. "
-            "Colouring by a metadata column is the quickest way to see "
-            "whether a cluster is biology or batch.",
-        "ADVANCED":
-            "Where the crops are read from, worker count and verbosity. "
-            "Rarely touched once a project is set up.",
+        "INPUT DATA":
+            "Choose the measurements database, tables and feature columns "
+            "that enter the map, then exclude unwanted rows or redundant "
+            "measurements before fitting anything.",
+        "DIMENSIONALITY REDUCTION":
+            "Choose the reducer and the shared random seed and distance "
+            "metric. The method-specific groups below grey themselves "
+            "automatically when another reducer is selected.",
+        "UMAP":
+            "Tune UMAP's neighbourhood size and minimum distance to trade "
+            "fine local structure against a smoother view of global "
+            "relationships.",
+        "T-SNE":
+            "Tune t-SNE's perplexity, learning rate, exaggeration and "
+            "iteration budget when its neighbourhoods collapse or fail to "
+            "separate.",
+        "PCA":
+            "Choose PCA whitening and its decomposition solver. Change these "
+            "when component scales or the dimensions of a large table make "
+            "the default solver unsuitable.",
+        "ISOMAP":
+            "Set Isomap's graph neighbourhood and shortest-path method. "
+            "Change them when the manifold disconnects or bends across "
+            "biologically separate populations.",
+        "SPECTRAL EMBEDDING":
+            "Choose how Spectral Embedding builds its affinity graph and how "
+            "many neighbours connect it. Sparse or fragmented data usually "
+            "needs this group.",
+        "CLUSTERING":
+            "Choose the clustering algorithm and its density or cluster-size "
+            "controls, then decide whether noise is retained and which "
+            "metadata colours the result.",
+        "PLATE & BATCH CORRECTION":
+            "Describe plate, control and covariate columns used to remove "
+            "technical batch structure without treating real biological "
+            "differences as nuisance variation.",
+        "POINTS & IMAGES":
+            "Control point, outline and crop-thumbnail rendering after the "
+            "embedding is fitted. These presentation choices never move or "
+            "refit a sample.",
+        "CANVAS & OUTPUT":
+            "Set canvas and sidebar dimensions, background colour and figure "
+            "saving. Use these controls to prepare an export without changing "
+            "the analysis.",
+        "RUNTIME":
+            "Set worker parallelism and diagnostic verbosity. Reduce workers "
+            "when memory is constrained, or increase logging while tracing a "
+            "failed run.",
     },
     "recruitment": {
         "MASK & CHANNEL MAPPING":
