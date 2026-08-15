@@ -448,28 +448,48 @@ def sample_identity(path: Any) -> Dict[str, str]:
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
-    # Current spaCR crops are plate_row_column_field_object, while older
-    # exports encode row+column in one well token:
-    # plate_A01_field_object.  Both are public data formats still found in
-    # training sets.  Distinguish them from the row/column token shapes
-    # instead of from token count: some legacy object identifiers themselves
-    # contain underscores.
+    # Exported crop names use either ``plate_well_field_object`` (for example
+    # ``plate1_A01_f2_o7``), separate row/column exports such as
+    # ``plate1_A_01_1_7``, or canonical PRCFO tokens
+    # (``plate1_r1_c1_f2_o7``). Parse from the field token toward the left so
+    # plate identifiers may themselves contain underscores. Including a field
+    # token in the well identity would split one biological well into multiple
+    # leakage groups.
     family = augmentation_family(path)
     parts = family.split("_")
-    plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    row_token = parts[1] if len(parts) > 1 else ""
-    column_token = parts[2] if len(parts) > 2 else ""
-    split_well = (
-        len(parts) >= 5
-        and bool(re.fullmatch(r"(?i)(?:[a-z]+|r\d+)", row_token))
-        and bool(re.fullmatch(r"(?i)(?:\d+|c\d+)", column_token))
+    field_index = next(
+        (
+            index
+            for index in range(len(parts) - 1, -1, -1)
+            if re.fullmatch(r"(?i)f\d+", parts[index]) is not None
+        ),
+        None,
     )
-    if split_well:
-        well = "_".join(parts[:3])
-        field_id = "_".join(parts[:4])
+    if (
+        field_index is None
+        and len(parts) >= 3
+        and re.fullmatch(r"\d+", parts[-2]) is not None
+        and re.fullmatch(r"(?i)(?:o)?\d+", parts[-1]) is not None
+    ):
+        field_index = len(parts) - 2
+    if field_index is not None and field_index >= 1:
+        split_row_column = (
+            field_index >= 2
+            and re.fullmatch(
+                r"(?i)(?:r\d+|[a-z])", parts[field_index - 2]
+            ) is not None
+            and re.fullmatch(
+                r"(?i)(?:c\d+|\d+)", parts[field_index - 1]
+            ) is not None
+        )
+        plate_end = field_index - 2 if split_row_column else field_index - 1
+        plate = "_".join(parts[:plate_end]) if plate_end > 0 else ""
+        well = "_".join(parts[:field_index])
+        field_id = "_".join(parts[: field_index + 1])
     else:
-        well = "_".join(parts[:2]) if len(parts) >= 4 else ""
-        field_id = "_".join(parts[:3]) if len(parts) >= 4 else ""
+        plate = parts[0] if parts and parts[0] else ""
+        well = "_".join(parts[:2]) if len(parts) >= 2 else ""
+        field_id = "_".join(parts[:3]) if len(parts) >= 3 else ""
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),

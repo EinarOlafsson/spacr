@@ -16,7 +16,7 @@ at Hugging Face commit `17af9e67b7dbd16c465e7f494091eb830728e161`, and live
 mobile playback passed the full 69.6-second default narration, captions,
 pause/resume, end, and replay contract. Instruction 83 is now complete: all
 all nine API catalogs are current at 6,582 symbols, all nine runtime catalogs
-are current at 3,588 entries, and every installer catalog is current at 57
+are current at 3,598 entries, and every installer catalog is current at 57
 strings. Coverage is regenerated; the completion release selection passed 285
 tests, and the post-closure feature sync's Sphinx build exits zero with 659
 HTML pages and seven warnings.
