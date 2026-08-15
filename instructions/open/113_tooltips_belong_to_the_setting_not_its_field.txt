@@ -1,0 +1,99 @@
+================================================================================
+A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
+================================================================================
+
+Status:    filed 2026-08-15, not started. Cause located -- see WHY IT HAPPENS.
+Requested: 2026-08-15 - "add to instructions, tooltips should only appear whe
+           the mouse is hovered over the setting not the field for the
+           setting."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Hovering the input for a setting -- the spin box, the combo, the text field --
+pops the setting's help. It should pop only over the setting's NAME.
+
+This is not an undecided question. `install_api_tooltips` already says so in
+its own docstring:
+
+    "Descriptive help belongs to the label, not the editable field; a compact
+     teal dot immediately beside that label opens the API page."
+
+So the intent is already written down and the code does something else. That
+makes this a defect, not a design change.
+
+WHY IT MATTERS beyond taste: a tooltip over the field covers the field. The
+user is hovering there because they are about to type in it, and the help
+they have already read pops up over the thing they are aiming at. Help
+belongs where you go to ASK, not where you go to ANSWER.
+
+--------------------------------------------------------------------------------
+WHY IT HAPPENS
+--------------------------------------------------------------------------------
+
+`spacr/qt/screens/settings_model.py`, in `install_api_tooltips`:
+
+    html = attach_api_tooltip(widget, app_key, key, ...)   # the FIELD
+    label = _setting_label_for_field(owner, widget)
+    ...
+    label.setToolTip(html)                                  # the LABEL
+
+`attach_api_tooltip` is called on the field because that is what computes the
+html and stamps the `settingKey` / `apiTooltipHtml` / `settingsAppKey`
+properties other code reads. But it ends with
+
+    widget.setToolTip(html)
+    widget.setToolTipDuration(-1)
+
+so the field keeps a tooltip as a side effect of being the thing that carries
+the metadata. Then the label gets the same html, and both hover.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. WHEN A LABEL IS FOUND, CLEAR THE FIELD'S TOOLTIP. Keep every property on
+   the field -- `settingKey`, `apiTooltipHtml`, `apiTooltipDescriptionSource`
+   and the rest are read by the tooltip refresh pass, the i18n retranslation
+   sweep and the API-dot builder, and stripping them would break all three.
+   It is only `setToolTip("")` on the field, after the label has taken it.
+
+   Do NOT do this by not calling `attach_api_tooltip` on the field. That
+   function is where the html and the properties come from.
+
+2. DO NOT TOUCH THE ONE-WIDGET ROW. A Toggle or QCheckBox carries its own
+   visible text and has no separate label -- `_setting_label_for_field`
+   returns None and the code deliberately installs hover on the widget
+   itself. For those, the widget IS the setting name, so hovering it is
+   correct and must keep working. The rule is "hover the name", not "never
+   hover a control".
+
+3. THE API DOT IS UNAFFECTED. It sits beside the label and opens the API
+   page; it is not a tooltip target and should keep behaving as it does.
+
+4. CHECK THE OTHER SETTERS IN THAT FILE. There are several `setToolTip` calls
+   around lines 3048-3156 -- the disabled-reason note, the caption path.
+   Establish which of those land on a field, because a rule that holds only
+   in `install_api_tooltips` will be re-broken by whichever one was missed.
+   The disabled-reason note in particular ("this setting does nothing
+   because...") may be the one case where the FIELD is the right target,
+   since it explains why that control is greyed -- if so, say that here
+   rather than making it an exception someone later deletes as an
+   inconsistency.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Hovering a setting's NAME shows its help.
+* Hovering that setting's spin box / combo / line edit shows NOTHING.
+* A Toggle or checkbox that carries its own text still shows help on hover,
+  because there its text is the name.
+* The teal API dot still opens the API page.
+* The i18n retranslation sweep and `refresh_api_tooltips` still find every
+  setting -- i.e. the properties are intact and only the tooltip string was
+  cleared. The existing tooltip tests (`test_tooltip_length_and_shape.py`,
+  `test_tooltip_api_links_resolve.py`) still pass.
+* A test asserts the field's `toolTip()` is empty while its label's is not,
+  so this cannot regress silently the next time the decoration pass changes.
