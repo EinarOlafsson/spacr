@@ -156,3 +156,54 @@ WHAT ACTUALLY CLOSES THE DOCS GATE, in order: finish the schema migration for
 fr / hi / is, then run the translation pass so the new public symbols exist in
 all nine. Both are instruction 83's machinery. Nothing in this file blocks
 them and no release now depends on them.
+
+--------------------------------------------------------------------------------
+2026-08-15 - THE NOTEBOOK DRIFT GUARD IS UNSTABLE, AND IT IS NOT A NOTEBOOK BUG
+--------------------------------------------------------------------------------
+
+Six `tests/test_notebook_settings.py` failures are in the red CI run and they
+do NOT mean the notebooks are stale. Measured tonight, in a clean detached
+worktree with no working-tree changes at all:
+
+    python tools/build_notebook_settings.py     -> "rewrote 3 notebook(s)"
+    python -m pytest tests/test_notebook_settings.py
+                                                -> "4 stale, run the tool"
+
+The tool and the test disagree about the SAME files in the SAME checkout, so
+running the tool cannot make the test pass. That is the one failure mode that
+makes a guard useless: it can be neither believed nor silenced.
+
+THE CAUSE IS THAT SETTINGS ARE ASSEMBLED BY IMPORT. Modules merge their own
+keys and tooltips into the shared dicts from their own module bodies via
+`register_defaults`, which runs on import. So both what a factory RETURNS and
+which text a contested key CARRIES depend on which modules a process happens
+to have loaded -- and pytest loads a different set from the tool.
+
+Two concrete instances found:
+
+  * `dst` is registered by `surrogate`, `hit_investigation` AND
+    `sequencing_qc`, the last describing the folder ITS figures go in. The
+    winner is whichever imported last, and `importlib.import_module` is a
+    no-op for a module already in `sys.modules`, so a generator CANNOT
+    re-run a registration to make itself last.
+  * `perform_regression` reported 63 settings under the tool and 64 under
+    pytest, the extra being `guide_permutation_plot`.
+
+TRIED AND REVERTED, so nobody repeats it: importing every submodule in sorted
+order does not fix it (the no-op above), and resolving tooltips by a static
+AST read of the source fixes `dst` but not the key COUNT, which comes from the
+factory rather than the tooltip dict.
+
+WHAT WOULD ACTUALLY FIX IT, for whoever takes this:
+
+  1. Make a settings factory's output independent of import state -- either
+     every module registers eagerly at package import, or a factory declares
+     its own keys and nothing merges into it late. This is the real fix and
+     it is a settings-architecture change, not a notebook one.
+  2. Failing that, have the generator and the test run in the SAME import
+     state by generating in a subprocess with a fixed module list, so both
+     sides ask the same question.
+
+The notebooks themselves are fine. Left untouched deliberately: regenerating
+them against a half-imported state bakes one session's keys into the other's
+files, which is how this got worse rather than better tonight.
