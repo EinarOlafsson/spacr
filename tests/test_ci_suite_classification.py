@@ -77,6 +77,7 @@ def test_reusable_suite_auto_detects_resources_and_current_actions():
     assert "cuda_available" in workflow
     assert "endpoint_available" in workflow
     assert "NUMBA_CACHE_DIR" in workflow
+    assert "SPACR_HF_E2E_STUB" in workflow
     # Qt collects the external-catalog fixed-point contract. Chinese source
     # normalization is deliberately OpenCC-backed, so the reusable runner
     # must provide the same audited normalizer as docs and release jobs.

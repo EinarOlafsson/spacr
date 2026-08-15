@@ -52,6 +52,10 @@ jobs:
       OMP_NUM_THREADS: "1"
       MKL_NUM_THREADS: "1"
       OPENBLAS_NUM_THREADS: "1"
+      # The Network leg owns the HF E2E file, but hosted runners have no CUDA.
+      # Run its deterministic four-field dataset on CPU so mask output is a
+      # release-gate assertion instead of a permanent resource skip.
+      SPACR_HF_E2E_STUB: ${{ inputs.suite_name == 'Network' && '1' || '0' }}
 
     steps:
       - uses: actions/checkout@v7
