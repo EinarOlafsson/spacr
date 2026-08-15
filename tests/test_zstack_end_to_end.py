@@ -249,7 +249,10 @@ def test_the_merged_array_keeps_z_and_appends_the_masks(measured):
     been the only problem -- the channel selection would have handed measure a
     two-pixel-wide image without raising anything at all.
     """
-    merged = sorted((measured / "merged").iterdir())
+    # The ARRAYS. merged/ also carries a plane-layout sidecar now, and this
+    # test is about one merged array per field keeping its Z.
+    merged = sorted(p for p in (measured / "merged").iterdir()
+                    if p.suffix == ".npy")
     assert len(merged) == 2
     for path in merged:
         array = np.load(path)
