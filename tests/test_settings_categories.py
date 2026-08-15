@@ -199,7 +199,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # picks it from whether the design can support a simultaneous fit), and
     # `analysis_unit` spells out the per-well/per-cell switch that agg_type
     # used to make silently by being set to None.
-    "inference", "analysis_unit",
+    "inference", "analysis_unit", "paired_data",
     # Plate-blocked marginal guide analysis added to the regression workflow.
     "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
     "guide_permutations", "guide_permutation_seed",

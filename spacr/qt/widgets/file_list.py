@@ -23,6 +23,7 @@ plain ``list[str]`` so the CLI, the settings CSV and the Qt panel all agree.
 from __future__ import annotations
 
 import os
+import re
 from typing import Any, Iterable, List, Sequence
 
 from PySide6.QtCore import Qt, Signal
@@ -35,9 +36,153 @@ from PySide6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
+
+
+def _pair_tokens(path: str) -> set[str]:
+    stem = os.path.splitext(os.path.basename(os.fspath(path)))[0].casefold()
+    stem = re.sub(r"plate[\s_-]*0*(\d+)", r"plate\1", stem)
+    generic = {"score", "scores", "count", "counts", "result", "results",
+               "unique", "combinations", "csv", "maxvit", "xgb"}
+    return {token for token in re.findall(r"[a-z]+\d+|\d+|[a-z]+", stem)
+            if token not in generic and len(token) > 1}
+
+
+def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str]) -> list[dict]:
+    """Propose visible score/count pairs by filename tokens.
+
+    A proposal is never authoritative: the editable table is the contract the
+    user confirms. Unique best matches are used; ties remain unpaired.
+    """
+    unused = set(range(len(counts)))
+    rows = []
+    for score in scores:
+        left = _pair_tokens(score)
+        ranked = sorted(
+            ((len(left & _pair_tokens(counts[index])), index)
+             for index in unused), reverse=True)
+        match = None
+        if ranked and ranked[0][0] > 0 and (
+                len(ranked) == 1 or ranked[0][0] > ranked[1][0]):
+            match = ranked[0][1]
+            unused.remove(match)
+        common = left & (_pair_tokens(counts[match]) if match is not None else set())
+        plate = sorted((token for token in common if token.startswith("plate")),
+                       key=len, reverse=True)
+        rows.append({"plate": plate[0] if plate else "",
+                     "score": os.fspath(score),
+                     "count": os.fspath(counts[match]) if match is not None else None})
+    for index in sorted(unused):
+        rows.append({"plate": "", "score": None,
+                     "count": os.fspath(counts[index])})
+    return rows
+
+
+class PairedFileTableWidget(QWidget):
+    """Editable one-row-per-plate score/count input contract."""
+
+    value_changed = Signal()
+
+    def __init__(self, value=None, parent=None):
+        super().__init__(parent)
+        self._scores: list[str] = []
+        self._counts: list[str] = []
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.table = QTableWidget(0, 4, self)
+        self.table.setHorizontalHeaderLabels(
+            ["Plate / proposal", "Score CSV", "Count CSV", "Plate rule"])
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.itemChanged.connect(lambda *_: self.value_changed.emit())
+        layout.addWidget(self.table)
+        buttons = QHBoxLayout()
+        add_scores = QPushButton("Add score CSVs…", self)
+        add_counts = QPushButton("Add count CSVs…", self)
+        add_row = QPushButton("Add empty pair", self)
+        up = QPushButton("↑", self)
+        down = QPushButton("↓", self)
+        remove = QPushButton("Remove", self)
+        add_scores.clicked.connect(lambda: self._pick("score"))
+        add_counts.clicked.connect(lambda: self._pick("count"))
+        add_row.clicked.connect(lambda: self._append_row({}))
+        up.clicked.connect(lambda: self._move(-1))
+        down.clicked.connect(lambda: self._move(1))
+        remove.clicked.connect(self._remove)
+        for button in (add_scores, add_counts, add_row, up, down, remove):
+            buttons.addWidget(button)
+        buttons.addStretch(1)
+        layout.addLayout(buttons)
+        self.set_value(value)
+
+    def _pick(self, side: str) -> None:
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, f"Add {side} CSVs", "", "Tables (*.csv *.tsv *.txt)")
+        if not paths:
+            return
+        current = self.get_value()
+        self._scores = list(dict.fromkeys(
+            row["score"] for row in current if row.get("score")))
+        self._counts = list(dict.fromkeys(
+            row["count"] for row in current if row.get("count")))
+        if side == "score":
+            self._scores.extend(path for path in paths if path not in self._scores)
+        else:
+            self._counts.extend(path for path in paths if path not in self._counts)
+        self.set_value(suggest_file_pairs(self._scores, self._counts))
+        self.value_changed.emit()
+
+    def _append_row(self, row: dict) -> None:
+        index = self.table.rowCount()
+        self.table.insertRow(index)
+        values = (row.get("plate") or "", row.get("score") or "",
+                  row.get("count") or "", row.get("rule") or "resolved at run")
+        for column, value in enumerate(values):
+            item = QTableWidgetItem(str(value))
+            if column == 3:
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(index, column, item)
+
+    def set_value(self, value: Any) -> None:
+        self.table.blockSignals(True)
+        self.table.setRowCount(0)
+        for row in value or []:
+            if isinstance(row, dict):
+                self._append_row(row)
+        self.table.blockSignals(False)
+
+    def get_value(self) -> list[dict]:
+        rows = []
+        for index in range(self.table.rowCount()):
+            value = lambda column: (self.table.item(index, column).text().strip()
+                                    if self.table.item(index, column) else "")
+            score, count = value(1), value(2)
+            if score or count:
+                rows.append({"plate": value(0) or None,
+                             "score": score or None, "count": count or None})
+        return rows
+
+    def _move(self, offset: int) -> None:
+        row = self.table.currentRow()
+        target = row + offset
+        if row < 0 or not 0 <= target < self.table.rowCount():
+            return
+        values = self.get_value()
+        values[row], values[target] = values[target], values[row]
+        self.set_value(values)
+        self.table.selectRow(target)
+        self.value_changed.emit()
+
+    def _remove(self) -> None:
+        rows = sorted({index.row() for index in self.table.selectedIndexes()},
+                      reverse=True)
+        for row in rows:
+            self.table.removeRow(row)
+        if rows:
+            self.value_changed.emit()
 
 #: Extension groups offered in the dialog, by the kind of input a setting wants.
 FILE_KIND_FILTERS: dict[str, str] = {

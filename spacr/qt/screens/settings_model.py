@@ -10,8 +10,10 @@ a real Qt widget grouped into logical Section boxes based on
 from __future__ import annotations
 
 import ast
+import csv
 from html import escape
 import logging
+import os
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -38,7 +40,7 @@ from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.channel_mapping import ChannelMappingWidget
 from ..widgets.class_editor import ClassEditorWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
-from ..widgets.file_list import FilePathListWidget
+from ..widgets.file_list import FilePathListWidget, PairedFileTableWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 from ...object_roles import ORGANELLE_ROLES, setting_label
@@ -766,9 +768,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", ("n_jobs",)),
     ),
     "regression": (
-        ("Input Tables", ("metadata_files", "score_data", "count_data")),
+        ("Input Tables", ("paired_data", "metadata_files")),
         ("Controls & Plate Design", (
-            "plateID", "positive_control", "negative_control", "controls",
+            "positive_control", "negative_control", "controls",
             "control_wells", "filter_column", "filter_value",
         )),
         ("Plate & Batch Correction", (
@@ -4314,6 +4316,7 @@ class SettingsWidgets:
         self._defaults = resolve_default_settings(app_key)
         self._widgets: Dict[str, QWidget] = {}
         self._tooltips = get_tooltips()
+        self._data_context: Dict[str, Any] = {'plate_count': None}
         if app_key == "umap":
             # These app-scoped descriptions supersede legacy shared strings
             # without invalidating source-bound reviewed translation evidence.
@@ -4396,6 +4399,9 @@ class SettingsWidgets:
         if self.app_key == "umap" and isinstance(affinity_widget, QComboBox):
             affinity_widget.currentTextChanged.connect(
                 self._on_umap_reducer_changed)
+
+        if self.app_key == "regression":
+            self._connect_setting_dependency_signals()
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
@@ -4593,6 +4599,9 @@ class SettingsWidgets:
                 title=PATH_LIST_TITLES.get(key, "Choose input files"),
                 parent=parent,
             )
+        if key == "paired_data":
+            return PairedFileTableWidget(
+                value=self._defaults.get(key, default), parent=parent)
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
@@ -4857,6 +4866,7 @@ class SettingsWidgets:
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
                     ClassEditorWidget, FilePathListWidget,
+                    PairedFileTableWidget,
                 ),
             ):
                 w.set_value(value)
@@ -4868,6 +4878,8 @@ class SettingsWidgets:
             return False
         if key in {"src", "tables"}:
             self._refresh_contextual_widgets()
+        elif self.app_key == "regression":
+            self._refresh_setting_dependencies()
         if key in {"reduction_method", "spectral_affinity"}:
             self._refresh_umap_reducer_enablement()
         return True
@@ -5021,6 +5033,7 @@ class SettingsWidgets:
     def _refresh_contextual_widgets(self) -> None:
         """Refresh widgets whose choices come from the selected data source."""
         self.refresh_training_basis_enablement()
+        self._refresh_setting_dependencies()
         editor = self._widgets.get("exclude_rows")
         if not isinstance(editor, RowExclusionEditor):
             return
@@ -5033,6 +5046,120 @@ class SettingsWidgets:
             else self._defaults.get("tables")
         )
         editor.set_source(source, tables)
+
+    def _connect_setting_dependency_signals(self) -> None:
+        """Re-evaluate applicability whenever one of its source keys moves."""
+        try:
+            from spacr.settings import get_setting_dependencies
+            dependencies = get_setting_dependencies()
+        except Exception:
+            return
+        sources = {source for rule in dependencies.values()
+                   for source in rule.get('sources', ())}
+        for key in sources:
+            widget = self._widgets.get(key)
+            if widget is None:
+                continue
+            for signal_name in (
+                'value_changed', 'currentTextChanged', 'currentIndexChanged',
+                'textChanged', 'valueChanged', 'toggled', 'stateChanged',
+            ):
+                signal = getattr(widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_dependency_source_changed)
+                    break
+
+    def _on_dependency_source_changed(self, *_args) -> None:
+        self._refresh_setting_dependencies()
+
+    def _current_dependency_settings(self) -> Dict[str, Any]:
+        current = dict(self._defaults)
+        for key, widget in self._widgets.items():
+            try:
+                current[key] = self._coerce_to_expected_type(
+                    key, self._read_widget(widget))
+            except Exception:
+                pass
+        return current
+
+    @staticmethod
+    def _plate_context(paths) -> Dict[str, Any]:
+        """Inspect only CSV headers/plate columns; never load feature data."""
+        sources = []
+        for fallback_index, item in enumerate(paths or []):
+            logical_index, path = (item if isinstance(item, tuple)
+                                   else (fallback_index, item))
+            if path and os.path.isfile(os.fspath(path)):
+                sources.append((logical_index, os.fspath(path)))
+        if not sources:
+            return {'plate_count': None, 'has_plate_id': False}
+        # A very large single-plate file should not stall the GUI merely to
+        # grey one field. Leave it unknown; the run still validates it.
+        if sum(os.path.getsize(path) for _, path in sources) > 5_000_000:
+            return {'plate_count': None, 'has_plate_id': None}
+        plates = set()
+        has_plate = False
+        for logical_index, path in sources:
+            with open(path, newline='', encoding='utf-8-sig') as handle:
+                sample = handle.read(4096)
+                handle.seek(0)
+                try:
+                    dialect = csv.Sniffer().sniff(sample, delimiters=',\t;')
+                except csv.Error:
+                    dialect = csv.excel
+                reader = csv.DictReader(handle, dialect=dialect)
+                names = reader.fieldnames or []
+                plate_key = next((name for name in names
+                                  if str(name).casefold() in {
+                                      'plateid', 'plate', 'plate_name'}), None)
+                if plate_key is None:
+                    # score_data[i] and count_data[i] describe the same plate;
+                    # their absent IDs therefore share one fallback identity.
+                    plates.add(('source', logical_index))
+                    continue
+                has_plate = True
+                for row in reader:
+                    value = str(row.get(plate_key, '')).strip()
+                    if value:
+                        plates.add(('value', value))
+                    if len(plates) > 1:
+                        break
+            if len(plates) > 1:
+                break
+        return {'plate_count': len(plates) or None,
+                'has_plate_id': has_plate}
+
+    def _refresh_setting_dependencies(self) -> None:
+        if self.app_key != 'regression' or not self._widgets:
+            return
+        try:
+            from spacr.settings import get_setting_dependencies
+            dependencies = get_setting_dependencies()
+        except Exception:
+            return
+        current = self._current_dependency_settings()
+        score_paths = current.get('score_data') or []
+        count_paths = current.get('count_data') or []
+        if isinstance(score_paths, (str, os.PathLike)):
+            score_paths = [score_paths]
+        if isinstance(count_paths, (str, os.PathLike)):
+            count_paths = [count_paths]
+        paths = list(enumerate(score_paths)) + list(enumerate(count_paths))
+        self._data_context = self._plate_context(paths)
+        for key, rule in dependencies.items():
+            control = self._widgets.get(key)
+            if control is None:
+                continue
+            try:
+                enabled = bool(rule['predicate'](current, self._data_context))
+            except Exception:
+                enabled = True
+            control.setEnabled(enabled)
+            if enabled:
+                _clear_greyed_note(control)
+            else:
+                reason = str(rule['reason'](current, self._data_context))
+                _apply_greyed_note(control, reason)
 
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):
@@ -5066,6 +5193,7 @@ class SettingsWidgets:
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
                 ChannelMappingWidget, ClassEditorWidget, FilePathListWidget,
+                PairedFileTableWidget,
             ),
         ):
             return w.get_value()
