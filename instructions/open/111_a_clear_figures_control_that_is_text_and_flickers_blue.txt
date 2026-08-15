@@ -2,7 +2,7 @@
 A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
 ================================================================================
 
-Status:    filed 2026-08-15, not started.
+Status:    BUILT 2026-08-15. See RESULT at the end.
 Requested: 2026-08-15 - "add to instructions list, if the there shoud be a
            clear figures button button like just text that lights up blue when
            you click it, so it should just 'flicker blue'"
@@ -73,3 +73,24 @@ HOW TO KNOW IT WORKED
   feedback is about the click being received, not about there being work.
 * The flash timer is one implementation shared with the console's copy glyph,
   not a second copy of it.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15)
+--------------------------------------------------------------------------------
+
+`_ClearFiguresLabel` sits in the figure queue's nav row, left of "Figure
+settings...". It is a QLabel, not a QPushButton, with a pointing-hand cursor
+and StrongFocus so Enter and Space activate it.
+
+The flash timing was lifted into `spacr/qt/widgets/flash.py` and the console's
+copy glyph now uses it too, so there is one duration (`FLASH_MS = 650`) rather
+than two that can drift. The colours are palette roles -- `fg_dim` at rest,
+`accent` while lit -- so a theme switch carries them.
+
+Verified by driving the real widget rather than by inspection: three figures
+queued, one click, queue empties to zero, and the stylesheet goes #6b6f76 ->
+#4A9EFF -> #6b6f76 on its own. tests/test_clear_figures_control.py pins all of
+it, including that a release outside the rect cancels and that an empty queue
+still flickers. 549 console/figure tests pass.
+
+NOT DONE, and deliberately: no confirmation dialog, per the reasoning above.
