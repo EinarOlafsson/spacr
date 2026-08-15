@@ -654,7 +654,8 @@ class FigureQueue(QWidget):
         if figure is None:
             return
         FigureSettingsDialog(
-            figure, self, on_change=self.refresh_current_figure).exec()
+            figure, self, on_change=self.refresh_current_figure,
+            propagate_callback=self._propagate_cb).exec()
         self.refresh_current_figure()
 
     def show_figure_menu(self, position, idx: Optional[int] = None) -> None:
