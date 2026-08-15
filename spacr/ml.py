@@ -3847,7 +3847,14 @@ def apply_transformation(X, transform):
 
 def check_normality(data, variable_name, verbose=False):
     """Check if the data is normally distributed using the Shapiro-Wilk test."""
-    stat, p_value = shapiro(data)
+    values = np.asarray(data, dtype=float)
+    values = values[np.isfinite(values)]
+    if values.size < 3:
+        if verbose:
+            print(f"Shapiro-Wilk Test for {variable_name}: at least 3 finite "
+                  f"values are required; received {values.size}.")
+        return False
+    stat, p_value = shapiro(values)
     if verbose:
         print(f"Shapiro-Wilk Test for {variable_name}:\nStatistic: {stat}, P-value: {p_value}")
     if p_value > 0.05:
