@@ -138,6 +138,21 @@ def read_profile(path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """The command line the installers call this module with.
+
+    Separate from :func:`main` so the installer scripts and the tests can
+    inspect the accepted options without running an install -- an argument
+    that silently stopped being accepted would otherwise only show up as a
+    failed install on somebody's machine.
+
+    The four consent flags take ``"0"`` / ``"1"`` rather than being
+    store_true switches: the installer passes a value for every one of them
+    on every run, so an unchecked box is recorded as a deliberate NO rather
+    than as an absent answer.
+
+    :returns: the parser, with ``--path``, ``--requested``, ``--detected``
+        and the consent flags.
+    """
     parser = argparse.ArgumentParser(description="Record the spaCR installer profile")
     parser.add_argument("--path", type=Path, required=True)
     parser.add_argument("--requested", required=True)
@@ -155,6 +170,16 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    """Write the installer profile and print it, for the installer to read.
+
+    The entry point behind ``python -m spacr.install_profile``. The profile
+    is echoed to stdout as sorted JSON so the installer can log exactly what
+    was recorded, and so a support request can quote it.
+
+    :param argv: command line to parse; ``None`` reads ``sys.argv``.
+    :returns: a process exit code -- ``0``, since a profile that cannot be
+        written raises rather than returning a code nobody checks.
+    """
     args = build_parser().parse_args(argv)
     profile = write_profile(
         args.path,
