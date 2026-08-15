@@ -1042,19 +1042,15 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         )
         self._input.submitted.connect(self._on_submit)
         row.addWidget(self._input, 1)
-        self._console_context_mode = QComboBox()
-        self._console_context_mode.setObjectName("ConsoleContextMode")
-        self._console_context_mode.addItems(
-            ["Console: Auto", "Console: Include", "Console: Off"])
-        self._console_context_mode.setToolTip(
-            "Auto sends new console output for diagnostic questions. "
-            "Include always sends it; Off never sends it.")
-        row.addWidget(self._console_context_mode)
-        self._console_context_status = QLabel("Console available")
-        self._console_context_status.setObjectName("ConsoleContextStatus")
-        self._console_context_status.setToolTip(
-            "Reports how much console context accompanied the last question.")
-        row.addWidget(self._console_context_status)
+        # NO console-context control here. This row is the input and nothing
+        # else. It used to carry a three-mode combo (Auto / Include / Off) and
+        # a permanent status label; "should the AI see my console" has the
+        # same answer for every question a user ever asks, which makes it a
+        # preference rather than a mode selector belonging on the screen where
+        # the questions are typed. It is now one yes/no in the AI settings --
+        # ai.settings.get_console_aware, default on. What was actually
+        # attached is reported on the message it went with, which is where it
+        # is legible, rather than as furniture that is stale between asks.
         self._split.addWidget(input_row)
 
         # Only the console stretches when the WINDOW resizes. Giving both
@@ -1533,15 +1529,22 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         Returns ``(context, visible_status)``. Complete traceback blocks take
         priority over ordinary stdout and may exceed the soft context budget.
         Text is marked sent only when it is actually attached.
+
+        Gated on ONE preference, ``ai.settings.get_console_aware`` (default
+        on). This used to be a three-mode combo beside the input, where
+        "Include" always sent and "Auto" sent only when the question looked
+        diagnostic. Auto is gone deliberately, and not preserved as a hidden
+        state: a heuristic on the user's wording decides, silently and
+        sometimes wrongly, whether the model sees the error being asked
+        about -- and being wrong in the "no" direction produces exactly the
+        failure this whole instruction exists to end, an assistant that
+        cannot see the traceback on the screen in front of it. Console-aware
+        now means the console goes. How MUCH goes is still bounded below.
         """
-        mode = self._console_context_mode.currentIndex()
-        wants_context = mode == 1 or (
-            mode == 0 and any(term in question.casefold()
-                              for term in _CONSOLE_QUESTION_TERMS))
-        if not wants_context:
-            label = "Console context not sent (Off)" if mode == 2 else (
-                "Console available; context not needed (Auto)")
-            self._console_context_status.setText(label)
+        from ..ai import settings as ai_settings
+
+        if not ai_settings.get_console_aware():
+            label = "Console context off"
             return "", label
 
         pieces = []
@@ -1560,7 +1563,6 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
 
         if not pieces:
             label = "Console context: no new output"
-            self._console_context_status.setText(label)
             return "", label
 
         tracebacks = [text for kind, text, _fresh in pieces
@@ -1587,7 +1589,9 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         label = f"Console context: {len(context):,} chars sent"
         if dropped:
             label += f", {dropped:,} dropped"
-        self._console_context_status.setText(label)
+        # Returned, not written to a persistent label: the caller stamps it on
+        # the message this context went with, where it stays true. A shared
+        # label is stale from the moment the next question is typed.
         return context, label
 
     def _ensure_stdout_block(self) -> None:
