@@ -626,6 +626,10 @@ setup(
         'dev': [
             'pytest>=8.0,<9',
             'pytest-qt>=4.4,<5',
+            # CI isolates long suites by test file.  This is also the
+            # accepted way to keep the Qt suite's process-global state from
+            # accumulating over thousands of tests.
+            'pytest-xdist>=3.6,<4',
             'tomli>=2.0; python_version < "3.11"',
             # tests/test_key_parsing_properties.py states the plate / row /
             # column / field / object key contract as properties rather than
