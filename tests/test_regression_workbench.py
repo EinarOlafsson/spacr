@@ -240,6 +240,14 @@ def test_analysis_unit_cell_is_the_explicit_spelling_of_agg_type_none():
     assert defaults({"analysis_unit": "well"})["agg_type"] == "mean"
 
 
+def test_legacy_agg_type_none_still_means_cell_analysis():
+    from spacr.settings import get_perform_regression_default_settings as defaults
+
+    resolved = defaults({"agg_type": None})
+    assert resolved["analysis_unit"] == "cell"
+    assert resolved["agg_type"] is None
+
+
 def test_regression_type_auto_becomes_the_historical_none():
     from spacr.settings import get_perform_regression_default_settings as defaults
 
@@ -259,7 +267,92 @@ def test_path_defaults_are_empty_lists_not_a_placeholder_string():
     from spacr.settings import get_perform_regression_default_settings as defaults
 
     resolved = defaults({})
-    assert resolved["score_data"] == [] and resolved["count_data"] == []
+    assert resolved["paired_data"] == []
+    assert "score_data" not in resolved and "count_data" not in resolved
+    assert "plateID" not in resolved
+
+
+def test_estimator_enablement_is_generated_from_the_runtime_inventory(qtbot):
+    from spacr.ml import REGRESSION_SETTINGS_USED
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    builder = SettingsWidgets("regression")
+    builder.build_sections()
+    owned = {key for keys in REGRESSION_SETTINGS_USED.values() for key in keys}
+    for family, used in REGRESSION_SETTINGS_USED.items():
+        assert builder.set_value_for_key("regression_type", family)
+        enabled = {key for key in owned if builder._widgets[key].isEnabled()}
+        assert enabled == set(used), family
+
+
+def test_inference_and_analysis_unit_grey_the_controls_they_do_not_use(qtbot):
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    builder = SettingsWidgets("regression")
+    builder.build_sections()
+    guide_keys = {
+        "guide_min_wells", "guide_primary_min_wells", "guide_permutations",
+        "guide_permutation_seed", "guide_permutation_block",
+        "guide_nuisance_columns", "guide_presence_threshold",
+        "guide_permutation_batch_size", "guide_permutation_plot",
+    }
+    builder.set_value_for_key("inference", "parametric")
+    assert all(not builder._widgets[key].isEnabled() for key in guide_keys)
+    builder.set_value_for_key("inference", "nonparametric")
+    assert all(builder._widgets[key].isEnabled() for key in guide_keys)
+
+    builder.set_value_for_key("analysis_unit", "cell")
+    agg = builder._widgets["agg_type"]
+    assert not agg.isEnabled()
+    assert "analysis_unit" in agg.toolTip()
+
+
+def test_filename_pair_proposals_survive_opposite_picker_order(tmp_path):
+    from spacr.qt.widgets.file_list import suggest_file_pairs
+
+    scores = [tmp_path / "screen_plate1_maxvit_result.csv",
+              tmp_path / "screen_plate2_maxvit_result.csv"]
+    counts = [tmp_path / "plate_2_unique_combinations.csv",
+              tmp_path / "plate_1_unique_combinations.csv"]
+    rows = suggest_file_pairs([str(path) for path in scores],
+                              [str(path) for path in counts])
+    assert [os.path.basename(row["count"]) for row in rows] == [
+        "plate_1_unique_combinations.csv",
+        "plate_2_unique_combinations.csv",
+    ]
+
+
+def test_pair_plate_resolution_uses_own_partner_and_row_order(tmp_path):
+    from spacr.ml import load_regression_input_pairs
+
+    def write(name, plate=None):
+        frame = pd.DataFrame({"rowID": ["r1"], "columnID": ["c1"],
+                              "value": [1]})
+        if plate is not None:
+            frame["plateID"] = plate
+        path = tmp_path / name
+        frame.to_csv(path, index=False)
+        return str(path)
+
+    pairs = [
+        {"score": write("s1.csv", "declared"),
+         "count": write("c1.csv", "declared")},
+        {"score": write("s2.csv", "partner"),
+         "count": write("c2.csv")},
+        {"score": write("s3.csv"), "count": write("c3.csv")},
+    ]
+    counts, scores, audit = load_regression_input_pairs(pairs)
+    assert set(counts.plateID) == {"declared", "partner", "plate3"}
+    assert set(scores.plateID) == {"declared", "partner", "plate3"}
+    assert [row["rule"] for row in audit] == [
+        "both files agree", "copied from score file",
+        "assigned from pair row order"]
+
+    with pytest.raises(ValueError, match="conflicts"):
+        load_regression_input_pairs([{
+            "score": write("bad_s.csv", "left"),
+            "count": write("bad_c.csv", "right"),
+        }])
 
 
 def test_dependent_variable_accepts_several_responses():
@@ -326,6 +419,120 @@ def test_no_warning_when_the_design_is_fine():
     from spacr.ml import _identifiability_warning
 
     assert _identifiability_warning(_design_frame(600, 40), {}) is None
+
+
+# ------------------------------------------------- score/count plate pairing
+
+
+def test_a_legacy_plate_column_is_normalised_before_it_becomes_the_plate_id():
+    """'pplate1' in a `plate` column must end up as 'plate1'.
+
+    The repair used to run before the legacy promotion and only over
+    'plateID', so for the files that actually carry the artifact -- a score
+    CSV with a `plate` column and no `plateID` -- it did nothing, and the
+    unrepaired value was then copied straight into `plateID`.
+    """
+    from spacr.utils import correct_metadata
+
+    frame = correct_metadata(pd.DataFrame({
+        "plate": ["pplate1"], "row": ["r9"], "col": ["c16"],
+        "prc": ["pplate1_r9_c16"], "pred": [0.2],
+    }))
+    assert frame["plateID"].iloc[0] == "plate1"
+    # prc embeds the plate too, and is what the join actually uses.
+    assert frame["prc"].iloc[0] == "plate1_r9_c16"
+
+
+def test_a_single_p_plate_id_is_left_alone():
+    from spacr.utils import correct_metadata
+
+    frame = correct_metadata(pd.DataFrame({"plateID": ["plate1", "p1"]}))
+    assert list(frame["plateID"]) == ["plate1", "p1"]
+
+
+def _pairing_frames(score_plate, count_plate, wells=10):
+    independent = pd.DataFrame({
+        "prc": [f"{count_plate}_r{i}_c1" for i in range(wells)],
+        "grna": ["g0"] * wells,
+    })
+    dependent = pd.DataFrame({
+        "prc": [f"{score_plate}_r{i}_c1" for i in range(wells)],
+        "pred": [0.5] * wells,
+    })
+    return independent, dependent, independent.merge(dependent, on="prc")
+
+
+def test_an_empty_score_count_join_is_refused_naming_both_plate_sets():
+    """The failure that crashed 200 lines later inside a plot.
+
+    'pplate1' scores against 'plate1' counts joined to nothing, and the run
+    continued until `plot_plates` died with `KeyError: 0` -- an error naming
+    neither the plates nor the files.
+    """
+    from spacr.ml import _check_score_count_pairing
+
+    with pytest.raises(ValueError) as raised:
+        _check_score_count_pairing(*_pairing_frames("pplate1", "plate1"))
+    message = str(raised.value)
+    assert "no well in common" in message
+    # Both sides must be named, or the user cannot tell which one is wrong.
+    assert "pplate1" in message and "plate1" in message
+    # The remedy must be named, whatever it is currently called.
+    assert "plateID column" in message
+
+
+def test_a_mostly_unpaired_join_is_refused_too():
+    """Fitting on whatever overlapped and calling it the screen is worse."""
+    from spacr.ml import _check_score_count_pairing
+
+    # Equal-sized sides, so only 40% of EITHER side can pair. Measuring
+    # against the smaller side is what makes this a real mismatch rather than
+    # the ordinary size difference tested below.
+    independent = pd.DataFrame({
+        "prc": [f"plate1_r{i}_c1" for i in range(100)]})
+    dependent = pd.DataFrame({
+        "prc": ([f"plate1_r{i}_c1" for i in range(40)]
+                + [f"plate9_r{i}_c1" for i in range(60)]), "pred": 0.5})
+    with pytest.raises(ValueError, match="40.0%"):
+        _check_score_count_pairing(
+            independent, dependent, independent.merge(dependent, on="prc"))
+
+
+def test_a_healthy_join_passes_silently():
+    from spacr.ml import _check_score_count_pairing
+
+    _check_score_count_pairing(*_pairing_frames("plate1", "plate1"))
+
+
+def test_far_more_count_wells_than_score_wells_is_normal():
+    """The shape of every real screen, and the one this guard first rejected.
+
+    Sequencing covers the whole plate; imaging keeps only the wells that
+    survive segmentation and the minimum-cell filter. On the TSG101 screen
+    that is 463 imaged wells against 1,344 sequenced wells with all 463
+    paired -- a perfect join that read as 34% when the denominator was the
+    sequencing side, and the run was refused.
+    """
+    from spacr.ml import _check_score_count_pairing
+
+    independent = pd.DataFrame({
+        "prc": [f"plate1_r{i}_c1" for i in range(1344)]})
+    dependent = pd.DataFrame({
+        "prc": [f"plate1_r{i}_c1" for i in range(463)], "pred": 0.5})
+    _check_score_count_pairing(
+        independent, dependent, independent.merge(dependent, on="prc"))
+
+
+def test_partial_but_adequate_overlap_is_allowed():
+    """Sequencing legitimately covers wells that were never imaged."""
+    from spacr.ml import _check_score_count_pairing
+
+    independent = pd.DataFrame({
+        "prc": [f"plate1_r{i}_c1" for i in range(100)]})
+    dependent = pd.DataFrame({
+        "prc": [f"plate1_r{i}_c1" for i in range(89)], "pred": 0.5})
+    _check_score_count_pairing(
+        independent, dependent, independent.merge(dependent, on="prc"))
 
 
 # -------------------------------------------------------------- diagnostics

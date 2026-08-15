@@ -1750,12 +1750,11 @@ def get_perform_regression_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
-    # Empty lists, not the string 'list of paths'. The placeholder was never a
-    # legal value: it reached the loader as a path, and every user's first
-    # action was to delete it. The Qt panel now renders these two with a file
-    # picker (settings_model.PATH_LIST_KEYS), so there is nothing to type.
-    settings.setdefault('count_data', [])
-    settings.setdefault('score_data', [])
+    # One row states one score/count relationship. Legacy score_data and
+    # count_data keys supplied by an older settings file remain in ``settings``
+    # and are migrated by ml.normalize_regression_input_pairs; they are not
+    # defaulted into new files, which now write the explicit paired form.
+    settings.setdefault('paired_data', [])
     # ``regression`` preserves the historical simultaneous model.  The
     # alternative is a plate-blocked marginal guide test with empirical
     # P-values and an explicit multiple-testing family; it consumes the same
@@ -1866,7 +1865,6 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('batch_combat_mean_only', False)
     settings.setdefault('batch_min_samples', 3)
     settings.setdefault('batch_missing_control', 'error')
-    settings.setdefault('plateID','plate1')
     # Acquisition-specific annotations cannot have a meaningful machine-wide
     # default. An empty list makes the optional input explicit and portable.
     settings.setdefault('metadata_files', [])
@@ -2453,6 +2451,7 @@ expected_types = {
     "threshold_method":str,
     "count_data":list,
     "score_data":list,
+    "paired_data":list,
     "min_n":int,
     "controls":list,
     "toxo":bool,
@@ -3400,6 +3399,7 @@ tooltips = {
     'logit_adjust_tau': "(float) - Strength of the Menon-et-al. logit adjustment: tau * log(class prior) is added to the logits during training, pulling decisions toward rare classes. Only used when loss_type resolves to logit_adjust_ce, which 'auto' picks when the smallest class is under 10% of the data. Higher tau corrects harder; 0 disables. Default 1.0.",
     'loss_type': "(str) - Loss used to train the classifier. For a 2+ class head: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is legal ONLY for a single-logit head and raises otherwise. Reach for a weighted or focal loss when the classes are imbalanced, which for a screen they usually are. Default 'focal_loss'.",
     'metadata_files': "(list) - Gene-annotation CSVs, each with a 'Gene ID' column, that are joined onto the regression results by gene, writing an extra results CSV per file. These are gene tables, not plate/well metadata. When toxo is True the order matters: index 0 is read as the ME49 transcription table and index 1 as the GT1 phenotype table. Default [].",
+    'paired_data': "(list of dicts) - Regression input table: each row explicitly pairs one score CSV with one count CSV. Plate identity comes from both files when they agree, from the partner when only one declares plateID, or from the row order when neither does. A conflict is refused. Legacy score_data/count_data lists are migrated positionally and logged. Default [].",
     'metadata_type_by': "(str) - Which png_list column the class_metadata values are matched against when dataset_mode is 'metadata'. Normally 'columnID' or 'rowID' -- the two well-metadata columns filepaths_to_database writes -- but any png_list column is accepted, including 'condition' once annotate_conditions has added it. If the values in class_metadata do not appear in this column, the class simply gets no crops rather than erroring. Default 'columnID'.",
     'min_n': "(int) - Observation count a significant hit must strictly exceed to appear in results_significant_filtered.csv: gRNA hits need n_grna > min_n, gene hits need n_gene > min_n. The unfiltered hit list is still written alongside it. Raise it to drop hits resting on one or two wells. Default 0, which filters nothing.",
     'normalization_percentiles': "(list) - Two-element [low, high] percentile pair used to stretch each channel's non-zero pixels to the full display range in plot_merged; applied only when normalize is True. Narrowing the pair (e.g. [5, 95]) boosts contrast but saturates bright objects; widening it flattens the image. Default [2, 98].",
@@ -3563,7 +3563,7 @@ organelle_basic_settings, organelle_advanced_settings = (
 
 
 categories = {
-    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "score_data", "count_data"],
+    "Paths": ["src", "grna", "barcodes", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
     # 'normalize' moved here from "Advanced". It is a top-level toggle for how
     # every image in the run is scaled, set by seven different modules, and
@@ -3960,6 +3960,131 @@ category_integer_dependencies = {
           for key in (f'{role}_channel', f'{role}_mask_dim')): [
               'Organelle', 'Organelle advanced'],
 }
+
+# Per-setting applicability is deliberately data rather than Qt code.  Each
+# entry is populated lazily by :func:`get_setting_dependencies`, because
+# importing ``spacr.ml`` while it is importing this module would be circular.
+# Predicates receive ``(current_settings, lightweight_data_context)`` and the
+# reason callable receives the same pair.  The Tk front end can consume this
+# table too; the first consumer is the regression SettingsBuilder.
+setting_dependencies = {}
+
+
+def get_setting_dependencies():
+    """Return reviewed rules for settings that currently have no effect.
+
+    Estimator rules are generated from ``ml.REGRESSION_SETTINGS_USED`` -- the
+    same inventory that rejects unused knobs at run time -- so the GUI cannot
+    drift into enabling a setting the selected backend refuses.
+    """
+    if setting_dependencies:
+        return setting_dependencies
+
+    from .ml import REGRESSION_SETTINGS_USED
+
+    def rule(sources, predicate, reason):
+        return {
+            'sources': tuple(sources),
+            'predicate': predicate,
+            'reason': reason,
+        }
+
+    owned = sorted({key for keys in REGRESSION_SETTINGS_USED.values()
+                    for key in keys})
+    for key in owned:
+        setting_dependencies[key] = rule(
+            ('regression_type',),
+            lambda settings, context, setting=key: setting in set(
+                REGRESSION_SETTINGS_USED.get(
+                    str(settings.get('regression_type') or '').lower(), ())),
+            lambda settings, context, setting=key: (
+                f"{setting} is not read when regression_type is "
+                f"{settings.get('regression_type')!r}. Choose a family whose "
+                "documented settings include it. The value is kept and saved."),
+        )
+
+    guide_keys = (
+        'guide_min_wells', 'guide_primary_min_wells', 'guide_permutations',
+        'guide_permutation_seed', 'guide_permutation_block',
+        'guide_nuisance_columns', 'guide_presence_threshold',
+        'guide_permutation_batch_size', 'guide_permutation_plot',
+    )
+
+    def permutation_active(settings, _context):
+        inference = str(settings.get('inference') or '').lower()
+        mode = str(settings.get('analysis_mode') or '').lower()
+        return inference in {'auto', 'nonparametric', 'permutation',
+                             'guide_permutation'} or mode == 'guide_permutation'
+
+    for key in guide_keys:
+        setting_dependencies[key] = rule(
+            ('inference', 'analysis_mode'), permutation_active,
+            lambda settings, context, setting=key: (
+                f"{setting} is read only by nonparametric guide permutation "
+                f"inference (currently {settings.get('inference')!r}). The "
+                "value is kept and saved."),
+        )
+
+    setting_dependencies['agg_type'] = rule(
+        ('analysis_unit',),
+        lambda settings, context: settings.get('analysis_unit') == 'well',
+        lambda settings, context: (
+            "agg_type is read only when analysis_unit is 'well' "
+            f"(currently {settings.get('analysis_unit')!r}). The value is "
+            "kept and saved."),
+    )
+
+    batch_active = lambda settings, context: str(
+        settings.get('batch_correction') or 'none').lower() != 'none'
+    for key in ('batch_column', 'batch_min_samples', 'batch_missing_control'):
+        setting_dependencies[key] = rule(
+            ('batch_correction',), batch_active,
+            lambda settings, context, setting=key: (
+                f"{setting} is read only when batch_correction is enabled "
+                f"(currently {settings.get('batch_correction')!r}). The value "
+                "is kept and saved."),
+        )
+    for key in ('batch_control_column', 'batch_control_values'):
+        setting_dependencies[key] = rule(
+            ('batch_correction',),
+            lambda settings, context: str(
+                settings.get('batch_correction') or '').lower()
+                == 'control_center',
+            lambda settings, context, setting=key: (
+                f"{setting} is read only when batch_correction is "
+                f"'control_center' (currently "
+                f"{settings.get('batch_correction')!r}). The value is kept."),
+        )
+    for key in ('batch_covariate_column', 'batch_combat_mean_only'):
+        setting_dependencies[key] = rule(
+            ('batch_correction',),
+            lambda settings, context: str(
+                settings.get('batch_correction') or '').lower() == 'combat',
+            lambda settings, context, setting=key: (
+                f"{setting} is read only when batch_correction is 'combat' "
+                f"(currently {settings.get('batch_correction')!r}). The value "
+                "is kept."),
+        )
+
+    setting_dependencies['split_axis_lims'] = rule(
+        ('y_lims',),
+        lambda settings, context: bool(settings.get('y_lims')) and any(
+            isinstance(item, (list, tuple))
+            for item in (settings.get('y_lims') or [])),
+        lambda settings, context: (
+            "split_axis_lims is used only when y_lims requests two axis "
+            "segments. The value is kept and saved."),
+    )
+    for key in ('threshold_method', 'threshold_multiplier'):
+        setting_dependencies[key] = rule(
+            ('inference', 'analysis_mode'),
+            lambda settings, context: not permutation_active(settings, context),
+            lambda settings, context, setting=key: (
+                f"{setting} belongs to parametric effect-size hit calling; "
+                "guide permutation uses corrected P values. The value is kept."),
+        )
+
+    return setting_dependencies
 
 # Categories shown only when a setting equals a specific value.
 #
