@@ -1,0 +1,124 @@
+================================================================================
+NIGHTLY CANCELS ITS OWN CI BEFORE IT CAN EVER FINISH
+================================================================================
+
+Status:    filed 2026-08-15, fix applied the same day.
+Requested: 2026-08-15 - "please look through the instructions list then take a
+           look at the state of the spacr code, do a sweep (not to deep) and
+           tell me what you think." Found while trying to produce the evidence
+           instruction 82 was closed on.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Instruction 82 -- "get every GitHub test green" -- is closed. The evidence it
+was closed on did not exist, and could not have existed, because the workflow
+cancels itself.
+
+Measured on 2026-08-15:
+
+    last 30 `tests` runs on nightly:  29 cancelled, 1 in progress
+    last run that reached a verdict:  2026-08-14 20:30 -> FAILURE
+
+Seventeen hours in which no run on the integration branch reached a
+conclusion. Not "mostly failing" -- unmeasured.
+
+--------------------------------------------------------------------------------
+THE DEFECT
+--------------------------------------------------------------------------------
+
+`.github/workflows/tests.yml`:
+
+    concurrency:
+      group: tests-${{ github.ref }}
+      cancel-in-progress: true
+
+That is the right policy for a pull-request branch: a new push makes the
+previous run's answer worthless, so paying for it is waste.
+
+It is the wrong policy for the branch work actually lands on, because there
+the two numbers are:
+
+    a full `tests` run   ~95 minutes
+    push cadence during active work   ~35-95 minutes
+
+When the cadence is shorter than the duration, the run is cancelled every
+time, and the branch has NO test signal at all. Not a degraded one. None.
+Every push destroys the only evidence in flight and starts another run that
+the next push will destroy.
+
+`docs` is the tell: it takes ~26 minutes, fits inside the gaps, and has been
+passing all along. The two suites that take longer than a gap are exactly the
+two that never finish.
+
+WHAT IT COST. The 14:08 run on 2026-08-15 got a 95-minute gap -- the longest
+in a day -- and reached fourteen of fifteen jobs before the next push:
+
+    success  Fast (py3.9, 3.10, 3.11, 3.12, 3.13, 3.14)
+    success  Slow, Integration, Qt, Network, NAS
+    success  Lint / types / complexity
+    success  Minimum dependencies (py3.9)
+    cancelled  GPU
+    failure  Release gate -- "gpu finished with cancelled"
+
+Every blocking job that was allowed to run, passed. The gate failed for one
+reason, and it was not a test: the GPU job was killed in flight. So the answer
+to 82 is "green", and it took a day of accident to find out, and one more push
+to lose it again.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+WHAT WAS NOT DONE, AND WHY. The obvious fix --
+
+    cancel-in-progress: ${{ github.ref != 'refs/heads/nightly' }}
+
+-- is wrong here, and the reason is written directly above the setting in
+tests.yml: on 5 August ten tutorial-rebuild pushes left ~30 jobs queued for
+hours, starved every runner, and blocked the docs deploy so the public site
+served a four-day-old build. Nightly is exactly where those bursts happen, so
+exempting nightly recreates the outage the setting was added to end.
+
+A `schedule:` trigger does not work either: GitHub runs cron from the DEFAULT
+branch, which is `main`, so a scheduled run would test main and say nothing
+about nightly.
+
+WHAT WAS DONE. Split the concurrency group by event and exempt only a
+deliberately dispatched run:
+
+    concurrency:
+      group: tests-${{ github.ref }}-${{ github.event_name }}
+      cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+Applied 2026-08-15.
+
+A push still cancels the previous PUSH run, so the 5 August protection is
+untouched and the steady-state cost is unchanged. What is new is that
+
+    gh workflow run tests --ref nightly
+
+starts a run that the next twenty commits cannot kill. That is the run whose
+verdict a release reads, and `workflow_dispatch` can target any branch, which
+cron cannot.
+
+The cost is bounded and opt-in: one extra concurrent suite, and only when
+somebody asks for it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    gh workflow run tests --ref nightly
+    gh run list --branch nightly --workflow tests --limit 5
+
+The dispatched run reaches `success` or `failure` even though pushes land
+while it runs. Push-triggered runs on nightly will still show `cancelled`,
+and that is now correct rather than a symptom -- the newest commit is the one
+worth testing, and the dispatched run is the one worth believing.
+
+The real check is that "is nightly green?" can be answered by asking, rather
+than by waiting for an accidental gap in the pushes. On 2026-08-15 that
+answer, once a 95-minute gap finally allowed it, was: every blocking job
+passed.
