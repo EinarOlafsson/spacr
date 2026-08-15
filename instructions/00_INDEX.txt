@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-92 done / 4 open (95%).
+92 done / 5 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -35,6 +35,9 @@ OPEN
 
   104  THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
        104_the_hf_e2e_mask_stage_produces_no_cell_masks.txt
+
+  105  THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
+       105_the_ai_chat_always_sees_the_whole_console.txt
 
 --------------------------------------------------------------------------------
 DONE
