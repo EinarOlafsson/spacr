@@ -191,7 +191,6 @@ REFERENCE_CHANNEL_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=REFERENCE_CHANNEL_BUG)
 def test_the_reference_channel_chosen_at_scan_time_drives_registration(tmp_path):
     """Asking for channel 2 must register on channel 2, blank or not.
 
@@ -277,7 +276,6 @@ TINY_READER_CACHE_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=TINY_READER_CACHE_BUG)
 def test_a_tiny_reader_cache_does_not_silently_unregister_the_plate(tmp_path):
     """A memory knob may cost speed. It may not change the answer.
 

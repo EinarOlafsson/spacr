@@ -414,9 +414,23 @@ def test_reader_cache_evicts_the_least_recently_used(tmp_path):
     assert third._sources == [None] and fourth._sources == [None]
 
 
-def test_reader_cache_keeps_at_least_one_reader():
-    cache = align._ReaderCache(max_open=0)
-    assert cache.max_open == 1
+def test_reader_cache_keeps_enough_readers_for_a_pair():
+    """The floor is two, because registration compares two tiles at once.
+
+    It used to be one, which is not a working set a pair can run in: getting
+    the second tile evicted and closed the first while ``_register_pair``
+    still held it, every pair failed inside the try, and the run came out
+    looking like a plate that would not register rather than one that was
+    misconfigured. See
+    tests/test_cov_align_naming_and_solve.py::test_a_tiny_reader_cache_does_not_silently_unregister_the_plate.
+    """
+    for requested in (0, 1, 2):
+        cache = align._ReaderCache(max_open=requested)
+        assert cache.max_open == 2
+        cache.close()
+    # A caller asking for more than the floor still gets what it asked for.
+    cache = align._ReaderCache(max_open=8)
+    assert cache.max_open == 8
     cache.close()
 
 
