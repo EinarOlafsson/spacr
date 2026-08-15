@@ -4487,6 +4487,198 @@
           "speech_text": "When the workflow finishes, curve parameters, uncertainty, diagnostics, and source data can be exported together."
         }
       ]
+    },
+    {
+      "id": "70_explain_cv",
+      "number": 70,
+      "slug": "explain_cv",
+      "title": "Explain CV Model",
+      "series": 5,
+      "app_key": "explain_cv",
+      "section": "Results and quality control",
+      "description": "Reproduce computer-vision predictions from measured features and audit whether the resulting explanations are faithful and leakage-free.",
+      "objectives": [
+        "Understand when to use Explain CV Model.",
+        "Configure the important inputs and settings.",
+        "Run the workflow and locate its outputs."
+      ],
+      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "scenes": [
+        {
+          "narration": "This tutorial covers Explain CV Model. Reproduce computer-vision predictions from measured features and audit whether the resulting explanations are faithful and leakage-free.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "This tutorial covers Explain CV Model. Reproduce computer-vision predictions from measured features and audit whether the resulting explanations are faithful and leakage-free."
+        },
+        {
+          "narration": "Choose the per-object prediction file, its measurements database, the predicted class or score, and the microplate-well or plate grouping that must remain intact.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Choose the per-object prediction file, its measurements database, the predicted class or score, and the microplate-well or plate grouping that must remain intact."
+        },
+        {
+          "narration": "In the main configuration area, select the surrogate-model backend, reserved validation groups, feature exclusions, permutation repeats, and the bounded SHAP budget.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "In the main configuration area, select the surrogate-model back end, reserved validation groups, feature exclusions, permutation repeats, and the bounded SHAP budget."
+        },
+        {
+          "narration": "Validate the leakage exclusions and grouped split, then fit the surrogate model and compare its validation fidelity with the majority baseline before interpreting importance.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Validate the leakage exclusions and grouped split, then fit the surrogate model and compare its validation fidelity with the majority baseline before interpreting importance."
+        },
+        {
+          "narration": "When the workflow finishes, the run records fidelity, validation-set permutation importance, SHAP summaries, excluded columns, grouping, backend, and provenance; weak fidelity is reported rather than hidden.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "When the workflow finishes, the run records fidelity, validation-set permutation importance, SHAP summaries, excluded columns, grouping, back end, and provenance; weak fidelity is reported rather than hidden."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "section": "Results and quality control",
+      "description": "Return one selected regression finding to candidate cells and quantitative microplate-well evidence without overwriting reviewed annotations.",
+      "objectives": [
+        "Understand when to use Investigate Hit.",
+        "Configure the important inputs and settings.",
+        "Run the workflow and locate its outputs."
+      ],
+      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "scenes": [
+        {
+          "narration": "This tutorial covers Investigate Hit. Return one selected regression finding to candidate cells and quantitative microplate-well evidence without overwriting reviewed annotations.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "This tutorial covers Investigate Hit. Return one selected regression finding to candidate cells and quantitative microplate-well evidence without overwriting reviewed annotations."
+        },
+        {
+          "narration": "Choose the regression run, selected gene or guide-level finding, phenotype direction, false-discovery threshold, guide support, and matching measurements database.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Choose the regression run, selected gene or guide-level finding, phenotype direction, false-discovery threshold, guide support, and matching measurements database."
+        },
+        {
+          "narration": "In the main configuration area, review the object table, score column, microplate-well grouping, evidence thresholds, covariates, and the optional cross-fitted hierarchical mixture.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "In the main configuration area, review the object table, score column, microplate-well grouping, evidence thresholds, covariates, and the optional cross-fitted hierarchical mixture."
+        },
+        {
+          "narration": "Preview the score-ranked candidate cells and microplate-well summaries, then run the cross-fitted model only when the selected finding and evidence contract are correct.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Preview the score-ranked candidate cells and microplate-well summaries, then run the cross-fitted model only when the selected finding and evidence contract are correct."
+        },
+        {
+          "narration": "When the workflow finishes, spaCR saves ranked candidate cells, independent-well comparisons, optional probabilities that each cell matches the selected phenotype, uncertainty, and a versioned call that never replaces hand annotations.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "When the workflow finishes, spacer saves ranked candidate cells, independent-well comparisons, optional probabilities that each cell matches the selected phenotype, uncertainty, and a versioned call that never replaces hand annotations."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "section": "Results and quality control",
+      "description": "Open a completed regression, interrogate every point, restyle the plot, and export a publication-sized vector figure without rerunning the analysis.",
+      "objectives": [
+        "Understand when to use Volcano Explorer.",
+        "Configure the important inputs and settings.",
+        "Run the workflow and locate its outputs."
+      ],
+      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "scenes": [
+        {
+          "narration": "This tutorial covers Volcano Explorer. Open a completed regression, interrogate every point, restyle the plot, and export a publication-sized vector figure without rerunning the analysis.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "This tutorial covers Volcano Explorer. Open a completed regression, interrogate every point, restyle the plot, and export a publication-sized vector figure without rerunning the analysis."
+        },
+        {
+          "narration": "Choose a completed regression folder or results CSV and confirm the outcome, guide-level table, support family, effect column, and adjusted P-value column.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Choose a completed regression folder or results CSV and confirm the outcome, guide-level table, support family, effect column, and adjusted P-value column."
+        },
+        {
+          "narration": "In the main configuration area, review significance and effect thresholds, axis transforms, labels, colours, shapes, annotations, broken-axis choices, fonts, and output dimensions.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "In the main configuration area, review significance and effect thresholds, axis transforms, labels, colours, shapes, annotations, broken-axis choices, fonts, and output dimensions."
+        },
+        {
+          "narration": "Click representative points to inspect their complete rows, merge optional annotations, and verify that styling changes preserve the underlying values and thresholds.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Click representative points to inspect their complete rows, merge optional annotations, and verify that styling changes preserve the underlying values and thresholds."
+        },
+        {
+          "narration": "When the workflow finishes, PDF and PNG exports are re-rendered from the recorded data and style at the requested size while the original regression results remain unchanged.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "When the workflow finishes, PDF and PNG exports are re-rendered from the recorded data and style at the requested size while the original regression results remain unchanged."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "description": "Run a bounded regression settings sweep and compare which conclusions survive defensible analysis choices.",
+      "objectives": [
+        "Understand when to use Parameter Sweep.",
+        "Configure the important inputs and settings.",
+        "Run the workflow and locate its outputs."
+      ],
+      "prerequisite": "Follow the earlier workflow lessons when this module needs upstream results.",
+      "scenes": [
+        {
+          "narration": "This tutorial covers Parameter Sweep. Run a bounded regression settings sweep and compare which conclusions survive defensible analysis choices.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "This tutorial covers Parameter Sweep. Run a bounded regression settings sweep and compare which conclusions survive defensible analysis choices."
+        },
+        {
+          "narration": "Pair the per-object score and guide-count CSV files for each plate, choose the response column, and set a separate output folder.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Pair the per-object score and guide-count CSV files for each plate, choose the response column, and set a separate output folder."
+        },
+        {
+          "narration": "In the main configuration area, choose which axes vary, pin all other values, select grid or random sampling, cap the trials, record the seed, and accept the memory-bounded worker limit.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "In the main configuration area, choose which axes vary, pin all other values, select grid or random sampling, cap the trials, record the seed, and accept the memory-bounded worker limit."
+        },
+        {
+          "narration": "Use Estimate first to inspect the legal search size and cost, then start a small bounded sweep and monitor successful, rejected, and failed trials.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Use Estimate first to inspect the legal search size and cost, then start a small bounded sweep and monitor successful, rejected, and failed trials."
+        },
+        {
+          "narration": "When the workflow finishes, the resumable results table records every trial's settings, status, discovery count, positive-control rank, duration, output folder, and failure reason.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "When the workflow finishes, the resumable results table records every trial's settings, status, discovery count, positive-control rank, duration, output folder, and failure reason."
+        }
+      ]
     }
   ]
 }
