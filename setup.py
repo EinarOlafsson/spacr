@@ -16,6 +16,8 @@
 # because packaging/build_{debian,macos,windows}.* and four tests read this
 # file as text or execute it directly; pyproject.toml declares them
 # `dynamic` so setuptools takes them from this call.
+import sys
+
 from setuptools import setup, find_packages
 
 with open("README.rst", "r", encoding="utf-8") as fh:
@@ -574,6 +576,17 @@ setup(
     packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
     package_data={'spacr': ['resources/data/*', 'resources/models/cp', 'resources/icons/*.png', 'resources/icons/loading_spinner.gif', 'resources/font/**/*', 'resources/images/*', 'resources/themes/*.jpg', 'resources/setting_animations/*.json', 'resources/setting_animations/gifs/*.gif'],},
+    data_files=(
+        [
+            ('share/applications', [
+                'packaging/linux/io.github.olafssonlab.spacr.desktop']),
+        ] + [
+            (f'share/icons/hicolor/{size}x{size}/apps', [
+                f'packaging/linux/icons/hicolor/{size}x{size}/apps/'
+                'io.github.olafssonlab.spacr.png'])
+            for size in (16, 32, 48, 64, 128, 256, 512)
+        ]
+    ) if sys.platform.startswith('linux') else [],
     install_requires=dependencies,
     entry_points={
         'console_scripts': [

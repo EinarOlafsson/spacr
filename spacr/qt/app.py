@@ -15,7 +15,7 @@ import traceback
 from typing import List, Optional, Tuple
 
 from PySide6.QtCore import Qt, QSize, QThread, Signal
-from PySide6.QtGui import QAction, QIcon, QKeySequence
+from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPalette
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -1419,6 +1419,19 @@ class MainWindow(QMainWindow):
     def __init__(self, initial_app: Optional[str] = None):
         super().__init__()
         self._closing = False
+        # The compositor may map the native window before a child has drawn.
+        # Make that first backing store an opaque splash-coloured surface, so
+        # it can never expose stale desktop pixels while LoadingScreen queues
+        # its first paint.
+        from .widgets.loading_screen import splash_role
+        startup_palette = self.palette()
+        startup_palette.setColor(
+            QPalette.ColorRole.Window,
+            QColor(splash_role("splash_bg", "#000000")),
+        )
+        self.setPalette(startup_palette)
+        self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, True)
         self.setWindowTitle("spaCR")
         self.setMinimumSize(1200, 720)
 
@@ -2853,6 +2866,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
     app = QApplication(sys.argv[:1])
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
+    # Linux shells resolve dock/switcher identity through the desktop-file
+    # id (Wayland does not use setWindowIcon for that surface).
+    app.setDesktopFileName("io.github.olafssonlab.spacr")
     app.setWindowIcon(QIcon(os.path.join(
         iconset.RESOURCE_DIR, "app_icon.png")))
 
