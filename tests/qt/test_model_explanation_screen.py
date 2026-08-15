@@ -72,6 +72,47 @@ def test_prediction_columns_are_data_backed_dropdowns(qtbot, tmp_path):
                 "model_decision", "probability"}
 
 
+def test_explain_drop_handler_routes_database_and_predictions(qtbot, tmp_path):
+    from spacr.qt.dnd_handlers import get_handler
+
+    database = tmp_path / "measurements.db"
+    database.touch()
+    predictions = tmp_path / "predictions.csv"
+    pd.DataFrame({
+        "custom_crop_path": ["cell.png"],
+        "model_decision": [1],
+    }).to_csv(predictions, index=False)
+    screen = ModelExplanationScreen()
+    qtbot.addWidget(screen)
+
+    handler = get_handler("explain_cv")
+    handler.apply(database, screen)
+    handler.apply(predictions, screen)
+
+    assert screen.explain.database.text() == str(database)
+    assert screen.explain.predictions.text() == str(predictions)
+    assert screen.explain.prediction_column.currentText() == "model_decision"
+
+
+def test_investigate_hit_drop_handler_preserves_results_provenance(
+        qtbot, tmp_path):
+    from spacr.qt.dnd_handlers import get_handler
+
+    results = tmp_path / "regression_results"
+    results.mkdir()
+    fractions = tmp_path / "guide_fractions.csv"
+    fractions.write_text("guide,fraction\nEAF1_1,0.8\n", encoding="utf-8")
+    screen = InvestigateHitScreen()
+    qtbot.addWidget(screen)
+
+    handler = get_handler("investigate_hit")
+    handler.apply(results, screen)
+    handler.apply(fractions, screen)
+
+    assert screen.investigate.regression_folder.text() == str(results)
+    assert screen.investigate.fractions.text() == str(fractions)
+
+
 def test_unfaithful_result_withholds_the_importance_table(qtbot):
     panel = ExplainCvPanel()
     qtbot.addWidget(panel)

@@ -128,4 +128,12 @@ jobs:
           fi
           python -m pytest tests/ \
             -m '${{ inputs.marker_expression }}' \
+            --ignore=tests/test_perf_guard.py \
             "${xdist_args[@]}" -v --tb=short
+          if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
+            # This file measures one process's resident memory. Running it
+            # beside three multi-GB Qt workers measures runner contention,
+            # not the launch path, so keep its two Qt checks serial.
+            python -m pytest tests/test_perf_guard.py \
+              -m '${{ inputs.marker_expression }}' -v --tb=short
+          fi
