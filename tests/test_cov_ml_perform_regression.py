@@ -551,15 +551,18 @@ def test_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
         screen, stubs, monkeypatch):
     """fraction_threshold=None delegates the cutoff to graph_sequencing_stats."""
     from spacr.ml import perform_regression
-    import spacr.sequencing as SQ
-
     seen = []
 
     def fake_stats(settings):
         seen.append(settings["count_data"])
         return 0.004
 
-    monkeypatch.setattr(SQ, "graph_sequencing_stats", fake_stats)
+    # Patch the callable's actual global. Package lazy-loader tests can replace
+    # ``spacr.sequencing`` in sys.modules while this already-imported function
+    # still resolves names from its original module object.
+    monkeypatch.setitem(
+        perform_regression.__globals__, "_graph_sequencing_stats", fake_stats,
+    )
 
     settings = base_settings(screen, fraction_threshold=None)
     perform_regression(settings)
