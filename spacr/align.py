@@ -860,8 +860,19 @@ class _ReaderCache:
     to ``max_open`` tiles instead of to the whole input folder.
     """
 
+    #: A registration pair needs BOTH of its tiles mapped at the same time,
+    #: so one is not a legal working set however little memory a caller
+    #: wants to use. With a floor of 1, ``cache.get(tile_b)`` evicted and
+    #: closed tile A's reader while ``_register_pair`` was still holding it;
+    #: every pair then died inside the try with "'NoneType' object has no
+    #: attribute 'shape'", the exception was swallowed into
+    #: ``PairResult.note``, and every tile fell back to its stage position.
+    #: The stitch was not refused — it just looked like a plate that would
+    #: not register.
+    MIN_OPEN = 2
+
     def __init__(self, max_open: int = 8):
-        self.max_open = max(1, int(max_open))
+        self.max_open = max(self.MIN_OPEN, int(max_open))
         self._open: "Dict[int, _TileReader]" = {}
         self._order: List[int] = []
         self.opened = 0
@@ -1478,7 +1489,7 @@ def _sequential_positions(n_tiles: int,
 
 def estimate_offsets(tiles: Sequence[Tile],
                      *,
-                     reference_channel: int = 0,
+                     reference_channel: Optional[int] = None,
                      min_confidence: float = DEFAULT_MIN_CONFIDENCE,
                      min_overlap_px: int = DEFAULT_MIN_OVERLAP_PX,
                      upsample: int = DEFAULT_UPSAMPLE,
@@ -1498,6 +1509,14 @@ def estimate_offsets(tiles: Sequence[Tile],
     :param reference_channel: the plane registration is measured on. Every
         channel of a site then shares that site's single solution —
         registering channels independently would shear the composite.
+        ``None`` (the default) takes the channel the tiles already carry,
+        which is the one :func:`scan_tiles` selected. This used to default to
+        ``0``, so ``scan_tiles(reference_channel=2)`` followed by the
+        documented ``estimate_offsets(tiles)`` silently registered on channel
+        0 instead — the selection was stored on every tile and read by
+        nothing. Tiles that disagree fall back to ``0``; the resolved value
+        is recorded on the plan and printed by :func:`format_plan`, so
+        whichever way it went is visible rather than assumed.
     :param min_confidence: normalised cross-correlation below which a pair
         is refused and the tile falls back to nominal.
     :param min_overlap_px: overlaps narrower than this in either axis are
@@ -1521,6 +1540,9 @@ def estimate_offsets(tiles: Sequence[Tile],
     :raises ConfigurationError: no readable tiles at all.
     """
     tiles = list(tiles)
+    if reference_channel is None:
+        chosen = {int(tile.channel) for tile in tiles if tile.readable}
+        reference_channel = chosen.pop() if len(chosen) == 1 else 0
     plan = AlignPlan(tiles=tiles, reference_channel=int(reference_channel))
 
     usable: List[Tile] = []
@@ -2477,7 +2499,12 @@ def align_folder(settings: Optional[Mapping[str, Any]] = None,
     for key, members in sorted(groups.items()):
         plan = estimate_offsets(
             members,
-            reference_channel=int(resolved.get('reference_channel') or 0),
+            # None, not 0: an unset setting must let the tiles' own channel
+            # stand, or align_folder defeats scan_tiles the same way the old
+            # estimate_offsets default did.
+            reference_channel=(
+                None if resolved.get('reference_channel') is None
+                else int(resolved['reference_channel'])),
             min_confidence=float(resolved.get('min_confidence')),
             min_overlap_px=int(resolved.get('min_overlap_px')),
             upsample=int(resolved.get('upsample')),
