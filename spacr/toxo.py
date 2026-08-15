@@ -233,15 +233,32 @@ def custom_volcano_plot(
         plt.Line2D([0], [0], marker='o', color=c, label=name, linewidth=0, markersize=8)
         for name, c in colors.items()
     ]
+    # THE LEGEND MUST NOT BE BIGGER THAN THE PLOT.
+    #
+    # labelspacing=2 double-spaced every entry, markerscale=1.5 enlarged each
+    # swatch, and the label font was the full AXIS font size. With the LOPIT
+    # compartment set that is 27 entries, so the legend column ran taller than
+    # the figure and squeezed the data into a strip -- reported as "I can't
+    # really see the results because the legend is way too big".
+    #
+    # A legend is an index, not a feature of the data: size it to be readable
+    # and no larger, and wrap it into columns once there are more entries than
+    # fit down one side.
+    entries = len(legend_handles)
+    columns = 1 if entries <= 14 else 2 if entries <= 30 else 3
     ax_lower.legend(
         handles=legend_handles,
-        bbox_to_anchor=(1.05, 1),
+        bbox_to_anchor=(1.02, 1),
         loc='upper left',
         borderaxespad=0.25,
-        labelspacing=2,
-        handletextpad=0.25,
-        markerscale=1.5,
-        prop={'size': fontsize},
+        labelspacing=0.4,
+        handletextpad=0.4,
+        markerscale=0.9,
+        ncol=columns,
+        columnspacing=1.0,
+        frameon=False,
+        # Two-thirds of the axis font, floored so it stays readable.
+        prop={'size': max(fontsize * 0.6, 7)},
     )
 
     if save_path:
