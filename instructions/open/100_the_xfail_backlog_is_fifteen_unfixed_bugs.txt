@@ -2,8 +2,11 @@
 THE XFAIL BACKLOG IS FIFTEEN UNFIXED BUGS THE LEDGER CANNOT SEE
 ================================================================================
 
-Status:    filed 2026-08-15, not started. Found while running the CI fast leg
-           locally to pre-verify instruction 82.
+Status:    filed 2026-08-15. ELEVEN OF FIFTEEN FIXED the same day (group A,
+           B1, B2, B3, B5, C1, C4, D1). Four remain: B4, C2, C3, D2 -- see
+           WHAT IS LEFT at the end, which also records that C3's repair as
+           stated below is WRONG. Found while running the CI fast leg locally
+           to pre-verify instruction 82.
 Requested: 2026-08-15 - "please look through the instructions list then take a
            look at the state of the spacr code, do a sweep (not to deep) and
            tell me what you think."
@@ -163,3 +166,49 @@ reason names a maintainer decision that has been asked and not yet answered.
 A defect that has been decided against is closed by DELETING the test and
 recording the decision here, not by leaving an xfail behind to be recounted
 by the next sweep.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT (2026-08-15, after eleven were fixed)
+--------------------------------------------------------------------------------
+
+C3 -- THE REPAIR STATED ABOVE IS WRONG. DO NOT DO IT.
+
+  "Parse the stem right to left like every other key parser" was tried and
+  reverted. Two things kill it:
+
+  * ``_check_plate`` REFUSES a plate id containing the separator, because
+    ``my_plate_r1_c1_f1`` cannot be split back. So right-to-left parsing
+    produces a plateID the composer then rejects -- the property test's own
+    expectation, ``plateID == 'my_plate'``, is unsatisfiable by design.
+  * spacr/ml.py:3191 already reasoned this out and chose left-to-right
+    deliberately: "a prc is a KEY, which has a fixed number of components and
+    is therefore parseable right to left; this is a crop FILE NAME, whose
+    grammar is <plate>_<well>_<field>[_<time>]_<object> -- a variable-length
+    tail with no right anchor, so the well can only be found by counting from
+    the left." A file name is not a key, and the xfail's premise that it
+    should parse like one is the error.
+
+  THE REAL REPAIR, named in that same comment and marked "NEEDS FOLLOW-UP IN
+  spacr/schema.py": fix the WRITER, not the parser. Either make the crop
+  writer percent-escape the separator in the plate component -- the escape
+  table is now :data:`spacr.schema.KEY_ESCAPES`, shared and reversible, so
+  this is a smaller job than it was -- or record the plate-id length in the
+  name. Until then a plate id holding '_' shifts every position and the
+  grammar carries nothing that can undo it.
+
+  The injectivity half ('plate1_A01_3_junk' == 'plate1_A01_3') would be fixed
+  by refusing a stem with surplus components, which is independent of the
+  above and is the smaller, safer half if it is wanted on its own. It does
+  change 4-part names from silently-wrong to raising, so it is a decision
+  about existing pipelines rather than a free repair.
+
+C2 -- unchanged, still the owner's call: making a trailing t-token count as a
+  timepoint widens what "timelapse" means for every reader of every database.
+
+B4 -- per-well acquisition grid. Real, and the fix is a restructure rather
+  than a patch: scan_tiles assigns grid positions across the whole folder
+  before align_folder ever calls group_tiles, so the per-well layout cannot
+  be expressed. Group first, then lay each group out.
+
+D2 -- the maintainer's, unchanged. Which gene does a shared protospacer count
+  for?
