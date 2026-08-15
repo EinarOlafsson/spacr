@@ -4487,6 +4487,198 @@
           "speech_text": "Quando o fluxo de trabalho estiver concluído, os parâmetros de curva, incerteza, diagnóstico e dados de origem podem ser exportados juntos."
         }
       ]
+    },
+    {
+      "id": "70_explain_cv",
+      "number": 70,
+      "slug": "explain_cv",
+      "title": "Explain CV Model",
+      "series": 5,
+      "app_key": "explain_cv",
+      "section": "Results and quality control",
+      "description": "Reproduza previsões de visão computacional a partir de características medidas e verifique se as explicações resultantes são fiéis e livres de vazamento de informações.",
+      "objectives": [
+        "Entenda quando utilizar Explain CV Model.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial apresenta o Explain CV Model. Reproduza previsões de visão computacional a partir de características medidas e verifique se as explicações resultantes são fiéis e livres de vazamento de informações.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial apresenta o Explain CV Model. Reproduza previsões de visão computacional a partir de características medidas e verifique se as explicações resultantes são fiéis e livres de vazamento de informações."
+        },
+        {
+          "narration": "Escolha o arquivo de previsões por objeto, o banco de dados de medições correspondente, a classe ou pontuação prevista e o agrupamento por poço de microplaca ou por placa que deve permanecer intacto.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Escolha o arquivo de previsões por objeto, o banco de dados de medições correspondente, a classe ou pontuação prevista e o agrupamento por poço de microplaca ou por placa que deve permanecer intacto."
+        },
+        {
+          "narration": "Na área principal de configuração, selecione o mecanismo do modelo substituto, os grupos reservados para validação, as características que serão excluídas, o número de repetições de permutação e o orçamento limitado de SHAP.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área principal de configuração, selecione o mecanismo do modelo substituto, os grupos reservados para validação, as características que serão excluídas, o número de repetições de permutação e o orçamento limitado de SHAP."
+        },
+        {
+          "narration": "Valide as exclusões usadas para evitar vazamento e a divisão por grupos. Em seguida, ajuste o modelo substituto e compare sua fidelidade no conjunto de validação com a referência da classe majoritária antes de interpretar a importância das características.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Valide as exclusões usadas para evitar vazamento e a divisão por grupos. Em seguida, ajuste o modelo substituto e compare sua fidelidade no conjunto de validação com a referência da classe majoritária antes de interpretar a importância das características."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, a execução registra fidelidade, importância por permutação no conjunto de validação, resumos de SHAP, colunas excluídas, agrupamento, mecanismo e proveniência. Uma fidelidade baixa é informada explicitamente, nunca ocultada.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, a execução registra fidelidade, importância por permutação no conjunto de validação, resumos de SHAP, colunas excluídas, agrupamento, mecanismo e proveniência. Uma fidelidade baixa é informada explicitamente, nunca ocultada."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "section": "Results and quality control",
+      "description": "Relacione um resultado de regressão selecionado às células candidatas e às evidências quantitativas por poço de microplaca, sem substituir as anotações revisadas.",
+      "objectives": [
+        "Entenda quando utilizar Investigate Hit.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial apresenta o Investigate Hit. Relacione um resultado de regressão selecionado às células candidatas e às evidências quantitativas por poço de microplaca, sem substituir as anotações revisadas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial apresenta o Investigate Hit. Relacione um resultado de regressão selecionado às células candidatas e às evidências quantitativas por poço de microplaca, sem substituir as anotações revisadas."
+        },
+        {
+          "narration": "Escolha a execução de regressão, o resultado selecionado no nível de gene ou guia, a direção do fenótipo, o limiar de falsas descobertas, o suporte entre guias e o banco de dados de medições correspondente.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Escolha a execução de regressão, o resultado selecionado no nível de gene ou guia, a direção do fenótipo, o limiar de falsas descobertas, o suporte entre guias e o banco de dados de medições correspondente."
+        },
+        {
+          "narration": "Na área principal de configuração, revise a tabela de objetos, a coluna de pontuação, o agrupamento por poço de microplaca, os limiares de evidência, as covariáveis e a mistura hierárquica com ajuste cruzado opcional.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área principal de configuração, revise a tabela de objetos, a coluna de pontuação, o agrupamento por poço de microplaca, os limiares de evidência, as covariáveis e a mistura hierárquica com ajuste cruzado opcional."
+        },
+        {
+          "narration": "Visualize as células candidatas ordenadas por pontuação e os resumos por poço de microplaca. Execute o modelo com ajuste cruzado somente quando o resultado selecionado e o contrato de evidência estiverem corretos.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Visualize as células candidatas ordenadas por pontuação e os resumos por poço de microplaca. Execute o modelo com ajuste cruzado somente quando o resultado selecionado e o contrato de evidência estiverem corretos."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, o spaCR salva as células candidatas ordenadas, comparações entre poços independentes, probabilidades opcionais de cada célula corresponder ao fenótipo selecionado, a incerteza e uma classificação versionada que nunca substitui as anotações manuais.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, o espáquer salva as células candidatas ordenadas, comparações entre poços independentes, probabilidades opcionais de cada célula corresponder ao fenótipo selecionado, a incerteza e uma classificação versionada que nunca substitui as anotações manuais."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "section": "Results and quality control",
+      "description": "Abra uma regressão concluída, examine cada ponto, altere o estilo do gráfico e exporte uma figura vetorial em tamanho de publicação sem repetir a análise.",
+      "objectives": [
+        "Compreender quando utilizar Volcano Explorer.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial apresenta o Volcano Explorer. Abra uma regressão concluída, examine cada ponto, altere o estilo do gráfico e exporte uma figura vetorial em tamanho de publicação sem repetir a análise.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial apresenta o Volcano Explorer. Abra uma regressão concluída, examine cada ponto, altere o estilo do gráfico e exporte uma figura vetorial em tamanho de publicação sem repetir a análise."
+        },
+        {
+          "narration": "Escolha uma pasta de regressão concluída ou um arquivo CSV de resultados. Confirme o resultado, a tabela no nível de guia, a família de suporte, a coluna de efeito e a coluna do valor P ajustado.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Escolha uma pasta de regressão concluída ou um arquivo CSV de resultados. Confirme o resultado, a tabela no nível de guia, a família de suporte, a coluna de efeito e a coluna do valor P ajustado."
+        },
+        {
+          "narration": "Na área principal de configuração, revise os limiares de significância e efeito, as transformações dos eixos, os rótulos, as cores, as formas, as anotações, as opções de eixo interrompido, as fontes e as dimensões de saída.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área principal de configuração, revise os limiares de significância e efeito, as transformações dos eixos, os rótulos, as cores, as formas, as anotações, as opções de eixo interrompido, as fontes e as dimensões de saída."
+        },
+        {
+          "narration": "Selecione pontos representativos para examinar suas linhas completas, combinar anotações opcionais e verificar se as alterações de estilo preservam os valores e os limiares subjacentes.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Selecione pontos representativos para examinar suas linhas completas, combinar anotações opcionais e verificar se as alterações de estilo preservam os valores e os limiares subjacentes."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, as exportações PDF e PNG são recriadas no tamanho solicitado a partir dos dados e do estilo registrados, enquanto os resultados originais da regressão permanecem inalterados.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, as exportações PDF e PNG são recriadas no tamanho solicitado a partir dos dados e do estilo registrados, enquanto os resultados originais da regressão permanecem inalterados."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "description": "Execute uma exploração limitada das configurações de regressão e compare quais conclusões permanecem diante de escolhas de análise defensáveis.",
+      "objectives": [
+        "Entenda quando utilizar Parameter Sweep.",
+        "Configurar as entradas e configurações importantes.",
+        "Execute o fluxo de trabalho e localize as suas saídas."
+      ],
+      "prerequisite": "Siga as lições anteriores do fluxo de trabalho quando este módulo precisar de resultados a montante.",
+      "scenes": [
+        {
+          "narration": "Este tutorial apresenta o Parameter Sweep. Execute uma exploração limitada das configurações de regressão e compare quais conclusões permanecem diante de escolhas de análise defensáveis.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial apresenta o Parameter Sweep. Execute uma exploração limitada das configurações de regressão e compare quais conclusões permanecem diante de escolhas de análise defensáveis."
+        },
+        {
+          "narration": "Associe, para cada placa, o arquivo CSV de pontuações por objeto ao arquivo de contagens de guias. Escolha a coluna de resposta e configure uma pasta de saída separada.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Associe, para cada placa, o arquivo CSV de pontuações por objeto ao arquivo de contagens de guias. Escolha a coluna de resposta e configure uma pasta de saída separada."
+        },
+        {
+          "narration": "Na área principal de configuração, escolha os eixos que vão variar, mantenha todos os outros valores fixos, selecione amostragem em grade ou aleatória, limite o número de ensaios, registre a semente e aceite o limite de processos imposto pela memória.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "Na área principal de configuração, escolha os eixos que vão variar, mantenha todos os outros valores fixos, selecione amostragem em grade ou aleatória, limite o número de ensaios, registre a semente e aceite o limite de processos imposto pela memória."
+        },
+        {
+          "narration": "Use primeiro Estimate para verificar o tamanho e o custo da busca permitida. Em seguida, inicie uma exploração pequena e limitada e acompanhe os ensaios concluídos, rejeitados e malsucedidos.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Use primeiro Estimate para verificar o tamanho e o custo da busca permitida. Em seguida, inicie uma exploração pequena e limitada e acompanhe os ensaios concluídos, rejeitados e malsucedidos."
+        },
+        {
+          "narration": "Quando o fluxo de trabalho termina, a tabela de resultados retomável registra, para cada ensaio, as configurações, o estado, o número de descobertas, a posição dos controles positivos, a duração, a pasta de saída e o motivo da falha.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Quando o fluxo de trabalho termina, a tabela de resultados retomável registra, para cada ensaio, as configurações, o estado, o número de descobertas, a posição dos controles positivos, a duração, a pasta de saída e o motivo da falha."
+        }
+      ]
     }
   ],
   "language": "pt-BR"
