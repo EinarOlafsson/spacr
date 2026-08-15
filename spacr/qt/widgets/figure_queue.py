@@ -652,6 +652,7 @@ class FigureQueue(QWidget):
         self._count += 1
         self._fig_index[id(fig)] = idx
         self._figures[idx] = fig
+        self._trim_live_figures()
 
         png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
         pixmap = None
@@ -848,11 +849,18 @@ class FigureQueue(QWidget):
         """
         if idx != self._current or idx in self._pdf_state:
             return
-        if not self._figure_format_is_pdf():
-            return
         png = self._png_paths.get(idx)
         if not png:
             return
+        # Normally gated on the PDF preference. But a page written earlier,
+        # under a preference since switched to PNG, is still a vector page on
+        # disk -- and "load the PDF if it exists" is exactly what the dynamic
+        # figures option promises for a figure whose live Figure is gone.
+        if not self._figure_format_is_pdf():
+            if not (self.dynamic_figures_enabled()
+                    and not self.has_live_figure(idx)
+                    and _sibling_pdf(png).is_file()):
+                return
         pdf = _sibling_pdf(png)
         if not pdf.is_file():
             # PDF mode is on and the vector page is not there: the export
@@ -938,9 +946,64 @@ class FigureQueue(QWidget):
             old_idx, _ = self._ram.popitem(last=False)
             LOG.debug("spilled figure #%d from RAM (PNG kept)", old_idx)
 
+    def live_figure_cap(self) -> int:
+        """How many recent figures keep their live matplotlib Figure."""
+        try:
+            from ..preferences import get_figure_live_cache
+            return int(get_figure_live_cache())
+        except Exception:  # pragma: no cover - headless / no QSettings
+            return 20
+
+    def dynamic_figures_enabled(self) -> bool:
+        """Whether an evicted figure reloads from its vector page on demand."""
+        try:
+            from ..preferences import get_figure_dynamic
+            return bool(get_figure_dynamic())
+        except Exception:  # pragma: no cover
+            return True
+
+    def live_figure_count(self) -> int:
+        """How many live Figures are currently retained."""
+        return len(self._figures)
+
+    def _trim_live_figures(self) -> None:
+        """Keep only the most recent N live Figures.
+
+        A live Figure is what makes a figure restylable -- it still has a
+        legend to toggle and axes to rescale. A pixmap is a picture of one.
+        But each Figure holds its own data arrays, and a screen emits dozens,
+        so every one of them retained forever is a leak in all but name.
+
+        The oldest are released; their rendered pages stay on disk, so they
+        remain viewable and (with dynamic figures on) still load crisply.
+        """
+        cap = max(int(self.live_figure_cap()), 1)
+        if len(self._figures) <= cap:
+            return
+        import matplotlib.pyplot as plt
+
+        for old in sorted(self._figures)[:len(self._figures) - cap]:
+            figure = self._figures.pop(old, None)
+            # Close it, or matplotlib's own registry keeps it alive and the
+            # cap frees nothing.
+            try:
+                plt.close(figure)
+            except Exception:  # pragma: no cover - defensive
+                pass
+
+    def has_live_figure(self, idx: int) -> bool:
+        """Whether ``idx`` can still be restyled rather than only viewed."""
+        return idx in self._figures
+
     def _pixmap_for(self, idx: int) -> Optional[QPixmap]:
         """Return the full-res pixmap for ``idx`` — from RAM if resident,
-        otherwise reloaded from the temp PNG (and re-cached)."""
+        otherwise reloaded from the temp PNG (and re-cached).
+
+        When the live Figure for ``idx`` has been released and *dynamic
+        figures* is on, the vector page is preferred over the display-capped
+        raster: navigating back to an old figure then shows the PDF rather
+        than a soft enlargement of a thumbnail-grade image.
+        """
         if idx in self._ram:
             self._ram.move_to_end(idx)   # mark as recently used
             return self._display_pixmap(idx, self._ram[idx])
@@ -953,7 +1016,15 @@ class FigureQueue(QWidget):
                 # so clear it and let the refinement run again.
                 self._pdf_state.pop(idx, None)
                 self._cache_pixmap(idx, pm)
-                return self._display_pixmap(idx, pm)
+                pixmap = self._display_pixmap(idx, pm)
+                # The figure itself is gone, so nothing will re-render it from
+                # source. Its vector page is the only remaining way to show it
+                # sharply, and this is the moment the user asked for it.
+                if (not self.has_live_figure(idx)
+                        and self.dynamic_figures_enabled()
+                        and _sibling_pdf(path).is_file()):
+                    self._request_pdf_refinement(idx)
+                return pixmap
         return None
 
     def _on_row_changed(self, row: int) -> None:
