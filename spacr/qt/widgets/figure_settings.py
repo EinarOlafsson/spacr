@@ -175,6 +175,97 @@ class FigureSettingsDialog(QDialog):
     #: Input types that steal the wheel from the scroll area beneath them.
     _WHEEL_STEALERS = (QSpinBox, QDoubleSpinBox, QComboBox)
 
+    #: Above this many series on one axes, offer colouring RULES instead of a
+    #: control per series. A volcano scatters once per compartment -- 27 of
+    #: them -- and a control block each is 135 controls that read as styling
+    #: individual data points.
+    SERIES_DETAIL_LIMIT = 8
+
+    #: Palettes offered as the colouring rule. Qualitative first: a series set
+    #: is categorical, and a sequential map implies an order that is not there.
+    PALETTES = ("tab10", "tab20", "Set1", "Set2", "Set3", "Dark2", "Paired",
+                "Accent", "viridis", "plasma", "cividis", "coolwarm")
+
+    def _add_series_rules(self, form, axis, series) -> None:
+        """Colouring rules for an axes with too many series to list.
+
+        The user asked for "coloring rules, but not options for each
+        individual datapoint". This is that: one palette across the whole
+        series set, and single size/opacity controls that reach all of them.
+        """
+        form.addRow(QLabel(f"— {len(series)} series —"))
+        note = QLabel(
+            "Too many series to style one by one, so these rules apply "
+            "across all of them.")
+        note.setWordWrap(True)
+        form.addRow(note)
+
+        palette = QComboBox()
+        palette.addItem("Keep current colours", None)
+        for name in self.PALETTES:
+            palette.addItem(name, name)
+
+        def apply_palette(*_):
+            name = palette.currentData()
+            if not name:
+                return
+            import matplotlib as mpl
+
+            colormap = mpl.colormaps[name]
+            count = max(len(series), 1)
+            for index, (_label, artist) in enumerate(series):
+                # A qualitative map is indexed by position; a continuous one
+                # is sampled across its range. Using the wrong one gives every
+                # series nearly the same colour.
+                colour = (colormap(index % colormap.N) if colormap.N <= 32
+                          else colormap(index / max(count - 1, 1)))
+                try:
+                    artist.set_color(colour)
+                except Exception:  # pragma: no cover - artist without colour
+                    pass
+            self._changed()
+        palette.currentIndexChanged.connect(apply_palette)
+        form.addRow("Palette", palette)
+
+        size = QDoubleSpinBox()
+        size.setRange(1.0, 600.0)
+        size.setValue(36.0)
+
+        def apply_size(value):
+            for _label, artist in series:
+                if hasattr(artist, "set_sizes"):
+                    artist.set_sizes([value])
+                elif hasattr(artist, "set_markersize"):
+                    artist.set_markersize(value ** 0.5)
+            self._changed()
+        size.valueChanged.connect(apply_size)
+        form.addRow("Point size (all)", size)
+
+        opacity = QDoubleSpinBox()
+        opacity.setRange(0.05, 1.0)
+        opacity.setSingleStep(0.05)
+        opacity.setValue(1.0)
+
+        def apply_opacity(value):
+            for _label, artist in series:
+                artist.set_alpha(value)
+            self._changed()
+        opacity.valueChanged.connect(apply_opacity)
+        form.addRow("Opacity (all)", opacity)
+
+        edge = QDoubleSpinBox()
+        edge.setRange(0.0, 5.0)
+        edge.setSingleStep(0.1)
+        edge.setValue(0.0)
+
+        def apply_edge(value):
+            for _label, artist in series:
+                if hasattr(artist, "set_linewidth"):
+                    artist.set_linewidth(value)
+            self._changed()
+        edge.valueChanged.connect(apply_edge)
+        form.addRow("Outline width (all)", edge)
+
     def _block_wheel_on_inputs(self) -> None:
         """Let inputs take the wheel only once they are deliberately focused.
 
@@ -462,8 +553,21 @@ class FigureSettingsDialog(QDialog):
             form.addRow("Legend columns", legend_cols)
             form.addRow("Legend frame", legend_frame)
 
-        # One block per series actually present.
-        for label, artist in _series_of(axis):
+        series = _series_of(axis)
+        # MANY SERIES GET A RULE, NOT A CONTROL EACH.
+        #
+        # A volcano scatters once per compartment, so an axis can hold 27
+        # collections. One block each is 135 controls and reads as styling
+        # individual data points, which is not a thing anyone wants to do to a
+        # screen. Past the threshold the dialog offers what actually governs
+        # the appearance: a palette applied across the series, and one set of
+        # size/opacity controls that reach all of them.
+        if len(series) > self.SERIES_DETAIL_LIMIT:
+            self._add_series_rules(form, axis, series)
+            return page
+
+        # Few enough to be worth naming individually.
+        for label, artist in series:
             form.addRow(QLabel(f"— {label} —"))
 
             def set_colour(colour, a=artist):
