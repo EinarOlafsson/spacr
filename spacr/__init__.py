@@ -103,6 +103,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "resume",
     "checkpoint",
     "normalization",
+    "openmp_guard",
     # Plate-wide intensity rescaling provenance and the desktop installer's
     # hardware/consent hand-off are both public, dependency-light modules.
     "intensity_rescale",

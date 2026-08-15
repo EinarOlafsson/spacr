@@ -76,6 +76,22 @@ jobs:
             libxdamage1 libxi6 libxtst6 libasound2t64 \
             libsm6 libxext6 libxrender1
 
+      # Sphinx IMPORTS the package to document it, and spacr.qt imports
+      # PySide6, which dlopens libEGL at import time -- so a docs build needs
+      # the same GL/xcb stack the test job installs even though it never
+      # opens a window. Without it every autodoc import of a Qt module dies
+      # with "ImportError: libEGL.so.1: cannot open shared object file" and
+      # the API pages come out empty rather than the build failing loudly.
+      - name: Install Qt runtime libraries
+        run: |
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxrandr2 libxtst6 libasound2t64 xvfb
+
       - name: Install spacr + Sphinx tooling
         run: |
           python -m pip install --upgrade pip
