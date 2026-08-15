@@ -1,0 +1,97 @@
+================================================================================
+THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
+================================================================================
+
+Status:    filed 2026-08-15, not started. PRE-EXISTING -- proven, not assumed.
+Requested: not asked for. Found while attributing a failure in a regression
+           sweep for instruction 100, and filed because a bug found in
+           passing gets queued rather than narrated.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+    tests/test_hf_e2e_integration.py::test_hf_e2e_mask_stage
+    AssertionError: mask stage produced no cell_mask output files
+    assert []
+
+The manifest IS written, so the run completes and `open_run` is satisfied.
+What is missing is the output: the test globs the dataset for any path whose
+name contains "cell_mask", and gets nothing -- not even the
+`cell_mask_stack/` DIRECTORY that `spacr/core.py:337` writes into, whose own
+name would match.
+
+It also prints, on the way past:
+
+    WARNING: could not write the relationships table ...
+    FilterError: this database has no object table to build relationships from
+
+which is consistent: no masks, so no objects, so no object table.
+
+WHY IT IS INVISIBLE. The test is `@pytest.mark.slow` + `@pytest.mark.network`.
+The fast leg excludes both, so this never runs there, and it did not surface
+in the CI Slow leg either. It only appeared under an ad-hoc `-k` sweep that
+ignored markers.
+
+--------------------------------------------------------------------------------
+IT IS NOT THE CELLPOSE channels= REMOVAL
+--------------------------------------------------------------------------------
+
+Stated because that change landed the same day, in the same files, and is the
+obvious suspect. Two independent checks say no:
+
+1. cellpose 4.0.7's `CellposeModel.eval` mentions `channels` exactly once as
+   anything other than a docstring or a signature default:
+
+       if channels is not None:
+           models_logger.warning("channels deprecated in v4.0.1+. ...")
+
+   The value is read for a truthiness test and discarded. It cannot change a
+   mask.
+
+2. The test fails IDENTICALLY at 8c4db209 -- the commit before any code
+   change of that pass -- run in a clean worktree. Same assertion, same empty
+   list.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+FIRST, ESTABLISH WHICH BUG THIS IS. There are two candidates and they need
+different fixes, so do not start until it is known which:
+
+  (a) The STUB dataset does not segment. `SPACR_HF_E2E_STUB=1` substitutes a
+      synthetic dataset, and cpsam finds nothing in simple synthetic blobs --
+      confirmed separately: a 128x128 image of five clean Gaussian blobs
+      returns zero objects from `CellposeModel.eval`. If the stub images are
+      that shape, the test asserts something the fixture cannot deliver, and
+      the fix is the FIXTURE: stub data that a real model actually segments,
+      or a stubbed model that returns known masks.
+
+  (b) The mask stage genuinely drops its cell output. The network run in the
+      same sweep reported real segmentation happening but failing QC --
+      "Segmentation QC (cell): FAIL - 2 of 8 fields failed (25%)",
+      "(pathogen): FAIL - 4 of 8 (50%)" -- so on real data masks ARE made.
+      Whether the cell stack is then written, and where, is the question.
+
+  The cheap discriminator: run the stub mode and look for ANY mask output
+  under the workspace, for any object type. Nuclei present and cell absent is
+  (b). Nothing at all present is (a).
+
+THEN. If (a), fix the fixture -- an e2e test whose stub cannot pass is worse
+than no e2e test, because it trains everyone to ignore a red mark. If (b),
+fix the writer, and add the assertion to a suite that actually runs.
+
+EITHER WAY. This test is currently unrunnable-green and outside every CI leg
+that executes. Whatever the outcome, it needs to land somewhere the release
+gate can see it, or the next person will rediscover it the same accidental
+way.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`SPACR_HF_E2E_STUB=1 pytest tests/test_hf_e2e_integration.py` passes, in
+under a minute, with no network. And the same file passes in its network mode
+on a machine that has the dataset -- including the QC stage, which currently
+reports a quarter of the cell fields and half the pathogen fields as failed.
