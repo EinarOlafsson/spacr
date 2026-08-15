@@ -95,7 +95,9 @@ def test_a_snap_that_fails_does_not_take_the_release_with_it(canvas,
         raise RuntimeError("no axes")
 
     monkeypatch.setattr(canvas, "snap_to_nearest_axis", boom)
-    canvas._on_button_release(_Release())      # the assertion is no raise
+    canvas._on_button_release(_Release())
+    # The view is left exactly where the user left it rather than half-turned.
+    assert canvas._view_angles == (23.0, 47.0)
 
 
 @pytest.mark.parametrize("elev,azim,want_elev,want_azim", [
@@ -185,7 +187,11 @@ def test_a_matplotlib_without_the_hook_leaves_the_speed_alone(canvas):
         pass
 
     canvas.apply_settings(GateEditorSettings(spin_speed=2.0))
-    canvas._apply_spin_speed(_NoHook())      # the assertion is no raise
+    axes = _NoHook()
+    canvas._apply_spin_speed(axes)
+    # No wrapper was installed, so the rotation stays matplotlib's own --
+    # a setting not taking effect rather than a volume that will not turn.
+    assert not hasattr(axes, "_on_move")
 
 
 def test_the_wrapped_move_still_reaches_matplotlib(canvas):

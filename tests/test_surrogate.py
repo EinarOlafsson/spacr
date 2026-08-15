@@ -127,7 +127,7 @@ def test_extra_exclusions_are_honoured():
 # The three importances
 # ---------------------------------------------------------------------------
 
-def test_all_three_importances_are_reported_when_shap_is_available():
+def test_all_three_importances_are_reported_when_shap_is_available(tmp_path):
     shap = pytest.importorskip("shap")
     result = surrogate.fit_surrogate(_frame(n=200), verbose=False)
     for column in ("gain", "permutation", "shap"):
@@ -135,6 +135,16 @@ def test_all_three_importances_are_reported_when_shap_is_available():
     # They are separate measures, not copies of one another.
     assert not np.allclose(result.importance["gain"],
                            result.importance["permutation"])
+    assert not result.shap_values.empty
+    assert result.shap_values.index.equals(result.shap_feature_values.index)
+    assert {"feature", "cv_class", "n", "mean", "median", "std"} <= set(
+        result.feature_distributions)
+    assert result.family_importance["feature_family"].is_unique
+    assert result.importance.set_index("feature").loc[
+        "cell_area", "feature_family"] == "cell"
+    paths = surrogate.write_surrogate_result(result, str(tmp_path))
+    assert {"shap_dependence_pdf", "shap_dependence_png",
+            "feature_distributions", "family_importance"} <= set(paths)
 
 
 def test_a_missing_shap_costs_the_column_not_the_analysis(monkeypatch):
@@ -163,6 +173,24 @@ def test_top_falls_back_rather_than_raising():
     """A run without SHAP still has to report something."""
     result = surrogate.fit_surrogate(_frame(n=200), verbose=False)
     assert not result.top(3, by="a_measure_that_does_not_exist").empty
+
+
+def test_histogram_gradient_boosting_is_a_real_recorded_backend(tmp_path):
+    result = surrogate.fit_surrogate(
+        _frame(n=240), model_family="hist_gradient_boosting", verbose=False)
+    assert result.model_family == "hist_gradient_boosting"
+    assert "HistGradientBoostingClassifier" in result.backend
+    assert result.backend_version
+    assert "permutation" in result.importance
+    paths = surrogate.write_surrogate_result(result, str(tmp_path))
+    assert {"manifest", "summary", "importance", "held_out"} <= set(paths)
+    assert (tmp_path / "manifest.json").is_file()
+
+
+def test_unknown_surrogate_backend_is_refused():
+    with pytest.raises(surrogate.SurrogateError, match="unknown surrogate"):
+        surrogate.fit_surrogate(
+            _frame(n=100), model_family="not-a-model", verbose=False)
 
 
 # ---------------------------------------------------------------------------

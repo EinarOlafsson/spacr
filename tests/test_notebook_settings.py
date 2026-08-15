@@ -101,7 +101,11 @@ def test_the_generated_cell_is_valid_python(path):
     source = _generated(path)
     if not source:
         pytest.skip("no generated cell")
-    ast.parse(source)          # the assertion: a cell that cannot run is worse
+    # Parsing IS the check -- a cell that cannot run is worse than one that
+    # is merely wrong -- but an exception is not an assertion to a reader or
+    # to the hygiene scan, so the result is named.
+    tree = ast.parse(source)
+    assert tree.body, "the generated cell has no statements"
 
 
 @pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)

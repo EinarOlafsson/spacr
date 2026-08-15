@@ -365,8 +365,16 @@ def test_adjust_cell_masks_default_worker_count(monkeypatch, tmp_path):
     for name in ("parasite", "cell", "nucleus"):
         (tmp_path / name).mkdir()
     monkeypatch.setattr(U, "cpu_count", lambda: 3)
+    # n_jobs=None derives max(1, cpu_count() - 2) = 1, and one worker runs
+    # INLINE rather than starting a child. Spying on the pool is what makes
+    # that observable -- passing None straight through would raise inside
+    # Pool, and simply calling the function proved neither.
+    started = []
+    monkeypatch.setattr(U, "Pool",
+                        lambda *a, **k: started.append(a) or (_ for _ in ()))
     U.adjust_cell_masks(str(tmp_path / "parasite"), str(tmp_path / "cell"),
                         str(tmp_path / "nucleus"), n_jobs=None)
+    assert started == [], "one derived worker must run inline"
 
 
 def test_merge_regression_metadata_collapses_duplicate_gene(tmp_path, capsys):

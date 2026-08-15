@@ -384,7 +384,7 @@ def ds_src(tmp_path, rng):
         (src / "measurements").mkdir(parents=True)
         png_dir = src / "data" / "cell_png"
         png_dir.mkdir(parents=True)
-        # SPACR-SHAPED NAMES: plate_row_column_field_object. Instruction 94's
+        # spaCR-SHAPED NAMES: plate_row_column_field_object. Instruction 94's
         # split reads the well out of the filename, and "plate1_o1.png" is a
         # name spaCR cannot produce -- a fixture built from those was testing
         # a plate that cannot exist. Rows vary and columns alternate, so the

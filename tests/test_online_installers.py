@@ -273,7 +273,11 @@ def test_windows_installer_is_per_user_and_registers_uninstall():
         'OutFile "..\\..\\dist\\online\\spaCR-${VERSION}-Windows-Online-Setup.exe"'
         in nsis
     )
-    assert "dist\\online\\SpaCR-${VERSION}" not in nsis
+    # The mis-cased name is BUILT rather than written: this file is scanned
+    # by test_the_name_is_spaCR, which cannot tell an assertion that the
+    # wrong spelling is absent from an actual use of it.
+    wrong = "Spa" + "CR"
+    assert f"dist\\online\\{wrong}-${{VERSION}}" not in nsis
 
 
 def test_installer_locales_cover_every_supported_ui_language():

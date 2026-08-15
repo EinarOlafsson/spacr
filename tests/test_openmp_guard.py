@@ -290,8 +290,16 @@ class TestSingleThreadedOpenmp:
             "resident_openmp_runtimes",
             lambda: (_ for _ in ()).throw(RuntimeError("boom")),
         )
+        # The body still runs, and the environment is left as it was found:
+        # a probe that cannot see the resident runtimes has nothing to clamp,
+        # so it must clamp NOTHING rather than guess. Reaching the body was
+        # the only thing this checked, and it would have passed for a guard
+        # that silently pinned every thread count to 1.
+        before = dict(os.environ)
         with openmp_guard.single_threaded_openmp("x"):
-            pass  # must not raise
+            inside = dict(os.environ)
+        assert inside == before
+        assert dict(os.environ) == before
 
     def test_a_runtime_without_the_symbols_is_skipped(
         self, monkeypatch, clamping_platform

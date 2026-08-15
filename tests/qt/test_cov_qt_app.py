@@ -261,6 +261,11 @@ EXPECTED_SECTIONS = {
     # read a finished run rather than interrogating it.
     "hit_list":        SECTION_RESULTS,
     "methods_export":  SECTION_RESULTS,
+    # Explanations read completed model/regression outputs. Explain CV has a
+    # dedicated fidelity-first workbench; Investigate Hit is settings-driven
+    # because its reproducible file inputs are also its headless API.
+    "explain_cv":      SECTION_RESULTS,
+    "investigate_hit": SECTION_RESULTS,
     # Explore's first two. The section was declared and empty until they
     # registered -- "page through image layers" is the example in its own
     # definition, and the Graph Builder family is what it was named for.
@@ -333,6 +338,7 @@ EXPECTED_STAGES = {
     # this table they read as "stable", which is the one claim nobody has
     # earned yet.
     "pca": "alpha", "tabulate": "alpha",
+    "explain_cv": "alpha", "investigate_hit": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -375,8 +381,8 @@ def test_every_app_carries_the_maturity_it_was_given():
     # 36 alpha since PCA and Tabulate started registering. The beta and stable
     # columns have still not moved, which is the shape the docstring above
     # describes: alpha is the column that grows, and only use empties it.
-    # 37 alpha since the merged Classify module arrived.
-    assert counts == {"alpha": 37, "beta": 9, "stable": 8}
+    # 39 alpha since the two model-explanation stages arrived.
+    assert counts == {"alpha": 39, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -922,7 +928,7 @@ def test_every_other_key_builds_a_generic_app_screen(win):
                  "graph_builder", "hit_list", "image_scatter", "layer_viewer",
                  "lineage", "methods_export", "pca", "pipeline_graph",
                  "power", "profiler", "qc_dashboard", "run_compare",
-                 "tabulate"}
+                 "tabulate", "explain_cv", "investigate_hit"}
 
     built_generic, built_dedicated = set(), set()
     for key, *_r in APPS:
