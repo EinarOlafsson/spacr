@@ -12,6 +12,8 @@ Structure (horizontal splitter):
 from __future__ import annotations
 
 import logging
+import os
+import shutil
 import sys
 from functools import partial
 from html import escape
@@ -630,8 +632,12 @@ class AppScreen(QWidget):
         self._usage_timer = QTimer(self)
         self._usage_timer.setInterval(2000)
         self._usage_timer.timeout.connect(self._refresh_usage)
-        self._usage_timer.start()
-        self._refresh_usage()
+        # A stacked module page may be constructed hours before the user
+        # opens it.  Polling every hidden page wastes a thread and a
+        # ``nvidia-smi`` subprocess every two seconds; in a long-lived Qt
+        # process those orphan polls also made GPUtil's subprocess boundary
+        # eventually segfault.  showEvent starts the one page the user can
+        # actually see, and hideEvent stops it again.
 
         # Threading state
         self._thread: Optional[QThread] = None
@@ -2116,9 +2122,21 @@ class AppScreen(QWidget):
         :meth:`refresh_ambient_background`.
         """
         super().showEvent(event)
+        usage_timer = getattr(self, "_usage_timer", None)
+        if usage_timer is not None and not usage_timer.isActive():
+            usage_timer.start()
+            self._refresh_usage()
         self._sync_hint_strip_height()
         self._sync_category_hint_height()
         self.refresh_ambient_background()
+
+    def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
+        # Keep this Qt lifecycle hook out of the documented spaCR API: it is
+        # only the inverse of the showEvent timer activation above.
+        usage_timer = getattr(self, "_usage_timer", None)
+        if usage_timer is not None:
+            usage_timer.stop()
+        super().hideEvent(event)
 
     # ------------------------------------------------------------------
     # Actions
@@ -3155,9 +3173,9 @@ def _sample_usage(per_core: bool) -> dict:
 
     Module-level and widget-free on purpose: this is the whole of what
     :meth:`AppScreen._refresh_usage` sends off the GUI thread, so it must be
-    impossible for it to reach a widget. A missing psutil or GPUtil, or a
-    machine with no GPU, leaves that key out rather than failing the sample --
-    the bars keep their last value, which is a truer picture than zero.
+    impossible for it to reach a widget. A missing psutil leaves those keys
+    out rather than failing the sample. A CPU-only machine reports zero GPU
+    and VRAM use without entering GPUtil's subprocess boundary.
 
     :param per_core: whether the per-core panel is open and wants its own
         reading. Decided by the caller, on the GUI thread, from the toggle.
@@ -3172,18 +3190,42 @@ def _sample_usage(per_core: bool) -> dict:
             sample["per_core"] = psutil.cpu_percent(interval=None, percpu=True)
     except Exception:
         pass
-    try:
-        import GPUtil
-        gpus = GPUtil.getGPUs()
-        if gpus:
-            sample["gpu"] = gpus[0].load * 100
-            sample["vram"] = gpus[0].memoryUtil * 100
-        else:
-            sample["gpu"] = 0
-            sample["vram"] = 0
-    except Exception:
-        pass
+    # GPUtil shells out to nvidia-smi.  Calling it when the executable does
+    # not exist is both pointless and, after hundreds of short-lived worker
+    # threads in a Qt process, has crashed in CPython's subprocess boundary
+    # (CI run 31869225004).  The cheap executable check keeps CPU-only hosts
+    # entirely outside that native boundary.  A real NVIDIA host still uses
+    # GPUtil's established parsing and reports the same values as before.
+    if _nvidia_smi_available():
+        try:
+            import GPUtil
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                sample["gpu"] = gpus[0].load * 100
+                sample["vram"] = gpus[0].memoryUtil * 100
+            else:
+                sample["gpu"] = 0
+                sample["vram"] = 0
+        except Exception:
+            pass
+    else:
+        sample["gpu"] = 0
+        sample["vram"] = 0
     return sample
+
+
+def _nvidia_smi_available() -> bool:
+    """Return whether GPU telemetry can invoke an actual ``nvidia-smi``."""
+    if shutil.which("nvidia-smi"):
+        return True
+    if sys.platform == "win32":
+        drive = os.environ.get("SystemDrive", "C:")
+        candidate = os.path.join(
+            drive, "Program Files", "NVIDIA Corporation", "NVSMI",
+            "nvidia-smi.exe",
+        )
+        return os.path.isfile(candidate)
+    return False
 
 
 def QtGui_QListWidgetItem_helper(fig, idx: int):

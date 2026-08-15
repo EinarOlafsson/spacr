@@ -407,7 +407,7 @@ class TestCategoryGrouping:
     def test_sections_are_ordered_and_each_row_is_labelled(self, qtbot):
         scr = _make_screen(qtbot, "umap")
         titles = _section_titles(scr)
-        assert titles[0] == "PATHS"
+        assert titles[0] == "INPUT DATA"
         assert len(titles) == len(set(titles)), "a category was emitted twice"
 
     def test_curated_and_fallback_section_hints(self, qtbot):
@@ -1852,7 +1852,6 @@ class TestUsage:
 
     def test_refresh_usage_writes_real_percentages(self, qtbot):
         scr = _make_screen(qtbot, "mask")
-        _settle(qtbot, scr)               # the poll the constructor started
         scr._refresh_usage()
         _settle(qtbot, scr)
         import psutil                      # already a spaCR dependency
@@ -1866,6 +1865,8 @@ class TestUsage:
         fake = types.ModuleType("GPUtil")
         fake.getGPUs = lambda: []
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen._nvidia_smi_available", lambda: True)
         scr = _make_screen(qtbot, "mask")
         _settle(qtbot, scr)
         scr._usage_gpu.set_value(55)
@@ -1885,12 +1886,29 @@ class TestUsage:
         fake = types.ModuleType("GPUtil")
         fake.getGPUs = lambda: [_Gpu()]
         monkeypatch.setitem(sys.modules, "GPUtil", fake)
+        monkeypatch.setattr(
+            "spacr.qt.screens.app_screen._nvidia_smi_available", lambda: True)
         scr = _make_screen(qtbot, "mask")
         _settle(qtbot, scr)
         scr._refresh_usage()
         _settle(qtbot, scr)
         assert _pct(scr._usage_gpu) == 25
         assert _pct(scr._usage_vram) == 50
+
+    def test_cpu_only_host_never_enters_gputil(self, monkeypatch):
+        import types
+        from spacr.qt.screens import app_screen
+
+        fake = types.ModuleType("GPUtil")
+        fake.getGPUs = lambda: (_ for _ in ()).throw(
+            AssertionError("GPUtil must not run without nvidia-smi"))
+        monkeypatch.setitem(sys.modules, "GPUtil", fake)
+        monkeypatch.setattr(app_screen, "_nvidia_smi_available", lambda: False)
+
+        sample = app_screen._sample_usage(False)
+
+        assert sample["gpu"] == 0
+        assert sample["vram"] == 0
 
     def test_psutil_failure_leaves_the_bars_untouched(self, qtbot,
                                                      monkeypatch):

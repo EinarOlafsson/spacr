@@ -25,8 +25,13 @@ def test_app_screen_constructs_for_every_key(qtbot, qt_theme_applied, app_key):
     # Usage bars exist.
     for label in ("_usage_ram", "_usage_gpu", "_usage_vram", "_usage_cpu"):
         assert getattr(screen, label) is not None
-    # Timer is running.
+    # Hidden stacked pages do not poll. Only the visible page owns a timer.
+    assert not screen._usage_timer.isActive()
+    screen.show()
+    qtbot.waitUntil(screen.isVisible)
     assert screen._usage_timer.isActive()
+    screen.hide()
+    assert not screen._usage_timer.isActive()
 
 
 def test_app_screen_settings_widgets_populated(qtbot, qt_theme_applied):
