@@ -345,15 +345,22 @@ def _literal(value: Any, *, dotted: str = "", key: str = "") -> str:
         except (OSError, ValueError):
             pass
         else:
-            package_parts = ("spacr", "resources", *relative.parts[:-1])
-            package = ".".join(package_parts)
-            filename = relative.name
+            # ``spacr/resources`` intentionally contains data directories,
+            # not import packages.  Python 3.9's ``importlib.resources``
+            # fallback can also see ``spec.origin is None`` for an editable
+            # installation of the parent package.  Anchor at the package's
+            # concrete search path instead; wheels are installed as ordinary
+            # directories, so this works in source and installed checkouts on
+            # every supported Python.
+            resource_parts = ("resources", *relative.parts)
+            joined = ", ".join(repr(part) for part in resource_parts)
             # Keep package data portable across source checkouts, wheels and
             # hosted CI instead of baking the developer's absolute path into
             # a committed notebook.
             return (
-                "str(__import__('importlib.resources', fromlist=['files'])"
-                f".files({package!r}).joinpath({filename!r}))"
+                "str(__import__('pathlib').Path(next(iter("
+                "__import__('spacr').__path__))).joinpath("
+                f"{joined}))"
             )
     try:
         if ast.literal_eval(repr(value)) == value:

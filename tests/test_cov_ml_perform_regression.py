@@ -550,22 +550,19 @@ def test_min_cell_count_none_is_filled_from_the_simulation(screen, stubs):
 def test_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
         screen, stubs, monkeypatch):
     """fraction_threshold=None delegates the cutoff to graph_sequencing_stats."""
-    import importlib
-
     from spacr.ml import perform_regression
-    # Resolve the canonical module object from sys.modules.  ``spacr`` has a
-    # lazy package attribute for this module, and tests that exercise lazy
-    # reloads can leave that attribute pointing at an older module object.
-    # Patching the canonical import is the lookup perform_regression uses.
-    SQ = importlib.import_module("spacr.sequencing")
-
     seen = []
 
     def fake_stats(settings):
         seen.append(settings["count_data"])
         return 0.004
 
-    monkeypatch.setattr(SQ, "graph_sequencing_stats", fake_stats)
+    # Patch the callable's actual global. Package lazy-loader tests can replace
+    # ``spacr.sequencing`` in sys.modules while this already-imported function
+    # still resolves names from its original module object.
+    monkeypatch.setitem(
+        perform_regression.__globals__, "_graph_sequencing_stats", fake_stats,
+    )
 
     settings = base_settings(screen, fraction_threshold=None)
     perform_regression(settings)

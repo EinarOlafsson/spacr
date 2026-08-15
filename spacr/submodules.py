@@ -2019,29 +2019,37 @@ def analyze_endodyogeny(settings):
         bins = [min_volume_bin * (2 ** i) for i in range(n_edges)]
         bins = sorted(set(bins))
 
-        # Ensure the last edge exceeds the data maximum so nothing is clipped
-        if bins[-1] <= max_volume:
+        # Python/NumPy versions can evaluate the vectorised ``area ** 1.5``
+        # one ULP below the mathematically identical scalar bin edge.  Treat
+        # only machine-precision neighbours as the same boundary; otherwise
+        # an object exactly on a doubling edge changes bins across supported
+        # Python versions.
+        edge_rtol = 1e-12
+
+        # Ensure the last edge exceeds the data maximum so nothing is clipped.
+        # ``isclose`` matters when vectorised and scalar exponentiation land
+        # on opposite sides of the same representable edge.
+        if bins[-1] <= max_volume or np.isclose(
+                bins[-1], max_volume, rtol=edge_rtol, atol=0.0):
             bins.append(bins[-1] * 2)
 
         bin_labels = [f"{bins[i]:.2f}-{bins[i+1]:.2f}" for i in range(len(bins) - 1)]
 
-        # NumPy/pandas versions do not all round ``area ** 1.5`` at the
-        # same last bit as ``min_area ** 1.5 * 2**n``.  A value exactly on a
-        # theoretical doubling edge could consequently fall into the lower
-        # bin on one supported Python stack and the upper bin on another.
-        # Snap only machine-precision neighbours to the authoritative edge;
-        # values meaningfully below it remain in the lower interval.
-        cut_values = df[volume_column].to_numpy(dtype=float, copy=True)
-        edge_tolerance = 16 * np.finfo(float).eps
-        for edge in bins:
-            on_edge = np.isclose(
-                cut_values, edge, rtol=edge_tolerance, atol=0.0,
-            )
-            cut_values[on_edge] = edge
-
         if verbose:
             print('Volume bins:', bins)
             print('Volume bin labels:', bin_labels)
+
+        # Snap numerical neighbours to the authoritative scalar edges before
+        # the left-closed cut.  Keep the reported volume untouched; this copy
+        # exists only to make boundary membership reproducible.
+        cut_values = df[volume_column].copy()
+        for edge in bins:
+            on_edge = np.isclose(
+                cut_values.to_numpy(dtype=float), edge,
+                rtol=edge_rtol, atol=0.0,
+            )
+            if np.any(on_edge):
+                cut_values.loc[on_edge] = edge
 
         # Cut into bins; values outside the range become NaN
         df[bin_column] = pd.cut(

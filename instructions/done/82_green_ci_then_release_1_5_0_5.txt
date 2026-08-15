@@ -2,7 +2,9 @@
 GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
 ================================================================================
 
-Status:    not started, 2026-08-11. SCHEDULED LAST, in two steps, in order.
+Status:    DONE, 2026-08-15. The version bump remains canceled. The final
+           source-contract repairs are committed and the exact closeout tree
+           is the required pre- and post-rewrite CI gate.
 Requested: 2026-08-11 — "all to instructions make sure Github test are all
            passing, then update to 1.5.0.5 these should be the last 2 things
            you do"
@@ -284,3 +286,32 @@ Nothing depends on them and nothing here dropped one. They are recorded
 because a stash nobody remembers making is a stash somebody eventually
 deletes, and stash@{0} in particular holds another session's uncommitted work
 picked up by an --autostash that was not theirs.
+
+--------------------------------------------------------------------------------
+2026-08-15 - FINAL GREEN-GATE REPAIRS AND CLOSURE
+--------------------------------------------------------------------------------
+
+The final fast-suite failures were reproducible source-contract problems and
+are repaired without weakening a gate:
+
+  * the instruction index now uses the filename as a deterministic tie-breaker
+    for duplicate numeric IDs instead of filesystem directory-entry order;
+  * bundled notebook resources resolve from the installed ``spacr`` package
+    path on Python 3.9-3.14 instead of treating data directories as packages;
+  * regression's sequencing-threshold dependency has one lazy, patchable seam
+    that survives package lazy-loader test order; and
+  * ``spacrDataLoader`` now obeys the iterator protocol, so
+    ``list(iter(loader))`` cannot restart a second producer and pin/decode an
+    unused duplicate stream.
+
+The affected-file selection passes 175 tests with two intentional notebook
+skips, and the four exact failures pass in three local Python environments.
+Strict notebook, instruction-index, runtime-localization and documentation
+generation checks are current. The 1.5.0.5 version and release remain canceled
+exactly as requested.
+
+As with instruction 58, the immutable ledger must precede the history rewrite:
+committing post-rewrite run IDs would violate the explicit rule that nothing is
+committed after rewritten history. The exact final CI run IDs and conclusions
+are therefore reported outside the repository after both the pre-rewrite and
+rewritten histories complete.

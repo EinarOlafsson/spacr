@@ -227,13 +227,18 @@ def test_an_unrepresentable_default_is_flagged_not_silently_wrong():
     ast.parse(rendered)
 
 
-def test_bundled_resource_defaults_are_portable():
+def test_bundled_resource_defaults_are_portable(monkeypatch):
     """Generated notebooks must not contain the checkout that built them."""
+    import spacr
+
     tool = _tool()
     resource = REPO / "spacr" / "resources" / "data" / "barcodes_row.csv"
     rendered = tool._literal(str(resource))
     assert str(REPO) not in rendered
-    assert "importlib.resources" in rendered
+    assert "__path__" in rendered
+    # Editable Python 3.9 installs can expose this state; the old
+    # importlib.resources expression crashed while resolving ``spec.origin``.
+    monkeypatch.setattr(spacr, "__spec__", None)
     assert eval(rendered) == str(resource.resolve())
 
 
