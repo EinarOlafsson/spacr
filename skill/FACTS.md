@@ -7,7 +7,7 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **1.5.0.4**
-- branch: `codex/final-integration5` at `b78f3c07`
+- branch: `codex/instruction83-push` at `93842c70`
 - Python modules under `spacr/`: 342
 - of those under `spacr/qt/`: 198 (47 screens, 70 widgets)
 - test files: 798 (274 under `tests/qt/`)
