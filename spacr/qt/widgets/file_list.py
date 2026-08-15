@@ -1,0 +1,348 @@
+"""A settings widget for "one or more files": browse, drop, repeat.
+
+Several spaCR settings are lists of input paths -- ``score_data``,
+``count_data``, ``metadata_files``, ``grna_csv`` and friends. They used to
+render as a chip strip that the user typed absolute paths into, one character
+at a time, which is unusable for the four plate CSVs a screen actually has and
+silently accepted a path that did not exist.
+
+:class:`FilePathListWidget` replaces that with the two gestures people expect:
+
+* **Add files...** opens a file dialog with multi-selection enabled. Pressing
+  it again *appends*, so several sources can be gathered from different
+  folders in several trips rather than one impossible single selection.
+* **Dropping** files or folders anywhere on the widget adds them. A dropped
+  folder contributes its matching files, one directory level deep, sorted.
+
+Everything else follows from those: duplicates are refused, order is editable
+because a regression that reads ``plate1..plate4`` cares about it, missing
+paths are marked instead of being discovered at run time, and the value is a
+plain ``list[str]`` so the CLI, the settings CSV and the Qt panel all agree.
+"""
+
+from __future__ import annotations
+
+import os
+from typing import Any, Iterable, List, Sequence
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
+
+#: Extension groups offered in the dialog, by the kind of input a setting wants.
+FILE_KIND_FILTERS: dict[str, str] = {
+    "table": "Tables (*.csv *.tsv *.txt *.xlsx *.parquet);;CSV (*.csv);;"
+             "Excel (*.xlsx);;All files (*)",
+    "csv": "CSV (*.csv *.tsv *.txt);;All files (*)",
+    "image": "Images (*.tif *.tiff *.png *.jpg *.jpeg *.bmp *.czi *.lif *.nd2);;"
+             "All files (*)",
+    "model": "Models (*.pth *.pt *.ckpt *.h5 *.joblib *.pkl);;All files (*)",
+    "sequencing": "Reads (*.fastq *.fq *.fastq.gz *.fq.gz);;All files (*)",
+    "any": "All files (*)",
+}
+
+#: Extensions a dropped *folder* contributes, per kind. A folder dropped on a
+#: CSV setting must not add its PNGs.
+_KIND_EXTENSIONS: dict[str, tuple[str, ...]] = {
+    "table": (".csv", ".tsv", ".txt", ".xlsx", ".parquet"),
+    "csv": (".csv", ".tsv", ".txt"),
+    "image": (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp", ".czi",
+              ".lif", ".nd2"),
+    "model": (".pth", ".pt", ".ckpt", ".h5", ".joblib", ".pkl"),
+    "sequencing": (".fastq", ".fq", ".gz"),
+    "any": (),
+}
+
+
+class FilePathListWidget(QWidget):
+    """An ordered, de-duplicated list of input paths with picker and drop."""
+
+    value_changed = Signal()
+
+    def __init__(
+        self,
+        value: Any = None,
+        *,
+        kind: str = "table",
+        title: str = "Choose input files",
+        allow_folders: bool = True,
+        parent=None,
+    ):
+        super().__init__(parent)
+        self._kind = kind if kind in FILE_KIND_FILTERS else "any"
+        self._title = title
+        self._allow_folders = bool(allow_folders)
+        self._last_directory = ""
+
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(4)
+
+        self._list = QListWidget(self)
+        self._list.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self._list.setAlternatingRowColors(True)
+        self._list.setMinimumHeight(96)
+        self._list.setUniformItemSizes(True)
+        # The list itself must not swallow the drop before the widget sees it.
+        self._list.setAcceptDrops(False)
+        self._list.setDragDropMode(QAbstractItemView.NoDragDrop)
+        outer.addWidget(self._list)
+
+        self._hint = QLabel("Drop files or folders here, or use Add files…", self)
+        self._hint.setWordWrap(True)
+        self._hint.setProperty("role", "hint")
+        outer.addWidget(self._hint)
+
+        row = QHBoxLayout()
+        row.setSpacing(4)
+        self._add_files_button = QPushButton("Add files…", self)
+        self._add_files_button.setToolTip(
+            "Select one or more files. Press again to add more from another "
+            "folder — each press appends to the list.")
+        self._add_files_button.clicked.connect(self.pick_files)
+        row.addWidget(self._add_files_button)
+
+        if self._allow_folders:
+            self._add_folder_button = QPushButton("Add folder…", self)
+            self._add_folder_button.setToolTip(
+                "Add every matching file directly inside a folder.")
+            self._add_folder_button.clicked.connect(self.pick_folder)
+            row.addWidget(self._add_folder_button)
+        else:
+            self._add_folder_button = None
+
+        self._up_button = QPushButton("↑", self)
+        self._up_button.setToolTip("Move the selected file earlier in the list")
+        self._up_button.setMaximumWidth(30)
+        self._up_button.clicked.connect(lambda: self._move_selected(-1))
+        row.addWidget(self._up_button)
+
+        self._down_button = QPushButton("↓", self)
+        self._down_button.setToolTip("Move the selected file later in the list")
+        self._down_button.setMaximumWidth(30)
+        self._down_button.clicked.connect(lambda: self._move_selected(1))
+        row.addWidget(self._down_button)
+
+        self._remove_button = QPushButton("Remove", self)
+        self._remove_button.clicked.connect(self.remove_selected)
+        row.addWidget(self._remove_button)
+
+        self._clear_button = QPushButton("Clear", self)
+        self._clear_button.clicked.connect(self.clear)
+        row.addWidget(self._clear_button)
+        row.addStretch(1)
+        outer.addLayout(row)
+
+        self.setAcceptDrops(True)
+        self.set_value(value)
+
+    # ------------------------------------------------------------------ value
+
+    def set_value(self, value: Any) -> None:
+        """Replace the contents. Accepts None, a str, or any iterable."""
+        self._list.clear()
+        for path in self._coerce(value):
+            self._append(path)
+        self._refresh_hint()
+
+    def get_value(self) -> List[str]:
+        return [self._list.item(row).data(Qt.UserRole)
+                for row in range(self._list.count())]
+
+    # A settings CSV written before this widget existed can hold the literal
+    # placeholder 'list of paths'; it is not a path and must not become one.
+    _PLACEHOLDERS = {"list of paths", "none", "", "[]"}
+
+    @classmethod
+    def _coerce(cls, value: Any) -> List[str]:
+        if value is None:
+            return []
+        if isinstance(value, (str, bytes, os.PathLike)):
+            value = [value]
+        out: List[str] = []
+        for item in value:
+            if item is None:
+                continue
+            text = os.fspath(item) if isinstance(item, os.PathLike) else str(item)
+            text = text.strip().strip('"').strip("'")
+            if text.lower() in cls._PLACEHOLDERS:
+                continue
+            out.append(text)
+        return out
+
+    # ------------------------------------------------------------------- edit
+
+    def add_paths(self, paths: Iterable[Any]) -> int:
+        """Append ``paths``, expanding folders. Returns how many were added."""
+        added = 0
+        for raw in self._coerce(paths):
+            expanded = os.path.abspath(os.path.expanduser(raw))
+            if os.path.isdir(expanded):
+                for member in self._folder_members(expanded):
+                    added += int(self._append(member))
+            else:
+                added += int(self._append(expanded))
+        if added:
+            self._refresh_hint()
+            self.value_changed.emit()
+        return added
+
+    def _folder_members(self, folder: str) -> List[str]:
+        """Matching files one level inside ``folder``, sorted for stable order."""
+        extensions = _KIND_EXTENSIONS.get(self._kind, ())
+        try:
+            names = sorted(os.listdir(folder))
+        except OSError:
+            return []
+        members = []
+        for name in names:
+            full = os.path.join(folder, name)
+            if not os.path.isfile(full):
+                continue
+            if extensions and not name.lower().endswith(extensions):
+                continue
+            members.append(full)
+        return members
+
+    def _append(self, path: str) -> bool:
+        """Add one path unless it is already listed. Returns True if added."""
+        resolved = os.path.abspath(os.path.expanduser(str(path)))
+        if resolved in set(self.get_value()):
+            return False
+        item = QListWidgetItem(self._display_text(resolved))
+        item.setData(Qt.UserRole, resolved)
+        if os.path.exists(resolved):
+            item.setToolTip(resolved)
+        else:
+            # Marked, not dropped: a settings file may legitimately be edited
+            # on one machine and run on another, and silently discarding the
+            # path would leave the user staring at an empty list.
+            item.setToolTip(f"{resolved}\n\nThis path does not exist right now.")
+            item.setForeground(Qt.red)
+        self._list.addItem(item)
+        return True
+
+    @staticmethod
+    def _display_text(path: str) -> str:
+        """Basename plus enough parent to tell four plate CSVs apart."""
+        parent = os.path.basename(os.path.dirname(path))
+        name = os.path.basename(path)
+        return f"{parent}/{name}" if parent else name
+
+    def remove_selected(self) -> None:
+        rows = sorted((self._list.row(item) for item in self._list.selectedItems()),
+                      reverse=True)
+        for row in rows:
+            self._list.takeItem(row)
+        if rows:
+            self._refresh_hint()
+            self.value_changed.emit()
+
+    def clear(self) -> None:
+        if self._list.count():
+            self._list.clear()
+            self._refresh_hint()
+            self.value_changed.emit()
+
+    def _move_selected(self, offset: int) -> None:
+        """Move the single selected row by ``offset``, keeping it selected."""
+        items = self._list.selectedItems()
+        if len(items) != 1:
+            return
+        row = self._list.row(items[0])
+        target = row + offset
+        if not 0 <= target < self._list.count():
+            return
+        item = self._list.takeItem(row)
+        self._list.insertItem(target, item)
+        self._list.setCurrentRow(target)
+        self.value_changed.emit()
+
+    def _refresh_hint(self) -> None:
+        count = self._list.count()
+        missing = sum(
+            1 for row in range(count)
+            if not os.path.exists(self._list.item(row).data(Qt.UserRole))
+        )
+        if not count:
+            self._hint.setText("Drop files or folders here, or use Add files…")
+        elif missing:
+            self._hint.setText(
+                f"{count} file{'s' if count != 1 else ''} selected — "
+                f"{missing} not found (shown in red)")
+        else:
+            self._hint.setText(
+                f"{count} file{'s' if count != 1 else ''} selected")
+
+    # -------------------------------------------------------------- drag/drop
+
+    @staticmethod
+    def _urls(event) -> List[str]:
+        mime = event.mimeData()
+        if not mime.hasUrls():
+            return []
+        return [url.toLocalFile() for url in mime.urls() if url.isLocalFile()]
+
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:  # noqa: N802
+        if self._urls(event):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:  # noqa: N802
+        if self._urls(event):
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event: QDropEvent) -> None:  # noqa: N802
+        paths = self._urls(event)
+        if not paths:
+            event.ignore()
+            return
+        self.add_paths(paths)
+        event.acceptProposedAction()
+
+    # ----------------------------------------------------------------- picker
+
+    def pick_files(self) -> int:
+        """Open a multi-select dialog and append whatever is chosen."""
+        paths, _selected = QFileDialog.getOpenFileNames(
+            self, self._title, self._start_directory(),
+            FILE_KIND_FILTERS[self._kind])
+        if not paths:
+            return 0
+        self._last_directory = os.path.dirname(paths[0])
+        return self.add_paths(paths)
+
+    def pick_folder(self) -> int:
+        folder = QFileDialog.getExistingDirectory(
+            self, f"{self._title} — choose a folder", self._start_directory())
+        if not folder:
+            return 0
+        self._last_directory = folder
+        return self.add_paths([folder])
+
+    def _start_directory(self) -> str:
+        """Reopen where the user last was, or beside the last file added."""
+        if self._last_directory and os.path.isdir(self._last_directory):
+            return self._last_directory
+        values = self.get_value()
+        if values:
+            parent = os.path.dirname(values[-1])
+            if os.path.isdir(parent):
+                return parent
+        return ""
+
+
+__all__ = ["FilePathListWidget", "FILE_KIND_FILTERS"]
