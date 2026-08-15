@@ -77,6 +77,11 @@ DEFAULT_SEARCH_SPACE: dict[str, list] = {
         "ols", "wls", "rlm", "glm", "poisson", "quasi_binomial", "beta",
         "logit", "probit", "quantile", "lasso", "ridge", "elasticnet",
     ],
+    # 'auto' cross-validates the penalty. The literal 1 is spaCR's default and
+    # is far larger than the scale of a fraction design -- it shrinks every
+    # coefficient to exactly zero -- so sweeping only the default would report
+    # the three penalised families as uniformly useless.
+    "alpha": ["auto", 1],
     "inference": ["parametric", "nonparametric"],
     # --- what one observation is -------------------------------------------
     "analysis_unit": ["well", "cell"],
@@ -167,9 +172,21 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
                     "fit row/column effects")
         return None
 
+    def penalty_belongs_to_penalised_families(trial):
+        # alpha is refused outright by every family that cannot read it, so
+        # sweeping it against them would turn one axis into a wall of
+        # identical rejections.
+        if trial.get("alpha") not in (None, 1) and \
+                trial.get("regression_type") not in (
+                    "lasso", "ridge", "elasticnet", "hinge"):
+            return (f"alpha is only read by the penalised families, not "
+                    f"{trial.get('regression_type')!r}")
+        return None
+
     return [mixed_replaces_the_backend, aggregation_belongs_to_wells,
             quantile_needs_its_own_unit, permutation_ignores_the_family,
-            permutation_has_no_row_column_terms]
+            permutation_has_no_row_column_terms,
+            penalty_belongs_to_penalised_families]
 
 
 def build_trials(space: SearchSpace, *, mode: str = "grid",
@@ -296,11 +313,128 @@ def _count_hits(output: Mapping[str, Any]) -> dict:
     return counts
 
 
+def _trial_settings(base_settings, trial, destination):
+    """Build one trial's settings dict and its own output folder."""
+    settings = dict(base_settings)
+    settings.update({k: v for k, v in trial.items() if k != "trial_id"})
+    folder = os.path.join(destination, f"trial_{trial['trial_id']:04d}")
+    os.makedirs(folder, exist_ok=True)
+    settings["src"] = folder
+    settings.setdefault("verbose", False)
+    settings.setdefault("toxo", False)
+    return settings, folder
+
+
+def _execute_trial(payload):
+    """Run one trial in this process and return its summary row.
+
+    Module level and argument-only, so it can be pickled to a worker. Each
+    worker imports spaCR itself: ``perform_regression`` pulls in torch and
+    matplotlib, and a forked copy of those is not safe to reuse.
+    """
+    base_settings, trial, destination, controls = payload
+    from .ml import perform_regression
+
+    settings, folder = _trial_settings(base_settings, trial, destination)
+    row = {"trial_id": trial["trial_id"], "folder": folder,
+           "preparation_key": _preparation_key(settings)}
+    row.update({k: v for k, v in trial.items() if k != "trial_id"})
+    began = time.time()
+    try:
+        output = perform_regression(settings)
+        row["status"] = "ok"
+        if isinstance(output, Mapping):
+            row.update(_count_hits(output))
+            results = output.get("results")
+            if isinstance(results, pd.DataFrame):
+                row.update(_named_control_rows(results, controls))
+    except BaseException as error:  # noqa: BLE001 - a failed trial is a result
+        row["status"] = "failed"
+        row["error_type"] = type(error).__name__
+        row["error"] = str(error).splitlines()[0][:300] if str(error) else ""
+        try:
+            with open(os.path.join(folder, "error.txt"), "w",
+                      encoding="utf-8") as handle:
+                handle.write(traceback.format_exc())
+        except OSError:
+            pass
+    row["seconds"] = round(time.time() - began, 2)
+    return row
+
+
+def run_search_parallel(base_settings: Mapping[str, Any], destination,
+                        space: "SearchSpace | None" = None, *,
+                        mode: str = "random", max_trials: int = 1000,
+                        seed: int = 0,
+                        controls: Mapping[str, str] | None = None,
+                        n_jobs: int = 8,
+                        progress_every: int = 25) -> pd.DataFrame:
+    """Run the sweep across processes, writing results as they land.
+
+    One trial takes the better part of a minute on a real screen -- the cost
+    is reading and joining the inputs, which is per-process work with no
+    shared state -- so trials are embarrassingly parallel. Results are written
+    after each completion, so a killed sweep still leaves a usable table.
+
+    The adaptive skip that :func:`run_search` uses is deliberately absent
+    here: it depends on the order failures are observed in, which is not
+    deterministic across workers, and a reproducible trial list matters more
+    than the trials it would save.
+    """
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+    import multiprocessing
+
+    space = space or SearchSpace()
+    if not space.filters:
+        space.filters = _default_filters()
+    controls = dict(controls or {})
+    destination = os.path.abspath(os.path.expanduser(os.fspath(destination)))
+    os.makedirs(destination, exist_ok=True)
+
+    trials = build_trials(space, mode=mode, max_trials=max_trials, seed=seed)
+    with open(os.path.join(destination, "search_trials.json"), "w",
+              encoding="utf-8") as handle:
+        json.dump(trials, handle, indent=2, default=str)
+    print(f"[search] {len(trials)} trials across {n_jobs} workers", flush=True)
+
+    payloads = [(dict(base_settings), trial, destination, controls)
+                for trial in trials]
+    rows: list[dict] = []
+    started = time.time()
+    results_path = os.path.join(destination, "search_results.csv")
+    # 'spawn', not the default fork: perform_regression imports torch, and a
+    # forked child that inherits a torch/OpenMP runtime deadlocks or segfaults
+    # rather than failing cleanly.
+    context = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=n_jobs, mp_context=context) as pool:
+        futures = {pool.submit(_execute_trial, payload): payload[1]["trial_id"]
+                   for payload in payloads}
+        for done, future in enumerate(as_completed(futures), start=1):
+            try:
+                rows.append(future.result())
+            except Exception as error:  # noqa: BLE001 - a dead worker is a row
+                rows.append({"trial_id": futures[future], "status": "failed",
+                             "error_type": type(error).__name__,
+                             "error": str(error)[:300], "seconds": 0.0})
+            if progress_every and done % progress_every == 0:
+                elapsed = time.time() - started
+                remaining = elapsed / done * (len(trials) - done)
+                ok = sum(1 for row in rows if row.get("status") == "ok")
+                print(f"[search] {done}/{len(trials)} done, {ok} ok, "
+                      f"{elapsed / 60:.1f} min elapsed, "
+                      f"~{remaining / 60:.1f} min left", flush=True)
+            pd.DataFrame(rows).sort_values("trial_id").to_csv(
+                results_path, index=False)
+
+    return pd.DataFrame(rows).sort_values("trial_id").reset_index(drop=True)
+
+
 def run_search(base_settings: Mapping[str, Any], destination,
                space: SearchSpace | None = None, *,
                mode: str = "grid", max_trials: int = 5000, seed: int = 0,
                controls: Mapping[str, str] | None = None,
                progress_every: int = 10,
+               learn_from_failures: int = 2,
                runner: Callable | None = None) -> pd.DataFrame:
     """Run every trial and return one tidy row per trial.
 
@@ -331,7 +465,28 @@ def run_search(base_settings: Mapping[str, Any], destination,
 
     rows: list[dict] = []
     started = time.time()
+    # A family that cannot fit this response fails the same way every time --
+    # 'poisson' needs integer counts, and a fractional score will never become
+    # one. Sampling would rediscover that hundreds of times at full cost, so
+    # after `learn_from_failures` identical failures the family is skipped and
+    # RECORDED as skipped. The finding is kept; only the repetition is
+    # dropped, and setting learn_from_failures=0 turns the shortcut off.
+    exhausted: dict[tuple, dict] = {}
     for index, trial in enumerate(trials, start=1):
+        signature = (trial.get("regression_type"), trial.get("inference"),
+                     trial.get("analysis_unit"), trial.get("alpha"))
+        known = exhausted.get(signature)
+        if learn_from_failures and known and \
+                known["count"] >= learn_from_failures:
+            rows.append({
+                "trial_id": trial["trial_id"], "folder": None,
+                **{k: v for k, v in trial.items() if k != "trial_id"},
+                "status": "skipped",
+                "error_type": known["error_type"],
+                "error": f"same failure as trial {known['first_trial']}",
+                "seconds": 0.0,
+            })
+            continue
         settings = dict(base_settings)
         settings.update({k: v for k, v in trial.items() if k != "trial_id"})
         folder = os.path.join(destination,
@@ -362,6 +517,10 @@ def run_search(base_settings: Mapping[str, Any], destination,
             with open(os.path.join(folder, "error.txt"), "w",
                       encoding="utf-8") as handle:
                 handle.write(traceback.format_exc())
+            record = exhausted.setdefault(
+                signature, {"count": 0, "error_type": row["error_type"],
+                            "first_trial": trial["trial_id"]})
+            record["count"] += 1
         row["seconds"] = round(time.time() - began, 2)
         rows.append(row)
 
