@@ -318,8 +318,26 @@ def tooltip_for(key: str, shape: str, docs: Dict[str, str]) -> str:
 # Rendering
 # ---------------------------------------------------------------------------
 
-def _literal(value: Any) -> str:
-    """Repr that round-trips, or a placeholder that is honest about it."""
+_DYNAMIC_LITERALS = {
+    # These factories deliberately size their worker pool from the current
+    # machine.  Committing the evaluated integer makes notebooks alternate
+    # between a workstation's 28/30 workers and a hosted runner's 1/2.  Keep
+    # the executable expression so the documented default remains truthful
+    # and regeneration is independent of the machine doing the check.
+    ("spacr.core.preprocess_generate_masks", "n_jobs"):
+        "max(1, (__import__('os').cpu_count() or 1) - 4)",
+    ("spacr.measure.measure_crop", "n_jobs"):
+        "max(1, (__import__('os').cpu_count() or 1) - 2)",
+    ("spacr.deep_spacr.deep_spacr", "n_jobs"):
+        "max(1, (__import__('os').cpu_count() or 1) - 4)",
+}
+
+
+def _literal(value: Any, *, dotted: str = "", key: str = "") -> str:
+    """Repr that round-trips, or a portable executable default expression."""
+    dynamic = _DYNAMIC_LITERALS.get((dotted, key))
+    if dynamic is not None:
+        return dynamic
     if isinstance(value, str):
         resource_root = REPO / "spacr" / "resources"
         try:
@@ -378,7 +396,8 @@ def render_cell(entries: List[Tuple[str, str, Dict[str, Any], Dict[str, str]]]
             if tip:
                 for wrapped in textwrap.wrap(tip, WRAP):
                     lines.append(f"    # {wrapped}")
-            lines.append(f"    {key!r}: {_literal(keys[key])},")
+            lines.append(
+                f"    {key!r}: {_literal(keys[key], dotted=dotted, key=key)},")
             lines.append("")
         if lines[-1] == "":
             lines.pop()

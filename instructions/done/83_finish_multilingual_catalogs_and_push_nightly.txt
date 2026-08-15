@@ -197,8 +197,8 @@ threshold was loosened, and the rejected OPUS Korean checkpoint was not used.
 Post-closure source sync, 2026-08-15: subsequent reviewed feature work added
 public model-explanation and hit-attribution contracts. All English and target
 artifacts were regenerated rather than leaving instruction 83's completed
-catalogs stale. The current exact inventory is 6,582 API records and 3,588
-runtime entries per locale (959 labels, 941 tooltips, 176 category explanations,
+catalogs stale. The current exact inventory is 6,582 API records and 3,598
+runtime entries per locale (959 labels, 944 tooltips, 183 category explanations,
 1,456 UI strings, and 56 module summaries); every installer remains 57/57.
 The strict documentation and runtime audits, source hashes, coverage report,
 frontend/loader checks, and Sphinx build were rerun at this expanded freeze.
@@ -238,9 +238,9 @@ VERIFIED
 * ``python tools/build_documentation_i18n.py --audit`` exits zero for all nine
   target catalogs at 6,582 symbols.
 * ``python tools/build_i18n_catalogs.py --audit`` exits zero for all nine target
-  catalogs at 959 labels, 941 tooltips, 176 categories, 1,456 UI strings, and
+  catalogs at 959 labels, 944 tooltips, 183 categories, 1,456 UI strings, and
   56 modules.
-* ``python tools/audit_i18n_coverage.py --write`` reports 3,588/3,588 runtime
+* ``python tools/audit_i18n_coverage.py --write`` reports 3,598/3,598 runtime
   entries, 57/57 installer strings, and 6,582/6,582 fresh API docstrings for
   every locale.
 * The combined parser, extractor, browser/frontend, runtime-loader, installer,
