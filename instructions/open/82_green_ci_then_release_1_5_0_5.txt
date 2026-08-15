@@ -266,3 +266,21 @@ STILL TRUE, and it is what stands between here and the release: the full
 six-fold rather than hanging, and two runs were killed at 66% and 83% by
 their own wall-clock caps. If CI runs tests/qt as one job it will meet the
 same wall.
+
+--------------------------------------------------------------------------------
+2026-08-15 - THREE STASHES ARE PARKED ON THIS MACHINE. READ BEFORE DROPPING.
+--------------------------------------------------------------------------------
+
+    stash@{0}  autostash from a rebase during the CI sweep. It conflicted on
+               tests/test_api_i18n_extractor.py, which is the concurrent
+               session's file, so the conflict was resolved by taking the
+               COMMITTED version and this stash was left intact rather than
+               forced. Whatever that session had in flight is in here.
+    stash@{1}  WIP on nightly at 2aaf1d37, from before this sweep.
+    stash@{2}  WIP on main, "DATA-06 database migrations before README
+               license work". Old.
+
+Nothing depends on them and nothing here dropped one. They are recorded
+because a stash nobody remembers making is a stash somebody eventually
+deletes, and stash@{0} in particular holds another session's uncommitted work
+picked up by an --autostash that was not theirs.
