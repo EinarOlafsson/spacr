@@ -39,7 +39,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from PySide6.QtCore import Signal, QEvent, QSize, Qt, QTimer
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
     QVBoxLayout, QWidget,
@@ -439,6 +439,12 @@ class FigureQueue(QWidget):
         #: :meth:`_request_pdf_refinement`.
         self._pdf_state: Dict[int, Any] = {}
         self._pdf_seq = 0
+        #: Newest live-preview render; older results are dropped on arrival.
+        self._preview_seq = 0
+        #: A preview draw is on a worker right now.
+        self._preview_busy = False
+        #: A change landed mid-draw and still needs to reach the picture.
+        self._preview_pending = False
         #: Set by the owning screen; see :meth:`set_propagate_callback`.
         self._propagate_cb = None
         self._build_ui()
@@ -615,6 +621,10 @@ class FigureQueue(QWidget):
         png = self._png_paths.get(self._current)
         if fig is None or not png:
             return False
+        if preview and self._render_preview_async(fig):
+            # The worker will deliver it; the picture on screen stays put for
+            # ~100 ms rather than the window freezing for that long.
+            return True
         pixmap = (self._render_preview(fig, Path(png)) if preview
                   else self._render_figure(fig, Path(png)))
         if pixmap is None:
@@ -991,6 +1001,131 @@ class FigureQueue(QWidget):
     #: Small enough to be instant, large enough to judge a legend or a colour
     #: by. The real render lands the moment the dialog closes.
     PREVIEW_MAX_PX = 1100
+
+    def _preview_target_px(self) -> float:
+        """Longest edge, in real device pixels, of the area showing the figure.
+
+        Rendering to a fixed cap and letting Qt scale the result up to the
+        view is what made a restyled figure look "super pixelated": the
+        preview was 1100 px, the view is larger than that on a normal screen,
+        and the difference was made up by interpolation. Rendering at the size
+        it will actually be displayed costs no more and is sharp.
+        """
+        try:
+            size = self._view.size()
+            ratio = float(self._view.devicePixelRatioF() or 1.0)
+            longest = max(size.width(), size.height()) * ratio
+            # A sane floor for a view that has not been laid out yet, and a
+            # ceiling so a maximised 4K window does not ask for a 6000 px draw.
+            return float(min(max(longest, 600.0), 2400.0))
+        except Exception:  # pragma: no cover - headless
+            return float(self.PREVIEW_MAX_PX)
+
+    def _render_preview_async(self, fig) -> bool:
+        """Draw the live preview on a worker thread. True if it was started.
+
+        An Agg draw of the volcano is ~110 ms, of which the 27-entry legend
+        alone is ~63 ms, and none of that gets cheaper by lowering the
+        resolution -- the cost is text layout and marker-path geometry, not
+        pixels. Run on the GUI thread it is felt as lag on every single
+        control change no matter how it is debounced.
+
+        Agg releases the GIL while it draws, so the same work on a worker
+        thread stalls the GUI by ~1 ms over idle. The figure is copied first
+        because the user goes on moving controls while the worker draws, and
+        mutating a figure mid-draw is a crash rather than a glitch; the copy
+        costs ~14 ms, which is inside a frame.
+
+        :returns: False if the figure could not be copied, in which case the
+            caller should fall back to rendering synchronously.
+        """
+        import pickle
+
+        # One draw in flight at a time. The copy is cheap but not free, and a
+        # worker per control change would spend the interaction copying
+        # figures whose renders are stale before they land. A change arriving
+        # mid-draw is remembered and drawn once, from the figure as it stands
+        # when the worker frees up.
+        if self._preview_busy:
+            self._preview_pending = True
+            return True
+
+        try:
+            blob = pickle.dumps(fig)
+        except Exception as error:  # noqa: BLE001 - artists may not pickle
+            LOG.debug("figure will not copy, rendering inline: %s", error)
+            return False
+
+        self._preview_busy = True
+        self._preview_seq += 1
+        token = self._preview_seq
+        target = self._preview_target_px()
+        facecolor = fig.get_facecolor()
+
+        # Runs on a worker thread: it touches no widget and no member of this
+        # object, and returns a QImage because QPixmap is GUI-thread-only.
+        def work(_blob=blob, _target=target, _token=token,
+                 _idx=self._current, _face=facecolor):
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+            copy = pickle.loads(_blob)
+            longest = max(copy.get_size_inches()) or 1.0
+            copy.set_dpi(max(min(_target / longest, 300.0), 30.0))
+            copy.patch.set_facecolor(_face)
+            canvas = FigureCanvasAgg(copy)
+            canvas.draw()
+            width, height = canvas.get_width_height()
+            # .copy() detaches from the canvas buffer, which is freed with it.
+            image = QImage(canvas.buffer_rgba(), width, height,
+                           QImage.Format_RGBA8888).copy()
+            return (_idx, _token, image)
+
+        self._jobs.submit(work, self._on_preview_rendered)
+        return True
+
+    def _on_preview_rendered(self, payload) -> None:
+        """Show a finished preview. Always on the GUI thread.
+
+        Only the newest render is shown: the user keeps changing controls
+        while a draw is in flight, so earlier results are stale by the time
+        they land and painting them would make the figure flicker backwards.
+        """
+        self._preview_busy = False
+        # PAINT BEFORE STARTING THE NEXT ONE. Starting it first bumps the
+        # sequence, and this payload -- freshly drawn, perfectly good -- would
+        # then be discarded as stale by its own successor, so a continuous
+        # drag would show nothing at all until the user stopped moving.
+        self._paint_preview(payload)
+
+        # Whatever changed while this was drawing still has to reach the
+        # picture, and now there is a free worker to draw it.
+        if self._preview_pending:
+            self._preview_pending = False
+            pending = self.figure_for(self._current)
+            if pending is not None:
+                self._render_preview_async(pending)
+
+    def _paint_preview(self, payload) -> None:
+        """Put a finished preview on screen, if it is still the current one."""
+        if not isinstance(payload, tuple) or len(payload) != 3:
+            return
+        idx, token, image = payload
+        if token != self._preview_seq or idx != self._current:
+            return
+        if image is None or image.isNull():
+            return
+        pixmap = QPixmap.fromImage(image)
+        if pixmap.isNull():
+            return
+        self._cache_pixmap(idx, pixmap)
+        # A refinement started before this restyle would repaint the OLD
+        # picture over the new one when it lands.
+        self._pdf_state.pop(idx, None)
+        self._view.set_pixmap(pixmap)
+        item = self._list.item(idx)
+        if item is not None:
+            item.setIcon(QIcon(pixmap.scaled(
+                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
 
     def _render_preview(self, fig, png_path: Path) -> Optional[QPixmap]:
         """A fast raster for live restyling: no vector page, capped size.

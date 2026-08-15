@@ -134,10 +134,11 @@ def _series_of(axis):
 class FigureSettingsDialog(QDialog):
     """Every appearance control the given figure can support."""
 
-    #: Milliseconds of quiet before a restyle is actually drawn. Dragging a
-    #: spin box emits a value per step; re-rendering each one froze the app,
-    #: because a render rewrites the raster AND the vector page.
-    REDRAW_DELAY_MS = 220
+    #: Milliseconds of quiet before a restyle is drawn. Short, because the
+    #: draw now happens on a worker thread and costs the GUI thread ~10 ms --
+    #: inside a frame -- so there is nothing left to hide behind a long delay.
+    #: It was 220 ms when the render blocked, and that still felt like lag.
+    REDRAW_DELAY_MS = 60
 
     def __init__(self, figure, parent=None, *, on_change: Optional[Callable] = None):
         super().__init__(parent)
