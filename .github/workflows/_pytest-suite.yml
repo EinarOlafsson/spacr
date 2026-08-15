@@ -129,11 +129,19 @@ jobs:
           python -m pytest tests/ \
             -m '${{ inputs.marker_expression }}' \
             --ignore=tests/test_perf_guard.py \
+            --ignore=tests/qt/test_gui_responsiveness.py \
+            --ignore=tests/qt/test_home_stage_and_dock.py \
             "${xdist_args[@]}" -v --tb=short
           if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
-            # This file measures one process's resident memory. Running it
-            # beside three multi-GB Qt workers measures runner contention,
-            # not the launch path, so keep its two Qt checks serial.
-            python -m pytest tests/test_perf_guard.py \
+            # These files measure process-local memory, event-loop latency,
+            # and real hover pixels. Running them beside three multi-GB Qt
+            # workers measures scheduler contention and races the offscreen
+            # platform's shared synthetic cursor, not the product contracts.
+            # Keep all three measurement suites serial on the same clean
+            # runner after the parallel functional suite has exited.
+            python -m pytest \
+              tests/test_perf_guard.py \
+              tests/qt/test_gui_responsiveness.py \
+              tests/qt/test_home_stage_and_dock.py \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi
