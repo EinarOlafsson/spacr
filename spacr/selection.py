@@ -161,10 +161,12 @@ OBJECT_TYPE_COLUMN: str = schema.OBJECT_TYPE_KEY
 #: plate in a database they already have. ``%`` has to be escaped too or the
 #: escape is not reversible — a plate literally named ``p%5Fx`` would collide
 #: with a plate named ``p_x``.
-_KEY_ESCAPES: Tuple[Tuple[str, str], ...] = (
-    ("%", "%25"),
-    (schema.KEY_SEPARATOR, "%5F"),
-)
+#:
+#: The table itself now lives in :data:`spacr.schema.KEY_ESCAPES`, because
+#: ``schema._sanitise_token`` needs the same one for the same reason, and two
+#: copies of an escape table are two escape tables that eventually disagree.
+#: Kept under the old private name so every use below is unchanged.
+_KEY_ESCAPES: Tuple[Tuple[str, str], ...] = schema.KEY_ESCAPES
 
 
 def with_object_type(df: pd.DataFrame, object_type: Any) -> pd.DataFrame:

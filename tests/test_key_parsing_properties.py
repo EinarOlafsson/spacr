@@ -906,16 +906,6 @@ def test_a_percent_in_an_identifier_is_the_one_key_that_is_respelled():
     assert len(set(keys)) == 2
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema, unfixed): _sanitise_token merges two distinct '
-    'tokens. It replaces the key separator with "-" so a preserved token '
-    'cannot add a component to the key, but that maps field "a_b" and field '
-    '"a-b" onto one id, "fa-b". Two fields go in and one comes out -- the '
-    'exact failure this module exists to end, reached by the escape hatch '
-    'instead of by _safe_int_convert. It only fires on the tier-2 path (a '
-    'token holding no integer), which is already QC-visible, so the blast '
-    'radius is small; the repair is a reversible escape (percent-encode the '
-    'separator) or refusing the token outright rather than a lossy one.'))
 @given(left=st.text(alphabet='ab', min_size=1, max_size=3),
        right=st.text(alphabet='ab', min_size=1, max_size=3))
 def test_sanitising_a_token_does_not_merge_two_fields(left, right):
