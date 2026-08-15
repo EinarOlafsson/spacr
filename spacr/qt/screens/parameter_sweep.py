@@ -190,10 +190,46 @@ def _make_screen(app_key=None, host=None):
             self.progress.setVisible(False)
             right_layout.addWidget(self.progress)
             self.table = QTableWidget(0, 0, right)
+            # CLICK A ROW TO GET THAT REGRESSION BACK.
+            #
+            # A sweep row carries every setting its trial was given, so it is
+            # enough to reproduce the trial exactly. Running it here rather
+            # than opening the saved page matters: these come back as live
+            # matplotlib Figures, so they land in the figure queue below and
+            # can be restyled -- thresholds, colours, legend, axis limits --
+            # which is the whole reason for looking at a condition again.
+            self.table.setSelectionBehavior(QTableWidget.SelectRows)
+            self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+            self.table.setSortingEnabled(True)
+            self.table.doubleClicked.connect(self._on_row_activated)
+            self.table.setToolTip(
+                "Double-click a row to re-run that trial and draw its "
+                "figures below. They are live figures: right-click one to "
+                "restyle it.")
             right_layout.addWidget(self.table, 1)
+
+            row_buttons = QHBoxLayout()
             self.refresh_button = QPushButton("Refresh results", right)
             self.refresh_button.clicked.connect(self.load_results)
-            right_layout.addWidget(self.refresh_button)
+            row_buttons.addWidget(self.refresh_button)
+            self.show_button = QPushButton("Show figures for selected row",
+                                           right)
+            self.show_button.clicked.connect(self._on_row_activated)
+            self.show_button.setEnabled(False)
+            row_buttons.addWidget(self.show_button, 1)
+            right_layout.addLayout(row_buttons)
+            self.table.itemSelectionChanged.connect(
+                lambda: self.show_button.setEnabled(
+                    self.table.currentRow() >= 0))
+
+            self.trial_status = QLabel("", right)
+            self.trial_status.setWordWrap(True)
+            right_layout.addWidget(self.trial_status)
+
+            from ..widgets.figure_queue import FigureQueue
+            self.figures = FigureQueue(parent=right)
+            self.figures.setMinimumHeight(320)
+            right_layout.addWidget(self.figures, 1)
             splitter.addWidget(right)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 2)
@@ -322,13 +358,95 @@ def _make_screen(app_key=None, host=None):
             self.status.setText(f"{len(frame)} trials recorded so far.")
             self._show(frame)
 
+        def _on_row_activated(self, *_args):
+            """Re-run the selected trial and show its figures, editable.
+
+            Off the GUI thread: this is a full regression, not a lookup. The
+            row keeps its own settings, so what comes back is that trial and
+            not a fresh one built from whatever the controls happen to say
+            now -- which is the point of being able to compare conditions.
+            """
+            if self._results is None or not len(self._results):
+                return
+            row_index = self.table.currentRow()
+            if row_index < 0:
+                return
+            # The table may be sorted, so trust the trial_id in the row
+            # rather than the table's row number.
+            key_item = self.table.item(row_index, 0)
+            frame = self._results
+            record = None
+            if key_item is not None and "trial_id" in frame.columns:
+                try:
+                    match = frame[frame["trial_id"].astype(str)
+                                  == key_item.text()]
+                    if len(match):
+                        record = match.iloc[0].to_dict()
+                except Exception:
+                    record = None
+            if record is None and row_index < len(frame):
+                record = frame.iloc[row_index].to_dict()
+            if record is None:
+                return
+            if str(record.get("status", "ok")) != "ok":
+                QMessageBox.information(
+                    self, "That trial failed",
+                    "This trial did not produce a regression:\n\n"
+                    f"{record.get('error_type', '')}: "
+                    f"{record.get('error', 'no reason recorded')}")
+                return
+
+            base = self.base_settings()
+            self.show_button.setEnabled(False)
+            self.trial_status.setText(
+                f"Running trial {record.get('trial_id', '?')} again to draw "
+                f"its figures…")
+
+            def job():
+                from ...parameter_sweep import rerun_trial
+                return rerun_trial(base, record)
+
+            self._runner.submit(job, self._trial_figures_ready)
+
+        def _trial_figures_ready(self, payload):
+            """Put a re-run trial's figures on screen. On the GUI thread."""
+            self.show_button.setEnabled(self.table.currentRow() >= 0)
+            if not isinstance(payload, dict):
+                self.trial_status.setText(
+                    "That trial did not come back. See the console.")
+                return
+            figures = payload.get("figures") or []
+            for figure in figures:
+                try:
+                    self.figures.add_figure(figure)
+                except Exception:
+                    pass
+            settings = payload.get("settings") or {}
+            described = ", ".join(
+                f"{key}={settings.get(key)!r}" for key in (
+                    "regression_type", "inference", "analysis_unit",
+                    "multiple_testing_method", "min_cell_count",
+                    "fraction_threshold") if key in settings)
+            self.trial_status.setText(
+                f"{len(figures)} figure(s) from {described or 'that trial'}. "
+                f"Right-click a figure to restyle it."
+                if figures else
+                "That trial produced no figures.")
+
         def _show(self, frame):
             # The columns worth reading first, when they exist. The rest are
             # still in the CSV; this is a view, not a filter.
+            # Settings first, then WHAT WENT IN, then what came out. A hit
+            # count means little without the size of the design it came from:
+            # two trials differing only by a filtration cutoff can fit
+            # completely different data.
             preferred = [c for c in (
                 "trial_id", "status", "regression_type", "inference",
                 "analysis_unit", "agg_type", "transform",
-                "multiple_testing_method", "n_below_alpha", "positive_rank",
+                "multiple_testing_method", "fdr_alpha",
+                "fraction_threshold", "min_cell_count",
+                "n_wells", "n_guides", "n_cells", "n_rows_fitted",
+                "n_results", "n_below_alpha", "positive_rank",
                 "seconds", "error_type") if c in frame.columns]
             columns = preferred or list(frame.columns)[:12]
             self.table.setColumnCount(len(columns))
