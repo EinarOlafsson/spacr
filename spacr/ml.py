@@ -66,6 +66,17 @@ if not (sys.platform.startswith(('win', 'darwin')) or os.environ.get('DISPLAY'))
 import warnings
 
 
+def _graph_sequencing_stats(settings):
+    """Resolve the sequencing threshold helper through one testable seam."""
+    # Keep this lazy to avoid expanding ml.py's already-heavy import graph,
+    # while giving callers and tests a stable dependency boundary. Importing
+    # the helper directly inside perform_regression made it impossible to
+    # substitute reliably after package lazy-loader tests replaced a module
+    # object in sys.modules.
+    from .sequencing import graph_sequencing_stats
+    return graph_sequencing_stats(settings)
+
+
 def _run_random_state(default=None):
     """Return the active run's seed, for an estimator's ``random_state=``.
 
@@ -2614,7 +2625,6 @@ def perform_regression(settings):
     from .utils import merge_regression_res_with_metadata, save_settings, correct_metadata
     from .settings import get_perform_regression_default_settings
     from .toxo import custom_volcano_plot, plot_gene_phenotypes, plot_gene_heatmaps
-    from .sequencing import graph_sequencing_stats
 
     def _perform_regression_read_data(settings):
 
@@ -3189,7 +3199,7 @@ def perform_regression(settings):
         display(dependent_df)
     
     if settings['fraction_threshold'] is None:
-        settings['fraction_threshold'] = graph_sequencing_stats(settings)
+        settings['fraction_threshold'] = _graph_sequencing_stats(settings)
 
     independent_df = process_reads(count_data_df, settings['fraction_threshold'], settings['plateID'], filter_column=filter_column, filter_value=filter_value)
         
