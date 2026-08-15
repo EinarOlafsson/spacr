@@ -77,6 +77,11 @@ def test_reusable_suite_auto_detects_resources_and_current_actions():
     assert "cuda_available" in workflow
     assert "endpoint_available" in workflow
     assert "NUMBA_CACHE_DIR" in workflow
+    # Qt collects the external-catalog fixed-point contract. Chinese source
+    # normalization is deliberately OpenCC-backed, so the reusable runner
+    # must provide the same audited normalizer as docs and release jobs.
+    assert "libopencc1.1" in workflow
+    assert "libopencc-data" in workflow
 
 
 def test_timelapse_does_not_download_btrack_data_during_collection():

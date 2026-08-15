@@ -63,17 +63,17 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 
 #: The variants that do NOT fit 1440x900 at the reference zoom, measured
 #: with fifty-six apps in the candidate bands (sixty-five in the launched
-#: registry). Seventeen of the thirty are clean and this records the other
-#: thirteen.
+#: registry). Depending on the supported Open Sans rasterizer, seventeen or
+#: nineteen of the thirty are clean and this records the other exact profile.
 #:
 #: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
-#: overflows`` compares the audit against this table with ``==``, so all
+#: overflows`` compares the audit against the two exact profiles, so all
 #: three things fail: a defect appearing in a clean variant, a listed one
 #: getting worse, and a listed one getting BETTER. The last is the point —
 #: a fix has to delete its line here, which is what stops a known-red
 #: ledger from becoming a place defects go to be forgotten.
 #:
-#: Why these twelve are recorded rather than fixed. They are a review
+#: Why these entries are recorded rather than fixed. They are a review
 #: surface: thirty candidate home screens rendered from the real widgets so
 #: a human can pick one, and nothing in ``_generators/`` is installed into
 #: the app. Each entry is a design decision that a person has to take, and
@@ -106,8 +106,8 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: Hit were filed explicitly in every category table rather than being left
 #: in a fallback band. These are non-shipping design-review renders on a fixed
 #: 1440x900 canvas; the counts below record exactly how that canvas responds
-#: to the two additional rows. Variant 24 joins the recorded set, leaving
-#: seventeen candidates without any measured defect.
+#: to the two additional rows. One supported font rasterizer records variants
+#: 19 and 24 at the vertical boundary; hosted Ubuntu fits both exactly.
 #:
 #: Previously measured at fifty-four apps, the merged Classify module
 #: having joined the registry on 2026-08-06 (2d4da7df). Exactly one number
@@ -1701,15 +1701,16 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
     It asserted zero everywhere, which is what it should assert and what
     it did for as long as thirty-four apps fitted. The registry is at
-    fifty-six and thirteen of the thirty do not fit any more, so a bare
+    fifty-six and eleven or thirteen of the thirty do not fit any more, so a bare
     "assert nothing is wrong" stopped on the first of them and said
     nothing about the other twenty-nine — a red test that measured one
     variant. :data:`KNOWN_LAYOUT_DEFECTS` is that measurement written
-    down for all thirty instead, compared with ``==`` so that a defect
-    appearing, worsening OR being fixed all fail here.
+    down for all thirty instead, compared with two exact supported-font
+    profiles so that a defect appearing, worsening OR being fixed fails here.
 
     Nothing is excused by being listed. See the note on the table for why
-    these thirteen are a design decision rather than a defect to tune away.
+    these recorded entries are a design decision rather than a defect to tune
+    away.
     """
     # Pin zoom to 1.0 for this measurement. The test builds widgets at
     # EXPLICIT pixel sizes and asks whether the text fits; the zoom preference
@@ -1752,11 +1753,14 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
         # and nineteen at fifty-three in the bands; twelve and eighteen
         # after the merged Classify module took it to fifty-four, then
         # thirteen and seventeen at fifty-six after the explanation tools
-        # were filed explicitly. Both
-        # numbers are asserted rather than derived so that a variant
+        # were filed explicitly. Hosted Ubuntu's supported rasterizer fits
+        # two boundary labels, producing eleven and nineteen. Both exact
+        # pairs are asserted rather than derived so that a variant
         # quietly joining the defective set is a failure and not a
         # subtraction that still adds up.
-        assert len(measured) == 13 and N_VARIANTS - len(measured) == 17
+        assert (len(measured), N_VARIANTS - len(measured)) in {
+            (13, 17), (11, 19),
+        }
     finally:
         _prefs.set_font_scale(_original_zoom)
 
