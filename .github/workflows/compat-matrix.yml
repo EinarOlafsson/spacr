@@ -532,7 +532,12 @@ jobs:
 
       - name: Full suite (informational, never decides)
         # Linux already runs this in tests.yml; running it again here would
-        # double the bill for no new information.
+        # double the bill for no new information.  The Windows sweep is
+        # intentionally expected to find failures.  Stop after 25 so an
+        # xdist worker lost to a native access violation cannot leave the
+        # surviving workers waiting until the 90-minute *job* timeout, whose
+        # cancellation bypasses both continue-on-error guards and makes this
+        # otherwise-informational matrix cell cancel the whole workflow.
         if: runner.os != 'Linux'
         continue-on-error: true
         shell: bash
@@ -547,7 +552,8 @@ jobs:
           python -m pytest tests/ \
             -m "not slow and not heavy" \
             --ignore=tests/test_perf_guard.py \
-            -n 3 --dist loadfile -q --no-header --tb=short
+            -n 3 --dist loadfile --maxfail=25 \
+            -q --no-header --tb=short
           python -m pytest tests/test_perf_guard.py \
             -m "not slow and not heavy" -q --no-header --tb=short
           python -m pytest tests/ \
