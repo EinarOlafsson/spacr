@@ -1007,8 +1007,13 @@ class FigureQueue(QWidget):
             longest = max(fig.get_size_inches()) or 1.0
             dpi = max(min(self.PREVIEW_MAX_PX / longest, 160.0), 40.0)
             buffer = BytesIO()
+            # NO bbox_inches='tight' HERE. It measures the tight box by doing a
+            # complete extra draw, which on the volcano is a flat ~125 ms on
+            # top of the ~150 ms render -- the single largest cost in the live
+            # path, and it buys only trimmed whitespace nobody is looking at
+            # mid-drag. The full render on dialog close still trims.
             fig.savefig(buffer, format="png", dpi=dpi,
-                        facecolor=fig.get_facecolor(), bbox_inches="tight")
+                        facecolor=fig.get_facecolor())
             pixmap = QPixmap()
             if pixmap.loadFromData(buffer.getvalue(), "PNG"):
                 return pixmap
