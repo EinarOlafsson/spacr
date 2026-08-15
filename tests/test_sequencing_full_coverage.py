@@ -1043,7 +1043,14 @@ def test_display_falls_back_to_a_no_op_when_IPython_is_unavailable(
         assert mod.display("anything", extra=1) is None
     finally:
         monkeypatch.undo()
-        importlib.reload(importlib.import_module("spacr.sequencing"))
+        restored = importlib.reload(importlib.import_module("spacr.sequencing"))
+        # Removing and re-importing a submodule updates the package attribute
+        # to the temporary module.  Restoring only ``sys.modules`` leaves two
+        # live module identities, so a later test can patch one while a
+        # function-level import reads the other.  Reunify both views here.
+        import spacr
+        spacr.sequencing = restored
+        assert spacr.sequencing is sys.modules["spacr.sequencing"]
 
 
 # ---------------------------------------------------------------------------
