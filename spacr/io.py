@@ -747,6 +747,7 @@ class spacrDataLoader(DataLoader):
         self._stop_signal = threading.Event()
         self._sentinel = object()
         self._error = None
+        self._iteration_active = False
         self.pin_memory = kwargs.get('pin_memory', False)
         atexit.register(self.cleanup)
 
@@ -801,6 +802,13 @@ class spacrDataLoader(DataLoader):
         Safe to call more than once (``list(iter(dl))`` calls it twice): any
         in-flight producer is stopped first, so the stream is never doubled.
         """
+        # ``list(iter(loader))`` calls ``iter`` twice: once explicitly and
+        # once inside ``list``. Iterators must return themselves without
+        # restarting while active, otherwise the abandoned first producer can
+        # decode/pin batches that are never yielded and the stream does twice
+        # the work. A fresh pass still starts after exhaustion or cleanup.
+        if self._iteration_active:
+            return self
         self.cleanup()
         self._stop_event = False
         self._stop_signal = threading.Event()
@@ -817,6 +825,7 @@ class spacrDataLoader(DataLoader):
             name="spacr-data-preloader",
         )
         self.thread.start()
+        self._iteration_active = True
         return self
 
     def __next__(self):
@@ -825,8 +834,10 @@ class spacrDataLoader(DataLoader):
         try:
             next_batch = self.batch_queue.get(timeout=60)
         except queue.Empty:
+            self._iteration_active = False
             raise StopIteration
         if next_batch is self._sentinel:
+            self._iteration_active = False
             if self._error is not None:
                 err, self._error = self._error, None
                 raise err
@@ -836,6 +847,7 @@ class spacrDataLoader(DataLoader):
 
     def cleanup(self):
         """Signal the preloader to stop and join the background thread."""
+        self._iteration_active = False
         self._stop_event = True
         stop_signal = getattr(self, '_stop_signal', None)
         if stop_signal is not None:
