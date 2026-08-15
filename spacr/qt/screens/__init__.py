@@ -12,7 +12,8 @@ plugin registrations, for the same reason.
 import logging as _logging
 
 for _module in ("data_manager", "pipeline_graph", "hit_list", "profiler",
-                "methods_export", "experiment_design", "qc_dashboard"):
+                "methods_export", "experiment_design", "qc_dashboard",
+                "volcano"):
     try:
         __import__(f"{__name__}.{_module}")
     except Exception:  # pragma: no cover - defensive, per-module

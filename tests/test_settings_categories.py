@@ -194,6 +194,12 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # The two readable front ends for choices that were previously side
+    # effects of other keys: `inference` selects analysis_mode (and 'auto'
+    # picks it from whether the design can support a simultaneous fit), and
+    # `analysis_unit` spells out the per-well/per-cell switch that agg_type
+    # used to make silently by being set to None.
+    "inference", "analysis_unit",
     # Plate-blocked marginal guide analysis added to the regression workflow.
     "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
     "guide_permutations", "guide_permutation_seed",
@@ -966,13 +972,18 @@ def _rendered_sections(app_key):
         ]),
         ("regression", [
             "Input Tables", "Controls & Plate Design",
-            "Plate & Batch Correction", "Model & Covariates",
+            "Plate & Batch Correction",
+            # The response is asked for before the model, and the permutation
+            # test's settings are one section instead of being split across
+            # the model, the estimator knobs and the hit-calling rules.
+            "Response", "Model & Inference",
             # Added when the robust and regularised fits brought knobs that
             # belong to one estimator rather than to all of them. Until they
             # were named, they landed in "Additional Settings" — the bucket
             # this whole test exists to keep empty.
             "Estimator Tuning",
-            "Hit Calling & Outliers", "Regression Plots",
+            "Permutation Test", "Significance & Hit Calling",
+            "Quality Filters", "Regression Plots",
             "Runtime & Reliability",
         ]),
         ("activation", [
