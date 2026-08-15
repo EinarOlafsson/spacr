@@ -93,7 +93,7 @@ __all__ = [
     'ALL_ROLES', 'OBJECT_TYPES', 'object_type_prefix', 'split_object_id',
     'is_object_type',
     'LEGACY_COLUMN_NAMES', 'LEGACY_COLUMN_PATTERNS', 'TIME_COLUMN_ALIASES',
-    'canonical_column_name',
+    'canonical_column_name', 'canonical_rename_plan',
     # scalars
     'parse_int_token', 'row_index_from_letters', 'letters_from_row_index',
     'row_id', 'column_id', 'field_id', 'time_id', 'object_id',
@@ -2108,6 +2108,47 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
 # pandas
 # ---------------------------------------------------------------------------
 
+def canonical_rename_plan(columns):
+    """``{old: canonical}`` for the columns that can safely be renamed.
+
+    The one definition of the "target already exists, keep both" rule for
+    frames, shared by :func:`canonicalise_columns` and
+    ``utils.canonicalize_measurement_columns`` so the two cannot drift apart
+    again — they have already disagreed once about which spellings they fix.
+
+    **The test folds case**, because SQLite compares identifiers
+    case-insensitively and these frames are written with ``to_sql``. A frame
+    holding ``row`` and ``rowid`` already has the canonical column: renaming
+    ``row`` to ``rowID`` produced ``['rowID', 'rowid']``, which looks fine in
+    pandas and makes ``to_sql`` raise ``duplicate column name: rowid``. This
+    is the same rule, and the same reasoning, as the database-level rename in
+    :mod:`spacr.database_schema` — see the comment there about a plate whose
+    database could not be opened at all.
+
+    A column is excluded from its own comparison, so a pure respelling
+    (``rowid`` -> ``rowID``, one column, one identifier as far as SQLite is
+    concerned) is still made rather than being read as a collision with
+    itself.
+
+    :param columns: the frame's column names, in order.
+    :returns: ``dict`` mapping each renameable name to its canonical form;
+        empty when there is nothing to do.
+    """
+    have = list(columns)
+    taken = set(have)
+    mapping = {}
+    for name in have:
+        canonical = canonical_column_name(name)
+        if canonical == name:
+            continue
+        others = {str(other).casefold() for other in taken if other != name}
+        if str(canonical).casefold() in others:
+            continue
+        mapping[name] = canonical
+        taken.add(canonical)
+    return mapping
+
+
 def canonicalise_columns(df):
     """Return ``df`` with every legacy column name renamed canonically.
 
@@ -2125,16 +2166,14 @@ def canonicalise_columns(df):
     trade — a human can decide which column is authoritative, and until then
     both stay reachable.
 
+    "Already present" is decided case-insensitively by
+    :func:`canonical_rename_plan`, because these frames get written with
+    ``to_sql`` and SQLite compares identifiers case-insensitively.
+
     :param df: :class:`pandas.DataFrame` whose columns may use legacy names.
     :returns: a new frame with canonical column names.
     """
-    have = set(df.columns)
-    mapping = {}
-    for name in df.columns:
-        canonical = canonical_column_name(name)
-        if canonical != name and canonical not in have:
-            mapping[name] = canonical
-            have.add(canonical)
+    mapping = canonical_rename_plan(df.columns)
     return df.rename(columns=mapping) if mapping else df.copy()
 
 

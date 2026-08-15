@@ -728,22 +728,6 @@ def test_a_file_name_is_parsed_right_to_left_like_every_other_key(
     assert parsed.fieldID == f'f{field}'
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema AND spacr.utils, unfixed): canonicalise_columns can '
-    'CREATE a case collision that SQLite refuses. Minimal counterexample: a '
-    'frame with columns ["row", "rowid"] canonicalises to ["rowID", "rowid"], '
-    'and DataFrame.to_sql on it raises OperationalError: duplicate column '
-    'name: rowid. This is the live hazard, not a theoretical one -- SQLite '
-    'compares identifiers case-insensitively, which is how a column named '
-    'rowID shadowed the implicit rowid and made a DELETE remove a whole '
-    'table. The rename guard is exact ("skip when the canonical name is '
-    'already present") while the collision it must avoid is case-folded. The '
-    'fix is to make that guard case-insensitive while still letting a column '
-    'be renamed onto its own case-folded name -- but it has to land in BOTH '
-    'schema.canonicalise_columns and utils.canonicalize_measurement_columns '
-    'at once, or the two frame canonicalisers disagree again (see '
-    'test_the_two_frame_canonicalisers_agree_on_every_frame), and utils.py '
-    'is owned elsewhere right now.'))
 @given(names=st.lists(case_variants, min_size=2, max_size=4, unique=True))
 def test_canonicalise_columns_never_creates_a_case_collision(names):
     frame = pd.DataFrame({name: [1] for name in names})
@@ -754,12 +738,22 @@ def test_canonicalise_columns_never_creates_a_case_collision(names):
     collisions_after = len(after) - len(set(after))
     assert collisions_after <= collisions_before, (
         f'{list(frame.columns)} -> {list(out.columns)}')
-    # And the frame SQLite gets is one SQLite will take.
-    conn = sqlite3.connect(':memory:')
-    try:
-        out.to_sql('cell', conn, index=False)
-    finally:
-        conn.close()
+    # And the frame SQLite gets is one SQLite will take -- PROVIDED the caller
+    # did not hand over a frame that was already unwritable. A frame built as
+    # ["rowID", "rowid"] collides before canonicalisation touches it, and no
+    # non-destructive canonicaliser can repair that: the only ways out are
+    # dropping one column or inventing a name for it, and "keep both, let a
+    # human decide which is authoritative" is the rule this function is built
+    # on. Asserting to_sql unconditionally would be asserting that
+    # canonicalise_columns fixes its caller's data, which it does not claim to
+    # do -- it claims not to CREATE a collision, which is what is checked above
+    # and on every input below.
+    if collisions_before == 0:
+        conn = sqlite3.connect(':memory:')
+        try:
+            out.to_sql('cell', conn, index=False)
+        finally:
+            conn.close()
 
 
 @given(label=object_labels)
