@@ -2,11 +2,19 @@
 THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
 ================================================================================
 
-Status:    filed 2026-08-15, not started.
+Status:    filed 2026-08-15. BUILT by the concurrent session (e5739730), then
+           REFINED by the maintainer the same day -- the three-mode dropdown
+           it shipped is not wanted. See THE CONTROL IS ONE YES/NO SETTING at
+           the end, which supersedes the interaction described below.
 Requested: 2026-08-15 - "add to instructions, the AI chatbot, when on should
            allways have access to the console, eaven if turned on after a
            console message. this way the user can allways ask what when wrong
            please explain based on the console."
+Requested: 2026-08-15 - "add this to the instructions, to the right of the
+           console is no a drop down with off, console aware off, auto and
+           include. i just want this to be a option within the AI settings
+           where the default is aware (options should be yes and no and the
+           seting should be Console aware)"
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -102,3 +110,69 @@ Then the harder ones:
     the failure at the end of it.
   * A traceback longer than the tail budget arrives whole, not beheaded.
   * A five-turn conversation does not re-send the same scrollback five times.
+
+================================================================================
+THE CONTROL IS ONE YES/NO SETTING, NOT A DROPDOWN BY THE CONSOLE
+================================================================================
+
+WHAT SHIPPED, AND WHAT IS WRONG WITH IT. e5739730 built the context plumbing
+(good -- that is the substance of this instruction) and put a QComboBox in the
+console's input row:
+
+    console_panel.py:1046   ["Console: Auto", "Console: Include", "Console: Off"]
+    console_panel.py:1053   a "Console available" status label beside it
+
+Three modes and a status readout, sitting permanently next to the chat input.
+That is a mode selector for something that should be a preference: the answer
+is the same on every question a user ever asks, so it does not belong on the
+screen where the questions are typed.
+
+WHAT IT BECOMES.
+
+  * ONE SETTING, named exactly **Console aware**.
+  * TWO VALUES, yes and no.
+  * DEFAULT YES.
+  * IN THE AI SETTINGS, not beside the console.
+
+The dropdown and its status label come out of the console input row entirely.
+The row goes back to being the input and nothing else.
+
+WHERE IT GOES. The AI settings dialog already has a Settings tab
+(`ai_chat_panel.py:115`) and `spacr/qt/ai/settings.py` already has the exact
+shape this needs -- a QSettings-backed boolean with a `get_`/`set_` pair, as
+`get_auto_file_issues` and `get_route_errors_through_ai` already are. Add
+`get_console_aware` / `set_console_aware` defaulting to True and put the
+checkbox on that tab beside its siblings. Do not invent a new storage
+mechanism for one flag.
+
+WHAT HAPPENS TO THE THREE MODES.
+
+  yes  = what "Auto" and "Include" were trying to distinguish between.
+         Collapse them: when console aware is on, the console goes with the
+         question. The tail/traceback/no-resend rules earlier in this
+         instruction still apply -- those are about HOW MUCH is sent, which is
+         an implementation concern, not a user-facing mode.
+  no   = the old "Off". Nothing is sent.
+
+Deleting "Auto" is the point of the change, so do not preserve it as a hidden
+third state or as the meaning of some other value. If the heuristic that
+distinguished Auto from Include is worth keeping, it keeps running under
+"yes" -- invisibly, as the earlier section already requires by saying the
+rule must be visible and overridable rather than clever and silent.
+
+THE STATUS LABEL. "Console available" / "how much accompanied the last
+question" was answering point 4 of this instruction (say what was sent). That
+requirement stands, but it does not need permanent screen furniture: report
+it with the message it belongs to, not as a fixture beside the input.
+
+HOW TO KNOW IT WORKED
+
+* No dropdown and no status label beside the chat input.
+* AI settings has a single **Console aware** option, yes/no, defaulting to
+  yes, next to the other AI booleans.
+* With it on, the acceptance test at the top of this file still passes: fail
+  something with the chat off, turn the chat on, ask what went wrong, get an
+  answer about that error.
+* With it off, no console text is sent.
+* The setting survives a restart, like every other value in
+  `spacr/qt/ai/settings.py`.
