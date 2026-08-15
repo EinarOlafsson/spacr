@@ -88,7 +88,6 @@ YOKOGAWA_1536_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=YOKOGAWA_1536_BUG)
 def test_a_1536_well_export_keeps_one_tile_per_field(tmp_path):
     """Four fields of well AA01 are four stage positions, not one.
 
@@ -125,7 +124,6 @@ CROSS_WELL_MERGE_BUG = (
 )
 
 
-@pytest.mark.xfail(strict=True, reason=CROSS_WELL_MERGE_BUG)
 def test_two_wells_never_become_two_channels_of_one_site(tmp_path):
     """Fields of different wells are different sites, whatever the plate is called.
 
