@@ -45,7 +45,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
+from ..i18n import tr
 from ..job_runner import JobRunner
+from ..theme import active_palette
+from .flash import FLASH_MS, Flash
 from .live_preview import _ZoomView
 
 LOG = logging.getLogger("spacr.qt.figure_queue")
@@ -331,6 +334,77 @@ RAM_CAP = 100
 FIGURE_RESIZE_DEBOUNCE_MS = 220
 
 
+class _ClearFiguresLabel(QLabel):
+    """"Clear figures" as plain text, flashing the accent when clicked.
+
+    NOT a QPushButton, deliberately. Clearing is destructive and rare; button
+    chrome would give it the same visual weight as the controls beside it that
+    people use constantly, and it should sit quieter than those. The
+    pointing-hand cursor is what makes it discoverable as clickable without a
+    border having to say so -- the same trick the console's copy glyph uses.
+
+    The flash is the whole feedback: clearing an already-empty queue looks
+    identical to a click that never landed, so the mark is what says the click
+    was received.
+    """
+
+    #: Emitted on a completed click or keyboard activation.
+    clicked = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(tr("Clear figures"), parent)
+        self.setObjectName("FigureQueueClear")
+        self.setCursor(Qt.PointingHandCursor)
+        # Focusable and Enter/Space-activatable: it is a control, and a
+        # control reachable only by mouse is one some users cannot reach.
+        self.setFocusPolicy(Qt.StrongFocus)
+        self._flash = Flash(self)
+        self._restyle()
+
+    def _restyle(self) -> None:
+        """Paint at the resting or the flashing colour, from the palette.
+
+        Both colours are palette roles rather than literals, so the control
+        follows a theme switch -- a hex typed in here is a hex that stays dark
+        on the light theme.
+        """
+        try:
+            palette = active_palette()
+            colour = (palette["accent"] if self._flash.active
+                      else palette["fg_dim"])
+        except Exception:
+            # A palette that will not load is not a reason to draw nothing.
+            colour = "#4A9EFF" if self._flash.active else "#888888"
+        self.setStyleSheet(
+            f"QLabel#FigureQueueClear {{ color: {colour}; "
+            "background: transparent; }")
+
+    def flash(self) -> None:
+        """Light the text briefly, then return it to its resting colour."""
+        self._flash.trigger()
+        self._restyle()
+        # Flash.trigger repaints via update(), which a stylesheet colour does
+        # not follow, so the restyle is scheduled explicitly just after the
+        # shared duration.
+        QTimer.singleShot(FLASH_MS + 10, self._restyle)
+
+    def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
+        # Release rather than press, so dragging off the label cancels, which
+        # is what every other clickable in the app does.
+        if (event.button() == Qt.LeftButton
+                and self.rect().contains(event.pos())):
+            self.flash()
+            self.clicked.emit()
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):            # noqa: N802 (Qt naming)
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self.flash()
+            self.clicked.emit()
+            return
+        super().keyPressEvent(event)
+
+
 class FigureQueue(QWidget):
     """Scrollable, RAM-bounded gallery of pipeline figures."""
 
@@ -417,7 +491,10 @@ class FigureQueue(QWidget):
         self._pos_label.setAlignment(Qt.AlignCenter)
         self._fig_settings_btn = QPushButton("Figure settings…", self)
         self._fig_settings_btn.clicked.connect(self._open_figure_settings)
+        self._clear_label = _ClearFiguresLabel(self)
+        self._clear_label.clicked.connect(self.clear)
         nav.addWidget(self._pos_label, 1)
+        nav.addWidget(self._clear_label)
         nav.addWidget(self._fig_settings_btn)
         root.addLayout(nav)
         self._refresh_nav()

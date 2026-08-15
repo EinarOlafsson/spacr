@@ -84,6 +84,7 @@ from ..ai.worker import StreamWorker, make_stream_thread
 from ..i18n import retranslate_widget_tree, tr
 from ..theme import FONT_SIZE, SPACING, active_palette
 from ..verbose_logger import console_write, console_write_in_progress
+from .flash import Flash
 
 
 #: Soft budget for pipeline scrollback attached to one AI turn. A complete
@@ -283,17 +284,13 @@ class _CopyGlyphButton(QAbstractButton):
         self.setFocusPolicy(Qt.NoFocus)
         edge = self._SIDE + self._OFFSET + 5
         self.setFixedSize(edge, edge)
-        self._flash = 0
+        # The timing is shared with the figure queue's clear control; see
+        # spacr.qt.widgets.flash for why it lives in one place.
+        self._flash = Flash(self)
 
     def flash_copied(self) -> None:
         """Briefly mark the glyph, so a silent clipboard write is visible."""
-        self._flash = 1
-        self.update()
-        QTimer.singleShot(650, self._end_flash)
-
-    def _end_flash(self) -> None:
-        self._flash = 0
-        self.update()
+        self._flash.trigger()
 
     def paintEvent(self, _event) -> None:      # noqa: N802 (Qt naming)
         from PySide6.QtGui import QPainter, QPen
@@ -301,11 +298,11 @@ class _CopyGlyphButton(QAbstractButton):
         painter.setRenderHint(QPainter.Antialiasing, True)
         try:
             palette = active_palette()
-            colour = QColor(palette["button_accent"] if self._flash
+            colour = QColor(palette["button_accent"] if self._flash.active
                             else palette["fg_dim"])
         except Exception:
             colour = QColor("#888888")
-        if self.underMouse() and not self._flash:
+        if self.underMouse() and not self._flash.active:
             colour = colour.lighter(150)
         pen = QPen(colour)
         pen.setWidth(1)
