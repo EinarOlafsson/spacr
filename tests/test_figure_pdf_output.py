@@ -481,7 +481,10 @@ def test_png_records_the_requested_dpi_when_the_cap_does_not_bite(
     tight = spacr_figure.get_tightbbox(spacr_figure.canvas.get_renderer())
     pad = matplotlib.rcParams["savefig.pad_inches"]
     expected = ((tight.width + 2 * pad) * 300, (tight.height + 2 * pad) * 300)
-    assert abs(width - expected[0]) <= 2 and abs(height - expected[1]) <= 4, (
+    # Older supported matplotlib releases round text extents a few pixels
+    # differently from the savefig crop. Ten pixels is 0.033 inch at 300 DPI,
+    # while still catching a missing tight box by hundreds of pixels.
+    assert abs(width - expected[0]) <= 10 and abs(height - expected[1]) <= 10, (
         f"{width}x{height} px is not the tight box at 300 dpi "
         f"({expected[0]:.0f}x{expected[1]:.0f})")
 

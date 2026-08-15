@@ -81,11 +81,17 @@ def test_spatial_adjacency_empty_mask_returns_empty_maps():
     assert M._spatial_adjacency(np.zeros((4, 4), dtype=int)) == ({}, {})
 
 
-def test_spatial_adjacency_old_skimage_refuses_anisotropic_spacing(monkeypatch):
+def test_spatial_adjacency_old_skimage_honours_anisotropic_spacing(monkeypatch):
     monkeypatch.setattr(M, "_EXPAND_LABELS_TAKES_SPACING", False)
-    with pytest.raises(M.ConfigurationError, match="anisotropic"):
-        M._spatial_adjacency(np.zeros((2, 3, 3), dtype=int),
-                             spacing=(2., .2, .2))
+    mask = np.zeros((3, 3, 3), dtype=int)
+    mask[0, 1, 1] = 1
+    mask[2, 1, 1] = 2
+    percent, neighbours = M._spatial_adjacency(
+        mask, spacing=(2., .2, .2), expand=1)
+    # One blank z plane is 2 physical units from either object, so a
+    # one-unit expansion cannot make them touch. A voxel-unit fallback would.
+    assert neighbours == {}
+    assert percent == {1: 0.0, 2: 0.0}
     assert M._spatial_adjacency(np.zeros((3, 3), dtype=int), spacing=None) == ({}, {})
 
 
