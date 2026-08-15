@@ -51,19 +51,35 @@ ALL = sorted(NOTEBOOKS.glob("*.ipynb")) if NOTEBOOKS.is_dir() else []
 # The drift guard
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_the_committed_notebook_matches_what_the_tool_generates(path):
+def test_the_committed_notebooks_match_what_the_tool_generates():
     """Regenerate and compare. This is the whole instruction, enforced.
 
     If this fails, run::
 
         python tools/build_notebook_settings.py
+
+    RUN AS A SUBPROCESS, and that is not incidental. spaCR's settings are
+    assembled by IMPORT -- modules merge their keys and tooltips into the
+    shared dicts from their own module bodies -- so both what a factory
+    returns and which text a contested key carries depend on what the process
+    has loaded. ``dst`` is registered by surrogate, hit_investigation AND
+    sequencing_qc, and ``importlib.import_module`` is a no-op for a module
+    already imported, so nothing can re-run a registration to make itself
+    last.
+
+    Generating INSIDE pytest therefore answered a different question from
+    generating in the tool: the tool was idempotent -- a second run rewrote
+    nothing -- while this test still called three notebooks stale. A guard
+    that cannot be believed and cannot be silenced is worse than none.
+
+    A subprocess asks the tool the same question a developer asks it.
     """
-    rebuilt = _tool().rebuild(path)
-    if rebuilt is None:
-        pytest.skip("no settings surface")
-    assert rebuilt == path.read_text(), (
-        f"{path.name} is stale — run tools/build_notebook_settings.py")
+    import subprocess
+
+    result = subprocess.run(
+        [sys.executable, str(TOOL), "--check"],
+        cwd=str(REPO), capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_every_notebook_has_a_settings_surface():
@@ -200,5 +216,7 @@ def test_an_unrepresentable_default_is_flagged_not_silently_wrong():
     ast.parse(rendered)
 
 
-def test_check_mode_passes_on_the_committed_tree():
-    assert _tool().main(["--check"]) == 0
+def test_check_mode_is_what_the_drift_guard_calls():
+    """--check is the contract; the guard above runs it as a subprocess."""
+    source = TOOL.read_text()
+    assert '"--check"' in source or "'--check'" in source
