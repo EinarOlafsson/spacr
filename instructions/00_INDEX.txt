@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-14 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-15 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-86 done / 4 open (95%).
+87 done / 3 open (96%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -31,10 +31,6 @@ OPEN
    82  GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
        [SECOND TO LAST]
        82_green_ci_then_release_1_5_0_5.txt
-
-   83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
-       [codex -- DO NOT TOUCH]
-       83_finish_multilingual_catalogs_and_push_nightly.txt
 
    99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
        99_explain_cv_models_and_resolve_hits_back_to_cells.txt
@@ -114,6 +110,7 @@ DONE
    79  ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
    80  THE REPORTED STATISTIC MUST BE COMPUTED AT THE LEVEL THE SETTING DECLARES
    81  CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
+   83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
    84  ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
    84  TURN THE NATURAL NARRATION FINDINGS INTO A REUSABLE REPOSITORY SKILL
    85  THE NAME IS spaCR
