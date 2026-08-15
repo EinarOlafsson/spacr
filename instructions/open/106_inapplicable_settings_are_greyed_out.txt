@@ -1,0 +1,185 @@
+================================================================================
+A SETTING THAT CANNOT DO ANYTHING RIGHT NOW IS GREYED OUT, AND SAYS WHY
+================================================================================
+
+Status:    not started
+Requested: 2026-08-15 — "in the new regression model for setting that are only
+           applicable when other settings are of a specific value (e.g. lasso
+           gregression options) or when certain things are true (e.g. plateid
+           is only usefull when there is one plate) these dependent settings
+           should be grayed out unless applicable."
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Every setting in the regression panel is enabled all the time, whether or not
+the current configuration gives it any effect.
+
+The regrouping done on 2026-08-15 (see "Regression: ..." in
+`spacr/settings.py:categories`, and the `"regression"` layout in
+`spacr/qt/screens/settings_model.py`) put the inapplicable settings into named
+sections -- "Estimator Tuning", "Permutation Test" -- so they are at least no
+longer interleaved with the ones that apply. That is grouping, not gating. All
+eight Estimator Tuning controls are still live and editable under
+`regression_type='ols'`, which reads exactly one of them.
+
+What already exists, and must be reused rather than duplicated:
+
+  * `spacr.ml.REGRESSION_SETTINGS_USED` — the authoritative table of which
+    regression family reads which setting. Seventeen families, already
+    correct, already the thing `_reject_unused_settings` polices at run time.
+    It is the source of truth for the estimator half of this task. Do NOT
+    hand-write a second table in the GUI; the two would drift, and the GUI's
+    copy would be the wrong one.
+  * `spacr.settings.category_dependencies`,
+    `category_group_dependencies`, `category_integer_dependencies` — gate
+    whole CATEGORIES on a setting's value. Category granularity, not setting
+    granularity, and they HIDE rather than disable.
+  * `SettingsBuilder._refresh_contextual_widgets`
+    (`spacr/qt/screens/settings_model.py`) — the existing hook that re-reads
+    widgets when a source setting changes. It currently refreshes the row
+    exclusion editor and training-basis enablement. This is the seam.
+  * `setEnabled` is already used for training-basis controls in the same file,
+    and `_set_row_enabled` already greys the LABEL with its control, so the
+    visual convention exists.
+
+There is no mechanism at all for the data-dependent half: nothing knows how
+many plates the loaded input has, so nothing can grey `plateID` out.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+An enabled control is a promise that changing it changes the run. When that
+promise is false, three things follow, in increasing order of cost:
+
+1. The panel reads as far more complicated than the task is. A user choosing
+   OLS is presented with `l1_ratio`, `quantile`, `huber_t`, `hinge_threshold`,
+   `hinge_n_boot`, `lasso_n_boot` and `lasso_selection_threshold` as if each
+   were a decision they had to make. Seven decisions that are not decisions.
+
+2. Time is spent tuning a value that does nothing. Setting `l1_ratio=0.2`
+   under `ols`, re-running, and seeing identical output is a debugging session
+   with no bug in it.
+
+3. It reaches the run and fails there. `_reject_unused_settings` REFUSES a
+   setting the chosen family cannot read -- deliberately, so that a mis-set
+   value is never silently ignored. So the panel invites an edit that the
+   pipeline then rejects, after the CSVs have been read. The GUI and the
+   validator disagree about what is legal, and the user finds out last.
+
+The permutation settings are the same shape: nine controls that do nothing
+unless `inference` resolves to the nonparametric test.
+
+`plateID` is the data-dependent case and the one the user named. It selects
+which plate a single-plate run is labelled as. With four plates loaded it is
+meaningless, and worse than meaningless if a user sets it and assumes it
+filtered something.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Declare the rules as data, in `spacr/settings.py`, beside the existing
+   `category_*_dependencies` tables so all gating lives in one place:
+
+       setting_dependencies = {
+           # key -> predicate over the CURRENT settings dict
+           'l1_ratio': lambda s: s.get('regression_type') == 'elasticnet',
+           ...
+       }
+
+   For the estimator knobs, GENERATE the entries from
+   `spacr.ml.REGRESSION_SETTINGS_USED` rather than typing them:
+
+       for family, used in REGRESSION_SETTINGS_USED.items(): ...
+
+   so a family added to `ml.py` gates correctly with no second edit. Cover:
+
+     - estimator knobs      -> gated on `regression_type` via that table;
+     - the nine `guide_*`   -> gated on `inference`/`analysis_mode` resolving
+                               to `guide_permutation`;
+     - `agg_type`           -> gated on `analysis_unit == 'well'`;
+     - `quantile`           -> `regression_type == 'quantile'`;
+     - `batch_*`            -> gated on `batch_correction != 'none'`, and
+                               `batch_control_*` further on the methods that
+                               read them (`control_center`);
+     - `split_axis_lims`    -> only when a split axis is requested;
+     - `threshold_multiplier`/`threshold_method` -> only when the hit rule
+                               that uses them is active.
+
+2. Each rule carries a REASON string, shown as the disabled control's tooltip:
+   "Only read when regression_type is 'lasso' or 'elasticnet' (currently
+   'ols')." A greyed control with no explanation is a dead end; the user
+   cannot tell whether it is inapplicable or broken, and the reason is the
+   whole value of the feature.
+
+3. Wire it in `SettingsBuilder`
+   (`spacr/qt/screens/settings_model.py`): evaluate every rule inside
+   `_refresh_contextual_widgets`, and connect the CHANGE signal of each
+   setting that appears in any predicate so editing it re-evaluates the rest.
+   Grey the label with the control -- `_set_row_enabled` already does this.
+
+4. Data-dependent rules need a fact the panel does not have. Add a small
+   context object -- plate count, available score columns, whether the inputs
+   carry a `plateID` column -- populated when `score_data`/`count_data` change,
+   and pass it to the predicates as a second argument. `plateID` is then
+   gated on "exactly one plate across the loaded inputs". Keep this cheap:
+   read the header and the `plateID` column only, not the whole CSV, and do it
+   off the GUI thread if it is not instant.
+
+5. Disable, never hide. A hidden setting is one nobody can find, and this
+   project already has eleven phantom settings from exactly that mistake
+   (instruction 61). The control stays in the panel, stays in the settings
+   dict at its current value, and is simply not editable.
+
+6. Extend to the other modules once the regression panel proves the mechanism.
+   The table is module-agnostic by construction; nothing above is
+   regression-specific except which keys are listed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A test in `tests/test_regression_workbench.py` that, for each family in
+`spacr.ml.REGRESSION_SETTINGS_USED`, builds the regression panel with that
+`regression_type` and asserts:
+
+    enabled_estimator_keys == set(REGRESSION_SETTINGS_USED[family])
+
+so the GUI's idea of "applicable" is the validator's idea of "applicable", by
+construction. That single assertion is the one that matters: it is the
+GUI/validator disagreement in point 3 above, made impossible.
+
+Plus:
+
+  * selecting `inference='parametric'` disables all nine `guide_*` controls
+    and selecting `'nonparametric'` enables them;
+  * `analysis_unit='cell'` disables `agg_type`;
+  * loading two plates disables `plateID`, one plate enables it;
+  * every disabled control has a non-empty tooltip naming the setting and
+    value that would enable it;
+  * `pytest tests/qt/test_all_module_smoke.py -q` still passes 60/60 --
+    enablement must not break construction of any panel.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not hiding inapplicable settings. See point 5 -- a setting that leaves the UI
+while staying in the dict is how a run gets a value nobody can see.
+
+Not auto-resetting a disabled setting to its default. If a user configures
+lasso, sets `l1_ratio`, then switches to OLS to compare, switching back must
+return their value. Disabling freezes a control; it does not clear it.
+
+Not making the predicates arbitrary user-editable expressions. They are
+declared in `settings.py` and reviewed with the code. A settings file that can
+change which settings are legal is a settings file that can lie about what a
+run did.
+
+Not gating on anything that requires reading the full input tables. Point 4 is
+deliberately limited to the header and the plate column: a panel that stalls
+for thirty seconds after a file is dropped is worse than one control too many.
