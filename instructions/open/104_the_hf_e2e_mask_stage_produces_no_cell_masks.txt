@@ -2,7 +2,11 @@
 THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
 ================================================================================
 
-Status:    filed 2026-08-15, not started. PRE-EXISTING -- proven, not assumed.
+Status:    filed 2026-08-15. RE-DIAGNOSED the same day: it is FLAKY, which is
+           neither of the two causes proposed below. Read
+           WHAT IT ACTUALLY IS at the end first -- the WHAT TO DO section
+           below it is written against a wrong premise and is superseded.
+           Still PRE-EXISTING -- proven, not assumed.
 Requested: not asked for. Found while attributing a failure in a regression
            sweep for instruction 100, and filed because a bug found in
            passing gets queued rather than narrated.
@@ -95,3 +99,62 @@ HOW TO KNOW IT WORKED
 under a minute, with no network. And the same file passes in its network mode
 on a machine that has the dataset -- including the QC stage, which currently
 reports a quarter of the cell fields and half the pathogen fields as failed.
+
+================================================================================
+WHAT IT ACTUALLY IS: INTERMITTENT. BOTH HYPOTHESES ABOVE ARE WRONG.
+================================================================================
+
+The discriminator this file asks for was run, and it ruled out both branches.
+
+(a) IS WRONG -- THE STUB SEGMENTS FINE. A stub run prints
+
+        Found 12.5 cell/FOV. average size: 79.400 px2
+        Found 8.5 cell/FOV. average size: 83.756 px2
+        Segmentation QC (cell): 4 fields, 2 ok / 2 warn / 0 fail
+
+    and `data/plate1/masks/cell_mask_stack` exists on disk afterwards, whose
+    own directory name matches the test's glob. So the fixture is not the
+    problem and the masks are not missing.
+
+(b) IS WRONG TOO -- OR AT LEAST IS NOT THE WHOLE STORY. The output IS
+    written, at the path the test looks in.
+
+WHAT IS ACTUALLY HAPPENING: the test does not fail every time.
+
+    run 1  passed          a later batch:  6 consecutive passes
+    run 2  FAILED                          then 1 failure in the next pair
+
+Same commit, same stub, same machine, no code change between runs. Roughly
+one failure in eight. That is why it "failed at HEAD and also failed at
+8c4db209" when this was first filed -- both of those were single runs of an
+intermittent test, and a single run of a flaky test proves nothing about the
+commit it was run on. The pre-existing claim still holds (it fails on old
+commits too), but the attribution reasoning in this file was luckier than it
+was sound.
+
+WHY THAT IS WORSE THAN EITHER ORIGINAL HYPOTHESIS. A deterministic failure is
+a bug with an address. An intermittent one in the MASK STAGE means the
+segmentation pipeline is nondeterministic somewhere -- and this test only
+asserts that *some* cell_mask output exists, which is the weakest possible
+assertion about it. Whatever varies could equally be varying in a run that
+writes masks nobody checks.
+
+WHAT TO DO INSTEAD OF THE SECTION ABOVE
+
+1. FIND THE VARIANCE, do not re-run until green. Candidates, in the order
+   they are cheap to eliminate: cellpose on CPU with thread counts left free;
+   an unseeded RNG in the stub or in segmentation; a temp-directory or
+   filesystem race between the write and the glob; and pytest's own tmp_path
+   numbering interacting with a leftover workspace.
+
+2. MAKE THE ASSERTION SAY SOMETHING. "at least one file named *cell_mask*"
+   passes when segmentation finds one cell in one field. If the stub is
+   deterministic it should assert the object COUNT, not the existence of a
+   path -- otherwise the test cannot distinguish "worked" from "barely
+   worked", which is exactly the gap a flaky pass hides in.
+
+3. ONLY THEN decide whether it belongs in a CI leg. Marking a flaky test
+   `slow`+`network` and never running it is how it got to be a year old
+   without anyone noticing; putting it in a leg while it is flaky would make
+   the leg untrustworthy instead. Fix the variance, strengthen the assertion,
+   then run it somewhere.
