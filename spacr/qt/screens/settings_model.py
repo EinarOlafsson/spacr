@@ -26,9 +26,11 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QLayout,
     QLineEdit,
+    QPlainTextEdit,
     QSizePolicy,
     QSpinBox,
     QDoubleSpinBox,
+    QTextEdit,
     QToolButton,
     QVBoxLayout,
     QWidget,
@@ -5202,3 +5204,88 @@ class SettingsWidgets:
         if isinstance(w, QLineEdit):
             return w.text() or None
         return None
+
+
+#: Widget types that are an EDITOR for a setting rather than its name.
+#: A QCheckBox is deliberately absent: it carries its own text, so it is its
+#: own label and hovering it is hovering the name.
+_EDITOR_TYPES = (QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox,
+                 QPlainTextEdit, QTextEdit)
+
+#: Marks a field tooltip that is a DISABLED-REASON rather than help.
+#: "This control does nothing because ..." explains that control, so the
+#: control is the right place for it and :func:`retarget_field_tooltips`
+#: leaves it alone. Set it where such a note is written.
+DISABLED_REASON_TOOLTIP = "spacrDisabledReasonTooltip"
+
+
+def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
+    """A QLabel in the same parent that reads as this field's name.
+
+    Positional rather than layout-based on purpose: the screens this has to
+    cover are hand-built, and they use form layouts, grids and plain rows
+    interchangeably. What they agree on is that the name sits to the LEFT of
+    the editor on roughly the same line, which is the thing a user is
+    actually looking at when they go to hover it.
+    """
+    parent = field.parentWidget()
+    if parent is None:
+        return None
+    for label in parent.findChildren(QLabel):
+        if label.parentWidget() is not parent:
+            continue
+        if not label.text().strip():
+            continue
+        if (label.x() <= field.x()
+                and abs(label.y() - field.y()) < field.height() + 6):
+            return label
+    return None
+
+
+def retarget_field_tooltips(root: QWidget) -> int:
+    """Move hover help off editors and onto the labels that name them.
+
+    Call once at the end of a hand-built screen's construction. The generic
+    decorator (:func:`install_api_tooltips`) has done this since 2026-07-30 --
+    it ends with ``widget.setToolTip("")`` and the comment "the editor itself
+    remains quiet on hover" -- but screens that build their own rows never go
+    through it, and 155 editors across the Qt screens were still popping help
+    over the field the user was about to type into.
+
+    A post-pass rather than 155 edits: the rule is one rule, and a screen
+    added next month gets it by calling one function instead of by remembering
+    a convention.
+
+    Left alone, deliberately:
+
+    * a field with no sibling label -- there the editor IS the setting's only
+      visible identity, so its tooltip is the only help there is;
+    * a label that already carries its own tooltip -- it has been decorated
+      properly already and overwriting it would lose the richer text;
+    * a tooltip marked :data:`DISABLED_REASON_TOOLTIP`, which explains why
+      THAT control does nothing and therefore belongs on it.
+
+    :param root: the built screen or dialog.
+    :returns: how many tooltips were moved.
+    """
+    moved = 0
+    for field in root.findChildren(QWidget):
+        if not isinstance(field, _EDITOR_TYPES):
+            continue
+        tip = field.toolTip()
+        if not tip:
+            continue
+        if field.property(DISABLED_REASON_TOOLTIP):
+            continue
+        label = _sibling_label_for(field)
+        if label is None:
+            continue
+        if not label.toolTip():
+            label.setToolTip(tip)
+            label.setToolTipDuration(-1)
+            label.setCursor(Qt.WhatsThisCursor)
+        # Cleared either way: the label is the hover target now, whether it
+        # took this text or already had better.
+        field.setToolTip("")
+        moved += 1
+    return moved

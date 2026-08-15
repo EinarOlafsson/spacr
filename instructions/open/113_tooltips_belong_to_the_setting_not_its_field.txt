@@ -2,9 +2,9 @@
 A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
 ================================================================================
 
-Status:    filed 2026-08-15. THE DIAGNOSIS BELOW IS WRONG -- the generic
-           path already does the right thing. Read THE REAL SCOPE at the end;
-           it supersedes WHY IT HAPPENS and WHAT TO DO.
+Status:    DONE 2026-08-15, 155 -> 0. The DIAGNOSIS in WHY IT HAPPENS is
+           WRONG and is kept only as a record; THE REAL SCOPE and RESULT at
+           the end are what happened.
 Requested: 2026-08-15 - "add to instructions, tooltips should only appear whe
            the mouse is hovered over the setting not the field for the
            setting."
@@ -178,3 +178,41 @@ HOW TO KNOW IT WORKED (REVISED)
   their labels' help -- i.e. they were moved onto `apiTooltipHtml` before the
   fields were cleared, not after.
 * The gate-settings "NOT YET IN EFFECT" note still appears on its control.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15) -- 155 -> 0
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, because "audit 510 setToolTip calls by eye" was never going to
+finish. A detector builds every screen that constructs with no arguments (64
+of them) and counts editors that carry a tooltip AND have a label naming them:
+
+    before   155 offenders across 28 screen classes
+    after      0
+
+`settings_model.retarget_field_tooltips(root)` is the mechanism: one post-pass
+called at the end of a hand-built screen's ``__init__``, rather than 155 edits
+and a convention every future row has to remember. It moves the tooltip onto
+the sibling label (positionally identified -- these screens use form layouts,
+grids and plain rows interchangeably, but they all put the name to the left of
+the editor) and clears the field.
+
+Three things it leaves alone, each for a stated reason:
+
+  * a field with NO sibling label -- the editor is the setting's only visible
+    identity there, so its tooltip is the only help that exists;
+  * a label that already has its own tooltip -- decorated properly already,
+    and overwriting would lose the richer text;
+  * a tooltip marked `DISABLED_REASON_TOOLTIP` -- "this control does nothing
+    because ..." explains THAT control, so it belongs on it. This is the
+    gate_settings "NOT YET IN EFFECT" case, now expressible as a property
+    rather than as a filename exception.
+
+QCheckBox and Toggle are not editors for this purpose: they carry their own
+text, so they ARE the name and hovering them is correct.
+
+tests/test_tooltips_are_on_the_setting_not_the_field.py is a SWEEP guard, not
+an example: it re-runs the detector over every screen and fails naming the
+offending class, so a screen added next month cannot reintroduce this
+quietly. It also asserts it built more than 40 screens, because a green sweep
+that covered nothing would prove nothing.

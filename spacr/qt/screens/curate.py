@@ -55,6 +55,11 @@ class CurateScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "curate")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction --------------------------------------------------------
     def _build(self) -> None:

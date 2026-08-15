@@ -1326,6 +1326,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         # After the UI: both hooks paint into the view, and a filter can
         # already be set by the time this screen opens.
         self.link_selection("db_browser")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
