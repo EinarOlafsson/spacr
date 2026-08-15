@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "guide_primary_min_wells",
+      "source_sha256": "3b9d68f482eef6af8ef9ca96c5cdea63ff410170ecf014378739fe7979140ab3",
+      "source": "Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. None chooses the smallest requested threshold and is the default.",
+      "translation": "results_significant.csv 및 반환된 'significant' 테이블에 사용할 guide_min_wells 결과군을 선택합니다. 요청된 최소 임계값을 선택하는 None 이 기본값입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_model",
+      "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
+      "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
+      "translation": "CV 결정을 재현하는 추정기 계열로 Random Forest, 히스토그램 그래디언트 부스팅 또는 선택적 XGBoost 를 사용합니다. XGBoost 가 없으면 다른 모델로 자동 대체하지 않고 해당 선택을 거부합니다. 기본값은 random_forest 입니다."
+    }
+  ]
+}

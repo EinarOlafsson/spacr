@@ -226,6 +226,18 @@ def test_bundled_resource_defaults_are_portable():
     assert eval(rendered) == str(resource.resolve())
 
 
+def test_machine_sized_worker_defaults_are_rendered_as_expressions():
+    """A notebook generated on CI must match one generated on a workstation."""
+    tool = _tool()
+    dotted = "spacr.core.preprocess_generate_masks"
+    workstation = tool._literal(28, dotted=dotted, key="n_jobs")
+    hosted_runner = tool._literal(1, dotted=dotted, key="n_jobs")
+
+    assert workstation == hosted_runner
+    assert "cpu_count" in workstation
+    assert eval(workstation) >= 1
+
+
 def test_check_mode_is_what_the_drift_guard_calls():
     """--check is the contract; the guard above runs it as a subprocess."""
     source = TOOL.read_text()

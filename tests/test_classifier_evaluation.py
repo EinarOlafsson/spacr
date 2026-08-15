@@ -34,6 +34,15 @@ def test_sample_identity_collapses_exported_augmentation_suffixes():
     assert identity["field"] == "plate1_A01_f2"
 
 
+def test_sample_identity_parses_canonical_prcfo_row_and_column_tokens():
+    from spacr.classifier_evaluation import sample_identity
+
+    identity = sample_identity("plate1_r1_c1_f2_o7.png")
+    assert identity["plate"] == "plate1"
+    assert identity["well"] == "plate1_r1_c1"
+    assert identity["field"] == "plate1_r1_c1_f2"
+
+
 def test_leakage_audit_finds_object_and_requested_group_overlap():
     from spacr.classifier_evaluation import audit_split_leakage
 

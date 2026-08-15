@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "surrogate_model",
+      "source_sha256": "c020262b3e8021902d293a076300ab5bcd0ecfc5ec111ce3a488a90d76810458",
+      "source": "Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
+      "translation": "Flokkur matslíkans sem notaður er til að endurskapa ákvarðanir tölvusjónar: Random Forest, histogram gradient boosting eða valfrjálst XGBoost. Ef XGBoost vantar er valinu hafnað í stað þess að annað líkan sé valið í kyrrþey. Sjálfgefið er random_forest."
+    }
+  ]
+}
