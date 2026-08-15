@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "explain_cv",
+      "source_sha256": "52abe4efe8648b4b81ab2f7f6aae49906506d404eff43e362a96db9455688ecb",
+      "source": "Fit a well-grouped measured-feature surrogate to an existing CV prediction output, report fidelity before gain/permutation/SHAP, and preserve disagreements and leakage exclusions.",
+      "translation": "Ajuste um modelo substituto de características medidas, com divisões agrupadas por poço, a uma saída de previsão de visão computacional existente; relate a fidelidade antes de gain/permutation/SHAP e preserve as divergências e exclusões por vazamento de dados."
+    }
+  ]
+}
