@@ -24,6 +24,11 @@ on:
         required: false
         default: 60
         type: number
+      xdist_workers:
+        description: Number of isolated pytest workers (0 keeps the suite serial)
+        required: false
+        default: 0
+        type: number
 
 jobs:
   pytest:
@@ -41,6 +46,12 @@ jobs:
       # local temporary filesystem is the appropriate equivalent.
       NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
       XDG_CACHE_HOME: /tmp/spacr-xdg-cache
+      # A pytest worker is the unit of isolation.  Keep numerical libraries
+      # from creating another pool inside every worker and oversubscribing the
+      # four-core hosted runner.
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
 
     steps:
       - uses: actions/checkout@v7
@@ -111,6 +122,10 @@ jobs:
 
       - name: Run ${{ inputs.suite_name }} tests
         run: |
+          xdist_args=()
+          if [ "${{ inputs.xdist_workers }}" -gt 0 ]; then
+            xdist_args=(-n "${{ inputs.xdist_workers }}" --dist loadfile)
+          fi
           python -m pytest tests/ \
             -m '${{ inputs.marker_expression }}' \
-            -v --tb=short
+            "${xdist_args[@]}" -v --tb=short
