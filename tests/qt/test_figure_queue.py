@@ -85,6 +85,9 @@ class TestBasics:
 
     def test_add_figure_increments_count(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         q.add_figure(_make_fig(1))
@@ -92,6 +95,9 @@ class TestBasics:
 
     def test_thumbnail_list_matches_count(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         for i in range(3):
             q.add_figure(_make_fig(i))
@@ -99,6 +105,9 @@ class TestBasics:
 
     def test_dedup_same_figure_object(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         fig = _make_fig(0)
         q.add_figure(fig)
@@ -107,6 +116,9 @@ class TestBasics:
 
     def test_live_figure_refresh_reuses_gallery_slot(self, qtbot, tmp_path):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         fig = _make_fig(0)
         q.add_figure(fig)
@@ -124,6 +136,9 @@ class TestBasics:
 
     def test_every_figure_has_a_temp_png(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         for i in range(3):
             q.add_figure(_make_fig(i))
@@ -134,6 +149,9 @@ class TestBasics:
 class TestNavigation:
     def test_prev_next_cycle(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         for i in range(4):
             q.add_figure(_make_fig(i))
@@ -150,6 +168,9 @@ class TestNavigation:
         # Prev/Next buttons were removed — navigation is via the thumbnail
         # strip (show_index) instead.
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         assert not hasattr(q, "_prev_btn")
@@ -160,6 +181,9 @@ class TestNavigation:
         from spacr.qt import preferences as prefs
         prefs.set_figure_format("png")
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         q._refresh_nav()
@@ -169,6 +193,9 @@ class TestNavigation:
 
     def test_position_label(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         for i in range(3):
             q.add_figure(_make_fig(i))
@@ -190,6 +217,8 @@ class TestRamCapAndSpill:
 
     def test_spilled_figure_reloads_from_disk(self, qtbot):
         q = FigureQueue(ram_cap=5)
+        # About the pixmap cache, which only the raster path fills.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         for i in range(8):
             q.add_figure(_make_fig(i))
@@ -217,6 +246,9 @@ class TestRamCapAndSpill:
 class TestCleanup:
     def test_clear_deletes_tempdir(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         tempdir = q._tempdir
@@ -227,6 +259,9 @@ class TestCleanup:
 
     def test_close_deletes_tempdir(self, qtbot):
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         tempdir = q._tempdir
@@ -238,6 +273,9 @@ class TestZoomView:
     def test_enlarged_view_is_zoomable(self, qtbot):
         from spacr.qt.widgets.live_preview import _ZoomView
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(_make_fig(0))
         # The enlarged view is a _ZoomView (wheel-zoom + fit-to-container)
@@ -332,6 +370,9 @@ class TestPdfRenderIsOffTheGuiThread:
         """
         fig, png = pdf_figure
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.resize(900, 700)
         q.show()
@@ -392,6 +433,9 @@ class TestPdfRenderIsOffTheGuiThread:
         """
         fig, png = pdf_figure
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         idx = q.add_figure(fig, prerendered_png=png)
 
@@ -414,6 +458,9 @@ class TestPdfRenderIsOffTheGuiThread:
         """Every navigation click used to pay the full render, too."""
         fig, png = pdf_figure
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.resize(900, 700)
         q.show()
@@ -446,6 +493,9 @@ class TestPdfRenderIsOffTheGuiThread:
         """A late result must not paint over the figure now on screen."""
         fig, png = pdf_figure
         q = FigureQueue()
+        # These tests are about the raster pipeline -- the path a spilled or
+        # PDF-only figure uses, which has no Figure to draw from.
+        q.set_live_canvas_enabled(False)
         qtbot.addWidget(q)
         q.add_figure(fig, prerendered_png=png)      # #0, render dispatched
         assert q._pdf_state.get(0) is not None
@@ -473,6 +523,7 @@ class TestPdfRenderIsOffTheGuiThread:
 
         fig, png = pdf_figure
         q = FigureQueue()
+        q.set_live_canvas_enabled(False)
         idx = q.add_figure(fig, prerendered_png=png)
         assert q.active_jobs() >= 1, "no crisp render was dispatched"
         threads = [pair[0] for pair in q._jobs._jobs.values()]
@@ -508,6 +559,7 @@ class TestPdfRenderIsOffTheGuiThread:
 
         fig, png = pdf_figure
         q = FigureQueue()
+        q.set_live_canvas_enabled(False)
         q.add_figure(fig, prerendered_png=png)
         assert q.active_jobs() >= 1
         # Hold the QThread wrappers ourselves: a QThread garbage-collected
