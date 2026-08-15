@@ -324,7 +324,12 @@ def test_eval_receives_every_spacr_parameter_for_this_object_type(
     # cellpose_nucleus_channel == 0 -- so the two tests disagreed with each
     # other and this was the one that matched the resume-path bug rather than
     # the writer.
-    assert kw["channels"] == [0]
+    #
+    # That dense position is still asserted, but through the batch handed over
+    # rather than through a channels= kwarg: cellpose 4 discards the kwarg, so
+    # spaCR no longer sends one. See
+    # test_channels_are_remapped_to_the_compacted_stack.
+    assert "channels" not in model.eval_configured[0]
     # _get_diam(20, 'nucleus') == int(0.75 * 20 + 45) == 60
     assert kw["diameter"] == 60
     assert kw["flow_threshold"] == 0.7
@@ -374,30 +379,38 @@ def test_channels_are_remapped_to_the_compacted_stack(
     re-indexed; indexing it with the raw channel number is an IndexError or,
     worse, the wrong channel."""
     src = tmp_path / "stack"
-    _write_npz(src, n=2, c=3)
+    data, _ = _write_npz(src, n=2, c=3)
     settings = _settings(src, nucleus_channel=1, cell_channel=3,
                          pathogen_channel=5)
 
     O.generate_cellpose_masks(str(src), settings, object_type)
 
     model = fake_cellpose["model"]
-    assert model.eval_kwargs[0]["channels"] == expected_channels
     # The remap that actually matters: the batch handed over holds exactly the
-    # selected planes. This half is real work; the channels= kwarg above is
-    # not -- see the xfail below.
-    assert model.eval_inputs[0][0].shape == (32, 32, expected_depth)
+    # selected planes, in the selected ORDER. This is now the remap's only
+    # observable -- it used to be echoed into a channels= kwarg as well, but
+    # that was a Cellpose 3 no-op and is gone (see the test below).
+    #
+    # The batch is normalized on the way in, so the planes cannot be compared
+    # by value. Identify each one instead: correlate it against every source
+    # plane and require the best match to be the plane that was asked for.
+    # Normalization is monotonic per plane, so it moves the values without
+    # moving which source plane they came from. Asserting depth alone would
+    # let "cell" pick [0, 1] instead of [1, 0] and still pass.
+    handed = model.eval_inputs[0][0]
+    assert handed.shape == (32, 32, expected_depth)
+    for position, source_plane in enumerate(expected_channels):
+        scores = [
+            abs(np.corrcoef(handed[:, :, position].ravel(),
+                            data[0][:, :, candidate].ravel())[0, 1])
+            for candidate in range(data.shape[3])
+        ]
+        assert int(np.argmax(scores)) == source_plane, (
+            f"{object_type} plane {position} should be source channel "
+            f"{source_plane}, but correlates best with {int(np.argmax(scores))}"
+        )
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/object.py:1251 passes channels=channels to CellposeModel.eval. "
-    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
-    "more than 3 channels, only the first 3 channels will be used' and never "
-    "reads the value, so the carefully remapped pair reaches nothing. The "
-    "remap itself is still needed -- it selects the planes that go into the "
-    "batch -- but the kwarg is a Cellpose 3 leftover, and "
-    "spacr.model_compare.IGNORED_ARGUMENTS already lists 'channels' as this "
-    "exact no-op. Fix: drop channels= from the eval call; the sibling "
-    "generator spacr/object.py:1913 already omits it."))
 def test_generate_cellpose_masks_does_not_pass_a_dead_channels_argument(
         tmp_path, fake_cellpose):
     """A remapped channel list that Cellpose discards is not configuration.
@@ -1039,7 +1052,9 @@ def test_a_run_without_a_nucleus_channel_leaves_the_cellpose_alias_unset(
     assert settings.get("cellpose_nucleus_channel") is None
     assert settings.get("cellpose_cell_channel") is None
     assert settings["cellpose_pathogen_channel"] == 0
-    assert fake_cellpose["model"].eval_kwargs[0]["channels"] == [0]
+    # The alias is what steers the plane selection; cellpose 4 discards a
+    # channels= kwarg, so spaCR sends none and the batch carries the choice.
+    assert "channels" not in fake_cellpose["model"].eval_configured[0]
 
 
 # --------------------------------------------------------------------------- #
