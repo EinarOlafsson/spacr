@@ -231,6 +231,21 @@ DEFAULT_FIG_FORMAT = "pdf"
 VALID_PNG_DPIS = (100, 200, 300, 600, 1200)
 DEFAULT_PNG_DPI = 300
 
+# How many of the most recent figures keep their LIVE matplotlib Figure, and
+# what happens to the ones past that.
+#
+# A live Figure is what makes a figure restylable: it still has a legend to
+# toggle, an axis to set log, series to recolour. A pixmap has none of those
+# — it is a picture of a figure. Keeping every Figure forever is not an
+# option either, since each holds its own data arrays.
+_KEY_FIG_LIVE_CACHE = "prefs/figure_live_cache"
+_KEY_FIG_DYNAMIC = "prefs/figure_dynamic"
+DEFAULT_FIG_LIVE_CACHE = 20
+#: Bounds, not a menu: any number in range is legal.
+MIN_FIG_LIVE_CACHE = 1
+MAX_FIG_LIVE_CACHE = 500
+DEFAULT_FIG_DYNAMIC = True
+
 
 def _settings() -> QSettings:
     return QSettings(_ORG, _APP)
@@ -292,6 +307,65 @@ def set_figure_format(fmt: str) -> None:
         raise ValueError(f"unknown figure format {fmt!r}. "
                           f"Choose from {VALID_FIG_FORMATS}.")
     _settings().setValue(_KEY_FIG_FORMAT, fmt)
+
+
+def get_figure_live_cache() -> int:
+    """How many of the most recent figures keep their live matplotlib Figure.
+
+    The Figures panel used to hold a pixmap per figure and a Figure for every
+    one of them, unbounded. The pixmap is what it displayed, so nothing could
+    be restyled from a picture; the Figures were retained but never capped, so
+    a long run accumulated all of them.
+
+    This bounds the live set. Figures past it keep their rendered page and
+    stay viewable -- see :func:`get_figure_dynamic` for what happens when the
+    user navigates back to one.
+
+    Larger is more restylable and more memory; a figure with a big ``imshow``
+    panel can hold tens of megabytes.
+    """
+    try:
+        value = int(_settings().value(_KEY_FIG_LIVE_CACHE,
+                                      DEFAULT_FIG_LIVE_CACHE))
+    except (TypeError, ValueError):
+        return DEFAULT_FIG_LIVE_CACHE
+    return max(MIN_FIG_LIVE_CACHE, min(value, MAX_FIG_LIVE_CACHE))
+
+
+def set_figure_live_cache(count: int) -> None:
+    """Persist how many figures keep their live Figure.
+
+    :raises ValueError: outside ``MIN_FIG_LIVE_CACHE..MAX_FIG_LIVE_CACHE``.
+    """
+    count = int(count)
+    if not MIN_FIG_LIVE_CACHE <= count <= MAX_FIG_LIVE_CACHE:
+        raise ValueError(
+            f"figure live cache must be between {MIN_FIG_LIVE_CACHE} and "
+            f"{MAX_FIG_LIVE_CACHE}; got {count}.")
+    _settings().setValue(_KEY_FIG_LIVE_CACHE, count)
+
+
+def get_figure_dynamic() -> bool:
+    """Whether an evicted figure is reloaded from its vector page on demand.
+
+    With this on, navigating back past the live-cache window and selecting a
+    figure loads its PDF if one exists, so an old figure is shown from the
+    vector page rather than from the display-capped raster and stays sharp at
+    any zoom. Off, it shows the raster it already has, which is faster and
+    touches no disk.
+
+    It cannot make an old figure restylable again -- a PDF is a finished page,
+    with no legend to toggle. It makes it *legible*.
+    """
+    raw = _settings().value(_KEY_FIG_DYNAMIC, DEFAULT_FIG_DYNAMIC)
+    if isinstance(raw, str):
+        return raw.strip().lower() in ("1", "true", "yes", "on")
+    return bool(raw)
+
+
+def set_figure_dynamic(enabled: bool) -> None:
+    """Persist whether evicted figures reload from their vector page."""
+    _settings().setValue(_KEY_FIG_DYNAMIC, bool(enabled))
 
 
 def get_figure_png_dpi() -> int:
@@ -2147,9 +2221,9 @@ class PreferencesDialog:
     def __new__(cls, parent=None):
         from PySide6.QtCore import Qt
         from PySide6.QtWidgets import (
-            QComboBox, QDialog, QDialogButtonBox, QFormLayout, QFrame,
-            QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
-            QTabWidget, QVBoxLayout, QWidget,
+            QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+            QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
+            QSpinBox, QTabWidget, QVBoxLayout, QWidget,
         )
         from .i18n import language_choices, tr
         from .widgets.toggle import Toggle
@@ -2793,6 +2867,33 @@ class PreferencesDialog:
                 png_dpi_combo.setCurrentIndex(i); break
         figures.addRow(tr("PNG resolution"), png_dpi_combo)
 
+        # How many figures stay EDITABLE, and what happens to the rest. The
+        # panel keeps a live matplotlib Figure for the most recent N: those
+        # can be restyled, because they still have a legend to toggle and
+        # axes to rescale. Older ones keep only their rendered page.
+        live_cache_spin = QSpinBox()
+        live_cache_spin.setRange(MIN_FIG_LIVE_CACHE, MAX_FIG_LIVE_CACHE)
+        live_cache_spin.setValue(get_figure_live_cache())
+        live_cache_spin.setToolTip(
+            "How many of the most recent figures keep their live figure, and "
+            "so stay restylable rather than being a picture of a figure. "
+            "Older ones are still shown and still on disk. Higher costs "
+            "memory: a figure with a large image panel can hold tens of "
+            "megabytes."
+        )
+        figures.addRow(tr("Editable figures kept"), live_cache_spin)
+
+        dynamic_check = QCheckBox()
+        dynamic_check.setChecked(get_figure_dynamic())
+        dynamic_check.setToolTip(
+            "When you go back past the number above and select a figure, "
+            "load its PDF page if one exists, so an old figure stays sharp "
+            "at any zoom instead of being an enlarged screen raster. It "
+            "cannot make an old figure editable again — a PDF page has no "
+            "legend to toggle — but it does make it legible."
+        )
+        figures.addRow(tr("Dynamic figures"), dynamic_check)
+
         # -- Performance ---------------------------------------------------
         # The mode, then the four things the two performance modes press on
         # your behalf. They are in the same tab deliberately: a mode that
@@ -3008,6 +3109,8 @@ class PreferencesDialog:
                 _select(cb_combo, get_color_blind_mode())
                 _select(fig_format_combo, get_figure_format())
                 _select(png_dpi_combo, get_figure_png_dpi())
+                live_cache_spin.setValue(get_figure_live_cache())
+                dynamic_check.setChecked(get_figure_dynamic())
                 _select(mode_combo, get_spacr_mode())
 
                 resolution_slider.setValue(
@@ -3086,6 +3189,8 @@ class PreferencesDialog:
             set_show_beta(beta_check.isChecked())
             set_figure_format(fig_format_combo.currentData())
             set_figure_png_dpi(png_dpi_combo.currentData())
+            set_figure_live_cache(live_cache_spin.value())
+            set_figure_dynamic(dynamic_check.isChecked())
             # LAST of the writes, and deliberately: entering Extra
             # Performance overrides five of the settings written above with
             # their minimums, and leaving it puts back what it stashed. Do
