@@ -991,8 +991,8 @@ def register_explain_cv_settings(replace: bool = False) -> bool:
     if has_registered_defaults(APP_KEY) and not replace:
         return False
     tooltips = {
-        "db_path": "(str) - Exact measurements.db whose objects the prediction file scored. Choosing another database is refused when crop identities do not match, preventing cross-experiment explanations.",
-        "predictions_file": "(str) - Existing per-object CV prediction CSV joined to measured objects. The module never reruns the vision model or substitutes scores from another run.",
+        "db_path": "(str) - Exact measurements.db whose objects the prediction file scored. Choosing another database is refused when crop identities do not match, preventing cross-experiment explanations. Default '' requires selection.",
+        "predictions_file": "(str) - Existing per-object CV prediction CSV joined to measured objects. The module never reruns the vision model or substitutes scores from another run. Default '' requires selection.",
         "path_column": "(str) - Column in the prediction CSV containing crop paths used for the one-to-one object join. Change it only when the exporter used another name. Default path.",
         "prediction_column": "(str) - Column containing the CV class the surrogate must reproduce. Selecting a score instead changes the learning target and meaning of fidelity. Default pred.",
         "surrogate_model": "(str) - Estimator family used to reproduce CV decisions: Random Forest, histogram gradient boosting, or optional XGBoost. Missing XGBoost is refused rather than silently substituted. Default random_forest.",
@@ -1005,7 +1005,7 @@ def register_explain_cv_settings(replace: bool = False) -> bool:
         "surrogate_exclude": "(list) - Additional measured features barred from the explanatory matrix. Use it for known artifacts or post-treatment annotations; model outputs, classes and identifiers remain excluded automatically. Default [].",
         "surrogate_correlation_threshold": "(float) - Absolute Spearman correlation above which a held-out feature pair is disclosed. Lower values reveal more redundancy and produce a larger audit table. Default 0.9.",
         "surrogate_min_fidelity_improvement": "(float) - Accuracy improvement over the majority-class baseline required before feature importances are presented as explanations. Raising it withholds more weak surrogates. Default 0.05.",
-        "dst": "(str) - Folder receiving versioned tables, manifests and figures. Leaving it blank uses a module-specific folder beside the primary input, keeping different analyses separated. Default blank.",
+        "dst": "(str) - Folder receiving versioned tables, manifests and figures. Default '' uses a module-specific folder beside the primary input, keeping different analyses separated.",
     }
     tooltips = {key: value for key, value in tooltips.items()
                 if key not in shared_tooltips}
