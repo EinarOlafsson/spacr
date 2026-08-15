@@ -824,3 +824,67 @@ def test_explorer_survives_an_impossible_style(qtbot, volcano_results):
     explorer._style.x_column = "does_not_exist"
     explorer.refresh()
     assert explorer._panels
+
+
+# ------------------------------------------------------------- dropped files
+
+
+def test_a_data_csv_is_routed_to_the_input_it_belongs_in(qtbot, tmp_path):
+    """Dropping a score or count CSV must fill that input, not fail.
+
+    Every dropped CSV used to go to the settings importer, which rejected a
+    score table with "CSV file must contain setting_key and setting_value
+    columns" -- true, and useless, about a file that never claimed to be
+    settings. The header decides: a count export carries a gRNA name and a
+    count, a score export carries neither.
+    """
+    from spacr.qt.dnd import _looks_like_settings_csv, _route_data_csv_to_inputs
+    from spacr.qt.widgets.file_list import FilePathListWidget
+
+    score = tmp_path / "plate1_dv.csv"
+    score.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n")
+    count = tmp_path / "plate_1_unique_combinations.csv"
+    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n")
+    settings_csv = tmp_path / "settings.csv"
+    settings_csv.write_text("Key,Value\nsrc,/tmp\n")
+
+    assert not _looks_like_settings_csv(score)
+    assert not _looks_like_settings_csv(count)
+    # A real settings export must still reach the settings importer.
+    assert _looks_like_settings_csv(settings_csv)
+
+    class _Model:
+        pass
+
+    class _Screen:
+        def apply_settings_dict(self, values):
+            return 0
+
+    screen = _Screen()
+    model = _Model()
+    model._widgets = {
+        "score_data": _tracked(qtbot, FilePathListWidget(kind="table")),
+        "count_data": _tracked(qtbot, FilePathListWidget(kind="table")),
+    }
+    screen._settings_model = model
+
+    assert _route_data_csv_to_inputs(score, screen) == "score_data"
+    assert _route_data_csv_to_inputs(count, screen) == "count_data"
+    assert len(model._widgets["score_data"].get_value()) == 1
+    assert len(model._widgets["count_data"].get_value()) == 1
+
+
+def test_a_screen_with_no_file_inputs_still_reports_the_problem(qtbot,
+                                                               tmp_path):
+    """Routing returns None so the caller can explain, rather than silently
+    swallowing a drop the screen cannot use."""
+    from spacr.qt.dnd import _route_data_csv_to_inputs
+
+    data = tmp_path / "data.csv"
+    data.write_text("a,b\n1,2\n")
+
+    class _Screen:
+        def apply_settings_dict(self, values):
+            return 0
+
+    assert _route_data_csv_to_inputs(data, _Screen()) is None
