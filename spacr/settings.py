@@ -1682,6 +1682,23 @@ def get_perform_regression_default_settings(settings):
     """
     settings.setdefault('count_data','list of paths')
     settings.setdefault('score_data','list of paths')
+    # ``regression`` preserves the historical simultaneous model.  The
+    # alternative is a plate-blocked marginal guide test with empirical
+    # P-values and an explicit multiple-testing family; it consumes the same
+    # score/count inputs and therefore belongs at this entry point rather than
+    # in a disconnected manuscript-only script.
+    settings.setdefault('analysis_mode', 'regression')
+    settings.setdefault('guide_min_wells', [1, 2, 3, 4])
+    settings.setdefault('guide_primary_min_wells', None)
+    settings.setdefault('guide_permutations', 200000)
+    settings.setdefault('guide_permutation_seed', 0)
+    settings.setdefault('guide_permutation_block', 'plateID')
+    settings.setdefault('guide_nuisance_columns', [])
+    settings.setdefault('guide_presence_threshold', 0.0)
+    settings.setdefault('guide_permutation_batch_size', 500)
+    settings.setdefault('guide_permutation_plot', True)
+    settings.setdefault('multiple_testing_method', 'fdr_bh')
+    settings.setdefault('fdr_alpha', 0.05)
     settings.setdefault('positive_control','239740')
     settings.setdefault('negative_control','233460')
     settings.setdefault('min_n',0)
@@ -1862,6 +1879,13 @@ def get_identify_masks_finetune_default_settings(settings):
 q = None
 expected_types = {
     "src": (str, list),
+    # Shared file/output seams used by independently registered analysis
+    # modules. Declaring them here makes tooltip/type ownership deterministic
+    # instead of whichever module happened to import first.
+    "dst": str,
+    "db_path": str,
+    "predictions_file": str,
+    "path_column": str,
     "metadata_type": str,
     "custom_regex": (str, type(None)),
     "cov_type": (str, type(None)),
@@ -2125,6 +2149,18 @@ expected_types = {
     "grna": str,
     "barcodes": str,
     "dependent_variable": str,
+    "analysis_mode": str,
+    "guide_min_wells": (int, list),
+    "guide_primary_min_wells": (int, type(None)),
+    "guide_permutations": int,
+    "guide_permutation_seed": int,
+    "guide_permutation_block": str,
+    "guide_nuisance_columns": list,
+    "guide_presence_threshold": (int, float),
+    "guide_permutation_batch_size": int,
+    "guide_permutation_plot": bool,
+    "multiple_testing_method": str,
+    "fdr_alpha": (int, float),
     # The four regression keys perform_regression indexes directly. They had no
     # entry here at all, so the GUIs could not render them, check_settings could
     # not coerce them out of a settings CSV and validate could not type-check
@@ -2457,7 +2493,6 @@ expected_types = {
     'generate_full_dataset':bool,
     'tar_path':str,
     'n_top_examples':int,
-    'random_seed':int,
     'balance_to_smallest':bool,
     'write_random_annotation_column':bool,
     'cv_group_by':str,
@@ -2609,6 +2644,10 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 # control is built) while an old settings CSV still runs unchanged.
 
 tooltips = {
+    "dst": "(str) - Folder receiving versioned tables, manifests and figures. Leaving it blank uses a module-specific folder beside the primary input, keeping different analyses separated.",
+    "db_path": "(str) - Exact measurements.db whose objects an analysis reads. Choosing another database is refused when object or crop identities do not match, preventing cross-experiment joins.",
+    "predictions_file": "(str) - Existing per-object prediction CSV joined to measured objects. Analysis modules read this exact output and do not silently rerun a model or substitute another run.",
+    "path_column": "(str) - Column in a prediction CSV containing crop paths for a one-to-one object join. Change it only when the exporter used another name. Default path.",
     "batch_correction": "(str) - Plate/batch correction applied before Image UMAP, ML screen classification or phenotype regression. 'none' leaves measurements alone; 'center' removes each plate's mean shift; 'zscore' aligns plate means and variances; 'robust_zscore' uses median/MAD and tolerates outliers; 'combat' models the batch effect while protecting the terms named in batch_covariate_column. Correct when plates were stained or imaged separately; leave off when they were not, since every method removes real signal that happens to align with plate. See spacr.batch_correction.correct_batch_effects. Default 'none'.",
     "batch_column": "(str) - Metadata column that identifies independent acquisition batches, normally 'plateID'. Every analyzed row must have a value and at least batch_min_samples rows must occur in each batch. Use an acquisition date or instrument ID only if that is the nuisance source you intend to remove. Default 'plateID'. API: spacr.batch_correction.correct_batch_effects.",
     "batch_control_column": "(str or None) - Metadata column containing reference-control labels for control_center, normally 'columnID' for plate controls. It is ignored by center, zscore, robust_zscore, and none. Blank follows col_to_compare in Image UMAP or location_column in Classify (ML); regression defaults to 'columnID'. API: spacr.batch_correction.correct_batch_effects.",
@@ -2769,6 +2808,18 @@ tooltips = {
     "nucleus_min_size": "(int) - (Depreceated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer nucleus_min_area, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the per-object score CSV minimum_cell_simulation resamples when it works out how many objects a well needs before its mean stops moving. It must name the same measurement as dependent_variable, or the simulated min_cell_count describes a different quantity than the one the regression fits and wells are kept or dropped on the wrong evidence; the regression defaults therefore follow dependent_variable. In the interpret-vision-model helper the same key names the CNN score column instead, default 'cv_predictions'.",
+    "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Default 'regression'.",
+    "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family.",
+    "guide_primary_min_wells": "(int or None) - Which guide_min_wells family supplies results_significant.csv and the returned 'significant' table. None chooses the smallest requested threshold.",
+    "guide_permutations": "(int) - Number of plate-blocked Freedman--Lane residual permutations used for empirical two-sided guide P values. More permutations improve tail resolution but take longer. Default 200000.",
+    "guide_permutation_seed": "(int) - Random seed for reproducible residual permutations. Keep it fixed to reproduce exact empirical P values; change it to check Monte Carlo sensitivity. Default 0.",
+    "guide_permutation_block": "(str) - Column defining exchangeability blocks for permutations, normally plateID. Residuals are never shuffled between its levels. Default 'plateID'.",
+    "guide_nuisance_columns": "(list) - Additional measured well-level covariates to residualize from both phenotype and guide fraction before testing. Do not put post-treatment outcomes here. Default [].",
+    "guide_presence_threshold": "(float) - A guide counts as present in a well only when its fraction is above this value. The effect still uses the unthresholded fraction. Default 0.0.",
+    "guide_permutation_batch_size": "(int) - Number of permutation outcomes evaluated together. Lower this if memory is tight; it does not change the result. Default 500.",
+    "guide_permutation_plot": "(bool) - Write PDF and PNG volcano plots for every requested guide_min_wells support family. Disable it for table-only batch runs; inference is unchanged. Default True.",
+    "multiple_testing_method": "(str) - Correction applied within each outcome/support family: fdr_bh (Benjamini--Hochberg, default), fdr_by, bonferroni, holm, or none. Stricter family-wise methods generally call fewer guides.",
+    "fdr_alpha": "(float) - Family-level rejection threshold for adjusted P values in guide_permutation mode. Must be between 0 and 1. Default 0.05.",
     "tolerance": "(int or float) - How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
     "invert_dependent_variable": "(bool or int) - Flip the response before it is aggregated per well, for scores whose useful direction is downward. False or 0 leaves it as measured, True or 1 uses 1 - x (right for a probability, so a low infection score becomes a high phenotype), and -1 uses 1 / x (right for a distance or a count). Any other value raises ValueError in process_scores. It changes the sign of every coefficient and therefore which side of the volcano your hits land on. Default False.",
     "y_lims": "(list or None) - Limits of the -log10(p) axis of the Toxoplasma volcano plot. None auto-scales to the data; [low, high] fixes the axis so several plates can be compared at the same scale; [[low1, high1], [low2, high2]] draws a broken axis with the gap between the two ranges removed, which keeps a handful of extremely significant genes on the plot without flattening everything else. Any other shape raises ValueError. Default None.",
@@ -3517,7 +3568,7 @@ categories = {
     # beside regression_type because that is the setting that decides whether
     # each of them does anything at all: spacr.ml.REGRESSION_SETTINGS_USED says
     # which type reads which, and a type refuses the ones it cannot read.
-    "Regression": ["regression_type", "dependent_variable", "score_column", "invert_dependent_variable", "agg_type", "transform", "alpha", "l1_ratio", "quantile", "hinge_threshold", "hinge_n_boot", "huber_t", "lasso_n_boot", "lasso_selection_threshold", "cov_type", "random_row_column_effects", "min_cell_count", "tolerance", "fraction_threshold", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
+    "Regression": ["analysis_mode", "regression_type", "dependent_variable", "score_column", "invert_dependent_variable", "agg_type", "transform", "alpha", "l1_ratio", "quantile", "hinge_threshold", "hinge_n_boot", "huber_t", "lasso_n_boot", "lasso_selection_threshold", "cov_type", "random_row_column_effects", "min_cell_count", "tolerance", "fraction_threshold", "guide_min_wells", "guide_primary_min_wells", "guide_permutations", "guide_permutation_seed", "guide_permutation_block", "guide_nuisance_columns", "guide_presence_threshold", "guide_permutation_batch_size", "guide_permutation_plot", "multiple_testing_method", "fdr_alpha", "target_unique_count", "outlier_detection", "threshold_method", "threshold_multiplier", "min_n", "volcano", "toxo", "other"],
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 

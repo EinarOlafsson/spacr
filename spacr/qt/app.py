@@ -941,6 +941,8 @@ _SELF_REGISTERING_APPS = (
     # invisible for a fortnight.
     ("spacr.qt.screens.pca", "register"),
     ("spacr.qt.screens.tabulate", "register"),
+    ("spacr.qt.screens.explain_cv", "register"),
+    ("spacr.qt.screens.investigate_hit", "register"),
 )
 
 import importlib as _importlib
@@ -2572,6 +2574,22 @@ class MainWindow(QMainWindow):
             folder=request.get("folder", ""),
             n_fields=int(request.get("n_fields", 0) or 0),
         )
+
+    def _on_investigate_hit_requested(self, request: dict) -> None:
+        """Open Investigate Hit on the exact result selected in Hit List."""
+        effect = float(request.get("effect", 0.0) or 0.0)
+        self._on_train_requested("investigate_hit", {
+            "results_folder": request.get("folder", ""),
+            "target_gene": request.get("gene", ""),
+            "target_guides": list(request.get("guides", ())),
+            "hit_effect": effect,
+            "hit_fdr": request.get("fdr", 1.0),
+            "hit_guide_agreement": request.get("guide_agreement", float("nan")),
+            "hit_n_guides": request.get("n_guides", 0),
+            "hit_well_support": request.get("well_support", 0),
+            "hit_direction": "positive" if effect >= 0 else "negative",
+            "hit_phenotype": request.get("phenotype", ""),
+        })
 
     def _theme_screen(self, screen: QWidget, key: str) -> None:
         """Clear a screen's containers and give it the ambient backdrop.

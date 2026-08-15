@@ -282,6 +282,9 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "model_check",
     "openmp_guard",
     "surrogate",
+    "guide_permutation",
+    "hit_attribution",
+    "hit_investigation",
     "training_basis",
 )
 

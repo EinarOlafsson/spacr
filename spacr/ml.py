@@ -2449,6 +2449,99 @@ def _assign_prc_parts(df, column=schema.PRC_KEY,
     return df
 
 
+def _run_guide_permutation_analysis(data, outcome, destination, settings):
+    """Run and persist the plate-blocked marginal guide analysis.
+
+    This is the ``perform_regression`` branch used when
+    ``analysis_mode='guide_permutation'``. Keeping it as a top-level function
+    makes the correction and output contract testable without replaying score
+    aggregation and sequencing QC.
+
+    :returns: The long results, selected support family, significant rows, and
+        a mapping of every artifact written by the analysis.
+    """
+    from .guide_permutation import (
+        analyse_long_guide_table,
+        plot_guide_permutation_volcano,
+        save_guide_permutation_results,
+    )
+
+    thresholds = settings.get('guide_min_wells', [1, 2, 3, 4])
+    if isinstance(thresholds, (int, np.integer)):
+        thresholds = [int(thresholds)]
+    thresholds = sorted({int(value) for value in thresholds})
+    if not thresholds or any(value < 1 for value in thresholds):
+        raise ValueError('guide_min_wells must contain positive integers')
+    primary = settings.get('guide_primary_min_wells')
+    primary = thresholds[0] if primary is None else int(primary)
+    if primary not in thresholds:
+        raise ValueError(
+            f'guide_primary_min_wells={primary} is not in '
+            f'guide_min_wells={thresholds}')
+
+    destination = os.path.abspath(os.path.expanduser(os.fspath(destination)))
+    os.makedirs(destination, exist_ok=True)
+    results = analyse_long_guide_table(
+        data,
+        outcome,
+        min_wells=thresholds,
+        block_column=str(settings.get('guide_permutation_block', 'plateID')),
+        nuisance_columns=list(settings.get('guide_nuisance_columns') or []),
+        n_permutations=int(settings.get('guide_permutations', 200000)),
+        random_state=int(settings.get('guide_permutation_seed', 0)),
+        multiple_testing=str(settings.get('multiple_testing_method', 'fdr_bh')),
+        alpha=float(settings.get('fdr_alpha', 0.05)),
+        presence_threshold=float(settings.get('guide_presence_threshold', 0.0)),
+        batch_size=int(settings.get('guide_permutation_batch_size', 500)),
+    )
+    paths = dict(save_guide_permutation_results(
+        results, destination, prefix='guide_permutation'))
+    if settings.get('guide_permutation_plot', True):
+        for threshold in thresholds:
+            for suffix in ('pdf', 'png'):
+                key = f'plot_min_{threshold}_{suffix}'
+                paths[key] = plot_guide_permutation_volcano(
+                    results,
+                    outcome=outcome,
+                    minimum_wells=threshold,
+                    save_path=os.path.join(
+                        destination,
+                        f'guide_permutation_min_{threshold}_wells.{suffix}'),
+                )
+
+    primary_table = results.loc[
+        results['minimum_wells_threshold'] == primary
+    ].copy()
+    # Compatibility aliases let existing table consumers display these rows
+    # without hiding that the inferential quantities are marginal effects,
+    # empirical P values, and already-adjusted values.
+    primary_table['grna'] = primary_table['guide']
+    primary_table['feature'] = (
+        'fraction:grna[' + primary_table['guide'].astype(str) + ']')
+    primary_table['coefficient'] = primary_table[
+        'standardized_marginal_effect']
+    primary_table['p_value'] = primary_table['permutation_p_value']
+    primary_table['q_value'] = primary_table['adjusted_p_value']
+    significant = primary_table.loc[primary_table['significant']].copy()
+    compatibility = {
+        'results': os.path.join(destination, 'results.csv'),
+        'results_grna': os.path.join(destination, 'results_grna.csv'),
+        'significant': os.path.join(destination, 'results_significant.csv'),
+    }
+    primary_table.to_csv(compatibility['results'], index=False)
+    primary_table.to_csv(compatibility['results_grna'], index=False)
+    significant.to_csv(compatibility['significant'], index=False)
+    paths.update(compatibility)
+    return {
+        'analysis_mode': 'guide_permutation',
+        'results': results,
+        'primary': primary_table,
+        'significant': significant,
+        'primary_min_wells': primary,
+        'paths': {key: str(path) for key, path in paths.items()},
+    }
+
+
 def perform_regression(settings):
     """Regress per-well phenotype scores against gRNA / gene counts to identify hits from a pooled CRISPR screen.
 
@@ -2471,6 +2564,10 @@ def perform_regression(settings):
         - ``regression_type`` — any name in :data:`REGRESSION_TYPES`, or
           ``None`` to choose one from the response distribution. See
           :func:`regression_model` for what each backend is for.
+        - ``analysis_mode='guide_permutation'`` — instead test plate-adjusted
+          marginal guide associations with empirical P values and apply
+          ``multiple_testing_method`` (Benjamini--Hochberg by default) within
+          each requested ``guide_min_wells`` family.
         - the per-model settings each backend reads — ``alpha``,
           ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``,
           ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``.
@@ -2493,7 +2590,8 @@ def perform_regression(settings):
     :raises ValueError: if ``score_data`` and ``plates_score`` (or
         ``count_data`` and ``plates_count``) lengths disagree, if
         ``dependent_variable`` is not a column of the score CSV, or if
-        ``regression_type`` is unsupported.
+        ``regression_type`` is unsupported, or a guide-permutation support
+        family or correction setting is invalid.
 
     Example:
         .. code-block:: python
@@ -2601,21 +2699,28 @@ def perform_regression(settings):
             # it accepted 'gls', 'wls', 'rlm' and 'quantile', which had no
             # backend - 'quantile' failing only at the last statement, after
             # every CSV and QC plot had been written.
-            reg_type = settings['regression_type']
-            if reg_type is not None and reg_type not in REGRESSION_TYPES:
-                if reg_type in UNSUPPORTED_REGRESSION_TYPES:
-                    raise ValueError(
-                        f"Unsupported regression type {reg_type}: "
-                        f"{UNSUPPORTED_REGRESSION_TYPES[reg_type]}")
-                print(f'Possible regression types: '
-                      f'{list(REGRESSION_TYPES) + [None]}')
-                raise ValueError(f"Unsupported regression type {reg_type}")
+            mode = str(settings.get('analysis_mode', 'regression')).strip().lower()
+            if mode not in {'regression', 'guide_permutation'}:
+                raise ValueError(
+                    f"Unsupported analysis_mode {mode!r}; choose 'regression' "
+                    "or 'guide_permutation'.")
+            settings['analysis_mode'] = mode
+            if mode == 'regression':
+                reg_type = settings['regression_type']
+                if reg_type is not None and reg_type not in REGRESSION_TYPES:
+                    if reg_type in UNSUPPORTED_REGRESSION_TYPES:
+                        raise ValueError(
+                            f"Unsupported regression type {reg_type}: "
+                            f"{UNSUPPORTED_REGRESSION_TYPES[reg_type]}")
+                    print(f'Possible regression types: '
+                          f'{list(REGRESSION_TYPES) + [None]}')
+                    raise ValueError(f"Unsupported regression type {reg_type}")
 
-            # Order matters: the reconcile can rewrite regression_type to
-            # 'mixed', and the run-level knobs have to be policed against the
-            # model that will actually be fitted.
-            _reconcile_random_row_column_effects(settings)
-            _reject_unused_run_settings(settings)
+                # Order matters: the reconcile can rewrite regression_type to
+                # 'mixed', and the run-level knobs have to be policed against
+                # the model that will actually be fitted.
+                _reconcile_random_row_column_effects(settings)
+                _reject_unused_run_settings(settings)
 
             return count_data_df, score_data_df
     
@@ -2631,7 +2736,10 @@ def perform_regression(settings):
 
         settings['src'] = src
     
-        if settings['regression_type'] is None:
+        if settings.get('analysis_mode') == 'guide_permutation':
+            res_folder = os.path.join(
+                src, 'results', score_source, 'guide_permutation')
+        elif settings['regression_type'] is None:
             res_folder = os.path.join(src, 'results', score_source, 'auto')
         else:
             res_folder = os.path.join(src, 'results', score_source, settings['regression_type'])
@@ -3203,6 +3311,20 @@ def perform_regression(settings):
         
     except Exception as e:
         print(e)
+
+    if settings.get('analysis_mode') == 'guide_permutation':
+        output = _run_guide_permutation_analysis(
+            merged_df, dependent_variable, res_folder, settings)
+        if settings.get('verbose'):
+            print(
+                f"Guide permutation analysis tested "
+                f"{len(output['primary'])} guides in the primary "
+                f">={output['primary_min_wells']}-well family and called "
+                f"{len(output['significant'])} at "
+                f"{settings['multiple_testing_method']} "
+                f"alpha={settings['fdr_alpha']}."
+            )
+        return output
         
     _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
 
