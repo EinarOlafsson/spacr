@@ -448,15 +448,28 @@ def sample_identity(path: Any) -> Dict[str, str]:
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
-    # A spaCR crop is plate_row_column_field_object: the same five-token
-    # shape as the prcfo key annotate_conditions builds. A well is therefore
-    # plate + row + column. Reading it as plate_row silently groups every
-    # column of a row together, so the grouped split must parse this exactly.
+    # Current spaCR crops are plate_row_column_field_object, while older
+    # exports encode row+column in one well token:
+    # plate_A01_field_object.  Both are public data formats still found in
+    # training sets.  Distinguish them from the row/column token shapes
+    # instead of from token count: some legacy object identifiers themselves
+    # contain underscores.
     family = augmentation_family(path)
     parts = family.split("_")
     plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    well = "_".join(parts[:3]) if len(parts) >= 3 else ""
-    field_id = "_".join(parts[:4]) if len(parts) >= 4 else ""
+    row_token = parts[1] if len(parts) > 1 else ""
+    column_token = parts[2] if len(parts) > 2 else ""
+    split_well = (
+        len(parts) >= 5
+        and bool(re.fullmatch(r"(?i)(?:[a-z]+|r\d+)", row_token))
+        and bool(re.fullmatch(r"(?i)(?:\d+|c\d+)", column_token))
+    )
+    if split_well:
+        well = "_".join(parts[:3])
+        field_id = "_".join(parts[:4])
+    else:
+        well = "_".join(parts[:2]) if len(parts) >= 4 else ""
+        field_id = "_".join(parts[:3]) if len(parts) >= 4 else ""
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),

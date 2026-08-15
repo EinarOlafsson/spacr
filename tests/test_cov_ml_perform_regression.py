@@ -550,8 +550,14 @@ def test_min_cell_count_none_is_filled_from_the_simulation(screen, stubs):
 def test_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
         screen, stubs, monkeypatch):
     """fraction_threshold=None delegates the cutoff to graph_sequencing_stats."""
+    import importlib
+
     from spacr.ml import perform_regression
-    import spacr.sequencing as SQ
+    # Resolve the canonical module object from sys.modules.  ``spacr`` has a
+    # lazy package attribute for this module, and tests that exercise lazy
+    # reloads can leave that attribute pointing at an older module object.
+    # Patching the canonical import is the lookup perform_regression uses.
+    SQ = importlib.import_module("spacr.sequencing")
 
     seen = []
 

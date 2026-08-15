@@ -34,6 +34,20 @@ def test_app_screen_constructs_for_every_key(qtbot, qt_theme_applied, app_key):
     assert not screen._usage_timer.isActive()
 
 
+def test_a_sample_finishing_after_hide_does_not_repaint_the_screen(qtbot):
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    assert not screen._usage_timer.isActive()
+
+    screen._apply_usage({"ram": 73})
+    assert screen._usage_ram._bar.value() == 0
+
+    screen._usage_timer.start()
+    screen._apply_usage({"ram": 73})
+    screen._usage_timer.stop()
+    assert screen._usage_ram._bar.value() == 73
+
+
 def test_app_screen_settings_widgets_populated(qtbot, qt_theme_applied):
     screen = AppScreen("mask")
     qtbot.addWidget(screen)

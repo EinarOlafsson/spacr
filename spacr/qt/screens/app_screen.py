@@ -3132,6 +3132,13 @@ class AppScreen(QWidget):
 
     def _apply_usage(self, sample: dict) -> None:
         """Paint one worker-taken usage sample. GUI thread only."""
+        # A page can be hidden (or telemetry explicitly frozen) while the
+        # worker is sampling.  Do not let that stale result repaint a screen
+        # whose timer has already been stopped; the next showEvent requests a
+        # fresh sample immediately.
+        usage_timer = getattr(self, "_usage_timer", None)
+        if usage_timer is not None and not usage_timer.isActive():
+            return
         if not sample:
             return
         ram = sample.get("ram")

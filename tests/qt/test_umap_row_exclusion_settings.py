@@ -113,13 +113,12 @@ def _drive(qtbot, dog, done, budget_s=30.0):
     dog.stop()
 
 
-def test_umap_plate_section_contains_only_general_exclusion(qtbot):
+def test_umap_input_section_contains_general_exclusion(qtbot):
     model = SettingsWidgets("umap")
     sections = dict(model.build_sections())
 
-    plate_labels = [label for label, _widget in
-                    sections["Plate Layout & Controls"]]
-    assert plate_labels == ["Exclude"]
+    input_labels = [label for label, _widget in sections["Input Data"]]
+    assert "Exclude" in input_labels
     assert isinstance(model._widgets["exclude_rows"], RowExclusionEditor)
     for legacy in (
         "col_to_compare", "pos", "neg", "mix",
@@ -127,8 +126,7 @@ def test_umap_plate_section_contains_only_general_exclusion(qtbot):
     ):
         assert legacy not in model._widgets
 
-    measurement_labels = [label for label, _widget in sections["Measurements"]]
-    assert "Exclude features" in measurement_labels
+    assert "Exclude features" in input_labels
 
 
 def test_umap_display_embedding_plot_and_advanced_settings_are_panel_sections(
@@ -136,15 +134,15 @@ def test_umap_display_embedding_plot_and_advanced_settings_are_panel_sections(
     model = SettingsWidgets("umap")
     sections = dict(model.build_sections())
 
-    assert {"UMAP Display", "Embedding & Clustering", "Advanced"} <= set(
+    assert {"Points & Images", "Clustering", "UMAP", "Runtime"} <= set(
         sections)
-    display = {label for label, _widget in sections["UMAP Display"]}
-    embedding = {
-        label for label, _widget in sections["Embedding & Clustering"]}
+    display = {label for label, _widget in sections["Points & Images"]}
+    embedding = {label for label, _widget in sections["Clustering"]}
+    umap = {label for label, _widget in sections["UMAP"]}
     assert {"Point color", "Point alpha", "Plot images",
             "Plot cluster grids"} <= display
-    assert {"N neighbors", "Min dist", "Clustering", "Eps",
-            "Min samples"} <= embedding
+    assert {"Clustering", "Eps", "Min samples"} <= embedding
+    assert {"N neighbors", "Min dist"} <= umap
     assert "https://" in model.plain_tooltip_for("plot_images")
 
 

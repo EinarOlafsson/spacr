@@ -546,7 +546,10 @@ jobs:
         run: |
           python -m pytest tests/ \
             -m "not slow and not heavy" \
+            --ignore=tests/test_perf_guard.py \
             -n 3 --dist loadfile -q --no-header --tb=short
+          python -m pytest tests/test_perf_guard.py \
+            -m "not slow and not heavy" -q --no-header --tb=short
           python -m pytest tests/ \
             -m "(slow or heavy) and (gpu or network or nas)" \
             -n 3 --dist loadfile -q --no-header --tb=short

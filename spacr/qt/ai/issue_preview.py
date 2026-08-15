@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Mapping
 
 from PySide6.QtWidgets import (
-    QCheckBox,
     QDialog,
     QDialogButtonBox,
     QLabel,
@@ -14,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
+from ..widgets import Toggle
 from .issue_report import strip_report_paths
 
 
@@ -41,7 +41,7 @@ class IssuePreviewDialog(QDialog):
         self.title_edit.setPlaceholderText(tr("Issue title"))
         layout.addWidget(self.title_edit)
 
-        self.strip_paths = QCheckBox(tr(
+        self.strip_paths = Toggle(tr(
             "Remove file and folder names (recommended)"
         ))
         self.strip_paths.setChecked(True)
