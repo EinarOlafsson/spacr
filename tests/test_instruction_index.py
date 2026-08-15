@@ -64,6 +64,13 @@ def test_the_counts_are_the_real_counts():
     assert f"{n_done} done / {n_open} open" in text
 
 
+def test_duplicate_instruction_numbers_are_ordered_by_filename():
+    """A duplicate numeric id must not inherit filesystem iteration order."""
+    tool = _tool()
+    rows = tool._entries("done")
+    assert rows == sorted(rows, key=lambda row: (int(row[0]), row[2]))
+
+
 def test_codex_owned_open_files_are_marked_do_not_touch():
     """Two sessions editing one file is how work gets lost."""
     tool = _tool()

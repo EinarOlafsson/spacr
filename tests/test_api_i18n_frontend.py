@@ -175,7 +175,12 @@ def _dump_dom(url: str, *, budget=1800) -> str:
             check=False,
             capture_output=True,
             text=True,
-            timeout=20,
+            # Six fast-suite Python cells can launch Chrome concurrently on
+            # hosted runners.  Startup alone exceeded 20 seconds once under
+            # that contention even though the page's virtual-time budget is
+            # only 1.8 seconds.  Keep every DOM assertion and allow the
+            # external process enough wall time to start deterministically.
+            timeout=60,
         )
     assert completed.returncode == 0, completed.stderr[-2000:]
     return completed.stdout

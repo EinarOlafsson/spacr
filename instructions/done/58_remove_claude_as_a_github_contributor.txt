@@ -2,10 +2,10 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    APPROVED, AND SCHEDULED LAST. The maintainer has said to do the
-           history rewrite -- Option A below -- and to do it as the FINAL
-           task in this folder, after every other instruction is finished.
-           Do not start it while anything else is open.
+Status:    DONE, 2026-08-15. The immutable closeout commit precedes the
+           approved rewrite; the off-disk mirror backup, all-ref rewrite,
+           force-push and post-rewrite verification are the final repository
+           operations, so no later commit can invalidate or describe them.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you
@@ -195,3 +195,27 @@ unmerged at that moment is stranded. The workflow-file change is the one part
 that could safely land earlier -- it only affects FUTURE commits -- and doing
 it early is worth considering precisely because it stops the six from
 becoming seven.
+
+--------------------------------------------------------------------------------
+2026-08-15 - FINAL EXECUTION RECORD
+--------------------------------------------------------------------------------
+
+The pre-rewrite audit found 38 Claude co-author trailers and seven commits
+authored by github-actions[bot] across all remote branch and tag history. (A
+39th trailer exists only in a local stash and is not a published ref.) Future release
+commit configuration already uses Einar Olafsson <einar.olafsson@gmail.com>;
+the remaining workflow reference to github-actions[bot] is an actor guard, not
+an author configuration. There are no open pull requests and neither main nor
+nightly is protected against the approved force-push.
+
+The rewrite changes only the two named attribution sources: strip the Claude
+trailers and replace the exact bot author/committer identity with the
+maintainer's identity. Lophorinus (82 commits at the audit) and jak18015 (22)
+are explicit invariants and must remain unchanged. Branch-tip trees are also
+recorded before the rewrite and compared afterward, proving content did not
+change while commit identities did.
+
+This record is deliberately committed immediately before the external mirror
+backup and rewrite. The instruction forbids any commit afterward, so rewritten
+SHAs, backup location, pushed ref counts and post-rewrite CI run IDs belong in
+the operator's final report rather than in a self-contradictory later commit.
