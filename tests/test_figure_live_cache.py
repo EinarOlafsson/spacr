@@ -505,3 +505,93 @@ def test_few_series_are_still_named_individually(qtbot, queue):
     combos = dialog.findChildren(QComboBox)
     assert not [w for w in combos if w.findData("tab20") != -1], \
         "four series were collapsed into a rule"
+
+
+def test_axis_limits_can_be_set(qtbot, queue):
+    """"there is no x axis limits or y axis limits" -- there were none.
+
+    Zooming to the part of the volcano with the hits in it is the most common
+    thing anyone wants from a plot, and the dialog had no way to ask for it.
+    """
+    from matplotlib.figure import Figure
+    from PySide6.QtWidgets import QDoubleSpinBox
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = Figure()
+    axis = figure.add_subplot(111)
+    axis.plot([0, 1, 2], [0, 5, 3])
+
+    queue.add_figure(figure)
+    live = queue.figure_for(0)
+    live_axis = live.axes[0]
+    dialog = FigureSettingsDialog(live, queue)
+    qtbot.addWidget(dialog)
+
+    boxes = dialog.findChildren(QDoubleSpinBox)
+    start = live_axis.get_xlim()
+    pair = [
+        (boxes[i], boxes[i + 1]) for i in range(len(boxes) - 1)
+        if abs(boxes[i].value() - start[0]) < 1e-9
+        and abs(boxes[i + 1].value() - start[1]) < 1e-9
+    ]
+    assert pair, "no pair of spin boxes holds the current x limits"
+
+    low, high = pair[0]
+    low.setValue(-3.0)
+    high.setValue(9.0)
+    assert live_axis.get_xlim() == (-3.0, 9.0)
+
+
+def test_a_render_in_flight_does_not_start_another(qtbot, queue):
+    """This is the hang.
+
+    A preview blocks the GUI thread for ~150 ms, and Qt keeps delivering
+    events throughout -- spin-box auto-repeat, wheel, the debounce timer.
+    Without a guard each lands another render behind the current one, the
+    queue grows faster than it drains, and the window stops responding.
+    """
+    from matplotlib.figure import Figure
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+    renders = []
+    dialog = FigureSettingsDialog(
+        figure, on_change=lambda preview=True: renders.append(preview))
+    qtbot.addWidget(dialog)
+
+    dialog._rendering = True
+    for _ in range(40):
+        dialog._changed()
+        dialog._redraw_now()
+    assert renders == [], f"{len(renders)} renders stacked behind one in flight"
+    assert dialog._dirty, "the pending change was dropped instead of deferred"
+
+    # ...and the picture still catches up once the thread is free.
+    dialog._rendering = False
+    dialog._redraw_now()
+    assert len(renders) == 1
+
+
+def test_the_live_preview_does_not_pay_for_a_tight_bbox(queue):
+    """bbox_inches='tight' measures by doing a complete extra draw.
+
+    On the volcano that is a flat ~125 ms on top of a ~150 ms render -- the
+    largest single cost in the live path, for trimmed whitespace nobody is
+    looking at mid-drag.
+    """
+    from pathlib import Path
+    from unittest.mock import patch
+
+    from matplotlib.figure import Figure
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+
+    with patch.object(Figure, "savefig", autospec=True) as savefig:
+        queue._render_preview(figure, Path("unused.png"))
+
+    assert savefig.called
+    assert "bbox_inches" not in savefig.call_args.kwargs
