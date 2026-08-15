@@ -2,7 +2,7 @@
 A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
 ================================================================================
 
-Status:    filed 2026-08-15, not started.
+Status:    done 2026-08-15.
 Requested: 2026-08-15 - "add to instructions for all moduals when error occurs
            because metadata column (plateID, wellID, fieldID, coulmnID,RowID,
            etc.) is not found the user should be prompted and asked which
@@ -123,3 +123,25 @@ HOW TO KNOW IT WORKED
   collide after whatever normalisation the mapper applies.
 * The headless path never blocks; it exits with a message naming what it
   found, what it needed, and how to supply the mapping non-interactively.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15)
+--------------------------------------------------------------------------------
+
+Implemented one UI-independent resolver in ``spacr.metadata_resolution`` and
+routed the canonical object-table writer boundary through it. Known aliases
+are canonicalised first. Every unresolved target is presented in one request
+with example values and an overridable guess. Explicit choices use
+``schema.canonical_rename_plan`` and therefore share its case-folded SQLite
+collision guard.
+
+The Qt picker resolves the full request in one dialog, previews A01 -> r1/c1
+before derivation, remembers a choice for the run, and can save its decision
+and pseudo-well audit as JSON. Pseudo identities are typed and assigned
+injectively, so values such as integer 1 and string "1" cannot collapse.
+Headless use is immediate and actionable through ``metadata_column_map``,
+``metadata_well_column``, ``metadata_pseudo_source`` and
+``allow_pseudo_metadata``; it never constructs a dialog.
+
+Verification: 284 resolver/schema/Qt tests passed after the initial build;
+the final focused object-schema, picker and packaging batch passed 102 tests.

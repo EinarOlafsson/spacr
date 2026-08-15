@@ -443,12 +443,13 @@ Name=spaCR
 Comment=$desktop_comment
 Exec=$LAUNCHER
 Icon=$icon_path
+StartupWMClass=spaCR
 Terminal=false
 Categories=Science;Education;
 StartupNotify=true
 EOF
     chmod 644 "$desktop_tmp"
-    mv "$desktop_tmp" "$DESKTOP_DIR/spacr.desktop"
+    mv "$desktop_tmp" "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 
     uninstall_path="$INSTALL_ROOT/uninstall-spacr.sh"
     removed_message="$(spacr_say removed)"
@@ -456,7 +457,7 @@ EOF
 #!/usr/bin/env sh
 set -eu
 rm -f "$LAUNCHER"
-rm -f "$DESKTOP_DIR/spacr.desktop"
+rm -f "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 rm -rf "$INSTALL_ROOT"
 echo "$removed_message"
 EOF
