@@ -84,6 +84,25 @@ def test_reusable_suite_auto_detects_resources_and_current_actions():
     assert "libopencc-data" in workflow
 
 
+def test_qt_measurement_suites_run_after_xdist_workers_exit():
+    """Cursor, event-loop, and RSS measurements need an idle process.
+
+    The offscreen Qt platform exposes one synthetic cursor across workers,
+    and event-loop/RSS budgets become measurements of sibling-worker load
+    when these files run inside xdist.  The reusable suite must exclude each
+    file from the parallel pass and run it explicitly in the serial tail.
+    """
+    workflow = (ROOT / ".github" / "workflows" /
+                "_pytest-suite.yml").read_text(encoding="utf-8")
+    for path in (
+        "tests/test_perf_guard.py",
+        "tests/qt/test_gui_responsiveness.py",
+        "tests/qt/test_home_stage_and_dock.py",
+    ):
+        assert f"--ignore={path}" in workflow
+        assert workflow.count(path) >= 2
+
+
 def test_timelapse_does_not_download_btrack_data_during_collection():
     """The dataset registry belongs inside tracking, never at module import."""
     tree = ast.parse(TIMELAPSE.read_text(encoding="utf-8"))
