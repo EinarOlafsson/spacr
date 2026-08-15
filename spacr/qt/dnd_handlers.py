@@ -1969,6 +1969,90 @@ class EvaluationBundleDropHandler(LayoutDropHandler):
         _log(screen, f"[drop] classifier_evaluation ← {value}\n")
 
 
+class ExplainCvInputsDropHandler(DropHandler):
+    """Fill Explain CV's database or prediction input from one drop."""
+
+    _DATABASE_SUFFIXES = (".db", ".sqlite", ".sqlite3")
+
+    @staticmethod
+    def _database_in(path: Path) -> Optional[Path]:
+        for candidate in (
+            path / "measurements.db",
+            path / "measurements" / "measurements.db",
+        ):
+            if candidate.is_file():
+                return candidate
+        return None
+
+    def can_accept(self, path: Path) -> bool:
+        if path.is_file():
+            return path.suffix.lower() in (*self._DATABASE_SUFFIXES, ".csv")
+        return path.is_dir() and (
+            self._database_in(path) is not None
+            or any(path.glob("*.csv"))
+        )
+
+    def error_message(self, path: Path) -> str:
+        return (
+            "Explain CV accepts measurements.db, a project containing it, "
+            "or an existing per-object prediction CSV."
+        )
+
+    def apply(self, path: Path, screen) -> None:
+        panel = getattr(screen, "explain", None)
+        if panel is None:
+            raise TypeError("This screen has no Explain CV input panel.")
+        if path.is_file() and path.suffix.lower() in self._DATABASE_SUFFIXES:
+            panel.database.setText(str(path))
+            return
+        if path.is_file():
+            panel.predictions.setText(str(path))
+            panel._refresh_prediction_columns()
+            return
+        database = self._database_in(path)
+        if database is not None:
+            panel.database.setText(str(database))
+        csvs = sorted(path.glob("*.csv"))
+        if csvs:
+            panel.predictions.setText(str(csvs[0]))
+            panel._refresh_prediction_columns()
+        if database is None and not csvs:
+            raise ValueError(self.error_message(path))
+
+
+class InvestigateHitInputsDropHandler(ExplainCvInputsDropHandler):
+    """Fill Investigate Hit's provenance inputs without guessing a hit."""
+
+    def can_accept(self, path: Path) -> bool:
+        return path.is_dir() or super().can_accept(path)
+
+    def error_message(self, path: Path) -> str:
+        return (
+            "Investigate Hit accepts a regression results folder, "
+            "measurements database, prediction CSV, or guide-fraction CSV."
+        )
+
+    def apply(self, path: Path, screen) -> None:
+        panel = getattr(screen, "investigate", None)
+        if panel is None:
+            raise TypeError("This screen has no Investigate Hit input panel.")
+        if path.is_file() and path.suffix.lower() in self._DATABASE_SUFFIXES:
+            panel.database.setText(str(path))
+            return
+        if path.is_file():
+            name = path.stem.casefold()
+            if any(token in name for token in ("fraction", "guide", "count")):
+                panel.fractions.setText(str(path))
+            else:
+                panel.predictions.setText(str(path))
+                panel._refresh_prediction_columns()
+            return
+        panel.regression_folder.setText(str(path))
+        database = self._database_in(path)
+        if database is not None:
+            panel.database.setText(str(database))
+
+
 class SubmissionSettingsDropHandler(LayoutDropHandler):
     """Distributed Jobs: a settings snapshot to submit, or the plate with one."""
 
@@ -2092,6 +2176,8 @@ _HANDLERS = {
     "napari_bridge":    LabelMaskDropHandler,
     "layer_viewer":     LayerStackDropHandler,
     "classifier_evaluation": EvaluationBundleDropHandler,
+    "explain_cv":       ExplainCvInputsDropHandler,
+    "investigate_hit":  InvestigateHitInputsDropHandler,
     "distributed_jobs": SubmissionSettingsDropHandler,
 }
 

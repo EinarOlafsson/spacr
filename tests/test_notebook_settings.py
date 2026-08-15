@@ -82,6 +82,13 @@ def test_the_committed_notebooks_match_what_the_tool_generates():
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+def test_shared_tooltips_do_not_depend_on_optional_module_imports():
+    tool = _tool()
+    expected = tool.CORE_TOOLTIPS["dst"]
+    tool._load_registrations()
+    assert tool.tooltip_for("dst", "factory", {}) == expected
+
+
 def test_every_notebook_has_a_settings_surface():
     """A notebook whose function nobody can enumerate is the defect itself."""
     tool = _tool()
