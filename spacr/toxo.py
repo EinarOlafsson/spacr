@@ -246,7 +246,7 @@ def custom_volcano_plot(
     # fit down one side.
     entries = len(legend_handles)
     columns = 1 if entries <= 14 else 2 if entries <= 30 else 3
-    ax_lower.legend(
+    legend = ax_lower.legend(
         handles=legend_handles,
         bbox_to_anchor=(1.02, 1),
         loc='upper left',
@@ -261,12 +261,49 @@ def custom_volcano_plot(
         prop={'size': max(fontsize * 0.6, 7)},
     )
 
+    _fit_outside_legend(fig, legend)
+
     if save_path:
         save_path = save_figure(plt.gcf(), save_path,
                                 bbox_inches='tight')
     plt.show()
 
     return hit_list
+
+
+def _fit_outside_legend(fig, legend, pad=0.02, min_axes_width=0.45):
+    """Make room inside ``fig`` for a legend anchored outside the axes.
+
+    A legend at ``bbox_to_anchor=(1.02, 1)`` sits beyond the axes and therefore
+    beyond the figure. ``bbox_inches='tight'`` grows the saved file to cover it,
+    so the PDF on disk looks right -- but nothing rescues the figure shown in
+    the application, which is drawn at the figure's own extent. The legend is
+    simply clipped, reported as "the volcano plot is always cut off on the
+    right side".
+
+    Measuring the legend and shrinking the axes to fit it means the figure is
+    correct as drawn, on screen and on disk alike, instead of being correct
+    only after a save-time rescue.
+
+    :param fig: Figure holding the legend.
+    :param legend: The legend to make room for.
+    :param pad: Extra figure-width fraction left beside the legend.
+    :param min_axes_width: Never shrink the axes below this fraction, so a
+        runaway legend cannot squeeze the data down to nothing.
+    """
+    if legend is None:
+        return
+    try:
+        fig.canvas.draw()
+        extent = legend.get_window_extent()
+        fig_width = fig.get_figwidth() * fig.dpi
+        if fig_width <= 0:
+            return
+        right = 1.0 - (extent.width / fig_width) - pad
+        # A legend wider than the figure would invert the axes; clamp instead.
+        fig.subplots_adjust(right=max(min(right, 0.98), min_axes_width))
+    except Exception:  # pragma: no cover - layout is never worth an exception
+        pass
 
 
 def _normalize_y_lims(y_lims, neg_log_p):
