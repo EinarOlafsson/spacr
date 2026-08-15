@@ -391,7 +391,7 @@ def test_the_ml_regex_that_only_understood_rows_a_to_p_is_gone():
                            ('PLATE1_Q14_1_1', ('r17', 'c14')),
                            ('PLATE1_AA14_1_1', ('r27', 'c14')),
                            ('exp3_A14_1_1', ('r1', 'c14'))]:
-        parsed = S.parse_field_stem(stem)
+        parsed = S.parse_object_stem(stem)
         assert (parsed.rowID, parsed.columnID) == expected, stem
 
 
@@ -774,9 +774,10 @@ def test_prcfo_matches_the_composition_io_uses(tmp_path):
     assert S.compose_prcfo('plate1', 'C', 5, 4, 23) == io_style
 
 
-def test_a_plate_containing_the_separator_is_refused():
-    with pytest.raises(KeyParseError, match='key separator'):
-        S.compose_prcf('plate_1', 'r1', 'c1', 'f1')
+def test_a_plate_containing_the_separator_is_escaped_and_round_trips():
+    key = S.compose_prcf('plate_1', 'r1', 'c1', 'f1')
+    assert key == 'plate%5F1_r1_c1_f1'
+    assert S.parse_prcf(key).plateID == 'plate_1'
     with pytest.raises(KeyParseError, match='empty plate'):
         S.compose_prcf('', 'r1', 'c1', 'f1')
 
