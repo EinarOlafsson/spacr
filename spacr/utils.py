@@ -10472,22 +10472,35 @@ def correct_metadata(df):
     """
     #if 'object' in df.columns:
     #    df['objectID'] = df['object']
-    # delete these four lines in 2027
-    if 'plateID' in df.columns:
-        df["plateID"] = df["plateID"].str.replace(r"^pp", "p", regex=True)
-        
-    if 'prcfo' in df.columns:
-        df["prcfo"] = df["prcfo"].str.replace(r"^pp", "p", regex=True)
-        
     if 'object_name' in df.columns:
         df['objectID'] = df['object_name']
-    
+
     if 'plate' in df.columns:
         df['plateID'] = df['plate']
-    
+
     if 'plate_name' in df.columns:
         df['plateID'] = df['plate_name']
-    
+
+    # The 'pp' repair runs AFTER the legacy promotions above, and over every
+    # column that embeds the plate ID.
+    #
+    # It used to run first and only over 'plateID'/'prcfo', which meant it did
+    # nothing at all for the files that actually carry the artifact: a legacy
+    # score CSV has a 'plate' column and NO 'plateID' column, so the guard was
+    # false, the repair was skipped, and the very next line then copied the
+    # unrepaired 'plate' value into 'plateID'. Even when 'plateID' did exist,
+    # the promotion overwrote the value that had just been fixed.
+    #
+    # The cost was silent and total. Score files stamped 'pplate1' met count
+    # files stamped 'plate1', every prc differed by one character, the join
+    # produced ZERO rows, and the run died several steps later inside a plot
+    # with `KeyError: 0` — nowhere near the mismatch, and with nothing on
+    # screen naming a plate.
+    for column in ('plateID', 'prcfo', 'prc'):
+        if column in df.columns:
+            df[column] = (df[column].astype(str)
+                          .str.replace(r"^pp", "p", regex=True))
+
     # Rename legacy aliases to their canonical names, but never when the
     # canonical column already exists — an unguarded rename produced two
     # columns with the same name (e.g. 'field_name' renamed onto an existing
