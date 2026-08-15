@@ -279,3 +279,77 @@ def test_an_evicted_figure_can_still_be_restyled(qtbot, queue, monkeypatch):
     qtbot.addWidget(menu)
     # A real menu, not the "cannot be restyled" one.
     assert len(menu.actions()) > 1
+
+
+# ------------------------------------------------------ the dialog stays usable
+
+
+def test_scrolling_the_dialog_does_not_edit_the_controls(qtbot, queue):
+    """Qt gives spin boxes and combos the wheel by default.
+
+    So scrolling to reach a control changed a dozen settings on the way past,
+    each triggering a render. That is what made the dialog unusable.
+    """
+    from PySide6.QtCore import Qt, QPoint
+    from PySide6.QtGui import QWheelEvent
+    from PySide6.QtWidgets import QDoubleSpinBox, QSpinBox
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    queue.add_figure(_rich_figure())
+    dialog = FigureSettingsDialog(queue.figure_for(0), queue)
+    qtbot.addWidget(dialog)
+
+    spins = dialog.findChildren(QSpinBox) + dialog.findChildren(QDoubleSpinBox)
+    assert spins, "the dialog should have numeric controls"
+    assert all(w.focusPolicy() == Qt.StrongFocus for w in spins)
+
+    box = spins[0]
+    before = box.value()
+    wheel = QWheelEvent(
+        QPoint(5, 5), box.mapToGlobal(QPoint(5, 5)), QPoint(0, 0),
+        QPoint(0, 120), Qt.NoButton, Qt.NoModifier, Qt.NoScrollPhase, False)
+    # Unfocused: the wheel belongs to the scroll area.
+    assert dialog.eventFilter(box, wheel) is True
+    assert box.value() == before
+    # Focused: the user asked for it. Qt will not grant focus to a widget in
+    # an unshown offscreen dialog, so what is under test here is the filter's
+    # DECISION, not Qt's focus machinery.
+    box.hasFocus = lambda: True
+    assert dialog.eventFilter(box, wheel) is False
+
+
+def test_rapid_changes_coalesce_into_one_redraw(qtbot, queue):
+    """A full render is seconds on a large figure; per-change was a freeze."""
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    queue.add_figure(_rich_figure())
+    rendered = {"n": 0}
+    dialog = FigureSettingsDialog(
+        queue.figure_for(0), queue,
+        on_change=lambda preview=True: rendered.__setitem__(
+            "n", rendered["n"] + 1))
+    qtbot.addWidget(dialog)
+
+    for _ in range(20):
+        dialog._changed()
+    assert rendered["n"] == 0, "nothing renders while changes are still coming"
+    assert dialog._redraw.isActive()
+    qtbot.wait(dialog.REDRAW_DELAY_MS + 150)
+    assert rendered["n"] == 1, "twenty changes cost one render"
+
+
+def test_a_preview_render_skips_the_vector_page(qtbot, queue):
+    """The preview is what makes live feedback affordable."""
+    queue.add_figure(_rich_figure())
+    from pathlib import Path
+
+    png = Path(queue._png_paths[0])
+    pdf = png.with_suffix(".pdf")
+    queue.refresh_current_figure(preview=False)
+    stamp = pdf.stat().st_mtime_ns if pdf.exists() else None
+
+    assert queue.refresh_current_figure(preview=True) is True
+    # The vector page is untouched by a preview; it is rewritten on close.
+    if stamp is not None:
+        assert pdf.stat().st_mtime_ns == stamp
