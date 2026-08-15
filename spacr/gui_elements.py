@@ -1748,7 +1748,8 @@ class spacrButton(tk.Frame):
 
         initial_size = int(self.size * 0.65)  # 65% of button size initially
         self.original_icon_image = icon_image.resize((initial_size, initial_size), Image.Resampling.LANCZOS)
-        self.icon_photo = ImageTk.PhotoImage(self.original_icon_image)
+        self.icon_photo = ImageTk.PhotoImage(
+            self.original_icon_image, master=self.canvas)
 
         self.button_icon = self.canvas.create_image(self.size // 2 + 2, self.size // 2 + 2, image=self.icon_photo)
         self.canvas.image = self.icon_photo  # Keep a reference to avoid garbage collection
@@ -1902,7 +1903,8 @@ class spacrButton(tk.Frame):
         # Resize the original icon image
         new_size = int(self.size * scale_factor)
         resized_icon = self.original_icon_image.resize((new_size, new_size), Image.Resampling.LANCZOS)
-        self.icon_photo = ImageTk.PhotoImage(resized_icon)
+        self.icon_photo = ImageTk.PhotoImage(
+            resized_icon, master=self.canvas)
 
         # Update the icon on the canvas
         self.canvas.itemconfig(self.button_icon, image=self.icon_photo)

@@ -150,7 +150,6 @@ CELLPOSE_SAM_BSIZE_BUG = (
 
 @pytest.mark.slow
 @pytest.mark.gpu
-@pytest.mark.xfail(strict=True, reason=CELLPOSE_SAM_BSIZE_BUG)
 def test_apply_cellpose_model_writes_results(tmp_path):
     _require_gpu_cellpose()
     from spacr.submodules import apply_cellpose_model
