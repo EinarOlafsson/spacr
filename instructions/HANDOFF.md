@@ -8,8 +8,8 @@ Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
 taking. The authoritative status is the current ledger and each instruction's
 latest dated record; older sections below are preserved as history.
 
-Current checkpoint: branch `nightly`, 88 done / 2 open after instruction 83's
-closure. The complete 69-lesson, 487-scene, 50-voice tutorial release is live
+Current checkpoint: branch `nightly`, 90 done / 0 open after the final
+closeout. The complete 69-lesson, 487-scene, 50-voice tutorial release is live
 at `https://einarolafsson.github.io/spacr/tutorials/`; its reusable audit skill,
 scene sampler, live verifier, and tests are committed. Hosted tutorial media is
 at Hugging Face commit `17af9e67b7dbd16c465e7f494091eb830728e161`, and live
@@ -22,8 +22,13 @@ tests, and the post-closure feature sync's Sphinx build exits zero with 659
 HTML pages and seven warnings.
 The coherent catalog, evidence, builder, and test batch is commit
 ``a09ebe90``.
-The only open records are 58 (history/contributor cleanup, intentionally last)
-and 82 (green CI and the 1.5.0.5 release).
+Instruction 99 adds first-class CV-model explanations and regression-hit to
+candidate-cell investigation with guarded provenance and quantitative evidence.
+Instructions 58 and 82 are closed in the immutable pre-rewrite ledger: the
+1.5.0.5 release remains canceled, while the approved contributor-history
+rewrite and green post-rewrite CI are the final external operations. Their new
+SHAs and run IDs are intentionally reported outside the repository because the
+history instruction forbids a later commit.
 
 The remainder of this handoff contains historical investigation notes. Its old
 69-done / 17-open count and hands-off ownership table are superseded.
