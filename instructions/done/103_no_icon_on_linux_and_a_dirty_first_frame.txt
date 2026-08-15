@@ -2,9 +2,8 @@
 NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
 ================================================================================
 
-Status:    filed 2026-08-15, not started. Diagnosis below is read off the
-           code and is not yet reproduced on the reporter's machine -- the
-           two facts it rests on are verified, the causal link is not.
+Status:    done 2026-08-15. Automated package and paint-contract checks pass;
+           physical X11/Wayland shell checks remain part of release smoke.
 Requested: 2026-08-15 - "on my linux machine, when i run spacr i see a
            transparent icon blob in the doc where i preveously saw a spacr
            icon same when i press cmd tab. and when spacr is launched the
@@ -119,3 +118,23 @@ HOW TO KNOW IT WORKED
   machine.
 * Both checks repeated on a cold start, where the delay before the first
   paint is longest and the window is most likely to be mapped empty.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15)
+--------------------------------------------------------------------------------
+
+The Qt application id is now ``io.github.olafssonlab.spacr`` and matches the
+new freedesktop entry. Linux wheels install that entry plus the named icon at
+16, 32, 48, 64, 128, 256 and 512 px in the hicolor theme. The online
+installer uses the same entry filename and declares ``StartupWMClass=spaCR``.
+The existing per-window icon remains in place.
+
+Before the native window is shown, MainWindow now owns an auto-filled opaque
+splash-coloured backing surface. The loading cover is opaque too, so the
+compositor never has permission to expose uninitialised pixels while its
+first paint is queued. No event-loop pumping was added.
+
+Verification: the focused launch/loading tests passed; a wheel built through
+PEP 517 contains the desktop entry and all seven standard-size icons. X11 and
+Wayland dock/switcher behaviour still requires the release smoke machine,
+because the headless runner has neither shell.
