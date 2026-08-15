@@ -418,9 +418,10 @@ def test_cellpose_model(settings):
         images, labels = zip(*batch)
 
         # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
-        # tiling behaviour is now controlled by ``tile_overlap`` alone.
+        # tiling behaviour is now controlled by ``tile_overlap`` alone. It
+        # dropped ``channels`` too -- it logs "channels deprecated in
+        # v4.0.1+" and never reads the value, so [0, 0] configured nothing.
         masks_pred, flows, _ = model.eval(x=list(images),
-                                          channels=[0, 0],
                                           normalize=False,
                                           diameter=30,
                                           flow_threshold=settings['FT'],
@@ -619,9 +620,10 @@ def apply_cellpose_model(settings):
         
         print(settings['CP_probability'])
         # Cellpose 4.x dropped ``interp`` and ``tile`` from eval; the
-        # tiling behaviour is now controlled by ``tile_overlap`` alone.
+        # tiling behaviour is now controlled by ``tile_overlap`` alone. It
+        # dropped ``channels`` too -- it logs "channels deprecated in
+        # v4.0.1+" and never reads the value, so [0, 0] configured nothing.
         masks_pred, flows, _ = model.eval(x=list(images),
-                                          channels=[0, 0],
                                           normalize=False,
                                           diameter=30,
                                           flow_threshold=settings['FT'],

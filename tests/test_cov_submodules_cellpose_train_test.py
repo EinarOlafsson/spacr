@@ -505,14 +505,6 @@ def test_test_cellpose_model_forwards_eval_parameters(tmp_path, cp_stub, monkeyp
     assert call["x"][0].dtype == np.float32
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/submodules.py:421 passes channels=[0, 0] to CellposeModel.eval. "
-    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
-    "more than 3 channels, only the first 3 channels will be used' and never "
-    "reads the value, so the pair configures nothing. This is the same "
-    "Cellpose 3 leftover as spacr/submodules.py:621, and "
-    "spacr.model_compare.IGNORED_ARGUMENTS already documents 'channels' as "
-    "this exact no-op. Fix: delete the channels=[0, 0] argument."))
 def test_test_cellpose_model_does_not_pass_a_dead_channels_pair(
         tmp_path, cp_stub, monkeypatch):
     """The scoring run must not configure cellpose with a discarded argument.

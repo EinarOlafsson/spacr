@@ -215,10 +215,9 @@ def test_apply_cellpose_model_writes_measurements_and_summary(tmp_path, monkeypa
     # -- 3 images / batch_size 2 -> two eval calls of 2 and 1 images -------
     assert [len(c["x"]) for c in record["eval_calls"]] == [2, 1]
     first = record["eval_calls"][0]
-    # What spaCR passes today. See
-    # test_apply_cellpose_model_does_not_pass_a_dead_channels_pair below for
-    # what cellpose 4 does with it.
-    assert first["channels"] == [0, 0]
+    # No channels= pair: cellpose 4 discards it. See
+    # test_apply_cellpose_model_does_not_pass_a_dead_channels_pair below.
+    assert "channels" not in record["eval_configured"][0]
     assert first["normalize"] is False
     assert first["diameter"] == 30
     assert first["flow_threshold"] == settings["FT"]
@@ -257,15 +256,6 @@ def test_apply_cellpose_model_writes_measurements_and_summary(tmp_path, monkeypa
     assert (src / "settings" / "apply_cellpose_model.csv").is_file()
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/submodules.py:621 passes channels=[0, 0] to CellposeModel.eval. "
-    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
-    "more than 3 channels, only the first 3 channels will be used' and never "
-    "reads the value, so the pair configures nothing -- it is a Cellpose 3 "
-    "leftover the migration missed, and spacr.model_compare.IGNORED_ARGUMENTS "
-    "already lists 'channels' as exactly this no-op. Fix: delete the "
-    "channels=[0, 0] argument and select channels before handing the image "
-    "over, as spacr/object.py:1913 already does."))
 def test_apply_cellpose_model_does_not_pass_a_dead_channels_pair(
     tmp_path, monkeypatch, _no_blocking_show
 ):

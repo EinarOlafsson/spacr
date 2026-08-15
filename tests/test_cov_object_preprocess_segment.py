@@ -473,19 +473,9 @@ def test_segment_cellpose_forwards_eval_kwargs(tmp_path):
     assert kw["resample"] is False
     assert kw["normalize"] is False
     assert kw["channel_axis"] == -1
-    assert kw["channels"] == [0, 1]     # what it passes; see the xfail below
     assert kw["rescale"] is None
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/object.py:1853 passes channels=[0, 1] to CellposeModel.eval. "
-    "cellpose 4.0.7 logs 'channels deprecated in v4.0.1+. If data contain "
-    "more than 3 channels, only the first 3 channels will be used' and never "
-    "reads it, so the pair configures nothing -- the network takes the first "
-    "three planes of whatever array it is handed. spacr/object.py:1913, the "
-    "SAM sibling of this same function, already omits it. Fix: delete the "
-    "channels=[0, 1] argument; spacr.model_compare.IGNORED_ARGUMENTS already "
-    "documents 'channels' as this no-op."))
 def test_segment_cellpose_does_not_pass_a_dead_channels_argument(tmp_path):
     """The hard-coded ``[0, 1]`` reaches nothing and must not be sent.
 
