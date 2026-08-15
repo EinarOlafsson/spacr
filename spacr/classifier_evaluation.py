@@ -448,15 +448,25 @@ def sample_identity(path: Any) -> Dict[str, str]:
     Unknown levels are returned as empty strings rather than guessed. The
     object identity is the augmentation-normalized full stem.
     """
-    # A spaCR crop is plate_row_column_field_object: the same five-token
-    # shape as the prcfo key annotate_conditions builds. A well is therefore
-    # plate + row + column. Reading it as plate_row silently groups every
-    # column of a row together, so the grouped split must parse this exactly.
+    # Exported crop names use either ``plate_well_field_object`` (for example
+    # ``plate1_A01_f2_o7``) or the canonical PRCFO form with separate row and
+    # column tokens (``plate1_r1_c1_f2_o7``).  Keep fields within wells and
+    # objects within fields in both forms; including ``f2`` in the well
+    # identity would split one biological well into multiple leakage groups.
     family = augmentation_family(path)
     parts = family.split("_")
     plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    well = "_".join(parts[:3]) if len(parts) >= 3 else ""
-    field_id = "_".join(parts[:4]) if len(parts) >= 4 else ""
+    split_row_column = (
+        len(parts) >= 3
+        and re.fullmatch(r"(?i)r\d+", parts[1]) is not None
+        and re.fullmatch(r"(?i)c\d+", parts[2]) is not None
+    )
+    well_end = 3 if split_row_column else 2
+    field_end = well_end + 1
+    well = "_".join(parts[:well_end]) if len(parts) >= well_end else ""
+    field_id = (
+        "_".join(parts[:field_end]) if len(parts) >= field_end else ""
+    )
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),

@@ -59,7 +59,7 @@ def test_french_reviewed_tooltips_are_source_bound_and_gate_clean() -> None:
     current_values = set(sources["setting_tooltips"].values())
     current_values.update(sources["ui"])
 
-    assert len(reviewed) == 7
+    assert len(reviewed) == 10
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
