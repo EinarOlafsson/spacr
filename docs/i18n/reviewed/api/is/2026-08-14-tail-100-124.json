@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.schema#10",
+      "source_sha256": "7fdf1f495993080fedfe34a10d0190a26b0f7079a3e06f38be7c83d2cced5a7f",
+      "source": "**Absent** — ``''`` or ``None`` raises :class:`KeyParseError`. An empty field id is not an identity, it is the absence of one, and every row so keyed would merge with every other.",
+      "context": "**Absent** — ``''`` or ``None`` raises :class:`KeyParseError`. An empty field id is not an identity, it is the absence of one, and every row so keyed would merge with every other.",
+      "translation": "**Fjarverandi** — ``''`` eða ``None`` eykur :class:`KeyParseError`. Tómur reitauðkenni er ekki auðkenni, það er skortur á því, og hver röð sem þannig er merkt myndi sameinast við aðra röð."
+    },
+    {
+      "label": "spacr.utils.rename_columns_in_db#2",
+      "source_sha256": "f919fe36a2ad9324063bcc8515b08ffbebcb212f05c4e31f2909c418f8821881",
+      "source": "**Idempotent.** After a rename the legacy name is gone, so a second run finds nothing to do. Running it on every read is therefore free after the first.",
+      "context": "**Idempotent.** After a rename the legacy name is gone, so a second run finds nothing to do. Running it on every read is therefore free after the first.",
+      "translation": "**Íðendanafn.** Eftir nafnabreytingu er arfleifðarheitið horfið, svo önnur keyrsla finnur ekkert að gera. Að keyra það á hverri lestri er því ókeypis eftir fyrsta skiptið."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_spec#0",
+      "source_sha256": "50ed7aca1a9b2e3a38f5115ed0995fe74cf41a53b9fabc2868034d97acd99287",
+      "source": "The Graph Builder's *spec*: what is on which channel, and nothing else.",
+      "context": "The Graph Builder's *spec*: what is on which channel, and nothing else.",
+      "translation": "Upplýsingagerðarmaðurinn *spec*: hvað er á hvaða rás, og ekkert annað."
+    },
+    {
+      "label": "spacr.qt.linked_selection.NoObjectOpener#1",
+      "source_sha256": "d06a459220b59ea6deb69d1787f650a975c321b221e80a658127df65cb2277ee",
+      "source": "Raised rather than returning quietly. A silent no-op here is a button that does nothing on click, which is indistinguishable from a slow one and gets reported as \"the app froze\". A caller that legitimately might have no destination — a context-menu entry it wants to grey out rather than offer — should ask :func:`has_object_opener` first.",
+      "context": "Raised rather than returning quietly. A silent no-op here is a button that does nothing on click, which is indistinguishable from a slow one and gets reported as \"the app froze\". A caller that legitimately might have no destination — a context-menu entry it wants to grey out rather than offer — should ask :func:`has_object_opener` first.",
+      "translation": "Kastast frekar en að snúa aftur hljóðlega. Þögull enginn aðgerð hér er hnappur sem gerir ekkert þegar á hann er smellt, sem er ógreinanlegt frá hægum hnappi og kemur fram sem \"the app froze\". Kallari sem raunverulega gæti átt engin ákvörðunarfæri — valkostur í samhengismenú sem hann vill gráma frekar en að bjóða upp á — ætti að spyrja :func:`has_object_opener` fyrst."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.alpha_scale#3",
+      "source_sha256": "28a0cb248e13bfcd4c0050dd7fd6d3deacb47ac130f77dc579c4aca7cd98a8de",
+      "source": "Density therefore changes the *texture* of the field — how many shapes it is made of, and how strongly each one states itself — and not how loud the field is. That is the only reading of the control that leaves the backdrop legible at both ends of its range.",
+      "context": "Density therefore changes the *texture* of the field — how many shapes it is made of, and how strongly each one states itself — and not how loud the field is. That is the only reading of the control that leaves the backdrop legible at both ends of its range.",
+      "translation": "Þéttni breytir því því *áferð* sviðsins — hve mörg form það er gert úr, og hversu sterkt hvert og eitt staðfestir sig — og ekki hversu hávaðasamt sviðið er. Þetta er eini lesningin á stýringunni sem gerir bakgrunninn læsilegan í báðum endum sviðs síns."
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip#17",
+      "source_sha256": "70d62241530d259989531de3bdf5bdcd45313234235a5aec8327c506aa690f62",
+      "source": "The *Setting animations* preference is the escape hatch for a reader who wants them always: on, every tooltip starts revealed and the word folds THIS one away; off — the default — every tooltip starts hidden and the word reveals THIS one. Because a press only ever names one setting, it can never leave the preference unable to take effect.",
+      "context": "The *Setting animations* preference is the escape hatch for a reader who wants them always: on, every tooltip starts revealed and the word folds THIS one away; off — the default — every tooltip starts hidden and the word reveals THIS one. Because a press only ever names one setting, it can never leave the preference unable to take effect.",
+      "translation": "*Stillingar fyrir hreyfimyndir* er flóttaútgönguleið fyrir lesanda sem vill þær ávallt: á, hver tólbari byrjar opinn og orðið fellir ÞESSA burt; af — sjálfgefið — hver textaskýringarhnappur byrjar falinn og orðið leiðir í ljós ÞESSA. Þar sem prentari tilgreinir aðeins einn stillingarmöguleika, getur hann aldrei látið óskina verða án áhrifar."
+    },
+    {
+      "label": "spacr.qt.space.download_nasa_background#1",
+      "source_sha256": "ae0ec1e2058e6705073a825b0b7f175206a4b0af754d5e735c181de590dc1938",
+      "source": "**Never called at import time, and never from a test.** The Space theme works without it; this is strictly an upgrade the user opts into from Preferences.",
+      "context": "**Never called at import time, and never from a test.** The Space theme works without it; this is strictly an upgrade the user opts into from Preferences.",
+      "translation": "**Er aldrei kallað við innflutning og aldrei úr prófi.** Geimþemað virkar án þess; þetta er stranglega uppfærsla sem notandi getur valið í Stillingum."
+    },
+    {
+      "label": "spacr.merge_tables.missingness_leak#9",
+      "source_sha256": "656bc177d9be0a838f6e76d6b4a0189960e5295a1000c4c6d9c9911e105ab28f",
+      "source": "Measured on a synthetic infected/uninfected table with twelve pathogen columns, the median fill produced a centroid gap of 0.06 -- almost nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE WOULD HAVE MISSED IT, because a median fill puts the missing objects in the middle of the present ones rather than away from them. Both are reported, and ``severity`` is whichever is worse.",
+      "context": "Measured on a synthetic infected/uninfected table with twelve pathogen columns, the median fill produced a centroid gap of 0.06 -- almost nothing -- and a dispersion ratio of 0.11. THE CENTROID STATISTIC ALONE WOULD HAVE MISSED IT, because a median fill puts the missing objects in the middle of the present ones rather than away from them. Both are reported, and ``severity`` is whichever is worse.",
+      "translation": "Mæld á tilbúnum sýktum/ósýktum borði með tólf sýkla dálkum, framkallaði miðgildisfylling miðpunktabil upp á 0,06 -- næstum ekkert -- og dreifihlutfall upp á 0,11. EINSKILT CENTROID-TÖLVUNARMÆLIGIL MYNDI HAFNAÐ ÞVÍ, veitandi vegna þess að miðgildi fyllirinn setur vantar hlutina í miðjuna á milli þeirra sem eru til staðar frekar en frá þeim. Bæði eru skýrð, og ``severity`` er það sem er verra."
+    },
+    {
+      "label": "spacr.predictions.crop_name_metadata#0",
+      "source_sha256": "bbfaee94a5d5ceda2498128edf0825404ee9586b8ac36ff847567d983c2c8d86",
+      "source": "Parse spaCR crop file names into the metadata ``prcfo`` is built from.",
+      "context": "Parse spaCR extracted-image-region file names into the metadata ``prcfo`` is built from.",
+      "translation": "Greindu nöfn skrárinnar spaCR fyrir útdregna myndasvæðið í þau gagnalausnarmerki ``prcfo`` sem eru byggð úr."
+    },
+    {
+      "label": "spacr.anndata_export#1",
+      "source_sha256": "cd26d74898e73b5ae6fc5767d887ad478656ed541da51a8c2da2aced41943bf7",
+      "source": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",
+      "context": "spaCR already produces the exact shape AnnData was designed for: N objects x M features, plus per-object metadata and an embedding. Writing that out as ``.h5ad`` puts scanpy, scvi-tools and squidpy within reach of a spaCR user for the cost of one function call, instead of a bespoke join script per lab.",
+      "translation": "spaCR framleiðir þegar nákvæmlega þann form AnnData var hannað fyrir: N hluti x M eiginleikar, auk persónugreindrar upplýsingagjafar fyrir hvern hlut og innbyggingar. Að skrifa það út sem ``.h5ad`` gerir scanpy, scvi-tools og squidpy aðgengileg fyrir spaCR notanda á kostnað eins fallskalls, í stað sérsniðinna sameiningarskrifa fyrir hvert rannsóknarstofu."
+    },
+    {
+      "label": "spacr.active_learning.crops_for_object_keys#1",
+      "source_sha256": "2674727ae8286e96b17f058a142453f393c2099cb9993aaed3daf3b630a2c0df",
+      "source": "The database half of the object-routing contract in :mod:`spacr.qt.linked_selection`: a scatter plot or a confusion-matrix cell names objects by :data:`spacr.selection.OBJECT_KEY_COLUMNS` key, and the Annotate screen has to turn those into the crops it paginates. Kept here rather than in the Qt screen so it is testable without a display, and so a second consumer does not have to reimplement the ``'o5'``-versus-``5`` trap in :func:`_object_label`.",
+      "context": "The database half of the object-routing contract in :mod:`spacr.qt.linked_selection`: a scatter plot or a confusion-matrix cell names objects by :data:`spacr.selection.OBJECT_KEY_COLUMNS` structured-data name, and the Annotate application view has to turn those into the extracted image regions it paginates. Kept here rather than in the Qt application view so it is testable without a display, and so a second consumer does not have to reimplement the ``'o5'``-versus-``5`` trap in :func:`_object_label`.",
+      "translation": "Gagnagrunnshluti hlutar-stjórnunarsamningsins í :mod:`spacr.qt.linked_selection`: dreifirit eða ruglingsfylkiskerfiseiningar nefna hluti eftir :data:`spacr.selection.OBJECT_KEY_COLUMNS` nafni uppbyggðs gagna, og Annotate forritssýn þarf að breyta þeim í þær myndarhluta sem hún skiptir upp. Geymt hér frekar en í Qt forritssýn svo það sé prófanlegt án skjás, og svo annar neytandi þarf ekki að endurskilgreina ``'o5'``-á-``5`` gildruna í :func:`_object_label`."
+    },
+    {
+      "label": "spacr.qt.screens.project_browser#4",
+      "source_sha256": "f3ae5c742a719759177a15169139dcaaaa7045f1cc269f231e206c0ade7eae76",
+      "source": "**A project the registry has never seen is still listed.** Projects are found by walking the disk, so a folder copied from a colleague appears the moment the browser is pointed at its parent — with its stage, its size and the date its files were last written. What it does *not* show is \"0 stale\", which would read as *clean*: with no provenance there is nothing to compare against, so the state column says \"unknown — nothing recorded\" and the note says why.",
+      "context": "**A project the registry has never seen is still listed.** Projects are found by walking the disk, so a folder copied from a colleague appears the moment the browser is pointed at its parent — with its stage, its size and the date its files were last written. What it does *not* show is \"0 stale\", which would read as *clean*: with no provenance there is nothing to compare against, so the state column says \"unknown — nothing recorded\" and the note says why.",
+      "translation": "**Verkefni sem skráningin hefur aldrei séð er enn skráð.** Verkefni finnast með því að ganga á gegnum diskinn, svo möppu sem er afrituð frá samstarfsmanni birtist um leið og vafranum er beint að foreldramöppunni — með svið sitt, stærð sína og dagsetningu síðustu skráarskrifa. Það sem það sýnir *ekki* er „0 úrelt“, sem myndi lesa sem *hreint*: með engum uppruna er ekkert til að bera saman við, svo fylkið segir „óþekkt“ — ekkert skráð og athugasemdin segir af hverju."
+    },
+    {
+      "label": "spacr.qt.widgets.live_preview#4",
+      "source_sha256": "b82e31a940fdc0a0b2a98648771668b0f15bce1ab22ead6d8d76eee9a5a5d2e4",
+      "source": "**Normalise toggle.** Optional 2–98 % percentile stretch (per channel for RGB) so raw low-contrast tiles are legible.",
+      "context": "**Normalise toggle.** Optional 2–98 % percentile stretch (per image data channel for RGB) so raw low-contrast tiles are legible.",
+      "translation": "**Staðla rofann.** Valfrjálst 2–98 % prósentilspennubreyt (fyrir gögn í hverjum myndarás fyrir RGB) svo hráar lághraðatengdar flísar séu læsilegar."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.build_setting_link_widget#1",
+      "source_sha256": "057c68ff5632f7d622c7b7cf462f44f9c22f910b25ae5eccdfad4ca7b77833b3",
+      "source": "A setting used to carry two dots: this one and a purple one that opened the setting's animation in a popup of its own. The hover tooltip shows that animation inline now, on request, so the purple dot was 585 coloured marks of clutter for a window nothing else needed. It is gone, and so is the stack that held the pair apart.",
+      "context": "A setting used to carry two dots: this one and a purple one that opened the setting's animation in a popup of its own. The hover tooltip shows that animation inline now, on request, so the purple dot was 585 coloured marks of clutter for a window nothing else needed. It is gone, and so is the stack that held the pair apart.",
+      "translation": "Stilling notuð til að bera tvö punktar: þessi og einn fjólublár sem opnaði hreyfimynd stillingarinnar í eigin sprettiglugga. Sýnatólið sem kemur upp við músarbendingu sýnir nú þá hreyfimynd innanhúss, eftir þörfum, svo fjólublái punkturinn var 585 litaðar strikamerki af ónauðsynlegu rusli fyrir glugga sem þurfti ekkert annað. Hann er horfinn, og svo er staflinn sem hélt þeim pörum í sundur."
+    },
+    {
+      "label": "spacr.qt.linked_selection.LinkedView#4",
+      "source_sha256": "57012b74ac9d74e7f752976b0a854c15974e8f52fd4cdbdf92ff7e1a097fd009",
+      "source": "**One disconnect.** :meth:`unlink_selection` is idempotent and flag-guarded: Qt does not raise on a disconnect that finds nothing, it prints ``libpyside: Failed to disconnect`` to stderr where no ``except`` can reach it, and a screen closed twice — which Qt does on teardown — would print one every time.",
+      "context": "**One disconnect.** :meth:`unlink_selection` is idempotent and flag-guarded: Qt does not throw on a disconnect that finds nothing, it prints ``libpyside: Failed to disconnect`` to stderr where no ``except`` can reach it, and an application view closed twice — which Qt does on teardown — would print one every time.",
+      "translation": "**Einn aftenging.** :meth:`unlink_selection` er sjálfsendurreiknanleg og fánaðarvörn: Qt kastar ekki villu við aftengingu sem finnur ekkert, það skrifar ``libpyside: Failed to disconnect`` á staðbundna villumiðilinn þar sem ekkert ``except`` getur náð því, og forritasýn sem er lokuð tvisvar — sem Qt gerir við niðurlag — myndi alltaf skrifa einn í hvert skipti."
+    },
+    {
+      "label": "spacr.surrogate#1",
+      "source_sha256": "1caed638d74745a3ab452f85a87dabff8c7fd9a122387ef569b2c6a7420c0058",
+      "source": "Activation maps say **where** a model looked. This says **what it responded to**, in units a biologist already interprets — area, intensity, texture — by fitting a gradient-boosted model to reproduce the CV model's predictions from the object features spaCR already measured, and then asking that model what it used.",
+      "context": "Activation maps say **where** a model looked. This says **what it responded to**, in units a biologist already interprets — area, intensity, texture — by fitting a gradient-boosted model to reproduce the CV model's predictions from the object features spaCR already measured, and then asking that model what it used.",
+      "translation": "Virkjunarkort segja **hvar** líkan leit. Þetta segir **við hvað það bregst við**, í einingum sem líffræðingur túlkar þegar — svæði, styrkur, áferð — með því að passa við stigvaxandi styrkt líkan til að endurskapa spár CV-líkansins frá eiginleikum hlutanna spaCR sem þegar hafa verið mældir, og síðan spyrja það líkan hvað það notaði."
+    },
+    {
+      "label": "spacr.gui_elements.AnnotateApp.load_single_image#0",
+      "source_sha256": "2e1480d4bffd3176d0178966e565eb9a5dcba81f121269bebb0fa5d17e497a29",
+      "source": "Load one PNG, apply normalization/channel filtering/outlines, and resize.",
+      "context": "Load one PNG, apply normalization/image data channel filtering/outlines, and resize.",
+      "translation": "Hlaða einu PNG, beita staðalmyndun/sía á gagnarás myndar/útlínum, og breyta stærð."
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.crop_paths_for_keys#2",
+      "source_sha256": "49a4fe48c3b7ccd47b43b1af423280c86e82b83772badbc198193364e408b3d1",
+      "source": "That function keeps the caller's order but *drops* keys it cannot resolve, so when everything resolves the answer is a zip and costs one scan. When some keys miss, the returned list is a subsequence and no longer lines up, so the range is bisected: each half is asked separately until a half is either fully resolved (zip it) or a single key (resolve it or record the miss). That is a handful of extra scans for a handful of missing crops, rather than one scan per key.",
+      "context": "That function keeps the caller's order but *drops* structured-data names it cannot resolve, so when everything resolves the answer is a zip and costs one scan. When some structured-data names miss, the returned list is a subsequence and no longer lines up, so the range is bisected: each half is asked separately until a half is either fully resolved (zip it) or a single structured-data name (resolve it or record the miss). That is a handful of extra scans for a handful of missing extracted image regions, rather than one scan per structured-data name.",
+      "translation": "Þessi aðgerð heldur röð köllunar aðila en *detur* á nafn á uppbyggðum gögnum sem það getur ekki leyst, Svo þegar allt leysist er svarið zip og kostar eitt skönn. Þegar einhver nöfn á uppbyggðum gögnum vantar, er listinn sem skilað er undirsequens og raðast ekki lengur saman., svo bilið er skipt í tvennt: Hver helmingur er spurður sérstaklega þar til helmingurinn er annaðhvort fullkomlega leystur (sauma hann) eða eitt nafnið á uppbyggðu gagnaformi (búið að leysa það eða skrá missa). Þetta eru nokkur aukaskönn fyrir nokkur vantar útdregna myndasvæði, frekar en einn skönnun á nafn uppbyggðra gagna."
+    },
+    {
+      "label": "spacr.qt.resource_cleanup.install_run_hook#1",
+      "source_sha256": "d3bbb7ef5c0183b646aad46ca0aead137a81094770e7562d0904366b11d6b1bf",
+      "source": "Nothing in ``bridge.py`` knows this exists: the registry already emits when a job is registered, and a mode that is not Extra Performance turns the slot into a dictionary lookup and a return.",
+      "context": "Nothing in ``bridge.py`` knows this exists: the registry already emits when a job is registered, and a mode that is not Extra Performance turns the slot into a key-value mapping lookup and a return.",
+      "translation": "Ekkert í ``bridge.py`` veit að þetta er til: skráningin gefur þegar tilkynningu þegar starf er skráð, og stilling sem er ekki Aukaframmistaða breytir raufinni í lykil-gildi uppflettingu og skila."
+    },
+    {
+      "label": "spacr.crops.MergedCropSource.resolve_path#1",
+      "source_sha256": "e64d9e3aa8ab50984533d029c79bbdc0e6f6c286e1a8176935ffac67f2f2032c",
+      "source": "The rowID -> well-letter step goes through :mod:`spacr.schema`, which is imported lazily *inside* this method on purpose: this module's contract is that importing it costs nothing (``tests/test_crops.py`` loads it standalone, outside the package, and asserts the sys.modules delta is empty), and a module-scope relative import would break that probe. Nothing above this point needs schema.",
+      "context": "The rowID -> well-letter step goes through :mod:`spacr.schema`, which is imported lazily *inside* this method on purpose: this module's contract is that importing it costs nothing (``tests/test_crops.py`` loads it standalone, outside the package, and asserts the sys.modules delta is empty), and a module-scope relative import would break that probe. Nothing above this point needs schema.",
+      "translation": "Röðauðkenni -> vel-bréfað skref fer í gegnum :mod:`spacr.schema`, sem er flutt inn seint *innan* þessa aðferðar að ásettu ráði: samningur þessa módúls er að innflutningur þess kostar ekkert (``tests/test_crops.py`` hlaðar það sjálfstætt, utan pakkans, og staðfestir að sys.modules mismunurinn sé enginn), og innflutningur á módúlnum innan sýnissviðs myndi brjóta þessa prófun. Ekkert fyrir ofan þennan punkt þarfnast skemu."
+    },
+    {
+      "label": "spacr.power_simulate#20",
+      "source_sha256": "83250df0eb28502b73f92508c92911473b6c18a6452901bc7e2303f9f37b93a7",
+      "source": "**Well dropout from too few imaged cells** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the microscope found three cells enters the fit as one observation next to a well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1, and its standard error is several times the classifier's whole signal gap. The Poisson offset stops it dominating the scale of the fit; it does not stop its read-fraction covariate being paired with noise. Dropping such wells is what an analyst does by hand, and it costs wells — so which way the trade comes out is a thing to simulate rather than assert.",
+      "context": "**Well dropout from too few imaged cells** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). A well where the microscope found three cells enters the fit as one observation next to a well with four hundred. Its positive fraction can only be 0, 1/3, 2/3 or 1, and its standard error is several times the machine-learning classification model's whole signal gap. The Poisson offset stops it dominating the scale of the fit; it does not stop its read-fraction covariate being paired with noise. Dropping such microplate sample positions is what an analyst does by hand, and it costs microplate sample positions — so which way the trade comes out is a thing to simulate rather than assert.",
+      "translation": "**Vellur hefur of fáa myndaða frumur** (:func:`drop_low_cell_wells`, ``min_cells_per_well=``). Vellur þar sem smásjáin fann þrjár frumur fer inn í aðlögunina sem ein athugun við hlið vellis með fjögur hundruð. Jákvæð hlutfall þess getur aðeins verið 0, 1/3, 2/3 eða 1, og staðalvilla þess er mörgum sinnum meiri en heill merki gap vélarnáms flokkunarlíkansins. Poisson-breytingin hindrar það ekki að stjórna mælikvarða aðlögunarinnar; hún hindrar ekki að hlutfall lestrarins sé parað við hávaða. Að sleppa slíku sýnishorni af gerð microplate er eitthvað sem greiningaraðili gerir handvirkt, og það kostar sýnishorn af microplate – svo á hvaða hátt viðskiptin þróast er eitthvað sem þarf að herma eftir frekar en staðfesta."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters#3",
+      "source_sha256": "6c4285537acc4a4decb89f74bf0d765cd1799516e46da4230164bddaa205a033",
+      "source": "**Resuming.**  With ``progress_file``, each completed row is appended to a TSV immediately, so a killed sweep loses at most the point it was on.  Re-running with ``resume=True`` (the default) reads the file and skips points whose ``run_key`` is already there.  The key is a digest of the parameter *values*, the replicate, the seed and the backend -- not the row number -- so extending or reordering the grid does not invalidate finished work.",
+      "context": "**Resuming.**  With ``progress_file``, each completed row is appended to a TSV immediately, so a killed sweep loses at most the point it was on.  Re-executing with ``resume=True`` (the default) reads the file and skips points whose ``run_key`` is already there.  The structured-data name is a digest of the parameter *values*, the replicate, the seed and the backend -- not the row number -- so extending or reordering the grid does not invalidate finished work.",
+      "translation": "**Endurtekning.** Með ``progress_file`` er hver lokið röð bætt við TSV skrá strax, þannig að ef framkvæmd er stöðvuð tapast hámark eitt punktur þar sem hún var stöðvuð. Endurkeyrsla með ``resume=True`` (sjálfgefið) les skrána og sleppir punktum sem ``run_key`` er þegar til staðar. Nafn uppbyggðs gagna er samantekt af gildum *parametranna*, afriti, fræi og bakendi -- ekki röðartali -- svo að framlengingu eða umraðanir á grindinni ógildi ekki lokið starf."
+    },
+    {
+      "label": "spacr.align.solve_positions#3",
+      "source_sha256": "3fbc2f325e60962a8406acbfebd1b65410fbe02be94538d98026c51f175e7f33",
+      "source": "The anchor equations do two jobs: they fix the gauge (a pure pair graph determines positions only up to a global translation) and they place tiles that ended up in no edge at all — an isolated tile comes back at exactly its nominal position rather than at the origin.",
+      "context": "The anchor equations do two jobs: they fix the gauge (a pure pair graph determines positions only up to a global translation) and they place tiles that ended up in no edge at all — an isolated tile comes back at exactly its nominal position rather than at the origin.",
+      "translation": "Aðalbundajöfnurnar gera tvö störf: þær festa kvarðann (hreinn pörsniðsstefnugraf ákvarðar stöður aðeins upp að alþjóðlegum þýðingi) og þær setja flísar sem enduðu ekki í neinu brún — einangruð flís kemur aftur á nákvæmlega sinni nafnspósíu frekar en við upphaf."
+    },
+    {
+      "label": "spacr.qt.screens.batch#2",
+      "source_sha256": "a2d769a0dada0ec122101772e8ce464645dbbe53d56ab624f04026c9017c1a13",
+      "source": "The screen is deliberately thin. Everything it knows about a queue it learns from :mod:`spacr.batch`, which is headless, torch-free and tested without Qt. This file is only the part that has to be a GUI: pick a module and a settings file, duplicate a job and edit it, reorder, validate, save/load, run, and watch per-job status, progress and log.",
+      "context": "The application view is deliberately thin. Everything it knows about a software job list it learns from :mod:`spacr.batch`, which is headless, torch-free and tested without Qt. This file is only the part that has to be a GUI: pick a module and a settings file, duplicate a job and edit it, reorder, validate, save/load, run, and watch per-job status, progress and log.",
+      "translation": "Sýn forritsins er viljandi þunn. Allt sem það veit um lista yfir hugbúnaðarvinnu lærir það frá :mod:`spacr.batch`, sem er höfuðlaust, torch-laust og prófað án Qt. Þessi skrá er aðeins sá hluti sem þarf að vera GUI: veldu einingu og stillingarskrá, tvöfalda vinnu og breyta henni, endurraða, staðfesta, vista/hlaða, keyra og fylgjast með stöðu, framvindu og skráningu hverrar vinnu."
+    },
+    {
+      "label": "spacr.qt.preferences.set_ambient_animation#2",
+      "source_sha256": "0c96947447357b0d7714d00cff950968fc960d6a2c893afcefb8540739bd03be",
+      "source": "Picking None does **not** disturb the stored theme's palette, so switching back later restores exactly the animation that was there.",
+      "context": "Picking None does **not** disturb the stored theme's palette, so switching back later restores exactly the animation that was there.",
+      "translation": "Að velja None gerir **ekki** trufla á litasamsetningu geymda þemans, svo að skipta aftur síðar endurheimtir nákvæmlega þann hreyfimynd sem var þar."
+    }
+  ]
+}

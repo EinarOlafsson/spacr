@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.ome_zarr#19",
+      "source_sha256": "f831ce0444a18c277842b17b1a9faed6b980bbdbaa800aae0f1249880b833629",
+      "source": "Level *k*'s ``scale`` is level 0's ``scale`` multiplied by the cumulative factor 2^k on each downsampled axis, and leaving it at level 0's value is the single most common NGFF bug — it renders as a pyramid whose coarse levels are a quarter the size of the fine ones and drift off the top-left corner as you zoom. The ``translation`` moves too, and by a different rule per method: a block mean puts the first output element at the *centre* of the block it averaged, half a level-0 pixel in from the edge, so level *k* is translated by ``scale_0 * (2^k - 1) / 2``; a strided level samples element 0 exactly and is not translated at all. Both are written, and asserted in the tests with the numbers spelled out by hand.",
+      "context": "Level *k*'s ``scale`` is level 0's ``scale`` multiplied by the cumulative factor 2^k on each downsampled axis, and leaving it at level 0's value is the single most common NGFF bug — it renders as a pyramid whose coarse levels are a quarter the size of the fine ones and drift off the top-left corner as you zoom. The ``translation`` moves too, and by a different rule per method: a block mean puts the first output element at the *centre* of the block it averaged, half a level-0 pixel in from the edge, so level *k* is translated by ``scale_0 * (2^k - 1) / 2``; a strided level samples element 0 exactly and is not translated at all. Both are written, and asserted in the tests with the numbers spelled out by hand.",
+      "translation": "Stig *k*'s ``scale`` er stig 0's ``scale`` margfaldað með samfeldum stuðli 2^k á hverri niðurstigaðri ás, og að skilja það eftir á gildi stigs 0 er algengasta NGFF villan — það birtist sem pýramídi þar sem grófu stigin eru fjórðungur af stærð hinna fínu og færast frá efri vinstri horninu þegar þú stækkar. ``translation`` hreyfist líka, og samkvæmt öðrum reglu eftir aðferð: blokkameðaltal setur fyrsta úttakseininguna í *miðjuna* blokkinnar sem hún meðaltal, hálfan stig-0 pixil frá brúninni, þannig að stig *k* er þýtt um ``scale_0 * (2^k - 1) / 2``; strikalagt stig tekur nákvæmlega frumuna 0 og er alls ekki þýtt. Bæði eru skrifuð og staðfest í prófunum með tölunum stafsettum handvirkt."
+    },
+    {
+      "label": "spacr.model_compare#10",
+      "source_sha256": "18ed2f75c2bba8eb19cac6d808f7087fe5e71bcaed7559feceed75c3d87b301a",
+      "source": "``ari`` — **background is excluded, and that is the whole trick.** The Adjusted Rand Index over two raw label images is nearly useless: a 1400x1400 field is ~95 % background, both models agree it is background, and those agreed pairs swamp everything else. Two models that disagree about every single object still score about 0.999 (``tests/ test_model_compare.py`` asserts exactly that number on a field where the foreground agreement is 0.0).",
+      "context": "``ari`` — **background is excluded, and that is the whole trick.** The Adjusted Rand Index over two raw label images is nearly useless: a 1400x1400 microscope field of view is ~95 % background, both models agree it is background, and those agreed pairs swamp everything else. Two models that disagree about every single object still score about 0.999 (``tests/ test_model_compare.py`` asserts exactly that number on a microscope field of view where the foreground agreement is 0.0).",
+      "translation": "``ari`` — **bakgrunnur er útilokaður, og það er allt bragðið.** Aðlagaður Rand-vísir yfir tvær hráar merkjarmyndir er nánast gagnslaus: 1400x1400 smásjársvæði er ~95 % bakgrunnur, bæði fyrirmyndir samþykkja að það sé bakgrunnur, og þessar samþykkta pör yfirgnæfa allt annað. Tvær fyrirmyndir sem eru ósammála um hvert einasta fyrirbæri fá samt um 0.999 stig (``tests/ test_model_compare.py`` staðfestir nákvæmlega þann fjölda á smásjársvæði þar sem samkomulag í forgrunni er 0,0)."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_builder#3",
+      "source_sha256": "f7428a734ea2dcdfdb2cf8f3a871a33013927a9c9a699ee5d314ee78f76d1b52",
+      "source": "Everything about *what to draw* lives in :mod:`spacr.qt.widgets.graph_spec`: the spec object, the plot-type inference, the facet grid, the shared scales and the large-data policy. This module is the chrome and the matplotlib calls. The split is not tidiness — small multiples, the gate editor, the feature explorer and the campaign control charts are all \"the graph builder with one more rule\", and they need the engine without inheriting a drag-and-drop panel.",
+      "context": "Everything about *what to draw* lives in :mod:`spacr.qt.widgets.graph_spec`: the spec object, the plot-type inference, the facet grid, the shared scales and the large-data policy. This module is the chrome and the matplotlib calls. The split is not tidiness — small multiples, the data-selection boundary editor, the feature explorer and the campaign control charts are all \"the graph builder with one more rule\", and they need the engine without inheriting a drag-and-drop panel.",
+      "translation": "Allt um *hvað á að teikna* býr í :mod:`spacr.qt.widgets.graph_spec`: spec hluturinn, gerðarskilgreiningin á línuriti, facet grindin, sameiginleg mælistikur og stefna fyrir stór gögn. Þessi eining er glansinn og matplotlib köllin. Skiptunin er ekki hreinlæti — lítil margföld, gagnavalgamörk ritstjórinn, eiginleika könnuðurinn og herferðastýringarkortin eru öll „grafasmíðameistari með eina reglu í viðbót“, og þeir þurfa vélina án þess að erfa draga-og-sleppa spjaldið."
+    },
+    {
+      "label": "spacr.macro#5",
+      "source_sha256": "37792ee59026b5f4fefef1db612e34e647c3bd24f2d88793b956aca7f7f7882a",
+      "source": "**The on-ramp from clicking to the API.** A user who has outgrown the GUI opens ``macro.py`` and finds the code they would have written — not a wrapper, not a replay harness, the actual two lines.",
+      "context": "**The on-ramp from clicking to the API.** A user who has outgrown the GUI opens ``macro.py`` and finds the code they would have written — not a wrapper, not a replay harness, the actual two lines.",
+      "translation": "**Rampa frá því að smella á API.** Notandi sem hefur vaxið upp úr GUI opnar ``macro.py`` og finnur kóðann sem þeir hefðu skrifað — ekki umbúðir, ekki endurspilunargrind, heldur raunverulega tveggja línu kóða."
+    },
+    {
+      "label": "spacr.train_compare#6",
+      "source_sha256": "e903ab043285cd17b19d6abff758daa2183ba64834edda6effdba455652e9a76",
+      "source": "A k-fold run (``cross_validation_folds >= 2``) trains a fresh model per fold in ``<dst>/fold_<i>/``, so it produces **k independent pairs of curves**, plus the per-fold summary CSVs :func:`spacr.deep_spacr._cross_validate_model` writes at the ``dst`` level.",
+      "context": "A k-fold run (``cross_validation_folds >= 2``) trains a fresh model per fold in ``<dst>/fold_<i>/``, so it produces **k independent pairs of curves**, plus the per-fold summary CSVs :func:`spacr.deep_spacr._cross_validate_model` writes at the ``dst`` level.",
+      "translation": "Keyrslur k-falda (``cross_validation_folds >= 2``) þjálfa nýtt líkan fyrir hvern fold í ``<dst>/fold_<i>/``, þannig að hún framleiðir **k sjálfstæðum pars af krækjum**, auk samantektar fyrir hvern fold CSVs :func:`spacr.deep_spacr._cross_validate_model` skrifar á ``dst`` stigi."
+    },
+    {
+      "label": "spacr.diameter#9",
+      "source_sha256": "ef60951da0616b0712a7459c3838e2d868dee3fef5024fa013ea0f2b6a54b2c8",
+      "source": "``DiameterEstimate`` One proposal, with its plausible range, provenance and confidence. ``estimate_diameters(src, channels, n_fields=5, ...)`` ``{object_type: DiameterEstimate}``. ``format_estimates(estimates)`` Human-readable block, ready to print. ``channels_from_settings(settings)`` Pull ``cell_channel`` / ``nucleus_channel`` / ... out of a settings dict.",
+      "context": "``DiameterEstimate`` One proposal, with its plausible range, provenance and confidence. ``estimate_diameters(src, channels, n_fields=5, ...)`` ``{object_type: DiameterEstimate}``. ``format_estimates(estimates)`` Easy-to-read block, ready to print. ``channels_from_settings(settings)`` Pull ``cell_channel`` / ``nucleus_channel`` / ... out of a settings key-value mapping.",
+      "translation": "``DiameterEstimate`` Eitt tillaga, með líklega svið sitt, uppruna og traust. ``estimate_diameters(src, channels, n_fields=5, ...)`` ``{object_type: DiameterEstimate}``. ``format_estimates(estimates)`` Auðlesinn reitur, tilbúinn til prentunar. ``channels_from_settings(settings)`` Draga ``cell_channel`` / ``nucleus_channel`` / ... út úr stillingarlykkju-pari."
+    },
+    {
+      "label": "spacr.resume#4",
+      "source_sha256": "657b1c8da06a0528f8dee80fbef2f8a799e065cda5bff1beea831f7cfe4497d7",
+      "source": "**Measure appends; therefore a resume must delete first.** ``_merge_and_save_to_database`` and ``filepaths_to_database`` both use ``to_sql(..., if_exists='append')``. Re-measuring a field that already wrote some rows does not overwrite them, it *adds* to them, and every per-well aggregate downstream is then computed over inflated counts with nothing anywhere to indicate it. :func:`clear_field_rows` is the delete-before-insert that makes re-running a field idempotent, and it is the reason this module exists at all. It runs in one transaction across every table the field touched, so a failure part-way leaves the database exactly as it was.",
+      "context": "**The measurement workflow appends rows, so existing rows must be removed prior to continuing an interrupted run.** ``_merge_and_save_to_database`` and ``filepaths_to_database`` both call ``to_sql(..., if_exists='append')``. Measuring a field again does not replace existing rows; it *inserts additional rows*. This makes downstream per-well aggregates too large without a warning. :func:`clear_field_rows` removes old rows so repeated measurement produces one consistent result. One transaction covers every affected table, so an error leaves the database unchanged.",
+      "translation": "**Mælingavinnuflæðið bætir við röðum, svo núverandi raðir verða að fjarlægja áður en hægt er að halda áfram með rofið keyrslu.** ``_merge_and_save_to_database`` og ``filepaths_to_database`` kalla bæði á ``to_sql(..., if_exists='append')``. Að mæla svið aftur endurnýjar ekki núverandi raðir; það *bætir við aukaröðum*. Þetta gerir niðurstreymis heildarsíma vera of stór án viðvörunar. :func:`clear_field_rows` fjarlægir gamlar raðir svo endurtekin mæling skili einu samræmdu niðurstöðu. Ein viðskipti ná yfir allar taflur sem áhrif hafa, svo villa skilur gagnagrunn óbreyttan."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ClusterCandidate#1",
+      "source_sha256": "442d2e98bc2e4de92a950ca39b229864d8dc2e40d4d17069924431d8e19ef37b",
+      "source": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
+      "context": "Kept as data rather than rendered straight into a table so the search is testable without a GUI, and so the caller decides what \"best\" means -- which it must, because the scores disagree on purpose. Silhouette is blind to how much was discarded, so a run that calls 90% of the plate noise and tightly clusters the rest scores beautifully and is useless.",
+      "translation": "Geymt sem gögn frekar en sett beint í töflu svo leit sé prófanleg án GUI, og svo sá sem kallar ákveður hvað \"best\" þýðir -- sem það þarf að gera, vegna þess að stigin eru á skjön við hvort annað að ásettu ráði. Silhouette er blindur fyrir því hversu mikið var hent, svo keyrsla sem kallar 90% af plötuhávaða og klasar restina þétt fær frábært stig og er ónothæf."
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel#3",
+      "source_sha256": "2a6c03a241ea0375ef40d645c68caca586c24fe3b67fe01f9cde12714945a6c7",
+      "source": "The scrolling console box and the AI chat box below it are the two halves of a vertical ``QSplitter``, so the handle between them can be dragged to trade height: a taller chat box is a shorter console, pixel for pixel. The default seats the handle exactly where the old fixed-height layout drew it, so nothing moves for a user who never drags. When the panel is built with a ``persist_key`` the position is saved per screen (``QSplitter.saveState``, under ``console/split/<key>``) and restored the next time that screen opens.",
+      "context": "The scrolling console box and the AI chat box below it are the two halves of a vertical ``QSplitter``, so the handle between them can be dragged to trade height: a taller chat box is a shorter console, pixel for pixel. The default seats the handle exactly where the old fixed-height layout drew it, so nothing moves for a user who never drags. When the panel is built with a ``persist_key`` the position is saved per application view (``QSplitter.saveState``, under ``console/split/<key>``) and restored the next time that application view opens.",
+      "translation": "Rennandi skipanalúgan og AI spjallglugginn fyrir neðan hann eru tvær hliðar lóðrétts ``QSplitter``, þannig að handfangið á milli þeirra má draga til að skipta hæð: hærri spjallgluggi er styttri skipanalúga, pixill fyrir pixill. Sjálfgefið er handfangið staðsett nákvæmlega þar sem gamli fastahæðarhönnunin teiknaði það, svo ekkert hreyfist fyrir notanda sem dregur aldrei. Þegar spjaldið er byggt með ``persist_key`` er staðsetningin vistuð fyrir hvert forritagluggaútlit (``QSplitter.saveState``, undir ``console/split/<key>``) og endurheimt næst þegar það útlit forritagluggsins opnast."
+    },
+    {
+      "label": "spacr.crops.MergedCropSource.spec_for#1",
+      "source_sha256": "d002198d9961c96a67b03624fc796b0aa1b2c267727ba876e5fe7dbc54b90b0c",
+      "source": "a measurement row. The label is the first present of ``object_label``, ``label``, ``cell_id``, ``nucleus_id``, ``pathogen_id``, ``cytoplasm_id``, and a row with none of them raises :class:`CropError`; ``object_type``, if present, overrides the template spec's. ``bbox-0`` .. ``bbox-3`` (or ``bbox_0`` .. ``bbox_3``) are honoured only when all four are there, and are reordered out of the skimage ``regionprops`` convention ``(min_row, min_col, max_row, max_col)`` into the spec's ``(y0, y1, x0, x1)`` -- supplying them lets the crop skip the whole-plane label index scan. The mask plane inside that box is still read, unless the spec also sets ``use_bounding_box``, which skips reading the label plane altogether.",
+      "context": "a measurement row. The label is the first present of ``object_label``, ``label``, ``cell_id``, ``nucleus_id``, ``pathogen_id``, ``cytoplasm_id``, and a row with none of them raises :class:`CropError`; ``object_type``, if present, overrides the template spec's. ``bbox-0`` .. ``bbox-3`` (or ``bbox_0`` .. ``bbox_3``) are honoured only when all four are there, and are reordered out of the skimage ``regionprops`` convention ``(min_row, min_col, max_row, max_col)`` into the spec's ``(y0, y1, x0, x1)`` -- supplying them lets the extracted image region skip the whole-image layer label index scan. The mask image layer inside that box is still read, unless the spec also sets ``use_bounding_box``, which skips reading the label image layer altogether.",
+      "translation": "mælingar röð. Merkimiðinn er fyrsta tilvist ``object_label``, ``label``, ``cell_id``, ``nucleus_id``, ``pathogen_id``, ``cytoplasm_id``, og röð án þeirra eykur :class:`CropError`; ``object_type``, ef til staðar, sigrar tilgreiningu sniðmátsins. ``bbox-0`` .. ``bbox-3`` (eða ``bbox_0`` .. ``bbox_3``) eru virt aðeins þegar allir fjórir eru til staðar, og eru endurraðaðir úr skimage ``regionprops`` venju ``(min_row, min_col, max_row, max_col)`` í tilgreiningu sniðmátsins ``(y0, y1, x0, x1)`` -- að veita þeim leyfir útdregnu myndasvæði að sleppa öllu rýni á lögmerki myndar. Grímumyndarlagið inni í þessum kassa er enn lesið, nema sniðið setji einnig ``use_bounding_box``, sem sleppir því að lesa merki myndarlagsins alveg."
+    },
+    {
+      "label": "spacr.filters.choose_anchor#2",
+      "source_sha256": "0496f36d37f509fcf8ac4c1ff96666d58ac4dc53564b58263d99a656ad85f6fa",
+      "source": "the object tables actually present, as returned by :func:`object_tables`. Only membership is tested -- the preference comes from the order of :data:`OBJECT_TABLES`, not from the order given here, so putting ``nucleus`` first does not make it the anchor while ``cell`` is also in the sequence.",
+      "context": "the object tables actually present, as returned by :func:`object_tables`. Only membership is tested -- the preference comes from the order of :data:`OBJECT_TABLES`, not from the order given here, so putting ``nucleus`` first does not make it the anchor while ``cell`` is also in the sequence.",
+      "translation": "hlutaborðin sjálf sem raunverulega eru til staðar, eins og þau eru skilað af :func:`object_tables`. Aðeins er prófað um aðild -- valið kemur frá röð :data:`OBJECT_TABLES`, ekki frá röðinni sem gefin er hér, svo að það að setja ``nucleus`` fyrst gerir það ekki að grundvelli á meðan ``cell`` er einnig í röðinni."
+    },
+    {
+      "label": "spacr.qt.widgets.home.RecentRunsPanel.read#1",
+      "source_sha256": "35322741fc68a790fb4395dc0e83c4c9d95d7ef9252b4acd45ec05b314f01732",
+      "source": "Split out of :meth:`refresh` so :class:`HomePage` can call it off the GUI thread: it touches no widget, only the run journal. ``recent_runs`` opens and JSON-parses *every* manifest under the runs root before it sorts and truncates — 4 865 of them on this developer's machine, measured at 540 ms — so it is not something the GUI thread should be doing on the way back to Home.",
+      "context": "Split out of :meth:`refresh` so :class:`HomePage` can call it off the main GUI execution path: it touches no widget, only the run journal. ``recent_runs`` opens and JSON-parses *every* manifest under the runs root before it sorts and truncates — 4 865 of them on this developer's machine, measured at 540 ms — so it is not something the main GUI execution path should be doing on the way back to Home.",
+      "translation": "Skoðið út úr :meth:`refresh` svo :class:`HomePage` geti kallað það af aðal GUI framkvæmdarstígnum: það snertir engan viðmótshluta, aðeins keyrsludagbókina. ``recent_runs`` opnar og JSON-tákngreinir *hverja* yfirlýsingu undir rót keyrslna áður en það raðar og sker niður — 4 865 þeirra á vélinni þessa forritara, mælt á 540 ms — svo þetta er ekki eitthvað sem aðal GUI framkvæmdarstígurinn ætti að gera á leiðinni aftur heim."
+    },
+    {
+      "label": "spacr.utils.correct_paths#1",
+      "source_sha256": "f50da8c918124fec7d3811c7c4e314dcd7d418916804bf101e60c2e99e8898ad",
+      "source": "A non-string entry is passed through untouched. ``png_list`` is LEFT-joined onto the object tables, so any object whose crop was never written arrives here with ``png_path`` = NaN -- a state :func:`spacr.io._read_and_join_tables` documents as healthy (``len(merged) == len(cell) > len(png_list)``: ``save_png`` off for a field, a crop that failed to write, an interrupted run, or a ``cell_id`` that could not be migrated). Testing ``base_path not in path`` on that NaN raised ``TypeError: argument of type 'float' is not iterable`` and took the whole embedding down over one missing thumbnail. There is no path to re-anchor for such a row, and it has to keep its position so the rewritten column still aligns with ``df``.",
+      "context": "A non-string entry is passed through untouched. ``png_list`` is LEFT-joined onto the object tables, so any object whose extracted image region was never written arrives here with ``png_path`` = NaN -- a state :func:`spacr.io._read_and_join_tables` documents as healthy (``len(merged) == len(cell) > len(png_list)``: ``save_png`` off for a microscope field of view, an extracted image region that failed to write, an interrupted run, or a ``cell_id`` that could not be migrated). Testing ``base_path not in path`` on that NaN raised ``TypeError: argument of type 'float' is not iterable`` and took the whole embedding down over one missing thumbnail. There is no path to re-anchor for such a row, and it has to keep its position so the rewritten column still aligns with ``df``.",
+      "translation": "Óstrengjagildri er farið í gegnum óbreytt. ``png_list`` er VINSTRI-tengdur við hlutatöflurnar, svo hvaða hlutur sem er sem myndsvæði hans sem var dregið út var aldrei skrifað kemur hingað með ``png_path`` = NaN -- ríki :func:`spacr.io._read_and_join_tables` skjöl sem heilbrigð (``len(merged) == len(cell) > len(png_list)``: ``save_png`` slökkt fyrir smásjársýni, útdreginn myndarhluti sem tókst ekki að skrifa, truflað keyrslu, eða ``cell_id`` sem gat ekki verið flutt. Prófun á ``base_path not in path`` á því NaN olli ``TypeError: argument of type 'float' is not iterable`` og fór með alla embedding niður vegna eins vantar þumalfingursmyndar. Það er engin leið til að festa aftur fyrir slíka röð, og það verður að halda stöðu sinni svo að endurskrifaða dálkurinn raðast enn með ``df``."
+    },
+    {
+      "label": "spacr.classify_classes.class_rules#0",
+      "source_sha256": "0144691542450b10065d13d2a7a39d72eb7e2252929878caf9c62fcfd84da9ac",
+      "source": "The classes a settings dict defines, in the order they were given.",
+      "context": "The classes a settings key-value mapping defines, in the order they were given.",
+      "translation": "Flokkarnir sem stillingaleyfa-lykil-gildi kortlagning skilgreinir, í þeirri röð sem þau voru gefin."
+    },
+    {
+      "label": "spacr.zstack.stitch_planes#1",
+      "source_sha256": "b9251736d0108bcf873ba3f30d52ee9c80b318ec39e24e4a51637dfa4ce3bff3",
+      "source": "Each plane is compared with the plane below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
+      "context": "Each image layer is compared with the image layer below it, and the pairing is greedy and **one-to-one**: pairs are considered in descending IoU and a label may take part in at most one link. That is what stops two genuinely different objects that merely happen to overlap the same object in xy from being fused -- only the better match inherits the label, the other starts a new one. Any pair below ``iou_threshold`` is not linked at all.",
+      "translation": "Hver myndlag er borið saman við myndlagið fyrir neðan það, og pörunin er gráðug og **einn-á-einn**: pör eru skoðuð í lækkandi röð eftir IoU og merki má taka þátt í hámarki í einum tengli. Það er það sem kemur í veg fyrir að tveir raunverulega mismunandi hlutir sem tilviljunarkennt skerast yfir sama hlutinn í xy verði sameinaðir -- aðeins betra samsvörunin erfir merkið, hinn byrjar nýtt. Ekkert par undir ``iou_threshold`` er tengt yfir höfuð."
+    },
+    {
+      "label": "spacr.qt.theme.register_widget_qss#5",
+      "source_sha256": "aa8f6acacbb239612ff224ccd16940b60319c6695946b7694b8cd72740cbaf02",
+      "source": ":func:`block_surface` and **not** :func:`pane_surface`, which is the near-identical accessor for inline and paint-time callers. Its ``None`` means \"nobody told me\" and reads the live preference, so a block using it turns ``stylesheet(theme)`` into a function of a QSettings value rather than of its arguments.",
+      "context": ":func:`block_surface` and **not** :func:`pane_surface`, which is the near-identical accessor for inline and paint-time callers. Its ``None`` means \"nobody told me\" and reads the live preference, so a block using it turns ``stylesheet(theme)`` into a function of a QSettings value rather than of its arguments.",
+      "translation": ":func:`block_surface` og **ekki** :func:`pane_surface`, sem er nánast eins aðgengismáti fyrir innlína- og málningartíma köllara. ``None`` þess þýðir \"nobody told me\" og les lifandi valkostinn, svo blokk sem notar það breytir ``stylesheet(theme)`` í fall af QSettings gildi frekar en af rökum þess."
+    },
+    {
+      "label": "spacr.qt.screens.model_compare.ModelCompareScreen.configure#1",
+      "source_sha256": "b85971d71e315c6a7ca7553ff9a787d1cc98c0a6f632afc29426d2f349953bbe",
+      "source": "The public route for another screen to hand this one a comparison — the Model Zoo's \"compare the two selected\" uses it. A caller reaching into ``_panel_a.model_edit`` would break the moment either panel is restructured.",
+      "context": "The public route for another screen to hand this one a comparison — the Model Zoo's \"compare the two selected\" uses it. A caller reaching into ``_panel_a.model_edit`` would break the moment either panel is restructured.",
+      "translation": "Almenn leið fyrir annan skjá til að senda þessum samanburð — Model Zoo \"compare the two selected\" notar það. Köllari sem nær inn í ``_panel_a.model_edit`` myndi brotna í augnablikinu sem annað hvort spjaldið er endurgerð."
+    },
+    {
+      "label": "spacr.utils.plot_grid#2",
+      "source_sha256": "2267b9c98e580cad1dcb28645c94fd9636446750a71003debb60ddf4582173be",
+      "source": "consumed two different ways in the same figure. The panel border uses ``colors[label]`` for integer keys, so the palette must reach the largest label, while the legend swatches beside the grid are taken positionally -- with non-contiguous labels the two disagree, and cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``. String keys use the positional index for both. A palette shorter than the mapping raises ``IndexError``, and entries need at least three components.",
+      "context": "consumed two different ways in the same figure. The panel border uses ``colors[label]`` for integer structured-data names, so the palette must reach the largest label, while the legend swatches beside the grid are taken positionally -- with non-contiguous labels the two disagree, and cluster ``3`` gets border ``colors[3]`` beside swatch ``colors[1]``. String structured-data names use the positional index for both. A palette shorter than the mapping raises ``IndexError``, and entries need at least three components.",
+      "translation": "neyslt á tvo mismunandi vegu í sama myndinni. Ramminn í spjaldi notar ``colors[label]`` fyrir heilar tölugögn nafn, svo pallettan verður að ná stærstu merkinu, á meðan litakort goðsögunnar við hlið töflunnar eru tekin staðsetningalega -- með ekki-samliggjandi merkimiða eru tveir ósammála, og klasi ``3`` fær landamærin ``colors[3]`` við hönnun ``colors[1]``. Strengi með uppbyggðum gögnum nota staðsetningarvísinn báðum megin. Litasamsetning sem er styttri en kortlagningin vekur ``IndexError``, og færslur þurfa að innihalda að minnsta kosti þrjá hluta."
+    },
+    {
+      "label": "spacr.hyperparam.umap_objective_scores#6",
+      "source_sha256": "50cc1cff418dc1c747b8d188aad9df436290b9d003bf7a4618ba4a49b8b4d86c",
+      "source": "merged over :data:`DEFAULT_UMAP_OBJECTIVE_WEIGHTS` and then renormalized, so naming one objective does not zero the others -- ``{'stability': 1.0}`` ends up near 0.59, not 1.0. Unknown, negative, non-finite, non-numeric or all-zero raises.",
+      "context": "merged over :data:`DEFAULT_UMAP_OBJECTIVE_WEIGHTS` and then renormalized, so naming one objective does not zero the others -- ``{'stability': 1.0}`` ends up near 0.59, not 1.0. Unknown, negative, non-finite, non-numeric or all-zero raises.",
+      "translation": "sameinað yfir :data:`DEFAULT_UMAP_OBJECTIVE_WEIGHTS` og svo endurnormerað, þannig að að nefna eitt markmið núllstillir ekki hin -- ``{'stability': 1.0}`` endar nær 0,59, ekki 1,0. Óþekkt, neikvætt, ekki-endanlegt, ekki-tölulegt eða allt-núll veldur villu."
+    },
+    {
+      "label": "spacr.run_journal.extract_seeds#3",
+      "source_sha256": "11242a0935690dbf921ea843a152c434a1e82ac37bfbe458d3a9dfeba4eea799",
+      "source": "a dict with ``declared`` (the collected seed settings), ``python_hash_seed`` (``PYTHONHASHSEED``, or ``None`` when unset), ``python_random_state_sha256``, ``numpy_random_state_sha256`` and ``torch_initial_seed`` — the last two ``None`` when the library is not already imported. A probe that raises contributes ``numpy_random_state_error`` / ``torch_seed_error`` instead of its value key.",
+      "context": "a key-value mapping with ``declared`` (the collected seed settings), ``python_hash_seed`` (``PYTHONHASHSEED``, or ``None`` when unset), ``python_random_state_sha256``, ``numpy_random_state_sha256`` and ``torch_initial_seed`` — the last two ``None`` when the library is not already imported. A probe that raises contributes ``numpy_random_state_error`` / ``torch_seed_error`` instead of its value structured-data name.",
+      "translation": "lykil-gildi kortlagning með ``declared`` (söfnun sáðfræsastillinga), ``python_hash_seed`` (``PYTHONHASHSEED``, eða ``None`` þegar ósætt), ``python_random_state_sha256``, ``numpy_random_state_sha256`` og ``torch_initial_seed`` — síðustu tvö ``None`` þegar bókasafnið er ekki þegar flutt inn. Skynjari sem veldur undrun leggur til ``numpy_random_state_error`` / ``torch_seed_error`` í stað nafnsins á gildi skipulagðra gagna."
+    },
+    {
+      "label": "spacr.qt.widgets.class_editor.ClassEditorWidget.set_basis#1",
+      "source_sha256": "fba5de1491752ca23e97658046f1d6086782cdca98fde7604ebd32d9b1abb56a",
+      "source": "Under metadata these become plate / row / column / field / well, which is what replaces location_column plus the two control settings.",
+      "context": "Under metadata these become laboratory microplate / row / column / microscope field of view / microplate sample position, which is what replaces location_column plus the two control settings.",
+      "translation": "Undir metadata verða þetta rannsóknarstofu örplatna / röð / dálkur / smásjáarsvæði / sýnisstaða á örplötu, sem er það sem kemur í stað location_column auk tveggja stjórnstillinga."
+    },
+    {
+      "label": "spacr.zstack.segment_3d#3",
+      "source_sha256": "e794dffa780a93e0b15d2d6095a6b630e082c6234f37f083d38d8339da01294d",
+      "source": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; the result may be per-plane labels, which are then linked by :func:`stitch_planes`. Anisotropy is *not* passed, because neither this code nor Cellpose uses it without ``do_3D``; supplying it is recorded as a no-op in ``notes``.",
+      "context": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; the result may be per-image-layer labels, which are then linked by :func:`stitch_planes`. Anisotropy is *not* passed, because neither this code nor Cellpose uses it without ``do_3D``; supplying it is recorded as a no-op in ``notes``.",
+      "translation": ":data:`MODE_STITCH` -- ``segment_fn(volume, stitch=True)``; niðurstaðan getur verið merkt per-mynd-lag, sem eru síðan tengd með :func:`stitch_planes`. Ójafnhyrningur er *ekki* notað, því hvorki þessi kóði né Cellpose notar það án ``do_3D``; að veita það er skráð sem no-op í ``notes``."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue#3",
+      "source_sha256": "59eb53528fee15a8a34d835d3e2de1cb7e9d924a18ad537b48afcb74cae1c00c",
+      "source": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
+      "context": "**Zoomable enlarged view** on the right — a QGraphicsView showing the current figure's full-resolution render. Wheel = zoom, fit-on-load, scales with the container (reuses the live-preview _ZoomView).",
+      "translation": "**Stækkanlegt útsýni** hægra megin — QGraphicsView sem sýnir fulla upplausnarútfærslu núverandi myndar. Hjól = stækkun, passa við hleðslu, skalar með ílátinu (endurnýtir lifandi forskoðun _ZoomView)."
+    },
+    {
+      "label": "spacr.omero#33",
+      "source_sha256": "2a6e8c308e21bcfc4736ea306b6cedd7efa8e791b688cbd5b70a5c356a73bd37",
+      "source": "``omero-py`` is an extra: ``pip install \"spacr[omero]\"``. It is deliberately **not** part of ``spacr[all]``, because it depends on ``zeroc-ice``, a compiled C++ Ice runtime whose wheels lag Python releases and which otherwise needs a C++ toolchain (see the comment beside the extra in ``setup.py``).",
+      "context": "``omero-py`` is an extra: ``pip install \"spacr[omero]\"``. It is deliberately **not** part of ``spacr[all]``, because it depends on ``zeroc-ice``, a compiled C++ Ice runtime whose wheels lag Python releases and which otherwise needs a C++ toolchain (see the comment beside the extra in ``setup.py``).",
+      "translation": "``omero-py`` er aukahlutur: ``pip install \"spacr[omero]\"``. Það er viljandi **ekki** hluti af ``spacr[all]``, vegna þess að það fer eftir ``zeroc-ice``, samsettum C++ Ice keyrslutíma sem hjólin hafa tafist á Python útgáfum og sem annars krefst C++ verkfærasett (sjá athugasemdina við aukahlutinn í ``setup.py``)."
+    },
+    {
+      "label": "spacr.measure_hooks#10",
+      "source_sha256": "4ff3ef78840ba5e1db27f05a8dc4602ff87be6cb3996d114cbebc52609830ce2",
+      "source": "``context`` is a :class:`RegionContext` carrying the object type, the label mask, the ascending array of its non-zero label ids and (computed only if the hook asks for them) their centroids. The hook returns a boolean array of ``len(context.labels)``: ``True`` keeps the object, ``False`` drops it. Dropped labels are zeroed out of the mask *before* morphology or intensity is computed, so excluding 495 of 500 objects costs 5 objects' worth of work, not 500.",
+      "context": "``context`` is a :class:`RegionContext` carrying the object type, the label mask, the ascending array of its non-zero label ids and (computed only if the hook asks for them) their centroids. The hook returns a boolean array of ``len(context.labels)``: ``True`` keeps the object, ``False`` drops it. Dropped labels are zeroed out of the mask *before* morphology or intensity is computed, so excluding 495 of 500 objects costs 5 objects' worth of work, not 500.",
+      "translation": "``context`` er :class:`RegionContext` sem ber tegund hlutarins, merkimiðamaska, stígvaxandi fylki af ó-núll merkimiða auðkennum þess og (reiknað aðeins ef kraninn biður um þau) miðpunkta þeirra. Kraninn skilar bóleisku fylki af ``len(context.labels)``: ``True`` heldur hlutnum, ``False`` hendir honum. Hentu merkimiðar eru núllaðir úr maska *fyrir* að morphology eða styrkur er reiknaður, þannig að að útiloka 495 af 500 hlutum kostar vinnu svarandi til 5 hluta, ekki 500."
+    }
+  ]
+}

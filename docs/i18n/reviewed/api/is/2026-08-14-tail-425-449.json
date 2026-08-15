@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.deep_spacr.analyze_activation_maps#4",
+      "source_sha256": "8bdaa7e0b3b943b3332949be6a234aed995a9661c5201b74e01ed2aec9c04f84",
+      "source": "**model-randomisation sanity check** (Adebayo et al. 2018) — randomise the weights layer by layer and attribute again. A method whose map survives that is an edge detector, and this is the one check that catches it.",
+      "context": "**model-randomisation sanity check** (Adebayo et al. 2018) — randomise the weights layer by layer and attribute again. A method whose map survives that is an edge detector, and this is the one check that catches it.",
+      "translation": "**Heilbrigðispróf með slembigerð líkans** (Adebayo og samstarfsfólk 2018) — slembigerðu vægin lag fyrir lag og reiknaðu skýringuna aftur. Aðferð sem heldur sama korti eftir það er í raun jaðarskynjari; þetta er prófið sem greinir slíkt."
+    },
+    {
+      "label": "spacr.diameter#3",
+      "source_sha256": "6e3a3d32380c55cce82d71837ca2a4274a6b814cc355008d0d9e17cda8f38406",
+      "source": "Design constraint: this module must be usable *before* committing to a segmentation run, which means it may not cost what a segmentation run costs. It therefore imports **no torch and no cellpose** — that is a tested property, not an aspiration (see ``tests/test_diameter_estimator.py``). It reuses :mod:`spacr.validate` for filename-metadata parsing, which is the other deliberately dependency-light module in the package (``spacr.utils``, where ``_get_regex`` and ``_extract_filename_metadata`` live, imports torch and cellpose at module scope and so cannot be touched from here). The regexes in ``spacr.validate.METADATA_REGEXES`` mirror ``spacr.utils._get_regex``, and the channel ordering used below mirrors ``spacr.io._rename_and_organize_image_files``, which concatenates one plane per distinct ``chanID`` in sorted order — so channel index *i* is the *i*-th sorted ``chanID``, exactly as ``cell_channel`` and friends mean it.",
+      "context": "*Early availability:* the module works before segmentation. **Lightweight dependencies:** it avoids torch and cellpose. This is tested by ``tests/test_diameter_estimator.py``. :mod:`spacr.validate` parses filename metadata without heavy imports. The alternative ``spacr.utils`` imports torch and cellpose because it defines ``_get_regex`` and ``_extract_filename_metadata``. Equivalent rules appear in ``spacr.validate.METADATA_REGEXES`` and ``spacr.utils._get_regex``. ``spacr.io._rename_and_organize_image_files`` sorts planes by ``chanID``. Position *i* selects one entry. At position *i*, the sorted ``chanID`` corresponds to ``cell_channel``.",
+      "translation": "*Tiltækt snemma:* einingin virkar áður en hlutun hefst. **Léttar háðir:** hún notar hvorki torch né cellpose. Þetta er prófað í ``tests/test_diameter_estimator.py``. :mod:`spacr.validate` les lýsigögn úr skráarheitum án þungra innflutninga. Valkosturinn ``spacr.utils`` flytur inn torch og cellpose vegna þess að þar eru ``_get_regex`` og ``_extract_filename_metadata`` skilgreind. Jafngildar reglur eru í ``spacr.validate.METADATA_REGEXES`` og ``spacr.utils._get_regex``. ``spacr.io._rename_and_organize_image_files`` raðar myndlögum eftir ``chanID``. Staða *i* velur eina færslu. Í stöðu *i* samsvarar raðaða ``chanID`` gildið ``cell_channel``."
+    },
+    {
+      "label": "spacr.diameter#6",
+      "source_sha256": "a3768dc9ae04f523c6d7bd7c3473c6b70250a3fb1601c8a36c12f89bcf6fd565",
+      "source": "1. **Flatten.** Denoise with a 1 px Gaussian, then subtract a heavily smoothed copy (sigma = max(32, min(H, W) / 4)) to remove illumination gradients. The sigma is deliberately far larger than any plausible object so that flattening removes vignetting without eating the objects — the opposite trade-off (a tight rolling ball) shrinks what it is trying to measure. 2. **Reject noise.** Compare the structural amplitude of the flattened plane (p99 - p30) against the *pixel-level* noise scale, measured as ``1.4826 * MAD(img - gaussian(img, 1))`` on the raw plane. A pure-noise plane scores below 1; a plane with real objects scores in the tens. Below ``min_snr`` the field is discarded rather than thresholded, because Otsu will happily bisect pure noise and hand back a confident-looking number. 3. **Threshold and label.** Otsu, fill holes, label, drop components that touch the image border (truncated, so their size is a lie) and components that are absurd (equivalent diameter below ``min_object_diameter``, or area above ``max_object_fraction`` of the field). Characteristic size is the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** Step 3 has one dominant failure mode: a confluent monolayer fuses into a single component, that component touches the border and is dropped, and the estimate is then computed from whatever debris survived — biased **low**, and silently. So the Euclidean distance transform of the (unfilled) foreground is computed as well, its local maxima are taken as one seed per object (two passes: a coarse pass sets the suppression radius for the refined pass), and a watershed on ``-EDT`` splits the fused foreground back into objects whose equivalent diameters are measured the same way.",
+      "context": "1. **Flatten.** Apply a 1 px Gaussian filter, then subtract a smoother copy with sigma = max(32, min(H, W) / 4). This sigma is larger than a plausible object, so it removes vignetting without the object shrinkage caused by a tight rolling ball. 2. **Reject noise.** Compare the flattened plane’s structural amplitude (p99 - p30) with the *pixel-level* raw-plane noise estimate ``1.4826 * MAD(img - gaussian(img, 1))``. Pure noise scores below 1; real objects score in the tens. Discard a field below ``min_snr`` instead of applying Otsu to pure noise. 3. **Threshold and label.** Apply Otsu, fill holes, and label components. Remove border-touching components because they are truncated; also remove equivalent diameters below ``min_object_diameter`` and areas above ``max_object_fraction``. Use the median equivalent diameter, ``2 * sqrt(area / pi)``. 4. **Cross-check by distance transform.** A confluent layer can fuse into one border-touching component, which is discarded and leaves debris that biases the estimate silently **low**. Compute the Euclidean distance transform of the unfilled foreground. Use local maxima as object seeds in two passes: a coarse pass sets the suppression radius for the refined pass. Watershed on ``-EDT`` separates the fused foreground before measuring equivalent diameters the same way.",
+      "translation": "1. **Fletja.** Beittu 1 px Gauss-síu og dragðu síðan frá sléttara afrit þar sem sigma-gildið er stærra gildið af 32 og fjórðungi af minni víddinni, H eða W. Þetta sigma er stærra en trúverðugur hlutur og fjarlægir því jaðardeyfingu án þeirrar minnkunar hluta sem þétt rúllukúla veldur. 2. **Hafna suði.** Berðu byggingarlegt útslag flata myndlagsins (p99 - p30) saman við *pixlastigs* suðmat hráa myndlagsins, ``1.4826 * MAD(img - gaussian(img, 1))``. Hreint suð fær stig undir 1 en raunverulegir hlutir stig í tugum. Hentu sjónsviði undir ``min_snr`` í stað þess að beita Otsu á hreint suð. 3. **Þröskulda og merkja.** Beittu Otsu, fylltu göt og merktu einingar. Fjarlægðu einingar sem snerta jaðarinn því þær eru afskornar; fjarlægðu einnig jafngild þvermál undir ``min_object_diameter`` og svæði yfir ``max_object_fraction``. Notaðu miðgildi jafngilds þvermáls, ``2 * sqrt(area / pi)``. 4. **Krossprófa með fjarlægðarvörpun.** Samvaxið lag getur sameinast í eina einingu sem snertir jaðar, er hent og skilur eftir leifar sem skekkja matið hljóðlega **niður**. Reiknaðu evklíðska fjarlægðarvörpun ófyllta forgrunnsins. Notaðu staðbundin hámörk sem fræ í tveimur umferðum: gróf umferð ákveður bælingarradíus fyrir fínni umferðina. Vatnaskilahlutun á ``-EDT`` skilur samvaxna forgrunninn áður en jafngild þvermál eru mæld á sama hátt."
+    },
+    {
+      "label": "spacr.qt.synthetic.generate_measure_demo#5",
+      "source_sha256": "b22a8066acd115555b978075090bd7ddcbce32ea4f72e36d944289ca3107ce44",
+      "source": "1. ``set_default_settings_preprocess_generate_masks`` defaults it to the **string** ``'cell'``, and ``measure.py`` tests it with ``\"organelle\" in settings['summarize_organelles_by']`` — a *substring* test when the value is a str. Running this demo with ``summarize_organelles_by='cell'`` gives ``cell_organelle_summary`` (16 rows/field) and still **no ``organelle`` table**. Only a value containing ``'organelle'`` writes the per-organelle table (``['cell', 'organelle']`` → organelle 64 rows/field, verified). 2. A list cannot be shipped today: ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\" — a hard pre-flight **error** on a demo that must load clean. The tooltip and ``spacr.gui_utils`` both describe it as a list, and ``spacr.external_masks`` builds one; only the type table disagrees.",
+      "context": "1. **The starting value is text.** ``set_default_settings_preprocess_generate_masks`` sets it to ``'cell'``. ``measure.py`` evaluates ``\"organelle\" in settings['summarize_organelles_by']`` for a str. *This membership test accepts substrings.* Running with ``summarize_organelles_by='cell'`` produces ``cell_organelle_summary`` (16 rows/field). **No output table is produced.** The ``organelle`` table appears only for a value containing ``'organelle'`` (``['cell', 'organelle']`` → 64 rows/field in that table, verified). 2. Lists cannot currently be supplied. ``spacr.settings.expected_types`` declares ``'summarize_organelles_by': str``, so ``spacr.validate.validate_settings`` rejects ``['cell', 'organelle']`` with \"is a list, but str is expected\". **This is a validation conflict.** The demo must load cleanly. The tooltip and ``spacr.gui_utils`` describe a list, and ``spacr.external_masks`` constructs one; the type table conflicts with them.",
+      "translation": "1. **Upphafsgildið er texti.** ``set_default_settings_preprocess_generate_masks`` stillir það á ``'cell'``. ``measure.py`` metur ``\"organelle\" in settings['summarize_organelles_by']`` þegar gildið er str. *Þetta aðildarpróf samþykkir undirstrengi.* Keyrsla með ``summarize_organelles_by='cell'`` býr til ``cell_organelle_summary`` (16 raðir á sjónsvið). **Engin úttakstafla er búin til.** Taflan ``organelle`` birtist aðeins þegar gildið inniheldur ``'organelle'`` (``['cell', 'organelle']`` → 64 raðir á sjónsvið í þeirri töflu, staðfest). 2. Ekki er hægt að gefa lista eins og er. ``spacr.settings.expected_types`` skilgreinir ``'summarize_organelles_by': str``, svo ``spacr.validate.validate_settings`` hafnar ``['cell', 'organelle']`` með \"er listi, en búist er við str\". **Þetta er sannprófunarárekstur.** Sýnidæmið verður að hlaðast án villu. Verkfæraábendingin og ``spacr.gui_utils`` lýsa lista og ``spacr.external_masks`` smíðar slíkan lista; tegundataflan stangast á við þau."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.bounds_in#1",
+      "source_sha256": "3255f94e13de353265be2c0f2d7971416193d048584b65f3d95ed2f65bace338",
+      "source": "A rectangle open on one side really does extend forever, so it is drawn to the edge of the axes. That edge is where its handle goes, and pulling it there gives the gate a bound it did not have -- which is the only way to close an open side without redrawing the gate.",
+      "context": "A rectangle open on one side really does extend forever, so it is drawn to the edge of the axes. That edge is where its handle goes, and pulling it there gives the data-selection boundary a bound it did not have -- which is the only way to close an open side without redrawing the data-selection boundary.",
+      "translation": "Rétthyrningur sem er opinn í eina átt nær í raun óendanlega langt, svo hann er teiknaður að jaðri ásanna. Handfangið er sett á þann jaðar; þegar það er dregið þaðan fær gagnavalsmörkunin takmörk sem hún hafði ekki. Þetta er eina leiðin til að loka opinni átt án þess að teikna gagnavalsmörkunina aftur."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.handles#1",
+      "source_sha256": "feb4afcb07fc538d7d7d11c0da293332d43da1bf391971651a559ef00cdb2dc5",
+      "source": "An unbounded side gets no handle. A threshold with no upper bound is open to infinity, and an anchor at the edge of the view would look like a bound the gate does not have -- the user would drag it and discover they had just invented one.",
+      "context": "An unbounded side gets no handle. A threshold with no upper bound is open to infinity, and an anchor at the edge of the view would look like a bound the data-selection boundary does not have -- the user would drag it and discover they had just invented one.",
+      "translation": "Ótakmörkuð átt fær ekkert handfang. Þröskuldur án efri marka er opinn til óendanleika; akkeri á jaðri sýnarinnar myndi líta út eins og mörk sem gagnavalsmörkunin hefur ekki. Notandinn gæti dregið það og óvart búið til ný mörk."
+    },
+    {
+      "label": "spacr.hits.benjamini_hochberg#0",
+      "source_sha256": "68613541f955ea03a035da293be613c7ede40c3e815c25693644efdf1a5ca309",
+      "source": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
+      "context": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
+      "translation": "Benjamini–Hochberg-aðferðin skilar FDR-leiðréttum q-gildum fyrir vigur p-gilda."
+    },
+    {
+      "label": "spacr.utils.console_safe#1",
+      "source_sha256": "e74457c307d51cfc40b90b5da12fad19304fe36dd522d04e262f98b6ca4d80ca",
+      "source": "Console decoration must never be able to end a run. No Windows codepage encodes spaCR's own output set -- ``▸`` (U+25B8) is absent from cp1252, cp437, cp850, cp932 *and* cp936, and the box-drawing frame is absent from cp1252 -- and neither does any of them encode the domain vocabulary that ends up in settings values, such as the parental strain ``Δku80`` or a ``µm`` voxel size. Printing either to a non-UTF-8 stream raises ``UnicodeEncodeError``, and on Windows that is the normal case the moment stdout is redirected: a batch-queue job, ``spacr-run``, a legacy console.",
+      "context": "Console decoration must never terminate a run. Windows code pages do not encode every spaCR output character. For example, ``▸`` is missing from cp1252, cp437, cp850, cp932 *and* cp936, and cp1252 lacks the frame characters. Settings may also contain ``Δku80`` or ``µm``. Writing these values to a non-UTF-8 stream raises ``UnicodeEncodeError``. On Windows, this commonly occurs when stdout is redirected by a batch job, ``spacr-run``, or a legacy console.",
+      "translation": "Skreyting stjórnborðs má aldrei stöðva keyrslu. Windows-kóðasíður geta ekki táknað öll úttaksstök spaCR. Til dæmis vantar ``▸`` í cp1252 og cp437, auk cp850 og cp932, *og* einnig cp936; cp1252 vantar rammastafina. Stillingar geta einnig innihaldið ``Δku80`` eða ``µm``. Skrifun þessara gilda í straum sem er ekki UTF-8 veldur ``UnicodeEncodeError``. Í Windows gerist þetta oft þegar stdout er endurbeint af runuvinnslu, ``spacr-run`` eða eldra stjórnborði."
+    },
+    {
+      "label": "spacr.crops.narrow_to_uint8#2",
+      "source_sha256": "5951cac9fa1d1f5187941acdff25b85aab85bbc61b6a71d471ec0e4be0055228",
+      "source": "Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit RGB PNG but clips a 16-bit single-channel one at 255, so the same pixel value survives or saturates depending on how many channels its neighbours have. One behaviour, applied here, replaces both.",
+      "context": "Deliberately *not* PIL's behaviour: PIL takes the high byte of a 16-bit RGB PNG but clips a 16-bit single-image data channel one at 255, so the same pixel value survives or saturates depending on how many image data channels its neighbours have. One behaviour, applied here, replaces both.",
+      "translation": "Viljandi *ekki* hegðun PIL: PIL tekur efra bætið úr 16-bita RGB PNG en klippir 16-bita einnar-rásar mynd við 255. Sama pixlagildi varðveitist því eða mettast eftir því hversu margar myndrásir eru í nágrenninu. Ein samræmd hegðun sem er beitt hér kemur í stað beggja."
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#0",
+      "source_sha256": "44f4b8359c7c7acb43b0a00ad8e0c0f81927a4818b9edf5623396e6ce93d7ae4",
+      "source": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.",
+      "context": "End-to-end merged-npy workflow for cell/pathogen motility and infection QC.",
+      "translation": "Heildstætt vinnuflæði með sameinuðum npy-skrám fyrir hreyfanleika frumna og sýkla og QC-gæðaeftirlit sýkingar."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec#1",
+      "source_sha256": "2ce90a4fb9541da1c90d8bca8ff56aa11fb0cab8c75d04137d912102d76136bd",
+      "source": "JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows, ``gene`` across the columns, tick *mean* and *sd*, and read the table. It is the thing people reach for before they plot anything, because a number they can copy into a slide is often the whole answer.",
+      "context": "JMP's *Tabulate* is a drag-and-drop pivot: put ``plateID`` down the rows, ``gene`` across the columns, tick *mean* and *sd*, and read the table. It is the thing people reach for before they plot anything, because a number they can copy into a slide is often the whole answer.",
+      "translation": "*Tabulate* í JMP er draga-og-sleppa snúningstafla: settu ``plateID`` í raðirnar, ``gene`` í dálkana, merktu við *mean* og *sd* og lestu töfluna. Þetta er oft fyrsta verkfærið sem fólk notar áður en það teiknar nokkuð, því tala sem hægt er að afrita á glæru er gjarnan allt svarið."
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.file_issue#0",
+      "source_sha256": "bbdb8bfac3f99fa7af2e70739125ad7f88eaaae6db6d231eef7b1b596094fc68",
+      "source": "Legacy end-to-end helper retained for API callers and tests.",
+      "context": "Legacy end-to-end helper retained for API callers and tests.",
+      "translation": "Eldri heildarhjálparfall sem er varðveitt fyrir API-kallendur og próf."
+    },
+    {
+      "label": "spacr.torch_artifacts.load_model_artifact#0",
+      "source_sha256": "443dc3d96e5c8c4f2602c91cde6046a1518e192620f6b5192a8e3cb970ffae0c",
+      "source": "Load current artifacts and legacy full-module/state-dict checkpoints.",
+      "context": "Load current artifacts and legacy full-module/state-key-value mapping checkpoints.",
+      "translation": "Hlaða núverandi líkangripum og eldri stöðupunktum sem geyma heila einingu eða lyklagildavörpun ástands."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec#11",
+      "source_sha256": "af30f0d80abfa5b39844f97f279b8b5a335a452c0d560eca7562fdf15e224f6b",
+      "source": "Point-in-polygon is the even–odd ray-casting rule, vectorised. A row whose x or y is missing is **outside every gate** — not \"unknown\", not silently kept. An object with no measurement is not an object inside the region, and letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
+      "context": "Point-in-polygon uses the vectorised even–odd ray-casting rule. A row whose x or y is missing is **outside every gate**. Its state is not \"unknown\", and it is not silently kept. An object with no measurement is not inside the region. Letting it through would put objects with no value into a population the user defined by value; the same rule :class:`~spacr.selection.RangeFilter` applies to NaN.",
+      "translation": "Punktur-í-margliðu notar vigraða jafn–odd geislareglu. Röð þar sem x eða y vantar er **utan allra gagnavalsmarka**. Staðan er ekki \"unknown\" og röðinni er ekki haldið hljóðlega. Hlutur án mælingar er ekki inni á svæðinu. Ef honum væri hleypt í gegn færu hlutir án gildis í þýði sem notandinn skilgreindi eftir gildi; sama regla og :class:`~spacr.selection.RangeFilter` notar fyrir NaN."
+    },
+    {
+      "label": "spacr.qt.ai.providers#0",
+      "source_sha256": "4b4f4c864a6d6a54405a9db239b604eece859287d4ab76d60f77fcfa52db6998",
+      "source": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "context": "Provider abstraction — one class per AI vendor. Each shells out to the vendor's own coding-agent CLI so authentication piggy-backs on the user's chat subscription (Claude.ai Pro, ChatGPT Plus/Pro/Team, Google account) — no separate API billing.",
+      "translation": "Útdráttarlag veitenda — einn flokkur fyrir hvern gervigreindarveitanda. Hver flokkur keyrir eigið forritunarfulltrúa-CLI veitandans, þannig að auðkenning notar spjalláskrift notandans (Claude.ai Pro, ChatGPT Plus/Pro/Team eða Google-reikning) og engin sérstök API-gjaldtaka þarf að eiga sér stað."
+    },
+    {
+      "label": "spacr.sim.run_simulation#0",
+      "source_sha256": "1b1ccb8efa965920dd4ca57f9986ab3eb259f0e58e08ef6e5401aed65ebbd4f6",
+      "source": "Run one end-to-end pooled-screen simulation and return every intermediate table.",
+      "context": "Run one end-to-end pooled-screening experiment simulation and return every intermediate table.",
+      "translation": "Keyra eina heildstæða hermun á sameinaðri líffræðilegri skimunartilraun og skila öllum millitöflum."
+    },
+    {
+      "label": "spacr.plot.create_grouped_plot#1",
+      "source_sha256": "53d2c735de6008c72a2b73b46d69a0df323fc09e42db21b3259a4f837a6cf706",
+      "source": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
+      "context": "Runs D'Agostino normality per group, chooses the appropriate pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey HSD post-hoc when appropriate, renders the requested plot type and optionally persists both plot and stats to ``output_dir``.",
+      "translation": "Keyrir D'Agostino-normalpróf fyrir hvern hóp, velur viðeigandi samanburðarpróf (ANOVA / Kruskal / t-próf / Mann–Whitney), bætir við Tukey HSD eftirprófi þegar við á, teiknar umbeðna gerð grafs og getur vistað bæði graf og tölfræði í ``output_dir``."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.is_headless#2",
+      "source_sha256": "578b870f2c8294483c7d7162d4ca00cf313706f6e7b20310e496459017500714",
+      "source": "Sibling screens (align / batch / convert / report / plate_view / …) solve this by never opening a modal at all — see their ``_set_status`` docstrings, which cite this screen as the case that actually hung. That is not sufficient here because \"Clear mask\" genuinely needs a yes/no answer, so this screen keeps the modal when — and only when — there is somebody able to answer it.",
+      "context": "The align / batch / convert / report / plate_view screens never open a modal dialog; their ``_set_status`` documentation refers to the earlier hang in this screen. Here, however, \"Clear mask\" requires a yes-or-no response. Therefore this screen opens the dialog only when a person can answer it.",
+      "translation": "Forritssýnirnar batch / align / report / convert / plate_view opna aldrei hamglugga; skjölun ``_set_status`` þeirra vísar til fyrri hengingar í þessari forritssýn. Hér krefst \"Clear mask\" hins vegar já-eða-nei svars. Þess vegna opnar þessi forritssýn gluggann aðeins þegar manneskja getur svarað honum."
+    },
+    {
+      "label": "spacr.qt.theme.page_tabs_qss#1",
+      "source_sha256": "fd021f45ab60bade245174606a8fc3f6cc31f479968898b921864277bbe584ab",
+      "source": "The shipped ``QTabBar``/``QTabWidget::pane`` rules paint ``P[\"surface\"]`` and ``P[\"surface_alt\"]`` — **raw hex**, so a tab strip that is the main content of a screen (Classifier Evaluation, Run History) sat there as a flat opaque slab while the cards beside it thinned with the slider.",
+      "context": "The shipped ``QTabBar``/``QTabWidget::pane`` rules paint ``P[\"surface\"]`` and ``P[\"surface_alt\"]`` — **raw hex**, so a tab strip that is the main content of a screen (machine-learning classification model Evaluation, Run History) sat there as a flat opaque slab while the cards beside it thinned with the slider.",
+      "translation": "Reglurnar sem fylgja fyrir ``QTabBar``/``QTabWidget::pane`` mála ``P[\"surface\"]`` og ``P[\"surface_alt\"]`` — **hrá sextándagildi**. Flipastika sem er megininnihald forritssýnar (mat á vélrænu flokkunarlíkani, keyrslusaga) varð því flöt, ógegnsæ plata á meðan spjöldin við hliðina urðu gegnsærri með sleðanum."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_search_panel#5",
+      "source_sha256": "ecdcf06e36dcf56439f40cbfdbe4d78b1d48c36af85bec53f77ab6423b3ece64",
+      "source": "WHAT IS AND IS NOT HERE. DBSCAN's parameters and the Walk are, because they are the search. The xD projection's hyperparameters are NOT: they live in the settings dialog's xD tab beside the column picker they depend on, and a reduction is chosen once per table rather than iterated on per gate. Splitting them across two places would be the \"two editors\" mistake again.",
+      "context": "WHAT IS AND IS NOT HERE. DBSCAN's parameters and the Walk are, because they are the search. The xD projection's hyperparameters are NOT: they live in the settings dialog's xD tab beside the column picker they depend on, and a reduction is chosen once per table rather than iterated on per data-selection boundary. Splitting them across two places would be the \"two editors\" mistake again.",
+      "translation": "HVAÐ ER OG ER EKKI HÉR. Færibreytur DBSCAN og Walk-leitin eru hér, því þær mynda leitina. Ofurfæribreytur xD-vörpunarinnar eru EKKI hér: þær eru á xD-flipa stillingargluggans nærri dálkavalinu sem þær ráðast af, og víddarfækkun er valin einu sinni fyrir hverja töflu en ekki endurtekin fyrir hver gagnavalsmörk. Ef þessu væri skipt á tvo staði væri aftur gerð mistökin \"two editors\"."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate#1",
+      "source_sha256": "ce84fd948380bbc2ab3bccfff45918df6c6dfab859d9df892b67519e26c5f8cd",
+      "source": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a gate with neither is the whole population, and naming that is a way to lose track of it.",
+      "context": "``None`` on a bound means unbounded on that side, which is what a threshold dragged to the edge should mean rather than \"exclude everything\". At least one bound is required: a data-selection boundary with neither is the whole population, and naming that is a way to lose track of it.",
+      "translation": "``None`` sem mörk þýðir að viðkomandi átt er ótakmörkuð. Þröskuldur sem er dreginn að jaðrinum á að merkja það, ekki \"exclude everything\". Að minnsta kosti ein mörk eru áskilin: gagnavalsmörk án beggja marka ná yfir allt þýðið og ef þau eru nefnd er auðvelt að missa yfirsýn yfir það."
+    },
+    {
+      "label": "spacr.qt.screens.outliers.register#2",
+      "source_sha256": "3274f5c18a7477eb02bac55d4951fa3b312d7ab69e8b52b3ed5bcbab746523bf",
+      "source": "``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is worth writing down because the first instinct is the other one. This screen looks like QC — it is about whether to believe what a run produced — but what it *does* is what the Gate Editor and the Feature Explorer do, and it sits beside them: you pick features, you move a threshold, you watch a distribution answer, and what comes out is a **column** the user then filters or gates on. Results & QC holds the screens that hand back a verdict; this one hands back a question with the evidence attached, and :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` is the only place a row is ever dropped and it has to be called on purpose.",
+      "context": "``SECTION_EXPLORE`` rather than ``SECTION_RESULTS``, and the reasoning is worth writing down because the first instinct is the other one. This application view looks like QC — it is about whether to believe what a run produced — but what it *does* is what the Data-selection boundary Editor and the Feature Explorer do, and it sits beside them: you pick features, you move a threshold, you watch a distribution answer, and what comes out is a **column** the user then filters or data-selection boundaries on. Results & QC holds the application views that hand back a verdict; this one hands back a question with the evidence attached, and :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` is the only place a row is ever dropped and it has to be called on purpose.",
+      "translation": "``SECTION_EXPLORE`` frekar en ``SECTION_RESULTS``; ástæðuna þarf að skrá því fyrsta hugmyndin er hin. Forritssýnin líkist QC-gæðaeftirliti — hún fjallar um hvort treysta megi niðurstöðu keyrslu — en það sem hún *gerir* er hið sama og gagnavalsmarkaritillinn og eiginleikakönnuðurinn gera, og hún er nærri þeim: notandinn velur eiginleika, færir þröskuld, sér dreifinguna svara og fær **dálk** sem síðan er síað eða notað til gagnavalsmarka. Results & QC geymir forritssýnir sem skila úrskurði; þessi skilar spurningu ásamt gögnunum. :meth:`~spacr.qt.widgets.outlier_model.OutlierResult.filtered` er eini staðurinn þar sem röð er felld brott og það þarf að kalla fallið viljandi."
+    },
+    {
+      "label": "spacr.predictions#10",
+      "source_sha256": "28ce2636824fc008ae64c78056282fee80735ef5e87b3ae0745942d80348bbd9",
+      "source": "the tar handed to the model is built with ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`), so a run over two source folders whose plates are *both* called ``plate1`` --- which is what happens whenever the plate name comes from the source folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` --- puts two different crops in the archive under one member name; and",
+      "context": "the tar handed to the model is built with ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`), so a processing session over two source folders whose plates are *both* called ``plate1`` --- which is what happens whenever the plate name comes from the source folder name, see :mod:`spacr.io` ``_rename_and_organize_image_files`` --- puts two different extracted image regions in the archive under one member name; and",
+      "translation": "tar-safnið sem líkanið fær er byggt með ``arcname=os.path.basename(img_path)`` (:func:`spacr.utils.add_images_to_tar`). Vinnslukeyrsla yfir tvær upprunamöppur þar sem plöturnar heita *báðar* ``plate1`` — eins og gerist þegar plötuheitið kemur úr heiti upprunamöppunnar, sjá :mod:`spacr.io` ``_rename_and_organize_image_files`` — setur því tvö ólík útdregin myndsvæði í safnið undir sama heiti; og"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.Gate.handles#1",
+      "source_sha256": "f1a3cfa065cd89404498a184290e9fda9085e23d31161d063aac8594e8ac30fd",
+      "source": "the visible axis limits, used ONLY to place handles on sides the gate does not bound. An unbounded side is at infinity and cannot be drawn or grabbed there; putting its handle at the edge of the view lets the user pull a bound onto a gate that never had one.",
+      "context": "the visible axis limits, used ONLY to place handles on sides the data-selection boundary does not bound. An unbounded side is at infinity and cannot be drawn or grabbed there; putting its handle at the edge of the view lets the user pull a bound onto a data-selection boundary that never had one.",
+      "translation": "sýnileg ásamörk, AÐEINS notuð til að staðsetja handföng í áttir sem gagnavalsmörkin takmarka ekki. Ótakmörkuð átt nær í óendanleika og þar er hvorki hægt að teikna né grípa. Handfang á jaðri sýnarinnar gerir notandanum kleift að draga ný mörk inn á gagnavalsmörk sem höfðu þau ekki."
+    },
+    {
+      "label": "spacr.pipeline_v2#0",
+      "source_sha256": "dcfdda487243b1a5192ee055476626382a982fd17197365840dfd1bf6d5666ae",
+      "source": "Streaming mask pipeline (v2).",
+      "context": "Streaming mask workflow (v2).",
+      "translation": "Straumvinnandi grímuvinnslurás (v2)."
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.run_journal.diff_runs#3",
+      "source_sha256": "1824fc47d046483c2406726cc25a7c950bf67d73e61ccec623483da56ab44c0b",
+      "source": "``changed`` holds only keys present in *both* runs whose values actually differ, sorted by key — those are the knobs someone turned. Values are compared structurally, not by ``repr`` (see :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``\"[1, 2]\"`` (as CSV round-trips it) ``== [1, 2]``, and ``\"None\" == None``.",
+      "context": "``changed`` holds only structured-data names present in *both* runs whose values actually differ, sorted by structured-data name — those are the knobs someone turned. Values are compared structurally, not by ``repr`` (see :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``\"[1, 2]\"`` (as CSV round-trips it) ``== [1, 2]``, and ``\"None\" == None``.",
+      "translation": "``changed`` inniheldur aðeins nafn á uppbyggðum gögnum sem eru til staðar í *báðum* keyrslum og þar sem gildi eru raunverulega mismunandi, raðað eftir nafni uppbyggðra gagna — þetta eru stillingar sem einhver snéri. Gildi eru borin saman á uppbyggilegan hátt, ekki eftir ``repr`` (sjá :func:`_normalize_value`): ``[1, 2] == [1, 2]``, ``\"[1, 2]\"`` (eins og CSV fer í kringum það) ``== [1, 2]``, og ``\"None\" == None``."
+    },
+    {
+      "label": "spacr.qt.widgets.formula_editor.FormulaPanel.set_frame#1",
+      "source_sha256": "23fd42c9c3366c005bdfd34fd78edf0ecc4565e71cf18b05feac20b6d60cd4e2",
+      "source": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "context": "Existing formulas are **kept** and re-applied. That is the opposite of what the Local Data Filter does with its clauses, on purpose: a filter clause naming a missing column narrows by less than it claims and is dangerous to keep, while a formula naming a missing column simply fails, says which column, and is exactly what the user wants back when they reload the same table.",
+      "translation": "Núverandi formúlur eru **haldið** og endurnýtt. Þetta er andstæða þess sem Staðbundinn gagnafilter gerir með ákvæðum sínum, með vilje: síuákvæði sem nefnir vantar dálk þrengir minna en það heldur fram og er hættulegt að halda, á meðan formúla sem nefnir vantar dálk einfaldlega mistakast, segir hvaða dálk, og er nákvæmlega það sem notandinn vill fá aftur þegar hann hleður sama töfluna upp."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.n_apps#1",
+      "source_sha256": "f510e2bffa09685c5ec229c4ff7927c5e2707c594bdb375030b6561e6e5bf698",
+      "source": "Every \"N apps\" the variants draw or write goes through here. The count used to be typed into two dozen strings as ``29``; the registry then grew Distributed Jobs, Classifier Evaluation and Run History and every one of those strings became a lie that no test could see, because a literal cannot disagree with itself.",
+      "context": "Every \"N apps\" count displayed or written by a variant goes through this function. The count used to be copied into two dozen strings as ``29``. After Distributed Jobs, Classifier Evaluation, and Run History were added, every copied count became wrong without a test noticing, because a literal cannot disagree with itself.",
+      "translation": "Hver \"N apps\" telja sem er sýnd eða skrifuð af afbrigði fer í gegnum þessa virkni. Teljan var áður afrituð í tvær tugi strengja sem ``29``. Eftir að Dreifð Verk, Flokkunarmat og Keyrslusaga voru bætt við, varð hver afrituð telja röng án þess að próf tæki eftir því, því bókstafur getur ekki verið ósammála sjálfum sér."
+    },
+    {
+      "label": "spacr.batch.run_queue#13",
+      "source_sha256": "84e3a683816aff544868525230ba96e1e8e54099e5b0287723ce9e8e6167fcc3",
+      "source": "when validation found errors and ``force`` is False — with *every* problem in the message, not just the first.",
+      "context": "when validation found errors and ``force`` is False — with *every* problem in the message, not just the first.",
+      "translation": "þegar staðfesting fann villur og ``force`` er False — með *hverri* vandamáli í skilaboðunum, ekki bara fyrsta."
+    },
+    {
+      "label": "spacr.hits.gene_of#1",
+      "source_sha256": "9361ada8175e032af854d973a4d6b961a09ba532b40f75a64423dac04b7ef215",
+      "source": "The rule is the one :func:`spacr.utils.merge_regression_res_with_metadata` applies, deliberately: the bracketed token, ``T.`` stripped, truncated at the first underscore. It maps BOTH sides of the pair to the same key — ``gene_fraction:gene[233460]`` and ``fraction:grna[233460_1]`` are both gene ``233460`` — which is what makes per-guide agreement computable at all, and it is the same key the metadata join uses so the two cannot disagree.",
+      "context": "The rule is the one :func:`spacr.utils.merge_regression_res_with_metadata` applies, deliberately: the bracketed token, ``T.`` stripped, truncated at the first underscore. It maps BOTH sides of the pair to the same structured-data name — ``gene_fraction:gene[233460]`` and ``fraction:grna[233460_1]`` are both gene ``233460`` — which is what makes per-guide agreement computable at all, and it is the same structured-data name the metadata join uses so the two cannot disagree.",
+      "translation": "Reglan er sú að :func:`spacr.utils.merge_regression_res_with_metadata` á við, með ásetningi: hlutinn innan sviga, ``T.`` fjarlægður, styttur við fyrsta undirstrik. Hann tengir báða hliðina á pörinu við sama uppbyggða gagnanafn — ``gene_fraction:gene[233460]`` og ``fraction:grna[233460_1]`` eru bæði gen ``233460`` — sem er það sem gerir samræmi leiðbeininga reiknanlegt yfirleitt, og það er sama uppbyggða gagnanafnið sem viðbótarupplýsingar nota við samþættingu svo að þau geti ekki verið ósammála."
+    },
+    {
+      "label": "spacr.resources.home.versions._generators.common.Ctx.apply_theme#1",
+      "source_sha256": "79d3c1abfe2543f0085109e9e54d1dc8908448f180cfa4013d1bcc40281a43cf",
+      "source": "QApplication.setStyleSheet re-polishes EVERY top-level widget. Inside pytest-qt the application is shared, so widgets belonging to other tests -- including ones mid-teardown whose C++ side is already gone -- get re-polished, and the process SEGFAULTS. That is what took the tests/qt suite down here, and it is the same trap the theme work hit with QApplication.topLevelWidgets().",
+      "context": "QApplication.setStyleSheet re-polishes EVERY top-level widget. Inside pytest-qt the application is shared, so widgets belonging to other tests -- including ones mid-teardown whose C++ side is already gone -- get re-polished, and the process SEGFAULTS. That is what took the tests/qt suite down here, and it is the same trap the theme work hit with QApplication.topLevelWidgets().",
+      "translation": "QApplication.setStyleSheet endur-púlsar ALLA efstu stigs widgets. Inní pytest-qt er forritið deilt, svo græjur sem tilheyra öðrum prófum -- þar á meðal þeirra sem eru í miðri niðurrifferli þar sem C++ hliðin er þegar horfin -- geta verið endurpússað, og ferlið SEGFAULTS. Það er það sem tók prófin/qt safnið niður hér, og það er sama gildran sem þemavinnan lenti í með QApplication.topLevelWidgets()."
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain#16",
+      "source_sha256": "cf0aa1b0487caf516fd4d1b4d168872b3ff42d4a7591a944668aaf4027adb950",
+      "source": "Colour (fixed, or a random hue per column), speed, visibility and font size, all live. They are **not** on the screen: they live in a popover behind a ``DNA`` button beside the ``AI`` toggle — see :mod:`spacr.qt.widgets.dna_rain_settings`. :class:`DnaRainSettingsBar` is the panel itself, which lays out either as that popover's grid or as the original single row.",
+      "context": "Colour (fixed, or a random hue per column), speed, visibility and font size, all live. They are **not** on the application view: they live in a popover behind a ``DNA`` button beside the ``AI`` toggle — see :mod:`spacr.qt.widgets.dna_rain_settings`. :class:`DnaRainSettingsBar` is the panel itself, which lays out either as that popover's grid or as the original single row.",
+      "translation": "Litur (fastur eða handahófskenndur litur fyrir hvern dálk), hraði, sýnileiki og leturstærð, allt lifandi. Þau eru **ekki** á forritsútlitinu: þau lifa í sprettiglugga fyrir aftan ``DNA`` hnappinn við hlið ``AI`` rofann — sjá :mod:`spacr.qt.widgets.dna_rain_settings`. :class:`DnaRainSettingsBar` er sjálfur spjaldið, sem raðar annaðhvort sem ristin í sprettiglugganum eða sem upprunalega einnar raðar."
+    },
+    {
+      "label": "spacr.qt.theme.font_px#1",
+      "source_sha256": "c3488976009e85e0652d3675936143e6627ec1639da2fe0c8c96156ddda7c380",
+      "source": "The application stylesheet scales :data:`FONT_SIZE` itself (see :func:`stylesheet`), so anything styled by it already tracks Zoom. What does *not* is a widget that sets its own sheet — a per-widget ``setStyleSheet`` beats the application sheet whatever the selector says — or one that paints text with a ``QPainter``. Those surfaces hard-coded a pixel number and so stayed 13 px at 150 %: the tab strips, the Home aside, the hover tooltip, the Live/AI toggles.",
+      "context": "The application stylesheet scales :data:`FONT_SIZE` itself (see :func:`stylesheet`), so anything styled by it already tracks Zoom. What does *not* is a widget that sets its own sheet — a per-widget ``setStyleSheet`` beats the application sheet whatever the selector says — or one that paints text with a ``QPainter``. Those surfaces hard-coded a pixel number and so stayed 13 px at 150 %: the tab strips, the Home aside, the hover tooltip, the Live/AI toggles.",
+      "translation": "Forritsstíll blaðsins skalar :data:`FONT_SIZE` sjálft (sjá :func:`stylesheet`), svo allt sem stíliserað er með því fylgir nú þegar Zoom. Það sem *ekki* gerir er græja sem setur sitt eigið blað — per-græja ``setStyleSheet`` slær forritsblaðið hvað sem valið segir — eða það sem málar texta með ``QPainter``. Þessar yfirborð hafa föst píxlatölu og voru því áfram 13 px við 150 %: flipastripin, Heimahlutinn, hover-tólbólið, Live/AI rofarnir."
+    },
+    {
+      "label": "spacr.zstack#5",
+      "source_sha256": "eec39b9c3bec9da0832b1e7265de3020213a14c98131e423d6072167a5242c0a",
+      "source": "**Stitching 2-D planes is not 3-D segmentation.** Both are legitimate and they give different answers. Per-plane segmentation followed by IoU linking (:data:`MODE_STITCH`) sees each plane independently and cannot recover an object that is invisible in one plane; true volumetric segmentation (:data:`MODE_VOLUMETRIC`) uses the z gradient but is far more sensitive to a wrong anisotropy. The mode is therefore explicit, never inferred, and :class:`ZStackResult` records which one actually ran so it can be written next to the numbers it produced.",
+      "context": "**Stitching 2-D image layers is not 3-D segmentation.** Both are legitimate and they give different answers. Per-image-layer segmentation followed by IoU linking (:data:`MODE_STITCH`) sees each image layer independently and cannot recover an object that is invisible in one image layer; true volumetric segmentation (:data:`MODE_VOLUMETRIC`) uses the z gradient but is far more sensitive to a wrong anisotropy. The mode is therefore explicit, never inferred, and :class:`ZStackResult` records which one actually ran so it can be written next to the numbers it produced.",
+      "translation": "**Samsetning 2-D myndarlaga er ekki 3-D skiptun.** Bæði eru lögleg og þau gefa mismunandi svör. Skiptun á hverju myndalagi ásamt IoU tengingu (:data:`MODE_STITCH`) skoðar hvert myndalag sjálfstætt og getur ekki endurheimt hlut sem er ósýnilegur í einu myndalagi; raunveruleg rúmmáls-skiptun (:data:`MODE_VOLUMETRIC`) notar z-hallann en er mun næmari fyrir röngum ósamhverfun. Hátt er því skýrt, aldrei ályktað, og :class:`ZStackResult` skráir hvaða aðferð var raunverulega keyrð svo hægt sé að skrifa það við hliðina á tölunum sem hún framleiddi."
+    },
+    {
+      "label": "spacr.qt.screens.batch#1",
+      "source_sha256": "f2fdd5045c550f29a4cd1e3b09d28445abeff55335541a736366d3fd78625fe5",
+      "source": "The Plate Queue chains *plates* through *one* pipeline. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.",
+      "context": "The Plate-processing list chains *plates* through *one* workflow. This screen is the other axis: arbitrary ``(module, settings)`` jobs in any order — ``Mask → Measure → Classify (CV) → Classify (ML)``, then the same four again with a different diameter, then a fifth plate's Mask — built, validated, saved to a file and run unattended.",
+      "translation": "Diskvinnslu listinn keðjar *diskar* í gegnum *einn* vinnuflæði. Þessi skjár er hin ásinn: handahófskennd ``(module, settings)`` verkefni í hvaða röð sem er — ``Mask → Measure → Classify (CV) → Classify (ML)``, síðan sömu fjórar aftur með annarri þvermál, síðan Maski fimmta disksins — byggt, sannreynt, vistað í skrá og keyrt án eftirlits."
+    },
+    {
+      "label": "spacr.power_simulate#19",
+      "source_sha256": "29055e79747c984f34f1fe7ca062a5650aa26be7218fe1a80e82e1942f49a9c0",
+      "source": "**Sequencing error** (:func:`misassign_reads`, ``sequencing_error_rate=``). Both packages treat the read fraction as an exact record of which genotypes were in a well. Substitution errors, index hopping, PCR chimeras and mismatch-tolerant demultiplexing all credit reads to the wrong gene. Simulating it says the direct dilution is small — but that it silently disables the unidentified-gene check, turning genes that were correctly reported as untested into confident non-hits. On the reference design that costs ten times more than the dilution does. See :func:`misassign_reads`.",
+      "context": "**Sequencing error** (:func:`misassign_reads`, ``sequencing_error_rate=``). Both packages treat the read fraction as an exact record of which genotypes were in a microplate sample position. Substitution errors, index hopping, PCR chimeras and mismatch-tolerant demultiplexing all credit reads to the wrong gene. Simulating it says the direct dilution is small — but that it silently disables the unidentified-gene check, turning genes that were correctly reported as untested into confident non-hits. On the reference design that costs ten times more than the dilution does. See :func:`misassign_reads`.",
+      "translation": "**Röðunarvilla** (:func:`misassign_reads`, ``sequencing_error_rate=``). Bæði pakkarnir meðhöndla lesna hlutann sem nákvæmt skrá yfir hvaða genatýpur voru í sýnatöflu í örplötu. Staðsetningavillur, skiptivísis hopp, PCR kirma og ósamræmi-tollandi fjöldagreining umbúna lesur á rangt gen. Hermun segir að bein þynning sé lítil — en það slekkur hljóðlega á athugun á óþekktum genum og breytir genum sem rétt voru skráð sem óprófuð í örugg að ekki hafi fundist áhrif. Á viðmiðunahönnuninni kostar það tíu sinnum meira en þynningin gerir. Sjá :func:`misassign_reads`."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model#19",
+      "source_sha256": "42963c85687d12138d7df53d74518060484cd8156e5ac9a741fa4d932e48eeb7",
+      "source": "**The threshold is a stated false-positive rate, not a tuned fraction.** Under multivariate normality the squared robust Mahalanobis distance is distributed chi-square with ``p`` degrees of freedom, so the cut point is ``chi2.ppf(1 - alpha, p)`` for a chosen ``alpha`` — default :data:`DEFAULT_ALPHA` = 0.001, meaning *one clean object in a thousand is expected to be flagged*. Over 10^5 objects that is about 100 false flags, and over the 200,000 objects of a typical two-plate screen it is about 200. That number is knowable in advance and is printed in :meth:`OutlierResult.caveats`. An isolation forest's score has no such null distribution and therefore no calibrated cut point at all.",
+      "context": "**The threshold is a stated false-positive rate, not a tuned fraction.** Under multivariate normality the squared robust Mahalanobis distance is distributed chi-square with ``p`` degrees of freedom, so the cut point is ``chi2.ppf(1 - alpha, p)`` for a chosen ``alpha`` — default :data:`DEFAULT_ALPHA` = 0.001, meaning *one clean object in a thousand is expected to be flagged*. Over 10^5 objects that is about 100 false flags, and over the 200,000 objects of a typical two-plate screen it is about 200. That number is knowable in advance and is printed in :meth:`OutlierResult.caveats`. An isolation forest's score has no such null distribution and therefore no calibrated cut point at all.",
+      "translation": "**Þröskuldurinn er tilgreindur falskur-jákvæður hlutfall, ekki stilltur hluti.** Við margbreytilega normaldreifingu er kvaðratið af stöðugum Mahalanobis-fjarlægðinni dreift sem kvaðratrót með ``p`` frjálsum stigum, svo skurðpunkturinn er ``chi2.ppf(1 - alpha, p)`` fyrir valið ``alpha`` — sjálfgefið :data:`DEFAULT_ALPHA` = 0,001, sem þýðir *einn hreinn hlutur af þúsund er búist við að verði merktur*. Yfir 10^5 hlutum eru það um 100 falskar merkingar, og yfir 200.000 hlutum sem eru í dæmigerðu tveggja-platta skjá sem er um 200. Sá fjöldi er þekktur fyrirfram og er prentaður í :meth:`OutlierResult.caveats`. Stig aðskilnaðar skógar hefur enga slíka núll-dreifingu og því engan stilltan skurðpunkt yfirhöfuð."
+    },
+    {
+      "label": "spacr.omero.measurement_pairs#2",
+      "source_sha256": "9cf9ee1c1a7e53ea22d0109223708d60028772bbfc405e634d44995b4e7448c0",
+      "source": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which nobody reads and which makes the panel useless for the annotations that *were* worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful keys are the ones that survive: ``priority`` keys first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
+      "context": "**Why there is a cap.** A spaCR object table has 300-600 columns. A MapAnnotation with 400 entries renders in OMERO.web as a 400-row scrolling table in a 300 px panel, which nobody reads and which makes the panel useless for the annotations that *were* worth showing. So the annotation is a *summary*, capped at ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 by default) and ordered so the useful structured-data names are the ones that survive: ``priority`` structured-data names first in the order given, then the row's own order. When anything is cut, the last pair is :data:`TRUNCATION_KEY`, saying how many were dropped and that the full table is the CSV attached under :data:`NS_FILE`. The full table is never *only* in the annotation.",
+      "translation": "**Af hverju það er hámark.** Tafla af spaCR hlutum hefur 300-600 dálka. Kortamerking með 400 færslum birtist í OMERO.web sem 400-raðar rennibraut í 300 px spjaldi, sem enginn les og gerir spjaldið gagnslaust fyrir þau athugasemdir sem *voru* þess virði að sýna. Þannig að athugasemdin er *yfirlit*, hámarkað við ``max_pairs`` (:data:`MAX_MAP_PAIRS` = 50 sjálfgefið) og raðað þannig að gagnleg nöfn á uppbyggðum gögnum eru þau sem lifa af: ``priority`` nöfn á uppbyggðum gögnum fyrst í gefnu röðinni, síðan röð raðarinnar sjálfrar. Þegar eitthvað er skorið niður, er síðasta parið :data:`TRUNCATION_KEY`, sem segir hversu mörg voru felld og að sú fulla tafla er CSV meðfylgjandi undir :data:`NS_FILE`. Sú fulla tafla er aldrei *aðeins* í athugasemdinni."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient#93",
+      "source_sha256": "288c57747d700a8b1a84625e64eb7623326359ce0d8e87fe2b580d4c92013aba",
+      "source": "**Density is linear**, as it should be: 300 % is 2.7-3.0 times the shading on every theme. What it is *not* is brighter — see :meth:`AmbientEngine.alpha_scale` for why three times the elements at a third of the alpha is the only reading of the control that leaves the backdrop legible at both ends of its range.",
+      "context": "**Density is linear**, as it should be: 300 % produces 2.7-3.0 times the shading on every theme. The control changes *density rather than brightness* — see :meth:`AmbientEngine.alpha_scale` for why three times the elements at one third the alpha keeps the backdrop legible across the range.",
+      "translation": "**Þéttleiki er línulegur**, eins og hann á að vera: 300 % gefur 2,7–3,0 sinnum meiri skyggingu á hverju þema. Stýringin breytir *þéttni frekar en birtu* — sjá :meth:`AmbientEngine.alpha_scale` fyrir hvers vegna þreföldun á þáttunum með þriðjuhluta alfa heldur bakgrunninum læsilegum yfir allt sviðið."
+    },
+    {
+      "label": "spacr.qt.widgets.outlier_model#30",
+      "source_sha256": "8bc83543823e128f730554bda908512990a82430ee277de2a04038000ce3483e",
+      "source": "The well pass reduces each well to a robust summary — the **median** of each feature over the well's objects, plus ``n`` — and then runs *the same* rule (:data:`METHOD_MAD`, :data:`METHOD_IQR` or :data:`METHOD_MAHALANOBIS`) across wells. The median rather than the mean for the same reason as everywhere else here: a single blown-up object must not become a bad well.",
+      "context": "The well pass reduces each well to a robust summary — the **median** of each feature over the well's objects, plus ``n`` — and then runs *the same* rule (:data:`METHOD_MAD`, :data:`METHOD_IQR` or :data:`METHOD_MAHALANOBIS`) across microplate sample positions. The median rather than the mean for the same reason as everywhere else here: a single blown-up object must not become a bad well.",
+      "translation": "Brunnagöngin minnkar hvern brunn niður í traustan samantekt — **miðgildi** hvers eiginleika yfir hlutina í brunninum, auk ``n`` — og keyrir síðan *sama* reglu (:data:`METHOD_MAD`, :data:`METHOD_IQR` eða :data:`METHOD_MAHALANOBIS`) yfir sýnistaði á örlögnum. Miðgildið frekar en meðaltalið er af sömu ástæðu og annars staðar hér: einn ofvaxinn hlutur má ekki verða að slæmum brunni."
+    },
+    {
+      "label": "spacr.qt.screens.image_scatter#6",
+      "source_sha256": "eec4dfc9a9a2f8c1daacd653e785cbb2bc8bf6c56af8c4def3538227a6b2e488",
+      "source": "Crop paths are resolved for the whole plot in one database pass at load time (:func:`spacr.qt.crop_thumbs.crop_paths_for_keys`), so hover is a dict lookup rather than a query.",
+      "context": "Extracted image region paths are resolved for the whole plot in one database pass at load time (:func:`spacr.qt.crop_thumbs.crop_paths_for_keys`), so hover is a key-value mapping lookup rather than a query.",
+      "translation": "Útdregnar myndasvæðisbrautir eru leystar fyrir allt línurit í einni gagnagrunnsgrein við hleðslu (:func:`spacr.qt.crop_thumbs.crop_paths_for_keys`), svo hover er lykil-gildi uppfletting frekar en fyrirspurn."
+    },
+    {
+      "label": "spacr.cli.Module#10",
+      "source_sha256": "7ba2a7f6c290650925ebdb901388f3050c50dcef08eb7466ee450b510e533eb1",
+      "source": "``\"module:function\"`` of a defaults helper that does **not** live in :mod:`spacr.settings`. Six built-in pipelines keep their own (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), as does every plugin app, because their keys are theirs alone; without this the CLI would resolve an empty defaults dict for them, and ``--set`` would then reject every one of their keys as a setting that does not exist.",
+      "context": "``\"module:function\"`` of a defaults helper that does **not** live in :mod:`spacr.settings`. Six built-in workflows keep their own (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), as does every plugin app, because their structured-data names are theirs alone; without this the CLI would resolve an empty defaults key-value mapping for them, and ``--set`` would then reject every one of their structured-data names as a setting that does not exist.",
+      "translation": "``\"module:function\"`` af sjálfgefinni aðstoð sem gerir **ekki** búa í :mod:`spacr.settings`. Sex innbyggð vinnuflæði geyma sín eigin (``foreign``, ``external_masks``, ``convert``, ``illumination``, ``barcode_qc``, ``anndata_export``), sem og hver viðbótarforrit, því nöfn þeirra á uppbyggðum gögnum eru þeirra einungis; án þessa myndi CLI leysa upp tóman lykil-gildi kort fyrir þau, og ``--set`` myndi þá hafna öllum nöfnum þeirra á uppbyggðum gögnum sem stillingu sem ekki er til."
+    },
+    {
+      "label": "spacr.classify_classes#4",
+      "source_sha256": "4130e3515c664a95037612868d71185ffef49c7ad9e1c7688a1bf4d1ccfa90d8",
+      "source": "**The random complement.** Annotating one class is the normal case: a user marks the infected cells and stops. The second class is then \"everything not annotated\", chosen at random, and that is a KIND OF RULE rather than a button pressed beforehand -- ``{\"control\": {\"random_complement\": true}}``. This replaces ``write_random_annotation_column``.",
+      "context": "**The random complement.** Annotating one class is the normal case: a user marks the infected cells and stops. The second class is then \"everything not annotated\", chosen at random, and that is a KIND OF RULE rather than a button pressed beforehand -- ``{\"control\": {\"random_complement\": true}}``. This replaces ``write_random_annotation_column``.",
+      "translation": "**Hinn handahófskenndi viðbótinn.** Að merkja einn flokk er venjulegt tilfelli: notandi merkir sýktu frumurnar og hættir. Annar flokkurinn er þá \"everything not annotated\", valinn af handahófi, og það er EINHVER REGLA frekar en hnappur sem er ýtt á fyrirfram -- ``{\"control\": {\"random_complement\": true}}``. Þetta kemur í stað ``write_random_annotation_column``."
+    },
+    {
+      "label": "spacr.qt.folder_metadata#4",
+      "source_sha256": "57b594e4ae2c191e5bbf98d8ebb9c49bf95861dba7a467cf1d55ffbe0a01849f",
+      "source": "The mapping CSV format is intentionally compatible with the one :mod:`spacr.pipeline_v2` writes so the two flows share downstream tooling.",
+      "context": "The mapping CSV format is intentionally compatible with the one :mod:`spacr.pipeline_v2` writes so the two flows share downstream tooling.",
+      "translation": "Kortlagningarformið CSV er meðvituð samhæft við það sem :mod:`spacr.pipeline_v2` skrifar svo að báðir flæðir geti deilt verkfærum niðurstraums."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response#26",
+      "source_sha256": "c506d395a36465c8892c47e4a0b8f47d6254ff0d1b5da1156e2c0dc0083cd2e6",
+      "source": "R² on a sigmoid is nearly useless. Any monotone curve through a well-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
+      "context": "R² on a sigmoid is nearly useless. Any monotone curve through a microplate sample position-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
+      "translation": "R² á sigmoid er næstum gagnslaus. Hvaða einsleita kúrfu sem er í gegnum sýnatökustað örplatna sem er stöðluð eftir skammtasvörun fær yfir 0,95, því heildarsumma ferhyrninga er ráðandi af muninum milli tveggja flata og *hvert* S-laga lína fangar það. :meth:`DoseResponseResult.caveats` segir það við hlið tölunnar, í hvert skipti."
+    },
+    {
+      "label": "spacr.ome_zarr.Axis.space#3",
+      "source_sha256": "6d7edc6f1c030d29681e5e6ce08b639d595709f3240f599f1ae4b822621bc925",
+      "source": "the NGFF (UDUNITS-2) name, stored verbatim and *not* checked here — ``unit=\"furlong\"`` builds, and only raises once a spacing is made from it, which for :func:`write_ome_zarr` is after the chunks are already on disk. ``None`` (the default) and ``\"\"`` both mean pixels and write an axis carrying no ``unit`` key.",
+      "context": "the NGFF (UDUNITS-2) name, stored verbatim and *not* checked here — ``unit=\"furlong\"`` builds, and only raises once a spacing is made from it, which for :func:`write_ome_zarr` is after the chunks are already on disk. ``None`` (the default) and ``\"\"`` both mean pixels and write an axis carrying no ``unit`` key.",
+      "translation": "heiti NGFF (UDUNITS-2), geymt nákvæmlega og *ekki* skoðað hér — ``unit=\"furlong\"`` byggir, og vekur aðeins aukningu þegar bil er gert frá því, sem fyrir :func:`write_ome_zarr` er eftir að kubbarnir eru þegar á disknum. ``None`` (sjálfgefið) og ``\"\"`` þýða bæði pixla og skrifa ás sem ber engan ``unit`` lykil."
+    },
+    {
+      "label": "spacr.foreign#15",
+      "source_sha256": "2e18bbf190a2d7fe9d2b0d76af59fd2b4ef796b7c5884eb1e54a34d622cb8d9b",
+      "source": "The copy an import-only project gets exists so the rest of spaCR has a ``cell`` table to read. It stops being useful the moment spaCR measures the same objects itself: ``measure_crop`` *appends*, so its rows would land in that table beside theirs and every per-well count would be the sum of two populations, with nothing marking the seam.",
+      "context": "The copy an import-only project gets exists so the rest of spaCR has a ``cell`` table to read. It stops being useful the moment spaCR measures the same objects itself: ``measure_crop`` *appends*, so its rows would land in that table beside theirs and every per-microplate sample position count would be the sum of two populations, with nothing marking the seam.",
+      "translation": "Afritið sem innflutnings-einungis verkefni fær til er til svo restin af spaCR hafi ``cell`` töflu til að lesa. Það hættir að vera gagnlegt á þeim augnabliki sem spaCR mælir sömu hlutina sjálft: ``measure_crop`` *appendar*, svo röð þeirra lendi í þeirri töflu við hliðina á þeirra og hver staðsetningarsýni per-microplate fjöldi yrði summan af tveimur hópum, án þess að neitt merkja saumnum."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores#11",
+      "source_sha256": "96cc14838337cde03c2c1ad104e6f170d4b9d09a7b89474a85b35a53a8f6e030",
+      "source": "two-element list of PDF output paths (pc plot, nc plot).",
+      "context": "two-element list of PDF output paths (pc plot, nc plot).",
+      "translation": "tveggja þátta listi af PDF úttaksleiðum (pc graf, nc graf)."
+    },
+    {
+      "label": "spacr.notebook_export#2",
+      "source_sha256": "71dc61a84c4363e5b0b49ea4f3db51804be816e2a0c2d45997a067c3dedaf41c",
+      "source": "1. Importing spaCR + the pipeline used. 2. Loading the exact settings from ``settings.json``. 3. Optionally re-running the pipeline (commented out — reviewer choice) or loading the outputs directly. 4. Scaffolded per-output cells that read the measurements database, plot summary charts, and expose the DataFrame for further analysis in the notebook.",
+      "context": "1. Importing spaCR + the workflow used. 2. Loading the exact settings from ``settings.json``. 3. Optionally re-executing the workflow (commented out — reviewer choice) or loading the outputs directly. 4. Scaffolded per-output cells that read the measurements database, plot summary charts, and expose the DataFrame for further analysis in the notebook.",
+      "translation": "1. Innflutningur á spaCR + vinnuflæðinu sem notað var. 2. Hleðsla á nákvæmum stillingum frá ``settings.json``. 3. Að vild endurkeyra vinnuflæðið (komið fyrir sem athugasemd) — skoðanda val) eða hlaða úttökum beint. 4. Uppbyggðar frumur fyrir hvert úttak sem lesa mælingagagnagrunninn, teikna samantektarkort, og afhjúpa DataFrame fyrir frekari greiningu í glósubókinni."
+    },
+    {
+      "label": "spacr.foreign.ImportPlan#11",
+      "source_sha256": "ef73f4b56443047fc67a036613d1271934a7b93e2eb30c9f5df752faa47046c7",
+      "source": "the warnings that do *not* come from the column mapping (unpaired masks, the join, z handling). Kept apart so :meth:`with_column_maps` can rebuild the mapping's own warnings without losing them or duplicating them.",
+      "context": "the warnings *outside* the column mapping (unpaired masks, the join, z handling). They remain separate so :meth:`with_column_maps` can rebuild the mapping warnings without losing or duplicating them.",
+      "translation": "viðvörunarnar *utan* dálkakortlagningarinnar (ósamsett grímur, samruni, z-meðhöndlun). Þær halda sér aðskildar svo :meth:`with_column_maps` geti endurbyggt viðvaranir kortlagningarinnar án þess að tapa þeim eða tvítekja þær."
+    }
+  ]
+}
