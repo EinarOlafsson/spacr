@@ -75,7 +75,10 @@ class TestWidenWorkerStack:
             raise RuntimeError("setStackSize refused")
 
         monkeypatch.setattr(type(thread), "setStackSize", boom, raising=False)
-        bridge._widen_worker_stack(thread)  # must not raise
+        # Returns rather than raising, and reports that it could not widen --
+        # a platform refusing a bigger stack costs the run nothing, which is
+        # what INVARIANTS 10 requires.
+        assert bridge._widen_worker_stack(thread) is not True
 
     def test_make_thread_widens_before_start(self, monkeypatch):
         """Qt ignores setStackSize on a running thread, so order is the test."""

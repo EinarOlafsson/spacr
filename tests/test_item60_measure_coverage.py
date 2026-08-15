@@ -427,12 +427,25 @@ def test_measure_crop_retries_worker_then_succeeds(tmp_path, monkeypatch):
     merged.mkdir()
     np.save(merged / "plate_A01_f1.npy", np.zeros((2, 2, 2), np.uint16))
     success = (0, .1, np.array([0]), {})
+    # The pool takes iter(results), so counting what it PULLS is the only
+    # observable -- and it is the one that matters: both results consumed
+    # means the first raised and the run came back for the second. Without
+    # this the test passed for a measure_crop that never retried at all.
+    consumed = []
+
+    class _Counted(list):
+        def __iter__(self):
+            for item in list.__iter__(self):
+                consumed.append(item)
+                yield item
+
     _patch_item60_orchestrator(
         monkeypatch,
-        [_Item60Result(error=RuntimeError("transient")),
-         _Item60Result(value=success)])
+        _Counted([_Item60Result(error=RuntimeError("transient")),
+                  _Item60Result(value=success)]))
     M.measure_crop(_orchestrator_settings(
         merged, on_error="retry", on_error_attempts=2))
+    assert len(consumed) == 2, consumed
 
 
 def test_measure_crop_reraises_pipeline_cancellation(tmp_path, monkeypatch):

@@ -194,6 +194,12 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Plate-blocked marginal guide analysis added to the regression workflow.
+    "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
+    "guide_permutations", "guide_permutation_seed",
+    "guide_permutation_block", "guide_nuisance_columns",
+    "guide_presence_threshold", "guide_permutation_batch_size",
+    "guide_permutation_plot", "multiple_testing_method", "fdr_alpha",
     # Image UMAP's reducer families and the one shared GPU execution switch.
     "gpu", "tsne_perplexity", "tsne_learning_rate",
     "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten",
@@ -851,7 +857,8 @@ def test_every_qt_section_hint_names_a_real_category():
         # Barcode QC and Illumination register settings that are in no
         # shared category at all, and Power draws its own screen; leaving
         # any of the four out reports all of their blurbs as dead.
-        "barcode_qc", "illumination", "anndata_export", "power",
+            "barcode_qc", "illumination", "anndata_export", "power",
+            "explain_cv", "investigate_hit",
     ):
         known.update(
             c.upper().strip()
