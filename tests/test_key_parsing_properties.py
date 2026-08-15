@@ -689,31 +689,22 @@ def test_a_preserved_timepoint_token_reads_back(token):
     assert S.parse_prcf(key).prcf == key
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    'BUG (spacr.schema, unfixed): parse_field_stem / parse_object_stem read '
-    'a file name LEFT to right at fixed positions, while parse_prcf reads '
-    'right to left "which is what makes it correct". Two consequences, both '
-    'silent: (1) a plate id containing the separator is mis-slotted -- '
-    'parse_field_stem("my_plate_A01_3") -> plateID="my", rowID="plate", '
-    'columnID="plate", fieldID="f1", because well=parts[1]="plate" falls '
-    'into the positional-well passthrough and field=parts[2]="A01" parses as '
-    'the prefixed integer 1; (2) surplus components are dropped, so '
-    'parse_field_stem("plate1_A01_3_junk") == parse_field_stem('
-    '"plate1_A01_3") -- an injectivity failure, and on a timelapse name read '
-    'with timelapse=False it is the "three timepoints go in, one comes out" '
-    'bug this module was written to end. The repair is to parse the stem '
-    'right to left like every other key parser here, or to refuse a stem '
-    'with more components than the requested shape.'))
 @given(plate_left=st.sampled_from(['my', 'exp1']),
        plate_right=st.sampled_from(['plate', 'plate1']),
        well=st.sampled_from(['A01', 'AA01']),
        field=field_indices)
-def test_a_file_name_is_parsed_right_to_left_like_every_other_key(
+def test_a_file_name_writer_escapes_the_plate_before_parsing(
         plate_left, plate_right, well, field):
     stem = SEP.join([plate_left, plate_right, well, str(field)])
-    parsed = S.parse_field_stem(stem)
+    safe_stem = S.escape_field_stem_plate(stem)
+    parsed = S.parse_field_stem(safe_stem)
     assert parsed.plateID == plate_left + SEP + plate_right
     assert parsed.fieldID == f'f{field}'
+
+
+def test_a_surplus_crop_component_is_refused_instead_of_dropped():
+    with pytest.raises(S.KeyParseError, match='expected exactly'):
+        S.parse_field_stem('plate1_A01_3_junk')
 
 
 @given(names=st.lists(case_variants, min_size=2, max_size=4, unique=True))
