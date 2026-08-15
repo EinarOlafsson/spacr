@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "label": "spacr.qt.dnd_handlers.ExplainCvInputsDropHandler#0",
+      "source_sha256": "07d9fa312a5b948e5d72be65411b214f211954333585b119273e8d966d2f4132",
+      "source": "Fill Explain CV's database or prediction input from one drop.",
+      "context": "Fill Explain CV's database or prediction input from one drop.",
+      "translation": "한 번 드롭하여 Explain CV의 데이터베이스 또는 예측 입력을 채웁니다."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.InvestigateHitInputsDropHandler#0",
+      "source_sha256": "d4b29b51483e00f578512ea37366024ad0acaf857b4ffce452d0e00c41fe0a48",
+      "source": "Fill Investigate Hit's provenance inputs without guessing a hit.",
+      "context": "Fill Investigate Hit's provenance inputs without guessing a hit.",
+      "translation": "적중 항목을 추측하지 않고 Investigate Hit의 출처 입력을 채웁니다."
+    }
+  ]
+}
