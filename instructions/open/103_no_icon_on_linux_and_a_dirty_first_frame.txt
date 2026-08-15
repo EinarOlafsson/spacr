@@ -1,0 +1,121 @@
+================================================================================
+NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
+================================================================================
+
+Status:    filed 2026-08-15, not started. Diagnosis below is read off the
+           code and is not yet reproduced on the reporter's machine -- the
+           two facts it rests on are verified, the causal link is not.
+Requested: 2026-08-15 - "on my linux machine, when i run spacr i see a
+           transparent icon blob in the doc where i preveously saw a spacr
+           icon same when i press cmd tab. and when spacr is launched the
+           window is first covered in whatever contents where on the screen
+           in a particular location then it turns black. i want to see the
+           spacr loading screen at launch nothing else, and i want to see the
+           icon."
+
+Two separate defects, both at launch, both on Linux. They are filed together
+because they are both "the first second of spaCR looks broken", and a fix for
+one is worth nothing while the other stands.
+
+--------------------------------------------------------------------------------
+DEFECT 1: THE TASKBAR AND SWITCHER SHOW A BLANK PLACEHOLDER
+--------------------------------------------------------------------------------
+
+WHAT IS THERE. `spacr/qt/app.py:2856` does set the icon:
+
+    app.setWindowIcon(QIcon(os.path.join(iconset.RESOURCE_DIR, "app_icon.png")))
+
+and `spacr/resources/icons/app_icon.png` exists (107 KB). So the obvious
+cause -- a missing file or a bad path -- is NOT it.
+
+WHAT IS MISSING, both verified by search across the repo:
+
+  * there is NO `.desktop` file anywhere in the tree, and
+  * `QGuiApplication.setDesktopFileName()` is never called.
+    (`setApplicationName` and `setOrganizationName` are, at app.py:2854-2855.)
+
+WHY THAT IS THE LIKELY CAUSE. A Linux shell does not take the dock and
+alt-tab icon from the window's own icon. It matches the window to an
+INSTALLED DESKTOP ENTRY and uses that entry's Icon= line:
+
+  * On WAYLAND, `setWindowIcon` is ignored for this purpose outright. The
+    only channel is the app id, which Qt takes from `setDesktopFileName`.
+  * On X11, GNOME and KDE match on the desktop entry too (via app id or
+    `StartupWMClass`); `setWindowIcon` works on some plainer WMs, which is
+    why this can look fine in one session and blank in another.
+
+With no entry to find and no app id to match, the shell has nothing to draw
+and falls back to a generic or empty placeholder -- "a transparent icon blob",
+in the dock and in the switcher, which is exactly the pair of surfaces that
+resolve icons this way.
+
+The reporter says they PREVIOUSLY saw the icon. Worth checking what changed:
+a desktop entry installed by an older packaged build (instruction 53 ships
+.deb/.dmg/.exe) would explain a working icon that disappeared when running
+from a pip or source install, and would also mean this never regressed in
+spaCR at all -- it was never provided outside the installers.
+
+WHAT TO DO.
+
+1. Ship `io.github.olafssonlab.spacr.desktop` (reverse-DNS name, matching the
+   app id) with `Icon=`, `Name=spaCR`, `Exec=`, and `StartupWMClass=` set to
+   the class the window actually reports -- read it, do not guess it:
+   `xprop WM_CLASS` under X11.
+2. Call `app.setDesktopFileName("io.github.olafssonlab.spacr")` next to the
+   existing `setApplicationName`, so Wayland can match.
+3. Install the icon into the hicolor theme
+   (`share/icons/hicolor/<size>/apps/`) at the standard sizes rather than
+   relying on an absolute path, and install the entry to
+   `share/applications/`. Both belong in the package data so a pip install
+   gets them too, not only the .deb.
+4. Keep `setWindowIcon` -- it is what the window itself and some WMs use.
+
+--------------------------------------------------------------------------------
+DEFECT 2: THE WINDOW OPENS ON GARBAGE, THEN BLACK, THEN THE APP
+--------------------------------------------------------------------------------
+
+"the window is first covered in whatever contents where on the screen in a
+particular location then it turns black."
+
+That description is an UNINITIALISED WINDOW BUFFER. The window is mapped
+before anything has painted into it, so the compositor shows whatever bytes
+were already in that region of the framebuffer; the black is the first real
+paint arriving with no content yet.
+
+WHERE. `spacr/qt/app.py:2906` calls `win.show()` on a MainWindow whose
+loading screen is installed during construction (`_install_loading_screen`,
+app.py:1571-1588). The child `screen.show()` at 1588 happens while the
+top-level is still unmapped, so whether the loading screen is actually
+PAINTED in the same frame the window is mapped is not currently guaranteed --
+and when it is not, the user gets the desktop's leftovers instead.
+
+WHAT TO DO. The requirement is exact: "i want to see the spacr loading screen
+at launch nothing else." So the first frame must already be the loading
+screen. Three things, cheapest first:
+
+1. Give the top-level an opaque background BEFORE `show()` -- an explicit
+   palette/stylesheet background in the loading-screen colour, and
+   `WA_OpaquePaintEvent` so Qt does not rely on the platform to clear it.
+   Instruction 78 already settled what that colour is: black or dark grey,
+   not teal. A window that opens black is already correct per that
+   instruction; a window that opens on the desktop's leftovers is not.
+2. Make sure the loading screen is constructed, laid out and its first paint
+   scheduled BEFORE `win.show()` returns, rather than after. Do not paper
+   over it with `processEvents()` -- that pumps the whole event loop at the
+   worst possible moment and hides the ordering rather than fixing it.
+3. Verify on BOTH session types. X11 and Wayland map windows differently and
+   this is exactly the class of bug that is invisible on one of them.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The dock and the alt-tab switcher both show the spaCR icon, on X11 AND on
+  Wayland, from a plain `pip install` -- not only from the .deb.
+* Launching spaCR shows the loading screen as the FIRST thing drawn. No
+  desktop leftovers, no black flash before it. Record the screen and step
+  through the first frames if it is too fast to judge by eye; "it looks fine
+  now" is how this kind of bug gets closed while still happening on a slower
+  machine.
+* Both checks repeated on a cold start, where the delay before the first
+  paint is longest and the window is most likely to be mapped empty.
