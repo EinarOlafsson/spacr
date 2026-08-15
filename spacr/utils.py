@@ -9978,19 +9978,20 @@ def canonicalize_measurement_columns(df):
 
     Follows the same never-destructive rule: a rename whose target is already
     present is skipped, so a frame carrying both spellings keeps both rather
-    than losing one to a silently dropped duplicate.
+    than losing one to a silently dropped duplicate. The rule itself lives in
+    :func:`spacr.schema.canonical_rename_plan`, which this and
+    ``schema.canonicalise_columns`` both call so the two frame canonicalisers
+    cannot drift apart again — and which folds case, because these frames are
+    written with ``to_sql`` and SQLite compares identifiers
+    case-insensitively.
 
     :param df: A measurement DataFrame.
     :returns: ``df`` with legacy column names replaced (a copy is not made;
         the frame is renamed in place and returned).
     """
-    existing = set(df.columns)
-    mapping = {}
-    for name in df.columns:
-        new_name = canonical_column_name(name)
-        if new_name != name and new_name not in existing:
-            mapping[name] = new_name
-            existing.add(new_name)
+    from .schema import canonical_rename_plan
+
+    mapping = canonical_rename_plan(df.columns)
     if mapping:
         df.columns = [mapping.get(name, name) for name in df.columns]
     return df
