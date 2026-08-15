@@ -458,11 +458,20 @@ class FigureQueue(QWidget):
         self._list.setObjectName("FiguresList")
         self._list.setFixedWidth(160)
         self._list.setIconSize(QSize(140, 90))
+        # Thumbnails are right-clickable too: the figure a user wants to
+        # restyle is often not the one currently shown.
+        self._list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._list.customContextMenuRequested.connect(self._list_context_menu)
         self._list.setSpacing(4)
         self._list.currentRowChanged.connect(self._on_row_changed)
         body.addWidget(self._list)
 
         self._view = _ZoomView(self)
+        # Right-click anywhere on the figure, or on a thumbnail, to restyle
+        # it. Without this the panel had one button and three controls, and
+        # clicking a figure did nothing at all.
+        self._view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._view.customContextMenuRequested.connect(self._view_context_menu)
         # Re-emitted so a caller can react to "the user clicked the
         # figure" without reaching into a private view.
         self._view.clicked.connect(self.figure_clicked)
@@ -614,16 +623,47 @@ class FigureQueue(QWidget):
         return True
 
     def _open_figure_settings(self) -> None:
-        """Open the figure-settings dialog for the current figure."""
-        fig = self._figures.get(self._current)
-        if fig is None:
+        """Open the full settings dialog for the current figure.
+
+        ``figure_for`` rather than a dict lookup, so a figure past the live
+        window is restored from its spill and is editable too -- which is the
+        whole reason it is spilled as a Figure rather than only as a picture.
+        """
+        from .figure_settings import FigureSettingsDialog
+
+        figure = self.figure_for(self._current)
+        if figure is None:
             return
-        dlg = _FigureSettingsDialog(
-            fig, self,
-            propagate_callback=getattr(self, "_propagate_cb", None),
-            render_callback=self.refresh_current_figure)
-        if dlg.exec():
-            self.refresh_current_figure()
+        FigureSettingsDialog(
+            figure, self, on_change=self.refresh_current_figure).exec()
+        self.refresh_current_figure()
+
+    def show_figure_menu(self, position, idx: Optional[int] = None) -> None:
+        """Right-click menu for a figure, from the view or a thumbnail.
+
+        The panel had one button offering three controls -- background, text
+        colour, text size -- and no context menu at all, so a figure could not
+        be restyled by clicking on it.
+        """
+        from .figure_settings import build_figure_context_menu
+
+        index = self._current if idx is None else int(idx)
+        if index != self._current and 0 <= index < self._count:
+            self.show_index(index)
+        figure = self.figure_for(index)
+        menu = build_figure_context_menu(
+            self, figure,
+            on_change=self.refresh_current_figure,
+            open_settings=self._open_figure_settings)
+        menu.exec(position)
+
+    def _view_context_menu(self, point) -> None:
+        self.show_figure_menu(self._view.mapToGlobal(point))
+
+    def _list_context_menu(self, point) -> None:
+        item = self._list.itemAt(point)
+        row = self._list.row(item) if item is not None else self._current
+        self.show_figure_menu(self._list.mapToGlobal(point), row)
 
     # -- temp dir ----------------------------------------------------------
 
