@@ -1,0 +1,104 @@
+================================================================================
+THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
+================================================================================
+
+Status:    filed 2026-08-15, not started.
+Requested: 2026-08-15 - "add to instructions, the AI chatbot, when on should
+           allways have access to the console, eaven if turned on after a
+           console message. this way the user can allways ask what when wrong
+           please explain based on the console."
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The AI chat is turned on AFTER something goes wrong -- which is the only time
+anyone turns it on. If it can only see console output produced after that
+moment, it cannot see the error the user switched it on to ask about, and the
+one question it exists to answer is the one question it cannot answer.
+
+The user's sentence is the whole requirement: "what went wrong, please explain
+based on the console." That has to work when the traceback is already on
+screen and the chat was off when it landed.
+
+To verify before fixing: whether the panel subscribes to console output at
+toggle time and therefore starts empty, or whether it reads the console and
+simply is not sending it. The symptom is the same and the fix differs.
+
+--------------------------------------------------------------------------------
+WHY THIS IS CHEAP
+--------------------------------------------------------------------------------
+
+The scrollback is already retained and already readable. The console is a
+document-backed widget, not a stream: :meth:`ConsolePanel.text` /
+``toPlainText()`` return everything currently held, and ``append`` trims only
+past ``MAX_CHARS`` (200k). So the history the user wants explained is sitting
+in the widget the whole time.
+
+That means the fix is a READ AT ASK TIME, not a capture-from-now
+subscription. Nothing has to be recorded in advance, no buffer has to be
+added, and turning the chat on earlier must stop mattering.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. WHEN THE USER SENDS A MESSAGE, READ THE CONSOLE THEN. Take the console's
+   current contents at send time and include them as context. Toggle order
+   becomes irrelevant by construction -- the chat is not listening, it is
+   looking.
+
+2. SEND THE END, NOT THE START. 200k characters will not fit a context
+   window, and truncating from the front is exactly wrong: the error is the
+   last thing printed. Take the tail, and say in the sent text that it is a
+   tail and how much was dropped, so the model does not treat a mid-traceback
+   first line as the beginning of the story.
+
+3. PREFER THE TRACEBACK. If the console holds a Python traceback, the whole
+   traceback goes -- head, frames and exception line -- even when the tail
+   budget would have cut it. `ConsolePanel.append_error` already knows when
+   it is writing one, so the boundaries are knowable rather than guessed at.
+
+4. SAY WHAT WAS SENT. The user should be able to tell that the console went
+   along with their question, and roughly how much. Silent context is how a
+   user ends up arguing with a model about something it was never shown.
+
+5. DO NOT SEND IT TWICE. On a multi-turn conversation, resending the whole
+   console every turn burns the window and buries the user's actual question.
+   Send what is new since the last turn, plus enough anchor to make it read
+   as continuous.
+
+--------------------------------------------------------------------------------
+WHAT NOT TO DO
+--------------------------------------------------------------------------------
+
+Do not fix this by making the chat panel start capturing as soon as the app
+launches. That is the same bug with a longer fuse: it still fails for anything
+printed before whatever moment capture begins, it costs memory for output
+nobody will ask about, and it goes wrong again the first time someone reorders
+startup. The console already keeps the text. Read it.
+
+Do not send the console on a question that is not about it. "How do I set the
+diameter" does not need 200k characters of scrollback; the ask is that the
+console is ALWAYS AVAILABLE, not always transmitted. Deciding by the user's
+wording is a heuristic and will misfire -- so if a rule is used, make it
+visible per point 4 and overridable, rather than clever and silent.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The acceptance test is the user's own scenario, in order:
+
+  1. Run something that fails, with the AI chat OFF.
+  2. Turn the AI chat ON.
+  3. Ask "what went wrong? explain based on the console."
+
+and get an answer about THAT error -- not "I don't see any console output".
+
+Then the harder ones:
+
+  * A console holding far more than the context window still answers about
+    the failure at the end of it.
+  * A traceback longer than the tail budget arrives whole, not beheaded.
+  * A five-turn conversation does not re-send the same scrollback five times.
