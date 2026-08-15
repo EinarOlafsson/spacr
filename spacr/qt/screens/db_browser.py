@@ -581,6 +581,22 @@ class ReadOnlyDb:
         if table in self._row_keys:
             return self._row_keys[table]
         key: Tuple[str, List[str]]
+        # A view has no intrinsic row address. Probing ``SELECT _rowid_`` is
+        # not portable discovery: newer SQLite releases may accept that
+        # expression on a view and return NULL, which made CI arm editing for
+        # a result set that no UPDATE can address uniquely. Determine the
+        # schema object kind first; only a real table gets the rowid probe.
+        self.check_table(table)
+        with self._con() as con:
+            object_row = self._execute(
+                con,
+                "SELECT type FROM sqlite_master WHERE name = ? LIMIT 1",
+                (table,),
+            ).fetchone()
+        if object_row is None or str(object_row[0]).lower() != "table":
+            key = ("", [])
+            self._row_keys[table] = key
+            return key
         # SQLite identifiers are case-insensitive, and a table that DECLARES a
         # column named `rowid` makes the bare name resolve to that column
         # rather than to the implicit row id. png_list declares `rowID`, so

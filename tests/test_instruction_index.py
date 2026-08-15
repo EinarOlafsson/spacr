@@ -9,6 +9,7 @@ files that were wrong about their own state.
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
@@ -33,7 +34,10 @@ def _tool():
 
 def test_the_committed_index_matches_the_instruction_files():
     """If this fails, run tools/build_instruction_index.py."""
-    assert _tool().main(["--check"]) == 0
+    result = subprocess.run(
+        [sys.executable, str(TOOL), "--check"], cwd=str(REPO),
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_every_open_instruction_appears():

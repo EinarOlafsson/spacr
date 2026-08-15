@@ -449,24 +449,47 @@ def sample_identity(path: Any) -> Dict[str, str]:
     object identity is the augmentation-normalized full stem.
     """
     # Exported crop names use either ``plate_well_field_object`` (for example
-    # ``plate1_A01_f2_o7``) or the canonical PRCFO form with separate row and
-    # column tokens (``plate1_r1_c1_f2_o7``).  Keep fields within wells and
-    # objects within fields in both forms; including ``f2`` in the well
-    # identity would split one biological well into multiple leakage groups.
+    # ``plate1_A01_f2_o7``), separate row/column exports such as
+    # ``plate1_A_01_1_7``, or canonical PRCFO tokens
+    # (``plate1_r1_c1_f2_o7``). Parse from the field token toward the left so
+    # plate identifiers may themselves contain underscores. Including a field
+    # token in the well identity would split one biological well into multiple
+    # leakage groups.
     family = augmentation_family(path)
     parts = family.split("_")
-    plate = parts[0] if len(parts) >= 1 and parts[0] else ""
-    split_row_column = (
-        len(parts) >= 3
-        and re.fullmatch(r"(?i)r\d+", parts[1]) is not None
-        and re.fullmatch(r"(?i)c\d+", parts[2]) is not None
+    field_index = next(
+        (
+            index
+            for index in range(len(parts) - 1, -1, -1)
+            if re.fullmatch(r"(?i)f\d+", parts[index]) is not None
+        ),
+        None,
     )
-    well_end = 3 if split_row_column else 2
-    field_end = well_end + 1
-    well = "_".join(parts[:well_end]) if len(parts) >= well_end else ""
-    field_id = (
-        "_".join(parts[:field_end]) if len(parts) >= field_end else ""
-    )
+    if (
+        field_index is None
+        and len(parts) >= 3
+        and re.fullmatch(r"\d+", parts[-2]) is not None
+        and re.fullmatch(r"(?i)(?:o)?\d+", parts[-1]) is not None
+    ):
+        field_index = len(parts) - 2
+    if field_index is not None and field_index >= 1:
+        split_row_column = (
+            field_index >= 2
+            and re.fullmatch(
+                r"(?i)(?:r\d+|[a-z])", parts[field_index - 2]
+            ) is not None
+            and re.fullmatch(
+                r"(?i)(?:c\d+|\d+)", parts[field_index - 1]
+            ) is not None
+        )
+        plate_end = field_index - 2 if split_row_column else field_index - 1
+        plate = "_".join(parts[:plate_end]) if plate_end > 0 else ""
+        well = "_".join(parts[:field_index])
+        field_id = "_".join(parts[: field_index + 1])
+    else:
+        plate = parts[0] if parts and parts[0] else ""
+        well = "_".join(parts[:2]) if len(parts) >= 2 else ""
+        field_id = "_".join(parts[:3]) if len(parts) >= 3 else ""
     return {
         "sample": str(path),
         "basename": os.path.basename(str(path)),
