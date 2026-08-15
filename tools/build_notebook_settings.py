@@ -277,17 +277,9 @@ def _load_registrations() -> None:
     if _REGISTERED:
         return
     from spacr.cli import MODULES
-    # SORTED, and that is not tidiness. More than one module registers a
-    # tooltip for the same generic key -- `dst` is claimed by the generic
-    # settings and by barcode_qc, which describes the folder ITS figures go
-    # in -- so which text survives depends on which module was imported
-    # last. Left to dict order plus whatever pytest had already imported,
-    # the same notebook regenerated differently under the tool and under the
-    # test, and the drift guard reported a file as stale that the tool had
-    # just written. Sorting makes the last writer always the same one.
-    for name in sorted({module.module_name for module in MODULES.values()}):
+    for module in MODULES.values():
         try:
-            importlib.import_module(name)
+            importlib.import_module(module.module_name)
         except Exception:
             # A pipeline whose optional dependency is absent still leaves
             # every other pipeline's tooltips loaded.
