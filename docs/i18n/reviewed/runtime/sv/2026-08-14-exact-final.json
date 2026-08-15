@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_nan_policy",
+      "source_sha256": "9dae4ee77d763706d2d07586ef76c3a858875bf6ed9b7eb59cec8a8f30faae25",
+      "source": "What happens to missing values in X: 'keep' (default; AnnData stores them, scanpy's scale/pca/neighbors do not), 'drop_features', 'drop_objects', 'zero' or 'mean'. The two imputing policies also write a layers['missing'] mask.",
+      "translation": "Vad som händer med saknade värden i X: 'keep' (standard; AnnData lagrar dem, men funktionerna scale/pca/neighbors i scanpy gör det inte), 'drop_features', 'drop_objects', 'zero' eller 'mean'. De två imputationsreglerna skriver också en mask i layers['missing']."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "percentiles",
+      "source_sha256": "d620019b5e4983171a6c6b25919bb6c2424bb987ae111f6f5c96e6fa8794cdcd",
+      "source": "Two percentiles [low, high] used to rescale each channel of each image to 0-1 before segmentation, e.g. [2, 98]. Narrowing the window boosts contrast on dim objects but clips bright ones. Set None to derive them automatically: low fixed at 2, high the first of 98/99/99.9/99.99/99.999 exceeding background * Signal_to_noise. Default None in the Cellpose steps.",
+      "translation": "Två percentiler [low, high] som används för att skala om varje kanal i varje bild till 0–1 före segmentering, till exempel [2, 98]. Ett smalare intervall ökar kontrasten för svaga objekt men klipper ljusa. Sätt None för automatisk beräkning: low är alltid 2 och high är det första av 98/99/99.9/99.99/99.999 som överstiger background * Signal_to_noise. Standard är None i Cellpose-stegen."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "treatment_plate_metadata",
+      "source_sha256": "a6649263d7d77611ca18da897ff6f60dbc6dff76d1aba5dbc0ee128d940ab6f7",
+      "source": "Wells that received each entry of treatments, one inner list per treatment in the same order, e.g. [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); anything else is IGNORED and those wells get no treatment label rather than an error. Wells you do not list are still kept -- 'condition' joins whatever cell/pathogen/treatment labels exist, so an unlisted well simply carries fewer. Default None.",
+      "translation": "Brunnar som fick varje post i treatments, en inre lista per behandling i samma ordning, till exempel [['r1','r2','r3'],['r4','r5','r6']]. Poster måste börja med 'r' för rad eller 'c' för kolumn; allt annat IGNORERAS och dessa brunnar får ingen behandlingsetikett i stället för ett fel. Brunnar som inte anges behålls ändå -- 'condition' sammanfogar de cell-, patogen- och behandlingsetiketter som finns, så en olistad brunn har bara färre. Standard None."
+    }
+  ]
+}

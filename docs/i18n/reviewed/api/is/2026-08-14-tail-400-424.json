@@ -102,10 +102,10 @@
     },
     {
       "label": "spacr.core.generate_image_umap#3",
-      "source_sha256": "eadc212b57016612f184653207c913bc9802f96d4ac425bc0fd3ce89668b3998",
-      "source": "Configuration dict; canonicalized via :func:`spacr.settings.set_default_umap_image_settings`. Common keys: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` or ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.",
-      "context": "Configuration key-value mapping; canonicalized via :func:`spacr.settings.set_default_umap_image_settings`. Common structured-data names: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` or ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.",
-      "translation": "Uppsetning lykil-gildi kortlagning; staðlað með :func:`spacr.settings.set_default_umap_image_settings`. Algeng nöfn á uppbyggðum gögnum: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` eða ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``."
+      "source_sha256": "1579ce2066e7498e62d3b86f7df0030420a017d7d141242db1153f41c7aaff10",
+      "source": "Configuration dict; canonicalized via :func:`spacr.settings.set_default_umap_image_settings`. Common keys: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (UMAP, t-SNE, PCA, Isomap or Spectral), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.",
+      "context": "Configuration key-value mapping; canonicalized via :func:`spacr.settings.set_default_umap_image_settings`. Common structured-data names: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (UMAP, t-SNE, PCA, Isomap or Spectral), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.",
+      "translation": "Uppsetningarvörpun; stöðluð með :func:`spacr.settings.set_default_umap_image_settings`. Algeng heiti í skipulögðum gögnum: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (UMAP, t-SNE, PCA, Isomap eða Spectral), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``."
     },
     {
       "label": "spacr.attribution#1",

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "anndata_out",
+      "source_sha256": "34fcc8ae08847da4b37e64d0944fde1c5e004333d3370e98584eb719477130b2",
+      "source": "Path of the .h5ad file to write. An existing file at this path is overwritten, and the export is registered against it in artifacts.db, so writing twice to one path replaces the earlier record rather than adding a second. Default <src>/results/<project>.h5ad.",
+      "translation": "Slóð .h5ad skrárinnar sem á að skrifa. Skrá sem þegar er til á slóðinni er skrifuð yfir og útflutningurinn er skráður gegn henni í artifacts.db; ef skrifað er tvisvar á sömu slóð kemur síðari færslan í stað þeirrar fyrri í stað þess að bæta annarri við. Sjálfgefið <src>/results/<project>.h5ad."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "compression",
+      "source_sha256": "4b0d7231cc42d8757ad42eed502ec5bb5a314b2927e5df6174dc7e2e76c1c898",
+      "source": "Legacy and currently inert: nothing in spaCR reads this key. The two preprocessing defaults set it to 'lzw' and the GUI offers lzw/zlib/none, but the live segmentation path writes masks as uint16 .npy via np.save, so no mask TIFF is ever produced and changing this setting changes nothing. The only functions that take a compression argument, io.save_object_mask and mask_io.save_mask (which hardcodes 'lzw'), are never called from anywhere in the package, and the sequencing HDF5 writer uses comp_type/comp_level instead. Leave it at its 'lzw' default.",
+      "translation": "Eldri stilling sem er nú óvirk: ekkert í spaCR les þennan lykil. Tvær sjálfgefnar forvinnslustillingar setja hann á 'lzw' og GUI býður lzw/zlib/none, en virka hlutunarleiðin skrifar grímur sem uint16 .npy með np.save. Engin grímu-TIFF skrá er því búin til og breyting á stillingunni hefur engin áhrif. Einu föllin sem taka compression viðfang, io.save_object_mask og mask_io.save_mask, sem festir 'lzw', eru hvergi kölluð í pakkanum; HDF5-skrifari raðgreiningar notar comp_type/comp_level í staðinn. Hafðu sjálfgefna gildið 'lzw'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "grna_csv",
+      "source_sha256": "e2a331afcfbb8bc68667976014fd817f9b1441f9099ce2a118862524a40df282",
+      "source": "CSV mapping gRNA barcode sequences to gRNA names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so orientation must match the reads (barecodes_reverse_complement flips a file). Rows whose gRNA does not match are written as NA and dropped from the counts. Default: the bundled spacr/resources/data/grna_barcodes.csv.",
+      "translation": "CSV-vörpun gRNA-strikamerkjaröða yfir í gRNA-heiti; hún verður að hafa dálkana 'sequence' og 'name'. Lestrar eru bornir saman óbreyttir án öfugrar fylliraðar, svo stefnan verður að samsvara lestrunum; barecodes_reverse_complement snýr skrá. Raðir þar sem gRNA samsvarar ekki eru skrifaðar sem NA og fjarlægðar úr talningum. Sjálfgefið: meðfylgjandi spacr/resources/data/grna_barcodes.csv."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "leakage_audit_train_test",
+      "source_sha256": "144c523c158c378ea8633454058b840ae5dc6eb2a0b775d97365b4bf2ba816ce",
+      "source": "Audit the permanent train/ and test/ boundary before any classifier fit. Checks plate/well/field/object lineage, exported augmentation families and (when enabled) byte-identical renamed copies. Default True. API: spacr.classifier_evaluation.audit_dataset_splits.",
+      "translation": "Skoða varanleg mörk train/ og test/ áður en flokkunarlíkan er mátað. Athugað er ætterni örplötu, sýnisstöðu, sjónsviðs og hlutar, fjölskyldur útfluttra gagnaaukinga og, þegar það er virkt, bæti-fyrir-bæti eins endurnefnd afrit. Sjálfgefið True. API: spacr.classifier_evaluation.audit_dataset_splits."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "row_csv",
+      "source_sha256": "9e531bef1c1149e0caa5ab644b95503173a164bf456a6e5dc47c642e58f2b1eb",
+      "source": "CSV mapping row barcodes to well names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so the sequences must be in the same orientation as the reads - use barecodes_reverse_complement to flip the file if needed. Unmatched reads get NA for rowID. Default: the bundled spacr/resources/data/barcodes_row.csv.",
+      "translation": "CSV-vörpun raðarstrikamerkja yfir í heiti sýnisstaða; hún verður að hafa dálkana 'sequence' og 'name'. Lestrar eru bornir saman óbreyttir án öfugrar fylliraðar, svo raðirnar verða að hafa sömu stefnu og lestrarnir; notaðu barecodes_reverse_complement til að snúa skránni ef þarf. Ósamsvarandi lestrar fá NA í rowID. Sjálfgefið: meðfylgjandi spacr/resources/data/barcodes_row.csv."
+    }
+  ]
+}

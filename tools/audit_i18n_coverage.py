@@ -6,9 +6,16 @@ import argparse
 from importlib import import_module
 import json
 from pathlib import Path
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# Resolve the catalogs from this checkout even when another editable spaCR
+# installation is active.  This report is a release artifact; silently reading
+# a different worktree can make stale catalogs look complete.
+if str(ROOT) in sys.path:
+    sys.path.remove(str(ROOT))
+sys.path.insert(0, str(ROOT))
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 DISPLAY = {
     "sv": "Swedish", "de": "German", "es": "Spanish",

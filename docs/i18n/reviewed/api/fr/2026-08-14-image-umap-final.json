@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value#1",
+      "source_sha256": "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8",
+      "source": "Some values have a dedicated control outside the form.  Image UMAP's action-strip GPU toggle is one: duplicating it as a form checkbox would create two sources of truth.  Hidden does not mean absent (invariant 6), so the value lives in ``_defaults`` and still reaches collect().",
+      "context": "Some values have a dedicated control outside the form.  Image UMAP's action-strip GPU toggle is one: duplicating it as a form checkbox would create two sources of truth.  Hidden does not mean absent (invariant 6), so the value lives in ``_defaults`` and still reaches collect().",
+      "translation": "Certaines valeurs disposent d’une commande dédiée hors du formulaire. Le commutateur GPU de la barre d’actions d’Image UMAP en est un : le dupliquer comme case à cocher créerait deux sources de vérité. Masqué ne signifie pas manquant (règle immuable 6) ; la valeur reste donc dans ``_defaults`` et atteint toujours collect()."
+    }
+  ]
+}

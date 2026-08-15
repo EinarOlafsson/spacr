@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "intermedeate_save",
+      "source_sha256": "d1bfed3731919b732fd0b9a71a66c41186bcc18d36ebac9a312e887cc5106b66",
+      "source": "Intended to control whether extra checkpoints are written mid-run when validation accuracy crosses 99, 98, 95 or 94 percent, on top of the final-epoch save. It currently has no effect: train_model passes that threshold list to the saver unconditionally, so those checkpoints are written regardless of this flag. Default True.",
+      "translation": "Soll steuern, ob zusätzlich zum Speichern nach der letzten Epoche weitere Checkpoints während des Trainingslaufs geschrieben werden, sobald die Validierungsgenauigkeit 99, 98, 95 oder 94 Prozent überschreitet. Derzeit hat diese Einstellung keine Wirkung: train_model übergibt die Liste dieser Schwellenwerte bedingungslos an die Speicherfunktion, sodass die Checkpoints unabhängig von diesem Schalter geschrieben werden. Standardwert: True."
+    }
+  ]
+}
