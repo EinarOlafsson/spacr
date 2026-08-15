@@ -298,6 +298,34 @@ def _named_control_rows(results: pd.DataFrame, names: Mapping[str, str]
     return out
 
 
+def _design_summary(output: Mapping[str, Any]) -> dict:
+    """How much data actually reached the fit.
+
+    Two trials can differ by a filtration cutoff alone and end up fitting
+    completely different designs, so a hit count means little without the
+    size of the thing it came from. A row that carries both answers "did
+    raising the cell-count threshold change the answer, or just throw data
+    away?" without opening the trial folder.
+    """
+    summary: dict[str, Any] = {}
+    if not isinstance(output, Mapping):
+        return summary
+    for key, column in (("n_wells", "prc"), ("n_guides", "grna")):
+        frame = output.get("model_data")
+        if isinstance(frame, pd.DataFrame) and column in frame.columns:
+            summary[key] = int(frame[column].nunique())
+    for key in ("n_wells", "n_guides", "n_cells"):
+        if key not in summary and key in output:
+            try:
+                summary[key] = int(output[key])
+            except (TypeError, ValueError):
+                pass
+    frame = output.get("model_data")
+    if isinstance(frame, pd.DataFrame):
+        summary.setdefault("n_rows_fitted", int(len(frame)))
+    return summary
+
+
 def _count_hits(output: Mapping[str, Any]) -> dict:
     """How many things the trial called, at whatever level it reports them."""
     counts: dict[str, Any] = {}
@@ -443,6 +471,7 @@ def _execute_trial(payload):
         row["status"] = "ok"
         if isinstance(output, Mapping):
             row.update(_count_hits(output))
+            row.update(_design_summary(output))
             results = output.get("results")
             if isinstance(results, pd.DataFrame):
                 row.update(_named_control_rows(results, controls))
@@ -718,3 +747,88 @@ def summarise_sweep(results: pd.DataFrame, *,
                     ok.groupby(axis)["n_below_alpha"]
                     .median().sort_values(ascending=False).to_dict())
     return summary
+
+
+#: Columns a results row carries that describe the RUN rather than a setting.
+#: Everything else in a row was a setting the trial was given, which is what
+#: makes a row enough to reproduce the trial it describes.
+_BOOKKEEPING_COLUMNS = frozenset({
+    "trial_id", "folder", "preparation_key", "status", "seconds",
+    "error", "error_type", "n_results", "n_significant", "n_primary",
+    "n_below_alpha", "n_wells", "n_guides", "n_cells",
+})
+
+
+def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
+                       *, destination: str | None = None) -> dict:
+    """The full settings dict that produced ``row``.
+
+    A sweep row is not just a record of what happened -- it carries every
+    setting the trial was given, which is what lets a user click a row and get
+    that exact regression back rather than an approximation of it.
+
+    Values arrive as strings when the row came from the CSV rather than from
+    memory, so they are parsed back to the types spaCR expects. A setting that
+    will not parse is passed through unchanged: a string that was always a
+    string must survive the round trip.
+
+    :param base_settings: the inputs the sweep ran on (score/count CSVs and
+        the response column), which are not recorded per trial.
+    :param row: one row of the sweep results table.
+    :param destination: where to write this run's output. Defaults to the
+        folder the trial originally used.
+    """
+    import ast
+
+    settings = dict(base_settings)
+    for key, value in row.items():
+        if key in _BOOKKEEPING_COLUMNS:
+            continue
+        if isinstance(value, float) and pd.isna(value):
+            continue
+        if isinstance(value, str):
+            try:
+                value = ast.literal_eval(value)
+            except (ValueError, SyntaxError):
+                pass  # genuinely a string
+        settings[key] = value
+
+    folder = destination or row.get("folder")
+    if folder and not (isinstance(folder, float) and pd.isna(folder)):
+        # No mkdir here: this builds a settings dict and nothing else, so it
+        # stays callable from a test, a dry run or a preview without leaving
+        # directories behind. rerun_trial creates the folder it writes to.
+        settings["src"] = str(folder)
+    settings.setdefault("toxo", False)
+    return settings
+
+
+def rerun_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
+                *, destination: str | None = None) -> dict:
+    """Re-run one trial and hand back its settings, output and FIGURES.
+
+    The figures are live matplotlib Figures, not paths: a saved page cannot be
+    restyled, and the point of clicking a row is to look at that condition
+    properly -- change the thresholds, recolour it, fix the legend -- rather
+    than to be shown a picture of it.
+
+    Only figures this call created are returned. A screen that already has
+    figures open must not have them swept up and re-attributed to a trial they
+    did not come from.
+    """
+    import matplotlib.pyplot as plt
+
+    settings = settings_for_trial(base_settings, row, destination=destination)
+    # Plots are the entire reason for this call.
+    settings["verbose"] = True
+    folder = settings.get("src")
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+
+    before = set(plt.get_fignums())
+    from .ml import perform_regression
+
+    output = perform_regression(settings)
+    figures = [plt.figure(number) for number in plt.get_fignums()
+               if number not in before]
+    return {"settings": settings, "output": output, "figures": figures}
