@@ -170,3 +170,112 @@ def test_an_unpicklable_figure_does_not_break_the_cap(queue, monkeypatch):
     assert queue.figure_for(0) is None
     # It is still viewable from its rendered page.
     assert queue._png_paths.get(0)
+
+
+# ------------------------------------------------------- restyling controls
+
+
+def _rich_figure():
+    import numpy as np
+
+    rng = np.random.default_rng(0)
+    figure = plt.figure(figsize=(6, 4))
+    axis = figure.gca()
+    axis.plot([0, 1, 2], [1, 2, 3], label="series A")
+    axis.scatter(rng.normal(size=50), rng.normal(size=50), label="points B")
+    axis.legend()
+    axis.grid(True)
+    axis.set_title("t")
+    return figure
+
+
+def _labels(form):
+    from PySide6.QtWidgets import QFormLayout
+
+    out = []
+    for row in range(form.rowCount()):
+        item = form.itemAt(row, QFormLayout.LabelRole)
+        if item is not None and item.widget() is not None:
+            out.append(item.widget().text())
+    return out
+
+
+def test_the_context_menu_offers_the_frequent_toggles(qtbot, queue):
+    """Right-clicking a figure had no menu at all before this."""
+    from spacr.qt.widgets.figure_settings import build_figure_context_menu
+
+    queue.add_figure(_rich_figure())
+    menu = build_figure_context_menu(queue, queue.figure_for(0))
+    qtbot.addWidget(menu)
+    texts = [a.text() for a in menu.actions() if a.text()]
+    assert "Legend" in texts and "Grid" in texts
+    assert any("settings" in t.lower() for t in texts)
+    assert "Axis scale" in [m.title() for m in menu.findChildren(type(menu))]
+
+
+def test_the_menu_says_so_when_a_figure_cannot_be_restyled(qtbot, queue):
+    """Better than a menu whose entries silently do nothing."""
+    from spacr.qt.widgets.figure_settings import build_figure_context_menu
+
+    menu = build_figure_context_menu(queue, None)
+    qtbot.addWidget(menu)
+    assert len(menu.actions()) == 1
+    assert not menu.actions()[0].isEnabled()
+
+
+def test_the_settings_dialog_is_built_from_the_figure(qtbot, queue):
+    """Controls follow what the figure has, not a fixed list.
+
+    That is what makes "as many settings as possible, depending on the graph"
+    true: a figure with two series gets two blocks of series controls, and a
+    figure type added later is covered without editing the dialog.
+    """
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    queue.add_figure(_rich_figure())
+    dialog = FigureSettingsDialog(queue.figure_for(0), queue)
+    qtbot.addWidget(dialog)
+
+    tabs = [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())]
+    assert len(tabs) == 2, "one Figure tab plus one per axes"
+
+    axes_form = dialog.tabs.widget(1).widget().layout()
+    labels = _labels(axes_form)
+    # Everything the user listed.
+    for expected in ("X scale", "Y scale", "Grid", "Grid width", "Grid colour",
+                     "Spine width", "Tick label size", "Legend",
+                     "Legend text size", "Title", "X label"):
+        assert expected in labels, expected
+    # One block per series actually present: two series -> two colour rows.
+    assert labels.count("  Colour") == 2
+    assert labels.count("  Opacity") == 2
+
+
+def test_a_figure_without_a_legend_gets_no_legend_controls(qtbot, queue):
+    """A control that cannot do anything should not be offered."""
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = plt.figure()
+    figure.gca().imshow([[1, 2], [3, 4]])
+    queue.add_figure(figure)
+    dialog = FigureSettingsDialog(queue.figure_for(0), queue)
+    qtbot.addWidget(dialog)
+    labels = _labels(dialog.tabs.widget(1).widget().layout())
+    assert "Legend" not in labels
+    # The axis controls that always apply are still there.
+    assert "X scale" in labels and "Grid" in labels
+
+
+def test_an_evicted_figure_can_still_be_restyled(qtbot, queue, monkeypatch):
+    """The point of the whole spill mechanism, end to end."""
+    from spacr.qt.widgets.figure_settings import build_figure_context_menu
+
+    monkeypatch.setattr(queue, "live_figure_cap", lambda: 2)
+    monkeypatch.setattr(queue, "dynamic_figures_enabled", lambda: True)
+    for _ in range(6):
+        queue.add_figure(_rich_figure())
+    assert not queue.has_live_figure(0)
+    menu = build_figure_context_menu(queue, queue.figure_for(0))
+    qtbot.addWidget(menu)
+    # A real menu, not the "cannot be restyled" one.
+    assert len(menu.actions()) > 1
