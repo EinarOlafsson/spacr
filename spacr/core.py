@@ -271,7 +271,7 @@ def preprocess_generate_masks(settings):
                             # Category B: with no object channel there is nothing to
                             # segment, so returning None here is indistinguishable from
                             # a successful run that produced no masks.
-                            print('Error: At least one registered object channel must be defined')
+                            print('Error: At least one of the registered object channels must be defined')
                             raise_if_strict(
                                 'At least one registered *_channel (for example '
                                 'cell_channel or organelle_channel) must be set; '

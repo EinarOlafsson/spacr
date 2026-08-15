@@ -461,9 +461,14 @@ def _exit_nonzero():
     raise SystemExit(3)
 
 
+def _return_none():
+    """Pickle-safe successful process target (Python 3.14 uses forkserver)."""
+    return None
+
+
 def test_finish_saver_is_a_no_op_for_a_writer_that_stops():
     q = _FakeQueue([])
-    proc = mp.Process(target=lambda: None)
+    proc = mp.Process(target=_return_none)
     proc.start()
     SEQ._finish_saver(q, proc, timeout=30)
     assert q.put_items == ["STOP"]
