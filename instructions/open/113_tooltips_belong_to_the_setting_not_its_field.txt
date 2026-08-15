@@ -2,7 +2,9 @@
 A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
 ================================================================================
 
-Status:    filed 2026-08-15, not started. Cause located -- see WHY IT HAPPENS.
+Status:    filed 2026-08-15. THE DIAGNOSIS BELOW IS WRONG -- the generic
+           path already does the right thing. Read THE REAL SCOPE at the end;
+           it supersedes WHY IT HAPPENS and WHAT TO DO.
 Requested: 2026-08-15 - "add to instructions, tooltips should only appear whe
            the mouse is hovered over the setting not the field for the
            setting."
@@ -97,3 +99,82 @@ HOW TO KNOW IT WORKED
   `test_tooltip_api_links_resolve.py`) still pass.
 * A test asserts the field's `toolTip()` is empty while its label's is not,
   so this cannot regress silently the next time the decoration pass changes.
+
+================================================================================
+THE REAL SCOPE: THE GENERIC PATH IS ALREADY CORRECT
+================================================================================
+
+`install_api_tooltips` does NOT leave a tooltip on the field. It already ends:
+
+    # The editor itself remains quiet on hover. Keep its metadata so tests,
+    # integrations and a later re-parenting pass can still identify it.
+    widget.setProperty("apiTooltipDisplayRole", "metadata")
+    widget.setToolTip("")
+
+and has since a3a1d56f (2026-07-30). The "clear the field's tooltip" fix this
+file proposed is already in the tree. Anything hovering a field is NOT coming
+from there.
+
+WHERE IT IS ACTUALLY COMING FROM: hand-built screens that call `setToolTip`
+on their own fields, never having gone through the generic decorator. There
+are 510 `setToolTip` calls across `spacr/qt/screens` and `spacr/qt/widgets`.
+Most are legitimate -- buttons, API dots, links, elided labels, and toggles
+that carry their own text. A minority are on editable fields that have a
+separate label, and those are this instruction.
+
+Confirmed offenders so far:
+
+    hyperparam.py:777        edit.setToolTip(lab.toolTip())
+                             -- copies the LABEL's help onto the field, which
+                                is this defect performed deliberately
+    hyperparam.py:1061       plot_label.setToolTip(self._max_panels.toolTip())
+                             -- reads a field's tooltip to build a label's
+    distributed_jobs.py      ~8 fields given tooltips directly
+    distributed_jobs.py:292  help_text = field.toolTip() or ...
+                             -- reads the field as the carrier
+
+That last pattern matters: two screens READ `field.toolTip()` to populate a
+label. Clearing fields without fixing those readers turns their labels blank.
+They must read `widget.property("apiTooltipHtml")` first, which is the
+canonical carrier and survives the field's tooltip being cleared.
+
+THE ONE DEFENSIBLE EXCEPTION, and it should stay:
+
+    gate_settings.py:805  appends "NOT YET IN EFFECT: the 3D volume is not
+                          built (instruction 52)" to the FIELD's tooltip.
+
+That is a disabled-reason, not descriptive help. It explains why THAT CONTROL
+does nothing, so the control is the right place for it -- the same argument
+instruction 106 (inapplicable settings are greyed out and say why) is built
+on. Keep it, and keep it distinguishable from help so a later sweep does not
+delete it as an inconsistency.
+
+--------------------------------------------------------------------------------
+HOW TO DO IT WITHOUT AUDITING 510 CALL SITES BY EYE
+--------------------------------------------------------------------------------
+
+Write the detector first, then fix what it finds. Build each settings screen
+and dialog, walk its form rows, and for every row that has BOTH a label and
+an editable field, assert the field's `toolTip()` is empty. That is the whole
+rule, it is mechanical, and it is the only version of this that does not rot:
+a hand-built screen added next month will fail the guard rather than
+reintroducing the defect silently.
+
+Exempt, in the detector and for stated reasons:
+  * a control that IS its own label (Toggle, QCheckBox with text) -- hovering
+    it is hovering the name;
+  * a field whose tooltip is a disabled-reason (see gate_settings above),
+    which needs a property to mark it as such rather than a filename
+    allowlist.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED (REVISED)
+--------------------------------------------------------------------------------
+
+* The detector runs over every settings screen and dialog and reports zero
+  editable-field-with-a-separate-label carrying a tooltip.
+* Hovering a setting's name still shows its help everywhere.
+* The two screens that read `field.toolTip()` to build a label still show
+  their labels' help -- i.e. they were moved onto `apiTooltipHtml` before the
+  fields were cleared, not after.
+* The gate-settings "NOT YET IN EFFECT" note still appears on its control.
