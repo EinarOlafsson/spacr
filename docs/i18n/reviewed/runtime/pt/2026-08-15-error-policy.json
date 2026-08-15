@@ -22,27 +22,6 @@
       "source_sha256": "cebf88a647593635c6d73bff9306beecf740854e54da285790fd61c550615309",
       "source": "On error backoff",
       "translation": "Espera entre tentativas"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "on_error",
-      "source_sha256": "76d4dc13227f86dcf496876b19faa30290aa3622dbef2fcb321ccd707e9e7970",
-      "source": "What a failed unit of work does to the run, checked at every batch boundary (field, well, plate). 'stop' aborts on the first failure - the default, because a run that quietly drops a third of its plates produces a number that looks exactly like a good one. 'skip' records the unit, the stage and the reason, then carries on; what was skipped is listed at the end and stamped into the run ledger. 'retry' re-attempts the unit on_error_attempts times with a doubling backoff and then behaves like 'stop'. Default 'stop'.",
-      "translation": "Define o que acontece com a execução quando uma unidade de trabalho falha; a verificação ocorre em cada limite do lote (campo, poço, placa). 'stop' interrompe na primeira falha. Esse é o padrão porque uma execução que omite silenciosamente um terço das placas pode produzir um número que parece tão válido quanto um resultado correto. 'skip' registra a unidade, a etapa e o motivo e continua; as unidades ignoradas são listadas no final e gravadas no registro da execução. 'retry' tenta a unidade um total de on_error_attempts vezes, dobrando o tempo de espera, e depois se comporta como 'stop'. Padrão: 'stop'."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "on_error_attempts",
-      "source_sha256": "5d2ee3c2582d289653b9bde6b62cf159097bd8e7d86a625b7bccbc555b887d0a",
-      "source": "Total attempts per unit when on_error='retry', including the first. Bounded on purpose: an unbounded retry against a dead network share is an infinite loop with a progress bar. Default 3.",
-      "translation": "Número total de tentativas por unidade quando on_error='retry', incluindo a primeira. O limite é intencional: repetir sem limite contra um compartilhamento de rede indisponível criaria um ciclo infinito com uma barra de progresso. Padrão: 3."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "on_error_backoff",
-      "source_sha256": "4223e1edb684af88b8fe2c803e9554aa1c06e5cc144ccda9393f35bc08b00f7d",
-      "source": "Seconds to wait before the second attempt when on_error='retry', doubled before each attempt after that and capped at 60s. Default 1.0.",
-      "translation": "Segundos de espera antes da segunda tentativa quando on_error='retry'. A espera dobra antes de cada tentativa posterior e é limitada a 60s. Padrão: 1.0."
     }
   ]
 }
