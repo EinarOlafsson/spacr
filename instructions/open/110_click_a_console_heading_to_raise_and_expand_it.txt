@@ -2,7 +2,7 @@
 CLICK A CONSOLE SECTION HEADING TO BRING IT TO THE TOP AND EXPAND IT
 ================================================================================
 
-Status:    filed 2026-08-15, not started.
+Status:    DONE 2026-08-15. See RESULT at the end.
 Requested: 2026-08-15 - "add to instructions, the user should be able to click
            on a console section heading to bring it to the top of the console
            and expoand it"
@@ -86,3 +86,38 @@ HOW TO KNOW IT WORKED
 * With a run actively printing, raising a section keeps the viewport there;
   scrolling back to the bottom resumes following the output.
 * The heading can be focused and activated from the keyboard.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15)
+--------------------------------------------------------------------------------
+
+`_TopicBar` is a control: pointing-hand cursor, StrongFocus with Enter/Space,
+and a disclosure chevron that turns between the two states. Clicking it
+toggles -- collapse if expanded, raise if collapsed.
+
+`raise_section` SCROLLS the section to the top of the viewport. It does not
+reorder anything, per the point above: the console is a transcript and the
+order of its sections is the one property a log has.
+
+`section_body` was built on top of the span `section_text` already computed
+for the copy button, rather than as a second definition, so raising,
+collapsing and copying cannot disagree about where a section ends.
+
+AUTOSCROLL IS SUSPENDED WHILE A SECTION IS RAISED, which was the part worth
+getting right. `_scroll_to_bottom` is now conditional on `_follow_output`;
+raising clears it, and scrolling back to the bottom (within 4 px, because a
+dragged scrollbar does not always land on maximum()) restores it. Verified on
+a real panel: after raising section 6 the view sits at 462, thirty more lines
+of output arrive, and it is still at 462.
+
+The copy button and any trailing widget are children with their own handlers,
+so a click on them never reaches the bar -- copying a section does not also
+navigate to it. There is a test for that specifically, because it is the kind
+of thing that breaks silently when a heading gains another child.
+
+The "table of contents" idea in the section above was NOT built. It was
+listed as worth doing only if the section registry made it nearly free, and
+it did not -- `section_body` walks the layout on demand rather than
+maintaining a registry, so a TOC would be new work rather than a by-product.
+
+tests/test_console_section_headings.py: 10 tests. 236 console tests pass.

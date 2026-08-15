@@ -328,9 +328,23 @@ class _TopicBar(QFrame):
                  trailing: Optional[QWidget] = None):
         super().__init__(parent)
         self.setObjectName("ConsoleTopicBar")
+        # The heading is a control now (instruction 110): click it to bring
+        # its section to the top and expand it. A pointing hand says so
+        # without a border, and StrongFocus keeps it reachable from the
+        # keyboard -- a control only a mouse can reach is one some users
+        # cannot reach at all.
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self._expanded = True
         lay = QHBoxLayout(self)
         lay.setContentsMargins(SPACING["md"], SPACING["xs"],
                                 SPACING["md"], SPACING["xs"])
+        # A disclosure chevron, because a toggle with no indicator is a
+        # control users find by accident.
+        self._chevron = QLabel("▾")
+        self._chevron.setObjectName("ConsoleTopicChevron")
+        self._chevron.setProperty("i18nSkipText", True)
+        lay.addWidget(self._chevron)
         self._label = QLabel(label)
         self._label.setObjectName("ConsoleTopicLabel")
         # Topic history is presentation generated in the language active when
@@ -357,6 +371,43 @@ class _TopicBar(QFrame):
     def text(self) -> str:
         """The header text, for the plain-text export."""
         return self._label.text()
+
+    def is_expanded(self) -> bool:
+        """Whether this section's body is showing."""
+        return self._expanded
+
+    def set_expanded(self, expanded: bool) -> None:
+        """Record the state and turn the chevron to match."""
+        self._expanded = bool(expanded)
+        self._chevron.setText("▾" if self._expanded else "▸")
+
+    def _panel(self):
+        """The owning :class:`ConsolePanel`, or None."""
+        node = self.parentWidget()
+        while node is not None and not hasattr(node, "toggle_section"):
+            node = node.parentWidget()
+        return node
+
+    def _activate(self) -> None:
+        panel = self._panel()
+        if panel is not None:
+            panel.toggle_section(self)
+
+    def mouseReleaseEvent(self, event):        # noqa: N802 (Qt naming)
+        # The copy button and any trailing widget are children with their own
+        # handlers, so a click on them never reaches here -- which is what
+        # keeps "copy this section" from also moving the viewport. Release
+        # rather than press, so dragging off cancels.
+        if (event.button() == Qt.LeftButton
+                and self.rect().contains(event.pos())):
+            self._activate()
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):            # noqa: N802 (Qt naming)
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self._activate()
+            return
+        super().keyPressEvent(event)
 
     def _copy_section(self) -> None:
         """Put this section on the clipboard, asking the panel for its span."""
@@ -1021,6 +1072,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._entries.setSpacing(SPACING["xs"])
         self._entries.addStretch(1)
         self._scroll.setWidget(self._holder)
+        #: Whether the view follows new output. Cleared by raising a section
+        #: (instruction 110), restored by scrolling back to the bottom.
+        self._follow_output = True
+        self._scroll.verticalScrollBar().valueChanged.connect(
+            self._on_console_scrolled)
         box_lay.addWidget(self._scroll, 1)
         self._split.addWidget(self._console_box)
 
@@ -1199,8 +1255,25 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._scroll_to_bottom()
 
     def _scroll_to_bottom(self) -> None:
+        # Only while following. Raising a section (clicking its heading) is a
+        # statement that the user is reading there, and a log that scrolls
+        # away from what you are reading cannot be read at all.
+        if not getattr(self, "_follow_output", True):
+            return
         sb = self._scroll.verticalScrollBar()
         sb.setValue(sb.maximum())
+
+    def _on_console_scrolled(self, value: int) -> None:
+        """Resume following when the user returns to the bottom.
+
+        The convention every log viewer uses: scrolling up means "let me
+        read", scrolling back down means "keep going". A few pixels of
+        tolerance because a scrollbar dragged to the end does not always land
+        exactly on maximum().
+        """
+        scrollbar = self._scroll.verticalScrollBar()
+        if value >= scrollbar.maximum() - 4:
+            self._follow_output = True
 
     def _needs_topic(self, kind: str) -> bool:
         return self._last_entry_kind != kind
@@ -1415,6 +1488,70 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             if len(text.strip().splitlines()) > 1:
                 return text
         return self.as_text(start)
+
+    def section_body(self, bar: "_TopicBar"):
+        """The widgets under ``bar``, up to the next topic bar.
+
+        The same span :meth:`section_text` copies, as widgets rather than as
+        text, so raising, collapsing and copying a section cannot disagree
+        about where it ends.
+        """
+        body = []
+        started = False
+        for index in range(self._entries.count() - 1):
+            item = self._entries.itemAt(index)
+            widget = item.widget() if item is not None else None
+            if widget is bar:
+                started = True
+                continue
+            if not started:
+                continue
+            if isinstance(widget, _TopicBar):
+                break
+            if widget is not None:
+                body.append(widget)
+        return body
+
+    def raise_section(self, bar: "_TopicBar") -> None:
+        """Bring ``bar``'s section to the top of the view and expand it.
+
+        The console is a transcript, so the order of its sections is the one
+        property a log has: this SCROLLS, it does not reorder.
+
+        Raising a section also stops the view following new output. A user
+        who clicked a heading is reading THERE, and appending output that
+        yanks the viewport away is what makes a live log unreadable.
+        Following resumes when they scroll back to the bottom, which is the
+        convention every log viewer uses.
+        """
+        bar.set_expanded(True)
+        for widget in self.section_body(bar):
+            widget.setVisible(True)
+        self._follow_output = False
+        # After layout, not during: the geometry this scroll needs does not
+        # exist until the widgets just shown have been laid out.
+        QTimer.singleShot(0, lambda: self._scroll_widget_to_top(bar))
+
+    def _scroll_widget_to_top(self, bar) -> None:
+        try:
+            top = bar.mapTo(self._holder, bar.rect().topLeft()).y()
+        except RuntimeError:
+            return          # section torn down between click and layout
+        scrollbar = self._scroll.verticalScrollBar()
+        scrollbar.setValue(min(top, scrollbar.maximum()))
+
+    def collapse_section(self, bar: "_TopicBar") -> None:
+        """Hide ``bar``'s body, leaving its heading in place."""
+        bar.set_expanded(False)
+        for widget in self.section_body(bar):
+            widget.setVisible(False)
+
+    def toggle_section(self, bar: "_TopicBar") -> None:
+        """Collapse an expanded section, raise a collapsed one."""
+        if bar.is_expanded():
+            self.collapse_section(bar)
+        else:
+            self.raise_section(bar)
 
     def copy_all(self) -> str:
         """Put the whole console on the clipboard; return what was copied."""
