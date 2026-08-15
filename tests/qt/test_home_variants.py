@@ -140,6 +140,18 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     30: {"elided": 5},
 }
 
+# Bundled Open Sans produces the same counts on supported platforms except
+# for two one- or two-pixel vertical boundary cases: hosted Ubuntu's font
+# rasterizer fits variants 19 and 24 exactly, while the maintainer Linux
+# workstation clips one and two descriptions respectively. Keep both exact
+# profiles so a new/worse defect still fails instead of making font-hinting
+# differences look like a product regression.
+KNOWN_LAYOUT_DEFECT_PROFILES = (
+    KNOWN_LAYOUT_DEFECTS,
+    {number: defects for number, defects in KNOWN_LAYOUT_DEFECTS.items()
+     if number not in {19, 24}},
+)
+
 
 def _load(name: str, module_name: str):
     """Import one generator module under an explicit module name."""
@@ -1723,10 +1735,10 @@ def test_no_variant_clips_elides_or_overflows(subprocess_audit):
 
         # The whole picture at once, so the message names every variant
         # that moved rather than the lowest-numbered one.
-        assert measured == KNOWN_LAYOUT_DEFECTS, (
+        assert measured in KNOWN_LAYOUT_DEFECT_PROFILES, (
             "the variant layouts moved.\n"
             f"  measured: {measured}\n"
-            f"  recorded: {KNOWN_LAYOUT_DEFECTS}\n"
+            f"  recorded profiles: {KNOWN_LAYOUT_DEFECT_PROFILES}\n"
             "A new entry, or a bigger count, means a layout stopped "
             "fitting 1440x900 — decide what that variant does about it. "
             "A smaller count or a vanished entry means one was FIXED: "

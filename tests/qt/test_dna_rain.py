@@ -1524,7 +1524,15 @@ def test_the_dna_button_is_the_ai_button_not_a_lookalike(qtbot,
     off = button.styleSheet()
     button.setChecked(True)
     assert button.styleSheet() != off
-    screen._ai_switch.setChecked(True)
+    # The real AI toggle's signal opens/configures the provider and may
+    # immediately turn it back off on a clean machine with no provider.
+    # This assertion is about the shared widget's ink, so compare equal
+    # logical states without invoking that unrelated application policy.
+    was_blocked = screen._ai_switch.blockSignals(True)
+    try:
+        screen._ai_switch.setChecked(True)
+    finally:
+        screen._ai_switch.blockSignals(was_blocked)
     assert button.styleSheet() == screen._ai_switch.styleSheet()
 
 
