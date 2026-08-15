@@ -595,3 +595,105 @@ def test_the_live_preview_does_not_pay_for_a_tight_bbox(queue):
 
     assert savefig.called
     assert "bbox_inches" not in savefig.call_args.kwargs
+
+
+def test_the_preview_is_rendered_at_the_size_it_is_shown_at(queue):
+    """"after applying settings the graph looks super pixelated".
+
+    The preview was capped at 1100 px and Qt scaled it up to fill a larger
+    view; the difference was made up by interpolation. Rendering at the size
+    it will actually occupy costs no more and is sharp.
+    """
+    queue._view.resize(1400, 1000)
+    assert queue._preview_target_px() == 1400
+
+    # ...and a tiny or not-yet-laid-out view still gets a usable render.
+    queue._view.resize(10, 10)
+    assert queue._preview_target_px() >= 600
+
+
+def test_a_drag_does_not_block_the_gui_thread(qtbot, queue):
+    """The lag: an Agg draw of the volcano is ~110 ms, and it ran inline.
+
+    The 27-entry legend alone is ~63 ms of that, and none of it gets cheaper
+    by lowering the resolution -- the cost is text layout and marker geometry,
+    not pixels. Agg releases the GIL, so the same draw on a worker costs the
+    GUI thread only the figure copy.
+    """
+    import time
+
+    import numpy as np
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(20, 20))
+    axis = figure.add_subplot(111)
+    rng = np.random.default_rng(0)
+    for index in range(27):
+        axis.scatter(rng.normal(size=45), rng.normal(size=45), label=f"c{index}")
+    handles, _ = axis.get_legend_handles_labels()
+    axis.legend(handles=handles, bbox_to_anchor=(1.02, 1), loc="upper left",
+                ncol=2, frameon=False)
+
+    queue.add_figure(figure)
+    live = queue.figure_for(0)
+
+    worst = 0.0
+    for step in range(30):
+        for collection in live.axes[0].collections:
+            collection.set_alpha(0.3 + 0.01 * step)
+        start = time.perf_counter()
+        queue.refresh_current_figure(preview=True)
+        worst = max(worst, (time.perf_counter() - start) * 1000)
+        qtbot.wait(1)
+
+    # Inline this was ~260 ms per change. A frame is 16 ms.
+    assert worst < 60, f"a single change blocked the GUI thread for {worst:.0f} ms"
+    # And the 30 changes did not become 30 renders.
+    assert queue._preview_seq < 30
+
+
+def test_a_change_during_a_draw_is_not_lost(qtbot, queue):
+    """Coalescing must not drop the last change.
+
+    The user stops moving the control at some point, and that final position
+    is the one they are looking at. If it arrived mid-draw and was merely
+    discarded, the picture would settle showing something else.
+    """
+    from matplotlib.figure import Figure
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+    queue.add_figure(figure)
+    live = queue.figure_for(0)
+
+    queue._preview_busy = True
+    assert queue._render_preview_async(live) is True
+    assert queue._preview_pending, "the change was dropped, not deferred"
+
+    queue._on_preview_rendered(None)
+    assert not queue._preview_pending, "the deferred change never ran"
+
+
+def test_a_fresh_render_is_not_discarded_by_its_own_successor(qtbot, queue):
+    """Ordering inside the completion handler.
+
+    Starting the pending draw before painting bumps the sequence, so the
+    payload that just arrived -- freshly drawn and perfectly good -- gets
+    dropped as stale by the render it itself kicked off. A continuous drag
+    would then show nothing at all until the user stopped moving.
+    """
+    from matplotlib.figure import Figure
+
+    figure = Figure()
+    figure.add_subplot(111).plot([0, 1], [0, 1])
+    queue.add_figure(figure)
+
+    painted = []
+    queue._paint_preview = lambda payload: painted.append(payload)
+    queue._preview_busy = True
+    queue._preview_pending = True
+    queue._preview_seq = 7
+
+    queue._on_preview_rendered((0, 7, None))
+    assert painted, "the finished render was never painted"
+    assert painted[0][1] == 7, "painted a stale token"
