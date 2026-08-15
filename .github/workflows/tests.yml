@@ -125,7 +125,7 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
 
       - name: Install spacr (full deps, CPU-only torch)
         run: |
@@ -328,7 +328,7 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
 
       - name: Install spacr at minimum direct versions
         run: |

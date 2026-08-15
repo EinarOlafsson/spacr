@@ -963,17 +963,21 @@ def _spatial_adjacency(mask, spacing=None, expand=1):
     if _EXPAND_LABELS_TAKES_SPACING:
         grown = expand_labels(mask, distance=expand, spacing=spacing)
     else:
-        if spacing is not None and len(set(np.atleast_1d(spacing).tolist())) > 1:
-            raise ConfigurationError(
-                "spatial_measurements on an anisotropic 3-D volume needs "
-                "skimage.segmentation.expand_labels(spacing=...), which this "
-                "scikit-image "
-                f"({getattr(__import__('skimage'), '__version__', 'unknown')}) "
-                "does not provide. Without it the one-voxel growth is applied "
-                "equally along z and xy, which on a (2.0, 0.2, 0.2) voxel is "
-                "wrong by 10x along z. Upgrade scikit-image, or set "
-                "spatial_measurements=False for this run.")
-        grown = expand_labels(mask, distance=expand)
+        # scikit-image 0.22 is still the supported floor and predates the
+        # ``spacing`` keyword. Its implementation is a nearest-label EDT, so
+        # reproduce that small operation with scipy's long-standing
+        # ``sampling`` argument instead of silently growing anisotropic
+        # volumes in voxel units (or rejecting a documented feature).
+        if spacing is None:
+            grown = expand_labels(mask, distance=expand)
+        else:
+            distances, nearest = distance_transform_edt(
+                np.asarray(mask) == 0, sampling=spacing,
+                return_distances=True, return_indices=True)
+            grown = np.zeros_like(mask)
+            within = distances <= float(expand)
+            nearest_labels = np.asarray(mask)[tuple(nearest)]
+            grown[within] = nearest_labels[within]
 
     ndim = grown.ndim
     inner = find_boundaries(grown, mode='inner')
