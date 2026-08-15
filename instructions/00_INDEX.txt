@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-90 done / 4 open (95%).
+92 done / 2 open (97%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -29,12 +29,6 @@ OPEN
 
   101  NIGHTLY CANCELS ITS OWN CI BEFORE IT CAN EVER FINISH
        101_nightly_cancels_its_own_ci_before_it_finishes.txt
-
-  102  A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
-       102_a_missing_metadata_column_asks_instead_of_dying.txt
-
-  103  NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
-       103_no_icon_on_linux_and_a_dirty_first_frame.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -130,3 +124,5 @@ DONE
    97  CLASSIFY SEGFAULTS IN libomp: THREE OpenMP RUNTIMES IN ONE PROCESS
    98  CLASSIFY DIES WITH SIGBUS: A QThread GETS 512 KB OF STACK, LAPACK WANTS MORE
    99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
+  102  A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
+  103  NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH

@@ -148,6 +148,7 @@ class LoadingScreen(QWidget):
         # Opaque: this covers a partly-built window, and any transparency
         # would show the thing it exists to hide.
         self.setAutoFillBackground(True)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
         self.setAttribute(Qt.WA_StyledBackground, True)
         if parent is not None:
             self.setGeometry(parent.rect())

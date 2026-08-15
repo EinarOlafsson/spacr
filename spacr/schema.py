@@ -2200,7 +2200,7 @@ def table_key_columns(table: str, *, timelapse: bool = False) -> Tuple[str, ...]
 # pandas
 # ---------------------------------------------------------------------------
 
-def canonical_rename_plan(columns):
+def canonical_rename_plan(columns, requested=None):
     """``{old: canonical}`` for the columns that can safely be renamed.
 
     The one definition of the "target already exists, keep both" rule for
@@ -2223,14 +2223,18 @@ def canonical_rename_plan(columns):
     itself.
 
     :param columns: the frame's column names, in order.
+    :param requested: optional explicit ``{source: canonical_target}`` choices
+        supplied by the metadata resolver. They pass through the same
+        case-folded collision guard as built-in aliases.
     :returns: ``dict`` mapping each renameable name to its canonical form;
         empty when there is nothing to do.
     """
     have = list(columns)
+    requested = dict(requested or {})
     taken = set(have)
     mapping = {}
     for name in have:
-        canonical = canonical_column_name(name)
+        canonical = requested.get(name, canonical_column_name(name))
         if canonical == name:
             continue
         others = {str(other).casefold() for other in taken if other != name}
@@ -2270,7 +2274,11 @@ def canonicalise_columns(df):
 
 
 def validate_object_table_frame(
-        frame, table: str, *, timelapse: Optional[bool] = None):
+        frame, table: str, *, timelapse: Optional[bool] = None,
+        metadata_column_map=None, metadata_well_column=None,
+        metadata_pseudo_source=None, allow_pseudo_metadata: bool = False,
+        metadata_prompt=None, metadata_cache_key=None,
+        metadata_mapping_path=None):
     """Validate an object-table frame against its canonical contract.
 
     Validation is deliberately strict at the writer boundary and
@@ -2308,6 +2316,37 @@ def validate_object_table_frame(
 
     contract = object_table_schema(table)
     out = canonicalise_columns(frame)
+
+    # Every object-table writer crosses this boundary.  Resolve unfamiliar
+    # metadata here so modules do not each grow a slightly different rename
+    # prompt.  The import stays lazy to preserve schema's lightweight import
+    # contract and the headless default raises immediately rather than
+    # opening a dialog.
+    unresolved = [
+        column for column in contract.required_columns
+        if column not in out.columns
+    ]
+    if unresolved:
+        from .metadata_resolution import (
+            MetadataResolutionRequired,
+            resolve_metadata_columns,
+        )
+        try:
+            out = resolve_metadata_columns(
+                out,
+                contract.required_columns,
+                column_map=metadata_column_map,
+                well_column=metadata_well_column,
+                pseudo_source=metadata_pseudo_source,
+                allow_pseudo=allow_pseudo_metadata,
+                prompt=metadata_prompt,
+                cache_key=metadata_cache_key,
+                save_path=metadata_mapping_path,
+            ).frame
+        except MetadataResolutionRequired as exc:
+            raise ObjectTableSchemaError(
+                f'{table} is missing required canonical column(s) '
+                f'{list(exc.missing)}; {exc}') from exc
 
     duplicated_columns = out.columns[out.columns.duplicated()].tolist()
     if duplicated_columns:
