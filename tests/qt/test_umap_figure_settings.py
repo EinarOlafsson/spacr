@@ -393,18 +393,22 @@ def test_the_queue_hands_the_dialog_propagate_and_re_render(qtbot,
     captured = {}
 
     class _Dialog:
-        def __init__(self, fig, parent=None, propagate_callback=None,
-                     render_callback=None):
+        def __init__(self, fig, parent=None, on_change=None,
+                     propagate_callback=None):
             captured["propagate"] = propagate_callback
-            captured["render"] = render_callback
+            captured["render"] = on_change
 
         def exec(self):
             return False
 
-    monkeypatch.setattr(module, "_FigureSettingsDialog", _Dialog)
+    # The real dialog lives in figure_settings now; patch it where the queue
+    # looks it up rather than where it is defined.
+    from spacr.qt.widgets import figure_settings
+    monkeypatch.setattr(figure_settings, "FigureSettingsDialog", _Dialog)
     queue._open_figure_settings()
 
-    assert callable(captured["propagate"])
+    assert callable(captured["propagate"]), \
+        "the dialog lost its way back into the settings panel"
     assert captured["render"] == queue.refresh_current_figure
 
 
