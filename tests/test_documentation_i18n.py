@@ -56,6 +56,43 @@ print(Path(namespace["ROOT"]).resolve())
     assert origin.is_relative_to(checkout_root)
 
 
+def test_coverage_cli_pins_imports_to_its_own_checkout(tmp_path):
+    """Coverage must not inspect a foreign editable spaCR checkout."""
+    foreign_root = tmp_path / "foreign-checkout"
+    foreign_package = foreign_root / "spacr"
+    foreign_package.mkdir(parents=True)
+    (foreign_package / "__init__.py").write_text(
+        "raise RuntimeError('foreign spaCR package imported')\n",
+        encoding="utf-8",
+    )
+    script = TOOLS / "audit_i18n_coverage.py"
+    probe = """
+import importlib.util
+from pathlib import Path
+import runpy
+
+namespace = runpy.run_path({script!r}, run_name="coverage_bootstrap_probe")
+origin = Path(importlib.util.find_spec("spacr").origin).resolve()
+print(origin)
+print(Path(namespace["ROOT"]).resolve())
+""".format(script=str(script))
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(foreign_root)
+    completed = subprocess.run(
+        [sys.executable, "-c", probe],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    origin_text, root_text = completed.stdout.strip().splitlines()
+    origin = Path(origin_text)
+    checkout_root = Path(root_text)
+    assert checkout_root == ROOT.resolve()
+    assert origin.is_relative_to(checkout_root)
+
+
 def test_api_reuse_rejects_changed_translation_context(tmp_path, monkeypatch):
     import build_documentation_i18n as builder
 
@@ -262,6 +299,15 @@ def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
     with pytest.raises(ValueError, match="stale reviewed runtime hash"):
         builder.reviewed_runtime_translations("sv")
 
+    evidence["records"][0]["source_sha256"] = hashlib.sha256(
+        source.encode()
+    ).hexdigest()
+    evidence["records"][0]["translation"] = source
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    builder.reviewed_runtime_translations.cache_clear()
+    with pytest.raises(ValueError, match="rejected reviewed runtime target"):
+        builder.reviewed_runtime_translations("sv")
+
 
 def test_reviewed_hindi_tagline_uses_scientific_screening_sense():
     import build_i18n_catalogs as builder
@@ -273,15 +319,6 @@ def test_reviewed_hindi_tagline_uses_scientific_screening_sense():
     assert builder._translation_candidate_valid(
         source, target, "hi", force=True,
     )
-
-    evidence["records"][0]["source_sha256"] = hashlib.sha256(
-        source.encode()
-    ).hexdigest()
-    evidence["records"][0]["translation"] = source
-    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
-    builder.reviewed_runtime_translations.cache_clear()
-    with pytest.raises(ValueError, match="rejected reviewed runtime target"):
-        builder.reviewed_runtime_translations("sv")
 
 
 def test_api_translation_source_disambiguates_model_input_and_hashes_it():

@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "png_channel_mapping",
+      "source_sha256": "8371bf4058600b2f8fe55434d58549716f6ca45f556f6a3e6b53d48935cbdf8c",
+      "source": "Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
+      "translation": "Canal source affecté à chaque couleur du PNG enregistré, par exemple {'r': 2, 'g': 1, 'b': 0} : le canal 2 devient rouge, le 1 vert et le 0 bleu. Cette option explicite ce que png_dims ne faisait que suggérer. Les canaux non nommés sont absents des vignettes, sans effet sur les mesures ; une couleur laissée vide produit un plan vide. Affecter le même canal aux trois couleurs écrit un PNG en niveaux de gris. La valeur par défaut est {'r': 2, 'g': 1, 'b': 0} ; pour une pile 405/488/555 standard, elle place la coloration nucléaire dans le bleu."
+    },
+    {
+      "table": "ui",
+      "key": "Every verdict here was written by the run that produced it -- this screen reads them, it does not score anything, so opening it costs a directory listing rather than minutes of mask loading. A card whose inputs are newer than it is says OUT OF DATE rather than pretending to describe them. A card that says 'missing' means the check has not been run, which is not the same as clean.",
+      "source_sha256": "092a5d255ea9a5d5966c1303174d209390b3a2017ba265ed769ef42645f65696",
+      "source": "Every verdict here was written by the run that produced it -- this screen reads them, it does not score anything, so opening it costs a directory listing rather than minutes of mask loading. A card whose inputs are newer than it is says OUT OF DATE rather than pretending to describe them. A card that says 'missing' means the check has not been run, which is not the same as clean.",
+      "translation": "Chaque verdict a été écrit par l’exécution qui l’a produit. Cet écran les lit sans rien évaluer ; son ouverture ne coûte qu’un parcours de répertoire, et non plusieurs minutes de chargement des masques. Une carte dont les entrées sont plus récentes qu’elle affiche OUT OF DATE au lieu de prétendre les décrire. Une carte affichant 'missing' signifie que la vérification n’a pas été exécutée, ce qui ne veut pas dire qu’elle est réussie."
+    },
+    {
+      "table": "ui",
+      "key": "Resolution of the raster spaCR renders for the Figures panel, and of any image embedded inside a vector PDF page. Very large figures are rendered at a lower DPI for the screen so they stay quick to draw; the PDF page is written at the full resolution chosen here.",
+      "source_sha256": "f9b38d45f7a37cbd0710f53cfb18e82952ec0a06769fbe6c115260bcd6d3a76e",
+      "source": "Resolution of the raster spaCR renders for the Figures panel, and of any image embedded inside a vector PDF page. Very large figures are rendered at a lower DPI for the screen so they stay quick to draw; the PDF page is written at the full resolution chosen here.",
+      "translation": "Résolution des rendus matriciels de spaCR dans le panneau Figures et de toute image intégrée à une page PDF vectorielle. Les très grandes figures sont rendues avec une résolution inférieure pour l’écran afin de rester rapides à afficher ; la page PDF est écrite à la pleine résolution choisie ici."
+    }
+  ]
+}
