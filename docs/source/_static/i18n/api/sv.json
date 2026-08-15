@@ -20052,6 +20052,366 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
+    "spacr.guide_permutation": {
+      "source_blocks_sha256": [
+        "e70db9a80d381ef7baf5038477005f3a525b493def52590fe2f01b2910632d5c",
+        "6400d59a7b18941467c1e087815565d119cc852167d637b332d9750a6ee49d26",
+        "338b62c643140263a4217d7da0c5f17eb378017b8de8733b1f58ef7f0da5ee7a"
+      ],
+      "source_sha256": "8be7de90f0a8486c0fedd9c47a4802f16eb0af95c6552343c26d5cdbd4460de9",
+      "text": "Plate-aware marginell guide association tester för poolade screening experiment.\n\nProvenheten för screening är mikroplattans provposition. Varje vägledning testas separat efter både dess mikroplattaprovpositions-nivå-avläsningsfraktion och mikroplattaprovets positions-fenotyp har återställts mot störande kovariater. Empiriska tvåsidiga P-värden erhålls med Freedman-Lane restpermutationer begränsade inom försöksblocket (normalt ``plateID``), följt av en användarselekterad multiprovkorrigering inom varje utfalls- och minimistödfamilj.\n\nDen här modulen rapporterar avsiktligt *marginalbindningar*. Den gör inte anspråk på att uppskatta en samtidig villkorlig koefficient för varje guide när antalet eller korrelationsstrukturen för guider gör den modellen oidentifierad.",
+      "translation_source_blocks_sha256": [
+        "2d22ddfb6a55c4b8ace025d4090e00ba99f2ebf3d76c7140f78068e5afb28232",
+        "c8a2a735e1025379c4cb2e05ea86d10a32b9fb6034a46137431b642cdcdac1fd",
+        "338b62c643140263a4217d7da0c5f17eb378017b8de8733b1f58ef7f0da5ee7a"
+      ]
+    },
+    "spacr.guide_permutation.adjust_p_values": {
+      "source_blocks_sha256": [
+        "f5acac14eda768d67f6705fe091a0c206ba0ad2d770d2a07c42b12b72e08c0ce",
+        "03f5ec270f44ab5dd2e0330424f441880a9f29de96fbf5d28c838acd02b6199c"
+      ],
+      "source_sha256": "ebb97beb5378311645675d1b0304b4a82e5b6742703af57a7758e403ce0019d8",
+      "text": "Returnera justerade P-värden och avslagssamtal.\n\n``method`` accepterar statsmodels-namnen ``fdr_bh``, ``fdr_by``, ``bonferroni`` och ``holm``, plus deras vanliga alias och ``none``. Saknade P-värden saknas fortfarande och går inte in i rättningsfamiljen.",
+      "translation_source_blocks_sha256": [
+        "f5acac14eda768d67f6705fe091a0c206ba0ad2d770d2a07c42b12b72e08c0ce",
+        "03f5ec270f44ab5dd2e0330424f441880a9f29de96fbf5d28c838acd02b6199c"
+      ]
+    },
+    "spacr.guide_permutation.analyse_long_guide_table": {
+      "source_blocks_sha256": [
+        "f956a8d5532cff31ba7e8f0419000c510262d3fc7225809d9b514cbc6ca468c3"
+      ],
+      "source_sha256": "f956a8d5532cff31ba7e8f0419000c510262d3fc7225809d9b514cbc6ca468c3",
+      "text": "Smidigt omslag för spaCR sparat ``regression_data.csv``.",
+      "translation_source_blocks_sha256": [
+        "f956a8d5532cff31ba7e8f0419000c510262d3fc7225809d9b514cbc6ca468c3"
+      ]
+    },
+    "spacr.guide_permutation.guide_freedman_lane_test": {
+      "source_blocks_sha256": [
+        "b55200d9531715319f3d08c0dcad876f03d617647c055ef22e5014f3d7edeaad",
+        "84774b99a7b5927e612bde6f21d59a4d855450c94ba3482362de2f7214b96e61"
+      ],
+      "source_sha256": "e6c3c8c8fa83228914ec7e8569c3838e361e3b66e5cee228460dace19200f319",
+      "text": "Test marginell guide föreningar i en eller flera stödfamiljer.\n\nPermutation P- värden beräknas en gång för varje guide som uppfyller den minsta begärda stödtröskeln. För varje angiven tröskel korrigeras sedan den berättigade undergruppen som sin egen familj med flera tester. Detta håller det observerade statistiska och empiriska P- värdet för en guide identisk över tröskelvärdena; endast de justerade värdeförändringarna med familjens storlek.",
+      "translation_source_blocks_sha256": [
+        "b55200d9531715319f3d08c0dcad876f03d617647c055ef22e5014f3d7edeaad",
+        "84774b99a7b5927e612bde6f21d59a4d855450c94ba3482362de2f7214b96e61"
+      ]
+    },
+    "spacr.guide_permutation.guide_support_sensitivity": {
+      "source_blocks_sha256": [
+        "b7aa402b0210146fc9c6de241e8f14de0ab5010c861c6a3ff66ce6fc90489f76"
+      ],
+      "source_sha256": "b7aa402b0210146fc9c6de241e8f14de0ab5010c861c6a3ff66ce6fc90489f76",
+      "text": "Utför samma stödtröskelanalys för ett eller flera utfall.",
+      "translation_source_blocks_sha256": [
+        "9a62a20e7be9d4775333751aab06bcb1f5fc23c25237e96706fe429935a6a8cb"
+      ]
+    },
+    "spacr.guide_permutation.plot_guide_permutation_volcano": {
+      "source_blocks_sha256": [
+        "fbac2cd49484106df3c2dc4a8e92b5bcfbf9eb0c41f0873bc5cb71ba97d31e28"
+      ],
+      "source_sha256": "fbac2cd49484106df3c2dc4a8e92b5bcfbf9eb0c41f0873bc5cb71ba97d31e28",
+      "text": "Rita en vulkan med hjälp av standardiserad effekt och justerat P-värde.",
+      "translation_source_blocks_sha256": [
+        "fbac2cd49484106df3c2dc4a8e92b5bcfbf9eb0c41f0873bc5cb71ba97d31e28"
+      ]
+    },
+    "spacr.guide_permutation.prepare_long_guide_data": {
+      "source_blocks_sha256": [
+        "570a8b29020a7b7ef223f0a9bef159e0e0d34a2bdd4c499cfd4a0acf768b4481",
+        "0c748368ca4a26668860d7d768ca62c7a2f127ff5d8dff8d7f6a9110a8d1d8f8",
+        "f57ad8b067d37fc2fc7161f837a5520c3a76820781c450d87cd325917679e0d9"
+      ],
+      "source_sha256": "ee403eb762973172e3c8be7d4ddd98a4b6465f76daaf68efa711a51a7f3815f8",
+      "text": "Konvertera spaCR långa regressionstabell till justerade tabeller för mikroplattors positionsnivå.\n\nDen långa tabellen måste ha en fraktion per brunn/guidepar. Fenotyp, block och störande värden kan upprepas över ledningsraderna i en brunn, men de måste vara identiska inom den brunnen. Duplicera väl / guide rader sammanfattas, matchar den befintliga spaCR design-matris konstruktion.\n\nReturnerar ``(fractions, outcomes, guide_metadata)`` där ``fractions`` är en nollfylld välriktad matris, har ``outcomes`` en rad per brunn och ``guide_metadata`` rapporterar antalet mikroplattors provpositioner med ett positivt bråk.",
+      "translation_source_blocks_sha256": [
+        "c09be9d4d4fad140f23764956613364cb5aec537907da38e71b796820c39ce8a",
+        "0c748368ca4a26668860d7d768ca62c7a2f127ff5d8dff8d7f6a9110a8d1d8f8",
+        "0d71144d92cbce9e1dde7951e39c5639652e3c25e38f22c3ea58fc7741a1a0f8"
+      ]
+    },
+    "spacr.guide_permutation.save_guide_permutation_results": {
+      "source_blocks_sha256": [
+        "224bf1743694284b8e054380da036019bbb8b6f97e6a48faba950ec90f8a956b"
+      ],
+      "source_sha256": "224bf1743694284b8e054380da036019bbb8b6f97e6a48faba950ec90f8a956b",
+      "text": "Spara det långa resultatet och en källdata CSV per stödtröskel.",
+      "translation_source_blocks_sha256": [
+        "224bf1743694284b8e054380da036019bbb8b6f97e6a48faba950ec90f8a956b"
+      ]
+    },
+    "spacr.hit_attribution": {
+      "source_blocks_sha256": [
+        "9bdc4842493fb52ed288ec585b377de822aa9bee624e73606953ed0796e4cbc5",
+        "f8e6a4568894ad8f55536dd646affaf1430ac493c80b45182ba9e7ca8128dcfe",
+        "cced84ba570e395b70c8f9a18f66209857455d8b94011fa6f0d298d9e29ccb61",
+        "33fed6c89b69b50e77b42fca7f21ded991b854fc095e1e2e824937bca14a9eb2",
+        "3b8f92381f9b3884c0bbc7c5e15efd23514f74eb5a27069ef5c132bcf41d0b34",
+        "8205550aa47912e9e484ecc09e52cd942795cc3afad26934670553ca0b4db970"
+      ],
+      "source_sha256": "c546b75c8ec045d012814caf80cfdcf71d5dfad9621ebe439ca75f6fd33f5c70",
+      "text": "Lös upp ett mikroplattprovs positionsnivå CRISPR och slå tillbaka till *candidate* enskilda celler.\n\nSekvensering säger vilken guide som läser var närvarande i en mikroplatta provposition. Det säger inte vilken cell som bar en guide, och en läsfraktion är inte automatiskt en infektionsfraktion. Modulen håller denna distinktion explicit:\n\n* :func:`build_hit_cell_frame` gör den ärliga granskningslistan: mål-well celler rankas i träffens fenotyp riktning.\n* :func:`fit_hit_attribution` lägger till en tvärdelad hierarkisk tvåkomponentsblandning. Guidefraktionen ändrar ett inlärt mikroplattaprovs positionsnivå tidigare; den införs aldrig som genomsnittlig cellsannolikhet.\n* :func:`write_hit_attribution` registrerar versionerade sannolikheter i sina egna tabeller. Handanteckningar är orörda tills ett uttryckligt kampanjsamtal.\n\nUtmatningen heter ``hit_like_probability``, inte vägleda identitet. Endast en cell-löst streckkod eller matriserad perturbation förvandlar den slutsatsen till marksanning.",
+      "translation_source_blocks_sha256": [
+        "4ed1d42117cc449afd06fcc1e425ecbc1d6ad58676eb429f31eaf7ff69cd75aa",
+        "c30e891d084ef08c6a776ca61c377cb31f82fd061d50d39ea569c075f4319f9f",
+        "7bc9d81a3e5aff5de692f70d20ff8a6381dc7f6aeb95cb19383de5e11a06ff8a",
+        "23f98dae8cd1753c619780115d7be154e4120abf8c842f026b5fa4425cfdeb9d",
+        "3b8f92381f9b3884c0bbc7c5e15efd23514f74eb5a27069ef5c132bcf41d0b34",
+        "8205550aa47912e9e484ecc09e52cd942795cc3afad26934670553ca0b4db970"
+      ]
+    },
+    "spacr.hit_attribution.HitAttributionError": {
+      "source_blocks_sha256": [
+        "fa6800b1aa34b5f9637e577018032dd6cf9a302eabfe87d1bb4f5087726806d2"
+      ],
+      "source_sha256": "fa6800b1aa34b5f9637e577018032dd6cf9a302eabfe87d1bb4f5087726806d2",
+      "text": "Den begärda celltillskrivningen är tvetydig eller inte identifierbar.",
+      "translation_source_blocks_sha256": [
+        "fa6800b1aa34b5f9637e577018032dd6cf9a302eabfe87d1bb4f5087726806d2"
+      ]
+    },
+    "spacr.hit_attribution.HitAttributionResult": {
+      "source_blocks_sha256": [
+        "084ddd37c9218216c4e9b8a32cadc4dded347924250d4d51156c64331f61e25c"
+      ],
+      "source_sha256": "084ddd37c9218216c4e9b8a32cadc4dded347924250d4d51156c64331f61e25c",
+      "text": "Korsade hit-liknande sannolikheter och oberoende enhet bevis.",
+      "translation_source_blocks_sha256": [
+        "084ddd37c9218216c4e9b8a32cadc4dded347924250d4d51156c64331f61e25c"
+      ]
+    },
+    "spacr.hit_attribution.HitInvestigationResult": {
+      "source_blocks_sha256": [
+        "dbb70cb023cb5f9f7da382be153a46d96feacd09f40ebcb98ecff561a50abc5a"
+      ],
+      "source_sha256": "dbb70cb023cb5f9f7da382be153a46d96feacd09f40ebcb98ecff561a50abc5a",
+      "text": "Portabelt resultatpaket som används av GUI och databaspersistens.",
+      "translation_source_blocks_sha256": [
+        "dbb70cb023cb5f9f7da382be153a46d96feacd09f40ebcb98ecff561a50abc5a"
+      ]
+    },
+    "spacr.hit_attribution.HitRunContext": {
+      "source_blocks_sha256": [
+        "9aa4245f07b8a0c11018a4cb760e4f9d72de19916342f5d09a125747f1955cb4"
+      ],
+      "source_sha256": "9aa4245f07b8a0c11018a4cb760e4f9d72de19916342f5d09a125747f1955cb4",
+      "text": "Det exakta regressionsresultatet kom från en cellundersökning.",
+      "translation_source_blocks_sha256": [
+        "9aa4245f07b8a0c11018a4cb760e4f9d72de19916342f5d09a125747f1955cb4"
+      ]
+    },
+    "spacr.hit_attribution.InsufficientDesignError": {
+      "source_blocks_sha256": [
+        "6df1af04dca1f7e4c267766ba0dbaa75af7ad44972c002d30ab40ecfb2b00724"
+      ],
+      "source_sha256": "6df1af04dca1f7e4c267766ba0dbaa75af7ad44972c002d30ab40ecfb2b00724",
+      "text": "Det finns för få oberoende mikroplattor provpositioner / laboratoriemikroplattor för att kors-passa ärligt.",
+      "translation_source_blocks_sha256": [
+        "cffb383783ee2d78b200e8fadbee093535443514066f7c487f2b85041ba99437"
+      ]
+    },
+    "spacr.hit_attribution.build_hit_cell_frame": {
+      "source_blocks_sha256": [
+        "19c098c20838c15f4c0f0253ef1bf82855926174ef60ff945e5c82c27a5eed96",
+        "d1e3d7d5f1b429aa2118086507affcc3b87ca525f26a79b22cedcfda35d57b1b"
+      ],
+      "source_sha256": "b248d87070077fd58e3207fa5e48782899304d4cc06b55ee5ab327ac1e902296",
+      "text": "Gå med exakta celler för att väl vägleda bråk och bygga en översyn ranking.\n\nDe returnerade ``candidate_percentile`` rankar celler endast inom deras brunn. Det namnges avsiktligt inte en sannolikhet eller infektion anrop.",
+      "translation_source_blocks_sha256": [
+        "19c098c20838c15f4c0f0253ef1bf82855926174ef60ff945e5c82c27a5eed96",
+        "d1e3d7d5f1b429aa2118086507affcc3b87ca525f26a79b22cedcfda35d57b1b"
+      ]
+    },
+    "spacr.hit_attribution.crossfit_candidate_probabilities": {
+      "source_blocks_sha256": [
+        "600405b92367131f2ea38dd2d97c330bc64d019c88e258999169672d5d8290bf",
+        "7408630e114bcd5bdcdf14ebde59a475e5ad4f3bd71bf131e549515a9972585c"
+      ],
+      "source_sha256": "0b6e86f71b08539fb86579e09a604e0f9bf98786deaa30c0b1e0b0e27b9fa430",
+      "text": "Cross-fit en konservativ morfologi maskininlärning klassificering modell från säcketiketter.\n\nDet här är det icke-parametriska alternativet till :func:`fit_hit_attribution`: s hierarkiska blandning. Det förutsäger ``candidate_probability`` och kallar det aldrig infektionsannolikhet. Modellutgångar, ledfraktioner, objektidentifierare och annoteringar är undantagna från standardfunktionen.",
+      "translation_source_blocks_sha256": [
+        "6efa8e03f141807832fc5f38393b29b2c545f2d924115ac2d762ca951521d512",
+        "7408630e114bcd5bdcdf14ebde59a475e5ad4f3bd71bf131e549515a9972585c"
+      ]
+    },
+    "spacr.hit_attribution.fit_hit_attribution": {
+      "source_blocks_sha256": [
+        "3bcac710e37bc69958b49c7920e0613f572715603b1288f118c44a36f3042c18",
+        "9728aa124a7d7346894972e0f83d2135163ffdd6f873fd3bf033e23bde706f18"
+      ],
+      "source_sha256": "368470a3f158d06ceb4be3d6313a0a42bfc274e96cc1e93525467461724b3ff0",
+      "text": "Uppskattning av korskopplade mål-hit-liknande sannolikheter.\n\n``frame`` måste vara uteffekten av :func:`build_hit_cell_frame`. Varje cell förutsägs av en blandning som är monterad utan sin mikroplatta provposition, eller utan dess laboratoriemikroplatta när minst tre laboratoriemikroplattor gör den uppdelningen identifierbar.",
+      "translation_source_blocks_sha256": [
+        "3bcac710e37bc69958b49c7920e0613f572715603b1288f118c44a36f3042c18",
+        "16dc3fbfef0d58763b3637e4adec8427777231cddbd7a649b99f45299e824c8d"
+      ]
+    },
+    "spacr.hit_attribution.promote_calls": {
+      "source_blocks_sha256": [
+        "2373c819636c86258d3e5ecd3feaa6a615f1cf368e44f2e4cf492ef3e9f9d371"
+      ],
+      "source_sha256": "2373c819636c86258d3e5ecd3feaa6a615f1cf368e44f2e4cf492ef3e9f9d371",
+      "text": "Främja lagrade samtal när du spelar in varje tidigare noteringsvärde.",
+      "translation_source_blocks_sha256": [
+        "2373c819636c86258d3e5ecd3feaa6a615f1cf368e44f2e4cf492ef3e9f9d371"
+      ]
+    },
+    "spacr.hit_attribution.promote_hit_calls": {
+      "source_blocks_sha256": [
+        "36b120826bd811355f3ac0a8496f1ebdcb6c830619d615fc12a7ab02ece16627"
+      ],
+      "source_sha256": "36b120826bd811355f3ac0a8496f1ebdcb6c830619d615fc12a7ab02ece16627",
+      "text": "Uttryckligen främja positiva samtal till en ny, reversibel anteckning.",
+      "translation_source_blocks_sha256": [
+        "36b120826bd811355f3ac0a8496f1ebdcb6c830619d615fc12a7ab02ece16627"
+      ]
+    },
+    "spacr.hit_attribution.quantify_candidate_enrichment": {
+      "source_blocks_sha256": [
+        "ff8b0cd9005739fa3ca4d3e6a139e23c5933602a0d11481a6e085dcd54c4f4af"
+      ],
+      "source_sha256": "ff8b0cd9005739fa3ca4d3e6a139e23c5933602a0d11481a6e085dcd54c4f4af",
+      "text": "Kvantifiera kandidatprevalensen vid mikroplattans experimentella enhet.",
+      "translation_source_blocks_sha256": [
+        "b6de4204c0ad70444c29de30ef116e374d1267629c2557465c722228fadb9a66"
+      ]
+    },
+    "spacr.hit_attribution.quantify_hit_enrichment": {
+      "source_blocks_sha256": [
+        "544eaa756367480da034c189a67d29698082e03bd5703f0e7f44e1f211373e23"
+      ],
+      "source_sha256": "544eaa756367480da034c189a67d29698082e03bd5703f0e7f44e1f211373e23",
+      "text": "Anrikning av provläge per mikroplatta, mikroplattans provposition bootstrap CI och laboratoriemikroplattblockerad null.",
+      "translation_source_blocks_sha256": [
+        "7c49e7c6bbcd2bb35b30500f46881e2f48c37d2c9e3013e8d6392e6e4dd3e934"
+      ]
+    },
+    "spacr.hit_attribution.revert_promotion": {
+      "source_blocks_sha256": [
+        "39bd1f02f74913d965be53b2349814cbdb4fd3806632674e113464f0f5976de0"
+      ],
+      "source_sha256": "39bd1f02f74913d965be53b2349814cbdb4fd3806632674e113464f0f5976de0",
+      "text": "Återställ exakt de värden som ersätts med :func:`promote_calls`.",
+      "translation_source_blocks_sha256": [
+        "39bd1f02f74913d965be53b2349814cbdb4fd3806632674e113464f0f5976de0"
+      ]
+    },
+    "spacr.hit_attribution.store_attribution": {
+      "source_blocks_sha256": [
+        "857b2dcf3d5d94ac62aceb7ccedf173d6c277f4fcfe5585f66dad7a372aea13a"
+      ],
+      "source_sha256": "857b2dcf3d5d94ac62aceb7ccedf173d6c277f4fcfe5585f66dad7a372aea13a",
+      "text": "Lagra GUI-utredningspaketet under dess oföränderliga körkontext.",
+      "translation_source_blocks_sha256": [
+        "857b2dcf3d5d94ac62aceb7ccedf173d6c277f4fcfe5585f66dad7a372aea13a"
+      ]
+    },
+    "spacr.hit_attribution.undo_hit_promotion": {
+      "source_blocks_sha256": [
+        "3730c40dc8513f41ba51b8a544536e47f9a0d943f4df4b8aae17c528ebab4098"
+      ],
+      "source_sha256": "3730c40dc8513f41ba51b8a544536e47f9a0d943f4df4b8aae17c528ebab4098",
+      "text": "Tydliga värden skrivna av en kampanj; bevara revisionsposten.",
+      "translation_source_blocks_sha256": [
+        "3730c40dc8513f41ba51b8a544536e47f9a0d943f4df4b8aae17c528ebab4098"
+      ]
+    },
+    "spacr.hit_attribution.write_hit_attribution": {
+      "source_blocks_sha256": [
+        "f22aebb7cac8f28d523d3bec4cfa29267e786d9ee7097557b807119806797cf7"
+      ],
+      "source_sha256": "f22aebb7cac8f28d523d3bec4cfa29267e786d9ee7097557b807119806797cf7",
+      "text": "Persist en versionsattribution utan att röra vid notationskolumner.",
+      "translation_source_blocks_sha256": [
+        "f22aebb7cac8f28d523d3bec4cfa29267e786d9ee7097557b807119806797cf7"
+      ]
+    },
+    "spacr.hit_investigation": {
+      "source_blocks_sha256": [
+        "4d8164e5846f2fed86943e79b3079253d2e95be389efded01a04f6a15871f729",
+        "e6d340cf9acbf320bb53faa728d52d3552c814a8f6e7964e724190486b2821a6"
+      ],
+      "source_sha256": "80077017497a5571053abae5b7705a93e639fdf1a7e8d5c11b85d802b1a8ed81",
+      "text": "Fil-driven, härkomst-bundet program runt träff tillskrivning.\n\nDen statistiska motorn lever i :mod:`spacr.hit_attribution`. Modulen är applikationens söm: den namnger exakta filer, hashes den valda regressionsbehandlingen, ansluter förutsägelser till uppmätta objekt, skriver granskningsartefakter och registrerar inställningar för GUI och huvudlös användning.",
+      "translation_source_blocks_sha256": [
+        "4d8164e5846f2fed86943e79b3079253d2e95be389efded01a04f6a15871f729",
+        "c4fdb8affa04a7a25179cedfc00e1f5d30eb204a41ae93599ae6fe1be07ff333"
+      ]
+    },
+    "spacr.hit_investigation.control_fitted_embedding": {
+      "source_blocks_sha256": [
+        "4baffdafd970f1d3b2cd7e8c88ba53149283e63ac22da160dfa015a17094b3bb"
+      ],
+      "source_sha256": "4baffdafd970f1d3b2cd7e8c88ba53149283e63ac22da160dfa015a17094b3bb",
+      "text": "Anpassa PCA på målfri morfologi och omvandla alla celler.",
+      "translation_source_blocks_sha256": [
+        "4baffdafd970f1d3b2cd7e8c88ba53149283e63ac22da160dfa015a17094b3bb"
+      ]
+    },
+    "spacr.hit_investigation.evaluate_blinded_reviews": {
+      "source_blocks_sha256": [
+        "1f26dfc17ec4d4ae5f871600b86978aaa63798997753a20b92db99fb0e5a314c"
+      ],
+      "source_sha256": "1f26dfc17ec4d4ae5f871600b86978aaa63798997753a20b92db99fb0e5a314c",
+      "text": "Jämför en eller flera blindade binära granskare med hållna-back poäng.",
+      "translation_source_blocks_sha256": [
+        "1f26dfc17ec4d4ae5f871600b86978aaa63798997753a20b92db99fb0e5a314c"
+      ]
+    },
+    "spacr.hit_investigation.hit_investigation_default_settings": {
+      "source_blocks_sha256": [
+        "e76b2fd88c066c5197ad5d0861e1706012a3a7b6f9cab2b0b490688c33d816ef"
+      ],
+      "source_sha256": "e76b2fd88c066c5197ad5d0861e1706012a3a7b6f9cab2b0b490688c33d816ef",
+      "text": "Returinställningar för programmet Investigate Hit.",
+      "translation_source_blocks_sha256": [
+        "e76b2fd88c066c5197ad5d0861e1706012a3a7b6f9cab2b0b490688c33d816ef"
+      ]
+    },
+    "spacr.hit_investigation.investigate_hit": {
+      "source_blocks_sha256": [
+        "4b70b49ef7f9c743741af7c4f789e70e400998ba307639bd403b6bca186086a9"
+      ],
+      "source_sha256": "4b70b49ef7f9c743741af7c4f789e70e400998ba307639bd403b6bca186086a9",
+      "text": "Kör en exakt regression hit genom cell-attribution arbetsflödet.",
+      "translation_source_blocks_sha256": [
+        "4b70b49ef7f9c743741af7c4f789e70e400998ba307639bd403b6bca186086a9"
+      ]
+    },
+    "spacr.hit_investigation.register_settings": {
+      "source_blocks_sha256": [
+        "2199b65e939a916f64401ea6a2d580c0a3e1bc66930611fa861aa219909f0735"
+      ],
+      "source_sha256": "2199b65e939a916f64401ea6a2d580c0a3e1bc66930611fa861aa219909f0735",
+      "text": "Registrera den här appens inställningar genom spaCR s förlängning söm.",
+      "translation_source_blocks_sha256": [
+        "2199b65e939a916f64401ea6a2d580c0a3e1bc66930611fa861aa219909f0735"
+      ]
+    },
+    "spacr.hit_investigation.review_gallery_key": {
+      "source_blocks_sha256": [
+        "94b3d49406e539de0d31787c67bb0c948e5183b21dba044df494a951295c7b54"
+      ],
+      "source_sha256": "94b3d49406e539de0d31787c67bb0c948e5183b21dba044df494a951295c7b54",
+      "text": "Lämna tillbaka nyckeln till ett förblindat galleri.",
+      "translation_source_blocks_sha256": [
+        "94b3d49406e539de0d31787c67bb0c948e5183b21dba044df494a951295c7b54"
+      ]
+    },
+    "spacr.hit_investigation.review_gallery_manifest": {
+      "source_blocks_sha256": [
+        "fe320691a79fcb97941cd66f6e91aebd9007a79886241068e4d5ddc2d9ddbae7"
+      ],
+      "source_sha256": "fe320691a79fcb97941cd66f6e91aebd9007a79886241068e4d5ddc2d9ddbae7",
+      "text": "Returnera en bluffed recensent blad som inte avslöjar grupp eller poäng.",
+      "translation_source_blocks_sha256": [
+        "fe320691a79fcb97941cd66f6e91aebd9007a79886241068e4d5ddc2d9ddbae7"
+      ]
+    },
     "spacr.hits": {
       "source_blocks_sha256": [
         "706bfdd347732a50483e288668ac0f13494df849545cffa46163be9b3fee659b",
@@ -22168,6 +22528,22 @@
         "3e742ef7bcab7bb414f6d3a5ee7abe71ebdad2c53c639d31cc04741441abb026"
       ]
     },
+    "spacr.install_profile.build_parser": {
+      "source_blocks_sha256": [
+        "4dea57ce2bf299608cf6b717daa203f62c05adf89f741d9eea4475b70f8c724a",
+        "e30ae7961f7f51253ee0f3d5e95a97d91b428c89521c088fe4ae0094e77876a3",
+        "6b0c296a486cdf0f2e0550c8f4d6981ebd26d76da6417c28cd85a2cd49dd1a6b",
+        "d96c62cd6c052846a90626bd934c403b5a0ebd3035071ba9d36c844c386b5fd1"
+      ],
+      "source_sha256": "c0135d7d658c8fe2a9458d781e9889dc50c627e669fea759e8363842ab29df7b",
+      "text": "Kommandoraden som installationsprogrammet anropar denna modul med.\n\nSkilj från :func:`main` så att installationsskripten och testerna kan inspektera de accepterade alternativen utan att utföra en installation – ett argument som tyst slutade accepteras skulle annars bara dyka upp som en misslyckad installation på någons maskin.\n\nDe fyra tillståndsflaggorna tar ``\"0\"`` / ``\"1\"`` snarare än att vara store_true växlar: installationsprogrammet passerar ett värde för var och en av dem på varje körning, så en okontrollerad ruta registreras som ett avsiktligt NEJ snarare än som ett frånvarande svar.\n\n:returns: Parsern, med ``--path``, ``--requested``, ``--detected`` och medgivandeflaggan.",
+      "translation_source_blocks_sha256": [
+        "4dea57ce2bf299608cf6b717daa203f62c05adf89f741d9eea4475b70f8c724a",
+        "dbfeef73350298d98ac81f6cb376bb740452c2a82fcbe20bcacb3808e6aa5019",
+        "6b0c296a486cdf0f2e0550c8f4d6981ebd26d76da6417c28cd85a2cd49dd1a6b",
+        "d96c62cd6c052846a90626bd934c403b5a0ebd3035071ba9d36c844c386b5fd1"
+      ]
+    },
     "spacr.install_profile.build_profile": {
       "source_blocks_sha256": [
         "dbcf6274e7253d3a84593ae36ebb95b5e105ac9c5e555a348b58dfc01e2dd275"
@@ -22186,6 +22562,22 @@
       "text": "Returnera installationsprogrammets profilsökväg för denna miljö Python.",
       "translation_source_blocks_sha256": [
         "72eaa14fa739f9fd9a62e0f64215dd29f8acca89ee5de0de106752fc1618c070"
+      ]
+    },
+    "spacr.install_profile.main": {
+      "source_blocks_sha256": [
+        "6e1d7cf56564109163c3c549c83b311b61580ba8c8f23bc4fa4423591f57f85b",
+        "31bfea2302ded23769c35662f637a92d4caebbe8169b8bde01294ed1e788552f",
+        "5b1e89d90c569896d8699f8397815b6bfbd59c95be21d020149133c3aabc594a",
+        "950d076d434ae3388e59936b758bcaaa47ca23a4cf91c6a2375e019914e4e2a1"
+      ],
+      "source_sha256": "f39b56ceef062dde288dc5e9e5ab68ee4e905c67ad7b448f65eca7a0d3a3ae10",
+      "text": "Skriv in installationsprogrammets profil och skriv ut den, så att installationsprogrammet kan läsa.\n\nIngångspunkten bakom ``python -m spacr.install_profile``. Profilen ekas till stdout som sorterad JSON så att installationsprogrammet kan logga exakt vad som spelades in, så att en supportförfrågan kan citera den.\n\n:param argv: kommandorad till pars; ``None`` lyder ``sys.argv``.\n:returns: en process exit-kod – ``0``, eftersom en profil som inte kan skrivas höjer istället för att returnera en kod som ingen kontrollerar.",
+      "translation_source_blocks_sha256": [
+        "6e1d7cf56564109163c3c549c83b311b61580ba8c8f23bc4fa4423591f57f85b",
+        "31bfea2302ded23769c35662f637a92d4caebbe8169b8bde01294ed1e788552f",
+        "5b1e89d90c569896d8699f8397815b6bfbd59c95be21d020149133c3aabc594a",
+        "950d076d434ae3388e59936b758bcaaa47ca23a4cf91c6a2375e019914e4e2a1"
       ]
     },
     "spacr.install_profile.read_profile": {
@@ -28415,18 +28807,19 @@
         "7ca39cff44d69273c99977b842bc7edc4b210a83802ade8a737123f16cecaebc",
         "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
         "33ec74db359c51ab6f243bf22dbddec9b20e2fd3108d2882fb13959f63fa27cb",
+        "fed1e1bfb564325ecfe433ae312b3f2c3af4e5884da0ea0334096e3b1f004c58",
         "6c8914c9a931af33b9388f0d2136e280ed8b13a525d69ebc8d29d991424cbe4b",
         "581006f3ae333e4dd326fcd87c63e77a42973eda4d41f0626cfd4bf8f4d8d495",
         "f79d4f20b81a50536def1b389d5ff10fd4b6374f65f837a421a0840f0f0a4688",
         "02acb4644e4af1a81923941226eb6ec305fdf8c053789d2e95303203eec9f73b",
         "413366f6d6d61b483ac779c0357bf7dc9a40a481fe7c4f2780c516f45f2870ef",
         "bf75e5a5744143a1e4124f109dc83ed4128124a9b01bac201d9a30a17a1d8059",
-        "e64e9540ca4ec98473c45d23dacca015249ecc5b86178fd2e1899c963a43cc59",
+        "3872eee936e83766bebc61385baddeb28f9a4233a46722b7d77b477f52a02ba8",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "168be87646e8ef7bd053f9882a24c8d6010afe4e32dfdc323276a95306bb5c9e"
       ],
-      "source_sha256": "1c139b27e271c68cf2b2ab7b42d07aba8f6e03a55cbde9f934f15aa0204171b7",
-      "text": "Regress per mikroplate provposition fenotyppoäng mot gRNA / genantal för att identifiera träffar från ett poolat CRISPR screeningexperiment.\n\nLäser en eller flera poäng CSVs (från :func:`generate_ml_scores` eller en maskininlärningsmodell) och ett eller flera sgRNA-tal CSVs ( från :func:`spacr.sequencing.generate_barecode_mapping`), anpassar dem till laboratoriets mikroplattor/mikroplattors provposition, passar den begärda regressionsmodellen, sammanställer metadata och avger vulkanytor, mikroplattors värmekartor, genfenotyper och GO-anrikningsrapporter.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.get_perform_regression_default_settings`. Strukturerade dataposter:\n\n    - ``score_data`` (str eller lista) – CSV(s) poäng per mikropläterad provposition.\n    - ``count_data`` (str eller lista) – CSV av antalet provpunkter per mikroplatta sgRNA.\n    - ``dependent_variable`` — kolumn med ``score_data`` att regressera (till exempel ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).\n    - ``regression_type`` – alla namn i :data:`REGRESSION_TYPES` eller ``None`` för att välja ett från svarsdistributionen. Se :func:`regression_model` för vad varje gränssnitt är till för.\n    - Varje gränssnitts inställningar per modell lyder – ``alpha``, ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``, ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``. En inställning som den valda typen inte kan läsas av, vägras snarare än ignoreras; se :data:`REGRESSION_SETTINGS_USED`.\n    - ``plates_score`` / ``plates_count`` – valfritt explicit skylt-ID som är inställt efter filposition.\n    - ``plate_from_order`` – automatiskt tilldela ``plate{i+1}`` från filordning.\n    - ``batch_correction`` – frivillig ``combat``, ``center``, ``zscore``, ``robust_zscore`` eller referenskontroll ``control_center`` normalisering av den beroende variabeln före brunnsaggregation.\n    - ``fraction_threshold``, ``min_n``, ``metadata_files``, ``volcano``, ``heatmap_feature``.\n\n:returns: Sökväg till sammanslagna metadataanmälta resultat DataFrame (även skrivet till ``results/<score_source>/<regression_type>/ results.csv``). Relaterade gen/gRNA CSVs och betydelse samtal sparas tillsammans.\n:raises ValueError: Om ``score_data`` och ``plates_score`` (eller ``count_data`` och ``plates_count``) längder inte är överens, om ``dependent_variable`` inte är en kolumn av poängen CSV eller om ``regression_type`` inte stöds.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import perform_regression\n        settings = {\n            'score_data': ['/data/plate01/results/xgb_scores.csv'],\n            'count_data': ['/data/plate01/sequencing/counts.csv'],\n            'dependent_variable': 'pred',\n            'regression_type': 'mixed',\n        }\n        perform_regression(settings)\n\nSe också: :func:`generate_ml_scores` – producera ``score_data`` indata. :func:`spacr.sequencing.generate_barecode_mapping` – producera indata ``count_data``.",
+      "source_sha256": "4b20d562dd4cc658e17b41a55e9183c190145bdd087000e2b258edb259cb85de",
+      "text": "Regress per mikroplate provposition fenotyppoäng mot gRNA / genantal för att identifiera träffar från ett poolat CRISPR screeningexperiment.\n\nLäser en eller flera poäng CSVs (från :func:`generate_ml_scores` eller en maskininlärningsmodell) och ett eller flera sgRNA-tal CSVs ( från :func:`spacr.sequencing.generate_barecode_mapping`), anpassar dem till laboratoriets mikroplattor/mikroplattors provposition, passar den begärda regressionsmodellen, sammanställer metadata och avger vulkanytor, mikroplattors värmekartor, genfenotyper och GO-anrikningsrapporter.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.get_perform_regression_default_settings`. Strukturerade dataposter:\n\n    - ``score_data`` (str eller lista) – CSV(s) poäng per mikropläterad provposition.\n    - ``count_data`` (str eller lista) – CSV av antalet provpunkter per mikroplatta sgRNA.\n    - ``dependent_variable`` — kolumn med ``score_data`` att regressera (till exempel ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).\n    - ``regression_type`` – alla namn i :data:`REGRESSION_TYPES` eller ``None`` för att välja ett från svarsdistributionen. Se :func:`regression_model` för vad varje gränssnitt är till för.\n    - ``analysis_mode='guide_permutation'`` – i stället testplattajusterade marginella guidebindningar med empiriska P-värden och tillämpa ``multiple_testing_method`` (Benjamini-Hochberg som standard) inom varje begärd ``guide_min_wells`` familj.\n    - Varje gränssnitts inställningar per modell lyder – ``alpha``, ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``, ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``. En inställning som den valda typen inte kan läsas av, vägras snarare än ignoreras; se :data:`REGRESSION_SETTINGS_USED`.\n    - ``plates_score`` / ``plates_count`` – valfritt explicit skylt-ID som är inställt efter filposition.\n    - ``plate_from_order`` – automatiskt tilldela ``plate{i+1}`` från filordning.\n    - ``batch_correction`` – frivillig ``combat``, ``center``, ``zscore``, ``robust_zscore`` eller referenskontroll ``control_center`` normalisering av den beroende variabeln före brunnsaggregation.\n    - ``fraction_threshold``, ``min_n``, ``metadata_files``, ``volcano``, ``heatmap_feature``.\n\n:returns: Sökväg till sammanslagna metadataanmälta resultat DataFrame (även skrivet till ``results/<score_source>/<regression_type>/ results.csv``). Relaterade gen/gRNA CSVs och betydelse samtal sparas tillsammans.\n:raises ValueError: Om längderna ``score_data`` och ``plates_score`` (eller ``count_data`` och ``plates_count``) inte stämmer överens, om ``dependent_variable`` inte är en kolumn i poängen CSV, eller om ``regression_type`` inte stöds, eller om en stödfamilj för guide-permutation eller korrigeringsinställning är ogiltig.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import perform_regression\n        settings = {\n            'score_data': ['/data/plate01/results/xgb_scores.csv'],\n            'count_data': ['/data/plate01/sequencing/counts.csv'],\n            'dependent_variable': 'pred',\n            'regression_type': 'mixed',\n        }\n        perform_regression(settings)\n\nSe också: :func:`generate_ml_scores` – producera ``score_data`` indata. :func:`spacr.sequencing.generate_barecode_mapping` – producera indata ``count_data``.",
       "translation_source_blocks_sha256": [
         "7f4527efa68f2e6714b51032fdb8f1843302804013a05d016dd9051b015578b2",
         "862fd91b7f9f7c960fe997585852f5c3b3510899bd92b23626178e44956299ad",
@@ -28435,13 +28828,14 @@
         "3b13ff09d12202d5ee2c6dbad7ea3a87a98c400eab169dfe4abfa23a37ef20ef",
         "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
         "33ec74db359c51ab6f243bf22dbddec9b20e2fd3108d2882fb13959f63fa27cb",
+        "fed1e1bfb564325ecfe433ae312b3f2c3af4e5884da0ea0334096e3b1f004c58",
         "6c8914c9a931af33b9388f0d2136e280ed8b13a525d69ebc8d29d991424cbe4b",
         "581006f3ae333e4dd326fcd87c63e77a42973eda4d41f0626cfd4bf8f4d8d495",
         "f79d4f20b81a50536def1b389d5ff10fd4b6374f65f837a421a0840f0f0a4688",
         "02acb4644e4af1a81923941226eb6ec305fdf8c053789d2e95303203eec9f73b",
         "413366f6d6d61b483ac779c0357bf7dc9a40a481fe7c4f2780c516f45f2870ef",
         "bf75e5a5744143a1e4124f109dc83ed4128124a9b01bac201d9a30a17a1d8059",
-        "e64e9540ca4ec98473c45d23dacca015249ecc5b86178fd2e1899c963a43cc59",
+        "3872eee936e83766bebc61385baddeb28f9a4233a46722b7d77b477f52a02ba8",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "168be87646e8ef7bd053f9882a24c8d6010afe4e32dfdc323276a95306bb5c9e"
       ]
@@ -53309,6 +53703,26 @@
         "7b509c27a83049d19be0efbb6356396a3d9828e854dfa84f1a01eefb1a47b503"
       ]
     },
+    "spacr.qt.screens.explain_cv": {
+      "source_blocks_sha256": [
+        "018020d3bebf35b2cb7671bb1814c898e19037998cc6be209568ace7813f7616"
+      ],
+      "source_sha256": "018020d3bebf35b2cb7671bb1814c898e19037998cc6be209568ace7813f7616",
+      "text": "Registrera inställningsdriven Förklara CV Modellansökan.",
+      "translation_source_blocks_sha256": [
+        "018020d3bebf35b2cb7671bb1814c898e19037998cc6be209568ace7813f7616"
+      ]
+    },
+    "spacr.qt.screens.explain_cv.register": {
+      "source_blocks_sha256": [
+        "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9"
+      ],
+      "source_sha256": "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9",
+      "text": "Lägg till modulen genom spaCR enda ansökan-registrering söm.",
+      "translation_source_blocks_sha256": [
+        "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9"
+      ]
+    },
     "spacr.qt.screens.feature_explorer": {
       "source_blocks_sha256": [
         "bd0b712c5d899c7acfb5bcb703d6edfbf8322c34555ede4fcc8be835f8208ea1",
@@ -55089,6 +55503,26 @@
         "62bc319f878b320683418d58310c5dbcc20ec2e74fc5fa40a26bb56ac6189bd2"
       ]
     },
+    "spacr.qt.screens.investigate_hit": {
+      "source_blocks_sha256": [
+        "532a50503ab514df6c426c29d088b87ac0b9224eb2d8766bf366ed76ceb2568e"
+      ],
+      "source_sha256": "532a50503ab514df6c426c29d088b87ac0b9224eb2d8766bf366ed76ceb2568e",
+      "text": "Registrera den inställningsdrivna Investigate Hit-applikationen.",
+      "translation_source_blocks_sha256": [
+        "532a50503ab514df6c426c29d088b87ac0b9224eb2d8766bf366ed76ceb2568e"
+      ]
+    },
+    "spacr.qt.screens.investigate_hit.register": {
+      "source_blocks_sha256": [
+        "faa0b693482fbf1ca2c28e72e0773470c90fbe3640128b174b6b060828946c2f"
+      ],
+      "source_sha256": "faa0b693482fbf1ca2c28e72e0773470c90fbe3640128b174b6b060828946c2f",
+      "text": "Lägg till Investigate Hit genom det gemensamma programregistret.",
+      "translation_source_blocks_sha256": [
+        "faa0b693482fbf1ca2c28e72e0773470c90fbe3640128b174b6b060828946c2f"
+      ]
+    },
     "spacr.qt.screens.lineage": {
       "source_blocks_sha256": [
         "73ab7e0a56efd2ebfe7e8e39e26a8ec9328fbc08d9ddd671746066858c848ed3",
@@ -55805,6 +56239,104 @@
         "89433b019189b42b74105018e8208dbf82c36802ec7965c6bed26f7b6635c5a5",
         "1356ba089672ba373b2fca4e81596d78d413b03695ed16e04777b88944eae157",
         "1430fb83b3b74bdb4354945df325c3b1784d9f7d6baf02ebfe9eb544ce23d738"
+      ]
+    },
+    "spacr.qt.screens.model_explanation": {
+      "source_blocks_sha256": [
+        "e423e8badecd65410ee9b6dd3c854efe263a57b2fafa57dac0d42d297f835ea0"
+      ],
+      "source_sha256": "e423e8badecd65410ee9b6dd3c854efe263a57b2fafa57dac0d42d297f835ea0",
+      "text": "Dedikerade arbetsbänkar för CV förklaring och träff utredning.",
+      "translation_source_blocks_sha256": [
+        "e423e8badecd65410ee9b6dd3c854efe263a57b2fafa57dac0d42d297f835ea0"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.ExplainCvPanel": {
+      "source_blocks_sha256": [
+        "6627a49896f5fe383938b760118360befe5a0c1a55b5de4d44096e3f4acee61e"
+      ],
+      "source_sha256": "6627a49896f5fe383938b760118360befe5a0c1a55b5de4d44096e3f4acee61e",
+      "text": "Spring och ge en härkomstbärande surrogatförklaring.",
+      "translation_source_blocks_sha256": [
+        "6627a49896f5fe383938b760118360befe5a0c1a55b5de4d44096e3f4acee61e"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitPanel": {
+      "source_blocks_sha256": [
+        "e4a83fa3a4b497e72e6db28445c8e202a364f24e50d96506626537337e4539ba"
+      ],
+      "source_sha256": "e4a83fa3a4b497e72e6db28445c8e202a364f24e50d96506626537337e4539ba",
+      "text": "Guide-fraktion-medveten, korsansluten kandidat-cell utredning.",
+      "translation_source_blocks_sha256": [
+        "e4a83fa3a4b497e72e6db28445c8e202a364f24e50d96506626537337e4539ba"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitScreen": {
+      "source_blocks_sha256": [
+        "31ba63b79a969be65508512d9322d4554e0d5a82ee23308a66d22b0cee36e632"
+      ],
+      "source_sha256": "31ba63b79a969be65508512d9322d4554e0d5a82ee23308a66d22b0cee36e632",
+      "text": "Dedikerad efter regression screening experiment med explicit befordran och ångra.",
+      "translation_source_blocks_sha256": [
+        "2c569cadebd2db74b67dcb6cb4c27f78f4c1b3fe00a4f352d7a1571fa87db155"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.InvestigateHitScreen.apply_seed": {
+      "source_blocks_sha256": [
+        "521e4f5265873c9fc5f4521ef6908944a5327edc9d2e56373cdd5d947c3e93c6"
+      ],
+      "source_sha256": "521e4f5265873c9fc5f4521ef6908944a5327edc9d2e56373cdd5d947c3e93c6",
+      "text": "Acceptera det normala MainWindow överlämnandet från träfflistan.",
+      "translation_source_blocks_sha256": [
+        "521e4f5265873c9fc5f4521ef6908944a5327edc9d2e56373cdd5d947c3e93c6"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.ModelExplanationScreen": {
+      "source_blocks_sha256": [
+        "3de6e7a7837c473840ea62599e3b17fe37372963adf39278aeb3656d80e787a2",
+        "0274adac19ccca173bbc5d4f89a5d193a7c46a1e4c53cb3a3c366840fcbaa58f",
+        "d8374c9f3fb7ee323a37513272662b042b3c2cf8f1dc0546766cb022ac5daffe",
+        "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734"
+      ],
+      "source_sha256": "ee6d9dd2e90a036fda1266705e9d0d6a963f286d79602050392fa12c506ec4ae",
+      "text": "Skärmen som förklarar en datorvisionsmodells beslut.\n\nWraps :class:`ExplainCvPanel` i standardmodulen krom. Rubrikens instruktion är den ordning panelen upprätthåller -- trohet först, sedan betydelse -- eftersom en viktig rankning avläser en modell som inte passar är en ranking av ingenting, och det ser identiskt till en bra.\n\n:param host: huvudfönstret, för navigering av programvyn.\n:param parent: Qt förälder.",
+      "translation_source_blocks_sha256": [
+        "3de6e7a7837c473840ea62599e3b17fe37372963adf39278aeb3656d80e787a2",
+        "0274adac19ccca173bbc5d4f89a5d193a7c46a1e4c53cb3a3c366840fcbaa58f",
+        "30bca4db31133f0c670e9a89a2361ba0b61c06755c996272fe39608b5ae4bf69",
+        "618f640958edba3ccd8eb00ae6407b66cb1e7e5c194a33eb7ccab3b0dba51734"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.make_investigate_hit_screen": {
+      "source_blocks_sha256": [
+        "3bb4b96ea67f0b2c287e56da025a73fc4753405a4efce17de809c051d07db981",
+        "67824748fada765f83918f5b531bce7f5c1dd485d978d07089b5736e34f302d4",
+        "4fe56002ab071acbf1a7fa6d73e8a2bc72d113596fcf0e29180cf86094288a7b",
+        "eebd9ee7a35af40837927813a91b7a4dccba05e3cf78a8cd086d78c684c01f30"
+      ],
+      "source_sha256": "21709e6f86359ec53f88c59ad541de5ef32cbfb087aaeff7d0782a18c24728ac",
+      "text": "Bygg hit-undersökning screening experiment, för app-registret.\n\n:param app_key: accepteras och oanvänd, enligt ovan.\n:param host: Huvudfönstret, passerade för navigering.\n:returns: en ny :class:`InvestigateHitScreen`.",
+      "translation_source_blocks_sha256": [
+        "4fbe3261d574ea1b13f83bf697860821caa655d3954982f28be99625895efb8e",
+        "67824748fada765f83918f5b531bce7f5c1dd485d978d07089b5736e34f302d4",
+        "4fe56002ab071acbf1a7fa6d73e8a2bc72d113596fcf0e29180cf86094288a7b",
+        "eebd9ee7a35af40837927813a91b7a4dccba05e3cf78a8cd086d78c684c01f30"
+      ]
+    },
+    "spacr.qt.screens.model_explanation.make_model_explanation_screen": {
+      "source_blocks_sha256": [
+        "d276a5ae75e78a836da09a05b60450a4c2fcac701cdca6aa6bfdc8bef2cd4244",
+        "88fc375fe27875afeb9a787a3ef921537123d324162d1a9b6907990cde94255c",
+        "4fe56002ab071acbf1a7fa6d73e8a2bc72d113596fcf0e29180cf86094288a7b",
+        "ecc0219c27afffab5cedabf393eff403f9e5bf430f9ccd49bdcba3445b04beb2"
+      ],
+      "source_sha256": "ea883273cf5d0f8f4c7ec4b3bfa828b96308bb16e4761ef4a1fdf461e83bf3d4",
+      "text": "Bygga modell-förklara skärmen, för app-registret.\n\n:param app_key: accepterad och oanvänd -- registret ringer varje fabrik med nyckeln den registrerade, och den här skärmen fungerar exakt en.\n:param host: Huvudfönstret, passerade för navigering.\n:returns: en ny :class:`ModelExplanationScreen`.",
+      "translation_source_blocks_sha256": [
+        "d276a5ae75e78a836da09a05b60450a4c2fcac701cdca6aa6bfdc8bef2cd4244",
+        "88fc375fe27875afeb9a787a3ef921537123d324162d1a9b6907990cde94255c",
+        "4fe56002ab071acbf1a7fa6d73e8a2bc72d113596fcf0e29180cf86094288a7b",
+        "ecc0219c27afffab5cedabf393eff403f9e5bf430f9ccd49bdcba3445b04beb2"
       ]
     },
     "spacr.qt.screens.model_zoo": {
@@ -91601,6 +92133,16 @@
         "0ebb19b3418b20a57f5fac1d4216227871428a0eafb3d4370765cc37ae0654de"
       ]
     },
+    "spacr.surrogate.SurrogateResult.fidelity_improvement": {
+      "source_blocks_sha256": [
+        "ccd5f488f8a3844b4850c860524e36062b3d1e258218683f8e69ac30c9c3766f"
+      ],
+      "source_sha256": "ccd5f488f8a3844b4850c860524e36062b3d1e258218683f8e69ac30c9c3766f",
+      "text": "Noggrann förbättring jämfört med baslinjevärdet i majoritetsklass.",
+      "translation_source_blocks_sha256": [
+        "ccd5f488f8a3844b4850c860524e36062b3d1e258218683f8e69ac30c9c3766f"
+      ]
+    },
     "spacr.surrogate.SurrogateResult.is_faithful": {
       "source_blocks_sha256": [
         "6c193000ae1f1594d46a142934ef33e1b17c5c2d55523faf8cc47ac3bf38d223",
@@ -91635,6 +92177,30 @@
         "696f3097f9a94f1e3bb72d65b5a0f3ecfa2f7331a76f1d84b94829cd9c2f7d1d",
         "eb6e58fdff78214fd5ae829db8c420e7d3ed93df8791fdd30560c742ba3f6089",
         "3be0a293e9b7588c8aa93af549e7cee88acdf18aeea98cd1631023941dbaae30"
+      ]
+    },
+    "spacr.surrogate.available_backends": {
+      "source_blocks_sha256": [
+        "1015dfad15fee969ea6e3f1bcb907fcd3222ebd76c4e40ffdb32c3329fbdcfe6",
+        "9e9b09670fc52978a819c1f000e79ce60332e54e0251de8354556d3c72809ba8"
+      ],
+      "source_sha256": "9a3ebdc480eb316fc17ac88a47ff4525a568099e841ceec4ff64b3962ed13103",
+      "text": "Rapportera de understödda surrogatfamiljerna och om de kan köra.\n\nXGBoost är frivilligt och ersätts aldrig tyst av en annan estimator.",
+      "translation_source_blocks_sha256": [
+        "1015dfad15fee969ea6e3f1bcb907fcd3222ebd76c4e40ffdb32c3329fbdcfe6",
+        "9e9b09670fc52978a819c1f000e79ce60332e54e0251de8354556d3c72809ba8"
+      ]
+    },
+    "spacr.surrogate.available_model_families": {
+      "source_blocks_sha256": [
+        "25051aa4ef6e6c9c7e0c14dc04ad686949b95a91fadc7b77580f3bd7773c2183",
+        "7cce0384547b7b9495ef4eaca87a41248dceb8c6ac9313b41648d65b009056cf"
+      ],
+      "source_sha256": "31641e01369758c82c9d8eb164b8cce920ebe42f1fe580d6e9392cddc8ca0f0a",
+      "text": "Returnera varje fast surrogat val och om det kan köras här.\n\nXGBoost är valfritt och förblir synligt när frånvarande så att GUI kan inaktivera det med en förklaring. Det får aldrig bli slumpmässig skog under en XGBoost-etikett.",
+      "translation_source_blocks_sha256": [
+        "25051aa4ef6e6c9c7e0c14dc04ad686949b95a91fadc7b77580f3bd7773c2183",
+        "7cce0384547b7b9495ef4eaca87a41248dceb8c6ac9313b41648d65b009056cf"
       ]
     },
     "spacr.surrogate.build_surrogate_frame": {
@@ -91683,6 +92249,16 @@
         "1ab1c1adf3f8aa43f6494f33954d84aa9276ff13289935b2856e123cd0eb1f47"
       ]
     },
+    "spacr.surrogate.explain_cv_default_settings": {
+      "source_blocks_sha256": [
+        "f87abcefb689fe06aef806ca9c1584001d22bc0cd6622746973e9468c65e866d"
+      ],
+      "source_sha256": "f87abcefb689fe06aef806ca9c1584001d22bc0cd6622746973e9468c65e866d",
+      "text": "Standarder för första klassens förklara CV Modellmodul.",
+      "translation_source_blocks_sha256": [
+        "f87abcefb689fe06aef806ca9c1584001d22bc0cd6622746973e9468c65e866d"
+      ]
+    },
     "spacr.surrogate.fit_surrogate": {
       "source_blocks_sha256": [
         "e926bc157766dc6bcec8f3b8440019ec7abf86c8a91fd68c2d5486fee2f19861",
@@ -91713,6 +92289,50 @@
         "0d6784f95db212b9d1411066aa856f5aa3e3e900adb246d7b69f3724b4df56f9",
         "1ab1c1adf3f8aa43f6494f33954d84aa9276ff13289935b2856e123cd0eb1f47",
         "acb8461aea290e4cd8c4bd360b58349a18a8a418734acc3ddd40d8d74ef700a0"
+      ]
+    },
+    "spacr.surrogate.register_explain_cv_settings": {
+      "source_blocks_sha256": [
+        "595965503e3e32ed8ff379d915ce3b29897a2990257619f3e16fafd67f95c539"
+      ],
+      "source_sha256": "595965503e3e32ed8ff379d915ce3b29897a2990257619f3e16fafd67f95c539",
+      "text": "Registrera Förklara CV Modellens inställningar med båda desktop front ändar.",
+      "translation_source_blocks_sha256": [
+        "595965503e3e32ed8ff379d915ce3b29897a2990257619f3e16fafd67f95c539"
+      ]
+    },
+    "spacr.surrogate.run_explain_cv": {
+      "source_blocks_sha256": [
+        "a493389759f703c8ba26a15026f3ac97196bb800acd737c15f8ed293947fe7a2",
+        "e75d062e3d3415bd89b831427a1bdd3ef1da312b40d93f031e9c8c1094513064",
+        "adfe7b74f1406b3b2b13ae68d301d29ef09fbb3719ce27e6770e6a9e29a7b572",
+        "0fcb57744e40dae1f7fef6fbaf8b72755e960be650ccddf76562371fd98f5214"
+      ],
+      "source_sha256": "7b1b86760de36e83ca77dfb415df430258f6f5d871011db3f571523da390d0fd",
+      "text": "Förklara en befintlig CV förutsägelse fil utan att köra om sin modell.\n\n:param settings: Kartläggning som returneras av :func:`explain_cv_default_settings`. ``db_path`` är den exakta mätdatabasen och ``predictions_file`` är en befintlig prognos per objekt CSV.\n:returns: ``{'result': SurrogateResult, 'paths': artifact mapping}``.\n:raises SurrogateError: när en källa saknas eller det begärda valfria gränssnittet inte kan köras.",
+      "translation_source_blocks_sha256": [
+        "a493389759f703c8ba26a15026f3ac97196bb800acd737c15f8ed293947fe7a2",
+        "e75d062e3d3415bd89b831427a1bdd3ef1da312b40d93f031e9c8c1094513064",
+        "adfe7b74f1406b3b2b13ae68d301d29ef09fbb3719ce27e6770e6a9e29a7b572",
+        "0fcb57744e40dae1f7fef6fbaf8b72755e960be650ccddf76562371fd98f5214"
+      ]
+    },
+    "spacr.surrogate.write_surrogate_result": {
+      "source_blocks_sha256": [
+        "b6ddef62cdd833f31b26abccb43d9be79e652ecc7fabca39a505790c63289226",
+        "7565b07279c07a2fae498b3aa21f4b8516cd2e799e7f4374a1828e38c3221c0d",
+        "7258cacc10a079e807b0a3f2cef8710ae24d01939ef3d1b0517c1a959a5a02c6",
+        "d930caad552ec325387ba420da2a0ec2f771415eb746bd751a714d5f534e0172",
+        "31686ba26e4302d344d2c4624b82957dc996dd7fde720fd16d7c0a42627b6b4e"
+      ],
+      "source_sha256": "e1632a2d27af1c436bf4504e9400e259fbcade2db67dbea4d76ccc4f75dbdf50",
+      "text": "Skriv hela, härkomstbärande surrogat resultat bunt.\n\nViktiga tabeller behålls alltid som källdata, men diagram presenteras endast när den bevarade troheten rensar den deklarerade förbättringsdata-valsgränsen.\n\n:param result: monterad :class:`SurrogateResult`.\n:param destination: ny eller befintlig utdatakatalog.\n:returns: Kartläggning av artefaktens roll till absolut sökväg.",
+      "translation_source_blocks_sha256": [
+        "b6ddef62cdd833f31b26abccb43d9be79e652ecc7fabca39a505790c63289226",
+        "0427fb234e42c841a3787a65d95f75b070f13a830c2ad0fb5d2277e083a6a78c",
+        "7258cacc10a079e807b0a3f2cef8710ae24d01939ef3d1b0517c1a959a5a02c6",
+        "d930caad552ec325387ba420da2a0ec2f771415eb746bd751a714d5f534e0172",
+        "31686ba26e4302d344d2c4624b82957dc996dd7fde720fd16d7c0a42627b6b4e"
       ]
     },
     "spacr.tiff_io": {

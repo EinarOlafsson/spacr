@@ -117,6 +117,8 @@ APP_FUNCTIONS: Dict[str, str] = {
     "cellpose_all": "spacr.spacr_cellpose.check_cellpose_models",
     "map_barcodes": "spacr.sequencing.generate_barecode_mapping",
     "regression": "spacr.ml.perform_regression",
+    "explain_cv": "spacr.surrogate.run_explain_cv",
+    "investigate_hit": "spacr.hit_investigation.investigate_hit",
     "recruitment": "spacr.submodules.analyze_recruitment",
     "invasion": "spacr.submodules.analyze_invasion",
     "replication": "spacr.submodules.analyze_replication",
@@ -1120,6 +1122,51 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
 def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
+
+    if app == "explain_cv":
+        for key, label in (("db_path", "measurements database"),
+                           ("predictions_file", "prediction CSV")):
+            value = str(settings.get(key) or "").strip()
+            if not value:
+                problems.append(Problem(
+                    ERROR, key, f"no {label} is selected.",
+                    f"Set {key} to the exact existing file used by this run."))
+            elif not os.path.isfile(os.path.expanduser(value)):
+                problems.append(Problem(
+                    ERROR, key, f"{label} does not exist: {value}",
+                    f"Fix {key}; Explain CV Model never invents or reruns this input."))
+        family = str(settings.get("surrogate_model", "random_forest")).lower()
+        if family not in {"random_forest", "hist_gradient_boosting", "xgboost"}:
+            problems.append(Problem(
+                ERROR, "surrogate_model", f"unsupported surrogate family {family!r}.",
+                "Choose random_forest, hist_gradient_boosting, or xgboost."))
+        split = str(settings.get("surrogate_split_by", "well")).lower()
+        if split not in {"well", "plate"}:
+            problems.append(Problem(
+                ERROR, "surrogate_split_by", f"unsupported split unit {split!r}.",
+                "Choose well or plate; individual cells are not independent splits."))
+
+    if app == "investigate_hit":
+        for key in ("db_path", "predictions_file", "guide_fractions_file"):
+            value = str(settings.get(key) or "").strip()
+            if not value or not os.path.isfile(os.path.expanduser(value)):
+                problems.append(Problem(
+                    ERROR, key, f"{key} is not an existing file: {value or '(blank)'}.",
+                    f"Select the exact {key}; the investigation does not infer newest files."))
+        folder = str(settings.get("results_folder") or "").strip()
+        if not folder or not os.path.isdir(os.path.expanduser(folder)):
+            problems.append(Problem(
+                ERROR, "results_folder",
+                f"results_folder is not an existing regression folder: {folder or '(blank)' }.",
+                "Select the exact source run so its result bytes can be hashed."))
+        if not settings.get("target_gene") or not settings.get("target_guides"):
+            problems.append(Problem(
+                ERROR, "target_guides", "target_gene and target_guides are required.",
+                "Carry the selected hit and its exact supporting guide IDs from Hit List."))
+        if str(settings.get("hit_direction", "positive")) not in {"positive", "negative"}:
+            problems.append(Problem(
+                ERROR, "hit_direction", "hit_direction must be positive or negative.",
+                "Use the sign of the selected regression effect."))
 
     if app in MASK_APPS:
         # core.preprocess_generate_masks prints 'At least one of cell_channel,
