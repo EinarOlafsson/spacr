@@ -8680,22 +8680,22 @@
     },
     "spacr.core.generate_image_umap": {
       "source_blocks_sha256": [
-        "2b3992181ed5b27475bf6c2b8b8b278c52ca0dfe0238d26756a11b6f8cb6fe15",
+        "8f43a4241cdbc6b6a0e7f859596133458b9371c382e81490ada135a7c811a515",
         "52172f821c4999b3611e3605fc1dca6a9b29ad5bf93c98143587e752113b2b5b",
         "ace67b90b222a9a1093f50b5c0b87b42888f2208475f1540c2af83a80627a006",
-        "eadc212b57016612f184653207c913bc9802f96d4ac425bc0fd3ce89668b3998",
+        "1579ce2066e7498e62d3b86f7df0030420a017d7d141242db1153f41c7aaff10",
         "39fc4fa7b3a48a8807ced0c6aa584a8ebd2f5599a5c47a235d28bbb4035bb0af",
         "9200779f0a6708cce7552f83676d55b928331e61ed886f4180e25545f41361d6",
         "6544fbfdee34b8585502a9bf455793ebc690cc6a5fec8297b3a46f882f39ff55",
         "01778164233f1191e47f8c5590c196bdee52e9a8cfacb513cbadb3d48d3caef8"
       ],
-      "source_sha256": "bdba80352175f4104f6fba8968714f1e3298d9fa00c4f9f12cf2d17a6210119b",
-      "text": "UMAP 또는 TPSNE를 생성하여 개체별 기능을 삽입하고 그것을 녹음합니다.\n\nSQLite 후반(s)에서 측정을 읽고, 사전 처리 및 차원성 감소를 적용하고, 삽입을 클러스터하고, 결과 클러스터의 분산/그리드 플러스를 던집니다.\n\n삽입에 놓인 작은 것들은 누구나 추출된 - 이미지 - 지역 출처에서 나온다. ``crop_source`` 이름 : ``'png'`` (그리고 ``'auto'`` 어디서나 추출된 이미지 지역 폴더가 존재하는 곳)는 사전 생성된 PNGs, ``'merged'`` (그리고 ``'auto'`` 각각 빼앗기지 않으므로 각각의 ``merged/*.npy`` 수요를 통해서 :mod:`spacr.crops`, 그래서 삽입은 결코 추출 된 이미지 지역 폴더를 유지하지 않은 프로젝트에 인쇄 될 수 있습니다 - ``png_list`` 이 경우에는 필요하지 않습니다.어쨌든 픽셀이 통과하는 방법 :mod:`spacr.crops`, 그래서 유산 (pre-341f446) 추출 이미지-지역 폴더는 이미지 데이터 채널-로드에 수정하고 조립은 Annotate 응용 프로그램 보기와 동일한 이미지를 보여줍니다.\n\n:param settings: 설정 키 가치 맵링; :func:`spacr.settings.set_default_umap_image_settings`을 통해 캐논화되었습니다. 일반적으로 구성된 데이터 이름: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (``'UMAP'`` 또는 ``'tSNE'``), ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.\n:param return_fig: 언제 True, 기록된 숫자 대신 Matplotlib 숫자를 반환합니다. DataFrame.\n:returns: DataFrame 입력 라인 플러스 A ``cluster`` 열, 또는 Matplotlib ``Figure`` 언제 ``return_fig`` 그것은 True 와 함께 ``remove_cluster_noise`` 소음 개체는 프레임과 삽입에서 떨어져 있으므로 두 개는 항상 동일한 개체를 설명합니다.\n:raises ValueError: 소스가 사용 가능하지 않은 경우 ``measurements.db`` - 정확히 필요한 것을 위해 :func:`_validate_umap_source_db`를 참조하십시오.\n:raises NotImplementedError: ``resnet_features``이 설정되면 ResNet 기능을 사용하여 원료 추출 된 이미지 영역을 삽입하지 않습니다.",
+      "source_sha256": "b9620fbca1fe86c02968a5d7fe40de8ba62b7815ae74f7b81157d6f7e15ac278",
+      "text": "개체별 기능을 줄이고 결과적인 2D 삽입을 계획합니다.\n\nSQLite 후반(s)에서 측정을 읽고, 사전 처리 및 차원성 감소를 적용하고, 삽입을 클러스터하고, 결과 클러스터의 분산/그리드 플러스를 던집니다.\n\n삽입에 놓인 작은 것들은 누구나 추출된 - 이미지 - 지역 출처에서 나온다. ``crop_source`` 이름 : ``'png'`` (그리고 ``'auto'`` 어디서나 추출된 이미지 지역 폴더가 존재하는 곳)는 사전 생성된 PNGs, ``'merged'`` (그리고 ``'auto'`` 각각 빼앗기지 않으므로 각각의 ``merged/*.npy`` 수요를 통해서 :mod:`spacr.crops`, 그래서 삽입은 결코 추출 된 이미지 지역 폴더를 유지하지 않은 프로젝트에 인쇄 될 수 있습니다 - ``png_list`` 이 경우에는 필요하지 않습니다.어쨌든 픽셀이 통과하는 방법 :mod:`spacr.crops`, 그래서 유산 (pre-341f446) 추출 이미지-지역 폴더는 이미지 데이터 채널-로드에 수정하고 조립은 Annotate 응용 프로그램 보기와 동일한 이미지를 보여줍니다.\n\n:param settings: 설정 키 가치 맵링; 캐논화를 통해 :func:`spacr.settings.set_default_umap_image_settings`일반적으로 구성된 데이터 이름: ``src``, ``tables``, ``row_limit``, ``clustering``, ``reduction_method`` (UMAP, t-SNE, PCA 이소마프 또는 스펙트럼, ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``, ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.\n:param return_fig: 언제 True, 기록된 숫자 대신 Matplotlib 숫자를 반환합니다. DataFrame.\n:returns: 입력 라인의 DataFrame 플러스 ``cluster`` 열, 또는 Matplotlib ``Figure`` ``return_fig`` True 때. ``remove_cluster_noise``의 경우 소음 물체는 프레임과 삽입에서 떨어져 있으므로 두 개는 항상 동일한 물체를 설명합니다.\n:raises ValueError: 소스가 사용 가능하지 않은 경우 ``measurements.db`` - 정확히 필요한 것을 위해 :func:`_validate_umap_source_db`를 참조하십시오.\n:raises NotImplementedError: ``resnet_features``이 설정되면 ResNet 기능을 사용하여 원료 추출 된 이미지 영역을 삽입하지 않습니다.",
       "translation_source_blocks_sha256": [
-        "2b3992181ed5b27475bf6c2b8b8b278c52ca0dfe0238d26756a11b6f8cb6fe15",
+        "8f43a4241cdbc6b6a0e7f859596133458b9371c382e81490ada135a7c811a515",
         "52172f821c4999b3611e3605fc1dca6a9b29ad5bf93c98143587e752113b2b5b",
         "8c61f6fb1da9e4b6725537217abe5e0dc67b222da80d397d4c175939e8643fcb",
-        "88be989a8267b58d7f831a855f667229b758bf19c9b367a6bbd6ad5ad35c102e",
+        "abd32186e2abe9d5b444edd384d2ea47cdd7ac53cf92d46035c9dd9b8938e817",
         "39fc4fa7b3a48a8807ced0c6aa584a8ebd2f5599a5c47a235d28bbb4035bb0af",
         "9200779f0a6708cce7552f83676d55b928331e61ed886f4180e25545f41361d6",
         "6544fbfdee34b8585502a9bf455793ebc690cc6a5fec8297b3a46f882f39ff55",
@@ -54451,14 +54451,12 @@
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.gpu_backend": {
       "source_blocks_sha256": [
-        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
-        "53a87d81c3a2e0c4ce6464ee3e5101adc1e462841e3dc2b107f389552b4b837d"
+        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd"
       ],
-      "source_sha256": "a7302ef41ca1e5931dc8c4960b73ea2bdffc5d29256762044ca428c2482cdebb",
-      "text": "다음 검색을 후원하는 것은 ``'cuml'`` 또는 ``'cpu'``입니다.\n\n설치된 대신 버튼에서 읽으십시오 : cML이 수입되는 것은 사용자가 요청한 것과 동일하지 않으며, 두 개의 배경에서 나오는 라인이 두 도서관과 다른 설정을 비교하는 테이블입니다.",
+      "source_sha256": "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
+      "text": "다음 검색을 후원하는 것은 ``'cuml'`` 또는 ``'cpu'``입니다.",
       "translation_source_blocks_sha256": [
-        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
-        "53a87d81c3a2e0c4ce6464ee3e5101adc1e462841e3dc2b107f389552b4b837d"
+        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd"
       ]
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.open_settings": {
@@ -54489,6 +54487,18 @@
       "text": "좌석 피커를 열고 대화를 되찾거나, None 그렇지 않을 때 UMAP.",
       "translation_source_blocks_sha256": [
         "487e2ec0b56bab46ffa9b9a4acd10dee77dd258f1f302a76ff429f83ae9b3c74"
+      ]
+    },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.request_gpu_enabled": {
+      "source_blocks_sha256": [
+        "fb0a4b3b650819c1810df3dce5a40f7b8e32d8e1e4c7078110353af384931ffb",
+        "e46516e4951c24df6768c740d205223b29b6e1c2fba5ac88cd57071ed9bdc25f"
+      ],
+      "source_sha256": "d413443b91a8603321b3ba7cae7bab69295bb8e7b324ecb9aeca446a29ff38e3",
+      "text": "공유 GPU 타그글을 적용하거나 왜 켜지지 않는지 설명합니다.\n\n호출자는 반환 상태를 사용하여 액션 스트립 레이블과 숨겨진 주요 실행 설정이 이 검색 패널과 동기화됩니다.",
+      "translation_source_blocks_sha256": [
+        "fb0a4b3b650819c1810df3dce5a40f7b8e32d8e1e4c7078110353af384931ffb",
+        "e46516e4951c24df6768c740d205223b29b6e1c2fba5ac88cd57071ed9bdc25f"
       ]
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.result": {
@@ -58829,6 +58839,18 @@
         "6048419e52228d29678509acc3acbd8bcc237ee537dc9fda76fd92e40956a788",
         "1e486ee629de0014f7d25db84a8958a9714bd79ecf7f25701c8b80ed70d9f897",
         "79730c15a7b095958f83bbfff80171d4e59947d84cd8ba826c7ddead506d975b"
+      ]
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
+      "source_blocks_sha256": [
+        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
+        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+      ],
+      "source_sha256": "688c56c0998839f686d2ad866036a867e087fc2fcdd41a241dff73f7d32c632d",
+      "text": "의도적으로 숨겨진 실행 설정을 업데이트합니다.\n\n일부 값은 형식 밖에서 특별한 통제를 가지고 있습니다. UMAP 액션 스트립 GPU 타그글은 하나입니다 : 양식 체크 상자로 복제하면 진리의 두 가지 출처를 만들 것입니다. 숨겨진 것은 부재를 의미하지 않습니다 (변형 6), 그래서 가치가 살고있다. ``_defaults`` 그리고 아직도 수집에 도달합니다().",
+      "translation_source_blocks_sha256": [
+        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
+        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
       ]
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
@@ -79789,6 +79811,16 @@
         "a987265bf19ac227bbf8804ce02196cea2a3aed3b47702b7434e46f8a6232f20"
       ]
     },
+    "spacr.qt.widgets.umap_search_viewer.UmapAppearanceDialog": {
+      "source_blocks_sha256": [
+        "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee"
+      ],
+      "source_sha256": "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee",
+      "text": "Non-modal point renderer는 하나의 삽입 시각을 위해 제어합니다.",
+      "translation_source_blocks_sha256": [
+        "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee"
+      ]
+    },
     "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView": {
       "source_blocks_sha256": [
         "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb"
@@ -79797,6 +79829,16 @@
       "text": "블랙 배경 2-D/3-D 포인트 보기; 그것을 회전하기 위해 3D 지도를 끌어.",
       "translation_source_blocks_sha256": [
         "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb"
+      ]
+    },
+    "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.set_appearance": {
+      "source_blocks_sha256": [
+        "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6"
+      ],
+      "source_sha256": "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6",
+      "text": "렌더링을 적용하십시오 - 삽입을 변경하지 않고만 변경합니다.",
+      "translation_source_blocks_sha256": [
+        "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6"
       ]
     },
     "spacr.qt.widgets.umap_search_viewer.UmapExplorer": {
@@ -79817,6 +79859,26 @@
       "text": "모든 테이블 삽입은 검은 색으로, 실제 테스트를 반환 한 클릭으로.",
       "translation_source_blocks_sha256": [
         "883bfde8f49f773e4c1f7f99280b26f58a4ed2016b030328a6a41f3afe288baf"
+      ]
+    },
+    "spacr.qt.widgets.umap_search_viewer.available_colormaps": {
+      "source_blocks_sha256": [
+        "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e"
+      ],
+      "source_sha256": "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e",
+      "text": "모든 설치된 Matplotlib 색상지도, 플러스 spaCR 원주민 팔레트 입니다.",
+      "translation_source_blocks_sha256": [
+        "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e"
+      ]
+    },
+    "spacr.qt.widgets.umap_search_viewer.axis_frame": {
+      "source_blocks_sha256": [
+        "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f"
+      ],
+      "source_sha256": "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f",
+      "text": "계획된 네트워크 라인과 정확히 두 개 또는 세 개의 기본 좌석을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f"
       ]
     },
     "spacr.qt.widgets.umap_search_viewer.colors_for_labels": {
@@ -96062,41 +96124,13 @@
     "spacr.utils.reduction_and_clustering": {
       "source_blocks_sha256": [
         "7ae6b2478f3d8d44b7d788a7a1f8d0171b0d6f6be14099b934d62a58e17869d7",
-        "5850f42fa771360b39ed4b0c26f464a89f086dc1c4984c1c900e2d61e28c08c7",
-        "9e6673035d81349e258f83bf87371d17fb7097d7bdede42aeec334b15cb8ea85",
-        "97f3c1a8b776a2acc75c9fdc2d1afcda7d4ea601dd8d13c45713e00268e34506",
-        "33ad9daaa25ac38638bd5bbb6d26746c681ffed8f83a6a04a13413cb0b205c8d",
-        "695f95d6c52e01692d234782f14b65a1f15cab9dff94992a955bc2f4b23b4de2",
-        "89db784000204b5a80fa9855aec0b8c5b2f407431644cface1115ee025e3b884",
-        "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
-        "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
-        "68e5e33f9696afea4e19d289107feab9689a6693e8ffef84d50e7ee04673dac7",
-        "554c0e62d0a70689adec4304b7acd10e72c48d647ab0462f631e0d98507d5ac4",
-        "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
-        "3fbe245a694ec5b52531040ea49db1499cd66878bec9ef4d1d81ce7c212a73fd",
-        "e3a52e553a3862051a39c13af9e2b3ae279059b677ab25189b3af90b06aa66de",
-        "d9ab00ecc29999db001f5da4dcc976f834bf0f697500abe7ebf7078560814271",
-        "df7bbef3f6ea7ebb1e983f998a1bd12b0da64436cca687531ba9f339376a687f"
+        "65f5613c25f10fa6fb46a8e5d019ed0ac35aa5fabe635ef58e72fb08d8c4b287"
       ],
-      "source_sha256": "e62d53752c37bfb82bc8951bc085fc32f5e2e030fbe906f2c143f4e5b64b05a1",
-      "text": "``numeric_data``을 2D로 줄이고 삽입을 클러스터합니다.\n\n:param numeric_data: 숫자 데이터 매트릭스\n:param n_neighbors: UMAP ``n_neighbors`` 또는 t-SNE 혼란 (분열 또는 int)\n:param min_dist: UMAP ``min_dist``.\n:param metric: 사용하는 거리 측정기 UMAP/DBSCAN.\n:param eps: DBSCAN ``eps``.\n:param min_samples: DBSCAN ``min_samples`` 또는 KMeans 클러스터 계산.\n:param clustering: ``'dbscan'`` or ``'kmeans'``.\n:param reduction_method: ``'umap'`` or ``'tsne'``.\n:param verbose: 프린트 진행\n:param embedding: 사전 컴퓨팅 삽입 (스키프 리디더 적합).\n:param n_jobs: 동일한 노동자 계산\n:param mode: ``'fit'``를 훈련하려면 새로운 감소기를 훈련하려면 ``model``로 변환합니다.\n:param model: 기존의 감소기를 ``mode != 'fit'``에서 다시 사용합니다.\n:returns: ``(embedding, labels, reducer)``.\n:raises ValueError: 지원되지 않은 ``reduction_method`` 또는 실종된 모델에 대 한.",
+      "source_sha256": "c190f93b11eecbcc13ae27e72e8f61924eec694d05367d26ab1fc1b82ff15daa",
+      "text": "``numeric_data``을 2D로 줄이고 삽입을 클러스터합니다.\n\n지원되는 삭감제도는 UMAP, t-SNE, PCA 이소마프와 스펙트럼 삽입 ``reducer_options`` 단지 방법 특정 설정을 수행; 무의미한 옵션은 결코 전송되지 않습니다.RAPIDS는 opt-in이며 적용됩니다. UMAP, t-SNE 그리고 PCA, 실제 뒷면이 고정된 감소기 위에 유지되었습니다.",
       "translation_source_blocks_sha256": [
         "7ae6b2478f3d8d44b7d788a7a1f8d0171b0d6f6be14099b934d62a58e17869d7",
-        "5850f42fa771360b39ed4b0c26f464a89f086dc1c4984c1c900e2d61e28c08c7",
-        "9e6673035d81349e258f83bf87371d17fb7097d7bdede42aeec334b15cb8ea85",
-        "97f3c1a8b776a2acc75c9fdc2d1afcda7d4ea601dd8d13c45713e00268e34506",
-        "33ad9daaa25ac38638bd5bbb6d26746c681ffed8f83a6a04a13413cb0b205c8d",
-        "695f95d6c52e01692d234782f14b65a1f15cab9dff94992a955bc2f4b23b4de2",
-        "89db784000204b5a80fa9855aec0b8c5b2f407431644cface1115ee025e3b884",
-        "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
-        "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
-        "68e5e33f9696afea4e19d289107feab9689a6693e8ffef84d50e7ee04673dac7",
-        "554c0e62d0a70689adec4304b7acd10e72c48d647ab0462f631e0d98507d5ac4",
-        "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
-        "3fbe245a694ec5b52531040ea49db1499cd66878bec9ef4d1d81ce7c212a73fd",
-        "e3a52e553a3862051a39c13af9e2b3ae279059b677ab25189b3af90b06aa66de",
-        "d9ab00ecc29999db001f5da4dcc976f834bf0f697500abe7ebf7078560814271",
-        "df7bbef3f6ea7ebb1e983f998a1bd12b0da64436cca687531ba9f339376a687f"
+        "65f5613c25f10fa6fb46a8e5d019ed0ac35aa5fabe635ef58e72fb08d8c4b287"
       ]
     },
     "spacr.utils.remove_canvas": {

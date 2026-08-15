@@ -5364,17 +5364,17 @@
     },
     "spacr.core.generate_image_umap": {
       "source_blocks_sha256": [
-        "2b3992181ed5b27475bf6c2b8b8b278c52ca0dfe0238d26756a11b6f8cb6fe15",
+        "8f43a4241cdbc6b6a0e7f859596133458b9371c382e81490ada135a7c811a515",
         "52172f821c4999b3611e3605fc1dca6a9b29ad5bf93c98143587e752113b2b5b",
         "ace67b90b222a9a1093f50b5c0b87b42888f2208475f1540c2af83a80627a006",
-        "eadc212b57016612f184653207c913bc9802f96d4ac425bc0fd3ce89668b3998",
+        "1579ce2066e7498e62d3b86f7df0030420a017d7d141242db1153f41c7aaff10",
         "39fc4fa7b3a48a8807ced0c6aa584a8ebd2f5599a5c47a235d28bbb4035bb0af",
         "9200779f0a6708cce7552f83676d55b928331e61ed886f4180e25545f41361d6",
         "6544fbfdee34b8585502a9bf455793ebc690cc6a5fec8297b3a46f882f39ff55",
         "01778164233f1191e47f8c5590c196bdee52e9a8cfacb513cbadb3d48d3caef8"
       ],
-      "source_sha256": "bdba80352175f4104f6fba8968714f1e3298d9fa00c4f9f12cf2d17a6210119b",
-      "text": "Generate a UMAP or tSNE embedding of per-object features and plot it.\n\nReads measurements from the SQLite backend(s), applies preprocessing and\ndimensionality reduction, clusters the embedding, and renders scatter/grid\nplots of the resulting clusters.\n\nThe thumbnails overlaid on the embedding come from whichever crop source\n``crop_source`` names: ``'png'`` (and ``'auto'`` wherever a crop folder\nexists) reads the pre-generated PNGs, ``'merged'`` (and ``'auto'`` with no\nfolder) cuts each one out of ``merged/*.npy`` on demand through\n:mod:`spacr.crops`, so the embedding can be drawn on a project that never\nkept a crop folder — ``png_list`` is not required in that case. Either way\nthe pixels arrive through :mod:`spacr.crops`, so a legacy (pre-341f446)\ncrop folder is channel-corrected on load and the montage shows the same\nimage the Annotate screen does.\n\n:param settings: Configuration dict; canonicalized via\n    :func:`spacr.settings.set_default_umap_image_settings`. Common keys:\n    ``src``, ``tables``, ``row_limit``, ``clustering``,\n    ``reduction_method`` (``'UMAP'`` or ``'tSNE'``),\n    ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``,\n    ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.\n:param return_fig: When True, return the Matplotlib figure instead of the\n    annotated DataFrame.\n:returns: DataFrame of the input rows plus a ``cluster`` column, or a\n    Matplotlib ``Figure`` when ``return_fig`` is True. With\n    ``remove_cluster_noise`` the noise objects are dropped from the frame\n    as well as from the embedding, so the two always describe the same\n    objects.\n:raises ValueError: when a source has no usable ``measurements.db`` — see\n    :func:`_validate_umap_source_db` for exactly what is required.\n:raises NotImplementedError: when ``resnet_features`` is set; embedding\n    raw crops with ResNet features is not implemented."
+      "source_sha256": "b9620fbca1fe86c02968a5d7fe40de8ba62b7815ae74f7b81157d6f7e15ac278",
+      "text": "Reduce per-object features and plot the resulting 2-D embedding.\n\nReads measurements from the SQLite backend(s), applies preprocessing and\ndimensionality reduction, clusters the embedding, and renders scatter/grid\nplots of the resulting clusters.\n\nThe thumbnails overlaid on the embedding come from whichever crop source\n``crop_source`` names: ``'png'`` (and ``'auto'`` wherever a crop folder\nexists) reads the pre-generated PNGs, ``'merged'`` (and ``'auto'`` with no\nfolder) cuts each one out of ``merged/*.npy`` on demand through\n:mod:`spacr.crops`, so the embedding can be drawn on a project that never\nkept a crop folder — ``png_list`` is not required in that case. Either way\nthe pixels arrive through :mod:`spacr.crops`, so a legacy (pre-341f446)\ncrop folder is channel-corrected on load and the montage shows the same\nimage the Annotate screen does.\n\n:param settings: Configuration dict; canonicalized via\n    :func:`spacr.settings.set_default_umap_image_settings`. Common keys:\n    ``src``, ``tables``, ``row_limit``, ``clustering``,\n    ``reduction_method`` (UMAP, t-SNE, PCA, Isomap or Spectral),\n    ``embedding_by_controls``, ``col_to_compare``, ``pos``, ``neg``,\n    ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.\n:param return_fig: When True, return the Matplotlib figure instead of the\n    annotated DataFrame.\n:returns: DataFrame of the input rows plus a ``cluster`` column, or a\n    Matplotlib ``Figure`` when ``return_fig`` is True. With\n    ``remove_cluster_noise`` the noise objects are dropped from the frame\n    as well as from the embedding, so the two always describe the same\n    objects.\n:raises ValueError: when a source has no usable ``measurements.db`` — see\n    :func:`_validate_umap_source_db` for exactly what is required.\n:raises NotImplementedError: when ``resnet_features`` is set; embedding\n    raw crops with ResNet features is not implemented."
     },
     "spacr.core.generate_screen_graphs": {
       "source_blocks_sha256": [
@@ -34374,11 +34374,10 @@
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.gpu_backend": {
       "source_blocks_sha256": [
-        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
-        "53a87d81c3a2e0c4ce6464ee3e5101adc1e462841e3dc2b107f389552b4b837d"
+        "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd"
       ],
-      "source_sha256": "a7302ef41ca1e5931dc8c4960b73ea2bdffc5d29256762044ca428c2482cdebb",
-      "text": "Which backend the next search will use: ``'cuml'`` or ``'cpu'``.\n\nRead from the button rather than from what is installed: cuML being\nimportable is not the same as the user having asked for it, and a\ntable whose rows came from both backends compares two libraries as\nwell as the settings it varied."
+      "source_sha256": "e4d13cb5e1418c82f9842779a446f27cb047ad0c84a780bc5c1514cf65e692bd",
+      "text": "Which backend the next search will use: ``'cuml'`` or ``'cpu'``."
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.open_settings": {
       "source_blocks_sha256": [
@@ -34400,6 +34399,14 @@
       ],
       "source_sha256": "487e2ec0b56bab46ffa9b9a4acd10dee77dd258f1f302a76ff429f83ae9b3c74",
       "text": "Open the axis picker. Returns the dialog, or None when not UMAP."
+    },
+    "spacr.qt.screens.hyperparam.HyperparamPanel.request_gpu_enabled": {
+      "source_blocks_sha256": [
+        "fb0a4b3b650819c1810df3dce5a40f7b8e32d8e1e4c7078110353af384931ffb",
+        "e46516e4951c24df6768c740d205223b29b6e1c2fba5ac88cd57071ed9bdc25f"
+      ],
+      "source_sha256": "d413443b91a8603321b3ba7cae7bab69295bb8e7b324ecb9aeca446a29ff38e3",
+      "text": "Apply the shared GPU toggle, or explain why it cannot turn on.\n\nThe caller uses the returned state to keep the action-strip label and\nthe hidden main-run setting synchronized with this search panel."
     },
     "spacr.qt.screens.hyperparam.HyperparamPanel.result": {
       "source_blocks_sha256": [
@@ -37272,6 +37279,14 @@
       ],
       "source_sha256": "e198d51af5de97a0838c73aa75ce1b03ddc1434e83c0dbed21bac1bb39e2ffda",
       "text": "The lower-cased haystack one setting is matched against.\n\nThree fields, in the order a reader would scan them: the key as the\nAPI spells it, the label as the form spells it, and the description\nas the tooltip explains it.\n\n:param key: the setting key."
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets.set_hidden_value": {
+      "source_blocks_sha256": [
+        "fe39770049d22c4499ab3ad3459430db329d00304628e00a536f134c7e5a3bad",
+        "a29b249266b568aa0c8fb49cc45d564bd2f7c29e597908d82a600665fab6aaf8"
+      ],
+      "source_sha256": "688c56c0998839f686d2ad866036a867e087fc2fcdd41a241dff73f7d32c632d",
+      "text": "Update a deliberately hidden run setting.\n\nSome values have a dedicated control outside the form.  Image UMAP's\naction-strip GPU toggle is one: duplicating it as a form checkbox would\ncreate two sources of truth.  Hidden does not mean absent (invariant\n6), so the value lives in ``_defaults`` and still reaches collect()."
     },
     "spacr.qt.screens.settings_model.SettingsWidgets.set_value_for_key": {
       "source_blocks_sha256": [
@@ -50871,12 +50886,26 @@
       "source_sha256": "a87a43d91deacddc2a09f5103c3ddc687566515344bf14a9d1b37bb65ad3a9a8",
       "text": "Native interactive viewer and gallery for Image UMAP search results.\n\nUnlike the general spaCR figure queue, these widgets hold the coordinate\narrays themselves.  A 3-D map can therefore be spun and recoloured after it\nhas been computed, and clicking a gallery tile opens the exact embedding that\nwas scored rather than a PNG or a stochastic refit.\n\nThe renderer uses Qt's painter only.  It has no OpenGL or pyqtgraph dependency,\nworks in the offscreen test platform, and keeps the RAPIDS extra about compute\nrather than pulling in a second GUI stack."
     },
+    "spacr.qt.widgets.umap_search_viewer.UmapAppearanceDialog": {
+      "source_blocks_sha256": [
+        "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee"
+      ],
+      "source_sha256": "65dd5f0bd85966c81eeb71d28b23ace83d3750ec020821cc63f95e272d5ce1ee",
+      "text": "Non-modal point renderer controls for one embedding view."
+    },
     "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView": {
       "source_blocks_sha256": [
         "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb"
       ],
       "source_sha256": "472f17bcf1d408dc361c2aaf445a222d4d18c0dcf63f80f9aa46064f09277eeb",
       "text": "A black-background 2-D/3-D point view; drag a 3-D map to spin it."
+    },
+    "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.set_appearance": {
+      "source_blocks_sha256": [
+        "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6"
+      ],
+      "source_sha256": "2956604b67c245f46a0d0318e526ee51dbad2934688d383db34dffcf90a2def6",
+      "text": "Apply rendering-only changes without changing the embedding."
     },
     "spacr.qt.widgets.umap_search_viewer.UmapExplorer": {
       "source_blocks_sha256": [
@@ -50891,6 +50920,20 @@
       ],
       "source_sha256": "883bfde8f49f773e4c1f7f99280b26f58a4ed2016b030328a6a41f3afe288baf",
       "text": "All table embeddings on black, with a click returning the real trial."
+    },
+    "spacr.qt.widgets.umap_search_viewer.available_colormaps": {
+      "source_blocks_sha256": [
+        "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e"
+      ],
+      "source_sha256": "f531a53a1dcb30670ba1d9e313956666985473d31116150461e0f5742890e30e",
+      "text": "Every installed Matplotlib colour map, plus spaCR's native palette."
+    },
+    "spacr.qt.widgets.umap_search_viewer.axis_frame": {
+      "source_blocks_sha256": [
+        "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f"
+      ],
+      "source_sha256": "eee300bb4245289cbc231e3ce3815b4ad85b965ba10111cad11b38e8ea91a78f",
+      "text": "Return projected grid lines and exactly two or three primary axes."
     },
     "spacr.qt.widgets.umap_search_viewer.colors_for_labels": {
       "source_blocks_sha256": [
@@ -60953,24 +60996,10 @@
     "spacr.utils.reduction_and_clustering": {
       "source_blocks_sha256": [
         "7ae6b2478f3d8d44b7d788a7a1f8d0171b0d6f6be14099b934d62a58e17869d7",
-        "5850f42fa771360b39ed4b0c26f464a89f086dc1c4984c1c900e2d61e28c08c7",
-        "9e6673035d81349e258f83bf87371d17fb7097d7bdede42aeec334b15cb8ea85",
-        "97f3c1a8b776a2acc75c9fdc2d1afcda7d4ea601dd8d13c45713e00268e34506",
-        "33ad9daaa25ac38638bd5bbb6d26746c681ffed8f83a6a04a13413cb0b205c8d",
-        "695f95d6c52e01692d234782f14b65a1f15cab9dff94992a955bc2f4b23b4de2",
-        "89db784000204b5a80fa9855aec0b8c5b2f407431644cface1115ee025e3b884",
-        "226c4f8cdeba081bf7a167d3971ee4431394024057488b9caea30355ead8b20c",
-        "fffeb16701218d77c3287f0fb1f4c6c5bc4228b6e7ebdb45994964cff6945d2a",
-        "68e5e33f9696afea4e19d289107feab9689a6693e8ffef84d50e7ee04673dac7",
-        "554c0e62d0a70689adec4304b7acd10e72c48d647ab0462f631e0d98507d5ac4",
-        "2386eed6c9e62c3b295beb9c3c2c4da5d6e54d2909b64e6e67715f0fc1825644",
-        "3fbe245a694ec5b52531040ea49db1499cd66878bec9ef4d1d81ce7c212a73fd",
-        "e3a52e553a3862051a39c13af9e2b3ae279059b677ab25189b3af90b06aa66de",
-        "d9ab00ecc29999db001f5da4dcc976f834bf0f697500abe7ebf7078560814271",
-        "df7bbef3f6ea7ebb1e983f998a1bd12b0da64436cca687531ba9f339376a687f"
+        "65f5613c25f10fa6fb46a8e5d019ed0ac35aa5fabe635ef58e72fb08d8c4b287"
       ],
-      "source_sha256": "e62d53752c37bfb82bc8951bc085fc32f5e2e030fbe906f2c143f4e5b64b05a1",
-      "text": "Reduce ``numeric_data`` to 2-D and cluster the embedding.\n\n:param numeric_data: numeric data matrix.\n:param n_neighbors: UMAP ``n_neighbors`` or t-SNE perplexity (fraction or int).\n:param min_dist: UMAP ``min_dist``.\n:param metric: distance metric used by UMAP/DBSCAN.\n:param eps: DBSCAN ``eps``.\n:param min_samples: DBSCAN ``min_samples`` or KMeans cluster count.\n:param clustering: ``'dbscan'`` or ``'kmeans'``.\n:param reduction_method: ``'umap'`` or ``'tsne'``.\n:param verbose: print progress.\n:param embedding: precomputed embedding (skips reducer fit).\n:param n_jobs: parallel worker count.\n:param mode: ``'fit'`` to train a new reducer, otherwise transform with ``model``.\n:param model: existing reducer to reuse when ``mode != 'fit'``.\n:returns: ``(embedding, labels, reducer)``.\n:raises ValueError: on unsupported ``reduction_method`` or missing model."
+      "source_sha256": "c190f93b11eecbcc13ae27e72e8f61924eec694d05367d26ab1fc1b82ff15daa",
+      "text": "Reduce ``numeric_data`` to 2-D and cluster the embedding.\n\nSupported reducers are UMAP, t-SNE, PCA, Isomap and Spectral Embedding.\n``reducer_options`` carries only method-specific settings; irrelevant\noptions are never forwarded. RAPIDS is opt-in and applies to UMAP, t-SNE\nand PCA, with the actual backend retained on the fitted reducer."
     },
     "spacr.utils.remove_canvas": {
       "source_blocks_sha256": [

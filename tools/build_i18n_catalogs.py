@@ -972,6 +972,7 @@ _UI_SCREEN_SOURCE = (
     r"\b(?:draw|drawing|open|opening|switch|return|leave|leaving|remain|"
     r"remaining|pre-fill|fill|restore|restoring|show|shown|display|displayed|"
     r"place|placed|paint|painted)\b.{0,50}\bscreens?\b|"
+    r"\blower\s+DPI\s+for\s+the\s+screens?\b|"
     r"\bscreens?\b.{0,50}\b(?:drop|folder|file picker|Run button|settings "
     r"form|settings panel|interface|window|shown)\b|"
     r"\bdrop\b.{0,80}\bscreens?\b|"
@@ -2506,6 +2507,28 @@ for _object_source, _localized_names in _OBJECT_LABELS.items():
         language: f"{name} — FT" for language, name in _localized_names.items()
     }
 
+# The four organelle slots expose their number in the generated setting label.
+# Keep the slot while retaining the reviewed object name and CP/FT abbreviation;
+# generic model output turned ``Organelle`` into unrelated loanwords in Korean.
+for _slot in range(1, 5):
+    for _source_suffix, _target_suffix in (("Cp prob", "CP"), ("Ft", "FT")):
+        MANUAL_TRANSLATIONS[f"Organelle {_slot} — {_source_suffix}"] = {
+            language: f"{name} {_slot} — {_target_suffix}"
+            for language, name in _OBJECT_LABELS["Organelle"].items()
+        }
+
+MANUAL_TRANSLATIONS["Power hit rate"] = {
+    "sv": "Effektens träfffrekvens",
+    "de": "Trefferquote der Teststärke",
+    "es": "Tasa de detección de potencia",
+    "zh_CN": "功效检出率",
+    "pt": "Taxa de detecção de potência",
+    "hi": "सांख्यिकीय शक्ति की पहचान दर",
+    "ko": "검정력 검출률",
+    "is": "Greiningarhlutfall tölfræðiafls",
+    "fr": "Taux de détection de puissance",
+}
+
 
 def _reviewed_translation(source: str, language: str) -> str | None:
     """Return exact reviewed prose without adding it to the static UI set."""
@@ -2676,6 +2699,25 @@ def canonical_sources() -> dict[str, object]:
         resolve_default_settings,
         SettingsWidgets,
     )
+    from spacr.qt.app import APPS, _SECTION_NOTE_LIBRARY
+    from spacr.qt.screens.app_screen import (
+        APP_INTROS,
+        APP_TITLES,
+        DEFAULT_INSTRUCTION,
+    )
+
+    # Several self-contained modules contribute defaults, tooltips, and a
+    # module description only when their registered defaults module is first
+    # imported.  Resolve every application before snapshotting the shared
+    # tooltip tables.  Otherwise the generated source inventory depends on
+    # import order: a clean generator omitted Barcode QC while a test process
+    # that had already imported ``spacr.sequencing_qc`` gained one extra key.
+    resolved_settings: dict[str, dict[str, object]] = {}
+    for app_key, _name, _description, _section in APPS:
+        try:
+            resolved_settings[app_key] = resolve_default_settings(app_key)
+        except Exception:
+            continue
 
     raw_tooltips = get_tooltips()
     tooltips = {
@@ -2694,12 +2736,6 @@ def canonical_sources() -> dict[str, object]:
             encoding="utf-8"
         )
     )
-    from spacr.qt.app import APPS, _SECTION_NOTE_LIBRARY
-    from spacr.qt.screens.app_screen import (
-        APP_INTROS,
-        APP_TITLES,
-        DEFAULT_INSTRUCTION,
-    )
     module_summaries = {
         str(key): str(description)
         for key, _name, description, _section in APPS
@@ -2707,10 +2743,7 @@ def canonical_sources() -> dict[str, object]:
     label_model = SettingsWidgets.__new__(SettingsWidgets)
     for app_key, _name, _description, _section in APPS:
         label_model.app_key = app_key
-        try:
-            setting_keys = resolve_default_settings(app_key)
-        except Exception:
-            continue
+        setting_keys = resolved_settings.get(app_key, {})
         for key in setting_keys:
             actual = label_model._label_for(str(key))
             generic = _humanize(str(key))

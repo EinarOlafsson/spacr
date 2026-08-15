@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "grna_csv",
+      "source_sha256": "e2a331afcfbb8bc68667976014fd817f9b1441f9099ce2a118862524a40df282",
+      "source": "CSV mapping gRNA barcode sequences to gRNA names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so orientation must match the reads (barecodes_reverse_complement flips a file). Rows whose gRNA does not match are written as NA and dropped from the counts. Default: the bundled spacr/resources/data/grna_barcodes.csv.",
+      "translation": "CSV-Zuordnung von gRNA-Barcode-Sequenzen zu gRNA-Namen; sie muss die Spalten 'sequence' und 'name' enthalten. Reads werden unverändert und ohne Reverse-Komplementierung abgeglichen, daher muss ihre Orientierung den Reads entsprechen; barecodes_reverse_complement dreht eine Datei um. Zeilen ohne passende gRNA werden als NA geschrieben und aus den Zählungen entfernt. Standard: die mitgelieferte Datei spacr/resources/data/grna_barcodes.csv."
+    }
+  ]
+}
