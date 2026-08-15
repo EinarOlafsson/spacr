@@ -461,6 +461,11 @@ class PlateViewScreen(LinkedView, QWidget):
         # link is process-wide and outlives every screen), a flag-guarded
         # disconnect, and echo suppression.
         self.link_selection("plate_view")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def on_linked_filter_changed(self, data_filter: DataFilter) -> None:
         """Re-draw for a new filter, without re-reading the database.

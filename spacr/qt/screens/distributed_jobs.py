@@ -86,6 +86,11 @@ class ExecutionProfileDialog(QDialog):
         if profile is not None:
             self._load(profile)
         self._sync_backend()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self) -> None:
         """Build the backend-independent profile editor."""
@@ -419,6 +424,11 @@ class DistributedJobsScreen(QWidget):
         # project layout, so the plate folder finds what this screen reads.
         from ..dnd import install_for
         install_for(self, "distributed_jobs")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self) -> None:
         """Construct profile, submission, table, and detail controls."""

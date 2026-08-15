@@ -307,6 +307,11 @@ class ModelZooScreen(QWidget):
             "download. Every model shows what it was trained on — 'unknown' "
             "means nobody recorded it, not that it fits anything.")
         self._update_controls()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 

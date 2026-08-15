@@ -721,6 +721,11 @@ class HyperparamPanel(QWidget):
         self._displayed_trial: Optional[Trial] = None
         self._gpu_enabled = False
         self._build_ui()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 
