@@ -888,3 +888,82 @@ def test_a_screen_with_no_file_inputs_still_reports_the_problem(qtbot,
             return 0
 
     assert _route_data_csv_to_inputs(data, _Screen()) is None
+
+
+def test_a_dropped_csv_reaches_the_paired_table_not_metadata(qtbot, tmp_path):
+    """The regression panel's real shape, and the bug it caused.
+
+    The panel replaced its separate score_data / count_data lists with one
+    paired_data table. The router looked for those two keys, found neither,
+    and fell through to metadata_files -- the only file list left on the
+    screen -- so EVERY dropped CSV went to metadata.
+    """
+    from spacr.qt.dnd import _route_data_csv_to_inputs
+    from spacr.qt.widgets.file_list import (
+        FilePathListWidget, PairedFileTableWidget,
+    )
+
+    score = tmp_path / "plate1_dv.csv"
+    score.write_text("path,pred,plate,row,col\na,0.5,plate1,r1,c1\n")
+    count = tmp_path / "plate_1_unique_combinations.csv"
+    count.write_text("row_name,column_name,grna_name,count\nr1,c1,g_1,5\n")
+    annotation = tmp_path / "grna_barcodes.csv"
+    annotation.write_text("name,sequence\nTGGT1_225160_2,ACGT\n")
+
+    class _Model:
+        pass
+
+    class _Screen:
+        def apply_settings_dict(self, values):
+            return 0
+
+    screen, model = _Screen(), _Model()
+    paired = _tracked(qtbot, PairedFileTableWidget())
+    metadata = _tracked(qtbot, FilePathListWidget(kind="table"))
+    model._widgets = {"paired_data": paired, "metadata_files": metadata}
+    screen._settings_model = model
+
+    assert "count" in _route_data_csv_to_inputs(count, screen)
+    assert "score" in _route_data_csv_to_inputs(score, screen)
+    # An annotation table is neither side of the pairing.
+    assert _route_data_csv_to_inputs(annotation, screen) == "metadata_files"
+    assert len(metadata.get_value()) == 1
+
+    rows = paired.get_value()
+    assert len(rows) == 1, "the score and count should share one plate row"
+    assert rows[0]["score"] and rows[0]["count"]
+
+
+def test_a_count_dropped_before_its_score_still_pairs(qtbot, tmp_path):
+    """"if i drop a plate 1 independent variable, then i should be able to
+    drop plate 1 dependent variable to its left" -- order must not matter."""
+    from spacr.qt.widgets.file_list import PairedFileTableWidget
+
+    paired = _tracked(qtbot, PairedFileTableWidget())
+    counts, scores = [], []
+    for plate in (1, 2):
+        count = tmp_path / f"plate_{plate}_unique_combinations.csv"
+        count.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n")
+        score = tmp_path / f"plate{plate}_dv.csv"
+        score.write_text("path,pred,plate\na,0.5,plate1\n")
+        counts.append(str(count))
+        scores.append(str(score))
+
+    # Counts first, scores second -- the order the report describes.
+    paired.add_paths_for_side(counts, "count")
+    paired.add_paths_for_side(scores, "score")
+
+    rows = paired.get_value()
+    assert len(rows) == 2
+    for row in rows:
+        assert row["score"] and row["count"]
+        # Same plate token on both sides of each row.
+        assert row["plate"] in ("plate1", "plate2")
+
+
+def test_a_side_must_be_score_or_count(qtbot):
+    from spacr.qt.widgets.file_list import PairedFileTableWidget
+
+    paired = _tracked(qtbot, PairedFileTableWidget())
+    with pytest.raises(ValueError, match="score.*count"):
+        paired.add_paths_for_side(["/tmp/x.csv"], "sideways")
