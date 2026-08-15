@@ -383,6 +383,21 @@ def test_submit_with_ai_off_never_starts_a_thread(qtbot, qt_theme_applied):
     assert not panel.is_ai_streaming()
 
 
+def _last_user_bubble_text(panel) -> str:
+    """The most recent 'spaCR user' block's text.
+
+    The console-context status is stamped on the message it accompanied
+    rather than written to a shared label, so this is where a test reads it.
+    """
+    from PySide6.QtWidgets import QPlainTextEdit
+
+    for entry in reversed(panel.findChildren(QPlainTextEdit)):
+        text = entry.toPlainText()
+        if "chars sent" in text or "Console context" in text:
+            return text
+    return ""
+
+
 def test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text(
         qtbot, qt_theme_applied, monkeypatch):
     """The failure may precede enabling AI; toggle order must not matter."""
@@ -409,7 +424,10 @@ def test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text(
     assert "RuntimeError: segmentation failed" in first
     assert "Traceback (most recent call last)" in first
     assert "earlier characters dropped" in first
-    assert "chars sent" in panel._console_context_status.text()
+    # The status is stamped on the user message it went with, not on a
+    # shared label -- that label is gone, because it was stale from the
+    # moment the next question was typed.
+    assert "chars sent" in _last_user_bubble_text(panel)
 
     panel.append_stdout("\nONLY_NEW_OUTPUT")
     panel._send_to_ai("debug the new console output")
@@ -419,24 +437,35 @@ def test_ai_reads_preexisting_console_at_ask_time_and_only_sends_new_text(
     assert "RuntimeError: segmentation failed" not in second
 
 
-def test_console_context_auto_is_visible_and_overridable(
+def test_console_aware_sends_the_console_whatever_the_question_looks_like(
         qtbot, qt_theme_applied):
+    """Replaces test_console_context_auto_is_visible_and_overridable.
+
+    That test asserted the "Auto" behaviour: a question that did not look
+    diagnostic was answered WITHOUT the console, and the user had to reach for
+    a combo to override it. Auto is deleted -- a heuristic on the user's
+    wording deciding whether the model may see the error is exactly the
+    failure instruction 105 exists to end, and the maintainer replaced the
+    three modes with one "Console aware" yes/no.
+
+    What is asserted now is the opposite, and deliberately so.
+    """
+    from spacr.qt.ai import settings as ai_settings
     from spacr.qt.widgets.console_panel import ConsolePanel
 
-    panel = ConsolePanel()
-    qtbot.addWidget(panel)
-    panel.append_stdout("diameter diagnostic")
+    original = ai_settings.get_console_aware()
+    ai_settings.set_console_aware(True)
+    try:
+        panel = ConsolePanel()
+        qtbot.addWidget(panel)
+        panel.append_stdout("diameter diagnostic")
 
-    context, status = panel._console_context_for_question(
-        "How do I set the diameter?")
-    assert context == ""
-    assert "Auto" in status
-
-    panel._console_context_mode.setCurrentIndex(1)
-    context, status = panel._console_context_for_question(
-        "How do I set the diameter?")
-    assert "diameter diagnostic" in context
-    assert "chars sent" in status
+        context, status = panel._console_context_for_question(
+            "How do I set the diameter?")
+        assert "diameter diagnostic" in context
+        assert "chars sent" in status
+    finally:
+        ai_settings.set_console_aware(original)
 
 
 # ---------------------------------------------------------------------------
