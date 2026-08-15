@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QDoubleSpinBox,
     QFormLayout,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMenu,
@@ -148,6 +149,10 @@ class FigureSettingsDialog(QDialog):
         # Coalesce redraws. Every control calls _changed(); this restarts a
         # single-shot timer, so a burst of twenty value changes costs one
         # render instead of twenty.
+        #: True while a render holds the GUI thread; see :meth:`_redraw_now`.
+        self._rendering = False
+        #: A change arrived mid-render and still needs to reach the picture.
+        self._dirty = False
         self._redraw = QTimer(self)
         self._redraw.setSingleShot(True)
         self._redraw.timeout.connect(self._redraw_now)
@@ -319,11 +324,33 @@ class FigureSettingsDialog(QDialog):
     def _redraw_now(self, preview: bool = True) -> None:
         if self._on_change is None:
             return
+        # RENDERS MUST NOT STACK.
+        #
+        # A preview blocks the GUI thread for ~150 ms. Qt keeps delivering
+        # events during that render -- spin-box auto-repeat, wheel, the timer
+        # itself -- and without this guard each one lands another render behind
+        # the current one. The queue grows faster than it drains and the window
+        # stops responding: the hang.
+        #
+        # Instead a request that arrives mid-render only sets a flag, and one
+        # final redraw runs afterwards. Interaction stays smooth because the
+        # thread is always free between renders, and the picture still ends up
+        # matching the controls.
+        if self._rendering:
+            self._dirty = True
+            return
+        self._rendering = True
         try:
-            self._on_change(preview=preview)
-        except TypeError:
-            # A caller that does not know about preview rendering.
-            self._on_change()
+            try:
+                self._on_change(preview=preview)
+            except TypeError:
+                # A caller that does not know about preview rendering.
+                self._on_change()
+        finally:
+            self._rendering = False
+        if self._dirty:
+            self._dirty = False
+            self._redraw.start(self.REDRAW_DELAY_MS)
 
     # ----------------------------------------------------------------- tabs
 
@@ -419,6 +446,50 @@ class FigureSettingsDialog(QDialog):
             combo.currentTextChanged.connect(
                 lambda value, s=setter: (s(value), self._changed()))
             form.addRow(label, combo)
+
+        # Limits. Four boxes and an autoscale switch, because "zoom the
+        # volcano to the part with the hits in it" is the single most common
+        # thing anyone wants from a plot and there was no way to ask for it.
+        for label, getter, setter in (
+            ("X limits", axis.get_xlim, axis.set_xlim),
+            ("Y limits", axis.get_ylim, axis.set_ylim),
+        ):
+            low, high = (float(v) for v in getter())
+            span = abs(high - low) or 1.0
+            row = QWidget()
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            boxes = []
+            for value in (low, high):
+                box = QDoubleSpinBox()
+                # Room to move well outside the data, and enough precision for
+                # a log axis where the interesting range can be tiny.
+                box.setRange(-1e12, 1e12)
+                box.setDecimals(4)
+                box.setSingleStep(span / 20.0)
+                box.setValue(value)
+                box.setKeyboardTracking(False)  # not one redraw per keystroke
+                boxes.append(box)
+                row_layout.addWidget(box)
+
+            def apply_limits(*_, s=setter, b=boxes):
+                lower, upper = b[0].value(), b[1].value()
+                if lower == upper:
+                    return  # a zero-width axis throws; wait for the other box
+                s(lower, upper)
+                self._changed()
+            for box in boxes:
+                box.valueChanged.connect(apply_limits)
+            form.addRow(label, row)
+
+        auto = QPushButton("Autoscale to data")
+
+        def do_autoscale():
+            axis.relim()
+            axis.autoscale()
+            self._changed()
+        auto.clicked.connect(do_autoscale)
+        form.addRow("", auto)
 
         for label, getter, setter in (
             ("Invert X", axis.xaxis_inverted, axis.invert_xaxis),
