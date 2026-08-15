@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-86 done / 3 open (96%).
+86 done / 4 open (95%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -35,6 +35,9 @@ OPEN
    83  FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
        [codex -- DO NOT TOUCH]
        83_finish_multilingual_catalogs_and_push_nightly.txt
+
+   99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
+       99_explain_cv_models_and_resolve_hits_back_to_cells.txt
 
 --------------------------------------------------------------------------------
 DONE
