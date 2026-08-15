@@ -98,9 +98,20 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
         "tests/test_perf_guard.py",
         "tests/qt/test_gui_responsiveness.py",
         "tests/qt/test_home_stage_and_dock.py",
+        "tests/qt/test_figure_queue.py",
+        "tests/qt/test_pca.py",
     ):
         assert f"--ignore={path}" in workflow
         assert workflow.count(path) >= 2
+
+
+def test_informational_windows_sweep_cannot_cancel_the_matrix():
+    """Expected Windows failures must finish before the job-level timeout."""
+    workflow = (ROOT / ".github" / "workflows" /
+                "compat-matrix.yml").read_text(encoding="utf-8")
+    assert "Full suite (informational, never decides)" in workflow
+    assert "--maxfail=25" in workflow
+    assert "continue-on-error: true" in workflow
 
 
 def test_timelapse_does_not_download_btrack_data_during_collection():
