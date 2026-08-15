@@ -39,17 +39,17 @@ OPEN
   105  THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
        105_the_ai_chat_always_sees_the_whole_console.txt
 
-  106  A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
-       106_docstring_and_translation_correctness_sweep.txt
-
   106  A SETTING THAT CANNOT DO ANYTHING RIGHT NOW IS GREYED OUT, AND SAYS WHY
        106_inapplicable_settings_are_greyed_out.txt
 
-  107  IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
-       107_modules_take_more_than_one_database_and_merge_them.txt
-
   107  SCORE AND COUNT CSVs ARE PAIRED WHEN THEY ARE ADDED, NOT BY LIST POSITION
        107_score_and_count_csvs_are_paired_when_they_are_added.txt
+
+  108  A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
+       108_docstring_and_translation_correctness_sweep.txt
+
+  109  IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
+       109_modules_take_more_than_one_database_and_merge_them.txt
 
 --------------------------------------------------------------------------------
 DONE
