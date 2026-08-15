@@ -353,3 +353,89 @@ def test_a_preview_render_skips_the_vector_page(qtbot, queue):
     # The vector page is untouched by a preview; it is rewritten on close.
     if stamp is not None:
         assert pdf.stat().st_mtime_ns == stamp
+
+
+# ------------------------------------------- faults found by running the app
+
+
+def test_every_matplotlib_colour_shape_converts(qtbot):
+    """QColor accepts none of what matplotlib hands back.
+
+    ``patch.get_facecolor()`` returns an RGBA tuple and a collection returns
+    an ARRAY of RGBA rows. Passing either to QColor raised
+    "TypeError: QVariant must be holding a QColor" the moment a colour button
+    was clicked, so every colour control in the dialog was dead on arrival.
+    """
+    import numpy as np
+
+    from spacr.qt.widgets.figure_settings import _as_hex
+
+    figure = plt.figure()
+    axis = figure.gca()
+    line, = axis.plot([0, 1], [0, 1])
+    scatter = axis.scatter([0, 1], [0, 1])
+
+    for value in (figure.patch.get_facecolor(),      # RGBA tuple
+                  line.get_color(),                  # named / hex
+                  scatter.get_facecolor(),           # array of RGBA rows
+                  np.array([0.1, 0.2, 0.3, 1.0]),    # single RGBA row
+                  0.5,                               # float grey
+                  "#ff0000"):
+        assert _as_hex(value).startswith("#")
+        assert len(_as_hex(value)) == 7
+    # Unreadable input falls back rather than raising into the GUI.
+    assert _as_hex(object()).startswith("#")
+
+
+def test_turning_the_grid_off_turns_it_off(qtbot, queue):
+    """matplotlib re-enables the grid when line properties accompany False.
+
+    "First parameter to grid() is false, but line properties are supplied.
+    The grid will be enabled." -- so the checkbox could not switch the grid
+    off, which is the opposite of what it says.
+    """
+    from PySide6.QtWidgets import QCheckBox
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    figure = _rich_figure()
+    queue.add_figure(figure)
+    dialog = FigureSettingsDialog(queue.figure_for(0), queue)
+    qtbot.addWidget(dialog)
+
+    form = dialog.tabs.widget(1).widget().layout()
+    grid_box = None
+    from PySide6.QtWidgets import QFormLayout
+    for row in range(form.rowCount()):
+        label = form.itemAt(row, QFormLayout.LabelRole)
+        field = form.itemAt(row, QFormLayout.FieldRole)
+        if (label and label.widget() and label.widget().text() == "Grid"
+                and field and isinstance(field.widget(), QCheckBox)):
+            grid_box = field.widget()
+            break
+    assert grid_box is not None
+
+    axis = figure.axes[0]
+    grid_box.setChecked(True)
+    assert any(line.get_visible() for line in axis.get_xgridlines())
+    grid_box.setChecked(False)
+    assert not any(line.get_visible() for line in axis.get_xgridlines())
+
+
+def test_the_legend_control_survives_an_unlabelled_figure(qtbot, queue):
+    """legend() with no labelled artists warns and returns nothing.
+
+    Calling it unconditionally destroyed the legend the figure already had.
+    """
+    figure = plt.figure()
+    axis = figure.gca()
+    axis.plot([0, 1], [0, 1])          # no label
+    axis.legend(["manual"])            # a legend exists all the same
+    queue.add_figure(figure)
+
+    from spacr.qt.widgets.figure_settings import FigureSettingsDialog
+
+    dialog = FigureSettingsDialog(queue.figure_for(0), queue)
+    qtbot.addWidget(dialog)
+    # Building the dialog must not have emitted a warning or lost the legend.
+    assert axis.get_legend() is not None

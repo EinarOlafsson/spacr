@@ -58,21 +58,44 @@ LINE_STYLES = (("-", "Solid"), ("--", "Dashed"), ("-.", "Dash-dot"),
                (":", "Dotted"), ("None", "None"))
 
 
+def _as_hex(colour, fallback: str = "#1f77b4") -> str:
+    """Any matplotlib colour spec as ``#rrggbb``.
+
+    matplotlib hands back whatever it stored: an RGBA tuple from
+    ``patch.get_facecolor()``, a named colour, a float grey, or an ARRAY of
+    RGBA rows from a collection. ``QColor`` accepts none of those, and passing
+    a tuple raised ``TypeError: QVariant must be holding a QColor`` the moment
+    a colour button was clicked -- so every colour control in this dialog was
+    dead on arrival.
+    """
+    try:
+        from matplotlib.colors import to_hex
+        import numpy as np
+
+        value = colour
+        # A collection stores one row per element; they share a colour here.
+        if isinstance(value, np.ndarray):
+            value = value[0] if value.ndim > 1 and len(value) else value
+        elif isinstance(value, (list, tuple)) and len(value) \
+                and isinstance(value[0], (list, tuple, np.ndarray)):
+            value = value[0]
+        return to_hex(value, keep_alpha=False)
+    except Exception:  # pragma: no cover - genuinely unreadable colour
+        return fallback
+
+
 def _colour_button(initial, on_pick: Callable[[str], None]) -> QPushButton:
     """A button showing a colour that opens a picker."""
     button = QPushButton()
-    state = {"colour": initial}
+    state = {"colour": _as_hex(initial)}
 
     def _paint():
-        button.setText(str(state["colour"]))
-        try:
-            colour = QColor(state["colour"])
-            if colour.isValid():
-                button.setStyleSheet(
-                    f"background-color: {colour.name()}; "
-                    f"color: {'#000' if colour.lightness() > 127 else '#fff'};")
-        except Exception:  # pragma: no cover - odd colour spec
-            pass
+        colour = QColor(state["colour"])
+        button.setText(state["colour"])
+        if colour.isValid():
+            button.setStyleSheet(
+                f"background-color: {colour.name()}; "
+                f"color: {'#000' if colour.lightness() > 127 else '#fff'};")
 
     def _choose():
         colour = QColorDialog.getColor(QColor(state["colour"]), button)
@@ -329,8 +352,17 @@ class FigureSettingsDialog(QDialog):
         grid_colour = {"value": "#cccccc"}
 
         def apply_grid(*_):
-            axis.grid(grid.isChecked(), axis=grid_axis.currentText(),
-                      color=grid_colour["value"], linewidth=grid_width.value())
+            # Line properties are passed ONLY when enabling. matplotlib warns
+            # "First parameter to grid() is false, but line properties are
+            # supplied" and then turns the grid ON regardless -- so the
+            # unconditional version made the checkbox unable to switch the
+            # grid off, which is the opposite of what it says.
+            if grid.isChecked():
+                axis.grid(True, axis=grid_axis.currentText(),
+                          color=grid_colour["value"],
+                          linewidth=grid_width.value())
+            else:
+                axis.grid(False, axis=grid_axis.currentText())
             self._changed()
         grid.toggled.connect(apply_grid)
         grid_axis.currentTextChanged.connect(apply_grid)
@@ -397,16 +429,27 @@ class FigureSettingsDialog(QDialog):
             legend_frame.setChecked(True)
 
             def apply_legend(*_):
+                existing = axis.get_legend()
                 if not legend_on.isChecked():
-                    existing = axis.get_legend()
                     if existing is not None:
                         existing.set_visible(False)
                     self._changed()
                     return
-                axis.legend(loc=legend_where.currentText(),
-                            ncol=legend_cols.value(),
-                            frameon=legend_frame.isChecked(),
-                            prop={"size": legend_size.value()})
+                # Rebuilding needs labelled artists. Calling legend() without
+                # them warns "No artists with labels found to put in legend"
+                # and returns nothing, losing the legend the figure already
+                # had -- so an existing legend is restyled in place instead.
+                handles, _labels = axis.get_legend_handles_labels()
+                if handles:
+                    axis.legend(loc=legend_where.currentText(),
+                                ncol=legend_cols.value(),
+                                frameon=legend_frame.isChecked(),
+                                prop={"size": legend_size.value()})
+                elif existing is not None:
+                    existing.set_visible(True)
+                    existing.set_frame_on(legend_frame.isChecked())
+                    for text in existing.get_texts():
+                        text.set_fontsize(legend_size.value())
                 self._changed()
             for control in (legend_on, legend_frame):
                 control.toggled.connect(apply_legend)
@@ -433,9 +476,6 @@ class FigureSettingsDialog(QDialog):
                 current = artist.get_color()
             except Exception:  # pragma: no cover
                 current = "#1f77b4"
-            if isinstance(current, (list, tuple)) and len(current) and \
-                    not isinstance(current[0], (int, float)):
-                current = current[0]
             form.addRow("  Colour", _colour_button(current, set_colour))
 
             if hasattr(artist, "set_linewidth"):
