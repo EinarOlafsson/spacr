@@ -613,6 +613,24 @@ def _desanitise_token(token: str) -> str:
     return text
 
 
+def escape_filename_component(token: Any) -> str:
+    """Escape one free-text component for a separator-delimited filename.
+
+    This uses the same reversible table as join keys.  In particular,
+    ``'my_plate'`` becomes ``'my%5Fplate'`` and a literal percent is escaped
+    first, so parsing cannot merge it with an encoded separator.
+    """
+    text = '' if token is None else str(token).strip()
+    if not text:
+        raise KeyParseError('cannot encode an empty filename component.')
+    return _sanitise_token(text)
+
+
+def unescape_filename_component(token: Any) -> str:
+    """Invert :func:`escape_filename_component`."""
+    return _desanitise_token(str(token))
+
+
 def _prefixed_id(kind: str, token: Any, *, strict: bool) -> str:
     """Build one prefixed key. The graded-failure policy lives here."""
     prefix = KEY_PREFIXES[kind]
@@ -1167,11 +1185,6 @@ def _check_plate(plate: Any) -> str:
     if not text:
         raise KeyParseError(
             'cannot build a key from an empty plate id.')
-    if KEY_SEPARATOR in text:
-        raise KeyParseError(
-            f'plate id {plate!r} contains {KEY_SEPARATOR!r}, which is the '
-            f'key separator. "{text}_r1_c1_f1" could not be split back into '
-            f'its parts, so the plate must not contain one.')
     return text
 
 
@@ -1183,8 +1196,9 @@ def compose_prc(plate: Any, row: Any, column: Any) -> str:
     :param column: column index or ``'c<N>'``.
     :returns: the composed key.
     """
-    return KEY_SEPARATOR.join(
-        [_check_plate(plate), row_id(row), column_id(column)])
+    return KEY_SEPARATOR.join([
+        escape_filename_component(_check_plate(plate)),
+        row_id(row), column_id(column)])
 
 
 def compose_prcf(plate: Any, row: Any, column: Any, field: Any,
@@ -1202,8 +1216,8 @@ def compose_prcf(plate: Any, row: Any, column: Any, field: Any,
     :param time: timepoint token, or ``None`` outside a timelapse.
     :returns: the composed key.
     """
-    parts = [_check_plate(plate), row_id(row), column_id(column),
-             field_id(field)]
+    parts = [escape_filename_component(_check_plate(plate)), row_id(row),
+             column_id(column), field_id(field)]
     if time is not None and str(time).strip() != '':
         parts.append(time_id(time))
     return KEY_SEPARATOR.join(parts)
@@ -1259,12 +1273,15 @@ class FieldID:
     @property
     def prc(self) -> str:
         """The ``prc`` well key."""
-        return KEY_SEPARATOR.join([self.plateID, self.rowID, self.columnID])
+        return KEY_SEPARATOR.join([
+            escape_filename_component(self.plateID),
+            self.rowID, self.columnID])
 
     @property
     def prcf(self) -> str:
         """The ``prcf`` field key, with the timepoint when there is one."""
-        parts = [self.plateID, self.rowID, self.columnID, self.fieldID]
+        parts = [escape_filename_component(self.plateID), self.rowID,
+                 self.columnID, self.fieldID]
         if self.timeID:
             parts.append(self.timeID)
         return KEY_SEPARATOR.join(parts)
@@ -1480,7 +1497,7 @@ def parse_prcf(text: Any) -> FieldID:
             f'{KEY_SEPARATOR!r}, its row and column must be written the way '
             f'spaCR writes them (r<N>/letters and c<N>/digits) for the plate '
             f'to be separable from them.')
-    return FieldID(plateID=plate_key, rowID=row_key,
+    return FieldID(plateID=unescape_filename_component(plate_key), rowID=row_key,
                    columnID=column_key, fieldID=field_key, timeID=time_key)
 
 
@@ -1527,6 +1544,25 @@ def parse_prcfo(text: Any) -> ObjectID:
 # Filenames
 # ---------------------------------------------------------------------------
 
+def escape_field_stem_plate(name: Any, *, timelapse: bool = False) -> str:
+    """Return a field stem with its free-text plate component escaped.
+
+    Writers know the grammar and therefore know how many fixed tail tokens
+    belong to the well/field/time.  Joining everything before that tail is
+    the unambiguous plate id; escaping it before emitting a crop filename is
+    what lets the reader split the name without guessing.
+    """
+    stem = os.path.splitext(os.path.basename(str(name)))[0]
+    parts = stem.split(KEY_SEPARATOR)
+    tail_size = 3 if timelapse else 2
+    if len(parts) <= tail_size:
+        raise KeyParseError(
+            f'cannot encode plate component in {stem!r}: expected '
+            f'plate_well_field{"_time" if timelapse else ""}.')
+    plate = KEY_SEPARATOR.join(parts[:-tail_size])
+    return KEY_SEPARATOR.join([
+        escape_filename_component(plate), *parts[-tail_size:]])
+
 def parse_field_stem(name: Any, *, timelapse: bool = False,
                      strict: bool = False) -> FieldID:
     """Parse a merged-stack file name into a :class:`FieldID`.
@@ -1564,14 +1600,15 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
     needed = 4 if timelapse else 3
-    if len(parts) < needed:
+    if len(parts) != needed:
         raise KeyParseError(
-            f'cannot identify a field from {stem!r}: expected at least '
+            f'cannot identify a field from {stem!r}: expected exactly '
             f'{"plate_well_field_time" if timelapse else "plate_well_field"} '
             f'({needed} parts), got {len(parts)}. _map_wells returned the '
             f'string "error" in every slot here, and those strings were then '
             f'written into the database as an identity.')
-    return FieldID.build(parts[0], well=parts[1], field=parts[2],
+    return FieldID.build(unescape_filename_component(parts[0]),
+                         well=parts[1], field=parts[2],
                          time=parts[3] if timelapse else None, strict=strict)
 
 
@@ -1613,7 +1650,8 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
             f'cannot identify an object from {stem!r}: expected at least '
             f'{"plate_well_field_time_object" if timelapse else "plate_well_field_object"} '
             f'({needed} parts), got {len(parts)}.')
-    field = FieldID.build(parts[0], well=parts[1], field=parts[2],
+    field = FieldID.build(unescape_filename_component(parts[0]),
+                          well=parts[1], field=parts[2],
                           time=parts[3] if timelapse else None, strict=strict)
     return field.with_object(parts[-1])
 
