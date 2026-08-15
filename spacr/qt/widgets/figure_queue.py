@@ -42,7 +42,7 @@ from PySide6.QtCore import Signal, QEvent, QSize, Qt, QTimer
 from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
     QDialog, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
-    QVBoxLayout, QWidget,
+    QStackedWidget, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
@@ -497,7 +497,39 @@ class FigureQueue(QWidget):
         self._resize_timer.timeout.connect(self._rerender_for_size)
         self._view.installEventFilter(self)
         self._view.setMinimumHeight(280)
-        body.addWidget(self._view, 1)
+
+        # THE LIVE CANVAS. A figure that still has its matplotlib Figure is
+        # shown by matplotlib itself rather than as a picture of itself.
+        #
+        # Everything above this line is a raster pipeline: draw the figure,
+        # encode it, hand Qt a pixmap, and scale that pixmap into the view.
+        # It is blurry whenever the view is not exactly the size the raster
+        # was drawn at -- which is most of the time, and always when zoomed --
+        # and it pays a full render just to LOOK at a figure.
+        #
+        # A FigureCanvasQTAgg redraws from the figure at the widget's own
+        # device resolution, so it is crisp at any size and at any zoom, and
+        # showing a figure costs nothing at all: no render, no encode, no
+        # copy. A restyle is one draw_idle, which matplotlib coalesces to one
+        # draw per event-loop turn.
+        #
+        # The raster view stays for figures whose Figure is gone (spilled past
+        # the live window, or loaded from a PDF), which genuinely are only a
+        # picture.
+        self._stack = QStackedWidget(self)
+        self._stack.addWidget(self._view)          # index 0: raster
+        self._canvas_host = QWidget(self)
+        self._canvas_layout = QVBoxLayout(self._canvas_host)
+        self._canvas_layout.setContentsMargins(0, 0, 0, 0)
+        self._canvas_layout.setSpacing(0)
+        self._stack.addWidget(self._canvas_host)   # index 1: live canvas
+        self._canvas = None
+        self._canvas_toolbar = None
+        #: Live figures go to the canvas. Turned off to exercise the raster
+        #: pipeline, which is still what a spilled or PDF-only figure uses.
+        self._live_canvas_enabled = True
+        self._stack.setMinimumHeight(280)
+        body.addWidget(self._stack, 1)
         root.addLayout(body, 1)
 
         # Navigation is via the thumbnail strip (click a thumbnail) — no
@@ -621,6 +653,16 @@ class FigureQueue(QWidget):
         png = self._png_paths.get(self._current)
         if fig is None or not png:
             return False
+        # A live figure is drawn by matplotlib, not rasterised and copied.
+        # One draw_idle, coalesced by matplotlib to one draw per event-loop
+        # turn, and the result is crisp because it is drawn at the widget's
+        # own resolution rather than stretched from a raster.
+        if self.show_live_canvas(fig):
+            if not preview:
+                # The files on disk still have to match what is on screen.
+                self._render_figure(fig, Path(png))
+                self._pdf_state.pop(self._current, None)
+            return True
         if preview and self._render_preview_async(fig):
             # The worker will deliver it; the picture on screen stays put for
             # ~100 ms rather than the window freezing for that long.
@@ -796,6 +838,25 @@ class FigureQueue(QWidget):
         if not (0 <= idx < self._count):
             return
         self._current = idx
+        # Prefer the live canvas: matplotlib draws the figure at the widget's
+        # own resolution, so it is crisp at any size and any zoom, and showing
+        # it costs no render at all. Only a figure that is genuinely just a
+        # picture -- spilled past the live window, or loaded from a PDF --
+        # falls back to the raster view.
+        # has_live_figure, NOT figure_for: figure_for restores a spilled
+        # figure from disk, so using it here would un-spill a figure merely
+        # because the user navigated past it -- which is exactly what the
+        # live-figure cap exists to prevent. Viewing an old figure keeps
+        # showing the picture; restyling it is what earns a restore.
+        live = self._figures.get(idx) if self.has_live_figure(idx) else None
+        if live is not None and self.show_live_canvas(live):
+            if self._list.currentRow() != idx:
+                self._list.blockSignals(True)
+                self._list.setCurrentRow(idx)
+                self._list.blockSignals(False)
+            self._refresh_nav()
+            return
+        self._show_raster()
         pixmap = self._pixmap_for(idx)
         if pixmap is not None:
             self._view.set_pixmap(pixmap)
@@ -1002,6 +1063,75 @@ class FigureQueue(QWidget):
     #: Small enough to be instant, large enough to judge a legend or a colour
     #: by. The real render lands the moment the dialog closes.
     PREVIEW_MAX_PX = 1100
+
+    def show_live_canvas(self, fig) -> bool:
+        """Show ``fig`` through matplotlib itself. True if the canvas is up.
+
+        This is what makes a figure crisp: the canvas redraws from the Figure
+        at the widget's device resolution every time it changes size or zoom,
+        so there is never a raster being stretched to fit. It is also what
+        makes it fast -- looking at a figure costs no render at all.
+        """
+        if not self._live_canvas_enabled:
+            return False
+        try:
+            from matplotlib.backends.backend_qtagg import (
+                FigureCanvasQTAgg, NavigationToolbar2QT)
+        except Exception as error:  # pragma: no cover - no Qt backend
+            LOG.debug("no Qt matplotlib backend, staying on the raster: %s",
+                      error)
+            return False
+        try:
+            if self._canvas is not None and self._canvas.figure is fig:
+                self._canvas.draw_idle()
+                self._stack.setCurrentIndex(1)
+                return True
+            self._teardown_canvas()
+            canvas = FigureCanvasQTAgg(fig)
+            # Right-click must still restyle, exactly as on the raster view.
+            canvas.setContextMenuPolicy(Qt.CustomContextMenu)
+            canvas.customContextMenuRequested.connect(self._view_context_menu)
+            toolbar = NavigationToolbar2QT(canvas, self._canvas_host)
+            # Pan and zoom re-render from the figure, so zooming in gives more
+            # detail rather than bigger pixels.
+            self._canvas_layout.addWidget(toolbar)
+            self._canvas_layout.addWidget(canvas, 1)
+            self._canvas = canvas
+            self._canvas_toolbar = toolbar
+            self._stack.setCurrentIndex(1)
+            canvas.draw_idle()
+            return True
+        except Exception as error:  # noqa: BLE001 - fall back to the raster
+            LOG.debug("live canvas failed, staying on the raster: %s", error)
+            self._teardown_canvas()
+            return False
+
+    def set_live_canvas_enabled(self, enabled: bool) -> None:
+        """Turn the live canvas off to force the raster pipeline.
+
+        The raster path is not legacy -- a figure spilled past the live window
+        or loaded from a PDF has no Figure to draw and can only be a picture.
+        This makes that path reachable on demand, so the machinery that keeps
+        it off the GUI thread stays under test.
+        """
+        self._live_canvas_enabled = bool(enabled)
+        if not enabled:
+            self._show_raster()
+
+    def _teardown_canvas(self) -> None:
+        """Drop the current canvas. A Figure may only live on one canvas."""
+        for widget in (self._canvas_toolbar, self._canvas):
+            if widget is not None:
+                self._canvas_layout.removeWidget(widget)
+                widget.setParent(None)
+                widget.deleteLater()
+        self._canvas = None
+        self._canvas_toolbar = None
+
+    def _show_raster(self) -> None:
+        """Fall back to the pixmap view, for a figure that is only a picture."""
+        self._teardown_canvas()
+        self._stack.setCurrentIndex(0)
 
     def _preview_target_px(self) -> float:
         """Longest edge, in real device pixels, of the area showing the figure.
