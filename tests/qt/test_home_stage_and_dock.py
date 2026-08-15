@@ -115,19 +115,19 @@ def _hover(qtbot, tile) -> None:
     qtbot.wait(1)
     QTest.mouseMove(tile, QPoint(tile.width() // 2, 6))
     qtbot.wait(1)
-    if not tile.underMouse():
-        # Xdist's offscreen QApplication processes share one platform cursor:
-        # another worker can move it between QTest.mouseMove and this check.
-        # Delivering QEnterEvent exercises QAbstractButton's actual hover
-        # state machine (unlike forcing WA_UnderMouse) without that global
-        # race, and is exactly what the platform plugin would have delivered.
-        local = QPointF(tile.width() / 2, 6)
-        window_pos = QPointF(tile.mapTo(tile.window(), local.toPoint()))
-        screen_pos = QPointF(tile.mapToGlobal(local.toPoint()))
-        from PySide6.QtWidgets import QApplication
-        QApplication.sendEvent(
-            tile, QEnterEvent(local, window_pos, screen_pos))
-        QApplication.processEvents()
+    # Xdist's offscreen QApplication processes share one platform cursor:
+    # another worker can move it after QTest.mouseMove while Qt still reports
+    # this tile's previous underMouse state. Deliver the platform-equivalent
+    # enter unconditionally so the QAbstractButton/QSS hover state and the
+    # pixel sampled below describe the same event.
+    local = QPointF(tile.width() / 2, 6)
+    window_pos = QPointF(tile.mapTo(tile.window(), local.toPoint()))
+    screen_pos = QPointF(tile.mapToGlobal(local.toPoint()))
+    from PySide6.QtWidgets import QApplication
+    QApplication.sendEvent(
+        tile, QEnterEvent(local, window_pos, screen_pos))
+    QApplication.processEvents()
+    qtbot.wait(10)
     assert tile.underMouse(), (
         f"the synthetic pointer never reached {tile.text_label} — "
         "something else in this process is holding the mouse, and the "

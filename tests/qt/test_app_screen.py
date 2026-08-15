@@ -39,12 +39,12 @@ def test_a_sample_finishing_after_hide_does_not_repaint_the_screen(qtbot):
     qtbot.addWidget(screen)
     assert not screen._usage_timer.isActive()
 
-    screen._apply_usage({"ram": 73})
+    in_flight_generation = screen._usage_generation
+    screen._usage_generation += 1  # hideEvent invalidates this request.
+    screen._apply_usage({"ram": 73}, in_flight_generation)
     assert screen._usage_ram._bar.value() == 0
 
-    screen._usage_timer.start()
-    screen._apply_usage({"ram": 73})
-    screen._usage_timer.stop()
+    screen._apply_usage({"ram": 73}, screen._usage_generation)
     assert screen._usage_ram._bar.value() == 73
 
 

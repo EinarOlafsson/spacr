@@ -279,10 +279,19 @@ def _run(*args) -> str:
 
 
 def _version() -> str:
-    text = _text("spacr/version.py")
-    for line in text.splitlines():
-        if line.startswith("__version__"):
-            return line.split("=", 1)[-1].strip().strip('"\'')
+    # ``spacr.version.__version__`` is deliberately resolved from installed
+    # distribution metadata.  Reading that assignment as text therefore
+    # yields the expression ``get_version()`` rather than a version number.
+    # setup.py remains the repository's declared-version source (and can be
+    # inspected without importing spaCR or depending on the active env).
+    for source, variable in (("setup.py", "VERSION"),
+                             ("spacr/version.py", "__version__")):
+        for line in _text(source).splitlines():
+            if not line.startswith(variable):
+                continue
+            value = line.split("=", 1)[-1].strip().strip('"\'')
+            if re.fullmatch(r"\d+(?:\.\d+)+(?:[-+._a-zA-Z0-9]*)?", value):
+                return value
     return "unknown"
 
 
