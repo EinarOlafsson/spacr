@@ -90,7 +90,6 @@ from .image_colors import read_image_rgb, write_image_rgb
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 
 from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
-from concurrent.futures import ThreadPoolExecutor
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -1895,9 +1894,19 @@ def _outline_and_overlay(image, rgb_image, mask_dims, outline_colors, outline_th
 
         return dilation(outline, _square_footprint(outline_thickness))
 
-    # Parallel processing
-    with ThreadPoolExecutor() as executor:
-        outlines = list(executor.map(process_dim, mask_dims))
+    # Drawn on the CALLING thread, deliberately. This used to run in a
+    # ThreadPoolExecutor, which aborted the whole process -- SIGABRT, core
+    # dumped, no traceback -- once Qt and Tk had both been initialised earlier
+    # in the same session. cv2 and skimage's contour code are not safe to call
+    # off the main thread with two GUI toolkits resident, and there is nothing
+    # to catch: the process is simply gone, taking every result with it.
+    #
+    # Giving the pool up cost nothing. There are at most three mask dimensions
+    # (cell, nucleus, pathogen) and find_contours holds the GIL throughout, so
+    # the threads were buying 3-5% -- measured on 3x60 objects at 1024px
+    # (1257 ms serial vs 1222 ms threaded) and 3x200 at 2048px (17.3 s vs
+    # 16.5 s). A 1.03x speedup is not worth a core dump.
+    outlines = [process_dim(mask_dim) for mask_dim in mask_dims]
 
     # Overlay outlines onto the RGB image
     for i, outline in enumerate(outlines):
