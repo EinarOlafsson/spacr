@@ -7,14 +7,27 @@ leaving the application.
 
 This panel is what a finished run opens into:
 
-    Volcano       every dot clickable, drawn by Qt, 3.6 ms
-    Table         the coefficients, sortable, filterable, wired to the volcano
-    p-values      the histogram that says whether a correction means anything
-    Q-Q           calibration, with the inflation figure
-    Controls      the assay window
+    Volcano        every dot clickable, drawn by Qt, 3.6 ms
+    Table          the coefficients, sortable, filterable, wired to the plots
+    p-values       the histogram that says whether a correction means anything
+    Q-Q            calibration, with the inflation figure
+    Controls       the assay window
+    Guide support  which genes rest on one guide, as a plot and a table
+    Gene           the tile for whatever was last clicked
 
-Clicking a point selects its row; selecting a row highlights its point. They
-are two views of one table, which is the thing that was missing.
+EVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --
+instruction 124 F. Clicking a point selects its row; selecting a row marks
+that point on every plot that drew it. They are views of one table, which is
+the thing that was missing.
+
+Joined on the KEY, never on a position. The Q-Q is sorted by p, the control
+panel is split into groups and the agreement plot has one point per gene from
+a frame with one row per guide, so a mark's position is not its row in any of
+them. Measured on the real screen: the second point on the Q-Q is the term
+``gene_fraction:gene[244480]`` (p = 2.9e-13, the strongest hit in the screen)
+while its drawing position names ``fraction:grna[000000_10]``, a control guide
+with p = 0.81. That is what a positional join would have selected, and nothing
+about it would have looked wrong.
 """
 
 from __future__ import annotations
@@ -202,8 +215,9 @@ class RegressionResultsPanel(QWidget):
             same wherever the widget ends up.
         """
         super().__init__(parent)
-        from .fast_plots import (ControlSeparation, PValueHistogram, QQPlot,
-                                 ResultsTable, VolcanoPlot)
+        from .fast_plots import (ControlSeparation, GuideAgreementPlot,
+                                 PValueHistogram, QQPlot, ResultsTable,
+                                 VolcanoPlot)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -270,8 +284,22 @@ class RegressionResultsPanel(QWidget):
         # a gene carried by a single surviving guide and a gene whose guides
         # agree are the same dot, ranked by the same number, and only one of
         # them is independent evidence.
+        #
+        # Plot above table, the same arrangement as the volcano tab and for
+        # the same reason: the picture says which genes rest on one guide at a
+        # glance, and the numbers behind any one of them are a click away.
+        self.agreement = GuideAgreementPlot()
         self.support = ResultsTable()
-        self.tabs.addTab(self.support, "Guide support")
+        agreement_split = QSplitter(Qt.Vertical)
+        agreement_split.setChildrenCollapsible(False)
+        agreement_split.addWidget(self.agreement)
+        agreement_split.addWidget(self.support)
+        agreement_split.setStretchFactor(0, 3)
+        agreement_split.setStretchFactor(1, 2)
+        self.agreement.setMinimumHeight(240)
+        self.support.setMinimumHeight(150)
+        agreement_split.setSizes([340, 220])
+        self.tabs.addTab(agreement_split, "Guide support")
 
         # THE GENE TILE. Instruction 121. The volcano answers "which guides
         # moved" and structurally cannot answer "what IS 411710", which is the
@@ -300,7 +328,23 @@ class RegressionResultsPanel(QWidget):
         #
         # `feature` is the key: 1,213 rows and 1,213 distinct values on the
         # real screen. It is checked, not assumed -- see _key_column.
-        self.volcano.key_selected.connect(self.table.select_key)
+        #
+        # EVERY PLOT WHOSE POINTS ARE COEFFICIENTS, not just the volcano.
+        # Instruction 124 F: "id like to be able to presson the datapoints of
+        # all graphs where data is represented as genes and grnas, e.g. like
+        # the Q-Q plots". A Q-Q point IS a coefficient; so is a dot in the
+        # control panel and a gene in the agreement plot. They all reach the
+        # table by the same one-line route, which is why they cannot disagree
+        # about what a click means.
+        for plot in self._keyed_plots():
+            plot.key_selected.connect(self.table.select_key)
+        # A BAR IS NOT A POINT. The histogram is the one mark here that stands
+        # for many rows, so it narrows the table to them rather than pretending
+        # to pick one -- see PValueHistogram.select_bin. When a bar happens to
+        # hold exactly ONE coefficient there is nothing to guess between, so it
+        # selects it like any other point and takes the same route as the rest.
+        self.p_values.key_selected.connect(self.table.select_key)
+        self.p_values.keys_selected.connect(self._show_keys)
         self.table.key_selected.connect(self._select_key)
         # ON THE TABLE, NOT THE VOLCANO, and one connection rather than two:
         # table.key_selected is the funnel BOTH directions already pass
@@ -314,6 +358,21 @@ class RegressionResultsPanel(QWidget):
         self._selected_key = None
         self._status = "No regression loaded."
         self._ranking = (None, None)
+
+    def _keyed_plots(self) -> tuple:
+        """Every plot whose marks are individual coefficients or genes.
+
+        The volcano, the Q-Q, the control panel and the guide-agreement plot.
+        The p-value histogram is deliberately NOT here: its marks are bins of
+        many rows, so it cannot select one and does not pretend to. The
+        residual plot is not here either -- its points are wells, not
+        coefficients, and there is no key for a well.
+        """
+        return (self.volcano, self.qq, self.controls, self.agreement)
+
+    def _show_keys(self, keys) -> None:
+        """A set of coefficients was chosen on a plot: narrow the table."""
+        self.table.show_keys(list(keys))
 
     # ------------------------------------------------------------------ load
 
@@ -436,8 +495,16 @@ class RegressionResultsPanel(QWidget):
 
         # A new table is a new experiment; carrying the old selection over
         # would ring a point that means something else now.
+        #
+        # EVERY PLOT, not just the volcano. Each one re-marks `_selected_key`
+        # at the end of its own draw so a restyle does not lose the user's
+        # place -- which means a plot whose selection is NOT cleared here
+        # cheerfully re-rings the new run at the old key. Caught by exporting
+        # the control panel after a reload and finding a ring still on it.
         self._selected_key = None
-        self.volcano.clear_highlight()
+        for plot in self._keyed_plots():
+            plot.clear_highlight()
+        self.p_values.clear_highlight()
 
         self._redraw_volcano()
         kind, column = self._ranking
@@ -464,6 +531,32 @@ class RegressionResultsPanel(QWidget):
         self.loaded.emit(source or "")
         return True
 
+    @staticmethod
+    def _gene_terms(frame) -> dict:
+        """``{gene id: the gene-level term that names it}``.
+
+        The bridge between the two things a screen calls a gene. The support
+        table is indexed by the bare id (``244480``); the coefficient table,
+        the volcano and the gene tile all join on the design-matrix term
+        (``gene_fraction:gene[244480]``). Without this the agreement plot
+        would be a second key space that nothing else can resolve, and
+        clicking a gene there would select nothing anywhere.
+        """
+        if frame is None or "feature" not in getattr(frame, "columns", ()):
+            return {}
+        try:
+            from ...hits import gene_of
+        except Exception:              # pragma: no cover - hits unavailable
+            return {}
+        terms = {}
+        for feature in frame["feature"].astype(str):
+            if not feature.startswith("gene_fraction:gene"):
+                continue
+            gene = gene_of(feature)
+            if gene is not None:
+                terms.setdefault(str(gene), feature)
+        return terms
+
     def _draw_guide_support(self, frame) -> None:
         """Per-gene guide agreement, ordered by gene p."""
         try:
@@ -474,11 +567,19 @@ class RegressionResultsPanel(QWidget):
             support = guide_support(frame)
         except Exception:  # pragma: no cover - odd table shape
             self.support.set_frame(None)
+            self.agreement.set_support(None)
             return
         if support is None or not len(support):
             self.support.set_frame(None)
+            self.agreement.set_support(None)
             return
         table = support.reset_index()
+        # The term each gene is called in the coefficient table, put in the
+        # table as a column so the support rows and the agreement points join
+        # on the SAME key every other view here uses.
+        terms = self._gene_terms(frame)
+        table.insert(0, "feature",
+                     [terms.get(str(gene)) for gene in table["gene"]])
         # A verdict column, because "n_guides=1" is a fact and "this hit rests
         # on one guide" is what the reader needs to take from it.
         def verdict(row):
@@ -490,7 +591,14 @@ class RegressionResultsPanel(QWidget):
                 return "agreement is the evidence"
             return "supported"
         table["verdict"] = table.apply(verdict, axis=1)
-        self.support.set_frame(table)
+        # A gene with no gene-level term has no key. Offering `feature` as the
+        # key column anyway would make every such row unselectable AND make
+        # the column non-unique on None; the table checks, so say nothing and
+        # let it fall back.
+        usable = table["feature"].notna().all() and table["feature"].is_unique
+        self.support.set_frame(table,
+                               key_column="feature" if usable else None)
+        self.agreement.set_support(table, keys=table["feature"])
 
     def ranking(self):
         """``(kind, column)`` for the table on screen.
@@ -541,8 +649,14 @@ class RegressionResultsPanel(QWidget):
         rows = len(frame)
         where = source or "this table"
         if kind == "p-value":
-            self.p_values.set_p_values(frame[column])
-            self.qq.set_p_values(frame[column])
+            # THE KEYS GO IN WITH THE VALUES, IN FRAME ORDER. Both are taken
+            # positionally out of the same frame, so they stay aligned however
+            # the plot reorders them afterwards -- and the Q-Q reorders them
+            # completely, which is the whole point of handing them over rather
+            # than letting the plot infer a row from a drawing position.
+            keys = self._keys_for(frame)
+            self.p_values.set_p_values(frame[column], keys=keys)
+            self.qq.set_p_values(frame[column], keys=keys)
             self.say(f"{rows} coefficients from {where}, ranked by "
                       f"“{column}”.")
             return
@@ -566,6 +680,19 @@ class RegressionResultsPanel(QWidget):
         self.qq.set_p_values([])
         self.qq.set_status(reason)
         self.say(f"{rows} coefficients from {where}. {reason}")
+
+    @classmethod
+    def _keys_for(cls, frame):
+        """The identifier of every row, in frame order, or ``None``.
+
+        ``None`` is a real answer: a table with no column that names a row
+        uniquely has nothing to join on, and a plot given no keys stays
+        readable and simply does not claim its points are clickable. That
+        beats handing over ``gene``, which repeats across a gene's guides and
+        would select an arbitrary one of them.
+        """
+        column = cls._key_column(frame)
+        return None if column is None else frame[column]
 
     @staticmethod
     def _effect_column(frame) -> str:
@@ -612,14 +739,20 @@ class RegressionResultsPanel(QWidget):
         if effect not in frame.columns:
             self.controls.set_groups({})
             return
-        groups = {}
+        groups, keys = {}, {}
+        key_column = self._key_column(frame)
         names = {"nc": "negative", "pc": "positive", "control": "control",
                  "other": "other"}
         for key, label in names.items():
             rows = frame[frame["condition"].astype(str) == key]
             if len(rows):
                 groups[label] = rows[effect].to_numpy()
-        self.controls.set_groups(groups)
+                # Sliced out of the frame WITH their values, so a dot's row
+                # travels with it into a group that is drawn in a different
+                # order from the table.
+                if key_column is not None:
+                    keys[label] = rows[key_column].astype(str).tolist()
+        self.controls.set_groups(groups, keys=keys or None)
 
     @staticmethod
     def _key_column(frame) -> Optional[str]:
@@ -640,14 +773,23 @@ class RegressionResultsPanel(QWidget):
         return None
 
     def _select_key(self, key: str) -> None:
-        """A row was picked: ring its point, and say which point that is."""
+        """A row was picked: mark it on EVERY plot that drew it.
+
+        The link runs both ways on all of them, not just the volcano. A guide
+        found in the table should light up in the Q-Q as well -- that is how
+        a user answers "is my hit the one lifting off the diagonal", which is
+        the question the Q-Q exists for and could not previously be asked.
+
+        Each plot answers for itself, and a False is a real answer: a
+        coefficient with an unusable p-value is on no plot, a nuisance term is
+        off the volcano on purpose, and a guide is not a point on the
+        per-gene agreement plot at all.
+        """
         self._selected_key = str(key)
-        found = self.volcano.highlight_key(key)
-        if found:
-            self.volcano.set_status(f"{key}")
-            return
-        # Honest about the miss. The commonest cause is a coefficient with an
-        # unusable p-value, which is drawn nowhere; the next is a nuisance
-        # term, which the volcano leaves off on purpose.
-        self.volcano.set_status(
-            f"{key} is in the table but not on this plot.")
+        for plot in self._keyed_plots():
+            plot.note_selection(key, plot.highlight_key(key))
+        # The histogram has no point to ring, but it can outline the bar the
+        # coefficient falls in, which is the honest equivalent. No note goes
+        # with it: a bar is a hundred rows, and printing one row's name beside
+        # it would read as a claim that the bar IS that row.
+        self.p_values.highlight_key(key)
