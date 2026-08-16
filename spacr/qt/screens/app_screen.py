@@ -1674,8 +1674,9 @@ class AppScreen(QWidget):
                 self._results_panel.table.key_selected.connect(
                     self._on_guide_selected)
 
-                # "the paramiter search should be like the main module setup
-                # just an extra tab for the runs" (116, corrected). Not a
+                # The parameter search is the main module setup plus one
+                # extra tab for the runs -- instruction 116, corrected by
+                # the maintainer, whose exact words are in that file. Not a
                 # bespoke screen with its own copies of the table, the queue
                 # and the results panel -- this screen, with one more tab.
                 # Picking a run swaps the figures on the right, which is the

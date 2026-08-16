@@ -2,8 +2,8 @@
 
 Instruction 116, as corrected by the maintainer on 2026-08-16:
 
-    "actually the paramiter search should be like the main module setup just
-     an extra tab for the runs."
+    the parameter search is the main module setup plus one extra tab for the
+    runs (the maintainer's exact words are in instruction 116).
 
 Which is a smaller job than the plan it superseded, and a better one. The
 parameter search was a bespoke screen carrying its own copies of the table,
