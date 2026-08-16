@@ -3877,10 +3877,31 @@ def perform_regression(settings):
     for metadata_file in settings['metadata_files']:
         file = os.path.basename(metadata_file)
         filename, _ = os.path.splitext(file)
-        _ = merge_regression_res_with_metadata(hits_path, metadata_file, name=filename)
-        merged_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
-        gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
-        grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
+        # AN UNREADABLE ANNOTATION FILE MUST NOT DESTROY A FINISHED FIT.
+        #
+        # The regression is complete and written by this point; this loop only
+        # decorates the results with gene metadata. An empty or missing file
+        # here raised EmptyDataError straight out of perform_regression, so a
+        # perfectly good run was reported as a failure and its coefficients
+        # went unused -- which is what it looks like from a sweep, where one
+        # bad metadata path fails every trial that touches it.
+        try:
+            if not os.path.isfile(metadata_file) \
+                    or os.path.getsize(metadata_file) == 0:
+                print(f"Skipping empty or missing metadata file: "
+                      f"{metadata_file}")
+                continue
+        except OSError:
+            continue
+        try:
+            _ = merge_regression_res_with_metadata(hits_path, metadata_file, name=filename)
+            merged_df = merge_regression_res_with_metadata(results_path, metadata_file, name=filename)
+            gene_merged_df = merge_regression_res_with_metadata(results_path_gene, metadata_file, name=filename)
+            grna_merged_df = merge_regression_res_with_metadata(results_path_grna, metadata_file, name=filename)
+        except Exception as metadata_error:
+            print(f"Could not merge metadata from {metadata_file}: "
+                  f"{metadata_error}")
+            continue
 
     if settings['toxo']:
         data_path = merged_df
