@@ -2443,7 +2443,53 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             coef_df=coef_df, regression_type=regression_type,
             volcano_path=volcano_path if plot else None)
 
+    # THE PUBLICATION SHEET. Asked for on 2026-08-16: "the all figures
+    # section should look like a publication ready figure". One figure with
+    # every panel the table supports, laid out the way a journal figure is,
+    # in the house style -- and its legend written from the panels themselves
+    # rather than maintained separately, because a legend kept by hand beside
+    # the code that draws the figure describes last month's figure.
+    if dst:
+        _write_regression_sheet(coef_df, dst)
+
     return model, coef_df, regression_type
+
+
+def _write_regression_sheet(coef_df, dst):
+    """Write ``<dst>/regression_figure.pdf`` and its legend.
+
+    Never fatal: a fit that produced a coefficient table has already done the
+    work, and losing the run because a panel could not be drawn would be the
+    worst possible trade.
+    """
+    import os
+
+    if coef_df is None or not len(coef_df):
+        return None
+    try:
+        from .figures import build_sheet
+
+        sheet = build_sheet(coef_df, width='double', target='print')
+        folder = str(dst)
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, 'regression_figure.pdf')
+        sheet.figure.savefig(path, bbox_inches='tight')
+        with open(os.path.join(folder, 'regression_figure_legend.txt'),
+                  'w') as handle:
+            handle.write(sheet.legend() + '\n')
+        try:
+            import matplotlib.pyplot as plt
+            plt.close(sheet.figure)
+        except Exception:
+            pass
+        print(f"Wrote the regression figure to {path} "
+              f"({len(sheet.panels)} panels"
+              + (f", {len(sheet.skipped)} not applicable"
+                 if sheet.skipped else '') + ').')
+        return path
+    except Exception as error:  # noqa: BLE001 - never lose a run over a figure
+        print(f"Could not draw the regression figure: {error}")
+        return None
 
 def save_summary_to_file(model, file_path='summary.csv'):
     """
