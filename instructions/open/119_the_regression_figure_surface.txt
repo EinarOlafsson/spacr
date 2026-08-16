@@ -1,0 +1,150 @@
+================================================================================
+THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
+================================================================================
+
+Status:    filed 2026-08-16, not started. THIS FILE IS THE INDEX for one
+           request that spans seven instructions -- see WHAT LIVES WHERE.
+Requested: 2026-08-16 - "The regression itself i working pretty well. but the
+           figures being generated are verry slow, espessially the last
+           regression figure. ... The image UMAP modual works really well now,
+           the hyperparamiter search looks great, take insiration from that
+           module for the following features to the regression module ...
+           - figures should not have a background not black not white just
+             transparent
+           - figures should pop up in a grid above the console
+           - each figure should be editable and savable
+           - if a figure is clicked it should fill the container
+           - the results for the regression shoild pop up in a container to
+             the left of the figures
+           - this table should be clickable so the user can click a row and
+             that rows datapoint in the regression graph gets highlighted
+           - for the paramiter search there should be a different structure
+             with the run table to the top of the figure grid with figures and
+             the figures should change when a run row is clicked
+           - all gigures should be editable by right clicking
+           - use the fastest graphing library possible
+           - currently changing settings on most graphs laggs to much and
+             esspecially on the regression plot, that is super slow
+           - add quality controll graphs for variance homogenicite and all
+             other regression relevant features
+           - the paramiter search needs to be verry safe so it dosnt crash
+             spacr or the machine (it crashed vscode many tinmes)"
+
+--------------------------------------------------------------------------------
+WHAT LIVES WHERE
+--------------------------------------------------------------------------------
+
+Most of this request already had a home. Folding it in rather than filing a
+thirteenth duplicate, because a requirement written down twice gets built
+twice and the two copies disagree:
+
+    108  right-click to restyle  ... and SAVE the restyled figure
+    114  the sweep cannot take the machine down  (VS Code was OOM-killed)
+    115  variance homogeneity + every standard regression diagnostic
+    116  the search's run table sits ABOVE its figure grid
+    117  a grid ABOVE the console; click a figure to fill the container
+    118  transparent background -- never black, never white
+
+Each of those now carries the maintainer's 2026-08-16 words in its own file.
+
+WHAT IS ONLY HERE, because nothing else covers it:
+
+    A. the regression RESULTS TABLE, to the LEFT of the figures
+    B. clicking a results row HIGHLIGHTS that row's point in the graph
+    C. "use the fastest graphing library possible"
+    D. settings changes lag; the regression plot is "super slow"
+
+--------------------------------------------------------------------------------
+A. THE RESULTS TABLE IS TO THE LEFT
+--------------------------------------------------------------------------------
+
+The regression screen gets a results container to the LEFT of the figure
+grid.
+
+DELIBERATELY DIFFERENT FROM THE SEARCH SCREEN, which puts its run table
+ABOVE its grid (116). That is not an inconsistency to be tidied away later:
+
+  * the SEARCH table is a list of RUNS. It is short, it is scanned top to
+    bottom, and picking one replaces the whole grid. Above.
+  * the REGRESSION table is a list of FINDINGS -- one row per guide or gene,
+    hundreds of rows, sorted by effect. It is read ALONGSIDE the figure it
+    describes, and picking a row changes one point rather than the view.
+    Beside.
+
+Anyone who "unifies" these two layouts has removed the reason for both.
+
+--------------------------------------------------------------------------------
+B. CLICK A ROW, LIGHT UP ITS POINT
+--------------------------------------------------------------------------------
+
+Clicking a results row highlights that row's datapoint in the regression
+graph. This is the feature that makes the table and the figure one object
+instead of two.
+
+WHAT IT REQUIRES, and this is the part that is easy to get wrong: the row and
+the point must be joined on a KEY, not on a position. A regression table
+sorted by effect and a scatter drawn in input order are the same points in
+two orders, and joining them by index highlights the wrong guide -- silently,
+and in exactly the direction a user would not question, because SOMETHING
+lights up.
+
+The key is the guide/gene identifier the row carries. Assert it.
+
+Highlighting should also survive a re-draw: change a setting, and the
+selected point stays selected.
+
+--------------------------------------------------------------------------------
+C. THE FASTEST GRAPHING LIBRARY POSSIBLE
+--------------------------------------------------------------------------------
+
+Taken as "make it fast", not as "add a dependency". In that order:
+
+1. FIND OUT WHAT IS ALREADY HERE. `spacr/qt/widgets/fast_plots.py` exists.
+   Establish what it uses and where it is already wired before proposing
+   anything new. A second plotting stack that only the regression module
+   speaks is a second set of theme bugs, export bugs and DPI bugs.
+2. MEASURE BEFORE SWITCHING. "Slow" has a cause (see D), and if the cause is
+   a full re-render on every settings change then no library is fast enough
+   to hide it. Fix the pipeline first; a faster renderer on a wasteful
+   pipeline is still wasteful.
+3. ONLY THEN consider a different renderer, and only for the plots whose
+   point count actually justifies it -- a volcano with 800 guides does not
+   need a GPU, a per-cell scatter with 300,000 does.
+
+State what was measured. "It felt faster" is not a result.
+
+--------------------------------------------------------------------------------
+D. THE LAG, AND THE LAST REGRESSION FIGURE
+--------------------------------------------------------------------------------
+
+Two complaints, and they may not have the same cause:
+
+  * changing settings on most graphs lags;
+  * the LAST regression figure is "verry slow" -- named specifically, so
+    identify WHICH figure that is before optimising anything.
+
+The likely shape, to be confirmed rather than assumed: a settings change
+re-renders the whole figure, and possibly re-fits the model behind it. A
+restyle should never re-fit -- 108 says the same thing from the other side,
+"without re-running anything".
+
+PROFILE IT. Time one settings change end to end, and say where the
+milliseconds go. A fix aimed at the wrong stage is the most expensive kind of
+optimisation, and this repository has already spent a day on one of those.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The regression screen shows a results table on the LEFT and a figure grid
+  on the right, above the console.
+* Clicking a results row highlights that guide's point, joined ON THE KEY --
+  with a test that sorts the table differently from the plot order and
+  asserts the right point still lights up.
+* The selection survives a settings change.
+* The parameter-search screen shows its run table ABOVE its grid, and
+  clicking a run swaps the figures.
+* Figures are transparent, restyleable by right-click, savable, and click to
+  fill the container.
+* One settings change on the slowest regression figure is measurably faster,
+  with the before and after numbers written down, and no re-fit in the path.
