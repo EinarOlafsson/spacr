@@ -68,7 +68,15 @@ class RegressionResultsPanel(QWidget):
     #: Emitted with the results CSV whenever a new one is loaded.
     loaded = Signal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, external_volcano: bool = False):
+        """
+        :param external_volcano: build the volcano but do not place it. The
+            caller takes it and gives it the room it deserves -- it is the
+            graph the maintainer asked to be interactive, and a thumbnail
+            above its own table is not that. All the wiring stays here, so
+            the key join, the redraw and the surviving selection work the
+            same wherever the widget ends up.
+        """
         super().__init__(parent)
         from .fast_plots import (ControlSeparation, PValueHistogram, QQPlot,
                                  ResultsTable, VolcanoPlot)
@@ -95,21 +103,26 @@ class RegressionResultsPanel(QWidget):
         # belong beside each other, and the divider is the user's to move.
         self.volcano = VolcanoPlot()
         self.table = ResultsTable()
-        split = QSplitter(Qt.Vertical)
-        split.setChildrenCollapsible(False)
-        split.addWidget(self.volcano)
-        split.addWidget(self.table)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 2)
-        # Floors, not preferences. Without them the panel's share of the
-        # window is divided by the widgets' own size hints and BOTH end up
-        # too short to read -- a volcano with no room for its axes and a
-        # table showing its header and one row, which is what this looked
-        # like on the real screen before the numbers were put in.
-        self.volcano.setMinimumHeight(240)
+        self.external_volcano = bool(external_volcano)
         self.table.setMinimumHeight(150)
-        split.setSizes([340, 220])
-        self.tabs.addTab(split, "Volcano")
+        if self.external_volcano:
+            # The table is the panel; the graph is the caller's to place.
+            self.tabs.addTab(self.table, "Coefficients")
+        else:
+            split = QSplitter(Qt.Vertical)
+            split.setChildrenCollapsible(False)
+            split.addWidget(self.volcano)
+            split.addWidget(self.table)
+            split.setStretchFactor(0, 3)
+            split.setStretchFactor(1, 2)
+            # Floors, not preferences. Without them the panel's share of the
+            # window is divided by the widgets' own size hints and BOTH end up
+            # too short to read -- a volcano with no room for its axes and a
+            # table showing its header and one row, which is what this looked
+            # like on the real screen before the numbers were put in.
+            self.volcano.setMinimumHeight(240)
+            split.setSizes([340, 220])
+            self.tabs.addTab(split, "Volcano")
 
         self.p_values = PValueHistogram()
         self.qq = QQPlot()

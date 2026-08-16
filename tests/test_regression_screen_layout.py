@@ -186,3 +186,86 @@ def test_showing_a_figure_does_not_draw_it_over_the_grid(screen):
 
     assert screen._figures_stack.currentWidget() is screen._figure_grid
     assert screen._figure_queue.parent() is screen._figure_detail
+
+
+# --------------------------------------------------------------------------- #
+#  The regression graph is the LIVE one, and it gets the big half
+# --------------------------------------------------------------------------- #
+
+def _real_results():
+    import numpy as np
+    import pandas as pd
+
+    rng = np.random.default_rng(11)
+    n = 300
+    return pd.DataFrame({
+        "feature": ["Intercept"] + [f"fraction:grna[{i}_1]" for i in range(n)],
+        "coefficient": np.concatenate([[0.19], rng.normal(size=n)]),
+        "p_value": np.concatenate([[3e-46], rng.uniform(size=n)]),
+    })
+
+
+def test_the_volcano_is_not_squeezed_into_the_results_panel(screen):
+    """"that is the slowest graph and the one i want to be interactive." A
+    thumbnail above its own table is not that."""
+    assert screen._results_panel.external_volcano is True
+    tabs = screen._results_panel.tabs
+    assert tabs.tabText(0) == "Coefficients", (
+        "the results panel still owns the volcano")
+    assert screen._results_panel.volcano.parent() is not None
+    assert screen._figures_stack.indexOf(screen._volcano_page) == 2
+
+
+def test_pressing_the_pinned_tile_opens_the_live_graph(screen):
+    screen._results_panel.set_frame(_real_results())
+    screen._refresh_figure_grid()
+
+    assert screen._figure_grid._pinned is not None, "no live-graph tile"
+    screen._figure_grid._pinned.clicked.emit(-1)
+
+    assert screen._figures_stack.currentWidget() is screen._volcano_page
+
+
+def test_the_pinned_tile_is_not_one_of_the_runs_figures(screen):
+    """It has no index among them. Sharing figure_activated would mean a
+    sentinel index, and a sentinel index is a wrong figure waiting to be
+    opened by whoever forgets to check for it."""
+    screen._results_panel.set_frame(_real_results())
+    screen._refresh_figure_grid()
+
+    opened = []
+    screen._figure_grid.figure_activated.connect(opened.append)
+    screen._figure_grid._pinned.clicked.emit(-1)
+
+    assert opened == [], "the live graph was opened as if it were figure -1"
+
+
+def test_a_new_run_does_not_take_the_live_graph_away(screen):
+    """clear() replaces the run's figures. The interactive graph is not one
+    of them and must survive."""
+    screen._results_panel.set_frame(_real_results())
+    screen._refresh_figure_grid()
+    assert screen._figure_grid._pinned is not None
+
+    screen._figure_grid.set_figures([], [])
+
+    assert screen._figure_grid._pinned is not None
+
+
+def test_picking_a_guide_raises_the_graph_it_was_rung_on(screen):
+    """A ring drawn on a view nobody is looking at is not a highlight."""
+    frame = _real_results()
+    screen._results_panel.set_frame(frame)
+    screen._show_figure_grid()
+    assert screen._figures_stack.currentWidget() is screen._figure_grid
+
+    screen._results_panel.table.table.selectRow(4)
+
+    assert screen._figures_stack.currentWidget() is screen._volcano_page
+    assert screen._results_panel.volcano._selected_key is not None
+
+
+def test_no_tile_before_anything_is_fitted(screen):
+    """An empty plot tile invites a click that shows an empty plot."""
+    screen._refresh_figure_grid()
+    assert screen._figure_grid._pinned is None
