@@ -693,14 +693,20 @@ def test_selection_keys_agree_with_the_schema_row_key(field, label):
 
 
 # ===========================================================================
-# CONFIRMED BUGS, reproduced -- not weakened to pass
+# ONCE-CONFIRMED BUGS, now repaired -- kept as the properties they reached for
 # ===========================================================================
 #
-# Each of these is a property that ought to hold, a minimal counterexample
-# hypothesis found, and the module that owns the repair. They are
-# xfail(strict=True) so that fixing one turns this file red until the xfail
-# is removed -- a bug that quietly stops reproducing is a bug nobody notices
-# was fixed, and an xfail nobody removes is a property nobody is testing.
+# Each of these was a property that ought to hold, a minimal counterexample
+# hypothesis found, and the module that owned the repair. They were
+# xfail(strict=True) while they still reproduced, so that fixing one turned
+# this file red until the marker came off -- a bug that quietly stops
+# reproducing is a bug nobody notices was fixed, and an xfail nobody removes
+# is a property nobody is testing.
+#
+# All four are FIXED (instruction 100, C2-C4) and the markers came off with
+# the fixes, so these are ordinary passing property tests now. They stay
+# because the property is the point: the counterexample hypothesis found once
+# is the one it will find again if a repair regresses.
 
 
 @given(token=unparseable_tokens)
