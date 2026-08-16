@@ -63,3 +63,24 @@ copied: a grid of small figures, one click to promote one to full size.
 One request spanned seven instructions; the whole of it is quoted in
 instructions/open/119_the_regression_figure_surface.txt, which indexes the
 pieces.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - WHAT "GRID" MEANS: TILES THAT CAN BE PRESSED
+--------------------------------------------------------------------------------
+
+    "when i say figure grid im thinking of tiles that can be pressed."
+
+So this is not a static montage and not a scroll of stacked images. Each cell
+is a TILE and a tile is a control: it has a hover state, it takes a click,
+and clicking it fills the container (the click-to-fill half of this file).
+
+That settles two things that would otherwise be guessed:
+
+  * a tile is the unit. Anything else that belongs in the grid -- the gene
+    information panel of instruction 121, a table, a note -- is A TILE TOO,
+    not a special case beside the grid. One grid, one interaction, one set of
+    tests.
+  * the aspect rule in this file applies to the FIGURE INSIDE the tile, not
+    to the tile. Tiles are a regular grid; the plot inside one keeps its own
+    aspect and is letterboxed rather than stretched.
