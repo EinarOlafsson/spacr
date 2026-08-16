@@ -97,16 +97,21 @@ def test_a_callback_that_predates_preview_still_works(qtbot, volcano):
 
 
 def test_a_menu_with_no_callback_does_not_raise(qtbot, volcano):
+    """The toggle still has to reach the figure. A menu that swallows the
+    edit along with the redraw is not 'safe', it is broken quietly."""
     from spacr.qt.widgets.figure_settings import build_figure_context_menu
 
     host = pytest.importorskip("PySide6.QtWidgets").QWidget()
     qtbot.addWidget(host)
     menu = build_figure_context_menu(host, volcano, on_change=None)
 
-    for action in menu.actions():
-        if action.isCheckable():
-            action.toggle()
-            break
+    grid = [a for a in menu.actions() if a.text() == "Grid"]
+    assert grid, [a.text() for a in menu.actions()]
+    before = any(line.get_visible() for line in volcano.axes[0].get_xgridlines())
+    grid[0].toggle()
+
+    after = any(line.get_visible() for line in volcano.axes[0].get_xgridlines())
+    assert after != before, "the toggle did nothing without a redraw callback"
 
 
 # --------------------------------------------------------------------------- #
