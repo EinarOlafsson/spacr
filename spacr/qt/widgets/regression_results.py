@@ -138,6 +138,15 @@ class RegressionResultsPanel(QWidget):
         self.support = ResultsTable()
         self.tabs.addTab(self.support, "Guide support")
 
+        # THE GENE TILE. Instruction 121. The volcano answers "which guides
+        # moved" and structurally cannot answer "what IS 411710", which is the
+        # question the user has the instant they click one. The frame is
+        # reached through a callable rather than stored, so a newly loaded
+        # regression is never answered from the previous one.
+        from .gene_tile import GeneTilePanel
+        self.gene = GeneTilePanel(frame_provider=lambda: self._frame)
+        self.tabs.addTab(self.gene, "Gene")
+
         # THE TWO DIRECTIONS OF THE SAME LINK, JOINED ON THE KEY.
         #
         # Not on a position. The table is sorted by whatever column the user
@@ -152,6 +161,12 @@ class RegressionResultsPanel(QWidget):
         # real screen. It is checked, not assumed -- see _key_column.
         self.volcano.key_selected.connect(self.table.select_key)
         self.table.key_selected.connect(self._select_key)
+        # ON THE TABLE, NOT THE VOLCANO, and one connection rather than two:
+        # table.key_selected is the funnel BOTH directions already pass
+        # through -- volcano.key_selected -> table.select_key -> selection
+        # change -> re-emit. Connecting the volcano as well would build the
+        # tile twice for every click.
+        self.table.key_selected.connect(self.gene.show_feature)
 
         self._frame = None
         self._path = None
