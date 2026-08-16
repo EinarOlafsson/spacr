@@ -41,7 +41,8 @@ twice and the two copies disagree:
     108  right-click to restyle  ... and SAVE the restyled figure
     114  the sweep cannot take the machine down  (VS Code was OOM-killed)
     115  variance homogeneity + every standard regression diagnostic
-    116  the search's run table sits ABOVE its figure grid
+    116  the search is the module setup PLUS A RUNS TAB (corrected same
+         day -- NOT a table above the grid)
     117  a grid ABOVE the console; click a figure to fill the container
     118  transparent background -- never black, never white
 
@@ -61,17 +62,20 @@ A. THE RESULTS TABLE IS TO THE LEFT
 The regression screen gets a results container to the LEFT of the figure
 grid.
 
-DELIBERATELY DIFFERENT FROM THE SEARCH SCREEN, which puts its run table
-ABOVE its grid (116). That is not an inconsistency to be tidied away later:
+DELIBERATELY DIFFERENT FROM THE SEARCH SCREEN, which was corrected on
+2026-08-16 to be the ordinary module setup plus a RUNS TAB (116). The two are
+not the same surface and should not be made one:
 
-  * the SEARCH table is a list of RUNS. It is short, it is scanned top to
-    bottom, and picking one replaces the whole grid. Above.
-  * the REGRESSION table is a list of FINDINGS -- one row per guide or gene,
-    hundreds of rows, sorted by effect. It is read ALONGSIDE the figure it
-    describes, and picking a row changes one point rather than the view.
-    Beside.
+  * the SEARCH's runs are a TAB. They are a short list, scanned top to
+    bottom, and picking one replaces the whole grid. A tab, because the
+    search screen is otherwise the module setup every other screen is.
+  * the REGRESSION's results are a PANEL BESIDE the figures -- one row per
+    guide or gene, hundreds of rows, sorted by effect, read ALONGSIDE the
+    figure it describes. Picking a row changes one point, not the view, so
+    both have to be on screen at once.
 
-Anyone who "unifies" these two layouts has removed the reason for both.
+One is navigation between runs; the other is reading within a run. Anyone who
+"unifies" them has removed the reason for both.
 
 --------------------------------------------------------------------------------
 B. CLICK A ROW, LIGHT UP ITS POINT
@@ -142,9 +146,42 @@ HOW TO KNOW IT WORKED
   with a test that sorts the table differently from the plot order and
   asserts the right point still lights up.
 * The selection survives a settings change.
-* The parameter-search screen shows its run table ABOVE its grid, and
-  clicking a run swaps the figures.
+* The parameter-search screen is the ordinary module setup with one extra
+  tab holding the runs, and clicking a run swaps the figures.
 * Figures are transparent, restyleable by right-click, savable, and click to
   fill the container.
 * One settings change on the slowest regression figure is measurably faster,
   with the before and after numbers written down, and no re-fit in the path.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - THE DATA TO MEASURE AGAINST, AND WHICH GRAPH
+--------------------------------------------------------------------------------
+
+    "if you are going to test grapjs test the regression graph based on the
+     data in /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/
+     which is real data and that is the slowest graph and the one i want to be
+     interactive."
+
+THIS ANSWERS SECTION D's OPEN QUESTION -- "identify WHICH figure that is
+before optimising anything". It is the regression graph itself, on the
+tsg101 screen.
+
+    /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/
+    36 MB -- four plates (plate1_dv.csv .. plate4_dv.csv), their unique-
+    combination tables, grna_barcodes.csv, and a results/ folder.
+
+USE IT. A synthetic frame with a thousand rows will not reproduce a lag that
+only appears on a real screen, and "it felt faster" on fake data is not a
+result. Profile the real thing, write the before number down, and write the
+after number next to it.
+
+THIS IS ALSO THE GRAPH THAT MUST BECOME INTERACTIVE -- the row-to-point
+highlighting of section B and the gene tile of instruction 121 both land
+here first. Whatever renderer this graph ends up using has to carry hit
+testing (click a point, know which guide it is), so a renderer chosen purely
+for draw speed is the wrong choice if it cannot answer that.
+
+DO NOT WRITE INTO THAT DIRECTORY. It is the maintainer's real screen data,
+not a fixture. Copy what is needed into a temp directory, or open it
+read-only.

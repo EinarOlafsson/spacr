@@ -63,3 +63,39 @@ both.
 One request spanned seven instructions; the whole of it is quoted in
 instructions/open/119_the_regression_figure_surface.txt, which indexes the
 pieces.
+
+
+================================================================================
+2026-08-16 - CORRECTED, SAME DAY. NOT A TABLE ABOVE A GRID: A TAB.
+================================================================================
+
+    "actually the paramiter search should be like the main module setup just
+     an extra tab for the runs."
+
+THIS SUPERSEDES the section directly above it, which was written hours
+earlier from "the run table to the top of the figure grid" and is now wrong.
+Do not build it.
+
+WHAT IT MEANS. The parameter search is NOT a bespoke screen with its own
+layout. It is THE MAIN MODULE SETUP -- the same settings surface, the same
+console, the same figure grid every other module screen has -- plus ONE EXTRA
+TAB holding the runs.
+
+WHY THIS IS THE BETTER ANSWER, and worth stating so it is not "simplified"
+back later:
+
+  * a user who has learned one module screen has learned this one. A second
+    layout is a second thing to learn for no new capability.
+  * every fix to the shared screen -- the figure grid, the console, the
+    settings panel, the drop handling -- lands here for free. A bespoke
+    screen collects its own copies of all of them, and they drift.
+  * this repository already has that drift and is paying for it. 155 field
+    tooltips (instruction 113) existed precisely because 28 hand-built
+    screens each re-implemented a row.
+
+SO THE WORK IS SMALLER THAN THE SUPERSEDED PLAN, not larger: build the runs
+TAB, and take the rest from the module setup that already exists.
+
+Clicking a run row still swaps the figures -- that part of the request is
+unchanged and is the substance of this instruction. Only the furniture around
+it changed.
