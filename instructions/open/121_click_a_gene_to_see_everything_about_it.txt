@@ -1,0 +1,101 @@
+================================================================================
+CLICK A GENE IN THE REGRESSION AND EVERYTHING KNOWN ABOUT IT APPEARS
+================================================================================
+
+Status:    filed 2026-08-16, not started.
+Requested: 2026-08-16 - "also if the grna or guide is a toxoplasma gene then i
+           would love to have behaviour like in starplast
+           (/mnt/firecuda2/Claude/repo/starplast/) where if you click a gene
+           all the information for that gene is pulled up. so in the
+           interactive regression, when a gene is clicked a tile should appear
+           with all the information on that gene."
+
+--------------------------------------------------------------------------------
+WHAT IT IS
+--------------------------------------------------------------------------------
+
+In the interactive regression, clicking a gene opens a TILE carrying
+everything spaCR can say about that gene.
+
+This is the payoff of the whole interactive-regression request. A volcano
+plot answers "which guides moved"; it cannot answer "what IS TGGT1_231640",
+which is the question a user actually has at that moment, and today they
+answer it by leaving spaCR for a browser.
+
+starplast already does this and is the reference implementation
+(/mnt/firecuda2/Claude/repo/starplast/). Read it before designing anything:
+`starplast/identity.py` resolves gene ids, `starplast/interactions.py` has
+`gene_attributes`, `starplast/annotations.py` holds the per-gene annotation
+store, and `starplast/analysis_panel.py` is the panel that displays it.
+Take the pattern, and take the parts that are genuinely portable.
+
+--------------------------------------------------------------------------------
+WHAT GOES ON THE TILE
+--------------------------------------------------------------------------------
+
+To be settled against what is actually available, not invented:
+
+  * THE IDENTITY: gene id, product description, aliases. `TGGT1_231640` is
+    not a name a human recognises, and the whole point is to make it one.
+  * THIS SCREEN'S OWN NUMBERS: the effect, the p-value, the q-value, the
+    guides that carry it and how each behaved. These are already in the
+    regression result and cost nothing.
+  * WHAT SPACR ALREADY KNOWS: any annotation store, any prior screen result,
+    anything in the project's own databases.
+  * EXTERNAL REFERENCES: a link out to VEuPathDB/ToxoDB for the id.
+
+ORDER MATTERS: identity first, then this screen's numbers, then everything
+else. A user who clicked a point wants to know what they clicked before they
+want a bibliography.
+
+--------------------------------------------------------------------------------
+THE THING TO GET RIGHT
+--------------------------------------------------------------------------------
+
+"IF THE GRNA OR GUIDE IS A TOXOPLASMA GENE" -- the request is conditional,
+and the condition is the hard part.
+
+A guide id is not a gene id. The regression works on guides
+(`TGGT1_231640_1`, `TGGT1_231640_2`, ...) and the gene is a prefix of them,
+which means a resolver has to go guide -> gene and be RIGHT about it. spaCR
+already has the raw material: `barcodes_grna.csv` maps protospacers to gene
+names, and instruction 100's D2 records that three protospacers in that file
+map to two or three DIFFERENT genes each.
+
+SO THE AMBIGUOUS CASE EXISTS IN THE SHIPPED DATA and must not be papered
+over. A guide that could belong to three genes gets a tile that SAYS SO,
+listing all three -- not the first one, and not a silent pick. That is the
+same rule instruction 109 applies to colliding plate ids and 100 applies to
+duplicate protospacers: refuse or disambiguate, never resolve silently.
+
+AND WHEN IT IS NOT A GENE AT ALL: non-targeting controls, a screen that is
+not Toxoplasma, an id in a format nothing recognises. The tile should say
+what it could not resolve rather than appearing empty -- an empty panel reads
+as a bug, a panel saying "no gene record for this guide" reads as an answer.
+
+--------------------------------------------------------------------------------
+WHERE IT LIVES
+--------------------------------------------------------------------------------
+
+A TILE, in the figure grid (instruction 117/119) -- the same pressable tile
+every figure is, holding text instead of a plot. That keeps one grid, one
+interaction and one set of tests, rather than a floating panel with its own
+lifetime.
+
+It composes with instruction 119's row-to-point highlighting: clicking a
+results row highlights the point AND can raise this tile, because both are
+the same question asked two ways.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Clicking a point or a results row for a Toxoplasma guide opens a tile whose
+  first line is a gene a human recognises, not an accession.
+* The tile carries this screen's own effect/p/q and the guides behind it.
+* A guide whose protospacer maps to more than one gene shows ALL of them and
+  says the mapping is ambiguous -- with a test built on the real ambiguous
+  rows in the shipped `barcodes_grna.csv`, not a synthetic one.
+* A non-targeting control, or a non-Toxoplasma id, produces a tile that says
+  what could not be resolved rather than an empty one.
+* Nothing in the path makes a network call while the user waits.
