@@ -446,6 +446,15 @@ def _trial_settings(base_settings, trial, destination):
     settings["src"] = folder
     settings.setdefault("verbose", False)
     settings.setdefault("toxo", False)
+    # Write the settings the way the GUI writes them, so a trial worth a
+    # second look can be opened straight in the regression module -- point it
+    # at the trial folder and press run. A sweep whose interesting rows cannot
+    # be reopened is only half an answer.
+    try:
+        from .utils import save_settings
+        save_settings(dict(settings), name="regression", show=False)
+    except Exception:  # pragma: no cover - never lose a trial over its record
+        pass
     return settings, folder
 
 
@@ -508,8 +517,24 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     deterministic across workers, and a reproducible trial list matters more
     than the trials it would save.
     """
-    from concurrent.futures import ProcessPoolExecutor, as_completed
+    # A CALLER WITHOUT A MAIN GUARD FORK-BOMBS ITSELF.
+    #
+    # This pool spawns rather than forks (torch and OpenMP are not safe to
+    # fork), and a spawned child re-imports the module it was launched from.
+    # If that module is a script whose sweep call sits at top level, every
+    # child starts its own sweep, which starts more children. What the user
+    # sees is "BrokenProcessPool: A child process terminated abruptly", which
+    # says nothing about the actual mistake.
     import multiprocessing
+
+    if multiprocessing.current_process().name != "MainProcess":
+        raise RuntimeError(
+            "run_sweep_parallel was called from a worker process. The script "
+            "that calls it needs an `if __name__ == \"__main__\":` guard -- "
+            "without one, each spawned worker re-runs the script and starts "
+            "its own sweep.")
+
+    from concurrent.futures import ProcessPoolExecutor, as_completed
 
     space = space or SweepSpace()
     if not space.filters:

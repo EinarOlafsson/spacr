@@ -975,9 +975,16 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
         .str.extract(r'\[(.*?)\]')[0]
         .str.replace(r'^T\.', '', regex=True)
     )
+    # Control names as TEXT. A gene id like 233460 is a perfectly good
+    # negative_control, and a settings file round-trips it back as the INT
+    # 233460 -- at which point `nc in row['feature']` raises "'in <string>'
+    # requires string as left operand, not int" and the whole regression dies
+    # on a value that was legal the moment it was typed into the GUI.
+    nc_name = '' if nc is None else str(nc)
+    pc_name = '' if pc is None else str(pc)
     coef_df['condition'] = coef_df.apply(
-        lambda row: 'nc' if nc in row['feature'] else
-                    'pc' if pc in row['feature'] else
+        lambda row: 'nc' if nc_name and nc_name in str(row['feature']) else
+                    'pc' if pc_name and pc_name in str(row['feature']) else
                     ('control' if row['grna'] in controls else 'other'),
         axis=1,
     )

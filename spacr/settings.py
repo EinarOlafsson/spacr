@@ -1805,7 +1805,10 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('guide_presence_threshold', 0.0)
     settings.setdefault('guide_permutation_batch_size', 500)
     settings.setdefault('guide_permutation_plot', True)
-    settings.setdefault('multiple_testing_method', 'fdr_bh')
+    # 'none' by default: the correction to apply is a judgement about the
+    # family being tested, not something spaCR should decide silently. The
+    # dropdown offers all thirteen; picking one is a deliberate act.
+    settings.setdefault('multiple_testing_method', 'none')
     settings.setdefault('fdr_alpha', 0.05)
     settings.setdefault('positive_control','239740')
     settings.setdefault('negative_control','233460')
@@ -1816,13 +1819,16 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('threshold_method','std')
     settings.setdefault('threshold_multiplier',3)
     settings.setdefault('target_unique_count',5)
-    settings.setdefault('transform',None)
+    # log by default: screen responses are fractions and skew hard, and the
+    # normality check fails on the raw column far more often than not.
+    settings.setdefault('transform', 'log')
     settings.setdefault('log_x',False)
     settings.setdefault('log_y',False)
     settings.setdefault('x_lim',None)
     settings.setdefault('outlier_detection',True)
     settings.setdefault('agg_type','mean')
-    settings.setdefault('min_cell_count',None)
+    # 100 cells: below that a well's score is noise dressed as a measurement.
+    settings.setdefault('min_cell_count', 100)
     settings.setdefault('regression_type','ols')
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('split_axis_lims','')
@@ -1868,7 +1874,9 @@ def get_perform_regression_default_settings(settings):
     # Acquisition-specific annotations cannot have a meaningful machine-wide
     # default. An empty list makes the optional input explicit and portable.
     settings.setdefault('metadata_files', [])
-    settings.setdefault('volcano','gene')
+    # grna: the per-gRNA table is the one that shows whether a gene's signal
+    # is carried by every guide or by a single outlier.
+    settings.setdefault('volcano', 'grna')
     settings.setdefault('toxo', True)
     # perform_regression prints a per-stage row count and display()s the whole
     # per-object score table under verbose, which is millions of rows on a real
