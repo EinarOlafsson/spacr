@@ -25,6 +25,14 @@ Seventeen hours in which no run on the integration branch reached a
 conclusion. Not "mostly failing" -- unmeasured.
 
 --------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A release branch without a completed CI verdict cannot support a truthful
+green or red release decision. Cancellation is useful for superseded pushes,
+but it must not erase the deliberately requested release run.
+
+--------------------------------------------------------------------------------
 THE DEFECT
 --------------------------------------------------------------------------------
 

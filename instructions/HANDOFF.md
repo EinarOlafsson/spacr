@@ -1,4 +1,4 @@
-# Handoff — 2026-08-14
+# Handoff — 2026-08-15
 
 Written for whoever picks this up next, human or agent. It records what is
 true right now, what needs the maintainer, and the traps that cost time so
@@ -8,20 +8,24 @@ Read this, then `instructions/00_INDEX.txt`, then the open instruction you are
 taking. The authoritative status is the current ledger and each instruction's
 latest dated record; older sections below are preserved as history.
 
-Current checkpoint: branch `nightly`, 90 done / 0 open after the final
-closeout. The complete 69-lesson, 487-scene, 50-voice tutorial release is live
-at `https://einarolafsson.github.io/spacr/tutorials/`; its reusable audit skill,
-scene sampler, live verifier, and tests are committed. Hosted tutorial media is
-at Hugging Face commit `17af9e67b7dbd16c465e7f494091eb830728e161`, and live
-mobile playback passed the full 69.6-second default narration, captions,
-pause/resume, end, and replay contract. Instruction 83 is now complete: all
-all nine API catalogs are current at 6,582 symbols, all nine runtime catalogs
-are current at 3,598 entries, and every installer catalog is current at 57
-strings. Coverage is regenerated; the completion release selection passed 285
-tests, and the post-closure feature sync's Sphinx build exits zero with 659
-HTML pages and seven warnings.
-The coherent catalog, evidence, builder, and test batch is commit
-``a09ebe90``.
+Current checkpoint: branch `codex/tutorial-api-final`, 92 done / 10 open after
+this closeout. The complete tutorial release has 73 lessons, 507 purposeful
+scenes, eight languages, 50 voices, 3,650 strict-freshness narration tracks,
+and 73 4K silent masters. Its reusable audit skill, frame sampler, live
+verifier, and tests are committed. Two hundred new audio/timing pairs and four
+masters were uploaded to the existing Hugging Face release surface; the
+tutorial commits are ``4caa7db1`` and ``6aeb6693``, and the matching main
+publication change was merged through PR #105 at
+``ea0d96b7d6f545bae8f73c1a7af2460f8457979a``.
+
+Instruction 83 is complete on the current source freeze: all nine API
+catalogs are current at 6,655 symbols, all nine runtime catalogs are current
+at 3,678 entries, and every installer catalog is current at 57 strings.
+Coverage, exact source-bound review evidence, signature/placeholder guards,
+and the English manifests were regenerated together. Instruction 108 records
+the bounded human review and the explicitly named mechanically checked
+remainder. The coherent catalog/evidence/test closeout is commit
+``16ee2065``.
 Instruction 99 adds first-class CV-model explanations and regression-hit to
 candidate-cell investigation with guarded provenance and quantitative evidence.
 Instructions 58 and 82 are closed in the immutable pre-rewrite ledger: the
