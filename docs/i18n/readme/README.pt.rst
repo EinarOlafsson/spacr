@@ -103,9 +103,20 @@ Detalhes da instalação
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: baixar o SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (Intel e Apple Silicon): baixar o SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `Linux de 64 bits: baixar o SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
+|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11: baixar o SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (Intel e Apple Silicon): baixar o SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: Linux de 64 bits: baixar o SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
 
 .. spacr-installer-links-end
 
