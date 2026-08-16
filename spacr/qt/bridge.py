@@ -821,6 +821,14 @@ class PipelineWorker(QObject):
     finished = Signal(bool)
     error = Signal(str)
     figure_ready = Signal(object, str)   # (figure, prerendered_png_path or "")
+    #: Whatever the pipeline function RETURNED. For the regression that is
+    #: {'results': coef_df, 'res_folder': ..., 'model': ...} -- the table the
+    #: run just fitted, in memory.
+    #:
+    #: It used to be thrown away, so the only way to see a finished run was to
+    #: guess where it had written and re-read the CSV. Guessing a path is how
+    #: a screen ends up showing last month's results, or none at all.
+    result_ready = Signal(object)
 
     def __init__(
         self,
@@ -1015,8 +1023,17 @@ class PipelineWorker(QObject):
         try:
             with installed_token(self.cancel_token):
                 self.cancel_token.checkpoint()
-                self._fn(self._settings)
+                payload = self._fn(self._settings)
             ok = True
+            # Hand the answer back rather than making the screen find it.
+            # Emitted before `finished` so a listener has the data by the time
+            # the run is announced as over.
+            if payload is not None:
+                try:
+                    self.result_ready.emit(payload)
+                except Exception:      # pragma: no cover - never fail a run
+                    LOG.debug("could not deliver the pipeline result",
+                              exc_info=True)
         except PipelineCancelled as exc:
             self.was_cancelled = True
             message = f"Cancelled safely: {exc}\n"
