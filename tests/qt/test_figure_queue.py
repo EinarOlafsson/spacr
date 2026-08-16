@@ -312,6 +312,15 @@ def _pdf_assets(tmp_path_factory):
     cost of its own — 181 ms, measured — and leaving it in would blur the
     thing these tests bound. Small PNG, expensive PDF: what is left in the
     measurement is the vector page render.
+
+    CLOSED at the end of the module, and that matters beyond tidiness.
+    ``plt.subplots`` registers the figure with pyplot's process-global manager,
+    which a module-scoped fixture outlives -- so this one figure stayed open
+    for the rest of the session, and any later test that counts
+    ``plt.get_fignums()`` saw one more figure than it made.
+    ``test_cov_object_organelle_sam.py::test_plot_true_renders_a_real_figure``
+    is the one that found it: ``assert len(plt.get_fignums()) == 1`` got 2, in
+    a file that has nothing to do with this one.
     """
     directory = tmp_path_factory.mktemp("figq_pdf_assets")
     rng = np.random.default_rng(0)
@@ -324,7 +333,8 @@ def _pdf_assets(tmp_path_factory):
     fig.tight_layout()
     fig.savefig(directory / "big.png", dpi=50)
     fig.savefig(directory / "big.pdf")
-    return fig, directory / "big.png", directory / "big.pdf"
+    yield fig, directory / "big.png", directory / "big.pdf"
+    plt.close(fig)
 
 
 @pytest.fixture
