@@ -714,6 +714,64 @@ class TestTheLinkSurvivesTheThingsThatBreakIt:
                     for row in range(panel.table.table.rowCount()))
         assert shown == 80
 
+    def test_a_column_of_blanks_is_not_an_invitation_to_click(self, qtbot):
+        """A FULL-LENGTH LIST OF ``None`` IS TRUTHY, and that is how a plot
+        ends up promising a click it cannot honour.
+
+        A fit with no gene-level terms is an ordinary spaCR model, and it
+        hands the agreement plot one blank per gene: on the real screen that
+        is 389 points with every key ``None`` and nothing selectable. Read as
+        ``if self._keys:`` the status line still ended "Click a gene for its
+        coefficient", which is the same class of untruth as naming a row for
+        a point that has none.
+        """
+        from spacr.qt.widgets.fast_plots import (ControlSeparation,
+                                                 GuideAgreementPlot,
+                                                 PValueHistogram, QQPlot)
+
+        support = pd.DataFrame({
+            "gene": ["1", "2", "3"], "feature": [None, None, None],
+            "n_guides": [1, 3, 4], "concordance": [1.0, 0.66, 0.75],
+            "single_guide": [True, False, False]})
+        agreement = GuideAgreementPlot()
+        qtbot.addWidget(agreement)
+        assert agreement.set_support(support, keys=support["feature"]) == 3
+        assert agreement.key_for_row(0) is None, "the fixture has keys after all"
+        assert "Click a gene" not in agreement._status.text()
+
+        qq = QQPlot()
+        qtbot.addWidget(qq)
+        qq.set_p_values([0.1, 0.2, 0.3], keys=[np.nan, np.nan, np.nan])
+        assert qq.key_for_row(0) is None
+        assert "Click a point" not in qq._status.text()
+
+        histogram = PValueHistogram()
+        qtbot.addWidget(histogram)
+        histogram.set_p_values([0.1, 0.2, 0.3], keys=[None, None, None])
+        assert "Click a bar" not in histogram._status.text()
+
+        controls = ControlSeparation()
+        qtbot.addWidget(controls)
+        controls.set_groups({"negative": np.array([1.0, 2.0])},
+                            keys={"negative": [None, None]})
+        assert "Click a point" not in controls._status.text()
+
+    def test_the_invitation_stands_when_even_one_key_is_known(self, qtbot):
+        """The other edge, so the fix is not just a switch turned off: a
+        support table where SOME genes carry a term is clickable for those,
+        and the invitation must survive for a plot that can honour it."""
+        from spacr.qt.widgets.fast_plots import GuideAgreementPlot
+
+        support = pd.DataFrame({
+            "gene": ["1", "2"], "feature": [None, "gene_fraction:gene[2]"],
+            "n_guides": [1, 3], "concordance": [1.0, 0.66],
+            "single_guide": [True, False]})
+        plot = GuideAgreementPlot()
+        qtbot.addWidget(plot)
+        plot.set_support(support, keys=support["feature"])
+        assert plot.key_for_row(1) == "gene_fraction:gene[2]"
+        assert "Click a gene" in plot._status.text()
+
 
 # --------------------------------------------------------------------------- #
 #  Against the screen itself
