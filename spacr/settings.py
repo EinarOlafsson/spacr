@@ -1833,7 +1833,21 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('split_axis_lims','')
     settings.setdefault('cov_type',None)
-    settings.setdefault('alpha',1)
+    # A PENALTY OF 1 IS NOT A DEFAULT, IT IS A FAILURE, for these families.
+    #
+    # A fraction design's coefficients live around 1e-2, so alpha=1 shrinks
+    # every one of them to exactly zero: measured on a real screen, all 1,208
+    # of them, and the fit then raises rather than reporting a table of zeros.
+    # A default that cannot succeed on the data the module is for is worse
+    # than no default. 'auto' cross-validates the penalty instead.
+    #
+    # Only for the penalised families. quantile REFUSES any alpha but 1 (it
+    # uses its own `quantile` key and an alpha there means the user has
+    # confused the two), and the unpenalised families ignore it.
+    if settings.get('regression_type') in ('ridge', 'lasso', 'elasticnet'):
+        settings.setdefault('alpha', 'auto')
+    else:
+        settings.setdefault('alpha', 1)
     # Every knob below is read by spacr.ml.regression_model for at least one
     # regression_type, and each one is INDEXED (settings[...]) by
     # perform_regression, not .get()-ed: a model that reads a setting must have
