@@ -48,9 +48,22 @@ on:
 # runner pool: on 5 August it queued a full grid per commit, starved every
 # runner for hours, and held the docs deploy behind it. Only the newest
 # commit on a branch is worth the grid.
+#
+# SPLIT BY EVENT, for the reason written out at length in tests.yml: the
+# informational sweep here is capped at 90 minutes and pushes to nightly land
+# every 5-25, so a grid triggered by anything slower than the push cadence is
+# cancelled every time and the workflow reports nothing at all. This file has
+# a second victim tests.yml does not: the Monday cron. A scheduled run shared
+# the group with pushes to the same ref, so the one run whose entire purpose
+# is to notice upstream wheel availability without anybody remembering to
+# look could be destroyed by an unrelated commit, silently and weekly.
+#
+# A push still cancels the previous PUSH grid, so the 5 August protection is
+# exactly as it was. Only a deliberately dispatched run is exempt, and cron
+# now merely gets a lane of its own rather than an exemption.
 concurrency:
-  group: compat-matrix-${{ github.ref }}
-  cancel-in-progress: true
+  group: compat-matrix-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   # -------------------------------------------------------------------------
