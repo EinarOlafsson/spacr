@@ -62,7 +62,15 @@ def _letter_for(position: int) -> str:
     return letters
 
 
-def cells_across(panel_width: int, target: int = 320) -> int:
+#: The width a single cell aims for. A regression run now produces eleven
+#: panels or more, and at 320 a 740 px panel fits TWO of them -- six rows to
+#: scroll through for one run. 250 fits three or four, which is the density
+#: the published figures use and what makes a grid readable as one figure
+#: rather than a list.
+TARGET_CELL_PX = 230
+
+
+def cells_across(panel_width: int, target: int = TARGET_CELL_PX) -> int:
     """How many cells fit across ``panel_width``.
 
     Widening the window should show MORE figures, not bigger ones -- the
@@ -204,7 +212,7 @@ class FigureGridView(QScrollArea):
 
         self._cells: list[_FigureCell] = []
         self._pinned: Optional[_FigureCell] = None
-        self._target = 320
+        self._target = TARGET_CELL_PX
 
     def set_pinned(self, pixmap, title: str = "") -> bool:
         """A tile that is always first and is not one of the run's figures.

@@ -3117,7 +3117,13 @@ class AppScreen(QWidget):
                              self._figure_queue.figure_titles())
         except Exception:
             LOG.debug("could not build the figure grid", exc_info=True)
-        self._pin_the_regression_graph()
+        # NO PINNED LIVE-GRAPH TILE. It grabbed the volcano widget, and on a
+        # page that has never been shown that widget has no layout yet -- so
+        # the tile drew as a blank box with a caption under it. It is also
+        # redundant now: the house-style volcano IS a cell of this grid, and
+        # picking a guide in the table still raises the interactive one. Two
+        # tiles for one plot is the duplication the publication button
+        # already got wrong once.
 
     def _show_publication_sheet(self) -> None:
         """Draw every panel as ONE publication-ready figure, and open it.
@@ -3162,26 +3168,6 @@ class AppScreen(QWidget):
                 + "; ".join(f"{p.title} not shown ({p.reason})"
                             for p in sheet.skipped) + "\n")
         self._console.append_stdout(sheet.legend() + "\n")
-
-    def _pin_the_regression_graph(self) -> None:
-        """Give the live volcano the first tile, once it has something on it.
-
-        Without this the grid's volcano is the pipeline's saved PNG: the same
-        plot, drawn slower, and dead to a click. Two volcanoes on screen with
-        the big one not clickable is worse than one.
-        """
-        panel = getattr(self, "_results_panel", None)
-        grid = getattr(self, "_figure_grid", None)
-        if panel is None or grid is None or not getattr(
-                panel, "external_volcano", False):
-            return
-        if getattr(panel.volcano, "_frame", None) is None:
-            return                    # nothing fitted yet, so no tile to show
-        try:
-            grid.set_pinned(panel.volcano.grab(),
-                            "Regression graph — click to interact")
-        except Exception:
-            LOG.debug("could not pin the regression graph", exc_info=True)
 
     def _queue_figure_grid_refresh(self) -> None:
         """Ask for a rebuild soon. Coalesces a burst into one."""

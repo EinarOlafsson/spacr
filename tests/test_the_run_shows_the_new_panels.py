@@ -204,3 +204,26 @@ def test_a_broken_panel_never_loses_the_run(monkeypatch):
 
     assert _show_house_style_panels(_results(), plot=False) == 0
     plt.close("all")
+
+
+def test_each_panel_carries_its_own_name(monkeypatch):
+    """The grid captions the tiles from the figure. `fig_00003` is a temp
+    file's stem -- an implementation detail of how the picture reached the
+    screen, not a caption."""
+    named = []
+    monkeypatch.setattr(plt, "show", lambda *a, **k: None)
+
+    real_close = plt.close
+
+    def _capture(figure=None):
+        if hasattr(figure, "get_label"):
+            named.append(figure.get_label())
+        return real_close(figure)
+
+    _show_house_style_panels(_results(), plot=True)
+    for number in plt.get_fignums():
+        named.append(plt.figure(number).get_label())
+    plt.close("all")
+
+    assert "volcano" in named, named
+    assert not any(str(n).startswith("fig_") for n in named if n), named

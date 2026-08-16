@@ -978,11 +978,30 @@ class FigureQueue(QWidget):
         return out
 
     def figure_titles(self):
-        """A short name per figure, from its file, for the grid captions."""
+        """A short name per figure, for the grid captions.
+
+        THE FIGURE'S OWN NAME FIRST. A caption reading `fig_00003` tells a
+        reader nothing -- it is the temp file's stem, which is an
+        implementation detail of how the picture got to the screen. A figure
+        that knows what it is says so: matplotlib's own label, or the
+        `_spacr_title` a caller attached.
+
+        The filename stays as the fallback, for the pictures that arrive
+        without a name.
+        """
         import os as _os
 
         titles = []
         for index in range(self._count):
+            named = ""
+            figure = self._figures.get(index) if hasattr(self, "_figures") \
+                else None
+            if figure is not None:
+                named = (getattr(figure, "_spacr_title", "")
+                         or (figure.get_label() or ""))
+            if named:
+                titles.append(str(named))
+                continue
             path = self._png_paths.get(index)
             titles.append(_os.path.splitext(_os.path.basename(path))[0]
                           if path else f"figure {index + 1}")

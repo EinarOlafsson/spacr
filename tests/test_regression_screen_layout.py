@@ -216,40 +216,53 @@ def test_the_volcano_is_not_squeezed_into_the_results_panel(screen):
     assert screen._figures_stack.indexOf(screen._volcano_page) == 2
 
 
-def test_pressing_the_pinned_tile_opens_the_live_graph(screen):
+def test_there_is_no_blank_pinned_tile(screen):
+    """It grabbed the volcano widget, and on a page never shown that widget
+    has no layout -- so the tile drew as an empty box with a caption. It is
+    also redundant: the house-style volcano is a cell of this grid now."""
     screen._results_panel.set_frame(_real_results())
     screen._refresh_figure_grid()
 
-    assert screen._figure_grid._pinned is not None, "no live-graph tile"
-    screen._figure_grid._pinned.clicked.emit(-1)
-
-    assert screen._figures_stack.currentWidget() is screen._volcano_page
+    assert screen._figure_grid._pinned is None
 
 
-def test_the_pinned_tile_is_not_one_of_the_runs_figures(screen):
-    """It has no index among them. Sharing figure_activated would mean a
-    sentinel index, and a sentinel index is a wrong figure waiting to be
-    opened by whoever forgets to check for it."""
-    screen._results_panel.set_frame(_real_results())
-    screen._refresh_figure_grid()
+def test_the_grid_still_supports_a_pinned_tile_for_other_callers(qtbot):
+    """The mechanism stays -- the regression screen simply does not use it,
+    and it keeps its own signal so a pinned tile can never be mistaken for
+    one of the run's figures."""
+    from PySide6.QtGui import QPixmap
 
-    opened = []
-    screen._figure_grid.figure_activated.connect(opened.append)
-    screen._figure_grid._pinned.clicked.emit(-1)
+    from spacr.qt.widgets.figure_grid_view import FigureGridView
 
-    assert opened == [], "the live graph was opened as if it were figure -1"
+    grid = FigureGridView()
+    qtbot.addWidget(grid)
+    pixmap = QPixmap(80, 60)
+    pixmap.fill()
+    assert grid.set_pinned(pixmap, "live") is True
+
+    opened, pinned = [], []
+    grid.figure_activated.connect(opened.append)
+    grid.pinned_activated.connect(lambda: pinned.append(1))
+    grid._pinned.clicked.emit(-1)
+
+    assert pinned == [1] and opened == []
 
 
-def test_a_new_run_does_not_take_the_live_graph_away(screen):
-    """clear() replaces the run's figures. The interactive graph is not one
-    of them and must survive."""
-    screen._results_panel.set_frame(_real_results())
-    screen._refresh_figure_grid()
-    assert screen._figure_grid._pinned is not None
+def test_a_pinned_tile_survives_a_new_run(qtbot):
+    """clear() replaces the run's figures; a pinned tile is not one of them."""
+    from PySide6.QtGui import QPixmap
 
-    screen._figure_grid.set_figures([], [])
+    from spacr.qt.widgets.figure_grid_view import FigureGridView
 
-    assert screen._figure_grid._pinned is not None
+    grid = FigureGridView()
+    qtbot.addWidget(grid)
+    pixmap = QPixmap(80, 60)
+    pixmap.fill()
+    grid.set_pinned(pixmap, "live")
+
+    grid.set_figures([], [])
+
+    assert grid._pinned is not None
 
 
 def test_picking_a_guide_raises_the_graph_it_was_rung_on(screen):
@@ -265,7 +278,7 @@ def test_picking_a_guide_raises_the_graph_it_was_rung_on(screen):
     assert screen._results_panel.volcano._selected_key is not None
 
 
-def test_no_tile_before_anything_is_fitted(screen):
+def test_no_pinned_tile_before_anything_is_fitted(screen):
     """An empty plot tile invites a click that shows an empty plot."""
     screen._refresh_figure_grid()
     assert screen._figure_grid._pinned is None
