@@ -7663,27 +7663,33 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
     :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: matplotlib ``Figure``.
     """
-    unique_labels = np.unique(labels)
-    #num_clusters = len(unique_labels[unique_labels != 0])
-    colors, label_to_color_index = assign_colors(unique_labels, colors)
-    cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
-    fig, ax = setup_plot(
-        figuresize, black_background, theme_colors=theme_colors)
-    plot_clusters(
-        ax, embedding, labels, colors, cluster_centers, plot_outlines,
-        plot_points, smooth_lines, figuresize, dot_size, verbose,
-        point_color=point_color, point_alpha=point_alpha,
-        outline_width=outline_width,
-    )
-    if not image_paths is None and plot_images:
-        plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
-    if interactive_payload is not None:
-        # The Qt bridge recognises this attribute and keeps the underlying
-        # points/image/database identities instead of flattening the result
-        # into a PNG-only gallery entry.
-        fig._spacr_umap_payload = interactive_payload
-    plt.show()
-    return fig
+    # `setup_plot` pushes the theme's colours into matplotlib's
+    # process-wide rcParams so the panels it builds match the GUI. Scoped
+    # to this figure: a UMAP drawn on the dark theme used to leave every
+    # later figure of the session with white-on-white text once the user
+    # moved to a screen that draws on paper.
+    with plt.rc_context():
+        unique_labels = np.unique(labels)
+        #num_clusters = len(unique_labels[unique_labels != 0])
+        colors, label_to_color_index = assign_colors(unique_labels, colors)
+        cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
+        fig, ax = setup_plot(
+            figuresize, black_background, theme_colors=theme_colors)
+        plot_clusters(
+            ax, embedding, labels, colors, cluster_centers, plot_outlines,
+            plot_points, smooth_lines, figuresize, dot_size, verbose,
+            point_color=point_color, point_alpha=point_alpha,
+            outline_width=outline_width,
+        )
+        if not image_paths is None and plot_images:
+            plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
+        if interactive_payload is not None:
+            # The Qt bridge recognises this attribute and keeps the underlying
+            # points/image/database identities instead of flattening the result
+            # into a PNG-only gallery entry.
+            fig._spacr_umap_payload = interactive_payload
+        plt.show()
+        return fig
 
 def generate_colors(num_clusters, black_background):
     """Return a deterministic Viridis RGBA palette for cluster points.
