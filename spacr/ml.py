@@ -2277,7 +2277,8 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
-               hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True):
+               hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True,
+               legacy_volcano=False):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -2302,6 +2303,10 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param hinge_n_boot: Bootstrap resamples behind the hinge p-values.
     :param huber_t: Huber tuning constant for ``rlm``/``huber``.
     :param qc: Write the regression QC suite into ``<dst>/regression_qc/``.
+    :param legacy_volcano: also draw the ORIGINAL matplotlib volcano.
+        Default ``False``. The interactive one is far faster and the
+        house-style panel is what a run now produces; drawing both gives two
+        volcanoes in two idioms on the same grid.
         Requires ``dst`` and a design matrix, so it is skipped for the mixed
         branch and when no destination was given.
     :returns: ``(model, coef_df, regression_type)``.
@@ -2416,7 +2421,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         display(coef_df)
         qc_design = (X, y)
 
-    if plot:
+    # THE OLD VOLCANO IS OFF UNLESS ASKED FOR. "your new volcano plot is much
+    # much faster than my old one so hide my old version behid a boolean that
+    # defaults to off". It is not deleted -- it is what published figures were
+    # made with -- but a run does not draw it now, and a run that does draw it
+    # produces two volcanoes in two visual idioms, which is the thing that
+    # made the grid look wrong.
+    if plot and legacy_volcano:
         # plot.volcano_plot is keyword-only past its first argument and has no
         # defaults for the two column names, so the old positional
         # volcano_plot(coef_df, volcano_path) raised TypeError on every
@@ -2457,6 +2468,23 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     if dst:
         _show_house_style_panels(coef_df, plot=plot)
         _write_regression_sheet(coef_df, dst)
+
+    # THE PARAGRAPH. "id also like a little written summary at the end in the
+    # console saying what is significant and so on". Printed last so it is the
+    # thing left on screen when a run finishes, and built from the same
+    # numbers the panels are -- a summary that recomputed them could disagree
+    # with the pictures beside it and a reader could not tell which was wrong.
+    try:
+        from .figures.summary import summarise
+
+        text = summarise(coef_df)
+        if text:
+            import textwrap
+            print()
+            print("SUMMARY")
+            print(textwrap.fill(text, 88))
+    except Exception as error:  # noqa: BLE001 - never lose a run over prose
+        print(f"Could not summarise the run: {error}")
 
     return model, coef_df, regression_type
 
@@ -4051,6 +4079,7 @@ def perform_regression(settings):
         # per hundred trials, with no way to say no. On a single analysis it
         # is exactly what you want, which is why it stays on by default.
         qc=bool(settings.get('regression_qc', True)),
+        legacy_volcano=bool(settings.get('legacy_volcano', False)),
     )
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
