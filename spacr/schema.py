@@ -86,7 +86,10 @@ __all__ = [
     # key names
     'PLATE_KEY', 'ROW_KEY', 'COLUMN_KEY', 'FIELD_KEY', 'TIME_KEY',
     'CHANNEL_KEY', 'SLICE_KEY', 'OBJECT_LABEL_KEY', 'OBJECT_TYPE_KEY',
+    'SCREEN_KEY', 'DEFAULT_SCREEN',
     'FIELD_KEY_COLUMNS', 'TIMEPOINT_KEY_COLUMNS', 'WELL_KEY_COLUMNS',
+    'SCREENED_WELL_KEY_COLUMNS', 'SCREENED_FIELD_KEY_COLUMNS',
+    'screen_id', 'add_screen_column',
     'PRC_KEY', 'PRCF_KEY', 'PRCFO_KEY',
     'KEY_PREFIXES', 'OBJECT_PREFIX', 'KEY_SEPARATOR',
     'ORGANELLE_ROLES', 'SEGMENTED_ROLES', 'DERIVED_ROLES', 'CHILD_ROLES',
@@ -192,6 +195,55 @@ TIMEPOINT_KEY_COLUMNS: Tuple[str, ...] = FIELD_KEY_COLUMNS + (TIME_KEY,)
 
 #: The three columns that identify a well, ignoring which field it came from.
 WELL_KEY_COLUMNS: Tuple[str, ...] = (PLATE_KEY, ROW_KEY, COLUMN_KEY)
+
+#: The screen — one experiment, one guide library, its own plate1..plate4.
+#:
+#: Instruction 122. Two screens that share a guide library share their
+#: independent variable, so they can be stacked into one frame and any
+#: measurement regressed across both. They also both have a ``plate1``, and
+#: that is not a name clash to be repaired — it is a *missing dimension*.
+#:
+#: **This key rides ALONGSIDE the existing ones and the ``prc`` grammar is
+#: untouched.** Three reasons, in descending order of how expensive they are
+#: to ignore:
+#:
+#: 1. ``prcf`` is a **stored column** (:data:`OBJECT_TABLE_REQUIRED_COLUMNS`)
+#:    on every object row spaCR has ever written, and
+#:    :func:`validate_object_table_frame` asserts it matches the component
+#:    columns exactly. Growing the grammar re-keys every measurement on disk.
+#: 2. It could not be parsed back. :func:`parse_prcf` and ``ml._split_prc``
+#:    read right to left precisely because the **leftmost** component is the
+#:    one allowed to contain :data:`KEY_SEPARATOR` — extra leading components
+#:    are absorbed *into the plate*. A screen component in front of the plate
+#:    is therefore indistinguishable from a plate named ``screenA_plate1``,
+#:    and no guard can tell them apart: both are "text, then r<N>, c<N>".
+#: 3. A qualified plate id (``kd-plate1``) is not a dimension. You cannot
+#:    block on it, test for a screen effect, or colour by it without parsing
+#:    a string back apart — which is the whole reason this column exists
+#:    rather than reusing ``on_collision='qualify'``.
+#:
+#: Free-form text, like :data:`PLATE_KEY`, because it is the experiment's
+#: name. Unlike the plate it is **not** part of any composed key, so it may
+#: contain the separator without breaking anything.
+SCREEN_KEY = 'screenID'
+
+#: The screen a row belongs to when it does not say.
+#:
+#: A row with no screen is a **single-screen project**, which is every project
+#: that exists today. Defaulting rather than demanding is what keeps them
+#: opening: the dimension is always present, so downstream code never branches
+#: on its absence, and it holds one value, so nothing about the analysis
+#: changes.
+DEFAULT_SCREEN = 'screen1'
+
+#: The well identity **with** the screen: what two stacked screens are keyed
+#: on. Separate tuples rather than a widened :data:`WELL_KEY_COLUMNS`, because
+#: 40-odd call sites join, group and resume-delete on the narrow ones and a
+#: silently widened key changes what every one of them means.
+SCREENED_WELL_KEY_COLUMNS: Tuple[str, ...] = (SCREEN_KEY,) + WELL_KEY_COLUMNS
+
+#: :data:`FIELD_KEY_COLUMNS` with the screen in front.
+SCREENED_FIELD_KEY_COLUMNS: Tuple[str, ...] = (SCREEN_KEY,) + FIELD_KEY_COLUMNS
 
 #: The single-letter prefix each numeric key is rendered with.
 KEY_PREFIXES: Dict[str, str] = {
@@ -316,6 +368,9 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'channel_name': CHANNEL_KEY,
     'chan_id':      CHANNEL_KEY,
     'slice_id':     SLICE_KEY,
+    'screen':       SCREEN_KEY,
+    'screen_name':  SCREEN_KEY,
+    'screen_id':    SCREEN_KEY,
 }
 
 #: Both spellings of the time column that exist in databases on disk.
@@ -412,7 +467,7 @@ def canonical_column_name(name: Any) -> str:
     text = str(name)
     lowered = text.lower()
     for canonical in (PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY, TIME_KEY,
-                      CHANNEL_KEY, SLICE_KEY):
+                      CHANNEL_KEY, SLICE_KEY, SCREEN_KEY):
         if lowered == canonical.lower():
             return canonical
     # Metadata before features: the alias table is a closed vocabulary of
@@ -715,6 +770,44 @@ def time_id(time: Any, *, strict: bool = False) -> str:
     :returns: ``'t<N>'``.
     """
     return _prefixed_id(TIME_KEY, time, strict=strict)
+
+
+def screen_id(screen: Any = None) -> str:
+    """Return the canonical screen id, defaulting an absent one.
+
+    Free-form text, like the plate id, because it is the name a user gave an
+    experiment. It is **not** prefixed and **not** parsed back apart: the
+    whole point of :data:`SCREEN_KEY` is that it is a dimension you block on,
+    facet by and colour with as it stands.
+
+    Absence is the case that matters. ``None``, ``''`` and whitespace all mean
+    "this project has one screen", and they become :data:`DEFAULT_SCREEN`
+    rather than raising — every project that exists today has no screen
+    anywhere in its settings, and demanding one would stop all of them from
+    opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate
+    is a broken key, but an empty screen is simply an ordinary single-screen
+    run.
+
+    An empty value is never left empty inside a frame either, because a blank
+    screen groups with every other blank screen — which is exactly the silent
+    pooling :mod:`spacr.multi_database` exists to refuse.
+
+    :param screen: the screen label, or ``None``.
+    :returns: the label, stripped, or :data:`DEFAULT_SCREEN`.
+
+    Example:
+        .. code-block:: python
+
+            >>> screen_id('tsg101'), screen_id(None)
+            ('tsg101', 'screen1')
+    """
+    if screen is None:
+        return DEFAULT_SCREEN
+    if isinstance(screen, float) and screen != screen:
+        # NaN — what pandas puts in a column a source did not fill in.
+        return DEFAULT_SCREEN
+    text = str(screen).strip()
+    return text or DEFAULT_SCREEN
 
 
 def object_type_prefix(object_type: Any) -> str:
@@ -2243,6 +2336,49 @@ def canonical_rename_plan(columns, requested=None):
         mapping[name] = canonical
         taken.add(canonical)
     return mapping
+
+
+def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
+    """Return ``df`` carrying a filled-in :data:`SCREEN_KEY` column.
+
+    The three cases, and why each behaves as it does:
+
+    * **The frame has no screen column.** It gains one, holding ``screen`` or
+      :data:`DEFAULT_SCREEN`. That is a single-screen project, which is every
+      project written before instruction 122, and it must keep working.
+    * **The frame has one, and ``screen`` is ``None``.** Its labels are kept.
+      Relabelling a frame that already knows which experiment it came from
+      would move rows between screens with nothing on screen to say so.
+    * **The frame has one and ``screen`` was given.** The caller is looking at
+      the files and has said which screen this is, so it wins — but only
+      because they said so. ``overwrite=False`` (the default) still fills
+      *blank* values only; pass ``overwrite=True`` to restamp every row.
+
+    Blanks are never left blank: ``None``, ``NaN`` and ``''`` become
+    :data:`DEFAULT_SCREEN`, because an empty screen id is not an identity and
+    every row carrying one would group with every other.
+
+    :param df: :class:`pandas.DataFrame`.
+    :param screen: the screen label for rows that do not have one.
+    :param overwrite: replace existing labels instead of filling blanks.
+    :returns: a new frame; ``df`` is not modified.
+    """
+    frame = df.copy()
+    if SCREEN_KEY not in frame.columns or overwrite:
+        frame[SCREEN_KEY] = screen_id(screen)
+        return frame
+    frame[SCREEN_KEY] = [screen_id(value if _is_present(value) else screen)
+                         for value in frame[SCREEN_KEY]]
+    return frame
+
+
+def _is_present(value: Any) -> bool:
+    """Whether a stored screen label says anything at all."""
+    if value is None:
+        return False
+    if isinstance(value, float) and value != value:
+        return False
+    return bool(str(value).strip())
 
 
 def canonicalise_columns(df):
