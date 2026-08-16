@@ -61,7 +61,7 @@ Pipeline overview
    :alt: spaCR workflow
    :align: center
 
-The GUI ships 65 apps, grouped into seven categories — *Core*, *Data*,
+The GUI ships 67 apps, grouped into seven categories — *Core*, *Data*,
 *Segmentation models*, *Results & QC*, *Explore*, *Toxoplasma*, and *Design*.
 The nine Core apps form the main pipeline; these five are the path most
 screens take, each with its own :doc:`API reference <api/index>` module:

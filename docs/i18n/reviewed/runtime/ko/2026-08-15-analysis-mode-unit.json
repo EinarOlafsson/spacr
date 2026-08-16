@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "reviewed_at": "2026-08-15",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "analysis_mode",
+      "source_sha256": "18dd725199af56004d59c4a8c3c40edf86cfeebab2466fe251ec19ee8eef915f",
+      "source": "'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Normally set for you by 'inference'; set it directly only to override that choice. Default 'regression'.",
+      "translation": "'regression' 은 선택한 동시 모델을 적합합니다. 'guide_permutation' 은 차단된 Freedman--Lane 순열을 사용하여 각 가이드를 플레이트 효과가 보정된 주변 연관성으로 검정한 다음, 요청한 검정 대상 집합에 다중검정 보정을 적용합니다. 일반적으로 'inference' 가 이 값을 설정합니다. 그 선택을 재정의할 때만 직접 설정하십시오. 기본값은 'regression' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "analysis_unit",
+      "source_sha256": "09eef8d8d4dc43339a7a372552ddae6cdcaf4ced30ed138a0f241f57a15cd695",
+      "source": "What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
+      "translation": "모델의 한 행이 나타내는 분석 단위입니다. 'well' 은 먼저 agg_type 으로 각 웰의 객체를 하나의 값으로 집계하므로, 웰이 독립 단위이고 그 안의 세포 수는 정밀도에만 영향을 줍니다. 'cell' 은 개별 객체에 회귀를 적합하여 통계적 검정력을 유지하지만, 같은 웰의 세포를 실제로는 독립적이지 않은데도 독립 관측값으로 취급합니다. 따라서 모델이 군집 구조를 고려하지 않으면 (regression_type='mixed') 표준 오차가 지나치게 작아집니다. 이는 이전에 분석 단위를 암묵적으로 바꾸던 agg_type=None 을 명시적으로 표현한 것입니다. 기본값은 'well' 입니다."
+    }
+  ]
+}
