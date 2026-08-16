@@ -29,6 +29,14 @@ An xfail is the correct way to RECORD a defect you have decided not to fix
 yet. It is not a way to CLOSE one.
 
 --------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The ledger and release summaries count open instructions, not expected test
+failures. Without this record, known defects disappear from the release state
+while the test command still exits successfully.
+
+--------------------------------------------------------------------------------
 THE DEFECTS
 --------------------------------------------------------------------------------
 

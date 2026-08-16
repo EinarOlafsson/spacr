@@ -142,6 +142,13 @@ jobs:
           # Pages needs .nojekyll to preserve _static / _sources folders
           touch docs/_build/html/.nojekyll
 
+      - name: Verify generated tooltip API links
+        env:
+          QT_QPA_PLATFORM: offscreen
+          SPACR_DOCS_BUILT: "1"
+        run: |
+          python -m pytest -q tests/test_tooltip_api_links_resolve.py
+
       # --- production Pages path: main only ------------------------------
       - name: Configure Pages
         if: github.ref == 'refs/heads/main'

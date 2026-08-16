@@ -11,7 +11,42 @@ Requested: 2026-08-11 — "push to nightly"
            left is in the instructions. then commit and push waht you have so
            far."
            2026-08-14 — "please work on 83"
+           2026-08-15 — "how much is finished of the tutorials? please finish the tutorials.then finish the API documentation translations. but first tell me as a percentage how much is left of both then start"
 Owner:     root Codex session
+
+--------------------------------------------------------------------------------
+FINAL SOURCE-SYNC ADDENDUM — 2026-08-15
+--------------------------------------------------------------------------------
+
+The exact current freeze is 6,655 API symbols (6,536 canonical bodies plus 119
+exact aliases) and 3,678 runtime entries per locale: 965 labels, 950 authored
+tooltips, 186 category explanations, 1,519 static UI strings, and 58 module
+summaries. All nine Swedish, German, Spanish, Simplified Chinese, Portuguese,
+Hindi, Korean, Icelandic, and French API catalogs pass the combined strict
+source/hash/schema/syntax/semantic audit at 6,655/6,655. The same nine runtime
+catalogs pass together at 3,678/3,678, and all installers remain 57/57.
+
+This sync admits the reviewed Parameter Sweep transition rather than merely
+raising a number: 11 public entries were added, four retired Regression Search
+helpers were removed, and the compatibility module received its replacement
+contract, a net increase of seven canonical bodies. Seventy-two new API symbols
+and five changed source bodies were regenerated in every locale. Seventy-seven
+new or changed runtime source hashes were also regenerated in every locale.
+
+Model-rejected tails were kept fail-closed and resolved only through exact
+source/hash/context-bound review evidence. The additions cover two Swedish,
+two German, two French, two Simplified Chinese, four Icelandic, and the shared
+metadata decision in the remaining locales, plus exact runtime evidence for
+Portuguese, Simplified Chinese, and Korean statistical-analysis tooltips. No
+anonymous cache output was promoted, and no copied-English, target-script,
+false-friend, protected-literal, OpenCC, or source-freshness gate was relaxed.
+
+``python tools/audit_i18n_coverage.py --write`` now records 6,655/6,655 API,
+3,678/3,678 runtime, and 57/57 installer coverage for every target locale.
+The combined strict audits exit zero. This addendum supersedes every lower
+inventory count in the historical checkpoints below. The coherent generated
+catalog, review-evidence, coverage, workflow, and durable-test batch is commit
+``16ee2065``.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS

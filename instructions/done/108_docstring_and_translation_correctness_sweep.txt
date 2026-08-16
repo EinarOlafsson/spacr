@@ -2,13 +2,14 @@
 A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
 ================================================================================
 
-Status:    filed 2026-08-15, not started. Two failures already reproduced --
-           see WHERE IT IS ALREADY WRONG.
+Status:    done 2026-08-15. The current 6,536 canonical docstrings and all
+           nine API/runtime locale catalogs passed the bounded review and
+           durable mechanical guards recorded below.
 Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings
            and translations make sure everything is correct."
 
 --------------------------------------------------------------------------------
-WHAT THIS IS, AND WHAT IT IS NOT
+WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
 This is an AUDIT of work already marked done, not a request to write more
@@ -32,6 +33,14 @@ that produced this file -- fifteen recorded defects sitting behind xfails
 whose reasons were themselves partly wrong (100, C3). Prose in this
 repository has not been reliable. Assume the same of the docstrings until
 each is checked against the code beside it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Documentation and translations are executable user contracts: an incorrect
+default, parameter name, placeholder, or protected identifier can misdirect a
+workflow or fail only in one locale while ordinary coverage remains green.
 
 --------------------------------------------------------------------------------
 WHERE IT IS ALREADY WRONG (reproduced 2026-08-15)
@@ -61,7 +70,7 @@ rather than a search:
      an archive.
 
 --------------------------------------------------------------------------------
-WHAT TO CHECK
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 DOCSTRINGS -- correctness, in this order, because the order is by how much
@@ -127,3 +136,44 @@ HOW TO KNOW IT WORKED
   currently skips and counts as coverage while proving nothing.
 * A written statement of what was checked by hand, over what fraction, with
   the remainder named.
+
+--------------------------------------------------------------------------------
+VERIFIED — 2026-08-15
+--------------------------------------------------------------------------------
+
+The reviewed API inventory is 6,536 canonical bodies plus 119 exact aliases,
+6,655 symbols total. Relative to the prior reviewed ratchet, all 16 membership
+or body changes were read against their implementations and signatures: 11
+Parameter Sweep additions, four retired Regression Search symbols, and the
+Regression Search compatibility-module body. Seventeen API hard-tail records
+and four runtime hard-tail records were then authored or reviewed individually
+and accepted only after canonical-source, contextual-source, protected-literal,
+and syntax gates passed. These records are source-hash bound under
+``docs/i18n/reviewed``.
+
+The remaining 6,520 canonical bodies were not represented as a fictitious
+sentence-by-sentence human review. They were checked mechanically for source
+hash identity, parser stability, protected syntax, documented parameter names
+against live signatures, API membership, aliases, copied-English/script and
+false-friend rules, and resolved API cross-references. The prior 746-character
+``inference`` tooltip is now within the enforced shape limit.
+
+Durable controls now include:
+
+* ``tests/test_api_i18n_extractor.py`` checks the 6,536/6,655 review ratchet
+  and compares more than 6,000 ``:param:`` fields with live signatures.
+* ``tests/qt/test_external_i18n_catalogs.py`` checks named-format and printf
+  placeholder parity in all nine runtime and installer catalogs.
+* the docs workflow builds the site before running
+  ``tests/test_tooltip_api_links_resolve.py`` with ``SPACR_DOCS_BUILT=1``;
+  the test therefore resolves real generated pages instead of silently
+  skipping in CI.
+* strict combined audits pass for all nine API catalogs at 6,655/6,655 and
+  all nine runtime catalogs at 3,678/3,678; installer catalogs pass 57/57.
+  ``docs/i18n/COVERAGE.md`` records those exact results.
+
+The final combined localization/tutorial selection passed 309 tests. A fresh
+Sphinx build produced 680 HTML pages and exited zero; the three generated-page
+cross-reference tests then passed against that tree. The dedicated
+extractor/documentation selection had independently passed 126 tests. No
+translation gate or protected-literal contract was relaxed.
