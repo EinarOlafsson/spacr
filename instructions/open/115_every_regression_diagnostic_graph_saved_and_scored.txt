@@ -194,3 +194,153 @@ CLAIMS CHECKED -- one refuted, one wrongly refuted
             plt.subplots, so pyplot held every one of them alive. One leaked
             figure per call. Fixed with try/finally, and the savefig-raises
             path is now covered too.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESULT: THE SWEEP HALF. A ROW CAN NOW BE JUDGED, AND SORTED ON
+--------------------------------------------------------------------------------
+
+The previous RESULT above did the normal-analysis half and said the sweep half
+had not shipped. This is the sweep half. The acceptance test named at the top
+of this file -- "sorting the sweep table by the positive control's rank puts
+the best configuration first" -- now runs, as a test.
+
+ENUMERATION FIRST AGAIN, and again the module was better covered than the
+notes: spacr/trial_metrics.py already computed hit counts, fit quality,
+residual behaviour, control recovery, calibration and guide support, and
+sweep_child.py already called summarise_trial. Almost nothing needed writing.
+What was missing was the DESIGN block, a rank that compares between trials,
+and -- the actual defect -- two of the three sweep entry points never calling
+any of it.
+
+WHAT SHIPPED
+
+  THREE ENTRY POINTS, THREE DIFFERENT TABLES. This is what "a sweep row
+  carries settings, a hit count and seconds" actually was:
+
+    run_sweep(contained=True)   the full set already, via sweep_child
+    run_sweep(runner=...)       hit counts only -- not even the design summary
+    run_sweep_parallel          hit counts + named controls, no diagnostics
+                                AND THIS IS THE ONE THE GUI CALLS
+                                (qt/screens/parameter_sweep.py -> start())
+
+  So the same sweep produced different columns depending on how it was
+  launched, and the launch path a user actually takes produced the fewest.
+  All three now go through summarise_trial.
+
+  spacr/trial_metrics.py  design_diagnostics(), the missing DESIGN block:
+  design_rank, n_parameters, non_identifiable_directions,
+  residual_degrees_of_freedom, design_identifiable, wells_per_parameter,
+  max_vif, n_vif_above_10, n_collinear_pairs, max_abs_predictor_correlation.
+
+  Nothing is recomputed that the fit already knows. statsmodels computes the
+  rank at fit time and keeps it on model.model.rank; regression_diagnostics'
+  design_report answers the same questions but wants the well-by-guide matrix
+  and pays for a fresh matrix_rank plus a full SVD, which a sweep row does not
+  need to buy twice. Field names match design_report's so the two read the
+  same in a trial folder.
+
+  IDENTIFIABILITY IS THE ONE THAT MATTERS. A fraction design is rank deficient
+  the moment the guide fractions sum to 1 in every well, which is collinear
+  with the intercept; statsmodels answers with a pseudo-inverse rather than
+  refusing, so the coefficients come back looking like any other fit while
+  being one of infinitely many solutions. Nothing else in the output said so.
+
+  VIF WITHOUT ONE EXTRA REGRESSION. regression_diagnostics'
+  variance_inflation_factors regresses each guide on every other -- measured
+  0.53 s for twenty-five of four hundred guides -- and truncates at
+  max_guides, so on a wide design the largest VIF is usually not among the
+  ones it looked at. For a fit with an intercept the standard errors already
+  imply it exactly: VIF_j = se_j^2 / sigma^2 * (n-1) * var(x_j). Matched
+  against that reference to 2e-15 relative error over ALL columns, in 9 ms at
+  1,213 parameters, and covering every column rather than the top 200.
+  Omitted, not reported, when the design is rank deficient -- VIF is not
+  defined there and the identity would produce a meaningless number.
+
+  THE POSITIVE CONTROL, READ FROM spaCR'S OWN ANNOTATION. spacr.ml.regression
+  already writes 'pc'/'nc' into the coefficient table's `condition` column.
+  control_recovery reads that first and falls back to the substring match for
+  tables that carry none (a permutation run writes none), so a row and its
+  volcano cannot disagree about which coefficient the control is.
+
+  AND A PERCENTILE BESIDE THE RANK. Verified on the real screen table
+  (results/plate1_dv/ols/list/results.csv): 1,213 coefficients, and it MIXES
+  823 guide-level rows with 389 gene-level rows. The positive control lands at
+  rank 3 of 1,212 there. A sweep varies exactly the settings that change how
+  many coefficients exist, so rank 3 of 400 and rank 3 of 1,213 are not the
+  same recovery, and a table sorted on the raw rank quietly favours whichever
+  trial fitted fewest things. rank_trials() therefore sorts on the percentile.
+
+  An absent control gets *_control_found = False and NO rank. Checked against
+  the real screen: the default negative control 233460 does not occur in it at
+  all, so this is the normal case, not the edge case.
+
+  spacr/parameter_sweep.py  rank_trials() orders the table best-first and
+  sorts the trials that LOST the control to the bottom rather than dropping
+  them -- min_cell_count=50 reporting more hits than 100 while losing GRA14 is
+  the finding, not a row to hide. summarise_sweep() now names the best trial,
+  its rank, and how many trials recovered the control at all.
+
+  A MEASUREMENT IS NO LONGER FED BACK AS A SETTING. Found while wiring this,
+  and it was already live. settings_for_trial()'s rule is "anything not in
+  _BOOKKEEPING_COLUMNS was a setting the user chose" -- which is what lets a
+  custom sweep axis round-trip -- but that set had never been updated for the
+  metrics. Reopening a contained trial therefore handed r_squared, aic,
+  durbin_watson, genomic_inflation, breusch_pagan_p, positive_control_found
+  and n_rows_fitted to perform_regression as though they had been typed in.
+  _BOOKKEEPING_COLUMNS is now sourced from trial_metrics.METRIC_COLUMNS so the
+  two cannot drift, and a test fails on drift instead of leaking.
+
+COST, MEASURED -- AND THE DECISION THIS INSTRUCTION ASKED FOR
+
+  The question was whether a sweep should ask for the full QC suite per trial
+  or only the scalar metrics. Measured on screen-shaped fits, median of five:
+
+      606 rows x  201 params    74 ms
+      606 rows x  401 params   157 ms
+     2400 rows x  401 params   227 ms
+
+  against the QC suite's ~5.8 s. So: SCALARS ON EVERY ROW, PICTURES ONLY FOR
+  THE ROWS WORTH REOPENING. 227 ms is under half a percent of the ~60 s a real
+  trial takes; 5.8 s is ten minutes per hundred trials for figures nobody
+  opens while a sweep is running. The new DESIGN block is free within noise
+  (74.3 ms against 73.5 ms before it), and takes the row from 29 columns to 38.
+
+  Per block at 606 x 401: guide_support 98 ms, residual_diagnostics 49 ms,
+  control_recovery 2.6 ms, everything else under 1 ms. White's test is already
+  skipped above 30 columns, which is why residual_diagnostics stays cheap on a
+  real design.
+
+CLAIMS CHECKED -- ONE REFUTED, AND IT MATTERS
+
+  REFUTED  "regression() has a qc= parameter so the sweep chooses
+           deliberately." The parameter exists (ml.py:2241, default True) but
+           THE SWEEP CANNOT REACH IT. perform_regression calls regression() at
+           ml.py:3838 without qc=, and no settings key maps to it. So every
+           sweep trial today pays the full ~5.8 s suite and writes ~19 panels
+           plus a PDF into its trial folder, with no way to decline -- roughly
+           ten minutes and two thousand figure files per hundred trials. The
+           per-trial scalars above are 74-227 ms; the cost the sweep actually
+           pays is dominated by a suite nobody asked it for. NOT FIXED HERE:
+           ml.py is outside this worker's territory. The fix is one line at
+           ml.py:3838 -- qc=bool(settings.get('regression_qc', True)) -- plus
+           a settings default, and the sweep then passing regression_qc=False.
+
+  VERIFIED trial_metrics.py already computed most of the list, including
+           genomic inflation at :209 (now :253 after this change). Reused, not
+           reimplemented.
+  VERIFIED the QC suite costs ~5.8 s and the scalars do not: measured above.
+  VERIFIED the real screen's coefficient table carries the control identifier
+           in `feature` AND spaCR's own `condition` annotation.
+
+WHAT STILL DOES NOT SHIP
+
+  Per-metric FIGURES in the trial folder. This instruction asks for a saved
+  figure for every metric in both a trial folder and a normal run's folder.
+  The normal-run half landed in the previous RESULT (regression_qc/, ~19
+  panels). The trial-folder half is currently WORSE than asked for, not
+  better: every trial gets all of them because qc cannot be turned off, which
+  is the refuted claim above. The right end state is the sweep asking for them
+  off by default and the row-reopen path (rerun_trial) turning them back on.
+
+  perform_regression()'s returned dict still does not carry the QC manifest.
