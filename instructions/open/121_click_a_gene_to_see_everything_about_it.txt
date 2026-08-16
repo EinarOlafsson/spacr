@@ -99,3 +99,203 @@ HOW TO KNOW IT WORKED
 * A non-targeting control, or a non-Toxoplasma id, produces a tile that says
   what could not be resolved rather than an empty one.
 * Nothing in the path makes a network call while the user waits.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-16)
+--------------------------------------------------------------------------------
+
+DONE: the resolver, the record and the Qt renderer. NOT DONE: the wiring into
+`regression_results.py`, which is held by another worker -- the exact patch is
+at the end of this section.
+
+  spacr/gene_tile.py                      NEW  the resolver + the record
+  spacr/qt/widgets/gene_tile.py           NEW  the tile, a thin renderer
+  spacr/hits.py                           +30  `guide_of`, additive only
+  tests/test_clicking_a_gene_says_what_it_is.py        NEW  30 tests
+  tests/test_gene_tile_panel_shows_the_clicked_gene.py NEW  11 tests
+
+THE SIGNATURE
+
+    from spacr.gene_tile import gene_tile
+
+    gene_tile(feature,                 # the `feature` string key_selected carries
+              results=None,            # the results DataFrame; None still
+                                       #   resolves identity and says the
+                                       #   numbers are absent
+              *,
+              barcodes=BUNDLED,        # gRNA reference (name, sequence).
+                                       #   BUNDLED = the shipped file, a path,
+                                       #   a DataFrame, or None to skip it
+              metadata=BUNDLED,        # curated annotation, keyed 'Gene ID'
+              localisation=BUNDLED     # lopit.csv, keyed 'gene_nr'
+              ) -> GeneTile
+
+`GeneTile` carries: kind ('guide'/'gene'/'control'/'nuisance'/'unresolved'),
+gene, guide, protospacer, candidates (a GeneCandidate per gene it could be),
+ambiguous + ambiguity, effect/p_value/q_value/correction/condition,
+gene_effect/gene_p_value/gene_q_value, guides (a GuideRow each, with how it
+moved and whether it agrees), references, unresolved, notes. Plus `title`,
+`subtitle`, `sections()`, `to_text()`, `to_html()`.
+
+--------------------------------------------------------------------------------
+CLAIM CHECK -- one claim in this instruction is now FALSE
+--------------------------------------------------------------------------------
+
+REFUTED: "`barcodes_grna.csv` ... three protospacers in that file map to two
+or three DIFFERENT genes each" (line 63) is no longer true of the SHIPPED
+file. Commit cd5a8920, "data: drop ambiguous shared guides (instruction 100,
+D2)", removed all eight of those rows on 2026-08-15 -- the day before this
+instruction was filed. The shipped file today is 1,377 rows, 1,377 distinct
+names, 1,377 distinct sequences, ZERO duplicates.
+
+VERIFIED: the ambiguity is real and still live in the screen's own reference,
+`.../tsg101_screen/test/grna_barcodes.csv` (1,385 rows, 1,380 distinct
+sequences). Exactly as instruction 100 D2 described it -- three protospacers,
+eight rows, two or three genes each:
+
+  GCCGGCGATAGAGCCCCGCCC   TGGT1_241310_2   TGGT1_411210_2   TGGT1_411710_2
+  GCGATAGAGCCCCGCCCTGG                     TGGT1_411210_3   TGGT1_411710_3
+  GTCGCTAGGACATCCTCCAAG   TGGT1_241310_10  TGGT1_411210_10  TGGT1_411710_10
+
+VERIFIED, AND THE POINT OF THE WHOLE INSTRUCTION: all three of those guides
+are FITTED ROWS in the screen the user is looking at. `plate1_dv/ols/list/
+results.csv` holds `fraction:grna[411710_2]`, `[411710_3]` and `[411710_10]`,
+and they are the ONLY three of its 823 guides absent from the shipped
+reference. So the ambiguous case is not hypothetical: it is three clickable
+dots on the volcano, and 241310 and 411210 appear nowhere in the results at
+all. A naive resolver prints "gene 411710" over them, which is a bookkeeping
+artefact of which name the counting pipeline saw last, not a result.
+
+Consequence for the design: BOTH answers are produced and both are tested.
+Against the screen's own reference -- three genes and "the mapping is
+ambiguous". Against the shipped reference -- "this guide is not in the gRNA
+reference", which is a different true statement and NOT a silently clean one.
+
+VERIFIED: `spacr/hits.py::gene_of` is the right rule and is reused, not
+restated. All 389 gene ids in the real screen match `^\d{5,6}[A-Za-z]?$`
+(paralog letters like 201180A included), and nothing else does -- that shape
+check is what stops a ToxoDB link being offered for a screen of another
+organism.
+
+VERIFIED: `self.table.key_selected` is the single funnel for BOTH directions.
+Driven on a live panel: emitting `volcano.key_selected` reaches it through
+`table.select_key` -> selection change -> re-emit. So one connect line is
+enough; a second one on the volcano would double-fire.
+
+--------------------------------------------------------------------------------
+WHAT THE TILE SAYS -- real output, real screen
+--------------------------------------------------------------------------------
+
+Clicking `fraction:grna[239740_3]`:
+
+    GRA14
+    dense granule protein GRA14 . TGGT1_239740
+    IDENTITY   product, symbol, protein length, TM domains, signal peptide,
+               curated GO components, localisation (TAGM/LOPIT): dense granules,
+               also known as TGME49_239740, GRA14
+    THIS SCREEN  effect 0.8732, p 5e-09, q 5e-09, condition pc, guides 2,
+                 agreeing 2 of 2
+    THE GUIDES BEHIND IT  239740_1 +0.1443 p 0.603 / 239740_3 +0.7289 p 3.89e-05
+    EXTERNAL RECORDS  ToxoDB TGGT1_239740, ToxoDB TGME49_239740
+
+Clicking `fraction:grna[411710_2]` against the screen's own reference:
+
+    TGGT1_411710 / TGGT1_241310 / TGGT1_411210
+    one protospacer, 3 genes - the effect cannot be assigned to any one of them
+    ... an identity block per gene (241310 has a product, the other two do
+    not, and say so), then the numbers, then the protospacer, then four links.
+
+--------------------------------------------------------------------------------
+TWO BUGS FOUND AND FIXED WHILE BUILDING IT
+--------------------------------------------------------------------------------
+
+1. The cell cleaner read the literal `'none'` as an empty cell. That is right
+   for a curated export writing "None" under a product and WRONG for
+   `multiple_testing_method`, where `none` is the answer: it means no
+   correction was applied and the q_value column is uncorrected p-values --
+   which is exactly the case on plate1_dv. The one warning a reader of those
+   q-values needs was being silently deleted. The tile now labels it
+   "q-value (NO correction was applied)".
+
+2. Every click rebuilt the annotation index from 8,800 metadata rows: 96 ms
+   per click, which is a plot that feels broken. Indices are now cached on
+   (path, mtime, size). 124 ms on the first click, 1.4 ms after.
+
+--------------------------------------------------------------------------------
+TESTS
+--------------------------------------------------------------------------------
+
+41 new tests, all passing (30 + 11). Fast: 2.3 s and 0.6 s.
+
+BEFORE: both files error at collection -- the modules did not exist. Stronger
+evidence that the ambiguity tests are load-bearing: with the resolver reduced
+to the naive version (take the gene the pipeline reported, never look at the
+protospacer), 4 of them fail --
+
+    test_a_shared_protospacer_names_every_gene_it_could_be
+    test_the_ambiguous_tile_says_the_mapping_is_ambiguous_in_words
+    test_the_gene_the_counts_were_attributed_to_is_named_as_such
+    test_each_of_the_three_ambiguous_genes_carries_its_own_annotation
+
+The ambiguity fixture is the REAL eight rows, quoted from
+`git show cd5a8920^:spacr/resources/data/barcodes_grna.csv`, and the results
+numbers are transcribed from the real results.csv. A skipif'd test asserts the
+transcription still matches both files on disk, so the fixtures cannot drift
+into fiction. A `heavy`-marked test drives all 1,213 features of the real
+screen and asserts exactly 3 come back ambiguous.
+
+No network: `socket.socket` and `socket.create_connection` are monkeypatched
+to raise while a tile with a ToxoDB reference is built.
+
+Neighbouring suites re-run green: 98 passed across test_fast_plots,
+test_regression_results_panel, test_row_to_point_is_joined_on_the_key,
+test_figure_grid_view and both new files.
+
+PRE-EXISTING RED, NOT MINE (both name only files I never touched):
+  test_api_documentation_contract.py -- spacr/parameter_sweep.py:620
+    free_memory_gb, spacr/sweep_child.py:40 main
+  tests/qt/test_widgets.py::test_qt_boolean_controls_do_not_construct_plain_checkboxes
+    -- preferences.py, figure_settings.py, metadata_mapper.py, fast_plots.py,
+    volcano_explorer.py, screens/parameter_sweep.py
+
+--------------------------------------------------------------------------------
+THE WIRING -- apply this to regression_results.py, which I do not own
+--------------------------------------------------------------------------------
+
+Two hunks. Both in `RegressionResultsPanel.__init__`.
+
+A. After line 126, `self.tabs.addTab(self.support, "Guide support")`:
+
+        # THE GENE TILE. Instruction 121. The volcano answers "which guides
+        # moved" and structurally cannot answer "what IS 411710", which is
+        # the question the user has the instant they click. The frame is
+        # reached through a callable rather than stored, so a newly loaded
+        # regression is never answered from the previous one.
+        from .gene_tile import GeneTilePanel
+        self.gene = GeneTilePanel(frame_provider=lambda: self._frame)
+        self.tabs.addTab(self.gene, "Gene")
+
+B. After line 141, `self.table.key_selected.connect(self._select_key)`, ONE
+   line:
+
+        self.table.key_selected.connect(self.gene.show_feature)
+
+   One line, not two, and deliberately on the TABLE rather than the volcano:
+   `table.key_selected` is the funnel both directions already pass through
+   (volcano.key_selected -> table.select_key -> selection change -> re-emit),
+   verified on a live panel. Connecting the volcano as well would build the
+   tile twice per click.
+
+`self._frame` is set in `set_frame` at line 184 and initialised to None at
+156, so the lambda is safe before the first load -- `gene_tile(key, None)`
+still resolves the identity and says the numbers are absent.
+
+NOTE ON PLACEMENT: this puts the tile in a tab beside the volcano, not in the
+figure grid. `_FigureCell` takes a QPixmap and `figure_grid_view.py` is held
+by another worker, so the grid was not touched. `GeneTilePanel.to_pixmap()`
+exists and is tested for exactly that: it renders the record to a QPixmap, so
+the tile can be pushed into `FigureGridView.set_figures()` with NO change to
+_FigureCell. Whoever owns app_screen.py can drop it in -- but see the index
+contract, `_FigureCell.index` is the enumerate index over the pixmap list and
+`figure_activated` forwards it straight to `FigureQueue.show_index()`, so a
+gene tile inserted into that list shifts every figure after it.
