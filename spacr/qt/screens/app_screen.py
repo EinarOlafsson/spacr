@@ -1644,7 +1644,22 @@ class AppScreen(QWidget):
                 volcano_row.addWidget(back_to_grid)
                 volcano_row.addStretch(1)
                 volcano_layout.addLayout(volcano_row)
-                volcano_layout.addWidget(self._results_panel.volcano, 1)
+                # THE GENE TILE APPEARS WITH THE GRAPH. Instruction 121:
+                # "when a gene is clicked a tile should appear with all the
+                # information on that gene" -- appear, beside the point that
+                # was clicked. A tile behind a tab the user has to go and
+                # find is a tile they will not look at. It starts collapsed
+                # and opens itself on the first click, so an unclicked screen
+                # is all graph.
+                gene_split = QSplitter(Qt.Vertical, volcano_page)
+                gene_split.setChildrenCollapsible(True)
+                gene_split.addWidget(self._results_panel.volcano)
+                gene_split.addWidget(self._results_panel.gene)
+                gene_split.setStretchFactor(0, 3)
+                gene_split.setStretchFactor(1, 1)
+                gene_split.setSizes([1000, 0])
+                self._gene_split = gene_split
+                volcano_layout.addWidget(gene_split, 1)
                 self._volcano_page = volcano_page
 
                 self._figures_stack = QStackedWidget(self._figures_card)
@@ -3241,12 +3256,22 @@ class AppScreen(QWidget):
             stack.setCurrentWidget(page)
 
     def _on_guide_selected(self, _key: str) -> None:
-        """A guide was picked in the table: raise the graph it was rung on.
+        """A guide was picked: raise the graph, and open the gene tile.
 
         Drawing a ring on a view nobody is looking at is the same as not
-        drawing one.
+        drawing one, and a tile that stays collapsed is the same as no tile.
         """
         self._show_regression_graph()
+        split = getattr(self, "_gene_split", None)
+        if split is None:
+            return
+        # Only the FIRST click opens it. Reasserting a size on every click
+        # would fight anyone who had dragged the tile bigger to read it, or
+        # shut to see the whole plot.
+        if not getattr(self, "_gene_opened", False) and split.sizes()[1] == 0:
+            self._gene_opened = True
+            total = sum(split.sizes()) or split.height() or 600
+            split.setSizes([int(total * 0.6), int(total * 0.4)])
 
     def _open_figure_from_grid(self, index: int) -> None:
         """A pressed tile fills the container with that figure."""

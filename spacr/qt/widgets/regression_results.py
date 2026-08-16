@@ -145,7 +145,13 @@ class RegressionResultsPanel(QWidget):
         # regression is never answered from the previous one.
         from .gene_tile import GeneTilePanel
         self.gene = GeneTilePanel(frame_provider=lambda: self._frame)
-        self.tabs.addTab(self.gene, "Gene")
+        if not self.external_volcano:
+            self.tabs.addTab(self.gene, "Gene")
+        # When the volcano is external the tile goes WITH IT, not behind a
+        # tab: "when a gene is clicked a tile should appear with all the
+        # information on that gene" -- appear, beside the point that was
+        # clicked. A tile the user has to go and find is a tile they will not
+        # look at. The caller places it, exactly as it places the volcano.
 
         # THE TWO DIRECTIONS OF THE SAME LINK, JOINED ON THE KEY.
         #
