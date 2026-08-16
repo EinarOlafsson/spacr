@@ -331,3 +331,51 @@ class TestTheLastGraphIsNotSlowAnyMore:
         qtbot.addWidget(plot)
         plot.set_results(big)
         assert not plot._legend_box.isEnabled()
+
+
+class TestRestylingTheFastPlots:
+    """"i can see and modify all graphs" -- the same gesture as the
+    matplotlib figures, on the plots that replaced them."""
+
+    @pytest.fixture()
+    def plot(self, qtbot):
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        rng = np.random.default_rng(0)
+        n = 400
+        frame = pd.DataFrame({
+            "feature": [f"g{i}" for i in range(n)],
+            "coefficient": rng.normal(size=n),
+            "p_value": rng.uniform(size=n),
+            "condition": rng.choice(list("abc"), n),
+        })
+        widget = VolcanoPlot()
+        qtbot.addWidget(widget)
+        widget.set_results(frame, category_column="condition")
+        return widget
+
+    def test_the_scatter_is_reachable_for_restyling(self, plot):
+        assert plot._scatter_items(), "nothing to restyle"
+
+    def test_size_colour_and_opacity_all_apply(self, plot):
+        import pyqtgraph as pg
+
+        for item in plot._scatter_items():
+            item.setSize(14.0)
+            item.setBrush(pg.mkBrush("#C44E52"))
+            item.setOpacity(0.5)
+        assert plot._scatter_items()[0].opacity() == 0.5
+
+    def test_axis_labels_are_editable(self, plot):
+        plot.plot.setLabel("bottom", "effect size")
+        assert plot.plot.getAxis("bottom").labelText == "effect size"
+
+    def test_the_menu_offers_the_legend_only_when_there_is_one(self, qtbot):
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        frame = pd.DataFrame({"feature": ["a", "b"], "coefficient": [1.0, 2.0],
+                              "p_value": [0.1, 0.2]})
+        widget = VolcanoPlot()
+        qtbot.addWidget(widget)
+        widget.set_results(frame)          # no category column
+        assert not widget._legend_box.isEnabled()
