@@ -274,5 +274,21 @@
   "69_dose_response": {
     "mtime_ns": 1786634402032732526,
     "size": 926414
+  },
+  "70_explain_cv": {
+    "mtime_ns": 1786832871053340957,
+    "size": 1573595
+  },
+  "71_investigate_hit": {
+    "mtime_ns": 1786832906570607497,
+    "size": 1787098
+  },
+  "72_volcano_explorer": {
+    "mtime_ns": 1786832941602976039,
+    "size": 1626263
+  },
+  "73_parameter_sweep": {
+    "mtime_ns": 1786832972719880443,
+    "size": 1315426
   }
 }

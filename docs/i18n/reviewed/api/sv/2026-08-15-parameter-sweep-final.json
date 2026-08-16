@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.metadata_resolution.MetadataDecision#0",
+      "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
+      "source": "One all-at-once answer returned by a UI or a saved setting.",
+      "context": "One all-at-once answer returned by a UI or a saved setting.",
+      "translation": "Ett enda samlat svar som returneras av ett UI eller en sparad inställning."
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.export#1",
+      "source_sha256": "eb1e1b41d836e6f18d99044ca73e1a2c2cdc8a7a129e0be042e0742fbdfea6bd",
+      "source": "Not a screenshot: the figure is drawn again from the same style, so a PDF stays vector and a PNG honours the dpi under Frame regardless of how large the widget happens to be on screen.",
+      "context": "Not a screenshot: the figure is drawn again from the same style, so a PDF stays vector and a PNG honours the dpi under Frame regardless of how large the widget happens to be on application view.",
+      "translation": "Ingen skärmbild: figuren ritas om med samma stil, så en PDF förblir vektorbaserad och en PNG använder dpi-värdet som anges i Frame oavsett hur stor widgeten råkar vara i programfönstret."
+    }
+  ]
+}
