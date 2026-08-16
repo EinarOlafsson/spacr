@@ -2,10 +2,10 @@
 THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
 ================================================================================
 
-Status:    CAUSE FOUND and the test fixed, 2026-08-15. It was flaky because
-           NOTHING IN THE MASK PIPELINE SEEDS, and cellpose draws from the
-           global NumPy/Torch streams. Read THE CAUSE at the very end. The
-           two hypotheses in WHAT TO DO are both wrong and superseded.
+Status:    STILL OPEN, and THREE proposed causes have now been disproven --
+           including one I was confident enough about to file a separate
+           instruction for. Read THE THREE WRONG ANSWERS at the very end
+           before proposing a fourth.
 Requested: not asked for. Found while attributing a failure in a regression
            sweep for instruction 100, and filed because a bug found in
            passing gets queued rather than narrated.
@@ -214,3 +214,67 @@ strengthen the assertion from "a cell_mask path exists" to an object COUNT.
 With the run now deterministic that is a stable number, and it is the
 difference between "worked" and "barely worked" -- which is the gap a flaky
 pass hid in.
+
+================================================================================
+THE THREE WRONG ANSWERS (2026-08-15) -- READ BEFORE PROPOSING A FOURTH
+================================================================================
+
+This file has now proposed three causes and disproven all three. Recording
+them so the next attempt does not re-derive them.
+
+WRONG 1 -- "the stub dataset does not segment."
+    It does. A stub run prints "Found 12.5 cell/FOV", the QC reports
+    "4 fields, 2 ok / 2 warn / 0 fail", and `masks/cell_mask_stack` exists on
+    disk afterwards.
+
+WRONG 2 -- "the mask stage drops its cell output."
+    It does not. The output is written, at the path the test's glob looks in.
+
+WRONG 3 -- "the mask pipeline is unseeded, so cellpose varies."
+    THIS ONE WAS FILED AS ITS OWN INSTRUCTION (114) AND IS FALSE. The claim
+    rested on `grep -rl seed_everything spacr/*.py` returning only
+    `deep_spacr.py`. That grep was the mistake: the mask path does not call
+    `seed_everything` DIRECTLY, it enters `runctx.run_context`, which calls it
+    for every run. `core.py:209` wraps `preprocess_generate_masks` in exactly
+    that, and its comment says so -- "one seed reaching numpy / random / torch
+    / cellpose". `resolve_seed` defaults to `DEFAULT_SEED = 42`, and the run
+    log line confirms it: "run ... module=mask seed=42".
+
+    So the pipeline IS seeded, 114 was withdrawn, and the "fix" that followed
+    from it -- seeding the test fixture -- was reverted.
+
+THE MEASUREMENT THAT SETTLED IT, and the reason to trust it over the earlier
+reasoning: sixteen runs with the fixture seed and sixteen without.
+
+    with the seed     16 passed, 0 failed
+    without the seed  16 passed, 0 failed
+
+Identical. The seed changes nothing, and 8 consecutive passes -- which is what
+the "fix" was originally declared on -- has probability (7/8)^8 = 0.34 at the
+observed failure rate. That was not evidence.
+
+WHAT IS ACTUALLY KNOWN
+
+* The test HAS failed, twice, reproducibly enough to notice: once during a
+  full `-k "cellpose or mask"` sweep and once in a two-run loop.
+* It has since passed 32 consecutive times in isolation.
+* Both observed failures happened while the machine was running other test
+  work in parallel; every clean run since has been on an idle machine.
+
+That makes LOAD the leading remaining hypothesis -- a timeout, a resource
+limit, or a race that only opens when the box is busy -- and it is the one
+thing none of the three disproven answers looked at. It is also consistent
+with the assertion being about a FILE existing: a stage that is starved or
+cut short writes nothing, and "no cell_mask output" is what that looks like.
+
+HOW TO TEST THE FOURTH ANSWER, rather than reasoning about it: run the test
+repeatedly WHILE the machine is loaded -- `-n 8` on the rest of the suite in
+another shell -- and see whether the failure rate returns. If it does, the
+question is which resource, and the fix is in the test or its timeouts rather
+than in segmentation.
+
+AND STILL WORTH DOING EITHER WAY: strengthen the assertion from "a cell_mask
+path exists" to an object COUNT. It is the weakest possible assertion about a
+segmentation stage, it is why the failure looked like "no masks at all"
+instead of "fewer masks than expected", and it would tell a future
+investigator which of those two they are looking at.

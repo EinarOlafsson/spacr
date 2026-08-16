@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-91 done / 14 open (86%).
+91 done / 13 open (87%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -62,9 +62,6 @@ OPEN
 
   113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
        113_tooltips_belong_to_the_setting_not_its_field.txt
-
-  114  RUNNING MASK TWICE ON THE SAME PLATE CAN PRODUCE DIFFERENT MASKS
-       114_segmentation_is_not_reproducible.txt
 
 --------------------------------------------------------------------------------
 DONE
