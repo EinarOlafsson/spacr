@@ -1546,9 +1546,32 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         for widget in self.section_body(bar):
             widget.setVisible(False)
 
+    def _is_raised(self, bar: "_TopicBar") -> bool:
+        """Whether ``bar`` is already sitting at the top of the viewport."""
+        try:
+            top = bar.mapTo(self._holder, bar.rect().topLeft()).y()
+        except RuntimeError:
+            return False        # section torn down between click and query
+        scrollbar = self._scroll.verticalScrollBar()
+        # The same 4 px tolerance the follow-output check uses: a scrollbar
+        # dragged by hand does not always land on an exact value.
+        return abs(scrollbar.value() - min(top, scrollbar.maximum())) <= 4
+
     def toggle_section(self, bar: "_TopicBar") -> None:
-        """Collapse an expanded section, raise a collapsed one."""
-        if bar.is_expanded():
+        """Reach the section first; fold it away second.
+
+        Sections are created EXPANDED, so a plain expanded/collapsed toggle
+        spent the user's first click hiding the very section they were
+        reaching for, and the viewport never moved -- the opposite of "click
+        a console section heading to bring it to the top of the console".
+
+        A heading that is not already at the top of the viewport is therefore
+        a request to GO THERE, whatever its state. Only a heading already
+        sitting at the top has nowhere left to navigate to, and there
+        collapsing is the one thing the gesture can still mean -- reachable
+        on a second click, exactly where the user's hand already is.
+        """
+        if bar.is_expanded() and self._is_raised(bar):
             self.collapse_section(bar)
         else:
             self.raise_section(bar)
