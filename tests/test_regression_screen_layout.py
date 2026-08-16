@@ -321,14 +321,20 @@ def test_the_divider_is_the_users_after_the_first_click(screen):
 #  The publication figure
 # --------------------------------------------------------------------------- #
 
-def test_there_is_a_control_for_the_publication_figure(screen):
-    """"the all figures section should look like a publication ready
-    figure". The tile grid answers "what did this run draw"; the sheet
-    answers "what did this run FIND"."""
+def test_there_is_no_publication_button(screen):
+    """It was the wrong answer and it is gone.
+
+    "there is a non functional publication button that i did not ask for i
+    asked you to make the all figures pannel publication style (with each
+    panel having an uppercase letter) and be on a grid."
+
+    The GRID is the publication panel. A button beside it that draws a
+    different figure is a second surface answering the same question.
+    """
     from PySide6.QtWidgets import QPushButton
 
     buttons = [b.text() for b in screen._figure_detail.findChildren(QPushButton)]
-    assert any("Publication" in text for text in buttons), buttons
+    assert not any("Publication" in text for text in buttons), buttons
 
 
 def test_it_draws_the_sheet_into_the_ordinary_queue(screen):

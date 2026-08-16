@@ -2443,16 +2443,60 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             coef_df=coef_df, regression_type=regression_type,
             volcano_path=volcano_path if plot else None)
 
-    # THE PUBLICATION SHEET. Asked for on 2026-08-16: "the all figures
-    # section should look like a publication ready figure". One figure with
-    # every panel the table supports, laid out the way a journal figure is,
-    # in the house style -- and its legend written from the panels themselves
-    # rather than maintained separately, because a legend kept by hand beside
-    # the code that draws the figure describes last month's figure.
+    # THE HOUSE-STYLE PANELS. Asked for on 2026-08-16: "the all figures
+    # section should look like a publication ready figure ... with each panel
+    # having an uppercase letter ... and be on a grid", and "there are no
+    # additional plots that i asked for and all the old plotts look exactly
+    # the same".
+    #
+    # SHOWN, not merely written. A PDF on disk changed nothing about what the
+    # application displays, which is exactly the complaint -- the grid still
+    # held the same old pictures. These go through plt.show(), which the Qt
+    # bridge intercepts, so each panel arrives in the figure queue and lands
+    # on the grid as its own lettered cell.
     if dst:
+        _show_house_style_panels(coef_df, plot=plot)
         _write_regression_sheet(coef_df, dst)
 
     return model, coef_df, regression_type
+
+
+def _show_house_style_panels(coef_df, plot=True):
+    """Draw each house-style panel and hand it to whatever is watching.
+
+    One figure per panel rather than one sheet, because the grid puts each on
+    its own lettered cell and a single composite would be one unreadable
+    tile. The sheet is written to disk as well, for the version that goes in
+    a paper.
+
+    Never fatal: the fit is already done and losing a run over a figure would
+    be the worst possible trade.
+    """
+    if coef_df is None or not len(coef_df):
+        return 0
+    try:
+        import matplotlib.pyplot as plt
+
+        from .figures import SHEET_ORDER, build_panel
+    except Exception as error:  # noqa: BLE001
+        print(f"Could not load the figure style: {error}")
+        return 0
+    shown = 0
+    for key in SHEET_ORDER:
+        try:
+            figure, panel = build_panel(key, coef_df)
+        except Exception as error:  # noqa: BLE001
+            print(f"Panel {key} did not draw: {error}")
+            continue
+        if not panel.drawn:
+            plt.close(figure)
+            continue
+        if plot:
+            plt.show()
+        shown += 1
+    if shown:
+        print(f"Drew {shown} regression panels in the house style.")
+    return shown
 
 
 def _write_regression_sheet(coef_df, dst):
@@ -3250,6 +3294,34 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     }
 
 
+def _next_results_folder(root, kind, limit=1000):
+    """``<root>/<kind>``, or ``<kind>_1``, ``<kind>_2`` ... if taken.
+
+    A run never writes on top of an earlier one. The old fixed path meant
+    comparing two corrections, or re-running with one setting changed, left
+    only the last on disk with nothing said about it -- and the results the
+    user was looking at were not the results they thought.
+
+    A folder counts as taken when it EXISTS AND HAS ANYTHING IN IT. An empty
+    one is a directory somebody made and did not fill, and stepping past it
+    would strand it forever.
+
+    :param limit: stop after this many, rather than spinning if a filesystem
+        keeps answering "yes, that exists too".
+    """
+    import os
+
+    base = os.path.join(root, str(kind))
+    for index in range(limit):
+        candidate = base if index == 0 else f"{base}_{index}"
+        try:
+            if not os.path.isdir(candidate) or not os.listdir(candidate):
+                return candidate
+        except OSError:            # unreadable: treat as taken and move on
+            continue
+    return f"{base}_{limit}"
+
+
 def perform_regression(settings):
     """Regress per-well phenotype scores against gRNA / gene counts to identify hits from a pooled CRISPR screen.
 
@@ -3429,16 +3501,27 @@ def perform_regression(settings):
             src = os.path.dirname(settings['count_data'][0])
         settings['src'] = src
     
+        # WHERE A RUN'S OUTPUT GOES: <count data folder>/results/<type>,
+        # and never on top of an earlier run.
+        #
+        # Asked for on 2026-08-16: "just store everything in the same location
+        # as the first count data ... then the type so for me
+        # .../claude/results/ols. if there is already an ols folder then ols_1
+        # then ols_2 and so on".
+        #
+        # The old path was <src>/results/<score_source>/<type>/list -- two
+        # levels nobody asked for, one of them named after a CSV, and a fixed
+        # leaf that meant a second run of the same type silently replaced the
+        # first. That is also why the results panel could not find anything:
+        # the path it had to guess at was four levels deep and named after a
+        # file rather than the run.
         if settings.get('analysis_mode') == 'guide_permutation':
-            res_folder = os.path.join(
-                src, 'results', score_source, 'guide_permutation')
+            kind = 'guide_permutation'
         elif settings['regression_type'] is None:
-            res_folder = os.path.join(src, 'results', score_source, 'auto')
+            kind = 'auto'
         else:
-            res_folder = os.path.join(src, 'results', score_source, settings['regression_type'])
-        
-        if isinstance(settings['count_data'], list):
-            res_folder = os.path.join(res_folder, 'list')
+            kind = str(settings['regression_type'])
+        res_folder = _next_results_folder(os.path.join(src, 'results'), kind)
 
         os.makedirs(res_folder, exist_ok=True)
         results_filename = 'results.csv'
