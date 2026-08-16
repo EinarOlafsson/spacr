@@ -220,11 +220,24 @@ def test_an_underscored_plate_id_keeps_the_regression_qc_tables(tmp_path, stubs)
     assert set(well_grna["rowID"].unique()) <= set(ROWS)
     assert len(out["results"]) > 0
 
-    # ... and the old spelling, on the very frame that just worked.
-    with pytest.raises(ValueError, match="Columns must be same length as key"):
-        legacy = data[["prc"]].copy()
-        legacy[["plateID", "rowID", "columnID"]] = \
-            legacy["prc"].str.split("_", expand=True)
+    # ... and what the old naive spelling does now, on the very frame that
+    # just worked. It used to RAISE "Columns must be same length as key",
+    # because an underscored plate made prc four components. Since the
+    # maintainer chose escaping (2026-08-16) the key is always three, so the
+    # naive split no longer raises -- it succeeds and hands back the ESCAPED
+    # plate id.
+    #
+    # That is the improvement and also the new trap, so both halves are
+    # asserted: a naive splitter now gets a plausible-looking answer instead
+    # of an error, and only _split_prc gives back the plate the user typed.
+    legacy = data[["prc"]].copy()
+    legacy[["plateID", "rowID", "columnID"]] = \
+        legacy["prc"].str.split("_", expand=True)
+    assert set(legacy["plateID"].unique()) == {"exp1%5Fplate1"}
+    assert plate not in set(legacy["plateID"].unique())
+
+    from spacr.ml import _split_prc
+    assert {_split_prc(key)[0] for key in data["prc"]} == {plate}
 
 
 def test_a_count_table_where_only_some_rows_carry_the_plate_prefix(tmp_path,
@@ -303,9 +316,15 @@ def test_process_reads_plate_row_splits_on_the_last_separator():
 
     out = process_reads(df.copy(), fraction_threshold=None, plate=None)
 
-    assert set(out["prc"]) == {"exp1_plate2_rA_c3", "exp1_plate2_rB_c3"}
+    # ESCAPED, not four components. The maintainer chose one spelling on
+    # 2026-08-16: a plate id holding the key separator is percent-escaped so
+    # a prc is always three components, rather than four separated by the
+    # row/column guard. Both still PARSE -- _split_prc unescapes, and
+    # unescaping is a no-op on a legacy key -- so databases written before
+    # this keep reading. What changed is what gets WRITTEN.
+    assert set(out["prc"]) == {"exp1%5Fplate2_rA_c3", "exp1%5Fplate2_rB_c3"}
     assert np.allclose(
-        sorted(out.loc[out["prc"] == "exp1_plate2_rA_c3", "fraction"]),
+        sorted(out.loc[out["prc"] == "exp1%5Fplate2_rA_c3", "fraction"]),
         [0.1, 0.2, 0.3, 0.4])
 
     # The old two-column positional split on the same input.

@@ -628,7 +628,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         df['plateID'] = f'plate{i + 1}'
         
         if 'prc' not in df.columns:
-            df['prc'] = df['plateID'] + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+            df['prc'] = _compose_prc_column(df)
             
         dfs.append(df)
 
@@ -2406,6 +2406,33 @@ def _split_prc(text):
     return schema.unescape_filename_component(plate), row, column
 
 
+def _compose_prc_column(df):
+    """``prc`` from ``plateID``/``rowID``/``columnID``, escaped as the key is.
+
+    The vectorised counterpart of :func:`spacr.schema.compose_prc`, and the
+    reason it exists: seven sites in this module built ``prc`` with a bare
+    ``df['plateID'] + '_' + ...``, which is correct only while no plate id
+    contains the separator or a ``%``. ``compose_prc`` escapes both, so a
+    hand-joined key and a composed key were two different strings for the same
+    well, and anything joining one to the other silently matched nothing.
+
+    ESCAPING IS NOW THE ONE SPELLING (maintainer's decision, 2026-08-16).
+    A plate called ``exp1_plate2`` composes to ``exp1%5Fplate2_rB_c3`` -- three
+    components, always -- rather than to a four-component key separated by the
+    row/column guard. Databases written before this hold the old four-component
+    form, and :func:`_split_prc` still reads it: unescaping is a no-op on a key
+    that carries no escape, and the guard that separates an underscored plate
+    from a ``prcf`` is untouched. So old data reads and new data is
+    unambiguous, which is what "accept both, write one" means here.
+
+    :param df: frame carrying ``plateID``, ``rowID`` and ``columnID``.
+    :returns: the ``prc`` series.
+    """
+    return (df['plateID'].astype(str).map(schema.escape_filename_component)
+            + schema.KEY_SEPARATOR + df['rowID'].astype(str)
+            + schema.KEY_SEPARATOR + df['columnID'].astype(str))
+
+
 def _is_row_column_pair(row, column):
     """True when ``(row, column)`` is recognisably a well's row and column.
 
@@ -3407,9 +3434,7 @@ def perform_regression(settings):
     # never a second silent source of plate identity here.
     if {'plateID', 'rowID', 'columnID'}.issubset(score_data_df.columns):
         score_data_df['prc'] = (
-            score_data_df['plateID'].astype(str)
-            + '_' + score_data_df['rowID'].astype(str)
-            + '_' + score_data_df['columnID'].astype(str)
+            _compose_prc_column(score_data_df)
         )
     #test 1
     if settings.get('verbose'):
@@ -4165,7 +4190,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
     if 'prcfo' in csv_df.columns:
         #csv_df = csv_df.loc[:, ~csv_df.columns.duplicated()].copy()
         csv_df = _assign_prcfo_parts(csv_df, object_column='objectID')
-        csv_df['prc'] = csv_df['plateID'].astype(str) + '_' + csv_df['rowID'].astype(str) + '_' + csv_df['columnID'].astype(str)
+        csv_df['prc'] = _compose_prc_column(csv_df)
 
     if isinstance(filter_column, str):
         filter_column = [filter_column]
@@ -4183,7 +4208,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
         raise ValueError("The CSV file must contain 'grna', 'count', 'rowID', and 'columnID' columns.")
 
     # Create the prc column
-    csv_df['prc'] = csv_df['plateID'] + '_' + csv_df['rowID'] + '_' + csv_df['columnID']
+    csv_df['prc'] = _compose_prc_column(csv_df)
 
     # Group by prc and calculate the sum of counts
     grouped_df = csv_df.groupby('prc')['count'].sum().reset_index()
@@ -4371,7 +4396,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         if not all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
             df = _assign_prcfo_parts(df, object_column='objectID')
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
-            df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+            df['prc'] = _compose_prc_column(df)
     else:
         df = correct_metadata(df)
         df = df.loc[:, ~df.columns.duplicated()].copy()
@@ -4398,7 +4423,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
             )
 
         if all(col in df.columns for col in ['plateID', 'rowID', 'columnID']):
-            df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+            df['prc'] = _compose_prc_column(df)
         else:
             raise ValueError("The DataFrame must contain 'plateID', 'rowID', and 'columnID' columns.")
 
@@ -5544,7 +5569,7 @@ def ml_analysis(
     # five-name split raised ValueError here on every timelapse database,
     # discarding a model that had already been fitted and scored.
     df = _assign_prcfo_parts(df, object_column='object')
-    df['prc'] = df['plateID'] + '_' + df['rowID'] + '_' + df['columnID']
+    df['prc'] = _compose_prc_column(df)
     
     return [df, permutation_df, feature_importance_df, model, X_train, X_test, y_train, y_test, metrics_df, features], [permutation_fig, feature_importance_fig]
 
