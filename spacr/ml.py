@@ -4043,6 +4043,32 @@ def perform_regression(settings):
     print(f"Found p<0.05 coedfficients for {len(grnas)} gRNAs and {len(genes)} genes")
     display(significant)
 
+    # A PENALISED FIT THAT FINDS NOTHING IS NOT THE SAME AS NO SIGNAL.
+    #
+    # ridge's p-values come from calculate_p_values, which divides an
+    # unpenalised standard error into a shrunken coefficient: conservative by
+    # construction, and deliberately so. On this screen every one of them
+    # comes back at q=1.0 -- including the two genes that OLS puts at
+    # q=2e-05. A user reading that sees "no hits" and cannot tell it apart
+    # from "no effect", which is the one conclusion the number does not
+    # support.
+    try:
+        _penalised = str(settings.get('regression_type', '')).lower() in (
+            'ridge', 'lasso', 'elasticnet')
+        if _penalised and len(coef_df):
+            _p = pd.to_numeric(coef_df.get('p_value'), errors='coerce')
+            if not (_p < 0.05).any():
+                print(
+                    f"\nNOTE: {settings['regression_type']} returned no "
+                    f"coefficient below p=0.05. Its p-values are conservative "
+                    f"by construction -- the standard error is unpenalised "
+                    f"while the coefficient it is divided into has been shrunk "
+                    f"-- so this is NOT evidence of no effect. Refit with "
+                    f"regression_type='ols' (or 'rlm' for a robust check) "
+                    f"before concluding anything from it.")
+    except Exception:
+        pass
+
     # WHAT THE VOLCANO CANNOT SHOW.
     #
     # A gene backed by ONE surviving guide and a gene whose guides all agree
