@@ -1,0 +1,111 @@
+================================================================================
+EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
+================================================================================
+
+Status:    filed 2026-08-16, not started.
+Requested: 2026-08-16 - "when a new installer is released i dont want the old
+           one to be deleted instead there should be a page that has a table
+           linking to all the old ones (that will live in a github spacr
+           folder) one column for version one for linux then osx then windows
+           columns"
+
+Related:   120 (the README's three installer links became platform icons) --
+           the SAME icons belong in this table's column headers, and
+           packaging/release.py already knows how to rewrite installer links,
+           so it is where this page gets regenerated from. Do not build a
+           second link-rewriter.
+
+--------------------------------------------------------------------------------
+NOTHING IS BEING DELETED. NOTHING IS BEING LISTED EITHER.
+--------------------------------------------------------------------------------
+
+Checked before designing anything, because "stop deleting them" and "publish
+an index of them" are different jobs and only one of them needs doing.
+
+  * `.github/workflows/release.yml:295` uploads with `--clobber`, which
+    overwrites assets WITHIN ONE TAG. A new version is a new tag, so it
+    cannot touch the previous release's files.
+  * All six releases still carry their assets today:
+        v1.5.0.4, v1.5.0.1, v1.4.9.9, v1.4.9.8, v1.3.6, v1.3.5
+
+WHAT ACTUALLY DISAPPEARS is the LINK. `packaging/release.py` rewrites the
+README's three installer URLs to the version being released, so the moment
+1.5.0.5 ships there is no path anywhere in the project to 1.5.0.4's
+installer. The file is still on GitHub; nobody can find it. That is what the
+page fixes, and it is why the page is the whole of this task -- there is no
+deletion to stop.
+
+--------------------------------------------------------------------------------
+THE PAGE
+--------------------------------------------------------------------------------
+
+A table, newest version first, exactly the columns asked for:
+
+    Version   Linux   macOS   Windows
+    1.5.0.4    .run    .pkg     .exe
+    1.5.0.1    .run    .pkg     .exe
+    ...
+
+  * The three platform cells are the icons from 120, not text. One glyph set,
+    one place it is drawn -- a second copy is a second thing to restyle.
+  * A version with no installer for a platform (the packaging work started at
+    1.4.9.8; 1.3.5 and 1.3.6 predate it) gets an empty cell, not a dead link.
+    Verify per release rather than assuming a uniform history.
+  * The current version is marked as such, so the page cannot be mistaken for
+    a list of old versions only. The README's icons keep pointing at the
+    latest; this page is where someone goes for anything else.
+  * Generated, never hand-maintained. A table of download links typed by hand
+    is a table that is wrong one release later, which is the failure mode
+    that produced this request in the first place.
+
+WHERE IT LIVES. "a github spacr folder" -- the project already publishes at
+https://einarolafsson.github.io/spacr/ from `docs/`, so it is a page in that
+site with a link from the README's install section. Confirm the current
+publishing path before choosing the file, because docs/ holds both built
+output and `docs/source`, and writing into the built copy is a change that
+disappears on the next docs build.
+
+--------------------------------------------------------------------------------
+ARCHIVING THE FILES: MEASURE FIRST, IT IS CHEAPER THAN IT SOUNDS
+--------------------------------------------------------------------------------
+
+If the installers are also to be COPIED into a folder in the repo rather than
+only linked on GitHub, note what they actually are. Measured on v1.5.0.4:
+
+    SpaCR-1.5.0.4-Linux-x86_64-Online.run          12,194 bytes
+    SpaCR-1.5.0.4-Windows-Online-Setup.exe        171,580 bytes
+    SpaCR-1.5.0.4-macOS-Universal-Online.pkg      284,932 bytes
+    ---------------------------------------------------------
+    the wheel, for comparison                  30,406,659 bytes
+
+They are ONLINE installers: ~470 KB for all three, so a full archive of every
+release to date is about 3 MB. Committing those is fine. Committing the
+wheels or the sdists would not be -- 60 MB per release, permanently, and a
+git history cannot be un-bloated afterwards. Link those, do not vendor them.
+
+THE ONE THING THAT MUST BE CHECKED BEFORE PROMISING ANYTHING:
+
+    An online installer downloads the package at install time. If it resolves
+    "the latest spacr" rather than "the version this installer was built for",
+    then an archived 1.4.9.8 installer INSTALLS 1.5.0.4 -- and an archive
+    whose entire purpose is getting an old version back would be handing over
+    the new one while displaying the old version number.
+
+Read the installer templates in `packaging/` and find out which it is. If the
+version is not pinned, either pin it or say plainly on the page that these
+install the current release. A silently wrong version is worse than no
+archive: the user believes they have reproduced an old run and has not.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The page lists every release that shipped installers, newest first, with
+  version / Linux / macOS / Windows columns and the 120 icons in the headers.
+* Every link on it returns HTTP 200. Test it against the live releases, the
+  way 120's links were checked -- a link table that is not verified is a
+  link table with dead entries in it.
+* Releasing a new version adds a row without anyone editing the page, and a
+  test proves it by running the generator against a fabricated release list.
+* Downloading the 1.4.9.9 installer installs 1.4.9.9, or the page says
+  clearly that it does not.
