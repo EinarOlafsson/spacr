@@ -2,14 +2,14 @@
 
 ## Current accepted matrix
 
-- 69 lessons
-- 487 scenes
+- 73 lessons
+- 507 scenes
 - 8 narration languages
 - 50 voices: 24 English and 26 localized
-- 3,450 narration tracks
-- 69 4K silent masters
+- 3,650 narration tracks
+- 73 4K silent masters
 - derived Pages media below 700 MiB
-- cache key `20260813-69-lessons-final`
+- cache key `20260815-73-lessons`
 
 ## Editable-workspace gates
 
@@ -63,7 +63,7 @@ count, `index.html` existence, and HTML page count.
    deployment path.
 6. Run `python tools/verify_tutorial_live.py --browser` after deployment.
 
-The live check must prove 69 lessons, 487 scenes, 8 languages, 50 voices, no
+The live check must prove 73 lessons, 507 scenes, 8 languages, 50 voices, no
 retired voices, exact committed asset hashes, caption and narration Blob URLs,
 audible clock progress, native pause, narration-authoritative end, replay from
 zero, mobile viewport/user agent, and no narration fallback toast.

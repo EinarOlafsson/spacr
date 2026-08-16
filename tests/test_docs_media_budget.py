@@ -513,12 +513,13 @@ def test_the_budget_module_runs_as_a_script():
 
 
 @requires_library
-def test_the_docs_workflow_publishes_from_main_only():
-    """Nightly stopped republishing production Pages; keep it that way.
+def test_the_docs_workflow_only_auto_publishes_from_main():
+    """Nightly pushes cannot republish Pages; an explicit dispatch can.
 
     The push trigger used to run every step on ``nightly`` too, so each
-    nightly push overwrote the public site with unreviewed docs. The gate is
-    a one-line ``if:`` and deleting it is silent.
+    nightly push overwrote the public site with unreviewed docs. A deliberate
+    workflow dispatch is allowed only because the same run first audits the
+    exact catalogs and builds the site. Deleting either half is silent.
     """
     workflow = (REPO_ROOT / ".github" / "workflows" / "docs.yml")
     if not workflow.is_file():
@@ -526,5 +527,13 @@ def test_the_docs_workflow_publishes_from_main_only():
     text = workflow.read_text()
     assert text.count("github.ref == 'refs/heads/main'") >= 3, (
         "every Pages-touching step (configure, upload, deploy) needs the "
-        "main-only gate")
+        "automatic main gate")
+    manual_nightly = (
+        "github.event_name == 'workflow_dispatch' && "
+        "github.ref == 'refs/heads/nightly'"
+    )
+    assert text.count(manual_nightly) >= 3, (
+        "the configure, upload and deploy exception must require both an "
+        "explicit dispatch and the nightly ref"
+    )
     assert "upload-pages-artifact" in text

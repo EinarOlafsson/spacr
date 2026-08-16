@@ -1,7 +1,3 @@
-================================================================================
-A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
-================================================================================
-
 Status:    DONE 2026-08-15. Both reproduced failures fixed; four mechanical
            guards added; the permanently-skipped link test now runs in CI.
            See RESULT at the end.
@@ -9,7 +5,7 @@ Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings
            and translations make sure everything is correct."
 
 --------------------------------------------------------------------------------
-WHAT THIS IS, AND WHAT IT IS NOT
+WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
 This is an AUDIT of work already marked done, not a request to write more
@@ -33,6 +29,14 @@ that produced this file -- fifteen recorded defects sitting behind xfails
 whose reasons were themselves partly wrong (100, C3). Prose in this
 repository has not been reliable. Assume the same of the docstrings until
 each is checked against the code beside it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Documentation and translations are executable user contracts: an incorrect
+default, parameter name, placeholder, or protected identifier can misdirect a
+workflow or fail only in one locale while ordinary coverage remains green.
 
 --------------------------------------------------------------------------------
 WHERE IT IS ALREADY WRONG (reproduced 2026-08-15)
@@ -62,7 +66,7 @@ rather than a search:
      an archive.
 
 --------------------------------------------------------------------------------
-WHAT TO CHECK
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 DOCSTRINGS -- correctness, in this order, because the order is by how much
