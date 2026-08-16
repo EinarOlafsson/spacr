@@ -142,6 +142,26 @@ jobs:
           # Pages needs .nojekyll to preserve _static / _sources folders
           touch docs/_build/html/.nojekyll
 
+      # A tooltip's API link is the only route from a setting to its
+      # documentation, and it is followed exactly when the user is stuck.
+      # Whether it RESOLVES can only be checked against a fresh build, which
+      # exists here and nowhere else -- so the test that checks it skipped
+      # everywhere, counting as coverage while proving nothing
+      # (instruction 112).
+      #
+      # continue-on-error for now, deliberately: this check has never been
+      # able to run anywhere, so its first real result is information rather
+      # than a gate. Make it blocking once its output is known to be clean.
+      - name: Check every tooltip API link resolves
+        continue-on-error: true
+        env:
+          QT_QPA_PLATFORM: offscreen
+          SPACR_DOCS_BUILT: "1"
+          SPACR_DOCS_ROOT: docs/_build/html
+        run: |
+          python -m pytest tests/test_tooltip_api_links_resolve.py \
+            -q --no-header -p no:cacheprovider
+
       # --- production Pages path: main only ------------------------------
       - name: Configure Pages
         if: github.ref == 'refs/heads/main'
