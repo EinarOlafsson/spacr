@@ -1630,9 +1630,31 @@ class AppScreen(QWidget):
                 self._figures_stack.addWidget(self._figure_grid)   # index 0
                 self._figures_stack.addWidget(detail)              # index 1
 
+                # "the paramiter search should be like the main module setup
+                # just an extra tab for the runs" (116, corrected). Not a
+                # bespoke screen with its own copies of the table, the queue
+                # and the results panel -- this screen, with one more tab.
+                # Picking a run swaps the figures on the right, which is the
+                # substance of that request and the only part unchanged.
+                from ..widgets.sweep_runs import SweepRunsPanel
+                self._sweep_runs = SweepRunsPanel(self._figures_card)
+                self._sweep_runs.trial_activated.connect(self._show_trial)
+                left = QTabWidget(self._figures_card)
+                left.addTab(self._results_panel, "Results")
+                left.addTab(self._sweep_runs, "Runs")
+                left.setTabToolTip(1, "Every trial the parameter sweep ran. "
+                                      "Pick one to see its results and its "
+                                      "figures.")
+                # Read the table when the tab is OPENED, not on a timer. A
+                # sweep writes each trial as it finishes, so the answer is
+                # different every time somebody looks -- and nobody is looking
+                # while the tab is behind another one.
+                left.currentChanged.connect(self._on_results_tab_changed)
+                self._results_tabs = left
+
                 split = QSplitter(Qt.Horizontal, self._figures_card)
                 split.setChildrenCollapsible(False)
-                split.addWidget(self._results_panel)
+                split.addWidget(left)
                 split.addWidget(self._figures_stack)
                 # The figures get the larger share, and the divider is the
                 # user's to move from there.
@@ -1641,7 +1663,7 @@ class AppScreen(QWidget):
                 # The results need width for a coefficient table; the grid
                 # needs width for more than one tile per row. Neither survives
                 # being handed a size hint, so both get a floor.
-                self._results_panel.setMinimumWidth(420)
+                left.setMinimumWidth(420)
                 self._figures_stack.setMinimumWidth(360)
                 split.setSizes([560, 840])
                 self._figures_split = split
@@ -3034,6 +3056,102 @@ class AppScreen(QWidget):
         timer = getattr(self, "_grid_refresh", None)
         if timer is not None:
             timer.start()
+
+    def _on_results_tab_changed(self, index: int) -> None:
+        """Opening the Runs tab re-reads the sweep's table."""
+        tabs = getattr(self, "_results_tabs", None)
+        runs = getattr(self, "_sweep_runs", None)
+        if tabs is None or runs is None or tabs.widget(index) is not runs:
+            return
+        folder = self._sweep_destination()
+        if folder:
+            runs.load(folder)
+
+    def _sweep_destination(self) -> str:
+        """Where the sweep card was told to write, if it exists.
+
+        Asked of the card rather than stored, so the two cannot disagree
+        about which folder the sweep is filling.
+        """
+        sweep = getattr(self, "_sweep", None)
+        field = getattr(sweep, "destination", None)
+        try:
+            return field.text().strip()
+        except Exception:
+            return ""
+
+    def _show_trial(self, record: dict) -> None:
+        """A run was picked: show THAT trial's results and figures.
+
+        A SAVED TRIAL IS INSTANT AND A RE-FIT IS A MINUTE, so the folder the
+        sweep already wrote is preferred over re-running anything. A trial
+        that failed says why rather than silently doing nothing -- a click
+        that produces no visible change reads as a broken table.
+        """
+        if not isinstance(record, dict):
+            return
+        trial = record.get("trial_id", "?")
+        if str(record.get("status", "ok")) != "ok":
+            self._console.append_stdout(
+                f"Trial {trial} did not produce a regression: "
+                f"{record.get('error_type', '')} "
+                f"{record.get('error', 'no reason recorded')}\n")
+            return
+        folder = record.get("folder")
+        panel = getattr(self, "_results_panel", None)
+        if not folder or panel is None or not panel.load(folder):
+            self._console.append_stdout(
+                f"Trial {trial} has no saved results on disk. Re-run it from "
+                "the sweep panel to draw them.\n")
+            return
+        # Its figures too, so the grid on the right is that trial's and not
+        # whatever the last run left there.
+        self._load_trial_figures(str(folder))
+        self._figures_card.show()
+
+    def _load_trial_figures(self, folder: str) -> int:
+        """Put a trial's saved figures on the grid. Returns how many.
+
+        The pictures on disk, not a re-fit: they are what that trial actually
+        drew, and re-fitting to see them again would be a minute of waiting
+        for an identical answer.
+        """
+        grid = getattr(self, "_figure_grid", None)
+        if grid is None:
+            return 0
+        from PySide6.QtGui import QPixmap
+
+        pixmaps, titles = [], []
+        try:
+            names = sorted(os.listdir(folder))
+        except OSError:
+            return 0
+        for name in names:
+            if not name.lower().endswith((".png", ".pdf")):
+                continue
+            path = os.path.join(folder, name)
+            pixmap = QPixmap()
+            if name.lower().endswith(".pdf"):
+                try:
+                    from ..widgets.figure_queue import render_pdf_to_image
+                    image = render_pdf_to_image(path)
+                    if image is not None:
+                        pixmap = QPixmap.fromImage(image)
+                except Exception:
+                    continue
+            elif not pixmap.load(path):
+                continue
+            if pixmap.isNull():
+                continue
+            pixmaps.append(pixmap)
+            titles.append(os.path.splitext(name)[0])
+        if not pixmaps:
+            return 0
+        grid.set_figures(pixmaps, titles)
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            stack.setCurrentIndex(0)
+        return len(pixmaps)
 
     def _figure_grid_menu(self, index: int, position) -> None:
         """Right-click on a tile: restyle or save THAT figure, in place.

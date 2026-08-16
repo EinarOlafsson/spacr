@@ -60,8 +60,10 @@ def test_the_results_are_beside_the_figures_not_behind_a_tab(screen):
     assert isinstance(split, QSplitter)
     assert split.orientation() == Qt.Horizontal, (
         "the results are stacked above the figures, not beside them")
-    assert split.widget(0) is screen._results_panel, (
-        "the results panel is not the LEFT half")
+    assert split.widget(0) is screen._results_tabs, (
+        "the results are not the LEFT half")
+    assert screen._results_tabs.widget(0) is screen._results_panel, (
+        "Results is not the first tab -- it is what a finished run opens into")
     assert split.widget(1) is screen._figures_stack
 
 
