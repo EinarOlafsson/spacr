@@ -48,8 +48,25 @@ APP_TRANSLATIONS = (
     "Parametersvep", "Parameter-Sweep", "Barrido de parámetros",
     "参数扫描", "Varredura de parâmetros", "पैरामीटर स्वीप",
     "매개변수 스윕", "Færibreytusveip", "Balayage de paramètres")
+#: Why there is no ``spacr-run parameter_sweep``. Reaches
+#: :data:`spacr.cli.INTERACTIVE_ONLY`, which is what the CLI prints instead of
+#: "unknown module".
+#:
+#: The SWEEP is fully headless -- :mod:`spacr.parameter_sweep` is the engine
+#: this screen drives, and a cluster is where a few hundred trials belong. It
+#: is the WORKBENCH that cannot be batched: the table, and double-clicking a
+#: row to get that exact regression back with its figures. So the note points
+#: at the engine rather than claiming the feature has no headless path.
+APP_CLI_NOTE = (
+    "Parameter Sweep is the interactive workbench for a sweep -- the table of "
+    "trials, and double-clicking a row to get that exact regression back with "
+    "its figures. The sweep itself is headless: from spacr.parameter_sweep "
+    "import run_sweep, summarise_sweep; run_sweep(base_settings, destination) "
+    "writes the same results table this screen reads, and summarise_sweep / "
+    "rank_trials give the comparison it draws.")
 
-__all__ = ["APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO", "register"]
+__all__ = ["APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
+           "APP_CLI_NOTE", "register"]
 
 
 def _make_screen(app_key=None, host=None):
@@ -245,6 +262,15 @@ def _make_screen(app_key=None, host=None):
             splitter.addWidget(right)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 2)
+
+            # Every screen that reads a path takes a drop, and a sweep reads
+            # more paths than anything else in spaCR -- a plate per pair. The
+            # policy is SweepInputsDropHandler, which sorts each CSV into the
+            # score or the count list from its header. install_for never
+            # raises: a Qt build without drag-and-drop loses the convenience,
+            # not the screen.
+            from ..dnd import install_for
+            install_for(self, APP_KEY, self)
 
         # ------------------------------------------------------------ space
 
@@ -545,7 +571,8 @@ def register() -> bool:
     register_app(
         APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
         factory=_make_screen, stage=STAGE_ALPHA, title=APP_NAME,
-        intro=APP_INTRO, translations=APP_TRANSLATIONS)
+        intro=APP_INTRO, cli_note=APP_CLI_NOTE,
+        translations=APP_TRANSLATIONS)
     return True
 
 

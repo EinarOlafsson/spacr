@@ -38,9 +38,20 @@ APP_TRANSLATIONS = (
     "Vulkanutforskare", "Vulkan-Explorer", "Explorador de volcán",
     "火山图浏览器", "Explorador de vulcão", "वोल्केनो एक्सप्लोरर",
     "볼케이노 탐색기", "Eldfjallakönnuður", "Explorateur de volcan")
+#: Why there is no ``spacr-run volcano_explorer``. Reaches
+#: :data:`spacr.cli.INTERACTIVE_ONLY`, which is what the CLI prints instead of
+#: "unknown module". This screen is a reader with no analysis behind it, so
+#: the honest headless answer is the renderer it draws through -- the same one
+#: the pipeline uses, which is why the exported figure is identical.
+APP_CLI_NOTE = (
+    "Volcano Explorer is an interactive reader for a finished regression -- "
+    "clicking a point is the feature, so there is nothing to batch. Headless, "
+    "call spacr.volcano_style.render_volcano(results, VolcanoStyle(...), "
+    "save_path='volcano.pdf'); that is the renderer this screen draws "
+    "through, so the figure is the same one, vector at publication size.")
 
 __all__ = ["APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
-           "find_results_table", "register"]
+           "APP_CLI_NOTE", "find_results_table", "register"]
 
 #: Result CSVs a regression folder may hold, best first. ``results_grna.csv``
 #: leads because the volcano is a guide-level plot: ``results.csv`` is the
@@ -171,6 +182,7 @@ def register() -> bool:
         APP_KEY, APP_NAME, APP_DESCRIPTION, SECTION_RESULTS,
         factory=_make_screen,
         stage=STAGE_ALPHA, title=APP_NAME, intro=APP_INTRO,
+        cli_note=APP_CLI_NOTE,
         translations=APP_TRANSLATIONS)
     return True
 
