@@ -629,6 +629,7 @@ def free_memory_gb() -> float:
 
 
 def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
+                        controls: Mapping[str, str] | None = None,
                         timeout: float = 1800.0,
                         memory_max: str = TRIAL_MEMORY_MAX,
                         cpu_quota: str = TRIAL_CPU_QUOTA) -> dict:
@@ -651,7 +652,12 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
     import sys
     import tempfile
 
-    payload = {"settings": dict(settings), "trial_id": trial_id}
+    # The control ALIASES travel with the trial. Without them a contained row
+    # loses the `{alias}_rank` columns -- and `positive_rank` is one of the
+    # columns the sweep screen puts in its table, so containing a trial would
+    # have quietly emptied the one column the run is judged on.
+    payload = {"settings": dict(settings), "trial_id": trial_id,
+               "controls": dict(controls or {})}
     folder = settings.get("src") or tempfile.gettempdir()
     os.makedirs(folder, exist_ok=True)
     settings_path = os.path.join(folder, "_trial_settings.json")
@@ -757,7 +763,8 @@ def _execute_trial(payload):
         # The pool worker now only waits on the child, so it holds no design
         # matrix of its own and the worker count stops being a memory
         # multiplier as well.
-        child = run_trial_contained(settings, trial_id=trial["trial_id"])
+        child = run_trial_contained(settings, trial_id=trial["trial_id"],
+                                    controls=controls)
         row.update({k: v for k, v in child.items() if k != "trial_id"})
         row["seconds"] = child.get("seconds", round(time.time() - began, 2))
         return row
@@ -1030,7 +1037,8 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         output = None
         if runner is None:
             # Contained: the child returns a finished ROW, not a model.
-            child = run_trial_contained(settings, trial_id=trial["trial_id"])
+            child = run_trial_contained(settings, trial_id=trial["trial_id"],
+                                        controls=controls)
             row.update({k: v for k, v in child.items()
                         if k not in ("trial_id",)})
             row["seconds"] = child.get("seconds", round(time.time() - began, 2))
@@ -1263,9 +1271,21 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
     """
     import ast
 
+    # The control-alias columns cannot be listed in advance, because the
+    # aliases are the CALLER'S: run_sweep(controls={"gra14": "239740"}) makes
+    # gra14_rank, gra14_q and the rest. They are recoverable exactly, though,
+    # because _named_control_rows always writes `{alias}_present` for every
+    # alias whether or not it found one -- so the row names its own aliases and
+    # nothing has to be guessed from suffixes. Guessing would be wrong anyway:
+    # spaCR has twenty-two real settings ending in `_percentile`.
+    aliases = [key[: -len("_present")] for key in row
+               if isinstance(key, str) and key.endswith("_present")]
+    alias_columns = {f"{alias}{suffix}" for alias in aliases
+                     for suffix in ("_present", "_effect", "_rank", "_q", "_p")}
+
     settings = dict(base_settings)
     for key, value in row.items():
-        if key in _BOOKKEEPING_COLUMNS:
+        if key in _BOOKKEEPING_COLUMNS or key in alias_columns:
             continue
         if isinstance(value, float) and pd.isna(value):
             continue
