@@ -3,7 +3,7 @@
 Instruction 122 part 3, in the maintainer's words:
 
     "doing a sweep on these screen data of which measurements have genes with
-     an effect size. so instead of a paramiter search a serch for which
+     an effect size -- so instead of a parameter search, a search for which
      measurement has genes with clear effect sizes (one or several)"
 
 A parameter sweep holds the data fixed and varies the settings. This holds the
@@ -68,7 +68,7 @@ GUI is not its business.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -95,6 +95,30 @@ __all__ = [
 #: holds one value, is simply dropped -- a single-screen project is not a
 #: special case, it is the same model with one fewer term.
 DEFAULT_BLOCK_COLUMNS: Tuple[str, ...] = (schema.SCREEN_KEY,)
+
+#: Wells a gene needs before its effect is estimable at all.
+#:
+#: A GENE IN ONE WELL HAS NOTHING CORROBORATING IT. Its "effect" is that
+#: single well's deviation from the rest, which carries every well-level
+#: artefact there is -- edge position, seeding density, focus, a bubble --
+#: and no way to tell any of them from a phenotype. spaCR already refuses
+#: this one level down: :data:`spacr.hits.FLAG_SINGLE_GUIDE` is "called by
+#: one guide, so nothing corroborates it". This is the same rule at the well.
+#:
+#: It is not a cosmetic filter. MEASURED on plate1 of the tsg101 screen,
+#: 44 wells over 10 genes of which 8 had a single well, gene labels permuted
+#: so no effect can exist:
+#:
+#:     singletons kept      65% of permuted scans produced an "across-scan
+#:                          survivor" -- against the 5% the correction promises
+#:     singletons dropped    0%
+#:
+#: One outlier well does not produce one false hit. The measurement columns
+#: are strongly correlated, so it produces DOZENS of correlated false hits at
+#: once, which is precisely the structure a correction assuming valid P values
+#: cannot rescue. On that screen's true labels, 64 of the 78 surviving
+#: measurements -- 82% -- rested on a gene with one well.
+MIN_WELLS_PER_GENE = 2
 
 #: Columns that are the DESIGN, not the response.
 #:
@@ -178,6 +202,11 @@ class ScanResult:
     #: Li & Ji (2005) estimate of how many independent tests the scanned
     #: columns amount to. ``nan`` when it could not be estimated.
     effective_n_tests: float
+    #: ``{gene: wells it had}`` for genes dropped as having too few wells to
+    #: corroborate anything. Named rather than silently filtered: a gene
+    #: missing from the result with no explanation reads as a gene with no
+    #: effect, which is the opposite of what happened to it.
+    genes_dropped: Mapping[str, int] = field(default_factory=dict)
 
     @property
     def n_measurements_scanned(self) -> int:
@@ -443,6 +472,7 @@ def scan_measurements(frame,
                       control_genes: Sequence[str] = (),
                       within_run_method: str = 'fdr_bh',
                       across_scan_method: str = 'fdr_bh',
+                      min_wells_per_gene: int = MIN_WELLS_PER_GENE,
                       alpha: float = 0.05) -> ScanResult:
     """Fit every measurement against the guides and rank them by effect size.
 
@@ -462,6 +492,12 @@ def scan_measurements(frame,
         :mod:`spacr.multiple_testing` method, plus
         ``'bonferroni_effective'`` -- Bonferroni divided by
         :func:`effective_number_of_tests` rather than by the column count.
+    :param min_wells_per_gene: genes with fewer wells than this are dropped
+        before fitting, and named in :attr:`ScanResult.genes_dropped`. See
+        :data:`MIN_WELLS_PER_GENE` -- a gene in one well has nothing
+        corroborating it, and on real data keeping them made the across-scan
+        correction fire on 65% of scans over permuted labels instead of 5%.
+        Pass ``1`` to keep them, knowing that.
     :param alpha: the level both corrections target.
     :returns: the :class:`ScanResult`.
     :raises ScanRefused: when there is no gene column, fewer than two genes,
@@ -483,6 +519,36 @@ def scan_measurements(frame,
         across_scan_method = 'bonferroni_effective'
 
     usable = frame[frame[gene_column].notna()].reset_index(drop=True)
+
+    # DROP THE GENES NOTHING CORROBORATES, AND SAY WHICH.
+    #
+    # Named rather than quietly filtered: a gene missing from the result with
+    # no explanation reads as a gene with no effect, which is the opposite of
+    # what happened to it.
+    genes_dropped: Dict[str, int] = {}
+    if min_wells_per_gene > 1 and len(usable):
+        per_gene = usable[gene_column].astype(str).value_counts()
+        thin = per_gene[per_gene < int(min_wells_per_gene)]
+        controls = {str(gene) for gene in control_genes}
+        # A control is the BASELINE, not a candidate. Dropping it for being
+        # thin would silently move the baseline to whichever gene sorted
+        # first, and every effect in the table would then be measured from
+        # somewhere the caller did not choose.
+        thin = thin[[gene for gene in thin.index if gene not in controls]]
+        if len(thin):
+            genes_dropped = {str(g): int(n) for g, n in thin.items()}
+            usable = usable[~usable[gene_column].astype(str)
+                            .isin(genes_dropped)].reset_index(drop=True)
+            kept = usable[gene_column].astype(str).nunique()
+            if kept < 2:
+                raise ScanRefused(
+                    f"only {kept} gene(s) have at least {min_wells_per_gene} "
+                    f"wells, so there is nothing to compare. Dropped: "
+                    f"{sorted(genes_dropped)}. A gene in one well has nothing "
+                    f"corroborating it -- its effect is that well's own "
+                    f"deviation, artefacts included. Lower "
+                    f"min_wells_per_gene to keep them, knowing that.")
+
     if measurements is None:
         candidates = _measurement_columns(usable, gene_column, guide_column)
     else:
@@ -519,7 +585,8 @@ def scan_measurements(frame,
     if not kept:
         return ScanResult((), skipped, used_blocks, gene_column,
                           tuple(control_genes), within_run_method,
-                          across_scan_method, float(alpha), float('nan'))
+                          across_scan_method, float(alpha), float('nan'),
+                          genes_dropped)
 
     # Group by which wells are present, so the common case -- every
     # measurement complete -- costs one matrix factorisation, not hundreds.
@@ -582,7 +649,8 @@ def scan_measurements(frame,
     if not records:
         return ScanResult((), skipped, used_blocks, gene_column,
                           tuple(control_genes), within_run_method,
-                          across_scan_method, float(alpha), float('nan'))
+                          across_scan_method, float(alpha), float('nan'),
+                          genes_dropped)
 
     scanned = [record['measurement'] for record in records]
     matrix = np.column_stack([
@@ -620,4 +688,5 @@ def scan_measurements(frame,
     )
     return ScanResult(rows, skipped, used_blocks, gene_column,
                       tuple(control_genes), within_run_method,
-                      across_scan_method, float(alpha), float(m_effective))
+                      across_scan_method, float(alpha), float(m_effective),
+                      genes_dropped)
