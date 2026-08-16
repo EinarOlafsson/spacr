@@ -2757,19 +2757,36 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     return plate_map, (vmin, vmax)
 
 
+#: ``cmap='viridis'`` is the literal every internal call site was written
+#: with, not a choice anybody made, and viridis is not in the house palette.
+#: Treated as "unset" so the conversion asked for in instruction 124 reaches
+#: the figures a run actually writes; any OTHER colormap is a choice and is
+#: honoured exactly as given.
+LEGACY_PLATE_CMAP = 'viridis'
+
+
 def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True, dst=None):
-    """Render one heatmap per plate on a common grid so per-well phenotypes can be eye-balled across a full screen.
+    """Render every plate of a screen as ONE panel, wells square, on one colour scale.
 
-    Splits ``df`` by the plate token in the ``prc`` identifier
-    (``plateID_rowID_columnID``), aggregates ``variable`` per well
-    according to ``grouping``, and lays the plates out four-per-row on
-    a single figure. Optionally writes the figure to
-    ``<dst>/plate_heatmap_<n>.pdf``.
+    The layout, the colour scale and the treatment of unmeasured wells live
+    in :mod:`spacr.figures.plates`; this function is the call the pipeline
+    already makes, kept at its own signature.
 
-    Each panel's own grid comes from :func:`generate_plate_heatmap`, which
-    reads it off the wells present — 8x12, 16x24, 32x48 or whatever the
-    data says — so a 1536 plate draws all 32 of its rows and a 96 plate is
-    not padded out to match it.
+    WHAT CHANGED, AND WHY (instruction 124 A -- "the lpates look super small
+    on the collected figure"): the plates were laid out four-per-row on a
+    40 x 5 inch figure, an 8:1 strip that uses about an eighth of a square
+    tile in the figure grid, with wells 1.14:1 rather than square. They are
+    now a SMALL MULTIPLE -- 2 x 2 for a four-plate screen -- which is a
+    1.3:1 composite, and the figure is sized from the well grid so the wells
+    come out exactly square.
+
+    Two things that were wrong with the picture and not only with its size:
+    each plate carried its OWN colour scale, so the same blue meant a
+    different number on the plate beside it; and a well that was never
+    measured was drawn as a measurement of zero, which on a screen with 155
+    of 384 wells used is more than half the panel — and set the bottom of
+    the scale. One scale is now shared across the plates, and an unmeasured
+    well is drawn as a neutral wash and left out of the scale.
 
     :param df: Long-format DataFrame with a ``prc`` column of the form
         ``plateID_rowID_columnID`` and the column named by ``variable``.
@@ -2777,16 +2794,17 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
         :func:`generate_plate_heatmap`).
     :param grouping: Aggregation mode — ``'count'``, ``'mean'`` or
         ``'sum'``.
-    :param min_max: Color-scale spec forwarded to
-        :func:`generate_plate_heatmap` (``'all'``, ``'allq'``,
-        ``[vmin, vmax]``).
-    :param cmap: Matplotlib colormap name or object.
+    :param min_max: Color-scale spec (``'all'``, ``'allq'``,
+        ``[vmin, vmax]``), applied ONCE over every plate rather than once
+        per plate.
+    :param cmap: Matplotlib colormap name or object. ``None`` — or the
+        legacy ``'viridis'`` literal — uses the house single-hue ramp.
     :param min_count: Drop wells with fewer than this many rows before
         plotting. Default ``0``.
     :param verbose: If True, call ``plt.show()`` after building the
         figure. Default ``True``.
-    :param dst: If given, save the figure as ``plate_heatmap_<n>.pdf``
-        under this folder (auto-numbered).
+    :param dst: If given, save the figure as
+        ``<dst>/plate_heatmap_<variable>.pdf``.
     :returns: The generated matplotlib ``Figure``.
 
     Example:
@@ -2795,36 +2813,40 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
             from spacr.plot import plot_plates
             fig = plot_plates(
                 df, variable='recruitment', grouping='mean',
-                min_max='allq', cmap='viridis', min_count=20,
+                min_max='allq', cmap=None, min_count=20,
             )
 
     See Also:
+        :func:`spacr.figures.plates.build_plates` — the panel itself, which
+        also returns the legend sentence for it.
         :func:`spacr.ml.generate_ml_scores` — produces score dataframes
         typically fed to this plotter.
     """
-    plates = df['prc'].str.split('_', expand=True)[0].unique()
-    n_rows, n_cols = (len(plates) + 3) // 4, 4
-    fig, ax = plt.subplots(n_rows, n_cols, figsize=(40, 5 * n_rows))
-    ax = ax.flatten()
+    from .figures.plates import build_plates
 
-    for index, plate in enumerate(plates):
-        plate_map, (vmin, vmax) = generate_plate_heatmap(df, plate, variable, grouping, min_max, min_count)
-        sns.heatmap(plate_map, cmap=cmap, vmin=vmin, vmax=vmax, ax=ax[index])
-        ax[index].set_title(plate)
-
-    # remove unused axes
-    for i in range(len(plates), n_rows * n_cols):
-        fig.delaxes(ax[i])
-
-    plt.subplots_adjust(wspace=0.1, hspace=0.4)
+    if isinstance(cmap, str) and cmap.strip().lower() == LEGACY_PLATE_CMAP:
+        cmap = None
+    fig, panel = build_plates(df, variable, grouping=grouping,
+                              min_max=min_max, min_count=min_count,
+                              cmap=cmap)
+    if not panel.drawn and verbose:
+        print(f'No plate heatmap drawn: {panel.reason}')
 
     if dst is not None:
-        for i in range(0, 1000):
-            filename = os.path.join(dst, f'plate_heatmap_{i}.pdf')
-            if not os.path.exists(filename):
-                filename = save_figure(fig, filename)
-                print(f'Saved heatmap to {filename}')
-                break
+        # NAMED FOR WHAT IT DRAWS, and rewritten in place. The old loop
+        # searched for the first free `plate_heatmap_<n>.pdf` and never
+        # overwrote, so the real screen's results folder holds twelve
+        # byte-identical copies of one figure from twelve runs -- and the
+        # figure grid showed all twelve. A run gets its own folder
+        # (`ml._next_results_folder`), so one file per measurement in it is
+        # the whole of what belongs there. The old loop also tested for a
+        # `.pdf` that `save_figure` may well write as `.png`, in which case
+        # it never found its own previous output at all.
+        from .figures.plates import plate_figure_name
+
+        filename = os.path.join(dst, plate_figure_name(variable))
+        filename = save_figure(fig, filename)
+        print(f'Saved heatmap to {filename}')
 
     if verbose:
         plt.show()

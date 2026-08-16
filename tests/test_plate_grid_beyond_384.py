@@ -323,16 +323,18 @@ def test_letter_rows_in_a_prc_are_the_same_rows_as_prefixed_ones():
 # ---------------------------------------------------------------------------
 
 def test_plot_plates_draws_all_1536_cells(tmp_path):
-    """Seaborn thins the tick labels on a big plate; the mesh is the data."""
+    """The tick labels are thinned on a big plate; the image is the data."""
     frame = _plate_frame(tmp_path, 32, 48)
     fig = plot_plates(frame, "value", "mean", "all", "viridis",
                       min_count=0, verbose=False)
 
     heat = next(a for a in fig.axes if a.get_title() == "plate1")
-    mesh = heat.collections[0].get_array()
+    # An IMAGE, not a QuadMesh: a well can only be square if the artist
+    # holding it has an aspect ratio (instruction 117).
+    mesh = heat.images[0].get_array()
     assert mesh.shape == (32, 48)
     assert mesh.size == 1536
-    # bottom-right cell of the mesh is well AF48
+    # bottom-right cell of the image is well AF48
     assert float(mesh[31, 47]) == 32 * 100 + 48
     assert float(mesh[0, 0]) == 1 * 100 + 1
 

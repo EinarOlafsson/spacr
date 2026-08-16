@@ -343,7 +343,7 @@ def test_generate_plate_heatmap_rejects_unknown_grouping():
 # ---------------------------------------------------------------------------
 
 def test_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_recorder):
-    """Five plates -> 2x4 grid, three unused axes deleted, PDF written to dst."""
+    """Five plates -> one small multiple, one shared colour bar, one file."""
     from spacr.plot import plot_plates
 
     prc = []
@@ -357,25 +357,38 @@ def test_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_re
     fig = plot_plates(df, "value", "mean", "all", "viridis",
                       min_count=0, verbose=False, dst=str(tmp_path))
 
-    # 5 heatmap axes + 5 seaborn colorbar axes; the 3 spare grid slots are gone.
-    heat_axes = [a for a in fig.axes if a.get_title()]
+    # 5 plate axes, each an image, plus the ONE colour bar they share.
+    heat_axes = [a for a in fig.axes if a.images]
     assert sorted(a.get_title() for a in heat_axes) == ["p1", "p2", "p3", "p4", "p5"]
-    assert os.path.isfile(tmp_path / "plate_heatmap_0.pdf")
-    assert (tmp_path / "plate_heatmap_0.pdf").stat().st_size > 0
+    assert len([a for a in fig.axes if not a.images]) == 1
+    assert os.path.isfile(tmp_path / "plate_heatmap_value.pdf")
+    assert (tmp_path / "plate_heatmap_value.pdf").stat().st_size > 0
     assert show_recorder == []          # verbose=False must not call plt.show
 
 
-def test_plot_plates_autoincrements_output_filename(tmp_path, show_recorder):
-    """A second export next to an existing file gets the next free index."""
+def test_plot_plates_rewrites_its_own_file_rather_than_numbering_a_new_one(
+        tmp_path, show_recorder):
+    """The export is named for the measurement it draws, and replaced.
+
+    The old loop took the first free ``plate_heatmap_<n>.pdf`` and never
+    overwrote, so the maintainer's screen accumulated twelve byte-identical
+    copies of one figure from twelve runs -- and the figure grid showed all
+    twelve. A run already gets its own results folder
+    (``spacr.ml._next_results_folder``), so one file per measurement in it is
+    the whole of what belongs there. The old loop also probed for a ``.pdf``
+    that ``save_figure`` may write as ``.png``, in which case it never found
+    its own previous output at all.
+    """
     from spacr.plot import plot_plates
 
-    (tmp_path / "plate_heatmap_0.pdf").write_bytes(b"placeholder")
     df = _prc_df(["p1_r1_c1", "p1_r2_c2"], [1.0, 2.0])
-    plot_plates(df, "value", "mean", "all", "viridis",
-                min_count=0, verbose=False, dst=str(tmp_path))
+    for _ in range(3):
+        plot_plates(df, "value", "mean", "all", "viridis",
+                    min_count=0, verbose=False, dst=str(tmp_path))
 
-    assert (tmp_path / "plate_heatmap_1.pdf").is_file()
-    assert (tmp_path / "plate_heatmap_0.pdf").read_bytes() == b"placeholder"
+    assert [p.name for p in sorted(tmp_path.iterdir())] == \
+        ["plate_heatmap_value.pdf"]
+    assert (tmp_path / "plate_heatmap_value.pdf").stat().st_size > 0
 
 
 def test_plot_plates_verbose_calls_show_and_skips_saving(tmp_path, show_recorder):
