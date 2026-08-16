@@ -4759,6 +4759,24 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
 
     is_normal = check_normality(dependent_df[dependent_variable], dependent_variable)
 
+    # A COUNT MODEL'S RESPONSE MUST STAY A COUNT.
+    #
+    # The sum above is deliberate -- Poisson and horseshoe model the number of
+    # positive objects in a well, not their average -- and then a transform
+    # was applied to it anyway. The default transform is 'log', so the integer
+    # count left here as a float and _validate_poisson_response refused it at
+    # the very END of a run that had already read both CSVs and fitted
+    # nothing. Neither count family could be started at all.
+    #
+    # settings.py now clears `transform` for these families before the run, so
+    # this is the second line of defence -- and it is the one that covers a
+    # direct regression() or process_scores() call, which does not pass
+    # through the settings layer at all.
+    if transform is not None and regression_type in count_models:
+        print(f"Ignoring transform={transform!r}: {regression_type} models a "
+              f"per-well count, and a transformed count is not a count.")
+        transform = None
+
     if transform is not None:
         transformer = apply_transformation(dependent_df[dependent_variable], transform=transform)
         transformed_var = f'{transform}_{dependent_variable}'
