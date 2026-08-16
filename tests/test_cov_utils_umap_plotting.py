@@ -767,6 +767,45 @@ def test_plot_embedding_without_images_skips_overlay():
     assert len(ax.collections) == 2
 
 
+def _umap_on_black(embedding):
+    """A minimal black-background UMAP, built the way the app builds one."""
+    from spacr.utils import plot_embedding
+
+    return plot_embedding(
+        embedding, None, np.array([0, 0, 0, 1]), image_nr=1, img_zoom=0.3,
+        colors=np.array([[0.9, 0.1, 0.1, 1.0], [0.1, 0.1, 0.9, 1.0]]),
+        plot_by_cluster=False, plot_outlines=False, plot_points=True,
+        plot_images=False, smooth_lines=False, black_background=True,
+        figuresize=4, dot_size=10, remove_image_canvas=True, verbose=False,
+    )
+
+
+def test_a_dark_umap_does_not_darken_the_next_screens_figures():
+    """The theme a UMAP draws on belongs to the UMAP, not to the session.
+
+    ``setup_plot`` pushes the GUI theme's background/foreground/border into
+    matplotlib's process-wide rcParams so its own panels match the app. It put
+    them back nowhere -- so a UMAP drawn on the dark theme left white text and
+    a black canvas as the default for every figure the session drew afterwards,
+    including the ones a screen draws on paper. White on white.
+
+    The UMAP must still come out dark, so both halves are asserted.
+    """
+    watched = ("text.color", "figure.facecolor", "axes.facecolor",
+               "axes.labelcolor", "xtick.color", "ytick.color")
+    before = {key: matplotlib.rcParams[key] for key in watched}
+
+    fig = _umap_on_black(np.array([[0.0, 0.0], [1.0, 0.2],
+                                   [0.2, 1.0], [5.0, 5.0]]))
+
+    # It drew itself dark...
+    assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
+    # ...without deciding the colours for whatever is drawn next.
+    assert {key: matplotlib.rcParams[key] for key in watched} == before, (
+        "a UMAP left the GUI theme's colours on matplotlib's globals; the "
+        "next figure of the session inherits them")
+
+
 # ---------------------------------------------------------------------------
 # plot_clusters_grid / plot_grid
 # ---------------------------------------------------------------------------
