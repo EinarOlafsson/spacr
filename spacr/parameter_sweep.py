@@ -326,6 +326,48 @@ def _design_summary(output: Mapping[str, Any]) -> dict:
     return summary
 
 
+def correction_rows(output: Mapping[str, Any], methods: Sequence[str],
+                    alpha: float = 0.05) -> list[dict]:
+    """One row per correction, from ONE fit.
+
+    A multiple-testing correction is applied to p-values that already exist;
+    it does not change the model, the design, or a single coefficient. Sweeping
+    it as an axis therefore refits the identical regression once per method --
+    thirteen fits to obtain thirteen numbers that all come from the first one.
+
+    On this screen that is the difference between ~24 hours and ~2, for exactly
+    the same answers, which is why it is worth doing rather than clever.
+
+    :returns: ``[{'multiple_testing_method': m, 'n_below_alpha': n, ...}, ...]``
+    """
+    frame = output.get("results") if isinstance(output, Mapping) else None
+    if not isinstance(frame, pd.DataFrame) or "p_value" not in frame.columns:
+        return [{"multiple_testing_method": m} for m in methods]
+
+    from .multiple_testing import adjust_p_values
+
+    p_values = pd.to_numeric(frame["p_value"], errors="coerce")
+    rows = []
+    for method in methods:
+        row = {"multiple_testing_method": method}
+        try:
+            # (adjusted, reject). The reject mask is the METHOD'S OWN verdict:
+            # step-down procedures like holm and hommel do not reduce to
+            # "adjusted <= alpha" applied afterwards, so re-thresholding here
+            # would quietly report different hits than the method called.
+            adjusted, reject = adjust_p_values(
+                p_values.to_numpy(), method=method, alpha=alpha)
+            adjusted = pd.to_numeric(pd.Series(adjusted), errors="coerce")
+            row["n_below_alpha"] = int(np.asarray(reject).sum())
+            row["n_tests"] = int(p_values.notna().sum())
+            row["smallest_adjusted_p"] = float(adjusted.min()) \
+                if adjusted.notna().any() else float("nan")
+        except Exception as error:  # noqa: BLE001 - one method must not sink the rest
+            row["correction_error"] = f"{type(error).__name__}: {error}"
+        rows.append(row)
+    return rows
+
+
 def _count_hits(output: Mapping[str, Any]) -> dict:
     """How many things the trial called, at whatever level it reports them."""
     counts: dict[str, Any] = {}
@@ -441,11 +483,33 @@ def _pin_threads(count: int = 1) -> None:
     """
     for name in _THREAD_VARS:
         os.environ[name] = str(count)
+    # THE ENVIRONMENT ALONE IS NOT ENOUGH, and this is the part that bit.
+    #
+    # OpenBLAS reads OMP_NUM_THREADS once, when numpy first imports it, and
+    # sizes its pool from the core count if the variable is not set yet. Any
+    # module that imports numpy before this runs -- which is most of them --
+    # leaves the pool at 32 threads no matter what is put in os.environ
+    # afterwards. Measured: env-then-numpy gives 1 thread, numpy-then-env
+    # gives 32.
+    #
+    # threadpool_limits resizes the LIVE pool, so it works whatever the import
+    # order was. It is held open for the life of the process rather than used
+    # as a context manager, because the fitting happens after this returns.
+    try:
+        from threadpoolctl import threadpool_limits
+        global _THREAD_LIMITS
+        _THREAD_LIMITS = threadpool_limits(limits=count)
+    except Exception:  # pragma: no cover - threadpoolctl may be absent
+        pass
     try:
         import torch
         torch.set_num_threads(count)
     except Exception:  # pragma: no cover - torch may be absent
         pass
+
+
+#: Held open for the process lifetime; see :func:`_pin_threads`.
+_THREAD_LIMITS = None
 
 
 def be_polite() -> None:
@@ -662,6 +726,7 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                controls: Mapping[str, str] | None = None,
                progress_every: int = 10,
                learn_from_failures: int = 2,
+               corrections: Sequence[str] | None = None,
                runner: Callable | None = None) -> pd.DataFrame:
     """Run every trial and return one tidy row per trial.
 
@@ -672,6 +737,12 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
     :param controls: ``{alias: identifier}`` looked up in each trial's results,
         e.g. ``{"gra14": "239740", "eaf1": "225160"}``. Recovering the known
         positive control is the yardstick a sweep is read against.
+    :param corrections: apply every one of these multiple-testing methods to
+        each fit and emit a row per method. A correction is computed FROM the
+        p-values and changes no part of the model, so sweeping it as an axis
+        refits the identical regression once per method. Passing it here
+        instead turns thirteen fits into one -- on this screen, ~24 hours into
+        ~2 for exactly the same answers.
     :param runner: injected for testing; defaults to
         :func:`spacr.ml.perform_regression`.
     :returns: the summary frame, also written as ``sweep_results.csv``.
@@ -729,6 +800,7 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                "preparation_key": _preparation_key(settings)}
         row.update({k: v for k, v in trial.items() if k != "trial_id"})
         began = time.time()
+        output = None
         try:
             output = runner(settings)
             row["status"] = "ok"
@@ -749,9 +821,31 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                             "first_trial": trial["trial_id"]})
             record["count"] += 1
         row["seconds"] = round(time.time() - began, 2)
-        rows.append(row)
+        if corrections and row.get("status") == "ok" and isinstance(output, Mapping):
+            # One row per correction, all from this single fit. Each row still
+            # carries every setting, so it reproduces its own regression when
+            # the user opens it -- see settings_for_trial.
+            for extra in correction_rows(output, corrections,
+                                         alpha=float(settings.get("fdr_alpha", 0.05))):
+                merged = dict(row)
+                merged.update(extra)
+                rows.append(merged)
+        else:
+            if corrections:
+                row.setdefault("multiple_testing_method",
+                               corrections[0] if corrections else None)
+            rows.append(row)
 
         if progress_every and index % progress_every == 0:
+            # Write what exists so far. A sweep left running unattended is
+            # exactly the one whose partial results matter: the user comes
+            # back to whatever it reached, and an all-or-nothing write at the
+            # end means an interruption costs every hour of it.
+            try:
+                pd.DataFrame(rows).to_csv(
+                    os.path.join(destination, "sweep_results.csv"), index=False)
+            except OSError:
+                pass
             done = time.time() - started
             rate = done / index
             print(f"[sweep] {index}/{len(trials)} trials "
