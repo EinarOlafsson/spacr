@@ -144,9 +144,18 @@ def plate_ramp(target: str = "screen"):
 def plate_names(frame) -> List[str]:
     """The plates in this frame, in the order their identifiers give.
 
-    The plate is the leading token of ``prc``; a 4-token identifier carries
-    an experiment prefix and its plate is the second, which is the same rule
-    :func:`spacr.plot.generate_plate_heatmap` reads positions with.
+    The plate is the LEADING token of ``prc``, which is what
+    :func:`spacr.plot.plot_plates` has always split a screen on.
+
+    WHICH MEANS A 4-TOKEN IDENTIFIER NAMES ITS EXPERIMENT, NOT ITS PLATE.
+    ``exp_plate1_r1_c1`` and ``exp_plate2_r1_c1`` come back as the single
+    name ``exp``, and :func:`spacr.plot.generate_plate_heatmap` -- which
+    reads the position from the LAST two tokens and takes the plate it was
+    asked for as the authority on the rest -- then draws every row of both
+    plates as one grid, averaging the two plates well by well. That is the
+    behaviour of the code this replaced, unchanged here so that the picture
+    does not move under a screen that already has one; a screen whose plates
+    must stay apart puts the plate first.
     """
     if "prc" not in getattr(frame, "columns", ()):
         return []
@@ -197,6 +206,11 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
     the same cell afterwards, so the count map is fetched alongside the
     value map and a well with a count of zero is masked back out.
 
+    A well with rows but nothing numeric in any of them is masked too. The
+    count map counts ROWS, and the aggregation coerces the variable with
+    ``errors='coerce'``, so such a well aggregates to NaN and is filled with
+    the same invented zero one step further in.
+
     :param frame: long-format frame with a ``prc`` column.
     :param variable: the measurement column to aggregate.
     :param grouping: ``'mean'``, ``'sum'`` or ``'count'``.
@@ -205,6 +219,8 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
     :param plates: draw only these plates, in this order.
     :returns: ``(names, matrices, (n_rows, n_columns))``.
     """
+    import pandas as pd
+
     from ..plot import generate_plate_heatmap
     from .. import schema as _schema
 
@@ -233,7 +249,23 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
     text = work["prc"].astype(str)
     head = None
     if text.str.count(_schema.KEY_SEPARATOR).eq(2).all():
-        head = text.str.split(_schema.KEY_SEPARATOR, n=1).str[0]
+        head = text.str.split(_schema.KEY_SEPARATOR, n=1).str[0].to_numpy()
+
+    # A ROW IS NOT A MEASUREMENT, and the count map counts rows.
+    # generate_plate_heatmap coerces the variable with ``errors='coerce'``,
+    # so a well whose every row holds nothing numeric -- an empty cell, an
+    # 'n/a', a merge that did not find a match -- aggregates to NaN, is
+    # filled with 0, and, having a row count above zero, survives the mask
+    # below as a measurement of zero. That is the same defect one step
+    # further in, and it sets the bottom of the shared scale in the same
+    # way. Which rows carry a number is therefore worked out ONCE, and only
+    # when some row does not: on a clean frame this costs one pass and no
+    # extra heatmap at all.
+    readable = None
+    if grouping != "count" and variable in work.columns:
+        numeric = pd.to_numeric(work[variable], errors="coerce").notna().to_numpy()
+        if not numeric.all():
+            readable = numeric
 
     maps, counts = [], []
     for name in names:
@@ -241,13 +273,22 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
         # frame it is given and a boolean-mask slice is a view: pandas warns
         # (SettingWithCopyWarning) and, under copy-on-write, the assignment
         # would land somewhere the next call cannot see.
-        subset = work if head is None else work[head == str(name)].copy()
+        on_plate = None if head is None else head == str(name)
+        subset = work if on_plate is None else work[on_plate].copy()
         values, _limits = generate_plate_heatmap(
             subset, name, variable, grouping, "all", min_count)
         # The count map IS the value map when the caller asked for counts,
         # so that case does not pay for a second pass over the frame.
-        present = values if grouping == "count" else generate_plate_heatmap(
-            subset, name, variable, "count", "all", min_count)[0]
+        if grouping == "count":
+            present = values
+        else:
+            present = generate_plate_heatmap(
+                subset, name, variable, "count", "all", min_count)[0]
+            if readable is not None:
+                present = _drop_unreadable_wells(
+                    generate_plate_heatmap, present, subset,
+                    readable if on_plate is None else readable[on_plate],
+                    name, variable)
         maps.append(values)
         counts.append(present)
 
@@ -276,6 +317,24 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
         block[empty] = np.nan
         matrices.append(block)
     return names, matrices, (n_rows, n_columns)
+
+
+def _drop_unreadable_wells(heatmap, present, subset, readable, name, variable):
+    """Zero the presence of a well that has rows but no number in any of them.
+
+    ``min_count`` KEEPS ITS MEANING -- it counts rows, as it always has, so
+    the readable-row map is taken at ``min_count`` 0 and used only to knock
+    out the wells that have nothing numeric at all. A well that is half
+    unreadable is still the mean of the half that is readable, which is what
+    ``generate_plate_heatmap`` computes.
+    """
+    measured = subset[readable].copy()
+    if not len(measured):
+        return present * 0
+    numbers = heatmap(measured, name, variable, "count", "all", 0)[0]
+    numbers = numbers.reindex(index=present.index, columns=present.columns,
+                              fill_value=0)
+    return present.where(numbers.to_numpy() > 0, 0)
 
 
 def shared_limits(matrices: Sequence[np.ndarray], min_max="allq"
@@ -511,11 +570,18 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
 
         _colour_bar(figure, image, variable, ink, width, height)
         blank = sum(m.size for m in matrices) - sum(measured)
+        # WHAT WAS ACTUALLY DONE TO THE NUMBERS. A legend that says
+        # "averaged" under a panel drawn with grouping='count' is a legend
+        # that misreports its own figure.
+        subject = ("objects per well, counted" if grouping == "count" else
+                   f"{variable} per well, "
+                   + ("summed" if grouping == "sum" else "averaged")
+                   + " over the objects in it")
+        plural = "" if len(matrices) == 1 else "s"
         return figure, Panel(
             "plates", "plate heatmaps",
             caption=(
-                f"{variable} per well, averaged over the objects in it "
-                f"({grouping}), for {len(matrices)} plates of "
+                f"{subject}, for {len(matrices)} plate{plural} of "
                 f"{n_rows}x{n_columns} wells. All plates share one colour "
                 f"scale ({vmin:.3g} to {vmax:.3g}) so the same colour is the "
                 f"same number on every plate. {sum(measured)} wells were "
