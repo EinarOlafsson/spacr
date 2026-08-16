@@ -1620,9 +1620,16 @@ class AppScreen(QWidget):
                 back.setToolTip("Back to the grid of every figure this run "
                                 "produced.")
                 back.clicked.connect(self._show_figure_grid)
+                sheet_button = QPushButton("Publication figure")
+                sheet_button.setFlat(True)
+                sheet_button.setToolTip(
+                    "Draw every panel as one journal-style figure, lettered "
+                    "and captioned, in the house style.")
+                sheet_button.clicked.connect(self._show_publication_sheet)
                 row = QHBoxLayout()
                 row.addWidget(back)
                 row.addStretch(1)
+                row.addWidget(sheet_button)
                 detail_layout.addLayout(row)
                 detail_layout.addWidget(self._figure_queue, 1)
                 self._figure_detail = detail
@@ -3112,6 +3119,50 @@ class AppScreen(QWidget):
         except Exception:
             LOG.debug("could not build the figure grid", exc_info=True)
         self._pin_the_regression_graph()
+
+    def _show_publication_sheet(self) -> None:
+        """Draw every panel as ONE publication-ready figure, and open it.
+
+        "the all figures section should look like a publication ready
+        figure". The tile grid answers "what did this run draw"; the sheet
+        answers "what did this run FIND", which is a different question and
+        the one a reader has.
+
+        Built on demand rather than on every refresh: it is seven panels of
+        matplotlib and the grid is rebuilt on a debounce while a run streams.
+        """
+        panel = getattr(self, "_results_panel", None)
+        frame = getattr(panel, "_frame", None) if panel is not None else None
+        if frame is None or not len(frame):
+            self._console.append_stdout(
+                "No coefficient table loaded, so there is nothing to draw a "
+                "figure from. Open a finished run first.\n")
+            return
+        try:
+            from ...figures import build_sheet
+        except Exception:
+            from spacr.figures import build_sheet
+        try:
+            sheet = build_sheet(frame, width="double")
+        except Exception as error:      # noqa: BLE001 - never take the GUI down
+            LOG.debug("could not build the sheet", exc_info=True)
+            self._console.append_stdout(
+                f"Could not draw the publication figure: {error}\n")
+            return
+        # Into the ordinary figure queue, so it restyles, exports and saves
+        # through exactly the same path as every other figure. A bespoke
+        # viewer for one figure is a second set of those bugs.
+        self._figure_queue.add_figure(sheet.figure)
+        self._figure_queue.show_index(self._figure_queue.count() - 1)
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None and getattr(self, "_figure_detail", None):
+            stack.setCurrentWidget(self._figure_detail)
+        if sheet.skipped:
+            self._console.append_stdout(
+                "Publication figure: "
+                + "; ".join(f"{p.title} not shown ({p.reason})"
+                            for p in sheet.skipped) + "\n")
+        self._console.append_stdout(sheet.legend() + "\n")
 
     def _pin_the_regression_graph(self) -> None:
         """Give the live volcano the first tile, once it has something on it.
