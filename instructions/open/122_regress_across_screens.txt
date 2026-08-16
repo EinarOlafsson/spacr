@@ -378,10 +378,29 @@ Before/after evidence:
 NOT DONE / HANDED ON
 --------------------------------------------------------------------------------
 
-  * No GUI. The instruction says the scan reuses the runs tab (116), the
-    containment of 114 and the results surface of 119; spacr/qt/** was held by
-    another worker this session, so measurement_scan.py is the pure logic only
-    and nothing calls it yet.
+  * ~~No GUI.~~ DONE 2026-08-16. spacr/qt/widgets/measurement_scan_panel.py
+    is a Measurements tab beside Results and Runs on the regression screen --
+    the same surface, with the DEPENDENT VARIABLE varying instead of the
+    settings, which is what the instruction asked for.
+
+    Driven on plate1 of the tsg101 screen, 60,816 cells to 44 wells, 152
+    measurements:
+
+        "152 measurements scanned. 85 show a clear gene effect across the
+         scan; 87 would have been reported by a single-measurement run. The 2
+         in between are the ones a per-measurement analysis would have shown
+         you as hits. 8 gene(s) left out for having fewer than two wells."
+
+    THE VERDICT COLUMN READS THE ACROSS-SCAN NUMBER, never the within-run
+    one, and the set BETWEEN the two gets a phrase of its own -- that set is
+    the most useful thing this feature can say and the easiest to bury in a
+    column of small numbers. Ranked by effect size, as asked.
+
+    NOT WIRED: containment (114). The scan runs in-process on the GUI thread.
+    It is 0.3 s on 152 measurements over 44 wells, so it does not need a
+    cgroup at that size -- but a scan of a four-plate merge has not been
+    timed, and if it is slow it belongs on the worker thread the sweep
+    already uses.
   * ml.py is NOT yet screen-aware. `prepare_formula` builds
     `... + rowID + columnID` and `fit_mixed_model` groups on plateID with a
     row/column random structure; neither mentions screenID. So screenID is a
