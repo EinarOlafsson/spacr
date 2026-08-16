@@ -85,6 +85,46 @@ def test_outline_and_overlay_paints_outline_colour():
     assert returned_image is image
 
 
+def test_the_outlines_are_drawn_on_the_calling_thread(monkeypatch):
+    """Off the main thread, this kills the run outright.
+
+    The contour drawing used to run in a ThreadPoolExecutor. Once Qt and Tk had
+    both been initialised in the same process -- which is every full test run,
+    and any session that has touched both GUIs -- cv2 and skimage's contour
+    code abort from a worker thread: SIGABRT, core dumped, no traceback, and
+    every result of the run gone with it. There is nothing to catch, so the
+    only fix is not to go there.
+
+    Asserted on the thread the work actually runs on rather than on the absence
+    of an import, because the import is not the bug and a refactor could
+    reintroduce the pool under another name.
+    """
+    import threading
+
+    from spacr import utils as U
+    from spacr.utils import _gen_rgb_image, _outline_and_overlay
+
+    seen = set()
+    real = U.find_contours
+
+    def recording_find_contours(*args, **kwargs):
+        seen.add(threading.get_ident())
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(U, "find_contours", recording_find_contours)
+
+    image = _stack_with_masks(n_masks=3)
+    rgb = _gen_rgb_image(image, channels=[0, 1, 2])
+
+    _outline_and_overlay(image, rgb, mask_dims=[3, 4, 5],
+                         outline_colors=[[255, 0, 0]], outline_thickness=1)
+
+    assert seen, "find_contours never ran; the test measured nothing"
+    assert seen == {threading.get_ident()}, (
+        "the contour drawing ran on a worker thread; with Qt and Tk both "
+        "resident that aborts the process instead of raising")
+
+
 def test_outline_and_overlay_cycles_colors_over_mask_dims():
     from spacr.utils import _outline_and_overlay, _gen_rgb_image
 
