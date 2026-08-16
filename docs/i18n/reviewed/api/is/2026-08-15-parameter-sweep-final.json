@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.metadata_resolution.MetadataDecision#0",
+      "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
+      "source": "One all-at-once answer returned by a UI or a saved setting.",
+      "context": "One all-at-once answer returned by a UI or a saved setting.",
+      "translation": "Eitt heildstætt svar sem UI eða vistuð stilling skilar."
+    },
+    {
+      "label": "spacr.multiple_testing.estimate_pi0#1",
+      "source_sha256": "8445465571a6e5d66ffe404d8ec3fc5bc1ccad79d93c8fe632adb56aaf7d32e3",
+      "source": "Uses the smoothed bootstrap-free spline-free estimator: pi0(lambda) is computed over a grid and the estimate is taken at the largest lambda whose value is stable, then clipped to (0, 1]. With few tests the grid collapses and the estimator returns 1.0, which makes the q-values fall back to Benjamini-Hochberg -- the conservative answer, not an error.",
+      "context": "Uses the smoothed bootstrap-free spline-free estimator: pi0(lambda) is computed over a grid and the estimate is taken at the largest lambda whose value is stable, then clipped to (0, 1]. With few tests the grid collapses and the estimator returns 1.0, which makes the q-values fall back to Benjamini-Hochberg -- the conservative answer, not an error.",
+      "translation": "Notar sléttaða metilinn án bootstrap og án splína: pi0(lambda) er reiknað á grind og matið tekið við stærsta lambda þar sem gildið er stöðugt, síðan skorið við bilið (0, 1]. Þegar prófin eru fá fellur grindin saman og metillinn skilar 1.0; þá nota q-gildin Benjamini-Hochberg sem varaleið -- varfærna niðurstöðu, ekki villu."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list#3",
+      "source_sha256": "6ecff1bbea401b92543dd35d300b24a6f5fff486f08c5245421df96203ab7761",
+      "source": "**Add files...** opens a file dialog with multi-selection enabled. Pressing it again *appends*, so several sources can be gathered from different folders in several trips rather than one impossible single selection.",
+      "context": "**Add files...** opens a file dialog with multi-selection enabled. Pressing it again *appends*, so several sources can be gathered from different folders in several trips rather than one impossible single selection.",
+      "translation": "**Bæta við skrám...** opnar skráarglugga þar sem hægt er að velja margar skrár. Þegar ýtt er aftur á hnappinn er skrám *bætt við*, þannig að hægt er að safna mörgum gagnalindum úr ólíkum möppum í nokkrum ferðum í stað einnar óframkvæmanlegrar valaðgerðar."
+    },
+    {
+      "label": "spacr.regression_diagnostics.write_diagnostic_suite#1",
+      "source_sha256": "43167d377c23c60a4ebdb84bb34475a8f96c4d5e62ec051e74d78a89546a4c48",
+      "source": "Nothing is required: pass what a given analysis mode has. The permutation test has a design and P values but no fitted values; a simultaneous fit has all of them. Each block is skipped silently when its inputs are absent, and a block that raises is recorded as an error rather than aborting the run -- a diagnostic that fails must never take the analysis down with it.",
+      "context": "Nothing is required: pass what a given analysis mode has. The permutation test has a design and P values but no fitted values; a simultaneous fit has all of them. Each block is skipped silently when its inputs are absent, and a block that raises is recorded as an error rather than aborting the processing session -- a diagnostic that fails must never take the analysis down with it.",
+      "translation": "Ekkert er áskilið: sendu inn það sem viðkomandi greiningarhamur hefur. Umraðana-prófið hefur hönnun og P-gildi en engin aðlöguð gildi; samtímis aðlögun hefur þetta allt. Hverjum hluta er sleppt hljóðlega þegar inntak hans vantar, og ef hluti kastar villu er hún skráð í stað þess að stöðva vinnslulotuna -- bilað greiningarskref má aldrei fella sjálfa greininguna."
+    },
+    {
+      "label": "spacr.schema.escape_field_stem_plate#1",
+      "source_sha256": "53f5458bb3b78014afd7c56fa646100c10cbd134d377886de4ae19e3ded6b29b",
+      "source": "Writers know the grammar and therefore know how many fixed tail tokens belong to the well/field/time.  Joining everything before that tail is the unambiguous plate id; escaping it before emitting a crop filename is what lets the reader split the name without guessing.",
+      "context": "Writers know the grammar and therefore know how many fixed tail tokens belong to the microplate sample position/microscope field of view/time.  Joining everything before that tail is the unambiguous laboratory microplate id; escaping it before emitting an extracted image region filename is what lets the reader split the name without guessing.",
+      "translation": "Skrifarar þekkja málfræðina og vita því hve mörg föst endatákn tilheyra staðsetningu sýnis á örplötu/sjónsviði smásjár/tíma.  Þegar öll táknin á undan þeim hala eru sameinuð fæst ótvírætt auðkenni rannsóknarstofuplötunnar; með því að kóða það áður en skráarheiti fyrir útdregið myndsvæði er skrifað getur lesarinn skipt heitinu án ágiskunar."
+    }
+  ]
+}

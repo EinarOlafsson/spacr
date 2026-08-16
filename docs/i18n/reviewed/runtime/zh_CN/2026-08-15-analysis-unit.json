@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "reviewed_at": "2026-08-15",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "analysis_unit",
+      "source_sha256": "09eef8d8d4dc43339a7a372552ddae6cdcaf4ced30ed138a0f241f57a15cd695",
+      "source": "What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
+      "translation": "模型中一行数据所代表的分析单位。'well' 会先用 agg_type 将每个孔中的对象汇总为一个值，因此孔是独立单位，孔内细胞数只影响精度。'cell' 则直接对单个对象进行回归，这样可保留统计功效，但会把同一孔内彼此相关的细胞当作独立观测；除非模型考虑这种聚类（regression_type='mixed'），否则标准误会偏小。这是 agg_type=None 的显式写法；过去该设置会静默改变分析单位。默认值为 'well'。"
+    }
+  ]
+}

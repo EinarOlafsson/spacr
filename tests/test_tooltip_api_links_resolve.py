@@ -16,7 +16,8 @@ from pathlib import Path
 
 import pytest
 
-DOCS = Path(__file__).resolve().parent.parent / "docs"
+DOCS_ROOT = Path(__file__).resolve().parent.parent / "docs"
+BUILT_DOCS = DOCS_ROOT / "_build" / "html"
 
 #: The prefix every generated link is built on.
 SITE = "https://einarolafsson.github.io/spacr/"
@@ -59,8 +60,8 @@ def test_every_link_is_on_the_documentation_site(links):
 @pytest.mark.skipif(
     not os.environ.get("SPACR_DOCS_BUILT"),
     reason=(
-        "needs a FRESH docs build. `docs/api/` is generated and untracked "
-        "(git ls-files reports 0 files there), so whatever is on disk is "
+        "needs a FRESH docs build. `docs/_build/html/api/` is generated and "
+        "untracked, so whatever is on disk is "
         "whoever's last local build -- mine held 4 module pages for 124 "
         "modules. Checking against that proves nothing about the published "
         "site and fails for everyone. Build the docs, then run with "
@@ -82,9 +83,9 @@ def test_every_link_resolves_to_a_page_that_exists(links):
         # The site serves this repository's `docs/` at /spacr/.
         if rel.startswith("spacr/"):
             rel = rel[len("spacr/"):]
-        target = DOCS / rel
+        target = BUILT_DOCS / rel
         if not target.exists():
-            missing.setdefault(str(target.relative_to(DOCS)), set()).add(
+            missing.setdefault(str(target.relative_to(BUILT_DOCS)), set()).add(
                 f"{app_key}.{key}")
     assert not missing, (
         "tooltip links point at pages that do not exist:\n"

@@ -1675,7 +1675,7 @@
         "f3a0f29e294fb1d936f5f1b5052231b3a195fef13602395d484a6d4d3bcf08d0",
         "37b51a75e6f8995a17f4177cbfdfd3c8e7f1df056bea20839b880cb36499d9fc",
         "2ef87651b63df73c89029d882b8423b9394ec074cee27bba38b97c4e3ea6bdc1",
-        "865ae683602c37c23b395c517a6251162c8a52ae5e6d82234bba9094b3462b9f",
+        "95b5ce3d93df7223b1f1737ae967de874edb1e4d95baf5d1dbcd9ae87bb69a7e",
         "511c1fd327e46cce53a7b8e0c3c483291d3f771c19fe236de7fc5b46e3930a88",
         "34c231313751eb789804c0e5cabf509b66f9ca0e1d425760825c630878d02373",
         "daa6ba7710e1df897fe4044c07081a25b015386fe5bf80ad37e631f2e844b7b2",
@@ -1688,13 +1688,13 @@
         "9ab9534cbe9aed936c772355d13a669e33cb0a5fe8bead3c65d3afb7f6fbb2c7",
         "a95fc12b8424aadd28bf947f99489882aed7d0a88f4925f48a3c4a90c7997d1a"
       ],
-      "source_sha256": "7872ac4a5fa5fba5be33a64ec29cab025c73405f838481a083d87b1ef8a0167b",
-      "text": "Registrar cada par de vecinos superpuestos y resolver todo el conjunto a la vez.\n\nMemoria: la asignación máxima es de dos tiras de solapamiento. Para una superposición de 10% en las baldosas 2048x2048 que es 2 x 0,8 MB, lo que sea que el lienzo resulta ser.\n\n:param tiles: de :func:`scan_tiles`, o construido a mano.\n:param reference_channel: el registro de la capa de imagen se mide encendido. Cada canal de datos de imagen de un sitio entonces comparte la solución única de ese sitio — registrar los canales de datos imagen independientemente cortaría el compuesto.\n:param min_confidence: correlación cruzada normalizada por debajo de la cual se rechaza un par y la tesela cae de nuevo a nominal.\n:param min_overlap_px: no se intenta solapar más que esto en ninguno de los ejes.\n:param upsample: factor de refinamiento subpíxeles; 10 resuelve 0,1 px.\n:param neighbour_radius: La distancia de la rejilla de Chebyshev a considerar. 1 es las ocho baldosas circundantes. Elevarlo cuando la superposición excede el 50%, por lo que los pares ``i``/``i+2`` se convierten en redundancia real en la solución.\n:param max_shift: rechazar cualquier par cuya corrección excede de estos muchos píxeles. Por defecto a un cuarto de la dimensión de azulejo más pequeño.\n:param anchor_weight: Véase :func:`solve_positions`.\n:param dtype: forzar el tipo d de lienzo; por defecto a la promoción de cada tipo d de azulejo.\n:param max_open_tiles: cuántos azulejos pueden ser mapeados en memoria a la vez. Una columna de rayas falla en una fila de mayor tamaño, por lo que dejando cada tesela mapeada haría que el residente establezca el tamaño de la carpeta de entrada; 8 cubre el barrio que está registrado.\n:param ledger: opcional :class:`spacr.errors.RunLedger` para registrar el éxito/fracaso del por teselao.\n:returns: a :class:`AlignPlan`; no se ha asignado ni escrito nada.\n:raises ConfigurationError: no hay azulejos legibles en absoluto.",
+      "source_sha256": "50d1dc734703b15e610df2e5d06a93a7860380219b9af2a38703350716e41244",
+      "text": "Registrar cada par de vecinos superpuestos y resolver todo el conjunto a la vez.\n\nMemoria: la asignación máxima es de dos tiras de solapamiento. Para una superposición de 10% en las baldosas 2048x2048 que es 2 x 0,8 MB, lo que sea que el lienzo resulta ser.\n\n:param tiles: de :func:`scan_tiles`, o construido a mano.\n:param reference_channel: Cada canal de datos de imagen de un sitio comparte la solución única de ese sitio, registrando los canales de información de imagen independientemente cortaría el compuesto. ``None`` (el valor predeterminado) toma el canal de los datos de la imagen que las teselas ya llevan, que es el :func:`scan_tiles` seleccionado. Esto se utiliza por defecto a ``0``, por lo que ``scan_tiles(reference_channel=2)`` seguido por el documentado ``estimate_offsets(tiles)`` registrado silenciosamente en el canal 0 de imágenes en su lugar — la selección se almacena en cada tesela y leído por nada. Azulejos que no están de acuerdo caen de nuevo a ``0``; el valor resuelto se registra en el plan e impreso por :func:`format_plan`, así que cualquier manera que fue es visible en lugar de asumir.\n:param min_confidence: correlación cruzada normalizada por debajo de la cual se rechaza un par y la tesela cae de nuevo a nominal.\n:param min_overlap_px: no se intenta solapar más que esto en ninguno de los ejes.\n:param upsample: factor de refinamiento subpíxeles; 10 resuelve 0,1 px.\n:param neighbour_radius: La distancia de la rejilla de Chebyshev a considerar. 1 es las ocho baldosas circundantes. Elevarlo cuando la superposición excede el 50%, por lo que los pares ``i``/``i+2`` se convierten en redundancia real en la solución.\n:param max_shift: rechazar cualquier par cuya corrección excede de estos muchos píxeles. Por defecto a un cuarto de la dimensión de azulejo más pequeño.\n:param anchor_weight: Véase :func:`solve_positions`.\n:param dtype: forzar el tipo d de lienzo; por defecto a la promoción de cada tipo d de azulejo.\n:param max_open_tiles: cuántos azulejos pueden ser mapeados en memoria a la vez. Una columna de rayas falla en una fila de mayor tamaño, por lo que dejando cada tesela mapeada haría que el residente establezca el tamaño de la carpeta de entrada; 8 cubre el barrio que está registrado.\n:param ledger: opcional :class:`spacr.errors.RunLedger` para registrar el éxito/fracaso del por teselao.\n:returns: a :class:`AlignPlan`; no se ha asignado ni escrito nada.\n:raises ConfigurationError: no hay azulejos legibles en absoluto.",
       "translation_source_blocks_sha256": [
         "f3a0f29e294fb1d936f5f1b5052231b3a195fef13602395d484a6d4d3bcf08d0",
         "37b51a75e6f8995a17f4177cbfdfd3c8e7f1df056bea20839b880cb36499d9fc",
         "2ef87651b63df73c89029d882b8423b9394ec074cee27bba38b97c4e3ea6bdc1",
-        "c8aebce9a85bd2d41ce167daf0188b908af2da3429da8753f32621162b07ae0d",
+        "77276458e5cadab358d12e5673b1a9de833bf3697278221a924dace1e87cf127",
         "511c1fd327e46cce53a7b8e0c3c483291d3f771c19fe236de7fc5b46e3930a88",
         "34c231313751eb789804c0e5cabf509b66f9ca0e1d425760825c630878d02373",
         "daa6ba7710e1df897fe4044c07081a25b015386fe5bf80ad37e631f2e844b7b2",
@@ -1818,11 +1818,12 @@
         "ee50840c1ff53c7ea22812780540ee6b7c60e82a8e2e43de6f775ec435a3b86d",
         "ca2c71afa8a22baed5f399eec78495c0aea7cc716a2d1ebbb1e57f95768398e5",
         "bff513c27e9c2fc98a38a8ac28cf7ecc6fcb830a6b18235d1264417a5a9c8cc0",
+        "1d65c9a58e9714342b0926e247305455115fafa5bb5dc016201236cd097f19f6",
         "83852872dd4b363fb3c355af8a3fdb378bfe83b242befe405578af488718b882",
         "b7a16b12d3231774e49c8ee4d437cfa15ea42c0fd85f6f549bccc24de151b230"
       ],
-      "source_sha256": "ac622fe9058440cfee1a14ed9797b621714e469ed3174c5f5ad8c882f7054284",
-      "text": "Devuelve uno :class:`Tile` por posición de escenario, **sin píxeles de lectura**.\n\nLa forma y el dtype de cada archivo salen de su encabezado. Una carpeta de 1000 teselas se escanea en el tiempo que toma abrir 1000 archivos, que es lo que hace \"muéstrame el plan antes de escribir 800 MB\" posible.\n\nLos archivos que comparten ``(plate, well, field)`` se colapsan en un azulejo con una capa de imagen por canal de datos de imagen: un pozo Yokogawa con cuatro canales de datos por campo de visión del microscopio produce uno :class:`Tile` por campo visual del microscopio, no cuatro.\n\n:param src: carpeta de teselas, un único archivo, o una lista explícita de rutas (que corrige el orden — útil cuando los nombres de los archivos no llevan ningún campo de visión del microscopio número).\n:param grid: ``(rows, cols)`` de la adquisición. Inferido del recuento de teselas cuando se omite.\n:param overlap: la superposición nominal del vecino como una fracción de la baldosa, utilizada sólo para sembrar la búsqueda; el registro lo corrige.\n:param order: cómo se mapea una secuencia de campo plano en la cuadrícula — véase :data:`ORDERS`. Las adquisiciones de serpentina necesitan ``'snake-row'``.\n:param recursive: También hay subcarpetas.\n:param positions: opcional ``{field: (y, x)}`` de posiciones *conocidas* en píxeles. Anula la cuadrícula por completo — pasar las coordenadas reales del microscopio cuando las tenga.\n:param reference_channel: que canal conduce el registro. Por defecto al canal más bajo presente.\n:returns: las baldosas en orden de rejilla, cada una con ``index`` conjunto.\n:raises ConfigurationError: ``src`` no existe, o ``grid`` es demasiado pequeño para las baldosas encontradas.",
+      "source_sha256": "19c1ef06bb241f779b70154f020f3e9a153cf52efe869b6cd60e65942b6ffb36",
+      "text": "Devuelve uno :class:`Tile` por posición de escenario, **sin píxeles de lectura**.\n\nLa forma y el dtype de cada archivo salen de su encabezado. Una carpeta de 1000 teselas se escanea en el tiempo que toma abrir 1000 archivos, que es lo que hace \"muéstrame el plan antes de escribir 800 MB\" posible.\n\nLos archivos que comparten ``(plate, well, field)`` se colapsan en un azulejo con una capa de imagen por canal de datos de imagen: un pozo Yokogawa con cuatro canales de datos por campo de visión del microscopio produce uno :class:`Tile` por campo visual del microscopio, no cuatro.\n\n:param src: carpeta de teselas, un único archivo, o una lista explícita de rutas (que corrige el orden — útil cuando los nombres de los archivos no llevan ningún campo de visión del microscopio número).\n:param grid: ``(rows, cols)`` de la adquisición. Inferido del recuento de teselas cuando se omite.\n:param overlap: la superposición nominal del vecino como una fracción de la baldosa, utilizada sólo para sembrar la búsqueda; el registro lo corrige.\n:param order: cómo se mapea una secuencia de campo plano en la cuadrícula — véase :data:`ORDERS`. Las adquisiciones de serpentina necesitan ``'snake-row'``.\n:param recursive: También hay subcarpetas.\n:param positions: opcional ``{field: (y, x)}`` de posiciones *conocidas* en píxeles. Anula la cuadrícula por completo — pasar las coordenadas reales del microscopio cuando las tenga.\n:param reference_channel: que canal conduce el registro. Por defecto al canal más bajo presente.\n:param group_by_well: colocar ``grid`` **once por microplaca posición de la muestra** en lugar de una vez a través de toda la carpeta. Una cuadrícula es una propiedad de la adquisición y la adquisición es por posición de muestra microplaca — el mismo campo de visión del microscopio se repite en cada posición de la muestra micro placa — por lo que una carpeta que contiene dos posiciones de muestra de microplacas imágenes 2x2 es dos rejillas 2x2, no una 2x4. Con esto apagado, tal carpeta fue rechazada con \"grid 2x2 tiene espacio para 4 azulejos pero se encontraron 8\", y ``grid=None`` indujo una sola 2x4 que puso cada posición de muestra de microplaca como una tira de 1x4 y puso sus vecinos verticales fuera de la superposición. :func:`align_folder` pasa su propio ajuste de ``group_by_well``.\n:returns: las baldosas en orden de rejilla, cada una con ``index`` conjunto.\n:raises ConfigurationError: ``src`` no existe, o ``grid`` es demasiado pequeño para las baldosas encontradas.",
       "translation_source_blocks_sha256": [
         "cbc4c43ee185ed9686e125019886c77f65252c2256f220a52b22f728b62905c7",
         "cfafd9a2816ac52c524382009f497840f54de1007decd3da922fc4f019c50f9c",
@@ -1834,6 +1835,7 @@
         "ee50840c1ff53c7ea22812780540ee6b7c60e82a8e2e43de6f775ec435a3b86d",
         "ca2c71afa8a22baed5f399eec78495c0aea7cc716a2d1ebbb1e57f95768398e5",
         "bff513c27e9c2fc98a38a8ac28cf7ecc6fcb830a6b18235d1264417a5a9c8cc0",
+        "bd7a2be17bab8323394d543e6ab60b832928ef36b61df78ce7b682111910588c",
         "83852872dd4b363fb3c355af8a3fdb378bfe83b242befe405578af488718b882",
         "b7a16b12d3231774e49c8ee4d437cfa15ea42c0fd85f6f549bccc24de151b230"
       ]
@@ -20066,16 +20068,16 @@
         "338b62c643140263a4217d7da0c5f17eb378017b8de8733b1f58ef7f0da5ee7a"
       ]
     },
-    "spacr.guide_permutation.adjust_p_values": {
+    "spacr.guide_permutation.adjusted_value_label": {
       "source_blocks_sha256": [
-        "f5acac14eda768d67f6705fe091a0c206ba0ad2d770d2a07c42b12b72e08c0ce",
-        "03f5ec270f44ab5dd2e0330424f441880a9f29de96fbf5d28c838acd02b6199c"
+        "bfba435f08e32d62c6ca206d52bf5d55649d10c7f588e47a33b28803ce50fa6c",
+        "fcc8da8ddc5b9862a7a0cf63db6ccd089a0efe772a73b96645344e1f695f2752"
       ],
-      "source_sha256": "ebb97beb5378311645675d1b0304b4a82e5b6742703af57a7758e403ce0019d8",
-      "text": "Devuelve valores ajustados de P y llamadas de rechazo.\n\n``method`` acepta los nombres statsmodels ``fdr_bh``, ``fdr_by``, ``bonferroni`` y ``holm``, más sus alias comunes y ``none``. Faltan los valores P y no entran en la familia de corrección.",
+      "source_sha256": "c94e4ec712f58b2b93e72afdf53a9213172783f2317f0d3c4221eb7b995dd4bf",
+      "text": "Etiqueta Axis/legenda para el valor ajustado producido por ``method``.\n\nUn método FDR produce un valor q, un método familiar un P ajustado, y ``none`` deja el valor P en bruto. Etiquetado de cada corrección \"BH q\" -- como hizo este módulo mientras ofrecía sólo cuatro métodos -- etiqueta erróneamente el eje de cada parcela dibujada con cualquier otra corrección.",
       "translation_source_blocks_sha256": [
-        "f5acac14eda768d67f6705fe091a0c206ba0ad2d770d2a07c42b12b72e08c0ce",
-        "03f5ec270f44ab5dd2e0330424f441880a9f29de96fbf5d28c838acd02b6199c"
+        "bfba435f08e32d62c6ca206d52bf5d55649d10c7f588e47a33b28803ce50fa6c",
+        "fcc8da8ddc5b9862a7a0cf63db6ccd089a0efe772a73b96645344e1f695f2752"
       ]
     },
     "spacr.guide_permutation.analyse_long_guide_table": {
@@ -28100,6 +28102,90 @@
         "6e41a7ed8d8cf982d5a38c0756655939092d5fd190af20152cc4627dee23122a"
       ]
     },
+    "spacr.metadata_resolution": {
+      "source_blocks_sha256": [
+        "7fbb63bee59e5579778e6c1015afc55c3e4b6e2c082f8e00c376c62e18d3d717",
+        "6345876b6684f621ca512baff362faf6b5d97786db74d9b06345207bcaaefc95"
+      ],
+      "source_sha256": "ac736b942cfc34c8933ce5833fce3d7802522af82ca955b302674e747d778603",
+      "text": "Recuperar columnas de metadatos faltantes spaCR sin conjeturas de identidad silenciosa.\n\nEl solucionador es UI-independiente. Un diálogo Qt se puede suministrar como ``prompt``; los que llaman sin interfaz gráfica reciben una excepción accionable en lugar de bloquear en una ventana que nadie está viendo. Los alias conocidos se canonizan antes de que se solicite cualquier elección humana.",
+      "translation_source_blocks_sha256": [
+        "7fbb63bee59e5579778e6c1015afc55c3e4b6e2c082f8e00c376c62e18d3d717",
+        "6345876b6684f621ca512baff362faf6b5d97786db74d9b06345207bcaaefc95"
+      ]
+    },
+    "spacr.metadata_resolution.MetadataDecision": {
+      "source_blocks_sha256": [
+        "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039"
+      ],
+      "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
+      "text": "Una única respuesta completa devuelta por una UI o una configuración guardada.",
+      "translation_source_blocks_sha256": [
+        "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039"
+      ]
+    },
+    "spacr.metadata_resolution.MetadataRequest": {
+      "source_blocks_sha256": [
+        "c75aa11d39669ce299287fa9981202406a93bf497f9c0fc9c2d4194ed18e1b8b"
+      ],
+      "source_sha256": "c75aa11d39669ce299287fa9981202406a93bf497f9c0fc9c2d4194ed18e1b8b",
+      "text": "Todos los objetivos no resueltos y las pruebas se muestran a un solo aviso.",
+      "translation_source_blocks_sha256": [
+        "c75aa11d39669ce299287fa9981202406a93bf497f9c0fc9c2d4194ed18e1b8b"
+      ]
+    },
+    "spacr.metadata_resolution.MetadataResolutionRequired": {
+      "source_blocks_sha256": [
+        "7890fdfcdc1e5784fa88d34b15f5f1da2eb3a90ef7a447b5d995322b2918d160"
+      ],
+      "source_sha256": "7890fdfcdc1e5784fa88d34b15f5f1da2eb3a90ef7a447b5d995322b2918d160",
+      "text": "Una persona que llama sin interfaz gráfica debe proporcionar una asignación explícita de metadatos.",
+      "translation_source_blocks_sha256": [
+        "7890fdfcdc1e5784fa88d34b15f5f1da2eb3a90ef7a447b5d995322b2918d160"
+      ]
+    },
+    "spacr.metadata_resolution.ResolutionResult": {
+      "source_blocks_sha256": [
+        "c1f71d33cac14ce0b90f17b51dbff4772f80599453a9e2d540faf64a92be6edf"
+      ],
+      "source_sha256": "c1f71d33cac14ce0b90f17b51dbff4772f80599453a9e2d540faf64a92be6edf",
+      "text": "Marco resuelto más las decisiones auditables que lo cambiaron.",
+      "translation_source_blocks_sha256": [
+        "c1f71d33cac14ce0b90f17b51dbff4772f80599453a9e2d540faf64a92be6edf"
+      ]
+    },
+    "spacr.metadata_resolution.build_metadata_request": {
+      "source_blocks_sha256": [
+        "9d04f27bf4b0b8cd040b8ad03a3c835ff813dec2e1e96c913466f94b7248975f"
+      ],
+      "source_sha256": "9d04f27bf4b0b8cd040b8ad03a3c835ff813dec2e1e96c913466f94b7248975f",
+      "text": "Construye la petición única con una pantalla GUI para cada columna que falte.",
+      "translation_source_blocks_sha256": [
+        "9d04f27bf4b0b8cd040b8ad03a3c835ff813dec2e1e96c913466f94b7248975f"
+      ]
+    },
+    "spacr.metadata_resolution.clear_run_metadata_decisions": {
+      "source_blocks_sha256": [
+        "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8"
+      ],
+      "source_sha256": "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8",
+      "text": "Respuestas rápidas claras y recordadas (principalmente para pruebas/nuevas carreras).",
+      "translation_source_blocks_sha256": [
+        "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8"
+      ]
+    },
+    "spacr.metadata_resolution.resolve_metadata_columns": {
+      "source_blocks_sha256": [
+        "8ae6b9b83fb7a72d750ba58802b52de780c1541cca10bc37d14905baf2fdd618",
+        "2389fab7e6638bcfb4d4077a96a5259784d41512314b3918b9399a79ff124eb0"
+      ],
+      "source_sha256": "bd38344347d80bc5c32abe55747326f979d4c2ed85712ef33eb9a95d13c63bf5",
+      "text": "Resolver cada columna de metadatos requerida en un pase determinista.\n\n``column_map`` es ``{canonical_target: actual_source}``. Un prompt, cuando se suministra, se llama como máximo una vez y recibe todas las columnas sin resolver. Sin una, las columnas faltantes lanzan :class:`MetadataResolutionRequired` con los ajustes no interactivos necesarios para proceder.",
+      "translation_source_blocks_sha256": [
+        "8ae6b9b83fb7a72d750ba58802b52de780c1541cca10bc37d14905baf2fdd618",
+        "36d1b824b2cbe9f3bef362cb8a1393bd83313462c041c04f063aab920e813980"
+      ]
+    },
     "spacr.methods_export": {
       "source_blocks_sha256": [
         "1ed72e547820c08742a39a8922a8d85fcd1e27d6b4e56420e63bdea3373b8058",
@@ -28660,6 +28746,18 @@
         "4e6240e0a06e23ec4d12023e66ac2435f9f5451747e98be6e623681707ce8130"
       ]
     },
+    "spacr.ml.load_regression_input_pairs": {
+      "source_blocks_sha256": [
+        "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
+        "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad"
+      ],
+      "source_sha256": "1e2165931399d40d2243d218b4236968810cee261a1f25d7f174b864fd425022",
+      "text": "Leer entradas emparejadas y resolver la identidad de la placa sin conjeturas de nombre de archivo.\n\nEl orden de resolución es columna propia, columna de socio, luego orden de fila de pares. Las declaraciones conflictivas son rechazadas. Devuelve ``(count_frame, score_frame, audit_rows)``.",
+      "translation_source_blocks_sha256": [
+        "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
+        "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad"
+      ]
+    },
     "spacr.ml.minimum_cell_simulation": {
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
@@ -28766,6 +28864,18 @@
         "fdafafab1593af5d5d1e19413bef494addfec93348222d77104827f48778748e"
       ]
     },
+    "spacr.ml.normalize_regression_input_pairs": {
+      "source_blocks_sha256": [
+        "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
+        "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed"
+      ],
+      "source_sha256": "eb91fa38f5836eda830ed3645f0176898962b94604878a4eec2ae9b92216ae9f",
+      "text": "Devuelve filas explícitas ``score``/``count``, migrando listas heredadas.\n\nNueva configuración store ``paired_data``. Los archivos antiguos siguen siendo válidos: sus listas planas se cierran posicionalmente, coinciden exactamente con el comportamiento anterior, y la migración se reporta para que la suposición de legado invisible sea visible.",
+      "translation_source_blocks_sha256": [
+        "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
+        "c0bf94d5d0a25900508c26bb11d37e76473de517c001bbe422704f3867618bed"
+      ]
+    },
     "spacr.ml.perform_mixed_model": {
       "source_blocks_sha256": [
         "4a46b98bbc2859f25580e9f80b5a622e51151daa5d2a3f58880ccc691800fb96",
@@ -28803,39 +28913,33 @@
         "0dae9cd236b6c7eec788595fd350e267bc1b2cf461250ae44941e4dd1f8aaa0d",
         "94f585c1cfba37dae1ec91e3a121b34f30fca2ab0c5c0269351b3de8cf4a3473",
         "ddc7f2f24110624a619c834c879f20be847b0b9f3657c612664382d7c1f2635a",
-        "b3b71fdb1f29a547b58cf2542753997acfcaa8924838400590dd93d42569ebab",
-        "7ca39cff44d69273c99977b842bc7edc4b210a83802ade8a737123f16cecaebc",
+        "3043994e7f70b5bd1a71a6b755cece76c1c82a4b4480500ddd9ddfd017885d5f",
         "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
         "33ec74db359c51ab6f243bf22dbddec9b20e2fd3108d2882fb13959f63fa27cb",
         "fed1e1bfb564325ecfe433ae312b3f2c3af4e5884da0ea0334096e3b1f004c58",
         "6c8914c9a931af33b9388f0d2136e280ed8b13a525d69ebc8d29d991424cbe4b",
-        "581006f3ae333e4dd326fcd87c63e77a42973eda4d41f0626cfd4bf8f4d8d495",
-        "f79d4f20b81a50536def1b389d5ff10fd4b6374f65f837a421a0840f0f0a4688",
         "02acb4644e4af1a81923941226eb6ec305fdf8c053789d2e95303203eec9f73b",
         "413366f6d6d61b483ac779c0357bf7dc9a40a481fe7c4f2780c516f45f2870ef",
         "bf75e5a5744143a1e4124f109dc83ed4128124a9b01bac201d9a30a17a1d8059",
-        "3872eee936e83766bebc61385baddeb28f9a4233a46722b7d77b477f52a02ba8",
+        "452631245b53f834f47450cc4c476ce1ff5f239fe2d33d749b94ddd85a88db82",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "168be87646e8ef7bd053f9882a24c8d6010afe4e32dfdc323276a95306bb5c9e"
       ],
-      "source_sha256": "4b20d562dd4cc658e17b41a55e9183c190145bdd087000e2b258edb259cb85de",
-      "text": "Los resultados del fenotipo de posición por microplaca frente a gRNA / genes se cuentan para identificar los resultados de un experimento de detección agrupado CRISPR.\n\nLee una o más puntuaciones CSVs (de :func:`generate_ml_scores` o un modelo de clasificación de aprendizaje automático de aprendizaje profundo) y uno o más sgRNA count CSVs (de :func:`spacr.sequencing.generate_barecode_mapping`), las alinea en la posición de muestra de microplacas/microplacas de laboratorio, se ajusta al modelo de regresión solicitado, fusiona metadatos, y emite parcelas volcánicas, mapas de calor de micro placas de laboratorio y diagramas de fenotipos genéticos e informes de enriquecimiento GO.\n\n:param settings: Configuración del mapeo de valores clave, canonizado a través de :func:`spacr.settings.get_perform_regression_default_settings`. Entradas de datos estructurados:\n\n    - ``score_data`` (str o lista) — CSV(s) de los puntajes de posición de muestra por microplaca.\n    - ``count_data`` (str o lista) — CSV(s) de los recuentos de ARNg de posición de muestra por microplaca.\n    - ``dependent_variable`` — columna de ``score_data`` a retroceso (por ejemplo, ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).\n    - ``regression_type`` — cualquier nombre en :data:`REGRESSION_TYPES`, o ``None`` para elegir uno de la distribución de respuesta. Véase :func:`regression_model` para qué es cada motor.\n    - ``analysis_mode='guide_permutation'`` — en su lugar, las asociaciones de guía marginal ajustadas a la placa de ensayo con valores empíricos de P y aplicar ``multiple_testing_method`` (Benjamini-Hochberg por defecto) dentro de cada familia solicitada ``guide_min_wells``.\n    - la configuración por modelo lee: ``alpha``, ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``, ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``. Una configuración del tipo elegido no puede leerse se rechaza en lugar de ignorarse; véase :data:`REGRESSION_SETTINGS_USED`.\n    - ``plates_score`` / ``plates_count`` — ID de placa explícita opcional alineado por posición del archivo.\n    - ``plate_from_order`` — auto-asignar ``plate{i+1}`` desde el orden del archivo.\n    - ``batch_correction`` — normalización opcional ``combat``, ``center``, ``zscore``, ``robust_zscore`` o control de referencia ``control_center`` de la variable dependiente antes de la agregación del pozo.\n    - ``fraction_threshold``, ``min_n``, ``metadata_files``, ``volcano``, ``heatmap_feature``.\n\n:returns: Ruta a los resultados combinados, metadatos anotados DataFrame (también escrito en ``results/<score_source>/<regression_type>/ results.csv``). Gene/gRNA CSVs relacionados y llamadas de significación se guardan junto.\n:raises ValueError: si las longitudes de ``score_data`` y ``plates_score`` (o ``count_data`` y ``plates_count``) no están de acuerdo, si ``dependent_variable`` no es una columna de la puntuación CSV, o si ``regression_type`` no es compatible, o si una familia de apoyo a la permutación de guía o ajuste de corrección no es válida.\n\nEjemplo\n    .. code-block:: python\n\n        from spacr.ml import perform_regression\n        settings = {\n            'score_data': ['/data/plate01/results/xgb_scores.csv'],\n            'count_data': ['/data/plate01/sequencing/counts.csv'],\n            'dependent_variable': 'pred',\n            'regression_type': 'mixed',\n        }\n        perform_regression(settings)\n\nVéase también: :func:`generate_ml_scores` — producir la entrada ``score_data``. :func:`spacr.sequencing.generate_barecode_mapping` — producir la entrada ``count_data``.",
+      "source_sha256": "3579e20007703c35cdee3572819c654bc66b653a17235decbf84bde0aa52506b",
+      "text": "Los resultados del fenotipo de posición por microplaca frente a gRNA / genes se cuentan para identificar los resultados de un experimento de detección agrupado CRISPR.\n\nLee una o más puntuaciones CSVs (de :func:`generate_ml_scores` o un modelo de clasificación de aprendizaje automático de aprendizaje profundo) y uno o más sgRNA count CSVs (de :func:`spacr.sequencing.generate_barecode_mapping`), las alinea en la posición de muestra de microplacas/microplacas de laboratorio, se ajusta al modelo de regresión solicitado, fusiona metadatos, y emite parcelas volcánicas, mapas de calor de micro placas de laboratorio y diagramas de fenotipos genéticos e informes de enriquecimiento GO.\n\n:param settings: Configuración del mapeo de valores clave, canonizado a través de :func:`spacr.settings.get_perform_regression_default_settings`. Entradas de datos estructurados:\n\n    - ``paired_data`` — filas ordenadas que explícitamente emparejan una puntuación CSV con una cuenta de sgRNA CSV. La identidad de microplaca de laboratorio proviene de los archivos cuando están de acuerdo, del socio cuando sólo uno lo declara, o del orden de fila de pares cuando ninguno lo hace. Las listas de Legacy ``score_data`` y ``count_data`` se migran posicionalmente con un registro visible.\n    - ``dependent_variable`` — columna de ``score_data`` a retroceso (por ejemplo, ``'pred'``, ``'recruitment'``, ``'pathogen_nucleus_shortest_distance'``).\n    - ``regression_type`` — cualquier nombre en :data:`REGRESSION_TYPES`, o ``None`` para elegir uno de la distribución de respuesta. Véase :func:`regression_model` para qué es cada motor.\n    - ``analysis_mode='guide_permutation'`` — en su lugar, las asociaciones de guía marginal ajustadas a la placa de ensayo con valores empíricos de P y aplicar ``multiple_testing_method`` (Benjamini-Hochberg por defecto) dentro de cada familia solicitada ``guide_min_wells``.\n    - la configuración por modelo lee: ``alpha``, ``l1_ratio``, ``cov_type``, ``quantile``, ``hinge_threshold``, ``hinge_n_boot``, ``huber_t``, ``random_row_column_effects``. Una configuración del tipo elegido no puede leerse se rechaza en lugar de ignorarse; véase :data:`REGRESSION_SETTINGS_USED`.\n    - ``batch_correction`` — normalización opcional ``combat``, ``center``, ``zscore``, ``robust_zscore`` o control de referencia ``control_center`` de la variable dependiente antes de la agregación del pozo.\n    - ``fraction_threshold``, ``min_n``, ``metadata_files``, ``volcano``, ``heatmap_feature``.\n\n:returns: Ruta a los resultados combinados, metadatos anotados DataFrame (también escrito en ``results/<score_source>/<regression_type>/ results.csv``). Gene/gRNA CSVs relacionados y llamadas de significación se guardan junto.\n:raises ValueError: si los archivos emparejados declaran que los identificadores de microplaca de laboratorio son incompatibles, ``dependent_variable`` no es una columna de puntuación, =``regression_type`` no está soportado, o si una familia de soporte de permutación o ajuste de corrección no es válido.\n\nEjemplo\n    .. code-block:: python\n\n        from spacr.ml import perform_regression\n        settings = {\n            'paired_data': [{\n                'score': '/data/plate01/results/xgb_scores.csv',\n                'count': '/data/plate01/sequencing/counts.csv',\n            }],\n            'dependent_variable': 'pred',\n            'regression_type': 'mixed',\n        }\n        perform_regression(settings)\n\nVéase también: :func:`generate_ml_scores` — producir la entrada ``score_data``. :func:`spacr.sequencing.generate_barecode_mapping` — producir la entrada ``count_data``.",
       "translation_source_blocks_sha256": [
         "7f4527efa68f2e6714b51032fdb8f1843302804013a05d016dd9051b015578b2",
         "862fd91b7f9f7c960fe997585852f5c3b3510899bd92b23626178e44956299ad",
         "0f75b0d0d35cb6de0ea5d10b6d9ee745f5df071918c66eddb4f567fae4323383",
-        "867b22af0f492754a6663327df2bf5fa3b3fcd1a6ac5d3fee272a6f688c97777",
-        "3b13ff09d12202d5ee2c6dbad7ea3a87a98c400eab169dfe4abfa23a37ef20ef",
+        "d781fb43d36d1aff4b3678f9311a943a6d2af9f0b068087451fb063dd90caf3f",
         "3cbffd9106250bf7242c43be6937774faea6df19246cd2e6cc2099d35186cb49",
         "33ec74db359c51ab6f243bf22dbddec9b20e2fd3108d2882fb13959f63fa27cb",
         "fed1e1bfb564325ecfe433ae312b3f2c3af4e5884da0ea0334096e3b1f004c58",
         "6c8914c9a931af33b9388f0d2136e280ed8b13a525d69ebc8d29d991424cbe4b",
-        "581006f3ae333e4dd326fcd87c63e77a42973eda4d41f0626cfd4bf8f4d8d495",
-        "f79d4f20b81a50536def1b389d5ff10fd4b6374f65f837a421a0840f0f0a4688",
         "02acb4644e4af1a81923941226eb6ec305fdf8c053789d2e95303203eec9f73b",
         "413366f6d6d61b483ac779c0357bf7dc9a40a481fe7c4f2780c516f45f2870ef",
         "bf75e5a5744143a1e4124f109dc83ed4128124a9b01bac201d9a30a17a1d8059",
-        "3872eee936e83766bebc61385baddeb28f9a4233a46722b7d77b477f52a02ba8",
+        "a17e8784e294f55fb58fb411da7e1a9b9b7f0078aef6948c37fc9933076e1831",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "168be87646e8ef7bd053f9882a24c8d6010afe4e32dfdc323276a95306bb5c9e"
       ]
@@ -29086,6 +29190,26 @@
         "503e174033dbf98c2bc0d5070b43a0257ff672f28e7968a91f6421c70ea1b479",
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
+    "spacr.ml.resolve_auto_inference": {
+      "source_blocks_sha256": [
+        "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
+        "5da7d5b53d5165fc0a5b64f74bea0f4eab979984b8cf5fa353176d9d9897811c",
+        "77d015d82b509d50fd4a78edb7f8ce55dffc03c6d31aaf26ce4cd46a1b321a03",
+        "a44ab47e0b58d5fb59fa0baeae5d5ddcc0ae83aeb597d91c74ec8a1e3b6f5cc3",
+        "a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9",
+        "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92"
+      ],
+      "source_sha256": "bb4f4e4d52258633eb6e03bb5ec39ebd37e2849274bb35bb897504da7ca6c3c3",
+      "text": "Elija ``analysis_mode`` para ``inference='auto'`` del diseño.\n\nEl modelo simultáneo estima un coeficiente por guía de las posiciones de muestra microplaca, por lo que necesita más posiciones de muestras microplacas que guías -- con una intercepción y cualquier efecto fijo microplata de laboratorio en la parte superior -- antes de que esos coeficientes sean identificables en absoluto. Debajo de que la matriz de diseño es deficiente: statsmodels todavía devuelve un número para cada guía, pero los números son una solución arbitraria de infinitamente muchos, y sus valores P no describen nada.\n\nEsto no es hipotético, la cribado para la que fue escrita tiene 824 guías en 587 posiciones analizadas de muestras de microplacas; el ajuste publicado tenía 825 parámetros, rango 579 y 8 grados residuales de libertad, y el reajuste no reproducía sus propios coeficientes.\n\nPor lo tanto, ``auto`` elige la prueba de permutación siempre que el ajuste simultáneo no sea identificable, y lo dice. Es deliberadamente conservador: necesita un margen real (``_IDENTIFIABILITY_MARGIN`` posiciones de muestra de microplaca por guía) en lugar de una mayoría simple, porque un diseño que sólo encaja es uno que se ha dejado caer bien lejos de no encajar.\n\nCualquier otra cosa que no sea ``inference='auto'`` se devuelve intacta, por lo que una elección explícita nunca se anula.\n\n:returns: ``(analysis_mode, reason)``. ``reason`` es una frase que nombra los conteos, adecuada para el registro y para la sección Métodos.",
+      "translation_source_blocks_sha256": [
+        "7cf082f068e8dc6920a3e3f7c6db4b58ddf766a3aff281191b0b98a1a6916a90",
+        "f02f0eade9987699a616574fdc7d09ba561709022b6f1437794c6388ecc0e81f",
+        "40235d3f32ee7fed4cc6467f2314b088a9e79af45a3ecd9d0c011d8ff9bdb930",
+        "ae78faf35b9da50ad56ea4051392ec31da6c60d1b4c6651ea7fcc47eccebef40",
+        "a93b7b1521d7691697bde55ae145778777edd71235ef7b2eed4462f3c3d48bd9",
+        "11380b9e5f6bcf7fb4065e9e1ff8cd68a01aff3c9eede1fc3158890a49297f92"
       ]
     },
     "spacr.ml.save_summary_to_file": {
@@ -30692,6 +30816,110 @@
         "c8f6ea17631a9bde9d1c9277640e95d5fc0d09ba24f4802d3fc2f30eca74ca1a",
         "53c2e2eb75ca8875c896f4e6bc6e198bd71a1678c0ae02e9860db1afdf010f1e",
         "cd83d1e909378720c01c7ebdc67f1df41b746a18699c5a8b067e4e1ba5b045b0"
+      ]
+    },
+    "spacr.multiple_testing": {
+      "source_blocks_sha256": [
+        "5667699e7ff836099991cb21c46e231cfe1702ce85c0bedb6d39b201a961766e",
+        "3ac1343f26441f2fa4e0913157e4be27d6a5eb8fba842ffa0473a6bd219504b1",
+        "095e677c3dd8f19736eb90073a375929e487015958ad06da30dfca05e3218102",
+        "efb168f2d9c32b4fec6a9589da2d6b66cd6f3320b4141bf47d4b3b4802fc3e96",
+        "d2b853205962e58f4ffc45600b254ac71eeef6ff0cb546269ce29e449bcee9a4",
+        "032746861fb5238890387c9babf874e3fc7da44fabf38660d7f6622fc426f1b7"
+      ],
+      "source_sha256": "53a01d0becb310945656c13d741f318c3846036de26741d1c90691fc42f1b650",
+      "text": "Correcciones de pruebas múltiples para spaCR, con un nombre para cada método.\n\nCada corrección que spaCR ofrece vive aquí, por lo que el desplegable GUI, el CLI, el validador de ajustes y :mod:`spacr.guide_permutation` no pueden separarse: el desplegable se construye a partir de :data:`METHODS`, el validadora comprueba contra la misma tabla, y el análisis llama a :func:`adjust_p_values`.\n\nDos propiedades importan para un experimento de proyección conjunta y son fáciles de equivocarse:\n\n* **Los valores p perdidos no deben unirse a la familia.** Una guía que no se pudo probar no es una prueba. Contarla infla el tamaño de la familia y hace que cada descubrimiento real sea menos significativo. NaNs pasar por aquí intacto.\n* **La familia es el conjunto mostrado.** El llamante decide qué es una familia (spaCR corrige por separado por el resultado del modelo de clasificación de aprendizaje automático y por el umbral mínimo de soporte); este módulo sólo corrige cualquier vector que se le entrega.\n\nMás allá del inventario statsmodels este módulo implementa el valor q de Storey, que es estándar en el trabajo de cribado y ausente de statsmodels. Se estima la proporción de verdaderos nulls (pi0) en lugar de suponer que es 1, por lo que es uniformemente menos conservador que Benjamini-Hochberg mientras se dirige a la misma tasa de falso descubrimiento.",
+      "translation_source_blocks_sha256": [
+        "5667699e7ff836099991cb21c46e231cfe1702ce85c0bedb6d39b201a961766e",
+        "3ac1343f26441f2fa4e0913157e4be27d6a5eb8fba842ffa0473a6bd219504b1",
+        "ec4b67d5ae77d1813231d3b61cf6927ab392d3e85f64f6f5b37951df9fbbd961",
+        "efb168f2d9c32b4fec6a9589da2d6b66cd6f3320b4141bf47d4b3b4802fc3e96",
+        "146bc65618cfbeb21cefd6eb4f6fdd7495a2f9cfee18fa9ec0e192e6dee5b4e2",
+        "032746861fb5238890387c9babf874e3fc7da44fabf38660d7f6622fc426f1b7"
+      ]
+    },
+    "spacr.multiple_testing.MethodSpec": {
+      "source_blocks_sha256": [
+        "20a21142042a5d47b53cca7ac187890ee7dc7bda32f2e7954a400deb6d7dc6c2"
+      ],
+      "source_sha256": "20a21142042a5d47b53cca7ac187890ee7dc7bda32f2e7954a400deb6d7dc6c2",
+      "text": "Una corrección: su clave canónica, etiqueta, familia y tasa controlada.",
+      "translation_source_blocks_sha256": [
+        "20a21142042a5d47b53cca7ac187890ee7dc7bda32f2e7954a400deb6d7dc6c2"
+      ]
+    },
+    "spacr.multiple_testing.adjust_p_values": {
+      "source_blocks_sha256": [
+        "40b21b7b5ee633c49eb5ad3bd837695e57de41f785d6e3f4fb6f2b04a70e12fe",
+        "2c7087d47f3e7dba8bf7e3064efa7e6420873964b18928e7a9d28ba29175eb92",
+        "c364e0aa416ac17d621084c454de536b612580a7a5e082805c94446c4bc1d259",
+        "0f5e003d7cf05d4e0eedf3da2b8c492bf05e6f7f281623e496aed455a95e31b6",
+        "6635934a51854e47680ef8c7caa1e41a28635898d6920acbeb9bbe3758181b06"
+      ],
+      "source_sha256": "0c414d70487872b5f9dc634522d22089cccc63dc33ad57f430168c19b0816ce0",
+      "text": "Retorno ``(adjusted, rejected)`` para una familia de pruebas múltiples.\n\n:param p_values: Los valores de P para cada prueba en la familia. Las entradas no-finitas permanecen no-finitas, nunca son rechazadas, y no cuentan para el tamaño de familia.\n:param method: cualquier clave, nombre statsmodels o alias aceptado por :func:`canonical_method`.\n:param alpha: el nivel de los objetivos de corrección, estrictamente dentro (0, 1).\n:returns: ``adjusted`` (la misma forma que la entrada) y ``rejected``, una matriz booleana.",
+      "translation_source_blocks_sha256": [
+        "40b21b7b5ee633c49eb5ad3bd837695e57de41f785d6e3f4fb6f2b04a70e12fe",
+        "2c7087d47f3e7dba8bf7e3064efa7e6420873964b18928e7a9d28ba29175eb92",
+        "c364e0aa416ac17d621084c454de536b612580a7a5e082805c94446c4bc1d259",
+        "0f5e003d7cf05d4e0eedf3da2b8c492bf05e6f7f281623e496aed455a95e31b6",
+        "6635934a51854e47680ef8c7caa1e41a28635898d6920acbeb9bbe3758181b06"
+      ]
+    },
+    "spacr.multiple_testing.canonical_method": {
+      "source_blocks_sha256": [
+        "3bc08e05fe5495e511bf18d44c457e4476e22c5c3fcfe9767ad2310203276030",
+        "08d6477212100c43c8b11e092f68ce16108838304752c9173a081c6d7c9fc7ae"
+      ],
+      "source_sha256": "d8a4afa5d780fc9141236d3fe6a48742b1c47dfaa4cf7e969745b3fd60b7aca3",
+      "text": "Devuelve la tecla canónica para ``method``.\n\nAcepta las claves canónicas, las ortografías statsmodels y los alias comunes. ``None`` mapea a ``'none'``. Levanta :class:`ValueError` con el inventario completo para cualquier otra cosa, en lugar de caer silenciosamente de nuevo a una corrección que el usuario no pidió.",
+      "translation_source_blocks_sha256": [
+        "3bc08e05fe5495e511bf18d44c457e4476e22c5c3fcfe9767ad2310203276030",
+        "08d6477212100c43c8b11e092f68ce16108838304752c9173a081c6d7c9fc7ae"
+      ]
+    },
+    "spacr.multiple_testing.estimate_pi0": {
+      "source_blocks_sha256": [
+        "6fcecf14cf04542ddf5d68800fcb7f8854b5e1cb9cbb2e31f9217233fd5e4e48",
+        "8445465571a6e5d66ffe404d8ec3fc5bc1ccad79d93c8fe632adb56aaf7d32e3"
+      ],
+      "source_sha256": "15b5637a18d3ab07582e9388abb6670ded7f7c0a764b39b5967c078827a937e5",
+      "text": "Estimar la proporción de hipótesis verdaderas nulas (Pi0 de Storey).\n\nUtiliza el estimador sin espinillas de arranque liso: pi0(lambda) se calcula a través de una cuadrícula y la estimación se toma en el lambda más grande cuyo valor es estable, luego se corta a (0, 1]. Con pocas pruebas la rejilla se derrumba y el estimador devuelve 1.0, lo que hace que los valores q caigan de nuevo a Benjamini-Hochberg -- la respuesta conservadora, no es un error.",
+      "translation_source_blocks_sha256": [
+        "6fcecf14cf04542ddf5d68800fcb7f8854b5e1cb9cbb2e31f9217233fd5e4e48",
+        "8445465571a6e5d66ffe404d8ec3fc5bc1ccad79d93c8fe632adb56aaf7d32e3"
+      ]
+    },
+    "spacr.multiple_testing.method_choices": {
+      "source_blocks_sha256": [
+        "5720363bb7fae206cfe14f6fe5e05e80d94f0be610c89ba44bfbc70293518639"
+      ],
+      "source_sha256": "5720363bb7fae206cfe14f6fe5e05e80d94f0be610c89ba44bfbc70293518639",
+      "text": "Llaves canónicas en orden desplegable.",
+      "translation_source_blocks_sha256": [
+        "5720363bb7fae206cfe14f6fe5e05e80d94f0be610c89ba44bfbc70293518639"
+      ]
+    },
+    "spacr.multiple_testing.method_label": {
+      "source_blocks_sha256": [
+        "5426e6ebfcafcde22f69286ba47ea86944eb4022313db22ad1427cf9778879e2"
+      ],
+      "source_sha256": "5426e6ebfcafcde22f69286ba47ea86944eb4022313db22ad1427cf9778879e2",
+      "text": "Etiqueta fácil de leer para ``method``.",
+      "translation_source_blocks_sha256": [
+        "e6976ade3639da484f8d3b68138640e584059e69b66b397bffc7990e992772c9"
+      ]
+    },
+    "spacr.multiple_testing.storey_qvalue": {
+      "source_blocks_sha256": [
+        "7df6833dece39a87de3cde9ecc39667984cdc6b50e480974215e1ea6baccdeb9",
+        "96893ae4caf28bfdb878191078b00e39b11eca553292557889e6d5292c6e6bb8"
+      ],
+      "source_sha256": "3257a184b7d2970f24b69dc2722192745a8832390ba528f290716ee12b90cff1",
+      "text": "Devuelve valores de Q Storey para un vector de valores de P.\n\n``q[i]`` es el valor mínimo positivo-FDR en el que la prueba ``i`` se llama significativa. El resultado es monotona en el valor P, como la definición requiere. NaNs se conservan.",
+      "translation_source_blocks_sha256": [
+        "7df6833dece39a87de3cde9ecc39667984cdc6b50e480974215e1ea6baccdeb9",
+        "96893ae4caf28bfdb878191078b00e39b11eca553292557889e6d5292c6e6bb8"
       ]
     },
     "spacr.napari_bridge": {
@@ -33796,6 +34024,142 @@
       "translation_source_blocks_sha256": [
         "e6499779bcf2c2874bb39862c15cac1cdd5d1b1773e693fe91f545ddc80386d2",
         "414c4ec9c47e314834577f1437066350bbb730631189f16cb5cf66035bd618e8"
+      ]
+    },
+    "spacr.parameter_sweep": {
+      "source_blocks_sha256": [
+        "a81e621c66cb49ccbdf735cce9014d019b741107ca513b047e6acdc038cfdf52",
+        "41489fe34c9eeec69daf2dcccd997b0da2ace535d5618bca08d54bc39085f021",
+        "0b28d9350b2a97e005053c9874dab3028083842ed4298969b277ac7ec9f72fe6",
+        "9cf995c8bda6eed6840ff3a912bf0e3a3572070dbb9fc58ddd084cf441b12a22",
+        "375077d4dc6fa47d3290671ec4e48af5738774a83146f94a2f24b71f1a65bf25",
+        "90e9355726b54a640bdc60ca4595f63c75af6058600cb9b24db7243e7befcb1c",
+        "eb100b34ad49f61c910ca9910c70777119f7f81127e856847274375284cdde0a"
+      ],
+      "source_sha256": "8541dfba9f64f624eb08d35adda67787506d435bf75a03c19ec5a0cbb57e90a9",
+      "text": "Barrer el parámetro: variar la configuración de regresión y ver qué cambia la respuesta.\n\nUn experimento de cribado agrupado no tiene un único análisis correcto. Tiene una familia de modelos, una regla de agregación, una unidad de análisis, un conjunto de efectos molestos, una corrección de múltiples pruebas y tres o cuatro cortes de filtración -- y una lista de éxitos que es estable en todos ellos es una afirmación muy diferente de una que aparece bajo exactamente una combinación.\n\nEste módulo hace que la comparación sea una orden en lugar de una semana. Construye una lista de prueba desde un espacio de búsqueda, ejecuta cada prueba en su propia carpeta y devuelve una fila ordenada por prueba: la configuración, si se ejecutó, cuántas posiciones de muestra de microplacas y guías sobrevivieron, cuántos aciertos llamó, dónde aterrizaron los controles nombrados y cuánto tiempo tardó.\n\nDos cosas hacen que sea lo suficientemente rápido como para merecer la pena tener:\n\n* **La preparación es compartida.** Cargar filas de 226k y filas de 642k, agregar por posición de muestra de microplaca, umbralar y unir cuesta unos veinte segundos y depende únicamente de los ajustes de FILTRATION. Cada prueba que comparte esos esquemas reutiliza uno preparado, por lo que un barrido sobre modelos y correcciones paga ese costo una vez por celda de filtración en lugar de una vez en cada prueba.\n* **Un juicio fallido es un resultado.** Muchas combinaciones son ilegales por construcción -- ``quantile`` rechaza ``alpha``, las familias penalizadas rechazan ``cov_type``, ``random_row_column_effects`` reemplaza completamente el motor. Estas se registran con su razón y el barrido continúa, porque \"esta combinación no está permitida\" es información sobre el espacio de diseño, no un accidente.\n\nEl espacio de búsqueda se declara como datos (:data:`DEFAULT_SWEEP_SPACE`), por lo que añadir un eje es añadir una clave.",
+      "translation_source_blocks_sha256": [
+        "a81e621c66cb49ccbdf735cce9014d019b741107ca513b047e6acdc038cfdf52",
+        "4ac7c349cf123f73c2dbfffca8f24b28ab54609f1c4c6feb79742f3f6e4dcaf7",
+        "616c67c2ec5f19754f1c784eeb71f07abb32c74c5e21ca8aba55ef667f7e689b",
+        "9cf995c8bda6eed6840ff3a912bf0e3a3572070dbb9fc58ddd084cf441b12a22",
+        "c695570bbc9867005bfa1400e33294f0b54b12ead7cf29f5dfa83d89c93ebc47",
+        "90e9355726b54a640bdc60ca4595f63c75af6058600cb9b24db7243e7befcb1c",
+        "eb100b34ad49f61c910ca9910c70777119f7f81127e856847274375284cdde0a"
+      ]
+    },
+    "spacr.parameter_sweep.SweepSpace": {
+      "source_blocks_sha256": [
+        "5b400f0e62d72cdefff6d59ef1d23ad0923dfb86cd46dc5f47e62cd28cc2d327"
+      ],
+      "source_sha256": "5b400f0e62d72cdefff6d59ef1d23ad0923dfb86cd46dc5f47e62cd28cc2d327",
+      "text": "Hachas para barrer, además de ajustes fijados para cada prueba.",
+      "translation_source_blocks_sha256": [
+        "5b400f0e62d72cdefff6d59ef1d23ad0923dfb86cd46dc5f47e62cd28cc2d327"
+      ]
+    },
+    "spacr.parameter_sweep.be_polite": {
+      "source_blocks_sha256": [
+        "63d91c627882de677219ad7d3845140e5963437efa95805e191543c240f19b02",
+        "39284f7a04a23978b8ea423ce310627de9934add16594ecbe1917cc010daecdf"
+      ],
+      "source_sha256": "8a787197ccee969eb64fad0090f4b6f54e249ccceb2731bf54b7254f4ab778fc",
+      "text": "Abandonar la prioridad CPU y E/S de este proceso.\n\nUn barrido nunca debe ganar un concurso de programación contra el editor del usuario. Aplicado dentro de cada trabajador por lo que es una propiedad de la obra, no de sin embargo el barrido se lanzó.",
+      "translation_source_blocks_sha256": [
+        "63d91c627882de677219ad7d3845140e5963437efa95805e191543c240f19b02",
+        "39284f7a04a23978b8ea423ce310627de9934add16594ecbe1917cc010daecdf"
+      ]
+    },
+    "spacr.parameter_sweep.build_trials": {
+      "source_blocks_sha256": [
+        "15ab4178e05500be3d02dde2925aaccba5d32a88ec98fdf4de113c106dbb74aa",
+        "d1f49bf8c982a42bd99bc1e87a689a2a3a0681e7d9c48ff129b1cf2fde9a1465",
+        "f702cd3d14c39858734eceb4ed3f14bf1966af1fc50fed6aaef7adba43de3bff"
+      ],
+      "source_sha256": "dcd6575fec09e544d188f07cdc2c79e68d83e96e8b7662f3ea578b4271730226",
+      "text": "Enumerar los juicios a ejecutar.\n\n``mode='grid'`` camina el producto completo y trunca a ``max_trials``; ``mode='random'`` muestras sin reemplazo, que cubre un amplio espacio más uniformemente que un prefijo arbitrario de su producto.\n\nLas combinaciones rechazadas nunca cuentan hacia ``max_trials`` -- la tapa está en análisis realizados, no en tuplas consideradas.",
+      "translation_source_blocks_sha256": [
+        "15ab4178e05500be3d02dde2925aaccba5d32a88ec98fdf4de113c106dbb74aa",
+        "d1f49bf8c982a42bd99bc1e87a689a2a3a0681e7d9c48ff129b1cf2fde9a1465",
+        "f702cd3d14c39858734eceb4ed3f14bf1966af1fc50fed6aaef7adba43de3bff"
+      ]
+    },
+    "spacr.parameter_sweep.memory_is_low": {
+      "source_blocks_sha256": [
+        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+      ],
+      "source_sha256": "d900a747931e847a8d292cf370f32365cbf19b638afaf91c26dcd821c5398766",
+      "text": "True cuando la memoria libre ha caído lo suficientemente lejos como para detener el inicio de los ensayos.\n\nComprobado entre los envíos, no sólo al principio: las otras cosas en la máquina -- un editor, el spaCR GUI, otro análisis -- crecen mientras el barrido se ejecuta, y el barrido debe ceder a ellos en lugar de correrlos.",
+      "translation_source_blocks_sha256": [
+        "554fad7e5ca1c75cccca68b4b6cbe9ee588ef04f5f51b6e195ddd05bb756adca",
+        "a50ef1aa39b297d4249bda1aa1aee9f6e8b2f2847bfb5fa205d7f0dc66543186"
+      ]
+    },
+    "spacr.parameter_sweep.recommended_workers": {
+      "source_blocks_sha256": [
+        "b6eb6689a7502d81a48d861ee764b8e105f543cecf809415cf45602a769ece74",
+        "340c0d315841271828fd14630290c17648a39d1178727b64f249c5503ab6e1cf",
+        "69504c5a032d6f2cbbc0dadc94a76d42b9f95b8228a144d48ff5092f6b377f40",
+        "1ef02642f8217d3f4ddd89439819b1c8d4dbef2d2ff6721e9ff9b5931121e2f7",
+        "43d8fa1019460dcb52ffa2bc4a6142ba4fa2793eb9acd56c6d1017f9cfa1845d"
+      ],
+      "source_sha256": "b456999977c2e8fc875f1638c9ee03cc8f53097759b2669cf99951a17090b9c0",
+      "text": "¿Cuántos procesos de trabajo esta máquina puede permitirse en realidad en este momento.\n\nTamaño desde la MEMORIA GRATUITA, no desde el conteo de núcleos. Escoger 14 procesos de trabajo en una caja de 32 núcleos porque tenía 32 cores es exactamente lo que agotó la memoria y mató al editor: el recurso limitante son los varios gigabytes que cada prueba necesita para su propia copia de las tablas, no el CPU.\n\n:param measured_gib: tamaño máximo residente de un ensayo, si se mide. Caídas de nuevo a :data:`ASSUMED_TRIAL_GIB`.\n:param requested: una pregunta explícita, todavía sujetado a lo que es asequible.\n:returns: ``(workers, reason)``. La razón se muestra al usuario, por lo que un barrido que cae de 8 procesos de trabajo a 2 dice por qué en lugar de mirar arbitrariamente lento.",
+      "translation_source_blocks_sha256": [
+        "b6eb6689a7502d81a48d861ee764b8e105f543cecf809415cf45602a769ece74",
+        "340c0d315841271828fd14630290c17648a39d1178727b64f249c5503ab6e1cf",
+        "69504c5a032d6f2cbbc0dadc94a76d42b9f95b8228a144d48ff5092f6b377f40",
+        "1ef02642f8217d3f4ddd89439819b1c8d4dbef2d2ff6721e9ff9b5931121e2f7",
+        "43d8fa1019460dcb52ffa2bc4a6142ba4fa2793eb9acd56c6d1017f9cfa1845d"
+      ]
+    },
+    "spacr.parameter_sweep.run_sweep": {
+      "source_blocks_sha256": [
+        "9bc8fdfa7caf7181d0e54e987bc2e59486ce5ae1cf43f6c8161a8fef4b111e9d",
+        "127e5f2f066c63e26bf8480903bf6d7df2a7333eaa2ae4a690a13a4680a1641b",
+        "ef69bd68031e65d85c91d0d5d6115fd90265f264d1434605128e25e383246f3b",
+        "3047eb535962bbeadbb47b3d32cc3d0e195794de5b7b67ab8b1eac70cd869786",
+        "f48ee63281900a35bafa9f392f5a91cdfc022f879c87e8f339c5dfe948f9b9ff",
+        "2d760124b9da7f0b915aa7c140f74b74958d4fefdb51a9a4b379981dc839c0a5",
+        "f15e6d52b7fa101010aa01ffc19ea013f6ebc89706431e39680e20e1c0a282d1"
+      ],
+      "source_sha256": "d71c72fcff6bca20be3efe24aebe8f9137a00466b71d1b0692e122e3603595fe",
+      "text": "Ejecutar cada juicio y devolver una fila ordenada por juicio.\n\n:param base_settings: configuraciones compartidas por cada prueba -- al menos la puntuación y las entradas de cuenta.\n:param destination: carpeta para escribir carpetas de prueba y el resumen en.\n:param space: qué barrer. Por defecto a :data:`DEFAULT_SWEEP_SPACE`.\n:param controls: ``{alias: identifier}`` buscado en los resultados de cada ensayo, por ejemplo ``{\"gra14\": \"239740\", \"eaf1\": \"225160\"}``. Recuperar el control positivo conocido es el criterio contra el que se lee un barrido.\n:param runner: inyectado para la prueba; por defecto a :func:`spacr.ml.perform_regression`.\n:returns: el marco de resumen, también escrito como ``sweep_results.csv``.",
+      "translation_source_blocks_sha256": [
+        "9bc8fdfa7caf7181d0e54e987bc2e59486ce5ae1cf43f6c8161a8fef4b111e9d",
+        "127e5f2f066c63e26bf8480903bf6d7df2a7333eaa2ae4a690a13a4680a1641b",
+        "ef69bd68031e65d85c91d0d5d6115fd90265f264d1434605128e25e383246f3b",
+        "3047eb535962bbeadbb47b3d32cc3d0e195794de5b7b67ab8b1eac70cd869786",
+        "f48ee63281900a35bafa9f392f5a91cdfc022f879c87e8f339c5dfe948f9b9ff",
+        "2d760124b9da7f0b915aa7c140f74b74958d4fefdb51a9a4b379981dc839c0a5",
+        "f15e6d52b7fa101010aa01ffc19ea013f6ebc89706431e39680e20e1c0a282d1"
+      ]
+    },
+    "spacr.parameter_sweep.run_sweep_parallel": {
+      "source_blocks_sha256": [
+        "5fa2fc13bd88dec3f7c0dec1ebfc05533e23484b9f5fac3597df40bc327085d4",
+        "63332a1653e642a698e3ed7c7220577d5c450d03fe339046f1068d7d3cc73cd2",
+        "8a670accd0ec4d52c44e88e301afa57c5b9eacb576423aa15730820e5acc1112"
+      ],
+      "source_sha256": "3f9810be0eae12f96fa586469922b4f087a135e0b812b6585f3cfb3170f33d65",
+      "text": "Ejecutar el barrido a través de los procesos, escribir resultados a medida que aterrizan.\n\nUn juicio toma la mayor parte de un minuto en una cribado real -- el costo es leer y unir las entradas, que es trabajo por proceso sin estado compartido -- así que los juicios son vergonzosamente paralelos. Los resultados se escriben después de cada finalización, por lo que un barrido muerto todavía deja una mesa utilizable.\n\nEl salto adaptativo que :func:`run_search` utiliza está deliberadamente ausente aquí: depende de los fallos de orden se observan en, que no es determinista entre los procesos de trabajo, y una lista de ensayos reproducibles importa más que los ensayos que ahorraría.",
+      "translation_source_blocks_sha256": [
+        "68820a0b2dbac76c8498a4cf94319a4743535076d003b2ec56eb076043630f5a",
+        "63332a1653e642a698e3ed7c7220577d5c450d03fe339046f1068d7d3cc73cd2",
+        "8a670accd0ec4d52c44e88e301afa57c5b9eacb576423aa15730820e5acc1112"
+      ]
+    },
+    "spacr.parameter_sweep.summarise_sweep": {
+      "source_blocks_sha256": [
+        "c4afec379542d787dc8a55a74023c848685759a0a219f3bda37fc7054907b30d",
+        "87d1bf29c35ecb4db94975293de0ab849f41948c13b7ad0ff9ef6cc8b87016d9"
+      ],
+      "source_sha256": "2bc23fc1a8237a6a736eab98d8f76b8cac18a1e55511aaceedf84ed175732eb4",
+      "text": "Reducir un barrido a las declaraciones que vale la pena leer.\n\nLa pregunta a las respuestas de barrido no es \"que ajuste dio los más éxitos\" -- que recompensa cualquier combinación corrige menos. Es \"que hallazgos sobreviven a las elecciones que podría haber hecho defendiblemente\", por lo que el resumen se construye en torno a un acuerdo a través de los ensayos, no alrededor de un solo juicio.",
+      "translation_source_blocks_sha256": [
+        "c4afec379542d787dc8a55a74023c848685759a0a219f3bda37fc7054907b30d",
+        "87d1bf29c35ecb4db94975293de0ab849f41948c13b7ad0ff9ef6cc8b87016d9"
       ]
     },
     "spacr.pipeline_graph": {
@@ -57109,6 +57473,38 @@
         "2130f95a3f1ad87c5ada93d99e1bb813bdf7cb253963ce47094a967e064e90d9"
       ]
     },
+    "spacr.qt.screens.parameter_sweep": {
+      "source_blocks_sha256": [
+        "4b32607f989d801d8bcd458c6ec25fe757b42d7388aec0cfb7bac1962590d686",
+        "286b481d6913b5179c233a8075857aa2e41e4f8a9d29f0fe6888b13ffd788269",
+        "11018daa5557714bc25742a99da65eb2f284bc289e6aa36942503fc2db475a73",
+        "045f367a46add2d7b74bc9d1ec7ecf98e7f7502a583488de6fd501ed140e242d",
+        "0d02615252438e5711a769da4e575a1309d694e7c41d28bcd626182147630fb5",
+        "83e384b96ac11148b1917821f4f78653ce224b192b155308f60a93253985e14f",
+        "c630c16f602001d48552b67897d4c231292bc3c593578af3ce01c2593de3cc4d"
+      ],
+      "source_sha256": "908105f94a5d678bc5ffd852499b1d48937be3c069e963d5dab1b0b086d4f6a0",
+      "text": "Barrer parámetros: ejecutar la regresión bajo muchos ajustes y comparar.\n\nUna cribado agrupada no tiene un único análisis correcto. Tiene una familia de modelos, una regla de agregación, una unidad de análisis, una estructura de molestia, una corrección de múltiples pruebas y varios cortes de filtración, y la pregunta honesta no es \"qué dicen mis ajustes\" sino \"qué hallazgos sobreviven a los ajustes que podría haber elegido defensiblemente\".\n\nEsta vista de aplicación hace esa pregunta. Marque los ejes para variar, pin el resto, presione Inicio: cada prueba se ejecuta en su propia carpeta y una fila ordenada por tierras de prueba en la tabla -- ajustes, si se ejecuta, cuántos aciertos llamó, y donde los controles nombrados terminaron.\n\nTres cosas que es cuidadoso, cada uno aprendió de la manera difícil:\n\n* **No puede bajar la máquina.** El conteo de procesos de trabajo se mide a partir de MEMORIA GRATUITA, no el conteo del núcleo, y se sujeta por :func:`spacr.parameter_sweep.recommended_workers`. Los ensayos se ejecutan afinados, con prioridad de E/S inactiva, y la piscina deja de crecer cuando la memoria libre cae por debajo de un piso. Un barrido de 32 núcleos agotó la memoria y mató al editor -- dos veces -- por lo que nada de esto es opcional.\n* **Un ensayo fallido es un resultado.** Muchas combinaciones son ilegales por construcción; estas se registran con su razón y el barrido continúa.\n* **Es resumible.** La tabla de resultados es reescrita después de cada prueba, por lo que un barrido que se detiene, o cuya máquina muere, todavía deja todo lo que aprendió.",
+      "translation_source_blocks_sha256": [
+        "4b32607f989d801d8bcd458c6ec25fe757b42d7388aec0cfb7bac1962590d686",
+        "286b481d6913b5179c233a8075857aa2e41e4f8a9d29f0fe6888b13ffd788269",
+        "8972ea485deca79a918f46849882e2ef1fbcd1a7422d1768bbfdd5c60152901f",
+        "045f367a46add2d7b74bc9d1ec7ecf98e7f7502a583488de6fd501ed140e242d",
+        "0d02615252438e5711a769da4e575a1309d694e7c41d28bcd626182147630fb5",
+        "83e384b96ac11148b1917821f4f78653ce224b192b155308f60a93253985e14f",
+        "c630c16f602001d48552b67897d4c231292bc3c593578af3ce01c2593de3cc4d"
+      ]
+    },
+    "spacr.qt.screens.parameter_sweep.register": {
+      "source_blocks_sha256": [
+        "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9"
+      ],
+      "source_sha256": "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9",
+      "text": "Agregue el módulo a través de la única línea de solicitud-registro de spaCR.",
+      "translation_source_blocks_sha256": [
+        "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9"
+      ]
+    },
     "spacr.qt.screens.pca": {
       "source_blocks_sha256": [
         "466a5b049ae07704bd0b583fcae13955cf297419b900a8922143e4edb92c0ff3",
@@ -60059,6 +60455,56 @@
         "1bb1fcc688fb11d5bb53432bdaf13f4d38b5f4f0d32062fcfabf327b1f26e479",
         "05ad119222f9b05e4544edaab2f9e43f45e5461c2ed37eb86486181d6595a673",
         "d73e6df6043d2515a12a8cef1d1cce9427e3953aba53e96c7df10b5aaa1e495c"
+      ]
+    },
+    "spacr.qt.screens.volcano": {
+      "source_blocks_sha256": [
+        "5aefae27020da851799e6e27e2fc76d9b999fda879f7fc33da7d7a90cf08bd4d",
+        "9ffc14f58c3d01d4fc829fd9348cffb14eda1c0ba2e820505c2d5f5cd247bd53",
+        "6f526d971daed07d359e81d57b268726bb4bc39bf56d33f3f88f721de7b8fddf",
+        "473e731dd9c4f0e3ba6932f956d2b68ca0bcdb5ae045fcc27bf41bf10b6bc7c5"
+      ],
+      "source_sha256": "5e876544adfd2778e752772ac972615d77de0836d5547cd659b617346a11f1f7",
+      "text": "Volcano Explorer — abrir una regresión terminada e interrogar a su trama.\n\nUn recorrido de regresión deja un volcán PDF. Ese archivo responde \"what was significant\" y nada más: qué guía es ese punto, qué aspecto tendría color por compartimento, hace que la etiqueta del eje coincida con la corrección que se aplicó realmente, y puedo tenerlo como una figura vectorial en el tamaño del diario solicitado.\n\nEsta vista de la aplicación abre una carpeta de resultados (o un solo resultado CSV) y la entrega a :class:`spacr.qt.widgets.volcano_explorer.VolcanoExplorer`, que dibuja la trama a través del mismo renderizador que el flujo de trabajo utilizado -- así que lo que está en la vista de aplicación es la trama, no una vista previa de la misma.\n\nEs deliberadamente un *reader*. No ejecuta ningún análisis y no escribe nada en la carpeta de resultados; las exportaciones van donde el usuario lo desee. Esto significa que puede ser apuntado a una sesión de procesamiento terminada, incluyendo una producida hace meses en otra máquina, sin ningún riesgo para ella.",
+      "translation_source_blocks_sha256": [
+        "5aefae27020da851799e6e27e2fc76d9b999fda879f7fc33da7d7a90cf08bd4d",
+        "9ffc14f58c3d01d4fc829fd9348cffb14eda1c0ba2e820505c2d5f5cd247bd53",
+        "94fd6e736ae128f8f46577eafaf6b6f068df07ae2d82281490036ff0173d1618",
+        "187c0eb20a48251fc04ff7390343037fd803f08523092d3ba987f3b89f9acdc7"
+      ]
+    },
+    "spacr.qt.screens.volcano.find_results_table": {
+      "source_blocks_sha256": [
+        "d7539e730e3a16089a6be4c50df427a79187fc73f8ba0f80ed71448475694f4e",
+        "d6a3a047332ea16cd7efe08a21808bf4ab56adadf39169b1b21fd1b62dc87e57"
+      ],
+      "source_sha256": "94b7175fefdad8a2eb5d3f64acf084bcb9d0608c17a4145eb80d1fc75eb479a8",
+      "text": "Devuelve los resultados CSV al gráfico para ``path``, o None.\n\nAcepta la propia CSV, una carpeta de salida de regresión, o un padre que sostiene una -- las tres cosas que un usuario realmente tiene que hacer cuando quiere mirar un volcán de nuevo.",
+      "translation_source_blocks_sha256": [
+        "d7539e730e3a16089a6be4c50df427a79187fc73f8ba0f80ed71448475694f4e",
+        "d6a3a047332ea16cd7efe08a21808bf4ab56adadf39169b1b21fd1b62dc87e57"
+      ]
+    },
+    "spacr.qt.screens.volcano.load_results": {
+      "source_blocks_sha256": [
+        "19cdfcd2377840618a002f8d3740960825c2064faf8ad2a2fe1ee73281b830b2",
+        "ca63cffc4c1b2d1bdf4ba3f5b02842c2755cd0ea3405be1e32f4b7c74b198b0a"
+      ],
+      "source_sha256": "5a8b51d975a2d9e4fcf537171ffe07bee4a24214aa649791ab703f28d7af48bf",
+      "text": "Lea los resultados CSV y mantenga sólo a la familia de apoyo primario.\n\nUna larga tabla de permutación contiene cada familia de apoyo mínimo apilada, por lo que trazarlo sin filtrar dibuja cada guía una vez por familia -- el mismo punto de dos a cuatro veces, en diferentes alturas, que se lee como aciertos adicionales.",
+      "translation_source_blocks_sha256": [
+        "19cdfcd2377840618a002f8d3740960825c2064faf8ad2a2fe1ee73281b830b2",
+        "ca63cffc4c1b2d1bdf4ba3f5b02842c2755cd0ea3405be1e32f4b7c74b198b0a"
+      ]
+    },
+    "spacr.qt.screens.volcano.register": {
+      "source_blocks_sha256": [
+        "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9"
+      ],
+      "source_sha256": "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9",
+      "text": "Agregue el módulo a través de la única línea de solicitud-registro de spaCR.",
+      "translation_source_blocks_sha256": [
+        "8e60f657618374f0cb12dbf96553a6b9ccf007498405008f5434f407d2d5e6c9"
       ]
     },
     "spacr.qt.settings_diff": {
@@ -70163,6 +70609,88 @@
         "b3f45fde12ddff7a28f5d0820a44a58cbba1fffa6c91cd6f30a7a431a092e718"
       ]
     },
+    "spacr.qt.widgets.file_list": {
+      "source_blocks_sha256": [
+        "8b102a755423ddb3f5e052f7cdd9995a99fe09f85b4cf1084e42ebda72a5ae46",
+        "50280aa013ca901d73951e79d84a1d333b439ed8d119472498b8874b46ddef3a",
+        "4e3fcd280cf40490a22407dadd8edfa9d383ce9e4d97445ad8b40aa4d601646a",
+        "6ecff1bbea401b92543dd35d300b24a6f5fff486f08c5245421df96203ab7761",
+        "415896b2f3b76baf35fcf4801f8a756beaa8807e26ea81b00372237395325319",
+        "c4919ef3c837ebe6d919cc9ef6367cd7a9877fd76b53b0f4aaf9117207ff34ab"
+      ],
+      "source_sha256": "6f62aaa841c9e5f3ed0a525395fd4a3f5e49701d6bddaa1a3b533f7a07efecc9",
+      "text": "Un widget de configuración para \"one or more files\": navegar, soltar, repetir.\n\nVarias configuraciones de spaCR son listas de rutas de entrada -- ``score_data``, ``count_data``, ``metadata_files``, ``grna_csv`` y amigos. Solían representar como una tira de chips en la que el usuario tecleaba rutas absolutas, un carácter a la vez, lo que es inutilizable para las cuatro placas CSVs que una cribado realmente tiene y aceptó silenciosamente una ruta que no existía.\n\n:class:`FilePathListWidget` reemplaza eso con los dos gestos que la gente espera:\n\n* **Añadir archivos...** abre un diálogo de archivo con selección múltiple activada. Presionándolo de nuevo *apends*, por lo que varias fuentes se pueden recoger de diferentes carpetas en varios viajes en lugar de una única selección imposible.\n* **Dropping** archivos o carpetas en cualquier lugar del widget los añade. Una carpeta soltada contribuye con sus archivos coincidentes, un nivel de directorio profundo, ordenado.\n\nTodo lo demás sigue de ellos: los duplicados son rechazados, el orden es editable porque una regresión que lee ``plate1..plate4`` se preocupa por ello, las rutas faltantes están marcadas en lugar de ser descubiertas en tiempo de ejecución, y el valor es un ``list[str]`` plano por lo que el CLI, la configuración CSV y el panel Qt están de acuerdo.",
+      "translation_source_blocks_sha256": [
+        "8b102a755423ddb3f5e052f7cdd9995a99fe09f85b4cf1084e42ebda72a5ae46",
+        "50280aa013ca901d73951e79d84a1d333b439ed8d119472498b8874b46ddef3a",
+        "4e3fcd280cf40490a22407dadd8edfa9d383ce9e4d97445ad8b40aa4d601646a",
+        "6ecff1bbea401b92543dd35d300b24a6f5fff486f08c5245421df96203ab7761",
+        "415896b2f3b76baf35fcf4801f8a756beaa8807e26ea81b00372237395325319",
+        "c4919ef3c837ebe6d919cc9ef6367cd7a9877fd76b53b0f4aaf9117207ff34ab"
+      ]
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget": {
+      "source_blocks_sha256": [
+        "6dcf549d9883458b1e56f4eb8178a494d1a1fa14a5175ab8926ec55f36e80154"
+      ],
+      "source_sha256": "6dcf549d9883458b1e56f4eb8178a494d1a1fa14a5175ab8926ec55f36e80154",
+      "text": "Una lista ordenada, de-duplicada de rutas de entrada con selector y caída.",
+      "translation_source_blocks_sha256": [
+        "6dcf549d9883458b1e56f4eb8178a494d1a1fa14a5175ab8926ec55f36e80154"
+      ]
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.add_paths": {
+      "source_blocks_sha256": [
+        "0410121533649f038320f31d6359a107ab40faad2d99b17c6447f4ae3a6e03dc"
+      ],
+      "source_sha256": "0410121533649f038320f31d6359a107ab40faad2d99b17c6447f4ae3a6e03dc",
+      "text": "Añadir ``paths``, expandiendo carpetas. Devuelve cuántas se agregaron.",
+      "translation_source_blocks_sha256": [
+        "0410121533649f038320f31d6359a107ab40faad2d99b17c6447f4ae3a6e03dc"
+      ]
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.pick_files": {
+      "source_blocks_sha256": [
+        "f8c7cc8069f26959bbb5ca93acd315b6488629c8636e8cf578e80378423ab0c6"
+      ],
+      "source_sha256": "f8c7cc8069f26959bbb5ca93acd315b6488629c8636e8cf578e80378423ab0c6",
+      "text": "Abra un diálogo de selección múltiple y añada lo que se elija.",
+      "translation_source_blocks_sha256": [
+        "f8c7cc8069f26959bbb5ca93acd315b6488629c8636e8cf578e80378423ab0c6"
+      ]
+    },
+    "spacr.qt.widgets.file_list.FilePathListWidget.set_value": {
+      "source_blocks_sha256": [
+        "e0f133b5d8d8b3b13007b3f4ff50524d9c31e89abab3ecf1e0ff9ab85ed078cc"
+      ],
+      "source_sha256": "e0f133b5d8d8b3b13007b3f4ff50524d9c31e89abab3ecf1e0ff9ab85ed078cc",
+      "text": "Reemplaza el contenido. Acepta None, un str, o cualquier iterable.",
+      "translation_source_blocks_sha256": [
+        "e0f133b5d8d8b3b13007b3f4ff50524d9c31e89abab3ecf1e0ff9ab85ed078cc"
+      ]
+    },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget": {
+      "source_blocks_sha256": [
+        "7fea579d3baceabaaa0fb561e978d9b40cf0884f6cf9257559afe7bc66f72460"
+      ],
+      "source_sha256": "7fea579d3baceabaaa0fb561e978d9b40cf0884f6cf9257559afe7bc66f72460",
+      "text": "Contrato de entrada de microplaca de una hilera por laboratorio editable.",
+      "translation_source_blocks_sha256": [
+        "0ed8ef63c55e98be80c8b4d08b4df9d15b98fae35de8ac118efe16721a86902d"
+      ]
+    },
+    "spacr.qt.widgets.file_list.suggest_file_pairs": {
+      "source_blocks_sha256": [
+        "bccd4bac71d000a7d2e850c2b606fc780624e67426c1010258e693dfa816b201",
+        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93"
+      ],
+      "source_sha256": "1fa67a6c4a2a803fb9d2d4e674546b5ad39ecdcb7f6cbbc9fff62a9eb1a33e4a",
+      "text": "Proponer pares visibles de puntuación/cuenta por tokens de nombre de archivo.\n\nUna propuesta nunca es autorizada: la tabla editable es el contrato que el usuario confirma. Se utilizan mejores coincidencias únicas; los lazos permanecen sin emparejar.",
+      "translation_source_blocks_sha256": [
+        "bccd4bac71d000a7d2e850c2b606fc780624e67426c1010258e693dfa816b201",
+        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93"
+      ]
+    },
     "spacr.qt.widgets.formula": {
       "source_blocks_sha256": [
         "ae9584544b0b27a8b059840e8969141fde4912188dbc29c5599f49618313aa9b",
@@ -74889,6 +75417,36 @@
         "e4dde6c2d555fd7984f9db7f89822e410585e51fec1662289aa33bf272372dad",
         "96f0a10034cc12e573c865810aece9b0120afd35293c52ca7925e44b16f4c8bd",
         "696f11b7d6a4cfe1883611e26a6692106af654d0b8a60bdcc832918d44222dac"
+      ]
+    },
+    "spacr.qt.widgets.metadata_mapper": {
+      "source_blocks_sha256": [
+        "485485b8f5e24fb6db0e06faac2aaab89548e31828ee706456b36c96d7a63280"
+      ],
+      "source_sha256": "485485b8f5e24fb6db0e06faac2aaab89548e31828ee706456b36c96d7a63280",
+      "text": "Recuperación de un diálogo para las columnas de metadatos faltantes.",
+      "translation_source_blocks_sha256": [
+        "485485b8f5e24fb6db0e06faac2aaab89548e31828ee706456b36c96d7a63280"
+      ]
+    },
+    "spacr.qt.widgets.metadata_mapper.MetadataColumnDialog": {
+      "source_blocks_sha256": [
+        "37bb965a743e0e8df9fff30fe5b54feafe038660aaa119896b9b9d4f0d1552b0"
+      ],
+      "source_sha256": "37bb965a743e0e8df9fff30fe5b54feafe038660aaa119896b9b9d4f0d1552b0",
+      "text": "Resolver cada columna canónica faltante en una tabla editable.",
+      "translation_source_blocks_sha256": [
+        "37bb965a743e0e8df9fff30fe5b54feafe038660aaa119896b9b9d4f0d1552b0"
+      ]
+    },
+    "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog": {
+      "source_blocks_sha256": [
+        "873efe415f0b681394cbc738656992d102b74e57aeb3bf3ddeb71e3ccee9207e"
+      ],
+      "source_sha256": "873efe415f0b681394cbc738656992d102b74e57aeb3bf3ddeb71e3ccee9207e",
+      "text": "Resolver un marco de forma interactiva; la cancelación sigue siendo una parada explícita.",
+      "translation_source_blocks_sha256": [
+        "873efe415f0b681394cbc738656992d102b74e57aeb3bf3ddeb71e3ccee9207e"
       ]
     },
     "spacr.qt.widgets.metadata_table": {
@@ -80497,6 +81055,222 @@
         "6c05e028468c51f171c45e532645437cd1836dc9501894ab59b7d700dc1a3899"
       ]
     },
+    "spacr.qt.widgets.volcano_explorer": {
+      "source_blocks_sha256": [
+        "1a6f4b1f3fbe428ee483061a3111467fbcfb0ed939a0d38ec7a84ee0719998b3",
+        "48f5522640688314febbd52ebabf899bd18b4b435db393ce036e3f49ec303219",
+        "78d7f1ee477eaeff5cae56ee611450781825cea1b17ad8bf33c58e32b6c68dae",
+        "dc026d26a3a946814bedb40784f3214a5dc41fa905880ab9d8730668110672e4",
+        "6ea84e0ca2e3ae78fd3e81c957555224bd9a0baee6b2dd9e278566083b21b8d9",
+        "e544a3ac030d7509796954ac6679bafe5b14900c9a65fee9908d001f579128bd",
+        "23710b6d98262344533366dad1f9f0cf29e955ac79184c074b9d286592c46705"
+      ],
+      "source_sha256": "d2541c72b7b64ce91009342414d680b53c3e7a8fc2111bd94221d87dfc784dd1",
+      "text": "El volcán se puede hacer clic, reestilar y exportar.\n\nEl flujo de trabajo escribe un volcán PDF, y hasta ahora que era el final de él: para cambiar una etiqueta de eje, volver a colorear por una covariable o averiguar qué guía era un punto, se vuelve a hacer el análisis o se abre el CSV. Este widget hace que la trama la cosa que interroga.\n\nTres ideas lo mantienen unido:\n\n* **Un renderizador.** Cada píxel viene de :func:`spacr.volcano_style.render_volcano`, la misma función que las llamadas de flujo de trabajo sin interfaz gráfica. Exportar re-renders desde el mismo :class:`VolcanoStyle` a tamaño de impresión en lugar de hacer una captura de pantalla del widget, por lo que lo que se guarda es lo que estaba en la vista de la aplicación, en calidad vectorial completa.\n* **El estilo es un valor.** Los controles escriben en un :class:`~spacr.volcano_style.VolcanoStyle` y piden un redibujo. Esto hace que toda la apariencia se pueda guardar en JSON, recargable y reproducible.\n* **Clicking es una búsqueda, no una prueba de éxito en píxeles.** El punto más cercano se encuentra en el espacio de datos normalizado por los rangos de ejes, por lo que un clic es tan preciso en un eje aplastado como en un cuadrado.\n\nLos archivos de anotación se pueden soltar para colorear o dar forma a los puntos por cualquier cosa: el archivo se fusiona en los resultados por una columna de unión, y cada columna que trae está disponible en los menús color-por y forma-por.",
+      "translation_source_blocks_sha256": [
+        "1a6f4b1f3fbe428ee483061a3111467fbcfb0ed939a0d38ec7a84ee0719998b3",
+        "6ecfbc0a4a843f87c496bc6a085397aab78b01cc44643037a0d9a33b8b3783de",
+        "78d7f1ee477eaeff5cae56ee611450781825cea1b17ad8bf33c58e32b6c68dae",
+        "75a9620ccb7a2a07a45104330b54e4379e9d72d3ae1afcb05121723c638a1070",
+        "6ea84e0ca2e3ae78fd3e81c957555224bd9a0baee6b2dd9e278566083b21b8d9",
+        "e544a3ac030d7509796954ac6679bafe5b14900c9a65fee9908d001f579128bd",
+        "23710b6d98262344533366dad1f9f0cf29e955ac79184c074b9d286592c46705"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer": {
+      "source_blocks_sha256": [
+        "f2cac120ed121200d7d5e55da54daf9de6083662f262ca7c44a90dd9582373b1"
+      ],
+      "source_sha256": "f2cac120ed121200d7d5e55da54daf9de6083662f262ca7c44a90dd9582373b1",
+      "text": "Un volcán interactivo: haga clic en un punto, rediríjalo, exportelo.",
+      "translation_source_blocks_sha256": [
+        "f2cac120ed121200d7d5e55da54daf9de6083662f262ca7c44a90dd9582373b1"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.export": {
+      "source_blocks_sha256": [
+        "cc2b59dc7693b7b4da4c271afdec76f79cb210fc6e0783e7230ba099ddb31ebc",
+        "eb1e1b41d836e6f18d99044ca73e1a2c2cdc8a7a129e0be042e0742fbdfea6bd"
+      ],
+      "source_sha256": "d015ad342f0139baaaecd041fdfe097d7365f0233396a8646fcec52c8954c870",
+      "text": "Re-renderizar al tamaño de impresión y escribir el archivo.\n\nNo es una captura de pantalla: la figura se dibuja de nuevo del mismo estilo, por lo que un vector PDF se mantiene y un PNG honra al dpi bajo Frame independientemente de lo grande que sea el widget en la vista de la aplicación.",
+      "translation_source_blocks_sha256": [
+        "cc2b59dc7693b7b4da4c271afdec76f79cb210fc6e0783e7230ba099ddb31ebc",
+        "7f6143f8a43326c7ba6841147b2ca45e46a848c67a9c13368139781ec3e5ab34"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.merge_annotation_file": {
+      "source_blocks_sha256": [
+        "b297330505be33e3ef5b5d770cb426b31736fc52bf4571d4a2099bebec994043",
+        "233ebe58cc7239408c1c6e2433a75549a33549abf392020cc906740186f79a27",
+        "dad8f6d71f1addfeda8c40aee44dae12abdbcb579ec24c2856726f94e0ce1ab9"
+      ],
+      "source_sha256": "7e1746d5a31f69ff5d09b8f5a8b4dcf8a194f397f01629c9efc4f358f53647bf",
+      "text": "Fusionar un CSV/Excel de anotaciones en los resultados.\n\nCada columna que trae se puede seleccionar para el color y la forma. La columna de unión se infiere de la columna compartida que coincida con la mayoría de las filas, por lo que un archivo ``gene`` y uno ``guide`` trabajan sin que se pregunte al usuario cuál es cuál.\n\n:returns: el número de columnas añadidas.",
+      "translation_source_blocks_sha256": [
+        "b297330505be33e3ef5b5d770cb426b31736fc52bf4571d4a2099bebec994043",
+        "233ebe58cc7239408c1c6e2433a75549a33549abf392020cc906740186f79a27",
+        "dad8f6d71f1addfeda8c40aee44dae12abdbcb579ec24c2856726f94e0ce1ab9"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.nearest_point": {
+      "source_blocks_sha256": [
+        "91ac53c1eb69b83b614f8aa7b2bfb036972022403fd0955cffd9fc368d111aaa",
+        "98c25ee1d3c8da2af355939e43234e2237c85c9e57ec8cee0b7fa2956b6d2ef9"
+      ],
+      "source_sha256": "b0f37588900a1c5429b373351b3589b77c9e3a52934734a4dcfed45c410687da",
+      "text": "Índice del punto más cercano a ``(x, y)`` en el espacio normalizado por eje.\n\nLa normalización por el rango visible de cada eje es lo que hace que un clic aterrice en el punto que SE BUSCA más cercano. La distancia euclidiana cruda en unidades de datos escoge el punto equivocado cada vez que los ejes tienen diferentes escalas, que en un volcán siempre lo hacen.",
+      "translation_source_blocks_sha256": [
+        "91ac53c1eb69b83b614f8aa7b2bfb036972022403fd0955cffd9fc368d111aaa",
+        "98c25ee1d3c8da2af355939e43234e2237c85c9e57ec8cee0b7fa2956b6d2ef9"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.refresh": {
+      "source_blocks_sha256": [
+        "1189d57ed128e231625f0659265271b26a96421c2276513bb5f28f6c70d610c2"
+      ],
+      "source_sha256": "1189d57ed128e231625f0659265271b26a96421c2276513bb5f28f6c70d610c2",
+      "text": "Redibuje el lienzo de los resultados y el estilo actuales.",
+      "translation_source_blocks_sha256": [
+        "1189d57ed128e231625f0659265271b26a96421c2276513bb5f28f6c70d610c2"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.select_point": {
+      "source_blocks_sha256": [
+        "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca"
+      ],
+      "source_sha256": "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca",
+      "text": "Seleccione un índice punto por fila y muestre todo lo que se sabe sobre él.",
+      "translation_source_blocks_sha256": [
+        "9d579628d1ce65c8930903fc4c666b0ade855f1c1517587220dc187918548eca"
+      ]
+    },
+    "spacr.regression_diagnostics": {
+      "source_blocks_sha256": [
+        "2b007d5b5530b6637d9ad2cd1987b670059114af0bff3f874838d7570a4c66aa",
+        "e328bc35694c1c6c5d76b53f79c35c4f08a38fb5d111e26d7abbe0562b52e078",
+        "3306cd3cc715e6e58a89a7e61e122a79f86d7fa7c4b1e099c487479905112263",
+        "4d3ede1b8d6ed4624b1f7f58bde01e16efc474a332ae3457ed66278e7deb30df",
+        "446105c18536eb5c64a23e7f93294d51781f34f059d1df481d1f5035521501c1",
+        "aa534255c4c78001eacd3c949b8aafceb369795e6e5bbe0018dc426fca88ddce",
+        "388322d57c2a0158dea0288e4ab04331d2cea79ddc6946ef8e80a6c848be1909"
+      ],
+      "source_sha256": "aa96c9434c1c8d36ccacfc3cbcfcd352c5156dce332db8e8b65682581ddc69ed",
+      "text": "Diagnósticos que dicen si un experimento de detección de regresión se puede creer.\n\nUn diagrama volcánico muestra lo que concluyó el modelo. No puede mostrar si el modelo tenía derecho a concluirlo. Estos son los controles que pueden, y son los que habrían captado el fallo que este módulo fue escrito después: un diseño con 824 guías en 587 posiciones de muestra microplaca, montado simultáneamente, devolviendo un coeficiente de confianza y valor P para cada guía de una matriz deficiente de rango.\n\nLa suite se divide deliberadamente en dos:\n\n``design_report`` / ``plot_design_diagnostics`` Propiedades del *design*, computable antes de que se instale cualquier modelo, y los que deciden si el ajuste significa algo: cuántas posiciones de muestra microplate por parámetro, el rango de la matriz de diseño, su número de condición, cuántas posiciones muestra micro plate cada guía aparece en, y qué guías son tan colineales que ningún método puede separarlos.\n\n``residual_report`` / ``plot_residual_diagnostics`` Propiedades de un modelo *fitted*: los paneles de escala, QQ y apalancamiento de residuo-contra-fijados, además de la distancia de Cook.\n\n``plot_inference_diagnostics`` Propiedades del histograma *test*: el histograma de valor P, cuya forma indica si el null está calibrado, y el diagrama cuantil observado contra esperado con su factor de inflación genómica.\n\nCada función toma arrays simples o marcos y devuelve números planos, por lo que pueden ser afirmados en pruebas en lugar de eyeballed.",
+      "translation_source_blocks_sha256": [
+        "c174b7803a13f91ec2c703b3927dca5b674caf87125562f04cacdf66640265b8",
+        "f7e0bb056588fce268a8bfe9eea21d2de9bf72b944ec318208078564c63a0412",
+        "3306cd3cc715e6e58a89a7e61e122a79f86d7fa7c4b1e099c487479905112263",
+        "91e1650eb4d10fdd88db56de6617a2744ad2c2f366a795641f99b682fcd7e108",
+        "446105c18536eb5c64a23e7f93294d51781f34f059d1df481d1f5035521501c1",
+        "aa534255c4c78001eacd3c949b8aafceb369795e6e5bbe0018dc426fca88ddce",
+        "388322d57c2a0158dea0288e4ab04331d2cea79ddc6946ef8e80a6c848be1909"
+      ]
+    },
+    "spacr.regression_diagnostics.collinear_guide_pairs": {
+      "source_blocks_sha256": [
+        "2644af4eb82228013ed69bedaaf661909290c4f081812f77f860ef7a3dbd5fa5",
+        "09af03ab2fadf3ed50c2e2bc283b81469f28945e1c36224cbb571af1b3443df2",
+        "9b5f916e54b9de2bf87871161d9a76ee7e601ee03c0b38d8a580f2c58b7a1742",
+        "0192faad0d9281445006f733a90ccfd9191895826832134bf04c97fec79e25dd"
+      ],
+      "source_sha256": "c96473a963e1fa628a4a8ce23791ec0107430cc1671a677e6452baccbefa10c6",
+      "text": "Guía parejas cuyos patrones de pozo son tan similares que no se pueden separar.\n\nEste es el mecanismo detrás de los falsos positivos del experimento de cribado: una guía que aparece en casi las mismas posiciones de la muestra de microplaca como un verdadero éxito hereda su señal, y ninguna cantidad de corrección los distingue, porque los datos no contienen contraste entre ellos.\n\n:param threshold: correlación absoluta de Pearson en o por encima de la cual se enumera un par.\n:param limit: Parar después de estos muchos pares; una cribado ancha tiene millones y los primeros cientos son los que vale la pena leer.",
+      "translation_source_blocks_sha256": [
+        "2644af4eb82228013ed69bedaaf661909290c4f081812f77f860ef7a3dbd5fa5",
+        "032cef9e2f14fa933922d9e868110218aea2998615db88de08c5fd5f37ca0019",
+        "9b5f916e54b9de2bf87871161d9a76ee7e601ee03c0b38d8a580f2c58b7a1742",
+        "0192faad0d9281445006f733a90ccfd9191895826832134bf04c97fec79e25dd"
+      ]
+    },
+    "spacr.regression_diagnostics.design_report": {
+      "source_blocks_sha256": [
+        "6cf846a9fd6486fff0fcb02ccc26eb589fe4df7234f3a71f575d75ab1fb4315e",
+        "b1257e955c17c5d6c650710879fc841d18e6855fab435c5dbd4acc673b427b77",
+        "4886fc4d4a427687b797ac40f249b8c7a530fe5618426935b1a2d174b1df1b40",
+        "73c1f7c0706f8af94d92f064a1aab3be57a3ba0a6f62097b5bae909206049db5",
+        "604e4dee1647411afa50e05b2f19a6bc630ec6e0ada5d743aa89272dd2bb07ae"
+      ],
+      "source_sha256": "035e8d9911c6f6e9bc722f214bded3d10ba998c1ed98e49ccb0c1d93faf3c2b7",
+      "text": "Mida si un ajuste simultáneo en este diseño es identificable.\n\n:param fractions: matriz bien por guía, una fila por pozo analizado.\n:param block: etiquetas de bloques de posición opcionales por microplaca (normalmente la microplata de laboratorio), que cuestan un parámetro cada una más allá de la primera.\n:param presence_threshold: una guía cuenta como presente en una posición de muestra de microplaca cuando su valor excede esto.\n:returns: un mapeo de valores clave de escalares. ``identifiable`` es el que importa: es False cuando el diseño tiene menos posiciones de muestra de microplacas que los parámetros, que es el estado en el que los coeficientes por guía no son únicos.",
+      "translation_source_blocks_sha256": [
+        "6cf846a9fd6486fff0fcb02ccc26eb589fe4df7234f3a71f575d75ab1fb4315e",
+        "b1257e955c17c5d6c650710879fc841d18e6855fab435c5dbd4acc673b427b77",
+        "8a6bd906a914644ba8ca8df47e97b4e9bb32f535302aa5faca4810a4760cb844",
+        "125ae5be6223b488087c63a5bb9eba401db209dd885d9378597da89dc9a63895",
+        "0eb842f617300bdd19a4bbe0e72d59c866c6412ecbc02141f507f83c97d3ae06"
+      ]
+    },
+    "spacr.regression_diagnostics.plot_design_diagnostics": {
+      "source_blocks_sha256": [
+        "fc860a3b4e2c9d2d9e6e0854ad7dfa9048705c5cc6bb1b2fd4490f25002d2846"
+      ],
+      "source_sha256": "fc860a3b4e2c9d2d9e6e0854ad7dfa9048705c5cc6bb1b2fd4490f25002d2846",
+      "text": "Seis paneles que describen el diseño, antes de que se instale cualquier modelo.",
+      "translation_source_blocks_sha256": [
+        "fc860a3b4e2c9d2d9e6e0854ad7dfa9048705c5cc6bb1b2fd4490f25002d2846"
+      ]
+    },
+    "spacr.regression_diagnostics.plot_inference_diagnostics": {
+      "source_blocks_sha256": [
+        "7a51bf5f78053051955eb2851e90940c6f39623ab85357cff3803f6ff4fa766a",
+        "887d23ccebae4b8ad34226f48566a004607982914c7c74544294f570cc923d41"
+      ],
+      "source_sha256": "167005891cf9e42275c61a7c0b1cbd764a7f3cd5c3951df121c7ab2d78547696",
+      "text": "¿Está calibrado el valor nulo, y cuánto de la familia no es nulo?\n\nUna cribado de microplaca muestra la posición-comportada da un histograma plano del valor P con un pico en cero. Un histograma que inclina o joroba en el medio significa que la prueba está mal-calibrada, y ninguna reparación de corrección que.",
+      "translation_source_blocks_sha256": [
+        "7a51bf5f78053051955eb2851e90940c6f39623ab85357cff3803f6ff4fa766a",
+        "65984b1ca6aa1a799f2a0ab45ecd9a26c658d9a8b9ec621757f2ae67a29f65d1"
+      ]
+    },
+    "spacr.regression_diagnostics.plot_residual_diagnostics": {
+      "source_blocks_sha256": [
+        "30518fcb258de6372e17ad833f7c5cbb3a2d707e5d2ec88db1b6aeb26548f917"
+      ],
+      "source_sha256": "30518fcb258de6372e17ad833f7c5cbb3a2d707e5d2ec88db1b6aeb26548f917",
+      "text": "Los cuatro clásicos paneles residuales, además de la distancia de Cook.",
+      "translation_source_blocks_sha256": [
+        "30518fcb258de6372e17ad833f7c5cbb3a2d707e5d2ec88db1b6aeb26548f917"
+      ]
+    },
+    "spacr.regression_diagnostics.residual_report": {
+      "source_blocks_sha256": [
+        "89b3b3e90908505037ac7ed437df9134e02b1bf10c9e5233947ff82c4a2f43a5",
+        "35e3e362d5268721f33c3344f2f44f81be5b9bed10e098db30d365d8db318e48"
+      ],
+      "source_sha256": "f83fe18d3775aeb83d47b524eb15cce7f8c7be4cf5f3e5ebf3388fd6b6517ed9",
+      "text": "Resuma los residuos de un modelo montado.\n\n:param design: la matriz del modelo. Cuando se da, el apalancamiento y la distancia de Cook se calculan desde su matriz del sombrero; sin ella esas claves se omiten en lugar de adivinarse.",
+      "translation_source_blocks_sha256": [
+        "89b3b3e90908505037ac7ed437df9134e02b1bf10c9e5233947ff82c4a2f43a5",
+        "35e3e362d5268721f33c3344f2f44f81be5b9bed10e098db30d365d8db318e48"
+      ]
+    },
+    "spacr.regression_diagnostics.variance_inflation_factors": {
+      "source_blocks_sha256": [
+        "1cb84619b8eca703846e161b715e7e687b65151c2dd163e20ddaf6ebe53dc9ad",
+        "92dcb82c74179cc3f2a58d58bc97ac70e7cfdb74ff0db6f7f7aaab38e36fabfc",
+        "6f7262a79247888d19112993597e054b9958f29f53b5e5f52b51c6071420d0ca"
+      ],
+      "source_sha256": "2952a2364627b9d83f78ed545fa89da3170d7b9b8dbb5db39addcd6b02b8ccbe",
+      "text": "Por guía VIF: cuánta colinealidad infla la varianza de la guía.\n\nVIF sólo se define cuando el diseño es de rango completo, por lo que esto se niega en lugar de devolver infinitos para un diseño que no puede soportar el modelo simultáneo en absoluto -- en ese caso :func:`design_report` es la respuesta.\n\n:param max_guides: La FIV cuesta una regresión por guía; en un experimento de selección amplia las guías de soporte más anchas son las informativas, por lo que el resto se saltan y se reportan como omitidas en lugar de caer silenciosamente.",
+      "translation_source_blocks_sha256": [
+        "1cb84619b8eca703846e161b715e7e687b65151c2dd163e20ddaf6ebe53dc9ad",
+        "92dcb82c74179cc3f2a58d58bc97ac70e7cfdb74ff0db6f7f7aaab38e36fabfc",
+        "3eb8e465f7238b440640c863e1c1d771443db59bcbff5ef425e31b07e707bd04"
+      ]
+    },
+    "spacr.regression_diagnostics.write_diagnostic_suite": {
+      "source_blocks_sha256": [
+        "a11a0b086103383700bef9df164e812795c9a034ef93f3694162fea11bc6eaab",
+        "43167d377c23c60a4ebdb84bb34475a8f96c4d5e62ec051e74d78a89546a4c48"
+      ],
+      "source_sha256": "d6b0deadb66faa789c4b7d08eb46b20362746d94f0687660a75b963724f22c32",
+      "text": "Escriba cada diagnóstico que las entradas suministradas pueden soportar.\n\nNo se requiere nada.: pasar lo que tiene un modo de análisis dado. La prueba de permutación tiene un diseño y valores P pero no hay valores ajustados; un ajuste simultáneo los tiene todos. Cada bloque se salta silenciosamente cuando sus entradas están ausentes, y un bloque que plantea se registra como un error en lugar de abortar la sesión de procesamiento -- un diagnóstico que falla nunca debe tomar el análisis hacia abajo con él.",
+      "translation_source_blocks_sha256": [
+        "a11a0b086103383700bef9df164e812795c9a034ef93f3694162fea11bc6eaab",
+        "9911e611aac53525be1bcb0674e9fae73aac2513957167197247f52435454f83"
+      ]
+    },
     "spacr.regression_qc": {
       "source_blocks_sha256": [
         "62ba4484dcb0d984062afcda91e70799744daca3dbb6d77d1e02b7f2a6b0f559",
@@ -81119,6 +81893,18 @@
         "754d3dd5f6769f965e712054269992ff40cf519e21409c195a05dc2bbd52dc44",
         "af284ebc862fb12c4fa02f5b9faafd8dcbf1a0c645a98f680a463270cd4c3c04",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
+    "spacr.regression_search": {
+      "source_blocks_sha256": [
+        "33f3f8831d64289cfc14a4f3d970a786bd7daa0207eb399cb106f52ea11be2a3",
+        "d7b6c9b2757c7f0adeaf123d84a75235bfc6afd9ff08dace0a4096a565204f74"
+      ],
+      "source_sha256": "b58fd111d76196bbc934899f573d9e365a495b53fbfa51a040b21f6417604073",
+      "text": "Alias obsoleto para :mod:`spacr.parameter_sweep`.\n\nEl módulo fue renombrado cuando el barrido se convirtió en un módulo spaCR por derecho propio (\"Parameter Sweep\") en lugar de un script al lado de la regresión. Importar este nombre todavía funciona para que nada escrito contra él se rompa; reexporta el nuevo API y nada más.",
+      "translation_source_blocks_sha256": [
+        "33f3f8831d64289cfc14a4f3d970a786bd7daa0207eb399cb106f52ea11be2a3",
+        "d7b6c9b2757c7f0adeaf123d84a75235bfc6afd9ff08dace0a4096a565204f74"
       ]
     },
     "spacr.remote_execution": {
@@ -86097,20 +86883,44 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
+    "spacr.schema.canonical_rename_plan": {
+      "source_blocks_sha256": [
+        "55ab7a66212fb567fcd5baaa60ab99c3b299f6e5ceddcc1e8074b3c2b5523659",
+        "10e8e00aa37812ea8f6268e85af0a54faec69634cf95520add05a4872bfcdbd1",
+        "3121bf5979a31f29f4e62f9cb213d9dce7075915a07335611fee3dca855cc5b8",
+        "d50f1ae60a03109c6320d7fcb7051ba1bb1476ef5c14552925a3b68e8afeb82a",
+        "fa0ebe3e01284357a9b6f1aaf608d517fa6d4bc85f3bf027dfff554bd0affa2b",
+        "86c9802a01af2ca2f3bcd8e69fa79ca29c4780997b3ab0be9ad59630f279f1a0",
+        "c4ab4b7b79192bf3b0c196664acec894c92bd2ad8b1a9c44bdda4f753422a23e"
+      ],
+      "source_sha256": "3e85b019c5acecf6a6d66777b26d9056183e53666a87c918338c61cb5bffac8d",
+      "text": "``{old: canonical}`` para las columnas que pueden ser renombradas con seguridad.\n\nLa definición única de la regla \"destinatario ya existe, mantener ambos\" para los marcos, compartida por :func:`canonicalise_columns` y ``utils.canonicalize_measurement_columns`` por lo que los dos no pueden separarse de nuevo — ya han discrepado una vez sobre qué ortografías se fijan.\n\n**La prueba pliega la caja**, porque SQLite compara los identificadores sin sensibilidad a la caja y estos marcos están escritos con ``to_sql``. Un marco que sostiene ``row`` y ``rowid`` ya tiene la columna canónica: renombrar ``row`` a ``rowID`` producido ``['rowID', 'rowid']``, que se ve bien en pandas y hace ``to_sql`` elevar ``duplicate column name: rowid``. Esta es la misma regla, y el mismo razonamiento, que el renombrado a nivel de base de datos en :mod:`spacr.database_schema` — vea el comentario allí acerca de una microplaca de laboratorio cuya base no se pudo abrir en absoluto.\n\nUna columna está excluida de su propia comparación, por lo que un reespelado puro (``rowid`` -> =``rowID``, una columna, un identificador en lo que se refiere a SQLite) todavía se hace en lugar de ser leído como una colisión consigo mismo.\n\n:param columns: los nombres de la columna del marco, en orden.\n:param requested: opciones opcionales explícitas ``{source: canonical_target}`` suministradas por el solucionador de metadatos. Pasan a través del mismo protector de colisión plegado en caso como alias incorporados.\n:returns: ``dict`` mapeando cada nombre renombrable a su forma canónica; vacío cuando no hay nada que hacer.",
+      "translation_source_blocks_sha256": [
+        "55ab7a66212fb567fcd5baaa60ab99c3b299f6e5ceddcc1e8074b3c2b5523659",
+        "10e8e00aa37812ea8f6268e85af0a54faec69634cf95520add05a4872bfcdbd1",
+        "6c2f4d3d53f1b492a6046eafd9ff750c57e1066fe1b80ab24670c61ebb91e32d",
+        "d50f1ae60a03109c6320d7fcb7051ba1bb1476ef5c14552925a3b68e8afeb82a",
+        "fa0ebe3e01284357a9b6f1aaf608d517fa6d4bc85f3bf027dfff554bd0affa2b",
+        "86c9802a01af2ca2f3bcd8e69fa79ca29c4780997b3ab0be9ad59630f279f1a0",
+        "c4ab4b7b79192bf3b0c196664acec894c92bd2ad8b1a9c44bdda4f753422a23e"
+      ]
+    },
     "spacr.schema.canonicalise_columns": {
       "source_blocks_sha256": [
         "37569fe4692a5d4a8d6c3fb37104b333b07a9fb65022cbd36dd62e995a36476d",
         "cc8547b6276eb63f55006b9f8354b98de1d5151c79c885b7152fb3c477254372",
         "e21ba80260fef567f105274d2a6e210ac209b427d13131e9a62b7c269b92d0dd",
+        "0bb89b5f07f4ea2352ec8f437a13f44032314181faba687aa09bdee1598ebf8c",
         "a438eb9322d996d13cf762ed5e4fced6e9c07b5bfb7a4f55a6475dbf1f5a9088",
         "4adbdf9c9a059559a9940100742d18d2bdb92c5e09dc9b144912fd81a48cfc8b"
       ],
-      "source_sha256": "4f73691e411dbc71818d2634af2244897ea44d0d14930c3422fdbb9eca2ddf22",
-      "text": "Return ``df`` con cada nombre de columna heredado renombrado canónicamente.\n\nMetadatos (:data:`LEGACY_COLUMN_NAMES`) *y* las grafías de características heredadas (:data:`LEGACY_COLUMN_PATTERNS`) — esto se utiliza para fijar sólo el primero mientras que ``utils.canonicalize_measurement_columns``, el otro canonicalizador de nivel de marco, fija ambos. Ambos ahora llaman uno :func:`canonical_column_name`, por lo que un marco obtiene las mismas columnas cualquiera de los dos un llamante alcanzado.\n\nUn renombrado es **skipped cuando el nombre canónico ya está presente**, que es la misma regla ``utils.rename_columns_in_db`` sigue: un marco que lleva ambas ortografías mantiene ambos intactos en lugar de tener uno sobrescribir silenciosamente el otro. Abandonar datos para ordenar un nombre nunca es el comercio correcto — un humano puede decidir qué columna es autoritativa, y hasta entonces ambos permanecen accesibles.\n\n:param df: :class:`pandas.DataFrame` cuyas columnas pueden utilizar nombres heredados.\n:returns: un nuevo marco con nombres canónicos de columna.",
+      "source_sha256": "9feb611c3f8165a0ae3b454fd226b88d905a626df8a1ae800ad9e86f5629ab32",
+      "text": "Return ``df`` con cada nombre de columna heredado renombrado canónicamente.\n\nMetadatos (:data:`LEGACY_COLUMN_NAMES`) *y* las grafías de características heredadas (:data:`LEGACY_COLUMN_PATTERNS`) — esto se utiliza para fijar sólo el primero mientras que ``utils.canonicalize_measurement_columns``, el otro canonicalizador de nivel de marco, fija ambos. Ambos ahora llaman uno :func:`canonical_column_name`, por lo que un marco obtiene las mismas columnas cualquiera de los dos un llamante alcanzado.\n\nUn renombrado es **skipped cuando el nombre canónico ya está presente**, que es la misma regla ``utils.rename_columns_in_db`` sigue: un marco que lleva ambas ortografías mantiene ambos intactos en lugar de tener uno sobrescribir silenciosamente el otro. Abandonar datos para ordenar un nombre nunca es el comercio correcto — un humano puede decidir qué columna es autoritativa, y hasta entonces ambos permanecen accesibles.\n\n\"Already present\" se decide caso-insensiblemente por :func:`canonical_rename_plan`, porque estos marcos se escriben con ``to_sql`` y SQLite compara los identificadores caso-insensiblemente.\n\n:param df: :class:`pandas.DataFrame` cuyas columnas pueden utilizar nombres heredados.\n:returns: un nuevo marco con nombres canónicos de columna.",
       "translation_source_blocks_sha256": [
         "37569fe4692a5d4a8d6c3fb37104b333b07a9fb65022cbd36dd62e995a36476d",
         "cc8547b6276eb63f55006b9f8354b98de1d5151c79c885b7152fb3c477254372",
         "e21ba80260fef567f105274d2a6e210ac209b427d13131e9a62b7c269b92d0dd",
+        "0bb89b5f07f4ea2352ec8f437a13f44032314181faba687aa09bdee1598ebf8c",
         "a438eb9322d996d13cf762ed5e4fced6e9c07b5bfb7a4f55a6475dbf1f5a9088",
         "4adbdf9c9a059559a9940100742d18d2bdb92c5e09dc9b144912fd81a48cfc8b"
       ]
@@ -86235,6 +87045,30 @@
         "99243db0926c2766bf572701808634cb52c75b01aba5272db413cd60b6d12eae",
         "c650e0b20a4e44cd2ac756aec216f6caaa1377c054fc3f02bdd174f4435aa894",
         "fa75688ae63f4269bdcfcbfce78167349783bfea8aac05084c4345e9e08c9ebb"
+      ]
+    },
+    "spacr.schema.escape_field_stem_plate": {
+      "source_blocks_sha256": [
+        "39078358f0c52ca45149390ba24eac436ce2e1d15abeda19eb7b47fbb3967295",
+        "53f5458bb3b78014afd7c56fa646100c10cbd134d377886de4ae19e3ded6b29b"
+      ],
+      "source_sha256": "de7325770557d4172ecd42dcf8badd43819fe015cda67d8a45380a7bd5d5df59",
+      "text": "Devuelve un vástago del campo de visión del microscopio con su componente de microplaca de laboratorio de texto libre escapado.\n\nLos escritores conocen la gramática y por lo tanto saben cuántos tokens de cola fija pertenecen a la posición de muestra de microplaca/campo de microscopio de visión/tiempo. Unirse a todo antes de esa cola es el id de micro plate de laboratorio inequívoco; escapar de él antes de emitir un nombre de archivo región de imagen extraído es lo que permite al lector dividir el nombre sin adivinar.",
+      "translation_source_blocks_sha256": [
+        "67326dc56ab64747654a117f579cf41c3874ade60ceb52b35f94c35f4dcd801a",
+        "1dccb1ba7a1884d03095a615765b2b417b5ed95265ae31787a41737106405049"
+      ]
+    },
+    "spacr.schema.escape_filename_component": {
+      "source_blocks_sha256": [
+        "175bad4341fa2a500b5d9bb95f0a05c2ea45bdd669ccd83fe50ef439e26b2db6",
+        "b31f7c24ed080af8d1f21db032d3371973706044c1b43c8d818b7b35d7bf1af3"
+      ],
+      "source_sha256": "6801dcbb33f82400a30b789ea3f10cd57cadad0de53b7c18d5d7875c41464fae",
+      "text": "Escapar de un componente de texto libre para un nombre de archivo separador-delimitado.\n\nEsto utiliza la misma tabla reversible que unir nombres de datos estructurados. En particular, ``'my_plate'`` se convierte en ``'my%5Fplate'`` y un porcentaje literal se escapa primero, por lo que el análisis no puede fusionarlo con un separador codificado.",
+      "translation_source_blocks_sha256": [
+        "175bad4341fa2a500b5d9bb95f0a05c2ea45bdd669ccd83fe50ef439e26b2db6",
+        "8a7d3f2386d41db8d64b7fe6433bbc541db0d6d43f93bc888b3ca6133f2bcbce"
       ]
     },
     "spacr.schema.field_id": {
@@ -86857,6 +87691,16 @@
       "text": "``'t7'`` → ``7``; un id → ``None`` que no se puede comparar.",
       "translation_source_blocks_sha256": [
         "585b74c2e58e590ed4e536bd7e996e823d1725dcd5c6162bc242f4c56eedf1c3"
+      ]
+    },
+    "spacr.schema.unescape_filename_component": {
+      "source_blocks_sha256": [
+        "85e7c9641701dd1cccceeb68d76c7d951f55c65e857b7eb6f776b2000ef81045"
+      ],
+      "source_sha256": "85e7c9641701dd1cccceeb68d76c7d951f55c65e857b7eb6f776b2000ef81045",
+      "text": "Invertir :func:`escape_filename_component`.",
+      "translation_source_blocks_sha256": [
+        "85e7c9641701dd1cccceeb68d76c7d951f55c65e857b7eb6f776b2000ef81045"
       ]
     },
     "spacr.schema.validate_object_table_frame": {
@@ -89463,6 +90307,18 @@
         "a49f6fce2a3345d0b128b5c431099dee02454e94b294af0a597c1710b7a9524e",
         "0d2393069739d827acc1512b7013b37a2d4303a2ea5042fe561c34f6ff91348f",
         "e900fe2563d3b07467f7fe37a32787e6683f586c84ec3cb852de661e573b2628"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies": {
+      "source_blocks_sha256": [
+        "cf6540f31379bc287e62e2658af544f42f28e2bfc96d8997aa33784152a362a0",
+        "98584b56b23eab40bdcaa3f8e8af15ba398f6dbe7da6e8ef88c23fc9b9603baf"
+      ],
+      "source_sha256": "d0a511f31a618ec5d8def7fbed623f2263622c1ddd9d3b65234e55c005136a46",
+      "text": "Return revisó las reglas de configuración que actualmente no tienen efecto.\n\nLas reglas del estimador se generan a partir de ``ml.REGRESSION_SETTINGS_USED`` -- el mismo inventario que rechaza los botones no utilizados en el tiempo de ejecución -- por lo que el GUI no puede derivar en habilitar una configuración que el motor seleccionado rechaza.",
+      "translation_source_blocks_sha256": [
+        "cf6540f31379bc287e62e2658af544f42f28e2bfc96d8997aa33784152a362a0",
+        "98584b56b23eab40bdcaa3f8e8af15ba398f6dbe7da6e8ef88c23fc9b9603baf"
       ]
     },
     "spacr.settings.get_timelapse_settings": {
@@ -94807,16 +95663,16 @@
       "source_blocks_sha256": [
         "601a8fc6b45716e76c561669cc296fa282e725587d79c6ce0a5068899e2b5079",
         "6fc2df3624046a4d490e78c7aebb221c8561d133d13596b9ba8554b69766b937",
-        "3c0af208f001897f4511be911a29e9aee4586e9c4b753cd29b5781291c51f358",
+        "2348b977a3d25e2cfe5078ab7624c9167e49383dad7f47791234e8f3e5d959f8",
         "0721b75b82ed36c128cfa27b4c368b43bd79a901eb5604d273fc898c446411d3",
         "ae25d66fa04c69fca4c6124955bbbb8842c6659ed9645f69b6ee20e6511b8388"
       ],
-      "source_sha256": "5a380dc4ac1da044262a145a2968d868c9eea86d1da03a797aafc3df38f542b1",
-      "text": "Renombrar las ortografías de columna heredadas en un marco de medición en memoria.\n\nLa contraparte DataFrame de :func:`rename_columns_in_db`, para marcos que no provienen de una base de datos spaCR y que por lo tanto nunca pasan por ella — un CSV exportado por una versión anterior, o un marco un usuario se ensamblan.\n\nSigue la misma regla nunca destructiva: un renombrado cuyo objetivo ya está presente se salta, por lo que un marco que lleva ambas ortografías mantiene ambos en lugar de perder uno a un duplicado silenciosamente caído.\n\n:param df: Un DataFrame de medición.\n:returns: ``df`` con nombres de columna heredados reemplazados (no se hace una copia; el marco se renombra y se devuelve).",
+      "source_sha256": "c95b6f33b5f42ffd3611a419658650e5a47958d886a7fdf1cad434e32c233bcd",
+      "text": "Renombrar las ortografías de columna heredadas en un marco de medición en memoria.\n\nLa contraparte DataFrame de :func:`rename_columns_in_db`, para marcos que no provienen de una base de datos spaCR y que por lo tanto nunca pasan por ella — un CSV exportado por una versión anterior, o un marco un usuario se ensamblan.\n\nSigue la misma regla nunca destructiva: un cambio de nombre cuyo objetivo ya está presente se salta, por lo que un marco que lleva ambas ortografías mantiene ambos en lugar de perder uno a un duplicado silenciosamente caído. La regla en sí vive en :func:`spacr.schema.canonical_rename_plan`, que esto y ``schema.canonicalise_columns`` ambos llaman para que los dos canónicos de marco no puedan separarse de nuevo — y que pliega el caso, porque estos marcos están escritos con ``to_sql`` y SQLite compara los identificadores caso-insensiblemente.\n\n:param df: Un DataFrame de medición.\n:returns: ``df`` con nombres de columna heredados reemplazados (no se hace una copia; el marco se renombra y se devuelve).",
       "translation_source_blocks_sha256": [
         "601a8fc6b45716e76c561669cc296fa282e725587d79c6ce0a5068899e2b5079",
         "6fc2df3624046a4d490e78c7aebb221c8561d133d13596b9ba8554b69766b937",
-        "3c0af208f001897f4511be911a29e9aee4586e9c4b753cd29b5781291c51f358",
+        "2348b977a3d25e2cfe5078ab7624c9167e49383dad7f47791234e8f3e5d959f8",
         "0721b75b82ed36c128cfa27b4c368b43bd79a901eb5604d273fc898c446411d3",
         "ae25d66fa04c69fca4c6124955bbbb8842c6659ed9645f69b6ee20e6511b8388"
       ]
@@ -97351,6 +98207,68 @@
       "translation_source_blocks_sha256": [
         "b33a5820b154e5ffeabaff35b3615206252acd4e4b74cad9f715430e795777cb",
         "90cd74dba64a03103fe0ce306482c19be3ffe61aebbe9e8140b0ea13c267ca88"
+      ]
+    },
+    "spacr.volcano_style": {
+      "source_blocks_sha256": [
+        "73682f2e9c599cf50847ccbfc38ec6246c16931cbecc4b3a9bf7582cf5fe9982",
+        "50c8f7530ed61fce0c247541a4106a4eac75145a222aa19df61eb842078ade1b",
+        "36443a4066802e7a713317af21afb08981aca036ac053fb884e05f95cc1e7548"
+      ],
+      "source_sha256": "d5681792b7da2413021db4b138e6b61322d42ec5f7289f22ddbc7ceb0d9e8603",
+      "text": "La apariencia completa de una parcela volcánica, como datos en lugar de argumentos.\n\n:class:`VolcanoStyle` contiene cada ajuste que el explorador interactivo expone, por lo que un objeto puede ser entregado al renderizador, guardado junto a una figura, recargado y reproducido para reproducir exactamente una trama. El renderista es una función simple de ``(results, style)`` sin Qt en él, que es lo que permite que el mismo código dibuje el sin interfaz gráfica PDF escrito por una sesión de procesamiento de flujo de trabajo y el lienzo en vivo en el que el usuario hace clic -- no pueden derivar, porque sólo hay uno de ellos.\n\nDividir el estilo de esta manera es también lo que hace \"exportar exactamente lo que estoy mirando\" verdadero: la ruta de exportación vuelve a renderizarse desde el mismo objeto a un tamaño diferente y dpi en lugar de hacer una captura de pantalla del widget.",
+      "translation_source_blocks_sha256": [
+        "73682f2e9c599cf50847ccbfc38ec6246c16931cbecc4b3a9bf7582cf5fe9982",
+        "877a66ee21edbe512583a260095b21dceefd4ec057f06b6729f7ddbb599d96c2",
+        "36443a4066802e7a713317af21afb08981aca036ac053fb884e05f95cc1e7548"
+      ]
+    },
+    "spacr.volcano_style.VolcanoStyle": {
+      "source_blocks_sha256": [
+        "4aff845dfc43bc1f257e33856576efebb2e4cb34c6240916a5ae8bd8fe4220e8"
+      ],
+      "source_sha256": "4aff845dfc43bc1f257e33856576efebb2e4cb34c6240916a5ae8bd8fe4220e8",
+      "text": "Cada perilla que expone el volcán. Los valores predeterminados reproducen la trama de flujo de trabajo.",
+      "translation_source_blocks_sha256": [
+        "4eac6d08bb7a2772d33b5ec9d90720125cf1fc3be942f1faddde2099fa98137d"
+      ]
+    },
+    "spacr.volcano_style.VolcanoStyle.from_dict": {
+      "source_blocks_sha256": [
+        "f98f5af496bd015277d0000806bf024eedd6d897065e290994b154c66e65baed",
+        "d732e83189a5fdb03ad7e8d740c806d5bb4902ae528249a765a1ce352f8c9f4f"
+      ],
+      "source_sha256": "5487f48947c23697a9a33c2c583866ec2aa2341dd8d9fbab49441cd798ed54a9",
+      "text": "Construir a partir de un mapeo de valor clave, ignorando los nombres de datos estructurados que esta versión no conoce.\n\nForwards-compatible a propósito: un estilo guardado por un nuevo spaCR todavía carga aquí, menos los ajustes que no existían todavía.",
+      "translation_source_blocks_sha256": [
+        "2376faa23164012c0acb4d9042696e06a78733f480ffdedaa22b9961d5e3ad74",
+        "d732e83189a5fdb03ad7e8d740c806d5bb4902ae528249a765a1ce352f8c9f4f"
+      ]
+    },
+    "spacr.volcano_style.point_details": {
+      "source_blocks_sha256": [
+        "4f72e15fdbc21a06280923d57974b8005829e0a3ec3a19f784c0b83550e1c33d",
+        "7a9d303579f68a9ad05aea94a5ffd5048af92dcfcbb325de6c8275f9b66ef2a6"
+      ],
+      "source_sha256": "e45a16c13071cd9e27af9d7e67f45094d8458a0c878b69638a2a4e010179c1fb",
+      "text": "Todo lo que se sabe sobre un punto trazado, para el manejador de clics.\n\nDevuelve cada columna de la fila, más las coordenadas trazadas derivadas, por lo que el panel puede mostrar tanto lo que fue trazado y lo que vino.",
+      "translation_source_blocks_sha256": [
+        "4f72e15fdbc21a06280923d57974b8005829e0a3ec3a19f784c0b83550e1c33d",
+        "7a9d303579f68a9ad05aea94a5ffd5048af92dcfcbb325de6c8275f9b66ef2a6"
+      ]
+    },
+    "spacr.volcano_style.render_volcano": {
+      "source_blocks_sha256": [
+        "4d409a79cafb0bb81294af870e2d92f6820778bcd96c6b2ee6fa18a538fc8bd3",
+        "e5be073e63560bbcbdd5294bddd0e30888b246e6ad6b69c935592f834c26c70b",
+        "8bbb6d41b0976f1f1b9267783a007f9ca2553398463ec9070c0264682cdc351c"
+      ],
+      "source_sha256": "842ca2e794418173f5aa23f66deff70be9804923d3abdd7714faef0510fb9e34",
+      "text": "Dibuja el volcán descrito por ``style`` y regresa ``(figure, axes)``.\n\n:param figure: dibujar en esta figura en lugar de crear uno, por lo que un lienzo en vivo puede ser redibujado en su lugar.\n:param save_path: También escriba la figura aquí. La extensión elige el formato; ``.pdf`` permanece vector.",
+      "translation_source_blocks_sha256": [
+        "4d409a79cafb0bb81294af870e2d92f6820778bcd96c6b2ee6fa18a538fc8bd3",
+        "e5be073e63560bbcbdd5294bddd0e30888b246e6ad6b69c935592f834c26c70b",
+        "8bbb6d41b0976f1f1b9267783a007f9ca2553398463ec9070c0264682cdc351c"
       ]
     },
     "spacr.zstack": {
