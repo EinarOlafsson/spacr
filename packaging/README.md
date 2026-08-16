@@ -68,6 +68,13 @@ The native installers cannot all be generated on one local operating system.
 The GitHub workflow runs each builder on its matching native runner and then
 calls the collection command once all three artifacts exist.
 
+The download block is a row of three drawn platform icons rather than text
+links. `packaging/generate_platform_icons.py` regenerates
+`spacr/resources/icons/platforms/{windows,macos,linux}.png` and exits non-zero
+if one glyph drifts outside the shared weight band, so no platform can quietly
+become the loud one. Re-run it only when the artwork changes; `release.py
+collect` moves the links forward without touching the icons.
+
 ## One-click releases
 
 Run **Actions → release spaCR → Run workflow**, enter the new version, and
