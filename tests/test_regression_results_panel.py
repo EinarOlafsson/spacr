@@ -37,7 +37,7 @@ class TestItOpensIntoTheResults:
         assert panel.set_frame(results, source="results.csv")
 
         assert [panel.tabs.tabText(i) for i in range(panel.tabs.count())] == \
-            ["Volcano", "p-values", "Q-Q", "Controls", "Guide support"]
+            ["Volcano", "p-values", "Q-Q", "Controls", "Guide support", "Gene"]
         assert panel.table.table.rowCount() == len(results)
         assert "Inflation" in panel.qq._status.text()
         assert "negative" in panel.controls._status.text()
