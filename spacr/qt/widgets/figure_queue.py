@@ -695,10 +695,14 @@ class FigureQueue(QWidget):
         figure = self.figure_for(self._current)
         if figure is None:
             return
+        # NO REFRESH AFTER exec(). The dialog's closeEvent already lands a
+        # full-quality redraw before it returns, so a second call here
+        # rendered the same figure twice on every close -- measured at ~263 ms
+        # each on a 823-point volcano, i.e. half a second of dead GUI for one
+        # of them to overwrite the other with an identical picture.
         FigureSettingsDialog(
             figure, self, on_change=self.refresh_current_figure,
             propagate_callback=self._propagate_cb).exec()
-        self.refresh_current_figure()
 
     def show_figure_menu(self, position, idx: Optional[int] = None) -> None:
         """Right-click menu for a figure, from the view or a thumbnail.
