@@ -170,6 +170,38 @@ def test_the_metadata_frame_the_caller_passed_is_not_retyped_underneath_them():
     assert metadata['gene_nr'].tolist() == [220001, 220002]
 
 
+def test_a_volcano_does_not_resize_the_text_of_the_next_plot():
+    """Opening one figure must not restyle the ones opened after it.
+
+    The volcano draws at 18pt, which is right for a volcano and wrong for
+    everything else -- and it used to set that with a bare ``rcParams.update``,
+    which is process-wide. Every plot the session drew afterwards came out at
+    18pt: other screens, other modules, and whatever the user had chosen in
+    figure preferences, overridden by whichever figure they happened to open
+    first.
+
+    The volcano's own text must still be 18pt, so both halves are asserted.
+    """
+    import matplotlib.pyplot as plt
+
+    before = matplotlib.rcParams['font.size']
+    data = _results([(220001, 1), (220002, 1)])
+    metadata = pd.DataFrame({
+        'gene_nr': [220001, 220002],
+        'tagm_location': ['cytosol', 'Golgi'],
+    })
+
+    T.custom_volcano_plot(data, metadata, figsize=4, threshold=0)
+
+    assert matplotlib.rcParams['font.size'] == before, (
+        "the volcano left its 18pt font on matplotlib's globals; every figure "
+        "drawn after it in the same session inherits the size")
+    # ...and it did draw at its own size while it had the chance.
+    axis = plt.gcf().axes[0]
+    assert axis.xaxis.label.get_fontsize() == 18
+    plt.close('all')
+
+
 def test_the_shipped_lopit_metadata_satisfies_the_contract():
     """The production path must not be the thing the new contract breaks.
 
