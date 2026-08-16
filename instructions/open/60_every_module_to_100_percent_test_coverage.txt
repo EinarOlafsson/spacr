@@ -440,8 +440,38 @@ PROGRESS THIS PASS
 
     spacr/active_learning.py       99%  ->  100%   (6 lines, 4 branches)
     spacr/multi_database.py        89%  ->  100%   (13 lines)
+    spacr/pipeline_graph.py        97%  ->   99%   (8 -> 1)
     spacr/anndata_export           97%  ->   99%   (18 -> 7)
+    spacr/filters.py               80%  ->   88%   (74 -> 43)
+    spacr/chaining.py              65%  ->   85%   (226 -> 99)
+    spacr/hit_attribution.py       66%  ->   75%   (198 -> 144)
     spacr/gpu_reduce.py            55%  ->   68%   (47 -> 34)
+
+    ~470 uncovered statements closed, over eight modules.
+
+ONE REAL BUG, found by a new test and fixed rather than documented:
+`hit_attribution.revert_promotion` reached straight into
+`hit_promotion_audit`, a table only `promote_calls` creates. On a database
+where nothing had ever been promoted, undoing raised a raw
+`sqlite3.OperationalError: no such table` out of a spaCR API. Its own
+contract already said what should happen -- `if not rows: return 0` -- and a
+missing table IS no rows. An undo that crashes when there is nothing to undo
+makes a stray click look like a corrupt database.
+
+FOUR TEST ASSUMPTIONS WERE WRONG and were corrected against the code rather
+than loosened, which is the rule this instruction sets:
+`gpu_reduce.ENV_FLAG` is opt-OUT not opt-in; `make_reducer` returns the
+backend as `'cuml'` not `'gpu'` (naming the LIBRARY, which is what
+provenance needs); `pipeline_graph.Node.label` is `"module: filename"`, not
+the basename; and `filters.choose_anchor(())` REFUSES with a message naming
+every table it looked for, rather than returning `""`.
+
+WHAT THE PASS SUGGESTS ABOUT WHERE THE REST IS. Of the eight, only two --
+chaining and gpu_reduce -- were genuinely under-tested. The others were
+already 96-99% and simply had defensive branches nobody had reached. So the
+non-Qt half is in better shape than 92.8% implies, and the remaining work
+there is mostly `except` paths rather than whole untested features. The
+expensive half is Qt, which this leg cannot see.
 
 No `pragma: no cover` was added anywhere. `gpu_reduce` is worth a note: it
 looked like a module that could not be tested without a GPU, and it is not --
