@@ -3404,7 +3404,23 @@ class AppScreen(QWidget):
             elif isinstance(value, str) and value.strip():
                 candidates.append(os.path.dirname(value.strip()))
 
+        # THE NEWEST RUN ACROSS ALL THE ROOTS, not the first root that happens
+        # to contain any results at all. `src` and the count-data folder are
+        # different places and both can hold a table, so "the first one that
+        # loads" can be last month's.
+        from ..widgets.regression_results import find_results_tables
+
+        ranked = []
         for candidate in candidates:
+            tables = find_results_tables(candidate)
+            if tables:
+                try:
+                    ranked.append((os.path.getmtime(tables[0]), candidate))
+                except OSError:          # vanished between listing and stat
+                    continue
+        ranked.sort(reverse=True)
+
+        for _stamp, candidate in ranked:
             if panel.load(candidate):
                 # The results are always on screen now -- they are the left
                 # half, not a tab -- so there is nothing to switch to. Show
@@ -3413,6 +3429,20 @@ class AppScreen(QWidget):
                 self._show_figure_grid()
                 self._figures_card.show()
                 return True
+
+        # NOTHING LOADED, AND THAT USED TO BE SILENT: the panel sat there with
+        # its columns and no rows, which reads as a run that produced nothing.
+        if ranked:
+            pass                      # panel.load already said why, on screen
+        elif candidates:
+            panel.load(candidates[0])         # leaves its own reason on screen
+        else:
+            panel.say(
+                "The run finished, but its settings name no output folder -- "
+                "src, count_data and score_data are all empty -- so there is "
+                "nowhere to look for a results table. Use \u201cLoad "
+                "results\u2026\u201d to point at one.")
+        self._figures_card.show()
         return False
 
     def _clear_thread_refs(self):
