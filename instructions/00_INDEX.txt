@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-92 done / 12 open (88%).
+92 done / 18 open (83%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -59,6 +59,24 @@ OPEN
 
   113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
        113_tooltips_belong_to_the_setting_not_its_field.txt
+
+  114  A PARAMETER SEARCH THAT CANNOT TAKE THE MACHINE DOWN
+       114_parameter_search_that_cannot_take_the_machine_down.txt
+
+  115  EVERY REGRESSION DIAGNOSTIC, SAVED AND SCORED -- NOT ONLY IN THE SEARCH
+       115_every_regression_diagnostic_graph_saved_and_scored.txt
+
+  116  CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
+       116_click_a_search_row_to_spawn_its_graphs.txt
+
+  117  FIGURES ON A GRID, AT THEIR OWN ASPECT, NOT STRETCHED
+       117_figures_on_a_grid_not_stretched.txt
+
+  118  FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
+       118_figure_preferences_general_and_per_graph.txt
+
+  119  THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
+       119_the_regression_figure_surface.txt
 
 --------------------------------------------------------------------------------
 DONE

@@ -78,3 +78,20 @@ HOW TO KNOW IT IS DONE
 A deliberately memory-hungry trial is killed by the kernel, the sweep records
 it and continues, and free memory never moves. Verified the same way the cap
 itself was: run a hog under the cap and watch it die alone.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: THE SYMPTOM IS NAMED: VS CODE DIED
+--------------------------------------------------------------------------------
+
+"the paramiter search needs to be verry safe so it dosnt crash spacr or the
+machine (it crashed vscode many tinmes)".
+
+VS Code dying is the observable, and it is diagnostic: the editor is not
+part of the sweep, so it was killed ALONGSIDE it -- which is what an OOM
+killer does. Whatever this builds has to bound MEMORY, not just worker
+count. A cap of N workers on a box that cannot hold N is still a crash.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.

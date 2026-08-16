@@ -48,3 +48,18 @@ HOW TO KNOW IT IS DONE
 A run's seventeen figures are visible by scrolling one panel, a plate heatmap
 is still the shape of a plate, and no figure is drawn at an aspect ratio it
 was not created with.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: ABOVE THE CONSOLE, AND CLICK TO FILL
+--------------------------------------------------------------------------------
+
+"figures should pop up in a grid above the console" and "if a figure is
+clicked it should fill the container".
+
+The second is the Image UMAP behaviour the maintainer is asking to be
+copied: a grid of small figures, one click to promote one to full size.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.

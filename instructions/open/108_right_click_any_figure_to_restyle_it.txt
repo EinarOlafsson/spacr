@@ -137,3 +137,18 @@ cannot reproduce, which is the problem this is meant to remove.
 
 Not rewriting all sixty-odd plotting functions at once. Point 2 is per figure
 type, in the order a screen actually produces them.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: EDITABLE **AND SAVABLE**
+--------------------------------------------------------------------------------
+
+"all gigures should be editable by right clicking" and "each figure should
+be editable and savable".
+
+SAVABLE is the half this file did not carry. A restyled figure the user
+cannot export is a restyle they redo every time they need the picture.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.
