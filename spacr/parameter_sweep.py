@@ -242,11 +242,26 @@ def build_trials(space: SweepSpace, *, mode: str = "grid",
     trials, rejected = [], []
     for combination in combinations:
         trial = dict(zip(names, combination))
+        # THE FIXED VALUES ARE PART OF THE TRIAL BEFORE IT IS JUDGED.
+        #
+        # This used to run AFTER accept(), which meant every filter decided on
+        # a half-built trial. The GUI pins each UNTICKED axis into `fixed`
+        # (qt/screens/parameter_sweep.py), so the settings a user did not vary
+        # were exactly the ones the filters could not see -- and
+        # `permutation_at_cell_level_exhausts_memory` read `analysis_unit` as
+        # None and passed.
+        #
+        # Reproduced with stock filters and nothing exotic: axes
+        # {"inference": ["parametric", "nonparametric"]} with
+        # fixed {"analysis_unit": "cell"} emitted the nonparametric x cell
+        # permutation, which is the ~57 GiB run. Unticking one checkbox was
+        # enough to schedule it, and the filter written to prevent exactly
+        # that was already in the default list.
+        trial.update(space.fixed)
         reason = accept(trial)
         if reason:
             rejected.append((trial, reason))
             continue
-        trial.update(space.fixed)
         trial["trial_id"] = len(trials) + 1
         trials.append(trial)
         if len(trials) >= max_trials:
@@ -532,15 +547,34 @@ _THREAD_LIMITS = None
 
 
 def be_polite() -> None:
-    """Drop this process's CPU and I/O priority.
+    """Drop this process's CPU, I/O and OOM-kill priority.
 
     A sweep must never win a scheduling contest against the user's editor.
     Applied inside each worker so it is a property of the work, not of
     however the sweep happened to be launched.
+
+    THE OOM HALF IS WHY VS CODE KEPT DYING. Nice and ionice decide who waits;
+    they say nothing about who gets KILLED when memory runs out. Left alone,
+    the kernel scores by resident size and picks the biggest process on the
+    box -- which during a sweep is an Electron editor holding a gigabyte,
+    not a worker holding six. The user loses their editor and the sweep
+    carries on, which is exactly backwards.
+
+    ``oom_score_adj`` is the knob that fixes it: a positive value volunteers
+    this process first. 800 of a possible 1000 puts every worker far ahead of
+    anything interactive without quite guaranteeing it is chosen over a
+    genuinely runaway process elsewhere.
     """
     try:
         os.nice(19)
     except (OSError, AttributeError):  # pragma: no cover
+        pass
+    try:
+        # Linux only, and best effort: a container or a hardened kernel may
+        # refuse the write, which is not a reason to fail a sweep.
+        with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as handle:
+            handle.write("800")
+    except OSError:  # pragma: no cover - not Linux, or not permitted
         pass
     try:
         import subprocess

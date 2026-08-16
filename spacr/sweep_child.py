@@ -20,6 +20,17 @@ for _variable in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
                   "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
     os.environ.setdefault(_variable, "1")
 
+# Volunteer for the OOM killer, before importing anything large. Same reason
+# as spacr.parameter_sweep.be_polite: left alone the kernel scores by resident
+# size and kills the biggest process on the box, which during a sweep is the
+# user's editor and not this child. Repeated here because a contained trial is
+# exec'd into a fresh interpreter and never runs be_polite.
+try:
+    with open(f"/proc/{os.getpid()}/oom_score_adj", "w") as _handle:
+        _handle.write("800")
+except OSError:  # pragma: no cover - not Linux, or not permitted
+    pass
+
 import json  # noqa: E402
 import sys  # noqa: E402
 import time  # noqa: E402
