@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.metadata_resolution.MetadataDecision#0",
+      "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
+      "source": "One all-at-once answer returned by a UI or a saved setting.",
+      "context": "One all-at-once answer returned by a UI or a saved setting.",
+      "translation": "Une réponse unique et complète renvoyée par une UI ou un paramètre enregistré."
+    },
+    {
+      "label": "spacr.parameter_sweep.run_sweep_parallel#2",
+      "source_sha256": "8a670accd0ec4d52c44e88e301afa57c5b9eacb576423aa15730820e5acc1112",
+      "source": "The adaptive skip that :func:`run_search` uses is deliberately absent here: it depends on the order failures are observed in, which is not deterministic across workers, and a reproducible trial list matters more than the trials it would save.",
+      "context": "The adaptive skip that :func:`run_search` uses is deliberately absent here: it depends on the order failures are observed in, which is not deterministic across workers, and a reproducible trial list matters more than the trials it would save.",
+      "translation": "Le saut adaptatif utilisé par :func:`run_search` n'est volontairement pas appliqué ici : il dépend de l'ordre dans lequel les échecs sont observés, ordre qui n'est pas déterministe entre les processus d'exécution, et une liste d'essais reproductible importe davantage que les essais ainsi évités."
+    }
+  ]
+}

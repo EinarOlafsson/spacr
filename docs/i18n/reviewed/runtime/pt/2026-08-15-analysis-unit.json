@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "reviewed_at": "2026-08-15",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "analysis_unit",
+      "source_sha256": "09eef8d8d4dc43339a7a372552ddae6cdcaf4ced30ed138a0f241f57a15cd695",
+      "source": "What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
+      "translation": "O que representa uma linha do modelo. 'well' reúne primeiro os objetos de cada poço em um único valor usando agg_type; assim, o poço é a unidade independente, e o número de células que o compõem afeta apenas a precisão. 'cell' ajusta a regressão aos objetos individuais; isso preserva a sensibilidade estatística, mas trata como independentes células do mesmo poço, embora não sejam, de modo que os erros-padrão ficam otimistas a menos que o modelo leve o agrupamento em conta (regression_type='mixed'). Esta é a forma explícita de escrever agg_type=None, que antes alterava silenciosamente a unidade de análise. Padrão: 'well'."
+    }
+  ]
+}

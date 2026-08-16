@@ -31,6 +31,14 @@ It also prints, on the way past:
 
 which is consistent: no masks, so no objects, so no object table.
 
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The stage can report completion and publish a manifest while omitting its
+principal output. Downstream relationship and measurement work then fails
+later, obscuring the actual segmentation failure.
+
 WHY IT IS INVISIBLE. The test is `@pytest.mark.slow` + `@pytest.mark.network`.
 The fast leg excludes both, so this never runs there, and it did not surface
 in the CI Slow leg either. It only appeared under an ad-hoc `-k` sweep that
