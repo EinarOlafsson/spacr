@@ -142,12 +142,21 @@ class TestFindingTheResultsOnDisk:
         assert panel.table.table.rowCount() == len(results)
 
     def test_a_bad_path_reports_instead_of_raising(self, qtbot, tmp_path):
+        """And says WHICH bad path, and in what way it was bad.
+
+        "No results table under X" covered a folder that is not there and a
+        folder with nothing in it with one sentence; they are different
+        problems and the user can only act on one of them.
+        """
         from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
         panel = RegressionResultsPanel()
         qtbot.addWidget(panel)
-        assert not panel.load(str(tmp_path / "nowhere"))
-        assert "No results table" in panel._source.text()
+        missing = tmp_path / "nowhere"
+        assert not panel.load(str(missing))
+        said = panel._source.text()
+        assert str(missing) in said
+        assert "does not exist" in said
 
 
 class TestTheGuideSupportTab:
