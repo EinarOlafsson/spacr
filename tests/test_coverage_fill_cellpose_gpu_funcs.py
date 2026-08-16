@@ -644,8 +644,12 @@ class TestRemainingBranches:
         """A saved mask must line up with the image it segmented.
 
         Same 32x32 source and 16x16 target as
-        ``test_identify_verbose_resize``, which does restore. Here the mask is
-        written at 16x16, so it cannot be overlaid on its own source image.
+        ``test_identify_verbose_resize``, which does restore. This one USED TO
+        write the mask at 16x16, so it could not be overlaid on its own source
+        image: the normalize=True branch overwrote the loader's ``orig_dims``
+        with the shapes of the ALREADY-resized images, which made "resize back
+        to orig_dims" a no-op (instruction 100, D1). It restores now, and the
+        assertion below requires the 32x32 source rather than the target.
         """
         import tifffile
         src = _make_img_dir(tmp_path / "norm_resize", size=32)

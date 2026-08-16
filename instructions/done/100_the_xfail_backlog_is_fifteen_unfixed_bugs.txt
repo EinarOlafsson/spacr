@@ -300,3 +300,103 @@ the ESCAPED plate id. That is the improvement and the new trap at once, so
 the test now asserts both halves: the naive splitter gets a plausible-looking
 `exp1%5Fplate1` instead of an error, and only `_split_prc` gives back the
 plate the user typed.
+
+--------------------------------------------------------------------------------
+RESULT 2026-08-16 - ALL FIFTEEN ARE FIXED. THIS FILE'S OWN STATUS WAS STALE.
+--------------------------------------------------------------------------------
+
+THE BACKLOG IS EMPTY. `grep -rn "mark\.xfail" tests/` returns nothing. The
+only surviving occurrences of the word in tests/ are prose. There is no
+`xfail_strict` in pytest.ini, setup.cfg, pyproject.toml or any conftest, so
+the count is not being suppressed by configuration either. The HOW TO KNOW IT
+WORKED bar -- "reports ZERO xfailed and zero xpassed" -- is met.
+
+WHAT WAS REFUTED. Every claim in this file about what is LEFT. The header says
+"ELEVEN OF FIFTEEN FIXED ... Four remain: B4, C2, C3, D2" and the WHAT IS LEFT
+section argues at length about B4, C2 and D2. All three were already fixed
+when that section was written or shortly after, each by a commit naming this
+instruction. Only C3 is correctly recorded, in the appended DECIDED 2026-08-16
+section.
+
+Each of the fifteen was re-checked against the code -- reproduced or refuted
+by running it, not by reading it:
+
+  A   FIXED. No `channels=` at any of the four `.eval(` call sites; the two in
+      object.py carry comments where the kwarg was.
+  B1  FIXED. _parse_name('exp1_plate1_B07_001') -> plate 'exp1_plate1', well
+      'B07'; C08 -> well 'C08'. Two sites, not one.
+  B2  FIXED. _WELL_TOKEN allows two letters; 'AA01' parses, F001..F004 stay
+      four distinct fields, and _well_ids('AA01') == parse_well('AA01').
+  B3  FIXED. align.py:1569 reads tile.channel. scan_tiles(reference_channel=3)
+      -> plan.reference_channel == 2, against 0 when unset.
+  B4  FIXED, CONTRARY TO WHAT IS LEFT ABOVE. align_folder(grid=(2,2)) over two
+      wells x 4 tiles returns 2 groups and does not raise. `default_settings`
+      carries group_by_well: True (align.py:2479) and passes it into
+      scan_tiles, which lays the grid out per well. Commit ec24d0c9. The
+      "group first, then lay each group out" restructure this file called for
+      is what was done. Calling scan_tiles(grid=(2,2)) DIRECTLY still raises,
+      because its own group_by_well default is False -- that is the deliberate
+      opt-out and has a test pinning it.
+  B5  FIXED. _ReaderCache.MIN_OPEN = 2, so _ReaderCache(1).max_open == 2.
+      estimate_offsets(max_open_tiles=1) now gives byte-identical output to
+      max_open_tiles=8.
+  C1  FIXED. canonicalise_columns(['row','rowid']) -> ['row','rowID'] and
+      to_sql succeeds. utils.canonicalize_measurement_columns returns the
+      identical list, so the two canonicalisers agree.
+  C2  FIXED, CONTRARY TO WHAT IS LEFT ABOVE. compose_prcf(..., time='xy') ->
+      p_r1_c1_f1_txy, and parse_prcf reads it back with timeID='txy'. No
+      raise. Commit dc21cae0 names this instruction. The owner's call this
+      file was waiting on was made.
+  C3  FIXED, by the composer escape, exactly as the DECIDED section records.
+      Both halves: parse_field_stem('my_plate_A01_3') now RAISES rather than
+      silently returning plateID='my', and the writer escapes to
+      my%5Fplate_A01_3, which parses back to 'my_plate'. The injectivity half
+      is closed too -- 'plate1_A01_3_junk' raises ("expected exactly
+      plate_well_field (3 parts), got 4") instead of equalling the 3-part
+      parse. Commit 09a4a75d.
+  C4  FIXED. _sanitise_token('a_b') -> 'a%5Fb', ('a-b') -> 'a-b'. No collision.
+  D1  FIXED. The orig_dims recompute is gone from the normalize=True branch of
+      generate_masks_from_imgs (spacr_cellpose.py:334-339) and survives only
+      on the else branch; io.py:363 captures orig_dims right after imread,
+      before the loader resizes.
+  D2  FIXED, CONTRARY TO WHAT IS LEFT ABOVE, AND THE MAINTAINER DID DECIDE.
+      The shipped barcodes_grna.csv (1377 rows) now holds zero duplicated
+      sequences, and map_sequences_to_names accepts it. Commit cd5a8920,
+      "data: drop ambiguous shared guides (instruction 100, D2)", removed 8
+      rows. The decision was DROP, not reassign, and the three protospacers
+      dropped were:
+          GTCGCTAGGACATCCTCCAAG  TGGT1_241310_10 / _411210_10 / _411710_10
+          GCCGGCGATAGAGCCCCGCCC  TGGT1_241310_2  / _411210_2  / _411710_2
+          GCGATAGAGCCCCGCCCTGG   TGGT1_411210_3  / _411710_3
+      Three genes were involved: TGGT1_241310, TGGT1_411210, TGGT1_411710.
+
+EVERY ONE OF THE FIFTEEN HAS A REGRESSION TEST, which is the part that makes
+"fixed" durable rather than incidental. 106 of them were run for this check
+and all pass. Group A has one test per call site; B1-B5 are in
+tests/test_cov_align_naming_and_solve.py; C1-C4 are hypothesis property tests
+in tests/test_key_parsing_properties.py; D1 is
+test_generate_normalize_resize_restores_source_resolution; D2 is
+test_bundled_barcode_path_points_at_a_real_reference_csv, which asserts no
+duplicated sequence in any of the three shipped references.
+
+TWO STALE DOCSTRINGS FIXED HERE, both left behind when the markers came off,
+and both of which described the defect as still present:
+
+  * tests/test_key_parsing_properties.py said "They are xfail(strict=True) so
+    that fixing one turns this file red" of four tests that carry no marker.
+  * tests/test_coverage_fill_cellpose_gpu_funcs.py said "Here the mask is
+    written at 16x16, so it cannot be overlaid on its own source image" while
+    the assertion beneath it requires the 32x32 source.
+
+A comment that still describes a fixed bug is the same failure mode this
+instruction is about, one level down: it makes a repaired thing read as
+broken, and the next person re-investigates it.
+
+ONE THING THIS FILE ASKED FOR THAT WAS NOT DONE, recorded so it is not
+mistaken for an oversight. Step 3 said "prefer refusing an unparseable name
+over the last-resort branch that invents a channel from a well". The
+last-resort branch in align.py (~932-941, returns plate='' and well='') still
+exists. B1 and B2 no longer reach it, so nothing is contaminated by it today,
+but the branch itself was not removed.
+
+CLOSED. Fifteen of fifteen, zero xfails, every one with a test.
