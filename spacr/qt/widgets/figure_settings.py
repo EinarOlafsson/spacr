@@ -843,11 +843,30 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 
     axes = list(figure.axes)
 
+    def _notify() -> None:
+        """Redraw after a menu toggle, CHEAPLY.
+
+        A context-menu toggle is the same kind of edit the settings dialog
+        makes, and the dialog learned long ago to preview: a full-quality
+        render rewrites the raster AND the vector page, measured at ~263 ms
+        on an 823-point volcano, and the user is mid-gesture. Preview here
+        too, and let the next full render -- a resize, an export, closing the
+        settings dialog -- catch up.
+
+        `on_change` may be a callable that predates preview rendering, so the
+        keyword is offered and withdrawn rather than assumed.
+        """
+        if not on_change:
+            return
+        try:
+            on_change(preview=True)
+        except TypeError:
+            on_change()
+
     def _apply(func):
         for axis in axes:
             func(axis)
-        if on_change:
-            on_change()
+        _notify()
 
     legend_present = any(a.get_legend() is not None for a in axes)
     legend_action = QAction("Legend", parent)
@@ -863,8 +882,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
                 existing.set_visible(checked)
             elif checked and axis.get_legend_handles_labels()[0]:
                 axis.legend()
-        if on_change:
-            on_change()
+        _notify()
     legend_action.toggled.connect(toggle_legend)
     menu.addAction(legend_action)
 
