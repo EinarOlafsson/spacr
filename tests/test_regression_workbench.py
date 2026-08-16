@@ -17,6 +17,8 @@ import os
 
 import numpy as np
 import pandas as pd
+import warnings
+
 import pytest
 
 from spacr import multiple_testing as mt
@@ -499,9 +501,16 @@ def test_a_mostly_unpaired_join_is_refused_too():
 
 
 def test_a_healthy_join_passes_silently():
+    """Silently means silently: no refusal AND no warning. A guard that
+    passes but prints a scare on every healthy run trains the user to ignore
+    it, which is the same as not having it."""
     from spacr.ml import _check_score_count_pairing
 
-    _check_score_count_pairing(*_pairing_frames("plate1", "plate1"))
+    frames = _pairing_frames("plate1", "plate1")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert _check_score_count_pairing(*frames) is None
+    assert len(frames[2]) > 0, "the fixture joined nothing, so nothing was checked"
 
 
 def test_far_more_count_wells_than_score_wells_is_normal():
@@ -519,8 +528,12 @@ def test_far_more_count_wells_than_score_wells_is_normal():
         "prc": [f"plate1_r{i}_c1" for i in range(1344)]})
     dependent = pd.DataFrame({
         "prc": [f"plate1_r{i}_c1" for i in range(463)], "pred": 0.5})
-    _check_score_count_pairing(
-        independent, dependent, independent.merge(dependent, on="prc"))
+    merged = independent.merge(dependent, on="prc")
+
+    assert len(merged) == 463, (
+        "every imaged well should pair; the fixture is not the shape the "
+        "docstring describes")
+    assert _check_score_count_pairing(independent, dependent, merged) is None
 
 
 def test_partial_but_adequate_overlap_is_allowed():
@@ -531,8 +544,10 @@ def test_partial_but_adequate_overlap_is_allowed():
         "prc": [f"plate1_r{i}_c1" for i in range(100)]})
     dependent = pd.DataFrame({
         "prc": [f"plate1_r{i}_c1" for i in range(89)], "pred": 0.5})
-    _check_score_count_pairing(
-        independent, dependent, independent.merge(dependent, on="prc"))
+    merged = independent.merge(dependent, on="prc")
+
+    assert len(merged) == 89, "89 of the imaged wells should pair"
+    assert _check_score_count_pairing(independent, dependent, merged) is None
 
 
 # -------------------------------------------------------------- diagnostics
