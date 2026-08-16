@@ -416,6 +416,38 @@ def memory_is_low(floor_gib: float = 8.0) -> bool:
         return False
 
 
+#: Environment variables every numerical library reads for its thread pool.
+_THREAD_VARS = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS")
+
+
+def _pin_threads(count: int = 1) -> None:
+    """One compute thread per trial process. THIS IS WHY SWEEPS KILLED THE GUI.
+
+    Measured on a real trial: torch alone defaults to 16 threads, and with
+    BLAS and OpenMP on top a single trial peaks at 112 THREADS. Six workers is
+    then 672 runnable threads on 32 cores -- a scheduling storm that starves
+    everything else on the machine, the desktop included. It is not a memory
+    problem, which is why watching free memory never predicted it and why
+    lowering the worker count never fixed it: each worker was the problem.
+
+    nice() cannot help. A niced thread still has to be scheduled, and there
+    are twenty times more of them than there are cores.
+
+    The threads buy nothing here anyway. The same trial takes 18.4 s pinned
+    against 18.5 s unpinned: this workload is a few thousand rows of
+    statsmodels, not a matrix multiply that parallelises. Parallelism belongs
+    ACROSS trials, where it is already, not inside each one.
+    """
+    for name in _THREAD_VARS:
+        os.environ[name] = str(count)
+    try:
+        import torch
+        torch.set_num_threads(count)
+    except Exception:  # pragma: no cover - torch may be absent
+        pass
+
+
 def be_polite() -> None:
     """Drop this process's CPU and I/O priority.
 
@@ -468,6 +500,7 @@ def _execute_trial(payload):
     base_settings, trial, destination, controls = payload
     # Before anything expensive: this work yields to the user's machine.
     be_polite()
+    _pin_threads()
     from .ml import perform_regression
 
     settings, folder = _trial_settings(base_settings, trial, destination)
@@ -535,6 +568,12 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
             "its own sweep.")
 
     from concurrent.futures import ProcessPoolExecutor, as_completed
+
+    # Set here, in the parent, rather than in the worker: a spawned child
+    # inherits this environment at exec, whereas a pool initializer would run
+    # only AFTER the child has imported numpy and torch and they have already
+    # sized their thread pools from the core count.
+    _pin_threads()
 
     space = space or SweepSpace()
     if not space.filters:
