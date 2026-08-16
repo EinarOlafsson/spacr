@@ -181,6 +181,42 @@ def test_the_invented_zeros_do_not_set_the_colour_scale():
     assert high == pytest.approx(float(np.quantile(finite, 0.98)))
 
 
+def test_a_well_with_rows_but_no_readable_number_is_not_a_zero_either():
+    """One step further in than ``.fillna(0)``.
+
+    The presence map counts ROWS, and ``generate_plate_heatmap`` coerces the
+    variable with ``errors='coerce'`` -- so a well whose every row holds
+    nothing numeric aggregates to NaN, is filled with 0, and, having a row
+    count above zero, survives the mask as a measurement of zero. It then
+    sets the bottom of the shared scale, which is the whole defect again.
+    """
+    frame = pd.DataFrame({
+        "prc": ["p1_r1_c1", "p1_r2_c1", "p1_r2_c2", "p1_r3_c1"],
+        "value": [4.0, np.nan, 7.0, 8.0],
+    })
+    _names, matrices, _grid = well_matrices(frame, "value")
+    block = matrices[0]
+    assert block[0, 0] == 4.0
+    assert np.isnan(block[1, 0]), (
+        "a well whose every measurement is missing was drawn as a "
+        "measurement of zero")
+    assert int(np.isfinite(block).sum()) == 3
+    assert shared_limits(matrices, "all") == (4.0, 8.0), (
+        "the invented zero is still setting the colour scale")
+
+
+def test_a_well_that_is_only_unreadable_text_is_absent_too():
+    """``errors='coerce'`` is what turns 'n/a' into a NaN, and a column of
+    strings is what a real results table hands a plotter."""
+    frame = pd.DataFrame({
+        "prc": ["p1_r1_c1", "p1_r2_c1", "p1_r2_c2"],
+        "value": ["4.0", "n/a", "7.0"],
+    })
+    _names, matrices, _grid = well_matrices(frame, "value")
+    assert np.isnan(matrices[0][1, 0])
+    assert int(np.isfinite(matrices[0]).sum()) == 2
+
+
 def test_a_well_dropped_by_min_count_reads_as_absent_not_as_zero():
     frame = pd.DataFrame({
         "prc": ["p1_r1_c1"] * 3 + ["p1_r2_c2"] + ["p1_r3_c3"] * 3,
