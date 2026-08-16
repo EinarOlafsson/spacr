@@ -21,7 +21,11 @@ grows later is covered without editing this file.
 
 from __future__ import annotations
 
+import logging
+import os
 from typing import Callable, Optional
+
+LOG = logging.getLogger(__name__)
 
 from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtGui import QAction, QColor
@@ -906,6 +910,12 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
             submenu.addAction(action)
 
     menu.addSeparator()
+    save = QAction("Save figure as…", parent)
+    save.setToolTip("Write this figure to a file, with the styling it has "
+                    "on screen right now.")
+    save.triggered.connect(lambda: save_figure_as(parent, figure))
+    menu.addAction(save)
+
     settings = QAction("Figure settings…", parent)
     if open_settings is not None:
         settings.triggered.connect(lambda: open_settings())
@@ -913,4 +923,54 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     return menu
 
 
-__all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES"]
+def save_figure_as(parent, figure, path: str = "") -> str:
+    """Write ``figure`` to a file the user picks. Returns the path, or "".
+
+    Instruction 108 asks for a figure to be savable from the same right-click
+    that restyles it, and 119 for "each figure should be editable and
+    savable". The saved file is what is ON SCREEN: a restyle that survives to
+    the display and not to the file is a restyle the user cannot use, which
+    is the whole reason for editing a figure in the first place.
+
+    :param path: bypass the dialog. For tests, and for callers that already
+        know where the file goes.
+    """
+    if figure is None:
+        return ""
+    if not path:
+        from PySide6.QtWidgets import QFileDialog
+
+        path, _filter = QFileDialog.getSaveFileName(
+            parent, "Save figure", "figure.png",
+            "PNG image (*.png);;PDF document (*.pdf);;"
+            "SVG image (*.svg);;All files (*)")
+        if not path:
+            return ""
+
+    try:
+        from ..preferences import (figure_bg_is_transparent, get_figure_colors,
+                                   get_figure_png_dpi)
+        background, _foreground = get_figure_colors()
+        dpi = get_figure_png_dpi()
+    except Exception:                    # pragma: no cover - no settings store
+        background, dpi = "none", 200
+
+        def figure_bg_is_transparent(value):
+            return str(value).lower() in ("none", "transparent")
+
+    try:
+        # Vector formats have no meaningful DPI, and passing one makes
+        # matplotlib rasterise text in some backends.
+        vector = os.path.splitext(path)[1].lower() in (".pdf", ".svg", ".eps")
+        figure.savefig(
+            path, bbox_inches="tight", facecolor=background,
+            transparent=figure_bg_is_transparent(background),
+            **({} if vector else {"dpi": dpi}))
+    except Exception as error:           # noqa: BLE001 - report, do not raise
+        LOG.info("could not save figure to %s: %s", path, error)
+        return ""
+    return path
+
+
+__all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
+           "save_figure_as"]

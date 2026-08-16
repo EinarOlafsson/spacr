@@ -683,6 +683,36 @@ class FigureQueue(QWidget):
                 140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
         return True
 
+    def refresh_figure(self, index: int, preview: bool = False) -> bool:
+        """Re-rasterise a figure that is NOT the one on screen.
+
+        Restyling from a grid tile has to redraw that tile. Without this the
+        edit lands on the matplotlib object, the picture the grid is built
+        from stays as it was, and the user sees a menu that appears to do
+        nothing -- so they do it again, and again.
+
+        The view is deliberately not touched: the whole point of editing from
+        the grid is that the grid stays put.
+        """
+        index = int(index)
+        if index == self._current:
+            return self.refresh_current_figure(preview)
+        fig = self.figure_for(index)
+        png = self._png_paths.get(index)
+        if fig is None or not png:
+            return False
+        pixmap = (self._render_preview(fig, Path(png)) if preview
+                  else self._render_figure(fig, Path(png)))
+        if pixmap is None:
+            return False
+        self._cache_pixmap(index, pixmap)
+        self._pdf_state.pop(index, None)
+        item = self._list.item(index)
+        if item is not None and not pixmap.isNull():
+            item.setIcon(QIcon(pixmap.scaled(
+                140, 90, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+        return True
+
     def _open_figure_settings(self) -> None:
         """Open the full settings dialog for the current figure.
 
@@ -704,24 +734,34 @@ class FigureQueue(QWidget):
             figure, self, on_change=self.refresh_current_figure,
             propagate_callback=self._propagate_cb).exec()
 
-    def show_figure_menu(self, position, idx: Optional[int] = None) -> None:
-        """Right-click menu for a figure, from the view or a thumbnail.
+    def show_figure_menu(self, position, idx: Optional[int] = None,
+                         navigate: bool = True) -> None:
+        """Right-click menu for a figure, from the view, a thumbnail or a tile.
 
         The panel had one button offering three controls -- background, text
         colour, text size -- and no context menu at all, so a figure could not
         be restyled by clicking on it.
+
+        :param navigate: whether ``idx`` becomes the current figure first. The
+            thumbnail strip wants that; the figure grid does not, because a
+            grid is for comparing figures and jumping to one loses the
+            comparison the user was making.
         """
         from .figure_settings import build_figure_context_menu
 
         index = self._current if idx is None else int(idx)
-        if index != self._current and 0 <= index < self._count:
+        if navigate and index != self._current and 0 <= index < self._count:
             self.show_index(index)
         figure = self.figure_for(index)
+
+        def _redraw(preview: bool = False, _i=index) -> bool:
+            return self.refresh_figure(_i, preview)
+
         menu = build_figure_context_menu(
-            self, figure,
-            on_change=self.refresh_current_figure,
+            self, figure, on_change=_redraw,
             open_settings=self._open_figure_settings)
         menu.exec(position)
+        return menu
 
     def _view_context_menu(self, point) -> None:
         self.show_figure_menu(self._view.mapToGlobal(point))
