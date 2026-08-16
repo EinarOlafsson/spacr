@@ -3000,6 +3000,26 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         'standardized_marginal_effect']
     primary_table['p_value'] = primary_table['permutation_p_value']
     primary_table['q_value'] = primary_table['adjusted_p_value']
+    # THE SAME ALIASES ON THE FULL TABLE.
+    #
+    # results.csv on disk holds primary_table, which carries these columns,
+    # while the returned output['results'] held the full multi-threshold frame,
+    # which did not. One name, two shapes: a caller reading the file and a
+    # caller reading the dict got different columns, and everything that
+    # consumes a coefficient table -- the results panel, guide concordance,
+    # the volcano, the sweep's hit counts -- raised KeyError('feature') on the
+    # nonparametric path while working fine on the parametric one.
+    #
+    # Added rather than swapped, so a caller that genuinely wants every
+    # minimum-wells threshold still has all of them.
+    results = results.copy()
+    results['grna'] = results['guide']
+    results['feature'] = (
+        'fraction:grna[' + results['guide'].astype(str) + ']')
+    results['coefficient'] = results['standardized_marginal_effect']
+    results['p_value'] = results['permutation_p_value']
+    results['q_value'] = results['adjusted_p_value']
+
     significant = primary_table.loc[primary_table['significant']].copy()
     compatibility = {
         'results': os.path.join(destination, 'results.csv'),
