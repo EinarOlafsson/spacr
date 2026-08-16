@@ -58,3 +58,22 @@ HOW TO KNOW IT IS DONE
 Changing the palette in Preferences changes the next run's figures without any
 per-figure work, and a volcano-specific point size does not alter the plate
 heatmaps.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: TRANSPARENT. NEVER BLACK, NEVER WHITE.
+--------------------------------------------------------------------------------
+
+"figures should not have a background not black not white just transparent".
+
+This REVERSES what figure_queue does today, which paints the app theme's
+background into the figure and into the exported PDF deliberately -- so that
+a rasterised page does not flash from dark to light a moment after it
+appears. A transparent figure has to stop that flash by another means (the
+widget behind it supplying the colour), and the EXPORT has to stay legible
+on whatever the user pastes it onto -- white-on-transparent is invisible in
+a Word document. Both halves belong to this instruction now.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.

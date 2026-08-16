@@ -67,3 +67,22 @@ HOW TO KNOW IT IS DONE
 Sorting the sweep table by the positive control's rank puts the best
 configuration first, and every figure named above exists on disk after an
 ordinary run with no sweep involved.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: VARIANCE HOMOGENEITY, NAMED, AND THEN THE REST
+--------------------------------------------------------------------------------
+
+"add quality controll graphs for variance homogenicite and all other
+regression relevant features".
+
+Variance homogeneity is named explicitly, so scale-location / Breusch-Pagan
+is required rather than nice-to-have. "All other regression relevant" means
+the standard set: residuals-vs-fitted, QQ, leverage, Cook's distance, VIF,
+autocorrelation. ENUMERATE WHICH ALREADY EXIST BEFORE BUILDING ANY -- this
+repository has twice now found a module far better covered than its own
+notes claimed.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.

@@ -43,3 +43,23 @@ HOW TO KNOW IT IS DONE
 
 Clicking a row with saved output shows its graphs without re-fitting; clicking
 one without saved output re-fits and then shows the same set.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESTATED BY THE MAINTAINER: THE RUN TABLE GOES ABOVE THE GRID
+--------------------------------------------------------------------------------
+
+"for the paramiter search there should be a different structure with the run
+table to the top of the figure grid with figures and the figures should
+change when a run row is clicked".
+
+ABOVE, and deliberately unlike the regression screen, whose results table is
+to the LEFT (instruction 119). The search table is a short list of RUNS,
+scanned top to bottom, and picking one replaces the whole grid. The
+regression table is hundreds of FINDINGS read alongside the figure they
+describe. Two layouts, on purpose. Unifying them removes the reason for
+both.
+
+One request spanned seven instructions; the whole of it is quoted in
+instructions/open/119_the_regression_figure_surface.txt, which indexes the
+pieces.
