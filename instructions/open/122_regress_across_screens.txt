@@ -1,0 +1,155 @@
+================================================================================
+REGRESS ACROSS SCREENS: screenID, MERGED TABLES, AND A MEASUREMENT SEARCH
+================================================================================
+
+Status:    filed 2026-08-16, not started.
+Requested: 2026-08-16 - "these screens share many of the same grnas and many
+           measurements. so if a user say ran 2 screens they could
+           theoretically easily plug in the independent variables and then the
+           measurements table and regress anything. problem here would be:
+           1. that the screens would bothe have plates1,2,3,4 sh that would
+              have to be fixed somewow, e.g. with a new metadataitem callsed
+              screenID.
+           2. a mechanism for reading in the tables from and merging the
+              tables from a measurements database in
+           3. doing a sweep on these screen data of which measurements have
+              genes with an effect size. so instead of a paramiter search a
+              serch for which measurement has genes with clear effect sizes
+              (one or several)"
+
+--------------------------------------------------------------------------------
+WHAT THIS UNLOCKS
+--------------------------------------------------------------------------------
+
+Two screens sharing a guide library share their independent variable. Their
+measurement tables share most of their columns. So the two can be stacked and
+ANY measurement regressed against the guides -- across both screens, with
+twice the wells and the screen itself available as a blocking factor.
+
+That is a different and larger thing than running the same analysis twice and
+comparing the outputs by eye. It is one model over one frame.
+
+--------------------------------------------------------------------------------
+1. screenID -- AND WHY IT IS NOT plateID QUALIFICATION
+--------------------------------------------------------------------------------
+
+Both screens have plate1..plate4. Their keys collide, and merging without
+fixing that computes every per-well number over two experiments at once.
+
+SPACR ALREADY REFUSES THAT COLLISION. `spacr/multi_database.py` (instruction
+109) detects a plate id present in more than one database and either refuses
+the merge or QUALIFIES it -- rewriting `plate1` to `runA-plate1` using the
+reversible key escape.
+
+QUALIFICATION IS THE WRONG ANSWER HERE, and the maintainer has named the
+right one. Qualifying hides the screen inside the plate id: it makes the keys
+unique, which is all it was built to do, but it leaves the screen
+un-analysable. You cannot block on it, you cannot test for a screen effect,
+you cannot colour by it without parsing a string back apart.
+
+`screenID` is a FIRST-CLASS METADATA COLUMN, alongside plateID / rowID /
+columnID / fieldID:
+
+  * the key stays `plate1`, unchanged, so nothing already on disk moves;
+  * the identity becomes (screenID, plateID, rowID, columnID, ...);
+  * and it is a DIMENSION -- available as a fixed effect, a blocking factor,
+    a colour, a facet.
+
+WHAT IT TOUCHES, and this is the expensive part of the instruction:
+`spacr/schema.py` owns the key vocabulary (`PLATE_KEY`, `FIELD_KEY_COLUMNS`,
+`WELL_KEY_COLUMNS`, `compose_prc`/`parse_prcf`). Adding a dimension above
+plate is not a column rename -- decide DELIBERATELY whether `prc` grows a
+component or whether screenID rides alongside as a separate column, and write
+the decision here.
+
+    RECOMMENDED, to be confirmed: screenID rides ALONGSIDE and the `prc`
+    grammar is untouched. Every existing database, every stored key and every
+    parser keeps working, and a single-screen project simply has one value.
+    Growing `prc` would re-key every measurement ever written -- and
+    instruction 100 has already shown what one change to that grammar costs.
+
+A row with no screenID is a single-screen project. Default it rather than
+demanding it, or every existing project stops opening.
+
+--------------------------------------------------------------------------------
+2. READING AND MERGING THE TABLES
+--------------------------------------------------------------------------------
+
+Most of this exists. `spacr/multi_database.py` already does:
+
+    describe_merge(paths, table)   what the merge would cost, before it runs
+    read_merged(paths, table, ...) one frame, with SOURCE_COLUMN provenance
+    columns='common' | 'union'     drop-or-null, stated by the caller
+    canonical_rename_plan          one column, not two, when spellings differ
+
+WHAT IT NEEDS FOR THIS:
+
+  * `screen=` / a screen label per source, written into `screenID` rather
+    than into the plate id. That replaces `on_collision='qualify'` as the
+    recommended answer -- keep qualify for callers who genuinely want it, but
+    the screen-aware path should be the one the GUI offers.
+  * A COLLISION THAT IS NOT A COLLISION: once screenID exists, two screens
+    both having plate1 is NORMAL and must stop being reported as a clash.
+    The check becomes "duplicate identity WITHIN a screen", which is still a
+    real error.
+  * The measurement tables are wide and differ between versions. `'common'`
+    is the safe default here, and the user must be told which measurements
+    were dropped -- that set IS the analysis they are about to run.
+
+--------------------------------------------------------------------------------
+3. THE MEASUREMENT SEARCH -- AND THE TRAP IN IT
+--------------------------------------------------------------------------------
+
+"instead of a paramiter search a serch for which measurement has genes with
+clear effect sizes".
+
+So: hold the model fixed, sweep the DEPENDENT VARIABLE, and report which
+measurements show gene effects. Structurally it reuses the parameter sweep --
+the same runs tab (instruction 116), the same containment and memory
+discipline (114), the same results surface (119). What changes is what varies.
+
+THE TRAP, and it is the whole statistical content of this instruction:
+
+    A MEASUREMENT SCAN IS A MULTIPLE-TESTING PROBLEM ACROSS MEASUREMENTS.
+
+spaCR measures hundreds of features per object. Scan 500 of them for "genes
+with a clear effect" and some will look clear by chance alone -- and they
+will look exactly as convincing as the real ones, because the per-measurement
+FDR was computed WITHIN each measurement and knows nothing about the other
+499.
+
+So the search must correct ACROSS THE SCAN, not only within each run, and the
+report must show both numbers. A measurement that survives within-run FDR and
+fails across-scan correction is the single most important thing this feature
+can tell a user, and the easiest for it to hide.
+
+Related and not the same: the measurements are heavily CORRELATED (area,
+perimeter, and equivalent-diameter are one thing measured three ways). So the
+effective number of independent tests is far below the column count, and a
+naive Bonferroni across 500 correlated columns is too harsh in the other
+direction. Say which correction is used and why; report the effective number
+of tests if it can be estimated.
+
+RANK BY EFFECT SIZE, NOT BY P-VALUE. The maintainer asked for "clear effect
+sizes", and with two screens' worth of wells a trivial effect will be
+significant. The result table's primary sort is the effect.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Two screens, each with plate1..plate4, load into one frame with no
+  collision reported and screenID distinguishing them.
+* A per-screen row count after the merge equals the count before it, for each
+  screen -- the anti-pooling test instruction 109 already uses.
+* screenID is available as a blocking factor / fixed effect in the
+  regression, not merely as a label.
+* A single-screen project opens and runs exactly as before, with no screenID
+  anywhere in its settings.
+* The measurement search returns a table ranked by EFFECT SIZE, carrying both
+  the within-run FDR and the across-scan correction, and says how many
+  measurements were scanned.
+* A scan over pure noise returns nothing that survives the across-scan
+  correction -- the test that proves the correction is real. Build it with a
+  permuted guide assignment, so the data are real and only the labels are
+  wrong.
