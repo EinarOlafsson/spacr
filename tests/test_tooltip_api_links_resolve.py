@@ -16,7 +16,13 @@ from pathlib import Path
 
 import pytest
 
-DOCS = Path(__file__).resolve().parent.parent / "docs"
+#: Where the built site is. ``SPACR_DOCS_ROOT`` exists because sphinx builds
+#: into ``docs/_build/html`` while this file used to look only in ``docs/`` --
+#: so the resolve test below could not pass ANYWHERE, including the docs CI
+#: job that is the one place a fresh build exists. A permanently-skipped test
+#: counts as coverage while proving nothing (instruction 112).
+DOCS = Path(os.environ.get("SPACR_DOCS_ROOT")
+            or Path(__file__).resolve().parent.parent / "docs")
 
 #: The prefix every generated link is built on.
 SITE = "https://einarolafsson.github.io/spacr/"
@@ -59,12 +65,13 @@ def test_every_link_is_on_the_documentation_site(links):
 @pytest.mark.skipif(
     not os.environ.get("SPACR_DOCS_BUILT"),
     reason=(
-        "needs a FRESH docs build. `docs/api/` is generated and untracked "
-        "(git ls-files reports 0 files there), so whatever is on disk is "
-        "whoever's last local build -- mine held 4 module pages for 124 "
-        "modules. Checking against that proves nothing about the published "
-        "site and fails for everyone. Build the docs, then run with "
-        "SPACR_DOCS_BUILT=1."
+        "needs a FRESH docs build. The api pages are generated and "
+        "untracked, so whatever is on disk is whoever's last local build -- "
+        "one held 4 module pages for 124 modules. Checking against that "
+        "proves nothing about the published site and fails for everyone. "
+        "The docs CI job now runs this against its own fresh build; locally, "
+        "build the docs and run with SPACR_DOCS_BUILT=1 and "
+        "SPACR_DOCS_ROOT=docs/_build/html."
     ))
 def test_every_link_resolves_to_a_page_that_exists(links):
     """The point of the whole file.
