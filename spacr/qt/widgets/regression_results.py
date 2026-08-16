@@ -110,6 +110,13 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.qq, "Q-Q")
         self.tabs.addTab(self.controls, "Controls")
 
+        # GUIDE SUPPORT. The one thing the volcano structurally cannot show:
+        # a gene carried by a single surviving guide and a gene whose guides
+        # agree are the same dot, ranked by the same number, and only one of
+        # them is independent evidence.
+        self.support = ResultsTable()
+        self.tabs.addTab(self.support, "Guide support")
+
         # The two directions of the same link.
         self.volcano.point_clicked.connect(self.table.select_frame_row)
         self.table.row_selected.connect(self._highlight_point)
@@ -168,8 +175,37 @@ class RegressionResultsPanel(QWidget):
             self.p_values.set_p_values(frame[p_column])
             self.qq.set_p_values(frame[p_column])
         self._draw_controls(frame)
+        self._draw_guide_support(frame)
         self.loaded.emit(source or "")
         return True
+
+    def _draw_guide_support(self, frame) -> None:
+        """Per-gene guide agreement, ordered by gene p."""
+        try:
+            from ...guide_concordance import guide_support
+        except Exception:  # pragma: no cover - module unavailable
+            return
+        try:
+            support = guide_support(frame)
+        except Exception:  # pragma: no cover - odd table shape
+            self.support.set_frame(None)
+            return
+        if support is None or not len(support):
+            self.support.set_frame(None)
+            return
+        table = support.reset_index()
+        # A verdict column, because "n_guides=1" is a fact and "this hit rests
+        # on one guide" is what the reader needs to take from it.
+        def verdict(row):
+            if row["single_guide"]:
+                return "single guide -- gene p IS that guide's p"
+            if row["concordance"] < 0.6:
+                return "guides disagree in direction"
+            if row["n_guides_significant"] == 0:
+                return "agreement is the evidence"
+            return "supported"
+        table["verdict"] = table.apply(verdict, axis=1)
+        self.support.set_frame(table)
 
     @staticmethod
     def _p_column(frame) -> Optional[str]:
