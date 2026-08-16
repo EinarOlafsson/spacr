@@ -2246,23 +2246,28 @@ def _panel_condition_number(ctx, ax):
         ink = _house_axes(ax, "design conditioning",
                           "singular value, largest first",
                           "singular value of the column-scaled X")
+        # All three blocks are one left-aligned column in the headroom, and
+        # not, as before, a centred headline over the bars with the numbers in
+        # the bottom-left corner. A singular-value spectrum starts at the axes
+        # floor, so on a design whose bars span the panel there IS no
+        # bottom-left corner; and anything centred collides with anything
+        # right-aligned once the panel is a 4.6-inch cell on the combined
+        # page rather than a figure of its own.
+        warning = ROLES["down"] if severe else ink
         # One tier up from an annotation, because this number IS the panel —
         # the bars are only the evidence for it. RUST when the design is
         # badly conditioned, plain ink when it is not; never GREEN, which in
         # the shared vocabulary means "called up" and would read as a result.
-        ax.text(0.5, 0.97, f"scaled condition number = {_readable_number(scaled)}",
-                transform=ax.transAxes, ha="center", va="top",
-                fontsize=TYPE_SCALE["label"],
-                color=ROLES["down"] if severe else ink)
-        annotate(ax, textwrap.fill(verdict, 44), x=0.5, y=0.90, ha="center",
-                 colour=ROLES["down"] if severe else ink)
-        # Up in the headroom with the verdict, not in the bottom-left corner:
-        # a singular-value spectrum starts at the axes floor, so on a design
-        # whose bars span the panel there IS no bottom-left corner, and the
-        # old note sat on top of the first two hundred bars.
+        ax.text(0.02, 0.98,
+                f"scaled condition number = {_readable_number(scaled)}",
+                transform=ax.transAxes, ha="left", va="top",
+                fontsize=TYPE_SCALE["label"], color=warning)
+        wrapped = textwrap.fill(verdict, 40)
+        annotate(ax, wrapped, x=0.02, y=0.90, colour=warning)
         annotate(ax, f"unscaled = {_readable_number(unscaled)}\n"
                      f"{ctx.p} predictor(s)\nrank = {rank}",
-                 x=0.98, y=0.97, ha="right", va="top", colour=ink)
+                 x=0.02, y=0.90 - 0.055 * (wrapped.count("\n") + 1),
+                 colour=ink)
     return {"condition_number": float(scaled),
             "condition_number_unscaled": float(unscaled),
             "verdict": verdict,
@@ -2703,30 +2708,6 @@ def _grouped_residuals(ctx, column):
 _POSITION_ALPHA = 0.05
 
 
-def _ink_for_ground(ax):
-    """``'print'`` or ``'screen'``, decided by the ground this axes sits on.
-
-    :func:`~spacr.figures.style.theme_target` answers "where is this figure
-    going" from the user's preference, and it is the right answer for a figure
-    that goes to the GUI canvas. Every panel of THIS report goes to a file:
-    :func:`regression_qc_report` builds a bare ``Figure`` and saves it, so
-    when nothing has put the house style around the save, the ground is
-    matplotlib's opaque white — and screen ink on white is an unreadable
-    report.
-
-    So the ink follows the ground that is actually there: near-black on a
-    light opaque page, and the user's own answer on a transparent or dark one.
-    Correct whichever way the driver ends up being wrapped, which is the point.
-    """
-    from matplotlib.colors import to_rgba
-
-    red, green, blue, opacity = to_rgba(ax.figure.get_facecolor())
-    lightness = 0.299 * red + 0.587 * green + 0.114 * blue
-    if opacity > 0.5 and lightness > 0.6:
-        return "print"
-    return theme_target()
-
-
 def _positional_effect_panel(ctx, ax, column, label, mark_edges):
     """Boxplot of residuals by plate/row/column, with an edge-effect statistic.
 
@@ -2748,11 +2729,10 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
 
     THE STYLE IS APPLIED WITH THE CONTEXT MANAGER, never by writing rcParams.
     spaCR draws from a long-lived GUI process, and a global style change
-    restyles every later figure in the session.
-
-    The axes is made by the caller, before that context exists, so its spines,
-    ticks and labels are re-inked here explicitly — only artists created inside
-    the ``with`` block pick the style up on their own.
+    restyles every later figure in the session. The axes itself is made by the
+    report driver before that context exists, so :func:`_house_axes` re-inks
+    what it inherited — only artists created inside the ``with`` block pick
+    the style up on their own.
 
     THE STATISTICS ARE UNCHANGED. They are computed before the drawing rather
     than during it, because what gets colour is decided by them.
@@ -2792,9 +2772,7 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
     highlighted = [str(g) for g, colour in zip(groups, marks)
                    if colour != ROLES["data"]]
 
-    target = _ink_for_ground(ax)
-    with figure_style(target):
-        ink = resolve_ink(target)
+    with figure_style(_REPORT_TARGET):
         box = ax.boxplot(values, positions=np.arange(len(groups)), widths=0.65,
                          showfliers=False)
         for index, colour in enumerate(summaries):
@@ -2819,21 +2797,12 @@ def _positional_effect_panel(ctx, ax, column, label, mark_edges):
         ax.set_xticks(np.arange(len(groups)))
         names = [str(g)[:10] for g in groups]
         ax.set_xticklabels(names)
-        for name, spine in ax.spines.items():
-            spine.set_visible(name in ("left", "bottom"))
-            spine.set_color(ink)
-            spine.set_linewidth(WEIGHTS["spine"])
-        ax.tick_params(axis="both", colors=ink, labelsize=TYPE_SCALE["tick"],
-                       width=WEIGHTS["spine"], length=2.6)
+        ink = _house_axes(ax, f"residuals by {label}", label, "residual")
         # 45 degrees is the rule for labels that would not fit flat. `r16` and
         # `c24` do fit, and rotating them costs a third of the panel's height
         # for nothing; `plate1` does not.
         if max(len(name) for name in names) > 3:
             rotate_ticks(ax, 45)
-        descriptor(ax, f"residuals by {label}")
-        ax.title.set_color(ink)
-        ax.set_xlabel(label, fontsize=TYPE_SCALE["label"], color=ink)
-        ax.set_ylabel("residual", fontsize=TYPE_SCALE["label"], color=ink)
 
         # "observations", not "wells": `ctx.n` counts DESIGN ROWS, which is
         # one per well only when the design has one row per well. The
@@ -2954,11 +2923,11 @@ def _panel_volcano_reference(ctx, ax):
     has almost nothing to say about it beyond the two things that were
     actually wrong — the ink and the type.
 
-    THE INK. ``#333333`` body text is a light-page assumption, and this report
-    is written with the ground the caller gives it. On spaCR's dark theme the
-    body of this card was near-invisible: the only panel in the suite whose
-    entire content is text was also the only one that could vanish completely.
-    :func:`_ink_for_ground` resolves it against the page instead.
+    THE INK. Hard-coded ``#333333`` body text on a page whose colour this
+    panel does not own: the only panel in the suite whose entire content is
+    text was also the only one that could vanish completely. It now resolves
+    against :data:`_REPORT_TARGET` like every other panel here, so the whole
+    report is inked from one decision instead of twenty-three.
 
     THE TYPE. A 10 pt bold heading made this signpost the loudest thing on the
     combined page, louder than any real panel's axis labels at 7 pt. It now
@@ -2988,9 +2957,8 @@ def _panel_volcano_reference(ctx, ax):
                                 "cannot be named here.", 52))
         state = "unlocated"
 
-    target = _ink_for_ground(ax)
-    with figure_style(target):
-        ink = resolve_ink(target)
+    with figure_style(_REPORT_TARGET):
+        ink = resolve_ink(_REPORT_TARGET)
         ax.text(0.5, 0.66, "volcano plot", ha="center", va="center",
                 fontsize=TYPE_SCALE["label"], fontweight="bold", color=ink,
                 transform=ax.transAxes)

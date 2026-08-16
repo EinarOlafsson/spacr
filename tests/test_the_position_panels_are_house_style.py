@@ -125,25 +125,30 @@ def test_the_positional_panels_do_not_leak_the_style_into_the_process():
     assert not changed, f"these rcParams were left changed: {sorted(changed)}"
 
 
-@pytest.mark.parametrize("panel", ["row_effects", "volcano_reference"])
-@pytest.mark.parametrize("ground,ink", [("white", INK_PRINT),
-                                        ("#2b2b2b", INK_SCREEN)])
-def test_the_ink_follows_the_ground_the_panel_is_drawn_on(panel, ground, ink):
-    """The QC suite is written to files, and the caller owns the ground.
+@pytest.mark.parametrize("panel", ["plate_effects", "row_effects",
+                                   "column_effects", "volcano_reference"])
+def test_every_word_on_the_panel_is_the_report_s_own_ink(panel):
+    """No panel may hard-code a page colour of its own.
 
-    Near-black text on the dark ground is an invisible panel; near-white text
-    on the white page matplotlib gives a bare ``Figure`` is the same panel
-    invisible the other way. The volcano card is the sharpest case, because
-    its entire content is text.
+    The volcano card is the sharpest case: its entire content is text, it was
+    set in ``#333333``, and it is the one panel in the suite that can vanish
+    completely. The note on the position panels was ``#222222`` inside a white
+    box. Both are light-page assumptions on a page whose colour the panel does
+    not own -- the report driver does, and :data:`spacr.regression_qc.
+    _REPORT_TARGET` is where that single decision lives.
     """
-    ctx = _fit()
-    ax, _ = _draw(panel, ctx, ground=ground)
-    drawn = [_hex(text.get_color()) for text in ax.texts
-             if text.get_text().strip()]
-    assert drawn, "the panel drew no text at all"
-    assert _hex(ink) in drawn, (
-        f"on a {ground} ground the panel's ink is {set(drawn)}, "
-        f"and it needs {_hex(ink)}")
+    ctx = _fit(plates=("plate1", "plate2"))
+    allowed = {_hex(INK_PRINT)} | {value.lower() for value in ROLES.values()}
+    for ground in ("white", "#2b2b2b"):
+        ax, _ = _draw(panel, ctx, ground=ground)
+        drawn = {_hex(text.get_color()) for text in ax.texts
+                 if text.get_text().strip()}
+        assert drawn, "the panel drew no text at all"
+        assert _hex(INK_PRINT) in drawn, f"no {_hex(INK_PRINT)} ink in {drawn}"
+        assert drawn <= allowed, f"off-palette text colours: {drawn - allowed}"
+        assert _hex(INK_SCREEN) not in drawn, (
+            "screen ink would be invisible on the white page the report "
+            "driver actually writes")
 
 
 # --------------------------------------------------------------------------- #
