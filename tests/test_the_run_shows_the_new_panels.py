@@ -23,6 +23,7 @@ WHAT THIS FILE PINS:
 from __future__ import annotations
 
 import os
+import pathlib
 
 import numpy as np
 import pandas as pd
@@ -89,22 +90,62 @@ def test_each_type_counts_separately(tmp_path):
     assert _next_results_folder(str(tmp_path), "ridge").endswith("ridge_1")
 
 
+def _paths(tmp_path, **extra):
+    """Drive the real path builder the way perform_regression does."""
+    from spacr.ml import _perform_regression_set_paths
+
+    count = tmp_path / "plate_1_unique_combinations.csv"
+    score = tmp_path / "plate1_dv.csv"
+    for path in (count, score):
+        path.write_text("a,b\n1,2\n")
+    settings = {"count_data": [str(count)], "score_data": [str(score)],
+                "regression_type": "ols"}
+    settings.update(extra)
+    return _perform_regression_set_paths(settings)
+
+
 def test_the_results_root_is_beside_the_count_data(tmp_path):
-    """"just store everything in the same location as the first count data".
+    """"just store everything in the same location as the first count data ...
+    then the type so for me .../claude/results/ols".
 
-    Checked through the real path builder rather than by restating the rule:
-    the old one buried output under results/<score-source-csv-name>/<type>/
-    list, two levels nobody asked for and one of them named after a file.
+    The old path buried output under results/<score-source-csv-name>/<type>/
+    list -- two levels nobody asked for, one of them named after a FILE, and
+    a fixed leaf. Driven through the real builder, not a source grep.
     """
-    import inspect
+    res_folder = _paths(tmp_path)[4]
 
-    from spacr import ml
+    assert res_folder == os.path.join(str(tmp_path), "results", "ols")
+    assert "plate1_dv" not in res_folder, "the score-source level is back"
+    assert not res_folder.endswith("list"), "the fixed leaf is back"
 
-    source = inspect.getsource(ml.perform_regression)
-    assert "_next_results_folder" in source, (
-        "perform_regression no longer routes through the folder rule")
-    assert "score_source" not in source.split("_next_results_folder")[1][:400], (
-        "the score-source level is back in the output path")
+
+def test_a_rerun_through_the_real_builder_does_not_overwrite(tmp_path):
+    first = _paths(tmp_path)[4]
+    (pathlib.Path(first) / "results.csv").write_text("x\n")
+
+    second = _paths(tmp_path)[4]
+
+    assert second != first
+    assert second.endswith("ols_1")
+
+
+def test_an_explicit_src_still_wins(tmp_path):
+    """The parameter sweep gives each trial its own folder that way, and it
+    must keep working -- the count-data folder is the DEFAULT, not a
+    hard-coding."""
+    elsewhere = tmp_path / "trial_0007"
+    elsewhere.mkdir()
+
+    res_folder = _paths(tmp_path, src=str(elsewhere))[4]
+
+    assert res_folder.startswith(str(elsewhere))
+
+
+def test_the_four_result_files_land_in_that_folder(tmp_path):
+    results, gene, grna, hits, res_folder, _csv = _paths(tmp_path)
+
+    for path in (results, gene, grna, hits):
+        assert os.path.dirname(path) == res_folder
 
 
 # --------------------------------------------------------------------------- #
