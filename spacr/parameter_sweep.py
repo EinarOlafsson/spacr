@@ -717,6 +717,20 @@ def _trial_settings(base_settings, trial, destination):
     settings["src"] = folder
     settings.setdefault("verbose", False)
     settings.setdefault("toxo", False)
+    # THE QC SUITE IS OFF FOR A SWEEP UNLESS IT IS ASKED FOR.
+    #
+    # It costs ~5.8 s and writes ~19 figures plus a combined PDF per fit --
+    # right for one analysis, and roughly ten minutes and two thousand files
+    # across a hundred trials, almost none of which anyone will open. The
+    # SCALAR diagnostics that make a row judgeable are a different thing:
+    # summarise_trial computes them in ~150 ms and they are unaffected by
+    # this, so a sweep still sorts by control rank, inflation and R^2.
+    #
+    # setdefault, so a sweep that explicitly wants the pictures gets them.
+    # Reopening one interesting trial goes through settings_for_trial, which
+    # does not pass here -- so the trial you choose to look at again is
+    # fitted WITH the diagnostics, which is the point of choosing it.
+    settings.setdefault("regression_qc", False)
     # Write the settings the way the GUI writes them, so a trial worth a
     # second look can be opened straight in the regression module -- point it
     # at the trial folder and press run. A sweep whose interesting rows cannot
