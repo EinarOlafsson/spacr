@@ -3294,6 +3294,69 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     }
 
 
+def _perform_regression_set_paths(settings):
+    # _perform_regression_read_data has already normalised both keys to
+    # lists by the time this runs, so the old scalar fallbacks here were
+    # unreachable.
+    score_data = settings['score_data'][0]
+    score_source = os.path.splitext(os.path.basename(score_data))[0]
+
+    csv_path = settings['count_data'][0]
+
+    # THE CALLER'S OUTPUT FOLDER IS HONOURED WHEN THERE IS ONE.
+    #
+    # This used to be `settings['src'] = os.path.dirname(count_data[0])`
+    # unconditionally, which threw away whatever the caller asked for and
+    # sent every run to the same place beside the input data. Two runs of
+    # the same family then wrote to an identical path -- so comparing
+    # thirteen corrections, or any two conditions, silently left only the
+    # last one on disk. Nothing warned; the earlier results were simply
+    # gone.
+    #
+    # Falling back to the data directory keeps the old behaviour for
+    # callers that never set src, which is what the GUI does.
+    requested = settings.get('src')
+    if isinstance(requested, str) and requested.strip():
+        src = os.path.abspath(os.path.expanduser(requested.strip()))
+    else:
+        src = os.path.dirname(settings['count_data'][0])
+    settings['src'] = src
+
+    # WHERE A RUN'S OUTPUT GOES: <count data folder>/results/<type>,
+    # and never on top of an earlier run.
+    #
+    # Asked for on 2026-08-16: "just store everything in the same location
+    # as the first count data ... then the type so for me
+    # .../claude/results/ols. if there is already an ols folder then ols_1
+    # then ols_2 and so on".
+    #
+    # The old path was <src>/results/<score_source>/<type>/list -- two
+    # levels nobody asked for, one of them named after a CSV, and a fixed
+    # leaf that meant a second run of the same type silently replaced the
+    # first. That is also why the results panel could not find anything:
+    # the path it had to guess at was four levels deep and named after a
+    # file rather than the run.
+    if settings.get('analysis_mode') == 'guide_permutation':
+        kind = 'guide_permutation'
+    elif settings['regression_type'] is None:
+        kind = 'auto'
+    else:
+        kind = str(settings['regression_type'])
+    res_folder = _next_results_folder(os.path.join(src, 'results'), kind)
+
+    os.makedirs(res_folder, exist_ok=True)
+    results_filename = 'results.csv'
+    results_filename_gene = 'results_gene.csv'
+    results_filename_grna = 'results_grna.csv'
+    hits_filename = 'results_significant.csv'
+    results_path=os.path.join(res_folder, results_filename)
+    results_path_gene=os.path.join(res_folder, results_filename_gene)
+    results_path_grna=os.path.join(res_folder, results_filename_grna)
+    hits_path=os.path.join(res_folder, hits_filename)
+
+    return results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path
+
+
 def _next_results_folder(root, kind, limit=1000):
     """``<root>/<kind>``, or ``<kind>_1``, ``<kind>_2`` ... if taken.
 
@@ -3473,67 +3536,6 @@ def perform_regression(settings):
 
             return count_data_df, score_data_df
     
-    def _perform_regression_set_paths(settings):
-        # _perform_regression_read_data has already normalised both keys to
-        # lists by the time this runs, so the old scalar fallbacks here were
-        # unreachable.
-        score_data = settings['score_data'][0]
-        score_source = os.path.splitext(os.path.basename(score_data))[0]
-
-        csv_path = settings['count_data'][0]
-
-        # THE CALLER'S OUTPUT FOLDER IS HONOURED WHEN THERE IS ONE.
-        #
-        # This used to be `settings['src'] = os.path.dirname(count_data[0])`
-        # unconditionally, which threw away whatever the caller asked for and
-        # sent every run to the same place beside the input data. Two runs of
-        # the same family then wrote to an identical path -- so comparing
-        # thirteen corrections, or any two conditions, silently left only the
-        # last one on disk. Nothing warned; the earlier results were simply
-        # gone.
-        #
-        # Falling back to the data directory keeps the old behaviour for
-        # callers that never set src, which is what the GUI does.
-        requested = settings.get('src')
-        if isinstance(requested, str) and requested.strip():
-            src = os.path.abspath(os.path.expanduser(requested.strip()))
-        else:
-            src = os.path.dirname(settings['count_data'][0])
-        settings['src'] = src
-    
-        # WHERE A RUN'S OUTPUT GOES: <count data folder>/results/<type>,
-        # and never on top of an earlier run.
-        #
-        # Asked for on 2026-08-16: "just store everything in the same location
-        # as the first count data ... then the type so for me
-        # .../claude/results/ols. if there is already an ols folder then ols_1
-        # then ols_2 and so on".
-        #
-        # The old path was <src>/results/<score_source>/<type>/list -- two
-        # levels nobody asked for, one of them named after a CSV, and a fixed
-        # leaf that meant a second run of the same type silently replaced the
-        # first. That is also why the results panel could not find anything:
-        # the path it had to guess at was four levels deep and named after a
-        # file rather than the run.
-        if settings.get('analysis_mode') == 'guide_permutation':
-            kind = 'guide_permutation'
-        elif settings['regression_type'] is None:
-            kind = 'auto'
-        else:
-            kind = str(settings['regression_type'])
-        res_folder = _next_results_folder(os.path.join(src, 'results'), kind)
-
-        os.makedirs(res_folder, exist_ok=True)
-        results_filename = 'results.csv'
-        results_filename_gene = 'results_gene.csv'
-        results_filename_grna = 'results_grna.csv'
-        hits_filename = 'results_significant.csv'
-        results_path=os.path.join(res_folder, results_filename)
-        results_path_gene=os.path.join(res_folder, results_filename_gene)
-        results_path_grna=os.path.join(res_folder, results_filename_grna)
-        hits_path=os.path.join(res_folder, hits_filename)
-
-        return results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path
     
     
     def _count_variable_instances(df, column_1, column_2):
