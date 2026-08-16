@@ -103,9 +103,20 @@ spaCR는 Python **3.9~3.14** 버전을 지원합니다(단, torchvision이 지�
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: 다운로드 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (인텔 및 애플 실리콘): 다운로드 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `64비트 Linux: 다운로드 SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
+|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11: 다운로드 SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (인텔 및 애플 실리콘): 다운로드 SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: 64비트 Linux: 다운로드 SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
 
 .. spacr-installer-links-end
 
