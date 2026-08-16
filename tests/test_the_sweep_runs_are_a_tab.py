@@ -242,3 +242,32 @@ def test_the_grid_shows_the_trials_figures_not_the_last_runs(screen, tmp_path):
 
     assert screen._load_trial_figures(str(folder)) == 1
     assert len(screen._figure_grid._cells) == 1
+
+
+def test_the_runs_table_speaks_about_runs(qtbot, tmp_path, trials):
+    """It reuses the coefficient table's widget, and inherited its words: a
+    box telling the user to type a gene, beside a "significant only" filter
+    that cannot do anything to a list of trials."""
+    from spacr.qt.widgets.sweep_runs import SweepRunsPanel
+
+    trials.to_csv(tmp_path / "sweep_results.csv", index=False)
+    panel = SweepRunsPanel()
+    qtbot.addWidget(panel)
+    panel.load(tmp_path)
+
+    placeholder = panel.table._filter.placeholderText()
+    assert "gene" not in placeholder.lower(), placeholder
+    assert "run" in placeholder.lower(), placeholder
+    assert panel.table._only_hits.isHidden() or \
+        not panel.table._only_hits.isVisibleTo(panel), (
+            "a 'significant only' filter over a table of trials")
+
+
+def test_the_coefficient_table_keeps_its_own_words(qtbot):
+    """configure() is opt-in; the results table must be unaffected."""
+    from spacr.qt.widgets.fast_plots import ResultsTable
+
+    table = ResultsTable()
+    qtbot.addWidget(table)
+
+    assert "gene" in table._filter.placeholderText().lower()

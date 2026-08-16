@@ -97,6 +97,12 @@ class SweepRunsPanel(QWidget):
         # filters, and copies as TSV, and a second implementation of those is
         # a second set of bugs.
         self.table = ResultsTable()
+        # Its own words. The coefficient table's "type a gene, a guide" and
+        # "significant only" belong to a table of findings; over a list of
+        # trials the first is wrong and the second cannot do anything.
+        self.table.configure(
+            placeholder="Filter runs — a model, a cutoff, anything in the row",
+            significance_filter=False)
         self.table.table.itemSelectionChanged.connect(self._on_selection)
         layout.addWidget(self.table, 1)
 
