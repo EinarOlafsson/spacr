@@ -281,6 +281,73 @@ def set_language(language: str) -> None:
 # Figures — display format (png / pdf) + png resolution
 # ---------------------------------------------------------------------------
 
+#: Where the general figure style lives in QSettings.
+_KEY_FIG_STYLE = "figures/style_general"
+#: Where the per-graph overrides live, as one JSON blob keyed by graph kind.
+_KEY_FIG_STYLE_PER_GRAPH = "figures/style_per_graph"
+
+
+def get_figure_style() -> dict:
+    """The user's GENERAL figure settings, or an empty dict.
+
+    Empty rather than the defaults: :func:`spacr.figure_style.resolve` layers
+    the defaults underneath, so storing them here as well would freeze today's
+    defaults into every user's settings and make improving them impossible.
+    """
+    import json
+
+    raw = _settings().value(_KEY_FIG_STYLE, "")
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+        return value if isinstance(value, dict) else {}
+    except (TypeError, ValueError):
+        return {}
+
+
+def set_figure_style(style: dict) -> None:
+    """Store the general figure settings."""
+    import json
+
+    _settings().setValue(_KEY_FIG_STYLE, json.dumps(dict(style or {})))
+
+
+def get_figure_style_per_graph() -> dict:
+    """Per-graph overrides, ``{kind: {setting: value}}``."""
+    import json
+
+    raw = _settings().value(_KEY_FIG_STYLE_PER_GRAPH, "")
+    if not raw:
+        return {}
+    try:
+        value = json.loads(raw)
+        return {k: v for k, v in value.items() if isinstance(v, dict)} \
+            if isinstance(value, dict) else {}
+    except (TypeError, ValueError):
+        return {}
+
+
+def set_figure_style_per_graph(overrides: dict) -> None:
+    """Store the per-graph overrides."""
+    import json
+
+    clean = {k: dict(v) for k, v in (overrides or {}).items()
+             if isinstance(v, dict) and v}
+    _settings().setValue(_KEY_FIG_STYLE_PER_GRAPH, json.dumps(clean))
+
+
+def apply_figure_style(kind: str | None = None) -> dict:
+    """Push the user's style for ``kind`` into matplotlib. Returns it.
+
+    The one call a plotting function needs: it reads the preferences, layers
+    them over the defaults and this graph kind's own, and applies the result.
+    """
+    from ..figure_style import apply
+
+    return apply(kind, get_figure_style(), get_figure_style_per_graph())
+
+
 def get_figure_format() -> str:
     """Return the saved figure format, falling back to ``pdf``.
 
