@@ -13,6 +13,35 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("MPLBACKEND", "Agg")
 
 
+@pytest.fixture(autouse=True)
+def _matplotlib_is_left_as_it_was_found():
+    """Put matplotlib's global drawing style back after every test here.
+
+    ``figure_style.apply`` is deliberately global -- one style, every figure
+    the run draws -- so the tests below that call it are changing the style
+    for the whole process, not for themselves. Nothing put it back, and the
+    settings it writes are the ones that decide where things land on the
+    page: ``figure.autolayout`` on, ``figure.dpi`` at 150, a font family, a
+    colour cycle.
+
+    ``figure.autolayout`` was the one that bit. With it on, matplotlib
+    re-lays-out the axes on every draw, so a later test that positioned its
+    own axes found them moved -- and the failure was reported against that
+    test, in another file, rather than against the one that changed the
+    style. ``test_the_legend_fits_inside_the_figure`` in
+    ``test_toxo_volcano_join_contract.py`` was the one that drew the short
+    straw: it asserts a 27-entry legend overflows a 20x20 figure, and with
+    autolayout on the axes had already been shrunk to make it fit.
+
+    ``rc_context`` with no arguments is exactly this: snapshot on entry,
+    restore on exit.
+    """
+    import matplotlib
+
+    with matplotlib.rc_context():
+        yield
+
+
 class TestResolution:
 
     def test_a_graph_kind_only_states_what_it_differs_on(self):
