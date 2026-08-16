@@ -362,3 +362,89 @@ HOW TO KNOW IT WORKED
 
 reports 100% for every module except the four named above, and `git diff`
 over the whole pass adds zero `pragma: no cover`.
+
+================================================================================
+2026-08-16 - RE-MEASURED. THE 2026-08-10 RANKING WAS UNUSABLE.
+================================================================================
+
+THE OLD TABLE WAS WRONG ABOUT ITS OWN TOP ENTRIES. It listed the two worst
+non-legacy modules as
+
+    650  37%  spacr/active_learning.py
+    458  20%  spacr/anndata_export/__init__.py
+
+Measured against their own tests on 2026-08-16 they were 99% (six missing) and
+97% (eighteen). Both are now 100% and 99%. Nothing regressed and nothing was
+mis-measured: the two numbers were taken over different test sets, which is
+precisely the trap recorded above and the reason a per-module figure is
+meaningless without the set it came from.
+
+So the old ORDER could not be worked down. It has been replaced.
+
+--------------------------------------------------------------------------------
+THE NEW MEASUREMENT, AND WHAT IT CAN AND CANNOT SAY
+--------------------------------------------------------------------------------
+
+Run over THE FAST LEG only -- the same marker expression CI uses:
+
+    -m "not integration and not slow and not heavy and not qt and not gpu
+        and not network and not nas and not gui"
+    16,439 passed, 39 failed, 9 skipped, 13 minutes under the tracer
+
+READ THE MARKER LIST BEFORE READING THE NUMBERS. It excludes `qt`, so every
+Qt module reads as almost uncovered here and the raw total is meaningless:
+
+    everything except the four Tk files   110,762 stmts   47,319 missing  57.3%
+
+That 57.3% is NOT the repository's coverage. It is the fast leg's view of it,
+and it says nothing about the 64,060 Qt statements whose tests were excluded
+by the marker. Quoting it as the headline would be the same error the old
+table made, one level up.
+
+WHAT THIS RUN CAN SPEAK TO -- the non-Qt, non-legacy package:
+
+    46,702 statements   3,376 missing   92.8%
+    86 files under 100%
+
+RANKED BY UNCOVERED STATEMENTS, which is the metric this instruction requires:
+
+     333   22.7%   spacr/parameter_sweep.py
+     272   81.7%   spacr/hyperparam.py
+     243   16.2%   spacr/pipeline_v2.py
+     225   65.3%   spacr/chaining.py
+     161   72.0%   spacr/hit_attribution.py
+     137   85.0%   spacr/batch.py
+     112   96.9%   spacr/io.py
+     106   61.5%   spacr/pipeline_graph.py
+     103   95.0%   spacr/ml.py
+     100   82.5%   spacr/power_model.py
+      86   88.9%   spacr/model_zoo.py
+      72   80.5%   spacr/filters.py
+      71   89.8%   spacr/classifier_evaluation.py
+      67   89.1%   spacr/macro.py
+      61   83.5%   spacr/external_masks.py
+      61   62.1%   spacr/cli_remote.py
+      53   94.1%   spacr/omero.py
+      47   79.4%   spacr/guide_permutation.py
+
+`parameter_sweep.py` and `guide_permutation.py` belong to the regression
+session and are not this instruction's to touch.
+
+STILL NEEDED: the same run WITHOUT `and not qt`, so the Qt half can be ranked
+too. It is the expensive one (the qt suite is ~41 minutes on its own) and it
+is the only way to get a number for two thirds of the statements.
+
+--------------------------------------------------------------------------------
+PROGRESS THIS PASS
+--------------------------------------------------------------------------------
+
+    spacr/active_learning.py       99%  ->  100%   (6 lines, 4 branches)
+    spacr/multi_database.py        89%  ->  100%   (13 lines)
+    spacr/anndata_export           97%  ->   99%   (18 -> 7)
+    spacr/gpu_reduce.py            55%  ->   68%   (47 -> 34)
+
+No `pragma: no cover` was added anywhere. `gpu_reduce` is worth a note: it
+looked like a module that could not be tested without a GPU, and it is not --
+every branch is reachable by putting a fake `cuml`/`cupy` in `sys.modules`,
+which is what the code actually branches on. A test that skips on the machine
+that runs it is a test that never runs.
