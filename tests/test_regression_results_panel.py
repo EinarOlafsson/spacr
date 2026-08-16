@@ -37,7 +37,7 @@ class TestItOpensIntoTheResults:
         assert panel.set_frame(results, source="results.csv")
 
         assert [panel.tabs.tabText(i) for i in range(panel.tabs.count())] == \
-            ["Volcano", "p-values", "Q-Q", "Controls"]
+            ["Volcano", "p-values", "Q-Q", "Controls", "Guide support"]
         assert panel.table.table.rowCount() == len(results)
         assert "Inflation" in panel.qq._status.text()
         assert "negative" in panel.controls._status.text()
@@ -139,3 +139,45 @@ class TestFindingTheResultsOnDisk:
         qtbot.addWidget(panel)
         assert not panel.load(str(tmp_path / "nowhere"))
         assert "No results table" in panel._source.text()
+
+
+class TestTheGuideSupportTab:
+    """The one thing a volcano structurally cannot show."""
+
+    def _frame(self):
+        return pd.DataFrame({
+            "feature": ["fraction:grna[244480_3]", "gene_fraction:gene[244480]",
+                        "fraction:grna[225160_1]", "fraction:grna[225160_2]",
+                        "fraction:grna[225160_3]", "gene_fraction:gene[225160]"],
+            "coefficient": [2.0, 2.0, 0.4, 0.6, 0.5, 0.5],
+            "p_value": [1.6e-12, 1.6e-12, 0.51, 0.14, 0.27, 4.6e-08],
+        })
+
+    def test_it_names_the_single_guide_gene(self, qtbot):
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        panel.set_frame(self._frame())
+
+        assert "Guide support" in [panel.tabs.tabText(i)
+                                   for i in range(panel.tabs.count())]
+        verdicts = {}
+        headers = [panel.support.table.horizontalHeaderItem(c).text()
+                   for c in range(panel.support.table.columnCount())]
+        gene_col, verdict_col = headers.index("gene"), headers.index("verdict")
+        for row in range(panel.support.table.rowCount()):
+            verdicts[panel.support.table.item(row, gene_col).text()] = \
+                panel.support.table.item(row, verdict_col).text()
+
+        assert "single guide" in verdicts["244480"]
+        assert "agreement is the evidence" in verdicts["225160"]
+
+    def test_a_table_with_no_guide_terms_empties_the_tab(self, qtbot):
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        panel.set_frame(pd.DataFrame({
+            "feature": ["Intercept"], "coefficient": [1.0], "p_value": [0.01]}))
+        assert panel.support.table.rowCount() == 0
