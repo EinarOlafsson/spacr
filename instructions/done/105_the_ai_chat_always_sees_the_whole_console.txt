@@ -225,3 +225,36 @@ which is the distinction worth recording:
 tests/test_console_aware_setting.py pins the default, persistence, both
 on/off paths, the absence of both widgets, and that a non-diagnostic question
 still carries the console. 328 console/AI tests pass.
+
+--------------------------------------------------------------------------------
+VERIFIED (2026-08-16)
+--------------------------------------------------------------------------------
+
+Driven directly, in the order the user's own scenario specifies.
+
+  * Fail with the chat off, turn it on, ask "what went wrong? explain based on
+    the console" -> the traceback goes, frame lines and all
+    ("Console context: 181 chars sent").
+  * Point 5 holds: the second turn of the same conversation sends 0 chars and
+    says "Console context: no new output", rather than re-sending the
+    scrollback.
+  * Auto really is gone: on a FRESH panel, "how do I set the diameter" carries
+    the same traceback as "what went wrong". (Asking it as a follow-up sends
+    nothing, but that is point 5, not a surviving wording heuristic.)
+  * Points 2 and 3 on a 200,146-character console: 24,052 chars sent,
+    176,131 dropped, the drop stated in the status, and both the traceback
+    head and `RuntimeError: the real failure` present -- the tail, not the
+    start, and the traceback not beheaded.
+  * Console aware off sends "" with status "Console context off".
+  * The control is one Toggle on the AI settings dialog's Settings tab,
+    beside "Enable — one-click issue filing" and "Route errors through AI".
+    Un-ticking it writes through to `ai.settings.get_console_aware()`
+    immediately, and there is no three-mode Console combo anywhere in the
+    dialog or in the console's input row.
+
+ONE STALE CLAIM IN THIS FILE, corrected for the record: WHY THIS IS CHEAP
+says ":meth:`ConsolePanel.text`". There is no such method; the scrollback
+reader is `ConsolePanel.as_text()`. The substance of the paragraph -- that the
+console is document-backed and readable at ask time -- is correct.
+
+CLOSED.
