@@ -65,6 +65,10 @@ class GateEditorScreen(QWidget):
         self._frame: Optional[pd.DataFrame] = None
         self._path: Optional[str] = None
         self._table: Optional[str] = None
+        #: The plan for a multi-database load, or None for a single file.
+        #: Kept so the screen can say what the merge cost -- which columns
+        #: were dropped and which plates were qualified (instruction 109).
+        self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
         self._settings = GateEditorSettings()
@@ -400,11 +404,72 @@ class GateEditorScreen(QWidget):
 
     # -- loading ----------------------------------------------------------
     def choose_table(self) -> None:
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Open a measurement table", "",
+        # getOpenFileNames, plural: a screen acquired as three plates is three
+        # databases, and comparing them used to mean three sessions
+        # (instruction 109). One file behaves exactly as it did before.
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, "Open one or more measurement tables", "",
             "Measurements (*.db *.sqlite *.csv *.tsv);;All files (*)")
-        if path:
-            self.load_path(path)
+        if len(paths) == 1:
+            self.load_path(paths[0])
+        elif paths:
+            self.load_paths(paths)
+
+    def load_paths(self, paths, table: Optional[str] = None) -> None:
+        """Load several measurement databases as one frame.
+
+        Every decision that can go quietly wrong -- plate-id collisions,
+        mismatched column sets, provenance -- is delegated to
+        :mod:`spacr.multi_database`, so this screen and Image UMAP cannot
+        disagree about them.
+
+        A collision is REPORTED, not resolved. Two databases that each hold a
+        plate called ``plate1`` are two experiments, and pooling them would
+        compute every per-well number over both at once with nothing on screen
+        to say so. The user is told which plate ids clash, because they are
+        the only one who can say whether they are the same plate.
+        """
+        from ...multi_database import (
+            SOURCE_COLUMN, MergeRefused, describe_merge, read_merged)
+
+        paths = [str(p) for p in paths]
+        if not paths:
+            return
+        self._path = paths[0]
+        chosen = table
+        if chosen is None:
+            try:
+                names = table_names(paths[0])
+            except Exception as exc:
+                self._source.setText(f"could not read {paths[0]}: {exc}")
+                return
+            chosen = names[0] if names else None
+        if not chosen:
+            self._source.setText("no table to merge in the chosen files")
+            return
+
+        try:
+            plan = describe_merge(paths, chosen)
+            frame = read_merged(paths, chosen, plan=plan)
+        except MergeRefused as exc:
+            self._source.setText(str(exc))
+            LOG.info("merge refused for %s: %s", paths, exc)
+            return
+        except Exception as exc:
+            self._source.setText(f"could not merge {len(paths)} files: {exc}")
+            LOG.info("merge failed for %s", paths, exc_info=True)
+            return
+
+        self._merge_plan = plan
+        self.set_frame(
+            frame,
+            label=(f"{len(plan.sources)} databases · {chosen} · "
+                   f"{len(frame):,} rows × {len(frame.columns)} columns · "
+                   f"colour by {SOURCE_COLUMN}"))
+        if plan.partial_columns:
+            LOG.info("merge kept only shared columns; %d were present in some "
+                     "sources only: %s", len(plan.partial_columns),
+                     sorted(plan.partial_columns))
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
