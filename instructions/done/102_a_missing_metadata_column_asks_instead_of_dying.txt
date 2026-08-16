@@ -35,7 +35,15 @@ so the repair has to be one shared mechanism they all route through, not a
 prompt bolted onto whichever module the user happened to run first.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Metadata spelling differences should not terminate an otherwise valid
+analysis. A shared resolver prevents silent condition mixing while letting
+interactive and headless workflows recover in a consistent, auditable way.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 THREE THINGS, IN THIS ORDER. Each is useful without the ones after it.
