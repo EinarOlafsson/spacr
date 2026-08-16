@@ -519,6 +519,18 @@ class FastPlot(QWidget):
                 self._key_rows.setdefault(key, row)
         return len(self._keys)
 
+    def _has_usable_keys(self) -> bool:
+        """Whether ANY row on this plot can be identified to anyone else.
+
+        NOT ``bool(self._keys)``. A caller can hand over a full-length column
+        of blanks -- a fit with no gene-level terms gives the agreement plot
+        exactly that, one ``None`` per gene -- and a list of ``None`` is
+        truthy. Read that way, the plot appends "Click a point for its
+        coefficient" to its status line while every click resolves to no key
+        and selects nothing, which is an invitation it cannot honour.
+        """
+        return any(key is not None for key in self._keys)
+
     def key_for_row(self, row: int) -> Optional[str]:
         """The identifier at frame position ``row``, if this plot has keys."""
         if self._keys and 0 <= int(row) < len(self._keys):
@@ -913,7 +925,7 @@ class PValueHistogram(FastPlot):
         note = (f"{len(held)} p-values. The flat line is what a screen with "
                 f"no signal would give; the first bin holds {excess} more "
                 f"than that.")
-        if self._keys:
+        if self._has_usable_keys():
             note += " Click a bar for what is in it."
         self.set_status(note)
         if self._selected_key is not None:
@@ -1082,7 +1094,7 @@ class QQPlot(FastPlot):
         note = (f"{n} tests. Inflation at the median is {chi:.2f} "
                 f"(1.00 is calibrated; well above it means the null is not "
                 f"flat).")
-        if self._keys:
+        if self._has_usable_keys():
             note += " Click a point for its coefficient."
         self.set_status(note)
         # A SELECTION SURVIVES A REDRAW, here for the same reason it does on
@@ -1221,7 +1233,7 @@ class ControlSeparation(FastPlot):
         axis = self.plot.getAxis("bottom")
         axis.setTicks([[(i, name) for i, name in enumerate(groups)]])
         note = "   ".join(summary) if summary else "No control values."
-        if self._keys and summary:
+        if self._has_usable_keys() and summary:
             note += "   Click a point for its coefficient."
         self.set_status(note)
         if self._selected_key is not None:
@@ -1366,7 +1378,7 @@ class GuideAgreementPlot(FastPlot):
                      f"guides than the rest of the library "
                      f"{'are' if plural else 'is'} drawn beyond the opening "
                      f"view; Reset view reaches {'them' if plural else 'it'}.")
-        if self._keys:
+        if self._has_usable_keys():
             note += " Click a gene for its coefficient."
         self.set_status(note)
         if self._selected_key is not None:
