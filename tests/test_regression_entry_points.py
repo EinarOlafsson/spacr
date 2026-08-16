@@ -47,11 +47,24 @@ _HELPER_MODULES = (
     "spacr.settings", "spacr.toxo", "spacr.plot",
 )
 
-#: The one key ``perform_regression`` reads without a default, because it
-#: derives it itself: ``_perform_regression_set_paths`` sets
-#: ``settings['src']`` from ``count_data`` (ml.py) before
-#: ``utils.save_settings`` reads it to place ``settings/regression.csv``.
-_DERIVED_KEYS = frozenset({"src"})
+#: Keys ``perform_regression`` reads without a default, because it derives
+#: them itself before reading them. A derived key is NOT an exemption from
+#: the contract below -- it is a different way of satisfying it, and the
+#: derivation is asserted rather than assumed by
+#: :func:`test_the_only_keys_without_a_default_are_derived_and_written_first`.
+#:
+#: * ``src`` -- ``_perform_regression_set_paths`` sets it from ``count_data``
+#:   (ml.py) before ``utils.save_settings`` reads it to place
+#:   ``settings/regression.csv``.
+#: * ``score_data`` / ``count_data`` -- the paired-input migration. One row of
+#:   ``paired_data`` states one score/count relationship, and
+#:   ``ml.normalize_regression_input_pairs`` unpacks it into these two lists
+#:   at the top of ``perform_regression``. They are deliberately NOT
+#:   defaulted: ``get_perform_regression_default_settings`` says so in as many
+#:   words, because defaulting them would write the legacy pair back into
+#:   every new settings CSV and undo the migration. A settings file that still
+#:   carries them is migrated instead.
+_DERIVED_KEYS = frozenset({"src", "score_data", "count_data"})
 
 #: The six that were missing, and what each is for. Kept explicit so a future
 #: edit that drops one is named in the failure rather than counted.
@@ -167,13 +180,51 @@ def test_every_settings_key_perform_regression_indexes_has_a_default():
     assert read & _DERIVED_KEYS <= _keys_read_by_the_whole_call(ast.Store)
 
 
-def test_src_is_the_only_key_without_a_default_and_it_is_written_first():
-    """``src`` is derived from ``count_data``, not asked for."""
+def test_the_only_keys_without_a_default_are_derived_and_written_first():
+    """Derived, not forgotten -- and the difference is checked, not assumed.
+
+    ``src`` is derived from ``count_data``; ``score_data`` and ``count_data``
+    are themselves derived from ``paired_data``. "Derived" is only an answer
+    to the missing-default contract if the derivation actually runs BEFORE the
+    read, so the ordering is asserted rather than the mere existence of an
+    assignment somewhere in the module -- an assignment placed after the read
+    would satisfy a Store-membership check and still raise ``KeyError`` on a
+    real run, which is the exact shape of the bug this file exists for.
+    """
     from spacr.ml import perform_regression
 
     read = _keys_read_by_the_whole_call()
-    assert sorted(read - set(_defaults())) == ["src"]
-    assert "src" in _settings_subscripts(perform_regression, ast.Store)
+    assert sorted(read - set(_defaults())) == sorted(_DERIVED_KEYS)
+    written = _settings_subscripts(perform_regression, ast.Store)
+    assert "src" in written
+
+    # score_data/count_data are written by a helper, so the ordering that
+    # matters is: the normalising call, then the first subscript read.
+    tree = ast.parse(textwrap.dedent(inspect.getsource(perform_regression)))
+    normalise = [
+        node.lineno for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and getattr(node.func, "id", getattr(node.func, "attr", None))
+        == "normalize_regression_input_pairs"
+    ]
+    assert normalise, (
+        "perform_regression no longer calls normalize_regression_input_pairs, "
+        "so score_data/count_data are read but never derived. Either restore "
+        "the call or give them defaults.")
+    reads = [
+        node.lineno for node in ast.walk(tree)
+        if isinstance(node, ast.Subscript)
+        and isinstance(node.ctx, ast.Load)
+        and getattr(node.value, "id", None) == "settings"
+        and isinstance(node.slice, ast.Constant)
+        and node.slice.value in {"score_data", "count_data"}
+    ]
+    assert reads, "expected perform_regression to read the derived pair"
+    assert min(normalise) < min(reads), (
+        f"perform_regression reads settings['score_data'/'count_data'] at "
+        f"line {min(reads)} of its own source but only derives them at line "
+        f"{min(normalise)}, so a settings dict built from the defaults raises "
+        f"KeyError before the derivation runs.")
 
 
 @pytest.mark.parametrize("key", sorted(MISSING_BEFORE))
@@ -464,9 +515,17 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
 
     Nothing is stubbed. ``minimum_cell_simulation`` (which reads ``tolerance``
     and ``score_column``) and ``graph_sequencing_stats`` (which iterates
-    ``control_wells``) both run for real, because ``min_cell_count`` and
-    ``fraction_threshold`` are left at their None defaults -- the state a user
-    who edits nothing is in.
+    ``control_wells``) both run for real.
+
+    ``min_cell_count`` USED TO BE None by default, which is what made the
+    simulation run here without being asked for. It is 100 now -- a deliberate
+    change, requested in d6eb6ca3 along with transform=log and
+    multiple_testing_method=none, on the ground that below 100 cells a well's
+    score is noise dressed as a measurement. So this test now does two things
+    rather than one: it pins the default a user who edits nothing gets, and it
+    then asks for None explicitly, because the simulation path is the one that
+    reads ``tolerance`` and ``score_column`` and it would otherwise stop being
+    covered by anything.
 
     Before the fix this raised ``KeyError: 'verbose'`` with
     ``settings/regression.csv`` already on disk and not one result file
@@ -487,13 +546,25 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     ).to_csv(settings_csv, index=False)
 
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
-    assert settings["min_cell_count"] is None
+    assert settings["min_cell_count"] == 100, (
+        "the requested default; if this moves, move it here deliberately")
     assert settings["fraction_threshold"] is None
+
+    # …and now drive the simulated path, which the default no longer reaches.
+    settings["min_cell_count"] = None
 
     np.random.seed(0)
     out = perform_regression(settings)
 
-    assert set(out) == {"results", "significant"}
+    # The fit comes back with the coefficients, not just the verdict. This
+    # was {"results", "significant"} until c0db2f48: a consumer could say WHAT
+    # was significant and nothing about whether the fit deserved to be
+    # believed. `model` and `model_data` are what the QC suite reads to get
+    # R-squared, residuals and the design that actually reached the fit, so
+    # dropping either would silently take the diagnostics away again -- which
+    # is why this stays an exact set rather than a subset check.
+    assert set(out) == {"results", "significant", "model", "model_data",
+                        "regression_type", "res_folder"}
     res = os.path.join(str(cdir), "results", "xgb_scores", "ols", "list")
     results = pd.read_csv(os.path.join(res, "results.csv"))
     assert len(results) > 0
