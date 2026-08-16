@@ -38,6 +38,24 @@ import traceback  # noqa: E402
 
 
 def main(argv=None) -> int:
+    """Run one sweep trial in this process and write its result as JSON.
+
+    The entry point of a CONTAINED trial: the parent execs
+    ``python -m spacr.sweep_child <settings.json> <out.json>`` inside a
+    systemd-run cgroup with a memory cap, so a trial that would take the
+    machine down takes only itself down.
+
+    Nothing comes back in memory -- the parent reads the result FILE, because
+    a child the kernel killed has no return value to give and the sweep still
+    needs a row for it.
+
+    :param argv: the arguments after the module name. Defaults to
+        ``sys.argv[1:]``.
+    :returns: a process exit status: 0 for a trial that produced a result, 2
+        for a usage error, non-zero for a trial that raised. The exception is
+        written into the result file as well, so the sweep table can carry the
+        reason instead of an empty row.
+    """
     argv = list(sys.argv[1:] if argv is None else argv)
     if len(argv) != 2:
         print("usage: python -m spacr.sweep_child <settings.json> <out.json>",
