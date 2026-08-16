@@ -269,3 +269,49 @@ def test_no_tile_before_anything_is_fitted(screen):
     """An empty plot tile invites a click that shows an empty plot."""
     screen._refresh_figure_grid()
     assert screen._figure_grid._pinned is None
+
+
+# --------------------------------------------------------------------------- #
+#  The gene tile appears WITH the graph
+# --------------------------------------------------------------------------- #
+
+def test_the_gene_tile_is_beside_the_graph_not_behind_a_tab(screen):
+    """"when a gene is clicked a tile should appear with all the information
+    on that gene" -- appear, beside the point that was clicked. A tile the
+    user has to go and find is a tile they will not look at."""
+    split = screen._gene_split
+    assert split.widget(0) is screen._results_panel.volcano
+    assert split.widget(1) is screen._results_panel.gene
+
+    tabs = screen._results_panel.tabs
+    assert "Gene" not in [tabs.tabText(i) for i in range(tabs.count())], (
+        "the tile is in two places at once")
+
+
+def test_an_unclicked_screen_is_all_graph(screen):
+    """Nothing has been clicked, so there is nothing to say about a gene."""
+    assert screen._gene_split.sizes()[1] == 0
+
+
+def test_clicking_a_guide_opens_the_tile_and_fills_it(screen):
+    screen._results_panel.set_frame(_real_results())
+    screen._results_panel.table.table.selectRow(4)
+
+    assert screen._gene_split.sizes()[1] > 0, "the tile stayed shut"
+    assert screen._results_panel.gene.tile is not None, "the tile is empty"
+    assert screen._results_panel.gene.feature == \
+        screen._results_panel.volcano._selected_key, (
+            "the tile is describing a different guide than the one rung")
+
+
+def test_the_divider_is_the_users_after_the_first_click(screen):
+    """Reasserting a size on every click would fight anyone who dragged the
+    tile bigger to read it, or shut to see the whole plot."""
+    screen._results_panel.set_frame(_real_results())
+    screen._results_panel.table.table.selectRow(4)
+
+    screen._gene_split.setSizes([900, 0])          # the user shuts it
+    screen._results_panel.table.table.selectRow(9)
+
+    assert screen._gene_split.sizes()[1] == 0, (
+        "clicking again forced the tile back open")
