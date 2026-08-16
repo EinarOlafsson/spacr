@@ -206,6 +206,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "guide_permutation_block", "guide_nuisance_columns",
     "guide_presence_threshold", "guide_permutation_batch_size",
     "guide_permutation_plot", "multiple_testing_method", "fdr_alpha",
+    # The regression QC suite's on/off switch, under a "Regression:
+    # Diagnostics" heading of its own -- "does this fit deserve to be
+    # believed" is a different question from "what counts as a hit", and the
+    # answer had no home in the six workflow groups. Read for every
+    # regression_type, so it is deliberately outside REGRESSION_SETTINGS_USED
+    # and is not policed by _reject_unused_settings.
+    "regression_qc",
     # Image UMAP's reducer families and the one shared GPU execution switch.
     "gpu", "tsne_perplexity", "tsne_learning_rate",
     "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten",
