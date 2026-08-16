@@ -144,3 +144,86 @@ class TestTheThreadPinIsNotReleased:
         """A context manager would release it before the fit ever ran."""
         ps._pin_threads()
         assert ps._THREAD_LIMITS is not None
+
+
+class TestContainingATrialDoesNotEmptyTheControlColumn:
+    """The sweep screen shows `positive_rank`. Containment must not blank it.
+
+    That column is built from the caller's control ALIASES
+    (run_sweep(controls={"positive": "239740"})), which only
+    _named_control_rows produces. A contained child never saw the aliases, so
+    routing the parallel sweep through containment would have left the column
+    the run is judged on empty -- indistinguishable from a control that was
+    never recovered.
+    """
+
+    def test_the_aliases_travel_to_the_contained_child(self, tmp_path,
+                                                       monkeypatch):
+        written = {}
+
+        def fake_run(command, **kwargs):
+            import json as _json
+            path = command[-2]
+            with open(path) as handle:
+                written.update(_json.load(handle))
+
+            class Done:
+                returncode, stdout, stderr = 0, "", ""
+            return Done()
+
+        monkeypatch.setattr(ps, "containment_available", lambda: False)
+        monkeypatch.setattr("subprocess.run", fake_run)
+        ps.run_trial_contained({"src": str(tmp_path)}, trial_id=1,
+                               controls={"positive": "239740"})
+
+        assert written.get("controls") == {"positive": "239740"}, \
+            "the contained child was never told which controls to look for"
+
+    def test_the_child_emits_the_alias_columns(self, tmp_path):
+        """End to end through the real child module, no regression required."""
+        import json
+        import numpy as np
+        import pandas as pd
+
+        results = pd.DataFrame({
+            "feature": ["fraction:grna[239740_1]", "fraction:grna[111_1]"],
+            "coefficient": [0.9, 0.1], "p_value": [1e-6, 0.5],
+            "q_value": [1e-5, 0.9]})
+
+        from spacr.parameter_sweep import _named_control_rows
+        row = _named_control_rows(results, {"positive": "239740"})
+        assert row["positive_present"] is True
+        assert row["positive_rank"] == 1
+
+
+class TestControlAliasesAreNotFedBackAsSettings:
+
+    def test_alias_columns_do_not_become_regression_settings(self):
+        """gra14_rank is a measurement, not something the user typed.
+
+        The aliases are the caller's own, so they cannot be listed in advance
+        -- but every alias writes `{alias}_present`, so the row names them.
+        """
+        from spacr.parameter_sweep import settings_for_trial
+
+        row = {"trial_id": 1, "status": "ok", "seconds": 1.0,
+               "regression_type": "ols",
+               "gra14_present": True, "gra14_rank": 3, "gra14_q": 0.01,
+               "gra14_p": 0.001, "gra14_effect": 0.8,
+               "positive_present": True, "positive_rank": 1}
+        settings = settings_for_trial({}, row)
+
+        leaked = sorted(k for k in settings if "gra14" in k or
+                        k.startswith("positive_"))
+        assert leaked == [], f"alias measurements leaked as settings: {leaked}"
+        assert settings["regression_type"] == "ols"
+
+    def test_a_real_setting_ending_in_percentile_still_survives(self):
+        """spaCR has twenty-two of them; a suffix rule would have eaten them."""
+        from spacr.parameter_sweep import settings_for_trial
+
+        settings = settings_for_trial(
+            {}, {"trial_id": 1, "status": "ok", "seconds": 1.0,
+                 "cell_intensity_percentile": 95, "lower_percentile": 2})
+        assert settings["cell_intensity_percentile"] == 95
+        assert settings["lower_percentile"] == 2
