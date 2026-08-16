@@ -478,3 +478,65 @@ looked like a module that could not be tested without a GPU, and it is not --
 every branch is reachable by putting a fake `cuml`/`cupy` in `sys.modules`,
 which is what the code actually branches on. A test that skips on the machine
 that runs it is a test that never runs.
+
+================================================================================
+2026-08-16 - THE WHOLE-PACKAGE NUMBER, QT INCLUDED. 91.5%.
+================================================================================
+
+Run with the qt marker LEFT IN -- the expensive one, 1 h 54 m under the
+tracer, 25,087 passed / 76 failed / 50 skipped:
+
+    -m "not integration and not slow and not heavy and not gpu
+        and not network and not nas and not gui"
+
+    excluding the four Tk files   146,156 stmts   12,380 missing   91.5%
+    269 files under 100%
+
+THIS SUPERSEDES the 57.3% recorded above it, which was the same package seen
+through a leg that excluded every Qt test. Both runs are honest; only this one
+is a statement about the repository.
+
+READ THIS BEFORE USING THE RANKING. The trap has now bitten three times, in
+three different directions, so it is worth stating as a rule:
+
+    A MODULE WHOSE TESTS ARE MARKER-EXCLUDED READS AS UNCOVERED.
+
+`spacr/pipeline_v2.py` appears below at 16.2% with 243 uncovered. Its real
+figure is 96% -- all 47 of its tests are `slow`/`integration` and were
+deselected by the expression above. Verified by running them directly. Any
+entry here has to be cross-checked the same way before work starts on it,
+which costs one command:
+
+    pytest <its tests> -m "<the same expression>" --co
+
+Checked already: `ml.py`, `settings.py` and `hit_attribution.py` are NOT
+marker-excluded, so their numbers are real. `timelapse.py` has 28 of 228
+deselected, so it is slightly understated.
+
+RANKED BY UNCOVERED STATEMENTS (top 16, artefacts marked):
+
+     634   69.8%  spacr/ml.py
+     613   61.3%  spacr/qt/screens/app_screen.py
+     311   82.8%  spacr/qt/widgets/gate_editor.py
+     303   83.7%  spacr/qt/screens/annotate.py
+     260   84.9%  spacr/settings.py
+     249   76.9%  spacr/qt/dnd_handlers.py
+     243   16.2%  spacr/pipeline_v2.py          <- ARTEFACT, really 96%
+     191   72.1%  spacr/qt/screens/gate_editor.py
+     188   94.4%  spacr/timelapse.py            <- 28 tests deselected
+     174   61.4%  spacr/qt/widgets/fast_plots.py
+     169   88.8%  spacr/qt/widgets/live_preview.py
+     167   89.9%  spacr/qt/screens/settings_model.py
+     166   80.7%  spacr/qt/widgets/figure_queue.py
+     165    0.0%  spacr/qt/widgets/regression_results.py
+     164   71.7%  spacr/hit_attribution.py      <- now 75%, this run predates it
+     160   51.8%  spacr/qt/screens/pipeline_graph.py
+
+`regression_results.py` at 0.0% and `ml.py`'s regression half belong to the
+concurrent regression session and are not this instruction's to touch.
+
+WHAT THIS CHANGES ABOUT THE TASK. 12,380 statements, not the 13,082 the
+2026-08-10 baseline recorded and not the 47,319 the fast leg implied. The
+package is at 91.5% and the work is a long tail across 269 files rather than
+a handful of untested modules -- which matches what the eight-module pass
+above found by hand.
