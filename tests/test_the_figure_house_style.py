@@ -312,9 +312,16 @@ def test_an_empty_table_does_not_raise():
 
 @pytest.mark.parametrize("key", list(SHEET_ORDER))
 def test_every_registered_panel_survives_a_one_row_table(key):
+    """A screen with almost nothing in it is a real case -- a run that
+    filtered hard, or a sweep trial on a tiny design. Every panel must come
+    back with an answer rather than an exception, and a panel that cannot
+    draw must SAY so rather than returning a blank one."""
     frame = _results(200).head(2)
     figure = plt.figure()
     try:
-        REGISTRY[key](figure.add_subplot(111), frame)
+        panel = REGISTRY[key](figure.add_subplot(111), frame)
+        assert panel.key, "a panel came back without identifying itself"
+        assert panel.drawn or panel.reason, (
+            f"{key} refused to draw and gave no reason")
     finally:
         plt.close(figure)
