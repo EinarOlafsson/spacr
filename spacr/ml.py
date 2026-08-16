@@ -2151,10 +2151,94 @@ def _mixed_model_groups(df, dependent_variable, model_index):
         f"something to vary against; or use 'ols' with cov_type='HC3'.")
 
 
+def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
+                         regression_type=None, volcano_path=None):
+    """Write the full QC suite for a fit into ``<dst>/regression_qc/``.
+
+    :func:`spacr.regression_qc.regression_qc_report` had no production caller:
+    twenty-three tested diagnostic panels -- scale-location (the variance
+    homogeneity panel the maintainer asked for by name), residuals-vs-fitted,
+    Q-Q, leverage, Cook's distance, DFFITS, VIF, condition number, the p-value
+    histogram, calibration -- existed, were tested, and were never produced by
+    an actual run. This is the hook.
+
+    It lives here rather than in :func:`perform_regression` because this is the
+    only scope where the fitted design exists: ``regression`` returns
+    ``(model, coef_df, regression_type)`` and drops ``X`` and ``y`` on the way
+    out, so a caller further up has no design matrix to hand the report.
+
+    **Weights are deliberately not forwarded.** ``regression`` passes cell
+    counts to ``regression_model`` as ``var_weights`` / WLS weights / Poisson
+    exposure for the types that take them, and for those types
+    :func:`spacr.regression_qc.build_context` recovers the weights from the
+    fitted model itself, so the hat diagonal, the residual and the scale agree.
+    The unweighted types (ols, lasso, ridge, elasticnet) never saw the counts,
+    and handing them in as ``weights`` would compute a weighted leverage for a
+    fit nobody ran. The counts still reach the cell-count panel through
+    ``metadata['cell_count']``, which is where that panel looks first.
+
+    :param model: the fitted model.
+    :param X: the design matrix that was fitted.
+    :param y: the response that was fitted.
+    :param df: the cleaned long-format frame, for the per-well metadata.
+    :param dst: the run's results folder.
+    :param coef_df: the coefficient table, so the p-value histogram shows the
+        screen's p-values rather than the design's.
+    :param regression_type: the spaCR regression type string.
+    :param volcano_path: the volcano plot for this run, named on the report.
+    :returns: the manifest dict, or ``None`` if the report could not be written.
+    """
+    from .plot import figure_output_preferences
+    from .regression_qc import regression_qc_report
+
+    # Per-well labels: what turns "well 41 is an outlier" into a plate, a row
+    # and a column somebody can go back to the microscope with.
+    metadata = None
+    try:
+        columns = [column for column in (schema.PLATE_KEY, schema.ROW_KEY,
+                                         schema.COLUMN_KEY, schema.PRC_KEY,
+                                         'cell_count')
+                   if column in df.columns]
+        if columns:
+            metadata = df.loc[X.index, columns]
+            # `.loc` with a duplicated index does not raise: it returns the
+            # cross product, so a frame whose labels repeat comes back with
+            # n*n rows. regression_qc_report would then refuse the whole
+            # report -- losing every panel, including the variance-homogeneity
+            # one -- over metadata that is only ever used for LABELS. Losing
+            # the labels is the proportionate answer.
+            if len(metadata) != len(X):
+                raise ValueError(
+                    f"{len(metadata)} metadata rows for {len(X)} fitted rows; "
+                    f"the frame's index does not identify wells uniquely")
+    except Exception as error:                      # noqa: BLE001 - advisory
+        print(f"Regression QC: could not align per-well metadata to the fitted "
+              f"rows ({type(error).__name__}: {error}); the plate/row/column "
+              f"panels will skip rather than label the wrong well.")
+        metadata = None
+
+    # The panels are figures the user keeps, so they follow the same format
+    # preference as every other figure the pipeline writes.
+    fmt, _dpi = figure_output_preferences()
+    try:
+        return regression_qc_report(
+            model, X, y, dst, metadata=metadata, coef_df=coef_df,
+            regression_type=regression_type, volcano_path=volcano_path,
+            fmt=fmt, verbose=True)
+    except Exception as error:                      # noqa: BLE001 - advisory
+        # A diagnostic that fails must never destroy a fit that already
+        # succeeded and cost an hour. The report itself already downgrades a
+        # failing panel to FAILED; this catches the rarer case where the
+        # report as a whole cannot be built.
+        print(f"Regression QC report could not be written: "
+              f"{type(error).__name__}: {error}")
+        return None
+
+
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
-               hinge_threshold=None, hinge_n_boot=200, huber_t=1.345):
+               hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -2178,6 +2262,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param hinge_threshold: Response cut used to binarise for ``hinge``.
     :param hinge_n_boot: Bootstrap resamples behind the hinge p-values.
     :param huber_t: Huber tuning constant for ``rlm``/``huber``.
+    :param qc: Write the regression QC suite into ``<dst>/regression_qc/``.
+        Requires ``dst`` and a design matrix, so it is skipped for the mixed
+        branch and when no destination was given.
     :returns: ``(model, coef_df, regression_type)``.
     """
 
@@ -2199,6 +2286,12 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     print(f"Using regression type: {regression_type}")
 
     df = check_and_clean_data(df, dependent_variable)
+
+    # The QC report needs the design that was fitted. The mixed branch below
+    # never builds one -- fit_mixed_model takes the formula and the frame and
+    # keeps its design to itself -- so X and y simply do not exist there, and
+    # this stays None to say so rather than letting a NameError find out.
+    qc_design = None
 
     if random_row_column_effects:
         regression_type = 'mixed'
@@ -2260,6 +2353,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             model, regression_type, X, y, nc, pc, controls,
             hinge_threshold=hinge_threshold, hinge_n_boot=hinge_n_boot)
         display(coef_df)
+        qc_design = (X, y)
 
     if plot:
         # plot.volcano_plot is keyword-only past its first argument and has no
@@ -2278,6 +2372,15 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             save_path=volcano_path,
             show=False,
         )
+
+    # After the volcano, so the report can name a file that is already on disk.
+    # Skipped without a destination: regression_qc_report raises on a falsy dst
+    # on purpose, and a fit run with dst=None has nowhere to put diagnostics.
+    if qc and qc_design is not None and dst:
+        _write_regression_qc(
+            model, qc_design[0], qc_design[1], df, dst,
+            coef_df=coef_df, regression_type=regression_type,
+            volcano_path=volcano_path if plot else None)
 
     return model, coef_df, regression_type
 

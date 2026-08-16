@@ -86,3 +86,111 @@ notes claimed.
 One request spanned seven instructions; the whole of it is quoted in
 instructions/open/119_the_regression_figure_surface.txt, which indexes the
 pieces.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - RESULT: THE ORPHANED QC REPORT IS WIRED (normal runs only)
+--------------------------------------------------------------------------------
+
+ENUMERATION FIRST, as this section demanded. The module was again far better
+covered than the notes claimed: spacr/regression_qc.py already implements
+TWENTY-THREE tested diagnostic panels and a driver, regression_qc_report(),
+which had NO PRODUCTION CALLER. Nothing needed building. It needed calling.
+
+Already present, NOT rebuilt:
+  variance homogeneity   _panel_scale_location (regression_qc.py:1732) --
+                         sqrt|std resid| vs fitted, Spearman rho AND
+                         Brown-Forsythe across quartiles of the fit, with a
+                         verdict string. This is the panel the maintainer
+                         named; it existed already.
+  residuals vs fitted    _panel_residuals_vs_fitted (:1672)
+  normal Q-Q             _panel_qq_residuals (:1799)
+  leverage / Cook's D    _panel_influence (:1902), bubble area proportional to
+                         Cook's distance; _panel_cooks_distance (:1868);
+                         _panel_dffits (:1939)
+  collinearity           _panel_vif (:1970), _panel_condition_number (:2013),
+                         _panel_predictor_correlation (:2040)
+  calibration            _panel_calibration (:2234); the Brier score is in
+                         calibration_curve (:657)
+  p-value calibration    _panel_p_value_histogram (:2183),
+                         diagnose_p_value_histogram (:718)
+  screen structure       plate / row / column effects, cell count vs residual
+
+WHAT SHIPPED
+
+  spacr/ml.py  _write_regression_qc(), called from regression() just before it
+  returns. That is the ONLY scope where the fitted design exists, so this is
+  the wiring point -- see REFUTED below. An ordinary run now writes
+  <res_folder>/regression_qc/ containing one figure per available panel, the
+  combined single-page regression_qc_report.pdf and the grep-able
+  regression_qc_report.txt with every statistic in it.
+
+  Panels follow the figure-format preference via
+  spacr.plot.figure_output_preferences(), like every other kept spaCR figure.
+
+  Guarded three ways: skipped on the mixed-model branch (no design matrix
+  exists there), skipped when dst is falsy, and wrapped so a failing
+  diagnostic can never take down a fit that already succeeded.
+
+  COST, measured: ~5.8 s per run on a 384-row / 2-plate design (0.36 s
+  without QC, 6.19 s with). Fine for a normal analysis, NOT free across a
+  sweep of hundreds of trials -- roughly 10 minutes per hundred runs. That is
+  why regression() takes qc=True as a parameter: whoever wires the sweep half
+  should decide deliberately whether every trial folder gets all 23 panels or
+  only the scalar metrics, rather than inheriting the default by accident.
+
+  Weights are deliberately NOT forwarded to the report. build_context recovers
+  them from the fitted model for the types that were actually weighted, so the
+  hat diagonal, residual and scale agree; forwarding cell counts would compute
+  a weighted leverage for the unweighted types (ols/lasso/ridge/elasticnet).
+  The counts still reach the cell-count panel through metadata.
+
+  spacr/regression_diagnostics.py  _finish() now closes its figure on BOTH
+  paths (try/finally). See VERIFIED below.
+
+  tests/test_regression_qc_wiring.py  13 tests, all asserting on FILES ON
+  DISK rather than on a function having been called -- the defect being
+  guarded is precisely that the code ran and nothing landed.
+
+WHAT DID NOT SHIP
+
+  The SWEEP half of this instruction. Everything above is the "normal
+  analysis" half. A sweep row still carries settings, a hit count and seconds;
+  the FIT QUALITY / RESIDUALS / DESIGN / CONTROLS / CALIBRATION / GUIDE
+  SUPPORT columns enumerated under WHAT TO DO are not on it, and sorting the
+  sweep table by the positive control's rank is therefore still not possible.
+  spacr/trial_metrics.py already computes much of that list (including
+  genomic_inflation at :209) and is the place to start. This instruction stays
+  OPEN for that reason.
+
+  perform_regression()'s returned dict does not carry the QC manifest. The
+  files are on disk; nothing in-process hands the manifest upward.
+
+CLAIMS CHECKED -- one refuted, one wrongly refuted
+
+  VERIFIED  regression_qc_report has no production caller. Only tests.
+  VERIFIED  plot_design_diagnostics (:283), plot_residual_diagnostics (:390),
+            plot_inference_diagnostics (:489) are the real names.
+  VERIFIED  Brier score, Cook's-D bubble plot, p-value histogram, QQ all
+            already exist and were not rebuilt.
+
+  REFUTED   "Wiring points are ml.py:2154, :3735, :4157." Only 2154 is usable.
+            regression() returns (model, coef_df, regression_type) and DROPS
+            X and y, so at :3735 and :4157 inside perform_regression there is
+            no design matrix to hand the report. The hook must go inside
+            regression() itself, where y/X (:2210), weights (:2240), model,
+            coef_df and volcano_path all coexist.
+
+  REFUTED   "genomic inflation is already in regression_qc.py." It is not.
+            It lives in regression_diagnostics.py's QQ panel and in
+            trial_metrics.py:209. regression_qc.py's QQ panel reports slope,
+            intercept and quantile correlation instead.
+
+  STANDS    "There is a plt.close leak near regression_diagnostics.py:272."
+            A counter-claim that this was not real checked ml.py -- the wrong
+            file. The leak was real: _finish() returned early on
+            save_path=None, which is the DEFAULT of all three public
+            plot_*_diagnostics functions, and those figures come from
+            plt.subplots, so pyplot held every one of them alive. One leaked
+            figure per call. Fixed with try/finally, and the savefig-raises
+            path is now covered too.
