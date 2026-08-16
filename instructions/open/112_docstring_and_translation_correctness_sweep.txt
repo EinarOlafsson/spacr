@@ -2,8 +2,9 @@
 A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
 ================================================================================
 
-Status:    filed 2026-08-15, not started. Two failures already reproduced --
-           see WHERE IT IS ALREADY WRONG.
+Status:    DONE 2026-08-15. Both reproduced failures fixed; four mechanical
+           guards added; the permanently-skipped link test now runs in CI.
+           See RESULT at the end.
 Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings
            and translations make sure everything is correct."
 
@@ -127,3 +128,67 @@ HOW TO KNOW IT WORKED
   currently skips and counts as coverage while proving nothing.
 * A written statement of what was checked by hand, over what fraction, with
   the remainder named.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15)
+--------------------------------------------------------------------------------
+
+THE TWO REPRODUCED FAILURES, fixed earlier the same day:
+
+  * the `inference` tooltip was 746 chars against a 600 limit. What made it
+    long was an anecdote about one screen ("824 guides in 587 wells"), which
+    is the exact shape the test warns about. 573 chars now, substance kept.
+  * the public-docstring ratchet was five behind. NOT bumped blind: the five
+    are SearchSpace, SearchSpace.size, build_trials, run_search and
+    summarise_search from the regression settings sweep, and the comment now
+    names them. A ratchet moved without saying what it admitted is a rubber
+    stamp.
+
+WHAT THE SWEEP ACTUALLY FOUND: the catalogs are in good shape. Every
+mechanical check passes today, over
+
+    9 runtime catalogs      253 entries each
+    10 installer catalogs
+    1,934 functions carrying :param: documentation
+
+    placeholder parity, runtime .......... 0 mismatches
+    placeholder parity, installer ........ 0 mismatches
+    protected terms (columnID, prcfo …) .. 0 lost in translation
+    :param: names vs signatures .......... 0 ghosts
+    documented defaults vs signatures .... 0 real mismatches
+
+So the answer to "is any of it correct" is: yes, mechanically. That is worth
+knowing and was not known before.
+
+THE ONE JUDGEMENT CALL. 22 strings are identical to their English source
+across 8 languages. All are legitimate -- proper nouns (Toxoplasma, spaCR
+AI), loanwords genuinely spelled the same in that language (Navigation in
+German and French, Status in Swedish, Console in French), and format strings
+(API: {url}). They are now an explicit allowlist with the reason, so a NEW
+untranslated entry fails while these do not. A second test fails if an
+allowlisted string later gets translated, because a stale excuse is how the
+next untranslated string hides.
+
+A FALSE POSITIVE WORTH RECORDING. The documented-default check first
+reported 14 hits, and all 14 were wrong: every one had signature ``None``
+with a docstring naming what None RESOLVES TO -- setup_logging(level=None)
+documenting SPACR_LOG_LEVEL, open_crop_source(src=None) documenting
+settings['src']. That is correct and useful documentation. The check exempts
+None defaults and says why, because a check with 14 false positives and no
+real ones is a check that gets switched off.
+
+THE SKIPPED TEST NOW RUNS. test_tooltip_api_links_resolve's resolve check
+could not pass ANYWHERE: it looked in `docs/`, sphinx builds into
+`docs/_build/html`, and the api pages are untracked. It took SPACR_DOCS_ROOT
+and a step in the docs CI job, which is the one place a fresh build exists.
+Non-blocking on its first outing -- it has never run, so its first result is
+information rather than a gate.
+
+NOT DONE, and stated rather than left implicit: the "does this sentence
+describe what the function does" half is NOT mechanically checkable and was
+NOT audited. 1,934 functions were checked for parameter and default
+agreement; none were read for whether their prose is true. That remainder is
+real and is the part a human still has to sample.
+
+tests/test_translation_correctness.py (6) and
+tests/test_docstring_correctness.py (2).
