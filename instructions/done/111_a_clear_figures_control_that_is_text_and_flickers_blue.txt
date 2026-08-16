@@ -102,3 +102,21 @@ it, including that a release outside the rect cancels and that an empty queue
 still flickers. 549 console/figure tests pass.
 
 NOT DONE, and deliberately: no confirmation dialog, per the reasoning above.
+
+--------------------------------------------------------------------------------
+VERIFIED (2026-08-16)
+--------------------------------------------------------------------------------
+
+Driven independently of the committed tests, on a real FigureQueue with real
+QMouseEvents. Every acceptance line above holds:
+
+  * exactly one label reads "Clear figures"; it is `_ClearFiguresLabel`, not a
+    QPushButton, and its cursor is PointingHandCursor;
+  * three figures queued, one click, queue goes 3 -> 0;
+  * the stylesheet goes #6b6f76 -> #4A9EFF -> #6b6f76 on its own, so the
+    flicker is real and returns to rest without further input;
+  * a second click on the now-empty queue is harmless and still flickers;
+  * the timing is `spacr/qt/widgets/flash.py`'s single `FLASH_MS = 650`, which
+    console_panel imports too -- one implementation, not two that can drift.
+
+CLOSED.
