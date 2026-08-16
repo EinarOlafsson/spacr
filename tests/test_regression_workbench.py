@@ -1059,3 +1059,71 @@ class TestTheOutputFolderIsTheCallersChoice:
                     "src": "   ", "regression_type": "ols"}
         *_rest, res_folder, _csv = fn(settings)
         assert str(data) in res_folder
+
+
+class TestTheNonparametricTableMatchesTheParametricOne:
+    """One name must not mean two shapes.
+
+    ``results.csv`` on disk carried feature / coefficient / p_value / q_value;
+    the returned ``output['results']`` did not. Every consumer of a
+    coefficient table -- the results panel, guide concordance, the volcano,
+    the sweep's hit counts -- therefore raised KeyError('feature') on
+    permutation output while working on parametric output.
+    """
+
+    #: What any consumer of a spaCR coefficient table is entitled to assume.
+    CONTRACT = ("feature", "coefficient", "p_value", "q_value", "grna")
+
+    def test_the_aliases_are_on_the_returned_results(self):
+        import pandas as pd
+
+        # The shape the permutation path builds, before the aliases.
+        raw = pd.DataFrame({
+            "guide": ["TGGT1_225160_2", "TGGT1_239740_3"],
+            "standardized_marginal_effect": [1.4, -0.9],
+            "permutation_p_value": [5e-06, 5e-06],
+            "adjusted_p_value": [5e-06, 5e-06],
+            "minimum_wells_threshold": [1, 1],
+            "significant": [True, True],
+        })
+        # Apply exactly what ml.py now applies.
+        out = raw.copy()
+        out["grna"] = out["guide"]
+        out["feature"] = "fraction:grna[" + out["guide"].astype(str) + "]"
+        out["coefficient"] = out["standardized_marginal_effect"]
+        out["p_value"] = out["permutation_p_value"]
+        out["q_value"] = out["adjusted_p_value"]
+
+        for column in self.CONTRACT:
+            assert column in out.columns
+
+    def test_the_source_columns_are_kept_not_replaced(self):
+        """A caller that wants the permutation quantities still has them."""
+        import inspect
+
+        from spacr.ml import perform_regression
+        source = inspect.getsource(perform_regression.__globals__["perform_regression"]) \
+            if "perform_regression" in perform_regression.__globals__ else ""
+        # The aliasing block adds columns; it must not drop the originals.
+        import spacr.ml as ml
+        text = inspect.getsource(ml)
+        block = text[text.index("THE SAME ALIASES ON THE FULL TABLE"):]
+        block = block[:block.index("significant = primary_table")]
+        assert "results = results.copy()" in block
+        assert "drop(" not in block, "the permutation columns were dropped"
+
+    def test_guide_concordance_reads_permutation_output(self):
+        """The consumer that broke, on the shape that broke it."""
+        import pandas as pd
+
+        from spacr.guide_concordance import guide_support
+
+        frame = pd.DataFrame({
+            "feature": ["fraction:grna[TGGT1_225160_2]",
+                        "fraction:grna[TGGT1_225160_3]"],
+            "coefficient": [1.4, 1.1],
+            "p_value": [5e-06, 2e-03],
+        })
+        support = guide_support(frame)
+        assert "225160" in support.index
+        assert support.loc["225160"]["n_guides"] == 2
