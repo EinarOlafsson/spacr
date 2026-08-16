@@ -209,3 +209,41 @@ pytest_runtest_logfinish will name a leaker directly, no bisection needed.
 Use logfinish, NOT pytest_runtest_teardown: teardown runs BEFORE the fixture
 finalizers, so it reports every well-behaved save/restore fixture in the suite
 as a leak. Two false positives cost an hour that way.
+
+--------------------------------------------------------------------------------
+4. AND ONE THAT DID NOT FAIL, IT CORE-DUMPED
+--------------------------------------------------------------------------------
+
+  victim    test_cov_plot_merged_grid.py::test_plot_merged_returns_last_figure_once_nr_is_exceeded
+  polluter  no single one -- it takes THREE, and what they leak is a loaded
+            GUI toolkit:
+                tests/qt/test_figure_grid.py::TestReflowShape::test_a_wide_short_container_gets_one_row   (Qt)
+                tests/test_more_helpers_7.py::test_plot_permutation_returns_figure                        (matplotlib)
+                tests/qt/../test_cov_gui_elements_widgets_progress.py::test_frame_scroll_region_follows_inner_frame_configure  (Tk)
+  global    PySide6 and Tk both initialised in one process
+
+  Found by a shuffled ordering, reduced from 385 preceding tests to those
+  three by delta debugging. The target passes alone and SIGABRTs after them:
+  core dumped, no traceback, no test result -- the whole run dies and takes
+  every other result with it, which is why this was worth chasing rather than
+  writing off as flake.
+
+  utils._outline_and_overlay drew its contours in a ThreadPoolExecutor, and
+  cv2 + skimage's contour code are not safe off the main thread with two GUI
+  toolkits resident. Nothing can catch a SIGABRT, so the only fix is not to go
+  there.
+
+  fixed by  drawing on the calling thread. Measured first, because giving up
+            parallelism ought to cost something and here it does not: at most
+            three mask dimensions, and find_contours holds the GIL throughout,
+            so the pool was worth 3-5% (1257 ms serial vs 1222 ms threaded on
+            3x60 objects at 1024px; 17.3 s vs 16.5 s on 3x200 at 2048px).
+  guard     test_cov_utils_meta_naming.py::test_the_outlines_are_drawn_on_the_calling_thread
+            -- records the thread ident find_contours actually runs on. On the
+            absence of a worker thread, NOT on the absence of an import, so a
+            refactor cannot reintroduce the pool under another name.
+
+  NOTE for whoever meets this next: a native abort names whatever frame the
+  thread happened to be in, which was find_contours. That is not the culprit;
+  the culprit is that it ran off the main thread at all. Do not go hunting in
+  skimage.
