@@ -1690,6 +1690,22 @@ class AppScreen(QWidget):
                 left.setTabToolTip(1, "Every trial the parameter sweep ran. "
                                       "Pick one to see its results and its "
                                       "figures.")
+
+                # WHICH MEASUREMENT HAS GENES WITH A CLEAR EFFECT (122).
+                # Structurally the same thing as the sweep, with the
+                # DEPENDENT VARIABLE varying instead of the settings -- so it
+                # sits beside the runs rather than in a screen of its own.
+                from ..widgets.measurement_scan_panel import (
+                    MeasurementScanPanel)
+                self._scan_panel = MeasurementScanPanel(
+                    frame_provider=self._scan_source_frame, parent=left)
+                left.addTab(self._scan_panel, "Measurements")
+                left.setTabToolTip(
+                    2, "Hold the model fixed and sweep the dependent "
+                       "variable. Corrected ACROSS the scan, not only within "
+                       "each measurement -- a measurement that passes alone "
+                       "and fails across the scan is the one worth knowing "
+                       "about.")
                 # Read the table when the tab is OPENED, not on a timer. A
                 # sweep writes each trial as it finishes, so the answer is
                 # different every time somebody looks -- and nobody is looking
@@ -3132,6 +3148,34 @@ class AppScreen(QWidget):
         folder = self._sweep_destination()
         if folder:
             runs.load(folder)
+
+    def _scan_source_frame(self):
+        """The well-level frame the measurement scan should run on.
+
+        Taken from the regression's own merged data when a run has written
+        one, because that frame already carries the gene assignment beside
+        the measurements -- which is exactly what the scan needs and what
+        nothing else in the app assembles.
+        """
+        import os as _os
+
+        panel = getattr(self, "_results_panel", None)
+        source = getattr(panel, "_path", "") if panel is not None else ""
+        if not source:
+            return None
+        folder = _os.path.dirname(_os.path.abspath(source))
+        # `regression_data.csv` is what perform_regression writes after the
+        # merge: one row per well, the guides and the response together.
+        for name in ("regression_data.csv", "merged_data.csv"):
+            candidate = _os.path.join(folder, name)
+            if _os.path.isfile(candidate):
+                import pandas as _pd
+                try:
+                    return _pd.read_csv(candidate)
+                except Exception:
+                    LOG.debug("could not read %s", candidate, exc_info=True)
+                    return None
+        return None
 
     def _sweep_destination(self) -> str:
         """Where the sweep card was told to write, if it exists.
