@@ -143,20 +143,35 @@ def test_the_contained_child_sets_it_at_import():
 
 def test_be_polite_survives_a_kernel_that_refuses():
     """Best effort, not a requirement: a container or hardened kernel may
-    refuse the write, and that is not a reason to fail a sweep."""
+    refuse the write, and that is not a reason to fail a sweep.
+
+    The other half matters as much. The REST of be_polite still has to run --
+    swallowing the refusal by returning early would leave the trial without
+    its nice and ionice, and those are what decide who WAITS. Losing both
+    protections because one was unavailable is how a "safe" fallback puts the
+    machine back where it started.
+    """
     import builtins
 
     from spacr import parameter_sweep
 
     real_open = builtins.open
+    attempted = []
 
     def _refuse(path, *args, **kwargs):
         if "oom_score_adj" in str(path):
+            attempted.append(str(path))
             raise PermissionError("refused")
         return real_open(path, *args, **kwargs)
 
+    before = os.nice(0)
     builtins.open = _refuse
     try:
         parameter_sweep.be_polite()      # must not raise
     finally:
         builtins.open = real_open
+
+    assert attempted, "be_polite never tried to write oom_score_adj at all"
+    assert os.nice(0) > before, (
+        "the refused write short-circuited be_polite before it could yield "
+        "the CPU -- the trial keeps full scheduling priority")
