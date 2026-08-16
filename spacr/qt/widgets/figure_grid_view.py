@@ -140,6 +140,12 @@ class FigureGridView(QScrollArea):
 
     figure_activated = Signal(int)
     figure_menu_requested = Signal(int, object)
+    #: Emitted when the PINNED tile is pressed. Separate from
+    #: ``figure_activated`` because the pinned tile is not one of the run's
+    #: figures and has no index among them -- sharing the signal would mean a
+    #: sentinel index, and a sentinel index is a wrong figure waiting to be
+    #: opened by whoever forgets to check for it.
+    pinned_activated = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -154,7 +160,27 @@ class FigureGridView(QScrollArea):
         self.setWidget(self._body)
 
         self._cells: list[_FigureCell] = []
+        self._pinned: Optional[_FigureCell] = None
         self._target = 320
+
+    def set_pinned(self, pixmap, title: str = "") -> bool:
+        """A tile that is always first and is not one of the run's figures.
+
+        The regression graph is a LIVE widget, not a picture the pipeline
+        saved, and it is the one the maintainer asked to be interactive. Left
+        to the ordinary path the grid would show the pipeline's static copy of
+        the same plot -- two volcanoes on screen, the big one dead -- so the
+        live one takes the first tile and the press opens the real thing.
+        """
+        if pixmap is None or pixmap.isNull():
+            self._pinned = None
+            self._relayout()
+            return False
+        cell = _FigureCell(-1, pixmap, title, self._body)
+        cell.clicked.connect(lambda _index: self.pinned_activated.emit())
+        self._pinned = cell
+        self._relayout()
+        return True
 
     def set_target_cell_width(self, pixels: int) -> None:
         """How wide a single-width cell should be, before layout."""
@@ -165,7 +191,10 @@ class FigureGridView(QScrollArea):
         while self._grid.count():
             item = self._grid.takeAt(0)
             widget = item.widget()
-            if widget is not None:
+            # The pinned tile survives a clear: it is not one of the figures
+            # being replaced, and a run that streams new ones must not make
+            # the interactive graph disappear.
+            if widget is not None and widget is not self._pinned:
                 widget.setParent(None)
                 widget.deleteLater()
         self._cells = []
@@ -195,7 +224,8 @@ class FigureGridView(QScrollArea):
         unit = max(available // columns, MIN_CELL_PX // 2)
 
         row = column = 0
-        for cell in self._cells:
+        for cell in ([self._pinned] if self._pinned is not None else []) \
+                + self._cells:
             span = min(cell_span(cell.aspect()), columns)
             # A wide figure that will not fit in what is left of this row
             # starts the next one, rather than being squeezed.

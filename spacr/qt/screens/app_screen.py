@@ -1591,7 +1591,8 @@ class AppScreen(QWidget):
                 from ..widgets.regression_results import RegressionResultsPanel
                 from ..widgets.figure_grid_view import FigureGridView
 
-                self._results_panel = RegressionResultsPanel(self._figures_card)
+                self._results_panel = RegressionResultsPanel(
+                    self._figures_card, external_volcano=True)
 
                 # ALL of them at once, each at its own aspect ratio. A run
                 # makes seventeen figures and they are meant to be read
@@ -1626,9 +1627,37 @@ class AppScreen(QWidget):
                 detail_layout.addWidget(self._figure_queue, 1)
                 self._figure_detail = detail
 
+                # THE REGRESSION GRAPH GETS THE BIG HALF, AND IT IS THE LIVE
+                # ONE. "that is the slowest graph and the one i want to be
+                # interactive." Left inside the results panel it was a
+                # thumbnail above its own table, while the pipeline's DEAD
+                # copy of the same plot took a full tile on the right -- two
+                # volcanoes on screen and the big one not clickable.
+                volcano_page = QWidget(self._figures_card)
+                volcano_layout = QVBoxLayout(volcano_page)
+                volcano_layout.setContentsMargins(0, 0, 0, 0)
+                volcano_layout.setSpacing(4)
+                back_to_grid = QPushButton("← All figures")
+                back_to_grid.setFlat(True)
+                back_to_grid.clicked.connect(self._show_figure_grid)
+                volcano_row = QHBoxLayout()
+                volcano_row.addWidget(back_to_grid)
+                volcano_row.addStretch(1)
+                volcano_layout.addLayout(volcano_row)
+                volcano_layout.addWidget(self._results_panel.volcano, 1)
+                self._volcano_page = volcano_page
+
                 self._figures_stack = QStackedWidget(self._figures_card)
                 self._figures_stack.addWidget(self._figure_grid)   # index 0
                 self._figures_stack.addWidget(detail)              # index 1
+                self._figures_stack.addWidget(volcano_page)        # index 2
+                self._figure_grid.pinned_activated.connect(
+                    self._show_regression_graph)
+                # Picking a guide raises the graph its ring was drawn on.
+                # Highlighting a point on a view nobody is looking at is the
+                # same as not highlighting it.
+                self._results_panel.table.key_selected.connect(
+                    self._on_guide_selected)
 
                 # "the paramiter search should be like the main module setup
                 # just an extra tab for the runs" (116, corrected). Not a
@@ -3050,6 +3079,27 @@ class AppScreen(QWidget):
                              self._figure_queue.figure_titles())
         except Exception:
             LOG.debug("could not build the figure grid", exc_info=True)
+        self._pin_the_regression_graph()
+
+    def _pin_the_regression_graph(self) -> None:
+        """Give the live volcano the first tile, once it has something on it.
+
+        Without this the grid's volcano is the pipeline's saved PNG: the same
+        plot, drawn slower, and dead to a click. Two volcanoes on screen with
+        the big one not clickable is worse than one.
+        """
+        panel = getattr(self, "_results_panel", None)
+        grid = getattr(self, "_figure_grid", None)
+        if panel is None or grid is None or not getattr(
+                panel, "external_volcano", False):
+            return
+        if getattr(panel.volcano, "_frame", None) is None:
+            return                    # nothing fitted yet, so no tile to show
+        try:
+            grid.set_pinned(panel.volcano.grab(),
+                            "Regression graph — click to interact")
+        except Exception:
+            LOG.debug("could not pin the regression graph", exc_info=True)
 
     def _queue_figure_grid_refresh(self) -> None:
         """Ask for a rebuild soon. Coalesces a burst into one."""
@@ -3177,6 +3227,26 @@ class AppScreen(QWidget):
         if stack is not None:
             self._refresh_figure_grid()
             stack.setCurrentIndex(0)
+
+    def _show_regression_graph(self) -> None:
+        """Fill the container with the LIVE volcano.
+
+        The one the maintainer named: "that is the slowest graph and the one i
+        want to be interactive". It is a widget, not a picture, so it hit-tests
+        -- click a point and it knows which guide it is.
+        """
+        stack = getattr(self, "_figures_stack", None)
+        page = getattr(self, "_volcano_page", None)
+        if stack is not None and page is not None:
+            stack.setCurrentWidget(page)
+
+    def _on_guide_selected(self, _key: str) -> None:
+        """A guide was picked in the table: raise the graph it was rung on.
+
+        Drawing a ring on a view nobody is looking at is the same as not
+        drawing one.
+        """
+        self._show_regression_graph()
 
     def _open_figure_from_grid(self, index: int) -> None:
         """A pressed tile fills the container with that figure."""
