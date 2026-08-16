@@ -159,3 +159,30 @@ above.
 
 16 tests, including the one that matters: a per-source count after the merge
 equals the per-source count before it, for every source.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - THE PLATE-COLLISION ANSWER IS SUPERSEDED FOR SCREENS
+--------------------------------------------------------------------------------
+
+This file's `on_collision='qualify'` rewrites a colliding `plate1` to
+`runA-plate1`. That was the right answer for the problem as stated here --
+make the keys unique without losing data -- and it is the WRONG answer for
+the case instruction 122 describes.
+
+    "the screens would bothe have plates1,2,3,4 sh that would have to be
+     fixed somewow, e.g. with a new metadataitem callsed screenID"
+
+Qualification hides the screen INSIDE the plate id. The keys become unique,
+which is all it was built to do, but the screen stops being analysable: you
+cannot block on it, test for a screen effect, or colour by it without parsing
+a string back apart.
+
+So for two SCREENS the answer is a first-class `screenID` column beside
+plateID, and `read_merged` should grow a screen-aware path that writes it.
+Keep `qualify` for callers who genuinely want the plate id rewritten; stop
+offering it as the recommended fix in the GUI.
+
+Instruction 122 owns that work. This note exists so nobody reads the
+collision section above and builds the qualification path into the
+cross-screen feature.
