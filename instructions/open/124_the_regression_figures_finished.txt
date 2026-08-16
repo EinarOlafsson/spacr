@@ -193,3 +193,119 @@ HOW TO KNOW IT WORKED
 * The volcano can be coloured by LOPIT compartment, one at a time against grey.
 * A gene tile carries a ToxoDB link, and a UniProt link only when the
   accession is known rather than constructed.
+
+
+================================================================================
+2026-08-16 - A FIGURE LEAVES WITH ITS DATA AND ITS STATISTICS
+================================================================================
+
+Requested: "the user should be able to determine the intercept and modify as
+           much as possible regarding the plots so they can right click and
+           export and use directly in a publication."
+           "add if a graph is exported its data is also exported with the
+           filename of the graph and a stats table is generated with the
+           correct stats ( automatic detection of equal variance nr of
+           groups, provide a statistics tab in the settings for the graph
+           upon right clicking."
+
+--------------------------------------------------------------------------------
+J. EXPORT TAKES THREE FILES, NOT ONE
+--------------------------------------------------------------------------------
+
+Exporting `volcano.pdf` also writes:
+
+    volcano.pdf     the figure
+    volcano.csv     THE DATA THAT WAS PLOTTED -- the rows and columns the
+                    panel actually drew, not the whole results table
+    volcano_stats.csv   the test, its assumptions, and its result
+
+Same basename, so a reviewer asking "where do these numbers come from" is
+answered by the folder rather than by the analyst's memory. This is the whole
+point of the request: a figure that can go into a paper is a figure whose
+numbers can be checked.
+
+THE DATA IS WHAT WAS DRAWN. A volcano that dropped the nuisance terms exports
+the rows it drew, not the rows it was given -- otherwise the CSV and the
+picture disagree about n, and the CSV is what a reader will believe.
+
+--------------------------------------------------------------------------------
+K. THE STATS TABLE PICKS ITS OWN TEST, AND SHOWS ITS WORKING
+--------------------------------------------------------------------------------
+
+"automatic detection of equal variance nr of groups".
+
+The choice is mechanical and must be made from the data rather than by the
+user guessing:
+
+    groups   variance      distribution     test
+    2        equal         ~normal          Student's t (two-sided)
+    2        unequal       ~normal          Welch's t
+    2        any           not normal       Mann-Whitney U
+    >2       equal         ~normal          one-way ANOVA
+    >2       unequal       ~normal          Welch's ANOVA
+    >2       any           not normal       Kruskal-Wallis
+    2 groups, paired                        paired t / Wilcoxon
+
+Equal variance by Levene (median-centred, which is the robust form and the
+one to use when normality is itself in question). Normality by Shapiro-Wilk
+per group where n allows, D'Agostino otherwise.
+
+WHAT THE TABLE MUST CARRY, because a p-value alone is not reportable and the
+skill says so explicitly: the test by name, n PER GROUP, the effect size
+(Cohen's d, Hedges' g for small n, or eta squared / epsilon squared for more
+than two), the confidence interval, the assumption checks WITH their own
+p-values, and the correction if several comparisons were made.
+
+TWO TRAPS, both of which produce a plausible wrong answer:
+
+ 1. THE ASSUMPTION TESTS ARE THEMSELVES TESTS. On n = 3 they have no power,
+    so "variances are equal" means "we could not tell". Below a stated n the
+    table must say the check was UNINFORMATIVE and default to the robust
+    choice (Welch, Mann-Whitney) rather than to the one the check failed to
+    reject. Choosing Student's because Levene did not reject on n = 3 is how
+    a screen reports a difference that is not there.
+
+ 2. THE UNIT OF REPLICATION. spaCR measures thousands of cells across a
+    handful of wells. Testing across CELLS when the replicate is the WELL is
+    pseudoreplication and will produce p < 1e-10 on noise. The table states
+    what n counts, and where the panel knows the grouping it must use the
+    well, not the object.
+
+--------------------------------------------------------------------------------
+L. A STATISTICS TAB IN THE FIGURE SETTINGS
+--------------------------------------------------------------------------------
+
+Right-click -> Figure settings gains a Statistics tab: which test (auto, or
+forced), the alpha, the correction across comparisons, whether to draw the
+brackets on the panel, and the unit of replication.
+
+Drawn statistics follow the skill: a horizontal bracket spanning the compared
+groups with asterisks or `n.s.` above it, and nothing else on the panel. The
+test, the n and the asterisk convention go in the legend, never on the axes.
+
+--------------------------------------------------------------------------------
+M. THE INTERCEPT IS THE USER'S TO CHOOSE
+--------------------------------------------------------------------------------
+
+"the user should be able to determine the intercept".
+
+Read as the model's reference level, not the plotted line: every coefficient
+in the table is a difference FROM the intercept, so which condition is the
+baseline decides what every number in the figure means. Today it is whatever
+patsy sorted first, which is not a scientific choice.
+
+The user picks it -- the non-targeting controls being the obvious default for
+a screen -- and the panel says which baseline the effects are measured from.
+An effect size with an unstated reference is not interpretable.
+
+--------------------------------------------------------------------------------
+ADDED TO HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Exporting any figure leaves three files with one basename, and the CSV's
+  row count matches the n the panel reports.
+* The stats table names its test, and on n = 3 says the assumption check was
+  uninformative rather than claiming equal variance.
+* Forcing a test in the Statistics tab changes the table and the brackets.
+* The panel states which level the intercept is, and changing it changes the
+  sign or magnitude of the coefficients as expected.
