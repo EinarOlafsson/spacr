@@ -910,6 +910,18 @@ class ResultsTable(QWidget):
         self._frame = None
         self._alpha = 0.05
         self._key_column: Optional[str] = None
+        # EVERY PIECE OF STATE _apply_filter READS IS BORN HERE.
+        #
+        # `_significance` was created only in set_frame, and the filter
+        # controls are connected in this constructor -- so any path that
+        # touched a control before the first frame arrived crashed the
+        # application on startup with AttributeError. configure() is one such
+        # path: it can uncheck "significant only", which emits toggled.
+        #
+        # A widget must be fully usable the moment it exists. Half-built state
+        # that only becomes valid after some other method has been called is
+        # how a constructor turns into a trap.
+        self._significance: Optional[str] = None
 
     def set_frame(self, frame, *, alpha: float = 0.05,
                   significance_column: Optional[str] = None,
@@ -960,6 +972,10 @@ class ResultsTable(QWidget):
     def _apply_filter(self) -> None:
         text = self._filter.text().strip().lower()
         hits_only = self._only_hits.isChecked()
+        # The significance cut needs the frame to find its column in. Without
+        # one there is nothing to cut on, and asking for the column would be
+        # the same crash one line further down.
+        significance = self._significance if self._frame is not None else None
         shown = 0
         for row in range(self.table.rowCount()):
             visible = True
@@ -968,8 +984,10 @@ class ResultsTable(QWidget):
                     text in (self.table.item(row, c).text() or "").lower()
                     for c in range(self.table.columnCount())
                     if self.table.item(row, c) is not None)
-            if visible and hits_only and self._significance:
-                column = list(self._frame.columns).index(self._significance)
+            if visible and hits_only and significance:
+                if significance not in self._frame.columns:
+                    continue
+                column = list(self._frame.columns).index(significance)
                 item = self.table.item(row, column)
                 try:
                     visible = float(item.text()) <= self._alpha
@@ -979,8 +997,8 @@ class ResultsTable(QWidget):
             shown += int(visible)
         total = self.table.rowCount()
         note = f"{shown} of {total} rows"
-        if hits_only and self._significance:
-            note += f" ({self._significance} <= {self._alpha:g})"
+        if hits_only and significance:
+            note += f" ({significance} <= {self._alpha:g})"
         self._count.setText(note)
 
     def _on_selection(self) -> None:
