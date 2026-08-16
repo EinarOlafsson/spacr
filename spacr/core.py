@@ -603,6 +603,27 @@ def preprocess_generate_masks_timelapse(settings):
     return preprocess_generate_masks(settings)
 
 
+#: The column a multi-plate UMAP carries so a user can colour by source.
+#:
+#: Deliberately the same name :mod:`spacr.multi_database` uses, so a frame
+#: coming out of the UMAP and a frame coming out of the Gate Editor's merge
+#: answer "where did this row come from" under one column name. Two names for
+#: one idea is how a user ends up unable to compare the two.
+UMAP_SOURCE_COLUMN = "source_database"
+
+
+def _umap_source_label(src):
+    """A short, readable name for one source root.
+
+    The plate folder's own name, because that is what the user called it and
+    what they will look for in a legend -- ``get_db_paths`` appends
+    ``measurements/measurements.db`` to it, so the file name is the same for
+    every plate and useless as a label.
+    """
+    text = str(src).rstrip(os.sep)
+    return os.path.basename(text) or text
+
+
 def _validate_umap_source_db(db_path, tables, require_png_list=True):
     """Fail early — and by name — when a measurements DB cannot back an image UMAP.
 
@@ -784,6 +805,38 @@ def generate_image_umap(settings=None, return_fig=False):
     db_paths = get_db_paths(settings['src'])
     tables = settings['tables'] + ['png_list']
     all_df = pd.DataFrame()
+
+    # WARN ABOUT PLATE IDS THAT APPEAR IN MORE THAN ONE DATABASE
+    # (instruction 109). This function has always accepted several sources and
+    # concatenated them, and has never checked that their plates are actually
+    # different plates. Two runs that both call a plate 'plate1' produce one
+    # key per object across both, so every per-well number computed downstream
+    # -- and every cluster the embedding shows -- is over two experiments at
+    # once, with nothing on screen to say so.
+    #
+    # A warning rather than a refusal: unlike a fresh merge, this is an
+    # existing entry point with existing callers, and stopping a run that
+    # worked yesterday is a worse failure than telling the truth loudly. The
+    # source column below is what lets a user check the answer.
+    if len(db_paths) > 1:
+        try:
+            from .multi_database import describe_merge
+            _plan = describe_merge(db_paths, 'cell')
+            if _plan.colliding_plates:
+                _detail = '; '.join(
+                    f"{plate!r} in {', '.join(labels)}"
+                    for plate, labels in sorted(_plan.colliding_plates.items()))
+                print(f"WARNING: the same plate id appears in more than one "
+                      f"source database, so objects from different runs share "
+                      f"one key and every per-well number below is computed "
+                      f"over both at once: {_detail}. Rename the plates, or "
+                      f"colour by '{UMAP_SOURCE_COLUMN}' to see which is "
+                      f"which.")
+        except Exception:
+            # Never let the advisory check stop a run that would otherwise
+            # work -- a database missing a 'cell' table is a legitimate shape
+            # here, and this is only advice.
+            pass
     # Where the thumbnails come from. 'png' (and 'auto' on any project that
     # has a crop folder) reads the folder, exactly as before; 'merged' (and
     # 'auto' with no folder) cuts each thumbnail out of merged/*.npy on
@@ -817,6 +870,14 @@ def generate_image_umap(settings=None, return_fig=False):
         # png_path for display on this machine. These columns are removed
         # before the result CSV/DataFrame leaves this function.
         df['_spacr_umap_db_path'] = db_path
+        # The SOURCE, as something a user can group and colour by
+        # (instruction 109). The private column above is dropped before the
+        # result leaves this function; this one is not, because a merged
+        # embedding whose clusters turn out to be the source databases rather
+        # than biology is the single most important thing a multi-plate UMAP
+        # can show -- and it cannot show it if provenance never reaches the
+        # frame the user plots.
+        df[UMAP_SOURCE_COLUMN] = _umap_source_label(settings['src'][i])
         df['_spacr_umap_db_png_path'] = (
             df['png_path'] if 'png_path' in df.columns else None)
         df, image_paths_tmp = correct_paths(df, settings['src'][i])

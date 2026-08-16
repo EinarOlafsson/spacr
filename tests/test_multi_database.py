@@ -231,3 +231,54 @@ def test_the_gate_editor_refuses_a_collision_and_says_which(qtbot, colliding):
 
     assert screen._frame is None
     assert "plate1" in screen._source.text()
+
+
+# --------------------------------------------------------------------------- #
+#  Image UMAP, the other screen instruction 109 names
+# --------------------------------------------------------------------------- #
+
+def test_the_umap_and_the_merge_name_the_source_column_the_same():
+    """One name for one idea.
+
+    generate_image_umap has always accepted several source roots; it now
+    keeps a source column so a user can colour by it. If that column were
+    called something else, a frame from the UMAP and a frame from the Gate
+    Editor's merge would answer the same question under two names, and
+    nothing could compare them.
+    """
+    from spacr.core import UMAP_SOURCE_COLUMN
+
+    assert UMAP_SOURCE_COLUMN == SOURCE_COLUMN
+
+
+def test_the_umap_source_label_is_the_plate_folder():
+    """get_db_paths appends measurements/measurements.db to every root, so
+    the file name is identical for every plate and useless as a legend."""
+    from spacr.core import _umap_source_label
+
+    assert _umap_source_label("/data/plate1") == "plate1"
+    assert _umap_source_label("/data/plate1/") == "plate1"
+    assert _umap_source_label("plate2") == "plate2"
+
+
+def test_the_umap_warns_about_colliding_plates_without_stopping(tmp_path,
+                                                               capsys):
+    """The advisory check is a WARNING, not a refusal.
+
+    Unlike a fresh merge, this is an existing entry point with existing
+    callers, and stopping a run that worked yesterday is a worse failure than
+    saying so loudly. The check must also never raise -- a database missing a
+    'cell' table is a legitimate shape here.
+    """
+    from spacr.multi_database import describe_merge
+
+    paths = [_database(tmp_path / "runA.db", "plate1"),
+             _database(tmp_path / "runB.db", "plate1")]
+    plan = describe_merge(paths, "cell")
+    assert plan.colliding_plates, "the fixture should collide"
+
+    # The shape core.generate_image_umap uses: never raises, names the plate.
+    detail = '; '.join(f"{plate!r} in {', '.join(labels)}"
+                       for plate, labels in sorted(plan.colliding_plates.items()))
+    assert "plate1" in detail
+    assert "runA" in detail and "runB" in detail
