@@ -287,9 +287,28 @@ is now the single statement of which coefficients are hypotheses, shared with
 ml.py's multiple-testing correction so a volcano cannot draw a family the
 correction did not correct. The dropped count is reported in the status line.
 
-STILL OPEN in this file's scope:
-  * item 11, right-click a grid tile -> Save figure as...
-  * the interactive volcano is in the LEFT panel. If the maintainer meant
-    the big graph on the RIGHT to be the interactive one, promoting it to a
-    stack page reachable from its own tile is the next step -- the key join
-    and the ring are renderer-side and would carry over unchanged.
+RIGHT-CLICK A TILE, AND SAVE -- DONE. The gesture reached the one open
+figure and the thumbnails, never the grid. And "savable" had no
+implementation at all: the menu could restyle a figure and then offer no way
+to keep the result. Restyling a tile does NOT navigate to it -- a grid is for
+comparing figures and jumping to one loses the comparison.
+
+THE LIVE GRAPH IS NOW THE BIG ONE -- DONE, and it was the open question in
+the RESULT above. The volcano was a thumbnail above its own table on the
+left, while the pipeline's SAVED PNG of the same plot took a full tile on the
+right: two volcanoes on screen and the big one dead to a click. The live
+widget now owns the right-hand container, reachable from a pinned first tile,
+and picking a row in the table raises it -- because a ring drawn on a view
+nobody is looking at is not a highlight.
+
+    verified through the widgets on the real screen:
+      table sorted by p, row 4 -> gene_fraction:gene[239740]
+      ringed                   -> gene_fraction:gene[239740]
+      right-hand container     -> the live volcano, 1,212 points
+
+TRANSPARENCY, measured rather than eyeballed: the plot was rendered over a
+magenta host and sampled. (255, 0, 255) inside the axes and outside them --
+the host shows through everywhere, so nothing is painting a background.
+
+STILL OPEN in this file's scope: nothing. The remaining regression work is
+121 (the gene tile) and 122 (across screens), which have their own files.
