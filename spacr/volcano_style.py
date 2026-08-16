@@ -112,8 +112,36 @@ class VolcanoStyle:
     #: Effect-size cut. ``None`` draws none. ``threshold_multiplier`` scales
     #: whichever rule ``threshold_method`` names.
     effect_threshold: float | None = None
-    threshold_method: str = "value"   # 'value' | 'std' | 'mad' | 'quantile'
+    #: ``'value' | 'std' | 'mad' | 'quantile' | 'control'``.
+    #:
+    #: ``'control'`` is the principled one: the non-targeting controls ARE
+    #: the empirical null. They went through the same library prep, the same
+    #: plates and the same model, and they are known to have no effect, so a
+    #: cut at k x MAD of the controls says "further than a guide with no
+    #: effect ever got" -- which is the statement a reader takes a volcano
+    #: threshold to mean.
+    #:
+    #: HOW MUCH IT MATTERS, MEASURED rather than argued, on the tsg101 screen
+    #: (823 guides, 24 controls, 3x multiplier):
+    #:
+    #:     std, all guides      1.8685      2.2x too high
+    #:     mad, all guides      0.8379      1.01x -- 88 guides pass
+    #:     mad, controls only   0.8322              89 guides pass
+    #:
+    #: So the "the hits inflate the null" objection is decisive against
+    #: ``std`` and nearly irrelevant against ``mad`` -- which is exactly what
+    #: a median absolute deviation is for. Do not reach for ``control``
+    #: expecting a different number from ``mad``; reach for it because it is
+    #: the defensible one to describe in a methods section, and because a
+    #: screen with a stronger signal than this one WILL pull ``mad`` up while
+    #: leaving the controls where they are.
+    threshold_method: str = "value"
     threshold_multiplier: float = 3.0
+    #: Which rows are non-targeting controls, for ``threshold_method``
+    #: ``'control'``. A boolean column name in the results frame. Without it
+    #: that method cannot resolve and says so rather than silently falling
+    #: back to a different rule.
+    control_column: str | None = None
     show_alpha_line: bool = True
     show_effect_lines: bool = True
     show_zero_line: bool = True
@@ -198,13 +226,62 @@ class VolcanoStyle:
             return cls.from_dict(json.load(handle))
 
 
-def _resolve_effect_threshold(values: np.ndarray, style: VolcanoStyle):
-    """Turn ``threshold_method`` + multiplier into a symmetric cut, or None."""
+#: Fewest control guides an empirical null may be estimated from. Below this
+#: a MAD is noise pretending to be a threshold -- and a threshold that is too
+#: LOW calls everything a hit, which is worse than drawing no line at all.
+_MIN_CONTROLS_FOR_THRESHOLD = 8
+
+
+def _resolve_effect_threshold(values: np.ndarray, style: VolcanoStyle,
+                              control_mask: np.ndarray | None = None):
+    """Turn ``threshold_method`` + multiplier into a symmetric cut, or None.
+
+    :param values: the effect column, all guides.
+    :param control_mask: which of them are non-targeting controls. Required
+        by ``threshold_method='control'`` and ignored by the rest.
+
+    A NOTE ON THE NON-CONTROL METHODS, because it is easy to reach for one
+    and get a number that looks principled: ``std``, ``mad`` and ``quantile``
+    estimate the spread from EVERY guide, hits included. A screen with real
+    hits therefore inflates its own threshold, and the stronger the screen,
+    the higher the bar it sets itself. They are fine for a quick look and
+    they are not a null.
+    """
     method = str(style.threshold_method or "value").lower()
     multiplier = float(style.threshold_multiplier)
     finite = values[np.isfinite(values)]
     if finite.size == 0:
         return None
+
+    if method == "control":
+        if control_mask is None:
+            raise ValueError(
+                "threshold_method='control' needs to know which guides are "
+                "controls. Set VolcanoStyle.control_column to a boolean "
+                "column of the results frame.")
+        controls = values[np.asarray(control_mask, bool) & np.isfinite(values)]
+        if controls.size < _MIN_CONTROLS_FOR_THRESHOLD:
+            raise ValueError(
+                f"threshold_method='control' needs at least "
+                f"{_MIN_CONTROLS_FOR_THRESHOLD} control guides to estimate a "
+                f"null from; this screen has {controls.size}. Use 'mad' and "
+                f"read it as a rough spread, or set an explicit "
+                f"effect_threshold.")
+        # MAD rather than std: one control that went wrong should not widen
+        # the null it is supposed to define. 1.4826 makes it a consistent
+        # estimator of sigma under normality, the same scaling the 'mad'
+        # branch uses, so the two are directly comparable and the difference
+        # between them is exactly "did the hits inflate it".
+        median = float(np.median(controls))
+        mad = float(np.median(np.abs(controls - median)))
+        if mad <= 0.0:
+            # Controls all identical -- degenerate, and a zero cut would mark
+            # every guide significant. Say so instead.
+            raise ValueError(
+                "the control guides have zero spread, so no null can be "
+                "estimated from them. Check that control_column selects the "
+                "non-targeting controls and not a single guide.")
+        return mad * 1.4826 * multiplier
     if method == "value":
         if style.effect_threshold is None:
             return None
@@ -222,7 +299,7 @@ def _resolve_effect_threshold(values: np.ndarray, style: VolcanoStyle):
         return float(np.quantile(np.abs(finite), quantile))
     raise ValueError(
         f"threshold_method={style.threshold_method!r} must be one of "
-        f"'value', 'std', 'mad' or 'quantile'.")
+        f"'value', 'std', 'mad', 'quantile' or 'control'.")
 
 
 def _prepare(results: pd.DataFrame, style: VolcanoStyle):
@@ -246,7 +323,14 @@ def _prepare(results: pd.DataFrame, style: VolcanoStyle):
         significant = frame["significant"].astype(bool).to_numpy()
     else:
         significant = raw_y < float(style.alpha)
-    effect_cut = _resolve_effect_threshold(x, style)
+    control_mask = None
+    if style.control_column:
+        if style.control_column not in frame.columns:
+            raise ValueError(
+                f"control_column={style.control_column!r} is not a column of "
+                f"the results ({sorted(frame.columns)[:15]}).")
+        control_mask = frame[style.control_column].astype(bool).to_numpy()
+    effect_cut = _resolve_effect_threshold(x, style, control_mask)
     if effect_cut is not None:
         significant = significant & (np.abs(x) >= effect_cut)
     return frame, x, y, raw_y, significant, effect_cut
