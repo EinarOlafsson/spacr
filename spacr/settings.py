@@ -1951,6 +1951,38 @@ def get_perform_regression_default_settings(settings):
         settings['agg_type'] = None
         print(f'agg_type set to None for quantile regression')
 
+    # A COUNT MODEL'S RESPONSE IS A COUNT, AND log(count) IS NOT ONE.
+    #
+    # `poisson` and `horseshoe` are fitted as Npositive ~ ... +
+    # offset(log(Ntotal)). ml.process_scores already knows this and overrides
+    # agg_type to 'count' for exactly these two families, taking the well's
+    # SUM instead of its mean -- and then applies `transform` to that sum like
+    # any other response. With the default transform='log' the integer count
+    # becomes a float, and _validate_poisson_response refuses it with
+    # "Poisson regression requires integer count data". Every entry point
+    # builds its dict here, so the effect was that neither count family could
+    # be run at all from Tk, Qt or the CLI without knowing to set transform
+    # off by hand.
+    #
+    # The log belongs to the fraction responses it was defaulted on for
+    # ("screen responses are fractions and skew hard"); a count model already
+    # has a log LINK, so transforming the response as well would log it twice.
+    # Resolved here beside the quantile rule because it is the same kind of
+    # thing -- a model choice that decides how the response must be prepared
+    # -- and because doing it here fixes all three dispatchers at once.
+    #
+    # NOTE: the narrower repair belongs in ml.process_scores, next to the
+    # count_models override it sits beside, so that a direct call to
+    # regression()/process_scores() with transform='log' is covered too. This
+    # rule makes the settings path correct; it does not make that one safe.
+    if settings['regression_type'] in ('poisson', 'horseshoe'):
+        if settings.get('transform') is not None:
+            print(f"transform set to None for "
+                  f"{settings['regression_type']} regression: its response is "
+                  f"the well's positive COUNT, and the model already carries "
+                  f"a log link plus an offset(log(cell_count)) exposure.")
+        settings['transform'] = None
+
     # Fail-loud policy. None means "not set here" and defers to the
     # SPACR_STRICT_ERRORS environment variable, which is how a cluster turns
     # it on for a whole batch without editing every settings file. True/False

@@ -635,3 +635,62 @@ def test_horseshoe_refuses_a_run_with_no_cell_counts():
     y = pd.Series([1.0, 4.0, 9.0, 2.0])
     with pytest.raises(ValueError, match="needs the per-well cell count"):
         regression_model(X, y, regression_type="horseshoe")
+
+
+# ---------------------------------------------------------------------------
+# The count families and the default transform
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("regression_type", ["poisson", "horseshoe"])
+def test_a_count_model_does_not_get_its_response_logged(regression_type):
+    """``log(count)`` is not a count, and every entry point defaulted to it.
+
+    ``transform`` defaults to ``'log'`` because screen responses are fractions
+    and skew hard. ``ml.process_scores`` already knows the count families are
+    different -- it overrides ``agg_type`` to take the well's SUM for exactly
+    these two -- and then transforms that sum like any other response. The
+    integer becomes a float and ``_validate_poisson_response`` refuses it with
+    "Poisson regression requires integer count data", at the very end of a run
+    that had already read both CSVs.
+
+    Since all three dispatchers build their settings from this one function,
+    the effect was that neither count family could be started from Tk, Qt or
+    the CLI without knowing to turn ``transform`` off by hand.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
+    settings = get_perform_regression_default_settings(
+        {"regression_type": regression_type})
+
+    assert settings["transform"] is None, (
+        f"{regression_type} is fitted as Npositive ~ ... + "
+        f"offset(log(Ntotal)); it already has a log link, so transforming the "
+        f"response logs it twice and stops it being integral")
+
+
+@pytest.mark.parametrize("regression_type", ["poisson", "horseshoe"])
+def test_an_explicit_log_is_overridden_for_a_count_model_too(regression_type):
+    """Asking for it directly cannot produce a response the model refuses.
+
+    The same shape as the quantile rule above it, which forces ``agg_type`` to
+    None however the caller left it: a model choice that decides how the
+    response must be prepared wins over the preparation setting, because the
+    alternative is a run that dies at the end with a message about the data
+    rather than about the combination.
+    """
+    from spacr.settings import get_perform_regression_default_settings
+
+    settings = get_perform_regression_default_settings(
+        {"regression_type": regression_type, "transform": "log"})
+
+    assert settings["transform"] is None
+
+
+def test_a_continuous_model_keeps_the_log_default():
+    """The rule is narrow: only the two count families lose the transform."""
+    from spacr.settings import get_perform_regression_default_settings
+
+    assert get_perform_regression_default_settings(
+        {"regression_type": "ols"})["transform"] == "log"
+    assert get_perform_regression_default_settings(
+        {"regression_type": "glm", "transform": "sqrt"})["transform"] == "sqrt"
