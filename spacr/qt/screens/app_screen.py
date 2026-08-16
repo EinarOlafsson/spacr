@@ -1600,6 +1600,11 @@ class AppScreen(QWidget):
                 self._figure_grid = FigureGridView(self._figures_card)
                 self._figure_grid.figure_activated.connect(
                     self._open_figure_from_grid)
+                # "all gigures should be editable by right clicking". The
+                # queue owns the matplotlib objects and already knows how to
+                # build the menu, so the tile just says which one and where.
+                self._figure_grid.figure_menu_requested.connect(
+                    self._figure_grid_menu)
 
                 # A clicked tile fills the container: same widget as before,
                 # wrapped so it is a PAGE of the stack rather than the stack's
@@ -3029,6 +3034,24 @@ class AppScreen(QWidget):
         timer = getattr(self, "_grid_refresh", None)
         if timer is not None:
             timer.start()
+
+    def _figure_grid_menu(self, index: int, position) -> None:
+        """Right-click on a tile: restyle or save THAT figure, in place.
+
+        Deliberately without switching to the detail view first. The point of
+        a grid is comparing figures, and navigating away to change one of them
+        loses the comparison you were making.
+        """
+        try:
+            self._figure_queue.show_figure_menu(position, int(index),
+                                                navigate=False)
+        except Exception:
+            LOG.debug("could not open the tile menu", exc_info=True)
+            return
+        # The restyle rewrote that figure's picture; the grid is built from
+        # pictures, so it has to be rebuilt or the tile keeps showing the old
+        # one and the menu looks broken.
+        self._refresh_figure_grid()
 
     def _show_figure_grid(self) -> None:
         """Back to every figure at once."""

@@ -468,3 +468,34 @@ zero-fill everywhere? Should crop_at pad like crop_object, or should the
 setting be renamed on one of the two paths? Ranked silent-wrong-output first;
 `layers.for_grid` and `lineage.tree_for` are the two that produce a confident
 wrong answer rather than a crash.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - THE i18n CATALOGS ARE 44 STRINGS STALE, IN ALL NINE LANGUAGES
+--------------------------------------------------------------------------------
+
+Found while working on the regression figure surface, not requested.
+
+`tests/qt/test_external_i18n_catalogs.py::
+ test_runtime_catalogs_resolve_all_reviewed_false_friend_variants` is RED on
+nightly and has been for a while:
+
+    KeyError: '0 is invisible, 1 is solid:'
+
+The scraper finds 1,563 UI strings in the source; every catalog holds 1,519.
+The gap is 44 strings x 9 languages = 396 missing translations. Three of them
+are in the plot restyle menus alone -- "Point size", "Size in pixels:",
+"0 is invisible, 1 is solid:" -- so a non-English user right-clicking a graph
+gets English dialogs.
+
+NOT FIXED BY HAND, DELIBERATELY. `tools/build_i18n_catalogs.py` regenerates
+them with a translation model (`--model-root`), and 396 strings typed in by
+someone who does not speak nine languages is how a catalog acquires
+plausible-looking wrong entries that nobody can audit. The tool exists; run
+it.
+
+Whoever does: the same run should check whether the gap is a one-off or
+whether every UI string added since the last regeneration has been missing,
+because the second is a process problem and the fix is a CI check that fails
+the build when the scraper finds a string with no catalog entry -- which is
+exactly what this test does, and it has been red instead of blocking.
