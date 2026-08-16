@@ -44,19 +44,28 @@ class TestItOpensIntoTheResults:
         assert "positive" in panel.controls._status.text()
 
     def test_a_dot_and_its_row_are_linked_both_ways(self, qtbot, results):
-        """The point of putting them beside each other."""
+        """The point of putting them beside each other.
+
+        Joined on the KEY. The link used to carry a position, which is only
+        meaningful to the frame it came from -- see the sorting test below.
+        """
         from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
         panel = RegressionResultsPanel()
         qtbot.addWidget(panel)
         panel.set_frame(results)
 
-        panel.volcano.point_clicked.emit(42)
+        wanted = results["feature"].iloc[42]
+        panel.volcano.key_selected.emit(wanted)
         selected = panel.table.table.selectedItems()
-        assert selected and selected[0].data(0x0100) == 42
+        assert selected, "clicking a point selected no row"
+        row = selected[0].row()
+        assert panel.table.table.item(row, 0).text() == wanted
 
-        panel.table.row_selected.emit(7)
-        assert "row 7" in panel.volcano._status.text()
+        other = results["feature"].iloc[7]
+        panel.table.key_selected.emit(other)
+        assert panel.volcano._selected_key == other
+        assert other in panel.volcano._status.text()
 
     def test_it_is_fast_enough_to_recolour_interactively(self, qtbot, results):
         """The lag that started all of this was on exactly this redraw."""

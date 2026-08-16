@@ -3971,8 +3971,13 @@ def perform_regression(settings):
         method = canonical_method(settings.get('multiple_testing_method',
                                                'fdr_bh'))
         alpha = float(settings.get('fdr_alpha', 0.05))
-        tested = ~coef_df['feature'].astype(str).str.contains(
-            'row|column|Intercept', case=False, regex=True)
+        # ONE STATEMENT OF WHAT IS BEING TESTED, shared with the volcano.
+        # A plot drawn from a different family than the one corrected here is
+        # a plot of a different experiment; see spacr.hits.tested_family.
+        from .hits import tested_family
+
+        tested = pd.Series(tested_family(coef_df['feature']),
+                           index=coef_df.index)
         coef_df['q_value'] = np.nan
         coef_df['multiple_testing_method'] = method
         if tested.any():
