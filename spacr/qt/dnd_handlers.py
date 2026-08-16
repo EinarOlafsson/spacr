@@ -1099,6 +1099,58 @@ def _measurement_database(path: Path) -> Optional[Path]:
     return None
 
 
+class SweepInputsDropHandler(DropHandler):
+    """Route dropped CSVs into Parameter Sweep's score and count lists.
+
+    The sweep takes the same two inputs the regression does, but holds them in
+    two separate list widgets rather than one paired table, so the side has to
+    be decided before the file is added. It is decided the same way Regression
+    decides it -- from the CSV header, via
+    :func:`spacr.qt.widgets.file_list.side_for_header` -- because a count table
+    filed as a score is not an error the user sees, it is a wrong sweep.
+
+    A dropped FOLDER contributes the CSVs directly inside it, which is what
+    makes "drop the plate folder" work for a screen whose whole point is
+    running many plates at once.
+    """
+
+    def accepts_multiple(self) -> bool:
+        return True
+
+    @staticmethod
+    def _tables(path: Path):
+        """The CSVs ``path`` contributes: itself, or the ones it contains."""
+        if path.is_dir():
+            return sorted(p for p in path.iterdir()
+                          if p.is_file() and p.suffix.lower() == ".csv")
+        if path.is_file() and path.suffix.lower() == ".csv":
+            return [path]
+        return []
+
+    def can_accept(self, path: Path) -> bool:
+        return bool(self._tables(path))
+
+    def error_message(self, path: Path) -> str:
+        return ("Parameter Sweep accepts per-object score CSVs, gRNA count "
+                "CSVs, or a folder holding them.")
+
+    def apply(self, path: Path, screen) -> None:
+        from .widgets.file_list import side_for_header
+
+        score = getattr(screen, "score_data", None)
+        count = getattr(screen, "count_data", None)
+        if score is None or count is None:
+            raise TypeError("Parameter Sweep has no score/count inputs.")
+        tables = self._tables(path)
+        if not tables:
+            raise ValueError(self.error_message(path))
+        for table in tables:
+            side = side_for_header(table)
+            target = count if side == "count" else score
+            target.add_paths([str(table)])
+            _log(screen, f"[drop] parameter_sweep {side} += {table}\n")
+
+
 class ExplainCvInputsDropHandler(DropHandler):
     """Fill Explain CV's database or prediction input from one drop."""
 
@@ -2196,6 +2248,7 @@ _HANDLERS = {
     "distributed_jobs": SubmissionSettingsDropHandler,
     "explain_cv":       ExplainCvInputsDropHandler,
     "investigate_hit":  InvestigateHitInputsDropHandler,
+    "parameter_sweep":  SweepInputsDropHandler,
 }
 
 #: Screens where a drop is genuinely meaningless, recorded rather than left
