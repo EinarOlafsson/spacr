@@ -147,8 +147,104 @@ class FastPlot(QWidget):
 
         self._labels: Sequence[str] = ()
         self._legend_colours: dict = {}
+        self._items: list = []
+
+        # Right-click to restyle, the same gesture the matplotlib figures use.
+        self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.plot.customContextMenuRequested.connect(self._style_menu)
 
     # ----------------------------------------------------------------- state
+
+    # ------------------------------------------------------------- restyling
+
+    def _style_menu(self, position) -> None:
+        """Right-click menu. Built from what the plot actually has on it."""
+        from PySide6.QtWidgets import QMenu
+
+        menu = QMenu(self)
+        menu.addAction("Point size…", self._ask_point_size)
+        menu.addAction("Point colour…", self._ask_point_colour)
+        menu.addAction("Opacity…", self._ask_opacity)
+        menu.addSeparator()
+        menu.addAction("Axis labels…", self._ask_labels)
+        menu.addAction("Font size…", self._ask_font_size)
+        menu.addSeparator()
+        grid = menu.addAction("Grid")
+        grid.setCheckable(True)
+        grid.setChecked(self._grid.isChecked())
+        grid.toggled.connect(self._grid.setChecked)
+        if self._legend_box.isEnabled():
+            legend = menu.addAction("Legend")
+            legend.setCheckable(True)
+            legend.setChecked(self._legend_box.isChecked())
+            legend.toggled.connect(self._legend_box.setChecked)
+        menu.addSeparator()
+        menu.addAction("Reset view", self.plot.autoRange)
+        menu.addAction("Export…", self.export)
+        menu.exec(self.plot.mapToGlobal(position))
+
+    def _scatter_items(self):
+        """Every scatter on the plot, for a restyle to reach."""
+        return [i for i in self.plot.listDataItems()
+                if hasattr(i, "setSize") and hasattr(i, "setBrush")]
+
+    def _ask_point_size(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        value, ok = QInputDialog.getDouble(
+            self, "Point size", "Size in pixels:", 8.0, 1.0, 60.0, 1)
+        if ok:
+            for item in self._scatter_items():
+                item.setSize(value)
+
+    def _ask_point_colour(self) -> None:
+        from PySide6.QtWidgets import QColorDialog
+
+        colour = QColorDialog.getColor(QColor(PALETTE[0]), self,
+                                       "Point colour")
+        if colour.isValid():
+            # One brush for everything: this is the deliberate override of a
+            # category colouring, and it is also the fastest path there is.
+            brush = pg.mkBrush(colour)
+            for item in self._scatter_items():
+                item.setBrush(brush)
+
+    def _ask_opacity(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        value, ok = QInputDialog.getDouble(
+            self, "Opacity", "0 is invisible, 1 is solid:", 1.0, 0.05, 1.0, 2)
+        if ok:
+            for item in self._scatter_items():
+                item.setOpacity(value)
+
+    def _ask_labels(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        current_x = self.plot.getAxis("bottom").labelText
+        current_y = self.plot.getAxis("left").labelText
+        x, ok = QInputDialog.getText(self, "X axis label", "X:", text=current_x)
+        if not ok:
+            return
+        y, ok = QInputDialog.getText(self, "Y axis label", "Y:", text=current_y)
+        if not ok:
+            return
+        self.plot.setLabel("bottom", x)
+        self.plot.setLabel("left", y)
+
+    def _ask_font_size(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        value, ok = QInputDialog.getInt(
+            self, "Font size", "Points:", 10, 5, 40)
+        if not ok:
+            return
+        for name in ("bottom", "left"):
+            axis = self.plot.getAxis(name)
+            axis.setStyle(tickFont=None)
+            axis.setTickFont(None)
+            label = axis.labelText
+            axis.setLabel(label, **{"font-size": f"{value}pt"})
 
     def _apply_log(self) -> None:
         self.plot.setLogMode(self._log_x.isChecked(), self._log_y.isChecked())
