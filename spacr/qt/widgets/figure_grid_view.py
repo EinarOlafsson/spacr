@@ -64,6 +64,8 @@ class _FigureCell(QFrame):
     """One figure, drawn at its own aspect ratio inside its cell."""
 
     clicked = Signal(int)
+    #: index, global position -- the tile was right-clicked.
+    menu_requested = Signal(int, object)
 
     def __init__(self, index: int, pixmap: QPixmap, title: str = "",
                  parent=None):
@@ -72,6 +74,11 @@ class _FigureCell(QFrame):
         self._pixmap = pixmap
         self.setFrameShape(QFrame.StyledPanel)
         self.setCursor(Qt.PointingHandCursor)
+        # "all gigures should be editable by right clicking" -- a tile is a
+        # figure, so the gesture has to work here too and not only on the one
+        # figure that happens to be open.
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._request_menu)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         layout = QVBoxLayout(self)
@@ -107,7 +114,15 @@ class _FigureCell(QFrame):
         self._image.setPixmap(scaled)
         self._image.setFixedHeight(scaled.height())
 
+    def _request_menu(self, point) -> None:
+        self.menu_requested.emit(self.index, self.mapToGlobal(point))
+
     def mousePressEvent(self, event):  # noqa: N802 - Qt naming
+        # A right-click opens the menu; it must not ALSO open the figure, or
+        # every attempt to restyle a tile navigates away from the grid first.
+        if event.button() == Qt.RightButton:
+            super().mousePressEvent(event)
+            return
         self.clicked.emit(self.index)
         super().mousePressEvent(event)
 
@@ -117,9 +132,14 @@ class FigureGridView(QScrollArea):
 
     :ivar figure_activated: emitted with a figure's index when its cell is
         clicked, so the caller can open it full size.
+    :ivar figure_menu_requested: emitted with (index, global position) when a
+        cell is right-clicked. The grid holds pictures, not figures, so the
+        menu itself is the caller's to build -- it is the one that still has
+        the matplotlib object.
     """
 
     figure_activated = Signal(int)
+    figure_menu_requested = Signal(int, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -160,6 +180,7 @@ class FigureGridView(QScrollArea):
             title = titles[index] if index < len(titles) else ""
             cell = _FigureCell(index, pixmap, title, self._body)
             cell.clicked.connect(self.figure_activated)
+            cell.menu_requested.connect(self.figure_menu_requested)
             self._cells.append(cell)
         self._relayout()
         return len(self._cells)
