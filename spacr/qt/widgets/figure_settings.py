@@ -521,6 +521,48 @@ class FigureSettingsDialog(QDialog):
         all_text.valueChanged.connect(set_all_text)
         form.addRow("All text size", all_text)
 
+        # AND THE COLOUR OF ALL OF IT. There was a size control here and no
+        # colour control at all, so the background could be changed and the
+        # writing on top of it could not -- which on a dark background is a
+        # figure with invisible axes and no way to fix it.
+        #
+        # Every text object, the same intention as the size row: title, axis
+        # labels, BOTH sets of tick labels, the tick marks and spines that
+        # frame them, and any legend. Recolouring the labels and leaving the
+        # spines is the half-done version that looks like a bug.
+        def set_all_text_colour(colour):
+            for axis in figure.axes:
+                items = [axis.title, axis.xaxis.label, axis.yaxis.label]
+                items += axis.get_xticklabels() + axis.get_yticklabels()
+                legend = axis.get_legend()
+                if legend is not None:
+                    items += list(legend.get_texts())
+                    title = legend.get_title()
+                    if title is not None:
+                        items.append(title)
+                for item in items:
+                    item.set_color(colour)
+                # matplotlib spells it `color`; this file spells it `colour`
+                # everywhere else. Keep both straight rather than passing an
+                # unrecognised keyword, which raises rather than being
+                # ignored.
+                axis.tick_params(color=colour, labelcolor=colour, which="both")
+                for spine in axis.spines.values():
+                    spine.set_edgecolor(colour)
+            if figure._suptitle is not None:
+                figure._suptitle.set_color(colour)
+            self._changed()
+
+        current_text_colour = "#000000"
+        if figure.axes:
+            try:
+                current_text_colour = _as_hex(
+                    figure.axes[0].xaxis.label.get_color())
+            except Exception:      # pragma: no cover - odd colour spec
+                pass
+        form.addRow("All text colour",
+                    _colour_button(current_text_colour, set_all_text_colour))
+
         suptitle = QLineEdit(
             figure._suptitle.get_text() if figure._suptitle else "")
         suptitle.editingFinished.connect(
