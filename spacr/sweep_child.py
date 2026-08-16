@@ -67,6 +67,26 @@ def main(argv=None) -> int:
 
         from .trial_metrics import summarise_trial
         result.update(summarise_trial(output, settings))
+
+        # The caller's own control ALIASES, on top of the canonical
+        # positive_control_* columns. The sweep screen puts `positive_rank` in
+        # its table, and that column is built from this mapping -- so a
+        # contained trial that did not compute it would leave the one column
+        # the run is judged on blank, which looks exactly like a control that
+        # was never recovered.
+        controls = payload.get("controls") or {}
+        if controls:
+            try:
+                import pandas as pd
+
+                from .parameter_sweep import _named_control_rows
+
+                results = output.get("results") \
+                    if hasattr(output, "get") else None
+                if isinstance(results, pd.DataFrame):
+                    result.update(_named_control_rows(results, controls))
+            except Exception:  # noqa: BLE001 - an alias must not sink a trial
+                pass
     except BaseException as error:  # noqa: BLE001 - a failed trial is a result
         result["status"] = "failed"
         result["error_type"] = type(error).__name__
