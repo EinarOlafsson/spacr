@@ -1575,6 +1575,16 @@ class AppScreen(QWidget):
                 tabs = QTabWidget(self._figures_card)
                 tabs.addTab(self._results_panel, "Results")
                 tabs.addTab(self._figure_queue, "Figures")
+                # ALL of them at once, each at its own aspect ratio. A run
+                # makes seventeen figures and they are meant to be read
+                # together -- the fraction histogram explains the volcano --
+                # which one-at-a-time navigation hides.
+                from ..widgets.figure_grid_view import FigureGridView
+                self._figure_grid = FigureGridView(self._figures_card)
+                self._figure_grid.figure_activated.connect(
+                    self._open_figure_from_grid)
+                tabs.addTab(self._figure_grid, "All figures")
+                tabs.currentChanged.connect(self._on_figures_tab_changed)
                 self._figures_card.body_layout.addWidget(tabs, 1)
                 self._figures_tabs = tabs
             except Exception:
@@ -2920,6 +2930,33 @@ class AppScreen(QWidget):
             )
         except Exception:
             pass
+
+    def _on_figures_tab_changed(self, index: int) -> None:
+        """Fill the grid when it is shown, not on every figure that arrives.
+
+        A pipeline streams figures in one at a time; rebuilding a grid of
+        seventeen for each of them is seventeen times the work to show a view
+        nobody is looking at.
+        """
+        tabs = getattr(self, "_figures_tabs", None)
+        grid = getattr(self, "_figure_grid", None)
+        if tabs is None or grid is None or tabs.widget(index) is not grid:
+            return
+        try:
+            grid.set_figures(self._figure_queue.all_pixmaps(),
+                             self._figure_queue.figure_titles())
+        except Exception:
+            LOG.debug("could not build the figure grid", exc_info=True)
+
+    def _open_figure_from_grid(self, index: int) -> None:
+        """A clicked cell opens that figure in the one-at-a-time view."""
+        tabs = getattr(self, "_figures_tabs", None)
+        try:
+            self._figure_queue.show_index(int(index))
+        except Exception:
+            return
+        if tabs is not None:
+            tabs.setCurrentWidget(self._figure_queue)
 
     def _load_regression_results(self) -> bool:
         """Point the Results tab at what the run just wrote.
