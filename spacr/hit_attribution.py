@@ -1118,8 +1118,22 @@ def promote_calls(db_path: str, attribution_run_id: str,
 
 
 def revert_promotion(db_path: str, promotion_id: str) -> int:
-    """Restore exactly the values replaced by :func:`promote_calls`."""
+    """Restore exactly the values replaced by :func:`promote_calls`.
+
+    Reverting something that was never promoted is a NO-OP returning ``0``,
+    not an error -- including on a database where nothing has ever been
+    promoted at all. The audit table is created by :func:`promote_calls`, so
+    until one has run it does not exist, and reaching for it raised a raw
+    ``sqlite3.OperationalError: no such table`` out of a spaCR API. An undo
+    that crashes when there is nothing to undo makes a stray click look like
+    a corrupt database.
+    """
     with sqlite3.connect(db_path, timeout=30) as connection:
+        audited = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' "
+            "AND name='hit_promotion_audit'").fetchone()
+        if not audited:
+            return 0
         rows = connection.execute(
             "SELECT annotation_column, prcfo, previous_json "
             "FROM hit_promotion_audit WHERE promotion_id=? AND undone_at IS NULL",
