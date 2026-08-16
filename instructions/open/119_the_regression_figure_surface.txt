@@ -185,3 +185,111 @@ for draw speed is the wrong choice if it cannot answer that.
 DO NOT WRITE INTO THAT DIRECTORY. It is the maintainer's real screen data,
 not a fixture. Copy what is needed into a temp directory, or open it
 read-only.
+
+
+--------------------------------------------------------------------------------
+2026-08-16 - FOUND WHILE BUILDING B: THE VOLCANO'S Y-AXIS IS 3.6x TOO TALL
+--------------------------------------------------------------------------------
+
+Not requested. Found by opening the graph this file names -- plate1_dv/ols/
+list/results.csv, 1,213 coefficients -- and looking at what is on it.
+
+    the tallest point on the plot        45.50   Intercept
+    the tallest REAL hit                 12.54   gene_fraction:gene[244480]
+    the 99th percentile of the rest       2.30
+
+The Intercept is not a guide, not a gene, and not a hypothesis. It is a
+nuisance parameter, and this repository already says so in the one place that
+matters: ml.py excludes `row|column|Intercept` from the multiple-testing
+family, so those rows are written to results.csv with **q_value = NaN**. They
+were never candidates for being hits.
+
+But the volcano plots them, so a nuisance term with p = 3e-46 sets the top of
+the y-axis and squashes every real result into the bottom quarter. The screen
+looks like it has one enormous hit and nothing else. That is a misleading
+picture drawn from correct numbers, which is the worst kind.
+
+    plate1_dv carries ONE such row and it costs 3.6x of the axis. A fit with
+    row and column nuisance terms carries ~25 of them.
+
+THE RULE ALREADY EXISTS AND MUST NOT BE COPIED. `ml.py:3975` holds the only
+correct statement of what is being tested, and a second copy in the plotting
+code is a second copy that can drift from it -- a volcano drawing a family
+the correction did not correct. Factor it out, call it from both.
+
+The dropped rows are reported in the plot's status line rather than silently
+removed. "1,212 coefficients (1 nuisance term not shown)" is the difference
+between a filter and a lie.
+
+--------------------------------------------------------------------------------
+2026-08-16 - HOW B IS BUILT: THE KEY IS `feature`
+--------------------------------------------------------------------------------
+
+Checked against the real table rather than assumed:
+
+    feature    1,213 values, 1,213 distinct   <- unique, and it is the key
+    grna         823 distinct
+    gene         389 distinct
+    condition      3 distinct
+
+`feature` is the design-matrix term name and it is one-to-one with the row,
+which is exactly what section B needs. `grna` and `gene` are NOT keys -- a
+gene has several guides and several rows -- so joining on either highlights
+an arbitrary one of them.
+
+The volcano therefore carries its own key array and looks the row up in it.
+It does not accept a position from the table. That is what makes the join
+survive the table being sorted, filtered, or -- once 122 lands -- built from
+a different frame than the one that was plotted.
+
+
+================================================================================
+RESULT - 2026-08-16
+================================================================================
+
+D (THE LAG) -- DONE. Measured 262.7 ms per full render on an 823-point
+volcano, then removed two wasted ones:
+  * closing the settings dialog rendered twice (its closeEvent already
+    renders, and the caller called refresh_current_figure again);
+  * every context-menu toggle forced FULL quality, vector page included,
+    mid-gesture. It previews now.
+The plan's third item -- add a dirty flag and anti-stacking guard -- was
+wrong: both already existed at figure_settings.py:448-462 and are why the
+app survived at all. Commit c5d9b4b3.
+
+C (FASTEST LIBRARY) -- ANSWERED WITHOUT ADDING ONE. fast_plots.py is
+pyqtgraph and was already wired. Redraw of the real 1,213-coefficient screen:
+10.9 ms. Nothing was switched; the cost was never the renderer.
+
+A (RESULTS ON THE LEFT) -- DONE. The three-tab stack is gone. The figures
+card is now a horizontal splitter: results panel LEFT, a stack RIGHT holding
+the figure grid (pressable tiles) and, when a tile is pressed, the one
+figure filling the container with a way back. Sizing floors were needed and
+were measured, not guessed -- at the old 360 px card minimum every pane was
+a scrollbar with a sliver behind it.
+
+B (ROW -> POINT, ON THE KEY) -- DONE, and the position join it warned about
+was really there. The old link passed an integer both ways and did not
+highlight anything -- it wrote a status line. Now: `feature` is the key
+(1,213 rows, 1,213 distinct on the real screen), the volcano carries its own
+key array, an open ring marks the selection, and it survives a redraw.
+
+    ON THE REAL SCREEN, table sorted by p, row 5:
+        key join      fraction:grna[409250_160]     <- correct
+        position join fraction:grna[000000_15]      <- a CONTROL guide
+
+    Clicking a real hit would have highlighted a control. That is the
+    failure section B predicted, reproduced on the maintainer's own data.
+
+FOUND AND FIXED: the volcano plotted the Intercept, making the y-axis span
+51.4 instead of 14.2 -- 3.6x taller than the data. spacr.hits.tested_family
+is now the single statement of which coefficients are hypotheses, shared with
+ml.py's multiple-testing correction so a volcano cannot draw a family the
+correction did not correct. The dropped count is reported in the status line.
+
+STILL OPEN in this file's scope:
+  * item 11, right-click a grid tile -> Save figure as...
+  * the interactive volcano is in the LEFT panel. If the maintainer meant
+    the big graph on the RIGHT to be the interactive one, promoting it to a
+    stack page reachable from its own tile is the next step -- the key join
+    and the ring are renderer-side and would carry over unchanged.
