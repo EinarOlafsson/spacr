@@ -4487,6 +4487,198 @@
           "speech_text": "Cuando el flujo de trabajo se completa, los parámetros de curva, la incertidumbre, el diagnóstico y los datos de origen pueden exportarse juntos."
         }
       ]
+    },
+    {
+      "id": "70_explain_cv",
+      "number": 70,
+      "slug": "explain_cv",
+      "title": "Explain CV Model",
+      "series": 5,
+      "app_key": "explain_cv",
+      "section": "Results and quality control",
+      "description": "Reproduzca predicciones de visión artificial a partir de características medidas y compruebe que las explicaciones resultantes sean fieles y no contengan fugas de información.",
+      "objectives": [
+        "Comprender cuándo utilizar Explain CV Model.",
+        "Configurar las entradas y configuraciones importantes.",
+        "Ejecutar el flujo de trabajo y localizar sus salidas."
+      ],
+      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados upstream.",
+      "scenes": [
+        {
+          "narration": "Este tutorial presenta Explain CV Model. Reproduzca predicciones de visión artificial a partir de características medidas y compruebe que las explicaciones resultantes sean fieles y no contengan fugas de información.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial presenta Explain CV Model. Reproduzca predicciones de visión artificial a partir de características medidas y compruebe que las explicaciones resultantes sean fieles y no contengan fugas de información."
+        },
+        {
+          "narration": "Elija el archivo de predicciones por objeto, su base de datos de mediciones, la clase o puntuación predicha y la agrupación por pozo de microplaca o por placa que deba mantenerse intacta.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Elija el archivo de predicciones por objeto, su base de datos de mediciones, la clase o puntuación predicha y la agrupación por pozo de microplaca o por placa que deba mantenerse intacta."
+        },
+        {
+          "narration": "En el área principal de configuración, seleccione el motor del modelo sustituto, los grupos reservados para validación, las características que se excluirán, el número de repeticiones de permutación y el presupuesto limitado de SHAP.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "En el área principal de configuración, seleccione el motor del modelo sustituto, los grupos reservados para validación, las características que se excluirán, el número de repeticiones de permutación y el presupuesto limitado de SHAP."
+        },
+        {
+          "narration": "Valide las exclusiones destinadas a evitar fugas y la partición por grupos. Después, ajuste el modelo sustituto y compare su fidelidad en validación con la referencia de la clase mayoritaria antes de interpretar la importancia de las características.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Valide las exclusiones destinadas a evitar fugas y la partición por grupos. Después, ajuste el modelo sustituto y compare su fidelidad en validación con la referencia de la clase mayoritaria antes de interpretar la importancia de las características."
+        },
+        {
+          "narration": "Cuando finaliza el flujo de trabajo, la ejecución registra la fidelidad, la importancia por permutación en el conjunto de validación, los resúmenes de SHAP, las columnas excluidas, la agrupación, el motor y la procedencia. Una fidelidad baja se comunica de forma explícita, no se oculta.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Cuando finaliza el flujo de trabajo, la ejecución registra la fidelidad, la importancia por permutación en el conjunto de validación, los resúmenes de SHAP, las columnas excluidas, la agrupación, el motor y la procedencia. Una fidelidad baja se comunica de forma explícita, no se oculta."
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "section": "Results and quality control",
+      "description": "Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas.",
+      "objectives": [
+        "Comprender cuándo utilizar Investigate Hit.",
+        "Configurar las entradas y configuraciones importantes.",
+        "Ejecutar el flujo de trabajo y localizar sus salidas."
+      ],
+      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados upstream.",
+      "scenes": [
+        {
+          "narration": "Este tutorial presenta Investigate Hit. Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial presenta Investigate Hit. Vincule un resultado de regresión seleccionado con células candidatas y evidencia cuantitativa por pozo de microplaca, sin sobrescribir las anotaciones revisadas."
+        },
+        {
+          "narration": "Elija la ejecución de regresión, el resultado seleccionado a nivel de gen o guía, la dirección del fenotipo, el umbral de falsos descubrimientos, el soporte entre guías y la base de datos de mediciones correspondiente.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Elija la ejecución de regresión, el resultado seleccionado a nivel de gen o guía, la dirección del fenotipo, el umbral de falsos descubrimientos, el soporte entre guías y la base de datos de mediciones correspondiente."
+        },
+        {
+          "narration": "En el área principal de configuración, revise la tabla de objetos, la columna de puntuación, la agrupación por pozo de microplaca, los umbrales de evidencia, las covariables y la mezcla jerárquica con ajuste cruzado opcional.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "En el área principal de configuración, revise la tabla de objetos, la columna de puntuación, la agrupación por pozo de microplaca, los umbrales de evidencia, las covariables y la mezcla jerárquica con ajuste cruzado opcional."
+        },
+        {
+          "narration": "Previsualice las células candidatas ordenadas por puntuación y los resúmenes por pozo de microplaca. Ejecute el modelo con ajuste cruzado solo cuando el resultado seleccionado y el contrato de evidencia sean correctos.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Previsualice las células candidatas ordenadas por puntuación y los resúmenes por pozo de microplaca. Ejecute el modelo con ajuste cruzado solo cuando el resultado seleccionado y el contrato de evidencia sean correctos."
+        },
+        {
+          "narration": "Cuando finaliza el flujo de trabajo, spaCR guarda las células candidatas ordenadas, comparaciones entre pozos independientes, probabilidades opcionales de que cada célula coincida con el fenotipo seleccionado, la incertidumbre y una clasificación versionada que nunca sustituye las anotaciones manuales.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Cuando finaliza el flujo de trabajo, espáquer guarda las células candidatas ordenadas, comparaciones entre pozos independientes, probabilidades opcionales de que cada célula coincida con el fenotipo seleccionado, la incertidumbre y una clasificación versionada que nunca sustituye las anotaciones manuales."
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "section": "Results and quality control",
+      "description": "Abra una regresión terminada, examine cada punto, cambie el estilo del gráfico y exporte una figura vectorial a tamaño de publicación sin repetir el análisis.",
+      "objectives": [
+        "Comprender cuándo utilizar Volcano Explorer.",
+        "Configurar las entradas y configuraciones importantes.",
+        "Ejecutar el flujo de trabajo y localizar sus salidas."
+      ],
+      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados upstream.",
+      "scenes": [
+        {
+          "narration": "Este tutorial presenta Volcano Explorer. Abra una regresión terminada, examine cada punto, cambie el estilo del gráfico y exporte una figura vectorial a tamaño de publicación sin repetir el análisis.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial presenta Volcano Explorer. Abra una regresión terminada, examine cada punto, cambie el estilo del gráfico y exporte una figura vectorial a tamaño de publicación sin repetir el análisis."
+        },
+        {
+          "narration": "Elija una carpeta de regresión terminada o un archivo CSV de resultados. Confirme el resultado, la tabla a nivel de guía, la familia de soporte, la columna de efecto y la columna del valor P ajustado.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Elija una carpeta de regresión terminada o un archivo CSV de resultados. Confirme el resultado, la tabla a nivel de guía, la familia de soporte, la columna de efecto y la columna del valor P ajustado."
+        },
+        {
+          "narration": "En el área principal de configuración, revise los umbrales de significación y efecto, las transformaciones de los ejes, las etiquetas, los colores, las formas, las anotaciones, las opciones de eje discontinuo, las fuentes y las dimensiones de salida.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "En el área principal de configuración, revise los umbrales de significación y efecto, las transformaciones de los ejes, las etiquetas, los colores, las formas, las anotaciones, las opciones de eje discontinuo, las fuentes y las dimensiones de salida."
+        },
+        {
+          "narration": "Seleccione puntos representativos para examinar sus filas completas, combinar anotaciones opcionales y comprobar que los cambios de estilo conservan los valores y umbrales subyacentes.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Seleccione puntos representativos para examinar sus filas completas, combinar anotaciones opcionales y comprobar que los cambios de estilo conservan los valores y umbrales subyacentes."
+        },
+        {
+          "narration": "Cuando finaliza el flujo de trabajo, las exportaciones PDF y PNG se vuelven a generar con el tamaño solicitado a partir de los datos y el estilo registrados, mientras los resultados originales de la regresión permanecen sin cambios.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Cuando finaliza el flujo de trabajo, las exportaciones PDF y PNG se vuelven a generar con el tamaño solicitado a partir de los datos y el estilo registrados, mientras los resultados originales de la regresión permanecen sin cambios."
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "description": "Ejecute una exploración limitada de configuraciones de regresión y compare qué conclusiones se mantienen ante opciones de análisis defendibles.",
+      "objectives": [
+        "Comprender cuándo utilizar Parameter Sweep.",
+        "Configurar las entradas y configuraciones importantes.",
+        "Ejecutar el flujo de trabajo y localizar sus salidas."
+      ],
+      "prerequisite": "Sigue las lecciones anteriores del flujo de trabajo cuando este módulo necesite resultados upstream.",
+      "scenes": [
+        {
+          "narration": "Este tutorial presenta Parameter Sweep. Ejecute una exploración limitada de configuraciones de regresión y compare qué conclusiones se mantienen ante opciones de análisis defendibles.",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "Este tutorial presenta Parameter Sweep. Ejecute una exploración limitada de configuraciones de regresión y compare qué conclusiones se mantienen ante opciones de análisis defendibles."
+        },
+        {
+          "narration": "Empareje los archivos CSV de puntuaciones por objeto y de recuentos de guías de cada placa. Elija la columna de respuesta y configure una carpeta de salida independiente.",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "Empareje los archivos CSV de puntuaciones por objeto y de recuentos de guías de cada placa. Elija la columna de respuesta y configure una carpeta de salida independiente."
+        },
+        {
+          "narration": "En el área principal de configuración, elija los ejes que variarán, fije todos los demás valores, seleccione muestreo en cuadrícula o aleatorio, limite el número de ensayos, registre la semilla y acepte el límite de procesos impuesto por la memoria.",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "En el área principal de configuración, elija los ejes que variarán, fije todos los demás valores, seleccione muestreo en cuadrícula o aleatorio, limite el número de ensayos, registre la semilla y acepte el límite de procesos impuesto por la memoria."
+        },
+        {
+          "narration": "Use primero Estimate para comprobar el tamaño y el coste de la búsqueda permitida. Después, inicie una exploración pequeña y limitada y supervise los ensayos terminados, rechazados y fallidos.",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "Use primero Estimate para comprobar el tamaño y el coste de la búsqueda permitida. Después, inicie una exploración pequeña y limitada y supervise los ensayos terminados, rechazados y fallidos."
+        },
+        {
+          "narration": "Cuando finaliza el flujo de trabajo, la tabla de resultados reanudable registra la configuración, el estado, el número de descubrimientos, la posición de los controles positivos, la duración, la carpeta de salida y el motivo del fallo de cada ensayo.",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "Cuando finaliza el flujo de trabajo, la tabla de resultados reanudable registra la configuración, el estado, el número de descubrimientos, la posición de los controles positivos, la duración, la carpeta de salida y el motivo del fallo de cada ensayo."
+        }
+      ]
     }
   ],
   "language": "es"

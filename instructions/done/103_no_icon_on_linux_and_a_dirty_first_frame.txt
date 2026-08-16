@@ -12,9 +12,21 @@ Requested: 2026-08-15 - "on my linux machine, when i run spacr i see a
            spacr loading screen at launch nothing else, and i want to see the
            icon."
 
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
 Two separate defects, both at launch, both on Linux. They are filed together
 because they are both "the first second of spaCR looks broken", and a fix for
 one is worth nothing while the other stands.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The taskbar identity and first painted frame are the operating system's first
+representation of spaCR. A missing icon or exposed framebuffer makes a valid
+installation look broken before the application can explain its state.
 
 --------------------------------------------------------------------------------
 DEFECT 1: THE TASKBAR AND SWITCHER SHOW A BLANK PLACEHOLDER
