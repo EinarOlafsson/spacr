@@ -31,6 +31,21 @@ RELEASE_DOWNLOAD_ROOT = "https://github.com/EinarOlafsson/spacr/releases/downloa
 LOCALIZED_README_CODES = (
     "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
 )
+#: The README shows one drawn platform icon per download instead of a text
+#: link. The artwork is committed and served from this repository -- a README
+#: icon hotlinked from a CDN dies the day that host moves and leaks a request
+#: to a third party for every reader of the page.
+README_ICON_ROOT = (
+    "https://raw.githubusercontent.com/EinarOlafsson/spacr/main"
+    "/spacr/resources/icons/platforms"
+)
+README_ICON_WIDTH = 64
+#: ``(substitution key, artwork stem, alt-text platform)``, in ``PLATFORMS`` order
+README_ICONS = (
+    ("Windows", "windows", "Windows 10/11"),
+    ("MacOS", "macos", "macOS 11+ (Intel and Apple silicon)"),
+    ("Linux", "linux", "64-bit Linux"),
+)
 
 
 def read_version(setup_path: Path) -> str:
@@ -80,16 +95,43 @@ def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:
     return found
 
 
+def _installer_url_pattern(suffix: str) -> re.Pattern[str]:
+    """Match one release-asset URL wherever it sits in the README block.
+
+    The download link used to be the target of an inline ``\\`text <url>\\`_``
+    reference and is now the ``:target:`` of an image directive, so the URL is
+    no longer wrapped in angle brackets and no longer shares a line with its
+    label. Matching the URL itself rather than the syntax around it keeps a
+    translated README that has not been converted yet working unchanged.
+
+    The stem is matched case-insensitively. The builders name their output
+    ``spaCR-<version>-...`` but the assets published under the current tag
+    carry a capital S, and GitHub's release download endpoint serves either
+    spelling; a case-sensitive match here silently failed every ``collect``.
+    """
+    return re.compile(
+        rf"{re.escape(RELEASE_DOWNLOAD_ROOT)}/v(?P<tag_version>[^/\s<>]+)/"
+        rf"spaCR-(?P<file_version>[^/\s<>]+)-{re.escape(suffix)}\b",
+        re.IGNORECASE,
+    )
+
+
 def _readme_links(version: str, branch: str) -> str:
     # ``branch`` remains part of the public helper API for compatibility with
     # older local release commands. Published README links intentionally use
     # immutable GitHub release assets rather than mutable branch contents.
     del branch
-    lines = [README_BEGIN, ""]
-    for label, suffix in PLATFORMS:
+    references = " ".join(f"|Installer{key}|" for key, _, _ in README_ICONS)
+    lines = [README_BEGIN, "", references, ""]
+    for (key, platform, alt), (label, suffix) in zip(README_ICONS, PLATFORMS):
         name = f"spaCR-{version}-{suffix}"
         url = f"{RELEASE_DOWNLOAD_ROOT}/v{version}/{name}"
-        lines.append(f"* `{label}: download spaCR {version} <{url}>`_")
+        lines.extend([
+            f".. |Installer{key}| image:: {README_ICON_ROOT}/{platform}.png",
+            f"   :width: {README_ICON_WIDTH}",
+            f"   :alt: Download spaCR {version} for {alt or label}",
+            f"   :target: {url}",
+        ])
     lines.extend(["", README_END])
     return "\n".join(lines)
 
@@ -137,48 +179,40 @@ def _updated_readme_text(readme: Path, version: str) -> str:
     block_end = end + len(README_END)
     block = text[start:block_end]
 
+    advertised = set()
     for _label, suffix in PLATFORMS:
-        matching_lines = [
-            index for index, line in enumerate(block.splitlines())
-            if f"-{suffix}>" in line
-        ]
-        if len(matching_lines) != 1:
+        matches = list(_installer_url_pattern(suffix).finditer(block))
+        if len(matches) != 1:
             raise ValueError(
                 f"{readme} must contain exactly one installer link for {suffix}; "
-                f"found {len(matching_lines)}"
+                f"found {len(matches)}"
             )
-
-        lines = block.splitlines(keepends=True)
-        line_index = matching_lines[0]
-        line = lines[line_index]
-        url_pattern = re.compile(
-            rf"<{re.escape(RELEASE_DOWNLOAD_ROOT)}/v(?P<tag_version>[^/<>]+)/"
-            rf"spaCR-(?P<file_version>[^/<>]+)-{re.escape(suffix)}>"
+        match = matches[0]
+        if match.group("tag_version") != match.group("file_version"):
+            raise ValueError(
+                f"{readme} has a malformed installer link for {suffix}"
+            )
+        advertised.add(match.group("tag_version"))
+    if len(advertised) != 1:
+        raise ValueError(
+            f"{readme} advertises more than one installer version: "
+            + ", ".join(sorted(advertised))
         )
-        url_match = url_pattern.search(line)
-        if url_match is None or url_match.group("tag_version") != url_match.group(
-            "file_version"
-        ):
+    old_version = advertised.pop()
+
+    # The version appears in the URL tag, in the asset file name and in the
+    # human-readable label or ``:alt:`` text beside it. Rewriting the whole
+    # block leaves every one of them consistent whether the block is still a
+    # list of text links or the icon row, and whatever language it is in.
+    block = block.replace(old_version, version)
+
+    for _label, suffix in PLATFORMS:
+        match = _installer_url_pattern(suffix).search(block)
+        if match is None or match.group("tag_version") != version or (
+                match.group("file_version") != version):
             raise ValueError(
-                f"{readme} has a malformed installer link for {suffix}"
+                f"{readme} could not be updated to installer version {version}"
             )
-        old_version = url_match.group("tag_version")
-        label = line[:url_match.start()]
-        if label.count(old_version) != 1:
-            raise ValueError(
-                f"{readme} must show installer version {old_version} exactly "
-                f"once in its {suffix} label"
-            )
-        line = label.replace(old_version, version) + line[url_match.start():]
-        name = f"spaCR-{version}-{suffix}"
-        url = f"{RELEASE_DOWNLOAD_ROOT}/v{version}/{name}"
-        line, url_count = url_pattern.subn(f"<{url}>", line, count=1)
-        if url_count != 1:
-            raise ValueError(
-                f"{readme} has a malformed installer link for {suffix}"
-            )
-        lines[line_index] = line
-        block = "".join(lines)
 
     return text[:start] + block + text[block_end:]
 
