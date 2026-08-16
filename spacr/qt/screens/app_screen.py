@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSplitter,
+    QStackedWidget,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -1565,31 +1566,94 @@ class AppScreen(QWidget):
         # coefficient table beside it, and links the two: click a dot to
         # select its row, select a row to identify its dot.
         #
-        # The Figures tab is untouched, because the other plots a run produces
-        # are still worth having and are not slow.
+        # THE RESULTS ARE BESIDE THE FIGURES, NOT BEHIND A TAB.
+        #
+        # "the results for the regression shoild pop up in a container to the
+        # left of the figures" and "figures should pop up in a grid above the
+        # console ... if a figure is clicked it should fill the container".
+        # Both halves have to be on screen AT ONCE: picking a row changes one
+        # point in the volcano, which nobody can see if the table and the
+        # figure are two pages of one tab stack.
+        #
+        #     +----------------------+---------------------------------+
+        #     |  results             |  figure grid   (pressable tiles)|
+        #     |  volcano + table     |     or one figure, filling it   |
+        #     +----------------------+---------------------------------+
+        #     |                    console                             |
+        #
+        # Deliberately NOT the shape the parameter search gets (116): its runs
+        # are a tab, because picking a run replaces the whole grid. One is
+        # navigation between runs, the other is reading within a run.
         self._results_panel = None
+        self._figures_stack = None
         if self.app_key in ("regression", "ml_analyze_regression"):
             try:
                 from ..widgets.regression_results import RegressionResultsPanel
+                from ..widgets.figure_grid_view import FigureGridView
+
                 self._results_panel = RegressionResultsPanel(self._figures_card)
-                tabs = QTabWidget(self._figures_card)
-                tabs.addTab(self._results_panel, "Results")
-                tabs.addTab(self._figure_queue, "Figures")
+
                 # ALL of them at once, each at its own aspect ratio. A run
                 # makes seventeen figures and they are meant to be read
                 # together -- the fraction histogram explains the volcano --
                 # which one-at-a-time navigation hides.
-                from ..widgets.figure_grid_view import FigureGridView
                 self._figure_grid = FigureGridView(self._figures_card)
                 self._figure_grid.figure_activated.connect(
                     self._open_figure_from_grid)
-                tabs.addTab(self._figure_grid, "All figures")
-                tabs.currentChanged.connect(self._on_figures_tab_changed)
-                self._figures_card.body_layout.addWidget(tabs, 1)
-                self._figures_tabs = tabs
+
+                # A clicked tile fills the container: same widget as before,
+                # wrapped so it is a PAGE of the stack rather than the stack's
+                # own child. _on_figure_ready calls _figure_queue.show(), and
+                # a bare show() on a stacked page draws it over the grid.
+                detail = QWidget(self._figures_card)
+                detail_layout = QVBoxLayout(detail)
+                detail_layout.setContentsMargins(0, 0, 0, 0)
+                detail_layout.setSpacing(4)
+                back = QPushButton("← All figures")
+                back.setFlat(True)
+                back.setToolTip("Back to the grid of every figure this run "
+                                "produced.")
+                back.clicked.connect(self._show_figure_grid)
+                row = QHBoxLayout()
+                row.addWidget(back)
+                row.addStretch(1)
+                detail_layout.addLayout(row)
+                detail_layout.addWidget(self._figure_queue, 1)
+                self._figure_detail = detail
+
+                self._figures_stack = QStackedWidget(self._figures_card)
+                self._figures_stack.addWidget(self._figure_grid)   # index 0
+                self._figures_stack.addWidget(detail)              # index 1
+
+                split = QSplitter(Qt.Horizontal, self._figures_card)
+                split.setChildrenCollapsible(False)
+                split.addWidget(self._results_panel)
+                split.addWidget(self._figures_stack)
+                # The figures get the larger share, and the divider is the
+                # user's to move from there.
+                split.setStretchFactor(0, 2)
+                split.setStretchFactor(1, 3)
+                # The results need width for a coefficient table; the grid
+                # needs width for more than one tile per row. Neither survives
+                # being handed a size hint, so both get a floor.
+                self._results_panel.setMinimumWidth(420)
+                self._figures_stack.setMinimumWidth(360)
+                split.setSizes([560, 840])
+                self._figures_split = split
+                self._figures_card.body_layout.addWidget(split, 1)
+
+                # ONE REBUILD PER BURST. A pipeline streams seventeen figures
+                # in one at a time and the grid is now always on screen, so
+                # rebuilding per arrival is seventeen full relayouts. The
+                # timer collapses a burst into a single one.
+                self._grid_refresh = QTimer(self)
+                self._grid_refresh.setSingleShot(True)
+                self._grid_refresh.setInterval(250)
+                self._grid_refresh.timeout.connect(self._refresh_figure_grid)
             except Exception:
                 LOG.debug("no fast results panel", exc_info=True)
                 self._results_panel = None
+                self._figures_stack = None
         if self._results_panel is None:
             self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         # "Figure settings…" on the NON-LIVE figure holds every Image UMAP
@@ -1619,7 +1683,12 @@ class AppScreen(QWidget):
             self._umap_explorer._settings_getter = self._umap_display_defaults
             self._figures_card.body_layout.addWidget(
                 self._umap_explorer, 1)
-        self._figures_card.setMinimumHeight(360)
+        # 360 was the height of a card holding ONE figure. It now holds a
+        # coefficient table, a volcano and a grid of tiles side by side, and
+        # at 360 every one of them is a scrollbar with a sliver of content
+        # behind it -- measured on the real screen before this was raised.
+        self._figures_card.setMinimumHeight(
+            560 if self._results_panel is not None else 360)
         self._figures_card.hide()
         # NOT added to the layout here. It goes into the vertical splitter
         # built below, so the figures can be dragged taller at the console's
@@ -1742,7 +1811,12 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(0, 3)
             splitter.setStretchFactor(1, 2)
             splitter.setStretchFactor(2, 1)
-            splitter.setSizes([480, 360, 240])
+            # The figures slot carries the results table AND the figure grid
+            # on the regression screen, so it opens with room for both. The
+            # sweep card is collapsed behind a toggle until asked for, and
+            # the divider is the user's to move.
+            splitter.setSizes([720, 300, 220] if self._results_panel is not None
+                              else [480, 360, 240])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif _hyperparam_searchable(self.app_key):
@@ -2791,6 +2865,9 @@ class AppScreen(QWidget):
         if not interactive_open:
             self._figure_queue.show()
         self._figures_card.show()
+        # The grid is on screen while the run streams, so it has to grow with
+        # it. Debounced, so seventeen arrivals are one relayout.
+        self._queue_figure_grid_refresh()
 
     def closeEvent(self, event):
         """Cancel and join this screen's worker before destroying widgets.
@@ -2931,16 +3008,15 @@ class AppScreen(QWidget):
         except Exception:
             pass
 
-    def _on_figures_tab_changed(self, index: int) -> None:
-        """Fill the grid when it is shown, not on every figure that arrives.
+    def _refresh_figure_grid(self) -> None:
+        """Rebuild the grid from whatever the queue is holding.
 
-        A pipeline streams figures in one at a time; rebuilding a grid of
-        seventeen for each of them is seventeen times the work to show a view
-        nobody is looking at.
+        Called on the debounce timer rather than per figure: a run streams
+        seventeen in and the grid is on screen the whole time, so one rebuild
+        per arrival is seventeen full relayouts of the same view.
         """
-        tabs = getattr(self, "_figures_tabs", None)
         grid = getattr(self, "_figure_grid", None)
-        if tabs is None or grid is None or tabs.widget(index) is not grid:
+        if grid is None:
             return
         try:
             grid.set_figures(self._figure_queue.all_pixmaps(),
@@ -2948,15 +3024,28 @@ class AppScreen(QWidget):
         except Exception:
             LOG.debug("could not build the figure grid", exc_info=True)
 
+    def _queue_figure_grid_refresh(self) -> None:
+        """Ask for a rebuild soon. Coalesces a burst into one."""
+        timer = getattr(self, "_grid_refresh", None)
+        if timer is not None:
+            timer.start()
+
+    def _show_figure_grid(self) -> None:
+        """Back to every figure at once."""
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            self._refresh_figure_grid()
+            stack.setCurrentIndex(0)
+
     def _open_figure_from_grid(self, index: int) -> None:
-        """A clicked cell opens that figure in the one-at-a-time view."""
-        tabs = getattr(self, "_figures_tabs", None)
+        """A pressed tile fills the container with that figure."""
         try:
             self._figure_queue.show_index(int(index))
         except Exception:
             return
-        if tabs is not None:
-            tabs.setCurrentWidget(self._figure_queue)
+        stack = getattr(self, "_figures_stack", None)
+        if stack is not None:
+            stack.setCurrentWidget(self._figure_detail)
 
     def _load_regression_results(self) -> bool:
         """Point the Results tab at what the run just wrote.
@@ -2985,9 +3074,11 @@ class AppScreen(QWidget):
 
         for candidate in candidates:
             if panel.load(candidate):
-                tabs = getattr(self, "_figures_tabs", None)
-                if tabs is not None:
-                    tabs.setCurrentIndex(0)          # show Results
+                # The results are always on screen now -- they are the left
+                # half, not a tab -- so there is nothing to switch to. Show
+                # the grid rather than whichever single figure was last open,
+                # because a finished run is read as a whole.
+                self._show_figure_grid()
                 self._figures_card.show()
                 return True
         return False
