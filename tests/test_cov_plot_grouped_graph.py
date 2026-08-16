@@ -96,6 +96,37 @@ def line_df(groups=("p1", "p2", "p3"), n=8):
 # create_grouped_plot
 # ===========================================================================
 
+def test_a_grouped_plot_does_not_restyle_the_rest_of_the_session():
+    """One grouped plot must not decide how every later figure looks.
+
+    ``sns.set(style="whitegrid")`` writes a whole seaborn theme -- grid,
+    background, fonts, colour cycle -- into matplotlib's process-wide
+    rcParams. Drawing one grouped plot therefore restyled every figure the
+    session drew after it, on every other screen, over whatever the user had
+    chosen in figure preferences.
+
+    The plot must still come out on a white grid, so both halves are asserted.
+    """
+    import matplotlib
+
+    from spacr.plot import create_grouped_plot
+
+    before = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+
+    fig, _results = create_grouped_plot(
+        normal_df(groups=("a", "b"), n=20), grouping_column="grp",
+        data_column="v1", graph_type="bar", save=False)
+
+    # It drew itself on the seaborn whitegrid...
+    assert fig.get_axes()[0].xaxis.get_gridlines(), "the whitegrid is gone"
+    # ...without leaving the theme behind for the next figure.
+    after = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+    changed = sorted(key for key in after if before.get(key) != after[key])
+    assert not changed, (
+        "a grouped plot left a seaborn theme on matplotlib's globals; every "
+        f"later figure of the session inherits it: {changed}")
+
+
 def test_create_grouped_plot_two_normal_groups_uses_ttest_and_explicit_order():
     """order= branch + 2-group normal branch (T-test)."""
     from spacr.plot import create_grouped_plot
