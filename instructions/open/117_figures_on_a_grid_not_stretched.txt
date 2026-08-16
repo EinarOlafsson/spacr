@@ -1,0 +1,50 @@
+================================================================================
+FIGURES ON A GRID, AT THEIR OWN ASPECT, NOT STRETCHED
+================================================================================
+
+Status:    not started
+Requested: 2026-08-16 — "it would also be great if we could overhaul the
+           figure showing mechanism to show the figures on a grid and not
+           stretch them . so e.g. teach graph gettts on square box and the
+           heatmaps get e.g. 2 or 1 per plate. then the user sees everything
+           on their screen or in a field that they can scroll"
+Owner:     figures panel
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+FigureQueue shows ONE figure at a time, fitted into whatever shape the panel
+happens to be. A run produces seventeen figures; seeing the fourth means
+clicking to it, and every one is stretched to a container that has nothing to
+do with its own proportions. A square volcano and a wide plate heatmap get
+the same box.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A plate heatmap distorted to a square is not a heatmap of a plate any more --
+the wells stop being square and positional artefacts, the whole reason to
+look at it, become impossible to see. And a run's figures are meant to be read
+TOGETHER: the fraction histogram explains the volcano, and one-at-a-time
+navigation hides that relationship.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+A scrollable grid. Each figure keeps its own aspect ratio inside its cell:
+square plots get a square cell, a plate heatmap gets a wide one and takes one
+or two per row. Cell size follows the panel width, so widening the window
+shows more per row rather than stretching what is already there. Clicking a
+cell opens that figure full size; the one-at-a-time view stays as that
+detail view.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+A run's seventeen figures are visible by scrolling one panel, a plate heatmap
+is still the shape of a plate, and no figure is drawn at an aspect ratio it
+was not created with.
