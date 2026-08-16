@@ -618,6 +618,19 @@ def containment_available() -> bool:
 
 
 def free_memory_gb() -> float:
+    """Memory the kernel says is actually available, in GB.
+
+    ``MemAvailable``, not ``MemFree``: free memory on a working machine is
+    close to zero because the page cache holds the rest, and scheduling a
+    trial against that number would refuse every trial on a healthy box.
+    MemAvailable is the kernel's own estimate of what a new allocation could
+    get without swapping.
+
+    :returns: available memory in GB, or ``inf`` where the file does not
+        exist. Infinity rather than zero deliberately -- this is a safety
+        check, and a check that cannot read the machine must not become a
+        check that blocks every run on it.
+    """
     try:
         with open("/proc/meminfo") as handle:
             for line in handle:
