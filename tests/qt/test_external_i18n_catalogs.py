@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+from string import Formatter
 import sys
 
 
@@ -29,6 +30,51 @@ API_EXACT_TEXT_ALLOWLIST = {
     "spacr.schema.field_index",
     "spacr.seg_qc.Scorecard.verdict",
 }
+
+
+def _format_fields(text: str) -> set[str]:
+    return {
+        name
+        for _literal, name, _spec, _conversion in Formatter().parse(str(text))
+        if name is not None
+    }
+
+
+def test_all_external_catalogs_preserve_runtime_placeholders():
+    """A locale may not rename or drop a field that callers interpolate."""
+    english = import_module("spacr.qt.i18n_catalogs.en")
+    runtime_sources = {
+        "SETTING_LABELS": english.SETTING_LABELS,
+        "SETTING_TOOLTIPS": english.SETTING_TOOLTIPS,
+        "CATEGORY_HELP": {
+            source: source for source in english.CATEGORY_SOURCES
+        },
+        "UI": {source: source for source in english.UI_SOURCES},
+        "MODULE_SUMMARIES": english.MODULE_SUMMARIES,
+    }
+    installer_sources = json.loads(
+        (ROOT / "packaging" / "i18n" / "en.json").read_text(encoding="utf-8")
+    )
+    percent_field = re.compile(r"%(?:\d+\$)?[sd]")
+
+    for language in LANGUAGES:
+        catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+        for table_name, sources in runtime_sources.items():
+            translated = getattr(catalog, table_name)
+            for key, source in sources.items():
+                assert _format_fields(translated[key]) == _format_fields(source), (
+                    f"{language}/{table_name}/{key}: format fields changed"
+                )
+        installer = json.loads(
+            (ROOT / "packaging" / "i18n" / f"{language}.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        assert set(installer) == set(installer_sources)
+        for key, source in installer_sources.items():
+            assert percent_field.findall(installer[key]) == percent_field.findall(
+                source
+            ), f"{language}/installer/{key}: placeholders changed"
 
 
 def test_external_runtime_catalogs_have_exact_current_source_keys():
