@@ -167,6 +167,24 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
             return "inference='nonparametric' does not use regression_type"
         return None
 
+    def permutation_at_cell_level_exhausts_memory(trial):
+        # THE COMBINATION THAT TOOK THE MACHINE DOWN.
+        #
+        # The permutation test builds `x_unit.T @ permuted_outcomes` in
+        # batches. At WELL level that is 606 rows and costs nothing. At CELL
+        # level it is ~116,000 rows against 200,000 permutations, and a single
+        # trial was measured holding 57 GB of resident memory before the host
+        # ran out -- one fit, on its own, with nothing running in parallel.
+        #
+        # Rejected rather than merely discouraged: there is no worker count,
+        # thread limit or nice level that makes it survivable, because the
+        # allocation happens inside one process regardless.
+        if trial.get("inference") == "nonparametric" and \
+                trial.get("analysis_unit") == "cell":
+            return ("inference='nonparametric' with analysis_unit='cell' "
+                    "permutes ~10^5 rows and exhausts memory")
+        return None
+
     def permutation_has_no_row_column_terms(trial):
         if trial.get("inference") == "nonparametric" and \
                 trial.get("random_row_column_effects"):
@@ -187,7 +205,8 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
 
     return [mixed_replaces_the_backend, aggregation_belongs_to_wells,
             quantile_needs_its_own_unit, permutation_ignores_the_family,
-            permutation_has_no_row_column_terms,
+            permutation_at_cell_level_exhausts_memory,
+        permutation_has_no_row_column_terms,
             penalty_belongs_to_penalised_families]
 
 
