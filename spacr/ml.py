@@ -390,7 +390,8 @@ def select_glm_family(y):
         print("Using Gaussian family (for continuous data).")
         return sm.families.Gaussian()
 
-def prepare_formula(dependent_variable, random_row_column_effects=False):
+def prepare_formula(dependent_variable, random_row_column_effects=False,
+                    block_screen=False):
     """Build the fixed-effects formula for the gRNA / gene regression.
 
     Both branches regress the response on ``fraction:grna`` and
@@ -399,15 +400,53 @@ def prepare_formula(dependent_variable, random_row_column_effects=False):
     they are left out of the formula because :func:`fit_mixed_model`
     puts plate, row and column into its random structure instead.
 
+    ``block_screen`` adds ``screenID`` (instruction 122). Two screens sharing
+    a guide library can be stacked into one frame and fitted together, which
+    is worth twice the wells -- but only if the screen itself is in the model.
+    Without the term, a systematic difference between the two experiments is
+    charged to whichever guides happen to be over-represented in one of them.
+
+    IT DEFAULTS TO OFF, and the caller decides, because a single-screen
+    project's ``screenID`` column has ONE value. A constant term makes the
+    design rank-deficient: statsmodels answers with a pseudo-inverse rather
+    than refusing, so the run would appear to succeed and hand back standard
+    errors that mean nothing. :func:`screen_is_blockable` is the check.
+
     :param dependent_variable: Name of the response column.
     :param random_row_column_effects: Drop the fixed ``rowID`` /
         ``columnID`` terms. Default ``False``.
+    :param block_screen: Add ``screenID`` as a fixed effect. Default
+        ``False``.
     :returns: The formula string.
     """
+    from .schema import SCREEN_KEY
+
+    screen = f' + {SCREEN_KEY}' if block_screen else ''
     if random_row_column_effects:
         # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
-        return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene'
-    return f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + rowID + columnID'
+        return (f'{dependent_variable} ~ fraction:grna + '
+                f'gene_fraction:gene{screen}')
+    return (f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + '
+            f'rowID + columnID{screen}')
+
+
+def screen_is_blockable(df) -> bool:
+    """Whether ``screenID`` can be a term in this frame's design.
+
+    True only when the column exists and carries more than one distinct
+    value. A single-screen project is the normal case and must be untouched
+    by instruction 122: it has no screenID at all, or one value, and either
+    way the term would be a constant column.
+
+    The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated
+    once for the formula path so a frame cannot be blocked on by one and not
+    the other.
+    """
+    from .schema import SCREEN_KEY
+
+    if df is None or SCREEN_KEY not in getattr(df, 'columns', ()):
+        return False
+    return int(df[SCREEN_KEY].astype(str).nunique(dropna=True)) > 1
 
 def fit_mixed_model(df, formula, dst):
     """Fit a mixed-effects model with plate/row/column random structure and return coefficients.
@@ -2293,13 +2332,35 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # this stays None to say so rather than letting a NameError find out.
     qc_design = None
 
+    # INSTRUCTION 122: BLOCK ON THE SCREEN WHEN THERE IS MORE THAN ONE.
+    #
+    # Two screens sharing a guide library are stacked into one frame and fitted
+    # together -- twice the wells -- but only if the screen is in the model. A
+    # systematic difference between two experiments that is not a term gets
+    # charged to whichever guides are over-represented in one of them, which
+    # is a false hit that looks exactly like a real one.
+    #
+    # Decided from the DATA, not from a setting, because the wrong answer is
+    # silent in both directions: a constant screenID term makes the design
+    # rank-deficient and statsmodels answers with a pseudo-inverse instead of
+    # refusing, so a single-screen run would come back with standard errors
+    # that mean nothing and no error anywhere.
+    block_screen = screen_is_blockable(df)
+    if block_screen:
+        print(f"Blocking on {df['screenID'].nunique()} screens: "
+              f"{sorted(df['screenID'].astype(str).unique())}")
+
     if random_row_column_effects:
         regression_type = 'mixed'
-        formula = prepare_formula(dependent_variable, random_row_column_effects=True)
+        formula = prepare_formula(dependent_variable,
+                                  random_row_column_effects=True,
+                                  block_screen=block_screen)
         mixed_model, coef_df = fit_mixed_model(df, formula, dst)
         model = mixed_model
     else:
-        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
+        formula = prepare_formula(dependent_variable,
+                                  random_row_column_effects=False,
+                                  block_screen=block_screen)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
         # Rows patsy actually kept. Every per-row vector handed to the model
         # below - weights, groups, exposure - is taken through this index, so
@@ -3924,7 +3985,9 @@ def perform_regression(settings):
         # ranking. Treat as a selection method, not a hypothesis test.
         n_boot = settings.get('lasso_n_boot', 200)
         sel_threshold = settings.get('lasso_selection_threshold', 0.6)
-        formula = prepare_formula(dependent_variable, random_row_column_effects=False)
+        formula = prepare_formula(
+            dependent_variable, random_row_column_effects=False,
+            block_screen=screen_is_blockable(merged_df))
         # Apply the same preprocessing the OLS path uses, so derived columns
         # referenced by the formula (e.g. gene_fraction) exist in the bootstrap.
         cleaned_df = check_and_clean_data(merged_df.copy(), dependent_variable)
