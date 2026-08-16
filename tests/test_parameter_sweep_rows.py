@@ -272,3 +272,78 @@ class TestTheScreenWiresItUp:
         screen._trial_figures_ready(
             {"settings": {}, "output": {}, "figures": []})
         assert "no figures" in screen.trial_status.text().lower()
+
+
+class TestARowOpensItsWholeSetOfGraphs:
+    """Instruction 116. Re-running was the expensive half and already worked;
+    showing one figure at a time meant the user still could not put a run's
+    residual plot beside its volcano, which is the comparison that decides
+    whether a configuration is any good."""
+
+    @pytest.fixture()
+    def screen(self, qtbot):
+        from spacr.qt.screens.parameter_sweep import _make_screen
+
+        widget = _make_screen()
+        qtbot.addWidget(widget)
+        return widget
+
+    def test_a_saved_trial_loads_without_refitting(self, screen, tmp_path,
+                                                   monkeypatch):
+        """A saved run is instant; a re-fit is a minute for an identical
+        answer."""
+        import numpy as np
+
+        run = tmp_path / "trial_0001"
+        run.mkdir()
+        pd.DataFrame({
+            "feature": ["gene_fraction:gene[225160]"],
+            "coefficient": [1.2], "p_value": [4.6e-08], "q_value": [1.8e-05],
+        }).to_csv(run / "results.csv", index=False)
+
+        frame = pd.DataFrame([{"trial_id": 1, "status": "ok",
+                               "folder": str(run), "regression_type": "ols"}])
+        screen._results = frame
+        screen._show(frame)
+        screen.table.selectRow(0)
+
+        started = []
+        monkeypatch.setattr(screen._runner, "submit",
+                            lambda job, done: started.append(job))
+        screen._on_row_activated()
+
+        assert not started, "it re-fitted a trial whose results were on disk"
+        assert screen.results.table.table.rowCount() == 1
+        assert "loaded from disk" in screen.trial_status.text()
+
+    def test_a_trial_with_no_saved_results_is_refitted(self, screen, tmp_path,
+                                                       monkeypatch):
+        frame = pd.DataFrame([{"trial_id": 2, "status": "ok",
+                               "folder": str(tmp_path / "empty"),
+                               "regression_type": "ols"}])
+        screen._results = frame
+        screen._show(frame)
+        screen.table.selectRow(0)
+
+        started = []
+        monkeypatch.setattr(screen._runner, "submit",
+                            lambda job, done: started.append(job))
+        screen._on_row_activated()
+
+        assert started, "nothing was re-fitted and nothing was loaded"
+        assert "re-fitting" in screen.trial_status.text()
+
+    def test_a_refit_populates_the_same_panel(self, screen):
+        """So the two paths end in the same place."""
+        from matplotlib.figure import Figure
+
+        figure = Figure()
+        figure.add_subplot(111).plot([0, 1], [0, 1])
+        screen._trial_figures_ready({
+            "settings": {"regression_type": "ols", "src": "/tmp/x"},
+            "output": {"results": pd.DataFrame({
+                "feature": ["a", "b"], "coefficient": [1.0, 2.0],
+                "p_value": [0.01, 0.2]})},
+            "figures": [figure]})
+
+        assert screen.results.table.table.rowCount() == 2
