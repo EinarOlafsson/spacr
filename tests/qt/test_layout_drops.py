@@ -978,3 +978,78 @@ def test_the_layer_viewer_takes_an_image_and_its_mask_in_one_drop(project):
     assert screen.images == [str(image)]
     assert screen.labels == [str(mask)], (
         "a file out of masks/ is a label array, not another image")
+
+
+class _SweepList:
+    """Stand-in for ``FilePathListWidget``: the two methods a drop uses."""
+
+    def __init__(self):
+        self.paths = []
+
+    def add_paths(self, paths):
+        self.paths.extend(str(path) for path in paths)
+        return len(self.paths)
+
+
+class _SweepScreen:
+    """Parameter Sweep reduced to the two inputs the handler fills."""
+
+    def __init__(self):
+        self.score_data = _SweepList()
+        self.count_data = _SweepList()
+
+
+def test_the_sweep_sorts_a_dropped_csv_by_its_header_not_its_name(tmp_path):
+    """A count table filed as a score is a wrong sweep, not a visible error.
+
+    Parameter Sweep holds its two inputs in separate list widgets, so the
+    side has to be decided before the file is added -- unlike Regression,
+    whose paired table can show the user a mistake. The rule is the same one
+    Regression uses (:func:`spacr.qt.widgets.file_list.side_for_header`), and
+    it reads the header, so the filenames here are deliberately swapped: the
+    count export is called ``scores.csv``. Sorting by name would put both
+    files on the wrong side and nothing downstream would say so.
+    """
+    counts = tmp_path / "scores.csv"
+    counts.write_text("grna,count\ng1,5\n", encoding="utf-8")
+    scores = tmp_path / "counts.csv"
+    scores.write_text("prc,pred\nplate1_r1_c1,0.5\n", encoding="utf-8")
+
+    screen = _SweepScreen()
+    handler = dh.get_handler("parameter_sweep")
+    assert handler.accepts_multiple() is True, (
+        "a sweep is many plates; a multi-drop must land as many, not as one")
+    handler.apply(counts, screen)
+    handler.apply(scores, screen)
+
+    assert screen.count_data.paths == [str(counts)]
+    assert screen.score_data.paths == [str(scores)]
+
+
+def test_dropping_a_folder_of_tables_fills_both_sweep_lists(tmp_path):
+    """"Drop the folder" is the gesture a many-plate screen is for."""
+    folder = tmp_path / "plates"
+    folder.mkdir()
+    (folder / "plate1_counts.csv").write_text(
+        "grna,count\ng1,5\n", encoding="utf-8")
+    (folder / "plate1_scores.csv").write_text(
+        "prc,pred\nplate1_r1_c1,0.5\n", encoding="utf-8")
+    (folder / "notes.txt").write_text("ignored", encoding="utf-8")
+
+    screen = _SweepScreen()
+    handler = dh.get_handler("parameter_sweep")
+    assert handler.can_accept(folder) is True
+    handler.apply(folder, screen)
+
+    assert screen.count_data.paths == [str(folder / "plate1_counts.csv")]
+    assert screen.score_data.paths == [str(folder / "plate1_scores.csv")]
+
+
+def test_the_sweep_refuses_a_path_that_holds_no_table(tmp_path):
+    """Refusing is what puts the reason on screen instead of silence."""
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    handler = dh.get_handler("parameter_sweep")
+
+    assert handler.can_accept(empty) is False
+    assert "score" in handler.error_message(empty).lower()

@@ -82,6 +82,33 @@ def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str]) -> list[dic
     return rows
 
 
+def side_for_header(path) -> str:
+    """``'count'`` when the file's header names a gRNA and a count, else
+    ``'score'``.
+
+    Read from the header rather than the filename: a count export carries a
+    gRNA name and a count, a score export carries neither, and that is true
+    whatever the file is called.
+
+    Module-level because two screens ask the same question of the same files.
+    Regression asks it through :class:`PairedFileTableWidget`; Parameter Sweep
+    holds its two sides in separate list widgets and asks it through
+    ``spacr.qt.dnd_handlers.SweepInputsDropHandler``. A second copy of this
+    rule would drift, and the direction it would drift in is silent: a count
+    table filed as a score is not an error, it is a wrong regression.
+    """
+    try:
+        import csv as _csv
+        with open(path, newline="", encoding="utf-8",
+                  errors="replace") as handle:
+            header = {str(name).strip().lower()
+                      for name in next(_csv.reader(handle), [])}
+    except OSError:
+        return "score"
+    return ("count" if {"grna", "grna_name"} & header and "count" in header
+            else "score")
+
+
 class PairedFileTableWidget(QWidget):
     """Editable one-row-per-plate score/count input contract."""
 
@@ -162,22 +189,8 @@ class PairedFileTableWidget(QWidget):
         return added
 
     def _side_for_header(self, path) -> str:
-        """'count' when the file's header names a gRNA and a count.
-
-        Read from the header rather than the filename: a count export carries
-        a gRNA name and a count, a score export carries neither, and that is
-        true whatever the file is called.
-        """
-        try:
-            import csv as _csv
-            with open(path, newline="", encoding="utf-8",
-                      errors="replace") as handle:
-                header = {str(name).strip().lower()
-                          for name in next(_csv.reader(handle), [])}
-        except OSError:
-            return "score"
-        return ("count" if {"grna", "grna_name"} & header and "count" in header
-                else "score")
+        """Which column ``path`` belongs in. See :func:`side_for_header`."""
+        return side_for_header(path)
 
     # ---------------------------------------------------------- drag / drop
 
@@ -597,4 +610,5 @@ class FilePathListWidget(QWidget):
         return ""
 
 
-__all__ = ["FilePathListWidget", "FILE_KIND_FILTERS"]
+__all__ = ["FilePathListWidget", "FILE_KIND_FILTERS", "PairedFileTableWidget",
+           "side_for_header", "suggest_file_pairs"]

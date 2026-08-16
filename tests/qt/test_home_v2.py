@@ -799,6 +799,14 @@ ALPHA_MODULES = {
     # Both are reachable and tested, but have not yet been trusted end to end
     # on an independent production run, so they arrive alpha on purpose.
     "explain_cv", "investigate_hit",
+    # And the two regression companions: the sweep that runs the fit under
+    # many settings and compares what each concludes, and the reader that
+    # opens a finished result and lets you click a point. They were registered
+    # in APPS without reaching this list, cli.INTERACTIVE_ONLY, or the drop
+    # handlers -- half-wired, which is what this assertion exists to catch.
+    # Alpha for the usual reason: reachable and tested, not yet trusted end to
+    # end on an independent production run.
+    "parameter_sweep", "volcano_explorer",
 }
 BETA_MODULES = {
     "make_masks", "train_cellpose", "cellpose_masks", "timelapse",
@@ -807,19 +815,20 @@ BETA_MODULES = {
 
 
 def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
-    """39 alpha, 9 beta, named one at a time.
+    """41 alpha, 9 beta, named one at a time.
 
     Spelling the lists out means a quiet drift fails here rather than
     being noticed in a screenshot. It read 36 until the merged Classify
-    module was registered alpha on 2026-08-06; the number moves with the
-    list above it, never on its own."""
+    module was registered alpha on 2026-08-06, and 39 until Parameter Sweep
+    and Volcano Explorer were reconciled on 2026-08-16; the number moves with
+    the list above it, never on its own."""
     from spacr.qt.app import app_stage
     by_stage: dict = {}
     for key, _name, _desc, _section in APPS:
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
-    assert len(ALPHA_MODULES) == 39 and len(BETA_MODULES) == 9
+    assert len(ALPHA_MODULES) == 41 and len(BETA_MODULES) == 9
     assert by_stage["stable"] == (
         {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
 
