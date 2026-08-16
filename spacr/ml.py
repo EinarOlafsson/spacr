@@ -4043,6 +4043,28 @@ def perform_regression(settings):
     print(f"Found p<0.05 coedfficients for {len(grnas)} gRNAs and {len(genes)} genes")
     display(significant)
 
+    # WHAT THE VOLCANO CANNOT SHOW.
+    #
+    # A gene backed by ONE surviving guide and a gene whose guides all agree
+    # are the same single dot, and they rank by the same p-value -- but only
+    # one of them is independent evidence. On this screen the top of the list
+    # is a single-guide gene sitting above two genes with full guide support,
+    # so the ordering alone misleads about which hits to follow up.
+    try:
+        from .guide_concordance import concordance_report
+        controls = {}
+        for _key, _role in (('positive_control', 'positive'),
+                            ('negative_control', 'negative')):
+            _value = settings.get(_key)
+            if _value not in (None, ''):
+                controls[str(_value)] = _role
+        print()
+        print(concordance_report(
+            coef_df, alpha=float(settings.get('fdr_alpha', 0.05) or 0.05),
+            controls=controls))
+    except Exception as concordance_error:
+        print(f"Could not summarise guide support: {concordance_error}")
+
     output = {'results':coef_df,
               'significant':significant}
 
