@@ -996,6 +996,22 @@ class ResultsTable(QWidget):
         if key is not None:
             self.key_selected.emit(key)
 
+    def configure(self, *, placeholder: Optional[str] = None,
+                  significance_filter: Optional[bool] = None) -> None:
+        """Adapt the controls to what the table actually holds.
+
+        This widget is reused for tables that are not coefficient tables --
+        the sweep's runs, for one -- and a filter offering "significant only"
+        over a list of trials is a control that cannot do anything, sitting
+        next to a placeholder telling the user to type a gene into it.
+        """
+        if placeholder is not None:
+            self._filter.setPlaceholderText(placeholder)
+        if significance_filter is not None:
+            self._only_hits.setVisible(bool(significance_filter))
+            if not significance_filter:
+                self._only_hits.setChecked(False)
+
     def key_for_row(self, index: int) -> Optional[str]:
         """The identifier at frame position ``index``, or ``None``."""
         if self._frame is None or not self._key_column:
