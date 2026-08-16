@@ -429,3 +429,191 @@ class ControlSeparation(FastPlot):
         axis.setTicks([[(i, name) for i, name in enumerate(groups)]])
         self.set_status("   ".join(summary) if summary else "No control values.")
         return total
+
+
+class ResultsTable(QWidget):
+    """The coefficient table, sortable and searchable, wired to a plot.
+
+    A volcano answers "which points are extreme"; it cannot answer "what is
+    the q-value of TGGT1_233460_4". Reading numbers off a scatter is the wrong
+    tool, and until now the only way to see them was to open the CSV.
+
+    :ivar row_selected: emitted with the frame row index of the selected row.
+    """
+
+    row_selected = Signal(int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        from PySide6.QtWidgets import (QAbstractItemView, QLineEdit,
+                                       QTableWidget)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        top = QHBoxLayout()
+        self._filter = QLineEdit()
+        self._filter.setPlaceholderText(
+            "Filter rows — type a gene, a guide, anything in the table")
+        self._filter.textChanged.connect(self._apply_filter)
+        top.addWidget(self._filter, 1)
+        self._only_hits = QCheckBox("significant only")
+        self._only_hits.toggled.connect(self._apply_filter)
+        top.addWidget(self._only_hits)
+        self._copy = QPushButton("Copy")
+        self._copy.setToolTip("Copy the visible rows as TSV.")
+        self._copy.clicked.connect(self.copy_visible)
+        top.addWidget(self._copy)
+        layout.addLayout(top)
+
+        self.table = QTableWidget(0, 0)
+        self.table.setSortingEnabled(True)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setAlternatingRowColors(True)
+        self.table.itemSelectionChanged.connect(self._on_selection)
+        layout.addWidget(self.table, 1)
+
+        self._count = QLabel("")
+        layout.addWidget(self._count)
+
+        self._frame = None
+        self._alpha = 0.05
+
+    def set_frame(self, frame, *, alpha: float = 0.05,
+                  significance_column: Optional[str] = None) -> int:
+        """Fill the table. Returns the row count."""
+        from PySide6.QtWidgets import QTableWidgetItem
+
+        self._frame = frame
+        self._alpha = alpha
+        self._significance = significance_column or self._guess_significance(frame)
+        if frame is None or not len(frame):
+            self.table.setRowCount(0)
+            self._count.setText("Nothing to show.")
+            return 0
+
+        columns = list(frame.columns)
+        # Sorting must be off while filling: with it on, Qt re-sorts after
+        # every insert and the rows end up interleaved.
+        self.table.setSortingEnabled(False)
+        self.table.setColumnCount(len(columns))
+        self.table.setHorizontalHeaderLabels(columns)
+        self.table.setRowCount(len(frame))
+        for row in range(len(frame)):
+            for column, name in enumerate(columns):
+                value = frame.iloc[row][name]
+                item = _NumericItem(value)
+                # The frame row, so a click still maps home after sorting.
+                item.setData(Qt.UserRole, row)
+                self.table.setItem(row, column, item)
+        self.table.setSortingEnabled(True)
+        self.table.resizeColumnsToContents()
+        self._apply_filter()
+        return len(frame)
+
+    @staticmethod
+    def _guess_significance(frame) -> Optional[str]:
+        """Prefer a corrected column: filtering on raw p would mislead."""
+        if frame is None:
+            return None
+        for name in ("q_value", "adjusted_p_value", "p_value"):
+            if name in frame.columns:
+                return name
+        return None
+
+    def _apply_filter(self) -> None:
+        text = self._filter.text().strip().lower()
+        hits_only = self._only_hits.isChecked()
+        shown = 0
+        for row in range(self.table.rowCount()):
+            visible = True
+            if text:
+                visible = any(
+                    text in (self.table.item(row, c).text() or "").lower()
+                    for c in range(self.table.columnCount())
+                    if self.table.item(row, c) is not None)
+            if visible and hits_only and self._significance:
+                column = list(self._frame.columns).index(self._significance)
+                item = self.table.item(row, column)
+                try:
+                    visible = float(item.text()) <= self._alpha
+                except (TypeError, ValueError):
+                    visible = False
+            self.table.setRowHidden(row, not visible)
+            shown += int(visible)
+        total = self.table.rowCount()
+        note = f"{shown} of {total} rows"
+        if hits_only and self._significance:
+            note += f" ({self._significance} <= {self._alpha:g})"
+        self._count.setText(note)
+
+    def _on_selection(self) -> None:
+        items = self.table.selectedItems()
+        if not items:
+            return
+        index = items[0].data(Qt.UserRole)
+        if index is not None:
+            self.row_selected.emit(int(index))
+
+    def select_frame_row(self, index: int) -> bool:
+        """Scroll to and select the row for frame position ``index``.
+
+        This is the other half of clicking a point on the volcano: the dot and
+        the numbers behind it should be two views of one thing.
+        """
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, 0)
+            if item is not None and item.data(Qt.UserRole) == index:
+                self.table.selectRow(row)
+                self.table.scrollToItem(item)
+                return True
+        return False
+
+    def copy_visible(self) -> str:
+        """Put the visible rows on the clipboard as TSV, and return them."""
+        from PySide6.QtWidgets import QApplication
+
+        lines = ["\t".join(
+            self.table.horizontalHeaderItem(c).text()
+            for c in range(self.table.columnCount()))]
+        for row in range(self.table.rowCount()):
+            if self.table.isRowHidden(row):
+                continue
+            lines.append("\t".join(
+                (self.table.item(row, c).text() if self.table.item(row, c)
+                 else "")
+                for c in range(self.table.columnCount())))
+        text = "\n".join(lines)
+        clipboard = QApplication.clipboard()
+        if clipboard is not None:
+            clipboard.setText(text)
+        return text
+
+
+try:  # pragma: no cover - trivial subclass
+    from PySide6.QtWidgets import QTableWidgetItem
+
+    class _NumericItem(QTableWidgetItem):
+        """Sorts numerically when it holds a number, textually otherwise.
+
+        A plain QTableWidgetItem sorts "10" before "9", which on a q-value
+        column puts the answer in the wrong place.
+        """
+
+        def __init__(self, value):
+            super().__init__("" if value is None else str(value))
+            try:
+                self._number = float(value)
+            except (TypeError, ValueError):
+                self._number = None
+
+        def __lt__(self, other):
+            mine = getattr(self, "_number", None)
+            theirs = getattr(other, "_number", None)
+            if mine is not None and theirs is not None:
+                return mine < theirs
+            return self.text() < other.text()
+except Exception:  # pragma: no cover
+    _NumericItem = None
