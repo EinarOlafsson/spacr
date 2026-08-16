@@ -21,7 +21,15 @@ So this is a control for an action that is already implemented, not a new
 feature underneath.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Generated figures can accumulate during exploration and obscure the current
+result. A quiet, visible clear action exposes existing safe cleanup without
+giving a secondary command the visual weight of a primary workflow control.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 1. IT IS TEXT, NOT A BUTTON. No frame, no fill, no raised chrome -- the words
