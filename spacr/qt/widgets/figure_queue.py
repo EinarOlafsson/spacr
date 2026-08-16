@@ -39,10 +39,10 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from PySide6.QtCore import Signal, QEvent, QSize, Qt, QTimer
-from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtGui import QColor, QIcon, QImage, QPalette, QPixmap
 from PySide6.QtWidgets import (
-    QDialog, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton,
-    QStackedWidget, QVBoxLayout, QWidget,
+    QDialog, QFrame, QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+    QPushButton, QStackedWidget, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
@@ -473,6 +473,34 @@ class FigureQueue(QWidget):
         body.addWidget(self._list)
 
         self._view = _ZoomView(self)
+        # THE CONTAINER DOES NOT PAINT A BACKGROUND. Instruction 118 asks for
+        # figures with "not black not white just transparent", and a
+        # transparent PNG dropped into a container that paints its own base
+        # is a transparent figure on an opaque slab -- reported as "the figure
+        # container has a black background".
+        #
+        # A QGraphicsView is three surfaces, not one: the widget, its
+        # viewport, and the SCENE's own background brush, which is what a
+        # QGraphicsView actually paints behind its items. Clearing the first
+        # two and leaving the third is the way to get this half-right and see
+        # no change at all.
+        self._view.setFrameShape(QFrame.NoFrame)
+        self._view.setBackgroundBrush(Qt.NoBrush)
+        try:
+            self._view.scene().setBackgroundBrush(Qt.NoBrush)
+        except Exception:               # pragma: no cover - no scene yet
+            pass
+        # A QGraphicsView's viewport sets autoFillBackground on ITSELF, so
+        # the theme helper's property is not enough here -- it has to be
+        # turned off explicitly or the viewport keeps painting the palette's
+        # Base, which is white.
+        self._view.viewport().setAutoFillBackground(False)
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(self._view, self._view.viewport())
+        except Exception:               # pragma: no cover - theme absent
+            pass
         # Right-click anywhere on the figure, or on a thumbnail, to restyle
         # it. Without this the panel had one button and three controls, and
         # clicking a figure did nothing at all.
@@ -523,6 +551,17 @@ class FigureQueue(QWidget):
         self._canvas_layout.setContentsMargins(0, 0, 0, 0)
         self._canvas_layout.setSpacing(0)
         self._stack.addWidget(self._canvas_host)   # index 1: live canvas
+        # ONE OPAQUE CONTAINER IS ENOUGH TO BURY THE BACKDROP, and there are
+        # four between the figure and the theme's wallpaper: this widget, the
+        # stack, the canvas host and the thumbnail strip. Tagging three of
+        # them and missing one looks exactly like tagging none.
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(self, self._stack, self._canvas_host, self._list,
+                             self._list.viewport())
+        except Exception:               # pragma: no cover - theme absent
+            pass
         self._canvas = None
         self._canvas_toolbar = None
         #: Live figures go to the canvas. Turned off to exercise the raster
@@ -1163,6 +1202,31 @@ class FigureQueue(QWidget):
                 return True
             self._teardown_canvas()
             canvas = FigureCanvasQTAgg(fig)
+            # THE CANVAS DOES NOT PAINT A BACKGROUND EITHER. It is the surface
+            # actually showing the figure most of the time, so a transparent
+            # raster view with an opaque canvas in front of it is no better
+            # than before. Qt's widget base and matplotlib's own figure patch
+            # are two different opaque layers and both have to go.
+            canvas.setStyleSheet("background: transparent;")
+            canvas.setAttribute(Qt.WA_TranslucentBackground, True)
+            canvas.setAutoFillBackground(False)
+            # AND ITS PALETTE. matplotlib's paintEvent erases the rect before
+            # blitting the Agg buffer, and eraseRect fills with the widget's
+            # palette brush -- which is Base, i.e. white, whatever the
+            # stylesheet says. That erase is why a figure whose patch is
+            # already 'none' still sits on a white rectangle.
+            transparent = canvas.palette()
+            for role in (QPalette.Window, QPalette.Base):
+                transparent.setColor(role, QColor(0, 0, 0, 0))
+            canvas.setPalette(transparent)
+            # matplotlib's Qt backend sets WA_OpaquePaintEvent, which tells Qt
+            # nothing is behind this widget and it need not clear -- so the
+            # canvas must paint every pixel itself, and it paints the ones the
+            # Agg buffer left transparent as WHITE. That single attribute is
+            # why a figure with facecolor 'none' still shows a white plot
+            # rectangle with a transparent margin around it.
+            canvas.setAttribute(Qt.WA_OpaquePaintEvent, False)
+            canvas.setAttribute(Qt.WA_NoSystemBackground, True)
             # Right-click must still restyle, exactly as on the raster view.
             canvas.setContextMenuPolicy(Qt.CustomContextMenu)
             canvas.customContextMenuRequested.connect(self._view_context_menu)
