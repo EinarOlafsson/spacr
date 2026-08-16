@@ -103,9 +103,20 @@ spaCR Python **3.9 से 3.14** का समर्थन करता है (
 
 .. spacr-installer-links-begin
 
-* `Windows 10/11: डाउनलोड SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe>`_
-* `macOS 11+ (इंटेल और एप्पल सिलिकॉन): डाउनलोड SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg>`_
-* `64-बिट Linux: डाउनलोड SpaCR 1.5.0.4 <https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run>`_
+|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+   :width: 64
+   :alt: Windows 10/11: डाउनलोड SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+   :width: 64
+   :alt: macOS 11+ (इंटेल और एप्पल सिलिकॉन): डाउनलोड SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+   :width: 64
+   :alt: 64-बिट Linux: डाउनलोड SpaCR 1.5.0.4
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
 
 .. spacr-installer-links-end
 
