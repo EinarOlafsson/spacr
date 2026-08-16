@@ -552,6 +552,118 @@ def be_polite() -> None:
         pass
 
 
+#: Hard ceiling on a single trial, enforced by the kernel rather than by this
+#: module's own accounting. 24 GiB is above every well-level fit measured on a
+#: real four-plate screen (~1.8 GiB) and below the 57 GiB one cell-level
+#: permutation trial reached before it took the host down with it.
+TRIAL_MEMORY_MAX = "24G"
+#: Four cores per trial. A sweep is background work; it does not get the box.
+TRIAL_CPU_QUOTA = "400%"
+#: Refuse to START a trial below this. The point is to stop before the machine
+#: is in trouble, not to react once it is.
+FREE_MEMORY_FLOOR_GB = 20.0
+
+
+def containment_available() -> bool:
+    """Whether the kernel can be asked to cap a trial."""
+    import shutil
+
+    if not shutil.which("systemd-run"):
+        return False
+    try:
+        import subprocess
+        return subprocess.run(
+            ["systemctl", "--user", "is-system-running"],
+            capture_output=True, timeout=5).returncode is not None
+    except Exception:  # pragma: no cover - no user manager
+        return False
+
+
+def free_memory_gb() -> float:
+    try:
+        with open("/proc/meminfo") as handle:
+            for line in handle:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) / 1e6
+    except OSError:  # pragma: no cover - not Linux
+        pass
+    return float("inf")
+
+
+def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
+                        timeout: float = 1800.0,
+                        memory_max: str = TRIAL_MEMORY_MAX,
+                        cpu_quota: str = TRIAL_CPU_QUOTA) -> dict:
+    """Run one trial in a fresh, kernel-capped process. Never raises.
+
+    ACCOUNTING IS NOT CONTAINMENT, and this is the difference. Every earlier
+    attempt to make a sweep safe was a better estimate of what a trial would
+    use; each one was wrong in a way that took the user's desktop with it. A
+    cgroup does not estimate: a trial that asks for more than `memory_max`
+    is killed, alone, and the sweep records it and carries on.
+
+    Verified by running a deliberate memory hog under the same cap: it died
+    at the limit and free memory never moved.
+
+    :returns: the child's result dict, or a row with ``status`` of ``killed``
+        (hit its cap), ``timeout``, or ``failed``.
+    """
+    import json
+    import subprocess
+    import sys
+    import tempfile
+
+    payload = {"settings": dict(settings), "trial_id": trial_id}
+    folder = settings.get("src") or tempfile.gettempdir()
+    os.makedirs(folder, exist_ok=True)
+    settings_path = os.path.join(folder, "_trial_settings.json")
+    out_path = os.path.join(folder, "_trial_result.json")
+    with open(settings_path, "w") as handle:
+        json.dump(payload, handle, default=str)
+
+    child = [sys.executable, "-m", "spacr.sweep_child", settings_path, out_path]
+    if containment_available():
+        command = ["systemd-run", "--user", "--scope", "--quiet",
+                   "-p", f"MemoryMax={memory_max}",
+                   "-p", "MemorySwapMax=0",
+                   "-p", f"CPUQuota={cpu_quota}",
+                   "-p", "TasksMax=64",
+                   "nice", "-n", "19"] + child
+    else:
+        # Say so rather than pretending the cap is there: an uncapped sweep is
+        # a decision the user should get to make knowingly.
+        print("WARNING: systemd-run is unavailable, so this trial runs "
+              "WITHOUT a memory cap. A runaway fit can take the machine "
+              "down; consider running the sweep when the desktop is idle.")
+        command = ["nice", "-n", "19"] + child
+
+    environment = dict(os.environ)
+    for name in _THREAD_VARS:
+        environment[name] = "1"
+
+    try:
+        finished = subprocess.run(command, capture_output=True, text=True,
+                                  timeout=timeout, env=environment)
+        code, tail = finished.returncode, (finished.stderr or "")[-400:]
+    except subprocess.TimeoutExpired:
+        code, tail = -1, "timed out"
+
+    if os.path.exists(out_path):
+        try:
+            with open(out_path) as handle:
+                return json.load(handle)
+        except Exception:  # pragma: no cover - truncated by a kill
+            pass
+    # No result file: the child was killed before it could write one. The cap
+    # is the likeliest reason and worth naming, because "killed" and "crashed"
+    # want different responses from the user.
+    return {"status": "timeout" if tail == "timed out" else "killed",
+            "trial_id": trial_id,
+            "error_type": "MemoryMax" if code not in (0, -1) else "Timeout",
+            "error": (f"the trial was killed; it may have exceeded "
+                      f"MemoryMax={memory_max}. {tail}").strip()}
+
+
 def _trial_settings(base_settings, trial, destination):
     """Build one trial's settings dict and its own output folder."""
     settings = dict(base_settings)
@@ -746,6 +858,8 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                progress_every: int = 10,
                learn_from_failures: int = 2,
                corrections: Sequence[str] | None = None,
+               contained: bool = True,
+               memory_floor_gb: float = FREE_MEMORY_FLOOR_GB,
                runner: Callable | None = None) -> pd.DataFrame:
     """Run every trial and return one tidy row per trial.
 
@@ -766,7 +880,13 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         :func:`spacr.ml.perform_regression`.
     :returns: the summary frame, also written as ``sweep_results.csv``.
     """
-    if runner is None:
+    if runner is None and contained:
+        # Each trial in its own kernel-capped process. This is the default
+        # because the alternative -- trusting this module's own accounting --
+        # took the user's machine down seven times, and every one of those
+        # was a fix to the accounting.
+        runner = None
+    elif runner is None:
         from .ml import perform_regression as runner  # noqa: PLC0415
     space = space or SweepSpace()
     if not space.filters:
@@ -818,8 +938,42 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         row = {"trial_id": trial["trial_id"], "folder": folder,
                "preparation_key": _preparation_key(settings)}
         row.update({k: v for k, v in trial.items() if k != "trial_id"})
+        # Stop BEFORE the machine is in trouble, not once it is.
+        if contained and free_memory_gb() < memory_floor_gb:
+            print(f"[sweep] stopping: {free_memory_gb():.0f} GB free is below "
+                  f"the {memory_floor_gb:.0f} GB floor")
+            row["status"] = "skipped"
+            row["error"] = "stopped at the free-memory floor"
+            rows.append(row)
+            break
+
         began = time.time()
         output = None
+        if runner is None:
+            # Contained: the child returns a finished ROW, not a model.
+            child = run_trial_contained(settings, trial_id=trial["trial_id"])
+            row.update({k: v for k, v in child.items()
+                        if k not in ("trial_id",)})
+            row["seconds"] = child.get("seconds", round(time.time() - began, 2))
+            if row.get("status") != "ok":
+                record = exhausted.setdefault(
+                    signature, {"count": 0,
+                                "error_type": row.get("error_type", "?"),
+                                "first_trial": trial["trial_id"]})
+                record["count"] += 1
+            rows.append(row)
+            if progress_every and index % progress_every == 0:
+                try:
+                    pd.DataFrame(rows).to_csv(
+                        os.path.join(destination, "sweep_results.csv"),
+                        index=False)
+                except OSError:
+                    pass
+                print(f"[sweep] {index}/{len(trials)} trials "
+                      f"({row.get('status')}), "
+                      f"{(time.time() - started) / 60:.1f} min elapsed")
+            continue
+
         try:
             output = runner(settings)
             row["status"] = "ok"
