@@ -2249,72 +2249,78 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
                   (55/255, 155/255, 255/255), 
                   (255/255, 55/255, 155/255)]
 
-    sns.set_palette(sns.color_palette(color_list))
-    font = figuresize/2
-    width=figuresize
-    height=figuresize/4
+    # The palette is set for THIS figure only. `sns.set_palette` writes
+    # matplotlib's global colour cycle, so drawing one recruitment plot
+    # used to recolour every plot the session drew afterwards -- including
+    # figures on other screens, and including the palette the user chose in
+    # figure preferences. `rc_context` keeps the colours while these axes
+    # are built and puts the cycle back when they are done.
+    with mpl.rc_context({'axes.prop_cycle': mpl.cycler(color=color_list)}):
+        font = figuresize/2
+        width=figuresize
+        height=figuresize/4
 
-    fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
-    sns.barplot(ax=axes[0], data=df, x='condition', y=f'cell_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
-    axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+        fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
+        sns.barplot(ax=axes[0], data=df, x='condition', y=f'cell_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
+        axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
+        axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    sns.barplot(ax=axes[1], data=df, x='condition', y=f'nucleus_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
-    axes[1].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[1].set_ylabel(f'nucleus_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+        sns.barplot(ax=axes[1], data=df, x='condition', y=f'nucleus_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
+        axes[1].set_xlabel(f'pathogen {df_type}', fontsize=font)
+        axes[1].set_ylabel(f'nucleus_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    sns.barplot(ax=axes[2], data=df, x='condition', y=f'cytoplasm_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
-    axes[2].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[2].set_ylabel(f'cytoplasm_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+        sns.barplot(ax=axes[2], data=df, x='condition', y=f'cytoplasm_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
+        axes[2].set_xlabel(f'pathogen {df_type}', fontsize=font)
+        axes[2].set_ylabel(f'cytoplasm_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    sns.barplot(ax=axes[3], data=df, x='condition', y=f'pathogen_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
-    axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
-    axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
+        sns.barplot(ax=axes[3], data=df, x='condition', y=f'pathogen_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
+        axes[3].set_xlabel(f'pathogen {df_type}', fontsize=font)
+        axes[3].set_ylabel(f'pathogen_channel_{channel_of_interest}_mean_intensity', fontsize=font)
 
-    #axes[0].legend_.remove()
-    #axes[1].legend_.remove()
-    #axes[2].legend_.remove()
-    #axes[3].legend_.remove()
+        #axes[0].legend_.remove()
+        #axes[1].legend_.remove()
+        #axes[2].legend_.remove()
+        #axes[3].legend_.remove()
         
-    handles, labels = axes[3].get_legend_handles_labels()
-    axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
-    for i in [0,1,2,3]:
-        axes[i].tick_params(axis='both', which='major', labelsize=font)
-        plt.setp(axes[i].get_xticklabels(), rotation=45)
+        handles, labels = axes[3].get_legend_handles_labels()
+        axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
+        for i in [0,1,2,3]:
+            axes[i].tick_params(axis='both', which='major', labelsize=font)
+            plt.setp(axes[i].get_xticklabels(), rotation=45)
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
 
-    columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
-    #columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
+        columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
+        #columns = columns + [f'pathogen_slope_channel_{channel_of_interest}', f'pathogen_cell_distance_channel_{channel_of_interest}', f'nucleus_cell_distance_channel_{channel_of_interest}']
 
-    width = figuresize*2
-    columns_per_row = math.ceil(len(columns) / 2)
-    height = (figuresize*2)/columns_per_row
+        width = figuresize*2
+        columns_per_row = math.ceil(len(columns) / 2)
+        height = (figuresize*2)/columns_per_row
 
-    fig, axes = plt.subplots(nrows=2, ncols=columns_per_row, figsize=(width, height * 2))
-    axes = axes.flatten()
+        fig, axes = plt.subplots(nrows=2, ncols=columns_per_row, figsize=(width, height * 2))
+        axes = axes.flatten()
 
-    print(f'{columns}')
+        print(f'{columns}')
 
-    for i, col in enumerate(columns):
+        for i, col in enumerate(columns):
 
-        ax = axes[i]
-        sns.barplot(ax=ax, data=df, x='condition', y=f'{col}', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
-        ax.set_xlabel(f'pathogen {df_type}', fontsize=font)
-        ax.set_ylabel(f'{col}', fontsize=int(font*2))
-        if ax.get_legend() is not None:
-            ax.legend_.remove()
-        ax.tick_params(axis='both', which='major', labelsize=font)
-        plt.setp(ax.get_xticklabels(), rotation=45)
-        if i <= 5:
-            ax.set_ylim(1, None)
+            ax = axes[i]
+            sns.barplot(ax=ax, data=df, x='condition', y=f'{col}', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
+            ax.set_xlabel(f'pathogen {df_type}', fontsize=font)
+            ax.set_ylabel(f'{col}', fontsize=int(font*2))
+            if ax.get_legend() is not None:
+                ax.legend_.remove()
+            ax.tick_params(axis='both', which='major', labelsize=font)
+            plt.setp(ax.get_xticklabels(), rotation=45)
+            if i <= 5:
+                ax.set_ylim(1, None)
 
-    for i in range(len(columns), len(axes)):
-        axes[i].axis('off')
+        for i in range(len(columns), len(axes)):
+            axes[i].axis('off')
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
     
 def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     """
