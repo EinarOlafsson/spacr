@@ -307,7 +307,12 @@ def test_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
 
     assert settings["score_data"] == [screen["score"]]
     assert settings["count_data"] == [screen["count"]]
-    assert set(out) == {"results", "significant"}
+    # The coefficient table and the hits, plus what is needed to judge the
+    # fit: without the model there is no R-squared and no residual to test,
+    # and without the design there is no way to count what reached it.
+    assert {"results", "significant"} <= set(out)
+    assert {"model", "model_data"} <= set(out), \
+        "the fit and its design must come back, or no diagnostic can be computed"
     assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
 
 
