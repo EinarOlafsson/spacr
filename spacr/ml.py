@@ -4143,8 +4143,22 @@ def perform_regression(settings):
     except Exception as concordance_error:
         print(f"Could not summarise guide support: {concordance_error}")
 
+    # THE MODEL AND THE DESIGN COME BACK TOO.
+    #
+    # Returning only the coefficient table meant every downstream consumer
+    # could report WHAT was significant and nothing about whether the fit
+    # deserved to be believed: no R-squared, no residuals to test for
+    # heteroscedasticity, no way to count the wells and guides that actually
+    # reached the design. A sweep row could say '10 hits' and not whether the
+    # run that produced them was well specified.
+    #
+    # Both are already in scope here; they were simply dropped on the way out.
     output = {'results':coef_df,
-              'significant':significant}
+              'significant':significant,
+              'model': model,
+              'model_data': merged_df,
+              'regression_type': regression_type,
+              'res_folder': res_folder}
 
     return output
 
