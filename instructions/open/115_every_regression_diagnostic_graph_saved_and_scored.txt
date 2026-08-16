@@ -1,0 +1,69 @@
+================================================================================
+EVERY REGRESSION DIAGNOSTIC, SAVED AND SCORED -- NOT ONLY IN THE SEARCH
+================================================================================
+
+Status:    not started
+Requested: 2026-08-16 — "the metricks that are saved for the run should be
+           comprehensive in these rows, if there is a positive controll value
+           that should be used, also r2 and so on i want the module to test
+           everything relevant to regression like coliniarity, homogenicity,
+           residual analasys and so on, all of these graphs should be saved.
+           not only for the search but also for the normal analasys"
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/regression_diagnostics.py already has design_report(),
+collinear_guide_pairs(), variance_inflation_factors(), residual_report() and
+write_diagnostic_suite(). A normal run calls some of it; a sweep row records
+almost none of it.
+
+A sweep row today carries the settings, a hit count, and seconds. That is not
+enough to choose between two runs: it cannot say whether a fit with more hits
+had a worse-behaved residual, a rank-deficient design, or simply threw data
+away.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The point of a sweep is to CHOOSE a configuration. A row that reports "10
+hits" and nothing else forces the user to open every trial folder by hand,
+which is the work the sweep was supposed to remove. The nightly run showed
+exactly this: min_cell_count=50 reported MORE hits than 100 while quietly
+losing GRA14, and no column in the table said so.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Every row gets, where the fit can supply it:
+
+  FIT QUALITY        r_squared, adjusted r_squared, aic, bic, log-likelihood,
+                     residual standard error, condition number
+  RESIDUALS          Breusch-Pagan and White for homoscedasticity,
+                     Durbin-Watson, Jarque-Bera and Shapiro for normality,
+                     the residual/fitted trend slope
+  DESIGN             rank, whether it is identifiable, max VIF, the number of
+                     collinear guide pairs, n_wells / n_guides / n_rows
+  CONTROLS           the positive control's rank, p and q; the negative
+                     control's; and the separation between them. If the user
+                     has named a positive control, IT is the yardstick a
+                     configuration should be read against.
+  CALIBRATION        genomic inflation at the median, the p-value histogram's
+                     first-bin excess
+  GUIDE SUPPORT      how many hits rest on a single guide
+
+Every one of these gets a saved figure, in the trial folder AND in a normal
+run's output folder. The user asked for both, and a diagnostic that only
+exists during a search is one nobody looks at.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+Sorting the sweep table by the positive control's rank puts the best
+configuration first, and every figure named above exists on disk after an
+ordinary run with no sweep involved.
