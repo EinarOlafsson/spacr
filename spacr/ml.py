@@ -3178,9 +3178,25 @@ def perform_regression(settings):
         score_data = settings['score_data'][0]
         score_source = os.path.splitext(os.path.basename(score_data))[0]
 
-        src = os.path.dirname(settings['count_data'][0])
         csv_path = settings['count_data'][0]
 
+        # THE CALLER'S OUTPUT FOLDER IS HONOURED WHEN THERE IS ONE.
+        #
+        # This used to be `settings['src'] = os.path.dirname(count_data[0])`
+        # unconditionally, which threw away whatever the caller asked for and
+        # sent every run to the same place beside the input data. Two runs of
+        # the same family then wrote to an identical path -- so comparing
+        # thirteen corrections, or any two conditions, silently left only the
+        # last one on disk. Nothing warned; the earlier results were simply
+        # gone.
+        #
+        # Falling back to the data directory keeps the old behaviour for
+        # callers that never set src, which is what the GUI does.
+        requested = settings.get('src')
+        if isinstance(requested, str) and requested.strip():
+            src = os.path.abspath(os.path.expanduser(requested.strip()))
+        else:
+            src = os.path.dirname(settings['count_data'][0])
         settings['src'] = src
     
         if settings.get('analysis_mode') == 'guide_permutation':

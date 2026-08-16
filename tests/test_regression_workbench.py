@@ -967,3 +967,95 @@ def test_a_side_must_be_score_or_count(qtbot):
     paired = _tracked(qtbot, PairedFileTableWidget())
     with pytest.raises(ValueError, match="score.*count"):
         paired.add_paths_for_side(["/tmp/x.csv"], "sideways")
+
+
+class TestTheOutputFolderIsTheCallersChoice:
+    """Two conditions must not overwrite each other's results.
+
+    ``_perform_regression_set_paths`` used to assign
+    ``settings['src'] = dirname(count_data[0])`` unconditionally, discarding
+    whatever the caller asked for. Every run of a given family then wrote to
+    one identical path, so comparing thirteen corrections left only the last
+    on disk -- silently, with nothing warning that the earlier ones were gone.
+    """
+
+    def _paths(self, settings):
+        from spacr.ml import perform_regression
+        # The helper is a closure inside perform_regression; reach it the way
+        # the function itself does, by running the resolution only.
+        import inspect
+        source = inspect.getsource(perform_regression)
+        assert "_perform_regression_set_paths" in source
+        return source
+
+    def test_a_requested_src_is_used(self, tmp_path):
+        """The whole point: ask for a folder, get that folder."""
+        import os
+
+        from spacr.ml import perform_regression
+
+        data = tmp_path / "data"
+        data.mkdir()
+        count = data / "counts.csv"
+        count.write_text("grna,count\na,1\n")
+        wanted = tmp_path / "my_output"
+
+        settings = {"count_data": [str(count)], "score_data": [str(count)],
+                    "src": str(wanted), "regression_type": "ols"}
+        # Resolve paths through the real code path.
+        import spacr.ml as ml
+        resolver = None
+        for constant in perform_regression.__code__.co_consts:
+            if getattr(constant, "co_name", "") == "_perform_regression_set_paths":
+                resolver = constant
+                break
+        assert resolver is not None, "path resolver not found"
+
+        # Rebuild the closure's function object and call it.
+        import types
+        fn = types.FunctionType(resolver, ml.__dict__)
+        *_rest, res_folder, _csv = fn(settings)
+        assert str(wanted) in res_folder, \
+            f"the requested folder was ignored; got {res_folder}"
+        assert settings["src"] == os.path.abspath(str(wanted))
+
+    def test_without_a_src_it_still_falls_back_to_the_data(self, tmp_path):
+        """Callers that never set src -- the GUI among them -- are unchanged."""
+        import types
+
+        import spacr.ml as ml
+        from spacr.ml import perform_regression
+
+        data = tmp_path / "data"
+        data.mkdir()
+        count = data / "counts.csv"
+        count.write_text("grna,count\na,1\n")
+
+        resolver = next(c for c in perform_regression.__code__.co_consts
+                        if getattr(c, "co_name", "") ==
+                        "_perform_regression_set_paths")
+        fn = types.FunctionType(resolver, ml.__dict__)
+        settings = {"count_data": [str(count)], "score_data": [str(count)],
+                    "regression_type": "ols"}
+        *_rest, res_folder, _csv = fn(settings)
+        assert str(data) in res_folder
+
+    def test_a_blank_src_does_not_become_a_folder_named_nothing(self, tmp_path):
+        import types
+
+        import spacr.ml as ml
+        from spacr.ml import perform_regression
+
+        data = tmp_path / "data"
+        data.mkdir()
+        count = data / "counts.csv"
+        count.write_text("grna,count\na,1\n")
+
+        resolver = next(c for c in perform_regression.__code__.co_consts
+                        if getattr(c, "co_name", "") ==
+                        "_perform_regression_set_paths")
+        fn = types.FunctionType(resolver, ml.__dict__)
+        settings = {"count_data": [str(count)], "score_data": [str(count)],
+                    "src": "   ", "regression_type": "ols"}
+        *_rest, res_folder, _csv = fn(settings)
+        assert str(data) in res_folder
