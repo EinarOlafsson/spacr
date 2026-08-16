@@ -44,6 +44,58 @@ def _bars(panel):
     return panel.findChildren(_TopicBar)
 
 
+def _click(bar):
+    """A real press and release on the heading, as a user's mouse sends."""
+    from PySide6.QtCore import QPointF
+    from PySide6.QtWidgets import QApplication
+
+    centre = QPointF(bar.rect().center())
+    for kind in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
+        QApplication.sendEvent(
+            bar, QMouseEvent(kind, centre, Qt.LeftButton, Qt.LeftButton,
+                             Qt.NoModifier))
+
+
+def test_one_click_on_a_heading_brings_its_section_to_the_top(panel):
+    """The gesture that was asked for, on a section in the state it is in.
+
+    "Click on a console section heading to bring it to the top of the console
+    and expand it." Sections are created EXPANDED, so a plain
+    expanded/collapsed toggle spent the user's first click hiding the section
+    they were trying to reach, and the viewport never moved at all. Reaching
+    a section is the first meaning of clicking its heading.
+    """
+    bar = _bars(panel)[6]
+    assert bar.is_expanded(), "the fixture's sections start expanded"
+    scrollbar = panel._scroll.verticalScrollBar()
+
+    _click(bar)
+    _settle()
+
+    top = bar.mapTo(panel._holder, bar.rect().topLeft()).y()
+    assert abs(scrollbar.value() - min(top, scrollbar.maximum())) <= 4, (
+        "one click on a heading must bring its section to the top")
+    assert bar.is_expanded(), "and leave it expanded, not fold it away"
+
+
+def test_clicking_the_heading_again_folds_the_section_away(panel):
+    """The second click is the toggle.
+
+    A heading already sitting at the top of the viewport has nowhere left to
+    navigate to, so collapsing is the only thing the gesture can still mean --
+    and it is exactly where the user's hand already is.
+    """
+    bar = _bars(panel)[6]
+    _click(bar)
+    _settle()
+    assert bar.is_expanded()
+
+    _click(bar)
+    _settle()
+    assert not bar.is_expanded()
+    assert all(not w.isVisible() for w in panel.section_body(bar))
+
+
 def test_a_heading_is_an_interactive_control(panel):
     bar = _bars(panel)[0]
     assert bar.cursor().shape() == Qt.PointingHandCursor
@@ -114,13 +166,21 @@ def test_scrolling_back_to_the_bottom_resumes_following(panel):
 
 
 def test_the_keyboard_activates_a_heading(panel):
+    """Enter and Space do what the mouse does: reach the section, then fold
+    it. A control only a mouse can reach is one some users cannot reach."""
     bar = _bars(panel)[3]
+    scrollbar = panel._scroll.verticalScrollBar()
     assert bar.is_expanded()
-    for key in (Qt.Key_Return, Qt.Key_Space):
-        was = bar.is_expanded()
-        bar.keyPressEvent(QKeyEvent(QEvent.KeyPress, key, Qt.NoModifier))
-        _settle(30)
-        assert bar.is_expanded() is not was
+
+    bar.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Return, Qt.NoModifier))
+    _settle()
+    top = bar.mapTo(panel._holder, bar.rect().topLeft()).y()
+    assert abs(scrollbar.value() - min(top, scrollbar.maximum())) <= 4
+    assert bar.is_expanded()
+
+    bar.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Space, Qt.NoModifier))
+    _settle(30)
+    assert not bar.is_expanded()
 
 
 def test_the_copy_button_does_not_move_the_viewport(panel):
