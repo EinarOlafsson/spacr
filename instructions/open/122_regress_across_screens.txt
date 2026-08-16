@@ -153,3 +153,254 @@ HOW TO KNOW IT WORKED
   correction -- the test that proves the correction is real. Build it with a
   permuted guide assignment, so the data are real and only the labels are
   wrong.
+
+================================================================================
+RESULT (2026-08-16)
+================================================================================
+
+Parts 1, 2 and 3 are done. Commits:
+
+  85cd9c30  schema: screenID as a first-class dimension beside plateID
+  65c8035f  multi_database: a screen-aware merge, and a collision that is not one
+  57b3f359  measurement_scan: sweep the dependent variable, corrected ACROSS
+            the scan
+
+--------------------------------------------------------------------------------
+1. THE DECISION: CONFIRMED. screenID rides ALONGSIDE; prc is untouched.
+--------------------------------------------------------------------------------
+
+The RECOMMENDED answer above holds, and there is a third reason for it that is
+stronger than the two the instruction gives.
+
+  (a) `prcf` is a STORED COLUMN, not a derived one. It is in
+      `schema.OBJECT_TABLE_REQUIRED_COLUMNS`, so every object row spaCR has
+      ever written carries it, and `validate_object_table_frame` asserts it
+      matches the component key columns exactly ("prcf must exactly match the
+      component key columns", schema.py). Growing the grammar re-keys every
+      measurement on disk AND breaks the writer's own validator.
+
+  (b) IT COULD NOT BE PARSED BACK. This is the decisive one, and it is not in
+      the instruction. `schema.parse_prcf` and `ml._split_prc` both parse RIGHT
+      TO LEFT precisely because the LEFTMOST component is the one allowed to
+      contain the separator -- extra leading components are absorbed INTO THE
+      PLATE, deliberately, so that a plate named `exp1_plate1` works. A screen
+      component in front of the plate is therefore textually identical to a
+      plate named `screenA_plate1`:
+
+          screenA_plate1_r1_c1_f1     screen 'screenA', plate 'plate1'
+          screenA_plate1_r1_c1_f1     plate 'screenA_plate1'
+
+      The guard that tells a genuine underscored plate from a key one level
+      too deep (`is_row_column_pair`) inspects the TRAILING pair, so it cannot
+      help here: both readings have the same trailing pair. There is no rule
+      that separates them, so growing `prc` would not merely be expensive, it
+      would be ambiguous.
+
+  (c) A qualified plate id is not a dimension. Unchanged from the instruction.
+
+WHAT WAS ADDED TO schema.py (additive only; no existing constant changed):
+
+    SCREEN_KEY = 'screenID'
+    DEFAULT_SCREEN = 'screen1'
+    SCREENED_WELL_KEY_COLUMNS  = ('screenID','plateID','rowID','columnID')
+    SCREENED_FIELD_KEY_COLUMNS = (+ 'fieldID')
+    screen_id(value)          -> defaults absence, never raises on it
+    add_screen_column(frame, screen=None, overwrite=False)
+    'screen' / 'screen_id' / 'screen_name' / any case of 'screenID' now
+        canonicalise to screenID
+
+FIELD_KEY_COLUMNS and WELL_KEY_COLUMNS are UNCHANGED -- the screened forms are
+separate tuples. 42 call sites join, group and resume-delete on the narrow
+ones, and silently widening them would change what every one of them means.
+
+A row with no screenID is a single-screen project and is DEFAULTED, not
+demanded. Pinned by
+`test_a_single_screen_project_opens_with_no_screen_id_anywhere`: no screens=
+argument, no screenID column in the database, merge works, and the column
+comes out present with exactly one value so downstream code never branches.
+
+--------------------------------------------------------------------------------
+2. THE SCREEN-AWARE MERGE
+--------------------------------------------------------------------------------
+
+VERIFIED FIRST, as asked. Everything the instruction lists as already existing
+does exist: describe_merge, read_merged, SOURCE_COLUMN,
+columns='common'|'union', on_collision='refuse'|'qualify', and
+schema.canonical_rename_plan. One correction to the instruction's wording:
+canonical_rename_plan lives in spacr/schema.py, not in multi_database.py --
+multi_database calls it.
+
+ADDED:
+
+  * `screens=` on both describe_merge and read_merged: a sequence parallel to
+    paths, or a mapping from path. The label is written into screenID, never
+    into the plate id. A wrong-length sequence is REFUSED rather than zipped
+    short, because a short list silently labels the wrong database.
+  * A source's screen is decided in this order: the caller's label, else a
+    screenID column stored in the database, else DEFAULT_SCREEN.
+  * MergePlan.shared_plates_across_screens -- plates in more than one screen.
+    Not a clash, but reported, because a user who did not mean to run two
+    screens still needs to see that they did.
+  * MergePlan.dropped_columns + a report= callback + frame.attrs
+    ['dropped_columns'] and ['screens'].
+  * MergePlan.screens, MergePlan.screens_were_named, SourceSummary.screen,
+    SourceSummary.screen_plates, SourceSummary.screens.
+  * The plan's column sets are now computed on CANONICAL names, so two
+    spellings of one column no longer look like a measurement about to be
+    dropped. (Bug found in passing: describe_merge reported `row` and `rowID`
+    as two partial columns while read_merged correctly merged them into one.)
+
+THE COLLISION THAT IS NOT A COLLISION -- how it is implemented:
+
+    collisions are keyed on (screenID, plateID), not on plateID.
+
+    seen[(screen, plate)].append(source.label)
+    colliding = pairs with more than one label
+
+  * two screens each owning plate1..plate4 -> eight distinct identities, no
+    collision, merge proceeds. Test:
+    test_two_screens_owning_the_same_plate_names_is_not_a_collision.
+  * the same plate twice INSIDE one screen -> one identity, two sources, still
+    refused. Test: test_the_same_plate_twice_inside_one_screen_is_still_refused.
+    The refusal message now names the SCREEN as well as the plate whenever
+    screens are in play, because without it the user cannot tell a real
+    duplicate from the two-screen case that is allowed.
+  * a project that never mentions a screen behaves exactly as it did in
+    instruction 109, including the old wording. Test:
+    test_no_screens_at_all_is_still_refused_exactly_as_before.
+
+'common' remains the default. The dropped set is reported three ways rather
+than merely defaulted -- see above. Identity columns (screenID,
+source_database) are never dropped by the intersection.
+
+ACCEPTANCE, both parts met:
+  * two screens x plate1..plate4 -> one frame, 24 rows, no collision, screenID
+    distinguishing them, plateID still spelled `plate1`.
+  * per-SCREEN row count before == after (the instruction-109 anti-pooling
+    pattern, found at tests/test_multi_database.py::
+    test_a_per_source_count_survives_the_merge and followed):
+    test_a_per_screen_row_count_survives_the_merge.
+
+--------------------------------------------------------------------------------
+3. THE MEASUREMENT SCAN -- spacr/measurement_scan.py (NEW)
+--------------------------------------------------------------------------------
+
+Pure logic, no GUI. No spacr.ml import; no pandas, scipy or torch at module
+scope. 230 statements, 100% line coverage.
+
+    scan_measurements(frame, *, measurements=None, gene_column='gene',
+                      block_columns=(schema.SCREEN_KEY,), control_genes=(),
+                      within_run_method='fdr_bh',
+                      across_scan_method='fdr_bh', alpha=0.05) -> ScanResult
+
+One OLS per measurement over one shared design (intercept + block dummies +
+gene dummies), fitted as a single factorisation per missing-data pattern
+rather than one statsmodels call per column.
+
+THE TRAP, handled: every row carries BOTH numbers. `within_run_q` is what a
+single-measurement analysis would have reported across that measurement's own
+genes; `across_scan_q` corrects across the scan. The across-scan stage is fed
+Simes' global-null P per measurement -- the minimum BH-adjusted P over its
+genes -- because the raw minimum of 23 gene tests is not a P value and would
+smuggle the within-measurement multiplicity past the second correction.
+
+WHICH CORRECTION AND WHY: Benjamini-Hochberg across measurements. Measurement
+columns are positively dependent, which is the condition BH is valid under and
+is not made absurd by; Bonferroni over 500 correlated columns is too harsh in
+the other direction. The Li & Ji (2005) effective number of tests is reported
+beside the column count (ScanResult.effective_n_tests) and is available as the
+divisor via across_scan_method='bonferroni_effective'. Every correction comes
+from spacr.multiple_testing -- there is no second implementation, pinned by
+test_there_is_not_a_second_correction_implementation.
+
+RANKED BY EFFECT SIZE, as asked. effect_size is the gene's coefficient in
+units of the RESIDUAL standard deviation (a Cohen's d). Residual and not
+total, because a blocking factor's whole job is to remove a nuisance source of
+spread and dividing by the total would make blocking on screenID look
+pointless -- which is exactly the property
+test_the_screen_is_blocked_on_by_default checks.
+
+THE PROOF TEST, built with a permuted guide assignment as demanded:
+test_a_scan_over_permuted_guides_finds_nothing. Paired with
+test_a_planted_effect_survives_both_corrections so it cannot pass by returning
+nothing ever.
+
+MEASURED, over 200 independent permuted scans of 40 pure-noise measurements:
+
+    across-scan correction fires on   5.0%  of scans   (the alpha promised)
+    within-run correction fires on   83.5%  of the SAME scans
+
+So a scan reporting only the within-run number would have shown the user a
+convincing measurement in five runs out of six over data with no signal in it
+at all. That gap is the feature. A 60-trial version is pinned as
+test_over_many_permutations_the_across_scan_rate_is_the_one_promised (marked
+slow).
+
+--------------------------------------------------------------------------------
+BUGS FOUND AND FIXED WHILE BUILDING THIS
+--------------------------------------------------------------------------------
+
+  1. describe_merge reported two spellings of one column (`row` / `rowID`) as
+     two partial columns, i.e. as a measurement about to be dropped, while
+     read_merged correctly canonicalised them into one. The plan and the read
+     disagreed about what the merge would cost. Fixed: the plan now computes
+     its column sets through the same canonical_rename_plan the read applies.
+
+  2. (in new code, caught by the coverage tests) A measurement that the design
+     explains exactly -- a per-well aggregate that turns out to BE the guide
+     assignment -- left a floating-point residual of ~1e-15 and produced an
+     effect size of 4.5e8 that sat at the top of the table permanently. Now
+     judged relative to the response's own spread and reported as
+     'no estimable gene effect' in ScanResult.skipped.
+
+  3. (in new code) effective_number_of_tests dropped a column if any OTHER
+     column's correlations were undefined, because it tested whole rows of the
+     correlation matrix instead of the diagonal. One constant column therefore
+     discarded the entire family. Now a column is judged on its own diagonal.
+
+--------------------------------------------------------------------------------
+TESTS
+--------------------------------------------------------------------------------
+
+  tests/test_two_screens_share_a_guide_library.py   24 tests
+  tests/test_which_measurement_has_the_effect.py    32 tests
+
+Before/after evidence:
+  * test_two_screens_share_a_guide_library.py before the change:
+    22 failed, 2 passed (the 2 pin pre-existing instruction-109 behaviour).
+    After: 24 passed.
+  * test_which_measurement_has_the_effect.py before: 20 failed (no module).
+    After: 32 passed.
+  * tests/test_multi_database.py (instruction 109's own suite) and
+    tests/test_schema.py: 299 passed before and after -- nothing regressed.
+
+--------------------------------------------------------------------------------
+NOT DONE / HANDED ON
+--------------------------------------------------------------------------------
+
+  * No GUI. The instruction says the scan reuses the runs tab (116), the
+    containment of 114 and the results surface of 119; spacr/qt/** was held by
+    another worker this session, so measurement_scan.py is the pure logic only
+    and nothing calls it yet.
+  * ml.py is NOT yet screen-aware. `prepare_formula` builds
+    `... + rowID + columnID` and `fit_mixed_model` groups on plateID with a
+    row/column random structure; neither mentions screenID. So screenID is a
+    usable fixed effect in measurement_scan, and a real column on every merged
+    frame, but perform_regression will not put it in the formula until ml.py
+    is edited. ml.py was held by another worker. THE PATCH NEEDED, when it is
+    free:
+
+        def prepare_formula(dependent_variable, random_row_column_effects=False,
+                            block_screen=True):
+            screen = (f' + {schema.SCREEN_KEY}'
+                      if block_screen else '')
+            if random_row_column_effects:
+                return (f'{dependent_variable} ~ fraction:grna + '
+                        f'gene_fraction:gene{screen}')
+            return (f'{dependent_variable} ~ fraction:grna + '
+                    f'gene_fraction:gene + rowID + columnID{screen}')
+
+    with the caller dropping the term when the frame has fewer than two
+    distinct screenID values -- a single-screen project must not gain a
+    constant term that makes the design rank-deficient. `_dummy_block` in
+    spacr/measurement_scan.py does exactly that check and can be copied.
