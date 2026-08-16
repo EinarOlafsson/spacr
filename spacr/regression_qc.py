@@ -1624,7 +1624,58 @@ def _trend(ax, x, y, color=None, label=None):
         sx, sy = x[order], y[order]
     ax.plot(sx, sy, color=color, lw=WEIGHTS["data"], zorder=4,
             label=label)
-    return float(np.nanmax(np.abs(sy)))
+
+    # A TIE IS NOT A TREND.
+    #
+    # A well-level fit routinely has most of its fitted values identical --
+    # on the tsg101 screen 451 of 610 wells share one value to seven decimal
+    # places, because most wells carry the same guide mixture. LOWESS fits a
+    # local regression in a neighbourhood; where the neighbourhood is a
+    # single repeated x it is fitting a line through a vertical stack, and
+    # the smoothed value there is unconstrained. Two adjacent points 2e-6
+    # apart came back 0.12 apart.
+    #
+    # Taking the maximum over that included the artefact, so the panel
+    # reported |trend| max = 0.109 where the real curve away from the tie
+    # block spans 0.030 -- a 3.6x inflation, on the number the panel exists
+    # to report, in the one artist the panel draws in colour.
+    #
+    # So the trend is measured where x actually varies. The curve is still
+    # drawn in full: hiding the spike would hide the tie, and the tie is
+    # worth seeing.
+    return float(_trend_off_the_ties(sx, sy))
+
+
+#: A neighbourhood narrower than this fraction of the x range is a tie, not a
+#: neighbourhood. Deliberately generous: the failure it guards against is a
+#: smoother reporting a number from a vertical stack, and that stack is
+#: always far narrower than a percent of the span.
+_TIE_SPAN = 1e-4
+
+
+def _trend_off_the_ties(sx, sy) -> float:
+    """``max |sy|`` over the parts of the curve where x genuinely varies.
+
+    :param sx: smoothed x, ascending.
+    :param sy: smoothed y.
+    :returns: the largest absolute smoothed value outside any tied block, or
+        the plain maximum when there are no ties to exclude.
+    """
+    sx = np.asarray(sx, dtype=float)
+    sy = np.asarray(sy, dtype=float)
+    if sx.size < 3:
+        return float(np.nanmax(np.abs(sy))) if sy.size else float("nan")
+    span = float(np.ptp(sx))
+    if span <= 0:
+        return float("nan")
+    # A point is trustworthy when at least one of its neighbours is a real
+    # distance away in x.
+    gap_before = np.diff(sx, prepend=sx[0] - span)
+    gap_after = np.diff(sx, append=sx[-1] + span)
+    trustworthy = (np.maximum(gap_before, gap_after) / span) > _TIE_SPAN
+    if not trustworthy.any():
+        return float(np.nanmax(np.abs(sy)))
+    return float(np.nanmax(np.abs(sy[trustworthy])))
 
 
 def _natural_key(value):
@@ -2036,9 +2087,29 @@ def _panel_dffits(ctx, ax):
         raise PanelUnavailable(
             f"DFFITS needs n > p + 1; this fit has n = {ctx.n}, p = {ctx.p}")
     magnitude = np.abs(values)
-    heights = np.nan_to_num(magnitude, nan=0.0)
     above = np.where(magnitude > threshold)[0]
     below = np.setdiff1d(np.arange(ctx.n), above)
+
+    # A SATURATED ROW HAS leverage == 1 AND THEREFORE DFFITS == +inf, and the
+    # real tsg101 fit has 186 of them. `nan_to_num(magnitude, nan=0.0)` leaves
+    # the infinity alone except to swap it for 1.797e308, which overflows the
+    # y-autoscale; matplotlib then falls back to a DEGENERATE view,
+    # ylim == (-1e-12, 1e-12). Everything positioned in DATA coordinates --
+    # `reference_line`'s label at y = threshold, the well labels -- lands
+    # about 1e12 axes-heights off the page, so the tight bounding box is two
+    # trillion inches tall and `savefig(bbox_inches="tight")` raises out of
+    # the Agg renderer. That took down the whole combined report, not just
+    # this panel.
+    #
+    # So the DRAWING is clamped to the largest finite |DFFITS| while the
+    # STATISTICS below are left exactly as they were: `max_abs_dffits` is
+    # still `inf` and an unbounded well is still in `flagged`. Clamping the
+    # number instead of the mark would be a re-analysis.
+    finite = magnitude[np.isfinite(magnitude)]
+    ceiling = float(finite.max()) if finite.size else 0.0
+    ceiling = max(ceiling, float(threshold), 1e-12)
+    heights = np.nan_to_num(magnitude, nan=0.0, posinf=ceiling)
+
     with figure_style(_REPORT_TARGET):
         ax.vlines(below, 0, heights[below], color=ROLES["data"],
                   lw=WEIGHTS["reference"])
@@ -2047,10 +2118,13 @@ def _panel_dffits(ctx, ax):
         reference_line(ax, y=threshold,
                        label=f"2·sqrt(p/n) = {threshold:.3g}")
         for i in above[np.argsort(-heights[above])][:5]:
-            ax.annotate(str(ctx.labels[i]), (i, magnitude[i]),
+            ax.annotate(str(ctx.labels[i]), (i, heights[i]),
                         fontsize=TYPE_SCALE["annotation"],
                         textcoords="offset points", xytext=(2, 2),
                         color=ROLES["down"])
+        # Explicit, because a single unbounded well is enough to make the
+        # autoscale useless even after the heights are clamped.
+        ax.set_ylim(0.0, ceiling * 1.08)
         ink = _house_axes(ax, "dffits per well", "well (fit order)",
                           "|dffits| (fitted-value shift, in standard errors)")
         side = "left" if int(np.argmax(heights)) >= ctx.n / 2 else "right"
@@ -2087,7 +2161,7 @@ def _panel_dffits(ctx, ax):
 _REPORT_TARGET = "print"
 
 
-def _house_axes(ax, text, xlabel, ylabel, target=_REPORT_TARGET):
+def _house_axes(ax, text, xlabel, ylabel, target=None):
     """Ink, type and L-framing for a panel, and the resolved ink back.
 
     Used instead of :func:`_finish`, which writes a two-line sentence title
@@ -2107,7 +2181,8 @@ def _house_axes(ax, text, xlabel, ylabel, target=_REPORT_TARGET):
     :param text: The descriptor — 2-4 lower-case words, never a sentence.
     :param xlabel: Lower-case x-axis label; ``""`` for none.
     :param ylabel: Lower-case y-axis label; ``""`` for none.
-    :param target: ``'print'`` or ``'screen'``; see :data:`_REPORT_TARGET`.
+    :param target: ``'print'`` or ``'screen'``; ``None`` (the default) reads
+        :data:`_REPORT_TARGET` **at call time**.
     :returns: The resolved ink, for annotations that are not a warning.
 
     Two clusters arrived the same day with their own copies of this
@@ -2115,20 +2190,48 @@ def _house_axes(ax, text, xlabel, ylabel, target=_REPORT_TARGET):
     only in that it resolved the ink from ``theme_target()`` — the answer
     this module cannot use, see :data:`_REPORT_TARGET`. Both copies are gone
     and all of their panels call this one.
+
+    WHY ``target`` DEFAULTS TO ``None`` AND NOT TO ``_REPORT_TARGET``: a
+    default argument is bound once, when the ``def`` executes. Writing
+    ``target=_REPORT_TARGET`` froze the string ``'print'`` into the function
+    at import, so re-pointing the module constant moved the ``figure_style``
+    contexts — which look the name up when they run — but left every spine,
+    tick and label inked for the old target. The panels would have drawn one
+    half of themselves in each theme, and the tests that derive the expected
+    ink from ``rq._REPORT_TARGET`` would have reported the split as a panel
+    failure rather than as the wiring bug it is.
     """
-    ink = resolve_ink(target)
+    ink = resolve_ink(_REPORT_TARGET if target is None else target)
     descriptor(ax, text)
     ax.title.set_color(ink)
     ax.set_xlabel(xlabel, fontsize=TYPE_SCALE["label"], color=ink)
     ax.set_ylabel(ylabel, fontsize=TYPE_SCALE["label"], color=ink)
     ax.tick_params(colors=ink, labelsize=TYPE_SCALE["tick"],
                    width=WEIGHTS["spine"], length=2.6)
+    # MINOR ticks on the same terms. ``tick_params`` defaults to
+    # ``which='major'``, and a log axis grows a second, minor set: without
+    # this line the cell-count panel labelled its minor decades at
+    # matplotlib's default 10 pt, larger than the axis label at 7 and half
+    # again the major ticks at 6.2, which made "2 x 10^2" the loudest type in
+    # the figure. Set unconditionally — an axis with no minor ticks is
+    # unaffected, and a panel that adds a log scale keeps the setting.
+    ax.tick_params(which="minor", colors=ink, labelsize=TYPE_SCALE["tick"],
+                   width=WEIGHTS["spine"], length=1.4)
     for side, spine in ax.spines.items():
         # Cell-style L framing: left and bottom only.
         spine.set_visible(side in ("left", "bottom"))
         spine.set_color(ink)
         spine.set_linewidth(WEIGHTS["spine"])
     ax.set_facecolor(TRANSPARENT)
+    # NO GRIDLINES. EVER — the style module's own words. ``rc()`` sets
+    # ``axes.grid`` False, but rcParams decide an artist's fate when it is
+    # CREATED and the report driver creates this axes outside the style
+    # context. That is exactly why the ink, the type and the spines are
+    # pushed on here instead of being left to the context manager, and the
+    # grid belongs on that list: any caller holding a global grid-on style
+    # (``spacr.figure_style.apply`` defaults ``grid`` to True) otherwise
+    # rules a spreadsheet through every panel in this report.
+    ax.grid(False, which="both")
     return ink
 
 
@@ -2894,11 +2997,10 @@ def _panel_cell_count_vs_effect(ctx, ax):
         ink = _house_axes(ax, "cell count vs residual",
                           "cells in well (log scale)",
                           "|standardised residual|")
-        # A log axis grows minor ticks, which `_house_axes` does not touch
-        # because no other panel has any; left alone they stay matplotlib's
-        # black while every other mark on the page follows the ink.
-        ax.tick_params(which="minor", colors=ink, width=WEIGHTS["spine"],
-                       length=1.4)
+        # The log axis grows minor ticks; `_house_axes` inks AND sizes both
+        # sets, so there is nothing left to do here. It used to be done in
+        # this panel and only for the colour, which left the minor decade
+        # labels at matplotlib's 10 pt — the largest type in the figure.
         # Right-hand corner, not left: the decile guide is the 10th percentile
         # of the counts, so it is always near the left edge and its label runs
         # up the top of the axes -- exactly where a left-hand note sits.
