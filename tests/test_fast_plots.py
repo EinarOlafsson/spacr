@@ -236,3 +236,98 @@ class TestTheTable:
         lines = table.copy_visible().splitlines()
         assert lines[0].startswith("feature")
         assert 1 < len(lines) < len(results)
+
+
+class TestTheLastGraphIsNotSlowAnyMore:
+    """"the last graph makes everything very laggy".
+
+    Three separate per-point costs, each of which alone was larger than
+    drawing the plot. They are worth naming individually because each looks
+    harmless in the source.
+    """
+
+    @pytest.fixture()
+    def big(self):
+        rng = np.random.default_rng(0)
+        n = 1215                       # the real screen's coefficient count
+        return pd.DataFrame({
+            "feature": [f"grna[{i}]" for i in range(n)],
+            "coefficient": rng.normal(size=n),
+            "p_value": rng.uniform(size=n),
+            "condition": rng.choice([f"LOPIT{i}" for i in range(27)], n),
+        })
+
+    def _time(self, plot, frame, app=None, **kwargs):
+        import time
+        plot.set_results(frame, **kwargs)
+        start = time.perf_counter()
+        for _ in range(5):
+            plot.set_results(frame, **kwargs)
+        return (time.perf_counter() - start) / 5 * 1000
+
+    def test_the_plain_volcano_is_immediate(self, qtbot, big):
+        """matplotlib needed ~115 ms for this, on every redraw."""
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        plot = VolcanoPlot()
+        qtbot.addWidget(plot)
+        each = self._time(plot, big)
+        assert each < 30, f"a plain volcano took {each:.0f} ms"
+
+    def test_colouring_does_not_cost_a_brush_per_point(self, qtbot, big):
+        """pg.mkBrush() per point built 1,215 QBrush objects: 39.5 ms.
+
+        Reusing one brush per distinct colour is 3.5 ms for the same picture.
+        """
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        plot = VolcanoPlot()
+        qtbot.addWidget(plot)
+        each = self._time(plot, big, category_column="condition")
+        assert each < 30, f"a coloured volcano took {each:.0f} ms"
+
+    def test_no_label_is_built_before_it_is_needed(self, qtbot, big):
+        """Formatting all 1,215 labels up front was 3,600 pandas lookups.
+
+        Only the clicked point is ever read, so only it is formatted.
+        """
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        plot = VolcanoPlot()
+        qtbot.addWidget(plot)
+        plot.set_results(big, category_column="condition")
+        assert not plot._labels, "labels were pre-built for every point"
+        # ...and the description is still correct on demand.
+        assert "grna[7]" in plot._describe(7)
+
+    def test_the_legend_is_off_by_default(self, qtbot, big):
+        """27 entries are 40 ms of a 49 ms redraw -- the same cost that made
+        the matplotlib version slow. Carried across unchanged it would have
+        wasted the whole switch."""
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        plot = VolcanoPlot()
+        qtbot.addWidget(plot)
+        plot.set_results(big, category_column="condition")
+        assert not plot._legend_box.isChecked()
+        assert plot._legend_box.isEnabled(), "the legend must still be offered"
+        assert "27" in plot._legend_box.text()
+
+    def test_the_legend_can_be_turned_on_and_off_again(self, qtbot, big):
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        plot = VolcanoPlot()
+        qtbot.addWidget(plot)
+        plot.set_results(big, category_column="condition")
+        plot._legend_box.setChecked(True)
+        assert plot.plot.plotItem.legend is not None
+        plot._legend_box.setChecked(False)
+        assert plot.plot.plotItem.legend is None
+
+    def test_a_frame_with_no_category_offers_no_legend(self, qtbot, big):
+        from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+        plot = VolcanoPlot()
+        qtbot.addWidget(plot)
+        plot.set_results(big)
+        assert not plot._legend_box.isEnabled()
