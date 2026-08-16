@@ -143,8 +143,10 @@ def test_residual_panel_draws_exactly_one_point_per_well():
     assert len(scatters) == 1
     assert scatters[0].get_offsets().shape[0] == 97
     assert stats["n_points"] == 97
-    # ...and the panel says so on its own face, so the figure is readable alone.
-    assert "n = 97 wells" in ax.get_title()
+    # ...and the panel says so on its own face, so the figure is readable
+    # alone. The n used to be bolted onto a two-line sentence title; the house
+    # style has no sentence titles, so it moved into the panel's own note.
+    assert "n = 97 wells" in " ".join(t.get_text() for t in ax.texts)
     assert ax.get_xlabel() and ax.get_ylabel()
 
     offsets = np.asarray(scatters[0].get_offsets())
@@ -640,7 +642,11 @@ def test_p_value_panel_prints_the_diagnosis_on_the_figure():
     assert stats["source"] == "coefficient table"
     assert stats["n"] == 1200
     assert "conservative" in drawn
-    assert "1,200 coefficients" in ax.get_title()
+    # The n used to be a second line of the title. The house style has no
+    # sentence titles, so it moved to the annotation -- still on the panel's
+    # own face, which is the thing this test is actually protecting.
+    assert "n = 1,200 coefficients" in drawn
+    assert ax.get_title() == "p-value distribution"
 
 
 def test_coefficient_forest_sorts_by_effect_size_and_carries_intervals():
