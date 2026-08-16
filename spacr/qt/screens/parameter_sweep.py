@@ -269,6 +269,45 @@ def _make_screen(app_key=None, host=None):
                     fixed[key] = values[0]
             return SweepSpace(axes=axes, fixed=fixed)
 
+        def apply_settings(self, settings):
+            """Seed the sweep from the module's settings panel.
+
+            Opening the sweep should not mean retyping the inputs that are
+            already on screen. The score/count CSVs, the response column and
+            the output folder come straight across; every swept axis is
+            additionally PINNED to the value the user currently has, so an
+            unticked axis reproduces their run rather than a default.
+            """
+            if not isinstance(settings, dict):
+                return
+            for key, widget in (("score_data", self.score_data),
+                                ("count_data", self.count_data)):
+                value = settings.get(key)
+                if value and hasattr(widget, "set_value"):
+                    try:
+                        widget.set_value(list(value))
+                    except Exception:
+                        pass
+            response = settings.get("dependent_variable")
+            if response:
+                self.dependent_variable.setText(str(response))
+            source = settings.get("src")
+            if source and not self.destination.text().strip():
+                # Beside the data rather than inside it: a sweep writes
+                # thousands of folders and they should not be mixed in with
+                # the user's inputs.
+                self.destination.setText(os.path.join(str(source), "sweep"))
+            for key, (include, editor) in self._axis_rows.items():
+                if key in settings and settings[key] is not None:
+                    current = settings[key]
+                    text = "None" if current is None else str(current)
+                    if not include.isChecked():
+                        editor.setText(text)
+                    elif text not in editor.text():
+                        # Keep the user's value in the swept range, so their
+                        # own condition is one of the trials that gets run.
+                        editor.setText(f"{text}, {editor.text()}")
+
         def base_settings(self):
             return {
                 "score_data": self.score_data.get_value(),
@@ -474,3 +513,42 @@ def register() -> bool:
 
 
 register()
+
+
+#: Text on the toggle that reveals the card, and its hover help. Mirrors
+#: spacr.qt.screens.hyperparam so the two searches read as the same feature in
+#: two modules rather than as two different ones.
+SWEEP_TOGGLE_TEXT = "Parameter sweep"
+SWEEP_TOGGLE_TOOLTIP = (
+    "Toggle the parameter sweep. When ON (blue), set a range for any "
+    "regression setting -- model family, correction method, filtration "
+    "cutoffs, wells vs cells -- run every legal combination, and double-click "
+    "a row in the results to get that exact regression back with its figures."
+)
+
+
+def build_parameter_sweep_card(host):
+    """Build the ``Parameter sweep`` card + panel pair.
+
+    Mirrors :func:`spacr.qt.screens.hyperparam.build_hyperparam_card`: returns
+    the pair without adding it to a layout, so the host puts it where it likes
+    and starts it hidden behind the toggle.
+
+    :param host: the ``AppScreen`` asking for the card.
+    :returns: ``(panel, card)``.
+    """
+    from ..widgets.card import Card
+    card = Card(title="Parameter sweep")
+    panel = _make_screen(host=host)
+    card.body_layout.addWidget(panel)
+    card.setMinimumHeight(320)
+    return panel, card
+
+
+def sweepable(app_key: str) -> bool:
+    """Whether a parameter sweep exists for ``app_key``.
+
+    Only the regression module for now: the sweep axes, the legality filters
+    and the row-to-regression round trip are all specific to it.
+    """
+    return app_key in ("regression", "ml_analyze_regression")
