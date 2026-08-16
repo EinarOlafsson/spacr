@@ -61,14 +61,25 @@ def test_the_response_stays_a_whole_number(regression_type):
 
 @pytest.mark.parametrize("regression_type", ["poisson", "horseshoe"])
 def test_the_validator_that_used_to_refuse_it_now_accepts(regression_type):
-    """Through the real check, not a stand-in for it."""
+    """Through the real check, not a stand-in for it.
+
+    "does not raise" is the whole behaviour here, so the assertions pin what
+    was actually handed to it -- a validator that accepted an empty column
+    would pass a bare call and mean nothing.
+    """
     from spacr.ml import _validate_poisson_response, process_scores
 
     frame, column = process_scores(
         _wells(seed=3), "pred", plate="plate1", min_cell_count=5,
         agg_type="mean", transform="log", regression_type=regression_type)
 
-    _validate_poisson_response(frame[column])       # must not raise
+    response = frame[column]
+    assert len(response) > 0, "nothing was validated"
+    _validate_poisson_response(response)             # must not raise
+
+    # And it still refuses what it is for, so the acceptance above is real.
+    with pytest.raises(Exception):
+        _validate_poisson_response(response.astype(float) + 0.5)
 
 
 def test_an_ordinary_model_still_gets_its_transform():
