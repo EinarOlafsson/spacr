@@ -74,201 +74,206 @@ def custom_volcano_plot(
     }
 
     fontsize = 18
-    plt.rcParams.update({'font.size': fontsize})
+    # Scoped to this figure. A bare `rcParams.update` set 18pt for the
+    # whole process, so every plot drawn after a volcano -- on any screen,
+    # in any module -- came out at the volcano's font size, and the user's
+    # own choice in figure preferences was overridden by whichever figure
+    # they happened to open first.
+    with plt.rc_context({'font.size': fontsize}):
 
-    # --- Load data ---
-    if isinstance(data_path, pd.DataFrame):
-        data = data_path.copy()
-    else:
-        data = pd.read_csv(data_path)
-
-    data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
-    data['variable'] = data['variable'].fillna(data['feature'])
-    data['gene_nr'] = data['variable'].str.split('_').str[0]
-    data = data[data['variable'] != 'Intercept']
-
-    # --- Load metadata ---
-    if isinstance(metadata_path, pd.DataFrame):
-        # .copy() for the same reason `data` above takes one: the next line
-        # rewrites 'gene_nr' to str in place, and without the copy that edit
-        # landed in the CALLER's frame. A caller that plots two volcanoes from
-        # one metadata table got its integer gene numbers silently retyped by
-        # the first call.
-        metadata = metadata_path.copy()
-    else:
-        metadata = pd.read_csv(metadata_path)
-
-    metadata['gene_nr'] = metadata['gene_nr'].astype(str)
-    data['gene_nr'] = data['gene_nr'].astype(str)
-
-    # many_to_one: `data` holds one row per regression *feature*, and several
-    # features share a gene -- a gRNA-level fit contributes one row per guide,
-    # so gene_nr repeats on the left by design. `metadata` is a lookup table:
-    # one localisation per gene, which is what the shipped
-    # resources/data/lopit.csv is (3832 rows, 3832 distinct gene_nr) and what
-    # `colors[row[metadata_column]]` below assumes when it paints one point one
-    # colour. A duplicated gene_nr on the right is therefore not a legitimate
-    # shape here, it is a fan-out: every affected gene gets plotted twice and
-    # appended to the returned hit list twice, which then propagates into
-    # plot_gene_phenotypes and plot_gene_heatmaps as duplicate genes. Declaring
-    # the relationship turns that into a stop rather than a wrong figure.
-    try:
-        merged_data = pd.merge(
-            data,
-            metadata[['gene_nr', metadata_column]],
-            on='gene_nr',
-            how='left',
-            validate='many_to_one',
-        )
-    except pd.errors.MergeError as exc:
-        duplicated = metadata.loc[
-            metadata['gene_nr'].duplicated(keep=False), 'gene_nr']
-        if duplicated.empty:
-            # MergeError also covers things this message would misdescribe --
-            # a colliding suffix, for one. Only claim the cardinality story
-            # when the duplicates that would justify it are actually there.
-            raise
-        examples = duplicated.unique()[:5].tolist()
-        raise pd.errors.MergeError(
-            f"The gene metadata lists {duplicated.nunique()} gene_nr value(s) "
-            f"more than once (e.g. {examples}), so it cannot say which "
-            f"{metadata_column!r} belongs to a gene. Joining it anyway would "
-            f"plot those genes once per duplicate row and return each of them "
-            f"more than once in the hit list. De-duplicate the metadata on "
-            f"gene_nr before plotting. (pandas: {exc})"
-        ) from exc
-    merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
-    merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
-
-    # --- Normalise y_lims into (is_broken, lower_lim, upper_lim) ---
-    is_broken, lower_lim, upper_lim = _normalize_y_lims(y_lims, merged_data['neg_log_p'])
-
-    # --- Axes ---
-    if is_broken:
-        fig = plt.figure(figsize=(figsize, figsize))
-        gs = GridSpec(2, 1, height_ratios=[1, 3], hspace=0.05)
-        ax_upper = fig.add_subplot(gs[0])
-        ax_lower = fig.add_subplot(gs[1], sharex=ax_upper)
-        ax_upper.tick_params(axis='x', which='both', bottom=False, labelbottom=False)
-        all_axes = [ax_lower, ax_upper]
-    else:
-        fig, ax_lower = plt.subplots(figsize=(figsize, figsize))
-        ax_upper = None
-        all_axes = [ax_lower]
-
-    def _pick_axis(y_val):
-        """Return the upper broken-axis panel when ``y_val`` clears it, else the lower."""
-        if is_broken and y_val > upper_lim[0]:
-            return ax_upper
-        return ax_lower
-
-    hit_list = []
-
-    # --- Scatter ---
-    for _, row in merged_data.iterrows():
-        y_val = row['neg_log_p']
-        ax = _pick_axis(y_val)
-        ax.scatter(
-            row['coefficient'],
-            y_val,
-            color=colors.get(row[metadata_column], 'gray'),
-            marker='o',
-            s=point_size,
-            edgecolor='black',
-            alpha=0.6,
-        )
-        if (row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold)):
-            hit_list.append(row['variable'])
-
-    # --- Limits and spines ---
-    ax_lower.set_ylim(lower_lim)
-    ax_lower.set_xlim(x_lim)
-    ax_lower.set_xlabel('Coefficient')
-    ax_lower.set_ylabel('-log10(p-value)')
-    ax_lower.spines['right'].set_visible(False)
-
-    if is_broken:
-        ax_upper.set_ylim(upper_lim)
-        ax_upper.set_ylabel('-log10(p-value)')
-        ax_upper.spines['right'].set_visible(False)
-        ax_upper.spines['top'].set_visible(False)
-        ax_upper.spines['bottom'].set_visible(False)
-        ax_lower.spines['top'].set_visible(False)
-    else:
-        ax_lower.spines['top'].set_visible(False)
-
-    # --- Threshold lines ---
-    for ax in all_axes:
-        ax.axvline(x=-abs(threshold), linestyle='--', color='black')
-        ax.axvline(x=abs(threshold), linestyle='--', color='black')
-    ax_lower.axhline(y=-np.log10(0.05), linestyle='--', color='black')
-
-    # --- Annotate significant points ---
-    texts_upper, texts_lower = [], []
-    for _, row in merged_data.iterrows():
-        if row['p_value'] > 0.05 or abs(row['coefficient']) < abs(threshold):
-            continue
-        y_val = row['neg_log_p']
-        ax = _pick_axis(y_val)
-        text = ax.text(
-            row['coefficient'],
-            y_val,
-            row['variable'],
-            fontsize=fontsize,
-            ha='center',
-            va='bottom',
-        )
-        if ax is ax_upper:
-            texts_upper.append(text)
+        # --- Load data ---
+        if isinstance(data_path, pd.DataFrame):
+            data = data_path.copy()
         else:
-            texts_lower.append(text)
+            data = pd.read_csv(data_path)
 
-    if texts_lower:
-        adjust_text(texts_lower, ax=ax_lower, arrowprops=dict(arrowstyle='-', color='black'))
-    if is_broken and texts_upper:
-        adjust_text(texts_upper, ax=ax_upper, arrowprops=dict(arrowstyle='-', color='black'))
+        data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
+        data['variable'] = data['variable'].fillna(data['feature'])
+        data['gene_nr'] = data['variable'].str.split('_').str[0]
+        data = data[data['variable'] != 'Intercept']
 
-    # --- Legend ---
-    legend_handles = [
-        plt.Line2D([0], [0], marker='o', color=c, label=name, linewidth=0, markersize=8)
-        for name, c in colors.items()
-    ]
-    # THE LEGEND MUST NOT BE BIGGER THAN THE PLOT.
-    #
-    # labelspacing=2 double-spaced every entry, markerscale=1.5 enlarged each
-    # swatch, and the label font was the full AXIS font size. With the LOPIT
-    # compartment set that is 27 entries, so the legend column ran taller than
-    # the figure and squeezed the data into a strip -- reported as "I can't
-    # really see the results because the legend is way too big".
-    #
-    # A legend is an index, not a feature of the data: size it to be readable
-    # and no larger, and wrap it into columns once there are more entries than
-    # fit down one side.
-    entries = len(legend_handles)
-    columns = 1 if entries <= 14 else 2 if entries <= 30 else 3
-    legend = ax_lower.legend(
-        handles=legend_handles,
-        bbox_to_anchor=(1.02, 1),
-        loc='upper left',
-        borderaxespad=0.25,
-        labelspacing=0.4,
-        handletextpad=0.4,
-        markerscale=0.9,
-        ncol=columns,
-        columnspacing=1.0,
-        frameon=False,
-        # Two-thirds of the axis font, floored so it stays readable.
-        prop={'size': max(fontsize * 0.6, 7)},
-    )
+        # --- Load metadata ---
+        if isinstance(metadata_path, pd.DataFrame):
+            # .copy() for the same reason `data` above takes one: the next line
+            # rewrites 'gene_nr' to str in place, and without the copy that edit
+            # landed in the CALLER's frame. A caller that plots two volcanoes from
+            # one metadata table got its integer gene numbers silently retyped by
+            # the first call.
+            metadata = metadata_path.copy()
+        else:
+            metadata = pd.read_csv(metadata_path)
 
-    _fit_outside_legend(fig, legend)
+        metadata['gene_nr'] = metadata['gene_nr'].astype(str)
+        data['gene_nr'] = data['gene_nr'].astype(str)
 
-    if save_path:
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-    plt.show()
+        # many_to_one: `data` holds one row per regression *feature*, and several
+        # features share a gene -- a gRNA-level fit contributes one row per guide,
+        # so gene_nr repeats on the left by design. `metadata` is a lookup table:
+        # one localisation per gene, which is what the shipped
+        # resources/data/lopit.csv is (3832 rows, 3832 distinct gene_nr) and what
+        # `colors[row[metadata_column]]` below assumes when it paints one point one
+        # colour. A duplicated gene_nr on the right is therefore not a legitimate
+        # shape here, it is a fan-out: every affected gene gets plotted twice and
+        # appended to the returned hit list twice, which then propagates into
+        # plot_gene_phenotypes and plot_gene_heatmaps as duplicate genes. Declaring
+        # the relationship turns that into a stop rather than a wrong figure.
+        try:
+            merged_data = pd.merge(
+                data,
+                metadata[['gene_nr', metadata_column]],
+                on='gene_nr',
+                how='left',
+                validate='many_to_one',
+            )
+        except pd.errors.MergeError as exc:
+            duplicated = metadata.loc[
+                metadata['gene_nr'].duplicated(keep=False), 'gene_nr']
+            if duplicated.empty:
+                # MergeError also covers things this message would misdescribe --
+                # a colliding suffix, for one. Only claim the cardinality story
+                # when the duplicates that would justify it are actually there.
+                raise
+            examples = duplicated.unique()[:5].tolist()
+            raise pd.errors.MergeError(
+                f"The gene metadata lists {duplicated.nunique()} gene_nr value(s) "
+                f"more than once (e.g. {examples}), so it cannot say which "
+                f"{metadata_column!r} belongs to a gene. Joining it anyway would "
+                f"plot those genes once per duplicate row and return each of them "
+                f"more than once in the hit list. De-duplicate the metadata on "
+                f"gene_nr before plotting. (pandas: {exc})"
+            ) from exc
+        merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
+        merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
 
-    return hit_list
+        # --- Normalise y_lims into (is_broken, lower_lim, upper_lim) ---
+        is_broken, lower_lim, upper_lim = _normalize_y_lims(y_lims, merged_data['neg_log_p'])
+
+        # --- Axes ---
+        if is_broken:
+            fig = plt.figure(figsize=(figsize, figsize))
+            gs = GridSpec(2, 1, height_ratios=[1, 3], hspace=0.05)
+            ax_upper = fig.add_subplot(gs[0])
+            ax_lower = fig.add_subplot(gs[1], sharex=ax_upper)
+            ax_upper.tick_params(axis='x', which='both', bottom=False, labelbottom=False)
+            all_axes = [ax_lower, ax_upper]
+        else:
+            fig, ax_lower = plt.subplots(figsize=(figsize, figsize))
+            ax_upper = None
+            all_axes = [ax_lower]
+
+        def _pick_axis(y_val):
+            """Return the upper broken-axis panel when ``y_val`` clears it, else the lower."""
+            if is_broken and y_val > upper_lim[0]:
+                return ax_upper
+            return ax_lower
+
+        hit_list = []
+
+        # --- Scatter ---
+        for _, row in merged_data.iterrows():
+            y_val = row['neg_log_p']
+            ax = _pick_axis(y_val)
+            ax.scatter(
+                row['coefficient'],
+                y_val,
+                color=colors.get(row[metadata_column], 'gray'),
+                marker='o',
+                s=point_size,
+                edgecolor='black',
+                alpha=0.6,
+            )
+            if (row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold)):
+                hit_list.append(row['variable'])
+
+        # --- Limits and spines ---
+        ax_lower.set_ylim(lower_lim)
+        ax_lower.set_xlim(x_lim)
+        ax_lower.set_xlabel('Coefficient')
+        ax_lower.set_ylabel('-log10(p-value)')
+        ax_lower.spines['right'].set_visible(False)
+
+        if is_broken:
+            ax_upper.set_ylim(upper_lim)
+            ax_upper.set_ylabel('-log10(p-value)')
+            ax_upper.spines['right'].set_visible(False)
+            ax_upper.spines['top'].set_visible(False)
+            ax_upper.spines['bottom'].set_visible(False)
+            ax_lower.spines['top'].set_visible(False)
+        else:
+            ax_lower.spines['top'].set_visible(False)
+
+        # --- Threshold lines ---
+        for ax in all_axes:
+            ax.axvline(x=-abs(threshold), linestyle='--', color='black')
+            ax.axvline(x=abs(threshold), linestyle='--', color='black')
+        ax_lower.axhline(y=-np.log10(0.05), linestyle='--', color='black')
+
+        # --- Annotate significant points ---
+        texts_upper, texts_lower = [], []
+        for _, row in merged_data.iterrows():
+            if row['p_value'] > 0.05 or abs(row['coefficient']) < abs(threshold):
+                continue
+            y_val = row['neg_log_p']
+            ax = _pick_axis(y_val)
+            text = ax.text(
+                row['coefficient'],
+                y_val,
+                row['variable'],
+                fontsize=fontsize,
+                ha='center',
+                va='bottom',
+            )
+            if ax is ax_upper:
+                texts_upper.append(text)
+            else:
+                texts_lower.append(text)
+
+        if texts_lower:
+            adjust_text(texts_lower, ax=ax_lower, arrowprops=dict(arrowstyle='-', color='black'))
+        if is_broken and texts_upper:
+            adjust_text(texts_upper, ax=ax_upper, arrowprops=dict(arrowstyle='-', color='black'))
+
+        # --- Legend ---
+        legend_handles = [
+            plt.Line2D([0], [0], marker='o', color=c, label=name, linewidth=0, markersize=8)
+            for name, c in colors.items()
+        ]
+        # THE LEGEND MUST NOT BE BIGGER THAN THE PLOT.
+        #
+        # labelspacing=2 double-spaced every entry, markerscale=1.5 enlarged each
+        # swatch, and the label font was the full AXIS font size. With the LOPIT
+        # compartment set that is 27 entries, so the legend column ran taller than
+        # the figure and squeezed the data into a strip -- reported as "I can't
+        # really see the results because the legend is way too big".
+        #
+        # A legend is an index, not a feature of the data: size it to be readable
+        # and no larger, and wrap it into columns once there are more entries than
+        # fit down one side.
+        entries = len(legend_handles)
+        columns = 1 if entries <= 14 else 2 if entries <= 30 else 3
+        legend = ax_lower.legend(
+            handles=legend_handles,
+            bbox_to_anchor=(1.02, 1),
+            loc='upper left',
+            borderaxespad=0.25,
+            labelspacing=0.4,
+            handletextpad=0.4,
+            markerscale=0.9,
+            ncol=columns,
+            columnspacing=1.0,
+            frameon=False,
+            # Two-thirds of the axis font, floored so it stays readable.
+            prop={'size': max(fontsize * 0.6, 7)},
+        )
+
+        _fit_outside_legend(fig, legend)
+
+        if save_path:
+            save_path = save_figure(plt.gcf(), save_path,
+                                    bbox_inches='tight')
+        plt.show()
+
+        return hit_list
 
 
 def _fit_outside_legend(fig, legend, pad=0.02, min_axes_width=0.45):
