@@ -105,3 +105,107 @@ for a screen that was solid black on the user's display, four times in a
 row, and three separate wrong fixes were built on those clean numbers.
 Assert on state -- what is in the stylesheet, what the palette says --
 rather than on pixels, unless pixels are genuinely the only evidence.
+
+
+================================================================================
+2026-08-16 -- THREE MORE OF THIS FAMILY, DIAGNOSED AND CLOSED
+================================================================================
+
+Different victims, same shape, and none of them Qt: the leaked global was
+matplotlib's, twice, and pyplot's figure register once. Recorded here rather
+than in a file of their own because the lesson is the one this file already
+teaches -- the failure is reported against whichever test drew the short
+straw, never against the one that leaked.
+
+Reproducer for all three:
+
+    xvfb-run -a python -m pytest tests/ -q -p no:randomly \
+        -k "figure or fast_plot or regression_results or regression_screen \
+            or row_to_point"
+
+--------------------------------------------------------------------------------
+1. THE VOLCANO LEGEND THAT WOULD NOT OVERFLOW
+--------------------------------------------------------------------------------
+
+  victim    test_toxo_volcano_join_contract.py::test_the_legend_fits_inside_the_figure
+  polluter  test_figure_style.py -- three tests calling figure_style.apply()
+  global    matplotlib.rcParams, 24 of them. figure.autolayout is the one that
+            bit; figure.dpi 100 -> 150 and font.family were along for the ride.
+
+  figure_style.apply() writes the resolved style into rcParams, which is its
+  job -- one style, every figure of the run. A TEST that calls it is choosing
+  the style for every test after it, in every other file. With
+  figure.autolayout on, matplotlib re-lays-out the axes on every draw, so the
+  victim's 27-entry legend had already been shrunk to fit and its first
+  assertion -- "legend did not overflow" -- was false.
+
+  fixed by  matplotlib.rc_context() around every test in test_figure_style.py.
+  guard     tests/test_the_global_figure_style_is_put_back.py. Finds every test
+            module that calls figure_style.apply / apply_figure_style, runs
+            each in its own pytest session, diffs rcParams across it. Names the
+            module that leaked.
+
+--------------------------------------------------------------------------------
+2. THE ORGANELLE FIGURE COUNT THAT WAS ONE TOO HIGH
+--------------------------------------------------------------------------------
+
+  victim    test_cov_object_organelle_sam.py::test_plot_true_renders_a_real_figure
+            (assert len(plt.get_fignums()) == 1  ->  got 2)
+  polluter  tests/qt/test_figure_queue.py::_pdf_assets
+  global    pyplot's figure manager, i.e. plt.get_fignums()
+
+  _pdf_assets is scope="module" and built its 3x3 figure with plt.subplots,
+  which registers it with pyplot's PROCESS-global manager. A module-scoped
+  fixture outlives the file that declared it, so the figure stayed in the
+  count for the rest of the session. Any later test that counts figures
+  counted it. Found by a shuffled ordering, not by the plain run.
+
+  fixed by  yield + plt.close(fig) in the fixture.
+  guard     tests/test_no_fixture_leaves_a_figure_open.py. Reads the source:
+            a module/package/session-scoped fixture that calls plt.figure /
+            plt.subplots / plt.subplot_mosaic must yield and must close.
+
+--------------------------------------------------------------------------------
+3. FOUR PRODUCTION FUNCTIONS DOING THE SAME THING TO REAL USERS
+--------------------------------------------------------------------------------
+
+Chasing (1) turned up the same bug in the application, where no fixture is
+coming to restore anything. Each one set a global matplotlib style as a side
+effect of drawing ONE figure, so every figure the session drew afterwards
+inherited it -- on other screens, in other modules, over whatever the user had
+chosen in figure preferences.
+
+  toxo.custom_volcano_plot       font.size 18, process-wide
+  plot.create_grouped_plot       sns.set(style="whitegrid"), 33 rcParams
+  io.read_plot_model_stats       the same sns.set
+  plot._plot_recruitment         sns.set_palette -- the global colour cycle
+  utils.plot_embedding           the GUI theme's colours via setup_plot; a
+                                 UMAP drawn on the dark theme left white text
+                                 as the default, i.e. white on white once the
+                                 user opened a screen that draws on paper
+
+All five now draw inside rc_context. Each has a test asserting BOTH halves --
+the figure still looks the way it should, and the globals came back -- because
+the fix is where the style is set, not what it is.
+
+--------------------------------------------------------------------------------
+HOW THEY WERE FOUND, WHICH IS REUSABLE
+--------------------------------------------------------------------------------
+
+pytest-randomly is NOT installed in this environment, whatever the task
+description says (`pip list` has pytest-cov, -qt, -timeout, -xdist and no
+randomiser). Shuffle the collected node ids instead and pass them back as
+explicit arguments; pytest keeps the order it is given:
+
+    pytest ... --collect-only -q | grep :: > nodes.txt
+    python -c "import random;..."          # shuffle with a seed
+    pytest -q -p no:randomly $(cat order_N.txt)
+
+Three seeds over the 496-test selection: two clean, one turned up (2) above.
+
+A ~40-line plugin that snapshots rcParams + the QApplication palette,
+stylesheet length and font at pytest_runtest_setup and diffs them at
+pytest_runtest_logfinish will name a leaker directly, no bisection needed.
+Use logfinish, NOT pytest_runtest_teardown: teardown runs BEFORE the fixture
+finalizers, so it reports every well-behaved save/restore fixture in the suite
+as a leak. Two false positives cost an hour that way.
