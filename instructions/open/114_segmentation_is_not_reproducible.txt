@@ -1,0 +1,95 @@
+================================================================================
+RUNNING MASK TWICE ON THE SAME PLATE CAN PRODUCE DIFFERENT MASKS
+================================================================================
+
+Status:    filed 2026-08-15, not started. NEEDS A MAINTAINER DECISION before
+           any code changes -- see WHAT IT NEEDS.
+Requested: not asked for. Found while hunting the variance behind the flaky
+           HF e2e mask test (instruction 104), and filed because it is a
+           bigger problem than the test that exposed it.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR's segmentation is not reproducible. The same plate, the same settings,
+the same machine, two runs -- and the masks can differ.
+
+The mechanism is short, and this repository had already written it down.
+`spacr.runctx.SEED_CAVEATS["cellpose"]`:
+
+    "Cellpose has no seed of its own; it draws from NumPy and Torch, so it
+     follows this call on CPU."
+
+"This call" is :func:`spacr.runctx.seed_everything`. Nothing in the mask path
+calls it. Across the whole package only `deep_spacr.py` does:
+
+    grep -rl seed_everything spacr/*.py
+    spacr/deep_spacr.py
+    spacr/runctx.py
+
+So `core.preprocess_generate_masks` and everything under `object.py` run
+segmentation against whatever state the global NumPy and Torch streams happen
+to be in when they start.
+
+HOW IT SURFACED, which is the reason to believe it rather than reason about
+it: the stub e2e mask test failed about one run in eight, on one commit and
+one machine, with seeded input images. Adding `seed_everything(0)` to its
+fixture took it to eight consecutive passes. The variance was real, it was in
+segmentation, and seeding removed it.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS MORE THAN A FLAKY TEST
+--------------------------------------------------------------------------------
+
+* EVERY DOWNSTREAM NUMBER comes from those masks. If the masks are not
+  reproducible then neither is any measurement, any per-well aggregate, or
+  any hit list computed from them.
+* THE PROVENANCE MANIFEST IMPLIES OTHERWISE. It records input digests and
+  settings, which is a promise that a run can be repeated. It currently
+  cannot be, and nothing on screen says so.
+* TWO PEOPLE COMPARING "the same analysis" may not be comparing the same
+  segmentation, and would have no way to tell.
+
+It is also quiet, which is this repository's recurring failure mode: nothing
+crashes, the masks look plausible, and the difference is only visible if
+somebody runs the same plate twice and diffs the output -- which nobody does.
+
+--------------------------------------------------------------------------------
+WHAT IT NEEDS -- A DECISION FIRST
+--------------------------------------------------------------------------------
+
+Do NOT simply add `seed_everything()` to the mask entry point. Three things
+have to be decided together, and two of them are the maintainer's:
+
+1. WHAT A SEEDED RUN MEANS ON GPU. `SEED_CAVEATS["cuda"]` says CUDA kernels
+   that accumulate atomically are non-deterministic regardless of the seed,
+   and `deterministic=True` is slower and still not a guarantee. So "seeded"
+   means bit-reproducible on CPU and approximately reproducible on GPU, and
+   the difference has to be stated wherever reproducibility is claimed rather
+   than discovered later.
+
+2. WHERE THE SEED IS RECORDED. A seed that is not in the run manifest buys
+   nothing -- the point is to repeat a run, and that needs the value. This
+   belongs with the input digests that are already there.
+
+3. WHAT HAPPENS TO EXISTING RUNS. Seeding changes what today's pipeline
+   produces. That is correct going forward and it does mean a re-run will not
+   match a stored result from before the change. That is a version boundary
+   and should be recorded as one.
+
+THEN, and only then: seed at the entry points that start segmentation, record
+the value, and surface it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The same plate segmented twice with the same settings produces
+  byte-identical masks on CPU.
+* The seed used is in the run manifest, beside the input digests.
+* Where the GPU path cannot promise that, the manifest says which path ran
+  and the docs say what reproducibility means there.
+* A test runs the mask stage twice on the stub plate and compares the mask
+  arrays, not just their existence -- the assertion instruction 104 wanted
+  strengthened anyway.
