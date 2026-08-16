@@ -59,7 +59,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lesson", action="append", default=[],
                         help="lesson id; repeat for more than one")
-    parser.add_argument("--all", action="store_true", help="sample all 69 lessons")
+    parser.add_argument("--all", action="store_true", help="sample all 73 lessons")
     parser.add_argument("--voice", default="af_heart")
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--timeout", type=int, default=90)

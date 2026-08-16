@@ -26,7 +26,15 @@ frame, 41's working-set and merge-rule machinery is what turns their tables
 into the analysis frame. Build on it rather than beside it.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Plate-wise files are a normal acquisition boundary, not an analytical one.
+Without a provenance-safe multi-database path, users cannot compare plates in
+one embedding or gate without building an error-prone external merge.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 1. TAKE A LIST, NOT A PATH. Wherever a module accepts one database, accept

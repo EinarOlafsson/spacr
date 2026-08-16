@@ -7,6 +7,7 @@ import hashlib
 import importlib
 import json
 from pathlib import Path
+import re
 import sys
 
 
@@ -93,6 +94,41 @@ def _visible_assignment_docs() -> set[str]:
     return keys
 
 
+def test_documented_parameter_names_match_the_source_signatures():
+    """Every Sphinx ``:param:`` field names a real Python parameter."""
+    field = re.compile(r":param\s+(?:[^:\s]+\s+)?([*\w]+)\s*:")
+    checked = 0
+    mismatches = []
+    for path, _module, tree in _source_nodes():
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            docstring = ast.get_docstring(node, clean=False) or ""
+            parameters = {
+                item.arg
+                for item in (
+                    *node.args.posonlyargs,
+                    *node.args.args,
+                    *node.args.kwonlyargs,
+                )
+            }
+            if node.args.vararg is not None:
+                parameters.add(node.args.vararg.arg)
+            if node.args.kwarg is not None:
+                parameters.add(node.args.kwarg.arg)
+            for match in field.finditer(docstring):
+                checked += 1
+                name = match.group(1).lstrip("*")
+                if name not in parameters:
+                    mismatches.append(
+                        f"{path.relative_to(ROOT)}:{node.lineno} "
+                        f"{node.name} documents {name!r} but accepts "
+                        f"{sorted(parameters)!r}"
+                    )
+    assert checked >= 6_000
+    assert not mismatches, "\n".join(mismatches)
+
+
 def test_public_docstrings_matches_reviewed_visible_coverage():
     docs = builder.public_docstrings()
     dunders = _visible_special_members()
@@ -120,12 +156,33 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # +14: the shared metadata resolver and the two desktop picker surfaces.
     # +5: explicit regression input pairing, generated setting-applicability
     # rules, and the paired-file table/pairing proposal helpers.
-    # +5: the regression settings sweep in spacr.regression_search --
-    # SearchSpace, SearchSpace.size, build_trials, run_search and
-    # summarise_search. Enumerated rather than counted: this ratchet is only
-    # worth having if a bump names what it admitted.
-    assert len(docs) - len(builder.API_DOC_ALIASES) == 6529
-    assert len(docs) == 6648
+    # +12/-5: the regression settings sweep moved from the non-visual
+    # spacr.regression_search helper into the complete spacr.parameter_sweep
+    # engine and its desktop screen. The admitted public entries are the
+    # module, SweepSpace, be_polite, build_trials, memory_is_low,
+    # recommended_workers, run_sweep, run_sweep_parallel, summarise_sweep,
+    # the Qt screen module, and its register function. The retired entries are
+    # regression_search.SearchSpace, build_trials, run_search and
+    # summarise_search; the regression_search module itself remains as a
+    # compatibility explanation. Enumerated rather than merely counted: this
+    # ratchet is only useful if a bump names what it admitted and retired.
+    # +73/-0 on the 2026-08-16 merge of the two concurrent sessions. Both
+    # sides added public surface and neither retired any, so this is a pure
+    # admission. Enumerated by module, because a ratchet moved without saying
+    # what it admitted is a rubber stamp:
+    #   47  spacr.qt.widgets     -- the figure/live-preview widgets, plus
+    #                               spacr.qt.widgets.flash (the shared 650 ms
+    #                               mark the console copy glyph and the new
+    #                               clear-figures control both use)
+    #    8  spacr.multi_database -- describe_merge / read_merged and their
+    #                               MergePlan, SourceSummary and MergeRefused
+    #    5  spacr.guide_concordance
+    #    4  spacr.qt.preferences
+    #    4  spacr.qt.screens
+    #    3  spacr.parameter_sweep
+    #    2  spacr.qt.ai          -- get_console_aware / set_console_aware
+    assert len(docs) - len(builder.API_DOC_ALIASES) == 6609
+    assert len(docs) == 6728
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

@@ -7,27 +7,27 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **1.5.0.4**
-- branch: `codex/instruction83-push` at `93842c70`
-- Python modules under `spacr/`: 342
-- of those under `spacr/qt/`: 198 (47 screens, 70 widgets)
-- test files: 798 (274 under `tests/qt/`)
+- branch: `codex/tutorial-api-final` at `16ee2065`
+- Python modules under `spacr/`: 353
+- of those under `spacr/qt/`: 203 (49 screens, 73 widgets)
+- test files: 803 (276 under `tests/qt/`)
 
 ## The biggest modules
 
 Size is not a defect, but it is where the work is. Read the docstring before the code in any of these -- they carry their own reasoning.
 
-- `spacr/utils.py` — 10554 lines
+- `spacr/utils.py` — 10603 lines
 - `spacr/timelapse.py` — 8247 lines
 - `spacr/io.py` — 7859 lines
-- `spacr/qt/i18n_catalogs/zh_CN.py` — 7236 lines
-- `spacr/qt/i18n_catalogs/sv.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/pt.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/ko.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/is.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/hi.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/fr.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/es.py` — 7235 lines
-- `spacr/qt/i18n_catalogs/de.py` — 7235 lines
+- `spacr/qt/i18n_catalogs/zh_CN.py` — 7384 lines
+- `spacr/qt/i18n_catalogs/sv.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/pt.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/ko.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/is.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/hi.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/fr.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/es.py` — 7383 lines
+- `spacr/qt/i18n_catalogs/de.py` — 7383 lines
 
 ## Invariant checks
 
@@ -36,7 +36,7 @@ Size is not a defect, but it is where the work is. Read the docstring before the
 - PASS — thread finished wiring: make_thread still owns the finished wiring
 - PASS — test isolation fixtures: registry + font-scale isolation in place
 - PASS — QSettings sandbox: QSettings sandbox present
-- PASS — task ledger: 0 open, 90 done, all with their sections
+- PASS — task ledger: 10 open, 92 done, all with their sections
 
 A FAIL means INVARIANTS.md is describing software that has moved.
 Fix the code or fix the file, then say which in the commit.

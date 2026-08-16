@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-91 done / 13 open (87%).
+92 done / 12 open (88%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -56,9 +56,6 @@ OPEN
 
   111  A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
        111_a_clear_figures_control_that_is_text_and_flickers_blue.txt
-
-  112  A DOCSTRING AND TRANSLATION SWEEP: IS ANY OF IT ACTUALLY CORRECT?
-       112_docstring_and_translation_correctness_sweep.txt
 
   113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
        113_tooltips_belong_to_the_setting_not_its_field.txt
@@ -158,3 +155,4 @@ DONE
    99  EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
   102  A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
   103  NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
+  112  guards added; the permanently-skipped link test now runs in CI.

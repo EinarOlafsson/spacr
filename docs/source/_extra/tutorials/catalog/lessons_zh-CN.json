@@ -4487,6 +4487,198 @@
           "speech_text": "当工作流程完成时,可以将曲线参数,不确定性,诊断和源数据一起出口."
         }
       ]
+    },
+    {
+      "id": "70_explain_cv",
+      "number": 70,
+      "slug": "explain_cv",
+      "title": "Explain CV Model",
+      "series": 5,
+      "app_key": "explain_cv",
+      "section": "Results and quality control",
+      "description": "根据测量特征复现计算机视觉预测，并检查所得解释是否忠实且不存在信息泄漏。",
+      "objectives": [
+        "了解何时使用Explain CV Model.",
+        "配置重要的输入和设置.",
+        "运行工作流程并找到其输出."
+      ],
+      "prerequisite": "当该模块需要上游结果时,遵循之前的工作流程课程.",
+      "scenes": [
+        {
+          "narration": "本教程介绍 Explain CV Model。根据测量特征复现计算机视觉预测，并检查所得解释是否忠实且不存在信息泄漏。",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "本教程介绍 Explain CV Model。根据测量特征复现计算机视觉预测，并检查所得解释是否忠实且不存在信息泄漏。"
+        },
+        {
+          "narration": "请选择逐对象预测文件、对应的测量数据库、预测类别或分数，以及在划分数据时必须保持完整的微孔板孔组或整板组。",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "请选择逐对象预测文件、对应的测量数据库、预测类别或分数，以及在划分数据时必须保持完整的微孔板孔组或整板组。"
+        },
+        {
+          "narration": "在主配置区域中，选择代理模型后端、预留验证组、要排除的特征、置换重复次数以及有上限的 SHAP 计算预算。",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中，选择代理模型后端、预留验证组、要排除的特征、置换重复次数以及有上限的 SHAP 计算预算。"
+        },
+        {
+          "narration": "验证防止信息泄漏的排除规则和按组划分方式。然后拟合代理模型，并在解释特征重要性之前，将其验证忠实度与多数类别基线进行比较。",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "验证防止信息泄漏的排除规则和按组划分方式。然后拟合代理模型，并在解释特征重要性之前，将其验证忠实度与多数类别基线进行比较。"
+        },
+        {
+          "narration": "工作流程完成后，本次运行会记录忠实度、验证集置换重要性、SHAP 摘要、已排除列、分组方式、后端和数据来源。忠实度较弱时会明确报告，而不会被隐藏。",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后，本次运行会记录忠实度、验证集置换重要性、SHAP 摘要、已排除列、分组方式、后端和数据来源。忠实度较弱时会明确报告，而不会被隐藏。"
+        }
+      ]
+    },
+    {
+      "id": "71_investigate_hit",
+      "number": 71,
+      "slug": "investigate_hit",
+      "title": "Investigate Hit",
+      "series": 5,
+      "app_key": "investigate_hit",
+      "section": "Results and quality control",
+      "description": "将选定的回归结果关联到候选细胞和微孔板孔级定量证据，同时保留已经审核的注释。",
+      "objectives": [
+        "了解何时使用Investigate Hit.",
+        "配置重要的输入和设置.",
+        "运行工作流程并找到其输出."
+      ],
+      "prerequisite": "当该模块需要上游结果时,遵循之前的工作流程课程.",
+      "scenes": [
+        {
+          "narration": "本教程介绍 Investigate Hit。将选定的回归结果关联到候选细胞和微孔板孔级定量证据，同时保留已经审核的注释。",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "本教程介绍 Investigate Hit。将选定的回归结果关联到候选细胞和微孔板孔级定量证据，同时保留已经审核的注释。"
+        },
+        {
+          "narration": "请选择回归运行、选定的基因级或向导级结果、表型方向、错误发现阈值、向导间支持度以及对应的测量数据库。",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "请选择回归运行、选定的基因级或向导级结果、表型方向、错误发现阈值、向导间支持度以及对应的测量数据库。"
+        },
+        {
+          "narration": "在主配置区域中，检查对象表、分数列、微孔板孔分组、证据阈值、协变量，以及可选的交叉拟合分层混合模型。",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中，检查对象表、分数列、微孔板孔分组、证据阈值、协变量，以及可选的交叉拟合分层混合模型。"
+        },
+        {
+          "narration": "预览按分数排序的候选细胞和微孔板孔摘要。只有在选定结果和证据约束均正确时，才运行交叉拟合模型。",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "预览按分数排序的候选细胞和微孔板孔摘要。只有在选定结果和证据约束均正确时，才运行交叉拟合模型。"
+        },
+        {
+          "narration": "工作流程完成后，spaCR 会保存候选细胞排序、独立孔之间的比较、每个细胞与所选表型匹配的可选概率、不确定性以及带版本的判定；它绝不会覆盖人工注释。",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后，斯佩克尔 会保存候选细胞排序、独立孔之间的比较、每个细胞与所选表型匹配的可选概率、不确定性以及带版本的判定；它绝不会覆盖人工注释。"
+        }
+      ]
+    },
+    {
+      "id": "72_volcano_explorer",
+      "number": 72,
+      "slug": "volcano_explorer",
+      "title": "Volcano Explorer",
+      "series": 5,
+      "app_key": "volcano_explorer",
+      "section": "Results and quality control",
+      "description": "打开已完成的回归结果，逐点检查并调整图形样式，无需重新运行分析即可导出出版尺寸的矢量图。",
+      "objectives": [
+        "了解什么时候使用Volcano Explorer.",
+        "配置重要的输入和设置.",
+        "运行工作流程并找到其输出."
+      ],
+      "prerequisite": "当该模块需要上游结果时,遵循之前的工作流程课程.",
+      "scenes": [
+        {
+          "narration": "本教程介绍 Volcano Explorer。打开已完成的回归结果，逐点检查并调整图形样式，无需重新运行分析即可导出出版尺寸的矢量图。",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "本教程介绍 Volcano Explorer。打开已完成的回归结果，逐点检查并调整图形样式，无需重新运行分析即可导出出版尺寸的矢量图。"
+        },
+        {
+          "narration": "请选择已完成的回归文件夹或结果 CSV 文件，并确认分析结果、向导级表、支持度类别、效应列和调整后 P 值列。",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "请选择已完成的回归文件夹或结果 CSV 文件，并确认分析结果、向导级表、支持度类别、效应列和调整后 P 值列。"
+        },
+        {
+          "narration": "在主配置区域中，检查显著性和效应阈值、坐标轴变换、标签、颜色、形状、注释、断轴选项、字体和输出尺寸。",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中，检查显著性和效应阈值、坐标轴变换、标签、颜色、形状、注释、断轴选项、字体和输出尺寸。"
+        },
+        {
+          "narration": "选择有代表性的点以检查完整数据行、合并可选注释，并确认样式调整不会改变底层数值和阈值。",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "选择有代表性的点以检查完整数据行、合并可选注释，并确认样式调整不会改变底层数值和阈值。"
+        },
+        {
+          "narration": "工作流程完成后，系统会根据已记录的数据和样式，以指定尺寸重新生成 PDF 和 PNG；原始回归结果保持不变。",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后，系统会根据已记录的数据和样式，以指定尺寸重新生成 PDF 和 PNG；原始回归结果保持不变。"
+        }
+      ]
+    },
+    {
+      "id": "73_parameter_sweep",
+      "number": 73,
+      "slug": "parameter_sweep",
+      "title": "Parameter Sweep",
+      "series": 5,
+      "app_key": "parameter_sweep",
+      "section": "Results and quality control",
+      "description": "对回归配置进行有限的参数探索，并比较哪些结论能在合理的分析选择下保持稳定。",
+      "objectives": [
+        "了解何时使用 Parameter Sweep.",
+        "配置重要的输入和设置.",
+        "运行工作流程并找到其输出."
+      ],
+      "prerequisite": "当该模块需要上游结果时,遵循之前的工作流程课程.",
+      "scenes": [
+        {
+          "narration": "本教程介绍 Parameter Sweep。对回归配置进行有限的参数探索，并比较哪些结论能在合理的分析选择下保持稳定。",
+          "visual": "overview",
+          "hold_after": 0.45,
+          "speech_text": "本教程介绍 Parameter Sweep。对回归配置进行有限的参数探索，并比较哪些结论能在合理的分析选择下保持稳定。"
+        },
+        {
+          "narration": "请为每块板配对逐对象分数 CSV 文件和向导计数 CSV 文件，选择响应列，并设置独立的输出文件夹。",
+          "visual": "input",
+          "hold_after": 0.45,
+          "speech_text": "请为每块板配对逐对象分数 CSV 文件和向导计数 CSV 文件，选择响应列，并设置独立的输出文件夹。"
+        },
+        {
+          "narration": "在主配置区域中，选择要变化的参数轴，固定其他所有值，选择网格或随机采样，限制试验数量，记录随机种子，并接受由内存决定的工作进程上限。",
+          "visual": "settings",
+          "hold_after": 0.45,
+          "speech_text": "在主配置区域中，选择要变化的参数轴，固定其他所有值，选择网格或随机采样，限制试验数量，记录随机种子，并接受由内存决定的工作进程上限。"
+        },
+        {
+          "narration": "先使用 Estimate 检查允许搜索的规模和成本，然后开始一次小型、有限的参数探索，并监控成功、被拒绝和失败的试验。",
+          "visual": "run",
+          "hold_after": 0.45,
+          "speech_text": "先使用 Estimate 检查允许搜索的规模和成本，然后开始一次小型、有限的参数探索，并监控成功、被拒绝和失败的试验。"
+        },
+        {
+          "narration": "工作流程完成后，可恢复的结果表会记录每次试验的设置、状态、发现数量、阳性对照排名、耗时、输出文件夹和失败原因。",
+          "visual": "output",
+          "hold_after": 0.65,
+          "speech_text": "工作流程完成后，可恢复的结果表会记录每次试验的设置、状态、发现数量、阳性对照排名、耗时、输出文件夹和失败原因。"
+        }
+      ]
     }
   ],
   "language": "zh-CN"
