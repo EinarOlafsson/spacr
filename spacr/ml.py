@@ -4057,6 +4057,38 @@ def perform_regression(settings):
         #    metadata_path = os.path.join(base_dir, 'resources', 'data', 'toxoplasma_metadata.csv')
         #    go_term_enrichment_by_column(significant, metadata_path)
     
+    # A VOLCANO IS NOT A TOXOPLASMA FEATURE.
+    #
+    # Everything above sits under `if settings['toxo']`, because the
+    # compartment colouring needs the LOPIT table. But the volcano itself is
+    # the figure this module exists to produce, and gating it on an
+    # organism-specific flag meant a run with toxo=False wrote sixteen
+    # diagnostic figures and NOT the one the user came for -- silently, with
+    # nothing saying why. Drawn here without the compartment colouring, which
+    # is the only part that ever needed the metadata.
+    if not settings.get('toxo') and settings.get('volcano') in ('all', 'gene', 'grna'):
+        try:
+            from .plot import volcano_plot as _plain_volcano
+            _source = {'gene': results_path_gene,
+                       'grna': results_path_grna}.get(settings['volcano'],
+                                                      results_path)
+            _plain_volcano(
+                _source,
+                fold_change_col='coefficient',
+                p_value_col='p_value',
+                name_col='feature',
+                x_transform='none', y_transform='-log10',
+                fold_change_threshold=reg_threshold,
+                p_value_threshold=float(settings.get('fdr_alpha', 0.05) or 0.05),
+                point_size=20.0, figsize=(10.0, 8.0),
+                title=f"{settings.get('regression_type', 'ols')} - {settings['volcano']}",
+                save_path=volcano_path, show=False)
+        except Exception as _volcano_error:
+            print(f"Could not draw the volcano plot: "
+                  f"{type(_volcano_error).__name__}: {_volcano_error}")
+        if os.path.exists(volcano_path):
+            print(f"Saved volcano plot to {volcano_path}")
+
     print('Significant Genes')
     grnas = significant['grna'].unique().tolist()
     genes = significant['gene'].unique().tolist()

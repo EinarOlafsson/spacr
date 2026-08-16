@@ -1127,3 +1127,50 @@ class TestTheNonparametricTableMatchesTheParametricOne:
         support = guide_support(frame)
         assert "225160" in support.index
         assert support.loc["225160"]["n_guides"] == 2
+
+
+class TestTheVolcanoIsNotAToxoplasmaFeature:
+    """A run with toxo=False wrote sixteen diagnostic figures and not the one
+    the user came for, silently.
+
+    The compartment COLOURING needs the LOPIT table; the volcano does not.
+    Gating the whole figure on an organism-specific flag meant every non-toxo
+    user of the module got no volcano and no explanation.
+    """
+
+    def test_the_fallback_is_reached_when_toxo_is_off(self):
+        import inspect
+
+        import spacr.ml as ml
+
+        text = inspect.getsource(ml)
+        assert "A VOLCANO IS NOT A TOXOPLASMA FEATURE" in text
+        block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
+        block = block[:block.index("print('Significant Genes')")]
+        # Guarded on toxo being OFF, so the coloured version still wins when
+        # the metadata is there.
+        assert "not settings.get('toxo')" in block
+        assert "volcano_plot" in block
+
+    def test_it_still_announces_where_the_file_went(self):
+        """Every other artefact says where it went; the volcano used not to,
+        which made 'drew one' and 'drew none' indistinguishable."""
+        import inspect
+
+        import spacr.ml as ml
+
+        text = inspect.getsource(ml)
+        block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
+        block = block[:block.index("print('Significant Genes')")]
+        assert "Saved volcano plot to" in block
+
+    def test_a_drawing_failure_does_not_sink_the_run(self):
+        """The regression is complete and written by this point."""
+        import inspect
+
+        import spacr.ml as ml
+
+        text = inspect.getsource(ml)
+        block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
+        block = block[:block.index("print('Significant Genes')")]
+        assert "except Exception" in block
