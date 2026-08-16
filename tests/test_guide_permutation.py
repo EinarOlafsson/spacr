@@ -108,13 +108,37 @@ def test_multiple_testing_methods_and_missing_values():
     assert raw_rejected.tolist() == [True, True, False, False]
 
 
-def test_regression_defaults_expose_bh_and_support_sensitivity():
+def test_regression_defaults_expose_the_correction_and_support_sensitivity():
+    """The correction is offered and configurable; it is not applied by default.
+
+    This asserted ``multiple_testing_method == 'fdr_bh'`` until d6eb6ca3 moved
+    it to 'none', requested in that commit's own words alongside transform=log
+    and min_cell_count=100. The key still exists, still accepts every method
+    ``adjust_p_values`` implements, and ``fdr_alpha`` still rides with it --
+    which is what "expose" meant here. What changed is which one a user who
+    edits nothing gets, so that is pinned on its own below rather than folded
+    back into this list.
+    """
     settings = get_perform_regression_default_settings({})
     assert settings["analysis_mode"] == "regression"
     assert settings["guide_min_wells"] == [1, 2, 3, 4]
     assert settings["guide_primary_min_wells"] is None
-    assert settings["multiple_testing_method"] == "fdr_bh"
     assert settings["fdr_alpha"] == 0.05
+    # Still selectable, and an explicit choice survives the builder untouched.
+    assert get_perform_regression_default_settings(
+        {"multiple_testing_method": "fdr_bh"})["multiple_testing_method"] == (
+            "fdr_bh")
+
+
+def test_no_correction_is_the_requested_default():
+    """Pinned separately, because it is a choice rather than a consequence.
+
+    An uncorrected P value across hundreds of guides is not evidence, so what
+    spaCR reports before the user chooses is a deliberate decision -- the kind
+    that should fail here if it drifts back, rather than move quietly.
+    """
+    assert get_perform_regression_default_settings(
+        {})["multiple_testing_method"] == "none"
 
 
 def test_package_runner_writes_bh_tables_and_each_volcano(tmp_path):
