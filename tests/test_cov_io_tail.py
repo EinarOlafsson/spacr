@@ -94,6 +94,31 @@ def test_read_plot_model_stats_show_branch_draws_six_figures(tmp_path, monkeypat
     assert list(tmp_path.glob("*.pdf")) == []
 
 
+def test_reading_the_training_curves_does_not_restyle_the_rest_of_the_session(
+        tmp_path):
+    """Six training-curve plots, and then everything looks the same again.
+
+    ``sns.set`` writes a whole seaborn theme -- grid, background, fonts, colour
+    cycle -- into matplotlib's process-wide rcParams. Opening the training
+    curves therefore restyled every figure the session drew afterwards, on
+    every other screen, over whatever the user had chosen in figure
+    preferences.
+    """
+    before = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+    train = tmp_path / "train.csv"
+    val = tmp_path / "validation.csv"
+    _stats_frame().to_csv(train)
+    _stats_frame().to_csv(val)
+
+    IO.read_plot_model_stats(str(train), str(val), save=True)
+
+    after = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+    changed = sorted(key for key in after if before.get(key) != after[key])
+    assert not changed, (
+        "reading the training curves left a seaborn theme on matplotlib's "
+        f"globals; every later figure of the session inherits it: {changed}")
+
+
 # ---------------------------------------------------------------------------
 # _save_model
 # ---------------------------------------------------------------------------
