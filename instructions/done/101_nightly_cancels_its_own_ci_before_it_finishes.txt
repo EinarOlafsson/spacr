@@ -130,3 +130,77 @@ The real check is that "is nightly green?" can be answered by asking, rather
 than by waiting for an accidental gap in the pushes. On 2026-08-15 that
 answer, once a 95-minute gap finally allowed it, was: every blocking job
 passed.
+
+--------------------------------------------------------------------------------
+RESULT 2026-08-16 - THE FIX WAS HALF APPLIED. THE OTHER HALF IS NOW DONE.
+--------------------------------------------------------------------------------
+
+VERIFIED: tests.yml carries the repair exactly as written above, committed in
+6ca8419c and present on origin/nightly.
+
+REFUTED, in one detail that mattered: "WHAT WAS DONE" reads as if the defect
+were closed. It was not. This instruction names TWO suites that outlast the
+gap between pushes -- "`docs` is the tell ... the two suites that take longer
+than a gap are exactly the two that never finish" -- and only one of them was
+repaired. The other is compat-matrix.yml, which still had:
+
+    group: compat-matrix-${{ github.ref }}
+    cancel-in-progress: true
+
+against a 90-minute informational sweep (`timeout-minutes: 90`) and the same
+5-25 minute push cadence to nightly, which it also runs on
+(`push: branches: [main, nightly]`).
+
+compat-matrix had a second victim tests.yml does not have: the Monday 05:00
+cron. A scheduled run shared the concurrency group with pushes to the same
+ref, so the one run whose entire purpose is to notice upstream wheel
+availability without anybody having to remember to look could be cancelled by
+an unrelated commit -- silently, and weekly. Note this is NOT the "cron runs
+from the default branch" objection raised above against using `schedule:` as
+the fix; the cron here already exists and was being destroyed.
+
+Applied the identical repair to compat-matrix.yml (b01963be):
+
+    group: compat-matrix-${{ github.ref }}-${{ github.event_name }}
+    cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+A push still cancels the previous PUSH grid, so the 5 August protection is
+untouched. Cron now gets a lane of its own rather than an exemption.
+
+THE GUARD. `tests/test_ci_concurrency.py`, 12 tests. CI cannot be run from
+here, so it asserts the property off the workflow YAML -- but off the
+EVALUATED expressions, not off the text, so a different-but-correct spelling
+passes and a rewrite that drops the exemption fails. Per cancelling workflow:
+
+  * a push and a dispatched run must land in different concurrency groups
+    (a run is cancelled only by a newer run in the SAME group, so this is
+    the whole property);
+  * a dispatched run must not be cancellable at all, or a second
+    `gh workflow run` kills the first -- the same lost verdict by another
+    route;
+  * a push must STILL cancel the previous push, so the fix cannot drift into
+    the 5 August outage;
+  * `workflow_dispatch` must be in `on:`, since an exemption for an event the
+    workflow does not accept is decoration;
+  * the group must still vary by `github.ref`.
+
+A twelfth test recomputes from disk which workflows cancel in-progress runs
+at all and asserts that set equals the guarded set, so a new cancelling
+workflow cannot quietly skip the rule. docs.yml and release.yml are asserted
+to cancel nothing, which is why they need no exemption.
+
+FAILING BEFORE, PASSING AFTER: on the tree as found, the guard reported
+2 failed / 10 passed -- both failures on compat-matrix.yml, both passing on
+tests.yml. That contrast is what exposed the unfixed half. After the change,
+22 passed (this file plus test_ci_suite_classification.py).
+
+WHAT IS NOT VERIFIED, AND CANNOT BE FROM HERE. The empirical check in HOW TO
+KNOW IT WORKED needs `gh workflow run` against a ref that carries the change.
+The compat-matrix half is committed locally and NOT pushed (this worker is
+under a no-push rule), so that confirmation is owed the next time nightly is
+pushed:
+
+    gh workflow run compat-matrix --ref nightly
+    gh run list --branch nightly --workflow compat-matrix --limit 5
+
+The tests.yml half is already on origin and can be confirmed at any time.
