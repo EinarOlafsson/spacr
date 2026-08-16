@@ -15,7 +15,7 @@ on:
 # but Pages keeps serving the old branch — flip the source once.
 #
 # ---------------------------------------------------------------------------
-# PUBLISHING IS main-ONLY. That is load-bearing, not tidiness.
+# AUTOMATIC PUBLISHING IS main-ONLY. That is load-bearing, not tidiness.
 #
 # The push trigger used to run every step on `nightly` as well, so each
 # nightly push republished https://einarolafsson.github.io/spacr/ *from
@@ -28,8 +28,10 @@ on:
 # the Pages target: no configure-pages, no `github-pages` artifact, no deploy
 # job — it fails the run if sphinx cannot produce index.html and then writes
 # a job summary. Everything that can touch production Pages is guarded by
-# `github.ref == 'refs/heads/main'`, which also covers workflow_dispatch
-# (it carries the dispatching ref).
+# `github.ref == 'refs/heads/main'`. A deliberately dispatched nightly run is
+# the one narrow exception: it may publish only after this same workflow has
+# audited the exact nightly catalogs and built the site successfully. Pushes
+# to nightly still cannot deploy.
 # ---------------------------------------------------------------------------
 
 permissions:
@@ -39,8 +41,8 @@ permissions:
 
 # Serialize per branch. A shared "pages" group here would let a nightly
 # validation build hold the group while a real main deploy queues behind it;
-# the genuine Pages serialization belongs on the deploy job, which only main
-# ever reaches.
+# the genuine Pages serialization belongs on the deploy job, which automatic
+# nightly pushes never reach.
 concurrency:
   group: docs-${{ github.ref }}
   cancel-in-progress: false
@@ -149,13 +151,17 @@ jobs:
         run: |
           python -m pytest -q tests/test_tooltip_api_links_resolve.py
 
-      # --- production Pages path: main only ------------------------------
+      # --- production Pages path: main, or an explicit audited nightly ---
       - name: Configure Pages
-        if: github.ref == 'refs/heads/main'
+        if: >-
+          github.ref == 'refs/heads/main' ||
+          (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
         uses: actions/configure-pages@v6
 
       - name: Upload Pages artifact
-        if: github.ref == 'refs/heads/main'
+        if: >-
+          github.ref == 'refs/heads/main' ||
+          (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
         uses: actions/upload-pages-artifact@v5
         with:
           path: docs/_build/html
@@ -170,7 +176,9 @@ jobs:
       # browsable nightly preview is ever wanted, deploy it to a target that
       # is not production Pages.
       - name: Report build-only outcome (non-main)
-        if: github.ref != 'refs/heads/main'
+        if: >-
+          github.ref != 'refs/heads/main' &&
+          (github.event_name != 'workflow_dispatch' || github.ref != 'refs/heads/nightly')
         # The ref goes through the environment, not through `${{ }}`
         # interpolation into the shell: a branch name is attacker-influenced
         # text, and interpolated text becomes shell source.
@@ -193,9 +201,11 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    # The single gate on the production site. Without it, nightly pushes
-    # republish the public docs over main's build.
-    if: github.ref == 'refs/heads/main'
+    # The single gate on the production site. Nightly pushes cannot pass it;
+    # only a deliberate workflow dispatch can publish an audited nightly cut.
+    if: >-
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/nightly')
     runs-on: ubuntu-24.04
     # Real Pages deployments serialize against each other here rather than
     # in the workflow-level group, so a nightly validation build never
