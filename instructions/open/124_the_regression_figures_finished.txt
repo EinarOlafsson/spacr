@@ -1,0 +1,195 @@
+================================================================================
+FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
+================================================================================
+
+Status:    filed 2026-08-16, in progress.
+Requested: 2026-08-16, after the first pass landed --
+
+           "the lpates look super small on the collected figure please"
+           "your new volcano plot is much much faster than my old one so hide
+            my old version behid a boolean that defaults to off"
+           "when all the analasees are done id like to be able to right click
+            on the regression plot and choose a different regression and the
+            other related settings as well as FDR etc."
+           "id also like a little written summary at the end in the console
+            saying what is significant and so on"
+           "in your versions i have never seen the effect size threshold so
+            maybie change the threshold ?"
+           "the thumbnail in all figures for your new regression plot looks
+            off cahnge all the figures to fit the new aesthetic an color
+            pallet and figure style , i want new versions of all the figures"
+           "i did a second run and the figure letters just keep climing i want
+            each run seperated into sections or tabs (tabs like entries are
+            devided up in the console.)"
+           "id like to be able to presson the datapoints of all graphs where
+            data is represented as genes and grnas, e.g. like the Q-Q plots"
+           "make a new version of your volcanoplot where the data are colord
+            by localization (LOPIT or at least make it an option when right
+            clicking on the graph)"
+           "in the gene card section if you could add links to uniprot and
+            toxodb that would be awesome."
+
+Related:  119 is the index for the figure surface; 121 is the gene tile; the
+          house style is spacr/figures/ and .claude/skills/apicomplexan-figures.
+
+--------------------------------------------------------------------------------
+A. EVERY FIGURE IN THE HOUSE STYLE, NOT SOME OF THEM
+--------------------------------------------------------------------------------
+
+"i want new versions of all the figures". Seven panels were converted; the
+volcano the pipeline saves, both histograms and the twelve plate heatmaps
+were not, so a run still produces two visual idioms side by side and the grid
+shows both. That is the whole of the "looks off" complaint: a tile drawn by
+the old code beside a tile drawn by the new one reads as a mistake, and it is.
+
+Convert what a run actually writes:
+    volcano_plot.pdf, fraction_histogram.pdf, log_pred_histogram.pdf,
+    plate_heatmap_0..11.pdf, and the 19 regression_qc panels.
+
+THE PLATES ARE THE HARD ONE. "the lpates look super small on the collected
+figure": a plate is 24x16 wells, so at one grid slot it is a wide, short
+picture with most of its cell empty. Options, and the choice must be stated:
+one plate per slot at a taller aspect; all four plates as a SMALL-MULTIPLE
+inside one panel; or the plates on their own row. Whichever is chosen, the
+wells must stay square -- a plate heatmap with rectangular wells is not a
+heatmap of a plate, which is the whole reason instruction 117 exists.
+
+--------------------------------------------------------------------------------
+B. EACH RUN IS ITS OWN SECTION
+--------------------------------------------------------------------------------
+
+"i did a second run and the figure letters just keep climing i want each run
+seperated into sections or tabs (tabs like entries are devided up in the
+console.)"
+
+The grid letters from the queue's running index, so a second run continues at
+L rather than restarting at A. Panel letters are per FIGURE, and a figure is
+one run's worth of panels -- lettering across runs is meaningless.
+
+Follow the console's own convention, which already divides entries by run.
+A run is a section: its own letters from A, its own heading, and the older
+ones still reachable rather than cleared.
+
+--------------------------------------------------------------------------------
+C. THE EFFECT SIZE THRESHOLD HAS NEVER BEEN SEEN
+--------------------------------------------------------------------------------
+
+"in your versions i have never seen the effect size threshold so maybie change
+the threshold ?"
+
+It is OFF BY DEFAULT -- `effect_threshold=None` draws no line, which is why a
+volcano shows the significance line and nothing else. That was answered once
+before and the answer has not changed the default, so the default is wrong.
+
+Turn it on. The control-based cut already exists (`threshold_method='control'`,
+MAD x 1.4826 x multiplier over the control gRNAs) and is the defensible one to
+write in a methods section. Measured on this screen: control-based 0.83,
+all-guide MAD 0.84, std 1.87. Use the controls when there are enough of them
+and say in the panel which rule drew the line.
+
+--------------------------------------------------------------------------------
+D. A WRITTEN SUMMARY, IN THE CONSOLE
+--------------------------------------------------------------------------------
+
+"id also like a little written summary at the end in the console saying what
+is significant and so on".
+
+Prose, not a table dump. What a reader needs: how many coefficients were
+tested, how many passed and under which correction, the strongest hits by
+name, whether the controls separated, and -- because this screen shows it --
+whether the calibration says the test was conservative or anti-conservative.
+The sheet's legend is already generated from the panels; this is its
+console-facing sibling and must come from the same numbers.
+
+--------------------------------------------------------------------------------
+E. RE-FIT FROM THE PLOT
+--------------------------------------------------------------------------------
+
+"when all the analasees are done id like to be able to right click on the
+regression plot and choose a different regression and the other related
+settings as well as FDR etc."
+
+A right-click on the regression plot offers the regression type, the
+correction method and alpha, and re-runs with them.
+
+THE TRAP: a re-fit is not a restyle. Every other item on that menu changes how
+the figure looks and nothing else; this one changes the numbers. It must be
+visually separated, it must say it is re-running, and its output must not
+silently replace the run the user is looking at -- the results folder rule
+(<count folder>/results/<type>, then _1, _2) already gives each its own place,
+so a re-fit is a new run rather than an overwrite.
+
+--------------------------------------------------------------------------------
+F. EVERY POINT THAT IS A GENE OR A GUIDE IS CLICKABLE
+--------------------------------------------------------------------------------
+
+"id like to be able to presson the datapoints of all graphs where data is
+represented as genes and grnas, e.g. like the Q-Q plots".
+
+The volcano hit-tests; nothing else does. A Q-Q point IS a coefficient, so is
+a p-histogram bar, so is a dot in the control panel and a point in the guide
+agreement plot. Clicking any of them should select the same row and raise the
+same gene tile -- joined on the KEY, exactly as 119 B requires, because these
+plots are SORTED differently from the table and a positional join would light
+up the wrong guide.
+
+--------------------------------------------------------------------------------
+G. COLOUR THE VOLCANO BY LOCALISATION
+--------------------------------------------------------------------------------
+
+"make a new version of your volcanoplot where the data are colord by
+localization (LOPIT or at least make it an option when right clicking on the
+graph)".
+
+LOPIT compartments are already in the project -- `lopit.csv`, keyed on
+`gene_nr`, is what the gene tile reads. Colouring by compartment is a right-
+click option on the volcano.
+
+CAREFUL WITH THE HOUSE RULE. "Everything is grey except what the sentence is
+about" -- a 27-colour volcano is the exact thing the skill says not to do
+(a 27-entry legend also cost 40 ms of a 49 ms redraw). So: colour ONE
+compartment at a time against grey, or the handful the user picks. Not all of
+them at once by default.
+
+--------------------------------------------------------------------------------
+H. THE GENE TILE LINKS OUT
+--------------------------------------------------------------------------------
+
+"in the gene card section if you could add links to uniprot and toxodb that
+would be awesome."
+
+ToxoDB is already resolvable from the gene id. UniProt needs a mapping and it
+must not be guessed: an accession invented from a gene id is a link to
+somebody else's protein. Use the annotation file if it carries one, otherwise
+say the accession is not known rather than constructing a plausible URL.
+
+No network call while the user waits -- 121 already requires that.
+
+--------------------------------------------------------------------------------
+I. THE OLD VOLCANO IS OFF
+--------------------------------------------------------------------------------
+
+"your new volcano plot is much much faster than my old one so hide my old
+version behid a boolean that defaults to off".
+
+A setting, defaulting to False. The old matplotlib volcano is not deleted --
+it is what a paper figure was made with -- but a run does not draw it unless
+asked.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A run produces figures in ONE visual idiom. No tile on the grid is drawn by
+  the old code unless the user asked for it.
+* Four plates are readable at grid size, with square wells.
+* A second run starts its lettering at A, in its own section.
+* The volcano shows an effect-size line by default and says which rule drew it.
+* The console ends with a paragraph naming the hits.
+* Right-clicking the regression plot offers regression type, correction and
+  alpha, and re-running writes to a NEW folder.
+* Clicking a point on the Q-Q, the p-histogram or the control panel selects
+  the same row the volcano would, joined on the key.
+* The volcano can be coloured by LOPIT compartment, one at a time against grey.
+* A gene tile carries a ToxoDB link, and a UniProt link only when the
+  accession is known rather than constructed.
