@@ -1584,7 +1584,9 @@ class AppScreen(QWidget):
                 self._umap_explorer, 1)
         self._figures_card.setMinimumHeight(360)
         self._figures_card.hide()
-        layout.addWidget(self._figures_card, 1)
+        # NOT added to the layout here. It goes into the vertical splitter
+        # built below, so the figures can be dragged taller at the console's
+        # expense -- a volcano needs the room a log line does not.
 
         # Live-preview segmentation — Mask app only. The card + the
         # console below live in a vertical QSplitter so the user can
@@ -1616,6 +1618,7 @@ class AppScreen(QWidget):
         self._live_preview = self._live_preview_card = None
         self._measure_preview = self._measure_preview_card = None
         self._hyperparam = self._hyperparam_card = None
+        self._sweep = self._sweep_card = None
         self._timelapse_preview = self._timelapse_preview_card = None
         self._motility_preview = self._motility_preview_card = None
         self._runtime_splitter = None
@@ -1630,6 +1633,7 @@ class AppScreen(QWidget):
             self._live_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._live_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 1)
@@ -1649,6 +1653,7 @@ class AppScreen(QWidget):
             self._timelapse_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._timelapse_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 1)
@@ -1664,6 +1669,7 @@ class AppScreen(QWidget):
             self._motility_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._motility_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 1)
@@ -1678,10 +1684,28 @@ class AppScreen(QWidget):
             self._measure_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._measure_preview_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 1)
             splitter.setSizes([420, 320])
+            layout.addWidget(splitter, 1)
+            self._runtime_splitter = splitter
+        elif _sweepable(self.app_key):
+            # The regression module gets a Parameter sweep card in the same
+            # place, behind the same kind of toggle, as the Hyperparameter
+            # search the other modules have. Same feature, same shape.
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            from .parameter_sweep import build_parameter_sweep_card
+            self._sweep, self._sweep_card = build_parameter_sweep_card(self)
+            splitter.insertWidget(0, self._figures_card)
+            splitter.addWidget(self._sweep_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 2)
+            splitter.setStretchFactor(2, 1)
+            splitter.setSizes([480, 360, 240])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif _hyperparam_searchable(self.app_key):
@@ -1697,6 +1721,7 @@ class AppScreen(QWidget):
             self._hyperparam.set_settings_provider(
                 lambda model=self._settings_model: model.collect())
             splitter.addWidget(self._hyperparam_card)
+            splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
             splitter.setStretchFactor(0, 1)
             splitter.setStretchFactor(1, 1)
@@ -1704,7 +1729,17 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         else:
-            layout.addWidget(console_wrap, 1)
+            # A plain vertical splitter so the figures/console divider is
+            # draggable here too, which is where the regression module lives.
+            splitter = QSplitter(Qt.Vertical)
+            splitter.setChildrenCollapsible(False)
+            splitter.addWidget(self._figures_card)
+            splitter.addWidget(console_wrap)
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 1)
+            splitter.setSizes([560, 240])
+            layout.addWidget(splitter, 1)
+            self._runtime_splitter = splitter
 
         # Route the verbose logger (if the user turned it on in
         # Preferences) at THIS screen's console. Only the last-focused
@@ -1927,6 +1962,15 @@ class AppScreen(QWidget):
 
         # Same slot, same behaviour, for the apps that have a hyperparameter
         # search instead of a live preview.
+        if getattr(self, "_sweep", None) is not None:
+            from .parameter_sweep import (SWEEP_TOGGLE_TEXT,
+                                          SWEEP_TOGGLE_TOOLTIP)
+            self._sweep_switch = AiToggleLabel(text=SWEEP_TOGGLE_TEXT,
+                                               tooltip=SWEEP_TOGGLE_TOOLTIP)
+            self._sweep_switch.toggled.connect(self._on_sweep_switch)
+            row.addWidget(self._sweep_switch)
+            self._on_sweep_switch(False)        # start collapsed, like the rest
+
         if getattr(self, "_hyperparam", None) is not None:
             from .hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
             self._hp_switch = AiToggleLabel(text=TOGGLE_TEXT,
@@ -2404,6 +2448,25 @@ class AppScreen(QWidget):
             model = getattr(self, "_settings_model", None)
             if model is not None:
                 self._hyperparam.apply_settings(model.collect())
+
+    def _on_sweep_switch(self, on: bool) -> None:
+        """Show/hide the Parameter sweep card when its toggle flips."""
+        card = getattr(self, "_sweep_card", None)
+        if card is None:
+            return
+        card.setVisible(on)
+        if on:
+            # Seed the sweep from what is in the settings panel, so it starts
+            # from the user's inputs rather than from defaults they would have
+            # to retype.
+            model = getattr(self, "_settings_model", None)
+            panel = getattr(self, "_sweep", None)
+            if model is not None and panel is not None:
+                try:
+                    panel.apply_settings(model.collect())
+                except Exception:
+                    LOG.debug("could not seed the parameter sweep",
+                              exc_info=True)
 
     def _on_umap_gpu_switch(self, on: bool) -> None:
         """Keep one truthful GPU state across the main and search pipelines."""
@@ -3263,6 +3326,15 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
     except Exception:
         pass
     return item
+
+
+def _sweepable(app_key: str) -> bool:
+    """Whether ``app_key`` has a parameter sweep. Import-guarded like its twin."""
+    try:
+        from .parameter_sweep import sweepable
+        return sweepable(app_key)
+    except Exception:  # pragma: no cover - sweep module unavailable
+        return False
 
 
 def _hyperparam_searchable(app_key: str) -> bool:
