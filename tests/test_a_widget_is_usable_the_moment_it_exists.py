@@ -129,16 +129,24 @@ def test_every_panel_constructs_with_no_data(qtbot):
 
 def test_every_checkbox_and_combo_can_be_driven_with_no_data(qtbot):
     """A control that is on screen is a control the user can click, whether
-    or not anything has been loaded."""
+    or not anything has been loaded.
+
+    The assertion is the COUNT: this must actually reach controls. A version
+    of this test that found none would pass silently and prove nothing, which
+    is exactly how it slipped past the assertion-free guard the first time.
+    """
     from PySide6.QtWidgets import QCheckBox, QComboBox, QPushButton
 
+    driven = {"checkbox": 0, "combo": 0, "button": 0}
     for widget in _panels(qtbot):
         for box in widget.findChildren(QCheckBox):
             box.setChecked(not box.isChecked())
             box.setChecked(not box.isChecked())
+            driven["checkbox"] += 1
         for combo in widget.findChildren(QComboBox):
             for index in range(min(combo.count(), 4)):
                 combo.setCurrentIndex(index)
+            driven["combo"] += 1
         for button in widget.findChildren(QPushButton):
             text = button.text().lower()
             # Anything that opens a modal or writes a file is not a "control
@@ -147,6 +155,13 @@ def test_every_checkbox_and_combo_can_be_driven_with_no_data(qtbot):
                                              "browse", "…", "...")):
                 continue
             button.click()
+            driven["button"] += 1
+
+    assert driven["checkbox"] >= 8, driven
+    assert driven["button"] >= 4, driven
+    assert sum(driven.values()) >= 15, (
+        f"only {sum(driven.values())} controls were reached; this test is not "
+        f"exercising the widgets it claims to: {driven}")
 
 
 def test_the_sweep_and_scan_panels_report_rather_than_crash(qtbot):
