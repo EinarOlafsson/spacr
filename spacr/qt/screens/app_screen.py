@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSplitter,
+    QTabWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -1554,7 +1555,33 @@ class AppScreen(QWidget):
         from ..widgets.figure_queue import FigureQueue
         self._figures_card = Card(title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
-        self._figures_card.body_layout.addWidget(self._figure_queue, 1)
+
+        # THE REGRESSION MODULE OPENS INTO ITS RESULTS, NOT INTO PICTURES.
+        #
+        # A finished regression used to be a stack of matplotlib figures whose
+        # last one -- the volcano -- cost ~115 ms per redraw and made the
+        # window lag, with the numbers behind it available only in a CSV. The
+        # Results tab draws the same volcano with Qt in ~4 ms, puts the
+        # coefficient table beside it, and links the two: click a dot to
+        # select its row, select a row to identify its dot.
+        #
+        # The Figures tab is untouched, because the other plots a run produces
+        # are still worth having and are not slow.
+        self._results_panel = None
+        if self.app_key in ("regression", "ml_analyze_regression"):
+            try:
+                from ..widgets.regression_results import RegressionResultsPanel
+                self._results_panel = RegressionResultsPanel(self._figures_card)
+                tabs = QTabWidget(self._figures_card)
+                tabs.addTab(self._results_panel, "Results")
+                tabs.addTab(self._figure_queue, "Figures")
+                self._figures_card.body_layout.addWidget(tabs, 1)
+                self._figures_tabs = tabs
+            except Exception:
+                LOG.debug("no fast results panel", exc_info=True)
+                self._results_panel = None
+        if self._results_panel is None:
+            self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         # "Figure settings…" on the NON-LIVE figure holds every Image UMAP
         # setting, live against the figure on screen (instruction 75), and a
         # Propagate button. Propagate means the same thing here as everywhere
@@ -2869,6 +2896,15 @@ class AppScreen(QWidget):
         # destroy the still-running QThread and abort the process. The
         # references are cleared from _clear_thread_refs, wired to the
         # QThread's own finished signal.
+        # A finished regression has a coefficient table on disk; open into it
+        # rather than leaving the user to find the CSV.
+        if ok and not cancelled and getattr(self, "_results_panel", None):
+            try:
+                self._load_regression_results()
+            except Exception:
+                LOG.debug("could not open the regression results",
+                          exc_info=True)
+
         # OS-level notification (libnotify / osascript / win10toast) so
         # users don't have to sit and watch. Always safe — the notify
         # module fails silently on any error.
@@ -2884,6 +2920,40 @@ class AppScreen(QWidget):
             )
         except Exception:
             pass
+
+    def _load_regression_results(self) -> bool:
+        """Point the Results tab at what the run just wrote.
+
+        The settings' ``src`` is where the run was told to write, so it is
+        searched first; the folder holding the count data is the fallback,
+        because that is where output landed before the caller's choice was
+        honoured and older runs are still there.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return False
+        model = getattr(self, "_settings_model", None)
+        settings = model.collect() if model is not None else {}
+
+        candidates = []
+        source = settings.get("src")
+        if isinstance(source, str) and source.strip():
+            candidates.append(source.strip())
+        for key in ("count_data", "score_data"):
+            value = settings.get(key)
+            if isinstance(value, (list, tuple)) and value:
+                candidates.append(os.path.dirname(str(value[0])))
+            elif isinstance(value, str) and value.strip():
+                candidates.append(os.path.dirname(value.strip()))
+
+        for candidate in candidates:
+            if panel.load(candidate):
+                tabs = getattr(self, "_figures_tabs", None)
+                if tabs is not None:
+                    tabs.setCurrentIndex(0)          # show Results
+                self._figures_card.show()
+                return True
+        return False
 
     def _clear_thread_refs(self):
         """Release worker/thread references once the QThread has stopped.
