@@ -3542,17 +3542,21 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
     # Get the folder path for saving plots
     fldr_1 = os.path.dirname(train_file_path)
     
-    if save:
-        # Setting the style
-        sns.set(style="whitegrid")
+    # `sns.set` writes a whole seaborn theme into matplotlib's
+    # process-wide rcParams. Scoped, so reading the model stats does not
+    # restyle every figure the session draws afterwards.
+    with plt.rc_context():
+        if save:
+            # Setting the style
+            sns.set(style="whitegrid")
     
-    # Plot and save the results
-    _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='loss', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
-    _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
+        # Plot and save the results
+        _plot_and_save(train_df, val_df, column='accuracy', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='neg_accuracy', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='pos_accuracy', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='loss', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='prauc', save=save, path=fldr_1)
+        _plot_and_save(train_df, val_df, column='optimal_threshold', save=save, path=fldr_1)
 
 def _save_model(model, model_type, results_dict, dst, epoch, epochs,
                 intermedeate_save=None,

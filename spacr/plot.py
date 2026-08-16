@@ -3767,84 +3767,89 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
             })
 
     # Create plot
-    plt.figure(figsize=(10, 6))
-    sns.set(style="whitegrid")
+    # `sns.set` writes a whole seaborn theme -- style, context, palette,
+    # fonts -- into matplotlib's process-wide rcParams. Scoped here, so a
+    # grouped plot no longer decides how every later figure of the session
+    # looks, on any screen and in any module.
+    with mpl.rc_context():
+        plt.figure(figsize=(10, 6))
+        sns.set(style="whitegrid")
 
-    if colors:
-        color_palette = colors
-    else:
-        color_palette = sns.color_palette("husl", len(unique_groups))
-    
-    # Choose graph type
-    if graph_type == 'bar':
-        summary_df = df.groupby(
-            grouping_column, observed=False)[data_column].agg(
-                [summary_func, 'std', 'sem'])
-        
-        # Set error bars based on error_bar_type
-        if error_bar_type == 'std':
-            error_bars = summary_df['std']
-        elif error_bar_type == 'sem':
-            error_bars = summary_df['sem']
+        if colors:
+            color_palette = colors
         else:
-            raise ValueError(f"Invalid error_bar_type: {error_bar_type}. Choose either 'std' or 'sem'.")
-
-        sns.barplot(
-            x=grouping_column, y=summary_func, hue=grouping_column,
-            data=summary_df.reset_index(), errorbar=None, order=order,
-            palette=color_palette, legend=False)
-
-        # Add error bars (standard deviation or standard error of the mean)
-        plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+            color_palette = sns.color_palette("husl", len(unique_groups))
     
-    elif graph_type == 'violin':
-        sns.violinplot(
-            x=grouping_column, y=data_column, hue=grouping_column,
-            data=df, order=order, palette=color_palette, legend=False)
-    elif graph_type == 'jitter':
-        sns.stripplot(
-            x=grouping_column, y=data_column, hue=grouping_column,
-            data=df, jitter=True, order=order, palette=color_palette,
-            legend=False)
-    elif graph_type == 'box':
-        sns.boxplot(
-            x=grouping_column, y=data_column, hue=grouping_column,
-            data=df, order=order, palette=color_palette, legend=False)
-    elif graph_type == 'jitter_box':
-        sns.boxplot(
-            x=grouping_column, y=data_column, hue=grouping_column,
-            data=df, order=order, palette=color_palette, legend=False)
-        sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color='black', alpha=0.5, order=order)
+        # Choose graph type
+        if graph_type == 'bar':
+            summary_df = df.groupby(
+                grouping_column, observed=False)[data_column].agg(
+                    [summary_func, 'std', 'sem'])
+        
+            # Set error bars based on error_bar_type
+            if error_bar_type == 'std':
+                error_bars = summary_df['std']
+            elif error_bar_type == 'sem':
+                error_bars = summary_df['sem']
+            else:
+                raise ValueError(f"Invalid error_bar_type: {error_bar_type}. Choose either 'std' or 'sem'.")
 
-    # Create a DataFrame to summarize the test results
-    results_df = pd.DataFrame(test_results)
+            sns.barplot(
+                x=grouping_column, y=summary_func, hue=grouping_column,
+                data=summary_df.reset_index(), errorbar=None, order=order,
+                palette=color_palette, legend=False)
 
-    # Set y-axis start if provided
-    if isinstance(y_lim, list) and len(y_lim) == 2:
-        plt.ylim(y_lim)
+            # Add error bars (standard deviation or standard error of the mean)
+            plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+    
+        elif graph_type == 'violin':
+            sns.violinplot(
+                x=grouping_column, y=data_column, hue=grouping_column,
+                data=df, order=order, palette=color_palette, legend=False)
+        elif graph_type == 'jitter':
+            sns.stripplot(
+                x=grouping_column, y=data_column, hue=grouping_column,
+                data=df, jitter=True, order=order, palette=color_palette,
+                legend=False)
+        elif graph_type == 'box':
+            sns.boxplot(
+                x=grouping_column, y=data_column, hue=grouping_column,
+                data=df, order=order, palette=color_palette, legend=False)
+        elif graph_type == 'jitter_box':
+            sns.boxplot(
+                x=grouping_column, y=data_column, hue=grouping_column,
+                data=df, order=order, palette=color_palette, legend=False)
+            sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color='black', alpha=0.5, order=order)
 
-    # If save is True, save the plot and the results table
-    if save:
-        # No extension: `save_figure` appends the one the figure-format
-        # preference selects. Naming the file .png here and then writing a
-        # PDF into it was the old behaviour, and it is a file no viewer
-        # opens.
-        plot_path = os.path.join(output_dir, 'grouped_plot')
-        plt.title(f'{test_name} results for {graph_type} plot')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plot_path = save_figure(plt.gcf(), plot_path)
-        print(f"Plot saved to {plot_path}")
+        # Create a DataFrame to summarize the test results
+        results_df = pd.DataFrame(test_results)
 
-        # Save the test results as a CSV file
-        results_path = os.path.join(output_dir, 'test_results.csv')
-        results_df.to_csv(results_path, index=False)
-        print(f"Test results saved to {results_path}")
+        # Set y-axis start if provided
+        if isinstance(y_lim, list) and len(y_lim) == 2:
+            plt.ylim(y_lim)
 
-    # Show the plot
-    plt.show()
+        # If save is True, save the plot and the results table
+        if save:
+            # No extension: `save_figure` appends the one the figure-format
+            # preference selects. Naming the file .png here and then writing a
+            # PDF into it was the old behaviour, and it is a file no viewer
+            # opens.
+            plot_path = os.path.join(output_dir, 'grouped_plot')
+            plt.title(f'{test_name} results for {graph_type} plot')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            plot_path = save_figure(plt.gcf(), plot_path)
+            print(f"Plot saved to {plot_path}")
 
-    return plt.gcf(), results_df
+            # Save the test results as a CSV file
+            results_path = os.path.join(output_dir, 'test_results.csv')
+            results_df.to_csv(results_path, index=False)
+            print(f"Test results saved to {results_path}")
+
+        # Show the plot
+        plt.show()
+
+        return plt.gcf(), results_df
 
 
 def _significance_marker(p_value):
