@@ -874,6 +874,37 @@ class FigureQueue(QWidget):
         if self._current < self._count - 1:
             self.show_index(self._current + 1)
 
+    def all_pixmaps(self):
+        """Every figure the queue holds, in order, for the grid view.
+
+        Reads the PNG from disk for a figure whose pixmap has been evicted
+        rather than promoting it in the RAM cache: building a grid is a bulk
+        read of everything, and letting it reorder the cache would evict
+        exactly the figures the user is currently looking at.
+        """
+        from PySide6.QtGui import QPixmap
+
+        out = []
+        for index in range(self._count):
+            pixmap = self._ram.get(index)
+            if pixmap is None:
+                path = self._png_paths.get(index)
+                pixmap = QPixmap(path) if path else None
+            out.append(pixmap if pixmap is not None and not pixmap.isNull()
+                       else None)
+        return out
+
+    def figure_titles(self):
+        """A short name per figure, from its file, for the grid captions."""
+        import os as _os
+
+        titles = []
+        for index in range(self._count):
+            path = self._png_paths.get(index)
+            titles.append(_os.path.splitext(_os.path.basename(path))[0]
+                          if path else f"figure {index + 1}")
+        return titles
+
     def count(self) -> int:
         return self._count
 
