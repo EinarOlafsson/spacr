@@ -226,9 +226,21 @@ def _make_screen(app_key=None, host=None):
             self.trial_status.setWordWrap(True)
             right_layout.addWidget(self.trial_status)
 
+            # THE WHOLE SET OF GRAPHS FOR THE CLICKED ROW.
+            #
+            # Re-running was the expensive half and it already worked, but
+            # showing one figure at a time in a queue means the user still
+            # cannot put a run's residual plot beside its volcano -- which is
+            # the comparison that decides whether a configuration is any good.
+            from ..widgets.regression_results import RegressionResultsPanel
+            self.results = RegressionResultsPanel(right)
+            self.results.setMinimumHeight(320)
+            right_layout.addWidget(self.results, 1)
+
             from ..widgets.figure_queue import FigureQueue
             self.figures = FigureQueue(parent=right)
-            self.figures.setMinimumHeight(320)
+            self.figures.setMinimumHeight(200)
+            self.figures.hide()      # shown only when a re-run makes figures
             right_layout.addWidget(self.figures, 1)
             splitter.addWidget(right)
             splitter.setStretchFactor(0, 1)
@@ -435,11 +447,23 @@ def _make_screen(app_key=None, host=None):
                     f"{record.get('error', 'no reason recorded')}")
                 return
 
+            # A SAVED RUN IS INSTANT; A RE-FIT IS A MINUTE.
+            #
+            # The trial wrote its results when the sweep ran, so prefer them.
+            # Re-fitting to see something already on disk is a minute of
+            # waiting for an identical answer.
+            folder = record.get("folder")
+            if folder and self.results.load(folder):
+                self.trial_status.setText(
+                    f"Trial {record.get('trial_id', '?')} loaded from disk "
+                    f"({folder}). Nothing was re-fitted.")
+                return
+
             base = self.base_settings()
             self.show_button.setEnabled(False)
             self.trial_status.setText(
-                f"Running trial {record.get('trial_id', '?')} again to draw "
-                f"its figures…")
+                f"Trial {record.get('trial_id', '?')} has no saved results; "
+                f"re-fitting it to draw them…")
 
             def job():
                 from ...parameter_sweep import rerun_trial
@@ -460,6 +484,19 @@ def _make_screen(app_key=None, host=None):
                     self.figures.add_figure(figure)
                 except Exception:
                     pass
+            if figures:
+                self.figures.show()
+            # The re-fit wrote its results too, so the full panel can show
+            # them exactly as it would for a saved trial.
+            output = payload.get("output") or {}
+            settings = payload.get("settings") or {}
+            try:
+                results = output.get("results")
+                if results is not None and len(results):
+                    self.results.set_frame(
+                        results, source=str(settings.get("src", "")))
+            except Exception:
+                pass
             settings = payload.get("settings") or {}
             described = ", ".join(
                 f"{key}={settings.get(key)!r}" for key in (
