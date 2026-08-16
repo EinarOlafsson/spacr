@@ -1119,12 +1119,59 @@ class FigureQueue(QWidget):
             self._show_raster()
 
     def _teardown_canvas(self) -> None:
-        """Drop the current canvas. A Figure may only live on one canvas."""
-        for widget in (self._canvas_toolbar, self._canvas):
+        """Drop the current canvas. A Figure may only live on one canvas.
+
+        MATPLOTLIB'S EVENT WIRING MUST GO FIRST.
+
+        NavigationToolbar2QT connects BOUND METHODS of itself to the canvas --
+        mouse_move, the zoom/pan handlers -- and those live in the figure's
+        callback registry, which the Figure owns and which outlives both
+        widgets. deleteLater() destroys the C++ side while Python still holds
+        the wrapper, so the next mouse move over the panel calls
+        toolbar.mouse_move -> locLabel.setText on a dead QLabel and raises
+
+            RuntimeError: libshiboken: Internal C++ object
+            (PySide6.QtWidgets.QLabel) already deleted.
+
+        once per mouse event -- thousands of tracebacks, and the same again
+        for the canvas via set_cursor. Disconnecting before deleting leaves
+        nothing holding a pointer into freed memory.
+        """
+        canvas, toolbar = self._canvas, self._canvas_toolbar
+        if canvas is not None:
+            # The toolbar's own connection ids, then anything else left on
+            # the registry: a stale callback of any kind is a crash here.
+            for attribute in ("_id_press", "_id_release", "_id_drag",
+                              "_id_zoom", "_id_pan"):
+                cid = getattr(toolbar, attribute, None)
+                if cid is not None:
+                    try:
+                        canvas.mpl_disconnect(cid)
+                    except Exception:  # pragma: no cover - already gone
+                        pass
+            # Anything else still bound to the two dying widgets. Disconnected
+            # through mpl_disconnect rather than by clearing the registry:
+            # matplotlib keeps its OWN entries in there (the pylab figure
+            # manager's _cidgcf among them) and emptying the dict behind its
+            # back makes its later disconnect raise KeyError instead.
+            try:
+                doomed = {id(canvas), id(toolbar)}
+                for signal, entries in list(canvas.callbacks.callbacks.items()):
+                    for cid, proxy in list(entries.items()):
+                        owner = getattr(getattr(proxy, "func", None),
+                                        "__self__", None)
+                        if owner is not None and id(owner) in doomed:
+                            canvas.mpl_disconnect(cid)
+            except Exception:  # pragma: no cover - registry shape changed
+                pass
+        for widget in (toolbar, canvas):
             if widget is not None:
-                self._canvas_layout.removeWidget(widget)
-                widget.setParent(None)
-                widget.deleteLater()
+                try:
+                    self._canvas_layout.removeWidget(widget)
+                    widget.setParent(None)
+                    widget.deleteLater()
+                except Exception:  # pragma: no cover - already destroyed
+                    pass
         self._canvas = None
         self._canvas_toolbar = None
 
