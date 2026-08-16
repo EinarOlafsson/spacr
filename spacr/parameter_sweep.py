@@ -44,11 +44,15 @@ from typing import Any, Callable, Mapping, Sequence
 import numpy as np
 import pandas as pd
 
+from .trial_metrics import METRIC_COLUMNS as _METRIC_COLUMNS
+from .trial_metrics import summarise_trial
+
 __all__ = [
     "DEFAULT_SWEEP_SPACE",
     "PREPARATION_KEYS",
     "SweepSpace",
     "build_trials",
+    "rank_trials",
     "recommended_workers",
     "run_sweep",
     "run_sweep_parallel",
@@ -743,6 +747,15 @@ def _execute_trial(payload):
         if isinstance(output, Mapping):
             row.update(_count_hits(output))
             row.update(_design_summary(output))
+            # THE SAME COLUMNS WHICHEVER WAY THE TRIAL RAN.
+            #
+            # This is the path the GUI uses (run_sweep_parallel), and it was
+            # the only one that never called summarise_trial: a contained
+            # trial got fit quality, residual tests, design rank and control
+            # recovery, and a trial run from the sweep screen got a hit count.
+            # Same sweep, same question, different table depending on which
+            # entry point produced it.
+            row.update(summarise_trial(output, settings))
             results = output.get("results")
             if isinstance(results, pd.DataFrame):
                 row.update(_named_control_rows(results, controls))
@@ -1013,6 +1026,11 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
             row["status"] = "ok"
             if isinstance(output, Mapping):
                 row.update(_count_hits(output))
+                # The in-process path skipped the design summary as well as
+                # every diagnostic, so an uncontained sweep could not even say
+                # how many wells reached the fit.
+                row.update(_design_summary(output))
+                row.update(summarise_trial(output, settings))
                 results = output.get("results")
                 if isinstance(results, pd.DataFrame):
                     row.update(_named_control_rows(results, controls))
@@ -1067,6 +1085,50 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
     return pd.DataFrame(rows)
 
 
+def rank_trials(results: pd.DataFrame, *, role: str = "positive"
+                ) -> pd.DataFrame:
+    """Order the sweep by how well each trial recovered the positive control.
+
+    This is what a sweep is FOR. "Which setting gave the most hits" rewards
+    whichever combination corrects least; "which setting recovered the gene I
+    already know is real, and how far up the list" is a question with a right
+    answer. The nightly run made the difference concrete -- ``min_cell_count``
+    of 50 reported MORE hits than 100 while quietly losing GRA14 -- and no
+    column in the table said so, because no column carried it.
+
+    Sorted by PERCENTILE, not by raw rank. A sweep varies the settings that
+    change how many coefficients exist, so rank 3 of 400 and rank 3 of 1,213
+    are not the same recovery and sorting on the raw number silently favours
+    trials that fitted fewer things. The raw rank stays in the table because it
+    is what a user reads.
+
+    Trials that did not recover the control at all sort to the BOTTOM rather
+    than being dropped: "this configuration loses the positive control" is the
+    single most useful thing a sweep can tell you, and hiding those rows would
+    hide it.
+
+    :param results: a sweep results frame.
+    :param role: ``'positive'`` or ``'negative'``.
+    :returns: the frame, ordered best first. Returned unchanged when the
+        control was never annotated -- a screen with no named positive control
+        has nothing to sort on, and an arbitrary order presented as a ranking
+        would be worse than no ranking.
+    """
+    percentile = f"{role}_control_percentile"
+    if results is None or not len(results) or percentile not in results.columns:
+        return results
+    frame = results.copy()
+    key = pd.to_numeric(frame[percentile], errors="coerce")
+    if not key.notna().any():
+        return results
+    # NaN last, and a failed trial never outranks one that ran.
+    ran = (frame["status"] == "ok") if "status" in frame.columns else True
+    frame["_sort_key"] = key.where(ran, other=np.nan)
+    ordered = frame.sort_values(
+        "_sort_key", ascending=True, na_position="last", kind="stable")
+    return ordered.drop(columns=["_sort_key"]).reset_index(drop=True)
+
+
 def summarise_sweep(results: pd.DataFrame, *,
                      controls: Sequence[str] = ("gra14", "eaf1")) -> dict:
     """Reduce a sweep to the statements worth reading.
@@ -1098,6 +1160,21 @@ def summarise_sweep(results: pd.DataFrame, *,
         if rank_column in ok.columns and ok[rank_column].notna().any():
             summary[f"{control}_median_rank"] = float(
                 ok[rank_column].median())
+    # THE ANSWER, WHEN THE SCREEN HAS A YARDSTICK. Stated before the hit
+    # counts, because a configuration that loses the positive control is not
+    # improved by reporting more hits.
+    if "positive_control_rank" in ok.columns and len(ok):
+        found = ok[pd.to_numeric(
+            ok["positive_control_rank"], errors="coerce").notna()]
+        summary["positive_control_recovered_in"] = f"{len(found)}/{len(ok)} trials"
+        if len(found):
+            best = rank_trials(found).iloc[0]
+            summary["positive_control_best_rank"] = int(
+                best["positive_control_rank"])
+            summary["positive_control_best_trial"] = int(best["trial_id"]) \
+                if "trial_id" in best else None
+            summary["positive_control_median_rank"] = float(pd.to_numeric(
+                found["positive_control_rank"], errors="coerce").median())
     if "n_below_alpha" in ok.columns and len(ok):
         summary["hits_median"] = float(ok["n_below_alpha"].median())
         summary["hits_range"] = [int(ok["n_below_alpha"].min()),
@@ -1117,11 +1194,20 @@ def summarise_sweep(results: pd.DataFrame, *,
 #: Columns a results row carries that describe the RUN rather than a setting.
 #: Everything else in a row was a setting the trial was given, which is what
 #: makes a row enough to reproduce the trial it describes.
+#:
+#: EVERY MEASURED COLUMN MUST BE IN HERE. The rule "anything not listed was a
+#: setting" is what lets a user add their own sweep axis and still have the row
+#: reproduce the trial -- but it also means a measurement this set forgets is
+#: fed back into perform_regression as if the user had asked for it. That was
+#: already happening: a contained trial merges the whole of summarise_trial
+#: into its row, so reopening one passed r_squared, aic, durbin_watson,
+#: genomic_inflation, breusch_pagan_p, positive_control_found and
+#: n_rows_fitted into the regression settings. Sourced from
+#: trial_metrics.METRIC_COLUMNS rather than retyped, so the two cannot drift.
 _BOOKKEEPING_COLUMNS = frozenset({
     "trial_id", "folder", "preparation_key", "status", "seconds",
-    "error", "error_type", "n_results", "n_significant", "n_primary",
-    "n_below_alpha", "n_wells", "n_guides", "n_cells",
-})
+    "error", "error_type",
+}) | _METRIC_COLUMNS
 
 
 def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
