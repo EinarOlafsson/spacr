@@ -101,6 +101,14 @@ class RegressionResultsPanel(QWidget):
         split.addWidget(self.table)
         split.setStretchFactor(0, 3)
         split.setStretchFactor(1, 2)
+        # Floors, not preferences. Without them the panel's share of the
+        # window is divided by the widgets' own size hints and BOTH end up
+        # too short to read -- a volcano with no room for its axes and a
+        # table showing its header and one row, which is what this looked
+        # like on the real screen before the numbers were put in.
+        self.volcano.setMinimumHeight(240)
+        self.table.setMinimumHeight(150)
+        split.setSizes([340, 220])
         self.tabs.addTab(split, "Volcano")
 
         self.p_values = PValueHistogram()
@@ -117,12 +125,24 @@ class RegressionResultsPanel(QWidget):
         self.support = ResultsTable()
         self.tabs.addTab(self.support, "Guide support")
 
-        # The two directions of the same link.
-        self.volcano.point_clicked.connect(self.table.select_frame_row)
-        self.table.row_selected.connect(self._highlight_point)
+        # THE TWO DIRECTIONS OF THE SAME LINK, JOINED ON THE KEY.
+        #
+        # Not on a position. The table is sorted by whatever column the user
+        # clicked last and filtered by whatever is in the search box; the
+        # volcano is drawn in input order and, since it stopped plotting the
+        # nuisance terms, does not even hold the same number of rows. Two
+        # frames in two orders joined by index highlight the wrong guide --
+        # silently, and in the one direction nobody questions, because a point
+        # did light up.
+        #
+        # `feature` is the key: 1,213 rows and 1,213 distinct values on the
+        # real screen. It is checked, not assumed -- see _key_column.
+        self.volcano.key_selected.connect(self.table.select_key)
+        self.table.key_selected.connect(self._select_key)
 
         self._frame = None
         self._path = None
+        self._selected_key = None
 
     # ------------------------------------------------------------------ load
 
@@ -167,8 +187,13 @@ class RegressionResultsPanel(QWidget):
         self._colour_by.setCurrentIndex(preferred if preferred >= 0 else 0)
         self._colour_by.blockSignals(False)
 
+        # A new table is a new experiment; carrying the old selection over
+        # would ring a point that means something else now.
+        self._selected_key = None
+        self.volcano.clear_highlight()
+
         self._redraw_volcano()
-        self.table.set_frame(frame)
+        self.table.set_frame(frame, key_column=self._key_column(frame))
 
         p_column = self._p_column(frame)
         if p_column:
@@ -231,7 +256,13 @@ class RegressionResultsPanel(QWidget):
             label_column="feature" if "feature" in self._frame.columns
             else self._frame.columns[0],
             category_column=self._colour_by.currentData(),
+            key_column=self._key_column(self._frame),
         )
+        # THE SELECTION SURVIVES A SETTINGS CHANGE. Changing the colouring
+        # redraws from scratch; without this the ring the user was reading
+        # disappears and they have to find their guide again.
+        if self._selected_key is not None:
+            self.volcano.highlight_key(self._selected_key)
 
     def _draw_controls(self, frame) -> None:
         """Split the effects by the control labels the fit assigned."""
@@ -251,8 +282,33 @@ class RegressionResultsPanel(QWidget):
                 groups[label] = rows[effect].to_numpy()
         self.controls.set_groups(groups)
 
-    def _highlight_point(self, index: int) -> None:
-        """Say which point a selected row is, in the volcano's status line."""
-        text = self.volcano._describe(index)
-        if text:
-            self.volcano.set_status(f"row {index}:  {text}")
+    @staticmethod
+    def _key_column(frame) -> Optional[str]:
+        """The column that names a row uniquely, or ``None`` if none does.
+
+        Checked rather than assumed. ``feature`` is the design-matrix term
+        name and is one-to-one with the row on every table this module writes,
+        but a frame arriving from somewhere else may not carry it -- and
+        ``gene`` and ``grna`` are NOT keys, because a gene has several guides
+        and therefore several rows. Joining on one of those selects an
+        arbitrary member of the group.
+        """
+        if frame is None:
+            return None
+        for name in ("feature",):
+            if name in frame.columns and frame[name].is_unique:
+                return name
+        return None
+
+    def _select_key(self, key: str) -> None:
+        """A row was picked: ring its point, and say which point that is."""
+        self._selected_key = str(key)
+        found = self.volcano.highlight_key(key)
+        if found:
+            self.volcano.set_status(f"{key}")
+            return
+        # Honest about the miss. The commonest cause is a coefficient with an
+        # unusable p-value, which is drawn nowhere; the next is a nuisance
+        # term, which the volcano leaves off on purpose.
+        self.volcano.set_status(
+            f"{key} is in the table but not on this plot.")

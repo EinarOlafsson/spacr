@@ -69,6 +69,7 @@ __all__ = [
     "join_metadata",
     "load_gene_metadata",
     "load_results",
+    "tested_family",
 ]
 
 #: The files :func:`spacr.ml.perform_regression` writes into its results
@@ -117,10 +118,46 @@ FLAG_MEANING: Dict[str, str] = {
 
 _BRACKET = re.compile(r"\[(.*?)\]")
 
+#: Design-matrix terms that are covariates rather than hypotheses: the
+#: intercept, and the plate row/column nuisance effects a screen is fitted
+#: with to soak up position artefacts. See :func:`tested_family`.
+NUISANCE_TERMS = re.compile(r"row|column|Intercept", re.IGNORECASE)
+
 
 # ---------------------------------------------------------------------------
 # Parsing and statistics
 # ---------------------------------------------------------------------------
+
+
+def tested_family(features: Iterable[Any]) -> np.ndarray:
+    """Which coefficients are hypotheses, as a boolean mask over ``features``.
+
+    The family being tested is the guide and gene coefficients. The intercept
+    and the row/column nuisance terms are covariates: they are fitted so the
+    real effects are estimated cleanly, not so that anyone can ask whether
+    they differ from zero. :func:`spacr.ml.perform_regression` already draws
+    that line — it excludes them from the multiple-testing correction, which
+    is why those rows leave the fit with ``q_value`` of NaN.
+
+    THIS FUNCTION EXISTS SO THERE IS EXACTLY ONE STATEMENT OF THAT LINE.
+    A volcano that plots a family the correction did not correct is drawing a
+    different experiment from the one the q-values describe, and the second
+    copy of a regex is how the two drift apart. It is also not academic: on
+    plate1_dv the intercept's p of 3e-46 is 3.6x the tallest real hit, so
+    plotting it flattens the entire screen into the bottom of the axis.
+
+    :param features: design-matrix term names.
+    :returns: boolean array, ``True`` where the term is a hypothesis.
+
+    ::
+
+        >>> tested_family(["Intercept", "fraction:grna[233460_1]"]).tolist()
+        [False, True]
+    """
+    series = pd.Series(list(features), dtype=object).astype(str)
+    if series.empty:
+        return np.zeros(0, dtype=bool)
+    return ~series.str.contains(NUISANCE_TERMS, regex=True).to_numpy(dtype=bool)
 
 def gene_of(feature: Any) -> Optional[str]:
     """Return the gene id a model term names, or ``None``.
