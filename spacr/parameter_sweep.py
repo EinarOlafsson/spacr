@@ -730,17 +730,40 @@ def _execute_trial(payload):
     worker imports spaCR itself: ``perform_regression`` pulls in torch and
     matplotlib, and a forked copy of those is not safe to reuse.
     """
-    base_settings, trial, destination, controls = payload
+    base_settings, trial, destination, controls, contained = payload
     # Before anything expensive: this work yields to the user's machine.
     be_polite()
     _pin_threads()
-    from .ml import perform_regression
 
     settings, folder = _trial_settings(base_settings, trial, destination)
     row = {"trial_id": trial["trial_id"], "folder": folder,
            "preparation_key": _preparation_key(settings)}
     row.update({k: v for k, v in trial.items() if k != "trial_id"})
     began = time.time()
+
+    if contained:
+        # THE CAP APPLIES TO THE SWEEP THE GUI ACTUALLY RUNS.
+        #
+        # run_sweep has been contained by default since the kernel-cap work;
+        # this path had not been, and this is the one the sweep screen calls.
+        # So every guarantee that work bought -- MemoryMax, MemorySwapMax=0,
+        # CPUQuota, TasksMax -- was absent from the only sweep a user starts
+        # by clicking Start, and what remained was recommended_workers() and
+        # the free-memory floor. Those are ACCOUNTING, and this module's own
+        # history is that accounting is not containment: every previous fix
+        # was a better estimate of what a trial would use, and each one was
+        # wrong in a way that took the desktop with it.
+        #
+        # The pool worker now only waits on the child, so it holds no design
+        # matrix of its own and the worker count stops being a memory
+        # multiplier as well.
+        child = run_trial_contained(settings, trial_id=trial["trial_id"])
+        row.update({k: v for k, v in child.items() if k != "trial_id"})
+        row["seconds"] = child.get("seconds", round(time.time() - began, 2))
+        return row
+
+    from .ml import perform_regression
+
     try:
         output = perform_regression(settings)
         row["status"] = "ok"
@@ -779,6 +802,7 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                         seed: int = 0,
                         controls: Mapping[str, str] | None = None,
                         n_jobs: int = 8,
+                        contained: bool = True,
                         progress_every: int = 25) -> pd.DataFrame:
     """Run the sweep across processes, writing results as they land.
 
@@ -791,6 +815,14 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     here: it depends on the order failures are observed in, which is not
     deterministic across workers, and a reproducible trial list matters more
     than the trials it would save.
+
+    :param contained: run each trial in a kernel-capped process
+        (:func:`run_trial_contained`) rather than inside the pool worker.
+        On by default, and matching :func:`run_sweep`, because a pool worker
+        holds no cap of its own: a single cell-level permutation trial was
+        measured at 57 GB of resident memory, and nothing in this function
+        could have stopped it. Pass ``False`` only when systemd is
+        unavailable and the trials are known to be small.
     """
     # A CALLER WITHOUT A MAIN GUARD FORK-BOMBS ITSELF.
     #
@@ -834,7 +866,7 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     print(f"[sweep] {len(trials)} trials across {n_jobs} workers ({reason})",
           flush=True)
 
-    payloads = [(dict(base_settings), trial, destination, controls)
+    payloads = [(dict(base_settings), trial, destination, controls, contained)
                 for trial in trials]
     rows: list[dict] = []
     started = time.time()
