@@ -156,24 +156,6 @@ def _make_stub_settings(dst: Path) -> Path:
 def _prepared_workspace(tmp_path_factory):
     _require_network()
     _require_gpu_cellpose()
-    # WHY THIS SEED IS HERE (instruction 104). This test failed about one run
-    # in eight -- same commit, same stub, same machine. It was FLAKY, not
-    # broken. The stub images are already seeded, so the variance was
-    # downstream: cellpose has no seed of its own and draws from the NumPy and
-    # Torch global streams (spacr.runctx.SEED_CAVEATS["cellpose"]), and nothing
-    # in the mask pipeline seeds them. Segmentation therefore varied run to
-    # run, occasionally finding no cells -- and the assertion below, "some
-    # cell_mask output exists", is exactly weak enough to pass most of the time
-    # and fail sometimes.
-    #
-    # Per that caveat, seeding makes cellpose reproducible on CPU, which is the
-    # path the stub uses.
-    #
-    # This makes the TEST deterministic. The PIPELINE is still unseeded for
-    # real runs, which is the larger finding and is recorded in instruction
-    # 104 rather than fixed here.
-    from spacr.runctx import seed_everything
-    seed_everything(0)
     root = tmp_path_factory.mktemp("hf_e2e", numbered=True)
     if _stubbed_mode():
         dataset = _make_stub_dataset(root / "data")
