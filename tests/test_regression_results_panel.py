@@ -1,0 +1,141 @@
+"""The panel a finished regression opens into.
+
+Covers the thing that was missing: the volcano and the numbers behind it are
+two views of one table, and both are fast.
+"""
+import os
+
+import numpy as np
+import pandas as pd
+import pytest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+pytest.importorskip("pyqtgraph")
+
+
+@pytest.fixture()
+def results():
+    rng = np.random.default_rng(0)
+    n = 1215
+    return pd.DataFrame({
+        "feature": [f"fraction:grna[{i}_1]" for i in range(n)],
+        "coefficient": rng.normal(size=n),
+        "p_value": rng.uniform(size=n),
+        "q_value": np.sort(rng.uniform(size=n)),
+        "condition": rng.choice(["nc", "pc", "control", "other"], n,
+                                p=[0.05, 0.05, 0.1, 0.8]),
+    })
+
+
+class TestItOpensIntoTheResults:
+
+    def test_every_view_is_populated(self, qtbot, results):
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        assert panel.set_frame(results, source="results.csv")
+
+        assert [panel.tabs.tabText(i) for i in range(panel.tabs.count())] == \
+            ["Volcano", "p-values", "Q-Q", "Controls"]
+        assert panel.table.table.rowCount() == len(results)
+        assert "Inflation" in panel.qq._status.text()
+        assert "negative" in panel.controls._status.text()
+        assert "positive" in panel.controls._status.text()
+
+    def test_a_dot_and_its_row_are_linked_both_ways(self, qtbot, results):
+        """The point of putting them beside each other."""
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        panel.set_frame(results)
+
+        panel.volcano.point_clicked.emit(42)
+        selected = panel.table.table.selectedItems()
+        assert selected and selected[0].data(0x0100) == 42
+
+        panel.table.row_selected.emit(7)
+        assert "row 7" in panel.volcano._status.text()
+
+    def test_it_is_fast_enough_to_recolour_interactively(self, qtbot, results):
+        """The lag that started all of this was on exactly this redraw."""
+        import time
+
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        panel.set_frame(results)
+
+        start = time.perf_counter()
+        for _ in range(5):
+            panel._redraw_volcano()
+        each = (time.perf_counter() - start) / 5 * 1000
+        assert each < 30, f"the volcano took {each:.0f} ms (matplotlib: 115)"
+
+    def test_only_plausible_categories_are_offered_for_colour(self, qtbot,
+                                                              results):
+        """A column with one value per row is not a category."""
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        panel.set_frame(results)
+        offered = [panel._colour_by.itemData(i)
+                   for i in range(panel._colour_by.count())]
+        assert "condition" in offered
+        assert "feature" not in offered, \
+            "a unique-per-row column was offered as a category"
+
+    def test_an_empty_table_says_so(self, qtbot):
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        assert not panel.set_frame(pd.DataFrame())
+        assert "empty" in panel._source.text().lower()
+
+
+class TestFindingTheResultsOnDisk:
+
+    def test_a_folder_a_parent_or_the_file_itself(self, tmp_path, results):
+        """The three things a user has to hand when reopening a run."""
+        from spacr.qt.widgets.regression_results import find_results_table
+
+        run = tmp_path / "results" / "plate1_dv" / "ols" / "list"
+        run.mkdir(parents=True)
+        target = run / "results.csv"
+        results.to_csv(target, index=False)
+
+        assert find_results_table(str(target)) == str(target)
+        assert find_results_table(str(run)) == str(target)
+        assert find_results_table(str(tmp_path)) == str(target)
+
+    def test_nothing_there_is_not_an_error(self, tmp_path):
+        from spacr.qt.widgets.regression_results import find_results_table
+
+        assert find_results_table(str(tmp_path)) is None
+        assert find_results_table(None) is None
+        assert find_results_table("/does/not/exist") is None
+
+    def test_loading_from_disk_populates_the_panel(self, qtbot, tmp_path,
+                                                   results):
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        run = tmp_path / "results" / "x" / "ols" / "list"
+        run.mkdir(parents=True)
+        results.to_csv(run / "results.csv", index=False)
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        assert panel.load(str(tmp_path))
+        assert panel.table.table.rowCount() == len(results)
+
+    def test_a_bad_path_reports_instead_of_raising(self, qtbot, tmp_path):
+        from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+        panel = RegressionResultsPanel()
+        qtbot.addWidget(panel)
+        assert not panel.load(str(tmp_path / "nowhere"))
+        assert "No results table" in panel._source.text()
