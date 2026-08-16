@@ -260,3 +260,35 @@ disk rather than about code:
 (a) is the better end state and the more expensive one. Until it is chosen,
 do not "tidy" the hand-joins -- that is the revert described above, and it
 will look like a cleanup while changing what is written to disk.
+
+--------------------------------------------------------------------------------
+DECIDED 2026-08-16: (a). ESCAPE EVERYWHERE. DONE.
+--------------------------------------------------------------------------------
+
+The maintainer chose one spelling. `prc` is now always THREE components, and
+a plate id holding the separator or a `%` is percent-escaped:
+
+    exp1_plate2 / rB / c3  ->  exp1%5Fplate2_rB_c3
+
+SEVEN hand-joins in ml.py -- not the three first found -- now go through
+`_compose_prc_column`, the vectorised counterpart of `schema.compose_prc`.
+Verified identical to it on canonical row/column tokens.
+
+ROW AND COLUMN ARE STILL NOT CANONICALISED, deliberately. `compose_prc`
+canonicalises them (`row_id('rB')` -> `'r470'`); the hand-joins never did, and
+`_split_prc`'s docstring says why -- "a rewritten token would change the
+identity rows are joined on". Only the PLATE escape changed.
+
+OLD DATABASES STILL READ, which is what made (a) affordable: `_split_prc`
+unescapes, and unescaping is a no-op on a key carrying no escape, so a
+four-component legacy key parses exactly as before through the
+`is_row_column_pair` guard. Accept both, write one.
+
+ONE TEST CHANGED MEANING RATHER THAN BREAKING, and it is worth knowing:
+`test_an_underscored_plate_id_keeps_the_regression_qc_tables` asserted that a
+naive `prc.str.split('_')` RAISES on an underscored plate. It no longer does
+-- the key is three components now, so the naive split succeeds and returns
+the ESCAPED plate id. That is the improvement and the new trap at once, so
+the test now asserts both halves: the naive splitter gets a plausible-looking
+`exp1%5Fplate1` instead of an error, and only `_split_prc` gives back the
+plate the user typed.
