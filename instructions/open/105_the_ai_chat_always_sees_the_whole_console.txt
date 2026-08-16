@@ -26,6 +26,14 @@ toggle time and therefore starts empty, or whether it reads the console and
 simply is not sending it. The symptom is the same and the fix differs.
 
 --------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Users normally enable the assistant after an error. If earlier console output
+is unavailable, the assistant cannot perform its central diagnostic task at
+the moment it is most useful.
+
+--------------------------------------------------------------------------------
 WHY THIS IS CHEAP
 --------------------------------------------------------------------------------
 
@@ -40,7 +48,7 @@ subscription. Nothing has to be recorded in advance, no buffer has to be
 added, and turning the chat on earlier must stop mattering.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 1. WHEN THE USER SENDS A MESSAGE, READ THE CONSOLE THEN. Take the console's

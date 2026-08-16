@@ -26,7 +26,15 @@ hits are about splitter state), so "expand it" has to be defined here rather
 than reused.
 
 --------------------------------------------------------------------------------
-WHAT TO BUILD
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Long-running workflows produce more console sections than fit on screen.
+Direct navigation keeps the relevant stage readable while output continues,
+without changing the transcript's chronological order.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
 --------------------------------------------------------------------------------
 
 1. CLICK THE HEADING -> THAT SECTION GOES TO THE TOP OF THE VIEWPORT and is
