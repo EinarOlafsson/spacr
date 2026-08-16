@@ -66,6 +66,7 @@ __all__ = [
     "build_hit_list",
     "gene_of",
     "grna_agreement",
+    "guide_of",
     "join_metadata",
     "load_gene_metadata",
     "load_results",
@@ -182,6 +183,35 @@ def gene_of(feature: Any) -> Optional[str]:
     token = re.sub(r"^T\.", "", match.group(1))
     gene = token.split("_")[0]
     return gene or None
+
+
+def guide_of(feature: Any) -> Optional[str]:
+    """Return the gRNA id a model term names, or ``None``.
+
+    The companion to :func:`gene_of` and deliberately the same parse: the
+    bracketed token with ``T.`` stripped. Where :func:`gene_of` then truncates
+    at the first underscore to reach the gene, this one keeps the whole token
+    and returns it ONLY when it ends in ``_<digits>`` — the guide number the
+    library appends. ``fraction:grna[233460_1]`` is guide ``233460_1``;
+    ``gene_fraction:gene[233460]`` names a gene and no guide, so it is
+    ``None`` rather than the gene id wearing a guide's name.
+
+    It exists so that "which guide is this term" has one answer, in the same
+    module as "which gene is this term". The rule was already written twice —
+    here and inline in :func:`grna_agreement` — and a third copy in the tile
+    resolver is how a dot in the volcano and a row in the hit list would start
+    naming different guides.
+
+    :param feature: a design-matrix term name.
+    :returns: the guide id, or ``None`` for a gene term or a nuisance term.
+    """
+    if feature is None or (isinstance(feature, float) and math.isnan(feature)):
+        return None
+    match = _BRACKET.search(str(feature))
+    if not match:
+        return None
+    token = re.sub(r"^T\.", "", match.group(1))
+    return token if re.search(r"_\d+$", token) else None
 
 
 def benjamini_hochberg(p_values: Sequence[Any]) -> np.ndarray:
