@@ -232,29 +232,27 @@ def test_generate_plate_heatmap():
 
 
 def test_plot_plates(tmp_path):
-    """One heatmap panel per plate, on the grid the wells imply, saved once."""
+    """One panel per plate, wells square, named for the measurement drawn."""
     df = _screen_df()
     fig = P.plot_plates(df, variable="recruitment", grouping="mean",
                           min_max="allq", cmap="viridis", min_count=0,
                           verbose=False, dst=str(tmp_path))
 
-    # subplots() lays out 4 columns; the 3 unused ones are deleted, and
-    # seaborn adds one colorbar axes next to the single plate.
     heatmaps = [ax for ax in fig.axes if ax.get_title() == "plate1"]
     assert len(heatmaps) == 1, (
         f"expected one panel for the one plate, got titles "
         f"{[ax.get_title() for ax in fig.axes]}")
     ax = heatmaps[0]
-    # The grid is read off the wells present -- r1..r8 x c1..c12 -- rather
-    # than padded out to a fixed plate format. seaborn draws it as a QuadMesh,
-    # whose flattened array is one cell per well.
-    mesh = ax.collections[0]
-    assert mesh.get_array().size == 8 * 12
+    # The wells sit on the plate they belong to -- an 8x12 layout is a 96
+    # plate -- and are drawn as an IMAGE, which is what lets a well be
+    # square (instruction 117). seaborn's QuadMesh could not be.
+    assert ax.images[0].get_array().shape == (8, 12)
+    # Row LETTERS, which is how a plate names its rows, and column numbers.
     assert [t.get_text() for t in ax.get_yticklabels()] == \
-        [f"r{i}" for i in range(1, 9)]
+        [chr(ord("A") + i) for i in range(8)]
     assert [t.get_text() for t in ax.get_xticklabels()] == \
-        [f"c{i}" for i in range(1, 13)]
-    _nonempty_file(tmp_path / "plate_heatmap_0.pdf")
+        [str(i) for i in range(1, 13)]
+    _nonempty_file(tmp_path / "plate_heatmap_recruitment.pdf")
 
 
 def test_plot_histogram(tmp_path):
