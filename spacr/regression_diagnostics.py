@@ -268,16 +268,29 @@ def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> di
 
 
 def _finish(fig, save_path, dpi=200):
-    fig.tight_layout()
-    if save_path is None:
-        return None
-    path = os.fspath(save_path)
-    os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
-    fig.savefig(path, dpi=dpi if path.lower().endswith(".png") else None,
-                bbox_inches="tight")
+    """Lay the figure out, write it when there is somewhere to write it, close it.
+
+    The figure is closed on BOTH paths. These figures come from ``plt.subplots``,
+    so pyplot holds a reference to every one of them until it is closed;
+    returning early on ``save_path=None`` -- the default of all three public
+    ``plot_*_diagnostics`` functions, and the way a caller asks for the report
+    dict without keeping the picture -- leaked one figure per call. Across a
+    parameter sweep that is hundreds of live figures and matplotlib's
+    "More than 20 figures have been opened" warning.
+    """
     import matplotlib.pyplot as plt
-    plt.close(fig)
-    return path
+
+    fig.tight_layout()
+    try:
+        if save_path is None:
+            return None
+        path = os.fspath(save_path)
+        os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
+        fig.savefig(path, dpi=dpi if path.lower().endswith(".png") else None,
+                    bbox_inches="tight")
+        return path
+    finally:
+        plt.close(fig)
 
 
 def plot_design_diagnostics(fractions: pd.DataFrame, *,
