@@ -2,11 +2,10 @@
 THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
 ================================================================================
 
-Status:    filed 2026-08-15. RE-DIAGNOSED the same day: it is FLAKY, which is
-           neither of the two causes proposed below. Read
-           WHAT IT ACTUALLY IS at the end first -- the WHAT TO DO section
-           below it is written against a wrong premise and is superseded.
-           Still PRE-EXISTING -- proven, not assumed.
+Status:    CAUSE FOUND and the test fixed, 2026-08-15. It was flaky because
+           NOTHING IN THE MASK PIPELINE SEEDS, and cellpose draws from the
+           global NumPy/Torch streams. Read THE CAUSE at the very end. The
+           two hypotheses in WHAT TO DO are both wrong and superseded.
 Requested: not asked for. Found while attributing a failure in a regression
            sweep for instruction 100, and filed because a bug found in
            passing gets queued rather than narrated.
@@ -158,3 +157,60 @@ WHAT TO DO INSTEAD OF THE SECTION ABOVE
    without anyone noticing; putting it in a leg while it is flaky would make
    the leg untrustworthy instead. Fix the variance, strengthen the assertion,
    then run it somewhere.
+
+================================================================================
+THE CAUSE: THE MASK PIPELINE IS UNSEEDED, AND CELLPOSE HAS NO SEED OF ITS OWN
+================================================================================
+
+The stub images are seeded (`np.random.default_rng(0)`), so the INPUT was
+never the variance. The variance is downstream, and this repository had
+already written down exactly why -- `spacr.runctx.SEED_CAVEATS["cellpose"]`:
+
+    "Cellpose has no seed of its own; it draws from NumPy and Torch, so it
+     follows this call on CPU."
+
+"This call" is `seed_everything`. Nothing in the mask path calls it. Searching
+the package, only `deep_spacr.py` does. So every segmentation run draws from
+whatever state the global NumPy and Torch streams happen to be in, and the
+masks vary run to run -- occasionally finding no cells at all, which is the
+one-in-eight failure.
+
+The test's assertion made it worse rather than causing it: "at least one file
+named cell_mask exists" is weak enough to pass whenever segmentation finds
+anything, so the nondeterminism was invisible except at its extreme.
+
+FIXED IN THE TEST. `_prepared_workspace` now calls `seed_everything(0)`.
+Verified 8 consecutive passes where the previous rate was about one failure in
+eight.
+
+--------------------------------------------------------------------------------
+THE LARGER FINDING, WHICH IS NOT FIXED AND IS NOT THIS INSTRUCTION'S TO FIX
+--------------------------------------------------------------------------------
+
+SPACR'S SEGMENTATION IS NOT REPRODUCIBLE. Running Mask twice on the same
+plate with the same settings can produce different masks, because nothing in
+`core.preprocess_generate_masks` or `object.py` seeds the streams cellpose
+draws from. `seed_everything` exists, is documented, knows about this exact
+caveat -- and the pipeline does not call it.
+
+That matters more than a flaky test:
+
+  * every downstream number is computed from those masks, so a run is not
+    reproducible either;
+  * the provenance manifest records inputs and settings, which implies a run
+    can be repeated, and it currently cannot be;
+  * two people comparing the "same" analysis are not necessarily comparing
+    the same segmentation.
+
+WHAT IT NEEDS, and why it is not done here: seeding a pipeline is a product
+decision with a compatibility edge -- it changes what today's runs produce,
+and the seed has to be recorded in the manifest to be worth anything. That is
+a new instruction and the maintainer's call, not a side effect of fixing a
+test. The GPU path additionally is not bit-reproducible even seeded, per
+SEED_CAVEATS["cuda"], so "seeded" would need to mean something precise.
+
+WHAT IS STILL WORTH DOING TO THE TEST ITSELF, from the section above:
+strengthen the assertion from "a cell_mask path exists" to an object COUNT.
+With the run now deterministic that is a stable number, and it is the
+difference between "worked" and "barely worked" -- which is the gap a flaky
+pass hid in.
