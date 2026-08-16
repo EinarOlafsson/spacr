@@ -83,7 +83,8 @@ def screen(qtbot):
 
 def test_the_runs_are_a_tab_beside_the_results(screen):
     tabs = screen._results_tabs
-    assert [tabs.tabText(i) for i in range(tabs.count())] == ["Results", "Runs"]
+    assert [tabs.tabText(i) for i in range(tabs.count())] == [
+        "Results", "Runs", "Measurements"]
 
 
 def test_results_is_what_opens_first(screen):
@@ -271,3 +272,25 @@ def test_the_coefficient_table_keeps_its_own_words(qtbot):
     qtbot.addWidget(table)
 
     assert "gene" in table._filter.placeholderText().lower()
+
+
+# --------------------------------------------------------------------------- #
+#  The measurement scan is the same surface with a different thing varying
+# --------------------------------------------------------------------------- #
+
+def test_the_measurement_scan_is_a_tab_too(screen):
+    """"instead of a paramiter search a serch for which measurement has genes
+    with clear effect sizes". Structurally the parameter search with the
+    DEPENDENT VARIABLE varying, so it sits beside the runs rather than in a
+    screen of its own."""
+    from spacr.qt.widgets.measurement_scan_panel import MeasurementScanPanel
+
+    assert isinstance(screen._scan_panel, MeasurementScanPanel)
+    assert screen._results_tabs.widget(2) is screen._scan_panel
+
+
+def test_a_scan_with_nothing_loaded_says_so(screen):
+    """An empty table reads as "no measurement has an effect", which is the
+    opposite of "no data was scanned"."""
+    assert screen._scan_panel.run_scan() is False
+    assert "Nothing to scan" in screen._scan_panel._status.text()
