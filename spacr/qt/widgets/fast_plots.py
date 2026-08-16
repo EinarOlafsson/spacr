@@ -69,6 +69,29 @@ def _require_pyqtgraph() -> None:
             "`pip install pyqtgraph`, or use the matplotlib figures.")
 
 
+#: Ink to fall back to when the preference store cannot be read.
+#:
+#: White, because every spaCR theme but one is dark and a plot with invisible
+#: axes is worse than a plot with slightly wrong ones. Only reached in a bare
+#: process with no QSettings -- a headless render or a unit test.
+_FALLBACK_FOREGROUND = "#ffffff"
+
+
+def _figure_colors() -> tuple:
+    """``(background, foreground)`` for a plot, from the figure preferences.
+
+    The same source the matplotlib renderer uses
+    (:func:`spacr.qt.preferences.get_figure_colors`), so the two cannot
+    disagree about what a figure looks like and a theme switch moves both.
+    """
+    try:
+        from ..preferences import get_figure_colors
+
+        return get_figure_colors()
+    except Exception:      # pragma: no cover - no settings store available
+        return "none", _FALLBACK_FOREGROUND
+
+
 def colour_for(index: int, alpha: int = 255) -> QColor:
     """Stable colour for category ``index``."""
     colour = QColor(PALETTE[index % len(PALETTE)])
@@ -99,7 +122,18 @@ class FastPlot(QWidget):
                  parent=None):
         super().__init__(parent)
         _require_pyqtgraph()
-        pg.setConfigOptions(antialias=True, background=None, foreground="k")
+        # BACKGROUND None IS TRANSPARENT, WHICH WAS ALREADY RIGHT. The ink was
+        # not: `foreground="k"` hardcoded BLACK axes, ticks and labels, so on
+        # a dark theme the plot drew black-on-transparent over a dark surface
+        # and the axes were invisible. The matplotlib path has resolved this
+        # correctly for a while via preferences.get_figure_colors(), which
+        # returns TRANSPARENT_FIGURE_BG plus theme-correct ink and honours an
+        # explicit colour the user has chosen; pyqtgraph simply never asked
+        # it. Same source for both renderers, so a theme switch cannot move
+        # one and not the other.
+        self._background, self._foreground = _figure_colors()
+        pg.setConfigOptions(antialias=True, background=None,
+                            foreground=self._foreground)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -110,6 +144,18 @@ class FastPlot(QWidget):
         self.plot.setLabel("left", y_label)
         self.plot.showGrid(x=True, y=True, alpha=0.25)
         self.plot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # A transparent pyqtgraph background is not enough on its own: the
+        # QWidget it lives in still paints the theme's `bg` under the blanket
+        # QWidget rule, so the plot sits on an opaque slab regardless. The
+        # theme's own helper is what every other transparent surface here
+        # uses -- see the hyperparam screen, which does exactly this.
+        self.plot.setBackground(None)
+        try:
+            from ..theme import make_transparent
+
+            make_transparent(self, self.plot, self.plot.viewport())
+        except Exception:                   # pragma: no cover - theme absent
+            pass
         layout.addWidget(self.plot, 1)
 
         controls = QHBoxLayout()
@@ -399,8 +445,44 @@ class FastPlot(QWidget):
         if str(path).lower().endswith(".svg"):
             exporters.SVGExporter(item).export(path)
         else:
-            exporters.ImageExporter(item).export(path)
+            exporter = exporters.ImageExporter(item)
+            # MATCH THE SCREEN. The exporter defaults to pyqtgraph's config
+            # background, so a plot drawn transparent was saved onto an opaque
+            # slab -- which is the one thing the maintainer asked for by name
+            # ("not black not white just transparent") and the one place a
+            # transparent plot would have quietly stopped being transparent.
+            try:
+                exporter.parameters()["background"] = QColor(0, 0, 0, 0)
+            except (KeyError, TypeError):   # pragma: no cover - older pyqtgraph
+                pass
+            exporter.export(path)
         return path
+
+    def restyle(self, background: Optional[str] = None,
+                foreground: Optional[str] = None) -> None:
+        """Re-read the figure colours, or take the ones given.
+
+        Needed because pyqtgraph resolves ``foreground`` at construction:
+        without this a theme switch leaves every open plot drawing its old
+        ink, and on a dark-to-light switch that ink is invisible.
+        """
+        if background is None or foreground is None:
+            resolved_bg, resolved_fg = _figure_colors()
+            background = resolved_bg if background is None else background
+            foreground = resolved_fg if foreground is None else foreground
+        self._background, self._foreground = background, foreground
+        pg.setConfigOptions(foreground=foreground)
+        axis_pen = pg.mkPen(foreground)
+        for edge in ("bottom", "left", "top", "right"):
+            try:
+                axis = self.plot.getAxis(edge)
+            except Exception:               # pragma: no cover - absent axis
+                continue
+            axis.setPen(axis_pen)
+            axis.setTextPen(axis_pen)
+        title = getattr(self.plot.plotItem, "titleLabel", None)
+        if title is not None and title.text:
+            self.plot.setTitle(title.text, color=foreground)
 
 
 class VolcanoPlot(FastPlot):
