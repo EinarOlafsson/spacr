@@ -827,7 +827,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "min_cell_count", "min_n", "fraction_threshold",
             "target_unique_count", "tolerance", "outlier_detection",
         )),
+        # `regression_qc` leads: it decides whether the diagnostic suite is
+        # drawn at all, and the knobs under it only style the plots that are.
         ("Regression Plots", (
+            "regression_qc",
             "volcano", "log_x", "log_y", "x_lim", "y_lims",
             "split_axis_lims", "guide_permutation_plot",
         )),
@@ -1883,6 +1886,13 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "per well, minimum observations per guide, the read-fraction cutoff "
         "and outlier removal. Each one silently shrinks the dataset, so "
         "check the diagnostics after changing any of them.",
+    "REGRESSION: DIAGNOSTICS":
+        "Not what was significant, but whether the fit deserves to be "
+        "believed: variance homogeneity, residuals, the design that actually "
+        "reached the model, influence and calibration. Written per fit as "
+        "figures, a combined PDF and a text report. On by default because a "
+        "single analysis should have them; a parameter sweep turns them off "
+        "on its own, since a hundred trials is two thousand files.",
     "INVASION ASSAY":
         "The two-colour invasion readout: which channels carry the outside "
         "and total stains, how the outside signal is measured, how its "

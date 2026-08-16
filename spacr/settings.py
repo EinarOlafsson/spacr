@@ -1864,6 +1864,15 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('huber_t', 1.345)
     settings.setdefault('lasso_n_boot', 200)
     settings.setdefault('lasso_selection_threshold', 0.6)
+    # The diagnostic suite, on by default because one analysis wants it and
+    # the person running one analysis is the one who will not think to ask.
+    # It is NOT a per-family knob: every regression_type is fitted through the
+    # same `regression()` call and every one of them can be badly specified,
+    # so it is deliberately outside REGRESSION_SETTINGS_USED and is not
+    # policed by _reject_unused_settings. A parameter sweep turns it off in
+    # `parameter_sweep._trial_settings`, where a hundred trials would be ten
+    # minutes and two thousand figures nobody opens.
+    settings.setdefault('regression_qc', True)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
     # sequencing.graph_sequencing_stats iterates settings['control_wells'] and
@@ -2330,6 +2339,7 @@ expected_types = {
     "huber_t": float,
     "lasso_n_boot": int,
     "lasso_selection_threshold": float,
+    "regression_qc": bool,
     "transform": (str, type(None)),
     "agg_type": str,
     "min_cell_count": int,
@@ -3012,7 +3022,7 @@ tooltips = {
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
-    "min_cell_count": "(int) - Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Leave None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value. Default None.",
+    "min_cell_count": "(int) - Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Set it to None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value instead. Default 100.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
     "tsne_perplexity": "(float) - t-SNE neighborhood scale. It must be smaller than the number of rows; values around 5-50 are typical. Low values emphasize very local structure and can fragment populations; high values smooth them together. Used only by t-SNE. Default 30.",
     "tsne_learning_rate": "(float) - t-SNE optimization step size. Too small crowds points into a dense ball; too large can scatter them. Used only by t-SNE. Default 200.",
@@ -3077,6 +3087,7 @@ tooltips = {
     "huber_t": "(float) - Where Huber's loss switches from squared to linear, in units of the estimated residual scale, for the robust fits. Smaller values downweight more wells and resist heavier contamination; larger values approach ordinary least squares. The default 1.345 gives 95 percent of the efficiency of OLS when the residuals really are normal. Read only by regression_type 'rlm' and 'huber'. Default 1.345.",
     "lasso_n_boot": "(int) - Number of bootstrap resamples used to rank lasso and elastic-net hits by how often each gRNA survives the penalty. These models have no valid p-values, so selection frequency replaces the significance test entirely. Higher is steadier and linearly slower; the cost is one full penalised fit per resample, doubled when alpha is 'auto' because each resample cross-validates. Default 200.",
     "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
+    "regression_qc": "(bool) - Write the regression quality-control suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as individual figures, a combined PDF and a text report. Costs roughly 5.8 seconds and 19 files per fit, which is right for one analysis and is why it is on by default. A parameter sweep turns it off automatically, because a hundred trials would be about ten minutes and two thousand files almost none of which anyone opens; reopening a single interesting trial fits it with the diagnostics again. Applies to every regression_type, since any of them can be badly specified. Default True.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
     "resample": "(bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
     "rescale": "(bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
@@ -3766,6 +3777,11 @@ categories = {
         "min_cell_count", "min_n", "fraction_threshold",
         "target_unique_count", "tolerance", "outlier_detection", "other",
     ],
+    # Not "was this gRNA significant" but "does this fit deserve to be
+    # believed" -- which is a different question and belongs under a heading
+    # of its own rather than beside the thresholds that decide hits. One key
+    # today; the QC suite is where further diagnostic toggles will land.
+    "Regression: Diagnostics": ["regression_qc"],
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "normalize_input"],
 
