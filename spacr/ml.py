@@ -2491,6 +2491,11 @@ def _show_house_style_panels(coef_df, plot=True):
         if not panel.drawn:
             plt.close(figure)
             continue
+        # The figure carries its own name, so the grid captions it "volcano"
+        # rather than "fig_00003" -- a temp file's stem is an implementation
+        # detail of how the picture reached the screen, not a caption.
+        figure.set_label(panel.title)
+        figure._spacr_title = panel.title
         if plot:
             plt.show()
         shown += 1
