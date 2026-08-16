@@ -55,6 +55,11 @@ def _column(frame, *names) -> Optional[str]:
 
 
 def effect_column(frame) -> Optional[str]:
+    """The fitted effect column, whatever this backend called it.
+
+    spaCR writes ``coefficient``; a statsmodels summary carries ``coef``.
+    Both are the same quantity and both have to plot.
+    """
     return _column(frame, "coefficient", "coef", "effect", "estimate")
 
 
@@ -64,6 +69,13 @@ def p_column(frame) -> Optional[str]:
 
 
 def q_column(frame) -> Optional[str]:
+    """The multiple-testing-corrected p, if the fit produced one.
+
+    Its ABSENCE is meaningful and is not an error: the penalised backends
+    have no p-value to correct, and a run asked for ``multiple_testing_method
+    = 'none'`` deliberately has none either. A panel that finds no q falls
+    back to the raw p and says which one it drew.
+    """
     return _column(frame, "q_value", "adjusted_p_value", "fdr", "qval")
 
 
