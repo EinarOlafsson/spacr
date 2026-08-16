@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "label": "spacr.metadata_resolution.MetadataDecision#0",
+      "source_sha256": "86f12afa1f5f39822653303e1b3b024adc30be4673aa11d54c513d8fb06a0039",
+      "source": "One all-at-once answer returned by a UI or a saved setting.",
+      "context": "One all-at-once answer returned by a UI or a saved setting.",
+      "translation": "由 UI 或已保存的设置返回的一次性完整答案。"
+    },
+    {
+      "label": "spacr.align.estimate_offsets#3",
+      "source_sha256": "95b5ce3d93df7223b1f1737ae967de874edb1e4d95baf5d1dbcd9ae87bb69a7e",
+      "source": "the plane registration is measured on. Every channel of a site then shares that site's single solution — registering channels independently would shear the composite. ``None`` (the default) takes the channel the tiles already carry, which is the one :func:`scan_tiles` selected. This used to default to ``0``, so ``scan_tiles(reference_channel=2)`` followed by the documented ``estimate_offsets(tiles)`` silently registered on channel 0 instead — the selection was stored on every tile and read by nothing. Tiles that disagree fall back to ``0``; the resolved value is recorded on the plan and printed by :func:`format_plan`, so whichever way it went is visible rather than assumed.",
+      "context": "the image layer registration is measured on. Every image data channel of a site then shares that site's single solution — registering image data channels independently would shear the composite. ``None`` (the default) takes the image data channel the tiles already carry, which is the one :func:`scan_tiles` selected. This used to default to ``0``, so ``scan_tiles(reference_channel=2)`` followed by the documented ``estimate_offsets(tiles)`` silently registered on image data channel 0 instead — the selection was stored on every tile and read by nothing. Tiles that disagree fall back to ``0``; the resolved value is recorded on the plan and printed by :func:`format_plan`, so whichever way it went is visible rather than assumed.",
+      "translation": "用于测量配准的图像层。同一视野的所有图像数据通道随后共享该视野的同一个解；若分别配准各通道，会使合成图像产生剪切。``None``（默认值）使用图块自身携带的图像数据通道，也就是 :func:`scan_tiles` 选择的通道。此参数过去默认为 ``0``，因此先调用 ``scan_tiles(reference_channel=2)`` 再按文档调用 ``estimate_offsets(tiles)`` 时，会在没有提示的情况下改用图像数据通道 0 配准；所选通道虽存储在每个图块上，却从未被读取。若各图块记录的通道不一致，则回退到 ``0``；最终解析出的值会写入配准方案，并由 :func:`format_plan` 输出，因此实际采用的通道清晰可见，而不是依靠假定。"
+    }
+  ]
+}
