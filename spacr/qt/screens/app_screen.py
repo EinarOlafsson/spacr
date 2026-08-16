@@ -1620,16 +1620,9 @@ class AppScreen(QWidget):
                 back.setToolTip("Back to the grid of every figure this run "
                                 "produced.")
                 back.clicked.connect(self._show_figure_grid)
-                sheet_button = QPushButton("Publication figure")
-                sheet_button.setFlat(True)
-                sheet_button.setToolTip(
-                    "Draw every panel as one journal-style figure, lettered "
-                    "and captioned, in the house style.")
-                sheet_button.clicked.connect(self._show_publication_sheet)
                 row = QHBoxLayout()
                 row.addWidget(back)
                 row.addStretch(1)
-                row.addWidget(sheet_button)
                 detail_layout.addLayout(row)
                 detail_layout.addWidget(self._figure_queue, 1)
                 self._figure_detail = detail
@@ -2491,6 +2484,11 @@ class AppScreen(QWidget):
         worker.line_ready.connect(self._console.append_stdout)
         worker.error.connect(self._on_pipeline_error)
         worker.figure_ready.connect(self._on_figure_ready)
+        # THE RUN HANDS BACK ITS OWN RESULTS. Reading the CSV meant guessing
+        # which of four nested folders the run had written to, and a guess is
+        # how a screen shows last month's table or an empty one.
+        worker.result_ready.connect(self._on_pipeline_result)
+        self._results_loaded_in_memory = False
         worker.finished.connect(self._on_finished)
         # Clear our Python references only once the QThread has genuinely
         # stopped (its event loop exited). Dropping them from _on_finished —
@@ -3080,7 +3078,8 @@ class AppScreen(QWidget):
         # QThread's own finished signal.
         # A finished regression has a coefficient table on disk; open into it
         # rather than leaving the user to find the CSV.
-        if ok and not cancelled and getattr(self, "_results_panel", None):
+        if (ok and not cancelled and getattr(self, "_results_panel", None)
+                and not getattr(self, "_results_loaded_in_memory", False)):
             try:
                 self._load_regression_results()
             except Exception:
@@ -3378,6 +3377,35 @@ class AppScreen(QWidget):
         stack = getattr(self, "_figures_stack", None)
         if stack is not None:
             stack.setCurrentWidget(self._figure_detail)
+
+    def _on_pipeline_result(self, payload) -> None:
+        """Take the coefficient table straight from the run that made it.
+
+        `perform_regression` returns {'results': coef_df, 'res_folder': ...}.
+        Using it directly is both faster and CORRECT: there is no path to
+        guess, no newest-run heuristic, and no chance of reading a different
+        run's table than the one that just finished.
+
+        The on-disk search stays as the fallback for opening an old run.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None or not isinstance(payload, dict):
+            return
+        frame = payload.get("results")
+        if frame is None or not len(frame):
+            return
+        folder = payload.get("res_folder") or ""
+        try:
+            if panel.set_frame(frame, source=str(folder)):
+                self._results_loaded_in_memory = True
+                self._show_figure_grid()
+                self._figures_card.show()
+                self._console.append_stdout(
+                    f"{len(frame)} coefficients loaded from the run itself"
+                    + (f"; its files are in {folder}" if folder else "")
+                    + ".\n")
+        except Exception:
+            LOG.debug("could not show the returned results", exc_info=True)
 
     def _load_regression_results(self) -> bool:
         """Point the Results tab at what the run just wrote.

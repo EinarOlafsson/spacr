@@ -33,10 +33,33 @@ from PySide6.QtWidgets import (
 MIN_CELL_PX = 220
 #: Above this, one figure eats the panel and the grid stops being a grid.
 MAX_CELL_PX = 520
-#: A figure wider than this many times its height is treated as a WIDE figure
-#: and given a double-width cell. A plate is 24x16 wells (1.5); a volcano is
-#: square. 1.35 separates them without needing to know which is which.
-WIDE_ASPECT = 1.35
+#: ONE SLOT PER FIGURE. Always.
+#:
+#: This used to give a wide figure a DOUBLE-width cell, so four plate
+#: heatmaps took eight slots and wrapped onto two rows -- reported as "the
+#: plate heat maps are too wide so now they take 2 slots ... when they should
+#: take 1 slot per plate so in my case 4 slots".
+#:
+#: A grid whose cells are different sizes is not a grid, and the aspect ratio
+#: is already preserved INSIDE the cell (that is what instruction 117 fixed):
+#: a wide figure simply sits shorter in its slot, which is what a small
+#: multiple should do. Kept as a name rather than deleted so the old rule
+#: cannot quietly come back as a literal.
+CELL_SPAN = 1
+
+
+def _letter_for(position: int) -> str:
+    """A, B, ... Z, then AA. Publication lettering, not an index.
+
+    Upper-case, no period -- the convention the published figures use and the
+    one asked for by name.
+    """
+    letters = ""
+    position += 1
+    while position:
+        position, remainder = divmod(position - 1, 26)
+        letters = chr(ord("A") + remainder) + letters
+    return letters
 
 
 def cells_across(panel_width: int, target: int = 320) -> int:
@@ -51,13 +74,12 @@ def cells_across(panel_width: int, target: int = 320) -> int:
 
 
 def cell_span(aspect: float) -> int:
-    """Columns a figure of this aspect ratio should occupy.
+    """Columns a figure occupies: one, whatever its shape.
 
-    :param aspect: width / height.
+    :param aspect: width / height. Accepted and deliberately ignored -- see
+        :data:`CELL_SPAN`. Four plates take four slots.
     """
-    if aspect >= WIDE_ASPECT:
-        return 2
-    return 1
+    return CELL_SPAN
 
 
 class _FigureCell(QFrame):
@@ -68,9 +90,10 @@ class _FigureCell(QFrame):
     menu_requested = Signal(int, object)
 
     def __init__(self, index: int, pixmap: QPixmap, title: str = "",
-                 parent=None):
+                 parent=None, letter: str = ""):
         super().__init__(parent)
         self.index = index
+        self.letter = letter
         self._pixmap = pixmap
         self.setFrameShape(QFrame.StyledPanel)
         self.setCursor(Qt.PointingHandCursor)
@@ -85,7 +108,27 @@ class _FigureCell(QFrame):
         layout.setContentsMargins(4, 4, 4, 4)
         layout.setSpacing(2)
 
+        # A TILE DOES NOT PAINT ITS OWN GROUND. Reported as "on the grid (all
+        # figures) the graphs still have a black background": the figures are
+        # transparent and the frame behind them was not, so every tile was a
+        # slab. The frame stays for its border; only its fill goes.
+        self.setAutoFillBackground(False)
+        self.setStyleSheet("_FigureCell { background: transparent; }")
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+
+        if letter:
+            # UPPER-CASE PANEL LETTER, top left, bold -- asked for by name:
+            # "i asked you to make the all figures pannel publication style
+            # (with each panel having an uppercase letter) and be on a grid".
+            tag = QLabel(letter.upper())
+            tag.setStyleSheet(
+                "font-weight: 700; font-size: 15px; background: transparent;")
+            tag.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            layout.addWidget(tag)
+
         self._image = QLabel()
+        self._image.setAttribute(Qt.WA_TranslucentBackground, True)
+        self._image.setStyleSheet("background: transparent;")
         self._image.setAlignment(Qt.AlignCenter)
         # NOT setScaledContents: that is exactly the stretch this replaces.
         # The pixmap is scaled with KeepAspectRatio when the cell is sized.
@@ -207,7 +250,8 @@ class FigureGridView(QScrollArea):
             if pixmap is None or pixmap.isNull():
                 continue
             title = titles[index] if index < len(titles) else ""
-            cell = _FigureCell(index, pixmap, title, self._body)
+            cell = _FigureCell(index, pixmap, title, self._body,
+                               letter=_letter_for(len(self._cells)))
             cell.clicked.connect(self.figure_activated)
             cell.menu_requested.connect(self.figure_menu_requested)
             self._cells.append(cell)
