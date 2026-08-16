@@ -3846,6 +3846,14 @@ def perform_regression(settings):
         hinge_threshold=settings['hinge_threshold'],
         hinge_n_boot=settings['hinge_n_boot'],
         huber_t=settings['huber_t'],
+        # THE QC SUITE HAS TO BE DECLINABLE, and until this line it was not.
+        # `regression()` grew a `qc` parameter precisely so a parameter sweep
+        # could turn it off, and then nothing passed one -- so every trial of
+        # every sweep paid the full diagnostic suite: ~5.8 s and ~19 figures
+        # plus a combined PDF, i.e. roughly ten minutes and two thousand files
+        # per hundred trials, with no way to say no. On a single analysis it
+        # is exactly what you want, which is why it stays on by default.
+        qc=bool(settings.get('regression_qc', True)),
     )
     
     coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
