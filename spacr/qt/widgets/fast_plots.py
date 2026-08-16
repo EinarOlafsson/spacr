@@ -113,10 +113,14 @@ def _finite(values) -> np.ndarray:
 class FastPlot(QWidget):
     """A pyqtgraph plot with the controls every plot here wants.
 
-    :ivar point_clicked: emitted with the row index of a clicked point.
+    :ivar point_clicked: emitted with the position of a clicked point IN THIS
+        PLOT'S OWN FRAME. It is not an index into anyone else's table; see
+        :attr:`key_selected` for the link that survives sorting and filtering.
+    :ivar key_selected: emitted with the identifier of a clicked point.
     """
 
     point_clicked = Signal(int)
+    key_selected = Signal(str)
 
     def __init__(self, title: str = "", x_label: str = "", y_label: str = "",
                  parent=None):
@@ -195,6 +199,17 @@ class FastPlot(QWidget):
         self._legend_colours: dict = {}
         self._items: list = []
 
+        # THE KEY JOIN. Row-to-point highlighting is joined on the identifier
+        # the row carries, never on a position -- a table sorted by effect and
+        # a scatter drawn in input order are the same points in two orders,
+        # and joining them by index lights up the WRONG guide silently, in
+        # exactly the direction nobody questions, because something lit up.
+        self._keys: Sequence[str] = ()
+        self._key_rows: dict = {}
+        self._row_xy: dict = {}
+        self._selected_key: Optional[str] = None
+        self._highlight = None
+
         # Right-click to restyle, the same gesture the matplotlib figures use.
         self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
         self.plot.customContextMenuRequested.connect(self._style_menu)
@@ -230,9 +245,15 @@ class FastPlot(QWidget):
         menu.exec(self.plot.mapToGlobal(position))
 
     def _scatter_items(self):
-        """Every scatter on the plot, for a restyle to reach."""
+        """Every scatter on the plot, for a restyle to reach.
+
+        The selection marker is deliberately not one of them: it is a cursor,
+        not data, and a restyle that shrank it to the point size would make
+        the selection invisible.
+        """
         return [i for i in self.plot.listDataItems()
-                if hasattr(i, "setSize") and hasattr(i, "setBrush")]
+                if hasattr(i, "setSize") and hasattr(i, "setBrush")
+                and i is not self._highlight]
 
     def _ask_point_size(self) -> None:
         from PySide6.QtWidgets import QInputDialog
@@ -374,9 +395,71 @@ class FastPlot(QWidget):
         )
         item.sigClicked.connect(self._on_points_clicked)
         self.plot.addItem(item)
+        # Where each row ended up, so a selection arriving later can be drawn
+        # without re-deriving the transform that put it there.
+        self._row_xy.update(zip(original.tolist(),
+                                zip(x[keep].tolist(), y[keep].tolist())))
         if labels is not None and len(labels):
             self._labels = labels
         return item
+
+    # ------------------------------------------------------------ selection
+
+    def set_keys(self, keys) -> int:
+        """Give each frame row its identifier. Returns the number of rows.
+
+        Duplicates are kept as the FIRST row carrying the key, and counted:
+        an identifier that names two rows cannot select one of them, and
+        picking silently is how the wrong point gets highlighted.
+        """
+        self._keys = [str(key) for key in keys]
+        self._key_rows = {}
+        for row, key in enumerate(self._keys):
+            self._key_rows.setdefault(key, row)
+        return len(self._keys)
+
+    def key_for_row(self, row: int) -> Optional[str]:
+        """The identifier at frame position ``row``, if this plot has keys."""
+        if self._keys and 0 <= int(row) < len(self._keys):
+            return self._keys[int(row)]
+        return None
+
+    def highlight_key(self, key) -> bool:
+        """Ring the point identified by ``key``. Returns whether one was found.
+
+        ``False`` is a real answer, not a failure: a key can be absent because
+        its point was not plotted (an unusable p-value) or because it is a
+        nuisance term this plot deliberately leaves off. Saying so beats
+        ringing something near it.
+        """
+        key = None if key is None else str(key)
+        self._selected_key = key
+        if self._highlight is not None:
+            try:
+                self.plot.removeItem(self._highlight)
+            except Exception:               # pragma: no cover - already gone
+                pass
+            self._highlight = None
+        if key is None:
+            return False
+        row = self._key_rows.get(key)
+        if row is None:
+            return False
+        position = self._row_xy.get(row)
+        if position is None:
+            return False
+        x, y = position
+        # An open ring, not a filled dot: filling it would hide the point it
+        # is meant to identify, including its category colour.
+        self._highlight = pg.ScatterPlotItem(
+            x=[x], y=[y], symbol="o", size=20, brush=pg.mkBrush(None),
+            pen=pg.mkPen(QColor(self._foreground), width=2.0))
+        self._highlight.setZValue(50)
+        self.plot.addItem(self._highlight)
+        return True
+
+    def clear_highlight(self) -> None:
+        self.highlight_key(None)
 
     def add_line(self, *, x=None, y=None, colour: str = "#C44E52",
                  style=Qt.DashLine, width: float = 1.5, label: str = ""):
@@ -401,6 +484,10 @@ class FastPlot(QWidget):
         text = self._describe(index)
         if text:
             self.set_status(text)
+        key = self.key_for_row(index)
+        if key is not None:
+            self.highlight_key(key)
+            self.key_selected.emit(key)
         self.point_clicked.emit(index)
 
     def _describe(self, index: int) -> str:
@@ -496,12 +583,44 @@ class VolcanoPlot(FastPlot):
                     p_column: str = "p_value", label_column: str = "feature",
                     category_column: Optional[str] = None,
                     alpha: float = 0.05,
-                    effect_threshold: Optional[float] = None):
+                    effect_threshold: Optional[float] = None,
+                    key_column: Optional[str] = None,
+                    drop_untested: bool = True):
         """Draw ``frame``. Returns the number of points actually plotted."""
         self.plot.clear()
+        self._row_xy = {}
+        self._highlight = None
         if frame is None or not len(frame):
             self.set_status("No coefficients to plot.")
             return 0
+
+        # NUISANCE TERMS ARE NOT HYPOTHESES, AND THEY OWN THE AXIS.
+        #
+        # The intercept and the plate row/column effects are covariates: they
+        # are fitted so the guide effects come out clean, not so anyone can
+        # ask whether they differ from zero. spacr.ml already draws that line
+        # -- it leaves them out of the multiple-testing family, which is why
+        # they leave a fit with q_value = NaN -- and plotting them draws a
+        # different experiment from the one the q-values describe.
+        #
+        # It is not a rounding error. On plate1_dv the intercept sits at
+        # -log10(p) = 45.5 against 12.5 for the strongest real hit and 2.3 at
+        # the 99th percentile, so ONE untestable row makes the y-axis 3.6x
+        # taller than the data and flattens the whole screen into the bottom
+        # of it. A fit carrying row and column terms has ~25 of them.
+        untested = 0
+        if drop_untested and "feature" in getattr(frame, "columns", ()):
+            from ...hits import tested_family
+
+            keep_rows = tested_family(frame["feature"])
+            if not keep_rows.all():
+                untested = int((~keep_rows).sum())
+                frame = frame.loc[keep_rows].reset_index(drop=True)
+                if not len(frame):
+                    self.set_status(
+                        f"No testable coefficients: all {untested} rows are "
+                        "nuisance terms.")
+                    return 0
 
         effects = _finite(frame[effect]) if effect in frame else np.zeros(len(frame))
         p_values = _finite(frame[p_column]) if p_column in frame \
@@ -541,6 +660,14 @@ class VolcanoPlot(FastPlot):
         self._p_column = p_column
         self._labels = ()
 
+        # `feature` is the design-matrix term name and is one-to-one with the
+        # row -- checked on the real screen: 1,213 rows, 1,213 distinct. `gene`
+        # and `grna` are NOT keys, because a gene has several guides and
+        # several rows, so joining on either highlights an arbitrary one.
+        key = key_column or ("feature" if "feature" in frame.columns
+                             else label_column)
+        self.set_keys(frame[key] if key in frame.columns else frame.index)
+
         self.add_scatter(effects, neglog, brush_list=brush_list)
         self.add_line(y=-np.log10(alpha), label=f"p={alpha:g}")
         if effect_threshold:
@@ -569,8 +696,21 @@ class VolcanoPlot(FastPlot):
         else:
             self._legend_box.setEnabled(False)
 
+        # A SELECTION SURVIVES A REDRAW. plot.clear() took the marker with it,
+        # so it goes back on -- otherwise changing the colouring, or any other
+        # setting, silently deselects whatever the user was looking at.
+        if self._selected_key is not None:
+            self.highlight_key(self._selected_key)
+
         plotted = int(np.sum(~(np.isnan(effects) | np.isnan(neglog))))
-        self.set_status(f"{plotted} coefficients. Click a point for detail.")
+        note = f"{plotted} coefficients."
+        if untested:
+            # Reported, not silently removed: the difference between a filter
+            # and a lie.
+            note += (f" {untested} nuisance "
+                     f"term{'s' if untested != 1 else ''} not shown (not "
+                     "tested, so no q-value).")
+        self.set_status(f"{note} Click a point for detail.")
         return plotted
 
 
@@ -723,9 +863,14 @@ class ResultsTable(QWidget):
     tool, and until now the only way to see them was to open the CSV.
 
     :ivar row_selected: emitted with the frame row index of the selected row.
+    :ivar key_selected: emitted with the selected row's identifier. This is
+        the one to connect a plot to: an index only means anything to the
+        frame it came from, and the table's frame and the plot's frame are
+        not required to be the same one.
     """
 
     row_selected = Signal(int)
+    key_selected = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -764,14 +909,19 @@ class ResultsTable(QWidget):
 
         self._frame = None
         self._alpha = 0.05
+        self._key_column: Optional[str] = None
 
     def set_frame(self, frame, *, alpha: float = 0.05,
-                  significance_column: Optional[str] = None) -> int:
+                  significance_column: Optional[str] = None,
+                  key_column: Optional[str] = None) -> int:
         """Fill the table. Returns the row count."""
         from PySide6.QtWidgets import QTableWidgetItem
 
         self._frame = frame
         self._alpha = alpha
+        self._key_column = key_column or (
+            "feature" if frame is not None and "feature" in frame.columns
+            else None)
         self._significance = significance_column or self._guess_significance(frame)
         if frame is None or not len(frame):
             self.table.setRowCount(0)
@@ -838,8 +988,23 @@ class ResultsTable(QWidget):
         if not items:
             return
         index = items[0].data(Qt.UserRole)
-        if index is not None:
-            self.row_selected.emit(int(index))
+        if index is None:
+            return
+        index = int(index)
+        self.row_selected.emit(index)
+        key = self.key_for_row(index)
+        if key is not None:
+            self.key_selected.emit(key)
+
+    def key_for_row(self, index: int) -> Optional[str]:
+        """The identifier at frame position ``index``, or ``None``."""
+        if self._frame is None or not self._key_column:
+            return None
+        if self._key_column not in self._frame.columns:
+            return None
+        if not 0 <= int(index) < len(self._frame):
+            return None
+        return str(self._frame[self._key_column].iloc[int(index)])
 
     def select_frame_row(self, index: int) -> bool:
         """Scroll to and select the row for frame position ``index``.
@@ -850,6 +1015,32 @@ class ResultsTable(QWidget):
         for row in range(self.table.rowCount()):
             item = self.table.item(row, 0)
             if item is not None and item.data(Qt.UserRole) == index:
+                self.table.selectRow(row)
+                self.table.scrollToItem(item)
+                return True
+        return False
+
+    def select_key(self, key) -> bool:
+        """Select the row whose identifier is ``key``. The safe direction.
+
+        A plot has no business knowing where a row sits in this table -- the
+        user sorts it, filters it, and after instruction 122 it may not even
+        be drawn from the same frame. It knows the key, and the key is enough.
+
+        A hidden row is unhidden to select it: silently doing nothing because
+        the filter box excludes the point the user just clicked reads as a
+        broken click.
+        """
+        if self._frame is None or not self._key_column:
+            return False
+        if self._key_column not in self._frame.columns:
+            return False
+        wanted = str(key)
+        column = list(self._frame.columns).index(self._key_column)
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, column)
+            if item is not None and item.text() == wanted:
+                self.table.setRowHidden(row, False)
                 self.table.selectRow(row)
                 self.table.scrollToItem(item)
                 return True
