@@ -125,10 +125,30 @@ class TestRcParams:
                        for side in ("top", "right", "bottom", "left"))
 
     def test_styling_never_raises_into_a_run(self):
-        """A bad preference must not sink an analysis."""
-        from spacr.figure_style import apply
+        """A bad preference must not sink an analysis.
 
-        apply("volcano", general={"font_size": "not a number"})
+        And "does not raise" is only half of it. The style still has to come
+        back, because the settings matplotlib has no rcParam for -- how many
+        volcano labels to write -- are read off the return value and the plot
+        cannot be drawn without them. What must NOT happen is a half-applied
+        style: ``rc_params`` builds the whole dict before any of it is pushed,
+        so one unusable value leaves matplotlib exactly as it was rather than
+        applying the seven settings that came before it alphabetically.
+        """
+        import matplotlib
+
+        from spacr.figure_style import apply, resolve
+
+        before = {key: repr(value)
+                  for key, value in matplotlib.rcParams.items()}
+
+        style = apply("volcano", general={"font_size": "not a number"})
+
+        assert style["font_size"] == "not a number"
+        assert style["label_top_n"] == resolve("volcano")["label_top_n"]
+        after = {key: repr(value) for key, value in matplotlib.rcParams.items()}
+        assert after == before, (
+            "a preference that cannot be used was partly applied anyway")
 
 
 class TestPersistence:
