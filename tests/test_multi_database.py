@@ -282,3 +282,92 @@ def test_the_umap_warns_about_colliding_plates_without_stopping(tmp_path,
                        for plate, labels in sorted(plan.colliding_plates.items()))
     assert "plate1" in detail
     assert "runA" in detail and "runB" in detail
+
+
+# --------------------------------------------------------------------------- #
+#  The parts a screen shows, and the edges that make labels unique
+# --------------------------------------------------------------------------- #
+
+def test_the_plan_describes_itself_for_a_dialog(two_plates, colliding,
+                                                tmp_path):
+    """`describe` is what a screen puts in front of a user before they
+    commit, so it has to name the counts AND the two things that cost them
+    something: columns present in only some sources, and colliding plates."""
+    plan = describe_merge(list(two_plates), "cell")
+    text = plan.describe()
+
+    assert "2 databases" in text
+    assert "8 rows" in text
+    assert "columns in all of them" in text
+    assert "perimeter" in text          # the partial column, named
+    assert "appear in more than one" not in text
+
+    clash = describe_merge(list(colliding), "cell").describe()
+    assert "appear in more than one" in clash
+    assert "plate1" in clash
+
+
+def test_describe_truncates_a_long_partial_column_list(tmp_path):
+    """Eight partial columns must not print eight names into a dialog."""
+    extra = _database(tmp_path / "wide.db", "plateW")
+    with sqlite3.connect(extra) as db:
+        for i in range(8):
+            db.execute(f'ALTER TABLE cell ADD COLUMN extra_{i} REAL')
+    plain = _database(tmp_path / "plain.db", "plateP")
+
+    text = describe_merge([extra, plain], "cell").describe()
+    assert "..." in text
+
+
+def test_a_source_summary_names_itself(two_plates):
+    """`name` is what a legend or a chip shows."""
+    plan = describe_merge(list(two_plates), "cell")
+    assert [s.name for s in plan.sources] == ["plateA", "plateB"]
+
+
+def test_three_databases_with_one_stem_all_get_distinct_labels(tmp_path):
+    """Parent-directory disambiguation runs out when the parents match too,
+    so the numeric tail has to work -- otherwise two sources share a legend
+    entry and the provenance column stops distinguishing them."""
+    # FOUR, not three. The first takes the stem, the second the
+    # parent/stem, the third parent/stem (2) -- the counter only has to
+    # ADVANCE on the fourth, which is the line this covers.
+    paths = []
+    for index in range(4):
+        folder = tmp_path / "runs" / f"copy{index}" / "same"
+        folder.mkdir(parents=True)
+        paths.append(_database(folder / "measurements.db", f"p{index}"))
+
+    labels = [s.label for s in describe_merge(paths, "cell").sources]
+    assert len(set(labels)) == 4, labels
+    assert any("(3)" in label for label in labels), labels
+
+
+def test_a_table_without_a_plate_column_reports_no_plates(tmp_path):
+    """Not every table is keyed by plate -- a summary table is a legitimate
+    merge target, and it simply cannot collide."""
+    path = tmp_path / "nokey.db"
+    with sqlite3.connect(str(path)) as db:
+        pd.DataFrame({"value": [1, 2]}).to_sql("summary", db, index=False)
+
+    plan = describe_merge([str(path)], "summary")
+    assert plan.sources[0].plates == ()
+    assert not plan.has_collisions
+
+
+def test_a_legacy_column_spelling_is_canonicalised_on_the_way_in(tmp_path):
+    """Two databases spelling one column differently must become ONE column,
+    not two -- and case-folded, so the merged frame is still writable."""
+    modern = _database(tmp_path / "modern.db", "plateM")
+    legacy = tmp_path / "legacy.db"
+    frame = pd.DataFrame({
+        "plateID": ["plateL"] * 2, "row": ["r1", "r2"],
+        "columnID": ["c1"] * 2, "area": [1.0, 2.0],
+    })
+    with sqlite3.connect(str(legacy)) as db:
+        frame.to_sql("cell", db, index=False)
+
+    merged = read_merged([modern, str(legacy)], "cell", columns="union")
+
+    assert "rowID" in merged.columns
+    assert "row" not in merged.columns
