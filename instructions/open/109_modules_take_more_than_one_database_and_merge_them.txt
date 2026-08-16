@@ -2,7 +2,8 @@
 IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
 ================================================================================
 
-Status:    filed 2026-08-15, not started.
+Status:    2026-08-15: the shared mechanism is BUILT and the Gate Editor uses
+           it. Image UMAP is NOT wired yet. See RESULT at the end.
 Requested: 2026-08-15 - "add to instructions, make user that moduals like
            image UMAP and gate editor can take multiple databases and gerge
            them."
@@ -97,3 +98,56 @@ HOW TO KNOW IT WORKED
   dropped or nulled, before anything is computed.
 * A per-source count after the merge equals the per-source count before it,
   for every source -- the test that catches silent pooling.
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-15) -- mechanism done, one of two screens wired
+--------------------------------------------------------------------------------
+
+`spacr/multi_database.py` is the shared thing this instruction asked for, and
+it is deliberately NOT in `spacr/qt/`: merging databases is data logic, and
+the moment it lives in a screen the second screen writes its own.
+
+    describe_merge(paths, table) -> MergePlan
+    read_merged(paths, table, ...) -> one frame
+
+`describe_merge` reads only sqlite metadata and the distinct plate ids, so it
+is cheap enough to run while the user is still choosing files -- which is the
+point of point 4: the answer has to arrive BEFORE they commit. The plan
+reports total rows, the columns common to every source, the columns present
+in only some (naming which), and any plate id that appears more than once.
+
+Every requirement above, and where it landed:
+
+  1. TAKE A LIST -- `read_merged(paths, ...)`. Merging one database is not a
+     special case: it is the same frame plus provenance, so callers never
+     branch.
+  2. PROVENANCE -- every row carries `SOURCE_COLUMN` ("source_database"),
+     labelled by the file's stem, disambiguated by parent directory when two
+     files share one (every plate's database is often `measurements.db`).
+  3. COLLISIONS -- refused by default, with a message naming the clashing
+     plate ids. `on_collision='qualify'` prefixes each with its source using
+     `schema.escape_filename_component`, so the qualified id cannot introduce
+     the key separator and split the key into an extra component. THERE IS NO
+     OPTION THAT POOLS, and 'merge'/'ignore'/'pool' are refused explicitly
+     because they are what a caller would reach for.
+  4. SCHEMAS -- `columns='common'` (safe, drops) or `'union'` (keeps, nulls).
+     No default that is right for both, so the caller states it and the plan
+     says what each costs. Both routes go through
+     `schema.canonical_rename_plan`, so a column spelled differently across
+     two databases becomes one column rather than two -- case-folded, so the
+     merge cannot produce a frame SQLite refuses (instruction 100, C1).
+  5. MEMORY -- `limit_per_source` caps rows per database in SQL.
+
+THE GATE EDITOR is wired: its file dialog is `getOpenFileNames`, one file
+behaves exactly as before, several go through the merge. A refusal is shown
+in the source label and LEAVES THE EXISTING FRAME ALONE -- a screen that
+blanks itself has punished the user for a question they are allowed to ask.
+
+WHAT IS NOT DONE. Image UMAP is not wired, and the "add / remove / see what
+is loaded" chip interaction from point 1 is not built for either screen --
+today it is multi-select in the open dialog. Both are GUI work on top of a
+mechanism that is finished and tested; neither changes any of the decisions
+above.
+
+16 tests, including the one that matters: a per-source count after the merge
+equals the per-source count before it, for every source.
