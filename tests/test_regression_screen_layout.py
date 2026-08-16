@@ -315,3 +315,50 @@ def test_the_divider_is_the_users_after_the_first_click(screen):
 
     assert screen._gene_split.sizes()[1] == 0, (
         "clicking again forced the tile back open")
+
+
+# --------------------------------------------------------------------------- #
+#  The publication figure
+# --------------------------------------------------------------------------- #
+
+def test_there_is_a_control_for_the_publication_figure(screen):
+    """"the all figures section should look like a publication ready
+    figure". The tile grid answers "what did this run draw"; the sheet
+    answers "what did this run FIND"."""
+    from PySide6.QtWidgets import QPushButton
+
+    buttons = [b.text() for b in screen._figure_detail.findChildren(QPushButton)]
+    assert any("Publication" in text for text in buttons), buttons
+
+
+def test_it_draws_the_sheet_into_the_ordinary_queue(screen):
+    """Not a bespoke viewer: the sheet restyles, exports and saves through
+    the same path as every other figure, so it inherits those fixes instead
+    of collecting its own copies of the bugs."""
+    screen._results_panel.set_frame(_real_results())
+    before = screen._figure_queue.count()
+
+    screen._show_publication_sheet()
+
+    assert screen._figure_queue.count() == before + 1
+    assert screen._figures_stack.currentWidget() is screen._figure_detail
+
+
+def test_with_no_table_it_says_so_instead_of_drawing_nothing(screen):
+    screen._show_publication_sheet()
+
+    text = screen._console.copy_all() if hasattr(screen._console, "copy_all") \
+        else ""
+    assert "nothing to draw" in text.lower()
+    assert screen._figure_queue.count() == 0
+
+
+def test_the_legend_reaches_the_console(screen):
+    """A journal figure without its legend is half a figure, and the legend
+    is generated from the panels so it cannot describe a different one."""
+    screen._results_panel.set_frame(_real_results())
+    screen._show_publication_sheet()
+
+    text = screen._console.copy_all() if hasattr(screen._console, "copy_all") \
+        else ""
+    assert "(A)" in text and "tested coefficients" in text
