@@ -1,0 +1,60 @@
+================================================================================
+FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
+================================================================================
+
+Status:    not started
+Requested: 2026-08-16 — "the graphs look pretty ugly. in the general app
+           preferences in the figure tab theere should be general graph
+           settings and specialized settings for al the possible different
+           sets of graphs"
+Owner:     preferences
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Preferences' Figure tab holds background, text colour, text size, DPI, format,
+the live-figure cache size and the dynamic-figures switch. Nothing about how a
+plot LOOKS: no font family, no palette, no marker size, no line width, no grid
+default, and nothing specific to any one kind of graph.
+
+Every plot therefore inherits matplotlib's defaults, which is what "the graphs
+look pretty ugly" means in practice.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+These figures go into a manuscript. Restyling each one by hand after every run
+is work the application should do once, and a per-run restyle is lost the next
+time the analysis is re-run -- which, during a revision, is constantly.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+GENERAL, applying to every figure: font family and size, palette, background
+and foreground, grid on/off with its colour and width, spine visibility and
+width, marker size, line width, DPI, and figure format.
+
+PER GRAPH TYPE, overriding the general where it is set:
+
+  volcano          point size, threshold line style/colour, label count,
+                   which categories are coloured, split-axis behaviour
+  plate heatmap    colormap, whether it is centred, colour limits, cell
+                   annotation, one or two per row
+  histogram        bin count or rule, fill and edge colour
+  scatter / QC     point size and alpha, whether a trend line is drawn
+  residuals        reference line style, whether the trend is shown
+  jitter / bar     point spread, error-bar style
+
+Stored so a run picks them up without the user touching anything, and every
+one of them reachable from the same place.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+Changing the palette in Preferences changes the next run's figures without any
+per-figure work, and a volcano-specific point size does not alter the plate
+heatmaps.
