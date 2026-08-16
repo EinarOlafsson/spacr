@@ -1,0 +1,80 @@
+================================================================================
+A PARAMETER SEARCH THAT CANNOT TAKE THE MACHINE DOWN
+================================================================================
+
+Status:    not started
+Requested: 2026-08-16 — "could you modify the paramiter search so it dosnt
+           crash the computer, then run a search"
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/parameter_sweep.py runs trials through a ProcessPoolExecutor. Seven
+attempts to run it took the user's desktop down, and the two mechanisms are
+now both known and both measured:
+
+  THREADS. OpenBLAS reads OMP_NUM_THREADS once, when numpy first imports it,
+  and sizes its pool from the core count if the variable is not set yet.
+  _pin_threads() ran AFTER the spaCR import had already pulled numpy in, so
+  the pool stayed at 32 threads per worker. The permutation path is batched
+  matmul, exactly what OpenBLAS fans across every core: four processes at 32
+  threads reached load 35 on 32 cores. Fixed in 775bd031 with
+  threadpoolctl.threadpool_limits, which resizes the LIVE pool and therefore
+  holds whatever the import order was.
+
+  MEMORY. inference='nonparametric' with analysis_unit='cell' permutes
+  ~116,000 rows against 200,000 permutations. One trial, serial, was measured
+  holding 57 GB. Rejected outright in 205bd8cd, because no worker count or
+  thread limit makes it survivable -- the allocation is inside one process.
+
+What is NOT yet in the module: the per-trial hard cap. The nightly EAF1/GRA14
+runs used `systemd-run --user --scope -p MemoryMax=24G -p MemorySwapMax=0
+-p CPUQuota=400% -p TasksMax=64` around each subprocess, and 54 regressions
+ran without touching the host. That containment lives only in a scratch
+driver script; the module itself still trusts its own accounting.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The user has said "if you crash VS Code one more time ill fucking delete
+you", and lost a working day to it across seven attempts while a publication
+deadline ran down. A sweep that MIGHT take the desktop with it is a sweep
+nobody can start, which makes the whole feature worthless however good its
+results are.
+
+Accounting is not containment. Every previous fix was an estimate of what a
+trial would use; the kernel enforcing a ceiling is the only thing that has
+actually held.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Run each trial in a cgroup with a hard MemoryMax, MemorySwapMax=0,
+   CPUQuota and TasksMax. Prefer systemd-run --user --scope when it is
+   available; fall back to the current behaviour with a LOUD note when it is
+   not, rather than pretending the cap is there.
+
+2. A trial killed by its cap is a RESULT, not a crash: record status='killed'
+   with the limit it hit, and carry on to the next trial.
+
+3. Set the thread environment before the child imports numpy -- in the
+   child's own environment, not the parent's -- and call _pin_threads()
+   inside it as well.
+
+4. Refuse to START another trial below a free-memory floor, so the sweep
+   stops before the machine is in trouble rather than reacting once it is.
+
+5. Default to serial. Parallelism is an opt-in the user asks for, having seen
+   what one process can already do.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+A deliberately memory-hungry trial is killed by the kernel, the sweep records
+it and continues, and free memory never moves. Verified the same way the cap
+itself was: run a hog under the cap and watch it die alone.

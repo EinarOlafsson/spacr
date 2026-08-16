@@ -1,0 +1,45 @@
+================================================================================
+CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
+================================================================================
+
+Status:    partly done
+Requested: 2026-08-16 — "the search should function simmilarly to the image
+           umap hyperparamiter search wher the user can click a row in the
+           table and spawn the umap, in this case the user should be able to
+           click a row and spawn the set of graphs for the particular run"
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+4f16455f added settings_for_trial() and rerun_trial(), and the Parameter
+Sweep screen re-runs a double-clicked row and puts its live figures in an
+embedded FigureQueue. What it does NOT do is show the SET of graphs the way
+the Image UMAP search does: one grid of small multiples, all of a run's
+diagnostics at once.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Re-running is the expensive half and it is done. Showing one figure at a time
+in a queue means the user still cannot compare a run's residual plot against
+its volcano without clicking between them, which is the comparison that
+decides whether a configuration is any good.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+A clicked row opens the full RegressionResultsPanel for that trial -- volcano,
+table, p-values, Q-Q, controls, guide support, residuals, collinearity -- and
+prefers the trial's SAVED outputs over a re-run when they are on disk, because
+a saved run is instant and a re-fit is a minute.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT IS DONE
+--------------------------------------------------------------------------------
+
+Clicking a row with saved output shows its graphs without re-fitting; clicking
+one without saved output re-fits and then shows the same set.
