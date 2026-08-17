@@ -19,7 +19,8 @@ permutation table carries a real coefficient per guide, an effect-size cut is
 about how BIG an effect is, and how the P value was obtained does not change
 that. `spacr.ml._run_guide_permutation_analysis` now computes, records and
 draws one, and `tests/test_the_nonparametric_cut_is_a_real_cut.py` pins it --
-including a strict xfail on the settings rule, which is the half still to do.
+and the settings rule that greyed them was removed on 2026-08-17,
+because its stated reason had become false.
 
 Either way the controls were unfindable, which is why they are on the plot,
 where the cut is drawn.

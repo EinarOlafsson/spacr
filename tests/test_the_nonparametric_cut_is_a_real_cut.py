@@ -428,14 +428,6 @@ def test_the_permutation_run_reads_both_threshold_settings():
     assert "settings.get('threshold_multiplier'" in source
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="spacr/settings.py:4191 still greys threshold_method and "
-           "threshold_multiplier under nonparametric inference, with the "
-           "reason 'guide permutation uses corrected P values'. That reason "
-           "is now false -- the run above computes, records and draws a cut "
-           "on this path -- but settings.py is not owned by this change. "
-           "Relax that rule and delete this marker.")
 def test_the_settings_panel_offers_the_two_threshold_controls_under_permutation():
     """The controls the maintainer went looking for and could not find.
 
@@ -451,6 +443,12 @@ def test_the_settings_panel_offers_the_two_threshold_controls_under_permutation(
     active = {"inference": "nonparametric",
               "analysis_mode": "guide_permutation"}
     for key in ("threshold_method", "threshold_multiplier"):
-        assert rules[key]["predicate"](active, {}), (
+        # NO RULE AT ALL is the correct outcome, not a rule that always says
+        # yes: a setting with no applicability rule is never greyed, and
+        # keeping an always-true rule would be a rule that exists to say
+        # nothing. Either shape passes, so the fix is not pinned to the way
+        # it happened to be made.
+        rule = rules.get(key)
+        assert rule is None or rule["predicate"](active, {}), (
             f"{key} is read by the guide-permutation run, so the panel must "
             f"offer it under nonparametric inference")
