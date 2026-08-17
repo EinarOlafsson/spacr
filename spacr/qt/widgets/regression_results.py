@@ -591,7 +591,25 @@ class RegressionResultsPanel(QWidget):
         self._colour_by_note = ""
         #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
         #: state, read by every draw path: see :meth:`refresh_views`.
-        self._level = None
+        # "grna", NOT None. The coefficient table holds BOTH levels, so
+        # None drew a gene once per guide PLUS once for itself: on the real
+        # screen `225160` is four rows -- grna[225160_1], [_2], [_3] and
+        # gene[225160] -- all labelled 225160. Reported as "GRA14 and 225160
+        # occur in the top right side of the graph 4 times each which is
+        # obviously wrong". It is.
+        #
+        # It looks fine on the RAW axis because the four have different p
+        # values and spread vertically; on the ADJUSTED axis Benjamini-
+        # Hochberg ties pull them to one height and they stack into a single
+        # spot. The adjusted axis did not create it, it made it visible --
+        # which is why it was reported as an adjusted-p bug, and why I looked
+        # in the wrong place three times.
+        #
+        # Guides rather than genes: the guide is the unit the screen
+        # measures, and a permutation run reports guides ONLY -- so this is
+        # the level on which the two inference modes agree. Instruction 128 R
+        # is the real repair: fit the two levels SEPARATELY.
+        self._level = "grna"
         #: The fitted model behind the table, when a run in this session
         #: produced it. BORN HERE for the same reason as everything else in
         #: this block.
@@ -1197,7 +1215,7 @@ class RegressionResultsPanel(QWidget):
         # -- and a new screen would otherwise be offered the last one's
         # compartments.
         self._compartment = None
-        self._level = None
+        self._level = "grna"
         self._offer_levels()
         self._offer_p_values()
         self._offer_thresholds()

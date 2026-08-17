@@ -47,10 +47,15 @@ class TestItOpensIntoTheResults:
         # ... each represented as a tab under results". They sit next to the
         # volcano because they answer the same question at gene level -- what
         # the screen found, and how big.
-        assert [panel.tabs.tabText(i) for i in range(panel.tabs.count())] == \
+        stems = [panel.tabs.tabText(i).split(" (")[0]
+                 for i in range(panel.tabs.count())]
+        assert stems == \
             ["Volcano", "Effect rank", "Effect distribution", "p-values",
              "Q-Q", "Controls", "Residuals", "Scale-location", "Influence",
-             "Summary", "Guide support", "Gene"]
+             "Summary", "Guide support", "Gene"], (
+                "compare the STEMS: a title carries its level in brackets "
+                "when one is filtered, and guides became the default on "
+                "2026-08-17")
         assert panel.table.table.rowCount() == len(results)
         assert "Inflation" in panel.qq._status.text()
         assert "negative" in panel.controls._status.text()
@@ -191,8 +196,12 @@ class TestTheGuideSupportTab:
         qtbot.addWidget(panel)
         panel.set_frame(self._frame())
 
-        assert "Guide support" in [panel.tabs.tabText(i)
-                                   for i in range(panel.tabs.count())]
+        # startswith, not equality: a tab title carries the LEVEL when one is
+        # filtered ("Guide support (guides)"), which is how the panel says
+        # which calibration you are reading. The default became "guides" on
+        # 2026-08-17 to stop a gene being drawn once per guide.
+        titles = [panel.tabs.tabText(i) for i in range(panel.tabs.count())]
+        assert any(t.startswith("Guide support") for t in titles), titles
         verdicts = {}
         headers = [panel.support.table.horizontalHeaderItem(c).text()
                    for c in range(panel.support.table.columnCount())]
