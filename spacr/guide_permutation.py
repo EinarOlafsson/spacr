@@ -436,6 +436,24 @@ def save_guide_permutation_results(
     return paths
 
 
+def _drawable_threshold(value) -> float | None:
+    """``float(value)`` when it is a cut worth drawing, else ``None``.
+
+    ``coefficient_threshold`` returns ``None`` for "no cut", and a run that
+    has been through a CSV can hand back a NaN instead. Both mean the same
+    thing to a plot, and so does zero -- a cut at zero excludes nothing.
+    """
+    if value is None:
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not np.isfinite(number) or number <= 0:
+        return None
+    return number
+
+
 def plot_guide_permutation_volcano(
     results: pd.DataFrame,
     *,
@@ -444,8 +462,29 @@ def plot_guide_permutation_volcano(
     save_path: str | Path,
     label_guides: Mapping[str, str] | None = None,
     title: str | None = None,
+    effect_threshold: float | None = None,
+    effect_threshold_label: str | None = None,
 ):
-    """Draw a volcano using standardized effect and adjusted P value."""
+    """Draw a volcano using standardized effect and adjusted P value.
+
+    :param effect_threshold: half-width of the effect-size cut, drawn as a
+        pair of vertical lines at ``-threshold`` and ``+threshold``. ``None``
+        -- and any non-finite or non-positive number -- draws none, because a
+        cut at zero excludes nothing and a line at zero is the axis that is
+        already there.
+
+        A permutation run drew no cut at all until 2026-08-17, on the reading
+        that an empirical P value makes the question moot. It does not: a P
+        value says an effect is distinguishable from zero and this line says
+        it is big enough to follow up, and the second question is about the
+        coefficient however the first was answered. Asked by the maintainer
+        as "why cant i see the coefficient threshold if im running
+        nonparametric regression?".
+    :param effect_threshold_label: the sentence that attributes the cut, e.g.
+        ``3x std of 30 controls = 0.84``, for the legend.
+        :func:`spacr.thresholds.coefficient_threshold` returns it beside the
+        number. Falls back to the number alone.
+    """
     import matplotlib.pyplot as plt
 
     data = results.loc[
@@ -487,6 +526,16 @@ def plot_guide_permutation_volcano(
         linewidth=0.9,
     )
     axis.axvline(0, color="#777777", linewidth=0.7)
+    cut = _drawable_threshold(effect_threshold)
+    if cut is not None:
+        # Both lines, one legend entry: they are one cut with two sides, and
+        # a legend that lists it twice reads as two different rules.
+        axis.axvline(
+            cut, color="#0072B2", linestyle=":", linewidth=1.1,
+            label=effect_threshold_label or f"|effect| >= {cut:.3g}",
+        )
+        axis.axvline(-cut, color="#0072B2", linestyle=":", linewidth=1.1,
+                     label="_nolegend_")
     labelled_rows = []
     for guide, label in (label_guides or {}).items():
         row = data.loc[data["guide"] == str(guide)]
