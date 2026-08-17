@@ -77,6 +77,99 @@ def _graph_sequencing_stats(settings):
     return graph_sequencing_stats(settings)
 
 
+#: File types the run treats as a figure when it collects what a helper drew.
+_FIGURE_SUFFIXES = ('.pdf', '.png', '.svg', '.jpg', '.jpeg', '.tif', '.tiff',
+                    '.eps')
+
+
+def _screen_figure_folders(settings):
+    """Where a sequencing helper drops its figures: beside the COUNT DATA.
+
+    `graph_sequencing_stats` writes ``<count folder>/results/`` for the
+    threshold sweep and ``<count folder>/`` for the unique-count plate
+    heatmap, both derived from ``settings['count_data'][0]`` inside
+    :mod:`spacr.sequencing`. Neither is the run's own folder, which is the
+    whole problem this list exists to solve.
+    """
+    folders = []
+    for path in (settings.get('count_data') or []):
+        base = os.path.dirname(str(path))
+        for candidate in (base, os.path.join(base, 'results')):
+            if candidate and candidate not in folders:
+                folders.append(candidate)
+    return folders
+
+
+def _figure_stamps(folders):
+    """``{path: (mtime, size)}`` for every figure directly inside ``folders``.
+
+    Not recursive, and not a bare listing: a run of the same screen writes
+    the same file NAMES, so identity has to include the stamp or a figure
+    left by yesterday's run reads as one this run drew.
+    """
+    stamps = {}
+    for folder in folders:
+        try:
+            entries = list(os.scandir(folder))
+        except OSError:
+            continue
+        for entry in entries:
+            if not entry.name.lower().endswith(_FIGURE_SUFFIXES):
+                continue
+            try:
+                if not entry.is_file():
+                    continue
+                info = entry.stat()
+            except OSError:
+                continue
+            stamps[entry.path] = (info.st_mtime_ns, info.st_size)
+    return stamps
+
+
+def _keep_figures_with_the_run(before, folders, destination):
+    """Copy figures written since ``before`` into the run's own folder.
+
+    THE RUN FOLDER IS THE RECORD OF THE RUN, and two figures were never in
+    it. Reported 2026-08-17: "for some reason now i dont see the grna
+    threshold graph". Measured rather than assumed -- the figure IS drawn and
+    IS open at ``plt.show()``, so the Qt bridge still streams it to the live
+    figure queue. What it is missing from is every view built from DISK: the
+    all-figures grid rebuilt for a saved run walks the run folder
+    (``AppScreen._load_trial_figures``), and so does anyone opening
+    ``results/ols_12/`` themselves. ``fraction_threshold`` and the
+    unique-count heatmap were written to the SCREEN folder, which every run
+    of that screen shares, so neither was ever in one.
+
+    Copied rather than moved: scripts and past runs still expect the screen
+    folder, and a figure is small.
+
+    :param before: the stamps from :func:`_figure_stamps` taken first.
+    :param folders: the same folders it was taken over.
+    :param destination: the run folder.
+    :returns: the paths written, so the caller can name them.
+    """
+    import shutil
+
+    kept = []
+    for path, stamp in sorted(_figure_stamps(folders).items()):
+        if before.get(path) == stamp:
+            continue
+        target = os.path.join(destination, os.path.basename(path))
+        if os.path.abspath(target) == os.path.abspath(path):
+            continue
+        try:
+            os.makedirs(destination, exist_ok=True)
+            shutil.copy2(path, target)
+        except OSError as error:
+            # Advisory. A figure that could not be copied must not cost the
+            # run the threshold it just computed.
+            print(f"Could not keep {os.path.basename(path)} with the run: "
+                  f"{error}")
+            continue
+        kept.append(target)
+    return kept
+
+
 def _run_random_state(default=None):
     """Return the active run's seed, for an estimator's ``random_state=``.
 
@@ -638,6 +731,10 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     set) and writes ``results/cell_min_threshold.pdf`` next to
     ``settings['count_data'][0]``.
 
+    That destination is the SCREEN folder, shared by every run of the screen,
+    which is why :func:`perform_regression` copies whatever this draws into
+    the run's own folder -- see :func:`_keep_figures_with_the_run`.
+
     :param settings: Requires ``score_data`` (CSV path or list of paths),
         ``score_column``, ``tolerance`` (int percent or float fraction),
         ``min_cell_count`` and ``count_data``.
@@ -769,15 +866,16 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
     ax.legend().remove()
 
-    # Save the plot if a destination is provided
-    dst = os.path.dirname(settings['count_data'][0])
-    if dst is not None:
-        fig_path = os.path.join(dst, 'results')
-        os.makedirs(fig_path, exist_ok=True)
-        fig_file_path = os.path.join(fig_path, 'cell_min_threshold.pdf')
-        fig_file_path = save_figure(fig, fig_file_path,
-                                    bbox_inches='tight')
-        print(f"Saved {fig_file_path}")
+    # WHERE THE FIGURE GOES. The guard here used to read `if dst is not None`
+    # over an `os.path.dirname(...)`, which can never be None -- so the branch
+    # was decoration and the figure was always written. It still is; the
+    # branch is gone rather than excused.
+    dst = os.path.join(os.path.dirname(settings['count_data'][0]), 'results')
+    os.makedirs(dst, exist_ok=True)
+    fig_file_path = save_figure(fig, os.path.join(dst,
+                                                  'cell_min_threshold.pdf'),
+                                bbox_inches='tight')
+    print(f"Saved {fig_file_path}")
 
     plt.show()
     return elbow_point['sample_size']
@@ -919,6 +1017,57 @@ _STATSMODELS_COEF_TYPES = (
 _SKLEARN_COEF_TYPES = ('ridge', 'lasso', 'elasticnet')
 
 
+def label_control_condition(features, guides, nc=None, pc=None, controls=None):
+    """Label every coefficient row ``'nc'``, ``'pc'``, ``'control'`` or ``'other'``.
+
+    The ``condition`` column: what the volcano colours by, what the results
+    panel offers in "colour by", and -- the reason this is a function rather
+    than four lines inside :func:`process_model_coefficients` -- what the
+    EFFECT-SIZE CUT measures its spread on. A coefficient table without it is
+    a table :meth:`spacr.qt.widgets.regression_results.RegressionResultsPanel.
+    set_threshold_method` answers "No control coefficients, so no effect-size
+    cut" for, which is what every guide-permutation run used to get.
+
+    Precedence is ``nc``, then ``pc``, then the explicit ``controls`` list, so
+    a guide named in two of them is reported once and always the same way.
+
+    :param features: the model term per row, e.g. ``fraction:grna[000000_1]``.
+        ``nc`` and ``pc`` are matched as SUBSTRINGS of it, which is how a
+        negative control given as a gene id reaches a term named for a guide.
+    :param guides: the guide identifier per row, matched whole against
+        ``controls``. Both sides are compared as text, so a control list that
+        round-tripped through a settings CSV as integers still matches.
+    :param nc: negative-control identifier, or ``None`` for no negative
+        control.
+    :param pc: positive-control identifier, or ``None``.
+    :param controls: non-targeting guide identifiers, or ``None``. ``None``
+        means "no control list" and labels nothing -- it is the value
+        :func:`perform_regression` documents for a control-free screen, and
+        the inline version this replaced raised ``TypeError`` on it.
+    :returns: a :class:`pandas.Series` of labels aligned with ``features``.
+    """
+    features = pd.Series(features).astype(str)
+    guides = pd.Series(guides).astype(str)
+    guides.index = features.index
+    # Control names as TEXT. A gene id like 233460 is a perfectly good
+    # negative_control, and a settings file round-trips it back as the INT
+    # 233460 -- at which point `nc in row['feature']` raises "'in <string>'
+    # requires string as left operand, not int" and the whole regression dies
+    # on a value that was legal the moment it was typed into the GUI.
+    nc_name = '' if nc is None else str(nc)
+    pc_name = '' if pc is None else str(pc)
+    control_names = {str(name) for name in (controls or [])}
+
+    labels = pd.Series('other', index=features.index, dtype=object)
+    if control_names:
+        labels[guides.isin(control_names)] = 'control'
+    if pc_name:
+        labels[features.str.contains(pc_name, regex=False)] = 'pc'
+    if nc_name:
+        labels[features.str.contains(nc_name, regex=False)] = 'nc'
+    return labels
+
+
 def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
                                hinge_threshold=None, hinge_n_boot=200):
     """Return a DataFrame of model coefficients and p-values, one row per term.
@@ -1014,19 +1163,12 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
         .str.extract(r'\[(.*?)\]')[0]
         .str.replace(r'^T\.', '', regex=True)
     )
-    # Control names as TEXT. A gene id like 233460 is a perfectly good
-    # negative_control, and a settings file round-trips it back as the INT
-    # 233460 -- at which point `nc in row['feature']` raises "'in <string>'
-    # requires string as left operand, not int" and the whole regression dies
-    # on a value that was legal the moment it was typed into the GUI.
-    nc_name = '' if nc is None else str(nc)
-    pc_name = '' if pc is None else str(pc)
-    coef_df['condition'] = coef_df.apply(
-        lambda row: 'nc' if nc_name and nc_name in str(row['feature']) else
-                    'pc' if pc_name and pc_name in str(row['feature']) else
-                    ('control' if row['grna'] in controls else 'other'),
-        axis=1,
-    )
+    # ONE LABELLER, shared with the guide-permutation path. It grew a second
+    # copy the moment the permutation table needed a `condition` column too,
+    # and two copies of "what counts as a control" is how the run and the
+    # panel come to disagree about which coefficients the cut is measured on.
+    coef_df['condition'] = label_control_condition(
+        coef_df['feature'], coef_df['grna'], nc=nc, pc=pc, controls=controls)
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
@@ -3231,6 +3373,82 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         presence_threshold=float(settings.get('guide_presence_threshold', 0.0)),
         batch_size=int(settings.get('guide_permutation_batch_size', 500)),
     )
+    # THE SAME ALIASES ON THE FULL TABLE, and on the primary slice taken from
+    # it further down -- one block now, rather than two lists that had to stay
+    # in step. results.csv on disk holds the primary slice while the returned
+    # output['results'] holds every minimum-wells family, and when only one of
+    # them was aliased everything that consumes a coefficient table (the
+    # results panel, guide concordance, the volcano, the sweep's hit counts)
+    # raised KeyError('feature') on the nonparametric path while working fine
+    # on the parametric one.
+    #
+    # Built HERE, before anything is saved or drawn, because the effect-size
+    # cut below is measured on `coefficient` and the volcano has to draw the
+    # cut it produces.
+    #
+    # ADDED rather than swapped: a caller that wants the permutation
+    # quantities themselves still has every one of them, and the names say
+    # that the inferential quantities are marginal effects, empirical P
+    # values and already-adjusted values.
+    results = results.copy()
+    results['grna'] = results['guide']
+    results['feature'] = (
+        'fraction:grna[' + results['guide'].astype(str) + ']')
+    results['coefficient'] = results['standardized_marginal_effect']
+    results['p_value'] = results['permutation_p_value']
+    results['q_value'] = results['adjusted_p_value']
+
+    # AN EFFECT-SIZE CUT IS NOT A PARAMETRIC IDEA, and saying it was is the
+    # answer the maintainer was given: "why cant i see the coefficient
+    # threshold if im running nonparametric regression?"
+    #
+    # A P value says an effect is distinguishable from zero. The effect-size
+    # cut says it is big enough to be worth an experiment. That is a question
+    # about the COEFFICIENT, and this table has a real one for every guide --
+    # `standardized_marginal_effect`, aliased to `coefficient` two lines up,
+    # 1,726 of them on the screen this was reported from. How the P value was
+    # obtained does not change how wide a control's effect is.
+    #
+    # `condition` is what the cut is measured on, and this table did not carry
+    # it. Measured before this was written, on a permutation-shaped frame:
+    # `RegressionResultsPanel._threshold_sentence()` answered "No control
+    # coefficients, so no effect-size cut." -- and the run itself returned
+    # from `perform_regression` before the parametric branch that computes
+    # one, so a permutation run drew no cut and reported no cut either.
+    results['condition'] = label_control_condition(
+        results['feature'], results['grna'],
+        nc=settings.get('negative_control'),
+        pc=settings.get('positive_control'),
+        controls=settings.get('controls'))
+
+    from .thresholds import coefficient_threshold
+
+    # MEASURED ON THE PRIMARY FAMILY. The same guide appears once per
+    # minimum-wells threshold with an identical coefficient, so pooling the
+    # families would count each control up to four times and shrink the
+    # spread the cut is built from.
+    control_effects = results.loc[
+        (results['minimum_wells_threshold'] == primary)
+        & results['condition'].isin(('nc', 'control')), 'coefficient']
+    effect_threshold, effect_rule = coefficient_threshold(
+        control_effects,
+        method=settings.get('threshold_method', 'std'),
+        multiplier=settings.get('threshold_multiplier', 3.0),
+        # The MEDIAN of the controls, computed inside, rather than the mean:
+        # `000000_22` is a non-targeting control and the strongest effect in
+        # the screen at +4.37, and a mean centre moves the cut for every
+        # guide because of it.
+        centre=None)
+    print(f"Effect-size cut: {effect_rule}")
+
+    # RECORDED PER ROW, not only printed. A cut a reader cannot recompute
+    # from the results CSV is a cut they cannot report.
+    results['effect_size_threshold'] = (
+        np.nan if effect_threshold is None else float(effect_threshold))
+    results['passes_effect_size'] = (
+        True if effect_threshold is None
+        else results['coefficient'].abs() >= float(effect_threshold))
+
     paths = dict(save_guide_permutation_results(
         results, destination, prefix='guide_permutation'))
     if settings.get('guide_permutation_plot', True):
@@ -3253,6 +3471,10 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
                         minimum_wells=threshold,
                         save_path=os.path.join(
                             destination, f'{stem}.{suffix}'),
+                        # DRAWN, not only computed. The cut is the same number
+                        # on the plot, in the CSV and in the log line above.
+                        effect_threshold=effect_threshold,
+                        effect_threshold_label=effect_rule,
                     )
 
     # Diagnostics are written for every run, not on request. The failure this
@@ -3295,40 +3517,37 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         print(f"Regression diagnostics were skipped: "
               f"{type(error).__name__}: {error}")
 
+    # ONE SET OF ALIASES, built once above and inherited by this slice.
+    #
+    # results.csv on disk holds primary_table while the returned
+    # output['results'] holds the full multi-threshold frame, and the two used
+    # to be aliased by two separate blocks of code -- one name, two shapes.
+    # Everything that consumes a coefficient table (the results panel, guide
+    # concordance, the volcano, the sweep's hit counts) raised
+    # KeyError('feature') on the nonparametric path while working fine on the
+    # parametric one. Slicing the aliased frame is what makes them the same
+    # table by construction rather than by two lists staying in step.
     primary_table = results.loc[
         results['minimum_wells_threshold'] == primary
     ].copy()
-    # Compatibility aliases let existing table consumers display these rows
-    # without hiding that the inferential quantities are marginal effects,
-    # empirical P values, and already-adjusted values.
-    primary_table['grna'] = primary_table['guide']
-    primary_table['feature'] = (
-        'fraction:grna[' + primary_table['guide'].astype(str) + ']')
-    primary_table['coefficient'] = primary_table[
-        'standardized_marginal_effect']
-    primary_table['p_value'] = primary_table['permutation_p_value']
-    primary_table['q_value'] = primary_table['adjusted_p_value']
-    # THE SAME ALIASES ON THE FULL TABLE.
-    #
-    # results.csv on disk holds primary_table, which carries these columns,
-    # while the returned output['results'] held the full multi-threshold frame,
-    # which did not. One name, two shapes: a caller reading the file and a
-    # caller reading the dict got different columns, and everything that
-    # consumes a coefficient table -- the results panel, guide concordance,
-    # the volcano, the sweep's hit counts -- raised KeyError('feature') on the
-    # nonparametric path while working fine on the parametric one.
-    #
-    # Added rather than swapped, so a caller that genuinely wants every
-    # minimum-wells threshold still has all of them.
-    results = results.copy()
-    results['grna'] = results['guide']
-    results['feature'] = (
-        'fraction:grna[' + results['guide'].astype(str) + ']')
-    results['coefficient'] = results['standardized_marginal_effect']
-    results['p_value'] = results['permutation_p_value']
-    results['q_value'] = results['adjusted_p_value']
 
-    significant = primary_table.loc[primary_table['significant']].copy()
+    # A HIT CLEARS BOTH BARS, the way the parametric path's hit list does:
+    # corrected P below alpha AND an effect at least as wide as the cut.
+    # `passes_effect_size` is all-True when there is no cut to apply -- a
+    # control-free screen, or a `threshold_method='none'` -- so a run without
+    # controls calls exactly the hits it called before.
+    #
+    # Nothing is dropped silently: every guide keeps its row, its
+    # `effect_size_threshold` and its `passes_effect_size` in results.csv, and
+    # the line below says how many the cut removed.
+    called = primary_table['significant'].astype(bool)
+    wide_enough = primary_table['passes_effect_size'].astype(bool)
+    significant = primary_table.loc[called & wide_enough].copy()
+    if effect_threshold is not None:
+        print(f"Effect-size cut removed {int((called & ~wide_enough).sum())} "
+              f"of {int(called.sum())} guides that passed correction but "
+              f"whose effect is narrower than {float(effect_threshold):.3g}.")
+
     compatibility = {
         'results': os.path.join(destination, 'results.csv'),
         'results_grna': os.path.join(destination, 'results_grna.csv'),
@@ -3344,6 +3563,11 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         'primary': primary_table,
         'significant': significant,
         'primary_min_wells': primary,
+        # The cut, and the sentence that attributes it. A threshold a reader
+        # cannot attribute is a threshold they cannot put in a methods
+        # section, which is why the rule travels with the number.
+        'effect_size_threshold': effect_threshold,
+        'effect_size_rule': effect_rule,
         'paths': {key: str(path) for key, path in paths.items()},
     }
 
@@ -3930,8 +4154,18 @@ def perform_regression(settings):
     # first one's -- a GUI session runs many.
     _AUTOMATIC_SETTINGS.clear()
 
+    # KEPT WITH THE RUN. `minimum_cell_simulation` writes
+    # `cell_min_threshold.pdf` into <count folder>/results/, which is the
+    # SCREEN folder every run of this screen shares -- see
+    # `_keep_figures_with_the_run` for the report and the measurement behind
+    # this.
+    screen_folders = _screen_figure_folders(settings)
+    before_simulation = _figure_stamps(screen_folders)
     sim_min_count = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
-    
+    for kept in _keep_figures_with_the_run(before_simulation, screen_folders,
+                                           res_folder):
+        print(f"Kept with the run: {kept}")
+
     if settings['min_cell_count'] is None:
         settings['min_cell_count'] = sim_min_count
         _AUTOMATIC_SETTINGS['min_cell_count'] = sim_min_count
@@ -3954,8 +4188,32 @@ def perform_regression(settings):
         display(dependent_df)
     
     if settings['fraction_threshold'] is None:
+        # THE gRNA THRESHOLD GRAPH BELONGS TO THE RUN.
+        #
+        # `graph_sequencing_stats` derives its own destination from
+        # `count_data[0]` inside spacr.sequencing, so the sweep curve and the
+        # unique-count plate heatmap land in the SCREEN folder. Both are
+        # streamed through `plt.show()` and so still reach the live figure
+        # queue -- measured, not assumed -- but neither was ever in the run
+        # folder, which is what the all-figures grid walks for a saved run and
+        # what a reader opens by hand. Reported as "for some reason now i
+        # dont see the grna threshold graph".
+        before_sweep = _figure_stamps(screen_folders)
         settings['fraction_threshold'] = _graph_sequencing_stats(settings)
         _AUTOMATIC_SETTINGS['fraction_threshold'] = settings['fraction_threshold']
+        for kept in _keep_figures_with_the_run(before_sweep, screen_folders,
+                                               res_folder):
+            print(f"Kept with the run: {kept}")
+    else:
+        # SAY WHY THERE IS NO SWEEP GRAPH. The graph is a by-product of
+        # CHOOSING the threshold, so setting one -- including loading a
+        # settings CSV that carries a value this module derived on an earlier
+        # run -- means it is never drawn. Silence there is indistinguishable
+        # from the figure having gone missing.
+        print(f"fraction_threshold={settings['fraction_threshold']} was set, "
+              f"so the gRNA fraction-threshold sweep graph is not drawn; it "
+              f"is produced only when the threshold has to be chosen. Set "
+              f"fraction_threshold to None to see it.")
 
     # WHAT THE RUN ACTUALLY USED, said where the settings are read.
     #
@@ -4351,6 +4609,33 @@ def perform_regression(settings):
 
         significant = coef_df.loc[coef_df['q_value'] < alpha].copy()
         if settings['controls'] is not None:
+            # KNOWN BUG, NOT FIXED HERE -- this pair makes the cut inert.
+            #
+            #     high = coefficient >= reg_threshold
+            #     low  = coefficient <= reg_threshold
+            #
+            # `reg_threshold` comes back from `coefficient_threshold` as
+            # `|median| + k x spread`, so it is never negative and the UNION
+            # of those two masks is every row: the effect-size cut filters
+            # nothing at all on this path. `custom_volcano_plot`, handed the
+            # same number, marks hits with `abs(coefficient) >= abs(threshold)`
+            # and draws its dashed lines at +/-threshold -- so the volcano and
+            # results_significant.csv disagree about which guides are hits,
+            # and only the volcano is right.
+            #
+            # The correction is one line:
+            #
+            #     significant = significant.loc[
+            #         significant['coefficient'].abs() >= abs(reg_threshold)]
+            #
+            # It is left here rather than applied because it makes
+            # `tests/test_cov_ml_perform_regression.py::
+            # test_min_n_filters_the_significant_hits` fail honestly -- that
+            # test asks for "every tested coefficient a hit" with alpha=0.999
+            # and gets an empty list once the cut bites, so the fixture needs
+            # controls whose spread does not swallow its own hits. Found
+            # 2026-08-17 while giving the guide-permutation path a cut, which
+            # DOES apply this rule (see `_run_guide_permutation_analysis`).
             significant_high = significant.loc[
                 significant['coefficient'] >= reg_threshold]
             significant_low = significant.loc[
