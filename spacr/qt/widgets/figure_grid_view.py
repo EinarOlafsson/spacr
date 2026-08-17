@@ -307,6 +307,11 @@ class FigureGridView(QScrollArea):
     #: sentinel index, and a sentinel index is a wrong figure waiting to be
     #: opened by whoever forgets to check for it.
     pinned_activated = Signal()
+    #: Emitted with a global position when the PINNED tile is right-clicked.
+    #: Separate from ``figure_menu_requested`` for the reason above: the queue
+    #: builds that menu from a matplotlib figure at that index, and the pinned
+    #: tile is not at any index and is not a matplotlib figure.
+    pinned_menu_requested = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -340,10 +345,24 @@ class FigureGridView(QScrollArea):
         """A tile that is always first and is not one of the run's figures.
 
         The regression graph is a LIVE widget, not a picture the pipeline
-        saved, and it is the one the maintainer asked to be interactive. Left
-        to the ordinary path the grid would show the pipeline's static copy of
-        the same plot -- two volcanoes on screen, the big one dead -- so the
-        live one takes the first tile and the press opens the real thing.
+        saved, and it is the one the maintainer asked to be interactive:
+        "the regression plot isnt shown in all figures (i want it also shown
+        there)". Pressing this tile opens the real widget, not a picture of
+        it.
+
+        THE INDEX MAPPING SURVIVES THIS, and that is the whole reason the
+        pinned tile is a separate slot rather than an extra entry in
+        ``_cells``. ``_FigureCell.index`` is the position in the pixmap list
+        the caller handed to :meth:`set_figures`, and ``figure_activated``
+        forwards it straight to ``FigureQueue.show_index``; anything INSERTED
+        into that list shifts every figure after it, so every tile would open
+        its neighbour. This cell carries ``-1``, is never in ``_cells``, and
+        emits :attr:`pinned_activated` instead -- a sentinel index down the
+        shared signal would be the same bug with an extra step.
+
+        :returns: True when a tile was pinned. A null or missing pixmap
+            REMOVES it, because an empty tile invites a click that opens an
+            empty plot.
         """
         if pixmap is None or pixmap.isNull():
             self._pinned = None
@@ -351,6 +370,12 @@ class FigureGridView(QScrollArea):
             return False
         cell = _FigureCell(-1, pixmap, title, self._body)
         cell.clicked.connect(lambda _index: self.pinned_activated.emit())
+        # "all gigures should be editable by right clicking" -- and this one
+        # is the only tile on the grid that is a real, live figure, so a
+        # right-click that did nothing here would be the gesture failing on
+        # the one tile where it can do the most.
+        cell.menu_requested.connect(
+            lambda _index, position: self.pinned_menu_requested.emit(position))
         self._pinned = cell
         self._relayout()
         return True
@@ -439,11 +464,12 @@ class FigureGridView(QScrollArea):
     def _hidden_indices(self) -> frozenset:
         """Figure indices belonging to a folded run.
 
-        Only runs that actually GET a heading can be folded: with a single
-        section there is no header to click, so a key left over from an
-        earlier grid must not silently hide the only figures on screen.
+        Only runs that actually GET a heading can be folded, so a key left
+        over from an earlier grid cannot silently hide figures with no
+        control on screen to bring them back. Every section gets one now --
+        see `_relayout` -- so the guard is just "there are sections".
         """
-        if len(self._sections) < 2 or not self._collapsed:
+        if not self._sections or not self._collapsed:
             return frozenset()
         hidden = set()
         for label, start, count in self._sections:
@@ -524,13 +550,21 @@ class FigureGridView(QScrollArea):
         available = max(self.viewport().width() - 24, MIN_CELL_PX)
         unit = max(available // columns, MIN_CELL_PX // 2)
 
-        # A HEADING PER RUN. The lettering restarting is only legible if the
-        # reader can see where one run ends and the next begins -- otherwise
-        # two panels called A look like a bug rather than two figures.
+        # A HEADING PER RUN, INCLUDING THE FIRST AND ONLY ONE.
+        #
+        # It used to appear only from the second run onwards, on the argument
+        # that the lettering restarting is what needs explaining and one run
+        # never restarts. That argument was about the LABEL and this control
+        # is also the fold: with one run there was no header, so there was
+        # nothing to click, and the maintainer reported the figures as "still
+        # not colapsable into runs" while the folding worked perfectly from
+        # the second run on.
+        #
+        # A heading over a single run costs one row and answers "which run is
+        # this" -- which the grid could not previously say at all.
         heading_at = {}
-        if len(self._sections) > 1:
-            for label, start, _count in self._sections:
-                heading_at[start] = label
+        for label, start, _count in self._sections:
+            heading_at[start] = label
         hidden = self._hidden_indices()
 
         row = column = 0
