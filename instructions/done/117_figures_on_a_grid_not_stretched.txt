@@ -84,3 +84,23 @@ That settles two things that would otherwise be guessed:
   * the aspect rule in this file applies to the FIGURE INSIDE the tile, not
     to the tile. Tiles are a regular grid; the plot inside one keeps its own
     aspect and is letterboxed rather than stretched.
+
+================================================================================
+2026-08-17 - CLOSED
+================================================================================
+
+Both halves ship and both are tested:
+
+  * the grid is scrollable, sits above the console, and reflows to the
+    container -- `spacr/qt/widgets/figure_grid_view.py`;
+  * a click fills the container, the Image UMAP behaviour that was asked to
+    be copied -- `figure_activated` -> `FigureQueue.show_index`;
+  * a plate heatmap is still the shape of a plate. `cell_span` accepts an
+    aspect and deliberately ignores it, with the reason written down: a grid
+    whose cells are different sizes is not a grid, so the FIGURE is
+    letterboxed inside a regular cell rather than the cell being stretched.
+
+Verified 2026-08-17: 30 pass across test_figure_grid_view.py,
+test_the_plates_are_a_small_multiple.py and test_each_run_is_its_own_section.py.
+
+Filed to done/ after re-reading the file rather than its header.

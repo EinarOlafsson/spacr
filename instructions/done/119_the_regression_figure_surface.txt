@@ -312,3 +312,14 @@ the host shows through everywhere, so nothing is painting a background.
 
 STILL OPEN in this file's scope: nothing. The remaining regression work is
 121 (the gene tile) and 122 (across screens), which have their own files.
+
+================================================================================
+2026-08-17 - CLOSED
+================================================================================
+
+The trailing note above already said "STILL OPEN in this file's scope:
+nothing", and 121 and 122 -- the two it handed on to -- have their own files.
+124, which carried the rest of the same request, was closed 2026-08-16.
+
+Filed to done/ after re-reading the file rather than its header, which still
+said "not started".
