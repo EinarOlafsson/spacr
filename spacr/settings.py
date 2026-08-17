@@ -4050,7 +4050,14 @@ def get_setting_dependencies():
     if setting_dependencies:
         return setting_dependencies
 
-    from .ml import REGRESSION_SETTINGS_USED
+    # FROM THE SPEC, NOT FROM ml. `spacr.ml` imports `spacr.plot`, which
+    # imports torch, cv2 and IPython -- so this one lookup of a dict of
+    # strings cost 2.2 seconds and 900 MB every time a settings panel was
+    # built, on the GUI thread, for every module. There is a test asserting
+    # panel-building does not import the plotting stack; it was written when
+    # that import cost 770 ms and was "the whole remaining cost of opening
+    # the first module", and torch made it four times worse.
+    from .regression_spec import REGRESSION_SETTINGS_USED
 
     def rule(sources, predicate, reason):
         return {
