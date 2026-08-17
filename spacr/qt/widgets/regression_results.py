@@ -375,6 +375,8 @@ class RegressionResultsPanel(QWidget):
         self._baseline = (None, None)
         #: The one TAGM/LOPIT compartment picked out against grey, or None.
         self._compartment = None
+        #: Why a colour-by option is present but useless, or "".
+        self._colour_by_note = ""
 
         # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
         # that is where it was asked for: "right click on the regression plot
@@ -567,15 +569,46 @@ class RegressionResultsPanel(QWidget):
         self._colour_by.blockSignals(True)
         self._colour_by.clear()
         self._colour_by.addItem("nothing", None)
+        skipped = []
+        cap = max(40, len(frame) // 20)
         for name in frame.columns:
             if frame[name].dtype == object or str(frame[name].dtype) == "category":
                 distinct = frame[name].nunique(dropna=True)
-                if 1 < distinct <= max(40, len(frame) // 20):
+                if 1 < distinct <= cap:
                     self._colour_by.addItem(f"{name} ({distinct})", name)
-        # 'condition' is the compartment column the screen actually uses.
+                elif name in self.ALWAYS_OFFERED:
+                    # OFFERED ANYWAY, AND THE COUNT SAYS WHY IT IS USELESS.
+                    # A `condition` column with ONE value is not a boring
+                    # column, it is a FINDING: it means the negative/positive
+                    # control names matched no feature, so nothing got
+                    # labelled. Dropping it silently hides that, and the
+                    # maintainer reported exactly this as "the color by
+                    # doesn't include condition".
+                    self._colour_by.addItem(f"{name} ({distinct})", name)
+                    skipped.append(
+                        f"{name} has {distinct} distinct value"
+                        f"{'' if distinct == 1 else 's'}"
+                        + (" -- the control names matched no feature"
+                           if distinct == 1 and name == "condition" else ""))
+        # LOPIT IS NOT A COLUMN, so the walk above cannot see it. It is
+        # joined from the bundled TAGM table, and only offered when this
+        # screen actually has compartments in it.
+        try:
+            from ...localisation import present
+
+            compartments = present(frame)
+        except Exception:                                        # noqa: BLE001
+            compartments = []
+        if compartments:
+            self._colour_by.addItem(
+                f"LOPIT localisation ({len(compartments)})", self.LOPIT_KEY)
+
+        # 'condition' is what a screen labels its controls with, so it is the
+        # colouring a reader wants first.
         preferred = self._colour_by.findData("condition")
         self._colour_by.setCurrentIndex(preferred if preferred >= 0 else 0)
         self._colour_by.blockSignals(False)
+        self._colour_by_note = "; ".join(skipped)
 
         # A new table is a new experiment; carrying the old selection over
         # would ring a point that means something else now.
@@ -618,6 +651,11 @@ class RegressionResultsPanel(QWidget):
             frame, key_column=self._key_column(frame),
             significance_column=significance)
         self._show_significance(frame, kind, column, source)
+        if self._colour_by_note:
+            # SAID, not swallowed. A colouring the user expected and cannot
+            # find is a bug report; the same colouring listed with the reason
+            # it is useless is an answer.
+            self.say(f"{self._status} Colouring: {self._colour_by_note}.")
         self._draw_controls(frame)
         self._draw_guide_support(frame)
         self.loaded.emit(source or "")
@@ -793,6 +831,15 @@ class RegressionResultsPanel(QWidget):
                 return name
         return "coefficient"
 
+    #: Columns offered for colouring EVEN WHEN the generic filter would drop
+    #: them. A screen's own control annotation is worth seeing whatever it
+    #: contains -- a single value means the control names matched nothing,
+    #: which the user needs to know rather than to be shielded from.
+    ALWAYS_OFFERED = ("condition",)
+
+    #: Sentinel for the derived LOPIT colouring, which is not a frame column.
+    LOPIT_KEY = "\0lopit"
+
     #: What the volcano can measure its effects from, and what each says.
     BASELINES = (
         (None, "zero (no dose-response)"),
@@ -890,13 +937,25 @@ class RegressionResultsPanel(QWidget):
                                     column=effect_column, name=baseline_name)
         frame = apply_baseline(self._frame, baseline, column=effect_column)
 
+        # THE LOPIT OPTION IS DERIVED, so it is materialised onto the copy
+        # rather than looked up as a column. On the copy, not the run's own
+        # table -- the same rule the baseline follows.
+        category = self._colour_by.currentData()
+        if category == self.LOPIT_KEY:
+            from ...localisation import of as compartments_of
+
+            frame = frame.copy()
+            frame["localisation"] = compartments_of(frame).replace(
+                "", "unannotated")
+            category = "localisation"
+
         self.volcano.set_results(
             frame,
             effect=effect_column,
             p_column=p_column,
             label_column="feature" if "feature" in frame.columns
             else frame.columns[0],
-            category_column=self._colour_by.currentData(),
+            category_column=category,
             key_column=self._key_column(frame),
             compartment=self._compartment,
         )

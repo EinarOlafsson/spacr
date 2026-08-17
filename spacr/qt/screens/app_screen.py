@@ -1722,16 +1722,24 @@ class AppScreen(QWidget):
                 split.setChildrenCollapsible(False)
                 split.addWidget(left)
                 split.addWidget(self._figures_stack)
-                # The figures get the larger share, and the divider is the
-                # user's to move from there.
-                split.setStretchFactor(0, 2)
-                split.setStretchFactor(1, 3)
-                # The results need width for a coefficient table; the grid
-                # needs width for more than one tile per row. Neither survives
-                # being handed a size hint, so both get a floor.
-                left.setMinimumWidth(420)
+                # THE RESULTS SIDE IS THE WIDER ONE NOW. Asked for on
+                # 2026-08-17 -- "the left panel should be wider" -- and it is
+                # the side that grew: it holds a coefficient table with a
+                # dozen columns, the volcano, and a row of diagnostic tabs,
+                # while the grid opposite reflows to whatever it is given.
+                #
+                # An EQUAL stretch rather than a reversed one, so a wider
+                # window still feeds both. The divider stays the user's to
+                # move; these are starting sizes, not a layout.
+                split.setStretchFactor(0, 1)
+                split.setStretchFactor(1, 1)
+                # Floors, not preferences -- neither side survives being
+                # handed a size hint. The results floor went up with the
+                # share: a coefficient table under 520 px shows its index and
+                # one column.
+                left.setMinimumWidth(520)
                 self._figures_stack.setMinimumWidth(360)
-                split.setSizes([560, 840])
+                split.setSizes([780, 620])
                 self._figures_split = split
                 self._figures_card.body_layout.addWidget(split, 1)
 
