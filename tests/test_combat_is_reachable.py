@@ -32,7 +32,71 @@ import pytest
 # It can be selected
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("app_key", ["umap", "ml_analyze", "regression"])
+#: Every module that corrects batches, and therefore has to offer the
+#: alphabet, the two ComBat settings and their defaults.
+#:
+#: ``classify_merged`` was missing from this list for as long as the list
+#: existed, and the omission was not cosmetic: it was the one app whose
+#: ``_APP_COMBO_OPTIONS`` entry named neither ``batch_correction`` nor
+#: ``batch_missing_control``, so both shipped as free-text boxes there while
+#: every other screen offered the closed set. A typo reached
+#: ``correct_batch_effects`` as ``ValueError: Unknown batch_correction=...``
+#: at run time, after the user had walked away.
+#:
+#: ``test_this_list_is_every_module_that_corrects_batches`` below is what
+#: keeps the next one from being forgotten the same way.
+CORRECTS_BATCHES = ["umap", "ml_analyze", "regression", "classify_merged"]
+
+
+def test_this_list_is_every_module_that_corrects_batches():
+    """A hand-written list of modules is a list that goes stale.
+
+    Batch correction is offered by whichever module resolves a
+    ``batch_correction`` default, so that is what the cases above must cover
+    — not whichever three were being worked on the day they were written.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.app import APPS
+    from spacr.qt.screens.settings_model import resolve_default_settings
+
+    corrects = set()
+    for app_key in (app[0] for app in APPS):
+        try:
+            defaults = resolve_default_settings(app_key)
+        except Exception:
+            continue
+        if "batch_correction" in defaults:
+            corrects.add(app_key)
+    assert corrects == set(CORRECTS_BATCHES), (
+        f"modules that correct batches but are untested here: "
+        f"{sorted(corrects - set(CORRECTS_BATCHES))}; "
+        f"listed but no longer correcting: "
+        f"{sorted(set(CORRECTS_BATCHES) - corrects)}")
+
+
+def test_no_module_leaves_the_two_batch_choices_as_free_text():
+    """A closed set typed by hand is a run that dies on a typo.
+
+    ``batch_correction`` and ``batch_missing_control`` both have a fixed
+    vocabulary that ``correct_batch_effects`` enforces by raising. A screen
+    that renders either as a line edit moves that refusal from the panel,
+    where it costs a second, to the middle of a run.
+    """
+    pytest.importorskip("PySide6")
+    from spacr.qt.screens.settings_model import _APP_COMBO_OPTIONS
+    from spacr.batch_correction import METHODS
+
+    for app_key in CORRECTS_BATCHES:
+        options = _APP_COMBO_OPTIONS.get(app_key, {})
+        assert set(options.get("batch_correction", ())) == set(METHODS), (
+            f"{app_key} does not offer spacr.batch_correction.METHODS as a "
+            f"closed choice; it offers "
+            f"{options.get('batch_correction', 'a free-text box')}")
+        assert options.get("batch_missing_control") == ["error", "skip"], (
+            f"{app_key} renders batch_missing_control as free text")
+
+
+@pytest.mark.parametrize("app_key", CORRECTS_BATCHES)
 def test_combat_is_offered_by_every_module_that_corrects_batches(app_key):
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import _APP_COMBO_OPTIONS
@@ -44,20 +108,28 @@ def test_combat_is_offered_by_every_module_that_corrects_batches(app_key):
     assert options[0] == "none", "the default must stay 'do nothing'"
 
 
-@pytest.mark.parametrize("app_key", ["umap", "ml_analyze", "regression"])
+@pytest.mark.parametrize("app_key", CORRECTS_BATCHES)
 def test_combats_two_settings_are_on_the_page_beside_it(app_key):
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import categories_for_app
     from spacr.settings import categories
 
-    group = categories_for_app(app_key, categories)["Plate & Batch Correction"]
+    # Classify (merged) prefixes its sections with the family that owns them
+    # ("Machine Learning — Plate & Batch Correction"), so match on the
+    # section's own name rather than on an exact string.
+    sections = categories_for_app(app_key, categories)
+    names = [name for name in sections
+             if name.endswith("Plate & Batch Correction")]
+    assert names, (
+        f"{app_key} has no batch-correction section: {sorted(sections)}")
+    group = sections[names[0]]
     for key in ("batch_covariate_column", "batch_combat_mean_only"):
         assert key in group, (
             f"{key} is not in {app_key}'s batch-correction group, so combat "
             "can be selected but not configured")
 
 
-@pytest.mark.parametrize("app_key", ["umap", "ml_analyze", "regression"])
+@pytest.mark.parametrize("app_key", CORRECTS_BATCHES)
 def test_the_two_settings_have_defaults(app_key):
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import resolve_default_settings
