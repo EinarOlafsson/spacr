@@ -149,3 +149,99 @@ HOW TO KNOW IT WORKED
 * Right-clicking the guide-support plot offers violin / box / bar / jitter,
   and says when the choice misleads for this n.
 * The left panel is wider on first open, and the divider still moves.
+
+================================================================================
+2026-08-17 - SIX MORE, AFTER RUNNING IT
+================================================================================
+
+Requested, after the Runs tab landed and was confirmed working ("i do see the
+runs, in the run tab! thats great!"):
+
+    "i wtill dont see the residuals tab and graph"
+    "where do i set the intercept?"
+    "the run tab should be before the results tab and results should be shown
+     for the chosen run"
+    "the figures are still not colapsable into runs in the figure view"
+    "the adjusted p value from the FDR should be in teh Coefficients table"
+    "i should be able to right click on the coeffisients table and only see
+     grna or genes and this should also filer the subsequent data/graphs in
+     the subsequent tabs"
+
+--------------------------------------------------------------------------------
+H. THE RESIDUALS TAB -- NOT A BUG, NOT SHIPPED YET
+--------------------------------------------------------------------------------
+
+Item E of this file. It is in flight, not landed. Nothing to diagnose.
+
+--------------------------------------------------------------------------------
+I. "WHERE DO I SET THE INTERCEPT?" -- IT IS BUILT AND UNDISCOVERABLE
+--------------------------------------------------------------------------------
+
+It ships (124 M, commit 2aee63e5): RIGHT-CLICK THE VOLCANO -> "Measured
+from" -> "zero (no dose-response)" or "the non-targeting controls".
+
+That the maintainer had to ask is the finding. Three separate things now live
+on that one right-click menu -- the baseline, the LOPIT compartment, the
+re-fit -- and two more are queued (F's mark types, A's gene/guide filter).
+A menu is where a feature goes to not be found.
+
+    So this is a DISCOVERABILITY item, not a missing feature. Options, and
+    the choice must be stated: a visible control in the panel header beside
+    "colour by"; or a Statistics/Model tab; or leaving it on the menu and
+    saying in the caption where it was set. The caption already names the
+    baseline on every panel, which is the half that works.
+
+--------------------------------------------------------------------------------
+J. RUNS BEFORE RESULTS, AND RESULTS FOLLOW THE SELECTED RUN
+--------------------------------------------------------------------------------
+
+Two changes, and the second is the substantive one.
+
+  * tab ORDER: Runs, then Results.
+  * SELECTING a run in the Runs tab points Results at THAT run -- its
+    coefficient table, its figures, its diagnostics.
+
+`_show_trial` already opens a run's folder into the results panel and the
+grid, so the wiring exists; what is missing is that the Results tab is not
+bound to the Runs selection, and the tab order says Results is the primary.
+
+TRAP: the panel's `set_frame` resets the baseline, the compartment, the
+gene/guide filter and the selection, deliberately -- a new table is a new
+experiment. Switching runs SHOULD reset those. Switching BACK should not be
+expected to restore them.
+
+--------------------------------------------------------------------------------
+K. THE ADJUSTED P-VALUE BELONGS IN THE COEFFICIENTS TABLE
+--------------------------------------------------------------------------------
+
+The correction is the whole point of the multiple-testing work and the table
+shows the raw p. The panel already PREFERS a corrected column when it cuts
+("q_value", "adjusted_p_value", "p_value" -- in that order) so the column
+exists in the frame; it is simply not surfaced as a column a reader can read
+and sort.
+
+Check what the run actually writes before assuming: `perform_regression`
+sets `multiple_testing_method` on the frame, so the column NAME and the
+method should both be visible -- a q with no method beside it is not
+reportable.
+
+--------------------------------------------------------------------------------
+L. THE GENE/gRNA FILTER IS GLOBAL, AND DRIVEN FROM THE TABLE TOO
+--------------------------------------------------------------------------------
+
+129 A put genes/guides/both on the VOLCANO's right-click menu. This extends
+it in two directions:
+
+  * the same gesture on the COEFFICIENTS TABLE;
+  * and it filters EVERY tab -- the table, the p-histogram, the Q-Q, the
+    controls, the guide support, and whatever 129 B adds.
+
+ONE PIECE OF STATE, not one per plot. The panel already owns `_level`; the
+work is that every draw path reads it and every entry point sets it. A filter
+that reaches four of six tabs is worse than one that reaches none, because
+the two disagree on screen at the same time.
+
+    The Q-Q and the p-histogram are the ones to think about: filtering the
+    family CHANGES THE CALIBRATION being shown. A Q-Q of the guides only is a
+    different diagnostic from a Q-Q of the whole fit, and the panel must say
+    which it is drawing rather than leaving the reader to assume.
