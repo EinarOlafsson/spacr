@@ -74,7 +74,12 @@ def test_it_flickers_the_accent_and_returns(queue):
     label = queue._clear_label
     palette = active_palette()
     resting = _colour(label)
-    assert resting.lower() == palette["fg_dim"].lower()
+    # RESTS AT `error`, NOT `fg_dim`. Changed deliberately on 2026-08-17 at
+    # the maintainer's request -- "just make it red like other negative
+    # butons" -- because clearing the figures cannot be undone. The flash
+    # below is unchanged: the accent is the app-wide "your click landed"
+    # mark, shared with the console's copy glyph.
+    assert resting.lower() == palette["error"].lower()
 
     label.flash()
     assert label._flash.active

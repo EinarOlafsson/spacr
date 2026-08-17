@@ -176,14 +176,14 @@ class _SectionHeader(QFrame):
         view is whichever ancestor knows how to toggle a section.
         """
         node = self.parentWidget()
-        while node is not None and not hasattr(node, "_toggle_section"):
+        while node is not None and not hasattr(node, "toggle_section"):
             node = node.parentWidget()
         return node
 
     def _activate(self) -> None:
         view = self._view()
         if view is not None:
-            view._toggle_section(self)
+            view.toggle_section(self)
 
     def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
         # Release rather than press, so dragging off the bar cancels -- what
@@ -422,11 +422,11 @@ class FigureGridView(QScrollArea):
         """
         return (str(label), int(start))
 
-    def _is_section_collapsed(self, label, start) -> bool:
+    def is_section_collapsed(self, label, start) -> bool:
         """Whether this run's figures are folded away."""
         return self._section_key(label, start) in self._collapsed
 
-    def _set_section_collapsed(self, label, start,
+    def set_section_collapsed(self, label, start,
                                collapsed: bool = True) -> None:
         """Fold a run's figures away, or bring them back."""
         key = self._section_key(label, start)
@@ -479,7 +479,7 @@ class FigureGridView(QScrollArea):
             return True
         return False
 
-    def _toggle_section(self, header) -> bool:
+    def toggle_section(self, header) -> bool:
         """Reach the run first; fold it away second. Returns the new state.
 
         THE CONSOLE'S RULE, verbatim, because the console is the model the
