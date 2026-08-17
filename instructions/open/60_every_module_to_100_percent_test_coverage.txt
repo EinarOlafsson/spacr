@@ -1094,3 +1094,45 @@ DEAD and want proving before anyone writes a test for them:
     with "The truth value of a Series is ambiguous", because
     `cols_for_group` then lists the column twice and `cell_level[c]` is a
     DataFrame. No caller passes such a column today.
+
+FOUND IN PASSING, NOT FIXED, QUEUED HERE RATHER THAN NARRATED: the tracked-
+mask movie is rendered at 4000 x 4000 PIXELS PER FRAME, whatever the field
+is. `spacr.io._save_mask_timelapse_as_gif` opens `plt.subplots(figsize=(50,
+50))` and `anim.save(..., writer='pillow', fps=2, dpi=80)`, so every frame is
+50 x 80 = 4000 px on a side -- 64 MB of RGBA before compression, for a mask
+that is usually a few hundred pixels across. It is written whenever `save` is
+true on any of the three tracking backends
+(`_visualize_and_save_timelapse_stack_with_tracks`), and a real timelapse is
+tens to hundreds of frames. `spacr.plot`'s interactive viewer beside it uses
+the same `figsize=(50, 50)`. Measured, not guessed:
+
+    plt.subplots(figsize=(50, 50)) canvas   5000 x 5000 at default dpi
+    the frame the writer emits              4000 x 4000 at dpi=80
+    uncompressed                            64 MB per frame
+
+This is why the three `if plot or save:` call sites at timelapse.py 699, 976
+and 1234 have no test that lets them run: a test that writes one real movie
+costs seconds and hundreds of megabytes. Sizing the figure from the mask
+(with a sane dpi) would make those three lines cheap to cover AND make the
+output usable -- which is the order to do it in.
+
+AND ONE MORE, ALSO QUEUED RATHER THAN FIXED: A PLATE FOLDER WHOSE NAME HOLDS
+AN UNDERSCORE STILL CANNOT BE MEASURED. `spacr.io` composes the stack name as
+`f'{plate}_{well}_{field}_{timeID}.tif'` with the plate taken straight from
+the regex group or from `os.path.basename(src)` -- a folder name, which very
+often holds one. `exp_1` therefore produces `exp_1_A01_1_1.npy`, five
+components, and the reader cannot tell the plate from the well:
+
+    _map_wells('exp_1_A01_1_1.npy')  ->  ('error',) * 5
+
+That is not new and this pass did not make it worse -- before `09a4a75d` the
+same name parsed as plate `exp`, well `1`, field `A01` -> `f1`, which is
+worse, because it is wrong quietly. It is now wrong loudly. The fix already
+exists and is simply not called: `schema.escape_field_stem_plate` writes
+`exp%5F1_A01_1_1`, which `parse_field_stem` reads back as plate `exp_1`
+exactly. It belongs at the two places that build the name --
+`io._rename_and_organize_image_files` (`output_filename = ...`) and
+`io._move_to_chan_folder` (`newname = ...`) -- and it changes names on disk,
+so the mask folders and any resume manifest have to move with it. That is the
+whole of why it is queued here rather than done at the end of a coverage
+pass.
