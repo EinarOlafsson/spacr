@@ -45,6 +45,25 @@ def _grnas():
     return [f"TGGT1_{g}_{i}" for g in GENES for i in range(1, N_GRNA_PER_GENE + 1)]
 
 
+def results_dir(count_csv, regression_type="ols"):
+    """Where a run writes: ``<count data folder>/results/<regression type>``.
+
+    Asked for on 2026-08-16 -- "just store everything in the same location as
+    the first count data ... then the type so for me .../claude/results/ols".
+
+    Every expectation in this file used to spell the path that replaced:
+    ``<src>/results/<score file stem>/<type>/list``. When the layout changed
+    the tests kept reading a folder nothing writes to any more, so
+    twenty-three of them failed on a missing CSV while the run that wrote it
+    was fine -- a suite reporting the wrong defect, which is worse than a
+    silent one because it sends the reader to the wrong file.
+
+    One helper rather than a literal per test, so the next layout change
+    costs one line here instead of another twenty-three red marks.
+    """
+    return os.path.join(os.path.dirname(count_csv), "results", regression_type)
+
+
 def _score_records(plate, seed, n_cells=6, with_path=False, plate_token=None,
                    n_bad_paths=0, rows=ROWS, cols=COLS):
     rng = np.random.default_rng(seed)
@@ -165,7 +184,7 @@ def screen(tmp_path):
         "score": score,
         "count": count,
         "meta": meta,
-        "res": str(cdir / "results" / "xgb_scores" / "ols" / "list"),
+        "res": results_dir(count),
         "count_dir": str(cdir),
     }
 
@@ -358,8 +377,7 @@ def test_paired_input_copies_plate_identity_from_its_partner(tmp_path, stubs):
         scr, paired_data=[{"score": score, "count": count}])
     out = perform_regression(settings)
 
-    data = pd.read_csv(os.path.join(str(cdir), "results", "scores", "ols",
-                                    "list", "regression_data.csv"))
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
     assert set(data["plateID"].unique()) == {"plate2"}
     assert data["prc"].str.startswith("plate2_").all()
     assert len(out["results"]) > 0
@@ -419,8 +437,7 @@ def test_rowid_with_plate_prefix_is_split(tmp_path, stubs):
     settings = base_settings({"score": score, "count": count, "meta": meta})
     out = perform_regression(settings)
 
-    data = pd.read_csv(os.path.join(str(cdir), "results", "scores", "ols",
-                                    "list", "regression_data.csv"))
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
     assert set(data["rowID"].unique()) <= set(ROWS)
     assert len(out["results"]) > 0
 
@@ -489,8 +506,7 @@ def test_declared_plate_is_kept_without_inspecting_image_paths(
     printed = capsys.readouterr().out
     assert "PLATEn_ prefix" not in printed
 
-    data = pd.read_csv(os.path.join(str(cdir), "results", "scores", "ols",
-                                    "list", "regression_data.csv"))
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
     assert set(data["plateID"].unique()) == {"plate1"}
     assert len(out["results"]) > 0
 
@@ -513,8 +529,7 @@ def test_missing_plate_column_defaults_to_file_position(tmp_path, stubs):
     settings = base_settings({"score": score, "count": count, "meta": meta})
     out = perform_regression(settings)
 
-    data = pd.read_csv(os.path.join(str(cdir), "results", "scores", "ols",
-                                    "list", "regression_data.csv"))
+    data = pd.read_csv(os.path.join(results_dir(count), "regression_data.csv"))
     assert set(data["plateID"].unique()) == {"plate1"}
     assert len(out["results"]) > 0
 
@@ -668,7 +683,7 @@ def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):
                              outlier_detection=True)
     perform_regression(settings)
 
-    res = os.path.join(str(cdir), "results", "s1", "ols", "list")
+    res = results_dir(c1)
     grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
     data = pd.read_csv(os.path.join(res, "regression_data.csv"))
 
@@ -877,8 +892,7 @@ def test_ridge_regression_backend(screen, stubs):
     settings = base_settings(screen, regression_type="ridge", alpha=1.0)
     out = perform_regression(settings)
 
-    res = str(screen["root"] / "counts" / "results" / "xgb_scores" / "ridge"
-              / "list")
+    res = results_dir(screen["count"], "ridge")
     assert os.path.isfile(os.path.join(res, "results.csv"))
     assert out["results"]["coefficient"].notna().all()
     assert (out["results"]["feature"].str.contains("grna\\[").sum()
@@ -895,8 +909,7 @@ def test_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys
     printed = capsys.readouterr().out
     # a per-well mean score strictly inside (0, 1) -> beta regression
     assert "Using regression type: beta" in printed
-    res = str(screen["root"] / "counts" / "results" / "xgb_scores" / "auto"
-              / "list")
+    res = results_dir(screen["count"], "auto")
     assert os.path.isfile(os.path.join(res, "results.csv"))
     assert {"std_err", "wald_stat"} <= set(out["results"].columns)
     assert len(out["results"]) > 0
@@ -918,8 +931,7 @@ def test_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
 
     # agg_type is forced to None for quantile, so the fit is on objects.
     assert settings["agg_type"] is None
-    res = str(screen["root"] / "counts" / "results" / "xgb_scores" / "quantile"
-              / "list")
+    res = results_dir(screen["count"], "quantile")
     assert os.path.isfile(os.path.join(res, "results.csv"))
     assert out["results"]["coefficient"].notna().all()
     assert out["results"]["p_value"].notna().all()
