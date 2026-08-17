@@ -923,3 +923,70 @@ That file is UNTRACKED, alongside uncommitted `spacr/refit.py`,
 in progress. Recorded here because the guard is a ratchet: whoever finishes
 that work has to give the test a real assertion, or the ratchet stays red for
 everyone.
+
+--------------------------------------------------------------------------------
+TWO MORE AT 100%, AND THE RANKING WAS WRONG AGAIN -- 2026-08-17
+--------------------------------------------------------------------------------
+
+`spacr/qt/screens/pipeline_graph.py`   95%  ->  100%   (17 -> 0, 341 stmts)
+`spacr/qt/widgets/live_preview.py`     89%  ->  100%   (173 -> 0, 1511 stmts)
+
+Both measured over their own tests, before and after, and re-measured on the
+same set: 178 passed for pipeline_graph, 511 for live_preview.
+
+THE RANKING WAS WRONG ABOUT pipeline_graph, WHICH IS THE FOURTH TIME. The
+whole-package table above lists it at 51.8% with 160 uncovered and calls it
+"the natural next one... the lowest percentage left on the list by a wide
+margin". Over its OWN tests it was 95% with 17, because the ranking's marker
+expression deselected most of the files that exercise it. The rule at the top
+of this file -- cross-check any entry before starting on it, one `--co` run --
+has now paid for itself four times. Treat the table as a list of candidates,
+never as a work queue.
+
+`live_preview.py`, by contrast, was understated only slightly and the work
+was real: 173 uncovered, and the largest coherent piece of it was THE SET
+TABLE -- the grid of fields down the side and channels across the top that
+Mask uses as its source selector. Its cell clicks, both header clicks, both
+shift-clicks, the images cap and the MIP switch had no test between them.
+
+FIVE `# pragma: no cover` MARKERS REMOVED, none added anywhere in this pass.
+Three were in pipeline_graph and each was reachable by a test nobody had
+written: a "modal" browse handler (patch QFileDialog and drive both
+outcomes), a paint-time missing-node guard (`build_graph` cannot produce that
+input but a caller can, and an exception inside paintEvent is a window that
+will not redraw), and a GUI-thread slot the job runner calls with None.
+
+NO NEW BUG IN EITHER MODULE. What the pass did produce is two behaviours that
+were undocumented and read as bugs until they were pinned:
+
+  * the live preview's IMAGES CAP SHIPS AT ONE, so shift-clicking a second
+    cell REPLACES rather than adds until the cap is raised. Both cases are
+    now tests.
+  * an object filling the WHOLE FIELD has no 4-connected boundary, so it
+    draws no outline -- which a Cellpose diameter set too large produces
+    routinely. `overlay_masks` already skipped it; nothing said so.
+
+A FIXTURE TRAP WORTH THE NEXT WORKER'S TIME: two plate fixtures that both
+write into `tmp_path` share ONE directory, so a test asking for "a flat plate
+and a stacked one" gets two names for the same stacked folder -- and the
+assertion that the MIP switch turns itself off could not fail. Give each
+fixture its own subdirectory.
+
+--------------------------------------------------------------------------------
+WHERE THE NEXT WORKER SHOULD GO -- 2026-08-17
+--------------------------------------------------------------------------------
+
+Everything on the previous "next worker" list is now done except one, and
+that one needs its own measurement first:
+
+     167   89.9%  spacr/qt/screens/settings_model.py   <- verify over its own
+                                                          tests before starting
+     188   94.4%  spacr/timelapse.py                   <- 28 of 228 deselected
+
+`settings_model.py` is 5,469 lines with ~50 test files touching it, so the
+measuring run alone is not cheap; budget for it. `timelapse.py`'s figure is
+understated by its own deselected tests, so measure it the same way.
+
+After those two, the whole-package ranking is exhausted and a FRESH one is
+needed -- the old table is now stale in both directions (four of its entries
+have been driven to 100%, and its per-module numbers predate this week).
