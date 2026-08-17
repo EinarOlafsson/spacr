@@ -55,6 +55,148 @@ from .crops import MERGED_LAYOUT_SIDECAR
 from .merge_tables import reconcile_duplicates
 
 
+def _escaped_field_stem(plate, well, field, time):
+    """Compose a merged-stack stem with its free-text plate component escaped.
+
+    Every stack this module writes is ``plate_well_field_time``, whatever
+    ``timelapse`` is set to. The well, the field and the timepoint are drawn
+    from a bounded vocabulary; the PLATE is free text, taken from a regex group
+    or -- far more often -- from ``os.path.basename(src)``, a folder name. A
+    plate folder called ``exp_1`` therefore produced ``exp_1_A01_1_1.npy``:
+    five separator-delimited components for a four-component grammar.
+
+        _map_wells('exp_1_A01_1_1.npy')  ->  ('error',) * 5
+
+    The whole plate could not be measured. Before the identity keys were
+    escaped it was worse rather than better -- the same name parsed as plate
+    ``exp``, well ``1``, field ``A01`` and was wrong QUIETLY.
+
+    The plate is escaped here, at the writer, rather than through
+    :func:`spacr.schema.escape_field_stem_plate`, because the writer holds the
+    four components separately and so has no splitting to get wrong. That
+    helper is the same rule for a caller that holds only a joined name, and it
+    has to guess where the plate ends; escaping before the join means there is
+    nothing to guess. :func:`spacr.schema.parse_field_stem` reads the result
+    back as ``exp_1`` character for character.
+
+    :param plate: free-text plate id. ``None`` keeps its historical spelling,
+        the literal ``'None'``, rather than silently becoming an empty
+        identity.
+    :param time: the timepoint, or ``''`` for the channel-folder layout, which
+        has always written a trailing empty component.
+    :returns: the stem, without an extension.
+    :raises spacr.schema.KeyParseError: when the plate is empty. An empty plate
+        is not an identity, and every field written under one would merge with
+        every other.
+    """
+    from .schema import escape_filename_component
+    return f'{escape_filename_component(str(plate))}_{well}_{field}_{time}'
+
+
+#: Subfolders of a plate source folder whose file stems are field ids written
+#: by this module, and are therefore what :func:`_migrate_unescaped_plate_names`
+#: renames. ``orig/`` and the raw drop are deliberately absent: those names are
+#: the vendor's, not spaCR's, and are not field stems.
+FIELD_STEM_FOLDERS = ('stack', 'norm_channel_stack', 'merged', 'masks')
+
+#: Extensions those folders hold.
+FIELD_STEM_SUFFIXES = ('.npy', '.npz', '.tif', '.tiff')
+
+
+def _migrate_unescaped_plate_names(src, dry_run=False):
+    """Escape the plate component of arrays a previous release wrote raw.
+
+    A plate folder whose name holds an underscore -- ``exp_1`` -- used to
+    produce ``exp_1_A01_1_1.npy``, five separator-delimited components for a
+    four-component grammar, and ``utils._map_wells`` answered ``('error',) * 5``
+    for every field of it. The plate could not be measured at all.
+
+    Nothing in the measurement database needs migrating, because there is
+    none: every frame of such a plate was refused. What DOES need moving is
+    everything upstream of the measurement -- ``stack/``, ``norm_channel_stack/``,
+    ``merged/`` and, above all, ``masks/``, which is hours to days of
+    segmentation. Renaming those makes the plate measurable without
+    re-segmenting it, which is the whole reason this exists rather than a note
+    saying "re-run the plate".
+
+    THE NEW NAME IS NOT GUESSED. Every stem this module writes ends in three
+    fixed tokens -- well, field, timepoint -- whatever ``timelapse`` is set to,
+    so everything before them is the plate however many underscores it holds.
+    A stem that is already escaped, or whose plate holds no separator, is left
+    alone: the rename is a no-op for every ordinary plate, which is what makes
+    it safe to run over a folder that does not need it.
+
+    Crops under ``data/`` are not touched. A plate that could not be measured
+    has none, and the ``nightly``-only crop names that ``_generate_names``
+    mis-escaped came with a ``png_list`` table whose identities are wrong too,
+    so there is nothing there to salvage by renaming -- re-run ``measure_crop``.
+
+    :param src: the plate source folder, the one holding ``merged/``.
+    :param dry_run: report the renames without performing them.
+    :returns: list of ``(old_path, new_path)`` pairs, renamed unless
+        ``dry_run``.
+    :raises FileExistsError: if a destination is already occupied, before
+        anything is moved. A half-applied rename is worse than none.
+
+    Example:
+        .. code-block:: python
+
+            >>> from spacr.io import _migrate_unescaped_plate_names
+            >>> _migrate_unescaped_plate_names('/data/exp_1', dry_run=True)
+            [('/data/exp_1/merged/exp_1_A01_1_1.npy',
+              '/data/exp_1/merged/exp%5F1_A01_1_1.npy')]
+    """
+    from .schema import KEY_SEPARATOR, KeyParseError, escape_field_stem_plate
+
+    planned = []
+    for folder in FIELD_STEM_FOLDERS:
+        root = os.path.join(src, folder)
+        if not os.path.isdir(root):
+            continue
+        for base, _dirs, files in os.walk(root):
+            for name in sorted(files):
+                stem, suffix = os.path.splitext(name)
+                if suffix.lower() not in FIELD_STEM_SUFFIXES:
+                    continue
+                parts = stem.split(KEY_SEPARATOR)
+                # Three fixed tail tokens -- well, field, time -- so anything
+                # beyond four components is a plate holding a raw separator.
+                # Testing THAT rather than "does escaping change the name" is
+                # what makes a second run a no-op: escaping is not idempotent,
+                # because a literal percent is escaped first, and
+                # `exp%5F1_A01_1_1` would become `exp%255F1_A01_1_1`. A
+                # migration that corrupts on its second run is worse than one
+                # that never ran.
+                if len(parts) <= 4:
+                    continue
+                try:
+                    # timelapse=True is the writer's grammar, not the run's
+                    # setting: three fixed tail tokens either way.
+                    safe = escape_field_stem_plate(stem, timelapse=True)
+                except KeyParseError:
+                    # Not a field stem. A folder can hold a sidecar or a
+                    # hand-dropped array, and renaming one on a guess is how a
+                    # migration loses a file.
+                    continue
+                if safe == stem:
+                    continue
+                planned.append((os.path.join(base, name),
+                                os.path.join(base, safe + suffix)))
+
+    occupied = [new for _old, new in planned if os.path.exists(new)]
+    if occupied:
+        raise FileExistsError(
+            f'refusing to migrate {src!r}: {len(occupied)} destination(s) '
+            f'already exist, starting with {occupied[0]!r}. Move or delete '
+            f'them first — a half-applied rename leaves the plate in a state '
+            f'neither the old reader nor the new one can read.')
+
+    if not dry_run:
+        for old, new in planned:
+            os.rename(old, new)
+    return planned
+
+
 def _load_pylibczi():
     """Load the optional high-performance CZI reader when it is needed."""
     try:
@@ -1048,7 +1190,19 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 # `_generate_time_lists` parses (plate_well_field_time), so
                 # there is nothing for the timelapse branch to spell
                 # differently.
-                output_filename = f'{plate}_{well}_{field}_{timeID}.tif'
+                #
+                # The plate is escaped because it is FREE TEXT: it comes from
+                # a regex group or, more often, from `os.path.basename(src)` —
+                # a folder name, which very often holds an underscore. A plate
+                # folder called `exp_1` used to produce `exp_1_A01_1_1.npy`,
+                # five separator-delimited components for a four-component
+                # grammar, and `utils._map_wells` returned the string 'error'
+                # in all five slots: the plate could not be measured at all.
+                # `escape_field_stem_plate` writes `exp%5F1_A01_1_1`, which
+                # `schema.parse_field_stem` reads back as plate `exp_1`
+                # character for character.
+                output_filename = _escaped_field_stem(
+                    plate, well, field, timeID) + '.tif'
 
                 mip = np.max(np.stack(images), axis=0)
                 channels_seen.add(channel)
@@ -1241,7 +1395,14 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
                             wellID = _convert_cq1_well_id(wellID)
                             print(f'Converted Well ID: {orig_wellID} to {wellID}')#, end='\r', flush=True)
 
-                        newname = f"{plateID}_{wellID}_{fieldID}_{timeID if timelapse else ''}{ext}"
+                        # Same escape as _rename_and_organize_image_files, and
+                        # for the same reason: plateID falls back to the source
+                        # FOLDER NAME when the regex has no plateID group, and
+                        # a folder called `exp_1` puts a fifth component into a
+                        # four-component name that nothing downstream can split.
+                        newname = _escaped_field_stem(
+                            plateID, wellID, fieldID,
+                            timeID if timelapse else '') + ext
                         newpath = src / chanID
                         move = newpath / newname
                         if move.exists():
@@ -2999,9 +3160,95 @@ def _save_settings_to_db(settings, stage=None):
         # runs immediately before measure_crop's workers start writing.
         conn.close()
 
+# A tracked-mask movie is sized from the mask, not from a constant.
+#
+# It used to open ``plt.subplots(figsize=(50, 50))`` and write the animation at
+# ``dpi=80``, so every frame was 50 x 80 = 4000 px on a side whatever the field
+# was: 64 MB of RGBA per frame for a mask that is usually a few hundred pixels
+# across. Measured on a 128 x 128 mask, five frames took 8 s and came out
+# 4000 x 4000. The movie is written whenever ``save`` is true on any of the
+# three tracking backends and a real timelapse is tens to hundreds of frames,
+# so the cost was paid on every tracking run and grew with the run's length
+# rather than with the field's size. It is also why the three ``if plot or
+# save:`` call sites in spacr.timelapse had no test that let them run: writing
+# one real movie cost seconds and hundreds of megabytes.
+MASK_MOVIE_DPI = 100
+MASK_MOVIE_MIN_PX = 320
+MASK_MOVIE_MAX_PX = 1024
+
+
+def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
+                               min_px=MASK_MOVIE_MIN_PX,
+                               max_px=MASK_MOVIE_MAX_PX):
+    """Size one movie frame, and its lettering, from the masks it will show.
+
+    The frame keeps the mask's own aspect ratio and its own resolution, with
+    the long side held inside ``[min_px, max_px]``: a small mask is scaled up
+    far enough for the label numbers to be legible, and a whole-slide field is
+    scaled down instead of being written at a resolution nobody can play.
+
+    The lettering has to be derived here rather than kept at the old constants.
+    24 pt at dpi 80 on a 4000 px canvas is 0.7 % of the frame height; the same
+    24 pt on a 512 px frame would be half the picture, and the old ratio on a
+    512 px frame would be three pixels. Text is therefore sized as a fraction
+    of the frame, with a floor so it never disappears entirely.
+
+    :param masks: the frames the movie will show. Ragged input is allowed and
+        the largest frame decides, so a mask that grew mid-series is not
+        cropped.
+    :param dpi: dots per inch handed to the writer. Only the product
+        ``figsize * dpi`` reaches the file, but the two are kept separate
+        because point sizes are relative to inches.
+    :returns: ``dict`` with ``figsize``, ``dpi``, ``frame_px`` (width, height),
+        ``label_pt``, ``title_pt``, ``caption_pt`` and ``band`` -- the fraction
+        of the figure reserved above and below the image for the two captions.
+    :raises ValueError: when there is no mask to measure, which would otherwise
+        surface as an unreadable empty GIF.
+    """
+    shapes = [np.asarray(mask).shape[:2] for mask in masks]
+    shapes = [(int(h), int(w)) for h, w in shapes if h > 0 and w > 0]
+    if not shapes:
+        raise ValueError(
+            'cannot size a mask movie: no frame has a non-empty shape. '
+            'An empty animation writes a GIF no player can open.')
+    height = max(h for h, _ in shapes)
+    width = max(w for _, w in shapes)
+
+    long_side = max(height, width)
+    scale = 1.0
+    if long_side < min_px:
+        scale = min_px / long_side
+    elif long_side > max_px:
+        scale = max_px / long_side
+    frame_h = max(1, int(round(height * scale)))
+    frame_w = max(1, int(round(width * scale)))
+
+    def _points(fraction):
+        # px -> pt, at the dpi the writer will use.
+        return max(5.0, round(min(frame_h, frame_w) * fraction * 72.0 / dpi, 1))
+
+    return {
+        'figsize': (frame_w / dpi, frame_h / dpi),
+        'dpi': dpi,
+        'frame_px': (frame_w, frame_h),
+        'label_pt': _points(1 / 28),
+        'title_pt': _points(1 / 22),
+        'caption_pt': _points(1 / 26),
+        'band': 0.06,
+    }
+
+
 def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     """
     Save a timelapse animation of masks as a GIF.
+
+    The frame is sized from the mask by :func:`_mask_movie_frame_geometry`
+    rather than at a fixed 50 x 50 inches, and a band is reserved at the top
+    and bottom of the figure for the two captions. The frame counter used to
+    be drawn by ``ax.set_title`` into a figure whose axes had been given every
+    last inch by ``subplots_adjust(top=1)``, so it was clipped away on every
+    frame: measured on a rendered GIF, zero lit pixels in the top 5 % of the
+    canvas against 222 in the bottom 5 % where the filename sits.
 
     Parameters:
     - masks (list): List of mask frames.
@@ -3014,13 +3261,20 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
     Returns:
     None
     """
+    geometry = _mask_movie_frame_geometry(masks)
+    band = geometry['band']
+
     # Set the face color for the figure to black
-    fig, ax = plt.subplots(figsize=(50, 50), facecolor='black')
+    fig, ax = plt.subplots(figsize=geometry['figsize'], facecolor='black')
     ax.set_facecolor('black')  # Set the axes background color to black
     ax.axis('off')  # Turn off the axis
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)  # Adjust the subplot edges
+    # Leave the two bands the captions are drawn into; at top=1 the frame
+    # counter was rendered above the canvas and never reached the file.
+    plt.subplots_adjust(left=0, right=1, top=1 - band, bottom=band,
+                        wspace=0, hspace=0)
 
     filename_text_obj = None  # Initialize a variable to keep track of the text object
+    frame_text_obj = None
 
     def _update(frame):
         """
@@ -3032,25 +3286,29 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
         Returns:
         None
         """
-        nonlocal filename_text_obj  # Reference the nonlocal variable to update it
+        nonlocal filename_text_obj, frame_text_obj  # Reference the nonlocal variables to update them
         if filename_text_obj is not None:
             filename_text_obj.remove()  # Remove the previous text object if it exists
+        if frame_text_obj is not None:
+            frame_text_obj.remove()
 
         ax.clear()  # Clear the axis to draw the new frame
         ax.axis('off')  # Ensure axis is still off after clearing
         current_mask = masks[frame]
         ax.imshow(current_mask, cmap=cmap, norm=norm)
-        ax.set_title(f'Frame: {frame}', fontsize=24, color='white')
+        frame_text_obj = fig.text(0.5, 1 - band / 2, f'Frame: {frame}',
+                                  ha='center', va='center',
+                                  fontsize=geometry['title_pt'], color='white')
 
         # Add the filename as text on the figure
         filename_text = filenames[frame]  # Get the filename corresponding to the current frame
-        filename_text_obj = fig.text(0.5, 0.01, filename_text, ha='center', va='center', fontsize=20, color='white')  # Adjust text position, size, and color as needed
+        filename_text_obj = fig.text(0.5, band / 2, filename_text, ha='center', va='center', fontsize=geometry['caption_pt'], color='white')  # Adjust text position, size, and color as needed
 
         # Annotate each object with its label number from the mask
         for label_value in np.unique(current_mask):
             if label_value == 0: continue  # Skip background
             y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
+            ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
         # Overlay tracks
         if tracks_df is not None:
@@ -3059,7 +3317,7 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
                 ax.plot(_track['x'], _track['y'], '-w', linewidth=1)
 
     anim = FuncAnimation(fig, _update, frames=len(masks), blit=False)
-    anim.save(path, writer='pillow', fps=2, dpi=80)  # Adjust DPI for size/quality
+    anim.save(path, writer='pillow', fps=2, dpi=geometry['dpi'])
     plt.close(fig)
     print(f'Saved timelapse to {path}')
 

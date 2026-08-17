@@ -2149,8 +2149,8 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         interactive (bool, optional): Flag indicating whether to display the timelapse stack interactively. Defaults to False.
     """
     
-    from .io import _save_mask_timelapse_as_gif
-    
+    from .io import _save_mask_timelapse_as_gif, _mask_movie_frame_geometry
+
     highest_label = max(np.max(mask) for mask in masks)
     # Generate random colors for each label, including the background
     random_colors = np.random.rand(highest_label + 1, 4)
@@ -2159,6 +2159,10 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
     cmap = plt.cm.colors.ListedColormap(random_colors)
     # Ensure the normalization range covers all labels
     norm = plt.cm.colors.Normalize(vmin=0, vmax=highest_label)
+    # The same sizing the saved movie uses: 50 x 50 inches was a whole wall of
+    # figure for a mask a few hundred pixels across, and it was redrawn on
+    # every tick of the frame slider.
+    geometry = _mask_movie_frame_geometry(masks)
 
     # Function to plot a frame and overlay tracks
     def _view_frame_with_tracks(frame=0):
@@ -2171,16 +2175,16 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         Returns:
         None
         """
-        fig, ax = plt.subplots(figsize=(50, 50))
+        fig, ax = plt.subplots(figsize=geometry['figsize'], dpi=geometry['dpi'])
         current_mask = masks[frame]
         ax.imshow(current_mask, cmap=cmap, norm=norm)  # Apply both colormap and normalization
-        ax.set_title(f'Frame: {frame}')
+        ax.set_title(f'Frame: {frame}', fontsize=geometry['title_pt'])
 
         # Directly annotate each object with its label number from the mask
         for label_value in np.unique(current_mask):
             if label_value == 0: continue  # Skip background
             y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=24, ha='center', va='center')
+            ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
         # Overlay tracks
         for track in tracks_df['track_id'].unique():
