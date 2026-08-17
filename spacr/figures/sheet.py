@@ -171,7 +171,31 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
         ax = figure.add_subplot(111)
         panel = REGISTRY[key](ax, frame, **kwargs)
         figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
+        attach(figure, panel)
         return figure, panel
 
 
-__all__ = ["CELL_HEIGHT", "Sheet", "WIDTHS", "build_panel", "build_sheet"]
+def attach(figure, panel) -> None:
+    """Hang a panel's name, data and groups on its figure.
+
+    THE FIGURE HAS TO CARRY THEM because that is all the export sees. A user
+    right-clicks a picture in the queue and asks to save it; nothing at that
+    point knows which frame it came from or what was compared, unless the
+    figure itself does.
+
+    Private attributes on a matplotlib Figure rather than a wrapper object,
+    because the figure is handed through the Qt bridge, the queue, a spill
+    file and back, and a wrapper would be lost at the first of those.
+    """
+    if panel is None:
+        return
+    figure.set_label(panel.title or panel.key)
+    figure._spacr_title = panel.title or panel.key
+    figure._spacr_caption = panel.caption
+    if getattr(panel, "data", None) is not None:
+        figure._spacr_data = panel.data
+    if getattr(panel, "groups", None):
+        figure._spacr_groups = panel.groups
+
+
+__all__ = ["CELL_HEIGHT", "Sheet", "WIDTHS", "attach", "build_panel", "build_sheet"]
