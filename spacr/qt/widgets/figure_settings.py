@@ -1011,8 +1011,86 @@ def save_figure_as(parent, figure, path: str = "") -> str:
     except Exception as error:           # noqa: BLE001 - report, do not raise
         LOG.info("could not save figure to %s: %s", path, error)
         return ""
+    export_sidecars(figure, path)
     return path
 
 
+def export_sidecars(figure, path) -> list:
+    """Write the figure's DATA and its STATISTICS beside it.
+
+    Asked for on 2026-08-16: "if a graph is exported its data is also
+    exported with the filename of the graph and a stats table is generated
+    with the correct stats".
+
+        volcano.pdf          the figure
+        volcano.csv          the rows it actually drew
+        volcano_stats.csv    the test, its assumptions, and its result
+
+    One basename, so "where do these numbers come from" is answered by the
+    folder rather than by the analyst's memory. That is the whole point: a
+    figure that can go in a paper is one whose numbers can be checked.
+
+    THE DATA IS WHAT WAS DRAWN, not what the panel was handed. A volcano is
+    given 1,213 coefficients and draws 1,212 -- the nuisance terms are not
+    hypotheses -- and a CSV whose row count disagrees with the n on the
+    picture is worse than no CSV, because the CSV is what a reader believes.
+
+    Never raises: an export that produced the figure has already done the
+    useful part.
+
+    :returns: the paths written.
+    """
+    written = []
+    base = os.path.splitext(os.fspath(path))[0]
+
+    frame = getattr(figure, "_spacr_data", None)
+    if frame is not None:
+        try:
+            target = f"{base}.csv"
+            frame.to_csv(target, index=False)
+            written.append(target)
+        except Exception as error:       # noqa: BLE001
+            LOG.info("could not export the figure's data: %s", error)
+
+    groups = getattr(figure, "_spacr_groups", None)
+    if groups:
+        try:
+            from ...figures.stats import compare, table
+
+            usable = {label: values for label, values in groups.items()
+                      if values is not None and len(values) >= 2}
+            if len(usable) >= 2:
+                # EVERY PAIR, corrected across them. Six pairwise tests at
+                # 0.05 is a 26% chance of one false positive and the
+                # individual p-values give no hint of it.
+                labels = list(usable)
+                comparisons = []
+                for index, left in enumerate(labels):
+                    for right in labels[index + 1:]:
+                        try:
+                            comparisons.append(compare(
+                                {left: usable[left], right: usable[right]},
+                                unit="coefficient"))
+                        except ValueError:
+                            continue
+                if comparisons:
+                    target = f"{base}_stats.csv"
+                    table(comparisons).to_csv(target, index=False)
+                    written.append(target)
+        except Exception as error:       # noqa: BLE001
+            LOG.info("could not export the figure's statistics: %s", error)
+
+    caption = getattr(figure, "_spacr_caption", "")
+    if caption:
+        try:
+            target = f"{base}_legend.txt"
+            with open(target, "w") as handle:
+                handle.write(caption + "\n")
+            written.append(target)
+        except Exception as error:       # noqa: BLE001
+            LOG.info("could not export the figure's legend: %s", error)
+    return written
+
+
 __all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
-           "save_figure_as"]
+           "export_sidecars", "save_figure_as"]

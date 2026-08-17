@@ -44,6 +44,18 @@ class Panel:
     #: Columns the panel needed. Used by the registry to answer "what can I
     #: draw from this table" without drawing anything.
     needs: Sequence[str] = field(default_factory=tuple)
+    #: THE ROWS THIS PANEL ACTUALLY DREW, for export beside the figure.
+    #:
+    #: Not the frame it was handed. A volcano is given 1,213 coefficients and
+    #: draws 1,212 -- the nuisance terms are not hypotheses -- so exporting
+    #: the input would give a reader a CSV whose row count disagrees with the
+    #: n printed on the picture. The CSV is what a reviewer will believe.
+    data: object = None
+    #: ``{label: values}`` for a panel that compares groups, so the export can
+    #: run the right test on the right thing. None where the panel is not a
+    #: comparison; a Q-Q is not two groups and inventing a test for it would
+    #: be worse than offering none.
+    groups: object = None
 
 
 def _column(frame, *names) -> Optional[str]:
@@ -286,7 +298,10 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
                           + (f" and |effect| ≥ {abs(effect_threshold):.3g} "
                              f"({rule})" if effect_threshold else "")
                           + ". Nuisance terms are excluded."),
-                 needs=(effect, p))
+                 needs=(effect, p),
+                 data=sub.assign(**{"called": called,
+                                    "_neglog10": y,
+                                    "_label": names.to_numpy()}))
 
 
 def effect_rank(ax, frame, *, alpha=0.05, top=14) -> Panel:
@@ -475,7 +490,14 @@ def control_separation(ax, frame) -> Panel:
                           "individual coefficients, the bar is the median. "
                           "The screen works only if the positive controls "
                           "separate from the negative ones."),
-                 needs=(effect, condition))
+                 needs=(effect, condition),
+                 data=frame.loc[frame[condition].astype(str).isin(names)],
+                 # THE UNIT HERE IS THE COEFFICIENT, not the cell and not the
+                 # well: each point is one fitted guide or gene effect. Named
+                 # so the exported stats table cannot claim otherwise -- a
+                 # test across the wrong unit returns p < 1e-10 on noise.
+                 groups={label: values for label, values
+                         in zip(labels, groups)})
 
 
 def guide_agreement(ax, frame) -> Panel:
