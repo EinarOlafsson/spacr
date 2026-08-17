@@ -351,7 +351,12 @@ class GraphCanvas(QWidget):
             if artifact_id not in self._visible:
                 continue
             node = self._graph.node(artifact_id)
-            if node is None:                        # pragma: no cover
+            if node is None:
+                # A layer naming an artifact the graph does not hold. Nothing
+                # `build_graph` produces looks like this -- it builds the
+                # layers FROM the nodes -- but a graph handed in by a caller
+                # can, and a KeyError raised inside paintEvent is a window
+                # that will not redraw rather than one box missing.
                 continue
             fill, border = STATE_COLOURS.get(
                 node.state, STATE_COLOURS[STATE_CURRENT])
@@ -550,7 +555,11 @@ class PipelineGraphScreen(QWidget):
     def _on_graph_ready(self, graph: Optional[PipelineGraph]) -> None:
         """Draw a freshly built graph. Runs on the GUI thread."""
         self._graph = graph
-        if graph is None:                            # pragma: no cover
+        if graph is None:
+            # The job delivered nothing. Saying so is the point: a screen
+            # that silently keeps the PREVIOUS project's graph on it after a
+            # failed read is showing one project's provenance under another
+            # project's name.
             self._set_verdict("The graph could not be built.", problem=True)
             return
         summary = stale_summary(graph)
@@ -644,7 +653,7 @@ class PipelineGraphScreen(QWidget):
         """Re-read the registry for the project already chosen."""
         self.load_project(self._project_edit.text())
 
-    def _on_browse(self) -> None:                    # pragma: no cover - modal
+    def _on_browse(self) -> None:
         """Ask for a project folder and load it."""
         chosen = QFileDialog.getExistingDirectory(self, "Choose a project")
         if chosen:
