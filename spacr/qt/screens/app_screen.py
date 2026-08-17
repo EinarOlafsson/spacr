@@ -3306,9 +3306,37 @@ class AppScreen(QWidget):
             # volcano to photograph anyway -- `snapshot` returns None for that
             # too, but asking here keeps the grid from flickering a tile in
             # and out while a run streams its first figures.
-            pixmap = (panel.volcano.snapshot()
-                      if frame is not None and len(frame) else None)
-            grid.set_pinned(pixmap, self.LIVE_TILE_TITLE if pixmap else "")
+            if frame is None or not len(frame):
+                # NOTHING FITTED, NO TILES.
+                grid.set_pinned(None, "")
+                return
+
+            # EVERY LIVE PANEL, not only the volcano.
+            #
+            # "i would like you to generate all plots with the pyqtgraph and
+            # have each represented as a tab under results" and "i would still
+            # like to retain the grid to the right ... same grid overview but
+            # pyqtgraph versions". The tabs landed first; this is the grid
+            # half.
+            #
+            # PHOTOGRAPHS, NOT LIVE WIDGETS, and that was measured rather than
+            # assumed: per window-drag frame at 18 tiles, live pyqtgraph
+            # widgets cost 74.99 ms against 5.19 ms for pictures, on a 16.7 ms
+            # budget -- six live tiles already miss the frame. The live widget
+            # is what a tile OPENS, not what the grid holds.
+            from ..widgets.figure_grid_view import live_tiles_from_panels
+
+            grid.set_live_tiles(live_tiles_from_panels([
+                ("regression", self.LIVE_TILE_TITLE, panel.volcano),
+                ("effect_rank", "Effect ranking", panel.effect_rank),
+                ("p_values", "p-values", panel.p_values),
+                ("qq", "Q-Q", panel.qq),
+                ("controls", "Controls", panel.controls),
+                ("agreement", "Guide support", panel.agreement),
+                ("residuals", "Residuals", panel.residuals),
+                ("scale_location", "Scale-location", panel.scale_location),
+                ("influence", "Influence", panel.influence),
+            ]))
         except Exception:
             LOG.debug("could not pin the live regression graph", exc_info=True)
 

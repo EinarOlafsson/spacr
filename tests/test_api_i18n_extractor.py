@@ -350,7 +350,17 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # effect-size cut, Runs-before-Results and the run-follows-selection
     # binding, and the figure-queue caption fix. Set once, after all four
     # slices committed and with the tree clean.
-    expected = 6976
+    # +44 on 2026-08-17, the regression endgame: the two missing pyqtgraph
+    # panels and their tabs (EffectRankPlot, BinnedPlot), the grid's live-tile
+    # set (set_live_tiles, live_tile_keys, is_live_section_collapsed,
+    # live_tiles_from_panels), spacr.cell_montage for instruction 131's
+    # headless half, and the third test-selection engine in plot.py being
+    # routed through spacr.figures.stats.
+    #
+    # Set once at the end, with every agent stopped and the tree clean --
+    # which is the third time today that rule has been the difference between
+    # a correct number and a stale one.
+    expected = 7020
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -365,7 +375,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7095
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7139
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

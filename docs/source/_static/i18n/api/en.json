@@ -3218,6 +3218,394 @@
       "source_sha256": "96f232c8110c2264c1cd75d3ac6cc21e72a3d462ef0ada866249bef634f64a12",
       "text": "Install ``token`` for this thread and restore any prior token on exit."
     },
+    "spacr.cell_montage": {
+      "source_blocks_sha256": [
+        "0c163051d130ad52e5202e9a2e800bcecc47098c37a0f6af2cb8adc3315d0358",
+        "ddc8a0b9856e7296fc20f607e3565fe8295912bd693b588dd178929c39b31b04",
+        "4b81e71721bec950715217ecd9a3d201e2306d132b5d1a02719f1fb03ab7533b",
+        "e94277a5d97cb1617cff79a5ccd8a5107d2043fc5b64e5e2dc892c80f28bf6c2",
+        "c15bc7d08c19c2449219979be3790c22b635fa0978306accd1539c9538beb9c6",
+        "d86fd0445db1e39b148faf49f370deb0f1934bc95176c9327d3f7b38a43b8bd3",
+        "48b37c9b67838ab68c9a68a680756a5e6cc090cc1c1ab93bd6f7c2b17e2b8e76",
+        "c5f8ad0f40866183b5faf7cfe5113eeb7377aa61098918714747704a8d4f078f",
+        "7f217035b84c5b7f7d57523952084b343515d8a8b071d5d9da7368ec2f501d16",
+        "9b1c6f23d9aaa3cc048fc963d7935f598f05da8500752c001f34bd33eb85a753",
+        "f217e56e6918d0f610f56121a97a7743063f92225f1971f15f64741b1802fb01",
+        "daa87c001c7fbc2486b7ad341312c5927357cca28acce36f6ec6f7a563c9645b",
+        "720818a22b5d18f3f65a71d569cc5d4061c823d76f19227ac8caaa04bfe380db",
+        "15f9020bddc617b100d52381eb5bb3278dfcdfb8729ea88ec35ac783de39b1a6",
+        "87d7f18bb4066e9b126c1a95c912722140cf1686bc4dae2c90f15ed2f0164abc",
+        "9abfbd9a648212aaed343ac125edd7eff380cb9f88a53e2908591661e9361b49",
+        "751d3b61ee1e66548e9db9138236aa2bdfa60c196f2104d00de3ac6c8fea0865",
+        "f8f67e9a50ef575f77e72284910e098f081606cde832700d33d1556d47f95d42",
+        "dbf4f12fa56411c91763c3cc7b8d384a74d3f70f317256d094bbed1703820716",
+        "14e976ad7801324084f92eed11bb7611320d0daed5f6a05f0f04b59ca478ff33",
+        "2e41b118eb209c139f2bcbf690486f6e1509ab978aa96feb053877a70a1a5a09",
+        "29ba9071c4d30ad608067213b2bfd8fafdddeefdc2c226e6db25c32550167b95"
+      ],
+      "source_sha256": "670f744d41b67c0c06793545522bf2236a93b1e6259a6b07413af2561b8f9d92",
+      "text": "Which cells to show behind one coefficient on the regression plot.\n\nInstruction 131, headless half. Given a coefficient (a gene or a guide), the\nper-object rows out of the imported measurement databases, and the per-well\nguide fractions the regression was fitted on, this module decides **which\nobjects to draw and says exactly how it decided**. It draws nothing: the\npixels come from :mod:`spacr.crops`, and the tab that shows them is wired\nseparately.\n\nTHE TRAP, AND WHY IT DECIDES THE OUTPUT SHAPE\n---------------------------------------------\n**This is a pooled screen.** Which individual cell carries which guide is not\nknown and cannot be looked up -- that is the whole reason the analysis is a\nregression on well-level fractions instead of a per-cell comparison. The\nsequencing says a well is 15% GRA14; it does not say WHICH 15%.\n\nSo a montage cannot show \"the cells with GRA14 knocked out\". It can show the\ncells most consistent with the effect, and that distinction has to survive\nonto the figure. Every :class:`MontagePlan` therefore carries\n:data:`INFERENCE_NOTICE` in its :meth:`~MontagePlan.caption`, and there is no\nway to get a plan without it -- a montage captioned \"GRA14\" that a reader\ntakes for genotyped cells is the worst thing this feature can produce.\n\nTHE SELECTION, AND THE THREE NUMBERS IT TURNS ON\n------------------------------------------------\n1. **The wells.** Those whose count data reports the guide/gene present, with\n   a non-zero fraction (:func:`wells_for_coefficient`). A gene with several\n   guides sums their fractions by default; :func:`select_montage_per_guide`\n   is the other question, asked separately, because they are different\n   questions.\n\n2. **The score window.** ``target = baseline + effect``; keep objects whose\n   classification score lies within ``half_widths`` robust scales of that\n   target, and among them take the closest (:func:`score_window`).\n\n   *\"Closest\" means smallest ``|score - target|``.* The baseline and the\n   scale are computed **once, over every object supplied**, not per gene:\n   a window recomputed per gene is a window that can be tuned until the\n   pictures look right, and nothing in the output would show that it had\n   been. :data:`WINDOW_HALF_WIDTHS` is the one width, and a caller that\n   overrides it has the override written into the caption.\n\n3. **How many.** ``round(n_objects_in_well * guide_fraction_in_well)``, per\n   well (:func:`objects_to_show`). That is the *expected* number of objects\n   in that well carrying the guide, and it is the right count precisely\n   because it is the only number the pooled design supports. A well of 200\n   cells at 15% contributes 30. A well that rounds to zero is reported as a\n   zero-contribution well rather than silently vanishing.\n\nWHERE THE PIXELS COME FROM -- ALREADY BUILT, NOT REBUILT HERE\n--------------------------------------------------------------\n:func:`spacr.crops.resolve_crop_source` picks between\n:class:`~spacr.crops.PngCropSource` (the exported PNGs, via ``png_list``) and\n:class:`~spacr.crops.MergedCropSource` (cut on demand out of\n``merged/<fov>.npy``) **and says which it picked**.\n:func:`resolve_montage_crop_source` is a thin wrapper that turns the \"no\nsource at all\" case into an answer the tab can display instead of an\nexception, because a tab that cannot be filled has to say why.\n\nWHICH CSV ACTUALLY CARRIES THE WELL FRACTIONS\n----------------------------------------------\n``grna_well.csv`` and ``well_grna.csv`` do **not**, despite being the obvious\ncandidates. Measured against ``spacr.ml.grna_metricks`` and the contract test\n``test_qc_block_writes_the_three_well_level_tables`` in\n``tests/test_cov_ml_perform_regression.py``:\n\n    ``grna_well.csv``   ``grna, plateID, grna_well_count, gene_well_count``\n                        -- how MANY wells a guide was seen in, never which.\n    ``well_grna.csv``   ``prc, gene_count`` (+ the split ``prc`` parts)\n                        -- how many distinct genes per well, and it does not\n                        name a guide at all.\n    ``regression_data.csv``\n                        ``prc, grna, gene, fraction, pred, cell_count,\n                        plateID, rowID, columnID`` -- the well, the guide,\n                        the fraction and the cell count, which is exactly and\n                        only what steps 1 and 3 need.\n\n:func:`read_well_guide_fractions` reads the third and refuses the first two by\nname, saying what each holds, so the mistake is made once.\n\nDependencies\n------------\nnumpy, pandas and the standard library. :mod:`spacr.crops` and\n:mod:`spacr.io` are imported lazily inside the functions that need them, so a\ncaller that only wants the selection never pays for torch."
+    },
+    "spacr.cell_montage.Coefficient": {
+      "source_blocks_sha256": [
+        "709c374dc3ff94e446995ae32b43688d20a6d22ac9a5aded5278362e9f75325a",
+        "4d0fff8ee88c11897648db35db9b62f937a7d32da68e42cb4fa1838c562c1be8",
+        "83c6d5310a543a890b1f402cee6f64e9f3e4e35aebfefe0225b6960a9475aaa2",
+        "075be2a1fb1583d7285dcbdf30e460446c2aa0cece8ed95dec7d63a9d6847165",
+        "471768bba9c4665f8397bb05e285303fd38e7f7494479e91952da2cc62b304d1"
+      ],
+      "source_sha256": "7dd4f4681c7bd4f049c4758fbc9c235f045dcabdc1c3246879b7c6a2fb99e25b",
+      "text": "One point on the regression plot: a gene or a guide, and its effect.\n\n:param name: the gene or guide name as the count data spells it.\n:param effect: the fitted coefficient.\n:param level: ``'gene'`` or ``'grna'``.\n:param guides: the guides the coefficient covers -- one for a guide-level\n    coefficient, all of the gene's for a gene-level one."
+    },
+    "spacr.cell_montage.Coefficient.describe": {
+      "source_blocks_sha256": [
+        "7d29e83d7668a61486697060d5d22430c3099df95c597159ff3cf39fa7f48672"
+      ],
+      "source_sha256": "7d29e83d7668a61486697060d5d22430c3099df95c597159ff3cf39fa7f48672",
+      "text": "Return ``'GRA14 (gene, effect +0.700)'`` for a caption or a log."
+    },
+    "spacr.cell_montage.CoefficientNotFound": {
+      "source_blocks_sha256": [
+        "174655a309d8ad067c81175680e80d01d31f4292edaf5cae00af7ffa3cc1bfc4"
+      ],
+      "source_sha256": "174655a309d8ad067c81175680e80d01d31f4292edaf5cae00af7ffa3cc1bfc4",
+      "text": "The gene or guide named by the coefficient is not in the count data."
+    },
+    "spacr.cell_montage.CropSourceChoice": {
+      "source_blocks_sha256": [
+        "ecf642cf44de70af0170aefef6d6c2c97e704b414f3a5b5db300b0120e8a73e9",
+        "3cd78ed6371104bece7cb71b5221d915afe6205fce9b69a31f80707510cc4424",
+        "ac165957f99771eae3c255b97d087628711e31ad88ae4ef3064aa373c6da558f",
+        "7738c02c97e82aa891a9a5909cd94911c4b509fcaa83e6eb067fd211a83fba81",
+        "7df8e8821f3b39ca32a85b45ccd9fb14ed626fbba53c348c13c56591c8f2cd6f",
+        "bff0be4db59d9feea60375c53f3bb2cc524f4c60c50e0d26e7581b7d292ec776"
+      ],
+      "source_sha256": "e7da08652a9a927f54aacfa5e990fd82fa094c7d5390f852e930d56170d5cee1",
+      "text": "Which crop source will draw a montage, or why none can.\n\nThe tab needs both answers in the same shape: instruction 131 says a tab\nthat cannot be filled must say why rather than be absent, so \"there is no\nsource\" is a value here and not an exception.\n\n:param source: the :class:`spacr.crops.CropSource`, or ``None``.\n:param kind: ``'png'``, ``'merged'``, or ``''`` when unavailable.\n:param reason: why that source was picked, or why none could be.\n:param available: whether a montage can be drawn at all."
+    },
+    "spacr.cell_montage.CropSourceChoice.describe": {
+      "source_blocks_sha256": [
+        "17b1704bd6dc262f2d780f23c44255dd964c138b039ad817b7e0316103ec1eb4"
+      ],
+      "source_sha256": "17b1704bd6dc262f2d780f23c44255dd964c138b039ad817b7e0316103ec1eb4",
+      "text": "Return the one-line sentence for the tab's status line."
+    },
+    "spacr.cell_montage.MissingScores": {
+      "source_blocks_sha256": [
+        "89eb799ae1b95919d69e01ebcdfa922d7cb9beaf168f6c8a5b4a331737abf17f"
+      ],
+      "source_sha256": "89eb799ae1b95919d69e01ebcdfa922d7cb9beaf168f6c8a5b4a331737abf17f",
+      "text": "The object frame carries no usable per-object classification score."
+    },
+    "spacr.cell_montage.MontageError": {
+      "source_blocks_sha256": [
+        "db352b8701fb689cbe55a2815145beba718a02e15d29840043205b7377fcdf0c"
+      ],
+      "source_sha256": "db352b8701fb689cbe55a2815145beba718a02e15d29840043205b7377fcdf0c",
+      "text": "The requested montage cannot be selected from what was supplied."
+    },
+    "spacr.cell_montage.MontagePlan": {
+      "source_blocks_sha256": [
+        "a874088f7bb4551aadbaa32223c006fdfe057ff1b01aa4d2349e9e9a8a10511d",
+        "da48c69661c28ab6461585d4bb34b1b71b9669ab04a6ba7b1a303ef1aa0ebd0c",
+        "1dc67223958a6c7518cda0e0c710641f9ca2c9b0ec0ecf3121eaa7c9dbb8ba3b",
+        "c39d3f596cdbbadc4021fe55b02f29896f3350e25fbb943add23dcc3df686d57",
+        "99b2ba2e46d8ca0ab1b758d980f53f3d6d3b8dc249f65efb6bc204d646ffd835",
+        "bb860c155e2754aa6db2dbfa20aa17479b3208595b9ac523d630b9abdeb6b4fc",
+        "16c44eedd6f0c6f2edf6b25882d1e2e7388dca042851d49a9a525fae70cc0d78",
+        "7b5cbadd2d90f012773f35fc5963be7b301fcf729faaae2cf68a961e9f38a2cc",
+        "eedbe0d740e4a95e3938b8eb503cb9ad33fc0527bdfd608aed36f05e8a618ac3",
+        "72afa69470cfc3ed6d566947c03e97e6664f7fadf9e13be917f638e31d1da6b8",
+        "206f4c1c4ca377e9feeef0b04f13c6f2ed5f330acf4fc522c20f389a07ac5dc5",
+        "ebb4500814711a63437bcbac8db2b241ca0b97eb0e27c5a42e6c89623a6f3676",
+        "13982886863378e6d33a612fb8d18fa29052f5eadbcf031cd333731e55c37991",
+        "a01d1a715ee0adcedd0839c81bdb5b92586dd81b49a206037b60c208fa5975ed"
+      ],
+      "source_sha256": "e4b44deafdf513255e5019d8a67c2a020f33b453f7024a110cbe6bb29d3dde7b",
+      "text": "The objects to show behind one coefficient, and the whole reason why.\n\nThe plan is the module's product. It carries the selected rows *and*\nevery number the caption needs, so nothing downstream has to re-derive\n(or re-invent) the selection in order to describe it.\n\n:param coefficient: the point that was clicked.\n:param window: the score window that was applied.\n:param wells: one :class:`WellSelection` per well the count data reported\n    the coefficient present in -- **including the wells that contributed\n    nothing**, which is the whole reason they are a list of records and\n    not a filtered frame.\n:param objects: the selected object rows, in well order then by distance\n    to the target, with ``montage_distance``, ``montage_well`` and\n    ``montage_rank`` added.\n:param score_column: the per-object score the selection used.\n:param guide_aggregation: ``'sum'`` or ``'separate'``.\n:param guides: the guides the coefficient covers.\n:param source_kind: ``'png'`` / ``'merged'`` / ``''`` -- which crop source\n    will draw these, when one was resolved.\n:param source_reason: why that source was picked.\n:param cap: the cap that was applied.\n:param n_before_cap: how many objects the rule selected before the cap.\n:param notes: everything the caption has to disclose that is not a\n    per-well count."
+    },
+    "spacr.cell_montage.MontagePlan.capped": {
+      "source_blocks_sha256": [
+        "450170cd601bff1b9e6c189108b835a0e6524fc61b9947247d95d4fd76588c87"
+      ],
+      "source_sha256": "450170cd601bff1b9e6c189108b835a0e6524fc61b9947247d95d4fd76588c87",
+      "text": "True when the cap trimmed the montage."
+    },
+    "spacr.cell_montage.MontagePlan.caption": {
+      "source_blocks_sha256": [
+        "e7990fedc965d59ec806d82e20bc50e0c17c8c24417ff09852c6d18bc12d0e65",
+        "58f052643869d5a6f08a65b2c1be87b580fd90886694ac188a05de1bcd548480"
+      ],
+      "source_sha256": "f4b318634712f8d5518effd0fe5ba35e3c27d9ee4b70a2ae6212c12c55fba52e",
+      "text": "Return the caption the montage must carry.\n\nStates the wells, the score window, the count rule, which crop source\ndrew the pixels, every well that contributed nothing, and -- last, so\nit is the sentence a reader leaves with -- that guide membership is\ninferred rather than observed."
+    },
+    "spacr.cell_montage.MontagePlan.is_empty": {
+      "source_blocks_sha256": [
+        "bc6f3d1e4526a715943635f41997eda619f2ad850bf0a5b4453cf86248ff19f0",
+        "218f540efff2f1a834b65079f0a2ee0943febee8a93e6d029b334ccb55185091"
+      ],
+      "source_sha256": "92bfcb0ea50aeb7191dad1d6a86649303f2b7f3ecb5792afb09abd49fc3f9f96",
+      "text": "True when no object survived the selection.\n\nThe tab shows the caption anyway: \"no objects\" with the wells and the\nwindow that produced none is an answer, and an empty tab is not."
+    },
+    "spacr.cell_montage.MontagePlan.n_objects": {
+      "source_blocks_sha256": [
+        "a3fc0e7edfa92d8e6830e031f9b5693e69c07e64ce0b0d7a7e7a2d97187845a3"
+      ],
+      "source_sha256": "a3fc0e7edfa92d8e6830e031f9b5693e69c07e64ce0b0d7a7e7a2d97187845a3",
+      "text": "How many objects the montage holds."
+    },
+    "spacr.cell_montage.MontagePlan.rows": {
+      "source_blocks_sha256": [
+        "c8130e44c9a3bbf42d7d2e8d7371baf8ffd37a59b9364035ef3e2820239e3d74",
+        "f238cd7c5ba76070f1c5f964e95930daf5a32496b05df10532b6d429d2ea7419"
+      ],
+      "source_sha256": "488bfa26e7d09878775de2b5cdc2c72c367af4247b97a88f226125cb3eeaa101",
+      "text": "Return the selected objects as plain dicts for a crop source.\n\n:class:`spacr.crops.PngCropSource` and\n:class:`~spacr.crops.MergedCropSource` both take a row mapping, so\nthis is what the tab hands to ``source.get_many(...)``."
+    },
+    "spacr.cell_montage.MontagePlan.summary": {
+      "source_blocks_sha256": [
+        "ff6e0c87308a22f64aae3699fe6f97465f8e951ed4b78964f3b97f05370caa62"
+      ],
+      "source_sha256": "ff6e0c87308a22f64aae3699fe6f97465f8e951ed4b78964f3b97f05370caa62",
+      "text": "Return the one-line status-bar sentence."
+    },
+    "spacr.cell_montage.MontagePlan.zero_wells": {
+      "source_blocks_sha256": [
+        "68514bfcf8d4ed0e3381dc03433edf502e6401e3524f607676e4b37a99f99d6f"
+      ],
+      "source_sha256": "68514bfcf8d4ed0e3381dc03433edf502e6401e3524f607676e4b37a99f99d6f",
+      "text": "The wells that reported the guide but contributed no object."
+    },
+    "spacr.cell_montage.ScoreWindow": {
+      "source_blocks_sha256": [
+        "c3e272e55731c9841681636e083d3e295fddcddbe1ffcdead7494e21f47fbb04",
+        "19c02617489af5bcadd9c3f84510695a7e8ea66c1eebafb5997a5304084f2948",
+        "c0e3d78d8cbef4def8af75c223386e872ff9c1ac6dc7451387a405bfb3c98ae5",
+        "d7068c2d9059623ed3da9f2fbfc6041e3226c53e7a0db6b40493491b7fb9e7f2",
+        "15a8503b3b23df9ee02d05371bc4eb498f4588b8b3da82023ec5b1d0f8f12f64",
+        "2b2865b1320319631d773fd48e48b0997af55642f02fb19317c83d88455f558b",
+        "68c5fadf1070d1192b5ec1209f01c4345bdcb75c8e78e32c90c0e096056a9ffe",
+        "e42a3e212e8814978f02becd0e1b95884b7dbb66f455ac9e654272590a7e6130",
+        "3f8bb03b398eca949e0567f73e85eb9dcc1a5244ad455bdee281372e6f9a2391",
+        "1f3a95b989cbe371572173caf1c4b6d79f6942582e207d3dc760ade44db97d19",
+        "a59f7c556ce66c441bdcc594054941e974214cb8d0130b6bb1f5e86c85d52ccf",
+        "1fe6103f8ef7663d496f7a8ffafabf615f83b3ee5af02d705ef4e89e45d186ab"
+      ],
+      "source_sha256": "4291c693dfcb2d8ad11197da8650791b8958241299291fb06744241f0358d1d8",
+      "text": "The band of classification scores a coefficient implies, and its rule.\n\n:param target: the per-object score the coefficient implies.\n:param low: the window's lower bound, inclusive.\n:param high: the window's upper bound, inclusive.\n:param baseline: the score of an object carrying no guide of interest.\n:param baseline_source: ``'screen_median'`` when derived from every\n    object supplied, ``'given'`` when the caller passed one.\n:param scale: the robust scale (MAD-sigma) the half-width is measured in.\n:param half_widths: how many scales wide each side is.\n:param n_scored: how many objects the baseline and scale were computed\n    from -- the whole supplied frame, not the selected wells.\n:param observed_low: smallest score seen across all objects.\n:param observed_high: largest score seen across all objects.\n:param degenerate: True when every score is identical, so the window has\n    no width to speak of and admits everything."
+    },
+    "spacr.cell_montage.ScoreWindow.contains": {
+      "source_blocks_sha256": [
+        "feb6f470671ec616f70c92826891a089494bf40ddf842091c6439fab9a29451c",
+        "ad4f77130a36fa5f304dd88cc3dea68c6227021f0c8ba3646670da5df57ac4bc"
+      ],
+      "source_sha256": "c2cc1d93fffa81dd3e4fb725c25794a4cd972e97734bcdc425ffca4828bca040",
+      "text": "Return the boolean mask of ``scores`` that fall inside the window.\n\n:param scores: any array-like of per-object scores. Non-finite\n    entries are outside the window whatever the bounds are -- a NaN\n    score is a missing measurement, not a near miss."
+    },
+    "spacr.cell_montage.ScoreWindow.describe": {
+      "source_blocks_sha256": [
+        "ce75ba289992456538521a43ca5187089e6bb14103fbcc0199a8e625334d9999"
+      ],
+      "source_sha256": "ce75ba289992456538521a43ca5187089e6bb14103fbcc0199a8e625334d9999",
+      "text": "Return the one-line statement of the rule and the width."
+    },
+    "spacr.cell_montage.ScoreWindow.target_is_observable": {
+      "source_blocks_sha256": [
+        "72524936abc8c49f96a7ffa66ea874b6fe0b1ac9673b3697091d39a5c476dd7f",
+        "662ddda4a39bff7033440e71554bec7209ee91582ed1925ba45a27222d8315dc"
+      ],
+      "source_sha256": "eed0e17dcb07ea49fef1e8ff95fbb115b0b5b311d51f79e86606b99da4b10207",
+      "text": "True when the implied score lies inside the observed score range.\n\nFalse is a real finding, not an error: it says no object anywhere in\nthe screen scores anything like what the coefficient implies, so the\nmontage is showing the least-far objects rather than close ones."
+    },
+    "spacr.cell_montage.WellSelection": {
+      "source_blocks_sha256": [
+        "30e3b9aefbaac811022e56046a3646216d2a0cf5c921654a345ea4fbd062f356",
+        "75621f692988da1952fb4406c30f300d405ba6ac3daf61668c1cce2976a9d553",
+        "b70e8630ab2b3bbc23c65360bfd47000b04fe4acb4d78ffd63df410c94c4f359",
+        "8262a4650d395c0a362d5e1b2b337f825952d6bfba39975ea8b3a9a2f308bef3",
+        "1638c954b7c5e76b14c016c2cae897ad09645427b39e52c5598cd1b481d6041c",
+        "078dbb7daa8fab96955d418a24842ab202ee95a341d213bfc3fbd7476480e39f",
+        "ba229a71dcb3bf132bd79b5e00e8b94fd0fca9e0bc6ac6db08f5f071659c237f",
+        "9887174056deb040ff6e8eb04e0cbc942cd7249fc594e40b31e36c7012708bda",
+        "53d0f8bef4ffbe7b84894e5f78526b130ef9ddeea3657fbdf2538e035b8c5034"
+      ],
+      "source_sha256": "ef635811cf9f59142a653a01d1054c1e1ad48ed4ce0e6bc920279ef4c91fae40",
+      "text": "What one well contributed to the montage, and why that number.\n\n:param well: the well key as a display string.\n:param fraction: the guide's fraction in this well, from the count data.\n:param n_objects: how many objects the object frame holds for this well\n    -- the population ``round(n x fraction)`` is computed from.\n:param n_reported: ``cell_count`` as the count data recorded it, or\n    ``None``. Kept beside ``n_objects`` rather than instead of it,\n    because when they disagree the montage has to say so.\n:param n_expected: ``round(n_objects x fraction)`` -- the count rule.\n:param n_in_window: how many of this well's objects fall inside the\n    score window at all.\n:param n_selected: how many were actually taken, after the window and\n    after any cap.\n:param note: why ``n_selected`` is not ``n_expected``, or ``''``."
+    },
+    "spacr.cell_montage.WellSelection.contributed": {
+      "source_blocks_sha256": [
+        "da01f1680563f0f72f629dde40b11e1b9ab3774dd23f4499ce03c21dc6f60ad5"
+      ],
+      "source_sha256": "da01f1680563f0f72f629dde40b11e1b9ab3774dd23f4499ce03c21dc6f60ad5",
+      "text": "True when this well put at least one object into the montage."
+    },
+    "spacr.cell_montage.WellSelection.describe": {
+      "source_blocks_sha256": [
+        "ba4d5215c2424bbf092f70205003a579797ef87490842c0554b06ccb69b182e4"
+      ],
+      "source_sha256": "ba4d5215c2424bbf092f70205003a579797ef87490842c0554b06ccb69b182e4",
+      "text": "Return the one-line account of this well's contribution."
+    },
+    "spacr.cell_montage.coefficient_level": {
+      "source_blocks_sha256": [
+        "4c5789b05c832628ea801e1aa333161963a1476dc32871a852951719645d48b8",
+        "1211035a976b81a174946c4777da9baa6fb22e3b57d400fc6dfa26c3d3a69069",
+        "09bc0cda415f41dedd9f896a058ff269a963baff1df8bef88b1fd6a985e76357",
+        "b76cf1bf8456fe229aaa4c87a156d2495ed9b8a1930251bcf6f19fd0d561c7e8",
+        "a8b7b6410e1569434f98a45d904b2ad2321b1e9c7f270353cae7c9b7e7313580",
+        "c1326148aef68402270fbdc2472c72c0ce991a8c7f18ac01e110bde195a5ea1c",
+        "2e93282d4083dbb0926a37b2f9d609686572df210e2e41cdb7225d24d181087a"
+      ],
+      "source_sha256": "be1e68601e547ca05a04aa677e77d8387763087d174079f618a5a9104ecfa183",
+      "text": "Return ``'grna'`` or ``'gene'`` for ``name``, read off the count data.\n\nA guide wins a tie. A library where one string is both a guide name and a\ngene name is pathological, and resolving it as the gene would silently\nwiden the montage to that gene's other guides.\n\n:param counts: the per-well count data.\n:param name: the coefficient's name.\n:param guide_column: the guide column, default ``'grna'``.\n:param gene_column: the gene column, default ``'gene'``.\n:raises CoefficientNotFound: the name is in neither column."
+    },
+    "spacr.cell_montage.guides_for_coefficient": {
+      "source_blocks_sha256": [
+        "28e72555f88df4cf41d185e2f24d796991dddc48c7cf36e7c04a1ddd5d66272b",
+        "09bc0cda415f41dedd9f896a058ff269a963baff1df8bef88b1fd6a985e76357",
+        "b76cf1bf8456fe229aaa4c87a156d2495ed9b8a1930251bcf6f19fd0d561c7e8",
+        "733aab56f928202c125ddfbd0739a7f191f413d4cb492849ff60cbb8e5e9aaff",
+        "725d3daa0b14292e306d5ad95f40facddab00fd12521cbd0142f139edb0d15fb",
+        "2cfcc59f42e1de87649bd366733cca08b99d23cfda44719c1d92096f2facfd0b",
+        "ad733439208ee36abf0dde76b0930fd09583d0774accee05de9215532030a700"
+      ],
+      "source_sha256": "5c5021e18ef93a4b437de120ac1633c3197c735c3217779ac08f9853e36c5d1c",
+      "text": "Return the guides a coefficient covers, in sorted order.\n\n:param counts: the per-well count data.\n:param name: the coefficient's name.\n:param level: ``'gene'`` / ``'grna'``; ``None`` reads it off the data\n    with :func:`coefficient_level`.\n:param guide_column: the guide column.\n:param gene_column: the gene column.\n:returns: one guide for a guide-level coefficient, the gene's guides for\n    a gene-level one."
+    },
+    "spacr.cell_montage.load_montage_objects": {
+      "source_blocks_sha256": [
+        "207405bcc30850cd467bb637db9e3c9a0f1e38222ef33f282e15864073ad25a3",
+        "075af4b405b2a7ff3f03fe42546c2713b1aed5197cf87b5f87910cb5009abb99",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "a3e8a65a169a558885f718a4614f989b1cc49e25b0b79dfaee6351c4f22274e9",
+        "05cb40070c1ce83fabf4cfde45b11239f6c50b0a6b71eeb3d311b2f1510f85ca",
+        "071449331bf59fe154d1a8f48a1c18a1772e3bf30a012710bf592de0122322bb",
+        "77856012c18a14969f1ff276b9ed7bbe6436c4e5d8d075ad5254812ecb9e68b1",
+        "a09572378b88f2366aeda127c9d588e2cdb15715daac2a210177285614107935",
+        "cb9bf071fa65f760eb09f0fca3f0ae21ce653af564aa7df72fd013e955b58d60",
+        "162b69e7db956ff293e430d511737c9c9633dbc03ead188cd7e67ee964025d60"
+      ],
+      "source_sha256": "5d4f759e1e859d63a38b8dbfc9b8cca8b6cc5e7cb36f5dce488f55b5782741dc",
+      "text": "Return the per-object rows a montage selects from, out of one database.\n\nReads ``png_list`` -- which is where\n:func:`spacr.predictions.merge_cv_predictions` writes the per-object\nclassification score -- and hands it to\n:func:`spacr.io.crop_rows_from_png_list`, which is the join that recovers\n``path_name`` and the integer ``object_label`` a merged crop is cut by.\nSo the frame that comes back serves **both** crop sources: ``png_path``\nfor :class:`~spacr.crops.PngCropSource`, ``path_name`` plus\n``object_label`` for :class:`~spacr.crops.MergedCropSource`.\n\n:param db_path: the ``measurements.db``.\n:param object_type: which crop mode's rows to read.\n:param score_column: the per-object classification score column.\n:param table: the table holding the crops; ``'png_list'``.\n:param verbose: let the io join report the rows it could not place.\n:returns: the object frame, with ``prc`` composed when the well keys are\n    there.\n:raises MontageError: the database is missing or has no such table.\n:raises MissingScores: the table has no score column, or no finite score\n    in it -- i.e. classification has not been merged into this database."
+    },
+    "spacr.cell_montage.objects_to_show": {
+      "source_blocks_sha256": [
+        "cf2bdea245d9348eb69b154c74a6b23783604e2e4b919d974a4a957d41880c62",
+        "7e837fc4446ef11bbfad6ff048e33bf91d93eacc13929a99adbf452a1b6cc2de",
+        "c37754ff42462571ea159bce263c70b8f4adb4ab16f694ae7c99ba13dbe26bb1",
+        "fa2c36c5fe0bd9c7fbf5b46c2f7cd2bb712c99fd8f348a1746c7a1a28ec4a304",
+        "5f9a9d4038834909c2d451729a41ee69652a8cdf15fa204e83331cac3407810f"
+      ],
+      "source_sha256": "5a1b14b8867976b26e1e43b6498f1e66b9060eae7f30e2c43df27061d10750e5",
+      "text": "Return ``round(n_objects * fraction)`` -- the montage's count rule.\n\nThis is the EXPECTED number of objects in the well carrying the guide,\nand it is the right count precisely because it is the only number a\npooled design supports: the sequencing gives a fraction, so the design\ngives a count and never an identity.\n\n:param n_objects: how many objects the well actually has to draw from.\n    Negative counts are refused; zero is legal and yields zero.\n:param fraction: the guide's fraction in that well, in ``[0, 1]``. A\n    fraction outside that range is refused rather than clipped -- it means\n    the count data and the well key did not line up, and a clipped\n    montage would hide that.\n:returns: how many objects that well contributes."
+    },
+    "spacr.cell_montage.read_well_guide_fractions": {
+      "source_blocks_sha256": [
+        "2f692c57bd242c9dfec1e8b8f22e754c3a24370f01ae53d869c6c48cfba07a80",
+        "c9e71e215f092d35a881a5e188dafb2d18b18a98adfa5a0fae89467b8f10dca4",
+        "bbedbfad300ac185b3371b05b11721d18463325a62c043505b22180dd573e5ff",
+        "1d01301a10725db543ef29a0aaaed2ea54030869b478ed7c0d73e59a2c3ae7dc"
+      ],
+      "source_sha256": "b59d4e5323a26fa4bead545093a049cc16914062515f71d4889debdec9ff387a",
+      "text": "Read the per-well guide fractions a montage needs.\n\n:param path: a regression results folder, or the CSV itself. A folder is\n    resolved to ``regression_data.csv``.\n:returns: the frame, validated to carry a well key, ``grna``, ``gene``\n    and ``fraction``.\n:raises MontageError: the path names ``grna_well.csv`` or\n    ``well_grna.csv`` -- refused by name, with what each actually holds,\n    because they are the obvious guess and neither can answer the\n    question; or the file is missing, or short of a needed column."
+    },
+    "spacr.cell_montage.resolve_montage_crop_source": {
+      "source_blocks_sha256": [
+        "1facb6d7d01caeef51f40e259155671daec978a5cbaeeca0671041cfd7804bc8",
+        "21f0eb4c4bdb48dd16cc395667d97f719275ff0248a88e9bb763e6221d2f7028",
+        "a9cedb3876052cc653da371dca2c03a1106bc1291540478c585f7297fc10a10a",
+        "1026ca7f0c7c9faa3f7667996b8343faa6566053d877f4b9cfd61f54a9ad1818",
+        "e4e25f36b002426a7ebd2ef623ff396c4e45cb3b16cc582f58b85dbbcddcfe54",
+        "cef43ef01af2054ada3ed0692b87fa3f1d5197b4057203cac04e4d814a8df772"
+      ],
+      "source_sha256": "6ad1583cef0a230a0bc38a767cf08e4e260d5f645a57d2fbd70860ad927dd65f",
+      "text": "Pick the crop source for a montage, and never raise for \"none\".\n\nA thin wrapper on :func:`spacr.crops.resolve_crop_source`, which is the\nmodule that already knows how to choose between the exported PNGs and\n``merged/*.npy`` and already says which it chose. The wrapper exists for\nexactly one reason: a missing source has to arrive as a sentence the tab\ncan display, not as an exception it has to catch to stay on screen.\n\n:param src: a settings mapping (with ``src``, optionally\n    ``crop_source``) or the experiment root / its ``merged`` folder.\n:param object_type: which object the crops are cut by.\n:param prefer: force ``'png'`` or ``'merged'``.\n:returns: a :class:`CropSourceChoice`; ``available`` is False, with the\n    reason, when neither source exists."
+    },
+    "spacr.cell_montage.round_half_up": {
+      "source_blocks_sha256": [
+        "2dd644bce12e130e8258e3a868f339a7206b4f4404769d60981553776809bb65",
+        "88e797eeadffdf14d41c558d4970ab1ede20fea932ade9d572be17b0b9f652ae",
+        "2752f3dda0905e71ac520840b88e855aa922bfe5183959015be580faba1f4cc9",
+        "34d7c0a181abe5897621b3e0918998e7d2bbb11d7eb5cc06fb6c72661f59f8d1"
+      ],
+      "source_sha256": "be81032bf20f3f32e6b881d7b9edfd39e93c2b4a68ec1e72440a8e73c66fda34",
+      "text": "Round ``value`` to the nearest integer, halves away from zero.\n\nDeliberately **not** :func:`round` or :func:`numpy.round`, both of which\nround halves to even: a well whose ``n * fraction`` is 2.5 would then\ncontribute 2 while an otherwise identical well at 3.5 contributed 4. That\nis a montage whose per-well counts depend on the parity of a number the\ncaption calls \"round(n x fraction)\", which no reader could reconstruct.\n\n:param value: the number to round. Non-finite input raises rather than\n    producing a count.\n:returns: the rounded integer."
+    },
+    "spacr.cell_montage.score_window": {
+      "source_blocks_sha256": [
+        "818f4d45ce7a9e9093feda8d874e9d3b67d2773a1977383160ad37f80126de7b",
+        "efc266a3659b2f2d2916bd0eae27d43b7f1a9afdbcf7028ffbd7d97cacf9680d",
+        "cdceec5e4e9e001fd1deafb38652aef42b1c5763e064759356df10baf43427aa",
+        "e7c8679a7ee77765bddbed1da1f0f3b27b91d168897e9982272df1f2e03f4f1f",
+        "56cc59b4956f2096d0a61bf5d249dc696d2a09fa8c20c55b1933547e840ed47f",
+        "23b4e50a13321720a14160f04740649ed363becc9d0afea9232210337ec5ee74",
+        "83c6d5310a543a890b1f402cee6f64e9f3e4e35aebfefe0225b6960a9475aaa2",
+        "e41765c92cc2d32a87069f22aa4a3de8514b00c7cbfcdcea09ac9e0b18deb0cf",
+        "0a2c8c3e8223910d1a7afb9c708a5e6bade453e992b32e4cdb841dbea7ab97c7",
+        "26d2ec8e86ca1d6e25d00c1e07c76b12c1611139895c32e9d572820f3d557cf7",
+        "90ff7394595f75826deeb8a0c28b5e7ff539f59b626e1c549760f1f61c024948",
+        "a75cbedaf288100c14ee264499a54e2dc4b990bae3136cfbd728c5efa609337f"
+      ],
+      "source_sha256": "e1691d20943e06f081d956230005b63c59ba402a6f6c823bb2a48a9440c230e5",
+      "text": "Return the band of scores the coefficient ``effect`` implies.\n\nTHE RULE, stated once and applied identically to every coefficient:\n\n* the **target** is ``baseline + effect``. Under the well-level model a\n  well's score is ``baseline + fraction * effect``, so a well made\n  entirely of cells carrying the guide would score ``baseline + effect``\n  -- which is the score one such cell implies.\n* the **baseline** is the median per-object score over *every* object\n  supplied. One number for the screen, so it does not move when the gene\n  does.\n* \"**closest**\" is smallest ``|score - target|``, and the window is\n  ``target +/- half_widths * scale`` where ``scale`` is\n  ``1.4826 * MAD`` of the same screen-wide score distribution.\n\n:param objects: every object available to the montage -- all wells, not\n    just the coefficient's. Passing only the selected wells is what makes\n    a window per-gene, so the whole frame is the argument.\n:param effect: the fitted coefficient.\n:param score_column: the per-object classification score.\n:param half_widths: the window's half-width in robust scales. Overriding\n    :data:`WINDOW_HALF_WIDTHS` is allowed and is written into the caption,\n    because a widened window changes which cells a reader is looking at.\n:param baseline: use this baseline instead of the screen median -- the\n    fitted intercept, say. Recorded as ``'given'``.\n:raises MissingScores: no usable score column, or no finite score in it.\n:raises MontageError: a non-positive or non-finite ``half_widths``."
+    },
+    "spacr.cell_montage.select_montage": {
+      "source_blocks_sha256": [
+        "7854a37e4d1236d1fbb07a0d96488b99dd1925c395331da5f2d09a9ec13a6ff5",
+        "94bd32238a552c4c644c22d1d9f102bfbf3dd24ca9542455822b728bbf625951",
+        "ab3c1f76e26f3408d8cbf1f51de8b26749e56de75a1a33341c9e0ed00e04703d",
+        "a513fef648eac82a5dc47b295ae430688290d2d130290d81af3e1392a357180e",
+        "f34a9c29a2d7f8f611abf61fc445e264aca48f39fbed1fcd9748e60444403fa4",
+        "36ddb86aee807b028ccd6f550a3e87700bec6ca100de71bd1ac1577ff95564ed",
+        "790f80dbee0f15c92e4079a640b57eccb5f249bca89f04d85b0daeaf6e8c3652",
+        "e41765c92cc2d32a87069f22aa4a3de8514b00c7cbfcdcea09ac9e0b18deb0cf",
+        "44149188f2a47f4de54801795e14e58d277c174dbc0256e7551328a33b971fe6",
+        "7558ca301b1f5bd60d064d6273ef8cfd251041dad570295b257f388961b23de6",
+        "b18d3ffe2b3ddc71be89783b3c7290d7a693d5e6bae52fe112218578782abdfe",
+        "67f09bf95ff14cff7dc1e898604a342b46ecd1116b1fb667e6864dd9a7bc6edc",
+        "cc171a00ca9ec148236609265bfa18e5f9b0df81873da1d2a38de9b58e09222d",
+        "2efbe2005fdb373e88462e14a6755b671180d6619087bfa7214c347ee882c881",
+        "61321f97f61567108dde65c55245d7563c95c11906181ad58b8117a395745825",
+        "e68904499fb978c249dd369e20def1b1fb19985161ac98dbd26d9c093d1c26ad",
+        "00dc79e95063f20d4eb7df60baa490876f2491549086959eac9be87cd0e5aa90",
+        "61457b938b88a8438dd9d9d2814fb5fe66f1ccd84abbf65a06f4162f9530d83c",
+        "4157362bf78dd4c15e3878f1790c8c22a70c7f1e5169e7fd29829bfd2bd73fb3",
+        "979603024a7ac0630da97eb3ad314919833f3f9f2f76c829cddfbf7d451b2829"
+      ],
+      "source_sha256": "97772db855848270a8b74470e52ab1753ab424b54083f2b44ca452f1c7f8c272",
+      "text": "Return the objects to show behind one coefficient.\n\nThe whole selection, in the order instruction 131 states it: the wells\nthe count data reports the guide present in, the objects in those wells\nwhose classification score is closest to what the coefficient implies,\nand ``round(n x fraction)`` of them per well.\n\n:param objects: **every** object available -- all wells, not just the\n    coefficient's. The window's baseline and scale are computed from this\n    whole frame precisely so that they do not move when the gene does, so\n    pre-filtering it to the coefficient's wells is the one thing that\n    makes the window tunable.\n:param counts: the per-well count data (``regression_data.csv``).\n:param name: the coefficient's gene or guide name.\n:param effect: its fitted coefficient.\n:param level: ``'gene'`` / ``'grna'``; ``None`` reads it off the counts.\n:param score_column: the per-object classification score.\n:param half_widths: the score window's half-width in robust scales.\n:param baseline: an explicit baseline instead of the screen median.\n:param cap: the largest montage to return; the objects closest to the\n    implied score survive, and the caption says what was trimmed.\n:param guide_aggregation: ``'sum'`` or ``'separate'``. ``'separate'`` is\n    served by :func:`select_montage_per_guide`; passing it here is an\n    error rather than a silent sum.\n:param guide_column: the guide column in ``counts``.\n:param gene_column: the gene column in ``counts``.\n:param fraction_column: the per-well guide fraction column in ``counts``.\n:param crop_source: an already-resolved :class:`CropSourceChoice`, so the\n    plan can say which source will draw it.\n:param guides: override the guides the coefficient covers -- used by\n    :func:`select_montage_per_guide` to plan one guide at a time.\n:returns: the :class:`MontagePlan`.\n:raises CoefficientNotFound: no well reports the coefficient present.\n:raises MissingScores: the object frame carries no usable score."
+    },
+    "spacr.cell_montage.select_montage_per_guide": {
+      "source_blocks_sha256": [
+        "95bb84760a5df5cf304ac5bf013ccc02e83edacfb23c1b2af70cd221334178f2",
+        "22ce7cd12a2ff16523709a2fbe7b4424044a94f0ce54c29b2b186bf56156c5bd",
+        "6a2c9930288e2bc780bfd1a150f9709b16db1dbc737d47e7b0db43db01fddc3f",
+        "09bc0cda415f41dedd9f896a058ff269a963baff1df8bef88b1fd6a985e76357",
+        "0b8a81440888e7f0445564bc76dd71140483e1511c4b6e0e2992d7cfc65d685a",
+        "d9d045fd0cd71aabb51194bebdc399de26988abbec2272192ca551326faa15d2",
+        "288ba4de2658a81e07d4ac46b73dfdf73023ccce462461bd2cefff7d15847f07",
+        "befa1e3939691cbce2543c0e188f5281533641e2ced31c9630d6aa9542bf4696"
+      ],
+      "source_sha256": "63775c5a3a38732d0059efc329b833afe4d1424da38c12142471f11ccf2fedbd",
+      "text": "Return one :class:`MontagePlan` per guide of a gene-level coefficient.\n\nThe other question. Summing a gene's guide fractions asks \"which cells\nare consistent with losing this gene\"; keeping them apart asks \"does each\nguide pick out the same cells\", which is how a real effect is told from\none guide's off-target. Neither answer is a substitute for the other, so\nboth are here and each plan says which it is.\n\n:param objects: every object available, as for :func:`select_montage`.\n:param counts: the per-well count data.\n:param name: the gene (or guide) name.\n:param effect: the fitted coefficient -- the SAME effect for every guide,\n    because a gene-level coefficient is one number; the guides differ in\n    which wells and which cells they select, not in what they imply.\n:param kwargs: forwarded to :func:`select_montage`.\n:returns: one plan per guide, in guide order. A guide whose wells report\n    it nowhere is skipped, and the guides that produced a plan are on\n    each plan's ``guides``."
+    },
+    "spacr.cell_montage.wells_for_coefficient": {
+      "source_blocks_sha256": [
+        "0ccc1009ac07e054e8ea6217adad82561e3bd2ce3db15e8aa39e613c62f7fa23",
+        "339f9d40774c77ce2815c4cfe41c76ae527e2f082a13372ec627c50ce6ea7efb",
+        "20280049fd92ee9c6c0421aa6769a5970b11088369279859be549f3e3253ae09",
+        "b76cf1bf8456fe229aaa4c87a156d2495ed9b8a1930251bcf6f19fd0d561c7e8",
+        "b3f4daf293814ee757e205f53230112f1e5ccacbd388da99364892ae79437d89",
+        "cef98f6cfd545fb2b7406f1230bc26dbf5faa139b84dcf1181f345d1ff51aa69",
+        "725d3daa0b14292e306d5ad95f40facddab00fd12521cbd0142f139edb0d15fb",
+        "2cfcc59f42e1de87649bd366733cca08b99d23cfda44719c1d92096f2facfd0b",
+        "95f13ea995694c78b3402c0e0a178720e8cf13b8acb6d13fb919cba891986969",
+        "17e810378d3d110f527655fe3fc978f79f82461b388f792e603755ac69e2c73d",
+        "4157362bf78dd4c15e3878f1790c8c22a70c7f1e5169e7fd29829bfd2bd73fb3"
+      ],
+      "source_sha256": "3206442ae27642c14ccdd83cfc1ce84591b675112e1d78ded972107970b90d17",
+      "text": "Return the wells whose count data reports ``name`` present.\n\nStep 1 of the selection. A gene's guides are summed by default -- the\ngene-level coefficient describes the fraction of the well carrying ANY\nguide against the gene -- and the sum is refused if it exceeds 1, because\nthat means the same well was counted twice.\n\n:param counts: per-well count data: a well key (``prc``, or all of\n    ``plateID``/``rowID``/``columnID``), ``grna``, ``gene`` and\n    ``fraction``. ``regression_data.csv`` is that frame;\n    ``grna_well.csv`` and ``well_grna.csv`` are NOT -- see\n    :func:`read_well_guide_fractions`.\n:param name: the coefficient's name.\n:param level: ``'gene'`` / ``'grna'``; ``None`` reads it off the data.\n:param guide_aggregation: ``'sum'`` (one fraction per well, the default)\n    or ``'separate'`` (a ``grna`` column is kept and one row per\n    well/guide comes back, for :func:`select_montage_per_guide`).\n:param guide_column: the guide column.\n:param gene_column: the gene column.\n:param fraction_column: the per-well guide fraction column.\n:returns: one row per well (or per well/guide) with the well key,\n    ``fraction``, and ``cell_count`` when the count data carries it.\n:raises CoefficientNotFound: no well reports the coefficient present."
+    },
     "spacr.chaining": {
       "source_blocks_sha256": [
         "76ba15f8e06c6a6b50bd726ccb8d5af3ebe1fdf1040074926f1086f764bbb7ea",
@@ -19193,19 +19581,23 @@
     "spacr.ml.minimum_cell_simulation": {
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
-        "d5b004c12aad22250fdc5d4c7307a5e8a1f1d1bb47ecff9443dc6e337b58c1df",
-        "995c3708f5612a2fcfd55a7fa5ca0f2667cb0e683dbf35a0c928758528f854e4",
-        "cfe8f9380ed33deafd10e5b91886592c7a456fabfb621ab205d4976a38ad1537",
+        "eacc5ff6904d33ff778518de01a26b8a997e50e0dc45e0861eab4b399ed9e010",
+        "43b5f61a27e90d7e559a60c7414020cebc57b712e2089e920270000d5d3cc37d",
+        "a8ec64662d8bba85fdc357e0fa1aac8d736cb086e573decc9fbb80d6d096fbbc",
+        "60f6148bc019c6eab3f0bbcc545618394bd081d561843452f883c8800ddbb4ac",
+        "3858a3de991221b6feba1b4f82794ac76dc984ce3ed8bfa65b4e2dbc9a24e8fe",
+        "8797042e27a93766fda8608a5949377a2a7da703a0885140ee2485b703f2ac50",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
         "3103cda8114ac5948d35dc30917328df117577f81725997587919b91ab833b07",
         "82d2224e108da815af960b07f872501b8a205e828d445f0205f8e6c0c8215a1e",
+        "eb89002c678db9f94e41e00a4644613e7f98725127eabba146206dfdc772db3e",
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "d73dfb84b8d840f2a97662d633b5eafa7732c9abd6b36538bfa21244aab38a4e",
-      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``results/cell_min_threshold.pdf`` next to\n``settings['count_data'][0]``.\n\nThat destination is the SCREEN folder, shared by every run of the screen,\nwhich is why :func:`perform_regression` copies whatever this draws into\nthe run's own folder -- see :func:`_keep_figures_with_the_run`.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``score_column``, ``tolerance`` (int percent or float fraction),\n    ``min_cell_count`` and ``count_data``.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
+      "source_sha256": "f77591bceb91595c1d9fae24e51533a5ee4901c3f6fb7784ea0af6d078c15afd",
+      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``cell_min_threshold.pdf`` into ``dst``.\n\nWHERE THE FIGURE GOES IS THE CALLER'S DECISION, because the two callers\nwant different folders and only one of them can be derived from the\nsettings. Without ``dst`` this drew into ``<count folder>/results/``, the\nSCREEN folder -- one path shared by every run of that screen. Two things\nfollowed from that, and the second is not a tidiness complaint:\n\n  * a run's own folder is the record of the run, and the picture was not\n    in it, so :func:`perform_regression` had to snapshot the shared\n    folder and copy back whatever appeared;\n  * :func:`spacr.parameter_sweep.run_sweep_parallel` fits ``n_jobs``\n    trials of ONE screen in a ``ProcessPoolExecutor``, and this figure is\n    drawn on every trial whether or not ``min_cell_count`` is being\n    chosen. Every worker therefore wrote the same path at the same time,\n    and the copy-back -- \"every figure in the shared folder whose stamp\n    changed since I started\" -- could not tell its own trial's curve from\n    the one the worker next to it had just written.\n\n``perform_regression`` now passes its run folder, so each trial's curve\nis written once, where that trial's results are. ``dst=None`` keeps the\nhistorical screen-folder path for a notebook or script that calls this\ndirectly.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``score_column``, ``tolerance`` (int percent or float fraction) and\n    ``min_cell_count``. ``count_data`` is needed only when ``dst`` is\n    left unset, and only to locate the figure.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:param dst: Folder for ``cell_min_threshold.pdf``, created if missing.\n    Default ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
     },
     "spacr.ml.ml_analysis": {
       "source_blocks_sha256": [
@@ -23549,7 +23941,10 @@
     "spacr.plot.create_grouped_plot": {
       "source_blocks_sha256": [
         "9a41295efcd6793d2c1fce179540794ad17377ce36c371579af733f94519ddfb",
-        "53d2c735de6008c72a2b73b46d69a0df323fc09e42db21b3259a4f837a6cf706",
+        "44fd47357ad42890782401d486907c2ae6740c49f7568f4139f25ce61e90a431",
+        "4c3e2a614110a15df0d0a4b91121206eeb5c961ce7230965add4f4be0b5810d8",
+        "341becf57e4b00fa70ddd20c0db48bbc2be266787e19caa6ada529c04566192e",
+        "246f32ee9e35d99732d791b98683223c72b292d5a82e3bda11dd9791561dbc73",
         "b42f60ba24dc3b940bc04d171044e4330578f224dd0dcc9a5af74451359a46f0",
         "8029fe4892ef657796095a823d1926bcd98b68035aeeb7d514acd28db4f9b036",
         "07f0c7d726312f6c50bf9702a90f21554b4b861acacb23e8d67a63e10dffe37f",
@@ -23564,8 +23959,8 @@
         "80ee940505eea3f5176f7b1dc85d9048500c2311cf6caf6588449bacd06f8f81",
         "67d6e9156fa9282ac125f6f96e255920a23f650048b600bbc1e6baa498c30a6f"
       ],
-      "source_sha256": "69313eae4089ec26e2f4cb26fb4594a86ebe8a094972b9af09c5c5f6f6c18519",
-      "text": "Plot grouped data with automatic normality-aware pairwise statistics.\n\nRuns D'Agostino normality per group, chooses the appropriate\npairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey\nHSD post-hoc when appropriate, renders the requested plot type and\noptionally persists both plot and stats to ``output_dir``.\n\n:param df: Source DataFrame.\n:param grouping_column: Categorical grouping variable.\n:param data_column: Numeric column to summarise.\n:param graph_type: One of ``'bar'``, ``'violin'``, ``'jitter'``,\n    ``'box'``, ``'jitter_box'``. Default ``'bar'``.\n:param summary_func: Summary function for bar plots. Default\n    ``'mean'``.\n:param order: Explicit group ordering. Default: alphabetical.\n:param colors: Colour palette; falls back to a HUSL palette.\n:param output_dir: Save location when ``save=True``.\n:param save: If True, save the plot and per-comparison stats CSV.\n:param y_lim: Two-element y-axis limits.\n:param error_bar_type: ``'std'`` or ``'sem'``. Default ``'std'``.\n:returns: ``(figure, results_df)`` — the displayed matplotlib ``Figure``\n    and a DataFrame holding the normality, pairwise and Tukey post-hoc\n    rows (``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``).\n:raises ValueError: if ``error_bar_type`` is not recognised."
+      "source_sha256": "76ad58d765f52865ae4b31bc6530e63f5f2e46310ea18e7c367d36d86f7db487",
+      "text": "Plot grouped data with automatic normality-aware pairwise statistics.\n\n:func:`spacr.figures.stats.compare` decides which test each PAIR gets --\nStudent's t, Welch's t or Mann-Whitney U -- from the normality and\nequal-variance checks, and an assumption check that had no power counts\nas failed. Tukey HSD post-hoc is added when three or more groups pass the\nnormality check together. The requested plot type is rendered and both\nplot and stats optionally persist to ``output_dir``.\n\nTwo things moved on 2026-08-17 (instruction 127 finding 2) and both change\na saved ``test_results.csv``:\n\n* Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in\n  the smallest group, the checks are recorded as uninformative and the\n  rank test is taken. This function used to run D'Agostino per group and\n  read ``all(p > 0.05)`` as normal -- and D'Agostino needs eight\n  observations before it can reject anything at all.\n* Each pair is named as the two-group test it is. Three normal groups\n  used to produce three rows labelled 'One-way ANOVA', each of which was\n  an ANOVA across two groups; the p-values are unchanged (F = t squared),\n  the name was not actionable.\n\n:param df: Source DataFrame.\n:param grouping_column: Categorical grouping variable.\n:param data_column: Numeric column to summarise.\n:param graph_type: One of ``'bar'``, ``'violin'``, ``'jitter'``,\n    ``'box'``, ``'jitter_box'``. Default ``'bar'``.\n:param summary_func: Summary function for bar plots. Default\n    ``'mean'``.\n:param order: Explicit group ordering. Default: alphabetical.\n:param colors: Colour palette; falls back to a HUSL palette.\n:param output_dir: Save location when ``save=True``.\n:param save: If True, save the plot and per-comparison stats CSV.\n:param y_lim: Two-element y-axis limits.\n:param error_bar_type: ``'std'`` or ``'sem'``. Default ``'std'``.\n:returns: ``(figure, results_df)`` — the displayed matplotlib ``Figure``\n    and a DataFrame holding the normality, pairwise and Tukey post-hoc\n    rows (``Comparison``, ``Test Statistic``, ``p-value``, ``Test Name``).\n:raises ValueError: if ``error_bar_type`` is not recognised."
     },
     "spacr.plot.create_venn_diagram": {
       "source_blocks_sha256": [
@@ -24112,39 +24507,48 @@
     },
     "spacr.plot.spacrGraph.perform_levene_test": {
       "source_blocks_sha256": [
-        "10cd714ccac154272f5859c91084be3030ee8f03be364994ea5962c60af3deb8",
+        "378a79f50900d79ab43f85723744cfaa8ec9c578f59d2349668a585b847251e4",
+        "e2e6a9e4d3cf7363b2c7cc3b71f435591127dfe10d746b90ceeeb385226cd407",
+        "a31fc4416d2683fcc37d4e50cb3420dd9e04ee2bee3637c702257b464c2d964a",
+        "9c57568b755214e01df7c510ed541f85e299613ef6fb9354655a4577fa969db3",
         "0d0eeb2b986adc6d164729b19319127d6df987b2e3d7407820b1639388618af4",
-        "f6ea4ae922c40482a4d1851d90508291c4baef173a47d608ccbf3248a097a9bb"
+        "93e15fdaceb9a32ffe18e35ae9178b511378633d7aca3e3d94bb618489330005"
       ],
-      "source_sha256": "0b8a041fe8a5c2595aaeee9ad4f63fe61cd643fa42e5bfa0851a3e04dcfc799f",
-      "text": "Return Levene's test statistic and p-value for the current data column across groups.\n\n:param unique_groups: Groups to compare.\n:returns: ``(statistic, p_value)`` tuple."
+      "source_sha256": "1f6e8ea2c7e64142e5db794cea70f75c456d4ce5fc5c16d007f9fe2d84a73cbf",
+      "text": "Levene's test for equal variance on ``data_column[0]``, MEDIAN-centred.\n\nDelegates to :func:`spacr.figures.stats.check_equal_variance`. Two\nthings moved when it did, and both change the number a caller writes\ninto a CSV:\n\n* The centring is the median (Brown-Forsythe), not scipy's default\n  mean. The median-centred form is the robust one and is the right\n  choice precisely when normality is itself in question -- which is\n  every time this is called, since it is called before anyone knows.\n* Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations\n  in the smallest group the result is ``(nan, nan)``. On three\n  replicates Levene has almost no power, so \"p = 0.7, variances are\n  equal\" means \"we could not tell\", and printing 0.7 into a results\n  table invites exactly the reading that publishes a difference that\n  is not there.\n\n:param unique_groups: Groups to compare.\n:returns: ``(statistic, p_value)``, both NaN when the check had no\n    power."
     },
     "spacr.plot.spacrGraph.perform_normality_tests": {
       "source_blocks_sha256": [
-        "713411d1edfe00e7eaa4d42c0c743e25b658f611e3b706abbdf792e622de1451"
+        "936eb225d08450c24449430d50323488805fa67f9e82d1f5d4754694d3ca0101",
+        "e1bd8c5cfb8e9e2adb45a2598d8de89bf377d15c8b6dc9a9d0812e6bbdc519d6",
+        "25940c9fc21c2c59262951f82429f926bdddf3b5da32f10b1308164337b85de1",
+        "c424fcab658b133f97e4468d8d1cf2698c91f642409b290b4301a6ce60f32bbd",
+        "df052149858c5188702adaec696ae2753f11034a0abe489dd6508e033639ef16"
       ],
-      "source_sha256": "713411d1edfe00e7eaa4d42c0c743e25b658f611e3b706abbdf792e622de1451",
-      "text": "Perform normality tests for each group and data column."
+      "source_sha256": "7da6bbb184638e3f38da0fd67633989f35eeac42c501ecaa0ada9f543a9ef501",
+      "text": "Report per-group normality, and say when the check had no power.\n\nThe VERDICT and the reported ROWS both come from\n:func:`spacr.figures.stats.check_normality`, the one engine that\ndecides which test applies, so a spacrGraph figure and a\n:mod:`spacr.sp_stats` results table cannot disagree about the same\nplate. That check is Shapiro-Wilk against a Bonferroni threshold\nacross the groups, and it refuses -- reporting NaN and\n``Informative=False`` -- when the smallest group is below\n:data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS`.\n\nThis method used to run D'Agostino-Pearson (n >= 8) or Shapiro\nper group and read ``all(p > 0.05)`` as \"normal\". On three\nreplicates neither test can reject anything, so \"not rejected\" was\nbeing read as a licence to run a t-test -- and three replicates is\nwhat a well-level spaCR figure usually has. A row whose statistic is\nNaN is not a failed computation; it is the check saying it could not\nsee.\n\nGroups with fewer than three observations are still reported as\n``'Skipped'``: Shapiro-Wilk genuinely cannot run on two points.\n\n:returns: Tuple ``(is_normal, results)``. ``is_normal`` is True only\n    when every requested column passes. ``results`` is a list of\n    per-group dicts carrying ``Comparison``, ``Test Statistic``,\n    ``p-value``, ``Test Name``, ``Column``, ``n``, ``Informative``\n    and ``Verdict``."
     },
     "spacr.plot.spacrGraph.perform_posthoc_tests": {
       "source_blocks_sha256": [
         "6c9cbf200eaf4c684f5f73500a41c3dff1be4e925fbc74085e4e20dff834c446",
-        "6af93d484dec54bdaebfbe9cdc7dbb5be382ec3e38f3c49ddb13adf26c8649ce",
+        "d720afbbc4973d35c75c50b229ffa5658464e1226a7d4e100b5867d48e041afa",
         "069934c71a4f39268d85334c75707c9289dc12ce5a3bdb9409f75c03cd172afc",
         "3169aef75fc5ebb3518a9edd8986ee12d60c3e92a38cdb0980c505a9871fe6ad"
       ],
-      "source_sha256": "75031d98a5c8e1079c70448e2f8c7e447634757e24619904544b62234c3a11be",
-      "text": "Perform post-hoc tests for multiple groups based on all_to_all flag.\n\n:param is_normal: Outcome of the normality check, which selects the\n    family of test: True runs Tukey HSD, False runs Dunn's test\n    with an automatically chosen p-adjustment. It only matters when\n    post-hoc testing runs at all — see ``unique_groups``.\n:param unique_groups: The distinct group labels. Only its *length*\n    is read; the comparisons themselves are rebuilt from\n    ``self.df[self.grouping_column]``, so reordering or renaming\n    entries has no effect. Fewer than three groups returns an empty\n    list, as does ``self.all_to_all`` being False, because pairwise\n    correction is meaningless for a single comparison.\n:returns: A list of per-comparison dicts with ``Comparison``,\n    ``Test Statistic`` (always ``None`` — neither test reports one),\n    ``p-value``, ``Test Name`` and the ``n_object`` / ``n_well``\n    counts; empty when no post-hoc test was warranted. Only\n    ``self.data_column[0]`` is tested, so extra data columns are\n    ignored here."
+      "source_sha256": "212bb282c4565837f715487f0325342bfb9f85e0c03693ad211b7cd33ebe11d0",
+      "text": "Perform post-hoc tests for multiple groups based on all_to_all flag.\n\n:param is_normal: Outcome of the normality check, which selects the\n    family of test: True runs Tukey HSD, False runs Dunn's test\n    with an automatically chosen p-adjustment. It only matters when\n    post-hoc testing runs at all — see ``unique_groups``. It must be\n    the verdict :meth:`perform_normality_tests` returned, which is\n    :func:`spacr.figures.stats.check_normality`'s. A hand-computed one\n    puts the omnibus test and the pairwise tests on different footing\n    — Kruskal-Wallis across the groups followed by Tukey between them\n    is two different assumptions about one dataset — and it is how the\n    power floor gets bypassed: three replicates buy Dunn's, not Tukey.\n:param unique_groups: The distinct group labels. Only its *length*\n    is read; the comparisons themselves are rebuilt from\n    ``self.df[self.grouping_column]``, so reordering or renaming\n    entries has no effect. Fewer than three groups returns an empty\n    list, as does ``self.all_to_all`` being False, because pairwise\n    correction is meaningless for a single comparison.\n:returns: A list of per-comparison dicts with ``Comparison``,\n    ``Test Statistic`` (always ``None`` — neither test reports one),\n    ``p-value``, ``Test Name`` and the ``n_object`` / ``n_well``\n    counts; empty when no post-hoc test was warranted. Only\n    ``self.data_column[0]`` is tested, so extra data columns are\n    ignored here."
     },
     "spacr.plot.spacrGraph.perform_statistical_tests": {
       "source_blocks_sha256": [
-        "7c5ad7b5dd5e1ea5e4847e03e066c7be8c3c844b96f4d817881bdcccd9ca8fdc",
+        "caed3fe1726e5f3f08e9c76cf016bfd58e10945bbf10e2c015ab542d722b05dc",
+        "f03bf6682253aec81377e3a6aab3320b19ba1f725bc0eabda9fb493e31b8bb8f",
+        "674f5a546e58b91ff40f1f838ed0dbbc779978502ddd0f91675a83b098f52840",
         "15fca77ef3c4f455ed4859f8ce16d9ae698b6962fe3e163a90c438977e6e5bdb",
-        "fac4ef2b1dc4fbf1db3f482bf80b56c2f4185001fd630f4f62d929ce53f1e10d",
-        "160537d6fc4994d4d48495b2daab98eeac4092198bde5e708e282d9f74abb964"
+        "202590d9dfbdbfddbe0765de0a55344963f9f3ccbbace694f3f035de68e6d24d",
+        "ad8aa1faf1d73cdf1f7ecbd2e019232d928dac15b13296152b52820842f900ca"
       ],
-      "source_sha256": "04e5ececce94238e2f4c49da0a38739288ec287d2e1b190aaa86704a0367d5e7",
-      "text": "Perform statistical tests separately for each data column.\n\n:param unique_groups: Groups to compare. Two groups get a pairwise\n    test, more get an omnibus test across all of them, but the\n    ``Comparison`` label always names only the first two.\n:param is_normal: If True, use the parametric test (t-test, paired\n    t-test or one-way ANOVA); otherwise Mann-Whitney, paired\n    Wilcoxon or Kruskal-Wallis.\n:returns: One result dict per data column, with keys ``Comparison``,\n    ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``,\n    ``n_object`` and ``n_well``. Statistic and p-value are ``nan``\n    when the data cannot support the chosen test."
+      "source_sha256": "4ca4b834d0d3a438ef905601c6352aa10482bbdaa0edd0350a0b43a198bc59c4",
+      "text": "Run the group-comparison test the data supports, per data column.\n\nTHE CHOICE IS NOT MADE HERE. :func:`spacr.figures.stats.compare` is\nthe one engine that makes it, and this method is a translation layer\nonto it that keeps spacrGraph's report vocabulary ('T-test',\n\"Welch's T-test\", 'Mann-Whitney U test', ...) and its ``n_object`` /\n``n_well`` columns. Two groups get Student's t, Welch's t or\nMann-Whitney U; three or more get one-way ANOVA, Welch's ANOVA or\nKruskal-Wallis; ``paired`` swaps in the paired t or the signed-rank\ntest.\n\nAN ASSUMPTION CHECK THAT HAD NO POWER COUNTS AS FAILED. Below\n:data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in the\nsmallest group, \"Levene did not reject\" means \"we could not tell\",\nand this method used to read that as licence to run Student's t. On a\nperfectly normal 3-vs-3 pair it returned ``T-test p = 0.1304`` where\nthe engine returns ``Mann-Whitney U p = 0.2000``; three replicates is\nwhat a well-level spaCR figure usually has, so that gap was the\ndifference between a starred bar and an honest one.\n\n:param unique_groups: Groups to compare. Two groups get a pairwise\n    test, more get an omnibus test across all of them, but the\n    ``Comparison`` label always names only the first two.\n:param is_normal: The caller's normality verdict, normally the one\n    :meth:`perform_normality_tests` returned. It can only VETO the\n    parametric branch, never grant it: passing True still gets a rank\n    test when the engine's own check had no power to accept normality,\n    because a caller cannot know something the data does not contain.\n:returns: One result dict per data column, with keys ``Comparison``,\n    ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``,\n    ``n_object`` and ``n_well``, plus -- so a saved table is\n    reportable rather than a bare p -- ``Effect Size``, ``Effect``\n    and ``Why This Test``. A comparison the engine refuses to make is\n    reported as ``Test Name='not testable'`` with the reason, the\n    same convention :func:`spacr.sp_stats.chi_pairwise` uses for an\n    undefined pair."
     },
     "spacr.plot.spacrGraph.preprocess_data": {
       "source_blocks_sha256": [
@@ -46082,6 +46486,51 @@
       "source_sha256": "a50ab6f623ba475a75756b847900e84cfc2bedfe5dc2202feb46494fd29c89e3",
       "text": "Interactive regression plots drawn by Qt, not by matplotlib.\n\nWHY THIS EXISTS\n\nmatplotlib redraws every artist, in Python, on every frame. On the screen's\nvolcano -- 1,215 points scattered once per LOPIT compartment, with a 27-entry\nlegend -- that is ~115 ms per redraw, and it is paid again for every pan, every\nzoom, and every style change. No amount of debouncing, threading or resolution\ncapping removes it, because the cost is text layout and marker geometry rather\nthan pixels.\n\npyqtgraph draws into a QGraphicsScene. Pan, zoom and hover cost NOTHING, because\nthe scene is composited by Qt rather than re-rendered by Python; a log-axis\ntoggle is 4.7 ms against matplotlib's 115 ms; recolouring every point is 45 ms.\nThe same reason the 3D UMAP viewer can spin 10,000 points with edges while a\nflat scatter plot stutters.\n\nTHE SPLIT\n\n    on screen  -> pyqtgraph, because the user interacts with it\n    on disk    -> matplotlib, because it still makes the better vector page\n\nPublication figures are unchanged. This is only what the application shows.\n\nEvery plot here takes a DataFrame and returns a widget. They are deliberately\nfree of spaCR imports so they can be tested, and reused, on their own."
     },
+    "spacr.qt.widgets.fast_plots.BinnedPlot": {
+      "source_blocks_sha256": [
+        "759261e45357d1d4c964dd3c72010dd1f52879a3bd155adfee7bb1855481bbca",
+        "78e2865cd0b800d7134b5f2a5b8a2f921b9d6deee2a296f67355e320555335a4",
+        "d7a989f4a6cfb1bb1a0f57beadc1d0b72b152d1611712c8da966c358fad2e015"
+      ],
+      "source_sha256": "a965ca94c9a2a226db484bfab792646c00415b371343fe96085f9de230bd8eed",
+      "text": "A histogram whose bars remember which rows they were built from.\n\nTwo panels here are histograms of a coefficient table -- the p-values and\nthe effects -- and both need the three things a scatter gets for free:\nwhich rows are in which bar, a click that lands in the bar under the\ncursor, and an outline marking the bar a row selected elsewhere falls in.\nThat machinery is subtle -- half-open bins with the last one closed, a\nrow-to-bar index built without a per-coefficient Python loop -- and it is\nexactly the kind of thing that drifts when it is written twice.\n\nA BAR IS NOT A POINT, which is the rule this whole class is shaped by. A\nbar holding a hundred coefficients cannot select one of them, and picking\nthe first, the strongest or the nearest would be a guess dressed up as an\nanswer -- the same mistake as joining on a position. So a bar of many\nhands the whole set over for the table to narrow to, and only a bar\nholding exactly one row selects it like any other mark."
+    },
+    "spacr.qt.widgets.fast_plots.BinnedPlot.add_bars": {
+      "source_blocks_sha256": [
+        "b52ea46c3b01397ba38d9e1ccc7d4d56a1d5f8abb4ac4b4297543be920708a4d"
+      ],
+      "source_sha256": "b52ea46c3b01397ba38d9e1ccc7d4d56a1d5f8abb4ac4b4297543be920708a4d",
+      "text": "Put the bars from the last :meth:`_fill_bins` onto the plot."
+    },
+    "spacr.qt.widgets.fast_plots.BinnedPlot.bin_at": {
+      "source_blocks_sha256": [
+        "e7fb922d5808fd43f268b0944b68809bbd1a4f39b4f0aee95ded3ee09d778c28"
+      ],
+      "source_sha256": "e7fb922d5808fd43f268b0944b68809bbd1a4f39b4f0aee95ded3ee09d778c28",
+      "text": "The bar under data coordinate ``x``, or ``None`` beyond the axis."
+    },
+    "spacr.qt.widgets.fast_plots.BinnedPlot.highlight_bin": {
+      "source_blocks_sha256": [
+        "64520b11acb756bf6463845b0101b69e882454c5713930f485d71ea3561aeb0e"
+      ],
+      "source_sha256": "64520b11acb756bf6463845b0101b69e882454c5713930f485d71ea3561aeb0e",
+      "text": "Outline one bar. The histogram's answer to ringing a point."
+    },
+    "spacr.qt.widgets.fast_plots.BinnedPlot.keys_in_bin": {
+      "source_blocks_sha256": [
+        "efb9ae19958ab3a57ff2279e25553adf86679f73ec493d30e14ea1357ae3c232"
+      ],
+      "source_sha256": "efb9ae19958ab3a57ff2279e25553adf86679f73ec493d30e14ea1357ae3c232",
+      "text": "Every identifier the bar at ``index`` was built from."
+    },
+    "spacr.qt.widgets.fast_plots.BinnedPlot.select_bin": {
+      "source_blocks_sha256": [
+        "3ba38b68fbb7e1318fb6beee333d4101b81ee3e38cacac9ac9716bfa45142dda",
+        "57a0275779b23cbb883ba86af9c3ded438e8b1b9437d74e452a4129437bb2225"
+      ],
+      "source_sha256": "8f2fa45be5a5de89fbaae0b9db898934b1905d210e5a444dbb1f146275a11908",
+      "text": "Answer a click on one bar. Returns the identifiers inside it.\n\nA BAR HOLDING A HUNDRED COEFFICIENTS CANNOT SELECT ONE OF THEM, and\npicking the first, the strongest or the nearest would be a guess\ndressed up as an answer -- the same mistake as joining on a position.\nSo the honest split: a bar that holds exactly one row selects it like\nany other point, and a bar that holds more says what it holds and\nhands the whole set over for the table to narrow to."
+    },
     "spacr.qt.widgets.fast_plots.ControlSeparation": {
       "source_blocks_sha256": [
         "066f376f7cd017e722294e07ff697036ed0be7740d460c0718a5725251709728",
@@ -46113,6 +46562,56 @@
       ],
       "source_sha256": "409ceef5f85c8cd4f1d56110b6dd0ccc8cb551307283281991c7542f5e6e584f",
       "text": "Draw the groups. Returns the number of points plotted.\n\n:param groups: ``{'negative': array, 'positive': array, ...}``\n:param keys: ``{'negative': identifiers, ...}``, one identifier per\n    value of the SAME group, in the same order. Given them, every dot\n    is clickable and selects the coefficient behind it.\n\nTHE GROUPS ARE THE SECOND FORM OF THE SORT TRAP. These arrays are\nslices of the table taken by condition, so a dot's position within\nits own group is not its row -- and the negative controls are drawn\nbefore the screen, so it is not its position on the plot either. Rows\nare therefore laid out in one flat sequence up front and carried into\neach scatter, rather than being inferred from the drawing order."
+    },
+    "spacr.qt.widgets.fast_plots.EffectDistribution": {
+      "source_blocks_sha256": [
+        "0c233f3deeea3c235a1521aa76e1ffdb6f897f1a3deae401689801da640a9cc2",
+        "25ff572989ea2d17028abc28cf4c12207157c4ea159572cae2f904551c85b93a",
+        "ff9e4f7491664f58efd44f22af1dd4b734d0bd6b32009a998579ca3152aaff14"
+      ],
+      "source_sha256": "36eac0eb4f9d001328a6522a349543ee1959e7670d4b69a433af57103e94283f",
+      "text": "Where the screen's effects sit, and how wide the null under them is.\n\nThe interactive twin of\n:func:`spacr.figures.panels.effect_distribution`. The volcano says which\ncoefficients are extreme; this says what \"extreme\" is worth on THIS\nscreen, which is the number a reader needs before they believe any of\nthem. A screen whose effects are a tight bell with nothing in the tails\nhas no hits however small its p-values are.\n\nσ IS A MAD, NOT A STANDARD DEVIATION, and that is the point of the panel\nrather than a detail of it: a standard deviation is inflated by exactly\nthe outliers a screen exists to find, so a cut measured from one is pulled\noutwards by the hits and then fails to call them. The median absolute\ndeviation is not, and ×1.4826 makes it the consistent estimator for a\nnormal -- the same statistic\n:func:`spacr.figures.panels.control_threshold` measures the effect-size\ncut from, so the dashed lines here and the lines on the volcano cannot\ndisagree about where three sigmas is."
+    },
+    "spacr.qt.widgets.fast_plots.EffectDistribution.set_effects": {
+      "source_blocks_sha256": [
+        "940aea047a557fc420d072a5ad8336c29fba9737d83e9fa4fde2840a8603dd3a",
+        "dddacf2a6592b724d80766da526480c257ed94f11e4c9a659152b9d81d1eaaac",
+        "16471f0ba7461522665f2ec30329eda87befe7babbb55b82b78ef4ac4074e4d6",
+        "752d0624cfc275428bf9e3242846d9dc06443163efc22c920c608c8867943d56",
+        "5b70cc1ce565838d2c9a63dbabd2009707a2cb89f1f06b7913c4c0d49351129a",
+        "e9ba71a1ee2aa3746dd16ad34f0e61a67b4622658805b569be23df24d4feabda",
+        "857c3f5ea75d9aa3fe209b88333861bac1b53d1af29ff7c097d1853d336ffb6e"
+      ],
+      "source_sha256": "6a0408c3ec939503598e718e3571c288692efd528a3f1d2c9827c257c65b83eb",
+      "text": "Draw the histogram. Returns the number of usable effects.\n\n:param values: one fitted effect per frame row, blanks included.\n:param bins: how many bars across the data's own range.\n:param keys: one identifier per element of ``values``, in frame order.\n    Given them, clicking a bar names the coefficients inside it.\n:param untested: how many nuisance terms the CALLER left out, so the\n    plot can say so. It is the caller that knows spaCR's term grammar,\n    which is why the drop is not done here.\n\n    IT IS THE FAMILY, NOT THE AXIS, and the measurement says so: on\n    the TSG101 screen σ (MAD) is 0.229228 over the tested family and\n    0.229036 with the intercept added, a difference of 0.08%. Dropping\n    it does not visibly move this picture -- it makes the picture be\n    OF something, namely the 1,212 coefficients the q-values describe,\n    which is the same family\n    :func:`spacr.figures.panels.effect_distribution` draws and the\n    same one the effect-size cut is measured from.\n\nTHE RANGE IS THE DATA'S OWN, unlike the p-value histogram's. An effect\nsize has no fixed domain, and pinning one would invent a scale the fit\nnever produced."
+    },
+    "spacr.qt.widgets.fast_plots.EffectRankPlot": {
+      "source_blocks_sha256": [
+        "1843e7b07498e678660bbabe3160408fa14fe6795c5630b07c041a1bcf7f53a5",
+        "8bbebe29dc1555563446fb003a94e39fc31808e96bf1a3a36edaa58415d6e8dd",
+        "f2c706ce8f736d701797eb4ea40f9fea348b362347ac2de4348db65010b81be2",
+        "2df5b9af9dc34cfe51f1124f42d3220ce79509e1300746126b4eef4306502cfd"
+      ],
+      "source_sha256": "3d5e5f657fe6782a4ce99eeec1633402527facdfea838d5e59efa2007bf40e9b",
+      "text": "Every coefficient ranked by effect, as a dot with its interval.\n\nThe interactive twin of :func:`spacr.figures.panels.effect_rank`, and the\npanel that answers what a volcano structurally cannot: HOW BIG, and how\nsure. A volcano ranks by significance, so an effect of 0.02 measured on\nsix hundred wells outranks one of 2.0 measured on four; ranking by the\neffect itself puts them the other way round, and the interval drawn\nthrough each dot is what says which of the two to believe.\n\nA BAR CHART OF COEFFICIENTS IS THE WRONG PICTURE, which is why this is\ndots and lines. A bar replaces every observation with one height and hides\nthe uncertainty that decides whether to believe any of them -- and on a\nranked list, that uncertainty is the only question worth asking.\n\nTHE SAVED PANEL DRAWS THE STRONGEST FOURTEEN AND THIS ONE DRAWS THEM ALL.\nThat is the difference a zoomable plot is FOR: a sheet has one cell and\nhas to choose, a screen does not. The opening view is the strongest\n:data:`LABELLED`, because that is as many names as a y-axis can carry and\nstill be read, and \"Reset view\" reaches the rest -- the same rule\n:class:`GuideAgreementPlot` follows for its over-represented gene, and for\nthe same reason: a point outside the opening view is still a point, and a\npoint that was dropped is gone."
+    },
+    "spacr.qt.widgets.fast_plots.EffectRankPlot.set_results": {
+      "source_blocks_sha256": [
+        "8919c629984b361be7a303d3e9b6a6f05e0b7cdfc35bba1ede32c2129ceb66ec",
+        "5c4fa5fbb7d3885f405545a0728d676ed86b8d1a77519dc1e6882011555b881f",
+        "1f909dd92c566126e22fcadeff8f00ffb0227d152ef12f2ae3c695012158339a",
+        "d1576d13fe329a210a4b710644626bfb22bf7c03d14c01fe8eeabdf65f0f816d",
+        "a47584d2b7c60b29252e487dac1c2c13b41272050a7055752ff372e6f22f5285",
+        "89297c8f8fdde60fe4498b28e0b93e0f74a242455618e75c0dfb50538542bc4f",
+        "00c21fb666f090e4666419db325288a96aba8c1e192b4f4c005977c49f117729",
+        "1230b7ee4febf816e4e721971e3fee256f8e01152e624fb28abed14c7d35c6af",
+        "1b6185b26f061d2330b5880cc1ed42252dbfb37c37dee3b27525030cf5606f55",
+        "d2efa214b8d4aa89007ab3906330843070a11592371840b05b1b78594e74fa50",
+        "658e1f6a6fbc3149580fb7e0de509ddb70a43f4f08d94a9ff00408a59ec62407",
+        "e5042c5d196dcd6d9805fd0fd11fc2309e605b1eb9ab8bb139e995e4a20cbced"
+      ],
+      "source_sha256": "2103eefc9d0948605de83848788f7bde9de9decc99b15061f602e445f1ee84ec",
+      "text": "Draw ``frame`` ranked by |effect|. Returns the number of dots drawn.\n\n:param frame: the coefficient table.\n:param effect: the fitted-effect column.\n:param error_column: the standard error, so an interval can be drawn.\n    ``None`` looks for :data:`ERROR_COLUMNS`; a table carrying none\n    gets dots and no bars, and the status line SAYS the effects are\n    drawn without their uncertainty rather than leaving a reader to\n    assume they are exact.\n:param significance_column: what decides the colour. ``None`` looks\n    for :data:`CORRECTED_P_COLUMNS`; :data:`NO_SIGNIFICANCE` says this\n    table has none, which is a different statement from \"go and look\".\n:param label_column: the column a dot is named by when the frame\n    carries no gene or guide of its own.\n:param key_column: the identifier every other view joins on.\n:param alpha: the cut a coefficient is coloured at.\n:param drop_untested: leave the nuisance terms off, as the volcano and\n    :func:`spacr.figures.panels.effect_rank` both do.\n\n    NOT FOR THE AXIS, and that is worth writing down because it is the\n    obvious reason and it is wrong here. The volcano drops the\n    intercept because it OWNS the p-axis -- 3.6x the tallest real hit\n    on plate1_dv. Measured on the TSG101 screen, its COEFFICIENT is\n    0.190 against a tested maximum of 4.37, so by effect it ranks 547\n    of 1,213 and stretches nothing at all.\n\n    It is dropped because it is not a hypothesis. Its ``q_value`` is\n    NaN -- ``perform_regression`` leaves the covariates out of the\n    multiple-testing family -- so it would sit halfway down a ranked\n    list of hypotheses, permanently grey, with no verdict available\n    for it and nothing on the picture saying why. A fit carrying plate\n    row and column terms has ~25 more of them.\n\nTHE SORT IS THE TRAP, and here it is the plot's whole shape: drawn dot\nn is the nth LARGEST effect and almost never row n of the table. The\nframe rows are therefore carried through the sort explicitly\n(``rows=``) rather than re-derived from the drawing order -- see\n:meth:`FastPlot.add_scatter`, where the same trap is written out for\nthe Q-Q."
     },
     "spacr.qt.widgets.fast_plots.FastPlot": {
       "source_blocks_sha256": [
@@ -46636,42 +47135,15 @@
       "source_sha256": "2ed31239741890e6bc1179a9e91d81faa7c07d28c21900c1bf7dc675adde0a12",
       "text": "The single most informative check that a correction means anything.\n\nUnder the null, p-values are uniform. A histogram that is flat with a spike\nat zero is a screen with real hits in it; one that slopes, or piles up near\none, says the model is misspecified and every q-value downstream of it is\ndecoration."
     },
-    "spacr.qt.widgets.fast_plots.PValueHistogram.bin_at": {
-      "source_blocks_sha256": [
-        "e7fb922d5808fd43f268b0944b68809bbd1a4f39b4f0aee95ded3ee09d778c28"
-      ],
-      "source_sha256": "e7fb922d5808fd43f268b0944b68809bbd1a4f39b4f0aee95ded3ee09d778c28",
-      "text": "The bar under data coordinate ``x``, or ``None`` beyond the axis."
-    },
-    "spacr.qt.widgets.fast_plots.PValueHistogram.highlight_bin": {
-      "source_blocks_sha256": [
-        "64520b11acb756bf6463845b0101b69e882454c5713930f485d71ea3561aeb0e"
-      ],
-      "source_sha256": "64520b11acb756bf6463845b0101b69e882454c5713930f485d71ea3561aeb0e",
-      "text": "Outline one bar. The histogram's answer to ringing a point."
-    },
-    "spacr.qt.widgets.fast_plots.PValueHistogram.keys_in_bin": {
-      "source_blocks_sha256": [
-        "efb9ae19958ab3a57ff2279e25553adf86679f73ec493d30e14ea1357ae3c232"
-      ],
-      "source_sha256": "efb9ae19958ab3a57ff2279e25553adf86679f73ec493d30e14ea1357ae3c232",
-      "text": "Every identifier the bar at ``index`` was built from."
-    },
-    "spacr.qt.widgets.fast_plots.PValueHistogram.select_bin": {
-      "source_blocks_sha256": [
-        "3ba38b68fbb7e1318fb6beee333d4101b81ee3e38cacac9ac9716bfa45142dda",
-        "57a0275779b23cbb883ba86af9c3ded438e8b1b9437d74e452a4129437bb2225"
-      ],
-      "source_sha256": "8f2fa45be5a5de89fbaae0b9db898934b1905d210e5a444dbb1f146275a11908",
-      "text": "Answer a click on one bar. Returns the identifiers inside it.\n\nA BAR HOLDING A HUNDRED COEFFICIENTS CANNOT SELECT ONE OF THEM, and\npicking the first, the strongest or the nearest would be a guess\ndressed up as an answer -- the same mistake as joining on a position.\nSo the honest split: a bar that holds exactly one row selects it like\nany other point, and a bar that holds more says what it holds and\nhands the whole set over for the table to narrow to."
-    },
     "spacr.qt.widgets.fast_plots.PValueHistogram.set_p_values": {
       "source_blocks_sha256": [
         "4dec994bbcfd0701e96a9acad45bae5097cf9fbdbf7eec3ead9f858642df3ce0",
+        "9f182c587893202a55629b96bebdbf2b9de3a23da875cf5ce8e6f85206907c64",
+        "54d182b2c610615d5c0d388e113d8c93d1109cc060a851c8e4af3672e3df370c",
         "752d0624cfc275428bf9e3242846d9dc06443163efc22c920c608c8867943d56"
       ],
-      "source_sha256": "10f4f943146f307e469df31b038622222aa615c0d5e0934fecd3849de7dab757",
-      "text": "Draw the histogram. Returns the number of usable p-values.\n\n:param keys: one identifier per element of ``values``, in frame order.\n    Given them, clicking a bar names the coefficients inside it."
+      "source_sha256": "295fa7e66ed26b49c74969bd6a43994eb877cbeda9609ebf83851c662f91c1b9",
+      "text": "Draw the histogram. Returns the number of usable p-values.\n\n:param values: one p-value per frame row, blanks included.\n:param bins: how many bars across ``[0, 1]``.\n:param keys: one identifier per element of ``values``, in frame order.\n    Given them, clicking a bar names the coefficients inside it."
     },
     "spacr.qt.widgets.fast_plots.QQPlot": {
       "source_blocks_sha256": [
@@ -47417,10 +47889,15 @@
         "fbf49d327abc4b7d802e3ba136039f4e0839fba930cb9c67a0ca11d2dbcf8052",
         "f621968d44faed53015e9894c22b4cad455a3c94a9f1212b7d96c87cb6422237",
         "c542f987a5c912463d3f6d6d05a5457f0ced73f6f4e205b1ac7b26f77c90f474",
-        "1bdb937c89e84b24250e3fc1bc661712a282fd318c37efbc3895bcc4dfdbe8a7"
+        "1bdb937c89e84b24250e3fc1bc661712a282fd318c37efbc3895bcc4dfdbe8a7",
+        "ed82bc14f946a2c354eebce72f534ac9b4c18c458a71278d60ae0bdb1094e295",
+        "6df25e18a2f802656e3f5d5959f1c257dcd1eab5390b83f49a9381b03845dc96",
+        "0f4427bbf5797dc2d0bfc6f18b2a7596b0202da8e6b6b38387087a7cc05f43c7",
+        "c444e5a7ac0789abf7055cd31651e87f88cc2f8ce0353d9ad18c6138886da6c4",
+        "5e7a27ff81a62bb4b3056c8ed3c679f2d6f9fb1631ef74f93d683a2664084e1f"
       ],
-      "source_sha256": "80c5faa0732cd0d30fed296a8c793ff6ec0676fc9a88f2639a3310e9fba5edf7",
-      "text": "A run's figures on a scrollable grid, each at its own aspect ratio.\n\nWHY THIS EXISTS\n\nThe figures panel shows ONE figure at a time, fitted into whatever shape the\npanel happens to be. A regression run produces seventeen; seeing the fourth\nmeans clicking to it, and every one is stretched to a container that has\nnothing to do with its own proportions.\n\nThat is not merely untidy. A plate heatmap distorted into a square is no\nlonger a heatmap of a plate -- the wells stop being square, and positional\nartefacts, the entire reason to look at one, become impossible to see. And a\nrun's figures are meant to be read together: the fraction histogram explains\nthe volcano, and one-at-a-time navigation hides the relationship.\n\nSo: a grid that scrolls, cells sized from the panel width, and every figure\ndrawn at the aspect ratio it was created with. Wide figures take a wide cell\nand fewer per row; square ones tile. Clicking a cell opens that figure full\nsize, and the existing one-at-a-time view is that detail view."
+      "source_sha256": "a635f5e20beddc5207eb4db3155b117b57ec86e10300983b6011b38df4195657",
+      "text": "A run's figures on a scrollable grid, each at its own aspect ratio.\n\nWHY THIS EXISTS\n\nThe figures panel shows ONE figure at a time, fitted into whatever shape the\npanel happens to be. A regression run produces seventeen; seeing the fourth\nmeans clicking to it, and every one is stretched to a container that has\nnothing to do with its own proportions.\n\nThat is not merely untidy. A plate heatmap distorted into a square is no\nlonger a heatmap of a plate -- the wells stop being square, and positional\nartefacts, the entire reason to look at one, become impossible to see. And a\nrun's figures are meant to be read together: the fraction histogram explains\nthe volcano, and one-at-a-time navigation hides the relationship.\n\nSo: a grid that scrolls, cells sized from the panel width, and every figure\ndrawn at the aspect ratio it was created with. Wide figures take a wide cell\nand fewer per row; square ones tile. Clicking a cell opens that figure full\nsize, and the existing one-at-a-time view is that detail view.\n\nTHE LIVE TILES ARE PICTURES, AND THAT IS A MEASURED CHOICE\n\nInstruction 129 C asks for \"same grid overview but pyqtgraph versions\", and\nnames the question rather than answering it: a tile could hold the live\npyqtgraph widget, or a photograph of it taken by :meth:`FastPlot.snapshot`.\nThe instruction says MEASURE IT before choosing, so it was measured, on the\nreal widgets under the offscreen platform, at the volcano's 1,213 points:\n\n    per window-drag frame     3 tiles   6 tiles  12 tiles  18 tiles\n      live pyqtgraph widgets  11.98 ms  25.68 ms  48.55 ms  74.99 ms\n      snapshot pictures        1.08 ms   1.64 ms   3.59 ms   5.19 ms\n    resident memory\n      live pyqtgraph widgets   7.6 MB   13.7 MB   29.8 MB   44.0 MB\n      snapshot pictures        3.3 MB    5.8 MB    9.6 MB   14.7 MB\n\nA resize is a relayout and a window drag emits one per frame, so the budget\nis 16.7 ms: SIX live tiles already miss it, and the eighteen a full panel set\nwould reach costs four and a half frames per frame. The hover hit-boxes the\ninstruction worried about are real but much the smaller half -- 60 mouse-moves\nover one live volcano cost 12.31 ms against 0.52 ms over a picture of it, i.e.\n0.205 ms against 0.009 ms per move.\n\nSo the grid holds PICTURES of the pyqtgraph panels, and pressing one raises\nthe live widget on its own tab -- which is what instruction 129 C guessed\n(\"with the live widget only when a tile is opened\") and what the numbers\nabove confirm. :meth:`FigureGridView.set_live_tiles` is that section."
     },
     "spacr.qt.widgets.figure_grid_view.FigureGridView": {
       "source_blocks_sha256": [
@@ -47431,12 +47908,28 @@
       "source_sha256": "10b085f5ca6c16f32f7d8513438e4d50ff6022ae8636d6ef45755c0b5149e8bf",
       "text": "Every figure at once, scrollable, each at its own aspect ratio.\n\n:ivar figure_activated: emitted with a figure's index when its cell is\n    clicked, so the caller can open it full size.\n:ivar figure_menu_requested: emitted with (index, global position) when a\n    cell is right-clicked. The grid holds pictures, not figures, so the\n    menu itself is the caller's to build -- it is the one that still has\n    the matplotlib object."
     },
+    "spacr.qt.widgets.figure_grid_view.FigureGridView.is_live_section_collapsed": {
+      "source_blocks_sha256": [
+        "f1778ddcb9967b686f24b3ccd17ee2abef968e3ae1cbbb5c9c435b5596cffa00",
+        "02ad9305250140f051635d3d217be0c992df6484c481bf7ae2195e6cb97222b5"
+      ],
+      "source_sha256": "8296df571d19d324f8970670e50e030ac2277cdc233c7b1569973c95d20f2bbd",
+      "text": "Whether the pyqtgraph tiles are folded away.\n\nNamed rather than left to :meth:`is_section_collapsed` with two magic\narguments: the live section's key is a constant of this module and a\ncaller repeating ``(LIVE_SECTION_LABEL, LIVE_SECTION_START)`` is a\ncaller who can get one of them wrong and silently ask about a section\nthat does not exist."
+    },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.is_section_collapsed": {
       "source_blocks_sha256": [
         "3d81703c13910d8c406ea0c1df48382ef1a4df825adeb18323c95249c2dcb28b"
       ],
       "source_sha256": "3d81703c13910d8c406ea0c1df48382ef1a4df825adeb18323c95249c2dcb28b",
       "text": "Whether this run's figures are folded away."
+    },
+    "spacr.qt.widgets.figure_grid_view.FigureGridView.live_tile_keys": {
+      "source_blocks_sha256": [
+        "ee0a1c712233a28f27a2bf91e73eedf76531a448886a4ce1360d6fba53fdc55e",
+        "2afdbb4e1df188144b7b9f6bb56bf3bfd47cf15927fe6d1afd7d6cfea8e3bfa4"
+      ],
+      "source_sha256": "b382f635bf33948d9d20b0d45acf90b629780bf1bc7886c163500c0a65830d03",
+      "text": "Which pyqtgraph panels have a tile, in the order they are drawn.\n\nPublic because it is the only honest way to ask \"is this panel on the\ngrid\" -- a caller counting tiles cannot tell which ones they are, and\na panel that could not be photographed is silently absent by design\n(see :meth:`set_live_tiles`)."
     },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.set_figures": {
       "source_blocks_sha256": [
@@ -47446,16 +47939,31 @@
       "source_sha256": "9a9a72a7054d9bdf91cc760b5852b23e92f0c2b54c40221c57e9e91266bb3991",
       "text": "Show these figures. Returns how many were added.\n\n:param sections: ``[(label, start, count)]`` -- one entry per run.\n    LETTERING RESTARTS IN EACH, because a panel letter belongs to a\n    figure and a figure is one run's worth of panels. Without this a\n    second run continues at L, which says nothing to a reader and\n    was reported as exactly that."
     },
+    "spacr.qt.widgets.figure_grid_view.FigureGridView.set_live_tiles": {
+      "source_blocks_sha256": [
+        "f89a787d148f16fb4864da3c5cfc3432a4eb79b47be66c21230007f9352271af",
+        "dea683937d879d3fc821aad541d44e40cfbc19b19ef696a76592b9557bdc7e08",
+        "0727344beb3dd013ab3855037f960d21caf25ee60c491de42152ab4385b8bb36",
+        "a4b448e96bfe0327fbf83fdd73b8bf8935c3114ead3db1fc03d34169d288a42e",
+        "d0fb504b2766412ec23ee1e8f7509b4a6aa0d3b8a0f05b0bde7385229b67774f",
+        "3da6290c8009622750b6feab3d1c3a7a1f72d9dc450b32ad637a98620fc81bba",
+        "bfc194682d2c7ad3e0be84d8acc4a7f4f9f363799dfff9942da09b07d9a2e793",
+        "28d46111bb3e6e553a160149f7e458c554e00b7277b04f2cb35e20cd5084f955"
+      ],
+      "source_sha256": "070330d8ddfa2c431a43acb7fb095e960c5495213631b3651b61483045e4181f",
+      "text": "The pyqtgraph panels, as pictures, in their own foldable section.\n\n\"i would still like to retain the grid to the right ... same grid\noverview but pyqtgraph versions\" -- instruction 129 C. This is that\nsection: one tile per live panel, pressing one raises the real widget.\n\nPICTURES, NOT WIDGETS, and the module docstring carries the numbers\nthat decided it -- eighteen live tiles cost 68.37 ms per window-drag\nframe against 4.44 ms for eighteen pictures, on a 16.7 ms budget.\n\n:param tiles: ``[(key, pixmap, title)]``, or ``[(key, pixmap)]``. The\n    key is what :attr:`live_tile_activated` carries back.\n:returns: how many tiles are on the grid afterwards.\n\nA TILE WITH NO PICTURE IS DROPPED, not drawn empty. A panel a run\ncannot support -- residuals with no fitted model -- returns ``None``\nfrom ``snapshot()``, and an empty tile invites a click that opens an\nempty plot. It is absent from :meth:`live_tile_keys` too, so a caller\ncan tell the difference rather than guessing from a count.\n\nTHE PREVIOUS SET IS DESTROYED, ALL OF IT. This is the generalisation\nof the stacked-volcano bug of 2026-08-17 (\"the thumbnail iage of the\nvolcano plot looks like several volcano plot itterations pasted on top\nof each other\"): ``_relayout``'s ``takeAt`` removes a widget from the\nLAYOUT and leaves it a visible child of the body at its old geometry,\nand ``clear()`` cannot collect it because ``clear`` walks the layout.\nEvery caller of this method runs it on a REFRESH -- the regression\nscreen re-photographs its panels on a 250 ms debounce, on every return\nto the grid and after every restyle -- so anything not destroyed here\naccumulates once per refresh. With one tile that was a dozen\nvolcanoes; with a tile per panel it would be a dozen of each.\n\nThe set is replaced WHOLE rather than reconciled key by key, and that\nis deliberate: a run whose panel set shrank (a re-fit that lost its\nmodel) would otherwise leave the vanished panels' tiles on the grid,\nphotographs of a fit that no longer exists."
+    },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.set_pinned": {
       "source_blocks_sha256": [
         "44e426055b90bef2aadfeffde200afbde96e5a647a020d827777ba8d690c1464",
         "fd95dad35dccbff1093406154edd70eadf4314f4297dc445ae60dd8df3e4cf92",
         "68e23a592ac27c1bbab4514871d0b368659587f0d8b8bcf6dec8351fb162c005",
         "b0a2a3069ac9b687672f1b06bedc865735e22f9afcbad6dd88b6709440fca6bf",
+        "5af8b4b7bea9fa150a812bb07d72863a3da200ca53b192204ab3fa7e83d4ac78",
         "98fcc24915d64bf63a07ed755e82a816359972a7c6fef2888e3df0a20c0d8476"
       ],
-      "source_sha256": "433c0f28a03929f882dc7733c36cd64c5662a294c28ae3a1155fde4260020a2b",
-      "text": "A tile that is always first and is not one of the run's figures.\n\nThe regression graph is a LIVE widget, not a picture the pipeline\nsaved, and it is the one the maintainer asked to be interactive:\n\"the regression plot isnt shown in all figures (i want it also shown\nthere)\". Pressing this tile opens the real widget, not a picture of\nit.\n\nTHE INDEX MAPPING SURVIVES THIS, and that is the whole reason the\npinned tile is a separate slot rather than an extra entry in\n``_cells``. ``_FigureCell.index`` is the position in the pixmap list\nthe caller handed to :meth:`set_figures`, and ``figure_activated``\nforwards it straight to ``FigureQueue.show_index``; anything INSERTED\ninto that list shifts every figure after it, so every tile would open\nits neighbour. This cell carries ``-1``, is never in ``_cells``, and\nemits :attr:`pinned_activated` instead -- a sentinel index down the\nshared signal would be the same bug with an extra step.\n\nTHE TILE IT REPLACES IS DESTROYED, and that is the whole of the\nstacked-volcano bug reported on 2026-08-17: \"the thumbnail iage of the\nvolcano plot looks like several volcano plot itterations pasted on top\nof each other\". This method used to rebind ``_pinned`` and relayout,\nand `_relayout`'s `takeAt` removes a widget from the LAYOUT while\nleaving it a visible child of the body at its old geometry -- exactly\nthe failure already written down for the section headings a few lines\nbelow, re-derived here for the tiles. `clear()` could not collect the\nstrays either: it walks the layout, and a stray is no longer in it.\n`_pin_regression_graph` runs on every grid refresh, so a screen that\nhad done twelve runs was painting a dozen tiles at (6, 6) at once --\nand `FastPlot.snapshot` returns a TRANSPARENT pixmap, so every one of\nthem showed through the ones in front. Measured on the real widget:\nfive `set_pinned` calls left five visible cells at identical geometry\nand all five volcanoes painted at once; one after the fix.\n\n:returns: True when a tile was pinned. A null or missing pixmap\n    REMOVES it, because an empty tile invites a click that opens an\n    empty plot."
+      "source_sha256": "5ff55bc945edbc327048b4b2ab4582ee797dcfbdd91c04cdbbe098800f62d81f",
+      "text": "A tile that is always first and is not one of the run's figures.\n\nThe regression graph is a LIVE widget, not a picture the pipeline\nsaved, and it is the one the maintainer asked to be interactive:\n\"the regression plot isnt shown in all figures (i want it also shown\nthere)\". Pressing this tile opens the real widget, not a picture of\nit.\n\nTHE INDEX MAPPING SURVIVES THIS, and that is the whole reason the\npinned tile is a separate slot rather than an extra entry in\n``_cells``. ``_FigureCell.index`` is the position in the pixmap list\nthe caller handed to :meth:`set_figures`, and ``figure_activated``\nforwards it straight to ``FigureQueue.show_index``; anything INSERTED\ninto that list shifts every figure after it, so every tile would open\nits neighbour. This cell carries ``-1``, is never in ``_cells``, and\nemits :attr:`pinned_activated` instead -- a sentinel index down the\nshared signal would be the same bug with an extra step.\n\nTHE TILE IT REPLACES IS DESTROYED, and that is the whole of the\nstacked-volcano bug reported on 2026-08-17: \"the thumbnail iage of the\nvolcano plot looks like several volcano plot itterations pasted on top\nof each other\". This method used to rebind ``_pinned`` and relayout,\nand `_relayout`'s `takeAt` removes a widget from the LAYOUT while\nleaving it a visible child of the body at its old geometry -- exactly\nthe failure already written down for the section headings a few lines\nbelow, re-derived here for the tiles. `clear()` could not collect the\nstrays either: it walks the layout, and a stray is no longer in it.\n`_pin_regression_graph` runs on every grid refresh, so a screen that\nhad done twelve runs was painting a dozen tiles at (6, 6) at once --\nand `FastPlot.snapshot` returns a TRANSPARENT pixmap, so every one of\nthem showed through the ones in front. Measured on the real widget:\nfive `set_pinned` calls left five visible cells at identical geometry\nand all five volcanoes painted at once; one after the fix.\n\nONE TILE OF THE LIVE SECTION, since instruction 129 C -- the\nregression graph is no longer the only interactive panel on the grid,\nand :meth:`set_live_tiles` is the general form. This method touches\nonly the regression tile and leaves any other panel's tile exactly\nwhere it is: the screen re-photographs the volcano on a 250 ms\ndebounce and after every restyle, and a call that quietly cleared the\nother seven panels each time would make the whole section flicker.\n\n:returns: True when a tile was pinned. A null or missing pixmap\n    REMOVES it, because an empty tile invites a click that opens an\n    empty plot."
     },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.set_section_collapsed": {
       "source_blocks_sha256": [
@@ -47494,6 +48002,17 @@
       ],
       "source_sha256": "17f03fd795696b24cb45a5f6a6c2b0bdb75d17eb481219d80c5bdefe851283be",
       "text": "How many cells fit across ``panel_width``.\n\nWidening the window should show MORE figures, not bigger ones -- the\nopposite of what a stretch-to-fit view does."
+    },
+    "spacr.qt.widgets.figure_grid_view.live_tiles_from_panels": {
+      "source_blocks_sha256": [
+        "cf1c4ac3d8355f54cb01df3977192d1efca4f84c74b1ef732696d1c8426f74bf",
+        "124369552d86115c6c2f353be3982659b43f07de587e80d21df9952a551e67ac",
+        "ad512c75ab56b6c7228ef46b8d19b48e73ea29014a65c528850f532079a52653",
+        "d338a05cfe38bc588fb0a18c76d4cb9bf7348cd6d3d485083f506a8097716ba9",
+        "87d08fb0b5e1ea583dfbec1a9b1da0c38acd4f14491e1129252445ec8e374f3e"
+      ],
+      "source_sha256": "cda45141d210419827bd280b84fa84f979a9d39d777ec6531cc63ef223e710c9",
+      "text": "Photograph each pyqtgraph panel, ready for :meth:`set_live_tiles`.\n\n:param panels: ``[(key, title, widget)]`` -- the live panels, in the order\n    they should appear. The widget only has to answer ``snapshot()``.\n:returns: ``[(key, pixmap, title)]`` for the ones that photographed.\n\nTHE RULE FOR AN ABSENT PANEL LIVES HERE, ONCE. A panel a run cannot\nsupport returns ``None`` from ``snapshot()`` -- a residual plot with no\nfitted model, a control panel on a screen with no controls -- and the\nanswer is no tile rather than an empty one, because an empty tile invites\na click that opens an empty plot. That is a two-line rule and exactly the\nkind that gets re-derived slightly differently at each call site; there\nare eight panels and there will be more (129 B), so it is written down\nonce instead of eight times.\n\n``snapshot()`` IS NOT ALLOWED TO TAKE THE SCREEN DOWN. It renders through\npyqtgraph's image exporter, which reaches into a scene that the panel may\nbe part-way through rebuilding, and a photograph is never worth a\ntraceback: a panel that raises is simply one without a tile this refresh."
     },
     "spacr.qt.widgets.figure_queue": {
       "source_blocks_sha256": [
