@@ -296,14 +296,24 @@ def test_a_resize_does_not_leave_a_second_copy_of_every_heading(qtbot, grid):
     assert texts.count("second run") == 1, texts
 
 
-def test_one_run_is_not_offered_a_fold(grid):
-    """A heading over the only section is furniture, and 124 B left it out
-    deliberately. There is nothing to fold it away from."""
+def test_one_run_IS_offered_a_fold(grid):
+    """THE FIRST RUN FOLDS TOO.
+
+    This asserted the opposite, on 124 B's argument that a heading over the
+    only section is furniture -- which was about the LABEL, and true of it.
+    But the heading is also the FOLD CONTROL, so with one run there was
+    nothing to click and the maintainer reported the figures as "still not
+    colapsable into runs" while the folding worked perfectly from the second
+    run onwards. Changed 2026-08-17 at their request.
+    """
     grid.set_figures(_pixmaps(3), ["a", "b", "c"],
                      sections=[("the only run", 0, 3)])
 
-    assert grid._headers == []
+    assert [h.text() for h in grid._headers] == ["the only run"]
     assert _visible_cells(grid) == [0, 1, 2]
+
+    grid.set_section_collapsed("the only run", 0, True)
+    assert _visible_cells(grid) == []
 
 
 def test_a_stale_fold_cannot_hide_the_only_run_on_screen(grid):
