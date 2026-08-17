@@ -6,10 +6,10 @@ Status:    CLOSED 2026-08-16. FOUR proposed causes were disproven and the
            fifth is demonstrated: the mask stage DELETES masks/ on purpose
            once merged/ is built, unless keep_intermediate is set, and the
            test did not set it. Reproduced 5 times out of 5 by removing the
-           flag. There was never any nondeterminism -- 96 consecutive passes
-           and 16 byte-identical object-count vectors. Read THE ANSWER at the
-           very end; the disproven list above it is kept because ruling
-           things out was most of the work.
+           flag. There was never any nondeterminism -- 132 consecutive
+           passes, and 36 object-count vectors with one distinct value
+           between them. Read THE ANSWER at the very end; the disproven list
+           above it is kept because ruling things out was most of the work.
 Requested: not asked for. Found while attributing a failure in a regression
            sweep for instruction 100, and filed because a bug found in
            passing gets queued rather than narrated.
@@ -349,15 +349,16 @@ AND THE PREMISE OF THE WHOLE INTERMITTENCY STORY IS FALSE
 nondeterministic somewhere." Measured, now that the assertion added in
 44814983 prints per-field object counts rather than testing for a path:
 
-    16 runs, three conditions      every single run:
-      threads free, machine loaded   {'A01_1_1': 14, 'A01_2_1': 6,
-      threads pinned to 1, loaded     'A02_1_1': 11, 'A02_2_1': 3}
-      load average 13 to 36
+    36 runs, three conditions      every single run:
+      12  threads free, loaded        {'A01_1_1': 14, 'A01_2_1': 6,
+      12  threads pinned to 1, loaded  'A02_1_1': 11, 'A02_2_1': 3}
+      12  threads free, idle
+      load average 7.8 to 35.9       ONE distinct vector in 36 runs
 
 Not "close". Identical, every field, every run, with `OMP_NUM_THREADS`/
-`MKL_NUM_THREADS` free and pinned. Hypothesis 1 of "WHAT TO DO INSTEAD"
--- "cellpose on CPU with thread counts left free" -- was listed and never
-tested; it is now tested and it is not the cause. Segmentation on this stub
+`MKL_NUM_THREADS` free and pinned, idle and loaded. Hypothesis 1 of "WHAT TO
+DO INSTEAD" -- "cellpose on CPU with thread counts left free" -- was listed
+and never tested; it is now tested and it is not the cause. Segmentation on this stub
 is deterministic.
 
 --------------------------------------------------------------------------------
@@ -373,7 +374,8 @@ at `-n 8` in another shell for the whole experiment:
     load average  min 10.9   median 20.0   max 38.2   (on 32 cores)
 
 At the claimed one-in-eight rate, (7/8)^64 = 0.00024. Load is not it. Adding
-these to the earlier 32 in isolation makes 96 consecutive passes.
+these to arm C's 36 and the earlier 32 in isolation makes 132 consecutive
+passes.
 
 --------------------------------------------------------------------------------
 WHAT THE "ONE IN EIGHT" ACTUALLY WAS
