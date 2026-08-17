@@ -216,3 +216,124 @@ an example: it re-runs the detector over every screen and fails naming the
 offending class, so a screen added next month cannot reintroduce this
 quietly. It also asserts it built more than 40 screens, because a green sweep
 that covered nothing would prove nothing.
+
+================================================================================
+VERIFICATION (2026-08-16): THE 155 -> 0 WAS REAL, AND IT DELETED 80 TOOLTIPS
+================================================================================
+
+The claim in the RESULT above was audited rather than believed, and two
+things came out of it. Both are now fixed and the instruction is closed.
+
+--------------------------------------------------------------------------------
+FINDING 1: THE PASS DESTROYED HELP INSTEAD OF MOVING IT
+--------------------------------------------------------------------------------
+
+`_sibling_label_for` matched a label to a field by comparing x and y:
+
+    if (label.x() <= field.x()
+            and abs(label.y() - field.y()) < field.height() + 6):
+
+but every screen calls `retarget_field_tooltips(self)` at the END OF
+__init__, before the widget has ever been shown, laid out or resized. There
+is no geometry at that point: every child still sits at Qt's default
+(0, 0, 100, 30). So `label.x() <= field.x()` is 0 <= 0 and the y test is
+0 < 36, and the matcher answered "the first label in this parent" for EVERY
+field on the screen.
+
+What that does, per screen: the first field's help lands on that one label;
+every subsequent field is handed the same label, finds it already has a
+tooltip, and is cleared anyway --
+
+    # Cleared either way: the label is the hover target now, whether it
+    # took this text or already had better.
+    field.setToolTip("")
+
+-- so its help ceases to exist. Measured against a laid-out reference across
+six screens: 36 authored tooltips, 8 on the right label, 2 on the wrong one,
+26 GONE. Swept over every screen that runs the pass: 80 settings had no help
+anywhere in the widget tree.
+
+This is why the detector could not see it. The detector asks "does a field
+carry a tooltip", and a deleted tooltip answers no. A guard that counts
+offenders is satisfied equally by fixing them and by destroying them.
+
+THE FIX. `_sibling_label_for` asks the LAYOUT, which knows the pairing with
+no geometry at all: `QFormLayout.labelForField` exactly; in a `QGridLayout`
+the nearest label in a lower column of the same row; in a horizontal box the
+item immediately before it, and nothing further back -- scanning backwards
+past an intervening control is what paired a spin box with the previous
+setting's name, and in the preview panels with the "drop a folder here"
+placeholder that happens to sit first in the row. Anything else returns None
+and the field keeps its tooltip: help on the field is a smaller defect than
+no help at all.
+
+A QLabel with a pointing-hand cursor is excluded from being a name. That is
+this repository's own convention for "this text is clickable" (AiToggleLabel,
+_ClearFiguresLabel, the console's copy glyph), so such a label is a CONTROL
+sharing the row and its tooltip explains itself, not its neighbour. The MIP
+toggle beside live_preview's max-images box is the case that found this.
+
+`retarget_field_tooltips` also stopped clearing unconditionally. If the label
+already carries DIFFERENT text, two settings are claiming one name, the
+pairing is wrong, and the field keeps its help. That single guard turns this
+whole failure mode from a silent deletion into a visible non-fix.
+
+After: 36 authored -> 34 on their own label, 0 on a wrong one, 0 gone.
+The two that stay on their field are rows the layout does not pair, which is
+the stated fallback.
+
+--------------------------------------------------------------------------------
+FINDING 2: THE SWEEP ONLY SWEPT HALF THE TREE
+--------------------------------------------------------------------------------
+
+`_constructible_screens` iterated `spacr.qt.screens` and nothing else. It
+reported a clean zero over 64 classes while `spacr.qt.widgets` -- the panels
+those screens are built out of, and the ones a user actually hovers -- still
+had 108 editors popping help over the field, across 19 classes:
+
+    channel_mapping, class_editor, feature_explorer, formula_editor (x2),
+    gate_editor (x2), gate_search_panel, graph_builder, live_preview,
+    measure_preview, motility_preview, pca_view, pivot_builder,
+    timelapse_movie, timelapse_preview, trellis_view, umap_explorer,
+    volcano_explorer
+
+(173 by the old geometric matcher, 108 once the matcher stopped
+over-matching.) A package boundary is not something the user can see, so a
+guard that stops at one is reporting on the wrong thing.
+
+THE FIX. The sweep now covers `spacr.qt.screens` AND `spacr.qt.widgets`, and
+asserts it built more than 120 classes rather than more than 40. Each of the
+19 classes calls `retarget_field_tooltips(self)` at the end of its
+``__init__``, the same one-line post-pass the screens use.
+
+`channel_mapping` was fixed at the source instead: its label carried the help
+and its spin box carried a longer variant of the same text, so no pass could
+choose between them. The label now carries the whole thing and the box
+carries nothing.
+
+--------------------------------------------------------------------------------
+EVIDENCE
+--------------------------------------------------------------------------------
+
+tests/test_tooltips_are_on_the_setting_not_the_field.py, 4 tests -> 6:
+
+  * `test_each_setting_keeps_its_own_help_when_the_row_is_not_laid_out`
+    builds four QFormLayout rows and runs the pass WITHOUT showing or
+    resizing -- the state a screen is actually in when it calls it. Before:
+    "'gRNAs / gene' lost its help". After: each label has its own.
+  * `test_no_screen_loses_a_setting_s_help_to_the_pass` builds every screen
+    twice, once with the pass stubbed out, and asserts no authored tooltip
+    vanished. Before: "80 settings have no help anywhere after the pass".
+    After: none.
+  * the existing sweep, widened, went from 0 offenders over 64 classes to 19
+    offending classes over 163, and back to 0.
+
+Before: 2 failed, 4 passed (plus the widened sweep failing with the 19).
+After: 6 passed.
+
+No regression: `tests/qt/test_all_module_smoke.py` 61/61, and 628 passed in
+the tooltip/settings-model selection. `tests/qt/test_tooltips.py::
+test_every_app_api_link_targets_an_existing_module` fails identically with
+these changes stashed -- it is pre-existing and not this.
+
+CLOSED.
