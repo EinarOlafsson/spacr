@@ -3972,10 +3972,29 @@ def _copy_missclassified(df):
     
 def _read_db(db_loc, tables):
     import gc
+    import os
     import sqlite3
     import pandas as pd
 
     from .database_schema import ensure_database_schema
+
+    # A `~` PATH IS EXPANDED HERE, once, for every reader.
+    #
+    # GitHub issue #108 (auto-filed 2026-08-17, macOS): a `src` beginning
+    # with `~` produced `~/.../measurements/measurements.db`, which
+    # `ensure_database_schema` -> `migrate_database` resolved against the
+    # WORKING DIRECTORY and then refused with `FileNotFoundError: ~<DB>`.
+    #
+    # It is fixed here rather than in `migrate_database`, whose docstring
+    # states the non-expansion as a deliberate contract ("made absolute but
+    # not tilde-expanded"), and rather than at each of the ~99 sites that
+    # build a measurements path by string concatenation. This is the funnel
+    # they all pass through.
+    #
+    # expandvars too: a settings CSV carried between machines routinely holds
+    # $HOME or %USERPROFILE%, and the failure is identical.
+    if isinstance(db_loc, (str, os.PathLike)):
+        db_loc = os.path.expanduser(os.path.expandvars(os.fspath(db_loc)))
     from .utils import correct_metadata
 
     def _quote_identifier(name):
