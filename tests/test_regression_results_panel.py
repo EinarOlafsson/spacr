@@ -41,10 +41,16 @@ class TestItOpensIntoTheResults:
         # Influence rather than earlier because Q-Q through Influence are one
         # group that reads in order, and a first attempt dropped it between
         # Controls and Residuals and split them.
+        # "Effect rank" and "Effect distribution" joined on 2026-08-17: they
+        # were the last two panels the SAVED sheet drew without a pyqtgraph
+        # twin, and the maintainer asked for "all plots with the pyqtgraph
+        # ... each represented as a tab under results". They sit next to the
+        # volcano because they answer the same question at gene level -- what
+        # the screen found, and how big.
         assert [panel.tabs.tabText(i) for i in range(panel.tabs.count())] == \
-            ["Volcano", "p-values", "Q-Q", "Controls", "Residuals",
-             "Scale-location", "Influence", "Summary", "Guide support",
-             "Gene"]
+            ["Volcano", "Effect rank", "Effect distribution", "p-values",
+             "Q-Q", "Controls", "Residuals", "Scale-location", "Influence",
+             "Summary", "Guide support", "Gene"]
         assert panel.table.table.rowCount() == len(results)
         assert "Inflation" in panel.qq._status.text()
         assert "negative" in panel.controls._status.text()

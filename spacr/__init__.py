@@ -209,6 +209,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # the picture: the console summary and the exported stats table state the
     # same baseline the panel does.
     "baseline",
+    # The cells behind a coefficient: which objects a dot on the volcano is
+    # most consistent with. Pure pandas -- the montage is a Qt tab, but WHICH
+    # objects to show is a question about the screen, not about a widget.
+    "cell_montage",
     # The headless half of the per-plate measurements merge: {plate: db} plus
     # the chosen tables in, one merged frame out, by CALLING multi_database
     # and merge_tables rather than aggregating anything itself.
