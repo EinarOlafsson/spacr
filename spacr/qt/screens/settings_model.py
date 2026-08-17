@@ -3878,10 +3878,10 @@ PATH_LIST_TITLES: Dict[str, str] = {
 #: Giving them the multi-file control made the panel COLLECT a one-element
 #: list, so merely opening the module and saving rewrote
 #: ``column_csv=/…/barcodes_column.csv`` to ``['/…/barcodes_column.csv']`` in
-#: the user's settings file, and the run then died on "Invalid file path or
-#: buffer object type: <class 'list'>" after it had already started reading
-#: FASTQs. The dialog and the drop target stay; the shape of the value goes
-#: back to what its consumer reads.
+#: the user's settings file -- and `validate` then refused every run from it
+#: with "column_csv=[...] is a list, but str is expected", about a value the
+#: user had never typed. The dialog and the drop target stay; the shape of the
+#: value goes back to what its consumer reads.
 PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
     "grna_csv", "row_csv", "column_csv", "barcodes", "grna",
 )

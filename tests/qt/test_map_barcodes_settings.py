@@ -188,11 +188,12 @@ def test_settings_model_round_trips_interactive_barcode_regex(qtbot):
 #
 # `grna_csv`, `row_csv` and `column_csv` each name a single CSV of
 # ``name,sequence`` pairs, and `sequencing.map_sequences_to_names` hands each
-# one straight to `pd.read_csv`. The panel gave all three the multi-file
-# picker, so opening the screen turned the bundled default path into a
-# one-element LIST -- which rewrote the user's settings file the moment they
-# saved, and reached `pd.read_csv` as "Invalid file path or buffer object
-# type: <class 'list'>" once the run was already reading FASTQs.
+# one straight to `pd.read_csv`, which refuses a list outright. The panel gave
+# all three the multi-file picker, so opening the screen turned the bundled
+# default path into a one-element LIST. That rewrote the user's settings file
+# the moment they saved, and `validate` then refused every run from it --
+# "column_csv=[...] is a list, but str is expected" -- about a value the user
+# had never typed and could not correct from the panel that wrote it.
 
 _ONE_FILE_KEYS = ("grna_csv", "row_csv", "column_csv")
 
@@ -260,3 +261,22 @@ def test_choosing_another_barcode_reference_replaces_the_first(qtbot,
     widget.add_paths([str(second)])
 
     assert model.collect()["row_csv"] == str(second)
+
+
+def test_a_settings_file_holding_the_list_shape_is_still_refused_up_front():
+    """The other half of the same defect: files written while the panel was
+    wrong are out there. The pre-flight names the key and the shape, so the
+    run is refused before it opens a FASTQ rather than inside a worker."""
+    from spacr.settings import set_default_generate_barecode_mapping
+    from spacr.validate import validate_settings
+
+    settings = set_default_generate_barecode_mapping({})
+    settings["src"] = "/tmp"
+    settings["column_csv"] = [settings["column_csv"]]
+
+    said = [p for p in validate_settings(settings, "map_barcodes")
+            if p.setting == "column_csv"]
+
+    assert len(said) == 1
+    assert said[0].severity == "error"
+    assert "is a list, but str is expected" in said[0].message
