@@ -2372,8 +2372,17 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         # a row patsy dropped (a NaN predictor) cannot shift the rest by one.
         model_index = y.index
 
-        plot_histogram(y, dependent_variable, dst=dst)
-        plot_histogram(df, 'fraction', dst=dst)
+        # THE HOUSE-STYLE DISTRIBUTIONS, not the old ones. spacr.figures.
+        # distributions draws the same two panels -- the guide fractions and
+        # the response -- in the one visual system, and writes the same file
+        # names, so the grid, the queue and the tests still find them.
+        #
+        # Falls back to the old plot_histogram if the new module cannot draw
+        # them, because a figure is not worth losing a fit over.
+        if not _show_well_distributions(df, dependent_variable, dst,
+                                        plot=plot):
+            plot_histogram(y, dependent_variable, dst=dst)
+            plot_histogram(df, 'fraction', dst=dst)
 
         # No scaling, for any type. The design this pipeline builds is
         # `fraction:grna + gene_fraction:gene + rowID + columnID`: dummies and
@@ -2487,6 +2496,83 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         print(f"Could not summarise the run: {error}")
 
     return model, coef_df, regression_type
+
+
+def _show_well_distributions(frame, response_name, dst, plot=True):
+    """Draw the guide-fraction and response distributions in the house style.
+
+    :returns: True when they were drawn. False sends the caller back to the
+        original ``plot_histogram``, because a figure is not worth losing a
+        fit over.
+    """
+    try:
+        import matplotlib.pyplot as plt
+
+        from .figures import distributions
+    except Exception as error:  # noqa: BLE001
+        print(f"Could not load the distribution panels: {error}")
+        return False
+
+    drawn = 0
+    # The response panel takes the COLUMN NAME; the fraction panel takes
+    # nothing. Passing the response series would be handing a panel the
+    # values when it wants to know which column to read and label.
+    per_panel = {"response": {"column": response_name}, "guide_fraction": {}}
+    for key in distributions.ORDER:
+        try:
+            figure, panel = distributions.build_panel(
+                key, frame, **per_panel.get(key, {}))
+        except Exception as error:  # noqa: BLE001
+            print(f"Distribution panel {key} did not draw: {error}")
+            continue
+        if not getattr(panel, "drawn", False):
+            plt.close(figure)
+            continue
+        figure.set_label(panel.title)
+        figure._spacr_title = panel.title
+        if dst:
+            try:
+                name = distributions.FILENAMES[key].format(
+                    response=response_name)
+                figure.savefig(os.path.join(str(dst), f"{name}.pdf"),
+                               bbox_inches="tight")
+            except Exception:
+                pass
+        if plot:
+            plt.show()
+        drawn += 1
+    return drawn > 0
+
+
+def _show_plates(frame, variable, dst):
+    """Draw every plate as one small multiple. True when it was drawn."""
+    try:
+        import matplotlib.pyplot as plt
+
+        from .figures.plates import build_plates
+    except Exception as error:  # noqa: BLE001
+        print(f"Could not load the plate panel: {error}")
+        return False
+    try:
+        figure, panel = build_plates(frame, variable, grouping="mean",
+                                     min_max="allq", min_count=0)
+    except Exception as error:  # noqa: BLE001
+        print(f"The plate panel did not draw: {error}")
+        return False
+    if not getattr(panel, "drawn", False):
+        plt.close(figure)
+        return False
+    figure.set_label(panel.title)
+    figure._spacr_title = panel.title
+    if dst:
+        try:
+            figure.savefig(
+                os.path.join(str(dst), f"plate_heatmap_{variable}.pdf"),
+                bbox_inches="tight")
+        except Exception:
+            pass
+    plt.show()
+    return True
 
 
 def _show_house_style_panels(coef_df, plot=True):
@@ -4058,7 +4144,15 @@ def perform_regression(settings):
             )
         return output
         
-    _ = plot_plates(merged_df, variable=orig_dv, grouping='mean', min_max='allq', cmap='viridis', min_count=None, dst=res_folder)                
+    # EVERY PLATE AS ONE FIGURE, on one colour scale, with square wells.
+    # The old call wrote one wide, short PDF per measurement into a fixed
+    # name -- so repeat runs overwrote each other, four plates took eight
+    # grid slots, and each plate got its OWN colour scale, which makes two
+    # plates incomparable at a glance. See spacr.figures.plates.
+    if not _show_plates(merged_df, orig_dv, res_folder):
+        _ = plot_plates(merged_df, variable=orig_dv, grouping='mean',
+                        min_max='allq', cmap='viridis', min_count=None,
+                        dst=res_folder)
 
     model, coef_df, regression_type = regression(
         merged_df, csv_path, dependent_variable, settings['regression_type'],
