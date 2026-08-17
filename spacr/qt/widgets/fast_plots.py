@@ -218,6 +218,10 @@ class FastPlot(QWidget):
         self._selected_key: Optional[str] = None
         self._highlight = None
 
+        #: ``[(label, callback, checked)]`` for the baselines this plot can
+        #: measure its effects from. Empty unless the host offers them.
+        self._baselines = []
+
         #: ``(callback, label)`` for an action that re-runs the analysis, or
         #: None. BORN HERE, not on first use: a filter control connected in
         #: __init__ to a handler that reads an attribute created later is the
@@ -269,6 +273,18 @@ class FastPlot(QWidget):
         """
         self._refit = (callback, label)
 
+    def offer_baselines(self, options) -> None:
+        """Offer "measure the effects from ..." on the right-click menu.
+
+        :param options: ``[(label, callback, checked)]``.
+
+        Separate from :meth:`offer_refit` because the two are different kinds
+        of thing and a user must be able to tell them apart: a baseline moves
+        where zero is drawn on a fit that has already happened, a re-fit
+        replaces the fit.
+        """
+        self._baselines = list(options or ())
+
     def _style_menu(self, position) -> None:
         """Right-click: build the menu and show it."""
         self.build_style_menu().exec(self.plot.mapToGlobal(position))
@@ -304,6 +320,16 @@ class FastPlot(QWidget):
         menu.addSeparator()
         menu.addAction("Reset view", self.plot.autoRange)
         menu.addAction("Export…", self.export)
+        if self._baselines:
+            # WHAT THE EFFECTS ARE MEASURED FROM. Under the restyling
+            # entries because it moves the points, and above the re-fit
+            # because it does NOT change the fit -- it changes where zero is
+            # drawn on a fit that has already happened.
+            menu.addSection("Measured from")
+            for label, callback, checked in self._baselines:
+                action = menu.addAction(label, callback)
+                action.setCheckable(True)
+                action.setChecked(bool(checked))
         if self._refit is not None:
             callback, label = self._refit
             # A SECTION, not another line in the list. Everything above
