@@ -421,12 +421,36 @@ def test_generate_names_cell():
 
 
 def test_generate_names_escapes_an_underscored_plate():
+    """The merged stem this is handed is the one ``spacr.io`` actually writes.
+
+    ``plate_well_field_TIME``, four components, whatever ``timelapse`` is set
+    to -- so an underscored plate makes five. The old spelling of this case
+    used a three-component stem the crop path never sees, which is why it
+    could not catch the escape taking a two-token tail off a four-component
+    name and swallowing the well into the plate.
+    """
     img_name, _fldr, _table = U._generate_names(
-        "my_plate_A01_1", np.array([5]), np.array([2]), np.array([3]),
+        "my_plate_A01_1_1", np.array([5]), np.array([2]), np.array([3]),
         "/src", crop_mode="cell")
-    assert img_name == "my%5Fplate_A01_1_5.png"
+    assert img_name == "my%5Fplate_A01_1_1_5.png"
     parsed = __import__("spacr.schema", fromlist=["parse_object_stem"])
     assert parsed.parse_object_stem(img_name).plateID == "my_plate"
+
+
+def test_generate_names_leaves_an_ordinary_plate_alone():
+    """The crop and the object tables have to agree about who the cell is.
+
+    Measured on the shipped Crop demo before this was fixed: every crop landed
+    as ``plate1%5FA01_1_1_<id>.png`` and its ``png_list`` row read
+    ``plateID='plate1_A01'``, ``prcfo='plate1%5FA01_2_2_f1_o1'`` -- against
+    ``prcf='plate1_r1_c2_f2'`` on the ``cell`` row for the same object.
+    """
+    img_name, _fldr, _table = U._generate_names(
+        "plate1_A01_1_1", np.array([5]), np.array([2]), np.array([3]),
+        "/src", crop_mode="cell")
+    assert img_name == "plate1_A01_1_1_5.png"
+    parsed = __import__("spacr.schema", fromlist=["parse_object_stem"])
+    assert parsed.parse_object_stem(img_name).prcfo == "plate1_r1_c1_f1_o5"
 
 
 def test_generate_names_nucleus_multi():

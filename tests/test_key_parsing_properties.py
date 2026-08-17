@@ -719,14 +719,57 @@ def test_a_preserved_timepoint_token_reads_back(token):
 @given(plate_left=st.sampled_from(['my', 'exp1']),
        plate_right=st.sampled_from(['plate', 'plate1']),
        well=st.sampled_from(['A01', 'AA01']),
-       field=field_indices)
-def test_a_file_name_writer_escapes_the_plate_before_parsing(
-        plate_left, plate_right, well, field):
-    stem = SEP.join([plate_left, plate_right, well, str(field)])
-    safe_stem = S.escape_field_stem_plate(stem)
+       field=field_indices,
+       time=st.sampled_from([1, 7]))
+def test_a_file_name_writer_escapes_the_plate_before_joining_it(
+        plate_left, plate_right, well, field, time):
+    """The plate is escaped where its components are still separate.
+
+    ``spacr.io._escaped_field_stem`` holds the plate, well, field and time as
+    four values, so it has nothing to split and nothing to guess. Escaping
+    from a JOINED name cannot reach this property: ``'my_plate_A01_3'`` is both
+    "plate ``my_plate``, well A01, field 3" and "plate ``my``, well plate,
+    field A01, time 3", and no rule over the name alone tells them apart --
+    which is exactly why the escape belongs at the writer.
+    """
+    from spacr.io import _escaped_field_stem
+
+    plate = plate_left + SEP + plate_right
+    safe_stem = _escaped_field_stem(plate, well, field, time)
     parsed = S.parse_field_stem(safe_stem)
-    assert parsed.plateID == plate_left + SEP + plate_right
+    assert parsed.plateID == plate
     assert parsed.fieldID == f'f{field}'
+    assert S.parse_field_stem(safe_stem, timelapse=True).timeID == f't{time}'
+
+
+def test_an_empty_plate_is_refused_rather_than_written_into_the_name():
+    """Every field written under an empty plate would merge with every other."""
+    from spacr.io import _escaped_field_stem
+
+    with pytest.raises(S.KeyParseError):
+        _escaped_field_stem('', 'A01', 1, 1)
+
+
+def test_escaping_a_joined_stem_puts_the_timepoint_in_the_tail_not_the_plate():
+    """The write and read halves of the grammar have to agree about the tail.
+
+    ``spacr.io`` names every merged stack ``plate_well_field_TIME`` whatever
+    ``timelapse`` is set to, and :func:`parse_field_stem` accounts for that.
+    :func:`escape_field_stem_plate` did not: it took a tail of two on an
+    ordinary plate and swallowed the WELL into the plate, so
+    ``utils._generate_names`` wrote every crop of the shipped Crop demo as
+    ``plate1%5FA01_1_1_<id>.png``, with a ``png_list`` identity of
+    ``plate1%5FA01_2_2_f1_o1`` against the ``cell`` table's
+    ``plate1_r1_c2_f2`` for the same object. Nothing joining crops to
+    measurements could match.
+    """
+    assert S.escape_field_stem_plate('plate1_A01_1_1') == 'plate1_A01_1_1'
+    assert S.parse_field_stem('plate1_A01_1_1').plateID == 'plate1'
+    # the name the writer produces for an underscored plate folder reads
+    # back as that plate, character for character
+    assert S.parse_field_stem('exp%5F1_A01_1_1').plateID == 'exp_1'
+    # a stem whose trailing token is not a timepoint keeps the two-token tail
+    assert S.escape_field_stem_plate('my_plate_A01_x') == 'my%5Fplate_A01_x'
 
 
 def test_a_surplus_crop_component_is_refused_instead_of_dropped():
