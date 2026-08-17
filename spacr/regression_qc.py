@@ -119,6 +119,7 @@ __all__ = [
     "calibration_curve",
     "condition_number",
     "condition_verdict",
+    "context_from_model",
     "cooks_distance",
     "dffits",
     "diagnose_p_value_histogram",
@@ -1563,6 +1564,48 @@ def build_context(model, X, y, *, weights=None, metadata=None, coef_df=None,
         coef_df=coef_df, regression_type=regression_type, family=family,
         link=link, volcano_path=volcano_path, notes=notes,
         decision_score=decision_score)
+
+
+def context_from_model(model, *, coef_df=None, regression_type=None,
+                       metadata=None, weights=None, volcano_path=None):
+    """Build a context from a fitted model that still carries its own design.
+
+    :func:`build_context` needs ``X`` and ``y`` because the pipeline has them:
+    :func:`spacr.ml.regression` is the only scope where the fitted design
+    exists, which is why the report is written from there. A caller who
+    receives only the FITTED MODEL — the Qt results panel gets one on
+    ``perform_regression``'s return payload, and nothing else — has no design
+    matrix to hand over, and had no way to compute a residual at all.
+
+    A statsmodels results object does carry it: ``results.model.exog`` is the
+    matrix that was fitted and ``results.model.exog_names`` names its columns,
+    so the design does not have to be reconstructed or guessed. This recovers
+    it and defers everything statistical to :func:`build_context`.
+
+    :param model: a fitted statsmodels results object.
+    :returns: :class:`RegressionQCContext`.
+    :raises PanelUnavailable: when the model does not carry its own design, so
+        the caller can put the REASON on screen. sklearn's ``Lasso``,
+        ``Ridge`` and ``ElasticNet`` — spaCR's penalised backends — keep
+        neither the design nor the response, and a diagnostics tab that went
+        blank without saying so would look like a broken tab rather than a
+        model that cannot answer.
+    """
+    inner = getattr(model, "model", None)
+    exog = getattr(inner, "exog", None)
+    endog = getattr(inner, "endog", None)
+    if inner is None or exog is None or endog is None:
+        raise PanelUnavailable(
+            f"{type(model).__name__} does not keep the design matrix it was "
+            f"fitted with, so residuals, leverage and influence cannot be "
+            f"recomputed from it")
+    names = list(getattr(inner, "exog_names", None)
+                 or [f"x{i}" for i in range(np.asarray(exog).shape[1])])
+    design = pd.DataFrame(np.asarray(exog, dtype=float), columns=names)
+    return build_context(model, design, np.asarray(endog, dtype=float),
+                         weights=weights, metadata=metadata, coef_df=coef_df,
+                         regression_type=regression_type,
+                         volcano_path=volcano_path)
 
 
 # ---------------------------------------------------------------------------
