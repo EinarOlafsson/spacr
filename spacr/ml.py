@@ -3180,6 +3180,34 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         raise ValueError(
             f"dependent_variable names {missing} which are not columns of the "
             f"merged table. Available: {sorted(data.columns)[:20]}")
+    # THE PERMUTATION TEST IS A TEST ABOUT WELLS, so it needs one row per
+    # well. `analysis_unit='cell'` (agg_type=None) hands it one row per CELL,
+    # and the phenotype then varies within a well -- which the permutation
+    # code catches, but nine frames deep and phrased as a data-integrity
+    # failure:
+    #
+    #     ValueError: Phenotype/block/nuisance values are not constant
+    #     within well 'plate1_r1_c12'.
+    #
+    # Reported 2026-08-17 after a 20-second run that had already written its
+    # regression data, three summary plots and their statistics. The
+    # combination is not a corrupt table; it is two settings that cannot both
+    # be honoured, and saying so costs nothing and is checkable HERE, before
+    # any of that work.
+    #
+    # It refuses rather than aggregating silently: rolling cells up to wells
+    # changes what was analysed, and a run that quietly analysed something
+    # other than what was asked for is the failure this module is most
+    # careful about elsewhere.
+    if str(settings.get('analysis_unit', 'well')).lower() != 'well':
+        raise ValueError(
+            f"analysis_mode='guide_permutation' tests each guide across "
+            f"WELLS, so it needs one row per well -- but "
+            f"analysis_unit={settings.get('analysis_unit')!r} gives one row "
+            f"per object, and a well's phenotype then has many values. Set "
+            f"analysis_unit='well' (with an agg_type such as 'mean'), or "
+            f"choose analysis_mode='regression', which can model objects.")
+
     results = analyse_long_guide_table(
         data,
         outcomes,
@@ -3308,6 +3336,12 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         'primary_min_wells': primary,
         'paths': {key: str(path) for key, path in paths.items()},
     }
+
+
+#: Settings a run chose for itself because the user left them unset. Filled
+#: by :func:`perform_regression` as each is derived, and printed once both
+#: are known -- the settings table is rendered before either exists.
+_AUTOMATIC_SETTINGS: dict = {}
 
 
 def _perform_regression_set_paths(settings):
@@ -3881,10 +3915,16 @@ def perform_regression(settings):
     if settings['verbose']:
         print(f"Dependent variable after clean_controls: {len(score_data_df)}")
 
+    # Which settings this run DERIVED rather than being given. Reset here, at
+    # the top of the run, so a second run in one process cannot inherit the
+    # first one's -- a GUI session runs many.
+    _AUTOMATIC_SETTINGS.clear()
+
     sim_min_count = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
     
     if settings['min_cell_count'] is None:
         settings['min_cell_count'] = sim_min_count
+        _AUTOMATIC_SETTINGS['min_cell_count'] = sim_min_count
         
     if settings['verbose']:
         print(f"Minimum cell count: {settings['min_cell_count']}")
@@ -3905,6 +3945,30 @@ def perform_regression(settings):
     
     if settings['fraction_threshold'] is None:
         settings['fraction_threshold'] = _graph_sequencing_stats(settings)
+        _AUTOMATIC_SETTINGS['fraction_threshold'] = settings['fraction_threshold']
+
+    # WHAT THE RUN ACTUALLY USED, said where the settings are read.
+    #
+    # Asked for 2026-08-17: "if no fraction threshold and min cell cound is
+    # set these are set automatically, these automatic values should be shown
+    # in the runs values rows".
+    #
+    # The settings table is printed -- and `save_settings` writes the CSV --
+    # BEFORE either of these is derived, so both showed `None` there and the
+    # numbers only ever appeared in passing prose ("Closest Fraction
+    # Threshold: 0.0168"). A settings record that says None for a value the
+    # run chose is a record you cannot reproduce the run from.
+    if _AUTOMATIC_SETTINGS:
+        print("\nChosen automatically (not set by the user):")
+        for key, value in _AUTOMATIC_SETTINGS.items():
+            print(f"  {key:<28}{value}")
+        # Re-saved so the CSV carries the resolved values rather than the
+        # Nones it was written with. Same path, so it is one file and the
+        # complete version wins.
+        try:
+            save_settings(settings, name='regression', show=False)
+        except Exception as error:                               # noqa: BLE001
+            print(f"Could not re-save the resolved settings: {error}")
 
     independent_df = process_reads(
         count_data_df, settings['fraction_threshold'], None,
@@ -3959,9 +4023,8 @@ def perform_regression(settings):
     #     significant[significant['n_grna'] > settings['min_n']]
     # so an inflated count lets a guide through a filter it should fail --
     # which is a hit reported on evidence that is not there.
-    independent_df, n_grna, n_gene = _count_variable_instances(
+    _merged_for_counts, n_grna, n_gene = _count_variable_instances(
         merged_df, column_1='grna', column_2='gene')
-    independent_df = merged_df
 
     if settings['verbose']:
         display(independent_df)
@@ -4359,35 +4422,28 @@ def perform_regression(settings):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         metadata_path = os.path.join(base_dir, 'resources', 'data', 'lopit.csv')
         
-        gene_list = None
-
-        if settings['volcano'] == 'all':
-            print('all')
-            gene_list = custom_volcano_plot(
-                data_path, metadata_path, metadata_column='tagm_location',
-                point_size=600, figsize=20, threshold=reg_threshold,
-                save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
-                draw=draw_legacy_volcano,
-            )
-        elif settings['volcano'] == 'gene':
-            print('gene')
-            gene_list = custom_volcano_plot(
-                data_path_gene, metadata_path, metadata_column='tagm_location',
-                point_size=600, figsize=20, threshold=reg_threshold,
-                save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
-                draw=draw_legacy_volcano,
-            )
-        elif settings['volcano'] == 'grna':
-            print('grna')
-            gene_list = custom_volcano_plot(
-                data_path_grna, metadata_path, metadata_column='tagm_location',
-                point_size=600, figsize=20, threshold=reg_threshold,
-                save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
-                draw=draw_legacy_volcano,
-            )
-        else:
-            print(f"Skipping volcano plot: settings['volcano']={settings['volcano']!r} "
-                f"is not one of 'all', 'gene', 'grna'.")
+        # THE GENE TABLE, ALWAYS. The `volcano` setting used to choose
+        # between the merged, gene and gRNA tables here, and it is GONE --
+        # "remove the Volcano setting in regression, it is now redundant".
+        #
+        # It is redundant because 129 A moved that choice onto the plot: the
+        # interactive volcano filters to genes or guides by right-click, on
+        # the SAME fit, with no re-run. A setting chosen before the run could
+        # only ever answer it once.
+        #
+        # THIS CALL IS NOT ONLY A PICTURE, which is why the branch collapses
+        # to `gene` rather than disappearing. `custom_volcano_plot` also
+        # RETURNS the hit list that the GT1 phenotype plot and the ME49
+        # transcription heatmap are built from, and those are gene-level
+        # reports -- so the gene table is the one they need, and it was
+        # already this setting's default.
+        gene_list = custom_volcano_plot(
+            gene_merged_df, metadata_path, metadata_column='tagm_location',
+            point_size=600, figsize=20, threshold=reg_threshold,
+            save_path=volcano_path, x_lim=settings['x_lim'],
+            y_lims=settings['y_lims'],
+            draw=draw_legacy_volcano,
+        )
 
         # SAY WHERE IT WENT. Every other artifact this module writes announces
         # itself ("Saved regression data to ...", "Plot -> ..."), and the
@@ -4402,10 +4458,9 @@ def perform_regression(settings):
             pass
         elif os.path.exists(volcano_path):
             print(f"Saved volcano plot to {volcano_path}")
-        elif settings['volcano'] in ('all', 'gene', 'grna'):
-            print(f"WARNING: the volcano plot was requested "
-                  f"(volcano={settings['volcano']!r}) but no file was written "
-                  f"to {volcano_path}")
+        else:
+            print(f"WARNING: the legacy volcano was requested but no file was "
+                  f"written to {volcano_path}")
 
         display(gene_list) if gene_list is not None else None
 
@@ -4462,13 +4517,11 @@ def perform_regression(settings):
     # diagnostic figures and NOT the one the user came for -- silently, with
     # nothing saying why. Drawn here without the compartment colouring, which
     # is the only part that ever needed the metadata.
-    if (not settings.get('toxo') and draw_legacy_volcano
-            and settings.get('volcano') in ('all', 'gene', 'grna')):
+    if not settings.get('toxo') and draw_legacy_volcano:
         try:
             from .plot import volcano_plot as _plain_volcano
-            _source = {'gene': results_path_gene,
-                       'grna': results_path_grna}.get(settings['volcano'],
-                                                      results_path)
+            # The gene table, for the same reason as the toxo branch above.
+            _source = results_path_gene
             _plain_volcano(
                 _source,
                 fold_change_col='coefficient',
@@ -4478,7 +4531,7 @@ def perform_regression(settings):
                 fold_change_threshold=reg_threshold,
                 p_value_threshold=float(settings.get('fdr_alpha', 0.05) or 0.05),
                 point_size=20.0, figsize=(10.0, 8.0),
-                title=f"{settings.get('regression_type', 'ols')} - {settings['volcano']}",
+                title=f"{settings.get('regression_type', 'ols')} - gene",
                 save_path=volcano_path, show=False)
         except Exception as _volcano_error:
             print(f"Could not draw the volcano plot: "
