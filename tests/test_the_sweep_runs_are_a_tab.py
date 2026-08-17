@@ -82,14 +82,33 @@ def screen(qtbot):
 # --------------------------------------------------------------------------- #
 
 def test_the_runs_are_a_tab_beside_the_results(screen):
+    """RUNS FIRST. This asserted ["Results", "Runs", "Measurements"] until
+    2026-08-17, when the maintainer asked for the other order by name:
+    "the run tab should be before the results tab and results should be shown
+    for the chosen run" (instruction 128 J).
+
+    The order is the reading order of the screen. Picking a row in Runs now
+    re-points Results at that run, so Results is the DETAIL of what Runs has
+    selected, and a detail tab ahead of the thing it details reads backwards.
+    """
     tabs = screen._results_tabs
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
-        "Results", "Runs", "Measurements"]
+        "Runs", "Results", "Measurements"]
 
 
 def test_results_is_what_opens_first(screen):
-    """A finished regression opens into its results, not into a run list."""
-    assert screen._results_tabs.currentIndex() == 0
+    """A finished regression opens into its results, not into a run list.
+
+    UNCHANGED IN SUBSTANCE, only in index: 128 J moved Runs in front of
+    Results, so "opens into its results" is index 1 rather than 0. J asks for
+    a different tab ORDER and says nothing about which tab a finished
+    regression lands on, so this property survives the reorder -- and it has
+    to be set explicitly now, because QTabWidget's own default is index 0,
+    which is the run list this test exists to say we do not open into.
+    """
+    tabs = screen._results_tabs
+    assert tabs.currentWidget() is screen._results_panel
+    assert tabs.currentIndex() == 1
 
 
 def test_the_runs_tab_is_not_a_second_bespoke_screen(screen):

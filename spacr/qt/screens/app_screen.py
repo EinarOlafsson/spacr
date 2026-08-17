@@ -1691,12 +1691,25 @@ class AppScreen(QWidget):
                 self._sweep_runs = SweepRunsPanel(self._figures_card)
                 self._sweep_runs.trial_activated.connect(self._show_trial)
                 left = QTabWidget(self._figures_card)
-                left.addTab(self._results_panel, "Results")
+                # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
+                # 2026-08-17: "the run tab should be before the results tab
+                # and results should be shown for the chosen run". The order
+                # is the reading order of the screen: pick a run on the left
+                # tab, read that run on the next one. Results was first while
+                # it was the only thing a finished fit had to show; now that
+                # picking a run re-points it (`_show_trial`), Results is the
+                # DETAIL of whatever Runs has selected, and a detail tab
+                # ahead of the thing it details reads backwards.
                 left.addTab(self._sweep_runs, "Runs")
-                left.setTabToolTip(1, "Every run: this session's own, its "
+                left.addTab(self._results_panel, "Results")
+                left.setTabToolTip(0, "Every run: this session's own, its "
                                       "re-fits, and every trial the parameter "
                                       "sweep ran. Pick one to see its results "
                                       "and its figures.")
+                left.setTabToolTip(1, "The selected run's coefficient table, "
+                                      "its volcano and its diagnostics. "
+                                      "Picking a row in Runs re-points this "
+                                      "at that run.")
 
                 # WHICH MEASUREMENT HAS GENES WITH A CLEAR EFFECT (122).
                 # Structurally the same thing as the sweep, with the
@@ -1724,6 +1737,14 @@ class AppScreen(QWidget):
                 # while the tab is behind another one.
                 left.currentChanged.connect(self._on_results_tab_changed)
                 self._results_tabs = left
+                # AND RESULTS IS STILL WHAT OPENS. 128 J changed the ORDER of
+                # the tabs, not which one a finished regression lands on --
+                # "a finished regression opens into its results, not into a
+                # run list" is the property `test_results_is_what_opens_first`
+                # has held since the Runs tab arrived, and nothing in J asks
+                # for it back. Set explicitly because QTabWidget's own default
+                # is index 0, which is now Runs.
+                left.setCurrentWidget(self._results_panel)
 
                 split = QSplitter(Qt.Horizontal, self._figures_card)
                 split.setChildrenCollapsible(False)
@@ -3464,6 +3485,22 @@ class AppScreen(QWidget):
         sweep already wrote is preferred over re-running anything. A trial
         that failed says why rather than silently doing nothing -- a click
         that produces no visible change reads as a broken table.
+
+        AND THE RESULTS TAB IS RAISED WHEN IT WORKS -- instruction 128 J,
+        "results should be shown for the chosen run". Loading the folder into
+        the panel was already here; what was missing is that the panel is
+        BEHIND the tab the user is standing on, so picking a run re-pointed a
+        page nobody was looking at and the visible effect of the click was the
+        figure grid changing on the far side of the screen. Only on success:
+        raising an empty Results tab over the run list, for a trial that has
+        no saved table, hides the row the user would pick next behind a page
+        that says nothing.
+
+        WHAT IT DOES NOT DO IS REMEMBER. ``set_frame`` deliberately resets the
+        baseline, the compartment, the gene/guide filter and the selection --
+        a new table is a new experiment -- so switching runs resets them and
+        switching back does not restore them. That is the contract 128 J
+        states, not a gap in this method.
         """
         from ..widgets.sweep_runs import STATUS_RUNNING
 
@@ -3499,43 +3536,91 @@ class AppScreen(QWidget):
             return
         # Its figures too, so the grid on the right is that trial's and not
         # whatever the last run left there.
-        self._load_trial_figures(str(folder))
+        if not self._load_trial_figures(str(folder)):
+            self._console.append_stdout(
+                f"{trial} saved a results table but no figures, so the grid "
+                "is empty rather than showing the last run's.\n")
         self._figures_card.show()
+        # THE PANEL IS ON A TAB, so re-pointing it is only half of showing it.
+        tabs = getattr(self, "_results_tabs", None)
+        if tabs is not None:
+            tabs.setCurrentWidget(panel)
 
-    def _load_trial_figures(self, folder: str) -> int:
-        """Put a trial's saved figures on the grid. Returns how many.
+    @staticmethod
+    def _figure_names_under(folder: str, recursive: bool = True):
+        """Relative names of every picture in ``folder``, sorted.
 
-        The pictures on disk, not a re-fit: they are what that trial actually
-        drew, and re-fitting to see them again would be a minute of waiting
-        for an identical answer.
+        :param recursive: walk subfolders. True for a RUN folder, because most
+            of a run's figures are in one (~19 QC panels, the permutation
+            plots, a summary per measurement). False for the SCREEN folder,
+            because its subfolders are the other runs -- recursing it would
+            pull every sibling run's figures into the grid under the heading
+            of this one, which is worse than missing them.
         """
-        grid = getattr(self, "_figure_grid", None)
-        if grid is None:
-            return 0
+        names = []
+        try:
+            if recursive:
+                for root, _dirs, files in os.walk(folder):
+                    for name in sorted(files):
+                        names.append(os.path.relpath(
+                            os.path.join(root, name), folder))
+            else:
+                for name in sorted(os.listdir(folder)):
+                    if os.path.isfile(os.path.join(folder, name)):
+                        names.append(name)
+        except OSError:
+            return []
+        return sorted(name for name in names
+                      if name.lower().endswith((".png", ".pdf")))
+
+    #: The folder a run's own results directory sits inside.
+    #: `perform_regression` builds `<src>/results/<kind>_<n>`, so a run folder
+    #: whose parent is named this has the SCREEN folder one level further up.
+    SCREEN_RESULTS_DIRNAME = "results"
+
+    @classmethod
+    def _screen_folders_above(cls, folder: str):
+        """The per-screen folders a run's shared figures were written into.
+
+        The same two :func:`spacr.ml._screen_figure_folders` names, reached
+        from the other end. A sequencing helper writes
+        ``<src>/results/fraction_threshold.pdf`` and
+        ``<src>/results/cell_min_threshold.pdf``, but
+        ``plot_plates(dst=<src>)`` writes
+        ``<src>/plate_heatmap_unique_counts.pdf`` -- the screen ROOT, one
+        level further up again. Two of the three are in the same place and
+        the third is not, which is why this returns a list rather than a
+        parent.
+
+        THE CLIMB STOPS AT A FOLDER NAMED ``results``, and that is what keeps
+        it from wandering. Reaching a second level up is only meaningful for
+        the layout `_next_results_folder` actually builds; handed some other
+        folder -- a bare run directory a user pointed at -- this returns its
+        parent alone rather than guessing that its grandparent is a screen.
+        """
+        folder = os.path.normpath(folder)
+        parent = os.path.dirname(folder)
+        if not parent or parent == folder:
+            return []
+        folders = [parent]
+        if os.path.basename(parent) == cls.SCREEN_RESULTS_DIRNAME:
+            screen = os.path.dirname(parent)
+            if screen and screen != parent:
+                folders.append(screen)
+        return folders
+
+    @staticmethod
+    def _pictures_from(folder: str, names):
+        """``(pixmaps, titles)`` for ``names`` under ``folder``.
+
+        A name that will not decode is skipped rather than left as a null
+        pixmap: the grid drops nulls anyway, and a null in the list shifts
+        every index after it away from the caption beside it.
+        """
         from PySide6.QtGui import QPixmap
 
         pixmaps, titles = [], []
-        # RECURSIVE, because most of a run's figures are in SUBFOLDERS.
-        #
-        # Reported 2026-08-17: "there are a tone of qc graphs that get saved
-        # but are not shown in the program", and "with BH and non parametric
-        # there are several graphs that are saved that are not visualized".
-        # Both are this `listdir`. A run writes ~19 panels into
-        # `regression_qc/`, the permutation plots into their own folder, and
-        # a summary plot per measurement under `results/<name>/` -- and a
-        # flat listing of the run folder sees none of them.
-        names = []
-        try:
-            for root, _dirs, files in os.walk(folder):
-                for name in sorted(files):
-                    names.append(os.path.relpath(os.path.join(root, name),
-                                                 folder))
-        except OSError:
-            return 0
-        names.sort()
         for name in names:
-            if not name.lower().endswith((".png", ".pdf")):
-                continue
             path = os.path.join(folder, name)
             pixmap = QPixmap()
             if name.lower().endswith(".pdf"):
@@ -3555,11 +3640,89 @@ class AppScreen(QWidget):
             # under regression_qc/ and "residuals" under results/ are two
             # different pictures and a grid captioning both the same is a
             # grid you cannot navigate.
-            stem = os.path.splitext(name)[0].replace(os.sep, " / ")
-            titles.append(stem)
-        if not pixmaps:
+            titles.append(os.path.splitext(name)[0].replace(os.sep, " / "))
+        return pixmaps, titles
+
+    def _load_trial_figures(self, folder: str) -> int:
+        """Put a trial's saved figures on the grid. Returns how many.
+
+        The pictures on disk, not a re-fit: they are what that trial actually
+        drew, and re-fitting to see them again would be a minute of waiting
+        for an identical answer.
+
+        TWO SECTIONS, because a run's figures are not all in the run's folder.
+        Reported 2026-08-17: "for some reason now i dont see the grna
+        threshold graph". Three figures are written ABOVE the run folder
+        (``<src>/results/ols_12/``), and NOT all to the same place:
+
+            <src>/results/fraction_threshold.pdf        spacr.sequencing
+            <src>/results/cell_min_threshold.pdf        spacr.ml
+            <src>/plate_heatmap_unique_counts.pdf       plot_plates(dst=<src>)
+
+        The third is one level higher than the other two -- ``plot_plates``
+        saves to ``<dst>`` itself and ``graph_sequencing_stats`` hands it the
+        count-data folder. :func:`spacr.ml._screen_figure_folders` lists the
+        same two folders from the writing end; :meth:`_screen_folders_above`
+        reaches them from this one. The recursive walk added the same day
+        walks the run folder DOWNWARDS and cannot see any of them.
+
+        They are put in their own section, LABELLED as the screen's, rather
+        than mixed into this run's: they are per-screen preprocessing, drawn
+        once from the count data and shared by every run under that folder, so
+        captioning them as this trial's output would be a false claim about
+        what this trial produced. Those folders are listed FLAT for the same
+        reason -- ``<src>/results/``'s subfolders are the SIBLING RUNS, and a
+        recursive sweep would put ols_11's figures on ols_12's grid under
+        ols_12's heading, which is wrong rather than merely incomplete.
+
+        AND A FIGURE THE RUN ALREADY HAS IS NOT SHOWN TWICE.
+        :func:`spacr.ml._keep_figures_with_the_run`, landed the same day,
+        makes `perform_regression` COPY these into the run folder under the
+        same basename, so from now on a fresh run carries its own and the walk
+        above finds them. The screen sweep is what rescues the runs that
+        predate that copy -- the twelve already on the maintainer's screen --
+        and without the basename check a new run would show each of them once
+        as its own and once again as the screen's.
+
+        The grid is CLEARED when a trial has none, rather than left showing
+        the previous trial's: 128 J makes the results follow the selected run,
+        and a grid still holding the last run's pictures beside this run's
+        coefficient table is the exact disagreement that binding exists to
+        remove.
+        """
+        grid = getattr(self, "_figure_grid", None)
+        if grid is None:
             return 0
-        grid.set_figures(pixmaps, titles)
+
+        run_names = self._figure_names_under(folder, recursive=True)
+        pixmaps, titles = self._pictures_from(folder, run_names)
+        sections = []
+        if pixmaps:
+            sections.append((os.path.basename(os.path.normpath(folder))
+                             or str(folder), 0, len(pixmaps)))
+
+        # One section for both screen folders, not one each: a reader is being
+        # told "these are not this run's", and which of the two directories
+        # above the run a shared figure happens to sit in is not a distinction
+        # they can act on. `already` grows as it goes, so a name present in
+        # both folders is shown once, nearest the run.
+        already = {os.path.basename(name) for name in run_names}
+        extra, extra_titles = [], []
+        for screen in self._screen_folders_above(folder):
+            names = [name for name
+                     in self._figure_names_under(screen, recursive=False)
+                     if os.path.basename(name) not in already]
+            found, found_titles = self._pictures_from(screen, names)
+            already.update(os.path.basename(name) for name in names)
+            extra.extend(found)
+            extra_titles.extend(found_titles)
+        if extra:
+            sections.append(("the screen's own figures — not this run's",
+                             len(pixmaps), len(extra)))
+            pixmaps.extend(extra)
+            titles.extend(extra_titles)
+
+        grid.set_figures(pixmaps, titles, sections=sections)
         stack = getattr(self, "_figures_stack", None)
         if stack is not None:
             stack.setCurrentIndex(0)
