@@ -165,30 +165,48 @@ def test_create_grouped_plot_two_skewed_groups_uses_mann_whitney():
     assert 0.0 <= float(pw["p-value"].iloc[0]) <= 1.0
 
 
-def test_create_grouped_plot_three_skewed_groups_uses_kruskal():
-    """>2-group non-normal branch (Kruskal-Wallis) + no Tukey post-hoc."""
+def test_create_grouped_plot_three_skewed_groups_use_a_pairwise_rank_test():
+    """CHANGED 2026-08-17: the three rows said 'Kruskal-Wallis test'.
+
+    They were `kruskal(data1, data2)` -- Kruskal-Wallis across TWO groups,
+    which is a Mann-Whitney U in a chi-squared approximation, filed under a
+    name that told a reader an omnibus test had run. The choice is the one
+    engine's now and each pair is named as the two-group test it is.
+    """
     from spacr.plot import create_grouped_plot
 
     df = skewed_df(groups=("a", "b", "c"), n=20)
     _fig, results = create_grouped_plot(
         df, grouping_column="grp", data_column="v1", graph_type="bar")
 
-    assert "Kruskal-Wallis test" in set(results["Test Name"])
     # 3 groups -> 3 pairwise comparisons
-    assert (results["Test Name"] == "Kruskal-Wallis test").sum() == 3
+    assert (results["Test Name"] == "Mann-Whitney U test").sum() == 3
     # Tukey post-hoc is only added for the normal case
     assert "Tukey HSD Post-hoc" not in set(results["Test Name"])
 
 
 def test_create_grouped_plot_three_normal_groups_adds_tukey_posthoc():
+    """CHANGED 2026-08-17: the three pairwise rows said 'One-way ANOVA'.
+
+    A LABEL CHANGE, not an answer change: `f_oneway` on two groups returns
+    F = t squared and therefore the identical p-value, which is asserted
+    below so the rename cannot hide a moved number. The Tukey rows are
+    untouched -- they are the genuine across-group post-hoc.
+    """
+    from scipy.stats import ttest_ind
     from spacr.plot import create_grouped_plot
 
     df = normal_df(groups=("a", "b", "c"), n=20)
     _fig, results = create_grouped_plot(
         df, grouping_column="grp", data_column="v1", graph_type="bar")
 
-    assert (results["Test Name"] == "One-way ANOVA").sum() == 3
+    assert (results["Test Name"] == "T-test").sum() == 3
     assert (results["Test Name"] == "Tukey HSD Post-hoc").sum() == 3
+
+    pair = results[results["Comparison"] == "a vs b"]
+    expected = ttest_ind(df.loc[df["grp"] == "a", "v1"],
+                         df.loc[df["grp"] == "b", "v1"], equal_var=True)[1]
+    assert float(pair["p-value"].iloc[0]) == pytest.approx(expected)
 
 
 def test_create_grouped_plot_sem_errorbars_custom_colors_and_ylim():
