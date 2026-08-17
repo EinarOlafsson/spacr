@@ -273,7 +273,12 @@ looked.
 * A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
   quoting the request in a `Requested:` line. Merge overlapping asks into the
   first task; do not file duplicates.
-* Print the done/left table whenever an item is finished.
+* Print the done/left table whenever an item is finished. Refined
+  2026-08-17: show it EVERY time an item reaches 100% and every time
+  the maintainer adds one, unprompted -- one row per item with a
+  percentage, grouped by the instruction that owns it, and an overall
+  figure underneath. Keep the rows honest: work a background agent has
+  built but not committed is not 100%.
 * Commits are authored **Einar Olafsson**, never any AI attribution, and carry
   no `Co-Authored-By` trailer.
 * Fix bugs and logic that lead to erroneous or misleading results.
