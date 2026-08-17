@@ -36,9 +36,15 @@ class TestItOpensIntoTheResults:
         qtbot.addWidget(panel)
         assert panel.set_frame(results, source="results.csv")
 
+        # "Summary" closes the diagnostic group -- the statsmodels summary,
+        # added 2026-08-17 at the maintainer's request. It sits after
+        # Influence rather than earlier because Q-Q through Influence are one
+        # group that reads in order, and a first attempt dropped it between
+        # Controls and Residuals and split them.
         assert [panel.tabs.tabText(i) for i in range(panel.tabs.count())] == \
             ["Volcano", "p-values", "Q-Q", "Controls", "Residuals",
-             "Scale-location", "Influence", "Guide support", "Gene"]
+             "Scale-location", "Influence", "Summary", "Guide support",
+             "Gene"]
         assert panel.table.table.rowCount() == len(results)
         assert "Inflation" in panel.qq._status.text()
         assert "negative" in panel.controls._status.text()

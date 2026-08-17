@@ -176,6 +176,73 @@ def find_results_table(path) -> Optional[str]:
     return tables[0] if tables else None
 
 
+#: What the run says when a fit is not identifiable. Repeated on the Summary
+#: tab because statsmodels prints a full table of standard errors and P
+#: values regardless, and it looks exactly like a summary of a well-posed
+#: fit -- which a reader may paste into a methods section from one click
+#: away.
+UNIDENTIFIABLE_WARNING = (
+    "THIS FIT IS NOT IDENTIFIABLE: {wells} analysed observations are being "
+    "used to estimate {params} parameters.\n"
+    "Every standard error and P value below is one arbitrary solution out of "
+    "infinitely many; refitting the same data can give different numbers and "
+    "neither set is wrong.\n"
+    "Set inference='nonparametric' to test each guide as a plate-blocked "
+    "marginal association, which stays valid at any width.\n")
+
+
+def summary_text(model, regression_type=None) -> str:
+    """The statsmodels summary for ``model``, or why there is none.
+
+    VERBATIM, not rebuilt. The point of asking for the statsmodels summary is
+    to get the statsmodels summary; a re-implementation would differ from
+    every textbook and every other tool a reader compares it against.
+
+    :returns: the summary text, always a string -- a backend without one
+        comes back as a sentence naming the backend rather than as an
+        exception or an empty tab, both of which read as a bug.
+    """
+    if model is None:
+        return ("No summary: this panel was opened from a results table on "
+                "disk rather than from a run, so the fitted model is not "
+                "here. Re-run to see it.")
+
+    summary = getattr(model, "summary", None)
+    if not callable(summary):
+        named = f" ({regression_type})" if regression_type else ""
+        return (f"No summary: this backend{named} is not a statsmodels fit, "
+                f"so it has none. The sklearn-backed types (lasso, ridge, "
+                f"elasticnet, hinge) report coefficients without standard "
+                f"errors, which is why they are ranked by bootstrap "
+                f"selection frequency instead -- see the Coefficients tab.")
+
+    try:
+        text = str(summary())
+    except Exception as error:                                   # noqa: BLE001
+        return (f"No summary: statsmodels could not render one for this fit "
+                f"({type(error).__name__}: {error}).")
+
+    warning = _identifiability_warning(model)
+    return f"{warning}\n{text}" if warning else text
+
+
+def _identifiability_warning(model) -> str:
+    """The run's own not-identifiable warning, or "".
+
+    Read off the model rather than off the settings, so the tab cannot
+    disagree with the table it is printed above.
+    """
+    try:
+        observations = int(getattr(model, "nobs", 0))
+        params = len(getattr(model, "params", ()))
+    except Exception:                                            # noqa: BLE001
+        return ""
+    if observations and params and params >= observations:
+        return UNIDENTIFIABLE_WARNING.format(wells=observations,
+                                             params=params)
+    return ""
+
+
 def backend_of(path) -> Optional[str]:
     """The regression type a results path was written under, if it says.
 
@@ -287,6 +354,24 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.qq, "Q-Q")
         self.tabs.addTab(self.controls, "Controls")
 
+        # THE STATSMODELS SUMMARY. Monospace, read-only and SELECTABLE: the
+        # reason to want it is usually to paste a number into a methods
+        # section, and a summary you cannot select is a summary you retype.
+        from PySide6.QtGui import QFontDatabase
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        self._summary = QPlainTextEdit()
+        self._summary.setReadOnly(True)
+        self._summary.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self._summary.setFont(
+            QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        self._summary.setPlainText(
+            "Run a regression to see its summary.")
+        # ADDED AFTER THE DIAGNOSTICS, not before them. Q-Q, Controls,
+        # Residuals, Scale-location and Influence are one group that reads in
+        # order, and a test asserts they sit together; dropping the Summary
+        # into the middle of it split the group.
+
         # THE RESIDUAL DIAGNOSTICS, LIVE. "in the tabs Q-Q and Controls, there
         # should be Tabs like residuals showing the residuals and regression
         # controll graphs like that."
@@ -310,6 +395,9 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.residuals, "Residuals")
         self.tabs.addTab(self.scale_location, "Scale-location")
         self.tabs.addTab(self.influence, "Influence")
+        # The statsmodels summary closes the diagnostic group: it is the
+        # model-level readout the panels above it are pictures of.
+        self.tabs.addTab(self._summary, "Summary")
         self.tabs.setTabToolTip(
             self.tabs.indexOf(self.residuals),
             "Residual against fitted, one point per well. A horizontal band "
@@ -516,6 +604,20 @@ class RegressionResultsPanel(QWidget):
         for plot in self.diagnostic_plots():
             plot._reset_scene()
             plot.set_status(reason or self.NO_MODEL_MESSAGE)
+
+    def set_summary(self, model, regression_type=None) -> bool:
+        """Fill the Summary tab from the fitted model.
+
+        :returns: True when a summary was rendered.
+
+        Rendered from `model.summary()` verbatim rather than rebuilt: the
+        point of asking for the statsmodels summary is to get the statsmodels
+        summary, and a re-implementation would differ from every textbook and
+        every other tool the reader compares it against.
+        """
+        text = summary_text(model, regression_type)
+        self._summary.setPlainText(text)
+        return not text.startswith("No summary")
 
     def set_diagnostics(self, model, regression_type=None) -> bool:
         """Fill the residual tabs from the model a run just fitted.
