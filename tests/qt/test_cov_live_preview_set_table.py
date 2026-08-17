@@ -38,26 +38,35 @@ def _tile(value: int = 7, shape=(8, 8)) -> np.ndarray:
 
 @pytest.fixture
 def flat_plate(tmp_path: Path) -> Path:
-    """Three fields, three channels, one plane each."""
+    """Three fields, three channels, one plane each.
+
+    Its own directory, not ``tmp_path`` itself: a test that wants a flat
+    folder and a stacked one gets ONE ``tmp_path``, and writing both into it
+    makes the flat folder a stacked one.
+    """
+    root = tmp_path / "flat"
+    root.mkdir()
     for field in range(1, 4):
         for chan in range(1, 4):
             tifffile.imwrite(
-                tmp_path / f"plate1_A01_T0001F{field:03d}L01A01Z01C{chan:02d}.tif",
+                root / f"plate1_A01_T0001F{field:03d}L01A01Z01C{chan:02d}.tif",
                 _tile(field * 10 + chan))
-    return tmp_path
+    return root
 
 
 @pytest.fixture
 def stack_plate(tmp_path: Path) -> Path:
     """Two fields, two channels, four z-planes each."""
+    root = tmp_path / "stacked"
+    root.mkdir()
     for field in range(1, 3):
         for chan in range(1, 3):
             for z in range(1, 5):
                 tifffile.imwrite(
-                    tmp_path / f"plate1_A01_T0001F{field:03d}L01A01Z{z:02d}"
-                               f"C{chan:02d}.tif",
+                    root / f"plate1_A01_T0001F{field:03d}L01A01Z{z:02d}"
+                           f"C{chan:02d}.tif",
                     _tile(z))
-    return tmp_path
+    return root
 
 
 @pytest.fixture
@@ -493,3 +502,247 @@ def test_a_folder_that_cannot_be_walked_says_so_rather_than_reporting_empty(
     monkeypatch.setattr(os_mod, "walk", _walk)
     with pytest.raises(OSError, match="Could not inspect"):
         LP.first_supported_image(tmp_path)
+
+
+# ---------------------------------------------------------------------------
+# The load that comes back from the worker
+# ---------------------------------------------------------------------------
+
+def test_a_load_that_failed_says_why_on_the_status_line(panel):
+    """A silent failure leaves the previous image on screen under the new
+    file's name, which is the worst of both."""
+    panel._on_source_payload(panel._image_load_token,
+                              {"error": "permission denied"})
+    assert "Load failed: permission denied" in panel._status.text()
+
+
+def test_a_folder_with_no_supported_image_says_so(panel):
+    panel._on_source_payload(panel._image_load_token,
+                              {"path": None, "array": None})
+    assert panel._status.text() == "No supported preview image found."
+
+
+def test_a_payload_from_a_superseded_load_is_ignored(panel):
+    before = panel._status.text()
+    panel._on_source_payload(panel._image_load_token - 1,
+                              {"error": "stale"})
+    assert panel._status.text() == before
+    panel._on_source_payload(panel._image_load_token, "not a dict")
+    assert panel._status.text() == before
+
+
+def test_a_field_that_cannot_be_projected_still_shows_its_image(
+        qtbot, stack_plate, monkeypatch):
+    """Switching field or channel with MIP on used to drop silently back to
+    one plane until the switch was toggled off and on again."""
+    widget = LivePreviewPanel()
+    qtbot.addWidget(widget)
+    widget.load_image(sorted(stack_plate.iterdir())[0])
+    widget._mip_enabled = True
+    monkeypatch.setattr(
+        LP.LivePreviewPanel, "_load_for_display",
+        lambda self, path: (_ for _ in ()).throw(OSError("plane gone")))
+    path = Path(sorted(stack_plate.iterdir())[0])
+    widget._install_loaded_image(path, LP.load_preview_image(path))
+    assert widget._image is not None
+    assert int(np.max(widget._image)) == 1
+
+
+def test_a_sampler_that_cannot_say_how_many_channels_leaves_the_combo_alone(
+        panel, monkeypatch):
+    """The channel count is a convenience; losing it must not cost the whole
+    selector refresh that every image load goes through."""
+    def _refuse(self):
+        raise RuntimeError("not enumerated")
+
+    monkeypatch.setattr(type(panel._sampler), "channels", property(_refuse))
+    panel._refresh_source_selectors()
+    assert panel._channel_box.count() >= 1
+
+
+# ---------------------------------------------------------------------------
+# Building the table when the sample is awkward
+# ---------------------------------------------------------------------------
+
+def test_a_panel_with_no_table_builds_nothing(panel):
+    panel._set_table = None
+    panel._populate_set_table()          # must not raise
+
+
+def test_a_sampler_that_refuses_to_sample_leaves_an_empty_table(panel,
+                                                                  monkeypatch):
+    monkeypatch.setattr(
+        panel._sampler, "sample",
+        lambda: (_ for _ in ()).throw(RuntimeError("no enumeration")))
+    panel._populate_set_table()
+    assert panel._set_table.rowCount() == 0
+
+
+def test_a_pinned_set_the_sample_did_not_draw_keeps_its_row(panel,
+                                                              monkeypatch):
+    """Picking a specific field through "Choose image" showed it once and
+    then lost it, with no row to click back to."""
+    all_sets = list(panel._sampler.sample())
+    pinned = all_sets[-1]
+    monkeypatch.setattr(panel._sampler, "sample", lambda: all_sets[:1])
+    monkeypatch.setattr(panel._sampler, "set_for_path", lambda p: pinned)
+    panel._pin_path = Path(_path_at(panel, 0, 0))
+    panel._populate_set_table()
+    labels = [panel._set_table.verticalHeaderItem(r).text()
+              for r in range(panel._set_table.rowCount())]
+    assert pinned.label in labels
+
+
+def test_a_pin_the_sampler_cannot_place_is_simply_not_pinned(panel,
+                                                              monkeypatch):
+    monkeypatch.setattr(
+        panel._sampler, "set_for_path",
+        lambda p: (_ for _ in ()).throw(KeyError("unknown")))
+    panel._pin_path = Path("/nowhere/x.tif")
+    panel._populate_set_table()
+    assert panel._set_table.rowCount() == 3
+
+
+def test_a_channel_a_field_does_not_have_leaves_its_cell_empty(panel,
+                                                                monkeypatch):
+    """Fields do not all carry the same channels, and an empty cell is the
+    honest answer -- a cell naming another field's file is not."""
+    sets = list(panel._sampler.sample())
+    thin = sets[0]
+    thin.channels.pop(sorted(thin.channels)[-1], None)
+    monkeypatch.setattr(panel._sampler, "sample", lambda: sets)
+    panel._populate_set_table()
+    assert panel._set_table.item(0, 2) is None
+
+
+# ---------------------------------------------------------------------------
+# The MIP toggle and the field dropdown, in their remaining states
+# ---------------------------------------------------------------------------
+
+def test_a_panel_with_no_projection_switch_refreshes_quietly(panel):
+    panel._mip_toggle = None
+    panel._refresh_mip_toggle()          # must not raise
+
+
+def test_moving_from_a_stacked_plate_to_a_flat_one_turns_projection_off(
+        qtbot, stack_plate, flat_plate):
+    """Leaving it checked over a folder with nothing to project would claim a
+    projection the image never had."""
+    widget = LivePreviewPanel()
+    qtbot.addWidget(widget)
+    widget.load_image(sorted(stack_plate.iterdir())[0])
+    widget._mip_toggle.setChecked(True)
+    assert widget._mip_toggle.isChecked() is True
+    widget.load_image(sorted(flat_plate.iterdir())[0])
+    assert widget._mip_toggle.isChecked() is False
+    assert widget._mip_toggle.isEnabled() is False
+
+
+def test_a_field_dropdown_entry_with_no_path_loads_nothing(panel, monkeypatch):
+    loads = []
+    monkeypatch.setattr(LP.LivePreviewPanel, "load_source_async",
+                        lambda self, source, **k: loads.append(source))
+    panel._fov_box.addItem("no data behind me", None)
+    panel._fov_box.setCurrentIndex(panel._fov_box.count() - 1)
+    panel._on_fov_changed()
+    assert loads == []
+
+
+def test_picking_the_exact_file_already_open_does_not_reload_it(panel,
+                                                                 monkeypatch):
+    loads = []
+    monkeypatch.setattr(LP.LivePreviewPanel, "load_source_async",
+                        lambda self, source, **k: loads.append(source))
+    monkeypatch.setattr(panel._sampler, "set_for_path", lambda p: None)
+    path = _path_at(panel, 0, 0)
+    panel._image_path = Path(path)
+    panel._fov_box.addItem("same file", path)
+    panel._fov_box.setCurrentIndex(panel._fov_box.count() - 1)
+    panel._on_fov_changed()
+    assert loads == []
+
+
+# ---------------------------------------------------------------------------
+# Background removal, outline colours, model list
+# ---------------------------------------------------------------------------
+
+def test_no_channel_on_screen_means_no_background_to_remove(panel):
+    assert panel._background_for_channel(None) is None
+
+
+def test_nothing_to_show_is_returned_untouched(panel):
+    assert panel._apply_display_background(None) is None
+
+
+def test_an_outline_colour_asked_for_before_any_were_rolled_is_made_on_demand(
+        panel):
+    panel._auto_outline_colours = {}
+    colour = panel._auto_outline_colour("cell")
+    assert len(colour) == 3
+    # And it sticks: re-asking must not recolour the objects on screen.
+    assert panel._auto_outline_colour("cell") == colour
+
+
+def test_a_normalise_setting_that_cannot_be_applied_does_not_stop_the_rest(
+        panel, monkeypatch):
+    """`apply_settings` seeds a whole panel; one unreadable value must not
+    cost the other twenty."""
+    monkeypatch.setattr(
+        panel._normalise_check, "setChecked",
+        lambda value: (_ for _ in ()).throw(RuntimeError("deleted")))
+    panel.apply_settings({"normalize": True, "cell_channel": 2})
+    assert int(panel._cell_channel.value()) == 2
+
+
+def test_a_model_the_probe_found_is_added_without_disturbing_the_choice(panel,
+                                                                         monkeypatch):
+    """A value the user picked must not vanish under them because a probe
+    came back thinner."""
+    panel._model_box.setCurrentIndex(0)
+    chosen = panel._model_box.currentText()
+    existing = [panel._model_box.itemText(i)
+                for i in range(panel._model_box.count())]
+    monkeypatch.setattr(LP, "_model_menu", lambda: ["a_brand_new_model"] + existing)
+    panel.refresh_model_choices()
+    names = [panel._model_box.itemText(i)
+             for i in range(panel._model_box.count())]
+    assert "a_brand_new_model" in names
+    assert set(existing) <= set(names)
+    assert panel._model_box.currentText() == chosen
+
+
+def test_a_mask_whose_objects_have_no_outline_pixels_draws_nothing(panel):
+    """A single-pixel-wide label can boundary out to nothing; drawing an
+    empty palette raised rather than skipping."""
+    image = np.zeros((6, 6), dtype=np.uint8)
+    mask = np.zeros((6, 6), dtype=np.int64)
+    out = LP.overlay_masks(image, {"cell": mask}, random_outline=True)
+    assert out.shape[:2] == (6, 6)
+
+
+def test_an_object_that_fills_the_whole_field_draws_no_outline(panel):
+    """A 4-connected boundary needs something on the other side of it, so a
+    mask covering every pixel has none -- which a huge Cellpose diameter
+    produces routinely. Drawing an empty palette raised; skipping is right,
+    and the image comes back unmarked rather than not at all."""
+    image = np.arange(36, dtype=np.uint8).reshape(6, 6)
+    mask = np.ones((6, 6), dtype=np.int64)
+    assert not (LP._labelled_boundary(mask) > 0).any()
+    out = LP.overlay_masks(image, {"cell": mask}, random_outline=True)
+    bare = LP.overlay_masks(image, {}, random_outline=True)
+    assert np.array_equal(out, bare)      # nothing was painted over it
+
+
+def test_a_folder_that_cannot_be_grouped_still_shows_one_image(tmp_path,
+                                                                monkeypatch):
+    """The set grouping is a convenience; a folder whose names the regex
+    cannot read is still a folder with a picture in it."""
+    tifffile.imwrite(tmp_path / "not_a_yokogawa_name.tif", _tile(9))
+    monkeypatch.setattr(
+        LP, "enumerate_image_sets",
+        lambda *a, **k: (_ for _ in ()).throw(ValueError("unreadable names")))
+    payload = LP.load_source_payload(tmp_path)
+    assert payload["error"] == ""
+    assert payload["sets"] is None
+    assert Path(payload["path"]).name == "not_a_yokogawa_name.tif"
+    assert int(np.max(payload["array"])) == 9
