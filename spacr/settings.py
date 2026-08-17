@@ -1899,7 +1899,13 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('metadata_files', [])
     # grna: the per-gRNA table is the one that shows whether a gene's signal
     # is carried by every guide or by a single outlier.
-    settings.setdefault('volcano', 'grna')
+    # GENE, which is what this setting's own documentation has always said
+    # ("'gene' (default)", settings.py docstring) while the code set 'grna'.
+    # Asked for on 2026-08-17 -- "in regression make gene the default of
+    # volcano" -- so the request and the doc agree and the code was the odd
+    # one out. The gene table is also the smaller one and the one the
+    # phenotype and transcription reports are keyed on.
+    settings.setdefault('volcano', 'gene')
     settings.setdefault('toxo', True)
     # perform_regression prints a per-stage row count and display()s the whole
     # per-object score table under verbose, which is millions of rows on a real
