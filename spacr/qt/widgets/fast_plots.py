@@ -57,6 +57,19 @@ PALETTE = (
     "#D5BB67", "#82C6E2",
 )
 
+#: The two colours a "one thing against grey" plot needs. THE SAME OBJECTS
+#: the saved figure uses, not a second pair chosen to look similar: a run
+#: must not draw in two idioms, and a compartment that is blue on screen and
+#: amber in the exported PDF is exactly that failure in miniature.
+#:
+#: `spacr.figures.style` is hex strings and imports no matplotlib -- measured
+#: at 76 ms with matplotlib still absent from sys.modules -- so this costs a
+#: GUI module nothing.
+from ...figures.style import ROLES as _ROLES
+
+HIGHLIGHT = _ROLES["highlight"]
+MUTED = _ROLES["data"]
+
 #: Points beyond this many stop getting individual hover hit-boxes, which is
 #: what makes a large scatter slow to move over rather than slow to draw.
 HOVER_LIMIT = 20000
@@ -218,6 +231,12 @@ class FastPlot(QWidget):
         self._selected_key: Optional[str] = None
         self._highlight = None
 
+        #: ``[(label, callback, checked)]`` for the TAGM/LOPIT compartments
+        #: this screen actually has. ONE at a time against grey; 27 hues is
+        #: what the house style forbids and also what cost 40 ms of a 49 ms
+        #: redraw.
+        self._compartments = []
+
         #: ``[(label, callback, checked)]`` for the baselines this plot can
         #: measure its effects from. Empty unless the host offers them.
         self._baselines = []
@@ -272,6 +291,13 @@ class FastPlot(QWidget):
         not learn: the same widget draws a simulation and a sweep trial.
         """
         self._refit = (callback, label)
+
+    def offer_compartments(self, options) -> None:
+        """Offer "colour by localisation" as a submenu.
+
+        :param options: ``[(label, callback, checked)]``.
+        """
+        self._compartments = list(options or ())
 
     def offer_baselines(self, options) -> None:
         """Offer "measure the effects from ..." on the right-click menu.
@@ -328,6 +354,15 @@ class FastPlot(QWidget):
             menu.addSection("Measured from")
             for label, callback, checked in self._baselines:
                 action = menu.addAction(label, callback)
+                action.setCheckable(True)
+                action.setChecked(bool(checked))
+        if self._compartments:
+            # A SUBMENU, because this is the one list that can be long -- and
+            # it holds only what this screen actually has, so a choice that
+            # would colour nothing is not offered at all.
+            sub = menu.addMenu("Colour by localisation")
+            for label, callback, checked in self._compartments:
+                action = sub.addAction(label, callback)
                 action.setCheckable(True)
                 action.setChecked(bool(checked))
         if self._refit is not None:
@@ -791,8 +826,16 @@ class VolcanoPlot(FastPlot):
                     alpha: float = 0.05,
                     effect_threshold: Optional[float] = None,
                     key_column: Optional[str] = None,
-                    drop_untested: bool = True):
-        """Draw ``frame``. Returns the number of points actually plotted."""
+                    drop_untested: bool = True,
+                    compartment: Optional[str] = None):
+        """Draw ``frame``. Returns the number of points actually plotted.
+
+        :param compartment: one TAGM/LOPIT compartment to pick out against
+            grey. ONE, not all 27 -- see :mod:`spacr.localisation`. It
+            REPLACES any category colouring rather than combining with it: a
+            volcano where a coloured dot might be coloured for its condition
+            or for its compartment has no sentence.
+        """
         self._reset_scene()
         if frame is None or not len(frame):
             self.set_status("No coefficients to plot.")
@@ -836,7 +879,20 @@ class VolcanoPlot(FastPlot):
         neglog = -np.log10(np.clip(p_values, smallest * 1e-3, 1.0))
 
         brush_list, legend = None, {}
-        if category_column and category_column in frame:
+        if compartment:
+            # ONE COMPARTMENT AGAINST GREY. Two brushes and a two-entry
+            # legend: the 27-colour version is what the house style forbids
+            # and, measured, its legend cost 40 ms of a 49 ms redraw.
+            from ...localisation import mask as compartment_mask
+
+            inside = compartment_mask(frame, compartment).to_numpy()
+            if inside.any():
+                here = pg.mkBrush(HIGHLIGHT)
+                elsewhere = pg.mkBrush(MUTED)
+                brush_list = [here if flag else elsewhere for flag in inside]
+                legend = {f"{compartment} ({int(inside.sum())})": HIGHLIGHT,
+                          f"{int((~inside).sum())} elsewhere": MUTED}
+        elif category_column and category_column in frame:
             # Categorical codes are computed in C; the alternative is a Python
             # loop over 1,215 pandas values plus a QColor.rgba() per point,
             # which cost 45 ms of the 48 ms this used to take.

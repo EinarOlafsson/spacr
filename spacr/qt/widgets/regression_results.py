@@ -373,6 +373,8 @@ class RegressionResultsPanel(QWidget):
         #: the same reason as everything else in this block: `_redraw_volcano`
         #: reads it and is reachable from a signal connected above.
         self._baseline = (None, None)
+        #: The one TAGM/LOPIT compartment picked out against grey, or None.
+        self._compartment = None
 
         # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
         # that is where it was asked for: "right click on the regression plot
@@ -380,6 +382,7 @@ class RegressionResultsPanel(QWidget):
         # restyling entries above it for the reason `offer_refit` gives.
         self.volcano.offer_refit(self.ask_refit)
         self._offer_baselines()
+        self._offer_compartments()
 
     # -------------------------------------------------------------- re-fitting
 
@@ -586,6 +589,14 @@ class RegressionResultsPanel(QWidget):
         for plot in self._keyed_plots():
             plot.clear_highlight()
         self.p_values.clear_highlight()
+
+        # THE COMPARTMENT MENU IS BUILT FROM THE TABLE, so it has to be
+        # rebuilt when the table changes. Built once in __init__ it is built
+        # from no frame at all, which is an empty submenu that never appears
+        # -- and a new screen would otherwise be offered the last one's
+        # compartments.
+        self._compartment = None
+        self._offer_compartments()
 
         self._redraw_volcano()
         kind, column = self._ranking
@@ -795,6 +806,46 @@ class RegressionResultsPanel(QWidget):
             (label, (lambda k=kind: self.set_baseline(k)), kind == chosen)
             for kind, label in self.BASELINES])
 
+    def _offer_compartments(self) -> None:
+        """Put this screen's own compartments on the volcano's menu.
+
+        NOT ALL 27 IN THE REFERENCE TABLE. A menu offering 22 choices that
+        would colour nothing is a menu where a choice that colours nothing is
+        indistinguishable from a broken one.
+        """
+        from ...localisation import present
+
+        try:
+            names = present(self._frame) if self._frame is not None else []
+        except Exception:                                        # noqa: BLE001
+            names = []
+        options = [("none (up / down)", lambda: self.set_compartment(None),
+                    self._compartment is None)]
+        options += [(name, (lambda n=name: self.set_compartment(n)),
+                     name == self._compartment) for name in names]
+        self.volcano.offer_compartments(options if names else [])
+
+    def set_compartment(self, name) -> None:
+        """Colour one TAGM/LOPIT compartment against grey, or none.
+
+        ONE. "Everything is grey except what the sentence is about" -- and a
+        27-colour volcano is both what that rule forbids and, measured, the
+        version whose legend cost 40 ms of a 49 ms redraw.
+        """
+        self._compartment = name
+        self._offer_compartments()
+        self._redraw_volcano()
+        if name:
+            from ...localisation import mask
+
+            found = int(mask(self._frame, name).sum()) if self._frame is not None else 0
+            self.say(f"{found} of {len(self._frame)} coefficients are "
+                     f"annotated {name} in the TAGM/LOPIT table; the rest are "
+                     f"grey."
+                     if found else
+                     f"No coefficient in this screen is annotated {name}, so "
+                     f"nothing is picked out.")
+
     def set_baseline(self, kind, name=None) -> None:
         """Measure every effect from ``kind`` -- see :mod:`spacr.baseline`.
 
@@ -847,6 +898,7 @@ class RegressionResultsPanel(QWidget):
             else frame.columns[0],
             category_column=self._colour_by.currentData(),
             key_column=self._key_column(frame),
+            compartment=self._compartment,
         )
         if kind != "p-value":
             self.volcano.set_status(

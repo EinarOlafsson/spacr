@@ -151,3 +151,96 @@ def test_the_selection_survives_a_baseline_change(qtbot):
     panel.set_baseline("controls")
 
     assert panel.volcano._selected_key == key
+
+
+# --------------------------------------------------------------------------- #
+#  Colour by localisation, on the interactive plot
+# --------------------------------------------------------------------------- #
+
+def _lopit_frame(n=400, seed=0):
+    from spacr import localisation
+
+    genes = list(localisation.table())[:n]
+    if not genes:
+        pytest.skip("the bundled LOPIT table is not present")
+    rng = np.random.default_rng(seed)
+    return pd.DataFrame({
+        "feature": [f"gene_fraction:gene[{g}]" for g in genes],
+        "coefficient": rng.normal(0, .5, len(genes)),
+        "p_value": rng.uniform(size=len(genes)),
+    })
+
+
+def _submenu(plot, title):
+    for action in plot.build_style_menu().actions():
+        menu = action.menu()
+        if menu is not None and title in action.text():
+            return [a.text() for a in menu.actions()]
+    return []
+
+
+def test_the_compartments_are_a_submenu(qtbot):
+    """The one list that can be long. Inline it would bury Export and the
+    re-fit below twenty entries."""
+    panel = _panel(qtbot, _lopit_frame())
+
+    entries = _submenu(panel.volcano, "localisation")
+    assert len(entries) > 3, entries
+    assert entries[0].startswith("none")
+
+
+def test_only_this_screens_compartments_are_offered(qtbot):
+    from spacr import localisation
+
+    frame = _lopit_frame()
+    panel = _panel(qtbot, frame)
+
+    entries = set(_submenu(panel.volcano, "localisation")[1:])
+    assert entries == set(localisation.present(frame)), entries
+
+
+def test_a_screen_with_no_annotations_is_offered_no_submenu(qtbot):
+    """An empty submenu is a menu entry that opens onto nothing."""
+    frame = pd.DataFrame({
+        "feature": ["gene_fraction:gene[999999999]"] * 40,
+        "coefficient": np.linspace(-1, 1, 40),
+        "p_value": np.linspace(.01, .9, 40)})
+    panel = _panel(qtbot, frame)
+
+    assert _submenu(panel.volcano, "localisation") == []
+
+
+def test_choosing_one_says_how_many_it_found(qtbot):
+    from spacr import localisation
+
+    frame = _lopit_frame()
+    panel = _panel(qtbot, frame)
+    name = localisation.present(frame)[0]
+    panel.set_compartment(name)
+
+    said = panel.status_text()
+    assert name in said
+    assert "TAGM/LOPIT" in said
+
+
+def test_a_new_table_does_not_keep_the_last_ones_compartment(qtbot):
+    """Compartments differ between screens, and a stale one colours nothing
+    while the menu still shows it ticked."""
+    from spacr import localisation
+
+    frame = _lopit_frame()
+    panel = _panel(qtbot, frame)
+    panel.set_compartment(localisation.present(frame)[0])
+    panel.set_frame(_lopit_frame(seed=2))
+
+    assert panel._compartment is None
+
+
+def test_the_screen_and_the_saved_figure_use_the_same_colours(qtbot):
+    """A run must not draw in two idioms. A compartment that is blue on
+    screen and amber in the exported PDF is that failure in miniature."""
+    from spacr.figures.style import ROLES
+    from spacr.qt.widgets import fast_plots
+
+    assert fast_plots.HIGHLIGHT == ROLES["highlight"]
+    assert fast_plots.MUTED == ROLES["data"]
