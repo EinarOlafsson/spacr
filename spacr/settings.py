@@ -4189,14 +4189,21 @@ def get_setting_dependencies():
             "split_axis_lims is used only when y_lims requests two axis "
             "segments. The value is kept and saved."),
     )
-    for key in ('threshold_method', 'threshold_multiplier'):
-        setting_dependencies[key] = rule(
-            ('inference', 'analysis_mode'),
-            lambda settings, context: not permutation_active(settings, context),
-            lambda settings, context, setting=key: (
-                f"{setting} belongs to parametric effect-size hit calling; "
-                "guide permutation uses corrected P values. The value is kept."),
-        )
+    # THE EFFECT-SIZE CUT APPLIES TO A PERMUTATION RUN TOO, so these two are
+    # no longer greyed out under it.
+    #
+    # The rule used to read "guide permutation uses corrected P values", and
+    # that reason is now false. It was true only because `perform_regression`
+    # RETURNED from the permutation branch about eighty lines before the block
+    # that computes the cut -- an accident of control flow, not a statement
+    # about the method. The permutation table carries a real `coefficient`
+    # (aliased from `standardized_marginal_effect`), and an effect-size cut
+    # asks how BIG an effect is, which is a separate question from how its P
+    # value was obtained.
+    #
+    # The maintainer reported it as "why cant i see the coefficient threshold
+    # if im running nonparametric regression?", and was told the greying was
+    # correct. It was not.
 
     # THE DATA-DEPENDENT HALF, and the reason `context` exists at all.
     #
