@@ -212,6 +212,7 @@ class FigureGridView(QScrollArea):
 
         self._cells: list[_FigureCell] = []
         self._pinned: Optional[_FigureCell] = None
+        self._sections: list = []
         self._target = TARGET_CELL_PX
 
     def set_pinned(self, pixmap, title: str = "") -> bool:
@@ -250,16 +251,29 @@ class FigureGridView(QScrollArea):
                 widget.deleteLater()
         self._cells = []
 
-    def set_figures(self, pixmaps, titles=None) -> int:
-        """Show these figures. Returns how many were added."""
+    def set_figures(self, pixmaps, titles=None, sections=None) -> int:
+        """Show these figures. Returns how many were added.
+
+        :param sections: ``[(label, start, count)]`` -- one entry per run.
+            LETTERING RESTARTS IN EACH, because a panel letter belongs to a
+            figure and a figure is one run's worth of panels. Without this a
+            second run continues at L, which says nothing to a reader and
+            was reported as exactly that.
+        """
         self.clear()
         titles = list(titles or [])
+        self._sections = list(sections or [])
+        starts = {start: label for label, start, _count in self._sections}
+        letter_at = 0
         for index, pixmap in enumerate(pixmaps):
+            if index in starts:
+                letter_at = 0
             if pixmap is None or pixmap.isNull():
                 continue
             title = titles[index] if index < len(titles) else ""
             cell = _FigureCell(index, pixmap, title, self._body,
-                               letter=_letter_for(len(self._cells)))
+                               letter=_letter_for(letter_at))
+            letter_at += 1
             cell.clicked.connect(self.figure_activated)
             cell.menu_requested.connect(self.figure_menu_requested)
             self._cells.append(cell)
@@ -275,9 +289,27 @@ class FigureGridView(QScrollArea):
         available = max(self.viewport().width() - 24, MIN_CELL_PX)
         unit = max(available // columns, MIN_CELL_PX // 2)
 
+        # A HEADING PER RUN. The lettering restarting is only legible if the
+        # reader can see where one run ends and the next begins -- otherwise
+        # two panels called A look like a bug rather than two figures.
+        heading_at = {}
+        if len(self._sections) > 1:
+            for label, start, _count in self._sections:
+                heading_at[start] = label
+
         row = column = 0
         for cell in ([self._pinned] if self._pinned is not None else []) \
                 + self._cells:
+            index = getattr(cell, "index", -1)
+            if index in heading_at:
+                if column:
+                    row, column = row + 1, 0
+                heading = QLabel(heading_at.pop(index))
+                heading.setStyleSheet(
+                    "font-weight: 600; font-size: 11px; letter-spacing: 1px; "
+                    "color: palette(mid); background: transparent;")
+                self._grid.addWidget(heading, row, 0, 1, max(columns, 1))
+                row, column = row + 1, 0
             span = min(cell_span(cell.aspect()), columns)
             # A wide figure that will not fit in what is left of this row
             # starts the next one, rather than being squeezed.
