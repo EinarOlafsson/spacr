@@ -294,6 +294,31 @@ _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
     "timelapse": {"Motility (beta)", "Motility Advanced (beta)"},
 }
 
+#: The batch-correction alphabet, offered identically by every screen that
+#: shows the setting.
+#:
+#: It is one named tuple rather than a literal repeated per app because the
+#: fourth copy was the one that never got written: Classify (merged) resolves
+#: its defaults through ``set_default_classify``, which sets all eight
+#: ``batch_*`` keys, but ``_APP_COMBO_OPTIONS['classify_merged']`` listed
+#: neither this nor ``batch_missing_control``. Both were free-text boxes on
+#: that screen alone, and a typo in one reached
+#: ``batch_correction.correct_batch_effects`` as
+#: ``ValueError: Unknown batch_correction='zcore'`` at run time, after the
+#: user had walked away — the same failure the ``classifier_family`` alphabet
+#: right below exists to prevent.
+#:
+#: ``combat`` is last because it is the only one that needs an answer from
+#: the user first: without ``batch_covariate_column`` it refuses to run
+#: rather than deleting the contrast the screen is measuring. See
+#: ``spacr.batch_correction._combat``.
+_BATCH_CORRECTION_OPTIONS = [
+    "none", "control_center", "robust_zscore", "center", "zscore", "combat",
+]
+
+#: What ``control_center`` does on a plate with too few reference controls.
+_BATCH_MISSING_CONTROL_OPTIONS = ["error", "skip"]
+
 # Options that are enumerations for one module but not necessarily for every
 # setting with the same generic key.  Keeping these app-scoped avoids turning
 # unrelated ``mode`` fields into sequencing controls.
@@ -309,37 +334,16 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "spectral_affinity": ["nearest_neighbors", "rbf"],
         "clustering": ["dbscan", "kmeans"],
         "crop_source": ["auto", "png", "merged"],
-        "batch_correction": [
-            "none", "control_center", "robust_zscore", "center", "zscore",
-            # combat is last because it is the only one that needs an
-            # answer from the user first: without batch_covariate_column
-            # it refuses to run rather than deleting the contrast the
-            # screen is measuring. See spacr.batch_correction._combat.
-            "combat",
-        ],
-        "batch_missing_control": ["error", "skip"],
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
     "ml_analyze": {
-        "batch_correction": [
-            "none", "control_center", "robust_zscore", "center", "zscore",
-            # combat is last because it is the only one that needs an
-            # answer from the user first: without batch_covariate_column
-            # it refuses to run rather than deleting the contrast the
-            # screen is measuring. See spacr.batch_correction._combat.
-            "combat",
-        ],
-        "batch_missing_control": ["error", "skip"],
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
     "regression": {
-        "batch_correction": [
-            "none", "control_center", "robust_zscore", "center", "zscore",
-            # combat is last because it is the only one that needs an
-            # answer from the user first: without batch_covariate_column
-            # it refuses to run rather than deleting the contrast the
-            # screen is measuring. See spacr.batch_correction._combat.
-            "combat",
-        ],
-        "batch_missing_control": ["error", "skip"],
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
         # Filled from the modules that own each inventory in _widget_for, so
         # a family added to spacr.ml or a correction added to
         # spacr.multiple_testing appears here without a second edit.
@@ -364,6 +368,11 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # box would raise ClassifierFamilyError at run time, after the user
         # had walked away.
         "classifier_family": ["cv", "ml"],
+        # set_default_classify gives this screen all eight batch_* keys, so
+        # it corrects batches exactly like the other three — but it was the
+        # one app that listed no alphabet for them.
+        "batch_correction": _BATCH_CORRECTION_OPTIONS,
+        "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
     "external_masks": {
         "layout": ["auto", "flat", "well", "plate_well"],
