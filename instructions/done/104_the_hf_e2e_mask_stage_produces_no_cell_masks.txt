@@ -243,7 +243,11 @@ WRONG 2 -- "the mask stage drops its cell output."
     It does not. The output is written, at the path the test's glob looks in.
 
 WRONG 3 -- "the mask pipeline is unseeded, so cellpose varies."
-    THIS ONE WAS FILED AS ITS OWN INSTRUCTION (114) AND IS FALSE. The claim
+    THIS ONE WAS FILED AS ITS OWN INSTRUCTION AND IS FALSE.
+    (That instruction was numbered 114, was withdrawn, and the NUMBER has
+    since been reused: instructions/open/114 is now "a parameter search that
+    cannot take the machine down", filed 2026-08-16 and unrelated. Following
+    the reference lands on the wrong file; there is nothing left to read.) The claim
     rested on `grep -rl seed_everything spacr/*.py` returning only
     `deep_spacr.py`. That grep was the mistake: the mask path does not call
     `seed_everything` DIRECTLY, it enters `runctx.run_context`, which calls it
