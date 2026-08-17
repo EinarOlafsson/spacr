@@ -216,20 +216,118 @@ def test_the_volcano_is_not_squeezed_into_the_results_panel(screen):
     assert screen._figures_stack.indexOf(screen._volcano_page) == 2
 
 
-def test_there_is_no_blank_pinned_tile(screen):
-    """It grabbed the volcano widget, and on a page never shown that widget
-    has no layout -- so the tile drew as an empty box with a caption. It is
-    also redundant: the house-style volcano is a cell of this grid now."""
+def test_the_pinned_tile_is_a_readable_picture_not_a_blank_box(screen):
+    """The tile was right; grabbing the widget was wrong.
+
+    "the regression plot isnt shown in all figures (i want it also shown
+    there)". It was tried once, drew as an empty box with a caption under it,
+    and was deleted rather than fixed. The cause was never the tile: the
+    volcano sits on a stacked page nobody has opened, inside a splitter
+    collapsed to nothing, so it is 100x9 pixels and `grab()` returns 100x9 of
+    one colour. Rendering the pyqtgraph SCENE ignores the widget's geometry
+    entirely, which is the whole reason it works.
+    """
     screen._results_panel.set_frame(_real_results())
     screen._refresh_figure_grid()
 
-    assert screen._figure_grid._pinned is None
+    pinned = screen._figure_grid._pinned
+    assert pinned is not None, "the live regression graph is not on the grid"
+    pixmap = pinned._pixmap
+    assert pixmap.width() >= 400 and pixmap.height() >= 200, (
+        f"the tile is {pixmap.width()}x{pixmap.height()}, which is the "
+        f"collapsed widget's geometry rather than a picture of the plot")
+    image = pixmap.toImage()
+    colours = {image.pixel(x, y)
+               for x in range(0, image.width(), 5)
+               for y in range(0, image.height(), 5)}
+    assert len(colours) > 20, (
+        f"the tile has {len(colours)} distinct colours, so it is the blank "
+        f"box again rather than a volcano")
 
 
-def test_the_grid_still_supports_a_pinned_tile_for_other_callers(qtbot):
-    """The mechanism stays -- the regression screen simply does not use it,
-    and it keeps its own signal so a pinned tile can never be mistaken for
-    one of the run's figures."""
+def test_pressing_the_pinned_tile_opens_the_live_graph_not_a_picture(screen):
+    """The route back that did not exist.
+
+    Every other tile opens a saved figure. Before this, the ONLY way back to
+    the interactive volcano was to select a row in the coefficient table --
+    so a user who pressed "← All figures" had left the live graph and could
+    not return to it deliberately.
+    """
+    screen._results_panel.set_frame(_real_results())
+    screen._refresh_figure_grid()
+    screen._show_figure_grid()
+    assert screen._figures_stack.currentWidget() is screen._figure_grid
+
+    screen._figure_grid._pinned.clicked.emit(-1)
+
+    assert screen._figures_stack.currentWidget() is screen._volcano_page
+
+
+def test_the_pinned_tile_never_shifts_which_figure_a_tile_opens(screen):
+    """The trap this whole mechanism exists to avoid.
+
+    `_FigureCell.index` is the position in the pixmap list, and
+    `figure_activated` hands it straight to `FigureQueue.show_index`. A live
+    tile INSERTED into that list would shift every figure after it, so every
+    tile would open its neighbour's figure -- silently, because a figure does
+    open. The pinned cell carries -1, is never one of `_cells`, and has its
+    own signal.
+    """
+    screen._results_panel.set_frame(_real_results())
+    for i in range(4):
+        screen._on_figure_ready(_figure(i))
+    screen._refresh_figure_grid()
+    assert screen._figure_grid._pinned is not None, "no pinned tile to test"
+
+    opened = []
+    screen._figure_grid.figure_activated.connect(opened.append)
+    for cell in screen._figure_grid._cells:
+        cell.clicked.emit(cell.index)
+
+    assert [cell.index for cell in screen._figure_grid._cells] == [0, 1, 2, 3]
+    assert opened == [0, 1, 2, 3], (
+        f"a tile opened the wrong figure: {opened}")
+    assert screen._figure_grid._pinned.index == -1
+
+
+def test_the_pinned_tile_takes_no_panel_letter(screen):
+    """Publication lettering belongs to the RUN's figures.
+
+    A letter on the live tile would make the run's own panel A into panel B,
+    and the legend the run printed names A.
+    """
+    screen._results_panel.set_frame(_real_results())
+    for i in range(3):
+        screen._on_figure_ready(_figure(i))
+    screen._refresh_figure_grid()
+
+    assert screen._figure_grid._pinned.letter == ""
+    assert [cell.letter for cell in screen._figure_grid._cells] == \
+        ["A", "B", "C"]
+
+
+def test_right_clicking_the_live_tile_offers_the_graphs_own_menu(screen):
+    """"all gigures should be editable by right clicking".
+
+    The queue's menu is built from a matplotlib figure at an index, and this
+    tile is neither. Its own menu is the one that can restyle it.
+    """
+    screen._results_panel.set_frame(_real_results())
+    screen._refresh_figure_grid()
+
+    seen = []
+    screen._figure_grid.pinned_menu_requested.connect(seen.append)
+    screen._figure_grid._pinned.menu_requested.emit(-1, None)
+
+    assert len(seen) == 1, "the live tile's right-click reached nobody"
+    menu = screen._results_panel.volcano.build_style_menu()
+    assert "Point size…" in [a.text() for a in menu.actions()]
+
+
+def test_the_grid_keeps_a_pinned_tile_apart_from_the_runs_figures(qtbot):
+    """A pinned tile keeps its own signal so it can never be mistaken for one
+    of the run's figures -- a sentinel index down the shared signal would be
+    the wrong figure waiting to be opened."""
     from PySide6.QtGui import QPixmap
 
     from spacr.qt.widgets.figure_grid_view import FigureGridView
@@ -282,6 +380,27 @@ def test_no_pinned_tile_before_anything_is_fitted(screen):
     """An empty plot tile invites a click that shows an empty plot."""
     screen._refresh_figure_grid()
     assert screen._figure_grid._pinned is None
+
+
+def test_a_tile_with_no_picture_is_removed_rather_than_left_blank(qtbot):
+    """The whole reason the live tile was deleted last time was a tile with no
+    picture in it. When there is nothing to photograph the answer is no tile,
+    not an empty one -- an empty tile invites a click that opens an empty
+    plot."""
+    from PySide6.QtGui import QPixmap
+
+    from spacr.qt.widgets.figure_grid_view import FigureGridView
+
+    grid = FigureGridView()
+    qtbot.addWidget(grid)
+    pixmap = QPixmap(80, 60)
+    pixmap.fill()
+    grid.set_pinned(pixmap, "live")
+    assert grid._pinned is not None
+
+    assert grid.set_pinned(None) is False
+    assert grid._pinned is None
+    assert grid.set_pinned(QPixmap()) is False, "a null pixmap became a tile"
 
 
 # --------------------------------------------------------------------------- #
