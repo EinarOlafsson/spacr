@@ -18,6 +18,7 @@ def custom_volcano_plot(
     save_path=None,
     x_lim=None,
     y_lims=None,
+    draw=True,
 ):
     """Render a volcano plot coloured by T. gondii subcellular localisation.
 
@@ -39,6 +40,19 @@ def custom_volcano_plot(
     :param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.
     :param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``
         for a broken axis.
+    :param draw: build the figure. ``False`` computes and returns the hit
+        list ONLY, with no figure built, saved or shown.
+
+        This function does two jobs -- it draws the volcano AND it decides
+        which genes are hits -- and `perform_regression` needs the second
+        whether or not the maintainer wants the first. The GT1 phenotype plot
+        and the ME49 transcription heatmap are both built from this return
+        value, so gating the CALL would have removed two reports nobody asked
+        to lose. Gating the DRAWING keeps them.
+
+        It is also the fast path, which is the point: "your new volcano plot
+        is much much faster than my old one". Skipping the figure skips a
+        per-row Python loop over every coefficient, twice.
     :returns: List of ``variable`` names that are significant hits.
     """
     if x_lim is None:
@@ -144,6 +158,16 @@ def custom_volcano_plot(
             ) from exc
         merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
         merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
+
+        if not draw:
+            # THE SAME RULE the scatter loop below applies, vectorised. Written
+            # against the same two columns rather than re-derived, because a
+            # hit list that disagreed with the picture would be the worst of
+            # both: the phenotype plot would report genes the volcano does not
+            # mark.
+            called = ((merged_data['p_value'] <= 0.05)
+                      & (merged_data['coefficient'].abs() >= abs(threshold)))
+            return list(merged_data.loc[called, 'variable'])
 
         # --- Normalise y_lims into (is_broken, lower_lim, upper_lim) ---
         is_broken, lower_lim, upper_lim = _normalize_y_lims(y_lims, merged_data['neg_log_p'])

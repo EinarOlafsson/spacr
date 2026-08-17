@@ -335,13 +335,26 @@ FIGURE_RESIZE_DEBOUNCE_MS = 220
 
 
 class _ClearFiguresLabel(QLabel):
-    """"Clear figures" as plain text, flashing the accent when clicked.
+    """"Clear figures" as plain RED text, flashing the accent when clicked.
 
     NOT a QPushButton, deliberately. Clearing is destructive and rare; button
     chrome would give it the same visual weight as the controls beside it that
     people use constantly, and it should sit quieter than those. The
     pointing-hand cursor is what makes it discoverable as clickable without a
     border having to say so -- the same trick the console's copy glyph uses.
+
+    RED BECAUSE IT IS DESTRUCTIVE, asked for on 2026-08-17: "just make it red
+    like other negative butons". It rests at the palette's `error` role --
+    the semantic token every theme defines and contrast-checks, #f85149 on
+    dark and #b81d1a on light -- rather than at a red typed in here. A hex
+    literal would be a fourth opinion about what destructive looks like, and
+    the point of the request is that this control should look like the
+    others rather than like itself.
+
+    Quiet chrome and a loud colour are not in tension: the weight argument
+    above is about BORDERS and padding, which still would make it compete for
+    attention with the controls beside it. The colour is what says the action
+    cannot be undone.
 
     The flash is the whole feedback: clearing an already-empty queue looks
     identical to a click that never landed, so the mark is what says the click
@@ -370,11 +383,15 @@ class _ClearFiguresLabel(QLabel):
         """
         try:
             palette = active_palette()
+            # Flash stays the ACCENT: it is the app-wide "your click landed"
+            # mark, shared with the console's copy glyph, and a control that
+            # invented its own flash colour would be inconsistent in the
+            # other direction. Resting is `error`.
             colour = (palette["accent"] if self._flash.active
-                      else palette["fg_dim"])
+                      else palette["error"])
         except Exception:
             # A palette that will not load is not a reason to draw nothing.
-            colour = "#4A9EFF" if self._flash.active else "#888888"
+            colour = "#4A9EFF" if self._flash.active else "#f85149"
         self.setStyleSheet(
             f"QLabel#FigureQueueClear {{ color: {colour}; "
             "background: transparent; }")

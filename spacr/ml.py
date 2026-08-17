@@ -4299,6 +4299,20 @@ def perform_regression(settings):
                   f"{metadata_error}")
             continue
 
+    # ONE BOOLEAN FOR EVERY OLD VOLCANO. "hide my old version behind a
+    # boolean that defaults to off" -- and the first attempt gated exactly one
+    # of the three call sites, the one a Toxoplasma screen never reaches.
+    # `toxo` defaults to TRUE, so `custom_volcano_plot` below is the picture
+    # the maintainer was still being shown after being told it was hidden.
+    #
+    # Resolved ONCE, here, so the three branches cannot disagree, and read
+    # through the same key the fit already reads at the `regression()` call.
+    draw_legacy_volcano = bool(settings.get('legacy_volcano', False))
+    if not draw_legacy_volcano:
+        print("Legacy volcano: off (the interactive volcano and the house-"
+              "style figure are drawn instead). Set legacy_volcano=True to "
+              "draw the original matplotlib one as well.")
+
     if settings['toxo']:
         data_path = merged_df
         data_path_gene = gene_merged_df
@@ -4314,6 +4328,7 @@ def perform_regression(settings):
                 data_path, metadata_path, metadata_column='tagm_location',
                 point_size=600, figsize=20, threshold=reg_threshold,
                 save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
+                draw=draw_legacy_volcano,
             )
         elif settings['volcano'] == 'gene':
             print('gene')
@@ -4321,6 +4336,7 @@ def perform_regression(settings):
                 data_path_gene, metadata_path, metadata_column='tagm_location',
                 point_size=600, figsize=20, threshold=reg_threshold,
                 save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
+                draw=draw_legacy_volcano,
             )
         elif settings['volcano'] == 'grna':
             print('grna')
@@ -4328,6 +4344,7 @@ def perform_regression(settings):
                 data_path_grna, metadata_path, metadata_column='tagm_location',
                 point_size=600, figsize=20, threshold=reg_threshold,
                 save_path=volcano_path, x_lim=settings['x_lim'], y_lims=settings['y_lims'],
+                draw=draw_legacy_volcano,
             )
         else:
             print(f"Skipping volcano plot: settings['volcano']={settings['volcano']!r} "
@@ -4339,7 +4356,12 @@ def perform_regression(settings):
         # silently. With nothing naming it, a run that had drawn one perfectly
         # well was indistinguishable from a run that had drawn none, and was
         # reported as "I can't see the regression plot".
-        if os.path.exists(volcano_path):
+        if not draw_legacy_volcano:
+            # Nothing was drawn, so nothing is claimed. A stale file left by
+            # an EARLIER run sits at this exact path, and reporting it would
+            # announce a figure this run did not make.
+            pass
+        elif os.path.exists(volcano_path):
             print(f"Saved volcano plot to {volcano_path}")
         elif settings['volcano'] in ('all', 'gene', 'grna'):
             print(f"WARNING: the volcano plot was requested "
@@ -4401,7 +4423,8 @@ def perform_regression(settings):
     # diagnostic figures and NOT the one the user came for -- silently, with
     # nothing saying why. Drawn here without the compartment colouring, which
     # is the only part that ever needed the metadata.
-    if not settings.get('toxo') and settings.get('volcano') in ('all', 'gene', 'grna'):
+    if (not settings.get('toxo') and draw_legacy_volcano
+            and settings.get('volcano') in ('all', 'gene', 'grna')):
         try:
             from .plot import volcano_plot as _plain_volcano
             _source = {'gene': results_path_gene,
