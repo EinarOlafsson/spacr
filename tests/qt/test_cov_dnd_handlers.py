@@ -61,6 +61,37 @@ def _database(path: Path, tables=("png_list",)) -> Path:
     return path
 
 
+@pytest.fixture(autouse=True)
+def _drain_folder_scans(monkeypatch):
+    """No test may walk away from a running folder scan.
+
+    Qt aborts the process when a running QThread is destroyed with the object
+    that owns it, so every scanner built during a test is shut down here
+    whether the test waited for it or not.
+    """
+    made = []
+    real_init = dh._DropScanner.__init__
+
+    def _spy(self, screen):
+        real_init(self, screen)
+        made.append(self)
+
+    monkeypatch.setattr(dh._DropScanner, "__init__", _spy)
+    yield made
+    for scanner in made:
+        try:
+            scanner.shutdown()
+        except Exception:
+            pass
+
+
+def _settle(qtbot, screen, timeout=20000):
+    """Pump the event loop until ``screen`` has no folder scan left."""
+    qtbot.waitUntil(
+        lambda: not dh.scan_is_busy(screen)
+        and dh.active_scan_jobs(screen) == 0, timeout=timeout)
+
+
 # ---------------------------------------------------------------------------
 # "Is the screen still there?"
 # ---------------------------------------------------------------------------
@@ -70,12 +101,15 @@ def test_a_screen_that_is_not_a_qt_object_is_always_considered_alive():
     assert dh._is_alive(_Screen()) is True
 
 
-def test_a_deleted_screen_is_recognised_without_shiboken(qtbot, monkeypatch):
+def test_a_deleted_screen_is_recognised_without_shiboken(monkeypatch):
     """`shiboken6.isValid` is the good answer; poking the object is the
-    fallback, and both must agree that a destroyed widget is gone."""
+    fallback, and both must agree that a destroyed widget is gone.
+
+    Deliberately NOT registered with qtbot: the widget is destroyed here on
+    purpose, and pytest-qt's teardown closes everything it was given.
+    """
     import shiboken6
     widget = QWidget()
-    qtbot.addWidget(widget)
     monkeypatch.setitem(sys.modules, "shiboken6", None)
     assert dh._is_alive(widget) is True
     shiboken6.delete(widget)
@@ -118,12 +152,11 @@ def test_a_runner_whose_c_half_went_first_does_not_block_the_close():
     scanner.shutdown()
 
 
-def test_a_scan_that_finishes_after_its_screen_closed_reports_nothing(qtbot):
+def test_a_scan_that_finishes_after_its_screen_closed_reports_nothing():
     """A completion handler touches widgets. Running one against a screen
     that has been destroyed is the crash, not the missing report."""
     import shiboken6
-    widget = QWidget()
-    qtbot.addWidget(widget)
+    widget = QWidget()                 # not qtbot's: it is destroyed below
     scanner = dh._DropScanner(widget)
     delivered = []
     shiboken6.delete(widget)
@@ -846,3 +879,961 @@ def test_a_folder_with_no_supported_images_is_refused_by_name(tmp_path):
     with pytest.raises(ValueError, match="No supported images"):
         dh.ExternalMasksDropHandler().apply(folder, _Screen(
             _settings_model=model))
+
+
+# ---------------------------------------------------------------------------
+# Small path helpers
+# ---------------------------------------------------------------------------
+
+def test_a_folder_that_vanished_between_the_drop_and_the_walk_reports_nothing(
+        tmp_path):
+    """The walk happens after `apply` returns, so the folder can be gone --
+    an unmounted share is the ordinary case -- and an OSError raised there
+    has no Python caller to catch it."""
+    gone = tmp_path / "unmounted"
+    assert dh._contains_suffix(gone, (".tif",)) is False
+    assert dh._contains_suffix(gone, (".tif",), recursive=True) is False
+
+
+def test_a_settings_snapshot_is_found_beside_the_plate_and_under_settings(
+        tmp_path):
+    plate = tmp_path / "plate"
+    top = _touch(plate / "mask_settings.csv", "Key,Value\n")
+    nested = _touch(plate / "settings" / "measure_settings.csv", "Key,Value\n")
+    _touch(plate / "notes.csv", "a\n")           # no "setting" in the name
+    assert dh._settings_files(plate) == [nested, top]
+
+
+def test_a_dropped_file_contributes_no_settings_snapshots(tmp_path):
+    assert dh._settings_files(_touch(tmp_path / "x.csv")) == []
+
+
+def test_a_snapshot_whose_name_says_nothing_falls_back_to_the_default():
+    assert dh._module_from_settings(Path("run_2024.csv")) == "mask"
+    assert dh._module_from_settings(Path("run_2024.csv"), "measure") == \
+        "measure"
+    assert dh._module_from_settings(Path("measure_crop_settings.csv")) == \
+        "measure"
+
+
+# ---------------------------------------------------------------------------
+# Import Project
+# ---------------------------------------------------------------------------
+
+class _ForeignScreen(_Screen):
+    def __init__(self, **attrs):
+        super().__init__(**attrs)
+        self.mapping = None
+        self.measurements = None
+        self.images = None
+        self.mask_folders = []
+
+    def load_mapping(self, path):
+        self.mapping = path
+        return getattr(self, "mapping_result", None)
+
+    def set_measurements(self, path):
+        self.measurements = path
+
+    def set_images(self, path):
+        self.images = path
+
+    def add_mask_folder(self, object_type, path):
+        self.mask_folders.append((object_type, path))
+        return getattr(self, "mask_result", None)
+
+
+def test_a_mapping_csv_is_loaded_as_a_mapping_not_as_a_measurement_table(
+        tmp_path):
+    """Both are CSVs. Only the header says which, and filing a mapping as
+    measurements would import the mapping's own columns as data."""
+    mapping = _touch(tmp_path / "map.csv",
+                     "source,target,transform,unit_in,unit_out,note\n")
+    screen = _ForeignScreen()
+    dh.ForeignProjectDropHandler().apply(mapping, screen)
+    assert screen.mapping == str(mapping)
+    assert screen.measurements is None
+
+
+def test_a_plain_csv_is_imported_as_the_measurement_table(tmp_path):
+    table = _touch(tmp_path / "cells.csv", "object,area\n")
+    screen = _ForeignScreen()
+    dh.ForeignProjectDropHandler().apply(table, screen)
+    assert screen.measurements == str(table)
+
+
+def test_a_mapping_that_would_not_load_is_reported(tmp_path):
+    mapping = _touch(tmp_path / "map.json", "{}")
+    screen = _ForeignScreen(mapping_result=False)
+    with pytest.raises(ValueError, match="Could not load mapping"):
+        dh.ForeignProjectDropHandler().apply(mapping, screen)
+
+
+def test_a_folder_named_for_masks_is_added_as_masks_for_the_chosen_object(
+        tmp_path):
+    folder = tmp_path / "nucleus_masks"
+    folder.mkdir()
+
+    class _Box:
+        @staticmethod
+        def currentData():
+            return "nucleus"
+
+    screen = _ForeignScreen(_object_box=_Box())
+    dh.ForeignProjectDropHandler().apply(folder, screen)
+    assert screen.mask_folders == [("nucleus", str(folder))]
+
+
+def test_a_mask_folder_dropped_before_an_object_type_was_picked_uses_cell(
+        tmp_path):
+    folder = tmp_path / "segmentation"
+    folder.mkdir()
+    screen = _ForeignScreen()          # no _object_box at all
+    dh.ForeignProjectDropHandler().apply(folder, screen)
+    assert screen.mask_folders == [("cell", str(folder))]
+
+
+def test_a_mask_folder_that_was_refused_is_reported(tmp_path):
+    folder = tmp_path / "label"
+    folder.mkdir()
+    screen = _ForeignScreen(mask_result=False)
+    with pytest.raises(ValueError, match="Could not add mask folder"):
+        dh.ForeignProjectDropHandler().apply(folder, screen)
+
+
+def test_a_dropped_image_imports_the_folder_that_holds_it(tmp_path):
+    image = _touch(tmp_path / "fields" / "a.tif")
+    screen = _ForeignScreen()
+    handler = dh.ForeignProjectDropHandler()
+    assert handler.accepts_multiple() is True
+    assert "JSON mapping" in handler.error_message(tmp_path)
+    handler.apply(image, screen)
+    assert screen.images == str(tmp_path / "fields")
+
+
+def test_a_csv_that_cannot_be_read_is_not_guessed_at(tmp_path, monkeypatch):
+    csv = _touch(tmp_path / "cells.csv", "object,area\n")
+    monkeypatch.setattr(
+        Path, "open",
+        lambda self, *a, **k: (_ for _ in ()).throw(PermissionError("nope")))
+    screen = _ForeignScreen()
+    dh.ForeignProjectDropHandler().apply(csv, screen)
+    assert screen.measurements == str(csv)
+
+
+# ---------------------------------------------------------------------------
+# Align, Convert, Model Compare
+# ---------------------------------------------------------------------------
+
+def test_align_says_it_wants_tiles(tmp_path):
+    assert "microscopy tiles" in dh.AlignDropHandler().error_message(tmp_path)
+
+
+def test_model_compare_reports_a_folder_it_could_not_read(tmp_path):
+    handler = dh.ImageFieldsDropHandler()
+    assert "microscopy fields" in handler.error_message(tmp_path)
+    screen = _Screen(set_source=lambda p: False, last_error="no fields here")
+    with pytest.raises(ValueError, match="no fields here"):
+        handler.apply(tmp_path, screen)
+
+
+def test_model_compare_names_the_folder_when_the_screen_gives_no_reason(
+        tmp_path):
+    screen = _Screen(set_source=lambda p: False)
+    with pytest.raises(ValueError, match="Could not load fields"):
+        dh.ImageFieldsDropHandler().apply(tmp_path, screen)
+
+
+# ---------------------------------------------------------------------------
+# Plate Queue
+# ---------------------------------------------------------------------------
+
+class _Queue(list):
+    def add(self, item):
+        self.append(item)
+
+
+class _QueueScreen(_Screen):
+    def __init__(self, **attrs):
+        super().__init__(**attrs)
+        self._queue = _Queue()
+        self.items = []
+        self.refreshed = 0
+        self.emitted = []
+
+        class _Signal:
+            def __init__(self, sink):
+                self._sink = sink
+
+            def emit(self, value):
+                self._sink.append(value)
+
+        self.queue_size_changed = _Signal(self.emitted)
+
+    def queue(self):
+        return self._queue
+
+    def _refresh_table(self):
+        self.refreshed += 1
+
+    def add_item(self, module, settings):
+        self.items.append((module, settings))
+
+
+def test_a_plate_list_csv_queues_every_row_it_names(tmp_path, monkeypatch):
+    from spacr.qt import plate_queue as pq
+    csv = _touch(tmp_path / "plates.csv", "src\n/a\n/b\n")
+    monkeypatch.setattr(pq, "import_plates_from_csv",
+                        lambda path, base_settings=None, app_key="mask":
+                        ["item-a", "item-b"])
+    screen = _QueueScreen()
+    dh.PlateQueueDropHandler().apply(csv, screen)
+    assert list(screen.queue()) == ["item-a", "item-b"]
+    assert screen.refreshed == 1
+    assert screen.emitted == [2]
+
+
+def test_a_plate_list_csv_with_no_src_column_is_refused_by_name(tmp_path,
+                                                                 monkeypatch):
+    from spacr.qt import plate_queue as pq
+    csv = _touch(tmp_path / "plates.csv", "note\nhello\n")
+    monkeypatch.setattr(pq, "import_plates_from_csv",
+                        lambda path, base_settings=None, app_key="mask": [])
+    with pytest.raises(ValueError, match="no plate rows with an src value"):
+        dh.PlateQueueDropHandler().apply(csv, _QueueScreen())
+
+
+def test_a_plate_folders_snapshots_are_queued_against_that_folder(tmp_path,
+                                                                    monkeypatch):
+    """`src` is the plate that was dropped, not whatever the snapshot said
+    when it was written on another machine."""
+    import spacr.utils as utils
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "mask_settings.csv", "Key,Value\n")
+    monkeypatch.setattr(utils, "load_settings",
+                        lambda *a, **k: {"src": "/somewhere/else"})
+    screen = _QueueScreen()
+    dh.PlateQueueDropHandler().apply(plate, screen)
+    assert screen.items == [("mask", {"src": str(plate)})]
+
+
+def test_a_hand_made_snapshot_is_read_with_the_documented_default(tmp_path,
+                                                                    monkeypatch):
+    """spaCR writes two columns; a hand-made file is likely to use the
+    single-argument spelling. Only the SECOND failure means unreadable."""
+    import spacr.utils as utils
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "measure_settings.csv", "a\n")
+    calls = []
+
+    def _load(path, **kwargs):
+        calls.append(kwargs)
+        if kwargs:
+            raise ValueError("no Key column")
+        return {"channels": [0]}
+
+    monkeypatch.setattr(utils, "load_settings", _load)
+    screen = _QueueScreen()
+    dh.PlateQueueDropHandler().apply(plate, screen)
+    assert len(calls) == 2
+    assert screen.items[0][0] == "measure"
+
+
+def test_one_unreadable_snapshot_among_several_is_named_rather_than_dropped(
+        tmp_path, monkeypatch):
+    """A partial drop used to report plain success, and the user found out
+    when the run they expected was not in the list."""
+    import spacr.utils as utils
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "mask_settings.csv", "Key,Value\n")
+    _touch(plate / "settings" / "broken_settings.csv", "\x00")
+
+    def _load(path, **kwargs):
+        if "broken" in str(path):
+            raise ValueError("not a settings file")
+        return {"channels": [0]}
+
+    monkeypatch.setattr(utils, "load_settings", _load)
+    screen = _QueueScreen()
+    dh.PlateQueueDropHandler().apply(plate, screen)
+    assert len(screen.items) == 1
+    assert "Queued 1 of 2" in screen.log
+    assert "broken_settings.csv" in screen.log
+
+
+def test_a_snapshot_that_parses_to_something_that_is_not_settings_is_skipped(
+        tmp_path, monkeypatch):
+    import spacr.utils as utils
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "mask_settings.csv", "Key,Value\n")
+    monkeypatch.setattr(utils, "load_settings", lambda *a, **k: ["not", "a",
+                                                                 "dict"])
+    with pytest.raises(ValueError, match="No readable settings snapshots"):
+        dh.PlateQueueDropHandler().apply(plate, _QueueScreen())
+
+
+def test_the_plate_queue_says_what_it_accepts(tmp_path):
+    assert "settings/*.csv" in dh.PlateQueueDropHandler().error_message(
+        tmp_path)
+
+
+# ---------------------------------------------------------------------------
+# Batch Runner
+# ---------------------------------------------------------------------------
+
+def test_a_saved_queue_file_is_loaded_as_a_queue(tmp_path):
+    saved = _touch(tmp_path / "queue.json", "[]")
+    loaded = []
+    screen = _Screen(load_queue_from=lambda p: loaded.append(p) or True)
+    dh.BatchDropHandler().apply(saved, screen)
+    assert loaded == [str(saved)]
+
+
+def test_a_queue_file_that_would_not_load_reports_the_screens_reason(tmp_path):
+    saved = _touch(tmp_path / "queue.yaml", "[]")
+    screen = _Screen(load_queue_from=lambda p: False, last_error="bad YAML")
+    with pytest.raises(ValueError, match="bad YAML"):
+        dh.BatchDropHandler().apply(saved, screen)
+
+
+def test_a_queue_file_that_would_not_load_still_names_the_path(tmp_path):
+    saved = _touch(tmp_path / "queue.yml", "[]")
+    screen = _Screen(load_queue_from=lambda p: False)
+    with pytest.raises(ValueError, match=str(saved)):
+        dh.BatchDropHandler().apply(saved, screen)
+
+
+def test_a_plate_folders_snapshots_become_batch_jobs(tmp_path):
+    plate = tmp_path / "plate"
+    snapshot = _touch(plate / "settings" / "classify_settings.csv", "Key,Value\n")
+    jobs = []
+    screen = _Screen(add_job=lambda module, settings:
+                      jobs.append((module, settings)) or True)
+    handler = dh.BatchDropHandler()
+    assert handler.accepts_multiple() is True
+    assert "JSON/YAML queue" in handler.error_message(tmp_path)
+    handler.apply(plate, screen)
+    assert jobs == [("classify", str(snapshot))]
+
+
+def test_a_folder_whose_snapshots_are_all_refused_is_reported(tmp_path):
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "mask_settings.csv", "Key,Value\n")
+    screen = _Screen(add_job=lambda module, settings: False)
+    with pytest.raises(ValueError, match="No runnable settings jobs"):
+        dh.BatchDropHandler().apply(plate, screen)
+
+
+# ---------------------------------------------------------------------------
+# Model Zoo
+# ---------------------------------------------------------------------------
+
+def test_the_model_zoo_says_what_it_takes(tmp_path):
+    assert "checkpoint folder" in dh.ModelZooDropHandler().error_message(
+        tmp_path)
+
+
+def test_a_folder_with_a_checkpoint_deeper_down_is_still_scanned_for_models(
+        tmp_path, qtbot):
+    """The expensive question -- "is there one further down?" -- is answered
+    off the GUI thread, and the branch it decides goes with it."""
+    folder = tmp_path / "runs"
+    _touch(folder / "fold_1" / "best.pth")
+    scanned = []
+    screen = _Screen(scan=lambda p: scanned.append(p),
+                     set_fields_source=lambda p: True)
+    dh.ModelZooDropHandler().apply(folder, screen)
+    _settle(qtbot, screen)
+    assert scanned == [str(folder)]
+
+
+def test_a_folder_with_no_checkpoint_anywhere_is_used_as_benchmark_fields(
+        tmp_path, qtbot):
+    folder = tmp_path / "fields"
+    _touch(folder / "a.tif")
+    fields = []
+    screen = _Screen(scan=lambda p: None,
+                     set_fields_source=lambda p: fields.append(p))
+    dh.ModelZooDropHandler().apply(folder, screen)
+    _settle(qtbot, screen)
+    assert fields == [str(folder)]
+
+
+def test_fields_the_model_zoo_could_not_load_are_reported_not_swallowed(
+        tmp_path):
+    """`apply` returned long ago, so raising here would surface as an
+    unhandled exception in the Qt event loop and the user would be told
+    nothing at all."""
+    folder = tmp_path / "fields"
+    folder.mkdir()
+    screen = _Screen(scan=lambda p: None,
+                     set_fields_source=lambda p: False,
+                     last_error="not an image folder")
+    dh._apply_model_zoo_source(folder, screen, is_model=False)
+    assert "not an image folder" in screen.log
+    assert "[drop rejected]" in screen.log
+
+
+def test_a_model_folder_decided_on_the_worker_thread_is_scanned(tmp_path):
+    scanned = []
+    dh._apply_model_zoo_source(tmp_path, _Screen(scan=scanned.append),
+                                is_model=True)
+    assert scanned == [str(tmp_path)]
+
+
+# ---------------------------------------------------------------------------
+# Results screens
+# ---------------------------------------------------------------------------
+
+def test_plate_viewer_accepts_either_name_for_opening_a_database(tmp_path):
+    """Two screens share this handler and they spell the opener
+    differently; neither should need a handler of its own."""
+    opened = []
+    dh.ResultsDatabaseDropHandler().apply(
+        tmp_path, _Screen(open_database=lambda p: opened.append(p)))
+    assert opened == [str(tmp_path)]
+
+
+def test_a_results_screen_that_cannot_open_a_database_says_so(tmp_path):
+    with pytest.raises(TypeError, match="cannot open a database"):
+        dh.ResultsDatabaseDropHandler().apply(tmp_path, _Screen())
+
+
+def test_a_results_database_that_was_refused_reports_the_screens_reason(
+        tmp_path):
+    screen = _Screen(set_database=lambda p: False, last_error="locked")
+    with pytest.raises(ValueError, match="locked"):
+        dh.ResultsDatabaseDropHandler().apply(tmp_path, screen)
+
+
+def test_a_results_database_refused_without_a_reason_names_the_path(tmp_path):
+    screen = _Screen(set_database=lambda p: False)
+    with pytest.raises(ValueError, match=str(tmp_path)):
+        dh.ResultsDatabaseDropHandler().apply(tmp_path, screen)
+
+
+def test_training_runs_reports_a_folder_it_could_not_scan(tmp_path):
+    handler = dh.TrainingRunsDropHandler()
+    assert "model training runs" in handler.error_message(tmp_path)
+    assert handler.can_accept(tmp_path) is True
+    screen = _Screen(scan=lambda p: False, last_error="no runs in there")
+    with pytest.raises(ValueError, match="no runs in there"):
+        handler.apply(tmp_path, screen)
+
+
+def test_training_runs_names_the_folder_when_the_screen_gives_no_reason(
+        tmp_path):
+    screen = _Screen(scan=lambda p: False)
+    with pytest.raises(ValueError, match="Could not scan"):
+        dh.TrainingRunsDropHandler().apply(tmp_path, screen)
+
+
+def test_the_report_screen_sets_the_run_folder_then_scans_it(tmp_path):
+    handler = dh.ReportDropHandler()
+    assert "completed spaCR run folder" in handler.error_message(tmp_path)
+    order = []
+    screen = _Screen(set_source=lambda p: order.append(("source", p)),
+                     scan=lambda: order.append(("scan", None)))
+    handler.apply(tmp_path, screen)
+    assert [name for name, _ in order] == ["source", "scan"]
+
+
+def test_a_report_folder_that_could_not_be_scanned_is_reported(tmp_path):
+    screen = _Screen(set_source=lambda p: None, scan=lambda: False,
+                      last_error="no results/ in there")
+    with pytest.raises(ValueError, match="no results/ in there"):
+        dh.ReportDropHandler().apply(tmp_path, screen)
+
+
+def test_a_report_folder_refused_without_a_reason_names_the_path(tmp_path):
+    screen = _Screen(set_source=lambda p: None, scan=lambda: False)
+    with pytest.raises(ValueError, match="Could not scan"):
+        dh.ReportDropHandler().apply(tmp_path, screen)
+
+
+# ---------------------------------------------------------------------------
+# Project-folder screens
+# ---------------------------------------------------------------------------
+
+def test_a_project_goes_into_whichever_setter_the_screen_actually_has(
+        tmp_path, resolves):
+    resolves(_Resolution(targets=[_Target(str(tmp_path))]))
+    seen = []
+    screen = _Screen(set_project=lambda p: seen.append(p))
+    handler = dh.ProjectFolderDropHandler("pipeline_graph")
+    assert handler.can_accept(tmp_path) is True
+    handler.apply(tmp_path, screen)
+    assert seen == [str(tmp_path)]
+
+
+def test_a_screen_with_no_way_to_take_a_project_says_so(tmp_path, resolves):
+    resolves(_Resolution(targets=[_Target(str(tmp_path))]))
+    with pytest.raises(TypeError, match="no way to receive a project folder"):
+        dh.ProjectFolderDropHandler("pipeline_graph").apply(tmp_path, _Screen())
+
+
+def test_a_project_a_screen_refused_reports_the_screens_reason(tmp_path,
+                                                                 resolves):
+    resolves(_Resolution(targets=[_Target(str(tmp_path))]))
+    screen = _Screen(load_project=lambda p: False, last_error="no run.json")
+    with pytest.raises(ValueError, match="no run.json"):
+        dh.ProjectFolderDropHandler("pipeline_graph").apply(tmp_path, screen)
+
+
+def test_the_data_manager_measures_the_project_it_was_just_given(tmp_path,
+                                                                   resolves):
+    resolves(_Resolution(targets=[_Target(str(tmp_path))]))
+    order = []
+    screen = _Screen(set_project=lambda p: order.append("project"),
+                     scan=lambda: order.append("scan"))
+    dh.DataManagerDropHandler("data_manager").apply(tmp_path, screen)
+    assert order == ["project", "scan"]
+
+
+def test_a_root_the_project_browser_already_watches_is_not_an_error(
+        tmp_path, resolves):
+    """`add_root` returns False for a duplicate, and reporting that as a
+    failed drop puts an error dialog in front of a no-op."""
+    resolves(_Resolution(targets=[_Target(str(tmp_path))]))
+    added = []
+    screen = _Screen(add_root=lambda p: added.append(p) or False)
+    handler = dh.ProjectRootsDropHandler("project_browser")
+    assert handler.accepts_multiple() is True
+    handler.apply(tmp_path, screen)
+    assert added == [str(tmp_path)]
+
+
+def test_run_history_refreshes_before_it_looks_for_the_dropped_run(tmp_path):
+    order = []
+    screen = _Screen(refresh=lambda: order.append("refresh"),
+                     select_run=lambda p: order.append(("select", p)))
+    handler = dh.RunHistoryDropHandler("run_history")
+    assert handler.can_accept(tmp_path) is True
+    handler.apply(tmp_path, screen)
+    assert order == ["refresh", ("select", str(tmp_path))]
+    assert str(tmp_path) in screen.log
+
+
+def test_dropping_a_file_from_a_run_selects_the_run_folder_around_it(
+        tmp_path):
+    settings = _touch(tmp_path / "run_01" / "settings.csv")
+    seen = []
+    screen = _Screen(select_run=lambda p: seen.append(p))
+    dh.RunHistoryDropHandler("run_history").apply(settings, screen)
+    assert seen == [str(tmp_path / "run_01")]
+
+
+def test_a_run_that_is_not_in_the_history_says_where_to_look(tmp_path):
+    screen = _Screen(select_run=lambda p: False)
+    with pytest.raises(ValueError, match="clear the filters above"):
+        dh.RunHistoryDropHandler("run_history").apply(tmp_path, screen)
+
+
+# ---------------------------------------------------------------------------
+# Table screens
+# ---------------------------------------------------------------------------
+
+def test_a_database_with_one_table_is_read_without_asking(tmp_path):
+    db = _database(tmp_path / "measurements.db")
+    seen = []
+    screen = _Screen(load_path=lambda path, table=None: seen.append((path,
+                                                                      table)))
+    dh.TableDropHandler("tabulate").apply(db, screen)
+    assert seen == [(str(db), "png_list")]
+
+
+def test_a_database_with_several_tables_is_asked_about_rather_than_guessed(
+        tmp_path, picks):
+    """`load_path` takes the first one silently, which is fine for a file
+    dialog where the user chose the file and wrong for a dropped folder."""
+    db = _database(tmp_path / "measurements.db", ("cell", "nucleus", "png_list"))
+    asked = picks(lambda options: options[1])
+    seen = []
+    screen = _Screen(load_path=lambda path, table=None: seen.append(table))
+    dh.TableDropHandler("tabulate").apply(db, screen)
+    assert seen == ["nucleus"]
+    assert asked[0][2] == ["cell", "nucleus", "png_list"]
+    assert "3 tables" in asked[0][0]
+
+
+def test_cancelling_the_table_chooser_loads_nothing(tmp_path, picks):
+    db = _database(tmp_path / "measurements.db", ("cell", "png_list"))
+    picks(None)
+    seen = []
+    screen = _Screen(load_path=lambda path, table=None: seen.append(table))
+    dh.TableDropHandler("tabulate").apply(db, screen)
+    assert seen == []
+
+
+def test_a_csv_dropped_on_a_table_screen_is_read_with_no_table_name(tmp_path):
+    csv = _touch(tmp_path / "scores.csv", "a,b\n")
+    seen = []
+    screen = _Screen(load_path=lambda path, table=None: seen.append((path,
+                                                                      table)))
+    dh.TableDropHandler("tabulate").apply(csv, screen)
+    assert seen == [(str(csv), None)]
+
+
+def test_image_scatter_fills_its_path_field_then_opens_the_source(tmp_path):
+    db = _database(tmp_path / "measurements.db")
+    field = QLineEdit()
+    order = []
+    screen = _Screen(_db=field, open_source=lambda: order.append(field.text()))
+    dh.ScatterTableDropHandler("image_scatter").apply(db, screen)
+    assert order == [str(db)]
+
+
+def test_lineage_fills_its_path_field_then_loads(tmp_path):
+    db = _database(tmp_path / "measurements.db")
+    field = QLineEdit()
+    order = []
+    screen = _Screen(_db=field, load=lambda: order.append(field.text()))
+    dh.LineageDropHandler("lineage").apply(db, screen)
+    assert order == [str(db)]
+
+
+# ---------------------------------------------------------------------------
+# Regression results
+# ---------------------------------------------------------------------------
+
+def test_the_profiler_takes_the_only_coefficient_table_in_a_results_folder(
+        tmp_path, resolves):
+    folder = tmp_path / "results"
+    coefficients = _touch(folder / "coefficients.csv", "gene,beta\n")
+    resolves(_Resolution(targets=[_Target(str(folder), kind="regression-results")]))
+    seen = []
+    dh.CoefficientsDropHandler("profiler").apply(
+        folder, _Screen(load_coefficients=seen.append))
+    assert seen == [str(coefficients)]
+
+
+def test_the_profiler_asks_which_table_holds_the_coefficients(tmp_path,
+                                                                resolves, picks):
+    folder = tmp_path / "results"
+    _touch(folder / "a.csv", "gene,beta\n")
+    wanted = _touch(folder / "b.csv", "gene,beta\n")
+    resolves(_Resolution(targets=[_Target(str(folder), kind="regression-results")]))
+    asked = picks(lambda options: str(wanted))
+    seen = []
+    dh.CoefficientsDropHandler("profiler").apply(
+        folder, _Screen(load_coefficients=seen.append))
+    assert seen == [str(wanted)]
+    assert "holds the coefficients" in asked[0][1]
+
+
+def test_cancelling_the_coefficient_chooser_loads_nothing(tmp_path, resolves,
+                                                            picks):
+    folder = tmp_path / "results"
+    _touch(folder / "a.csv")
+    _touch(folder / "b.csv")
+    resolves(_Resolution(targets=[_Target(str(folder), kind="regression-results")]))
+    picks(None)
+    seen = []
+    dh.CoefficientsDropHandler("profiler").apply(
+        folder, _Screen(load_coefficients=seen.append))
+    assert seen == []
+
+
+def test_a_results_folder_with_no_coefficient_table_is_refused_by_name(
+        tmp_path, resolves):
+    folder = tmp_path / "results"
+    folder.mkdir()
+    resolves(_Resolution(targets=[_Target(str(folder), kind="regression-results")]))
+    with pytest.raises(ValueError, match="No coefficient CSV"):
+        dh.CoefficientsDropHandler("profiler").apply(
+            folder, _Screen(load_coefficients=lambda p: None))
+
+
+def test_the_hit_list_takes_the_folder_a_dropped_results_file_sits_in(
+        tmp_path, resolves):
+    folder = tmp_path / "results"
+    table = _touch(folder / "hits.csv")
+    resolves(_Resolution(targets=[_Target(str(table), kind="regression-results")]))
+    seen = []
+    dh.ResultsFolderDropHandler("hit_list").apply(
+        folder, _Screen(load_folder=seen.append))
+    assert seen == [str(folder)]
+
+
+# ---------------------------------------------------------------------------
+# Mask and layer screens
+# ---------------------------------------------------------------------------
+
+def test_a_masks_folder_with_one_mask_opens_it_without_asking(tmp_path,
+                                                                resolves):
+    masks = tmp_path / "masks"
+    mask = _touch(masks / "cell.tif")
+    resolves(_Resolution(targets=[_Target(str(masks), kind="masks")]))
+    seen = []
+    dh.LabelMaskDropHandler("curate").apply(
+        tmp_path, _Screen(set_paths=lambda mask=None: seen.append(mask)))
+    assert seen == [str(mask)]
+
+
+def test_a_masks_folder_with_several_masks_asks_which_one(tmp_path, resolves,
+                                                            picks):
+    """A folder of masks is not one mask."""
+    masks = tmp_path / "masks"
+    _touch(masks / "a.tif")
+    wanted = _touch(masks / "b.tif")
+    resolves(_Resolution(targets=[_Target(str(masks), kind="masks")]))
+    asked = picks(lambda options: str(wanted))
+    seen = []
+    dh.LabelMaskDropHandler("curate").apply(
+        tmp_path, _Screen(set_paths=lambda mask=None: seen.append(mask)))
+    assert seen == [str(wanted)]
+    assert "2 masks" in asked[0][0]
+
+
+def test_cancelling_the_mask_chooser_opens_nothing(tmp_path, resolves, picks):
+    masks = tmp_path / "masks"
+    _touch(masks / "a.tif")
+    _touch(masks / "b.tif")
+    resolves(_Resolution(targets=[_Target(str(masks), kind="masks")]))
+    picks(None)
+    seen = []
+    dh.LabelMaskDropHandler("curate").apply(
+        tmp_path, _Screen(set_paths=lambda mask=None: seen.append(mask)))
+    assert seen == []
+
+
+def test_a_masks_folder_holding_no_masks_is_refused_by_name(tmp_path,
+                                                              resolves):
+    masks = tmp_path / "masks"
+    masks.mkdir()
+    resolves(_Resolution(targets=[_Target(str(masks), kind="masks")]))
+    with pytest.raises(ValueError, match="No label mask was found"):
+        dh.LabelMaskDropHandler("curate").apply(
+            tmp_path, _Screen(set_paths=lambda mask=None: None))
+
+
+def test_a_screen_with_a_mask_field_gets_the_path_and_the_open(tmp_path,
+                                                                 resolves):
+    masks = tmp_path / "masks"
+    mask = _touch(masks / "cell.npy")
+    resolves(_Resolution(targets=[_Target(str(masks), kind="masks")]))
+    field = QLineEdit()
+    order = []
+    screen = _Screen(_mask_edit=field,
+                     open_mask=lambda: order.append(field.text()))
+    dh.LabelMaskDropHandler("napari_bridge").apply(tmp_path, screen)
+    assert order == [str(mask)]
+
+
+def test_the_layer_viewer_adds_a_mask_as_labels_and_an_image_as_an_image(
+        tmp_path, resolves):
+    """A viewer stacks layers, so what a file IS decides which call it gets."""
+    handler = dh.LayerStackDropHandler("layer_viewer")
+    assert handler.accepts_multiple() is True
+    labels, images = [], []
+    screen = _Screen(add_labels_file=labels.append,
+                      add_image_file=images.append)
+    mask = _touch(tmp_path / "masks" / "cell.tif")
+    handler.deliver(screen, str(mask), None)
+    image = _touch(tmp_path / "fields" / "a.tif")
+    handler.deliver(screen, str(image), None)
+    assert labels == [str(mask)]
+    assert images == [str(image)]
+
+
+def test_the_layer_viewer_adds_nothing_when_the_chooser_is_cancelled(
+        tmp_path, picks):
+    masks = tmp_path / "masks"
+    _touch(masks / "a.tif")
+    _touch(masks / "b.tif")
+    picks(None)
+    labels = []
+    screen = _Screen(add_labels_file=labels.append, add_image_file=lambda p: None)
+    dh.LayerStackDropHandler("layer_viewer").deliver(screen, str(masks), None)
+    assert labels == []
+
+
+# ---------------------------------------------------------------------------
+# Methods & Results, Classifier Evaluation, Distributed Jobs
+# ---------------------------------------------------------------------------
+
+def test_methods_and_results_files_a_checkpoint_a_results_folder_and_a_project(
+        tmp_path, resolves):
+    handler = dh.MethodsSourcesDropHandler("methods_export")
+    assert handler.accepts_multiple() is True
+    assert handler.can_accept(tmp_path) is True
+    fields = {"model": QLineEdit(), "results": QLineEdit(),
+              "project": QLineEdit()}
+    screen = _Screen(_fields=fields)
+    model = _touch(tmp_path / "best.pth")
+    handler.apply(model, screen)
+    assert fields["model"].text() == str(model)
+    results = tmp_path / "results"
+    results.mkdir()
+    handler.apply(results, screen)
+    assert fields["results"].text() == str(results)
+    resolves(_Resolution(targets=[_Target(str(tmp_path))], root=str(tmp_path)))
+    plate = tmp_path / "plate"
+    plate.mkdir()
+    handler.apply(plate, screen)
+    assert fields["project"].text() == str(tmp_path)
+
+
+def test_methods_and_results_falls_back_to_the_dropped_path_when_unresolved(
+        tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        dh._ch, "resolve_drop",
+        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("no ports")))
+    fields = {"project": QLineEdit()}
+    dh.MethodsSourcesDropHandler("methods_export").apply(
+        tmp_path, _Screen(_fields=fields))
+    assert fields["project"].text() == str(tmp_path)
+
+
+def test_methods_and_results_says_when_it_has_no_field_for_a_drop(tmp_path,
+                                                                    resolves):
+    resolves(_Resolution(targets=[_Target(str(tmp_path))], root=str(tmp_path)))
+    with pytest.raises(TypeError, match="no field for this drop"):
+        dh.MethodsSourcesDropHandler("methods_export").apply(
+            tmp_path, _Screen(_fields={}))
+
+
+def test_classifier_evaluation_takes_the_run_folder_a_bundle_file_sits_in(
+        tmp_path, resolves):
+    resolves(_Resolution())
+    field = QLineEdit()
+    order = []
+    screen = _Screen(_source=field, scan=lambda: order.append(field.text()))
+    handler = dh.EvaluationBundleDropHandler("classifier_evaluation")
+    bundle = _touch(tmp_path / "run_01" / "evaluation.json", "{}")
+    assert handler.can_accept(bundle) is True
+    handler.apply(bundle, screen)
+    assert order == [str(tmp_path / "run_01")]
+    assert str(tmp_path / "run_01") in screen.log
+
+
+def test_classifier_evaluation_prefers_the_resolved_run_folder(tmp_path,
+                                                                 resolves):
+    resolves(_Resolution(targets=[_Target("/registered/run",
+                                           kind="model-weights")]))
+    field = QLineEdit()
+    screen = _Screen(_source=field, scan=lambda: None)
+    dh.EvaluationBundleDropHandler("classifier_evaluation").apply(tmp_path,
+                                                                   screen)
+    assert field.text() == "/registered/run"
+
+
+def test_distributed_jobs_takes_the_only_snapshot_in_a_plate_folder(tmp_path):
+    plate = tmp_path / "plate"
+    snapshot = _touch(plate / "settings" / "measure_settings.csv", "Key,Value\n")
+    field = QLineEdit()
+
+    class _Module:
+        text = ""
+
+        def setCurrentText(self, value):
+            _Module.text = value
+
+    screen = _Screen(_settings_path=field, _module=_Module())
+    handler = dh.SubmissionSettingsDropHandler("distributed_jobs")
+    assert handler.can_accept(plate) is True
+    handler.apply(plate, screen)
+    assert field.text() == str(snapshot)
+    assert _Module.text == "measure"
+
+
+def test_distributed_jobs_asks_which_snapshot_to_submit(tmp_path, picks):
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "mask_settings.csv", "Key,Value\n")
+    wanted = _touch(plate / "settings" / "measure_settings.csv", "Key,Value\n")
+    asked = picks(lambda options: str(wanted))
+    field = QLineEdit()
+    dh.SubmissionSettingsDropHandler("distributed_jobs").apply(
+        plate, _Screen(_settings_path=field))
+    assert field.text() == str(wanted)
+    assert "should be submitted" in asked[0][1]
+
+
+def test_cancelling_the_snapshot_chooser_submits_nothing(tmp_path, picks):
+    plate = tmp_path / "plate"
+    _touch(plate / "settings" / "a_settings.csv")
+    _touch(plate / "settings" / "b_settings.csv")
+    picks(None)
+    field = QLineEdit()
+    dh.SubmissionSettingsDropHandler("distributed_jobs").apply(
+        plate, _Screen(_settings_path=field))
+    assert field.text() == ""
+
+
+def test_distributed_jobs_says_what_a_settings_snapshot_looks_like(tmp_path):
+    handler = dh.SubmissionSettingsDropHandler("distributed_jobs")
+    assert "settings/*.csv" in handler.error_message(tmp_path)
+    empty = tmp_path / "plate"
+    empty.mkdir()
+    with pytest.raises(ValueError, match="No settings snapshot"):
+        handler.apply(empty, _Screen(_settings_path=QLineEdit()))
+
+
+# ---------------------------------------------------------------------------
+# The registry
+# ---------------------------------------------------------------------------
+
+def test_a_plugin_can_supply_its_own_drop_handler(monkeypatch):
+    import spacr.plugins as plugins
+
+    class _PluginHandler(dh.DropHandler):
+        def can_accept(self, path):
+            return True
+
+        def error_message(self, path):
+            return ""
+
+        def apply(self, path, screen):
+            pass
+
+    monkeypatch.setattr(plugins, "get_app",
+                        lambda key: type("A", (), {"drop_handler": "x:y"})())
+    monkeypatch.setattr(plugins, "load_object", lambda ref: _PluginHandler)
+    assert isinstance(dh.get_handler("my_plugin"), _PluginHandler)
+
+
+def test_a_plugin_offering_something_that_is_not_a_drop_handler_is_recorded(
+        monkeypatch):
+    """A plugin that names the wrong class must not take the screen down,
+    and must not be silent either -- the diagnostic is how the author finds
+    out."""
+    import spacr.plugins as plugins
+    monkeypatch.setattr(plugins, "get_app",
+                        lambda key: type("A", (), {"drop_handler": "x:y"})())
+    monkeypatch.setattr(plugins, "load_object", lambda ref: dict)
+    recorded = []
+    monkeypatch.setattr(plugins, "record_diagnostic",
+                        lambda key, message, exc: recorded.append((key, message)))
+    handler = dh.get_handler("my_plugin")
+    assert isinstance(handler, dh.SourceDropHandler)
+    assert recorded and recorded[0][0] == "my_plugin"
+
+
+def test_a_diagnostic_that_cannot_be_recorded_still_leaves_a_usable_handler(
+        monkeypatch):
+    import spacr.plugins as plugins
+    monkeypatch.setattr(
+        plugins, "get_app",
+        lambda key: (_ for _ in ()).throw(RuntimeError("plugin registry down")))
+    monkeypatch.setattr(
+        plugins, "record_diagnostic",
+        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("also down")))
+    assert isinstance(dh.get_handler("my_plugin"), dh.SourceDropHandler)
+
+
+def test_a_plugin_supplying_a_layout_handler_is_told_which_module_it_is_on(
+        monkeypatch):
+    """Layout handlers resolve against the module they are installed on, so
+    a plugin's one has to be constructed with its key like the built-ins."""
+    import spacr.plugins as plugins
+
+    class _PluginLayout(dh.LayoutDropHandler):
+        def deliver(self, screen, value, target):
+            pass
+
+    monkeypatch.setattr(plugins, "get_app",
+                        lambda key: type("A", (), {"drop_handler": "x:y"})())
+    monkeypatch.setattr(plugins, "load_object", lambda ref: _PluginLayout)
+    handler = dh.get_handler("my_plugin")
+    assert isinstance(handler, _PluginLayout)
+    assert handler.app_key == "my_plugin"
