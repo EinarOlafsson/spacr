@@ -1774,6 +1774,16 @@ class GateCanvas(GraphCanvas):
         columns = {"x": spec.x, "y": spec.y, "z": self._z_column}
         if not all(columns.values()):
             return None
+        # A plane and the normal it is extended along are THREE measurements.
+        # The pickers are filled from one column list with nothing excluded,
+        # so a user can name the same one twice -- and this used to hand back
+        # a triple with a repeat in it, ('a', 'b', 'a'), which every caller
+        # then went wrong on in its own way. The aura was the visible one:
+        # its `order` map is keyed by column name, so the repeat collapsed it
+        # and every corner of the quad kept a None in the slot nothing filled.
+        # All three callers already treat None as "no plane is armed".
+        if len(set(columns.values())) != 3:
+            return None
         normal_axis = self.anchor_axis()
         normal = columns[normal_axis]
         plane = [columns[a] for a in ("x", "y", "z") if a != normal_axis]
@@ -1794,12 +1804,16 @@ class GateCanvas(GraphCanvas):
         axis_of = {spec.x: "x", spec.y: "y", self._z_column: "z"}
         limits = {"x": ax.get_xlim3d(), "y": ax.get_ylim3d(),
                   "z": ax.get_zlim3d()}
-        try:
-            u0, u1 = limits[axis_of[first]]
-            v0, v1 = limits[axis_of[second]]
-            far = limits[axis_of[normal]][0]
-        except KeyError:
-            return
+        # No KeyError is possible here and the handler that used to be around
+        # this block never ran. `anchor_plane` builds first/second/normal from
+        # exactly `spec.x`, `spec.y` and `self._z_column`, returns None if any
+        # is blank, and now returns None unless the three are DISTINCT -- so
+        # `axis_of` has an entry for each of them. Its values are 'x'/'y'/'z',
+        # which are exactly the keys of `limits`. Deleted rather than excluded
+        # from coverage: a branch that cannot be reached is dead code.
+        u0, u1 = limits[axis_of[first]]
+        v0, v1 = limits[axis_of[second]]
+        far = limits[axis_of[normal]][0]
         order = {spec.x: 0, spec.y: 1, self._z_column: 2}
         corners = []
         for pu, pv in ((u0, v0), (u1, v0), (u1, v1), (u0, v1)):

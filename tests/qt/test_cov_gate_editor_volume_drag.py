@@ -785,3 +785,38 @@ def test_the_same_measurement_on_two_axes_refuses_the_sweep(canvas, volume):
     assert canvas._volume_motion(_Event(40.0, 50.0)) is True
     assert volume.drawn == [], "nothing can be previewed through no depth"
     assert canvas._gate_from_volume_drag(_Event(40.0, 50.0)) is None
+
+
+def test_the_same_measurement_on_two_axes_arms_no_plane_to_draw_on(canvas):
+    """The other half of the duplicate-axis fault, and the root of both.
+
+    A plane and the normal it is extended along are THREE measurements. When
+    two of the pickers name the same one there is no such plane, and
+    `anchor_plane` used to hand back a triple with a repeat in it --
+    ('a', 'b', 'a'). Every caller then went wrong in its own way. The aura
+    was the visible one: `order` is keyed by column name, so the repeat
+    collapsed it to two entries and every corner of the quad kept a None in
+    the slot nothing had filled --
+
+        [[None, 0, 0], [None, 0, 0], [None, 20, 0], [None, 20, 0]]
+
+    -- which is not a shape any renderer can draw. All three callers already
+    handle None, which is what "there is no anchor plane" means.
+    """
+    from dataclasses import replace
+    canvas.set_mode("3D", z_column="a")
+    canvas._spec = replace(canvas._spec, x="a", y="b")
+    canvas.set_anchor_axis("z")
+
+    assert canvas.anchor_plane() is None, (
+        "three axes showing two measurements do not make a plane")
+
+
+def test_three_distinct_measurements_still_arm_their_plane(canvas):
+    """The fix must not cost the ordinary case."""
+    from dataclasses import replace
+    canvas.set_mode("3D", z_column="c")
+    canvas._spec = replace(canvas._spec, x="a", y="b")
+    canvas.set_anchor_axis("z")
+
+    assert canvas.anchor_plane() == ("a", "b", "c")
