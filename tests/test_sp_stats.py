@@ -52,6 +52,45 @@ def test_levene_detects_unequal_variance(rng):
     assert p < 0.05, f"expected sig. Levene p-value, got {p}"
 
 
+def test_levene_is_the_median_centred_form(rng):
+    """Brown-Forsythe, not scipy's mean-centred default.
+
+    Changed on 2026-08-17 (instruction 127, finding 2) when this function
+    became a call into spacr.figures.stats. The median-centred form is the
+    robust one, and it is the right choice precisely when normality is in
+    question -- which is every time this is called, because it is called
+    before anyone knows.
+    """
+    from scipy.stats import levene
+
+    a, b = rng.exponential(1, 40), rng.exponential(4, 40)
+    df = pd.DataFrame({"group": ["a"] * 40 + ["b"] * 40,
+                       "x": np.concatenate([a, b])})
+    stat, p = ST.perform_levene_test(df, "group", "x")
+
+    assert stat == pytest.approx(levene(a, b, center="median").statistic,
+                                 rel=1e-12)
+    assert stat != pytest.approx(levene(a, b, center="mean").statistic,
+                                 rel=1e-6)
+
+
+def test_levene_says_nan_rather_than_a_number_it_cannot_support(rng):
+    """Three wells per arm cannot support a variance test, so it declines.
+
+    Changed on 2026-08-17 with the rest of instruction 127 finding 2. Levene
+    on n=3 has almost no power, so "p = 0.7, variances are equal" really means
+    "we could not tell" -- and that number used to be printed and written into
+    variance_results.csv as though it settled the question.
+    """
+    df = pd.DataFrame({
+        "group": ["a"] * 3 + ["b"] * 24,
+        "x": np.concatenate([rng.normal(0, 1, 3), rng.normal(0, 6, 24)]),
+    })
+    stat, p = ST.perform_levene_test(df, "group", "x")
+    assert np.isnan(stat)
+    assert np.isnan(p)
+
+
 # ---------------------------------------------------------------------------
 # perform_normality_tests — smoke: returns a list; handles tiny groups.
 # ---------------------------------------------------------------------------
