@@ -4702,8 +4702,10 @@ def _infection_qc_pca_clustering(
     # keep settings in sync so downstream code can use this if needed
     settings["infection_pca_method"] = embed_method
 
-    if embed_method not in {"pca", "umap", "tsne"}:
-        embed_method = "pca"
+    # A second `if embed_method not in {"pca", "umap", "tsne"}: embed_method =
+    # "pca"` stood here and could not run: the branch above assigns either
+    # `strategy`, which is in that set, or the literal "pca". It was removed
+    # rather than excluded from coverage.
 
     key_cols = ["plateID", "wellID", "fieldID", "cellID"]
     for col in key_cols:
@@ -4738,6 +4740,25 @@ def _infection_qc_pca_clustering(
         )
         return all_df, infection_col
 
+    # The infection call cannot also be a grouping key or a feature. Both make
+    # `cols_for_group` name one column twice, so `all_df[cols_for_group]` is a
+    # frame with a duplicated column and every later `cell_level[c]` is a
+    # DataFrame rather than a Series. Measured before this guard existed: a
+    # forty-row table with infection_col='cell_area' died sixty lines further
+    # down on `if s.notna().sum() < 10:` with "The truth value of a Series is
+    # ambiguous", and infection_col='cellID' died in `groupby` with "Grouper
+    # for 'cellID' not 1-dimensional". Neither message names the setting that
+    # caused it. This module skips rather than raises everywhere else, so it
+    # skips here too.
+    if infection_col in key_cols or infection_col in numeric_cols:
+        role = "a grouping key" if infection_col in key_cols else "a cell_* feature"
+        print(
+            f"[infection_intensity_qc:PCA] infection_col {infection_col!r} is also "
+            f"{role}; it cannot be both the call and what the call is made from. "
+            "Skipping embedding QC."
+        )
+        return all_df, infection_col
+
     cols_for_group = key_cols + numeric_cols + [infection_col]
     tmp = all_df[cols_for_group].copy()
     tmp.replace([np.inf, -np.inf], np.nan, inplace=True)
@@ -4752,19 +4773,16 @@ def _infection_qc_pca_clustering(
     # below assumes cell_level is row-aligned with the arrays it builds from it.
     cell_level = cell_level.merge(inf_any, on=key_cols, how="left", suffixes=("", "_y"), validate="one_to_one")
 
-    if infection_col not in cell_level.columns:
-        for cand in (f"{infection_col}_y", f"{infection_col}_x"):
-            if cand in cell_level.columns:
-                cell_level[infection_col] = cell_level[cand]
-                break
-
-    if infection_col not in cell_level.columns:
-        print(
-            f"[infection_intensity_qc:PCA] Could not recover infection_col={infection_col!r} "
-            "after aggregation; skipping embedding QC."
-        )
-        return all_df, infection_col
-
+    # A recovery block stood here -- `if infection_col not in
+    # cell_level.columns:` followed by a hunt through `<col>_y` and `<col>_x`
+    # and a second skip -- and no input could reach it. `inf_any` is
+    # `group[infection_col].max()`, so it always carries the column; the guard
+    # above has already refused the two cases where the left side could carry
+    # it as well and the suffix could move it; and `suffixes=("", "_y")` can
+    # never mint an `_x` at all. It was removed rather than excluded from
+    # coverage. `test_the_infection_call_cannot_be_a_feature_as_well` and its
+    # sibling assert the guard that makes it dead, so if the invariant stops
+    # holding a test says so.
     cell_level[infection_col] = cell_level[infection_col].fillna(0).astype(bool)
 
     # ------------------------------------------------------------------
