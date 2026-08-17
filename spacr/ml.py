@@ -1333,6 +1333,29 @@ REGRESSION_SETTINGS_USED = {
 RUN_LEVEL_SETTINGS = ('lasso_n_boot', 'lasso_selection_threshold',
                       'hinge_n_boot')
 
+#: The six knobs that reach the estimator, and the value of each that means
+#: "not asked for". Comparing against these is what lets a GUI post every
+#: widget on the panel without every widget counting as a request.
+#:
+#: A MODULE CONSTANT because two things now depend on it and they must not
+#: drift apart: :func:`regression_model` REFUSES a knob the chosen backend
+#: cannot read, and :mod:`spacr.refit` RESETS those knobs when the user
+#: switches backend from the plot. If the reset table were a second copy,
+#: re-fitting lasso -> ols would carry ``alpha`` across and raise the very
+#: error the reset exists to prevent.
+_MODEL_LEVEL_DEFAULTS = {
+    # 'auto' and None mean "no penalty chosen, cross-validate it", which is
+    # not a value an unpenalised model is being asked to honour, so they
+    # count as the default rather than as a request. Handled at the call
+    # site, which is the only place that knows `alpha` was spelled that way.
+    'alpha': 1.0,
+    'l1_ratio': 0.5,
+    'cov_type': None,
+    'quantile': 0.5,
+    'hinge_threshold': None,
+    'huber_t': 1.345,
+}
+
 #: Backends that report a coefficient but no frequentist p-value, so
 #: ``p_value <= 0.05`` is not a hit rule for them. :func:`perform_regression`
 #: ranks these by bootstrap selection frequency instead.
@@ -1558,17 +1581,20 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     y_flat = np.asarray(y, dtype=float).reshape(-1)
     use_auto_alpha = alpha is None or (isinstance(alpha, str) and alpha == 'auto')
 
-    _reject_unused_settings(regression_type, {
+    supplied = {
         # 'auto' and None mean "no penalty chosen, cross-validate it", which
         # is not a value an unpenalised model is being asked to honour, so
         # they count as the default here rather than as a request.
-        'alpha': (1.0 if use_auto_alpha else alpha, 1.0),
-        'l1_ratio': (l1_ratio, 0.5),
-        'cov_type': (cov_type, None),
-        'quantile': (quantile, 0.5),
-        'hinge_threshold': (hinge_threshold, None),
-        'huber_t': (huber_t, 1.345),
-    })
+        'alpha': 1.0 if use_auto_alpha else alpha,
+        'l1_ratio': l1_ratio,
+        'cov_type': cov_type,
+        'quantile': quantile,
+        'hinge_threshold': hinge_threshold,
+        'huber_t': huber_t,
+    }
+    _reject_unused_settings(regression_type, {
+        name: (supplied[name], default)
+        for name, default in _MODEL_LEVEL_DEFAULTS.items()})
 
     def _find_best_alpha(model_cls):
         alphas = np.logspace(-5, 5, 100)
@@ -4596,7 +4622,14 @@ def perform_regression(settings):
               'model': model,
               'model_data': merged_df,
               'regression_type': regression_type,
-              'res_folder': res_folder}
+              'res_folder': res_folder,
+              # THE SETTINGS THAT PRODUCED IT, so a caller offering to re-fit
+              # the same screen through a different model has the run's own
+              # dict rather than a file. The saved copy under settings/ is
+              # overwritten by every later run of the same screen, so on a
+              # second run it describes the wrong one. Copied, because the
+              # caller is a GUI and this dict is still being read here.
+              'settings': dict(settings)}
 
     return output
 
