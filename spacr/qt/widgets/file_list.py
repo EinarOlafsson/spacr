@@ -341,10 +341,10 @@ class FilePathListWidget(QWidget):
     That distinction is not cosmetic. ``grna_csv``, ``row_csv`` and
     ``column_csv`` are declared ``str`` and go straight to ``pd.read_csv``,
     so rendering them as a list turned a working default into
-    ``['/path/to/barcodes_row.csv']``: the settings file was rewritten the
-    moment the screen was opened and saved, and the run died on "Invalid file
-    path or buffer object type: <class 'list'>" only once it had started
-    reading FASTQs.
+    ``['/path/to/barcodes_row.csv']`` the moment the screen was opened and
+    saved. Every run from that file was then refused by the pre-flight --
+    "column_csv=[...] is a list, but str is expected" -- against a value the
+    user had never typed and could not correct from the panel that wrote it.
     """
 
     value_changed = Signal()
