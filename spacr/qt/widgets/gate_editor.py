@@ -1525,8 +1525,16 @@ class GateCanvas(GraphCanvas):
         limits = {"x": ax.get_xlim3d(), "y": ax.get_ylim3d(),
                   "z": ax.get_zlim3d()}
         spec = self._spec
-        depth_column = next(c for c in (spec.x, spec.y, self._z_column)
-                            if c not in (first, second))
+        depth_column = next((c for c in (spec.x, spec.y, self._z_column)
+                             if c not in (first, second)), "")
+        if not depth_column:
+            # Two of the three axes are showing the SAME measurement -- which
+            # the pickers allow, being filled from one column list with
+            # nothing excluded -- so there is no third axis to extend the
+            # footprint through and no rectangle to preview. Refused the way
+            # close_polygon already refuses it, rather than raising
+            # StopIteration out of a handler that runs on every motion event.
+            return
         depth = limits[{spec.x: "x", spec.y: "y",
                         self._z_column: "z"}[depth_column]]
         palette = active_palette()
@@ -1566,8 +1574,13 @@ class GateCanvas(GraphCanvas):
             return None
 
         spec = self._spec
-        depth_column = next(c for c in (spec.x, spec.y, self._z_column)
-                            if c not in (first, second))
+        depth_column = next((c for c in (spec.x, spec.y, self._z_column)
+                             if c not in (first, second)), "")
+        if not depth_column:
+            # The same measurement is on two of the three axes, so the drag
+            # describes no volume. Refused, like every other gesture the view
+            # cannot read, rather than raising out of the release handler.
+            return None
 
         # THE SHAPE DROPDOWN DECIDES, on the plane the user picked. The
         # depth bound comes from `pending_depth()` -- a slab the user drags
