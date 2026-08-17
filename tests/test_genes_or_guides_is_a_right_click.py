@@ -163,10 +163,25 @@ def test_a_new_table_is_not_still_filtered(qtbot):
 
 
 def test_the_run_s_own_table_is_not_filtered(qtbot):
-    """The coefficient table beside the plot still shows every row: the
-    filter is what the VOLCANO draws, not what the run produced."""
+    """The RUN's table keeps every row: the filter is a view, not an edit.
+
+    CONTRACT CORRECTED 2026-08-17, instruction 128 L. This test used to read
+    "the coefficient table beside the plot still shows every row", which was
+    true when the filter reached the volcano and nothing else. The maintainer
+    asked for the opposite -- "i should be able to right click on the
+    coeffisients table and only see grna or genes and this should also filer
+    the subsequent data/graphs in the subsequent tabs" -- so the TABLE now
+    narrows with the plot; see
+    tests/test_the_gene_guide_filter_reaches_every_tab.py.
+
+    What survives, and is what this test was really protecting, is that the
+    run's own frame is never edited: a caller exporting the results gets the
+    fit rather than whatever the user last right-clicked.
+    """
     panel = _panel(qtbot)
     before = len(panel._frame)
     panel.set_level("gene")
 
     assert len(panel._frame) == before
+    assert len(panel.results_frame()) == before
+    assert len(panel.filtered_frame()) == GENES
