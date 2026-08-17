@@ -1366,11 +1366,28 @@ class VolcanoPlot(FastPlot):
 
             categorical = _pd.Categorical(frame[category_column].astype(str))
             names = list(categorical.categories)
-            legend = {name: colour_for(i) for i, name in enumerate(names)}
-            palette = [pg.mkBrush(legend[name]) for name in names]
+            palette = [pg.mkBrush(colour_for(i)) for i, _ in enumerate(names)]
             unknown = pg.mkBrush(colour_for(0))
             brush_list = [palette[c] if c >= 0 else unknown
                           for c in categorical.codes]
+
+            # THE COUNT BESIDE EACH LABEL. Asked for 2026-08-17: "beside the
+            # label on the graph should be the count of each label".
+            #
+            # It is not decoration on a screen. `nc` and `pc` are three and
+            # twenty-four points among twelve hundred, and a legend that
+            # names them without saying so invites reading a two-point
+            # cluster as a group -- the same reason the compartment legend
+            # and the gene/guide menu already carry theirs.
+            #
+            # Counted with np.bincount over the CODES, not by grouping the
+            # frame: this path exists because a Python loop over 1,215 pandas
+            # values cost 45 ms of a 48 ms redraw, and a value_counts here
+            # would put a chunk of that straight back.
+            counts = np.bincount(categorical.codes[categorical.codes >= 0],
+                                 minlength=len(names))
+            legend = {f"{name} ({int(counts[i])})": colour_for(i)
+                      for i, name in enumerate(names)}
 
         # NO PER-POINT WORK BEFORE DRAWING.
         #
@@ -2093,7 +2110,15 @@ class ControlSeparation(GroupedPlot):
             median = float(np.median(v[finite]))
             summary.append(f"{name} n={len(finite)} median={median:.3g}")
         axis = self.plot.getAxis("bottom")
-        axis.setTicks([[(i, name) for i, name in enumerate(groups)]])
+        # THE COUNT BESIDE THE LABEL, not only in the note below the plot.
+        # Asked for 2026-08-17. "pc" and "nc" are three and twenty-four
+        # points, and a label that does not say so lets a three-point group
+        # be read as a group -- which is the same reason the mark advice
+        # exists. Taken from the SAME `sizes` the note and the advice use, so
+        # the axis cannot disagree with the sentence under it.
+        axis.setTicks([[(i, f"{name}\n(n={size})")
+                        for i, (name, size) in enumerate(
+                            zip(groups, self.group_sizes()))]])
         note = "   ".join(summary) if summary else "No control values."
         if self._has_usable_keys() and summary and self._mark in ("points",
                                                                   "jitter"):

@@ -536,10 +536,20 @@ def control_separation(ax, frame) -> Panel:
                   colors=colour, linewidth=1.4, zorder=2)
     reference_line(ax, y=0.0)
     ax.set_xticks(range(len(labels)))
-    ax.set_xticklabels(labels)
+    # THE COUNT BESIDE THE LABEL. It was in the annotation below the panel
+    # and the axis said only "pc" -- so the reader had to carry three numbers
+    # from one line to another to know that one of these groups is three
+    # points. Same request, same fix, as the interactive plot; the two must
+    # not disagree about what they show.
+    ax.set_xticklabels([f"{label}\n(n={len(g)})"
+                        for label, g in zip(labels, groups)])
     ax.set_ylabel("effect size")
-    annotate(ax, "  ".join(f"{label} n={len(g)}"
-                           for label, g in zip(labels, groups)))
+    # The annotation keeps what the axis cannot: the MEDIAN of each group,
+    # which is the number the panel is actually comparing.
+    annotate(ax, "  ".join(
+        f"{label} median={float(np.median(g[np.isfinite(g)])):.3g}"
+        for label, g in zip(labels, groups)
+        if np.isfinite(g).any()))
     return Panel("controls", "control separation",
                  caption=("Effect size by control class. Points are "
                           "individual coefficients, the bar is the median. "
