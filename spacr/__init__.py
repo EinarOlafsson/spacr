@@ -201,6 +201,9 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    # Which regression backends exist and which settings each one reads.
+    # Pure data; imports NOTHING, which is why it is not part of ml.
+    "regression_spec",
     # Building the settings for a second run of the same screen through a
     # different model. No Qt: the GUI offers the gesture, but what a re-fit
     # is allowed to change is a question about the fit, not about a menu.
