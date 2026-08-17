@@ -143,13 +143,21 @@ def test_a_scanner_with_no_runner_shuts_down_quietly():
 def test_a_runner_whose_c_half_went_first_does_not_block_the_close():
     """Qt aborts if a running QThread is destroyed, so shutdown is the one
     thing that must not raise on its way out."""
+    asked = []
+
     class _DeadRunner:
         def shutdown(self):
+            asked.append(1)
+            raise RuntimeError("Internal C++ object already deleted")
+
+        def is_busy(self):
             raise RuntimeError("Internal C++ object already deleted")
 
     scanner = dh._DropScanner(_Screen())
     scanner._runner = _DeadRunner()
     scanner.shutdown()
+    # It really tried, and the dead runner's refusal did not escape.
+    assert asked == [1]
 
 
 def test_a_scan_that_finishes_after_its_screen_closed_reports_nothing():
