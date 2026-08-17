@@ -13537,10 +13537,13 @@
     },
     "spacr.guide_permutation.plot_guide_permutation_volcano": {
       "source_blocks_sha256": [
-        "fbac2cd49484106df3c2dc4a8e92b5bcfbf9eb0c41f0873bc5cb71ba97d31e28"
+        "fbac2cd49484106df3c2dc4a8e92b5bcfbf9eb0c41f0873bc5cb71ba97d31e28",
+        "df46b7dcc271e8637ec1e51d3552ebe20876b411eac389d75af9ce022a6bf9c7",
+        "f958aa381d83d76adfa55a35b941053d91a9a1123354c217e73025ee0d356de4",
+        "9956efef3d6241b31558f4774a77409c7f7a4b9fb0584bd2c2de7c983ec5edba"
       ],
-      "source_sha256": "fbac2cd49484106df3c2dc4a8e92b5bcfbf9eb0c41f0873bc5cb71ba97d31e28",
-      "text": "Draw a volcano using standardized effect and adjusted P value."
+      "source_sha256": "62447b8e82860cc23aa03a8e5c2e56b491bb448b072a80d2be20286f02023693",
+      "text": "Draw a volcano using standardized effect and adjusted P value.\n\n:param effect_threshold: half-width of the effect-size cut, drawn as a\n    pair of vertical lines at ``-threshold`` and ``+threshold``. ``None``\n    -- and any non-finite or non-positive number -- draws none, because a\n    cut at zero excludes nothing and a line at zero is the axis that is\n    already there.\n\n    A permutation run drew no cut at all until 2026-08-17, on the reading\n    that an empirical P value makes the question moot. It does not: a P\n    value says an effect is distinguishable from zero and this line says\n    it is big enough to follow up, and the second question is about the\n    coefficient however the first was answered. Asked by the maintainer\n    as \"why cant i see the coefficient threshold if im running\n    nonparametric regression?\".\n:param effect_threshold_label: the sentence that attributes the cut, e.g.\n    ``3x std of 30 controls = 0.84``, for the legend.\n    :func:`spacr.thresholds.coefficient_threshold` returns it beside the\n    number. Falls back to the number alone."
     },
     "spacr.guide_permutation.prepare_long_guide_data": {
       "source_blocks_sha256": [
@@ -19164,6 +19167,21 @@
       "source_sha256": "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606",
       "text": "Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.\n\nMerges per-object measurements from ``measurements.db`` with a CSV of\npredicted scores, runs any combination of RF feature importance,\npermutation importance and SHAP over the top features, then\naggregates SHAP contributions into compartment and channel radar\nplots so you can see which region (cell / nucleus / pathogen /\ncytoplasm) and which fluorescence channel drives the model.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_interpret_vision_model_defaults`.\n    Key entries:\n\n    - ``src`` — folder containing ``measurements/measurements.db``.\n    - ``scores`` — CSV of per-object predictions to explain.\n    - ``score_column`` — column of ``scores`` holding the score.\n    - ``tables`` — DB tables to merge (default\n      ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap``\n      — enable each explainer.\n    - ``top_features`` — cap on features shown.\n    - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps.\n    - ``n_jobs``, ``save``.\n\n:returns: The merged per-object DataFrame — the measurement tables\n    joined to the scores CSV — that the explainers were fitted on.\n    Radar and importance plots are rendered, and with ``save=True``\n    importance CSVs are written alongside the DB, as side effects.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\nSee Also:\n    :func:`spacr.submodules.interpret_vision_model` — legacy /\n    alternative entry point returning a dict of importance\n    DataFrames instead of the merged measurements."
     },
+    "spacr.ml.label_control_condition": {
+      "source_blocks_sha256": [
+        "d0105641863615401edb83c5d7a7eba6ee752a0c73764810580814ac42b29249",
+        "3197a4124526f2980ed08c115bb8c2f2cca615a12877f4d86121017fb07e5f37",
+        "9d9345753bcd1dee6cdac99fde13e398188b5523278f16723ee42a9595d9fd9b",
+        "6257422065c0b8f85d69e68f2b84dc9ab0c50b4b27aece39e89be2f05715dcb3",
+        "d8f85ef3400abd140fad33c1a6431d6c7223595a806c24735182e4434f37929f",
+        "8bc25b2a5e9395a7bd715a2b0f5dbbf296dc5059df71be4c0dfcff5a729d4e3e",
+        "34c1fcf4af32c93ad432251e64abd45609e64f8f99bff0878abcc0b59a565703",
+        "b15ac881fcc721da14a25beb62933153ef5e7ef599b4b0aea808b49bb3b7b4e9",
+        "69fe6d0de49eb28921742423fcc2eec485b1a85f26e664d99ada4a3edcb9490a"
+      ],
+      "source_sha256": "aba210f72f0cda7ed77bd13fc36439dfae7a4548a47f0b0f63a23ed6369d646d",
+      "text": "Label every coefficient row ``'nc'``, ``'pc'``, ``'control'`` or ``'other'``.\n\nThe ``condition`` column: what the volcano colours by, what the results\npanel offers in \"colour by\", and -- the reason this is a function rather\nthan four lines inside :func:`process_model_coefficients` -- what the\nEFFECT-SIZE CUT measures its spread on. A coefficient table without it is\na table :meth:`spacr.qt.widgets.regression_results.RegressionResultsPanel.\nset_threshold_method` answers \"No control coefficients, so no effect-size\ncut\" for, which is what every guide-permutation run used to get.\n\nPrecedence is ``nc``, then ``pc``, then the explicit ``controls`` list, so\na guide named in two of them is reported once and always the same way.\n\n:param features: the model term per row, e.g. ``fraction:grna[000000_1]``.\n    ``nc`` and ``pc`` are matched as SUBSTRINGS of it, which is how a\n    negative control given as a gene id reaches a term named for a guide.\n:param guides: the guide identifier per row, matched whole against\n    ``controls``. Both sides are compared as text, so a control list that\n    round-tripped through a settings CSV as integers still matches.\n:param nc: negative-control identifier, or ``None`` for no negative\n    control.\n:param pc: positive-control identifier, or ``None``.\n:param controls: non-targeting guide identifiers, or ``None``. ``None``\n    means \"no control list\" and labels nothing -- it is the value\n    :func:`perform_regression` documents for a control-free screen, and\n    the inline version this replaced raised ``TypeError`` on it.\n:returns: a :class:`pandas.Series` of labels aligned with ``features``."
+    },
     "spacr.ml.load_regression_input_pairs": {
       "source_blocks_sha256": [
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
@@ -19176,6 +19194,7 @@
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
         "d5b004c12aad22250fdc5d4c7307a5e8a1f1d1bb47ecff9443dc6e337b58c1df",
+        "995c3708f5612a2fcfd55a7fa5ca0f2667cb0e683dbf35a0c928758528f854e4",
         "cfe8f9380ed33deafd10e5b91886592c7a456fabfb621ab205d4976a38ad1537",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
@@ -19185,8 +19204,8 @@
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "34f3921711a6775a8cb3f991e6dda1fe3fc26d536edcbd52195ffb583a68b0f1",
-      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``results/cell_min_threshold.pdf`` next to\n``settings['count_data'][0]``.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``score_column``, ``tolerance`` (int percent or float fraction),\n    ``min_cell_count`` and ``count_data``.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
+      "source_sha256": "d73dfb84b8d840f2a97662d633b5eafa7732c9abd6b36538bfa21244aab38a4e",
+      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``results/cell_min_threshold.pdf`` next to\n``settings['count_data'][0]``.\n\nThat destination is the SCREEN folder, shared by every run of the screen,\nwhich is why :func:`perform_regression` copies whatever this draws into\nthe run's own folder -- see :func:`_keep_figures_with_the_run`.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``score_column``, ``tolerance`` (int percent or float fraction),\n    ``min_cell_count`` and ``count_data``.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
     },
     "spacr.ml.ml_analysis": {
       "source_blocks_sha256": [
@@ -42545,10 +42564,10 @@
     "spacr.qt.widgets.ambient.AmbientWidget.frames_shaded": {
       "source_blocks_sha256": [
         "838ce89192a597f9768793ae954796691e7926faf2afeb695f4ec76b193f88f3",
-        "8a04a23f6bd6f5071cfadd60277280d8fadfedee666f1927228f2a60879134a2"
+        "0c9a9cdb8d4a0b8b5579b75f5a93d0380ff2406d7faa269c0f1e590381a2584c"
       ],
-      "source_sha256": "257b49dbe7e2fc2a924bc53ffbdfda18012d1e28a9d5bb9ce218a62115769088",
-      "text": "Frames the shading thread has finished for this backdrop.\n\nBelow :meth:`frames_painted <AmbientWidget>` under load, by design:\nthe difference is :attr:`repeated_frames`."
+      "source_sha256": "99e9a4abd48efe05e9c54e2e251937a3e17cc4c665bbccabd21d7784a46d1fe1",
+      "text": "Frames the shading thread has finished for this backdrop.\n\nBelow :attr:`frames_painted` under load, by design: the difference is\n:attr:`repeated_frames`."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.hideEvent": {
       "source_blocks_sha256": [
@@ -46137,6 +46156,36 @@
       "source_sha256": "91fac1c7142e36cbba15391a76f7e311ee2bc9f52d977741aeb86e0e86af14cc",
       "text": "Add points and wire up clicking them.\n\n:param colours: one QColor per point, or None for a single colour.\n:param labels: per-point text, shown on hover and on click.\n:param rows: the FRAME ROW each element of ``x``/``y`` came from.\n    Default ``None`` means the arrays are already in frame order.\n\n    THIS IS THE WHOLE OF THE Q-Q TRAP. A Q-Q plot is SORTED by\n    p-value, so its nth drawn point is not its nth table row; a\n    control panel is split into groups, so its nth point is not the\n    nth row either. Left to assume otherwise, every one of those\n    plots would carry an index that looks like a row, joins like a\n    row, and names a different guide -- silently, and in the\n    direction nobody questions, because something did light up."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.apply_text_style": {
+      "source_blocks_sha256": [
+        "1707d99124a96f1b3acc49a650a8c39b1a92eaeea5715dddd01e14ebfe905b06",
+        "ae583a7fd1b1be5412b9f16a364f98acf2bf3c3b6aff887d077b3ce6aa666da8"
+      ],
+      "source_sha256": "07456eb99f1980a668048c499fecc651c714438798ab4ad0801a89c9d3438f89",
+      "text": "Put the chosen size and ink onto both axes and the title.\n\nOne place, because the size and the colour are set from two different\nmenu entries and each has to leave the other's choice standing --\napplying them separately is how \"font size\" quietly reverts \"font\ncolour\" and the user concludes one of the two is broken."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.aspect_ratio": {
+      "source_blocks_sha256": [
+        "b3566d7f84161d88e8808b79b94ced89e0ba00611196bd147f4a4da1453e752a"
+      ],
+      "source_sha256": "b3566d7f84161d88e8808b79b94ced89e0ba00611196bd147f4a4da1453e752a",
+      "text": "The locked ratio of y units to x units, or ``None`` if unlocked."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.auto_range_axes": {
+      "source_blocks_sha256": [
+        "8bf721dd7011fb44851089b08a7443d3fdd711d5b0a5b1c63d2a90bf87b8d8fe",
+        "b1380273018aafe875452b51efeed80b8c4a1603fe8d66ef9b0802b76b97a85b"
+      ],
+      "source_sha256": "ecce978ee0d588a9d64c795e19b4bb250524c79bebc87c623a2410e768c96a29",
+      "text": "Give both axes back to the data. The way out of a typed limit.\n\nA control that can only be set is a trap: a user who pins x to the\nwrong decade has no way back to the picture they started from except\nreloading the run."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.axis_limits": {
+      "source_blocks_sha256": [
+        "40306dfc7cc01617ed3054f86677a6bf7d63d147192790c44dc5f7b1688a2f0c"
+      ],
+      "source_sha256": "40306dfc7cc01617ed3054f86677a6bf7d63d147192790c44dc5f7b1688a2f0c",
+      "text": "``((x from, x to), (y from, y to))`` as currently shown."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.build_style_menu": {
       "source_blocks_sha256": [
         "c01045c509c9436024615010beaea1d31db195f74ede6deafa561bca2f9e667b",
@@ -46145,13 +46194,77 @@
       "source_sha256": "159f894f1765537e25548135660a1df8940b6e1dfc4bcf3bd1915920909adbe2",
       "text": "The right-click menu, built from what the plot actually has on it.\n\nSEPARATE FROM SHOWING IT so the menu can be inspected without a modal\nevent loop. `QMenu.exec` blocks until the user picks something and is\nnot patchable from a test -- it is a C++ slot, and assigning over it\nleaves the real one dispatching -- so a test that reached in to read\nthe entries hung the suite instead of failing it."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.clear_column_mapping": {
+      "source_blocks_sha256": [
+        "0a9d74ca8a858117ab01069097534d51536b22a4c4d5155a396618f3f45a78bd",
+        "a8fdbd27a0ac468aca007219f8aa5564ac36451575e66ddb5304522a45799091"
+      ],
+      "source_sha256": "0edbcaf6c405dcb1437ee2bc69f2cf508a17719c229a0491ca3c9f9aaca9d821",
+      "text": "Put the original colours and shapes back. Returns items restored.\n\nThe brushes and symbols each scatter was BUILT with are kept the\nfirst time a mapping touches it, because they are the only record of\nwhat the plot's own colouring said -- the compartment split, the\nsingle-guide genes, the influential wells. Recomputing them here\nwould need this class to know every subclass's rule, and a \"restore\"\nthat guessed would quietly replace one sentence with another."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.clear_screen_size": {
+      "source_blocks_sha256": [
+        "0ee2299065d49cab8033b093a2bbd1803c50899d3263a707e056255f1a8a63a2",
+        "a58cc7e3859f2d09df1e46dfa955db87f3d16ec0acc9b073d727dd45c552e0c8"
+      ],
+      "source_sha256": "56bbb90f35c5489d0d0c0636c033dfd6c2d879771050993ac7267f964a4e88c2",
+      "text": "Let the layout size the plot again, keeping its original floors.\n\nNOT ``setMinimumSize(0, 0)``. `RegressionResultsPanel` gives the\nvolcano ``setMinimumHeight(240)`` so a splitter cannot collapse it to\na sliver; releasing the widget to nothing would silently drop that\nfloor, and the plot would then vanish the first time the user dragged\nthe divider."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.colour_by_column": {
+      "source_blocks_sha256": [
+        "91463f4b4658ee50177cfaf8529f68c2140dca860761c38c0f6358f19bf234c2",
+        "4bfbbd444f486f0659881e411ca215e222932b754da930e9d83dff1ee026c860",
+        "93e574b5a71b734c89ecd105728507891d54453cc840613e097dcade3c91e0b1"
+      ],
+      "source_sha256": "e1b33a90ff79f4006ff70daad907c4a8d060e7b085f89b709691d5aaabf6b45c",
+      "text": "Colour every point by ``column`` through ``colormap``. Returns n.\n\nTHIS IS NOT \"SET THE POINT COLOUR\". It maps a column onto a visual\nchannel, which is why it lives beside the shape control rather than\nbeside the colour picker: the picker states one value, this one hands\nthe picture over to the data and the reader then needs the range to\nread it. So the range is written into the status line, and rows with\nno value are drawn grey and COUNTED there rather than being painted\nat the bottom of the scale, where a missing measurement would read as\na small one.\n\n:raises ValueError: for a column that is not there or not continuous,\n    and for a colormap this build does not have. Loudly, in the same\n    spirit as :meth:`GroupedPlot.set_mark`: the callers are this\n    class's own menu and a test, so a silent fallback would only ever\n    make a mistake look like a working option."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.colour_map_reason": {
+      "source_blocks_sha256": [
+        "cb13114b3d6d710d9b031276d92375c68d5f21de4c1283092e0d5bc8e6b07d6e",
+        "987a279c0bb145be37bcd3d336387dcd1f3e981d4326cba1a9ef37491f8739f9"
+      ],
+      "source_sha256": "0baccf826fbac7524f20a47ae168520539540c2acf7048696eb025c237a5c308",
+      "text": "Why \"colour by a column\" cannot act here, or ``\"\"``.\n\nInstruction 106's rule, applied to a menu: an entry that cannot do\nanything is greyed out AND SAYS WHY. Silently absent leaves the user\nhunting for a control they were told about; present-but-inert leaves\nthem clicking it and concluding the application is broken."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.export": {
       "source_blocks_sha256": [
-        "551da0bd42ecc30f626c3aaf31ad39a7292eec8e6d77fe9e94f11aba7a7dec73",
-        "7d9c6bfedf3ea41ab1f28d71e94b4e70c4f5559def766f0d18210bcc2fa9c980"
+        "db022c47ccf49d57c9cf25443ba98a6e568f19a3926f0cb4e3794b2ab2be3d04",
+        "966a216cc6b357e032f7a62d07d5277632533f00c0e8021aae4f6c1a79e3442a",
+        "184c6b3918afd6bd399ebe0faf24dc41f89c8ec4e738601be6256b25d29210c7"
       ],
-      "source_sha256": "00ca65ebc686812064d6d170ab5b2c78529150552b2057de6d7dff4b7f57edea",
-      "text": "Write the plot out. SVG when the name says so, else PNG.\n\npyqtgraph's SVG export is real vector output, so what is exported from\nthe screen is publishable rather than a screenshot of it."
+      "source_sha256": "dd5412aecd891f053fd2be758c931948332841e4c6a3e1a3c98ed5d1811e7e6d",
+      "text": "Write the plot out: PDF, SVG or PNG, by the name given.\n\nBOTH VECTOR FORMATS GO THROUGH Qt rather than through pyqtgraph.\npyqtgraph ships no PDF exporter at all -- reported 2026-08-17,\n\"currently i can only save the volcano as a png i want png and pdf\" --\nand its SVG exporter raises on every plot in this module; the whole\ndiagnosis is on :meth:`_export_svg`. A QPdfWriter and a QSvgGenerator\ntake the same QPainter the scene draws itself with, so the result is\ntrue vector rather than a bitmap in a wrapper.\n\nThe page is :meth:`export_size`, which the right-click menu sets. It\nis deliberately NOT the size of the widget on screen: the two are\ndifferent quantities and are named separately on that menu."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.export_size": {
+      "source_blocks_sha256": [
+        "e8cabdf4be501618ec92222761d3506e4ccaed50d7bb0152066b640f397fe369",
+        "4e7592692e3bca636ae07b53b0b7ee9081abb9a6b0bb73b5f2792809dda854d0"
+      ],
+      "source_sha256": "009fd1a83f0690f8563af1d9a68de4fc79bc25ce5fda40164989f81c39a8b9c5",
+      "text": "``(width mm, height mm)`` of a saved page.\n\nA height of None means \"follow the plot's own aspect\"."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.font_colour": {
+      "source_blocks_sha256": [
+        "31cec7d7eaed29a4435ef49800445e2847927a01d282f07ab4989849bfa9e8e6"
+      ],
+      "source_sha256": "31cec7d7eaed29a4435ef49800445e2847927a01d282f07ab4989849bfa9e8e6",
+      "text": "The ink chosen for text, or None while it follows the theme."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.font_size": {
+      "source_blocks_sha256": [
+        "ec6085343f29d36b5b9d51b4412bdcef2ab2b72f28bf38637fea041038f77fe4"
+      ],
+      "source_sha256": "ec6085343f29d36b5b9d51b4412bdcef2ab2b72f28bf38637fea041038f77fe4",
+      "text": "The point size the axes are drawn at, or None for the default."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.frame": {
+      "source_blocks_sha256": [
+        "5e4c1c1b4aa1e12f9b7f6f638e32e6d7c6d451f7a957bb537a876164f6692ff1",
+        "ce9a6e97631ca1b5f4218767d999fbce2147862594d6acdbab134accebf7700f"
+      ],
+      "source_sha256": "5121f4f02d80aef75a74ce49d62299d5ee0d41c6c7542c6e72489f2a6121e0d1",
+      "text": "The table this plot was drawn from, or ``None``.\n\nThe two column-mapping controls need it -- \"cmap (choose any column)\"\nand \"point shape (choose any column)\" both name a column of THIS\nplot's own table -- and a plot handed bare arrays honestly has none,\nwhich is why those entries grey out rather than offering a list of\nnothing."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.highlight_key": {
       "source_blocks_sha256": [
@@ -46168,6 +46281,22 @@
       "source_sha256": "45545fc8706a56d4ecab91c35bd7fa7f99e0fc01a9564f13468803c9e8a3f319",
       "text": "The identifier at frame position ``row``, if this plot has keys."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.line_items": {
+      "source_blocks_sha256": [
+        "49a7c17b9b82a25d20b16efe91fe7165bb0599514df4291b8d5961cf2aa14d6b",
+        "835938d61989693a5e4ccb98d40129990bf3261e9edf8ab23b539e77ee9ce37f",
+        "cb2d80ea9c0f29bd65572e8ada2c1694169563e881f9a92c62a04cbdfddc893a"
+      ],
+      "source_sha256": "5399b58013206f642394c8b62858081efd05e76b620f8d38e0605eab5946a9a5",
+      "text": "Every LINE on this plot, for a restyle to reach.\n\nThe reference lines and threshold lines added by :meth:`add_line`,\nthe Q-Q's diagonal, the residual and scale-location trends, and the\nsummary line across a points/jitter group -- all of them, because\neach is a line the maintainer named (\"line color and width\") and a\ncontrol that reached three of five kinds would be worse than none.\n\nThe scatters are excluded because they have their own controls, and\nthe selection ring is excluded because it is a cursor rather than\ndata: recolouring it to match the threshold lines would make the\nselection invisible against them."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.line_reason": {
+      "source_blocks_sha256": [
+        "08b9eabe5d9478dd89396119259516654fb152e8cd48913f6718e85aaa353f17"
+      ],
+      "source_sha256": "08b9eabe5d9478dd89396119259516654fb152e8cd48913f6718e85aaa353f17",
+      "text": "Why \"line colour and width\" cannot act here, or ``\"\"``."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.note_selection": {
       "source_blocks_sha256": [
         "da63dae6e3c48824d0f62cff00fcada8b2bf276759c872b9bf8407ecbd913463",
@@ -46176,6 +46305,15 @@
       ],
       "source_sha256": "8e5bb71180d7f71ed3fc0bb5a7d0709d5806150e7dc6ca7a6e107c050087c23f",
       "text": "Say a row was picked -- unless this plot already said MORE about it.\n\nA click travels: the dot announces its key, the table selects that\nrow, and every other plot then marks it. That last step arrives AFTER\nthe clicked plot has written its own answer, and the clicked plot\nknows the most -- which control group a dot is in and what its effect\nwas, how many of a gene's guides agree, what the p-value is. The plots\nthat merely received the key know only the key, so letting them write\nlast replaces the answer with the question.\n\n:param found: whether this plot actually drew that row. ``False`` is a\n    real answer and is said out loud: a coefficient with an unusable\n    p-value is on no plot, a nuisance term is off the volcano on\n    purpose, and a guide is not a point on a per-gene plot at all."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.numeric_columns": {
+      "source_blocks_sha256": [
+        "23cced492e757dc12b088c61f5230e9fd2b7f0cd2d610494789ebb9c45c518db",
+        "b09e82bf7b842f57e594f3aa20a8506438c9e74c93a401475c900dc17330b96b",
+        "44745c5ce81b00ca18a34dd17e231f76cf4bfa0b7e1ffbc82396975e317380ba"
+      ],
+      "source_sha256": "71a91d5bb982cabcf932be90fddf605a7b55290a024eba2381f14aa96c7afafe",
+      "text": "Columns a COLOUR SCALE could read, in table order.\n\nA cmap belongs only on a continuous quantity: mapping one onto a\nnominal category is the mistake the house style warns about, because\nit puts an order into the picture that the data does not have.\n\nSo: numeric dtype, not boolean -- ``True``/``False`` is two\ncategories wearing a number's dtype -- and at least two distinct\nfinite values, because a column with one value maps every point to\nthe same colour and a scale with no range is not a scale."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_baselines": {
       "source_blocks_sha256": [
@@ -46212,6 +46350,14 @@
       "source_sha256": "59598228f3aca114e9ccc2e8d3578853f12f2f0d3fd1fa38ed9370a7e644fd4b",
       "text": "Offer \"draw the groups as ...\" on the right-click menu.\n\n:param options: ``[(label, callback, checked)]``, the same shape as\n    :meth:`offer_baselines` -- one entry per :data:`MARK_TYPES` the\n    host can draw.\n\nOffered by the host rather than built in, and for the same reason\n:meth:`offer_refit` is: only the plot that owns the arrays knows\nwhether its x-axis is a set of GROUPS at all. A volcano's x is an\neffect size, and \"show it as a violin\" is not a question that has an\nanswer there."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_p_values": {
+      "source_blocks_sha256": [
+        "062b3966610cd49c2ed7ba1306c38ccdd35274cd72534f8ea4beb6ebc7b81058",
+        "ea1077702a0361c3672b991dac84df4f30c845b9d73982308bea1674ca088b5d"
+      ],
+      "source_sha256": "e6aa29587cb4957e1a25e5483e2ba86fbbc7fddfcb388de57c188b214d8b0c90",
+      "text": "Offer raw vs adjusted p-values for the y-axis.\n\n:param options: ``[(label, callback, checked)]``, or empty when there\n    is no correction to switch to -- an entry promising \"adjusted\" on\n    an uncorrected run offers a number that is not there."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.offer_refit": {
       "source_blocks_sha256": [
         "6a38f03477f00f94ed3ae76a9049c9c70ceccdc01d9ccf9ece5f228d3bd9981c",
@@ -46234,6 +46380,14 @@
       "source_sha256": "2063970ec575fbdc3db8aa3da7da63677f396f30874fb234ecd9f14ec89b5e50",
       "text": "Offer the effect-size cut: how it is measured and how wide.\n\n:param options: ``[(label, callback, checked)]`` -- the modes.\n:param multiplier: the current width, shown on its own entry.\n:param on_multiplier: called with the new number when it is changed.\n\nOn the PLOT because the settings-panel controls for these grey out\nunder `inference='nonparametric'` -- correctly, since the permutation\npath uses no control-spread cut -- and the maintainer reported not\nbeing able to find them."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.point_reason": {
+      "source_blocks_sha256": [
+        "fbea45d4cd8ed6fca51f6c4b4335a22f9fcb23319cd3a5b2e104d4ab112b44f4",
+        "d3d2c405869326682a22081a9149db453730361b8d24dc2a89fb81aa040003c4"
+      ],
+      "source_sha256": "309bd8cc98925aa29909390deb56ef101ad36c8d0db2b640ba9cbb86f0bbd256",
+      "text": "Why the point controls cannot act here, or ``\"\"``.\n\nA p-value histogram is bars. \"Point size\" on it is the plainest case\nof a control that looks live and does nothing."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.restyle": {
       "source_blocks_sha256": [
         "9a3a085a955422b4eb4a75e9c4c3165bbd1ae6a00cb7d36679fc7b222cf27921",
@@ -46241,6 +46395,50 @@
       ],
       "source_sha256": "23b43ff771381981955a7fc07c9d5130d183c0be536f7cd53a790cdce8ca7910",
       "text": "Re-read the figure colours, or take the ones given.\n\nNeeded because pyqtgraph resolves ``foreground`` at construction:\nwithout this a theme switch leaves every open plot drawing its old\nink, and on a dark-to-light switch that ink is invisible."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_aspect_ratio": {
+      "source_blocks_sha256": [
+        "66eefa07cccb641fda8a625453d59a7f768147d87230b92ec7e7d3dcd40e85b4",
+        "4de9cb85c61333e9da4df4286a6222881ccf31943de59c347ee7c902d7b12e50"
+      ],
+      "source_sha256": "e539b1536771f955fa524796524cd00c249607325956b35bc94d384fd8f2a04c",
+      "text": "Lock one y unit to ``ratio`` x units. ``None`` unlocks it.\n\n:param ratio: how many x units one y unit is drawn as wide. 1.0 is\n    the square-units lock a Q-Q wants, where the 45-degree diagonal\n    is only meaningful if the axes share a scale."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_axis_limits": {
+      "source_blocks_sha256": [
+        "3cb451e942d19169813bc23dd7fbc272b1cc9b6db3d4b0ff6864e54681f00455",
+        "ad020b8018463a41932f4f7adb9d3f9908c2fbf26b1135d2ed28057c9d382adf",
+        "13ed8cd03d64f9ce9479b141f64b884f042fb90a4a3523d01c15dbd35616ea0d",
+        "e54506535195825fc3fee92765ffbc1642abdb2788d5f2e8a6a3693eb315f84e"
+      ],
+      "source_sha256": "423444589cad293fe4099487dfbcb752ffadfd00374eead6b84b39581c16fa23",
+      "text": "Pin an axis to ``(from, to)``. ``None`` leaves that axis alone.\n\nAUTO-RANGE IS TURNED OFF ON THE AXIS THAT IS PINNED, and only that\none. pyqtgraph re-fits the view to the data on the next redraw\notherwise, so a limit the user typed would survive until the first\nrecolour and then silently spring back -- which reads as the control\nnot working rather than as a redraw.\n\n:param x: ``(from, to)`` for the bottom axis, or None.\n:param y: ``(from, to)`` for the left axis, or None."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_export_size": {
+      "source_blocks_sha256": [
+        "aaf63fd732c51e63612c3042ea2d7cc0f300e29c4fcb7762cd58dd4e84c569f3",
+        "74b50e990a44a2f35a3a252ea3ec0e618c0b095ee90ac546e3ea89a79bc7cdcc",
+        "b2f42b0d832ac03b3669257e8b0936f6672a070e4751e9bfb0c51d3f06075634",
+        "a2e27507f0220c58e101b424d89857f37478828153bb067f49a930f0c4b7256f"
+      ],
+      "source_sha256": "90fa2ae00e08b27059f80c588201de9fa8956e4a38c23b27adadcaa5ef0f5a8f",
+      "text": "Set the PAGE a PDF or SVG is written onto, in millimetres.\n\nTHIS DOES NOT MOVE THE PLOT ON SCREEN. See :meth:`set_screen_size`.\n\n:param width_mm: page width. :data:`EXPORT_WIDTH_MM` is a journal's\n    double-column width and is the default.\n:param height_mm: page height, or None to follow the plot's own\n    aspect so nothing is stretched."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_font_colour": {
+      "source_blocks_sha256": [
+        "167505a101a00ac06d7ba058a4cd611766c073040bb264faead980fae11c131d",
+        "0c4b0bbbe3b0e191cd1854133ca8fd2917bb140eb6618e7f46a1130760d3ab63"
+      ],
+      "source_sha256": "cfd4a9d29a2e5ee23c2974c577548d81dbe272ab2b7fac3f660492b679e01059",
+      "text": "Draw every piece of text on the plot in ``colour``.\n\nSeparate from :meth:`restyle`, which resolves the THEME's ink. This\nis the user overriding it for one figure, so it is re-applied after a\ntheme switch rather than being quietly reverted by one."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_font_size": {
+      "source_blocks_sha256": [
+        "c0722d11dd2b08cae4af98602c1f7de99a28a08ef4b1bf97a2b2d77a5414f893",
+        "adc2b1c1b27c7ee97422280bf86eeb3aa83f85833e1f63e8e13c1d96e37e5bf6"
+      ],
+      "source_sha256": "a937c124b810830a625c805e111bce65e1ff065b5a198f2a25a23a1e51d6244f",
+      "text": "Draw the labels, TICKS and title at ``points``.\n\nTHE TICKS ARE THE HALF THAT WAS MISSING. The old handler passed\n``tickFont=None`` -- which asks for pyqtgraph's default rather than\nfor a size -- so \"Font size: 20\" enlarged the two axis labels and\nleft every tick number at its original size. Measured on the volcano\nbefore this change: the bottom axis' tick font came back as None at\nevery setting, i.e. the control moved two strings out of about\ntwenty."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.set_keys": {
       "source_blocks_sha256": [
@@ -46250,6 +46448,25 @@
       ],
       "source_sha256": "4f4c76f67d4df3ec2882e733ce6ad4556c05a121fea1d6784f7341b5302f07e9",
       "text": "Give each frame row its identifier. Returns the number of rows.\n\nDuplicates are kept as the FIRST row carrying the key, and counted:\nan identifier that names two rows cannot select one of them, and\npicking silently is how the wrong point gets highlighted.\n\n``None`` -- either as the whole argument or as one entry -- means\n\"this row has no identifier\". Such a row still draws and can still be\nclicked; it simply reports nothing to anyone else, which is the\ntruthful answer and is not the same as reporting the empty string,\nwhich would collide with every other unidentified row."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_line_style": {
+      "source_blocks_sha256": [
+        "87e7b91c1f5cc5c206955c4c55cf2899a10a304e6a3f44cc98d84a5775196566",
+        "966ac1b17dcce7671bf5f920762b19454511eb09172d1610bed8353389d16238",
+        "7e8bacf107f421a67523472897eb0e996d685888c94349b03d391b48fcd8d9df",
+        "8b7d3c5625291366a5ad7913346b4cad3a4907ce7a73d27b7e40a4f1cc0057b1"
+      ],
+      "source_sha256": "d5673b5e4f01ef000b5c49fce47514b43dffee6584143db410a394def776284e",
+      "text": "Recolour and re-weight every line. Returns how many it reached.\n\nTHE DASHES SURVIVE. Each pen is copied and only the colour and the\nwidth are replaced, so the p=0.05 line stays dashed and the reference\nline stays solid -- the dash pattern is what tells a reader which\nline is a threshold and which is the data's own trend, and rebuilding\nthe pen from scratch would flatten that distinction on every restyle.\n\n:param colour: anything :class:`QColor` accepts, or None to keep it.\n:param width: pen width in pixels, or None to keep it."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_screen_size": {
+      "source_blocks_sha256": [
+        "7af6e49426b5a3befaf43ff86b1246e6e5a3ad9a28843844496df26fbffc613e",
+        "a2cbcb6bd7cb139af7b3ad98c59cd6bdfa6c576b409d5025ea4ee138b71c1077",
+        "f6c19eeb08e2872a7be4100def559e00b262d993647f3d314869b851e3610fda"
+      ],
+      "source_sha256": "ebd2966bd34196d06ce4c4543aaa36457b8e41956cbb542959a5988d1f0921b5",
+      "text": "Make the plot exactly this many pixels ON SCREEN.\n\nA FIXED SIZE, NOT A RESIZE, and that is measured rather than assumed.\nThese plots live inside splitters, which own their children's\ngeometry: a `VolcanoPlot` in a 900-wide splitter stayed 900x674 after\n``resize(400, 300)`` and became 400x300 after ``setFixedSize``. The\nsame finding is written on :meth:`snapshot`, where it produced a\nblank tile.\n\nTHIS DOES NOT CHANGE THE EXPORTED PAGE. See :meth:`set_export_size`;\nthe two are different quantities and the menu names them separately,\nbecause a user who sets \"dimensions\" and finds the PDF unchanged has\nbeen misled by the control rather than helped by it."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.set_status": {
       "source_blocks_sha256": [
@@ -46265,6 +46482,38 @@
       ],
       "source_sha256": "c7f4ab637058888d7e2cb00fc4206364f283def95599146e0494ab09a674ea17",
       "text": "Add a sentence about the CLICKED thing, keeping the headline.\n\nThe diagnostics' status lines carry the numbers they exist for -- the\ninflation factor, the control medians, how many genes rest on one\nguide -- and overwriting those with the name of whatever was just\nclicked trades the panel's whole content for a string the user can\nalready read in the table. Both fit."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.set_style_note": {
+      "source_blocks_sha256": [
+        "dbec1384cc0cc9066ed3cf08341d0e7453fd8b7aa9e4f09137908671dce1cae9",
+        "914ad5c37c2a4e0fc13093512c347da171a4a7f9f58352c3b0d4f0d986a5068f"
+      ],
+      "source_sha256": "98c205e51131d991a1b9ebe80396117655267da011f2de4e0e3f0d3d6a7aa46e",
+      "text": "What a RESTYLE has to say. Survives a redraw and a selection.\n\nA colour scale is unreadable without its range and a shape mapping is\nunreadable without its key, so those sentences are not decoration --\nthey are the legend. They cannot live in the headline, which every\nredraw rewrites, nor in the click note, which every click rewrites;\neither would leave the reader looking at a picture whose key had been\noverwritten by something unrelated."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.shape_by_column": {
+      "source_blocks_sha256": [
+        "c45766e916f74d124d9ae2c2f86b727d2ae967dbf839db59b9ffc99fc40c7dfb",
+        "523d8fb9223cdc83f8615ebd131d46ad99643bef7e5d7b3324b07359342035e9"
+      ],
+      "source_sha256": "676383ba3184d561453d9d219f43ba0515a35df2ba065868cede2d3e3f38643d",
+      "text": "Draw each value of ``column`` as its own marker. Returns n shaped.\n\n:raises ValueError: for a column that is not there, or one with more\n    values than there are shapes a reader can tell apart. Refused\n    rather than truncated: reusing a circle for the ninth and the\n    first value would draw two different things identically, which is\n    worse than not offering the column at all."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.shape_columns": {
+      "source_blocks_sha256": [
+        "ad6bc34811b91ca806ec335b3f05fb1fd4bc4b1b04c78dcd2671833386b67e79",
+        "95d1a67049cad05fd5b3721afbe1983835992c971d3f09ffef67dcf3790252f8",
+        "5685cf4151aa59b2078aef03edf2148b455bd1f466540912bb3fa5cb2cab6931"
+      ],
+      "source_sha256": "4ff63166c72d2ed020e9196c33160caf9901d5672756dbded2dee0a45a8cea80",
+      "text": "Columns a POINT SHAPE could read, in table order.\n\nLow cardinality and nothing else: two to :data:`MAX_SHAPE_VALUES`\ndistinct values. Both ends are real limits rather than tidiness --\none value gives every point the same shape and says nothing, and past\neight the shapes stop being tellable apart at scatter-plot size, so\nthe reader is decoding a key instead of reading a figure.\n\nDTYPE IS NOT THE TEST. ``n_guides`` is an integer column with four\nvalues and is exactly what a reader wants shapes for, while\n``feature`` is a string column with 1,215 and is exactly what they do\nnot. Counting the values answers both; asking the dtype answers\nneither."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot.shape_reason": {
+      "source_blocks_sha256": [
+        "2b117edccc43040146e270027dbddbf43f932863ca7964e92180400830ee8409"
+      ],
+      "source_sha256": "2b117edccc43040146e270027dbddbf43f932863ca7964e92180400830ee8409",
+      "text": "Why \"shape by a column\" cannot act here, or ``\"\"``."
     },
     "spacr.qt.widgets.fast_plots.FastPlot.snapshot": {
       "source_blocks_sha256": [
@@ -47202,10 +47451,11 @@
         "44e426055b90bef2aadfeffde200afbde96e5a647a020d827777ba8d690c1464",
         "fd95dad35dccbff1093406154edd70eadf4314f4297dc445ae60dd8df3e4cf92",
         "68e23a592ac27c1bbab4514871d0b368659587f0d8b8bcf6dec8351fb162c005",
+        "b0a2a3069ac9b687672f1b06bedc865735e22f9afcbad6dd88b6709440fca6bf",
         "98fcc24915d64bf63a07ed755e82a816359972a7c6fef2888e3df0a20c0d8476"
       ],
-      "source_sha256": "05eff55c792e051e61c8aa009fd5b8ff5bc7c472d9a8482e77ece1e4fe7771b8",
-      "text": "A tile that is always first and is not one of the run's figures.\n\nThe regression graph is a LIVE widget, not a picture the pipeline\nsaved, and it is the one the maintainer asked to be interactive:\n\"the regression plot isnt shown in all figures (i want it also shown\nthere)\". Pressing this tile opens the real widget, not a picture of\nit.\n\nTHE INDEX MAPPING SURVIVES THIS, and that is the whole reason the\npinned tile is a separate slot rather than an extra entry in\n``_cells``. ``_FigureCell.index`` is the position in the pixmap list\nthe caller handed to :meth:`set_figures`, and ``figure_activated``\nforwards it straight to ``FigureQueue.show_index``; anything INSERTED\ninto that list shifts every figure after it, so every tile would open\nits neighbour. This cell carries ``-1``, is never in ``_cells``, and\nemits :attr:`pinned_activated` instead -- a sentinel index down the\nshared signal would be the same bug with an extra step.\n\n:returns: True when a tile was pinned. A null or missing pixmap\n    REMOVES it, because an empty tile invites a click that opens an\n    empty plot."
+      "source_sha256": "433c0f28a03929f882dc7733c36cd64c5662a294c28ae3a1155fde4260020a2b",
+      "text": "A tile that is always first and is not one of the run's figures.\n\nThe regression graph is a LIVE widget, not a picture the pipeline\nsaved, and it is the one the maintainer asked to be interactive:\n\"the regression plot isnt shown in all figures (i want it also shown\nthere)\". Pressing this tile opens the real widget, not a picture of\nit.\n\nTHE INDEX MAPPING SURVIVES THIS, and that is the whole reason the\npinned tile is a separate slot rather than an extra entry in\n``_cells``. ``_FigureCell.index`` is the position in the pixmap list\nthe caller handed to :meth:`set_figures`, and ``figure_activated``\nforwards it straight to ``FigureQueue.show_index``; anything INSERTED\ninto that list shifts every figure after it, so every tile would open\nits neighbour. This cell carries ``-1``, is never in ``_cells``, and\nemits :attr:`pinned_activated` instead -- a sentinel index down the\nshared signal would be the same bug with an extra step.\n\nTHE TILE IT REPLACES IS DESTROYED, and that is the whole of the\nstacked-volcano bug reported on 2026-08-17: \"the thumbnail iage of the\nvolcano plot looks like several volcano plot itterations pasted on top\nof each other\". This method used to rebind ``_pinned`` and relayout,\nand `_relayout`'s `takeAt` removes a widget from the LAYOUT while\nleaving it a visible child of the body at its old geometry -- exactly\nthe failure already written down for the section headings a few lines\nbelow, re-derived here for the tiles. `clear()` could not collect the\nstrays either: it walks the layout, and a stray is no longer in it.\n`_pin_regression_graph` runs on every grid refresh, so a screen that\nhad done twelve runs was painting a dozen tiles at (6, 6) at once --\nand `FastPlot.snapshot` returns a TRANSPARENT pixmap, so every one of\nthem showed through the ones in front. Measured on the real widget:\nfive `set_pinned` calls left five visible cells at identical geometry\nand all five volcanoes painted at once; one after the fix.\n\n:returns: True when a tile was pinned. A null or missing pixmap\n    REMOVES it, because an empty tile invites a click that opens an\n    empty plot."
     },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.set_section_collapsed": {
       "source_blocks_sha256": [
@@ -47323,10 +47573,11 @@
       "source_blocks_sha256": [
         "57e1029e334e0e23d2f475b0397cab9ceba5568c60b7a7db2fed5b9759e9531e",
         "48936c7934c853b08128dc3317340be4b274207af7e9e5e90543597b1bd62e64",
-        "3c71284367787abf7da44b0e6422a8f6fa92a4733b398cfb20be08683d09d859"
+        "bec058485f27b6420f23ae34251bb3a475e437f3e51605fae4425f3ac9b2316a",
+        "edb98654a2ccd9c265b828f8b624647a6242e4706bc7e4aee0d83abd27369ed5"
       ],
-      "source_sha256": "9817100e491e539329799f6f4ffa2e20f7be32ad8d1d310d6d7e503f50ed9cfc",
-      "text": "A short name per figure, for the grid captions.\n\nTHE FIGURE'S OWN NAME FIRST. A caption reading `fig_00003` tells a\nreader nothing -- it is the temp file's stem, which is an\nimplementation detail of how the picture got to the screen. A figure\nthat knows what it is says so: matplotlib's own label, or the\n`_spacr_title` a caller attached.\n\nThe filename stays as the fallback, for the pictures that arrive\nwithout a name."
+      "source_sha256": "18e98e2474e61293036e6dea018a0276546c8f3133a0225dc4ec8133eea1b4c0",
+      "text": "A short name per figure, for the grid captions.\n\nTHE FIGURE'S OWN NAME FIRST. A caption reading `fig_00003` tells a\nreader nothing -- it is the temp file's stem, which is an\nimplementation detail of how the picture got to the screen. A figure\nthat knows what it is says so: matplotlib's own label, or the\n`_spacr_title` a caller attached.\n\nREAD FROM THE NAME RECORDED AT ARRIVAL, not off the live Figure. See\n`_titles` -- asking the Figure meant the caption vanished the moment\nthe figure was spilled past the live cap, which is every figure but\nthe last twenty on a screen that has done a few runs. The live Figure\nis still consulted for a slot that has no recorded name, so a figure\nthat acquired one after it arrived is not ignored.\n\nThe filename stays as the last fallback, for the pictures that arrive\nwithout a name at all."
     },
     "spacr.qt.widgets.figure_queue.FigureQueue.has_live_figure": {
       "source_blocks_sha256": [
@@ -53578,10 +53829,11 @@
         "db66b0a639d45ced1be490eeb48828f1bad1cee5726fa919e585f32553e5955b",
         "68a53dd560de982a03d8ca08ecb6679cf419e8460f65541bba38db7d32c59e4e",
         "42d3c9f982d5fb82e170e9feb8f3c4f8976cfcf3adbaf775b1ce3a093afef9d1",
+        "e1b7d7e0f1e720222dcfe1ffa668519cc35abbd1c1a80add1f002bd4d6773dcd",
         "e64b31dee0ebfcd1765a6b1e993d645b682d3f426e3ae9bc8fe1f167002fe93a"
       ],
-      "source_sha256": "e9d93578bcf8649493dc4e0fee699509e93ab2180296687cfc8367aabe98b2fc",
-      "text": "Everything a finished regression produced, in one place and fast.\n\nThe module used to answer a run with a stack of matplotlib pictures, the last\nof which -- the volcano -- cost ~115 ms per redraw and made the whole window\nlag. Worse, the numbers behind it were only in a CSV, so \"is EAF1 a hit\" meant\nleaving the application.\n\nThis panel is what a finished run opens into:\n\n    Volcano        every dot clickable, drawn by Qt, 3.6 ms\n    Table          the coefficients, sortable, filterable, wired to the plots\n    p-values       the histogram that says whether a correction means anything\n    Q-Q            calibration, with the inflation figure\n    Controls       the assay window\n    Guide support  which genes rest on one guide, as a plot and a table\n    Gene           the tile for whatever was last clicked\n\nEVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --\ninstruction 124 F. Clicking a point selects its row; selecting a row marks\nthat point on every plot that drew it. They are views of one table, which is\nthe thing that was missing.\n\nJoined on the KEY, never on a position. The Q-Q is sorted by p, the control\npanel is split into groups and the agreement plot has one point per gene from\na frame with one row per guide, so a mark's position is not its row in any of\nthem. Measured on the real screen: the second point on the Q-Q is the term\n``gene_fraction:gene[244480]`` (p = 2.9e-13, the strongest hit in the screen)\nwhile its drawing position names ``fraction:grna[000000_10]``, a control guide\nwith p = 0.81. That is what a positional join would have selected, and nothing\nabout it would have looked wrong."
+      "source_sha256": "eb26d7c02729ae65612c3c7a662a363f374cede7c1cb840e3eaaee22ec88eecb",
+      "text": "Everything a finished regression produced, in one place and fast.\n\nThe module used to answer a run with a stack of matplotlib pictures, the last\nof which -- the volcano -- cost ~115 ms per redraw and made the whole window\nlag. Worse, the numbers behind it were only in a CSV, so \"is EAF1 a hit\" meant\nleaving the application.\n\nThis panel is what a finished run opens into:\n\n    Volcano        every dot clickable, drawn by Qt, 3.6 ms\n    Table          the coefficients, sortable, filterable, wired to the plots\n    p-values       the histogram that says whether a correction means anything\n    Q-Q            calibration, with the inflation figure\n    Controls       the assay window\n    Guide support  which genes rest on one guide, as a plot and a table\n    Gene           the tile for whatever was last clicked\n\nEVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --\ninstruction 124 F. Clicking a point selects its row; selecting a row marks\nthat point on every plot that drew it. They are views of one table, which is\nthe thing that was missing.\n\nONE GENE/GUIDE FILTER FOR ALL OF THEM -- instruction 128 L. `set_level` is\nread by every draw path, not by the volcano alone, because a filter that\nreaches four of six tabs is worse than one that reaches none: the two then\ndisagree on screen at the same time and nothing says which is which. Filtering\nthe family also CHANGES A DIAGNOSTIC rather than merely narrowing it -- on a\ntable of 200 null gene terms and 600 enriched guide terms the Q-Q reports\ninflation at the median of 2.90, 0.97 and 4.07 for the whole fit, the genes\nand the guides, three answers to \"is this screen calibrated\" from one plot --\nso the family is written into the tab label and into the plot's own title.\nThe three well-level tabs are NOT filtered, because a residual is one WELL and\na well is neither a gene nor a guide; they say so rather than staying quiet.\n\nJoined on the KEY, never on a position. The Q-Q is sorted by p, the control\npanel is split into groups and the agreement plot has one point per gene from\na frame with one row per guide, so a mark's position is not its row in any of\nthem. Measured on the real screen: the second point on the Q-Q is the term\n``gene_fraction:gene[244480]`` (p = 2.9e-13, the strongest hit in the screen)\nwhile its drawing position names ``fraction:grna[000000_10]``, a control guide\nwith p = 0.81. That is what a positional join would have selected, and nothing\nabout it would have looked wrong."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel": {
       "source_blocks_sha256": [
@@ -53607,6 +53859,15 @@
       "source_sha256": "877a84b2eaad500a9ba3d0c5edbaf05edf3ed86496519d5412a980bb559aed26",
       "text": "Ask for a results folder and load it. False if nothing was chosen.\n\nCompanion to :meth:`load`: the panel is otherwise only ever filled by\na run finishing, which is no use to a user who has results and no run."
     },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.build_level_menu": {
+      "source_blocks_sha256": [
+        "278caae2e3ca87df13b004df54e8cfe96563982a50a6fa2c173b5807a90ce767",
+        "c63fd0278c766b5c94f4d559e7cddd622544273b685faf2e87e0e66ba487b0d3",
+        "346da22c835ca1acbed334657aaba3799c7d64c90026104a2bec0964f41e2c37"
+      ],
+      "source_sha256": "51a874d8d0b971687ea55cce8f7b67b3ee780a79fc43e83152b91d32673799a9",
+      "text": "The genes / guides / both menu, with this table's counts on it.\n\nPublic for the reason :meth:`spacr.qt.widgets.fast_plots.FastPlot.build_style_menu`\nis: it is how a test reads what the user is offered without\nsynthesising a right-click, and how a second surface offers the SAME\nthree entries instead of growing a copy that drifts from this one.\n\nThe counts are in the labels because \"genes only\" that silently draws\n300 of 1,200 rows is a filter a user applies without knowing what they\ngave up -- the same rule the volcano's menu already follows."
+    },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.clear_diagnostics": {
       "source_blocks_sha256": [
         "26b7472aa3539d78917d1c6bacaa489e6cd0613f8eec6ee50395694a14f0c5e9",
@@ -53622,6 +53883,57 @@
       ],
       "source_sha256": "ade8fe1185cad28fb2cccc9725893bc271a0fe5f806d22344b9fdc97deeab8e5",
       "text": "The three well-level tabs, in the order they are shown.\n\nPublic because it is how a caller asks the panel to restyle, export or\ninterrogate them WITHOUT reaching past the panel into its widgets --\nwhich is how one screen ended up depending on another's private\nsurface."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.family_note": {
+      "source_blocks_sha256": [
+        "9b82b06c90dc1a5ff7a36f58c1b1ebf617adae8f0476bc2a13b270d03349d6a2",
+        "39016d46dbd635b38e98e185e752e1fdd0bb46e32110dadf2857eb3579fd9035"
+      ],
+      "source_sha256": "7bcdebf4ccb997746f7a61603a3085c44ccb21f624783aaf17c4420180088a7b",
+      "text": "Which multiple-testing family the p-value and Q-Q tabs are drawing.\n\nTHE ONE THING FILTERING A Q-Q CHANGES THAT FILTERING A VOLCANO DOES\nNOT. A volcano of the guides is the same dots with some removed; a\nQ-Q of the guides is a DIFFERENT DIAGNOSTIC -- the expected quantiles\nare recomputed over 900 tests instead of 1,200, so the diagonal moves,\nthe inflation figure at the median is a different number, and the\nexcess in the histogram's first bin is this family's excess and not\nthe run's. A reader who does not know which one is on screen cannot\nuse either."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.filtered_frame": {
+      "source_blocks_sha256": [
+        "b7e26ad5c5c1a1bd8e8c02a04a1212821390cb54bf1a060331fcfd323b4c67e2",
+        "a8c9ba280121e12d4effba62046a76aedcf86b98ade297e30353805e5e70622e"
+      ],
+      "source_sha256": "840b31adb7b8777c7f1213f4ba8029d40683abc880e481abd9414888044e720f",
+      "text": "The coefficient table at the chosen level, or ``None``.\n\nThis is what every tab is drawn from -- see :meth:`refresh_views`.\n:meth:`results_frame` is the RUN's table and stays whole: the filter\nis a view, not an edit, and a caller exporting the results must get\nthe fit rather than whatever the user last right-clicked."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.homogeneity_stats": {
+      "source_blocks_sha256": [
+        "626ae2514dd3c47dad3ad331451b7b8e28b36f89b3cf174544c7b9fab2b0ebf9",
+        "727b064e17a242bb6ea0a18580062954119ea099d9ae988a07e160d2ffab8054"
+      ],
+      "source_sha256": "a83c21ef74e5eb4c9712b71b8b5a3f859950694ef09922266e25b36f9156a72c",
+      "text": "The numbers behind the verdict -- ``regression_qc``'s own dict.\n\n``spearman_rho``, ``spearman_p``, ``levene_p``,\n``quartile_sd_ratio``, ``verdict`` and ``n_points``, exactly as\n:func:`spacr.regression_qc.draw_panel` returned them for the saved\nscale-location panel. Empty when there is no verdict."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.homogeneity_verdict": {
+      "source_blocks_sha256": [
+        "145c8a2d3b7659ff5a7857da3edad6fd5869c57c8873f9f5126d4fa1b3dd9c9c",
+        "cf82cbd30bc50e95747c44b01cf73e614834927830e4df09308e02c9a73a0f1e"
+      ],
+      "source_sha256": "d3029b1a290274cfe4e05a002e9e7f2e2f95ce30bf0fa19f07744e0e38911154",
+      "text": "Whether the residual spread is constant, in the words on screen.\n\nPublic because it is the one sentence on the Scale-location tab that\nchanges what a reader does, and a test that reads it back has to be\nable to do so without reaching into a label."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.judge_homogeneity": {
+      "source_blocks_sha256": [
+        "b5a8f747960980840b66adf4bf0000334f2ae74cb1bdbc363dc9784c929d75bf",
+        "3455efd3bd30c0b778491ea0d3749b2da38dc0a38dba91e925e35f50fb78fbd2",
+        "9eb1d3196d7d485a5a2479a6d45a259d407df19ebdffec2245ce638e488eb02d",
+        "4e3c1b9c943f27bb1a0ac6424708230726372954edd4c51ff709c0fbc2a0d7ea",
+        "6f89f04d0cba63364652ab549fd4a6bdc413cbf611becec36076f6423776b779"
+      ],
+      "source_sha256": "7c0476ced411eb7c66b3b81ef8eaafcd77952d7be4a385239ee098cd894c2a87",
+      "text": "Say whether the residual spread is constant, and what to do if not.\n\n:param ctx: a :class:`spacr.regression_qc.RegressionQCContext`.\n    ``None`` re-judges the context the diagnostics were last drawn\n    from, so a caller does not have to keep a copy of it to ask again.\n:returns: the verdict now on screen.\n\nNOT ONE NUMBER RE-DERIVED HERE. The statistics come from\n:func:`spacr.regression_qc.draw_panel` -- Spearman's rho on\nsqrt|standardised residual| against fitted, a Brown-Forsythe test\nacross quartiles of the fitted value, and the quartile SD ratio --\ndrawn into a throwaway axes purely to get the dict it returns. That\nmodule is 3,444 lines and already computes them for the PDF the run\nwrites; a second implementation here would disagree with it about the\nsame fit inside a week, and the reader would have no way to tell which\nof the two was wrong.\n\nTWO STATISTICS, NOT ONE, and that is regression_qc's decision rather\nthan this panel's: a rank correlation is exactly zero for a SYMMETRIC\nfunnel -- wide at both ends, narrow in the middle -- which is what a\nmis-specified link produces, and a panel reporting \"no trend in\nspread\" over one would be a confident wrong answer."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.level": {
+      "source_blocks_sha256": [
+        "dabfebc2d5bff7b04371b8f3e1d573f51ac171a4f68279e0ecc54f15dbb1bba1",
+        "bb9d80397cd96be7fad78d7706dfca40de68848ec3f98cbc393d6dfad98a8448"
+      ],
+      "source_sha256": "fab3bd3883e95ac80e899745902e496b73e2d25e4a62da2b4aa1aa9947b9bb4f",
+      "text": "``None``, ``\"gene\"`` or ``\"grna\"`` -- which family every tab shows.\n\nPublic because it is the one piece of state that decides what SIX\ntabs are drawing, and a caller that has to read it off a private\nattribute is a caller that will one day set it there too."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.level_counts": {
       "source_blocks_sha256": [
@@ -53647,13 +53959,23 @@
       "source_sha256": "5136e49689118536f934da1739a3a0801bbb84c9b22636e3c5c2dcebb6307f1b",
       "text": "``(kind, column)`` for the table on screen.\n\n``kind`` is ``\"p-value\"``, ``\"selection-frequency\"`` or ``None``.\nThe panel is handed coefficient tables from every backend spaCR can\nfit and they do not agree on this: OLS reports ``P>|t|``, a GLM or a\nPoisson fit ``P>|z|``, spaCR's own writer ``p_value``, and the\npenalised backends report no p-value whatsoever."
     },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.refresh_views": {
+      "source_blocks_sha256": [
+        "17e74f323b59ef3cb0c026c04ad5016ee2b8d98eeacf4a83780ca5f10cd6461a",
+        "b11f7347ef2c2354fcc84078887982d3a73ba9f2e22e649f3b8521ccd60c1363",
+        "b6a13afba717d3de4a0e5b6d2a9ddef21d5b6c3cbec756aa4826d44873c8a992"
+      ],
+      "source_sha256": "1165cba13e60bf70327d3be930da93f8e619157a90014084e649a610d1485801",
+      "text": "Draw EVERY tab from the coefficient table at the chosen level.\n\nONE PIECE OF STATE, READ SIX TIMES. `_level` used to reach the volcano\nand nothing else, so \"genes only\" left the coefficient table, the\np-value histogram, the Q-Q, the control panel and the guide support\nshowing the whole fit -- five tabs disagreeing with the sixth, at the\nsame time, with nothing on screen saying which was which. That is\nworse than no filter at all: a reader who trusts the volcano and reads\nthe inflation figure off the Q-Q beside it has combined two different\nmultiple-testing families and cannot tell.\n\nPublic because it is also what a caller does after changing something\nthe panel does not own -- and because a private redraw that four\nmethods have to remember to call is how the fifth one forgets."
+    },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.results_frame": {
       "source_blocks_sha256": [
-        "35ad847043adb7f825e6539fbac30b65e194d9390a1b9c6862d052f3e2500ded",
+        "e117f59edefe49f627609ca5e74866e15332b4d644c3d3c69239e781c3be8907",
+        "a35fb51b298e3f51a99f7b974d6f31faf85fed2cf07e107ddddc15b4893c4f78",
         "c2accf03a7473158f4dc6184159258335e0c70be1d0b62f1d603927f73ba5c01"
       ],
-      "source_sha256": "01d5fb962693a3b1c86e75f49c3494c6997b2acb2828a88059c6e15376442ac3",
-      "text": "The coefficient table on screen, or ``None``.\n\nPublic because two callers outside this panel need to know whether\nthere is anything to draw -- the publication sheet and the figure grid\n-- and both were reaching in for ``_frame`` with ``getattr``. A\n``getattr`` for a private attribute is not encapsulation, it is the\nsame coupling with the failure mode hidden: rename the attribute and\nboth callers silently decide there are no results."
+      "source_sha256": "361f91ced9ab0cf6a3accdd6bc9060338185026f6d77c045dc100fca5ab64d46",
+      "text": "The RUN's coefficient table, whole, or ``None``.\n\nNot what the tabs are currently drawing: the gene/guide filter is a\nview and never an edit, so a caller exporting or re-plotting the\nresults gets the fit rather than whatever the user last right-clicked.\n:meth:`filtered_frame` is the other one.\n\nPublic because two callers outside this panel need to know whether\nthere is anything to draw -- the publication sheet and the figure grid\n-- and both were reaching in for ``_frame`` with ``getattr``. A\n``getattr`` for a private attribute is not encapsulation, it is the\nsame coupling with the failure mode hidden: rename the attribute and\nboth callers silently decide there are no results."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.say": {
       "source_blocks_sha256": [
@@ -53700,11 +54022,19 @@
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_level": {
       "source_blocks_sha256": [
-        "db8a1598522bea4cc8cecc70bc8d36e91a1adfbbe202eb0dd90f5c4709a933f3",
-        "9678d8b3edc2211934fdf4581f3bbae95c2be32f1ee4e90744b7e38bad8f4e2d"
+        "0554b9f8ede72ee2d5f7c6e31580addafb380b6631366e18199945942eeb125c",
+        "27bb852c01987ce4f05324d98904cf544b0aab6ff4124b98f0d3607e9fed24e8",
+        "c7a441474b0dcc9c45b35a3d9694701ea1108e1c6e0609b185dee91bc303b7ca"
       ],
-      "source_sha256": "2964fd3281bcd7fbdbe19846f12f5e4678f21958efff00ed22e811820ec5773c",
-      "text": "Draw only genes, only guides, or both.\n\nA FILTER ON THE PLOT, not a mode of the run. The coefficient table\nalready carries both -- `feature` is `gene_fraction:gene[...]` or\n`fraction:grna[...]` -- so this needs no re-fit and no second table,\nwhich is why it is better here than in the settings where it used to\nlive."
+      "source_sha256": "f7141f7c8884f2fa7c17d654b0aff04df3a79b5e9d9b79f47a035411a70d4106",
+      "text": "Draw only genes, only guides, or both -- ON EVERY TAB.\n\nA FILTER ON THE PANEL, not a mode of the run. The coefficient table\nalready carries both -- `feature` is `gene_fraction:gene[...]` or\n`fraction:grna[...]` -- so this needs no re-fit and no second table,\nwhich is why it is better here than in the settings where it used to\nlive.\n\nONE PIECE OF STATE. Reached from the volcano's right-click menu and\nfrom the coefficients table's, and read by every draw path, because a\nfilter that reaches four of six tabs is worse than one that reaches\nnone: the two then disagree on screen at the same time and nothing\nsays which is which."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_p_value_kind": {
+      "source_blocks_sha256": [
+        "eacc386c7337e7cc64ddbdbdc072f7864ac098aaf7777ae70670610e10060b7f"
+      ],
+      "source_sha256": "eacc386c7337e7cc64ddbdbdc072f7864ac098aaf7777ae70670610e10060b7f",
+      "text": "Draw the volcano against the raw or the adjusted p-value."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_run_settings": {
       "source_blocks_sha256": [
