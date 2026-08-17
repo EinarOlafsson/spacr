@@ -2,7 +2,10 @@
 SCORE AND COUNT CSVs ARE PAIRED WHEN THEY ARE ADDED, NOT BY LIST POSITION
 ================================================================================
 
-Status:    not started — the two silent failures are fixed, the design is not built
+Status:    CLOSED 2026-08-16. The old header said "not started"; it was stale.
+           The design WAS built (4f8cbf9c). Audited against the acceptance
+           criteria, three gaps found and fixed, one patch still owed in
+           spacr/settings.py. See the RESULT at the end.
 Requested: 2026-08-15 — "instead of just having 2 fields an a for loop where csvs
            are matched by possition. i wnt them matched from the start, in some
            intuitive way. also this removes the need for the plateid setting so
@@ -159,3 +162,110 @@ reason to be, and enforcing it would reject valid screens.
 Not auto-matching without confirmation. The whole defect being fixed here is
 an invisible pairing rule; replacing positional matching with filename
 matching, equally unstated, would move the bug rather than remove it.
+
+================================================================================
+2026-08-16 - VERIFIED AND CLOSED. THE HEADER WAS WRONG: IT WAS BUILT.
+================================================================================
+
+STATUS SAID "not started -- the design is not built". IT IS BUILT. Commit
+4f8cbf9c ("regression: pair input tables and gate inactive settings") landed
+the whole design; the header was never updated. Audited against the five
+acceptance criteria rather than against that line:
+
+WHAT WAS FOUND ALREADY IN PLACE, and verified by running it:
+
+  1. ONE PAIRED INPUT CONTROL. `spacr.qt.widgets.file_list.PairedFileTableWidget`
+     -- four columns (plate / score CSV / count CSV / plate rule), reorderable
+     rows, per-cell editing, an "Add empty pair" row, and a drop target that
+     routes a file by the column it was aimed at or, failing that, by its
+     HEADER (`side_for_header`: a count export names a gRNA and a count, a
+     score export names neither) rather than by its filename. The suggestion
+     is `suggest_file_pairs`, by longest common filename token, written into
+     the editable table as a proposal -- never applied silently.
+     `spacr/qt/screens/settings_model.py:774` gives it the "Input Tables"
+     group; `spacr/qt/dnd.py:455` routes drops to it.
+
+  2. PLATE ID RESOLUTION, per pair, in `ml.load_regression_input_pairs`:
+     own column, then partner, then `plate{n}` from row order, with the rule
+     that fired printed per row ("Input pair 2 (plate2): copied from the count
+     file.") and recorded in `settings['input_pair_audit']`. A genuine
+     conflict raises naming both sides; the one-score-file-per-many-count-files
+     case is a SUBSET, not a conflict, and is narrowed rather than refused.
+
+  3. `plateID` IS GONE from the regression defaults, with `plates_score`,
+     `plates_count` and `plate_from_order`. Verified by calling the builder:
+
+         get_perform_regression_default_settings({...}) ->
+         plateID False  plates_score False  plates_count False
+         plate_from_order False  paired_data True
+
+     `tests/test_settings_categories.py` + `tests/test_dead_settings.py`: green.
+
+  4. THE JOIN IS STILL ON THE WELL. `normalize_regression_input_pairs`
+     projects the pairs back to de-duplicated flat `score_data`/`count_data`
+     views for the path and threshold helpers, and `_check_score_count_pairing`
+     still guards the `prc` join.
+
+  5. MIGRATION. A settings CSV with flat lists is zipped positionally, with
+     the log line "Legacy score_data/count_data lists were paired by position."
+     Unequal lengths keep the unpaired tail (`zip_longest`), which is legal
+     per step 4.
+
+WHAT WAS NOT DONE, AND IS NOW:
+
+  * THE CASE THIS FILE EXISTS FOR HAD NO TEST. "Two score files and two count
+    files, added in OPPOSITE orders" -- the criterion the file calls "the test
+    that justifies the whole change" -- was not covered. The nearest test
+    added both sides in the SAME order. Added
+    `test_two_lists_added_in_opposite_orders_still_pair_by_plate`, which
+    replays the positional rule on the same two lists to show it pairs plate
+    2's scores with plate 1's counts, then asserts the table does not.
+
+  * `pytest tests/test_cov_ml_perform_regression.py -q` WAS NOT GREEN, which
+    this file lists as an acceptance criterion: 23 of 48 failed. Not from the
+    pairing -- from the results-folder layout changed on 2026-08-16
+    (`<count folder>/results/<type>`, never over an earlier run). The tests
+    still spelled `<src>/results/<score stem>/<type>/list`. Same cause for 3
+    more in `tests/test_ml_sequencing_key_contracts.py`. Both modules now ask
+    one helper. 23 failed -> 0; 5 failed -> 0.
+
+  * THE `plate_from_order` REMOVAL LEFT TWO TESTS BEHIND, red, asserting the
+    rule it retired: a crop FILE NAME (`PLATE1_A14_1_1_0.png`) overwriting
+    rowID/columnID. The retirement is right and is this file's own
+    "DELIBERATELY NOT DONE" -- a file name is not data -- and the replacement
+    contract is already tested in test_cov_ml_perform_regression
+    (`test_path_is_not_used_to_guess_missing_well_columns`). The two obsolete
+    tests are replaced by the migration statement instead: an old settings CSV
+    still carrying `plate_from_order=True` runs, and its file names still do
+    not move a well, with the removed rule replayed on the same file so the
+    test states the old behaviour. Plus a guard that no module reads the key.
+
+EVIDENCE
+
+    before  tests/test_cov_ml_perform_regression.py    23 failed, 25 passed
+    after                                               0 failed, 48 passed
+    before  tests/test_ml_sequencing_key_contracts.py   5 failed, 28 passed
+    after                                               0 failed, 33 passed
+    tests/test_regression_workbench.py (pairing subset)  6 passed
+    tests/test_settings_categories.py, tests/test_dead_settings.py  green
+
+Commit 58b3cccf.
+
+STILL NEEDED, IN A FILE THIS SESSION MAY NOT TOUCH (spacr/settings.py, held by
+the regression session). Two tooltips still describe the retired contract, so
+the panel tells the user something untrue about the inputs it is showing:
+
+    settings.py:3372  'count_data': "... Pass one path per plate,
+                       position-aligned with plates_count; results are written
+                       under the first file's folder. ..."
+    settings.py:3521  'score_data': "... Pass one path per plate,
+                       position-aligned with plates_score; the first file's
+                       name becomes the results subfolder. ..."
+
+`plates_count` and `plates_score` no longer exist, position no longer pairs
+anything, and the results subfolder is the REGRESSION TYPE, not the score
+file's name. Suggested replacement for both: state that these two keys are the
+legacy flat form of `paired_data`, migrated positionally on load, and that a
+run writes to `<count data folder>/results/<regression type>`. Note that
+editing them also requires `tools/build_i18n_catalogs.py`, because nine
+catalogs carry hashes of the current text.
