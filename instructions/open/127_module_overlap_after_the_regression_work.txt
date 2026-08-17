@@ -1,0 +1,167 @@
+================================================================================
+MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
+================================================================================
+
+Status:    filed 2026-08-17. ANALYSIS ONLY -- no code written, on purpose.
+Requested: 2026-08-17 --
+
+           "take a look through all the modules in spacr. some of them overlap
+            substantially and some might be redundant at this stage after
+            working extensively on some modules. take a look and make
+            recommendations on modules that should be removed and merged."
+
+Why no code: which modules exist is a product decision, and three of the
+findings below are load-bearing for published figures. Same rule instruction
+06 set for the GUI apps -- 06 measured the APPS, this measures the LIBRARY.
+
+--------------------------------------------------------------------------------
+METHOD
+--------------------------------------------------------------------------------
+
+154 top-level modules under spacr/ (381 files including qt/ and the nine
+i18n catalogs; 447,200 lines total). For each: line count, public symbol
+count, and every in-repo import of it -- counting relative imports at any
+depth, which a first pass missed and which made twenty widgets' worth of
+imports invisible.
+
+Then, for each suspected pair, the two public surfaces side by side and --
+where the pair makes a CLAIM about data -- the two implementations run on
+the same input to see whether they agree.
+
+--------------------------------------------------------------------------------
+1. SEVEN VOLCANO RENDERERS. THE STRONGEST FINDING.
+--------------------------------------------------------------------------------
+
+    spacr/toxo.py:11                      custom_volcano_plot
+    spacr/plot.py:6191                    volcano_plot
+    spacr/volcano_style.py:339            render_volcano          (613 LOC)
+    spacr/figures/panels.py:207           volcano                 (the house style)
+    spacr/qt/widgets/fast_plots.py:938    VolcanoPlot             (interactive)
+    spacr/guide_permutation.py:439        plot_guide_permutation_volcano
+    spacr/regression_qc.py:3021           _panel_volcano_reference
+
+Seven implementations of one picture. This is not a tidiness complaint: it
+is exactly why "hide my old volcano behind a boolean" was reported as still
+broken on 2026-08-17 after being fixed on 2026-08-16 -- the fix gated one of
+three call sites because nobody had counted them.
+
+    RECOMMEND: two survive. `figures/panels.volcano` for anything saved, and
+    `fast_plots.VolcanoPlot` for the interactive one -- they are the two the
+    maintainer asked for and the two under the house style.
+
+    `volcano_style.py` (613 LOC, `VolcanoStyle`/`render_volcano`/
+    `point_details`) is imported by NOTHING in spacr/ and referenced by 4
+    tests. It is a whole styling system for a renderer that lost. Strongest
+    single deletion candidate in the package.
+
+    `toxo.custom_volcano_plot` cannot simply be deleted: it also RETURNS the
+    hit list the GT1 phenotype plot and ME49 heatmap are built from. It now
+    takes `draw=False` for exactly that reason. Retiring it means moving the
+    hit rule out first.
+
+    `guide_permutation` and `regression_qc` draw their own for a reason --
+    a permutation null and a QC reference are not the screen's volcano.
+    Leave them; they should CALL the panel, not reimplement it.
+
+--------------------------------------------------------------------------------
+2. TWO "WHICH TEST APPLIES" ENGINES, AND THEY DISAGREE
+--------------------------------------------------------------------------------
+
+`spacr/sp_stats.py` (314 LOC) and `spacr/figures/stats.py` (474 LOC) both
+choose a statistical test from the data. Run on the same inputs:
+
+    case                        sp_stats        figures.stats     same family?
+    normal, equal var, n=30     T-test          Student's t       yes
+    normal, UNEQUAL var, n=30   T-test          Welch's t         yes (*)
+    skewed (exponential) n=30   T-test          Mann-Whitney U    NO
+    n=3 vs 24  (THE REAL CASE)  T-test          Mann-Whitney U    NO
+    n=5 vs 5                    T-test          Mann-Whitney U    NO
+
+THREE OF FIVE DISAGREE, and always in the same direction: `sp_stats` takes
+the parametric test where the assumption checks have no power to refuse it.
+That is precisely the trap instruction 124 K names -- "choosing Student's
+because Levene did not reject on n = 3 is how a screen reports a difference
+that is not there" -- and this screen HAS three positive controls.
+
+(*) it reports "T-test" on unequal variance too, so whether it is using
+Welch at all needs checking; the label does not say.
+
+    RECOMMEND: `figures/stats.py` is the survivor -- it is the one that
+    treats an underpowered check as FAILED rather than as passed, and the one
+    whose output the Statistics tab and the exported stats sidecar already
+    use. `sp_stats` should become a thin adapter over it or go.
+
+    THIS IS A CORRECTNESS ITEM, NOT A CLEANUP. Two engines that disagree
+    about which test applies will eventually put two different p-values for
+    one comparison into one paper.
+
+--------------------------------------------------------------------------------
+3. TWO FIGURE-STYLE SYSTEMS
+--------------------------------------------------------------------------------
+
+    spacr/figure_style.py    226 LOC   apply / rc_params / resolve
+    spacr/figures/style.py   322 LOC   figure_style / Palette / ROLES / rc / ...
+
+No shared names, same job: deciding how a figure looks. They answer to
+DIFFERENT masters, which is the honest complication -- `figure_style` is the
+user's preference (general + per-graph, instruction 118), `figures/style` is
+the publication house style (the apicomplexan-figures skill). Both are
+legitimate; having them unaware of each other is not.
+
+`figure_style` is imported by exactly one place in spacr/
+(`qt/preferences.py:346`) and 11 tests.
+
+    RECOMMEND: keep both concepts, merge the CODE -- the house style is the
+    base, the user preference is an override layer on top of it. Today a user
+    preference cannot reach a house-style panel at all, which is the bug this
+    overlap is hiding.
+
+--------------------------------------------------------------------------------
+4. TWO REGRESSION QC MODULES
+--------------------------------------------------------------------------------
+
+    spacr/regression_qc.py           3444 LOC, 19 public
+    spacr/regression_diagnostics.py   722 LOC,  8 public
+
+Only one shared name (`variance_inflation_factors`, computed in both). The
+split is real -- `regression_qc` is the panel suite with a context object,
+`regression_diagnostics` is three plots -- but the boundary is not written
+down anywhere, and a reader cannot tell which to add a panel to.
+
+    RECOMMEND: lower priority than 1-3. Either merge, or write the boundary
+    into both headers. The duplicated VIF is a small correctness risk of the
+    same shape as finding 2.
+
+--------------------------------------------------------------------------------
+5. A DEPRECATION SHIM NOTHING USES
+--------------------------------------------------------------------------------
+
+`spacr/regression_search.py` -- 25 lines, re-exports `parameter_sweep` and
+raises a DeprecationWarning. ZERO references in spacr/ AND zero in tests.
+
+    RECOMMEND: check whether any RELEASED version advertised the name. If it
+    did, keep one more cycle; if the rename never shipped, delete it. It
+    currently costs a DeprecationWarning in the test output and nothing else.
+
+--------------------------------------------------------------------------------
+CHECKED AND NOT REDUNDANT -- recorded so nobody re-opens them
+--------------------------------------------------------------------------------
+
+    sim / power_simulate          a classifier simulator and a power
+                                  calculator. No shared names, no shared job.
+    model_check / model_compare   "can this model load" vs "do two models
+                                  agree". Different questions.
+    profiler / classifier_evaluation
+                                  sensitivity profiling vs leakage auditing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* One volcano renderer for saved figures, one for the interactive plot, and
+  a test that counts them so an eighth cannot appear.
+* One engine decides which statistical test applies, and the table above
+  agrees down every row.
+* A user's figure preference reaches a house-style panel.
+* `spacr.figures` and the modules it replaced do not both ship the same
+  picture.

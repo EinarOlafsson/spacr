@@ -1,0 +1,84 @@
+================================================================================
+THE THEME MUST NOT LAG WHILE A RUN IS GOING
+================================================================================
+
+Status:    filed 2026-08-17, not started.
+Requested: 2026-08-17 --
+
+           "when something is running after hitting run, the theme starts
+            lagging, i would like the theme to be on a separate thread if
+            possible, or precomputed, or something so it never laggs."
+
+Related:  the backdrop is spacr/qt/widgets/ambient.py; 32 is its ray work; 74
+          is the loading screen; INVARIANTS 10 says decoration must cost the
+          decoration and nothing else.
+
+--------------------------------------------------------------------------------
+WHAT IS ALREADY KNOWN, SO NOBODY RE-DERIVES IT
+--------------------------------------------------------------------------------
+
+The per-frame cost is NOT the problem, and the measurement is already in
+ambient.py's own header: at 1920x1080 the aurora shading pass is 0.487 /
+0.546 ms, ripple 0.398, best of thirteen interleaved runs, with one
+allocation on resize and none per frame. A 0.5 ms frame does not lag a
+60 Hz timer on an idle machine.
+
+So the lag is CONTENTION, not cost, and that changes what the fix is. The
+run already happens on a worker QThread. Three candidate causes, and they
+want different fixes -- MEASURE BEFORE CHOOSING:
+
+  1. THE GIL. The worker is Python/numpy code holding the interpreter lock;
+     the GUI thread cannot get it to run the animation timer. Moving the
+     shading to another Python thread does NOTHING for this -- it is the
+     same lock. Precomputing does, because a blit releases the GIL.
+  2. SIGNAL FLOOD. `line_ready` fires per stdout line and `figure_ready` per
+     figure; each is a queued cross-thread signal that must be serviced on
+     the GUI thread. A chatty run can post thousands. This is throttling
+     work, not threading work.
+  3. CPU SATURATION. The run uses every core, so the compositor gets no
+     time. Nothing in the application fixes this except asking for less.
+
+--------------------------------------------------------------------------------
+WHAT "ON A SEPARATE THREAD" CAN AND CANNOT MEAN
+--------------------------------------------------------------------------------
+
+Qt WIDGET PAINTING MUST HAPPEN ON THE GUI THREAD. That is not a spaCR rule,
+it is Qt's, and a QWidget painted from another thread is undefined behaviour
+rather than a slow one.
+
+What IS legal, and is probably the answer:
+
+  * QImage can be created and painted off the GUI thread. A producer thread
+    can shade frames into QImages and the GUI thread can blit them. That is
+    genuinely "the theme on a separate thread" and it is supported.
+  * BUT see cause 1: if the shading thread is Python, it queues behind the
+    worker for the same GIL. The producer has to be numpy-heavy (which
+    releases the GIL) for this to help at all.
+
+PRECOMPUTING is the other half of the request and is the more robust answer:
+the scenes are `seed, time` pure functions -- ambient.py says so explicitly
+-- so a fixed-length loop can be rendered ONCE and replayed. A cyclic buffer
+of N frames turns every frame into a blit with no shading at all. The costs
+to state: memory (N x width x height x 4 bytes) and the loop becoming
+visibly periodic if N is small.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MEASURE WHICH CAUSE IT IS, on a real run, before writing anything. Frame
+   interval during idle vs during a run, and the count of queued signals per
+   second. A fix aimed at the wrong cause will not be noticed by the person
+   who reported it.
+2. Then fix that one. If it is the GIL or saturation, precompute; if it is
+   the signal flood, coalesce the console updates.
+3. Whatever is built must degrade rather than stutter: a frame that is not
+   ready is a repeated frame, never a blocked GUI thread.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The measured frame interval during a real run is within a small factor of
+the idle interval, on the machine that reported the lag, with the same
+theme -- and the reporter says it stopped lagging.
