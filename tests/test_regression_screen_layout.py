@@ -62,8 +62,19 @@ def test_the_results_are_beside_the_figures_not_behind_a_tab(screen):
         "the results are stacked above the figures, not beside them")
     assert split.widget(0) is screen._results_tabs, (
         "the results are not the LEFT half")
-    assert screen._results_tabs.widget(0) is screen._results_panel, (
-        "Results is not the first tab -- it is what a finished run opens into")
+    # WHICH TAB IS FIRST CHANGED ON 2026-08-17; what this test is about did
+    # not. Its subject is the SPLITTER -- results BESIDE the figures rather
+    # than behind them -- and the tab order was only ever a passenger.
+    # Instruction 128 J moved Runs in front of Results by name ("the run tab
+    # should be before the results tab and results should be shown for the
+    # chosen run"), so this now asserts the property the old line was reaching
+    # for through position: Results is what the screen opens on.
+    # `test_results_is_what_opens_first` in test_the_sweep_runs_are_a_tab.py
+    # owns it; it is asserted here too because a layout test that quietly
+    # stopped checking anything about the tabs is how it would be lost.
+    assert screen._results_tabs.currentWidget() is screen._results_panel, (
+        "Results is not what the screen opens on -- it is what a finished "
+        "run opens into")
     assert split.widget(1) is screen._figures_stack
 
 
