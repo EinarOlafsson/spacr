@@ -23,7 +23,7 @@ import pytest
 
 from spacr.qt.widgets.gate_editor import GateCanvas, _project
 from spacr.qt.widgets.gate_settings import GateEditorSettings
-from spacr.qt.widgets.gate_spec import BoxGate, GateSet, RectGate
+from spacr.qt.widgets.gate_spec import BoxGate, GateSet, PrismGate, RectGate
 
 
 # ---------------------------------------------------------------------------
@@ -707,3 +707,219 @@ def test_snapping_a_real_volume_leaves_one_measurement_flat(volume):
     assert volume.snap_to_nearest_axis() == (0.0, 90.0)
     assert (float(axes.elev), float(axes.azim)) == (0.0, 90.0)
     assert volume._view_angles == (0.0, 90.0)
+
+
+# ---------------------------------------------------------------------------
+# Clicking a polygon out in the volume
+# ---------------------------------------------------------------------------
+#
+# The vertices placed so far are drawn back as a trail of markers, and that
+# trail is the only thing telling the user where the shape they are half way
+# through actually is. It used to be drawn with a FLAT `ax.plot(xs, ys)` on
+# the Axes3D, which is wrong twice over: the two numbers are (u, v) on the
+# ARMED FACE and not (x, y) in the volume, and a flat plot on an Axes3D
+# autoscales all three limits -- so every click moved the picture, and the
+# vertex already placed slid out from under the cursor that placed it. With
+# the first vertex more than `CLOSE_RADIUS_PX` away from where it was left,
+# clicking it back could not close the shape and added a fourth vertex
+# instead: a 3D polygon could not be finished at all.
+
+def _deep_table(n=300, seed=3):
+    """Three measurements, none of which straddles zero.
+
+    The defect below drags the volume's limits out to the origin, so a table
+    whose measurements happen to sit around zero hides it. Real measurements
+    -- an area in pixels, an intensity -- do not sit around zero, and this
+    one does not either.
+    """
+    rng = np.random.default_rng(seed)
+    return pd.DataFrame({"area": rng.normal(4000.0, 600.0, n),
+                         "ratio": rng.normal(5.0, 2.0, n),
+                         "depth": rng.normal(-800.0, 40.0, n)})
+
+
+@pytest.fixture
+def drawing(canvas):
+    """A volume with the polygon tool armed, drawing on the Y/Z face."""
+    canvas.set_frame(_deep_table())
+    canvas.set_spec(replace(canvas._spec, x="area", y="ratio"))
+    canvas.set_mode("3D", z_column="depth")
+    canvas.set_anchor_axis("x")
+    canvas.set_drag_mode("draw")
+    canvas.set_volume_shape("polygon")
+    return canvas
+
+
+class _Vertex:
+    """A click, in the pixels the volume reads it in."""
+
+    def __init__(self, x, y, inaxes):
+        self.x, self.y = float(x), float(y)
+        self.inaxes = inaxes
+        self.xdata = self.ydata = None
+
+
+def _limits_of(axes):
+    """The volume's three ranges, as one flat row of numbers."""
+    return np.asarray([axes.get_xlim3d(), axes.get_ylim3d(),
+                       axes.get_zlim3d()], dtype=float).ravel()
+
+
+def _face_point(canvas, axes, u, v):
+    """Where a vertex at ``(u, v)`` sits in the volume: on the armed face."""
+    spec = canvas._spec
+    columns = (spec.x, spec.y, canvas._z_column)
+    first, second, normal = canvas.anchor_plane()
+    limits = (axes.get_xlim3d(), axes.get_ylim3d(), axes.get_zlim3d())
+    point = [0.0, 0.0, 0.0]
+    point[columns.index(first)] = float(u)
+    point[columns.index(second)] = float(v)
+    point[columns.index(normal)] = float(limits[columns.index(normal)][0])
+    return point
+
+
+def _place(canvas, axes, u, v):
+    """Click where the vertex ``(u, v)`` is, and say where that was."""
+    pixels = _pixels_of(axes, _face_point(canvas, axes, u, v))
+    canvas._on_press(_Vertex(pixels[0], pixels[1], axes))
+    return np.asarray(pixels, dtype=float)
+
+
+#: Three vertices on the ratio/depth face, well inside the cloud.
+_SHAPE = ((3.0, -820.0), (7.0, -820.0), (5.0, -780.0))
+
+
+def _pending_outline(axes):
+    """The trail of placed vertices, as the three coordinates it was drawn
+    with -- 2D if it was drawn flat, which is the defect."""
+    lines = [line for line in axes.lines if line.get_marker() == "o"]
+    assert lines, "the vertices placed so far were not drawn at all"
+    line = lines[-1]
+    data = getattr(line, "_verts3d", None)
+    if data is None:
+        return None
+    return np.asarray(data, dtype=float)
+
+
+def test_placing_a_vertex_does_not_move_the_volume(drawing):
+    """Clicking a vertex is a gesture, not data. Drawing the trail with a
+    flat plot autoscaled all three limits, so the volume jumped on every
+    click of a shape the user was still drawing."""
+    axes = drawing.axes_at(0, 0)
+    before = _limits_of(axes)
+    for u, v in _SHAPE:
+        _place(drawing, axes, u, v)
+    assert len(drawing._pending) == 3
+    assert _limits_of(axes) == pytest.approx(before)
+
+
+def test_the_first_vertex_stays_under_the_cursor_that_placed_it(drawing):
+    """It is the target you have to hit to close the shape, so it moving is
+    the same as the shape being unfinishable."""
+    axes = drawing.axes_at(0, 0)
+    clicked = _place(drawing, axes, *_SHAPE[0])
+    for u, v in _SHAPE[1:]:
+        _place(drawing, axes, u, v)
+    now = _pixels_of(axes, _face_point(drawing, axes, *_SHAPE[0]))
+    drift = float(np.hypot(now[0] - clicked[0], now[1] - clicked[1]))
+    assert drift <= drawing.CLOSE_RADIUS_PX, (
+        f"the first vertex moved {drift:.0f} px from where it was clicked, "
+        f"against a close radius of {drawing.CLOSE_RADIUS_PX:.0f} px")
+
+
+def test_clicking_the_first_vertex_again_closes_the_shape(drawing):
+    """"Click the first vertex to close" is the only way to finish a polygon
+    -- the Close button was removed once this worked. In the volume it never
+    worked: on this table the click landed 104 px from where the vertex had
+    drifted to and was taken as a fourth vertex."""
+    axes = drawing.axes_at(0, 0)
+    first = _place(drawing, axes, *_SHAPE[0])
+    for u, v in _SHAPE[1:]:
+        _place(drawing, axes, u, v)
+    drawing._on_press(_Vertex(first[0], first[1], axes))
+    assert drawing._pending == [], "the click was taken as another vertex"
+    gate = drawing._pending_volume_gate
+    assert isinstance(gate, PrismGate)
+    assert np.asarray(gate.vertices) == pytest.approx(np.asarray(_SHAPE))
+
+
+def test_the_trail_is_drawn_on_the_face_the_vertices_are_on(drawing):
+    """The two numbers a vertex holds are its position on the ARMED FACE.
+    Drawn as (x, y) they landed on two measurements that are not the ones the
+    user clicked, at a depth of zero that no measurement here reaches."""
+    axes = drawing.axes_at(0, 0)
+    for u, v in _SHAPE:
+        _place(drawing, axes, u, v)
+    drawn = _pending_outline(axes)
+    assert drawn is not None, "the trail was drawn flat, not in the volume"
+    expected = np.asarray(
+        [_face_point(drawing, axes, u, v) for u, v in _SHAPE], dtype=float).T
+    assert drawn == pytest.approx(expected)
+
+
+def _markers(axes):
+    return [line for line in axes.lines if line.get_marker() == "o"]
+
+
+def _forget_markers(axes):
+    """Take the trail off the axes, so the next redraw speaks for itself."""
+    for line in _markers(axes):
+        line.remove()
+
+
+def test_vertices_clicked_flat_are_not_replayed_into_the_volume(drawing):
+    """Half a polygon clicked on the 2D plot and then switched to 3D has two
+    numbers with no plane behind them. There is no face to put them on, so
+    the trail is not drawn -- which is a shape you cannot see rather than a
+    shape drawn somewhere it does not belong."""
+    axes = drawing.axes_at(0, 0)
+    drawing._pending = [(3.0, -820.0), (7.0, -820.0)]
+    drawing._pending_plane = None
+    before = _limits_of(axes)
+    drawing._draw_gates()
+    assert _markers(axes) == []
+    assert _limits_of(axes) == pytest.approx(before)
+
+
+def test_a_picker_changed_mid_polygon_does_not_strand_the_trail(drawing):
+    """The axis pickers stay live while a polygon is half drawn, and the
+    plane the vertices were placed on can stop being on screen. Drawing them
+    against whatever is on screen now would put them on measurements nobody
+    clicked."""
+    axes = drawing.axes_at(0, 0)
+    for u, v in _SHAPE:
+        _place(drawing, axes, u, v)
+    assert _markers(axes), "nothing was drawn while the plane was still there"
+    _forget_markers(axes)
+    drawing._z_column = "area"       # the depth picker moved off 'depth'
+    drawing._draw_gates()
+    assert _markers(axes) == []
+
+
+def test_three_axes_showing_two_measurements_leave_the_trail_undrawn(drawing):
+    """The same duplicate-axis state that has no anchor plane has no face for
+    a vertex either, and `_pending_plane` outlives the change that made it."""
+    axes = drawing.axes_at(0, 0)
+    for u, v in _SHAPE:
+        _place(drawing, axes, u, v)
+    _forget_markers(axes)
+    drawing._z_column = drawing._spec.y      # Y and Z on one measurement
+    drawing._draw_gates()
+    assert _markers(axes) == []
+
+
+def test_a_matplotlib_that_refuses_the_trail_leaves_the_volume_alone(drawing):
+    """The outline is decoration. A version whose 3D line plot will not take
+    these arguments costs the user the trail and nothing else -- and above
+    all must not leave the limits it was half way through changing."""
+    axes = drawing.axes_at(0, 0)
+    _place(drawing, axes, *_SHAPE[0])
+    before = _limits_of(axes)
+
+    def boom(*_args, **_kwargs):
+        axes.set_zlim3d(0.0, 1.0)            # as an autoscale would
+        raise RuntimeError("no 3d lines here")
+
+    axes.plot = boom
+    drawing._draw_gates()
+    assert _limits_of(axes) == pytest.approx(before)
