@@ -41,6 +41,67 @@ except Exception:  # pragma: no cover - pyqtgraph is optional
     ScatterPlotItem = object
     HAVE_PYQTGRAPH = False
 
+
+class _Absorbs:
+    """Answers any call, any attribute, with something harmless.
+
+    Stands in for BOTH the pyqtgraph module and a PlotWidget when pyqtgraph
+    is not installed, so the thirty ``pg.`` calls and the forty
+    ``self.plot.`` calls in this file do not each need a guard. A guard per
+    call site is how one gets missed on the path nobody tested, and the
+    crash comes back somewhere new.
+
+    Every attribute is a callable returning an empty list, because the two
+    things callers do with a result are ignore it and iterate it
+    (``listDataItems``, ``actions``). Returning None satisfies the first and
+    raises on the second.
+    """
+
+    def __getattr__(self, _name):
+        return self
+
+    def __call__(self, *args, **kwargs):
+        return self
+
+    # Chains have to survive whole, not one link at a time. The subclasses
+    # run `self.plot.scene().sigMouseClicked.connect(...)` in their own
+    # __init__ -- three links -- so returning a plain [] from the first call
+    # only moves the AttributeError one step along.
+    def __iter__(self):
+        return iter(())
+
+    def __len__(self):
+        return 0
+
+    def __bool__(self):
+        # `if self._highlight:` must read as "nothing is drawn", which is
+        # true, rather than as a live artist to remove.
+        return False
+
+    def __repr__(self):
+        return "<pyqtgraph absent>"
+
+
+if not HAVE_PYQTGRAPH:  # pragma: no cover - exercised by the absence test
+    # THE MODULE TOO, not only the widget. Thirty call sites in this file go
+    # through `pg.` -- mkBrush, mkPen, ScatterPlotItem, InfiniteLine -- and
+    # `pg = None` turns every one into an AttributeError the moment a table
+    # arrives. The panel would then BUILD and die on its first redraw, which
+    # is a worse failure than the original: the app looks fine until the user
+    # loads data.
+    pg = _Absorbs()
+
+
+#: What the user is told, and what they can do about it. Names the EXTRA the
+#: way NAPARI_MISSING_MESSAGE does, rather than the bare distribution: a
+#: `pip install pyqtgraph` into an environment installed from an extra is how
+#: people end up with a package the next upgrade quietly removes again.
+PYQTGRAPH_MISSING_MESSAGE = (
+    "Interactive plots need pyqtgraph.\n\n"
+    "Install it with  pip install 'spacr[qt]'  and reopen this module.\n\n"
+    "Everything else works without it: the run still produces every figure, "
+    "and they appear on the grid above the console.")
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
@@ -76,10 +137,22 @@ HOVER_LIMIT = 20000
 
 
 def _require_pyqtgraph() -> None:
+    """Raise for a caller that genuinely cannot degrade.
+
+    NOT called from :class:`FastPlot` any more, and the reason is the bug
+    this replaced. `RegressionResultsPanel` builds five of these, the
+    parameter-sweep card builds that panel, and `_build_runtime_panel` builds
+    the card -- so a missing OPTIONAL plotting library raised out of the
+    screen factory and took down EVERY module in the application, mask and
+    measure included. Reported from a real install that had PySide6 and not
+    pyqtgraph.
+
+    The message it raised also named a fallback that does not exist ("or use
+    the matplotlib figures"). Telling a user there is another way and then
+    dying is worse than dying.
+    """
     if not HAVE_PYQTGRAPH:
-        raise RuntimeError(
-            "pyqtgraph is needed for the interactive plots. Install it with "
-            "`pip install pyqtgraph`, or use the matplotlib figures.")
+        raise RuntimeError(PYQTGRAPH_MISSING_MESSAGE)
 
 
 #: Ink to fall back to when the preference store cannot be read.
@@ -142,7 +215,12 @@ class FastPlot(QWidget):
     def __init__(self, title: str = "", x_label: str = "", y_label: str = "",
                  parent=None):
         super().__init__(parent)
-        _require_pyqtgraph()
+        #: False when pyqtgraph is absent. The widget still constructs, still
+        #: lays out, and says why it is empty rather than raising.
+        self.plots_available = HAVE_PYQTGRAPH
+        if not HAVE_PYQTGRAPH:
+            self._build_without_pyqtgraph(title)
+            return
         # BACKGROUND None IS TRANSPARENT, WHICH WAS ALREADY RIGHT. The ink was
         # not: `foreground="k"` hardcoded BLACK axes, ticks and labels, so on
         # a dark theme the plot drew black-on-transparent over a dark surface
@@ -250,6 +328,50 @@ class FastPlot(QWidget):
         # Right-click to restyle, the same gesture the matplotlib figures use.
         self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
         self.plot.customContextMenuRequested.connect(self._style_menu)
+
+    def _build_without_pyqtgraph(self, title: str) -> None:
+        """A usable, honest empty box instead of a traceback.
+
+        Every attribute the rest of this class and its callers touch is set
+        HERE. A half-built widget that raises on its third method is worse
+        than one that raises on its first: the traceback then names a symptom
+        instead of the cause -- which is exactly how the original report read.
+        """
+        from PySide6.QtWidgets import QLabel
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(6)
+        if title:
+            layout.addWidget(QLabel(f"<b>{title}</b>"))
+        notice = QLabel(PYQTGRAPH_MISSING_MESSAGE)
+        notice.setWordWrap(True)
+        notice.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        layout.addWidget(notice)
+        layout.addStretch(1)
+
+        self.plot = _Absorbs()
+        self._background, self._foreground = _figure_colors()
+        self._status = QLabel("")
+        self._status.setWordWrap(True)
+        layout.addWidget(self._status)
+        self._headline = ""
+        self._note = ""
+        self._labels = ()
+        self._legend_colours = {}
+        self._items = []
+        self._keys = ()
+        self._key_rows = {}
+        self._row_xy = {}
+        self._selected_key = None
+        self._highlight = None
+        self._refit = None
+        self._baselines = []
+        self._compartments = []
+        self._frame = None
+        self._grid = QCheckBox("Grid")
+        self._legend_box = QCheckBox("Legend")
+        self._legend_box.setEnabled(False)
 
     # ----------------------------------------------------------------- state
 
