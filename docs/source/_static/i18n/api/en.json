@@ -53703,6 +53703,15 @@
       "source_sha256": "91b4d981ad3a621d5cb8baa02bbc81e09fb93d7c4cc26f1854481103b7e5c9f5",
       "text": "Remember the settings that produced the table now on screen.\n\nCalled by the screen when a run finishes, because the run's own\nsettings are better than anything read back off disk: the saved copy\nunder ``settings/`` is overwritten by every later run of the same\nscreen, so on a second run it describes the wrong one."
     },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_summary": {
+      "source_blocks_sha256": [
+        "afabac51884077d94ece63cb717fc1fcce50db04a7a05edf9c595dcd582e3edd",
+        "27e3ef0414f8581d661fa2da2d9630aeaac6a93ca8aab2ef6920d362acc52a97",
+        "ed18ea11090c1db51a35031ebb8d34fbf2a532fe42c9d433e014b3dd8c69b2d4"
+      ],
+      "source_sha256": "e2e6dcfaafcef9eabd1cce1942fea88bcce4eff9b6230f46a167ec7e4101af23",
+      "text": "Fill the Summary tab from the fitted model.\n\n:returns: True when a summary was rendered.\n\nRendered from `model.summary()` verbatim rather than rebuilt: the\npoint of asking for the statsmodels summary is to get the statsmodels\nsummary, and a re-implementation would differ from every textbook and\nevery other tool the reader compares it against."
+    },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.status_text": {
       "source_blocks_sha256": [
         "8c6c9302b76360cdc9fc0885041b2d4c1cac1681efebb5952a210aab17f7c9e2",
@@ -53735,6 +53744,15 @@
       ],
       "source_sha256": "ae33d45bb1d684ec649bebfbe1e2bad188ba58b3e29644aef8e3158ebc3a10d2",
       "text": "Every results CSV under ``path``, NEWEST RUN FIRST.\n\nThe first table in a sorted walk is not this run's results. ``glm`` sorts\nbefore ``ols`` and ``2025`` before ``2026``, so a folder holding more than\none run answered with whichever one happened to win the alphabet -- which\nis how a user watching a run finish reads last month's screen and never\nfinds out.\n\nORDERED BY RUN, NOT BY FILE. ``perform_regression`` writes ``results.csv``,\nthen ``results_gene.csv``, then ``results_grna.csv``, milliseconds apart\ninto one folder -- so ranking individual files by modification time hands\nback the guide split, which on the real screen is 823 rows of a 1,213-row\nfit. The run folder's newest table dates the RUN; inside it,\n:data:`RESULT_FILENAMES` order decides, and the full coefficient table\ncomes first because the gene and guide files are views of it."
+    },
+    "spacr.qt.widgets.regression_results.summary_text": {
+      "source_blocks_sha256": [
+        "f66e483c60c4e0dfc773d0ab13b6f4a87cf94b8f7a7d4850c7af53fcb550bd5a",
+        "fd115ed618170d5a3380d725735468372a946516d49a117f225bb187fefe10bc",
+        "b696672c61fd6d6d74e2677c17a22278ed031eed07901eb31c0dae8696a85167"
+      ],
+      "source_sha256": "e2957d85177171e607268967070b36b30223115c851a14fb47ffa0b12735db06",
+      "text": "The statsmodels summary for ``model``, or why there is none.\n\nVERBATIM, not rebuilt. The point of asking for the statsmodels summary is\nto get the statsmodels summary; a re-implementation would differ from\nevery textbook and every other tool a reader compares it against.\n\n:returns: the summary text, always a string -- a backend without one\n    comes back as a sentence naming the backend rather than as an\n    exception or an empty tab, both of which read as a bug."
     },
     "spacr.qt.widgets.row_exclusion": {
       "source_blocks_sha256": [
