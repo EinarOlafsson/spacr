@@ -1691,9 +1691,10 @@ class AppScreen(QWidget):
                 left = QTabWidget(self._figures_card)
                 left.addTab(self._results_panel, "Results")
                 left.addTab(self._sweep_runs, "Runs")
-                left.setTabToolTip(1, "Every trial the parameter sweep ran. "
-                                      "Pick one to see its results and its "
-                                      "figures.")
+                left.setTabToolTip(1, "Every run: this session's own, its "
+                                      "re-fits, and every trial the parameter "
+                                      "sweep ran. Pick one to see its results "
+                                      "and its figures.")
 
                 # WHICH MEASUREMENT HAS GENES WITH A CLEAR EFFECT (122).
                 # Structurally the same thing as the sweep, with the
@@ -2502,17 +2503,29 @@ class AppScreen(QWidget):
         # the run journal + the OS notification.
         import time as _time
         self._run_started_at = _time.time()
-        # EACH RUN IS ITS OWN SECTION ON THE GRID. Marked at the START rather
-        # than when the first figure arrives, so a run that draws nothing
-        # still appears as a section that drew nothing -- which is a fact
-        # worth seeing rather than a gap.
+        # EACH RUN IS ITS OWN SECTION ON THE GRID, AND A ROW IN THE RUNS TAB.
+        # Marked at the START rather than when the first figure arrives, so a
+        # run that draws nothing still appears as a section that drew nothing
+        # -- which is a fact worth seeing rather than a gap.
+        #
+        # ONE LABEL FOR BOTH. The grid heading and the runs row name the same
+        # run, and two labels generated separately are two clocks: a user
+        # looking at "run 14:32:05" on the grid has to be able to find it in
+        # the table.
+        import datetime as _dt
+        from ..widgets.sweep_runs import SOURCE_REFIT, SOURCE_RUN
+        # A RE-FIT IS A RUN, AND SAYS SO. `override` is what the re-fit passes
+        # and nothing else does (see the docstring above), so this is the one
+        # place that can tell the two apart -- by the time the worker starts
+        # they are the same call.
+        source = SOURCE_REFIT if override is not None else SOURCE_RUN
+        label = _dt.datetime.now().strftime(f"{source}  %H:%M:%S")
         try:
-            import datetime as _dt
-            self._figure_queue.mark_run(
-                _dt.datetime.now().strftime("run  %H:%M:%S"))
+            self._figure_queue.mark_run(label)
         except Exception:
             LOG.debug("could not mark the run on the figure grid",
                       exc_info=True)
+        self._run_handle = self._record_run_in_runs_tab(label, source, settings)
 
         # The one preference the PIPELINE needs to know about, passed as an
         # ordinary setting. The pipeline must never read QSettings -- a
@@ -3116,6 +3129,15 @@ class AppScreen(QWidget):
         self._progress.setVisible(False)
         cancelled = bool(
             getattr(getattr(self, "_worker", None), "was_cancelled", False))
+        # THE RUNS TAB LEARNS HOW IT WENT. Its row said "running" from the
+        # moment the run started; leaving it there would make every finished
+        # run look like one still in flight, and picking it would be refused
+        # for a run whose results are sitting on disk.
+        import time as _elapsed_time
+        self._update_run_in_runs_tab(
+            status=("stopped" if cancelled else ("ok" if ok else "failed")),
+            seconds=round(_elapsed_time.time() - getattr(
+                self, "_run_started_at", _elapsed_time.time()), 1))
         if cancelled:
             self._console.append_notice(
                 "■ Stopped safely at a field, trial, or job boundary\n")
@@ -3154,6 +3176,45 @@ class AppScreen(QWidget):
             )
         except Exception:
             pass
+
+    # ------------------------------------------------------------------
+    # The Runs tab: every run, not only the sweep's trials
+    # ------------------------------------------------------------------
+    def _record_run_in_runs_tab(self, label, source, settings):
+        """Put a starting run on the Runs tab. Returns its handle, or None.
+
+        Instruction 125 C: "the runs tab should capture all the runs in a
+        sweep and all the runs run in the normal module." The tab was fed by
+        `sweep_results.csv` alone, so it answered "which trials did the sweep
+        try" rather than "what have I run" -- and a re-fit, which is a new run
+        by construction, did not appear at all.
+
+        Returns None where there is no tab to record on. The tab is built for
+        the regression screens (that is where the sweep and the re-fit live),
+        and every other module screen runs through this same method.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is None:
+            return None
+        try:
+            return runs._record_run(label, source, settings)
+        except Exception:
+            LOG.debug("could not record the run in the Runs tab",
+                      exc_info=True)
+            return None
+
+    def _update_run_in_runs_tab(self, **fields) -> bool:
+        """Update the row for the run this screen last started."""
+        runs = getattr(self, "_sweep_runs", None)
+        handle = getattr(self, "_run_handle", None)
+        if runs is None or handle is None:
+            return False
+        try:
+            return bool(runs._update_run(handle, **fields))
+        except Exception:
+            LOG.debug("could not update the run in the Runs tab",
+                      exc_info=True)
+            return False
 
     def _refresh_figure_grid(self) -> None:
         """Rebuild the grid from whatever the queue is holding.
@@ -3288,12 +3349,28 @@ class AppScreen(QWidget):
         that failed says why rather than silently doing nothing -- a click
         that produces no visible change reads as a broken table.
         """
+        from ..widgets.sweep_runs import STATUS_RUNNING
+
         if not isinstance(record, dict):
             return
-        trial = record.get("trial_id", "?")
-        if str(record.get("status", "ok")) != "ok":
+        # NAMED THE WAY THE ROW NAMES ITSELF. The tab now holds this session's
+        # runs beside the sweep's trials, and calling an ordinary run "Trial
+        # nan" is how a mixed table stops being readable. `isinstance` rather
+        # than truthiness: a missing cell in a concatenated frame is NaN, and
+        # NaN is truthy -- it would name the run "nan" without failing.
+        named = record.get("run")
+        trial = (named.strip() if isinstance(named, str) and named.strip()
+                 else f"Trial {record.get('trial_id', '?')}")
+        status = str(record.get("status", "ok"))
+        if status == STATUS_RUNNING:
+            # Not "did not produce a regression" -- it has not finished trying.
             self._console.append_stdout(
-                f"Trial {trial} did not produce a regression: "
+                f"{trial} is still going. Its results appear here when it "
+                "finishes.\n")
+            return
+        if status != "ok":
+            self._console.append_stdout(
+                f"{trial} did not produce a regression: "
                 f"{record.get('error_type', '')} "
                 f"{record.get('error', 'no reason recorded')}\n")
             return
@@ -3301,7 +3378,7 @@ class AppScreen(QWidget):
         panel = getattr(self, "_results_panel", None)
         if not folder or panel is None or not panel.load(folder):
             self._console.append_stdout(
-                f"Trial {trial} has no saved results on disk. Re-run it from "
+                f"{trial} has no saved results on disk. Re-run it from "
                 "the sweep panel to draw them.\n")
             return
         # Its figures too, so the grid on the right is that trial's and not
@@ -3454,8 +3531,18 @@ class AppScreen(QWidget):
 
         The on-disk search stays as the fallback for opening an old run.
         """
+        if not isinstance(payload, dict):
+            return
+        # WHERE THIS RUN WROTE, ON THE RUN'S OWN ROW. Recorded before the
+        # results panel is even consulted, because it is what makes the Runs
+        # tab navigable: `_show_trial` opens a row by its folder, and a row
+        # with no folder is a row that can only be looked at.
+        self._update_run_in_runs_tab(
+            folder=str(payload.get("res_folder") or "") or None,
+            n_results=(len(payload["results"])
+                       if payload.get("results") is not None else None))
         panel = getattr(self, "_results_panel", None)
-        if panel is None or not isinstance(payload, dict):
+        if panel is None:
             return
         frame = payload.get("results")
         if frame is None or not len(frame):
