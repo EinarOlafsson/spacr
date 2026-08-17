@@ -646,7 +646,43 @@ place with the reasoning in the tests beside them rather than a pragma:
 The rest are one-line style and colour branches.
 
 --------------------------------------------------------------------------------
-STILL OPEN ON THIS MODULE, WITH ITS PATCH, DELIBERATELY NOT APPLIED HERE
+THE TWO THAT WERE LEFT OPEN ARE FIXED -- 2026-08-17
+--------------------------------------------------------------------------------
+
+Both, with the five tests moved onto the live path first, which is what the
+note below asked for.
+
+  A. The trail of pending vertices is now three-dimensional points on the
+     anchor face, with the limits put back afterwards: a half-drawn polygon
+     is a gesture, not data. `_volume_face_point` is shared with
+     `_near_first_volume_vertex`, so the vertex the user is asked to click is
+     the vertex that is measured.
+
+     The 79 px in the note below could not be reproduced with the anchor axis
+     left at its default. It depends on which measurements the plane holds:
+     with anchor Z the pending (u, v) happen to be x and y, so the flat plot
+     lands them in the right two axes by coincidence and only the depth is
+     wrong. Re-measured on a table whose third measurement does not straddle
+     zero, with the anchor on X: 104 px against a CLOSE_RADIUS_PX of 12.
+     `tests/qt/test_cov_gate_editor_volume_render.py` carries that table and
+     four cases -- the limits do not move, the first vertex does not move,
+     clicking it closes the shape, and the trail is drawn on the face.
+
+  B. The block was DELETED rather than re-conditioned. Guarding it on
+     `_in_volume()` makes it unreachable outright: in a real volume
+     `_volume_press` above it has already taken the event, so the only state
+     it could ever reach was the flat-fallback one it broke. The clicks now
+     fall through to the 2D path, which is correct for a flat scatter, and
+     the `1943-1944` dead lines go with it. Three cases in
+     `tests/qt/test_cov_gate_editor_mouse.py`.
+
+  The stub in `tests/qt/test_anchor_plane.py` grew the `get_zlim` a
+  three-dimensional axes actually has, and its fixture sets Draw + polygon,
+  which is what a user drawing in the volume has set. Without those the file
+  was testing a state the editor cannot be in.
+
+--------------------------------------------------------------------------------
+THE ORIGINAL NOTE, KEPT FOR ITS REASONING
 --------------------------------------------------------------------------------
 
 TWO MORE REAL BUGS were found and are NOT fixed, because both fixes require
@@ -687,6 +723,44 @@ worth taking deliberately rather than at the end of a coverage pass.
      through the live path with the same assertions.
 
 --------------------------------------------------------------------------------
+spacr/qt/screens/gate_editor.py -- 72.1% TO 100% -- 2026-08-17
+--------------------------------------------------------------------------------
+
+684 statements, 0 uncovered, no pragma. 78 cases in
+`tests/qt/test_cov_gate_editor_screen.py`, driven through a real sqlite
+measurement database with a real object identity, with the job runner
+unthreaded.
+
+ONE REAL BUG, and it was the last eight uncovered lines that found it:
+
+  THE FILTER/SEARCH TAB STRIP HAS NEVER BEEN STYLED, AND NOTHING SAID SO.
+  The screen registered its own QSS block from `__init__` against
+  `theme.register_qss` -- a name the theme has never exported; it is
+  `register_widget_qss` -- and handed it a one-argument lambda where the seam
+  calls `fn(palette, opacity)`. The ImportError landed in the `except` beside
+  it, whose comment says the styling "is not worth taking the screen down
+  for", so the block was never registered and the failure was never reported.
+  A tab strip with no rule falls through to the blanket
+  `QWidget { background-color: bg }`, which is #000000 on dark: a black slab
+  beside the plot. That is exactly the defect
+  `tests/qt/test_widget_qss_is_complete.py` exists for, and its two sweeps
+  now cover this module because the registration moved to import scope and
+  the module joined `theme.WIDGET_QSS_MODULES`.
+
+AND ONE TRAP IN THE SUITE ITSELF, worth more than the module:
+
+  `DataFilterPanel` publishes into the PROCESS-WIDE `LinkedSelection`, and
+  every `LinkedView` reads its filter through `linked_visible` whether or not
+  it ever subscribed. So one `add_column("area")` anywhere narrows every
+  canvas built for the rest of the process -- and it is published on a
+  debounce, so the test that set it has usually finished by the time it
+  lands. It surfaced 45 tests away as a `GateCanvas` with a real table and a
+  real Axes3D rendering no axes at all, because none of its rows survived a
+  filter written in another table's units. `tests/qt/conftest.py` now clears
+  it at SETUP, after `deferred_deletions_flushed`, for the reason recorded
+  above the removal of `_drain_job_runners`.
+
+--------------------------------------------------------------------------------
 WHERE THE NEXT WORKER SHOULD GO
 --------------------------------------------------------------------------------
 
@@ -696,14 +770,21 @@ session holds (`ml.py`, `app_screen.py`, `fast_plots.py`, `figure_queue.py`,
 
      303   83.7%  spacr/qt/screens/annotate.py
      249   76.9%  spacr/qt/dnd_handlers.py
-     191   72.1%  spacr/qt/screens/gate_editor.py   <- the SCREEN, not the
-                                                       widget done here
      188   94.4%  spacr/timelapse.py       (28 of its 228 tests deselected)
      169   88.8%  spacr/qt/widgets/live_preview.py
      167   89.9%  spacr/qt/screens/settings_model.py
      160   51.8%  spacr/qt/screens/pipeline_graph.py
 
-`spacr/qt/screens/gate_editor.py` is the natural next one: it is the other
-half of the feature just covered, `_refill_axis_pickers` in it is the source
-of the duplicate-axis state that caused two of the six bugs above, and the
-fixtures now exist.
+`spacr/qt/screens/pipeline_graph.py` is the natural next one: it is the
+lowest percentage left on the list by a wide margin, so it is where the
+uncovered branches are densest -- and by the argument at the top of this
+file, where the bugs are.
+
+Two things learned here that will save the next worker the same hour:
+
+  * an offscreen Qt still runs `QMenu.exec`'s nested event loop, and hangs
+    with nobody to dismiss the popup. Patching `QMenu.exec` does not help
+    when the class is imported inside the function -- replace the CLASS on
+    `PySide6.QtWidgets`.
+  * `isVisible()` is always False in a headless run, because nothing on an
+    unshown screen is visible. `isHidden()` is what a show/hide test means.
