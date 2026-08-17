@@ -2117,17 +2117,43 @@ class AnnotateScreen(QWidget):
 
     def _on_skip(self):
         self._flush_pending()
-        offset = find_last_annotated_offset(
-            self._settings.db_path,
-            self._settings.annotation_column,
-            self._settings.page_size,
-            self._settings.image_type,
-        )
+        offset = self._last_annotated_offset()
         if offset is None:
             self._status_label.setText("No annotated images found.")
             return
         self._offset = offset
         self._load_page()
+
+    def _last_annotated_offset(self) -> Optional[int]:
+        """Page offset of the last annotated crop, in the population on screen.
+
+        ``_offset`` indexes whatever :meth:`_load_page` is paging through, and
+        that is NOT always the table: a threshold filter, the uncertainty
+        queue and a routed request each replace it with ``_filtered_rows``.
+        Asking the database for the answer in those states returns an index
+        into the table and hands it to a list of a different length, so Skip
+        landed on an empty page -- with no message, and with Next/Prev unable
+        to get back to the crop the button was pressed to find.
+
+        So the row set that is on screen is the one that gets counted, and
+        only the unfiltered case asks the database.
+        """
+        page = self._settings.page_size
+        rows = self._filtered_rows
+        if rows is None:
+            return find_last_annotated_offset(
+                self._settings.db_path,
+                self._settings.annotation_column,
+                page,
+                self._settings.image_type,
+            )
+        last = None
+        for index, (_path, value) in enumerate(rows):
+            if value is not None and value != 0:
+                last = index
+        if last is None:
+            return None
+        return (last // page) * page
 
     def _on_class_counts(self):
         rows = class_counts(self._settings.db_path, self._settings.annotation_column)
