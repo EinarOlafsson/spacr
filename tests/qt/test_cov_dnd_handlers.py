@@ -1837,3 +1837,142 @@ def test_a_plugin_supplying_a_layout_handler_is_told_which_module_it_is_on(
     handler = dh.get_handler("my_plugin")
     assert isinstance(handler, _PluginLayout)
     assert handler.app_key == "my_plugin"
+
+
+# ---------------------------------------------------------------------------
+# The last unreached corners of the pipeline handlers
+# ---------------------------------------------------------------------------
+
+def _src_screen(**attrs):
+    """An AppScreen-shaped double whose src field can be read back."""
+    src = QLineEdit()
+
+    class _Model:
+        _widgets = {"src": src}
+
+        def set_value_for_key(self, key, value):
+            return False
+
+        def collect(self):
+            return attrs.get("collected", {})
+
+    screen = _Screen(_settings_model=_Model(), **{
+        k: v for k, v in attrs.items() if k != "collected"})
+    return screen, src
+
+
+def test_a_dropped_container_file_gets_its_regex_report_one_turn_later(
+        tmp_path, monkeypatch, qtbot):
+    """A single container reads a header, not a tree, so it stays on the GUI
+    thread -- deferred one turn only so the src field paints first."""
+    reported = []
+    monkeypatch.setattr(dh, "_report_regex_on_mask",
+                        lambda path, screen: reported.append(path))
+    container = _touch(tmp_path / "plate.nd2")
+    screen, src = _src_screen()
+    dh.MaskDropHandler().apply(container, screen)
+    assert src.text() == str(tmp_path)
+    qtbot.waitUntil(lambda: reported == [container], timeout=5000)
+
+
+def test_a_validated_regex_survives_an_editor_that_will_not_open(monkeypatch):
+    """The confirmation step is a review. Losing the pattern because the
+    dialog could not be built would leave the screen with no regex at all."""
+    import spacr.qt.regex_editor as editor_mod
+    monkeypatch.delattr(editor_mod, "RegexEditorDialog")
+    pushed = []
+    monkeypatch.setattr(dh, "_push_regex_to_screen",
+                        lambda pattern, screen: pushed.append(pattern))
+    dh._open_regex_editor(["a.tif"], "(?P<plateID>.*)", _Screen(),
+                           confirming=True, fallback="(?P<plateID>.*)")
+    assert pushed == ["(?P<plateID>.*)"]
+
+
+def test_dropping_the_merged_folder_on_measure_sets_the_plate_above_it(
+        tmp_path, monkeypatch):
+    """Auto-chaining fills the same field with the plate, and two spellings
+    of one project is how a settings CSV comes to disagree with a run."""
+    monkeypatch.setattr(dh._ch, "resolve_drop", lambda *a, **k: _Resolution())
+    merged = tmp_path / "plate" / "merged"
+    array = _touch(merged / "a.npy")
+    screen, src = _src_screen()
+    handler = dh.MeasureDropHandler()
+    handler.apply(merged, screen)
+    assert src.text() == str(tmp_path / "plate")
+    handler._last_resolution = None
+    handler.apply(array, screen)
+    assert src.text() == str(tmp_path / "plate")
+
+
+def test_measure_refuses_a_path_that_is_neither_file_nor_folder(tmp_path):
+    assert dh.MeasureDropHandler().can_accept(tmp_path / "never-existed") \
+        is False
+
+
+def test_a_second_folder_dropped_on_classify_is_added_beside_the_first(
+        tmp_path):
+    """Classify trains on several plates, so a drop appends rather than
+    replacing -- and the placeholder "path" is not one of them."""
+    first = tmp_path / "plate_a"
+    first.mkdir()
+    second = tmp_path / "plate_b"
+    second.mkdir()
+    screen, src = _src_screen(collected={"src": str(first)})
+    dh.ClassifyDropHandler().apply(second, screen)
+    assert src.text() == repr([str(first), str(second)])
+
+
+def test_the_placeholder_src_is_not_kept_as_a_plate(tmp_path):
+    folder = tmp_path / "plate"
+    folder.mkdir()
+    screen, src = _src_screen(collected={"src": "path"})
+    dh.ClassifyDropHandler().apply(folder, screen)
+    assert src.text() == str(folder)
+
+
+def test_a_measurements_drop_refuses_a_path_that_is_neither(tmp_path):
+    assert dh.MeasurementsDropHandler().can_accept(tmp_path / "gone") is False
+
+
+def test_dropping_the_measurements_folder_on_a_plain_screen_sets_the_plate(
+        tmp_path):
+    plate = tmp_path / "plate"
+    _database(plate / "measurements" / "measurements.db")
+    screen, src = _src_screen()
+    dh.SourceDropHandler().apply(plate / "measurements", screen)
+    assert src.text() == str(plate)
+
+
+def test_the_sweep_contributes_nothing_from_a_path_that_is_not_there(
+        tmp_path):
+    assert dh.SweepInputsDropHandler._tables(tmp_path / "gone") == []
+
+
+def test_investigate_hit_refuses_a_path_that_is_neither(tmp_path):
+    assert dh.InvestigateHitInputsDropHandler().can_accept(
+        tmp_path / "gone") is False
+
+
+def test_external_masks_takes_a_folder_and_the_image_types_it_names(tmp_path):
+    handler = dh.ExternalMasksDropHandler()
+    folder = tmp_path / "images"
+    folder.mkdir()
+    assert handler.can_accept(folder) is True
+    assert handler.can_accept(_touch(tmp_path / "a.ome.tif")) is True
+    assert handler.can_accept(_touch(tmp_path / "notes.txt")) is False
+
+
+def test_the_batch_runner_refuses_a_folder_with_no_snapshots_in_it(tmp_path):
+    empty = tmp_path / "plate"
+    empty.mkdir()
+    assert dh.BatchDropHandler().can_accept(empty) is False
+
+
+def test_a_database_that_cannot_be_opened_at_all_lists_no_tables(tmp_path):
+    """A database that vanished between the drop and the open is "no
+    tables", not a traceback out of Qt's drop dispatch.
+
+    Read-only, so SQLite refuses rather than creating an empty file where
+    the user's database used to be.
+    """
+    assert dh.table_names(tmp_path / "unmounted" / "measurements.db") == []
