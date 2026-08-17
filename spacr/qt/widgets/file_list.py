@@ -330,7 +330,22 @@ _KIND_EXTENSIONS: dict[str, tuple[str, ...]] = {
 
 
 class FilePathListWidget(QWidget):
-    """An ordered, de-duplicated list of input paths with picker and drop."""
+    """An ordered, de-duplicated list of input paths with picker and drop.
+
+    ``single=True`` is the same control for a setting that names exactly ONE
+    file. It keeps the file dialog and the drop target -- which is the whole
+    reason these settings stopped being text boxes -- but the value it holds
+    and returns is a plain ``str``, choosing again REPLACES rather than
+    appends, and the reorder buttons are gone because one path has no order.
+
+    That distinction is not cosmetic. ``grna_csv``, ``row_csv`` and
+    ``column_csv`` are declared ``str`` and go straight to ``pd.read_csv``,
+    so rendering them as a list turned a working default into
+    ``['/path/to/barcodes_row.csv']``: the settings file was rewritten the
+    moment the screen was opened and saved, and the run died on "Invalid file
+    path or buffer object type: <class 'list'>" only once it had started
+    reading FASTQs.
+    """
 
     value_changed = Signal()
 
@@ -341,12 +356,16 @@ class FilePathListWidget(QWidget):
         kind: str = "table",
         title: str = "Choose input files",
         allow_folders: bool = True,
+        single: bool = False,
         parent=None,
     ):
         super().__init__(parent)
         self._kind = kind if kind in FILE_KIND_FILTERS else "any"
         self._title = title
-        self._allow_folders = bool(allow_folders)
+        self._single = bool(single)
+        # A folder is not a file, and expanding one into "all the CSVs in
+        # here" cannot mean anything for a setting that names one of them.
+        self._allow_folders = bool(allow_folders) and not self._single
         self._last_directory = ""
 
         outer = QVBoxLayout(self)
@@ -356,22 +375,25 @@ class FilePathListWidget(QWidget):
         self._list = QListWidget(self)
         self._list.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._list.setAlternatingRowColors(True)
-        self._list.setMinimumHeight(96)
+        self._list.setMinimumHeight(48 if self._single else 96)
         self._list.setUniformItemSizes(True)
         # The list itself must not swallow the drop before the widget sees it.
         self._list.setAcceptDrops(False)
         self._list.setDragDropMode(QAbstractItemView.NoDragDrop)
         outer.addWidget(self._list)
 
-        self._hint = QLabel("Drop files or folders here, or use Add files…", self)
+        self._hint = QLabel(self._empty_hint(), self)
         self._hint.setWordWrap(True)
         self._hint.setProperty("role", "hint")
         outer.addWidget(self._hint)
 
         row = QHBoxLayout()
         row.setSpacing(4)
-        self._add_files_button = QPushButton("Add files…", self)
+        self._add_files_button = QPushButton(
+            "Choose file…" if self._single else "Add files…", self)
         self._add_files_button.setToolTip(
+            "Select the file this setting names. Choosing again replaces it."
+            if self._single else
             "Select one or more files. Press again to add more from another "
             "folder — each press appends to the list.")
         self._add_files_button.clicked.connect(self.pick_files)
@@ -386,17 +408,24 @@ class FilePathListWidget(QWidget):
         else:
             self._add_folder_button = None
 
-        self._up_button = QPushButton("↑", self)
-        self._up_button.setToolTip("Move the selected file earlier in the list")
-        self._up_button.setMaximumWidth(30)
-        self._up_button.clicked.connect(lambda: self._move_selected(-1))
-        row.addWidget(self._up_button)
+        # One path has no order, so the two buttons that reorder the list are
+        # not built at all rather than built and left doing nothing.
+        if self._single:
+            self._up_button = self._down_button = None
+        else:
+            self._up_button = QPushButton("↑", self)
+            self._up_button.setToolTip(
+                "Move the selected file earlier in the list")
+            self._up_button.setMaximumWidth(30)
+            self._up_button.clicked.connect(lambda: self._move_selected(-1))
+            row.addWidget(self._up_button)
 
-        self._down_button = QPushButton("↓", self)
-        self._down_button.setToolTip("Move the selected file later in the list")
-        self._down_button.setMaximumWidth(30)
-        self._down_button.clicked.connect(lambda: self._move_selected(1))
-        row.addWidget(self._down_button)
+            self._down_button = QPushButton("↓", self)
+            self._down_button.setToolTip(
+                "Move the selected file later in the list")
+            self._down_button.setMaximumWidth(30)
+            self._down_button.clicked.connect(lambda: self._move_selected(1))
+            row.addWidget(self._down_button)
 
         self._remove_button = QPushButton("Remove", self)
         self._remove_button.clicked.connect(self.remove_selected)
@@ -414,15 +443,35 @@ class FilePathListWidget(QWidget):
     # ------------------------------------------------------------------ value
 
     def set_value(self, value: Any) -> None:
-        """Replace the contents. Accepts None, a str, or any iterable."""
+        """Replace the contents. Accepts None, a str, or any iterable.
+
+        A single-file widget keeps only the last of whatever it is given.
+        That is what loads a settings file written while these keys were
+        wrongly rendered as lists: ``['/x/barcodes_row.csv']`` comes back as
+        ``/x/barcodes_row.csv`` rather than carrying the wrong shape forward.
+        """
         self._list.clear()
-        for path in self._coerce(value):
+        paths = self._coerce(value)
+        for path in (paths[-1:] if self._single else paths):
             self._append(path)
         self._refresh_hint()
 
-    def get_value(self) -> List[str]:
+    def paths(self) -> List[str]:
+        """Every path currently listed, in order -- always a list."""
         return [self._list.item(row).data(Qt.UserRole)
                 for row in range(self._list.count())]
+
+    def get_value(self) -> Any:
+        """The setting's value: a ``list[str]``, or a ``str`` when single.
+
+        The shape is the SETTING's, not the widget's. A key declared ``str``
+        that came back as a one-element list rewrote the user's settings file
+        on open and reached ``pd.read_csv`` as a list.
+        """
+        listed = self.paths()
+        if not self._single:
+            return listed
+        return listed[0] if listed else ""
 
     # A settings CSV written before this widget existed can hold the literal
     # placeholder 'list of paths'; it is not a path and must not become one.
@@ -448,9 +497,26 @@ class FilePathListWidget(QWidget):
     # ------------------------------------------------------------------- edit
 
     def add_paths(self, paths: Iterable[Any]) -> int:
-        """Append ``paths``, expanding folders. Returns how many were added."""
+        """Append ``paths``, expanding folders. Returns how many were added.
+
+        When the setting names ONE file this REPLACES what is there. A second
+        choice is a correction, and a control that appended left the run
+        reading a file the user believed they had swapped out.
+        """
+        incoming = self._coerce(paths)
+        if self._single:
+            if not incoming:
+                return 0
+            chosen = os.path.abspath(os.path.expanduser(incoming[-1]))
+            if chosen == (self.paths() or [None])[0]:
+                return 0
+            self._list.clear()
+            self._append(chosen)
+            self._refresh_hint()
+            self.value_changed.emit()
+            return 1
         added = 0
-        for raw in self._coerce(paths):
+        for raw in incoming:
             expanded = os.path.abspath(os.path.expanduser(raw))
             if os.path.isdir(expanded):
                 for member in self._folder_members(expanded):
@@ -482,7 +548,7 @@ class FilePathListWidget(QWidget):
     def _append(self, path: str) -> bool:
         """Add one path unless it is already listed. Returns True if added."""
         resolved = os.path.abspath(os.path.expanduser(str(path)))
-        if resolved in set(self.get_value()):
+        if resolved in set(self.paths()):
             return False
         item = QListWidgetItem(self._display_text(resolved))
         item.setData(Qt.UserRole, resolved)
@@ -533,6 +599,11 @@ class FilePathListWidget(QWidget):
         self._list.setCurrentRow(target)
         self.value_changed.emit()
 
+    def _empty_hint(self) -> str:
+        if self._single:
+            return "Drop one file here, or use Choose file…"
+        return "Drop files or folders here, or use Add files…"
+
     def _refresh_hint(self) -> None:
         count = self._list.count()
         missing = sum(
@@ -540,7 +611,7 @@ class FilePathListWidget(QWidget):
             if not os.path.exists(self._list.item(row).data(Qt.UserRole))
         )
         if not count:
-            self._hint.setText("Drop files or folders here, or use Add files…")
+            self._hint.setText(self._empty_hint())
         elif missing:
             self._hint.setText(
                 f"{count} file{'s' if count != 1 else ''} selected — "
@@ -581,10 +652,21 @@ class FilePathListWidget(QWidget):
     # ----------------------------------------------------------------- picker
 
     def pick_files(self) -> int:
-        """Open a multi-select dialog and append whatever is chosen."""
-        paths, _selected = QFileDialog.getOpenFileNames(
-            self, self._title, self._start_directory(),
-            FILE_KIND_FILTERS[self._kind])
+        """Open the file dialog and take what is chosen.
+
+        Multi-select, except when the setting names one file -- a dialog that
+        lets you pick four when three of them will be discarded is a control
+        lying about what it does.
+        """
+        if self._single:
+            path, _selected = QFileDialog.getOpenFileName(
+                self, self._title, self._start_directory(),
+                FILE_KIND_FILTERS[self._kind])
+            paths = [path] if path else []
+        else:
+            paths, _selected = QFileDialog.getOpenFileNames(
+                self, self._title, self._start_directory(),
+                FILE_KIND_FILTERS[self._kind])
         if not paths:
             return 0
         self._last_directory = os.path.dirname(paths[0])
@@ -602,7 +684,7 @@ class FilePathListWidget(QWidget):
         """Reopen where the user last was, or beside the last file added."""
         if self._last_directory and os.path.isdir(self._last_directory):
             return self._last_directory
-        values = self.get_value()
+        values = self.paths()
         if values:
             parent = os.path.dirname(values[-1])
             if os.path.isdir(parent):
