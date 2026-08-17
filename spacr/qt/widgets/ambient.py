@@ -3919,8 +3919,8 @@ class AmbientWidget(QWidget):
     def frames_shaded(self) -> int:
         """Frames the shading thread has finished for this backdrop.
 
-        Below :meth:`frames_painted <AmbientWidget>` under load, by design:
-        the difference is :attr:`repeated_frames`.
+        Below :attr:`frames_painted` under load, by design: the difference is
+        :attr:`repeated_frames`.
         """
         producer = self._producer_box[0]
         return 0 if producer is None else producer.frames_shaded
