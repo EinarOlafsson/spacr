@@ -1292,7 +1292,11 @@ class GateCanvas(GraphCanvas):
                             bound, color=palette["warning"], linewidth=1.4,
                             linestyle=":", zorder=10))
                 continue
-            points = self._gate_points(ax, gate)
+            # AS FLAT, for the same reason gate_at and _outline are: the
+            # ghost previews what the drag would produce ON THIS VIEW, and a
+            # box has no flat layout until it is seen from the front. Without
+            # it a box gate was pulled with no preview of the result.
+            points = self._gate_points(ax, self._as_flat(gate))
             if not points:
                 continue
             patch = MplPolygon(points, closed=True, fill=False,
@@ -1373,7 +1377,13 @@ class GateCanvas(GraphCanvas):
                 probe = pd.DataFrame({columns[0]: [float(x)]})
                 if len(columns) > 1:
                     probe[columns[1]] = [float(y)]
-                if bool(gate.mask(probe)[0]):
+                # AS FLAT, like _outline and _handles_for above. The click is
+                # on the flat view, where a box IS its front rectangle -- and
+                # the raw box names a third measurement the two-column probe
+                # cannot carry, so mask() raised GateError, the except below
+                # swallowed it, and a gate that was drawn on screen with its
+                # corners showing could not be picked up at all.
+                if bool(self._as_flat(gate).mask(probe)[0]):
                     hit = gate.name
             except Exception:
                 # A gate on columns this scatter is not showing cannot be
