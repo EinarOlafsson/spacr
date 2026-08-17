@@ -5,9 +5,11 @@
     _masks_to_gif          (random label colormap + delegation to spacr.io)
     _timelapse_masks_to_gif(grouping .npy frames by plate/well/field)
 
-Everything runs headless and offline.  The heavy matplotlib animation inside
-``spacr.io._save_mask_timelapse_as_gif`` (a 4000x4000 canvas) is stubbed out for
-most tests and exercised for real exactly once so the tests stay fast.
+Everything runs headless and offline.  The matplotlib animation inside ``spacr.io._save_mask_timelapse_as_gif`` is
+stubbed out for most tests and exercised for real exactly once so the tests
+stay fast.  It is no longer the 4000x4000 canvas it used to be -- the frame is
+sized from the mask now -- but a real animation is still the slowest thing
+here.
 """
 from __future__ import annotations
 
@@ -397,8 +399,14 @@ def test_masks_to_gif_single_label_sequence(tmp_path, gif_spy):
 
 
 def test_masks_to_gif_writes_a_real_gif(tmp_path):
-    """One un-stubbed run: matplotlib really renders and pillow really writes."""
+    """One un-stubbed run: matplotlib really renders and pillow really writes.
+
+    The frame comes out at the movie's own minimum rather than at the old
+    fixed 4000 px: an 8 x 8 mask is scaled up to MASK_MOVIE_MIN_PX so its
+    label numbers are legible, and no further.
+    """
     from PIL import Image
+    from spacr.io import MASK_MOVIE_MIN_PX
     from spacr.timelapse import _masks_to_gif
 
     mask = np.zeros((8, 8), dtype=np.uint16)
@@ -412,7 +420,7 @@ def test_masks_to_gif_writes_a_real_gif(tmp_path):
     with Image.open(gif) as im:
         assert im.format == "GIF"
         assert im.n_frames == 1
-        assert im.size == (4000, 4000)
+        assert im.size == (MASK_MOVIE_MIN_PX, MASK_MOVIE_MIN_PX)
 
 
 def test_masks_to_gif_display_helper_reads_and_displays_bytes(tmp_path, monkeypatch):
