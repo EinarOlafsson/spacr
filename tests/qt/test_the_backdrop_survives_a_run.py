@@ -67,6 +67,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtGui import QColor                             # noqa: E402
+from PySide6.QtWidgets import QWidget                        # noqa: E402
 
 from spacr.qt.widgets.ambient import (AMBIENT_THEMES,        # noqa: E402
                                       AmbientWidget,
@@ -129,6 +130,16 @@ class _TimedBackdrop(AmbientWidget):
         started = time.perf_counter()
         super().paintEvent(event)
         self.costs.append((time.perf_counter() - started) * 1000.0)
+
+
+def _shading_threads() -> int:
+    """How many ambient shading threads are alive in this process right now.
+
+    Counted by name rather than by asking a widget, because the failure this
+    guards against is a thread nobody has a handle on any more.
+    """
+    return sum(1 for t in threading.enumerate()
+               if t.name == "spacr-ambient-shade" and t.is_alive())
 
 
 def _shown(qtbot, theme: str = "blobs", cls=AmbientWidget):
@@ -281,6 +292,80 @@ def test_a_frame_that_is_not_ready_is_repeated_and_never_waited_for(qtbot):
         f"thread is waiting for the shading thread")
 
 
+def test_a_slot_being_written_is_skipped_rather_than_waited_on(qtbot):
+    """The frame slot is the last lock a paint could still have blocked on.
+
+    The engine lock is never waited on, but reading the published frame takes
+    a lock of its own, and the shading thread holds it while it swaps a frame
+    in. A blocking read there would be the same bug in miniature — rare,
+    brief, and impossible to reproduce from a bug report. So the read refuses
+    the lock instead, answers "nothing new", and the paint repeats.
+    """
+    widget = _shown(qtbot)
+    qtbot.waitUntil(lambda: widget.frames_shaded() > 0, timeout=10000)
+    producer = widget._producer_box[0]
+
+    holding, release = threading.Event(), threading.Event()
+
+    def hold_the_slot():
+        with producer._frame_lock:
+            holding.set()
+            release.wait(timeout=10.0)
+
+    hog = threading.Thread(target=hold_the_slot, daemon=True)
+    hog.start()
+    assert holding.wait(timeout=10.0), "could not take the frame slot"
+    try:
+        started = time.perf_counter()
+        answer = producer.latest()
+        asking_ms = (time.perf_counter() - started) * 1000.0
+
+        before_repeated = widget.repeated_frames
+        widget.repaint()
+        repeated = widget.repeated_frames - before_repeated
+    finally:
+        release.set()
+        hog.join(timeout=10.0)
+
+    assert answer is None, \
+        "a slot that is being written answered with a frame anyway"
+    assert asking_ms < REPEAT_CEILING_MS, \
+        f"asking for the newest frame took {asking_ms:.1f} ms; it waited"
+    assert repeated == 1, \
+        "a paint that could not read the slot was not counted as a repeat"
+
+
+def test_a_backdrop_shown_before_it_has_a_size_still_paints_its_first_frame(
+        qtbot):
+    """A screen is often built and shown before its layout has given it one.
+
+    The shading thread cannot shade a zero-by-zero canvas, so there is nothing
+    published when the size finally arrives, and the obvious implementation
+    puts up a flat rectangle for a frame — a visible flash on every screen
+    that is laid out after it is shown. Instead the paint shades that one
+    frame itself, and only if the thread is not mid-pass, so the fallback can
+    never become the wait it exists to avoid.
+    """
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(0, 0)
+    host.show()
+    widget = AmbientWidget(host, background=DARK, seed=8)
+    widget.setGeometry(0, 0, 0, 0)
+    widget.show()
+    qtbot.waitUntil(lambda: widget.shading_thread_alive(), timeout=10000)
+    assert widget.frames_shaded() == 0, "something shaded a zero-size canvas"
+
+    host.resize(800, 600)
+    widget.setGeometry(0, 0, 800, 600)
+    image = widget.grab().toImage()
+
+    assert widget.frames_painted >= 1
+    assert any(QColor(image.pixel(x, y)).lightness() > 8
+               for x in range(0, 800, 37) for y in range(0, 600, 41)), \
+        "the first frame after the layout arrived was a flat rectangle"
+
+
 def test_a_burst_of_repaints_costs_a_blit_each_and_not_a_shading_pass(qtbot):
     """Exposures are not capped by the frame rate, so they must be cheap.
 
@@ -406,6 +491,54 @@ def test_a_hidden_backdrop_has_no_shading_thread(qtbot):
     qtbot.waitExposed(widget)
     assert widget.shading_thread_alive(), \
         "the backdrop came back on screen without its shading thread"
+
+
+def test_a_backdrop_started_twice_still_has_exactly_one_shading_thread(qtbot):
+    """Several gates start the animation and more than one of them fires.
+
+    ``showEvent``, the window's own Show event and the Preferences toggle all
+    reach ``start()`` on the same widget, sometimes in the same tick. Two
+    threads shading one engine into one slot would race for the buffer, so
+    both the widget and the producer refuse a second start — independently,
+    because either one alone would be a guard nobody re-checks after an edit.
+    """
+    baseline = _shading_threads()
+    widget = _shown(qtbot)
+    assert _shading_threads() == baseline + 1
+    producer = widget._producer_box[0]
+
+    widget.start()
+    widget.start()
+    assert widget._producer_box[0] is producer
+    assert _shading_threads() == baseline + 1
+
+    producer.start()
+    assert _shading_threads() == baseline + 1
+
+
+def test_lowering_the_frame_cap_slows_the_shading_thread_too(qtbot):
+    """A lower cap has to reduce the work, not just how much of it is shown.
+
+    The cap is what somebody whose machine cannot afford the backdrop reaches
+    for. If it throttled only the timer, the shading thread would go on
+    shading twenty-four frames a second behind it and the setting would buy
+    nothing at all — which is exactly the shape of bug this whole change could
+    have introduced, since the thread has its own clock now.
+    """
+    widget = _shown(qtbot, theme="blobs")
+    qtbot.waitUntil(lambda: widget.frames_shaded() > 0, timeout=10000)
+
+    widget.set_fps(4)
+    assert widget.fps() == 4
+    qtbot.wait(300)                  # let the frame in flight finish
+    before = widget.frames_shaded()
+    qtbot.wait(1500)
+    shaded = widget.frames_shaded() - before
+
+    assert shaded <= 10, \
+        f"{shaded} frames shaded in 1.5 s at a 4 fps cap; the cap is not"\
+        f" reaching the shading thread"
+    assert shaded >= 1, "the shading thread stopped altogether"
 
 
 def test_an_unbuffered_theme_keeps_the_synchronous_path(qtbot):
