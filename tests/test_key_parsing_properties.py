@@ -730,8 +730,31 @@ def test_a_file_name_writer_escapes_the_plate_before_parsing(
 
 
 def test_a_surplus_crop_component_is_refused_instead_of_dropped():
-    with pytest.raises(S.KeyParseError, match='expected exactly'):
+    """A fourth component that is not a timepoint is not something to discard.
+
+    Dropping it makes two different stems parse to one identity, which is how
+    a plate's worth of distinct fields quietly merges into one row.
+    """
+    with pytest.raises(S.KeyParseError, match='plate_well_field'):
         S.parse_field_stem('plate1_A01_3_junk')
+    with pytest.raises(S.KeyParseError, match='plate_well_field'):
+        S.parse_field_stem('plate1_A01_3_1_1')
+
+
+def test_the_timepoint_every_stack_is_named_with_is_not_surplus():
+    """``spacr.io`` writes ``plate_well_field_time`` whatever ``timelapse`` is.
+
+    Refusing that name made ``_map_wells`` answer ``'error'`` in every slot
+    for every field of every ordinary plate, and ``measure_crop`` then wrote
+    no measurement tables at all. The timepoint is dropped here because the
+    caller said this is not a timelapse -- not because the name is malformed.
+    """
+    parsed = S.parse_field_stem('plate1_A01_1_1')
+    assert parsed.prcf == 'plate1_r1_c1_f1'
+    assert parsed.timeID is None
+    assert parsed.prcf == S.parse_field_stem('plate1_A01_1').prcf
+    assert S.parse_field_stem('plate1_A01_1_1', timelapse=True).prcf == \
+        'plate1_r1_c1_f1_t1'
 
 
 @given(names=st.lists(case_variants, min_size=2, max_size=4, unique=True))
