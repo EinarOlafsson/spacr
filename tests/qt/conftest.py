@@ -518,3 +518,32 @@ def _no_unguarded_modals(monkeypatch):
             _refuse_static._spacr_modal_guard = True
             monkeypatch.setattr(cls, name, staticmethod(_refuse_static),
                                 raising=False)
+
+
+@pytest.fixture(autouse=True)
+def linked_filter_starts_empty(deferred_deletions_flushed):
+    """Nobody inherits the population another test narrowed.
+
+    `DataFilterPanel` publishes into the PROCESS-WIDE
+    :class:`~spacr.qt.linked_selection.LinkedSelection` -- a module singleton
+    -- and every `LinkedView` reads its filter through `linked_visible`
+    whether or not it ever subscribed. So one `add_column("area")` anywhere
+    narrows every canvas built afterwards, for the rest of the process. It is
+    published on a debounce timer as well, so the test that set it has usually
+    finished by the time it lands, and the failure surfaces in an unrelated
+    file: a `GateCanvas` with a real table and a real Axes3D that renders no
+    axes at all, because zero of its rows survived a filter written for a
+    different table's units.
+
+    Cleared at SETUP rather than teardown, and after `deferred_deletions_
+    flushed`, for the reason recorded above the removal of `_drain_job_
+    runners`: `clear_filter` emits, subscribed views answer, and doing that
+    part-way through Qt teardown is how that fixture crashed the run three
+    ways. At setup the previous test's widgets are already gone.
+    """
+    try:
+        from spacr.qt.linked_selection import linked_selection
+        linked_selection().clear_filter()
+    except Exception:
+        pass
+    yield
