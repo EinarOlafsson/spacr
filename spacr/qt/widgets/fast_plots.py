@@ -102,7 +102,7 @@ PYQTGRAPH_MISSING_MESSAGE = (
     "Everything else works without it: the run still produces every figure, "
     "and they appear on the grid above the console.")
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSizeF, Qt, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QHBoxLayout, QLabel, QPushButton, QSizePolicy,
@@ -704,6 +704,41 @@ class FastPlot(QWidget):
             menu.addAction(label, callback)
         return menu
 
+    @staticmethod
+    def _export_pdf(item, path, width_mm: float = 180.0) -> None:
+        """Render a plot item into a vector PDF.
+
+        pyqtgraph has no PDF exporter, so the scene is painted into a
+        QPdfWriter with the same QPainter it draws itself with -- which keeps
+        the text as text and the lines as lines. A raster PNG dropped into a
+        PDF would satisfy the file extension and nothing else.
+
+        180 mm across, which is a journal's double-column width; the height
+        follows the plot's own aspect so nothing is stretched.
+        """
+        from PySide6.QtCore import QMarginsF, QRectF
+        from PySide6.QtGui import QPageLayout, QPageSize, QPainter, QPdfWriter
+
+        source = item.scene().sceneRect() if item.scene() is not None \
+            else item.boundingRect()
+        if not source.width() or not source.height():
+            return
+        aspect = source.height() / source.width()
+
+        writer = QPdfWriter(str(path))
+        writer.setResolution(600)
+        size = QPageSize(QSizeF(width_mm, width_mm * aspect),
+                         QPageSize.Millimeter)
+        writer.setPageSize(size)
+        writer.setPageMargins(QMarginsF(0, 0, 0, 0), QPageLayout.Millimeter)
+
+        painter = QPainter(writer)
+        try:
+            target = QRectF(0, 0, writer.width(), writer.height())
+            item.scene().render(painter, target, source)
+        finally:
+            painter.end()
+
     def _scatter_items(self):
         """Every scatter on the plot, for a restyle to reach.
 
@@ -1227,22 +1262,30 @@ class FastPlot(QWidget):
     # ---------------------------------------------------------------- export
 
     def export(self, path: Optional[str] = None) -> Optional[str]:
-        """Write the plot out. SVG when the name says so, else PNG.
+        """Write the plot out: PDF, SVG or PNG, by the name given.
 
-        pyqtgraph's SVG export is real vector output, so what is exported from
-        the screen is publishable rather than a screenshot of it.
+        pyqtgraph's SVG export is real vector output, so what leaves the
+        screen is publishable rather than a screenshot of it.
+
+        PDF IS RENDERED THROUGH Qt, not through pyqtgraph, because pyqtgraph
+        ships no PDF exporter -- only raster and SVG. Reported 2026-08-17:
+        "currently i can only save the volcano as a png i want png and pdf".
+        A QPdfWriter takes the same QPainter the scene draws itself with, so
+        the result is true vector, not a bitmap in a PDF wrapper.
         """
         if path is None:
             from PySide6.QtWidgets import QFileDialog
             path, _ = QFileDialog.getSaveFileName(
-                self, "Export plot", "plot.png",
-                "Vector (*.svg);;Image (*.png)")
+                self, "Export plot", "plot.pdf",
+                "PDF (*.pdf);;Vector (*.svg);;Image (*.png)")
             if not path:
                 return None
         from pyqtgraph import exporters
 
         item = self.plot.plotItem
-        if str(path).lower().endswith(".svg"):
+        if str(path).lower().endswith(".pdf"):
+            self._export_pdf(item, path)
+        elif str(path).lower().endswith(".svg"):
             exporters.SVGExporter(item).export(path)
         else:
             exporter = exporters.ImageExporter(item)

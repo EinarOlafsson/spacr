@@ -356,3 +356,65 @@ and `spacr/figures/style.py` (the house style) are two systems unaware of
 each other, and that a preference cannot currently reach a house-style panel.
 This menu is the third place that would want the same vocabulary. Merge
 first, or this becomes the reason the merge never happens.
+
+--------------------------------------------------------------------------------
+O (continued) - THE REST OF THE RESTYLE MENU, AND TWO REGRESSIONS
+--------------------------------------------------------------------------------
+
+Added to O, 2026-08-17: "axis limits, axis labels, aspect ratio, cmap (choose
+any column), font size, point shape (choose any column)".
+
+Axis labels and font size ship. NOT there: axis LIMITS, aspect ratio, and --
+the two that are more than restyling --
+
+  * CMAP OVER ANY COLUMN, and
+  * POINT SHAPE OVER ANY COLUMN.
+
+Both are "choose any column", which is a different control from the ones
+above them: they MAP A COLUMN to a visual channel rather than setting one
+value. The colour-by combo already does exactly that for the categorical
+palette, so the menu should reuse its column list rather than build a second
+one -- and a cmap belongs only on a NUMERIC column, a shape only on a
+low-cardinality one. Offer them where they apply and grey them where they do
+not, with the reason, per 106.
+
+  * EXPORT: PDF landed 2026-08-17 (pyqtgraph ships no PDF exporter, so the
+    scene is painted into a QPdfWriter -- true vector, not a bitmap in a PDF
+    wrapper). NOTE: pyqtgraph's own SVGExporter raises
+    `ValueError: not enough values to unpack` from its `correctCoordinates`
+    on this scene. Pre-existing, in the library, and it means the SVG option
+    is currently broken while PDF and PNG work.
+
+--------------------------------------------------------------------------------
+P. TWO THINGS REPORTED AS REGRESSIONS, NOT YET DIAGNOSED
+--------------------------------------------------------------------------------
+
+Reported 2026-08-17 and NOT investigated -- recorded so the next session
+starts from the evidence rather than from scratch:
+
+  1. "for some reason now i dont see the grna threshold graph". The run log
+     shows it written to `<src>/results/fraction_threshold.pdf` -- which is
+     the SCREEN folder, NOT the run folder (`results/ols_12/`). The recursive
+     grid loader added the same day walks the RUN folder, so it would not
+     pick this one up. Establish first whether it was ever streamed through
+     `plt.show()` (and so reached the queue) or only ever saved; the fix
+     differs.
+
+  2. "the thumbnail iage of the volcano plot looks like several volcano plot
+     itterations pasted on top of each other". Candidates, in the order
+     worth checking: the live tile's `snapshot()` exports
+     `plot.plotItem`'s SCENE, so anything left in that scene accumulates --
+     check `_reset_scene` is reached on every redraw path, including the new
+     baseline/level/compartment ones added this week, each of which returns
+     a COPY of the frame and re-enters `set_results`. Reproduce by
+     redrawing three times and counting `plot.listDataItems()`.
+
+     RULED OUT 2026-08-17: the LIVE plot's scene does not accumulate.
+     Measured across five consecutive redraws through the baseline, level and
+     threshold paths, `plot.listDataItems()` went 1, 1, 0, 0, 0 -- never
+     upward. So `_reset_scene` is reached and the pyqtgraph scene is clean.
+     Look instead at the MATPLOTLIB side: the house-style volcano and
+     whatever the figure queue holds across the twelve runs this screen has
+     done (ols_11, ols_12, guide_permutation, guide_permutation_1). A queue
+     that never cleared between runs would stack thumbnails exactly this
+     way.
