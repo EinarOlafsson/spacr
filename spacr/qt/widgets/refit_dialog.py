@@ -35,7 +35,11 @@ class RefitDialog(QDialog):
             new dict is built by :func:`spacr.refit.refit_settings`.
         """
         super().__init__(parent)
-        from ...ml import REGRESSION_SETTINGS_USED, REGRESSION_TYPES
+        # From the spec, not from ml: importing ml here would pull torch,
+        # cv2 and IPython onto the GUI thread the moment the user opens this
+        # dialog. The tables are the same objects; ml re-exports them.
+        from ...regression_spec import (REGRESSION_SETTINGS_USED,
+                                        REGRESSION_TYPES)
         from ...multiple_testing import METHODS
         from ...refit import CORRECTION_ALPHA_KEY, CORRECTION_KEY
 
