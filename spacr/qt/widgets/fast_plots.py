@@ -135,6 +135,69 @@ MUTED = _ROLES["data"]
 #: what makes a large scatter slow to move over rather than slow to draw.
 HOVER_LIMIT = 20000
 
+#: How wide a plot is rendered for :meth:`FastPlot.snapshot`. Big enough that
+#: the axes and the point cloud survive being scaled down into a grid cell; a
+#: tile is read, not merely recognised. The height follows the plot's aspect.
+SNAPSHOT_PX = (520, 380)
+
+#: The marks a plot with a categorical x-axis can be drawn with, and what each
+#: says on the menu. Asked for by name: "for the live plots id like to be able
+#: to right click and change the plot type like show guide support as a
+#: violin, box, bar, jitter plot".
+#:
+#: ORDERED BY HOW MUCH THEY HIDE, honest first. ``points`` shows every
+#: observation against a mean line; ``jitter`` is the same thing spread
+#: sideways so overlapping values stay countable; ``box`` replaces the
+#: observations with five numbers; ``violin`` replaces them with a smoothed
+#: density; ``bar`` replaces them with one number and a rectangle whose area
+#: means nothing.
+MARK_TYPES = (
+    ("points", "Points with a mean line"),
+    ("jitter", "Jittered points"),
+    ("box", "Box plot"),
+    ("violin", "Violin plot"),
+    ("bar", "Bar chart"),
+)
+
+#: At or below this many observations in a group, a summarising mark is a
+#: claim the data does not support. The house rule, stated as a number: with
+#: eight or fewer points per group the individual points ARE the figure, a box
+#: plot's quartiles come from a handful of values, and a violin draws a smooth
+#: density through points that never described one.
+MIN_N_FOR_DISTRIBUTION = 8
+
+
+def mark_advice(kind: str, counts) -> str:
+    """Why this mark misleads for groups of these sizes, or ``""``.
+
+    The panel SAYS this rather than refusing to draw it. Refusing would be a
+    plot that argues with the user; drawing it in silence would be the panel
+    endorsing a picture it knows is wrong. Saying it is the third option and
+    the only honest one -- the user asked for a violin, they get a violin, and
+    they are told it is drawing a distribution through five points.
+
+    :param kind: one of the keys of :data:`MARK_TYPES`.
+    :param counts: observations per group.
+    """
+    sizes = [int(n) for n in counts if int(n) > 0]
+    if not sizes or kind in ("points", "jitter"):
+        return ""
+    smallest = min(sizes)
+    if smallest > MIN_N_FOR_DISTRIBUTION:
+        return ""
+    thin = sum(1 for n in sizes if n <= MIN_N_FOR_DISTRIBUTION)
+    where = (f"the smallest group has {smallest}" if thin == 1 else
+             f"{thin} of {len(sizes)} groups have "
+             f"{MIN_N_FOR_DISTRIBUTION} or fewer, the smallest {smallest}")
+    if kind == "bar":
+        return (f"A bar hides every observation behind one height, and "
+                f"{where} -- the points themselves are the honest mark here.")
+    if kind == "box":
+        return (f"A box plot hides n, and {where}: these quartiles are "
+                f"computed from a handful of values.")
+    return (f"A violin draws a density that is not there -- {where}, which "
+            f"is too few to have a shape.")
+
 
 def _require_pyqtgraph() -> None:
     """Raise for a caller that genuinely cannot degrade.
@@ -194,6 +257,38 @@ def _finite(values) -> np.ndarray:
     """
     array = np.asarray(values, dtype="float64")
     return np.where(np.isfinite(array), array, np.nan)
+
+
+def _violin_profile(values, half_width: float):
+    """``(centres, half-widths)`` tracing one side of a violin.
+
+    A histogram rather than a kernel density estimate, deliberately. A KDE
+    needs a bandwidth, and a bandwidth chosen for the user is a smoothing
+    decision made on their behalf that shows up as structure in the picture --
+    on the handful of points per group these plots often hold, the bandwidth
+    decides the shape entirely. Counting into bins invents nothing; the bins
+    are visible as steps, which is the honest tell that the shape is coarse.
+
+    Returns ``(None, None)`` when every value is identical: a density with no
+    width is a vertical line, and drawing one as a violin claims a spread that
+    is not there.
+    """
+    v = np.asarray(values, dtype=float)
+    low, high = float(np.min(v)), float(np.max(v))
+    if not np.isfinite(low) or not np.isfinite(high) or high <= low:
+        return None, None
+    bins = int(np.clip(np.sqrt(len(v)) * 2, 6, 24))
+    counts, edges = np.histogram(v, bins=bins, range=(low, high))
+    centres = (edges[:-1] + edges[1:]) / 2.0
+    peak = float(counts.max())
+    if peak <= 0:
+        return None, None
+    density = counts.astype(float) / peak * float(half_width)
+    # Pinned shut at both ends, so the outline closes on the data's range
+    # instead of stopping mid-air at the first and last bin's width.
+    centres = np.concatenate([[low], centres, [high]])
+    density = np.concatenate([[0.0], density, [0.0]])
+    return centres, density
 
 
 class FastPlot(QWidget):
@@ -309,6 +404,9 @@ class FastPlot(QWidget):
         self._selected_key: Optional[str] = None
         self._highlight = None
 
+        #: ``[(label, callback, checked)]`` for gene / guide / both.
+        self._levels = []
+
         #: ``[(label, callback, checked)]`` for the TAGM/LOPIT compartments
         #: this screen actually has. ONE at a time against grey; 27 hues is
         #: what the house style forbids and also what cost 40 ms of a 49 ms
@@ -318,6 +416,11 @@ class FastPlot(QWidget):
         #: ``[(label, callback, checked)]`` for the baselines this plot can
         #: measure its effects from. Empty unless the host offers them.
         self._baselines = []
+
+        #: ``[(label, callback, checked)]`` for the MARK this plot's groups
+        #: are drawn with. Empty on a plot whose x-axis is continuous, where
+        #: "draw it as a violin" is not a question that has an answer.
+        self._marks = []
 
         #: ``(callback, label)`` for an action that re-runs the analysis, or
         #: None. BORN HERE, not on first use: a filter control connected in
@@ -368,6 +471,7 @@ class FastPlot(QWidget):
         self._refit = None
         self._baselines = []
         self._compartments = []
+        self._marks = []
         self._frame = None
         self._grid = QCheckBox("Grid")
         self._legend_box = QCheckBox("Legend")
@@ -421,6 +525,18 @@ class FastPlot(QWidget):
         """
         self._compartments = list(options or ())
 
+    def offer_levels(self, options) -> None:
+        """Offer "show only genes / only guides / both" on the menu.
+
+        :param options: ``[(label, callback, checked)]``.
+
+        Its own section, above the baselines, because it changes WHICH ROWS
+        are on the plot rather than how they are drawn or where zero is. A
+        user who cannot tell "I am looking at a subset" from "I restyled it"
+        will read a filtered plot as the whole screen.
+        """
+        self._levels = list(options or ())
+
     def offer_baselines(self, options) -> None:
         """Offer "measure the effects from ..." on the right-click menu.
 
@@ -432,6 +548,21 @@ class FastPlot(QWidget):
         replaces the fit.
         """
         self._baselines = list(options or ())
+
+    def offer_marks(self, options) -> None:
+        """Offer "draw the groups as ..." on the right-click menu.
+
+        :param options: ``[(label, callback, checked)]``, the same shape as
+            :meth:`offer_baselines` -- one entry per :data:`MARK_TYPES` the
+            host can draw.
+
+        Offered by the host rather than built in, and for the same reason
+        :meth:`offer_refit` is: only the plot that owns the arrays knows
+        whether its x-axis is a set of GROUPS at all. A volcano's x is an
+        effect size, and "show it as a violin" is not a question that has an
+        answer there.
+        """
+        self._marks = list(options or ())
 
     def _style_menu(self, position) -> None:
         """Right-click: build the menu and show it."""
@@ -468,6 +599,27 @@ class FastPlot(QWidget):
         menu.addSeparator()
         menu.addAction("Reset view", self.plot.autoRange)
         menu.addAction("Export…", self.export)
+        if self._marks:
+            # WHAT THE GROUPS ARE DRAWN AS. Above "Measured from" because it
+            # changes the picture and not the numbers, which is what
+            # everything above this point does. Every option is offered --
+            # including the ones that mislead for the data on screen, because
+            # a menu that hides them cannot explain why -- and the plot says
+            # so in its status line once the choice is made.
+            menu.addSection("Draw as")
+            for label, callback, checked in self._marks:
+                action = menu.addAction(label, callback)
+                action.setCheckable(True)
+                action.setChecked(bool(checked))
+        if self._levels:
+            # WHICH ROWS, not how they look. Above the baselines and under
+            # its own heading: a filtered plot that looks like a restyled one
+            # is read as the whole screen.
+            menu.addSection("Show")
+            for label, callback, checked in self._levels:
+                action = menu.addAction(label, callback)
+                action.setCheckable(True)
+                action.setChecked(bool(checked))
         if self._baselines:
             # WHAT THE EFFECTS ARE MEASURED FROM. Under the restyling
             # entries because it moves the points, and above the re-fit
@@ -819,6 +971,138 @@ class FastPlot(QWidget):
         self.plot.addItem(line)
         return line
 
+    # ------------------------------------------------------------ group marks
+
+    def add_group_mark(self, position: float, values, kind: str = "points", *,
+                       colour=None, rows=None, width: float = 0.6,
+                       size: float = 7.0, seed: int = 0,
+                       centre: str = "mean") -> int:
+        """Draw ONE group's values at ``position`` as ``kind``. Returns n drawn.
+
+        The mark the user picked off the right-click menu, drawn from the same
+        array whichever it is -- so switching from a bar to the points cannot
+        show a different set of observations, which is the failure mode of
+        recomputing a summary per mark type.
+
+        :param values: the group's observations.
+        :param kind: a key of :data:`MARK_TYPES`.
+        :param rows: the FRAME ROW each value came from, so the marks that are
+            still individual points stay clickable. See :meth:`add_scatter` --
+            a control panel's groups are slices of the table and a point's
+            position within its group is not its row.
+        :param width: how wide the mark is, in x units.
+        :param centre: ``"mean"`` or ``"median"`` -- which summary the line
+            across a ``points``/``jitter`` group is. A knob rather than the
+            house rule's plain "mean line" because the panel's STATUS quotes
+            one of them by name, and a line that is not the number written
+            beside it is worse than no line: the control panel's whole
+            sentence is "the classes separate, here are the medians".
+
+        A CLICKABLE MARK IS AN INDIVIDUAL OBSERVATION, and only ``points``,
+        ``jitter`` and a box plot's outliers are that. A box, a violin and a
+        bar stand for many rows at once and are deliberately drawn as scenery
+        rather than as scatter points: a mark that selected "one of the
+        forty-one guides under this rectangle" would be picking one at random
+        and looking deliberate doing it.
+        """
+        v = _finite(values)
+        keep = ~np.isnan(v)
+        if not keep.any():
+            return 0
+        finite = np.nonzero(keep)[0]
+        picked = finite if rows is None else np.asarray(rows)[finite]
+        v = v[keep]
+        ink = QColor(colour) if colour is not None else colour_for(0, 200)
+        half = float(width) / 2.0
+
+        if kind in ("points", "jitter"):
+            if kind == "jitter":
+                rng = np.random.default_rng(seed)
+                x = position + (rng.random(len(v)) - 0.5) * width
+            else:
+                x = np.full(len(v), float(position))
+            self.add_scatter(x, v, size=size, rows=picked,
+                             colours=[ink] * len(v))
+            # THE SUMMARY LINE IS THE POINT OF "points". Bare points with no
+            # summary answer nothing; the rule this menu follows is
+            # "individual points WITH a mean line", and the line is the half
+            # that carries the comparison between the groups.
+            level = float(np.median(v) if centre == "median" else np.mean(v))
+            self.plot.plot([position - half, position + half], [level, level],
+                           pen=pg.mkPen(QColor(self._foreground), width=2))
+            return int(len(v))
+
+        if kind == "bar":
+            mean = float(np.mean(v))
+            fill = QColor(ink)
+            fill.setAlpha(150)
+            self.plot.addItem(pg.BarGraphItem(
+                x=[position], height=[mean], width=width, brush=fill,
+                pen=pg.mkPen(ink)))
+            # THE SPREAD, ON THE BAR. A bar already hides every observation;
+            # one with no interval at all hides that there was any spread to
+            # hide, which is the version of this chart that gets published and
+            # then argued about.
+            if len(v) > 1:
+                err = float(np.std(v, ddof=1)) / np.sqrt(len(v))
+                self.plot.plot([position, position], [mean - err, mean + err],
+                               pen=pg.mkPen(QColor(self._foreground), width=2))
+            return int(len(v))
+
+        if kind == "box":
+            low, q1, median, q3, high = (float(np.percentile(v, p))
+                                         for p in (0, 25, 50, 75, 100))
+            span = q3 - q1
+            top = float(np.max(v[v <= q3 + 1.5 * span])) if span else high
+            bottom = float(np.min(v[v >= q1 - 1.5 * span])) if span else low
+            pen = pg.mkPen(QColor(self._foreground), width=1.5)
+            fill = QColor(ink)
+            fill.setAlpha(110)
+            self.plot.addItem(pg.BarGraphItem(
+                x=[position], y0=[q1], y1=[q3], width=width, brush=fill,
+                pen=pg.mkPen(ink)))
+            self.plot.plot([position - half, position + half],
+                           [median, median], pen=pen)
+            self.plot.plot([position, position], [q3, top], pen=pen)
+            self.plot.plot([position, position], [bottom, q1], pen=pen)
+            # OUTLIERS STAY POINTS, and stay clickable. They are the rows a
+            # reader of a box plot actually wants to name, and they are
+            # individual observations, so the rule above lets them keep their
+            # rows.
+            beyond = (v > top) | (v < bottom)
+            if beyond.any():
+                self.add_scatter(np.full(int(beyond.sum()), float(position)),
+                                 v[beyond], size=size, rows=picked[beyond],
+                                 colours=[ink] * int(beyond.sum()))
+            return int(len(v))
+
+        if kind == "violin":
+            centres, density = _violin_profile(v, half)
+            if centres is None:
+                # Every value identical: a density has no width and the
+                # outline would be a vertical line pretending to be a shape.
+                # Fall back to the honest mark rather than drawing that.
+                return self.add_group_mark(position, values, "points",
+                                           colour=colour, rows=rows,
+                                           width=width, size=size, seed=seed,
+                                           centre=centre)
+            fill = QColor(ink)
+            fill.setAlpha(110)
+            xs = np.concatenate([position + density, (position - density)[::-1]])
+            ys = np.concatenate([centres, centres[::-1]])
+            self.plot.addItem(pg.PlotCurveItem(
+                x=xs, y=ys, pen=pg.mkPen(ink, width=1.5), brush=fill,
+                fillLevel=None, connect="all"))
+            median = float(np.median(v))
+            self.plot.plot([position - half * 0.5, position + half * 0.5],
+                           [median, median],
+                           pen=pg.mkPen(QColor(self._foreground), width=2))
+            return int(len(v))
+
+        raise ValueError(
+            f"unknown mark {kind!r}; known marks: "
+            f"{', '.join(name for name, _ in MARK_TYPES)}")
+
     def _on_points_clicked(self, _item, points) -> None:
         if not len(points):
             return
@@ -907,6 +1191,66 @@ class FastPlot(QWidget):
                 pass
             exporter.export(path)
         return path
+
+    def snapshot(self, width: int = SNAPSHOT_PX[0]):
+        """A picture of this plot, even on a page nobody has opened.
+
+        :param width: pixels across. The height follows from the plot's own
+            aspect, exactly as :meth:`export` leaves it.
+        :returns: a ``QPixmap``, or ``None`` when there is nothing to show.
+
+        WHY THIS IS NOT ``grab()``. A live plot on a stacked page the user has
+        never raised has never been through a layout pass, so its size is
+        whatever its parent last guessed. Measured on the real regression
+        screen, the volcano inside the collapsed gene splitter of an unshown
+        page: ``volcano.size()`` is 100x9 and ``grab()`` returns a 100x9
+        pixmap of ONE colour. That is the "blank box with a caption under it"
+        that got the live tile deleted from the figure grid instead of fixed.
+
+        Resizing the widget first does not fix it either, and that is worth
+        writing down because it is the obvious repair: ``resize`` is honoured
+        by ``size()`` and ignored by ``grab()``, because the splitter the
+        widget sits in owns its geometry and re-imposes it. Measured, on a
+        freshly built screen: ``resize(520, 380)`` then ``grab()`` still
+        returns 100x9, with or without ``layout.activate()``, ``setGeometry``,
+        ``processEvents`` or an explicit grab rectangle.
+
+        So this renders THE SCENE rather than the widget, through the same
+        pyqtgraph exporter :meth:`export` writes files with. The scene has no
+        opinion about how big the widget on screen happens to be: 520x390 and
+        236 distinct colours from the very widget that grabs blank.
+
+        ``None`` for an empty plot is the other half. A tile showing an empty
+        plot invites a click that opens an empty plot, and a run that has
+        fitted nothing yet should have no tile at all rather than a misleading
+        one.
+        """
+        from PySide6.QtGui import QPixmap
+
+        if not self.plots_available or not len(self.plot.listDataItems()):
+            return None
+        from pyqtgraph import exporters
+
+        try:
+            exporter = exporters.ImageExporter(self.plot.plotItem)
+            exporter.parameters()["width"] = int(width)
+            try:
+                # TRANSPARENT, like the export and like the tile behind it.
+                # The exporter defaults to pyqtgraph's configured background,
+                # and a tile painted onto an opaque slab is the "the graphs
+                # still have a black background" report all over again.
+                exporter.parameters()["background"] = QColor(0, 0, 0, 0)
+            except (KeyError, TypeError):   # pragma: no cover - old pyqtgraph
+                pass
+            image = exporter.export(toBytes=True)
+        except Exception:
+            # A picture is never worth taking the screen down for. The caller
+            # pins nothing, which is the same thing that happens before a run.
+            return None
+        if image is None or image.isNull():
+            return None
+        pixmap = QPixmap.fromImage(image)
+        return None if pixmap.isNull() else pixmap
 
     def restyle(self, background: Optional[str] = None,
                 foreground: Optional[str] = None) -> None:
@@ -1387,7 +1731,257 @@ class ResidualPlot(FastPlot):
         return int(good.sum())
 
 
-class ControlSeparation(FastPlot):
+class ScaleLocationPlot(FastPlot):
+    """sqrt(|standardised residual|) against fitted -- is the variance flat?
+
+    The interactive twin of :func:`spacr.regression_qc._panel_scale_location`,
+    which the maintainer asked for by name as the variance-homogeneity panel.
+    A residual-vs-fitted plot shows the mean and the variance at once and a
+    reader has to separate them by eye; taking the square root of the absolute
+    standardised residual removes the sign, so what is left is only the
+    spread. A rising trend means the standard errors -- and therefore every
+    p-value on the volcano -- are wrong in a direction that depends on the
+    fitted value.
+
+    Drawn on the STANDARDISED residual, so it is empty for a model class that
+    has no error scale (quantile regression, a hinge classifier). That is a
+    real answer and is said out loud rather than drawn from ``y - fitted`` and
+    labelled as though it were the same quantity.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(title="Scale-location", x_label="fitted",
+                         y_label="sqrt(|standardised residual|)",
+                         parent=parent)
+
+    def set_scale_location(self, fitted, std_resid,
+                           labels: Sequence[str] = (), reason: str = ""):
+        """Draw it. Returns the number of wells plotted.
+
+        :param std_resid: ``RegressionQCContext.std_resid``. All-NaN when the
+            model class has no error scale -- see
+            :func:`spacr.regression_qc.resolve_residual_standardisation`.
+        :param reason: what to say when there is no standardised residual;
+            pass ``ctx.standardisation.reason``.
+        """
+        self._reset_scene()
+        f, s = _finite(fitted), _finite(std_resid)
+        good = ~(np.isnan(f) | np.isnan(s))
+        if not good.any():
+            self.set_status(
+                f"No standardised residual for this fit, so the variance "
+                f"cannot be checked: {reason}" if reason else
+                "No standardised residuals.")
+            return 0
+        root = np.sqrt(np.abs(s))
+        self.add_scatter(f, root, size=6, labels=labels)
+        slope, intercept = np.polyfit(f[good], root[good], 1)
+        xs = np.array([float(np.nanmin(f)), float(np.nanmax(f))])
+        self.plot.plot(xs, slope * xs + intercept,
+                       pen=pg.mkPen("#DD8452", width=1.5))
+        self.set_status(
+            f"{int(good.sum())} wells. Trend slope {slope:+.3g} -- a flat "
+            f"line is constant variance; a rising one means the standard "
+            f"errors, and so every p-value on the volcano, depend on the "
+            f"fitted value.")
+        return int(good.sum())
+
+
+class InfluencePlot(FastPlot):
+    """Leverage against standardised residual, with Cook's distance on top.
+
+    The interactive twin of :func:`spacr.regression_qc._panel_influence`. The
+    question it answers is the one a screen cannot answer from the volcano: is
+    a hit the shape of the data, or the shape of ONE WELL? A well far to the
+    right has an unusual combination of guides; a well far up or down is
+    poorly predicted; a well that is both is one whose removal moves the
+    coefficients, and Cook's distance is the product that says so.
+
+    The wells past the 4/n screening rule are the only ones coloured, which is
+    the house rule -- everything else is grey, because the sentence here is
+    "these ones are worth going back to the microscope for".
+    """
+
+    #: Genes and wells the fit is not resting on.
+    GREY = MUTED
+    #: The argument: this well is moving the coefficients on its own.
+    INFLUENTIAL = HIGHLIGHT
+
+    def __init__(self, parent=None):
+        super().__init__(title="Leverage vs standardised residual",
+                         x_label="leverage", y_label="standardised residual",
+                         parent=parent)
+        self._cooks: np.ndarray = np.empty(0)
+
+    def set_influence(self, leverage, std_resid, cooks,
+                      labels: Sequence[str] = (), n_params: int = 0,
+                      reason: str = ""):
+        """Draw it. Returns the number of wells plotted.
+
+        Every array comes from :mod:`spacr.regression_qc` -- ``ctx.leverage``,
+        ``ctx.std_resid`` and :func:`spacr.regression_qc.cooks_distance` --
+        rather than being recomputed here, so the live panel and the saved
+        report cannot name different wells as influential.
+        """
+        self._reset_scene()
+        h, s, d = _finite(leverage), _finite(std_resid), _finite(cooks)
+        self._cooks = d
+        good = ~(np.isnan(h) | np.isnan(s))
+        if not good.any():
+            self.set_status(
+                f"No standardised residual for this fit, so influence cannot "
+                f"be measured: {reason}" if reason else
+                "No influence measures.")
+            return 0
+        n = int(good.sum())
+        # 4/n, the conventional screening rule and the one the saved report
+        # draws. The stricter D > 1 almost never fires on a few hundred wells,
+        # which makes it a rule that separates nothing.
+        cut = 4.0 / n
+        flagged = good & (d > cut)
+        rows = np.arange(len(h))
+        for mask, colour, size in ((good & ~flagged, self.GREY, 6),
+                                   (flagged, self.INFLUENTIAL, 9)):
+            if not mask.any():
+                continue
+            picked = rows[mask]
+            self.add_scatter(h[picked], s[picked], size=size, rows=picked,
+                             labels=labels,
+                             colours=[QColor(colour)] * len(picked))
+        self.add_line(y=0.0, colour=self.GREY)
+        if n_params:
+            # 2p/n: the standard "this row has an unusual design" rule.
+            self.add_line(x=2.0 * int(n_params) / n, colour="#DD8452",
+                          label="2p/n")
+        count = int(flagged.sum())
+        if not count:
+            self.set_status(
+                f"{n} wells, none past Cook's D > 4/n ({cut:.3g}): no single "
+                f"well is carrying the fit.")
+        elif count == 1:
+            self.set_status(
+                f"{n} wells; 1 past Cook's D > 4/n ({cut:.3g}), so that well "
+                f"is moving the coefficients on its own.")
+        else:
+            self.set_status(
+                f"{n} wells; {count} past Cook's D > 4/n ({cut:.3g}), so "
+                f"those wells are moving the coefficients on their own.")
+        return n
+
+    def _detail(self, index: int) -> str:
+        if index < len(self._cooks) and np.isfinite(self._cooks[index]):
+            return f"Cook's D = {self._cooks[index]:.3g}"
+        return ""
+
+
+class GroupedPlot(FastPlot):
+    """A plot whose x-axis is a set of GROUPS, drawable as any of the marks.
+
+    "for the live plots id like to be able to right click and change the plot
+    type like show guide support as a violin, box, bar, jitter plot."
+
+    Only a plot whose x is categorical can answer that, which is why this is a
+    class and not a method on :class:`FastPlot`: a volcano's x is an effect
+    size, and there is no group there to draw a violin of.
+
+    THE MENU DOES NOT DECIDE FOR THE USER, AND IT DOES NOT LIE TO THEM EITHER.
+    Every mark is offered, including the ones the house rule says are wrong
+    for few points -- a menu that silently drops "bar" cannot explain why, and
+    the user asked for it by name. What changes is that the panel SAYS what
+    the mark is hiding, in the same status line that carries the panel's own
+    numbers, measured on the data actually on screen. See :func:`mark_advice`.
+
+    :ivar mark_changed: emitted with the new mark's name.
+    """
+
+    mark_changed = Signal(str)
+
+    #: What a group is drawn as until the user says otherwise. JITTER, because
+    #: it is what both of these panels already drew, and a default that
+    #: changed the picture on upgrade would be this feature breaking the two
+    #: plots it was added to.
+    DEFAULT_MARK = "jitter"
+    #: How wide one group's mark is, in x units.
+    MARK_WIDTH = 0.6
+    #: Which summary the line across a points/jitter group is; see
+    #: :meth:`FastPlot.add_group_mark`.
+    MARK_CENTRE = "mean"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._mark = self.DEFAULT_MARK
+        self._offer_marks()
+
+    def _offer_marks(self) -> None:
+        """(Re)build the menu so the tick sits on the current mark."""
+        self.offer_marks([
+            (label, (lambda _checked=False, key=name: self.set_mark(key)),
+             name == self._mark)
+            for name, label in MARK_TYPES])
+
+    def mark(self) -> str:
+        """Which mark the groups are currently drawn with."""
+        return self._mark
+
+    def set_mark(self, kind: str) -> bool:
+        """Draw the groups as ``kind``. Returns True if the mark changed.
+
+        :raises ValueError: on a mark this module cannot draw. Loudly, because
+            the only callers are this class's own menu and a test -- a silent
+            fallback would make a typo look like a working option.
+        """
+        known = dict(MARK_TYPES)
+        if kind not in known:
+            raise ValueError(
+                f"unknown mark {kind!r}; known marks: {', '.join(known)}")
+        changed = kind != self._mark
+        self._mark = kind
+        # The menu is rebuilt from scratch on every right-click, so the tick
+        # only moves if the stored list moves with it.
+        self._offer_marks()
+        self.redraw()
+        if changed:
+            self.mark_changed.emit(kind)
+        return changed
+
+    def redraw(self) -> None:
+        """Draw the last data handed in, with whatever the mark now is.
+
+        Subclasses re-run their own ``set_*`` from what they stored. Nothing
+        is recovered from the picture -- the arrays are kept -- so switching
+        marks cannot show a different set of observations than the mark before
+        it showed.
+        """
+        raise NotImplementedError
+
+    def group_sizes(self) -> list:
+        """Observations per group, for :func:`mark_advice`."""
+        return []
+
+    def mark_note(self) -> str:
+        """The sentence about the CURRENT mark, or ``""``.
+
+        Two things, because a user who picks "bar" has done two at once: they
+        have chosen a mark that may misrepresent the spread, and they have
+        given up the ability to click a guide -- one rectangle stands for
+        forty-one rows and cannot honestly select one of them.
+        """
+        parts = []
+        advice = mark_advice(self._mark, self.group_sizes())
+        if advice:
+            parts.append(advice)
+        if self._mark in ("box", "violin", "bar") and self._has_usable_keys():
+            parts.append(
+                "Only the outliers are still individual points, so only they "
+                "can be clicked; switch back to points or jitter to pick any "
+                "of the rest." if self._mark == "box" else
+                f"A {self._mark} stands for many rows at once, so nothing on "
+                f"it can be clicked; switch back to points or jitter to pick "
+                f"a row.")
+        return " ".join(parts)
+
+
+class ControlSeparation(GroupedPlot):
     """How far apart the positive and negative controls sit.
 
     This is the assay window. If the controls do not separate, nothing further
@@ -1395,12 +1989,35 @@ class ControlSeparation(FastPlot):
     rather than after arguing about a hit list.
     """
 
+    #: The medians are what the status line quotes and what the reader
+    #: compares, so the line drawn across a points/jitter group has to be the
+    #: same statistic -- see :meth:`FastPlot.add_group_mark`.
+    MARK_CENTRE = "median"
+    #: Narrower than the default: three groups a unit apart, and a 0.6-wide
+    #: jitter puts a negative control close enough to the positives to be read
+    #: as one of them.
+    MARK_WIDTH = 0.35
+
     def __init__(self, parent=None):
         super().__init__(title="Control separation", x_label="",
                          y_label="effect", parent=parent)
         self._effects: np.ndarray = np.empty(0)
         #: ``(start, stop, group name)`` per group over the flat row space.
         self._spans: list = []
+        #: The last groups and keys, so a change of mark redraws the SAME
+        #: observations rather than whatever the caller happens to hand in
+        #: next. See :meth:`GroupedPlot.redraw`.
+        self._groups: dict = {}
+        self._group_keys: Optional[dict] = None
+
+    def redraw(self) -> None:
+        """Draw the stored groups again with the current mark."""
+        if self._groups:
+            self.set_groups(self._groups, keys=self._group_keys)
+
+    def group_sizes(self) -> list:
+        return [int(np.sum(~np.isnan(_finite(values))))
+                for values in self._groups.values()]
 
     def set_groups(self, groups: dict, *, keys: Optional[dict] = None):
         """Draw the groups. Returns the number of points plotted.
@@ -1419,6 +2036,8 @@ class ControlSeparation(FastPlot):
         """
         self._reset_scene()
         self._spans = []
+        self._groups = dict(groups or {})
+        self._group_keys = keys
         if not groups:
             self.set_keys(())
             self._effects = np.empty(0)
@@ -1454,31 +2073,34 @@ class ControlSeparation(FastPlot):
         self._effects = np.concatenate(columns) if columns else np.empty(0)
 
         summary, total = [], 0
-        rng = np.random.default_rng(0)
         for position, (name, values) in enumerate(groups.items()):
             v = _finite(values)
             finite = np.nonzero(~np.isnan(v))[0]
             if not len(finite):
                 continue
             total += len(finite)
-            # Jitter, so overlapping points stay countable by eye.
-            x = position + (rng.random(len(finite)) - 0.5) * 0.35
-            self.add_scatter(x, v[finite], size=7, rows=base[name] + finite,
-                             colours=[colour_for(position, 200)] * len(finite))
-            median = float(np.median(v[finite]))
             # THE MEDIAN IS THE SENTENCE OF THIS PANEL -- whether the classes
-            # separate is read off these two lines -- so it is drawn in the
-            # plot's ink. It was hardcoded BLACK, which on every dark spaCR
-            # theme but one is a line nobody can see, and it is the one mark
-            # here that must be visible.
-            self.plot.plot([position - 0.25, position + 0.25], [median, median],
-                           pen=pg.mkPen(QColor(self._foreground), width=2))
+            # separate is read off those lines -- so `MARK_CENTRE` keeps the
+            # summary line on the median whatever mark the user picks, and the
+            # line is drawn in the plot's own ink. It was hardcoded BLACK,
+            # which on every dark spaCR theme but one is a line nobody can
+            # see, and it is the one mark here that must be visible.
+            self.add_group_mark(position, v[finite], self._mark, size=7,
+                                rows=base[name] + finite,
+                                colour=colour_for(position, 200),
+                                width=self.MARK_WIDTH,
+                                centre=self.MARK_CENTRE)
+            median = float(np.median(v[finite]))
             summary.append(f"{name} n={len(finite)} median={median:.3g}")
         axis = self.plot.getAxis("bottom")
         axis.setTicks([[(i, name) for i, name in enumerate(groups)]])
         note = "   ".join(summary) if summary else "No control values."
-        if self._has_usable_keys() and summary:
+        if self._has_usable_keys() and summary and self._mark in ("points",
+                                                                  "jitter"):
             note += "   Click a point for its coefficient."
+        mark_note = self.mark_note()
+        if mark_note:
+            note += "   " + mark_note
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
@@ -1501,7 +2123,7 @@ class ControlSeparation(FastPlot):
         return "   ".join(parts)
 
 
-class GuideAgreementPlot(FastPlot):
+class GuideAgreementPlot(GroupedPlot):
     """Per gene: do its own guides push the same way?
 
     The interactive twin of :func:`spacr.figures.panels.guide_agreement`, and
@@ -1524,11 +2146,46 @@ class GuideAgreementPlot(FastPlot):
     #: The argument: a gene with nothing to corroborate it.
     SINGLE = "#C44E52"
 
+    #: Genes with the same guide count sit on the same integer x, so a mark a
+    #: whole unit wide would touch its neighbour.
+    MARK_WIDTH = 0.7
+
     def __init__(self, parent=None):
         super().__init__(title="Guide agreement", x_label="guides per gene",
                          y_label="fraction agreeing in sign", parent=parent)
         self._support = None
         self._rows_shown: np.ndarray = np.empty(0, dtype="int64")
+        #: The last call's arguments, so changing the mark redraws THESE
+        #: genes. See :meth:`GroupedPlot.redraw`.
+        self._support_keys = None
+        self._support_key_column = "feature"
+
+    def redraw(self) -> None:
+        """Draw the stored support table again with the current mark."""
+        if self._support is not None:
+            self.set_support(self._support, keys=self._support_keys,
+                             key_column=self._support_key_column)
+
+    def group_sizes(self) -> list:
+        """Genes per distinct guide count -- the groups a box would draw."""
+        counts, agree = self._guide_counts_and_agreement()
+        if counts is None:
+            return []
+        usable = ~(np.isnan(counts) | np.isnan(agree))
+        return [int(np.sum(usable & (counts == value)))
+                for value in np.unique(counts[~np.isnan(counts)])]
+
+    def _guide_counts_and_agreement(self):
+        """``(n_guides, concordance)`` from the stored table, or ``(None, None)``."""
+        frame = self._support
+        if frame is None or not len(frame):
+            return None, None
+        frame = frame.reset_index() if frame.index.name else frame
+        counts = _finite(frame["n_guides"]) if "n_guides" in frame \
+            else np.full(len(frame), np.nan)
+        agree = _finite(frame["concordance"]) if "concordance" in frame \
+            else np.full(len(frame), np.nan)
+        return counts, agree
 
     def set_support(self, support, *, keys=None, key_column: str = "feature"):
         """Draw one point per gene. Returns the number of genes plotted.
@@ -1549,6 +2206,8 @@ class GuideAgreementPlot(FastPlot):
         """
         self._reset_scene()
         self._support = support
+        self._support_keys = keys
+        self._support_key_column = key_column
         self._rows_shown = np.empty(0, dtype="int64")
         if support is None or not len(support):
             self.set_keys(())
@@ -1575,18 +2234,42 @@ class GuideAgreementPlot(FastPlot):
         # time, and recorded per row -- the ring a selection draws reads its
         # coordinates back out of `_row_xy`, so it lands on the dot the user
         # actually sees rather than on the un-jittered lattice point.
-        rng = np.random.default_rng(0)
-        x = counts + rng.uniform(-0.22, 0.22, len(frame))
-
         rows = np.arange(len(frame))
-        for mask, colour, size in ((~single, self.GREY, 7),
-                                   (single, self.SINGLE, 9)):
-            if not mask.any():
-                continue
-            picked = rows[mask]
-            self.add_scatter(x[picked], agree[picked], size=size,
-                             rows=picked,
-                             colours=[QColor(colour)] * len(picked))
+        if self._mark in ("points", "jitter"):
+            # THE HOUSE-RULE COLOURING SURVIVES ONLY WHILE THE MARKS ARE
+            # POINTS. Grey for a gene its own guides corroborate, colour for
+            # one that rests on a single guide, which is the sentence this
+            # panel exists to make -- and a sentence about individual genes
+            # that a box plot cannot carry, because a box holds both kinds at
+            # once. So the point marks keep this path and the summarising
+            # marks take the grouped one below, rather than one path drawing
+            # a compromise neither picture wanted.
+            spread = 0.22 if self._mark == "jitter" else 0.0
+            rng = np.random.default_rng(0)
+            x = counts + (rng.uniform(-spread, spread, len(frame))
+                          if spread else 0.0)
+            for mask, colour, size in ((~single, self.GREY, 7),
+                                       (single, self.SINGLE, 9)):
+                if not mask.any():
+                    continue
+                picked = rows[mask]
+                self.add_scatter(x[picked], agree[picked], size=size,
+                                 rows=picked,
+                                 colours=[QColor(colour)] * len(picked))
+        else:
+            # ONE MARK PER GUIDE COUNT. The x-axis is already a small integer,
+            # so the groups are the counts themselves and no tick remapping is
+            # needed -- "3" on the axis still means three guides.
+            x = counts
+            usable = ~(np.isnan(counts) | np.isnan(agree))
+            for position in np.unique(counts[~np.isnan(counts)]):
+                picked = rows[usable & (counts == position)]
+                if not len(picked):
+                    continue
+                self.add_group_mark(float(position), agree[picked], self._mark,
+                                    rows=picked, colour=QColor(self.GREY),
+                                    width=self.MARK_WIDTH, size=7,
+                                    centre=self.MARK_CENTRE)
         self._rows_shown = rows
 
         self.add_line(y=0.5, colour=self.GREY, label="chance")
@@ -1622,8 +2305,11 @@ class GuideAgreementPlot(FastPlot):
                      f"guides than the rest of the library "
                      f"{'are' if plural else 'is'} drawn beyond the opening "
                      f"view; Reset view reaches {'them' if plural else 'it'}.")
-        if self._has_usable_keys():
+        if self._has_usable_keys() and self._mark in ("points", "jitter"):
             note += " Click a gene for its coefficient."
+        mark_note = self.mark_note()
+        if mark_note:
+            note += " " + mark_note
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)

@@ -1672,6 +1672,8 @@ class AppScreen(QWidget):
                 self._figures_stack.addWidget(volcano_page)        # index 2
                 self._figure_grid.pinned_activated.connect(
                     self._show_regression_graph)
+                self._figure_grid.pinned_menu_requested.connect(
+                    self._pinned_menu)
                 # Picking a guide raises the graph its ring was drawn on.
                 # Highlighting a point on a view nobody is looking at is the
                 # same as not highlighting it.
@@ -3240,13 +3242,69 @@ class AppScreen(QWidget):
                              sections=self._figure_queue.run_sections())
         except Exception:
             LOG.debug("could not build the figure grid", exc_info=True)
-        # NO PINNED LIVE-GRAPH TILE. It grabbed the volcano widget, and on a
-        # page that has never been shown that widget has no layout yet -- so
-        # the tile drew as a blank box with a caption under it. It is also
-        # redundant now: the house-style volcano IS a cell of this grid, and
-        # picking a guide in the table still raises the interactive one. Two
-        # tiles for one plot is the duplication the publication button
-        # already got wrong once.
+        self._pin_regression_graph()
+
+    #: What the live tile is captioned. It has to distinguish itself from the
+    #: run's own `volcano` panel, which is a cell of the same grid: they are
+    #: the same numbers drawn twice on purpose -- one is the publication panel
+    #: and one is the tool -- and a reader who cannot tell which is which has
+    #: two identical-looking tiles and no reason to press either.
+    LIVE_TILE_TITLE = "regression — interactive"
+
+    def _pin_regression_graph(self) -> None:
+        """Put the LIVE regression graph on the all-figures grid.
+
+        "the regression plot isnt shown in all figures (i want it also shown
+        there)". It was not, and there was no route to it from the grid at
+        all: every tile opens a saved picture, and the only other way back to
+        the interactive volcano was to select a row in the coefficient table.
+        A view you can leave and not return to is the trap the "← All figures"
+        button exists to avoid, pointing the other way.
+
+        THE TILE WAS TRIED ONCE AND REMOVED, and the reason it was removed was
+        not the tile. It grabbed a widget sitting on a stacked page nobody had
+        opened, which on the real screen is 100x9 pixels inside a collapsed
+        splitter, so `grab()` returned a one-colour rectangle -- the "blank
+        box with a caption under it". :meth:`FastPlot.snapshot` sizes the
+        widget and lays it out before grabbing, and the same widget yields a
+        readable picture. Measured: 1 distinct colour before, 260 after.
+        """
+        grid = getattr(self, "_figure_grid", None)
+        panel = getattr(self, "_results_panel", None)
+        if grid is None or panel is None:
+            return
+        try:
+            frame = panel.results_frame()
+            # NOTHING FITTED, NO TILE. An empty plot tile invites a click that
+            # opens an empty plot, and before a run there is nothing on the
+            # volcano to photograph anyway -- `snapshot` returns None for that
+            # too, but asking here keeps the grid from flickering a tile in
+            # and out while a run streams its first figures.
+            pixmap = (panel.volcano.snapshot()
+                      if frame is not None and len(frame) else None)
+            grid.set_pinned(pixmap, self.LIVE_TILE_TITLE if pixmap else "")
+        except Exception:
+            LOG.debug("could not pin the live regression graph", exc_info=True)
+
+    def _pinned_menu(self, position) -> None:
+        """Right-click on the live tile: the graph's OWN menu, in place.
+
+        Not the figure queue's menu. The queue builds one from a matplotlib
+        figure at an index, and this tile is neither -- it is a photograph of
+        a live widget that has its own right-click menu with its own restyle,
+        baselines, colour-by and re-fit on it. Showing that one means the
+        gesture does the same thing on the tile as on the graph itself.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None:
+            return
+        try:
+            panel.volcano.build_style_menu().exec(position)
+        except Exception:
+            LOG.debug("could not open the live tile's menu", exc_info=True)
+        # The menu may have restyled or recoloured the graph, and the tile is
+        # a photograph of it, so the photograph has to be retaken.
+        self._pin_regression_graph()
 
     def _show_publication_sheet(self) -> None:
         """Draw every panel as ONE publication-ready figure, and open it.
@@ -3260,7 +3318,7 @@ class AppScreen(QWidget):
         matplotlib and the grid is rebuilt on a debounce while a run streams.
         """
         panel = getattr(self, "_results_panel", None)
-        frame = getattr(panel, "_frame", None) if panel is not None else None
+        frame = panel.results_frame() if panel is not None else None
         if frame is None or not len(frame):
             self._console.append_stdout(
                 "No coefficient table loaded, so there is nothing to draw a "
@@ -3569,6 +3627,20 @@ class AppScreen(QWidget):
                 except Exception:
                     LOG.debug("could not hand the run's settings to the "
                               "results panel", exc_info=True)
+                # THE FITTED MODEL, WHICH ONLY THIS PATH HAS. The residual,
+                # scale-location and influence tabs are computed from the fit
+                # itself, and `perform_regression` hands it back here and
+                # nowhere else -- a results CSV read off disk is one row per
+                # guide and says nothing about the wells. Handed over AFTER
+                # the frame, because `set_frame` clears the diagnostics on the
+                # principle that a new table is a new fit.
+                try:
+                    panel.set_diagnostics(
+                        payload.get("model"),
+                        regression_type=payload.get("regression_type"))
+                except Exception:
+                    LOG.debug("could not hand the run's model to the results "
+                              "panel", exc_info=True)
                 self._results_loaded_in_memory = True
                 self._show_figure_grid()
                 self._figures_card.show()

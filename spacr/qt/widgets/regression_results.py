@@ -222,8 +222,9 @@ class RegressionResultsPanel(QWidget):
         """
         super().__init__(parent)
         from .fast_plots import (ControlSeparation, GuideAgreementPlot,
-                                 PValueHistogram, QQPlot, ResultsTable,
-                                 VolcanoPlot)
+                                 InfluencePlot, PValueHistogram, QQPlot,
+                                 ResidualPlot, ResultsTable,
+                                 ScaleLocationPlot, VolcanoPlot)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -285,6 +286,43 @@ class RegressionResultsPanel(QWidget):
         self.tabs.addTab(self.p_values, "p-values")
         self.tabs.addTab(self.qq, "Q-Q")
         self.tabs.addTab(self.controls, "Controls")
+
+        # THE RESIDUAL DIAGNOSTICS, LIVE. "in the tabs Q-Q and Controls, there
+        # should be Tabs like residuals showing the residuals and regression
+        # controll graphs like that."
+        #
+        # Every tab so far is drawn from the COEFFICIENT table, which is one
+        # row per guide and says nothing about how well the model fitted the
+        # WELLS it was given. These three are the well-level half, and they
+        # are the three the QC report leads with: is the mean right, is the
+        # variance flat, is the answer resting on one well. They come from
+        # `spacr.regression_qc` -- the same arrays the saved report draws --
+        # rather than being recomputed here, because a live panel that named
+        # different influential wells than the PDF beside it would be worse
+        # than no live panel.
+        #
+        # THEY ARE ALWAYS TABS, even before there is a model to fill them,
+        # and each one SAYS why it is empty. A diagnostic that appears only
+        # once it happens to be computable is one nobody knows to look for.
+        self.residuals = ResidualPlot()
+        self.scale_location = ScaleLocationPlot()
+        self.influence = InfluencePlot()
+        self.tabs.addTab(self.residuals, "Residuals")
+        self.tabs.addTab(self.scale_location, "Scale-location")
+        self.tabs.addTab(self.influence, "Influence")
+        self.tabs.setTabToolTip(
+            self.tabs.indexOf(self.residuals),
+            "Residual against fitted, one point per well. A horizontal band "
+            "is a well-specified mean; a curve or a funnel is not.")
+        self.tabs.setTabToolTip(
+            self.tabs.indexOf(self.scale_location),
+            "The spread of the residuals with the sign taken out. A rising "
+            "trend means the standard errors, and so every p-value on the "
+            "volcano, depend on the fitted value.")
+        self.tabs.setTabToolTip(
+            self.tabs.indexOf(self.influence),
+            "Leverage against standardised residual. Which wells are moving "
+            "the coefficients on their own.")
 
         # GUIDE SUPPORT. The one thing the volcano structurally cannot show:
         # a gene carried by a single surviving guide and a gene whose guides
@@ -377,12 +415,23 @@ class RegressionResultsPanel(QWidget):
         self._compartment = None
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
+        #: None, "gene" or "grna" -- which rows the volcano draws.
+        self._level = None
+        #: The fitted model behind the table, when a run in this session
+        #: produced it. BORN HERE for the same reason as everything else in
+        #: this block.
+        self._model = None
+
+        # The diagnostics start out saying what they are waiting for. An
+        # empty plot with no sentence is indistinguishable from a broken one.
+        self.clear_diagnostics()
 
         # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
         # that is where it was asked for: "right click on the regression plot
         # and choose a different regression". It is separated from the
         # restyling entries above it for the reason `offer_refit` gives.
         self.volcano.offer_refit(self.ask_refit)
+        self._offer_levels()
         self._offer_baselines()
         self._offer_compartments()
 
@@ -432,6 +481,96 @@ class RegressionResultsPanel(QWidget):
         self.refit_requested.emit(settings)
         return True
 
+    # ------------------------------------------------------------ diagnostics
+
+    #: What the diagnostic tabs say before a run in this session has produced
+    #: a model. Not "no data": a user looking at a table they loaded off disk
+    #: needs to know that these three tabs are empty for a REASON they can act
+    #: on, and what the action is.
+    NO_MODEL_MESSAGE = (
+        "Residual diagnostics are computed from the fitted model, and only a "
+        "run in this session hands one over -- a results table read from disk "
+        "is one row per guide and carries nothing about the wells. Run the "
+        "regression here, or re-fit from the volcano's right-click menu, and "
+        "these fill in. The same panels are already on disk beside the "
+        "results, under regression_qc/.")
+
+    def diagnostic_plots(self) -> tuple:
+        """The three well-level tabs, in the order they are shown.
+
+        Public because it is how a caller asks the panel to restyle, export or
+        interrogate them WITHOUT reaching past the panel into its widgets --
+        which is how one screen ended up depending on another's private
+        surface.
+        """
+        return (self.residuals, self.scale_location, self.influence)
+
+    def clear_diagnostics(self, reason: str = "") -> None:
+        """Empty the three well-level tabs and SAY why they are empty.
+
+        :param reason: the specific reason, when there is one. The default is
+            :data:`NO_MODEL_MESSAGE` -- "no run in this session has fitted
+            anything yet", which is the ordinary case and still an answer.
+        """
+        self._model = None
+        for plot in self.diagnostic_plots():
+            plot._reset_scene()
+            plot.set_status(reason or self.NO_MODEL_MESSAGE)
+
+    def set_diagnostics(self, model, regression_type=None) -> bool:
+        """Fill the residual tabs from the model a run just fitted.
+
+        :param model: the fitted model, straight off ``perform_regression``'s
+            return payload. ``None`` clears the tabs and says why.
+        :returns: True when the tabs were filled.
+
+        EVERY NUMBER COMES FROM :mod:`spacr.regression_qc`. The residuals, the
+        standardisation, the leverage and Cook's distance are the arrays that
+        module already computes for the report it writes to disk -- so the
+        live tab and the saved PDF cannot disagree about which well is
+        influential, which they would within a week if this panel did its own
+        arithmetic.
+
+        NEVER RAISES INTO THE GUI. A model class that cannot be diagnosed --
+        the penalised backends keep no design matrix -- puts its reason on the
+        three tabs instead, because "this fit cannot answer that" and "this
+        tab is broken" must not look the same.
+        """
+        if model is None:
+            self.clear_diagnostics()
+            return False
+        try:
+            from ...regression_qc import (PanelUnavailable, context_from_model,
+                                          cooks_distance)
+        except Exception as error:                               # noqa: BLE001
+            self.clear_diagnostics(
+                f"Could not load the diagnostics module: {error}")
+            return False
+        try:
+            ctx = context_from_model(model, coef_df=self._frame,
+                                     regression_type=regression_type)
+        except PanelUnavailable as error:
+            self.clear_diagnostics(str(error))
+            return False
+        except Exception as error:                               # noqa: BLE001
+            self.clear_diagnostics(
+                f"The diagnostics could not be computed for this fit "
+                f"({type(error).__name__}: {error}).")
+            return False
+
+        self._model = model
+        labels = list(ctx.labels) if ctx.labels is not None else []
+        reason = (ctx.standardisation.reason
+                  if ctx.standardisation is not None else "")
+        self.residuals.set_residuals(ctx.fitted, ctx.resid, labels=labels)
+        self.scale_location.set_scale_location(
+            ctx.fitted, ctx.std_resid, labels=labels, reason=reason or "")
+        self.influence.set_influence(
+            ctx.leverage, ctx.std_resid,
+            cooks_distance(ctx.std_resid, ctx.leverage, ctx.p),
+            labels=labels, n_params=ctx.p, reason=reason or "")
+        return True
+
     def _keyed_plots(self) -> tuple:
         """Every plot whose marks are individual coefficients or genes.
 
@@ -448,6 +587,18 @@ class RegressionResultsPanel(QWidget):
         self.table.show_keys(list(keys))
 
     # ------------------------------------------------------------------ load
+
+    def results_frame(self):
+        """The coefficient table on screen, or ``None``.
+
+        Public because two callers outside this panel need to know whether
+        there is anything to draw -- the publication sheet and the figure grid
+        -- and both were reaching in for ``_frame`` with ``getattr``. A
+        ``getattr`` for a private attribute is not encapsulation, it is the
+        same coupling with the failure mode hidden: rename the attribute and
+        both callers silently decide there are no results.
+        """
+        return self._frame
 
     def status_text(self) -> str:
         """Whatever the panel last had to say, success or failure.
@@ -551,6 +702,13 @@ class RegressionResultsPanel(QWidget):
         self._path = source
         self._ranking = self._rank_by(frame, source)
 
+        # A NEW TABLE IS A NEW FIT, so the old fit's residuals have to go. The
+        # caller that HAS a model calls `set_diagnostics` immediately after
+        # this; the caller that loaded a CSV has none, and leaving the last
+        # run's residuals on the tabs would describe a fit the user is no
+        # longer looking at -- with nothing on screen saying so.
+        self.clear_diagnostics()
+
         # WHICH SETTINGS PRODUCED THIS TABLE. Read from beside the table, and
         # REPLACED rather than kept: a new table is a new experiment, and
         # carrying the last run's settings over would offer to re-fit a
@@ -629,6 +787,8 @@ class RegressionResultsPanel(QWidget):
         # -- and a new screen would otherwise be offered the last one's
         # compartments.
         self._compartment = None
+        self._level = None
+        self._offer_levels()
         self._offer_compartments()
 
         self._redraw_volcano()
@@ -837,6 +997,12 @@ class RegressionResultsPanel(QWidget):
     #: which the user needs to know rather than to be shielded from.
     ALWAYS_OFFERED = ("condition",)
 
+    #: Which rows the volcano shows. `None` is both, which is what a screen
+    #: IS, so it is the default -- a panel that opened already filtered would
+    #: be reporting a subset as the result.
+    LEVELS = ((None, "genes and guides"), ("gene", "genes only"),
+              ("grna", "guides only"))
+
     #: Sentinel for the derived LOPIT colouring, which is not a frame column.
     LOPIT_KEY = "\0lopit"
 
@@ -852,6 +1018,62 @@ class RegressionResultsPanel(QWidget):
         self.volcano.offer_baselines([
             (label, (lambda k=kind: self.set_baseline(k)), kind == chosen)
             for kind, label in self.BASELINES])
+
+    def level_counts(self) -> dict:
+        """``{None: n, "gene": n, "grna": n}`` for the table on screen.
+
+        Counted rather than assumed, and put in the MENU: "genes only" that
+        silently draws 400 of 1,213 points is a filter a user applies without
+        knowing what they gave up.
+        """
+        frame = self._frame
+        if frame is None or "feature" not in getattr(frame, "columns", ()):
+            return {None: 0, "gene": 0, "grna": 0}
+        from ...hits import guide_of
+
+        guides = frame["feature"].map(lambda f: guide_of(str(f)) is not None)
+        return {None: int(len(frame)),
+                "grna": int(guides.sum()),
+                # A row that is not a guide and IS in the tested family is a
+                # gene term. Counted as the complement rather than by a second
+                # parse, so the two cannot disagree about a row.
+                "gene": int((~guides).sum())}
+
+    def _offer_levels(self) -> None:
+        """Put genes / guides / both on the volcano's right-click menu."""
+        counts = self.level_counts()
+        self.volcano.offer_levels([
+            (f"{label} ({counts.get(key, 0)})",
+             (lambda k=key: self.set_level(k)), key == self._level)
+            for key, label in self.LEVELS])
+
+    def set_level(self, level) -> None:
+        """Draw only genes, only guides, or both.
+
+        A FILTER ON THE PLOT, not a mode of the run. The coefficient table
+        already carries both -- `feature` is `gene_fraction:gene[...]` or
+        `fraction:grna[...]` -- so this needs no re-fit and no second table,
+        which is why it is better here than in the settings where it used to
+        live.
+        """
+        self._level = level
+        self._offer_levels()
+        self._redraw_volcano()
+        counts = self.level_counts()
+        if level:
+            self.say(f"Volcano: {counts.get(level, 0)} of {counts[None]} "
+                     f"coefficients — "
+                     f"{'genes' if level == 'gene' else 'guides'} only.")
+
+    def _level_mask(self, frame):
+        """Rows of ``frame`` at the chosen level, or None for all of them."""
+        if not self._level or "feature" not in getattr(frame, "columns", ()):
+            return None
+        from ...hits import guide_of
+
+        is_guide = frame["feature"].map(
+            lambda f: guide_of(str(f)) is not None)
+        return is_guide if self._level == "grna" else ~is_guide
 
     def _offer_compartments(self) -> None:
         """Put this screen's own compartments on the volcano's menu.
@@ -948,6 +1170,10 @@ class RegressionResultsPanel(QWidget):
             frame["localisation"] = compartments_of(frame).replace(
                 "", "unannotated")
             category = "localisation"
+
+        mask = self._level_mask(frame)
+        if mask is not None:
+            frame = frame.loc[mask]
 
         self.volcano.set_results(
             frame,
