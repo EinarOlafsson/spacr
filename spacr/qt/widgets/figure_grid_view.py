@@ -23,10 +23,11 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from PySide6.QtCore import QSize, Qt, Signal
+from PySide6.QtCore import QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QFrame, QGridLayout, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
+    QFrame, QGridLayout, QHBoxLayout, QLabel, QScrollArea, QSizePolicy,
+    QVBoxLayout, QWidget,
 )
 
 #: Below this, a cell is too small to read anything in.
@@ -88,6 +89,115 @@ def cell_span(aspect: float) -> int:
         :data:`CELL_SPAN`. Four plates take four slots.
     """
     return CELL_SPAN
+
+
+#: How the run headings are drawn. One string, because the chevron and the
+#: label are two widgets that have to read as one heading.
+HEADING_STYLE = ("font-weight: 600; font-size: 11px; letter-spacing: 1px; "
+                 "color: palette(mid); background: transparent;")
+
+#: How close to the top of the viewport a heading has to sit before the
+#: gesture stops meaning "take me there". The console's tolerance, for the
+#: console's reason: a scrollbar dragged by hand does not land on an exact
+#: value. Shared as a name so the two cannot drift apart.
+RAISED_TOLERANCE_PX = 4
+
+
+class _SectionHeader(QFrame):
+    """A run's heading, and the control that folds that run's figures away.
+
+    THE CONSOLE'S GESTURE, because the maintainer named the console as the
+    model: "each set should be in its own section that can be minimized like
+    in the console". So this is `_TopicBar` in every respect that a user can
+    see -- a disclosure chevron on the left of the heading text, a pointing
+    hand over the whole bar, strong focus so the keyboard reaches it, and
+    Return / Enter / Space doing what a click does. A control only a mouse can
+    reach is one some users cannot reach at all.
+
+    Only the CHEVRON and the click are new. The heading itself, its wording
+    and its styling are what 124 B already drew; making it a control must not
+    make it a different heading.
+
+    :ivar section_key: ``(label, start)`` -- which run this heads. The header
+        WIDGET is rebuilt on every relayout (a resize rebuilds the grid), so
+        the collapsed state cannot live on it; the key is what the view
+        remembers instead.
+    """
+
+    def __init__(self, label: str, key, parent=None, expanded: bool = True):
+        super().__init__(parent)
+        self.setObjectName("FigureGridSectionHeader")
+        self.section_key = key
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setStyleSheet("_SectionHeader { background: transparent; }")
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 2, 0, 2)
+        row.setSpacing(6)
+        self._chevron = QLabel("▾")
+        self._chevron.setObjectName("FigureGridSectionChevron")
+        # A run heading is generated text -- a timestamp, or a trial's name --
+        # in whatever language was active when the run started. A later
+        # whole-window language switch must not try to reinterpret it.
+        self._chevron.setProperty("i18nSkipText", True)
+        self._chevron.setStyleSheet(HEADING_STYLE)
+        row.addWidget(self._chevron)
+        self._label = QLabel(label)
+        self._label.setObjectName("FigureGridSectionLabel")
+        self._label.setProperty("i18nSkipText", True)
+        self._label.setStyleSheet(HEADING_STYLE)
+        row.addWidget(self._label)
+        row.addStretch(1)
+        self.set_expanded(expanded)
+
+    def text(self) -> str:
+        """The heading text, without the chevron."""
+        return self._label.text()
+
+    def is_expanded(self) -> bool:
+        """Whether this run's figures are showing."""
+        return self._expanded
+
+    def set_expanded(self, expanded: bool) -> None:
+        """Record the state and turn the chevron to match."""
+        self._expanded = bool(expanded)
+        self._chevron.setText("▾" if self._expanded else "▸")
+        self.setToolTip(
+            "Fold this run's figures away." if self._expanded
+            else "Show this run's figures again.")
+
+    def _view(self):
+        """The owning :class:`FigureGridView`, or ``None``.
+
+        Found by walking up rather than stored, exactly as the console's
+        topic bar does it: the header is built inside a layout pass and the
+        view is whichever ancestor knows how to toggle a section.
+        """
+        node = self.parentWidget()
+        while node is not None and not hasattr(node, "_toggle_section"):
+            node = node.parentWidget()
+        return node
+
+    def _activate(self) -> None:
+        view = self._view()
+        if view is not None:
+            view._toggle_section(self)
+
+    def mouseReleaseEvent(self, event):         # noqa: N802 - Qt naming
+        # Release rather than press, so dragging off the bar cancels -- what
+        # every other clickable in the app does.
+        if (event.button() == Qt.LeftButton
+                and self.rect().contains(event.position().toPoint())):
+            self._activate()
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):             # noqa: N802 - Qt naming
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            self._activate()
+            return
+        super().keyPressEvent(event)
 
 
 class _FigureCell(QFrame):
@@ -213,6 +323,17 @@ class FigureGridView(QScrollArea):
         self._cells: list[_FigureCell] = []
         self._pinned: Optional[_FigureCell] = None
         self._sections: list = []
+        #: The headings currently in the layout. Owned explicitly because
+        #: :meth:`_relayout` has to destroy the previous ones -- see there.
+        self._headers: list = []
+        #: ``{(label, start)}`` the user has folded away. THE STATE LIVES
+        #: HERE, not on the header widget, and that is the whole design:
+        #: every relayout builds new headers, and a run that re-expanded
+        #: everything each time it finished would be unusable during a sweep
+        #: of sixty trials. A section not in this set is open, so a run that
+        #: has never been seen before arrives open -- the newest one is the
+        #: one that matters.
+        self._collapsed: set = set()
         self._target = TARGET_CELL_PX
 
     def set_pinned(self, pixmap, title: str = "") -> bool:
@@ -250,6 +371,13 @@ class FigureGridView(QScrollArea):
                 widget.setParent(None)
                 widget.deleteLater()
         self._cells = []
+        # The headings went out with the rest of the layout, so the list must
+        # go too -- otherwise _relayout reaches through a wrapper whose C++
+        # object has already been torn down and raises RuntimeError. The
+        # COLLAPSED SET deliberately survives: clearing is how the grid is
+        # rebuilt after every run, and a fold that came undone on each rebuild
+        # is the unusable sweep this exists to prevent.
+        self._headers = []
 
     def set_figures(self, pixmaps, titles=None, sections=None) -> int:
         """Show these figures. Returns how many were added.
@@ -280,8 +408,115 @@ class FigureGridView(QScrollArea):
         self._relayout()
         return len(self._cells)
 
+    # ------------------------------------------------------------- sections
+
+    @staticmethod
+    def _section_key(label, start):
+        """What identifies a run's section across relayouts and new runs.
+
+        The label ALONE is not enough -- two runs a second apart can carry the
+        same timestamp -- and the start index alone is not either, because a
+        cleared queue starts a different run at 0. Together they are stable
+        for as long as the section exists: figures are appended, so an
+        existing run's start never moves.
+        """
+        return (str(label), int(start))
+
+    def _is_section_collapsed(self, label, start) -> bool:
+        """Whether this run's figures are folded away."""
+        return self._section_key(label, start) in self._collapsed
+
+    def _set_section_collapsed(self, label, start,
+                               collapsed: bool = True) -> None:
+        """Fold a run's figures away, or bring them back."""
+        key = self._section_key(label, start)
+        if collapsed:
+            self._collapsed.add(key)
+        else:
+            self._collapsed.discard(key)
+        self._relayout()
+
+    def _hidden_indices(self) -> frozenset:
+        """Figure indices belonging to a folded run.
+
+        Only runs that actually GET a heading can be folded: with a single
+        section there is no header to click, so a key left over from an
+        earlier grid must not silently hide the only figures on screen.
+        """
+        if len(self._sections) < 2 or not self._collapsed:
+            return frozenset()
+        hidden = set()
+        for label, start, count in self._sections:
+            if self._section_key(label, start) in self._collapsed:
+                hidden.update(range(int(start), int(start) + int(count)))
+        return frozenset(hidden)
+
+    def _is_raised(self, header) -> bool:
+        """Whether ``header`` is already sitting at the top of the viewport."""
+        try:
+            top = header.mapTo(self._body, header.rect().topLeft()).y()
+            bar = self.verticalScrollBar()
+        except RuntimeError:
+            return False        # header rebuilt between click and query
+        return abs(bar.value() - min(top, bar.maximum())) <= RAISED_TOLERANCE_PX
+
+    def _scroll_section_to_top(self, key) -> bool:
+        """Put the (rebuilt) header for ``key`` at the top of the viewport.
+
+        Runs one event-loop turn after the toggle, so everything it touches
+        may have been torn down in between -- the grid is rebuilt whenever a
+        figure lands, and the screen can be closed on the same turn.
+        """
+        for header in self._headers:
+            if getattr(header, "section_key", None) != key:
+                continue
+            try:
+                top = header.mapTo(self._body, header.rect().topLeft()).y()
+                bar = self.verticalScrollBar()
+                bar.setValue(min(top, bar.maximum()))
+            except RuntimeError:
+                return False
+            return True
+        return False
+
+    def _toggle_section(self, header) -> bool:
+        """Reach the run first; fold it away second. Returns the new state.
+
+        THE CONSOLE'S RULE, verbatim, because the console is the model the
+        maintainer named. A heading that is not already at the top of the
+        viewport is a request to GO THERE, whatever its state -- a first click
+        that hid the very section the user was reaching for spends the gesture
+        on the opposite of what it looked like. Only a heading already at the
+        top has nowhere left to navigate to, and there folding is the one
+        thing the gesture can still mean, on a second click exactly where the
+        user's hand already is.
+        """
+        key = getattr(header, "section_key", None)
+        if key is None:
+            return True
+        if key not in self._collapsed and self._is_raised(header):
+            self._collapsed.add(key)
+            self._relayout()
+            return False
+        self._collapsed.discard(key)
+        self._relayout()
+        # After layout, not during: the geometry this scroll needs does not
+        # exist until the cells just shown have been placed.
+        QTimer.singleShot(0, lambda: self._scroll_section_to_top(key))
+        return True
+
     def _relayout(self) -> None:
         """Place the cells, giving wide figures a double-width cell."""
+        # THE PREVIOUS HEADINGS ARE DESTROYED, NOT MERELY UNPARENTED FROM THE
+        # LAYOUT. `takeAt` removes the layout item and leaves the widget a
+        # visible child of the body at its old geometry, so every relayout --
+        # and a window resize is a relayout -- used to leave another copy of
+        # every run heading painted on the grid. Measured before the fix:
+        # three relayouts of a two-run grid left six headings.
+        for header in self._headers:
+            header.setParent(None)
+            header.deleteLater()
+        self._headers = []
         for index in reversed(range(self._grid.count())):
             self._grid.takeAt(index)
 
@@ -296,6 +531,7 @@ class FigureGridView(QScrollArea):
         if len(self._sections) > 1:
             for label, start, _count in self._sections:
                 heading_at[start] = label
+        hidden = self._hidden_indices()
 
         row = column = 0
         for cell in ([self._pinned] if self._pinned is not None else []) \
@@ -304,12 +540,22 @@ class FigureGridView(QScrollArea):
             if index in heading_at:
                 if column:
                     row, column = row + 1, 0
-                heading = QLabel(heading_at.pop(index))
-                heading.setStyleSheet(
-                    "font-weight: 600; font-size: 11px; letter-spacing: 1px; "
-                    "color: palette(mid); background: transparent;")
-                self._grid.addWidget(heading, row, 0, 1, max(columns, 1))
+                label = heading_at.pop(index)
+                key = self._section_key(label, index)
+                header = _SectionHeader(label, key, self._body,
+                                        expanded=key not in self._collapsed)
+                self._grid.addWidget(header, row, 0, 1, max(columns, 1))
+                header.setVisible(True)
+                self._headers.append(header)
                 row, column = row + 1, 0
+            if index in hidden:
+                # Left out of the layout AND hidden. Out of the layout so the
+                # next run flows up under the folded heading instead of into
+                # a hole; hidden because a widget removed from a layout keeps
+                # painting itself where it last was.
+                cell.setVisible(False)
+                continue
+            cell.setVisible(True)
             span = min(cell_span(cell.aspect()), columns)
             # A wide figure that will not fit in what is left of this row
             # starts the next one, rather than being squeezed.
