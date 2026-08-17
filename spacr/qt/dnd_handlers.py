@@ -19,7 +19,7 @@ Handler map (also read by ``get_handler``):
 | map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |
 | umap            | folder with ``measurements/measurements.db``          |
 | ml_analyze      | ditto                                                 |
-| regression      | ditto + ``scores.csv``                                |
+| regression      | ditto — the database attaches to a PLATE ROW          |
 | recruitment     | folder with per-well recruitment CSVs                 |
 | activation      | folder with saved activation maps or the CV model dir |
 | analyze_plaques | folder with plaque images                             |
@@ -970,7 +970,21 @@ class MapBarcodesDropHandler(DropHandler):
 # ---------------------------------------------------------------------------
 
 class MeasurementsDropHandler(DropHandler):
-    """Accept a database, its measurements folder, or its plate folder."""
+    """Accept a database, its measurements folder, or its plate folder.
+
+    Where the screen takes its inputs ONE ROW PER PLATE -- today only
+    Regression, through the ``paired_data`` table -- the database is attached
+    to a plate row instead of setting ``src``. That is not an app-key special
+    case: it follows the shape of the screen, so any panel that grows a
+    per-plate input table gets it without a registry edit.
+
+    It matters because the two gestures used to disagree. Dropping
+    ``measurements.db`` ON the regression input table attaches it to a plate
+    (instruction 130); dropping the same file two inches higher, on the
+    screen around it, landed here and set ``src`` -- a key the regression
+    panel does not even display. The drop reported success and changed
+    nothing the user could see.
+    """
 
     def can_accept(self, path: Path) -> bool:
         if path.is_file():
@@ -986,7 +1000,33 @@ class MeasurementsDropHandler(DropHandler):
         return ("This module needs a plate folder with "
                 "measurements/measurements.db.")
 
+    @staticmethod
+    def database_file(path: Path):
+        """The database ``path`` names: itself, or the one under it.
+
+        Returns ``None`` when there is no database file to be found, so a
+        caller can fall back rather than hand a folder to something that
+        expects to open a database.
+        """
+        if path.is_file():
+            return path if _is_database_path(path) else None
+        for candidate in (path / "measurements" / "measurements.db",
+                          path / "measurements.db"):
+            if candidate.is_file():
+                return candidate
+        return None
+
     def apply(self, path: Path, screen) -> None:
+        # A screen whose inputs are one row per plate wants the database on a
+        # PLATE ROW; `src` is not where its measurements live.
+        widget = _paired_input_table(screen)
+        attach = getattr(widget, "attach_database", None)
+        database = self.database_file(path)
+        if database is not None and callable(attach):
+            message = attach(str(database))
+            LOG.info("measurements drop: %s", message)
+            _log(screen, f"[drop] {message}\n")
+            return
         # Same resolution as auto-chaining, for the same reason as in
         # :meth:`MeasureDropHandler.apply`: the registry knows where the
         # producer actually wrote, and the declared layout answers when no
@@ -1007,6 +1047,25 @@ class MeasurementsDropHandler(DropHandler):
             path = path.parent
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] src = {path}\n")
+
+
+def _is_database_path(path) -> bool:
+    """Is this a measurements database? Asked of the widgets' own rule.
+
+    Imported here rather than at module scope for the reason the local import
+    in :class:`SweepInputsDropHandler` gives: importing a widget module pulls
+    in the whole widgets package, and this module is imported while the first
+    window is still being built.
+    """
+    from .widgets.file_list import is_database_path
+    return is_database_path(path)
+
+
+def _paired_input_table(screen):
+    """The screen's ``paired_data`` widget, or ``None`` if it has none."""
+    model = getattr(screen, "_settings_model", None)
+    widgets = getattr(model, "_widgets", None)
+    return widgets.get("paired_data") if isinstance(widgets, dict) else None
 
 
 class DatabaseDropHandler(DropHandler):
