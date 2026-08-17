@@ -130,25 +130,72 @@ CONTROL_GENE = "000000"
 #: site this module knows about rather than derived.
 TOXODB_GENE_URL = "https://toxodb.org/toxo/app/record/gene/{accession}"
 
-#: UniProt, as a SEARCH rather than a record.
+#: UniProt, as a RECORD when the accession is known and a search when it is
+#: not.
 #:
 #: THE ANNOTATION FILE CARRIES NO UNIPROT ACCESSION -- checked, all 48 columns
-#: of `toxoplasma_metadata.csv`, and the nearest thing to one is
-#: `Protein Length`. So there is nothing to link a record page to.
+#: of `toxoplasma_metadata.csv`. So the tile used to fall back to a free-text
+#: search for the gene NUMBER, and the maintainer reported the result plainly:
+#: "none of the uniprot links work". Searching UniProt for `224750` finds
+#: whatever happens to contain that string.
 #:
-#: A record URL built by pasting a gene id into a UniProt path would resolve
-#: to SOMEBODY ELSE'S PROTEIN or to a 404, and the first is much worse than
-#: the second: a link that opens a real page for a different organism's
-#: protein is indistinguishable, to the reader, from a correct one. A search
-#: makes no claim -- it asks UniProt the question the reader has, and
-#: UniProt answers it.
+#: The accessions are bundled instead, in `resources/data/uniprot.csv`, built
+#: from UniProt's own REST API over the ME49 REFERENCE PROTEOME
+#: (`UP000001529`): 7,886 genes, one accession each, keyed on the ToxoDB gene
+#: NUMBER because that suffix is shared across strains -- `TGGT1_224750` and
+#: `TGME49_224750` are the same gene and the screen uses the first while
+#: UniProt cross-references the second.
 #:
-#: If an annotation file ever carries an accession, :func:`uniprot_reference`
-#: uses it and links the record directly; that is the branch to prefer and it
-#: is why the column names are checked rather than assumed absent.
+#: WHY THE REFERENCE PROTEOME AND NOT "ANY ENTRY THAT MENTIONS THE GENE".
+#: 224750 has at least two UniProt entries: S8F0I0, in UP000001529 on an
+#: assembled Chromosome X, and A0A7J6K0I8, in an UNASSEMBLED WGS proteome.
+#: Both are real and both cross-reference TGME49_224750; only the first is
+#: the one a reader wants, and the maintainer's own example was S8F0I0.
+#: Filtering to the reference proteome is what makes the choice principled
+#: rather than a coin toss between two valid answers.
+#:
+#: A gene not in the mapping still gets a SEARCH link and is labelled as one.
+#: The rule from instruction 124 H is unchanged and is the reason this file
+#: exists rather than a URL built by string-formatting a gene id: a record
+#: URL invented from an id resolves to somebody else's protein, which is
+#: indistinguishable to the reader from a correct link.
 UNIPROT_SEARCH_URL = (
     "https://www.uniprot.org/uniprotkb?query={query}")
 UNIPROT_RECORD_URL = "https://www.uniprot.org/uniprotkb/{accession}/entry"
+
+#: The bundled ToxoDB-gene-number -> UniProt-accession table.
+UNIPROT_TABLE = os.path.join(_DATA, "uniprot.csv")
+
+
+@lru_cache(maxsize=1)
+def uniprot_accessions() -> Dict[str, str]:
+    """``{gene number: accession}`` from the bundled table.
+
+    Cached: it is read to build one line of a gene tile, which happens every
+    time a point is clicked.
+
+    Returns an empty mapping rather than raising when the file is absent --
+    a screen of another organism has no reason to carry it, and a gene tile
+    without a UniProt line is still a gene tile.
+    """
+    out: Dict[str, str] = {}
+    try:
+        import csv
+
+        with open(UNIPROT_TABLE, newline="") as handle:
+            for row in csv.DictReader(handle):
+                gene = str(row.get("gene_nr", "")).strip()
+                accession = str(row.get("uniprot", "")).strip()
+                if gene and accession:
+                    # Keyed on the bare number, and the file is written with
+                    # leading zeros preserved (039160), so both spellings
+                    # resolve.
+                    out.setdefault(gene, accession)
+                    out.setdefault(gene.lstrip("0") or gene, accession)
+    except Exception:                                            # noqa: BLE001
+        return {}
+    return out
+
 
 #: Annotation columns that would hold a UniProt accession if one were there.
 UNIPROT_COLUMNS = ("UniProt ID", "UniProt", "UniProtKB", "uniprot_id",
@@ -273,6 +320,18 @@ def uniprot_reference(accession: str, annotation=None):
             if text and text.lower() not in ("nan", "none", ""):
                 return (f"UniProt {text}",
                         UNIPROT_RECORD_URL.format(accession=text), True)
+    # THE BUNDLED MAPPING. Keyed on the gene NUMBER, so a full ToxoDB
+    # accession (`TGGT1_224750`) and a bare number (`224750`) both resolve --
+    # the tile is handed either depending on where the click came from.
+    number = str(accession).strip()
+    if "_" in number:
+        number = number.rsplit("_", 1)[-1]
+    known = uniprot_accessions().get(number) or uniprot_accessions().get(
+        number.lstrip("0") or number)
+    if known:
+        return (f"UniProt {known}",
+                UNIPROT_RECORD_URL.format(accession=known), True)
+
     return (f"UniProt search: {accession}",
             UNIPROT_SEARCH_URL.format(query=accession), False)
 
