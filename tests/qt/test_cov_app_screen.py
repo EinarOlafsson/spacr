@@ -1542,7 +1542,27 @@ class TestRuntimePanels:
         card = getattr(scr, attr + "_card")
         assert panel is not None and card is not None
         assert scr._runtime_splitter is not None
-        assert scr._runtime_splitter.count() == 2
+        # WHAT THIS USED TO ASSERT, and why it went red without anything
+        # breaking: `count() == 2`. When it was written these splitters held
+        # the preview card and the console. The figures card was later
+        # inserted at position 0 in all four preview branches, deliberately,
+        # and a bare count cannot tell "a third pane was added on purpose"
+        # from "a pane was duplicated" -- so it failed on a change it had no
+        # opinion about and said nothing about the thing it was guarding.
+        #
+        # The contract is WHICH panes are in it and in what order: the user
+        # reads figures at the top, tunes in the preview beneath, and watches
+        # the console at the bottom. Stated by identity, that survives the
+        # next layout change and still catches a pane going missing.
+        splitter = scr._runtime_splitter
+        panes = [splitter.widget(i) for i in range(splitter.count())]
+        assert panes == [scr._figures_card, card, scr._console_wrap], (
+            f"{app_key}: the runtime splitter holds "
+            f"{[type(w).__name__ for w in panes]}, not figures / preview / "
+            f"console")
+        assert scr._console.isAncestorOf(scr._console_wrap) is False
+        assert scr._console_wrap.isAncestorOf(scr._console), (
+            "the console pane must actually contain the console")
         # The other slots stay None rather than leaking from another screen.
         others = {"_live_preview", "_measure_preview", "_timelapse_preview",
                   "_motility_preview", "_hyperparam"} - {attr}
