@@ -788,3 +788,81 @@ Two things learned here that will save the next worker the same hour:
     `PySide6.QtWidgets`.
   * `isVisible()` is always False in a headless run, because nothing on an
     unshown screen is visible. `isHidden()` is what a show/hide test means.
+
+--------------------------------------------------------------------------------
+spacr/qt/screens/annotate.py -- 84% TO 100% -- 2026-08-17
+--------------------------------------------------------------------------------
+
+The top entry left in the whole-package ranking once the regression session's
+files are removed: 303 uncovered at 83.7% there. Measured the way this file
+requires, "<module> at <percent> over <which tests>", on the fourteen existing
+files that import it plus the one added here:
+
+    before   1862 statements   304 missing    84%
+    after    1880 statements     0 missing   100%
+    132 new cases in tests/qt/test_cov_annotate_screen.py
+    448 passed over the whole set
+
+No `# pragma: no cover`, and nothing was deleted as unreachable -- every one
+of the 304 was reachable, which is itself worth recording: the defensive
+branches in this module are all live, they had simply never been driven.
+
+TWO REAL BUGS, both reproduced before they were fixed.
+
+1. SKIP TO THE LAST ANNOTATION JUMPED PAST A FILTERED POPULATION.
+   `_on_skip` asked `find_last_annotated_offset` for an index into the WHOLE
+   png_list table and set it as `_offset` -- which `_load_page` then used to
+   slice `_filtered_rows`. Those are different lists whenever a threshold
+   filter, the uncertainty queue or a routed request is active, and the
+   second is usually much shorter.
+
+   Measured on an eight-row table filtered to two: the annotated crop is row
+   6 of the table and row 0 of the filter, so Skip set offset 6 of a two-row
+   population. Blank grid, no message, and Next/Prev could not get back to
+   the crop the button was pressed to find. The row set on screen is now the
+   one that gets counted.
+
+2. RETIRING A WORKER THREAD REACHED INTO THE OBJECT IT HAD JUST PROVED GONE.
+   `_on_retrain_finished` and `_on_page_worker_finished` are QUEUED slots, so
+   they run later than the thread they retire -- late enough for the worker's
+   C++ half to have been destroyed with its parent. Both wrap their
+   disconnects in `except (RuntimeError, TypeError)` for exactly that state,
+   and both then called `deleteLater()` on the same dead object ONE LINE
+   OUTSIDE the guard. PySide6 raises `Internal C++ object already deleted`
+   there, out of the Qt event loop, from the slot whose entire job is tidying
+   up; in the page case it also cost the queued page load that should have
+   started after it. `closeEvent` retires both workers the same way. All four
+   sites now go through one helper. Reproduced with `shiboken6.delete`.
+
+A NOTE ON THE MEASUREMENT ITSELF, for the next worker: the `sitecustomize.py`
+(`import torch`) that coverage needs is inherited by SUBPROCESSES through
+PYTHONPATH, so `tests/qt/test_gui_responsiveness.py`'s two "this module
+imports nothing expensive" tests fail under the tracer and pass without it.
+One of the two is an artefact. THE OTHER IS NOT, and it is a real regression
+in a file this instruction cannot touch -- see below.
+
+A REAL BUG FOUND IN PASSING, WHOSE FIX IS IN THE REGRESSION SESSION'S FILES:
+
+  BUILDING ANY SETTINGS PANEL NOW IMPORTS torch, cv2 AND IPython.
+  `tests/qt/test_gui_responsiveness.py::test_opening_a_module_does_not_import_the_tk_interface`
+  fails with and without the tracer. The chain, traced:
+
+      SettingsWidgets.build_sections
+        -> settings_model._connect_setting_dependency_signals
+        -> settings_model._rules_for_this_panel
+        -> spacr/settings.py  get_setting_dependencies()
+             from .ml import REGRESSION_SETTINGS_USED
+        -> spacr/ml.py:51     from .plot import save_figure
+        -> spacr/plot.py:4    import os, random, cv2, glob, math, torch, ...
+
+  That test exists because this import used to cost 770 ms on the GUI thread
+  and was "the whole remaining cost of opening the first module"; torch is
+  3.2 s and 900 MB on top. It is now paid on EVERY module open, because the
+  dependency rules are generated from `ml.REGRESSION_SETTINGS_USED`.
+
+  The fix belongs in `spacr/settings.py` (or `ml.py`), both of which are held
+  by the regression session. The smallest correct shape is to move the
+  inventory out of `ml.py` into a module that imports nothing -- the same
+  move `convert_settings_dict_for_gui` already made into `settings_spec.py`,
+  which is what the sibling test asserts about. Failing that,
+  `get_setting_dependencies` must not be called at panel-build time.
