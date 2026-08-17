@@ -309,3 +309,71 @@ ADDED TO HOW TO KNOW IT WORKED
 * Forcing a test in the Statistics tab changes the table and the brackets.
 * The panel states which level the intercept is, and changing it changes the
   sign or magnitude of the coefficients as expected.
+
+================================================================================
+2026-08-17 - WHAT ITEM M TURNS OUT TO BE, ONCE MEASURED
+================================================================================
+
+M asked for "the user should be able to determine the intercept", read as the
+model's reference level. Before building a control for it I measured what the
+reference level actually does in THIS formula:
+
+    y ~ fraction:grna + gene_fraction:gene + rowID + columnID
+
+Patsy codes it as:
+
+    Intercept
+    rowID[T.r02], rowID[T.r03]              <- r01 dropped as reference
+    columnID[T.c02], columnID[T.c03]        <- c01 dropped
+    fraction:grna[000000_15] ... every guide
+    gene_fraction:gene[000000] ... every gene
+
+EVERY GUIDE AND EVERY GENE GETS A COEFFICIENT. None is dropped, because they
+appear only in interaction with a continuous term, so patsy uses full coding.
+There is no reference guide and no reference gene.
+
+Re-fitting with the row reference forced from r01 to r03, on a planted
+effect:
+
+    term                       ref=r01    ref=r03
+    Intercept                   1.9757     2.7818
+    fraction:grna[111_1]        0.4932     0.4932
+    fraction:grna[222_2]        0.0178     0.0178
+    gene_fraction:gene[111]     0.0019     0.0019
+
+The intercept moves by 0.806. NOT ONE GUIDE OR GENE COEFFICIENT CHANGES.
+
+So the literal feature -- a control to pick the reference level -- would be a
+control that changes nothing anybody reports. Building it would be worse than
+not building it: a user who set it and saw the volcano unmoved would
+reasonably conclude the setting was broken.
+
+WHAT THE REQUEST IS ACTUALLY ABOUT is the sentence that follows it: "every
+coefficient in the table is a difference FROM the intercept ... An effect
+size with an unstated reference is not interpretable." That is true and the
+figures do not say it. The guide coefficients are SLOPES on the guide's
+fraction, referenced to zero -- "no dose-response" -- not differences from
+the controls, which is what a reader of a screen figure assumes.
+
+So M becomes two things, both of which change what the reader sees:
+
+  M1. THE PANEL STATES ITS BASELINE. What the effects are measured from, in
+      the caption, on every panel that shows an effect size. The intercept's
+      own composition (fraction = 0, in the dropped row and column level) is
+      part of it.
+
+  M2. THE BASELINE IS THE USER'S TO CHOOSE, and the choices are the ones that
+      MOVE the numbers:
+        * zero -- no dose-response. The fit's own reference, today's default.
+        * the non-targeting controls -- every effect re-expressed as a
+          difference from the control guides. This is what a screen paper
+          reports and what the reader already assumes they are looking at.
+        * a named gene or guide, for a screen with a positive control it
+          wants to normalise to.
+      Centred on the MEDIAN of the chosen set, not the mean: one control
+      guide with a real phenotype -- and this screen has one, 000000_22 at
+      +4.37 -- drags a mean baseline and shifts every effect in the screen.
+
+      Changing it must NOT be silent: the panel says which baseline is in
+      force, and a figure exported with a non-zero baseline carries it in the
+      caption and in the stats sidecar.

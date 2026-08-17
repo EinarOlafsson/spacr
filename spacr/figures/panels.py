@@ -205,19 +205,37 @@ def control_threshold(frame, multiplier=3.0):
 
 
 def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
-            highlight=None, label_top=8, colour_by=None) -> Panel:
+            highlight=None, label_top=8, colour_by=None,
+            baseline_kind=None, baseline_name=None) -> Panel:
     """Effect against significance. The panel the screen exists to produce.
 
     Grey for everything that was not called, GREEN up, RUST down -- the
     skill's rule for differential expression, which is structurally the same
     question. A handful of the strongest are labelled; labelling all of them
     is a word cloud.
+
+    :param baseline_kind: what the effects are measured FROM -- see
+        :mod:`spacr.baseline`. The caption always says which, because an
+        effect size with an unstated reference is not interpretable and a
+        reader of a screen volcano assumes the controls are the zero.
     """
+    from ..baseline import apply as apply_baseline
+    from ..baseline import resolve as resolve_baseline
+
     effect, p = effect_column(frame), p_column(frame)
     if effect is None or p is None:
         return Panel("volcano", "volcano", drawn=False,
                      reason="no effect or p-value column",
                      needs=("coefficient", "p_value"))
+
+    # BEFORE THE THRESHOLD IS COMPUTED, not after. The effect-size cut is
+    # derived from the control guides' spread, so a baseline that moved the
+    # controls to zero and a cut placed on the unshifted column would be a
+    # line drawn in the wrong place -- the one failure mode this whole panel
+    # is meant to avoid.
+    baseline = resolve_baseline(frame, baseline_kind or "zero",
+                                column=effect, name=baseline_name)
+    frame = apply_baseline(frame, baseline, column=effect)
 
     keep = tested(frame)
     sub = frame.loc[keep]
@@ -297,7 +315,8 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
                           f"{'BH q' if q else 'p'} ≤ {alpha:g}"
                           + (f" and |effect| ≥ {abs(effect_threshold):.3g} "
                              f"({rule})" if effect_threshold else "")
-                          + ". Nuisance terms are excluded."),
+                          + ". Nuisance terms are excluded. "
+                          + baseline.sentence),
                  needs=(effect, p),
                  data=sub.assign(**{"called": called,
                                     "_neglog10": y,
