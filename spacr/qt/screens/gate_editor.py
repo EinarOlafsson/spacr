@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
-from ..theme import SPACING
+from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.gate_search_panel import GateSearchPanel
 from ..widgets.formula_editor import FormulaPanel
@@ -51,9 +51,38 @@ LOG = logging.getLogger("spacr.qt.screens.gate_editor")
 
 __all__ = ["GateEditorScreen", "make_gate_editor_screen", "register",
            "APP_KEY", "APP_NAME", "APP_DESCRIPTION", "APP_INTRO",
-           "APP_CLI_NOTE", "APP_NAME_TRANSLATIONS"]
+           "APP_CLI_NOTE", "APP_NAME_TRANSLATIONS", "SIDE_TABS_NAME"]
 
 APP_KEY = "gate_editor"
+
+#: objectName of the Filter/Search tab strip, and the key its QSS block is
+#: registered under. The two must stay the same string: the rule is matched by
+#: objectName, and a tab strip with no rule falls through to the blanket
+#: ``QWidget { background-color: bg }`` -- #000000 on dark -- which is a black
+#: slab beside the plot rather than an unstyled one.
+SIDE_TABS_NAME = "GateSidePanel"
+
+
+def _side_tabs_qss(palette: dict, opacity) -> str:
+    """QSS for the Filter/Search tab strip, through the theme seam.
+
+    Registered HERE, at import, rather than from `GateEditorScreen.__init__`.
+    The screen used to ask the theme for a `register_qss` that has never
+    existed -- the name is `register_widget_qss` -- and hand it a one-argument
+    lambda where the seam calls ``fn(palette, opacity)``. The ImportError
+    landed in the except beside it, whose comment says the styling "is not
+    worth taking the screen down for", so the block was never registered and
+    nothing said so. Registering at import is also what puts the rule in the
+    FIRST stylesheet of a session; see `theme.WIDGET_QSS_MODULES`, which this
+    module is now listed in.
+
+    ``replace=True``: this module owns the name, so a reimport re-registers
+    rather than raising and leaving the tabs unstyled.
+    """
+    return page_tabs_qss(SIDE_TABS_NAME, palette, opacity)
+
+
+register_widget_qss(SIDE_TABS_NAME, _side_tabs_qss, replace=True)
 
 
 class GateEditorScreen(QWidget):
@@ -279,7 +308,7 @@ class GateEditorScreen(QWidget):
         # meant neither could be checked while using the other. Search is a
         # different job, which is what makes it a different tab.
         self.side_tabs = QTabWidget(self)
-        self.side_tabs.setObjectName("GateSidePanel")
+        self.side_tabs.setObjectName(SIDE_TABS_NAME)
         self.side_tabs.addTab(filter_scroll, "Filter")
         self.search = GateSearchPanel(self)
         self.search.settings_changed.connect(self._on_search_settings)
@@ -289,14 +318,9 @@ class GateEditorScreen(QWidget):
         search_scroll.setWidgetResizable(True)
         search_scroll.viewport().setAutoFillBackground(False)
         self.side_tabs.addTab(search_scroll, "Search")
-        try:
-            from ..theme import register_qss, page_tabs_qss
-            register_qss("GateSidePanel",
-                         lambda palette: page_tabs_qss("GateSidePanel", palette))
-        except Exception:
-            # The tabs work without the accent styling; the styling is not
-            # worth taking the screen down for.
-            LOG.debug("could not register the side-tab styling", exc_info=True)
+        # The tab strip's QSS is registered at import -- see `_side_tabs_qss`.
+        # It used to be registered from here, against a name the theme has
+        # never exported, so it never was.
 
         side = self.side_tabs
         side.setSizePolicy(QSizePolicy.Policy.Preferred,

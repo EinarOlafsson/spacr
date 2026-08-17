@@ -2288,6 +2288,11 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.control_chart",
     "spacr.qt.screens.data_manager",
     "spacr.qt.screens.experiment_design",
+    # The Gate Editor's Filter/Search tab strip. It tried to register its own
+    # block from the screen's __init__, against a `theme.register_qss` that
+    # has never existed, so the strip has been falling through to the blanket
+    # `QWidget { background-color: bg }` since it was written.
+    "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.hit_list",
     "spacr.qt.screens.image_scatter",
     "spacr.qt.screens.methods_export",
