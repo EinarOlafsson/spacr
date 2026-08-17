@@ -120,6 +120,12 @@ Installationsinformation
 
 .. spacr-installer-links-end
 
+
+Ikonerna ovan pekar alltid på den senaste versionen. Alla tidigare
+versioner går fortfarande att ladda ner från `installationsarkivet
+<https://einarolafsson.github.io/spacr/installers.html>`_ — en tabell, en rad per version, och varje
+installationsprogram låser den version det byggdes för.
+
 Lätta installationsprogram — varken conda eller befintlig Python krävs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

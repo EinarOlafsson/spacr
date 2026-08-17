@@ -120,6 +120,13 @@ Détails de l’installation
 
 .. spacr-installer-links-end
 
+
+Les icônes ci-dessus pointent toujours vers la version la plus récente.
+Toutes les précédentes restent téléchargeables depuis l'`archive des
+installateurs <https://einarolafsson.github.io/spacr/installers.html>`_ — un tableau, une ligne par
+version, et chaque installateur fige la version pour laquelle il a été
+construit.
+
 Programmes d’installation légers — ni conda ni installation Python existante requis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

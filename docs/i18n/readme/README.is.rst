@@ -120,6 +120,12 @@ Upplýsingar um uppsetningu
 
 .. spacr-installer-links-end
 
+
+Táknin hér að ofan vísa alltaf á nýjustu útgáfuna. Allar eldri útgáfur
+eru enn niðurhalanlegar úr `uppsetningarsafninu
+<https://einarolafsson.github.io/spacr/installers.html>`_ — ein tafla, ein lína á útgáfu, og hvert
+uppsetningarforrit festir þá útgáfu sem það var byggt fyrir.
+
 Létt uppsetningarforrit — hvorki conda né uppsett Python nauðsynlegt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

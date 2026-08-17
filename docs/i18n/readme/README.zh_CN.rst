@@ -120,6 +120,11 @@ spaCR 支持 Python **3.9 至 3.14** （torchvision 不支持的 Python 3.14.1 �
 
 .. spacr-installer-links-end
 
+
+上方的图标始终指向最新版本。所有旧版本仍可从 `安装程序归档
+<https://einarolafsson.github.io/spacr/installers.html>`_ 下载 —— 一张表格，每个版本一行，
+并且每个安装程序都锁定它所构建的版本。
+
 轻量级安装程序 — 无需 conda 或现有 Python 环境
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
