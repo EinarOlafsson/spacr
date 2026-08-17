@@ -1,0 +1,181 @@
+================================================================================
+A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
+================================================================================
+
+Status:    filed 2026-08-17, not started.
+Requested: 2026-08-17 --
+
+           "in the input tabels in the regression module i should be able to
+            drag and drop in a measurements database to each plate, these
+            database files should then pop up in the measurements tab, there
+            should be options on what tables to join (and they should be
+            merged according to the logic we have already exaustively gine
+            through with the correct measurements being summed, averaged and
+            so on correctly.)"
+
+Related:  107 paired the score and count CSVs by ADDITION rather than list
+          position -- this is the third column of that same table. 109 is the
+          multi-database mechanism. 79 and 77 are the merge logic the request
+          refers to. 122 is the cross-screen work the Measurements tab hosts.
+
+--------------------------------------------------------------------------------
+NOTHING HERE IS NEW LOGIC. IT IS WIRING FOUR THINGS THAT ALREADY EXIST.
+--------------------------------------------------------------------------------
+
+Establish this before designing anything, because the temptation is to write
+a fifth merge:
+
+  spacr/qt/widgets/file_list.py   the input table and its drop handling. It
+                                  already pairs a score CSV with a count CSV
+                                  BY ADDITION (107), which is the model this
+                                  third column follows.
+
+  spacr/multi_database.py         describe_merge / read_merged / MergePlan /
+                                  SourceSummary / MergeRefused. Already
+                                  merges several databases, already resolves
+                                  plate-id collisions, already carries
+                                  screenID. The Gate Editor uses it (109).
+
+  spacr/merge_tables.py           THE "EXHAUSTIVELY GONE THROUGH" LOGIC the
+                                  request names. `AGGREGATION_RULES` is a
+                                  first-match-wins table of measurement
+                                  patterns -> SUM / MIN / MAX / MEAN /
+                                  MEDIAN / FIRST, `MergePolicy` carries
+                                  `consolidate_on_cell`, and `roll_up` does
+                                  the work. It is a statement about
+                                  MEASUREMENTS, not about strings:
+                                    * counts and areas and volumes SUM
+                                    * lengths, perimeters and diameters MEAN,
+                                      because two nuclei 10 units long are not
+                                      one nucleus 20 units long
+                                    * a minimum takes MIN -- a mean of four
+                                      minima is not the minimum of anything
+                                    * labels and ids take FIRST, because
+                                      averaging pathogen labels 1, 2 and 3
+                                      gives 2.0, which looks like a
+                                      measurement and names an object that may
+                                      not exist
+                                  DO NOT RE-DERIVE ANY OF THAT. Call it.
+
+  spacr/qt/widgets/measurement_scan_panel.py
+                                  the Measurements tab the databases must
+                                  appear in.
+
+--------------------------------------------------------------------------------
+A. A THIRD COLUMN IN THE INPUT TABLE, DROPPABLE PER ROW
+--------------------------------------------------------------------------------
+
+A row of the input table is one PLATE: its score CSV, its count CSV, and now
+its measurements database. Dropping a `.db` onto a row attaches it to THAT
+plate.
+
+Follow 107's rule exactly, because it was written for this failure: pairing
+must be BY ADDITION, never by list position. Two databases dropped in the
+opposite order to the CSVs must still land on the right plates, and there is
+an existing test shape for that.
+
+  * dropping a `.db` onto the table but not onto a row: attach it to the
+    first row that has none, and SAY which -- never silently to row 0.
+  * a row whose database is missing from disk when the run starts says so
+    before the run, not four minutes in.
+  * a plate with NO database is legal. The regression runs on counts and
+    scores; the database is what makes the Measurements tab possible for that
+    plate, and its absence disables that plate there rather than failing.
+
+--------------------------------------------------------------------------------
+B. THEY APPEAR IN THE MEASUREMENTS TAB, WITH THE JOIN OFFERED
+--------------------------------------------------------------------------------
+
+"there should be options on what tables to join".
+
+`describe_merge` already reports what a set of databases contains -- the
+tables, their columns, their plates, their row counts, and what collides. The
+tab shows that and lets the user choose:
+
+  * WHICH TABLES: cell, nucleus, pathogen, cytoplasm, and any organelle
+    tables present. `object_roles` is the one registry of what object kinds
+    exist -- read it rather than hard-coding four names.
+  * the anchor. 79 settled this: one anchor, one copy of each column. The
+    default is `cell` and the panel says so.
+
+THE JOIN TYPE IS PER TABLE, NOT ONE BLANKET `how`. That is instruction 77's
+finding and the maintainer answered it on 2026-08-12: the join follows object
+CARDINALITY via `MergePolicy.consolidate_on_cell`, and a NaN that pandas
+skips is made visible as `<table>_measured` rather than silently reducing a
+sum. Whatever this panel offers must not let a user pick a blanket join that
+contradicts that.
+
+--------------------------------------------------------------------------------
+C. WHAT THE PANEL MUST SAY, BECAUSE THE NUMBERS DEPEND ON IT
+--------------------------------------------------------------------------------
+
+A merge that silently changed how a measurement was combined is the most
+expensive kind of bug this application can have -- it produces a number that
+is wrong and looks fine. So the panel states, for the merge it is about to
+do:
+
+  * the anchor and the row count it produces;
+  * how many rows each source contributed, and how many were dropped;
+  * ANY COLUMN whose aggregation is the DEFAULT rather than a matched rule --
+    `DEFAULT_AGGREGATION` is MEAN and the comment says why, but a measurement
+    nobody thought about is exactly the one worth naming;
+  * a plate id that appears in two databases, and what was done about it
+    (109's collision handling, and NOT `qualify` -- 122's note says
+    qualification hides the screen inside the plate id and stops it being
+    analysable).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A `.db` dropped on a plate row attaches to THAT plate, and dropping the
+  databases in the opposite order to the CSVs still pairs correctly.
+* The Measurements tab lists every attached database with its tables.
+* Choosing tables and running the merge produces a frame whose per-column
+  aggregation matches `merge_tables.AGGREGATION_RULES` -- asserted against
+  that table, not against a list written in the test.
+* An area column SUMS and a length column MEANS, in the merged output, on
+  real data.
+* The panel names any column that fell through to the default aggregation.
+* A plate with no database does not stop the regression.
+
+================================================================================
+2026-08-17 - CLOSED
+================================================================================
+
+All three sections ship, plus the two seams BETWEEN them that no slice could
+reach because both live in files those agents were told not to touch:
+
+  * `ml.normalize_regression_input_pairs` rebuilt every row as exactly
+    {'score', 'count', 'plate'} and wrote it back over
+    `settings['paired_data']`, so the database attachment was ERASED from the
+    settings CSV a run saves. Nothing in the fit reads it -- the regression
+    runs on scores and counts -- which is why it would have gone unnoticed
+    until a reloaded run came back with an empty column.
+  * `app_screen` built the Measurements tab with NO `database_provider`, so
+    it showed nothing, and `_on_results_tab_changed` returned early unless
+    the widget was the Runs tab, so it never refreshed. Databases are dropped
+    while the Measurements tab is not the visible one, which is exactly why
+    it needs an on-open refresh.
+
+Driven end to end on a real screen: a database dropped on the input table
+reaches the provider, and opening the tab finds it.
+
+TWO LIMITS RECORDED RATHER THAN PAPERED OVER, both from section A and both
+one line for whoever owns a regression-specific drop handler:
+
+  1. dropping FOUR databases at once on the screen AROUND the table takes
+     only the first (`dnd.py:226` truncates unless `accepts_multiple()`, and
+     `MeasurementsDropHandler` is shared by five modules). Dropping four ON
+     the table works.
+  2. a database not named `measurements.db` must be dropped on the table
+     rather than the surrounding screen, for the same shared-handler reason.
+     The widget itself accepts .db/.sqlite/.sqlite3.
+
+Also deliberately NOT done, and the reasoning is worth keeping: the scout
+suggested adding a third role to `settings_model._loaded_table_paths`. That
+list feeds a plate-count context that `pd.read_csv`s every path in it, so a
+sqlite path handed to it would be read as a CSV.
+
+Instruction 131 builds directly on this: the montage of cells behind a dot
+needs exactly these databases.

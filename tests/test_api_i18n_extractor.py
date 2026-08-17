@@ -305,7 +305,30 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # mode from the bump before last. `results_frame()` in fact REMOVES a
     # private reach: `_show_publication_sheet` was doing
     # `getattr(panel, "_frame")` into another widget's internals.
-    expected = 6870
+    # +59 on 2026-08-17, from four concurrent workstreams, set ONCE at the
+    # end as the standing rule requires -- bumping it mid-flight was wrong
+    # twice today because another agent was still landing surface.
+    #
+    #   instruction 130, the measurements database per plate:
+    #     spacr.qt.widgets.file_list        is_database_path,
+    #                                       attach_database, missing_databases
+    #     spacr.qt.dnd_handlers             MeasurementsDropHandler.database_file
+    #     spacr.qt.widgets.measurement_scan_panel
+    #                                       DatabaseMergePanel and its surface,
+    #                                       set_database_provider,
+    #                                       refresh_databases, attached_databases
+    #     spacr.plate_measurements          the headless merge composition
+    #
+    #   instruction 127's cleanups and 126's backdrop work, in the modules the
+    #   other workflow owned.
+    #
+    #   spacr.gene_tile.uniprot_accessions  the bundled ToxoDB -> UniProt map.
+    #
+    # NOTHING WAS MADE PRIVATE TO DODGE THIS COUNTER. One agent reported
+    # dropping a fifth candidate (`attached_databases` on the table widget)
+    # not to avoid the ratchet but because the panel already read its rows
+    # directly -- one vocabulary rather than two, which is the right reason.
+    expected = 6929
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -320,7 +343,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6989
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7048
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

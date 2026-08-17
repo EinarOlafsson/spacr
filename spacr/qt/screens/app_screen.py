@@ -1705,7 +1705,12 @@ class AppScreen(QWidget):
                 from ..widgets.measurement_scan_panel import (
                     MeasurementScanPanel)
                 self._scan_panel = MeasurementScanPanel(
-                    frame_provider=self._scan_source_frame, parent=left)
+                    frame_provider=self._scan_source_frame,
+                    # THE DATABASES THE USER DROPPED ON THE INPUT TABLE.
+                    # Without this the tab builds and shows nothing, which is
+                    # indistinguishable from having attached none.
+                    database_provider=self._attached_database_rows,
+                    parent=left)
                 left.addTab(self._scan_panel, "Measurements")
                 left.setTabToolTip(
                     2, "Hold the model fixed and sweep the dependent "
@@ -3356,11 +3361,56 @@ class AppScreen(QWidget):
         if timer is not None:
             timer.start()
 
+    def _attached_database_rows(self):
+        """The regression input table's rows, for the Measurements tab.
+
+        A zero-argument callable rather than a snapshot, because the user
+        drops databases AFTER the panel is built and a list captured at
+        construction would never grow.
+
+        Returns [] rather than raising when this screen has no paired-data
+        widget -- the Measurements tab is built on the regression screen and
+        the provider must not assume it.
+        """
+        model = getattr(self, "_settings_model", None)
+        widget = getattr(model, "_widgets", {}).get("paired_data") \
+            if model is not None else None
+        if widget is None:
+            return []
+        try:
+            return list(widget.get_value() or [])
+        except Exception:                                        # noqa: BLE001
+            return []
+
     def _on_results_tab_changed(self, index: int) -> None:
-        """Opening the Runs tab re-reads the sweep's table."""
+        """Opening a tab re-reads what it shows.
+
+        The Runs tab re-reads the sweep's table; the Measurements tab
+        re-reads the databases attached to the input table, which is the
+        whole reason it needs an on-open refresh -- they are dropped while it
+        is not the visible tab.
+
+        It used to return early unless the widget was the Runs tab, so the
+        Measurements tab never refreshed at all.
+        """
         tabs = getattr(self, "_results_tabs", None)
+        if tabs is None:
+            return
+        current = tabs.widget(index)
+
+        scan = getattr(self, "_scan_panel", None)
+        if scan is not None and current is scan:
+            try:
+                scan.refresh_databases()
+            except AttributeError:
+                pass
+            except Exception:
+                LOG.debug("could not refresh the measurements tab",
+                          exc_info=True)
+            return
+
         runs = getattr(self, "_sweep_runs", None)
-        if tabs is None or runs is None or tabs.widget(index) is not runs:
+        if runs is None or current is not runs:
             return
         folder = self._sweep_destination()
         if folder:

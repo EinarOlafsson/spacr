@@ -2876,6 +2876,16 @@ def normalize_regression_input_pairs(settings):
                 'score': raw.get('score') or raw.get('score_data'),
                 'count': raw.get('count') or raw.get('count_data'),
                 'plate': raw.get('plate') or raw.get('plateID'),
+                # THE MEASUREMENTS DATABASE SURVIVES THE ROUND TRIP.
+                #
+                # This dict is written back over `settings['paired_data']`
+                # below, so any key it does not name is ERASED -- and the
+                # settings CSV a run saves is what a user reloads. Without
+                # this line a reloaded run comes back with an empty database
+                # column and no sign that it ever had one. Nothing in the fit
+                # reads it (the regression runs on scores and counts), which
+                # is exactly why it would have gone unnoticed.
+                'database': raw.get('database') or raw.get('measurements'),
             })
     else:
         def paths(value):
