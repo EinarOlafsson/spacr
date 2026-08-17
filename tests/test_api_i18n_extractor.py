@@ -216,7 +216,54 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # by tools/build_documentation_i18n.py behind a translation model, which
     # is a separate job from this test. Until it runs, the localized API
     # pages omit these contracts.
-    expected = 6657
+    # +182/-0 on 2026-08-17, the finished regression module (instruction 124)
+    # and the coverage push around it. Enumerated against 613218ee -- the
+    # commit the 6657 above was measured on -- by running public_docstrings()
+    # in a worktree at that commit and taking the set difference, not by
+    # reading the diff. The before count came back at exactly 6657, so the
+    # two ends of this bump are measured on the same definition.
+    #
+    #   20  spacr.gene_tile          -- the UniProt/ToxoDB link surface
+    #   17  spacr.figures.panels     -- the seven house-style panels and the
+    #                                   Panel record they return
+    #   17  spacr.qt.widgets.fast_plots -- the key join, the restyle menu,
+    #                                   offer_refit / offer_baselines /
+    #                                   offer_compartments, build_style_menu
+    #   13  spacr.figures.style      -- figure_style, Palette, ROLES, and the
+    #                                   annotate / legend / reference-line
+    #                                   helpers every panel draws through
+    #   12  spacr.figures.distributions
+    #   10  spacr.figures.plates     -- the small-multiple layout
+    #   10  spacr.measurement_scan
+    #   10  spacr.qt.widgets.regression_results
+    #    9  spacr.figures.stats      -- automatic test selection
+    #    8  spacr.qt.widgets.gene_tile
+    #    7  spacr.qt.widgets.measurement_scan_panel
+    #    6  spacr.baseline           -- what an effect is measured FROM
+    #    6  spacr.figures.sheet
+    #    6  spacr.refit              -- re-fitting from the plot
+    #    5  spacr.localisation       -- one LOPIT compartment against grey
+    #    5  spacr.qt.widgets.refit_dialog
+    #    4  spacr.multi_database
+    #    2  spacr.figures.summary, spacr.qt.widgets.figure_queue,
+    #       spacr.qt.widgets.file_list, spacr.schema (2 each)
+    #    1  spacr.figures, spacr.hits, spacr.ml, spacr.parameter_sweep,
+    #       spacr.qt.widgets.figure_grid_view, .figure_settings, .gate_spec,
+    #       spacr.regression_spec, spacr.sweep_child (1 each)
+    #
+    # NOTHING RETIRED. `regression_spec` is a re-export of tables that were
+    # already public on `spacr.ml`, so ml keeps every one of its names and
+    # this is an addition rather than a move -- checked, the removed set is
+    # empty.
+    #
+    # THE TRANSLATIONS FOR THESE 182 ARE NOT REGENERATED, and that debt is
+    # recorded here rather than left implicit, exactly as the previous bump
+    # recorded its 48. The English catalog IS regenerated and audits clean
+    # (`tools/build_documentation_i18n.py --audit` reports no `en/` entry);
+    # the nine target languages need the translation model, which is a
+    # separate job. Until it runs the localized API pages omit these
+    # contracts -- the English pages do not.
+    expected = 6839
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -225,7 +272,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         "the target catalogs with tools/build_documentation_i18n.py -- "
         "otherwise the localized API pages silently omit the new contract."
     )
-    assert len(docs) == 6776
+    # The same surface WITH the aliases, which is what the catalog actually
+    # carries. It tracks `expected` by a constant 119 -- the alias count --
+    # and moving one without the other means the aliases changed, which is a
+    # different event from the API growing and is worth failing separately.
+    # It was a bare number with no sentence beside it, which is how it came
+    # to be the second thing to update and the first thing forgotten.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6958
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
