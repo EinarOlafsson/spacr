@@ -452,6 +452,80 @@ def test_qc_no_numeric_cell_features(capsys):
     assert "No numeric cell_* features" in capsys.readouterr().out
 
 
+def test_the_infection_call_cannot_be_a_feature_as_well(capsys):
+    """It used to die sixty lines later with a message about a Series.
+
+    ``cols_for_group`` is ``key_cols + numeric_cols + [infection_col]``, so an
+    ``infection_col`` that is itself a numeric ``cell_*`` feature names one
+    column twice. ``all_df[cols_for_group]`` is then a frame with a duplicated
+    column and every later ``cell_level[c]`` is a DataFrame, so the degenerate-
+    feature filter raised ``ValueError: The truth value of a Series is
+    ambiguous`` -- a message that names neither the setting nor the column.
+
+    This is also the route that made the ``infection_col``/``_x``/``_y``
+    recovery after the merge look reachable. It never was: the recovery ran
+    only if the merged frame LACKED the column, and this route leaves it
+    present twice rather than absent.
+    """
+    from spacr.timelapse import _infection_qc_pca_clustering
+
+    df = make_all_df(n_infected=5, n_uninfected=5, n_frames=1)
+    out, col = _infection_qc_pca_clustering(df, {}, "cell_area", 1, None)
+
+    assert out is df and col == "cell_area"
+    message = capsys.readouterr().out
+    assert "cell_area" in message and "a cell_* feature" in message
+
+
+def test_the_infection_call_cannot_be_a_grouping_key_either(capsys):
+    """``groupby`` refused it with "Grouper for 'cellID' not 1-dimensional"."""
+    from spacr.timelapse import _infection_qc_pca_clustering
+
+    df = make_all_df(n_infected=5, n_uninfected=5, n_frames=1)
+    out, col = _infection_qc_pca_clustering(df, {}, "cellID", 1, None)
+
+    assert out is df and col == "cellID"
+    message = capsys.readouterr().out
+    assert "cellID" in message and "a grouping key" in message
+
+
+def test_the_merge_always_carries_the_infection_call_through(capsys):
+    """The invariant that made the recovery block dead, asserted directly.
+
+    ``inf_any`` is ``group[infection_col].max()``, so it always carries the
+    column; ``suffixes=("", "_y")`` leaves the left side's names alone and can
+    never mint an ``_x``. With the two ambiguous cases refused above, the
+    merged per-cell table holds ``infection_col`` under its own name on every
+    input that reaches it. If that stops being true this test says so, which
+    is why the recovery was deleted rather than excluded from coverage.
+    """
+    from spacr.timelapse import _infection_qc_pca_clustering
+
+    df = make_all_df(n_infected=60, n_uninfected=60, n_frames=2)
+    out, col = _infection_qc_pca_clustering(
+        df, {"infection_intensity_mode": "relabel"}, "infected", 2, None)
+
+    assert col == "adjusted_infected"
+    assert "Could not recover infection_col" not in capsys.readouterr().out
+    assert "adjusted_infected" in out.columns
+
+
+def test_an_unknown_embedding_strategy_falls_back_to_pca_once(capsys):
+    """A second, identical `not in {pca, umap, tsne}` fallback stood below it.
+
+    It could not run: the branch above assigns either ``strategy``, which is
+    in that set, or the literal ``"pca"``. It was deleted rather than excluded
+    from coverage, and this pins the one fallback that is left.
+    """
+    from spacr.timelapse import _infection_qc_pca_clustering
+
+    df = make_all_df(n_infected=6, n_uninfected=6, n_frames=1)
+    settings = {"infection_intensity_strategy": "SOMETHING_ELSE"}
+    _infection_qc_pca_clustering(df, settings, "infected", 1, None)
+
+    assert settings["infection_pca_method"] == "pca"
+
+
 def test_qc_no_pathogen_channel_given(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
