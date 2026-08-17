@@ -36,6 +36,25 @@ from typing import Mapping, Sequence
 import numpy as np
 import pandas as pd
 
+# THE HOUSE PALETTE, BY ROLE. This module drew in seaborn's `deep` -- nine
+# hardcoded hexes with no rule behind which one meant what -- so a run wrote
+# its design and inference panels in a third visual idiom beside the seven
+# house-style panels and the nineteen QC ones.
+#
+# Mapped rather than renamed: `#4C72B0` was doing the job of "the data" in one
+# panel and "the highlight" in another, so a find-and-replace would have kept
+# the inconsistency and only changed the hues. See
+# `.claude/skills/apicomplexan-figures`: everything is grey except what the
+# sentence is about.
+from .figures.style import ROLES, TYPE_SCALE, WEIGHTS, figure_style
+
+#: What each old hex was actually being used FOR, decided per call site.
+_DATA = ROLES["data"]              # bars, clouds, anything not the claim
+_BAD = ROLES["down"]               # a failed check, a threshold crossed
+_GOOD = ROLES["up"]                # a passed check
+_MARK = ROLES["highlight"]         # the one series a panel is about
+_REFERENCE = ROLES["reference"]    # thresholds and guides
+
 __all__ = [
     "design_report",
     "residual_report",
@@ -267,6 +286,40 @@ def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> di
 # ------------------------------------------------------------------- plotting
 
 
+def _house(axis, title="", xlabel="", ylabel=""):
+    """Put one axis into the house style.
+
+    The figures here are built by `plt.subplots` OUTSIDE a style context in
+    some callers, and rcParams only reach an artist when it is CREATED -- so
+    the ink, the type sizes and the spines are set on the axis by hand rather
+    than trusted to the context. `grid(False)` is explicit for the same
+    reason: the rule is no gridlines ever, and a caller with a grid-on global
+    style would otherwise put one here.
+    """
+    ink = ROLES["reference"]
+    try:
+        from .figures.style import resolve_ink, theme_target
+
+        ink = resolve_ink(theme_target())
+    except Exception:                       # pragma: no cover - style absent
+        pass
+    if title:
+        axis.set_title(title, fontsize=TYPE_SCALE["label"], color=ink, pad=3.0)
+    if xlabel:
+        axis.set_xlabel(xlabel, fontsize=TYPE_SCALE["label"], color=ink)
+    if ylabel:
+        axis.set_ylabel(ylabel, fontsize=TYPE_SCALE["label"], color=ink)
+    axis.tick_params(color=ink, labelcolor=ink,
+                     labelsize=TYPE_SCALE["tick"], which="both")
+    for spine in axis.spines.values():
+        spine.set_edgecolor(ink)
+        spine.set_linewidth(WEIGHTS["spine"])
+    axis.spines["top"].set_visible(False)
+    axis.spines["right"].set_visible(False)
+    axis.grid(False, which="both")
+    return ink
+
+
 def _finish(fig, save_path, dpi=200):
     """Lay the figure out, write it when there is somewhere to write it, close it.
 
@@ -307,97 +360,103 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
     support = presence.sum(axis=0)
     per_well = presence.sum(axis=1)
 
-    fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS.
+    # rcParams colour an artist when it is CREATED, so a
+    # context opened after plt.subplots would leave the
+    # spines, ticks and text at whatever the caller's global
+    # style happened to be.
+    with figure_style():
+        fig, axes = plt.subplots(2, 3, figsize=(14, 8))
 
-    axis = axes[0, 0]
-    axis.hist(support, bins=min(40, max(int(support.max()), 1)),
-              color="#4C72B0", edgecolor="white")
-    axis.set_xlabel("Wells containing the guide")
-    axis.set_ylabel("Guides")
-    axis.set_title("Guide support")
-    axis.axvline(1.5, color="#C44E52", linestyle="--", linewidth=1)
-    axis.text(0.98, 0.95, f"{report['guides_in_one_well']} guides in ≤1 well",
-              transform=axis.transAxes, ha="right", va="top", fontsize=8,
-              color="#C44E52")
+        axis = axes[0, 0]
+        axis.hist(support, bins=min(40, max(int(support.max()), 1)),
+                  color=_DATA, edgecolor="white")
+        axis.set_xlabel("Wells containing the guide")
+        axis.set_ylabel("Guides")
+        axis.set_title("Guide support")
+        axis.axvline(1.5, color=_BAD, linestyle="--", linewidth=1)
+        axis.text(0.98, 0.95, f"{report['guides_in_one_well']} guides in ≤1 well",
+                  transform=axis.transAxes, ha="right", va="top", fontsize=8,
+                  color=_BAD)
 
-    axis = axes[0, 1]
-    axis.hist(per_well, bins=min(30, max(int(per_well.max()), 1)),
-              color="#55A868", edgecolor="white")
-    axis.set_xlabel("Guides retained in the well")
-    axis.set_ylabel("Wells")
-    axis.set_title("Guides per well")
-    axis.axvline(float(np.mean(per_well)), color="#333333", linestyle="--",
-                 linewidth=1)
+        axis = axes[0, 1]
+        axis.hist(per_well, bins=min(30, max(int(per_well.max()), 1)),
+                  color=_GOOD, edgecolor="white")
+        axis.set_xlabel("Guides retained in the well")
+        axis.set_ylabel("Wells")
+        axis.set_title("Guides per well")
+        axis.axvline(float(np.mean(per_well)), color=_REFERENCE, linestyle="--",
+                     linewidth=1)
 
-    # Identifiability, stated rather than implied.
-    axis = axes[0, 2]
-    axis.axis("off")
-    verdict = "IDENTIFIABLE" if report["identifiable"] else "NOT IDENTIFIABLE"
-    colour = "#55A868" if report["identifiable"] else "#C44E52"
-    lines = [
-        f"{report['wells']} wells × {report['guides']} guides",
-        f"{report['parameters']} parameters (incl. {report['block_terms']} block terms)",
-        f"design rank {report['design_rank']}",
-        f"{report['residual_degrees_of_freedom']} residual df",
-        f"{report['non_identifiable_directions']} non-identifiable directions",
-        f"condition number {report['condition_number']:.3g}",
-        f"{report['wells_per_parameter']:.2f} wells per parameter",
-    ]
-    axis.text(0.5, 0.92, verdict, transform=axis.transAxes, ha="center",
-              va="top", fontsize=14, fontweight="bold", color=colour)
-    axis.text(0.5, 0.72, "\n".join(lines), transform=axis.transAxes,
-              ha="center", va="top", fontsize=9, family="monospace")
-    if not report["identifiable"]:
-        axis.text(0.5, 0.1,
-                  "A simultaneous fit cannot return a unique\n"
-                  "coefficient per guide on this design.\n"
-                  "Use the permutation test.",
-                  transform=axis.transAxes, ha="center", va="bottom",
-                  fontsize=8, color="#C44E52")
+        # Identifiability, stated rather than implied.
+        axis = axes[0, 2]
+        axis.axis("off")
+        verdict = "IDENTIFIABLE" if report["identifiable"] else "NOT IDENTIFIABLE"
+        colour = _GOOD if report["identifiable"] else _BAD
+        lines = [
+            f"{report['wells']} wells × {report['guides']} guides",
+            f"{report['parameters']} parameters (incl. {report['block_terms']} block terms)",
+            f"design rank {report['design_rank']}",
+            f"{report['residual_degrees_of_freedom']} residual df",
+            f"{report['non_identifiable_directions']} non-identifiable directions",
+            f"condition number {report['condition_number']:.3g}",
+            f"{report['wells_per_parameter']:.2f} wells per parameter",
+        ]
+        axis.text(0.5, 0.92, verdict, transform=axis.transAxes, ha="center",
+                  va="top", fontsize=14, fontweight="bold", color=colour)
+        axis.text(0.5, 0.72, "\n".join(lines), transform=axis.transAxes,
+                  ha="center", va="top", fontsize=9, family="monospace")
+        if not report["identifiable"]:
+            axis.text(0.5, 0.1,
+                      "A simultaneous fit cannot return a unique\n"
+                      "coefficient per guide on this design.\n"
+                      "Use the permutation test.",
+                      transform=axis.transAxes, ha="center", va="bottom",
+                      fontsize=8, color=_BAD)
 
-    # Cumulative singular-value spectrum: where the rank runs out.
-    axis = axes[1, 0]
-    design = np.column_stack([np.ones((matrix.shape[0], 1)), matrix])
-    singular = np.linalg.svd(design, compute_uv=False)
-    axis.semilogy(np.arange(1, singular.size + 1),
-                  np.maximum(singular, np.finfo(float).tiny),
-                  color="#8172B2")
-    axis.axvline(report["design_rank"], color="#C44E52", linestyle="--",
-                 linewidth=1, label=f"rank {report['design_rank']}")
-    axis.set_xlabel("Component")
-    axis.set_ylabel("Singular value (log)")
-    axis.set_title("Design spectrum")
-    axis.legend(frameon=False, fontsize=8)
+        # Cumulative singular-value spectrum: where the rank runs out.
+        axis = axes[1, 0]
+        design = np.column_stack([np.ones((matrix.shape[0], 1)), matrix])
+        singular = np.linalg.svd(design, compute_uv=False)
+        axis.semilogy(np.arange(1, singular.size + 1),
+                      np.maximum(singular, np.finfo(float).tiny),
+                      color=_MARK)
+        axis.axvline(report["design_rank"], color=_BAD, linestyle="--",
+                     linewidth=1, label=f"rank {report['design_rank']}")
+        axis.set_xlabel("Component")
+        axis.set_ylabel("Singular value (log)")
+        axis.set_title("Design spectrum")
+        axis.legend(frameon=False, fontsize=8)
 
-    axis = axes[1, 1]
-    pairs = collinear_guide_pairs(fractions, threshold=0.5, limit=20000)
-    if pairs.empty:
-        axis.text(0.5, 0.5, "No guide pair correlates above 0.5",
-                  transform=axis.transAxes, ha="center", va="center",
-                  fontsize=9)
-        axis.set_axis_off()
-    else:
-        axis.hist(pairs["correlation"].abs(), bins=30, color="#CCB974",
-                  edgecolor="white")
-        severe = int((pairs["correlation"].abs() >= 0.95).sum())
-        axis.set_xlabel("|correlation| between guide well patterns")
-        axis.set_ylabel("Guide pairs")
-        axis.set_title("Guide co-occurrence")
-        axis.text(0.98, 0.95, f"{severe} pairs ≥ 0.95",
-                  transform=axis.transAxes, ha="right", va="top",
-                  fontsize=8, color="#C44E52")
+        axis = axes[1, 1]
+        pairs = collinear_guide_pairs(fractions, threshold=0.5, limit=20000)
+        if pairs.empty:
+            axis.text(0.5, 0.5, "No guide pair correlates above 0.5",
+                      transform=axis.transAxes, ha="center", va="center",
+                      fontsize=9)
+            axis.set_axis_off()
+        else:
+            axis.hist(pairs["correlation"].abs(), bins=30, color=_DATA,
+                      edgecolor="white")
+            severe = int((pairs["correlation"].abs() >= 0.95).sum())
+            axis.set_xlabel("|correlation| between guide well patterns")
+            axis.set_ylabel("Guide pairs")
+            axis.set_title("Guide co-occurrence")
+            axis.text(0.98, 0.95, f"{severe} pairs ≥ 0.95",
+                      transform=axis.transAxes, ha="right", va="top",
+                      fontsize=8, color=_BAD)
 
-    # Occupancy map: which wells hold which guides, sorted so structure shows.
-    axis = axes[1, 2]
-    order = np.argsort(-support)
-    shown = presence[:, order[:min(200, presence.shape[1])]]
-    axis.imshow(shown, aspect="auto", cmap="Greys", interpolation="nearest")
-    axis.set_xlabel(f"Guide (top {shown.shape[1]} by support)")
-    axis.set_ylabel("Well")
-    axis.set_title("Occupancy")
+        # Occupancy map: which wells hold which guides, sorted so structure shows.
+        axis = axes[1, 2]
+        order = np.argsort(-support)
+        shown = presence[:, order[:min(200, presence.shape[1])]]
+        axis.imshow(shown, aspect="auto", cmap="Greys", interpolation="nearest")
+        axis.set_xlabel(f"Guide (top {shown.shape[1]} by support)")
+        axis.set_ylabel("Well")
+        axis.set_title("Occupancy")
 
-    fig.suptitle("Screen design diagnostics", fontsize=13, fontweight="bold")
-    return _finish(fig, save_path), report
+        fig.suptitle("Screen design diagnostics", fontsize=13, fontweight="bold")
+        return _finish(fig, save_path), report
 
 
 def plot_residual_diagnostics(observed, fitted, *,
@@ -416,87 +475,93 @@ def plot_residual_diagnostics(observed, fitted, *,
     panels = 6 if design is not None else 4
     rows = 2
     columns = 3 if panels == 6 else 2
-    fig, axes = plt.subplots(rows, columns, figsize=(4.6 * columns, 8))
-    flat = axes.ravel()
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS.
+    # rcParams colour an artist when it is CREATED, so a
+    # context opened after plt.subplots would leave the
+    # spines, ticks and text at whatever the caller's global
+    # style happened to be.
+    with figure_style():
+        fig, axes = plt.subplots(rows, columns, figsize=(4.6 * columns, 8))
+        flat = axes.ravel()
 
-    axis = flat[0]
-    axis.scatter(yhat, residual, s=14, alpha=0.6, color="#4C72B0",
-                 edgecolor="none")
-    axis.axhline(0, color="#C44E52", linestyle="--", linewidth=1)
-    if yhat.size > 10 and np.std(yhat) > 0:
-        order = np.argsort(yhat)
-        window = max(int(len(yhat) * 0.2), 3)
-        smooth = pd.Series(residual[order]).rolling(
-            window, center=True, min_periods=1).mean()
-        axis.plot(yhat[order], smooth, color="#DD8452", linewidth=1.4)
-    axis.set_xlabel("Fitted")
-    axis.set_ylabel("Residual")
-    axis.set_title("Residuals vs fitted")
+        axis = flat[0]
+        axis.scatter(yhat, residual, s=14, alpha=0.6, color=_DATA,
+                     edgecolor="none")
+        axis.axhline(0, color=_BAD, linestyle="--", linewidth=1)
+        if yhat.size > 10 and np.std(yhat) > 0:
+            order = np.argsort(yhat)
+            window = max(int(len(yhat) * 0.2), 3)
+            smooth = pd.Series(residual[order]).rolling(
+                window, center=True, min_periods=1).mean()
+            axis.plot(yhat[order], smooth, color=_MARK, linewidth=1.4)
+        axis.set_xlabel("Fitted")
+        axis.set_ylabel("Residual")
+        axis.set_title("Residuals vs fitted")
 
-    axis = flat[1]
-    stats.probplot(standardized, dist="norm", plot=axis)
-    axis.get_lines()[0].set(markersize=3, alpha=0.6, color="#4C72B0")
-    axis.get_lines()[1].set(color="#C44E52", linewidth=1)
-    axis.set_title("Normal Q-Q")
+        axis = flat[1]
+        stats.probplot(standardized, dist="norm", plot=axis)
+        axis.get_lines()[0].set(markersize=3, alpha=0.6, color=_DATA)
+        axis.get_lines()[1].set(color=_BAD, linewidth=1)
+        axis.set_title("Normal Q-Q")
 
-    axis = flat[2]
-    axis.scatter(yhat, np.sqrt(np.abs(standardized)), s=14, alpha=0.6,
-                 color="#55A868", edgecolor="none")
-    axis.set_xlabel("Fitted")
-    axis.set_ylabel("√|standardized residual|")
-    axis.set_title("Scale-location")
+        axis = flat[2]
+        axis.scatter(yhat, np.sqrt(np.abs(standardized)), s=14, alpha=0.6,
+                     color=_GOOD, edgecolor="none")
+        axis.set_xlabel("Fitted")
+        axis.set_ylabel("√|standardized residual|")
+        axis.set_title("Scale-location")
 
-    axis = flat[3]
-    axis.hist(residual, bins=min(40, max(int(np.sqrt(residual.size)), 5)),
-              color="#8172B2", edgecolor="white", density=True)
-    if scale > 0:
-        grid = np.linspace(residual.min(), residual.max(), 200)
-        axis.plot(grid, stats.norm.pdf(grid, residual.mean(), scale),
-                  color="#C44E52", linewidth=1.2)
-    axis.set_xlabel("Residual")
-    axis.set_ylabel("Density")
-    axis.set_title("Residual distribution")
+        axis = flat[3]
+        axis.hist(residual, bins=min(40, max(int(np.sqrt(residual.size)), 5)),
+                  color=_MARK, edgecolor="white", density=True)
+        if scale > 0:
+            grid = np.linspace(residual.min(), residual.max(), 200)
+            axis.plot(grid, stats.norm.pdf(grid, residual.mean(), scale),
+                      color=_BAD, linewidth=1.2)
+        axis.set_xlabel("Residual")
+        axis.set_ylabel("Density")
+        axis.set_title("Residual distribution")
 
-    if design is not None:
-        matrix = np.asarray(design, dtype=float)
-        pinv = np.linalg.pinv(matrix)
-        leverage = np.einsum("ij,ji->i", matrix, pinv)
-        rank = int(np.linalg.matrix_rank(matrix))
-        residual_df = max(len(y) - rank, 1)
-        mse = float(np.sum(residual ** 2)) / residual_df
-        with np.errstate(divide="ignore", invalid="ignore"):
-            cooks = (residual ** 2 / (rank * mse)) * (
-                leverage / (1.0 - leverage) ** 2)
-        cooks = np.nan_to_num(cooks, nan=0.0)
+        if design is not None:
+            matrix = np.asarray(design, dtype=float)
+            pinv = np.linalg.pinv(matrix)
+            leverage = np.einsum("ij,ji->i", matrix, pinv)
+            rank = int(np.linalg.matrix_rank(matrix))
+            residual_df = max(len(y) - rank, 1)
+            mse = float(np.sum(residual ** 2)) / residual_df
+            with np.errstate(divide="ignore", invalid="ignore"):
+                cooks = (residual ** 2 / (rank * mse)) * (
+                    leverage / (1.0 - leverage) ** 2)
+            cooks = np.nan_to_num(cooks, nan=0.0)
 
-        axis = flat[4]
-        axis.scatter(leverage, standardized, s=14, alpha=0.6,
-                     color="#937860", edgecolor="none")
-        axis.axhline(0, color="#999999", linewidth=0.8)
-        axis.axvline(2.0 * rank / max(len(y), 1), color="#C44E52",
-                     linestyle="--", linewidth=1, label="2p/n")
-        axis.set_xlabel("Leverage")
-        axis.set_ylabel("Standardized residual")
-        axis.set_title("Residuals vs leverage")
-        axis.legend(frameon=False, fontsize=8)
+            axis = flat[4]
+            axis.scatter(leverage, standardized, s=14, alpha=0.6,
+                         color=_DATA, edgecolor="none")
+            axis.axhline(0, color=_REFERENCE, linewidth=0.8)
+            axis.axvline(2.0 * rank / max(len(y), 1), color=_BAD,
+                         linestyle="--", linewidth=1, label="2p/n")
+            axis.set_xlabel("Leverage")
+            axis.set_ylabel("Standardized residual")
+            axis.set_title("Residuals vs leverage")
+            axis.legend(frameon=False, fontsize=8)
 
-        axis = flat[5]
-        axis.stem(np.arange(len(cooks)), cooks, markerfmt=" ", basefmt=" ",
-                  linefmt="#4C72B0")
-        cutoff = 4.0 / max(len(cooks), 1)
-        axis.axhline(cutoff, color="#C44E52", linestyle="--", linewidth=1,
-                     label="4/n")
-        axis.set_xlabel("Observation")
-        axis.set_ylabel("Cook's distance")
-        axis.set_title("Influence")
-        axis.legend(frameon=False, fontsize=8)
+            axis = flat[5]
+            axis.stem(np.arange(len(cooks)), cooks, markerfmt=" ", basefmt=" ",
+                      linefmt=_DATA)
+            cutoff = 4.0 / max(len(cooks), 1)
+            axis.axhline(cutoff, color=_BAD, linestyle="--", linewidth=1,
+                         label="4/n")
+            axis.set_xlabel("Observation")
+            axis.set_ylabel("Cook's distance")
+            axis.set_title("Influence")
+            axis.legend(frameon=False, fontsize=8)
 
-    title = "Residual diagnostics"
-    if label:
-        title = f"{title} — {label}"
-    fig.suptitle(title, fontsize=13, fontweight="bold")
-    report = residual_report(y, yhat, design=design)
-    return _finish(fig, save_path), report
+        title = "Residual diagnostics"
+        if label:
+            title = f"{title} — {label}"
+        fig.suptitle(title, fontsize=13, fontweight="bold")
+        report = residual_report(y, yhat, design=design)
+        return _finish(fig, save_path), report
 
 
 def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
@@ -515,75 +580,81 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
     values = values[np.isfinite(values)]
     n = values.size
 
-    fig, axes = plt.subplots(1, 3, figsize=(14, 4.2))
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS.
+    # rcParams colour an artist when it is CREATED, so a
+    # context opened after plt.subplots would leave the
+    # spines, ticks and text at whatever the caller's global
+    # style happened to be.
+    with figure_style():
+        fig, axes = plt.subplots(1, 3, figsize=(14, 4.2))
 
-    axis = axes[0]
-    axis.hist(values, bins=20, range=(0, 1), color="#4C72B0",
-              edgecolor="white")
-    axis.axhline(n / 20.0, color="#C44E52", linestyle="--", linewidth=1,
-                 label="uniform null")
-    axis.set_xlabel("P value")
-    axis.set_ylabel("Tests")
-    axis.set_title("P-value histogram")
-    axis.legend(frameon=False, fontsize=8)
-    pi0 = estimate_pi0(values)
-    axis.text(0.98, 0.80, f"π₀ ≈ {pi0:.2f}\n({(1 - pi0) * 100:.0f}% non-null)",
-              transform=axis.transAxes, ha="right", va="top", fontsize=8)
-
-    # QQ against the uniform null, on -log10 so the tail is readable.
-    axis = axes[1]
-    observed = -np.log10(np.sort(np.clip(values, np.finfo(float).tiny, 1.0)))
-    expected = -np.log10((np.arange(1, n + 1) - 0.5) / n)
-    axis.scatter(expected, observed, s=12, alpha=0.7, color="#55A868",
-                 edgecolor="none")
-    limit = float(max(expected.max(), observed.max())) if n else 1.0
-    axis.plot([0, limit], [0, limit], color="#C44E52", linestyle="--",
-              linewidth=1)
-    axis.set_xlabel("Expected −log₁₀(P)")
-    axis.set_ylabel("Observed −log₁₀(P)")
-    axis.set_title("P-value Q-Q")
-    # Genomic inflation: median observed chi-square over its null median.
-    if n:
-        from scipy import stats
-        chi2 = stats.chi2.isf(np.clip(values, np.finfo(float).tiny, 1.0), df=1)
-        inflation = float(np.median(chi2) / stats.chi2.ppf(0.5, df=1))
-        axis.text(0.03, 0.95, f"λ = {inflation:.3f}", transform=axis.transAxes,
-                  ha="left", va="top", fontsize=9,
-                  color="#C44E52" if abs(inflation - 1) > 0.2 else "#333333")
-
-    axis = axes[2]
-    if adjusted is None:
-        axis.text(0.5, 0.5, "No adjusted values supplied",
-                  transform=axis.transAxes, ha="center", va="center")
-        axis.set_axis_off()
-    else:
-        q = np.asarray(adjusted, dtype=float)
-        q = q[np.isfinite(q)]
-        grid = np.linspace(0, min(1.0, max(float(alpha) * 4, 0.2)), 200)
-        discoveries = [(q <= level).sum() for level in grid]
-        axis.plot(grid, discoveries, color="#8172B2", linewidth=1.6)
-        axis.axvline(alpha, color="#C44E52", linestyle="--", linewidth=1,
-                     label=f"α = {alpha:g}")
-        called = int((q < alpha).sum())
-        axis.scatter([alpha], [called], color="#C44E52", zorder=5, s=30)
-        axis.set_xlabel("Adjusted-value threshold")
-        axis.set_ylabel("Discoveries")
-        axis.set_title(f"Discoveries vs threshold ({called} at α)")
+        axis = axes[0]
+        axis.hist(values, bins=20, range=(0, 1), color=_DATA,
+                  edgecolor="white")
+        axis.axhline(n / 20.0, color=_BAD, linestyle="--", linewidth=1,
+                     label="uniform null")
+        axis.set_xlabel("P value")
+        axis.set_ylabel("Tests")
+        axis.set_title("P-value histogram")
         axis.legend(frameon=False, fontsize=8)
+        pi0 = estimate_pi0(values)
+        axis.text(0.98, 0.80, f"π₀ ≈ {pi0:.2f}\n({(1 - pi0) * 100:.0f}% non-null)",
+                  transform=axis.transAxes, ha="right", va="top", fontsize=8)
 
-    title = "Inference diagnostics"
-    if label:
-        title = f"{title} — {label}"
-    fig.suptitle(title, fontsize=13, fontweight="bold")
-    report = {
-        "tests": int(n),
-        "pi0": float(pi0),
-        "estimated_non_null": float((1.0 - pi0) * n),
-    }
-    if adjusted is not None:
-        q = np.asarray(adjusted, dtype=float)
-        report["discoveries"] = int(np.sum(q[np.isfinite(q)] < alpha))
-    return _finish(fig, save_path), report
+        # QQ against the uniform null, on -log10 so the tail is readable.
+        axis = axes[1]
+        observed = -np.log10(np.sort(np.clip(values, np.finfo(float).tiny, 1.0)))
+        expected = -np.log10((np.arange(1, n + 1) - 0.5) / n)
+        axis.scatter(expected, observed, s=12, alpha=0.7, color=_GOOD,
+                     edgecolor="none")
+        limit = float(max(expected.max(), observed.max())) if n else 1.0
+        axis.plot([0, limit], [0, limit], color=_BAD, linestyle="--",
+                  linewidth=1)
+        axis.set_xlabel("Expected −log₁₀(P)")
+        axis.set_ylabel("Observed −log₁₀(P)")
+        axis.set_title("P-value Q-Q")
+        # Genomic inflation: median observed chi-square over its null median.
+        if n:
+            from scipy import stats
+            chi2 = stats.chi2.isf(np.clip(values, np.finfo(float).tiny, 1.0), df=1)
+            inflation = float(np.median(chi2) / stats.chi2.ppf(0.5, df=1))
+            axis.text(0.03, 0.95, f"λ = {inflation:.3f}", transform=axis.transAxes,
+                      ha="left", va="top", fontsize=9,
+                      color=_BAD if abs(inflation - 1) > 0.2 else _REFERENCE)
+
+        axis = axes[2]
+        if adjusted is None:
+            axis.text(0.5, 0.5, "No adjusted values supplied",
+                      transform=axis.transAxes, ha="center", va="center")
+            axis.set_axis_off()
+        else:
+            q = np.asarray(adjusted, dtype=float)
+            q = q[np.isfinite(q)]
+            grid = np.linspace(0, min(1.0, max(float(alpha) * 4, 0.2)), 200)
+            discoveries = [(q <= level).sum() for level in grid]
+            axis.plot(grid, discoveries, color=_MARK, linewidth=1.6)
+            axis.axvline(alpha, color=_BAD, linestyle="--", linewidth=1,
+                         label=f"α = {alpha:g}")
+            called = int((q < alpha).sum())
+            axis.scatter([alpha], [called], color=_BAD, zorder=5, s=30)
+            axis.set_xlabel("Adjusted-value threshold")
+            axis.set_ylabel("Discoveries")
+            axis.set_title(f"Discoveries vs threshold ({called} at α)")
+            axis.legend(frameon=False, fontsize=8)
+
+        title = "Inference diagnostics"
+        if label:
+            title = f"{title} — {label}"
+        fig.suptitle(title, fontsize=13, fontweight="bold")
+        report = {
+            "tests": int(n),
+            "pi0": float(pi0),
+            "estimated_non_null": float((1.0 - pi0) * n),
+        }
+        if adjusted is not None:
+            q = np.asarray(adjusted, dtype=float)
+            report["discoveries"] = int(np.sum(q[np.isfinite(q)] < alpha))
+        return _finish(fig, save_path), report
 
 
 def write_diagnostic_suite(destination, *, fractions=None, block=None,

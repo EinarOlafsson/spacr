@@ -244,12 +244,22 @@ def heavy_stubs(monkeypatch):
     import spacr.sequencing  # noqa: F401
     import spacr.settings  # noqa: F401
 
-    rec = {"plates": [], "histograms": [], "sim": []}
+    rec = {"plates": [], "histograms": [], "sim": [], "house_plates": []}
 
     def fake_plot_plates(df, **kwargs):
         rec["plates"].append({"n_rows": len(df), "kwargs": dict(kwargs),
                               "columns": list(df.columns)})
         return None
+
+    def fake_show_plates(df, variable, dst):
+        # THE HOUSE-STYLE PLATE PANEL IS THE ONE A RUN DRAWS NOW.
+        # `plot_plates` is still there as the fallback, so both are recorded
+        # and the test can say which path was taken rather than only that
+        # something was called.
+        rec["house_plates"].append({"n_rows": len(df), "variable": variable,
+                                    "dst": dst,
+                                    "columns": list(df.columns)})
+        return True
 
     def fake_plot_histogram(df, column, dst=None):
         rec["histograms"].append((column, dst))
@@ -261,6 +271,7 @@ def heavy_stubs(monkeypatch):
 
     monkeypatch.setattr(P, "plot_plates", fake_plot_plates)
     monkeypatch.setattr(P, "plot_histogram", fake_plot_histogram)
+    monkeypatch.setattr(ML, "_show_plates", fake_show_plates)
     monkeypatch.setattr(ML, "minimum_cell_simulation", fake_sim)
     return rec
 
@@ -636,8 +647,17 @@ def test_qc_block_writes_the_three_well_level_tables(screen, stubs):
     assert stubs["csv_plots"][1]["src"].endswith("grna_well.csv")
     assert stubs["csv_plots"][2]["src"].endswith("well_grna.csv")
     # plot_plates got the merged frame and the *original* dependent variable.
-    assert stubs["plates"][0]["kwargs"]["variable"] == "pred"
-    assert stubs["plates"][0]["kwargs"]["dst"] == res
+    # The house-style panel got the merged frame and the ORIGINAL dependent
+    # variable -- not the transformed one, because a plate heatmap of
+    # log(pred) is a heatmap of a different quantity than the screen measured.
+    assert stubs["house_plates"], (
+        "no plate panel was drawn; neither the house-style path nor the "
+        "fallback ran")
+    assert stubs["house_plates"][0]["variable"] == "pred"
+    assert stubs["house_plates"][0]["dst"] == res
+    assert not stubs["plates"], (
+        "the legacy plot_plates ran as well; a run should draw its plates "
+        "once, in one idiom")
 
 
 def test_batch_correction_runs_before_regression_and_writes_report(
