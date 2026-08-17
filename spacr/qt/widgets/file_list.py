@@ -52,33 +52,143 @@ def _pair_tokens(path: str) -> set[str]:
             if token not in generic and len(token) > 1}
 
 
-def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str]) -> list[dict]:
-    """Propose visible score/count pairs by filename tokens.
+#: What a measurements DATABASE is called, by extension.
+#:
+#: Databases are told apart from tables by extension and never by header.
+#: :func:`side_for_header` opens a file as text, and a sqlite file read as
+#: CSV yields a header carrying neither a gRNA nor a count -- which scores it
+#: as a SCORE table. A binary database silently filed as the regression's
+#: response is exactly the failure this column exists to remove.
+DATABASE_EXTENSIONS = (".db", ".sqlite", ".sqlite3")
+
+# Words every plate's database shares, so they cannot tell two plates apart.
+# 'measurements' is here because spaCR's own layout calls every plate's
+# database <plate>/measurements/measurements.db.
+_DATABASE_GENERIC = frozenset({
+    "measurements", "measurement", "database", "sqlite", "data", "merged",
+    "results", "result", "analysis"})
+
+
+def is_database_path(path) -> bool:
+    """``True`` when ``path`` names a measurements database by extension.
+
+    One rule, in one place, for the widget that files a dropped path into a
+    column and for the drop handler that catches the same file when it lands
+    on the screen around the widget. Two copies would disagree the first time
+    somebody's database was called ``plate1.sqlite``.
+    """
+    return os.path.splitext(os.fspath(path))[1].lower() in DATABASE_EXTENSIONS
+
+
+def _database_tokens(path, *, depth: int = 2) -> set[str]:
+    """Pairing tokens for a database, its parent folders included.
+
+    ``_pair_tokens`` reads the basename, which is all a CSV has. A database
+    has less: spaCR writes every plate's to ``<plate>/measurements/
+    measurements.db``, so basename tokens are identical for every plate,
+    every candidate ties, and the tie rule leaves them all unpaired. The
+    plate is named by the FOLDER, exactly as ``multi_database._label_for``
+    already assumes when it disambiguates two databases for a legend.
+    """
+    full = os.fspath(path)
+    tokens = _pair_tokens(full) - _DATABASE_GENERIC
+    parent = os.path.dirname(full)
+    for _ in range(max(0, int(depth))):
+        name = os.path.basename(parent)
+        if not name:
+            break
+        folder = _pair_tokens(name) - _DATABASE_GENERIC
+        tokens |= folder
+        parent = os.path.dirname(parent)
+        if folder:
+            # THE NEAREST FOLDER THAT SAYS ANYTHING IS ENOUGH. Climbing
+            # further collects whatever the tree above happens to be called,
+            # and one project folder with a number in its name would invent a
+            # plate token for every database underneath it. ``measurements``
+            # and its friends are skipped because they say nothing about
+            # WHICH plate -- which is the only reason to look up at all.
+            break
+    return tokens
+
+
+def _plate_label(tokens) -> str:
+    """The longest ``plate...`` token, which is what names the row."""
+    plates = sorted((token for token in tokens if token.startswith("plate")),
+                    key=len, reverse=True)
+    return plates[0] if plates else ""
+
+
+def _best_unique(left: set, tokens: Sequence[set], unused: set):
+    """Index of the single best token match in ``unused``, or ``None``.
+
+    The rule instruction 107 settled, kept in one function because all three
+    columns now obey it: a match must overlap at all, and must beat the
+    runner-up outright. A TIE LEAVES THE ROW UNPAIRED rather than guessing,
+    because a confident wrong pairing is the failure that has no symptom.
+    """
+    ranked = sorted(((len(left & tokens[index]), index) for index in unused),
+                    reverse=True)
+    if ranked and ranked[0][0] > 0 and (
+            len(ranked) == 1 or ranked[0][0] > ranked[1][0]):
+        return ranked[0][1]
+    return None
+
+
+def suggest_file_pairs(scores: Sequence[str], counts: Sequence[str], *,
+                       databases: Sequence[str] = ()) -> list[dict]:
+    """Propose visible score/count/database rows by filename tokens.
 
     A proposal is never authoritative: the editable table is the contract the
     user confirms. Unique best matches are used; ties remain unpaired.
+
+    ``databases`` is keyword-only and defaults to nothing, so the two-argument
+    call every existing caller makes still means what it did. A database is
+    matched against BOTH cells of a row it may join -- a plate is named by its
+    score CSV as often as by its count CSV -- and one that matches nothing is
+    listed on its own row rather than being dropped or guessed onto row 0.
     """
     unused = set(range(len(counts)))
+    count_tokens = [_pair_tokens(path) for path in counts]
     rows = []
     for score in scores:
         left = _pair_tokens(score)
-        ranked = sorted(
-            ((len(left & _pair_tokens(counts[index])), index)
-             for index in unused), reverse=True)
-        match = None
-        if ranked and ranked[0][0] > 0 and (
-                len(ranked) == 1 or ranked[0][0] > ranked[1][0]):
-            match = ranked[0][1]
+        match = _best_unique(left, count_tokens, unused)
+        if match is not None:
             unused.remove(match)
-        common = left & (_pair_tokens(counts[match]) if match is not None else set())
-        plate = sorted((token for token in common if token.startswith("plate")),
-                       key=len, reverse=True)
-        rows.append({"plate": plate[0] if plate else "",
+        common = left & (count_tokens[match] if match is not None else set())
+        rows.append({"plate": _plate_label(common),
                      "score": os.fspath(score),
-                     "count": os.fspath(counts[match]) if match is not None else None})
+                     "count": os.fspath(counts[match]) if match is not None else None,
+                     "database": None})
     for index in sorted(unused):
         rows.append({"plate": "", "score": None,
-                     "count": os.fspath(counts[index])})
+                     "count": os.fspath(counts[index]), "database": None})
+    return _attach_databases(rows, databases)
+
+
+def _attach_databases(rows: list[dict], databases: Sequence[str]) -> list[dict]:
+    """Fill each row's ``database`` cell by token, appending what is left over."""
+    paths = [os.fspath(path) for path in (databases or [])]
+    tokens = [_database_tokens(path) for path in paths]
+    unused = set(range(len(paths)))
+    for row in rows:
+        left = set()
+        for side in ("score", "count"):
+            if row.get(side):
+                left |= _pair_tokens(row[side])
+        if row.get("plate"):
+            left.add(row["plate"])
+        match = _best_unique(left, tokens, unused) if unused else None
+        if match is None:
+            row.setdefault("database", None)
+            continue
+        unused.remove(match)
+        row["database"] = paths[match]
+        if not row.get("plate"):
+            row["plate"] = _plate_label(left & tokens[match])
+    for index in sorted(unused):
+        rows.append({"plate": _plate_label(tokens[index]), "score": None,
+                     "count": None, "database": paths[index]})
     return rows
 
 
@@ -97,49 +207,89 @@ def side_for_header(path) -> str:
     rule would drift, and the direction it would drift in is silent: a count
     table filed as a score is not an error, it is a wrong regression.
     """
+    import csv as _csv
     try:
-        import csv as _csv
         with open(path, newline="", encoding="utf-8",
                   errors="replace") as handle:
             header = {str(name).strip().lower()
                       for name in next(_csv.reader(handle), [])}
-    except OSError:
+    except (OSError, _csv.Error):
+        # csv.Error is 'line contains NUL': a BINARY file was asked this
+        # question. It used to escape from inside Qt's drop dispatch, where
+        # an exception is a crash rather than an error dialog -- so dropping
+        # a measurements database on the input table killed the window.
+        # Databases are now routed by extension before they get here
+        # (:func:`is_database_path`); this catch is for the next binary.
         return "score"
     return ("count" if {"grna", "grna_name"} & header and "count" in header
             else "score")
 
 
 class PairedFileTableWidget(QWidget):
-    """Editable one-row-per-plate score/count input contract."""
+    """Editable one-row-per-plate score / count / database input contract.
+
+    A row is ONE PLATE: its score CSV, its count CSV, and the measurements
+    database that plate's per-object tables live in. All three columns are
+    filled BY ADDITION -- every arrival re-proposes the whole table from
+    filename tokens -- so databases dropped in the opposite order to the CSVs
+    still land on the right plates. That is instruction 107's rule, and the
+    third column obeys it rather than keeping a list of its own.
+
+    A plate with NO database is legal and is not an error: the regression is
+    fitted on scores and counts. The database is what makes that plate's
+    measurements available downstream, so its absence disables the plate
+    there instead of failing the run.
+    """
 
     value_changed = Signal()
+
+    _EMPTY_STATUS = ("Drop score and count CSVs here. Drop a measurements "
+                     "database on a plate row to attach it to that plate.")
 
     def __init__(self, value=None, parent=None):
         super().__init__(parent)
         self._scores: list[str] = []
         self._counts: list[str] = []
+        self._databases: list[str] = []
+        # Databases the user placed on a row BY HAND, anchored to that row's
+        # identity rather than to its index. Every addition re-proposes the
+        # whole table, so without this an explicit attachment would be undone
+        # by the next CSV drop -- silently, which is the same class of bug as
+        # pairing by list position.
+        self._pinned: dict[str, dict] = {}
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        self.table = QTableWidget(0, 4, self)
+        self.table = QTableWidget(0, 5, self)
         self.table.setHorizontalHeaderLabels(
-            ["Plate / proposal", "Score CSV", "Count CSV", "Plate rule"])
+            ["Plate / proposal", "Score CSV", "Count CSV",
+             "Measurements DB", "Plate rule"])
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.itemChanged.connect(lambda *_: self.value_changed.emit())
         layout.addWidget(self.table)
+        # What the table just did, in words. A database attached to "the
+        # first row without one" that says nothing is a file the user
+        # believes is on another plate.
+        self.status = QLabel(self._EMPTY_STATUS, self)
+        self.status.setWordWrap(True)
+        self.status.setProperty("role", "hint")
+        layout.addWidget(self.status)
         buttons = QHBoxLayout()
         add_scores = QPushButton("Add score CSVs…", self)
         add_counts = QPushButton("Add count CSVs…", self)
+        add_databases = QPushButton("Add measurements DBs…", self)
         add_row = QPushButton("Add empty pair", self)
         up = QPushButton("↑", self)
         down = QPushButton("↓", self)
         remove = QPushButton("Remove", self)
         add_scores.clicked.connect(lambda: self._pick("score"))
         add_counts.clicked.connect(lambda: self._pick("count"))
+        add_databases.clicked.connect(lambda: self._pick("database"))
         add_row.clicked.connect(lambda: self._append_row({}))
         up.clicked.connect(lambda: self._move(-1))
         down.clicked.connect(lambda: self._move(1))
         remove.clicked.connect(self._remove)
-        for button in (add_scores, add_counts, add_row, up, down, remove):
+        for button in (add_scores, add_counts, add_databases, add_row, up,
+                       down, remove):
             buttons.addWidget(button)
         buttons.addStretch(1)
         layout.addLayout(buttons)
@@ -151,10 +301,15 @@ class PairedFileTableWidget(QWidget):
 
     #: Column index of each side in the table, so a drop lands where the user
     #: aimed it rather than in whichever input the router reached first.
-    SIDE_COLUMNS = {"score": 1, "count": 2}
+    SIDE_COLUMNS = {"score": 1, "count": 2, "database": 3}
+
+    # The read-only column that reports how the plate id was resolved. It
+    # moved right when the database column was inserted; it is named here so
+    # that the next column to arrive moves one number, not four.
+    RULE_COLUMN = 4
 
     def add_paths_for_side(self, paths, side: str = "score") -> int:
-        """Add files to the score or count column and re-propose the pairing.
+        """Add files to one column of the table and re-propose the pairing.
 
         The drop targets the user asked for -- "a dependent variable square I
         can drop into and an independent variable square I can drop into" --
@@ -162,20 +317,22 @@ class PairedFileTableWidget(QWidget):
         decided which side a file belongs to from its header, so dropping a
         count table anywhere on the widget still fills the count column.
 
+        ``'database'`` is the third side. It goes through this same method,
+        and therefore through the same whole-table re-proposal, rather than
+        through an adder of its own that would keep a private list and pair
+        by the order things arrived.
+
         Returns how many files were added.
         """
         if side not in self.SIDE_COLUMNS:
             raise ValueError(
-                f"side must be 'score' or 'count'; got {side!r}.")
+                f"side must be 'score', 'count' or 'database'; got {side!r}.")
         incoming = [os.fspath(p) for p in (paths or [])]
         if not incoming:
             return 0
-        current = self.get_value()
-        self._scores = list(dict.fromkeys(
-            row["score"] for row in current if row.get("score")))
-        self._counts = list(dict.fromkeys(
-            row["count"] for row in current if row.get("count")))
-        target = self._scores if side == "score" else self._counts
+        self._rebuild_sides()
+        target = {"score": self._scores, "count": self._counts,
+                  "database": self._databases}[side]
         added = 0
         for path in incoming:
             if path not in target:
@@ -184,13 +341,233 @@ class PairedFileTableWidget(QWidget):
         if added:
             # Re-propose so a count dropped after its score lands on the same
             # row: the pairing is by filename token, not by drop order.
-            self.set_value(suggest_file_pairs(self._scores, self._counts))
+            self._repropose()
             self.value_changed.emit()
         return added
+
+    def _rebuild_sides(self) -> None:
+        """Refill the three flat lists from the table, which is the state."""
+        current = self.get_value()
+        self._scores = list(dict.fromkeys(
+            row["score"] for row in current if row.get("score")))
+        self._counts = list(dict.fromkeys(
+            row["count"] for row in current if row.get("count")))
+        self._databases = list(dict.fromkeys(
+            row["database"] for row in current if row.get("database")))
+
+    def _repropose(self) -> None:
+        """Rebuild every row from tokens, then honour the manual attachments."""
+        rows = suggest_file_pairs(self._scores, self._counts,
+                                  databases=self._databases)
+        self.set_value(self._apply_pinned(rows))
+
+    def _apply_pinned(self, rows: list[dict]) -> list[dict]:
+        """Move each pinned database back onto the row the user chose."""
+        for database, anchor in list(self._pinned.items()):
+            current = next((index for index, row in enumerate(rows)
+                            if row.get("database") == database), None)
+            if current is None:
+                # The user removed it from the table; the pin goes with it.
+                self._pinned.pop(database, None)
+                continue
+            target = self._row_for_anchor(rows, anchor)
+            if target is None or target == current:
+                continue
+            rows[current]["database"] = rows[target].get("database")
+            rows[target]["database"] = database
+        return [row for row in rows
+                if row.get("score") or row.get("count") or row.get("database")]
+
+    @staticmethod
+    def _row_for_anchor(rows: list[dict], anchor: dict):
+        """The row a pin names, by its files first and its plate label last."""
+        for key in ("score", "count", "plate"):
+            value = anchor.get(key)
+            if not value:
+                continue
+            for index, row in enumerate(rows):
+                if row.get(key) == value:
+                    return index
+        return None
+
+    def _anchor_for_row(self, row: int) -> dict:
+        return {key: self._cell(row, column) or None
+                for key, column in (("plate", 0),
+                                    ("score", self.SIDE_COLUMNS["score"]),
+                                    ("count", self.SIDE_COLUMNS["count"]))}
+
+    def _cell(self, row: int, column: int) -> str:
+        item = self.table.item(row, column)
+        return item.text().strip() if item else ""
 
     def _side_for_header(self, path) -> str:
         """Which column ``path`` belongs in. See :func:`side_for_header`."""
         return side_for_header(path)
+
+    def _side_for_path(self, path) -> str:
+        """Which column ``path`` belongs in, databases decided by extension."""
+        return ("database" if is_database_path(path)
+                else self._side_for_header(path))
+
+    # ------------------------------------------------------- the third column
+
+    def attach_database(self, path, row=None) -> str:
+        """Attach a measurements database to one plate row, and say which.
+
+        ``row`` is the row the user aimed the drop at -- an EXPLICIT
+        assignment, which is remembered and survives the re-proposal that the
+        next dropped CSV triggers.
+
+        With no row, the database is offered to the token pairing first, so
+        ``plate2/measurements/measurements.db`` finds plate 2 wherever that
+        row happens to be. Only when nothing in its path names a plate does
+        it fall back to the first row that has no database -- and the
+        returned sentence, also shown under the table, NAMES that row. A
+        database attached to row 0 in silence is a plate's measurements
+        quietly credited to another plate.
+
+        Returns the sentence, so a caller with a console logs the same words
+        the user is reading.
+        """
+        # Stripped, because the table stores text and hands it back stripped:
+        # a path that is not equal to its own strip is one this widget could
+        # write and then never find again.
+        database = os.fspath(path).strip()
+        if not database:
+            raise ValueError("attach_database needs a path to a database.")
+        if row is not None:
+            row = int(row)
+            if not 0 <= row < self.table.rowCount():
+                raise IndexError(
+                    f"row {row} is not in a table of {self.table.rowCount()} "
+                    "rows.")
+            replaced = self._place_database(row, database)
+            message = self._describe_row(row, database, "attached to")
+            if replaced:
+                message += f" It replaced {os.path.basename(replaced)}."
+            self.value_changed.emit()
+            self._refresh_status(message)
+            return message
+
+        already = self._row_of_database(database)
+        # After this the path IS somewhere in the table: the side lists are
+        # rebuilt from the table itself, so a path that was not already on a
+        # row comes back on one of its own.
+        self.add_paths_for_side([database], "database")
+        index = self._row_of_database(database)
+        if already is not None:
+            message = self._describe_row(index, database, "is already on")
+            self._refresh_status(message)
+            return message
+        if self._cell(index, self.SIDE_COLUMNS["score"]) or \
+                self._cell(index, self.SIDE_COLUMNS["count"]):
+            message = self._describe_row(index, database, "paired by filename with")
+            self._refresh_status(message)
+            return message
+        target = self._first_row_without_database(exclude=index)
+        if target is None:
+            message = (f"{os.path.basename(database)} is on row {index + 1} "
+                       "of its own: no plate row is waiting for a database. "
+                       "It will pair with a plate when that plate's CSVs "
+                       "arrive.")
+            self._refresh_status(message)
+            return message
+        self.table.blockSignals(True)
+        self.table.removeRow(index)
+        self.table.blockSignals(False)
+        # Asked again rather than adjusted by hand: removing a row shifts
+        # every index after it, and an off-by-one here attaches a database to
+        # the wrong plate, which is the one mistake this column cannot make.
+        target = self._first_row_without_database()
+        self._place_database(target, database)
+        message = self._describe_row(target, database, "attached to")
+        message += (" It is the first row with no database: nothing in the "
+                    "file's path named a plate.")
+        self.value_changed.emit()
+        self._refresh_status(message)
+        return message
+
+    def missing_databases(self) -> list:
+        """Rows whose database is not on disk: ``(row number, plate, path)``.
+
+        Row numbers are 1-based, the way the table numbers them.
+
+        Checked as soon as the path is attached and restated in the status
+        line, because the alternative is a run that reads its inputs, fits
+        nothing for four minutes, and then fails on a path the panel could
+        have flagged the moment the settings were loaded. A settings file is
+        routinely written on one machine and run on another, which is the
+        case that produces this.
+        """
+        missing = []
+        for index, row in enumerate(self.get_value(), start=1):
+            database = row.get("database")
+            if database and not os.path.exists(database):
+                missing.append((index, row.get("plate") or "", database))
+        return missing
+
+    def _row_of_database(self, database: str):
+        column = self.SIDE_COLUMNS["database"]
+        for index in range(self.table.rowCount()):
+            if self._cell(index, column) == database:
+                return index
+        return None
+
+    def _first_row_without_database(self, exclude=None):
+        column = self.SIDE_COLUMNS["database"]
+        for index in range(self.table.rowCount()):
+            if index == exclude:
+                continue
+            if not self._cell(index, column):
+                return index
+        return None
+
+    def _place_database(self, row: int, database: str) -> str:
+        """Write ``database`` into ``row`` and pin it there. Returns what it
+        replaced, if anything."""
+        column = self.SIDE_COLUMNS["database"]
+        replaced = self._cell(row, column)
+        self.table.blockSignals(True)
+        self.table.setItem(row, column, self._database_item(database))
+        self.table.blockSignals(False)
+        if replaced and replaced != database:
+            self._pinned.pop(replaced, None)
+        self._pinned[database] = self._anchor_for_row(row)
+        return replaced if replaced != database else ""
+
+    @staticmethod
+    def _database_item(value: str) -> QTableWidgetItem:
+        item = QTableWidgetItem(str(value))
+        if value and not os.path.exists(str(value)):
+            # Marked, not discarded: the path may be right and the disk
+            # merely not mounted yet, and a silently emptied cell is worse
+            # than a red one.
+            item.setForeground(Qt.red)
+            item.setToolTip(f"{value}\n\nThis database is not on disk right "
+                            "now, so this plate has no measurements to join.")
+        return item
+
+    def _describe_row(self, row: int, database: str, verb: str) -> str:
+        plate = self._cell(row, 0)
+        label = f"{plate} (row {row + 1})" if plate else f"row {row + 1}"
+        return f"{os.path.basename(database)} {verb} {label}."
+
+    def _refresh_status(self, message: str = "") -> None:
+        rows = self.get_value()
+        parts = [message] if message else []
+        attached = [row for row in rows if row.get("database")]
+        if rows:
+            noun = "row" if len(rows) == 1 else "rows"
+            parts.append(f"{len(attached)} of {len(rows)} plate {noun} "
+                         "carry a measurements database.")
+        missing = self.missing_databases()
+        if missing:
+            named = "; ".join(
+                f"{plate or f'row {number}'}: {path}"
+                for number, plate, path in missing)
+            parts.append(f"NOT ON DISK — {named}. Fix or clear these before "
+                         "the run: they are read after it starts.")
+        self.status.setText(" ".join(parts) or self._EMPTY_STATUS)
 
     # ---------------------------------------------------------- drag / drop
 
@@ -214,55 +591,76 @@ class PairedFileTableWidget(QWidget):
             event.ignore()
 
     def dropEvent(self, event):  # noqa: N802 - Qt name
-        """Route each dropped file to the column it belongs in.
+        """Route each dropped file to the column, and row, it belongs in.
 
         A drop over the score or count column goes there regardless of what
         the file looks like -- the user aimed it. A drop anywhere else is
         sorted by header, so dropping the whole set at once still fills both
         columns correctly.
+
+        A DATABASE is decided by its extension and never by aim: a ``.db``
+        dropped on the score column is a mis-aim, not a request to fit the
+        regression on a sqlite file, and a CSV dropped on the database column
+        is likewise still a CSV. What aim adds for a database is the ROW --
+        dropping it on a plate's row attaches it to THAT plate, which is the
+        one thing the token pairing cannot know when the file is called
+        ``measurements.db`` like everybody else's.
         """
         paths = self._dropped(event)
         if not paths:
             event.ignore()
             return
-        aimed = None
         position = event.position().toPoint() if hasattr(event, "position") \
             else event.pos()
-        local = self.table.mapFrom(self, position)
-        column = self.table.columnAt(local.x())
+        # VIEWPORT coordinates, which is what columnAt and rowAt document
+        # themselves to take. Mapping into the table itself instead offsets
+        # every answer by the header: one whole row down, and one vertical
+        # header's width across. Nobody noticed while only the column was
+        # read -- columns are wide -- but a row aimed at is a row missed.
+        local = self.table.viewport().mapFrom(self, position)
+        inside = self.table.viewport().rect().contains(local)
+        column = self.table.columnAt(local.x()) if inside else -1
+        row = self.table.rowAt(local.y()) if inside else -1
+        aimed = None
         for side, index in self.SIDE_COLUMNS.items():
-            if column == index and self.table.rect().contains(local):
+            if column == index and inside:
                 aimed = side
                 break
         for path in paths:
-            self.add_paths_for_side([path], aimed or self._side_for_header(path))
+            natural = self._side_for_path(path)
+            if natural == "database":
+                self.attach_database(
+                    path, row if aimed == "database" and row >= 0 else None)
+            else:
+                side = aimed if aimed in ("score", "count") else natural
+                self.add_paths_for_side([path], side)
         event.acceptProposedAction()
 
     def _pick(self, side: str) -> None:
-        paths, _ = QFileDialog.getOpenFileNames(
-            self, f"Add {side} CSVs", "", "Tables (*.csv *.tsv *.txt)")
+        if side == "database":
+            title, filters = ("Add measurements databases",
+                              "Databases (*.db *.sqlite *.sqlite3)")
+        else:
+            title, filters = f"Add {side} CSVs", "Tables (*.csv *.tsv *.txt)"
+        paths, _ = QFileDialog.getOpenFileNames(self, title, "", filters)
         if not paths:
             return
-        current = self.get_value()
-        self._scores = list(dict.fromkeys(
-            row["score"] for row in current if row.get("score")))
-        self._counts = list(dict.fromkeys(
-            row["count"] for row in current if row.get("count")))
-        if side == "score":
-            self._scores.extend(path for path in paths if path not in self._scores)
-        else:
-            self._counts.extend(path for path in paths if path not in self._counts)
-        self.set_value(suggest_file_pairs(self._scores, self._counts))
-        self.value_changed.emit()
+        # Through the same seam a drop uses, so the picker cannot pair by the
+        # order the file dialog happened to return.
+        self.add_paths_for_side(paths, side)
 
     def _append_row(self, row: dict) -> None:
         index = self.table.rowCount()
         self.table.insertRow(index)
         values = (row.get("plate") or "", row.get("score") or "",
-                  row.get("count") or "", row.get("rule") or "resolved at run")
+                  row.get("count") or "", row.get("database") or "",
+                  row.get("rule") or "resolved at run")
         for column, value in enumerate(values):
-            item = QTableWidgetItem(str(value))
-            if column == 3:
+            if column == self.SIDE_COLUMNS["database"]:
+                item = self._database_item(value)
+            else:
+                item = QTableWidgetItem(str(value))
+            if column == self.RULE_COLUMN:
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(index, column, item)
 
@@ -273,16 +671,18 @@ class PairedFileTableWidget(QWidget):
             if isinstance(row, dict):
                 self._append_row(row)
         self.table.blockSignals(False)
+        self._refresh_status()
 
     def get_value(self) -> list[dict]:
         rows = []
         for index in range(self.table.rowCount()):
-            value = lambda column: (self.table.item(index, column).text().strip()
-                                    if self.table.item(index, column) else "")
-            score, count = value(1), value(2)
-            if score or count:
-                rows.append({"plate": value(0) or None,
-                             "score": score or None, "count": count or None})
+            score = self._cell(index, self.SIDE_COLUMNS["score"])
+            count = self._cell(index, self.SIDE_COLUMNS["count"])
+            database = self._cell(index, self.SIDE_COLUMNS["database"])
+            if score or count or database:
+                rows.append({"plate": self._cell(index, 0) or None,
+                             "score": score or None, "count": count or None,
+                             "database": database or None})
         return rows
 
     def _move(self, offset: int) -> None:
@@ -300,8 +700,13 @@ class PairedFileTableWidget(QWidget):
         rows = sorted({index.row() for index in self.table.selectedIndexes()},
                       reverse=True)
         for row in rows:
+            # A removed row takes its database's pin with it, or the next
+            # addition would put a file back that the user just deleted.
+            self._pinned.pop(self._cell(row, self.SIDE_COLUMNS["database"]),
+                             None)
             self.table.removeRow(row)
         if rows:
+            self._refresh_status()
             self.value_changed.emit()
 
 #: Extension groups offered in the dialog, by the kind of input a setting wants.
@@ -692,5 +1097,6 @@ class FilePathListWidget(QWidget):
         return ""
 
 
-__all__ = ["FilePathListWidget", "FILE_KIND_FILTERS", "PairedFileTableWidget",
-           "side_for_header", "suggest_file_pairs"]
+__all__ = ["DATABASE_EXTENSIONS", "FilePathListWidget", "FILE_KIND_FILTERS",
+           "PairedFileTableWidget", "is_database_path", "side_for_header",
+           "suggest_file_pairs"]
