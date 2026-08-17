@@ -121,6 +121,14 @@ def test_a_frame_of_zero_width_is_refused_rather_than_divided_by():
         _mask_movie_frame_geometry([np.zeros((0, 8), np.uint16)])
 
 
+def test_a_one_dimensional_array_is_refused_as_a_frame_not_as_an_iterable():
+    """A corrupt .npy is the ordinary source of this, and it has to say so."""
+    with pytest.raises(ValueError) as exc:
+        _mask_movie_frame_geometry([np.zeros(8, np.uint16)])
+
+    assert "no frame" in str(exc.value)
+
+
 # ---------------------------------------------------------------------------
 # the file that actually lands on disk
 # ---------------------------------------------------------------------------
