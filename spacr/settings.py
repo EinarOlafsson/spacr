@@ -1899,13 +1899,18 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('metadata_files', [])
     # grna: the per-gRNA table is the one that shows whether a gene's signal
     # is carried by every guide or by a single outlier.
-    # GENE, which is what this setting's own documentation has always said
-    # ("'gene' (default)", settings.py docstring) while the code set 'grna'.
-    # Asked for on 2026-08-17 -- "in regression make gene the default of
-    # volcano" -- so the request and the doc agree and the code was the odd
-    # one out. The gene table is also the smaller one and the one the
-    # phenotype and transcription reports are keyed on.
-    settings.setdefault('volcano', 'gene')
+    # `volcano` IS GONE. It chose which coefficient table the volcano was
+    # drawn from -- 'gene' | 'grna' | 'all' -- before the run. The
+    # interactive volcano filters between genes and guides by right-click now
+    # (instruction 129 A), on the same fit and with no re-run, so a setting
+    # that could answer the question once was redundant.
+    #
+    # A settings CSV that still carries it is ACCEPTED AND DROPPED rather
+    # than refused: every regression run before 2026-08-17 wrote one, and a
+    # saved settings file that suddenly fails to load is a worse outcome than
+    # a key nothing reads. Same treatment `location_column`,
+    # `positive_control` and `negative_control` already get above.
+    settings.pop('volcano', None)
     settings.setdefault('toxo', True)
     # perform_regression prints a per-stage row count and display()s the whole
     # per-object score table under verbose, which is millions of rows on a real
@@ -2525,7 +2530,6 @@ expected_types = {
     "min_n":int,
     "controls":list,
     "toxo":bool,
-    "volcano":str,
     "metadata_files":list,
     "filter_value":list,
     "split_axis_lims":str,
@@ -3532,7 +3536,6 @@ tooltips = {
     'threshold_multiplier': "(float) - How many units of control-coefficient spread are added to the mean control coefficient to form the regression hit threshold: reg_threshold = mean(control coefficients) + multiplier * spread, where spread comes from threshold_method. Larger values place the threshold further out in the control distribution. Only used when 'controls' is set. Default 3.",
     'toxo': "(bool) - Merge the regression hits with the bundled Toxoplasma metadata (LOPIT/TAGM localisations in resources/data/lopit.csv) and, from that, draw the volcano plot plus GT1 phenotype and ME49 transcription heatmaps read from metadata_files. Turn it off for non-Toxoplasma screens - doing so also disables the volcano plot entirely. Default True.",
     'use_checkpoint': "(bool) - Run the backbone's forward pass through torch.utils.checkpoint: intermediate activations are discarded and recomputed during the backward pass, trading extra compute for a large drop in activation memory. Enable when a bigger batch_size or image_size gives CUDA out-of-memory; disable for the fastest epochs when VRAM is not the constraint. Default True.",
-    'volcano': "(str) - Which coefficient table the volcano plot is drawn from: 'gene' (default) plots per-gene coefficients, 'grna' per-gRNA, 'all' the full merged table; any other value skips the plot. Points are coloured by TAGM/LOPIT localisation, and the gene list it returns drives the phenotype and transcription plots. Only takes effect when toxo is True.",
     'x_lim': "(list) - Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when toxo mode is on. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None."
 }
 

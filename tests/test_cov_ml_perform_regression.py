@@ -1082,29 +1082,18 @@ def test_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
     assert toxo_stubs["heatmaps"][0]["columns"][0] == "sense - Tachyzoites"
 
 
-def test_toxo_block_skips_unknown_volcano_mode(screen, toxo_stubs, capsys):
-    """An unrecognised volcano setting skips the plot but still reports."""
-    from spacr.ml import perform_regression
-
-    settings = base_settings(screen, toxo=True, volcano="none",
-                             controls=None)
-    perform_regression(settings)
-
-    printed = capsys.readouterr().out
-    assert "Skipping volcano plot" in printed
-    assert "No gene_list produced" in printed
-    assert toxo_stubs["volcano"] == []
-    # No volcano means no gene list, so nothing downstream is drawn. The
-    # duplicate block used to fire anyway with gene_list=None.
-    assert toxo_stubs["phenotypes"] == []
-
-
+# `test_toxo_block_skips_unknown_volcano_mode` lived here. It asserted that an
+# unrecognised `volcano` setting skipped the plot -- and the setting was
+# removed on 2026-08-17 as redundant, because the interactive volcano filters
+# genes/guides by right-click on the same fit. There is no unrecognised mode
+# to skip any more: the toxo block always draws the gene table.
+# tests/test_the_volcano_setting_is_retired.py holds what replaced it.
 def test_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
     """An empty gene list from the volcano plot skips the phenotype figures."""
     from spacr.ml import perform_regression
 
     toxo_stubs["gene_list"] = []
-    settings = base_settings(screen, toxo=True, volcano="gene")
+    settings = base_settings(screen, toxo=True)
     perform_regression(settings)
 
     printed = capsys.readouterr().out
@@ -1160,6 +1149,6 @@ def test_toxo_volcano_without_controls(screen, toxo_stubs):
     """A screen with no control gRNAs should still be able to plot a volcano."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, toxo=True, volcano="gene", controls=None)
+    settings = base_settings(screen, toxo=True, controls=None)
     perform_regression(settings)
     assert len(toxo_stubs["volcano"]) == 1

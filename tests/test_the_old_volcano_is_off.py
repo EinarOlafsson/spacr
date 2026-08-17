@@ -36,24 +36,28 @@ def _ml_source() -> str:
 # --------------------------------------------------------------------------- #
 
 def test_every_old_volcano_call_is_gated():
-    """Counts the call sites so a fourth cannot appear ungated.
+    """Counts the call sites so an ungated one cannot appear.
 
-    The three are: `plot.volcano_plot` under `plot and legacy_volcano`, the
-    three `custom_volcano_plot` calls under the toxo block, and the plain
-    fallback for a toxo=False run.
+    It asserted THREE, one per value of the `volcano` setting. That setting
+    was removed 2026-08-17 as redundant -- the interactive volcano filters
+    genes/guides by right-click on the same fit -- and the three branches
+    collapsed to ONE call on the gene table.
+
+    One is a better property than three: the reason this file exists is that
+    the first fix gated one of three sites because nobody had counted them.
     """
     source = _ml_source()
 
     drawing = [line for line in source.splitlines()
                if "custom_volcano_plot(" in line and "def " not in line
                and "import" not in line]
-    assert len(drawing) == 3, (
-        f"expected three custom_volcano_plot call sites, found "
+    assert len(drawing) == 1, (
+        f"expected ONE custom_volcano_plot call site, found "
         f"{len(drawing)}: {drawing}")
 
-    # Each is handed the gate rather than deciding for itself.
-    assert source.count("draw=draw_legacy_volcano") == 3, (
-        "a custom_volcano_plot call does not take the legacy gate")
+    # And it is handed the gate rather than deciding for itself.
+    assert source.count("draw=draw_legacy_volcano") == 1, (
+        "the custom_volcano_plot call does not take the legacy gate")
 
 
 def test_the_gate_is_resolved_once():
