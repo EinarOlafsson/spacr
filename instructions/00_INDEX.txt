@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-105 done / 17 open (86%).
+106 done / 16 open (86%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -68,9 +68,6 @@ OPEN
 
   129  EVERY PLOT IN PYQTGRAPH, A TAB EACH, AND GENE/gRNA AS A RIGHT-CLICK FILTER
        129_every_plot_in_pyqtgraph_with_a_tab_each.txt
-
-  130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
-       130_measurements_databases_per_plate_in_the_input_table.txt
 
   131  SHOW THE CELLS BEHIND A DOT ON THE REGRESSION PLOT
        131_show_the_cells_behind_a_dot_on_the_volcano.txt
@@ -184,3 +181,4 @@ DONE
   120  THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
   123  EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
+  130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
