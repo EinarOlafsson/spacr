@@ -248,6 +248,28 @@ looked.
 
 ## 6. Standing rules the maintainer has set
 
+* **CHECK THE GITHUB ISSUES AT THE START OF EVERY SESSION, AND AGAIN
+  PERIODICALLY WITHIN IT.** Set 2026-08-17. This is not an instruction that
+  can be finished, so it deliberately has no number in `open/` to be moved to
+  `done/` -- it is a recurring check, and its home is here because this file
+  is what a session reads first.
+
+      gh issue list --repo EinarOlafsson/spacr --state open
+
+  Read each one, fix what is fixable, and reply on the issue saying what was
+  done and in which commit. An issue that is a duplicate, a question, or a
+  decision for the maintainer gets said so on the issue rather than left
+  open in silence.
+
+  Auto-filed issues carry a traceback fingerprint and the pipeline settings,
+  so they are usually reproducible without asking the reporter. TWO THINGS
+  THEY ALSO DO, both seen on the first one checked (#108):
+    - the title names the CRASH, but the body often reports a DIFFERENT
+      problem the user hit first. Read the prose, not just the traceback.
+    - paths are redacted to `<PATH>` / `<DB>`, so the shape of a path is
+      evidence even when its content is not -- `~<DB>` is a tilde that was
+      never expanded.
+
 * A feature goes into `instructions/open/NN_slug.txt` **before** it is coded,
   quoting the request in a `Requested:` line. Merge overlapping asks into the
   first task; do not file duplicates.

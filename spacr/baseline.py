@@ -22,7 +22,8 @@ of a screen figure assumes they are looking at differences from the
 non-targeting controls, and today nothing on the figure says otherwise.
 
 So this module does the two things that DO change what the reader sees: it
-says what the baseline is, and it lets the user move it.
+says what the baseline is, and it lets the user move it -- to the controls,
+to a named gene, or (2026-08-17) to any number they choose.
 
 THE MEDIAN, NOT THE MEAN. One control guide with a real phenotype drags a
 mean baseline and shifts every effect in the screen -- and this screen has
@@ -47,6 +48,17 @@ CONTROLS = "controls"
 #: A named gene or guide, for a screen with a positive control worth
 #: normalising to.
 NAMED = "named"
+
+#: A NUMBER THE USER CHOSE. Asked for on 2026-08-17 -- "the user should be
+#: able to also set the intercept at what ever they want".
+#:
+#: The three above are all "let the data tell me where zero is". This one is
+#: not, and that is the point of having it: a reader may be normalising to a
+#: value from another experiment, a published effect, or an assay-specific
+#: floor that this table has no way to know about. It is the only kind whose
+#: sentence cannot say where the number came from, so it says that plainly
+#: rather than implying the data supports it.
+VALUE = "value"
 
 #: How the controls are spelled in a screen's `condition` column. Matched
 #: case-insensitively. `nc` is spaCR's own spelling; the others are what real
@@ -107,14 +119,16 @@ def describe_intercept(frame=None) -> str:
 
 
 def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
-            name: Optional[str] = None,
+            name: Optional[str] = None, value=None,
             key_column: str = "feature") -> Baseline:
     """The baseline to measure effects from.
 
     :param frame: the coefficient table.
-    :param kind: :data:`ZERO`, :data:`CONTROLS` or :data:`NAMED`.
+    :param kind: :data:`ZERO`, :data:`CONTROLS`, :data:`NAMED` or
+        :data:`VALUE`.
     :param column: the effect column.
     :param name: for :data:`NAMED`, the gene or guide to normalise to.
+    :param value: for :data:`VALUE`, the number to measure from.
     :returns: a :class:`Baseline`, ALWAYS -- a request that cannot be honoured
         comes back as the zero baseline carrying the reason, because a figure
         with no baseline sentence at all is the state this module exists to
@@ -154,6 +168,25 @@ def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
             f"(median of {len(values)} control coefficients, "
             f"{shift:+.3g}). " + describe_intercept())
 
+    if kind == VALUE:
+        try:
+            shift = float(value)
+        except (TypeError, ValueError):
+            return Baseline(ZERO, 0.0, 0,
+                            "Effects are measured from zero (no "
+                            "dose-response).",
+                            reason=f"{value!r} is not a number")
+        if shift != shift or shift in (float("inf"), float("-inf")):
+            return Baseline(ZERO, 0.0, 0,
+                            "Effects are measured from zero (no "
+                            "dose-response).",
+                            reason=f"{value!r} is not a finite number")
+        return Baseline(
+            VALUE, shift, 0,
+            f"Effects are measured from {shift:+.6g}, a value chosen by "
+            f"hand rather than estimated from this screen. "
+            + describe_intercept())
+
     if kind == NAMED:
         if not name:
             return Baseline(ZERO, 0.0, 0,
@@ -179,7 +212,7 @@ def resolve(frame, kind: str = ZERO, *, column: str = "coefficient",
     return Baseline(ZERO, 0.0, 0,
                     "Effects are measured from zero (no dose-response).",
                     reason=f"unknown baseline {kind!r}; choose one of "
-                           f"{ZERO}, {CONTROLS}, {NAMED}")
+                           f"{ZERO}, {CONTROLS}, {NAMED}, {VALUE}")
 
 
 def apply(frame, baseline: Baseline, *, column: str = "coefficient"):
@@ -205,5 +238,5 @@ def apply(frame, baseline: Baseline, *, column: str = "coefficient"):
     return out
 
 
-__all__ = ["Baseline", "CONTROLS", "CONTROL_LABELS", "NAMED", "ZERO", "apply",
-           "describe_intercept", "resolve"]
+__all__ = ["Baseline", "CONTROLS", "CONTROL_LABELS", "NAMED", "VALUE", "ZERO",
+           "apply", "describe_intercept", "resolve"]
