@@ -5095,6 +5095,41 @@ class SettingsWidgets:
                 pass
         return current
 
+    def _loaded_table_paths(self, current: Dict[str, Any]):
+        """The score/count CSVs the user has actually loaded, index-tagged.
+
+        The index is the LOGICAL one, so that a score file and the count file
+        it is paired with share an identity: where neither carries a plate
+        column, they describe the same plate and must not be counted as two.
+
+        The regression panel takes its inputs as PAIRS, in a single
+        ``paired_data`` table (instruction 107) -- it has no ``score_data`` or
+        ``count_data`` widget at all. Reading only those two keys therefore
+        found nothing but the defaults, ``None``, and the plate context came
+        back "no plates loaded" no matter what the user had dropped in. The
+        paired table is read first for that reason, with the flat keys kept
+        for the panels that still use them.
+        """
+        pairs = current.get('paired_data')
+        if isinstance(pairs, (list, tuple)) and pairs:
+            found = []
+            for index, row in enumerate(pairs):
+                if not isinstance(row, dict):
+                    continue
+                for role in ('score', 'count'):
+                    path = row.get(role)
+                    if path:
+                        found.append((index, path))
+            if found:
+                return found
+        found = []
+        for key in ('score_data', 'count_data'):
+            paths = current.get(key) or []
+            if isinstance(paths, (str, os.PathLike)):
+                paths = [paths]
+            found.extend(enumerate(paths))
+        return found
+
     @staticmethod
     def _plate_context(paths) -> Dict[str, Any]:
         """Inspect only CSV headers/plate columns; never load feature data."""
@@ -5151,14 +5186,8 @@ class SettingsWidgets:
         except Exception:
             return
         current = self._current_dependency_settings()
-        score_paths = current.get('score_data') or []
-        count_paths = current.get('count_data') or []
-        if isinstance(score_paths, (str, os.PathLike)):
-            score_paths = [score_paths]
-        if isinstance(count_paths, (str, os.PathLike)):
-            count_paths = [count_paths]
-        paths = list(enumerate(score_paths)) + list(enumerate(count_paths))
-        self._data_context = self._plate_context(paths)
+        self._data_context = self._plate_context(
+            self._loaded_table_paths(current))
         for key, rule in dependencies.items():
             control = self._widgets.get(key)
             if control is None:
