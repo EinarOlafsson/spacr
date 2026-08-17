@@ -3585,7 +3585,28 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     paths.update(compatibility)
     return {
         'analysis_mode': 'guide_permutation',
-        'results': results,
+        # ONE ROW PER GUIDE, NOT ONE PER GUIDE PER FAMILY.
+        #
+        # `guide_min_wells` defaults to [1, 2, 3, 4], so this analysis runs
+        # FOUR times at four inclusion thresholds -- four separate analyses of
+        # the same guides. `results` is all four stacked: 1,612 rows for 789
+        # guides on the real screen, with `225160_2` appearing four times at
+        # the identical effect 0.25406.
+        #
+        # Handing that to the results panel drew every guide FOUR TIMES on one
+        # volcano. Reported as "GRA14 and 225160 occur in the top right side
+        # of the graph 4 times each which is obviously wrong", and it was --
+        # twice I explained it away as a q-value tie artefact before checking
+        # the row counts, which the maintainer had already told me: "my data
+        # say 1612 gRNAs".
+        #
+        # The panel gets the PRIMARY family, which is exactly what
+        # `results.csv` on disk already holds, so the file and the screen
+        # finally agree. Every family stays reachable: `families` carries the
+        # full frame and each one is still written to its own
+        # `guide_permutation_min_<n>_wells.csv`.
+        'results': primary_table,
+        'families': results,
         'primary': primary_table,
         'significant': significant,
         'primary_min_wells': primary,
