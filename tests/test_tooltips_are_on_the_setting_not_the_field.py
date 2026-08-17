@@ -31,22 +31,30 @@ EDITORS = (QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit,
            QTextEdit)
 
 
-def _constructible_screens():
-    """Every screen class that can be built with no arguments."""
-    import spacr.qt.screens as pkg
+#: Both halves of the Qt tree. The first version of this sweep covered only
+#: ``spacr.qt.screens`` and reported a clean zero while 108 editors in
+#: ``spacr.qt.widgets`` -- the panels those screens are built out of -- still
+#: popped help over the field. A guard that stops at a package boundary the
+#: user cannot see is a guard that reports on the wrong thing.
+PACKAGES = ("spacr.qt.screens", "spacr.qt.widgets")
 
-    for module_info in pkgutil.iter_modules(pkg.__path__):
-        try:
-            module = importlib.import_module(
-                f"spacr.qt.screens.{module_info.name}")
-        except Exception:
-            continue
-        for name, cls in vars(module).items():
-            if not (inspect.isclass(cls) and issubclass(cls, QWidget)):
+
+def _constructible_screens():
+    """Every screen and panel class that can be built with no arguments."""
+    for package in PACKAGES:
+        pkg = importlib.import_module(package)
+        for module_info in pkgutil.iter_modules(pkg.__path__):
+            try:
+                module = importlib.import_module(
+                    f"{package}.{module_info.name}")
+            except Exception:
                 continue
-            if cls.__module__ != module.__name__:
-                continue
-            yield module_info.name, name, cls
+            for name, cls in list(vars(module).items()):
+                if not (inspect.isclass(cls) and issubclass(cls, QWidget)):
+                    continue
+                if cls.__module__ != module.__name__:
+                    continue
+                yield module_info.name, name, cls
 
 
 def _offenders(widget):
@@ -76,7 +84,7 @@ def test_no_screen_puts_hover_help_on_an_editable_field(qtbot):
                 f"{module_name}.{class_name}: {len(offenders)} "
                 f"({', '.join(sorted({type(o).__name__ for o in offenders}))})")
 
-    assert built > 40, (
+    assert built > 120, (
         f"only {built} screens built -- the sweep is not covering the app, "
         "so a green result here would prove nothing")
     assert not found, (
@@ -131,6 +139,79 @@ def test_a_disabled_reason_stays_on_the_control_it_explains(qtbot):
 
     retarget_field_tooltips(screen)
     assert field.toolTip().startswith("NOT YET IN EFFECT")
+
+
+def test_each_setting_keeps_its_own_help_when_the_row_is_not_laid_out(qtbot):
+    """Moving help off a field must not throw it away.
+
+    The screens run this pass at the end of ``__init__``, where nothing has
+    been laid out yet and every child still sits at (0, 0). A matcher that
+    reads x/y there answers "the first label in the parent" for EVERY field:
+    the first setting's help lands on that label, and every later setting's
+    help is cleared off its field and never re-homed, because the label it
+    was handed to already had text. Four settings go in, one comes out.
+    """
+    from PySide6.QtWidgets import QFormLayout
+    from spacr.qt.screens.settings_model import retarget_field_tooltips
+
+    host = QWidget()
+    form = QFormLayout(host)
+    fields = {}
+    for name in ("Genes", "gRNAs / gene", "Score per", "Seed"):
+        field = QSpinBox()
+        field.setToolTip(f"Help for {name}.")
+        form.addRow(name, field)
+        fields[name] = field
+    # Deliberately NOT shown and NOT resized: this is the state a screen is in
+    # when it calls the pass.
+
+    retarget_field_tooltips(host)
+
+    for name, field in fields.items():
+        label = form.labelForField(field)
+        assert label.toolTip() == f"Help for {name}.", (
+            f"{name!r} lost its help, or was given another setting's")
+        assert field.toolTip() == ""
+
+
+def test_no_screen_loses_a_setting_s_help_to_the_pass(qtbot):
+    """The sweep version: help may move, but it may not disappear.
+
+    Measured across the screens that run the pass -- 26 of 36 authored
+    tooltips existed nowhere in the tree afterwards.
+    """
+    import spacr.qt.screens.settings_model as sm
+
+    real = sm.retarget_field_tooltips
+    missing = []
+    checked = 0
+    for module_name, class_name, cls in _constructible_screens():
+        sm.retarget_field_tooltips = lambda root: 0
+        try:
+            bare = cls()
+        except Exception:
+            sm.retarget_field_tooltips = real
+            continue
+        finally:
+            sm.retarget_field_tooltips = real
+        authored = {c.toolTip() for c in bare.findChildren(QWidget)
+                    if isinstance(c, EDITORS) and c.toolTip()}
+        if not authored:
+            continue
+        try:
+            built = cls()
+        except Exception:
+            continue
+        checked += 1
+        surviving = {c.toolTip() for c in built.findChildren(QWidget)
+                     if c.toolTip()}
+        for tip in authored - surviving:
+            missing.append(f"{module_name}.{class_name}: {tip[:60]!r}")
+
+    assert checked > 10, "the sweep is not covering the app"
+    assert not missing, (
+        f"{len(missing)} settings have no help anywhere after the pass:\n  "
+        + "\n  ".join(missing[:20]))
 
 
 def test_a_field_with_no_label_keeps_its_tooltip(qtbot):
