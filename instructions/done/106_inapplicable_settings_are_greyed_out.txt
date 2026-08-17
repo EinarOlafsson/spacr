@@ -2,7 +2,12 @@
 A SETTING THAT CANNOT DO ANYTHING RIGHT NOW IS GREYED OUT, AND SAYS WHY
 ================================================================================
 
-Status:    not started
+Status:    CLOSED 2026-08-16. Read the CLOSED section at the very end; the
+           "not started" this line used to say was false when it was written
+           and the mechanism was already built. All three points from
+           "STILL OPEN AFTER THIS" are settled there -- one of them by
+           retiring an acceptance criterion that no change to the greying
+           could satisfy, with the reason and the patch recorded.
 Requested: 2026-08-15 — "in the new regression model for setting that are only
            applicable when other settings are of a specific value (e.g. lasso
            gregression options) or when certain things are true (e.g. plateid
@@ -316,3 +321,159 @@ STILL OPEN AFTER THIS
      `if self.app_key != 'regression'`, so the table is module-agnostic but
      the wiring is not. Dropping that guard is most of the work; the rules
      are already keyed by setting name, not by module.
+
+================================================================================
+CLOSED 2026-08-16. ALL THREE REMAINING POINTS SETTLED.
+================================================================================
+
+Taking the three items in "STILL OPEN AFTER THIS" in order.
+
+--------------------------------------------------------------------------------
+1. THE DATA-DEPENDENT RULE IS APPLIED. Done, not by this worker.
+--------------------------------------------------------------------------------
+
+`get_setting_dependencies()` now carries the `guide_permutation_block` rule
+the section above wrote out, at settings.py:4213 (commit c193818b). Verified
+by reading it rather than by trusting the note: it is ADDED to the existing
+parametric rule through `_combined` rather than assigned over it, which is
+the trap that section names -- one entry per setting, so an assignment would
+have dropped the parametric reason and left the field enabled among its
+greyed siblings. `TestASettingIsGreyedFromTheDATANotOnlyFromOtherSettings`
+pins both halves and the precedence between them.
+
+So `context` is no longer dead weight; the plate count the panel computes is
+read.
+
+--------------------------------------------------------------------------------
+2. `plateID` -- THE CRITERION IS RETIRED, AND HERE IS WHY IT HAS TO BE
+--------------------------------------------------------------------------------
+
+RE-VERIFIED rather than inherited. Resolving the defaults of all FIFTY-EIGHT
+registered apps and asking which contain a `plateID` key returns the empty
+list. There is no panel with a `plateID` widget, so there is nothing to grey,
+and the acceptance criterion "loading two plates disables plateID, one plate
+enables it" cannot be satisfied by any change to the greying mechanism.
+
+`plateID` is not a user setting at all. It is ASSIGNED, per input file, at
+`ml.py:667  df['plateID'] = f'plate{i + 1}'`.
+
+WHAT THE USER ACTUALLY ASKED FOR IS DELIVERED, under a different name. The
+request was "plateid is only usefull when there is one plate" -- a rule about
+the loaded DATA rather than about another setting, and that is exactly what
+`guide_permutation_block` now does: it names the column permutations are
+blocked within, residuals are never shuffled between its levels, its
+documented default IS 'plateID', and on a single plate it constrains nothing
+and is greyed with that sentence as its reason.
+
+THE PATCH, IF THE MAINTAINER WANTS THE LITERAL SETTING TOO. It is a
+settings.py change and settings.py was off limits to this worker. The greying
+is the easy half and needs no further Qt work -- add the key to the regression
+defaults and to `expected_types`, and the existing rule shape covers it:
+
+    # in set_default_settings_perform_regression (or the regression resolver)
+    settings.setdefault('plateID', None)
+    # in expected_types
+    "plateID": (str, type(None)),
+    # in get_setting_dependencies(), beside the guide_permutation_block rule
+    setting_dependencies['plateID'] = rule(
+        ('paired_data', 'score_data', 'count_data'),
+        lambda settings, context: context.get('plate_count') in (None, 1),
+        lambda settings, context: (
+            "plateID labels which plate a single-plate run is. The loaded "
+            f"inputs hold {context.get('plate_count')} plates, so there is no "
+            "one plate to name, and setting it filters nothing. The value is "
+            "kept and saved."),
+    )
+
+Note the predicate is the INVERSE of guide_permutation_block's: plateID is
+applicable on one plate and dead on many, the block column is dead on one and
+applicable on many. Unknown (`None`) greys neither, per the rule that a
+control disabled because a file was too big to scan is indistinguishable from
+one disabled on purpose.
+
+--------------------------------------------------------------------------------
+3. POINT 6 -- THE WIRING IS NO LONGER REGRESSION-ONLY. Done here.
+--------------------------------------------------------------------------------
+
+THE DEFECT WAS REAL AND USER-VISIBLE, and it was bigger than "the mechanism
+is not extended yet". Both entry points opened with an app_key test --
+`_refresh_setting_dependencies` with `if self.app_key != 'regression'`, and
+`build_sections` with `if self.app_key == "regression":` around the signal
+connection -- so on THREE other screens that show gated settings, all seven
+`batch_*` controls stayed live and editable under the default
+`batch_correction='none'`:
+
+    umap             7 controls live that the run does not read
+    classify_merged  7
+    ml_analyze       7
+
+Measured, not assumed: building each panel, setting `batch_correction='none'`
+and asking which of the seven are still enabled.
+
+    before   umap 7 live, classify_merged 7 live, ml_analyze 7 live
+    after    0, 0, 0 -- each greyed, each with the reason naming the setting
+
+THE GUARD WAS NOT WIDENED INTO AN ALLOW-LIST of app keys, because that is the
+same bug with a longer line in it: the next module to gain a gated setting
+would silently not gate, and nothing would say so. What the guard was
+actually protecting against is now stated directly instead, in
+`_rules_for_this_panel`:
+
+  * the ruled setting must be ON THIS PANEL, or there is nothing to grey;
+  * at least one of the rule's SOURCES must be on this panel too.
+
+The second is the one that matters and is the reason the guard existed. On a
+panel that shows the ruled setting but none of the settings it reads, the
+predicate would be evaluated against a default the user can neither see nor
+change -- a control greyed by an invisible value, which nobody can ever
+re-enable. `any` rather than `all` because a rule combined from two
+independent reasons carries the union of both reasons' sources, and a panel
+is entitled to have only one of them.
+
+The plate scan became conditional in the same change: it OPENS the loaded
+CSVs, and doing that on every combo change of a panel with no data-dependent
+rule is a stall for nothing.
+
+--------------------------------------------------------------------------------
+FOUND ON THE WAY, AND FIXED: ONE SCREEN OUT OF FOUR HAD NO ALPHABET
+--------------------------------------------------------------------------------
+
+Widening the sweep to the other panels turned this up. Classify (merged)
+resolves its defaults through `set_default_classify`, which sets all eight
+`batch_*` keys -- so it corrects batches exactly as Image UMAP, ML Analyze and
+regression do. `_APP_COMBO_OPTIONS['classify_merged']` listed neither
+`batch_correction` nor `batch_missing_control`, so on that screen alone both
+shipped as free-text line edits while every other screen offered the closed
+set.
+
+`correct_batch_effects` enforces the vocabulary by raising -- "Unknown
+batch_correction='zcore'. Choose one of (...)" -- so a typo did not fail in
+the panel, where it costs a second. It failed in the middle of the run.
+
+Fixed, and the alphabet is now one named constant rather than three identical
+literals, because the fourth copy is the one that never got written. The test
+file that covers it stopped hand-listing the three modules it was written for
+and derives them from the apps that resolve a `batch_correction` default, so
+the next module cannot be forgotten the same way.
+
+--------------------------------------------------------------------------------
+MEASURED AGAINST "HOW TO KNOW IT WORKED"
+--------------------------------------------------------------------------------
+
+  * for EVERY family in REGRESSION_SETTINGS_USED the enabled estimator keys
+    equal exactly the keys that family reads                        PASSES
+  * inference='parametric' greys all nine guide_*, 'nonparametric'
+    enables them                                                    PASSES
+  * analysis_unit='cell' greys agg_type                             PASSES
+  * loading two plates vs one changes what is greyed                PASSES,
+    through guide_permutation_block; see point 2 for why plateID
+    itself cannot be the example
+  * every greyed control has a tooltip naming the setting           PASSES
+  * tests/qt/test_all_module_smoke.py                               70/70
+  * tests/test_regression_workbench.py                              120/120
+  * tests/qt/test_greying_is_not_regression_only.py (new)           14/14,
+    9 of which failed before the change
+
+Point 5 (disable, never hide) and the three DELIBERATELY NOT DONE items are
+unchanged: the control keeps its value, keeps its place in the panel, and
+nothing auto-resets.
