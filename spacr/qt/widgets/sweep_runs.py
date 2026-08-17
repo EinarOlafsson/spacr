@@ -33,7 +33,7 @@ trials did the sweep try" rather than "what have I run" -- an ordinary run of
 the module, and the re-fit from 124 E, simply did not appear. They are the
 same kind of thing: a fit, its settings, its figures, and a folder to read
 them back out of. So an ordinary run is RECORDED as it happens
-(``_record_run``, updated by ``_update_run`` when it finishes) and shown in
+(``record_run``, updated by ``update_run`` when it finishes) and shown in
 the same table as the sweep's trials, described by the SAME COLUMNS -- which
 is what makes the two comparable, and comparing them is the entire reason the
 tab exists.
@@ -160,7 +160,7 @@ class SweepRunsPanel(QWidget):
         #: and must not take the session's own runs down with it.
         self._sweep_frame = None
         #: What this session has started, oldest first, keyed by the handle
-        #: :meth:`_record_run` hands back. An ordinary run and a re-fit are
+        #: :meth:`record_run` hands back. An ordinary run and a re-fit are
         #: the same kind of thing as a trial and belong in the same table.
         self._recorded: "dict[int, dict]" = {}
         self._next_handle = 0
@@ -208,14 +208,14 @@ class SweepRunsPanel(QWidget):
 
     # ------------------------------------------------------- this session's
 
-    def _record_run(self, label: str, source: str = SOURCE_RUN,
+    def record_run(self, label: str, source: str = SOURCE_RUN,
                     settings=None, folder: str = "") -> int:
         """Put a run of the module on the table, and return its handle.
 
         Recorded when the run STARTS, for the reason the figure grid marks
         its section then: a run that fails, or that is still going, is a fact
         worth seeing rather than a gap. Its row says ``running`` until
-        :meth:`_update_run` is told otherwise -- not ``ok``, because a row
+        :meth:`update_run` is told otherwise -- not ``ok``, because a row
         claiming ok is a row a click will try to open results from.
 
         :param settings: the dict the run was started with. Only
@@ -239,7 +239,7 @@ class SweepRunsPanel(QWidget):
         self._rebuild()
         return handle
 
-    def _update_run(self, handle: int, **fields) -> bool:
+    def update_run(self, handle: int, **fields) -> bool:
         """Change a recorded run's row -- its status, folder, seconds.
 
         Returns False for a handle this panel never issued, rather than

@@ -46735,6 +46735,13 @@
       "source_sha256": "10b085f5ca6c16f32f7d8513438e4d50ff6022ae8636d6ef45755c0b5149e8bf",
       "text": "Every figure at once, scrollable, each at its own aspect ratio.\n\n:ivar figure_activated: emitted with a figure's index when its cell is\n    clicked, so the caller can open it full size.\n:ivar figure_menu_requested: emitted with (index, global position) when a\n    cell is right-clicked. The grid holds pictures, not figures, so the\n    menu itself is the caller's to build -- it is the one that still has\n    the matplotlib object."
     },
+    "spacr.qt.widgets.figure_grid_view.FigureGridView.is_section_collapsed": {
+      "source_blocks_sha256": [
+        "3d81703c13910d8c406ea0c1df48382ef1a4df825adeb18323c95249c2dcb28b"
+      ],
+      "source_sha256": "3d81703c13910d8c406ea0c1df48382ef1a4df825adeb18323c95249c2dcb28b",
+      "text": "Whether this run's figures are folded away."
+    },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.set_figures": {
       "source_blocks_sha256": [
         "8be7692c5746ea065fdeb75b9ed802c5cc19ac024de8ae55de89ed72d1607ca6",
@@ -46751,12 +46758,27 @@
       "source_sha256": "09e94f430d82eb9ca466941fad70fc5cc2c8611e09beca2f30cf552e2638aa72",
       "text": "A tile that is always first and is not one of the run's figures.\n\nThe regression graph is a LIVE widget, not a picture the pipeline\nsaved, and it is the one the maintainer asked to be interactive. Left\nto the ordinary path the grid would show the pipeline's static copy of\nthe same plot -- two volcanoes on screen, the big one dead -- so the\nlive one takes the first tile and the press opens the real thing."
     },
+    "spacr.qt.widgets.figure_grid_view.FigureGridView.set_section_collapsed": {
+      "source_blocks_sha256": [
+        "f88ace6db0424b6d32b986892a348b12e04478c03a726c474c082cef95d3baa7"
+      ],
+      "source_sha256": "f88ace6db0424b6d32b986892a348b12e04478c03a726c474c082cef95d3baa7",
+      "text": "Fold a run's figures away, or bring them back."
+    },
     "spacr.qt.widgets.figure_grid_view.FigureGridView.set_target_cell_width": {
       "source_blocks_sha256": [
         "7f4db8cca1ebe45fe01805b7d1816d8012bf1513fa0bca6fca115df4bc957308"
       ],
       "source_sha256": "7f4db8cca1ebe45fe01805b7d1816d8012bf1513fa0bca6fca115df4bc957308",
       "text": "How wide a single-width cell should be, before layout."
+    },
+    "spacr.qt.widgets.figure_grid_view.FigureGridView.toggle_section": {
+      "source_blocks_sha256": [
+        "3c8fd69d6abde401f2d253d2b747f0e288899de93e792980f518921e36c726a7",
+        "3f9730322e997331e4975de7008e5034569f6979e536310f258d67d08f0655be"
+      ],
+      "source_sha256": "d344c72bd0cc585b36f9011761cadc224f79c93dc614455a0a5b93afd2c0f15f",
+      "text": "Reach the run first; fold it away second. Returns the new state.\n\nTHE CONSOLE'S RULE, verbatim, because the console is the model the\nmaintainer named. A heading that is not already at the top of the\nviewport is a request to GO THERE, whatever its state -- a first click\nthat hid the very section the user was reaching for spends the gesture\non the opposite of what it looked like. Only a heading already at the\ntop has nowhere left to navigate to, and there folding is the one\nthing the gesture can still mean, on a second click exactly where the\nuser's hand already is."
     },
     "spacr.qt.widgets.figure_grid_view.cell_span": {
       "source_blocks_sha256": [
@@ -53111,19 +53133,23 @@
         "452e1355fd6de1eff6d519a6183bfda5c8cebfcac81f020ce6c9928544343f66",
         "086828abe88bb1644041b390583e639be9e73deb6fe4d14e62953f3400efa7ee",
         "3fb40a0da6f2154ed994f20c0ab0e584eee017e729341278013af80bea642388",
-        "899f64feab6f9992d636dd5ae868a8a6462ea7330d73cdc4cb41e769253cd522"
+        "899f64feab6f9992d636dd5ae868a8a6462ea7330d73cdc4cb41e769253cd522",
+        "830c97cf098e8d7b363991f1fe2606e674556ca7fb9517b88582f8bc84a46db3",
+        "5a188ae9e22a58c8755b7638b09ba3960e2fb7daef4253ec3e8db0d2b597b840",
+        "daef279ee9c271588eb218d61c04ced6aaaa96bdec06fd48f04e2c16a6cc280e",
+        "a5092babd76eb16d18b8b281a8a3509c857c2c2a1bb70a6e19484939771ea0c3"
       ],
-      "source_sha256": "c7324fcecf52d1fecf565531cf1e6ad683c3e56b3453ea4be637ff1fdc85cdec",
-      "text": "The sweep's runs, as a tab beside the regression's results.\n\nInstruction 116, as corrected by the maintainer on 2026-08-16:\n\n    the parameter search is the main module setup plus one extra tab for the\n    runs (the maintainer's exact words are in instruction 116).\n\nWhich is a smaller job than the plan it superseded, and a better one. The\nparameter search was a bespoke screen carrying its own copies of the table,\nthe figure queue and the results panel; every fix to the shared module screen\nhad to be made again there, and this repository is already paying for that\nkind of drift -- 155 field tooltips existed because 28 hand-built screens each\nre-implemented a row.\n\nSo the runs go where the results go: the left half of the module screen's\nfigure splitter, as a second tab. Picking a run swaps the figures on the\nright, which is the substance of the request and the only part that did not\nchange.\n\nDELIBERATELY NOT THE SHAPE THE RESULTS GET. A results table is hundreds of\nfindings read ALONGSIDE the figure describing them, so it is on screen at the\nsame time as the plot. A runs table is a short list scanned top to bottom,\nand picking one replaces everything to its right -- so it is a tab. One is\nreading within a run, the other is navigating between them."
+      "source_sha256": "bd96a185121b0b243133981b3a5d0216f91bf0b16e67f3f289402a2548551563",
+      "text": "The sweep's runs, as a tab beside the regression's results.\n\nInstruction 116, as corrected by the maintainer on 2026-08-16:\n\n    the parameter search is the main module setup plus one extra tab for the\n    runs (the maintainer's exact words are in instruction 116).\n\nWhich is a smaller job than the plan it superseded, and a better one. The\nparameter search was a bespoke screen carrying its own copies of the table,\nthe figure queue and the results panel; every fix to the shared module screen\nhad to be made again there, and this repository is already paying for that\nkind of drift -- 155 field tooltips existed because 28 hand-built screens each\nre-implemented a row.\n\nSo the runs go where the results go: the left half of the module screen's\nfigure splitter, as a second tab. Picking a run swaps the figures on the\nright, which is the substance of the request and the only part that did not\nchange.\n\nDELIBERATELY NOT THE SHAPE THE RESULTS GET. A results table is hundreds of\nfindings read ALONGSIDE the figure describing them, so it is on screen at the\nsame time as the plot. A runs table is a short list scanned top to bottom,\nand picking one replaces everything to its right -- so it is a tab. One is\nreading within a run, the other is navigating between them.\n\nEVERY RUN, NOT ONLY THE SWEEP'S (instruction 125 C):\n\n    \"the runs tab should capture all the runs in a sweep and all the runs run\n     in the normal module.\"\n\nThis panel was fed by ``sweep_results.csv`` alone, so it answered \"which\ntrials did the sweep try\" rather than \"what have I run\" -- an ordinary run of\nthe module, and the re-fit from 124 E, simply did not appear. They are the\nsame kind of thing: a fit, its settings, its figures, and a folder to read\nthem back out of. So an ordinary run is RECORDED as it happens\n(``record_run``, updated by ``update_run`` when it finishes) and shown in\nthe same table as the sweep's trials, described by the SAME COLUMNS -- which\nis what makes the two comparable, and comparing them is the entire reason the\ntab exists.\n\nThe recorders are underscored deliberately: `tests/test_api_i18n_extractor.py`\nholds an EXACT count of the documented public API, and that file belongs to\nanother session right now. The two names want promoting to `record_run` /\n`update_run` in the same commit that bumps the count."
     },
     "spacr.qt.widgets.sweep_runs.SweepRunsPanel": {
       "source_blocks_sha256": [
-        "4a354bcb0a59efb13bde4df4df3eed7fd57b3a22643b6b9981735e09f8d0b46d",
-        "754334571a6732f2103d80ff5bb8d5a8f0a48c13d9f25ca1f87e23d1bdea0ce8",
-        "d9421a4c4c47b71e0f0109bb1fdf50ef9306c88ddf049f92cf32a7e93da41fc2"
+        "c8cc0e43830b56b40c53b49d88705101877eec5e8af6509959a87fc21f11247d",
+        "f8072a12f0748100d678283d2cb3a4141dcd42caeac39e6e4d7c70906c1af51b",
+        "e01334ca070c25b29c481dcefa7aa423b6763b4aa77660851e18496e22efa7b7"
       ],
-      "source_sha256": "2f70e40174e1f7e3d489d6e07348ec524ceaa9885b0938f5253ff2f6f6aed598",
-      "text": "One row per trial, sorted and filterable, wired to the figure grid.\n\n:ivar trial_activated: emitted with the selected trial's row, as a dict.\n:ivar loaded: emitted with the number of trials read."
+      "source_sha256": "8e4c1d65f8ecee5970cb3b99f39bd532fd42075423f2fd1af2480f47a4e27ffa",
+      "text": "One row per RUN -- the sweep's trials and this session's own.\n\n:ivar trial_activated: emitted with the selected run's row, as a dict.\n:ivar loaded: emitted with the number of rows shown."
     },
     "spacr.qt.widgets.sweep_runs.SweepRunsPanel.load": {
       "source_blocks_sha256": [
@@ -53132,6 +53158,15 @@
       "source_sha256": "9e24813238e3dd29a31532529d6b8b956b19cd41e52374a1bb0ce5719d34de48",
       "text": "Read ``sweep_results.csv`` from a sweep's destination folder."
     },
+    "spacr.qt.widgets.sweep_runs.SweepRunsPanel.record_run": {
+      "source_blocks_sha256": [
+        "3c4b606173800161ca6bd77826137239cb5c2780882093df3f53d679fdb7efd8",
+        "c274fe83fca89d3089a44092ba1ae200551d26ad49b50d8cbbb96ccea7b4dcfa",
+        "5721984705116cb3a8260707b610d9dbb5114f9350d8e167aa7737b19baee275"
+      ],
+      "source_sha256": "982824d1b80cb4d1ca81b2a11f563613eb2263e6110cd7bd4236a3accf00e0f6",
+      "text": "Put a run of the module on the table, and return its handle.\n\nRecorded when the run STARTS, for the reason the figure grid marks\nits section then: a run that fails, or that is still going, is a fact\nworth seeing rather than a gap. Its row says ``running`` until\n:meth:`update_run` is told otherwise -- not ``ok``, because a row\nclaiming ok is a row a click will try to open results from.\n\n:param settings: the dict the run was started with. Only\n    :data:`RUN_SETTING_COLUMNS` are copied out of it, and they are the\n    sweep's own setting columns -- which is what makes a run and a\n    trial two rows of one table rather than two tables."
+    },
     "spacr.qt.widgets.sweep_runs.SweepRunsPanel.selected_trial": {
       "source_blocks_sha256": [
         "b7b7893d82c8c499e7932e01674130dacc2f4f7cdf7ec08e563655379a261a69",
@@ -53139,6 +53174,14 @@
       ],
       "source_sha256": "3b91511f243993765491d858ea6cd154986b1684e6defc1ccf84230f58f6226a",
       "text": "The selected row as a dict, or ``None``.\n\nRead back through the FRAME, not off the table's cells: the table\nholds display strings, and a trial re-run from `\"0.05\"` instead of\n0.05 is not the trial that was recorded."
+    },
+    "spacr.qt.widgets.sweep_runs.SweepRunsPanel.update_run": {
+      "source_blocks_sha256": [
+        "6e391b41f3b5862562bf927edbd58c8735a15088bd6ce0d241d575ce8d89c3a8",
+        "63404dd9edaa294b84bf662cd72384999f47c4e4d8950e5cdc8773a78d71b0a1"
+      ],
+      "source_sha256": "d336cd1c5b9f1fc0ad97643b94c46bb5d45d16e2f41bdff022a28426e7a5ece5",
+      "text": "Change a recorded run's row -- its status, folder, seconds.\n\nReturns False for a handle this panel never issued, rather than\ninventing a row: a run whose panel was rebuilt underneath it is a\nstale handle, and a phantom row is worse than a missing one."
     },
     "spacr.qt.widgets.sweep_runs.ordered_columns": {
       "source_blocks_sha256": [
@@ -62256,10 +62299,13 @@
         "8affd23b4cbd174b2e0543886e37d1bbac1d529e90058b1505ad437aa615e804",
         "4a4572bbd16fb0bfc27213ece5fa7726671625a5f18f7104538720cf51468d77",
         "7df46352628f182bdc0a19109534ac2c4e6a3e0446b2a64dfafd6259ca893e4c",
+        "c71108f75a3153a3ed9d45f4acaa89aa7ef999534f8e3b64b78b810c9b002470",
+        "5f38edf7dca1fb348e5d90983b3d2e73f650d573e649f16d4254f9b6654a76a8",
+        "879175329f8c5b5b6a8ff7a671a8e0061d8e4cf80268e1e7f0a0c68e819fb1fe",
         "25c452c1f607c6154125068a87f904a6e9fc8c266e59e4823fad59beaa072df3"
       ],
-      "source_sha256": "8e7960ed0e40a2ae676bbfe44a41773612268ee3df14b131d536d01cc89ad966",
-      "text": "Render a volcano plot coloured by T. gondii subcellular localisation.\n\nPoints are placed at ``(coefficient, -log10(p_value))`` and coloured by the\n``metadata_column`` value on the merged gene metadata. Supports a broken\ny-axis for high ``-log10(p)`` outliers.\n\n:param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,\n    ``p_value`` columns.\n:param metadata_path: DataFrame or CSV path with ``gene_nr`` and the\n    ``metadata_column`` values to merge on gene number.\n:param metadata_column: Metadata column that drives point colouring.\n:param point_size: Marker size passed to ``ax.scatter``.\n:param figsize: Side length in inches of the (square) figure.\n:param threshold: Absolute coefficient threshold used to select hits.\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.\n:param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``\n    for a broken axis.\n:returns: List of ``variable`` names that are significant hits."
+      "source_sha256": "d8877a8fa940e3e83c847015d8ea87a836dd5a0a51c6077cf83326fd46f88f37",
+      "text": "Render a volcano plot coloured by T. gondii subcellular localisation.\n\nPoints are placed at ``(coefficient, -log10(p_value))`` and coloured by the\n``metadata_column`` value on the merged gene metadata. Supports a broken\ny-axis for high ``-log10(p)`` outliers.\n\n:param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,\n    ``p_value`` columns.\n:param metadata_path: DataFrame or CSV path with ``gene_nr`` and the\n    ``metadata_column`` values to merge on gene number.\n:param metadata_column: Metadata column that drives point colouring.\n:param point_size: Marker size passed to ``ax.scatter``.\n:param figsize: Side length in inches of the (square) figure.\n:param threshold: Absolute coefficient threshold used to select hits.\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.\n:param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``\n    for a broken axis.\n:param draw: build the figure. ``False`` computes and returns the hit\n    list ONLY, with no figure built, saved or shown.\n\n    This function does two jobs -- it draws the volcano AND it decides\n    which genes are hits -- and `perform_regression` needs the second\n    whether or not the maintainer wants the first. The GT1 phenotype plot\n    and the ME49 transcription heatmap are both built from this return\n    value, so gating the CALL would have removed two reports nobody asked\n    to lose. Gating the DRAWING keeps them.\n\n    It is also the fast path, which is the point: \"your new volcano plot\n    is much much faster than my old one\". Skipping the figure skips a\n    per-row Python loop over every coefficient, twice.\n:returns: List of ``variable`` names that are significant hits."
     },
     "spacr.toxo.generate_score_heatmap": {
       "source_blocks_sha256": [

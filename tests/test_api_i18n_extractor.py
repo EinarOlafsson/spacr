@@ -271,7 +271,19 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # who needs it is a user with an `exp_1` folder full of masks, and a
     # recovery tool they have to reach past a leading underscore to call is
     # one most people will not find.
-    expected = 6840
+    # +5 on 2026-08-17: the collapsible figure sections and the Runs tab
+    # (instruction 125 C). Named PUBLIC rather than left private, which is
+    # the fix for a real smell -- they were written as `_toggle_section`,
+    # `_record_run` and so on ONLY to avoid moving this counter, and
+    # app_screen was reaching through two wrappers into another widget's
+    # private surface as a result. A ratchet that makes people hide API is a
+    # ratchet being gamed, and the answer is to move it, not to route around
+    # it.
+    #
+    #   3  spacr.qt.widgets.figure_grid_view -- toggle_section,
+    #      is_section_collapsed, set_section_collapsed
+    #   2  spacr.qt.widgets.sweep_runs       -- record_run, update_run
+    expected = 6845
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -286,7 +298,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6959
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6964
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

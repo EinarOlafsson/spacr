@@ -1935,6 +1935,30 @@ class ResultsTable(QWidget):
 try:  # pragma: no cover - trivial subclass
     from PySide6.QtWidgets import QTableWidgetItem
 
+    def _is_missing(value) -> bool:
+        """True for None, NaN, pandas' NA and NaT.
+
+        `pandas.isna` rather than `value != value`, which was the first
+        attempt and got pd.NA exactly wrong: `pd.NA != pd.NA` evaluates to
+        pd.NA, not to True, and `bool(pd.NA)` RAISES -- so the except branch
+        swallowed it and reported the one sentinel this was written for as
+        present.
+
+        Importing pandas here costs nothing: every value this sees came out
+        of a DataFrame handed to `set_frame`, so pandas is already imported
+        by definition of having anything to render.
+        """
+        if value is None:
+            return True
+        try:
+            import pandas as _pd
+
+            return bool(_pd.isna(value))
+        except (ImportError, TypeError, ValueError):
+            # isna on an array-like returns an array; a cell holding one is
+            # not missing.
+            return False
+
     class _NumericItem(QTableWidgetItem):
         """Sorts numerically when it holds a number, textually otherwise.
 
@@ -1943,7 +1967,13 @@ try:  # pragma: no cover - trivial subclass
         """
 
         def __init__(self, value):
-            super().__init__("" if value is None else str(value))
+            # EVERY FLAVOUR OF MISSING SHOWS AS EMPTY. `str(pd.NA)` is the
+            # literal "<NA>" and `str(float('nan'))` is "nan", so a column
+            # that is absent for some rows -- a session run has no trial_id,
+            # a running one has no result count -- printed those words into
+            # the table as though they were data. An empty cell is what a
+            # missing value looks like everywhere else in this application.
+            super().__init__("" if _is_missing(value) else str(value))
             try:
                 self._number = float(value)
             except (TypeError, ValueError):

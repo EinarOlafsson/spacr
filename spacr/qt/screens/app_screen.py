@@ -3197,7 +3197,7 @@ class AppScreen(QWidget):
         if runs is None:
             return None
         try:
-            return runs._record_run(label, source, settings)
+            return runs.record_run(label, source, settings)
         except Exception:
             LOG.debug("could not record the run in the Runs tab",
                       exc_info=True)
@@ -3210,7 +3210,7 @@ class AppScreen(QWidget):
         if runs is None or handle is None:
             return False
         try:
-            return bool(runs._update_run(handle, **fields))
+            return bool(runs.update_run(handle, **fields))
         except Exception:
             LOG.debug("could not update the run in the Runs tab",
                       exc_info=True)
