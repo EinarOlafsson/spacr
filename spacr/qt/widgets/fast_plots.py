@@ -404,6 +404,10 @@ class FastPlot(QWidget):
         self._selected_key: Optional[str] = None
         self._highlight = None
 
+        #: ``([(label, callback, checked)], multiplier, on_multiplier)`` for
+        #: the effect-size cut, or an empty triple.
+        self._thresholds = ([], None, None)
+
         #: ``[(label, callback, checked)]`` for gene / guide / both.
         self._levels = []
 
@@ -525,6 +529,21 @@ class FastPlot(QWidget):
         """
         self._compartments = list(options or ())
 
+    def offer_thresholds(self, options, *, multiplier=None,
+                         on_multiplier=None) -> None:
+        """Offer the effect-size cut: how it is measured and how wide.
+
+        :param options: ``[(label, callback, checked)]`` -- the modes.
+        :param multiplier: the current width, shown on its own entry.
+        :param on_multiplier: called with the new number when it is changed.
+
+        On the PLOT because the settings-panel controls for these grey out
+        under `inference='nonparametric'` -- correctly, since the permutation
+        path uses no control-spread cut -- and the maintainer reported not
+        being able to find them.
+        """
+        self._thresholds = (list(options or ()), multiplier, on_multiplier)
+
     def offer_levels(self, options) -> None:
         """Offer "show only genes / only guides / both" on the menu.
 
@@ -611,6 +630,22 @@ class FastPlot(QWidget):
                 action = menu.addAction(label, callback)
                 action.setCheckable(True)
                 action.setChecked(bool(checked))
+        options, multiplier, on_multiplier = self._thresholds
+        if options:
+            # ITS OWN SECTION. It changes which points count as hits, so it
+            # belongs neither with the restyling above nor with the re-fit
+            # below -- it re-reads a fit that has already happened, like the
+            # baseline.
+            menu.addSection("Effect-size cut")
+            if multiplier is not None and on_multiplier is not None:
+                menu.addAction(
+                    f"Multiplier: {multiplier:g}…",
+                    lambda: self._ask_threshold_multiplier(multiplier,
+                                                           on_multiplier))
+            for label, callback, checked in options:
+                action = menu.addAction(label, callback)
+                action.setCheckable(True)
+                action.setChecked(bool(checked))
         if self._levels:
             # WHICH ROWS, not how they look. Above the baselines and under
             # its own heading: a filtered plot that looks like a restyled one
@@ -657,6 +692,15 @@ class FastPlot(QWidget):
         return [i for i in self.plot.listDataItems()
                 if hasattr(i, "setSize") and hasattr(i, "setBrush")
                 and i is not self._highlight]
+
+    def _ask_threshold_multiplier(self, current, callback) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        value, ok = QInputDialog.getDouble(
+            self, "Effect-size cut",
+            "How many spreads wide is the cut?", float(current), 0.0, 20.0, 2)
+        if ok:
+            callback(value)
 
     def _ask_point_size(self) -> None:
         from PySide6.QtWidgets import QInputDialog
