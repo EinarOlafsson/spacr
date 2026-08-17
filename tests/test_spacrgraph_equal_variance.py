@@ -11,9 +11,24 @@ reports a p-value that is too small when the smaller group is the more
 variable one, which in a screen is the treated arm more often than not. The
 figure then carries a star it has not earned.
 
-The fix routes Levene's verdict into the test it was computed for, per
-column, and names the test that actually ran so the figure legend cannot
+The fix routed Levene's verdict into the test it was computed for, per
+column, and named the test that actually ran so the figure legend cannot
 claim Student's when Welch's was used.
+
+WHAT CHANGED ON 2026-08-17, instruction 127 finding 2, the half left open:
+`spacrGraph` no longer runs its own checks at all. It is a translation layer
+onto :func:`spacr.figures.stats.compare`, the one engine, and every test here
+now drives `perform_statistical_tests` -- the thing that actually decides --
+rather than the private `_equal_variance` helper, which is gone. Two
+consequences show up below:
+
+* An assumption check with no power counts as FAILED. Levene on three
+  replicates cannot reject, and reading "did not reject" as "variances are
+  equal" is how a screen reports a difference that is not there.
+* The n at which the two t-tests are compared had to move from 8 up to 12,
+  because below ten observations the engine will not run a t-test at all.
+  Student's p on that data is 0.0498 and Welch's is 0.4510 -- the unearned
+  star, on the correct side of 0.05, in one number.
 """
 
 import numpy as np
@@ -44,10 +59,11 @@ def test_wildly_unequal_spread_selects_welch():
     df = frame({"ctrl": rng.normal(0.0, 0.05, 40),
                 "treated": rng.normal(0.1, 3.0, 40)})
     graph = graph_for(df)
-    assert graph._equal_variance("value", ["ctrl", "treated"]) is False
 
     results = graph.perform_statistical_tests(["ctrl", "treated"], True)
     assert results[0]["Test Name"] == "Welch's T-test"
+    assert "variances differ" in results[0]["Why This Test"], (
+        "the row has to say which assumption sent it to Welch's")
 
 
 def test_matched_spread_keeps_student():
@@ -56,7 +72,6 @@ def test_matched_spread_keeps_student():
     df = frame({"ctrl": rng.normal(0.0, 1.0, 60),
                 "treated": rng.normal(0.4, 1.0, 60)})
     graph = graph_for(df)
-    assert graph._equal_variance("value", ["ctrl", "treated"]) is True
 
     results = graph.perform_statistical_tests(["ctrl", "treated"], True)
     assert results[0]["Test Name"] == "T-test"
@@ -68,17 +83,25 @@ def test_the_two_tests_actually_disagree_on_this_data():
     Unequal spread AND unequal n is the case Student's gets wrong, so it is
     the case worth pinning: the p-values must differ, and Student's must be
     the smaller -- the unearned star this change removes.
+
+    The small arm carries 12, not the 8 this test used before 2026-08-17.
+    Eight is below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS`, so the
+    engine now refuses to run any t-test on it and the comparison this test
+    exists to make cannot be made there. Twelve is the smallest round number
+    above the floor, and on it Student's lands at 0.0498 -- a starred bar --
+    where Welch's lands at 0.4510.
     """
     from scipy.stats import ttest_ind
 
     rng = np.random.default_rng(2)
-    small_loud = rng.normal(0.6, 3.0, 8)
+    small_loud = rng.normal(0.6, 3.0, 12)
     big_quiet = rng.normal(0.0, 0.4, 80)
     df = frame({"treated": small_loud, "ctrl": big_quiet})
 
     student = ttest_ind(small_loud, big_quiet, equal_var=True)[1]
     welch = ttest_ind(small_loud, big_quiet, equal_var=False)[1]
-    assert student < welch, "pick data where the correction actually matters"
+    assert student < 0.05 < welch, (
+        "pick data where the correction crosses the significance line")
 
     graph = graph_for(df)
     results = graph.perform_statistical_tests(["treated", "ctrl"], True)
@@ -104,8 +127,6 @@ def test_the_verdict_is_taken_per_column_not_from_the_first():
 
     graph = spacrGraph(df, grouping_column="condition",
                        data_column=["same_spread", "different_spread"])
-    assert graph._equal_variance("same_spread", ["ctrl", "treated"]) is True
-    assert graph._equal_variance("different_spread", ["ctrl", "treated"]) is False
 
     names = {r["Column"]: r["Test Name"]
              for r in graph.perform_statistical_tests(["ctrl", "treated"], True)}
@@ -157,22 +178,42 @@ def test_welch_anova_matches_pingouin():
 
 
 # ---------------------------------------------------------------------------
-# degenerate input keeps the old behaviour rather than inventing a new one
+# degenerate input no longer buys a parametric test
 # ---------------------------------------------------------------------------
+# THIS ONE REVERSED on 2026-08-17. It used to assert that a case Levene
+# cannot judge KEEPS the equal-variance test, on the reasoning that "the
+# equal-variance test is what these plates were measured with" and moving
+# would change old numbers. Einar's instruction 127 finding 2 says the
+# opposite and says why: an assumption check that could not see is not an
+# assumption check that passed, and "Levene did not reject on n = 3" means
+# "we could not tell". Taking the parametric branch there is how a screen
+# reports a difference that is not there. Old numbers move, and that is the
+# point of the change rather than an objection to it.
 
-@pytest.mark.parametrize("groups", [
-    {"a": [1.0, 1.0, 1.0], "b": [2.0, 2.0, 2.0]},   # no within-group variance
-    {"a": [1.0], "b": [2.0]},                        # too few to test
-])
-def test_a_group_levene_cannot_judge_stays_on_the_equal_variance_test(groups):
-    """Silently switching to Welch's on no evidence would change old numbers.
-
-    The equal-variance test is what these plates were measured with, so an
-    undecidable case keeps it rather than moving on a statistic that could
-    not be computed.
-    """
+def test_a_group_levene_cannot_judge_does_not_buy_the_parametric_test():
+    """Three constant replicates per arm cannot license Student's t."""
+    groups = {"a": [1.0, 1.0, 1.0], "b": [2.0, 2.0, 2.0]}
     graph = graph_for(frame(groups))
-    assert graph._equal_variance("value", list(groups)) is True
+
+    row = graph.perform_statistical_tests(list(groups), True)[0]
+    assert row["Test Name"] == "Mann-Whitney U test", (
+        "a check with no power was read as a check that passed")
+    assert "too few for a variance test to have power" in row["Why This Test"]
+
+
+def test_a_group_too_small_to_test_is_refused_rather_than_named():
+    """One observation per arm is not a comparison with an unknown answer.
+
+    Reporting 'T-test, p = nan' names a test that never ran, which is the
+    same defect as claiming Student's when Welch's was used.
+    """
+    groups = {"a": [1.0], "b": [2.0]}
+    graph = graph_for(frame(groups))
+
+    row = graph.perform_statistical_tests(list(groups), True)[0]
+    assert row["Test Name"] == "not testable"
+    assert np.isnan(row["p-value"])
+    assert "fewer than 2 usable observations" in row["Why This Test"]
 
 
 def test_welch_anova_refuses_rather_than_returning_a_number():

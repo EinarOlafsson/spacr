@@ -4120,232 +4120,254 @@ class spacrGraph:
                 drop_index = drop_index.union(filtered_df.index[outliers])
         return filtered_df.drop(drop_index)
 
+    def _grouped_values(self, column, unique_groups):
+        """``{group: finite values}`` for one measurement column.
+
+        Cleaning is delegated to the engine's own ``_clean`` rather than
+        repeated here. Two spellings of "which values count" is the same class
+        of defect as two spellings of "which test applies".
+        """
+        from .figures.stats import _clean
+
+        return {group: _clean(self.df.loc[
+            self.df[self.grouping_column] == group, column])
+            for group in unique_groups}
+
     def perform_normality_tests(self):
-        """Perform normality tests for each group and data column."""
+        """Report per-group normality, and say when the check had no power.
+
+        The VERDICT and the reported ROWS both come from
+        :func:`spacr.figures.stats.check_normality`, the one engine that
+        decides which test applies, so a spacrGraph figure and a
+        :mod:`spacr.sp_stats` results table cannot disagree about the same
+        plate. That check is Shapiro-Wilk against a Bonferroni threshold
+        across the groups, and it refuses -- reporting NaN and
+        ``Informative=False`` -- when the smallest group is below
+        :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS`.
+
+        This method used to run D'Agostino-Pearson (n >= 8) or Shapiro
+        per group and read ``all(p > 0.05)`` as "normal". On three
+        replicates neither test can reject anything, so "not rejected" was
+        being read as a licence to run a t-test -- and three replicates is
+        what a well-level spaCR figure usually has. A row whose statistic is
+        NaN is not a failed computation; it is the check saying it could not
+        see.
+
+        Groups with fewer than three observations are still reported as
+        ``'Skipped'``: Shapiro-Wilk genuinely cannot run on two points.
+
+        :returns: Tuple ``(is_normal, results)``. ``is_normal`` is True only
+            when every requested column passes. ``results`` is a list of
+            per-group dicts carrying ``Comparison``, ``Test Statistic``,
+            ``p-value``, ``Test Name``, ``Column``, ``n``, ``Informative``
+            and ``Verdict``.
+        """
+        from .figures.stats import check_normality
+
         unique_groups = self.df[self.grouping_column].unique()
         normality_results = []
+        column_verdicts = []
 
         for column in self.data_column:
-            for group in unique_groups:
-                data = self.df.loc[self.df[self.grouping_column] == group, column].dropna()
-                n_samples = len(data)
+            groups = self._grouped_values(column, unique_groups)
+            for group, data in groups.items():
+                n_samples = int(data.size)
 
-                if n_samples < 3 or data.nunique() < 2:
-                    reason = (
-                        "not enough data" if n_samples < 3
-                        else "constant data"
-                    )
+                if n_samples < 3:
+                    # Shapiro-Wilk needs three points to have a statistic at
+                    # all. A constant group is NOT skipped any more: the
+                    # engine reports it as "no spread to describe", which is
+                    # a verdict, where 'Skipped' was silence.
                     print(f"Skipping normality test for group '{group}' on "
-                          f"column '{column}' - {reason}.")
+                          f"column '{column}' - not enough data.")
                     normality_results.append({
                         'Comparison': f'Normality test for {group} on {column}',
                         'Test Statistic': None,
                         'p-value': None,
                         'Test Name': 'Skipped',
                         'Column': column,
-                        'n': n_samples
+                        'n': n_samples,
+                        'Informative': False,
+                        'Verdict': (f'{n_samples} observations, too few to run '
+                                    f'a normality test at all'),
                     })
                     continue
 
-                # Choose the appropriate normality test based on the sample size
-                if n_samples >= 8:
-                    stat, p_value = normaltest(data)
-                    test_name = "D'Agostino-Pearson test"
-                else:
-                    stat, p_value = shapiro(data)
-                    test_name = "Shapiro-Wilk test"
-
-                # Store the result for this group and column
+                check = check_normality([data])
                 normality_results.append({
                     'Comparison': f'Normality test for {group} on {column}',
-                    'Test Statistic': stat,
-                    'p-value': p_value,
-                    'Test Name': test_name,
+                    'Test Statistic': check.statistic,
+                    'p-value': check.p_value,
+                    'Test Name': check.name,
                     'Column': column,
-                    'n': n_samples
+                    'n': n_samples,
+                    'Informative': check.informative,
+                    'Verdict': check.verdict,
                 })
 
-        # No successful normality test is not evidence of normality. This
-        # commonly occurs after well-level aggregation leaves one point per
-        # group; the old vacuous ``all([])`` then selected a t-test.
-        normal_p_values = [
-            result['p-value'] for result in normality_results
-            if result['p-value'] is not None
-        ]
-        is_normal = bool(normal_p_values) and all(
-            p > 0.05 for p in normal_p_values)
+            # The verdict is the engine's own, taken across the groups
+            # together -- never re-derived from the per-group p-values above,
+            # because that would throw away the Bonferroni correction the
+            # check applies across groups.
+            column_verdicts.append(
+                check_normality(list(groups.values())).passed)
 
+        # No column examined is not evidence of normality. `all([])` is True,
+        # and returning True there would license a parametric test off an
+        # empty call.
+        is_normal = bool(column_verdicts) and all(column_verdicts)
         return is_normal, normality_results
-    
+
     def perform_levene_test(self, unique_groups):
-        """Return Levene's test statistic and p-value for the current data column across groups.
+        """Levene's test for equal variance on ``data_column[0]``, MEDIAN-centred.
+
+        Delegates to :func:`spacr.figures.stats.check_equal_variance`. Two
+        things moved when it did, and both change the number a caller writes
+        into a CSV:
+
+        * The centring is the median (Brown-Forsythe), not scipy's default
+          mean. The median-centred form is the robust one and is the right
+          choice precisely when normality is itself in question -- which is
+          every time this is called, since it is called before anyone knows.
+        * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations
+          in the smallest group the result is ``(nan, nan)``. On three
+          replicates Levene has almost no power, so "p = 0.7, variances are
+          equal" means "we could not tell", and printing 0.7 into a results
+          table invites exactly the reading that publishes a difference that
+          is not there.
 
         :param unique_groups: Groups to compare.
-        :returns: ``(statistic, p_value)`` tuple.
+        :returns: ``(statistic, p_value)``, both NaN when the check had no
+            power.
         """
-        cols = self.data_column if len(self.data_column) > 1 else [self.data_column[0]]
-        # If you only support one column at a time in Levene:
-        col = cols[0]
-        grouped = [
-            self.df.loc[
-                self.df[self.grouping_column] == g, col].dropna()
-            for g in unique_groups
-        ]
-        if (len(grouped) < 2
-                or any(len(values) < 2 for values in grouped)
-                or not any(values.nunique() > 1 for values in grouped)):
-            return np.nan, np.nan
-        stat, p_value = levene(*grouped)
-        return stat, p_value
+        from .figures.stats import check_equal_variance
 
-    def _equal_variance(self, column, unique_groups, alpha=0.05):
-        """Does Levene's test allow the equal-variance assumption for ``column``?
+        groups = self._grouped_values(self.data_column[0], unique_groups)
+        check = check_equal_variance(list(groups.values()))
+        return check.statistic, check.p_value
 
-        PER COLUMN, unlike :meth:`perform_levene_test`, which only ever looks
-        at ``data_column[0]`` while :meth:`perform_statistical_tests` loops
-        over every column. Answering once for the first column and applying it
-        to the rest would trade one wrong assumption for another.
-
-        :param column: the measurement being tested.
-        :param unique_groups: the groups being compared.
-        :param alpha: significance at which unequal variance is accepted.
-        :returns: True when variances may be treated as equal -- including
-            when Levene cannot be computed at all, because the equal-variance
-            test is the historical behaviour and silently switching to Welch's
-            on a degenerate group would change old numbers for no evidence.
-        """
-        grouped = [
-            self.df.loc[self.df[self.grouping_column] == group,
-                        column].dropna()
-            for group in unique_groups
-        ]
-        if (len(grouped) < 2
-                or any(len(values) < 2 for values in grouped)
-                or not any(values.nunique() > 1 for values in grouped)):
-            return True
-        try:
-            _stat, p_value = levene(*grouped)
-        except Exception:
-            return True
-        if not np.isfinite(p_value):
-            return True
-        return bool(p_value >= alpha)
+    #: The parametric test each rank test replaces, so a caller who has
+    #: already decided the data are not normal can only make the choice MORE
+    #: conservative, never less. Read by :meth:`perform_statistical_tests`.
+    RANK_EQUIVALENT = {
+        "Student's t": 'Mann-Whitney U',
+        "Welch's t": 'Mann-Whitney U',
+        'paired t': 'Wilcoxon signed-rank',
+        'one-way ANOVA': 'Kruskal-Wallis',
+        "Welch's ANOVA": 'Kruskal-Wallis',
+    }
 
     def perform_statistical_tests(self, unique_groups, is_normal):
-        """Perform statistical tests separately for each data column.
+        """Run the group-comparison test the data supports, per data column.
+
+        THE CHOICE IS NOT MADE HERE. :func:`spacr.figures.stats.compare` is
+        the one engine that makes it, and this method is a translation layer
+        onto it that keeps spacrGraph's report vocabulary ('T-test',
+        "Welch's T-test", 'Mann-Whitney U test', ...) and its ``n_object`` /
+        ``n_well`` columns. Two groups get Student's t, Welch's t or
+        Mann-Whitney U; three or more get one-way ANOVA, Welch's ANOVA or
+        Kruskal-Wallis; ``paired`` swaps in the paired t or the signed-rank
+        test.
+
+        AN ASSUMPTION CHECK THAT HAD NO POWER COUNTS AS FAILED. Below
+        :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in the
+        smallest group, "Levene did not reject" means "we could not tell",
+        and this method used to read that as licence to run Student's t. On a
+        perfectly normal 3-vs-3 pair it returned ``T-test p = 0.1304`` where
+        the engine returns ``Mann-Whitney U p = 0.2000``; three replicates is
+        what a well-level spaCR figure usually has, so that gap was the
+        difference between a starred bar and an honest one.
 
         :param unique_groups: Groups to compare. Two groups get a pairwise
             test, more get an omnibus test across all of them, but the
             ``Comparison`` label always names only the first two.
-        :param is_normal: If True, use the parametric test (t-test, paired
-            t-test or one-way ANOVA); otherwise Mann-Whitney, paired
-            Wilcoxon or Kruskal-Wallis.
+        :param is_normal: The caller's normality verdict, normally the one
+            :meth:`perform_normality_tests` returned. It can only VETO the
+            parametric branch, never grant it: passing True still gets a rank
+            test when the engine's own check had no power to accept normality,
+            because a caller cannot know something the data does not contain.
         :returns: One result dict per data column, with keys ``Comparison``,
             ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``,
-            ``n_object`` and ``n_well``. Statistic and p-value are ``nan``
-            when the data cannot support the chosen test.
+            ``n_object`` and ``n_well``, plus -- so a saved table is
+            reportable rather than a bare p -- ``Effect Size``, ``Effect``
+            and ``Why This Test``. A comparison the engine refuses to make is
+            reported as ``Test Name='not testable'`` with the reason, the
+            same convention :func:`spacr.sp_stats.chi_pairwise` uses for an
+            undefined pair.
         """
+        from .figures.stats import compare
+        from .sp_stats import _ENGINE_TEST_NAMES
+
+        labels = [str(group) for group in unique_groups]
+        comparison_label = ' vs '.join(labels[:2]) or 'no groups'
+
         test_results = []
         for column in self.data_column:  # Iterate over each data column
-            grouped_data = [
-                self.df.loc[
-                    self.df[self.grouping_column] == group, column].dropna()
-                for group in unique_groups
-            ]
-            if len(unique_groups) == 2:  # For two groups: class_0 vs class_1
-                if is_normal:
-                    parametric_testable = (
-                        all(len(values) >= 2 for values in grouped_data)
-                        and any(values.nunique() > 1
-                                for values in grouped_data)
-                    )
-                    if self.paired and parametric_testable:
-                        parametric_testable = (
-                            len(grouped_data[0]) == len(grouped_data[1])
-                            and np.unique(
-                                grouped_data[0].to_numpy()
-                                - grouped_data[1].to_numpy()
-                            ).size > 1
-                        )
-                    if not parametric_testable:
-                        stat, p = np.nan, np.nan
-                        test_name = (
-                            'Paired T-test' if self.paired else 'T-test')
-                    elif self.paired:
-                        stat, p = pg.ttest(grouped_data[0], grouped_data[1], paired=True).iloc[0][['T', 'p-val']]
-                        test_name = 'Paired T-test'
-                    else:
-                        # Levene's test used to be computed and thrown away,
-                        # and this line ran Student's t-test regardless
-                        # (scipy's equal_var defaults to True). So the
-                        # assumption was tested, the answer discarded, and the
-                        # test that assumes it run anyway -- which inflates
-                        # significance exactly when the groups differ in
-                        # spread, the common case for a treated arm.
-                        equal_var = self._equal_variance(column, unique_groups)
-                        stat, p = ttest_ind(grouped_data[0], grouped_data[1],
-                                            equal_var=equal_var)
-                        test_name = ('T-test' if equal_var
-                                     else "Welch's T-test")
-                else:
-                    if self.paired:
-                        # pingouin's wilcoxon statistic column is 'W-val'; 'T'
-                        # belongs to pg.ttest above, so this raised KeyError.
-                        test_name = 'Paired Wilcoxon test'
-                        paired_testable = (
-                            all(len(values) > 0 for values in grouped_data)
-                            and len(grouped_data[0]) == len(grouped_data[1])
-                            and np.any(
-                                grouped_data[0].to_numpy()
-                                != grouped_data[1].to_numpy())
-                        )
-                        if not paired_testable:
-                            stat, p = np.nan, np.nan
-                        else:
-                            stat, p = pg.wilcoxon(
-                                grouped_data[0], grouped_data[1]
-                            ).iloc[0][['W-val', 'p-val']]
-                    else:
-                        test_name = 'Mann-Whitney U test'
-                        if any(len(values) == 0 for values in grouped_data):
-                            stat, p = np.nan, np.nan
-                        else:
-                            stat, p = mannwhitneyu(
-                                grouped_data[0], grouped_data[1])
+            groups = self._grouped_values(column, unique_groups)
+            arrays = list(groups.values())
+            refusal = None
+
+            if self.paired and len(arrays) == 2:
+                # THE ENGINE HAS NO GUARD FOR THIS ONE, so spacrGraph refuses
+                # on its behalf. `compare(paired=True)` hands the matched
+                # arrays straight to scipy, and when every pair differs by the
+                # same amount the standard error of the difference is zero:
+                # `ttest_rel` returns t = -inf and p = 0.0 with a
+                # RuntimeWarning. A figure would then carry p = 0 -- the
+                # strongest claim the software can make -- off an input that
+                # says nothing. All-identical arms break the signed-rank test
+                # the same way, with a NaN.
+                #
+                # This refuses one case the signed-rank test could survive:
+                # differences that are all the SAME non-zero number still
+                # carry sign information. Two arms matched to the last bit of
+                # a float is a synthetic input, and refusing it is the safe
+                # direction.
+                first, second = arrays
+                if first.size != second.size:
+                    refusal = (f'paired groups of {first.size} and '
+                               f'{second.size} cannot be matched up')
+                elif first.size and float(np.ptp(first - second)) == 0.0:
+                    refusal = ('the matched differences have no spread at '
+                               'all, so a paired test has no standard error '
+                               'to divide by')
+
+            result = None
+            if refusal is None:
+                try:
+                    result = compare(groups, paired=self.paired)
+                except ValueError as engine_refusal:
+                    # Fewer than two groups, or a group too small to test.
+                    # Refusing is the engine's design: a comparison that could
+                    # not be made is not a comparison with an unknown answer.
+                    # Reported as a row rather than raised, because the caller
+                    # is drawing a figure and wants the other columns.
+                    refusal = str(engine_refusal)
+
+            if result is not None and not is_normal:
+                rank_test = self.RANK_EQUIVALENT.get(result.test)
+                if rank_test is not None:
+                    result = compare(groups, paired=self.paired,
+                                     force=rank_test)
+
+            if result is None:
+                test_name = 'not testable'
+                stat, p = np.nan, np.nan
+                effect, effect_name, why = np.nan, '', refusal
             else:
-                if is_normal:
-                    parametric_testable = (
-                        all(len(values) >= 2 for values in grouped_data)
-                        and any(values.nunique() > 1
-                                for values in grouped_data)
-                    )
-                    if parametric_testable:
-                        # Same correction as the two-group branch: f_oneway is
-                        # the equal-variance ANOVA, so when Levene rejects
-                        # that, use Welch's.
-                        equal_var = self._equal_variance(column, unique_groups)
-                        if equal_var:
-                            stat, p = f_oneway(*grouped_data)
-                            test_name = 'One-way ANOVA'
-                        else:
-                            stat, p = _welch_anova(grouped_data)
-                            test_name = "Welch's ANOVA"
-                    else:
-                        stat, p = np.nan, np.nan
-                        test_name = 'One-way ANOVA'
-                else:
-                    test_name = 'Kruskal-Wallis test'
-                    if (any(len(values) == 0 for values in grouped_data)
-                            or pd.concat(grouped_data).nunique() < 2):
-                        stat, p = np.nan, np.nan
-                    else:
-                        stat, p = kruskal(*grouped_data)
+                test_name = _ENGINE_TEST_NAMES.get(result.test, result.test)
+                stat, p = result.statistic, result.p_value
+                effect, effect_name = result.effect_size, result.effect_name
+                why = result.reason
 
             test_results.append({
-                'Comparison': f'{unique_groups[0]} vs {unique_groups[1]} ({column})',
+                'Comparison': f'{comparison_label} ({column})',
                 'Test Statistic': stat,
                 'p-value': p,
                 'Test Name': test_name,
+                'Effect Size': effect,
+                'Effect': effect_name,
+                'Why This Test': why,
                 'Column': column,
                 # n_object FROM raw_df, n_well from self.df. Both used to come
                 # from `grouped_data`, which is built from self.df -- and
@@ -4375,7 +4397,13 @@ class spacrGraph:
         :param is_normal: Outcome of the normality check, which selects the
             family of test: True runs Tukey HSD, False runs Dunn's test
             with an automatically chosen p-adjustment. It only matters when
-            post-hoc testing runs at all — see ``unique_groups``.
+            post-hoc testing runs at all — see ``unique_groups``. It must be
+            the verdict :meth:`perform_normality_tests` returned, which is
+            :func:`spacr.figures.stats.check_normality`'s. A hand-computed one
+            puts the omnibus test and the pairwise tests on different footing
+            — Kruskal-Wallis across the groups followed by Tukey between them
+            is two different assumptions about one dataset — and it is how the
+            power floor gets bypassed: three replicates buy Dunn's, not Tukey.
         :param unique_groups: The distinct group labels. Only its *length*
             is read; the comparisons themselves are rebuilt from
             ``self.df[self.grouping_column]``, so reordering or renaming
@@ -4601,12 +4629,12 @@ class spacrGraph:
         self.df_melted = pd.melt(stats_df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = stats_df[self.grouping_column].unique()
         is_normal, normality_results = self.perform_normality_tests()
-        # The equal-variance check now happens inside
-        # `perform_statistical_tests`, PER COLUMN, and decides between the
-        # Student and Welch forms. It used to be computed here into
-        # `levene_stat, levene_p` and never read again, while the test that
-        # depends on the assumption ran regardless. `perform_levene_test`
-        # stays as public API for callers that want the statistic itself.
+        # Both checks now happen inside `spacr.figures.stats.compare`, PER
+        # COLUMN, which is also what decides between the Student, Welch and
+        # rank forms. Levene used to be computed here into `levene_stat,
+        # levene_p` and never read again, while the test that depends on the
+        # assumption ran regardless. `perform_levene_test` stays as public API
+        # for callers that want the statistic itself.
         test_results = self.perform_statistical_tests(unique_groups, is_normal)
         posthoc_results = self.perform_posthoc_tests(is_normal, unique_groups)
         self.results_df = pd.DataFrame(normality_results + test_results + posthoc_results)
