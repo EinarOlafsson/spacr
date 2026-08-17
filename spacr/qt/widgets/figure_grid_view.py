@@ -17,6 +17,33 @@ So: a grid that scrolls, cells sized from the panel width, and every figure
 drawn at the aspect ratio it was created with. Wide figures take a wide cell
 and fewer per row; square ones tile. Clicking a cell opens that figure full
 size, and the existing one-at-a-time view is that detail view.
+
+THE LIVE TILES ARE PICTURES, AND THAT IS A MEASURED CHOICE
+
+Instruction 129 C asks for "same grid overview but pyqtgraph versions", and
+names the question rather than answering it: a tile could hold the live
+pyqtgraph widget, or a photograph of it taken by :meth:`FastPlot.snapshot`.
+The instruction says MEASURE IT before choosing, so it was measured, on the
+real widgets under the offscreen platform, at the volcano's 1,213 points:
+
+    per window-drag frame     3 tiles   6 tiles  12 tiles  18 tiles
+      live pyqtgraph widgets  11.98 ms  25.68 ms  48.55 ms  74.99 ms
+      snapshot pictures        1.08 ms   1.64 ms   3.59 ms   5.19 ms
+    resident memory
+      live pyqtgraph widgets   7.6 MB   13.7 MB   29.8 MB   44.0 MB
+      snapshot pictures        3.3 MB    5.8 MB    9.6 MB   14.7 MB
+
+A resize is a relayout and a window drag emits one per frame, so the budget
+is 16.7 ms: SIX live tiles already miss it, and the eighteen a full panel set
+would reach costs four and a half frames per frame. The hover hit-boxes the
+instruction worried about are real but much the smaller half -- 60 mouse-moves
+over one live volcano cost 12.31 ms against 0.52 ms over a picture of it, i.e.
+0.205 ms against 0.009 ms per move.
+
+So the grid holds PICTURES of the pyqtgraph panels, and pressing one raises
+the live widget on its own tab -- which is what instruction 129 C guessed
+("with the live widget only when a tile is opened") and what the numbers
+above confirm. :meth:`FigureGridView.set_live_tiles` is that section.
 """
 
 from __future__ import annotations
@@ -130,6 +157,63 @@ def _heading_style() -> str:
 #: value. Shared as a name so the two cannot drift apart.
 RAISED_TOLERANCE_PX = 4
 
+#: What :meth:`FigureGridView.set_pinned` calls its one tile.
+#:
+#: A NAME, NOT A POSITION. While the live regression graph was the only live
+#: tile, "the pinned tile" and "the first tile" were the same widget and the
+#: distinction cost nothing. With a tile per pyqtgraph panel it stops being
+#: free: "the first one" becomes whichever panel the caller happened to list
+#: first, and ``pinned_activated`` -- which the regression screen wires
+#: straight to "raise the interactive volcano" -- would open a Q-Q plot.
+PINNED_KEY = "regression"
+
+#: The heading the live tiles sit under, and the start index its section is
+#: keyed at.
+#:
+#: -1 CANNOT COLLIDE WITH A RUN. A run's key is ``(label, start)`` where the
+#: start is a position in the figure list, so it is never negative; the live
+#: tiles are not a run and have no position in that list at all. Sharing the
+#: section machinery rather than growing a second fold is the point -- one
+#: collapsed set, one toggle, one scroll-to-top rule.
+LIVE_SECTION_LABEL = "interactive"
+LIVE_SECTION_START = -1
+
+
+def live_tiles_from_panels(panels) -> list:
+    """Photograph each pyqtgraph panel, ready for :meth:`set_live_tiles`.
+
+    :param panels: ``[(key, title, widget)]`` -- the live panels, in the order
+        they should appear. The widget only has to answer ``snapshot()``.
+    :returns: ``[(key, pixmap, title)]`` for the ones that photographed.
+
+    THE RULE FOR AN ABSENT PANEL LIVES HERE, ONCE. A panel a run cannot
+    support returns ``None`` from ``snapshot()`` -- a residual plot with no
+    fitted model, a control panel on a screen with no controls -- and the
+    answer is no tile rather than an empty one, because an empty tile invites
+    a click that opens an empty plot. That is a two-line rule and exactly the
+    kind that gets re-derived slightly differently at each call site; there
+    are eight panels and there will be more (129 B), so it is written down
+    once instead of eight times.
+
+    ``snapshot()`` IS NOT ALLOWED TO TAKE THE SCREEN DOWN. It renders through
+    pyqtgraph's image exporter, which reaches into a scene that the panel may
+    be part-way through rebuilding, and a photograph is never worth a
+    traceback: a panel that raises is simply one without a tile this refresh.
+    """
+    tiles = []
+    for entry in panels or ():
+        key, title, widget = entry[0], entry[1], entry[2]
+        if widget is None:
+            continue
+        try:
+            pixmap = widget.snapshot()
+        except Exception:                                        # noqa: BLE001
+            continue
+        if pixmap is None or pixmap.isNull():
+            continue
+        tiles.append((str(key), pixmap, str(title)))
+    return tiles
+
 
 class _SectionHeader(QFrame):
     """A run's heading, and the control that folds that run's figures away.
@@ -229,17 +313,28 @@ class _SectionHeader(QFrame):
 
 
 class _FigureCell(QFrame):
-    """One figure, drawn at its own aspect ratio inside its cell."""
+    """One figure, drawn at its own aspect ratio inside its cell.
+
+    :ivar index: the position in the pixmap list handed to
+        :meth:`FigureGridView.set_figures`, which is what
+        ``figure_activated`` carries and what ``FigureQueue.show_index``
+        consumes. ``-1`` on a live tile, which has no position in that list.
+    :ivar live_key: which pyqtgraph panel this tile photographs, or ``""``
+        for a figure tile. THE KEY IS THE IDENTITY OF A LIVE TILE, because
+        its index cannot be: every live tile carries ``-1`` on purpose so
+        that none of them can ever be mistaken for a figure.
+    """
 
     clicked = Signal(int)
     #: index, global position -- the tile was right-clicked.
     menu_requested = Signal(int, object)
 
     def __init__(self, index: int, pixmap: QPixmap, title: str = "",
-                 parent=None, letter: str = ""):
+                 parent=None, letter: str = "", live_key: str = ""):
         super().__init__(parent)
         self.index = index
         self.letter = letter
+        self.live_key = live_key
         self._pixmap = pixmap
         self.setFrameShape(QFrame.StyledPanel)
         self.setCursor(Qt.PointingHandCursor)
@@ -340,6 +435,17 @@ class FigureGridView(QScrollArea):
     #: builds that menu from a matplotlib figure at that index, and the pinned
     #: tile is not at any index and is not a matplotlib figure.
     pinned_menu_requested = Signal(object)
+    #: Emitted with a live tile's KEY when it is pressed. The general form of
+    #: ``pinned_activated``: the volcano is no longer the only interactive
+    #: graph on the grid, and a caller has to know WHICH panel to raise. A key
+    #: rather than a position, because the set of panels a run can support
+    #: varies -- a fit with no model has no residual plot -- so position 3 is
+    #: a different graph on two different runs.
+    live_tile_activated = Signal(str)
+    #: Emitted with (key, global position) when a live tile is right-clicked.
+    #: Each pyqtgraph panel builds its own restyle menu, so the caller needs
+    #: the key to ask the right one.
+    live_tile_menu_requested = Signal(str, object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -354,7 +460,10 @@ class FigureGridView(QScrollArea):
         self.setWidget(self._body)
 
         self._cells: list[_FigureCell] = []
-        self._pinned: Optional[_FigureCell] = None
+        #: The pyqtgraph tiles, in the order the caller listed them. NEVER in
+        #: ``_cells``: see :meth:`set_live_tiles` for why that separation is
+        #: the whole of the index mapping.
+        self._live: list[_FigureCell] = []
         self._sections: list = []
         #: The headings currently in the layout. Owned explicitly because
         #: :meth:`_relayout` has to destroy the previous ones -- see there.
@@ -368,6 +477,113 @@ class FigureGridView(QScrollArea):
         #: one that matters.
         self._collapsed: set = set()
         self._target = TARGET_CELL_PX
+
+    @property
+    def _pinned(self) -> Optional[_FigureCell]:
+        """The live REGRESSION tile, or ``None``.
+
+        Derived rather than stored, and derived by KEY rather than by
+        position. There used to be exactly one live tile and this was a plain
+        attribute; now there is a tile per pyqtgraph panel and "the pinned
+        one" has to keep meaning the regression graph however many panels sit
+        beside it, or the screen's "open the interactive volcano" wiring opens
+        whichever tile the caller listed first.
+        """
+        for cell in self._live:
+            if cell.live_key == PINNED_KEY:
+                return cell
+        return None
+
+    def live_tile_keys(self) -> list:
+        """Which pyqtgraph panels have a tile, in the order they are drawn.
+
+        Public because it is the only honest way to ask "is this panel on the
+        grid" -- a caller counting tiles cannot tell which ones they are, and
+        a panel that could not be photographed is silently absent by design
+        (see :meth:`set_live_tiles`).
+        """
+        return [cell.live_key for cell in self._live]
+
+    def set_live_tiles(self, tiles) -> int:
+        """The pyqtgraph panels, as pictures, in their own foldable section.
+
+        "i would still like to retain the grid to the right ... same grid
+        overview but pyqtgraph versions" -- instruction 129 C. This is that
+        section: one tile per live panel, pressing one raises the real widget.
+
+        PICTURES, NOT WIDGETS, and the module docstring carries the numbers
+        that decided it -- eighteen live tiles cost 68.37 ms per window-drag
+        frame against 4.44 ms for eighteen pictures, on a 16.7 ms budget.
+
+        :param tiles: ``[(key, pixmap, title)]``, or ``[(key, pixmap)]``. The
+            key is what :attr:`live_tile_activated` carries back.
+        :returns: how many tiles are on the grid afterwards.
+
+        A TILE WITH NO PICTURE IS DROPPED, not drawn empty. A panel a run
+        cannot support -- residuals with no fitted model -- returns ``None``
+        from ``snapshot()``, and an empty tile invites a click that opens an
+        empty plot. It is absent from :meth:`live_tile_keys` too, so a caller
+        can tell the difference rather than guessing from a count.
+
+        THE PREVIOUS SET IS DESTROYED, ALL OF IT. This is the generalisation
+        of the stacked-volcano bug of 2026-08-17 ("the thumbnail iage of the
+        volcano plot looks like several volcano plot itterations pasted on top
+        of each other"): ``_relayout``'s ``takeAt`` removes a widget from the
+        LAYOUT and leaves it a visible child of the body at its old geometry,
+        and ``clear()`` cannot collect it because ``clear`` walks the layout.
+        Every caller of this method runs it on a REFRESH -- the regression
+        screen re-photographs its panels on a 250 ms debounce, on every return
+        to the grid and after every restyle -- so anything not destroyed here
+        accumulates once per refresh. With one tile that was a dozen
+        volcanoes; with a tile per panel it would be a dozen of each.
+
+        The set is replaced WHOLE rather than reconciled key by key, and that
+        is deliberate: a run whose panel set shrank (a re-fit that lost its
+        model) would otherwise leave the vanished panels' tiles on the grid,
+        photographs of a fit that no longer exists.
+        """
+        previous = self._live
+        rebuilt: list = []
+        for entry in tiles or ():
+            key = str(entry[0])
+            pixmap = entry[1]
+            title = str(entry[2]) if len(entry) > 2 else ""
+            if pixmap is None or pixmap.isNull():
+                continue
+            cell = _FigureCell(-1, pixmap, title, self._body, live_key=key)
+            cell.clicked.connect(
+                lambda _index, _key=key: self._live_activated(_key))
+            cell.menu_requested.connect(
+                lambda _index, position, _key=key:
+                    self._live_menu(_key, position))
+            rebuilt.append(cell)
+        self._live = rebuilt
+        # BEFORE the relayout, not after: `_discard` is what takes a tile off
+        # the body, and a tile still parented to the body when the layout runs
+        # paints itself at its old geometry for the rest of the event-loop
+        # turn. That ordering is the fix, not the discarding.
+        for cell in previous:
+            self._discard(cell)
+        self._relayout()
+        return len(self._live)
+
+    def _live_activated(self, key: str) -> None:
+        """A live tile was pressed: say which one.
+
+        ``pinned_activated`` is emitted as well for the regression tile, and
+        that is not redundancy for its own sake -- it is the one signal the
+        regression screen is already wired to, and a screen that has not yet
+        learned about the other panels must go on working.
+        """
+        self.live_tile_activated.emit(key)
+        if key == PINNED_KEY:
+            self.pinned_activated.emit()
+
+    def _live_menu(self, key: str, position) -> None:
+        """A live tile was right-clicked: say which one, and where."""
+        self.live_tile_menu_requested.emit(key, position)
+        if key == PINNED_KEY:
+            self.pinned_menu_requested.emit(position)
 
     def set_pinned(self, pixmap, title: str = "") -> bool:
         """A tile that is always first and is not one of the run's figures.
@@ -404,25 +620,38 @@ class FigureGridView(QScrollArea):
         five `set_pinned` calls left five visible cells at identical geometry
         and all five volcanoes painted at once; one after the fix.
 
+        ONE TILE OF THE LIVE SECTION, since instruction 129 C -- the
+        regression graph is no longer the only interactive panel on the grid,
+        and :meth:`set_live_tiles` is the general form. This method touches
+        only the regression tile and leaves any other panel's tile exactly
+        where it is: the screen re-photographs the volcano on a 250 ms
+        debounce and after every restyle, and a call that quietly cleared the
+        other seven panels each time would make the whole section flicker.
+
         :returns: True when a tile was pinned. A null or missing pixmap
             REMOVES it, because an empty tile invites a click that opens an
             empty plot.
         """
         previous = self._pinned
+        others = [cell for cell in self._live if cell is not previous]
         if pixmap is None or pixmap.isNull():
-            self._pinned = None
+            self._live = others
             self._discard(previous)
             self._relayout()
             return False
-        cell = _FigureCell(-1, pixmap, title, self._body)
-        cell.clicked.connect(lambda _index: self.pinned_activated.emit())
+        cell = _FigureCell(-1, pixmap, title, self._body,
+                           live_key=PINNED_KEY)
+        cell.clicked.connect(
+            lambda _index: self._live_activated(PINNED_KEY))
         # "all gigures should be editable by right clicking" -- and this one
         # is the only tile on the grid that is a real, live figure, so a
         # right-click that did nothing here would be the gesture failing on
         # the one tile where it can do the most.
         cell.menu_requested.connect(
-            lambda _index, position: self.pinned_menu_requested.emit(position))
-        self._pinned = cell
+            lambda _index, position: self._live_menu(PINNED_KEY, position))
+        # FIRST, whatever else is on the section. "always first" is what the
+        # name promises and what the caller relies on to find it.
+        self._live = [cell] + others
         self._discard(previous)
         self._relayout()
         return True
@@ -454,13 +683,18 @@ class FigureGridView(QScrollArea):
 
     def clear(self) -> None:
         doomed = []
+        live = set(map(id, self._live))
         while self._grid.count():
             item = self._grid.takeAt(0)
             widget = item.widget()
-            # The pinned tile survives a clear: it is not one of the figures
-            # being replaced, and a run that streams new ones must not make
-            # the interactive graph disappear.
-            if widget is not None and widget is not self._pinned:
+            # The live tiles survive a clear: they are not the figures being
+            # replaced, and a run that streams new ones must not make the
+            # interactive graphs disappear. Compared by identity through a set
+            # of ids rather than `in self._live` -- `in` on a list of QWidgets
+            # goes through `__eq__`, which Qt does not define for widgets, so
+            # it degrades to identity anyway but at O(n) per tile on a grid
+            # that can hold a few hundred.
+            if widget is not None and id(widget) not in live:
                 doomed.append(widget)
         # THE LAYOUT IS NOT THE WHOLE GRID. A cell belonging to a FOLDED run is
         # deliberately left out of the layout by `_relayout` (so the next run
@@ -469,8 +703,9 @@ class FigureGridView(QScrollArea):
         # of the body while `_cells` is emptied out from under it, and the only
         # reference to it is gone. Nothing on screen, but it is still there,
         # and a sweep that folds its runs away leaks one per figure.
+        seen = set(map(id, doomed))
         for cell in self._cells:
-            if cell is not self._pinned and cell not in doomed:
+            if id(cell) not in live and id(cell) not in seen:
                 doomed.append(cell)
         for widget in doomed:
             self._discard(widget)
@@ -539,6 +774,18 @@ class FigureGridView(QScrollArea):
         else:
             self._collapsed.discard(key)
         self._relayout()
+
+    def is_live_section_collapsed(self) -> bool:
+        """Whether the pyqtgraph tiles are folded away.
+
+        Named rather than left to :meth:`is_section_collapsed` with two magic
+        arguments: the live section's key is a constant of this module and a
+        caller repeating ``(LIVE_SECTION_LABEL, LIVE_SECTION_START)`` is a
+        caller who can get one of them wrong and silently ask about a section
+        that does not exist.
+        """
+        return self.is_section_collapsed(LIVE_SECTION_LABEL,
+                                         LIVE_SECTION_START)
 
     def _hidden_indices(self) -> frozenset:
         """Figure indices belonging to a folded run.
@@ -648,9 +895,8 @@ class FigureGridView(QScrollArea):
             heading_at[start] = label
         hidden = self._hidden_indices()
 
-        row = column = 0
-        for cell in ([self._pinned] if self._pinned is not None else []) \
-                + self._cells:
+        row, column = self._lay_out_live_section(columns, unit)
+        for cell in self._cells:
             index = getattr(cell, "index", -1)
             if index in heading_at:
                 if column:
@@ -684,6 +930,55 @@ class FigureGridView(QScrollArea):
 
         for index in range(columns):
             self._grid.setColumnStretch(index, 1)
+
+    def _lay_out_live_section(self, columns: int, unit: int) -> tuple:
+        """Place the pyqtgraph tiles and their heading. Returns (row, column).
+
+        FIRST ON THE GRID, and under a heading that folds like a run's.
+
+        The heading is not decoration. A full panel set is eight tiles, which
+        on a 740 px panel is three rows of the grid before the run's own
+        figures begin -- and 125 C's argument for folding a run ("a sweep of
+        sixty trials that re-expanded everything would be unusable") applies
+        exactly: a user comparing this run's plate heatmaps wants the
+        interactive block out of the way, and there was previously no control
+        that could put it there. It is the SAME control as a run's, through
+        the same `_collapsed` set and the same `toggle_section`, rather than a
+        second opinion about what a foldable section looks like.
+
+        No tiles, no heading: an empty section with a chevron is a fold
+        control for nothing, and it would appear on every module screen in the
+        application, none of which has a live plot at all.
+
+        The row is broken on the way out so a run's heading starts a fresh
+        one -- a heading sharing a row with the last live tile reads as a
+        caption for it.
+        """
+        if not self._live:
+            return 0, 0
+        collapsed = self.is_live_section_collapsed()
+        key = self._section_key(LIVE_SECTION_LABEL, LIVE_SECTION_START)
+        header = _SectionHeader(LIVE_SECTION_LABEL, key, self._body,
+                                expanded=not collapsed)
+        self._grid.addWidget(header, 0, 0, 1, max(columns, 1))
+        header.setVisible(True)
+        self._headers.append(header)
+
+        row, column = 1, 0
+        for cell in self._live:
+            if collapsed:
+                # Out of the layout AND hidden, for the reason the folded
+                # figures are: a widget merely removed from a layout goes on
+                # painting itself where it last was.
+                cell.setVisible(False)
+                continue
+            cell.setVisible(True)
+            self._grid.addWidget(cell, row, column, 1, CELL_SPAN)
+            cell.fit_to(unit * CELL_SPAN - 16)
+            column += CELL_SPAN
+            if column >= columns:
+                row, column = row + 1, 0
+        return (row + 1, 0) if column else (row, 0)
 
     def resizeEvent(self, event):  # noqa: N802 - Qt naming
         super().resizeEvent(event)
