@@ -102,8 +102,120 @@ requirement rather than a nicety. Two things get it there:
    never at full resolution. The buffer's long edge is whatever the theme
    declares (:attr:`_BufferedEngine.base_edge`) times the user's resolution
    setting, so the diffuse fields shade ~37 000 pixels instead of ~2 000 000
-   and the aurora, which has real structure in it, shades ~520 000. The one
-   allocation happens on resize, never per frame.
+   and the aurora, which has real structure in it, shades ~520 000. On the
+   synchronous path the one allocation happens on resize and never per
+   frame; the shading thread copies the finished buffer once a frame so the
+   GUI thread can blit it while the next one is being drawn, which measures
+   0.003 ms for ``blobs`` and 0.035 for the aurora's 2 MiB — 2 % of the
+   shading pass it makes safe.
+3. *The shading happens on its own thread* (:class:`_FrameProducer`), so the
+   GUI thread's whole share of a frame is one ``drawImage``. That is the next
+   section, and it is the one that matters while a pipeline is running.
+
+While a run is going
+--------------------
+"When something is running after hitting run, the theme starts lagging"
+(instruction 126). It does, it reproduces, and the cause is not the obvious
+one. Measured on a real X server at 1920x1080 with a real ``ConsolePanel``
+under the real stylesheet and a real Qt event loop, ``blobs`` at the shipped
+24 fps cap, best of five interleaved rounds:
+
+==============================================  ==========  ==========
+ condition                                       delivered   GUI paint
+==============================================  ==========  ==========
+ idle                                             25.0 fps     2.04 ms
+ a numpy thread (1024² matmul + FFT), flat out    24.5 fps     2.10 ms
+ 200 console lines a second, nothing else         24.9 fps     1.27 ms
+ **one pure-Python thread**                       24.5 fps  **17.21 ms**
+ a worker doing Python work *and* printing        17.3 fps    17.16 ms
+==============================================  ==========  ==========
+
+So **CPU saturation is not a cause**: numpy releases the interpreter lock and
+a core burning flat out costs this module nothing. **A signal flood is not a
+cause on its own**: 200 lines a second are free, and it only bites in the
+thousands, where the console's own per-line work saturates the GUI thread and
+nothing in *this* module can help. What is left is **the interpreter lock**:
+identical drawing work, eleven times slower, because the shading pass is
+Python and numpy and something else is holding the lock.
+
+There is a fourth thing, which nobody named and which doubles the bill: **the
+frame-rate cap is not a cap.** The console sits on a translucent surface over
+this widget, so every line it prints exposes it and Qt asks for a whole frame
+— 0.99 ambient repaints per console line, measured with the animation timer
+*stopped*. Every one of those used to be a full shading pass.
+
+The fix is to split a frame at the seam where the cost actually is. Per
+theme, milliseconds, idle against one Python thread, min of nine interleaved
+rounds:
+
+=========  =====================  =====================
+ theme      shading (moved)        soften + blit (stays)
+=========  =====================  =====================
+ blobs      0.240 ->  0.572        0.651 -> 1.097
+ aurora     1.396 ->  7.176        0.797 -> 1.043
+ ripple     0.367 ->  0.589        0.644 -> 1.196
+ bokeh      0.663 ->  3.533        0.679 -> 1.008
+ cells      0.538 -> 26.179        0.663 -> 0.909
+ drift      0.528 ->  1.084        (no buffer)
+=========  =====================  =====================
+
+The half that explodes under contention is exactly the half that does not
+have to be on the GUI thread, and the half that must stay there is bounded at
+1.2 ms even loaded, because it is Qt's C++ raster engine with the lock
+released. So :meth:`_BufferedEngine.shade` moves to :class:`_FrameProducer`
+and :meth:`_BufferedEngine.blit` stays. Before and after, in one process,
+HEAD's module exec'd from git beside the working tree's, interleaved:
+
+=============================  ====================  ====================
+ condition (``cells``, 1080p)   before                after
+=============================  ====================  ====================
+ idle                           24.9 fps / 2.53 ms    25.0 fps / 1.52 ms
+ one Python thread              19.9 fps / 33.23 ms   24.9 fps / 1.76 ms
+ worker + 20 lines a second     15.0 fps / 18.80 ms   25.7 fps / 1.49 ms
+=============================  ====================  ====================
+
+``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this
+does **not** fix is a genuinely chatty run: at 200 lines a second both land at
+about 4 fps, because by then the GUI thread is inside ``ConsolePanel`` and not
+in here at all. Two levers finish the job and neither is in this file —
+``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured on its own:
+32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and
+coalescing ``PipelineWorker.line_ready``. Both want their own instruction.
+
+Three things this design deliberately is not:
+
+*Not a precomputed loop.* The instruction asked for one, and the reason it
+cannot exist is not memory: **there is no period.** Every element's period is
+drawn from ``rng.uniform`` over a continuous range —
+:data:`BLOB_DRIFT_PERIOD` (24-70 s), :data:`BLOB_PULSE_PERIOD` (7-19 s),
+:data:`AURORA_DRIFT_PERIOD` (30-90 s), :data:`RIPPLE_PERIOD` (14-26 s) and
+the rest — so the composite period is irrational with probability 1 and a
+fixed-length loop is a visible *cut*, not a period: the picture jumps every
+time it wraps. Memory says the same thing more loudly. At 1080p and 24 fps a
+second of loop is 3.0 MiB for ``blobs``, 11.9 for ``bokeh`` and ``cells``,
+47.5 for the aurora and 190 for ``drift``, which has no buffer at all — a
+one-minute loop is 178 MiB of blobs or 2.85 GiB of aurora.
+
+*Not a faster shading pass.* The thread does not make anything quicker: same
+Python, same lock, same 26 ms for ``cells`` under load. It changes **who
+waits**. The GUI thread stops shading, and a frame that is not ready becomes
+a repeated frame rather than a blocked interface —
+:attr:`AmbientWidget.repeated_frames` is that promise as a number, and it
+rises to about a third of frames under a Python worker.
+
+*Not a second clock.* The animation clock stays on the GUI thread (two
+attribute stores; there is nothing to gain by moving it and a public contract
+to lose) and the thread only reads it. A frame is still a pure function of
+``(seed, clock, size)``, which is why the off-thread shade is byte-identical
+to the on-thread one for all five buffered themes —
+``tests/qt/test_the_backdrop_survives_a_run.py`` asserts it rather than
+claiming it.
+
+``drift`` keeps the synchronous path, and its row above is the reason: it is
+the one engine with no buffer, it degrades the least of the six (2.1x against
+48.7x for ``cells``), and threading it would mean publishing a full-resolution
+frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest
+improvement on the list.
 
 At 1920x1080, offscreen raster. The engine as it stood before this change
 is loaded into the same process out of git and every configuration is timed
@@ -215,8 +327,11 @@ from __future__ import annotations
 
 import math
 import random
+import threading
+import time
 from dataclasses import dataclass
-from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
+from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
+                    Tuple, Union)
 
 from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QPointF, QRect,
                             QRectF, Qt, QTimer)
@@ -1181,8 +1296,24 @@ class _BufferedEngine(AmbientEngine):
         return buf
 
     def paint(self, painter: QPainter, width: int, height: int) -> None:
+        """Shade a frame and put it on the canvas, both here and now.
+
+        Exactly :meth:`shade` followed by :meth:`blit`, minus the copy — the
+        buffer goes straight to the canvas, so this path still allocates once
+        on resize and never per frame. That is what a widget with no shading
+        thread does, and it is what every engine test measures.
+        """
         if width <= 0 or height <= 0:
             return
+        self.blit(painter, self._shade(width, height), width, height)
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """The finished field, in the engine's *own* buffer.
+
+        Returns the buffer itself when the blur is off (which is the
+        default), so the result is only valid until the next call. Callers
+        that keep it want :meth:`shade`.
+        """
         buf = self._ensure_buffer(width, height)
         inner = QPainter(buf)
         inner.fillRect(buf.rect(), self.identity)
@@ -1190,11 +1321,54 @@ class _BufferedEngine(AmbientEngine):
         inner.setPen(Qt.NoPen)
         self._paint_field(inner, buf.width(), buf.height())
         inner.end()
+        return self._soften(buf, width, height)
 
-        buf = self._soften(buf, width, height)
+    def shade(self, width: int, height: int) -> Optional[QImage]:
+        """One finished frame as an image the caller owns. **Any thread.**
+
+        This is the half of a frame that does not have to happen on the GUI
+        thread, and the half that a Python worker makes expensive: a
+        ``blobs`` field costs 0.240 ms idle and 0.572 ms with one Python
+        thread running, ``cells`` 0.538 ms and **26.179 ms** — 48.7 times —
+        because it is Python and numpy under the interpreter lock. Splitting
+        it out is what lets :class:`_FrameProducer` pay that on a thread
+        nobody is looking at. See the module docstring for the whole table.
+
+        A ``QImage`` and a ``QPainter`` over it are legal off the GUI thread
+        (a ``QWidget`` is not, and nothing here touches one), and the result
+        is byte-identical to the same clock shaded on the GUI thread — which
+        ``test_the_backdrop_survives_a_run.py`` asserts for all five buffered
+        themes rather than trusting this paragraph.
+
+        Returns ``None`` for an empty canvas. The copy is what makes the
+        image the caller's: the producer publishes it and immediately starts
+        shading the next frame into the buffer underneath. It costs 0.003 ms
+        for ``blobs``, 0.035 ms for the aurora's 2 MiB buffer — 2 % of the
+        shading pass it protects.
+        """
+        if width <= 0 or height <= 0:
+            return None
+        image = self._shade(width, height)
+        return image.copy() if image is self._buffer else image
+
+    def blit(self, painter: QPainter, image: Optional[QImage],
+             width: int, height: int) -> None:
+        """Put a frame from :meth:`shade` on the canvas. **GUI thread only.**
+
+        The fixed remainder of a frame, and the half that has to stay here:
+        it is Qt's C++ raster engine with the interpreter lock released, so
+        it is bounded at ~1.2 ms even while a Python worker is running (1.7x
+        its idle cost, against 48.7x for the shading it replaces).
+
+        A ``None`` or empty image draws nothing rather than raising, because
+        the one caller that can hand it one is a widget whose shading thread
+        has not published yet.
+        """
+        if image is None or image.isNull() or width <= 0 or height <= 0:
+            return
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         painter.setCompositionMode(self.mode)
-        painter.drawImage(QRect(0, 0, int(width), int(height)), buf)
+        painter.drawImage(QRect(0, 0, int(width), int(height)), image)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
     def _soften(self, buf: QImage, width: int, height: int) -> QImage:
@@ -3057,6 +3231,191 @@ def total_frames_painted() -> int:
     return _TOTAL_FRAMES
 
 
+#: How long :func:`_retire_producer` waits for a shading thread to notice it
+#: has been asked to stop, in seconds.
+#:
+#: One loop iteration is at most one shading pass, and the sleep between
+#: passes wakes on the stop event rather than expiring — so a healthy thread
+#: is gone in microseconds and this only bounds a pathological one. A thread
+#: that has not stopped by then is a daemon that will exit on its own, and
+#: waiting longer for it on the GUI thread would be a worse bug than the one
+#: it is guarding.
+#:
+#: The wait is on the GUI thread, in ``hideEvent`` — i.e. on every tab switch
+#: — and it does cost something when the machine is busy: **47 ms worst of
+#: eight**, hiding a ``cells`` backdrop at 1080p while a Python worker runs,
+#: which is one shading pass already in flight finishing. That is the trade
+#: this whole change makes and it is strongly the right way round: a one-off
+#: 47 ms on a tab switch against 18-33 ms on *every frame* beforehand.
+PRODUCER_JOIN_S = 2.0
+
+
+class _FrameProducer:
+    """The shading thread: turns ``(engine, size)`` into finished frames.
+
+    One thread per running backdrop, one frame deep. It calls
+    :meth:`_BufferedEngine.shade` under ``engine_lock`` and publishes the
+    result into a single slot; the GUI thread takes whatever is in that slot
+    and blits it. Nothing here touches a ``QWidget`` — a widget painted off
+    the GUI thread is undefined behaviour, and a ``QImage`` painted off it is
+    supported and is the whole reason this works.
+
+    **The clock is not moved here.** Stepping it costs two attribute stores,
+    so there is nothing to gain by moving it and a contract to lose:
+    :meth:`AmbientWidget.time` means seconds of animation, several tests
+    assert the clock is exactly what was asked for, and a clock advanced from
+    two threads is neither. The GUI thread advances it between frames (see
+    :meth:`AmbientWidget._on_tick`, which takes the same lock without ever
+    waiting on it) and this thread only ever *reads* it — so a frame remains
+    a pure function of ``(seed, clock, size)`` even while it is shaded on
+    another thread, and the animation keeps its real-time pace when frames
+    are being dropped instead of slowing down with the thread.
+
+    A plain :class:`threading.Thread` and not a ``QThread``: it owns no
+    object with Qt thread affinity, it emits no signals, and
+    :mod:`spacr.qt.bridge` is a standing record of what QThread lifetime
+    costs when the thing on it does not need one.
+
+    **What it does not do is speed the shading up.** It is the same Python
+    under the same interpreter lock, so it takes the same 26 ms for ``cells``
+    under load that the GUI thread took. What changes is *who waits*: the GUI
+    thread stops shading, so its frame costs one ``drawImage`` (0.24-0.32 ms
+    at every load measured) and the animation degrades by repeating a frame
+    instead of by blocking the interface. That distinction is the fix.
+
+    :param engine: a :class:`_BufferedEngine`. Unbuffered engines
+        (``drift``) have no frame to hand over and keep the synchronous path.
+    :param engine_lock: the widget's lock over the engine. Held across the
+        shading pass here, and taken by every widget setter that mutates the
+        engine, so a live Preferences change cannot land in the middle of a
+        frame.
+    :param fps: frame-rate cap, matching the widget's timer.
+    :param size: ``(width, height)`` of the canvas.
+    """
+
+    def __init__(self, engine: "_BufferedEngine", engine_lock,
+                 fps: int, size: Tuple[int, int]):
+        self._engine = engine
+        self._engine_lock = engine_lock
+        self._interval = 1.0 / max(1, int(fps))
+        #: Canvas size, written by the GUI thread and read by this one.
+        #: A plain attribute holding an immutable tuple, deliberately: the
+        #: assignment is a single bytecode and the reader either sees the old
+        #: pair or the new one, never half of each, so a lock here would buy
+        #: nothing but a chance for the GUI thread to wait on it.
+        self.size: Tuple[int, int] = (int(size[0]), int(size[1]))
+        #: Frames actually shaded. Under load this falls below the frame
+        #: rate, which is the degradation this design chooses.
+        self.frames_shaded = 0
+        self._frame_lock = threading.Lock()
+        self._frame: Optional[QImage] = None
+        self._stop = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+
+    # -- lifetime ------------------------------------------------------
+    def start(self) -> None:
+        """Begin shading. A second call is a no-op."""
+        if self._thread is not None:
+            return
+        self._thread = threading.Thread(
+            target=self._run, name="spacr-ambient-shade", daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        """Ask the thread to finish the frame it is on and exit, then wait
+        up to :data:`PRODUCER_JOIN_S` for it.
+
+        The thread reference is *kept*, not cleared, so :meth:`is_alive` goes
+        on answering about the operating system's thread rather than about a
+        variable this method set to ``None`` — otherwise "the backdrop stopped
+        its thread" is a claim nothing can check. A producer is never
+        restarted (:meth:`AmbientWidget._start_producer` builds a new one), so
+        there is nothing to gain by forgetting it.
+        """
+        self._stop.set()
+        thread = self._thread
+        if thread is not None and thread.is_alive():
+            thread.join(timeout=PRODUCER_JOIN_S)
+
+    def is_alive(self) -> bool:
+        """Whether the shading thread is actually running."""
+        thread = self._thread
+        return bool(thread is not None and thread.is_alive())
+
+    def set_fps(self, fps: int) -> None:
+        """Shade no faster than ``fps`` frames a second. Takes effect after
+        the frame in flight."""
+        self._interval = 1.0 / max(1, int(fps))
+
+    # -- the frame slot ------------------------------------------------
+    def publish(self, image: QImage) -> None:
+        """Make ``image`` the frame the next paint will use."""
+        with self._frame_lock:
+            self._frame = image
+
+    def latest(self) -> Optional[QImage]:
+        """The newest published frame, or ``None``. **Never blocks.**
+
+        ``None`` means "ask again next frame" and covers both cases the
+        caller has to survive: nothing has been shaded yet, and the slot is
+        being written this instant. Neither is worth waiting for — the
+        caller already holds the previous frame and repeating it is a frame
+        of animation, where waiting is a frozen interface.
+        """
+        if not self._frame_lock.acquire(blocking=False):
+            return None
+        try:
+            return self._frame
+        finally:
+            self._frame_lock.release()
+
+    # -- the loop ------------------------------------------------------
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            started = time.monotonic()
+            width, height = self.size
+            image = None
+            if width > 0 and height > 0:
+                with self._engine_lock:
+                    image = self._engine.shade(width, height)
+            if image is not None:
+                self.publish(image)
+                self.frames_shaded += 1
+            remaining = self._interval - (time.monotonic() - started)
+            # Sleeping on the stop event rather than time.sleep is what makes
+            # stop() return immediately instead of at the end of the beat.
+            #
+            # A pass that overran the beat gets no sleep at all, which is how
+            # this thread degrades: it keeps shading as fast as it can and the
+            # GUI thread repeats whatever the last finished frame was. That
+            # cannot make the machine worse, and the reason is arithmetic
+            # rather than good intentions: the no-sleep branch is only reached
+            # when one pass already took longer than the interval, so the rate
+            # is 1/pass and therefore *below* the cap by construction. Driven
+            # and counted at 1080p on ``cells``, cap 24: 23.5 passes a second
+            # idle, 15.4 with one Python worker, 0.7 with three. The total
+            # shading work is what the GUI thread used to do, on a thread
+            # nobody is waiting for.
+            self._stop.wait(remaining if remaining > 0 else 0.0)
+
+
+def _retire_producer(box: List[Optional[_FrameProducer]]) -> None:
+    """Stop and join whatever shading thread is in ``box``, and empty it.
+
+    A module function over a one-element list rather than a method, because
+    :attr:`QWidget.destroyed` is connected to it: a slot that captured the
+    widget would run against a Python wrapper whose C++ half is already gone,
+    which is the crash :mod:`spacr.qt.bridge` documents in another guise. The
+    box holds nothing but the thread, so the closure is safe to outlive
+    everything else.
+    """
+    producer = box[0] if box else None
+    if box:
+        box[0] = None
+    if producer is not None:
+        producer.stop()
+
+
 class AmbientWidget(QWidget):
     """The live backdrop: paints an :class:`AmbientEngine` at a capped rate.
 
@@ -3108,6 +3467,32 @@ class AmbientWidget(QWidget):
                  density: Optional[float] = None,
                  direction: Optional[str] = None):
         super().__init__(parent)
+        # -- the shading thread ---------------------------------------
+        # First, before anything that could reach a setter: every one of
+        # them takes the lock, so a construction order that reached one
+        # early would raise AttributeError rather than race.
+        #
+        #: Guards every touch of the engine, because :class:`_FrameProducer`
+        #: shades it on another thread while the GUI thread's setters change
+        #: it. :meth:`paintEvent` never *waits* on this lock — see there.
+        self._engine_lock = threading.RLock()
+        #: One-element box holding the shading thread, so ``destroyed`` can
+        #: retire it through a closure that captures no widget.
+        self._producer_box: List[Optional[_FrameProducer]] = [None]
+        #: The frame currently on screen. Held so a paint with nothing new
+        #: to show can put it up again instead of waiting for one.
+        self._last_frame: Optional[QImage] = None
+        #: Paints that showed the previous frame again because the shading
+        #: thread had not finished a new one. This counter *is* the
+        #: "degrade rather than stutter" promise: it is what rises when the
+        #: machine is busy, in place of the frame interval.
+        self.repeated_frames = 0
+        #: Clock time a tick could not apply because the shading thread had
+        #: the engine, carried to the next tick. See :meth:`_on_tick`.
+        self._pending_dt = 0.0
+        box = self._producer_box
+        self.destroyed.connect(lambda *_: _retire_producer(box))
+
         self._theme = _require_theme(theme)
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
@@ -3218,20 +3603,79 @@ class AmbientWidget(QWidget):
         if name == self._palette:
             return
         self._palette = name
-        self._engine.set_colors(palette_colors(self._theme, name))
+        self._mutate_engine(
+            lambda: self._engine.set_colors(palette_colors(self._theme, name)))
+
+    def _mutate_engine(self, change: Callable[[], None]) -> None:
+        """Apply ``change`` to the engine with the shading thread locked out,
+        re-shade once, and repaint.
+
+        Every live control goes through here, because
+        :func:`spacr.qt.preferences.apply_ambient_preferences` walks
+        ``app.allWidgets()`` and calls eight of them on every backdrop that
+        happens to be alive — a settings change is the one moment a widget is
+        mutated *while* it is running, so it is the one the lock exists for.
+
+        The re-shade is what keeps the promise every setter has always made:
+        change it, and the next paint shows the change. Without it the next
+        paint would blit the frame the shading thread finished *before* the
+        change, and a caller that sets something and grabs the widget would
+        get the old picture — which is a real regression and not a subtle
+        one, because :meth:`set_background_color` flips the composition mode
+        and a dark-shaded frame blitted onto a light page is inverted, not
+        stale.
+
+        Bounded and one-off: a single shading pass on the GUI thread (0.24 ms
+        for ``blobs``, 1.5 ms for the aurora, idle) when somebody moves a
+        slider, against zero per frame. It is deliberately *not* on the timer
+        path — see :meth:`_on_tick`.
+        """
+        with self._engine_lock:
+            change()
+            self._republish()
         self.update()
+
+    def _republish(self) -> None:
+        """Re-shade the current clock and make it the frame on screen.
+
+        Called with :attr:`_engine_lock` held. A no-op with no shading
+        thread, where the next ``paintEvent`` shades synchronously anyway.
+        """
+        producer = self._producer_box[0]
+        if producer is None:
+            return
+        width, height = producer.size
+        fresh = self._engine.shade(width, height)
+        if fresh is not None:
+            producer.publish(fresh)
+            self._last_frame = fresh
 
     def _rebuild_engine(self) -> None:
         """Replace the engine, preserving the clock. The old one is dropped
-        on the next line and collected; it owns no Qt parent and no timer."""
+        on the next line and collected; it owns no Qt parent and no timer.
+
+        The shading thread holds the *old* engine, so it is retired and a new
+        one started around the swap. That join is bounded by one shading pass
+        — worst measured 26 ms, for ``cells`` under a Python worker — and it
+        happens when somebody picks a different animation from a menu, not
+        per frame.
+        """
+        running = self._producer_box[0] is not None
+        _retire_producer(self._producer_box)
         engine = make_engine(self._theme, self._palette, self._background,
                              seed=self._seed, blur=self._blur,
                              speed=self._speed, size=self._size,
                              resolution=self._resolution,
                              density=self._density,
                              direction=self._direction)
-        engine.set_time(self._engine.time)
-        self._engine = engine
+        with self._engine_lock:
+            engine.set_time(self._engine.time)
+            self._engine = engine
+        # The old engine's last frame was drawn by the old engine; keeping it
+        # would blit the theme the user just switched away from.
+        self._last_frame = None
+        if running:
+            self._start_producer()
         self.update()
 
     # -- the user controls ---------------------------------------------
@@ -3242,8 +3686,7 @@ class AmbientWidget(QWidget):
     def set_blur(self, value: float) -> None:
         """Set the softening. Clamped to :data:`BLUR_RANGE`."""
         self._blur = _clamp(value, *BLUR_RANGE)
-        self._engine.set_blur(self._blur)
-        self.update()
+        self._mutate_engine(lambda: self._engine.set_blur(self._blur))
 
     def resolution(self) -> float:
         """How much detail is shaded; 1.0 is each theme's own buffer."""
@@ -3252,8 +3695,8 @@ class AmbientWidget(QWidget):
     def set_resolution(self, value: float) -> None:
         """Set the detail multiplier. Clamped to :data:`RESOLUTION_RANGE`."""
         self._resolution = _clamp(value, *RESOLUTION_RANGE)
-        self._engine.set_resolution(self._resolution)
-        self.update()
+        self._mutate_engine(
+            lambda: self._engine.set_resolution(self._resolution))
 
     def density(self) -> float:
         """How many elements are drawn; 1.0 is each theme's own count."""
@@ -3263,8 +3706,7 @@ class AmbientWidget(QWidget):
         """Set the element-count multiplier. Clamped to
         :data:`DENSITY_RANGE`."""
         self._density = _clamp(value, *DENSITY_RANGE)
-        self._engine.set_density(self._density)
-        self.update()
+        self._mutate_engine(lambda: self._engine.set_density(self._density))
 
     def direction(self) -> str:
         """Which way the starfield travels. Meaningless to the others, and
@@ -3276,8 +3718,7 @@ class AmbientWidget(QWidget):
         if not is_valid_drift_direction(name):
             return
         self._direction = name
-        self._engine.set_direction(name)
-        self.update()
+        self._mutate_engine(lambda: self._engine.set_direction(name))
 
     def speed(self) -> float:
         """The motion multiplier; 1.0 is the shipped animation."""
@@ -3289,7 +3730,8 @@ class AmbientWidget(QWidget):
         Takes effect on the next step, so nothing already on screen moves.
         """
         self._speed = _clamp(value, *SPEED_RANGE)
-        self._engine.set_speed(self._speed)
+        with self._engine_lock:
+            self._engine.set_speed(self._speed)
 
     def size_scale(self) -> float:
         """The element-size multiplier; 1.0 is the shipped animation.
@@ -3302,8 +3744,7 @@ class AmbientWidget(QWidget):
     def set_size_scale(self, value: float) -> None:
         """Set the element-size multiplier. Clamped to :data:`SIZE_RANGE`."""
         self._size = _clamp(value, *SIZE_RANGE)
-        self._engine.set_size(self._size)
-        self.update()
+        self._mutate_engine(lambda: self._engine.set_size(self._size))
 
     # -- appearance ----------------------------------------------------
     def background_color(self) -> QColor:
@@ -3320,11 +3761,22 @@ class AmbientWidget(QWidget):
         self._apply_background(color, explicit=True)
 
     def _apply_background(self, color, explicit: bool) -> None:
+        """Re-derive the page colour, and re-shade *now* rather than next
+        frame.
+
+        The one setter that cannot let a published frame stand for a frame.
+        A dark page composites additively and a light one multiplies (see the
+        module docstring), so a frame shaded for dark and blitted onto light
+        is not one frame stale, it is inverted — a white flash across the
+        whole window on every theme switch. One shading pass on the GUI
+        thread, at the moment somebody changes the application theme, buys
+        that away.
+        """
         self._background = _as_color(color, self._background)
         if explicit:
             self._background_explicit = True
-        self._engine.set_background(self._background)
-        self.update()
+        self._mutate_engine(
+            lambda: self._engine.set_background(self._background))
 
     def backdrop(self) -> Optional[QPixmap]:
         """The image painted under the animation, or ``None``."""
@@ -3358,9 +3810,14 @@ class AmbientWidget(QWidget):
         return self._fps
 
     def set_fps(self, fps: int) -> None:
-        """Cap the frame rate."""
+        """Cap the frame rate. Caps the shading thread with it, so a lowered
+        cap actually reduces the work rather than just how much of it is
+        shown."""
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._timer.setInterval(max(1, 1000 // self._fps))
+        producer = self._producer_box[0]
+        if producer is not None:
+            producer.set_fps(self._fps)
 
     def is_running(self) -> bool:
         """True while the animation timer is ticking."""
@@ -3386,14 +3843,87 @@ class AmbientWidget(QWidget):
         self._sync_run_state()
 
     def start(self) -> None:
-        """Start ticking (no-op if already running)."""
+        """Start ticking, and with it the shading thread (no-op if already
+        running).
+
+        The two are started and stopped *together*, and that is the whole
+        lifetime rule: every gate that already stops the timer — hidden,
+        another tab, a minimised window, the Preferences toggle — therefore
+        stops the thread for free, and "off screen is 0 %" stays literally
+        true rather than becoming "0 % of the GUI thread". It also means a
+        widget the tests never show has no thread and takes the synchronous
+        path, so nothing that drives ``advance_frame`` by hand goes
+        non-deterministic.
+        """
         if not self._timer.isActive():
             self._clock.restart()
             self._timer.start()
+        self._start_producer()
 
     def stop(self) -> None:
-        """Stop ticking. Costs exactly nothing while stopped."""
+        """Stop ticking and retire the shading thread. Costs exactly nothing
+        while stopped — no timer, no thread, and no frame held in memory.
+
+        Dropping the published frame matters because these screens stay
+        built: a dozen module screens the user has visited would otherwise
+        each keep a slot warm behind a tab nobody is on, which is 2 MiB apiece
+        for the aurora. The next :meth:`start` shades a replacement before it
+        starts the thread, so there is nothing to show for it.
+        """
         self._timer.stop()
+        _retire_producer(self._producer_box)
+        self._last_frame = None
+
+    def _start_producer(self) -> None:
+        """Put the shading on its own thread, if this engine has a frame to
+        hand over.
+
+        ``drift`` is deliberately left out, and the number is the reason: it
+        is the one engine with no buffer, it degrades the least of the six
+        under a Python worker (0.528 -> 1.084 ms, 2.1x, against 48.7x for
+        ``cells``), and threading it would mean publishing a full-resolution
+        ARGB32 frame — 7.91 MiB a slot at 1080p against 126.6 KiB for
+        ``blobs`` — to buy the smallest improvement on the list.
+
+        The first frame is shaded here, synchronously, so the first paint
+        after a show has a picture to blit rather than a flat rectangle.
+        That is the pass the first ``paintEvent`` used to do anyway, moved a
+        few microseconds earlier.
+        """
+        if self._producer_box[0] is not None:
+            return
+        engine = self._engine
+        if not isinstance(engine, _BufferedEngine):
+            return
+        size = (max(0, self.width()), max(0, self.height()))
+        producer = _FrameProducer(engine, self._engine_lock, self._fps, size)
+        if size[0] > 0 and size[1] > 0:
+            with self._engine_lock:
+                first = engine.shade(*size)
+            if first is not None:
+                producer.publish(first)
+        self._last_frame = None
+        self._producer_box[0] = producer
+        producer.start()
+
+    def shading_thread_alive(self) -> bool:
+        """Whether a shading thread is running for this backdrop.
+
+        The CPU guarantee used to be a claim about a timer and is now also a
+        claim about a thread, so it needs something to assert on: a backdrop
+        behind a screen nobody is looking at must not be keeping a core warm.
+        """
+        producer = self._producer_box[0]
+        return bool(producer is not None and producer.is_alive())
+
+    def frames_shaded(self) -> int:
+        """Frames the shading thread has finished for this backdrop.
+
+        Below :meth:`frames_painted <AmbientWidget>` under load, by design:
+        the difference is :attr:`repeated_frames`.
+        """
+        producer = self._producer_box[0]
+        return 0 if producer is None else producer.frames_shaded
 
     def _should_run(self) -> bool:
         if not self._animating or not self.isVisible():
@@ -3448,17 +3978,42 @@ class AmbientWidget(QWidget):
 
     # -- animation -----------------------------------------------------
     def _on_tick(self) -> None:
+        """One beat: step the clock, ask for a repaint. Never waits.
+
+        The timer path deliberately does *not* go through
+        :meth:`advance_frame`, and the difference is the whole point of the
+        shading thread: this steps the clock (two attribute stores) and
+        leaves the shading to the thread, where ``advance_frame`` shades
+        synchronously for the callers that need the frame back immediately.
+
+        The lock is taken **without blocking**. A shading pass takes 0.24 ms
+        idle and up to 26 ms for ``cells`` under a Python worker, and waiting
+        even that once a frame is the bug this change exists to remove — so a
+        tick that finds the lock busy carries its ``dt`` into the next one
+        rather than losing it. The clock therefore only ever moves *between*
+        shading passes, which is what keeps a frame a pure function of the
+        clock even though two threads are involved.
+        """
         dt = self._clock.restart() / 1000.0
-        self.advance_frame(min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps)
+        self._pending_dt += min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
+        if self._engine_lock.acquire(blocking=False):
+            try:
+                self._engine.advance(self._pending_dt)
+                self._pending_dt = 0.0
+            finally:
+                self._engine_lock.release()
+        self.update()
 
     def advance_frame(self, dt: float) -> None:
         """Step the animation by ``dt`` seconds and schedule a repaint.
 
-        Called by the timer, and directly by the tests so no test ever waits
-        on a real clock.
+        Called directly by the tests and by the tutorial recorder, so no
+        caller ever waits on a real clock. Re-shades before it returns, so
+        the next paint shows the frame that was asked for rather than
+        whatever the shading thread last finished — the timer does not come
+        through here for exactly that reason (:meth:`_on_tick`).
         """
-        self._engine.advance(dt)
-        self.update()
+        self._mutate_engine(lambda: self._engine.advance(dt))
 
     def time(self) -> float:
         """The animation clock, in seconds."""
@@ -3466,8 +4021,7 @@ class AmbientWidget(QWidget):
 
     def set_time(self, seconds: float) -> None:
         """Jump the animation clock and repaint."""
-        self._engine.set_time(seconds)
-        self.update()
+        self._mutate_engine(lambda: self._engine.set_time(seconds))
 
     # -- painting ------------------------------------------------------
     def _paint_base(self, painter: QPainter, rect: QRect) -> None:
@@ -3507,13 +4061,59 @@ class AmbientWidget(QWidget):
         return QPoint(x - offset.x(), y - offset.y())
 
     def paintEvent(self, event):
+        """Put the page down, then the newest frame the shading thread has.
+
+        **This method never waits for anything.** That is the requirement the
+        whole change exists to meet — "a frame that is not ready is a
+        repeated frame, never a blocked GUI thread" — and it is met the only
+        way it can be: :meth:`_FrameProducer.latest` refuses the slot rather
+        than blocking on it, the widget keeps a reference to the frame it is
+        already showing, and a paint with nothing new blits that one again
+        and counts it in :attr:`repeated_frames`.
+
+        With a shading thread the engine lock is never *waited* on here, and
+        with no shading thread it cannot be contended — the one path that
+        takes it is the case where nothing has been published yet (a widget
+        shown at zero size and resized in the same tick), and it takes it
+        without blocking, settling for the flat page if the thread is
+        mid-frame.
+
+        Repainting is not only the timer's doing: every console line the
+        window paints over a translucent surface exposes this widget and Qt
+        asks it for a whole frame. Measured on a real X server with the real
+        stylesheet, **one ambient repaint per console line** — 0.99 of them,
+        with the animation timer stopped. That is the fps cap being bypassed
+        entirely, and it is why the cost of a repaint matters more than the
+        cap suggests: shading it cost 1.7 ms idle and 22 ms under a Python
+        worker, and blitting an already-shaded frame costs 0.24-0.32 ms at
+        every load measured.
+        """
         global _TOTAL_FRAMES
         self.frames_painted += 1
         _TOTAL_FRAMES += 1
         painter = QPainter(self)
         rect = self.rect()
         self._paint_base(painter, rect)
-        self._engine.paint(painter, rect.width(), rect.height())
+        width, height = rect.width(), rect.height()
+
+        producer = self._producer_box[0]
+        if producer is None:
+            self._engine.paint(painter, width, height)
+            return
+
+        producer.size = (width, height)
+        fresh = producer.latest()
+        if fresh is not None and fresh is not self._last_frame:
+            self._last_frame = fresh
+        else:
+            self.repeated_frames += 1
+        if self._last_frame is not None:
+            self._engine.blit(painter, self._last_frame, width, height)
+        elif self._engine_lock.acquire(blocking=False):
+            try:
+                self._engine.paint(painter, width, height)
+            finally:
+                self._engine_lock.release()
 
 
 # ---------------------------------------------------------------------------
