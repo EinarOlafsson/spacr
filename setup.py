@@ -340,6 +340,34 @@ dependencies = [
     # ImportError. An import spaCR makes itself is a dependency spaCR
     # declares itself.
     'cycler>=0.10,<1',
+
+    # -----------------------------------------------------------------------
+    # THE Qt GUI IS NOT OPTIONAL. Asked for on 2026-08-17: "lets stop hiding
+    # the qt behind a qt. allways install qt as well as the tkinter stuff".
+    #
+    # `spacr-qt` is a console entry point declared UNCONDITIONALLY below, so a
+    # plain `pip install spacr` was installing a command that could not run --
+    # the same shape as the pyqtgraph report earlier that day, one level up.
+    # tkinter needs no declaration (it ships with CPython), so the Tk GUI has
+    # always worked out of the box and the Qt one, which is the primary GUI,
+    # did not.
+    #
+    # SAFE ACROSS THE WHOLE SUPPORT MATRIX, checked rather than assumed --
+    # `requires-python` is >=3.9,<3.15 and a core dependency with no wheel is
+    # an install failure, not a missing feature:
+    #   PySide6   6.11.1 declares <3.15,>=3.10; 6.6/6.7 cover 3.9. The
+    #             `>=6.6,<7` range therefore resolves on every interpreter.
+    #   pyqtgraph 0.14 declares >=3.10; 0.13 covers 3.9. Same reasoning.
+    #   qtawesome 1.4.2 declares >=3.7.
+    #
+    # The HEADLESS invariant is untouched and still tested: importing
+    # spacr.core, spacr.ml or spacr.measure does not import PySide6. Being a
+    # dependency is not being an import -- a cluster install carries the
+    # wheel and never loads it.
+    'PySide6>=6.6,<7',
+    'qtawesome>=1.3,<2',
+    'pyqtgraph>=0.13,<1',
+    'win10toast>=0.9; platform_system == "Windows"',
     'adjustText>=1.2.0,<2.0',
     # KEPT despite zero imports, and deliberately so. Both are pandas'
     # optional acceleration backends, and pandas picks them up by *presence*,
@@ -811,6 +839,11 @@ setup(
         # limit simply is not applied), so it is an extra rather than a core
         # dependency; scikit-learn pulls it in for most installs anyway.
         'sweep': ['threadpoolctl>=3.0,<4'],
+        # KEPT AS AN ALIAS now that these are core, so every existing
+        # instruction, the three packaging scripts, the README and the
+        # docs keep working -- `pip install spacr[qt]` resolves to the same
+        # thing `pip install spacr` does. Removing the name would break
+        # printed instructions to no benefit.
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
