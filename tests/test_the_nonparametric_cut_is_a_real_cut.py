@@ -295,8 +295,15 @@ def test_the_cut_is_measured_on_the_primary_family_only(tmp_path):
             "controls": CONTROLS, "threshold_method": "std",
             "threshold_multiplier": 3.0, "guide_permutation_plot": False,
         })
-    results = output["results"]
+    # `families`, not `results`. They were the same frame until 2026-08-17,
+    # when `results` became the PRIMARY family only -- because handing the
+    # stacked frame to the panel drew every guide once per minimum-wells
+    # family, four times over, which the maintainer reported seeing on the
+    # real screen. The full frame is still returned, under its own name.
+    results = output["families"]
     assert results["minimum_wells_threshold"].nunique() == 4
+    # And the panel's frame has each guide exactly once, which is the fix.
+    assert output["results"]["guide"].is_unique
 
     primary_controls = results.loc[
         (results["minimum_wells_threshold"] == 3)

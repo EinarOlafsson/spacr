@@ -477,3 +477,61 @@ choice with more than one defensible answer -- combine the per-guide P values
 permutation null, or report the gene only through guide agreement. They
 answer different questions and one of them has to be chosen deliberately.
 DO NOT PICK ONE SILENTLY.
+
+--------------------------------------------------------------------------------
+R. EVERY RUN PRODUCES BOTH GENE AND gRNA RESULTS, FITTED SEPARATELY
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "for every run i want both gene and grna results. it
+does not seem statistically sound to mix them together. so split them and
+then do the regression twice once on the grna level and once on the gene
+level."
+
+AND THE MAINTAINER IS RIGHT THAT MIXING THEM IS UNSOUND. The parametric
+formula puts `fraction:grna` and `gene_fraction:gene` in ONE design:
+
+    y ~ fraction:grna + gene_fraction:gene + rowID + columnID
+
+so a gene's coefficient and its guides' coefficients are estimated
+simultaneously from the same wells, competing for the same variance. That is
+why a gene with ONE guide comes out with a coefficient and a p-value
+IDENTICAL to that guide's -- 244480 and 244480_3 are both 3.389291 at
+2.873149e-13 on the real screen -- and it is why they plot on top of each
+other. Two rows, one dot, and neither is independent evidence of the other.
+It is also part of why the fit is not identifiable: the gene terms are 452
+more parameters on top of the 823 guide terms, against 610 wells.
+
+SO: TWO FITS, NOT ONE.
+
+    the gRNA fit    y ~ fraction:grna + rowID + columnID
+    the gene fit    y ~ gene_fraction:gene + rowID + columnID
+
+Each is its own model, its own multiple-testing family, its own effect-size
+cut and its own results table. Neither borrows the other's variance and
+neither inflates the other's parameter count. It should also make the
+identifiability warning much rarer -- the guide fit drops 452 parameters and
+the gene fit drops 823.
+
+APPLIES TO EVERY INFERENCE MODE, and the maintainer said so plainly when
+asked whether nonparametric needed gene results: "why would i not want gene
+level results from pnon parametric? that makes no sense?" The permutation
+path today reports guides only (see Q2), so it needs a gene-level pass as
+well -- and for a permutation test the natural one is to test each GENE'S
+GUIDES AS A SET against the same permutation null, which needs no
+independence assumption. Combining per-guide P values (Fisher, Stouffer)
+does assume independence, and guides sharing a well are not independent.
+
+THINGS THIS CHANGES, all of which have to be said out loud rather than
+discovered:
+
+  * `results.csv` gains a sibling rather than changing shape -- there is
+    already `results_gene.csv` / `results_grna.csv` on the parametric path,
+    so the names exist; what changes is that each comes from ITS OWN FIT.
+  * a gene's p-value will MOVE. Today a single-guide gene inherits its
+    guide's p exactly; under its own fit it will not.
+  * the guide-support table stays and becomes more useful, because "the
+    gene is significant and its guides are not" is now a comparison of two
+    independent fits rather than an artefact of one design.
+  * the volcano's gene/guide filter (129 A) becomes a choice between two
+    RESULT SETS rather than a filter on rows of one -- and that is the
+    honest version of what the maintainer asked for.
