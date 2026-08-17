@@ -3688,6 +3688,11 @@ class AppScreen(QWidget):
                     panel.set_diagnostics(
                         payload.get("model"),
                         regression_type=payload.get("regression_type"))
+                    # The same model, the same moment: the statsmodels
+                    # summary the maintainer asked for on 2026-08-17.
+                    panel.set_summary(
+                        payload.get("model"),
+                        regression_type=payload.get("regression_type"))
                 except Exception:
                     LOG.debug("could not hand the run's model to the results "
                               "panel", exc_info=True)

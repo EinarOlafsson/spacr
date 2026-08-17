@@ -279,3 +279,36 @@ So the work is not another plot. It is:
 DO NOT RE-DERIVE THE STATISTICS. `spacr/regression_qc.py` is 3,444 lines and
 already computes them for the saved PDF; the live tab must read the same
 numbers or the two will disagree about the same fit.
+
+--------------------------------------------------------------------------------
+N. THE STATSMODELS SUMMARY, AS A TAB
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "statmodels provides a summary, please generate a tab
+for the regression summary".
+
+The model already reaches the panel -- `set_diagnostics(model, ...)` is how
+the residual tabs are filled -- so this is a rendering job, not a plumbing
+one. THREE THINGS IT MUST HANDLE, all of which this screen actually hits:
+
+  * NOT EVERY BACKEND HAS ONE. `.summary()` is a statsmodels method; the
+    sklearn-backed types (lasso, ridge, elasticnet, hinge) have no such
+    thing, and `horseshoe` is spaCR's own. The tab says which backend was
+    fitted and that it reports no summary, rather than being absent or
+    empty.
+  * IT IS ENORMOUS. This screen fits 827 parameters, so the coefficient
+    block is 800-odd rows. Monospace, scrollable, and SELECTABLE -- the
+    reason to want it is usually to paste a number into a methods section.
+  * THE HEADER IS THE USEFUL PART and it is the part that scrolls away:
+    R-squared, F-statistic, AIC, log-likelihood, Df Residuals, and the
+    condition-number warning statsmodels appends. Keep it reachable.
+
+AND THE ONE THING THAT MAKES IT DANGEROUS HERE. On this screen the fit is
+NOT IDENTIFIABLE -- the run already says so: "610 analysed wells are being
+used to estimate 827 parameters". statsmodels will still print a full
+summary with a standard error and a P value for every guide, and it looks
+exactly like a summary of a well-posed fit. The tab must carry the same
+warning the run prints, next to the table rather than in the log above it.
+
+A summary a reader pastes into a paper from an unidentifiable fit is the
+worst outcome this panel can produce, and it is one click away.
