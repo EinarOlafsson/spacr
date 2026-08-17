@@ -570,7 +570,15 @@ def test_min_cell_count_none_is_filled_from_the_simulation(screen, stubs):
     perform_regression(settings)
 
     assert settings["min_cell_count"] == 3
-    assert stubs["sim"] == [{"tolerance": 0.02}]
+    # `dst` joined `tolerance` on 2026-08-17. It is not decoration: the curve
+    # used to be drawn into <count folder>/results/, one path shared by every
+    # run of the screen, and `run_sweep_parallel` fits n_jobs trials of that
+    # one screen at once -- so the workers overwrote each other's figure and
+    # the copy-back could file a neighbour's curve as this trial's. The run
+    # folder is unique per run, so naming it removes the collision rather
+    # than racing it. Pinned as an exact dict, not a subset, so a future
+    # caller cannot quietly send the figure somewhere else again.
+    assert stubs["sim"] == [{"tolerance": 0.02, "dst": screen["res"]}]
 
 
 def test_fraction_threshold_none_is_filled_from_graph_sequencing_stats(
@@ -682,8 +690,20 @@ def test_batch_correction_runs_before_regression_and_writes_report(
     ]
 
 
-def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):
-    """outlier_detection removes gRNAs whose well coverage is an IQR outlier."""
+def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs,
+                                                         capsys):
+    """outlier_detection removes gRNAs whose well coverage is an IQR outlier.
+
+    And leaves the two QC tables on disk while doing it. Dropping the outlier
+    rebinds ``merged_df`` to a SLICE, and ``grna_metricks`` assigns
+    plate/row/column onto whatever it is handed, so the second pass wrote to a
+    copy: SettingWithCopyWarning, promoted to an error by this suite's
+    pytest.ini and caught by the blanket handler at the end of the QC block.
+    ``grna_well.csv`` and ``well_grna.csv`` were then never written, and the
+    only trace was the warning's text printed on a line of its own -- the run
+    itself completed and produced every other output, which is why it read as
+    a broken test rather than a broken run.
+    """
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -702,6 +722,7 @@ def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):
                              score_data=[s1, s2], count_data=[c1, c2],
                              outlier_detection=True)
     perform_regression(settings)
+    printed = capsys.readouterr().out
 
     res = results_dir(c1)
     grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
@@ -711,6 +732,15 @@ def test_outlier_detection_drops_sparsely_covered_grnas(tmp_path, stubs):
     assert "111111_3" not in set(data["grna"])
     # the outlier gRNA is removed from *both* plates
     assert len(grna_well) == 2 * (len(GENES) * N_GRNA_PER_GENE - 1)
+    # Both QC tables, and the run said so. The file check alone passes if the
+    # write is skipped and a stale file is left behind by an earlier run.
+    assert os.path.isfile(os.path.join(res, "well_grna.csv"))
+    assert "Saved grna per well data to" in printed
+    assert "Saved well per grna data to" in printed
+    # Nothing was swallowed on the way. The block that writes these tables
+    # catches everything and prints it, so a bare warning text on its own
+    # line IS the failure report.
+    assert "A value is trying to be set on a copy of a slice" not in printed
 
 
 def test_qc_plot_failure_does_not_cost_the_qc_tables(screen, heavy_stubs,
@@ -784,15 +814,33 @@ def test_threshold_methods_are_supported(screen, stubs, method):
 
 
 def test_unsupported_threshold_method_raises(screen, stubs):
-    """An unknown threshold_method is rejected with the supported list."""
+    """An unknown threshold_method is rejected, and the message names the list.
+
+    This asked for ``"mad"`` until 2026-08-17, when the arithmetic moved into
+    ``spacr.thresholds`` and grew from two methods to seven -- the maintainer
+    asked for "at least 4 more" -- so ``mad`` became a SUPPORTED method and
+    the test was asserting a refusal the code had deliberately stopped making.
+    It failed at HEAD for that reason and for no other.
+
+    An unsupported spelling is what it was always about, so it asks for one
+    that is genuinely not offered, and pins the half that matters: a refusal
+    that does not say what IS available leaves the user guessing, which is why
+    ``canonical`` raises instead of falling back to a default nobody chose.
+    """
     from spacr.ml import perform_regression
+    from spacr.thresholds import METHODS
 
-    settings = base_settings(screen, threshold_method="mad")
-    with pytest.raises(ValueError, match="Unsupported threshold method mad"):
+    assert "mad" in METHODS, (
+        "mad is a supported method now; the old spelling of this test would "
+        "pass only by accident")
+    settings = base_settings(screen, threshold_method="banana")
+    with pytest.raises(ValueError, match="Unsupported threshold method") as err:
         perform_regression(settings)
+    for name in METHODS:
+        assert name in str(err.value), name
 
 
-def test_controls_none_skips_the_threshold_block(screen, stubs):
+def test_controls_none_skips_the_threshold_block(screen, stubs, capsys):
     """With controls=None every q<alpha coefficient survives unfiltered.
 
     This used to assert against the RAW p value, and passed only because the
@@ -800,12 +848,20 @@ def test_controls_none_skips_the_threshold_block(screen, stubs):
     being counted as a screen hit. The correction is now applied across the
     tested coefficients only, so the intercept and the row/column nuisance
     terms are excluded from both the family and the hit list.
+
+    And the run SAYS there is no cut. A screen with controls prints its cut
+    and the rule behind it; a screen without them printed nothing at all, so
+    "no effect-size cut was applied" was indistinguishable from that line
+    having scrolled past -- and a hit list called on the corrected P value
+    alone is a different claim from one that also cleared a width.
     """
     from spacr.ml import perform_regression
 
     settings = base_settings(screen, controls=None,
                              multiple_testing_method="none")
     out = perform_regression(settings)
+    assert "Effect-size cut: no control gRNAs were named" in \
+        capsys.readouterr().out
 
     results = out["results"]
     tested = ~results["feature"].astype(str).str.contains(
@@ -848,9 +904,19 @@ def test_min_n_filters_the_significant_hits(screen, stubs):
     # Intercept, which is now correctly excluded from the tested family --
     # so a filter test can no longer borrow it, and asks for hits explicitly
     # instead of depending on one arriving by accident.
+    #
+    # threshold_method='none' was added on 2026-08-17, when the effect-size
+    # cut started actually cutting. This screen's three controls have a
+    # standard deviation of 0.259 and the default multiplier is 3, so the cut
+    # is 0.57 -- wider than every coefficient the fixture produces (the
+    # largest is 0.370). Leaving it on would empty the hit list and this test
+    # would then pass for the wrong reason, asserting that a filter kept
+    # nothing out of nothing. The cut has its own tests below; this one is
+    # about min_n, so it says out loud that it does not want a cut.
     settings = base_settings(screen, min_n=1000,
                              multiple_testing_method="none",
-                             fdr_alpha=0.999)
+                             fdr_alpha=0.999,
+                             threshold_method="none")
     out = perform_regression(settings)
 
     sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
@@ -862,6 +928,179 @@ def test_min_n_filters_the_significant_hits(screen, stubs):
     # And no nuisance term reached the hit list even at alpha=0.999.
     assert not sig["feature"].astype(str).str.contains(
         "Intercept|row|column", case=False).any()
+
+
+# ---------------------------------------------------------------------------
+# the effect-size cut, on the parametric path
+#
+# It was a pair of one-sided masks whose union was every row, so the cut
+# filtered nothing at all and results_significant.csv disagreed with the
+# volcano drawn from the same number. Fixed 2026-08-17; these pin the three
+# ways it went wrong, each measured on this fixture before the change.
+# ---------------------------------------------------------------------------
+
+def _measured_cut(screen, multiplier, method="std"):
+    """The cut this run's own controls produce, from the module that sets it.
+
+    Recomputed from ``results_grna.csv`` through the same
+    ``spacr.thresholds.coefficient_threshold`` the run calls, rather than
+    hard-coded: the point of the assertions below is that the hit list and the
+    volcano select on ONE number, so the test has to ask for that number the
+    way both of them do.
+    """
+    from spacr.thresholds import coefficient_threshold
+
+    grna = pd.read_csv(os.path.join(screen["res"], "results_grna.csv"),
+                       dtype={"grna": str})
+    controls = grna.loc[grna["grna"].isin(CONTROLS), "coefficient"]
+    threshold, _rule = coefficient_threshold(controls, method=method,
+                                             multiplier=multiplier,
+                                             centre=None)
+    return threshold
+
+
+def test_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
+    """A guide that pushes the phenotype DOWN past the cut is a hit too.
+
+    The cut was applied as ``coefficient >= t`` OR ``coefficient <= t``, and
+    ``t`` is ``|median| + k x spread`` and so never negative -- so the union
+    was every row and the cut removed nothing. ``custom_volcano_plot``, handed
+    the same ``t``, marks hits with ``|coefficient| >= t``, so the figure and
+    results_significant.csv described different experiments.
+
+    Whichever direction the cut had been written one-sided, it would call half
+    a screen: on this fixture the strongest effect of all is NEGATIVE.
+    """
+    from spacr.ml import perform_regression
+
+    # multiplier=0 puts the cut at the controls' median (0.104) rather than
+    # three spreads out (0.570), which is wider than anything this small
+    # fixture produces. That is the only reason for the 0: it lands the cut in
+    # the middle of the coefficients so both sides of it have rows.
+    settings = base_settings(screen, multiple_testing_method="none",
+                             fdr_alpha=0.999, threshold_method="std",
+                             threshold_multiplier=0)
+    out = perform_regression(settings)
+
+    cut = _measured_cut(screen, multiplier=0)
+    results = out["results"]
+    tested = ~results["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    coefficients = results.loc[tested, "coefficient"]
+
+    # THE FIXTURE HAS TO BE ABLE TO FAIL THIS. Both signs on both sides of
+    # the cut, or a one-sided rule would satisfy the assertions below.
+    assert (coefficients[coefficients.abs() >= cut] > 0).any()
+    assert (coefficients[coefficients.abs() >= cut] < 0).any()
+    assert (coefficients[coefficients.abs() < cut] > 0).any()
+    assert (coefficients[coefficients.abs() < cut] < 0).any()
+    # The largest effect in the screen is negative, and it is a hit.
+    strongest = coefficients.loc[coefficients.abs().idxmax()]
+    assert strongest < 0
+
+    sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
+    assert (sig["coefficient"].abs() >= cut).all()
+    assert set(sig["feature"]) == set(
+        results.loc[tested & (results["coefficient"].abs() >= cut), "feature"])
+    # And it really cut: every tested coefficient passed correction at
+    # alpha=0.999, so the old union kept all of them.
+    assert len(sig) < int(tested.sum())
+    assert len(sig) == len(out["significant"])
+
+
+def test_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
+                                                            capsys):
+    """A hit list shorter than the corrected list must account for itself.
+
+    Every other number this module drops is announced, and a coefficient that
+    passed multiple-testing correction and is then removed on effect size is
+    the one a reader is most likely to go looking for.
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, multiple_testing_method="none",
+                             fdr_alpha=0.999, threshold_method="std",
+                             threshold_multiplier=0)
+    out = perform_regression(settings)
+    printed = capsys.readouterr().out
+
+    results = out["results"]
+    tested = ~results["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    called = int(tested.sum())          # every one of them, at alpha=0.999
+    removed = called - len(out["significant"])
+    cut = _measured_cut(screen, multiplier=0)
+    assert removed > 0, "nothing was cut, so there is nothing to announce"
+    assert f"Effect-size cut removed {removed} of {called}" in printed
+    assert f"{cut:.3g}" in printed
+
+
+def test_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
+    """threshold_method='none' means no cut -- not no hits.
+
+    ``coefficient_threshold`` answers None when no cut can be made, and that
+    None reached ``significant['coefficient'] >= reg_threshold``. pandas 2.x
+    evaluates a comparison against None as all-False instead of raising, so
+    BOTH one-sided masks were empty and the run wrote an empty
+    results_significant.csv: measured on this fixture, 16 of 16 corrected hits
+    lost, with nothing in the log to say a hit list had been thrown away.
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, multiple_testing_method="none",
+                             fdr_alpha=0.999, threshold_method="none")
+    out = perform_regression(settings)
+
+    results = out["results"]
+    tested = ~results["feature"].astype(str).str.contains(
+        "row|column|Intercept", case=False, regex=True)
+    assert int(tested.sum()) == 16
+    sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
+    assert len(sig) == len(out["significant"]) == 16
+
+
+def test_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits(
+        screen, stubs, capsys):
+    """A screen with a single named control loses its whole hit list.
+
+    The same None as above, reached the way a real screen reaches it rather
+    than by asking for it: one control coefficient is not a spread, so
+    ``coefficient_threshold`` refuses to invent one. Refusing is right;
+    turning the refusal into an empty hit list is not.
+    """
+    from spacr.ml import perform_regression
+
+    settings = base_settings(screen, controls=[CONTROLS[0]],
+                             multiple_testing_method="none", fdr_alpha=0.999)
+    out = perform_regression(settings)
+    printed = capsys.readouterr().out
+
+    assert "is not enough to measure a spread" in printed
+    assert len(out["significant"]) == 16
+
+
+def test_no_cut_still_hands_the_volcano_a_number(screen, stubs, monkeypatch):
+    """The toxo volcano does abs(threshold), and None has no abs().
+
+    Reached after the fit, every results CSV and every QC panel were written,
+    so the run was reported as a failure while its coefficients were already
+    on disk. ``custom_volcano_plot`` is deliberately NOT stubbed here: the
+    TypeError came from inside it, and a stand-in would test the stand-in.
+    """
+    import spacr.toxo as T
+    from spacr.ml import perform_regression
+
+    # The two OPTIONAL reports built from the returned gene list are stubbed;
+    # they are not on the path this test is about and they read curated
+    # Toxoplasma tables the fixture only imitates.
+    monkeypatch.setattr(T, "plot_gene_phenotypes", lambda *a, **k: None)
+    monkeypatch.setattr(T, "plot_gene_heatmaps", lambda *a, **k: None)
+
+    settings = base_settings(screen, toxo=True, threshold_method="none")
+    out = perform_regression(settings)
+
+    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
+    assert len(out["results"]) > 0
 
 
 # ---------------------------------------------------------------------------
