@@ -343,7 +343,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #   spacr.qt.widgets.fast_plots.FastPlot.offer_thresholds
     #   spacr.qt.widgets.regression_results  set_threshold_method,
     #                                        set_threshold_multiplier
-    expected = 6938
+    # +38 on 2026-08-17, the last regression-module sweep: the full restyle
+    # menu (axis limits, aspect ratio, dimensions, font colour, line colour
+    # and width, cmap-by-column, shape-by-column), the gene/guide filter
+    # reaching every tab, the homogeneity verdict, the permutation run's
+    # effect-size cut, Runs-before-Results and the run-follows-selection
+    # binding, and the figure-queue caption fix. Set once, after all four
+    # slices committed and with the tree clean.
+    expected = 6976
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -358,7 +365,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7057
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7095
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
