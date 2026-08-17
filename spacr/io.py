@@ -3205,8 +3205,12 @@ def _mask_movie_frame_geometry(masks, *, dpi=MASK_MOVIE_DPI,
     :raises ValueError: when there is no mask to measure, which would otherwise
         surface as an unreadable empty GIF.
     """
+    # `shape[:2]` is not enough on its own: a corrupt or one-dimensional array
+    # gives a one-tuple, and unpacking it would raise a ValueError about
+    # iterables rather than about the movie.
     shapes = [np.asarray(mask).shape[:2] for mask in masks]
-    shapes = [(int(h), int(w)) for h, w in shapes if h > 0 and w > 0]
+    shapes = [(int(shape[0]), int(shape[1])) for shape in shapes
+              if len(shape) == 2 and shape[0] > 0 and shape[1] > 0]
     if not shapes:
         raise ValueError(
             'cannot size a mask movie: no frame has a non-empty shape. '
