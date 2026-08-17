@@ -418,3 +418,62 @@ starts from the evidence rather than from scratch:
      done (ols_11, ols_12, guide_permutation, guide_permutation_1). A queue
      that never cleared between runs would stack thumbnails exactly this
      way.
+
+--------------------------------------------------------------------------------
+Q. THE RIGHT-CLICK MENU IS TOO LONG, AND ONE ENTRY LIES BY DOING NOTHING
+--------------------------------------------------------------------------------
+
+Reported 2026-08-17: "there are way to many settings in the right click now
+they need to be organized into dropdowns", "guide only and gene only does
+nothing", "my data say 1612 gRNAs and 0 genes".
+
+**Q1. SUBMENUS.** The menu now carries: point size, point colour, opacity,
+axis labels, font size, grid, legend, reset view, export, mark type, the
+p-value axis, the effect-size cut (seven methods plus a multiplier), show
+genes/guides, measured-from, colour by localisation, re-fit -- plus whatever
+the restyle work adds. That is well past what a flat list can carry.
+
+Group them, and group them by WHAT THEY CHANGE rather than by type, because
+that distinction is the one the menu already makes with its section headings
+and it is the one that matters:
+
+    Appearance      size, colour, opacity, font, lines, grid, legend, cmap,
+                    marker shape, dimensions, aspect
+    Axes            labels, limits, the p-value axis
+    What is shown   genes/guides, colour by localisation
+    Hit calling     the effect-size cut and its multiplier, measured-from
+    Run             re-fit
+    Export          ...
+
+The last three change what the plot MEANS; the first two change how it looks.
+A user reaching for "point size" must not be one slip from a re-fit, which is
+why the re-fit already sits under its own heading -- submenus should preserve
+that separation rather than flatten it back.
+
+**Q2. THE GENE/GUIDE FILTER DOES NOTHING ON A PERMUTATION RUN, AND IT IS
+RIGHT TO.** Diagnosed: `ml.py:3422` builds every permutation row's feature as
+`'fraction:grna[' + guide + ']'`. There are no `gene_fraction:gene[...]` rows
+because THE PERMUTATION TEST TESTS GUIDES -- it is a per-guide marginal
+association -- and the compatibility dict writes `results.csv`,
+`results_grna.csv` and `results_significant.csv` with NO `results_gene.csv`,
+unlike the parametric path.
+
+So 1612 gRNAs / 0 genes is CORRECT. "Guides only" changes nothing and "genes
+only" empties the plot. That is honest and useless, and it is what
+instruction 106 forbids by name: a control that cannot do anything is greyed
+out and SAYS WHY, never silently inert. Grey both entries on a table with
+only one level in it, with the reason.
+
+**Q3. THE REAL QUESTION, AND IT IS THE MAINTAINER'S TO ANSWER.** Should a
+permutation run have gene-level results at all? The parametric run gives
+`gene_fraction:gene[244480]` at p = 2.9e-13 AND the guide-support table that
+says which genes rest on a single guide. The permutation run gives neither,
+so the two runs are not comparable and a user switching inference loses the
+gene view without being told.
+
+Aggregating per-guide permutation results to genes is a real statistical
+choice with more than one defensible answer -- combine the per-guide P values
+(Fisher, Stouffer), test the gene's guides as a SET against the same
+permutation null, or report the gene only through guide agreement. They
+answer different questions and one of them has to be chosen deliberately.
+DO NOT PICK ONE SILENTLY.
