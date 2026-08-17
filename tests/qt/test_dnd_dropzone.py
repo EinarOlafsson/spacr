@@ -675,15 +675,30 @@ def test_apply_settings_csv_falls_back_to_setting_key_columns(tmp_path,
 
 
 def test_apply_settings_csv_warns_when_columns_are_unusable(tmp_path, msgbox):
+    """A CSV that is neither settings nor data any input on this screen wants.
+
+    The user is told which file was refused and which two column shapes WOULD
+    have been read, in the console -- and is not made to dismiss a modal
+    first. This test used to pin that modal. It was pinning the behaviour in
+    the state it was found in rather than the state it should be in: a
+    dropped CSV is DATA unless its header says it is settings, so a file that
+    never claimed to be settings was reported as a failed settings import.
+    "plate1_dv.csv must contain setting_key and setting_value columns" is an
+    accurate sentence about a file nobody said was settings, and a dead end
+    for the gesture the file inputs exist for. Both halves changed together
+    and only the modal is gone: the report is still made, in the same place
+    every other rejected drop reports, and still names both shapes.
+    """
     csv = tmp_path / "wrong.csv"
     csv.write_text("alpha,beta\n1,2\n")
     screen = FakeScreen()
     _apply_settings_csv(csv, screen)
     assert screen.applied == []
-    assert len(msgbox.calls) == 1
-    kind, title, text = msgbox.calls[0]
-    assert (kind, title) == ("warning", "CSV import failed")
-    assert "setting_key" in text
+    assert msgbox.calls == [], "a rejected drop should not block the user"
+    said = screen._console.text
+    assert "wrong.csv" in said, "the user is not told which file was refused"
+    assert "setting_key" in said and "Key/Value" in said, (
+        "the report does not say what a settings CSV would have looked like")
 
 
 def test_apply_settings_csv_works_without_a_console(tmp_path, msgbox):
