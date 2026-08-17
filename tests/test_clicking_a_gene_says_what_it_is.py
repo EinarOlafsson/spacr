@@ -565,3 +565,113 @@ def test_every_feature_in_the_real_screen_produces_a_tile():
     assert ambiguous == 3, (
         "exactly three fitted guides in this screen carry a shared "
         f"protospacer -- 411710_2, _3 and _10 -- and {ambiguous} were flagged")
+
+
+class TestTheTileLinksOut:
+    """"in the gene card section if you could add links to uniprot and toxodb
+    that would be awesome."
+
+    ToxoDB was already there. UniProt is the one with a trap in it: THE
+    ANNOTATION FILE CARRIES NO UNIPROT ACCESSION -- all 48 columns of
+    `toxoplasma_metadata.csv` were checked and the nearest thing is
+    `Protein Length` -- so there is nothing to point a record page at.
+
+    A record URL built by pasting a gene id into a UniProt path would resolve
+    to somebody else's protein or to a 404, and the first is far worse: a link
+    that opens a real page for a different organism's protein is
+    indistinguishable, to the reader, from a correct one.
+    """
+
+    def _frame(self):
+        import numpy as np
+        import pandas as pd
+
+        return pd.DataFrame({
+            "feature": ["gene_fraction:gene[244480]",
+                        "fraction:grna[000000_10]"],
+            "coefficient": [2.0, -0.1],
+            "p_value": [1e-9, 0.8],
+            "grna": [None, "000000_10"],
+            "gene": ["244480", None],
+        })
+
+    def test_a_real_gene_gets_a_toxodb_record(self):
+        from spacr.gene_tile import gene_tile
+
+        tile = gene_tile("gene_fraction:gene[244480]", self._frame())
+        labels = [r.label for r in tile.references]
+
+        assert any(label.startswith("ToxoDB") for label in labels), labels
+
+    def test_a_real_gene_gets_a_uniprot_link(self):
+        from spacr.gene_tile import gene_tile
+
+        tile = gene_tile("gene_fraction:gene[244480]", self._frame())
+        uniprot = [r for r in tile.references if "UniProt" in r.label]
+
+        assert uniprot, [r.label for r in tile.references]
+        assert uniprot[0].url.startswith("https://www.uniprot.org/")
+
+    def test_the_uniprot_link_is_a_SEARCH_and_says_so(self):
+        """A search makes no claim -- it asks UniProt the reader's question.
+        A record link asserts "this is the protein", and asserting that from
+        a gene id nothing mapped is how a figure legend ends up citing the
+        wrong accession."""
+        from spacr.gene_tile import gene_tile
+
+        tile = gene_tile("gene_fraction:gene[244480]", self._frame())
+        uniprot = [r for r in tile.references if "UniProt" in r.label][0]
+
+        assert "search" in uniprot.label.lower(), uniprot.label
+        assert "query=" in uniprot.url
+        assert "/uniprotkb/" not in uniprot.url, (
+            "a record URL was built from a gene id nothing mapped")
+
+    def test_an_accession_in_the_annotation_is_used_as_a_RECORD(self):
+        """The branch to prefer. If an annotation file ever carries one, the
+        link stops being a question and becomes an answer."""
+        from spacr.gene_tile import uniprot_reference
+
+        label, url, is_record = uniprot_reference(
+            "TGGT1_244480", {"UniProt ID": "S8ENL5"})
+
+        assert is_record is True
+        assert "S8ENL5" in label and "S8ENL5" in url
+        assert "query=" not in url
+
+    def test_a_blank_accession_in_the_annotation_falls_back_to_search(self):
+        """A column that exists and is empty is not an accession."""
+        from spacr.gene_tile import uniprot_reference
+
+        for value in ("", "   ", None, "nan"):
+            _label, url, is_record = uniprot_reference(
+                "TGGT1_244480", {"UniProt ID": value})
+            assert is_record is False, value
+            assert "query=" in url
+
+    def test_a_non_targeting_control_gets_no_gene_links(self):
+        """It is not a gene. A ToxoDB link for it points at nothing, and a
+        UniProt search for it returns somebody else's protein."""
+        from spacr.gene_tile import gene_tile
+
+        tile = gene_tile("fraction:grna[000000_10]", self._frame())
+
+        assert not tile.references, [r.label for r in tile.references]
+
+    def test_nothing_here_touches_the_network(self):
+        """121 requires it: no network call while the user waits."""
+        import socket
+
+        from spacr.gene_tile import gene_tile
+
+        real = socket.socket
+
+        def _refuse(*args, **kwargs):
+            raise AssertionError("the gene tile opened a socket")
+
+        socket.socket = _refuse
+        try:
+            tile = gene_tile("gene_fraction:gene[244480]", self._frame())
+            assert tile.references
+        finally:
+            socket.socket = real
