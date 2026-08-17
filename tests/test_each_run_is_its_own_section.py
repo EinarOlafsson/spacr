@@ -149,8 +149,15 @@ def test_the_grid_draws_a_heading_for_each_run(qtbot, queue, grid):
     assert "second run" in texts, texts
 
 
-def test_one_run_gets_no_heading(qtbot, queue, grid):
-    """A heading over the only section is furniture."""
+def test_one_run_gets_a_heading_too(qtbot, queue, grid):
+    """It used to get none, on the argument that a heading over the only
+    section is furniture. The heading is also the fold control, so "no
+    heading" meant "the first run cannot be folded" -- reported as the
+    figures not being collapsible at all. Changed 2026-08-17.
+
+    It also answers "which run am I looking at", which the grid could not
+    previously say with one run on screen.
+    """
     from PySide6.QtWidgets import QLabel
 
     _run(queue, "the only run", 3)
@@ -158,7 +165,7 @@ def test_one_run_gets_no_heading(qtbot, queue, grid):
                      sections=queue.run_sections())
 
     texts = [w.text() for w in grid._body.findChildren(QLabel)]
-    assert "the only run" not in texts
+    assert "the only run" in texts
 
 
 def test_the_screen_marks_a_run_when_it_starts(qtbot):
