@@ -954,6 +954,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self.setAcceptDrops(True)
         for v in (self._src_view, self._out_view):
             v.setAcceptDrops(False)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- construction ------------------------------------------------------
 

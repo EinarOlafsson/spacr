@@ -122,6 +122,11 @@ class VolcanoExplorer(QWidget):
         self.setAcceptDrops(True)
         if not self._results.empty:
             self.refresh()
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # ------------------------------------------------------------------ data
 
