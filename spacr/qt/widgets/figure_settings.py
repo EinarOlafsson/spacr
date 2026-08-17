@@ -612,21 +612,37 @@ class FigureSettingsDialog(QDialog):
             lambda value: (figure.set_dpi(value), self._changed()))
         form.addRow("DPI", dpi)
 
-        # One control that reaches every text object at once, because
-        # "make the fonts bigger" is a single intention.
+        # One control that reaches EVERY text object at once, because "make
+        # the fonts bigger" is a single intention.
+        #
+        # GitHub issue #108 (2026-08-17): "Font size is by default to large to
+        # be visible. Adjusting font size ... from 10 to 2, does not reduce
+        # the font size, in fact increases it, and when returning ... the font
+        # size has been returned to 10."
+        #
+        # All three symptoms were this control, and the cause is what it did
+        # NOT reach. Measured on a volcano-shaped figure: 23 text objects, 20
+        # reached, and the three it missed were
+        #
+        #     ('EAF1', 22.0)      an ax.texts annotation -- a GENE LABEL, and
+        #                         the LARGEST text on the figure
+        #     ('a run', 12.0)     the figure suptitle
+        #     ('condition', 10.0) the legend's title
+        #
+        # So shrinking "all text" shrank everything EXCEPT the biggest thing
+        # on the plot, which then dominated it -- and reads exactly as "the
+        # font got bigger". The volcano annotates its hits by name, so this
+        # is the common case, not a corner one.
         all_text = QSpinBox()
-        all_text.setRange(4, 48)
-        all_text.setValue(10)
+        # Down to 2, because 2 is what the reporter typed. A 2pt font is
+        # unreadable and that is their business; a control that silently
+        # clamps is one that lies about what it did.
+        all_text.setRange(2, 96)
+        all_text.setValue(_current_text_size(figure))
 
         def set_all_text(size):
-            for axis in figure.axes:
-                items = [axis.title, axis.xaxis.label, axis.yaxis.label]
-                items += axis.get_xticklabels() + axis.get_yticklabels()
-                legend = axis.get_legend()
-                if legend is not None:
-                    items += list(legend.get_texts())
-                for item in items:
-                    item.set_fontsize(size)
+            for item in _every_text(figure):
+                item.set_fontsize(size)
             self._changed()
         all_text.valueChanged.connect(set_all_text)
         form.addRow("All text size", all_text)
@@ -1073,6 +1089,63 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         settings.triggered.connect(lambda: open_settings())
     menu.addAction(settings)
     return menu
+
+
+def _every_text(figure):
+    """Every text object on ``figure``, including the ones easily missed.
+
+    The three that were missed are the point of this function, and each is a
+    different container: an ANNOTATION lives on ``axes.texts``, a SUPTITLE on
+    ``figure.texts``, and a legend's TITLE is not among its ``get_texts()``.
+    A control called "all text" that reaches twenty of twenty-three objects
+    is worse than one that reaches none, because the reader concludes the
+    control is broken rather than incomplete -- see issue #108.
+    """
+    items = []
+    for axis in getattr(figure, "axes", ()):
+        items += [axis.title, axis.xaxis.label, axis.yaxis.label]
+        items += list(axis.get_xticklabels()) + list(axis.get_yticklabels())
+        # Annotations: on the volcano these are the gene names, and they are
+        # the largest text on the plot.
+        items += list(getattr(axis, "texts", ()))
+        legend = axis.get_legend()
+        if legend is not None:
+            items += list(legend.get_texts())
+            title = legend.get_title()
+            if title is not None:
+                items.append(title)
+    # Figure-level text: the suptitle, and anything placed with figure.text.
+    items += list(getattr(figure, "texts", ()))
+    return [item for item in items if item is not None]
+
+
+def _current_text_size(figure, default: int = 10) -> int:
+    """The size the control should OPEN at: what the figure actually uses.
+
+    It opened at a hardcoded 10 whatever the figure was set to, which is the
+    third symptom of issue #108 -- "when returning to the Figure settings
+    button menu the font size has been returned to 10". It had never left 10;
+    it had never read the figure at all.
+
+    The MOST COMMON size, not the largest or the mean: a figure has many tick
+    labels at the body size and one or two headings above it, so the mode is
+    what "the font size of this figure" means to a reader. Ties go to the
+    smaller, so a figure with equal counts opens at its body size.
+    """
+    from collections import Counter
+
+    sizes = []
+    for item in _every_text(figure):
+        try:
+            if str(item.get_text()).strip():
+                sizes.append(round(float(item.get_fontsize())))
+        except Exception:                                        # noqa: BLE001
+            continue
+    if not sizes:
+        return default
+    counts = Counter(sizes)
+    best = max(counts.values())
+    return min(size for size, count in counts.items() if count == best)
 
 
 def save_figure_as(parent, figure, path: str = "") -> str:
