@@ -130,6 +130,30 @@ CONTROL_GENE = "000000"
 #: site this module knows about rather than derived.
 TOXODB_GENE_URL = "https://toxodb.org/toxo/app/record/gene/{accession}"
 
+#: UniProt, as a SEARCH rather than a record.
+#:
+#: THE ANNOTATION FILE CARRIES NO UNIPROT ACCESSION -- checked, all 48 columns
+#: of `toxoplasma_metadata.csv`, and the nearest thing to one is
+#: `Protein Length`. So there is nothing to link a record page to.
+#:
+#: A record URL built by pasting a gene id into a UniProt path would resolve
+#: to SOMEBODY ELSE'S PROTEIN or to a 404, and the first is much worse than
+#: the second: a link that opens a real page for a different organism's
+#: protein is indistinguishable, to the reader, from a correct one. A search
+#: makes no claim -- it asks UniProt the question the reader has, and
+#: UniProt answers it.
+#:
+#: If an annotation file ever carries an accession, :func:`uniprot_reference`
+#: uses it and links the record directly; that is the branch to prefer and it
+#: is why the column names are checked rather than assumed absent.
+UNIPROT_SEARCH_URL = (
+    "https://www.uniprot.org/uniprotkb?query={query}")
+UNIPROT_RECORD_URL = "https://www.uniprot.org/uniprotkb/{accession}/entry"
+
+#: Annotation columns that would hold a UniProt accession if one were there.
+UNIPROT_COLUMNS = ("UniProt ID", "UniProt", "UniProtKB", "uniprot_id",
+                   "UniProt Accession")
+
 #: Metadata columns worth a line of their own on the tile, in reading order,
 #: as ``(column, label)``. Everything else the annotation file carries is kept
 #: in :attr:`GeneCandidate.annotation` for a caller that wants it.
@@ -220,6 +244,37 @@ def is_toxoplasma_gene_id(gene: Any) -> bool:
     if match:
         return True
     return bool(_TOXO_GENE.match(text))
+
+
+def uniprot_reference(accession: str, annotation=None):
+    """A UniProt link for this gene: the record when known, else a search.
+
+    :param accession: the gene accession, e.g. ``TGGT1_239740``.
+    :param annotation: the gene's annotation row, if there is one.
+    :returns: ``(label, url, is_record)``, or ``None`` when there is nothing
+        useful to offer.
+
+    THE DISTINCTION MATTERS AND IS CARRIED IN THE LABEL. A record link says
+    "this is the protein"; a search link says "here is the question". Only
+    one of those is a claim, and only one of them can be wrong in a way the
+    reader cannot see -- a fabricated record URL that happens to resolve
+    opens a real page for a different protein and looks exactly like a
+    correct link.
+    """
+    if not accession:
+        return None
+    if annotation is not None:
+        for column in UNIPROT_COLUMNS:
+            try:
+                value = annotation.get(column)
+            except AttributeError:
+                value = None
+            text = "" if value is None else str(value).strip()
+            if text and text.lower() not in ("nan", "none", ""):
+                return (f"UniProt {text}",
+                        UNIPROT_RECORD_URL.format(accession=text), True)
+    return (f"UniProt search: {accession}",
+            UNIPROT_SEARCH_URL.format(query=accession), False)
 
 
 def toxodb_url(accession: str) -> str:
@@ -371,6 +426,11 @@ class GeneCandidate:
             if accession and all(accession != r.label.split()[-1] for r in out):
                 out.append(Reference(f"ToxoDB {accession}",
                                      toxodb_url(accession)))
+        found = uniprot_reference(self.accession or self.annotation_id,
+                                  self.annotation)
+        if found:
+            label, url, _is_record = found
+            out.append(Reference(label, url))
         return tuple(out)
 
 
