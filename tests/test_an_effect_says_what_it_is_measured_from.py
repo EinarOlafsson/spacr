@@ -206,3 +206,60 @@ def test_the_spacing_between_effects_survives():
     gaps_before = frame["coefficient"].diff().dropna()
     gaps_after = shifted["coefficient"].diff().dropna()
     np.testing.assert_allclose(gaps_before, gaps_after)
+
+
+# --------------------------------------------------------------------------- #
+#  A number the user chose
+# --------------------------------------------------------------------------- #
+
+def test_any_value_can_be_the_baseline():
+    """Asked for on 2026-08-17: "the user should be able to also set the
+    intercept at what ever they want"."""
+    frame = _frame(control_effect=0.0)
+    chosen = baseline.resolve(frame, baseline.VALUE, value=0.75)
+    shifted = baseline.apply(frame, chosen)
+
+    assert chosen.kind == baseline.VALUE
+    assert chosen.shift == pytest.approx(0.75)
+    assert (frame["coefficient"] - shifted["coefficient"]).round(9).nunique() == 1
+
+
+def test_a_string_that_is_a_number_is_accepted():
+    """It arrives from a text box."""
+    chosen = baseline.resolve(_frame(), baseline.VALUE, value="1.5")
+
+    assert chosen.shift == pytest.approx(1.5)
+
+
+def test_a_value_that_is_not_a_number_is_refused_with_a_reason():
+    chosen = baseline.resolve(_frame(), baseline.VALUE, value="abc")
+
+    assert chosen.kind == baseline.ZERO
+    assert "not a number" in chosen.reason
+
+
+def test_a_non_finite_value_is_refused():
+    """NaN and inf pass float() and would shift every effect to NaN, wiping
+    the plot with nothing saying why."""
+    for bad in (float("nan"), float("inf"), float("-inf")):
+        chosen = baseline.resolve(_frame(), baseline.VALUE, value=bad)
+        assert chosen.kind == baseline.ZERO, bad
+        assert "finite" in chosen.reason
+
+
+def test_it_says_the_number_came_from_the_user_not_the_data():
+    """The other three baselines are "let the data tell me where zero is".
+    This one is not, and the caption must not imply the screen supports it."""
+    chosen = baseline.resolve(_frame(), baseline.VALUE, value=0.75)
+
+    assert "+0.75" in chosen.sentence
+    assert "chosen by hand" in chosen.sentence
+    assert "rather than estimated" in chosen.sentence
+
+
+def test_zero_as_a_chosen_value_is_still_the_zero_baseline():
+    """It moves nothing, so `moves` must say so -- a caller that copied the
+    frame for a no-op shift would be paying for nothing."""
+    chosen = baseline.resolve(_frame(), baseline.VALUE, value=0.0)
+
+    assert chosen.moves is False
