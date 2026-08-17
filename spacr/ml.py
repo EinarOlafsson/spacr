@@ -720,7 +720,7 @@ def check_and_clean_data(df, dependent_variable):
     print("Data is ready for model fitting.")
     return df_cleaned
 
-def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10):
+def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance=0.02, smoothing=10, increment=10, dst=None):
     """
     Estimate the minimum number of cells per well needed for a stable well mean.
 
@@ -728,16 +728,34 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     increasing sample sizes and records the mean absolute difference from
     the well's full mean. Plots the smoothed curve with a ±1 s.d. band,
     marks the elbow point (or ``settings['min_cell_count']`` when it is
-    set) and writes ``results/cell_min_threshold.pdf`` next to
-    ``settings['count_data'][0]``.
+    set) and writes ``cell_min_threshold.pdf`` into ``dst``.
 
-    That destination is the SCREEN folder, shared by every run of the screen,
-    which is why :func:`perform_regression` copies whatever this draws into
-    the run's own folder -- see :func:`_keep_figures_with_the_run`.
+    WHERE THE FIGURE GOES IS THE CALLER'S DECISION, because the two callers
+    want different folders and only one of them can be derived from the
+    settings. Without ``dst`` this drew into ``<count folder>/results/``, the
+    SCREEN folder -- one path shared by every run of that screen. Two things
+    followed from that, and the second is not a tidiness complaint:
+
+      * a run's own folder is the record of the run, and the picture was not
+        in it, so :func:`perform_regression` had to snapshot the shared
+        folder and copy back whatever appeared;
+      * :func:`spacr.parameter_sweep.run_sweep_parallel` fits ``n_jobs``
+        trials of ONE screen in a ``ProcessPoolExecutor``, and this figure is
+        drawn on every trial whether or not ``min_cell_count`` is being
+        chosen. Every worker therefore wrote the same path at the same time,
+        and the copy-back -- "every figure in the shared folder whose stamp
+        changed since I started" -- could not tell its own trial's curve from
+        the one the worker next to it had just written.
+
+    ``perform_regression`` now passes its run folder, so each trial's curve
+    is written once, where that trial's results are. ``dst=None`` keeps the
+    historical screen-folder path for a notebook or script that calls this
+    directly.
 
     :param settings: Requires ``score_data`` (CSV path or list of paths),
-        ``score_column``, ``tolerance`` (int percent or float fraction),
-        ``min_cell_count`` and ``count_data``.
+        ``score_column``, ``tolerance`` (int percent or float fraction) and
+        ``min_cell_count``. ``count_data`` is needed only when ``dst`` is
+        left unset, and only to locate the figure.
     :param num_repeats: Subsamples drawn per sample size. Default ``10``.
     :param sample_size: Number of wells, taken largest-first by cell
         count, to simulate. Default ``100``.
@@ -745,6 +763,8 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
         ``settings['tolerance']``.
     :param smoothing: Rolling-window width used to smooth the curve.
     :param increment: Step between the simulated sample sizes.
+    :param dst: Folder for ``cell_min_threshold.pdf``, created if missing.
+        Default ``None``: ``<folder of settings['count_data'][0]>/results``.
     :returns: The elbow point's sample size, i.e. the minimum cell count
         per well, for passing to :func:`process_scores`.
     :raises ValueError: if ``settings['tolerance']`` is neither an int nor
@@ -866,11 +886,17 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     ax.set_title('Mean Absolute Difference vs. Sample Size with Standard Deviation')
     ax.legend().remove()
 
-    # WHERE THE FIGURE GOES. The guard here used to read `if dst is not None`
-    # over an `os.path.dirname(...)`, which can never be None -- so the branch
-    # was decoration and the figure was always written. It still is; the
-    # branch is gone rather than excused.
-    dst = os.path.join(os.path.dirname(settings['count_data'][0]), 'results')
+    # WHERE THE FIGURE GOES. A `dst` the caller named is used as given; the
+    # fallback is the historical screen folder, and it is derived here rather
+    # than in the signature because it depends on `settings`.
+    #
+    # (The guard here once read `if dst is not None` over an
+    # `os.path.dirname(...)` that could never be None, so the branch was
+    # decoration. It is a real choice now.)
+    if dst is None:
+        dst = os.path.join(os.path.dirname(settings['count_data'][0]),
+                           'results')
+    dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
     os.makedirs(dst, exist_ok=True)
     fig_file_path = save_figure(fig, os.path.join(dst,
                                                   'cell_min_threshold.pdf'),
@@ -4154,17 +4180,30 @@ def perform_regression(settings):
     # first one's -- a GUI session runs many.
     _AUTOMATIC_SETTINGS.clear()
 
-    # KEPT WITH THE RUN. `minimum_cell_simulation` writes
-    # `cell_min_threshold.pdf` into <count folder>/results/, which is the
-    # SCREEN folder every run of this screen shares -- see
-    # `_keep_figures_with_the_run` for the report and the measurement behind
-    # this.
+    # WRITTEN INTO THE RUN FOLDER, not copied into it afterwards.
+    #
+    # `cell_min_threshold.pdf` used to go to <count folder>/results/ -- the
+    # SCREEN folder, one path shared by every run of the screen -- and this
+    # call site snapshotted that folder and copied back whatever appeared, the
+    # way it still does for the sequencing sweep below.
+    #
+    # That worked for one run at a time and NOT for the sweep.
+    # `parameter_sweep.run_sweep_parallel` fits n_jobs trials of the same
+    # screen in a ProcessPoolExecutor. `_trial_settings` gives each trial its
+    # own `src`, so the RUN folders are already separate -- but the default
+    # destination here comes from `count_data`, which every trial shares, and
+    # this figure is drawn on EVERY trial (the call is unconditional; only
+    # whether its ANSWER is used depends on min_cell_count). So n_jobs
+    # workers wrote one path at once, and "every figure whose stamp changed
+    # since I started" cannot tell one worker's curve from another's: a trial
+    # could file the neighbouring trial's picture as its own, or copy one
+    # mid-write.
+    #
+    # `res_folder` is this run's own folder, so naming it removes the shared
+    # path rather than working around it.
     screen_folders = _screen_figure_folders(settings)
-    before_simulation = _figure_stamps(screen_folders)
-    sim_min_count = minimum_cell_simulation(settings, tolerance=settings['tolerance'])
-    for kept in _keep_figures_with_the_run(before_simulation, screen_folders,
-                                           res_folder):
-        print(f"Kept with the run: {kept}")
+    sim_min_count = minimum_cell_simulation(
+        settings, tolerance=settings['tolerance'], dst=res_folder)
 
     if settings['min_cell_count'] is None:
         settings['min_cell_count'] = sim_min_count
@@ -4333,7 +4372,21 @@ def perform_regression(settings):
         if settings['outlier_detection']:
             outliers_grna = get_outlier_reference_values(final_grna_df,outlier_col='grna_well_count',return_col='grna')
             if len (outliers_grna) > 0:
-                merged_df = merged_df[~merged_df['grna'].isin(outliers_grna)]
+                # .copy() IS LOAD-BEARING, not tidiness. Without it this is a
+                # slice of `merged_df`, and `grna_metricks` calls
+                # `_assign_prc_parts`, which ASSIGNS plateID/rowID/columnID
+                # onto the frame it is handed. Writing to a slice raises
+                # SettingWithCopyWarning -- which this suite promotes to an
+                # error (pytest.ini) and which pandas may in any case decline
+                # to write through -- and the exception was caught by the
+                # blanket `except` at the bottom of this QC block, so
+                # `grna_well.csv` and `well_grna.csv` were never written and
+                # the only trace was the warning text printed on its own line.
+                # Reproduced 2026-08-17: with outlier_detection=True the run
+                # completed and produced every regression output, and the two
+                # gRNA-coverage tables were simply absent.
+                merged_df = merged_df[
+                    ~merged_df['grna'].isin(outliers_grna)].copy()
                 final_grna_df, prc_gene_count_df = grna_metricks(merged_df)
                 merged_df.to_csv(data_path, index=False)
                 print(f"Saved regression data to {data_path}")
@@ -4486,7 +4539,7 @@ def perform_regression(settings):
         # the same list rather than keeping a second copy of it.
         from .thresholds import coefficient_threshold
 
-        reg_threshold, threshold_rule = coefficient_threshold(
+        measured_threshold, threshold_rule = coefficient_threshold(
             control_coef_df['coefficient'],
             method=settings['threshold_method'],
             multiplier=settings['threshold_multiplier'],
@@ -4496,7 +4549,41 @@ def perform_regression(settings):
             # mean centre moves the cut for every guide because of it.
             centre=None)
         print(f"Effect-size cut: {threshold_rule}")
-    
+
+        # `coefficient_threshold` answers None when NO CUT CAN BE MADE --
+        # `threshold_method='none'`, fewer than two control coefficients, or a
+        # set of controls with no spread at all. It is deliberately not a
+        # silent 0, so that the caller has to decide what to do about it, and
+        # every one of this function's three readers wanted a number:
+        #
+        #   * the hit list below compared a Series against None. pandas 2.x
+        #     evaluates `series >= None` as all-False rather than raising, so
+        #     BOTH masks were empty and the run wrote an EMPTY
+        #     results_significant.csv -- measured on the synthetic screen,
+        #     16 of 16 corrected hits lost, with nothing said.
+        #   * `custom_volcano_plot` does `abs(threshold)` and died with
+        #     `TypeError: bad operand type for abs(): 'NoneType'` after the
+        #     whole fit, every results CSV and every QC panel had been
+        #     written.
+        #   * `plot.volcano_plot` takes it as `fold_change_threshold`.
+        #
+        # 0 is what "no coefficient cut" already means to all three -- the
+        # value a control-free screen has carried for as long as this line has
+        # existed -- and `threshold_rule`, printed above, is what says WHY
+        # there is none. The reason is on the record; only the sentinel is
+        # normalised.
+        reg_threshold = (0 if measured_threshold is None
+                         else float(measured_threshold))
+    else:
+        # SAID, not left silent. A run WITH controls prints its cut and the
+        # rule behind it; a run without them printed nothing, so "there is no
+        # effect-size cut" looked exactly like "that line scrolled past". It
+        # is the more surprising of the two, because a hit list called on the
+        # corrected P value alone is a different claim from one that also had
+        # to clear a width.
+        print("Effect-size cut: no control gRNAs were named, so there is "
+              "none; a hit is the corrected P value alone.")
+
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)
     grna_coef_df.to_csv(results_path_grna, index=False)
@@ -4608,39 +4695,42 @@ def perform_regression(settings):
             frame.to_csv(path, index=False)
 
         significant = coef_df.loc[coef_df['q_value'] < alpha].copy()
-        if settings['controls'] is not None:
-            # KNOWN BUG, NOT FIXED HERE -- this pair makes the cut inert.
-            #
-            #     high = coefficient >= reg_threshold
-            #     low  = coefficient <= reg_threshold
-            #
-            # `reg_threshold` comes back from `coefficient_threshold` as
-            # `|median| + k x spread`, so it is never negative and the UNION
-            # of those two masks is every row: the effect-size cut filters
-            # nothing at all on this path. `custom_volcano_plot`, handed the
-            # same number, marks hits with `abs(coefficient) >= abs(threshold)`
-            # and draws its dashed lines at +/-threshold -- so the volcano and
-            # results_significant.csv disagree about which guides are hits,
-            # and only the volcano is right.
-            #
-            # The correction is one line:
-            #
-            #     significant = significant.loc[
-            #         significant['coefficient'].abs() >= abs(reg_threshold)]
-            #
-            # It is left here rather than applied because it makes
-            # `tests/test_cov_ml_perform_regression.py::
-            # test_min_n_filters_the_significant_hits` fail honestly -- that
-            # test asks for "every tested coefficient a hit" with alpha=0.999
-            # and gets an empty list once the cut bites, so the fixture needs
-            # controls whose spread does not swallow its own hits. Found
-            # 2026-08-17 while giving the guide-permutation path a cut, which
-            # DOES apply this rule (see `_run_guide_permutation_analysis`).
-            significant_high = significant.loc[
-                significant['coefficient'] >= reg_threshold]
-            significant_low = significant.loc[
-                significant['coefficient'] <= reg_threshold]
-            significant = pd.concat([significant_high, significant_low])
+        # THE EFFECT-SIZE CUT IS A WIDTH, SO IT IS SYMMETRIC. Until now this
+        # was a pair of one-sided masks whose UNION was every row:
+        #
+        #     high = coefficient >= reg_threshold
+        #     low  = coefficient <= reg_threshold
+        #
+        # `reg_threshold` is `|median| + k x spread`, so it is never negative
+        # and every coefficient satisfies one side or the other. Measured on
+        # the synthetic screen with `threshold_method='std'`: the cut was
+        # 0.57, and all 16 corrected hits survived it -- the narrowest at
+        # |coefficient| = 0.0026, more than two hundred times inside the cut.
+        # `custom_volcano_plot`, handed the SAME number, marks hits with
+        # `abs(coefficient) >= abs(threshold)` and would have called none of
+        # them, so the figure and results_significant.csv described different
+        # experiments and only the figure was right.
+        #
+        # A cut that admits +0.9 but not -0.9 would also call half a screen:
+        # a guide that moves the phenotype DOWN by more than the controls ever
+        # move is exactly as much a hit as one that moves it up, and which
+        # direction is 'good' is the biology's business, not the filter's.
+        #
+        # This is the rule `_run_guide_permutation_analysis` already applies
+        # (`passes_effect_size`), so the parametric and nonparametric paths
+        # now call a hit the same way.
+        #
+        # NOTHING IS DROPPED SILENTLY: every coefficient keeps its row in
+        # results.csv with its q value, and the line below says how many the
+        # cut removed and how wide it was.
+        if reg_threshold:
+            wide_enough = (significant['coefficient'].abs()
+                           >= abs(reg_threshold))
+            called = len(significant)
+            significant = significant.loc[wide_enough].copy()
+            print(f"Effect-size cut removed {called - len(significant)} of "
+                  f"{called} coefficients that passed correction but whose "
+                  f"effect is narrower than {abs(reg_threshold):.3g}.")
         significant = significant.sort_values(
             by='coefficient', ascending=False)
         significant = significant[~significant['feature'].str.contains('row|column')]
