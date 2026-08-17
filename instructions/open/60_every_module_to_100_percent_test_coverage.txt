@@ -1204,7 +1204,7 @@ measurement that proves it.
    THREE-component stem the crop path never sees; both now use the
    four-component name `spacr.io` actually writes.
 
-   THE MIGRATION is `io._migrate_unescaped_plate_names(src, dry_run=False)`.
+   THE MIGRATION is `io.migrate_unescaped_plate_names(src, dry_run=False)`.
    It moves `stack/`, `norm_channel_stack/`, `merged/` and `masks/` onto the
    escaped names, so a plate that has already been SEGMENTED does not have to
    be segmented again -- that is the whole reason it exists rather than a note
@@ -1218,7 +1218,7 @@ measurement that proves it.
    `tests/test_an_underscored_plate_folder_can_be_measured.py`.
 
    IT IS MODULE-PRIVATE AND SHOULD NOT BE. A user recovering a plate has to
-   call `from spacr.io import _migrate_unescaped_plate_names`. Making it
+   call `from spacr.io import migrate_unescaped_plate_names`. Making it
    public adds one to the reviewed API surface in
    `tests/test_api_i18n_extractor.py` (6839 -> 6840), which that file requires
    be bumped with a named entry and a catalog regeneration -- and that file

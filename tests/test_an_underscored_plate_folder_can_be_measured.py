@@ -31,7 +31,7 @@ import tifffile
 
 from spacr import schema as S
 from spacr.io import (_escaped_field_stem, _rename_and_organize_image_files,
-                      _migrate_unescaped_plate_names)
+                      migrate_unescaped_plate_names)
 from spacr.utils import _map_wells
 
 #: No plateID group, so the plate falls back to the source FOLDER name -- the
@@ -148,7 +148,7 @@ def test_the_migration_moves_the_arrays_and_the_masks_with_them(tmp_path):
     """Masks are hours to days of segmentation; the plate must not be re-run."""
     src = _legacy_plate(tmp_path)
 
-    moved = _migrate_unescaped_plate_names(str(src))
+    moved = migrate_unescaped_plate_names(str(src))
 
     assert len(moved) == 8
     for folder in ("stack", "merged", "masks/cell_mask_stack",
@@ -162,7 +162,7 @@ def test_a_dry_run_reports_and_moves_nothing(tmp_path):
     """The user gets to see what a migration would do before it does it."""
     src = _legacy_plate(tmp_path)
 
-    planned = _migrate_unescaped_plate_names(str(src), dry_run=True)
+    planned = migrate_unescaped_plate_names(str(src), dry_run=True)
 
     assert len(planned) == 8
     assert all(os.path.exists(old) for old, _new in planned)
@@ -175,17 +175,17 @@ def test_migrating_an_ordinary_plate_twice_does_nothing_either_time(tmp_path):
     (src / "merged").mkdir(parents=True)
     np.save(src / "merged" / "plate1_A01_1_1.npy", np.zeros((4, 4), np.uint16))
 
-    assert _migrate_unescaped_plate_names(str(src)) == []
-    assert _migrate_unescaped_plate_names(str(src)) == []
+    assert migrate_unescaped_plate_names(str(src)) == []
+    assert migrate_unescaped_plate_names(str(src)) == []
     assert os.listdir(src / "merged") == ["plate1_A01_1_1.npy"]
 
 
 def test_a_migrated_plate_is_not_migrated_again(tmp_path):
     """The escaped name is already correct; a second pass must not re-escape."""
     src = _legacy_plate(tmp_path)
-    _migrate_unescaped_plate_names(str(src))
+    migrate_unescaped_plate_names(str(src))
 
-    assert _migrate_unescaped_plate_names(str(src)) == []
+    assert migrate_unescaped_plate_names(str(src)) == []
     assert sorted(os.listdir(src / "merged")) == ["exp%5F1_A01_1_1.npy",
                                                   "exp%5F1_A01_2_1.npy"]
 
@@ -197,7 +197,7 @@ def test_the_migration_refuses_before_it_clobbers_anything(tmp_path):
             np.zeros((4, 4), dtype=np.uint16))
 
     with pytest.raises(FileExistsError) as exc:
-        _migrate_unescaped_plate_names(str(src))
+        migrate_unescaped_plate_names(str(src))
 
     assert "already exist" in str(exc.value)
     # and nothing moved: the raw names are all still there
@@ -212,7 +212,7 @@ def test_the_migration_leaves_names_that_are_not_field_stems_alone(tmp_path):
     np.save(src / "merged" / "notes.npy", np.zeros(2))
     (src / "merged" / "layout.json").write_text("{}")
 
-    _migrate_unescaped_plate_names(str(src))
+    migrate_unescaped_plate_names(str(src))
 
     assert sorted(os.listdir(src / "merged")) == [
         "exp%5F1_A01_1_1.npy", "layout.json", "notes.npy"]
@@ -226,6 +226,6 @@ def test_the_raw_drop_is_never_touched(tmp_path):
     raw = src / "orig" / "exp_1_A01_T0001_F001.tif"
     tifffile.imwrite(str(raw), np.zeros((4, 4), dtype=np.uint16))
 
-    _migrate_unescaped_plate_names(str(src))
+    migrate_unescaped_plate_names(str(src))
 
     assert raw.exists()
