@@ -19,6 +19,7 @@ from spacr.cli_database import main as database_cli
 from spacr.database_concurrency import (
     MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS,
     DatabaseBusy,
+    DatabaseConfigurationError,
     connect,
     inspect_database,
     run_concurrency_probe,
@@ -274,6 +275,62 @@ def test_disposable_probe_has_exact_rows_and_concurrent_reads():
     assert result.journal_mode == "WAL"
     # A default probe never leaves its stress database behind.
     assert not os.path.exists(result.path)
+
+
+def test_a_probe_that_never_starts_leaves_nothing_in_the_temp_directory():
+    """A journal mode the connection refuses is rejected AFTER the scratch
+    database has been created, and the cleanup was the last statement of the
+    function -- so every rejected run left an empty scratch database in the
+    system temp directory, for good. Nothing has been written by then, so
+    there is nothing to keep: the deliberate survivor is the STALLED one,
+    whose database is worth inspecting."""
+    import glob
+    import tempfile
+
+    pattern = os.path.join(tempfile.gettempdir(), "spacr-db-concurrency-*")
+    before = set(glob.glob(pattern))
+
+    with pytest.raises(DatabaseConfigurationError):
+        run_concurrency_probe(writers=1, readers=1, writes_per_writer=1,
+                              journal_mode="MEMORY")
+
+    assert set(glob.glob(pattern)) == before
+
+
+def test_a_probe_whose_setup_fails_leaves_nothing_behind(monkeypatch):
+    """Any failure between making the directory and reading the metrics back
+    is the same leak, and there are several -- the table create, the barrier,
+    the read back. One handler rather than one per raise site."""
+    import glob
+    import tempfile
+
+    import spacr.database_concurrency as module
+
+    pattern = os.path.join(tempfile.gettempdir(), "spacr-db-concurrency-*")
+    before = set(glob.glob(pattern))
+    monkeypatch.setattr(module.threading, "Barrier",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            RuntimeError("no threads today")))
+
+    with pytest.raises(RuntimeError, match="no threads today"):
+        run_concurrency_probe(writers=1, readers=1, writes_per_writer=1)
+
+    assert set(glob.glob(pattern)) == before
+
+
+def test_a_probe_at_an_explicit_path_that_fails_still_clears_that_path(
+        tmp_path):
+    """The scratch file is created before the journal mode is rejected, and
+    it stays -- which makes the NEXT run on that path fail with
+    FileExistsError against a database the user never got a probe out of."""
+    path = tmp_path / "scratch.sqlite"
+
+    with pytest.raises(DatabaseConfigurationError):
+        run_concurrency_probe(path, writers=1, readers=1,
+                              writes_per_writer=1, journal_mode="MEMORY")
+
+    assert not path.exists(), (
+        "the next run on this path now fails with FileExistsError")
 
 
 def test_probe_refuses_to_touch_an_existing_database(tmp_path):
