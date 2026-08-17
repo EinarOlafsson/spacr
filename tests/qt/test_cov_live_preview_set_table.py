@@ -564,9 +564,15 @@ def test_a_sampler_that_cannot_say_how_many_channels_leaves_the_combo_alone(
 # Building the table when the sample is awkward
 # ---------------------------------------------------------------------------
 
-def test_a_panel_with_no_table_builds_nothing(panel):
+def test_a_panel_with_no_table_builds_nothing(panel, monkeypatch):
+    """Three of the four preview panels have no set table, so this runs on
+    every image they load; it has to cost nothing, not merely not raise."""
+    sampled = []
+    monkeypatch.setattr(panel._sampler, "sample",
+                        lambda: sampled.append(1) or [])
     panel._set_table = None
-    panel._populate_set_table()          # must not raise
+    panel._populate_set_table()
+    assert sampled == []
 
 
 def test_a_sampler_that_refuses_to_sample_leaves_an_empty_table(panel,
@@ -619,9 +625,20 @@ def test_a_channel_a_field_does_not_have_leaves_its_cell_empty(panel,
 # The MIP toggle and the field dropdown, in their remaining states
 # ---------------------------------------------------------------------------
 
-def test_a_panel_with_no_projection_switch_refreshes_quietly(panel):
+def test_a_panel_with_no_projection_switch_refreshes_quietly(panel,
+                                                                monkeypatch):
+    """Same shape as the table: a panel without the switch must not pay for
+    the enumeration that decides whether to enable it."""
+    read = []
+
+    def _sets(self):
+        read.append(1)
+        return ()
+
+    monkeypatch.setattr(type(panel._sampler), "sets", property(_sets))
     panel._mip_toggle = None
-    panel._refresh_mip_toggle()          # must not raise
+    panel._refresh_mip_toggle()
+    assert read == []
 
 
 def test_moving_from_a_stacked_plate_to_a_flat_one_turns_projection_off(
