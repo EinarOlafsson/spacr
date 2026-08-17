@@ -1136,3 +1136,224 @@ exactly. It belongs at the two places that build the name --
 so the mask folders and any resume manifest have to move with it. That is the
 whole of why it is queued here rather than done at the end of a coverage
 pass.
+
+--------------------------------------------------------------------------------
+THE THREE QUEUED FINDINGS ARE FIXED -- 2026-08-17
+--------------------------------------------------------------------------------
+
+All three were reproduced before anything was changed, and each carries the
+measurement that proves it.
+
+1. THE TRACKED-MASK MOVIE. Reproduced on a 128 x 128 mask, five frames:
+   8.0 seconds, and a GIF holding 4000 x 4000 px frames -- 64 MB of RGBA each
+   before compression. The frame is now sized from the mask by
+   `io._mask_movie_frame_geometry`, long side held inside [320, 1024] px, with
+   the lettering derived from the frame rather than left at sizes chosen for a
+   50-inch canvas. Same input: 320 x 320, 0.41 MB per frame, 0.2 seconds.
+
+   AND THE FRAME COUNTER HAS NEVER REACHED THE FILE. `subplots_adjust(top=1)`
+   gave the axes every last inch, so `ax.set_title` drew above the canvas and
+   was clipped on every frame. Measured on a rendered GIF: zero lit pixels in
+   the top 5 % against 222 in the bottom 5 % where the filename sits. Both
+   captions now have a band of their own; measured again, 116 and 50.
+
+   The three `if plot or save:` call sites now have tests that let them RUN --
+   the btrack empty-segmentation return, and trackastra and ultrack through
+   their existing module stubs. 14 cases in
+   `tests/test_mask_movie_is_sized_from_the_mask.py`, 4.7 s for the file
+   INCLUDING three real movies.
+
+   `plot._imshow` and `_imshow_gpu` still open `figsize=(50, 50)`. Those are
+   grids of many crops rather than one field, so the constant is less absurd
+   there, and they are left alone deliberately rather than overlooked.
+
+2. THE UNDERSCORED PLATE FOLDER. Driven through the real ingest: an `exp_1`
+   folder now writes `exp%5F1_A01_1_1.npy` and `_map_wells` reads back
+   `('exp_1', 'r1', 'c1', 'f1', 'exp%5F1_r1_c1_f1')`, against `('error',) * 5`
+   before.
+
+   THE ESCAPE GOES AT THE WRITER, NOT THROUGH `escape_field_stem_plate` ON THE
+   JOINED NAME, and that is the one place this file's own note was wrong.
+   `escape_field_stem_plate` has to guess where the plate ends;
+   `io._escaped_field_stem` holds the four components separately and has
+   nothing to guess. `'my_plate_A01_3'` is both "plate my_plate, well A01,
+   field 3" and "plate my, well plate, field A01, time 3", and no rule over
+   the name alone tells them apart.
+
+   MEASURING THAT FOUND A LIVE BUG NEXT DOOR, ON EVERY ORDINARY PLATE.
+   `escape_field_stem_plate` took a TWO-token tail on a non-timelapse stem,
+   but `spacr.io` names every merged stack `plate_well_field_TIME` whatever
+   `timelapse` is set to -- the fact `parse_field_stem` already accounts for.
+   So the write and read halves of one grammar disagreed about where the plate
+   ends, and `utils._generate_names`, which escapes the merged stem before
+   cutting a crop out of it, swallowed the WELL into the plate. Measured on
+   the shipped Crop demo, run end to end:
+
+       crop PNG   plate1%5FA01_1_1_1.png
+       png_list   plateID 'plate1_A01'  rowID '2'  prcfo 'plate1%5FA01_2_2_f1_o1'
+       cell       plateID 'plate1'      rowID 'r1' prcf  'plate1_r1_c2_f2'
+
+   The crop table and the object tables carried DIFFERENT IDENTITIES FOR THE
+   SAME CELL, so nothing joining crops to measurements could match --
+   annotation, classification, every crop-to-measurement join. After the fix
+   the same demo writes `plate1_A01_1_1_1.png` and `png_list.prcfo` is
+   `plate1_r1_c2_f2_o1` against `cell.prcf` `plate1_r1_c2_f2`.
+
+   It is `nightly`-only: `09a4a75d` introduced the escape on 2026-08-15 and no
+   tag contains it. Two existing tests could not catch it because both used a
+   THREE-component stem the crop path never sees; both now use the
+   four-component name `spacr.io` actually writes.
+
+   THE MIGRATION is `io._migrate_unescaped_plate_names(src, dry_run=False)`.
+   It moves `stack/`, `norm_channel_stack/`, `merged/` and `masks/` onto the
+   escaped names, so a plate that has already been SEGMENTED does not have to
+   be segmented again -- that is the whole reason it exists rather than a note
+   saying "re-run the plate". Nothing in the measurement database needs
+   migrating, because a plate in this state produced none. It refuses before
+   it clobbers anything, is a no-op on an ordinary plate and on a plate it has
+   already migrated (escaping is NOT idempotent -- `exp%5F1` would become
+   `exp%255F1` -- so the test is "does the plate hold a raw separator", not
+   "does escaping change the name"), and never touches `orig/` or the raw
+   drop. 13 cases in
+   `tests/test_an_underscored_plate_folder_can_be_measured.py`.
+
+   IT IS MODULE-PRIVATE AND SHOULD NOT BE. A user recovering a plate has to
+   call `from spacr.io import _migrate_unescaped_plate_names`. Making it
+   public adds one to the reviewed API surface in
+   `tests/test_api_i18n_extractor.py` (6839 -> 6840), which that file requires
+   be bumped with a named entry and a catalog regeneration -- and that file
+   belongs to the regression session. Promoting it is a one-line rename plus
+   that ratchet bump, and it belongs with whoever owns the ratchet.
+
+3. THE TWO BLOCKS IN `_infection_qc_pca_clustering` ARE DEAD. Both removed
+   rather than excluded.
+
+   The second `if embed_method not in {"pca","umap","tsne"}` fallback: the
+   branch above assigns either `strategy`, which is in that set, or the
+   literal `"pca"`.
+
+   The `infection_col`/`_x`/`_y` recovery after the `validate="one_to_one"`
+   merge: `inf_any` is `group[infection_col].max()`, so the merged frame
+   always carries the column, and `suffixes=("", "_y")` can never mint an `_x`
+   at all. Enumerated exhaustively -- the top of the function has already
+   returned unless `infection_col in all_df.columns`, so there are three
+   cases and no fourth:
+
+       an ordinary column          the merge carries it verbatim
+       a numeric cell_* feature    cols_for_group names it TWICE, so it is
+                                   present twice rather than absent
+       one of the four key cols    cols_for_group duplicates a grouping key
+
+   THE NOTE ABOVE WAS RIGHT THAT A CRASH BLOCKS THE ROUTE AND WRONG ABOUT
+   WHERE. It is sixty lines LATER, not forty earlier: `ValueError: The truth
+   value of a Series is ambiguous` out of `if s.notna().sum() < 10:` at
+   timelapse.py:4816, because `cell_level[c]` is a DataFrame. A key column
+   dies earlier still, in `groupby`, with `Grouper for 'cellID' not
+   1-dimensional`. Neither message names the setting that caused it, so the
+   ambiguity is now refused where it can be named, in this module's own
+   print-and-skip register. Four cases in
+   `tests/test_cov_timelapse_qc_pca.py` assert the guard and the merge
+   invariant that makes the recovery dead.
+
+--------------------------------------------------------------------------------
+spacr/qt/screens/settings_model.py -- 92% TO 100% -- 2026-08-17
+--------------------------------------------------------------------------------
+
+MEASURED WITH THE CI MARKER EXPRESSION AND A PRIVATE COVERAGE_FILE, which is
+what the previous run needed: it was killed at ~55 minutes because it pulled
+in `test_e2e_real_dataset.py` and `test_hf_e2e_integration.py`. With
+`-m "not slow and not heavy"` those are deselected and the whole thing takes
+TEN AND A HALF MINUTES over the 70 files that import the module.
+
+    before   1699 statements   137 missing   92%    2802 passed, 628 s
+    after    1693 statements     0 missing  100%    2912 passed, 710 s
+
+Both taken over the same test set with the same marker expression, which is
+what makes them comparable. The failure count is 14 in both runs and the sets
+differ by one in each direction -- `test_synthetic.py::test_classify_demo_
+layout_is_not_measure_crops_layout` stopped failing and `test_gui_
+responsiveness.py::test_recomputing_a_pca_never_freezes_the_gui_thread`
+started; the second passes in isolation in 3 s and is timing under `-n 4`
+plus the tracer.
+
+The whole-package table's "167 uncovered at 89.9%" was close this time -- the
+first entry on that list that has been.
+
+WHAT THE 137 WERE, and the shape is worth recording because it is the shape
+the rest of this task now has: almost all of them are `except` arms and
+"the widget is not what I expect" guards, spread over FIFTY-FOUR functions,
+never more than eight in any one. Three states recur:
+
+  * A PLUGIN CONTRIBUTES AN APP. Nine helpers ask `plugins.get_app` for a
+    module's defaults, categories, tooltips, labels and docs URL, and every
+    one wraps the call in `except Exception` because a third-party plugin can
+    raise anything. No test had ever made one raise, and none had made
+    `get_app` SUCCEED either.
+  * A C++ OBJECT OUTLIVES ITS PYTHON HANDLE. The API-dot installer and the
+    tooltip refresher walk trees a screen teardown may already have
+    destroyed; `RuntimeError` there is the ordinary case.
+  * A SETTING'S VALUE IS NOT THE TYPE THE WIDGET EXPECTS. A settings CSV is
+    hand-editable, so every reader has a fallback, and a fallback nobody has
+    run is a guess.
+
+110 cases in `tests/qt/test_cov_settings_model.py`, 2.8 s.
+
+TWO DEAD BLOCKS REMOVED, no pragma added anywhere:
+
+  * the `label.startswith("ML Classifier")` rename in `categories_for_app`'s
+    `classify_merged` rebuild. `ml_groups` is a literal tuple twelve lines
+    above and neither of its two entries has been called that since the
+    groups were consolidated.
+  * the catch-all beneath it that copied any group the five ordering tuples
+    do not name. `ordered` is a literal a hundred lines up plus this branch's
+    own two additions, and the tuples enumerate every one of them. It was a
+    net against that literal growing a group nobody added to a tuple, so the
+    invariant is asserted directly instead --
+    `test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild` fails
+    if any setting the panel builds a widget for is not rendered in a
+    section. A silent net nobody has seen fire is not evidence.
+
+NO NEW BUG IN THE MODULE ITSELF, which is worth stating rather than leaving
+as an absence: every one of the 137 behaved as its comment said. What the
+pass bought is that the plugin seam is now exercised in both directions --
+succeeding and raising -- for the first time.
+
+--------------------------------------------------------------------------------
+THE STATE OF THE SUITE, MEASURED -- 2026-08-17
+--------------------------------------------------------------------------------
+
+Non-qt, `-m "not slow and not heavy and not gpu and not network and not nas
+and not gui"`, `-n 6`: 18,347 passed, 8 failed, 10 skipped, 10 m 34 s.
+
+FOUR OF THE EIGHT ARE PRE-EXISTING ON `nightly` and were confirmed by
+reverting every file this pass touched and re-running them:
+
+    test_cov_utils_settings_mp.py::test_load_settings_wrong_columns_raises
+    test_cov_ml_reads_scores.py::test_process_scores_all_nan_plate_id_and_no_plate_raises
+    test_notebook_settings.py::test_the_committed_notebooks_match_what_the_tool_generates
+    test_declared_dependencies_match_imports.py::test_every_third_party_import_is_a_declared_dependency
+
+TWO PASS IN ISOLATION and failed only under `-n 6` -- order or parallelism,
+not the change:
+
+    test_data_manager.py::test_scan_plan_prune_leaves_a_project_that_can_be_rebuilt
+    test_the_well_distributions_are_house_style.py::test_saving_writes_the_same_two_filenames_the_pipeline_always_wrote
+    test_translation_correctness.py::test_an_untranslated_entry_is_declared_or_absent
+
+`test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_
+coverage` is the regression session's ratchet and is discussed under item 2.
+
+--------------------------------------------------------------------------------
+WHERE THE NEXT WORKER SHOULD GO -- 2026-08-17
+--------------------------------------------------------------------------------
+
+The 2026-08-16 whole-package ranking is now EXHAUSTED of everything this
+instruction owns. A fresh one is needed, and it should be taken the way this
+pass took its settings_model number -- with the CI marker expression and a
+private `COVERAGE_FILE` -- because that run costs ten minutes rather than two
+hours and is what CI actually measures.
+
+The cross-check rule has now paid for itself five times and did NOT fire on
+settings_model, which is the first entry on that table to be roughly right.
+Keep the rule; it costs one `--co`.
+
