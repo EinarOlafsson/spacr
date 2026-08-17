@@ -2,8 +2,12 @@
 
 Everything here is CPU-only, offline and deterministic: group data is built
 from normal quantiles (``norm.ppf`` on an evenly spaced grid) so the
-D'Agostino / Shapiro normality verdicts are fixed rather than sampled, and
-the log-transform of the same grid gives a reproducibly *non*-normal group.
+Shapiro-Wilk normality verdicts are fixed rather than sampled, and the
+log-transform of the same grid gives a reproducibly *non*-normal group.
+
+Which test applies is decided by ``spacr.figures.stats`` since 2026-08-17
+(instruction 127 finding 2); ``spacrGraph`` is a translation layer onto it.
+Assertions that moved with that change carry the date and the reason.
 
 Four genuine defects found while writing these tests are pinned with
 ``xfail(strict=True)`` asserting the CORRECT behaviour:
@@ -388,8 +392,22 @@ def test_create_plot_with_remove_outliers_still_plots():
 # spacrGraph.perform_normality_tests
 # ===========================================================================
 
-def test_perform_normality_tests_picks_test_by_sample_size(capsys):
-    """n>=8 -> D'Agostino, 3<=n<8 -> Shapiro, n<3 -> skipped."""
+def test_perform_normality_tests_reports_shapiro_and_its_power(capsys):
+    """CHANGED 2026-08-17 (instruction 127 finding 2, Einar).
+
+    The check itself moved: `spacrGraph` no longer runs D'Agostino above n=8
+    and Shapiro below it, it asks `spacr.figures.stats.check_normality`, the
+    one engine, which is Shapiro-Wilk against a Bonferroni threshold across
+    the groups. Two assertions here reversed, and both reversed because the
+    ANSWER changed rather than the label:
+
+    * ``is_normal`` was True. Groups of 10, 5 and 2 cannot establish
+      normality -- five points give Shapiro no power to reject anything --
+      and the old code read "not rejected" as "normal".
+    * the n=5 group's p-value was a number. It is NaN now, with a sentence
+      saying the check could not see, because a plausible-looking p beside
+      "Shapiro-Wilk" is what made the defect invisible.
+    """
     from spacr.plot import spacrGraph
 
     df = _frame(("big", "small", "tiny"),
@@ -399,14 +417,18 @@ def test_perform_normality_tests_picks_test_by_sample_size(capsys):
     is_normal, results = g.perform_normality_tests()
     by_group = {r["Comparison"].split(" for ")[1].split(" on ")[0]: r for r in results}
 
-    assert by_group["big"]["Test Name"] == "D'Agostino-Pearson test"
+    assert by_group["big"]["Test Name"] == "Shapiro-Wilk"
     assert by_group["big"]["n"] == 10
-    assert by_group["small"]["Test Name"] == "Shapiro-Wilk test"
+    assert by_group["big"]["Informative"] is True
+    assert by_group["small"]["Test Name"] == "Shapiro-Wilk"
     assert by_group["small"]["n"] == 5
+    assert by_group["small"]["Informative"] is False
+    assert np.isnan(by_group["small"]["p-value"])
     assert by_group["tiny"]["Test Name"] == "Skipped"
     assert by_group["tiny"]["Test Statistic"] is None
     assert by_group["tiny"]["p-value"] is None
-    assert is_normal is True
+    assert is_normal is False, (
+        "five replicates cannot license a parametric test")
     assert "Skipping normality test for group 'tiny'" in capsys.readouterr().out
 
 
@@ -418,12 +440,20 @@ def test_perform_normality_tests_flags_skewed_groups():
     is_normal, results = g.perform_normality_tests()
 
     assert is_normal is False
-    assert all(r["Test Name"] == "D'Agostino-Pearson test" for r in results)
+    # LABEL ONLY: the same rejection, now reported under the name of the test
+    # the one engine actually ran.
+    assert all(r["Test Name"] == "Shapiro-Wilk" for r in results)
     assert all(r["p-value"] < 0.05 for r in results)
 
 
-def test_degenerate_groups_are_not_mistaken_for_normal_data():
-    """One value per well cannot establish normality or equal variance."""
+def test_degenerate_groups_are_refused_rather_than_named():
+    """One value per well cannot establish normality or equal variance.
+
+    CHANGED 2026-08-17: the comparison used to be reported as
+    'Mann-Whitney U test' with a NaN p. Naming a test that never ran is the
+    same defect as claiming Student's when Welch's was used, so the engine's
+    refusal is reported instead, with its reason.
+    """
     import warnings
     from spacr.plot import spacrGraph
 
@@ -440,12 +470,25 @@ def test_degenerate_groups_are_not_mistaken_for_normal_data():
 
     assert is_normal is False
     assert np.isnan(levene_stat) and np.isnan(levene_p)
-    assert tests[0]["Test Name"] == "Mann-Whitney U test"
+    assert tests[0]["Test Name"] == "not testable"
+    assert np.isnan(tests[0]["p-value"])
+    assert "cannot be tested" in tests[0]["Why This Test"]
     assert not [warning for warning in caught
                 if issubclass(warning.category, RuntimeWarning)]
 
 
-def test_constant_parametric_groups_return_nan_without_scipy_warning():
+def test_constant_groups_do_not_license_a_t_test():
+    """CHANGED 2026-08-17: was 'T-test' with a NaN statistic.
+
+    Five wells that all read exactly the same number carry no spread, so the
+    normality check has nothing to describe and the engine takes the rank
+    branch. p = 1.0 on two identical arms is a true statement about them; a
+    NaN under the heading 'T-test' was a test name with no test behind it.
+
+    The half that must NOT change is the reason this test was written: scipy
+    emits a RuntimeWarning on a degenerate t-test, and a plot call that
+    prints one into a user's console is how the case was found.
+    """
     import warnings
     from spacr.plot import spacrGraph
 
@@ -457,9 +500,8 @@ def test_constant_parametric_groups_return_nan_without_scipy_warning():
         results = graph.perform_statistical_tests(
             graph.df["grp"].unique(), is_normal=True)
 
-    assert results[0]["Test Name"] == "T-test"
-    assert np.isnan(results[0]["Test Statistic"])
-    assert np.isnan(results[0]["p-value"])
+    assert results[0]["Test Name"] == "Mann-Whitney U test"
+    assert results[0]["p-value"] == pytest.approx(1.0)
     assert not [warning for warning in caught
                 if issubclass(warning.category, RuntimeWarning)]
 
@@ -499,7 +541,17 @@ def test_paired_ttest_branch():
     assert res[0]["p-value"] < 0.05  # b is shifted +2 from a
 
 
-def test_paired_ttest_marks_zero_variance_differences_undefined():
+def test_paired_differences_with_no_spread_are_refused():
+    """CHANGED 2026-08-17: was reported as 'Paired T-test' with a NaN p.
+
+    `normal_df` shifts group b by a constant, so every matched difference is
+    the same number and the standard error of the difference is zero. Left to
+    itself `spacr.figures.stats.compare(paired=True)` hands that to
+    `ttest_rel`, which returns t = -inf and p = 0.0 with a RuntimeWarning --
+    the strongest claim the software can make, off an input that says
+    nothing. spacrGraph refuses on the engine's behalf; the engine has no
+    guard of its own for the paired case and should grow one.
+    """
     import warnings
     from spacr.plot import spacrGraph
 
@@ -511,9 +563,10 @@ def test_paired_ttest_marks_zero_variance_differences_undefined():
         result = graph.perform_statistical_tests(
             graph.df["grp"].unique(), is_normal=True)[0]
 
-    assert result["Test Name"] == "Paired T-test"
+    assert result["Test Name"] == "not testable"
     assert np.isnan(result["Test Statistic"])
     assert np.isnan(result["p-value"])
+    assert "no spread" in result["Why This Test"]
     assert not [warning for warning in caught
                 if issubclass(warning.category, RuntimeWarning)]
 
@@ -658,8 +711,10 @@ def test_create_plot_single_data_column_graph_types(graph_type):
     # _standerdize_figure_format enforces a square >=10 inch canvas
     assert tuple(fig.get_size_inches()) == (10.0, 10.0)
     # stats survived onto results_df: normality + omnibus + tukey
+    # (LABEL ONLY: the normality rows say Shapiro-Wilk since 2026-08-17,
+    # because that is the test the one engine runs.)
     res = g.get_results()
-    assert set(res["Test Name"]) >= {"D'Agostino-Pearson test", "One-way ANOVA"}
+    assert set(res["Test Name"]) >= {"Shapiro-Wilk", "One-way ANOVA"}
     assert len(res) == 3 + 1 + 3
 
 
