@@ -3129,7 +3129,12 @@ class GateEditorPanel(QWidget):
                 frame, x_column, y_column,
                 eps=eps, min_samples=params.min_samples,
                 scale=params.scale, method=params.method,
-                parent=self.canvas.active_gate())
+                # A PROPERTY on the canvas, a METHOD on the tree. Calling the
+                # canvas one called its RESULT, so every cluster run that got
+                # past the dialog died on "'NoneType' object is not callable".
+                # The same mix-up is already recorded a few screens up for
+                # `gates`.
+                parent=self.canvas.active_gate)
         except ClusterError as exc:
             # Named, not swallowed: every one of these messages says what to
             # change, and a silent empty result reads as a broken button.
@@ -3143,11 +3148,23 @@ class GateEditorPanel(QWidget):
                 "eps to group them more loosely, or lower min_samples.")
             return
 
-        gates = self.canvas.gates
+        # THE PANEL'S GateSet, not the canvas's. Until something calls
+        # set_gates the two are different objects, and on a fresh session
+        # nothing does -- so clusters added to the canvas's copy never
+        # reached the gate list, were never saved by screen.save_gates,
+        # were not counted in the status line, and were deleted by the next
+        # hand-drawn gate, which pushes self._gates back over the canvas.
+        # Same sequence as _on_gate_drawn, for the same reasons; tree.select
+        # is needed because tree.set_gates clears the tree and drives active
+        # back to None.
+        gates = self._gates
         for gate in found:
             gates.add(gate)
         self.canvas.set_gates(gates, active=found[0].name)
+        self.tree.set_gates(gates, self._frame)
+        self.tree.select(found[0].name)
         self._refresh_status()
+        self.gates_changed.emit()
         if chosen is not None:
             # What the walk decided, in the units the user typed in, so the
             # number can be carried back to Gate Settings by hand. A search
@@ -3158,9 +3175,6 @@ class GateEditorPanel(QWidget):
                 f"Clustered at eps {chosen.eps:.3g}, which gave "
                 f"{chosen.clusters} populations and left "
                 f"{chosen.noise_fraction:.0%} of objects outside them.")
-
-    def _on_close_polygon(self) -> None:
-        self.canvas.close_polygon()
 
     def _on_gate_edited(self, gate: Gate) -> None:
         """Replace a gate that was dragged on the canvas.
