@@ -283,7 +283,29 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #   3  spacr.qt.widgets.figure_grid_view -- toggle_section,
     #      is_section_collapsed, set_section_collapsed
     #   2  spacr.qt.widgets.sweep_runs       -- record_run, update_run
-    expected = 6845
+    # +25 on 2026-08-17: instruction 128 D/E/F -- the live graph as a grid
+    # tile, the residual diagnostics as tabs, and the mark type on the
+    # right-click menu. Enumerated by the agent that wrote them and checked
+    # against a HEAD worktree, where the ratchet passed, so all 25 are from
+    # that one commit (16f32ce9).
+    #
+    #   spacr.qt.widgets.fast_plots       GroupedPlot, ScaleLocationPlot,
+    #                                     InfluencePlot, mark_advice,
+    #                                     context_from_model, FastPlot.snapshot,
+    #                                     .offer_marks, .add_group_mark,
+    #                                     GroupedPlot.mark / set_mark / redraw /
+    #                                     group_sizes / mark_note and the two
+    #                                     subclass overrides of each
+    #   spacr.qt.widgets.regression_results
+    #                                     results_frame, diagnostic_plots,
+    #                                     set_diagnostics, clear_diagnostics
+    #   plus the documented constants beside them.
+    #
+    # NOTHING WAS MADE PRIVATE TO DODGE THIS COUNTER, which is the failure
+    # mode from the bump before last. `results_frame()` in fact REMOVES a
+    # private reach: `_show_publication_sheet` was doing
+    # `getattr(panel, "_frame")` into another widget's internals.
+    expected = 6870
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -298,7 +320,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6964
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6989
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
