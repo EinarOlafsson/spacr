@@ -477,3 +477,29 @@ while removing an interior object, because the diff classified objects by
 the scene's own `touches` flag. Any animation whose fault is "the picture
 shows the wrong thing" rather than "the picture barely changes" is still
 only as audited as someone's eyes made it.
+
+================================================================================
+2026-08-17 - REOPENED: THE STALE PAGE IS STILL STALE, AND IT IS A LANDMINE
+================================================================================
+
+Verified today rather than assumed. `docs/source/setting_animations.rst:879`
+still reads
+
+    **Settings:** ``z_projection``, ``all_to_mip``, ``pick_slice``
+
+and nothing in `spacr/setting_animations.py` or `spacr/settings*.py` emits
+`all_to_mip` any more -- grep returns nothing. So the page describes a
+setting the generator does not produce, exactly as the note above warned.
+
+WHY THIS IS NOT A DOCUMENTATION NIT. The note above says it in one line and
+it is worth repeating at the top of the file: everything in the previous pass
+used `--only`, so the page was never regenerated. THE NEXT FULL REGENERATION
+SILENTLY REVERTS ANY FIX MADE TO THE PAGE BY HAND. Whoever fixes it must fix
+the GENERATOR, or fix the page and regenerate in the same commit -- a
+hand-edit alone is work that disappears the next time somebody runs the tool.
+
+Also still open from the same entry: the 23 animations under the 1%
+visible-change threshold, worst `remove_cluster_noise` at 0.0006.
+
+Moved back to open/ 2026-08-17. It was filed done while its own trailing note
+said "STILL TRUE AND STILL NOT DONE".
