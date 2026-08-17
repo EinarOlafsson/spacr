@@ -466,3 +466,130 @@ does not permit editing or re-execution of the pipeline from the canvas,
 and does not attempt to replace napari for image inspection. Scope is
 confined to representation of a run that spaCR is performing or has
 performed.
+
+================================================================================
+INVENTORY (2026-08-16) -- THE SECTION 2 GROUNDWORK, AND ONE FALSE PREMISE
+================================================================================
+
+No code was written. This file's own gate says section 2 must be confirmed
+with the maintainer BEFORE implementation, and the "two things to settle"
+above are questions only he can answer. What follows is the part that could
+be settled without him: the repository facts the conversation needs, so it is
+a short conversation rather than a long one.
+
+--------------------------------------------------------------------------------
+THE FALSE PREMISE: run_journal HAS NO STAGE CONCEPT
+--------------------------------------------------------------------------------
+
+Two places above say it does:
+
+    "spacr/run_journal.py   open_run() already records stage order,
+                            settings, environment, input hashes and timings"
+
+    open question 3, "live per-node state ... DEFAULT: live, driven from
+    run_journal, which already records stage order and timings per run"
+
+IT DOES NOT. `spacr/run_journal.py` is 1865 lines and contains the string
+"stage" ZERO times, in any case. `Run` carries app_key, settings, dir,
+start_ts, end_ts, status, model_hashes, model_files, input_hashes,
+output_hashes, seeds, provenance_warnings, run_warnings, environment,
+stdout_path and error_traceback -- a whole-run record, opened once per
+invocation by `gui_utils.py:681`, `cli.py:1611` and `cli_repro.py:126`.
+There is one start and one end, and nothing between them.
+
+So the recommended default for question 3 is not cheap; it is the largest
+single piece of work in this instruction. "Consume the journal rather than
+instrument separately" cannot be done, because there is nothing to consume.
+Live per-node state requires either instrumenting the stages or deriving
+them from something that already moves. Decide that knowingly.
+
+WHAT DOES MOVE TODAY, and what it can and cannot support:
+
+  * `bridge._PROGRESS_RE` scrapes `Progress: n/m` off the worker's stdout.
+    Its own comment says this "is the only progress signal the pipelines
+    emit". It gives a fraction, not a stage identity -- it cannot say WHICH
+    of the eight nodes is running.
+  * `RunHandle` (bridge.py:452) holds that fraction and a `changed` signal,
+    per run, on the GUI thread. It is the right transport if a stage signal
+    ever exists.
+  * `ConsolePanel.begin_topic` sections the console per stage, but nothing in
+    `spacr/` calls it -- the only caller is the console itself. So the
+    console's own sectioning is not a stage feed either.
+
+The honest options for question 3, in increasing cost:
+
+  a. STATIC diagram, live only in the coarse sense the journal supports:
+     the run is running, succeeded or failed. Cheap and truthful today.
+  b. Derive stage from the stdout the pipelines already print, the way the
+     progress fraction is derived. Read-only, no pipeline changes, and
+     exactly as brittle as string matching always is.
+  c. Add a stage record to `run_journal.Run` and call it from the pipelines.
+     This is the version that makes FlowView worth building, and it is a
+     change to the journal format, which is provenance and versioned.
+
+--------------------------------------------------------------------------------
+FLOWVIEW VERSUS THE PIPELINE GRAPH SCREEN -- THEY DO NOT OVERLAP
+--------------------------------------------------------------------------------
+
+Question 1 above assumes both draw "the DAG of a run" and asks which
+supersedes which. Having read it: they draw different things and neither
+supersedes the other.
+
+`spacr/qt/screens/pipeline_graph.py` (727 lines) draws ARTIFACTS and
+PROVENANCE across a whole project: boxes are files that exist on disk, arrows
+are "was made from", and the colour is `spacr.artifacts.Registry.is_stale`.
+Its subject is "the mask step was re-run on Tuesday and nothing downstream
+was", ACROSS runs and across days. Its own docstring is explicit that it is
+drawn from provenance rather than from the module list, and that the declared
+order (`spacr.ports.PORTS`) is shown only dimmed underneath.
+
+FlowView as specified draws STAGES WITHIN ONE RUN of one module, and the
+approved blueprint is eight stages inside Classify. Different subject,
+different time scale, different source of truth.
+
+One sentence apiece, which is what question 1 asked for:
+
+    Pipeline Graph -- which of my files were made from which, and which of
+                      them are now out of date.
+    FlowView       -- what this run is doing, stage by stage, while it runs.
+
+`spacr.ports.PORTS` is the declared module-to-module order and already has
+`next_modules`, `upstream_modules`, `producers_of` and `consumers_of`. It is
+BETWEEN-module and so does not give the eight WITHIN-Classify nodes either;
+the blueprint stays hand-written, as approved.
+
+--------------------------------------------------------------------------------
+CLASSIFY: WHERE THE EIGHT BLUEPRINT NODES ACTUALLY LIVE
+--------------------------------------------------------------------------------
+
+`spacr/classify.py` is small and is the merged entry point:
+
+    classify(settings)                  the single entry point (line 144)
+    resolve_family(settings)            answers open question 2 already --
+                                        one node naming the active family is
+                                        exactly what this function returns
+    resolve_ml_model_type(settings)     the ML branch's model identity
+    inapplicable_settings(family)       the settings the chosen family does
+                                        not read
+
+That last one is worth flagging beyond FlowView: it is a SECOND inventory of
+"what this family ignores", parallel to `ml.REGRESSION_SETTINGS_USED`, which
+instruction 106 makes the single source of truth for the regression panel.
+Two tables of the same kind of fact will drift. Whoever does 106's point 6
+(extending the greying beyond the regression panel) should reuse this one for
+Classify rather than write a third.
+
+--------------------------------------------------------------------------------
+STILL BLOCKED, AND ON WHAT
+--------------------------------------------------------------------------------
+
+  * Question 3's answer, now that its stated default is known to be
+    unavailable. a/b/c above.
+  * Confirmation that the placement recommendation (boxed panel under the
+    settings column first, backdrop second) is accepted.
+  * The Gate Editor comes first, per the ORDER note above. That has not
+    changed.
+
+The `theme.register_widget_qss` / `WIDGET_QSS_MODULES` warning in "BEFORE
+WRITING ANY CODE" is still live and still correct; it is the first thing to
+do when the panel is built, not the last.
