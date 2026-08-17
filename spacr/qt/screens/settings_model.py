@@ -1518,13 +1518,13 @@ def categories_for_app(
                 if name in ordered:
                     rebuilt[cv_prefix + name] = ordered[name]
             for name in ml_groups:
+                # A rename of `label` to "Classifier & Validation" stood here,
+                # guarded on `name.startswith("ML Classifier")` so the heading
+                # would not read "Machine Learning - ML Classifier". No entry
+                # of `ml_groups` has been called that since the groups above
+                # were consolidated, so it could not run and was removed.
                 if name in ordered:
-                    label = name
-                    if label.startswith("ML Classifier"):
-                        # Already named for its family; prefixing would read
-                        # "Machine Learning - ML Classifier".
-                        label = "Classifier & Validation"
-                    rebuilt[ml_prefix + label] = ordered[name]
+                    rebuilt[ml_prefix + name] = ordered[name]
             # Shared groups that come LAST -- evaluation applies to both
             # families, so prefixing it onto one would be a lie about who it
             # belongs to, and putting it first would bury the settings that
@@ -1532,11 +1532,14 @@ def categories_for_app(
             for name in shared_last:
                 if name in ordered:
                     rebuilt[name] = ordered[name]
-            for name, keys in ordered.items():
-                if name not in rebuilt and name not in cv_groups \
-                        and name not in ml_groups and name not in shared_first \
-                        and name not in shared_last:
-                    rebuilt[name] = keys
+            # A catch-all that copied any group the five tuples above do not
+            # name stood here, and it could not run either: `ordered` is the
+            # literal a hundred lines up plus this branch's own two additions,
+            # and the tuples enumerate every one of them. It was a net against
+            # that literal growing a group nobody added to a tuple -- so the
+            # invariant it was catching is asserted directly instead, by
+            # `test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild`.
+            # A silent net that nobody has ever seen fire is not evidence.
             ordered = rebuilt
 
         moved = {key for keys in ordered.values() for key in keys}
