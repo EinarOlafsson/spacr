@@ -201,6 +201,9 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    # Where each gene's protein lives, for colouring ONE compartment against
+    # grey. Pure pandas: the join belongs to the screen, not to the picture.
+    "localisation",
     # What an effect size is measured FROM, and the sentence that says so.
     # Separate from `figures` because the answer belongs to the fit, not to
     # the picture: the console summary and the exported stats table state the
