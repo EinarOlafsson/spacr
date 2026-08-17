@@ -130,6 +130,39 @@ from ...figures.style import ROLES as _ROLES
 
 HIGHLIGHT = _ROLES["highlight"]
 MUTED = _ROLES["data"]
+#: A called effect, by direction. The same two hues the saved volcano and the
+#: saved effect-rank panel use, for the reason above: one run, one idiom.
+UP = _ROLES["up"]
+DOWN = _ROLES["down"]
+#: Thresholds, limits and 1:1 lines. Darker than :data:`MUTED`, so a
+#: reference line is tellable from the data it is drawn over.
+REFERENCE = _ROLES["reference"]
+#: Histogram and density fills, again the saved figure's own.
+FILL = _ROLES["fill"]
+
+#: The standard error, however this backend spelled it. spaCR's own writer and
+#: a statsmodels summary disagree (``std_err`` against ``std err``), and the
+#: penalised backends report none at all -- which is not a failure but a fact
+#: about the fit, and is said rather than drawn as a zero-width interval.
+ERROR_COLUMNS = ("std_err", "std err", "bse", "se", "standard_error")
+
+#: What decides whether a coefficient is CALLED. Corrected p-values only, and
+#: deliberately: :func:`spacr.figures.panels.effect_rank` colours on a q and
+#: nothing else, because calling hits off an uncorrected p across a thousand
+#: tests is the multiple-testing error a screen panel exists to make visible.
+#: A plot that coloured on the raw p would disagree with the figure the same
+#: run writes to disk.
+CORRECTED_P_COLUMNS = ("q_value", "adjusted_p_value", "fdr", "qval")
+
+#: Passed as ``significance_column`` to say "this table HAS none", which is
+#: not the same request as "go and look for one".
+#:
+#: ``spacr.ml`` writes an OLS-style p-value into a lasso ``results.csv`` --
+#: computed as though there were no penalty, which is why
+#: :data:`spacr.hits.NO_P_VALUE_TYPES` exists -- so a plot left to search for
+#: a significance column on a penalised fit would colour its dots by a number
+#: nobody tested. The caller knows which backend it has; the plot does not.
+NO_SIGNIFICANCE = "\0no significance"
 
 #: Points beyond this many stop getting individual hover hit-boxes, which is
 #: what makes a large scatter slow to move over rather than slow to draw.
@@ -289,6 +322,21 @@ def colour_for(index: int, alpha: int = 255) -> QColor:
     colour = QColor(PALETTE[index % len(PALETTE)])
     colour.setAlpha(alpha)
     return colour
+
+
+def _first_column(frame, names) -> Optional[str]:
+    """The first of ``names`` this frame carries, or ``None``.
+
+    ``None`` is an answer and not a failure: a penalised fit has no standard
+    error and never will, and a table with no corrected p-value has nothing to
+    call a hit with. Both are said out loud by the plots below rather than
+    being papered over with a default.
+    """
+    columns = getattr(frame, "columns", ())
+    for name in names:
+        if name in columns:
+            return name
+    return None
 
 
 def _finite(values) -> np.ndarray:
@@ -2504,63 +2552,366 @@ class VolcanoPlot(FastPlot):
         return plotted
 
 
-class PValueHistogram(FastPlot):
-    """The single most informative check that a correction means anything.
+class EffectRankPlot(FastPlot):
+    """Every coefficient ranked by effect, as a dot with its interval.
 
-    Under the null, p-values are uniform. A histogram that is flat with a spike
-    at zero is a screen with real hits in it; one that slopes, or piles up near
-    one, says the model is misspecified and every q-value downstream of it is
-    decoration.
+    The interactive twin of :func:`spacr.figures.panels.effect_rank`, and the
+    panel that answers what a volcano structurally cannot: HOW BIG, and how
+    sure. A volcano ranks by significance, so an effect of 0.02 measured on
+    six hundred wells outranks one of 2.0 measured on four; ranking by the
+    effect itself puts them the other way round, and the interval drawn
+    through each dot is what says which of the two to believe.
+
+    A BAR CHART OF COEFFICIENTS IS THE WRONG PICTURE, which is why this is
+    dots and lines. A bar replaces every observation with one height and hides
+    the uncertainty that decides whether to believe any of them -- and on a
+    ranked list, that uncertainty is the only question worth asking.
+
+    THE SAVED PANEL DRAWS THE STRONGEST FOURTEEN AND THIS ONE DRAWS THEM ALL.
+    That is the difference a zoomable plot is FOR: a sheet has one cell and
+    has to choose, a screen does not. The opening view is the strongest
+    :data:`LABELLED`, because that is as many names as a y-axis can carry and
+    still be read, and "Reset view" reaches the rest -- the same rule
+    :class:`GuideAgreementPlot` follows for its over-represented gene, and for
+    the same reason: a point outside the opening view is still a point, and a
+    point that was dropped is gone.
     """
 
+    #: What multiplies a standard error into half an interval. 1.96 is the
+    #: normal 95%, which is what the saved panel draws and what a reader of a
+    #: regression table assumes unless they are told otherwise.
+    INTERVAL_Z = 1.96
+
+    #: How many names the y-axis carries, and how many rows the opening view
+    #: shows. Past this the labels stop being legible at any window size and
+    #: the reader is decoding a wall of text instead of reading a figure.
+    LABELLED = 40
+
+    #: Ink for a coefficient that was not called -- the house rule's default.
+    GREY = MUTED
+    #: The two directions a called coefficient can point.
+    UP_INK = UP
+    DOWN_INK = DOWN
+
     def __init__(self, parent=None):
-        super().__init__(title="p-value distribution", x_label="p",
-                         y_label="count", parent=parent)
+        super().__init__(title="Effect rank", x_label="effect size",
+                         y_label="", parent=parent)
+        #: Every array below is in FRAME ORDER, not drawing order, because
+        #: `_detail` is handed a frame row. The plot is sorted; the record of
+        #: what it drew must not be, or a click would report its neighbour.
+        self._effects: np.ndarray = np.empty(0)
+        self._half: np.ndarray = np.empty(0)
+        self._significance: np.ndarray = np.empty(0)
+        self._significance_name = ""
+        self._names: Sequence[str] = ()
+        # RANK 1 AT THE TOP. A ranked list is read downwards, and pyqtgraph's
+        # y-axis grows upwards, so without this the strongest effect sits at
+        # the bottom of the panel and the reader starts at the weakest.
+        self.plot.getViewBox().invertY(True)
+
+    def set_results(self, frame, *, effect: str = "coefficient",
+                    error_column: Optional[str] = None,
+                    significance_column: Optional[str] = None,
+                    label_column: str = "feature",
+                    key_column: Optional[str] = None,
+                    alpha: float = 0.05,
+                    drop_untested: bool = True) -> int:
+        """Draw ``frame`` ranked by |effect|. Returns the number of dots drawn.
+
+        :param frame: the coefficient table.
+        :param effect: the fitted-effect column.
+        :param error_column: the standard error, so an interval can be drawn.
+            ``None`` looks for :data:`ERROR_COLUMNS`; a table carrying none
+            gets dots and no bars, and the status line SAYS the effects are
+            drawn without their uncertainty rather than leaving a reader to
+            assume they are exact.
+        :param significance_column: what decides the colour. ``None`` looks
+            for :data:`CORRECTED_P_COLUMNS`; :data:`NO_SIGNIFICANCE` says this
+            table has none, which is a different statement from "go and look".
+        :param label_column: the column a dot is named by when the frame
+            carries no gene or guide of its own.
+        :param key_column: the identifier every other view joins on.
+        :param alpha: the cut a coefficient is coloured at.
+        :param drop_untested: leave the nuisance terms off, as the volcano and
+            :func:`spacr.figures.panels.effect_rank` both do.
+
+            NOT FOR THE AXIS, and that is worth writing down because it is the
+            obvious reason and it is wrong here. The volcano drops the
+            intercept because it OWNS the p-axis -- 3.6x the tallest real hit
+            on plate1_dv. Measured on the TSG101 screen, its COEFFICIENT is
+            0.190 against a tested maximum of 4.37, so by effect it ranks 547
+            of 1,213 and stretches nothing at all.
+
+            It is dropped because it is not a hypothesis. Its ``q_value`` is
+            NaN -- ``perform_regression`` leaves the covariates out of the
+            multiple-testing family -- so it would sit halfway down a ranked
+            list of hypotheses, permanently grey, with no verdict available
+            for it and nothing on the picture saying why. A fit carrying plate
+            row and column terms has ~25 more of them.
+
+        THE SORT IS THE TRAP, and here it is the plot's whole shape: drawn dot
+        n is the nth LARGEST effect and almost never row n of the table. The
+        frame rows are therefore carried through the sort explicitly
+        (``rows=``) rather than re-derived from the drawing order -- see
+        :meth:`FastPlot.add_scatter`, where the same trap is written out for
+        the Q-Q.
+        """
+        self._reset_scene()
+        self._frame = None
+        self._names = ()
+        self._effects = self._half = self._significance = np.empty(0)
+        self._significance_name = ""
+        if frame is None or not len(frame):
+            self.set_keys(())
+            self.set_status("No coefficients to rank.")
+            return 0
+
+        untested = 0
+        if drop_untested and "feature" in getattr(frame, "columns", ()):
+            from ...hits import tested_family
+
+            keep = tested_family(frame["feature"])
+            if not keep.all():
+                untested = int((~keep).sum())
+                frame = frame.loc[keep]
+                if not len(frame):
+                    self.set_keys(())
+                    self.set_status(
+                        f"No testable coefficients: all {untested} rows are "
+                        f"nuisance terms, which are fitted so the guide "
+                        f"effects come out clean rather than to be ranked.")
+                    return 0
+        # POSITIONAL FROM HERE ON. Every row index this method hands to
+        # `add_scatter`, and every index `_detail` is later asked about, is a
+        # position in THIS frame; a caller's filtered frame arrives with holes
+        # in its index and `.iloc` would then disagree with `.loc`.
+        frame = frame.reset_index(drop=True)
+        self._frame = frame
+
+        effects = (_finite(frame[effect]) if effect in frame.columns
+                   else np.full(len(frame), np.nan))
+        error = error_column or _first_column(frame, ERROR_COLUMNS)
+        if error is not None and error not in frame.columns:
+            error = None
+        half = (self.INTERVAL_Z * np.abs(_finite(frame[error]))
+                if error else np.full(len(frame), np.nan))
+        if significance_column == NO_SIGNIFICANCE:
+            significance = None
+        elif significance_column:
+            significance = (significance_column
+                            if significance_column in frame.columns else None)
+        else:
+            significance = _first_column(frame, CORRECTED_P_COLUMNS)
+        cut = (_finite(frame[significance]) if significance
+               else np.full(len(frame), np.nan))
+        self._effects, self._half = effects, half
+        self._significance, self._significance_name = cut, significance or ""
+
+        key = key_column or ("feature" if "feature" in frame.columns else
+                             label_column)
+        self.set_keys(frame[key] if key in frame.columns else None)
+
+        # numpy puts NaN last under an ascending sort whatever its sign, so a
+        # coefficient that did not converge ranks below every one that did
+        # rather than at the top of the list.
+        order = np.argsort(-np.abs(effects), kind="stable")
+        ranks = np.arange(len(order), dtype="float64")
+        x = effects[order]
+        widths = half[order]
+        called = cut[order] <= alpha
+        # 0 grey, 1 up, 2 down -- as a code array rather than a list of
+        # colours, so the intervals can be grouped by ink in three passes
+        # instead of one PlotCurveItem per coefficient.
+        code = np.where(called, np.where(x > 0, 1, 2), 0)
+        inks = (QColor(self.GREY), QColor(self.UP_INK), QColor(self.DOWN_INK))
+
+        # THE INTERVALS FIRST, so the dots sit on top of them. One curve per
+        # ink with `connect="pairs"` -- 1,213 disconnected segments in three
+        # items rather than 1,213 items, which is the difference between a
+        # plot that opens and one that hangs.
+        usable = np.isfinite(x) & np.isfinite(widths) & (widths > 0)
+        for value, ink in enumerate(inks):
+            picked = np.nonzero(usable & (code == value))[0]
+            if not len(picked):
+                continue
+            xs = np.empty(len(picked) * 2)
+            xs[0::2] = x[picked] - widths[picked]
+            xs[1::2] = x[picked] + widths[picked]
+            self.plot.addItem(pg.PlotCurveItem(
+                x=xs, y=np.repeat(ranks[picked], 2), connect="pairs",
+                pen=pg.mkPen(ink, width=1.0)))
+
+        self.add_scatter(x, ranks, size=8.0, rows=order,
+                         colours=[inks[int(c)] for c in code])
+        self.add_line(x=0.0, colour=REFERENCE, width=1.0)
+
+        # THE NAMES ARE Y-TICKS HERE AND ANNOTATIONS IN THE SAVED PANEL, and
+        # the difference is deliberate. A tick label is drawn outside the axes,
+        # so on a sheet a long gene id reaches into the cell to its left --
+        # which is why the static panel puts them inside. A tab has no
+        # neighbouring cell, and a tick is the axis a reader can then zoom.
+        names = self._label_series(frame, label_column)
+        self._names = names
+        shown = min(len(order), self.LABELLED)
+        self.plot.getAxis("left").setTicks(
+            [[(float(row), str(names[int(order[row])])[:28])
+              for row in range(shown)]])
+        if shown:
+            self.plot.setYRange(-0.6, shown - 0.4, padding=0.02)
+
+        plotted = int(np.sum(np.isfinite(x)))
+        # COUNTED OVER WHAT IS ON THE PICTURE. `called` is computed over every
+        # row, and a coefficient that did not come out can still carry a
+        # q-value -- so counting one would put a number in the status line
+        # that no reader can reach by counting the coloured dots.
+        self.set_status(self._sentence(plotted, len(order), shown, error,
+                                       significance,
+                                       int(np.sum(called & np.isfinite(x))),
+                                       alpha, untested))
+        if self._selected_key is not None:
+            self.highlight_key(self._selected_key)
+        return plotted
+
+    @staticmethod
+    def _label_series(frame, label_column: str):
+        """A readable name per row, from the ONE place that knows the rule.
+
+        :func:`spacr.figures.panels.label_series` coalesces ``gene`` and
+        ``grna`` -- each of which is blank on the other's rows -- and strips
+        the design-matrix boilerplate off ``feature``. Re-deriving that here
+        would give the tab and the saved panel two different names for the
+        same coefficient, and the reader would have no way to tell which.
+        """
+        try:
+            from ...figures.panels import label_series
+
+            return label_series(frame).to_numpy()
+        except Exception:              # pragma: no cover - figures unavailable
+            if label_column in getattr(frame, "columns", ()):
+                return frame[label_column].astype(str).to_numpy()
+            return np.array([str(i) for i in range(len(frame))])
+
+    def _sentence(self, plotted, total, named, error, significance, called,
+                  alpha, untested) -> str:
+        """What this plot has to say about itself, in one place.
+
+        Every branch is a real fact about the TABLE rather than a fallback:
+        no standard error, no corrected p, more rows than names, nuisance
+        terms removed. Each one changes how the picture should be read, so
+        each is said rather than left for the reader to notice.
+        """
+        note = f"{plotted} coefficients, ranked by the size of the effect."
+        note += (f" The bar through each dot is a "
+                 f"{self.INTERVAL_Z:g}-standard-error interval from "
+                 f"“{error}”." if error else
+                 " This table carries no standard error, so there are no "
+                 "intervals: the dots are point estimates drawn without the "
+                 "uncertainty that decides whether to believe them.")
+        if significance:
+            note += (f" {called} called at {significance} ≤ {alpha:g}; "
+                     f"everything else is grey.")
+        else:
+            note += (" Nothing is coloured: this table has no corrected "
+                     "p-value, and calling hits off an uncorrected p across "
+                     f"{total} tests is the error this panel exists to make "
+                     "visible.")
+        if total > named:
+            note += (f" The strongest {named} are named on the axis; all "
+                     f"{total} are drawn, and Reset view reaches them.")
+        if untested:
+            note += (f" {untested} nuisance "
+                     f"term{'s' if untested != 1 else ''} not ranked (fitted "
+                     f"as covariates, not as hypotheses).")
+        if self._has_usable_keys():
+            note += " Click a dot for its coefficient."
+        return note
+
+    def _detail(self, index: int) -> str:
+        parts = []
+        if index < len(self._effects) and np.isfinite(self._effects[index]):
+            value = float(self._effects[index])
+            if index < len(self._half) and np.isfinite(self._half[index]):
+                half = float(self._half[index])
+                parts.append(f"effect = {value:.3g} "
+                             f"[{value - half:.3g}, {value + half:.3g}]")
+            else:
+                parts.append(f"effect = {value:.3g}")
+        if (self._significance_name and index < len(self._significance)
+                and np.isfinite(self._significance[index])):
+            parts.append(f"{self._significance_name} = "
+                         f"{self._significance[index]:.3g}")
+        return "   ".join(parts)
+
+
+class BinnedPlot(FastPlot):
+    """A histogram whose bars remember which rows they were built from.
+
+    Two panels here are histograms of a coefficient table -- the p-values and
+    the effects -- and both need the three things a scatter gets for free:
+    which rows are in which bar, a click that lands in the bar under the
+    cursor, and an outline marking the bar a row selected elsewhere falls in.
+    That machinery is subtle -- half-open bins with the last one closed, a
+    row-to-bar index built without a per-coefficient Python loop -- and it is
+    exactly the kind of thing that drifts when it is written twice.
+
+    A BAR IS NOT A POINT, which is the rule this whole class is shaped by. A
+    bar holding a hundred coefficients cannot select one of them, and picking
+    the first, the strongest or the nearest would be a guess dressed up as an
+    answer -- the same mistake as joining on a position. So a bar of many
+    hands the whole set over for the table to narrow to, and only a bar
+    holding exactly one row selects it like any other mark.
+    """
+
+    #: What one observation IS, for the sentence a clicked bar writes. Named
+    #: rather than hardcoded because "p 0.02 to 0.04" and "effect -1.2 to
+    #: -0.9" are the same sentence about two different quantities.
+    QUANTITY = "value"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._edges: Optional[np.ndarray] = None
         self._counts: Optional[np.ndarray] = None
         self._bin_rows: list = []
         self._row_bin: np.ndarray = np.empty(0, dtype="int64")
-        self._p: np.ndarray = np.empty(0)
+        self._values: np.ndarray = np.empty(0)
         # A BAR IS NOT A POINT, so there is no sigClicked to connect to. The
         # scene reports where the user pressed and the bin is worked out from
         # the x coordinate, which is also the only definition of "which bar"
         # that stays right when the axis is zoomed.
         self.plot.scene().sigMouseClicked.connect(self._on_scene_clicked)
 
-    def set_p_values(self, values, bins: int = 50, *, keys=None):
-        """Draw the histogram. Returns the number of usable p-values.
+    def _fill_bins(self, values, bins: int, span=None) -> np.ndarray:
+        """Histogram ``values`` and record which rows each bar holds.
 
-        :param keys: one identifier per element of ``values``, in frame order.
-            Given them, clicking a bar names the coefficients inside it.
+        :param values: one observation per FRAME ROW, blanks included, so a
+            row's position here is its position in the caller's table.
+        :param bins: how many bars.
+        :param span: ``(low, high)`` to bin over, or None for the data's own
+            range. The p-value histogram pins it to ``(0, 1)`` because the
+            axis means something there; a distribution of effects has no such
+            fixed range and pinning one would invent it.
+        :returns: the finite values, or an empty array.
+
+        WHICH ROWS ARE IN WHICH BAR, worked out the same way np.histogram
+        decided the counts -- half-open bins with the last one closed at the
+        top edge -- so the number a bar draws and the number of rows it hands
+        back are the same number. A value outside the span is in no bar at
+        all, which is exactly what ``np.histogram``'s ``range`` did with it.
+
+        Vectorised, because a bar chart must not pay a per-COEFFICIENT Python
+        loop to be drawn: that is the cost this whole module exists to avoid,
+        and a screen has as many observations as it has coefficients.
         """
-        self._reset_scene()
-        self.set_keys(keys)
+        held_all = _finite(values)
+        self._values = held_all
         self._edges = self._counts = None
         self._bin_rows = []
         self._row_bin = np.empty(0, dtype="int64")
-        p = _finite(values)
-        self._p = p
-        rows = np.nonzero(~np.isnan(p))[0]
+        rows = np.nonzero(~np.isnan(held_all))[0]
         if not len(rows):
-            self.set_status("No p-values.")
-            return 0
-        held = p[rows]
-        counts, edges = np.histogram(held, bins=bins, range=(0.0, 1.0))
-        bars = pg.BarGraphItem(x0=edges[:-1], x1=edges[1:], height=counts,
-                               brush=pg.mkBrush(colour_for(0, 190)),
-                               pen=pg.mkPen(None))
-        self.plot.addItem(bars)
-        expected = len(held) / bins
-        self.add_line(y=expected, colour="#C44E52", label="uniform")
-
-        # WHICH ROWS ARE IN WHICH BAR, worked out the same way np.histogram
-        # decided the counts -- half-open bins with the last one closed at 1
-        # -- so the number a bar draws and the number of rows it hands back
-        # are the same number. A p outside [0, 1] is in no bar at all, which
-        # is exactly what np.histogram's `range` did with it.
-        # Vectorised, because a bar chart must not pay a per-COEFFICIENT
-        # Python loop to be drawn -- that is the cost this whole module exists
-        # to avoid, and a screen has as many p-values as it has coefficients.
+            return np.empty(0)
+        held = held_all[rows]
+        counts, edges = np.histogram(held, bins=bins, range=span)
         inside = (held >= edges[0]) & (held <= edges[-1])
         placed = np.clip(np.searchsorted(edges, held, side="right") - 1,
                          0, bins - 1)
@@ -2570,19 +2921,18 @@ class PValueHistogram(FastPlot):
         cuts = np.cumsum(np.bincount(in_bin, minlength=bins))[:-1]
         self._bin_rows = list(np.split(members[order], cuts))
         # Row -> its bar, as a dense array rather than a dict of thousands.
-        self._row_bin = np.full(len(p), -1, dtype="int64")
+        self._row_bin = np.full(len(held_all), -1, dtype="int64")
         self._row_bin[members] = in_bin
+        return held
 
-        excess = max(int(counts[0] - expected), 0)
-        note = (f"{len(held)} p-values. The flat line is what a screen with "
-                f"no signal would give; the first bin holds {excess} more "
-                f"than that.")
-        if self._has_usable_keys():
-            note += " Click a bar for what is in it."
-        self.set_status(note)
-        if self._selected_key is not None:
-            self.highlight_key(self._selected_key)
-        return len(held)
+    def add_bars(self, brush=None):
+        """Put the bars from the last :meth:`_fill_bins` onto the plot."""
+        bars = pg.BarGraphItem(
+            x0=self._edges[:-1], x1=self._edges[1:], height=self._counts,
+            brush=brush if brush is not None else pg.mkBrush(colour_for(0, 190)),
+            pen=pg.mkPen(None))
+        self.plot.addItem(bars)
+        return bars
 
     # ------------------------------------------------------------- clicking
 
@@ -2617,7 +2967,7 @@ class PValueHistogram(FastPlot):
             return []
         low, high = float(self._edges[index]), float(self._edges[index + 1])
         count = len(self._bin_rows[index])
-        span = f"p {low:.3g} to {high:.3g}"
+        span = f"{self.QUANTITY} {low:.3g} to {high:.3g}"
         if not count:
             self.set_status_note(f"{span}: empty.")
             return []
@@ -2692,9 +3042,160 @@ class PValueHistogram(FastPlot):
         return self.highlight_bin(index)
 
     def _detail(self, index: int) -> str:
-        if index < len(self._p) and np.isfinite(self._p[index]):
-            return f"p = {self._p[index]:.3g}"
+        if index < len(self._values) and np.isfinite(self._values[index]):
+            return f"{self.QUANTITY} = {self._values[index]:.3g}"
         return ""
+
+
+class PValueHistogram(BinnedPlot):
+    """The single most informative check that a correction means anything.
+
+    Under the null, p-values are uniform. A histogram that is flat with a spike
+    at zero is a screen with real hits in it; one that slopes, or piles up near
+    one, says the model is misspecified and every q-value downstream of it is
+    decoration.
+    """
+
+    QUANTITY = "p"
+
+    def __init__(self, parent=None):
+        super().__init__(title="p-value distribution", x_label="p",
+                         y_label="count", parent=parent)
+
+    def set_p_values(self, values, bins: int = 50, *, keys=None):
+        """Draw the histogram. Returns the number of usable p-values.
+
+        :param values: one p-value per frame row, blanks included.
+        :param bins: how many bars across ``[0, 1]``.
+        :param keys: one identifier per element of ``values``, in frame order.
+            Given them, clicking a bar names the coefficients inside it.
+        """
+        self._reset_scene()
+        self.set_keys(keys)
+        # PINNED TO [0, 1], because that is what a p-value's axis MEANS. A
+        # histogram of p over the observed range would put its left edge at
+        # the smallest p in the screen, and the spike at zero -- the whole
+        # signal this panel exists to show -- would then be the first bar of
+        # every screen, calibrated or not.
+        held = self._fill_bins(values, bins, span=(0.0, 1.0))
+        if not len(held):
+            self.set_status("No p-values.")
+            return 0
+        self.add_bars()
+        expected = len(held) / bins
+        self.add_line(y=expected, colour="#C44E52", label="uniform")
+
+        excess = max(int(self._counts[0] - expected), 0)
+        note = (f"{len(held)} p-values. The flat line is what a screen with "
+                f"no signal would give; the first bin holds {excess} more "
+                f"than that.")
+        if self._has_usable_keys():
+            note += " Click a bar for what is in it."
+        self.set_status(note)
+        if self._selected_key is not None:
+            self.highlight_key(self._selected_key)
+        return len(held)
+
+
+class EffectDistribution(BinnedPlot):
+    """Where the screen's effects sit, and how wide the null under them is.
+
+    The interactive twin of
+    :func:`spacr.figures.panels.effect_distribution`. The volcano says which
+    coefficients are extreme; this says what "extreme" is worth on THIS
+    screen, which is the number a reader needs before they believe any of
+    them. A screen whose effects are a tight bell with nothing in the tails
+    has no hits however small its p-values are.
+
+    σ IS A MAD, NOT A STANDARD DEVIATION, and that is the point of the panel
+    rather than a detail of it: a standard deviation is inflated by exactly
+    the outliers a screen exists to find, so a cut measured from one is pulled
+    outwards by the hits and then fails to call them. The median absolute
+    deviation is not, and ×1.4826 makes it the consistent estimator for a
+    normal -- the same statistic
+    :func:`spacr.figures.panels.control_threshold` measures the effect-size
+    cut from, so the dashed lines here and the lines on the volcano cannot
+    disagree about where three sigmas is.
+    """
+
+    QUANTITY = "effect"
+
+    #: How many MAD-sigmas out the dashed lines sit. Three, matching the saved
+    #: panel and :func:`spacr.thresholds`' own default multiplier.
+    SIGMAS = 3.0
+
+    #: MAD x this is the consistent estimate of sigma for a normal.
+    MAD_TO_SIGMA = 1.4826
+
+    def __init__(self, parent=None):
+        super().__init__(title="Effect distribution", x_label="effect size",
+                         y_label="coefficients", parent=parent)
+
+    def set_effects(self, values, bins: int = 50, *, keys=None,
+                    untested: int = 0):
+        """Draw the histogram. Returns the number of usable effects.
+
+        :param values: one fitted effect per frame row, blanks included.
+        :param bins: how many bars across the data's own range.
+        :param keys: one identifier per element of ``values``, in frame order.
+            Given them, clicking a bar names the coefficients inside it.
+        :param untested: how many nuisance terms the CALLER left out, so the
+            plot can say so. It is the caller that knows spaCR's term grammar,
+            which is why the drop is not done here.
+
+            IT IS THE FAMILY, NOT THE AXIS, and the measurement says so: on
+            the TSG101 screen σ (MAD) is 0.229228 over the tested family and
+            0.229036 with the intercept added, a difference of 0.08%. Dropping
+            it does not visibly move this picture -- it makes the picture be
+            OF something, namely the 1,212 coefficients the q-values describe,
+            which is the same family
+            :func:`spacr.figures.panels.effect_distribution` draws and the
+            same one the effect-size cut is measured from.
+
+        THE RANGE IS THE DATA'S OWN, unlike the p-value histogram's. An effect
+        size has no fixed domain, and pinning one would invent a scale the fit
+        never produced.
+        """
+        self._reset_scene()
+        self.set_keys(keys)
+        held = self._fill_bins(values, bins)
+        if not len(held):
+            self.set_status(
+                "No fitted effects to plot: every coefficient in this table "
+                "is blank or non-finite.")
+            return 0
+        self.add_bars(brush=pg.mkBrush(QColor(FILL)))
+        self.add_line(x=0.0, colour=REFERENCE, width=1.0)
+
+        sigma = float(np.median(np.abs(held - np.median(held)))
+                      * self.MAD_TO_SIGMA)
+        note = f"{len(held)} coefficients."
+        if sigma > 0:
+            cut = self.SIGMAS * sigma
+            for sign in (-1, 1):
+                self.add_line(x=sign * cut, colour=REFERENCE,
+                              label=f"{self.SIGMAS:g}σ" if sign > 0 else "")
+            beyond = int(np.sum(np.abs(held - np.median(held)) > cut))
+            note += (f" σ (MAD) = {sigma:.3g}, which the outliers a screen "
+                     f"exists to find do not inflate the way a standard "
+                     f"deviation would. The dashed lines are ±{self.SIGMAS:g}σ "
+                     f"and {beyond} coefficient{'s' if beyond != 1 else ''} "
+                     f"lie outside them.")
+        else:
+            note += (" Every finite effect here is the same value, so there "
+                     "is no spread to measure a σ from and no ±σ lines are "
+                     "drawn.")
+        if untested:
+            note += (f" {untested} nuisance "
+                     f"term{'s' if untested != 1 else ''} not counted: they "
+                     f"are covariates, so they are outside the family the "
+                     f"q-values and the effect-size cut describe.")
+        if self._has_usable_keys():
+            note += " Click a bar for what is in it."
+        self.set_status(note)
+        if self._selected_key is not None:
+            self.highlight_key(self._selected_key)
+        return len(held)
 
 
 class QQPlot(FastPlot):

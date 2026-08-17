@@ -300,7 +300,8 @@ class RegressionResultsPanel(QWidget):
             same wherever the widget ends up.
         """
         super().__init__(parent)
-        from .fast_plots import (ControlSeparation, GuideAgreementPlot,
+        from .fast_plots import (ControlSeparation, EffectDistribution,
+                                 EffectRankPlot, GuideAgreementPlot,
                                  InfluencePlot, PValueHistogram, QQPlot,
                                  ResidualPlot, ResultsTable,
                                  ScaleLocationPlot, VolcanoPlot)
@@ -368,6 +369,34 @@ class RegressionResultsPanel(QWidget):
             split.setSizes([340, 220])
             self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
+
+        # THE TWO EFFECT PANELS, which the sheet has drawn since it existed
+        # and the screen had no twin of -- instruction 129 B, where the gap
+        # was measured at exactly these two. They sit directly after the
+        # volcano because they read in the same order the sheet does: the
+        # result, then HOW BIG it is and how sure, then whether the model was
+        # entitled to say it.
+        #
+        # A volcano ranks by significance and cannot answer either question.
+        # On the TSG101 screen its top guide by p is not its top guide by
+        # effect, and the strongest effect in the screen (4.37) has q = 3e-05
+        # while the third strongest (-4.22) has q = 0.063 -- one is called and
+        # the other is not, and only a ranked list with intervals shows that
+        # they are the same size.
+        self.effect_rank = EffectRankPlot()
+        self.effect_distribution = EffectDistribution()
+        self.tabs.addTab(self.effect_rank, "Effect rank")
+        self.tabs.addTab(self.effect_distribution, "Effect distribution")
+        self.tabs.setTabToolTip(
+            self.tabs.indexOf(self.effect_rank),
+            "Every coefficient ranked by the size of its effect, as a dot "
+            "with its confidence interval. The volcano ranks by significance, "
+            "which is a different order.")
+        self.tabs.setTabToolTip(
+            self.tabs.indexOf(self.effect_distribution),
+            "Where this screen's effects sit, and how wide the null under "
+            "them is. σ is a MAD, which the outliers a screen is looking for "
+            "do not inflate.")
 
         self.p_values = PValueHistogram()
         self.qq = QQPlot()
@@ -522,6 +551,12 @@ class RegressionResultsPanel(QWidget):
         # selects it like any other point and takes the same route as the rest.
         self.p_values.key_selected.connect(self.table.select_key)
         self.p_values.keys_selected.connect(self._show_keys)
+        # The effect distribution is the OTHER histogram, and it takes the
+        # same route for the same reason: its marks are bars of many
+        # coefficients, so it narrows the table rather than guessing which of
+        # them the user meant.
+        self.effect_distribution.key_selected.connect(self.table.select_key)
+        self.effect_distribution.keys_selected.connect(self._show_keys)
         self.table.key_selected.connect(self._select_key)
         # ON THE TABLE, NOT THE VOLCANO, and one connection rather than two:
         # table.key_selected is the funnel BOTH directions already pass
@@ -573,6 +608,8 @@ class RegressionResultsPanel(QWidget):
         # The diagnostics start out saying what they are waiting for. An
         # empty plot with no sentence is indistinguishable from a broken one.
         self.clear_diagnostics()
+        for plot in (self.effect_rank, self.effect_distribution):
+            plot.set_status(self.NO_EFFECTS_YET)
 
         # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
         # that is where it was asked for: "right click on the regression plot
@@ -940,13 +977,14 @@ class RegressionResultsPanel(QWidget):
     def _keyed_plots(self) -> tuple:
         """Every plot whose marks are individual coefficients or genes.
 
-        The volcano, the Q-Q, the control panel and the guide-agreement plot.
-        The p-value histogram is deliberately NOT here: its marks are bins of
-        many rows, so it cannot select one and does not pretend to. The
-        residual plot is not here either -- its points are wells, not
-        coefficients, and there is no key for a well.
+        The volcano, the effect ranking, the Q-Q, the control panel and the
+        guide-agreement plot. The two HISTOGRAMS are deliberately not here:
+        their marks are bins of many rows, so neither can select one and
+        neither pretends to. The residual plot is not here either -- its
+        points are wells, not coefficients, and there is no key for a well.
         """
-        return (self.volcano, self.qq, self.controls, self.agreement)
+        return (self.volcano, self.effect_rank, self.qq, self.controls,
+                self.agreement)
 
     def _show_keys(self, keys) -> None:
         """A set of coefficients was chosen on a plot: narrow the table."""
@@ -1150,7 +1188,8 @@ class RegressionResultsPanel(QWidget):
         self._selected_key = None
         for plot in self._keyed_plots():
             plot.clear_highlight()
-        self.p_values.clear_highlight()
+        for histogram in (self.p_values, self.effect_distribution):
+            histogram.clear_highlight()
 
         # THE COMPARTMENT MENU IS BUILT FROM THE TABLE, so it has to be
         # rebuilt when the table changes. Built once in __init__ it is built
@@ -1222,6 +1261,7 @@ class RegressionResultsPanel(QWidget):
             shown, key_column=self._key_column(shown),
             significance_column=significance)
         self._show_significance(shown, kind, column, self._path or "")
+        self._draw_effects(shown, kind)
         self._draw_controls(shown)
         # THE FULL TABLE, on purpose. A gene's concordance is how its GUIDES
         # agree, so the guide rows are what the number is made of -- see
@@ -1627,6 +1667,10 @@ class RegressionResultsPanel(QWidget):
         return (
             (self._volcano_tab, self._volcano_tab_name, self.volcano,
              "Volcano"),
+            (self.effect_rank, "Effect rank", self.effect_rank,
+             "Effect rank"),
+            (self.effect_distribution, "Effect distribution",
+             self.effect_distribution, "Effect distribution"),
             (self.p_values, "p-values", self.p_values,
              "p-value distribution"),
             (self.qq, "Q-Q", self.qq, "p-value Q-Q"),
@@ -1764,26 +1808,42 @@ class RegressionResultsPanel(QWidget):
         """
         from ...thresholds import coefficient_threshold
 
-        frame = self._frame
-        if frame is None or "condition" not in getattr(frame, "columns", ()):
+        controls = self._control_effects()
+        if controls is None:
             return None
-        controls = frame.loc[
-            frame["condition"].astype(str).str.lower().isin(("nc", "control")),
-            self._effect_column(frame)]
         value, _rule = coefficient_threshold(
             controls, self._threshold_method, self._threshold_multiplier)
         return value
+
+    def _control_effects(self):
+        """The control guides' effects, or ``None`` when there are none to take.
+
+        THE EFFECT COLUMN IS CHECKED, NOT ASSUMED, and that is a crash rather
+        than tidiness. :meth:`_effect_column` answers ``"coefficient"`` for a
+        table carrying none of the four spellings -- it is a default, not a
+        finding -- and ``frame.loc[mask, name]`` on an absent column raises
+        KeyError. That escaped through :meth:`refresh_views` into
+        :meth:`set_frame`, so a table with a ``condition`` column and an
+        unrecognised effect column took the WHOLE PANEL down at load time
+        instead of opening and saying which column it could not find.
+        """
+        frame = self._frame
+        if frame is None or "condition" not in getattr(frame, "columns", ()):
+            return None
+        effect = self._effect_column(frame)
+        if effect not in frame.columns:
+            return None
+        return frame.loc[
+            frame["condition"].astype(str).str.lower().isin(("nc", "control")),
+            effect]
 
     def _threshold_sentence(self) -> str:
         """What the cut is, and what drew it. Never a bare number."""
         from ...thresholds import coefficient_threshold, describe
 
-        frame = self._frame
-        if frame is None or "condition" not in getattr(frame, "columns", ()):
+        controls = self._control_effects()
+        if controls is None:
             return "No control coefficients, so no effect-size cut."
-        controls = frame.loc[
-            frame["condition"].astype(str).str.lower().isin(("nc", "control")),
-            self._effect_column(frame)]
         value, rule = coefficient_threshold(
             controls, self._threshold_method, self._threshold_multiplier)
         if value is None:
@@ -1926,6 +1986,85 @@ class RegressionResultsPanel(QWidget):
         if self._selected_key is not None:
             self.volcano.highlight_key(self._selected_key)
 
+    #: What the two effect tabs say before a coefficient table reaches them.
+    #: A blank plot behind a tab nobody has opened is indistinguishable from a
+    #: broken one, which is the failure instruction 129 B names for an ABSENT
+    #: tab and which an empty present one commits just as quietly.
+    NO_EFFECTS_YET = (
+        "No coefficient table yet. Both effect tabs are drawn from the fitted "
+        "effects: run a regression, or open one with “Load results…”.")
+
+    #: Why these two tabs cannot be drawn from the table that IS loaded.
+    #: Named rather than shrugged at, because it is a specific and checkable
+    #: fact about the file: a frame with no fitted-effect column is not a
+    #: coefficient table, and no amount of re-running will make it one.
+    NO_EFFECT_COLUMN = (
+        "No fitted-effect column in this table, so there is nothing to rank "
+        "and nothing to distribute. Looked for coefficient, coef, effect and "
+        "estimate. Every other tab here is drawn from the same column, so a "
+        "table without it is not a regression result.")
+
+    def _draw_effects(self, frame, kind=None) -> None:
+        """Fill the Effect rank and Effect distribution tabs, or say why not.
+
+        :param frame: the coefficient table at the chosen gene/guide level.
+        :param kind: what orders this table -- :meth:`ranking`'s first item.
+            ``"p-value"`` lets the ranking colour its dots by the corrected
+            p; anything else says THIS TABLE HAS NO SIGNIFICANCE, which is not
+            the same instruction as "go and find one". A penalised fit carries
+            an OLS-style ``p_value`` computed as though there were no penalty,
+            and a plot left to search would colour its dots by a number nobody
+            tested -- the identical trap :meth:`_rank_by` documents.
+
+        A TAB THAT CANNOT BE FILLED SAYS WHY, IN THE TAB. Instruction 129 B:
+        an absent tab is indistinguishable from a bug, and a present empty one
+        with no sentence is indistinguishable from a broken one.
+
+        THE NUISANCE TERMS COME OUT OF BOTH, and not for the reason one
+        expects. :class:`EffectRankPlot` drops them itself; the distribution
+        is handed values rather than a frame, so the drop happens here. It is
+        the FAMILY that requires it rather than the axis -- measured on the
+        TSG101 screen, the intercept's coefficient of 0.190 ranks 547 of 1,213
+        and moves σ (MAD) by 0.08% -- but its q-value is NaN, so it can never
+        be called, and a covariate among the hypotheses is a different
+        experiment from the one the q-values describe.
+        """
+        from .fast_plots import NO_SIGNIFICANCE
+
+        effect = self._effect_column(frame)
+        if effect not in getattr(frame, "columns", ()):
+            self.effect_rank.set_results(None)
+            self.effect_rank.set_status(self.NO_EFFECT_COLUMN)
+            self.effect_distribution.set_effects([])
+            self.effect_distribution.set_status(self.NO_EFFECT_COLUMN)
+            return
+        self.effect_rank.set_results(
+            frame, effect=effect, key_column=self._key_column(frame),
+            significance_column=(None if kind == "p-value"
+                                 else NO_SIGNIFICANCE))
+        tested = self._tested_mask(frame)
+        family = frame if tested is None else frame.loc[tested]
+        self.effect_distribution.set_effects(
+            family[effect], keys=self._keys_for(family),
+            untested=0 if tested is None else int((~tested).sum()))
+
+    @staticmethod
+    def _tested_mask(frame):
+        """Rows of ``frame`` that are hypotheses, or ``None`` if it cannot say.
+
+        Via :func:`spacr.hits.tested_family`, which is the repository's single
+        statement of where the covariates end and the hypotheses begin. A
+        second copy of that rule is how the volcano, the sheet and this panel
+        would come to draw three different families.
+        """
+        if "feature" not in getattr(frame, "columns", ()):
+            return None
+        try:
+            from ...hits import tested_family
+        except Exception:              # pragma: no cover - hits unavailable
+            return None
+        return tested_family(frame["feature"])
+
     def _draw_controls(self, frame) -> None:
         """Split the effects by the control labels the fit assigned."""
         if "condition" not in frame.columns:
@@ -1984,8 +2123,9 @@ class RegressionResultsPanel(QWidget):
         self._selected_key = str(key)
         for plot in self._keyed_plots():
             plot.note_selection(key, plot.highlight_key(key))
-        # The histogram has no point to ring, but it can outline the bar the
+        # A histogram has no point to ring, but it can outline the bar the
         # coefficient falls in, which is the honest equivalent. No note goes
         # with it: a bar is a hundred rows, and printing one row's name beside
         # it would read as a claim that the bar IS that row.
-        self.p_values.highlight_key(key)
+        for histogram in (self.p_values, self.effect_distribution):
+            histogram.highlight_key(key)
