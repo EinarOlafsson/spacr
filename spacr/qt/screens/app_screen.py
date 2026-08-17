@@ -1829,9 +1829,14 @@ class AppScreen(QWidget):
             splitter.addWidget(self._live_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif self.app_key == "timelapse":
@@ -1849,9 +1854,14 @@ class AppScreen(QWidget):
             splitter.addWidget(self._timelapse_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif self.app_key == "motility":
@@ -1865,9 +1875,14 @@ class AppScreen(QWidget):
             splitter.addWidget(self._motility_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif self.app_key == "measure":
@@ -1880,9 +1895,14 @@ class AppScreen(QWidget):
             splitter.addWidget(self._measure_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         elif _sweepable(self.app_key):
@@ -1922,9 +1942,14 @@ class AppScreen(QWidget):
             splitter.addWidget(self._hyperparam_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
-            splitter.setStretchFactor(0, 1)
-            splitter.setStretchFactor(1, 1)
-            splitter.setSizes([420, 320])
+            # THREE PANES, THREE NUMBERS. The order after the insert is
+            # figures / preview / console, and this used to set two stretch
+            # factors and two sizes -- so the console was never given one and
+            # took whatever Qt had left, which at 1200x900 is about 200 px.
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 3)
+            splitter.setStretchFactor(2, 2)
+            splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
             self._runtime_splitter = splitter
         else:
