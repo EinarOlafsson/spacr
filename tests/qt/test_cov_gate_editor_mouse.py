@@ -914,6 +914,79 @@ def test_a_click_with_no_axes_under_it_cannot_close_a_volume_polygon(volume):
 
 
 # ---------------------------------------------------------------------------
+# A 3D view that is not a volume
+# ---------------------------------------------------------------------------
+#
+# Asking for 3D is not the same as getting it. A third measurement the table
+# does not have, an xD view with no third component, an empty table -- each of
+# them leaves the mode set to "3D"/"xD" and a perfectly ordinary flat scatter
+# on screen. The mouse has to follow the PICTURE, because that is what the
+# user is clicking on.
+
+def _fell_back(qtbot):
+    """A canvas asked for 3D that could only draw the flat plot."""
+    frame = pd.DataFrame({"a": [0.0, 5.0, 10.0], "b": [0.0, 5.0, 10.0]})
+    canvas = GateCanvas()
+    qtbot.addWidget(canvas)
+    canvas.set_frame(frame)
+    canvas.set_spec(GraphSpec(x="a", y="b"))
+    canvas.set_mode("xD")                 # asked for, with no third component
+    ax = canvas.axes_at(0, 0)
+    assert not canvas._in_volume(), "this fixture is meant to be flat"
+    assert ax is not None and ax.get_xlabel() == "a"
+    return canvas, ax
+
+
+def test_a_polygon_can_be_clicked_out_on_a_view_that_fell_back_to_flat(qtbot):
+    """Three clicks, no vertices and no feedback. The press handler asked
+    what the MODE was rather than what was on screen, sent the clicks to the
+    volume reader, got nothing back -- there is no volume to read -- and
+    returned. The polygon tool simply did not work on any 3D view that had
+    fallen back to the flat plot."""
+    canvas, _stale = _fell_back(qtbot)
+    ax = _arm(canvas, POLYGON)
+    counts = []
+    canvas.polygon_changed.connect(counts.append)
+
+    for x, y in ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0)):
+        canvas._on_press(_Mouse(ax, x, y))
+
+    assert canvas.pending_vertices() == ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0))
+    assert counts == [1, 2, 3]
+
+
+def test_closing_that_polygon_gives_a_flat_gate_on_what_is_on_screen(qtbot):
+    """There is no third measurement here, so there is nothing to extend the
+    footprint along -- the gate is the polygon the user drew."""
+    canvas, _stale = _fell_back(qtbot)
+    ax = _arm(canvas, POLYGON)
+    for x, y in ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0)):
+        canvas._on_press(_Mouse(ax, x, y))
+
+    gate = canvas.close_polygon(name="p")
+
+    assert isinstance(gate, PolygonGate)
+    assert (gate.x_column, gate.y_column) == ("a", "b")
+    assert gate.vertices == ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0))
+
+
+def test_clicking_the_first_vertex_closes_it_there_too(qtbot):
+    """The gesture that finishes a polygon is the same one on every view the
+    user can be looking at."""
+    canvas, _stale = _fell_back(qtbot)
+    ax = _arm(canvas, POLYGON)
+    drawn = []
+    canvas.gate_drawn.connect(drawn.append)
+    for x, y in ((1.0, 1.0), (9.0, 1.0), (5.0, 9.0)):
+        canvas._on_press(_Mouse(ax, x, y))
+
+    canvas._on_press(_Mouse(ax, 1.0, 1.0))
+
+    assert canvas.pending_vertices() == (), "the polygon was not closed"
+    assert len(drawn) == 1 and isinstance(drawn[0], PolygonGate)
+
+
+# ---------------------------------------------------------------------------
 # A box gate seen in the flat editor
 # ---------------------------------------------------------------------------
 
