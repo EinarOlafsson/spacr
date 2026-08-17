@@ -19,6 +19,7 @@ assertion, because "it ran" is what every one of the bugs above also did.
 from __future__ import annotations
 
 import os
+import re
 
 import numpy as np
 import pandas as pd
@@ -230,10 +231,25 @@ def test_every_regression_type_runs_and_recovers_the_planted_effect(
     # per gene, plus the intercept.
     assert results["feature"].str.contains(r"grna\[").sum() > 0
     assert_recovers_the_planted_gene(results, regression_type)
-    # The results folder is named for the model that was actually fitted.
-    assert os.path.isfile(os.path.join(
-        os.path.dirname(count), "results", "screen_scores", regression_type,
-        "list", "results.csv"))
+    # THE RESULTS FOLDER IS NAMED FOR THE MODEL THAT WAS ACTUALLY FITTED,
+    # and it is asked for rather than spelled out here.
+    #
+    # This assertion spelled out `results/screen_scores/<type>/list/` --
+    # the four-level path from before the output rule changed to
+    # `<count folder>/results/<type>`, with `_1`, `_2` for a repeat. It went
+    # stale the day the rule changed and stayed red for every one of the
+    # seventeen types, which is a lot of noise for a suite to carry and is
+    # exactly how a real failure gets skipped over.
+    folder = out["res_folder"]
+    assert os.path.isfile(os.path.join(folder, "results.csv"))
+    # The repeat suffix is `_1`, `_2` -- stripped by matching DIGITS at the
+    # end, never by splitting on "_": `quasi_binomial` and
+    # `guide_permutation` contain the separator, so a left-to-right split
+    # reads the type as "quasi". The same trap as the plate keys.
+    assert re.sub(r"_\d+$", "", os.path.basename(folder)) == regression_type, \
+        folder
+    assert os.path.dirname(folder) == os.path.join(
+        os.path.dirname(count), "results"), folder
 
 
 def test_every_advertised_type_has_a_coefficient_branch():

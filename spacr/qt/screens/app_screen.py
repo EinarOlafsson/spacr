@@ -1593,6 +1593,10 @@ class AppScreen(QWidget):
 
                 self._results_panel = RegressionResultsPanel(
                     self._figures_card, external_volcano=True)
+                # RE-FIT FROM THE PLOT. The panel decides what to run; this
+                # screen owns the worker, the console and the Stop button, so
+                # it is the one that can actually start it.
+                self._results_panel.refit_requested.connect(self._on_refit)
 
                 # ALL of them at once, each at its own aspect ratio. A run
                 # makes seventeen figures and they are meant to be read
@@ -2411,7 +2415,19 @@ class AppScreen(QWidget):
     # ------------------------------------------------------------------
     # Actions
     # ------------------------------------------------------------------
-    def _on_run(self):
+    def _on_run(self, _checked=False, *, override=None):
+        """Start the pipeline.
+
+        :param _checked: swallows the bool a ``clicked`` signal passes.
+        :param override: run THESE settings instead of what the panel holds.
+            Keyword-only, so the clicked bool can never land in it.
+
+        The override is what the re-fit uses. It builds its settings from the
+        run already on screen rather than from the widgets, because the
+        widgets may have been edited since -- and a re-fit of "what I am
+        looking at" that quietly picked those up would compare two runs
+        differing in more ways than the one the user chose.
+        """
         from ..verbose_logger import log_button_press
         entry = resolve_pipeline_entry(self.app_key)
         if entry is None:
@@ -2425,7 +2441,8 @@ class AppScreen(QWidget):
             )
             return
         try:
-            settings = self._settings_model.collect()
+            settings = (dict(override) if override is not None
+                        else self._settings_model.collect())
         except Exception as e:
             log_button_press(
                 f"{self.app_key}.Run",
@@ -3401,6 +3418,32 @@ class AppScreen(QWidget):
         if stack is not None:
             stack.setCurrentWidget(self._figure_detail)
 
+    def _on_refit(self, settings) -> bool:
+        """Run the same screen again through the model the user just picked.
+
+        :returns: True if a run was started.
+
+        REFUSED WHILE A RUN IS GOING. Two regressions writing at once is not
+        a comparison, it is two runs competing for the same folder counter --
+        `_next_results_folder` claims a name by looking, so both would look
+        before either wrote and both would claim it.
+        """
+        if settings is None:
+            return False
+        if getattr(self, "_thread", None) is not None and self._thread.isRunning():
+            self._console.append_notice(
+                "■ A run is already going. Wait for it to finish, or stop it, "
+                "before re-fitting.\n")
+            return False
+        self._console.append_notice(
+            "→ Re-fitting: {model}, {correction}. This is a NEW run — the "
+            "results you are looking at are not touched.\n",
+            model=repr(settings.get("regression_type")),
+            correction=repr(settings.get("multiple_testing_method")),
+        )
+        self._on_run(override=settings)
+        return True
+
     def _on_pipeline_result(self, payload) -> None:
         """Take the coefficient table straight from the run that made it.
 
@@ -3420,6 +3463,17 @@ class AppScreen(QWidget):
         folder = payload.get("res_folder") or ""
         try:
             if panel.set_frame(frame, source=str(folder)):
+                # THE RUN'S OWN SETTINGS, handed over after the frame so they
+                # win over whatever `set_frame` read off disk. The shared
+                # settings/ copy is overwritten by every later run of the
+                # same screen, so on a second run the file describes the
+                # wrong one -- and a re-fit seeded from it would offer a
+                # model this table was never fitted with.
+                try:
+                    panel.set_run_settings(payload.get("settings"))
+                except Exception:
+                    LOG.debug("could not hand the run's settings to the "
+                              "results panel", exc_info=True)
                 self._results_loaded_in_memory = True
                 self._show_figure_grid()
                 self._figures_card.show()
