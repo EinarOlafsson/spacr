@@ -9787,10 +9787,11 @@
         "24ee9c8f4c3a1db7a1fdf76862212106175e77ea2054eafe956226ae0c872e11",
         "351a274023112976222bdf98a35e1cb8ae196d80333be0c5170f15266e4e49f4",
         "ff293d2fa55d390532f800b46e12dd36a780aa6d0f2abf5e25acf2d81b9d045f",
-        "42c8d5d3e36972b9b72f1845fe545928ace5ead336091d8ab8a3e3933fbec9ab"
+        "42c8d5d3e36972b9b72f1845fe545928ace5ead336091d8ab8a3e3933fbec9ab",
+        "4318c44d2c7eedaeb657df73eb31cab8fb72511db5895f105b71f9df7a01592f"
       ],
-      "source_sha256": "5d639de70c6e710a0c20d409ba7b60d5b1621497b1cea0ba7d699fbc809a674c",
-      "text": "Pick the right test from the data, and show the working.\n\nAsked for on 2026-08-16: \"a stats table is generated with the correct stats\n( automatic detection of equal variance nr of groups ...\".\n\nThe choice is mechanical, so the software makes it:\n\n    groups  variance   distribution   test\n    2       equal      ~normal        Student's t (two-sided)\n    2       unequal    ~normal        Welch's t\n    2       any        not normal     Mann-Whitney U\n    >2      equal      ~normal        one-way ANOVA\n    >2      unequal    ~normal        Welch's ANOVA\n    >2      any        not normal     Kruskal-Wallis\n\nTWO THINGS THAT MAKE THIS EASY TO GET QUIETLY WRONG, and neither raises an\nerror when you get it wrong -- they hand back a confident number instead.\n\n**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no\npower, so \"p = 0.7, variances are equal\" actually means \"we could not tell\".\nReading that as licence to use Student's t is how a screen reports a\ndifference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module\nrecords the check as UNINFORMATIVE and takes the robust branch -- Welch,\nMann-Whitney -- which costs a little power when the assumption did hold and\nprotects the result when it did not. That asymmetry is the whole argument:\none direction loses a bit of sensitivity, the other publishes a false\npositive.\n\n**THE UNIT OF REPLICATION.** spaCR measures thousands of cells across a\nhandful of wells. A test across CELLS when the replicate is the WELL is\npseudoreplication and will return p < 1e-10 on pure noise, because n is\ninflated by a factor of a thousand. Every result here states what n counted,\nand :func:`compare` takes a ``unit`` so a caller can aggregate first.\n\nA p-value alone is not reportable. Every result carries the test by name, n\nper group, an effect size, and the assumption checks with their own numbers."
+      "source_sha256": "54cf8e6c4cb822d81bf462fca06ba770fad104e77d08c8a105297308eb280983",
+      "text": "Pick the right test from the data, and show the working.\n\nAsked for on 2026-08-16: \"a stats table is generated with the correct stats\n( automatic detection of equal variance nr of groups ...\".\n\nThe choice is mechanical, so the software makes it:\n\n    groups  variance   distribution   test\n    2       equal      ~normal        Student's t (two-sided)\n    2       unequal    ~normal        Welch's t\n    2       any        not normal     Mann-Whitney U\n    >2      equal      ~normal        one-way ANOVA\n    >2      unequal    ~normal        Welch's ANOVA\n    >2      any        not normal     Kruskal-Wallis\n\nTWO THINGS THAT MAKE THIS EASY TO GET QUIETLY WRONG, and neither raises an\nerror when you get it wrong -- they hand back a confident number instead.\n\n**THE ASSUMPTION TESTS ARE THEMSELVES TESTS.** On n = 3 Levene has almost no\npower, so \"p = 0.7, variances are equal\" actually means \"we could not tell\".\nReading that as licence to use Student's t is how a screen reports a\ndifference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module\nrecords the check as UNINFORMATIVE and takes the robust branch -- Welch,\nMann-Whitney -- which costs a little power when the assumption did hold and\nprotects the result when it did not. That asymmetry is the whole argument:\none direction loses a bit of sensitivity, the other publishes a false\npositive.\n\n**THE UNIT OF REPLICATION.** spaCR measures thousands of cells across a\nhandful of wells. A test across CELLS when the replicate is the WELL is\npseudoreplication and will return p < 1e-10 on pure noise, because n is\ninflated by a factor of a thousand. Every result here states what n counted,\nand :func:`compare` takes a ``unit`` so a caller can aggregate first.\n\nA p-value alone is not reportable. Every result carries the test by name, n\nper group, an effect size, and the assumption checks with their own numbers.\n\nTHIS IS THE ONE ENGINE THAT CHOOSES A TEST. :mod:`spacr.sp_stats` used to\nchoose its own and disagreed with this one on three of five inputs, always by\ntaking the parametric branch where the checks had no power to refuse it\n(instruction 127, finding 2). It is now a translation layer onto :func:`compare`,\n:func:`check_normality` and :func:`check_equal_variance` that keeps its older\nsignatures and result keys. Change the choices here and both entry points move\ntogether; ``tests/test_one_engine_decides_which_test_applies.py`` fails if they\never come apart again."
     },
     "spacr.figures.stats.Assumption": {
       "source_blocks_sha256": [
@@ -11089,6 +11090,15 @@
       ],
       "source_sha256": "50c526737e43ba66feedf1d54b43299083fa779c221ee4d7ff6f8cf28c323b1f",
       "text": "The ToxoDB gene record page for a full accession. Never fetched."
+    },
+    "spacr.gene_tile.uniprot_accessions": {
+      "source_blocks_sha256": [
+        "e72afde1f5fcb08ee85eb71763303611e683f156bf1b95d3434e3847f9790d9a",
+        "28dd31e0e71b676610acf5650749089f59ea14c751f8cefd92ba6fd0c1f27286",
+        "c855ccc441fe5ced83a1a04311b6e3c5bef30a88b6902d8dc0f303ac2338b5c1"
+      ],
+      "source_sha256": "e6bf5affb79135a6eb111fe38f1e0c3e84268e53fb6eba48d3f33cb5d06dbbb5",
+      "text": "``{gene number: accession}`` from the bundled table.\n\nCached: it is read to build one line of a gene tile, which happens every\ntime a point is clicked.\n\nReturns an empty mapping rather than raising when the file is absent --\na screen of another organism has no reason to carry it, and a gene tile\nwithout a UniProt line is still a gene tile."
     },
     "spacr.gene_tile.uniprot_reference": {
       "source_blocks_sha256": [
@@ -23039,6 +23049,183 @@
       "source_sha256": "77aadeca35ca81c07d45342da340577889d6458773256ff5d56aebec8ca56925",
       "text": "Write one ``merged/stack_<field>.npy`` per field.\n\nReads originals directly (no rename-into-channel-folders step),\nstacks the selected channels along the C axis, and writes one\nnpy per field. Also emits a ``channel_order.json`` sidecar\ndescribing which C-index holds which channel.\n\n:param src: plate folder containing the original images.\n:param mapper: :class:`FilenameMapper` produced from ``src``.\n:param channels: which channel numbers (as parsed from filenames)\n    to include, in the order they should occupy the C axis.\n:param channel_names: human names for those channels (must match\n    ``channels`` length). Default: ``[\"ch0\", \"ch1\", …]``.\n:param dst: override the output folder; defaults to ``<src>/merged``.\n:returns: list of :class:`StackFile`, one per field written."
     },
+    "spacr.plate_measurements": {
+      "source_blocks_sha256": [
+        "60bb7ce13dcf782283394c81e08fc91f48b4fc9abbfcb394790be5dd0d3f97ca",
+        "ba73453cee6c06cf47ce74881e98219e92881fcd2a8ad9cc608c24c0639de979",
+        "3162c8815982a2f83142ec27c408b3fc710e9b685a92b458d2a3cd485561c93f",
+        "a5876534f51bfb3ddda510aaed2960670d7b8a489349ae505f97ef01c2b37221",
+        "bb77c96cadc9b2609cda1539b9ba99f9b31169f645bbd34d0a20ede7642a4370",
+        "d1e9f87fd46e06c6fcc7198331b93fb6c83b093931a29bacd192e3d791dd01dd",
+        "8ee870c77797111b296773d45a4f2cd655d9a15371ad47cb92915e15ba48781b",
+        "ab36313e94ec78180d00b6114fcfd0e22cf378682f6210d05b91f547b922dc6c",
+        "d9c848e1ab0b6daf29534c8a4896cd606575cc5115057910f9ff8f2966af5f0f",
+        "65d905c45bb95a8a72634ef5e7728bf17d5a78b84147fc3edab3da9f33c7ffd4",
+        "fbbc8ba56b61e8c6d07c6d7466390a922c1ef2f7408df26c357ba59ab5939d7b",
+        "9cb69b2f0f37edcd3fa221d72438f94581302e9bd68f382fe9a1619ae4732977"
+      ],
+      "source_sha256": "eaa21bc11de0af8964b956b221fe87da7214dbc143e23a3cf21825d7088d964f",
+      "text": "One merged measurements frame from the plate rows of the input table.\n\nInstruction 130. A row of the regression input table is one PLATE: its score\nCSV, its count CSV and now its measurements database. This module is the\nheadless half of that feature -- given ``{plate: database path}``, the tables\nthe user ticked and the anchor they chose, it returns the merged frame.\n\nNOTHING HERE IS NEW MERGE LOGIC, AND THAT IS THE POINT. spaCR already has\nfour places that join measurement tables and one of them\n(``io._read_and_join_tables``) aggregates every numeric column with ``mean``,\nwhich turns four pathogens' total area into an average area and a MINIMUM\ninto a mean of minima. A fifth would be a fifth answer. So:\n\n* :func:`spacr.multi_database.describe_merge` / :func:`~spacr.multi_database.read_merged`\n  stack the databases -- one table at a time, carrying ``source_database`` and\n  ``screenID``, refusing a plate id repeated inside one screen;\n* :func:`spacr.merge_tables.roll_up` aggregates each child table onto the\n  anchor, one rule per column out of\n  :data:`spacr.merge_tables.AGGREGATION_RULES`;\n* :meth:`spacr.merge_tables.MergePolicy.how_for` decides the join PER TABLE,\n  because the cardinality differs -- a cell has one cytoplasm and many\n  pathogens, and an uninfected cell is still a cell.\n\nThere is no ``sum()`` or ``mean()`` of a measurement column written in this\nfile, and there must never be one.\n\nWHY THE TWO EXISTING FUNCTIONS DO NOT COMPOSE BY THEMSELVES\n-----------------------------------------------------------\n``read_merged`` is *many databases, one table*. ``merge_tables`` is *one\ndatabase, many tables* -- and it takes a PATH, so it cannot be handed a frame\nthat has already been stacked across databases. This feature needs both, so\nthe composition is: read each chosen table across every database, then roll\nthe children onto the anchor.\n\nThe roll-up keys are the load-bearing detail. They are the identity columns\nPLUS ``screenID`` PLUS ``source_database`` PLUS the child's anchor column.\nLeave ``screenID`` out and two screens that legitimately share ``plate1``\n(instruction 122, which :func:`~spacr.multi_database.describe_merge`\ndeliberately permits) collapse into one parent -- reintroducing, one layer up,\nexactly the pooling ``multi_database`` exists to prevent.\n\nWHAT A CALLER MUST SHOW THE USER\n--------------------------------\nA merge that silently changed how a measurement was combined produces a number\nthat is wrong and looks fine, so :class:`PlateMerge` carries what the panel has\nto say: the anchor and the row count, the rows each source contributed, the\nmeasurements ``columns='common'`` dropped, the plate ids shared across screens\n-- and every column that fell through to\n:data:`spacr.merge_tables.DEFAULT_AGGREGATION` because no rule matched it. That\nlast set is recomputed by re-walking ``AGGREGATION_RULES``\n(:func:`default_aggregated_columns`) rather than listed anywhere, so it cannot\ndrift out of step with the rules."
+    },
+    "spacr.plate_measurements.PlateDatabase": {
+      "source_blocks_sha256": [
+        "c01cb96ea84c85c729dc7447c7374b043f3f8adcca2ea9363787a8d657bdf9f2"
+      ],
+      "source_sha256": "c01cb96ea84c85c729dc7447c7374b043f3f8adcca2ea9363787a8d657bdf9f2",
+      "text": "One plate row of the input table and the database attached to it."
+    },
+    "spacr.plate_measurements.PlateDatabase.exists": {
+      "source_blocks_sha256": [
+        "6ae70a3e3a1b925f043b2aa58d7ac50bf1f65475229ea061f8e81f30351ea314",
+        "7df9d118ae20fc6f9246470959017bad5eeddff4eb5e1b18536238b67945773c"
+      ],
+      "source_sha256": "059737ad879110804541ee58626773e510a9579b627927ff421b9d889443095d",
+      "text": "Whether the file is still where the input table says it is.\n\nChecked before the run rather than during it: instruction 130 asks\nthat a database that has been moved is named up front, not four\nminutes into a regression."
+    },
+    "spacr.plate_measurements.PlateMerge": {
+      "source_blocks_sha256": [
+        "7cdb8056656487851235dd31c08ce76b75f1c8d59bb5488fcd2470351cd1f83b"
+      ],
+      "source_sha256": "7cdb8056656487851235dd31c08ce76b75f1c8d59bb5488fcd2470351cd1f83b",
+      "text": "The merged frame, and everything the Measurements tab has to say about it."
+    },
+    "spacr.plate_measurements.PlateMerge.default_aggregation_columns": {
+      "source_blocks_sha256": [
+        "c22d7bf4cb14ec77a59af736ff86f41f856ecdf7a2156c465d49a1f4e19186f2",
+        "8dbc732dd0948f76b901fe6315d2df06f8a1091a3fcce296af588de6637ccc20"
+      ],
+      "source_sha256": "2b2663ab072855da81eb969550dab034b96b25815f2bbf4adf76d5c0facadda3",
+      "text": "Merged columns whose aggregation is the default, no rule matching.\n\n:data:`spacr.merge_tables.DEFAULT_AGGREGATION` is MEAN and the comment\nbeside it says why -- but a measurement nobody thought about is exactly\nthe one worth naming, because it is the one where the default is most\nlikely to be answering a different question."
+    },
+    "spacr.plate_measurements.PlateMerge.describe": {
+      "source_blocks_sha256": [
+        "af2a2c9c0d9c3f4e0f705373b8fc9594d06325ec66bd64892463164107540da6"
+      ],
+      "source_sha256": "af2a2c9c0d9c3f4e0f705373b8fc9594d06325ec66bd64892463164107540da6",
+      "text": "The disclosure, as lines -- what this merge did and what it cost."
+    },
+    "spacr.plate_measurements.PlateMerge.dropped_columns": {
+      "source_blocks_sha256": [
+        "fdf7f35ce8ec88496db5a65acaca25b3ce70cee651196c91b3b19c76de3f0b8c",
+        "2038ef1e3c1ab2fd0125b582f771229c160293c829115034686ae852c496536a"
+      ],
+      "source_sha256": "f78ce9752a953f97cf221f56fa44c84586e801f86e410bccc3c3787f5d12316d",
+      "text": "Measurements ``columns='common'`` left out, as merged names.\n\nA dropped measurement is a measurement the user came to compare, so it\nis reported rather than merely defaulted."
+    },
+    "spacr.plate_measurements.PlateMerge.rows": {
+      "source_blocks_sha256": [
+        "e1b7b7b40e10f0340ce1c7f4cdf5b2748648b97d54fa3cbd25e0bbcc081f2a21"
+      ],
+      "source_sha256": "e1b7b7b40e10f0340ce1c7f4cdf5b2748648b97d54fa3cbd25e0bbcc081f2a21",
+      "text": "How many anchor objects survived the merge."
+    },
+    "spacr.plate_measurements.PlateMerge.rows_per_source": {
+      "source_blocks_sha256": [
+        "744dfdc4f24ccb851af0f0cb688d9998fc8d1f6d8757c3d828ca0087c43576de",
+        "14245a26e5a40722592f1a3236cc40ca9c343289a91faa536465ef605abc9ec3"
+      ],
+      "source_sha256": "0e73b8ae81f8b1cf15442e2e0e9b80d93b56c75f967795bbd7da081b3b42f515",
+      "text": "Anchor rows each database contributed to the FINAL frame.\n\nLess than :attr:`rows_read_per_source` wherever an inner join removed\nobjects -- a nucleus-less cell, or a pathogen-less one when\n``keep_uninfected=False``. The pair is what lets a panel say how many\nrows were dropped instead of only how many are left."
+    },
+    "spacr.plate_measurements.PlateMerge.rows_read_per_source": {
+      "source_blocks_sha256": [
+        "d15ad1a4a676728d33a4abe0da05034313dbf50cac7675df5330c2a217095c83"
+      ],
+      "source_sha256": "d15ad1a4a676728d33a4abe0da05034313dbf50cac7675df5330c2a217095c83",
+      "text": "Anchor rows each database HELD, before any join dropped any."
+    },
+    "spacr.plate_measurements.PlateMerge.shared_plates_across_screens": {
+      "source_blocks_sha256": [
+        "f0277a4f9f6fc612b1039870f35e87ebf784695348e196679f491c7fe74796b3",
+        "ffc09f98b159ad0efecddafa0e99872f4acf5d17d831b58d74d2b875cf93728b"
+      ],
+      "source_sha256": "1998a23dee0f4aba6132723ea2bec1a862070b9ed78560d788903ac1916dcea6",
+      "text": "Plate ids that appear in more than one screen. NOT a collision.\n\nTwo screens sharing a guide library both have ``plate1``, and once\n``screenID`` is in the frame those are two identities. Reported anyway,\nbecause a user who did not mean to run two screens still needs to see\nthat they did."
+    },
+    "spacr.plate_measurements.PlateMerge.sources": {
+      "source_blocks_sha256": [
+        "5722e09804ae98a411d348be0d535c37790412fb15e5eec25e48655716cd24d5"
+      ],
+      "source_sha256": "5722e09804ae98a411d348be0d535c37790412fb15e5eec25e48655716cd24d5",
+      "text": "The database labels, as :mod:`spacr.multi_database` named them."
+    },
+    "spacr.plate_measurements.TableMerge": {
+      "source_blocks_sha256": [
+        "68e8633c9d93e7e0bb9257fb304d00ae7dc9ade2a6b2cbc23ca18ed3b96ec665",
+        "cfde2cddb6ae5e009eeb43367e75a94cef626f2bb3b81614bd356eb94fa965a0"
+      ],
+      "source_sha256": "ac13c1cb90b5ee0f723e811f3f342f9f2fefae91d6b8a0274e187944054e7d21",
+      "text": "What one chosen table contributed to the merge, and how.\n\nOne of these per table the user ticked, including the anchor. It is the\nrecord a panel reads to answer \"what happened to my numbers\": which\naggregation each column got, whether the table was rolled up or joined\ndirectly, and which join type its cardinality earned it."
+    },
+    "spacr.plate_measurements.TableMerge.merged_column": {
+      "source_blocks_sha256": [
+        "d062160d777023c6cdad618ebbedb1fa758c81dde06405b0f529a0a2747dece7",
+        "f2878a8185c6a1534e1cf955f77ef0cb49571d7de92b40c36740bb2a31760b76"
+      ],
+      "source_sha256": "ba8fb1282b36ecd5f1cd9edce3446956016a0085779cb6fdd5c5adade7f96b2c",
+      "text": "The name ``column`` carries in the merged frame.\n\nThe same rule :func:`spacr.merge_tables.roll_up` applies: a join key\nkeeps its name, a column that already starts with the table's name is\nleft alone -- ``nucleus_area`` must not become ``nucleus_nucleus_area``\n-- and everything else is prefixed with the table it measures."
+    },
+    "spacr.plate_measurements.available_tables": {
+      "source_blocks_sha256": [
+        "dc339735ebccf7e166eba58cb015c55756be80162f8a3ef4868ba75ba744aee2",
+        "ed9d60ff9e38928da3a170ded5ded2d218a354033d659bf487f7c4cf10b8bc13",
+        "045de696b0cacee48bc045f68129da7af35cd7ac3d30727b89b6721dbe0b6782"
+      ],
+      "source_sha256": "ffdc61d04083203f92e5e85f5ec59004a5661d94af11cfd9d3270ae757f7932a",
+      "text": "The object tables present in EVERY attached database.\n\nThe intersection, not the union, and this is not a nicety:\n:func:`spacr.multi_database.describe_merge` raises a bare\n``sqlite3.OperationalError: no such table`` when one database lacks the\nchosen table, which reaches a user as a crash rather than as a choice they\nwere never offered.\n\n:returns: the tables in :data:`spacr.merge_tables.OBJECT_TABLES` order, so\n    the picker's order is the registry's order rather than sqlite's, and\n    so a sixth object kind reaches this list by being declared once.\n    ``png_list`` is not offered: it holds one row per CROP rather than per\n    object, and a crop is not a measurement to aggregate."
+    },
+    "spacr.plate_measurements.default_aggregated_columns": {
+      "source_blocks_sha256": [
+        "5e158cf898728d4aea6260c2457ccbae6bfcf4968af3d4d22c48d3540bc1ce06",
+        "2c6551259240ff7497f83174da05bcd736c369bcc104902c7e1599dbc5463b1c",
+        "efeaeec5252b88c75dd61fd8165fa16e4a4a4872a4a4e3c2f225c5bba3a5b969",
+        "acb575f88d5f1626d66cf5cbc69a18bd0075a83dfe2bac45b1431089ecd94be3",
+        "b6b6371855d8219b42ff0fa811c112614884e5448726d797470607688685b422"
+      ],
+      "source_sha256": "ba4ef4b0b54dade0bb247959ab0ce92e496643f4ee510f70f1696e08e8485579",
+      "text": "The columns in ``plan`` that got the default because NO rule matched.\n\nRecomputed by re-walking :data:`spacr.merge_tables.AGGREGATION_RULES`, so\nthis cannot drift out of step with them: a rule added for a measurement\ntomorrow removes that measurement from this list the same day, and a rule\ndeleted puts it back.\n\nA column the caller overrode is not reported however it was set -- they\nchose it. Nor is a text column, which takes\n:data:`spacr.merge_tables.TEXT_AGGREGATION` because text does not add up,\nnot because nobody thought about it.\n\n:param plan: ``{column: aggregation}`` from\n    :func:`spacr.merge_tables.aggregation_plan`.\n:param overrides: the caller's explicit choices, which are excluded."
+    },
+    "spacr.plate_measurements.merge_plate_databases": {
+      "source_blocks_sha256": [
+        "4e6ee34dfdd71baf911aa3b1cf4e3e6d7d26cb7e421dfa3328ce18befe883b2d",
+        "3a8c13cedfabcd06e97db9c52a4d1a9dd55ab5887377e2f494860b9bb39c78cd",
+        "dce01455e96d58c8aa5c97a2451486cecf02d2ef5b2859efb690a4f07723a61c",
+        "665c39172c5ce90af226b2404103c3c0b51ffadd2ae810c660cd0649d1dcc2d9",
+        "9d9be3e586f9834dcd9544403abda2a6877ac41b59bf945db5a3e2eb935dde5c",
+        "39fb08ea9ae61a108494834ca3be74189d3244300e6f8874fb7d2530513572ce",
+        "a6b72f907083b0e3f90fd4a41a62fcd4699810c0f7f46fe8dd4a9d8156e577b3",
+        "a2321541fc50f8ffb8f36c0be830f8b239404c592fb337463c0fff664d4b3a8b",
+        "33c147cab0271b453b3dc643899e1260d1f93ca4e9870e6d123ad18129d581ee",
+        "fec250059dc31cf178204d41aa4bf734450ec6bfc620624ead5662c41a7cc29c",
+        "81aef008db67c93a23a75c0e71cb345a8d466ba969daa3a118b3e9e96a88cbd9"
+      ],
+      "source_sha256": "2e92d7b141249b1f6c2175b873332b23aa1229616c3e2595974776aedecc774a",
+      "text": "Merge every attached plate database into one frame, one row per anchor.\n\nCalls :func:`spacr.multi_database.read_merged` once per chosen table and\n:func:`spacr.merge_tables.roll_up` once per child table. It performs no\naggregation of its own, and the join type comes from\n:meth:`spacr.merge_tables.MergePolicy.how_for` per table rather than from a\nblanket ``how``.\n\n:param attachments: any shape :func:`plate_databases` accepts. Plates with\n    no database are skipped, not fatal.\n:param tables: the object tables to join. The anchor is added if absent.\n:param anchor: the object a row of the result MEANS. ``cell`` by default\n    (:data:`spacr.merge_tables.DEFAULT_PRIMARY`), overriding\n    ``policy.primary`` when both are given.\n:param policy: the aggregation and join policy -- ``na``, ``overrides``,\n    ``consolidate_on_cell``, ``keep_uninfected``.\n:param screens: optional screen label per plate: a mapping keyed by plate,\n    or a sequence parallel to the attached databases.\n:param columns: ``'common'`` or ``'union'``, passed to ``read_merged``.\n:param report: called with one line per thing the merge cost, the table\n    named.\n:returns: the :class:`PlateMerge`.\n:raises MergeRefused: nothing attached, a database that has moved, one\n    database attached to two plates, an anchor that is not one row per\n    cell, a table missing from some database, or -- from ``read_merged``\n    itself -- a plate id repeated inside one screen."
+    },
+    "spacr.plate_measurements.missing_databases": {
+      "source_blocks_sha256": [
+        "244401821b8949c46fcad2e9d9433992d87f9b2f2b04f9e97aa4e56dd32103c0"
+      ],
+      "source_sha256": "244401821b8949c46fcad2e9d9433992d87f9b2f2b04f9e97aa4e56dd32103c0",
+      "text": "Attached databases that are not on disk, named BEFORE the run starts."
+    },
+    "spacr.plate_measurements.plate_databases": {
+      "source_blocks_sha256": [
+        "daec4055028ab0d659cad742e4604199e7a3211cc8eb6e2432c86b749ff97ca9",
+        "297751329a7ffcbdb3b8f1bedb39e3ec4a65cb76fa3a1fbbe99de2b9a915d5f5",
+        "f7a9f2d406b56d5177d7fd0008e612f979bfe82ca3053921ae07a00f51aaeb95"
+      ],
+      "source_sha256": "4dee6712a70afe9602572c77bd9eeba5dddaffb1805ed659a11a59f4165cee88",
+      "text": "The plate rows that HAVE a database, in the order the table lists them.\n\n:param attachments: ``{plate: path}``, a sequence of :class:`PlateDatabase`,\n    a sequence of ``(plate, path)`` pairs, or the input table's own rows\n    (mappings carrying ``plate`` and ``database``).\n:returns: one :class:`PlateDatabase` per attached row. Rows with no\n    database are left out rather than carried as blanks -- see\n    :func:`unattached_plates`, which is where they are named."
+    },
+    "spacr.plate_measurements.unattached_plates": {
+      "source_blocks_sha256": [
+        "6dbcab96374f90fdd678b98ff09329d6a7e06283c436d43a13ed17e37a743ac8",
+        "7f3e92713a2d2dae209b77b66cd16ad400a1a9a056d06d48116b76ffb8d2fbc3"
+      ],
+      "source_sha256": "04200cddfe74760590eb38410618287cf1e9abc5d34fbf85cb01f40f2af32f27",
+      "text": "The plates with no database, which is legal and must be said out loud.\n\nThe regression runs on scores and counts; the database is what makes the\nMeasurements tab possible for that plate. Its absence disables that plate\nthere rather than failing the run -- so the plate is listed, and the\nlisting is what stops it looking like an omission."
+    },
     "spacr.plate_qc": {
       "source_blocks_sha256": [
         "7e22f3c3f1e9d8453004d5ad2d55e6cf797947dc4c478c4ee89aebb5a73832de",
@@ -28171,7 +28358,7 @@
         "5cd649901849be7ac42280e4bc1a077ca924f814dcbf78b79ca22ede52d3c12d",
         "4e80c0a149c2e78b09fa0720fb03e5bb61a75fb3faade0eb87ff1a7a37c6f5b1",
         "426bd089d92ad0b1a7f80e0a36ab5c4e66ccb74fa7690292797dadd0509c1f88",
-        "f1c35b9e6306ee2bc2888dede08889d03db988d814e4cff78c1a8fc3e7c73b62",
+        "7bc5c2c09348876e8b3ccfa778ff750a9e988d4518fa3d0e86c3b342020b5ae5",
         "7a646390938859d097e86def66c2cec09a7167396d04cd6cdec73f3c1eacf665",
         "a4752176eff3ebb9b21f6f1ac2e7e7e327b34e1295e62ee41f58d7962a91f96e",
         "54c27a2a2c7de6eec70b9d5e3602fe37f6a9218992119b4105ac5b5dc06b5831",
@@ -28182,8 +28369,8 @@
         "3ad784597af48b0007a719c6a61de7b28df54bff93f6899947b23ffe193b1551",
         "7e9daa0d6c3620add3dbcf74ee362238b1fbdcb43e6a7fc68892c6c287c21124"
       ],
-      "source_sha256": "20a235f3601cab3e814db6f4b741672e58a90a3a9b95092aa4173fc449b68d82",
-      "text": "Per-module drop handlers.\n\nEach pipeline app has different expectations for what a \"source\"\nmeans. This module encodes those policies as :class:`DropHandler`\nsubclasses that the AppScreen wires up at construction time.\n\nHandler map (also read by ``get_handler``):\n\n+-----------------+-------------------------------------------------------+\n| App             | Accepts                                               |\n+=================+=======================================================+\n| mask            | folder w/ images (auto-parses regex + preview)        |\n| measure         | folder named ``merged`` OR one containing merged/     |\n| external_masks  | mixed image/label files or folders; assignment table  |\n| annotate        | folder with ``measurements/measurements.db``          |\n| classify        | folder with ``data/`` or ``measurements/``            |\n| make_masks      | folder with images + optional masks/                  |\n| map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |\n| umap            | folder with ``measurements/measurements.db``          |\n| ml_analyze      | ditto                                                 |\n| regression      | ditto + ``scores.csv``                                |\n| recruitment     | folder with per-well recruitment CSVs                 |\n| activation      | folder with saved activation maps or the CV model dir |\n| analyze_plaques | folder with plaque images                             |\n| train_cellpose  | folder with image+mask pairs                          |\n| cellpose_masks  | folder with images                                    |\n| cellpose_all    | ditto                                                 |\n| other modules   | an existing source folder or supported data file      |\n+-----------------+-------------------------------------------------------+\n\nEvery handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`\nso users can also drop a settings CSV on any screen to load it."
+      "source_sha256": "3053d9f806db33a9f12fa8de69e6e06219561b855340bf5684548218636fdced",
+      "text": "Per-module drop handlers.\n\nEach pipeline app has different expectations for what a \"source\"\nmeans. This module encodes those policies as :class:`DropHandler`\nsubclasses that the AppScreen wires up at construction time.\n\nHandler map (also read by ``get_handler``):\n\n+-----------------+-------------------------------------------------------+\n| App             | Accepts                                               |\n+=================+=======================================================+\n| mask            | folder w/ images (auto-parses regex + preview)        |\n| measure         | folder named ``merged`` OR one containing merged/     |\n| external_masks  | mixed image/label files or folders; assignment table  |\n| annotate        | folder with ``measurements/measurements.db``          |\n| classify        | folder with ``data/`` or ``measurements/``            |\n| make_masks      | folder with images + optional masks/                  |\n| map_barcodes    | folder with FASTQ; also a raw .fastq.gz drop          |\n| umap            | folder with ``measurements/measurements.db``          |\n| ml_analyze      | ditto                                                 |\n| regression      | ditto — the database attaches to a PLATE ROW          |\n| recruitment     | folder with per-well recruitment CSVs                 |\n| activation      | folder with saved activation maps or the CV model dir |\n| analyze_plaques | folder with plaque images                             |\n| train_cellpose  | folder with image+mask pairs                          |\n| cellpose_masks  | folder with images                                    |\n| cellpose_all    | ditto                                                 |\n| other modules   | an existing source folder or supported data file      |\n+-----------------+-------------------------------------------------------+\n\nEvery handler falls back to CSV settings-import via :mod:`spacr.qt.dnd`\nso users can also drop a settings CSV on any screen to load it."
     },
     "spacr.qt.dnd_handlers.AlignDropHandler": {
       "source_blocks_sha256": [
@@ -28856,10 +29043,12 @@
     },
     "spacr.qt.dnd_handlers.MeasurementsDropHandler": {
       "source_blocks_sha256": [
-        "0620cf8902cc3e683a7e424cab4c32e8e4800ea6c0112217860e49287c5bc7de"
+        "0620cf8902cc3e683a7e424cab4c32e8e4800ea6c0112217860e49287c5bc7de",
+        "45acbb5f3ed867c3a1f54ae95d9e1df1b66d223ceee128d28aee2ea26b7ffb50",
+        "5efcd5c0ca8b122ebf507e7ceddfbfbaf01ac80157eba67e693f8a196bec817e"
       ],
-      "source_sha256": "0620cf8902cc3e683a7e424cab4c32e8e4800ea6c0112217860e49287c5bc7de",
-      "text": "Accept a database, its measurements folder, or its plate folder."
+      "source_sha256": "5c8ceba6fc170c178eddf260123ee89e7fc8b919796d30e62dbbc14f6eff27a2",
+      "text": "Accept a database, its measurements folder, or its plate folder.\n\nWhere the screen takes its inputs ONE ROW PER PLATE -- today only\nRegression, through the ``paired_data`` table -- the database is attached\nto a plate row instead of setting ``src``. That is not an app-key special\ncase: it follows the shape of the screen, so any panel that grows a\nper-plate input table gets it without a registry edit.\n\nIt matters because the two gestures used to disagree. Dropping\n``measurements.db`` ON the regression input table attaches it to a plate\n(instruction 130); dropping the same file two inches higher, on the\nscreen around it, landed here and set ``src`` -- a key the regression\npanel does not even display. The drop reported success and changed\nnothing the user could see."
     },
     "spacr.qt.dnd_handlers.MeasurementsDropHandler.apply": {
       "alias_of": "spacr.qt.dnd.DropHandler.apply",
@@ -28876,6 +29065,14 @@
       ],
       "source_sha256": "0034136e6873af6818773fbf2697a1ee88a255bc2b4fd61c81a2df5627b69441",
       "text": "Return True if ``path`` (folder OR file) is usable as-is."
+    },
+    "spacr.qt.dnd_handlers.MeasurementsDropHandler.database_file": {
+      "source_blocks_sha256": [
+        "a2082789be7499667b9e3f8b3e5804a89d1a05993ed42b64c721349a03d8789d",
+        "57a8d70c605736cf267f5dcf03d59cca0398df60ffb708eeedd1281a2a111bfd"
+      ],
+      "source_sha256": "075b8b19492d88bde6752791d8cce904ff7a43f53f3af26f174a94d532166065",
+      "text": "The database ``path`` names: itself, or the one under it.\n\nReturns ``None`` when there is no database file to be found, so a\ncaller can fall back rather than hand a folder to something that\nexpects to open a database."
     },
     "spacr.qt.dnd_handlers.MeasurementsDropHandler.error_message": {
       "alias_of": "spacr.qt.dnd.DropHandler.error_message",
@@ -41994,7 +42191,57 @@
         "61d98097b7dec638a3f245ddf55ca4e613b19382500ff8b95b5bb81e5d5c85b0",
         "204a5eb2cd28bcfdf3be9f8c765948e9e831609e3c57048cdbd6b8a94cf49126",
         "fb1fcb9a268f76c4431dd3f418fb6cbdd31b1c2d725450b5d07893b83e1f02f0",
-        "2173d65fa26a68a710366df95b42cc00d66bd1a6934fe08fe114aeadee960c1a",
+        "4943f59745f210869d6a0203f58a1f8b11b03f99d939a5e7dd500446f2d45d6b",
+        "2a205cfbd2f575a359a6ee7d139e96f2ddd1c315197ec287d3d931aacfedff0e",
+        "be1ba6041bc2d8b95729e6aa4e51f0233bf4ad8915e5b6dca0a7e339197f6980",
+        "596d40a4ed24c02a31b19d6e633f46f64304a672b40f793d8c6deab868beb0e2",
+        "db49d14ccfb3f49bd9f38263d767664fc5f9464d4b309a9fbf9dd51bd144fb06",
+        "559d7d35ad769555cc0645f5f98ee986d1ec005d05fe05f786da66862a0c4da0",
+        "b10270c75337535509dcf77eec53bf7f9ac7df75f0dc3d71a6a068d77eb9c866",
+        "6ad26a5f86fe9a183362d88745b1e019da7c1d907e1974d488f0f5a94c2a0d36",
+        "42c15f0a204827b6624fdda246e674be39c37a4d60fcd355d5fabb06d927eced",
+        "0c37d3b29e8b9bc7bdd1301e52a87604c87ead9de38740d1d680087e895fa591",
+        "6b72741c45edf93af2a7de238114287162fc9b7f8f307585f9b06aec2ecd1c5a",
+        "b9f82be76e6b751cfe3c0bfe645fa53503dc13e7d6555ec20de690d01fabab83",
+        "9676ffec3c0111c951e414dbf8ee64b6591c1e5fa0f07bcd9fa1264feb51709a",
+        "42c15f0a204827b6624fdda246e674be39c37a4d60fcd355d5fabb06d927eced",
+        "4d3a47a3d02b8558bef85d7a7b0ca1335d4eecb9e9aad4a2fa16edcacc8a0e2e",
+        "e8ab16921c8075f7665578b1adba0b213faa3ae53bd1b5c9719538e0e50053b5",
+        "12e608e9ef2cbab0bb45a06269da762ab8552f531bf314ec06595a2c021b6c11",
+        "9bc5f29be26264b9d7a8f4d51af3602f846dda925cee9e96e7d069bb22a4beb5",
+        "4b33e637c106a65de88400064381f7ae610f31269e37acc5fdd9bf49a4efbd9a",
+        "a61e837c83ee5dbe3656c17ec4a1d9ef73ea07605a7fdb8464ae7e163c9fdc29",
+        "3cb8201e7ff1e7777446032ef1bf4338535aadbabe464c15411cdce8c2317590",
+        "45a0c4fcb89d5df39db28725573ec80f85594ceeb01a73fa941c8d0bffc2944c",
+        "fac103102d513a116ef9a8b86962cc001e83e82c30d13b2d995c486833a86245",
+        "bade1406bfdd36b3f838b8e0d52c88bbee4d2451312d9a192cdce685ca6ac6cb",
+        "19230875a86d6c761d28bb0624514a28bbf6a5aa08adf631a340d4be9d83c5fe",
+        "1218ae82dfd0e59ae08ff1460882ff52c952ecb35b57345bb936793995f3c346",
+        "80062f054299395c80e982e73db325c982153c694f362b5b35f0afd9477d4fa0",
+        "b8bcf702e76dd4de569a6e4a777ca5bf829fea65345d395d06aafa68e80e2603",
+        "11541ed9972bec9bf65a2d79f79d2fc438363c703e578dcdffe3bf60530cb56e",
+        "efbbfae0c07314e2a666465694ca69084245d9b7c093e97aefc4e757ef4c8488",
+        "8ff2f552393b4a344af48aeb9c851e4fd58bc7633beac2ca8de5985e8cc83e25",
+        "d39ef8f3336fb061f94ca3731e6a06fd617ee9507bb2b5668f4d2a5b0b1481c7",
+        "d5dd36569be9fdaea03eaca6f29fcee8fa5b081f1d39ad9e0e4c5299ae2b0ef9",
+        "2849fc30cd0f9bac7640cdaee88b0b15e284eeb8baf53ad4a7222e8871806623",
+        "a8b7f7d814ae029a9977562fde0121da9829c82bd3b224f47bc8daa8b255e622",
+        "7281e18039b6a3db0b09cf5163b294ef6182082dff529bb19755170931c36fda",
+        "1d0290588a712fa058562d7a64db068581bfe70284003c31e2a6df3f60d8b35c",
+        "462f164145fe75f9dbe7444e71080387c340342690987d1df766591b0a1ca997",
+        "4392654b3a61e2d6c75658b253bb66f8d8f180307e573425eebb676cdbc6b20e",
+        "07c26d6decf8e0e495f721cc51fd3457af808ecb6c2ef934ab9929003a3e70d6",
+        "8b43b9a9f5bd9a37890f7ca1a925c4a5d56b0c9306e0a63e884ed9de005e8ecd",
+        "1d5fca197f6bb15c830a53724c7532d0da6910895f1b71d96d33729407ec9e18",
+        "72bbe0a3dc44ea5f94a3b6bedf7e5f98438df8329116c63ea152b6bed63d9ddb",
+        "214329a22773c14f4b181147468128a6727b0e3836e5607cc47de456d747a567",
+        "6f2557fc3fe451ab110f789f1678c41a560b17c23ee3f2c466df7ddfa75a5780",
+        "e740d341598c9db280f1ab233117ba1717ad1547966204bef44d321370fcf2c3",
+        "45971affb5e21ef4211804ba891b098f42ef542b5685c1c17911a1102c421853",
+        "8d45433500d88fb520febe90fc35cb6b093ed377520fd3288c2ccadf69bb416c",
+        "d506d5f173712f2f9ffcbacf07ff4b7727183f7899e20eedb6a055140a56c6fa",
+        "4025754e7ccfb639a57df15e95c3b72c7c0e11d05d351bec29c9304db37bf1b8",
+        "f57be49fd4a018e02b51dc868d0d3b872eaebf3e56364604ede3cf17b6bc8f5b",
         "7a8a58e6a263879823e5c6ead5b343fbd7eccb2cc92e01a2f5b6f2ac7402bc18",
         "799cc83526194fe7b25ef4025c0f3bf4538c646d1de56aa8eb2874f65eaa2224",
         "3cb8201e7ff1e7777446032ef1bf4338535aadbabe464c15411cdce8c2317590",
@@ -42073,8 +42320,8 @@
         "8d96d07092a6a1dd746ea96ce1794661427deffbd91a35279314a6a93cb63e91",
         "1b2ae74e2cc48c4e8f3a13576c21937ddc3c935efef01aad1eb674f35f067df0"
       ],
-      "source_sha256": "dc90f76de2b4e5be7f69f012127f5e43fe3d422e21fac7fdfa6f57193b184430",
-      "text": "Ambient animated backdrop — soft motion behind every module screen.\n\nThe sequencing screen has its own backdrop (:mod:`spacr.qt.widgets.dna_rain`,\nthe ATGC cascade). This is the one for *everything else*: a slow, diffuse\nanimation that sits behind the settings form and the console, takes no focus\nand no mouse events, and can be switched off entirely in Preferences.\n\nSix themes, chosen so each reads as a different kind of movement rather than\nas a re-skin of the same one:\n\n``blobs``   (default)\n    Big and small colour blobs drifting over the page, each pulsing in size on\n    its own period. They overlap and blend, so the result reads as soft colour\n    *fields* rather than as a bag of circles. This is the one the feature was\n    asked for.\n``aurora``\n    Three overlapping curtains of vertical rays, folding along their own\n    length. The folds are travelling waves — several superposed frequencies\n    running lengthwise along the arc — with brightness surges on a separate\n    schedule, a sharp lower edge, a diffuse top, and the real thing's\n    vertical colour order: green through the body, red high up, a violet\n    fringe underneath.\n``ripple``\n    Concentric rings expanding out of three fixed sources and fading as they\n    grow, like rain on water. Soft-edged, so it never reads as line work.\n``drift``\n    A slow starfield in three parallax layers: small, dim, slow ones behind;\n    bigger, brighter, faster ones in front. The one crisp theme. It travels\n    up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.\n``bokeh``\n    Out-of-focus points of light, the way a fluorescence field looks off the\n    focal plane: an aperture image is a *disc with a bright rim*, not a\n    Gaussian smudge, and the ones further out of focus are larger and flatter.\n``cells``\n    Cells drifting through the field, turning as they go — a soft body, a\n    slightly brighter membrane where the edge is seen nearly edge-on, and a\n    distinctly brighter nucleus set off centre.\n\nTwo more were built and thrown away, on measurements rather than taste, and\nthe numbers are recorded here so nobody spends the afternoon again:\n\n*a constellation of points with faint links between them*, and *a slowly\nbranching mycelium*. Both are the same shape of thing — a few dozen short,\nthin, translucent, antialiased lines — and at 1920x1080 sixty points with\n196 links between them cost **8.2 ms** a frame drawn one at a time and\n**5.7 ms** batched into ``drawLines`` calls by alpha. That is four times what\nthis entire module is allowed, for one theme, and it is the module's own rule\nabout line work arriving again: a translucent antialiased line is a thousand\none-pixel spans, and Qt's raster engine charges for every one. Painting them\ninto the small buffer instead makes them affordable and also makes them not\nlines any more, which is the whole thing that would have made either theme\nworth having.\n\n*Caustics* and *a nebula / flow field* were not built. Both are per-pixel\nnoise fields, so they cannot be drawn with Qt primitives at all and have to\nbe evaluated in NumPy over the buffer — and the separable box blur measured\nfor the blur control, which is the same shape of work over the same array,\ncame to 12.8 ms on a 640x360 buffer. Evaluating them small enough to afford\nwould put them back at the resolution this change exists to get away from.\n\n*Brownian diffusion of specks* was asked for and is here, but as ``drift``'s\n``random`` direction rather than as a theme. It would have been the starfield\nengine with one constant changed, and a theme menu that lists the same\nanimation twice is a worse answer than a setting that says what differs.\n\nPalettes\n--------\nEvery theme declares the palettes it offers (:func:`palettes_for`), because a\npalette that works as a 400 px blob does not necessarily work as a 2 px star.\n:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` is built from the\nthree brand hues the user picked for the module-maturity legend, and ``okabe``\nis the Okabe–Ito set for red–green colour deficiency (see its note).\n\nBoth dark and light\n-------------------\nspaCR ships five themes, and a blob set tuned only for a near-black page turns\nto mud on a white one. So the *composition mode follows the background*:\n\n* dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,\n  which is what makes two circles read as one colour field. Additive over a\n  light page just clips to white and the whole effect vanishes.\n* light page -> ``CompositionMode_Multiply``, with the palette colour mixed\n  toward white first. Multiply is the exact dual: overlaps get *darker* and\n  still blend hue-wise, so the same geometry reads the same way. Plain\n  ``SourceOver`` was tried first and is wrong here — the later blob simply\n  covers the earlier one, so nothing blends and the field falls apart into\n  discrete discs.\n\n:func:`AmbientWidget.set_background_color` re-derives all of that, so a live\ntheme switch is one call.\n\nCost\n----\nThis paints behind every module screen, on machines that are simultaneously\nrunning Cellpose on a GPU and a 40-plate pipeline, so cost is a correctness\nrequirement rather than a nicety. Two things get it there:\n\n1. *The timer stops whenever the widget is not on screen* — hidden, on another\n   tab, or in a minimised window. Zero frames, zero CPU. These screens stay\n   open for hours, so this is the whole ball game.\n2. *The soft themes are painted into a small reusable QImage and scaled up*,\n   never at full resolution. The buffer's long edge is whatever the theme\n   declares (:attr:`_BufferedEngine.base_edge`) times the user's resolution\n   setting, so the diffuse fields shade ~37 000 pixels instead of ~2 000 000\n   and the aurora, which has real structure in it, shades ~520 000. The one\n   allocation happens on resize, never per frame.\n\nAt 1920x1080, offscreen raster. The engine as it stood before this change\nis loaded into the same process out of git and every configuration is timed\nround-robin, best of thirteen — this machine is shared with four other test\nsuites, so a run now and a run in ten minutes are not comparable and only the\nminimum of an interleaved set means anything.\n\nThat also means the *absolute* frame figures in the previous edition of this\ntable could not be reproduced honestly today: the same unchanged ``blobs``\nframe measured anywhere between 1.4 and 3.0 ms depending on what else the\nbox was doing. What is stable under load is the **shading pass** — the part\nresolution and density actually move — because it is a few hundred thousand\npixels rather than two million, so it is what is tabulated:\n\n=========  ==================  ==================  ============\n theme      shading was         shading now         full frame\n            (dark / light)      (dark / light)      (dark)\n=========  ==================  ==================  ============\n blobs      0.283 / 0.331 ms    0.283 / 0.324 ms    1.39 ms\n aurora     0.487 / 0.546 ms    1.782 / 2.270 ms    2.89 ms\n ripple     0.398 / 0.437 ms    0.394 / 0.442 ms    1.51 ms\n bokeh      —                   0.795 / 0.738 ms    1.91 ms\n cells      —                   0.748 / 0.761 ms    1.86 ms\n drift      0.747 / 0.727 ms    0.714 / 0.706 ms    0.71 ms\n=========  ==================  ==================  ============\n\n``drift`` has no buffer, so for it the first three columns are all the whole\nframe and the shading columns are the same measurement twice.\n\nThe last column is the middle one plus the *fixed* part of a buffered frame\n— filling the page and blitting the buffer up to 1920x1080 — which measured\n**1.111 ms** and is bound by the destination pixels, so it is the same\nwhatever was drawn into the source. (The page fill alone is 0.101 ms of it;\nthe rest is the upscale.) Light adds the multiply penalty to that blit as it\nalways did. Off screen the whole thing is 0 %, which remains the number that\nmatters most.\n\n**The aurora is the one theme that moved, and it is the one shipped default\nthis change spends anything on.** Its shading went from 0.487 ms to 1.782 —\n3.7 times — because its buffer went from 240x135 to 960x540 at 1080p. In\nframe terms that is 1.60 ms to 2.89, and it buys the thing the change is\nfor: the ray comb, 36 screen pixels per ray, was being resolved at four and\na half buffer pixels and had lost 23 % of its contrast (see\n:data:`AURORA_BUFFER_EDGE` for the table). Nothing else moved — blobs,\nripples and the starfield render byte-for-byte what they did before, and the\ntests assert exactly that against the engine pulled out of git history.\n\nThe user controls move the shading cost, deliberately, and reading this\ntable is how to know which of them is worth turning down first (dark, best\nof nine interleaved, milliseconds of shading):\n\n===========================  ======  ======  ======  ======  ======\n setting                      blobs   auror   rippl   bokeh   cells\n===========================  ======  ======  ======  ======  ======\n detail 50 %                  0.191   0.829   0.194   0.412   0.409\n default                      0.282   1.656   0.354   0.685   0.605\n detail 200 %                 0.542   3.732   0.652   1.349   1.000\n blur 100 %                   0.267   1.753   0.350   0.775   0.810\n blur 300 %                   0.295   1.770   0.382   0.715   0.707\n blur 300 % + detail 200 %    0.579   3.979   0.720   1.501   1.195\n density 300 %                0.852   4.506   0.945   1.936   1.762\n===========================  ======  ======  ======  ======  ======\n\nFour things in that table are worth reading rather than skipping:\n\n* **Blur is nearly free.** Going from 0 % to 300 % costs 0.01-0.11 ms, which\n  on three of the five themes is inside the run-to-run spread. It is one\n  area-averaging pass over a buffer of half a megapixel at most, and the\n  blit that carries the result to the screen was going to happen anyway.\n  The honest alternative — a separable box blur over the buffer in NumPy,\n  two cumulative sums per axis — was written and measured at **12.8 ms** on\n  a 640x360 buffer, nine times this module's whole budget, which is why it\n  is not what ships. ``drift`` is the exception it always was: it has no\n  buffer, so its blur is a second wider pass per dot and it has a cap\n  (:data:`DRIFT_HALO_MAX_PX`).\n* **Detail costs roughly the square of what it says**, and that is the whole\n  reason it is a separate control from blur. Somebody who wants a softer\n  backdrop can now have one for nothing instead of paying for it in blocks\n  — and somebody who cannot afford the backdrop at all has a control that\n  actually reduces it, which \"blur\" used to be by accident.\n* **Density is linear**, as it should be: 300 % is 2.7-3.0 times the shading\n  on every theme. What it is *not* is brighter — see\n  :meth:`AmbientEngine.alpha_scale` for why three times the elements at a\n  third of the alpha is the only reading of the control that leaves the\n  backdrop legible at both ends of its range.\n* **The budget works.** Density 300 % with detail 200 % is twelve times the\n  default work; :data:`WORK_BUDGET` trims the density until it is four, and\n  the aurora lands at about 4 ms of shading rather than the 13 it would\n  otherwise ask for.\n\nThe design was picked on measurements, not taste. For blobs at 1920x1080:\nfull-resolution gradients 2.18 ms, buffered-and-upscaled 1.16 ms,\npre-rendered sprite blits 3.28 ms — the sprite version is the slow one\nbecause a bilinear-sampled translucent blit costs more per pixel than\nshading the gradient does.\n\nFour candidate themes were cut on the same kind of numbers rather than\nshipped slow — a mesh lattice (3.2–8.1 ms), contour polylines (10.8 ms), a\nlinked constellation and a branching mycelium (5.7–8.2 ms; see the theme\nlist above). All four are crisp line work, and in Qt's raster engine a\ntranslucent antialiased line costs an order of magnitude more than the same\npixels as a gradient — a vertical line is a thousand one-pixel spans.\nPainting them into the small buffer instead makes them cheap and also makes\nthem not lines any more. The rule that fell out: *soft is cheap, crisp is\nexpensive*, and ``drift`` is crisp only because a couple of hundred dots\nlight 0.65 % of the page."
+      "source_sha256": "7925a443b2ac1fc0e16e0f29b981d28f8279a7b3dbb2f8e0dda48de33d526ab8",
+      "text": "Ambient animated backdrop — soft motion behind every module screen.\n\nThe sequencing screen has its own backdrop (:mod:`spacr.qt.widgets.dna_rain`,\nthe ATGC cascade). This is the one for *everything else*: a slow, diffuse\nanimation that sits behind the settings form and the console, takes no focus\nand no mouse events, and can be switched off entirely in Preferences.\n\nSix themes, chosen so each reads as a different kind of movement rather than\nas a re-skin of the same one:\n\n``blobs``   (default)\n    Big and small colour blobs drifting over the page, each pulsing in size on\n    its own period. They overlap and blend, so the result reads as soft colour\n    *fields* rather than as a bag of circles. This is the one the feature was\n    asked for.\n``aurora``\n    Three overlapping curtains of vertical rays, folding along their own\n    length. The folds are travelling waves — several superposed frequencies\n    running lengthwise along the arc — with brightness surges on a separate\n    schedule, a sharp lower edge, a diffuse top, and the real thing's\n    vertical colour order: green through the body, red high up, a violet\n    fringe underneath.\n``ripple``\n    Concentric rings expanding out of three fixed sources and fading as they\n    grow, like rain on water. Soft-edged, so it never reads as line work.\n``drift``\n    A slow starfield in three parallax layers: small, dim, slow ones behind;\n    bigger, brighter, faster ones in front. The one crisp theme. It travels\n    up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.\n``bokeh``\n    Out-of-focus points of light, the way a fluorescence field looks off the\n    focal plane: an aperture image is a *disc with a bright rim*, not a\n    Gaussian smudge, and the ones further out of focus are larger and flatter.\n``cells``\n    Cells drifting through the field, turning as they go — a soft body, a\n    slightly brighter membrane where the edge is seen nearly edge-on, and a\n    distinctly brighter nucleus set off centre.\n\nTwo more were built and thrown away, on measurements rather than taste, and\nthe numbers are recorded here so nobody spends the afternoon again:\n\n*a constellation of points with faint links between them*, and *a slowly\nbranching mycelium*. Both are the same shape of thing — a few dozen short,\nthin, translucent, antialiased lines — and at 1920x1080 sixty points with\n196 links between them cost **8.2 ms** a frame drawn one at a time and\n**5.7 ms** batched into ``drawLines`` calls by alpha. That is four times what\nthis entire module is allowed, for one theme, and it is the module's own rule\nabout line work arriving again: a translucent antialiased line is a thousand\none-pixel spans, and Qt's raster engine charges for every one. Painting them\ninto the small buffer instead makes them affordable and also makes them not\nlines any more, which is the whole thing that would have made either theme\nworth having.\n\n*Caustics* and *a nebula / flow field* were not built. Both are per-pixel\nnoise fields, so they cannot be drawn with Qt primitives at all and have to\nbe evaluated in NumPy over the buffer — and the separable box blur measured\nfor the blur control, which is the same shape of work over the same array,\ncame to 12.8 ms on a 640x360 buffer. Evaluating them small enough to afford\nwould put them back at the resolution this change exists to get away from.\n\n*Brownian diffusion of specks* was asked for and is here, but as ``drift``'s\n``random`` direction rather than as a theme. It would have been the starfield\nengine with one constant changed, and a theme menu that lists the same\nanimation twice is a worse answer than a setting that says what differs.\n\nPalettes\n--------\nEvery theme declares the palettes it offers (:func:`palettes_for`), because a\npalette that works as a 400 px blob does not necessarily work as a 2 px star.\n:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` is built from the\nthree brand hues the user picked for the module-maturity legend, and ``okabe``\nis the Okabe–Ito set for red–green colour deficiency (see its note).\n\nBoth dark and light\n-------------------\nspaCR ships five themes, and a blob set tuned only for a near-black page turns\nto mud on a white one. So the *composition mode follows the background*:\n\n* dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,\n  which is what makes two circles read as one colour field. Additive over a\n  light page just clips to white and the whole effect vanishes.\n* light page -> ``CompositionMode_Multiply``, with the palette colour mixed\n  toward white first. Multiply is the exact dual: overlaps get *darker* and\n  still blend hue-wise, so the same geometry reads the same way. Plain\n  ``SourceOver`` was tried first and is wrong here — the later blob simply\n  covers the earlier one, so nothing blends and the field falls apart into\n  discrete discs.\n\n:func:`AmbientWidget.set_background_color` re-derives all of that, so a live\ntheme switch is one call.\n\nCost\n----\nThis paints behind every module screen, on machines that are simultaneously\nrunning Cellpose on a GPU and a 40-plate pipeline, so cost is a correctness\nrequirement rather than a nicety. Two things get it there:\n\n1. *The timer stops whenever the widget is not on screen* — hidden, on another\n   tab, or in a minimised window. Zero frames, zero CPU. These screens stay\n   open for hours, so this is the whole ball game.\n2. *The soft themes are painted into a small reusable QImage and scaled up*,\n   never at full resolution. The buffer's long edge is whatever the theme\n   declares (:attr:`_BufferedEngine.base_edge`) times the user's resolution\n   setting, so the diffuse fields shade ~37 000 pixels instead of ~2 000 000\n   and the aurora, which has real structure in it, shades ~520 000. On the\n   synchronous path the one allocation happens on resize and never per\n   frame; the shading thread copies the finished buffer once a frame so the\n   GUI thread can blit it while the next one is being drawn, which measures\n   0.003 ms for ``blobs`` and 0.035 for the aurora's 2 MiB — 2 % of the\n   shading pass it makes safe.\n3. *The shading happens on its own thread* (:class:`_FrameProducer`), so the\n   GUI thread's whole share of a frame is one ``drawImage``. That is the next\n   section, and it is the one that matters while a pipeline is running.\n\nWhile a run is going\n--------------------\n\"When something is running after hitting run, the theme starts lagging\"\n(instruction 126). It does, it reproduces, and the cause is not the obvious\none. Measured on a real X server at 1920x1080 with a real ``ConsolePanel``\nunder the real stylesheet and a real Qt event loop, ``blobs`` at the shipped\n24 fps cap, best of five interleaved rounds:\n\n==============================================  ==========  ==========\n condition                                       delivered   GUI paint\n==============================================  ==========  ==========\n idle                                             25.0 fps     2.04 ms\n a numpy thread (1024² matmul + FFT), flat out    24.5 fps     2.10 ms\n 200 console lines a second, nothing else         24.9 fps     1.27 ms\n **one pure-Python thread**                       24.5 fps  **17.21 ms**\n a worker doing Python work *and* printing        17.3 fps    17.16 ms\n==============================================  ==========  ==========\n\nSo **CPU saturation is not a cause**: numpy releases the interpreter lock and\na core burning flat out costs this module nothing. **A signal flood is not a\ncause on its own**: 200 lines a second are free, and it only bites in the\nthousands, where the console's own per-line work saturates the GUI thread and\nnothing in *this* module can help. What is left is **the interpreter lock**:\nidentical drawing work, eleven times slower, because the shading pass is\nPython and numpy and something else is holding the lock.\n\nThere is a fourth thing, which nobody named and which doubles the bill: **the\nframe-rate cap is not a cap.** The console sits on a translucent surface over\nthis widget, so every line it prints exposes it and Qt asks for a whole frame\n— 0.99 ambient repaints per console line, measured with the animation timer\n*stopped*. Every one of those used to be a full shading pass.\n\nThe fix is to split a frame at the seam where the cost actually is. Per\ntheme, milliseconds, idle against one Python thread, min of nine interleaved\nrounds:\n\n=========  =====================  =====================\n theme      shading (moved)        soften + blit (stays)\n=========  =====================  =====================\n blobs      0.240 ->  0.572        0.651 -> 1.097\n aurora     1.396 ->  7.176        0.797 -> 1.043\n ripple     0.367 ->  0.589        0.644 -> 1.196\n bokeh      0.663 ->  3.533        0.679 -> 1.008\n cells      0.538 -> 26.179        0.663 -> 0.909\n drift      0.528 ->  1.084        (no buffer)\n=========  =====================  =====================\n\nThe half that explodes under contention is exactly the half that does not\nhave to be on the GUI thread, and the half that must stay there is bounded at\n1.2 ms even loaded, because it is Qt's C++ raster engine with the lock\nreleased. So :meth:`_BufferedEngine.shade` moves to :class:`_FrameProducer`\nand :meth:`_BufferedEngine.blit` stays. Before and after, in one process,\nHEAD's module exec'd from git beside the working tree's, interleaved:\n\n=============================  ====================  ====================\n condition (``cells``, 1080p)   before                after\n=============================  ====================  ====================\n idle                           24.9 fps / 2.53 ms    25.0 fps / 1.52 ms\n one Python thread              19.9 fps / 33.23 ms   24.9 fps / 1.76 ms\n worker + 20 lines a second     15.0 fps / 18.80 ms   25.7 fps / 1.49 ms\n=============================  ====================  ====================\n\n``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this\ndoes **not** fix is a genuinely chatty run: at 200 lines a second both land at\nabout 4 fps, because by then the GUI thread is inside ``ConsolePanel`` and not\nin here at all. Two levers finish the job and neither is in this file —\n``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured on its own:\n32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and\ncoalescing ``PipelineWorker.line_ready``. Both want their own instruction.\n\nThree things this design deliberately is not:\n\n*Not a precomputed loop.* The instruction asked for one, and the reason it\ncannot exist is not memory: **there is no period.** Every element's period is\ndrawn from ``rng.uniform`` over a continuous range —\n:data:`BLOB_DRIFT_PERIOD` (24-70 s), :data:`BLOB_PULSE_PERIOD` (7-19 s),\n:data:`AURORA_DRIFT_PERIOD` (30-90 s), :data:`RIPPLE_PERIOD` (14-26 s) and\nthe rest — so the composite period is irrational with probability 1 and a\nfixed-length loop is a visible *cut*, not a period: the picture jumps every\ntime it wraps. Memory says the same thing more loudly. At 1080p and 24 fps a\nsecond of loop is 3.0 MiB for ``blobs``, 11.9 for ``bokeh`` and ``cells``,\n47.5 for the aurora and 190 for ``drift``, which has no buffer at all — a\none-minute loop is 178 MiB of blobs or 2.85 GiB of aurora.\n\n*Not a faster shading pass.* The thread does not make anything quicker: same\nPython, same lock, same 26 ms for ``cells`` under load. It changes **who\nwaits**. The GUI thread stops shading, and a frame that is not ready becomes\na repeated frame rather than a blocked interface —\n:attr:`AmbientWidget.repeated_frames` is that promise as a number, and it\nrises to about a third of frames under a Python worker.\n\n*Not a second clock.* The animation clock stays on the GUI thread (two\nattribute stores; there is nothing to gain by moving it and a public contract\nto lose) and the thread only reads it. A frame is still a pure function of\n``(seed, clock, size)``, which is why the off-thread shade is byte-identical\nto the on-thread one for all five buffered themes —\n``tests/qt/test_the_backdrop_survives_a_run.py`` asserts it rather than\nclaiming it.\n\n``drift`` keeps the synchronous path, and its row above is the reason: it is\nthe one engine with no buffer, it degrades the least of the six (2.1x against\n48.7x for ``cells``), and threading it would mean publishing a full-resolution\nframe — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest\nimprovement on the list.\n\nAt 1920x1080, offscreen raster. The engine as it stood before this change\nis loaded into the same process out of git and every configuration is timed\nround-robin, best of thirteen — this machine is shared with four other test\nsuites, so a run now and a run in ten minutes are not comparable and only the\nminimum of an interleaved set means anything.\n\nThat also means the *absolute* frame figures in the previous edition of this\ntable could not be reproduced honestly today: the same unchanged ``blobs``\nframe measured anywhere between 1.4 and 3.0 ms depending on what else the\nbox was doing. What is stable under load is the **shading pass** — the part\nresolution and density actually move — because it is a few hundred thousand\npixels rather than two million, so it is what is tabulated:\n\n=========  ==================  ==================  ============\n theme      shading was         shading now         full frame\n            (dark / light)      (dark / light)      (dark)\n=========  ==================  ==================  ============\n blobs      0.283 / 0.331 ms    0.283 / 0.324 ms    1.39 ms\n aurora     0.487 / 0.546 ms    1.782 / 2.270 ms    2.89 ms\n ripple     0.398 / 0.437 ms    0.394 / 0.442 ms    1.51 ms\n bokeh      —                   0.795 / 0.738 ms    1.91 ms\n cells      —                   0.748 / 0.761 ms    1.86 ms\n drift      0.747 / 0.727 ms    0.714 / 0.706 ms    0.71 ms\n=========  ==================  ==================  ============\n\n``drift`` has no buffer, so for it the first three columns are all the whole\nframe and the shading columns are the same measurement twice.\n\nThe last column is the middle one plus the *fixed* part of a buffered frame\n— filling the page and blitting the buffer up to 1920x1080 — which measured\n**1.111 ms** and is bound by the destination pixels, so it is the same\nwhatever was drawn into the source. (The page fill alone is 0.101 ms of it;\nthe rest is the upscale.) Light adds the multiply penalty to that blit as it\nalways did. Off screen the whole thing is 0 %, which remains the number that\nmatters most.\n\n**The aurora is the one theme that moved, and it is the one shipped default\nthis change spends anything on.** Its shading went from 0.487 ms to 1.782 —\n3.7 times — because its buffer went from 240x135 to 960x540 at 1080p. In\nframe terms that is 1.60 ms to 2.89, and it buys the thing the change is\nfor: the ray comb, 36 screen pixels per ray, was being resolved at four and\na half buffer pixels and had lost 23 % of its contrast (see\n:data:`AURORA_BUFFER_EDGE` for the table). Nothing else moved — blobs,\nripples and the starfield render byte-for-byte what they did before, and the\ntests assert exactly that against the engine pulled out of git history.\n\nThe user controls move the shading cost, deliberately, and reading this\ntable is how to know which of them is worth turning down first (dark, best\nof nine interleaved, milliseconds of shading):\n\n===========================  ======  ======  ======  ======  ======\n setting                      blobs   auror   rippl   bokeh   cells\n===========================  ======  ======  ======  ======  ======\n detail 50 %                  0.191   0.829   0.194   0.412   0.409\n default                      0.282   1.656   0.354   0.685   0.605\n detail 200 %                 0.542   3.732   0.652   1.349   1.000\n blur 100 %                   0.267   1.753   0.350   0.775   0.810\n blur 300 %                   0.295   1.770   0.382   0.715   0.707\n blur 300 % + detail 200 %    0.579   3.979   0.720   1.501   1.195\n density 300 %                0.852   4.506   0.945   1.936   1.762\n===========================  ======  ======  ======  ======  ======\n\nFour things in that table are worth reading rather than skipping:\n\n* **Blur is nearly free.** Going from 0 % to 300 % costs 0.01-0.11 ms, which\n  on three of the five themes is inside the run-to-run spread. It is one\n  area-averaging pass over a buffer of half a megapixel at most, and the\n  blit that carries the result to the screen was going to happen anyway.\n  The honest alternative — a separable box blur over the buffer in NumPy,\n  two cumulative sums per axis — was written and measured at **12.8 ms** on\n  a 640x360 buffer, nine times this module's whole budget, which is why it\n  is not what ships. ``drift`` is the exception it always was: it has no\n  buffer, so its blur is a second wider pass per dot and it has a cap\n  (:data:`DRIFT_HALO_MAX_PX`).\n* **Detail costs roughly the square of what it says**, and that is the whole\n  reason it is a separate control from blur. Somebody who wants a softer\n  backdrop can now have one for nothing instead of paying for it in blocks\n  — and somebody who cannot afford the backdrop at all has a control that\n  actually reduces it, which \"blur\" used to be by accident.\n* **Density is linear**, as it should be: 300 % is 2.7-3.0 times the shading\n  on every theme. What it is *not* is brighter — see\n  :meth:`AmbientEngine.alpha_scale` for why three times the elements at a\n  third of the alpha is the only reading of the control that leaves the\n  backdrop legible at both ends of its range.\n* **The budget works.** Density 300 % with detail 200 % is twelve times the\n  default work; :data:`WORK_BUDGET` trims the density until it is four, and\n  the aurora lands at about 4 ms of shading rather than the 13 it would\n  otherwise ask for.\n\nThe design was picked on measurements, not taste. For blobs at 1920x1080:\nfull-resolution gradients 2.18 ms, buffered-and-upscaled 1.16 ms,\npre-rendered sprite blits 3.28 ms — the sprite version is the slow one\nbecause a bilinear-sampled translucent blit costs more per pixel than\nshading the gradient does.\n\nFour candidate themes were cut on the same kind of numbers rather than\nshipped slow — a mesh lattice (3.2–8.1 ms), contour polylines (10.8 ms), a\nlinked constellation and a branching mycelium (5.7–8.2 ms; see the theme\nlist above). All four are crisp line work, and in Qt's raster engine a\ntranslucent antialiased line costs an order of magnitude more than the same\npixels as a gradient — a vertical line is a thousand one-pixel spans.\nPainting them into the small buffer instead makes them cheap and also makes\nthem not lines any more. The rule that fell out: *soft is cheap, crisp is\nexpensive*, and ``drift`` is crisp only because a couple of hundred dots\nlight 0.65 % of the page."
     },
     "spacr.qt.widgets.ambient.AmbientEngine": {
       "source_blocks_sha256": [
@@ -42226,10 +42473,10 @@
     "spacr.qt.widgets.ambient.AmbientWidget.advance_frame": {
       "source_blocks_sha256": [
         "3cd96d104be43d04fd021d52a86fcd65559646c61a22dfcb531aabbc53fb432d",
-        "12d85d912c66c61255be0cde697d5a82fccb5294142f3854538904f24fa7b30c"
+        "3859ae7ef6a6e1dd848989cfe07745a6c14c2b2f4d1e539e88dbbc272127e617"
       ],
-      "source_sha256": "98e33e4a63f59c52dedeeec3d071bdb9d20903f2279df40f32ea6b4a6655c326",
-      "text": "Step the animation by ``dt`` seconds and schedule a repaint.\n\nCalled by the timer, and directly by the tests so no test ever waits\non a real clock."
+      "source_sha256": "69dc093edd634786bf3404702487a2cb979e25134cb9479f4bb9b069c0fdac6e",
+      "text": "Step the animation by ``dt`` seconds and schedule a repaint.\n\nCalled directly by the tests and by the tutorial recorder, so no\ncaller ever waits on a real clock. Re-shades before it returns, so\nthe next paint shows the frame that was asked for rather than\nwhatever the shading thread last finished — the timer does not come\nthrough here for exactly that reason (:meth:`_on_tick`)."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.backdrop": {
       "source_blocks_sha256": [
@@ -42295,6 +42542,14 @@
       "source_sha256": "a38888733a34cea33ebd4950d0170deecfccf5959391775062f03da2b3798394",
       "text": "Track the parent's geometry and sit below its other children."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.frames_shaded": {
+      "source_blocks_sha256": [
+        "838ce89192a597f9768793ae954796691e7926faf2afeb695f4ec76b193f88f3",
+        "8a04a23f6bd6f5071cfadd60277280d8fadfedee666f1927228f2a60879134a2"
+      ],
+      "source_sha256": "257b49dbe7e2fc2a924bc53ffbdfda18012d1e28a9d5bb9ce218a62115769088",
+      "text": "Frames the shading thread has finished for this backdrop.\n\nBelow :meth:`frames_painted <AmbientWidget>` under load, by design:\nthe difference is :attr:`repeated_frames`."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.hideEvent": {
       "source_blocks_sha256": [
         "9a96ba9d3483134ab987cc5989f9c32fd63ff884dab4a7ae7abd508b7ce2f56c"
@@ -42315,6 +42570,16 @@
       ],
       "source_sha256": "ec29dcaaaeda3a597959a446c14fbba6e72c4c37761135182e1cd3f8639f0e5c",
       "text": "True while the animation timer is ticking."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.paintEvent": {
+      "source_blocks_sha256": [
+        "bc6876646571ae3aa20a574e00ffe24427d018ddc24398062a04b686e74a9eec",
+        "47f3962294bed80f3624b6e64a2df59bac1594a9cf79a727de957608dd778480",
+        "d85f94db058967febbdfdde9209554148f85a03d764a905ff6567537114ba2a1",
+        "72bf488fd5f4108cf7b6c285e6bd95fb2ffc0512811981dcf25bc388ba4e31e0"
+      ],
+      "source_sha256": "9e2103ecbffcc7ace36e083b6c1cc8f90a15d10ca90612e7882c9dc2562da765",
+      "text": "Put the page down, then the newest frame the shading thread has.\n\n**This method never waits for anything.** That is the requirement the\nwhole change exists to meet — \"a frame that is not ready is a\nrepeated frame, never a blocked GUI thread\" — and it is met the only\nway it can be: :meth:`_FrameProducer.latest` refuses the slot rather\nthan blocking on it, the widget keeps a reference to the frame it is\nalready showing, and a paint with nothing new blits that one again\nand counts it in :attr:`repeated_frames`.\n\nWith a shading thread the engine lock is never *waited* on here, and\nwith no shading thread it cannot be contended — the one path that\ntakes it is the case where nothing has been published yet (a widget\nshown at zero size and resized in the same tick), and it takes it\nwithout blocking, settling for the flat page if the thread is\nmid-frame.\n\nRepainting is not only the timer's doing: every console line the\nwindow paints over a translucent surface exposes this widget and Qt\nasks it for a whole frame. Measured on a real X server with the real\nstylesheet, **one ambient repaint per console line** — 0.99 of them,\nwith the animation timer stopped. That is the fps cap being bypassed\nentirely, and it is why the cost of a repaint matters more than the\ncap suggests: shading it cost 1.7 ms idle and 22 ms under a Python\nworker, and blitting an already-shaded frame costs 0.24-0.32 ms at\nevery load measured."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.palette_name": {
       "source_blocks_sha256": [
@@ -42378,10 +42643,10 @@
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_fps": {
       "source_blocks_sha256": [
-        "c6ec8d05e2bb4ede9b34a21e82be8da745b9f26cd1aed98588ed32c11d9bd32e"
+        "880ead64afe1114fbf89f252f04aed307027fd8e0d3455b82f348271e30c3062"
       ],
-      "source_sha256": "c6ec8d05e2bb4ede9b34a21e82be8da745b9f26cd1aed98588ed32c11d9bd32e",
-      "text": "Cap the frame rate."
+      "source_sha256": "2b9a5189a094c21113245667e86115603f6264944af14dc9ca16e1ef32a98cc5",
+      "text": "Cap the frame rate. Caps the shading thread with it, so a lowered\ncap actually reduces the work rather than just how much of it is\nshown."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_palette": {
       "source_blocks_sha256": [
@@ -42428,6 +42693,14 @@
       "source_sha256": "74defb3dbcea6d2f8845da68005de1c7f938134cfd2a927016b0e0126ac61a6e",
       "text": "Jump the animation clock and repaint."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.shading_thread_alive": {
+      "source_blocks_sha256": [
+        "e03f048d3207e2dcf3562d92b962b44e00701900ec6773637038baf862a13025",
+        "8a405332245a174ba70808e85414f150234db78967d25942072c3e8c28dbe6e2"
+      ],
+      "source_sha256": "ceadc8e5d8254de3366a9a007dd5dec3f49f48e01a13ee13a21c6595374bd9e6",
+      "text": "Whether a shading thread is running for this backdrop.\n\nThe CPU guarantee used to be a claim about a timer and is now also a\nclaim about a thread, so it needs something to assert on: a backdrop\nbehind a screen nobody is looking at must not be keeping a core warm."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.size_scale": {
       "source_blocks_sha256": [
         "71ec740d3f7319ceecdd8291517d9dc999d0f35261d6be66f958f180e743d41a",
@@ -42445,17 +42718,19 @@
     },
     "spacr.qt.widgets.ambient.AmbientWidget.start": {
       "source_blocks_sha256": [
-        "5c6c8c2ccbe4a680adf503e3aa9f7db822fd2928c71d60fc9e2aeb63b2832bf5"
+        "fb38baf7879864334fbe404bd3f2cd07fb6bbb197991cae63f4d1a3741872023",
+        "0220c0bf79e75029310d087239cfec0032b5b8d79f8bf78297344ed19449309e"
       ],
-      "source_sha256": "5c6c8c2ccbe4a680adf503e3aa9f7db822fd2928c71d60fc9e2aeb63b2832bf5",
-      "text": "Start ticking (no-op if already running)."
+      "source_sha256": "25493c5aca32be4c6fa9f69f623119cb13d43de8b2036454712ef59060c3e148",
+      "text": "Start ticking, and with it the shading thread (no-op if already\nrunning).\n\nThe two are started and stopped *together*, and that is the whole\nlifetime rule: every gate that already stops the timer — hidden,\nanother tab, a minimised window, the Preferences toggle — therefore\nstops the thread for free, and \"off screen is 0 %\" stays literally\ntrue rather than becoming \"0 % of the GUI thread\". It also means a\nwidget the tests never show has no thread and takes the synchronous\npath, so nothing that drives ``advance_frame`` by hand goes\nnon-deterministic."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.stop": {
       "source_blocks_sha256": [
-        "731a1d8b579b7e2099fd70fd3780f68078db49499cc362d108e96443da47121b"
+        "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",
+        "a17991ea93f26015010e0026bd656409f4fd592a56ff0bdfbc68fbfd278efe06"
       ],
-      "source_sha256": "731a1d8b579b7e2099fd70fd3780f68078db49499cc362d108e96443da47121b",
-      "text": "Stop ticking. Costs exactly nothing while stopped."
+      "source_sha256": "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2",
+      "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.time": {
       "source_blocks_sha256": [
@@ -47315,27 +47590,58 @@
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget": {
       "source_blocks_sha256": [
-        "7fea579d3baceabaaa0fb561e978d9b40cf0884f6cf9257559afe7bc66f72460"
+        "66518968ae2d3938e4d2a7248ffe219560bf8a9e33da7b08b3add3d80bf2d429",
+        "5a5088c684cade38f697778818ef426612bd2b28cdc46b013e16a63b2d2b2b18",
+        "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c"
       ],
-      "source_sha256": "7fea579d3baceabaaa0fb561e978d9b40cf0884f6cf9257559afe7bc66f72460",
-      "text": "Editable one-row-per-plate score/count input contract."
+      "source_sha256": "3129731ac541f70e497cd90eebba8c2cba0a681714efc61487a13c666f1c4dad",
+      "text": "Editable one-row-per-plate score / count / database input contract.\n\nA row is ONE PLATE: its score CSV, its count CSV, and the measurements\ndatabase that plate's per-object tables live in. All three columns are\nfilled BY ADDITION -- every arrival re-proposes the whole table from\nfilename tokens -- so databases dropped in the opposite order to the CSVs\nstill land on the right plates. That is instruction 107's rule, and the\nthird column obeys it rather than keeping a list of its own.\n\nA plate with NO database is legal and is not an error: the regression is\nfitted on scores and counts. The database is what makes that plate's\nmeasurements available downstream, so its absence disables the plate\nthere instead of failing the run."
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.add_paths_for_side": {
       "source_blocks_sha256": [
-        "667e931609ca53015287e2336be652edaef378a0b140389d945327ee8fb63b3f",
+        "e57a0bbfdf6fb7a26f40ccc2859dc35403b229296f65cc0f19948f94e68a8ad0",
         "f12e24a3a9f4fbc797198ff83780f34075175423988601f25cd3440eae28b3ab",
+        "25c8b06480d8d3b95343fe24cd3ec0178c1d33b630890244990dd881e6507c66",
         "a46b7d5c5853a63e81a0df7779166dd80eecc925a02e3e74d06d81d84a2a1ece"
       ],
-      "source_sha256": "03ac37b5286d82dcdc771420eb519b79e2a15f3a4da31e3b47a96112b882712d",
-      "text": "Add files to the score or count column and re-propose the pairing.\n\nThe drop targets the user asked for -- \"a dependent variable square I\ncan drop into and an independent variable square I can drop into\" --\nresolve to this. It is also what the drop router calls once it has\ndecided which side a file belongs to from its header, so dropping a\ncount table anywhere on the widget still fills the count column.\n\nReturns how many files were added."
+      "source_sha256": "eacdbede1659e80e0464324687fa0d78a46595131c058ccd232d66aeba45b219",
+      "text": "Add files to one column of the table and re-propose the pairing.\n\nThe drop targets the user asked for -- \"a dependent variable square I\ncan drop into and an independent variable square I can drop into\" --\nresolve to this. It is also what the drop router calls once it has\ndecided which side a file belongs to from its header, so dropping a\ncount table anywhere on the widget still fills the count column.\n\n``'database'`` is the third side. It goes through this same method,\nand therefore through the same whole-table re-proposal, rather than\nthrough an adder of its own that would keep a private list and pair\nby the order things arrived.\n\nReturns how many files were added."
+    },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.attach_database": {
+      "source_blocks_sha256": [
+        "22e4f32547c7d75e221c68b8faff32eeed58a0d87cd190ca74472bf5abe722a0",
+        "2c9bfad05a3678a87b35682043a4a88c6aa3f6e7bbf50a4af52bd35d96d3b2da",
+        "91df4ebf297c9ff16c4646769cefc835b5c607e5302c6b67b4917841b655753b",
+        "0c3f723ee3c9759a265f31384573f8c8722426a787eb871b6fdb0a2eab6d4cb5"
+      ],
+      "source_sha256": "cb3530b5c679609952ecd4107573a2c45599e621bde87b4363e6059745f604ff",
+      "text": "Attach a measurements database to one plate row, and say which.\n\n``row`` is the row the user aimed the drop at -- an EXPLICIT\nassignment, which is remembered and survives the re-proposal that the\nnext dropped CSV triggers.\n\nWith no row, the database is offered to the token pairing first, so\n``plate2/measurements/measurements.db`` finds plate 2 wherever that\nrow happens to be. Only when nothing in its path names a plate does\nit fall back to the first row that has no database -- and the\nreturned sentence, also shown under the table, NAMES that row. A\ndatabase attached to row 0 in silence is a plate's measurements\nquietly credited to another plate.\n\nReturns the sentence, so a caller with a console logs the same words\nthe user is reading."
     },
     "spacr.qt.widgets.file_list.PairedFileTableWidget.dropEvent": {
       "source_blocks_sha256": [
-        "af2fe3342d6b4e2f68be74346d029f3f8177f4dc3ea9f0d6df0ea3401bfeeec3",
-        "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d"
+        "dfbf6651acc193c1efcc274703be1bae61742eabf12591c7e3813776052e57b1",
+        "8c304584f915098778e21bfec70615e11cbe06f60612d5e34d2aef16cdcb969d",
+        "81805f4ab609a4d715318f26225994f96892b3bb1d9fdb431e161d598dbb467f"
       ],
-      "source_sha256": "a7e3918ca0c3ed36d5dc85b7c6c99aaeaf83bde63d16f582cc24d13bfb5380b5",
-      "text": "Route each dropped file to the column it belongs in.\n\nA drop over the score or count column goes there regardless of what\nthe file looks like -- the user aimed it. A drop anywhere else is\nsorted by header, so dropping the whole set at once still fills both\ncolumns correctly."
+      "source_sha256": "afdf0015aa70002ba86c20bcb8e0e1414fa54576c0ed6f1f9df6e879b65f548a",
+      "text": "Route each dropped file to the column, and row, it belongs in.\n\nA drop over the score or count column goes there regardless of what\nthe file looks like -- the user aimed it. A drop anywhere else is\nsorted by header, so dropping the whole set at once still fills both\ncolumns correctly.\n\nA DATABASE is decided by its extension and never by aim: a ``.db``\ndropped on the score column is a mis-aim, not a request to fit the\nregression on a sqlite file, and a CSV dropped on the database column\nis likewise still a CSV. What aim adds for a database is the ROW --\ndropping it on a plate's row attaches it to THAT plate, which is the\none thing the token pairing cannot know when the file is called\n``measurements.db`` like everybody else's."
+    },
+    "spacr.qt.widgets.file_list.PairedFileTableWidget.missing_databases": {
+      "source_blocks_sha256": [
+        "9e256046ab560823a7be22caece6fac0e14eb55970cd2f7d92dbfa09614a6be2",
+        "0b38cf8b738ba885fc9c950d39e63fd9545f1edb12cf0925aac97d5ebbbc4326",
+        "6f5d3f036d50bdb689d9f29cb1085db14d6ca541e899194b1878db4dca2abb76"
+      ],
+      "source_sha256": "c2eae4fda9a63e56e984b9b016f6e4370ba0feaa10cf52ac58d383f6eb7d9ac0",
+      "text": "Rows whose database is not on disk: ``(row number, plate, path)``.\n\nRow numbers are 1-based, the way the table numbers them.\n\nChecked as soon as the path is attached and restated in the status\nline, because the alternative is a run that reads its inputs, fits\nnothing for four minutes, and then fails on a path the panel could\nhave flagged the moment the settings were loaded. A settings file is\nroutinely written on one machine and run on another, which is the\ncase that produces this."
+    },
+    "spacr.qt.widgets.file_list.is_database_path": {
+      "source_blocks_sha256": [
+        "e6d07f4f5d702d002ffce8c27985d23d279401fdbe508f6f59ed34907e2558db",
+        "b220fef6398284847ab856cabc18a10af1d4259d98619e145a8073277ddd43fb"
+      ],
+      "source_sha256": "01afbe5af191bf3381fe855fa2cc5bc23c4c7071f24f99d89b03b270f10592ff",
+      "text": "``True`` when ``path`` names a measurements database by extension.\n\nOne rule, in one place, for the widget that files a dropped path into a\ncolumn and for the drop handler that catches the same file when it lands\non the screen around the widget. Two copies would disagree the first time\nsomebody's database was called ``plate1.sqlite``."
     },
     "spacr.qt.widgets.file_list.side_for_header": {
       "source_blocks_sha256": [
@@ -47348,11 +47654,12 @@
     },
     "spacr.qt.widgets.file_list.suggest_file_pairs": {
       "source_blocks_sha256": [
-        "bccd4bac71d000a7d2e850c2b606fc780624e67426c1010258e693dfa816b201",
-        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93"
+        "b629b679dd452878c2a1c0b43c0ec15db56164dc78c3e72722a5f6c4e633fa5c",
+        "a015b52f12bb504e577dc8e67e03281ba87decf93c9eb650ad71c05400d2fb93",
+        "762b38dac4aa9ab6ffc69213de58bd67cbf9cd39bcef3f4e5f8b3f64171fde17"
       ],
-      "source_sha256": "1fa67a6c4a2a803fb9d2d4e674546b5ad39ecdcb7f6cbbc9fff62a9eb1a33e4a",
-      "text": "Propose visible score/count pairs by filename tokens.\n\nA proposal is never authoritative: the editable table is the contract the\nuser confirms. Unique best matches are used; ties remain unpaired."
+      "source_sha256": "5156d43d3f11924bdee91eb96ba855851c3c11f53cd58413269f590124f14cec",
+      "text": "Propose visible score/count/database rows by filename tokens.\n\nA proposal is never authoritative: the editable table is the contract the\nuser confirms. Unique best matches are used; ties remain unpaired.\n\n``databases`` is keyword-only and defaults to nothing, so the two-argument\ncall every existing caller makes still means what it did. A database is\nmatched against BOTH cells of a row it may join -- a plate is named by its\nscore CSV as often as by its count CSV -- and one that matches nothing is\nlisted on its own row rather than being dropped or guessed onto row 0."
     },
     "spacr.qt.widgets.flash": {
       "source_blocks_sha256": [
@@ -50574,10 +50881,183 @@
         "34e24df9f30045fb76ce1355b7819eee2fcaa426f3eab2a8824f50d00cfab1e9",
         "acf474817071361b249f944a2124b498eaeb46738474244591d73b2d6fbc0089",
         "0ae1f4ddb594207969473b7a2b6ffff8e6be14043f9bead7018872860ad3eba3",
-        "8f1c6f81f26e859902bb8f2e7d405beb5c23a89b2ea836298d0f647ffcb45d66"
+        "8f1c6f81f26e859902bb8f2e7d405beb5c23a89b2ea836298d0f647ffcb45d66",
+        "3204c78cfa557fab5a10124f86c5bd53b17f46d42ad77571bd59d56ee479e039",
+        "ac42c459200cc6fb6feb5878570f85c5f9bf9fe4a16984ce56ee5b1694f85453",
+        "9b95a19a571275e6afa4aa1d895a0babc9be0e72721d2afc2db2aa96e989da71",
+        "59c94ebb1673063877e3071fdaf472536c43a32979b3afdf124ecc60ada5a1bd"
       ],
-      "source_sha256": "bdbb35753e3757794e2c724d8d92eee2575a68093301ee32c474e582bc099f95",
-      "text": "Which measurement has genes with clear effect sizes.\n\nInstruction 122 part 3, as asked for:\n\n    \"doing a sweep on these screen data of which measurements have genes with\n     an effect size. so instead of a parameter search a search for which\n     measurement has genes with clear effect sizes (one or several)\"\n\nThe pure logic is :mod:`spacr.measurement_scan`, which had no caller. This is\nthe thin renderer over it, and it lives beside the sweep's runs for the reason\nthe instruction gives: structurally this IS the parameter search with a\ndifferent thing varying -- the settings are held fixed and the DEPENDENT\nVARIABLE is swept.\n\nWHAT THIS PANEL EXISTS TO SHOW, and the reason a plain table would be wrong:\n\n    A MEASUREMENT SCAN IS A MULTIPLE-TESTING PROBLEM ACROSS MEASUREMENTS.\n\nspaCR measures hundreds of features per object. Scan 500 for \"genes with a\nclear effect\" and some look clear by chance, and they look exactly as\nconvincing as the real ones -- because the per-measurement FDR was computed\nWITHIN each measurement and knows nothing about the other 499. So both\nnumbers are on every row, and the across-scan one is what the verdict column\nreads. A panel that showed only the within-run q-value would have rebuilt the\nexact trap the module exists to close.\n\nMeasured on plate1 of the tsg101 screen with the gene labels permuted, so no\neffect can exist: the within-run correction fired on 83.5% of those scans and\nthe across-scan correction on 5.0%. That gap is the feature.\n\nRanked by EFFECT SIZE, not by p-value: with two screens' worth of wells a\ntrivial effect is significant, and \"clear effect sizes\" is what was asked for."
+      "source_sha256": "337aea6efb126fda37a1abac2cda10a9177c2b4c93ae326044c67adc3411db36",
+      "text": "Which measurement has genes with clear effect sizes.\n\nInstruction 122 part 3, as asked for:\n\n    \"doing a sweep on these screen data of which measurements have genes with\n     an effect size. so instead of a parameter search a search for which\n     measurement has genes with clear effect sizes (one or several)\"\n\nThe pure logic is :mod:`spacr.measurement_scan`, which had no caller. This is\nthe thin renderer over it, and it lives beside the sweep's runs for the reason\nthe instruction gives: structurally this IS the parameter search with a\ndifferent thing varying -- the settings are held fixed and the DEPENDENT\nVARIABLE is swept.\n\nWHAT THIS PANEL EXISTS TO SHOW, and the reason a plain table would be wrong:\n\n    A MEASUREMENT SCAN IS A MULTIPLE-TESTING PROBLEM ACROSS MEASUREMENTS.\n\nspaCR measures hundreds of features per object. Scan 500 for \"genes with a\nclear effect\" and some look clear by chance, and they look exactly as\nconvincing as the real ones -- because the per-measurement FDR was computed\nWITHIN each measurement and knows nothing about the other 499. So both\nnumbers are on every row, and the across-scan one is what the verdict column\nreads. A panel that showed only the within-run q-value would have rebuilt the\nexact trap the module exists to close.\n\nMeasured on plate1 of the tsg101 screen with the gene labels permuted, so no\neffect can exist: the within-run correction fired on 83.5% of those scans and\nthe across-scan correction on 5.0%. That gap is the feature.\n\nRanked by EFFECT SIZE, not by p-value: with two screens' worth of wells a\ntrivial effect is significant, and \"clear effect sizes\" is what was asked for.\n\nTHE MEASUREMENT DATABASES, AND WHY THEY LIVE HERE TOO\n-----------------------------------------------------\nInstruction 130 sections B and C. A regression row is one PLATE, and a plate\ncan now carry its measurements database beside its score and count CSVs. Those\ndatabases surface in this tab, with the join offered:\n:class:`DatabaseMergePanel` lists every attached database, its object tables\nand its plates, and merges the chosen ones onto one anchor.\n\nNOTHING ABOUT THAT MERGE IS DECIDED HERE. :mod:`spacr.multi_database` already\nmerges several databases without pooling two plates that share a name;\n:mod:`spacr.merge_tables` already holds the per-measurement aggregation --\nareas SUM, perimeters MEAN, a minimum takes MIN, a label takes FIRST -- and\n``MergePolicy.how_for`` already decides the join PER TABLE from object\ncardinality. :func:`merge_across_databases` is the composition of those two and\nadds no arithmetic of its own, which is why there is no blanket \"join type\"\ncontrol anywhere in this file: one ``how`` for every table is exactly the thing\ninstruction 77 found wrong.\n\nAnd it SAYS what the merge cost, because a merge that silently changed how a\nmeasurement was combined produces a number that is wrong and looks fine."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.AttachedDatabase": {
+      "source_blocks_sha256": [
+        "61bf893ddcb8c07458e7a6d126b758d11b4c50b7046d2c419315eff7a9633d01",
+        "334a88a227c8f2fecff6327ebb5cc1d0210df3711f1b36a469e3438a03ff71e8",
+        "1867f5dd3971488e082aae9c63d56fbed47cad5b28cbcf3d72bd7897b94929d0",
+        "3fd96a3895bbe2d413cec0dc950b1f7241e912e7574cd84ed6c5c400aa3506b5"
+      ],
+      "source_sha256": "493302721ddc879bf44dbf0c815e730eb2bc72535caf39363dcdf9f58323505e",
+      "text": "One plate of the regression input table, seen from this tab.\n\n:param plate: the plate the input-table row names.\n:param path: its measurements database, or ``\"\"``. **A plate with no\n    database is legal** -- the regression runs on the score and count CSVs,\n    and the database is only what makes this tab possible for that plate --\n    so an empty path is listed and disabled rather than refused.\n:param screen: the screen the plate belongs to, when the project has more\n    than one. Carried through to :func:`spacr.multi_database.read_merged`\n    as ``screens=``, which is what keeps two screens sharing ``plate1``\n    apart as two identities instead of one collision."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.AttachedDatabase.attached": {
+      "source_blocks_sha256": [
+        "300e25205af82a7eb5bc423fdf3d9cdb703ac230f2a35afcd54aa8811f630474"
+      ],
+      "source_sha256": "300e25205af82a7eb5bc423fdf3d9cdb703ac230f2a35afcd54aa8811f630474",
+      "text": "Whether this plate has a database at all."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.AttachedDatabase.label": {
+      "source_blocks_sha256": [
+        "54b758c0bc13dfc69ad49c64001d6ab10c05ae01f479f949b43a3dc0115998c2",
+        "7cadad63a06873e0d9befc185e63ac6ea029c95a899abbd644cfb4858e0c763c"
+      ],
+      "source_sha256": "de0507e10eef17584d76ab553ff9ca898dc01dd488bb4d1f0aecfc6ee218b4e9",
+      "text": "A readable name for the file, disambiguated by its folder.\n\nEvery plate's database is usually called ``measurements.db``, so the\nstem alone names all of them the same thing -- the reason\n:func:`spacr.multi_database.describe_merge` folds the parent directory\ninto its own labels."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.AttachedDatabase.present": {
+      "source_blocks_sha256": [
+        "353ced983b3b581106832f3761637a067ab6fcf2d85aff6de5d393305583061e",
+        "a0e4c5384c56008f1b8c23e44315df05dd563be67a6477fd56cc9f5b4ecc7ee8"
+      ],
+      "source_sha256": "8c13b3354abf9dce365dd4e3f4b4c2840eeb1d0bb7a0ad026f68ae9ed0754508",
+      "text": "Whether the attached database is on disk right now.\n\nChecked here rather than at run time: instruction 130 asks that a row\nwhose database has gone missing says so BEFORE the run, not four\nminutes into it."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.AttachedDatabase.status": {
+      "source_blocks_sha256": [
+        "1794f24dc6acecb8658ce7fde587a4c0070991330ec22a21fe1f722e9be39107"
+      ],
+      "source_sha256": "1794f24dc6acecb8658ce7fde587a4c0070991330ec22a21fe1f722e9be39107",
+      "text": "Why this plate is or is not in the merge, in words."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel": {
+      "source_blocks_sha256": [
+        "0f90a2480aeab6f8ba277a003b43ea7782faa44400bdf7865b88fc45ac7b5be2",
+        "c07cfa5ab492f92380c0dc535de23883c08754928238edc77370bf63b8e65be9",
+        "15200caca3f2d77cb433ed26a4f8dba747c10d395168bcabeb796c28fc5cab71",
+        "f1d0c2153fe619f047f5d1822e6de08217262a8217c03ff1afb961c211be7dca",
+        "fe3be60e3e1db2d51884b3c9b7b4355ea2f9f0200daa499a3fe8a1376452d674"
+      ],
+      "source_sha256": "0f7acf3e1d10d9b49e6423c44f98f09f84927281a19321f0a2b501dc04f253ad",
+      "text": "The databases attached to the input table, and the join offered.\n\nInstruction 130 section B. One row per plate of the regression input\ntable, whether or not it has a database -- a plate with none is listed and\ndisabled here, because it still runs in the regression and the user needs\nto see why it is absent from this tab.\n\nWHAT IS NOT OFFERED IS AS DELIBERATE AS WHAT IS. There is no join-type\ncontrol: the join follows object cardinality per table through\n:meth:`spacr.merge_tables.MergePolicy.how_for`, and a blanket ``how`` is\nthe finding instruction 77 raised. The two checkboxes here are the two\nsettings that policy actually reads.\n\n:ivar databases_changed: emitted with the number of readable databases\n    whenever the list is re-read.\n:ivar merged: emitted with the merged frame."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.anchor": {
+      "source_blocks_sha256": [
+        "c3239315984d1c79463d6487c58eb7d84bd27719692cd859ae970789e27f3f84"
+      ],
+      "source_sha256": "c3239315984d1c79463d6487c58eb7d84bd27719692cd859ae970789e27f3f84",
+      "text": "The table a row of the merge means one of."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.databases": {
+      "source_blocks_sha256": [
+        "0ed51755b57cb07c7ba776668ede0e59d2b690978c2f9ae35cf234b74957144b"
+      ],
+      "source_sha256": "0ed51755b57cb07c7ba776668ede0e59d2b690978c2f9ae35cf234b74957144b",
+      "text": "Every plate row, attached or not, in the input table's order."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.describe": {
+      "source_blocks_sha256": [
+        "20207f51cffdbd28ceaede8b25a3c21f690ea03092c5e08ca8b6a85f492b4683",
+        "72bb6b5efba2bfa6d8e5c98a3875e2c99869ce6f61fffb9f294bfba9a9203a8f"
+      ],
+      "source_sha256": "829eb989c29fb77d68d27b37fe063023f8b95de3a8998665563b45878ecef921",
+      "text": "State what the merge WOULD do, before it is done.\n\nReads only sqlite metadata and the distinct plate ids, so it is cheap\nenough to run on every click -- which is the point, because the answer\nhas to arrive before the user commits."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.frame": {
+      "source_blocks_sha256": [
+        "6ffa44315ef8268969c4b35d84bce491942ef5679cdaccd80d5c8923bc5d26d5"
+      ],
+      "source_sha256": "6ffa44315ef8268969c4b35d84bce491942ef5679cdaccd80d5c8923bc5d26d5",
+      "text": "The last merged frame, or ``None``."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.merge": {
+      "source_blocks_sha256": [
+        "cbd34516009d33ade354da6c59cb4e90c94ead62362c5dc23f595d27b44714f6",
+        "bcd13cf514e7101d5623852aaa0de9fa69f6fcc9870a155d92bd02bc21508501"
+      ],
+      "source_sha256": "709a454991aff706c53dbc8bf5296dd5c9fd67ff49a7eb46a05a7c8253beadb6",
+      "text": "Merge the chosen tables and report what it cost.\n\n:returns: the merged frame, or ``None`` when nothing was merged. A\n    refusal is shown in full rather than summarised: it is an ANSWER,\n    and it says what to do about it."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.overrides": {
+      "source_blocks_sha256": [
+        "c813ddc1ca5abb898414aaae64dade6b967b0d9dcbc3d2358f0e64d7d2f820ce"
+      ],
+      "source_sha256": "c813ddc1ca5abb898414aaae64dade6b967b0d9dcbc3d2358f0e64d7d2f820ce",
+      "text": "The user's per-column aggregation choices, which beat every rule."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.paths": {
+      "source_blocks_sha256": [
+        "cea4908e34ec1ec45bbeaa5903cd429bc237724639954244514ffca61feeb31e"
+      ],
+      "source_sha256": "cea4908e34ec1ec45bbeaa5903cd429bc237724639954244514ffca61feeb31e",
+      "text": "The databases that are attached AND on disk, de-duplicated."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.plan_text": {
+      "source_blocks_sha256": [
+        "00975bd95f9551ae36b75b851fc9065e4b5121faed7d71a88d36a6d511e14ef4"
+      ],
+      "source_sha256": "00975bd95f9551ae36b75b851fc9065e4b5121faed7d71a88d36a6d511e14ef4",
+      "text": "The pre-merge statement: anchor, rows, joins, drops, collisions."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.policy": {
+      "source_blocks_sha256": [
+        "59fd630764363168d115d330a6096d084bb97546d60f607a42876fac9ba041ad",
+        "12b032369f44e4d0299837237f171beee57a1e78404803d9592ee765f833ea1f"
+      ],
+      "source_sha256": "b59308e88256b14aecbe2f6c5cfb5ae1c680e1a6e2a96974e1ee9e8e60d2c14e",
+      "text": "The merge policy the controls describe.\n\nNote what is NOT here: a join type. ``how_for`` derives it per table\nfrom cardinality, and these two checkboxes are the only settings that\nchange it."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.refresh": {
+      "source_blocks_sha256": [
+        "0d9dd1c87cd883ec22658b767bca277aa16ce9399562777e42fee57e71764351",
+        "f835eab0ad954c8596914e1dc92fe59ef5ed3942f52757fd443771d125b2854a"
+      ],
+      "source_sha256": "8ea64214cc6e8e43b1ef868e511ba4fe8bbf43c3f8402fc723dfc17aa981e1bc",
+      "text": "Re-read the provider and describe what is attached.\n\n:returns: the number of readable databases."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.screens": {
+      "source_blocks_sha256": [
+        "bfa48b520b9b4b14be5e79516479a08515fffe3744238ca03fd7daabd4535712",
+        "e1cba2bfd4fddf3f144ee9cfb83ecf10092e94565f5bf1d09b0ea312a9b1c687"
+      ],
+      "source_sha256": "52d5197a55dd3d4297824463829432b399b200e5cb7eca77a350f6584f40b3f8",
+      "text": "``{path: screen}`` for the rows that named one, else ``None``.\n\n``None`` rather than a dict of defaults: naming a screen for every\ndatabase says the user is working in screens, and\n:attr:`~spacr.multi_database.MergePlan.screens_were_named` reads that\nto decide how a refusal is worded."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.selected_tables": {
+      "source_blocks_sha256": [
+        "c8f35b02bd3b1f8cac67dfac7b881d40b6f58a0abd28e12f4374f8926178ea66"
+      ],
+      "source_sha256": "c8f35b02bd3b1f8cac67dfac7b881d40b6f58a0abd28e12f4374f8926178ea66",
+      "text": "The tables the user has ticked, in table order."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_anchor": {
+      "source_blocks_sha256": [
+        "6cf1db8097f38e5c4f92151fb5a03100d8feea86b1d2829338b5350d5c79c5bd"
+      ],
+      "source_sha256": "6cf1db8097f38e5c4f92151fb5a03100d8feea86b1d2829338b5350d5c79c5bd",
+      "text": "Choose the anchor, if it is on offer."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_database_provider": {
+      "source_blocks_sha256": [
+        "77678d0a2bac4ebe0ec330512a27761fbfdf66913166de90f4fc4461baa914a5"
+      ],
+      "source_sha256": "77678d0a2bac4ebe0ec330512a27761fbfdf66913166de90f4fc4461baa914a5",
+      "text": "Take a new source of input-table rows and re-read it."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.set_selected_tables": {
+      "source_blocks_sha256": [
+        "aba80e9dbc2b549372522a0eebdbeed3e62e9f6f148055aae28f70dfb341a35a"
+      ],
+      "source_sha256": "aba80e9dbc2b549372522a0eebdbeed3e62e9f6f148055aae28f70dfb341a35a",
+      "text": "Tick exactly ``names``."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.show_aggregation_rules": {
+      "source_blocks_sha256": [
+        "d9ebc6ba587ea6daeb8ebc756d0fb6da2a3849c8ec1443478e339e3531dd5309",
+        "d1050bad0ae53a2b534fb167486bb937a9ca3e86c51899db50e9c49dc3ac69ef"
+      ],
+      "source_sha256": "091452952b7260b07455b171f100a57e0f4aa9b1097c081353d7abac984ffb3e",
+      "text": "The per-column rules, for the columns actually about to be merged.\n\nReuses the Gate Editor's dialog rather than growing a second one: the\nrules are the same rules, and two editors of one decision is how they\ncome to disagree."
     },
     "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel": {
       "source_blocks_sha256": [
@@ -50587,6 +51067,14 @@
       ],
       "source_sha256": "aaa8282630099a5fcc7bba870b4875da31be42474618117cec22f8513bc11b72",
       "text": "The scan's result table, and the two numbers behind every row.\n\n:ivar measurement_selected: emitted with the measurement name of the\n    selected row, so a host can draw it.\n:ivar scanned: emitted with the number of measurements scanned."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.refresh_databases": {
+      "source_blocks_sha256": [
+        "adaa81d378e8a6ed140440522b57e4defd17af5e4090febb205d1adc69dc9d9d",
+        "6416e85d1623b576eec3b7d5607dd6ad8e2c84ec6a8e4e655ed19cb906f3a410"
+      ],
+      "source_sha256": "bc6ace165cac63d7657196cb4d800132471b7265f0f2268d0a1fb480e85f3522",
+      "text": "Re-read the attached databases. Called when the tab is opened.\n\n:returns: how many readable databases are attached."
     },
     "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.run_scan": {
       "source_blocks_sha256": [
@@ -50602,12 +51090,94 @@
       "source_sha256": "0fd6a4547194a3a5f012a2b7fee4385d48cdcf5c733dc22eb8bd69df209d422c",
       "text": "Scan ``frame`` and show the result."
     },
+    "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_database_provider": {
+      "source_blocks_sha256": [
+        "818343942d4212a66398b799506ef848b37509527e7576cf1c01f119ebe691d7",
+        "4fe17e00fd7616a0ba27ede9dae51d74cbba81024ffa7e251b048b4bdf4a9c5c"
+      ],
+      "source_sha256": "b1eadb17c576ea07871044606d13730cd8e2800a446c9fe64532ab1811f09535",
+      "text": "Take a new source for the input table's attached databases.\n\nThe same shape as :meth:`set_frame_provider`, and for the same reason:\nthe tab re-reads the rows rather than holding a copy of them."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_frame_provider": {
+      "source_blocks_sha256": [
+        "8c63c09cd9dec614b8cb1be3d4f8173e922b60375ed21a26bf283b7daae127fb"
+      ],
+      "source_sha256": "8c63c09cd9dec614b8cb1be3d4f8173e922b60375ed21a26bf283b7daae127fb",
+      "text": "Take a new source for the frame the scan runs on."
+    },
     "spacr.qt.widgets.measurement_scan_panel.MeasurementScanPanel.set_result": {
       "source_blocks_sha256": [
         "2f901011c727aaaadbcc588048ed5d7801fd4fc1e8b2ed109123d5499550822e"
       ],
       "source_sha256": "2f901011c727aaaadbcc588048ed5d7801fd4fc1e8b2ed109123d5499550822e",
       "text": "Show an already-computed :class:`ScanResult`."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.anchor_tables": {
+      "source_blocks_sha256": [
+        "5b889f8fe6a01c58430c2ee9bcecd979650646cc712f71ca0849b00817922cc5",
+        "3c20b7c511a63642ac7d2cb47e8d23d47e063e0fe89864437268bb5466a55cf4"
+      ],
+      "source_sha256": "b84b8f52d2aac3bdad085cdb82194b293f4d718dac90d98f1b76f32940f6891f",
+      "text": "The subset of ``tables`` that can be an anchor.\n\nOne row per cell, from :data:`spacr.object_roles.ONE_ROW_PER_CELL`.\nAnchoring on a many-per-cell table would make a row of the merged frame\nmean one nucleus or one pathogen, with the cell's own measurements\nrepeated across its children -- which is the fan-out the roll-up exists to\nprevent, arrived at from the other side."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.attached_databases": {
+      "source_blocks_sha256": [
+        "8c544209c85942fb849522e1ca0106f796ab27b9bbea16027bcfb8f5cf66b6c7",
+        "8e92b17aff196c2fde25dc2de5c83ed651969b560948149fb5ddbc85d4eeca69",
+        "29e9bc3ff7ef4e6de7ed5c064800a8934fa637f99ef5a20b728f02e53d14ddb5"
+      ],
+      "source_sha256": "88e2cdfdfc3c9a190ec7cea2cba247181462377b123f32b0de87436dfd6b9665",
+      "text": "The input table's rows as :class:`AttachedDatabase` entries.\n\n:param rows: what the host's database provider returned. The shape the\n    input table emits is a list of ``{\"plate\", \"score\", \"count\",\n    \"database\"}`` dicts; a ``(plate, path)`` pair, a ``(plate, path,\n    screen)`` triple and a bare path are accepted too, so a caller with a\n    plainer list does not have to build dicts to be understood.\n:returns: one entry per row, IN THE ROW ORDER, including the rows with no\n    database -- they are the plates this tab has to disable rather than\n    drop, and dropping them here would make them invisible instead."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.default_aggregation_columns": {
+      "source_blocks_sha256": [
+        "afb8d390340e261cd88f5b540f3de71db9d8e0b0305845adebbf9a10f0ee3793",
+        "0ccc7f20213737ad0e0e0476193551382429d5ecfe2aaa5a436ef0d072f60a5f",
+        "6f87a50b44cbfda55f782c281a3c1b5aded5d486ba8fab6f0fae2d7a9ac50405",
+        "89c0358ab6cd061264f9b04c4fcc7731137738092556a6445173022671c380f4",
+        "d81912f6659a6bb0a06361fa6cf9f24be41b1eacf443d5d5761146d6efcc0daf"
+      ],
+      "source_sha256": "6d76353dad72c6dfe2425122d55554aaab8d7f376fa9a35291b4214a69b3a93b",
+      "text": "The columns NO :data:`~spacr.merge_tables.AGGREGATION_RULES` rule names.\n\nInstruction 130 section C, third bullet: a measurement nobody thought\nabout is exactly the one worth naming. These fall through to\n:data:`~spacr.merge_tables.DEFAULT_AGGREGATION`, which is MEAN -- right\nmore often than not for an unrecognised number, and silently wrong for a\ntotal.\n\nComputed by re-walking the rule table, so it cannot drift from it: a list\nwritten here would go stale the first time a rule was added.\n\n:param columns: the column names about to be aggregated.\n:param overrides: the user's explicit choices, which win over every rule\n    and are therefore not fall-throughs."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.joinable_tables": {
+      "source_blocks_sha256": [
+        "94b8bab10a37f57decbb50d74684d78898865bfffd6620b9b67ed1f20bbc91f1",
+        "38159c5bdb02dfaa57520df1034232557e015465a64cbe42c375f1511168260e",
+        "4c488167955ac54f99d043b7b0aba97a83a8d90cba8c07d8972e821c796cbec2",
+        "45b41b9ea0f109dcf16ce32d2dfc087e754b27017e47d373d6b1acc52a6baabf",
+        "e4d8d49f549ac20c7b253c5368cc0420d96c3dfe051c8ca308e53e29a9219237"
+      ],
+      "source_sha256": "d5480e27fb1a44eb33e390e97c742a746a6f857a3920d29141eb99d173c7122d",
+      "text": "The object tables EVERY one of these databases has, in table order.\n\nThe intersection, not the union, and this is not a nicety:\n:func:`spacr.multi_database.describe_merge` reads a row count from every\npath, so asking it for a table one database lacks raises a bare\n``sqlite3.OperationalError`` naming the table and nothing else. Offering\nonly what all of them have means the user never picks that.\n\n:param paths: measurement databases.\n:returns: names from :data:`spacr.merge_tables.OBJECT_TABLES` -- which is\n    the object-role registry, cell/nucleus/pathogen/cytoplasm and every\n    organelle slot, rather than four names typed here.\n:raises sqlite3.Error: a path that is not a readable database."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.merge_across_databases": {
+      "source_blocks_sha256": [
+        "9eedc685a45bffacdfc435c72687faa45c13a04877e2e128391194ceb6970e48",
+        "b501a55b7d2b5697d4317ae073b29340c63b210b718a05c88e4d9c2dd7bc033a",
+        "ad0159f0f124f9a597ad96519c2f9f672ead1fe84d1c81d695fd8c8eaf8b11dd",
+        "ca6513e29b4f14c77b4f12fd834461ddb02ae65e87a1dfb015eae07d00f0a14d",
+        "665c39172c5ce90af226b2404103c3c0b51ffadd2ae810c660cd0649d1dcc2d9",
+        "cd0c492ec5f9f95bd8baae8eb8449d504e7da6f13732b263d04e9e4772296420",
+        "14623c0242e60818edefd4095bc8c20b21904282ae11c1a1e81556dfeb416759",
+        "e805321d454e5bc918436b39e4a67658f2c3101b8313314e6c27377851c1039f",
+        "4f18f9ed890992f33629f95e10b0949ad17e8b974fff1a5593e4cdadad6d3a57",
+        "a4479198ffc4a250563b2769c0a8228f334c33367f557dbbc9e86362a5671fe6",
+        "e377256f08a443698c61b62a8ff17ce09ee566024c4ab97602e0475c826f8cca",
+        "d0caefccf9a9a381f44e292e66d6efb560beea52e37c1d83c33707d3ce9e77be",
+        "b7ab33842f7315b3cf5c670dc8a3f1e833a5ae38913936b8ace3c9ad0ed36416"
+      ],
+      "source_sha256": "3e179d31cf93c2821f11ba5a5cae2334bab94f19a870a13084d9b6495606612c",
+      "text": "Every chosen table of every chosen database, on one anchor.\n\nTHE COMPOSITION OF THE TWO MERGES THAT ALREADY EXIST, and deliberately\nnothing else. :func:`spacr.multi_database.read_merged` is *many databases,\none table*; :func:`spacr.merge_tables.merge_tables` is *one database, many\ntables* and takes a path, so it cannot be handed a frame that already spans\ndatabases. This runs the first per chosen table and then joins them with\nthe second's own :func:`~spacr.merge_tables.roll_up` and\n:meth:`~spacr.merge_tables.MergePolicy.how_for`. There is no sum and no\nmean written here; every number comes from the rules.\n\nTHE ROLL-UP KEYS CARRY THE SCREEN AND THE SOURCE. Omit them and two\nscreens legitimately sharing ``plate1`` -- the case\n:func:`~spacr.multi_database.describe_merge` deliberately permits -- would\ncollapse into one parent, reintroducing one layer up the exact pooling\n:mod:`spacr.multi_database` exists to prevent.\n\n:param paths: measurement databases. Repeats are read once.\n:param tables: the object tables to join. The anchor is added if absent.\n:param policy: how each measurement combines and what happens to a cell\n    with no children. ``policy.primary`` IS the anchor and defaults to\n    :data:`DEFAULT_ANCHOR`.\n:param screens: screen label per database -- a sequence parallel to\n    ``paths`` or a mapping from path. Passed to both the plan and the read.\n:param columns: ``'common'`` (default) or ``'union'``, as ``read_merged``.\n:param report: called with one line per thing the merge cost.\n:param limit_per_source: row cap per database, for a preview.\n:returns: one row per anchor object, with ``frame.attrs`` carrying what the\n    merge cost -- see :func:`merge_report`, which renders it.\n:raises MergeError: the anchor is not one row per cell, or carries no\n    object label.\n:raises spacr.multi_database.MergeRefused: a plate id appears twice within\n    one screen."
+    },
+    "spacr.qt.widgets.measurement_scan_panel.merge_report": {
+      "source_blocks_sha256": [
+        "6170f79944b925f9f275cb43ec669ad682eab863e4d899e48abcf3c7f75b4972",
+        "bffbad79112966f34b877324bb313a1add8e09eef8b101c737b6a44dd76a783c",
+        "101f34e87ad1013dec909aa1c341911fe6189b10e35d1b45b41a0f1d99b62a91"
+      ],
+      "source_sha256": "3889bf3464e328f88b359ceaf7da2779daa930b29c495225c8caa2f9a0af46e6",
+      "text": "What the merge in ``frame.attrs`` cost, in the order 130 C asks for.\n\nThe anchor and the row count it produced; what each source contributed and\nwhat was dropped; every column that fell through to the default\naggregation; and every plate id that appeared in more than one database\nwith what was done about it.\n\n:param frame: the output of :func:`merge_across_databases`."
     },
     "spacr.qt.widgets.measurement_scan_panel.ordered_columns": {
       "source_blocks_sha256": [
@@ -61276,10 +61846,18 @@
     },
     "spacr.sp_stats": {
       "source_blocks_sha256": [
-        "cf2961f7b9b2aaf4df46a2915838b93458ed0290034636cb838ab74a8155d89a"
+        "cf2961f7b9b2aaf4df46a2915838b93458ed0290034636cb838ab74a8155d89a",
+        "d78c4d432b145444c557c1f9370f615f086ea71387897b0c9544ddaa7ba12527",
+        "ea0260d9934510f0c97ec063c3dc4c836fc93264d2303a861fc162e2f2b4f659",
+        "73fe5c9078823282a9f5c5f7184f768978a228aa173e77aaa09438baa51f7d61",
+        "976501fa46f8208bb5ac18e1fe90947c11272dd372955a447ee8ba8bee4440f3",
+        "358686b2022ea534c2111e7879a0784de05846c741ef37a9a8d32b247f7df4f9",
+        "e7363221bcc2aa6fe677ea13ff86a4e974d950883b29dd666c6577acfd5d77a6",
+        "0fd27fe029f35cc813534f1263fd29a6c37cd668077e9436ad40cdace47f391b",
+        "b18af88b00c90ac94c4f843bb571516414d6a0dbac41492be3007f60e269575c"
       ],
-      "source_sha256": "cf2961f7b9b2aaf4df46a2915838b93458ed0290034636cb838ab74a8155d89a",
-      "text": "Statistical tests and multiple-comparison helpers for screen results."
+      "source_sha256": "6942165b66b89656c23212e00940f59acbcc770e5cc58be8395278cad8a27c68",
+      "text": "Statistical tests and multiple-comparison helpers for screen results.\n\nWHICH TEST APPLIES IS NOT DECIDED IN THIS MODULE. :mod:`spacr.figures.stats`\nis the one engine that makes that choice, and the three functions below are a\ntranslation layer onto it that keeps this module's older call signatures and\nresult keys working.\n\nWhy the module stopped choosing for itself, measured on 2026-08-17 and filed\nas finding 2 of instruction 127: the two implementations were run on the same\nfive inputs and disagreed on three of them, always in the same direction --\nthis one took the parametric test wherever the assumption checks had no power\nto refuse it.\n\n    case                        was              is now\n    normal, equal var, n=30     T-test           T-test\n    normal, UNEQUAL var, n=30   T-test           Welch's T-test\n    skewed (exponential) n=30   T-test           Mann-Whitney U test\n    n=3 vs 24                   T-test           Mann-Whitney U test\n    n=5 vs 5                    T-test           Mann-Whitney U test\n\nThe mechanism was a normality check with no power floor: on n = 3 Shapiro-Wilk\ncannot reject, so \"not rejected\" was read as \"normal\" and the t-test ran. The\nengine refuses below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` and\nrecords the check as uninformative, which is the safe direction -- one way\nloses a little power, the other publishes a difference that is not there.\n\nTwo consequences worth knowing before comparing an old CSV with a new one:\n\n* ``Test Name`` now says WHICH t-test ran. \"T-test\" used to be printed for\n  unequal-variance data too, and it was Student's every time -- the old call\n  passed no ``equal_var``, and scipy defaults it to True.\n* :func:`perform_levene_test` returns the median-centred (Brown-Forsythe)\n  statistic, and NaN rather than a confident number when the smallest group is\n  too small for the check to have power.\n\nThe engine is imported INSIDE each function on purpose. ``spacr.figures``\neagerly imports the panel catalog, which costs 82 ms of matplotlib at import\ntime (measured with ``python -X importtime``); this module is imported for\n:func:`choose_p_adjust_method` and :func:`chi_pairwise` by callers that never\nrun a group comparison. Do not lift these into module scope."
     },
     "spacr.sp_stats.chi_pairwise": {
       "source_blocks_sha256": [
@@ -61307,52 +61885,58 @@
     },
     "spacr.sp_stats.perform_levene_test": {
       "source_blocks_sha256": [
-        "d75f5a0d2da24621dcd4f226bf152637187a322b1b725895503cddad2ecaae48",
+        "030862f040b6160de83afb4bd6c296c45869c76ab0a3fa5e996d728a025ff0f1",
+        "e2e6a9e4d3cf7363b2c7cc3b71f435591127dfe10d746b90ceeeb385226cd407",
+        "3916fda9914776fb97cba1ca28a3d92960d8d4d7467690b8e8e72b20767421b3",
+        "9c57568b755214e01df7c510ed541f85e299613ef6fb9354655a4577fa969db3",
         "04d3d02d6893d25ed6533db2921ed2dfcd20fb4a834069416af3fe2a026c0a04",
         "92a2896e2232051bfa5bf73bc2f5fbf4e1bfb68f981669602d2cd5b7c0e7e024",
         "8b245249a5cb0f52dc13e4f93056524738142828c54573ffeb5f946b9811c2bd",
-        "58b6f8da227647eaad3f4b391090268d1281ceedbb2a4ba365280f2fe9a15c41"
+        "06f3680ae491c450593d7c2bc1cb9b3ec2629aa017a5c1df15daa24b615c4833"
       ],
-      "source_sha256": "bae168ee5752e3f0b6679273f08ec99bc64e757550d43c8a422389b4ad4a6adf",
-      "text": "Perform Levene's test for equal variance across the groups in ``df``.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_column: Numeric column to test.\n:returns: Tuple ``(statistic, p_value)`` returned by ``scipy.stats.levene``."
+      "source_sha256": "368945603d72fd3b3b0a014a98c1014e9372d61c96442d4ff9c70ffe22276e28",
+      "text": "Levene's test for equal variance, MEDIAN-centred.\n\nDelegates to :func:`spacr.figures.stats.check_equal_variance`. Two things\nmoved when it did, and both change the number a caller writes into a CSV:\n\n* The centring is the median (Brown-Forsythe), not scipy's default mean.\n  The median-centred form is the robust one and is the right choice\n  precisely when normality is itself in question -- which is every time\n  this function is called, since it is called before anyone knows.\n* Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in\n  the smallest group the result is ``(nan, nan)``. On three replicates\n  Levene has almost no power, so \"p = 0.7, variances are equal\" means \"we\n  could not tell\", and printing 0.7 into a results table invites exactly\n  the reading that publishes a difference that is not there.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_column: Numeric column to test.\n:returns: Tuple ``(statistic, p_value)``, both NaN when the check had no\n    power."
     },
     "spacr.sp_stats.perform_normality_tests": {
       "source_blocks_sha256": [
-        "edce5b01681123605cfb37504e6644fee8d659bec4b16daf018a5a406a1220ae",
-        "9329d3dc0ca23fa69935886f22df3843fc6f427c7ae2264a5a848ebf069e1e4e",
+        "936eb225d08450c24449430d50323488805fa67f9e82d1f5d4754694d3ca0101",
+        "aeaf252f41a22b7e42e933af714f51c949c4818965004c4226a9625b83d8d0e1",
+        "d73f9dafc19db35988d30979f3bac1c1610cb1e43130088d18ff4b0add449c1e",
+        "c424fcab658b133f97e4468d8d1cf2698c91f642409b290b4301a6ce60f32bbd",
         "04d3d02d6893d25ed6533db2921ed2dfcd20fb4a834069416af3fe2a026c0a04",
         "92a2896e2232051bfa5bf73bc2f5fbf4e1bfb68f981669602d2cd5b7c0e7e024",
         "64dadd27cfaf031996c13cccfd5ac007217f2d0d45706f0100ce53301d5e275b",
-        "c71fe18cbe6c3662cc26461ebc298d931c810ccd4626bb2544fd870cfe38af31"
+        "93002d10607a0ca81d6c1b6644526fcd2d2d3579f9da2e9c3206b991d3a3eb72"
       ],
-      "source_sha256": "8e2ec130fe4c00fbd2e32d79d488d1aebea5ff78b4b8f27eb4df2a6f3db5ad58",
-      "text": "Run per-group normality tests for each requested data column.\n\nUses D'Agostino-Pearson when n>=8, Shapiro-Wilk otherwise, and skips groups\nwith fewer than three observations.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_columns: Iterable of numeric column names to test.\n:returns: Tuple ``(is_normal, results)`` where ``is_normal`` is True when all\n    p-values for the last examined column exceed 0.05 and ``results`` is a\n    list of per-test dicts."
+      "source_sha256": "d75e33849481db15e2f2bf339ce85491181ef37c15f1529905bfc4760f729b1c",
+      "text": "Report per-group normality, and say when the check had no power.\n\nThe VERDICT and the reported ROWS both come from\n:func:`spacr.figures.stats.check_normality`, so the summary and the detail\ncannot drift apart. That check is Shapiro-Wilk against a Bonferroni\nthreshold across the groups, and it refuses -- reporting NaN and\n``Informative=False`` -- when the smallest group is below\n:data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS`. A row whose statistic is\nNaN is not a failed computation; it is the check saying it could not see.\n\nThis module used to run D'Agostino-Pearson or Shapiro per group and read\n\"not rejected\" as \"normal\", which on three replicates is a decision the\ndata cannot support. The p-values it printed for such groups looked\nperfectly reasonable, which is why the defect survived.\n\nGroups with fewer than three observations are still reported as\n``'Skipped'``: Shapiro-Wilk genuinely cannot run on two points.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_columns: Iterable of numeric column names to test.\n:returns: Tuple ``(is_normal, results)``. ``is_normal`` is True only when\n    every requested column passes -- it used to be the verdict for the LAST\n    column examined, so a two-column call answered about the wrong one.\n    ``results`` is a list of per-group dicts carrying ``Comparison``,\n    ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``, ``n``,\n    ``Informative`` and ``Verdict``."
     },
     "spacr.sp_stats.perform_posthoc_tests": {
       "source_blocks_sha256": [
         "475d99a0ec28725e5ca02168ecd39c86fe307ba3ffea9c669d45c7b95a74a016",
         "eadc9bd4f7fd56e214f50415ea80d99fc47b9e6704fb927125b57b8a0f6107a4",
+        "a7c68a1d0db9584f427b3d7e222289773892f8baca6391e6016f208ecf7c96e7",
         "04d3d02d6893d25ed6533db2921ed2dfcd20fb4a834069416af3fe2a026c0a04",
         "92a2896e2232051bfa5bf73bc2f5fbf4e1bfb68f981669602d2cd5b7c0e7e024",
         "e8526465b26854ad94e97f1bc79d60f3958eb1866ec96899a6403ced1aab0182",
         "72243f4786198a358f0be762ffbafd72b324360f5d978d49159ead68a9258c94",
         "4b5e1494fb14cf52e2c9dc3d48ce04265a00812db3a6a5abb325e0635c02f228"
       ],
-      "source_sha256": "5aefa4c059c486e05720d52ae563a5d925cdeac2448a92d547ae9e2dc08e1303",
-      "text": "Run pairwise post-hoc tests across groups with p-value adjustment.\n\nUses Tukey HSD when data is normal, Dunn's test otherwise with a correction\nmethod chosen by :func:`choose_p_adjust_method`.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_column: Numeric column to compare across groups.\n:param is_normal: Whether the data satisfy the normality assumption.\n:returns: List of dicts with pairwise comparison metadata and p-values."
+      "source_sha256": "2b0b24d748e166cf672470500628dc2f118efeaa97581f85965269a7e115a1f6",
+      "text": "Run pairwise post-hoc tests across groups with p-value adjustment.\n\nUses Tukey HSD when data is normal, Dunn's test otherwise with a correction\nmethod chosen by :func:`choose_p_adjust_method`.\n\n``is_normal`` should come from :func:`perform_normality_tests`, which is\nthe one engine's verdict. Passing a hand-computed one puts the omnibus test\nand the pairwise tests on different footing -- Kruskal-Wallis across the\ngroups followed by Tukey between them is two different assumptions about\none dataset.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_column: Numeric column to compare across groups.\n:param is_normal: Whether the data satisfy the normality assumption.\n:returns: List of dicts with pairwise comparison metadata and p-values."
     },
     "spacr.sp_stats.perform_statistical_tests": {
       "source_blocks_sha256": [
-        "c37b3d50fe98c37e0b9e259dee79956ff383f1fca9b1d78ebede3af0bcee2585",
-        "66b2cbe7f52fa2dd7a66468ad4c2829ca78d285c5d65c941b86dd6e2e04dec60",
+        "caed3fe1726e5f3f08e9c76cf016bfd58e10945bbf10e2c015ab542d722b05dc",
+        "21060d1e05ba394dade4d6e0feb1b9a1c1330f18770f240cd1c2097dec920b27",
         "04d3d02d6893d25ed6533db2921ed2dfcd20fb4a834069416af3fe2a026c0a04",
         "92a2896e2232051bfa5bf73bc2f5fbf4e1bfb68f981669602d2cd5b7c0e7e024",
         "64dadd27cfaf031996c13cccfd5ac007217f2d0d45706f0100ce53301d5e275b",
-        "897105810eb1a4f55866f10dbda7418c7ae03e216cec5d8feec0cbcd25af040b",
-        "cd51d429bfd1192c3cabb5451eabcdc201f2e36a62024f01179aa2915dc00690"
+        "4c13d148e5640458bde5c4534c6901a16077f7faea387af97ae7ce4ee8507eaa",
+        "e37bcdd8e3b1f21dd4c560545b9a440c4318c99ce001f1df6056f0966e5f9820"
       ],
-      "source_sha256": "edb2ba6679a97297cff835b6c683f8566a9306fc0e75ed3185b9c73be07c4d19",
-      "text": "Run an appropriate group-comparison test per data column.\n\nPicks T-test vs Mann-Whitney U for two groups (based on a normality check)\nand ANOVA vs Kruskal-Wallis for three or more.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_columns: Iterable of numeric column names to test.\n:param paired: When True, paired-sample analysis is requested (not implemented).\n:returns: List of per-column result dicts with test name, statistic, and p-value."
+      "source_sha256": "bc1fea411ea5cb0b721c7b3c653a2ae75b3de66e21d8b8dbfe2e3097652b734b",
+      "text": "Run the group-comparison test the data supports, per data column.\n\nThe choice is made by :func:`spacr.figures.stats.compare` and nothing in\nthis module second-guesses it: two groups get Student's t, Welch's t or\nMann-Whitney U, and three or more get one-way ANOVA, Welch's ANOVA or\nKruskal-Wallis, from the normality and equal-variance checks. An assumption\ncheck that had no power counts as FAILED, so three replicates buy a rank\ntest rather than a t-test.\n\n:param df: Input DataFrame containing the grouping and value columns.\n:param grouping_column: Column name identifying the group of each row.\n:param data_columns: Iterable of numeric column names to test.\n:param paired: When True, paired-sample analysis is requested. Still not\n    implemented: the call prints and returns no rows. It used to be\n    honoured only on the two-group path, so asking for a paired test across\n    three groups silently ran an unpaired one; now every group count\n    refuses the same way.\n:returns: List of per-column result dicts with ``Column``, ``Test Name``,\n    ``Test Statistic``, ``p-value``, ``Groups``, and -- so a saved table is\n    reportable rather than a bare p -- ``n`` per group, ``Effect Size``,\n    ``Effect`` and ``Why This Test``. A comparison the engine refuses to\n    make is reported as ``Test Name='not testable'`` with the reason,\n    the same convention :func:`chi_pairwise` uses for an undefined pair."
     },
     "spacr.spacr_cellpose": {
       "source_blocks_sha256": [
