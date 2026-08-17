@@ -145,9 +145,9 @@ def test_a_second_press_brings_the_run_back(qtbot, grid):
     grid.show()
     qtbot.waitExposed(grid)
 
-    grid._toggle_section(_header(grid, "first run"))
+    grid.toggle_section(_header(grid, "first run"))
     assert _visible_cells(grid) == [3, 4, 5]
-    grid._toggle_section(_header(grid, "first run"))
+    grid.toggle_section(_header(grid, "first run"))
 
     assert _visible_cells(grid) == [0, 1, 2, 3, 4, 5]
     assert _header(grid, "first run")._chevron.text() == "▾"
@@ -172,16 +172,16 @@ def test_a_heading_below_the_fold_is_reached_before_it_is_folded(qtbot, grid):
 
     header = _header(grid, "second run")
     assert grid._is_raised(header) is False
-    grid._toggle_section(header)
+    grid.toggle_section(header)
     qtbot.wait(10)
 
-    assert grid._is_section_collapsed("second run", 12) is False, (
+    assert grid.is_section_collapsed("second run", 12) is False, (
         "the first click folded a heading the user was still reaching for")
     assert bar.value() > 0, "the first click did not go to the section"
 
     # Now it IS at the top, and the same gesture means the one thing left.
-    grid._toggle_section(_header(grid, "second run"))
-    assert grid._is_section_collapsed("second run", 12) is True
+    grid.toggle_section(_header(grid, "second run"))
+    assert grid.is_section_collapsed("second run", 12) is True
     assert _visible_cells(grid) == list(range(12))
 
 
@@ -196,14 +196,14 @@ def test_a_folded_run_stays_folded_when_the_next_run_arrives(qtbot, grid):
     _two_runs(grid)
     grid.show()
     qtbot.waitExposed(grid)
-    grid._set_section_collapsed("first run", 0, True)
+    grid.set_section_collapsed("first run", 0, True)
     assert _visible_cells(grid) == [3, 4, 5]
 
     grid.set_figures(_pixmaps(9), [f"figure {i}" for i in range(9)],
                      sections=[("first run", 0, 3), ("second run", 3, 3),
                                ("third run", 6, 3)])
 
-    assert grid._is_section_collapsed("first run", 0) is True
+    assert grid.is_section_collapsed("first run", 0) is True
     assert _visible_cells(grid) == [3, 4, 5, 6, 7, 8]
     assert _header(grid, "first run")._chevron.text() == "▸"
 
@@ -212,8 +212,8 @@ def test_the_newest_run_arrives_open(qtbot, grid):
     """"The newest section is the one that matters and should be the one
     open." A run nobody has folded has never been folded."""
     _two_runs(grid)
-    grid._set_section_collapsed("first run", 0, True)
-    grid._set_section_collapsed("second run", 3, True)
+    grid.set_section_collapsed("first run", 0, True)
+    grid.set_section_collapsed("second run", 3, True)
 
     grid.set_figures(_pixmaps(9), [f"figure {i}" for i in range(9)],
                      sections=[("first run", 0, 3), ("second run", 3, 3),
@@ -227,14 +227,14 @@ def test_a_run_that_keeps_growing_stays_folded(qtbot, grid):
     """A section's count changes while its run streams figures in; its start
     does not. Keying the fold on the count would unfold it on every arrival."""
     _two_runs(grid, first=3, second=1)
-    grid._set_section_collapsed("first run", 0, True)
+    grid.set_section_collapsed("first run", 0, True)
 
     for extra in range(2, 5):
         grid.set_figures(_pixmaps(3 + extra),
                          [f"figure {i}" for i in range(3 + extra)],
                          sections=[("first run", 0, 3),
                                    ("second run", 3, extra)])
-        assert grid._is_section_collapsed("first run", 0) is True
+        assert grid.is_section_collapsed("first run", 0) is True
         assert _visible_cells(grid) == list(range(3, 3 + extra))
 
 
@@ -251,7 +251,7 @@ def test_a_folded_run_leaves_no_hole_for_the_next_one(qtbot, grid):
         return grid._grid.getItemPosition(index)[0]
 
     before = row_of(grid._cells[3])
-    grid._set_section_collapsed("first run", 0, True)
+    grid.set_section_collapsed("first run", 0, True)
     after = row_of(grid._cells[3])
 
     assert after < before, (
@@ -266,7 +266,7 @@ def test_a_folded_figure_stops_painting_itself(qtbot, grid):
     grid.show()
     qtbot.waitExposed(grid)
 
-    grid._set_section_collapsed("first run", 0, True)
+    grid.set_section_collapsed("first run", 0, True)
 
     assert [cell.isVisible() for cell in grid._cells[:3]] == [False] * 3
 
@@ -310,7 +310,7 @@ def test_a_stale_fold_cannot_hide_the_only_run_on_screen(grid):
     """Picking a saved trial replaces the grid with pictures from disk and no
     sections at all. A fold remembered from the run before must not blank it."""
     _two_runs(grid)
-    grid._set_section_collapsed("first run", 0, True)
+    grid.set_section_collapsed("first run", 0, True)
 
     grid.set_figures(_pixmaps(2), ["one", "two"])
 

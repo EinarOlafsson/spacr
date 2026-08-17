@@ -261,7 +261,7 @@ def test_reading_the_sweeps_table_does_not_drop_the_sessions_runs(
 
     panel = SweepRunsPanel()
     qtbot.addWidget(panel)
-    panel._record_run("run  10:00:00", "run", _settings())
+    panel.record_run("run  10:00:00", "run", _settings())
     trials.to_csv(tmp_path / "sweep_results.csv", index=False)
 
     assert panel.load(tmp_path) is True
@@ -277,7 +277,7 @@ def test_a_missing_sweep_table_does_not_empty_the_tab(qtbot, tmp_path):
 
     panel = SweepRunsPanel()
     qtbot.addWidget(panel)
-    panel._record_run("run  10:00:00", "run", _settings())
+    panel.record_run("run  10:00:00", "run", _settings())
 
     assert panel.load(tmp_path) is False
     assert panel.table.table.rowCount() == 1
@@ -292,7 +292,7 @@ def test_the_trial_numbers_do_not_turn_into_decimals(qtbot, trials):
 
     panel = SweepRunsPanel()
     qtbot.addWidget(panel)
-    panel._record_run("run  10:00:00", "run", _settings())
+    panel.record_run("run  10:00:00", "run", _settings())
     panel.set_frame(trials)
 
     columns = list(panel._frame.columns)
@@ -321,7 +321,7 @@ def test_which_run_a_row_is_comes_first(qtbot, trials):
 
     panel = SweepRunsPanel()
     qtbot.addWidget(panel)
-    panel._record_run("run  10:00:00", "run", _settings())
+    panel.record_run("run  10:00:00", "run", _settings())
     panel.set_frame(trials)
 
     assert list(panel._frame.columns)[:2] == ["run", "source"]
@@ -334,8 +334,8 @@ def test_the_summary_counts_both_kinds(qtbot, trials):
 
     panel = SweepRunsPanel()
     qtbot.addWidget(panel)
-    panel._record_run("run  10:00:00", "run", _settings())
-    panel._update_run(1, status="ok")
+    panel.record_run("run  10:00:00", "run", _settings())
+    panel.update_run(1, status="ok")
     panel.set_frame(trials)
 
     text = panel._status.text()
