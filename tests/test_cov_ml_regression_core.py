@@ -386,12 +386,28 @@ def test_regression_random_row_column_effects_fits_mixed_model(tmp_path):
     assert any(f.startswith("fraction:grna[") for f in coef_df["feature"])
     assert hasattr(model, "fe_params")
     assert len(model.resid) == len(df)
-    # Only fit_mixed_model's residual histogram is produced — the dependent /
-    # fraction histograms belong to the fixed-effects branch.
-    assert sorted(p.name for p in tmp_path.iterdir()) == ["residuals_histogram.pdf"]
+    # The mixed branch produces fit_mixed_model's residual histogram; the
+    # dependent / fraction distributions belong to the fixed-effects branch
+    # and are not drawn here.
+    written = sorted(p.name for p in tmp_path.iterdir())
+    assert "residuals_histogram.pdf" in written
+    assert not any(name.startswith("fraction_histogram") for name in written)
+
+    # AND THE HOUSE-STYLE OUTPUT, which every branch now produces: the panel
+    # sheet and its generated legend. A mixed fit is still a fit and the
+    # reader still needs the figure.
+    assert "regression_figure.pdf" in written, written
+    assert "regression_figure_legend.txt" in written, written
 
 
-def test_regression_plot_true_writes_volcano_pdf(tmp_path):
+def test_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
+    """"hide my old version behid a boolean that defaults to off".
+
+    The original matplotlib volcano is not deleted -- it is what published
+    figures were made with -- but a run does not draw it unless asked, and a
+    run that draws both puts two volcanoes in two visual idioms on the same
+    grid.
+    """
     from spacr.ml import regression
 
     df = _wells_df(seed=3)
@@ -399,6 +415,14 @@ def test_regression_plot_true_writes_volcano_pdf(tmp_path):
     regression(
         df, csv_path, dependent_variable="predictions",
         regression_type="ols", nc=NC, pc=PC, dst=str(tmp_path), plot=True,
+    )
+    assert not (tmp_path / "ols_scores_volcano_plot.pdf").exists(), (
+        "the legacy volcano was drawn without being asked for")
+
+    regression(
+        df, csv_path, dependent_variable="predictions",
+        regression_type="ols", nc=NC, pc=PC, dst=str(tmp_path), plot=True,
+        legacy_volcano=True,
     )
     assert (tmp_path / "ols_scores_volcano_plot.pdf").stat().st_size > 0
 
