@@ -182,6 +182,12 @@ class FigureSettingsDialog(QDialog):
         layout.addWidget(self.tabs)
 
         self.tabs.addTab(self._scroll(self._figure_tab()), "Figure")
+        # STATISTICS, only for a figure that actually compares groups. A tab
+        # offering a t-test on a Q-Q plot would be an invitation to report a
+        # number that means nothing -- see `_statistics_tab`.
+        if getattr(figure, "_spacr_groups", None):
+            self.tabs.addTab(self._scroll(self._statistics_tab()),
+                             "Statistics")
         for index, axis in enumerate(figure.axes):
             name = axis.get_title() or f"Axes {index + 1}"
             self.tabs.addTab(self._scroll(self._axes_tab(axis)), name[:18])
@@ -466,6 +472,110 @@ class FigureSettingsDialog(QDialog):
             self._redraw.start(self.REDRAW_DELAY_MS)
 
     # ----------------------------------------------------------------- tabs
+
+    def _statistics_tab(self) -> QWidget:
+        """Which test, at what level, corrected how -- and what it chose.
+
+        Asked for on 2026-08-16: "provide a statistics tab in the settings
+        for the graph upon right clicking".
+
+        ONLY OFFERED WHERE THERE IS SOMETHING TO COMPARE. The figure carries
+        its groups or it does not; a tab offering a t-test on a Q-Q plot
+        would invite a number that means nothing.
+
+        The default is AUTO, and the panel shows what auto chose and why.
+        Forcing a test is offered because a reader sometimes has a reason the
+        data cannot express -- a paired design, a pre-registered analysis --
+        but it is a deliberate override rather than the starting point, and
+        the automatic choice is the one that reads the assumption checks.
+        """
+        from ...figures import stats as stats_module
+
+        page = QWidget()
+        form = QFormLayout(page)
+        groups = dict(getattr(self._figure, "_spacr_groups", {}) or {})
+        self._stats_state = {"test": None, "alpha": 0.05,
+                             "correction": "fdr_bh", "unit": "coefficient"}
+
+        form.addRow(QLabel(", ".join(
+            f"{label} (n={len(values)})" for label, values in groups.items())))
+
+        test = QComboBox()
+        test.addItem("automatic — chosen from the data", None)
+        for name in ("Student's t", "Welch's t", "Mann-Whitney U",
+                     "one-way ANOVA", "Welch's ANOVA", "Kruskal-Wallis",
+                     "paired t", "Wilcoxon signed-rank"):
+            test.addItem(name, name)
+        test.setToolTip(
+            "Automatic reads the group count, a Levene test for equal "
+            "variance and a Shapiro-Wilk for normality — and treats a check "
+            "it had too few points to run as FAILED, because 'did not "
+            "reject' on n=3 is not 'the assumption holds'.")
+        form.addRow("Test", test)
+
+        alpha = QDoubleSpinBox()
+        alpha.setDecimals(3)
+        alpha.setRange(0.001, 0.5)
+        alpha.setSingleStep(0.005)
+        alpha.setValue(0.05)
+        form.addRow("Alpha", alpha)
+
+        correction = QComboBox()
+        try:
+            from ...multiple_testing import METHODS
+
+            for key in METHODS:
+                correction.addItem(key, key)
+            correction.setCurrentText("fdr_bh")
+        except Exception:              # pragma: no cover - module absent
+            correction.addItem("fdr_bh", "fdr_bh")
+        correction.setToolTip(
+            "Applied ACROSS the comparisons on this panel. Six pairwise "
+            "tests at 0.05 is a 26% chance of one false positive, and the "
+            "individual p-values give no hint of it.")
+        form.addRow("Correct across pairs", correction)
+
+        unit = QLineEdit("coefficient")
+        unit.setToolTip(
+            "What ONE observation is. spaCR measures thousands of cells "
+            "across a handful of wells: a test across cells when the "
+            "replicate is the well returns p < 1e-10 on pure noise, and "
+            "nothing in the number itself says so.")
+        form.addRow("Unit of replication", unit)
+
+        verdict = QLabel("")
+        verdict.setWordWrap(True)
+        verdict.setStyleSheet("color: palette(mid); font-size: 11px;")
+        form.addRow(verdict)
+
+        def _recompute():
+            self._stats_state.update(
+                test=test.currentData(), alpha=float(alpha.value()),
+                correction=correction.currentData() or "fdr_bh",
+                unit=unit.text().strip() or "observation")
+            lines = []
+            labels = list(groups)
+            for index, left in enumerate(labels):
+                for right in labels[index + 1:]:
+                    try:
+                        result = stats_module.compare(
+                            {left: groups[left], right: groups[right]},
+                            unit=self._stats_state["unit"],
+                            force=self._stats_state["test"])
+                    except ValueError as refusal:
+                        lines.append(f"{left} vs {right}: {refusal}")
+                        continue
+                    lines.append(f"{left} vs {right} — {result.sentence()}")
+            verdict.setText("\n".join(lines) or "nothing to compare")
+
+        for control in (test, correction):
+            control.currentIndexChanged.connect(lambda *_: _recompute())
+        alpha.valueChanged.connect(lambda *_: _recompute())
+        unit.editingFinished.connect(_recompute)
+        _recompute()
+
+        self._stats_verdict = verdict
+        return page
 
     def _figure_tab(self) -> QWidget:
         page = QWidget()
