@@ -1340,12 +1340,89 @@ class GateCanvas(GraphCanvas):
                 gate.y_low if gate.y_low is not None else y_low,
                 gate.y_high if gate.y_high is not None else y_high)
 
+    def _volume_face_point(self, ax, u: float, v: float):
+        """Where a pending vertex ``(u, v)`` sits in the volume.
+
+        The two numbers a pending vertex holds are its position on the plane
+        the polygon is being clicked out on -- NOT ``x`` and ``y``. Which of
+        the three axes they belong to is `_pending_plane`, and the third one
+        is pinned to the face the blue aura is drawn on, so the trail of
+        markers lands on the surface the user is drawing on.
+
+        :returns: ``[x, y, z]``, or None once the plane the vertices were
+            placed on is no longer among the three measurements on screen --
+            which is what changing a picker mid-polygon does.
+        """
+        if not self._pending_plane:
+            return None
+        columns = (self._spec.x, self._spec.y, self._z_column)
+        first, second = self._pending_plane
+        normal = next((c for c in columns if c not in (first, second)), "")
+        if not normal:
+            return None
+        try:
+            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+            point = [0.0, 0.0, 0.0]
+            point[columns.index(first)] = float(u)
+            point[columns.index(second)] = float(v)
+            point[columns.index(normal)] = float(
+                limits[columns.index(normal)][0])
+        except Exception:
+            LOG.debug("the pending plane is no longer on screen",
+                      exc_info=True)
+            return None
+        return point
+
     def _outline_pending(self, ax, palette) -> None:
+        """Trace the vertices placed so far."""
+        if self._in_volume():
+            self._outline_pending_in_volume(ax, palette)
+            return
         xs = [v[0] for v in self._pending]
         ys = [v[1] for v in self._pending]
         self._artists.append(ax.plot(
             xs, ys, color=palette["warning"], linewidth=1.2,
             marker="o", markersize=3, zorder=8)[0])
+
+    def _outline_pending_in_volume(self, ax, palette) -> None:
+        """Trace the pending vertices on the face they were placed on.
+
+        Two things a flat `ax.plot(xs, ys)` on an `Axes3D` got wrong, and
+        both of them stopped a 3D polygon being finished at all:
+
+        the vertices were drawn as ``(x, y)`` at a depth of zero, which is
+        neither the measurements the user clicked nor a depth the data
+        reaches; and a flat plot AUTOSCALES all three limits, so the volume
+        was rescaled by the act of drawing on it. Every click moved the
+        picture and the vertex already placed slid out from under the cursor
+        that placed it -- measured at 104 px against a `CLOSE_RADIUS_PX` of
+        12, so clicking the first vertex back added a fourth one instead of
+        closing the shape.
+
+        The limits are therefore put back afterwards. A half-drawn polygon is
+        a GESTURE, not data, and nothing about a gesture belongs in the range
+        of the axes it is drawn over.
+        """
+        points = [self._volume_face_point(ax, u, v) for u, v in self._pending]
+        if any(point is None for point in points):
+            return
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        try:
+            line = ax.plot(
+                [p[0] for p in points], [p[1] for p in points],
+                [p[2] for p in points],
+                color=palette["warning"], linewidth=1.2,
+                marker="o", markersize=3, zorder=8)[0]
+        except Exception:
+            # An outline that cannot be painted costs the view nothing, and
+            # is not worth falling back to the flat plot that caused this.
+            LOG.debug("could not draw the pending outline", exc_info=True)
+            return
+        finally:
+            ax.set_xlim3d(*limits[0])
+            ax.set_ylim3d(*limits[1])
+            ax.set_zlim3d(*limits[2])
+        self._artists.append(line)
 
     # -- drawing gates ----------------------------------------------------
     def gate_at(self, x: float, y: float) -> Optional[str]:
@@ -2027,19 +2104,14 @@ class GateCanvas(GraphCanvas):
         if not self._pending or not self._pending_plane:
             return False
         ax = getattr(event, "inaxes", None)
-        spec = self._spec
-        columns = (spec.x, spec.y, self._z_column)
-        first, second = self._pending_plane
-        normal = next((c for c in columns if c not in (first, second)), "")
-        if ax is None or not normal:
+        if ax is None:
+            return False
+        # The SAME point `_outline_pending_in_volume` draws the marker at, so
+        # the vertex you are asked to click is the vertex that is measured.
+        point = self._volume_face_point(ax, *self._pending[0])
+        if point is None:
             return False
         try:
-            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
-            point = [0.0, 0.0, 0.0]
-            point[columns.index(first)] = float(self._pending[0][0])
-            point[columns.index(second)] = float(self._pending[0][1])
-            point[columns.index(normal)] = float(
-                limits[columns.index(normal)][0])
             fx, fy = ax.transData.transform(_project(ax, point))
             px = float(getattr(event, "x", 0) or 0)
             py = float(getattr(event, "y", 0) or 0)
