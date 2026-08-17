@@ -1,0 +1,136 @@
+================================================================================
+SHOW THE CELLS BEHIND A DOT ON THE REGRESSION PLOT
+================================================================================
+
+Status:    filed 2026-08-17, not started.
+Requested: 2026-08-17 --
+
+           "in the regression module, if the user has imported databases, and
+            those databases have either: a png_list table with png paths / a
+            merged folder in the source folder holding the measurements file
+            -- there should be an option to visualize the cells most likely to
+            represent dots on the regression plot.
+
+            so if the coefficient for e.g. GRA14 is 0.7 then the program
+            should: go to the measurement database and pick out the wells that
+            were reported to have GRA14 grnas in them then take all the bin the
+            values and pick all the values that were close in classification
+            score to the GRA14 coefficient then use the GRA14 fraction score
+            for each well and pick out the objects with the most similar score
+            to gra 14 in wells that have gra 14 and pick only the fraction
+            number (cell number in the well x gra14 gRNA fraction) to show to
+            the user in a new tab where the figures are.
+
+            these pictures will be either pulled from disk if pngs have
+            already been exported, or extracted by object type and label
+            number from the merged npy stacks which have intensity images and
+            masks if this method is chosen then the user needs to specify
+            which array the masks are in and which channels should be used to
+            generate the pictures."
+
+Related:  130 imports the databases this depends on. 121 is the gene tile,
+          which is where a gene's identity already appears. 124 F made every
+          point clickable.
+
+--------------------------------------------------------------------------------
+THE IMAGE HALF IS ALREADY BUILT. DO NOT REBUILD IT.
+--------------------------------------------------------------------------------
+
+`spacr/crops.py` is exactly the two sources this asks for, and its own header
+says so:
+
+    PngCropSource      the exported PNGs, via the `png_list` table
+    MergedCropSource   cut on demand out of `merged/<fov>.npy`, which holds
+                       the intensity planes AND the integer label-mask planes
+    resolve_crop_source(...)   picks between them AND SAYS WHICH IT PICKED
+
+`spacr/io._merged_field_paths` is the join that lets a `png_list` row be cut
+on demand -- png_list records neither the path nor the file name of the merged
+array, and a measurement table does.
+
+So the trigger condition in the request -- "a png_list table OR a merged
+folder" -- is a call to `resolve_crop_source`, not a new branch.
+
+THE ONE THING THE REQUEST ADDS TO THE IMAGE HALF: "the user needs to specify
+which array the masks are in and which channels should be used". Check what
+`MergedCropSource` already takes before adding settings; the merged layout is
+documented at the top of crops.py and the object type plus label number are
+already how it addresses a crop.
+
+--------------------------------------------------------------------------------
+A. WHAT IS ACTUALLY BEING ASKED, AND THE TRAP IN IT
+--------------------------------------------------------------------------------
+
+THIS IS A POOLED SCREEN. Which individual cell carries which guide IS NOT
+KNOWN and cannot be looked up -- that is the whole reason the analysis is a
+regression on well-level fractions rather than a per-cell comparison. The
+sequencing says a well is 15% GRA14; it does not say WHICH 15% of the cells.
+
+So a montage cannot show "the cells with GRA14 knocked out". It can show
+THE CELLS MOST CONSISTENT WITH THE EFFECT -- which is what the request asks
+for, and the distinction has to survive onto the figure. A montage captioned
+"GRA14" that a reader takes for genotyped cells is exactly the kind of
+plausible-and-wrong output this module is most careful about.
+
+    The caption must say what the selection was: the wells, the score window,
+    and that membership is inferred from a well-level fraction, not observed.
+
+--------------------------------------------------------------------------------
+B. THE SELECTION, STEP BY STEP
+--------------------------------------------------------------------------------
+
+For a chosen coefficient (a gene or a guide) with effect `c`:
+
+  1. WELLS. From the imported measurement databases, the wells whose count
+     data reports that guide/gene present. This is a join the regression
+     already does -- `grna_well.csv` and `well_grna.csv` are written by every
+     run and carry exactly this.
+  2. THE SCORE WINDOW. Bin the per-object classification scores in those
+     wells and keep the objects whose score is closest to what `c` implies.
+     STATE THE RULE AND THE WIDTH: "closest" needs a definition, and a
+     window chosen per-gene rather than once is a window that can be tuned
+     until the pictures look right.
+  3. HOW MANY. `n_objects_in_well x guide_fraction_in_well`, rounded. This is
+     the EXPECTED number of objects in that well carrying the guide, and it
+     is the right count precisely because it is the only number the pooled
+     design supports. A well of 200 cells at 15% contributes 30.
+  4. Across the wells, that gives the montage.
+
+  * a gene with several guides: state whether the fractions are summed or the
+    guides shown separately. They are different questions.
+  * a well contributing ZERO by that rule still exists and should be said so,
+    not silently absent.
+
+--------------------------------------------------------------------------------
+C. WHERE IT APPEARS
+--------------------------------------------------------------------------------
+
+"a new tab where the figures are" -- so a tab beside the run's figures, not a
+dialog. It follows what 128 E and 129 established: one tab per view, named,
+and a tab that cannot be filled says why rather than being absent.
+
+Reached from the plot, because that is where the dot is: right-click a point
+-> "Show the cells behind this". 124 F already makes every point clickable and
+joined on the key, so the gene is known at the click.
+
+--------------------------------------------------------------------------------
+D. WHAT WILL MAKE IT SLOW, MEASURED BEFORE IT IS BUILT
+--------------------------------------------------------------------------------
+
+A merged array is a whole field. Cutting N crops from M fields means reading
+M arrays, and the montage for one gene can span dozens of wells. Measure the
+per-crop cost from BOTH sources before choosing a default, the way the 49 ms
+volcano redraw was measured -- and cap the montage, saying what was capped.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Right-clicking a point on the volcano offers the montage, and it is absent
+  with a reason when no database is imported.
+* The montage draws from exported PNGs when they exist and from `merged/`
+  when they do not, and SAYS which it used.
+* The number of objects shown per well equals round(n_objects x fraction).
+* The caption states the wells, the score window, and that guide membership
+  is INFERRED from a well-level fraction rather than observed.
+* A gene whose wells contribute zero objects says so instead of an empty tab.
