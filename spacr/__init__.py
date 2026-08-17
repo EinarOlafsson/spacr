@@ -286,6 +286,24 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "hit_attribution",
     "hit_investigation",
     "training_basis",
+    # The regression surface, added over 2026-08-15/16. A module missing from
+    # this tuple is not reachable as `spacr.<name>` at all -- the lazy loader
+    # is the only path -- so leaving one out ships a module nobody outside the
+    # package can import, and `test_lazy_loader_matches_files` exists to catch
+    # exactly that.
+    "multiple_testing",       # every FDR / FWER correction, in one place
+    "volcano_style",          # the volcano's thresholds and their rules
+    "guide_concordance",      # do a gene's own guides agree in direction
+    "regression_diagnostics", # design, residual and inference panels
+    "regression_search",      # the dependent-variable search
+    "metadata_resolution",    # which metadata column is which
+    "multi_database",         # read and merge several measurement databases
+    "measurement_scan",       # which measurement has genes with an effect
+    "gene_tile",              # everything spaCR knows about one gene
+    "parameter_sweep",        # the settings sweep and its containment
+    "sweep_child",            # one contained trial, exec'd in its own cgroup
+    "trial_metrics",          # what makes a sweep row judgeable
+    "figure_style",           # the older per-figure style store
 )
 
 __all__ = ["__version__", "download_models", *_SUBMODULES]
