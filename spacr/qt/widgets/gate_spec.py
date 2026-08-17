@@ -1204,6 +1204,31 @@ class BoxGate(Gate):
                         x_low=self.x_low, x_high=self.x_high,
                         y_low=self.y_low, y_high=self.y_high)
 
+    def with_handle(self, role: str, x: float, y: float) -> "BoxGate":
+        """Pulled by the flat view's anchors, and still a box.
+
+        The 2D editor draws and grabs a box as :meth:`to_rect`, so the roles
+        it offers are a RECTANGLE's -- ``'x_low,y_low'`` and the rest. The
+        inherited :meth:`Gate.with_handle` knows nothing of them and refused
+        every one with ``GateError: BoxGate has no handle 'x_low'``, which
+        the canvas swallowed: the corners were drawn, they could be grabbed,
+        and pulling them did nothing.
+
+        Applying the pull to the front rectangle and taking its bounds keeps
+        the depth this view cannot express, rather than replacing the box
+        with the rectangle drawn for it and silently dropping the z range the
+        user set in the volume.
+
+        :param role: a handle role from :meth:`Gate.handles`, as offered for
+            the front rectangle.
+        :param x: the new x, in data units.
+        :param y: the new y, in data units.
+        :returns: a new box with the pulled x/y bounds and this box's depth.
+        """
+        pulled = self.to_rect().with_handle(role, x, y)
+        return replace(self, x_low=pulled.x_low, x_high=pulled.x_high,
+                       y_low=pulled.y_low, y_high=pulled.y_high)
+
     @classmethod
     def from_limits(cls, name: str, columns: Sequence[str],
                     limits: Sequence[Tuple[float, float]], *,
