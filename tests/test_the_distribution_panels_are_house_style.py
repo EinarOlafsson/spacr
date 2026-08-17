@@ -350,3 +350,35 @@ def test_a_panel_that_cannot_be_computed_still_says_why(name):
     with pytest.raises(rq.PanelUnavailable) as raised:
         _draw(name, ctx)
     assert str(raised.value)
+
+
+@pytest.mark.parametrize("name", CLUSTER)
+def test_repointing_the_report_target_moves_the_chrome_too(monkeypatch, name):
+    """``_REPORT_TARGET`` is the module's ONE decision about where these
+    panels are going, so every part of a panel has to follow it together.
+
+    ``_house_axes`` used to declare ``target=_REPORT_TARGET`` as a default
+    argument. Defaults are bound once, when the ``def`` runs, so the string
+    ``'print'`` was frozen into the function at import time. The
+    ``figure_style(_REPORT_TARGET)`` contexts look the name up when they
+    execute and so DID follow a re-point, which is the bad half: flipping the
+    constant would have opened the screen style around marks while the
+    spines, ticks, labels and title stayed inked for print — one panel drawn
+    half in each theme.
+
+    Nothing in the shipped tree re-points the constant, so this never
+    mis-drew a delivered report; it is the wiring that is wrong, and the
+    tests above derive their expected ink from ``rq._REPORT_TARGET``, so the
+    split would have surfaced as a panel failure rather than as its cause.
+    """
+    monkeypatch.setattr(rq, "_REPORT_TARGET", "screen")
+    expected = to_hex(resolve_ink("screen")).lower()
+    assert expected != to_hex(resolve_ink("print")).lower()
+
+    _figure, ax, _stats = _draw(name)
+
+    assert to_hex(ax.title.get_color()).lower() == expected
+    assert to_hex(ax.xaxis.label.get_color()).lower() == expected
+    assert to_hex(ax.yaxis.label.get_color()).lower() == expected
+    for side in ("left", "bottom"):
+        assert to_hex(ax.spines[side].get_edgecolor()).lower() == expected
