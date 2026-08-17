@@ -1140,6 +1140,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                    getattr(self, "_mask_view", None)):
             if _v is not None:
                 _v.setAcceptDrops(False)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- drag & drop -------------------------------------------------------
 

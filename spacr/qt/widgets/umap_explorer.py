@@ -259,6 +259,11 @@ class ImageUmapExplorer(LinkedView, QWidget):
         # After the UI: both hooks repaint, and a filter can already be set
         # by the time this screen opens.
         self.link_selection("umap")
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _build_ui(self):
         from matplotlib.figure import Figure

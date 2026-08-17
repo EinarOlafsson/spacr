@@ -179,6 +179,11 @@ class FormulaPanel(QWidget):
         self._name.textChanged.connect(self._schedule)
         self._replace.toggled.connect(self._schedule)
         self._expression.returnPressed.connect(self.commit)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- the table -------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
@@ -408,6 +413,11 @@ class FormulaDialog(QDialog):
         close.clicked.connect(self.accept)
         outer.addWidget(close)
         self.resize(560, 460)
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
 
 def _formula_qss(palette, _opacity) -> str:
