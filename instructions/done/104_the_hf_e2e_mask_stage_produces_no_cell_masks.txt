@@ -2,10 +2,14 @@
 THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
 ================================================================================
 
-Status:    STILL OPEN, and THREE proposed causes have now been disproven --
-           including one I was confident enough about to file a separate
-           instruction for. Read THE THREE WRONG ANSWERS at the very end
-           before proposing a fourth.
+Status:    CLOSED 2026-08-16. FOUR proposed causes were disproven and the
+           fifth is demonstrated: the mask stage DELETES masks/ on purpose
+           once merged/ is built, unless keep_intermediate is set, and the
+           test did not set it. Reproduced 5 times out of 5 by removing the
+           flag. There was never any nondeterminism -- 96 consecutive passes
+           and 16 byte-identical object-count vectors. Read THE ANSWER at the
+           very end; the disproven list above it is kept because ruling
+           things out was most of the work.
 Requested: not asked for. Found while attributing a failure in a regression
            sweep for instruction 100, and filed because a bug found in
            passing gets queued rather than narrated.
@@ -286,3 +290,146 @@ path exists" to an object COUNT. It is the weakest possible assertion about a
 segmentation stage, it is why the failure looked like "no masks at all"
 instead of "fewer masks than expected", and it would tell a future
 investigator which of those two they are looking at.
+
+================================================================================
+THE ANSWER, 2026-08-16. IT IS THE FOURTH ONE, AND IT IS NOT NONDETERMINISM.
+================================================================================
+
+THE MASK STAGE DELETES `masks/` AT THE END OF EVERY SUCCESSFUL RUN, ON
+PURPOSE, UNLESS `keep_intermediate` IS TRUE. The test did not set it.
+
+    spacr/core.py:510
+        keep_intermediate = settings.get('keep_intermediate', False) \
+            and not settings.get('delete_intermediate', False)
+        cleanup_pipeline_folders(src, keep_intermediate=..., keep_original=...)
+
+The call is not in a branch. It runs on the way out of every source folder
+that reaches the end. `keep_intermediate` defaults to False in
+`set_default_settings_preprocess_generate_masks` (settings.py:485 and 687) and
+resolves to False in the Mask panel, and its own documentation says what it
+does: "Keep the intermediate stack/ and masks/ folders after the merged/
+arrays are built. Off by default: only merged/ is kept (masks are embedded in
+merged and recorded in the database)."
+
+So every symptom this file opens with is a planned cleanup seen from the
+outside:
+
+  * the manifest is written and `open_run` is satisfied -- the run DID
+    complete, which is precisely why the cleanup ran;
+  * `cell_mask_stack/` is missing including its own DIRECTORY NAME, which is
+    what "the folder was deleted" looks like and what "segmentation found
+    nothing" does not;
+  * the relationships table has no object table to build from, because the
+    masks it would have read are gone.
+
+--------------------------------------------------------------------------------
+DEMONSTRATED, NOT ARGUED
+--------------------------------------------------------------------------------
+
+The two lines that force the flag were removed from a copy of the file --
+`"keep_intermediate,true\n"` in the stub settings CSV and
+`settings["keep_intermediate"] = True` in the test body -- restoring the
+pre-2026-08-15 state. Five runs:
+
+    1 failed   1 failed   1 failed   1 failed   1 failed        5 of 5
+
+with the exact error this instruction was filed about:
+
+    AssertionError: the mask stage wrote no cell_mask_stack.
+    .../data/plate1/masks holds nothing - the folder does not exist
+
+Restored, it passes. This is a deterministic reproduction of the reported
+signature, which no previous answer had.
+
+--------------------------------------------------------------------------------
+AND THE PREMISE OF THE WHOLE INTERMITTENCY STORY IS FALSE
+--------------------------------------------------------------------------------
+
+"An intermittent one in the MASK STAGE means the segmentation pipeline is
+nondeterministic somewhere." Measured, now that the assertion added in
+44814983 prints per-field object counts rather than testing for a path:
+
+    16 runs, three conditions      every single run:
+      threads free, machine loaded   {'A01_1_1': 14, 'A01_2_1': 6,
+      threads pinned to 1, loaded     'A02_1_1': 11, 'A02_2_1': 3}
+      load average 13 to 36
+
+Not "close". Identical, every field, every run, with `OMP_NUM_THREADS`/
+`MKL_NUM_THREADS` free and pinned. Hypothesis 1 of "WHAT TO DO INSTEAD"
+-- "cellpose on CPU with thread counts left free" -- was listed and never
+tested; it is now tested and it is not the cause. Segmentation on this stub
+is deterministic.
+
+--------------------------------------------------------------------------------
+WRONG 4 -- "IT IS LOAD." Ruled out at 64 runs.
+--------------------------------------------------------------------------------
+
+The fourth answer this file proposed, and the one it asked the next worker to
+test: run the test repeatedly WHILE the machine is loaded and see whether the
+failure rate returns. Done, exactly as asked -- the rest of the suite looping
+at `-n 8` in another shell for the whole experiment:
+
+    64 runs under deliberate load    64 passed, 0 failed
+    load average  min 10.9   median 20.0   max 38.2   (on 32 cores)
+
+At the claimed one-in-eight rate, (7/8)^64 = 0.00024. Load is not it. Adding
+these to the earlier 32 in isolation makes 96 consecutive passes.
+
+--------------------------------------------------------------------------------
+WHAT THE "ONE IN EIGHT" ACTUALLY WAS
+--------------------------------------------------------------------------------
+
+Stated as the hypothesis it is, because it is the one thing here not
+demonstrated: the flag landed in `edde9caa` ("ci: make the HF mask e2e
+contract runnable offline") on 2026-08-15, the same day the THREE WRONG
+ANSWERS section was written. Runs straddling that commit differ in whether
+`masks/` survives, and a pass/fail series pooled across it looks exactly like
+a flaky test. That fits every recorded observation -- including "it fails on
+old commits too", which is true and is not evidence of flakiness, because
+every old commit lacks the flag.
+
+What is certain is the negative half, and it is the part worth keeping: there
+is no nondeterminism to find. 96 consecutive passes and 16 byte-identical
+object-count vectors say the mask stage does the same thing every time.
+
+--------------------------------------------------------------------------------
+NOTHING IN THE PRODUCT NEEDS TO CHANGE
+--------------------------------------------------------------------------------
+
+Deleting `masks/` after `merged/` is built is deliberate, documented, and
+already unit-tested (`tests/test_cov_utils_cleanup_paths.py`). The masks are
+embedded in the merged arrays and their labels are in the database, so
+nothing is lost. The bug was in the TEST: it asserted an artefact that the
+stage is designed to remove, and then reported the removal as a segmentation
+failure.
+
+The fix is in the tree and its comment already says so:
+
+    # The mask stage normally deletes its intermediate stacks after they
+    # have been merged. This test explicitly asserts the stack contract,
+    # so keep the artefact it is looking for instead of calling a planned
+    # cleanup "no masks were produced".
+
+--------------------------------------------------------------------------------
+THE OTHER TWO THINGS THIS FILE ASKED FOR
+--------------------------------------------------------------------------------
+
+"MAKE THE ASSERTION SAY SOMETHING" -- done in 44814983. It is now one mask
+per merged field, every field found cells, and a floor on the total object
+count in stub mode, instead of "at least one path is NAMED cell_mask". That
+change is what made the determinism above measurable at all: the old
+assertion could not have told 34 objects from 1.
+
+"DECIDE WHETHER IT BELONGS IN A CI LEG" -- the condition this file set was
+"fix the variance, strengthen the assertion, then run it somewhere". There is
+no variance to fix and the assertion is strengthened, so the blocker is gone.
+Recommending it, but not doing it here, because it is a release-gate change
+rather than a bug fix: the stub mode needs no network and no GPU
+(`_require_gpu_cellpose` deliberately lets the four-field stub run on CPU) and
+takes 14-20 s, so `SPACR_HF_E2E_STUB=1` on the fast leg costs almost nothing.
+The `slow`+`network` markers are correct for the real-dataset mode and should
+stay.
+
+CLOSED. The symptom is explained, the cause is demonstrated 5 times out of 5,
+the three alternatives this file could still have been are each ruled out with
+their run counts, and the fix is already shipped.
