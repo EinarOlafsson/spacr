@@ -89,13 +89,23 @@ def test_the_filter_is_separated_from_the_restyling(qtbot):
 #  What it draws
 # --------------------------------------------------------------------------- #
 
-def test_both_is_the_default(qtbot):
-    """A screen IS both. A panel that opened already filtered would report a
-    subset as the result."""
+def test_guides_are_the_default(qtbot):
+    """CHANGED 2026-08-17, and it is the fix for a reported bug.
+
+    "both" drew a gene once per guide PLUS once for itself -- on the real
+    screen `225160` was four points (three guides and the gene row), reported
+    as "occur in the top right side of the graph 4 times each which is
+    obviously wrong". Mixing two levels on one plot is what 128 R fixes
+    properly, by fitting them separately; this is the display half.
+
+    Guides rather than genes: it is the unit the screen measures, and a
+    permutation run reports guides ONLY, so it is the level on which the two
+    inference modes agree.
+    """
     panel = _panel(qtbot)
 
-    assert panel._level is None
-    assert len(panel.volcano._row_xy) == GENES * (GUIDES_PER_GENE + 1)
+    assert panel._level == "grna"
+    assert len(panel.volcano._row_xy) == GENES * GUIDES_PER_GENE
 
 
 def test_genes_only_draws_the_genes(qtbot):
@@ -156,10 +166,10 @@ def test_a_new_table_is_not_still_filtered(qtbot):
     """A new run is a new experiment. Inheriting the filter would show a
     subset of it with nothing saying so."""
     panel = _panel(qtbot)
-    panel.set_level("grna")
+    panel.set_level("gene")
     panel.set_frame(_frame(seed=2))
 
-    assert panel._level is None
+    assert panel._level == "grna"
 
 
 def test_the_run_s_own_table_is_not_filtered(qtbot):
