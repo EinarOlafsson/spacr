@@ -35,7 +35,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from spacr.plot import _welch_anova, spacrGraph
+from spacr.figures.stats import _welch_anova, compare
+from spacr.plot import spacrGraph
 
 
 def frame(groups, column="value", grouping="condition"):
@@ -161,13 +162,18 @@ def test_three_groups_with_matched_spread_keep_one_way_anova():
 
 def test_welch_anova_matches_pingouin():
     """An independent implementation, because a wrong statistic that runs is
-    worse than the equal-variance one it replaced."""
+    worse than the equal-variance one it replaced.
+
+    Aimed at `spacr.figures.stats._welch_anova` since 2026-08-17. `plot.py`
+    carried a second copy of this statistic and it is gone; the one the
+    engine runs is the one worth checking against an outside reference.
+    """
     pg = pytest.importorskip("pingouin")
 
     rng = np.random.default_rng(6)
     groups = [rng.normal(i * 0.6, sd, n)
               for i, (n, sd) in enumerate([(20, 1.0), (40, 3.0), (15, 0.5)])]
-    stat, p = _welch_anova(groups)
+    stat, p = _welch_anova([np.asarray(g) for g in groups])
 
     long = pd.DataFrame({
         "v": np.concatenate(groups),
@@ -216,9 +222,24 @@ def test_a_group_too_small_to_test_is_refused_rather_than_named():
     assert "fewer than 2 usable observations" in row["Why This Test"]
 
 
-def test_welch_anova_refuses_rather_than_returning_a_number():
-    assert all(np.isnan(v) for v in _welch_anova([[1.0, 2.0, 3.0]]))
-    assert all(np.isnan(v) for v in _welch_anova([[1.0, 1.0], [2.0, 2.0]]))
+def test_welch_anova_is_never_reached_with_a_group_it_cannot_divide_by():
+    """REPLACES a guard that lived in plot.py's own copy of the statistic.
+
+    `figures.stats._welch_anova` divides by each group's variance and has no
+    guard of its own, so what protects it is the route in: a group with no
+    spread fails the normality check ("nothing to describe"), and a group
+    below the power floor fails it too. Both land on Kruskal-Wallis. Driving
+    the real choice is a stronger test than calling the private function with
+    input the engine will never hand it.
+    """
+    flat = compare({"a": [1.0] * 12, "b": [2.0] * 12, "c": [3.0] * 12})
+    assert flat.test == "Kruskal-Wallis"
+    assert "no spread at all" in flat.assumptions[0].verdict
+
+    tiny = compare({"a": [1.0, 2.0, 3.0], "b": [2.0, 5.0, 9.0],
+                    "c": [4.0, 4.5, 12.0]})
+    assert tiny.test == "Kruskal-Wallis"
+    assert tiny.assumptions[0].informative is False
 
 
 # ---------------------------------------------------------------------------
