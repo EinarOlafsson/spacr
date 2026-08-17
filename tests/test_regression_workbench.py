@@ -1189,3 +1189,183 @@ class TestTheVolcanoIsNotAToxoplasmaFeature:
         block = text[text.index("A VOLCANO IS NOT A TOXOPLASMA FEATURE"):]
         block = block[:block.index("print('Significant Genes')")]
         assert "except Exception" in block
+
+
+class TestASettingThatCannotDoAnythingIsGreyedOut:
+    """Instruction 106. An enabled control is a promise that changing it
+    changes the run, and ``_reject_unused_settings`` REFUSES a setting the
+    chosen family cannot read -- so an enabled-but-unread control invites an
+    edit that the pipeline then rejects, after the CSVs have been read. The
+    panel and the validator have to agree about what is legal.
+    """
+
+    @staticmethod
+    def _panel(qtbot):
+        from spacr.qt.screens.settings_model import SettingsWidgets
+
+        panel = SettingsWidgets("regression")
+        panel.build_sections()
+        for widget in panel._widgets.values():
+            qtbot.addWidget(widget)
+        return panel
+
+    @staticmethod
+    def _set(panel, key, value):
+        from PySide6.QtWidgets import QComboBox
+        widget = panel._widgets.get(key)
+        assert widget is not None, f"the regression panel has no {key!r}"
+        if isinstance(widget, QComboBox):
+            for index in range(widget.count()):
+                if widget.itemData(index) == value or widget.itemText(index) == str(value):
+                    widget.setCurrentIndex(index)
+                    return
+            raise AssertionError(f"{key!r} offers no {value!r}")
+        raise AssertionError(f"{key!r} is a {type(widget).__name__}")
+
+    def test_the_panel_and_the_validator_agree_on_every_family(self, qtbot):
+        """The assertion that matters: for each regression family, exactly
+        the settings that family READS are editable.
+
+        This is the GUI/validator disagreement made impossible. Anything
+        else and the panel invites a value the run refuses.
+        """
+        from spacr.ml import REGRESSION_SETTINGS_USED
+
+        panel = self._panel(qtbot)
+        owned = {key for keys in REGRESSION_SETTINGS_USED.values()
+                 for key in keys}
+        wrong = []
+        for family, used in REGRESSION_SETTINGS_USED.items():
+            try:
+                self._set(panel, "regression_type", family)
+            except AssertionError:
+                continue        # family the panel does not offer
+            panel._refresh_setting_dependencies()
+            enabled = {key for key in owned
+                       if key in panel._widgets
+                       and panel._widgets[key].isEnabled()}
+            expected = {key for key in used if key in panel._widgets}
+            if enabled != expected:
+                wrong.append(
+                    f"{family}: enabled-but-unread {sorted(enabled - expected)}, "
+                    f"read-but-disabled {sorted(expected - enabled)}")
+        assert not wrong, "\n  ".join([""] + wrong)
+
+    def test_parametric_inference_greys_the_permutation_controls(self, qtbot):
+        panel = self._panel(qtbot)
+        guides = [key for key in panel._widgets if key.startswith("guide_")]
+        assert len(guides) >= 9
+
+        self._set(panel, "inference", "parametric")
+        panel._refresh_setting_dependencies()
+        assert not [k for k in guides if panel._widgets[k].isEnabled()]
+
+        self._set(panel, "inference", "nonparametric")
+        panel._refresh_setting_dependencies()
+        assert not [k for k in guides if not panel._widgets[k].isEnabled()]
+
+    def test_a_per_cell_analysis_greys_the_aggregation(self, qtbot):
+        """agg_type says how wells are pooled. Per cell, nothing is pooled."""
+        panel = self._panel(qtbot)
+        self._set(panel, "analysis_unit", "cell")
+        panel._refresh_setting_dependencies()
+        assert not panel._widgets["agg_type"].isEnabled()
+
+        self._set(panel, "analysis_unit", "well")
+        panel._refresh_setting_dependencies()
+        assert panel._widgets["agg_type"].isEnabled()
+
+    def test_the_panel_counts_the_plates_in_the_loaded_inputs(
+            self, qtbot, tmp_path):
+        """The fact the data-dependent half needs, read off the CSVs.
+
+        Cheaply: the header and the plate column only, stopping at the second
+        distinct plate, because a panel that stalls after a file is dropped is
+        worse than one control too many.
+        """
+        from spacr.qt.screens.settings_model import SettingsWidgets
+
+        one = tmp_path / "one.csv"
+        one.write_text("plateID,well,score\np1,A01,1\np1,A02,2\n")
+        two = tmp_path / "two.csv"
+        two.write_text("plateID,well,score\np1,A01,1\np2,A02,2\n")
+        bare = tmp_path / "bare.csv"
+        bare.write_text("well,score\nA01,1\nA02,2\n")
+
+        read = SettingsWidgets._plate_context
+        assert read([str(one)]) == {'plate_count': 1, 'has_plate_id': True}
+        assert read([str(two)]) == {'plate_count': 2, 'has_plate_id': True}
+        assert read([])['has_plate_id'] is False
+        # No plate column: score_data[i] and count_data[i] describe the same
+        # plate, so their absent IDs share one fallback identity.
+        assert read([(0, str(bare)), (0, str(bare))]) == {
+            'plate_count': 1, 'has_plate_id': False}
+
+    def test_a_rule_that_reads_the_data_greys_its_control(
+            self, qtbot, tmp_path, monkeypatch):
+        """The seam for the half the user asked about by name.
+
+        "plateid is only usefull when there is one plate" is a rule about the
+        LOADED DATA, not about another setting. The panel already computes the
+        plate count, but every rule in ``settings.setting_dependencies``
+        ignores the context argument, so the count is computed and thrown
+        away. This drives the wiring with a rule that does read it, so the
+        table can gain one without the Qt side needing another change.
+        """
+        import spacr.settings as settings_module
+
+        two = tmp_path / "two.csv"
+        two.write_text("plateID,well,score\np1,A01,1\np2,A02,2\n")
+        one = tmp_path / "one.csv"
+        one.write_text("plateID,well,score\np1,A01,1\np1,A02,2\n")
+
+        rule = {
+            'sources': ('paired_data',),
+            'predicate': lambda s, ctx: ctx.get('plate_count') == 1,
+            'reason': lambda s, ctx: (
+                "guide_permutation_block never shuffles residuals between its "
+                f"levels, and these inputs hold {ctx.get('plate_count')} "
+                "plates, so blocking on the plate constrains nothing."),
+        }
+        monkeypatch.setattr(
+            settings_module, 'get_setting_dependencies',
+            lambda: {'guide_permutation_block': rule})
+
+        panel = self._panel(qtbot)
+        block = panel._widgets["guide_permutation_block"]
+        paired = panel._widgets["paired_data"]
+
+        # The regression panel takes its CSVs as PAIRS, in one table
+        # (instruction 107). It has no score_data or count_data widget, so a
+        # context read from those keys sees the defaults -- None -- and
+        # answers "no plates" whatever the user loaded.
+        paired.set_value([{'score': str(one), 'count': str(one)}])
+        panel._refresh_setting_dependencies()
+        assert panel._data_context['plate_count'] == 1, (
+            "the context must read the files the user actually loaded")
+        assert block.isEnabled()
+
+        paired.set_value([{'score': str(two), 'count': str(two)}])
+        panel._refresh_setting_dependencies()
+        assert panel._data_context['plate_count'] == 2
+        assert not block.isEnabled()
+        assert "2 plates" in block.toolTip(), (
+            "a greyed control with no reason is a dead end")
+
+    def test_every_greyed_control_says_what_would_enable_it(self, qtbot):
+        """A greyed control with no explanation is a dead end: the user
+        cannot tell whether it is inapplicable or broken."""
+        panel = self._panel(qtbot)
+        self._set(panel, "regression_type", "ols")
+        self._set(panel, "inference", "parametric")
+        panel._refresh_setting_dependencies()
+
+        silent = []
+        for key, widget in panel._widgets.items():
+            if widget.isEnabled():
+                continue
+            tip = widget.toolTip()
+            if not tip or key not in tip:
+                silent.append(key)
+        assert not silent, (
+            f"greyed with no reason naming the setting: {sorted(silent)}")
