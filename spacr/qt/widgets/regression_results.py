@@ -369,12 +369,17 @@ class RegressionResultsPanel(QWidget):
         #: handler reads, created only by a code path that may not have run,
         #: is the `_significance` crash that took the panel down at launch.
         self._run_settings = None
+        #: ``(kind, name)`` -- what effects are measured FROM. Born here for
+        #: the same reason as everything else in this block: `_redraw_volcano`
+        #: reads it and is reachable from a signal connected above.
+        self._baseline = (None, None)
 
         # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
         # that is where it was asked for: "right click on the regression plot
         # and choose a different regression". It is separated from the
         # restyling entries above it for the reason `offer_refit` gives.
         self.volcano.offer_refit(self.ask_refit)
+        self._offer_baselines()
 
     # -------------------------------------------------------------- re-fitting
 
@@ -777,6 +782,42 @@ class RegressionResultsPanel(QWidget):
                 return name
         return "coefficient"
 
+    #: What the volcano can measure its effects from, and what each says.
+    BASELINES = (
+        (None, "zero (no dose-response)"),
+        ("controls", "the non-targeting controls"),
+    )
+
+    def _offer_baselines(self) -> None:
+        """Put the baselines on the volcano's right-click menu."""
+        chosen = self._baseline[0]
+        self.volcano.offer_baselines([
+            (label, (lambda k=kind: self.set_baseline(k)), kind == chosen)
+            for kind, label in self.BASELINES])
+
+    def set_baseline(self, kind, name=None) -> None:
+        """Measure every effect from ``kind`` -- see :mod:`spacr.baseline`.
+
+        The interactive volcano only. The saved figures take their own
+        baseline argument, so a user who moved it here and then exported gets
+        a picture and a caption that agree.
+        """
+        self._baseline = (kind, name)
+        self._offer_baselines()
+        self._redraw_volcano()
+        if self._frame is not None:
+            from ...baseline import resolve
+
+            chosen = resolve(self._frame, kind or "zero",
+                             column=self._effect_column(self._frame),
+                             name=name)
+            # THE REASON, WHEN THERE IS ONE. A request that could not be
+            # honoured silently falling back to zero is a user who believes
+            # they are reading control-relative effects and is not.
+            self.say(chosen.sentence
+                     + (f" Asked for the {kind} baseline, but "
+                        f"{chosen.reason}." if chosen.reason else ""))
+
     def _redraw_volcano(self) -> None:
         if self._frame is None:
             return
@@ -787,14 +828,25 @@ class RegressionResultsPanel(QWidget):
         # carries, which would look exactly like a volcano and be one of a
         # quantity nobody tested.
         p_column = column if kind == "p-value" else "\0no p-value"
+        # MEASURED FROM WHATEVER THE USER CHOSE, on a copy. The run's own
+        # table is not shifted under the coefficient table beside it.
+        from ...baseline import apply as apply_baseline
+        from ...baseline import resolve as resolve_baseline
+
+        effect_column = self._effect_column(self._frame)
+        baseline_kind, baseline_name = self._baseline
+        baseline = resolve_baseline(self._frame, baseline_kind or "zero",
+                                    column=effect_column, name=baseline_name)
+        frame = apply_baseline(self._frame, baseline, column=effect_column)
+
         self.volcano.set_results(
-            self._frame,
-            effect=self._effect_column(self._frame),
+            frame,
+            effect=effect_column,
             p_column=p_column,
-            label_column="feature" if "feature" in self._frame.columns
-            else self._frame.columns[0],
+            label_column="feature" if "feature" in frame.columns
+            else frame.columns[0],
             category_column=self._colour_by.currentData(),
-            key_column=self._key_column(self._frame),
+            key_column=self._key_column(frame),
         )
         if kind != "p-value":
             self.volcano.set_status(

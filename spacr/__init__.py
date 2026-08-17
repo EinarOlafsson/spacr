@@ -201,6 +201,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    # What an effect size is measured FROM, and the sentence that says so.
+    # Separate from `figures` because the answer belongs to the fit, not to
+    # the picture: the console summary and the exported stats table state the
+    # same baseline the panel does.
+    "baseline",
     # Which regression backends exist and which settings each one reads.
     # Pure data; imports NOTHING, which is why it is not part of ml.
     "regression_spec",
