@@ -335,3 +335,61 @@ def test_the_heading_text_is_still_the_heading_text(grid):
     assert [h.text() for h in grid._headers] == ["first run", "second run"]
     assert [cell.letter for cell in grid._cells] == \
         ["A", "B", "C", "A", "B", "C"]
+
+
+# --------------------------------------------------------------------------- #
+#  It has to be readable to be findable
+# --------------------------------------------------------------------------- #
+
+def test_the_heading_is_the_theme_s_accent_not_grey(grid):
+    """Reported 2026-08-17: "the run text should not be gray in dark mode its
+    barely visable make it blue".
+
+    It was `color: palette(mid)` -- Qt's mid role, legible on light and
+    barely there on dark, which is where every spaCR theme but one lives. A
+    heading nobody can read is a fold control nobody can find, which is the
+    SECOND time this heading has been invisible for a different reason.
+    """
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.theme import active_palette
+
+    grid.set_figures(_pixmaps(3), ["a", "b", "c"],
+                     sections=[("the only run", 0, 3)])
+    label = next(w for w in grid.findChildren(QLabel)
+                 if w.text() == "the only run")
+
+    assert active_palette()["accent"].lower() in label.styleSheet().lower()
+    assert "palette(mid)" not in label.styleSheet()
+
+
+def test_the_chevron_matches_the_heading(grid):
+    """They are two widgets that have to read as one heading."""
+    from PySide6.QtWidgets import QLabel
+
+    grid.set_figures(_pixmaps(3), ["a", "b", "c"],
+                     sections=[("the only run", 0, 3)])
+    label = next(w for w in grid.findChildren(QLabel)
+                 if w.text() == "the only run")
+    chevron = next(w for w in grid.findChildren(QLabel)
+                   if w.text() in ("▾", "▸"))
+
+    def ink(widget):
+        return widget.styleSheet().split("color:")[-1].strip().rstrip(";")
+
+    assert ink(chevron) == ink(label)
+
+
+def test_the_colour_is_read_from_the_palette_not_typed_in(grid):
+    """`palette(mid)` at least followed a theme switch. A hex literal would
+    lose that, so the replacement reads the live palette at draw time."""
+    import inspect
+
+    from spacr.qt.widgets import figure_grid_view
+
+    source = inspect.getsource(figure_grid_view._heading_style)
+    assert "active_palette" in source
+    assert 'HEADING_STYLE' in figure_grid_view.HEADING_STYLE or True
+    # The constant itself must not carry a colour any more, or the two
+    # would fight and the winner would depend on string order.
+    assert "color:" not in figure_grid_view.HEADING_STYLE

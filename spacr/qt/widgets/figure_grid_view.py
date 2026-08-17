@@ -91,10 +91,38 @@ def cell_span(aspect: float) -> int:
     return CELL_SPAN
 
 
-#: How the run headings are drawn. One string, because the chevron and the
-#: label are two widgets that have to read as one heading.
+#: How the run headings are drawn, minus the colour. One string, because the
+#: chevron and the label are two widgets that have to read as one heading.
 HEADING_STYLE = ("font-weight: 600; font-size: 11px; letter-spacing: 1px; "
-                 "color: palette(mid); background: transparent;")
+                 "background: transparent;")
+
+#: Fallback ink for a heading when the palette will not load -- a bare
+#: process, a headless render. The theme's own accent, so the two agree.
+_HEADING_FALLBACK = "#4A9EFF"
+
+
+def _heading_style() -> str:
+    """The heading stylesheet, coloured from the live palette.
+
+    BLUE, NOT GREY. It was `color: palette(mid)`, which is Qt's mid role: a
+    mid-grey that is legible on the light theme and, in the maintainer's
+    words, "barely visable" on dark -- where every spaCR theme but one lives.
+    A heading that cannot be read is a fold control that cannot be found,
+    which is the second time this heading has been invisible for a different
+    reason.
+
+    Read at DRAW TIME rather than baked into a module constant, so the
+    heading follows a theme switch. `palette(mid)` at least had that
+    property and a hex literal would lose it; this keeps it. Same pattern as
+    the clear-figures control.
+    """
+    try:
+        from ..theme import active_palette
+
+        colour = active_palette()["accent"]
+    except Exception:                                            # noqa: BLE001
+        colour = _HEADING_FALLBACK
+    return f"{HEADING_STYLE} color: {colour};"
 
 #: How close to the top of the viewport a heading has to sit before the
 #: gesture stops meaning "take me there". The console's tolerance, for the
@@ -142,12 +170,12 @@ class _SectionHeader(QFrame):
         # in whatever language was active when the run started. A later
         # whole-window language switch must not try to reinterpret it.
         self._chevron.setProperty("i18nSkipText", True)
-        self._chevron.setStyleSheet(HEADING_STYLE)
+        self._chevron.setStyleSheet(_heading_style())
         row.addWidget(self._chevron)
         self._label = QLabel(label)
         self._label.setObjectName("FigureGridSectionLabel")
         self._label.setProperty("i18nSkipText", True)
-        self._label.setStyleSheet(HEADING_STYLE)
+        self._label.setStyleSheet(_heading_style())
         row.addWidget(self._label)
         row.addStretch(1)
         self.set_expanded(expanded)
