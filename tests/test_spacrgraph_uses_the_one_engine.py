@@ -26,6 +26,17 @@ BELOW A STATED n THE ASSUMPTION CHECK IS UNINFORMATIVE AND THE ROBUST CHOICE
 IS TAKEN. "Did not reject" on n = 3 means "could not tell". One direction
 costs a little power when the assumption did hold; the other publishes a
 difference that is not there.
+
+THE BRIEF SAID plot.py HELD ONE MORE SELECTOR. It held three, and the last
+section here covers the other two:
+
+* `create_grouped_plot` ran D'Agostino per group with the same
+  `all(p > 0.05)`, then applied ONE test to every pair.
+* `_compare_groups`, behind `proportion_test_by_unit`, ran its own Shapiro
+  and Levene. Its samples are per-WELL proportions, so its n is three to
+  twelve by construction -- the single most exposed caller of the missing
+  floor in the package, and the one whose entire purpose is to stop a screen
+  overstating a result.
 """
 
 import matplotlib
@@ -316,3 +327,136 @@ def test_a_three_well_jitter_bar_saves_a_rank_test_not_a_t_test(tmp_path):
     assert comparison["n_object"].iloc[0] == 2400
     assert "too few for a normality test to have power" in (
         comparison["Why This Test"].iloc[0])
+
+
+# ---------------------------------------------------------------------------
+# the other two selectors that lived in the same file
+# ---------------------------------------------------------------------------
+
+def wells(fractions, per_condition=3, seed=5):
+    """A plate whose per-well fraction is separated by condition.
+
+    Well fractions that do not overlap between the arms: the case where a
+    t-test on three-versus-three returns a starred bar and a rank test
+    cannot, because 3 v 3 has only twenty orderings.
+    """
+    rng = np.random.default_rng(seed)
+    rows = []
+    for condition, base in fractions.items():
+        for well in range(per_condition):
+            fraction = base + 0.01 * well
+            for _ in range(500):
+                rows.append({
+                    "condition": condition,
+                    "prc": f"p1_r1_c{well}_{condition}",
+                    "cls": int(rng.random() < fraction),
+                })
+    return pd.DataFrame(rows)
+
+
+def test_three_wells_per_condition_cannot_be_starred_by_the_unit_test():
+    """`proportion_test_by_unit` exists to stop a screen overstating itself.
+
+    It was doing the overstating in its own choice of test: `_compare_groups`
+    ran Shapiro and Levene on three per-well proportions, neither of which
+    can reject on three points, and took Student's t. On the separated wells
+    below that is p = 0.0003 -- three stars off six wells. Mann-Whitney on
+    3 v 3 bottoms out at 0.1 and can never be starred, which is the honest
+    answer for an experiment of this size.
+    """
+    from scipy.stats import ttest_ind as _ttest
+
+    from spacr.plot import proportion_test_by_unit, proportions_per_unit
+
+    df = wells({"nc": 0.20, "pc": 0.60})
+    per_well = proportions_per_unit(df, "condition", "cls", "prc")
+    nc = per_well.loc[per_well["condition"] == "nc", 1].to_numpy()
+    pc = per_well.loc[per_well["condition"] == "pc", 1].to_numpy()
+    assert _ttest(nc, pc, equal_var=True)[1] < 0.001, (
+        "pick wells where the t-test really would have starred the bar")
+
+    result = proportion_test_by_unit(df, "condition", "cls", "prc")
+    row = result[result["bin"] == 1].iloc[0]
+    assert "Mann-Whitney U test" in row["test"]
+    assert row["p_value"] == pytest.approx(0.1)
+    assert row["n"] == 6
+
+
+def test_twelve_wells_per_condition_still_get_the_parametric_test():
+    """The floor is a floor. A design with enough wells keeps its power."""
+    from spacr.plot import proportion_test_by_unit
+
+    df = wells({"nc": 0.20, "pc": 0.60}, per_condition=12, seed=6)
+    row = proportion_test_by_unit(df, "condition", "cls", "prc")
+    row = row[row["bin"] == 1].iloc[0]
+    assert "T-test" in row["test"]
+    assert row["p_value"] < 0.001
+
+
+def test_create_grouped_plot_takes_the_rank_test_below_the_floor():
+    """Eight per group is where the old check first had an opinion, and it
+    was the wrong one.
+
+    `normaltest` returns NaN below eight samples, and `nan > 0.05` is False,
+    so `all(p > 0.05)` accidentally landed on the rank test for the smallest
+    experiments -- the right answer through a mechanism nobody chose. At
+    exactly eight it starts returning a number, that number is 0.596 here,
+    and the old code read it as licence for a t-test. The floor is ten.
+    """
+    from scipy.stats import normaltest
+
+    from spacr.plot import create_grouped_plot
+
+    values = {"nc": normal_values(8), "pc": normal_values(8, shift=2.0)}
+    df = pd.DataFrame([{"grp": name, "v": float(v)}
+                       for name, arr in values.items() for v in arr])
+
+    # what the old path computed, and why it chose wrong
+    assert all(normaltest(arr).pvalue > 0.05 for arr in values.values())
+
+    _fig, results = create_grouped_plot(
+        df, grouping_column="grp", data_column="v", graph_type="bar",
+        save=False)
+    pairwise = results[results["Test Name"] != "Normality test"]
+    assert list(pairwise["Test Name"]) == ["Mann-Whitney U test"]
+
+
+def test_create_grouped_plot_no_longer_warns_its_way_through_a_small_plate():
+    """Six wells per group made scipy print a SmallSampleWarning per group.
+
+    `normaltest` is not defined below eight observations; it returns NaN and
+    says so on stderr. Three of those in a user's console, for a figure that
+    drew fine, is noise that trains people to ignore warnings.
+    """
+    import warnings
+
+    from spacr.plot import create_grouped_plot
+
+    values = {"nc": normal_values(6), "pc": normal_values(6, shift=2.0)}
+    df = pd.DataFrame([{"grp": name, "v": float(v)}
+                       for name, arr in values.items() for v in arr])
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _fig, results = create_grouped_plot(
+            df, grouping_column="grp", data_column="v", graph_type="bar",
+            save=False)
+
+    assert not [w for w in caught
+                if type(w.message).__name__ == "SmallSampleWarning"]
+    pairwise = results[results["Test Name"] != "Normality test"]
+    assert list(pairwise["Test Name"]) == ["Mann-Whitney U test"]
+
+
+def test_every_selector_in_plot_reports_the_same_vocabulary():
+    """One package, one spelling.
+
+    'Mann-Whitney U' from one function and 'Mann-Whitney U test' from another
+    is how a downstream filter on a results CSV silently matches nothing.
+    """
+    from spacr.plot import _compare_groups
+
+    vocabulary = set(_ENGINE_TEST_NAMES.values())
+    for groups in SHAPES.values():
+        name, _stat, _p = _compare_groups(list(groups.values()))
+        assert name in vocabulary, name
