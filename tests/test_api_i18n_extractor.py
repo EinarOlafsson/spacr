@@ -263,7 +263,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # the nine target languages need the translation model, which is a
     # separate job. Until it runs the localized API pages omit these
     # contracts -- the English pages do not.
-    expected = 6839
+    # +1 on 2026-08-17: `spacr.io.migrate_unescaped_plate_names`, renamed
+    # from `_migrate_unescaped_plate_names`. It moves `stack/`,
+    # `norm_channel_stack/`, `merged/` and `masks/` for a plate folder whose
+    # name holds an underscore, so a plate that could not be measured becomes
+    # measurable WITHOUT re-segmenting -- hours to days of work. The person
+    # who needs it is a user with an `exp_1` folder full of masks, and a
+    # recovery tool they have to reach past a leading underscore to call is
+    # one most people will not find.
+    expected = 6840
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -278,7 +286,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6958
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 6959
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
