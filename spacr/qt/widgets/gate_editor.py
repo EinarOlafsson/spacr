@@ -1998,31 +1998,18 @@ class GateCanvas(GraphCanvas):
         if self._tool != POLYGON:
             super()._on_press(event)
             return
-        if self._mode in ("3D", "xD"):
-            # In the volume, `event.xdata` is a projected screen coordinate
-            # and means nothing in data units. The same reader the drag tools
-            # use answers this properly, in the two measurements facing the
-            # camera.
-            placed = self.screen_to_volume(event)
-            if placed is None:
-                return
-            first, x, second, y = placed
-            plane = (first, second)
-            if self._pending and self._pending_plane != plane:
-                # The view turned mid-polygon. Vertices from two planes are
-                # not one shape, and quietly mixing them would produce a
-                # prism whose outline nobody drew.
-                LOG.debug("polygon abandoned: the view turned mid-shape")
-                self._pending = []
-            self._pending_plane = plane
-            if (len(self._pending) >= 3
-                    and self._near_first_volume_vertex(event)):
-                self.close_polygon_now()
-                return
-            self._pending.append((x, y))
-            self.polygon_changed.emit(len(self._pending))
-            self._draw_gates()
-            return
+        # From here the vertex is read off a FLAT plot, and the plot is flat
+        # whatever the mode says it is. A second copy of the volume block at
+        # the top of this method used to stand here, guarded by the MODE
+        # rather than by what is on screen -- and a 3D or xD view that fell
+        # back to the flat scatter (a third measurement the table has not got,
+        # an xD view with no third component, an empty table) is in one of
+        # those modes with an ordinary flat axes under the cursor. Every click
+        # went to the volume reader, which correctly answered that there is no
+        # volume to read, and the polygon tool placed nothing at all with no
+        # feedback. In a REAL volume `_volume_press` above has already taken
+        # the event, so the only state that block could ever reach was the one
+        # it broke.
         if event.inaxes is None or event.xdata is None or event.ydata is None:
             return
         x, y = float(event.xdata), float(event.ydata)
