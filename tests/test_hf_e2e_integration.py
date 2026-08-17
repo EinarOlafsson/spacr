@@ -243,11 +243,48 @@ def test_hf_e2e_mask_stage(_prepared_workspace):
         preprocess_generate_masks(settings)
     print(f"[hf-e2e] mask stage: {time.time() - t0:.1f}s -> {run.dir}")
     assert (run.dir / "manifest.json").exists()
-    # v1 writes .npy stacks under masks/cell_mask_stack/ — accept
-    # any file whose path names "cell_mask" (covers both the v1 stack
-    # layout + any per-field .tif some builds emit).
-    hits = [p for p in dataset.rglob("*") if "cell_mask" in p.name]
-    assert hits, "mask stage produced no cell_mask output files"
+
+    # WHAT THIS USED TO ASSERT, and why that was the whole problem:
+    #
+    #     hits = [p for p in dataset.rglob("*") if "cell_mask" in p.name]
+    #     assert hits, "mask stage produced no cell_mask output files"
+    #
+    # "at least one path somewhere in the workspace is NAMED cell_mask" is the
+    # weakest possible statement about a segmentation stage. The directory
+    # `masks/cell_mask_stack/` matches it by its own name, so the assertion
+    # passed whether that directory held four labelled fields or nothing at
+    # all, and it could not tell "worked" from "barely worked" -- which is the
+    # gap the intermittent failure of instruction 104 hid in for a year. A
+    # stage that segments one cell in one field is a stage that is broken.
+    #
+    # So: one labelled mask per merged field, and every field found cells.
+    masks_dir = dataset / "masks"
+    stack = masks_dir / "cell_mask_stack"
+    assert stack.is_dir(), (
+        f"the mask stage wrote no cell_mask_stack. {masks_dir} holds "
+        f"{sorted(p.name for p in masks_dir.glob('*')) if masks_dir.is_dir() else 'nothing — the folder does not exist'}")
+    masks = sorted(stack.glob("*.npy"))
+    fields = sorted((dataset / "merged").glob("*.npy"))
+    assert len(masks) == len(fields), (
+        f"{len(fields)} merged field(s) went in and {len(masks)} cell mask(s) "
+        f"came out; a field with no mask is a field dropped in silence")
+
+    counts = {p.name: int(np.unique(np.load(p)).size - 1) for p in masks}
+    print(f"[hf-e2e] cell objects per field: {counts}")
+    empty = sorted(name for name, n in counts.items() if n == 0)
+    assert not empty, (
+        f"these fields produced a mask with no cells in it: {empty}. "
+        f"Per-field counts: {counts}")
+    if _stubbed_mode():
+        # The stub is four 64x64 fields and its segmentation is deterministic
+        # here: 14 / 6 / 11 / 3 objects, measured over 24 consecutive runs
+        # under load. The floor is well under that rather than equal to it,
+        # because the number is a property of the model version as much as of
+        # the fixture — but an order of magnitude below it is a regression,
+        # not a new cellpose release.
+        assert sum(counts.values()) >= 12, (
+            f"the stub plate segmented {sum(counts.values())} cells in total; "
+            f"it has produced 34 on every run measured. Per field: {counts}")
 
 
 @pytest.mark.slow
