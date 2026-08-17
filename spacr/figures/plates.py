@@ -144,30 +144,42 @@ def plate_ramp(target: str = "screen"):
 def plate_names(frame) -> List[str]:
     """The plates in this frame, in the order their identifiers give.
 
-    The plate is the LEADING token of ``prc``, which is what
-    :func:`spacr.plot.plot_plates` has always split a screen on.
+    A ``prc`` key is read RIGHT TO LEFT: the last two tokens are the row and
+    the column, and EVERYTHING before them is the plate. That is not a choice
+    made here -- it is the rule :func:`spacr.ml._split_prc` and
+    :func:`spacr.schema.parse_prcf` already state, for the reason both give:
+    the plate id is the only component allowed to contain the separator, so
+    it is the only one that cannot be found by counting from the left.
 
-    WHICH MEANS A 4-TOKEN IDENTIFIER NAMES ITS EXPERIMENT, NOT ITS PLATE.
-    ``exp_plate1_r1_c1`` and ``exp_plate2_r1_c1`` come back as the single
-    name ``exp``, and :func:`spacr.plot.generate_plate_heatmap` -- which
-    reads the position from the LAST two tokens and takes the plate it was
-    asked for as the authority on the rest -- then draws every row of both
-    plates as one grid, averaging the two plates well by well. That is the
-    behaviour of the code this replaced, unchanged here so that the picture
-    does not move under a screen that already has one; a screen whose plates
-    must stay apart puts the plate first.
+    THE LEFT-TO-RIGHT VERSION AVERAGED TWO PLATES INTO ONE PICTURE. Taking
+    the leading token made ``exp_plate1_r1_c1`` and ``exp_plate2_r1_c1`` both
+    the plate ``exp``, so a screen whose plate ids carry an experiment prefix
+    was drawn as a single grid with the two plates averaged well by well --
+    silently, and looking exactly like a plate that had been measured twice
+    as densely. A positional artefact on one plate and not the other, which
+    is the entire reason to look at a plate heatmap, disappeared into the
+    mean.
+
+    Screens whose keys are the plain three-token form -- which is every one
+    this module has been run on -- are unaffected: the plate is still the
+    first token because there is nothing in front of it.
     """
     if "prc" not in getattr(frame, "columns", ()):
         return []
-    tokens = frame["prc"].astype(str).str.split("_")
-    heads = [parts[0] for parts in tokens if parts]
     seen, order = set(), []
-    for name in heads:
-        if name not in seen:
+    for key in frame["prc"].astype(str):
+        parts = key.split("_")
+        if len(parts) < 3:
+            # Not a well key. Kept rather than dropped so a malformed row is
+            # visible as its own "plate" instead of silently vanishing into
+            # another one.
+            name = key
+        else:
+            name = "_".join(parts[:-2])
+        if name and name not in seen:
             seen.add(name)
             order.append(name)
     return order
-
 
 def full_plate_grid(rows: Sequence[int], columns: Sequence[int]) -> Tuple[int, int]:
     """The plate the measured wells sit on, not the box that bounds them.

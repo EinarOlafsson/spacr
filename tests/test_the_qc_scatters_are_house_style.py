@@ -68,21 +68,32 @@ def _axes():
     return figure, figure.subplots()
 
 
-def _context(n=240, seed=7):
-    """An OLS fit with planted influential wells and a per-well cell count."""
+def _context(n=240, seed=7, counts=None):
+    """An OLS fit with planted influential wells and a per-well cell count.
+
+    :param counts: Per-well cell counts, when the caller needs a particular
+        spread -- a plate whose counts span less than one decade is what makes
+        matplotlib label the log axis's minor ticks. Default spans 50-2000.
+    """
     rng = np.random.default_rng([seed, 1])
     X = pd.DataFrame({
         "Intercept": np.ones(n),
         "x1": rng.normal(size=n),
         "x2": rng.normal(size=n),
     })
-    counts = np.exp(rng.uniform(np.log(50), np.log(2000), n))
     y = 0.4 + 1.3 * X["x1"] - 0.6 * X["x2"] + rng.normal(scale=0.5, size=n)
     # Four wells that the influence panels have to find, and that are also the
     # four smallest wells on the plate -- so the cell-count panel has a real
     # "the tails are the small wells" set to colour.
     y.iloc[:4] += 9.0
-    counts[:4] = [20.0, 21.0, 22.0, 23.0]
+    if counts is None:
+        counts = np.exp(rng.uniform(np.log(50), np.log(2000), n))
+        counts[:4] = [20.0, 21.0, 22.0, 23.0]
+    else:
+        # The planted wells are the floor of whatever spread was asked for,
+        # so a caller pinning the axis span still gets them.
+        counts = np.array(counts, dtype=float)
+        counts[:4] = np.sort(counts)[:4]
     meta = pd.DataFrame({
         "prc": [f"plate1_r{i // 24 + 1}_c{i % 24 + 1}" for i in range(n)],
         "cell_count": counts,
@@ -346,6 +357,73 @@ def test_the_type_sizes_come_from_the_type_scale(ctx, name):
                 f"{name}: an annotation is {text.get_fontsize()} pt")
     finally:
         plt.close(figure)
+
+
+@pytest.mark.parametrize("name", ALL_SCATTERS)
+def test_the_minor_tick_labels_are_on_the_type_scale_too(ctx, name):
+    """``get_xticklabels()`` returns the MAJOR ticks, and so did the check
+    above -- which is how the cell-count panel shipped with its minor decade
+    labels ("2 x 10^2", "3 x 10^2") at matplotlib's default 10 pt: larger
+    than the 7 pt axis label and half again the 6.2 pt major ticks, and
+    therefore the loudest type in a panel whose claim is drawn in six-point
+    rust. A log scale is the only thing that grows these, and this cluster
+    has one."""
+    figure, ax, _ = _draw(ctx, name)
+    try:
+        minor = [t for axis in (ax.xaxis, ax.yaxis)
+                 for t in axis.get_ticklabels(which="minor")
+                 if t.get_text()]
+        for text in minor:
+            assert text.get_fontsize() == pytest.approx(TYPE_SCALE["tick"]), (
+                f"{name}: minor tick label {text.get_text()!r} is "
+                f"{text.get_fontsize()} pt, not {TYPE_SCALE['tick']}")
+    finally:
+        plt.close(figure)
+
+
+def test_the_log_scaled_panel_actually_has_minor_labels_to_size():
+    """The guard above is vacuous on a linear axis, so pin the one panel that
+    is not. ``cell_count_vs_effect`` sets a log x, and matplotlib labels the
+    minor decades whenever the axis spans less than one -- which is the
+    ordinary case for a plate, where the wells run 100-450 cells. That is the
+    configuration the tsg101 screen produces and the one that shipped with
+    10 pt labels."""
+    counts = np.linspace(100.0, 450.0, 240)
+    ctx = _context(n=240, seed=11, counts=counts)
+    figure, ax, _ = _draw(ctx, "cell_count_vs_effect")
+    try:
+        assert ax.get_xscale() == "log"
+        minor = [t for t in ax.xaxis.get_ticklabels(which="minor")
+                 if t.get_text()]
+        assert minor, "the log panel grew no minor tick labels to check"
+        assert all(t.get_fontsize() == pytest.approx(TYPE_SCALE["tick"])
+                   for t in minor), (
+            f"minor decade labels at "
+            f"{sorted({t.get_fontsize() for t in minor})} pt")
+    finally:
+        plt.close(figure)
+
+
+@pytest.mark.parametrize("name", ALL_SCATTERS)
+def test_no_panel_draws_a_grid_even_under_a_grid_on_caller(ctx, name):
+    """"NO GRIDLINES. EVER." -- and the style's ``axes.grid`` False cannot
+    deliver that on its own. rcParams decide an artist when it is CREATED,
+    and the report driver builds the axes outside the style context, so a
+    caller holding a global grid-on style paints one straight through every
+    panel. ``spacr.figure_style.apply`` writes exactly that, defaulting
+    ``grid`` to True, so this is the pipeline's own setting and not a
+    hypothetical."""
+    with plt.rc_context({"axes.grid": True, "axes.grid.which": "both"}):
+        figure, ax, _ = _draw(ctx, name)
+        try:
+            drawn = [axis.get_label().get_text() or side
+                     for side, axis in (("x", ax.xaxis), ("y", ax.yaxis))
+                     for tick in (axis.get_major_ticks()
+                                  + axis.get_minor_ticks())
+                     if tick.gridline.get_visible()]
+            assert not drawn, f"{name} ruled a grid through the panel"
+        finally:
+            plt.close(figure)
 
 
 @pytest.mark.parametrize("name", ALL_SCATTERS)
