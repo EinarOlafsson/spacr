@@ -424,6 +424,13 @@ class FigureQueue(QWidget):
         # "Editable figures kept" preference, ordered by USE so restoring an
         # old figure does not immediately evict it again.
         self._figures: "OrderedDict[int, object]" = OrderedDict()
+        # WHERE EACH RUN'S FIGURES START. The queue accumulates across runs --
+        # that is the point of it, an earlier run stays reachable -- but the
+        # grid letters its cells, and panel letters belong to a FIGURE. A
+        # second run continuing at L rather than restarting at A is what the
+        # maintainer reported: "the figure letters just keep climing i want
+        # each run seperated into sections".
+        self._runs: list = []
         # LRU cache of index -> full-res QPixmap (capped at ram_cap).
         self._ram: "OrderedDict[int, QPixmap]" = OrderedDict()
         self._tempdir: Optional[Path] = None
@@ -976,6 +983,47 @@ class FigureQueue(QWidget):
             out.append(pixmap if pixmap is not None and not pixmap.isNull()
                        else None)
         return out
+
+    def mark_run(self, label: str = "") -> int:
+        """Record that a new run's figures start at the next index.
+
+        Called when a run STARTS rather than when its first figure arrives,
+        so a run that draws nothing still shows as a section that drew
+        nothing -- which is a fact worth seeing rather than a gap.
+
+        :returns: the index the run starts at.
+        """
+        start = self._count
+        if self._runs and self._runs[-1]["start"] == start:
+            # Two starts with nothing between them: the earlier run produced
+            # no figures at all. Keep the later label rather than an empty
+            # section for each.
+            self._runs[-1]["label"] = label or self._runs[-1]["label"]
+            return start
+        self._runs.append({"label": label or f"run {len(self._runs) + 1}",
+                           "start": start})
+        return start
+
+    def run_sections(self):
+        """``[(label, start, count)]`` over the figures held.
+
+        Figures that arrived before any run was marked -- a figure loaded
+        from disk, or a queue used outside a pipeline -- come back as one
+        leading section rather than being dropped.
+        """
+        if not self._count:
+            return []
+        marks = list(self._runs)
+        if not marks or marks[0]["start"] > 0:
+            marks.insert(0, {"label": "figures", "start": 0})
+        sections = []
+        for index, mark in enumerate(marks):
+            start = mark["start"]
+            end = (marks[index + 1]["start"] if index + 1 < len(marks)
+                   else self._count)
+            if end > start:
+                sections.append((mark["label"], start, end - start))
+        return sections
 
     def figure_titles(self):
         """A short name per figure, for the grid captions.

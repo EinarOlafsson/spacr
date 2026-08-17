@@ -2485,6 +2485,17 @@ class AppScreen(QWidget):
         # the run journal + the OS notification.
         import time as _time
         self._run_started_at = _time.time()
+        # EACH RUN IS ITS OWN SECTION ON THE GRID. Marked at the START rather
+        # than when the first figure arrives, so a run that draws nothing
+        # still appears as a section that drew nothing -- which is a fact
+        # worth seeing rather than a gap.
+        try:
+            import datetime as _dt
+            self._figure_queue.mark_run(
+                _dt.datetime.now().strftime("run  %H:%M:%S"))
+        except Exception:
+            LOG.debug("could not mark the run on the figure grid",
+                      exc_info=True)
 
         # The one preference the PIPELINE needs to know about, passed as an
         # ordinary setting. The pipeline must never read QSettings -- a
@@ -3139,7 +3150,8 @@ class AppScreen(QWidget):
             return
         try:
             grid.set_figures(self._figure_queue.all_pixmaps(),
-                             self._figure_queue.figure_titles())
+                             self._figure_queue.figure_titles(),
+                             sections=self._figure_queue.run_sections())
         except Exception:
             LOG.debug("could not build the figure grid", exc_info=True)
         # NO PINNED LIVE-GRAPH TILE. It grabbed the volcano widget, and on a
