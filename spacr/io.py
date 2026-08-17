@@ -94,7 +94,7 @@ def _escaped_field_stem(plate, well, field, time):
 
 
 #: Subfolders of a plate source folder whose file stems are field ids written
-#: by this module, and are therefore what :func:`_migrate_unescaped_plate_names`
+#: by this module, and are therefore what :func:`migrate_unescaped_plate_names`
 #: renames. ``orig/`` and the raw drop are deliberately absent: those names are
 #: the vendor's, not spaCR's, and are not field stems.
 FIELD_STEM_FOLDERS = ('stack', 'norm_channel_stack', 'merged', 'masks')
@@ -103,7 +103,7 @@ FIELD_STEM_FOLDERS = ('stack', 'norm_channel_stack', 'merged', 'masks')
 FIELD_STEM_SUFFIXES = ('.npy', '.npz', '.tif', '.tiff')
 
 
-def _migrate_unescaped_plate_names(src, dry_run=False):
+def migrate_unescaped_plate_names(src, dry_run=False):
     """Escape the plate component of arrays a previous release wrote raw.
 
     A plate folder whose name holds an underscore -- ``exp_1`` -- used to
@@ -131,6 +131,10 @@ def _migrate_unescaped_plate_names(src, dry_run=False):
     mis-escaped came with a ``png_list`` table whose identities are wrong too,
     so there is nothing there to salvage by renaming -- re-run ``measure_crop``.
 
+    PUBLIC, because the person who needs it is a user with an ``exp_1``
+    folder full of masks, and a recovery tool they have to reach past a
+    leading underscore to call is a recovery tool most people will not find.
+
     :param src: the plate source folder, the one holding ``merged/``.
     :param dry_run: report the renames without performing them.
     :returns: list of ``(old_path, new_path)`` pairs, renamed unless
@@ -141,8 +145,8 @@ def _migrate_unescaped_plate_names(src, dry_run=False):
     Example:
         .. code-block:: python
 
-            >>> from spacr.io import _migrate_unescaped_plate_names
-            >>> _migrate_unescaped_plate_names('/data/exp_1', dry_run=True)
+            >>> from spacr.io import migrate_unescaped_plate_names
+            >>> migrate_unescaped_plate_names('/data/exp_1', dry_run=True)
             [('/data/exp_1/merged/exp_1_A01_1_1.npy',
               '/data/exp_1/merged/exp%5F1_A01_1_1.npy')]
     """
