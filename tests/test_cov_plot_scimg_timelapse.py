@@ -8,7 +8,7 @@ Covers:
 
 Everything runs headless on Agg with tiny synthetic PNGs / label masks.
 The two IO helpers that would otherwise render 20x20 inch figures at
-300 dpi (`spacr.io._save_figure`) or animate a 4000x4000 px GIF
+300 dpi (`spacr.io._save_figure`) or animate a real GIF
 (`spacr.io._save_mask_timelapse_as_gif`) are replaced by recorders in most
 tests so the assertions can inspect exactly what spacr.plot handed them;
 one test lets the real `_save_figure` run so the emitted PDFs are checked
