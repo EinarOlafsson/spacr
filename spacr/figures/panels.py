@@ -206,7 +206,8 @@ def control_threshold(frame, multiplier=3.0):
 
 def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
             highlight=None, label_top=8, colour_by=None,
-            baseline_kind=None, baseline_name=None) -> Panel:
+            baseline_kind=None, baseline_name=None,
+            compartment=None) -> Panel:
     """Effect against significance. The panel the screen exists to produce.
 
     Grey for everything that was not called, GREEN up, RUST down -- the
@@ -218,6 +219,9 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
         :mod:`spacr.baseline`. The caption always says which, because an
         effect size with an unstated reference is not interpretable and a
         reader of a screen volcano assumes the controls are the zero.
+    :param compartment: one TAGM/LOPIT compartment to pick out against grey.
+        ONE, not all of them: 27 hues is what the house style exists to
+        forbid, and the 27-entry legend also cost 40 ms of a 49 ms redraw.
     """
     from ..baseline import apply as apply_baseline
     from ..baseline import resolve as resolve_baseline
@@ -261,10 +265,27 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
     down = called & (x < 0)
     rest = ~called
 
-    ax.scatter(x[rest], y[rest], s=4.0, c=ROLES["data"], linewidths=0,
-               rasterized=True, zorder=1)
-    ax.scatter(x[up], y[up], s=7.0, c=ROLES["up"], linewidths=0, zorder=2)
-    ax.scatter(x[down], y[down], s=7.0, c=ROLES["down"], linewidths=0, zorder=2)
+    # COMPARTMENT COLOURING REPLACES THE UP/DOWN COLOURING RATHER THAN
+    # JOINING IT. Both are "the thing the sentence is about", and a volcano
+    # carrying two of those has no sentence -- a reader cannot tell whether a
+    # coloured dot is coloured for being called or for being a rhoptry.
+    in_compartment = None
+    if compartment:
+        from ..localisation import mask as compartment_mask
+
+        in_compartment = compartment_mask(sub, compartment).to_numpy()
+
+    if in_compartment is not None and in_compartment.any():
+        ax.scatter(x[~in_compartment], y[~in_compartment], s=4.0,
+                   c=ROLES["data"], linewidths=0, rasterized=True, zorder=1)
+        ax.scatter(x[in_compartment], y[in_compartment], s=9.0,
+                   c=ROLES["highlight"], linewidths=0, zorder=2)
+    else:
+        ax.scatter(x[rest], y[rest], s=4.0, c=ROLES["data"], linewidths=0,
+                   rasterized=True, zorder=1)
+        ax.scatter(x[up], y[up], s=7.0, c=ROLES["up"], linewidths=0, zorder=2)
+        ax.scatter(x[down], y[down], s=7.0, c=ROLES["down"], linewidths=0,
+                   zorder=2)
 
     reference_line(ax, y=-np.log10(alpha), label=f"q = {alpha:g}" if q
                    else f"p = {alpha:g}")
@@ -305,9 +326,16 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
 
     ax.set_xlabel("effect size")
     ax.set_ylabel("$-$log$_{10}$ " + ("q" if q else "p"))
-    text_legend(ax, [(f"{int(up.sum())} up", ROLES["up"]),
-                     (f"{int(down.sum())} down", ROLES["down"]),
-                     (f"{int(rest.sum())} not called", ROLES["data"])])
+    if in_compartment is not None and in_compartment.any():
+        # TWO ENTRIES, which is the whole point of one compartment at a time.
+        text_legend(ax, [
+            (f"{compartment} ({int(in_compartment.sum())})",
+             ROLES["highlight"]),
+            (f"{int((~in_compartment).sum())} elsewhere", ROLES["data"])])
+    else:
+        text_legend(ax, [(f"{int(up.sum())} up", ROLES["up"]),
+                         (f"{int(down.sum())} down", ROLES["down"]),
+                         (f"{int(rest.sum())} not called", ROLES["data"])])
     return Panel("volcano", "volcano",
                  caption=(f"Effect size against significance for "
                           f"{int(keep.sum())} tested coefficients. "
@@ -316,6 +344,14 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
                           + (f" and |effect| ≥ {abs(effect_threshold):.3g} "
                              f"({rule})" if effect_threshold else "")
                           + ". Nuisance terms are excluded. "
+                          + (f"{int(in_compartment.sum())} coefficients are "
+                             f"annotated {compartment} in the TAGM/LOPIT "
+                             f"table; the rest are grey. "
+                             if in_compartment is not None
+                             and in_compartment.any()
+                             else (f"No coefficient in this screen is "
+                                   f"annotated {compartment}. "
+                                   if compartment else ""))
                           + baseline.sentence),
                  needs=(effect, p),
                  data=sub.assign(**{"called": called,
