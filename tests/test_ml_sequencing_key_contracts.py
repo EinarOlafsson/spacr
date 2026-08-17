@@ -138,9 +138,15 @@ def stubs(monkeypatch):
     return rec
 
 
-def _results_dir(count_csv, score_stem, regression_type="ols"):
-    return os.path.join(os.path.dirname(count_csv), "results", score_stem,
-                        regression_type, "list")
+def _results_dir(count_csv, regression_type="ols"):
+    """Where a run writes: ``<count data folder>/results/<regression type>``.
+
+    This used to spell ``<src>/results/<score file stem>/<type>/list``, the
+    layout replaced on 2026-08-16. Three tests here then read a folder nothing
+    writes to and failed on a missing CSV, which points the reader at the
+    regression instead of at the path they are asserting.
+    """
+    return os.path.join(os.path.dirname(count_csv), "results", regression_type)
 
 
 # ===========================================================================
@@ -205,7 +211,7 @@ def test_an_underscored_plate_id_keeps_the_regression_qc_tables(tmp_path, stubs)
     # process_scores, so it has to name the plate the CSVs actually carry.
     out = perform_regression(base_settings(score, count, plateID=plate))
 
-    res = _results_dir(count, "scores")
+    res = _results_dir(count)
     data = pd.read_csv(os.path.join(res, "regression_data.csv"))
     assert set(data["plateID"].unique()) == {plate}
     assert set(data["rowID"].unique()) <= set(ROWS)
@@ -264,7 +270,7 @@ def test_a_count_table_where_only_some_rows_carry_the_plate_prefix(tmp_path,
 
     perform_regression(base_settings(score, count))
 
-    data = pd.read_csv(os.path.join(_results_dir(count, "scores"),
+    data = pd.read_csv(os.path.join(_results_dir(count),
                                     "regression_data.csv"))
     assert set(data["rowID"].unique()) == set(ROWS)
 
@@ -293,7 +299,7 @@ def test_a_row_id_carrying_a_plate_whose_name_has_an_underscore(tmp_path,
 
     perform_regression(base_settings(score, count, plateID=plate))
 
-    data = pd.read_csv(os.path.join(_results_dir(count, "scores"),
+    data = pd.read_csv(os.path.join(_results_dir(count),
                                     "regression_data.csv"))
     assert set(data["rowID"].unique()) == set(ROWS)
     assert set(data["plateID"].unique()) == {plate}
@@ -1032,20 +1038,17 @@ def test_generate_ml_scores_annotation_merge_states_its_cardinality():
 
 
 # ---------------------------------------------------------------------------
-# plate_from_order: a crop FILE NAME is read left to right on purpose
+# A crop FILE NAME is a picker hint, never the authority on a well
 # ---------------------------------------------------------------------------
 
 def write_scores_with_paths(path, plate="PLATE1", seed=0, n_cells=4,
                             stem=lambda plate, well, i: f"{plate}_{well}_1_1_{i}",
-                            columns_hold_the_well=True):
-    """Per-object score CSV carrying the crop file name in 'path'.
+                            well_in_the_name=lambda r, c: (r, c)):
+    """Per-object score CSV carrying a crop file name in 'path'.
 
-    ``plate_from_order=True`` reads the well out of that name instead of
-    trusting the rowID / columnID columns. ``columns_hold_the_well=False``
-    fills those columns with junk, so the only way the run can land on the
-    real wells is by parsing the file name; ``True`` leaves them correct, so
-    the only way it can land on the real wells with an unparseable name is by
-    leaving them alone.
+    ``well_in_the_name`` decides which well the FILE NAME claims, so a test can
+    make the name disagree with the rowID / columnID columns beside it and see
+    which one the run believes.
     """
     from spacr import schema
 
@@ -1053,13 +1056,14 @@ def write_scores_with_paths(path, plate="PLATE1", seed=0, n_cells=4,
     recs = []
     for r in ROWS:
         for c in COLS:
-            well = schema.well_id(r, c)          # ('r2','c12') -> 'B12'
+            named_r, named_c = well_in_the_name(r, c)
+            well = schema.well_id(named_r, named_c)   # ('r2','c12') -> 'B12'
             base = float(rng.uniform(0.2, 0.8))
             for i in range(n_cells):
                 recs.append({
                     "plateID": "plate1",
-                    "rowID": r if columns_hold_the_well else "rWRONG",
-                    "columnID": c if columns_hold_the_well else "cWRONG",
+                    "rowID": r,
+                    "columnID": c,
                     "fieldID": "f1",
                     "path": stem(plate, well, i) + ".png",
                     "pred": float(np.clip(base + rng.normal(0, 0.1),
@@ -1069,65 +1073,23 @@ def write_scores_with_paths(path, plate="PLATE1", seed=0, n_cells=4,
     return str(path)
 
 
-def test_plate_from_order_reads_the_well_from_the_crop_name(tmp_path, stubs,
-                                                            capsys):
-    """The well is parts[1] of the crop FILE NAME, and schema says what it means.
+def test_a_settings_file_still_carrying_plate_from_order_keeps_the_csv_wells(
+        tmp_path, stubs):
+    """An old settings CSV runs, and its file names still do not move a well.
 
-    This positional read is not the one ``_split_prc`` replaced, and the
-    difference is the reason it stays. A ``prc`` is a KEY: fixed number of
-    components, so it can be read right to left past a plate id containing the
-    separator. A crop name is ``<plate>_<well>_<field>[_<time>]_<object>``: a
-    variable-length tail with no right anchor, so the well can only be found by
-    counting from the left, which is exactly what the package's own file-name
-    parsers (``schema.parse_field_stem``, ``schema.parse_object_stem``) do.
+    ``plate_from_order=True`` used to read the well out of the crop file name
+    -- ``PLATE1_A14_1_1_0.png`` -> rowID 'r1', columnID 'c14' -- and write it
+    over whatever the score CSV declared. Instruction 107 retired that rule
+    together with the setting: a file name is not data, the next naming
+    convention breaks it with no symptom, and a well parsed wrongly out of a
+    file name is indistinguishable from one parsed rightly.
 
-    What the token MEANS is still schema's decision, and that is what the
-    inline ``([A-Pa-p])(\\d+)`` regex got wrong: a 1536-plate row and a
-    lowercase well both failed to match and silently kept whatever rowID the
-    CSV already carried.
+    The key was removed rather than deprecated, so a settings file saved before
+    that change still carries it. It has to be ignored rather than raise, and
+    ignoring it must not half-restore the old rule. Every file name here claims
+    well A1 while the columns beside it name the real wells: under the old rule
+    all nine wells collapsed onto one, and now the columns decide.
     """
-    from spacr import schema
-    from spacr.ml import perform_regression
-
-    sdir = tmp_path / "s"
-    cdir = tmp_path / "c"
-    sdir.mkdir()
-    cdir.mkdir()
-    # rowID / columnID in the CSV are junk, so the only route to a real well
-    # is the crop name.
-    score = write_scores_with_paths(sdir / "scores.csv",
-                                    columns_hold_the_well=False)
-    count = write_counts(cdir / "counts.csv")
-
-    perform_regression(base_settings(score, count, plate_from_order=True))
-
-    out = capsys.readouterr().out
-    assert "did not match" not in out
-
-    data = pd.read_csv(os.path.join(_results_dir(count, "scores"),
-                                    "regression_data.csv"))
-    assert len(data) > 0
-    assert set(data["rowID"].unique()) == set(ROWS)
-    assert set(data["columnID"].unique()) <= set(COLS)
-    assert "rWRONG" not in set(data["rowID"])
-    assert "cWRONG" not in set(data["columnID"])
-
-    # The wells schema handles and the replaced regex did not.
-    assert schema.parse_well("AA14", strict=True) == ("r27", "c14")
-    assert schema.parse_well("a14", strict=True) == ("r1", "c14")
-
-
-def test_plate_from_order_refuses_a_shifted_well_instead_of_inventing_one(
-        tmp_path, stubs, capsys):
-    """An underscored plate id shifts every token, and that is not silent.
-
-    The crop-name grammar carries nothing that can undo the shift -- the same
-    hole ``schema.parse_object_stem`` has -- so what matters here is that the
-    shifted token is REFUSED rather than passed through into both slots. It is
-    counted in a printed warning, the rows keep the rowID / columnID they came
-    in with, and the run stays on the real wells.
-    """
-    from spacr import schema
     from spacr.ml import perform_regression
 
     sdir = tmp_path / "s"
@@ -1136,26 +1098,42 @@ def test_plate_from_order_refuses_a_shifted_well_instead_of_inventing_one(
     cdir.mkdir()
     score = write_scores_with_paths(
         sdir / "scores.csv",
-        stem=lambda plate, well, i: f"exp1_{plate}_{well}_1_1_{i}")
+        well_in_the_name=lambda r, c: ("r1", "c1"))
     count = write_counts(cdir / "counts.csv")
 
-    # parts[1] is the tail of the plate id, not a well, and parse_well refuses
-    # it -- parse_well without strict= would pass 'PLATE1' through into BOTH
-    # slots and key every row on it.
-    assert "exp1_PLATE1_B12_1_1_0".split("_")[1] == "PLATE1"
-    with pytest.raises(schema.WellParseError):
-        schema.parse_well("PLATE1", strict=True)
+    # The removed rule, replayed on the same file so this test states the old
+    # behaviour rather than only describing the new one: it took parts[1] of
+    # the crop name as the well, which here is A1 for every single object.
+    from spacr import schema
+    replayed = {schema.parse_well(os.path.basename(name).split("_")[1],
+                                  strict=True)
+                for name in pd.read_csv(score)["path"]}
+    assert replayed == {("r1", "c1")}
 
     perform_regression(base_settings(score, count, plate_from_order=True))
 
-    out = capsys.readouterr().out
-    assert "did not match" in out
-    assert "plate id contains '_'" in out
-
-    # The incoming rowID / columnID survived, so the wells are still the real
-    # ones rather than a well invented from the plate name.
-    data = pd.read_csv(os.path.join(_results_dir(count, "scores"),
+    data = pd.read_csv(os.path.join(_results_dir(count),
                                     "regression_data.csv"))
     assert len(data) > 0
     assert set(data["rowID"].unique()) == set(ROWS)
     assert set(data["columnID"].unique()) <= set(COLS)
+
+
+def test_no_module_still_reads_the_retired_plate_from_order_setting():
+    """The removal is complete, so nothing can half-honour it.
+
+    A setting read in one module and dropped from the defaults of another is
+    the shape that makes a run behave differently depending on the entry point
+    it was started from.
+    """
+    import pathlib
+
+    package = pathlib.Path(__import__("spacr").__file__).parent
+    offenders = [
+        str(path.relative_to(package))
+        for path in package.rglob("*.py")
+        if "plate_from_order" in path.read_text(encoding="utf-8",
+                                                errors="replace")
+    ]
+    assert offenders == [], (
+        f"plate_from_order is still read in {offenders}")
