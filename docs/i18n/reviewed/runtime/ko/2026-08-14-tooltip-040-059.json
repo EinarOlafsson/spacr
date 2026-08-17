@@ -4,13 +4,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "min_cell_count",
-      "source_sha256": "8316b99d05502552240adba233e4c577bdef147f59ffeaa47f532a3ddf2b87e3",
-      "source": "Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Leave None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value. Default None.",
-      "translation": "점수를 낸 객체가 이 수보다 적은 웰은 회귀 전에 제외합니다. 값을 크게 하면 통계 검정력을 희생하는 대신 잡음이 많고 촬영이 드문 웰을 제거합니다. None 으로 두면 spaCR 이 웰 평균 점수가 tolerance 안에서 안정되는 세포 수를 모의실험하고 그 값을 사용합니다. 기본값 None."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "min_dist",
       "source_sha256": "756ad1eb1ce736a7012959936bf04437514faab1fc45efcf71dc94d45ddde9fd",
       "source": "UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",

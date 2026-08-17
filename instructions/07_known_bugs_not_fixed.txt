@@ -509,3 +509,30 @@ whether every UI string added since the last regeneration has been missing,
 because the second is a process problem and the fix is a CI check that fails
 the build when the scraper finds a string with no catalog entry -- which is
 exactly what this test does, and it has been red instead of blocking.
+
+
+--------------------------------------------------------------------------------
+2026-08-17 - ONE REVIEWED KOREAN TOOLTIP DROPPED RATHER THAN LEFT WRONG
+--------------------------------------------------------------------------------
+
+`min_cell_count`'s English tooltip was corrected: it said "Default None." and
+the actual default is 100. The correction is right and stays.
+
+That invalidated its reviewed Korean translation, which is the guard working
+as designed -- `tools/build_i18n_catalogs.py` pins a reviewed entry to the
+EXACT English it was translated from, so a source edit makes the entry stale
+rather than silently shipping a translation of a superseded string.
+
+The record was REMOVED rather than re-pinned. Re-pinning would have kept a
+Korean tooltip that states a default the software does not have, which is
+worse than no translation: a reader of the English sees "Default 100" and a
+reader of the Korean sees "Default None", and only one of them is right.
+Korean now falls back to the English for this one tooltip.
+
+TO RESTORE IT: re-translate that single entry with
+`tools/build_i18n_catalogs.py` and put the record back. It is one string.
+
+This is the same debt as the 44-string catalog gap recorded above, reached
+from the other direction -- there, English strings with no translation; here,
+a translation whose English moved. Both are fixed by one run of the
+generator, which needs the translation model.
