@@ -454,6 +454,16 @@ RESOURCE LEAKS
   An EXPLICIT path is never cleaned either, which is what makes the next run
   on that path fail with FileExistsError.
 
+  FIXED 2026-08-17. The body moved into `_run_probe` and one handler around
+  it discards the scratch database on the way out, `-wal`/`-shm` sidecars
+  included -- so every failure between making the path and reading the
+  metrics back is covered, not only the two journal modes. Three cases in
+  `tests/test_database_concurrency.py`, each red before the change: the
+  rejected mode, an arbitrary failure in the setup, and the explicit path
+  that used to block its own next run. The stalled worker is untouched: it
+  is a normal return, still guarded by `not alive`. The docstring described
+  the leak as behaviour and now describes what happens instead.
+
 QUIET COERCION
 
   run_concurrency_probe int()-coerces its three counts before the >= 1 check,
