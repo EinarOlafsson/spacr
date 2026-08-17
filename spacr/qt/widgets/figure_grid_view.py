@@ -388,12 +388,30 @@ class FigureGridView(QScrollArea):
         emits :attr:`pinned_activated` instead -- a sentinel index down the
         shared signal would be the same bug with an extra step.
 
+        THE TILE IT REPLACES IS DESTROYED, and that is the whole of the
+        stacked-volcano bug reported on 2026-08-17: "the thumbnail iage of the
+        volcano plot looks like several volcano plot itterations pasted on top
+        of each other". This method used to rebind ``_pinned`` and relayout,
+        and `_relayout`'s `takeAt` removes a widget from the LAYOUT while
+        leaving it a visible child of the body at its old geometry -- exactly
+        the failure already written down for the section headings a few lines
+        below, re-derived here for the tiles. `clear()` could not collect the
+        strays either: it walks the layout, and a stray is no longer in it.
+        `_pin_regression_graph` runs on every grid refresh, so a screen that
+        had done twelve runs was painting a dozen tiles at (6, 6) at once --
+        and `FastPlot.snapshot` returns a TRANSPARENT pixmap, so every one of
+        them showed through the ones in front. Measured on the real widget:
+        five `set_pinned` calls left five visible cells at identical geometry
+        and all five volcanoes painted at once; one after the fix.
+
         :returns: True when a tile was pinned. A null or missing pixmap
             REMOVES it, because an empty tile invites a click that opens an
             empty plot.
         """
+        previous = self._pinned
         if pixmap is None or pixmap.isNull():
             self._pinned = None
+            self._discard(previous)
             self._relayout()
             return False
         cell = _FigureCell(-1, pixmap, title, self._body)
@@ -405,8 +423,29 @@ class FigureGridView(QScrollArea):
         cell.menu_requested.connect(
             lambda _index, position: self.pinned_menu_requested.emit(position))
         self._pinned = cell
+        self._discard(previous)
         self._relayout()
         return True
+
+    @staticmethod
+    def _discard(widget) -> None:
+        """Take a tile off the body for good.
+
+        UNPARENTING IS THE POINT, not `deleteLater` -- deletion is deferred to
+        the next event-loop turn, and a widget that is still a child of the
+        body until then goes on painting itself at its old geometry. Anything
+        this view is finished with has to leave the body in the same call that
+        finishes with it, or it is on screen for as long as nothing turns the
+        loop.
+        """
+        if widget is None:
+            return
+        try:
+            widget.setParent(None)
+            widget.deleteLater()
+        except RuntimeError:
+            # Already torn down by Qt -- the screen closed under us.
+            pass
 
     def set_target_cell_width(self, pixels: int) -> None:
         """How wide a single-width cell should be, before layout."""
@@ -414,6 +453,7 @@ class FigureGridView(QScrollArea):
         self._relayout()
 
     def clear(self) -> None:
+        doomed = []
         while self._grid.count():
             item = self._grid.takeAt(0)
             widget = item.widget()
@@ -421,8 +461,19 @@ class FigureGridView(QScrollArea):
             # being replaced, and a run that streams new ones must not make
             # the interactive graph disappear.
             if widget is not None and widget is not self._pinned:
-                widget.setParent(None)
-                widget.deleteLater()
+                doomed.append(widget)
+        # THE LAYOUT IS NOT THE WHOLE GRID. A cell belonging to a FOLDED run is
+        # deliberately left out of the layout by `_relayout` (so the next run
+        # flows up under the folded heading instead of into a hole), which
+        # means walking the layout alone never reaches it -- it stays a child
+        # of the body while `_cells` is emptied out from under it, and the only
+        # reference to it is gone. Nothing on screen, but it is still there,
+        # and a sweep that folds its runs away leaks one per figure.
+        for cell in self._cells:
+            if cell is not self._pinned and cell not in doomed:
+                doomed.append(cell)
+        for widget in doomed:
+            self._discard(widget)
         self._cells = []
         # The headings went out with the rest of the layout, so the list must
         # go too -- otherwise _relayout reaches through a wrapper whose C++
@@ -566,10 +617,12 @@ class FigureGridView(QScrollArea):
         # visible child of the body at its old geometry, so every relayout --
         # and a window resize is a relayout -- used to leave another copy of
         # every run heading painted on the grid. Measured before the fix:
-        # three relayouts of a two-run grid left six headings.
+        # three relayouts of a two-run grid left six headings. The pinned tile
+        # had the same bug for the same reason -- see :meth:`set_pinned`, which
+        # now shares this one's cleanup rather than re-deriving it a third
+        # time.
         for header in self._headers:
-            header.setParent(None)
-            header.deleteLater()
+            self._discard(header)
         self._headers = []
         for index in reversed(range(self._grid.count())):
             self._grid.takeAt(index)
