@@ -992,88 +992,68 @@ class TestTheOutputFolderIsTheCallersChoice:
     whatever the caller asked for. Every run of a given family then wrote to
     one identical path, so comparing thirteen corrections left only the last
     on disk -- silently, with nothing warning that the earlier ones were gone.
+
+    THESE USED TO REACH INTO A CLOSURE. The resolver was nested inside
+    ``perform_regression``, so the only way to test it was to pull its code
+    object out of ``__code__.co_consts`` and rebuild a function around it --
+    which tests the bytecode's name rather than the behaviour, and broke the
+    moment the function moved. It is module level now, and imported.
     """
 
-    def _paths(self, settings):
-        from spacr.ml import perform_regression
-        # The helper is a closure inside perform_regression; reach it the way
-        # the function itself does, by running the resolution only.
-        import inspect
-        source = inspect.getsource(perform_regression)
-        assert "_perform_regression_set_paths" in source
-        return source
-
-    def test_a_requested_src_is_used(self, tmp_path):
-        """The whole point: ask for a folder, get that folder."""
-        import os
-
-        from spacr.ml import perform_regression
+    def _paths(self, tmp_path, **extra):
+        from spacr.ml import _perform_regression_set_paths
 
         data = tmp_path / "data"
-        data.mkdir()
+        data.mkdir(exist_ok=True)
         count = data / "counts.csv"
         count.write_text("grna,count\na,1\n")
-        wanted = tmp_path / "my_output"
-
         settings = {"count_data": [str(count)], "score_data": [str(count)],
-                    "src": str(wanted), "regression_type": "ols"}
-        # Resolve paths through the real code path.
-        import spacr.ml as ml
-        resolver = None
-        for constant in perform_regression.__code__.co_consts:
-            if getattr(constant, "co_name", "") == "_perform_regression_set_paths":
-                resolver = constant
-                break
-        assert resolver is not None, "path resolver not found"
+                    "regression_type": "ols"}
+        settings.update(extra)
+        return _perform_regression_set_paths(settings)[4], settings
 
-        # Rebuild the closure's function object and call it.
-        import types
-        fn = types.FunctionType(resolver, ml.__dict__)
-        *_rest, res_folder, _csv = fn(settings)
+    def test_a_requested_src_is_used(self, tmp_path):
+        """The whole point: ask for a folder, get that folder.
+
+        The parameter sweep depends on it -- each trial sets its own src, and
+        without this every trial would write over the last.
+        """
+        import os
+
+        wanted = tmp_path / "my_output"
+        res_folder, settings = self._paths(tmp_path, src=str(wanted))
+
         assert str(wanted) in res_folder, \
             f"the requested folder was ignored; got {res_folder}"
         assert settings["src"] == os.path.abspath(str(wanted))
 
-    def test_without_a_src_it_still_falls_back_to_the_data(self, tmp_path):
-        """Callers that never set src -- the GUI among them -- are unchanged."""
-        import types
+    def test_without_a_src_it_falls_back_to_the_count_data(self, tmp_path):
+        """Callers that never set src -- the GUI among them -- put their
+        output beside the count data, which is what the maintainer asked
+        for: "just store everything in the same location as the first count
+        data"."""
+        res_folder, _settings = self._paths(tmp_path)
 
-        import spacr.ml as ml
-        from spacr.ml import perform_regression
-
-        data = tmp_path / "data"
-        data.mkdir()
-        count = data / "counts.csv"
-        count.write_text("grna,count\na,1\n")
-
-        resolver = next(c for c in perform_regression.__code__.co_consts
-                        if getattr(c, "co_name", "") ==
-                        "_perform_regression_set_paths")
-        fn = types.FunctionType(resolver, ml.__dict__)
-        settings = {"count_data": [str(count)], "score_data": [str(count)],
-                    "regression_type": "ols"}
-        *_rest, res_folder, _csv = fn(settings)
-        assert str(data) in res_folder
+        assert str(tmp_path / "data") in res_folder
 
     def test_a_blank_src_does_not_become_a_folder_named_nothing(self, tmp_path):
-        import types
+        res_folder, _settings = self._paths(tmp_path, src="   ")
 
-        import spacr.ml as ml
-        from spacr.ml import perform_regression
+        assert str(tmp_path / "data") in res_folder
 
-        data = tmp_path / "data"
-        data.mkdir()
-        count = data / "counts.csv"
-        count.write_text("grna,count\na,1\n")
+    def test_a_second_run_of_the_same_type_does_not_overwrite_the_first(
+            self, tmp_path):
+        """The other half of the same problem, and the half a requested src
+        does not solve: two runs of one family into one folder."""
+        import pathlib as _pathlib
 
-        resolver = next(c for c in perform_regression.__code__.co_consts
-                        if getattr(c, "co_name", "") ==
-                        "_perform_regression_set_paths")
-        fn = types.FunctionType(resolver, ml.__dict__)
-        settings = {"count_data": [str(count)], "score_data": [str(count)],
-                    "src": "   ", "regression_type": "ols"}
-        *_rest, res_folder, _csv = fn(settings)
-        assert str(data) in res_folder
+        first, _ = self._paths(tmp_path)
+        (_pathlib.Path(first) / "results.csv").write_text("x\n")
+
+        second, _ = self._paths(tmp_path)
+
+        assert second != first
+        assert second.endswith("ols_1")
 
 
 class TestTheNonparametricTableMatchesTheParametricOne:
@@ -1369,3 +1349,90 @@ class TestASettingThatCannotDoAnythingIsGreyedOut:
                 silent.append(key)
         assert not silent, (
             f"greyed with no reason naming the setting: {sorted(silent)}")
+
+
+class TestASettingIsGreyedFromTheDATANotOnlyFromOtherSettings:
+    """Instruction 106's data-dependent half, and the reason `context` exists.
+
+    Every other dependency rule reads the other SETTINGS -- which estimator
+    is selected, whether permutation is on. This one reads the loaded DATA,
+    and until it existed the `context` argument was computed by the panel on
+    every drop and then thrown away.
+
+    `guide_permutation_block` names the column permutations are blocked
+    within, and residuals are never shuffled between its levels. With one
+    plate, blocking on the plate is the whole dataset and constrains nothing.
+
+    IT IS ADDED TO THE RULE ALREADY THERE, not assigned over it. This setting
+    is dead under parametric inference AND dead on a single plate, and the
+    table holds one entry per setting -- so the first version of this patch
+    silently dropped the parametric rule and left the field enabled among its
+    greyed siblings.
+    """
+
+    #: The other rule on this setting only lets it through under permutation.
+    ACTIVE = {"inference": "nonparametric", "analysis_mode": "guide_permutation"}
+
+    def _rule(self):
+        from spacr.settings import get_setting_dependencies
+
+        return get_setting_dependencies()["guide_permutation_block"]
+
+    def test_one_plate_greys_the_block_setting(self):
+        assert self._rule()["predicate"](
+            dict(self.ACTIVE), {"plate_count": 1}) is False
+
+    def test_more_than_one_plate_leaves_it_alone(self):
+        assert self._rule()["predicate"](
+            dict(self.ACTIVE), {"plate_count": 4}) is True
+
+    def test_an_unknown_plate_count_greys_nothing(self):
+        """A control disabled because a file was too large to scan is
+        indistinguishable, to the person looking at it, from one disabled on
+        purpose. Absence of knowledge leaves the control alone."""
+        rule = self._rule()
+
+        assert rule["predicate"](dict(self.ACTIVE), {}) is True
+        assert rule["predicate"](dict(self.ACTIVE), {"plate_count": None}) is True
+
+    def test_the_older_reason_is_not_lost(self):
+        """Both rules apply. Under parametric inference the setting is dead
+        whatever the plate count, and the user must be told THAT reason
+        rather than the one about plates."""
+        rule = self._rule()
+        parametric = {"inference": "parametric"}
+
+        assert rule["predicate"](parametric, {"plate_count": 4}) is False
+        assert "permutation" in rule["reason"](parametric, {"plate_count": 4})
+
+    def test_the_reason_shown_is_the_one_that_fired(self):
+        rule = self._rule()
+
+        reason = rule["reason"](dict(self.ACTIVE), {"plate_count": 1})
+        assert "one plate" in reason
+        assert "kept" in reason, "a greyed setting must say its value survives"
+
+    def test_the_polarity_matches_every_other_rule(self):
+        """True means APPLICABLE. The estimator rules return True when the
+        setting IS read, and a rule written the other way round would grey
+        exactly the cases it meant to keep."""
+        from spacr.settings import get_setting_dependencies
+
+        estimator = get_setting_dependencies()["alpha"]
+
+        assert estimator["predicate"]({"regression_type": "ridge"}, {}) is True
+        assert estimator["predicate"]({"regression_type": "ols"}, {}) is False
+        assert self._rule()["predicate"](
+            dict(self.ACTIVE), {"plate_count": 4}) is True
+
+    def test_it_listens_to_whichever_input_widget_the_panel_has(self):
+        """The regression screen takes pairs in one `paired_data` table and
+        has neither `score_data` nor `count_data` as a widget. Listing all
+        three is what makes the rule work on every panel -- and the composed
+        rule keeps the sources of the rule it was added to."""
+        sources = set(self._rule()["sources"])
+
+        assert {"paired_data", "score_data", "count_data"} <= sources
+        assert "inference" in sources, (
+            "the composed rule dropped the sources of the rule it joined, so "
+            "changing inference would no longer re-evaluate it")

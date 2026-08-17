@@ -4059,6 +4059,34 @@ def get_setting_dependencies():
             'reason': reason,
         }
 
+    def _combined(existing, sources, predicate, reason):
+        """A second reason a setting can be inapplicable, ANDed with the first.
+
+        One setting can be dead for more than one reason at once -- a
+        permutation control is dead under parametric inference AND dead on a
+        single plate -- and this dict holds one entry per setting. Replacing
+        the entry drops the earlier reason silently, which is how a field
+        ends up enabled among its greyed siblings.
+
+        Applicable only when BOTH agree. The reason shown is the one that
+        actually fired, so the user is told why THIS control is off rather
+        than being given the other rule's explanation.
+        """
+        if not existing:
+            return rule(sources, predicate, reason)
+
+        def _predicate(settings, context):
+            return bool(existing['predicate'](settings, context)) and \
+                bool(predicate(settings, context))
+
+        def _reason(settings, context):
+            if not existing['predicate'](settings, context):
+                return existing['reason'](settings, context)
+            return reason(settings, context)
+
+        return rule(tuple(existing['sources']) + tuple(sources),
+                    _predicate, _reason)
+
     owned = sorted({key for keys in REGRESSION_SETTINGS_USED.values()
                     for key in keys})
     for key in owned:
@@ -4153,6 +4181,52 @@ def get_setting_dependencies():
                 f"{setting} belongs to parametric effect-size hit calling; "
                 "guide permutation uses corrected P values. The value is kept."),
         )
+
+    # THE DATA-DEPENDENT HALF, and the reason `context` exists at all.
+    #
+    # Every rule above reads only the other SETTINGS. This one reads the
+    # loaded data: `context['plate_count']` is filled by the panel from the
+    # inputs the user actually dropped in.
+    #
+    # UNKNOWN MUST NOT GREY ANYTHING. `plate_count` is None when nothing is
+    # loaded, or when the inputs were too large to scan cheaply. A control
+    # disabled because a file was big is indistinguishable, to the person
+    # looking at it, from one disabled on purpose -- so absence of knowledge
+    # leaves the control alone.
+    #
+    # `guide_permutation_block` names the column permutations are blocked
+    # within, and residuals are never shuffled between its levels. With one
+    # plate, blocking on the plate is the whole dataset and constrains
+    # nothing.
+    #
+    # All three input keys are listed because a panel has whichever of them
+    # it has -- the regression screen takes pairs in one `paired_data` table
+    # (instruction 107) and has neither of the other two --
+    # and _connect_setting_dependency_signals skips the ones that are absent.
+    #
+    # ADDED TO the rule already there, never assigned over it. This dict
+    # holds ONE rule per setting, and `guide_permutation_block` already has
+    # one -- parametric inference greys every permutation control. Assigning
+    # here replaced it, so choosing parametric silently left this one field
+    # enabled among its greyed siblings. A setting is applicable only if
+    # EVERY rule that mentions it says so.
+    _existing = setting_dependencies.get('guide_permutation_block')
+    setting_dependencies['guide_permutation_block'] = _combined(
+        _existing,
+        ('paired_data', 'score_data', 'count_data'),
+        # TRUE MEANS APPLICABLE, matching every rule above -- the estimator
+        # rules return True when the setting IS read. So: enabled when the
+        # plate count is unknown, or when there is more than one plate.
+        lambda settings, context: (
+            context.get('plate_count') is None
+            or context.get('plate_count') != 1),
+        lambda settings, context: (
+            "guide_permutation_block names the column permutations are "
+            "blocked within, and residuals are never shuffled between its "
+            "levels. The loaded inputs hold one plate, so blocking on the "
+            "plate is the whole dataset and constrains nothing. The value is "
+            "kept and saved."),
+    )
 
     return setting_dependencies
 
