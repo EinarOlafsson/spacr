@@ -17,7 +17,6 @@ from pathlib import Path
 
 from packaging.version import InvalidVersion, Version
 
-
 VERSION_PATTERN = re.compile(
     r'^(VERSION\s*=\s*)(["\'])([^"\']+)(["\'])$', re.MULTILINE)
 README_BEGIN = ".. spacr-installer-links-begin"
@@ -46,6 +45,22 @@ README_ICONS = (
     ("MacOS", "macos", "macOS 11+ (Intel and Apple silicon)"),
     ("Linux", "linux", "64-bit Linux"),
 )
+
+#: Where the generated download archive is written. It is a page of the
+#: published Sphinx site (``docs/source`` -> ``docs/_build/html`` ->
+#: einarolafsson.github.io/spacr), NOT of the built copy checked in beside it:
+#: writing into ``docs/`` directly is a change the next docs build deletes.
+INSTALLER_INDEX_PATH = Path("docs/source/installers.rst")
+#: Column order on that page, as requested: version, then Linux, macOS,
+#: Windows. The icons are the same artwork the README's download row uses --
+#: one glyph set, one place it is drawn.
+INSTALLER_INDEX_COLUMNS = ("Linux", "MacOS", "Windows")
+INSTALLER_INDEX_ICON_WIDTH = 32
+#: GitHub's release list for this project. Public, so no token is required,
+#: but one is used when the environment offers it because the anonymous rate
+#: limit is 60 requests an hour per address and CI shares its address.
+GITHUB_RELEASES_API = (
+    "https://api.github.com/repos/EinarOlafsson/spacr/releases?per_page=100")
 
 
 def read_version(setup_path: Path) -> str:
@@ -217,6 +232,164 @@ def _updated_readme_text(readme: Path, version: str) -> str:
     return text[:start] + block + text[block_end:]
 
 
+def installer_index_rows(releases) -> list[tuple[str, dict[str, str]]]:
+    """Return ``[(version, {suffix: url})]``, newest release first.
+
+    ``releases`` is GitHub's release list as the API returns it: mappings
+    carrying ``tag_name`` and ``assets``.
+
+    A release that shipped no installer at all is left out rather than given a
+    row of empty cells -- ``v1.4.9.8``, ``v1.3.6`` and ``v1.3.5`` are real
+    releases with real wheels and no native installers, and listing them on a
+    page whose whole subject is installers only invites the click that finds
+    nothing. A release that shipped SOME of the three keeps its row and gets
+    an empty cell for the platform it missed, because that is a fact about
+    that release rather than a reason to hide it.
+
+    :param releases: mappings with ``tag_name`` and ``assets``.
+    :returns: version + ``{asset suffix: download URL}``, newest first.
+    :raises ValueError: when a release carrying installers has a tag that is
+        not a version -- silently dropping it would be a missing row on a page
+        nobody re-reads.
+    """
+    rows = []
+    for release in releases:
+        tag = str(release.get("tag_name") or "")
+        found = {}
+        for asset in release.get("assets") or ():
+            name = str(asset.get("name") or "")
+            for _label, suffix in PLATFORMS:
+                if name.lower().endswith(f"-{suffix}".lower()):
+                    found[suffix] = str(
+                        asset.get("browser_download_url")
+                        or f"{RELEASE_DOWNLOAD_ROOT}/{tag}/{name}")
+        if not found:
+            continue
+        try:
+            version = Version(tag.lstrip("vV"))
+        except InvalidVersion as exc:
+            raise ValueError(
+                f"release {tag!r} ships installers but its tag is not a "
+                f"version, so it cannot be placed in the archive table"
+            ) from exc
+        rows.append((version, found))
+    rows.sort(key=lambda row: row[0], reverse=True)
+    return [(str(version), assets) for version, assets in rows]
+
+
+def render_installer_index(releases, current_version: str) -> str:
+    """Render the download archive page.
+
+    Every released installer stays on GitHub -- a new tag cannot touch an old
+    tag's assets -- but ``collect`` rewrites the README's three links to the
+    version being released, so the moment a new version ships there is no path
+    anywhere in the project to the previous one. This page is that path, and
+    it is generated rather than maintained: a table of download links typed by
+    hand is a table that is wrong one release later.
+
+    :param releases: GitHub's release list; see :func:`installer_index_rows`.
+    :param current_version: the version the README currently advertises.
+    :returns: the reStructuredText page.
+    """
+    rows = installer_index_rows(releases)
+    suffix_by_key = dict(zip((key for key, _, _ in README_ICONS),
+                             (suffix for _label, suffix in PLATFORMS)))
+    alt_by_key = {key: alt for key, _stem, alt in README_ICONS}
+    stem_by_key = {key: stem for key, stem, _alt in README_ICONS}
+
+    lines = [
+        ".. _installer-archive:",
+        "",
+        "Installer archive",
+        "=================",
+        "",
+        "Every spaCR release that shipped desktop installers, newest first.",
+        "The README always links to the latest; this page is where to find",
+        "any other version.",
+        "",
+        "These are *online* installers, and each one pins the version it was",
+        "built for -- ``spacr[...]==<version>`` -- so an installer from this",
+        "table installs that release and not the current one.",
+        "",
+    ]
+    for key in INSTALLER_INDEX_COLUMNS:
+        lines.extend([
+            f".. |{key}| image:: {README_ICON_ROOT}/{stem_by_key[key]}.png",
+            f"   :width: {INSTALLER_INDEX_ICON_WIDTH}",
+            f"   :alt: {alt_by_key[key]}",
+            "",
+        ])
+    lines.extend([
+        ".. list-table::",
+        "   :header-rows: 1",
+        "   :widths: 25 25 25 25",
+        "",
+        "   * - Version",
+    ])
+    lines.extend(f"     - |{key}|" for key in INSTALLER_INDEX_COLUMNS)
+    for version, assets in rows:
+        label = version + (" (current)" if version == current_version else "")
+        lines.append(f"   * - {label}")
+        for key in INSTALLER_INDEX_COLUMNS:
+            url = assets.get(suffix_by_key[key])
+            if url is None:
+                # No installer for that platform in that release. An empty
+                # cell, never a link that 404s.
+                lines.append("     - ")
+            else:
+                extension = Path(suffix_by_key[key]).suffix
+                # An ANONYMOUS reference (two underscores). Every row reuses
+                # the same three link labels, and a named target repeated with
+                # a different URL is a duplicate-target error in docutils.
+                lines.append(f"     - `{extension} <{url}>`__")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def fetch_releases(url: str = GITHUB_RELEASES_API):
+    """Return GitHub's release list for this project.
+
+    Kept apart from the rendering so the page can be generated from a
+    recorded list in a test without reaching the network.
+
+    :param url: the releases endpoint.
+    :returns: the decoded JSON list.
+    """
+    import json
+    import os
+    import urllib.request
+
+    request = urllib.request.Request(
+        url, headers={"Accept": "application/vnd.github+json",
+                      "User-Agent": "spacr-release-helper"})
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        request.add_header("Authorization", f"Bearer {token}")
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return json.load(response)
+
+
+def write_installer_index(
+    destination: Path,
+    setup_path: Path,
+    releases=None,
+) -> Path:
+    """Write the archive page and return where it went.
+
+    :param destination: the page to write.
+    :param setup_path: ``setup.py``, read for the current version.
+    :param releases: release list; fetched from GitHub when omitted.
+    :returns: the written path.
+    """
+    if releases is None:
+        releases = fetch_releases()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(
+        render_installer_index(releases, read_version(setup_path)),
+        encoding="utf-8")
+    return destination
+
+
 def collect_installers(
     source: Path,
     destination: Path,
@@ -311,6 +484,15 @@ def main() -> int:
     collect_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
     collect_parser.add_argument("--branch", default="main")
 
+    index_parser = subparsers.add_parser(
+        "index", help="regenerate the installer archive page from GitHub")
+    index_parser.add_argument(
+        "--output", type=Path, default=INSTALLER_INDEX_PATH)
+    index_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
+    index_parser.add_argument(
+        "--releases", type=Path,
+        help="a recorded GitHub release list, instead of fetching one")
+
     args = parser.parse_args()
     if args.command == "version":
         print(read_version(args.setup))
@@ -320,6 +502,12 @@ def main() -> int:
             args.new_version,
             allow_current=args.allow_current,
         ))
+    elif args.command == "index":
+        import json
+        releases = (
+            json.loads(args.releases.read_text(encoding="utf-8"))
+            if args.releases else None)
+        print(write_installer_index(args.output, args.setup, releases))
     else:
         for path in collect_installers(
                 args.source, args.destination, args.readme, args.setup,

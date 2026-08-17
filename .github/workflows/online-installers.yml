@@ -292,6 +292,15 @@ jobs:
             --readme README.rst \
             --localized-readme-dir docs/i18n/readme \
             --branch "$TARGET_BRANCH"
+      # `collect` above rewrote the README's three links to the version just
+      # released, so the previous version is now unreachable from anywhere in
+      # the project. The archive page is the only path back to it, and it is
+      # regenerated from the published release list rather than edited --
+      # a hand-maintained table of download links is wrong one release later.
+      - name: Regenerate the installer archive page
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python packaging/release.py index --output docs/source/installers.rst
       - name: Commit generated application installers
         id: commit
         env:
@@ -301,6 +310,7 @@ jobs:
           git config user.email "einar.olafsson@gmail.com"
           git add README.rst \
             docs/i18n/readme/README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst \
+            docs/source/installers.rst \
             spacr/application
           if git diff --cached --quiet; then
             echo "Installer files and links are already current."
