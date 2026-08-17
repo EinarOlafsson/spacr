@@ -175,6 +175,7 @@ tutorial_colab.ipynb
 !/docs/source/_static/i18n/
 !/docs/source/_static/i18n/**
 !/docs/source/module_audit.rst
+!/docs/source/installers.rst
 !/docs/source/localization.rst
 !/docs/source/setting_animations.rst
 !/docs/source/checkpoint_resume.rst

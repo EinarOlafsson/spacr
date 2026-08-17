@@ -144,6 +144,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   installers
    localization
    setting_animations
    checkpoint_resume

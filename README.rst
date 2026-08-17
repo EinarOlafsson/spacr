@@ -136,6 +136,11 @@ Installation details
 
 .. spacr-installer-links-end
 
+The icons above are always the newest release. Every earlier one is still
+downloadable from the `installer archive
+<https://einarolafsson.github.io/spacr/installers.html>`_ — one table, one row
+per version, and each installer pins the version it was built for.
+
 Lightweight installers — no conda or existing Python required
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
