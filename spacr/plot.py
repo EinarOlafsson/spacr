@@ -22,9 +22,7 @@ from skimage.transform import resize as sk_resize
 import scikit_posthocs as sp
 from scipy.stats import chi2_contingency
 import tifffile as tiff
-from scipy.stats import normaltest, ttest_ind, mannwhitneyu, f_oneway, kruskal, levene, shapiro
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
-import pingouin as pg
 
 from ipywidgets import IntSlider, interact
 from IPython.display import Image as ipyimage
@@ -3694,10 +3692,25 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
 def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
     """Plot grouped data with automatic normality-aware pairwise statistics.
 
-    Runs D'Agostino normality per group, chooses the appropriate
-    pairwise test (t-test / Mann-Whitney / ANOVA / Kruskal), adds Tukey
-    HSD post-hoc when appropriate, renders the requested plot type and
-    optionally persists both plot and stats to ``output_dir``.
+    :func:`spacr.figures.stats.compare` decides which test each PAIR gets --
+    Student's t, Welch's t or Mann-Whitney U -- from the normality and
+    equal-variance checks, and an assumption check that had no power counts
+    as failed. Tukey HSD post-hoc is added when three or more groups pass the
+    normality check together. The requested plot type is rendered and both
+    plot and stats optionally persist to ``output_dir``.
+
+    Two things moved on 2026-08-17 (instruction 127 finding 2) and both change
+    a saved ``test_results.csv``:
+
+    * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in
+      the smallest group, the checks are recorded as uninformative and the
+      rank test is taken. This function used to run D'Agostino per group and
+      read ``all(p > 0.05)`` as normal -- and D'Agostino needs eight
+      observations before it can reject anything at all.
+    * Each pair is named as the two-group test it is. Three normal groups
+      used to produce three rows labelled 'One-way ANOVA', each of which was
+      an ANOVA across two groups; the p-values are unchanged (F = t squared),
+      the name was not actionable.
 
     :param df: Source DataFrame.
     :param grouping_column: Categorical grouping variable.
@@ -3718,69 +3731,86 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     :raises ValueError: if ``error_bar_type`` is not recognised.
     """
     
+    # The engine is imported inside the function, as sp_stats does it and for
+    # the same reason: `spacr.figures` eagerly builds the panel catalog, and
+    # `spacr.plot` is imported by callers that never draw a grouped plot.
+    from .figures.stats import _clean, check_normality, compare
+    from .sp_stats import _ENGINE_TEST_NAMES
+
     # Remove NaN rows in grouping_column
     df = df.dropna(subset=[grouping_column])
-    
+
     # Ensure the output directory exists if save is True
     if save:
         os.makedirs(output_dir, exist_ok=True)
-    
+
     # Sorting and ordering
     if order:
         df[grouping_column] = pd.Categorical(df[grouping_column], categories=order, ordered=True)
     else:
         df[grouping_column] = pd.Categorical(df[grouping_column], categories=sorted(df[grouping_column].unique()), ordered=True)
-    
+
     # Get unique groups
     unique_groups = df[grouping_column].unique()
-    
+
     # Initialize test results
     test_results = []
 
-    # Test normality for each group
-    grouped_data = [df.loc[df[grouping_column] == group, data_column] for group in unique_groups]
-    normal_p_values = [normaltest(data).pvalue for data in grouped_data]
-    normal_stats = [normaltest(data).statistic for data in grouped_data]
-    is_normal = all(p > 0.05 for p in normal_p_values)
+    # Test normality for each group. The check is the one engine's, so this
+    # function, spacrGraph and a sp_stats results table cannot disagree about
+    # the same plate. It used to be D'Agostino per group with
+    # `all(p > 0.05)`, which reads "the test had no power to reject" as
+    # "the data are normal" -- and normaltest needs eight observations before
+    # it can say anything at all.
+    grouped_data = {group: _clean(df.loc[df[grouping_column] == group,
+                                         data_column])
+                    for group in unique_groups}
+    is_normal = check_normality(list(grouped_data.values())).passed
 
-    # Add normality test results to the results_df
-    for group, stat, p_value in zip(unique_groups, normal_stats, normal_p_values):
+    # Add normality test results to the results_df. 'Normality test' is the
+    # ROW TYPE, not the name of a test: the schema here is four fixed columns
+    # and the check's own name lives in spacrGraph's richer table.
+    for group, values in grouped_data.items():
+        check = check_normality([values])
         test_results.append({
             'Comparison': f'Normality test for {group}',
-            'Test Statistic': stat,
-            'p-value': p_value,
+            'Test Statistic': check.statistic,
+            'p-value': check.p_value,
             'Test Name': 'Normality test'
         })
 
-    # Determine statistical test
-    if len(unique_groups) == 2:
-        if is_normal:
-            stat_test = ttest_ind
-            test_name = 'T-test'
-        else:
-            stat_test = mannwhitneyu
-            test_name = 'Mann-Whitney U test'
-    else:
-        if is_normal:
-            stat_test = f_oneway
-            test_name = 'One-way ANOVA'
-        else:
-            stat_test = kruskal
-            test_name = 'Kruskal-Wallis test'
-
-    # Perform pairwise statistical tests
+    # Perform pairwise statistical tests. EACH PAIR IS A TWO-GROUP
+    # COMPARISON and is now named as one. This used to pick a single test
+    # from the group count and apply it to every pair, so three normal groups
+    # produced three rows labelled 'One-way ANOVA' that were each an ANOVA
+    # across two groups -- arithmetically a t-test, reported under a name
+    # nobody could act on.
     comparisons = list(itertools.combinations(unique_groups, 2))
-    p_values = []
-    test_statistics = []
+    chosen_names = []
 
     for (group1, group2) in comparisons:
-        data1 = df[df[grouping_column] == group1][data_column]
-        data2 = df[df[grouping_column] == group2][data_column]
-        stat, p = stat_test(data1, data2)
-        p_values.append(p)
-        test_statistics.append(stat)
-        test_results.append({'Comparison': f'{group1} vs {group2}', 'Test Statistic': stat, 'p-value': p, 'Test Name': test_name})
-    
+        pair = {group1: grouped_data[group1], group2: grouped_data[group2]}
+        try:
+            result = compare(pair)
+        except ValueError as refusal:
+            # A group too small to test. Reported rather than raised: the
+            # caller wants the figure and the other pairs.
+            print(f"{group1} vs {group2}: {refusal}")
+            test_results.append({
+                'Comparison': f'{group1} vs {group2}',
+                'Test Statistic': float('nan'), 'p-value': float('nan'),
+                'Test Name': 'not testable'})
+            continue
+        name = _ENGINE_TEST_NAMES.get(result.test, result.test)
+        chosen_names.append(name)
+        test_results.append({'Comparison': f'{group1} vs {group2}',
+                             'Test Statistic': result.statistic,
+                             'p-value': result.p_value, 'Test Name': name})
+
+    # The title names every test that ran, because with the choice made per
+    # pair they need not all be the same one.
+    test_name = ', '.join(dict.fromkeys(chosen_names)) or 'not testable'
+
     # Post-hoc test (Tukey HSD for ANOVA)
     if is_normal and len(unique_groups) > 2:
         tukey_result = pairwise_tukeyhsd(df[data_column], df[grouping_column], alpha=0.05)
@@ -3887,52 +3917,6 @@ def _significance_marker(p_value):
     if p_value <= 0.05:
         return '*'
     return 'ns'
-
-
-def _welch_anova(grouped_data):
-    """Welch's one-way ANOVA: the >2-group answer when variances differ.
-
-    ``scipy.stats.f_oneway`` assumes equal variance across groups, the same
-    assumption Levene's test exists to check. When Levene rejects it, this is
-    the standard replacement -- it weights each group by ``n / variance`` and
-    corrects the denominator degrees of freedom, so an arm with both a
-    different spread and a different size stops borrowing significance from
-    the others.
-
-    Computed here rather than through pingouin's ``welch_anova`` because that
-    one wants a long-form frame and a formula; this takes the same list of
-    arrays every other branch already built.
-
-    :param grouped_data: one 1-D array-like of values per group.
-    :returns: ``(F, p)``, or ``(nan, nan)`` when fewer than two groups carry
-        the variance the statistic divides by.
-    """
-    from scipy.stats import f
-
-    groups = [np.asarray(values, dtype=float) for values in grouped_data]
-    groups = [values[np.isfinite(values)] for values in groups]
-    groups = [values for values in groups
-              if values.size >= 2 and np.var(values, ddof=1) > 0]
-    k = len(groups)
-    if k < 2:
-        return np.nan, np.nan
-
-    n = np.array([values.size for values in groups], dtype=float)
-    mean = np.array([values.mean() for values in groups])
-    var = np.array([values.var(ddof=1) for values in groups])
-
-    w = n / var
-    w_sum = w.sum()
-    grand = (w * mean).sum() / w_sum
-
-    numerator = (w * (mean - grand) ** 2).sum() / (k - 1)
-    lam = ((1.0 - w / w_sum) ** 2 / (n - 1.0)).sum()
-    denominator = 1.0 + (2.0 * (k - 2.0) / (k ** 2 - 1.0)) * lam
-    statistic = numerator / denominator
-
-    df2 = (k ** 2 - 1.0) / (3.0 * lam)
-    p_value = f.sf(statistic, k - 1, df2)
-    return float(statistic), float(p_value)
 
 
 class spacrGraph:
@@ -5879,50 +5863,36 @@ def proportions_per_unit(df, group_column, bin_column, unit_column):
 
 
 def _compare_groups(samples):
-    """The test spaCR already uses for this shape, chosen the same way.
+    """The test the one engine picks for this shape, under its name.
 
-    Two groups: Shapiro decides normal, then Levene decides Student's or
-    Welch's; non-normal goes to Mann-Whitney. More than two: ANOVA, Welch's
-    ANOVA or Kruskal-Wallis on the same two questions. Returns
-    ``(name, statistic, p)``, or ``(name, nan, nan)`` when there are too few
-    units to test -- which is itself the answer worth printing.
+    Delegates to :func:`spacr.figures.stats.compare` -- Student's t, Welch's
+    t or Mann-Whitney U for two groups; one-way ANOVA, Welch's ANOVA or
+    Kruskal-Wallis for more -- and translates the name through the same map
+    :mod:`spacr.sp_stats` uses, so one package does not spell "Mann-Whitney U
+    test" two ways.
+
+    THIS IS THE CALL WHERE THE POWER FLOOR MATTERS MOST. Its samples are
+    PER-UNIT proportions, so n is the number of wells or plates: three to
+    twelve, never the object count. It used to run its own Shapiro and
+    Levene and read "did not reject" as "the assumption holds", which on six
+    wells is a decision the data cannot support -- and the whole purpose of
+    :func:`proportion_test_by_unit` is to stop overstating exactly this kind
+    of result.
+
+    :param samples: one 1-D array-like per group.
+    :returns: ``(name, statistic, p)``, or ``('too few units', nan, nan)``
+        when the engine refuses -- which is itself the answer worth printing.
     """
-    samples = [np.asarray(s, dtype=float) for s in samples]
-    samples = [s[np.isfinite(s)] for s in samples]
-    if len(samples) < 2 or any(len(s) < 2 for s in samples):
+    from .figures.stats import compare
+    from .sp_stats import _ENGINE_TEST_NAMES
+
+    groups = {index: values for index, values in enumerate(samples)}
+    try:
+        result = compare(groups)
+    except ValueError:
         return "too few units", float("nan"), float("nan")
-
-    normal = True
-    for sample in samples:
-        if len(sample) >= 3 and float(np.ptp(sample)) > 0:
-            try:
-                if shapiro(sample)[1] < 0.05:
-                    normal = False
-            except ValueError:
-                pass
-
-    spread_differs = False
-    if all(float(np.ptp(s)) > 0 for s in samples):
-        try:
-            spread_differs = levene(*samples)[1] < 0.05
-        except ValueError:
-            spread_differs = False
-
-    if len(samples) == 2:
-        if not normal:
-            stat, p = mannwhitneyu(*samples, alternative="two-sided")
-            return "Mann-Whitney U", float(stat), float(p)
-        stat, p = ttest_ind(*samples, equal_var=not spread_differs)
-        return ("Welch's T-test" if spread_differs else "T-test",
-                float(stat), float(p))
-    if not normal:
-        stat, p = kruskal(*samples)
-        return "Kruskal-Wallis", float(stat), float(p)
-    if spread_differs:
-        stat, p = _welch_anova(samples)
-        return "Welch's ANOVA", float(stat), float(p)
-    stat, p = f_oneway(*samples)
-    return "One-way ANOVA", float(stat), float(p)
+    return (_ENGINE_TEST_NAMES.get(result.test, result.test),
+            float(result.statistic), float(result.p_value))
 
 
 def proportion_test_by_unit(df, group_column, bin_column, unit_column):
