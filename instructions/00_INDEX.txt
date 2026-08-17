@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-102 done / 13 open (88%).
+103 done / 12 open (89%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -59,9 +59,6 @@ OPEN
 
   123  EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
        123_every_installer_version_stays_downloadable.txt
-
-  124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
-       124_the_regression_figures_finished.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -169,3 +166,4 @@ DONE
   112  guards added; the permanently-skipped link test now runs in CI.
   113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
   120  THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
+  124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
