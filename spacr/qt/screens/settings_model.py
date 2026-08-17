@@ -3870,6 +3870,23 @@ PATH_LIST_TITLES: Dict[str, str] = {
 }
 
 
+#: The subset of :data:`PATH_LIST_KEYS` that names exactly ONE file.
+#:
+#: Every one of these is declared ``str`` in :mod:`spacr.settings` and is
+#: handed to ``pd.read_csv`` unchanged -- ``sequencing.map_sequences_to_names``
+#: for the three barcode references, the legacy helpers for the other two.
+#: Giving them the multi-file control made the panel COLLECT a one-element
+#: list, so merely opening the module and saving rewrote
+#: ``column_csv=/…/barcodes_column.csv`` to ``['/…/barcodes_column.csv']`` in
+#: the user's settings file, and the run then died on "Invalid file path or
+#: buffer object type: <class 'list'>" after it had already started reading
+#: FASTQs. The dialog and the drop target stay; the shape of the value goes
+#: back to what its consumer reads.
+PATH_LIST_SINGLE_KEYS: Tuple[str, ...] = (
+    "grna_csv", "row_csv", "column_csv", "barcodes", "grna",
+)
+
+
 #: Settings whose legal values are a short, closed, ordered set.
 #:
 #: ``train_channels`` is the reason this table exists. It is declared a plain
@@ -4621,6 +4638,7 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 kind=PATH_LIST_KEYS[key],
                 title=PATH_LIST_TITLES.get(key, "Choose input files"),
+                single=key in PATH_LIST_SINGLE_KEYS,
                 parent=parent,
             )
         if key == "paired_data":

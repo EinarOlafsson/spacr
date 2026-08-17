@@ -180,3 +180,83 @@ def test_settings_model_round_trips_interactive_barcode_regex(qtbot):
     widget.set_value(pattern)
     assert model.collect()["regex"] == pattern
     assert widget._status.text() == "✓"
+
+
+# ---------------------------------------------------------------------------
+# One barcode reference is ONE file
+# ---------------------------------------------------------------------------
+#
+# `grna_csv`, `row_csv` and `column_csv` each name a single CSV of
+# ``name,sequence`` pairs, and `sequencing.map_sequences_to_names` hands each
+# one straight to `pd.read_csv`. The panel gave all three the multi-file
+# picker, so opening the screen turned the bundled default path into a
+# one-element LIST -- which rewrote the user's settings file the moment they
+# saved, and reached `pd.read_csv` as "Invalid file path or buffer object
+# type: <class 'list'>" once the run was already reading FASTQs.
+
+_ONE_FILE_KEYS = ("grna_csv", "row_csv", "column_csv")
+
+
+def _barcode_model(qtbot):
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    model = SettingsWidgets("map_barcodes")
+    model.build_sections()
+    for widget in model._widgets.values():
+        qtbot.addWidget(widget)
+    return model
+
+
+def test_a_barcode_reference_collects_as_the_path_it_was_given(qtbot):
+    """Opening the screen and saving must give back what was loaded."""
+    from spacr.settings import bundled_barcode_path
+
+    model = _barcode_model(qtbot)
+    collected = model.collect()
+    for key, kind in zip(_ONE_FILE_KEYS, ("grna", "row", "column")):
+        assert collected[key] == bundled_barcode_path(kind), (
+            f"opening the screen rewrote {key}")
+
+
+def test_a_barcode_reference_is_the_type_its_consumer_reads(qtbot):
+    """`spacr.settings.expected_types` says `str` for all three, and
+    `map_sequences_to_names` passes the value to `pd.read_csv`, which refuses
+    a list outright."""
+    from spacr.settings import expected_types
+
+    collected = _barcode_model(qtbot).collect()
+    for key in _ONE_FILE_KEYS:
+        assert expected_types[key] is str, "the declaration moved"
+        assert isinstance(collected[key], str), (
+            f"{key} reaches pd.read_csv as {type(collected[key]).__name__}")
+
+
+def test_a_settings_file_that_already_holds_the_list_shape_loads_as_one_path(
+        qtbot, tmp_path):
+    """The panel wrote lists into real settings files while this was broken.
+    Loading one back has to give the single path again rather than carrying
+    the wrong shape forward."""
+    model = _barcode_model(qtbot)
+    csv = tmp_path / "barcodes.csv"
+    csv.write_text("name,sequence\nA1,ACGT\n")
+
+    assert model.set_value_for_key("row_csv", [str(csv)]) is True
+
+    assert model.collect()["row_csv"] == str(csv)
+
+
+def test_choosing_another_barcode_reference_replaces_the_first(qtbot,
+                                                               tmp_path):
+    """There is one row-barcode CSV per run. A second choice is a CORRECTION,
+    and a control that appended left the run reading a file the user thought
+    they had replaced."""
+    model = _barcode_model(qtbot)
+    first, second = tmp_path / "old.csv", tmp_path / "new.csv"
+    for path in (first, second):
+        path.write_text("name,sequence\nA1,ACGT\n")
+    widget = model._widgets["row_csv"]
+
+    widget.add_paths([str(first)])
+    widget.add_paths([str(second)])
+
+    assert model.collect()["row_csv"] == str(second)
