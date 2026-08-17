@@ -866,3 +866,60 @@ A REAL BUG FOUND IN PASSING, WHOSE FIX IS IN THE REGRESSION SESSION'S FILES:
   move `convert_settings_dict_for_gui` already made into `settings_spec.py`,
   which is what the sibling test asserts about. Failing that,
   `get_setting_dependencies` must not be called at panel-build time.
+
+--------------------------------------------------------------------------------
+spacr/qt/dnd_handlers.py -- 77% TO 100% -- 2026-08-17
+--------------------------------------------------------------------------------
+
+The next entry down: 249 uncovered at 76.9% in the whole-package table.
+Measured over the ten existing files that import it plus the one added here:
+
+    before   1107 statements   252 missing    77%
+    after    1107 statements     0 missing   100%
+    152 new cases in tests/qt/test_cov_dnd_handlers.py
+    632 passed over the whole set
+
+No `# pragma: no cover`, and again nothing was unreachable.
+
+WHAT WAS UNTESTED, AND IT IS A SHAPE WORTH NOTICING. The existing suite
+covers the PIPELINE modules' handlers thoroughly -- mask, measure, classify,
+map_barcodes. What it had never touched was everything registered below
+them: the background folder scanner's whole lifecycle, the `LayoutDropHandler`
+base class in three of its four outcomes, and the two dozen tool and results
+screens (Plate Queue, Batch Runner, Model Zoo, Import Project, Investigate
+Hit, Explain CV, External Masks, the table screens' "which table did you
+mean", the mask chooser, Methods & Results, Classifier Evaluation,
+Distributed Jobs, the plugin drop-handler registry). Each is small; there are
+just a great many of them, which is exactly the profile the 2026-08-16 note
+predicted for the rest of this task.
+
+NO NEW BUG IN THE MODULE ITSELF, which is worth stating rather than leaving
+as an absence: every branch behaved as its docstring said. The handlers'
+error paths are unusually well specified because each one had to answer "what
+does the user see when this drop is wrong", and they do.
+
+TWO TRAPS FOR THE NEXT WORKER, both cost time here:
+
+  * A TEST THAT PATCHES `sqlite3.connect` MODULE-WIDE SEGFAULTS THE RUN AT
+    EXIT, under the coverage tracer only, after every test has already
+    passed. It reads as an unrelated crash in whichever file happens to be
+    first. Drive the failed-open branch through a database path that is
+    genuinely absent instead.
+  * `qtbot.addWidget(w)` followed by `shiboken6.delete(w)` breaks pytest-qt's
+    teardown (`w.close()` on a deleted C++ object), and the NEXT test then
+    errors with "previous item was not torn down properly", which points at
+    the wrong test. A widget the test destroys on purpose must not be given
+    to qtbot.
+
+--------------------------------------------------------------------------------
+NOT THIS INSTRUCTION'S, BUT IN THE WAY -- 2026-08-17
+--------------------------------------------------------------------------------
+
+`tests/test_test_suite_hygiene.py::test_no_new_assertion_free_tests` fails on
+`tests/test_a_refit_is_a_new_run.py:89 test_every_backend_can_be_refit_into`.
+That file is UNTRACKED, alongside uncommitted `spacr/refit.py`,
+`spacr/qt/widgets/refit_dialog.py` and edits to `ml.py`, `app_screen.py`,
+`fast_plots.py` and `regression_results.py` -- the regression session's work
+in progress. Recorded here because the guard is a ratchet: whoever finishes
+that work has to give the test a real assertion, or the ratchet stays red for
+everyone.
