@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
 from PySide6.QtWidgets import (
+    QBoxLayout,
     QCheckBox,
     QComboBox,
     QFormLayout,
@@ -5229,26 +5230,89 @@ _EDITOR_TYPES = (QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox,
 DISABLED_REASON_TOOLTIP = "spacrDisabledReasonTooltip"
 
 
-def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
-    """A QLabel in the same parent that reads as this field's name.
+def _owning_layout(root: QLayout, field: QWidget):
+    """The innermost layout that holds ``field`` directly, and its index."""
+    stack = [root]
+    while stack:
+        layout = stack.pop()
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            if item is None:
+                continue
+            if item.widget() is field:
+                return layout, index
+            child = item.layout()
+            if child is not None:
+                stack.append(child)
+    return None, -1
 
-    Positional rather than layout-based on purpose: the screens this has to
-    cover are hand-built, and they use form layouts, grids and plain rows
-    interchangeably. What they agree on is that the name sits to the LEFT of
-    the editor on roughly the same line, which is the thing a user is
-    actually looking at when they go to hover it.
+
+def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
+    """The QLabel a LAYOUT says names this field.
+
+    Asked of the layout rather than of the geometry, because the screens run
+    :func:`retarget_field_tooltips` at the end of ``__init__`` -- before the
+    widget has ever been shown, laid out or resized. Every child is still at
+    (0, 0) there, so a matcher that compares x and y answers "the first label
+    in this parent" for EVERY field, and the pass then moves one setting's
+    help onto that label and DELETES the rest. It measurably did: 80 settings
+    across the Qt screens had no help left anywhere.
+
+    A layout knows the pairing with no geometry at all. Three shapes cover
+    what the hand-built screens use, and each is the same claim -- the name
+    sits to the LEFT of the editor:
+
+    * ``QFormLayout`` -- ``labelForField`` is the pairing, exactly;
+    * ``QGridLayout`` -- the nearest label in a lower column of the same row;
+    * a horizontal box -- the nearest label before it in the row.
+
+    Anything else returns None, which leaves the field's tooltip alone. A
+    setting whose help is on the field is a smaller defect than a setting
+    with no help at all.
     """
     parent = field.parentWidget()
-    if parent is None:
+    root = parent.layout() if parent is not None else None
+    if root is None:
         return None
-    for label in parent.findChildren(QLabel):
-        if label.parentWidget() is not parent:
-            continue
-        if not label.text().strip():
-            continue
-        if (label.x() <= field.x()
-                and abs(label.y() - field.y()) < field.height() + 6):
-            return label
+    layout, index = _owning_layout(root, field)
+    if layout is None:
+        return None
+
+    def _named(widget) -> Optional[QWidget]:
+        if not (isinstance(widget, QLabel) and widget.text().strip()):
+            return None
+        # A label with a pointing hand is this repository's convention for
+        # "this text is clickable" -- AiToggleLabel, _ClearFiguresLabel, the
+        # console's copy glyph. Such a label is a CONTROL sharing the row,
+        # not the name of the editor beside it, and its own tooltip explains
+        # itself rather than its neighbour.
+        if widget.cursor().shape() == Qt.PointingHandCursor:
+            return None
+        return widget
+
+    if isinstance(layout, QFormLayout):
+        return _named(layout.labelForField(field))
+
+    if isinstance(layout, QGridLayout):
+        row, column, _rows, _cols = layout.getItemPosition(index)
+        for candidate in range(column - 1, -1, -1):
+            item = layout.itemAtPosition(row, candidate)
+            found = _named(item.widget()) if item is not None else None
+            if found is not None:
+                return found
+        return None
+
+    if (isinstance(layout, QBoxLayout)
+            and layout.direction() == QBoxLayout.LeftToRight
+            and index > 0):
+        # The item IMMEDIATELY before it, and nothing further back. A row of
+        # several controls has labels belonging to each of them, and scanning
+        # backwards past an intervening control pairs an editor with the
+        # previous setting's name -- or, in the preview panels, with the
+        # "drop a folder here" placeholder that happens to sit first in the
+        # row.
+        item = layout.itemAt(index - 1)
+        return _named(item.widget()) if item is not None else None
     return None
 
 
@@ -5290,12 +5354,17 @@ def retarget_field_tooltips(root: QWidget) -> int:
         label = _sibling_label_for(field)
         if label is None:
             continue
-        if not label.toolTip():
+        existing = label.toolTip()
+        if existing and existing != tip:
+            # Two settings cannot share one name, so this pairing is wrong.
+            # Leave the help where it is: clearing it here is how 80 settings
+            # ended up with no help anywhere, which is a worse defect than
+            # the one this pass exists to fix.
+            continue
+        if not existing:
             label.setToolTip(tip)
             label.setToolTipDuration(-1)
             label.setCursor(Qt.WhatsThisCursor)
-        # Cleared either way: the label is the hover target now, whether it
-        # took this text or already had better.
         field.setToolTip("")
         moved += 1
     return moved
