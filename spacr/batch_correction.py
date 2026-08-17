@@ -86,13 +86,51 @@ class BatchCorrectionReport:
 
 
 def _as_controls(values: Any) -> List[Any]:
-    """Normalize a scalar or iterable control specification."""
+    """Normalize a scalar or iterable control specification.
+
+    A COMMA-SEPARATED STRING IS SEVERAL VALUES, not one with a comma in it.
+
+    Reported 2026-08-17: typing ``c1,c2`` into `batch_control_values` failed
+    the run with ``Only 0 total reference-control row(s) matched ['c1,c2'];
+    need at least 3`` -- the whole string had been wrapped into a
+    one-element list and then matched against well names, which of course
+    matched nothing.
+
+    It is the GUI widget underneath: `list_shape_for` gives a key a list
+    editor only when its declared type admits NOTHING BUT a list, and this
+    key admits ``str, int, float, list, tuple, None``, so it gets a plain
+    text box. Splitting here rather than widening that rule keeps the fix
+    where the meaning is, and matches what the user sees in the same panel --
+    `filter_value` and `control_wells` sit directly above it and are lists of
+    exactly these well names.
+
+    A value containing a comma AND meant literally is not a thing a plate
+    column holds, so there is nothing to lose by splitting. Pass a real list
+    to be unambiguous.
+    """
     if values is None:
         return []
-    if isinstance(values, (str, bytes)):
-        return [values]
+    if isinstance(values, bytes):
+        values = values.decode(errors="replace")
+    if isinstance(values, str):
+        text = values.strip()
+        if not text:
+            return []
+        if "," in text:
+            return [part.strip() for part in text.split(",") if part.strip()]
+        return [text]
     if isinstance(values, Iterable):
-        return list(values)
+        # The same rule one level in: a LIST holding one comma-separated
+        # string is what a settings CSV round-trip produces, and it fails
+        # exactly the same way.
+        out: List[Any] = []
+        for value in values:
+            if isinstance(value, str) and "," in value:
+                out.extend(part.strip() for part in value.split(",")
+                           if part.strip())
+            else:
+                out.append(value)
+        return out
     return [values]
 
 
@@ -656,9 +694,20 @@ def correct_batch_effects(
         report.controls = int(control_mask.sum())
         pooled = numeric.loc[control_mask]
         if len(pooled) < min_samples:
+            # SAY WHAT IS ACTUALLY THERE. "matched nothing" with no sight of
+            # the column is a message that sends the user to the wrong place;
+            # the commonest cause is a control name that is not one of the
+            # values the column holds.
+            try:
+                present = sorted({str(v) for v in control.dropna().unique()})
+            except Exception:                                    # noqa: BLE001
+                present = []
+            seen = (f" The column holds {present[:12]}"
+                    + (" and more." if len(present) > 12 else ".")
+                    if present else "")
             raise ValueError(
                 f"Only {len(pooled)} total reference-control row(s) matched "
-                f"{controls!r}; need at least {min_samples}."
+                f"{controls!r}; need at least {min_samples}.{seen}"
             )
         pooled_center = pooled.median(axis=0)
         missing_batches = []
