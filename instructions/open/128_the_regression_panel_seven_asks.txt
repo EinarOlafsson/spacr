@@ -1,0 +1,151 @@
+================================================================================
+THE REGRESSION PANEL: DEFAULTS, COLOURING, THE GRID, MORE TABS, PLOT TYPES,
+AND A WIDER LEFT PANEL
+================================================================================
+
+Status:    filed 2026-08-17, in progress.
+Requested: 2026-08-17 --
+
+           "in regression make gene the default of volcano"
+           "the color by dosnt include condition"
+           "the regression plot isnt shown in all figures (i want it also
+            shown there)"
+           "in the tabs Q-Q and Controls, there should be Tabs like residuals
+            showing the residuals and regression controll graphs like that."
+           "for the live plots id like to be able to right click and change
+            the plot type like show guide support as a violin, box, bar,
+            jitter plot"
+           "the left panel should be wider"
+           "lopit should be in color by"
+
+Related:  124 closed the regression figures; 125 is the runs tab and the old
+          volcano; 119 is the figure surface index.
+
+--------------------------------------------------------------------------------
+A. `volcano` DEFAULTS TO GENE
+--------------------------------------------------------------------------------
+
+`spacr/settings.py:1902` does `settings.setdefault('volcano', 'grna')`.
+
+The DOCSTRING for the same setting, at settings.py:3529, already says
+"'gene' (default)". So the code and its own documentation disagree, and the
+maintainer's request is for the documented behaviour. Change the code, not
+the doc.
+
+Worth checking whether anything reads `volcano` expecting 'grna' before
+flipping it -- the gene table is the smaller one and is what the phenotype
+and heatmap reports are keyed on, so this should be the cheaper default too.
+
+--------------------------------------------------------------------------------
+B. "COLOUR BY" MUST OFFER condition -- AND SAY WHY WHEN IT CANNOT
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, because the obvious diagnosis was wrong. On a synthetic
+1,200-row table with nc/pc/other, `condition` IS offered:
+
+    colour-by offers: [('nothing', None), ('condition (3)', 'condition')]
+
+So the filter is not blanket-excluding it. The rule in `set_frame` is
+
+    dtype is object/category AND 1 < distinct <= max(40, len(frame) // 20)
+
+and the two ways a real screen falls out of it are:
+
+  * `distinct == 1`. Every row is 'other' -- which happens when the
+    negative/positive control NAMES do not match any feature, so nothing is
+    labelled. `1 < 1` is False and the column vanishes.
+  * the column is absent, on a table loaded from a gene/grna split CSV.
+
+BOTH ARE SILENT TODAY, and that is the actual defect: a column the user
+expects to see simply is not in the list, with nothing saying why. A
+one-value `condition` is ALSO a finding -- it means the control names did not
+match -- and hiding it hides that.
+
+    So: offer it, or say why it is not offered. Never omit in silence.
+
+--------------------------------------------------------------------------------
+C. LOPIT IN "COLOUR BY"
+--------------------------------------------------------------------------------
+
+`spacr/localisation.py` already joins a coefficient table to the TAGM/LOPIT
+compartments (`of`, `present`, `mask`) and the volcano's right-click submenu
+uses it. It is not a COLUMN, so the colour-by combo -- which walks
+`frame.columns` -- cannot see it.
+
+Add it as a DERIVED option. The house rule caps how it is drawn (one
+compartment against grey, 26 hues is what the rule forbids), but as a
+colour-by category on the interactive plot the existing categorical path
+already handles it; `present()` gives the ones this screen actually has.
+
+--------------------------------------------------------------------------------
+D. THE REGRESSION PLOT BELONGS ON THE ALL-FIGURES GRID
+--------------------------------------------------------------------------------
+
+The interactive volcano is built with `external_volcano=True` and placed by
+the caller, so the grid -- which shows the run's matplotlib figures -- does
+not carry it. The maintainer wants it there too.
+
+TRAP, already written down in 121: `_FigureCell.index` is the enumerate index
+over the pixmap list and `figure_activated` forwards it straight to
+`FigureQueue.show_index()`, so anything inserted into that list SHIFTS EVERY
+FIGURE AFTER IT. Whatever is added has to keep that mapping honest.
+
+The house-style volcano (`figures/panels.volcano`) is already drawn and saved
+by a run, so check first whether the ask is "the saved one is missing from
+the grid" rather than "put the live widget on the grid" -- they are different
+jobs and the first may already be a bug.
+
+--------------------------------------------------------------------------------
+E. MORE DIAGNOSTIC TABS BESIDE Q-Q AND CONTROLS
+--------------------------------------------------------------------------------
+
+"in the tabs Q-Q and Controls, there should be Tabs like residuals showing
+the residuals and regression controll graphs like that."
+
+`spacr/qt/widgets/fast_plots.py` already has `ResidualPlot`, and
+`spacr/regression_qc.py` has ~19 panels. The panel shows five of them. The
+ask is for the residual diagnostics to be reachable live, as tabs, the way
+Q-Q and Controls are.
+
+Pick from what regression_qc already computes rather than writing new
+statistics -- the module is 3,444 lines and its panels are already the ones
+the run saves.
+
+--------------------------------------------------------------------------------
+F. RIGHT-CLICK A LIVE PLOT TO CHANGE ITS TYPE
+--------------------------------------------------------------------------------
+
+"show guide support as a violin, box, bar, jitter plot".
+
+The right-click menu already restyles (point size, colour, opacity, axis
+labels, legend) and offers baselines and the re-fit. This adds the MARK.
+
+FOLLOW THE SKILL'S RULE rather than offering four equal options: for n <= 8
+per group it is individual points with a mean line, never a bar; a box plot
+hides n; a violin on few points draws a distribution that is not there. So
+offer them, and let the panel say when the chosen one is misleading for the
+data in front of it rather than silently drawing it.
+
+--------------------------------------------------------------------------------
+G. THE LEFT PANEL IS WIDER
+--------------------------------------------------------------------------------
+
+A splitter size, not a fixed width -- the divider stays the user's to move.
+Whatever is set has to survive a restart if the app already remembers
+splitter state, and must not fight the minimum widths the results panel
+sets (`volcano.setMinimumHeight(240)`, `table.setMinimumHeight(150)` are the
+existing precedent for "floors, not preferences").
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A run that says nothing about `volcano` draws the GENE volcano.
+* `condition` is in the colour-by list, or the panel says why it is not.
+* LOPIT compartment is in the colour-by list on a Toxoplasma screen.
+* The regression plot appears on the all-figures grid, and clicking any tile
+  still opens the figure that tile shows.
+* Residual diagnostics are a tab beside Q-Q and Controls.
+* Right-clicking the guide-support plot offers violin / box / bar / jitter,
+  and says when the choice misleads for this n.
+* The left panel is wider on first open, and the divider still moves.
