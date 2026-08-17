@@ -70,12 +70,13 @@ RESOLVED_OUTPUT_KEYS = ("results_path", "res_folder", "volcano_path")
 def policed_settings() -> Dict[str, object]:
     """``{setting: the value that means "not asked for"}``.
 
-    Read from :mod:`spacr.ml` rather than restated here, so the reset below
+    Read from :mod:`spacr.regression_spec` -- the module ml itself reads them
+    from -- rather than restated here, so the reset below
     cannot drift from the check that would refuse the result. The two tables
     were one table for exactly one commit before this module existed, and a
     copy would have gone stale the first time a backend gained a knob.
     """
-    from .ml import _MODEL_LEVEL_DEFAULTS, _RUN_LEVEL_DEFAULTS
+    from .regression_spec import _MODEL_LEVEL_DEFAULTS, _RUN_LEVEL_DEFAULTS
 
     merged = dict(_MODEL_LEVEL_DEFAULTS)
     merged.update(_RUN_LEVEL_DEFAULTS)
@@ -96,7 +97,7 @@ def prune_for_type(settings: dict, regression_type) -> Tuple[dict, List[str]]:
     at its default are the same thing to the fit but not to the settings
     panel, which would show an empty box where it used to show 1.0.
     """
-    from .ml import REGRESSION_SETTINGS_USED
+    from .regression_spec import REGRESSION_SETTINGS_USED
 
     used = REGRESSION_SETTINGS_USED.get(regression_type, ())
     out = dict(settings)
