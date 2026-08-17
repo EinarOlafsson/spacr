@@ -984,6 +984,55 @@ def test_a_side_must_be_score_or_count(qtbot):
         paired.add_paths_for_side(["/tmp/x.csv"], "sideways")
 
 
+def test_two_lists_added_in_opposite_orders_still_pair_by_plate(qtbot,
+                                                                tmp_path):
+    """The wrong-pair run that nothing else catches, and the whole reason
+    the paired table exists.
+
+    Two score files and two count files, added in OPPOSITE orders. Under the
+    old contract -- two independent lists zipped by LIST POSITION -- plate 2's
+    scores met plate 1's counts. The join succeeded, the well count looked
+    right, and every effect size was attached to the wrong plate: no error,
+    no warning, no way to see it in the panel, because nothing in the panel
+    ever stated that position was the contract.
+
+    The file picker hands files over in the file manager's order, so getting
+    them in opposite orders is one sort click away.
+    """
+    from itertools import zip_longest
+
+    from spacr.qt.widgets.file_list import PairedFileTableWidget
+
+    scores, counts = {}, {}
+    for plate in (1, 2):
+        score = tmp_path / f"plate{plate}_dv.csv"
+        score.write_text("path,pred,plate\na,0.5,plate1\n")
+        count = tmp_path / f"plate_{plate}_unique_combinations.csv"
+        count.write_text("row_name,column_name,grna_name,count\nr1,c1,g,5\n")
+        scores[plate], counts[plate] = str(score), str(count)
+
+    added_scores = [scores[2], scores[1]]
+    added_counts = [counts[1], counts[2]]
+
+    # The old rule, replayed on the same two lists: position pairs plate 2's
+    # scores with plate 1's counts.
+    positional = list(zip_longest(added_scores, added_counts))
+    assert positional[0] == (scores[2], counts[1])
+
+    paired = _tracked(qtbot, PairedFileTableWidget())
+    paired.add_paths_for_side(added_scores, "score")
+    paired.add_paths_for_side(added_counts, "count")
+
+    rows = paired.get_value()
+    assert len(rows) == 2, "two plates are two rows"
+    for row in rows:
+        assert row["score"] and row["count"], "no row may be left half filled"
+    # Both cells of a row name the same plate, whichever order they arrived in.
+    by_score = {row["score"]: row["count"] for row in rows}
+    assert by_score[scores[1]] == counts[1]
+    assert by_score[scores[2]] == counts[2]
+
+
 class TestTheOutputFolderIsTheCallersChoice:
     """Two conditions must not overwrite each other's results.
 
