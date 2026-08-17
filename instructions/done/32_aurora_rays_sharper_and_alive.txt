@@ -39,3 +39,24 @@ HOW TO KNOW IT WORKED
 
 Watch it: rays visibly differ in length from each other and each changes at
 its own rate. Frame cost unchanged or lower.
+
+================================================================================
+2026-08-17 - CLOSED. THE WORK LANDED; NOBODY WROTE IT DOWN HERE.
+================================================================================
+
+The header said "not started" and the file carried no RESULT, so this audit
+went looking in the code rather than trusting either. All three items ship in
+`spacr/qt/widgets/ambient.py`:
+
+  1. SHARPER -- a falloff table (``(stop, alpha multiplier)``, roughly
+     Gaussian) with a sharp lower edge and a diffuse top, rather than more
+     rays.
+  2. ALIVE -- the folds are travelling waves, several superposed frequencies
+     running lengthwise along the arc, with brightness surges on a SEPARATE
+     schedule. Each scene is seeded and everything it draws is a pure
+     function of ``(seed, time)``, so no two rays march in step.
+  3. CHEAP -- measured, and the measurement is in that module's own header:
+     the aurora shading pass is 0.487 / 0.546 ms at 1920x1080, best of
+     thirteen interleaved runs, one allocation on resize and none per frame.
+
+Recorded here so the next audit does not have to re-derive it from the source.
