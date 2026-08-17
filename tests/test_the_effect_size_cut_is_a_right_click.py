@@ -6,13 +6,23 @@ be available when i right click on the graph ... the coefficent threshold
 multiplyer, coefficient threshold mode (none, var, std, also add several
 other methods that make sense at least 4 more)".
 
-WHY THEY GREY OUT, since that was the complaint and it is not a bug:
-`threshold_method` and `threshold_multiplier` carry a dependency rule whose
-sources are ('inference', 'analysis_mode'), so they grey under
-`inference='nonparametric'` / `analysis_mode='guide_permutation'`. That is
-CORRECT -- the permutation path tests each guide as a marginal association
-and uses no control-spread cut at all -- but it made the controls
-unfindable. They are on the plot now, where the cut is drawn.
+WHY THEY GREY OUT: `threshold_method` and `threshold_multiplier` carry a
+dependency rule in `spacr/settings.py` whose sources are ('inference',
+'analysis_mode'), so they grey under `inference='nonparametric'` /
+`analysis_mode='guide_permutation'`.
+
+THIS FILE USED TO SAY THAT WAS CORRECT, on the reading that "the permutation
+path tests each guide as a marginal association and uses no control-spread
+cut at all". CORRECTED 2026-08-17 after the maintainer asked "why cant i see
+the coefficient threshold if im running nonparametric regression?": the
+permutation table carries a real coefficient per guide, an effect-size cut is
+about how BIG an effect is, and how the P value was obtained does not change
+that. `spacr.ml._run_guide_permutation_analysis` now computes, records and
+draws one, and `tests/test_the_nonparametric_cut_is_a_real_cut.py` pins it --
+including a strict xfail on the settings rule, which is the half still to do.
+
+Either way the controls were unfindable, which is why they are on the plot,
+where the cut is drawn.
 
 Seven methods, up from two.
 """
