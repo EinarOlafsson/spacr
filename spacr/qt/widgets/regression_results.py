@@ -501,6 +501,9 @@ class RegressionResultsPanel(QWidget):
         self._baseline = (None, None)
         #: The one TAGM/LOPIT compartment picked out against grey, or None.
         self._compartment = None
+        #: "raw" or "adjusted" -- which p-value the volcano's y-axis is.
+        self._p_value_kind = "raw"
+        self._p_value_note = ""
         #: How the effect-size cut is measured, and how wide.
         self._threshold_method = "mad"
         self._threshold_multiplier = 3.0
@@ -894,6 +897,7 @@ class RegressionResultsPanel(QWidget):
         self._compartment = None
         self._level = None
         self._offer_levels()
+        self._offer_p_values()
         self._offer_thresholds()
         self._offer_compartments()
 
@@ -1181,6 +1185,49 @@ class RegressionResultsPanel(QWidget):
             lambda f: guide_of(str(f)) is not None)
         return is_guide if self._level == "grna" else ~is_guide
 
+    def _offer_p_values(self) -> None:
+        """Offer raw vs adjusted p-values, when there is a choice.
+
+        Asked for 2026-08-17. Offered ONLY when a corrected column exists:
+        a menu entry for "adjusted" on a run with no correction would promise
+        a number that is not there, and `multiple_testing_method='none'`
+        writes a q_value equal to the p_value, which is not the same thing as
+        having corrected.
+        """
+        frame = self._frame
+        corrected = (_match_column(frame, ("q_value", "adjusted_p_value"))
+                     if frame is not None else None)
+        if corrected is None:
+            self.volcano.offer_p_values([])
+            return
+        method = ""
+        if "multiple_testing_method" in getattr(frame, "columns", ()):
+            values = frame["multiple_testing_method"].dropna().unique()
+            method = str(values[0]) if len(values) else ""
+        if method.lower() in ("none", "nan", ""):
+            # The column is there and it is the raw p under another name.
+            self.volcano.offer_p_values([])
+            self._p_value_note = (
+                f"No correction was applied, so {corrected!r} equals the raw "
+                f"p-value; there is nothing to switch between.")
+            return
+        self._p_value_note = ""
+        self.volcano.offer_p_values([
+            (f"raw p-value", lambda: self.set_p_value_kind("raw"),
+             self._p_value_kind == "raw"),
+            (f"adjusted ({method})",
+             lambda: self.set_p_value_kind("adjusted"),
+             self._p_value_kind == "adjusted"),
+        ])
+
+    def set_p_value_kind(self, kind) -> None:
+        """Draw the volcano against the raw or the adjusted p-value."""
+        self._p_value_kind = kind
+        self._offer_p_values()
+        self._redraw_volcano()
+        self.say(f"Volcano y-axis: {kind} p-value."
+                 + (f" {self._p_value_note}" if self._p_value_note else ""))
+
     def _offer_thresholds(self) -> None:
         """Put the effect-size cut on the volcano's right-click menu.
 
@@ -1303,6 +1350,11 @@ class RegressionResultsPanel(QWidget):
         # carries, which would look exactly like a volcano and be one of a
         # quantity nobody tested.
         p_column = column if kind == "p-value" else "\0no p-value"
+        if kind == "p-value" and self._p_value_kind == "adjusted":
+            corrected = _match_column(self._frame,
+                                      ("q_value", "adjusted_p_value"))
+            if corrected is not None:
+                p_column = corrected
         # MEASURED FROM WHATEVER THE USER CHOSE, on a copy. The run's own
         # table is not shifted under the coefficient table beside it.
         from ...baseline import apply as apply_baseline

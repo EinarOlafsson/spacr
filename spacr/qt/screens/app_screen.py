@@ -3515,10 +3515,24 @@ class AppScreen(QWidget):
         from PySide6.QtGui import QPixmap
 
         pixmaps, titles = [], []
+        # RECURSIVE, because most of a run's figures are in SUBFOLDERS.
+        #
+        # Reported 2026-08-17: "there are a tone of qc graphs that get saved
+        # but are not shown in the program", and "with BH and non parametric
+        # there are several graphs that are saved that are not visualized".
+        # Both are this `listdir`. A run writes ~19 panels into
+        # `regression_qc/`, the permutation plots into their own folder, and
+        # a summary plot per measurement under `results/<name>/` -- and a
+        # flat listing of the run folder sees none of them.
+        names = []
         try:
-            names = sorted(os.listdir(folder))
+            for root, _dirs, files in os.walk(folder):
+                for name in sorted(files):
+                    names.append(os.path.relpath(os.path.join(root, name),
+                                                 folder))
         except OSError:
             return 0
+        names.sort()
         for name in names:
             if not name.lower().endswith((".png", ".pdf")):
                 continue
@@ -3537,7 +3551,12 @@ class AppScreen(QWidget):
             if pixmap.isNull():
                 continue
             pixmaps.append(pixmap)
-            titles.append(os.path.splitext(name)[0])
+            # The SUBFOLDER is part of the name now, because "residuals"
+            # under regression_qc/ and "residuals" under results/ are two
+            # different pictures and a grid captioning both the same is a
+            # grid you cannot navigate.
+            stem = os.path.splitext(name)[0].replace(os.sep, " / ")
+            titles.append(stem)
         if not pixmaps:
             return 0
         grid.set_figures(pixmaps, titles)

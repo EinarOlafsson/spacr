@@ -312,3 +312,47 @@ warning the run prints, next to the table rather than in the log above it.
 
 A summary a reader pastes into a paper from an unidentifiable fit is the
 worst outcome this panel can produce, and it is one click away.
+
+--------------------------------------------------------------------------------
+O. THE FULL RESTYLE MENU: DIMENSIONS, CMAP, MARKER, FONT, LINES, TYPE
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "when right clicking a graph i should also be able to
+choose its dimensions the cmap of the datapoints and their shape, font size
+color, line color and width (sometimes not applicable on certain graph
+types). as well as graph type when applicable".
+
+Some of this ships: point size, point colour, opacity, axis labels, font
+size, grid, legend, the mark type on the grouped plots (F), the baseline, the
+compartment, the effect-size cut and the p-value axis. What is NOT there:
+
+  * FIGURE DIMENSIONS -- width and height. On the interactive plots this is
+    the widget's size and the splitter's; on a SAVED figure it is the
+    figsize, and those are different things. The menu must say which it is
+    changing, or a user sets "dimensions" and finds the exported PDF
+    unchanged.
+  * A COLORMAP for the points, as opposed to the categorical palette that is
+    there. A cmap is for a CONTINUOUS quantity -- colour the volcano by
+    effect size or by well count -- and offering one for a nominal category
+    is the mistake the house style warns about, so the menu should offer it
+    only where the colouring column is numeric.
+  * MARKER SHAPE.
+  * FONT COLOUR (size is there; colour is only on the matplotlib dialog).
+  * LINE COLOUR AND WIDTH -- the reference lines, the threshold lines, the
+    trend on the Q-Q.
+  * GRAPH TYPE where one makes sense. F did this for the grouped plots
+    (violin/box/bar/jitter/points); the request generalises it.
+
+"(sometimes not applicable on certain graph types)" is the design constraint
+and it is the same one instruction 106 solved for settings: AN ENTRY THAT
+CANNOT DO ANYTHING IS GREYED OUT AND SAYS WHY, never silently absent and
+never present-but-inert. A cmap on a categorical colouring, a marker shape on
+a histogram, a line width on a plot with no lines -- each should appear
+disabled with a one-line reason.
+
+DO NOT BUILD A SECOND STYLE SYSTEM. Instruction 127 finding 3 already records
+that `spacr/figure_style.py` (the user's preference, general and per-graph)
+and `spacr/figures/style.py` (the house style) are two systems unaware of
+each other, and that a preference cannot currently reach a house-style panel.
+This menu is the third place that would want the same vocabulary. Merge
+first, or this becomes the reason the merge never happens.

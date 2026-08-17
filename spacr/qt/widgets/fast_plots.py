@@ -404,6 +404,9 @@ class FastPlot(QWidget):
         self._selected_key: Optional[str] = None
         self._highlight = None
 
+        #: ``[(label, callback, checked)]`` for raw vs adjusted p-values.
+        self._p_values = []
+
         #: ``([(label, callback, checked)], multiplier, on_multiplier)`` for
         #: the effect-size cut, or an empty triple.
         self._thresholds = ([], None, None)
@@ -529,6 +532,15 @@ class FastPlot(QWidget):
         """
         self._compartments = list(options or ())
 
+    def offer_p_values(self, options) -> None:
+        """Offer raw vs adjusted p-values for the y-axis.
+
+        :param options: ``[(label, callback, checked)]``, or empty when there
+            is no correction to switch to -- an entry promising "adjusted" on
+            an uncorrected run offers a number that is not there.
+        """
+        self._p_values = list(options or ())
+
     def offer_thresholds(self, options, *, multiplier=None,
                          on_multiplier=None) -> None:
         """Offer the effect-size cut: how it is measured and how wide.
@@ -630,6 +642,16 @@ class FastPlot(QWidget):
                 action = menu.addAction(label, callback)
                 action.setCheckable(True)
                 action.setChecked(bool(checked))
+        if self._p_values:
+            # THE Y-AXIS ITSELF. Above the effect-size cut because it changes
+            # what the axis MEANS, while the cut changes where a line is
+            # drawn on it.
+            menu.addSection("p-value")
+            for label, callback, checked in self._p_values:
+                action = menu.addAction(label, callback)
+                action.setCheckable(True)
+                action.setChecked(bool(checked))
+
         options, multiplier, on_multiplier = self._thresholds
         if options:
             # ITS OWN SECTION. It changes which points count as hits, so it
