@@ -523,3 +523,44 @@ def test_generate_time_lists_skips_malformed_names(tmp_path):
         "plate1_A01_1_1.npy", "plate1_A01_1_2.npy", "plate1_A01_1_10.npy"]
     assert by_key["plate1_A02_1"] == ["plate1_A02_1_1.npy"]
     assert all(re.match(r".*_\d+\.npy$", f) for g in groups for f in g)
+
+
+# ---------------------------------------------------------------------------
+# the writer and the reader, pinned to each other
+# ---------------------------------------------------------------------------
+
+def test_measure_can_read_back_the_stack_names_this_ingest_writes(tmp_path):
+    """The ingest names every stack ``plate_well_field_TIME`` -- always.
+
+    ``timelapse`` decides whether the timepoint is carried into the keys, not
+    whether it is written into the file name, so an ordinary plate's
+    ``merged/*.npy`` has four components and is read back with
+    ``timelapse=False``. When the reader refused that fourth component, every
+    field of every ordinary run came back as the literal string ``'error'`` in
+    all five slots; ``_merge_and_save_to_database`` then rejected the frame
+    for a prcf disagreeing with its identity columns, and ``measure_crop``
+    wrote no measurement tables at all.
+
+    The writer and the reader live in two modules and only their agreement
+    matters, so this drives the real ingest and feeds its own output back.
+    The demo-pipeline test that showed the same failure is ``slow``-marked
+    and therefore deselected in CI, which is how it went unnoticed.
+    """
+    from spacr.io import _rename_and_organize_image_files
+    from spacr.utils import _map_wells
+
+    src = tmp_path / "plate1"
+    src.mkdir()
+    _write(src / _cv_name(well="A01", field="002", chan="01"), 5)
+    _write(src / _cv_name(well="A01", field="002", chan="02"), 6)
+
+    _rename_and_organize_image_files(
+        str(src), CV_REGEX, batch_size=10, metadata_type="custom",
+        img_format=[".tif"], save_original_images=False)
+
+    written = sorted(os.listdir(src / "stack"))
+    assert written == ["plate1_A01_2_1.npy"], written
+
+    plate, row, column, field, prcf = _map_wells(written[0], timelapse=False)
+    assert (plate, row, column, field) == ("plate1", "r1", "c1", "f2")
+    assert prcf == "plate1_r1_c1_f2"
