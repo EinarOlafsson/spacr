@@ -3573,6 +3573,26 @@ def perform_regression(settings):
         n_gene.columns = [column_2, f"n_{column_2}"]
 
         return df, n_grna, n_gene
+    # WHAT THESE COUNT, because the names invite a wrong reading and the
+    # maintainer asked outright whether they work.
+    #
+    # `df` is one row per (well, guide). So:
+    #
+    #   n_grna  for a guide = the number of WELLS that guide appears in.
+    #   n_gene  for a gene  = the number of (well x guide) ROWS it has,
+    #                         i.e. wells MULTIPLIED BY guides.
+    #
+    # n_gene is therefore NOT "how many guides target this gene" and NOT
+    # "how many wells this gene is in". On the real screen gene 244480 has
+    # ONE guide and n_gene = 5 (that guide in five wells), while 239740 has
+    # TWO guides and n_gene = 15. A reader comparing n_gene across genes is
+    # comparing a product, not a count of anything.
+    #
+    # Left as the product rather than quietly redefined: `min_n` filters on
+    # it and the results CSVs of every past run carry it, so changing what
+    # the number MEANS is a separate decision from fixing WHICH ROWS it is
+    # taken over. The guide-support table beside it already reports guides
+    # per gene, which is the number a reader usually wants.
 
 
     def _qc_plot(plot_settings):
@@ -3896,7 +3916,9 @@ def perform_regression(settings):
         print(independent_df.head())
         print(independent_df)
         
-    independent_df, n_grna, n_gene = _count_variable_instances(independent_df, column_1='grna', column_2='gene')
+    # COUNTED AFTER THE MERGE, NOT HERE. See below -- the counts are taken
+    # from `merged_df`, which is what actually reached the fit. Counting
+    # `independent_df` here counted rows the inner merge was about to drop.
     
     if settings['verbose']:
         print(f"Independent variable after process_reads: {len(independent_df)}")
@@ -3923,6 +3945,23 @@ def perform_regression(settings):
                          validate=merge_validate)
 
     _check_score_count_pairing(independent_df, dependent_df, merged_df)
+
+    # n_grna / n_gene DESCRIBE THE ROWS THAT REACHED THE FIT.
+    #
+    # They were counted on `independent_df`, BEFORE this merge -- and the
+    # merge is an INNER join (no `how=`), so every sequencing well without an
+    # imaging partner was counted and then dropped. On the real screen that
+    # is 724 of 1,344 wells: "Paired 620 wells. 724 sequencing well(s) ...
+    # take no part in the regression." Measured on a synthetic case with half
+    # the wells unpaired, every count came out EXACTLY 2x too high.
+    #
+    # It matters beyond the display. `min_n` filters the hit list on these
+    #     significant[significant['n_grna'] > settings['min_n']]
+    # so an inflated count lets a guide through a filter it should fail --
+    # which is a hit reported on evidence that is not there.
+    independent_df, n_grna, n_gene = _count_variable_instances(
+        merged_df, column_1='grna', column_2='gene')
+    independent_df = merged_df
 
     if settings['verbose']:
         display(independent_df)

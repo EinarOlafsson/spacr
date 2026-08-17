@@ -245,3 +245,37 @@ the two disagree on screen at the same time.
     family CHANGES THE CALIBRATION being shown. A Q-Q of the guides only is a
     different diagnostic from a Q-Q of the whole fit, and the panel must say
     which it is drawing rather than leaving the reader to assume.
+
+--------------------------------------------------------------------------------
+M. RESIDUAL AND HOMOGENEITY PLOTS IN THE REGRESSION MODULE TAB
+--------------------------------------------------------------------------------
+
+Requested 2026-08-17: "to the instructions list add to generate reisdual and
+homogenisity plots in the regression modual tab".
+
+Item E landed the Residuals, Scale-location and Influence tabs. This asks for
+the pair a reader checks BEFORE believing a coefficient, together, in the
+module's own tab:
+
+  * RESIDUALS -- fitted against residual, which is already there.
+  * HOMOGENEITY OF VARIANCE -- scale-location is the plot for it, and it is
+    there, but the QUESTION it answers is not asked anywhere: is the residual
+    spread constant across the fitted range? A trend in that plot is
+    heteroscedasticity, and OLS standard errors are wrong when it is present
+    -- which changes every p-value in the table.
+
+So the work is not another plot. It is:
+
+  * a VERDICT beside them. `regression_qc` already computes the statistics
+    (Breusch-Pagan / White, and the residual-spread trend); the tab shows the
+    picture and not the answer. Say "constant spread" or "spread grows with
+    the fitted value; the standard errors above are optimistic" -- the second
+    sentence is the one that changes what a reader does.
+  * and the LINK to the fix: `cov_type='HC3'` is a sandwich estimator that is
+    valid under heteroscedasticity, is already a supported setting, and is
+    exactly what a user should reach for when this plot says so. The panel
+    should name it.
+
+DO NOT RE-DERIVE THE STATISTICS. `spacr/regression_qc.py` is 3,444 lines and
+already computes them for the saved PDF; the live tab must read the same
+numbers or the two will disagree about the same fit.
