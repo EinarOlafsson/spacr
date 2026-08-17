@@ -334,6 +334,12 @@ dependencies = [
     'seaborn>=0.13.2,<1.0',
     'matplotlib>=3.8.3,<4.0',
     'matplotlib_venn>=1.1,<2.0',
+    # DECLARED THOUGH MATPLOTLIB ALREADY PULLS IT. spacr/figure_style.py
+    # imports it directly and UNGUARDED, so a resolver that ever stops
+    # shipping it transitively turns a house-style figure into an
+    # ImportError. An import spaCR makes itself is a dependency spaCR
+    # declares itself.
+    'cycler>=0.10,<1',
     'adjustText>=1.2.0,<2.0',
     # KEPT despite zero imports, and deliberately so. Both are pandas'
     # optional acceleration backends, and pandas picks them up by *presence*,
@@ -799,9 +805,25 @@ setup(
         # someone types when they just want every feature.
         'napari': ['napari>=0.5,<1.0'],
         'full': ['opencv-python'],
+        # The sweep caps BLAS threads per trial so N parallel fits do not each
+        # spawn a full thread pool -- which is instruction 114's whole
+        # subject. The import is function-local and already degrades (the
+        # limit simply is not applied), so it is an extra rather than a core
+        # dependency; scikit-learn pulls it in for most installs anyway.
+        'sweep': ['threadpoolctl>=3.0,<4'],
         'qt': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            # THE INTERACTIVE PLOTS. The comment at the top of this file says
+            # pyqtgraph was a second, unused Qt binding pulled in by a
+            # hand-copy of cellpose's `gui` extra, and that was TRUE when it
+            # was written -- zero files imported it. It is not true any more:
+            # spacr/qt/widgets/fast_plots.py is the volcano, the Q-Q, the
+            # p-histogram, the control panel and the guide-agreement plot,
+            # and the regression results panel builds all five. Reported from
+            # a real install that had PySide6 and not this, where opening ANY
+            # module raised RuntimeError out of the screen factory.
+            'pyqtgraph>=0.13,<1',
             'win10toast>=0.9; platform_system == "Windows"',
         ],
         # `spacr-tutorial` — renders narrated MP4 tutorials for every
