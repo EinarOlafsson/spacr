@@ -1271,3 +1271,34 @@ def test_confirming_clear_column_empties_it_and_drops_unsaved_labels(
     assert scr._pending_updates == {}
     assert engine.class_counts(scr._settings.db_path,
                                 scr._settings.annotation_column) == []
+
+
+def test_skip_to_the_last_annotation_lands_on_it_when_a_filter_is_on(
+        screen, qtbot):
+    """Skip counted rows in the WHOLE table while the grid paged a subset.
+
+    Turn on a threshold filter (or the uncertainty queue) and the grid pages
+    through `_filtered_rows`, which is a different, usually much shorter
+    list. `find_last_annotated_offset` asks the database instead, so its
+    answer is an index into the table -- and setting it as the grid's offset
+    indexes the subset with it. Here the annotated crop is row 6 of 8 in the
+    table and row 0 of 2 in the filter, so Skip jumped to offset 6 of a
+    two-row population: an empty grid, no message, and Next/Prev unable to
+    get back to the crop the button was pressed to find.
+    """
+    scr = screen
+    scr._settings.grid_rows = 1
+    scr._settings.grid_cols = 2
+    scr._rebuild_grid()
+    table = engine.fetch_page(scr._settings.db_path,
+                              scr._settings.annotation_column, 0, 8)
+    # Label the seventh crop in table order, then filter down to the last two.
+    scr._filtered_rows = [(table[6][0], 4), (table[7][0], None)]
+    scr._total = 2
+    with sqlite3.connect(scr._settings.db_path) as conn:
+        conn.execute('UPDATE "png_list" SET "annotate" = 4 WHERE png_path = ?',
+                     (table[6][0],))
+    scr._offset = 0
+    scr._on_skip()
+    assert scr._offset == 0
+    assert [p for p, _ in scr._page_paths] == [table[6][0], table[7][0]]
