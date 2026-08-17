@@ -4422,8 +4422,10 @@ class SettingsWidgets:
             affinity_widget.currentTextChanged.connect(
                 self._on_umap_reducer_changed)
 
-        if self.app_key == "regression":
-            self._connect_setting_dependency_signals()
+        # Every panel, not only the regression one it was built against.
+        # _rules_for_this_panel decides what applies here, and a panel with
+        # no gated setting connects nothing. See its docstring.
+        self._connect_setting_dependency_signals()
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
@@ -5069,13 +5071,53 @@ class SettingsWidgets:
         )
         editor.set_source(source, tables)
 
-    def _connect_setting_dependency_signals(self) -> None:
-        """Re-evaluate applicability whenever one of its source keys moves."""
+    def _rules_for_this_panel(self) -> Dict[str, Any]:
+        """The applicability rules THIS panel can honestly evaluate.
+
+        ``settings.setting_dependencies`` is keyed by setting NAME and says
+        nothing about which screen a setting appears on --
+        ``batch_correction='none'`` kills ``batch_column`` wherever the two
+        are shown together, which is four screens, not one. Both entry points
+        below nevertheless opened with ``if self.app_key != 'regression'``,
+        so on Image UMAP, Classify (merged) and ML Analyze all seven
+        ``batch_*`` controls stayed live and editable under the default
+        ``batch_correction='none'``. The table was module-agnostic; the
+        wiring was not.
+
+        The guard is not widened into an allow-list of app keys, because an
+        allow-list is the same bug with a longer line in it -- the next
+        module to gain a gated setting silently would not gate. What the
+        guard was actually protecting against is stated directly instead:
+
+          * the setting must be ON THIS PANEL, or there is nothing to grey;
+          * at least one of the rule's SOURCES must be on this panel too.
+
+        The second is the one that matters. A predicate reads other settings,
+        and on a panel that shows the ruled setting but none of the settings
+        it depends on, the predicate would be evaluated against a default the
+        user can neither see nor change -- a control greyed by an invisible
+        value, which nobody can ever re-enable. Such a rule must not fire at
+        all. ``any`` rather than ``all`` because a rule combined from two
+        independent reasons carries the union of both reasons' sources, and
+        a panel is entitled to have only one of them.
+        """
+        if not self._widgets:
+            return {}
         try:
             from spacr.settings import get_setting_dependencies
             dependencies = get_setting_dependencies()
         except Exception:
-            return
+            return {}
+        return {
+            key: rule for key, rule in dependencies.items()
+            if key in self._widgets
+            and any(source in self._widgets
+                    for source in rule.get('sources', ()))
+        }
+
+    def _connect_setting_dependency_signals(self) -> None:
+        """Re-evaluate applicability whenever one of its source keys moves."""
+        dependencies = self._rules_for_this_panel()
         sources = {source for rule in dependencies.values()
                    for source in rule.get('sources', ())}
         for key in sources:
@@ -5187,20 +5229,21 @@ class SettingsWidgets:
                 'has_plate_id': has_plate}
 
     def _refresh_setting_dependencies(self) -> None:
-        if self.app_key != 'regression' or not self._widgets:
-            return
-        try:
-            from spacr.settings import get_setting_dependencies
-            dependencies = get_setting_dependencies()
-        except Exception:
+        dependencies = self._rules_for_this_panel()
+        if not dependencies:
             return
         current = self._current_dependency_settings()
-        self._data_context = self._plate_context(
-            self._loaded_table_paths(current))
+        # Only scanned when a rule on this panel can actually read it. It
+        # opens the loaded CSVs, and doing that on every combo change of a
+        # panel with no data-dependent rule is a stall for nothing.
+        if any('paired_data' in rule.get('sources', ())
+               or 'score_data' in rule.get('sources', ())
+               or 'count_data' in rule.get('sources', ())
+               for rule in dependencies.values()):
+            self._data_context = self._plate_context(
+                self._loaded_table_paths(current))
         for key, rule in dependencies.items():
-            control = self._widgets.get(key)
-            if control is None:
-                continue
+            control = self._widgets[key]
             try:
                 enabled = bool(rule['predicate'](current, self._data_context))
             except Exception:
