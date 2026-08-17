@@ -1,0 +1,143 @@
+================================================================================
+THE OLD VOLCANO, A CLEAR GRAPH SETTING, EVERY RUN IN THE RUNS TAB, AND QT BY
+DEFAULT
+================================================================================
+
+Status:    filed 2026-08-17, not started.
+Requested: 2026-08-17, after the regression module was reported working --
+
+           "by default i still see my old volcano plot, i thought we said its
+            generation would be hidden behind a boolean which defaults is off"
+
+           "there should be a clear graph setting"
+           ...clarified minutes later:
+           "sorry there is already a clear figures button, just make it red
+            like other "negative" butons"
+
+           "the runs tab should capture all the runs in a sweep and all the
+            runs run in the normal module. in the figure view when all the
+            figures are visible , each set should be in its own section that
+            can be minimized like in the console."
+
+           "lets stop hiding the qt behind a qt. allways install qt as well as
+            the tkinter stuff"
+
+Related:  124 closed the regression figures; its item I is the one that was
+          only half done. 111 is the clear-figures control. 116 is the runs
+          tab. 117 is the figure grid.
+
+--------------------------------------------------------------------------------
+A. THE OLD VOLCANO IS STILL DRAWN, BECAUSE I HID THE WRONG ONE
+--------------------------------------------------------------------------------
+
+124 item I said "hide my old version behind a boolean that defaults to off",
+and `legacy_volcano=False` was added. It gates ONE call site.
+
+THERE ARE THREE, and the boolean covers the one the user does not see:
+
+  1. ml.py:2323   `if plot and legacy_volcano:` -> plot.volcano_plot
+                  GATED. This is the one that was fixed.
+  2. ml.py:4313/4320/4327  under `if settings['toxo']:` -> toxo.custom_volcano_plot
+                  NOT GATED. `toxo` DEFAULTS TO TRUE, and this is a
+                  Toxoplasma screen, so this is the volcano the maintainer is
+                  actually looking at. Three call sites, one per
+                  `settings['volcano']` value.
+  3. ml.py:4404   `if not settings.get('toxo') and ...` -> plot.volcano_plot
+                  NOT GATED. The non-toxo fallback added so a toxo=False run
+                  still got a volcano.
+
+"My old version" is all three. One boolean has to reach all of them, and the
+check must be written so a FOURTH path cannot be added without tripping a
+test -- the reason this was half-fixed is that nobody had counted them.
+
+--------------------------------------------------------------------------------
+B. THE CLEAR FIGURES BUTTON IS RED
+--------------------------------------------------------------------------------
+
+Clarified by the maintainer the same day, and it shrinks this item to one
+thing:
+
+    "sorry there is already a clear figures button, just make it red like
+     other "negative" butons"
+
+So this is NOT a new setting. Instruction 111 built the control -- plain text
+that flickers blue when clicked -- and the ask is that it read as
+DESTRUCTIVE, the way every other negative action in the app does.
+
+Take the colour from wherever the other negative buttons take theirs. A
+hand-picked red here is a fourth opinion about what "destructive" looks like,
+and the point of the request is that this control should look like the
+others rather than like itself.
+
+--------------------------------------------------------------------------------
+C. EVERY RUN IN THE RUNS TAB, AND COLLAPSIBLE SECTIONS ON THE GRID
+--------------------------------------------------------------------------------
+
+"the runs tab should capture all the runs in a sweep and all the runs run in
+the normal module."
+
+Today the Runs tab is fed by the parameter sweep only. An ordinary run of the
+module does not appear in it, so the tab answers "which trials did the sweep
+try" rather than "what have I run". Both belong: they are the same kind of
+thing -- a fit, its settings, its figures -- and the tab is where a user goes
+to compare them. The re-fit from 124 E makes this sharper still: a re-fit is
+a new run and must show up as one.
+
+"in the figure view when all the figures are visible , each set should be in
+its own section that can be minimized like in the console."
+
+124 B gave each run its own SECTION with its own lettering. This adds the
+console's own gesture: a section HEADER that collapses and expands the set
+under it. Follow the console, because the maintainer named it as the model --
+the same affordance, the same place, the same behaviour when a new entry
+arrives.
+
+  * A collapsed section stays collapsed when a new run is added; a run that
+    re-expanded everything every time it finished would be unusable during a
+    sweep of sixty trials.
+  * The newest section is the one that matters and should be the one open.
+
+--------------------------------------------------------------------------------
+D. STOP HIDING QT BEHIND AN EXTRA
+--------------------------------------------------------------------------------
+
+"lets stop hiding the qt behind a qt. allways install qt as well as the
+tkinter stuff".
+
+PySide6, qtawesome and pyqtgraph are in the `qt` extra. The Qt GUI is not an
+optional flavour of spaCR any more -- it is the GUI, `spacr-qt` is a console
+entry point declared unconditionally, and a plain `pip install spacr`
+therefore installs a command that cannot run. That is exactly the shape of
+the 2026-08-17 pyqtgraph report, one level up.
+
+Move them to the core dependencies. Two things to check rather than assume:
+
+  * SIZE AND WHEEL COVERAGE. PySide6 is a large wheel; confirm it publishes
+    for every interpreter and platform in the support matrix (3.10-3.15,
+    Linux/macOS/Windows, x86-64 and ARM64) before making it mandatory, or a
+    core dependency becomes an install failure on a platform that used to
+    work headless.
+  * THE HEADLESS PATH. spaCR runs on clusters with no display. Importing
+    PySide6 must stay off the import path of the pipeline modules -- that is
+    already an invariant and there is a test for it. Making the package a
+    dependency must not make it an import.
+
+Keep the `qt` extra name working as an alias so existing install
+instructions, the three packaging scripts and the docs do not break.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A default run draws NO old volcano -- not the toxo one, not the plain one.
+  A test counts the call sites so a fourth cannot be added ungated.
+* Turning the boolean on draws it again, and says which one it drew.
+* The clear-figures control is red, and its red is the same object every
+  other negative button uses -- not a hex literal chosen here.
+* An ordinary run appears in the Runs tab, beside the sweep's trials and any
+  re-fit.
+* Each run's figures sit under a header that collapses, the console's
+  gesture; a collapsed section stays collapsed when the next run finishes.
+* `pip install spacr` in a clean env, then `spacr-qt`, starts the GUI.
+* Importing spacr.core on a machine with no display still does not import
+  PySide6.
