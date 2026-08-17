@@ -166,6 +166,49 @@ MARK_TYPES = (
 #: density through points that never described one.
 MIN_N_FOR_DISTRIBUTION = 8
 
+#: The colour scales offered for "colour the points by a numeric column".
+#:
+#: PERCEPTUALLY UNIFORM ONLY, and pyqtgraph ships all five itself -- no
+#: matplotlib import, which this module is careful never to make. A jet or a
+#: rainbow puts bright bands where the data has none and reads as structure;
+#: these five do not, which is the whole reason a cmap is allowed on a
+#: continuous quantity while the categorical palette stays nominal.
+COLORMAPS = ("viridis", "plasma", "inferno", "magma", "cividis")
+
+#: How many steps a colour scale is quantised to before brushes are built.
+#:
+#: 256 is the colormap's OWN resolution -- pyqtgraph builds them as
+#: ``ColorMap(256)`` -- so this loses nothing and caps the brush count at 256
+#: instead of one per point. Measured on the volcano when this module was
+#: written: a brush per point costs 39.5 ms against 3.5 ms for a reused set.
+COLORMAP_STEPS = 256
+
+#: What a row with no value in the mapped column is drawn as. Grey, and it is
+#: SAID in the status line rather than left to look like a low value -- a NaN
+#: painted at the bottom of a viridis scale is a made-up measurement.
+MISSING_COLOUR = MUTED
+
+#: ``(pyqtgraph symbol, what it is called)`` for "shape the points by a
+#: column". Ordered by how easily one is told from the ones before it at
+#: scatter-plot size; a ninth shape would be a circle a reader has to squint
+#: at, which is why the list ends and a column with more values is refused.
+SHAPE_SYMBOLS = (
+    ("o", "circle"), ("s", "square"), ("t", "triangle"), ("d", "diamond"),
+    ("+", "plus"), ("t1", "triangle up"), ("p", "pentagon"), ("star", "star"),
+)
+
+#: The most distinct values a column can have and still be drawn as shapes.
+MAX_SHAPE_VALUES = len(SHAPE_SYMBOLS)
+
+#: How wide a saved page is, in millimetres: a journal's double-column width.
+EXPORT_WIDTH_MM = 180.0
+
+#: Qt's own "no maximum", which PySide6 does not re-export from QtWidgets --
+#: checked: ``from PySide6.QtWidgets import QWIDGETSIZE_MAX`` raises
+#: ImportError on 6.11.1. Needed to give a widget its stretch back after a
+#: fixed size has been imposed on it.
+QWIDGET_SIZE_MAX = (1 << 24) - 1
+
 
 def mark_advice(kind: str, counts) -> str:
     """Why this mark misleads for groups of these sizes, or ``""``.
@@ -388,6 +431,13 @@ class FastPlot(QWidget):
         self._headline = ""
         #: Whatever was last clicked, kept apart from the plot's own sentence.
         self._note = ""
+        #: What a RESTYLE has to say -- the colour scale's range, which shape
+        #: is which. Its own slot because it belongs to neither of the other
+        #: two: a click must not wipe the legend of a colour scale, and a
+        #: redraw's headline must not wipe it either.
+        self._style_note = ""
+
+        self._restyle_state()
 
         self._labels: Sequence[str] = ()
         self._legend_colours: dict = {}
@@ -480,6 +530,8 @@ class FastPlot(QWidget):
         self._compartments = []
         self._marks = []
         self._frame = None
+        self._style_note = ""
+        self._restyle_state()
         self._grid = QCheckBox("Grid")
         self._legend_box = QCheckBox("Legend")
         self._legend_box.setEnabled(False)
@@ -595,9 +647,618 @@ class FastPlot(QWidget):
         """
         self._marks = list(options or ())
 
+    def _restyle_state(self) -> None:
+        """Every field the restyle menu reads, born before anything can ask.
+
+        BOTH constructors call this, for the reason written on
+        :meth:`_build_without_pyqtgraph`: a widget whose third method raises
+        because its second never ran is a trap, and the pyqtgraph-absent path
+        is exactly the one nobody exercises by hand.
+        """
+        #: Points, and how big, from :meth:`set_font_size`. ``None`` is
+        #: "whatever pyqtgraph chose", which is not the same as any number.
+        self._font_size: Optional[int] = None
+        #: The ink for labels, ticks and the title, or None for the theme's.
+        self._font_colour: Optional[str] = None
+        #: ``(column, colormap)`` while a colour scale is mapped, else None.
+        self._colour_column: Optional[tuple] = None
+        #: The column mapped to point shapes, or None.
+        self._shape_column: Optional[str] = None
+        #: The width and height of a SAVED page, in millimetres. The height
+        #: is None until asked for, meaning "follow the plot's own aspect".
+        self._export_width_mm: float = EXPORT_WIDTH_MM
+        self._export_height_mm: Optional[float] = None
+        #: The size floors this widget was given by whoever placed it, kept
+        #: so :meth:`clear_screen_size` puts them back rather than releasing
+        #: the widget to nothing. `RegressionResultsPanel` sets
+        #: `volcano.setMinimumHeight(240)`, and a restyle that silently
+        #: dropped that floor would let the splitter collapse the plot.
+        self._size_bounds: Optional[tuple] = None
+
+    # ------------------------------------------------------- what is stylable
+
+    def frame(self):
+        """The table this plot was drawn from, or ``None``.
+
+        The two column-mapping controls need it -- "cmap (choose any column)"
+        and "point shape (choose any column)" both name a column of THIS
+        plot's own table -- and a plot handed bare arrays honestly has none,
+        which is why those entries grey out rather than offering a list of
+        nothing.
+        """
+        return getattr(self, "_frame", None)
+
+    def numeric_columns(self) -> list:
+        """Columns a COLOUR SCALE could read, in table order.
+
+        A cmap belongs only on a continuous quantity: mapping one onto a
+        nominal category is the mistake the house style warns about, because
+        it puts an order into the picture that the data does not have.
+
+        So: numeric dtype, not boolean -- ``True``/``False`` is two
+        categories wearing a number's dtype -- and at least two distinct
+        finite values, because a column with one value maps every point to
+        the same colour and a scale with no range is not a scale.
+        """
+        frame = self.frame()
+        if frame is None or not len(frame):
+            return []
+        from pandas.api.types import is_bool_dtype, is_numeric_dtype
+
+        found = []
+        for name in frame.columns:
+            column = frame[name]
+            if not is_numeric_dtype(column) or is_bool_dtype(column):
+                continue
+            values = _finite(column.to_numpy())
+            usable = values[~np.isnan(values)]
+            if len(usable) and float(usable.min()) < float(usable.max()):
+                found.append(str(name))
+        return found
+
+    def shape_columns(self) -> list:
+        """Columns a POINT SHAPE could read, in table order.
+
+        Low cardinality and nothing else: two to :data:`MAX_SHAPE_VALUES`
+        distinct values. Both ends are real limits rather than tidiness --
+        one value gives every point the same shape and says nothing, and past
+        eight the shapes stop being tellable apart at scatter-plot size, so
+        the reader is decoding a key instead of reading a figure.
+
+        DTYPE IS NOT THE TEST. ``n_guides`` is an integer column with four
+        values and is exactly what a reader wants shapes for, while
+        ``feature`` is a string column with 1,215 and is exactly what they do
+        not. Counting the values answers both; asking the dtype answers
+        neither.
+        """
+        frame = self.frame()
+        if frame is None or not len(frame):
+            return []
+        found = []
+        for name in frame.columns:
+            try:
+                distinct = frame[name].astype(str).nunique(dropna=False)
+            except Exception:       # pragma: no cover - an unhashable cell
+                continue
+            if 2 <= int(distinct) <= MAX_SHAPE_VALUES:
+                found.append(str(name))
+        return found
+
+    def colour_map_reason(self) -> str:
+        """Why "colour by a column" cannot act here, or ``""``.
+
+        Instruction 106's rule, applied to a menu: an entry that cannot do
+        anything is greyed out AND SAYS WHY. Silently absent leaves the user
+        hunting for a control they were told about; present-but-inert leaves
+        them clicking it and concluding the application is broken.
+        """
+        if not self._scatter_items():
+            return "nothing on this plot is drawn as points"
+        if self.frame() is None:
+            return "this plot holds no table, so there is no column to read"
+        if not self.numeric_columns():
+            return "no column here is a number a colour scale could read"
+        return ""
+
+    def shape_reason(self) -> str:
+        """Why "shape by a column" cannot act here, or ``""``."""
+        if not self._scatter_items():
+            return "nothing on this plot is drawn as points"
+        if self.frame() is None:
+            return "this plot holds no table, so there is no column to read"
+        if not self.shape_columns():
+            return (f"no column has between 2 and {MAX_SHAPE_VALUES} values, "
+                    f"and more shapes than that cannot be told apart")
+        return ""
+
+    def line_reason(self) -> str:
+        """Why "line colour and width" cannot act here, or ``""``."""
+        return "" if self.line_items() else "this plot has no lines on it"
+
+    def point_reason(self) -> str:
+        """Why the point controls cannot act here, or ``""``.
+
+        A p-value histogram is bars. "Point size" on it is the plainest case
+        of a control that looks live and does nothing.
+        """
+        return ("" if self._scatter_items()
+                else "nothing on this plot is drawn as points")
+
+    # --------------------------------------------------------- axes and shape
+
+    def axis_limits(self) -> tuple:
+        """``((x from, x to), (y from, y to))`` as currently shown."""
+        ranges = self.plot.getViewBox().viewRange()
+        return ((float(ranges[0][0]), float(ranges[0][1])),
+                (float(ranges[1][0]), float(ranges[1][1])))
+
+    def set_axis_limits(self, x=None, y=None) -> None:
+        """Pin an axis to ``(from, to)``. ``None`` leaves that axis alone.
+
+        AUTO-RANGE IS TURNED OFF ON THE AXIS THAT IS PINNED, and only that
+        one. pyqtgraph re-fits the view to the data on the next redraw
+        otherwise, so a limit the user typed would survive until the first
+        recolour and then silently spring back -- which reads as the control
+        not working rather than as a redraw.
+
+        :param x: ``(from, to)`` for the bottom axis, or None.
+        :param y: ``(from, to)`` for the left axis, or None.
+        """
+        box = self.plot.getViewBox()
+        if x is not None:
+            box.setXRange(float(x[0]), float(x[1]), padding=0)
+            box.enableAutoRange(axis=box.XAxis, enable=False)
+        if y is not None:
+            box.setYRange(float(y[0]), float(y[1]), padding=0)
+            box.enableAutoRange(axis=box.YAxis, enable=False)
+
+    def auto_range_axes(self) -> None:
+        """Give both axes back to the data. The way out of a typed limit.
+
+        A control that can only be set is a trap: a user who pins x to the
+        wrong decade has no way back to the picture they started from except
+        reloading the run.
+        """
+        box = self.plot.getViewBox()
+        box.enableAutoRange(x=True, y=True)
+        box.autoRange()
+
+    def aspect_ratio(self) -> Optional[float]:
+        """The locked ratio of y units to x units, or ``None`` if unlocked."""
+        locked = self.plot.getViewBox().state.get("aspectLocked", False)
+        return None if not locked else float(locked)
+
+    def set_aspect_ratio(self, ratio: Optional[float]) -> None:
+        """Lock one y unit to ``ratio`` x units. ``None`` unlocks it.
+
+        :param ratio: how many x units one y unit is drawn as wide. 1.0 is
+            the square-units lock a Q-Q wants, where the 45-degree diagonal
+            is only meaningful if the axes share a scale.
+        """
+        box = self.plot.getViewBox()
+        if ratio is None or float(ratio) <= 0:
+            box.setAspectLocked(False)
+            return
+        box.setAspectLocked(True, ratio=float(ratio))
+
+    # ------------------------------------------------------------------ text
+
+    def font_size(self) -> Optional[int]:
+        """The point size the axes are drawn at, or None for the default."""
+        return self._font_size
+
+    def set_font_size(self, points: int) -> None:
+        """Draw the labels, TICKS and title at ``points``.
+
+        THE TICKS ARE THE HALF THAT WAS MISSING. The old handler passed
+        ``tickFont=None`` -- which asks for pyqtgraph's default rather than
+        for a size -- so "Font size: 20" enlarged the two axis labels and
+        left every tick number at its original size. Measured on the volcano
+        before this change: the bottom axis' tick font came back as None at
+        every setting, i.e. the control moved two strings out of about
+        twenty.
+        """
+        self._font_size = int(points)
+        self.apply_text_style()
+
+    def font_colour(self) -> Optional[str]:
+        """The ink chosen for text, or None while it follows the theme."""
+        return self._font_colour
+
+    def set_font_colour(self, colour) -> None:
+        """Draw every piece of text on the plot in ``colour``.
+
+        Separate from :meth:`restyle`, which resolves the THEME's ink. This
+        is the user overriding it for one figure, so it is re-applied after a
+        theme switch rather than being quietly reverted by one.
+        """
+        self._font_colour = None if colour is None else QColor(colour).name()
+        self.apply_text_style()
+
+    def apply_text_style(self) -> None:
+        """Put the chosen size and ink onto both axes and the title.
+
+        One place, because the size and the colour are set from two different
+        menu entries and each has to leave the other's choice standing --
+        applying them separately is how "font size" quietly reverts "font
+        colour" and the user concludes one of the two is broken.
+        """
+        colour = self._font_colour or self._foreground
+        size = self._font_size
+        pen = pg.mkPen(QColor(colour))
+        for name in ("bottom", "left"):
+            try:
+                axis = self.plot.getAxis(name)
+            except Exception:           # pragma: no cover - absent axis
+                continue
+            axis.setTextPen(pen)
+            if size is not None:
+                from PySide6.QtGui import QFont
+
+                font = QFont()
+                font.setPointSize(int(size))
+                axis.setStyle(tickFont=font)
+            # AN AXIS WITH NO LABEL IS LEFT ALONE. `setLabel` calls
+            # `showLabel()`, so restyling the empty string would make the
+            # control panel -- whose x-axis is deliberately unlabelled,
+            # because its ticks already name the groups -- grow a blank strip
+            # under it the first time anyone changed the font.
+            if axis.labelText:
+                style = {"color": colour}
+                if size is not None:
+                    style["font-size"] = f"{int(size)}pt"
+                axis.setLabel(axis.labelText, **style)
+        title = getattr(self.plot.plotItem, "titleLabel", None)
+        if title is not None and title.text:
+            if size is not None:
+                self.plot.setTitle(title.text, color=colour,
+                                   size=f"{int(size) + 2}pt")
+            else:
+                self.plot.setTitle(title.text, color=colour)
+
+    # ----------------------------------------------------------------- lines
+
+    def line_items(self) -> list:
+        """Every LINE on this plot, for a restyle to reach.
+
+        The reference lines and threshold lines added by :meth:`add_line`,
+        the Q-Q's diagonal, the residual and scale-location trends, and the
+        summary line across a points/jitter group -- all of them, because
+        each is a line the maintainer named ("line color and width") and a
+        control that reached three of five kinds would be worse than none.
+
+        The scatters are excluded because they have their own controls, and
+        the selection ring is excluded because it is a cursor rather than
+        data: recolouring it to match the threshold lines would make the
+        selection invisible against them.
+        """
+        if not HAVE_PYQTGRAPH:
+            return []
+        kinds = (pg.InfiniteLine, pg.PlotDataItem, pg.PlotCurveItem)
+        return [item for item in self.plot.plotItem.items
+                if isinstance(item, kinds) and item is not self._highlight
+                and not isinstance(item, ScatterPlotItem)]
+
+    def set_line_style(self, colour=None,
+                       width: Optional[float] = None) -> int:
+        """Recolour and re-weight every line. Returns how many it reached.
+
+        THE DASHES SURVIVE. Each pen is copied and only the colour and the
+        width are replaced, so the p=0.05 line stays dashed and the reference
+        line stays solid -- the dash pattern is what tells a reader which
+        line is a threshold and which is the data's own trend, and rebuilding
+        the pen from scratch would flatten that distinction on every restyle.
+
+        :param colour: anything :class:`QColor` accepts, or None to keep it.
+        :param width: pen width in pixels, or None to keep it.
+        """
+        from PySide6.QtGui import QPen
+
+        touched = 0
+        for item in self.line_items():
+            existing = self._pen_of(item)
+            pen = QPen(existing) if existing is not None else pg.mkPen(MUTED)
+            if colour is not None:
+                pen.setColor(QColor(colour))
+            if width is not None:
+                pen.setWidthF(float(width))
+            item.setPen(pen)
+            # THE CAPTION IS PART OF THE LINE. "p=0.05" and "2p/n" are drawn
+            # by the line that carries them, in a colour given at
+            # construction; leaving it behind would put a red word beside a
+            # green line, which is the two-idioms failure this module warns
+            # about in miniature and on the one mark that names a threshold.
+            label = getattr(item, "label", None)
+            if colour is not None and label is not None:
+                try:
+                    label.setColor(QColor(colour))
+                except Exception:   # pragma: no cover - not a labelled line
+                    pass
+            touched += 1
+        return touched
+
+    @staticmethod
+    def _pen_of(item):
+        """The pen an item is currently drawn with, whatever kind it is."""
+        pen = getattr(item, "pen", None)
+        if pen is not None and not callable(pen):
+            return pen
+        options = getattr(item, "opts", None)
+        if isinstance(options, dict):
+            return options.get("pen")
+        return None
+
+    # ------------------------------------------------- a column onto a channel
+
+    def colour_by_column(self, column: str, colormap: str = "viridis") -> int:
+        """Colour every point by ``column`` through ``colormap``. Returns n.
+
+        THIS IS NOT "SET THE POINT COLOUR". It maps a column onto a visual
+        channel, which is why it lives beside the shape control rather than
+        beside the colour picker: the picker states one value, this one hands
+        the picture over to the data and the reader then needs the range to
+        read it. So the range is written into the status line, and rows with
+        no value are drawn grey and COUNTED there rather than being painted
+        at the bottom of the scale, where a missing measurement would read as
+        a small one.
+
+        :raises ValueError: for a column that is not there or not continuous,
+            and for a colormap this build does not have. Loudly, in the same
+            spirit as :meth:`GroupedPlot.set_mark`: the callers are this
+            class's own menu and a test, so a silent fallback would only ever
+            make a mistake look like a working option.
+        """
+        frame = self.frame()
+        if frame is None:
+            raise ValueError("this plot holds no table to colour by")
+        if column not in frame.columns:
+            raise ValueError(
+                f"no column {column!r}; this table has "
+                f"{', '.join(map(str, frame.columns))}")
+        if column not in self.numeric_columns():
+            raise ValueError(
+                f"{column!r} is not a continuous column, and a colour scale "
+                f"on a category invents an order the data does not have")
+        # ASKED BEFORE pyqtgraph IS. `pg.colormap.get` resolves a name by
+        # opening a file in its own package directory, so an unknown one
+        # raises FileNotFoundError naming a path inside site-packages -- a
+        # traceback about the library's install layout, in answer to a user
+        # picking a colour scale. Measured on 'jet'.
+        if colormap not in COLORMAPS:
+            raise ValueError(
+                f"unknown colormap {colormap!r}; this build offers "
+                f"{', '.join(COLORMAPS)}")
+        table = pg.colormap.get(colormap)
+
+        values = _finite(frame[column].to_numpy())
+        usable = values[~np.isnan(values)]
+        low, high = float(usable.min()), float(usable.max())
+        lookup = table.getLookupTable(nPts=COLORMAP_STEPS, alpha=True)
+        cache: dict = {}
+        missing_brush = pg.mkBrush(QColor(MISSING_COLOUR))
+
+        painted, blank = 0, 0
+        for item in self._scatter_items():
+            rows = self._rows_of(item)
+            if rows is None:
+                continue
+            self._remember_point_style(item)
+            picked = values[rows]
+            steps = np.clip(
+                np.round((picked - low) / (high - low) * (COLORMAP_STEPS - 1)),
+                0, COLORMAP_STEPS - 1)
+            brushes = []
+            for value, step in zip(picked, steps):
+                if np.isnan(value):
+                    brushes.append(missing_brush)
+                    blank += 1
+                    continue
+                index = int(step)
+                brush = cache.get(index)
+                if brush is None:
+                    r, g, b, a = (int(c) for c in lookup[index])
+                    brush = cache[index] = pg.mkBrush(QColor(r, g, b, a))
+                brushes.append(brush)
+            item.setBrush(brushes)
+            painted += len(brushes)
+
+        self._colour_column = (column, colormap)
+        note = (f"Coloured by {column} ({colormap}): {low:.3g} at the dark "
+                f"end to {high:.3g} at the bright end.")
+        if blank:
+            note += (f" {blank} point{'s' if blank != 1 else ''} have no "
+                     f"{column} and are grey.")
+        self.set_style_note(note)
+        return painted
+
+    def shape_by_column(self, column: str) -> int:
+        """Draw each value of ``column`` as its own marker. Returns n shaped.
+
+        :raises ValueError: for a column that is not there, or one with more
+            values than there are shapes a reader can tell apart. Refused
+            rather than truncated: reusing a circle for the ninth and the
+            first value would draw two different things identically, which is
+            worse than not offering the column at all.
+        """
+        frame = self.frame()
+        if frame is None:
+            raise ValueError("this plot holds no table to take shapes from")
+        if column not in frame.columns:
+            raise ValueError(
+                f"no column {column!r}; this table has "
+                f"{', '.join(map(str, frame.columns))}")
+        text = frame[column].astype(str)
+        names = sorted(set(text))
+        if len(names) > MAX_SHAPE_VALUES:
+            raise ValueError(
+                f"{column!r} has {len(names)} values and only "
+                f"{MAX_SHAPE_VALUES} shapes are distinguishable")
+        if len(names) < 2:
+            raise ValueError(
+                f"{column!r} has one value, so every point would be the same "
+                f"shape and the column would say nothing")
+        order = {name: i for i, name in enumerate(names)}
+        codes = text.map(order).to_numpy()
+
+        shaped = 0
+        for item in self._scatter_items():
+            rows = self._rows_of(item)
+            if rows is None:
+                continue
+            self._remember_point_style(item)
+            symbols = [SHAPE_SYMBOLS[int(codes[row])][0] for row in rows]
+            item.setSymbol(symbols)
+            shaped += len(symbols)
+
+        self._shape_column = column
+        legend = ", ".join(f"{name} is a {SHAPE_SYMBOLS[i][1]}"
+                           for i, name in enumerate(names))
+        self.set_style_note(f"Shaped by {column}: {legend}.")
+        return shaped
+
+    def clear_column_mapping(self) -> int:
+        """Put the original colours and shapes back. Returns items restored.
+
+        The brushes and symbols each scatter was BUILT with are kept the
+        first time a mapping touches it, because they are the only record of
+        what the plot's own colouring said -- the compartment split, the
+        single-guide genes, the influential wells. Recomputing them here
+        would need this class to know every subclass's rule, and a "restore"
+        that guessed would quietly replace one sentence with another.
+        """
+        restored = 0
+        for item in self._scatter_items():
+            saved = getattr(item, "_spacr_point_style", None)
+            if saved is None:
+                continue
+            brushes, symbols = saved
+            item.setBrush(list(brushes))
+            item.setSymbol(list(symbols))
+            item._spacr_point_style = None
+            restored += 1
+        self._colour_column = None
+        self._shape_column = None
+        self.set_style_note("")
+        return restored
+
+    @staticmethod
+    def _rows_of(item):
+        """The FRAME ROWS behind a scatter's points, as an integer array.
+
+        ``add_scatter`` puts them on the item as its per-point ``data``, and
+        that is the only honest source: a Q-Q is sorted and a control panel
+        is split into groups, so the nth point of a scatter is not the nth
+        row of the table -- see :meth:`add_scatter`, where the same trap is
+        written out in full.
+        """
+        data = getattr(item, "data", None)
+        if data is None or not len(data):
+            return None
+        try:
+            rows = np.asarray(data["data"])
+        except (KeyError, IndexError, TypeError, ValueError):
+            return None
+        if rows.dtype == object:
+            if any(row is None for row in rows):
+                return None
+            rows = rows.astype("int64")
+        return rows
+
+    @staticmethod
+    def _remember_point_style(item) -> None:
+        """Keep what a scatter looked like before a mapping touched it."""
+        if getattr(item, "_spacr_point_style", None) is not None:
+            return
+        item._spacr_point_style = (list(item.data["brush"]),
+                                   list(item.data["symbol"]))
+
+    # ------------------------------------------------------------ dimensions
+
+    def set_screen_size(self, width: int, height: int) -> None:
+        """Make the plot exactly this many pixels ON SCREEN.
+
+        A FIXED SIZE, NOT A RESIZE, and that is measured rather than assumed.
+        These plots live inside splitters, which own their children's
+        geometry: a `VolcanoPlot` in a 900-wide splitter stayed 900x674 after
+        ``resize(400, 300)`` and became 400x300 after ``setFixedSize``. The
+        same finding is written on :meth:`snapshot`, where it produced a
+        blank tile.
+
+        THIS DOES NOT CHANGE THE EXPORTED PAGE. See :meth:`set_export_size`;
+        the two are different quantities and the menu names them separately,
+        because a user who sets "dimensions" and finds the PDF unchanged has
+        been misled by the control rather than helped by it.
+        """
+        if self._size_bounds is None:
+            self._size_bounds = (self.minimumWidth(), self.minimumHeight(),
+                                 self.maximumWidth(), self.maximumHeight())
+        self.setFixedSize(int(width), int(height))
+
+    def clear_screen_size(self) -> None:
+        """Let the layout size the plot again, keeping its original floors.
+
+        NOT ``setMinimumSize(0, 0)``. `RegressionResultsPanel` gives the
+        volcano ``setMinimumHeight(240)`` so a splitter cannot collapse it to
+        a sliver; releasing the widget to nothing would silently drop that
+        floor, and the plot would then vanish the first time the user dragged
+        the divider.
+        """
+        if self._size_bounds is None:
+            return
+        min_w, min_h, max_w, max_h = self._size_bounds
+        self.setMinimumSize(min_w, min_h)
+        self.setMaximumSize(max_w if max_w else QWIDGET_SIZE_MAX,
+                            max_h if max_h else QWIDGET_SIZE_MAX)
+        self._size_bounds = None
+
+    def export_size(self) -> tuple:
+        """``(width mm, height mm)`` of a saved page.
+
+        A height of None means "follow the plot's own aspect".
+        """
+        return (float(self._export_width_mm), self._export_height_mm)
+
+    def set_export_size(self, width_mm: float,
+                        height_mm: Optional[float] = None) -> None:
+        """Set the PAGE a PDF or SVG is written onto, in millimetres.
+
+        THIS DOES NOT MOVE THE PLOT ON SCREEN. See :meth:`set_screen_size`.
+
+        :param width_mm: page width. :data:`EXPORT_WIDTH_MM` is a journal's
+            double-column width and is the default.
+        :param height_mm: page height, or None to follow the plot's own
+            aspect so nothing is stretched.
+        """
+        self._export_width_mm = float(width_mm)
+        self._export_height_mm = (None if height_mm is None
+                                  else float(height_mm))
+
     def _style_menu(self, position) -> None:
         """Right-click: build the menu and show it."""
         self.build_style_menu().exec(self.plot.mapToGlobal(position))
+
+    @staticmethod
+    def _gated(menu, label: str, callback, reason: str):
+        """Add an entry -- or the same entry, greyed, SAYING why it cannot act.
+
+        Instruction 106's rule for settings, applied to this menu because the
+        maintainer's own parenthetical asks for it: "(sometimes not
+        applicable on certain graph types)". The three wrong answers are all
+        worse than this one. Omitting it leaves a user hunting the menu for a
+        control they were told exists. Leaving it live leaves them clicking a
+        control that does nothing and concluding the plot is broken. A
+        tooltip alone hides the reason behind a hover nobody performs on a
+        menu they opened to click something.
+
+        So the reason is IN THE LABEL, where it cannot be missed, and in the
+        tooltip as well for the themes that elide a long entry.
+        """
+        if not reason:
+            return menu.addAction(label, callback)
+        action = menu.addAction(f"{label}  —  {reason}")
+        action.setEnabled(False)
+        action.setToolTip(reason)
+        return action
 
     def build_style_menu(self):
         """The right-click menu, built from what the plot actually has on it.
@@ -611,12 +1272,43 @@ class FastPlot(QWidget):
         from PySide6.QtWidgets import QMenu
 
         menu = QMenu(self)
-        menu.addAction("Point size…", self._ask_point_size)
-        menu.addAction("Point colour…", self._ask_point_colour)
-        menu.addAction("Opacity…", self._ask_opacity)
+        # A DISABLED ENTRY'S REASON HAS TO BE READABLE. Qt hides action
+        # tooltips unless a menu asks for them, so without this the greyed
+        # entries would be exactly the "present but inert" control that
+        # instruction 106 forbids.
+        menu.setToolTipsVisible(True)
+        points = self.point_reason()
+        self._gated(menu, "Point size…", self._ask_point_size, points)
+        self._gated(menu, "Point colour…", self._ask_point_colour, points)
+        self._gated(menu, "Opacity…", self._ask_opacity, points)
+        # THE TWO THAT MAP A COLUMN rather than setting one value, which is
+        # why they sit together under the point controls and not among them.
+        self._gated(menu, "Colour by a column…", self._ask_colour_column,
+                    self.colour_map_reason())
+        self._gated(menu, "Shape by a column…", self._ask_shape_column,
+                    self.shape_reason())
+        if self._colour_column or self._shape_column:
+            menu.addAction("Back to this plot's own colouring",
+                           self.clear_column_mapping)
         menu.addSeparator()
         menu.addAction("Axis labels…", self._ask_labels)
         menu.addAction("Font size…", self._ask_font_size)
+        menu.addAction("Font colour…", self._ask_font_colour)
+        menu.addSeparator()
+        menu.addAction("Axis limits…", self._ask_axis_limits)
+        menu.addAction("Axis limits: back to automatic", self.auto_range_axes)
+        menu.addAction("Aspect ratio…", self._ask_aspect_ratio)
+        self._gated(menu, "Line colour and width…", self._ask_line_style,
+                    self.line_reason())
+        menu.addSeparator()
+        # NAMED SEPARATELY BECAUSE THEY ARE DIFFERENT QUANTITIES. "Dimensions"
+        # as one entry is the misleading version: on the live plot it is the
+        # widget's size, on a saved figure it is the page, and a user who sets
+        # one and inspects the other finds nothing changed.
+        menu.addAction("Size on screen…", self._ask_screen_size)
+        menu.addAction("Exported page size…", self._ask_export_size)
+        menu.addAction("Size on screen: back to automatic",
+                       self.clear_screen_size)
         menu.addSeparator()
         grid = menu.addAction("Grid")
         grid.setCheckable(True)
@@ -705,7 +1397,55 @@ class FastPlot(QWidget):
         return menu
 
     @staticmethod
-    def _export_pdf(item, path, width_mm: float = 180.0) -> None:
+    def _paint_items(item) -> list:
+        """Every item under ``item`` with an opinion about being exported."""
+        found, stack = [], [item]
+        while stack:
+            current = stack.pop()
+            if hasattr(current, "setExportMode"):
+                found.append(current)
+            stack.extend(current.childItems())
+        return found
+
+    @classmethod
+    def _paint_scene(cls, item, painter, target, source) -> None:
+        """Render the scene onto ``painter`` AS A FIGURE, not as a screenshot.
+
+        THE EXPORT MODE IS THE WHOLE POINT. A ScatterPlotItem draws its
+        markers from a cached pixmap atlas -- that cache is why 1,215 points
+        pan at no cost -- and ``scene.render`` into a vector device copies
+        those pixmaps straight through. Measured on the volcano: a plain
+        render gave an SVG with 50 ``<image>`` elements and ONE ``<path>``,
+        i.e. fifty little bitmaps of a dot in a file that claims to be
+        vector. With pyqtgraph's export mode on, the same plot gives 51
+        ``<path>`` elements and no ``<image>`` at all, because the scatter
+        redraws its symbols through the painter instead of blitting them.
+
+        The PDF was written before this was understood and had the identical
+        defect, so both paths go through here now: "true vector, not a bitmap
+        in a PDF wrapper" was only true of the axes and the text.
+        """
+        marks = cls._paint_items(item)
+        for mark in marks:
+            mark.setExportMode(True, {"painter": painter, "antialias": True})
+        try:
+            item.scene().render(painter, target, source)
+        finally:
+            for mark in marks:
+                mark.setExportMode(False)
+
+    @staticmethod
+    def _page_source(item):
+        """``(scene rect, aspect)`` for a page, or ``(None, 0)`` if empty."""
+        source = item.scene().sceneRect() if item.scene() is not None \
+            else item.boundingRect()
+        if not source.width() or not source.height():
+            return None, 0.0
+        return source, source.height() / source.width()
+
+    @classmethod
+    def _export_pdf(cls, item, path, width_mm: float = EXPORT_WIDTH_MM,
+                    height_mm: Optional[float] = None) -> None:
         """Render a plot item into a vector PDF.
 
         pyqtgraph has no PDF exporter, so the scene is painted into a
@@ -713,29 +1453,86 @@ class FastPlot(QWidget):
         the text as text and the lines as lines. A raster PNG dropped into a
         PDF would satisfy the file extension and nothing else.
 
-        180 mm across, which is a journal's double-column width; the height
-        follows the plot's own aspect so nothing is stretched.
+        :param width_mm: page width; :data:`EXPORT_WIDTH_MM` is a journal's
+            double-column width.
+        :param height_mm: page height, or None to follow the plot's own
+            aspect so nothing is stretched.
         """
         from PySide6.QtCore import QMarginsF, QRectF
         from PySide6.QtGui import QPageLayout, QPageSize, QPainter, QPdfWriter
 
-        source = item.scene().sceneRect() if item.scene() is not None \
-            else item.boundingRect()
-        if not source.width() or not source.height():
+        source, aspect = cls._page_source(item)
+        if source is None:
             return
-        aspect = source.height() / source.width()
+        height = float(height_mm) if height_mm else width_mm * aspect
 
         writer = QPdfWriter(str(path))
         writer.setResolution(600)
-        size = QPageSize(QSizeF(width_mm, width_mm * aspect),
-                         QPageSize.Millimeter)
+        size = QPageSize(QSizeF(width_mm, height), QPageSize.Millimeter)
         writer.setPageSize(size)
         writer.setPageMargins(QMarginsF(0, 0, 0, 0), QPageLayout.Millimeter)
 
         painter = QPainter(writer)
         try:
             target = QRectF(0, 0, writer.width(), writer.height())
-            item.scene().render(painter, target, source)
+            cls._paint_scene(item, painter, target, source)
+        finally:
+            painter.end()
+
+    #: Dots per inch a QSvgGenerator assumes when it converts its pixel size
+    #: into the physical width it writes into the file.
+    SVG_RESOLUTION = 72
+
+    @classmethod
+    def _export_svg(cls, item, path, width_mm: float = EXPORT_WIDTH_MM,
+                    height_mm: Optional[float] = None) -> None:
+        """Render a plot item into a vector SVG, THROUGH Qt.
+
+        NOT through pyqtgraph, and this is the reason. Its ``SVGExporter``
+        rewrites Qt's output by hand, and ``correctCoordinates`` parses a
+        path's ``d`` attribute by splitting on spaces and unpacking each
+        token as ``x,y``. A closepath token is the single letter ``Z``, which
+        has no comma, so it raises ``ValueError: not enough values to unpack
+        (expected 2, got 1)``.
+
+        EVERY plot in this module hits it, because every closed shape ends in
+        a ``Z``: measured on pyqtgraph 0.13.7, the volcano, the p-value
+        histogram, the Q-Q and all five marks of the control panel each
+        raised, and the offenders were the 50 round scatter markers plus the
+        ViewBox's own frame. There is no scene-level workaround -- a round
+        point IS a closed path -- and setting the ViewBox border to None
+        changed nothing, so the option could not simply be kept and nursed.
+
+        The answer is the one :meth:`_export_pdf` already used: Qt itself
+        paints vector devices, and a QSvgGenerator is one. Same painter, same
+        export mode, same page size, none of the library's post-processing.
+        Reported upstream as well -- it is a real pyqtgraph bug and this only
+        routes around it -- but spaCR's SVG works now rather than after a
+        release.
+        """
+        from PySide6.QtCore import QRectF, QSize
+        from PySide6.QtGui import QPainter
+        from PySide6.QtSvg import QSvgGenerator
+
+        source, aspect = cls._page_source(item)
+        if source is None:
+            return
+        height = float(height_mm) if height_mm else width_mm * aspect
+        per_mm = cls.SVG_RESOLUTION / 25.4
+        width_px = max(1, int(round(width_mm * per_mm)))
+        height_px = max(1, int(round(height * per_mm)))
+
+        generator = QSvgGenerator()
+        generator.setFileName(str(path))
+        generator.setResolution(cls.SVG_RESOLUTION)
+        generator.setSize(QSize(width_px, height_px))
+        generator.setViewBox(QRectF(0, 0, width_px, height_px))
+        generator.setTitle(str(path))
+
+        painter = QPainter(generator)
+        try:
+            cls._paint_scene(item, painter, QRectF(0, 0, width_px, height_px),
+                             source)
         finally:
             painter.end()
 
@@ -807,15 +1604,128 @@ class FastPlot(QWidget):
         from PySide6.QtWidgets import QInputDialog
 
         value, ok = QInputDialog.getInt(
-            self, "Font size", "Points:", 10, 5, 40)
+            self, "Font size", "Points:", self._font_size or 10, 5, 40)
+        if ok:
+            self.set_font_size(value)
+
+    def _ask_font_colour(self) -> None:
+        from PySide6.QtWidgets import QColorDialog
+
+        colour = QColorDialog.getColor(
+            QColor(self._font_colour or self._foreground), self, "Font colour")
+        if colour.isValid():
+            self.set_font_colour(colour)
+
+    def _ask_axis_limits(self) -> None:
+        """Four numbers, each pre-filled with what is on screen now.
+
+        FOUR DIALOGS RATHER THAN A FORM, deliberately, for the reason
+        :meth:`build_style_menu` is separate from showing itself: the modal
+        ones Qt ships are drivable from a test, and a hand-built form on this
+        menu would be the one control here that no test can reach. Cancelling
+        any of the four abandons the whole change, so a user who gets three
+        numbers in and changes their mind is not left with a half-pinned
+        axis.
+        """
+        from PySide6.QtWidgets import QInputDialog
+
+        (x_from, x_to), (y_from, y_to) = self.axis_limits()
+        asked = []
+        for title, prompt, current in (
+                ("X axis limits", "X from:", x_from),
+                ("X axis limits", "X to:", x_to),
+                ("Y axis limits", "Y from:", y_from),
+                ("Y axis limits", "Y to:", y_to)):
+            value, ok = QInputDialog.getDouble(
+                self, title, prompt, float(current), -1e12, 1e12, 4)
+            if not ok:
+                return
+            asked.append(value)
+        self.set_axis_limits(x=(asked[0], asked[1]), y=(asked[2], asked[3]))
+
+    def _ask_aspect_ratio(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        current = self.aspect_ratio()
+        value, ok = QInputDialog.getDouble(
+            self, "Aspect ratio",
+            "X units per Y unit; 0 lets the plot fill its box:",
+            float(current or 0.0), 0.0, 1000.0, 3)
+        if ok:
+            self.set_aspect_ratio(None if value <= 0 else value)
+
+    def _ask_line_style(self) -> None:
+        from PySide6.QtWidgets import QColorDialog, QInputDialog
+
+        lines = self.line_items()
+        first = self._pen_of(lines[0]) if lines else None
+        width, ok = QInputDialog.getDouble(
+            self, "Line width", "Width in pixels:",
+            float(first.widthF()) if first is not None else 1.5, 0.1, 20.0, 1)
         if not ok:
             return
-        for name in ("bottom", "left"):
-            axis = self.plot.getAxis(name)
-            axis.setStyle(tickFont=None)
-            axis.setTickFont(None)
-            label = axis.labelText
-            axis.setLabel(label, **{"font-size": f"{value}pt"})
+        colour = QColorDialog.getColor(
+            QColor(first.color()) if first is not None else QColor(MUTED),
+            self, "Line colour")
+        # A CANCELLED COLOUR STILL APPLIES THE WIDTH. The user answered one
+        # question and declined the other; throwing away the answer they gave
+        # would make the dialog feel like it lost their input.
+        self.set_line_style(colour if colour.isValid() else None, width)
+
+    def _ask_colour_column(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        columns = self.numeric_columns()
+        column, ok = QInputDialog.getItem(
+            self, "Colour by a column", "Column:", columns, 0, False)
+        if not ok or not column:
+            return
+        name, _ = QInputDialog.getItem(
+            self, "Colour by a column", "Colour scale:", list(COLORMAPS), 0,
+            False)
+        self.colour_by_column(column, name or COLORMAPS[0])
+
+    def _ask_shape_column(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        columns = self.shape_columns()
+        column, ok = QInputDialog.getItem(
+            self, "Shape by a column", "Column:", columns, 0, False)
+        if ok and column:
+            self.shape_by_column(column)
+
+    def _ask_screen_size(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        width, ok = QInputDialog.getInt(
+            self, "Size on screen",
+            "Width in pixels (this moves the widget, not the saved page):",
+            self.width(), 120, 8000)
+        if not ok:
+            return
+        height, ok = QInputDialog.getInt(
+            self, "Size on screen", "Height in pixels:", self.height(), 90,
+            8000)
+        if ok:
+            self.set_screen_size(width, height)
+
+    def _ask_export_size(self) -> None:
+        from PySide6.QtWidgets import QInputDialog
+
+        width, height = self.export_size()
+        new_width, ok = QInputDialog.getDouble(
+            self, "Exported page size",
+            "Page width in mm (this moves the saved page, not the screen):",
+            float(width), 20.0, 1000.0, 1)
+        if not ok:
+            return
+        new_height, ok = QInputDialog.getDouble(
+            self, "Exported page size",
+            "Page height in mm; 0 follows the plot's own shape:",
+            float(height or 0.0), 0.0, 1000.0, 1)
+        if ok:
+            self.set_export_size(new_width,
+                                 None if new_height <= 0 else new_height)
 
     def _apply_log(self) -> None:
         self.plot.setLogMode(self._log_x.isChecked(), self._log_y.isChecked())
@@ -846,7 +1756,25 @@ class FastPlot(QWidget):
     def set_status(self, text: str) -> None:
         """What this plot has to say about ITSELF. Survives a selection."""
         self._headline = text
-        self._status.setText(text)
+        self._status.setText(self._compose(text, self._style_note))
+
+    def set_style_note(self, note: str) -> None:
+        """What a RESTYLE has to say. Survives a redraw and a selection.
+
+        A colour scale is unreadable without its range and a shape mapping is
+        unreadable without its key, so those sentences are not decoration --
+        they are the legend. They cannot live in the headline, which every
+        redraw rewrites, nor in the click note, which every click rewrites;
+        either would leave the reader looking at a picture whose key had been
+        overwritten by something unrelated.
+        """
+        self._style_note = note
+        self._status.setText(self._compose(self._headline, note, self._note))
+
+    @staticmethod
+    def _compose(*parts) -> str:
+        """The status line: whichever of the three sentences exist."""
+        return "   ".join(part for part in parts if part)
 
     def set_status_note(self, note: str) -> None:
         """Add a sentence about the CLICKED thing, keeping the headline.
@@ -857,10 +1785,10 @@ class FastPlot(QWidget):
         clicked trades the panel's whole content for a string the user can
         already read in the table. Both fit.
         """
-        headline = getattr(self, "_headline", "")
         self._note = note
-        self._status.setText("   ".join(part for part in (headline, note)
-                                        if part))
+        self._status.setText(self._compose(getattr(self, "_headline", ""),
+                                           getattr(self, "_style_note", ""),
+                                           note))
 
     def note_selection(self, key, found: bool) -> None:
         """Say a row was picked -- unless this plot already said MORE about it.
@@ -1264,14 +2192,17 @@ class FastPlot(QWidget):
     def export(self, path: Optional[str] = None) -> Optional[str]:
         """Write the plot out: PDF, SVG or PNG, by the name given.
 
-        pyqtgraph's SVG export is real vector output, so what leaves the
-        screen is publishable rather than a screenshot of it.
+        BOTH VECTOR FORMATS GO THROUGH Qt rather than through pyqtgraph.
+        pyqtgraph ships no PDF exporter at all -- reported 2026-08-17,
+        "currently i can only save the volcano as a png i want png and pdf" --
+        and its SVG exporter raises on every plot in this module; the whole
+        diagnosis is on :meth:`_export_svg`. A QPdfWriter and a QSvgGenerator
+        take the same QPainter the scene draws itself with, so the result is
+        true vector rather than a bitmap in a wrapper.
 
-        PDF IS RENDERED THROUGH Qt, not through pyqtgraph, because pyqtgraph
-        ships no PDF exporter -- only raster and SVG. Reported 2026-08-17:
-        "currently i can only save the volcano as a png i want png and pdf".
-        A QPdfWriter takes the same QPainter the scene draws itself with, so
-        the result is true vector, not a bitmap in a PDF wrapper.
+        The page is :meth:`export_size`, which the right-click menu sets. It
+        is deliberately NOT the size of the widget on screen: the two are
+        different quantities and are named separately on that menu.
         """
         if path is None:
             from PySide6.QtWidgets import QFileDialog
@@ -1283,10 +2214,11 @@ class FastPlot(QWidget):
         from pyqtgraph import exporters
 
         item = self.plot.plotItem
+        width_mm, height_mm = self.export_size()
         if str(path).lower().endswith(".pdf"):
-            self._export_pdf(item, path)
+            self._export_pdf(item, path, width_mm, height_mm)
         elif str(path).lower().endswith(".svg"):
-            exporters.SVGExporter(item).export(path)
+            self._export_svg(item, path, width_mm, height_mm)
         else:
             exporter = exporters.ImageExporter(item)
             # MATCH THE SCREEN. The exporter defaults to pyqtgraph's config
@@ -1386,6 +2318,12 @@ class FastPlot(QWidget):
         title = getattr(self.plot.plotItem, "titleLabel", None)
         if title is not None and title.text:
             self.plot.setTitle(title.text, color=foreground)
+        # A THEME SWITCH MUST NOT UNDO A CHOICE THE USER MADE. The loop above
+        # has just painted the theme's ink over every axis; if the user set a
+        # font colour or size off the menu, that is what they asked this plot
+        # to look like and it goes back on top.
+        if self._font_colour is not None or self._font_size is not None:
+            self.apply_text_style()
 
 
 class VolcanoPlot(FastPlot):
@@ -2343,6 +3281,7 @@ class GuideAgreementPlot(GroupedPlot):
         self._support_keys = keys
         self._support_key_column = key_column
         self._rows_shown = np.empty(0, dtype="int64")
+        self._frame = None
         if support is None or not len(support):
             self.set_keys(())
             self.set_status("No guide-level terms were fitted, so guide "
@@ -2350,6 +3289,11 @@ class GuideAgreementPlot(GroupedPlot):
             return 0
 
         frame = support.reset_index() if support.index.name else support
+        # THE TABLE THE RESTYLE MENU READS. It is the RESET frame, not the
+        # argument: the row indices carried into every scatter below are
+        # positions in this one, so a column mapped onto a colour or a shape
+        # has to be indexed the same way or it would shade the wrong genes.
+        self._frame = frame
         if keys is None and key_column in getattr(frame, "columns", ()):
             keys = frame[key_column]
         self.set_keys(keys)
