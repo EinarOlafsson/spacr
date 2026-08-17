@@ -2416,10 +2416,16 @@ def _show_well_distributions(frame, response_name, dst, plot=True):
         figure._spacr_title = panel.title
         if dst:
             try:
+                from .plot import save_figure
+
                 name = distributions.FILENAMES[key].format(
                     response=response_name)
-                figure.savefig(os.path.join(str(dst), f"{name}.pdf"),
-                               bbox_inches="tight")
+                # THROUGH THE PREFERENCE, not a literal .pdf. A user who set
+                # "PNG" in Preferences and got PDFs anyway is the exact
+                # complaint `save_figure` was written to end, and the new
+                # panels quietly re-introduced it -- three times.
+                save_figure(figure, os.path.join(str(dst), f"{name}.pdf"),
+                            bbox_inches="tight")
             except Exception:
                 pass
         if plot:
@@ -2450,7 +2456,10 @@ def _show_plates(frame, variable, dst):
     figure._spacr_title = panel.title
     if dst:
         try:
-            figure.savefig(
+            from .plot import save_figure
+
+            save_figure(
+                figure,
                 os.path.join(str(dst), f"plate_heatmap_{variable}.pdf"),
                 bbox_inches="tight")
         except Exception:
@@ -2520,7 +2529,11 @@ def _write_regression_sheet(coef_df, dst):
         folder = str(dst)
         os.makedirs(folder, exist_ok=True)
         path = os.path.join(folder, 'regression_figure.pdf')
-        sheet.figure.savefig(path, bbox_inches='tight')
+        from .plot import save_figure
+
+        # The sheet is THE publication figure of the run, so it is the last
+        # one that should ignore the format and resolution the user chose.
+        path = save_figure(sheet.figure, path, bbox_inches='tight')
         with open(os.path.join(folder, 'regression_figure_legend.txt'),
                   'w') as handle:
             handle.write(sheet.legend() + '\n')
