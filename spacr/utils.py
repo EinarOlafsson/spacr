@@ -1446,12 +1446,23 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     :param csv_file_path: path to the CSV file.
     :param show: display the raw DataFrame for debugging. Default ``False``.
     :param setting_key: name of the key column. Default
-        ``'setting_key'``.
+        ``'setting_key'``; ``'Key'`` is accepted too, see below.
     :param setting_value: name of the value column. Default
-        ``'setting_value'``.
+        ``'setting_value'``; ``'Value'`` is accepted too.
     :returns: dict of parsed settings, ready to pass back into the
         original pipeline entry point.
     :raises ValueError: if the required key / value columns are missing.
+
+    THE TWO SPELLINGS. :func:`save_settings` writes ``Key`` / ``Value``,
+    while this function's defaults ask for ``setting_key`` /
+    ``setting_value`` -- so the documented inverse pair did not round-trip,
+    and the example above raised. Callers had each worked around it
+    separately (``spacr/qt/dnd.py`` tries one spelling and catches the
+    failure to try the other), which is how it survived: nothing that used
+    the defaults was reading a file spacr had written.
+
+    Either spelling is now read. An explicitly named column still wins, so a
+    caller that knows its file's header is unaffected.
 
     Example:
         .. code-block:: python
@@ -1470,9 +1481,16 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     if show:
         display(df)
 
-    # Ensure the columns 'setting_key' and 'setting_value' exist
+    # Ensure the columns exist, in either of the two spellings spacr writes.
     if setting_key not in df.columns or setting_value not in df.columns:
-        raise ValueError(f"CSV file must contain {setting_key} and {setting_value} columns.")
+        if 'Key' in df.columns and 'Value' in df.columns:
+            setting_key, setting_value = 'Key', 'Value'
+        else:
+            raise ValueError(
+                f"CSV file must contain {setting_key} and {setting_value} "
+                f"columns (or the Key/Value pair save_settings writes); "
+                f"{os.path.basename(str(csv_file_path))} has "
+                f"{list(df.columns)}.")
 
     def parse_value(value):
         """Parse the string value into the appropriate Python data type."""

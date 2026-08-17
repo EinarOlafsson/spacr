@@ -218,6 +218,12 @@ class FastPlot(QWidget):
         self._selected_key: Optional[str] = None
         self._highlight = None
 
+        #: ``(callback, label)`` for an action that re-runs the analysis, or
+        #: None. BORN HERE, not on first use: a filter control connected in
+        #: __init__ to a handler that reads an attribute created later is the
+        #: `_significance` crash, and it took the whole panel down at launch.
+        self._refit = None
+
         # Right-click to restyle, the same gesture the matplotlib figures use.
         self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
         self.plot.customContextMenuRequested.connect(self._style_menu)
@@ -246,8 +252,36 @@ class FastPlot(QWidget):
 
     # ------------------------------------------------------------- restyling
 
+    def offer_refit(self, callback, label: str = "Re-fit with another model…"):
+        """Add an action that CHANGES THE NUMBERS to the right-click menu.
+
+        :param callback: called with no arguments when the user picks it.
+        :param label: what the action says.
+
+        Everything else on that menu changes how the figure looks and nothing
+        else. This one re-runs the regression, so it is put under its own
+        heading rather than in the list -- a user reaching for "Point size"
+        must not be one slip away from starting a fit.
+
+        Offered by the host rather than built in, because the plot knows
+        nothing about settings, count data or where a run writes, and should
+        not learn: the same widget draws a simulation and a sweep trial.
+        """
+        self._refit = (callback, label)
+
     def _style_menu(self, position) -> None:
-        """Right-click menu. Built from what the plot actually has on it."""
+        """Right-click: build the menu and show it."""
+        self.build_style_menu().exec(self.plot.mapToGlobal(position))
+
+    def build_style_menu(self):
+        """The right-click menu, built from what the plot actually has on it.
+
+        SEPARATE FROM SHOWING IT so the menu can be inspected without a modal
+        event loop. `QMenu.exec` blocks until the user picks something and is
+        not patchable from a test -- it is a C++ slot, and assigning over it
+        leaves the real one dispatching -- so a test that reached in to read
+        the entries hung the suite instead of failing it.
+        """
         from PySide6.QtWidgets import QMenu
 
         menu = QMenu(self)
@@ -270,7 +304,13 @@ class FastPlot(QWidget):
         menu.addSeparator()
         menu.addAction("Reset view", self.plot.autoRange)
         menu.addAction("Export…", self.export)
-        menu.exec(self.plot.mapToGlobal(position))
+        if self._refit is not None:
+            callback, label = self._refit
+            # A SECTION, not another line in the list. Everything above
+            # restyles; below here the numbers change.
+            menu.addSection("Re-runs the analysis")
+            menu.addAction(label, callback)
+        return menu
 
     def _scatter_items(self):
         """Every scatter on the plot, for a restyle to reach.

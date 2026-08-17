@@ -201,6 +201,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    # Building the settings for a second run of the same screen through a
+    # different model. No Qt: the GUI offers the gesture, but what a re-fit
+    # is allowed to change is a question about the fit, not about a menu.
+    "refit",
     # The spaCRPower port: `power_simulate` generates a synthetic pooled
     # screen, `power_model` fits the horseshoe-Poisson hit model to it. They
     # are separate modules because the simulator is cheap and dependency-free

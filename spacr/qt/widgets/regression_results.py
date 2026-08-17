@@ -205,6 +205,12 @@ class RegressionResultsPanel(QWidget):
     #: Emitted with the results CSV whenever a new one is loaded.
     loaded = Signal(str)
 
+    #: Emitted with a settings dict when the user asks, from the plot, for
+    #: the same screen through a different model. The panel does not start
+    #: the run itself -- it has no worker, no console and no Stop button --
+    #: so whichever screen owns those does.
+    refit_requested = Signal(object)
+
     def __init__(self, parent=None, external_volcano: bool = False):
         """
         :param external_volcano: build the volcano but do not place it. The
@@ -358,6 +364,63 @@ class RegressionResultsPanel(QWidget):
         self._selected_key = None
         self._status = "No regression loaded."
         self._ranking = (None, None)
+        #: The settings that produced the table on screen, when they are
+        #: known. BORN HERE rather than on first use: an attribute a menu
+        #: handler reads, created only by a code path that may not have run,
+        #: is the `_significance` crash that took the panel down at launch.
+        self._run_settings = None
+
+        # RE-FITTING IS OFFERED FROM THE PLOT, under its own heading, because
+        # that is where it was asked for: "right click on the regression plot
+        # and choose a different regression". It is separated from the
+        # restyling entries above it for the reason `offer_refit` gives.
+        self.volcano.offer_refit(self.ask_refit)
+
+    # -------------------------------------------------------------- re-fitting
+
+    def set_run_settings(self, settings) -> None:
+        """Remember the settings that produced the table now on screen.
+
+        Called by the screen when a run finishes, because the run's own
+        settings are better than anything read back off disk: the saved copy
+        under ``settings/`` is overwritten by every later run of the same
+        screen, so on a second run it describes the wrong one.
+        """
+        self._run_settings = dict(settings) if settings else None
+
+    def ask_refit(self) -> bool:
+        """Offer another model for the same data, and ask for the run.
+
+        :returns: True if a re-fit was asked for.
+
+        The panel goes no further than emitting. It has no worker, no
+        console and no Stop button, and a widget that started a background
+        fit with none of those would be a run the user cannot watch or stop.
+        """
+        from ...refit import refit_settings, settings_of_run
+
+        base = self._run_settings or settings_of_run(self._path)
+        try:
+            refit_settings(base or {})
+        except ValueError as error:
+            # No settings, or no count data in them. SAID ON THE PANEL and
+            # BEFORE the dialog opens: a form whose only content is a
+            # disabled button and an error is worse than a sentence, and the
+            # user right-clicked a graph -- a traceback is not an answer to
+            # that either.
+            self.say(str(error))
+            return False
+
+        from .refit_dialog import ask_refit as ask
+
+        answer = ask(base, self)
+        if answer is None:
+            return False
+        settings, notes = answer
+        if notes:
+            self.say("Re-fitting: " + "; ".join(notes))
+        self.refit_requested.emit(settings)
+        return True
 
     def _keyed_plots(self) -> tuple:
         """Every plot whose marks are individual coefficients or genes.
@@ -477,6 +540,19 @@ class RegressionResultsPanel(QWidget):
         self._frame = frame
         self._path = source
         self._ranking = self._rank_by(frame, source)
+
+        # WHICH SETTINGS PRODUCED THIS TABLE. Read from beside the table, and
+        # REPLACED rather than kept: a new table is a new experiment, and
+        # carrying the last run's settings over would offer to re-fit a
+        # screen the panel is no longer showing. A live run overrides this by
+        # calling `set_run_settings` afterwards, which is better still --
+        # the shared settings/ copy on disk is overwritten by every later run.
+        from ...refit import settings_of_run
+
+        try:
+            self._run_settings = settings_of_run(source) if source else None
+        except Exception:                                        # noqa: BLE001
+            self._run_settings = None
 
         # Offer every column that could sensibly colour the points, without
         # guessing: a column with one value per point is not a category.
