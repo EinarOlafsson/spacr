@@ -1644,10 +1644,37 @@ def escape_field_stem_plate(name: Any, *, timelapse: bool = False) -> str:
     belong to the well/field/time.  Joining everything before that tail is
     the unambiguous plate id; escaping it before emitting a crop filename is
     what lets the reader split the name without guessing.
+
+    **THE TAIL IS THREE WHENEVER THE STEM CARRIES A TIMEPOINT, TIMELAPSE OR
+    NOT**, and this function must agree with :func:`parse_field_stem` about
+    when that is, because the two are the write and read halves of one
+    grammar.  They did not.  ``spacr.io`` names every merged stack
+    ``plate_well_field_TIME`` whatever ``timelapse`` is set to -- the fact
+    :func:`parse_field_stem` already accounts for -- so ``_generate_names``,
+    which escapes the merged stem before cutting a crop out of it, escaped
+    ``'plate1_A01_1_1'`` with a tail of two and swallowed the WELL into the
+    plate.  Measured on the shipped Crop demo, an ordinary non-timelapse
+    plate: every crop landed as ``plate1%5FA01_1_1_<id>.png`` and its
+    ``png_list`` row read ``plateID='plate1_A01'``, ``rowID='2'``,
+    ``prcfo='plate1%5FA01_2_2_f1_o1'`` -- against ``prcf='plate1_r1_c2_f2'``
+    on the ``cell`` row for the same object.  The crop table and the object
+    tables carried different identities for the same cell, so nothing that
+    joins crops to measurements could match.
+
+    The allowance mirrors :func:`parse_field_stem`'s exactly: one trailing
+    component that reads as a timepoint belongs to the tail.  A four-part stem
+    whose plate genuinely holds an underscore and which carries no timepoint
+    (``'my_plate_A01_1'``) is ambiguous from the name alone and is resolved the
+    same way the reader resolves it -- which is why the plate is escaped at the
+    writer, where the components are still separate
+    (:func:`spacr.io._escaped_field_stem`), rather than recovered here.
     """
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
     tail_size = 3 if timelapse else 2
+    if (not timelapse and len(parts) >= 4
+            and parse_int_token(parts[-1]) is not None):
+        tail_size = 3
     if len(parts) <= tail_size:
         raise KeyParseError(
             f'cannot encode plate component in {stem!r}: expected '
