@@ -441,6 +441,20 @@ class FigureQueue(QWidget):
         # "Editable figures kept" preference, ordered by USE so restoring an
         # old figure does not immediately evict it again.
         self._figures: "OrderedDict[int, object]" = OrderedDict()
+        # index -> the figure's own name, taken ONCE when it arrives.
+        #
+        # A NAME IS NOT A CACHE. `figure_titles` used to read the label off
+        # the live Figure every time it was asked, so a figure's caption
+        # survived exactly as long as its Figure did: the moment
+        # `_trim_live_figures` spilled it past the live cap the grid fell back
+        # to the temp file's stem. Measured with the default cap of 20 --
+        # three runs of the house-style panels put 21 figures in, and the
+        # first three tiles were captioned `fig_00000`, `fig_00001`,
+        # `fig_00002`. On a screen that has done twelve runs that is almost
+        # every caption on the grid. A name costs a short string and is what
+        # the figure itself said it was called; nothing about running low on
+        # RAM makes that untrue.
+        self._titles: Dict[int, str] = {}
         # WHERE EACH RUN'S FIGURES START. The queue accumulates across runs --
         # that is the point of it, an earlier run stays reachable -- but the
         # grid letters its cells, and panel letters belong to a FIGURE. A
@@ -863,6 +877,12 @@ class FigureQueue(QWidget):
         self._count += 1
         self._fig_index[id(fig)] = idx
         self._figures[idx] = fig
+        # BEFORE the trim, not after: this figure is the newest, but a
+        # `live_figure_cap` of 1 evicts it on the very next arrival and a name
+        # read later would already be gone.
+        name = self._figure_name(fig)
+        if name:
+            self._titles[idx] = name
         self._trim_live_figures()
 
         png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
@@ -1042,6 +1062,22 @@ class FigureQueue(QWidget):
                 sections.append((mark["label"], start, end - start))
         return sections
 
+    @staticmethod
+    def _figure_name(figure) -> str:
+        """What a figure calls itself, or ``""``.
+
+        The `_spacr_title` a caller attached first, then matplotlib's own
+        label. One place, because the name is now read at arrival and the
+        rule for reading it must not differ from the one it replaced.
+        """
+        if figure is None:
+            return ""
+        try:
+            return str(getattr(figure, "_spacr_title", "")
+                       or (figure.get_label() or ""))
+        except Exception:               # pragma: no cover - not a Figure
+            return ""
+
     def figure_titles(self):
         """A short name per figure, for the grid captions.
 
@@ -1051,19 +1087,22 @@ class FigureQueue(QWidget):
         that knows what it is says so: matplotlib's own label, or the
         `_spacr_title` a caller attached.
 
-        The filename stays as the fallback, for the pictures that arrive
-        without a name.
+        READ FROM THE NAME RECORDED AT ARRIVAL, not off the live Figure. See
+        `_titles` -- asking the Figure meant the caption vanished the moment
+        the figure was spilled past the live cap, which is every figure but
+        the last twenty on a screen that has done a few runs. The live Figure
+        is still consulted for a slot that has no recorded name, so a figure
+        that acquired one after it arrived is not ignored.
+
+        The filename stays as the last fallback, for the pictures that arrive
+        without a name at all.
         """
         import os as _os
 
         titles = []
         for index in range(self._count):
-            named = ""
-            figure = self._figures.get(index) if hasattr(self, "_figures") \
-                else None
-            if figure is not None:
-                named = (getattr(figure, "_spacr_title", "")
-                         or (figure.get_label() or ""))
+            named = self._titles.get(index) or self._figure_name(
+                self._figures.get(index))
             if named:
                 titles.append(str(named))
                 continue
@@ -1100,6 +1139,7 @@ class FigureQueue(QWidget):
         self._png_paths.clear()
         self._fig_index.clear()
         self._figures.clear()
+        self._titles.clear()
         self._pdf_state.clear()
         self._count = 0
         self._current = -1
