@@ -134,8 +134,66 @@ def label_series(frame):
 #  The result
 # --------------------------------------------------------------------------- #
 
-def volcano(ax, frame, *, alpha=0.05, effect_threshold=None,
-            highlight=None, label_top=8) -> Panel:
+#: The control classes a screen's `condition` column uses for its
+#: non-targeting guides. These are the null the effect-size cut is measured
+#: from.
+CONTROL_CONDITIONS = ("control", "nc", "negative")
+
+#: Below this many controls a MAD is noise pretending to be a threshold, and
+#: a threshold that comes out too LOW calls everything a hit.
+MIN_CONTROLS = 8
+
+
+def control_threshold(frame, multiplier=3.0):
+    """A symmetric effect-size cut, measured from the CONTROL guides.
+
+    ``(where, value)`` -- the rule that produced it and the number, or
+    ``(reason, None)`` when neither rule could be applied.
+
+    THE CUT WAS NEVER VISIBLE, which is the complaint: it defaulted to None,
+    so a volcano drew its significance line and nothing else. A p-value says
+    an effect is distinguishable from zero; with a thousand wells that
+    includes effects too small to care about, and the cut is what separates
+    "detectable" from "worth following up".
+
+    Controls first because it is the defensible one to write in a methods
+    section -- the spread of guides that target nothing IS the null. Measured
+    on this screen the two agree closely (0.83 against 0.84), but a screen
+    with a strong signal pulls the all-guide MAD up while leaving the
+    controls where they are, and then only one of them is still a null.
+
+    sigma is MAD x 1.4826, which is the consistent estimator for a normal and,
+    unlike the standard deviation, is not inflated by the outliers a screen
+    exists to find.
+    """
+    effect = effect_column(frame)
+    if effect is None:
+        return "no effect column", None
+    values = _finite(frame[effect])
+    condition = _column(frame, "condition", "control", "class")
+    if condition is not None:
+        names = frame[condition].astype(str).str.lower()
+        mask = names.isin(CONTROL_CONDITIONS).to_numpy()
+        controls = values[mask & np.isfinite(values)]
+        if controls.size >= MIN_CONTROLS:
+            spread = float(np.median(np.abs(controls - np.median(controls))))
+            if spread > 0:
+                return (f"{multiplier:g}σ of {controls.size} controls",
+                        multiplier * spread * 1.4826)
+    # No usable controls: the all-guide MAD, which is the same statistic over
+    # a family that includes the hits. Named differently so a reader is never
+    # told a number is control-based when it is not.
+    finite = values[np.isfinite(values)]
+    if finite.size < MIN_CONTROLS:
+        return "too few coefficients", None
+    spread = float(np.median(np.abs(finite - np.median(finite))))
+    if spread <= 0:
+        return "no spread", None
+    return f"{multiplier:g}σ of all guides", multiplier * spread * 1.4826
+
+
+def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
+            highlight=None, label_top=8, colour_by=None) -> Panel:
     """Effect against significance. The panel the screen exists to produce.
 
     Grey for everything that was not called, GREEN up, RUST down -- the
@@ -156,6 +214,13 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold=None,
     smallest = np.nanmin(raw[raw > 0]) if np.any(raw > 0) else 1e-300
     y = -np.log10(np.clip(raw, smallest * 1e-3, 1.0))
 
+    # THE EFFECT-SIZE CUT IS ON BY DEFAULT NOW. "in your versions i have
+    # never seen the effect size threshold" -- because it defaulted to None
+    # and drew no line at all.
+    rule = ""
+    if effect_threshold == "auto":
+        rule, effect_threshold = control_threshold(frame)
+
     q = q_column(frame)
     called = _finite(sub[q]) <= alpha if q else raw <= alpha
     called = np.nan_to_num(called, nan=False).astype(bool)
@@ -175,7 +240,10 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold=None,
                    else f"p = {alpha:g}")
     if effect_threshold:
         for sign in (-1, 1):
-            reference_line(ax, x=sign * abs(effect_threshold))
+            # The rule is named on the line, once. A threshold a reader
+            # cannot attribute is a threshold they cannot report.
+            reference_line(ax, x=sign * abs(effect_threshold),
+                           label=rule if sign > 0 else "")
 
     names = label_series(sub)
     if label_top:
@@ -215,8 +283,8 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold=None,
                           f"{int(keep.sum())} tested coefficients. "
                           f"{int(called.sum())} called at "
                           f"{'BH q' if q else 'p'} ≤ {alpha:g}"
-                          + (f" and |effect| ≥ {abs(effect_threshold):g}"
-                             if effect_threshold else "")
+                          + (f" and |effect| ≥ {abs(effect_threshold):.3g} "
+                             f"({rule})" if effect_threshold else "")
                           + ". Nuisance terms are excluded."),
                  needs=(effect, p))
 
