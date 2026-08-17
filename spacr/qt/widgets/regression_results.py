@@ -20,6 +20,18 @@ instruction 124 F. Clicking a point selects its row; selecting a row marks
 that point on every plot that drew it. They are views of one table, which is
 the thing that was missing.
 
+ONE GENE/GUIDE FILTER FOR ALL OF THEM -- instruction 128 L. `set_level` is
+read by every draw path, not by the volcano alone, because a filter that
+reaches four of six tabs is worse than one that reaches none: the two then
+disagree on screen at the same time and nothing says which is which. Filtering
+the family also CHANGES A DIAGNOSTIC rather than merely narrowing it -- on a
+table of 200 null gene terms and 600 enriched guide terms the Q-Q reports
+inflation at the median of 2.90, 0.97 and 4.07 for the whole fit, the genes
+and the guides, three answers to "is this screen calibrated" from one plot --
+so the family is written into the tab label and into the plot's own title.
+The three well-level tabs are NOT filtered, because a residual is one WELL and
+a well is neither a gene nor a guide; they say so rather than staying quiet.
+
 Joined on the KEY, never on a position. The Q-Q is sorted by p, the control
 panel is split into groups and the agreement plot has one point per gene from
 a frame with one row per guide, so a mark's position is not its row in any of
@@ -328,8 +340,17 @@ class RegressionResultsPanel(QWidget):
         self.table = ResultsTable()
         self.external_volcano = bool(external_volcano)
         self.table.setMinimumHeight(150)
+        # THE SAME GESTURE ON THE TABLE AS ON THE PLOT. Instruction 128 L:
+        # "i should be able to right click on the coeffisients table and only
+        # see grna or genes and this should also filer the subsequent
+        # data/graphs in the subsequent tabs". Wired to the SAME
+        # :meth:`set_level`, so the two entry points cannot end up with two
+        # opinions about which rows the panel is showing.
+        self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.table.customContextMenuRequested.connect(self._level_menu_at)
         if self.external_volcano:
             # The table is the panel; the graph is the caller's to place.
+            self._volcano_tab, self._volcano_tab_name = self.table, "Coefficients"
             self.tabs.addTab(self.table, "Coefficients")
         else:
             split = QSplitter(Qt.Vertical)
@@ -345,6 +366,7 @@ class RegressionResultsPanel(QWidget):
             # like on the real screen before the numbers were put in.
             self.volcano.setMinimumHeight(240)
             split.setSizes([340, 220])
+            self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
 
         self.p_values = PValueHistogram()
@@ -393,7 +415,29 @@ class RegressionResultsPanel(QWidget):
         self.scale_location = ScaleLocationPlot()
         self.influence = InfluencePlot()
         self.tabs.addTab(self.residuals, "Residuals")
-        self.tabs.addTab(self.scale_location, "Scale-location")
+
+        # THE HOMOGENEITY VERDICT, BESIDE THE PICTURE. Instruction 128 M: the
+        # Scale-location tab shipped the plot and never asked the question the
+        # plot exists to answer -- is the residual spread constant across the
+        # fitted range? A reader who cannot answer that from a scatter of 610
+        # points (and most cannot) has no way to know that every standard
+        # error in the Summary tab, and so every p-value in the coefficient
+        # table, is optimistic.
+        #
+        # A LABEL, NOT A STATUS LINE. The plot's own status is overwritten by
+        # whatever was last clicked (`FastPlot.note_selection`), and a verdict
+        # that disappears when the user interacts with the panel is a verdict
+        # they will not have read.
+        self.homogeneity = QLabel(self.NO_HOMOGENEITY_VERDICT)
+        self.homogeneity.setWordWrap(True)
+        self.homogeneity.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self._scale_location_tab = QWidget()
+        spread = QVBoxLayout(self._scale_location_tab)
+        spread.setContentsMargins(0, 0, 0, 0)
+        spread.setSpacing(4)
+        spread.addWidget(self.scale_location, 1)
+        spread.addWidget(self.homogeneity)
+        self.tabs.addTab(self._scale_location_tab, "Scale-location")
         self.tabs.addTab(self.influence, "Influence")
         # The statsmodels summary closes the diagnostic group: it is the
         # model-level readout the panels above it are pictures of.
@@ -403,7 +447,7 @@ class RegressionResultsPanel(QWidget):
             "Residual against fitted, one point per well. A horizontal band "
             "is a well-specified mean; a curve or a funnel is not.")
         self.tabs.setTabToolTip(
-            self.tabs.indexOf(self.scale_location),
+            self.tabs.indexOf(self._scale_location_tab),
             "The spread of the residuals with the sign taken out. A rising "
             "trend means the standard errors, and so every p-value on the "
             "volcano, depend on the fitted value.")
@@ -431,6 +475,7 @@ class RegressionResultsPanel(QWidget):
         self.agreement.setMinimumHeight(240)
         self.support.setMinimumHeight(150)
         agreement_split.setSizes([340, 220])
+        self._support_tab = agreement_split
         self.tabs.addTab(agreement_split, "Guide support")
 
         # THE GENE TILE. Instruction 121. The volcano answers "which guides
@@ -509,12 +554,21 @@ class RegressionResultsPanel(QWidget):
         self._threshold_multiplier = 3.0
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
-        #: None, "gene" or "grna" -- which rows the volcano draws.
+        #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
+        #: state, read by every draw path: see :meth:`refresh_views`.
         self._level = None
         #: The fitted model behind the table, when a run in this session
         #: produced it. BORN HERE for the same reason as everything else in
         #: this block.
         self._model = None
+        #: The :class:`spacr.regression_qc.RegressionQCContext` the residual
+        #: tabs were drawn from, kept so the homogeneity verdict is read off
+        #: the SAME arrays the saved report used rather than rebuilt.
+        self._qc_context = None
+        #: regression_qc's own scale-location statistics, verbatim.
+        self._homogeneity = {}
+        #: The constant-spread verdict now on screen.
+        self._homogeneity_text = self.NO_HOMOGENEITY_VERDICT
 
         # The diagnostics start out saying what they are waiting for. An
         # empty plot with no sentence is indistinguishable from a broken one.
@@ -589,6 +643,78 @@ class RegressionResultsPanel(QWidget):
         "these fill in. The same panels are already on disk beside the "
         "results, under regression_qc/.")
 
+    #: What the Scale-location tab's verdict says before a fit reaches it.
+    #: A blank space under a plot reads as "nothing to report", which is the
+    #: one thing this panel must never say by accident.
+    NO_HOMOGENEITY_VERDICT = (
+        "No constant-spread verdict yet: it is computed from the fitted "
+        "model, and only a run in this session hands one over.")
+
+    #: What to reach for when the spread is not constant. NAMED, because
+    #: "the standard errors are optimistic" without the remedy is a warning
+    #: a reader can only act on by guessing. ``cov_type`` is already a spaCR
+    #: setting -- see :data:`spacr.regression_spec` -- so this is a re-fit,
+    #: not a feature request.
+    HC3_FIX = (
+        "The fix: re-fit with cov_type='HC3', a sandwich "
+        "(heteroscedasticity-consistent) covariance estimator that is valid "
+        "when the spread is not constant. It is already a supported spaCR "
+        "setting for ols, wls, glm, poisson, quasi_binomial, logit and "
+        "probit, and it changes the standard errors and every p-value while "
+        "leaving the coefficients exactly where they are. Right-click the "
+        "volcano and choose “Re-fit with another model…”.")
+
+    #: What :func:`spacr.regression_qc._panel_scale_location` found, in a
+    #: sentence. KEYED ON THAT MODULE'S OWN VERDICT STRINGS so the live tab
+    #: and the saved PDF cannot describe one fit two ways: the statistics come
+    #: from :func:`spacr.regression_qc.draw_panel` and only the wording is
+    #: this panel's.
+    HOMOGENEITY_FINDINGS = {
+        "no detectable trend in spread":
+            "CONSTANT SPREAD. The residual spread does not change across the "
+            "fitted range.",
+        "variance grows with the fit":
+            "SPREAD GROWS WITH THE FITTED VALUE.",
+        "variance shrinks with the fit":
+            "SPREAD SHRINKS WITH THE FITTED VALUE.",
+        "spread differs across the fit, but not monotonically":
+            "SPREAD IS NOT CONSTANT across the fitted range -- a funnel "
+            "rather than a slope, which a rank correlation on its own "
+            "reports as nothing at all.",
+    }
+
+    #: What the finding DOES TO THE TABLE, which is the half that changes
+    #: what a reader does. Only reached when the fit's standard errors are the
+    #: classical ones; a fit that already used a sandwich estimator gets
+    #: :data:`ALREADY_ROBUST` instead, because telling its reader their errors
+    #: are optimistic would be false.
+    HOMOGENEITY_CONSEQUENCES = {
+        "no detectable trend in spread":
+            "The ordinary standard errors in the Summary tab -- and so every "
+            "p-value in the coefficient table and on the volcano -- are the "
+            "right ones.",
+        "variance grows with the fit":
+            "The standard errors above are OPTIMISTIC, so every p-value in "
+            "the coefficient table is smaller than it should be and the hits "
+            "at the top of the volcano gain most from the error.",
+        "variance shrinks with the fit":
+            "The standard errors above are wrong in both directions -- "
+            "conservative where the fit is small, optimistic where it is "
+            "large -- so the p-values are not comparable across the range.",
+        "spread differs across the fit, but not monotonically":
+            "The standard errors above are wrong by an amount that depends "
+            "on the fitted value, so the p-values are not comparable across "
+            "the range.",
+    }
+
+    #: The consequence for a fit that was ALREADY given a sandwich estimator.
+    #: The picture looks the same and means something else: the spread really
+    #: does vary, and the errors already account for it.
+    ALREADY_ROBUST = (
+        "This fit was given cov_type={used!r}, so the standard errors in the "
+        "Summary tab and every p-value in the table are ALREADY robust to "
+        "this. The plot is describing the data, not warning about the table.")
+
     def diagnostic_plots(self) -> tuple:
         """The three well-level tabs, in the order they are shown.
 
@@ -607,9 +733,18 @@ class RegressionResultsPanel(QWidget):
             anything yet", which is the ordinary case and still an answer.
         """
         self._model = None
+        self._qc_context = None
         for plot in self.diagnostic_plots():
             plot._reset_scene()
             plot.set_status(reason or self.NO_MODEL_MESSAGE)
+        # THE VERDICT GOES WITH THE PICTURE IT JUDGED. Left behind, it would
+        # be a sentence about the previous fit sitting under an empty plot,
+        # which is the worst of both: authoritative and about nothing.
+        self._homogeneity = {}
+        self._homogeneity_text = (
+            f"No constant-spread verdict: {reason}" if reason
+            else self.NO_HOMOGENEITY_VERDICT)
+        self.homogeneity.setText(self._homogeneity_text)
 
     def set_summary(self, model, regression_type=None) -> bool:
         """Fill the Summary tab from the fitted model.
@@ -667,6 +802,7 @@ class RegressionResultsPanel(QWidget):
             return False
 
         self._model = model
+        self._qc_context = ctx
         labels = list(ctx.labels) if ctx.labels is not None else []
         reason = (ctx.standardisation.reason
                   if ctx.standardisation is not None else "")
@@ -677,7 +813,129 @@ class RegressionResultsPanel(QWidget):
             ctx.leverage, ctx.std_resid,
             cooks_distance(ctx.std_resid, ctx.leverage, ctx.p),
             labels=labels, n_params=ctx.p, reason=reason or "")
+        self.judge_homogeneity(ctx)
+        # The three plots above each wrote their own headline, which clears
+        # whatever note was on them -- so the "these are wells, not
+        # coefficients" sentence is put back last or it is not there at all.
+        self._note_the_diagnostics()
         return True
+
+    def judge_homogeneity(self, ctx=None) -> str:
+        """Say whether the residual spread is constant, and what to do if not.
+
+        :param ctx: a :class:`spacr.regression_qc.RegressionQCContext`.
+            ``None`` re-judges the context the diagnostics were last drawn
+            from, so a caller does not have to keep a copy of it to ask again.
+        :returns: the verdict now on screen.
+
+        NOT ONE NUMBER RE-DERIVED HERE. The statistics come from
+        :func:`spacr.regression_qc.draw_panel` -- Spearman's rho on
+        sqrt|standardised residual| against fitted, a Brown-Forsythe test
+        across quartiles of the fitted value, and the quartile SD ratio --
+        drawn into a throwaway axes purely to get the dict it returns. That
+        module is 3,444 lines and already computes them for the PDF the run
+        writes; a second implementation here would disagree with it about the
+        same fit inside a week, and the reader would have no way to tell which
+        of the two was wrong.
+
+        TWO STATISTICS, NOT ONE, and that is regression_qc's decision rather
+        than this panel's: a rank correlation is exactly zero for a SYMMETRIC
+        funnel -- wide at both ends, narrow in the middle -- which is what a
+        mis-specified link produces, and a panel reporting "no trend in
+        spread" over one would be a confident wrong answer.
+        """
+        from matplotlib.figure import Figure
+
+        from ...regression_qc import PanelUnavailable, draw_panel
+
+        ctx = self._qc_context if ctx is None else ctx
+        if ctx is None:
+            self._homogeneity = {}
+            self._homogeneity_text = self.NO_HOMOGENEITY_VERDICT
+            self.homogeneity.setText(self._homogeneity_text)
+            return self._homogeneity_text
+        figure = Figure()
+        try:
+            stats = draw_panel("scale_location", ctx, figure.add_subplot(111))
+        except PanelUnavailable as error:
+            # A real answer about the fit -- a quantile or hinge fit has no
+            # error scale, so it has no standardised residual to judge -- and
+            # it must not read like a broken panel.
+            self._homogeneity = {}
+            self._homogeneity_text = f"No constant-spread verdict: {error}"
+        except Exception as error:                               # noqa: BLE001
+            self._homogeneity = {}
+            self._homogeneity_text = (
+                f"No constant-spread verdict: the test could not be computed "
+                f"for this fit ({type(error).__name__}: {error}).")
+        else:
+            self._homogeneity = dict(stats)
+            self._homogeneity_text = self._homogeneity_sentence(stats)
+        finally:
+            figure.clf()
+        self.homogeneity.setText(self._homogeneity_text)
+        index = self.tabs.indexOf(self._scale_location_tab)
+        if index >= 0:
+            self.tabs.setTabToolTip(index, self._homogeneity_text)
+        return self._homogeneity_text
+
+    def homogeneity_verdict(self) -> str:
+        """Whether the residual spread is constant, in the words on screen.
+
+        Public because it is the one sentence on the Scale-location tab that
+        changes what a reader does, and a test that reads it back has to be
+        able to do so without reaching into a label.
+        """
+        return self._homogeneity_text
+
+    def homogeneity_stats(self) -> dict:
+        """The numbers behind the verdict -- ``regression_qc``'s own dict.
+
+        ``spearman_rho``, ``spearman_p``, ``levene_p``,
+        ``quartile_sd_ratio``, ``verdict`` and ``n_points``, exactly as
+        :func:`spacr.regression_qc.draw_panel` returned them for the saved
+        scale-location panel. Empty when there is no verdict.
+        """
+        return dict(self._homogeneity)
+
+    def _homogeneity_sentence(self, stats) -> str:
+        """regression_qc's finding, what it costs, the fix, and the numbers."""
+        verdict = str(stats.get("verdict", ""))
+        finding = self.HOMOGENEITY_FINDINGS.get(
+            verdict,
+            f"The constant-spread test returned “{verdict}”, which this "
+            f"panel has no sentence for; the numbers are below.")
+        numbers = (
+            f"Spearman rho = {stats.get('spearman_rho', float('nan')):+.2f} "
+            f"(p = {stats.get('spearman_p', float('nan')):.2g}), "
+            f"Brown-Forsythe p = {stats.get('levene_p', float('nan')):.2g}, "
+            f"max/min quartile SD = "
+            f"{stats.get('quartile_sd_ratio', float('nan')):.2f}, over "
+            f"{stats.get('n_points', 0)} wells. These are the same numbers "
+            f"the saved regression_qc/scale_location panel prints.")
+        return " ".join(part for part in
+                        (finding, self._consequence(verdict), numbers) if part)
+
+    def _consequence(self, verdict) -> str:
+        """What the finding costs the table, and the fix when there is one.
+
+        THE FIT'S OWN COVARIANCE IS READ FIRST. A model already given
+        ``cov_type='HC3'`` has robust standard errors, so "the errors above
+        are optimistic" would be simply false about it and "re-fit with HC3"
+        would be advice to repeat what was already done. Read off the model
+        rather than off the settings, because the settings copy on disk is
+        overwritten by every later run of the same screen.
+        """
+        used = str(getattr(self._model, "cov_type", "") or "")
+        robust = bool(used) and used.lower() not in ("nonrobust", "none")
+        flat = verdict == "no detectable trend in spread"
+        if flat or not robust:
+            consequence = self.HOMOGENEITY_CONSEQUENCES.get(verdict, "")
+        else:
+            consequence = self.ALREADY_ROBUST.format(used=used)
+        if flat or robust:
+            return consequence
+        return f"{consequence} {self.HC3_FIX}".strip()
 
     def _keyed_plots(self) -> tuple:
         """Every plot whose marks are individual coefficients or genes.
@@ -697,7 +955,12 @@ class RegressionResultsPanel(QWidget):
     # ------------------------------------------------------------------ load
 
     def results_frame(self):
-        """The coefficient table on screen, or ``None``.
+        """The RUN's coefficient table, whole, or ``None``.
+
+        Not what the tabs are currently drawing: the gene/guide filter is a
+        view and never an edit, so a caller exporting or re-plotting the
+        results gets the fit rather than whatever the user last right-clicked.
+        :meth:`filtered_frame` is the other one.
 
         Public because two callers outside this panel need to know whether
         there is anything to draw -- the publication sheet and the figure grid
@@ -901,8 +1164,46 @@ class RegressionResultsPanel(QWidget):
         self._offer_thresholds()
         self._offer_compartments()
 
-        self._redraw_volcano()
+        # EVERY TAB THROUGH ONE PATH. A new table and a change of the
+        # gene/guide filter draw the panel with the same method, so the two
+        # cannot leave it in two different states -- which is the whole of
+        # instruction 128 L.
+        self.refresh_views()
+        if self._colour_by_note:
+            # SAID, not swallowed. A colouring the user expected and cannot
+            # find is a bug report; the same colouring listed with the reason
+            # it is useless is an answer.
+            self.say(f"{self._status} Colouring: {self._colour_by_note}.")
+        self.loaded.emit(source or "")
+        return True
+
+    def refresh_views(self) -> None:
+        """Draw EVERY tab from the coefficient table at the chosen level.
+
+        ONE PIECE OF STATE, READ SIX TIMES. `_level` used to reach the volcano
+        and nothing else, so "genes only" left the coefficient table, the
+        p-value histogram, the Q-Q, the control panel and the guide support
+        showing the whole fit -- five tabs disagreeing with the sixth, at the
+        same time, with nothing on screen saying which was which. That is
+        worse than no filter at all: a reader who trusts the volcano and reads
+        the inflation figure off the Q-Q beside it has combined two different
+        multiple-testing families and cannot tell.
+
+        Public because it is also what a caller does after changing something
+        the panel does not own -- and because a private redraw that four
+        methods have to remember to call is how the fifth one forgets.
+        """
+        frame = self._frame
+        if frame is None:
+            # THE LABELS STILL GO ON. A panel with no table yet is still a
+            # panel whose filter is set to something, and tab labels that
+            # disagreed with `level()` for as long as it took a run to finish
+            # would be the exact failure this method exists to prevent.
+            self._say_which_family()
+            return
+        shown = self.filtered_frame()
         kind, column = self._ranking
+        self._redraw_volcano()
         # "significant only" cuts on `value <= alpha`. That is the right way
         # round for a p-value and exactly backwards for a selection frequency,
         # where the interesting rows are the HIGH ones -- so on a penalised
@@ -914,22 +1215,20 @@ class RegressionResultsPanel(QWidget):
         # is spelled some way the table would not recognise.
         significance = None
         if kind == "p-value" and not any(
-                name in frame.columns
+                name in shown.columns
                 for name in ("q_value", "adjusted_p_value", "p_value")):
             significance = column
         self.table.set_frame(
-            frame, key_column=self._key_column(frame),
+            shown, key_column=self._key_column(shown),
             significance_column=significance)
-        self._show_significance(frame, kind, column, source)
-        if self._colour_by_note:
-            # SAID, not swallowed. A colouring the user expected and cannot
-            # find is a bug report; the same colouring listed with the reason
-            # it is useless is an answer.
-            self.say(f"{self._status} Colouring: {self._colour_by_note}.")
-        self._draw_controls(frame)
+        self._show_significance(shown, kind, column, self._path or "")
+        self._draw_controls(shown)
+        # THE FULL TABLE, on purpose. A gene's concordance is how its GUIDES
+        # agree, so the guide rows are what the number is made of -- see
+        # `_draw_guide_support`, which narrows which genes are LISTED without
+        # touching how any of them was computed.
         self._draw_guide_support(frame)
-        self.loaded.emit(source or "")
-        return True
+        self._say_which_family()
 
     @staticmethod
     def _gene_terms(frame) -> dict:
@@ -991,6 +1290,23 @@ class RegressionResultsPanel(QWidget):
                 return "agreement is the evidence"
             return "supported"
         table["verdict"] = table.apply(verdict, axis=1)
+        # THE FILTER NARROWS WHICH GENES ARE LISTED, never how one was
+        # measured. "genes only" keeps the genes the fit gave a gene-level
+        # term -- the ones whose dot is on the filtered volcano -- and drops
+        # the genes that exist here only as a bundle of guides. "guides only"
+        # drops nothing, because every row of this table IS a gene's guides;
+        # that is stated on the tab rather than left to look like a filter
+        # that failed to fire.
+        if self._level == "gene":
+            table = table[table["feature"].notna()].reset_index(drop=True)
+        if not len(table):
+            self.support.set_frame(None)
+            self.agreement.set_support(None)
+            self.agreement.set_status(
+                "No gene in this table was fitted a gene-level term, so "
+                "“genes only” leaves nothing to draw here. "
+                + self.GUIDE_SUPPORT_NEEDS_BOTH)
+            return
         # A gene with no gene-level term has no key. Offering `feature` as the
         # key column anyway would make every such row unselectable AND make
         # the column non-unique on None; the table checks, so say nothing and
@@ -1107,11 +1423,42 @@ class RegressionResultsPanel(QWidget):
     #: which the user needs to know rather than to be shielded from.
     ALWAYS_OFFERED = ("condition",)
 
-    #: Which rows the volcano shows. `None` is both, which is what a screen
+    #: Which rows EVERY tab shows. `None` is both, which is what a screen
     #: IS, so it is the default -- a panel that opened already filtered would
     #: be reporting a subset as the result.
     LEVELS = ((None, "genes and guides"), ("gene", "genes only"),
               ("grna", "guides only"))
+
+    #: The level, as it is said in a sentence.
+    LEVEL_NAMES = {None: "genes and guides", "gene": "genes only",
+                   "grna": "guides only"}
+
+    #: The level, as it is appended to a tab. Short, because it goes on five
+    #: tab labels at once and a tab bar that wraps has hidden the filter it
+    #: was put there to advertise.
+    LEVEL_SUFFIXES = {None: "", "gene": " (genes)", "grna": " (guides)"}
+
+    #: The level, as it is appended to a PLOT's title. Longer than the tab
+    #: suffix: the title has the room, and a reader looking at a picture is
+    #: the reader most likely to forget which filter is on.
+    LEVEL_TITLES = {None: "", "gene": " — genes only",
+                    "grna": " — guides only"}
+
+    #: Why the three well-level tabs do not follow the gene/guide filter.
+    #: SAID, not left to be noticed: a filter that reaches five tabs and
+    #: silently skips three is the same failure as one that reaches four of
+    #: six, only quieter.
+    DIAGNOSTICS_ARE_WHOLE_FIT = (
+        "NOT FILTERED: one point here is one WELL, and a well is neither a "
+        "gene nor a guide. These describe the whole fit whatever the "
+        "coefficient tabs are showing.")
+
+    #: Why the guide-support tab is narrowed differently from the rest.
+    GUIDE_SUPPORT_NEEDS_BOTH = (
+        "Computed from the whole table, always: a gene's concordance is how "
+        "its own guides agree, so the guide rows are what the number is made "
+        "of and a gene-only table has none of them. The filter narrows which "
+        "genes are LISTED, never how one was measured.")
 
     #: Sentinel for the derived LOPIT colouring, which is not a frame column.
     LOPIT_KEY = "\0lopit"
@@ -1157,23 +1504,170 @@ class RegressionResultsPanel(QWidget):
              (lambda k=key: self.set_level(k)), key == self._level)
             for key, label in self.LEVELS])
 
-    def set_level(self, level) -> None:
-        """Draw only genes, only guides, or both.
+    def build_level_menu(self):
+        """The genes / guides / both menu, with this table's counts on it.
 
-        A FILTER ON THE PLOT, not a mode of the run. The coefficient table
+        Public for the reason :meth:`spacr.qt.widgets.fast_plots.FastPlot.build_style_menu`
+        is: it is how a test reads what the user is offered without
+        synthesising a right-click, and how a second surface offers the SAME
+        three entries instead of growing a copy that drifts from this one.
+
+        The counts are in the labels because "genes only" that silently draws
+        300 of 1,200 rows is a filter a user applies without knowing what they
+        gave up -- the same rule the volcano's menu already follows.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        menu = QMenu(self)
+        heading = menu.addAction("Show, on every tab")
+        heading.setEnabled(False)
+        menu.addSeparator()
+        counts = self.level_counts()
+        for key, label in self.LEVELS:
+            action = menu.addAction(f"{label} ({counts.get(key, 0)})")
+            action.setCheckable(True)
+            action.setChecked(key == self._level)
+            action.triggered.connect(
+                lambda _checked=False, chosen=key: self.set_level(chosen))
+        return menu
+
+    def _level_menu_at(self, position) -> None:
+        """Right-click on the coefficients table: the same three choices.
+
+        Instruction 128 L, in the maintainer's words: "i should be able to
+        right click on the coeffisients table and only see grna or genes and
+        this should also filer the subsequent data/graphs in the subsequent
+        tabs". It sets the same `_level` the volcano's menu does, so the two
+        gestures cannot disagree about what the panel is showing.
+        """
+        self.build_level_menu().exec(
+            self.table.table.viewport().mapToGlobal(position))
+
+    def level(self):
+        """``None``, ``"gene"`` or ``"grna"`` -- which family every tab shows.
+
+        Public because it is the one piece of state that decides what SIX
+        tabs are drawing, and a caller that has to read it off a private
+        attribute is a caller that will one day set it there too.
+        """
+        return self._level
+
+    def filtered_frame(self):
+        """The coefficient table at the chosen level, or ``None``.
+
+        This is what every tab is drawn from -- see :meth:`refresh_views`.
+        :meth:`results_frame` is the RUN's table and stays whole: the filter
+        is a view, not an edit, and a caller exporting the results must get
+        the fit rather than whatever the user last right-clicked.
+        """
+        frame = self._frame
+        if frame is None:
+            return None
+        mask = self._level_mask(frame)
+        return frame if mask is None else frame.loc[mask]
+
+    def family_note(self) -> str:
+        """Which multiple-testing family the p-value and Q-Q tabs are drawing.
+
+        THE ONE THING FILTERING A Q-Q CHANGES THAT FILTERING A VOLCANO DOES
+        NOT. A volcano of the guides is the same dots with some removed; a
+        Q-Q of the guides is a DIFFERENT DIAGNOSTIC -- the expected quantiles
+        are recomputed over 900 tests instead of 1,200, so the diagonal moves,
+        the inflation figure at the median is a different number, and the
+        excess in the histogram's first bin is this family's excess and not
+        the run's. A reader who does not know which one is on screen cannot
+        use either.
+        """
+        counts = self.level_counts()
+        total = counts.get(None, 0)
+        if not self._level:
+            return (f"Every tab covers the whole fit: all {total} "
+                    f"coefficients, one multiple-testing family.")
+        family = "genes" if self._level == "gene" else "guides"
+        return (f"{family} only — {counts.get(self._level, 0)} of {total} "
+                f"coefficients. The p-value histogram and the Q-Q are "
+                f"therefore a DIFFERENT multiple-testing family from the "
+                f"whole fit: the inflation figure and the excess in the "
+                f"first bin are this family's, not the run's.")
+
+    def set_level(self, level) -> None:
+        """Draw only genes, only guides, or both -- ON EVERY TAB.
+
+        A FILTER ON THE PANEL, not a mode of the run. The coefficient table
         already carries both -- `feature` is `gene_fraction:gene[...]` or
         `fraction:grna[...]` -- so this needs no re-fit and no second table,
         which is why it is better here than in the settings where it used to
         live.
+
+        ONE PIECE OF STATE. Reached from the volcano's right-click menu and
+        from the coefficients table's, and read by every draw path, because a
+        filter that reaches four of six tabs is worse than one that reaches
+        none: the two then disagree on screen at the same time and nothing
+        says which is which.
         """
         self._level = level
         self._offer_levels()
-        self._redraw_volcano()
+        self.refresh_views()
         counts = self.level_counts()
-        if level:
-            self.say(f"Volcano: {counts.get(level, 0)} of {counts[None]} "
-                     f"coefficients — "
-                     f"{'genes' if level == 'gene' else 'guides'} only.")
+        shown = counts.get(level, counts.get(None, 0))
+        self.say(f"{shown} of {counts.get(None, 0)} coefficients — "
+                 f"{self.LEVEL_NAMES.get(level, 'genes and guides')}, on "
+                 f"every tab. {self.family_note()}",
+                 detail=f"{self.family_note()}\n\n"
+                        f"{self.DIAGNOSTICS_ARE_WHOLE_FIT}\n\n"
+                        f"{self.GUIDE_SUPPORT_NEEDS_BOTH}")
+
+    def _filtered_surfaces(self) -> tuple:
+        """``[(tab widget, tab name, plot, plot title)]`` the filter narrows.
+
+        The family is written into BOTH the tab and the plot's own title: a
+        tab label survives a click where a plot's status line does not, and
+        the title is what a reader is looking at when they read the picture.
+        """
+        return (
+            (self._volcano_tab, self._volcano_tab_name, self.volcano,
+             "Volcano"),
+            (self.p_values, "p-values", self.p_values,
+             "p-value distribution"),
+            (self.qq, "Q-Q", self.qq, "p-value Q-Q"),
+            (self.controls, "Controls", self.controls, "Control separation"),
+            (self._support_tab, "Guide support", self.agreement,
+             "Guide agreement"),
+        )
+
+    def _say_which_family(self) -> None:
+        """Write the level onto every tab and every plot that follows it."""
+        suffix = self.LEVEL_SUFFIXES.get(self._level, "")
+        note = self.family_note()
+        for widget, name, plot, title in self._filtered_surfaces():
+            index = self.tabs.indexOf(widget)
+            if index >= 0:
+                self.tabs.setTabText(index, f"{name}{suffix}")
+                self.tabs.setTabToolTip(index, note)
+            # THE TITLE, NOT THE STATUS LINE. A plot's status is overwritten
+            # by whatever was last clicked -- `note_selection` does exactly
+            # that -- so a family written there is gone the moment the reader
+            # uses the panel. A title is not.
+            plot.plot.setTitle(
+                f"{title}{self.LEVEL_TITLES.get(self._level, '')}")
+        support = self.tabs.indexOf(self._support_tab)
+        if support >= 0:
+            self.tabs.setTabToolTip(
+                support, f"{note}\n\n{self.GUIDE_SUPPORT_NEEDS_BOTH}")
+        self._note_the_diagnostics()
+
+    def _note_the_diagnostics(self) -> None:
+        """Say on the well-level tabs that the filter does not reach them.
+
+        They are one point per WELL. There is no gene/guide split to make and
+        pretending to make one would be worse than the silence it replaces --
+        but silence is what let five tabs narrow while three did not, with
+        nothing on screen distinguishing "unfiltered on purpose" from
+        "forgot to filter".
+        """
+        note = self.DIAGNOSTICS_ARE_WHOLE_FIT if self._level else ""
+        for plot in self.diagnostic_plots():
+            plot.set_status_note(note)
 
     def _level_mask(self, frame):
         """Rows of ``frame`` at the chosen level, or None for all of them."""
@@ -1259,6 +1753,26 @@ class RegressionResultsPanel(QWidget):
         self._offer_thresholds()
         self._redraw_volcano()
         self.say(self._threshold_sentence())
+
+    def _current_threshold(self):
+        """The effect-size cut for the table on screen, or None.
+
+        Split from :meth:`_threshold_sentence` so the number the plot draws
+        and the number the sentence quotes come from ONE call -- a panel
+        whose line and caption disagreed would be worse than one with no
+        line at all.
+        """
+        from ...thresholds import coefficient_threshold
+
+        frame = self._frame
+        if frame is None or "condition" not in getattr(frame, "columns", ()):
+            return None
+        controls = frame.loc[
+            frame["condition"].astype(str).str.lower().isin(("nc", "control")),
+            self._effect_column(frame)]
+        value, _rule = coefficient_threshold(
+            controls, self._threshold_method, self._threshold_multiplier)
+        return value
 
     def _threshold_sentence(self) -> str:
         """What the cut is, and what drew it. Never a bare number."""
@@ -1391,6 +1905,16 @@ class RegressionResultsPanel(QWidget):
             category_column=category,
             key_column=self._key_column(frame),
             compartment=self._compartment,
+            # THE CUT THE MENU COMPUTED, actually drawn.
+            #
+            # Reported 2026-08-17: "the coefficient threshold still dosnt
+            # work". It did not: the seven methods, the multiplier and the
+            # status sentence all landed, and the NUMBER was never handed to
+            # the plot -- `set_results`'s `effect_threshold` defaults to None,
+            # so every method redrew the same volcano with no line and only
+            # the sentence changed. A feature whose every visible part works
+            # except the one that draws it.
+            effect_threshold=self._current_threshold(),
         )
         if kind != "p-value":
             self.volcano.set_status(
