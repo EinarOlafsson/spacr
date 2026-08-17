@@ -4222,14 +4222,22 @@ def perform_regression(settings):
         if settings['verbose']:
             print(mean_coef, mean_coef_c)
         
-        if settings['threshold_method'] in ['var','variance']:
-            coef_mes = control_coef_df['coefficient'].var()
-        elif settings['threshold_method'] in ['std', 'standard_deveation']:
-            coef_mes = control_coef_df['coefficient'].std()
-        else:
-            raise ValueError(f"Unsupported threshold method {settings['threshold_method']}. Supported methods: ['var','variance','std','standard_deveation']")
-        
-        reg_threshold = mean_coef + (settings['threshold_multiplier'] * coef_mes)
+        # SEVEN METHODS, in one place. It was two -- std and var -- and the
+        # maintainer asked for "at least 4 more" reachable from the plot, so
+        # the arithmetic moved to `spacr.thresholds` where the GUI can reach
+        # the same list rather than keeping a second copy of it.
+        from .thresholds import coefficient_threshold
+
+        reg_threshold, threshold_rule = coefficient_threshold(
+            control_coef_df['coefficient'],
+            method=settings['threshold_method'],
+            multiplier=settings['threshold_multiplier'],
+            # The MEDIAN of the controls, computed inside, rather than the
+            # mean this used to add: `000000_22` is a non-targeting control
+            # and the strongest effect in this whole screen at +4.37, and a
+            # mean centre moves the cut for every guide because of it.
+            centre=None)
+        print(f"Effect-size cut: {threshold_rule}")
     
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)

@@ -333,7 +333,17 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # `RegressionResultsPanel.set_summary`. Both public because a caller
     # outside the widget renders one: `summary_text` is pure and is what the
     # tests drive, so it is not a widget method pretending to be one.
-    expected = 6931
+    # +7 on 2026-08-17: the effect-size cut moved onto the plot.
+    #   spacr.thresholds        the module, METHODS, canonical, describe,
+    #                           coefficient_threshold -- seven ways of
+    #                           measuring the control spread, in ONE place so
+    #                           the run and the right-click menu cannot offer
+    #                           different ones. It was two methods inline in
+    #                           ml.py.
+    #   spacr.qt.widgets.fast_plots.FastPlot.offer_thresholds
+    #   spacr.qt.widgets.regression_results  set_threshold_method,
+    #                                        set_threshold_multiplier
+    expected = 6938
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -348,7 +358,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7050
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7057
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

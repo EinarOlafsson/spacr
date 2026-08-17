@@ -501,6 +501,9 @@ class RegressionResultsPanel(QWidget):
         self._baseline = (None, None)
         #: The one TAGM/LOPIT compartment picked out against grey, or None.
         self._compartment = None
+        #: How the effect-size cut is measured, and how wide.
+        self._threshold_method = "mad"
+        self._threshold_multiplier = 3.0
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
         #: None, "gene" or "grna" -- which rows the volcano draws.
@@ -891,6 +894,7 @@ class RegressionResultsPanel(QWidget):
         self._compartment = None
         self._level = None
         self._offer_levels()
+        self._offer_thresholds()
         self._offer_compartments()
 
         self._redraw_volcano()
@@ -1176,6 +1180,55 @@ class RegressionResultsPanel(QWidget):
         is_guide = frame["feature"].map(
             lambda f: guide_of(str(f)) is not None)
         return is_guide if self._level == "grna" else ~is_guide
+
+    def _offer_thresholds(self) -> None:
+        """Put the effect-size cut on the volcano's right-click menu.
+
+        Asked for 2026-08-17: the multiplier and the mode, on the plot,
+        because the settings-panel controls for them GREY OUT under
+        `inference='nonparametric'` -- correctly, since the permutation path
+        does not use a control-spread cut -- and the maintainer could not
+        find them.
+        """
+        from ...thresholds import METHODS
+
+        self.volcano.offer_thresholds(
+            [(f"{name} — {METHODS[name][1].split(' --')[0]}",
+              (lambda n=name: self.set_threshold_method(n)),
+              name == self._threshold_method) for name in METHODS],
+            multiplier=self._threshold_multiplier,
+            on_multiplier=self.set_threshold_multiplier)
+
+    def set_threshold_method(self, method) -> None:
+        """Measure the effect-size cut a different way, and redraw."""
+        self._threshold_method = method
+        self._offer_thresholds()
+        self._redraw_volcano()
+        self.say(self._threshold_sentence())
+
+    def set_threshold_multiplier(self, multiplier) -> None:
+        """How many spreads wide the cut is."""
+        self._threshold_multiplier = float(multiplier)
+        self._offer_thresholds()
+        self._redraw_volcano()
+        self.say(self._threshold_sentence())
+
+    def _threshold_sentence(self) -> str:
+        """What the cut is, and what drew it. Never a bare number."""
+        from ...thresholds import coefficient_threshold, describe
+
+        frame = self._frame
+        if frame is None or "condition" not in getattr(frame, "columns", ()):
+            return "No control coefficients, so no effect-size cut."
+        controls = frame.loc[
+            frame["condition"].astype(str).str.lower().isin(("nc", "control")),
+            self._effect_column(frame)]
+        value, rule = coefficient_threshold(
+            controls, self._threshold_method, self._threshold_multiplier)
+        if value is None:
+            return f"No effect-size cut: {rule}."
+        return (f"Effect-size cut {value:.3g} — {rule}. "
+                f"{describe(self._threshold_method)}.")
 
     def _offer_compartments(self) -> None:
         """Put this screen's own compartments on the volcano's menu.

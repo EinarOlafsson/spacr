@@ -209,6 +209,14 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # the picture: the console summary and the exported stats table state the
     # same baseline the panel does.
     "baseline",
+    # The headless half of the per-plate measurements merge: {plate: db} plus
+    # the chosen tables in, one merged frame out, by CALLING multi_database
+    # and merge_tables rather than aggregating anything itself.
+    "plate_measurements",
+    # How wide a coefficient has to be before it counts as a hit. Seven
+    # ways of measuring the control spread, in one place so the run and the
+    # plot's right-click menu cannot offer different ones.
+    "thresholds",
     # Which regression backends exist and which settings each one reads.
     # Pure data; imports NOTHING, which is why it is not part of ml.
     "regression_spec",
