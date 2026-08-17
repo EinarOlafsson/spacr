@@ -1463,6 +1463,11 @@ class GraphBuilderPanel(QWidget):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         splitter.setSizes([300, 900])
+        # Hover help belongs on a setting's NAME, not on the field the user
+        # is about to type into (instruction 113). One post-pass rather than
+        # a convention every hand-built row has to remember.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- data -----------------------------------------------------------
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
