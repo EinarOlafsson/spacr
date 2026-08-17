@@ -911,3 +911,74 @@ def test_a_click_with_no_axes_under_it_cannot_close_a_volume_polygon(volume):
     canvas._on_press(_Pixels(ax, 250, 220))
 
     assert canvas._near_first_volume_vertex(_OffThePlot()) is False
+
+
+# ---------------------------------------------------------------------------
+# A box gate seen in the flat editor
+# ---------------------------------------------------------------------------
+
+def _flat_box(qtbot):
+    """A three-measurement BOX, on a scatter showing two of its three axes.
+
+    The ordinary way to meet one: draw a gate in the 3D view, then go back to
+    the flat scatter to adjust it.
+    """
+    gate = BoxGate(name="g", x_column="a", y_column="b", z_column="c",
+                   x_low=2.0, x_high=8.0, y_low=2.0, y_high=8.0,
+                   z_low=2.0, z_high=8.0)
+    frame = pd.DataFrame({"a": [0.0, 5.0, 10.0], "b": [0.0, 5.0, 10.0],
+                          "c": [0.0, 5.0, 10.0]})
+    return _scatter(qtbot, GateSet().add(gate), frame=frame)
+
+
+def test_a_box_gate_can_be_picked_up_in_the_flat_view(qtbot):
+    """It is drawn and it offers handles, but it could not be grabbed.
+
+    `_outline` and `_handles_for` both go through `_as_flat`, which shows a
+    box as the rectangle it is from the front. `gate_at` did not -- it
+    hit-tested the RAW box, whose `columns` include the depth measurement the
+    flat probe has no column for, so `mask()` raised GateError, the except
+    swallowed it, and the click found nothing. The gate was visible, its
+    corners were visible, and clicking it did nothing at all.
+    """
+    canvas, _ax = _flat_box(qtbot)
+
+    assert canvas.gate_at(5.0, 5.0) == "g", (
+        "a box drawn in the volume is a rectangle from the front, and the "
+        "front is what the user is clicking on")
+    assert canvas.gate_at(9.5, 9.5) is None, "outside is still outside"
+
+
+def test_dragging_a_box_gate_shows_the_ghost_it_would_become(qtbot):
+    """`_show_ghost` had the same asymmetry as `gate_at`: it asked
+    `_gate_points` for the raw box, which the flat axes cannot lay out, so
+    the user pulled a corner with no preview of the result."""
+    canvas, _ax = _flat_box(qtbot)
+    gate = canvas.gates.get("g")
+
+    canvas._show_ghost(gate)
+
+    assert canvas._ghost, "pulling a box gate showed no preview at all"
+
+
+def test_a_box_gate_can_be_resized_by_the_handles_it_offers(qtbot):
+    """`_handles_for` shows a box AS FLAT, so it offers a rectangle's roles
+    -- 'x_low,y_low' and the rest. `BoxGate` then refused every one of them
+    with `GateError: BoxGate has no handle 'x_low'`, which `_dragged_to`
+    swallowed. The corners were drawn, they could be grabbed, and pulling
+    them did nothing.
+
+    Pulling one keeps the box a BOX, and keeps the depth the flat view has
+    no way to express -- replacing it with the rectangle drawn for it would
+    silently drop the z range the user set in the volume.
+    """
+    canvas, ax = _flat_box(qtbot)
+    canvas._resize = ("g", "x_low,y_low")
+
+    pulled = canvas._dragged_to(_Mouse(ax, 4.0, 4.0))
+
+    assert pulled is not None, "the handle it offered did nothing"
+    assert isinstance(pulled, BoxGate), "a box stays a box"
+    assert (pulled.x_low, pulled.y_low) == (4.0, 4.0)
+    assert (pulled.z_low, pulled.z_high) == (2.0, 8.0), (
+        "the depth the flat view cannot show must survive the drag")
