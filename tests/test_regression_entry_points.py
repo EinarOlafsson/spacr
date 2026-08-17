@@ -106,6 +106,24 @@ def _settings_subscripts(fn, ctx):
     return keys
 
 
+#: Builtins that take the settings dict and are NOT helpers.
+#:
+#: The check below demands every callee be importable from
+#: :data:`_HELPER_MODULES`, and its reason is in its own failure message:
+#: "otherwise the keys it indexes go unchecked". A builtin indexes no keys.
+#: `dict(settings)` is a copy -- `perform_regression` returns one so a caller
+#: offering to re-fit has the run's own settings -- and demanding a module for
+#: it asks the author to add `builtins` to the list of spaCR helper modules,
+#: which is not a thing anybody should be asked to do to make a copy.
+#:
+#: Restricted to the ones that genuinely cannot read a key. `getattr` is
+#: deliberately absent: `getattr(settings, ...)` is not how spaCR reads a
+#: setting, but it is close enough to indexing that letting it through
+#: silently would be a hole in exactly the direction this test guards.
+_NOT_A_HELPER = frozenset({"dict", "len", "list", "sorted", "set", "tuple",
+                           "bool", "repr", "print"})
+
+
 def _helpers_given_the_settings_dict():
     """Names ``perform_regression`` passes its whole settings dict to.
 
@@ -125,7 +143,7 @@ def _helpers_given_the_settings_dict():
             continue
         func = node.func
         name = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
-        if name and name not in nested:
+        if name and name not in nested and name not in _NOT_A_HELPER:
             names.add(name)
     return names
 
@@ -180,6 +198,31 @@ def test_every_settings_key_perform_regression_indexes_has_a_default():
     assert read & _DERIVED_KEYS <= _keys_read_by_the_whole_call(ast.Store)
 
 
+def _assert_derived_before_read(fn, deriver, keys):
+    """The call that derives ``keys`` precedes every read of them in ``fn``.
+
+    "Derived" only answers the missing-default contract if the derivation
+    actually RUNS BEFORE the read. A derivation placed after would satisfy a
+    membership check and still raise KeyError on a real run, which is the
+    exact shape of the bug this file exists for.
+    """
+    tree = ast.parse(textwrap.dedent(inspect.getsource(fn)))
+    derived = [node.lineno for node in ast.walk(tree)
+               if isinstance(node, ast.Call)
+               and getattr(node.func, "id",
+                           getattr(node.func, "attr", None)) == deriver]
+    assert derived, f"{fn.__name__} no longer calls {deriver}"
+    reads = [node.lineno for node in ast.walk(tree)
+             if isinstance(node, ast.Subscript)
+             and isinstance(node.ctx, ast.Load)
+             and getattr(node.value, "id", None) == "settings"
+             and isinstance(node.slice, ast.Constant)
+             and node.slice.value in keys]
+    assert not reads or min(derived) < min(reads), (
+        f"{fn.__name__} reads settings{sorted(keys)} at line {min(reads)} "
+        f"before {deriver} derives it at line {min(derived)}")
+
+
 def test_the_only_keys_without_a_default_are_derived_and_written_first():
     """Derived, not forgotten -- and the difference is checked, not assumed.
 
@@ -193,10 +236,27 @@ def test_the_only_keys_without_a_default_are_derived_and_written_first():
     """
     from spacr.ml import perform_regression
 
+    from spacr.ml import _perform_regression_set_paths
+
     read = _keys_read_by_the_whole_call()
     assert sorted(read - set(_defaults())) == sorted(_DERIVED_KEYS)
-    written = _settings_subscripts(perform_regression, ast.Store)
-    assert "src" in written
+
+    # `src` IS DERIVED IN THE HELPER, and this used to look only inside
+    # `perform_regression`. `_perform_regression_set_paths` was a nested def
+    # and became a module-level function so it could be tested directly; the
+    # derivation did not move, the place to look for it did, and the
+    # assertion went red without anything being wrong.
+    #
+    # Asserted as the ORDERING, the same as the pair below, rather than as
+    # "some function somewhere assigns it" -- which is the check this file
+    # exists to be stricter than.
+    written = (_settings_subscripts(perform_regression, ast.Store)
+               | _settings_subscripts(_perform_regression_set_paths, ast.Store))
+    assert "src" in written, (
+        "nothing derives settings['src'], so save_settings will raise KeyError "
+        "placing settings/regression.csv")
+    _assert_derived_before_read(perform_regression,
+                                "_perform_regression_set_paths", {"src"})
 
     # score_data/count_data are written by a helper, so the ordering that
     # matters is: the normalising call, then the first subscript read.
@@ -564,8 +624,24 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     # dropping either would silently take the diagnostics away again -- which
     # is why this stays an exact set rather than a subset check.
     assert set(out) == {"results", "significant", "model", "model_data",
-                        "regression_type", "res_folder"}
-    res = os.path.join(str(cdir), "results", "xgb_scores", "ols", "list")
+                        "regression_type", "res_folder", "settings"}
+
+    # `settings` is the run's OWN dict, so a caller offering to re-fit the
+    # same screen through a different model has it without reading a file --
+    # the shared settings/ copy is overwritten by every later run of the same
+    # screen, so on a second run the file describes the wrong one.
+    assert out["settings"]["regression_type"] == "ols"
+    assert out["settings"] is not settings, (
+        "the run handed back the caller's own dict, so mutating the copy "
+        "would reach back into the settings the caller still holds")
+
+    # ASKED FOR, NOT SPELLED OUT. This was
+    # `results/xgb_scores/ols/list` -- the four-level path from before the
+    # output rule became `<count folder>/results/<type>`, with `_1`, `_2` for
+    # a repeat. Same staleness as test_regression_types.py had, and the same
+    # fix: the run says where it wrote.
+    res = out["res_folder"]
+    assert os.path.dirname(res) == os.path.join(str(cdir), "results"), res
     results = pd.read_csv(os.path.join(res, "results.csv"))
     assert len(results) > 0
     for name in ("results_gene.csv", "results_grna.csv",
