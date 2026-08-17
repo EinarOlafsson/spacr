@@ -38,7 +38,7 @@ Cell — Remove border objects
    :alt: Cell — Remove border objects setting animation
    :width: 300px
 
-**Settings:** ``cell_remove_border_objects``, ``remove_border_cells``
+**Settings:** ``cell_remove_border_objects``
 
 .. _setting-animation-cell-min-area:
 
@@ -93,7 +93,7 @@ Nucleus — Remove border objects
    :alt: Nucleus — Remove border objects setting animation
    :width: 300px
 
-**Settings:** ``nucleus_remove_border_objects``, ``remove_border_nuclei``
+**Settings:** ``nucleus_remove_border_objects``
 
 .. _setting-animation-nucleus-min-area:
 
@@ -148,7 +148,7 @@ Pathogen — Remove border objects
    :alt: Pathogen — Remove border objects setting animation
    :width: 300px
 
-**Settings:** ``pathogen_remove_border_objects``, ``remove_border_pathogens``
+**Settings:** ``pathogen_remove_border_objects``
 
 .. _setting-animation-pathogen-min-area:
 
@@ -203,7 +203,7 @@ Organelle — Remove border objects
    :alt: Organelle — Remove border objects setting animation
    :width: 300px
 
-**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``, ``remove_border_organelles``
+**Settings:** ``organelle_remove_border_objects``, ``organelle_remove_border``
 
 .. _setting-animation-organelle-min-area:
 
@@ -876,7 +876,7 @@ Z projection
    :alt: Z projection setting animation
    :width: 300px
 
-**Settings:** ``z_projection``, ``all_to_mip``, ``pick_slice``
+**Settings:** ``z_projection``
 
 .. _setting-animation-t-project-for-tracking:
 

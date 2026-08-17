@@ -1516,23 +1516,29 @@ def render_frame(spec: Spec, index: int) -> Image.Image:
 def _specs() -> List[Spec]:
     specs: List[Spec] = []
     category = "Mask filtering"
+    # The remove_border_* spellings are NOT missing by accident: commit
+    # 60f7798e retired them from spacr.settings on 2026-08-11 and edited the
+    # shipped manifest by hand without touching this file, so a full run here
+    # used to put them back. Every retired key is named in
+    # tests/test_dead_settings.py::test_the_retired_keys_are_gone_from_every_declaration_site,
+    # which is where the record of what they used to alias now lives.
     aliases = {
         "cell": {
-            "border": ("cell_remove_border_objects", "remove_border_cells"),
+            "border": ("cell_remove_border_objects",),
             "minimum": ("cell_min_area", "cell_min_size"),
             "maximum": ("cell_max_area",),
             "dim": ("cell_min_intensity_percentile",),
             "bright": ("cell_max_intensity_percentile",),
         },
         "nucleus": {
-            "border": ("nucleus_remove_border_objects", "remove_border_nuclei"),
+            "border": ("nucleus_remove_border_objects",),
             "minimum": ("nucleus_min_area", "nucleus_min_size"),
             "maximum": ("nucleus_max_area",),
             "dim": ("nucleus_min_intensity_percentile",),
             "bright": ("nucleus_max_intensity_percentile",),
         },
         "pathogen": {
-            "border": ("pathogen_remove_border_objects", "remove_border_pathogens"),
+            "border": ("pathogen_remove_border_objects",),
             "minimum": ("pathogen_min_area", "pathogen_min_size"),
             "maximum": ("pathogen_max_area",),
             "dim": ("pathogen_min_intensity_percentile",),
@@ -1541,7 +1547,6 @@ def _specs() -> List[Spec]:
         "organelle": {
             "border": (
                 "organelle_remove_border_objects", "organelle_remove_border",
-                "remove_border_organelles",
             ),
             "minimum": ("organelle_min_area", "organelle_min_size"),
             "maximum": ("organelle_max_area", "organelle_max_size"),
@@ -1734,8 +1739,10 @@ def _specs() -> List[Spec]:
          ("t_link_threshold",)),
         ("stitch_threshold", "Z-plane stitch threshold", "stitch",
          ("stitch_threshold",)),
+        # pick_slice was retired with the rest on 2026-08-11; see the note in
+        # the mask-filtering aliases above.
         ("z_projection", "Z projection", "projection",
-         ("z_projection", "pick_slice")),
+         ("z_projection",)),
         ("t_project_for_tracking", "Project volumes for tracking", "project_tracking",
          ("t_project_for_tracking",)),
         ("straightness_filter", "Remove overly straight tracks", "straightness",
@@ -1956,7 +1963,7 @@ main{{padding:4px 28px 40px}} section{{padding-top:22px}} h2{{font-size:18px}} h
 .hidden{{display:none}} .legend{{color:#e28bc7}}
 </style></head><body>
 <header><h1>spaCR setting animation review</h1>
-<p>{len(specs)} shipped GIFs · exact setting-key lookup · <span class="legend">purple dots open these animations inside spaCR</span></p>
+<p>{len(specs)} shipped GIFs · exact setting-key lookup · <span class="legend">the teal Animation word in a tooltip footer opens these inside spaCR</span></p>
 <input id="search" placeholder="Filter by title or exact setting key" autofocus></header>
 <main>{''.join(sections)}</main>
 <script>const q=document.querySelector('#search');q.addEventListener('input',()=>{{const s=q.value.toLowerCase().trim();document.querySelectorAll('.card').forEach(c=>c.classList.toggle('hidden',s&&!c.dataset.search.includes(s)));}});</script>
@@ -1985,7 +1992,15 @@ def _write_manifest(
 
 
 def _write_docs_gallery(specs: Sequence[Spec]) -> None:
-    """Generate the Sphinx gallery and stable anchors used by API links."""
+    """Generate the Sphinx gallery and stable anchors used by API links.
+
+    This function is the ONLY writer of ``docs/source/setting_animations.rst``.
+    Hand-editing that page is work that disappears the next time somebody runs
+    this tool, so the prose below is the source of the prose there -- edit it
+    here and re-run with ``--docs-only``. The committed page is asserted to be
+    character-for-character what this writes, by
+    ``tests/test_setting_animations_page_is_generated.py``.
+    """
     groups: Dict[str, List[Spec]] = {}
     for spec in specs:
         groups.setdefault(spec.category, []).append(spec)
@@ -1994,11 +2009,18 @@ def _write_docs_gallery(specs: Sequence[Spec]) -> None:
         "Setting animation gallery",
         "=========================",
         "",
+        # The reveal mechanism, described as spacr/qt/widgets/hover_tooltip.py
+        # actually behaves: a teal word in the tooltip footer, per setting, and
+        # nothing decoded until it is pressed. The purple dot this used to
+        # describe was spacr/qt/widgets/animation_link.py, which is deleted.
         "spaCR includes short, deterministic GIFs for settings whose effect is",
-        "easier to understand visually. In the desktop interface a purple dot",
-        "above the teal API dot opens the corresponding animation immediately",
-        "above the setting. The midpoint between both dots remains aligned with",
-        "the setting label.",
+        "easier to understand visually. In the desktop interface, hovering a",
+        "setting shows its explanation; pressing the teal **Animation** word in",
+        "that tooltip's footer reveals the corresponding animation to the right",
+        "of the text. It is revealed for that setting only — the next setting is",
+        "text again until its own **Animation** is pressed, and nothing is",
+        "decoded until it is. Set *Setting animations* in Preferences to show",
+        "them without asking.",
         "",
         "The diagrams use a shared biological grammar: white fibroblast or",
         "motile immune-cell outlines, blue nuclei with unequal nucleoli, teal",
@@ -2087,7 +2109,25 @@ def _regenerate_subset(specs: Sequence[Spec], slugs: Sequence[str]) -> int:
         )
     _write_manifest([entries[spec.slug] for spec in specs], template_hashes)
     print(f"Regenerated {len(wanted)} of {len(specs)} GIFs: {', '.join(wanted)}")
-    print("Contact sheets, storyboards and the docs gallery need a full run.")
+    print("Contact sheets and storyboards need a full run; the docs gallery "
+          "is --docs-only.")
+    return 0
+
+
+def _regenerate_docs_only(specs: Sequence[Spec]) -> int:
+    """Rewrite the Sphinx gallery page and nothing else.
+
+    The page is generated, but until this existed the ONLY code path that
+    wrote it was a full run -- which re-encodes all 94 GIFs byte-different
+    under a different Pillow build and rewrites every hash in the manifest.
+    So the page could not be refreshed without an unsafe change, and it went
+    stale for nine days instead. This writes ``DOCS_PAGE`` and touches no
+    GIF, no manifest, no contact sheet and no storyboard, which is what makes
+    "fix the generator and regenerate in the same commit" a thing anyone can
+    actually do.
+    """
+    _write_docs_gallery(specs)
+    print(f"Wrote {DOCS_PAGE} from {len(specs)} specs; no GIF or manifest touched.")
     return 0
 
 
@@ -2105,7 +2145,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             "untouched. Repeatable."
         ),
     )
+    parser.add_argument(
+        "--docs-only",
+        action="store_true",
+        help=(
+            "Rewrite docs/source/setting_animations.rst from the specs and "
+            "touch nothing else -- no GIF, no manifest. Use this after "
+            "editing the gallery prose or a spec's setting keys."
+        ),
+    )
     arguments = parser.parse_args(argv)
+    if arguments.docs_only:
+        if arguments.only:
+            parser.error("--docs-only writes no GIFs, so --only means nothing with it")
+        return _regenerate_docs_only(_specs())
     if arguments.only:
         return _regenerate_subset(_specs(), arguments.only)
     template_hashes = _validate_templates()
