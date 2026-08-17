@@ -542,11 +542,16 @@ def run_concurrency_probe(
 
     :param path: scratch database to create. It must not already exist
         (:exc:`FileExistsError`); missing parent directories are created, and
-        the file is left on disk afterwards along with any ``-wal`` and
-        ``-shm`` sidecars, so every explicit run needs a fresh path. Omit it
-        to probe a temporary database instead, which is deleted only after a
-        clean finish: a worker that outlives the 30-second join deadline, or
-        a rejected ``journal_mode``, leaves the temporary directory behind.
+        a run that FINISHES leaves the file on disk along with any ``-wal``
+        and ``-shm`` sidecars, so every explicit run needs a fresh path. Omit
+        it to probe a temporary database instead, which is removed after a
+        clean finish. A run that RAISES -- a ``journal_mode`` :func:`connect`
+        refuses, most often -- removes its scratch database either way: it
+        never ran, so there is nothing in it to keep, and leaving one at an
+        explicit path made the next run on it fail with
+        :exc:`FileExistsError`. The one deliberate survivor is a worker that
+        outlives the 30-second join deadline, whose database is kept for
+        inspection.
     :param writers: concurrent writer threads. Each owns a connection opened
         with a 50 ms busy timeout and commits one transaction per row, so
         ``expected_rows`` is ``writers * writes_per_writer``.
@@ -591,6 +596,59 @@ def run_concurrency_probe(
                 "choose a new scratch path.")
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
 
+    # A PROBE THAT NEVER RAN LEAVES NOTHING BEHIND. Everything from here to
+    # the metrics is inside one handler, because a failure anywhere in it
+    # happens AFTER the scratch database has been created and the cleanup
+    # used to be the last statement of the function. The commonest is a
+    # journal mode `connect` refuses -- 'MEMORY', 'TRUNCATE' -- which left an
+    # empty scratch database in the system temp directory for good, and at an
+    # explicit path left a file that makes the NEXT run on it fail with
+    # FileExistsError against a database the user never got a probe out of.
+    #
+    # The deliberate survivor is the STALLED one: a worker that outlives the
+    # join deadline is a normal return, guarded by `not alive` at the end, and
+    # its database is worth keeping to look at.
+    try:
+        return _run_probe(
+            db_path, writers=writers, readers=readers,
+            writes_per_writer=writes_per_writer, journal_mode=journal_mode,
+            temporary_dir=temporary_dir)
+    except BaseException:
+        _discard_scratch(db_path, temporary_dir)
+        raise
+
+
+def _discard_scratch(db_path: str, temporary_dir: Optional[str]) -> None:
+    """Remove a scratch database the probe created and never used.
+
+    Never raises: the caller is already unwinding, and a cleanup error would
+    replace the real reason with a filesystem one.
+    """
+    try:
+        if temporary_dir is not None:
+            shutil.rmtree(temporary_dir, ignore_errors=True)
+            return
+        # An explicit path, with the sidecars WAL leaves beside it.
+        for suffix in ("", "-wal", "-shm"):
+            try:
+                os.remove(db_path + suffix)
+            except OSError:
+                pass
+    except Exception:      # pragma: no cover - shutil already swallows
+        LOG.debug("could not remove the probe's scratch database",
+                  exc_info=True)
+
+
+def _run_probe(
+    db_path: str,
+    *,
+    writers: int,
+    readers: int,
+    writes_per_writer: int,
+    journal_mode: Optional[str],
+    temporary_dir: Optional[str],
+) -> ConcurrencyProbeResult:
+    """The probe itself, once the scratch database's path is settled."""
     setup = connect(db_path, timeout=5, journal_mode=journal_mode)
     try:
         with transaction(setup):
