@@ -15793,6 +15793,23 @@
       "source_sha256": "2374abbd5dc30a98b4dac56f91e60efd1307e59589f785177f72088ece4ec79e",
       "text": "Stamp a folder spaCR has just filled with crop PNGs.\n\nCalled *before* the folder is filled, exactly as\n:func:`spacr.crops.stamp_crop_folder` is on the measure path, so an\ninterrupted run leaves a marked folder holding fewer crops rather than an\nunmarked folder of corrected ones -- the one state that is silently\nmisread.\n\n``fmt=None`` inherits the format from ``source_folder``. That is what\nkeeps a byte-for-byte copy honestly labelled: copying legacy crops into a\ntraining folder produces legacy crops, and marking that folder as current\nwould reverse every channel name attached to the model trained on it.\n\n:param folder: the folder about to be filled.\n:param fmt: the format to record; None inherits from ``source_folder``.\n:param source_folder: the folder the crops are being copied from.\n:param db_path: ``measurements.db`` consulted when ``source_folder``\n    carries no sidecar.\n:param extra: extra keys recorded in the sidecar.\n:returns: the sidecar path, or None when it could not be written."
     },
+    "spacr.io.migrate_unescaped_plate_names": {
+      "source_blocks_sha256": [
+        "76a99bcb462df94d9ecf70eaf7a16962c28231f41240924da6d09b28075e3851",
+        "90e9c7c624f2034018814c5a2977bd4c877401edb70cfbca516ad427fc02477d",
+        "c36b29818f87842b5d13c9c50ff83d309649882af32a8a64c963781250ca0891",
+        "9842b492de9f63b37897782b9d646e22f484483ccb2251f9267a7dbe48d9195b",
+        "aefe1f6c1a7a76ed8d89bc4144062003b4b29526b9a77e3d34fbea36d9f364b9",
+        "b841860d2ce760789923ab31c86003778a8da7d8020a2e7bc7c54f989bac7be7",
+        "000b00731412d10907d59ebb82d25e568333cecc3bb8fc4db6cfbbe5a1302a3c",
+        "8b1ace02b676d5068f2d729907a691aed6916c4788dc32ae9a914450c6cfb982",
+        "30037c9996a89da8d2e4eff0ec1a90a4f30bc129289831f9168b2c013d0c85cc",
+        "996ac3c8b7347d00db54092c2a13c3729dbfac0361d7c89b93c31e4bc3cc8206",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ],
+      "source_sha256": "bf93c341338cb0e96c2eed5962c6b6d93ffaae2b7724bcadc368f547a72f718f",
+      "text": "Escape the plate component of arrays a previous release wrote raw.\n\nA plate folder whose name holds an underscore -- ``exp_1`` -- used to\nproduce ``exp_1_A01_1_1.npy``, five separator-delimited components for a\nfour-component grammar, and ``utils._map_wells`` answered ``('error',) * 5``\nfor every field of it. The plate could not be measured at all.\n\nNothing in the measurement database needs migrating, because there is\nnone: every frame of such a plate was refused. What DOES need moving is\neverything upstream of the measurement -- ``stack/``, ``norm_channel_stack/``,\n``merged/`` and, above all, ``masks/``, which is hours to days of\nsegmentation. Renaming those makes the plate measurable without\nre-segmenting it, which is the whole reason this exists rather than a note\nsaying \"re-run the plate\".\n\nTHE NEW NAME IS NOT GUESSED. Every stem this module writes ends in three\nfixed tokens -- well, field, timepoint -- whatever ``timelapse`` is set to,\nso everything before them is the plate however many underscores it holds.\nA stem that is already escaped, or whose plate holds no separator, is left\nalone: the rename is a no-op for every ordinary plate, which is what makes\nit safe to run over a folder that does not need it.\n\nCrops under ``data/`` are not touched. A plate that could not be measured\nhas none, and the ``nightly``-only crop names that ``_generate_names``\nmis-escaped came with a ``png_list`` table whose identities are wrong too,\nso there is nothing there to salvage by renaming -- re-run ``measure_crop``.\n\nPUBLIC, because the person who needs it is a user with an ``exp_1``\nfolder full of masks, and a recovery tool they have to reach past a\nleading underscore to call is a recovery tool most people will not find.\n\n:param src: the plate source folder, the one holding ``merged/``.\n:param dry_run: report the renames without performing them.\n:returns: list of ``(old_path, new_path)`` pairs, renamed unless\n    ``dry_run``.\n:raises FileExistsError: if a destination is already occupied, before\n    anything is moved. A half-applied rename is worse than none.\n\nExample:\n    .. code-block:: python\n\n        >>> from spacr.io import migrate_unescaped_plate_names\n        >>> migrate_unescaped_plate_names('/data/exp_1', dry_run=True)\n        [('/data/exp_1/merged/exp_1_A01_1_1.npy',\n          '/data/exp_1/merged/exp%5F1_A01_1_1.npy')]"
+    },
     "spacr.io.open_crop_source": {
       "source_blocks_sha256": [
         "efcc73dd2159429477308d3af7edf092711b2d3fbe13f97fece561071aa674d0",
@@ -58175,10 +58192,12 @@
     "spacr.schema.escape_field_stem_plate": {
       "source_blocks_sha256": [
         "39078358f0c52ca45149390ba24eac436ce2e1d15abeda19eb7b47fbb3967295",
-        "53f5458bb3b78014afd7c56fa646100c10cbd134d377886de4ae19e3ded6b29b"
+        "53f5458bb3b78014afd7c56fa646100c10cbd134d377886de4ae19e3ded6b29b",
+        "9582b759d355ff4ec699a4d1edec865e3d1747d76a05a5ec5bb139786643d535",
+        "7581c190e1790b006c8374854b2c0f5e66602ba05c0e671ee96815641c2c9629"
       ],
-      "source_sha256": "de7325770557d4172ecd42dcf8badd43819fe015cda67d8a45380a7bd5d5df59",
-      "text": "Return a field stem with its free-text plate component escaped.\n\nWriters know the grammar and therefore know how many fixed tail tokens\nbelong to the well/field/time.  Joining everything before that tail is\nthe unambiguous plate id; escaping it before emitting a crop filename is\nwhat lets the reader split the name without guessing."
+      "source_sha256": "1f4ee021914a479378fcaeae644129a3617400d28977948a07361538361725dd",
+      "text": "Return a field stem with its free-text plate component escaped.\n\nWriters know the grammar and therefore know how many fixed tail tokens\nbelong to the well/field/time.  Joining everything before that tail is\nthe unambiguous plate id; escaping it before emitting a crop filename is\nwhat lets the reader split the name without guessing.\n\n**THE TAIL IS THREE WHENEVER THE STEM CARRIES A TIMEPOINT, TIMELAPSE OR\nNOT**, and this function must agree with :func:`parse_field_stem` about\nwhen that is, because the two are the write and read halves of one\ngrammar.  They did not.  ``spacr.io`` names every merged stack\n``plate_well_field_TIME`` whatever ``timelapse`` is set to -- the fact\n:func:`parse_field_stem` already accounts for -- so ``_generate_names``,\nwhich escapes the merged stem before cutting a crop out of it, escaped\n``'plate1_A01_1_1'`` with a tail of two and swallowed the WELL into the\nplate.  Measured on the shipped Crop demo, an ordinary non-timelapse\nplate: every crop landed as ``plate1%5FA01_1_1_<id>.png`` and its\n``png_list`` row read ``plateID='plate1_A01'``, ``rowID='2'``,\n``prcfo='plate1%5FA01_2_2_f1_o1'`` -- against ``prcf='plate1_r1_c2_f2'``\non the ``cell`` row for the same object.  The crop table and the object\ntables carried different identities for the same cell, so nothing that\njoins crops to measurements could match.\n\nThe allowance mirrors :func:`parse_field_stem`'s exactly: one trailing\ncomponent that reads as a timepoint belongs to the tail.  A four-part stem\nwhose plate genuinely holds an underscore and which carries no timepoint\n(``'my_plate_A01_1'``) is ambiguous from the name alone and is resolved the\nsame way the reader resolves it -- which is why the plate is escaped at the\nwriter, where the components are still separate\n(:func:`spacr.io._escaped_field_stem`), rather than recovered here."
     },
     "spacr.schema.escape_filename_component": {
       "source_blocks_sha256": [
