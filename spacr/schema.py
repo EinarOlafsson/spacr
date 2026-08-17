@@ -1677,6 +1677,26 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
     * too few parts raises instead of returning ``'error'`` strings that
       then get written into the database as if they were an identity.
 
+    **A NON-TIMELAPSE STEM CARRIES A TIMEPOINT ANYWAY, AND ALWAYS HAS.**
+    :func:`spacr.io._rename_and_organize_image_files` names every stack
+    ``f'{plate}_{well}_{field}_{timeID}.tif'`` whatever ``timelapse`` is set
+    to — see ``tests/test_cov_io_organize_files.py``, where a plain ingest
+    produces ``stack/plate1_A01_1_1.npy`` — so ``merged/*.npy`` on an
+    ordinary plate has four components and is read back with
+    ``timelapse=False``. Refusing that name outright made ``_map_wells``
+    return ``'error'`` in every slot for every field of every ordinary run,
+    which :func:`spacr.utils._merge_and_save_to_database` then rejected as a
+    prcf disagreeing with its identity columns: ``measure_crop`` wrote **no
+    measurement tables at all**, 100 % of fields failed, and the demo test
+    that shows it is ``slow``-marked and therefore deselected in CI.
+
+    So exactly one surplus component is accepted, and only when it reads as
+    a timepoint (a bare or vendor-prefixed integer). ``'plate1_A01_3_junk'``
+    is still refused, which is what keeps a surplus component from being
+    silently dropped; a genuine timepoint on a plate the caller has declared
+    non-timelapse is dropped, because that is what ``timelapse=False``
+    means and what ``_map_wells`` has always done with it.
+
     :param name: file name, path, or stem.
     :param timelapse: expect and parse a trailing timepoint.
     :param strict: reject unparseable field/time tokens and odd wells.
@@ -1693,13 +1713,18 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
     needed = 4 if timelapse else 3
-    if len(parts) != needed:
+    surplus_is_a_timepoint = (
+        not timelapse and len(parts) == needed + 1
+        and parse_int_token(parts[needed]) is not None)
+    if len(parts) != needed and not surplus_is_a_timepoint:
+        shape = 'plate_well_field_time' if timelapse else 'plate_well_field'
+        allowance = '' if timelapse else (
+            ', or that plus the timepoint spacr.io names every stack with')
         raise KeyParseError(
-            f'cannot identify a field from {stem!r}: expected exactly '
-            f'{"plate_well_field_time" if timelapse else "plate_well_field"} '
-            f'({needed} parts), got {len(parts)}. _map_wells returned the '
-            f'string "error" in every slot here, and those strings were then '
-            f'written into the database as an identity.')
+            f'cannot identify a field from {stem!r}: expected {shape} '
+            f'({needed} parts{allowance}), got {len(parts)}. _map_wells '
+            f'returned the string "error" in every slot here, and those '
+            f'strings were then written into the database as an identity.')
     return FieldID.build(unescape_filename_component(parts[0]),
                          well=parts[1], field=parts[2],
                          time=parts[3] if timelapse else None, strict=strict)

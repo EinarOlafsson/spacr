@@ -295,19 +295,25 @@ def test_a_table_that_needs_no_key_is_never_composed():
     assert built['prcf'].tolist() == ['exp_1_r1_c1_f1']
 
 
-def test_a_plate_id_carrying_the_separator_is_refused_by_name():
-    """A composed key must be splittable again, so the plate may not hold '_'.
+def test_a_plate_id_carrying_the_separator_is_escaped_not_refused():
+    """A composed key must be splittable again -- by escaping, not by refusing.
 
-    This is the one input the concatenation accepted and the composition does
-    not, deliberately: ``exp_1_r1_c1_f1_t1`` cannot be split back into its
-    parts, so every later reader would attribute it to the wrong field.
+    This test used to pin the refusal, and instruction 100 replaced it with a
+    reversible escape: ``exp_1`` is written ``exp%5F1``, so the key still has
+    exactly one separator per component and ``parse_prcf`` gives the plate
+    back character for character. A plate genuinely named ``exp_1`` is a
+    reasonable thing for a user to have, and refusing it stopped both object
+    assays on a table nothing was wrong with.
     """
     frame = _field_frame(plateID=['exp_1', 'exp_1'])
-    with pytest.raises(schema.KeyParseError) as excinfo:
-        submodules._ensure_field_key(frame.copy(), source="table 'pathogen'")
-    message = str(excinfo.value)
-    assert "table 'pathogen'" in message
-    assert 'exp_1' in message
+    built = submodules._ensure_field_key(frame.copy(), source="table 'pathogen'")
+
+    assert built['prcf'].tolist() == ['exp%5F1_r1_c1_f1_t1',
+                                      'exp%5F1_r1_c1_f1_t2']
+    for key in built['prcf']:
+        field = schema.parse_prcf(key)
+        assert field.plateID == 'exp_1'
+        assert field.prcf == key      # the escape survives a round trip
 
 
 # ---------------------------------------------------------------------------
@@ -717,21 +723,24 @@ def test_the_field_key_composer_reports_the_first_failure_deterministically():
     Which identity it named therefore varied between runs of the same data.
     It is now the first failing row, in row order, and the count is still the
     number of DISTINCT failing identities.
+
+    An underscored plate no longer fails -- it is escaped -- so the failing
+    input here is the one identity that cannot be a key at all: an empty
+    plate id. Two distinct spellings of empty, on three rows.
     """
     frame = pd.DataFrame({
-        'plateID': ['ok_plate', 'bad_a', 'bad_b', 'bad_a'],
+        'plateID': ['plate1', '', '   ', ''],
         'rowID': ['r1'] * 4,
         'columnID': ['c1'] * 4,
         'fieldID': ['f1'] * 4,
     })
-    # 'ok_plate' holds the separator too, so make it the one that composes.
-    frame.loc[0, 'plateID'] = 'plate1'
 
     with pytest.raises(schema.KeyParseError) as excinfo:
         submodules._compose_field_keys(frame, None, "table 'pathogen'")
     message = str(excinfo.value)
-    assert '2 identity/identities' in message    # bad_a and bad_b, not 3 rows
-    assert 'bad_a' in message and 'bad_b' not in message
+    assert '2 identity/identities' in message    # '' and '   ', not 3 rows
+    assert "'plateID': ''" in message            # the FIRST failing row
+    assert "'plateID': '   '" not in message
     assert "table 'pathogen'" in message
 
 

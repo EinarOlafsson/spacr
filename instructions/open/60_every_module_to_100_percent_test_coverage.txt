@@ -990,3 +990,107 @@ understated by its own deselected tests, so measure it the same way.
 After those two, the whole-package ranking is exhausted and a FRESH one is
 needed -- the old table is now stale in both directions (four of its entries
 have been driven to 100%, and its per-module numbers predate this week).
+
+--------------------------------------------------------------------------------
+THE RANKING WAS WRONG A FIFTH TIME, AND MEASURING IT FOUND A HEADLINE BUG
+-- 2026-08-17
+--------------------------------------------------------------------------------
+
+`spacr/timelapse.py` measured over its own tests: the 46 files that import it.
+
+    3360 statements   59 missing   98%
+    1462 passed, 1 skipped, 6 FAILED
+
+Not the "188 uncovered at 94.4%" the whole-package table records. That entry
+was understated by its 28 deselected tests, exactly as the note above
+predicted -- so the cross-check rule holds a fifth time, and this run cost
+five minutes against a module that reads like a week of work.
+
+THE SIX FAILURES ARE WHY THIS MEASUREMENT WAS WORTH MORE THAN ITS PERCENT.
+One is the `sitecustomize` artefact already recorded above
+(`test_python314_optional_native.py` passes without the tracer). Five failed
+with and without it, on a clean `nightly`, and the first two are the same
+bug:
+
+    THE MEASURE MODULE HAD STOPPED WRITING MEASUREMENTS. ALL OF THEM.
+
+`tests/test_demo_pipelines.py::test_measure_demo_writes_every_expected_
+measurement_table` and `::test_crop_demo_writes_one_png_per_measured_cell`
+both ran `measure_crop` over the shipped demo and got a database holding
+`run_status`, `settings`, `settings_history` and nothing else. 4 of 4 fields
+failed; the run banner said "ARTIFACTS FROM THIS RUN ARE INCOMPLETE -- they
+cover 0 of 4 items."
+
+THE CHAIN, traced end to end:
+
+  * `spacr.io._rename_and_organize_image_files` names every stack
+    `f'{plate}_{well}_{field}_{timeID}.tif'` -- WHATEVER `timelapse` is set
+    to. `tests/test_cov_io_organize_files.py` has pinned that for a plain
+    ingest all along: `stack/plate1_A01_1_1.npy`. So `merged/*.npy` on an
+    ordinary plate has FOUR components.
+  * `measure_crop` reads those names back through `utils._map_wells` with the
+    run's own `timelapse` setting, which on an ordinary plate is False.
+  * `09a4a75d` (2026-08-15, "schema: escape crop filename plate ids",
+    instruction 100 C3) changed `parse_field_stem`'s guard from
+    `len(parts) < needed` to `len(parts) != needed`. Four components with
+    `timelapse=False` became a refusal.
+  * `_map_wells` catches `SchemaError` and returns the string `'error'` in
+    every slot -- its documented fallback. Every field of every ordinary run.
+  * `utils._merge_and_save_to_database` then refused the frame:
+    `ObjectTableSchemaError: cell.prcf disagrees with its component identity
+    columns; examples: [{'stored': 'error', 'expected':
+    'error_error_error_error'}]`.
+
+Two days on `nightly`, and CI could not see it: both demo tests are
+`slow`-marked and CI runs `-m "not slow and not heavy"`.
+
+THE FIX accepts exactly one surplus component, and only when it reads as a
+timepoint (a bare or vendor-prefixed integer). `plate1_A01_3_junk` is still
+refused, which is what `test_a_surplus_crop_component_is_refused_instead_of_
+dropped` was written to protect -- a surplus component must not be silently
+dropped, because two stems parsing to one identity is how a plate's fields
+merge into one row. A genuine timepoint on a plate the caller has declared
+non-timelapse IS dropped, because that is what `timelapse=False` means and
+what `_map_wells` has always done with it.
+
+  spacr/schema.py                       parse_field_stem
+  tests/test_key_parsing_properties.py  the refusal, plus the timepoint case
+  tests/test_cov_io_organize_files.py   the writer and the reader pinned to
+                                        each other -- drives the real ingest
+                                        and feeds its own output back, in a
+                                        test CI actually runs
+
+All 12 `test_demo_pipelines.py` cases pass after it.
+
+THE OTHER THREE FAILURES were stale tests, not bugs, and they were corrected
+against the code rather than the code against them. `instruction 100`'s
+escaping (`09a4a75d`, `99901a2a`) replaced "a plate id containing `_` is
+REFUSED" with "it is ESCAPED, reversibly": `compose_prcf('exp_1', ...)` is
+`exp%5F1_r1_c1_f1_t1`, `parse_prcf` gives `exp_1` back character for
+character, and the old concatenated key still parses too. Escaping is
+strictly better than refusing -- a plate genuinely named `exp_1` is a
+reasonable thing for a user to have, and the refusal stopped both object
+assays on a table nothing was wrong with. The three tests in
+`tests/test_timelapse_submodules_key_contracts.py` predate that change and
+were never updated; they now assert the escape and its round trip, and the
+"first failure, deterministic" property is kept alive with the one identity
+that still cannot be a key at all -- an empty plate id.
+
+A NOTE ON WHAT IS LEFT IN timelapse.py. The 59 remaining statements are
+early-return guards in the infection-intensity QC (degenerate feature
+tables, too few cells per class, the two `RuntimeError`s for a missing
+umap-learn / sklearn TSNE) plus three `_visualize_and_save_timelapse_stack_
+with_tracks` call sites. Two blocks in `_infection_qc_pca_clustering` look
+DEAD and want proving before anyone writes a test for them:
+
+  * line 4706, the second `if embed_method not in {"pca","umap","tsne"}`
+    fallback -- the branch above it has already forced one of those three.
+  * lines 4756-4766, the `infection_col`/`_x`/`_y` recovery after the
+    `validate="one_to_one"` merge. Both sides come out of one
+    `groupby(key_cols)`, so the merged frame always carries `infection_col`.
+    The only way to make it absent is to pass an `infection_col` that is
+    itself a numeric `cell_*` feature -- and that does not reach the branch
+    either, it crashes forty lines EARLIER on `if s.notna().sum() < 10:`
+    with "The truth value of a Series is ambiguous", because
+    `cols_for_group` then lists the column twice and `cell_level[c]` is a
+    DataFrame. No caller passes such a column today.
