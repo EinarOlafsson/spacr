@@ -540,3 +540,170 @@ WHAT THIS CHANGES ABOUT THE TASK. 12,380 statements, not the 13,082 the
 package is at 91.5% and the work is a long tail across 269 files rather than
 a handful of untested modules -- which matches what the eight-module pass
 above found by hand.
+
+================================================================================
+2026-08-16 - THE LARGEST NON-REGRESSION MODULE IN THE RANKING: 74% -> 99%
+================================================================================
+
+`spacr/qt/widgets/gate_editor.py`, the gate editor's canvas, tree and panel.
+It was the biggest entry in the whole-package ranking above that is not held
+by the regression session -- 311 uncovered at 82.8% there, the third line in
+the table after ml.py and app_screen.py.
+
+MEASURED THE WAY THIS FILE REQUIRES, "<module> at <percent> over <which
+tests>", and re-measured on the same test set afterwards. The set is the
+eleven existing files that import the module, plus the four added here:
+
+    before   1812 statements   473 missing   74%
+    after    1812 statements    25 missing   99%
+    496 passed, 1 skipped
+
+The 82.8% in the whole-package table is the same module over a much larger
+test set; 74% is what its OWN tests reach, and the two are not comparable --
+which is the trap recorded twice above and the reason both numbers are stated
+with their set.
+
+A NOTE FOR THE NEXT PARALLEL PASS, learned the expensive way here: `pytest-cov`
+writes `.coverage` into the repo root, so two measurements running at the same
+time merge into each other's data file. Two of the four workers on this module
+reported impossible numbers before spotting it. Set `COVERAGE_FILE` to a
+private path per run.
+
+--------------------------------------------------------------------------------
+SIX REAL BUGS, WHICH IS THE POINT OF THE EXERCISE
+--------------------------------------------------------------------------------
+
+Every one was reproduced before it was fixed, and each has a test that fails
+without the fix.
+
+1. THE CLUSTER BUTTON HAS NEVER WORKED, IN TWO SEPARATE WAYS.
+   `GateCanvas.active_gate` is a PROPERTY and `GateTree.active_gate` is a
+   METHOD; `run_cluster` called the canvas one as a method, so every cluster
+   that got past the parameter dialog died on `TypeError: 'NoneType' object
+   is not callable`. And the clusters it would have produced were added to
+   `self.canvas.gates`, a DIFFERENT GateSet from `self._gates` until
+   something calls `set_gates` -- which nothing does on a fresh session -- so
+   they never reached the gate list, were never saved, were not counted, and
+   were deleted by the next hand-drawn gate.
+
+   The existing tests could not see either: one returns at the "Pick two
+   measurements" guard before the call, the other cancels the modal.
+
+2. THE SAME MEASUREMENT ON TWO AXES CRASHED THE 3D SWEEP ON EVERY PIXEL.
+   The X, Y and Z pickers are filled from one column list with nothing
+   excluded, so a user can put one measurement on two of them. Both sweep
+   handlers then took the depth column with a bare `next(...)` and raised
+   StopIteration -- out of `_show_volume_drag`, which runs on every motion
+   event. `close_polygon` forty lines below already refused this politely.
+
+3. AND THE SAME STATE PRODUCED A QUAD FULL OF `None`. `anchor_plane` only
+   checked that none of the three was blank, so it returned ('a','b','a'),
+   and the aura's `order` map -- keyed by column NAME -- collapsed to two
+   entries, leaving a None in every corner of the plane hint that is redrawn
+   on every frame. Fixed at the root: three axes showing two measurements are
+   not a plane.
+
+4-6. A BOX GATE WAS DRAWN, OFFERED HANDLES, AND NOTHING COULD TOUCH IT.
+   Half the canvas shows a BoxGate through `_as_flat` and half did not.
+   `gate_at` hit-tested the raw box, whose columns include a depth
+   measurement the flat probe cannot carry, so `mask()` raised and the except
+   swallowed it: clicking a visible gate found nothing. `_show_ghost` had the
+   same asymmetry, so a corner was pulled with no preview. And the handles
+   `_handles_for` offered were a rectangle's roles, which `BoxGate` refused
+   with `GateError: BoxGate has no handle 'x_low'`. `BoxGate.with_handle` now
+   pulls the front rectangle and keeps its own depth.
+
+--------------------------------------------------------------------------------
+NO PRAGMA. THE 25 THAT REMAIN, AND WHY
+--------------------------------------------------------------------------------
+
+Two blocks were proved unreachable and DELETED rather than excluded, which is
+the other half of this instruction's rule:
+
+  * the `except KeyError` around `_draw_anchor_aura`'s limit lookups. Its
+    keys come from the same three column names `anchor_plane` draws from and
+    its values are exactly `limits`' keys, so it never ran and could not.
+  * `GateEditorPanel._on_close_polygon` -- no caller, no signal connection,
+    no test. The leftover of the Close polygon button the panel's own comment
+    says was removed once clicking the first vertex closed the shape.
+
+Of the 25 lines still uncovered, four are proved unreachable and are left in
+place with the reasoning in the tests beside them rather than a pragma:
+
+  * `722` in `_draw_voxels` (`if not filled.any()`). `np.histogramdd` is
+    called with no `range=`, so it takes the bin edges from the data's own
+    min/max and every sample lands in a core bin. The inputs that could give
+    an empty histogram make numpy RAISE, and that path is covered.
+    `test_every_object_lands_in_a_voxel` asserts the invariant that makes the
+    line dead, so if it stops holding a test says so.
+  * `1375` in `gate_at`. The loop above already skipped anything
+    `_gate_is_on_these_axes` rejects, which is false for an empty column set.
+  * `1943-1944`, in `_on_press`'s second `if self._mode in ("3D","xD")`
+    block -- see the open item below.
+  * `3374` in `set_projection_active`. `_xd_button` is assigned
+    unconditionally and never deleted.
+
+The rest are one-line style and colour branches.
+
+--------------------------------------------------------------------------------
+STILL OPEN ON THIS MODULE, WITH ITS PATCH, DELIBERATELY NOT APPLIED HERE
+--------------------------------------------------------------------------------
+
+TWO MORE REAL BUGS were found and are NOT fixed, because both fixes require
+moving five existing tests in `tests/qt/test_anchor_plane.py` off the stub
+path they currently drive, and rewriting another test's intent is a decision
+worth taking deliberately rather than at the end of a coverage pass.
+
+  A. A 3D POLYGON CAN NEVER BE CLOSED BY CLICKING ITS FIRST VERTEX.
+     `_outline_pending` does a FLAT `ax.plot(xs, ys)` on an `Axes3D`, which
+     autoscales the volume -- so every vertex click moves the limits and the
+     projection, and the vertex already placed slides out from under the
+     cursor. Measured: after three clicks the first vertex reprojects 79 px
+     from where it was clicked, against a `CLOSE_RADIUS_PX` of 12. Clicking
+     it back adds a fourth vertex instead of closing. The vertices are also
+     drawn in the wrong place -- they are (u, v) on the anchor plane, plotted
+     as (x, y).
+     The fix is to plot them as three-dimensional points on the anchor face
+     and restore the limits afterwards, since the pending outline is a
+     gesture rather than data.
+
+  B. IN A 3D/xD VIEW THAT FELL BACK TO A FLAT SCATTER, THE POLYGON TOOL
+     PLACES NO VERTICES AT ALL. `set_mode("xD")` with no third component
+     renders the flat scatter, but `_on_press` still takes its
+     `self._mode in ("3D","xD")` branch, asks `screen_to_volume`, gets None,
+     and returns. Measured: three clicks, zero vertices, no feedback. The
+     branch should test `self._in_volume()` -- what the view IS -- rather
+     than what the mode was set to. That block is the `1943-1944` dead code
+     above; the same edit removes both problems.
+
+     The five tests that then need moving are
+     `test_vertices_land_in_data_units_not_screen_ones`,
+     `test_three_clicks_and_a_close_make_a_prism`,
+     `test_the_prism_is_unbounded_along_the_normal`,
+     `test_turning_the_view_mid_polygon_abandons_it` and
+     `test_a_click_the_volume_cannot_read_places_nothing`. They drive the
+     dead block with a stub axes; giving that stub a `get_zlim` and setting
+     `drag_mode("draw")` + `volume_shape("polygon")` routes the same clicks
+     through the live path with the same assertions.
+
+--------------------------------------------------------------------------------
+WHERE THE NEXT WORKER SHOULD GO
+--------------------------------------------------------------------------------
+
+Taking the whole-package ranking above and removing what the regression
+session holds (`ml.py`, `app_screen.py`, `fast_plots.py`, `figure_queue.py`,
+`regression_results.py`, `settings.py`) and what is now done:
+
+     303   83.7%  spacr/qt/screens/annotate.py
+     249   76.9%  spacr/qt/dnd_handlers.py
+     191   72.1%  spacr/qt/screens/gate_editor.py   <- the SCREEN, not the
+                                                       widget done here
+     188   94.4%  spacr/timelapse.py       (28 of its 228 tests deselected)
+     169   88.8%  spacr/qt/widgets/live_preview.py
+     167   89.9%  spacr/qt/screens/settings_model.py
+     160   51.8%  spacr/qt/screens/pipeline_graph.py
+
+`spacr/qt/screens/gate_editor.py` is the natural next one: it is the other
+half of the feature just covered, `_refill_axis_pickers` in it is the source
+of the duplicate-axis state that caused two of the six bugs above, and the
+fixtures now exist.
