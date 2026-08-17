@@ -361,6 +361,31 @@ class _RetrainWorker(QThread):
         self.done.emit(result)
 
 
+def _retire(obj) -> bool:
+    """Hand ``obj`` back to Qt for deletion, tolerating one already gone.
+
+    Every caller is a retirement path that runs LATER than the thread it is
+    retiring: a queued ``finished`` slot, or ``closeEvent`` after a bounded
+    drain. By then the worker's C++ half may already have been destroyed with
+    its parent, and ``deleteLater`` on that shell raises ``RuntimeError:
+    Internal C++ object already deleted``.
+
+    The disconnects beside each call site were already guarded against exactly
+    that state; the delete on the next line was not, so the guard stopped one
+    line short of the object it was written for and the exception surfaced out
+    of the Qt event loop instead -- a traceback with nothing the user can do
+    about it, in a slot whose whole job is tidying up.
+
+    :returns: True when Qt was asked to delete it, False when there was
+        nothing left to delete.
+    """
+    try:
+        obj.deleteLater()
+    except RuntimeError:
+        return False
+    return True
+
+
 class _TextReportDialog(QDialog):
     """A monospaced, scrollable, copyable text report.
 
@@ -2346,7 +2371,7 @@ class AnnotateScreen(QWidget):
             worker.finished.disconnect(self._on_retrain_finished)
         except (RuntimeError, TypeError):
             pass
-        worker.deleteLater()
+        _retire(worker)
 
     # ------------------------------------------------------------------
     # Object routing (spacr.qt.linked_selection)
@@ -2820,7 +2845,7 @@ class AnnotateScreen(QWidget):
         worker = self._page_worker
         self._page_worker = None
         if worker is not None:
-            worker.deleteLater()
+            _retire(worker)
         if self._pending_page_load is not None and not self._closing:
             request = self._pending_page_load
             self._pending_page_load = None
@@ -3453,7 +3478,7 @@ class AnnotateScreen(QWidget):
                 # Only when it really stopped. `deleteLater` on a parked,
                 # still-running QThread is the abort being avoided; the park
                 # list owns it from here.
-                retrain.deleteLater()
+                _retire(retrain)
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
@@ -3475,7 +3500,7 @@ class AnnotateScreen(QWidget):
             except (RuntimeError, TypeError):
                 pass
             if stopped:
-                worker.deleteLater()
+                _retire(worker)
         try:
             self._console.shutdown()
         except Exception:
