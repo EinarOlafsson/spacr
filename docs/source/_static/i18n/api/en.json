@@ -46223,6 +46223,17 @@
       "source_sha256": "b6302bffa71fe4eb9ca30651dc2538b69dba6218a20326b214ed7c192379ae2b",
       "text": "Add an action that CHANGES THE NUMBERS to the right-click menu.\n\n:param callback: called with no arguments when the user picks it.\n:param label: what the action says.\n\nEverything else on that menu changes how the figure looks and nothing\nelse. This one re-runs the regression, so it is put under its own\nheading rather than in the list -- a user reaching for \"Point size\"\nmust not be one slip away from starting a fit.\n\nOffered by the host rather than built in, because the plot knows\nnothing about settings, count data or where a run writes, and should\nnot learn: the same widget draws a simulation and a sweep trial."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot.offer_thresholds": {
+      "source_blocks_sha256": [
+        "685c5af62521fc29b1700afda13c03e444d9a2e50fd65452a11286045d2b949b",
+        "365667749df1659fc06bd7bfd6f63bd0afbffcb5c9423732b96badbadaf07d65",
+        "1b66b9f224bdcd26ff4ef3635f3cf458cbc9f39f56c0ab5939068e8c8a8ddf4c",
+        "802f9509c89409d9ebde084dbc0ac1ef834e9ba6841d5129558956a4da04c9d4",
+        "039c4f733e0a3804aa7e1f795184f7d8321de8bf0e0488621aff19a8f7b04d0b"
+      ],
+      "source_sha256": "2063970ec575fbdc3db8aa3da7da63677f396f30874fb234ecd9f14ec89b5e50",
+      "text": "Offer the effect-size cut: how it is measured and how wide.\n\n:param options: ``[(label, callback, checked)]`` -- the modes.\n:param multiplier: the current width, shown on its own entry.\n:param on_multiplier: called with the new number when it is changed.\n\nOn the PLOT because the settings-panel controls for these grey out\nunder `inference='nonparametric'` -- correctly, since the permutation\npath uses no control-spread cut -- and the maintainer reported not\nbeing able to find them."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.restyle": {
       "source_blocks_sha256": [
         "9a3a085a955422b4eb4a75e9c4c3165bbd1ae6a00cb7d36679fc7b222cf27921",
@@ -53711,6 +53722,20 @@
       ],
       "source_sha256": "e2e6dcfaafcef9eabd1cce1942fea88bcce4eff9b6230f46a167ec7e4101af23",
       "text": "Fill the Summary tab from the fitted model.\n\n:returns: True when a summary was rendered.\n\nRendered from `model.summary()` verbatim rather than rebuilt: the\npoint of asking for the statsmodels summary is to get the statsmodels\nsummary, and a re-implementation would differ from every textbook and\nevery other tool the reader compares it against."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_threshold_method": {
+      "source_blocks_sha256": [
+        "82a1fae1d16627b9404580368b282e1720a8748d6e0d6df89bebb24f3c93b144"
+      ],
+      "source_sha256": "82a1fae1d16627b9404580368b282e1720a8748d6e0d6df89bebb24f3c93b144",
+      "text": "Measure the effect-size cut a different way, and redraw."
+    },
+    "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_threshold_multiplier": {
+      "source_blocks_sha256": [
+        "e7a47df059917a021daef2290ec8cfa5986defb1615aa9c8fd20b369548a38a5"
+      ],
+      "source_sha256": "e7a47df059917a021daef2290ec8cfa5986defb1615aa9c8fd20b369548a38a5",
+      "text": "How many spreads wide the cut is."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.status_text": {
       "source_blocks_sha256": [
@@ -62832,6 +62857,44 @@
       ],
       "source_sha256": "83498452e3c61ae6c6d9f53b70bc9e214b23cd721cba9cc24fbd6d4f15ea4d2d",
       "text": "Run one sweep trial in this process and write its result as JSON.\n\nThe entry point of a CONTAINED trial: the parent execs\n``python -m spacr.sweep_child <settings.json> <out.json>`` inside a\nsystemd-run cgroup with a memory cap, so a trial that would take the\nmachine down takes only itself down.\n\nNothing comes back in memory -- the parent reads the result FILE, because\na child the kernel killed has no return value to give and the sweep still\nneeds a row for it.\n\n:param argv: the arguments after the module name. Defaults to\n    ``sys.argv[1:]``.\n:returns: a process exit status: 0 for a trial that produced a result, 2\n    for a usage error, non-zero for a trial that raised. The exception is\n    written into the result file as well, so the sweep table can carry the\n    reason instead of an empty row."
+    },
+    "spacr.thresholds": {
+      "source_blocks_sha256": [
+        "555f3544d33d40274462a60ca31c98b3f61ca168ab8f75ee9c76ebb5dc9acb16",
+        "f055382f0708a55b266199352426c3546ba2558e9bfbfc9f8931fe3571e564bf",
+        "a596f1301e073cec435616e6c870555bb2df3aa91d227f3460f6d53cb30aa24c",
+        "a9308e77a48f68e4ad7b780c1e754f03cf81d7f9d1eb1327e5b9a64d06457878"
+      ],
+      "source_sha256": "2e97eab3ebb7020858dce41a46a4f168ad29d60c26295d7672d74e7280d6b40a",
+      "text": "How wide a coefficient has to be before it counts as a hit.\n\nA p-value says an effect is distinguishable from zero. With a thousand wells\nthat includes effects far too small to follow up, so the EFFECT-SIZE cut is\nwhat separates \"detectable\" from \"worth doing an experiment about\". This\nmodule is the one place that decides how wide the cut is.\n\nTHE SPREAD IS MEASURED ON THE CONTROLS wherever there are any: guides that\ntarget nothing ARE the null, and that is the sentence a methods section\nwants. Measured on the tsg101 screen the control-based cut and the\nall-guide cut agree closely (0.83 against 0.84) -- but a screen with a\nstrong signal pulls the all-guide spread up while leaving the controls where\nthey are, and then only one of the two is still a null.\n\nAdded 2026-08-17 at the maintainer's request: \"coefficient threshold mode\n(none, var, std, also add several other methods that make sense at least 4\nmore)\", reachable from the plot's right-click menu."
+    },
+    "spacr.thresholds.canonical": {
+      "source_blocks_sha256": [
+        "23a2f2b499be09ac59d685a6e1e573b24584a17a640b60d6c16fc9415da58495",
+        "61eecdcd3302272c139b02f059f8b5ca5bec49b1f335299b19dae779cafad837"
+      ],
+      "source_sha256": "43333efff70fe8eb6daf6133ad45564ac4b89cebcf2c846737596c281499ea31",
+      "text": "The canonical name for ``method``.\n\n:raises ValueError: naming every method, rather than falling back to a\n    default the caller did not ask for."
+    },
+    "spacr.thresholds.coefficient_threshold": {
+      "source_blocks_sha256": [
+        "f2cb3b7287b9e847028d81f3972c32ee1dfb67871f6a82141f96522a08b7431b",
+        "19f7c9ed2dd8da273c3cca36905897f095a7acf8810e75680cf1473b05b0fdad",
+        "42e044b338dca9a47c32c8b35dc09a86ad777eab8a3f61c26b802c9f5bdef0b7",
+        "6260f536a315f88e210237c43dc45f2250323ce67d86ae3493403ac751c1e304",
+        "ec6bcf3ed463e59ce16378f8247d6ce4819437d06dd2b59e709cbac0ab0a7965",
+        "5eb9d349e580d53ed7a89f2fcdb7303ed0a2f032ee9fddd786758b1a43d7553b",
+        "933c621d13a51d60fabe61ecd0e9c1bc6e8b8a92970290116f41f8102a84965c"
+      ],
+      "source_sha256": "f77bb5fb88ca32318d5d74a6658bd114b6bfa004a65c47d67a882ec88fb1436a",
+      "text": "``(threshold, sentence)`` for a set of control coefficients.\n\n:param values: the control coefficients -- the null.\n:param method: one of :data:`METHODS`, or an alias.\n:param multiplier: how many spreads wide the cut is.\n:param centre: what to measure from; the MEDIAN of ``values`` by default,\n    which is not moved by one control guide with a real phenotype. This\n    screen has one -- `000000_22` is a non-targeting control and the\n    strongest effect in the run at +4.37.\n:returns: ``(None, reason)`` when no cut can be made, never a silent 0.\n\nThe sentence is not decoration: a threshold a reader cannot attribute is\na threshold they cannot report, and it goes on the panel beside the line."
+    },
+    "spacr.thresholds.describe": {
+      "source_blocks_sha256": [
+        "2880c7a383d823154dd07d176362d0d3da127fe21de55c8b80be5f20b543ea2f"
+      ],
+      "source_sha256": "2880c7a383d823154dd07d176362d0d3da127fe21de55c8b80be5f20b543ea2f",
+      "text": "One line saying what a method measures."
     },
     "spacr.tiff_io": {
       "source_blocks_sha256": [
