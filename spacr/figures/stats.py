@@ -34,6 +34,15 @@ and :func:`compare` takes a ``unit`` so a caller can aggregate first.
 
 A p-value alone is not reportable. Every result carries the test by name, n
 per group, an effect size, and the assumption checks with their own numbers.
+
+THIS IS THE ONE ENGINE THAT CHOOSES A TEST. :mod:`spacr.sp_stats` used to
+choose its own and disagreed with this one on three of five inputs, always by
+taking the parametric branch where the checks had no power to refuse it
+(instruction 127, finding 2). It is now a translation layer onto :func:`compare`,
+:func:`check_normality` and :func:`check_equal_variance` that keeps its older
+signatures and result keys. Change the choices here and both entry points move
+together; ``tests/test_one_engine_decides_which_test_applies.py`` fails if they
+ever come apart again.
 """
 
 from __future__ import annotations
@@ -162,16 +171,33 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
             f"normality test to have power — treated as NOT normal, which is "
             f"the safe direction",
             passed=False)
-    worst_p, worst_stat, tested = 1.0, float("nan"), 0
+    # A GROUP WITH NO SPREAD IS NOT A NORMAL GROUP. scipy hands back p = 1.0
+    # and a NaN statistic for constant input rather than raising, and 1.0 read
+    # as a p-value says "as consistent with normal as data gets" -- so a column
+    # where every object in an arm was called class 0 used to PASS the
+    # normality check and license a parametric test. Real input in this
+    # package, not a contrived one.
+    flat = [group for group in groups if float(np.ptp(group)) == 0.0]
+    if flat:
+        return Assumption(
+            "Shapiro-Wilk", float("nan"), float("nan"), False,
+            f"{len(flat)} group(s) have no spread at all, so a normality test "
+            f"has nothing to describe — treated as NOT normal, which is the "
+            f"safe direction",
+            passed=False)
+    # Start above 1.0 so the first group always records its statistic. Starting
+    # AT 1.0 meant a group whose p came back exactly 1.0 never updated
+    # `worst_stat`, and the result reported a NaN statistic beside a real p.
+    worst_p, worst_stat, tested = float("inf"), float("nan"), 0
     for group in groups:
         try:
             statistic, p = stats.shapiro(group[:5000])
-        except Exception:                       # pragma: no cover - degenerate
+        except Exception:
             continue
         tested += 1
         if p < worst_p:
             worst_p, worst_stat = float(p), float(statistic)
-    if not tested:
+    if not tested or not np.isfinite(worst_p):
         return Assumption("Shapiro-Wilk", float("nan"), float("nan"), False,
                           "could not be computed", passed=False)
 
@@ -215,10 +241,28 @@ def check_equal_variance(groups: Sequence[np.ndarray]) -> Assumption:
             f"below does not assume what it could not check",
             passed=False)
     try:
-        statistic, p = stats.levene(*groups, center="median")
-    except Exception:                           # pragma: no cover - degenerate
+        # Levene's denominator is zero when every group is constant. The NaN it
+        # produces is handled below, so the numpy warning on the way there is
+        # noise in a caller's console, not information.
+        with np.errstate(invalid="ignore", divide="ignore"):
+            statistic, p = stats.levene(*groups, center="median")
+    except Exception:
         return Assumption("Levene (median-centred)", float("nan"),
                           float("nan"), False, "could not be computed",
+                          passed=False)
+    # NaN IS NOT A SMALL p. Levene returns NaN rather than raising when every
+    # group is constant (its denominator is zero), and `nan >= 0.05` is False,
+    # so the check used to write "variances differ (p < 0.05)" into a results
+    # table on the strength of a number that does not exist. The branch it
+    # picks is the safe one either way; the sentence a reviewer reads was a
+    # false statement.
+    if not np.isfinite(p):
+        return Assumption("Levene (median-centred)", float("nan"),
+                          float("nan"), False,
+                          "the groups have no spread to compare, so the "
+                          "variance test has no value — treated as UNEQUAL, "
+                          "so the test below does not assume what it could "
+                          "not check",
                           passed=False)
     equal = float(p) >= 0.05
     return Assumption(
@@ -282,8 +326,6 @@ def compare(groups: Mapping[str, Sequence], *, unit: str = "observation",
         test. Refused rather than returned as NaN: a comparison that could not
         be made is not a comparison with an unknown answer.
     """
-    from scipy import stats
-
     labels = list(groups)
     if len(labels) < 2:
         raise ValueError(
@@ -402,13 +444,17 @@ def _difference_ci(a: np.ndarray, b: np.ndarray, *, equal: bool,
     if equal:
         pooled = ((na - 1) * va + (nb - 1) * vb) / (na + nb - 2)
         se = np.sqrt(pooled * (1 / na + 1 / nb))
-        df = na + nb - 2
     else:
         se = np.sqrt(va / na + vb / nb)
-        df = (va / na + vb / nb) ** 2 / (
-            (va / na) ** 2 / (na - 1) + (vb / nb) ** 2 / (nb - 1))
+    # Bail on a degenerate spread BEFORE the degrees of freedom are computed.
+    # With zero variance the Welch df is 0/0, which prints a RuntimeWarning on
+    # the way to a number this function is about to discard -- and two constant
+    # arms is a real case, not a contrived one.
     if not np.isfinite(se) or se == 0:
         return None
+    df = (na + nb - 2) if equal else (
+        (va / na + vb / nb) ** 2
+        / ((va / na) ** 2 / (na - 1) + (vb / nb) ** 2 / (nb - 1)))
     margin = float(stats.t.ppf(0.5 + level / 2, df) * se)
     return (diff - margin, diff + margin)
 
