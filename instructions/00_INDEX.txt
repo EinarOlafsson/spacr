@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-95 done / 20 open (82%).
+99 done / 16 open (86%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -29,9 +29,6 @@ OPEN
 
   104  THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
        104_the_hf_e2e_mask_stage_produces_no_cell_masks.txt
-
-  105  THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
-       105_the_ai_chat_always_sees_the_whole_console.txt
 
   106  A SETTING THAT CANNOT DO ANYTHING RIGHT NOW IS GREYED OUT, AND SAYS WHY
        106_inapplicable_settings_are_greyed_out.txt
@@ -44,15 +41,6 @@ OPEN
 
   109  IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
        109_modules_take_more_than_one_database_and_merge_them.txt
-
-  110  CLICK A CONSOLE SECTION HEADING TO BRING IT TO THE TOP AND EXPAND IT
-       110_click_a_console_heading_to_raise_and_expand_it.txt
-
-  111  A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
-       111_a_clear_figures_control_that_is_text_and_flickers_blue.txt
-
-  113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
-       113_tooltips_belong_to_the_setting_not_its_field.txt
 
   114  A PARAMETER SEARCH THAT CANNOT TAKE THE MACHINE DOWN
        114_parameter_search_that_cannot_take_the_machine_down.txt
@@ -181,5 +169,9 @@ DONE
   101  NIGHTLY CANCELS ITS OWN CI BEFORE IT CAN EVER FINISH
   102  A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
   103  NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
+  105  THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
+  110  CLICK A CONSOLE SECTION HEADING TO BRING IT TO THE TOP AND EXPAND IT
+  111  A CLEAR FIGURES CONTROL: PLAIN TEXT THAT FLICKERS BLUE WHEN CLICKED
   112  guards added; the permanently-skipped link test now runs in CI.
+  113  A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
   120  THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
