@@ -461,7 +461,7 @@ def test_a_python_worker_no_longer_shades_the_backdrop_on_the_gui_thread(
 # ---------------------------------------------------------------------------
 
 def test_a_hidden_backdrop_has_no_shading_thread(qtbot):
-    """"Off screen is 0 %" is now a claim about a thread as well as a timer.
+    """Off screen is 0 %, and that is now a claim about a thread too.
 
     The existing suite asserts a hidden backdrop paints no frames. That is no
     longer the whole cost: an unjoined shading thread would keep a core warm
