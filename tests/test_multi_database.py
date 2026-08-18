@@ -640,3 +640,90 @@ def test_a_reader_can_continue_another_readers_count(two_plates):
 
     assert seen[0] == (100, 500)
     assert frame.attrs["rows_done"] == 100 + len(frame)
+
+
+# ---------------------------------------------------------------------------
+# The doubled plate prefix reaches the DATA, not only the label
+# ---------------------------------------------------------------------------
+
+def test_normalise_plate_ids_agrees_with_correct_metadata():
+    """The frame rule and the scalar rule give the same answer.
+
+    `canonical_plate_id` was already pinned against `utils.correct_metadata`.
+    This pins the FRAME form to the scalar one, so the three cannot drift --
+    which is the whole point of instruction 145's one-vocabulary rule.
+    """
+    import pandas as pd
+    from spacr.multi_database import canonical_plate_id, normalise_plate_ids
+
+    plates = ["pplate1", "plate2", "pp1", "p1", "control", ""]
+    frame = pd.DataFrame({"plateID": list(plates)})
+    got = list(normalise_plate_ids(frame)["plateID"])
+    assert got == [canonical_plate_id(p) for p in plates]
+
+
+def test_the_composed_keys_are_normalised_too():
+    """`prc` carries the plate as its first component.
+
+    Rewriting `plateID` alone would leave `prc` unjoinable and the two columns
+    disagreeing about the same plate -- which is worse than not fixing it,
+    because a frame that is half-normalised joins on one key and not the other.
+    """
+    import pandas as pd
+    from spacr.multi_database import normalise_plate_ids
+
+    frame = pd.DataFrame({
+        "plateID": ["pplate1"],
+        "prc": ["pplate1_r3_c7"],
+        "prcfo": ["pplate1_r3_c7_f2_o5"],
+    })
+    out = normalise_plate_ids(frame)
+    assert out["plateID"][0] == "plate1"
+    assert out["prc"][0] == "plate1_r3_c7"
+    assert out["prcfo"][0] == "plate1_r3_c7_f2_o5"
+
+
+def test_a_non_text_plate_column_is_left_alone():
+    """A plate id stored as an INTEGER cannot carry a 'pp' prefix.
+
+    `.str` refuses a non-object column, so the guard is needed rather than
+    merely tidy: without it a database with an integer plateID raises on read.
+    """
+    import pandas as pd
+    from spacr.multi_database import normalise_plate_ids
+
+    frame = pd.DataFrame({"plateID": [1, 2, 3]})
+    assert list(normalise_plate_ids(frame)["plateID"]) == [1, 2, 3]
+
+
+def test_a_merged_frame_can_meet_a_normalised_score_file(tmp_path):
+    """THE BUG THIS EXISTS FOR, end to end.
+
+    A measurements database stamped `pplate1` used to produce merged rows
+    stamped `pplate1`, while `utils.correct_metadata` had already normalised
+    the score CSV to `plate1`. The merge succeeded, the row counts were right,
+    and the two frames then shared no well -- which surfaced far away as a
+    gene half that was missing for no visible reason.
+    """
+    import sqlite3
+    import pandas as pd
+    from spacr.multi_database import read_merged
+
+    path = tmp_path / "measurements.db"
+    with sqlite3.connect(path) as db:
+        pd.DataFrame({
+            "plateID": ["pplate1"] * 3,
+            "rowID": ["r1", "r2", "r3"],
+            "columnID": ["c1", "c1", "c1"],
+            "object_label": [1, 2, 3],
+            "area": [10.0, 11.0, 12.0],
+        }).to_sql("cell", db, index=False)
+
+    merged = read_merged([str(path)], "cell")
+    assert set(merged["plateID"]) == {"plate1"}, merged["plateID"].tolist()
+
+    # The score side, as `correct_metadata` leaves it.
+    scores = pd.DataFrame({"plateID": ["plate1"], "rowID": ["r1"],
+                           "columnID": ["c1"], "grna": ["g1"]})
+    joined = merged.merge(scores, on=["plateID", "rowID", "columnID"])
+    assert len(joined) == 1, "the merged frame must meet a normalised score file"
