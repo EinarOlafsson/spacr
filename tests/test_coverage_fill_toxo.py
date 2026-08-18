@@ -237,9 +237,36 @@ def test_go_term_enrichment_by_column(tmp_path):
     assert points[0, 1] == max(points[:, 1])
     assert per_ax.get_xlabel() == "Enrichment Score"
     assert per_ax.get_ylabel() == "-log10(P-value)"
-    # Every term is named in the legend.
-    legend = {t.get_text() for t in per_ax.get_legend().get_texts()}
-    assert set(expected) <= legend
+    # NAMED ON THE PANEL, NOT IN A LEGEND -- and that is a deliberate change
+    # of contract made by the 2026-08-18 restyle, recorded here rather than
+    # glossed over.
+    #
+    # It used to put EVERY term in a matplotlib legend. On a real ontology
+    # column that is forty-odd entries mapping to forty indistinguishable
+    # dots, which names everything and identifies nothing. The house style's
+    # rule is that colour is an argument, so the panel now colours and LABELS
+    # the terms that cleared p <= 0.05 and greys the rest.
+    #
+    # WHAT IS LOST IS NAMED RATHER THAN DROPPED: the text legend states both
+    # counts, so a reader is told how many terms are not labelled instead of
+    # having to notice.
+    drawn = {text.get_text() for text in per_ax.texts}
+    named_terms = drawn & set(expected)
+    counts = drawn - set(expected)
+
+    # The term that cleared the cut is named where it sits.
+    assert named_terms, "no GO term is named on the panel at all"
+    # And the reader is told how many are not named, rather than left to
+    # notice. Both roles are stated with their counts, so "3 terms are grey"
+    # is on the figure instead of being a thing you work out.
+    assert any(entry.startswith("p <= 0.05 (") for entry in counts), counts
+    assert any(entry.startswith("not called (") for entry in counts), counts
+    total = sum(int(entry.rsplit("(", 1)[1].rstrip(")"))
+                for entry in counts
+                if entry.rstrip().endswith(")"))
+    assert total == len(expected), (
+        f"the two role counts sum to {total}, but the panel drew "
+        f"{len(expected)} terms -- a reader adding them up would be wrong")
 
     comb_ax = combined.axes[0]
     assert comb_ax.get_title() == "Combined GO Term Enrichment Analysis"
