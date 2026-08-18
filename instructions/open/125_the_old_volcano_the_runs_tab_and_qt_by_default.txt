@@ -141,3 +141,59 @@ HOW TO KNOW IT WORKED
 * `pip install spacr` in a clean env, then `spacr-qt`, starts the GUI.
 * Importing spacr.core on a machine with no display still does not import
   PySide6.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- AUDITED, NOT BUILT: ALL FOUR PARTS ARE ALREADY SHIPPED.
+--------------------------------------------------------------------------------
+
+The header says "filed 2026-08-17, not started". It is the ninth file this week
+to be wrong about itself (HANDOFF 0a). Nothing was built for this item today
+because nothing needed to be. Read against the code, part by part:
+
+A. THE OLD VOLCANO IS OFF, ALL THREE CALL SITES. `ml.py:7141` resolves
+   `draw_legacy_volcano = bool(settings.get('legacy_volcano', False))` ONCE and
+   the three branches read that one name: the toxo `custom_volcano_plot` call
+   takes it as `draw=` (7182), the non-toxo fallback is guarded by
+   `if not _toxoplasma_is_on(settings) and draw_legacy_volcano` (7257), and
+   `regression()`'s own call is `if plot and legacy_volcano` (4162), reading the
+   same key from the same settings dict at 6902. The `volcano` SETTING that used
+   to pick a table here is gone; the branch collapsed to `gene` rather than
+   vanishing, because `custom_volcano_plot` also RETURNS the hit list the GT1
+   phenotype plot and the ME49 heatmap are built from. The run announces the
+   state ("Legacy volcano: off ... Set legacy_volcano=True"). Tested in
+   `tests/test_the_old_volcano_is_off.py`.
+
+B. THE CLEAR-FIGURES CONTROL IS RED, AND FROM THE PALETTE.
+   `figure_queue._ClearFiguresLabel` rests at the `error` role -- #f85149 on
+   dark, #b81d1a on light -- not at a hex typed in there, which is exactly the
+   "same object every other negative button uses" the instruction asked for. It
+   is still plain text with a pointing-hand cursor rather than button chrome,
+   and it is focusable and Enter/Space-activatable. Tested in
+   `tests/test_clear_figures_control.py`.
+
+C. BOTH HALVES DONE.
+   * EVERY RUN IS IN THE RUNS TAB. An ordinary run and a re-fit are recorded at
+     the moment Run is pressed (`AppScreen._on_run` -> `_record_run_in_runs_tab`,
+     source `run` or `re-fit`), a measurement-column fit gets `measurement
+     column`, a folder opened off disk gets `on disk`, and the sweep's trials
+     are read off `sweep_results.csv` -- one table, one set of columns.
+     `tests/test_the_runs_tab_holds_every_run.py`.
+   * THE FIGURE GRID'S SECTIONS FOLD, with the console's own gesture:
+     `figure_grid_view.toggle_section` reaches the run first and folds it
+     second, because a first click that hid the section the user was reaching
+     for spends the gesture on the opposite of what it looked like. The
+     collapsed set is keyed by (label, start) and survives a rebuild, so a
+     collapsed section stays collapsed when the next run finishes.
+     `tests/test_a_figure_section_folds_away_like_the_console.py`.
+
+D. QT IS NOT AN EXTRA. `PySide6>=6.6,<7`, `qtawesome>=1.3,<2` and
+   `pyqtgraph>=0.13,<1` are in the CORE requirements (`setup.py:378-380`), with
+   the interpreter-coverage reasoning written beside them, and the `qt` extra is
+   kept as an alias (`setup.py:872-873`) so the packaging scripts and the docs
+   do not break. The headless invariant is unchanged and still tested: nothing
+   in `spacr.core`, `spacr.ml` or `spacr.measure` imports PySide6.
+
+SO THIS FILE IS CLOSED ON AUDIT. If the ledger still counts it open, that is the
+ledger and not the code. Whoever moves it to `done/` should keep this section --
+"eight files have been wrong about themselves this week" is only useful if the
+ninth records how it was checked.

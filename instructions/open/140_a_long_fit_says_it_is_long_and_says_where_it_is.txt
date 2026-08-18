@@ -84,3 +84,66 @@ HOW TO KNOW IT WORKED
 * Starting a mixed fit prints the design it is fitting before it blocks.
 * A fit longer than a few seconds reports progress.
 * Cancelling one stops it and says what was written.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- A, B AND THE GUI HALF OF C SHIPPED. Commit 62b61338.
+--------------------------------------------------------------------------------
+
+A. THE BOX STATES THE COST. `mixed`'s box gains a WHAT IT COSTS section beside
+WHAT YOU DO NOT GET, and for the same reason: both are things a user could
+otherwise only find out by having already spent the afternoon.
+
+ONE COPY OF THE NUMBERS, and this is the part worth not undoing.
+`settings_model.MIXED_COST_ANCHORS` holds the measurement as data --
+(40, 400, 0.03, 1.62) and (80, 600, 0.16, 10.66) -- and `mixed_cost_note()`
+builds the paragraph FROM it, including the 54x and the 67x. The box reads that
+function and so does the console. A measurement written out twice is two
+numbers, and the second one to be edited is the one nobody believes afterwards.
+
+B. THE RUN SAYS WHAT IT IS DOING BEFORE IT BLOCKS. Three lines, each a different
+question: WHAT IS RUNNING (model, level, backend, read off the settings the run
+was started with, so a re-fit describes the re-fit); WHAT IT COSTS (the note
+above, for `mixed` only); HOW BIG THE DESIGN IS.
+
+THE DESIGN SCAN GOES THROUGH `JobRunner`, not the GUI thread. Reading a
+500,000-row count CSV to warn somebody about a slow fit would be its own freeze.
+`regression_design_scan(settings)` never raises -- it runs beside a fit that is
+already starting, and a scan that threw would take the run's own message with
+it. What it could not work out comes back as None with a reason.
+
+AND IT SAYS WHICH NUMBER IT IS. This is the design as THE COUNT FILES HOLD IT:
+before the merge with the scores, before `fraction_threshold`, before the well
+filters. That is deliberate and it is the useful reading -- it is the number to
+compare the run's own post-cleaning counts against, and two numbers that differ
+is a filter having done something. Two numbers that both claim to be "the
+design" and disagree is a bug report, which is why the sentence names itself.
+
+The gRNA split is the pipeline's own POSITIONAL rule (`process_reads`:
+`<org>_<gene>_<guide>`, every name the same width). Names of another shape get
+a guide count and NO gene count, with the reason -- a gene total from a rule the
+fit will not apply is a number that disagrees with the fit.
+
+THE HEARTBEAT is sparse and widening: 30 s, then 1, 2, 5, 10, 20, 30, 45, 60
+minutes, then every half hour. A line every thirty seconds is 120 lines in the
+hour this exists for, which is the same silence with more scrolling. The line
+interprets the observation the user could not -- "cpu at 100 percent" -- by
+saying that one core at 100% with the others idle is what a healthy
+single-threaded REML fit looks like, and that Stop is live.
+`_due_heartbeat(elapsed)` is separate from the timer so the last entry can be
+driven directly; an entry nobody checks is the one that is wrong.
+
+C. STILL OPEN, AND IT IS ml.py's HALF -- ANOTHER TERRITORY TODAY.
+`grep -n "cancellation\|raise_if_cancelled\|is_cancelled" spacr/ml.py` returns
+NOTHING. There is no cancellation check anywhere in the module, so
+`worker.request_cancel` cannot land inside a mixed fit however long it runs.
+What makes it interruptible today is `_force_stop`, which PARKS the thread
+(`bridge.drain_thread`) and gives the window back while the fit finishes in the
+background -- and says so rather than claiming it stopped. The fix is a
+`spacr.cancellation` check between REML iterations, plus writing the run folder
+in a state the user can see when it is abandoned. It is in `handoffs`.
+
+WHAT THIS COST ELSEWHERE, so it is not rediscovered as a mystery:
+`tests/test_the_model_box_is_short_enough_to_finish.py` held the longest box at
+under 1,400 characters and the cost section takes `mixed` to 1,795. The ceiling
+is 1,900 now with the reason written into the constant, plus a second ceiling on
+`mixed` alone so the section that bought the raise cannot quietly grow past it.

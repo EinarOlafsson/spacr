@@ -263,3 +263,53 @@ answer, added for 157 and 155 A.
 STILL REMAINING: the two paragraphs above this one -- two runs on screen at
 once, the photograph, and `FastPlot.pinned_limits()`.
 
+
+--------------------------------------------------------------------------------
+2026-08-18 (later still) -- THE SIDE-BY-SIDE HALF IS SHIPPED. Commit 7486d492.
+--------------------------------------------------------------------------------
+
+TWO RUNS, AND THE NUMBER IS SAID OUT LOUD. `AppScreen.MAX_LIVE_RUNS = 2` and
+`LIVE_RUNS_NOTE` carries 129's measurement into the refusal itself: about 75 ms
+a frame for a live plot against 5 ms for a still on a 17 ms budget. A third run
+is refused WITH that sentence -- a bound discovered by a machine stopping has
+been stated nowhere, and one refused without a reason is indistinguishable from
+a broken button.
+
+DELIBERATE, with its own gesture: "Open beside the loaded run" in the Runs tab's
+row menu, offered only for a SINGLE row that produced results. Nothing opens a
+second run on its own. Opening a run beside itself is refused too: two views of
+one run is not the comparison that was asked for.
+
+WHERE THE SECOND VOLCANO COMES FROM, and it is cheaper than it looks. The loaded
+run's panel is built with `external_volcano=True`, so its plot is placed in the
+figures stack. The run opened beside is an ordinary `RegressionResultsPanel`,
+which KEEPS its own volcano -- so the two are on screen together and each
+answers its own hover and its own click, with no refactor of `_redraw_volcano`
+(which reads eight fields off the panel and would have been the expensive way to
+get here).
+
+ONE STRUCTURAL CHANGE THAT MATTERS BEYOND THIS ITEM: the Results tab PAGE is a
+QSplitter (`_results_page` / `_results_split`) rather than the panel, because a
+tab page cannot gain a sibling. That retired three `setCurrentWidget(panel)`
+calls which would have become SILENT no-ops the moment the panel stopped being
+the page; they go through `_raise_the_results_tab()` now. If a fourth place ever
+wants to raise the Results tab, use it.
+
+THE PHOTOGRAPH is taken in `close_run_beside`, which is the moment the run stops
+being live, and `run_photograph(folder)` hands it back. The state was never in
+the widget, so making that run live again is cheap -- that is what the bound
+BUYS rather than what it costs. Measured here, offscreen, 640x480 over 900
+points: 0.96 ms a frame live against 0.01 ms for the still. Lower absolutes than
+129's compositing measurement and the same direction, which is the property the
+design rests on, so the ratio is what the test holds and not the milliseconds.
+
+A DELETED RUN TAKES BOTH HALVES (146): if it is the run beside, it is closed,
+and its still is dropped along with its plot state. A photograph of a run that
+no longer exists is the same stale answer its state would have been.
+
+WHAT IS LEFT OF THIS FILE:
+  * `FastPlot.pinned_limits()`. `plot_state` still reads `_pinned` through
+    `getattr`; that file is another territory. Named again so it is not lost.
+  * A still is CAPTURED and can be ASKED FOR, and nothing yet PAINTS one in the
+    Runs tab beside the row it belongs to. That is the obvious next use and it
+    needs no new machinery -- `run_photograph(folder)` is the whole of it.

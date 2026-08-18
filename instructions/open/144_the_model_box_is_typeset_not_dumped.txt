@@ -138,3 +138,65 @@ HOW TO KNOW IT WORKED
 * Every model links its API and the link opens.
 * The formula is still selectable and copies as one line.
 * No more than four colours are in play at once.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SHIPPED, ALL OF A TO D. Commit 24149572.
+--------------------------------------------------------------------------------
+
+THE WIDGET DECISION, AND IT IS NOT THE ONE THE INSTRUCTION NAMES. A
+`QPlainTextEdit` cannot render colour or weight at all, so the choice was
+between changing the widget and faking typesetting with whitespace -- the
+instruction is right that it has to change. But it is a `QTextBrowser`, not a
+`QTextEdit`: QTextEdit HAS NO `setOpenExternalLinks`. Measured, not guessed --
+the first attempt used QTextEdit and every existing test failed with
+`AttributeError: 'QTextEdit' object has no attribute 'setOpenExternalLinks'`.
+QTextBrowser is a QTextEdit subclass, so read-only, selectable, the wrap mode
+and the QSS all carry over; what it adds is the one thing D needs.
+
+WHAT SURVIVED, each checked rather than assumed:
+  * read-only and selectable, and the code formula selects as ONE block --
+    driven through a QTextCursor on the document, not on the HTML;
+  * monospace still through a QSS rule on the objectName. The selector is
+    `QTextBrowser#ModelExplainer` now;
+  * the wrap pair STOPPED FIGHTING. 138 ("the prose fills the box") against
+    "a formula is never broken" was unwinnable in plain text because wrapping
+    is per WIDGET there. In rich text it is per BLOCK. Measured on the real
+    document at text widths 280/400/620/900: the code formula is 1 line at
+    every one of them and the prose reflows 6/9/6/4.
+
+COLOUR. Every value comes from `active_palette()`; the test reads the colours
+off the rendered CHARACTER FORMATS rather than out of the HTML, because Qt
+rewrites the markup it is handed and a colour present in the string is not
+evidence that it reaches a glyph. Vocabulary as specified: accent for headings,
+MODEL:/LEVEL: and links; error for the refusal heading and its negations;
+chip_value for the output file each formula writes; success for TWO MODELS, TWO
+TABLES; fg and fg_muted for body and the caveat.
+
+FOUR IS THE CEILING AND `lasso`/`both` IS THE BOX THAT REACHES IT -- accent,
+chip_value, success and error at once. There is a test naming it, so a fifth
+emphasis colour cannot arrive without failing. The emphasis inside prose is a
+short EXPLICIT table of phrases (`_EMPHASIS`), not a rule over the text: a regex
+that coloured every capitalised phrase would make the box a ransom note, which
+is a smaller version of the complaint rather than a fix for it.
+
+THE FORMULA TWICE. `maths_for(kind, plate_position=, random_row_column=)` takes
+the SAME two arguments `formula_for` does and reads them the same way, which is
+what makes "the two must agree" a property rather than a habit -- nine
+parametrised cases hold it across three model terms and three plate states. Real
+Unicode throughout (β σ ε μ ρ γ Σ ᵢ).
+
+LINKS. `MODEL_API_LINKS` covers every name in REGRESSION_TYPES: statsmodels and
+scikit-learn by page, and spaCR's own three (`group_lasso`, `rra`,
+`power_model`) through `DOCS_API_BASE`, which is the same base the settings
+rows' API dots use. A test walks the rendered document for the anchor rather
+than trusting the markup.
+
+A LIVE THEME SWITCH RE-INKS BOTH BOXES. The old box used NO colour precisely
+because baked colours would survive a switch; re-rendering from the live palette
+on `PaletteChange` is the other way to be safe, and it is the one that can be
+seen. `_retheme_section_explainers` does it for the model box and the
+permutation box together -- the permutation box is typeset too, because one rich
+box beside one monospace dump is this same complaint one section further down.
+
+NOT DONE HERE: 141's backend selector wants the same API links. `MODEL_API_LINKS`
+and `model_api_link()` are the shared answer when somebody picks that up.
