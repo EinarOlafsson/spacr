@@ -650,3 +650,109 @@ Two things to reconcile, and the second is a finding worth keeping either way:
     that reading of the tooltip is right it is a worse class of error than a
     weak illustration -- it is a picture that teaches the setting backwards.
     Not verified here.
+
+================================================================================
+2026-08-18 - THE REPORTED BUG IS NOW CHECKED AGAINST THE SHIPPED PIXELS, AND
+             THE cytoplasm DEFECT HAS A ONE-KEYWORD CAUSE
+================================================================================
+
+Written by a second session that audited this the same day as the entry above,
+in parallel and without knowing it. Where we agree the record now says so once;
+where this pass found something the other did not, it is below.
+
+FIRST, THE COLLISION, because it cost the other session real work and the
+lesson is the one in HANDOFF 0c pointed the other way. Both sessions wrote
+`instructions/62_anim_audit.json`. This one wrote it while the other had its
+own version sitting in the working tree, and `fce4ef86` then committed THIS
+file under THAT session's message -- so the commit says "79 GOOD, 15 WEAK"
+and the file it carried said something else. Their per-animation notes are
+gone; only their commit message and the entry above survived, and the record
+has been rebuilt from those as the UNION of both passes: an animation is WEAK
+if either session found it weak. 65 GOOD, 29 WEAK, all 94 judged.
+`git commit -- <paths>` protects the OTHER agent's files. It does not protect
+yours from being swept into their commit. If two sessions can touch one file,
+the second one to write it wins and nobody is told.
+
+WHAT SHIPPED HERE
+
+  `measure_border_object_removal(path)` and
+  `validate_border_animations_remove_only_edge_objects()` in
+  `spacr/setting_animations.py`, with 12 tests in
+  `tests/test_the_shipped_border_gifs_remove_only_edge_objects.py`.
+
+  This is step 5 of WHAT TO DO, on the ASSET rather than the spec.
+  `test_border_animation_geometry.py` checks the generator's geometry before
+  anything is drawn, which is where the fault was fixed -- but nothing opened
+  the GIF. A spec can be right while the file beside it is the one rendered
+  before the fix, and both existing asset checks pass on the broken version:
+  the manifest validator sees the right size and digest, and
+  `validate_animations_show_something` sees 13-21% of the frame change.
+
+  All four report crossing=2, interior=0. Run against the four GIFs AS THEY
+  SHIPPED BEFORE `ec12448a`, all four RAISE -- their close camera was
+  (205, 0, 360, 155), which does not contain the well edge, so no frame draws
+  a full-height rule and the check refuses to guess rather than reporting a
+  reassuring zero.
+
+  The three traps are each pinned as a test, because they are the mistakes
+  this file records being made three times: comparing frame 0 with the
+  most-different frame measures the ZOOM; classifying by the generator's own
+  `touches` flag validates the generator against itself; and counting raw
+  connected components splits one object into many, because the well's bright
+  rule is drawn OVER it and the Golgi glyph is a scatter of separate strokes
+  (a straddling Golgi arrives as ~30 fragments, most of them wholly past the
+  edge, i.e. ~30 false interior removals).
+
+THE cytoplasm CAUSE, WHICH IS SMALL AND WAS NOT KNOWN. The entry above lists
+it as a one-off WEAK -- "a blob brightens; the nucleus and pathogen it is
+defined by subtracting are not in the frame". They are not in the frame, and
+it is not because nobody drew them. `tools/generate_setting_animations.py ::
+_cytoplasm` draws all four objects and then closes with
+
+    painter.line(_blob_points(180, 120, 92 - inset, 69 - inset, 0.3, 0.07),
+                 _mix(WHITE, 0.35 + 0.55 * action), 0.45, True)
+
+`Painter.line` has `fill_closed: bool = True`, so that last positional `True`
+(closed) also FILLS the polygon opaquely, over the three compartments drawn
+immediately above it. Bisected by drawing the scene one call at a time:
+
+    after cell + nucleus + pathogen + organelle   blue 1988  teal 1028  mag 300
+    after the closing painter.line               blue    0  teal    0  mag   0
+
+    FIX  pass `fill_closed=False`. That restores the compartments; the scene
+         then still needs them punched OUT of the cell fill, since the setting
+         is the cell mask MINUS them, not the cell mask with them on top.
+
+NOT APPLIED: `tools/generate_setting_animations.py` was outside this session's
+territory and was being edited concurrently. It is a two-line change and one
+`--only cytoplasm`.
+
+`organelle_watershed_spots`, the other one-off worth a cause: `_organelle_scene`
+cross-fades one 62x30 organelle at x=180 into two 32x25 organelles at x=150 and
+x=210. All three are the same multi-stroke Golgi glyph and the two products sit
+60 px apart, so they overlap each other and the fading original; the "after"
+state is one wide mush and the split is not visible. Separating the products,
+or sequencing the cross-fade instead of overlapping it, is the fix.
+
+THE MEASUREMENT IS BLIND IN BOTH DIRECTIONS, and this is the caveat to carry
+forward rather than the number. `measure_visible_change` is a floor, never a
+verdict:
+
+    cytoplasm    13.5%  -- 13th highest of 94, and shows nothing of its setting
+    crop_mode     1.8%  -- the box hops between compartments; one of the best
+
+Anything whose fault is "the picture shows the wrong thing" is still only as
+audited as somebody's eyes made it. That is why the record carries a note per
+animation and not a score.
+
+STILL OPEN: the 29 WEAK in `62_anim_audit.json`, which are five groups --
+8 intensity-percentile filters drawing the same composition as the matching
+area filter, 4 intensity splits that never draw what decides a split, 4 flow
+thresholds and 3 signal-to-noise ramps that show no DIRECTION (and
+flow_threshold's real direction is inverted: lowering it discards more), and
+10 one-offs of which `cytoplasm` and `organelle_watershed_spots` are the two
+that show the wrong thing rather than a faint one. `organelle_diameter` is
+also flagged: the drawing is fine, but settings.py documents the key as
+DEPRECEATED with no effect on the Cellpose-SAM path, so an animation showing a
+visible effect is misleading by context -- that one is a settings question,
+not a drawing one.

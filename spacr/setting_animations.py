@@ -390,6 +390,165 @@ def validate_animations_have_no_border_artifact(
     return failures
 
 
+#: A border-object animation zooms in before it removes anything, so a diff
+#: taken across the zoom measures the CAMERA and reports every object as
+#: changed. Only frames whose drawn well edge sits at the same column are
+#: comparable; this is how many such frames are needed to have a pair.
+_STEADY_FRAMES_NEEDED = 2
+
+#: The well perimeter is drawn near-white. A column of the frame belongs to
+#: it when nearly every pixel down the column is at least this bright.
+_WELL_RULE_BRIGHTNESS = 150
+
+#: The well's own bright rule is drawn OVER the objects, and the organelle
+#: glyph is a scatter of separate strokes, so one changed object arrives as
+#: many components. Closing the mask with a square this wide reunites them;
+#: 13 px is wider than the rule and than the gaps between Golgi strokes,
+#: and narrower than the gap between two drawn objects.
+_OBJECT_CLOSING = 13
+
+#: Components smaller than this are antialiasing along a moved edge, not an
+#: object that was removed.
+_MIN_OBJECT_PIXELS = 60
+
+
+def _animation_frames(path):
+    """Decode a GIF into a list of RGB arrays, or an empty list."""
+    import numpy as np
+    from PIL import Image
+
+    frames = []
+    try:
+        with Image.open(path) as image:
+            while True:
+                frames.append(np.asarray(image.convert("RGB"), dtype=np.int16))
+                image.seek(image.tell() + 1)
+    except EOFError:
+        pass
+    except Exception:
+        return []
+    return frames
+
+
+def measure_border_object_removal(path) -> Dict[str, int]:
+    """Classify what a "remove border objects" animation actually removes.
+
+    The maintainer's report -- one edge object AND one non-edge object
+    disappear -- was true, and three separate ways of measuring it agreed it
+    was fine. Each of those is avoided here, deliberately:
+
+    * **Not first-vs-last, and not "the frame most different from frame 0".**
+      This scene zooms in and back out, so the most-different frame is the
+      one at full zoom and that diff is dominated by the camera: every
+      object registers as changed. The pair used here is the FIRST and LAST
+      frames at which the drawn well edge sits at the same column, which is
+      the interval where the zoom is complete and only the removal happens.
+    * **Not the generator's own ``touches`` flag.** That flag is the thing
+      under test; a check that classifies objects by it validates the
+      generator against itself and reported "all correct" on the assets that
+      shipped the bug. The well edge is recovered from the drawn pixels.
+    * **Not raw connected components.** The well's bright rule is drawn over
+      the objects and splits each into a left and a right half, and the
+      organelle glyph is a scatter of separate strokes. Classifying those
+      fragments individually reports a straddling Golgi as ~30 interior
+      objects. The mask is closed first so one object is one component.
+
+    :param path: the GIF to measure.
+    :returns: ``{"edge_x", "before", "after", "crossing", "interior"}`` --
+        the drawn well edge column, the two frame indices compared, and how
+        many changed objects do and do not cross that edge.
+    :raises SettingAnimationError: if the animation cannot be measured,
+        which for this check is a failure rather than a zero: an unreadable
+        border animation is not a correct one.
+    """
+    import numpy as np
+    from scipy import ndimage
+
+    frames = _animation_frames(path)
+    if len(frames) < _STEADY_FRAMES_NEEDED:
+        raise SettingAnimationError(f"{path}: not enough frames to compare")
+
+    height = frames[0].shape[0]
+    columns = []
+    for frame in frames:
+        lit = (frame.min(axis=2) > _WELL_RULE_BRIGHTNESS).sum(axis=0)
+        column = int(np.argmax(lit))
+        columns.append((column, int(lit[column])))
+
+    spanning = [
+        index for index, (_, count) in enumerate(columns)
+        if count >= height - 2
+    ]
+    if not spanning:
+        raise SettingAnimationError(f"{path}: no frame draws a full well edge")
+    counts: Dict[int, int] = {}
+    for index in spanning:
+        counts[columns[index][0]] = counts.get(columns[index][0], 0) + 1
+    edge_x = max(sorted(counts), key=lambda column: counts[column])
+    steady = [index for index in spanning if columns[index][0] == edge_x]
+    if len(steady) < _STEADY_FRAMES_NEEDED:
+        raise SettingAnimationError(
+            f"{path}: the zoom never rests, so no two frames are comparable"
+        )
+
+    before, after = steady[0], steady[-1]
+    changed = np.abs(frames[after] - frames[before]).sum(axis=2) > _CHANGE_THRESHOLD
+    pad = _OBJECT_CLOSING
+    padded = np.pad(changed, pad, mode="constant", constant_values=False)
+    closed = ndimage.binary_closing(
+        padded, structure=np.ones((_OBJECT_CLOSING, _OBJECT_CLOSING), bool)
+    )[pad:-pad, pad:-pad]
+
+    labels, count = ndimage.label(closed)
+    crossing = interior = 0
+    for index in range(1, count + 1):
+        component = labels == index
+        if int((component & changed).sum()) < _MIN_OBJECT_PIXELS:
+            continue
+        columns_hit = np.nonzero(component.any(axis=0))[0]
+        if columns_hit[0] <= edge_x <= columns_hit[-1]:
+            crossing += 1
+        else:
+            interior += 1
+    return {
+        "edge_x": edge_x,
+        "before": before,
+        "after": after,
+        "crossing": crossing,
+        "interior": interior,
+    }
+
+
+def validate_border_animations_remove_only_edge_objects() -> Dict[str, int]:
+    """Every border animation must remove only objects crossing the well edge.
+
+    The setting says "delete every label touching an image edge". An
+    animation that also removes something in the middle of the well teaches
+    the opposite of the sentence beside it, and it looks finished while
+    doing so -- the file has the right size, the right digest, and 16% of
+    the frame changes.
+
+    This reads the SHIPPED GIFs. ``tests/test_border_animation_geometry.py``
+    checks the same property in the generator's spec, which is where the
+    fault was fixed; this is the half that still holds if an asset is
+    regenerated by a different build, edited, or shipped from a spec that
+    was never re-rendered.
+
+    :returns: ``{slug: interior_objects_removed}`` for each border animation
+        that removes something not crossing the edge. Empty when they are
+        all correct. Returned rather than raised so one report covers the
+        family instead of stopping at the first.
+    """
+    offenders: Dict[str, int] = {}
+    for animation in setting_animations():
+        if animation.scene != "border":
+            continue
+        interior = measure_border_object_removal(animation.path)["interior"]
+        if interior:
+            offenders[animation.slug] = interior
+    return offenders
+
+
 def validate_setting_animation_assets(*, check_hashes: bool = False) -> Dict[str, int]:
     """Validate packaged files and optionally recompute their SHA-256 hashes.
 
@@ -436,6 +595,10 @@ __all__ = [
     "animation_path_for_setting",
     "animations_by_setting",
     "iter_setting_animations",
+    "measure_border_object_removal",
+    "measure_visible_change",
     "setting_animations",
+    "validate_animations_show_something",
+    "validate_border_animations_remove_only_edge_objects",
     "validate_setting_animation_assets",
 ]
