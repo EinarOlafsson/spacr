@@ -618,11 +618,16 @@ def test_the_real_screens_whole_panel_set_lands_on_its_own_grid(qtbot):
     live pyqtgraph panels photographed through `live_tiles_from_panels`, and
     the result handed to the real screen's grid alongside the run's figures.
 
-    THIS IS THE TEST THE WIRING LEANS ON. `_pin_regression_graph` still pins
-    only the volcano, because `spacr/qt/screens/app_screen.py` belongs to
-    another session; the two lines that replace it are exactly the two here.
-    Until they land this proves the grid half is ready and correct, and after
-    they land it is the end-to-end check that the panel set reaches the grid.
+    THIS IS THE END-TO-END CHECK THAT THE PANEL SET REACHES THE GRID.
+
+    It used to say something else, and the something else stopped being true
+    without anybody noticing: "`_pin_regression_graph` still pins only the
+    volcano, because `app_screen.py` belongs to another session". The wiring
+    landed in `0e7fdce2` on 2026-08-17 and that method now hands
+    `live_tiles_from_panels` all nine panels. A comment that records who owned
+    a file on a Tuesday outlives the Tuesday and is then read as a statement
+    about the code -- which is how a test claiming to cover a gap ends up
+    covering a feature and nobody re-checks either.
     """
     pytest.importorskip("pyqtgraph")
     matplotlib = pytest.importorskip("matplotlib")
