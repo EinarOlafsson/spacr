@@ -349,3 +349,52 @@ the REAL RegressionResultsPanel: it opens with the control reading "guides
 only (n)".
 
 WHAT REMAINS in 147: nothing in this territory. The one-line handoff above.
+
+--------------------------------------------------------------------------------
+2026-08-18, LATER -- CORRECTING MY OWN HANDOFF, AND ONE BUG IN THE HALF THAT
+LANDED BESIDE IT
+--------------------------------------------------------------------------------
+
+MY EARLIER NOTE IS STALE AND IS CORRECTED HERE rather than left to be
+believed, which is what handoff section 0a is about. It said `level_note()`
+was written in regression_results.py and had no caller. While the plot widget
+half was being built, a concurrent session landed `2653384a regression panel:
+a run that fits twice says so`, which renames it `both_levels_note()` and DOES
+call it. The sentence half of section A is therefore shipped and the one-line
+handoff as I wrote it no longer applies.
+
+WHAT DOES APPLY IS A BUG IN IT, found by driving the real panel and measured:
+
+    on load    "220 coefficients. Click a point for detail.   guides only:
+                220 of 240 coefficients. The gene fit is in this run too --
+                switch with Level."
+    one click  "220 coefficients. Click a point for detail.
+                fraction:grna[g7_2]"
+
+THE SENTENCE IS GONE THE FIRST TIME THE USER USES THE PLOT. It is written
+through `set_status_note`, which fast_plots documents as "a sentence about the
+CLICKED thing" and which every click rewrites. That is the same
+half-the-run-invisible failure this section exists to fix, one click later --
+and it is exactly why `offer_levels` grew a `note=` of its own, with a slot in
+the status line that survives a redraw AND a click.
+
+THE FIX IS ONE LINE, IN ANOTHER TERRITORY, AND IT IS VERIFIED. Applied at
+runtime and re-measured:
+
+    def _offer_levels(self):
+        counts = self.level_counts()
+        self.volcano.offer_levels(
+            [(f"{label} ({counts.get(key, 0)})",
+              (lambda k=key: self.set_level(k)), key == self._level)
+             for key, label in self.LEVELS],
+            note=self.both_levels_note())          # <- this
+
+and `_mark_the_level_on_the_plots` stops writing it through the click slot.
+After that: "... guides only: 220 of 240 coefficients. The gene fit is in this
+run too -- switch with Level.   fraction:grna[g7_2]" -- both sentences, which
+is what `_compose` is for.
+
+QUEUED AS A STRICT XFAIL rather than narrated:
+tests/test_both_fits_are_visible.py::test_the_panels_level_sentence_survives_a_click.
+It flips to a failure the moment the line lands, which is the reminder to
+delete the marker.
