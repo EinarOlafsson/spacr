@@ -729,7 +729,7 @@ def _trial_settings(base_settings, trial, destination):
     os.makedirs(folder, exist_ok=True)
     settings["src"] = folder
     settings.setdefault("verbose", False)
-    settings.setdefault("toxo", False)
+    settings.setdefault("Toxoplasma", False)
     # THE QC SUITE IS OFF FOR A SWEEP UNLESS IT IS ASKED FOR.
     #
     # It costs ~5.8 s and writes ~19 figures plus a combined PDF per fit --
@@ -1046,7 +1046,7 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
         # Every trial writes into its own folder, so a sweep never overwrites
         # a previous answer and any trial can be reopened afterwards.
         settings.setdefault("verbose", False)
-        settings.setdefault("toxo", False)
+        settings.setdefault("Toxoplasma", False)
 
         row = {"trial_id": trial["trial_id"], "folder": folder,
                "preparation_key": _preparation_key(settings)}
@@ -1329,7 +1329,7 @@ def settings_for_trial(base_settings: Mapping[str, Any], row: Mapping[str, Any],
         # stays callable from a test, a dry run or a preview without leaving
         # directories behind. rerun_trial creates the folder it writes to.
         settings["src"] = str(folder)
-    settings.setdefault("toxo", False)
+    settings.setdefault("Toxoplasma", False)
     return settings
 
 

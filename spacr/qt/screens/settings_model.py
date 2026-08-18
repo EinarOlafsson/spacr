@@ -840,7 +840,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # model's output is turned into a claim, and a user reading the
             # model section had to scroll past three others to find out.
             "multiple_testing_method", "fdr_alpha", "threshold_method",
-            "threshold_multiplier", "toxo",
+            "threshold_multiplier", "Toxoplasma",
         )),
         # The estimator-specific knobs, added by the robust and regularised
         # fits after this layout was first written. They landed in
