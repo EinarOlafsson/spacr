@@ -201,6 +201,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    # spaCR's OWN summary of a run, for the eighteen of nineteen regression
+    # types statsmodels writes none for and for the permutation path, which
+    # has no fitted model at all. Every field is a number or a stated reason.
+    "regression_summary",
     # Where each gene's protein lives, for colouring ONE compartment against
     # grey. Pure pandas: the join belongs to the screen, not to the picture.
     "localisation",
