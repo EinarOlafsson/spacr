@@ -88,7 +88,19 @@ def publish(fig, path=None, *, fmt=None, dpi=None, close=False, **kwargs):
     A SINK THAT RAISES DOES NOT LOSE THE FILE. The file is written first and
     the announcement is best-effort: a GUI that has gone away must not take
     the run's output with it.
+
+    A FIGURE THAT WAS NEVER DRAWN IS NOT A FIGURE. ``fig=None`` writes
+    nothing, announces nothing and returns None, because the panels that come
+    back optional are exactly the ones a caller forgets to check: `ml_analysis`
+    returns ``feature_importance_fig = None`` for every model without
+    ``feature_importances_`` -- logistic regression and
+    HistGradientBoostingClassifier among the offered ones -- and the call site
+    handed it straight to ``savefig``, which took a whole scoring run down
+    after the model had been fitted and every object scored. Losing a run over
+    a picture that was never drawn is the worst trade in this file.
     """
+    if fig is None:
+        return None
     written = None
     if path is not None:
         from .plot import save_figure

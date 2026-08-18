@@ -320,8 +320,31 @@ def _house(axis, title="", xlabel="", ylabel=""):
     return ink
 
 
-def _finish(fig, save_path, dpi=200):
-    """Lay the figure out, write it when there is somewhere to write it, close it.
+def _finish(fig, save_path, dpi=None, fmt=None):
+    """Lay the figure out, PUBLISH it when there is somewhere to write it, close it.
+
+    Published, not saved. Instruction 139 C: "several graphs are saved but I
+    cannot see them in the software". This module wrote its panels with a bare
+    ``fig.savefig`` and never called ``show``, and a figure reaches the spaCR
+    gallery by exactly one route -- so the design, residual and inference
+    panels were on disk and none of them was in the application, which is the
+    reported bug precisely. :func:`spacr.figure_sink.publish` saves and
+    announces as ONE event, so the file and the tile can no longer disagree.
+
+    Two things the raw ``savefig`` also got wrong and ``publish`` fixes, both
+    through :func:`spacr.plot.save_figure`:
+
+    * the FORMAT is the user's preference rather than whatever extension the
+      caller happened to type, and the file NAME follows the format -- a PNG
+      written to ``design.pdf`` is a file no viewer opens;
+    * the DPI is the preference's, and it reaches a PDF as well, which matters
+      because these panels are full of scatter clouds.
+
+    ``fmt`` forces one particular format, for a caller that genuinely needs
+    one (``write_diagnostic_suite`` when it was asked for named formats), and
+    ``dpi`` forces a resolution. Both default to None, which is what lets the
+    preference through; the old hard-coded 200 applied to PNG only and was the
+    reason the resolution preference reached none of these panels.
 
     The figure is closed on BOTH paths. These figures come from ``plt.subplots``,
     so pyplot holds a reference to every one of them until it is closed;
@@ -330,8 +353,14 @@ def _finish(fig, save_path, dpi=200):
     dict without keeping the picture -- leaked one figure per call. Across a
     parameter sweep that is hundreds of live figures and matplotlib's
     "More than 20 figures have been opened" warning.
+
+    :returns: the path actually written, which is not necessarily the path
+        asked for. A caller that records the requested name records a file
+        that is not there.
     """
     import matplotlib.pyplot as plt
+
+    from .figure_sink import publish
 
     fig.tight_layout()
     try:
@@ -339,16 +368,15 @@ def _finish(fig, save_path, dpi=200):
             return None
         path = os.fspath(save_path)
         os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
-        fig.savefig(path, dpi=dpi if path.lower().endswith(".png") else None,
-                    bbox_inches="tight")
-        return path
+        written = publish(fig, path, fmt=fmt, dpi=dpi, bbox_inches="tight")
+        return written or path
     finally:
         plt.close(fig)
 
 
 def plot_design_diagnostics(fractions: pd.DataFrame, *,
                             block: pd.Series | None = None,
-                            save_path=None,
+                            save_path=None, save_format=None,
                             presence_threshold: float = 0.0):
     """Six panels describing the design, before any model is fitted."""
     import matplotlib.pyplot as plt
@@ -456,12 +484,13 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
         axis.set_title("Occupancy")
 
         fig.suptitle("Screen design diagnostics", fontsize=13, fontweight="bold")
-        return _finish(fig, save_path), report
+        return _finish(fig, save_path, fmt=save_format), report
 
 
 def plot_residual_diagnostics(observed, fitted, *,
                               design: np.ndarray | None = None,
-                              save_path=None, label: str = ""):
+                              save_path=None, save_format=None,
+                              label: str = ""):
     """The four classical residual panels, plus Cook's distance."""
     import matplotlib.pyplot as plt
     from scipy import stats
@@ -561,11 +590,12 @@ def plot_residual_diagnostics(observed, fitted, *,
             title = f"{title} — {label}"
         fig.suptitle(title, fontsize=13, fontweight="bold")
         report = residual_report(y, yhat, design=design)
-        return _finish(fig, save_path), report
+        return _finish(fig, save_path, fmt=save_format), report
 
 
 def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
-                               save_path=None, label: str = ""):
+                               save_path=None, save_format=None,
+                               label: str = ""):
     """Is the null calibrated, and how much of the family is non-null?
 
     A well-behaved screen gives a flat P-value histogram with a spike at zero.
@@ -654,7 +684,7 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
         if adjusted is not None:
             q = np.asarray(adjusted, dtype=float)
             report["discoveries"] = int(np.sum(q[np.isfinite(q)] < alpha))
-        return _finish(fig, save_path), report
+        return _finish(fig, save_path, fmt=save_format), report
 
 
 def write_diagnostic_suite(destination, *, fractions=None, block=None,
@@ -662,7 +692,7 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
                            p_values=None, adjusted=None, alpha: float = 0.05,
                            label: str = "",
                            presence_threshold: float = 0.0,
-                           formats: Sequence[str] = ("pdf", "png")
+                           formats: Sequence[str] | None = None
                            ) -> Mapping[str, str]:
     """Write every diagnostic the supplied inputs can support.
 
@@ -671,21 +701,45 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
     all of them. Each block is skipped silently when its inputs are absent, and
     a block that raises is recorded as an error rather than aborting the run --
     a diagnostic that fails must never take the analysis down with it.
+
+    :param formats: force particular formats, one file per format. ``None``,
+        the default, writes ONE file per panel in the format the user's figure
+        preference asks for.
+
+        IT USED TO DEFAULT TO ``("pdf", "png")``, and that was wrong twice
+        over. Each entry re-runs the whole panel -- the same numbers computed
+        and the same picture drawn a second time -- and the pair ignored the
+        figure-format preference completely, so a user who had chosen PNG got
+        a PDF anyway. It also broke the rule instruction 139 C sets, that a
+        saved figure and a visible one are the same event: two files for one
+        panel is two tiles in the gallery for one picture.
     """
     destination = os.path.abspath(os.path.expanduser(os.fspath(destination)))
     os.makedirs(destination, exist_ok=True)
     stem = f"_{label}" if label else ""
     written: dict[str, str] = {}
     reports: dict[str, dict] = {}
+    # None is the sentinel for "the preference decides"; it has to survive as
+    # far as `save_figure`, so it is a one-element list rather than a resolved
+    # format string.
+    requested = [None] if formats is None else [str(f) for f in formats]
 
     def _emit(name, function, **kwargs):
-        for suffix in formats:
-            path = os.path.join(destination, f"{name}{stem}.{suffix}")
+        for fmt in requested:
+            path = os.path.join(destination, f"{name}{stem}")
             try:
-                _written, report = function(save_path=path, **kwargs)
+                _written, report = function(save_path=path, save_format=fmt,
+                                            **kwargs)
             except Exception as error:  # noqa: BLE001 - diagnostics are advisory
+                suffix = fmt or "figure"
                 written[f"{name}_{suffix}_error"] = f"{type(error).__name__}: {error}"
                 continue
+            # KEYED BY WHAT WAS WRITTEN, not by what was asked for. The
+            # extension `save_figure` chose is the only one that names a file
+            # that exists, and a manifest entry pointing at a file that is not
+            # there is worse than no entry.
+            suffix = (os.path.splitext(str(_written))[1].lstrip(".").lower()
+                      or (fmt or "figure"))
             written[f"{name}_{suffix}"] = str(_written)
             reports[name] = report
 

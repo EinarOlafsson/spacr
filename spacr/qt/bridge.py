@@ -950,6 +950,36 @@ class PipelineWorker(QObject):
             emitted_ids = set()
             fig_counter = [0]
 
+            def _already_emitted(fig):
+                """Has this exact picture already gone to the gallery?
+
+                ONE PICTURE, ONE TILE, whichever route delivered it. There are
+                two routes now -- ``plt.show()`` and
+                :func:`spacr.figure_sink.publish` -- and a module that saves a
+                figure it has also shown would otherwise get two tiles for one
+                picture. The acceptance for instruction 139 C is that the
+                gallery and the run folder hold the SAME number of figures, so
+                a double counts as loudly as a miss.
+
+                BOTH HALVES HAVE TO AGREE, and each is unsafe alone. ``id()``
+                alone is not: a closed figure's address is reused by the next
+                one, and dropping THAT figure loses a picture, which is worse
+                than showing one twice. The attribute alone is not either: it
+                lives on the figure and outlives the run, so a figure cached
+                across two runs would appear only in the first.
+                """
+                return (id(fig) in emitted_ids
+                        and getattr(fig, "_spacr_emitted", False))
+
+            def _mark_emitted(fig):
+                emitted_ids.add(id(fig))
+                try:
+                    fig._spacr_emitted = True
+                except Exception:                              # noqa: BLE001
+                    # A figure that refuses an attribute still gets its tile;
+                    # it only loses the cross-route half of the guard.
+                    pass
+
             def _capture_show(*args, **kwargs):
                 # Emit ordinary figures only once. Figures explicitly marked
                 # ``_spacr_live_update`` are re-rendered and emitted in place;
@@ -961,11 +991,11 @@ class PipelineWorker(QObject):
                 # hangs while figures stream in.
                 for num in list(plt.get_fignums()):
                     fig = plt.figure(num)
-                    already_emitted = id(fig) in emitted_ids
+                    already_emitted = _already_emitted(fig)
                     if already_emitted and not getattr(
                             fig, "_spacr_live_update", False):
                         continue
-                    emitted_ids.add(id(fig))
+                    _mark_emitted(fig)
                     png_path = ""
                     try:
                         import tempfile
@@ -1000,6 +1030,15 @@ class PipelineWorker(QObject):
             # worker thread, so the GUI thread only moves a file and loads a
             # pixmap.
             def _publish_figure(fig, path=""):
+                # A picture that has already been shown is not a second
+                # picture because it was also saved. `save the sheet, then
+                # plot_plates(verbose=True) shows it` is a real sequence in
+                # `generate_ml_scores`, and without this the gallery held two
+                # tiles for one file.
+                if _already_emitted(fig) and not getattr(
+                        fig, "_spacr_live_update", False):
+                    return
+                _mark_emitted(fig)
                 png_path = ""
                 try:
                     import tempfile
