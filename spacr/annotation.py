@@ -31,10 +31,17 @@ THREE THINGS MAKE THIS SAFE, and each is a bug this project has already had.
 WHAT IS BUNDLED, and why it is small enough to bundle:
 
     toxoplasma_metadata.csv  2.97 MB  gene name, product, expression
+    deeptmhmm.csv            1.11 MB  signal peptide and transmembrane
     phenotype.csv            0.48 MB  the published CRISPR fitness screens
-    deeptmhmm.csv            0.46 MB  signal peptide and transmembrane
     lopit.csv                0.20 MB  hyperLOPIT/TAGM compartment
     uniprot.csv              0.13 MB  accession
+
+deeptmhmm.csv is this project's own DeepTMHMM run over 8,140 proteins, at 82
+columns: the summary (`dtm_type`, `n_tm`, `sp_length`) that :func:`annotate`
+joins, and the coordinates of every one of the up to 24 transmembrane
+segments, which :func:`supplementary` writes as its own table. The 25
+per-segment SEQUENCE columns of the source file are dropped -- they are 16 of
+its 17 MB and every one of them is recoverable from the proteome.
 """
 
 from __future__ import annotations
@@ -290,10 +297,57 @@ def annotate(frame, *, key_column: Optional[str] = None, quiet: bool = False):
     return out
 
 
+#: Columns of the supplementary topology table that are not per-segment.
+_TOPOLOGY_SUMMARY = ("gene_nr", "identifier", "accession", "length",
+                     "dtm_type", "n_signal", "n_tm", "sp_start", "sp_end",
+                     "sp_length")
+
+
+def supplementary(genes=None, path=None):
+    """The full DeepTMHMM table, as its own supplementary data table.
+
+    Asked for on 2026-08-17: "add that as a suplimentary data table (a csv
+    with all the information from DeepTMHMM on all toxo proteins)".
+
+    :param genes: restrict to these genes -- any spelling
+        :func:`gene_number` accepts. ``None`` writes all 8,140 proteins.
+    :param path: write here as CSV as well as returning the frame.
+    :returns: the table, or ``None`` when DeepTMHMM is not bundled.
+
+    SEPARATE FROM :func:`annotate` ON PURPOSE. The per-segment coordinates
+    are 72 columns, and a coefficient export carrying them is a table nobody
+    opens twice. What belongs beside a coefficient is "does this protein have
+    a signal peptide, and how many transmembrane helices"; where each helix
+    starts is a different question and gets a different file.
+
+    ONLY THE SEGMENTS THAT EXIST. A screen of soluble proteins gets a table
+    ending at `n_tm`, not 72 columns of nothing -- the same rule the rest of
+    this module follows.
+    """
+    frame = _read("deeptmhmm.csv")
+    if frame is None:
+        return None
+    if genes is not None:
+        wanted = {gene_number(one) for one in genes} - {None}
+        keys = frame["gene_nr"].astype("string").map(gene_number)
+        frame = frame.loc[keys.isin(wanted)]
+    live = [c for c in frame.columns
+            if c in _TOPOLOGY_SUMMARY or frame[c].notna().any()]
+    frame = frame[live].reset_index(drop=True)
+    if path is not None:
+        target = os.path.abspath(os.path.expanduser(os.fspath(path)))
+        os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
+        frame.to_csv(target, index=False)
+        print(f"Toxoplasma annotation: DeepTMHMM topology for "
+              f"{len(frame)} protein(s) written to {target}")
+    return frame
+
+
 def clear_cache() -> None:
     """Forget the bundled tables. For tests, and for a reinstall mid-session."""
     for _label, source in SOURCES:
         source.cache_clear()
 
 
-__all__ = ["SOURCES", "annotate", "clear_cache", "columns", "gene_number"]
+__all__ = ["SOURCES", "annotate", "clear_cache", "columns", "gene_number",
+           "supplementary"]
