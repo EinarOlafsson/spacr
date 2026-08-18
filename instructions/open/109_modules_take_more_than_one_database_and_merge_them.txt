@@ -293,3 +293,56 @@ directory on `sys.path`, not the cwd, so a check written to a scratch file
 imported spaCR from a different checkout on this machine entirely and reported
 that a just-made edit had not taken effect. `python -c`, or
 `PYTHONPATH=<repo>`, or pytest -- but not a bare script path.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE TWO HANDOFFS ARE CLOSED, AND BOTH WERE MEASURED FIRST.
+Commit f20f4a12.
+--------------------------------------------------------------------------------
+
+Both were the same mistake in two places: code still asking the OLD question
+after `src` stopped being a text box on the merging modules.
+
+1. A DROPPED FOLDER USED TO EVICT THE SET.  Measured on the real Image UMAP
+   screen with the real handler, dropping plate1, plate2 and plate3 in turn:
+
+       after drop plate1 -> ['/tmp/.../plate1']
+       after drop plate2 -> ['/tmp/.../plate2']
+       after drop plate3 -> ['/tmp/.../plate3']
+
+   `_set_src_on` wrote through `set_value_for_key`, which calls `set_value`,
+   which REPLACES. Two of the three merges the user asked for were discarded
+   with nothing said, which is worse than a refusal.
+
+   A drop is the same gesture as the control's own "Add project folders…"
+   button, whose tooltip already promises "adds to the set rather than
+   replacing it, so three plates can be gathered in three trips". So
+   `_add_to_source_set` runs first now and calls `add_sources`. After:
+
+       after drop plate3 -> ['.../plate1', '.../plate2', '.../plate3']
+       collect src:        ['.../plate1', '.../plate2', '.../plate3']
+
+   DROPPING A FOLDER ALREADY IN THE SET IS A SUCCESSFUL DROP. `add_sources`
+   returns how many were NEW, which is a different question -- returning
+   False there would raise "this module has no source field to receive the
+   drop" at a user whose screen is pointing exactly where they pointed it.
+
+   A module whose `src` IS a text box still gets REPLACE, and there is a test
+   for it: dropping a second folder on Mask means "look at this one instead",
+   because there is no set to join.
+
+2. THE EMPTY-STATE CARD SAT ON TOP OF THREE LOADED DATABASES.
+   `_build_empty_state_banner` decided "is src set?" with
+   `isinstance(src, QLineEdit)`, so `existing` stayed `""` whatever was
+   loaded and "Point image umap at some data" stayed up for the whole
+   session. It asks `_settings_src_path()` now, which already knew how to
+   read both shapes -- and asking IT is what stops the next control that
+   replaces a QLineEdit reintroducing this.
+
+   The auto-hide follows `value_changed` as well as `textChanged`, and it
+   goes BOTH ways: removing the last database returns the screen to exactly
+   the state the card describes, and a set can be emptied where a typed path
+   cannot.
+
+TESTS: tests/qt/test_a_dropped_folder_joins_the_source_set.py, 7 of them, on
+the REAL Image UMAP screen and the real handler -- both bugs were invisible to
+a double, because a double has a QLineEdit. Four of the seven fail at HEAD.
