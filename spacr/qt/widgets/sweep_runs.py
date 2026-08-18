@@ -39,9 +39,12 @@ is what makes the two comparable, and comparing them is the entire reason the
 tab exists.
 
 The recorders are underscored deliberately: `tests/test_api_i18n_extractor.py`
-holds an EXACT count of the documented public API, and that file belongs to
-another session right now. The two names want promoting to `record_run` /
-`update_run` in the same commit that bumps the count.
+holds an EXACT count of the documented public API, so promoting them to
+`record_run` / `update_run` has to bump that count in the same commit. That is
+the whole of what is left to do it; the sentence here used to add "and that
+file belongs to another session right now", which was true on 2026-08-17 and
+is not a reason today. A temporary coordination fact written into a permanent
+comment reads later as a standing constraint.
 """
 
 from __future__ import annotations
@@ -55,6 +58,22 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWi
 #: What the sweep writes its table to, inside the destination folder.
 RESULTS_FILENAME = "sweep_results.csv"
 
+#: The column that says WHICH RUN IS LOADED -- the one every view on this
+#: screen is describing. Requested 2026-08-18: "there should be a checkbox in
+#: runs that specifies which run is loaded if there are several runs".
+#:
+#: A COLUMN RATHER THAN A CHECKBOX, and the difference is only in the widget:
+#: the table is the shared `ResultsTable`, which draws text, and a second
+#: table implementation to carry one tick box is a second set of bugs. It
+#: reads the same way -- one row is marked, the rest are blank -- and it
+#: sorts, filters and copies with the rest of the row.
+LOADED_COLUMN = "loaded"
+
+#: What that column holds for the loaded run. Blank for every other row: a
+#: column of "no" against one "yes" is noise, and the eye is looking for the
+#: single mark.
+LOADED_MARK = "loaded"
+
 #: The columns worth reading first, in this order, when the table has them.
 #: Settings, then WHAT WENT IN, then what came out: a hit count means little
 #: without the size of the design behind it, and two trials differing only by
@@ -64,6 +83,7 @@ RESULTS_FILENAME = "sweep_results.csv"
 #: first question over a mixed table is WHICH RUN THIS IS -- a trial number
 #: names nothing when half the rows are not trials.
 PREFERRED_COLUMNS = (
+    LOADED_COLUMN,
     "run", "source",
     "trial_id", "status", "regression_type", "inference", "analysis_unit",
     "agg_type", "transform", "multiple_testing_method", "fdr_alpha",
@@ -89,11 +109,36 @@ RUN_SETTING_COLUMNS = (
 SOURCE_RUN = "run"
 SOURCE_REFIT = "re-fit"
 SOURCE_SWEEP = "sweep trial"
+#: A run opened DELIBERATELY from disk, including one from an earlier
+#: session. Instruction 154 G: a run on disk is a first-class run, not a
+#: degraded one -- it gets a row, a source, its settings read back beside its
+#: results, and it can be the loaded run like any other.
+SOURCE_DISK = "on disk"
 
 #: A run that has been started and has not come back yet. Not "ok": a run
 #: still going has produced nothing to look at, and a row that claims
 #: otherwise is a click that opens last month's folder.
 STATUS_RUNNING = "running"
+
+
+def _is_ok(row) -> bool:
+    """Whether a run row has results behind it, so it can be the loaded run.
+
+    A MISSING STATUS COUNTS AS OK, which is the same reading `_show_trial`
+    takes: a sweep's CSV need not carry the column, and treating its absence
+    as a failure would make every trial in an older table unloadable. NaN is
+    handled explicitly -- concatenating a session run into a sweep frame fills
+    the column with it, and ``str(nan)`` is ``'nan'``, which is not a status.
+    """
+    if not isinstance(row, dict):
+        return False
+    status = row.get("status", "ok")
+    if status is None:
+        return True
+    text = str(status).strip()
+    if not text or text.lower() == "nan":
+        return True
+    return text == "ok"
 
 
 def ordered_columns(frame) -> list:
@@ -119,6 +164,12 @@ class SweepRunsPanel(QWidget):
 
     trial_activated = Signal(dict)
     loaded = Signal(int)
+    #: Emitted with the row of the run that is now the LOADED one -- the run
+    #: every view on this screen is describing. Emitted for the automatic
+    #: cases too (a run finishing, a folder holding exactly one run), because
+    #: a view that only learns about deliberate choices shows the wrong run
+    #: after the common one.
+    loaded_run_changed = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -132,6 +183,17 @@ class SweepRunsPanel(QWidget):
         self._status = QLabel("Nothing run yet.")
         self._status.setWordWrap(True)
         header.addWidget(self._status, 1)
+        # A RUN ON DISK IS A FIRST-CLASS RUN (154 G). An earlier session's
+        # results folder is opened here, gets a row beside this session's own,
+        # and becomes the loaded run -- rather than being something the user
+        # can only reach by re-running a fit that already finished.
+        self._open = QPushButton("Load run…")
+        self._open.setToolTip(
+            "Open a run's results folder from disk — including one from an "
+            "earlier session. It joins the table as a run like any other and "
+            "becomes the loaded run.")
+        self._open.clicked.connect(lambda: self.load_run_from_disk())
+        header.addWidget(self._open)
         self._reload = QPushButton("Reload")
         self._reload.setToolTip(
             "Re-read the results table. A sweep writes each trial as it "
@@ -164,6 +226,20 @@ class SweepRunsPanel(QWidget):
         #: the same kind of thing as a trial and belong in the same table.
         self._recorded: "dict[int, dict]" = {}
         self._next_handle = 0
+        #: WHICH RUN IS LOADED, as the key :meth:`_row_key` gives a row --
+        #: its folder when it has one, its name when it does not. A key
+        #: rather than an index, because the table is rebuilt from scratch
+        #: every time a run is recorded and an index would name a different
+        #: run afterwards.
+        self._loaded_key = ""
+        #: The sentence the last load or refusal added to the status line,
+        #: kept so moving the mark can rewrite the line without losing it.
+        self._source_note = ""
+        #: True while :meth:`_rebuild` is refilling the table. The re-select
+        #: it does at the end would otherwise read as a user picking a row and
+        #: re-emit `trial_activated`, which re-loads the results panel on
+        #: every recorded run.
+        self._rebuilding = False
 
     # ------------------------------------------------------------------ load
 
@@ -199,8 +275,10 @@ class SweepRunsPanel(QWidget):
         # shows a row -- which is no longer the same question, because this
         # session's own runs are rows too. Deliberately left as a comment
         # rather than a docstring: a docstring here is public API surface, and
-        # `tests/test_api_i18n_extractor.py` holds an exact count of that
-        # which another session owns right now.
+        # `tests/test_api_i18n_extractor.py` holds an exact count of that, so
+        # promoting this to a docstring means bumping the count in the same
+        # commit. (It used to say the count file "belongs to another session
+        # right now" -- true on 2026-08-17, not a constraint today.)
         self._sweep_frame = frame if frame is not None and len(frame) else None
         if self._sweep_frame is None and not source:
             source = "The sweep has recorded no trials yet."
@@ -251,12 +329,266 @@ class SweepRunsPanel(QWidget):
             return False
         row.update({name: value for name, value in fields.items()
                     if value is not None})
+        # A RUN THAT FINISHES BECOMES THE LOADED RUN, with no step in
+        # between (154 G): "i just ran a regression so that should be loaded
+        # automatically". The views were being told nothing had been loaded
+        # by the run the user had just watched finish.
+        if _is_ok(row):
+            self._loaded_key = self._row_key(row)
         self._rebuild()
         return True
+
+    def load_run_from_disk(self, folder: str = "") -> bool:
+        """Open a run's results folder and make it the loaded run.
+
+        :param folder: the run folder. ``""`` asks for one -- which is the
+            button's path, and the reason a test always passes one: a static
+            file dialog runs its event loop in C++ and would hang a headless
+            run.
+        :returns: True when a run was opened.
+
+        A RUN ON DISK IS A FIRST-CLASS RUN (154 G). It gets a row beside this
+        session's own, described by the SAME columns -- its settings are read
+        back from beside its results, so an old run and a fresh one are
+        comparable, which is the entire reason this tab exists. It is not a
+        degraded mode of "re-run it and look again".
+        """
+        if not folder:
+            from PySide6.QtWidgets import QFileDialog
+
+            folder = QFileDialog.getExistingDirectory(
+                self, "Choose a run's results folder", self._folder or "")
+            if not folder:
+                return False
+        try:
+            folder = os.path.abspath(os.path.expanduser(os.fspath(folder)))
+        except TypeError:
+            return False
+
+        from .regression_results import RESULT_FILENAMES, find_results_table
+
+        table = find_results_table(folder)
+        if not table:
+            # NAMED, not a silent no-op. The user picked a folder; being told
+            # nothing happened is the failure this repository keeps fixing.
+            self._rebuild(f"No run in {folder}: none of "
+                          f"{', '.join(RESULT_FILENAMES)} is in it or under "
+                          f"it.")
+            return False
+        run_folder = os.path.dirname(table)
+
+        handle = self._handle_for_folder(run_folder)
+        if handle is None:
+            self._next_handle += 1
+            handle = self._next_handle
+            row = {
+                "run": self._name_for_folder(run_folder),
+                "source": SOURCE_DISK,
+                "status": "ok",
+                "folder": run_folder,
+            }
+            # ITS OWN SETTINGS, so an old run is described by the same columns
+            # as a new one. Without them the row is a name and a folder, and
+            # two runs cannot be compared on the settings that differ.
+            try:
+                from ...refit import settings_of_run
+
+                settings = settings_of_run(table) or {}
+            except Exception:                                    # noqa: BLE001
+                settings = {}
+            for name in RUN_SETTING_COLUMNS:
+                value = settings.get(name)
+                if value is not None:
+                    row[name] = value
+            self._recorded[handle] = row
+
+        self._loaded_key = self._row_key(self._recorded[handle])
+        self._rebuild(f"Loaded the run in {run_folder}.")
+        record = self.loaded_run() or dict(self._recorded[handle])
+        self.loaded_run_changed.emit(record)
+        # AND THE VIEWS FOLLOW IT. `trial_activated` is what re-points the
+        # results panel, the summary and the figure grid; a run that is
+        # marked loaded and shown nowhere would be the same broken click as
+        # a row that does nothing.
+        self.trial_activated.emit(record)
+        return True
+
+    def _handle_for_folder(self, folder: str):
+        """The handle of the recorded row for ``folder``, or ``None``.
+
+        Opening the same run twice is one row, not two: the second would be
+        indistinguishable from a re-run, which is a different event.
+        """
+        for handle, row in self._recorded.items():
+            existing = row.get("folder")
+            if isinstance(existing, str) and existing and os.path.abspath(
+                    os.path.expanduser(existing)) == folder:
+                return handle
+        return None
+
+    def _name_for_folder(self, folder: str) -> str:
+        """A row name for a run opened off disk, unique in this table.
+
+        A run folder is ``results/<kind>_<n>``, so the basename alone is
+        ``ols_3`` -- readable, and ambiguous across two screens. The parent is
+        added only when the basename is already taken, because a name that is
+        always a path is a name nobody can scan.
+        """
+        base = os.path.basename(folder.rstrip(os.sep)) or folder
+        taken = {str(row.get("run")) for row in self._recorded.values()}
+        if base not in taken:
+            return base
+        parent = os.path.basename(os.path.dirname(folder.rstrip(os.sep)))
+        longer = os.path.join(parent, base) if parent else folder
+        if longer not in taken:
+            return longer
+        return folder
 
     def _recorded_rows(self) -> list:
         """This session's runs, oldest first."""
         return [dict(row) for _handle, row in sorted(self._recorded.items())]
+
+    # ------------------------------------------------------ which is loaded
+
+    @staticmethod
+    def _row_key(row) -> str:
+        """What names a run across a rebuild: its folder, else its name.
+
+        The folder first because it is what a view actually needs -- the
+        results table, the summary and ``regression_data.csv`` are all in it
+        -- and because two runs of the same screen carry the same label and
+        different folders.
+        """
+        if not isinstance(row, dict):
+            return ""
+        folder = row.get("folder")
+        if isinstance(folder, str) and folder.strip():
+            return os.path.abspath(os.path.expanduser(folder.strip()))
+        name = row.get("run")
+        return str(name).strip() if isinstance(name, str) else ""
+
+    def loaded_run(self) -> Optional[dict]:
+        """The run every view on this screen is describing, or ``None``.
+
+        Read off the composed frame rather than off the recorded dict, so a
+        sweep trial and a session run answer the same way -- which is the
+        whole reason they share one table.
+        """
+        if self._frame is None:
+            return None
+        for _index, row in self._frame.iterrows():
+            record = row.to_dict()
+            if self._row_key(record) and self._row_key(
+                    record) == self._loaded_key:
+                return record
+        return None
+
+    def loaded_run_folder(self) -> str:
+        """The loaded run's folder, or ``""``. What a view actually needs."""
+        record = self.loaded_run()
+        folder = (record or {}).get("folder")
+        return str(folder) if isinstance(folder, str) and folder.strip() else ""
+
+    def set_loaded_run(self, key) -> bool:
+        """Make ``key`` the loaded run. ``key`` is a folder or a run name.
+
+        :returns: True when a row matched. False rather than a blank mark for
+            a run this table does not hold -- a tick against nothing is worse
+            than none, because it reads as an answer.
+        """
+        if key is None:
+            return False
+        wanted = str(key).strip()
+        if not wanted:
+            return False
+        expanded = os.path.abspath(os.path.expanduser(wanted))
+        for record in self._all_rows():
+            key = self._row_key(record)
+            if key and key in (wanted, expanded):
+                changed = self._loaded_key != key
+                self._loaded_key = key
+                if changed:
+                    # The note describes the LAST LOAD, which this supersedes.
+                    # Left alone it produced "Loaded: ols_1. Loaded the run in
+                    # .../ols_2." -- one sentence naming two runs.
+                    self._source_note = ""
+                self._paint_the_loaded_mark()
+                if changed:
+                    record = self.loaded_run() or record
+                    self.loaded_run_changed.emit(record)
+                    # AND THE VIEWS FOLLOW THE CHOICE. Moving the mark and
+                    # leaving the results panel, the summary and the figure
+                    # grid on the previous run is the failure 154 G is about:
+                    # the choice has to be visible from the views that depend
+                    # on it, not only from the tab that sets it.
+                    self.trial_activated.emit(record)
+                return True
+        return False
+
+    def _all_rows(self) -> list:
+        """Every run the table is SHOWING, in the order it shows them.
+
+        Read off the composed frame rather than off the two halves it was
+        built from: a sweep trial's name is derived during the rebuild
+        (``trial 2`` from ``trial_id``), so a search over the raw sweep frame
+        cannot match the name the user is looking at.
+        """
+        if self._frame is None:
+            return []
+        return [row.to_dict() for _index, row in self._frame.iterrows()]
+
+    def _paint_the_loaded_mark(self) -> None:
+        """Move the mark to the loaded run WITHOUT rebuilding the table.
+
+        A rebuild from inside a selection handler destroys the item Qt is
+        still holding -- ``select_key`` came back to a deleted C++ object and
+        raised -- and it drops the selection a moment after the user made it.
+        The mark is one cell per row; moving it is not a reason to refill a
+        table of sixty trials either.
+        """
+        frame = self._frame
+        if frame is None or LOADED_COLUMN not in frame.columns:
+            return
+        column = list(frame.columns).index(LOADED_COLUMN)
+        marks = [LOADED_MARK if self._row_key(row.to_dict()) == self._loaded_key
+                 and self._loaded_key else ""
+                 for _index, row in frame.iterrows()]
+        frame[LOADED_COLUMN] = marks
+        table = self.table.table
+        for row in range(table.rowCount()):
+            item = table.item(row, column)
+            if item is None:
+                continue
+            index = item.data(0x0100)              # Qt.UserRole: the frame row
+            if index is None or not 0 <= int(index) < len(marks):
+                continue
+            item.setText(marks[int(index)])
+        self._status.setText(self._describe(frame, self._source_note))
+
+    def _settle_the_loaded_run(self, frame) -> None:
+        """Keep the mark on a run that still exists, or place it.
+
+        ONE RUN IN THE FOLDER IS THE LOADED RUN -- there is nothing to choose
+        between (154 G). Several means the choice is the user's and the mark
+        stays where they put it, or where the last finished run put it.
+        """
+        import pandas as pd
+
+        keys = [self._row_key(row.to_dict()) for _i, row in frame.iterrows()]
+        ok = [self._row_key(row.to_dict()) for _i, row in frame.iterrows()
+              if _is_ok(row.to_dict())]
+        if self._loaded_key in keys:
+            pass
+        elif len(ok) == 1:
+            self._loaded_key = ok[0]
+        else:
+            # A key naming no row is worse than none: `loaded_run` would
+            # answer None while the column showed nothing, and the two
+            # disagreeing is how a stale mark survives a reload.
+            self._loaded_key = ""
+        frame[LOADED_COLUMN] = pd.Series(
+            [LOADED_MARK if key and key == self._loaded_key else ""
+             for key in keys], index=frame.index, dtype=object)
 
     def _rebuild(self, source: str = "") -> bool:
         """Compose the session's runs and the sweep's trials into one table.
@@ -284,6 +616,7 @@ class SweepRunsPanel(QWidget):
             frames.append(trials)
         if not frames:
             self._frame = None
+            self._source_note = source
             self.table.set_frame(None)
             self._status.setText(source or "Nothing run yet.")
             self.loaded.emit(0)
@@ -300,9 +633,24 @@ class SweepRunsPanel(QWidget):
                      if part[name].dtype.kind in "iu"}
             frame = pd.concat(frames, ignore_index=True, sort=False)
             frame = self._keep_whole_numbers_whole(frame, whole)
+        # WHICH ROW IS THE LOADED ONE, decided over the composed frame --
+        # the session's runs and the sweep's trials are one population, and
+        # "there is only one run so it is the loaded one" has to count both.
+        self._settle_the_loaded_run(frame)
         self._frame = frame[ordered_columns(frame)].reset_index(drop=True)
-        self.table.set_frame(self._frame, key_column=(
-            "run" if "run" in self._frame.columns else None))
+        self._rebuilding = True
+        try:
+            self.table.set_frame(self._frame, key_column=(
+                "run" if "run" in self._frame.columns else None))
+            # THE LOADED RUN IS THE SELECTED ROW. Refilling the table clears
+            # the selection, so without this the highlight jumped off the run
+            # being shown every time another one was recorded.
+            record = self.loaded_run()
+            if record is not None and isinstance(record.get("run"), str):
+                self.table.select_key(record["run"])
+        finally:
+            self._rebuilding = False
+        self._source_note = source
         self._status.setText(self._describe(self._frame, source))
         self.loaded.emit(len(self._frame))
         return True
@@ -330,13 +678,17 @@ class SweepRunsPanel(QWidget):
                 continue
         return frame
 
-    @staticmethod
-    def _describe(frame, source: str = "") -> str:
+    def _describe(self, frame, source: str = "") -> str:
         """The one-line summary over the table.
 
         Counts what did not work OUT LOUD, rather than leaving it to be
         noticed: a sweep whose trials mostly failed still writes a
         full-looking table, and so does a session of runs that all crashed.
+
+        AND IT NAMES THE LOADED RUN. The mark is in a column that may be
+        scrolled past or sorted away; the sentence over the table is where a
+        user looks to find out which run everything else on the screen is
+        describing.
         """
         note = f"{len(frame)} runs"
         if "source" in frame.columns:
@@ -352,6 +704,16 @@ class SweepRunsPanel(QWidget):
                 note += f", {failed} of which did not produce a regression"
             if running:
                 note += f", {running} still going"
+        record = self.loaded_run()
+        if record is not None:
+            name = record.get("run")
+            note += (f". Loaded: {name}" if isinstance(name, str) and name
+                     else ". One run is loaded")
+        elif len(frame) > 1:
+            # SAID, rather than left as an empty column. Several runs and no
+            # choice made is a state the user has to resolve, and a blank
+            # column is indistinguishable from a feature that is not working.
+            note += ". No run is loaded — pick one to show it everywhere else"
         return f"{note}. {source}" if source else note
 
     # ------------------------------------------------------------- selection
@@ -374,6 +736,21 @@ class SweepRunsPanel(QWidget):
         return self._frame.iloc[int(index)].to_dict()
 
     def _on_selection(self) -> None:
+        if self._rebuilding:
+            # The re-select at the end of `_rebuild` is this panel putting
+            # the highlight back, not the user choosing a run.
+            return
         record = self.selected_trial()
-        if record is not None:
-            self.trial_activated.emit(record)
+        if record is None:
+            return
+        # PICKING A RUN IS LOADING IT. The selection already re-points the
+        # results panel and the figure grid through `trial_activated`, so a
+        # mark that did not follow it would be a second answer to "which run
+        # is loaded" -- and instruction 145's rule is one vocabulary.
+        key = self._row_key(record)
+        if key and key != self._loaded_key and _is_ok(record):
+            self._loaded_key = key
+            self._source_note = ""
+            self._paint_the_loaded_mark()
+            self.loaded_run_changed.emit(record)
+        self.trial_activated.emit(record)

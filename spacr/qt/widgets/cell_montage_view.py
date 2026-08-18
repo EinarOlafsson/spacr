@@ -640,6 +640,28 @@ class CellMontageView(QWidget):
         "Click a coefficient — a dot on the volcano or a row in the "
         "coefficient table — to see the cells behind it.")
 
+    #: No run at all. NAMES THE WAY TO GET ONE, which the old sentence did
+    #: not: "No regression results are loaded" was reported by the maintainer
+    #: immediately after a regression finished, and it said neither which run
+    #: it was looking for nor how to give it one. A run that finishes IS the
+    #: loaded run (154 G), so seeing this means none has finished in this
+    #: session -- and the answer to that is to open one from disk.
+    NO_RUN_LOADED = (
+        "No run is loaded, so there is no regression_data.csv to read the "
+        "per-well guide fractions from. A run that finishes loads itself; to "
+        "look at an earlier one, pick it in the Runs tab or open its folder "
+        "there with “Load run…”.")
+
+    #: A table with no run folder behind it. A DIFFERENT FAILURE, and it used
+    #: to be reported as the one above: the coefficients are on screen, so
+    #: "no regression results are loaded" reads as a contradiction of what
+    #: the user is looking at.
+    RESULTS_WITHOUT_A_FOLDER = (
+        "The coefficient table on screen was not read from a run folder, so "
+        "there is nowhere to find the regression_data.csv this montage needs. "
+        "Open the run in the Runs tab with “Load run…” to point at its "
+        "folder.")
+
     def __init__(self, frame_provider: Optional[Callable[[], Any]] = None,
                  results_provider: Optional[Callable[[], str]] = None,
                  database_provider: Optional[Callable[[], Any]] = None,
@@ -870,9 +892,13 @@ class CellMontageView(QWidget):
                     f"for {self._name}, and the score window is "
                     "'baseline + effect'. Load the run's results table first.")
         if not self._results_path():
-            return ("No regression results are loaded, so there is no "
-                    "regression_data.csv to read the per-well guide "
-                    "fractions from.")
+            # WHICH HALF IS MISSING. A table on screen with no folder behind
+            # it and no table at all are two different situations with two
+            # different answers, and both used to be told the second one.
+            frame = self._frame()
+            if frame is not None and len(frame):
+                return self.RESULTS_WITHOUT_A_FOLDER
+            return self.NO_RUN_LOADED
         if not self.databases():
             return ("No measurement database is attached to this run's input "
                     "table, so there are no per-object rows and no crops to "
@@ -1046,6 +1072,20 @@ class CellMontageView(QWidget):
             LOG.debug("could not reach the coefficient table", exc_info=True)
             return None
 
+    def loaded_run_name(self) -> str:
+        """The run this tab is describing, as a name a user recognises.
+
+        The run folder's own basename -- ``ols_3`` -- which is what the Runs
+        tab calls it and what the figure grid heads its section with. "" when
+        no run is loaded, so a caller can tell "no run" from "a run whose
+        name I could not work out".
+        """
+        path = self._results_path()
+        if not path:
+            return ""
+        folder = os.path.dirname(path) if os.path.isfile(path) else path
+        return os.path.basename(str(folder).rstrip(os.sep)) or str(folder)
+
     def _results_path(self) -> str:
         if self._results_provider is None:
             return ""
@@ -1113,9 +1153,18 @@ class CellMontageView(QWidget):
         elif self._plans:
             self._set_status(self._summary())
         else:
-            self._set_status(
-                f"Ready: press “Show the cells” for {self._name}."
-                if self._name else self.NOTHING_SELECTED)
+            # WHICH RUN THIS IS ABOUT. Instruction 154 G: the choice of
+            # loaded run has to be visible from the views that depend on it,
+            # not only from the tab that sets it -- otherwise a montage built
+            # from the wrong run looks exactly like one built from the right
+            # one.
+            if not self._name:
+                self._set_status(self.NOTHING_SELECTED)
+            else:
+                run = self.loaded_run_name()
+                self._set_status(
+                    f"Ready: press “Show the cells” for {self._name}"
+                    + (f", from the run {run}." if run else "."))
 
     def _drop_montage(self) -> None:
         """Empty the grid and the caption. Nothing on screen is stale."""
