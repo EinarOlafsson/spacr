@@ -742,3 +742,34 @@ def test_a_short_fit_reports_the_shape_without_inventing_a_p_value(run_folder):
     assert one.answered
     assert "needs n >= 8" in one.value
     assert "so there is no P value" in one.value
+
+
+def test_the_nonparametric_path_reaches_the_summary_writer():
+    """The call site must be BEFORE `guide_permutation`'s early return.
+
+    THE BUG THIS PINS. The summary call was placed at the end of the
+    parametric path, and `perform_regression` returns from the
+    `analysis_mode == 'guide_permutation'` branch long before it -- so the one
+    mode with no statsmodels summary to fall back on was also the one mode
+    that wrote no spaCR summary, which is the run the maintainer reported.
+
+    Asserted on the SOURCE rather than by running a fit: a permutation run
+    needs a screen, and what is wrong here is an ordering, which the source
+    states exactly.
+    """
+    import inspect
+    import re
+    from spacr import ml
+
+    source = inspect.getsource(ml.perform_regression)
+    call = source.find("write_run_summary(")
+    early_return = re.search(
+        r"if settings\.get\('analysis_mode'\) == 'guide_permutation':", source)
+    assert early_return is not None, "the permutation branch moved"
+    assert call != -1, "perform_regression no longer writes a run summary"
+    # The FIRST write_run_summary call has to come after the branch opens and
+    # before that branch's own `return output`.
+    branch = source[early_return.start():]
+    assert "write_run_summary(" in branch.split("return output")[0], (
+        "write_run_summary is not reached on the guide_permutation path: it "
+        "sits after the early return, which is the bug this test exists for")
