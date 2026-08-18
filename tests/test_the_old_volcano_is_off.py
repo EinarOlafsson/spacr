@@ -72,7 +72,10 @@ def test_the_gate_is_resolved_once():
 def test_the_plain_fallback_is_gated_too():
     source = _ml_source()
 
-    assert "not settings.get('toxo') and draw_legacy_volcano" in source
+    # `_toxoplasma_is_on(settings)` since the rename on 2026-08-17
+    # (instruction 133, "change the toxo settings to Toxoplasma"). It accepts
+    # either spelling, so an old settings CSV still reaches this gate.
+    assert "not _toxoplasma_is_on(settings) and draw_legacy_volcano" in source
 
 
 def test_the_default_is_off():
@@ -92,7 +95,7 @@ def test_the_toxo_block_still_runs():
     two reports nobody asked to lose."""
     source = _ml_source()
 
-    assert "if settings['toxo']:" in source, (
+    assert "if _toxoplasma_is_on(settings):" in source, (
         "the toxo block is gated on the legacy volcano, which takes the "
         "phenotype and heatmap reports with it")
 
@@ -163,8 +166,15 @@ def test_the_hit_rule_is_the_one_the_picture_uses():
     source = pathlib.Path(
         __import__("spacr.toxo", fromlist=["toxo"]).__file__).read_text()
 
-    # The scatter loop's rule, and the vectorised one, are the same predicate.
-    assert "(row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold))" in source
+    # VECTORISED on 2026-08-18 when the figure was restyled: the per-row
+    # `(row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold))`
+    # became the same predicate over the frame. Reading the source for a
+    # literal is fragile by nature and this is the second time that has cost
+    # a false failure, so the assertion below is on the RULE -- what a hit is
+    # -- rather than on how it is spelled: p at or under 0.05, AND an
+    # absolute coefficient at or over the threshold.
+    assert "merged_data['p_value'] <= 0.05" in source
+    assert "merged_data['coefficient'].abs() >= abs(threshold)" in source
     assert "merged_data['p_value'] <= 0.05" in source
     assert "merged_data['coefficient'].abs() >= abs(threshold)" in source
 
