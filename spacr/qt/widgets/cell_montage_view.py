@@ -774,6 +774,15 @@ class CellMontageView(QWidget):
 
         self._refresh_controls()
 
+        # Hover help belongs on a setting's NAME, not on the field the user is
+        # about to type into (instruction 113). One post-pass rather than a
+        # convention every hand-built row has to remember -- the same call
+        # class_editor, pca_view and pivot_builder each end their __init__
+        # with, and its absence here is why this was the last screen still
+        # putting help on an editable field.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
     # ------------------------------------------------------------- selection
 
     def set_coefficient(self, key: str) -> None:
