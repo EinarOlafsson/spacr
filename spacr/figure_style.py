@@ -405,6 +405,141 @@ class SavedFigureAppearance(NamedTuple):
     flip: bool
 
 
+#: What a piece of a figure IS, for the purposes of a save. The whole of
+#: instruction 150 A is the difference between the last one and the rest.
+#:
+#: ``ground``   the page behind everything -- a figure patch, an axes patch,
+#:              a legend's fill.
+#: ``grid``     gridlines, which are chrome that is MEANT to be faint.
+#: ``chrome``   spines, ticks, tick labels, axis labels, title, legend text
+#:              and frame, annotation text, the significance line, the zero
+#:              line, arrows and leader lines.
+#: ``data``     everything that carries the CLAIM. Never repainted.
+ARTIST_KINDS = ("ground", "grid", "chrome", "data")
+
+
+def export_colour(current, kind: str, look=None) -> Optional[str]:
+    """The colour one artist should be painted for the save, or None.
+
+    THE PER-ARTIST HALF OF THE SHARED DECISION, and the reason it is here
+    rather than in ``spacr.plot``: instruction 150 C says the rule has to
+    reach BOTH renderers, and a rule that lives in the matplotlib application
+    forces the pyqtgraph exporter to write a second one. Two renderers
+    deciding separately what "print" means is the same defect as two engines
+    deciding which statistical test applies.
+
+    :param current: the colour the artist is painted in now. Anything
+        :func:`to_rgb` cannot read -- ``'none'``, a fully transparent RGBA, a
+        colour map -- is left alone, which is the safe direction: the failure
+        to avoid is repainting something that was never white.
+    :param kind: one of :data:`ARTIST_KINDS`.
+    :param look: a :class:`SavedFigureAppearance`; None asks
+        :func:`saved_figure_appearance`.
+    :returns: the replacement colour, or None for "leave this one as it is".
+
+    WHAT DECIDES WHETHER A PIECE OF CHROME MOVES IS LEGIBILITY, NOT DARK MODE.
+    An artist is repainted only when it has less than
+    :data:`CHROME_CONTRAST_FLOOR` contrast against the page, so a LIGHT-MODE
+    save changes nothing at all -- which is the property that makes ``print``
+    safe as the default -- and nothing here reads the theme. It reads the
+    FIGURE.
+
+    Example:
+        >>> look = saved_figure_appearance("print")
+        >>> export_colour("#FFFFFF", "chrome", look)
+        '#222222'
+        >>> export_colour("#222222", "chrome", look) is None
+        True
+        >>> export_colour("#FFFFFF", "data", look) is None
+        True
+    """
+    look = saved_figure_appearance() if look is None else look
+    if not look.flip or kind == "data":
+        # THE DATA NEVER MOVES. A white data point turned black is, on a
+        # volcano, the colour of "not a hit" -- section A exists to prevent
+        # exactly that, and it is the one line of this function that must
+        # never grow a special case.
+        return None
+    page = look.ground or PRINT_GROUND
+    if kind == "ground":
+        # Only a DARK ground is repainted. A deliberately tinted light
+        # background is somebody's choice, and 'transparent' has no ground to
+        # argue about -- the writer owns that.
+        luminance = relative_luminance(current)
+        if look.ground is None or luminance is None or luminance >= 0.5:
+            return None
+        return look.ground
+    if is_legible_on(current, page):
+        return None
+    # A grid repainted in the ink is a cage over the data, so an illegible
+    # grid becomes the faint print grey instead.
+    replacement = look.grid if kind == "grid" else look.ink
+    # AND NOTHING IS "REPAINTED" IN THE COLOUR IT ALREADY IS. The light-mode
+    # grid default IS `PRINT_GRID`, and #DDDDDD on white is 1.27 contrast --
+    # deliberately faint, correctly below the chrome floor, and already the
+    # colour it would be changed to. Saying None here is what makes "a
+    # light-mode save changes nothing at all" true of the artists as well as
+    # of the pixels, and it leaves the caller nothing to restore.
+    if to_rgb(replacement) == to_rgb(current):
+        return None
+    return replacement
+
+
+def illegible_colours(colours, ground=PRINT_GROUND,
+                      floor: Optional[float] = None) -> list:
+    """The DATA colours a reader will not find on ``ground``, as hex (150 D).
+
+    The data deliberately does not flip, so a palette chosen against near-black
+    can be illegible on paper -- and the honest answer is to NAME the colour,
+    because a substitution the user did not ask for changes what the picture
+    says. Renderer-free, so the pyqtgraph exporter can hand it a list of pen
+    colours and get the same sentence as the matplotlib one.
+
+    :param colours: any iterable of colours, in any spelling :func:`to_rgb`
+        reads. Unreadable entries are skipped rather than guessed at.
+    :param ground: the page they are going onto.
+    :param floor: contrast below which a colour is named; defaults to
+        :data:`DATA_CONTRAST_FLOOR`.
+    :returns: sorted, deduplicated ``#RRGGBB`` strings, so the same figure
+        produces the same sentence twice.
+
+    A WASH IS NOT A MARK. An artist drawn at less than half opacity is
+    de-emphasis by construction -- `figures.plates` lays its "never measured"
+    colour down at 9% -- and judging its base hue would name a colour nobody
+    is being asked to find, on every plate figure.
+    """
+    floor = DATA_CONTRAST_FLOOR if floor is None else float(floor)
+    named = set()
+    for colour in colours or ():
+        try:
+            components = tuple(float(value) for value in colour)
+        except (TypeError, ValueError):
+            components = ()
+        if len(components) == 4 and components[3] < 0.5:
+            continue
+        rgb = to_rgb(colour)
+        if rgb is None or is_legible_on(rgb, ground, floor):
+            continue
+        named.add("#%02X%02X%02X" % tuple(
+            int(round(min(max(channel, 0.0), 1.0) * 255)) for channel in rgb))
+    return sorted(named)
+
+
+def illegible_colour_warning(names) -> str:
+    """The sentence for :func:`illegible_colours`, or '' when there is none.
+
+    One sentence, in one place, because both renderers say it and a user who
+    saw it once from a tab and once from a run should not have to work out
+    whether they are the same warning.
+    """
+    if not names:
+        return ""
+    return ("Saved-figure warning: these data colours have almost no contrast "
+            "on the light page and are NOT being changed, because the colour "
+            f"is the claim: {', '.join(names)}. Pick an accessible palette in "
+            "Preferences > Figures if the marks are meant to be read.")
+
+
 def figure_save_mode() -> str:
     """The save mode in force: the user's preference, else ``'print'``.
 
