@@ -16,6 +16,8 @@ derived from published Lourido-lab figures rather than from design taste.
 Read it before adding a panel.
 """
 
+from .fast_render import (FAST_PANELS, RenderedPanel, render_panel,
+                          renderer_for, write_panels)
 from .panels import (REGISTRY, SHEET_ORDER, Panel, available, effect_column,
                      p_column, q_column, statistic_column)
 from .sheet import Sheet, build_panel, build_sheet
@@ -23,8 +25,9 @@ from .style import (ROLES, Palette, TYPE_SCALE, figure_style, panel_letter,
                     rc, theme_target)
 
 __all__ = [
-    "Palette", "Panel", "REGISTRY", "ROLES", "SHEET_ORDER", "Sheet",
-    "TYPE_SCALE", "available", "build_panel", "build_sheet", "effect_column",
-    "figure_style", "p_column", "panel_letter", "q_column", "rc",
-    "statistic_column", "theme_target",
+    "FAST_PANELS", "Palette", "Panel", "REGISTRY", "ROLES", "RenderedPanel",
+    "SHEET_ORDER", "Sheet", "TYPE_SCALE", "available", "build_panel",
+    "build_sheet", "effect_column", "figure_style", "p_column",
+    "panel_letter", "q_column", "rc", "render_panel", "renderer_for",
+    "statistic_column", "theme_target", "write_panels",
 ]
