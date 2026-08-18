@@ -59,20 +59,57 @@ LOG = logging.getLogger("spacr.qt.figure_queue")
 PDF_DISPLAY_MAX_PX = 2200
 
 
-def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0) -> None:
-    """Recolour a figure's background + all text to (bg, fg)."""
+def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
+                         line: str = "") -> None:
+    """Recolour a figure's background, LINES and TEXT.
+
+    THE TWO CONTROLS ARE LINE AND FONT (instruction 152 B), and they divide
+    the figure by what a mark IS rather than by which part of the code drew
+    it:
+
+        ``line``   the axis spines and the tick MARKS.
+        ``fg``     every piece of text, the tick LABELS included.
+
+    TICK MARKS ARE LINES AND TICK LABELS ARE TEXT. That split is the one
+    place the two meet and the one a reader could take either way, so it is
+    written down here and in
+    :func:`spacr.qt.widgets.fast_plots.FastPlot.set_line_style`, which makes
+    the identical division on the pyqtgraph side. Anything else would make
+    "all font in the graph" untrue.
+
+    ``line`` empty means "the same ink as the text", which is what every
+    figure did before there were two controls -- so a store that has never
+    been touched renders exactly as it did.
+
+    WHAT THIS DOES NOT REPAINT, and both omissions are deliberate:
+
+    * the DATA's own lines. This runs on every render, from the theme, and a
+      theme that repainted every series in one ink would flatten every
+      multi-series figure in the package. The control that reaches them is
+      per-figure and a user asking for it --
+      :func:`spacr.qt.widgets.figure_settings.apply_line_colour`.
+    * the GRIDLINES. A grid repainted in the ink is a cage over the data;
+      :data:`spacr.figure_style.PRINT_GRID` already says so for the save
+      path and this agrees with it rather than arguing.
+    """
+    ink = str(line) if str(line).strip() else fg
     try:
         fig.patch.set_facecolor(bg)
         for ax in fig.get_axes():
             ax.set_facecolor(bg)
             for sp in ax.spines.values():
-                sp.set_color(fg)
-            ax.tick_params(colors=fg)
+                sp.set_color(ink)
+            # `colors=` sets the mark AND the label together, which is
+            # exactly the conflation the two controls exist to undo.
+            ax.tick_params(color=ink, labelcolor=fg, which="both")
             texts = ([ax.title, ax.xaxis.label, ax.yaxis.label]
                      + ax.get_xticklabels() + ax.get_yticklabels())
             leg = ax.get_legend()
             if leg is not None:
                 texts += list(leg.get_texts())
+                leg_title = leg.get_title()
+                if leg_title is not None:
+                    texts.append(leg_title)
             for t in texts:
                 t.set_color(fg)
                 if text_size:
@@ -196,15 +233,18 @@ def render_figure_to_png(fig, png_path: str) -> bool:
     """
     try:
         from ..preferences import (get_figure_png_dpi, get_figure_format,
-                                   get_figure_colors, get_figure_text_size)
+                                   get_figure_colors, get_figure_line_colour,
+                                   get_figure_text_size)
         dpi = get_figure_png_dpi()
         bg, fg = get_figure_colors()
+        line = get_figure_line_colour()
         text_size = get_figure_text_size()
         fmt = get_figure_format()
     except Exception:
         dpi, fmt = 200, "png"
         bg, fg, text_size = "#ffffff", "#000000", 0
-    _style_figure_colors(fig, bg, fg, text_size)
+        line = fg
+    _style_figure_colors(fig, bg, fg, text_size, line)
     # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
     # balloon into a slow-to-decode PNG. Screen never needs > ~4000 px on the
     # long side; the vector .pdf keeps full quality for export.
@@ -1150,27 +1190,15 @@ class FigureQueue(QWidget):
     # -- internals ---------------------------------------------------------
 
     @staticmethod
-    def _style_figure(fig, bg: str, fg: str, text_size: int = 0) -> None:
-        """Recolour a figure's background + all text to (bg, fg), so plots
-        follow the app theme (dark → black bg + white text)."""
-        try:
-            fig.patch.set_facecolor(bg)
-            for ax in fig.get_axes():
-                ax.set_facecolor(bg)
-                for sp in ax.spines.values():
-                    sp.set_color(fg)
-                ax.tick_params(colors=fg)
-                texts = ([ax.title, ax.xaxis.label, ax.yaxis.label]
-                         + ax.get_xticklabels() + ax.get_yticklabels())
-                leg = ax.get_legend()
-                if leg is not None:
-                    texts += list(leg.get_texts())
-                for t in texts:
-                    t.set_color(fg)
-                    if text_size:
-                        t.set_fontsize(text_size)
-        except Exception:
-            pass
+    def _style_figure(fig, bg: str, fg: str, text_size: int = 0,
+                      line: str = "") -> None:
+        """Recolour a figure so it follows the app theme and the user's two
+        colours. ONE implementation: this was a character-for-character copy
+        of :func:`_style_figure_colors` and the two had already begun to
+        drift -- the module function grew the legend title and the tick-mark
+        split, and a figure restyled through the dialog would have missed
+        both."""
+        _style_figure_colors(fig, bg, fg, text_size, line)
 
     @staticmethod
     def _figure_format_is_pdf() -> bool:
@@ -1881,6 +1909,7 @@ class _FigureSettingsDialog(QDialog):
 
         try:
             from ..preferences import (get_figure_color_tokens,
+                                       get_figure_line_token,
                                        get_figure_text_size)
             # THE STORED TOKENS, not the resolved pair. `get_figure_colors()`
             # answers "what colour is the text right now", which on a dark
@@ -1892,17 +1921,29 @@ class _FigureSettingsDialog(QDialog):
             # the figure colour section in `spacr/qt/preferences.py`:
             # NEVER PERSIST A RESOLVED DEFAULT.
             self._bg, self._fg = get_figure_color_tokens()
+            self._line = get_figure_line_token()
             _init_size = get_figure_text_size() or 10
         except Exception:
             # The literal rather than AUTO_FIGURE_COLOR: this branch exists
             # for the case where importing preferences failed.
             self._bg, self._fg, _init_size = "auto", "auto", 10
+            self._line = "auto"
         self._bg_btn = _QPB("Background…")
         self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
-        self._fg_btn = _QPB("Text colour…")
+        self._fg_btn = _QPB("Font colour…")
         self._fg_btn.clicked.connect(lambda: self._pick("_fg", self._fg_btn))
+        # THE SECOND OF THE TWO CONTROLS (instruction 152 B). "Text colour"
+        # was the only ink this dialog offered and it drove the spines and
+        # the tick marks as well, so there was no way to say "dark axes,
+        # coloured labels" or the other way round -- and the first report
+        # ("doesnt look like there is an option to change the axis color")
+        # was about exactly the half that had no control.
+        self._line_btn = _QPB("Line colour…")
+        self._line_btn.clicked.connect(
+            lambda: self._pick("_line", self._line_btn))
         form.addRow("Background", self._bg_btn)
-        form.addRow("Text colour", self._fg_btn)
+        form.addRow("Line colour", self._line_btn)
+        form.addRow("Font colour", self._fg_btn)
 
         # The explicit route back. A user frozen by the old dialog -- or by
         # their own click -- otherwise has no way to un-set a colour, and a
@@ -1947,9 +1988,17 @@ class _FigureSettingsDialog(QDialog):
         # Set after the sweep above, which owns the other three tooltips.
         # This one is not a documented setting — it is the way out of one.
         self._auto_btn.setToolTip(
-            "Put the background and text colour back to following the app "
-            "theme, so a light theme gives dark text and a dark theme gives "
-            "light. Greyed out when they already do.")
+            "Put the background, line colour and font colour back to "
+            "following the app theme, so a light theme gives dark ink and a "
+            "dark theme gives light. Greyed out when they already do.")
+        # Not routed through `install_api_tooltips`: that maps a widget onto a
+        # DOCUMENTED setting key, and this control is one half of a split that
+        # the settings documentation still spells as one ("figure_text_color").
+        # Mapping it onto that key would put the wrong sentence on it.
+        self._line_btn.setToolTip(
+            "The colour of every LINE in the figure: the axis spines and the "
+            "tick marks. The numbers printed beside the ticks are text and "
+            "follow the font colour.")
         if self._umap_settings is not None:
             # Scoped to the section rather than to the dialog: a second sweep
             # over the whole dialog would re-decorate the three figure
@@ -2011,6 +2060,7 @@ class _FigureSettingsDialog(QDialog):
         values.update({
             "figure_background": self._bg,
             "figure_text_color": self._fg,
+            "figure_line_color": self._line,
             "figure_text_size": int(self._size.value()),
         })
         try:
@@ -2062,6 +2112,14 @@ class _FigureSettingsDialog(QDialog):
         return (auto_bg if self._is_auto(self._bg) else self._bg,
                 auto_fg if self._is_auto(self._fg) else self._fg)
 
+    def _resolved_line(self) -> str:
+        """The line ink to paint with. Automatic means "the same as the
+        text", which is what a figure looked like before the split -- so a
+        store nobody has touched renders exactly as it did."""
+        if self._is_auto(self._line):
+            return self._resolved_pair()[1]
+        return self._line
+
     @staticmethod
     def _describe(value) -> str:
         """How a colour value is spelled to a reader."""
@@ -2079,7 +2137,13 @@ class _FigureSettingsDialog(QDialog):
         """
         from PySide6.QtGui import QColor
         auto_bg, auto_fg = self._auto_preview()
+        # The line button's automatic answer is the FONT's, not the theme's
+        # directly: "auto" on the line half means "follow the text", so a
+        # user who has chosen a green font sees "Automatic (#00ff00)" and is
+        # told what the axes are actually about to be drawn in.
+        auto_line = auto_fg if self._is_auto(self._fg) else self._fg
         for token, btn, auto_value in ((self._bg, self._bg_btn, auto_bg),
+                                       (self._line, self._line_btn, auto_line),
                                        (self._fg, self._fg_btn, auto_fg)):
             automatic = self._is_auto(token)
             shown = auto_value if automatic else token
@@ -2098,22 +2162,28 @@ class _FigureSettingsDialog(QDialog):
         # also the readout for "am I frozen?", which is the question a user
         # bitten by this arrives with.
         self._auto_btn.setEnabled(
-            not (self._is_auto(self._bg) and self._is_auto(self._fg)))
+            not (self._is_auto(self._bg) and self._is_auto(self._fg)
+                 and self._is_auto(self._line)))
 
     def _follow_theme(self) -> None:
-        """Un-set both colours — back to the TOKEN, not to today's answer."""
-        self._bg = self._fg = "auto"
+        """Un-set all three colours — back to the TOKEN, not to today's
+        answer. All three, because a "follow the theme" that left the line
+        colour frozen would be the trap it exists to be the way out of."""
+        self._bg = self._fg = self._line = "auto"
         self._paint_colour_buttons()
 
     def _pick(self, attr, btn):
         """Choose one half explicitly. Only this makes a token a colour."""
         from .colour_picker import pick_colour
         auto_bg, auto_fg = self._auto_preview()
+        titles = {"_bg": "Background", "_fg": "Font colour",
+                  "_line": "Line colour"}
         current = getattr(self, attr)
         if self._is_auto(current):
-            current = auto_bg if attr == "_bg" else auto_fg
-        c = pick_colour(self, current,
-                        "Background" if attr == "_bg" else "Text colour")
+            current = (auto_bg if attr == "_bg"
+                       else self._resolved_line() if attr == "_line"
+                       else auto_fg)
+        c = pick_colour(self, current, titles.get(attr, "Colour"))
         if c.isValid():
             setattr(self, attr, c.name())
             self._paint_colour_buttons()
@@ -2130,9 +2200,13 @@ class _FigureSettingsDialog(QDialog):
         """
         size = int(self._size.value())
         bg, fg = self._resolved_pair()
+        line = self._resolved_line()
         try:
-            from ..preferences import set_figure_colors, set_figure_text_size
+            from ..preferences import (set_figure_colors,
+                                       set_figure_line_colour,
+                                       set_figure_text_size)
             set_figure_colors(self._bg, self._fg)
+            set_figure_line_colour(self._line)
             set_figure_text_size(size)
         except Exception:
             pass
@@ -2140,5 +2214,5 @@ class _FigureSettingsDialog(QDialog):
             # A value still sitting on the debounce timer is a value the user
             # typed and would otherwise lose by pressing OK promptly.
             self._umap_settings.flush()
-        FigureQueue._style_figure(self._fig, bg, fg, size)
+        FigureQueue._style_figure(self._fig, bg, fg, size, line)
         self.accept()
