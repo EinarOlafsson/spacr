@@ -218,6 +218,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # name is in KEYS_RETIRED below; this is the same control under the name
     # the maintainer asked for.
     "Toxoplasma",
+    # Instruction 133 and 135, 2026-08-18. Two new backends' knobs
+    # (group_lasso_lambda, rra_alpha, rra_permutations); the pair that decides
+    # what the significance LINE is drawn at and whether it is raw or adjusted
+    # p, which the plot could already choose and the run could not; and the
+    # two count-table column names, which spacr/ml.py hardcoded and raised a
+    # bare ValueError about.
+    "group_lasso_lambda", "rra_alpha", "rra_permutations",
+    "p_threshold_alpha", "p_threshold_kind",
+    "count_grna_column", "count_value_column",
     # Plate-blocked marginal guide analysis added to the regression workflow.
     "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
     "guide_permutations", "guide_permutation_seed",
@@ -1017,8 +1026,14 @@ def _rendered_sections(app_key):
             # were named, they landed in "Additional Settings" — the bucket
             # this whole test exists to keep empty.
             "Estimator Tuning",
-            "Permutation Test", "Regression Plots",
-            "Runtime & Reliability",
+            # "Regression Plots" and "Runtime & Reliability" were DELETED on
+            # 2026-08-18 with instruction 135. The plot settings stopped being
+            # settings -- the QC suite and the permutation plot are always on,
+            # the log axes always off, and the limits are chosen automatically
+            # and changed on the plot. Runtime & Reliability is how the whole
+            # application behaves, not a regression setting, so it moved to
+            # the general preferences.
+            "Permutation Test",
         ]),
         ("activation", [
             "Model & Data", "Attribution Method", "Attribution Validation",
