@@ -249,6 +249,32 @@ def test_generate_image_umap_analyze_clusters_and_save(umap_src):
     assert pdfs, "save_figure=True should write an embedding PDF"
 
 
+def test_generate_image_umap_skips_analysis_for_one_cluster(
+        umap_src, monkeypatch, capsys):
+    """A homogeneous embedding is valid but has no group contrast to test."""
+    from types import SimpleNamespace
+    from spacr import utils
+    from spacr.core import generate_image_umap
+
+    def one_cluster(data, *_args, **_kwargs):
+        return (np.asarray(data)[:, :2], np.zeros(len(data), dtype=int),
+                SimpleNamespace(_spacr_backend="cpu"))
+
+    def invalid_analysis(_frame):
+        raise AssertionError("one cluster was sent to a between-group test")
+
+    monkeypatch.setattr(utils, "reduction_and_clustering", one_cluster)
+    monkeypatch.setattr(utils, "cluster_feature_analysis", invalid_analysis)
+
+    out = generate_image_umap(_umap_settings(
+        umap_src, reduction_method="pca", analyze_clusters=True))
+
+    assert out["cluster"].nunique() == 1
+    assert "at least two clusters are required" in capsys.readouterr().out
+    assert not os.path.exists(os.path.join(
+        umap_src, "results", "cluster_results.csv"))
+
+
 def test_generate_image_umap_color_by_and_noise_removal(umap_src):
     """color_by disables the outline/noise options; remove_cluster_noise
     drops DBSCAN -1 labels."""
