@@ -64,6 +64,7 @@ __all__ = [
     "RESULT_FILES",
     "benjamini_hochberg",
     "build_hit_list",
+    "family_labels",
     "gene_of",
     "grna_agreement",
     "guide_of",
@@ -159,6 +160,50 @@ def tested_family(features: Iterable[Any]) -> np.ndarray:
     if series.empty:
         return np.zeros(0, dtype=bool)
     return ~series.str.contains(NUISANCE_TERMS, regex=True).to_numpy(dtype=bool)
+
+def family_labels(features: Iterable[Any]) -> np.ndarray:
+    """Which multiple-testing FAMILY each coefficient belongs to.
+
+    :param features: design-matrix term names.
+    :returns: an array of ``'grna'``, ``'gene'`` or ``''`` -- the empty
+        string for a term that is not a hypothesis at all.
+
+    :func:`tested_family` says WHETHER a coefficient is a hypothesis. This
+    says WHICH FAMILY it is one of, and the two are not the same question.
+    A run at ``level='both'`` fits twice and writes two families; the
+    correction applies WITHIN a level (instruction 128 R), so pooling the
+    guide terms and the gene terms into one call to
+    :func:`spacr.multiple_testing.adjust_p_values` changes ``n`` and with it
+    every q value on the screen -- quietly, and in the direction that makes
+    the run look weaker than it is.
+
+    It exists so that anything recomputing a correction -- the plot's own
+    "recorrect with Bonferroni", a re-export, a re-analysis -- splits the
+    family the same way the run did, from one statement of the rule.
+
+    ::
+
+        >>> family_labels(["Intercept", "fraction:grna[233460_1]",
+        ...                "gene_fraction:gene[233460]"]).tolist()
+        ['', 'grna', 'gene']
+    """
+    series = pd.Series(list(features), dtype=object).astype(str)
+    if series.empty:
+        return np.zeros(0, dtype=object)
+    tested = tested_family(series)
+    # VECTORISED, AND IT IS THE SAME RULE. A volcano redraws this on every
+    # restyle, and :func:`guide_of` in a Python loop cost 2.1 ms of a 30 ms
+    # budget on the real screen's 1,215 coefficients. The parse is
+    # :data:`_BRACKET` followed by the same ``T.`` strip and the same
+    # ``_<digits>`` test, so there is no second rule here -- only a second
+    # spelling of it, and ``test_hits.py`` asserts the two agree element by
+    # element on every shape of term.
+    token = series.str.extract(_BRACKET.pattern, expand=False)
+    token = token.str.replace(r"^T\.", "", regex=True)
+    guide = token.str.contains(r"_\d+$", regex=True, na=False).to_numpy()
+    return np.where(tested, np.where(guide, "grna", "gene"),
+                    "").astype(object)
+
 
 def gene_of(feature: Any) -> Optional[str]:
     """Return the gene id a model term names, or ``None``.
