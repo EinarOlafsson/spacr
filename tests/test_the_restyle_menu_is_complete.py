@@ -56,10 +56,16 @@ def _frame(seed: int = 0, missing: int = 0) -> pd.DataFrame:
     well_count = rng.integers(4, 96, N).astype("float64")
     if missing:
         well_count[:missing] = np.nan
+    # ONE REAL HIT. Without it Benjamini-Hochberg calls nothing at 5% on 60
+    # uniform P values, and instruction 149 says a volcano with no calls
+    # draws NO threshold line -- so a fixture with no hit is a fixture with
+    # one fewer line than the plot normally has.
+    p_values = rng.uniform(0.001, 0.99, N)
+    p_values[0] = 1e-8
     return pd.DataFrame({
         "feature": [f"fraction:grna[{i}_1]" for i in range(N)],
         "coefficient": effects,
-        "p_value": rng.uniform(0.001, 0.99, N),
+        "p_value": p_values,
         "well_count": well_count,
         "n_guides": rng.integers(1, 4, N),
         "condition": list(rng.choice(["nc", "pc", "other"], N,
@@ -136,8 +142,8 @@ def _action(plot, fragment):
 #: entries instead of one.
 @pytest.mark.parametrize("wanted", [
     "Axis limits", "Lock axis scales", "Font colour",
-    "Line colour and width", "Colour by a column", "Shape by a column",
-    "Size on screen", "Exported page size",
+    "Line colour", "Line width", "Colour by a column", "Shape by a column",
+    "Size on screen", "Exported page size", "Split the y axis",
 ])
 def test_the_menu_offers_everything_that_was_asked_for_by_name(volcano,
                                                                wanted):
@@ -473,10 +479,41 @@ def test_a_cancelled_colour_dialog_changes_nothing(volcano, monkeypatch):
 
 def test_the_reference_and_threshold_lines_are_what_the_control_reaches(
         volcano):
-    """A volcano carries the p=0.05 line and both effect-size cuts."""
+    """A volcano carries the FDR critical line and both effect-size cuts."""
     assert len(volcano.line_items()) == 3
 
     assert volcano.set_line_style("#00ff00", 4.0) == 3
+
+
+def test_the_line_control_also_reaches_the_axes_and_their_ticks(volcano):
+    """Instruction 152: one Line colour for every LINE, the axis spines and
+    the tick marks included. They took `foreground` at construction and no
+    control changed them afterwards, which is exactly what was reported --
+    "doesnt look like there is an option to change the axis color"."""
+    volcano.set_line_colour("#00ff00")
+
+    for axis in volcano.axis_items():
+        assert axis.pen().color().name() == "#00ff00"
+        assert axis.tickPen().color().name() == "#00ff00"
+
+
+def test_a_line_colour_can_be_taken_back_off(volcano):
+    """"Follow the theme" is the way back, and it has to put every line back
+    to the colour it was DRAWN with rather than to a colour it invents."""
+    before = [volcano._pen_of(item).color().name()
+              for item in volcano.line_items()]
+    assert len(set(before)) > 1, "the fixture must carry two line colours"
+
+    volcano.set_line_colour("#00ff00")
+    assert all(volcano._pen_of(item).color().name() == "#00ff00"
+               for item in volcano.line_items())
+
+    volcano.follow_the_theme()
+
+    assert [volcano._pen_of(item).color().name()
+            for item in volcano.line_items()] == before
+    assert volcano.line_colour() is None
+    assert volcano.font_colour() is None
 
 
 def test_recolouring_the_lines_leaves_their_dashes_alone(volcano):
@@ -503,16 +540,22 @@ def test_the_line_colour_and_width_are_both_applied(volcano):
         assert pen.widthF() == 4.0
 
 
-def test_the_threshold_caption_moves_with_the_line_it_names(volcano):
-    """"p=0.05" is drawn by the line that carries it, in a colour given at
-    construction. A red word beside a green line is the two-idioms failure
-    this module warns about, on the one mark that names a threshold."""
-    volcano.set_line_style("#00ff00", 2.0)
-
+def test_the_threshold_caption_is_text_and_follows_the_font_control(volcano):
+    """A threshold's caption used to be recoloured by the LINE control, on
+    the reasoning that a red word beside a green line looks wrong. The
+    maintainer settled it the other way (instruction 152 B) and that decision
+    is the one that can be stated in a sentence: "a font color that controls
+    the color of all font in the graph". A caption the font control could not
+    reach would make "all font" untrue."""
     labelled = [item for item in volcano.line_items()
                 if getattr(item, "label", None) is not None]
-    assert labelled, "the volcano lost the caption on its p-value line"
-    assert labelled[0].label.color.name() == "#00ff00"
+    assert labelled, "the volcano lost the caption on its threshold line"
+
+    volcano.set_line_colour("#00ff00")
+    assert labelled[0].label.color.name() != "#00ff00"
+
+    volcano.set_font_colour("#ff00ff")
+    assert labelled[0].label.color.name() == "#ff00ff"
 
 
 def test_the_summary_line_across_a_group_is_a_line_this_control_reaches(
@@ -534,21 +577,49 @@ def test_the_selection_ring_is_not_treated_as_a_line(volcano):
     assert volcano._highlight not in volcano.line_items()
 
 
-def test_a_line_restyle_keeps_the_width_even_when_the_colour_is_cancelled(
-        volcano, monkeypatch):
-    """The user answered one question and declined the other. Throwing away
-    the answer they gave makes the dialog feel like it lost their input."""
-    from PySide6.QtGui import QColor
+def test_asking_for_a_width_never_opens_a_colour_dialog(volcano, monkeypatch):
+    """Instruction 151. "Line colour and width…" asked for a width and then
+    chained a colour picker nobody had asked for, applying the width only
+    after it closed -- and on a GNOME session that picker is brokered through
+    xdg-desktop-portal and takes tens of seconds. That is the whole of the
+    reported "changing the line width takes like 1 minut"."""
     from PySide6.QtWidgets import QColorDialog, QInputDialog
 
+    opened = []
     monkeypatch.setattr(QInputDialog, "getDouble",
                         staticmethod(lambda *a, **k: (6.0, True)))
     monkeypatch.setattr(QColorDialog, "getColor",
-                        staticmethod(lambda *a, **k: QColor()))
+                        staticmethod(lambda *a, **k: opened.append(1)))
 
-    _action(volcano, "Line colour and width").trigger()
+    _action(volcano, "Line width").trigger()
 
+    assert not opened, "the width control still chains a colour dialog"
     assert volcano._pen_of(volcano.line_items()[0]).widthF() == 6.0
+
+
+def test_no_colour_dialog_in_this_module_asks_the_platform_for_one(volcano,
+                                                                   monkeypatch):
+    """A grep test would pass a seventh call site that forgot the flag. This
+    one drives the controls and reads what was actually asked for."""
+    from PySide6.QtGui import QColor
+    from PySide6.QtWidgets import QColorDialog
+
+    seen = []
+
+    def spy(initial, parent=None, title="", options=QColorDialog.ColorDialogOptions()):
+        seen.append(options)
+        return QColor("#123456")
+
+    monkeypatch.setattr(QColorDialog, "getColor", staticmethod(spy))
+
+    _action(volcano, "Line colour").trigger()
+    _action(volcano, "Font colour").trigger()
+    _action(volcano, "Point colour").trigger()
+
+    assert len(seen) == 3
+    for options in seen:
+        assert options & QColorDialog.DontUseNativeDialog, (
+            "a colour dialog still goes through the desktop portal")
 
 
 # --------------------------------------------------------------------------- #
@@ -857,17 +928,31 @@ def test_a_plot_with_no_lines_greys_the_line_control(qtbot):
     plot = VolcanoPlot()
     qtbot.addWidget(plot)
 
-    action = _action(plot, "Line colour and width")
+    action = _action(plot, "Line width")
     assert not action.isEnabled()
     assert "no lines on it" in action.text()
 
 
+def test_the_line_colour_is_live_even_on_a_plot_with_no_data_lines(qtbot):
+    """The other half of instruction 152: Line colour reaches the AXES, and
+    a drawn plot always has those. Greying it out here would be greying out
+    the one control the first report asked for."""
+    from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+    plot = VolcanoPlot()
+    qtbot.addWidget(plot)
+
+    assert plot.line_colour_reason() == ""
+    action = _action(plot, "Line colour")
+    assert action.isEnabled()
+
+
 def test_a_plot_that_has_lines_offers_the_control_plainly(volcano):
     """The other half of the rule: an applicable control carries no excuse."""
-    action = _action(volcano, "Line colour and width")
+    action = _action(volcano, "Line width")
 
     assert action.isEnabled()
-    assert action.text() == "Line colour and width…"
+    assert action.text() == "Line width…"
 
 
 # --------------------------------------------------------------------------- #
@@ -1172,7 +1257,7 @@ def test_a_cancelled_line_width_never_reaches_the_colour_question(
                         staticmethod(lambda *a, **k: asked.append(1)))
     before = volcano._pen_of(volcano.line_items()[0]).widthF()
 
-    _action(volcano, "Line colour and width").trigger()
+    _action(volcano, "Line width").trigger()
 
     assert not asked, "the colour dialog opened after the user cancelled"
     assert volcano._pen_of(volcano.line_items()[0]).widthF() == before

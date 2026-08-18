@@ -567,7 +567,11 @@ def test_the_strip_under_the_plot_no_longer_carries_them(volcano):
     assert "log x" not in labels, labels
     assert "log y" not in labels, labels
     assert "grid" not in labels, labels
-    assert "legend" in labels, "the legend was moved too"
+    # "legend (2)" rather than "legend": instruction 149 gave the volcano's
+    # colour a job -- it carries the FDR call -- so even a plot with no
+    # category column now has a two-entry legend, and the box says how many.
+    assert any(label.startswith("legend") for label in labels), (
+        "the legend was moved too")
 
 
 def test_the_menu_entry_shows_the_scale_that_is_in_force(volcano):

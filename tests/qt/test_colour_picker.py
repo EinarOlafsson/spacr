@@ -32,11 +32,13 @@ HELPER = "spacr/qt/widgets/colour_picker.py"
 
 #: Files still calling ``getColor`` directly, waiting on their owner.
 #:
-#: ``fast_plots.py`` is instruction 151's other half and belongs to a
-#: different agent in this wave; its sites are the three in ``_ask_*``. THIS
-#: SET IS A DEBT, NOT A DESIGN — delete the entry once those calls go through
-#: :func:`spacr.qt.widgets.colour_picker.pick_colour`, and never add to it.
-PENDING = {"spacr/qt/widgets/fast_plots.py"}
+#: EMPTY, AND IT IS MEANT TO STAY EMPTY. ``fast_plots.py`` was the one entry:
+#: instruction 151's other half, owned by a different agent in this wave. Its
+#: colour dialogs now go through :func:`pick_colour` -- all FOUR of them, not
+#: the three the instruction counted, because ``_ask_style_value`` (the
+#: figure style's own colour fields) was a seventh call site nobody had
+#: listed. THIS SET IS A DEBT, NOT A DESIGN: never add to it.
+PENDING: set = set()
 
 
 def _get_color_calls(path: Path):

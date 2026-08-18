@@ -590,13 +590,16 @@ def _apply_style(style, name: str, value, on_change) -> None:
 
 def _ask_style_value(parent, style, name, value, kind, on_change) -> None:
     """Ask for one field's new value with the dialog its kind wants."""
-    from PySide6.QtGui import QColor
-    from PySide6.QtWidgets import QColorDialog, QInputDialog
+    from PySide6.QtWidgets import QInputDialog
 
     pretty = str(name).replace("_", " ").strip().capitalize()
     if kind == "colour":
-        colour = QColorDialog.getColor(QColor(value or "#000000"), parent,
-                                       pretty)
+        # A SEVENTH CALL SITE, which is the reason `pick_colour` exists.
+        # Instruction 151 counted six unguarded `QColorDialog.getColor` calls
+        # in the tree; this one -- the figure style's own colour fields -- was
+        # not among them, so the count was low and the flag would have been
+        # forgotten here even after the six were fixed.
+        colour = pick_colour(parent, value or "#000000", pretty)
         if colour.isValid():
             _apply_style(style, name, colour.name(), on_change)
         return
@@ -702,6 +705,32 @@ def _figure_colors() -> tuple:
         return get_figure_colors()
     except Exception:      # pragma: no cover - no settings store available
         return "none", _FALLBACK_FOREGROUND
+
+
+def pick_colour(parent, initial=None, title: str = "Colour"):
+    """Ask for a colour with QT'S OWN dialog. Re-exported, not implemented.
+
+    THE IMPLEMENTATION IS
+    :func:`spacr.qt.widgets.colour_picker.pick_colour`, and this module goes
+    through it rather than keeping a second copy. ``QColorDialog.getColor``
+    defaults to the PLATFORM's chooser, and on a GNOME session that request
+    is brokered through ``xdg-desktop-portal`` -- the tens-of-seconds stall
+    behind the reported "changing the line width takes like 1 minut"
+    (instruction 151). One helper, because an option that has to be
+    remembered at each call site is one that gets forgotten at the seventh --
+    and there WERE seven here: the six instruction 151 counted plus
+    :func:`_ask_style_value`, which its count missed.
+
+    Imported inside the function because this module is imported at GUI start
+    on installs that may not have every sibling widget module, and a colour
+    picker is not worth an import-time dependency at the top of the file.
+
+    :returns: a :class:`QColor`. Check ``isValid()`` -- an invalid one is the
+        user cancelling, which is an answer and not a failure.
+    """
+    from .colour_picker import pick_colour as shared
+
+    return shared(parent, initial, title)
 
 
 def colour_for(index: int, alpha: int = 255) -> QColor:
@@ -910,6 +939,10 @@ class FastPlot(QWidget):
         #: ``[(label, callback, checked)]`` for raw vs adjusted p-values.
         self._p_values = []
 
+        #: ``[(label, callback, checked)]`` for the multiple-testing
+        #: correction the plot draws. Empty on a plot that corrects nothing.
+        self._corrections = []
+
         #: ``([(label, callback, checked)], multiplier, on_multiplier)`` for
         #: the effect-size cut, or an empty triple.
         self._thresholds = ([], None, None)
@@ -985,6 +1018,9 @@ class FastPlot(QWidget):
         self._refit = None
         self._baselines = []
         self._compartments = []
+        self._corrections = []
+        self._p_values = []
+        self._thresholds = ([], None, None)
         self._marks = []
         self._frame = None
         self._style_note = ""
@@ -1053,6 +1089,20 @@ class FastPlot(QWidget):
             an uncorrected run offers a number that is not there.
         """
         self._p_values = list(options or ())
+
+    def offer_corrections(self, options) -> None:
+        """Offer the multiple-testing correction, ON the graph.
+
+        :param options: ``[(label, callback, checked)]``, or empty when this
+            plot has no correction to redo.
+
+        Asked for 2026-08-18: "id also like to do fdr by right clicking the
+        graph." :data:`spacr.multiple_testing.METHODS` already holds thirteen
+        and the run picks one; comparing BH against Bonferroni against Storey
+        on the screen in front of you is a two-second question that otherwise
+        costs a re-run.
+        """
+        self._corrections = list(options or ())
 
     def offer_thresholds(self, options, *, multiplier=None,
                          on_multiplier=None) -> None:
@@ -1198,8 +1248,19 @@ class FastPlot(QWidget):
         #: Points, and how big, from :meth:`set_font_size`. ``None`` is
         #: "whatever pyqtgraph chose", which is not the same as any number.
         self._font_size: Optional[int] = None
-        #: The ink for labels, ticks and the title, or None for the theme's.
+        #: The ink for EVERY piece of text -- title, axis labels, tick
+        #: LABELS, legend, the caption on a threshold line -- or None while
+        #: it follows the theme. One of the two colour controls instruction
+        #: 152 settled on; the other is :attr:`_line_colour`.
         self._font_colour: Optional[str] = None
+        #: The ink for EVERY line -- the data's own, the reference and
+        #: threshold lines, the Q-Q diagonal, the trends, AND the axis spines
+        #: and the tick MARKS -- or None while each keeps its own.
+        #:
+        #: TICK MARKS ARE LINES AND TICK LABELS ARE TEXT. That is the one
+        #: place the two controls meet and it is the one a reader could take
+        #: either way, so it is written down rather than left to the code.
+        self._line_colour: Optional[str] = None
         #: ``(column, colormap)`` while a colour scale is mapped, else None.
         self._colour_column: Optional[tuple] = None
         #: The column mapped to point shapes, or None.
@@ -1214,6 +1275,9 @@ class FastPlot(QWidget):
         #: `volcano.setMinimumHeight(240)`, and a restyle that silently
         #: dropped that floor would let the splitter collapse the plot.
         self._size_bounds: Optional[tuple] = None
+        #: A callable that writes the correction the plot is drawing, or
+        #: None on a plot that recorrects nothing.
+        self._correction_writer = None
 
     # ------------------------------------------------------- what is stylable
 
@@ -1312,8 +1376,37 @@ class FastPlot(QWidget):
         return ""
 
     def line_reason(self) -> str:
-        """Why "line colour and width" cannot act here, or ``""``."""
+        """Why "line width" cannot act here, or ``""``.
+
+        Still the plot's OWN lines and not the axes: a spine's weight is not
+        what "line width" was asked for, so a plot with axes and no data
+        lines has nothing for the control to widen and says so.
+        """
         return "" if self.line_items() else "this plot has no lines on it"
+
+    def line_colour_reason(self) -> str:
+        """Why "line colour" cannot act here, or ``""``.
+
+        Almost never, and that is the point of instruction 152: the control
+        reaches the AXES, and a drawn plot always has those. It was the
+        absence of any control over them that the first report named.
+        """
+        if not self.plots_available:
+            return "this build has no pyqtgraph, so nothing is drawn"
+        return ("" if self.line_items() or self.axis_items()
+                else "this plot has nothing drawn as a line")
+
+    def follow_the_theme(self) -> None:
+        """Put BOTH colour controls back to automatic.
+
+        The way out of a colour, and it has to exist: instruction 152 A is a
+        preference that froze because a resolved default was written back
+        over the word "auto", and a control a user can only set is the same
+        freeze performed by hand.
+        """
+        self.set_line_colour(None)
+        self.set_font_colour(None)
+        self.restyle()
 
     def point_reason(self) -> str:
         """Why the point controls cannot act here, or ``""``.
@@ -1352,6 +1445,17 @@ class FastPlot(QWidget):
         #: control moved onto the menu: a menu entry is built fresh on every
         #: right-click and cannot be the thing that remembers.
         self._grid_on: bool = True
+        #: ``(low, high)`` IN DATA UNITS of the band the y axis HIDES, or
+        #: None while the axis is unbroken. Data units for the same reason
+        #: :attr:`_pinned` is: it is what the user typed, and re-deriving it
+        #: from the drawn range would put a rounding error into it.
+        self._split: dict = {"y": None}
+        #: How tall the break itself is drawn, in DRAWN units. Computed from
+        #: the data that is kept when the split is set, so the break reads as
+        #: a break whatever the axis spans.
+        self._split_gap: float = 0.0
+        #: The left axis' own tick methods, kept so a split can be undone.
+        self._axis_ticks: Optional[tuple] = None
         #: The limits the user typed, IN DATA UNITS, per axis -- or None
         #: where the axis still follows its data. Kept in data units because
         #: that is what was typed: the drawn range is log10 of this while the
@@ -1597,19 +1701,230 @@ class FastPlot(QWidget):
         return self.log_axes()
 
     def _to_drawn(self, values, axis: str):
-        """Data coordinates as they are DRAWN on ``axis``."""
+        """Data coordinates as they are DRAWN on ``axis``.
+
+        Two transforms in one place and always in this order: the log scale
+        first, then the y-axis split -- which is defined against the drawn
+        quantity, so a split on a logged axis hides a band of DECADES and
+        still lands where the user pointed.
+        """
         if values is None:
             return None
         values = np.asarray(values, dtype="float64")
-        if not self._log[axis]:
-            return values
-        with np.errstate(divide="ignore", invalid="ignore"):
-            return np.log10(values)
+        if self._log[axis]:
+            with np.errstate(divide="ignore", invalid="ignore"):
+                values = np.log10(values)
+        if axis == "y" and self._split.get("y") is not None:
+            values = self._compress(values)
+        return values
 
     def _to_data(self, value, axis: str) -> float:
         """A drawn coordinate back in DATA units. The tooltip's inverse."""
         value = float(value)
+        if axis == "y" and self._split.get("y") is not None:
+            value = float(self._expand(np.asarray([value], dtype="float64"))[0])
         return 10.0 ** value if self._log[axis] else value
+
+    # -- the y-axis split ----------------------------------------------------
+
+    def y_split(self) -> Optional[tuple]:
+        """``(low, high)`` of the hidden band IN DATA UNITS, or ``None``."""
+        return self._split.get("y")
+
+    def _split_drawn(self) -> tuple:
+        """The hidden band in DRAWN units -- after the log, before the break."""
+        low, high = self._split["y"]
+        if self._log["y"]:
+            with np.errstate(divide="ignore", invalid="ignore"):
+                return float(np.log10(low)), float(np.log10(high))
+        return float(low), float(high)
+
+    def _compress(self, values):
+        """Drawn coordinates with the hidden band taken out."""
+        low, high = self._split_drawn()
+        gap = self._split_gap
+        values = np.asarray(values, dtype="float64")
+        return np.where(values <= low, values,
+                        values - (high - low) + gap)
+
+    def _expand(self, values):
+        """The inverse of :meth:`_compress`. What a tick label has to read."""
+        low, high = self._split_drawn()
+        gap = self._split_gap
+        values = np.asarray(values, dtype="float64")
+        return np.where(values <= low, values,
+                        values + (high - low) - gap)
+
+    def y_split_reason(self, low, high) -> str:
+        """Why ``(low, high)`` cannot be hidden on the y axis, or ``""``.
+
+        A SPLIT THAT SWALLOWS POINTS IS REFUSED, and this is the one place
+        that rule is stated. A broken axis is a piecewise-linear ruler whose
+        tick labels still read the data's own values, so every mark stays at
+        its own number -- but a mark INSIDE the hidden band has no number left
+        on the ruler to sit at, and drawing it in the break would put a point
+        somewhere its value is not. That is the same thing y-axis jitter does,
+        and instruction 149 forbids it for the same reason.
+
+        So the answer is the count, and the user moves the band.
+        """
+        if not self.plots_available:
+            return "this build has no pyqtgraph, so nothing is drawn"
+        low, high = float(low), float(high)
+        if not np.isfinite(low) or not np.isfinite(high):
+            return "a split needs two finite numbers"
+        if high <= low:
+            return "the top of the hidden band has to be above its bottom"
+        if self._log["y"] and low <= 0:
+            return "a logged axis has no coordinate at or below zero"
+        inside = 0
+        for entry in self._drawn:
+            if entry.y is None or entry.kind != "points":
+                continue
+            values = np.asarray(entry.y, dtype="float64").ravel()
+            values = values[np.isfinite(values)]
+            inside += int(np.sum((values > low) & (values < high)))
+        if inside:
+            return (f"{inside:,} point{'s' if inside != 1 else ''} sit inside "
+                    f"{low:g} to {high:g}, and a split cannot hide a band the "
+                    f"data is in")
+        return ""
+
+    def set_y_split(self, low, high) -> str:
+        """Hide the band ``(low, high)`` on the y axis. Returns the refusal.
+
+        WHAT IT FIXES, AND WHAT IT DOES NOT. Asked for by name -- "the option
+        to insert an axis split on the y axis" -- and it is worth having for
+        the reason it was asked for: a handful of hits at 1e-46 flatten every
+        other point into the bottom of the axis, and taking the empty stretch
+        out gives the rest of the screen its height back. It fixes DYNAMIC
+        RANGE.
+
+        IT DOES NOT FIX THE DISCRETENESS, and this docstring says so because
+        the request hoped it would. Benjamini-Hochberg's adjusted P is a
+        cumulative minimum, so its ties are the procedure working and no axis
+        transform can separate two tests that genuinely hold the same number.
+        The answer to that is the raw P on the axis with the FDR deciding the
+        colour and the line -- see :meth:`VolcanoPlot.set_p_axis`.
+
+        THE TICK LABELS KEEP READING THE DATA'S OWN VALUES, which is what
+        makes this a broken axis rather than a lie: the ruler is piecewise
+        linear, and every number printed beside it is the number the mark
+        actually has.
+
+        :param low: the bottom of the band to hide, IN DATA UNITS.
+        :param high: its top.
+        :returns: ``""`` when it was applied, or the reason it was refused.
+        """
+        reason = self.y_split_reason(low, high)
+        if reason:
+            self.set_style_note(f"y split: {reason}")
+            return reason
+        self._split["y"] = (float(low), float(high))
+        self._split_gap = self._gap_for_split()
+        self._install_split_ticks()
+        self._apply_log()
+        self._reframe_y()
+        self.set_style_note(
+            f"y axis split: {float(low):g} to {float(high):g} is not drawn. "
+            f"A split gives the rest of the screen its height back; it does "
+            f"not make a stepped adjusted P continuous.")
+        return ""
+
+    def _gap_for_split(self) -> float:
+        """How tall to draw the break, in DRAWN units.
+
+        A FIXED FRACTION OF WHAT IS KEPT, not of what is hidden. A band 40
+        decades tall between two segments three decades tall is the case this
+        control exists for, and a gap sized from the hidden band would then
+        be thirteen times the data.
+        """
+        low, high = self._split_drawn()
+        span = 0.0
+        for entry in self._drawn:
+            if entry.y is None:
+                continue
+            values = np.asarray(entry.y, dtype="float64").ravel()
+            if self._log["y"]:
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    values = np.log10(values)
+            values = values[np.isfinite(values)]
+            if not values.size:
+                continue
+            below = values[values <= low]
+            above = values[values >= high]
+            if below.size:
+                span += float(below.max() - below.min())
+            if above.size:
+                span += float(above.max() - above.min())
+        return max(span * 0.06, 1e-9)
+
+    def _install_split_ticks(self) -> None:
+        """Make the left axis print DATA values across the break.
+
+        Without this the axis would number the compressed coordinate, which
+        is a ruler that reads one thing and measures another -- and a figure
+        whose y-axis numbers are wrong is worse than one with no split.
+        """
+        if self._axis_ticks is not None:
+            return
+        try:
+            axis = self.plot.getAxis("left")
+        except Exception:                   # pragma: no cover - absent axis
+            return
+        original_values = axis.tickValues
+        original_strings = axis.tickStrings
+
+        def tick_values(minVal, maxVal, size):
+            if self._split.get("y") is None:
+                return original_values(minVal, maxVal, size)
+            low, high = self._split_drawn()
+            lo = float(self._expand(np.asarray([minVal]))[0])
+            hi = float(self._expand(np.asarray([maxVal]))[0])
+            out = []
+            for spacing, values in original_values(lo, hi, size):
+                kept = [v for v in values if not (low < v < high)]
+                out.append((spacing,
+                            [float(self._compress(np.asarray([v]))[0])
+                             for v in kept]))
+            return out
+
+        def tick_strings(values, scale, spacing):
+            if self._split.get("y") is None:
+                return original_strings(values, scale, spacing)
+            return [f"{self._to_data(v, 'y'):g}" for v in values]
+
+        axis.tickValues = tick_values
+        axis.tickStrings = tick_strings
+        self._axis_ticks = (axis, original_values, original_strings)
+
+    def clear_y_split(self) -> None:
+        """Put the y axis back in one piece. The way out of a split."""
+        if self._split.get("y") is None:
+            return
+        self._split["y"] = None
+        self._split_gap = 0.0
+        if self._axis_ticks is not None:
+            axis, values, strings = self._axis_ticks
+            axis.tickValues = values
+            axis.tickStrings = strings
+            self._axis_ticks = None
+        self._apply_log()
+        self._reframe_y()
+        self.set_style_note("y axis split removed.")
+
+    def _reframe_y(self) -> None:
+        """Give the y axis back to its data -- UNLESS a limit was typed.
+
+        The window the user was looking at is meaningless once the ruler
+        underneath it changes, so the axis re-fits. A limit they TYPED is a
+        different thing: :meth:`_apply_log` has just put it back in the new
+        units, and releasing it here would throw away a number they chose.
+        """
+        box = self.plot.getViewBox()
+        if self._pinned.get("y") is not None:
+            return
+        box.enableAutoRange(axis=box.YAxis, enable=True)
 
     def _place(self, entry) -> None:
         """Move one item to where the current scale says it belongs."""
@@ -1679,17 +1994,27 @@ class FastPlot(QWidget):
         """What the label on ``edge`` reads, given the scale it is drawn at."""
         base = self._base_labels.get(edge, "")
         axis = "x" if edge in ("bottom", "top") else "y"
-        if not self._log.get(axis):
-            return base
         # SAY IT WHERE THE AXIS IS. A tick on a menu nobody has open is not
         # notice; "-log10(p)" was already this idea, and a logged axis owes
-        # the reader the same sentence.
-        return f"{base} (log scale)" if base else "log scale"
+        # the reader the same sentence. A SPLIT axis owes it more: its ruler
+        # is piecewise linear, and a reader measuring a distance on it
+        # without being told is measuring the wrong thing.
+        notes = []
+        if self._log.get(axis):
+            notes.append("log scale")
+        if axis == "y" and self._split.get("y") is not None:
+            low, high = self._split["y"]
+            notes.append(f"split, {low:g}-{high:g} not drawn")
+        if not notes:
+            return base
+        joined = ", ".join(notes)
+        return f"{base} ({joined})" if base else joined
 
     def _relabel_axes(self) -> None:
         for edge, axis in (("bottom", "x"), ("left", "y")):
             base = self._base_labels.get(edge, "")
-            if not base and not self._log[axis]:
+            split = axis == "y" and self._split.get("y") is not None
+            if not base and not self._log[axis] and not split:
                 # AN UNLABELLED AXIS STAYS UNLABELLED. `setLabel` calls
                 # `showLabel()`, so writing the empty string onto the control
                 # panel's deliberately bare x-axis grows a blank strip there.
@@ -1775,8 +2100,8 @@ class FastPlot(QWidget):
 
     def _to_drawn_value(self, value, axis: str) -> float:
         """One data coordinate as it is DRAWN. The scalar of :meth:`_to_drawn`."""
-        value = float(value)
-        return float(np.log10(value)) if self._log[axis] else value
+        drawn = self._to_drawn(np.asarray([float(value)]), axis)
+        return float(drawn[0])
 
     def _reapply_pinned(self) -> None:
         """Put the typed limits back, in whatever units are drawn now."""
@@ -1900,6 +2225,32 @@ class FastPlot(QWidget):
                                    size=f"{int(size) + 2}pt")
             else:
                 self.plot.setTitle(title.text, color=colour)
+        # A THRESHOLD LINE'S CAPTION IS TEXT, NOT PART OF THE LINE. "p=0.05"
+        # and "FDR 5%" used to be recoloured by `set_line_style`, on the
+        # reasoning that a red word beside a green line looks wrong. The
+        # maintainer's decision (instruction 152 B) is the other way and it
+        # is the one that can be stated in a sentence: "a font color that
+        # controls the color of all font in the graph". A caption that
+        # followed the line would make "all font" untrue, and would be the
+        # one string on the figure the font control could not reach.
+        for item in self.line_items():
+            label = getattr(item, "label", None)
+            if label is None:
+                continue
+            try:
+                label.setColor(QColor(colour))
+            except Exception:       # pragma: no cover - not a labelled line
+                pass
+        legend = getattr(self.plot.plotItem, "legend", None)
+        if legend is not None:
+            for entry in getattr(legend, "items", ()):
+                text = entry[1] if isinstance(entry, (tuple, list)) else None
+                if text is None:
+                    continue
+                try:
+                    text.setText(text.text, color=colour)
+                except Exception:   # pragma: no cover - an odd legend item
+                    pass
 
     # ----------------------------------------------------------------- lines
 
@@ -1924,9 +2275,55 @@ class FastPlot(QWidget):
                 if isinstance(item, kinds) and item is not self._highlight
                 and not isinstance(item, ScatterPlotItem)]
 
+    def axis_items(self) -> list:
+        """The four axes, for the line control to reach.
+
+        THE SPINES AND THE TICK MARKS ARE LINES. They were unreachable: the
+        axis takes ``foreground`` at CONSTRUCTION and nothing changed it
+        afterwards, so the first report on instruction 152 -- "doesnt look
+        like there is an option to change the axis color for the volcano
+        plot" -- was exactly right, and :meth:`line_items` deliberately
+        excludes anything that is not a plot item, so no existing call could
+        have reached them.
+        """
+        if not HAVE_PYQTGRAPH:
+            return []
+        found = []
+        for edge in ("bottom", "left", "top", "right"):
+            try:
+                axis = self.plot.getAxis(edge)
+            except Exception:           # pragma: no cover - absent axis
+                continue
+            if axis is not None:
+                found.append(axis)
+        return found
+
+    def line_colour(self) -> Optional[str]:
+        """The ink chosen for lines, or None while each keeps its own."""
+        return self._line_colour
+
+    def set_line_colour(self, colour) -> int:
+        """Colour EVERY line, axis spines and tick marks included.
+
+        ``None`` puts every line back to the colour it was drawn with and the
+        axes back to the theme's -- the "Follow the theme" half, which a user
+        who has set a colour needs or the freeze instruction 152 exists to fix
+        just happens by hand instead of by accident.
+        """
+        self._line_colour = None if colour is None else QColor(colour).name()
+        return self.set_line_style(colour=self._line_colour or "\0theme")
+
     def set_line_style(self, colour=None,
                        width: Optional[float] = None) -> int:
         """Recolour and re-weight every line. Returns how many it reached.
+
+        EVERY LINE MEANS THE AXES TOO (instruction 152 B). The maintainer
+        settled the design on what a mark IS rather than on which part of the
+        code draws it: one Line colour for the data's own lines, the
+        reference and threshold lines, the Q-Q diagonal, the trends, and the
+        axis spines and tick marks; one Font colour for every piece of text.
+        Tick marks are lines and tick labels are text, which is the one place
+        the two controls meet.
 
         THE DASHES SURVIVE. Each pen is copied and only the colour and the
         width are replaced, so the p=0.05 line stays dashed and the reference
@@ -1934,32 +2331,61 @@ class FastPlot(QWidget):
         line is a threshold and which is the data's own trend, and rebuilding
         the pen from scratch would flatten that distinction on every restyle.
 
-        :param colour: anything :class:`QColor` accepts, or None to keep it.
+        THE WIDTH STOPS AT THE PLOT'S LINES. A spine three pixels thick is
+        not what "line width" was asked for, and the axes have no dash
+        pattern to preserve -- so the axes take the colour and keep their
+        weight.
+
+        :param colour: anything :class:`QColor` accepts, ``None`` to keep
+            each line's own, or the sentinel ``"\0theme"`` for "back to
+            automatic" -- which is not a colour and cannot be typed.
         :param width: pen width in pixels, or None to keep it.
         """
         from PySide6.QtGui import QPen
 
+        if not self.plots_available:
+            # NOTHING WAS DRAWN, so there is nothing to restyle. Answering
+            # zero is the honest reply; reaching into a plot that was never
+            # built is the half-built-widget trap `_build_without_pyqtgraph`
+            # exists to close.
+            return 0
+        theme = colour == "\0theme"
+        if theme:
+            colour = None
         touched = 0
         for item in self.line_items():
             existing = self._pen_of(item)
             pen = QPen(existing) if existing is not None else pg.mkPen(MUTED)
-            if colour is not None:
+            # THE COLOUR IT WAS DRAWN WITH, REMEMBERED ONCE. Without it
+            # "Follow the theme" has nothing to go back to and would have to
+            # invent a colour, which is the same class of mistake as
+            # persisting a resolved default.
+            if not hasattr(item, "_spacr_base_colour"):
+                item._spacr_base_colour = QColor(pen.color()).name()
+            if theme:
+                pen.setColor(QColor(item._spacr_base_colour))
+            elif colour is not None:
                 pen.setColor(QColor(colour))
             if width is not None:
                 pen.setWidthF(float(width))
             item.setPen(pen)
-            # THE CAPTION IS PART OF THE LINE. "p=0.05" and "2p/n" are drawn
-            # by the line that carries them, in a colour given at
-            # construction; leaving it behind would put a red word beside a
-            # green line, which is the two-idioms failure this module warns
-            # about in miniature and on the one mark that names a threshold.
-            label = getattr(item, "label", None)
-            if colour is not None and label is not None:
-                try:
-                    label.setColor(QColor(colour))
-                except Exception:   # pragma: no cover - not a labelled line
-                    pass
             touched += 1
+        if colour is not None or theme:
+            ink = self._foreground if theme else colour
+            axis_pen = pg.mkPen(QColor(ink))
+            for axis in self.axis_items():
+                axis.setPen(axis_pen)
+                # THE TICK MARKS, SEPARATELY. `setPen` paints the spine;
+                # pyqtgraph draws the little dashes with `tickPen` and falls
+                # back to the spine's pen only while none is set -- so an
+                # axis that has ever been given one keeps drawing its ticks
+                # in the old ink unless this line is here.
+                try:
+                    axis.setTickPen(axis_pen)
+                except Exception:   # pragma: no cover - older pyqtgraph
+                    pass
+        # THE CAPTIONS ARE NOT TOUCHED HERE. "p=0.05" is text and follows the
+        # font control -- see :meth:`apply_text_style`.
         return touched
 
     @staticmethod
@@ -2373,8 +2799,22 @@ class FastPlot(QWidget):
 
     @staticmethod
     def _checkable(menu, options) -> None:
-        """``[(label, callback, checked)]`` as ticked entries on ``menu``."""
-        for label, callback, checked in options:
+        """``[(label, callback, checked)]`` as ticked entries on ``menu``.
+
+        A FOURTH ELEMENT IS THE REASON IT CANNOT ACT, and an option carrying
+        one is added greyed with the reason in its label -- instruction 106's
+        rule, reached here because "local FDR" is a real option that a family
+        of twelve tests genuinely cannot support. Three-element options are
+        unchanged, so every existing caller keeps working.
+        """
+        for option in options:
+            label, callback, checked = option[0], option[1], option[2]
+            reason = option[3] if len(option) > 3 else ""
+            if reason:
+                entry = menu.addAction(f"{label}  —  {reason}")
+                entry.setEnabled(False)
+                entry.setToolTip(reason)
+                continue
             action = menu.addAction(label, callback)
             action.setCheckable(True)
             action.setChecked(bool(checked))
@@ -2430,6 +2870,23 @@ class FastPlot(QWidget):
             # what the axis MEANS, while the cut changes where a line is
             # drawn on it.
             self._checkable(self._group(menu, "p-value"), self._p_values)
+            claims = True
+        if self._corrections:
+            # WHICH MULTIPLE-TESTING CORRECTION IS DRAWN. Beside the p-value
+            # axis because the two are one question -- what the height and
+            # the colour MEAN -- and above the effect-size cut for the same
+            # reason the axis is.
+            group = self._group(menu, "Correction")
+            self._checkable(group, self._corrections)
+            if self._correction_writer is not None:
+                # NOT LEFT AMBIGUOUS. A plot recorrected to something other
+                # than the run's is showing a different analysis from the
+                # results.csv beside it; the status line says so, and this is
+                # the other half of the answer -- the numbers on screen,
+                # written out, so the table and the figure can be made to
+                # agree rather than merely be known to differ.
+                group.addAction("Write this correction as a table…",
+                                self._correction_writer)
             claims = True
         options, multiplier, on_multiplier = self._thresholds
         if options:
@@ -2487,6 +2944,15 @@ class FastPlot(QWidget):
         # page is "Shape", under Appearance.
         axes.addAction("Lock axis scales (1 y unit = n x units)…",
                        self._ask_aspect_ratio)
+        # THE SPLIT, ASKED FOR BY NAME. Under Axes because it is a statement
+        # about the RULER: it takes an empty stretch out so the rest of the
+        # screen gets its height back. It does NOT make a stepped adjusted P
+        # continuous, and the status line it writes says so.
+        axes.addAction("Split the y axis…", self._ask_y_split)
+        if self.y_split() is not None:
+            low, high = self.y_split()
+            axes.addAction(f"Y axis split ({low:g}-{high:g}): remove",
+                           self.clear_y_split)
         for axis in ("x", "y"):
             # CHECKABLE, AND GATED. The tick is the state, and an axis that
             # cannot be logged says why in the entry itself rather than
@@ -2512,9 +2978,17 @@ class FastPlot(QWidget):
             entry.setCheckable(True)
             entry.setChecked(self._canvas_shape == name)
         look.addAction("Font size…", self._ask_font_size)
+        # EXACTLY TWO COLOUR CONTROLS, split by what a mark IS rather than by
+        # which part of the code draws it (instruction 152 B). Font colour is
+        # every piece of text, tick LABELS included; Line colour is every
+        # line, the axis spines and tick MARKS included.
         look.addAction("Font colour…", self._ask_font_colour)
-        self._gated(look, "Line colour and width…", self._ask_line_style,
+        self._gated(look, "Line colour…", self._ask_line_colour,
+                    self.line_colour_reason())
+        self._gated(look, "Line width…", self._ask_line_width,
                     self.line_reason())
+        if self._font_colour is not None or self._line_colour is not None:
+            look.addAction("Follow the theme (colours)", self.follow_the_theme)
         grid = look.addAction("Grid")
         grid.setCheckable(True)
         grid.setChecked(self.grid_shown())
@@ -2720,10 +3194,7 @@ class FastPlot(QWidget):
                 item.setSize(value)
 
     def _ask_point_colour(self) -> None:
-        from PySide6.QtWidgets import QColorDialog
-
-        colour = QColorDialog.getColor(QColor(PALETTE[0]), self,
-                                       "Point colour")
+        colour = pick_colour(self, PALETTE[0], "Point colour")
         if colour.isValid():
             # One brush for everything: this is the deliberate override of a
             # category colouring, and it is also the fastest path there is.
@@ -2763,10 +3234,8 @@ class FastPlot(QWidget):
             self.set_font_size(value)
 
     def _ask_font_colour(self) -> None:
-        from PySide6.QtWidgets import QColorDialog
-
-        colour = QColorDialog.getColor(
-            QColor(self._font_colour or self._foreground), self, "Font colour")
+        colour = pick_colour(self, self._font_colour or self._foreground,
+                             "Font colour")
         if colour.isValid():
             self.set_font_colour(colour)
 
@@ -2815,23 +3284,57 @@ class FastPlot(QWidget):
         if ok:
             self.set_aspect_ratio(None if value <= 0 else value)
 
-    def _ask_line_style(self) -> None:
-        from PySide6.QtWidgets import QColorDialog, QInputDialog
+    def _ask_line_width(self) -> None:
+        """ONE question, applied when it is answered.
+
+        This used to be half of "Line colour and width…", which asked for a
+        width and then chained a colour dialog nobody had asked for, applying
+        the width only AFTER that dialog closed. On a GNOME session the
+        colour dialog is brokered through xdg-desktop-portal and takes tens
+        of seconds, which is the whole of the reported "changing the line
+        width takes like 1 minute" -- so a user who wanted a width waited out
+        a picker they never opened. Measured: the restyle itself is free
+        (`set_line_style` 0.000 s on 1,200 points).
+        """
+        from PySide6.QtWidgets import QInputDialog
 
         lines = self.line_items()
         first = self._pen_of(lines[0]) if lines else None
         width, ok = QInputDialog.getDouble(
             self, "Line width", "Width in pixels:",
             float(first.widthF()) if first is not None else 1.5, 0.1, 20.0, 1)
+        if ok:
+            self.set_line_style(width=width)
+
+    def _ask_line_colour(self) -> None:
+        """The other half. Every line, the axes and the tick marks."""
+        lines = self.line_items()
+        first = self._pen_of(lines[0]) if lines else None
+        start = (self._line_colour
+                 or (first.color().name() if first is not None
+                     else self._foreground))
+        colour = pick_colour(self, start, "Line colour")
+        if colour.isValid():
+            self.set_line_colour(colour)
+
+    def _ask_y_split(self) -> None:
+        """The band of the y axis to leave out. Two numbers, in data units."""
+        from PySide6.QtWidgets import QInputDialog
+
+        (_, _), (y_from, y_to) = self.axis_limits()
+        current = self.y_split() or (y_from, y_to)
+        units = " in data units, not log10" if self._log["y"] else ""
+        low, ok = QInputDialog.getDouble(
+            self, "Split the y axis",
+            f"Hide from{units} (the bottom of the empty stretch):",
+            float(current[0]), -1e12, 1e12, 4)
         if not ok:
             return
-        colour = QColorDialog.getColor(
-            QColor(first.color()) if first is not None else QColor(MUTED),
-            self, "Line colour")
-        # A CANCELLED COLOUR STILL APPLIES THE WIDTH. The user answered one
-        # question and declined the other; throwing away the answer they gave
-        # would make the dialog feel like it lost their input.
-        self.set_line_style(colour if colour.isValid() else None, width)
+        high, ok = QInputDialog.getDouble(
+            self, "Split the y axis", f"Hide to{units}:",
+            float(current[1]), -1e12, 1e12, 4)
+        if ok:
+            self.set_y_split(low, high)
 
     def _ask_colour_column(self) -> None:
         from PySide6.QtWidgets import QInputDialog
@@ -3162,12 +3665,20 @@ class FastPlot(QWidget):
     def add_line(self, *, x=None, y=None, colour: str = "#C44E52",
                  style=Qt.DashLine, width: float = 1.5, label: str = ""):
         """A threshold line. ``x`` for vertical, ``y`` for horizontal."""
+        if self._line_colour is not None:
+            # A LINE ADDED AFTER THE CONTROL WAS USED STILL OBEYS IT. A
+            # redraw puts new threshold lines on the plot, and without this
+            # they would arrive in the default red beside the ones the user
+            # recoloured.
+            colour = self._line_colour
         pen = pg.mkPen(QColor(colour), width=width, style=style)
+        # THE CAPTION FOLLOWS THE FONT, NOT THE LINE (instruction 152 B).
+        ink = self._font_colour or self._foreground
         line = pg.InfiniteLine(
             pos=(x if x is not None else y),
             angle=90 if x is not None else 0,
             pen=pen, label=label or None,
-            labelOpts={"position": 0.92, "color": colour, "movable": False},
+            labelOpts={"position": 0.92, "color": ink, "movable": False},
         )
         self.plot.addItem(line)
         return line
@@ -3519,18 +4030,179 @@ class FastPlot(QWidget):
             self.plot.setTitle(title.text, color=foreground)
         # A THEME SWITCH MUST NOT UNDO A CHOICE THE USER MADE. The loop above
         # has just painted the theme's ink over every axis; if the user set a
-        # font colour or size off the menu, that is what they asked this plot
-        # to look like and it goes back on top.
-        if self._font_colour is not None or self._font_size is not None:
+        # font or a line colour off the menu, that is what they asked this
+        # plot to look like and it goes back on top.
+        if self._line_colour is not None:
+            self.set_line_style(colour=self._line_colour)
+        if (self._font_colour is not None or self._font_size is not None
+                or self._line_colour is None):
+            # The captions are text and were just repainted with the axes'
+            # ink by nothing at all -- they are LabelItems, which the loop
+            # above does not reach. apply_text_style is what carries the
+            # theme to them, so it runs on a plain theme switch too.
             self.apply_text_style()
 
 
 class VolcanoPlot(FastPlot):
-    """Effect against -log10(p), coloured by a category, every dot clickable."""
+    """Effect against -log10(p), with the FDR carried by colour and a line.
+
+    THE Y AXIS IS THE RAW P VALUE AND IT IS CONTINUOUS. That is instruction
+    149, and the reasoning is worth having beside the code because the
+    observation that produced it looked like a bug and was not.
+
+    Benjamini-Hochberg's adjusted P is a cumulative minimum taken from the
+    largest P downwards -- ``q_(i) = min over j >= i of (n * p_(j) / j)`` --
+    and the ``min`` is both what enforces monotonicity and what creates ties:
+    the moment a later rank produces a smaller value, EVERY earlier rank is
+    pulled down onto it. Measured on the maintainer's own runs: 823 q values
+    with 31 distinct, 19 tied levels covering 811 coefficients, GRA14 and
+    225160 both at 4.1150e-03. A volcano drawn against that has a staircase
+    for a y-axis, and no transform can separate two tests that hold the same
+    number.
+
+    So the height is the RAW P, which is continuous and is the evidence per
+    test, and the correction decides the COLOUR and the LINE, which is the
+    discrete thing it actually is. The same two numbers are on the plot, each
+    doing the job it can do, and nothing is invented -- which is also why the
+    one thing this plot will not do is jitter the y axis to separate ties.
+    That moves a point away from its own value, and this class exists because
+    a plot was showing something the data did not say.
+    """
+
+    #: What the y axis measures, in the order the menu offers them.
+    P_AXES = ("raw", "adjusted", "lfdr")
 
     def __init__(self, parent=None):
         super().__init__(title="Volcano", x_label="coefficient",
                          y_label="-log10(p)", parent=parent)
+        #: Which of :data:`P_AXES` the height is. Raw by default.
+        self._p_axis = "raw"
+        #: Whether that was a person's choice rather than a default. A host
+        #: may seed the axis; only a person may overrule one.
+        self._p_axis_chosen = False
+        #: The correction the user picked ON the plot, or None for the run's.
+        self._correction: Optional[str] = None
+        #: The correction the RUN used, as its table records it.
+        self._run_method = ""
+        self._alpha = 0.05
+        #: ``(frame, kwargs)`` of the last draw, so changing the axis or the
+        #: correction can redraw without the host being involved.
+        self._results_call: Optional[tuple] = None
+        #: Per family: ``(critical raw p or None, called, tested)``.
+        self._families: dict = {}
+        #: The recomputed values, aligned with the plotted frame.
+        self._q_values = None
+        self._lfdr_values = None
+        self._called = None
+        self._raw_values = None
+        self._family_of = None
+        self._raw_resolution = None
+        #: The sentence that says which number is which. Never empty once
+        #: anything is drawn: a volcano whose height is the raw P and whose
+        #: colour is the FDR, with nothing saying so, is read in the
+        #: direction of over-confidence.
+        self._caption = ""
+        #: ``(distinct, tested, finest)`` when the raw P is quantised, else
+        #: None -- the permutation path, which is discrete before BH runs.
+        self._raw_resolution = None
+        self._y_floor = 1e-300
+        self._correction_writer = self._write_corrected_table
+
+    # -------------------------------------------------------- what is drawn
+
+    def p_axis(self) -> str:
+        """Which of :data:`P_AXES` the y axis measures."""
+        return self._p_axis
+
+    def set_p_axis(self, kind: str) -> None:
+        """Draw the height against the raw P, the adjusted P, or the lfdr.
+
+        ``"adjusted"`` IS KEPT AND IS NOT THE DEFAULT. It is honest and
+        stepped, because that is what BH is, and a user reproducing a
+        published figure drawn that way needs to be able to.
+        """
+        kind = str(kind)
+        if kind not in self.P_AXES:
+            raise ValueError(f"p axis must be one of {self.P_AXES}; got {kind!r}")
+        self._p_axis = kind
+        #: True once a person has picked an axis off this plot's own menu.
+        self._p_axis_chosen = True
+        self.redraw()
+
+    def correction(self) -> str:
+        """The correction being DRAWN, canonical, whoever chose it."""
+        from ...multiple_testing import canonical_method
+
+        chosen = self._correction or self._run_method or "fdr_bh"
+        try:
+            return canonical_method(chosen)
+        except ValueError:
+            return "fdr_bh"
+
+    def run_correction(self) -> str:
+        """The correction the RUN used, or ``""`` if the table does not say."""
+        return self._run_method
+
+    def set_correction(self, method) -> None:
+        """Recompute the correction on the spot. ``None`` goes back to the run's."""
+        from ...multiple_testing import canonical_method
+
+        self._correction = None if method is None else canonical_method(method)
+        self.redraw()
+
+    def caption(self) -> str:
+        """The sentence naming which quantity is the height and which the call."""
+        return self._caption
+
+    def families(self) -> dict:
+        """``{family: (critical raw p or None, called, tested)}`` as drawn."""
+        return dict(self._families)
+
+    def local_fdr_values(self):
+        """The local FDR per row, computed once and per FAMILY.
+
+        LAZY ON PURPOSE. The beta-uniform fit is 25 ms on the real screen's
+        1,215 coefficients -- more than drawing the whole plot -- and the
+        default axis does not use it. Computing it on every redraw would put
+        the lag back that this module's whole first half exists to remove.
+        """
+        if self._lfdr_values is not None:
+            return self._lfdr_values
+        from ...multiple_testing import local_fdr
+
+        if self._raw_values is None:
+            return None
+        values = np.full(self._raw_values.shape, np.nan)
+        for name in self._families:
+            mask = self._family_of == name
+            values[mask] = local_fdr(self._raw_values[mask])
+        self._lfdr_values = values
+        return values
+
+    def _forget_statistics(self) -> None:
+        """Drop every number the last draw computed.
+
+        A DRAW THAT PUT NOTHING ON THE PLOT MUST LEAVE NOTHING BEHIND. The
+        caption, the q values and the per-family counts are read by the
+        status line, the click handler and the table writer; left standing
+        after an empty redraw they would describe the PREVIOUS screen, which
+        is the worst kind of wrong number -- one that used to be right.
+        """
+        self._caption = ""
+        self._families = {}
+        self._q_values = None
+        self._lfdr_values = None
+        self._called = None
+        self._raw_values = None
+        self._family_of = None
+        self._raw_resolution = None
+
+    def redraw(self) -> int:
+        """Draw the last table again with the current axis and correction."""
+        if self._results_call is None:
+            return 0
+        frame, kwargs = self._results_call
+        return self.set_results(frame, **kwargs)
 
     def set_results(self, frame, *, effect: str = "coefficient",
                     p_column: str = "p_value", label_column: str = "feature",
@@ -3539,19 +4211,77 @@ class VolcanoPlot(FastPlot):
                     effect_threshold: Optional[float] = None,
                     key_column: Optional[str] = None,
                     drop_untested: bool = True,
-                    compartment: Optional[str] = None):
+                    compartment: Optional[str] = None,
+                    q_column: Optional[str] = None,
+                    run_method: Optional[str] = None):
         """Draw ``frame``. Returns the number of points actually plotted.
 
+        :param p_column: the RAW P value. Not the corrected one -- the height
+            is the raw P by default and the correction is recomputed here.
+        :param q_column: the run's own corrected column, for the plot to
+            check itself against. Found in the table when omitted.
+        :param run_method: which correction the run used. Read off the
+            table's ``multiple_testing_method`` column when omitted.
         :param compartment: one TAGM/LOPIT compartment to pick out against
             grey. ONE, not all 27 -- see :mod:`spacr.localisation`. It
             REPLACES any category colouring rather than combining with it: a
             volcano where a coloured dot might be coloured for its condition
             or for its compartment has no sentence.
         """
+        from ...multiple_testing import (LOCAL_FDR_MIN_TESTS, METHODS,
+                                         adjust_p_values, canonical_method,
+                                         method_label)
+
         self._reset_scene()
         if frame is None or not len(frame):
+            self._results_call = None
+            self._forget_statistics()
             self.set_status("No coefficients to plot.")
             return 0
+
+        # THE CALL IS REMEMBERED, NOT THE PICTURE. Switching the axis or the
+        # correction redraws from the table the host handed over, so neither
+        # costs a round trip through the host and neither can drift from what
+        # is on screen.
+        self._results_call = (frame, dict(
+            effect=effect, p_column=p_column, label_column=label_column,
+            category_column=category_column, alpha=alpha,
+            effect_threshold=effect_threshold, key_column=key_column,
+            drop_untested=drop_untested, compartment=compartment,
+            q_column=q_column, run_method=run_method))
+        self._alpha = float(alpha)
+
+        columns = getattr(frame, "columns", ())
+        if q_column is None:
+            q_column = _first_column(frame, ("q_value", "adjusted_p_value"))
+        if run_method is None:
+            run_method = ""
+            if "multiple_testing_method" in columns:
+                seen = frame["multiple_testing_method"].dropna().unique()
+                run_method = str(seen[0]) if len(seen) else ""
+        # CANONICAL, so "bh" in an older table and "fdr_bh" in a new one are
+        # the same run method and the menu ticks the same entry for both.
+        try:
+            self._run_method = canonical_method(run_method) if run_method else ""
+        except ValueError:
+            self._run_method = str(run_method)
+        # A HOST STILL DRIVING THE AXIS THROUGH `p_column` IS HONOURED UNTIL
+        # THE USER SAYS OTHERWISE. `RegressionResultsPanel` switches
+        # raw/adjusted by handing over a different column, and reading that
+        # as "the host asked for the adjusted axis" keeps its control working
+        # while this plot owns the choice.
+        #
+        # A CHOICE MADE ON THE PLOT WINS FROM THEN ON, and that is not a
+        # nicety: the host redraws on every level change, baseline change and
+        # compartment change, so without this any one of them would silently
+        # put the axis back and the user would watch their choice undo itself.
+        raw_column = _first_column(frame, ("p_value", "p", "pvalue"))
+        if q_column and p_column == q_column:
+            if not self._p_axis_chosen:
+                self._p_axis = "adjusted"
+            p_column = raw_column or p_column
+        elif not self._p_axis_chosen and raw_column and p_column == raw_column:
+            self._p_axis = "raw"
 
         # NUISANCE TERMS ARE NOT HYPOTHESES, AND THEY OWN THE AXIS.
         #
@@ -3568,7 +4298,7 @@ class VolcanoPlot(FastPlot):
         # taller than the data and flattens the whole screen into the bottom
         # of it. A fit carrying row and column terms has ~25 of them.
         untested = 0
-        if drop_untested and "feature" in getattr(frame, "columns", ()):
+        if drop_untested and "feature" in columns:
             from ...hits import tested_family
 
             keep_rows = tested_family(frame["feature"])
@@ -3576,19 +4306,118 @@ class VolcanoPlot(FastPlot):
                 untested = int((~keep_rows).sum())
                 frame = frame.loc[keep_rows].reset_index(drop=True)
                 if not len(frame):
+                    self._forget_statistics()
                     self.set_status(
                         f"No testable coefficients: all {untested} rows are "
                         "nuisance terms.")
                     return 0
+                columns = frame.columns
 
         effects = _finite(frame[effect]) if effect in frame else np.zeros(len(frame))
-        p_values = _finite(frame[p_column]) if p_column in frame \
+        raw = _finite(frame[p_column]) if p_column in frame \
             else np.full(len(frame), np.nan)
+
+        # ------------------------------------------------ the correction
+        #
+        # RECOMPUTED, AND WITHIN THE RIGHT FAMILY. The correction applies
+        # within a LEVEL -- a run at level='both' fits twice and each fit is
+        # its own family (instruction 128 R) -- so pooling whatever happens
+        # to be on screen would change n and with it every q value, quietly
+        # and in the direction that makes the run look weaker than it is.
+        # `hits.family_labels` is the single statement of that split.
+        method = self.correction()
+        if "feature" in columns:
+            from ...hits import family_labels
+
+            families = family_labels(frame["feature"])
+        else:
+            families = np.full(len(frame), "all", dtype=object)
+        q = np.full(len(frame), np.nan)
+        called = np.zeros(len(frame), dtype=bool)
+        self._families = {}
+        self._family_of = families
+        self._raw_values = raw
+        # THE LOCAL FDR IS NOT COMPUTED UNLESS IT IS WANTED. Measured on the
+        # real screen's 1,215 coefficients: the mixture fit is 25 ms of a 40
+        # ms redraw -- more than drawing the plot -- and the default axis is
+        # the raw P, which does not use it. It is computed when the axis
+        # asks for it and when a click asks for it, once, and cached.
+        self._lfdr_values = None
+        for name in sorted({str(f) for f in families if f}):
+            mask = families == name
+            fam_q, fam_called = adjust_p_values(raw[mask], method=method,
+                                               alpha=self._alpha)
+            q[mask] = fam_q
+            called[mask] = fam_called
+            # THE CRITICAL RAW P, WHICH IS EXACT AND IS NOT ALPHA.
+            #
+            # Every correction here is monotone in the raw P within a family,
+            # so the set it calls is a lower set: there is a rank k with
+            # every p <= p_(k) called and everything above it not. For BH
+            # that is the textbook identity q_(i) <= alpha iff
+            # p_(i) <= alpha*i/n at the largest such i. One horizontal line
+            # at -log10(p_(k)) therefore divides this plot EXACTLY as the FDR
+            # does, on a continuous axis, with no steps anywhere.
+            #
+            # Drawing it at -log10(alpha) instead is the mistake this
+            # replaces: that is the UNCORRECTED threshold and it calls far
+            # too much of the screen.
+            critical = (float(np.max(raw[mask][fam_called]))
+                        if fam_called.any() else None)
+            self._families[name] = (critical, int(fam_called.sum()),
+                                    int(np.isfinite(raw[mask]).sum()))
+        self._q_values, self._called = q, called
+        # IS THE RAW P ITSELF QUANTISED? The permutation path is discrete
+        # TWICE OVER and that is why it looks worst: a permutation p is
+        # (1 + #{null <= observed}) / (n + 1), so 1,000 permutations admit
+        # only 1,001 possible values and many guides already share one before
+        # BH ever runs. Saying so is the difference between a user raising
+        # `guide_permutations` and a user concluding the plot is broken.
+        finite_raw = raw[np.isfinite(raw)]
+        self._raw_resolution = None
+        if finite_raw.size:
+            distinct = int(np.unique(finite_raw).size)
+            if distinct < 0.95 * finite_raw.size:
+                positive = finite_raw[finite_raw > 0]
+                self._raw_resolution = (
+                    distinct, int(finite_raw.size),
+                    float(positive.min()) if positive.size else 0.0)
+
+        # DOES THE PLOT AGREE WITH THE TABLE BESIDE IT? results.csv carries
+        # the run's own q values; recomputing the run's own method on the
+        # run's own family has to reproduce them, and if it does not, the
+        # user is looking at two analyses and is entitled to know.
+        agrees = None
+        if q_column and q_column in columns:
+            try:
+                same = canonical_method(self._run_method) == method
+            except ValueError:
+                same = False
+            if same:
+                stored = _finite(frame[q_column])
+                both = np.isfinite(stored) & np.isfinite(q)
+                agrees = bool(both.any() and np.allclose(
+                    stored[both], q[both], rtol=1e-6, atol=1e-12))
+
+        # ------------------------------------------------------ the height
+        if self._p_axis == "adjusted":
+            values = q
+            axis_label = f"-log10(adjusted p, {method})"
+        elif self._p_axis == "lfdr":
+            values = self.local_fdr_values()
+            axis_label = "-log10(local FDR)"
+        else:
+            values = raw
+            axis_label = "-log10(p)"
         # A p of exactly zero is a real result underflowing, not a mistake;
         # clamping keeps it on the plot instead of sending it to infinity.
-        smallest = np.nanmin(p_values[p_values > 0]) if np.any(p_values > 0) \
+        smallest = np.nanmin(values[values > 0]) if np.any(values > 0) \
             else 1e-300
-        neglog = -np.log10(np.clip(p_values, smallest * 1e-3, 1.0))
+        #: The floor a zero is drawn at, shared with the threshold line so
+        #: the two cannot end up on different scales.
+        self._y_floor = float(smallest * 1e-3)
+        neglog = -np.log10(np.clip(values, self._y_floor, 1.0))
+        self.plot.setLabel("left", axis_label)
 
         brush_list, legend = None, {}
         if compartment:
@@ -3634,6 +4463,17 @@ class VolcanoPlot(FastPlot):
                                  minlength=len(names))
             legend = {f"{name} ({int(counts[i])})": colour_for(i)
                       for i, name in enumerate(names)}
+        elif called.any() or np.isfinite(q).any():
+            # THE FIELD'S OWN VOLCANO: continuous height, binary colour, and
+            # the colour carrying the claim. Only when nothing else has
+            # claimed the colour channel -- a dot cannot be coloured for its
+            # condition and for its q at once, and the legend says which is
+            # in force.
+            here, elsewhere = pg.mkBrush(HIGHLIGHT), pg.mkBrush(MUTED)
+            brush_list = [here if flag else elsewhere for flag in called]
+            n_called = int(called.sum())
+            legend = {f"called ({n_called})": HIGHLIGHT,
+                      f"not called ({int(len(called) - n_called)})": MUTED}
 
         # NO PER-POINT WORK BEFORE DRAWING.
         #
@@ -3658,7 +4498,10 @@ class VolcanoPlot(FastPlot):
         self.set_keys(frame[key] if key in frame.columns else frame.index)
 
         self.add_scatter(effects, neglog, brush_list=brush_list)
-        self.add_line(y=-np.log10(alpha), label=f"p={alpha:g}")
+        controls = METHODS[method].controls
+        level = f"{controls} {self._alpha:g}" if controls != "nothing" \
+            else f"p {self._alpha:g}"
+        drawn_lines = self._add_significance_lines(level)
         if effect_threshold:
             for sign in (-1, 1):
                 self.add_line(x=sign * abs(effect_threshold), colour="#8C8C8C")
@@ -3692,6 +4535,10 @@ class VolcanoPlot(FastPlot):
             self.highlight_key(self._selected_key)
 
         plotted = int(np.sum(~(np.isnan(effects) | np.isnan(neglog))))
+        self._caption = self._build_caption(method, level, agrees,
+                                            drawn_lines, bool(brush_list)
+                                            and not (compartment
+                                                     or category_column))
         note = f"{plotted} coefficients."
         if untested:
             # Reported, not silently removed: the difference between a filter
@@ -3699,8 +4546,199 @@ class VolcanoPlot(FastPlot):
             note += (f" {untested} nuisance "
                      f"term{'s' if untested != 1 else ''} not shown (not "
                      "tested, so no q-value).")
-        self.set_status(f"{note} Click a point for detail.")
+        self._offer_p_axes(method, int(np.isfinite(raw).sum()),
+                           LOCAL_FDR_MIN_TESTS, method_label)
+        self._offer_corrections(method)
+        self.set_status(f"{note} {self._caption} Click a point for detail.")
         return plotted
+
+    # ------------------------------------------------------- the line and
+    #                                                          the sentence
+
+    def _add_significance_lines(self, level: str) -> int:
+        """Draw the threshold. Returns how many lines went on.
+
+        ZERO IS AN ANSWER. When nothing is called there is no rank k, there
+        is no critical P value, and there is no line -- saying so is a
+        finding, and drawing one at alpha instead would claim a threshold the
+        procedure never reached.
+        """
+        if self._p_axis != "raw":
+            # The corrected axis is the one place alpha IS the threshold.
+            name = "q" if self._p_axis == "adjusted" else "lfdr"
+            self.add_line(y=-np.log10(self._alpha),
+                          label=f"{name}={self._alpha:g}")
+            return 1
+        criticals = {name: value[0] for name, value in self._families.items()
+                     if value[0] is not None}
+        if not criticals:
+            return 0
+        drawn = 0
+        # DEDUPED ON THE EXACT VALUE, not on a rounded one. `round(p, 15)`
+        # was here and it sent every P value below 1e-15 to zero -- so a
+        # screen whose critical P is 1.7e-20 drew its line at -log10(0), and
+        # pyqtgraph died on the infinity ("cannot convert float NaN to
+        # integer") rather than on anything a reader could act on. Rounding
+        # to DECIMAL places is never right for a P value; the two families'
+        # criticals are computed from the same array and compare exactly.
+        distinct = sorted(set(criticals.values()))
+        for value in distinct:
+            if len(distinct) > 1:
+                who = ", ".join(sorted(name for name, v in criticals.items()
+                                       if v == value))
+                text = f"{level} ({who}): p<={value:.3g}"
+            else:
+                text = f"{level}: p<={value:.3g}"
+            # THE LINE SITS ON THE SAME FLOOR THE POINTS DO. A P value that
+            # underflowed to zero is a real result, and the scatter already
+            # clamps it rather than sending it to infinity; a threshold line
+            # that did not use the same floor would leave the plot.
+            self.add_line(y=-np.log10(max(value, self._y_floor)), label=text)
+            drawn += 1
+        return drawn
+
+    def _build_caption(self, method: str, level: str, agrees,
+                       drawn_lines: int, colour_is_the_call: bool) -> str:
+        """The sentence that says which number is which.
+
+        THE CAPTION IS NOT OPTIONAL. A volcano whose height is the raw P and
+        whose colour is the FDR, with nothing saying so, is a figure a reader
+        misreads in the direction of over-confidence -- and it is the reason
+        this default is safe to ship at all.
+        """
+        from ...multiple_testing import method_label
+
+        label = method_label(method)
+        parts = []
+        height = {"raw": "the raw p", "adjusted": f"the adjusted p ({label})",
+                  "lfdr": "the local FDR"}[self._p_axis]
+        if self._p_axis == "raw":
+            parts.append(f"Height is {height}; {label} decides the colour "
+                         f"and the line.")
+        else:
+            parts.append(f"Height is {height}.")
+        if colour_is_the_call:
+            parts.append(f"Colour is the call at {level}.")
+        called = sum(value[1] for value in self._families.values())
+        tested = sum(value[2] for value in self._families.values())
+        if self._p_axis == "raw":
+            if drawn_lines:
+                thresholds = ", ".join(
+                    f"{name} p<={value[0]:.3g}"
+                    for name, value in sorted(self._families.items())
+                    if value[0] is not None)
+                parts.append(f"{level} ({thresholds}): {called} of {tested} "
+                             f"called.")
+            else:
+                parts.append(f"Nothing is called at {level}, so there is no "
+                             f"threshold line to draw.")
+        else:
+            parts.append(f"{called} of {tested} called at {level}.")
+        if len(self._families) > 1:
+            parts.append(f"Corrected within each level separately "
+                         f"({', '.join(sorted(self._families))}).")
+        if self._correction and self._run_method and \
+                self._correction != self._run_method:
+            parts.append(f"The run used {self._run_method}; this is a VIEW "
+                         f"and the exported table still holds the run's q.")
+        elif not self._run_method:
+            parts.append("The table does not record which correction the run "
+                         "used, so this one is the plot's own.")
+        if agrees is False:
+            parts.append("WARNING: recomputing the run's own method does not "
+                         "reproduce the table's q values, so the two "
+                         "disagree about the family.")
+        if self._p_axis == "lfdr":
+            parts.append("The local FDR is continuous by construction and "
+                         "models the alternatives as Beta(a, 1).")
+        if self._raw_resolution is not None:
+            distinct, total, finest = self._raw_resolution
+            parts.append(
+                f"The RAW p is itself quantised -- {distinct:,} distinct "
+                f"values among {total:,}, the smallest {finest:.3g} -- so a "
+                f"permutation p can be no finer than 1/(permutations + 1) "
+                f"and raising that count is what buys resolution here.")
+        return " ".join(parts)
+
+    # ------------------------------------------------------------- the menu
+
+    def _offer_p_axes(self, method: str, tested: int, minimum: int,
+                      method_label) -> None:
+        """Put the three honest y-axes on the plot's own menu."""
+        too_small = ("" if tested >= minimum else
+                     f"a family of {tested} is too small to read a density "
+                     f"off; {minimum} are needed")
+        self.offer_p_values([
+            ("raw p (continuous)", lambda: self.set_p_axis("raw"),
+             self._p_axis == "raw"),
+            (f"adjusted p — {method_label(method)} (stepped)",
+             lambda: self.set_p_axis("adjusted"),
+             self._p_axis == "adjusted"),
+            ("local FDR (continuous)", lambda: self.set_p_axis("lfdr"),
+             self._p_axis == "lfdr", too_small),
+        ])
+
+    def _offer_corrections(self, method: str) -> None:
+        """Every correction spaCR knows, recomputed on the spot."""
+        from ...multiple_testing import METHODS
+
+        options = []
+        for key, spec in METHODS.items():
+            label = spec.label
+            if self._run_method and key == self._run_method:
+                label = f"{label} (the run's)"
+            options.append((label,
+                            lambda k=key: self.set_correction(k),
+                            key == method))
+        self.offer_corrections(options)
+
+    def _write_corrected_table(self) -> Optional[str]:
+        """Write the numbers ON SCREEN out, so the table can be made to agree.
+
+        The alternative was to leave it ambiguous, which instruction 149 E
+        forbids: a plot recorrected to something other than the run's shows a
+        different analysis from the results.csv beside it, and a user who can
+        see the difference but not export it has to re-run to act on it.
+        """
+        from PySide6.QtWidgets import QFileDialog
+
+        if self._frame is None or self._q_values is None:
+            return None
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Write this correction as a table", "results_recorrected.csv",
+            "CSV (*.csv)", options=QFileDialog.DontUseNativeDialog)
+        if not path:
+            return None
+        frame = self._frame.copy()
+        method = self.correction()
+        frame["multiple_testing_method"] = method
+        frame["q_value"] = self._q_values
+        frame["local_fdr"] = self.local_fdr_values()
+        frame[f"called_at_{self._alpha:g}"] = self._called
+        frame.to_csv(path, index=False)
+        self.set_style_note(f"Wrote {method} q values for "
+                            f"{len(frame)} coefficients to {path}.")
+        return path
+
+    def _detail(self, index: int) -> str:
+        """The three numbers behind one dot, in O(1).
+
+        A user who clicks a point on a raw-P axis has to be able to see the
+        q that decided its colour, or the colour is an assertion they cannot
+        check.
+        """
+        if self._q_values is None or index >= len(self._q_values):
+            return ""
+        q = self._q_values[index]
+        if not np.isfinite(q):
+            return "not in the tested family, so no q"
+        parts = [f"q={q:.3g} ({self.correction()})"]
+        lfdr = self.local_fdr_values()
+        if lfdr is not None and index < len(lfdr) and np.isfinite(lfdr[index]):
+            parts.append(f"local FDR={lfdr[index]:.3g}")
+        if self._called is not None and index < len(self._called):
+            parts.append("called" if self._called[index] else "not called")
+        return "   ".join(parts)
 
 
 class EffectRankPlot(FastPlot):

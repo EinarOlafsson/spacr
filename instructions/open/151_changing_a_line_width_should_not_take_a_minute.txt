@@ -153,3 +153,55 @@ minute" remains a named hypothesis; what is now proven is only that no call
 site can ask for the platform dialog. Confirming it needs the maintainer's
 real display: open the current build, pick a line width, and time how long the
 COLOUR dialog takes to appear.
+
+
+================================================================================
+2026-08-18 -- SHIPPED (the fast_plots half).
+================================================================================
+
+B.1  THE CONTROL IS SPLIT. "Line colour and width…" is gone; there are two
+     entries and each asks ONE question and applies it:
+
+         "Line width…"   -> _ask_line_width   -> set_line_style(width=...)
+         "Line colour…"  -> _ask_line_colour  -> set_line_colour(...)
+
+     Choosing a width does not open a colour dialog at all, and there is a
+     test that fails if it ever does again
+     (`test_asking_for_a_width_never_opens_a_colour_dialog`).
+
+B.3  is therefore moot: nothing is chained any more.
+
+B.2  ALL FOUR SITES IN THIS FILE GO THROUGH THE SHARED HELPER --
+     `spacr.qt.widgets.colour_picker.pick_colour`, which the other agent in
+     this wave had already landed at f6b70739. `fast_plots.pick_colour` is a
+     thin re-export of it so this module's own call sites read naturally;
+     there is no second implementation.
+
+     THE COUNT IN THIS FILE WAS LOW. It says six unguarded
+     `QColorDialog.getColor` sites, three of them in fast_plots
+     (`_ask_point_colour`, `_ask_font_colour`, `_ask_line_style`). There is a
+     FOURTH in this file: `_ask_style_value`, which edits the colour fields
+     of a figure's own style object (instruction 108's menu). It was not on
+     the list and it would have been left behind -- which is precisely the
+     "an option that has to be remembered will be forgotten at the seventh
+     site" argument, demonstrated on the seventh site.
+
+     `tests/qt/test_colour_picker.py::PENDING` carried
+     `spacr/qt/widgets/fast_plots.py` as a debt with a note asking its owner
+     to delete the entry once the calls moved. Done -- the set is now empty,
+     and its comment says so.
+
+B.4  THE REST OF THE RESTYLE AND SAVE PATH. `_ask_font_colour` and
+     `_ask_point_colour` are covered above. `_ask_export_size` and
+     `_ask_screen_size` are QInputDialog only, which is a Qt widget and never
+     goes near the portal. THE EXPORT ITSELF STILL USES A NATIVE FILE DIALOG
+     and is the same exposure -- see the handoff; `FastPlot.export` is mine
+     but `QFileDialog` sites are spread across the widget package and are
+     worth one sweep by whoever owns that, not four uncoordinated ones. The
+     one new file dialog added today ("Write this correction as a table…")
+     passes `DontUseNativeDialog`.
+
+STILL NOT PROVEN, AND THE FILE WAS RIGHT TO SAY SO: the portal stall cannot
+be reproduced headless -- offscreen Qt never asks the portal. What is proven
+here is that no call site can ask for the platform dialog. Timing it on the
+maintainer's real display is still the confirmation.
