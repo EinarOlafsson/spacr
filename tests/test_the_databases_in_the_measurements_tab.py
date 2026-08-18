@@ -379,11 +379,16 @@ def test_the_panel_names_every_column_that_fell_through_to_the_default(panel):
     """"a measurement nobody thought about is exactly the one worth naming."
     The expected set is computed by re-walking AGGREGATION_RULES, because a
     list written here would agree with a panel that had stopped reading them.
+
+    READ FROM `statement()`, NOT FROM THE BOX. Instruction 154 B moved the
+    NAMES behind a disclosure and left the COUNT in the box -- a hundred and
+    seventy names in a 190-pixel box buried the three lines that matter. The
+    requirement is unchanged: the panel names every one of them.
     """
     from spacr.merge_tables import AGGREGATION_RULES, DEFAULT_AGGREGATION
 
     frame = panel.merge()
-    report = panel.report.toPlainText()
+    report = panel.statement()
 
     fell = [column for column in frame.attrs["default_aggregation"]["pathogen"]]
     for column in fell:
@@ -392,6 +397,9 @@ def test_the_panel_names_every_column_that_fell_through_to_the_default(panel):
         assert column in report
     assert "pathogen_wobble" in fell, fell
     assert DEFAULT_AGGREGATION in report
+    # ...and the count is what the BOX carries, so the summary stays readable.
+    assert f"{len(fell)} NUMERIC column(s)" in panel.report.toPlainText()
+    assert "pathogen_wobble" not in panel.report.toPlainText()
 
 
 def test_a_column_every_rule_names_is_not_reported_as_a_fall_through(panel):
