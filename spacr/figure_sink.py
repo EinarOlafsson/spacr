@@ -61,9 +61,69 @@ def set_sink(sink: Optional[Callable[..., Any]]):
     return previous
 
 
+#: Where a published FILE goes, or None when nobody is listening.
+#:
+#: Separate from :data:`_sink` because the two carry different things and a
+#: consumer cannot fake one from the other. A matplotlib sink is handed a live
+#: Figure and renders it; a file sink is handed a path to a picture that was
+#: already written by something that is not matplotlib -- a pyqtgraph scene
+#: (instruction 139 A) -- and there is no Figure to hand it. Reusing the
+#: figure sink with ``fig=None`` would hand every existing consumer a None it
+#: has no reason to expect.
+_file_sink: Optional[Callable[..., Any]] = None
+
+
+def set_file_sink(sink: Optional[Callable[..., Any]]):
+    """Install the callable that receives published FILES.
+
+    :param sink: called ``sink(path, title)`` on the thread that published.
+        Like :func:`set_sink` it must not touch a widget.
+    :returns: the sink that was installed before, so a caller can put it back.
+    """
+    global _file_sink
+    previous, _file_sink = _file_sink, sink
+    return previous
+
+
+def file_sink() -> Optional[Callable[..., Any]]:
+    """The installed file sink, or None. For a test that wants to assert it."""
+    return _file_sink
+
+
+def publish_file(path, title=None):
+    """Announce a figure FILE somebody else already wrote. Returns the path.
+
+    Instruction 139 C's rule -- saved and visible are the same event -- with
+    the half that :func:`publish` cannot cover. A pyqtgraph scene exported by
+    ``FastPlot.export`` is a finished file and never was a matplotlib Figure,
+    so there is nothing for the figure sink to render; without this, moving a
+    generated plot to the screen's renderer would silently take it out of the
+    gallery, which is the exact bug 139 C was filed for.
+
+    A SINK THAT RAISES DOES NOT LOSE THE FILE, for the same reason as in
+    :func:`publish`: the file is already on disk and the announcement is
+    best-effort, so a GUI that has gone away must not take the run's output
+    with it.
+    """
+    if not path:
+        return None
+    if _file_sink is not None:
+        try:
+            _file_sink(str(path), title)
+        except Exception:                                      # noqa: BLE001
+            LOG.debug("a file sink refused a figure", exc_info=True)
+    return str(path)
+
+
 def clear_sink() -> None:
-    """Remove the sink. A run that has finished is not still publishing."""
+    """Remove BOTH sinks. A run that has finished is not still publishing.
+
+    Both, because there are two routes into the gallery now and a run that
+    left one of them installed would keep announcing into a screen that has
+    moved on -- which is worse than the missing tile it was added to fix.
+    """
     set_sink(None)
+    set_file_sink(None)
 
 
 def sink() -> Optional[Callable[..., Any]]:
@@ -120,4 +180,5 @@ def publish(fig, path=None, *, fmt=None, dpi=None, close=False, **kwargs):
     return written
 
 
-__all__ = ["clear_sink", "publish", "set_sink", "sink"]
+__all__ = ["clear_sink", "file_sink", "publish", "publish_file",
+           "set_file_sink", "set_sink", "sink"]
