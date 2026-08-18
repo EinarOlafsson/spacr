@@ -935,7 +935,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # state is decided by `regression_type` belongs beside it, not
             # three sections away.
             "inference", "analysis_mode", "regression_type", "level",
-            "random_row_column_effects",
+            # `model_plate_position` decides whether rowID and columnID are in
+            # the model at all; `random_row_column_effects` then decides fixed
+            # vs random for terms that ARE in. Adjacent because setting one
+            # without seeing the other is how they end up contradicting.
+            "model_plate_position", "random_row_column_effects",
             # SIGNIFICANCE MERGED IN, asked for on 2026-08-17: "significance
             # nad hit calling is good but merge all of these settings into
             # Model and inference". They are not a separate question -- which
