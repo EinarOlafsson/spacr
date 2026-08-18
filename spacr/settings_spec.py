@@ -182,6 +182,14 @@ def convert_settings_dict_for_gui(settings):
         # table so the two GUIs cannot offer different lists.
         'analysis_mode': ('combo', ['regression', 'guide_permutation'],
                           'regression'),
+        # Instruction 135, and the same argument as `analysis_mode` above:
+        # two valid values, and the RUN now has to agree with the volcano's
+        # right-click menu about which P value 'significant' meant. A
+        # free-text box lets a settings CSV say 'Adjusted' or 'bh' and be
+        # refused at the seam instead of picked from a list of two. Declared
+        # here rather than only in the Qt combo table so the Tk and Qt panels
+        # cannot offer different lists.
+        'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
