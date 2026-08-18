@@ -650,47 +650,48 @@ class FigureSettingsDialog(QDialog):
         all_text.valueChanged.connect(set_all_text)
         form.addRow("All text size", all_text)
 
-        # AND THE COLOUR OF ALL OF IT. There was a size control here and no
-        # colour control at all, so the background could be changed and the
-        # writing on top of it could not -- which on a dark background is a
-        # figure with invisible axes and no way to fix it.
+        # AND THE COLOUR OF ALL OF IT -- IN TWO CONTROLS, NOT ONE.
         #
-        # Every text object, the same intention as the size row: title, axis
-        # labels, BOTH sets of tick labels, the tick marks and spines that
-        # frame them, and any legend. Recolouring the labels and leaving the
-        # spines is the half-done version that looks like a bug.
-        def set_all_text_colour(colour):
-            for axis in figure.axes:
-                items = [axis.title, axis.xaxis.label, axis.yaxis.label]
-                items += axis.get_xticklabels() + axis.get_yticklabels()
-                legend = axis.get_legend()
-                if legend is not None:
-                    items += list(legend.get_texts())
-                    title = legend.get_title()
-                    if title is not None:
-                        items.append(title)
-                for item in items:
-                    item.set_color(colour)
-                # matplotlib spells it `color`; this file spells it `colour`
-                # everywhere else. Keep both straight rather than passing an
-                # unrecognised keyword, which raises rather than being
-                # ignored.
-                axis.tick_params(color=colour, labelcolor=colour, which="both")
-                for spine in axis.spines.values():
-                    spine.set_edgecolor(colour)
-            if figure._suptitle is not None:
-                figure._suptitle.set_color(colour)
+        # There was a size control here and no colour control at all, so the
+        # background could be changed and the writing on top of it could not,
+        # which on a dark background is a figure with invisible axes and no
+        # way to fix it. The first version of the fix was ONE "All text
+        # colour" that also drove the spines and the tick marks.
+        #
+        # The maintainer's decision (instruction 152 B) splits it by what a
+        # mark IS rather than by which code draws it: "line color which
+        # should change the color of all lines including axis lines and
+        # ticks, and then a font color that controls the color of all font in
+        # the graph". So a user can now say "dark axes, coloured labels" or
+        # the other way round, and the first report -- "doesnt look like
+        # there is an option to change the axis color" -- has an answer that
+        # is not "change your text as well".
+        def set_line_ink(colour):
+            apply_line_colour(figure, colour)
             self._changed()
 
-        current_text_colour = "#000000"
+        def set_font_ink(colour):
+            apply_font_colour(figure, colour)
+            self._changed()
+
+        current_font_colour = "#000000"
+        current_line_colour = "#000000"
         if figure.axes:
             try:
-                current_text_colour = _as_hex(
+                current_font_colour = _as_hex(
                     figure.axes[0].xaxis.label.get_color())
             except Exception:      # pragma: no cover - odd colour spec
                 pass
-        form.addRow("All text colour",
-                    _colour_button(current_text_colour, set_all_text_colour))
+            try:
+                spines = list(figure.axes[0].spines.values())
+                if spines:
+                    current_line_colour = _as_hex(spines[0].get_edgecolor())
+            except Exception:      # pragma: no cover - odd colour spec
+                current_line_colour = current_font_colour
+        form.addRow("Line colour",
+                    _colour_button(current_line_colour, set_line_ink))
+        form.addRow("Font colour",
+                    _colour_button(current_font_colour, set_font_ink))
 
         suptitle = QLineEdit(
             figure._suptitle.get_text() if figure._suptitle else "")
@@ -1000,6 +1001,126 @@ class FigureSettingsDialog(QDialog):
         return page
 
 
+def figure_line_artists(figure) -> list:
+    """Every LINE on ``figure`` that the line control reaches.
+
+    The data's own lines, the reference and threshold lines, the trends and
+    the Q-Q diagonal -- all of them ``Line2D`` on an axes -- plus the axis
+    SPINES, plus a legend's sample lines so the key does not go on describing
+    the colour the figure no longer uses.
+
+    THE TICK MARKS ARE NOT HERE, and not because they are exempt: they have
+    no artist to hand back. matplotlib draws them from the tick's own pen, so
+    :func:`apply_line_colour` reaches them through ``tick_params``. This
+    function exists to be counted and asserted against, and a count that
+    silently omitted the ticks would make that assertion a lie.
+
+    GRIDLINES ARE EXCLUDED. A grid repainted in the ink is a cage over the
+    data; :data:`spacr.figure_style.PRINT_GRID` says the same thing about the
+    save path. They are not in ``axes.lines`` either, so this is a statement
+    of intent rather than a filter.
+    """
+    found = []
+    for axis in getattr(figure, "axes", ()):
+        found += list(getattr(axis, "lines", ()))
+        found += list(axis.spines.values())
+        legend = axis.get_legend()
+        if legend is not None:
+            found += list(legend.get_lines())
+    return found
+
+
+def apply_line_colour(figure, colour) -> int:
+    """Draw every line on ``figure`` in ``colour``. Returns how many.
+
+    EVERY LINE MEANS THE AXES TOO (instruction 152 B) -- the spines and the
+    tick marks, which is the half that had no control at all and which the
+    first report named. The same division as
+    :meth:`spacr.qt.widgets.fast_plots.FastPlot.set_line_style` makes on the
+    pyqtgraph side, so a figure looks the same whichever engine drew it.
+
+    THE DASH PATTERNS SURVIVE, because only ``set_color`` is called: a
+    threshold line stays dashed and the reference line stays solid, which is
+    what tells a reader which is which. Rebuilding the line would flatten
+    that on every restyle -- the pyqtgraph half copies its pen for exactly
+    this reason.
+    """
+    touched = 0
+    for artist in figure_line_artists(figure):
+        try:
+            if hasattr(artist, "set_edgecolor"):
+                artist.set_edgecolor(colour)     # a spine
+            else:
+                artist.set_color(colour)
+            touched += 1
+        except Exception:                        # pragma: no cover - odd spec
+            continue
+    for axis in getattr(figure, "axes", ()):
+        # THE TICK MARKS, SEPARATELY, and `color=` only. `colors=` would set
+        # the LABEL as well, which is the conflation the two controls exist
+        # to undo -- and it is done through `tick_params` rather than over
+        # the current ticks because matplotlib rebuilds them on every draw,
+        # so a colour set on the objects is lost at the next autoscale.
+        try:
+            axis.tick_params(color=colour, which="both")
+        except Exception:                        # pragma: no cover
+            continue
+    return touched
+
+
+def apply_font_colour(figure, colour) -> int:
+    """Draw every piece of text on ``figure`` in ``colour``. Returns how many.
+
+    EVERY PIECE MEANS THE TICK LABELS (instruction 152 B), the gene
+    annotations, the suptitle and the legend's title -- the three that
+    :func:`_every_text` exists to not miss, because a control called "all
+    text" that reaches twenty of twenty-three objects reads as broken rather
+    than as incomplete (issue #108).
+    """
+    touched = 0
+    for item in _every_text(figure):
+        try:
+            item.set_color(colour)
+            touched += 1
+        except Exception:                        # pragma: no cover
+            continue
+    for axis in getattr(figure, "axes", ()):
+        # The labels are regenerated on every draw, so the colour has to be
+        # set on the TICK rather than only on today's label objects.
+        try:
+            axis.tick_params(labelcolor=colour, which="both")
+        except Exception:                        # pragma: no cover
+            continue
+    return touched
+
+
+def figure_follows_the_theme(figure) -> None:
+    """Put both colours back to what the app theme and the preferences say.
+
+    The way out of a colour, and it has to exist: instruction 152 A is a
+    preference that froze because a resolved default was written back over
+    the word "auto", and a per-figure control a user can only ever SET is
+    that same freeze performed by hand.
+
+    Reads the preference rather than remembering what the figure was drawn
+    with, and that is the honest direction here: a matplotlib figure arrives
+    already themed by
+    :func:`spacr.qt.widgets.figure_queue._style_figure_colors`, so "the
+    colour it was drawn with" IS the preference's answer -- unlike the
+    pyqtgraph side, where each line carries a palette colour of its own worth
+    restoring (``_spacr_base_colour``).
+    """
+    try:
+        from ..preferences import get_figure_colors, get_figure_line_colour
+
+        _bg, font = get_figure_colors()
+        line = get_figure_line_colour()
+    except Exception:                            # pragma: no cover - no store
+        font = line = "#000000"
+    apply_line_colour(figure, line)
+    apply_font_colour(figure, font)
+
+
 def build_figure_context_menu(parent, figure, *, on_change=None,
                               open_settings=None) -> QMenu:
     """The right-click menu for a drawn figure.
@@ -1070,15 +1191,67 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         lambda checked: _apply(lambda a: a.grid(checked)))
     menu.addAction(grid_action)
 
-    scales = menu.addMenu("Axis scale")
+    scales = QMenu("Axis scale", menu)      # see "Appearance" below for why
+    menu.addMenu(scales)
     for name, setter in (("X", "set_xscale"), ("Y", "set_yscale")):
-        submenu = scales.addMenu(name)
+        submenu = QMenu(name, scales)
+        scales.addMenu(submenu)
         for scale in AXIS_SCALES:
             action = QAction(scale, parent)
             action.triggered.connect(
                 lambda _checked=False, s=scale, m=setter:
                 _apply(lambda a: getattr(a, m)(s)))
             submenu.addAction(action)
+
+    menu.addSeparator()
+    # THE TWO COLOUR CONTROLS, ON THE RIGHT-CLICK ITSELF (instruction 152 B).
+    # They are two clicks away behind "Figure settings…", and the report that
+    # opened 152 was a user who could not find an axis colour at all -- a
+    # control nobody can find is a control that does not exist.
+    # BUILT WITH AN EXPLICIT PARENT, not `menu.addMenu("Appearance")`.
+    # `addMenu(str)` hands back a QMenu that PySide does not keep alive: the
+    # Python wrapper is the only owner, and the moment it goes out of scope
+    # the C++ object is deleted under the still-visible parent action. Driving
+    # the entry then raises "Internal C++ object (QMenu) already deleted",
+    # which is what a user would see as a submenu that opens empty.
+    appearance = QMenu("Appearance", menu)
+    menu.addMenu(appearance)
+
+    def _pick_ink(title, apply_to):
+        current = "#000000"
+        try:
+            if axes:
+                current = _as_hex(axes[0].xaxis.label.get_color())
+        except Exception:                        # pragma: no cover
+            pass
+        chosen = pick_colour(parent, current, title)
+        if chosen.isValid():
+            apply_to(figure, chosen.name())
+            _notify()
+
+    line_action = QAction("Line colour…", parent)
+    line_action.setToolTip(
+        "Every line in the figure, the axis spines and the tick marks "
+        "included. The numbers beside the ticks are text and follow the "
+        "font colour.")
+    line_action.triggered.connect(
+        lambda: _pick_ink("Line colour", apply_line_colour))
+    appearance.addAction(line_action)
+
+    font_action = QAction("Font colour…", parent)
+    font_action.setToolTip(
+        "Every piece of text in the figure: the title, the axis labels, the "
+        "tick labels, the legend and any annotation.")
+    font_action.triggered.connect(
+        lambda: _pick_ink("Font colour", apply_font_colour))
+    appearance.addAction(font_action)
+
+    theme_action = QAction("Follow the theme (colours)", parent)
+    theme_action.setToolTip(
+        "Put both colours back to the app theme and the figure preferences.")
+    theme_action.triggered.connect(
+        lambda: (figure_follows_the_theme(figure), _notify()))
+    appearance.addAction(theme_action)
 
     menu.addSeparator()
     save = QAction("Save figure as…", parent)
