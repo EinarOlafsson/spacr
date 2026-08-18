@@ -1920,7 +1920,18 @@ def get_perform_regression_default_settings(settings):
     # raw-vs-adjusted on its right-click menu and the RUN had no say in it, so
     # results_significant.csv and the figure printed beside it could be drawn
     # to two different rules with nothing on either saying which.
-    settings.setdefault('p_threshold_alpha', 0.05)
+    #
+    # THE LINE FOLLOWS THE CORRECTION LEVEL UNLESS IT IS MOVED, which is what
+    # stops this becoming a second `score_column`: two controls for one
+    # question, where the only thing the second can express is a disagreement
+    # with the first. Every existing caller moves `fdr_alpha` alone and means
+    # "call hits at this level"; a hard 0.05 here would silently ignore them.
+    #
+    # They stay separate controls because they answer different questions --
+    # `fdr_alpha` is what Benjamini-Hochberg TARGETS, an input to the
+    # procedure, and this is the level a coefficient is CALLED at. Correcting
+    # at 0.05 and reporting at 0.01 is an ordinary thing to want.
+    settings.setdefault('p_threshold_alpha', settings['fdr_alpha'])
     settings.setdefault('p_threshold_kind', 'adjusted')
     # Robust rank aggregation's two knobs, declared here because the hit
     # caller that reads them is being written in another file: a setting no
