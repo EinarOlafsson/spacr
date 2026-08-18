@@ -985,19 +985,28 @@ def _rendered_sections(app_key):
             "Runtime & Reliability",
         ]),
         ("regression", [
-            "Input Tables", "Controls & Plate Design",
+            "Input Tables",
+            # "Controls & Plate Design" + "Quality Filters" merged here on
+            # 2026-08-17 (instruction 135): controls and filters are one
+            # question -- which rows reach the model -- and they were two
+            # sections with the response, the estimator and the hit-calling
+            # rules between them.
+            "Controls & Filters",
             "Plate & Batch Correction",
             # The response is asked for before the model, and the permutation
             # test's settings are one section instead of being split across
             # the model, the estimator knobs and the hit-calling rules.
-            "Response", "Model & Inference",
+            "Response",
+            # "Significance & Hit Calling" merged in on the same day: which
+            # correction, at what level, above which effect size IS how the
+            # model's output becomes a claim.
+            "Model & Inference",
             # Added when the robust and regularised fits brought knobs that
             # belong to one estimator rather than to all of them. Until they
             # were named, they landed in "Additional Settings" — the bucket
             # this whole test exists to keep empty.
             "Estimator Tuning",
-            "Permutation Test", "Significance & Hit Calling",
-            "Quality Filters", "Regression Plots",
+            "Permutation Test", "Regression Plots",
             "Runtime & Reliability",
         ]),
         ("activation", [

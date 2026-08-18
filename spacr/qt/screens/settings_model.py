@@ -1893,21 +1893,19 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "control the permutation itself: how many, what is held fixed "
         "(normally the plate), the random seed, and how many wells a guide "
         "must appear in before it is testable.",
-    "SIGNIFICANCE & HIT CALLING":
-        "What counts as a hit: the multiple-testing correction applied across "
-        "the tested family, the level it targets, and the control-based "
-        "effect-size threshold. With hundreds of guides an uncorrected P "
-        "value is not evidence, so this is the section to get right.",
-    "QUALITY FILTERS":
-        "Everything that decides which rows reach the model — minimum cells "
-        "per well, minimum observations per guide, the read-fraction cutoff "
-        "and outlier removal. Each one silently shrinks the dataset, so "
-        "check the diagnostics after changing any of them.",
     "REGRESSION: RESPONSE":
         "What is being modelled: which score column (or columns — name "
         "several and each is fitted and corrected as its own family), "
         "whether one row is a well or a single cell, and how the values are "
         "collapsed and transformed before the model sees them.",
+    "MODEL & INFERENCE":
+        "How the effect is estimated AND what counts as a hit. 'Inference' "
+        "is the top-level choice, 'Regression type' selects the family, and "
+        "'Level' says whether the guide model, the gene model or both are "
+        "fitted. Below them: the multiple-testing correction applied across "
+        "the tested family, the level it targets, and the control-based "
+        "effect-size threshold. With hundreds of guides an uncorrected P "
+        "value is not evidence, so this is the section to get right.",
     "REGRESSION: MODEL":
         "How the effect is estimated. 'Inference' is the top-level choice: a "
         "parametric model fits every guide simultaneously, a nonparametric "
@@ -2171,10 +2169,18 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The metadata, score and count tables the regression runs on. All "
         "three have to agree on well and gRNA naming — disagreement there "
         "is the usual cause of an empty result.",
-    "CONTROLS & PLATE DESIGN":
-        "The plate identifier, which wells are the positive and negative "
-        "controls, and any row filter applied before fitting. The controls "
-        "set the scale the effect sizes are reported on.",
+    # "CONTROLS & PLATE DESIGN", "QUALITY FILTERS" and "SIGNIFICANCE & HIT
+    # CALLING" were retired on 2026-08-17 with instruction 135: the first two
+    # merged into "CONTROLS & FILTERS" and the third into "MODEL &
+    # INFERENCE". Their hints merged with them rather than being dropped.
+    "CONTROLS & FILTERS":
+        "Which rows reach the model, and what they are measured against. The "
+        "plate identifier, the positive and negative control wells, any row "
+        "filter — and every cutoff that drops data: minimum cells per well, "
+        "minimum observations per guide, the read-fraction cutoff and "
+        "outlier removal. The controls set the scale the effect sizes are "
+        "reported on; each cutoff silently shrinks the dataset, so check the "
+        "diagnostics after changing one.",
     # "MODEL & COVARIATES", "HIT CALLING & OUTLIERS" and the flat "REGRESSION"
     # heading were retired when the regression layout was split into Response
     # / Model & Inference / Estimator Tuning / Permutation Test / Significance
