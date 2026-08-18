@@ -645,6 +645,15 @@ class DatabaseMergePanel(QWidget):
         self.report.setMaximumHeight(190)
         layout.addWidget(self.report, 1)
 
+        # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
+        # into. A tooltip on an editable field is unreachable the moment the
+        # user is editing it -- which is exactly when they wanted it -- and
+        # tests/test_tooltips_are_on_the_setting_not_the_field.py is the
+        # guard that says so.
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
+
         self.refresh()
 
     # ------------------------------------------------------------- the list
@@ -1142,6 +1151,15 @@ class MeasurementScanPanel(QWidget):
             significance_filter=False)
         self.table.table.itemSelectionChanged.connect(self._on_selection)
         layout.addWidget(self.table, 1)
+
+        # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
+        # into. A tooltip on an editable field is unreachable the moment the
+        # user is editing it -- which is exactly when they wanted it -- and
+        # tests/test_tooltips_are_on_the_setting_not_the_field.py is the
+        # guard that says so.
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
 
     # -------------------------------------------------------------- running
 
