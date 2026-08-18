@@ -1,0 +1,141 @@
+================================================================================
+THE MODEL AND INFERENCE TAB EXPLAINS WHAT IT FITS, AND MIXED IS THE DEFAULT
+================================================================================
+
+Status:    filed 2026-08-17, TOP PRIORITY (maintainer's words).
+Requested: 2026-08-17 --
+
+  "it is important for the user to know all of this. so in the model and
+   inference tab there should be a several new settings and a text box that
+   explains each option:
+   if mixed is chose in the textbox write the formula and discribe what is
+   modeled like above
+   the others also write the formula and what is modeled like above
+   when the non mixed is coshe ther should be a option called level and here
+   the defaukt should be both the other options are grna and gene (this is a
+   dropdown menue that is greyed out when mixed is chosen)
+   for each do a BH FDR correction
+   default should be mixed as mixed answers the most central question best.
+   for each of the other models textbox descriptions allso discribe what each
+   mode does."
+
+Related: 128 R is the two-fit split this supersedes and absorbs. 106 is the
+         greying rule. 127 is the style/engine overlap.
+
+--------------------------------------------------------------------------------
+THE FINDING THIS EXISTS BECAUSE OF, AND IT MUST BE IN THE TEXT BOX
+--------------------------------------------------------------------------------
+
+`ml.py:591`: `gene_fraction` is THE SUM OF THE GENE'S gRNA FRACTIONS. The
+formula spaCR has been fitting is
+
+    y ~ fraction:grna + gene_fraction:gene + rowID + columnID
+
+so every `gene_fraction` column is an exact linear combination of that gene's
+`fraction:grna` columns. THE TWO BLOCKS ARE PERFECTLY COLLINEAR BY
+CONSTRUCTION -- not by accident of data, and no number of wells fixes it.
+
+statsmodels does not refuse; it takes a pseudo-inverse and returns ONE
+arbitrary solution out of infinitely many. That is why a single-guide gene
+comes back identical to its guide (244480 and 244480_3, both 3.389291 at
+2.873149e-13), why the not-identifiable warning fires (827 parameters, 610
+wells), and why the volcano drew a gene once per guide plus once for itself.
+
+--------------------------------------------------------------------------------
+A. THE SETTINGS
+--------------------------------------------------------------------------------
+
+In the Model and Inference tab:
+
+  * `regression_type` -- DEFAULT BECOMES `mixed`. The maintainer's reason,
+    recorded because it is the design rationale: "mixed answers the most
+    central question best".
+  * `level` -- NEW. `both` (default) | `grna` | `gene`. GREYED OUT when
+    `regression_type == 'mixed'`, per 106: disabled and saying why, never
+    absent and never inert.
+  * a read-only TEXT BOX that changes with the selection and states, for the
+    chosen model, THE FORMULA and WHAT IS MODELLED.
+
+--------------------------------------------------------------------------------
+B. WHAT EACH OPTION FITS -- THIS IS THE TEXT BOX CONTENT
+--------------------------------------------------------------------------------
+
+MIXED (default):
+
+    y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
+
+    The gene effect is a FIXED effect; each guide is a RANDOM effect nested
+    inside its gene. This is the only model here that says what a guide
+    actually is -- a biological replicate of one intended perturbation, with
+    its own efficiency and off-target profile -- rather than a second
+    independent variable. Guides disagreeing about a gene widens that gene's
+    interval instead of silently averaging out, and a gene resting on one
+    noisy guide is shrunk toward zero.
+
+    WHAT IT DOES NOT GIVE YOU, and the box must say so: guide-level results
+    come back as BLUPs (shrunken predictions), NOT coefficients with standard
+    errors and p-values, so there is no guide-level hit list to correct.
+    Choose a non-mixed model with level='grna' if that is what you need.
+
+EVERY OTHER BACKEND (ols, glm, wls, rlm, huber, poisson, quasi_binomial,
+beta, logit, probit, quantile, lasso, ridge, elasticnet, hinge, horseshoe) --
+fixed effects only, so they CANNOT nest guides in genes. They fit ONE LEVEL
+AT A TIME, chosen by `level`:
+
+    level='grna'   y ~ fraction:grna + rowID + columnID
+                   One coefficient per guide. The guide is the unit the
+                   screen measures; genes are not in this model at all.
+
+    level='gene'   y ~ gene_fraction:gene + rowID + columnID
+                   One coefficient per gene, from the summed guide fraction.
+                   Guides are not in this model.
+
+    level='both'   BOTH OF THE ABOVE, FITTED SEPARATELY -- two models, two
+                   tables. NOT one design containing both, which is the
+                   collinear formula above and the bug this replaces.
+
+The box also says what the MODE does -- ols is least squares, glm a chosen
+family and link, rlm/huber robust to outlying wells, quantile fits a
+conditional quantile rather than the mean, the penalised ones rank by
+bootstrap selection frequency and report no p-value, and so on. One paragraph
+each, in the register of the run's own console output.
+
+--------------------------------------------------------------------------------
+C. TWO TABLES, TWO CORRECTIONS
+--------------------------------------------------------------------------------
+
+"for each do a BH FDR correction."
+
+Each fit is its own multiple-testing family and is corrected on its own.
+Pooling them would be wrong twice: the two sets are not independent (same
+wells, and the gene regressor is literally the sum of the guide regressors),
+and doubling the family size costs power for no protection. spaCR already
+states this principle for multiple outcomes -- "corrects each as its OWN
+multiple-testing family; pooling them would make two correlated readouts of
+the same wells look like twice as many tests".
+
+    results_grna.csv    the guide fit, BH-corrected within itself
+    results_gene.csv    the gene fit,  BH-corrected within itself
+
+Both saved every run. The volcano's existing level switch chooses between
+them; it currently filters ROWS of one table and becomes a choice of TABLE.
+
+WORTH SAYING IN THE PAPER, and worth a line in the box: a gene called by the
+gene fit AND its guides called by the guide fit is two tests of one
+hypothesis. The report should say which the claim rests on.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A fresh run fits `mixed` and says so.
+* Choosing any other model enables `level`; choosing `mixed` greys it out
+  with a reason.
+* The text box states the formula for the current selection and changes when
+  it changes.
+* `level='both'` writes results_gene.csv AND results_grna.csv from TWO fits,
+  each BH-corrected separately -- and no run anywhere fits
+  `fraction:grna + gene_fraction:gene` in one design again. A test asserts
+  that formula is gone.
+* The not-identifiable warning stops firing on this screen: the guide fit
+  drops 452 parameters and the gene fit drops 823, against 610 wells.
