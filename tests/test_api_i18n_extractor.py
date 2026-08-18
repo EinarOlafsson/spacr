@@ -24,7 +24,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # remain represented.  A source/API change requires regenerating and reviewing
 # that report before deliberately updating either digest.
 _NEW_VISIBLE_DIGEST = (
-    "dfb61ead393074e0d5250178e992630f7979ac835a9cae0d88e438fe93cfa554"
+    "6c5d462267e511c2bfea2853748889a55028d49ae1a34b5ad65ad0a581c7bf1d"
 )
 _ALIASES_DIGEST = (
     "5167459a662cc68d3de274d216297020ba159155bad4e9e8af8e751e69cdba66"
@@ -136,7 +136,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
 
     # The 80 omissions in the audited pages are precisely the documented
     # special members and PEP-258/value attributes discovered from source.
-    assert len(dunders) == 64
+    # 65 since 2026-08-18: `GenePanel.__del__` is documented because it is
+    # the guard that stops Qt aborting the process when a panel is collected
+    # with its warm-up thread still running -- a reader who deletes it needs
+    # to know that, so it carries a docstring and therefore surface.
+    assert len(dunders) == 65
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -385,7 +389,23 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #                          neighbours, the two new sweep `qc` parameters,
     #                          Section.add_prose, and the section-explainer
     #                          registry and its two helpers
-    expected = 7082
+    #
+    # +35/-0 on 2026-08-18, the Gene tab and the figure restyle. Enumerated
+    # by module, for the reason above:
+    #   16  spacr.gene_facts -- everything known about ONE gene, gathered
+    #                          from the bundled annotation and the screen's
+    #                          own table: GeneFacts, Segment, facts,
+    #                          facts_for, available, unavailable_reason,
+    #                          warm, clear_cache
+    #   19  spacr.qt.widgets.gene_panel -- the panel that shows it, plus
+    #                          warm_annotation and the accessors the tests
+    #                          drive it through (warm_now, show_feature,
+    #                          save_topology, to_pixmap, is_warm)
+    #
+    # `spacr.plot`'s restyle added none: 45 figures moved inside the house
+    # style and one private helper (_montage_type_size) was added, which is
+    # private and therefore not surface.
+    expected = 7117
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -400,7 +420,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7201
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7236
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

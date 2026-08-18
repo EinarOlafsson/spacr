@@ -11416,6 +11416,151 @@
       "source_sha256": "e0cfb8812e7419bd307a13e53159eca94946ae33c6ea3c1545e32baa7d61ba78",
       "text": "The filename for ``name``, with no way out of the library directory.\n\n:raises GateLibraryError: a name that is empty once cleaned. Writing it\n    would produce ``.json``, an invisible file the list would then show\n    with no name."
     },
+    "spacr.gene_facts": {
+      "source_blocks_sha256": [
+        "20607d72a3b3d8319f19ddb20905f669c44ca934857878e38e057b989c74128f",
+        "730a97fd76a405e0dbcc5591e677b3c0035ee93030aaa338d75264c1e9a0eadf",
+        "c8c7094476f0c7d4a97b1b4643d96043783006514e9dbed10e3c79b0412f5a9f",
+        "838861aadb7c2ae7bc6770c7f4d8dcb457607242c96c38b8d9ca6844ad032ad1",
+        "8e480238f06b41a51f7e71317cc7008a4b247841bb90dc80b3bef47894e8a103",
+        "7b9af36a9832a16790e39c9bb57bb26fa6b58336a7c391d1547dcb4a75bd7196",
+        "aa2f00a9adc2077098103529b73a5f8a596a5a80ede2b548ec2a177dc557df5a",
+        "1c445a7b9015dde0f983029b3187efa31c4f37b6e62520ecb065d1c81c92939c",
+        "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665"
+      ],
+      "source_sha256": "d0a096c4bdf2751ce164c276a105ad5707c774cb9fecc0e2fb20b1a5d8829c72",
+      "text": "What spaCR already knows about one gene, ready to put on a tile.\n\nInstruction 121 asks that clicking a gene in the interactive regression show\n\"all the information on that gene\". :mod:`spacr.gene_tile` answers the half\nthat can be WRONG -- which gene a clicked guide actually names, and whether\nthat mapping is ambiguous. This module answers the other half: given a gene,\nwhat does spaCR hold about it.\n\nIT HOLDS NOTHING ITSELF. Every value here comes out of :mod:`spacr.annotation`\n-- the same join that writes the annotated exports -- so the tile and the CSV\na reader opens beside it cannot disagree about GRA14's compartment. This\nmodule reads no file, parses no gene id and owns no table; it groups\n:func:`spacr.annotation.annotate`'s 23 columns into the order a human reads\nthem and adds the per-segment DeepTMHMM coordinates that ``annotate``\ndeliberately leaves out of a coefficient export.\n\nFour rules, each of them a failure this project has already had:\n\n1.  ONE PARSE. ``TGGT1_224750``, ``gene_fraction:gene[224750]`` and the guide\n    ``224750_2`` are all gene ``224750``, and the function that says so is\n    :func:`spacr.annotation.gene_number`. A second copy of that rule is how\n    the volcano and the hit list start naming different genes.\n\n2.  A GAP IS SAID OUT LOUD. A gene with no annotation row gets\n    :attr:`GeneFacts.reason` -- \"no row in the bundled Toxoplasma annotation\"\n    -- and NOT a block of empty fields, which reads as \"measured, found\n    nothing\" rather than \"not available here\". :attr:`GeneFacts.known` is the\n    flag a caller greys a control on.\n\n3.  A GROUP IS DERIVED FROM THE TABLE, NOT LISTED HERE. The fitness and\n    expression rows are every ``fit_``/``expr_`` column\n    :func:`spacr.annotation.columns` reports, so an eighth published screen\n    added to ``phenotype.csv`` appears on the tile without this file being\n    touched, and a column this module has never heard of lands in \"other\n    annotation\" instead of being silently dropped.\n\n4.  NOTHING HERE IS FOR THE GUI THREAD TO DISCOVER. The first call reads five\n    bundled CSVs (360 ms) and the first :attr:`GeneFacts.segments` reads\n    DeepTMHMM's 8,140 rows. :func:`warm` does both off the GUI thread, and\n    takes the screen's own terms while it is there: `annotate` re-checks all\n    five right-hand keys for uniqueness on every call, so one gene costs\n    20 ms and four hundred cost 21. A warmed click is a dict lookup, 0.02 ms.\n\nPublic API::\n\n    from spacr import gene_facts\n\n    known = gene_facts.facts(\"fraction:grna[239740_3]\")\n    known.known                 # True\n    known.value(\"gene_name\")    # 'GRA14'\n    known.sections()            # (('identity', (('gene name', 'GRA14'), ..."
+    },
+    "spacr.gene_facts.GeneFacts": {
+      "source_blocks_sha256": [
+        "dda8cb55f288124512cfdcc107bb521028456d8c0c153bbc7ee09cc500535738",
+        "65044dc59561d31adea110baf1cb4d7ff45393ed2a4bd5c71a71229b6dba0e38",
+        "f0aeb513b64cbecf76187f92b8e35de629a0da63233b346a9aa065128db6498a",
+        "5b6c169f60976dc3c4df50cbdc8d08fc25216788361eb945f37b0a1ab871fac7",
+        "77c281c7ae3d6210f613deefac1f2449e59a6807a774dd1832132e4b9c2f6e6b"
+      ],
+      "source_sha256": "78ff5dca7206bb7cbb2bff3d941d573617d851e79379a5b5611540a48871d7f6",
+      "text": "Everything the bundled annotation holds about one gene.\n\n:param gene: the bare gene number, or ``\"\"`` when the caller's value named\n    no gene at all.\n:param values: the annotation columns that had something in them, keyed by\n    the column name :func:`spacr.annotation.columns` uses. A column with a\n    gap is ABSENT here rather than present and empty.\n:param segments: the DeepTMHMM signal peptide and transmembrane segments,\n    in residue order. Empty for a soluble protein, and empty for a gene\n    DeepTMHMM never saw -- :attr:`reason` is what tells those apart.\n:param reason: why there is nothing, in a sentence, or ``\"\"`` when there\n    is something. Never blank and empty at the same time: an empty panel\n    reads as a bug, \"no row in the bundled annotation\" reads as an answer."
+    },
+    "spacr.gene_facts.GeneFacts.known": {
+      "source_blocks_sha256": [
+        "6119e2b2ed631e501d30c26f446c4b85a0760c62aa5e18c87af3400e3d10b720",
+        "9ef4f7efed84137dbff47886dac1d239d794f8ae880ae5a219d5e1f24be6b4a2"
+      ],
+      "source_sha256": "adc1bb35aaa2f5f533e1dfe63f42e26af453801469fb8993f8a99ecd58b6fb0a",
+      "text": "Did the annotation hold anything at all about this gene?\n\nThe flag a caller greys a control on -- instruction 106: a control\nthat cannot do anything says why rather than sitting there inert."
+    },
+    "spacr.gene_facts.GeneFacts.sections": {
+      "source_blocks_sha256": [
+        "02a3b25da8d6d344869bd1ba8ce4765023dfe5bb0a863a8129b977ba31be3cd2",
+        "4ca9539406210374fa412a347935c5730b68eb22ef12158cd074e74b3711e782",
+        "a1a594964bca5c0b23cfb095f60a1b9af249582c060d3e81cf8331181f349122"
+      ],
+      "source_sha256": "524dd8cf16347e770e8f1801c2a191bd8b8bf0a519f41ccd6b11d252d080818e",
+      "text": "The facts as ``((heading, ((label, value), ...)), ...)``.\n\nTHE ONE ORDERING, so the Qt tile and the text form cannot drift into\npresenting the same record two ways -- the same shape\n:meth:`spacr.gene_tile.GeneTile.sections` returns, so one renderer\nlays both halves of a tile out with one loop.\n\nA group with nothing in it is not emitted. That is rule 2: a heading\nover a blank space is a claim that something was looked for and not\nfound, which is a different statement from \"not bundled here\"."
+    },
+    "spacr.gene_facts.GeneFacts.to_html": {
+      "source_blocks_sha256": [
+        "1ec1ccd8b1af45130f6d919f73d34f4ea5fc298bcb3566e89434d58a64e9e5ee",
+        "a4c96695d7b22389e827f010b64a06e90552b5f26de79ab9f7dfe62e0eca7479"
+      ],
+      "source_sha256": "ca51cb4a9db724fb0da0e3a3050a79362dda3f6f081fbe81659bca4b72d0db9b",
+      "text": "The facts as HTML, for a Qt rich-text view.\n\nMatches :meth:`spacr.gene_tile.GeneTile.to_html` mark for mark, so the\ntwo halves of one tile do not read as two different documents."
+    },
+    "spacr.gene_facts.GeneFacts.to_text": {
+      "source_blocks_sha256": [
+        "9546d24ea87fad5bf2e0bfdbc6efc53ddf1b6282cf93be02067f80a8b2f1a2fd"
+      ],
+      "source_sha256": "9546d24ea87fad5bf2e0bfdbc6efc53ddf1b6282cf93be02067f80a8b2f1a2fd",
+      "text": "The facts as plain text -- what a test reads and a log records."
+    },
+    "spacr.gene_facts.GeneFacts.value": {
+      "source_blocks_sha256": [
+        "6aa7248ec47ce8312e6fba4751988ac6fc7981433e4342e8d68e83c5056b2906"
+      ],
+      "source_sha256": "6aa7248ec47ce8312e6fba4751988ac6fc7981433e4342e8d68e83c5056b2906",
+      "text": "One annotation column, or ``default`` when it had a gap."
+    },
+    "spacr.gene_facts.Segment": {
+      "source_blocks_sha256": [
+        "a33e7741f86fc2de92f7e376ab84349525af0494455354a69f162bb5df0e8a74",
+        "693580ce079aa50572b342cfe9cf6b4f3760103cf680f3cd07a0076be7631a98",
+        "4db5f4ead242f6182635827a5da7e309f9d68c302df66734ffe703c81c88ee41",
+        "219ec07732e65b2f4fe8105ca58523baabd1753e6a8909701e35c0c4a8cc8ef7",
+        "47dc9d0602f3a072ebeb1791b36d051f39db76a95413e3338149d560e3ab6349",
+        "db28698364b820bde0c61a0f80799678e8ec51d354950961e7866fa474105a40"
+      ],
+      "source_sha256": "9bdfe9a35d8caab4d742ba42fa67b86fbd3be5e6846b225260a464d4dd3a17c2",
+      "text": "One DeepTMHMM segment of a protein, with its residue coordinates.\n\n:param kind: ``signal peptide`` or ``transmembrane``.\n:param index: 1-based position among the segments of that kind; ``1`` for\n    a signal peptide, of which there is at most one.\n:param start: first residue, 1-based and inclusive, as DeepTMHMM reports.\n:param end: last residue, inclusive.\n:param length: residues spanned, as the source file records it rather\n    than recomputed -- a disagreement between the two is a fact about the\n    run and is not this module's to hide."
+    },
+    "spacr.gene_facts.Segment.label": {
+      "source_blocks_sha256": [
+        "f674960f8b18f4733c87338a5ec9f389a3b65e2c57e5f90c3d780f8cb1630cdb",
+        "0d11e839b22693dbf59fe1709abcb61c4e3cd002669499dd6839a3ae9d8b508f"
+      ],
+      "source_sha256": "89c417fb5de6dd13b2e9797b9d1c73d2559d27a52592c21d476964c9e95075cd",
+      "text": "``signal peptide span`` or ``TM 3`` -- the tile's left column.\n\n\"span\", not \"signal peptide\": the summary row two lines above is\nalready labelled \"signal peptide\", and two rows with one label reads\nas the panel having printed the same field twice."
+    },
+    "spacr.gene_facts.Segment.text": {
+      "source_blocks_sha256": [
+        "453c90b6924360f73ec6761fa9999ad9f07286730da2a6ba73c29353a05a84e5"
+      ],
+      "source_sha256": "453c90b6924360f73ec6761fa9999ad9f07286730da2a6ba73c29353a05a84e5",
+      "text": "``residues 62-78 (17 aa)``."
+    },
+    "spacr.gene_facts.available": {
+      "source_blocks_sha256": [
+        "7d09f6b8cf64639c9ad42555431a254d53e5ae286c68ffa924dcbfc3b7694897",
+        "df119b95c5ec14b65a414b5d24e00c52f95bfc8fc8d0eccb3ef85df3a8b4f9da"
+      ],
+      "source_sha256": "c8dc04b618aa3c5e4cee68862c4623bdc9134f24a69dc79fb851df8dbf9fa18b",
+      "text": "Every annotation column this module can show, in reading order.\n\nEmpty when nothing is bundled, which is what :func:`unavailable_reason`\nturns into a sentence."
+    },
+    "spacr.gene_facts.clear_cache": {
+      "source_blocks_sha256": [
+        "0457168ef91ecfcd98eb2c9d244a31931c01ff2c5e95ccc2faa1e77f1b24ac1e",
+        "ce9fcb5e02fefbeabe722f2ab9f1da517af3567b8aac7064fe50cc0798e1b115"
+      ],
+      "source_sha256": "a71974b7c2a6cb22f470ca075e21105fa2e96012dce585b77e59ddbf25aea133",
+      "text": "Forget the derived indices. For tests, and for a reinstall mid-session.\n\n:func:`spacr.annotation.clear_cache` is called too: the layout here is\nderived from that module's tables, and dropping one without the other\nleaves a layout describing columns that are no longer loaded."
+    },
+    "spacr.gene_facts.facts": {
+      "source_blocks_sha256": [
+        "f566ac7328973b2b3c8ffea89e63ff72c232bba8b1ba1194f38746e9d18a9b3a",
+        "892de41d5a52376ab51fae3d32f07d275e89f5d916ec325e687b458b1f7b4db6",
+        "d92774bfe8b41fbf4375c8e26f1acda3d952ffb33b8f834c94f9585a08bad7e2"
+      ],
+      "source_sha256": "49924e6dabaf5366661dfd6ac8152a8a7183ef3edf1d04e95d4b9d86a3dde602",
+      "text": "Everything the bundled annotation holds about the gene ``value`` names.\n\n:param value: a design term, an accession, a guide id or a bare gene\n    number -- every spelling :func:`spacr.annotation.gene_number` takes.\n:returns: a :class:`GeneFacts`, ALWAYS. A term that names no gene comes\n    back with :attr:`GeneFacts.known` false and a :attr:`GeneFacts.reason`\n    saying so, because a caller that has to tell ``None`` apart from an\n    empty record is a caller that will forget to."
+    },
+    "spacr.gene_facts.facts_for": {
+      "source_blocks_sha256": [
+        "0cfe9fce3a4ab6570a7f2fb52a48c54ae83b0f61de4a4c3b3fb5c981aa050edf",
+        "b681254d420c41b89c0706e8532e18c78157fcbebfae62e31ff35557ad728979",
+        "dd1fa065469a84b3dc185901e9dde81e851e6950c5b291f0e242ea469b96347c",
+        "9ca93fe62578bccaf1fe5ffc86a71ccfcbad7500783623d5c225af343b117193"
+      ],
+      "source_sha256": "f6b64705e8d8944304869de6c8085a0b1a4812587d03571eb8e451c5e642d489",
+      "text": "The facts for several genes at once, keyed by gene number.\n\n:param values: anything :func:`spacr.annotation.gene_number` accepts --\n    design terms, accessions, guide ids, bare numbers, in any mixture.\n:returns: one entry per DISTINCT gene named, in the order first named. A\n    value naming no gene contributes nothing, so an empty result means\n    nothing in ``values`` was a gene.\n\nONE JOIN FOR THE WHOLE SET. The ambiguous case is three genes at once and\neach of them wants the same 23 columns; three separate merges cost three\ntimes as much and, worse, would be three chances for the key to be built\ndifferently."
+    },
+    "spacr.gene_facts.unavailable_reason": {
+      "source_blocks_sha256": [
+        "85b0ba2ceb490511f46d8b63cb758a4fa07832c130b9717dec3fd1b063e79eee",
+        "696c3453b53eda015a5c50747fee70fa572333e830a03df8b52e722a9d589462"
+      ],
+      "source_sha256": "e71f3c0e0713e5c7f049bca319da4a53f57006f82ebdcffc55344267660b745e",
+      "text": "Why there is no annotation on this install, or ``\"\"``.\n\nA sentence rather than a flag, because it is shown to the user: a panel\nthat merely refused would be indistinguishable from one that broke."
+    },
+    "spacr.gene_facts.warm": {
+      "source_blocks_sha256": [
+        "132cd648ebcf1ba31cef41618a1a2438a470e6bb95066b8403b98e50fbf75442",
+        "258b930ae54e2c24b7eb765c5ad37f8d45f520c37b59da9aed92c6ebd92dc806",
+        "a2ba3622005e82eee67530ce2dbd8aca26b5fe59b98daddf00bbaf1c86443fec",
+        "6e18dc8396d4e43f59f7a817e83cf2c57bad6eea2dc3866ae611bdceab3cbd0c"
+      ],
+      "source_sha256": "633e1b1214c98ad7679a721eae8be9736f8a401dcca66bf8c5acc20f68e1cf20",
+      "text": "Load every table this module reads. CALL THIS OFF THE GUI THREAD.\n\n:param values: the terms a user might click -- a whole results table's\n    ``feature`` column is the intended argument. Every gene among them is\n    joined in ONE pass and cached, which is why passing four hundred\n    costs the same 21 ms as passing one.\n:returns: the columns that came out available, so a caller can tell \"the\n    tables loaded\" from \"the tables are not installed\" without a second\n    call.\n\nThe whole point of the function, measured: cold, the first click pays\n360 ms of CSV reading plus a 20 ms join, inside a mouse press. A plot\nthat freezes for a third of a second when clicked reads as broken. Warmed\nwith the screen's own terms, a click is a dict lookup -- 0.02 ms."
+    },
     "spacr.gene_tile": {
       "source_blocks_sha256": [
         "46d78e2d364e98e5a993994cb64d10481d51aa0dc8fe3cb5d4b37b5f39a6044a",
@@ -50735,6 +50880,176 @@
       "source_sha256": "10cba950418bb24116bc3afda026c4d0359778bb7594a174c6fc09675bd0e327",
       "text": "Grow a selection outward from a clicked point.\n\nThe watershed gesture: click inside a population and the gate finds its\nedge. Starting from the object nearest the click, the selection repeatedly\ntakes every unselected object within ``tolerance`` of something already\nselected, and stops when nothing new is close enough. Two limits keep it\nfrom swallowing the plot:\n\n``tolerance``\n    how far apart two objects can be and still count as neighbours. This\n    is what makes it a WATERSHED rather than a circle -- the selection\n    flows along a dense ridge and stops at a gap, so an elongated or\n    bent population comes out whole and the sparse space around it does\n    not.\n``max_radius``\n    how far from the CLICK the selection may reach at all. Without it a\n    single chain of objects bridging two populations merges them, which\n    on a real scatter happens more often than not.\n\nBoth are in SCALED units by default -- each axis mapped onto 0..1 across\nthe data -- so one pair of defaults works on measurements whose ranges\ndiffer by orders of magnitude, and so \"distance\" means the same in x as\nin y. Without that, a tolerance is a distance in whichever measurement\nhas the larger numbers and the other axis is effectively ignored.\n\n:param frame: the measurement table.\n:param x: the clicked x, in DATA units.\n:param y: the clicked y, in data units.\n:returns: a boolean mask over ``frame``.\n:raises WandError: a column that is missing, or a click with no finite\n    object anywhere near it."
     },
+    "spacr.qt.widgets.gene_panel": {
+      "source_blocks_sha256": [
+        "cb28034059e4dc6459faf50c65c8e491fe50b526018722e3bec8b6a85811503c",
+        "530b75c5715d60baffdda69ec2ab1d4e28138ea4bcd0e8a9255fe82c455b285e",
+        "43d68e4d6d45fb565904e9d3e6e28494d137692b7c37b72e70efd4483656e17f",
+        "10ac9c12b89c8d9f202634658d7e38ba2628628cee012651ec7f89817540d5a1",
+        "5c5e80d7f03b8f6d31f8d5b17210369b380f241a425f7fd42d6a1938a8e0185f",
+        "66873cc1d77f2c4c18601feb0440d7a211bbcffccadb962409ebce19aed8777c",
+        "5cde4c2d64bb668271a92021955d0d65e6c7588e8e5b373514ab1748e3029211",
+        "cdd6ec4ac8b7a44f1e66d1c2cc8e4e0fd8b975cce2301c61207c416b078f5819",
+        "5a2f5a50553850a97ad84fa16f22b50a35ae3edd376f1b433879bde5801a969e",
+        "17c8b57b2bdbe0068e102e7eaa3540edd67f68bfbc1430e82d209aab922db4a5",
+        "36dc1f554d8652047ae6182fab3a77278c1fedbd9da648ceb3a35e8a5c4a6694"
+      ],
+      "source_sha256": "b7a178dde3a66c41d7c5b75e99f296fac79377c2c4f0c97d7f936b8dcd72bd9d",
+      "text": "Click a gene, see everything spaCR knows about it -- in one panel.\n\nInstruction 121. Two modules already hold the two halves of the answer and\nneither of them is a widget, which is deliberate: the parts that can be WRONG\nare testable without a window.\n\n    :mod:`spacr.gene_tile`    WHICH gene this dot is -- guide to gene, the\n                              ambiguous protospacers, and THIS SCREEN's own\n                              effect / p / q / guides, read out of the results\n                              frame that is already on screen.\n    :mod:`spacr.gene_facts`   WHAT that gene is -- product, topology with the\n                              DeepTMHMM coordinates, hyperLOPIT compartment,\n                              the published CRISPR fitness screens and the\n                              stage expression, all of it out of\n                              :mod:`spacr.annotation`.\n\nThis module puts them one above the other and does nothing else with the\nnumbers. THE PANEL IS NOT A SECOND SOURCE OF TRUTH: the coefficient, the\np-value, the q-value and the guide agreement are whatever the table on screen\nsays they are, because two places computing one number is how they start\ndisagreeing.\n\nTHE GUI THREAD DOES NOT READ FILES\n----------------------------------\n\nCold, the first click costs 360 ms of CSV reading -- five bundled annotation\ntables, DeepTMHMM's 8,140 rows, and the gRNA reference and metadata indices\n:mod:`spacr.gene_tile` keeps -- inside a mouse press. A plot that freezes for\na third of a second when clicked reads as broken.\n\nSo :func:`warm_annotation` does all of it on a worker thread, through\n:class:`spacr.qt.job_runner.JobRunner`, which is the module that already\ngets the threading rules right: the worker's ``finished`` is relayed through\na Signal whose receiver is a BOUND METHOD of a GUI-thread object, never a\nclosure, so the handler runs on the GUI thread and the QThread is retired.\nGiven the screen's own terms it warms every gene in one join -- 400 genes\ncost the same 21 ms as one -- after which a click is a dictionary lookup.\n\nUNTIL IT IS WARM, THE PANEL SAYS SO, and the one control it has is greyed out\nwith the reason on it (instruction 106). A gene with no annotation likewise\nsays \"no row in the bundled annotation\" rather than showing a form of empty\nfields, which reads as \"measured, found nothing\"."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel": {
+      "source_blocks_sha256": [
+        "29dce6114770a48d4c9194ad46faf8ee6fdd8f79991e650187b93b25a724985b",
+        "22e9e1552bc8a54e79b9abbde7f535476284e3b29e30ad5ccaaa89343a3f66d5",
+        "9b7399cbb1fdb67946a81c93858f92151c77948d5929c994673abe5564a287ae",
+        "07604b2ffecbb63918879e07a2ddadbb9237befee1d74ec40abbd96f03891f24"
+      ],
+      "source_sha256": "c7abcc934959df07ca3e00d350ed535a7a70b28235ade96433896d38d055de27",
+      "text": "The gene tile: which gene this is, and everything known about it.\n\n:param frame_provider: called with no arguments for the current results\n    frame. A callable rather than a stored frame so a newly loaded\n    regression is never answered out of the previous one.\n:param threaded: ``False`` warms inline instead of on a worker thread, so\n    a test can drive the panel synchronously without the behaviour\n    diverging -- :class:`~spacr.qt.job_runner.JobRunner` emits the same\n    signals in the same order either way.\n:param parent: the usual."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.__del__": {
+      "source_blocks_sha256": [
+        "369b17abc10271bebc43554101dd4e1510ada6a4667381dc82e7ee6c541b4602",
+        "c85a23fc1e60cb1d7b0ff221a7bbca1309b15ff928201900e6f87b7ff5f2a9a4",
+        "37a533af9d008551cc45bc358336228bda693f6f66103b50269cf804d3297717",
+        "3c2504eb8e1f2394da3ed4444c6e9e9970adcd57bd8c975d902f086156fbf478"
+      ],
+      "source_sha256": "93aedd720486aa0a474acca20f17cf2ffd75e4f03850c658317ac715f96dc1da",
+      "text": "The last guard, and the only one that needs nothing to happen.\n\nTHREE THINGS CAN START THE WARM-UP -- the first show, `warm_now`, and\na frame arriving -- so guarding each start site is guarding the wrong\nend. This guards the LIFETIME: whenever the panel is collected, with\nor without a close, with or without an event loop, the thread is\nasked to stop first.\n\nThe other two guards each need an event to fire. `closeEvent` needs\nsomebody to close the panel; `QApplication.aboutToQuit` needs an\nevent loop to quit. A panel built, handed a table and dropped -- a\ntab rebuilt, a screen replaced, a headless script, a test -- reaches\nneither, and Qt calls `abort()` on the running thread. That was\nSIGABRT on `QApplication([]); RegressionResultsPanel()`.\n\nEverything here is swallowed on purpose. `__del__` runs during\ngarbage collection and at interpreter shutdown, where the C++ half\nmay already be gone and the module globals may already be None; an\nexception raised here is printed and ignored by Python anyway, and\nthe one thing worth doing is the shutdown attempt."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.annotation_columns": {
+      "source_blocks_sha256": [
+        "6cf8b0c718df8e0342822db59104bf72783e423ec35ca4b291cec09a4d5c77f3"
+      ],
+      "source_sha256": "6cf8b0c718df8e0342822db59104bf72783e423ec35ca4b291cec09a4d5c77f3",
+      "text": "The annotation columns this install can show. Empty until warm."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.clear": {
+      "source_blocks_sha256": [
+        "e1c67853d11d724c0b43da175dcd512271aa09fa0db1a7990232a0fc84323d7a"
+      ],
+      "source_sha256": "e1c67853d11d724c0b43da175dcd512271aa09fa0db1a7990232a0fc84323d7a",
+      "text": "Back to the waiting state, which says what it is waiting for."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.closeEvent": {
+      "source_blocks_sha256": [
+        "f6e73b5506de4e7e80a60df5fb046dbe52a167c400c0b765a7cb6798633d552a",
+        "a7240c05a95b72ac7cb7f27ab45d8cce0b5e551fb2507c6d930aa1f93dfd6b90"
+      ],
+      "source_sha256": "b5ed227dedc683ef0e1f36f0fb072ce4c00fe7cd0257dab39858c0bda59d420c",
+      "text": "Stop the warm-up before the widget goes.\n\nQt aborts the process if a running QThread is destroyed, and a\nwarm-up outliving its panel is exactly that."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.facts": {
+      "source_blocks_sha256": [
+        "abdc3b0a0bdaea97d3278d7af2447c827dc9d454a84a7ab342c069b134e5c941"
+      ],
+      "source_sha256": "abdc3b0a0bdaea97d3278d7af2447c827dc9d454a84a7ab342c069b134e5c941",
+      "text": "One :class:`spacr.gene_facts.GeneFacts` per candidate gene."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.feature": {
+      "source_blocks_sha256": [
+        "040dca1d75aebb2f61298e6421811a7579083f236f44612b077661c7dc059c53"
+      ],
+      "source_sha256": "040dca1d75aebb2f61298e6421811a7579083f236f44612b077661c7dc059c53",
+      "text": "The feature string the current tile was built from."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.is_warm": {
+      "source_blocks_sha256": [
+        "4d379f740d095f29da44e2dfa5e0ea502764ccfa54488e368e35289713d239ce"
+      ],
+      "source_sha256": "4d379f740d095f29da44e2dfa5e0ea502764ccfa54488e368e35289713d239ce",
+      "text": "Has the annotation finished loading off the GUI thread?"
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.save_topology": {
+      "source_blocks_sha256": [
+        "9c4940964333cb5b34a456af2e9ecfd0f5ecbc408db02a2aa3015ce7ec917509",
+        "76f155f6e75addf0138c9b3117c037467da1aac8d45cd34fc986155b144f16c6",
+        "2fb8df6b30098745f48f108115177ecfe8692126cc4403dbade181d3e27b29c3"
+      ],
+      "source_sha256": "7dc102bdff6fb2b364e6b4e37ed0798adbc44160553b7a670b6bc36af34499e6",
+      "text": "Write the clicked gene's full DeepTMHMM record to ``path``.\n\n:returns: whether a file was written.\n\nStraight through :func:`spacr.annotation.supplementary`, which is the\nfunction that defines what that table is. Rewriting the columns here\nwould be a second definition of the supplementary file, differing\nfrom the one an export writes in ways nobody would notice until a\nreviewer compared them."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.set_frame_provider": {
+      "source_blocks_sha256": [
+        "1c983ffbc4d9c3abf004635ee03ab5cd9b4f7815c6be22d46a430bb3a4c13ad4"
+      ],
+      "source_sha256": "1c983ffbc4d9c3abf004635ee03ab5cd9b4f7815c6be22d46a430bb3a4c13ad4",
+      "text": "Point the panel at where the current results frame lives."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.showEvent": {
+      "source_blocks_sha256": [
+        "a54b08af7d4bc036dbdd5f0d353055a1540b68826176a26d442faddf6dc95f06",
+        "7997c91176188166741b9823aee2f7eb163be605d899e82cb6df38a0355d22d8",
+        "c6c2f101d56edfbd3b0e4173aeac97881a296bd48aa702732524188cbc437eb7",
+        "82ac2edf87b73d48ca3eaa0443ad2a85698d04bab9582f07d4f3180b4a6366ab",
+        "5e5856df79e94c534a8c741b3b213cc4a1dc1eb2d5dd9a20510c9be05ec5fa8c",
+        "f354d7dd373fc0d137a31d202149f0250229ab0bda2c41eea6130f183bd64718"
+      ],
+      "source_sha256": "0d1dce94f89ebb25f13259e9e3d042f880b01be06d823e9fac062bca334859fa",
+      "text": "Warm the annotation the first time the panel is actually shown.\n\nTHE WARM-UP USED TO START IN THE CONSTRUCTOR, AND THAT ABORTED THE\nPROCESS. Qt calls `abort()` when a running QThread is destroyed, and\nthe two guards against that -- `closeEvent` and\n`QApplication.aboutToQuit` -- both need something to happen:\n`aboutToQuit` fires only when an EVENT LOOP quits, and a panel that\nwas built and dropped was never closed. So\n\n    QApplication([]); RegressionResultsPanel()\n\nwas enough to end the interpreter with SIGABRT, in any headless\nscript and in three tests that only wanted to know the panel builds.\n\nStarting on first show fixes the class rather than the case: a panel\nnobody looks at never starts a thread, and a panel somebody looks at\nis inside a running event loop by definition, which is exactly the\nstate both guards need.\n\nIt costs nothing in the GUI. The tab is built with the screen and\nshown when the user opens it, and the warm-up's whole purpose is to\nhave the tables ready before the first gene is clicked -- which\ncannot happen before the tab is visible."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.show_feature": {
+      "source_blocks_sha256": [
+        "48f5836d139039c6e66dbab15688b6f852370e714713c348e968d0f3c2d81c25",
+        "2b8b1ac19d302fe46a369e50f2c79c3712c3fa4d2e0cd1d68b1005717670f65b",
+        "43c9aed74d7c784ee8de36ae2685f1dd334955463e5ef85bbcbc17f1829d8839"
+      ],
+      "source_sha256": "7762ac34e1b779e290f7403b3439578d3c98dc86ec164882dcac81227964f56b",
+      "text": "Build and show the tile for one clicked feature.\n\nTHE SLOT ``key_selected`` CONNECTS TO. It takes the feature string and\nnothing else, so a volcano click and a results-row click reach it\nidentically -- and it is connected once, on the table, because that is\nthe funnel both directions already pass through.\n\nDriven straight rather than off ``summary.tile_shown``: that signal\nis not emitted when the resolver RAISES, and the one case where the\nlower half must not be left showing the previous gene is exactly the\none where the upper half failed."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.tile": {
+      "source_blocks_sha256": [
+        "0f3d3bb7093485ad3cc1a8486f3ff0709ddbcb425ed691ee9a313332bc5df5db"
+      ],
+      "source_sha256": "0f3d3bb7093485ad3cc1a8486f3ff0709ddbcb425ed691ee9a313332bc5df5db",
+      "text": "The :class:`spacr.gene_tile.GeneTile` on screen, or ``None``."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.to_pixmap": {
+      "source_blocks_sha256": [
+        "362f29f3637c8cfc6a88c62ee4272c81bc2af6e324cd9a7a3d3987745ea6200b",
+        "33011057216faa758567a788ddc1d103dff6cb0b73b0d281186eeee95f089340"
+      ],
+      "source_sha256": "c7a94349a6b04f1c04b8fa2f26a89fec4d1d4357d6669a63cd10ac1ab2e47740",
+      "text": "The whole tile -- both halves -- as one ``QPixmap``.\n\nThe figure grid's cells take a pixmap and size themselves from its\naspect ratio, so rendering to one lets the gene tile be a tile in\nthat grid without ``_FigureCell`` learning about text."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.topology_reason": {
+      "source_blocks_sha256": [
+        "6e58d3820707334f31c5d853fcedc4d83aa0caf77c430d7a5a1845557993845b",
+        "ec5c66e6a9bd8839f65bc2ba30c5f483b87569f3da8d1f1557108a33b74783a5"
+      ],
+      "source_sha256": "8df99595a673c2c1f03f7cfbc23c0f3e759ca2ceac95e1a7fe062748c94fe37f",
+      "text": "Why \"Save topology CSV\" cannot run, or ``\"\"`` when it can.\n\nInstruction 106: a control that cannot do anything is greyed out AND\nsays why. This is the sentence, and it is the button's tooltip."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.warm_for": {
+      "source_blocks_sha256": [
+        "90fd1046dcd73e9661de3e69619c2e6737acd185f5104e51ae55d15b2852cc05",
+        "2899c9b7e10cfe41e76878c3ed2aaad4c8dc90df94733a8066e23b769e86072b",
+        "26849475e808e62417ebe6cea1856ec06a71c5efb86353f9b407a51fe7b4be32",
+        "ca02877ecae3f8f81cb51137b9ef9bcded9f7848326b2d37cb192498874b78e5"
+      ],
+      "source_sha256": "ecca20273998e18ed19cd8714611989a5addd0dec4ebced352ff2a4fced7403e",
+      "text": "Warm the annotation for every gene in ``frame``. Call on load.\n\n:param frame: the results table that was just loaded.\n:returns: whether a warm-up was started.\n\nThe terms are read off the frame HERE, on the GUI thread, because\nthat is a list comprehension over a column that is already in memory.\nThe join they feed is what goes to the worker."
+    },
+    "spacr.qt.widgets.gene_panel.GenePanel.warm_now": {
+      "source_blocks_sha256": [
+        "e886b1211f0deece8d124342567e2c779cab6321089c3d669c9a2fcef5c1fd1e",
+        "43844529df6efdd4a7faec903d573ad4eff62d15f5fa59f902e7c12d9d2aa74b",
+        "82d2a78eb2f1a00d733b281dd4a20803ea4819c0a36a32c5f764956032e43c17"
+      ],
+      "source_sha256": "5b4b145bd36c35c65d47291c2748ed3a48ebf63bb7533d5d6c6357ad3628925e",
+      "text": "Start the pending warm-up. Returns whether one was started.\n\nEvery start site funnels through here, so \"a panel nobody shows never\nstarts a thread\" is one condition in one place rather than three.\n\nA caller that knows it wants the tables and will keep the panel alive\ncan call this directly -- and the tests do, because they need to\ndrive the threaded path without a window manager."
+    },
+    "spacr.qt.widgets.gene_panel.warm_annotation": {
+      "source_blocks_sha256": [
+        "332c6b561afa6cfb284151da7ac7c9843c99764dcdb856c0e88f2f557ccf3831",
+        "c7f55580a87eda21d7e5ec95b1b62ccfcbdd81344e942863591232fb1b8d6926",
+        "66e61440c1c7f5fe64dd4698d58b249dd37f5776913441fe3155615d44bdb9d3",
+        "d6f302e668b028c2dbf091426fe7e7bb20dad9850bba2e36aa0859318adad6c5",
+        "e82d8892be98d839f70d4413b9a37e6f5c2fabeda4087882baf292ba50d189fd"
+      ],
+      "source_sha256": "4234359a6dc71feb4e5fec51849be587f96ddd393acd79ee8f1e324cf244c7a9",
+      "text": "Read every table a gene tile needs. RUNS ON A WORKER THREAD.\n\n:param features: the terms the user might click -- pass the results\n    table's whole ``feature`` column. Every gene among them is joined in\n    one pass, which costs the same as joining one.\n:returns: the annotation columns that came out available; empty when the\n    bundled tables are not installed, which is a state the panel shows\n    rather than hides.\n\nTouches no widget and returns only data -- that is the contract for\nanything handed to :meth:`spacr.qt.job_runner.JobRunner.submit`.\n\nIt warms :mod:`spacr.gene_tile` too, by resolving one term. That module\nkeeps its own indices over the gRNA reference and the curated metadata,\nand they are just as cold on the first click as the annotation tables\nare; warming one and not the other would move the freeze rather than\nremove it."
+    },
     "spacr.qt.widgets.gene_tile": {
       "source_blocks_sha256": [
         "19836e063321672f3d84e264e0ba52cae652132aed32142aa6b510c45da67895",
@@ -54960,13 +55275,13 @@
         "0e27077e0857ef4bb1b94d2285965e723ea0e712b52f43f28382dea87ba21cd3",
         "5097ebc59e276f9a3202bf59d4a0be9172cae325e52ea58315aa48ba9af0e4d8",
         "db66b0a639d45ced1be490eeb48828f1bad1cee5726fa919e585f32553e5955b",
-        "68a53dd560de982a03d8ca08ecb6679cf419e8460f65541bba38db7d32c59e4e",
+        "bf19c808622b5757e9193a2af2cee076b461f5bc3c92562c151959b130140543",
         "42d3c9f982d5fb82e170e9feb8f3c4f8976cfcf3adbaf775b1ce3a093afef9d1",
         "e1b7d7e0f1e720222dcfe1ffa668519cc35abbd1c1a80add1f002bd4d6773dcd",
         "e64b31dee0ebfcd1765a6b1e993d645b682d3f426e3ae9bc8fe1f167002fe93a"
       ],
-      "source_sha256": "eb26d7c02729ae65612c3c7a662a363f374cede7c1cb840e3eaaee22ec88eecb",
-      "text": "Everything a finished regression produced, in one place and fast.\n\nThe module used to answer a run with a stack of matplotlib pictures, the last\nof which -- the volcano -- cost ~115 ms per redraw and made the whole window\nlag. Worse, the numbers behind it were only in a CSV, so \"is EAF1 a hit\" meant\nleaving the application.\n\nThis panel is what a finished run opens into:\n\n    Volcano        every dot clickable, drawn by Qt, 3.6 ms\n    Table          the coefficients, sortable, filterable, wired to the plots\n    p-values       the histogram that says whether a correction means anything\n    Q-Q            calibration, with the inflation figure\n    Controls       the assay window\n    Guide support  which genes rest on one guide, as a plot and a table\n    Gene           the tile for whatever was last clicked\n\nEVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --\ninstruction 124 F. Clicking a point selects its row; selecting a row marks\nthat point on every plot that drew it. They are views of one table, which is\nthe thing that was missing.\n\nONE GENE/GUIDE FILTER FOR ALL OF THEM -- instruction 128 L. `set_level` is\nread by every draw path, not by the volcano alone, because a filter that\nreaches four of six tabs is worse than one that reaches none: the two then\ndisagree on screen at the same time and nothing says which is which. Filtering\nthe family also CHANGES A DIAGNOSTIC rather than merely narrowing it -- on a\ntable of 200 null gene terms and 600 enriched guide terms the Q-Q reports\ninflation at the median of 2.90, 0.97 and 4.07 for the whole fit, the genes\nand the guides, three answers to \"is this screen calibrated\" from one plot --\nso the family is written into the tab label and into the plot's own title.\nThe three well-level tabs are NOT filtered, because a residual is one WELL and\na well is neither a gene nor a guide; they say so rather than staying quiet.\n\nJoined on the KEY, never on a position. The Q-Q is sorted by p, the control\npanel is split into groups and the agreement plot has one point per gene from\na frame with one row per guide, so a mark's position is not its row in any of\nthem. Measured on the real screen: the second point on the Q-Q is the term\n``gene_fraction:gene[244480]`` (p = 2.9e-13, the strongest hit in the screen)\nwhile its drawing position names ``fraction:grna[000000_10]``, a control guide\nwith p = 0.81. That is what a positional join would have selected, and nothing\nabout it would have looked wrong."
+      "source_sha256": "a01273fadb095d4598331b338d428ca48b9ca8661e8b4e34c731623fc63134b8",
+      "text": "Everything a finished regression produced, in one place and fast.\n\nThe module used to answer a run with a stack of matplotlib pictures, the last\nof which -- the volcano -- cost ~115 ms per redraw and made the whole window\nlag. Worse, the numbers behind it were only in a CSV, so \"is EAF1 a hit\" meant\nleaving the application.\n\nThis panel is what a finished run opens into:\n\n    Volcano        every dot clickable, drawn by Qt, 3.6 ms\n    Table          the coefficients, sortable, filterable, wired to the plots\n    p-values       the histogram that says whether a correction means anything\n    Q-Q            calibration, with the inflation figure\n    Controls       the assay window\n    Guide support  which genes rest on one guide, as a plot and a table\n    Gene           what the last-clicked dot IS: the gene, this screen's own\n                   numbers for it, and everything the bundled annotation\n                   holds about it\n\nEVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --\ninstruction 124 F. Clicking a point selects its row; selecting a row marks\nthat point on every plot that drew it. They are views of one table, which is\nthe thing that was missing.\n\nONE GENE/GUIDE FILTER FOR ALL OF THEM -- instruction 128 L. `set_level` is\nread by every draw path, not by the volcano alone, because a filter that\nreaches four of six tabs is worse than one that reaches none: the two then\ndisagree on screen at the same time and nothing says which is which. Filtering\nthe family also CHANGES A DIAGNOSTIC rather than merely narrowing it -- on a\ntable of 200 null gene terms and 600 enriched guide terms the Q-Q reports\ninflation at the median of 2.90, 0.97 and 4.07 for the whole fit, the genes\nand the guides, three answers to \"is this screen calibrated\" from one plot --\nso the family is written into the tab label and into the plot's own title.\nThe three well-level tabs are NOT filtered, because a residual is one WELL and\na well is neither a gene nor a guide; they say so rather than staying quiet.\n\nJoined on the KEY, never on a position. The Q-Q is sorted by p, the control\npanel is split into groups and the agreement plot has one point per gene from\na frame with one row per guide, so a mark's position is not its row in any of\nthem. Measured on the real screen: the second point on the Q-Q is the term\n``gene_fraction:gene[244480]`` (p = 2.9e-13, the strongest hit in the screen)\nwhile its drawing position names ``fraction:grna[000000_10]``, a control guide\nwith p = 0.81. That is what a positional join would have selected, and nothing\nabout it would have looked wrong."
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel": {
       "source_blocks_sha256": [
@@ -63137,12 +63452,12 @@
         "6f099fac79f696ec93347fc7e2e0c49baa03cacb0faf75314fe68e8a6b7cafff",
         "0f4aaef6f734dc6eb4b56770d3bae2066dfeb838275ba4ba3f612576b7fcbb83",
         "a4351143d2fdf77872f040589a664c041b8fb0e59cb7f0ede84f97c9a320034f",
-        "204d30009bfa2c1afc4cb6ba74cf99f575e5400b342d779cbb1f3476fec0e061",
+        "2b8a62be933e9ed5174b81f812e0a3317dfe7a2836c8afee8994aa460b21281b",
         "d67b123760a62b93fba5e6f346549ef0d1f7edde7ef6f5861606fd8565690f37",
         "f1262e1cc6004a5b7dafe29054d118c079036950f3d82d3e14f0f134c44ae842"
       ],
-      "source_sha256": "7d7df042ec3fd7bb000719359e840b030d7aa7733261fe4be32ffdcab77ad281",
-      "text": "Render a lower-triangular correlation heatmap of the standard sweep + metric columns.\n\n:param df: DataFrame containing sweep variables plus ``prauc``, ``roc_auc``\n    and related outputs.\n:param annot: When True, write numeric correlations in each cell.\n:param cmap: Colormap name or object (overridden internally to a diverging\n    palette).\n:param clean: When True, drop constant columns before computing correlations.\n:returns: The generated Matplotlib figure."
+      "source_sha256": "71db59ff432fc3eed7cfe605931054e11fa27880002c071bba8112f56bb5e834",
+      "text": "Render a lower-triangular correlation heatmap of the standard sweep + metric columns.\n\n:param df: DataFrame containing sweep variables plus ``prauc``, ``roc_auc``\n    and related outputs.\n:param annot: When True, write numeric correlations in each cell.\n:param cmap: Colormap name or object. ``None`` uses the house diverging\n    map, which is the one case the style allows a diverging map for --\n    a correlation is genuinely signed. The parameter used to default to\n    ``'inferno'`` and then be OVERWRITTEN two lines later, so a caller\n    who passed one got the diverging map anyway and never knew.\n:param clean: When True, drop constant columns before computing correlations.\n:returns: The generated Matplotlib figure."
     },
     "spacr.sim.plot_feature_importance": {
       "source_blocks_sha256": [
@@ -63329,22 +63644,24 @@
     },
     "spacr.sim.save_plot": {
       "source_blocks_sha256": [
-        "48f396e6ca31e30e7e70368e2f3523afca42b2f6f7f47069d388946f2f4fe449",
+        "019b2a94cc85c2fac9a4f0bb3b25c5402c8c7f44543af903a3fae7b24c3c64ec",
+        "82b03bd1be42315959caa41c48d8997600cb6e3aca346b719fc64afbb0454a5a",
         "3d0a29f40fe9cdf5d81cb83aac74cd9991aba7db3406bc89ff250f4b0c4ed7e8",
         "82a9dfa6fa80998d32de10098aea07bb4a8eaf56baa8c91e4bf25b43a0e45dbc",
         "ee704277c7551c100b1724b30ece42954f2ebc0a33d9e0cfc8e1e32d4540f9ca",
         "fb159a1e49806b29182fac3fb91c552c1501552fe4b44746bb42064e11654fed",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "eb56b10141733ed941b9904f570b0da98278c880f8eb4ddf79f1c9cf2ef4e233",
-      "text": "Save a Matplotlib figure to ``<src>/<variable>/<i>_figure.pdf``.\n\n:param fig: Figure to save.\n:param src: Root directory for outputs.\n:param variable: Sub-folder name (the swept variable label).\n:param i: Zero-padded simulation index used in the file name.\n:returns: None."
+      "source_sha256": "2ca0754379afc9c669b0af93d5e51907dd4e5f6dfb174cde9c994fb9b118f801",
+      "text": "Save a Matplotlib figure to ``<src>/<variable>/<i>_figure``.\n\nTHE FORMAT IS THE USER'S, NOT THIS FUNCTION'S. It was\n``fig.savefig(..., format='pdf', dpi=600)``, which is one of the literal\nformats instruction 136 exists to remove: the \"Figure format\" and\n\"Resolution\" preferences reached every other saved figure in spaCR and\nnot this one. ``.pdf`` is still what a default install writes, because\nthat is what the preference defaults to.\n\n:param fig: Figure to save.\n:param src: Root directory for outputs.\n:param variable: Sub-folder name (the swept variable label).\n:param i: Zero-padded simulation index used in the file name.\n:returns: None."
     },
     "spacr.sim.save_shap_plot": {
       "source_blocks_sha256": [
-        "0f9923cd0e05d9ca28f9a5e97bc642a5819587e2b28c969569ab6f3f11971c10"
+        "f8d028e4be99d366bfa94d0e7bf04a388cc4699c87ca25018028eb7a4d6241f0",
+        "576dba20b609bb03ae240d23a44b58e15fd9d48ace98f2525f264e1a352c4759"
       ],
-      "source_sha256": "0f9923cd0e05d9ca28f9a5e97bc642a5819587e2b28c969569ab6f3f11971c10",
-      "text": "Save a SHAP figure to ``<src>/<variable>/<i>_figure.pdf``."
+      "source_sha256": "478ccc849877f176e3e22cda34c4c43d2b2f749bb36baefa88cfc9cc59db15c8",
+      "text": "Save a SHAP figure to ``<src>/<variable>/<i>_figure``.\n\nThrough :func:`spacr.plot.save_figure` for the same reason\n:func:`save_plot` is: the format follows the preference, not a literal."
     },
     "spacr.sim.sequence_plates": {
       "source_blocks_sha256": [
@@ -64685,31 +65002,35 @@
     },
     "spacr.toxo": {
       "source_blocks_sha256": [
-        "8fa20e1f3ea2459f3e2bac12a7dbd563466a35c4f05a97744b02a4376c754d7c"
+        "8fa20e1f3ea2459f3e2bac12a7dbd563466a35c4f05a97744b02a4376c754d7c",
+        "fca571c97bbc73714a03eeafa9c96e50ffa5fe9891ab7169308e912a714330cc"
       ],
-      "source_sha256": "8fa20e1f3ea2459f3e2bac12a7dbd563466a35c4f05a97744b02a4376c754d7c",
-      "text": "Toxoplasma-specific visualisation helpers."
+      "source_sha256": "91b239f2917738fe8a1209bdbbe0eb98a78643e59d050608a42bff486259a78b",
+      "text": "Toxoplasma-specific visualisation helpers.\n\nEvery figure here is built inside :func:`_house`, which is\n:mod:`spacr.figures.style` applied as a context manager. Read that module\nbefore adding a panel; the rule it exists to enforce is that **everything is\ngrey except what the sentence is about**, and this file is where breaking it\nwas measured -- see :func:`custom_volcano_plot`."
     },
     "spacr.toxo.custom_volcano_plot": {
       "source_blocks_sha256": [
-        "d4cf48149a2c2cea3d7a554f2a026af140d024ba1e4ef685d8f0ac0e9e984a85",
-        "ff2f2ea6dc89e4614aae4a1a79d461f23d3424a0a86ebbc7b3b15c1e6f5f275e",
+        "52c41116bc1bc4837337ec6274f46f9884a477e8107c1ed829483b1ebd8c4c42",
+        "b38ef2856cc94c7cd05934da7e36a22a6f30105d895f730e2d05c8826d64cebe",
+        "da14cb93a3dcae9946c9595cdd1e5a33d98cd289c5ba3415d1bb2f0bb80ed032",
+        "4162f939e73a568310e8ee72df2899cc2b68b55f2eaabfeed136859f4bbed0ef",
         "68440b732d2d1a1c158ecdfc6a0da434ca6f580f6784a79fbe0a3d419a06bf5c",
         "08ebaed79a6bb726935c9fe063a36f129d8e5d2067371ed812c714572fcc99d0",
-        "354dee2378f68b935efc9f92e1d945ec1192b2b3938952c9a192e8ff5087e628",
+        "eb9bd79e5fab3ad02788042a35b8ea74bea5a03b86919dc6afadff7d383f82e6",
         "772579246cb8f2cb0743925e3ec9c79d68e340774f6616ca8c303667cbc1ea7f",
-        "00df8dbc0bb9b7326d299fd32cc0d94dd9d17d93e56650e82429339ab42338ba",
+        "a19c79e70ecc8803b9b4a26c215ac1a41108dbd7c7e2b202e195fa5c4d06c5d6",
         "661c282692ba018ecb8ad3ae86ccaa7efbdccb691970bf797b1bd14b772c1151",
         "8affd23b4cbd174b2e0543886e37d1bbac1d529e90058b1505ad437aa615e804",
         "4a4572bbd16fb0bfc27213ece5fa7726671625a5f18f7104538720cf51468d77",
         "7df46352628f182bdc0a19109534ac2c4e6a3e0446b2a64dfafd6259ca893e4c",
         "c71108f75a3153a3ed9d45f4acaa89aa7ef999534f8e3b64b78b810c9b002470",
         "5f38edf7dca1fb348e5d90983b3d2e73f650d573e649f16d4254f9b6654a76a8",
-        "879175329f8c5b5b6a8ff7a671a8e0061d8e4cf80268e1e7f0a0c68e819fb1fe",
+        "6fda4f3a272c5521e3d61a931f1d7c8f8a16b80efb5b754cc8b6351f76207ea0",
+        "557a205116f8d24e22c76e7a5af688bcc9b9b1e2d8e5d3e8445c96f982b5b20f",
         "25c452c1f607c6154125068a87f904a6e9fc8c266e59e4823fad59beaa072df3"
       ],
-      "source_sha256": "d8877a8fa940e3e83c847015d8ea87a836dd5a0a51c6077cf83326fd46f88f37",
-      "text": "Render a volcano plot coloured by T. gondii subcellular localisation.\n\nPoints are placed at ``(coefficient, -log10(p_value))`` and coloured by the\n``metadata_column`` value on the merged gene metadata. Supports a broken\ny-axis for high ``-log10(p)`` outliers.\n\n:param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,\n    ``p_value`` columns.\n:param metadata_path: DataFrame or CSV path with ``gene_nr`` and the\n    ``metadata_column`` values to merge on gene number.\n:param metadata_column: Metadata column that drives point colouring.\n:param point_size: Marker size passed to ``ax.scatter``.\n:param figsize: Side length in inches of the (square) figure.\n:param threshold: Absolute coefficient threshold used to select hits.\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.\n:param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``\n    for a broken axis.\n:param draw: build the figure. ``False`` computes and returns the hit\n    list ONLY, with no figure built, saved or shown.\n\n    This function does two jobs -- it draws the volcano AND it decides\n    which genes are hits -- and `perform_regression` needs the second\n    whether or not the maintainer wants the first. The GT1 phenotype plot\n    and the ME49 transcription heatmap are both built from this return\n    value, so gating the CALL would have removed two reports nobody asked\n    to lose. Gating the DRAWING keeps them.\n\n    It is also the fast path, which is the point: \"your new volcano plot\n    is much much faster than my old one\". Skipping the figure skips a\n    per-row Python loop over every coefficient, twice.\n:returns: List of ``variable`` names that are significant hits."
+      "source_sha256": "2f6d24622c2783e4618bbbc466eb8301e3f7387a32d09145cae1cecdcc5e8725",
+      "text": "Render the screen's volcano: grey guides, coloured calls.\n\nPoints are placed at ``(coefficient, -log10(p_value))``. THE COLOUR IS THE\nCLAIM: everything the screen did not call is grey, a called guide is green\nwhen its coefficient is positive and rust when it is negative, and that is\nthe whole vocabulary unless ``highlight_location`` asks for one more.\n\nIT USED TO COLOUR BY LOCALISATION, all 27 LOPIT compartments at once, and\nthat was decoration rather than an argument. Eight of the 27 were the same\nslategray and two more the same black, so the hues did not even separate\nthe compartments they claimed to name; the legend ran taller than the\nfigure (\"I can't really see the results because the legend is way too\nbig\"); and :mod:`spacr.localisation` records the cost of the same mistake\nelsewhere -- a 27-entry volcano spent 40 ms of a 49 ms redraw and said\nnothing, because no reader holds 27 hues apart. THE NUMBERS ARE\nUNCHANGED: the same p and coefficient rule calls the same hits, the same\ngenes are labelled, and the returned list is byte-for-byte what it was.\nOnly which marks carry colour changed.\n\nThe compartments are still reachable, one at a time and against grey,\nwhich is what :mod:`spacr.localisation` already decided is the readable\nform of that question.\n\n:param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,\n    ``p_value`` columns.\n:param metadata_path: DataFrame or CSV path with ``gene_nr`` and the\n    ``metadata_column`` values to merge on gene number.\n:param metadata_column: Metadata column carrying each gene's localisation.\n    It is what ``highlight_location`` selects on; it no longer drives the\n    colour of every point.\n:param point_size: Marker size passed to ``ax.scatter``.\n:param figsize: Side length in inches of the (square) figure. The type\n    scale follows it -- see :func:`_house`.\n:param threshold: Absolute coefficient threshold used to select hits.\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.\n:param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``\n    for a broken axis.\n:param draw: build the figure. ``False`` computes and returns the hit\n    list ONLY, with no figure built, saved or shown.\n\n    This function does two jobs -- it draws the volcano AND it decides\n    which genes are hits -- and `perform_regression` needs the second\n    whether or not the maintainer wants the first. The GT1 phenotype plot\n    and the ME49 transcription heatmap are both built from this return\n    value, so gating the CALL would have removed two reports nobody asked\n    to lose. Gating the DRAWING keeps them.\n\n    It is also the fast path, which is the point: \"your new volcano plot\n    is much much faster than my old one\". Skipping the figure skips the\n    whole build.\n:param highlight_location: one compartment name, or a sequence of them,\n    from ``metadata_column``. Those genes are drawn in the highlight blue\n    on top of everything else and named in the in-panel legend. ``None``\n    (the default) colours nothing by localisation.\n:returns: List of ``variable`` names that are significant hits."
     },
     "spacr.toxo.generate_score_heatmap": {
       "source_blocks_sha256": [
@@ -64737,8 +65058,9 @@
     },
     "spacr.toxo.plot_gene_heatmaps": {
       "source_blocks_sha256": [
-        "9d662ac1d0f39593deafad257e5ec1679d964c14869638082ea674a709bfe7b1",
-        "c64abea5092a61f47a461bf6338770e0bdd7efb3d1b22945533a9e39fd17181b",
+        "52c763e6501ecdf10fbdb4aa0c50fb5837672bcc0c10c35aba92779c178e3884",
+        "f85bba43feb70b5d4cc15db2769a00e2e13f7a4e1ad2241064891db09cc16e77",
+        "35b70b4b82592529c132e313c11c9b0dec37deb90a202a912be4a68f48ec3bbf",
         "3dd160bd3b2b64edc702be569c99f5fa9af32085e1c3bb90b2766e90121786b1",
         "b17ede117d224f76af307f34674c3d7b583d3095ab079226621bb9d1ead27a61",
         "32ac11699b9e07f6cf6df64d106ce81c88de5342a2291acbe1d089448a4354f4",
@@ -64746,13 +65068,14 @@
         "8affd23b4cbd174b2e0543886e37d1bbac1d529e90058b1505ad437aa615e804",
         "c1485d210b2e9dfd78a80275b22d32aa002039a14aa20b16f8f53e8e47b3a5f0"
       ],
-      "source_sha256": "13dcd9ca8553efbfa27236190d567758b29432ec60cca5d40d32810de4502168",
-      "text": "Render a viridis heatmap for selected genes across selected metadata columns.\n\n:param data: DataFrame containing per-gene rows.\n:param gene_list: Genes to include as heatmap rows.\n:param columns: Column names to include as heatmap columns.\n:param x_column: Column holding gene identifiers for row matching.\n:param normalize: When True, min-max scale each gene's row to [0, 1].\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:returns: None. Displays the Matplotlib figure."
+      "source_sha256": "76572dde18e88061e7837a46e18ba1831c9fe2af1f84fdef8061f6c3f70b2992",
+      "text": "Render a heatmap for selected genes across selected metadata columns.\n\nTHE RAMP IS SINGLE-HUE. It was viridis, a rainbow that reads as five\ncategories where the quantity is one ordered score; the house style's\n``Blues`` runs light to dark, so \"more\" is one direction rather than a\ntour of the spectrum. A diverging map would be right only if the values\nwere signed, and after ``normalize`` they run 0 to 1.\n\n:param data: DataFrame containing per-gene rows. Copied before use -- the\n    row-key column this adds used to appear on the caller's frame.\n:param gene_list: Genes to include as heatmap rows.\n:param columns: Column names to include as heatmap columns.\n:param x_column: Column holding gene identifiers for row matching.\n:param normalize: When True, min-max scale each gene's row to [0, 1].\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:returns: None. Displays the Matplotlib figure."
     },
     "spacr.toxo.plot_gene_phenotypes": {
       "source_blocks_sha256": [
         "b4c4acdc3c95d7336b6639fed238eab6059f3f074042daa61522c54be60acec1",
-        "5fe30d443615904b8c47d7dcdd2657cd2de2bb63377d53791fab35ea6a974627",
+        "b0525771616b72279c109a69c781aadcd07f1250f10643c56db4f4dc80057a5b",
+        "cd78a9bb81a968374c26d05a409549b8c98b3ecca52cf2996cf3579fc39636f9",
         "c0d240b315d954085430a5b603a4f1329196f9e00083f7b3c22ca8682d8ffc49",
         "f3e87fd492c5e32602766504bc5fd67e208a13bfee8eb904b719d90a8bbdcad7",
         "65cb26c3a22ca5ebc6a2b4b5e204eadb52b9703960eb61e80a51ddb0e7e3c230",
@@ -64760,8 +65083,8 @@
         "8affd23b4cbd174b2e0543886e37d1bbac1d529e90058b1505ad437aa615e804",
         "c1485d210b2e9dfd78a80275b22d32aa002039a14aa20b16f8f53e8e47b3a5f0"
       ],
-      "source_sha256": "59162175628fa91f813e0931b119129b788b6ddb6f20f3e6f1d5db73b2f1a12a",
-      "text": "Plot ranked mean phenotype with SE shading and highlight selected genes.\n\n:param data: DataFrame with gene identifiers and phenotype/error columns.\n:param gene_list: Gene names (or ``TGGT1_<id>`` tags) to highlight.\n:param x_column: Column holding gene identifiers used for matching.\n:param data_column: Numeric column plotted on the y-axis.\n:param error_column: Numeric column used for the SE shading band.\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:returns: None. Displays the Matplotlib figure."
+      "source_sha256": "472877e35e045c508340b01b2efe07fea2eb16be33d56e62a6052d74b2f24049",
+      "text": "Plot ranked mean phenotype with SE shading and highlight selected genes.\n\nTHE RANKED CURVE IS THE BACKGROUND, THE SELECTED GENES ARE THE CLAIM. The\ncurve and its SE band are grey and the highlights are the house blue --\nthey were a saturated teal curve and purple points, two full-strength\nhues for a panel whose sentence is only \"here is where these genes fall\".\n\n:param data: DataFrame with gene identifiers and phenotype/error columns.\n    Copied before use: this function coerces two columns to numeric, and\n    the coercion used to land in the CALLER's frame -- ``ml`` hands it the\n    GT1 metadata table it goes on to use afterwards.\n:param gene_list: Gene names (or ``TGGT1_<id>`` tags) to highlight.\n:param x_column: Column holding gene identifiers used for matching.\n:param data_column: Numeric column plotted on the y-axis.\n:param error_column: Numeric column used for the SE shading band.\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:returns: None. Displays the Matplotlib figure."
     },
     "spacr.train_compare": {
       "source_blocks_sha256": [
