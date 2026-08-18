@@ -34,6 +34,17 @@ from .errors import RunLedger, raise_if_strict
 from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import write_tiff
 
+# THE HOUSE STYLE (`spacr/figures/style.py`), applied as a CONTEXT MANAGER
+# around every figure this module builds. A module-level `rcParams.update`
+# would be a process-wide mutation: spaCR draws from a long-lived GUI, so one
+# global write styles every later figure in every other module until the
+# process exits. That failure has already cost this repository a day, and this
+# file alone holds 45 of the ~133 figures spaCR draws.
+from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
+                            figure_style, hide_unused, panel_letter,
+                            reference_line, resolve_ink, rotate_ticks,
+                            text_legend, theme_target)
+
 #: Shipped answers, used when the preference store cannot be reached — a
 #: pipeline run from the CLI, a notebook, a machine with no Qt installed.
 #: They are the same values the Preferences dialog defaults to, so a headless
@@ -2498,40 +2509,79 @@ def _plot_histograms_and_stats(df):
         print(f"Percent negative: {(under_0_5/(over_0_5+under_0_5))*100}")
         print('-'*40)
         
-        # Plot the histogram
-        plt.figure(figsize=(10,10))
-        plt.hist(subset['pred'], bins=30, edgecolor='black')
-        plt.axvline(mean_pred, color='red', linestyle='dashed', linewidth=1, label=f"Mean = {mean_pred:.2f}")
-        plt.title(f'Histogram for pred - Condition: {condition}')
-        plt.xlabel('Pred Value')
-        plt.ylabel('Count')
-        plt.legend()
-        plt.show()
+        # The distribution is the subject, so it carries the one fill colour
+        # the house style keeps for distributions; the mean is a REFERENCE and
+        # is drawn as one -- thin, dashed, grey. It was a bold red line, which
+        # reads as the finding rather than as the ruler you measure it with.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(10, 10))
+            ax.hist(subset['pred'], bins=30, color=ROLES['fill'],
+                    edgecolor='none')
+            mean_line = reference_line(ax, x=mean_pred)
+            # The value stays in the legend rather than becoming a rotated
+            # in-plot annotation: a caller asserts on that legend entry, and a
+            # frameless legend is already what the style draws.
+            mean_line.set_label(f"Mean = {mean_pred:.2f}")
+            descriptor(ax, f'Histogram for pred - Condition: {condition}')
+            ax.set_xlabel('Pred Value')
+            ax.set_ylabel('Count')
+            ax.legend()
+            plt.show()
 
 def _show_residules(model):
+    """Draw the three residual diagnostics and print the Shapiro-Wilk test.
+
+    :param model: anything exposing ``resid`` and ``fittedvalues`` -- a fitted
+        statsmodels result, or a stand-in carrying the same two arrays.
+    :returns: None. Three figures are shown: the residual histogram, the QQ
+        plot, and residuals against fitted values.
+    """
 
     # Get the residuals
     residuals = model.resid
 
-    # Histogram of residuals
-    plt.hist(residuals, bins=30)
-    plt.title('Histogram of Residuals')
-    plt.xlabel('Residual Value')
-    plt.ylabel('Frequency')
-    plt.show()
+    with figure_style(theme_target()):
+        # Histogram of residuals
+        fig, ax = plt.subplots()
+        ax.hist(residuals, bins=30, color=ROLES['fill'], edgecolor='none')
+        descriptor(ax, 'Histogram of Residuals')
+        ax.set_xlabel('Residual Value')
+        ax.set_ylabel('Frequency')
+        plt.show()
 
-    # QQ plot
-    sm.qqplot(residuals, fit=True, line='45')
-    plt.title('QQ Plot')
-    plt.show()
+        # QQ plot. It gets its OWN axes, explicitly: `sm.qqplot` creates a
+        # figure and leaves ITS axes current, so the residuals-vs-fitted
+        # scatter below was landing on top of the QQ panel and its
+        # `set_title` was overwriting 'QQ Plot'. Measured on a 60-point OLS
+        # fit: two figures came back, not three, and the second held both
+        # diagnostics superimposed.
+        qq_fig, qq_ax = plt.subplots()
+        sm.qqplot(residuals, fit=True, line='45', ax=qq_ax)
+        # Recoloured after the fact rather than through plotkwargs: qqplot
+        # passes its own 'b' format string alongside them and matplotlib warns
+        # that the two disagree. The points are data (grey); the 45-degree
+        # line is a REFERENCE, and qqplot draws it bold red.
+        for line in qq_ax.lines:
+            if line.get_linestyle() == 'None':
+                line.set_color(ROLES['data'])
+                line.set_markerfacecolor(ROLES['data'])
+                line.set_markeredgecolor('none')
+            else:
+                line.set_color(ROLES['reference'])
+                line.set_linewidth(WEIGHTS['reference'])
+                line.set_linestyle((0, (4, 3)))
+        descriptor(qq_ax, 'QQ Plot')
+        plt.show()
 
-    # Residuals vs. Fitted values
-    plt.scatter(model.fittedvalues, residuals)
-    plt.xlabel('Fitted values')
-    plt.ylabel('Residuals')
-    plt.title('Residuals vs. Fitted Values')
-    plt.axhline(y=0, color='red')
-    plt.show()
+        # Residuals vs. Fitted values
+        resid_fig, resid_ax = plt.subplots()
+        resid_ax.scatter(model.fittedvalues, residuals, s=8,
+                         color=ROLES['data'], edgecolors='none')
+        resid_ax.set_xlabel('Fitted values')
+        resid_ax.set_ylabel('Residuals')
+        descriptor(resid_ax, 'Residuals vs. Fitted Values')
+        reference_line(resid_ax, y=0)
+        plt.show()
 
     # Shapiro-Wilk test for normality
     W, p_value = stats.shapiro(residuals)
@@ -3274,20 +3324,24 @@ def plot_histogram(df, column, dst=None):
     :param dst: If set, save under ``<dst>/<column>_histogram.pdf``.
     :returns: None
     """
-    # Plot histogram of the dependent variable
-    bar_color = (0/255, 155/255, 155/255)
-    plt.figure(figsize=(10, 10))
-    sns.histplot(df[column], kde=False, color=bar_color, edgecolor=None, alpha=0.6)
-    plt.title(f'Histogram of {column}')
-    plt.xlabel(column)
-    plt.ylabel('Frequency')
-    
-    if not dst is None:
-        filename = os.path.join(dst, f'{column}_histogram.pdf')
-        filename = save_figure(plt.gcf(), filename)
-        print(f'Saved histogram to {filename}')
+    # A distribution is filled with the one pale hue the published figures
+    # keep for distributions and densities, solid. The old saturated teal at
+    # alpha 0.6 was the pattern the style names as wrong: overplotting is
+    # handled by a pale fill, not by making a strong colour translucent.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(10, 10))
+        sns.histplot(df[column], kde=False, color=ROLES['fill'],
+                     edgecolor=None, ax=ax)
+        descriptor(ax, f'Histogram of {column}')
+        ax.set_xlabel(column)
+        ax.set_ylabel('Frequency')
 
-    plt.show()
+        if not dst is None:
+            filename = os.path.join(dst, f'{column}_histogram.pdf')
+            filename = save_figure(fig, filename)
+            print(f'Saved histogram to {filename}')
+
+        plt.show()
 
 def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                        remove_keys=None,
@@ -3393,58 +3447,73 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
     combined_data = []
     gini_values = {}
 
-    plt.figure(figsize=(10, 10))
+    # THE SENTENCE THIS FIGURE MAKES is "the library as a whole is this
+    # uneven"; the individual plates are the comparison it is made against.
+    # So the plates are grey and only the combined curve is coloured. The old
+    # figure gave every plate its own cycle colour and drew the combined curve
+    # in black -- eight arguments and no claim.
+    entries = []
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(10, 10))
 
-    for idx, csv_file in enumerate(csv_files):
-        df = pd.read_csv(csv_file)
-        
-        # Remove specified keys
-        for remove in remove_keys:
-            df = df[df[name_column] != remove]
-        
-        # Remove outliers
-        if remove_outliers:
-            df = remove_outliers_by_wells(df, name_column, value_column)
-        
-        values = df[value_column].values
-        combined_data.extend(values)
-        
-        # Calculate Lorenz curve and Gini coefficient
-        lorenz = lorenz_curve(values)
-        gini = gini_coefficient(values)
-        gini_values[f"plate {idx+1}"] = gini
-        
-        name = f"plate {idx+1} (Gini: {gini:.4f})"
-        plt.plot(np.linspace(0, 1, len(lorenz)), lorenz, label=name)
+        for idx, csv_file in enumerate(csv_files):
+            df = pd.read_csv(csv_file)
 
-    # Plot combined Lorenz curve
-    combined_lorenz = lorenz_curve(np.array(combined_data))
-    combined_gini = gini_coefficient(np.array(combined_data))
-    gini_values["Combined"] = combined_gini
-    
-    plt.plot(np.linspace(0, 1, len(combined_lorenz)), combined_lorenz, label=f"Combined (Gini: {combined_gini:.4f})", linestyle='--', color='black')
-    
-    if x_lim is not None:
-        plt.xlim(x_lim)
-    
-    if y_lim is not None:
-        plt.ylim(y_lim)
-        
-    plt.title('Lorenz Curves')
-    plt.xlabel('Cumulative Share of Individuals')
-    plt.ylabel('Cumulative Share of Value')
-    plt.legend()
-    plt.grid(False)
-    
-    if save:
-        save_path = os.path.join(os.path.dirname(csv_files[0]), 'results')
-        os.makedirs(save_path, exist_ok=True)
-        save_file_path = os.path.join(save_path, 'lorenz_curve_with_gini.pdf')
-        save_file_path = save_figure(plt.gcf(), save_file_path,
-                                     bbox_inches='tight')
-        print(f"Saved Lorenz Curve: {save_file_path}")
-    
-    plt.show()
+            # Remove specified keys
+            for remove in remove_keys:
+                df = df[df[name_column] != remove]
+
+            # Remove outliers
+            if remove_outliers:
+                df = remove_outliers_by_wells(df, name_column, value_column)
+
+            values = df[value_column].values
+            combined_data.extend(values)
+
+            # Calculate Lorenz curve and Gini coefficient
+            lorenz = lorenz_curve(values)
+            gini = gini_coefficient(values)
+            gini_values[f"plate {idx+1}"] = gini
+
+            name = f"plate {idx+1} (Gini: {gini:.4f})"
+            ax.plot(np.linspace(0, 1, len(lorenz)), lorenz, label=name,
+                    color=ROLES['data'])
+            entries.append((name, ROLES['data']))
+
+        # Plot combined Lorenz curve
+        combined_lorenz = lorenz_curve(np.array(combined_data))
+        combined_gini = gini_coefficient(np.array(combined_data))
+        gini_values["Combined"] = combined_gini
+
+        combined_label = f"Combined (Gini: {combined_gini:.4f})"
+        ax.plot(np.linspace(0, 1, len(combined_lorenz)), combined_lorenz,
+                label=combined_label, linestyle='--',
+                color=ROLES['highlight'])
+        entries.append((combined_label, ROLES['highlight']))
+
+        if x_lim is not None:
+            ax.set_xlim(x_lim)
+
+        if y_lim is not None:
+            ax.set_ylim(y_lim)
+
+        descriptor(ax, 'Lorenz Curves')
+        ax.set_xlabel('Cumulative Share of Individuals')
+        ax.set_ylabel('Cumulative Share of Value')
+        # Coloured text, no frame and no marker swatches: the curve labels
+        # already carry the Gini, and a framed box would be the only box in
+        # the figure.
+        text_legend(ax, entries)
+
+        if save:
+            save_path = os.path.join(os.path.dirname(csv_files[0]), 'results')
+            os.makedirs(save_path, exist_ok=True)
+            save_file_path = os.path.join(save_path, 'lorenz_curve_with_gini.pdf')
+            save_file_path = save_figure(fig, save_file_path,
+                                         bbox_inches='tight')
+            print(f"Saved Lorenz Curve: {save_file_path}")
+
+        plt.show()
 
     # Print Gini coefficients
     for plate, gini in gini_values.items():
