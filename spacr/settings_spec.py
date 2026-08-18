@@ -155,6 +155,11 @@ def convert_settings_dict_for_gui(settings):
 
     variables = {}
     special_cases = {
+        # Instruction 134: two valid values, and it was a free-text box in
+        # both front ends. Declared here rather than only in the Qt combo
+        # table so the two GUIs cannot offer different lists.
+        'analysis_mode': ('combo', ['regression', 'guide_permutation'],
+                          'regression'),
         'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),

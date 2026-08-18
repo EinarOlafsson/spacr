@@ -356,6 +356,12 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "regression_type": ["ols"],
         "multiple_testing_method": ["fdr_bh"],
         "inference": ["auto", "parametric", "nonparametric"],
+        # Instruction 134, asked for on 2026-08-17: "analasys mode should be
+        # a dropdown". Two valid values and it was a FREE-TEXT box, so a typo
+        # in it survived until the run had read the whole database.
+        # `_resolve_regression_analysis_choices` is what maps `inference` onto
+        # this, and it accepts exactly these two.
+        "analysis_mode": ["regression", "guide_permutation"],
         "analysis_unit": ["well", "cell"],
         # Exactly the branches process_scores implements; anything else
         # reaches the pipeline and is silently ignored rather than applied.
@@ -363,7 +369,6 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "transform": [None, "log", "sqrt", "square"],
         "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
         "threshold_method": ["std", "var"],
-        "volcano": ["gene", "grna"],
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
@@ -809,7 +814,16 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # `inference` leads because it decides whether "Estimator Tuning" or
         # "Permutation Test" below is the section that does anything.
         ("Model & Inference", (
-            "inference", "analysis_mode", "regression_type",
+            # `level` was in no section at all, so it fell into "Additional
+            # Settings" -- the bucket this layout exists to keep empty.
+            # Asked for on 2026-08-17: "level should be in model and
+            # inference not additional settings". It is not a plate-layout
+            # setting: it decides WHICH FITS RUN, and it is greyed out under
+            # regression_type='mixed', which nests guides in genes and
+            # therefore fits both levels at once. A control whose enabled
+            # state is decided by `regression_type` belongs beside it, not
+            # three sections away.
+            "inference", "analysis_mode", "regression_type", "level",
             "random_row_column_effects", "cov_type",
         )),
         # The estimator-specific knobs, added by the robust and regularised
@@ -847,7 +861,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # drawn at all, and the knobs under it only style the plots that are.
         ("Regression Plots", (
             "regression_qc",
-            "volcano", "log_x", "log_y", "x_lim", "y_lims",
+            # `volcano` retired with instruction 132: which coefficient table
+            # the plot draws is `level` now, answered by right-click on every
+            # tab at once. It is gone from the settings dict, so naming it
+            # here only asked the panel for a control that cannot be built.
+            "log_x", "log_y", "x_lim", "y_lims",
             "split_axis_lims", "guide_permutation_plot",
         )),
         ("Runtime & Reliability", (
