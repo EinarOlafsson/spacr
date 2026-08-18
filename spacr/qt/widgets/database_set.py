@@ -159,13 +159,24 @@ class DatabaseSetWidget(QWidget):
 
     # -- the value ---------------------------------------------------------
     def get_value(self):
-        """The chosen sources, as a list -- the shape every consumer takes.
+        """The chosen sources: a bare string for one, a list for several.
 
-        Always a list, including for one source: ``generate_image_umap``
-        wraps a bare string in a list on the first line it touches ``src``,
-        so handing it the list it is going to build anyway removes the case
-        where one database is a different code path from three.
+        NOT always a list, deliberately. ``src`` has been a string for every
+        module since spaCR had modules, and it is written to the settings
+        CSV, read by the CLI, replayed by the run journal and joined onto by
+        anything that does ``os.path.join(src, ...)``. Returning
+        ``['/data/plate1']`` where a string was returned before would change
+        what every one of those sees for a user who chose ONE folder and
+        wanted nothing to do with this feature -- exactly the regression the
+        one-element list caused for ``column_csv`` (see
+        ``settings_model.PATH_LIST_SINGLE_KEYS``).
+
+        Several sources produce a list, which is the shape
+        :func:`spacr.core.generate_image_umap` builds on the first line it
+        touches ``src`` anyway.
         """
+        if len(self._sources) == 1:
+            return self._sources[0]
         return list(self._sources)
 
     def set_value(self, value) -> None:
