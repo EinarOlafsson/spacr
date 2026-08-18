@@ -95,30 +95,49 @@ def _admits(name: str, version: str) -> bool:
 # 1. Ceilings that must stay CLOSED, because spaCR still calls the old API
 # ---------------------------------------------------------------------------
 
-def test_pingouin_cap_excludes_the_column_rename():
-    """pingouin 0.6.0 renamed ``p-val`` -> ``p_val`` and ``W-val`` -> ``W_val``.
+def test_pingouin_is_not_a_core_dependency_while_nothing_imports_it():
+    """The cap is gone because the dependency is.
 
-    ``<1.0`` looked like a ceiling and was not one. Verified against pingouin
-    0.6.1: ``pg.ttest(...).iloc[0][['T', 'p-val']]`` raises
-    ``KeyError: "['p-val'] not in index"``.
+    pingouin 0.6.0 renamed every dashed result column ("p-val" -> "p_val"),
+    and spaCR indexed the old names directly at two sites in plot.py -- which
+    is what the `<0.6` ceiling was protecting. Routing plot.py's selectors
+    through `spacr.figures.stats` on 2026-08-17 removed both, and with them
+    the last import of pingouin anywhere under spacr/.
+
+    An unused core dependency is not free: it is install weight, a resolver
+    constraint, and a cap somebody has to keep re-justifying. It survives as
+    a `dev` dependency, which is what it now is -- the independent
+    implementation tests/test_spacrgraph_equal_variance.py checks spaCR's own
+    Welch ANOVA against.
+
+    THIS TEST IS THE HALF THAT WATCHES THE SOURCE. If pingouin ever comes
+    back into spacr/, it must come back with the ceiling, because the rename
+    is still there in 0.6.
     """
-    plot = _src("plot.py")
-    uses_dashed = "'p-val'" in plot or '"p-val"' in plot
-
-    if uses_dashed:
+    importers = sorted(
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in PKG.rglob("*.py")
+        if "i18n_catalogs" not in path.parts
+        and re.search(r"^\s*(?:import pingouin|from pingouin\b)",
+                      path.read_text(encoding="utf-8"), re.MULTILINE)
+    )
+    if importers:
         assert not _admits("pingouin", "0.6.0"), (
-            "spacr/plot.py still indexes pingouin's dashed result columns "
-            "('p-val' / 'W-val'), but the pingouin pin admits 0.6.0, which "
-            "renamed them to 'p_val' / 'W_val'. Every paired test in "
-            "plot.py would raise KeyError. Keep the cap below 0.6, or "
-            "switch plot.py to the underscored names first."
+            f"{', '.join(importers)} imports pingouin again, but the pin "
+            f"admits 0.6.0, which renamed 'p-val' -> 'p_val' and "
+            f"'W-val' -> 'W_val'. Declare it as a core dependency capped "
+            f"below 0.6, or use the underscored names."
         )
-    else:
-        pytest.fail(
-            "spacr/plot.py no longer uses pingouin's dashed column names. "
-            "That is the fix this cap was waiting for — widen "
-            "`pingouin>=0.5.5,<0.6` in setup.py and delete this branch."
-        )
+        return
+
+    from packaging.requirements import Requirement
+
+    core = {_norm(Requirement(dep).name) for dep in _core_dependencies()}
+    assert "pingouin" not in core, (
+        "nothing under spacr/ imports pingouin, but it is still a core "
+        "dependency. Either use it or move it to the `dev` extra, where the "
+        "Welch ANOVA cross-check needs it."
+    )
 
 
 def test_scikit_image_bound_follows_the_morphology_api_migration():
