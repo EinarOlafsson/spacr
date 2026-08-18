@@ -182,7 +182,13 @@ class GenePanel(QWidget):
         self._runner = JobRunner(self, threaded=bool(threaded),
                                  app_key="gene annotation",
                                  user_visible=False)
-        self._runner.submit(warm_annotation, self._annotation_loaded)
+        #: Whether the warm-up has been started. See :meth:`showEvent`.
+        self._warming_started = False
+        #: True once the panel has actually been shown. Nothing starts a
+        #: thread before this: see :meth:`warm_for`.
+        self._shown = False
+        #: The features a pending warm-up should cover, or () for all.
+        self._pending_warm = ()
         # BELT AND BRACES ON THE THREAD'S LIFETIME. Qt aborts the process if
         # a running QThread is destroyed, and a panel can be dropped without
         # ever being closed -- a tab rebuilt, a screen replaced, an
@@ -191,6 +197,55 @@ class GenePanel(QWidget):
         application = QApplication.instance()
         if application is not None:
             application.aboutToQuit.connect(self._shut_down_warming)
+
+    # ------------------------------------------------------------- warming up
+
+    def showEvent(self, event):                                 # noqa: N802
+        """Warm the annotation the first time the panel is actually shown.
+
+        THE WARM-UP USED TO START IN THE CONSTRUCTOR, AND THAT ABORTED THE
+        PROCESS. Qt calls `abort()` when a running QThread is destroyed, and
+        the two guards against that -- `closeEvent` and
+        `QApplication.aboutToQuit` -- both need something to happen:
+        `aboutToQuit` fires only when an EVENT LOOP quits, and a panel that
+        was built and dropped was never closed. So
+
+            QApplication([]); RegressionResultsPanel()
+
+        was enough to end the interpreter with SIGABRT, in any headless
+        script and in three tests that only wanted to know the panel builds.
+
+        Starting on first show fixes the class rather than the case: a panel
+        nobody looks at never starts a thread, and a panel somebody looks at
+        is inside a running event loop by definition, which is exactly the
+        state both guards need.
+
+        It costs nothing in the GUI. The tab is built with the screen and
+        shown when the user opens it, and the warm-up's whole purpose is to
+        have the tables ready before the first gene is clicked -- which
+        cannot happen before the tab is visible.
+        """
+        super().showEvent(event)
+        self._shown = True
+        self.warm_now()
+
+    def warm_now(self) -> bool:
+        """Start the pending warm-up. Returns whether one was started.
+
+        Every start site funnels through here, so "a panel nobody shows never
+        starts a thread" is one condition in one place rather than three.
+
+        A caller that knows it wants the tables and will keep the panel alive
+        can call this directly -- and the tests do, because they need to
+        drive the threaded path without a window manager.
+        """
+        if self._warming_started:
+            return False
+        self._warming_started = True
+        features = list(self._pending_warm) if self._pending_warm else None
+        job = ((lambda f=features: warm_annotation(f)) if features
+               else warm_annotation)
+        return bool(self._runner.submit(job, self._annotation_loaded))
 
     # ------------------------------------------------------------------ state
 
@@ -244,9 +299,17 @@ class GenePanel(QWidget):
         if not terms or terms == self._warmed:
             return False
         self._warmed = terms
-        return bool(self._runner.submit(
-            lambda features=list(terms): warm_annotation(features),
-            self._annotation_loaded))
+        # HELD UNTIL THE PANEL IS SHOWN. A frame can arrive before anybody
+        # looks at the tab -- the screen loads a run's results into every tab
+        # at once -- and starting a thread for a panel that is never shown is
+        # what aborted the process: Qt calls abort() when a running QThread
+        # is destroyed, and a panel that is never shown is never closed
+        # either, so neither `closeEvent` nor `aboutToQuit` ever fires.
+        self._pending_warm = terms
+        self._warming_started = False
+        if not self._shown:
+            return False
+        return self.warm_now()
 
     def _annotation_loaded(self, columns) -> None:
         """The warm-up landed. GUI THREAD ONLY -- JobRunner guarantees it."""
@@ -445,6 +508,33 @@ class GenePanel(QWidget):
         """
         self._shut_down_warming()
         super().closeEvent(event)
+
+    def __del__(self):
+        """The last guard, and the only one that needs nothing to happen.
+
+        THREE THINGS CAN START THE WARM-UP -- the first show, `warm_now`, and
+        a frame arriving -- so guarding each start site is guarding the wrong
+        end. This guards the LIFETIME: whenever the panel is collected, with
+        or without a close, with or without an event loop, the thread is
+        asked to stop first.
+
+        The other two guards each need an event to fire. `closeEvent` needs
+        somebody to close the panel; `QApplication.aboutToQuit` needs an
+        event loop to quit. A panel built, handed a table and dropped -- a
+        tab rebuilt, a screen replaced, a headless script, a test -- reaches
+        neither, and Qt calls `abort()` on the running thread. That was
+        SIGABRT on `QApplication([]); RegressionResultsPanel()`.
+
+        Everything here is swallowed on purpose. `__del__` runs during
+        garbage collection and at interpreter shutdown, where the C++ half
+        may already be gone and the module globals may already be None; an
+        exception raised here is printed and ignored by Python anyway, and
+        the one thing worth doing is the shutdown attempt.
+        """
+        try:
+            self._shut_down_warming()
+        except BaseException:                                  # noqa: BLE001
+            pass
 
 
 def _terms_of(frame) -> List[Any]:

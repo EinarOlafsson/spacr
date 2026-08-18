@@ -343,6 +343,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "metadata_resolution",    # which metadata column is which
     "multi_database",         # read and merge several measurement databases
     "measurement_scan",       # which measurement has genes with an effect
+    # Everything known about ONE gene, gathered from the bundled annotation
+    # and the screen's own table. `gene_facts` answers the question and
+    # `gene_tile` renders it; both are pure pandas, so the Gene tab can be
+    # built headless and tested without Qt.
+    "gene_facts",
     "gene_tile",              # everything spaCR knows about one gene
     "parameter_sweep",        # the settings sweep and its containment
     "sweep_child",            # one contained trial, exec'd in its own cgroup
