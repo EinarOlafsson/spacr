@@ -333,12 +333,31 @@ def test_perform_mixed_model_refuses_a_rank_deficient_design():
 # ---------------------------------------------------------------------------
 
 def test_fit_mixed_model_returns_coefficients_and_writes_histogram(tmp_path):
-    from spacr.ml import fit_mixed_model, prepare_formula
+    """CONTRACT CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17).
+
+    This test used to assert that ONE fitted design carried both
+    ``fraction:grna[geneA_g1]`` and ``gene_fraction:gene[geneA]``. That design
+    is unfittable: ``check_and_clean_data`` builds ``gene_fraction`` as the SUM
+    of the gene's gRNA fractions, so the gene block is an exact linear
+    combination of the guide block. Measured on the maintainer's TSG101 screen
+    (spacr.ml.COLLINEAR_FORMULA_FRAGMENT): 1248 parameters at rank 862, a
+    386-dimensional null space that annihilates the design EXACTLY.
+
+    ``mixed`` is now the nested model the maintainer specified:
+    ``y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID``. The gene
+    is a fixed effect; the guide is a random effect nested inside it, and its
+    output is a BLUP, not a coefficient with a p-value.
+    """
+    from spacr.ml import (TERM_BLUP, TERM_FIXED, TERM_VARIANCE,
+                          fit_mixed_model, prepare_formula)
 
     df = _mixed_model_frame()
-    formula = prepare_formula("score", random_row_column_effects=True)
+    formula = prepare_formula("score", random_row_column_effects=True,
+                              level="gene")
+    assert "fraction:grna" not in formula, formula
 
-    mixed_model, coef_df = fit_mixed_model(df, formula, dst=str(tmp_path))
+    mixed_model, coef_df = fit_mixed_model(
+        df, formula, dst=str(tmp_path), random_row_column_effects=True)
 
     # The residual histogram PDF is the only file the function emits.
     assert (tmp_path / "residuals_histogram.pdf").is_file()
@@ -349,27 +368,49 @@ def test_fit_mixed_model_returns_coefficients_and_writes_histogram(tmp_path):
     assert len(df["residuals"]) == len(df)
     assert np.allclose(df["residuals"].values, mixed_model.resid.values)
 
-    assert list(coef_df.columns) == ["feature", "coefficient", "p_value"]
-    assert len(coef_df) == len(mixed_model.params)
+    assert list(coef_df.columns) == ["feature", "coefficient", "p_value",
+                                     "term_type"]
     assert coef_df["coefficient"].dtype.kind == "f"
     assert coef_df["p_value"].dtype.kind == "f"
-    # Variance components can sit on the boundary (NaN p-value); every
-    # p-value that IS defined has to be a probability.
-    pv = coef_df["p_value"].to_numpy()
-    finite = np.isfinite(pv)
-    assert finite.sum() >= 6
-    assert np.all((pv[finite] >= 0.0) & (pv[finite] <= 1.0))
+    # Every fitted parameter is present, plus one row per guide BLUP.
+    assert (coef_df["term_type"] != TERM_BLUP).sum() == len(mixed_model.params)
 
     feats = set(coef_df["feature"])
     assert "Intercept" in feats
-    assert "fraction:grna[geneA_g1]" in feats
     assert "gene_fraction:gene[geneA]" in feats
-    # score was simulated as 0.4*fraction, so the per-grna slopes are
-    # significantly positive.
-    grna_rows = coef_df[coef_df["feature"].str.startswith("fraction:grna")]
-    assert len(grna_rows) == 4
-    assert (grna_rows["coefficient"] > 0).all()
-    assert (grna_rows["p_value"] < 0.01).all()
+    # THE GUIDE IS NOT A FIXED EFFECT ANY MORE. Its old term must be gone from
+    # the fit entirely -- that is the collinearity this instruction removed.
+    assert not any(f.startswith("fraction:grna") for f in feats), feats
+
+    # ...it comes back as a BLUP instead, one per guide, WITHOUT a p-value.
+    blups = coef_df[coef_df["term_type"] == TERM_BLUP]
+    assert set(blups["feature"]) == {
+        "blup:grna[geneA_g1]", "blup:grna[geneA_g2]",
+        "blup:grna[geneB_g1]", "blup:grna[geneB_g2]"}
+    assert blups["p_value"].isna().all(), (
+        "a BLUP is a shrunken prediction of a random effect and has no null "
+        "hypothesis to reject; manufacturing a p-value for it is the thing "
+        "instruction 132 forbids")
+    assert np.isfinite(blups["coefficient"].to_numpy()).all()
+
+    # The nesting itself: gene is the group, guide is a variance component
+    # INSIDE it, so guide effects are never shared across genes.
+    assert "grna Var" in feats
+    assert "Group Var" in feats
+    # A variance component's Wald p-value tests sigma^2 = 0, which is on the
+    # BOUNDARY of the parameter space, so the normal reference distribution
+    # does not hold and the number statsmodels prints is not a probability.
+    # Reported as NaN rather than passed on.
+    variances = coef_df[coef_df["term_type"] == TERM_VARIANCE]
+    assert len(variances) >= 3
+    assert variances["p_value"].isna().all()
+    assert (coef_df["term_type"] == TERM_FIXED).sum() >= 2
+
+    # Every p-value that IS defined has to be a probability.
+    pv = coef_df.loc[coef_df["term_type"] == TERM_FIXED, "p_value"].to_numpy()
+    finite = np.isfinite(pv)
+    assert finite.sum() >= 2
+    assert np.all((pv[finite] >= 0.0) & (pv[finite] <= 1.0))
 
     # random_row_column_effects=True keeps row/column OUT of the fixed
     # effects; they only survive as the vc_formula variance components.
@@ -380,10 +421,11 @@ def test_fit_mixed_model_returns_coefficients_and_writes_histogram(tmp_path):
 
 def test_fit_mixed_model_full_formula_adds_row_and_column_fixed_effects():
     """The default formula puts rowID/columnID in the fixed effects too."""
-    from spacr.ml import fit_mixed_model, prepare_formula
+    from spacr.ml import TERM_BLUP, fit_mixed_model, prepare_formula
 
     df = _mixed_model_frame(seed=5)
-    formula = prepare_formula("score", random_row_column_effects=False)
+    formula = prepare_formula("score", random_row_column_effects=False,
+                              level="gene")
 
     mixed_model, coef_df = fit_mixed_model(df, formula, dst=None)
 
@@ -393,11 +435,42 @@ def test_fit_mixed_model_full_formula_adds_row_and_column_fixed_effects():
     # ...and this time they really are FIXED effects.
     assert "rowID[T.r2]" in set(mixed_model.fe_params.index)
     assert "columnID[T.c2]" in set(mixed_model.fe_params.index)
-    assert len(coef_df) == len(mixed_model.params) > 0
+    assert (coef_df["term_type"] != TERM_BLUP).sum() == len(mixed_model.params) > 0
     # The simulated gene effect is positive for geneA.
     a = float(coef_df.loc[coef_df["feature"] == "gene_fraction:gene[geneA]",
                           "coefficient"].iloc[0])
     assert np.isfinite(a)
+
+
+def test_fit_mixed_model_refuses_a_frame_that_cannot_nest():
+    """One guide per gene leaves the guide variance confounded with the residual.
+
+    Instruction 132: "If MixedLM cannot express the nesting on this data, say
+    so with the error rather than faking it." A boundary variance of zero
+    looks exactly like an answer.
+    """
+    import pytest
+
+    from spacr.ml import fit_mixed_model, prepare_formula
+
+    df = _mixed_model_frame(seed=7)
+    df = df[df["grna"].str.endswith("_g1")].copy()      # one guide per gene
+    formula = prepare_formula("score", level="gene")
+
+    with pytest.raises(ValueError, match="no gene in this frame has more"):
+        fit_mixed_model(df, formula, dst=None)
+
+
+def test_fit_mixed_model_refuses_a_frame_with_no_gene_column():
+    import pytest
+
+    from spacr.ml import fit_mixed_model, prepare_formula
+
+    df = _mixed_model_frame(seed=8).drop(columns=["gene"])
+    formula = prepare_formula("score", level="gene")
+
+    with pytest.raises(ValueError, match="no 'gene' column"):
+        fit_mixed_model(df, formula, dst=None)
 
 
 # ---------------------------------------------------------------------------

@@ -574,3 +574,205 @@ def plot_guide_permutation_volcano(
     fig.savefig(save_path, dpi=600 if save_path.suffix.lower() == ".png" else None)
     plt.close(fig)
     return save_path
+
+
+def gene_fraction_matrix(fractions: pd.DataFrame,
+                         gene_of_guide: Mapping[str, str]) -> pd.DataFrame:
+    """Sum each gene's guide columns into ONE column per gene.
+
+    This is exactly the quantity the parametric gene fit regresses on:
+    :func:`spacr.ml.check_and_clean_data` defines ``gene_fraction`` as the sum
+    of the gene's gRNA fractions within a well, and this builds the same
+    number from the well-by-guide matrix. The two paths therefore test the
+    same regressor, one with a t statistic and one with a permutation null.
+
+    :param fractions: well-by-guide fractions from
+        :func:`prepare_long_guide_data`.
+    :param gene_of_guide: guide id -> gene id.
+    :returns: a well-by-gene frame, columns sorted, one column per gene that
+        has at least one guide in ``fractions``.
+    :raises ValueError: when a guide column has no gene.
+    """
+    columns = [str(name) for name in fractions.columns]
+    mapping = {str(guide): str(gene) for guide, gene in gene_of_guide.items()}
+    missing = sorted({name for name in columns if name not in mapping})
+    if missing:
+        raise ValueError(
+            "every guide column needs a gene to be summed into, and these "
+            f"have none: {missing[:10]}{' ...' if len(missing) > 10 else ''}")
+    grouped = fractions.T.groupby(
+        [mapping[name] for name in columns], sort=True).sum().T
+    grouped.columns = grouped.columns.astype(str)
+    grouped.index = fractions.index
+    return grouped
+
+
+def prepare_long_gene_data(
+    data: pd.DataFrame,
+    outcome_columns: str | Sequence[str],
+    *,
+    well_column: str = "prc",
+    guide_column: str = "grna",
+    gene_column: str = "gene",
+    fraction_column: str = "fraction",
+    block_column: str = "plateID",
+    nuisance_columns: Sequence[str] | None = None,
+):
+    """Well-by-GENE fractions, the well table, and how many guides each gene has.
+
+    :returns: ``(gene_fractions, outcomes, gene_metadata)``, the gene-level
+        counterpart of :func:`prepare_long_guide_data`.
+    :raises ValueError: when ``gene_column`` is absent.
+    """
+    if gene_column not in data.columns:
+        raise ValueError(
+            f"the gene-level permutation test needs a {gene_column!r} column "
+            f"to sum each gene's guides into one regressor. Columns: "
+            f"{sorted(data.columns)[:20]}")
+    fractions, outcomes, guide_metadata = prepare_long_guide_data(
+        data,
+        outcome_columns,
+        well_column=well_column,
+        guide_column=guide_column,
+        fraction_column=fraction_column,
+        block_column=block_column,
+        nuisance_columns=nuisance_columns,
+    )
+    pairs = data.loc[:, [guide_column, gene_column]].astype(str)
+    pairs = pairs.drop_duplicates()
+    ambiguous = pairs[guide_column].duplicated(keep=False)
+    if ambiguous.any():
+        offenders = sorted(pairs.loc[ambiguous, guide_column].unique())
+        raise ValueError(
+            "a guide belongs to exactly one gene, and summing its fraction "
+            "into two genes would count the same wells twice. These guides "
+            f"name more than one gene: {offenders[:10]}"
+            f"{' ...' if len(offenders) > 10 else ''}")
+    gene_of_guide = dict(zip(pairs[guide_column], pairs[gene_column]))
+    gene_fractions = gene_fraction_matrix(fractions, gene_of_guide)
+
+    counts = (
+        pd.Series(gene_of_guide)
+        .loc[[str(name) for name in fractions.columns]]
+        .value_counts()
+    )
+    gene_metadata = pd.DataFrame({
+        "gene": gene_fractions.columns,
+        "wells_with_gene": (gene_fractions > 0).sum(axis=0).to_numpy(dtype=int),
+        "guides_in_gene": [int(counts.get(name, 0))
+                           for name in gene_fractions.columns],
+    }).set_index("gene")
+    return gene_fractions, outcomes, gene_metadata
+
+
+def gene_freedman_lane_test(
+    gene_fractions: pd.DataFrame,
+    outcomes: pd.DataFrame,
+    outcome_column: str,
+    *,
+    gene_metadata: pd.DataFrame | None = None,
+    **kwargs,
+) -> pd.DataFrame:
+    """Test each GENE's guides as a SET, against the same permutation null.
+
+    Instruction 132 asks the nonparametric path for a gene pass beside its
+    guide pass. The gene's regressor is the SUM of its guides' fractions --
+    one column, one test, one degree of freedom -- residualized against the
+    same block/nuisance design and permuted with the same Freedman--Lane
+    scheme. Passing the same ``random_state`` as the guide pass makes the
+    permutations literally identical, because the permuted object is the
+    residual of the same outcome against the same nuisance design.
+
+    IT IS NOT A COMBINATION OF PER-GUIDE P VALUES, and that is deliberate.
+    Fisher's and Stouffer's methods both assume the p-values being combined
+    are independent, and two guides measured in the same wells are not: they
+    share the well's phenotype, the well's plate effect and the well's cells.
+    Combining them would report a confidence the design cannot support.
+
+    WHAT A ONE-DEGREE-OF-FREEDOM SET TEST CANNOT SEE, and the reason
+    ``guides_in_gene`` travels with every row: a gene whose guides push the
+    phenotype in OPPOSITE directions cancels in the sum, exactly as it does in
+    the parametric ``y ~ gene_fraction:gene`` fit that this mirrors. Such a
+    gene is not evidence of no effect; it is evidence the guides disagree, and
+    the guide-level table is where that shows. A gene resting on one guide
+    (``guides_in_gene == 1``) is the same test as that guide's own row.
+
+    :param gene_fractions: well-by-gene matrix from
+        :func:`prepare_long_gene_data`.
+    :param gene_metadata: the per-gene guide counts, joined onto the result.
+    :param kwargs: forwarded to :func:`guide_freedman_lane_test`.
+    :returns: one row per gene per minimum-wells family, BH-corrected WITHIN
+        the gene family and never pooled with the guide family.
+    """
+    result = guide_freedman_lane_test(
+        gene_fractions, outcomes, outcome_column, **kwargs)
+    result = result.rename(columns={
+        "guide": "gene",
+        "wells_with_guide": "wells_with_gene",
+        "tested_guides_in_family": "tested_genes_in_family",
+    })
+    result["level"] = "gene"
+    if gene_metadata is not None:
+        counts = gene_metadata["guides_in_gene"] if (
+            "guides_in_gene" in gene_metadata.columns) else None
+        if counts is not None:
+            result["guides_in_gene"] = (
+                result["gene"].astype(str)
+                .map(counts.rename(index=str)).astype("Int64"))
+    ordered = ["outcome", "gene", "level"]
+    rest = [name for name in result.columns if name not in ordered]
+    return result.loc[:, ordered + rest]
+
+
+def analyse_long_gene_table(
+    data: pd.DataFrame,
+    outcome_columns: str | Sequence[str],
+    *,
+    min_wells: int | Sequence[int] = (1, 2, 3, 4),
+    well_column: str = "prc",
+    guide_column: str = "grna",
+    gene_column: str = "gene",
+    fraction_column: str = "fraction",
+    block_column: str = "plateID",
+    nuisance_columns: Sequence[str] | None = None,
+    random_state: int = 0,
+    **kwargs,
+) -> pd.DataFrame:
+    """The gene pass over spaCR's saved ``regression_data.csv``.
+
+    The counterpart of :func:`analyse_long_guide_table`. Its BH correction is
+    computed over GENES ONLY: two families, never one. Pooling them would be
+    wrong twice over -- the same wells produce both, and a gene's regressor is
+    literally the sum of its guides' regressors, so they are not independent;
+    and doubling the family size costs power for no protection.
+    """
+    gene_fractions, outcomes, gene_metadata = prepare_long_gene_data(
+        data,
+        outcome_columns,
+        well_column=well_column,
+        guide_column=guide_column,
+        gene_column=gene_column,
+        fraction_column=fraction_column,
+        block_column=block_column,
+        nuisance_columns=nuisance_columns,
+    )
+    columns = ([outcome_columns] if isinstance(outcome_columns, str)
+               else list(outcome_columns))
+    frames = []
+    for index, outcome in enumerate(columns):
+        frames.append(gene_freedman_lane_test(
+            gene_fractions,
+            outcomes,
+            outcome,
+            gene_metadata=gene_metadata,
+            min_wells=min_wells,
+            block_column=block_column,
+            nuisance_columns=nuisance_columns,
+            # THE SAME NULL AS THE GUIDE PASS. Same seed, same outcome, same
+            # nuisance design, so the permuted residual vectors are the same
+            # vectors -- which is what makes the two tables comparable rather
+            # than merely similar.
+            random_state=int(random_state) + index,
+            **kwargs,
+        ))
+    return pd.concat(frames, ignore_index=True)

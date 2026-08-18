@@ -860,8 +860,15 @@ def test_controls_none_skips_the_threshold_block(screen, stubs, capsys):
     settings = base_settings(screen, controls=None,
                              multiple_testing_method="none")
     out = perform_regression(settings)
-    assert "Effect-size cut: no control gRNAs were named" in \
-        capsys.readouterr().out
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): level='both' fits
+    # two models and each measures its OWN cut on its own controls, so the
+    # line has to say WHICH fit it is about. Both of them must say it -- a
+    # run that announced the guide fit's absent cut and stayed quiet about the
+    # gene fit's would be exactly the silence this test was written for.
+    printed = capsys.readouterr().out
+    for level in ("grna", "gene"):
+        assert f"Effect-size cut ({level}): no control gRNAs were named" in \
+            printed
 
     results = out["results"]
     tested = ~results["feature"].astype(str).str.contains(
@@ -984,9 +991,14 @@ def test_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
 
     cut = _measured_cut(screen, multiplier=0)
     results = out["results"]
-    tested = ~results["feature"].astype(str).str.contains(
+    # CHANGED BY INSTRUCTION 132: `_measured_cut` is built from the control
+    # GUIDES, so it is the GUIDE fit's cut. The gene fit measures its own on
+    # the control gene, and mixing the two would test one fit's rows against
+    # the other fit's number.
+    guides = results.loc[results["level"] == "grna"]
+    tested = ~guides["feature"].astype(str).str.contains(
         "row|column|Intercept", case=False, regex=True)
-    coefficients = results.loc[tested, "coefficient"]
+    coefficients = guides.loc[tested, "coefficient"]
 
     # THE FIXTURE HAS TO BE ABLE TO FAIL THIS. Both signs on both sides of
     # the cut, or a one-sided rule would satisfy the assertions below.
@@ -999,12 +1011,21 @@ def test_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
     assert strongest < 0
 
     sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
-    assert (sig["coefficient"].abs() >= cut).all()
-    assert set(sig["feature"]) == set(
-        results.loc[tested & (results["coefficient"].abs() >= cut), "feature"])
+    assert (sig.loc[sig["level"] == "grna", "coefficient"].abs()
+            >= cut).all()
+    # EVERY hit clears ITS OWN fit's cut, and the cut it cleared is recorded
+    # on the row -- a hit list that mixes two families with two cuts is
+    # unreadable unless each row says which number it passed.
+    own = sig["effect_size_threshold"].fillna(0.0).to_numpy(dtype=float)
+    assert (sig["coefficient"].abs().to_numpy(dtype=float) >= own).all()
+    assert sig.loc[sig["level"] == "grna",
+                   "effect_size_threshold"].unique().tolist() == [cut]
+    guide_hits = sig.loc[sig["level"] == "grna"]
+    assert set(guide_hits["feature"]) == set(
+        guides.loc[tested & (guides["coefficient"].abs() >= cut), "feature"])
     # And it really cut: every tested coefficient passed correction at
     # alpha=0.999, so the old union kept all of them.
-    assert len(sig) < int(tested.sum())
+    assert len(guide_hits) < int(tested.sum())
     assert len(sig) == len(out["significant"])
 
 
@@ -1024,14 +1045,20 @@ def test_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
     out = perform_regression(settings)
     printed = capsys.readouterr().out
 
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): each fit is its own
+    # family with its own cut, so the sentence is per fit and the counts are
+    # that fit's. Measured on the guide fit, which is the one `_measured_cut`
+    # describes -- it is built from the control GUIDES.
     results = out["results"]
-    tested = ~results["feature"].astype(str).str.contains(
+    guides = results.loc[results["level"] == "grna"]
+    tested = ~guides["feature"].astype(str).str.contains(
         "row|column|Intercept", case=False, regex=True)
     called = int(tested.sum())          # every one of them, at alpha=0.999
-    removed = called - len(out["significant"])
+    hits = out["significant"]
+    removed = called - int((hits["level"] == "grna").sum())
     cut = _measured_cut(screen, multiplier=0)
     assert removed > 0, "nothing was cut, so there is nothing to announce"
-    assert f"Effect-size cut removed {removed} of {called}" in printed
+    assert f"Effect-size cut (grna) removed {removed} of {called}" in printed
     assert f"{cut:.3g}" in printed
 
 
@@ -1128,7 +1155,17 @@ def test_ols_results_tables_carry_grna_and_gene_annotations(screen, stubs):
     assert grna["feature"].str.startswith("fraction:grna[").all()
     assert grna["n_grna"].notna().all()
     assert len(grna) == len(GENES) * N_GRNA_PER_GENE
-    assert len(results) == len(gene) + len(grna) + 1   # + Intercept
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): level='both' fits
+    # TWO models, so results.csv carries TWO intercepts -- one per fit -- not
+    # one. It used to be a single design containing both levels, which is the
+    # collinear model that instruction removed (`gene_fraction` is the sum of
+    # the gene's guide fractions, so the gene block was an exact linear
+    # combination of the guide block).
+    assert len(results) == len(gene) + len(grna) + 2   # one Intercept per fit
+    assert (results["feature"] == "Intercept").sum() == 2
+    assert set(results["level"]) == {"grna", "gene"}
+    assert set(gene["level"]) == {"gene"}
+    assert set(grna["level"]) == {"grna"}
 
 
 def test_verbose_ols_writes_the_model_summary(screen, stubs):
@@ -1256,12 +1293,25 @@ def test_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
     import spacr.ml as ML
     from spacr.ml import perform_regression
 
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): the RESAMPLES have
+    # to be the calls that fail, and a run builds more designs before them
+    # than it used to. level='both' fits the guide model and the gene model
+    # separately, so there are two main designs, and then
+    # `bootstrap_selection_frequencies` builds its own reference design before
+    # resampling anything. Failing from call 3 would kill that reference
+    # design instead and the run would die of a different error -- the test
+    # would still be red, but for the wrong reason, which is the failure mode
+    # a stale count produces.
+    #
+    # ALLOWED = the two level fits plus the bootstrap's own reference design;
+    # every call after that is a resample and every one of them fails.
+    ALLOWED = 3
     real = ML.dmatrices
     state = {"n": 0}
 
     def flaky(formula, data=None, return_type=None, **kwargs):
         state["n"] += 1
-        if state["n"] > 2:
+        if state["n"] > ALLOWED:
             raise ValueError("factor level vanished from resample")
         return real(formula, data=data, return_type=return_type, **kwargs)
 
@@ -1270,7 +1320,7 @@ def test_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
     monkeypatch.setattr(ML, "dmatrices", flaky)
     with pytest.raises(RuntimeError, match="All bootstrap resamples failed"):
         perform_regression(settings)
-    assert state["n"] > 2
+    assert state["n"] > ALLOWED
 
 
 # ---------------------------------------------------------------------------
