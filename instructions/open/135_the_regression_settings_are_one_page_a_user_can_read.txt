@@ -1,0 +1,193 @@
+================================================================================
+THE REGRESSION SETTINGS ARE ONE PAGE A USER CAN READ
+================================================================================
+
+Status:    filed 2026-08-17. The maintainer's own walk through every category.
+Requested: 2026-08-17, verbatim --
+
+  "score column and Dependent variable seem to be essentially the same thing
+   so remove score column and replace it in the code with Dependent variable.
+   also if dependent variable is not found in the score table then present the
+   user with the columns in the score csvs so the user can choose which
+   column.
+
+   for the filter column there is an SQL buton this should be a csv buton that
+   can read the input csvs, the dependent variable should have a simmilr CSV
+   version of this buton.
+
+   also if the count columns ar not found id like similar behaviour, i think
+   these are hardcoded and dont have a settins.
+
+   ill go through the categories and tell you what i like and what i think
+   needs changing, merging ore deletion.
+
+   Input tables is good
+   controlls and plate design is good. just want that csv button for the
+   filter column. also merge quality & filters in here. change the settings
+   categoty to Controlls & Filters
+
+   plate and batch correction is good but im not sure i see a diference when i
+   use it.
+
+   Response is good just merge score column into dependent variable
+
+   Model and Inference is good just ad the text box i asked for (at the top)
+   and moove level from aditional settings to right under Regression type.
+   also add settings from significance and hit calling here. also add a
+   setting that setts what alpha the p threshold is set at and if adjusted p
+   or raw p is used.
+
+   Estimator and tuning is good but mooveCov type here and change cov type to
+   Covariance type. make sure the tooltips make apparent which regression type
+   each setting here is for and that these settings are grayed out unless the
+   corresponding regression type is chosen
+
+   Permutation test is good it just needs a text box at the top briefly
+   explaining what it does
+
+   significance nad hit calling is good but merge all of these settings into
+   Model and inference
+
+   quality filters should be merged with controlls & plate design to controls
+   & Filters
+
+   Regression plot can be removed . hard code regression qc and guide
+   permutation plot to true, logx and logy to false and x and y lim should be
+   set automatically and can be changed on the plot.
+
+   Runtime and reliability should be removed and go to
+   prefgerences/general"
+
+Related: 132 is the model text box this places. 134 is the analysis_mode
+         dropdown. 106 is the rule a greyed-out control has to follow.
+
+--------------------------------------------------------------------------------
+A. ONE COLUMN, NOT TWO: `score_column` MERGES INTO `dependent_variable`
+--------------------------------------------------------------------------------
+
+They name the same thing and a user has to guess which one is read. Keep
+`dependent_variable`; retire `score_column` the way `volcano` was retired --
+an old settings CSV carrying it must still load, with its value moved over and
+a line saying so, not dropped in silence.
+
+Audit BEFORE deleting: find every reader of `score_column`. If a path exists
+where the two are genuinely different, say so rather than merging over it.
+
+--------------------------------------------------------------------------------
+B. A COLUMN THAT IS NOT THERE OFFERS THE COLUMNS THAT ARE
+--------------------------------------------------------------------------------
+
+Today a missing `dependent_variable` fails somewhere inside the merge, after
+the whole score table has been read, with a message naming a column the file
+does not have. Instead: READ THE HEADERS AND OFFER THEM.
+
+The same behaviour in three places, because it is the same failure:
+
+  * `dependent_variable`, against the score CSVs.
+  * `filter_column`, against the same input CSVs -- and its button is an SQL
+    button today, which is wrong: the regression module's inputs are CSVs.
+    Replace it with a CSV button that reads the input CSVs. Give
+    `dependent_variable` the same button.
+  * THE COUNT COLUMNS, which the request is right about -- they are
+    HARD-CODED and have no setting at all. Find them, give them settings, and
+    give those settings the same offer-what-exists behaviour.
+
+Headless too, not only in the GUI: a run that cannot find the column should
+print the columns the file HAS. A message that lists the alternatives is the
+difference between a two-minute fix and a re-run.
+
+--------------------------------------------------------------------------------
+C. THE CATEGORIES, AS THE MAINTAINER WALKED THEM
+--------------------------------------------------------------------------------
+
+KEEP AS IS
+  Input Tables
+  Plate & Batch Correction -- but see D, this one has a question against it.
+
+RENAME AND MERGE
+  Controls & Plate Design + Quality Filters -> "Controls & Filters"
+      plus the CSV button on `filter_column`.
+
+  Response -- keep, minus `score_column` (A).
+
+  Model & Inference -- keep, and it grows:
+      * 132's text box AT THE TOP of the section.
+      * `level` moved out of Additional Settings to sit DIRECTLY UNDER
+        `regression_type`. (Half done: it is in the section as of
+        2026-08-17; the ORDER within the section is the remaining part.)
+      * everything from "Significance & Hit Calling" merges in.
+      * A NEW SETTING PAIR, which does not exist today: the alpha the
+        significance line is drawn at, and WHETHER THAT LINE IS ON RAW OR
+        ADJUSTED P. The plot already has a raw/adjusted choice on its
+        right-click menu; the run has no say in it, so the exported hit list
+        and the picture can disagree about what "significant" meant.
+
+  Estimator Tuning -- keep, and:
+      * `cov_type` moves here from Model & Inference, relabelled
+        "Covariance type".
+      * EVERY TOOLTIP IN THIS SECTION NAMES ITS FAMILY. `l1_ratio` is
+        elasticnet's, `quantile` is quantile regression's, `huber_t` is
+        Huber's, `hinge_threshold`/`hinge_n_boot` are the hinge's,
+        `lasso_n_boot`/`lasso_selection_threshold` are lasso's and
+        elasticnet's. `spacr.regression_spec.REGRESSION_SETTINGS_USED`
+        already knows which family reads which -- read it rather than
+        writing a second list.
+      * EACH IS GREYED OUT UNLESS ITS FAMILY IS CHOSEN, instruction 106's
+        rule: disabled with the reason on it, value kept and saved.
+
+  Permutation Test -- keep, plus a short text box at the top saying what it
+      does. Shorter than 132's model box: one paragraph, the same voice.
+
+DELETE
+  Significance & Hit Calling -- contents move to Model & Inference.
+  Quality Filters -- contents move to Controls & Filters.
+  Regression Plots -- gone entirely, and its settings stop being settings:
+      regression_qc            hard-coded True
+      guide_permutation_plot   hard-coded True
+      log_x, log_y             hard-coded False
+      x_lim, y_lims            automatic, and changed ON THE PLOT
+      (`volcano` is already retired as of 2026-08-17.)
+      CHECK THE SWEEP FIRST: parameter_sweep passes `qc=` precisely so a
+      hundred-trial sweep does not pay ~5.8 s and ~19 figures per trial. If
+      hard-coding regression_qc removes that, keep the parameter and remove
+      only the GUI control.
+  Runtime & Reliability -- moves to Preferences/General. It is not a
+      regression setting; `strict_errors`, `on_error`, `random_seed` and
+      `verbose` are how the whole application behaves.
+
+--------------------------------------------------------------------------------
+D. "IM NOT SURE I SEE A DIFERENCE WHEN I USE IT" -- BATCH CORRECTION
+--------------------------------------------------------------------------------
+
+That is a bug report, not a preference, and it must be ANSWERED WITH A
+MEASUREMENT rather than an explanation. Fit one screen with
+`batch_correction` off and on and compare the coefficient tables. Three
+outcomes and each has a different fix:
+
+  1. It genuinely does nothing on this data -- e.g. a SINGLE PLATE, where
+     ComBat has no between-batch variance to remove. Then the control must
+     SAY so and grey out, per 106.
+  2. It runs and the effect is real but small. Then the run should report how
+     much it moved: the shift it applied, per batch.
+  3. It is silently not being applied. Then it is a bug and it is the most
+     important item on this page, because every run since has been reported
+     under a correction that did not happen.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `score_column` is gone and an old CSV carrying it still loads.
+* A missing dependent variable, filter column or count column prints the
+  columns the file HAS, headless and in the GUI, and the GUI offers them.
+* `filter_column` and `dependent_variable` have a CSV button; no SQL button
+  remains in the regression module.
+* The regression panel has exactly these sections, in this order: Input
+  Tables, Controls & Filters, Plate & Batch Correction, Response, Model &
+  Inference, Estimator Tuning, Permutation Test.
+* "Additional Settings" is EMPTY for the regression module.
+* Model & Inference opens with the formula box; `level` is directly under
+  `regression_type`; the alpha and raw/adjusted choice are in it.
+* Every Estimator Tuning control is greyed out with its reason unless its
+  family is chosen, and its tooltip names that family.
+* The batch-correction question has a MEASURED answer written down.
