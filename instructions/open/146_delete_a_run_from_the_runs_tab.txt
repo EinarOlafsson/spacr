@@ -1,0 +1,86 @@
+================================================================================
+DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 -- "the user should be able to delete runs from the
+           figures (currently possible) and from the run tab (not possible)"
+
+Related: 125 wants every run in the Runs tab. 116 is clicking a run to spawn
+         its graphs.
+
+--------------------------------------------------------------------------------
+WHAT EXISTS AND WHAT DOES NOT
+--------------------------------------------------------------------------------
+
+THE FIGURES SIDE HAS IT. `figure_queue` carries a "Clear figures" control and
+the grid groups its tiles by run (`run_sections()` -> `[(label, start,
+count)]`, foldable per run), so a run can be got rid of from there.
+
+THE RUNS TAB HAS NOTHING. `spacr/qt/widgets/sweep_runs.py` `SweepRunsPanel`
+exposes `load`, `reload`, `set_frame`, `record_run`, `update_run` and
+`selected_trial`. There is no remove, no delete, no context menu -- a run
+enters the table and stays.
+
+That is the asymmetry: the same run can be dismissed from the pictures and not
+from the list of runs, which is the place a user goes to manage them.
+
+--------------------------------------------------------------------------------
+A. WHAT DELETE MEANS, AND IT MUST BE SAID
+--------------------------------------------------------------------------------
+
+There are two different things a user could mean, and a single "Delete" that
+does not distinguish them is how a screen's results are lost:
+
+  REMOVE FROM THE LIST   the row goes; the run folder on disk is untouched.
+  DELETE FROM DISK       the run folder and everything in it is gone.
+
+BOTH ARE LEGITIMATE and the dialog names which is which. The default gesture
+-- Delete key, the context menu's first entry -- is the SAFE one, removing
+the row. Deleting from disk is a separate, explicitly-worded choice.
+
+THE PATH IS SHOWN BEFORE ANYTHING IS DELETED, and so is what is in it: "12
+figures, 4 CSVs, 31 MB". A user deciding whether to destroy an overnight fit
+needs to see what they are destroying, and a folder path alone is not that.
+
+NEVER DELETE WHAT IS RUNNING. A run still going is refused with the reason,
+per instruction 106 -- greyed out and saying why, not silently ignored. Stop
+it first; that is what instruction 142's dialog is for.
+
+--------------------------------------------------------------------------------
+B. THE GESTURES
+--------------------------------------------------------------------------------
+
+* A context menu on the row, because that is where a user looks first.
+* The Delete key on the selection, for the same reason.
+* Multi-select, so clearing out twenty sweep trials is one gesture. A sweep
+  writes one folder per trial and cleaning up after one by hand twenty times
+  is not a feature.
+
+WHAT LEAVES THE LIST LEAVES THE FIGURES WITH IT. The two views are of the
+same runs; removing a run from the tab and leaving its tiles on the grid is
+the same disagreement in the other direction. `run_sections()` already keys
+the grid's sections by run label, so the removal has a handle to use.
+
+--------------------------------------------------------------------------------
+C. UNDO, OR HONESTY ABOUT ITS ABSENCE
+--------------------------------------------------------------------------------
+
+Removing a row is recoverable -- `reload()` reads the folder again -- so it
+needs no confirmation, only the ability to get it back. Say that in the
+message: "removed from the list; Reload brings it back".
+
+Deleting from disk is NOT recoverable and takes a confirmation naming the
+folder. Do not offer an undo that cannot honour itself.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A run can be removed from the Runs tab by context menu and by Delete.
+* Several rows can be removed at once.
+* Removing from the list leaves the folder; deleting from disk says so first,
+  shows the path and the contents, and asks.
+* A running run cannot be deleted and says why.
+* A run removed from the tab is gone from the figure grid too.
+* Reload brings back anything that was only removed from the list.
