@@ -227,6 +227,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "group_lasso_lambda", "rra_alpha", "rra_permutations",
     "p_threshold_alpha", "p_threshold_kind",
     "count_grna_column", "count_value_column",
+    # Instruction 143: whether plate row and column enter the model at all.
+    # It defaults ON, by measurement -- on the TSG101 screen the 35 position
+    # terms are jointly significant at p=6.7e-23 and dropping them loses 8.4
+    # points of R2 and swaps named genes in and out of the hit list.
+    "model_plate_position",
     # Plate-blocked marginal guide analysis added to the regression workflow.
     "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
     "guide_permutations", "guide_permutation_seed",
