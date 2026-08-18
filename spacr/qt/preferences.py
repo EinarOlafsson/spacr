@@ -337,6 +337,84 @@ def set_figure_style_per_graph(overrides: dict) -> None:
     _settings().setValue(_KEY_FIG_STYLE_PER_GRAPH, json.dumps(clean))
 
 
+#: Where a SAVED STYLE OBJECT's per-project default lives.
+#:
+#: NOT the same store as `_KEY_FIG_STYLE_PER_GRAPH`, and the difference is
+#: worth stating because the two look alike from a distance. That one holds
+#: `spacr.figure_style`'s own vocabulary -- font, palette, marker size -- which
+#: `figure_style.resolve` merges into rcParams for every figure spaCR draws.
+#: THIS one holds a verbatim snapshot of one interactive plot's own style
+#: DATACLASS (`volcano_style.VolcanoStyle` and whatever joins it), keyed by the
+#: kind of style it is. Merging the two vocabularies would put `label_top_n`
+#: into `rcParams.update`, which raises rather than being ignored.
+_KEY_FIG_STYLE_DEFAULTS = "figures/style_defaults"
+
+
+def get_figure_style_defaults() -> dict:
+    """Every saved per-project style default, as ``{kind: {field: value}}``."""
+    raw = _settings().value(_KEY_FIG_STYLE_DEFAULTS, None)
+    if isinstance(raw, dict):
+        return {str(kind): dict(values) for kind, values in raw.items()
+                if isinstance(values, dict)}
+    if isinstance(raw, str) and raw.strip():
+        import json
+        try:
+            loaded = json.loads(raw)
+        except ValueError:
+            return {}
+        if isinstance(loaded, dict):
+            return {str(kind): dict(values) for kind, values in loaded.items()
+                    if isinstance(values, dict)}
+    return {}
+
+
+def get_figure_style_default(kind: str) -> dict:
+    """The saved default for one kind of style, or ``{}``.
+
+    Empty rather than "today's defaults", for the reason the figure colour
+    section states at length: a stored resolution is a preference that has
+    stopped tracking. A style with no saved default is drawn from the
+    dataclass's own defaults, which move when the package does.
+    """
+    return dict(get_figure_style_defaults().get(str(kind), {}))
+
+
+def set_figure_style_default(kind: str, values) -> None:
+    """Make ``values`` the default for every future figure of ``kind``.
+
+    Instruction 108 point 5: "a per-project default so a lab's house style is
+    applied to every figure of that type without re-setting it each time".
+    """
+    import json
+
+    stored = get_figure_style_defaults()
+    stored[str(kind)] = dict(values or {})
+    settings = _settings()
+    # JSON rather than a nested QVariant map: QSettings' INI writer flattens a
+    # dict of dicts into keys containing the field names, and a style field
+    # called `x_label` would then be indistinguishable from a group.
+    settings.setValue(_KEY_FIG_STYLE_DEFAULTS, json.dumps(stored))
+    settings.sync()
+
+
+def clear_figure_style_default(kind: str) -> bool:
+    """Forget the default for ``kind``. True if there was one.
+
+    The way back, and it is not optional: a default that can only be set is
+    the same trap as a colour that can only be set (instruction 152 A).
+    """
+    import json
+
+    stored = get_figure_style_defaults()
+    if str(kind) not in stored:
+        return False
+    stored.pop(str(kind))
+    settings = _settings()
+    settings.setValue(_KEY_FIG_STYLE_DEFAULTS, json.dumps(stored))
+    settings.sync()
+    return True
+
+
 def apply_figure_style(kind: str | None = None) -> dict:
     """Push the user's style for ``kind`` into matplotlib. Returns it.
 

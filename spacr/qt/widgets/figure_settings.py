@@ -1348,6 +1348,40 @@ def save_figure_as(parent, figure, path: str = "") -> str:
         if not path:
             return ""
 
+    # THROUGH `spacr.plot.save_figure`, WHICH IS THE POINT OF INSTRUCTION 108
+    # POINT 6. This function used to write the file itself, with the SCREEN's
+    # background and no print rule, which made it one of the twenty-three
+    # `savefig` calls that bypass the one place a figure the user keeps gets
+    # written -- and on a dark theme it produced exactly instruction 150's
+    # report: white text on a transparent ground, invisible the moment it is
+    # pasted into a manuscript. `save_figure` applies the DPI preference and
+    # `print_ready`'s ink rule, and a light-mode save is unchanged by it.
+    #
+    # THE USER'S OWN EXTENSION WINS over the format preference, and that is
+    # the one thing this cannot delegate: `save_figure` corrects the extension
+    # to the chosen FORMAT, so a user who typed `figure.pdf` while the
+    # preference says PNG would get a PNG. The extension is passed as `fmt`
+    # when it is one `save_figure` knows.
+    extension = os.path.splitext(path)[1].lower().lstrip(".")
+    try:
+        from ...plot import FIGURE_FORMATS, print_ready, save_figure
+    except Exception:                    # pragma: no cover - Qt-only build
+        FIGURE_FORMATS, print_ready, save_figure = (), None, None
+
+    if save_figure is not None and extension in FIGURE_FORMATS:
+        try:
+            return str(save_figure(figure, path, fmt=extension,
+                                   bbox_inches="tight", close=False))
+        except Exception as error:       # noqa: BLE001 - report, do not raise
+            LOG.info("could not save figure to %s: %s", path, error)
+            return ""
+        finally:
+            export_sidecars(figure, path)
+
+    # SVG and EPS are NOT among `FIGURE_FORMATS`, so they cannot go through
+    # `save_figure` without having their extension rewritten under them --
+    # and they are offered in the dialog because they are what a journal asks
+    # for. They still get the print rule, which is the half that matters.
     try:
         from ..preferences import (figure_bg_is_transparent, get_figure_colors,
                                    get_figure_png_dpi)
@@ -1359,14 +1393,18 @@ def save_figure_as(parent, figure, path: str = "") -> str:
         def figure_bg_is_transparent(value):
             return str(value).lower() in ("none", "transparent")
 
+    from contextlib import nullcontext
+
     try:
         # Vector formats have no meaningful DPI, and passing one makes
         # matplotlib rasterise text in some backends.
-        vector = os.path.splitext(path)[1].lower() in (".pdf", ".svg", ".eps")
-        figure.savefig(
-            path, bbox_inches="tight", facecolor=background,
-            transparent=figure_bg_is_transparent(background),
-            **({} if vector else {"dpi": dpi}))
+        vector = extension in ("pdf", "svg", "eps")
+        ink = print_ready(figure) if print_ready is not None else nullcontext()
+        with ink:
+            figure.savefig(
+                path, bbox_inches="tight", facecolor=background,
+                transparent=figure_bg_is_transparent(background),
+                **({} if vector else {"dpi": dpi}))
     except Exception as error:           # noqa: BLE001 - report, do not raise
         LOG.info("could not save figure to %s: %s", path, error)
         return ""

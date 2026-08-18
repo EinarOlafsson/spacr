@@ -188,6 +188,12 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
     try:
         from matplotlib import rc_context
         with rc_context({"pdf.fonttype": 42}):
+            # BYPASSES `plot.save_figure` DELIBERATELY (instruction 108 point
+            # 6): this page is not a file the user keeps, it is the vector
+            # source the queue rasterises at 2200 px to put ON SCREEN, so the
+            # print rule would make every figure flash to a light page a
+            # moment after it appeared. The format and DPI preferences are
+            # read above, which is the part `save_figure` exists for.
             fig.savefig(str(pdf_path), dpi=dpi, bbox_inches="tight",
                         facecolor=bg)
         return True
@@ -259,6 +265,11 @@ def render_figure_to_png(fig, png_path: str) -> bool:
         # otherwise falls back to the rcParam and writes an opaque page,
         # so setting the facecolor alone is not enough.
         from ..preferences import figure_bg_is_transparent
+        # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this is the
+        # screen raster, into a temp directory, at a capped display DPI. It is
+        # what the user is LOOKING at, so it follows the theme rather than the
+        # page. The file they keep is written by `figure_settings.save_figure_as`,
+        # which does go through `save_figure`.
         fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
                     facecolor=bg,
                     transparent=figure_bg_is_transparent(bg))
@@ -1616,6 +1627,9 @@ class FigureQueue(QWidget):
             # top of the ~150 ms render -- the single largest cost in the live
             # path, and it buys only trimmed whitespace nobody is looking at
             # mid-drag. The full render on dialog close still trims.
+            #
+            # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this
+            # writes to a BytesIO for a drag preview and never to a file.
             fig.savefig(buffer, format="png", dpi=dpi,
                         facecolor=fig.get_facecolor())
             pixmap = QPixmap()

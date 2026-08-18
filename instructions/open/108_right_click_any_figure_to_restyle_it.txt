@@ -229,3 +229,116 @@ from pyqtgraph and nothing from this module's plot classes, so moving them to
 a `spacr/qt/widgets/style_menu.py` when the matplotlib half lands is a
 cut-and-paste plus an import -- worth doing then, not worth a new module now
 with one caller.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- POINT 5 SHIPPED (SAVE / LOAD / DEFAULT), AND POINT 6 COUNTED
+--------------------------------------------------------------------------------
+
+POINT 5 -- "EDITABLE **AND SAVABLE**", which is the half the maintainer
+restated on 2026-08-16 and the half a restyle is useless without.
+
+  In spacr/qt/widgets/fast_plots.py:
+
+      style_kind(style)               VolcanoStyle -> "volcano". Derived from
+                                      the CLASS, because a caller naming its
+                                      own kind would eventually name two the
+                                      same and one lab's house style would
+                                      land on another figure type.
+      save_style(style, path)         JSON: {"spacr_style_kind", "fields"}
+      load_style(style, path, cb)     refuses a file that is not a style AND
+                                      a style of the WRONG KIND
+      apply_style_dict(style, values) forwards-compatible both ways
+      apply_default_style(style, cb)  start from this project's default
+      add_style_file_entries(...)     the four menu entries
+
+  In spacr/qt/preferences.py, `figures/style_defaults`:
+
+      get_figure_style_default(kind) / set_ / clear_
+
+  A WRONG-KIND LOAD IS REFUSED RATHER THAN PARTIALLY APPLIED. A volcano style
+  read into a heatmap would set the four fields whose names happen to match
+  and leave the rest, which looks like a corrupted figure rather than like a
+  mistake.
+
+  LOADING IS FORWARDS-COMPATIBLE IN BOTH DIRECTIONS -- an unknown field is
+  skipped, a missing one keeps what the style had -- so a house style saved
+  today is still loadable after the dataclass grows, which is the whole
+  reason `VolcanoStyle.from_dict` was written that way in the first place.
+
+  THE HOST IS TOLD ONCE, `(None, style)`, and not per field: sixty fields
+  would be sixty redraws for one load.
+
+  THE STORE IS JSON, not a nested QVariant map. QSettings' INI writer
+  flattens a dict of dicts into slash-separated keys, so a style field called
+  `x_label` would come back as a GROUP rather than as a field. There is a
+  test named for it.
+
+  `figures/style_defaults` IS NOT `figures/style_per_graph`, and the comment
+  in preferences.py says why: that one holds `spacr.figure_style`'s
+  vocabulary, which `resolve` merges into rcParams for every figure spaCR
+  draws; this one holds a verbatim snapshot of one style DATACLASS. Merging
+  the two would put `label_top_n` into `rcParams.update`, which raises.
+
+  AND THE WIRING, WHICH IS THE PART A GREEN TEST WOULD HAVE MISSED. A stored
+  default nothing reads is a preference, not a house style. `offer_style`
+  applies it -- ONCE per style object, so a host that re-offers the same one
+  after the user has edited it changes nothing. That guard is not decoration:
+  `RegressionResultsPanel` redraws on every level, baseline and compartment
+  change, and re-asserting a default on each would silently undo the user,
+  which is exactly the bug the p-axis choice cost a day on.
+
+POINT 6 -- THE PREFERENCE LEAK, COUNTED. The file said 21; there are now 23,
+so two more have been added since it was written. Counted with a script that
+skips docstrings and comments, not by eye.
+
+  MINE, AND FIXED:
+    figure_settings.save_figure_as   NOW GOES THROUGH `plot.save_figure`
+        for png/pdf, so it picks up the DPI preference and `print_ready`'s
+        ink rule. It was writing the SCREEN's colours, which on a dark theme
+        is instruction 150's report exactly -- white text on a transparent
+        ground, invisible the moment it is pasted into a manuscript. The
+        USER'S OWN EXTENSION still wins over the format preference, which is
+        the one thing it cannot delegate: `save_figure` corrects the
+        extension to the chosen FORMAT. SVG and EPS are not in
+        `plot.FIGURE_FORMATS` and would have their extension rewritten under
+        them, so they keep the local write and gain `print_ready` alone.
+
+  MINE, AND DELIBERATE -- each now carries a comment saying so:
+    figure_queue._export_vector_pdf     the vector SOURCE the queue
+        rasterises to put on screen. The print rule here would make every
+        figure flash to a light page a moment after it appeared.
+    figure_queue.render_figure_to_png   the screen raster, into a temp dir,
+        at a capped display DPI. It follows the theme because it IS what the
+        user is looking at.
+    figure_queue._render_preview        a BytesIO for a drag preview; never
+        a file.
+
+  NOT MINE -- 18 calls in 14 files, for whoever takes point 6:
+
+    spacr/classifier_evaluation.py:1642, 1667   dpi=180 hard-coded
+    spacr/figures/__init__.py:11
+    spacr/figures/style.py:250
+    spacr/gui_elements.py:6512
+    spacr/illumination.py:1326
+    spacr/plot.py:516                           this one IS `save_figure`
+    spacr/qt/screens/app_screen.py:5260         BytesIO thumbnail
+    spacr/qt/screens/hyperparam.py:275          BytesIO thumbnail
+    spacr/report.py:2401, 2406                  PdfPages, a multi-page book
+    spacr/sequencing.py:1101                    format='pdf', dpi=600
+    spacr/sequencing_qc.py:1211                 format='pdf', dpi=300
+    spacr/spacr_cellpose.py:435                 format='pdf'
+    spacr/spacrops.py:950, 1148                 dpi=200
+    spacr/surrogate.py:879, 913
+    spacr/volcano_style.py:387                  the headless renderer
+
+  Three of those are not leaks and should be marked rather than routed:
+  plot.py:516 is `save_figure` itself, and the two BytesIO thumbnails never
+  produce a file. The other fifteen are figures a user keeps.
+
+WHAT REMAINS OF 108: points 1 (the shared style base), 2 (the renderer
+contract) and 4 (a screen holding the Figure rather than a saved image).
+Point 4 is still the real prerequisite for the matplotlib half --
+`add_style_entries` will attach to any canvas with a style object, and the
+only style object in the package is `VolcanoStyle`. Nothing calls
+`offer_style` yet either: `volcano_explorer.py` holds a `VolcanoStyle` and is
+the obvious first host, and it is not this territory.
