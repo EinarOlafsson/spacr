@@ -1880,11 +1880,23 @@ class _FigureSettingsDialog(QDialog):
         outer.addWidget(holder)
 
         try:
-            from ..preferences import get_figure_colors, get_figure_text_size
-            self._bg, self._fg = get_figure_colors()
+            from ..preferences import (get_figure_color_tokens,
+                                       get_figure_text_size)
+            # THE STORED TOKENS, not the resolved pair. `get_figure_colors()`
+            # answers "what colour is the text right now", which on a dark
+            # theme is "#ffffff" whether the user chose it or not -- and this
+            # dialog WRITES ITS SEED BACK on OK, so seeding from the answer
+            # turned "follow the theme" into a hard white for every future
+            # figure the first time anybody pressed OK. That is instruction
+            # 152 section A, and the rule it cost is stated at the head of
+            # the figure colour section in `spacr/qt/preferences.py`:
+            # NEVER PERSIST A RESOLVED DEFAULT.
+            self._bg, self._fg = get_figure_color_tokens()
             _init_size = get_figure_text_size() or 10
         except Exception:
-            self._bg, self._fg, _init_size = "#ffffff", "#000000", 10
+            # The literal rather than AUTO_FIGURE_COLOR: this branch exists
+            # for the case where importing preferences failed.
+            self._bg, self._fg, _init_size = "auto", "auto", 10
         self._bg_btn = _QPB("Background…")
         self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
         self._fg_btn = _QPB("Text colour…")
@@ -1892,8 +1904,14 @@ class _FigureSettingsDialog(QDialog):
         form.addRow("Background", self._bg_btn)
         form.addRow("Text colour", self._fg_btn)
 
-        self._bg_btn.setStyleSheet(f"background-color: {self._bg};")
-        self._fg_btn.setStyleSheet(f"background-color: {self._fg};")
+        # The explicit route back. A user frozen by the old dialog -- or by
+        # their own click -- otherwise has no way to un-set a colour, and a
+        # preference that can only ever be set is a trap.
+        self._auto_btn = _QPB("Follow the theme")
+        self._auto_btn.clicked.connect(self._follow_theme)
+        form.addRow("Automatic", self._auto_btn)
+
+        self._paint_colour_buttons()
 
         self._size = QSpinBox()
         self._size.setRange(4, 48)
@@ -1926,6 +1944,12 @@ class _FigureSettingsDialog(QDialog):
             self._fg_btn: "figure_text_color",
             self._size: "figure_text_size",
         }, api_dots=False)
+        # Set after the sweep above, which owns the other three tooltips.
+        # This one is not a documented setting — it is the way out of one.
+        self._auto_btn.setToolTip(
+            "Put the background and text colour back to following the app "
+            "theme, so a light theme gives dark text and a dark theme gives "
+            "light. Greyed out when they already do.")
         if self._umap_settings is not None:
             # Scoped to the section rather than to the dialog: a second sweep
             # over the whole dialog would re-decorate the three figure
@@ -1974,7 +1998,13 @@ class _FigureSettingsDialog(QDialog):
         return self._umap_settings.values()
 
     def _propagate(self) -> None:
-        """Send the current values into the module's settings panel."""
+        """Send the current values into the module's settings panel.
+
+        The colours go across as TOKENS, so a run saved with "auto" follows
+        whatever theme it is later opened under. Sending the resolution
+        instead would freeze it into the saved settings — the same bug as
+        section A, in a second store.
+        """
         if not callable(self._propagate_cb):
             return
         values = dict(self.umap_values())
@@ -2002,18 +2032,104 @@ class _FigureSettingsDialog(QDialog):
                 self._on_umap_changed(initial)
         super().reject()
 
-    def _pick(self, attr, btn):
-        from PySide6.QtWidgets import QColorDialog
+    # -- the two colour tokens ---------------------------------------------
+
+    @staticmethod
+    def _is_auto(token) -> bool:
+        """Whether ``token`` means "follow the theme" rather than a colour."""
+        try:
+            from ..preferences import figure_color_is_auto
+            return figure_color_is_auto(token)
+        except Exception:
+            return str(token).strip().lower() == "auto"
+
+    @staticmethod
+    def _auto_preview() -> tuple:
+        """What "auto" resolves to on the live theme, for DISPLAY only."""
+        try:
+            from ..preferences import auto_figure_colors
+            return auto_figure_colors()
+        except Exception:
+            return "none", "#000000"
+
+    def _resolved_pair(self) -> tuple:
+        """The ``(bg, fg)`` to actually paint this figure with.
+
+        Resolved here and never stored: :meth:`_apply_and_accept` persists
+        ``self._bg``/``self._fg``, which are tokens.
+        """
+        auto_bg, auto_fg = self._auto_preview()
+        return (auto_bg if self._is_auto(self._bg) else self._bg,
+                auto_fg if self._is_auto(self._fg) else self._fg)
+
+    @staticmethod
+    def _describe(value) -> str:
+        """How a colour value is spelled to a reader."""
+        if str(value).strip().lower() in ("none", "transparent", ""):
+            return "transparent"
+        return str(value)
+
+    def _paint_colour_buttons(self) -> None:
+        """Show each half as EITHER a chosen colour OR a labelled preview.
+
+        The label is what makes the difference visible: "Automatic
+        (#ffffff)" says the white came from the theme and will change with
+        it, where a plain white swatch says the user picked white. The
+        dialog cannot store the difference if it cannot show it.
+        """
         from PySide6.QtGui import QColor
-        c = QColorDialog.getColor(QColor(getattr(self, attr)), self)
+        auto_bg, auto_fg = self._auto_preview()
+        for token, btn, auto_value in ((self._bg, self._bg_btn, auto_bg),
+                                       (self._fg, self._fg_btn, auto_fg)):
+            automatic = self._is_auto(token)
+            shown = auto_value if automatic else token
+            text = self._describe(shown)
+            btn.setText(f"Automatic ({text})" if automatic else text)
+            colour = QColor(str(shown))
+            if colour.isValid() and self._describe(shown) != "transparent":
+                ink = "#000000" if colour.lightness() > 127 else "#ffffff"
+                btn.setStyleSheet(
+                    f"background-color: {colour.name()}; color: {ink};")
+            else:
+                # A transparent background has no swatch to show; painting
+                # one would be a lie about what the figure will look like.
+                btn.setStyleSheet("")
+        # Greyed when it would do nothing, per instruction 106 — and it is
+        # also the readout for "am I frozen?", which is the question a user
+        # bitten by this arrives with.
+        self._auto_btn.setEnabled(
+            not (self._is_auto(self._bg) and self._is_auto(self._fg)))
+
+    def _follow_theme(self) -> None:
+        """Un-set both colours — back to the TOKEN, not to today's answer."""
+        self._bg = self._fg = "auto"
+        self._paint_colour_buttons()
+
+    def _pick(self, attr, btn):
+        """Choose one half explicitly. Only this makes a token a colour."""
+        from .colour_picker import pick_colour
+        auto_bg, auto_fg = self._auto_preview()
+        current = getattr(self, attr)
+        if self._is_auto(current):
+            current = auto_bg if attr == "_bg" else auto_fg
+        c = pick_colour(self, current,
+                        "Background" if attr == "_bg" else "Text colour")
         if c.isValid():
             setattr(self, attr, c.name())
-            btn.setStyleSheet(f"background-color: {c.name()};")
+            self._paint_colour_buttons()
 
     def _apply_and_accept(self):
-        """Persist the chosen colours/size (so every figure follows them) and
-        apply them to this figure, then accept — the caller re-renders."""
+        """Persist the chosen colour TOKENS/size (so every figure follows
+        them) and apply them to this figure, then accept — the caller
+        re-renders.
+
+        What is written back is ``self._bg``/``self._fg`` unchanged: "auto"
+        stays "auto". Pressing OK without touching anything must therefore
+        leave the store exactly as it was found, which is the regression this
+        method exists to not repeat.
+        """
         size = int(self._size.value())
+        bg, fg = self._resolved_pair()
         try:
             from ..preferences import set_figure_colors, set_figure_text_size
             set_figure_colors(self._bg, self._fg)
@@ -2024,5 +2140,5 @@ class _FigureSettingsDialog(QDialog):
             # A value still sitting on the debounce timer is a value the user
             # typed and would otherwise lose by pressing OK promptly.
             self._umap_settings.flush()
-        FigureQueue._style_figure(self._fig, self._bg, self._fg, size)
+        FigureQueue._style_figure(self._fig, bg, fg, size)
         self.accept()

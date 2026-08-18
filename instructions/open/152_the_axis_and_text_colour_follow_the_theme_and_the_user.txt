@@ -146,3 +146,75 @@ HOW TO KNOW IT WORKED
   and the migration says so in the console.
 * The volcano's menu has an axis colour entry, it changes the spines and ticks
   and not the title, and "Follow the theme" undoes both.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A IS DONE AND MEASURED. SECTION B IS NOT (not this
+territory; it lives in fast_plots.py / plot.py).
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+`spacr/qt/preferences.py` -- the store keeps TOKENS and nothing else:
+
+    AUTO_FIGURE_COLOR         the token "auto". Not a colour.
+    figure_color_is_auto()    is this token the theme, or a choice?
+    auto_figure_colors()      what "auto" resolves to RIGHT NOW, for display
+    get_figure_color_tokens() the stored pair, UNRESOLVED  <- seed from this
+    get_figure_colors()       the stored pair, RESOLVED    <- draw from this
+    set_figure_colors()       writes tokens; also marks the store migrated
+    set_figure_colors_auto()  the way back
+
+The rule is stated at the head of that section, where the next person will be
+standing when they are about to break it: NEVER PERSIST A RESOLVED DEFAULT.
+The same reasoning was already written one screen up for `get_figure_style`,
+which stores {} rather than today's defaults; the two now point at each other.
+
+`figure_queue._FigureSettingsDialog` seeds from the tokens, shows the
+automatic answer as a labelled preview ("Automatic (#ffffff)", "Automatic
+(transparent)"), and writes back what it was given. A new "Follow the theme"
+button un-sets both, and is greyed when both already follow (106). Propagate
+sends the TOKENS, so a saved run does not freeze the colour in a second store.
+
+THE MIGRATION. `_migrate_frozen_figure_colors` runs once per store, on the
+first read or write of a figure colour, and turns a stored value that "auto"
+resolves to on SOME theme back into "auto", saying so in the console. The
+value sets are `{none, #000000, #ffffff}` for the background and
+`{#000000, #ffffff}` for the text -- both HISTORIC resolutions as well as
+current, because "auto" resolved to opaque black/white before 2026-08-06 and
+those stores are frozen too. Both halves migrate together on purpose: freeing
+the text but keeping a frozen white background gives white-on-white again the
+moment the theme goes dark.
+
+MEASURED, NOT ASSUMED. Ink luminance of the opaque pixels of a rendered
+figure, light theme, nothing chosen -- 0.0 is black ink, 1.0 is white:
+
+    matplotlib (render_figure_to_png)   before OK 0.00   after OK+theme switch
+                                        was 1.00, now 0.00
+    pyqtgraph  (FastPlot.export)        frozen store 1.000, migrated 0.000
+                                        over the same 1316 opaque pixels
+
+The 1.00 IS the report -- "in white mode lots of graphs still have white text
+and axes color" -- and it is what the regression test asserts against.
+
+The migration was also run against a COPY of the maintainer's real
+~/.config/spacr/qt.conf (bg 'none', fg '#ffffff'): it migrates to auto/auto,
+resolves to #000000 on light and #ffffff on dark, and does not fire twice. The
+live file was NOT touched -- it migrates itself the next time the app reads a
+figure colour.
+
+TESTS  tests/qt/test_figure_colour_tokens.py, 17 tests. Five of them fail if
+the dialog is put back to seeding from `get_figure_colors()`, verified by
+doing exactly that and re-running:
+
+    test_the_dialog_seeds_from_the_token
+    test_ok_without_touching_anything_leaves_auto_alone       <- the regression
+    test_the_button_says_when_a_colour_is_automatic
+    test_picking_a_colour_stores_it_explicitly
+    test_pressing_ok_then_going_light_still_renders_dark_ink  <- 1.0 vs 0.0
+
+WHAT REMAINS -- section B, all of it, and none of it in this territory:
+one "Line colour" reaching the axis spines and tick MARKS, one "Font colour"
+reaching every text including tick LABELS, and `set_line_style` extended to
+the axis pen without losing the per-pen dash patterns. `figures/style.py` and
+`figure_queue._style_figure_colors` already share the preference, so whatever
+B stores must be a token too or this bug returns by the other door.
