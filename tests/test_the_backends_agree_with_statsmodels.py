@@ -279,29 +279,53 @@ def test_a_column_that_is_not_a_dummy_is_refused_rather_than_absorbed():
         ml._absorbed_factor_codes(X)
 
 
+def _best_of(repeats, call):
+    """The FASTEST of ``repeats`` runs, in seconds.
+
+    THE MINIMUM, NOT THE MEAN, and on a shared machine that is the honest
+    statistic rather than the flattering one: every sample is the true cost
+    plus whatever else the box was doing, so the smallest sample is the one
+    least contaminated by the other three agents this repository has running.
+    A mean would measure the machine's load, and it did -- an earlier version
+    of this test compared one sample against one sample and failed under load
+    on a design where the ratio is 5.9x when measured alone.
+    """
+    import time
+
+    best = float("inf")
+    for _ in range(repeats):
+        start = time.perf_counter()
+        call()
+        best = min(best, time.perf_counter() - start)
+    return best
+
+
 @pytest.mark.parametrize("n_wells,n_genes", [(2000, 700)])
 def test_the_absorbed_fit_is_faster_on_a_screen_sized_problem(n_wells,
                                                               n_genes):
     """The measured claim, asserted -- loosely, because a shared box varies.
 
-    The ratio measured on this machine at n=6000/p=2242 is 5.9x. The
-    assertion is that it is faster AT ALL, which is the claim
+    The ratio measured on an idle machine at n=6000/p=2242 is 5.9x. The
+    assertion is only that it is faster AT ALL, which is the claim
     ``REGRESSION_BACKENDS['pyfixest']['cost']`` makes; a tighter bound would
-    fail on a loaded machine for a reason that has nothing to do with the
-    code.
-    """
-    import time
+    fail for a reason that has nothing to do with the code.
 
+    THE WARM-UP IS NOT OPTIONAL. ``pyfixest.core.demean`` is numba-compiled,
+    so the first call in a process pays a JIT compile that belongs to neither
+    backend, and timing it would charge the absorbed path for the compiler.
+    """
     frame = _screen(n_wells=n_wells, n_genes=n_genes, seed=3)
     y, X = dmatrices("y ~ fraction:grna + rowID + columnID", data=frame,
                      return_type="dataframe")
-    start = time.perf_counter()
-    sm.OLS(y, X).fit()
-    reference = time.perf_counter() - start
-    start = time.perf_counter()
-    ml.regression_model(X, y, regression_type="ols",
+    warm = _screen(n_wells=60, n_genes=8, seed=4)
+    warm_y, warm_X = dmatrices("y ~ fraction:grna + rowID + columnID",
+                               data=warm, return_type="dataframe")
+    ml.regression_model(warm_X, warm_y, regression_type="ols",
                         regression_backend="pyfixest")
-    absorbed = time.perf_counter() - start
+
+    reference = _best_of(2, lambda: sm.OLS(y, X).fit())
+    absorbed = _best_of(2, lambda: ml.regression_model(
+        X, y, regression_type="ols", regression_backend="pyfixest"))
     assert absorbed < reference, (
         f"absorbed {absorbed:.3f}s vs statsmodels {reference:.3f}s at "
         f"n={X.shape[0]}, p={X.shape[1]}")
