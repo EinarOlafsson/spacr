@@ -164,7 +164,11 @@ def test_a_selection_the_restored_level_hides_is_not_an_error(panel):
     # The stored state is edited AFTER leaving A -- leaving is when it is
     # written, so planting one before would simply be overwritten. A gene
     # picked at level=None is not in the guide table.
-    panel._plot_states["/runs/A/results.csv"]["level"] = "grna"
+    # FILED UNDER THE RUN'S FOLDER, not the path it happened to arrive as:
+    # a live run hands over `<results>/ols_3` and the same run picked in the
+    # Runs tab hands over `<results>/ols_3/results.csv`, and while those were
+    # two keys one run had two entries and got neither back.
+    panel._plot_states["/runs/A"]["level"] = "grna"
 
     panel.set_frame(_frame(0), source="/runs/A/results.csv")  # must not raise
 
@@ -198,7 +202,7 @@ def test_the_run_on_screen_joins_the_store_when_it_is_left(panel):
 
     panel.set_frame(_frame(7), source="/runs/B/results.csv")
 
-    assert panel.remembered_runs() == ("/runs/A/results.csv",)
+    assert panel.remembered_runs() == ("/runs/A",)
 
 
 def test_a_deleted_run_takes_its_plot_state_with_it(panel):
@@ -207,7 +211,7 @@ def test_a_deleted_run_takes_its_plot_state_with_it(panel):
     panel.set_frame(_frame(0), source="/runs/A/results.csv")
     panel.set_level("gene")
     panel.set_frame(_frame(7), source="/runs/B/results.csv")
-    assert "/runs/A/results.csv" in panel.remembered_runs()
+    assert "/runs/A" in panel.remembered_runs()
 
     assert panel.forget_plot_state("/runs/A/results.csv") is True
     assert panel.forget_plot_state("/runs/A/results.csv") is False
@@ -238,3 +242,25 @@ def test_the_state_is_data_and_nothing_else(panel):
     for name, value in state.items():
         assert value is None or isinstance(
             value, (str, int, float, tuple)), (name, type(value))
+
+
+def test_a_live_run_and_the_same_run_off_disk_are_one_run(panel):
+    """Instruction 116 through the shape the application actually produces.
+
+    `perform_regression` hands its coefficients over with `res_folder` -- a
+    DIRECTORY -- so a run watched live is filed under `<results>/ols_3`. Pick
+    that same run in the Runs tab afterwards and it is loaded from
+    `<results>/ols_3/results.csv`. Two paths, one run: the view the user built
+    while the run was live must be there when they come back to it, which is
+    the exact reset 116 was asked to stop.
+    """
+    panel.set_frame(_frame(0), source="/runs/A")      # as a live run arrives
+    panel.set_level("gene")
+
+    panel.set_frame(_frame(7), source="/runs/B/results.csv")
+    panel.set_frame(_frame(0), source="/runs/A/results.csv")   # off disk
+
+    assert panel.level() == "gene"
+    # ONE RUN, ONE KEY. Two entries for A -- one per path it arrived as --
+    # is how it got neither back, and it is invisible from the level alone.
+    assert set(panel.remembered_runs()) == {"/runs/A", "/runs/B"}

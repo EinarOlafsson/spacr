@@ -413,6 +413,12 @@ class RegressionResultsPanel(QWidget):
     #: Emitted with the results CSV whenever a new one is loaded.
     loaded = Signal(str)
 
+    #: What the run label says when the table on screen came from no run --
+    #: a bare CSV, or a frame handed straight in. NOT blank: an empty label
+    #: reads as "the run has no name", and the difference between those two
+    #: is the whole of instruction 155 A.
+    NO_RUN_NAMED = "No run"
+
     #: Emitted with a settings dict when the user asks, from the plot, for
     #: the same screen through a different model. The panel does not start
     #: the run itself -- it has no worker, no console and no Stop button --
@@ -454,6 +460,16 @@ class RegressionResultsPanel(QWidget):
         self._source = QLabel("No regression loaded.")
         self._source.setWordWrap(True)
         header.addWidget(self._source, 1)
+        # WHICH RUN IS ON SCREEN, SAID WHERE THE RESULTS ARE. Instruction 157:
+        # the loaded mark lived in the Runs tab and the coefficients lived
+        # here, so the only way to notice the two had diverged was to compare
+        # two views -- and the maintainer did exactly that ("even if the ols
+        # model is marked as loaded i still see the mixed results"). A panel
+        # that names its own run makes the disagreement visible in the view
+        # that is wrong, rather than in the one that is right.
+        self._run_label = QLabel(self.NO_RUN_NAMED)
+        self._run_label.setObjectName("resultsRunName")
+        header.addWidget(self._run_label)
         header.addWidget(QLabel("colour by"))
         self._colour_by = QComboBox()
         self._colour_by.setMinimumWidth(140)
@@ -1262,6 +1278,89 @@ class RegressionResultsPanel(QWidget):
         """
         return self._frame
 
+    def run_folder(self) -> str:
+        """The FOLDER of the run on screen, or ``""`` when there is no run.
+
+        Instruction 155 A, reported 2026-08-18:
+
+            "it is true [that the table was not read from a run folder] ...
+             but that is because it was not externally loaded it was run in
+             the application so the application should know where the run
+             folder is given that it just created it."
+
+        And it did know: ``perform_regression`` hands ``res_folder`` back
+        with the coefficients and writes ``regression_data.csv`` into it. What
+        was missing is that nothing here would ANSWER the question, so every
+        view that needed the folder had to reach for ``_path`` and guess
+        whether it was holding a CSV or a directory -- and a live run puts a
+        directory there while a load off disk puts a file. Both are answered
+        here, once.
+
+        A run RELOADED FROM DISK answers the same way, because the folder is
+        not a fact carried alongside the run: it is the run. That is what the
+        request's "this information should all be saved ... in the run" comes
+        to once the run IS a folder.
+
+        ``""`` for a table with no run behind it -- a bare CSV opened from
+        somewhere else, or a frame handed straight in -- which is a different
+        situation from "no results at all" and keeps its own sentence.
+        """
+        return self._folder_of(self._path)
+
+    @staticmethod
+    def _folder_of(source) -> str:
+        """The run folder behind ``source``, whatever shape it arrived in.
+
+        A run opened off disk gives the CSV; a live run gives the directory
+        ``perform_regression`` wrote. ONE ANSWER FOR BOTH, because they are
+        the same run -- and while they were two answers they were also two
+        keys, so a run looked at live and then returned to from the Runs tab
+        was two runs to everything keyed on this.
+        """
+        path = str(source or "").strip()
+        if not path:
+            return ""
+        path = os.path.abspath(os.path.expanduser(path))
+        if os.path.isdir(path):
+            return path
+        if os.path.isfile(path):
+            return os.path.dirname(path)
+        # A PATH THAT NO LONGER EXISTS IS STILL EVIDENCE. A run folder that
+        # was deleted (146) or moved should name the run it named yesterday
+        # rather than reading as "this table came from nowhere" -- and the
+        # state keyed on it has to be reachable to be forgotten. The two
+        # shapes are told apart by the only thing left to read: a results
+        # table is `results.csv` and a run folder is `ols_3`, so a suffix
+        # means a file and no suffix means the folder.
+        if os.path.splitext(os.path.basename(path))[1]:
+            return os.path.dirname(path)
+        return path
+
+    def run_name(self) -> str:
+        """The run on screen, as the name the Runs tab calls it.
+
+        ``results/<kind>_<n>`` is the folder a run writes, so the basename is
+        ``ols_3`` -- which is what the Runs table shows, what the figure grid
+        heads its section with and what the montage names. One vocabulary
+        (instruction 145): three views calling one run three things is how a
+        user is left comparing them by eye.
+        """
+        folder = self.run_folder()
+        return os.path.basename(folder.rstrip(os.sep)) if folder else ""
+
+    def _name_the_run(self) -> None:
+        """Put the run's name in the header, beside its table.
+
+        LABELLED, not bare. `ols_4` on its own between a status sentence and
+        a "colour by" menu is a word with no job; "Run: ols_4" is the answer
+        to the question the user is actually asking of this header.
+        """
+        name = self.run_name()
+        self._run_label.setText(f"Run: {name}" if name else self.NO_RUN_NAMED)
+        self._run_label.setToolTip(
+            self.run_folder() if name else
+            "The table on screen was not read from a run folder.")
+
     def status_text(self) -> str:
         """Whatever the panel last had to say, success or failure.
 
@@ -1367,6 +1466,10 @@ class RegressionResultsPanel(QWidget):
         self._remember_plot_state()
         self._frame = frame
         self._path = source
+        # NAMED THE MOMENT THE TABLE CHANGES, not at the end: every early
+        # return below this line would otherwise leave the header naming the
+        # previous run over the new one's coefficients.
+        self._name_the_run()
         self._ranking = self._rank_by(frame, source)
 
         # A NEW TABLE IS A NEW FIT, so the old fit's residuals have to go. The
@@ -1638,23 +1741,44 @@ class RegressionResultsPanel(QWidget):
     def forget_plot_state(self, source) -> bool:
         """Drop one run's remembered plot. Instruction 146 deletes a run.
 
+        :param source: the run's folder, or any path inside it -- the CSV a
+            caller happens to be holding answers the same as the folder.
         :returns: whether there was anything to drop.
 
         A deleted run must take its state with it, or a later run written
         into the same folder inherits the deleted one's level and colouring
         and there is nothing on screen saying where they came from.
         """
-        return self._plot_states.pop(str(source or ""), None) is not None
+        return self._plot_states.pop(self._plot_state_key(source),
+                                     None) is not None
+
+    @classmethod
+    def _plot_state_key(cls, source) -> str:
+        """What a run's remembered view is filed under: ITS FOLDER.
+
+        Instruction 116 says a run owns its plot state, and the run is the
+        folder (155 A). Filed under the raw source it was loaded from, one
+        run had TWO entries and got neither back: a live run arrives as
+        ``<results>/ols_3`` from ``perform_regression`` and the same run
+        picked in the Runs tab afterwards arrives as
+        ``<results>/ols_3/results.csv``. The user saw the view they had built
+        on the run reset when they came back to it -- which is the whole of
+        what 116 was asked to stop.
+
+        Falls back to the source itself for a table with no folder behind it,
+        so a frame handed straight in is still distinguishable from another.
+        """
+        return cls._folder_of(source) or str(source or "")
 
     def _remember_plot_state(self) -> None:
         """Save the run on screen, if it has a path to be saved under."""
-        key = str(self._path or "")
+        key = self._plot_state_key(self._path)
         if key and self._frame is not None:
             self._plot_states[key] = self.plot_state()
 
     def _restore_plot_state(self, source: str) -> bool:
         """Put back what this run was left looking like, if anything."""
-        state = self._plot_states.get(str(source or ""))
+        state = self._plot_states.get(self._plot_state_key(source))
         return self.apply_plot_state(state) if state else False
 
     def _mark_the_level_on_the_plots(self) -> None:

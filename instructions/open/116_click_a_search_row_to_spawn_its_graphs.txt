@@ -234,3 +234,32 @@ WHAT REMAINS in this section, and it is the expensive half:
     private coupling here. A public `pinned_limits()` on FastPlot would
     retire it; that file is another territory, so it is named rather than
     changed.
+
+--------------------------------------------------------------------------------
+2026-08-18 (later) -- THE STATE WAS FILED UNDER TWO KEYS FOR ONE RUN
+--------------------------------------------------------------------------------
+
+FOUND WHILE WIRING 157, and it made the retained state above unreachable for
+the commonest case in the application. `_plot_states` was keyed by the raw
+`source` a table arrived under, and ONE RUN ARRIVES AS TWO PATHS:
+
+    live, from `_on_pipeline_result`   <results>/ols_3          (a DIRECTORY)
+    picked later in the Runs tab       <results>/ols_3/results.csv
+
+So a user who set a level, a colouring and an effect cut while watching a run
+finish, went to look at another run and came back, got the defaults --
+exactly the reset this section was asked to stop -- and the store quietly
+held two entries for the one run.
+
+FIXED by keying on the RUN FOLDER (`_plot_state_key` -> `_folder_of`), which
+is the object 155 A says every view should be asking about. A path that no
+longer exists is classified by its suffix: `results.csv` is a file and
+`ols_3` is a folder, so a DELETED run's state is still reachable to be
+forgotten (the 146 hook above).
+
+`run_folder()` / `run_name()` on the panel are the public half of the same
+answer, added for 157 and 155 A.
+
+STILL REMAINING: the two paragraphs above this one -- two runs on screen at
+once, the photograph, and `FastPlot.pinned_limits()`.
+
