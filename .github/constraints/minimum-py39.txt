@@ -48,6 +48,7 @@ tensorboard==2.21.0
 captum==0.7.0
 seaborn==0.13.2
 matplotlib==3.8.3
+cycler==0.10.0
 matplotlib-venn==1.1.0
 adjustText==1.2.0
 bottleneck==1.3.6
@@ -59,7 +60,6 @@ nd2reader==3.3.0
 pylibCZIrw==5.0.0
 openpyxl==3.1.0
 imageio==2.34.0
-pingouin==0.5.5
 umap-learn==0.5.11
 xgboost==2.0.3
 biopython==1.80
@@ -83,6 +83,11 @@ protobuf==6.31.1
 # Extras installed by the minimum CI job.
 PySide6==6.6.0
 qtawesome==1.3.0
+pyqtgraph==0.13.0
+# `dev` only since 2026-08-17: the outside reference the Welch ANOVA
+# cross-check runs against. Pinned at the floor here so the minimum job
+# actually RUNS that check rather than skipping it.
+pingouin==0.5.5
 pytest==8.0.0
 pytest-qt==4.4.0
 pytest-xdist==3.6.1
