@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-106 done / 34 open (75%).
+106 done / 35 open (75%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -125,6 +125,9 @@ OPEN
 
   149  THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
        149_the_volcano_y_axis_is_continuous_again.txt
+
+  150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
+       150_a_saved_figure_is_for_paper_not_for_the_screen.txt
 
 --------------------------------------------------------------------------------
 DONE
