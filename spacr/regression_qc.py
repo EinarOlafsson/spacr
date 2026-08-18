@@ -101,7 +101,7 @@ import os
 import re
 import textwrap
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Tuple)
 
 import numpy as np
 import pandas as pd
@@ -117,6 +117,7 @@ from .figures.style import (ROLES, TRANSPARENT, TYPE_SCALE, WEIGHTS, annotate,
 __all__ = [
     "PANEL_ORDER",
     "PanelUnavailable",
+    "PanelVerdict",
     "QCPanelResult",
     "RegressionQCContext",
     "ResidualStandardisation",
@@ -127,8 +128,11 @@ __all__ = [
     "context_from_model",
     "cooks_distance",
     "dffits",
+    "VERDICT_LEVELS",
+    "VERDICT_WORDS",
     "diagnose_p_value_histogram",
     "draw_panel",
+    "draw_verdict",
     "format_qc_report",
     "leverage_from_design",
     "overdispersion_statistic",
@@ -136,7 +140,9 @@ __all__ = [
     "regression_qc_report",
     "residual_normality",
     "resolve_residual_standardisation",
+    "score_panel",
     "variance_inflation_factors",
+    "worst_verdict",
 ]
 
 #: Sub-directory of the run's results folder that the report is written to.
@@ -197,6 +203,11 @@ class QCPanelResult:
     :param path: Absolute path of the per-panel figure, or ``None``.
     :param reason: Why the panel was skipped, or what limits it.
     :param stats: Numbers the panel computed, for callers and tests.
+    :param verdict: What the panel CONCLUDED -- a :class:`PanelVerdict`, or
+        None for a panel that never drew. Instruction 115: a diagnostic that
+        reports a number and no judgement leaves the judging to a reader who
+        is not going to do it, so the verdict travels with the panel into the
+        report, into the manifest and onto the picture itself.
     """
 
     name: str
@@ -206,6 +217,7 @@ class QCPanelResult:
     path: Optional[str] = None
     reason: Optional[str] = None
     stats: Dict[str, Any] = field(default_factory=dict)
+    verdict: Optional["PanelVerdict"] = None
 
 
 @dataclass
@@ -2251,7 +2263,13 @@ def _panel_dffits(ctx, ax):
         annotate(ax, f"{_wells(ctx.n)}\n"
                      f"max = {np.nanmax(magnitude):.3g}",
                  x=edge, y=0.91, ha=side, colour=ink)
+    # `n_points` so the verdict can score the FRACTION above the line rather
+    # than the maximum. 2*sqrt(p/n) is a screening threshold that a correct
+    # model is EXPECTED to exceed for a few percent of observations, so on 400
+    # wells the largest |DFFITS| is routinely twice it and a rule read off the
+    # maximum flags a clean fit -- measured, and it did.
     return {"threshold": float(threshold), "n_above": int(above.size),
+            "n_points": int(ctx.n),
             "max_abs_dffits": float(np.nanmax(magnitude)),
             "flagged": [str(ctx.labels[i]) for i in above]}
 
@@ -3234,6 +3252,626 @@ _GROUP_TITLES = (
 )
 
 
+# ---------------------------------------------------------------------------
+# THE VERDICT: what the panel CONCLUDED, on the panel (instruction 115).
+#
+# Requested 2026-08-16 -- "i want the module to test everything relevant to
+# regression like coliniarity, homogenicity, residual analasys and so on, all
+# of these graphs should be saved".
+#
+# THE PANELS AND THE NUMBERS WERE ALREADY THERE. Twenty-three panels, each
+# returning its own statistics dict, and a text report listing every one of
+# them. What was missing is the step a reader had to do by hand: deciding, per
+# panel, whether the number is fine. A Q-Q plot with a `quantile_correlation`
+# of 0.982 printed beside it tells a statistician something and tells everyone
+# else nothing, and a suite of twenty of those is twenty judgements a user is
+# quietly expected to make -- which is how a run with a rank-deficient design
+# and a plate effect gets reported as "the QC looked fine".
+#
+# SO EACH PANEL SCORES ITSELF, AND THE VERDICT IS DRAWN ON THE PANEL. Not in a
+# summary table somewhere else: instruction 139 C made saved and visible one
+# event for the same reason, and a verdict a reader has to go and find is a
+# verdict that gets found after the figure has already been believed.
+#
+# THREE RULES THE THRESHOLDS FOLLOW.
+#   * They are the CONVENTIONAL ones, cited where there is a convention (VIF
+#     of 5 and 10, a scaled condition number of 30 and 100, Cook's D of 0.5
+#     and 1, p >= 0.05 for a diagnostic test). A threshold invented here would
+#     be a number a reviewer cannot check.
+#   * A DIAGNOSTIC TEST'S p IS BACKWARDS, and this is the commonest way to
+#     read one wrong: a LARGE p is the good outcome, because the null is "the
+#     assumption holds". Every rule below that reads a p is written in that
+#     direction, and the sentence beside it says so.
+#   * "check" IS NOT "fail". A screen with real hits has a p-value spike at
+#     zero, a real design has some leverage, and a plate effect may be
+#     biology. The middle level says a human should look; only the level above
+#     it says the fit is not entitled to its inference.
+# ---------------------------------------------------------------------------
+
+#: What a diagnostic can conclude, worst last.
+VERDICT_LEVELS = ("unknown", "pass", "check", "fail")
+
+#: Ranked so a suite can be summarised by its worst panel.
+_LEVEL_RANK = {"unknown": 0, "pass": 1, "check": 2, "fail": 3}
+
+#: The word a reader sees, per level. Short enough for a badge on a 5.6-inch
+#: panel and unambiguous out of context -- "OK" beside a Q-Q could be read as
+#: "this panel drew successfully", which is the status and not the verdict.
+VERDICT_WORDS = {"pass": "PASS", "check": "CHECK", "fail": "FAIL",
+                 "unknown": "NOT SCORED"}
+
+
+class PanelVerdict(NamedTuple):
+    """What one diagnostic concluded, and what the number behind it was.
+
+    :param level: one of :data:`VERDICT_LEVELS`.
+    :param headline: the phrase drawn on the panel. A CLAIM, not a label --
+        "variance is stable across the fit", never "homoscedasticity".
+    :param detail: one sentence saying what the score means and which rule
+        produced it, for the text report and for a caption.
+    :param score: the number the verdict was read off, or None where the
+        verdict came from a categorical result.
+    :param statistic: what that number IS, so the report can name it.
+    """
+
+    level: str
+    headline: str
+    detail: str = ""
+    score: Optional[float] = None
+    statistic: str = ""
+
+    @property
+    def word(self) -> str:
+        """The badge text."""
+        return VERDICT_WORDS.get(self.level, self.level.upper())
+
+    def worse_than(self, other) -> bool:
+        """Whether this verdict is the one a summary should report."""
+        return _LEVEL_RANK.get(self.level, 0) > _LEVEL_RANK.get(
+            getattr(other, "level", "unknown"), 0)
+
+
+def _number(stats, key):
+    """``stats[key]`` as a float, or None when it is missing or not finite."""
+    if not isinstance(stats, dict) or key not in stats:
+        return None
+    try:
+        value = float(stats[key])
+    except (TypeError, ValueError):
+        return None
+    return value if np.isfinite(value) else None
+
+
+def _band(value, warn, fail, *, above_is_bad=True):
+    """``'pass'``/``'check'``/``'fail'`` for a value against two thresholds."""
+    if value is None:
+        return "unknown"
+    if above_is_bad:
+        if value >= fail:
+            return "fail"
+        return "check" if value >= warn else "pass"
+    if value <= fail:
+        return "fail"
+    return "check" if value <= warn else "pass"
+
+
+def _diagnostic_p(value):
+    """A diagnostic test's p, read in the direction that is easy to invert.
+
+    LARGE p is the GOOD outcome here: the null of every test these panels run
+    is that the assumption holds, so a small p is evidence AGAINST the model.
+    """
+    return _band(value, 0.05, 1e-4, above_is_bad=False)
+
+
+def _score_residuals_vs_fitted(stats):
+    trend = _number(stats, "max_abs_trend")
+    spread = _number(stats, "resid_sd")
+    if trend is None or not spread:
+        return PanelVerdict("unknown", "no trend could be measured")
+    ratio = trend / spread
+    level = _band(ratio, 0.5, 1.0)
+    good = level == "pass"
+    return PanelVerdict(
+        level,
+        "the residuals are flat across the fit" if good
+        else "the residuals bend with the fitted value",
+        ("The smoother's largest excursion is "
+         f"{ratio:.2f} residual SDs from zero. Under a correctly specified "
+         "mean it should wander near zero; a systematic bend is missing "
+         "curvature or a missing term, not noise."),
+        ratio, "largest |trend| / residual SD")
+
+
+def _score_residual_distribution(stats):
+    p = _number(stats, "normality_p")
+    test = str(stats.get("normality_test", "the normality test"))
+    kurtosis = _number(stats, "excess_kurtosis")
+    level = _diagnostic_p(p)
+    if level == "unknown":
+        return PanelVerdict("unknown", "normality was not tested")
+    tail = ("" if kurtosis is None else
+            f" Excess kurtosis is {kurtosis:+.2f}.")
+    return PanelVerdict(
+        level,
+        "the residuals look normal" if level == "pass"
+        else "the residuals are not normal",
+        (f"{test} p = {p:.3g}. The null is that the residuals ARE normal, so "
+         "a LARGE p is the good outcome; a small one puts the t and F "
+         "intervals in doubt, though with this many observations the "
+         "coefficients themselves are still asymptotically fine." + tail),
+        p, f"{test} p")
+
+
+def _score_scale_location(stats):
+    levene = _number(stats, "levene_p")
+    rho = _number(stats, "spearman_rho")
+    level = _diagnostic_p(levene)
+    if level == "unknown":
+        return PanelVerdict("unknown", "variance homogeneity was not tested")
+    return PanelVerdict(
+        level,
+        "the variance is stable across the fit" if level == "pass"
+        else str(stats.get("verdict") or "the variance moves with the fit"),
+        (f"Brown-Forsythe across quartiles of the fit: p = {levene:.3g}"
+         + ("" if rho is None else f", Spearman rho = {rho:+.2f}")
+         + ". The null is EQUAL variance, so a large p is the good outcome. "
+           "Heteroscedasticity does not bias the coefficients; it biases "
+           "their standard errors, which is what every p-value in the run "
+           "rests on."),
+        levene, "Brown-Forsythe p")
+
+
+def _score_qq(stats):
+    correlation = _number(stats, "quantile_correlation")
+    slope = _number(stats, "slope")
+    level = _band(correlation, 0.99, 0.97, above_is_bad=False)
+    if level == "unknown":
+        return PanelVerdict("unknown", "the Q-Q could not be scored")
+    return PanelVerdict(
+        level,
+        "the residuals track the normal line" if level == "pass"
+        else "the residual tails leave the normal line",
+        (f"Correlation between the ordered residuals and their normal "
+         f"quantiles is {correlation:.4f}"
+         + ("" if slope is None else f", on a line of slope {slope:.3g}")
+         + ". This is the number a reader is otherwise asked to eyeball off "
+           "the picture."),
+        correlation, "quantile correlation")
+
+
+def _score_observed_vs_predicted(stats):
+    r2 = _number(stats, "r2")
+    if r2 is None:
+        return PanelVerdict("unknown", "no R² was computed")
+    # NOT A PASS/FAIL OF THE MODEL. A screen's guide-level fit explains a
+    # small fraction of well-to-well variation and is still the correct
+    # model; a near-zero R² is worth SEEING rather than worth failing.
+    level = "pass" if r2 >= 0.1 else "check"
+    return PanelVerdict(
+        level,
+        f"the fit accounts for {r2 * 100:.0f}% of the variance",
+        ("R² is reported rather than scored: a pooled screen's fit routinely "
+         "explains a small share of well-to-well variation and is still the "
+         "right model. Below 10% is flagged so it is noticed, not because it "
+         "is wrong."),
+        r2, "R²")
+
+
+def _score_cooks(stats):
+    largest = _number(stats, "max_cooks")
+    above = _number(stats, "n_above")
+    if largest is None:
+        return PanelVerdict("unknown", "no Cook's distance was computed")
+    level = _band(largest, 0.5, 1.0)
+    label = stats.get("max_label")
+    return PanelVerdict(
+        level,
+        "no observation dominates the fit" if level == "pass"
+        else f"one observation moves the fit ({label})" if label
+        else "an observation moves the fit",
+        (f"Largest Cook's distance {largest:.3g}"
+         + ("" if above is None else f", with {int(above)} above the 4/n "
+                                     "screening line")
+         + ". Cook's D of 0.5 is the conventional 'look at it' and 1.0 the "
+           "conventional 'this point is the result'."),
+        largest, "max Cook's D")
+
+
+def _score_influence(stats):
+    high = _number(stats, "n_high_leverage")
+    largest = _number(stats, "max_leverage")
+    if largest is None:
+        return PanelVerdict("unknown", "no leverage was computed")
+    level = _band(largest, 0.2, 0.5)
+    return PanelVerdict(
+        level,
+        "no well carries the design on its own" if level == "pass"
+        else "a few wells carry an outsized share of the design",
+        (f"Largest hat value {largest:.3g}"
+         + ("" if high is None else f"; {int(high)} above the 2p/n line")
+         + ". A hat value of 0.5 means that one observation determines half "
+           "of its own fitted value, so its coefficient is about it rather "
+           "than about the screen."),
+        largest, "max leverage")
+
+
+def _score_dffits(stats):
+    """THE FRACTION ABOVE THE LINE, NOT THE MAXIMUM.
+
+    2*sqrt(p/n) is a SCREENING threshold, and a correctly specified model is
+    expected to exceed it for a few percent of its observations. Scoring the
+    maximum therefore flags a clean fit: measured on a 400-well Gaussian fit
+    with no defect at all, the largest |DFFITS| was over twice the threshold.
+    A warning that fires on a clean fit is a warning nobody reads.
+    """
+    above = _number(stats, "n_above")
+    total = _number(stats, "n_points")
+    largest = _number(stats, "max_abs_dffits")
+    threshold = _number(stats, "threshold")
+    if above is None or not total:
+        return PanelVerdict("unknown", "no DFFITS were computed")
+    fraction = above / total
+    level = _band(fraction, 0.10, 0.20)
+    return PanelVerdict(
+        level,
+        "no more wells are influential than chance expects" if level == "pass"
+        else f"{int(above)} of {int(total)} wells move their own fit",
+        (f"{int(above)} of {int(total)} wells ({fraction * 100:.1f}%) exceed "
+         f"the 2*sqrt(p/n) screening threshold of {threshold:.3g}"
+         + ("" if largest is None else f"; the largest is {largest:.3g}")
+         + ". A few percent above the line is what a correct model looks "
+           "like; a tenth of the screen above it is a design where many wells "
+           "are each deciding their own fitted value."),
+        fraction, "fraction above 2*sqrt(p/n)")
+
+
+def _score_vif(stats):
+    aliased = _number(stats, "n_aliased")
+    if aliased:
+        return PanelVerdict(
+            "fail", f"{int(aliased)} predictor(s) are exact linear combinations",
+            ("An aliased predictor has no VIF because it has no independent "
+             "variation at all: its coefficient is one of infinitely many "
+             "solutions and the fit reports it without saying so."),
+            None, "aliased predictors")
+    largest = _number(stats, "max_vif")
+    above10 = _number(stats, "n_above_10")
+    if largest is None:
+        return PanelVerdict("unknown", "no VIF could be computed")
+    level = _band(largest, 5.0, 10.0)
+    return PanelVerdict(
+        level,
+        "the predictors are separable" if level == "pass"
+        else "predictors share variance with each other",
+        (f"Largest VIF {largest:.3g}"
+         + ("" if above10 is None else f"; {int(above10)} above 10")
+         + ". VIF 10 means the standard error of that coefficient is "
+           "sqrt(10) = 3.2x what an orthogonal design would give, so the "
+           "effect is not distinguished from its collinear partners."),
+        largest, "max VIF")
+
+
+def _score_condition_number(stats):
+    scaled = _number(stats, "condition_number")
+    if scaled is None:
+        return PanelVerdict("unknown", "the design was not conditioned")
+    level = _band(scaled, 30.0, 100.0)
+    return PanelVerdict(
+        level,
+        "the design is well conditioned" if level == "pass"
+        else str(stats.get("verdict") or "the design is ill conditioned"),
+        (f"Scaled condition number {scaled:.4g}. Belsley's conventional bands "
+         "are 30 for moderate and 100 for severe collinearity; SCALED, "
+         "because the unscaled number mostly measures the units the "
+         "predictors happen to be in."),
+        scaled, "scaled condition number")
+
+
+def _score_predictor_correlation(stats):
+    largest = _number(stats, "max_abs_offdiagonal")
+    if largest is None:
+        return PanelVerdict("unknown", "no predictor correlation was computed")
+    level = _band(largest, 0.7, 0.9)
+    pair = stats.get("max_pair")
+    return PanelVerdict(
+        level,
+        "no two predictors are near-duplicates" if level == "pass"
+        else (f"two predictors move together ({', '.join(map(str, pair))})"
+              if isinstance(pair, (list, tuple)) and len(pair) == 2
+              else "two predictors move together"),
+        (f"Largest absolute off-diagonal correlation {largest:.3f}. This is "
+         "the pairwise view; VIF above is the multi-way one, and a design can "
+         "pass this and fail that."),
+        largest, "max |r| between predictors")
+
+
+def _score_response_distribution(stats):
+    spread = _number(stats, "sd")
+    if spread is None:
+        return PanelVerdict("unknown", "the response was not summarised")
+    if spread <= 0:
+        return PanelVerdict(
+            "fail", "the response is constant",
+            "A response with no variance cannot be regressed on anything.",
+            spread, "response SD")
+    return PanelVerdict(
+        "pass", "the response varies", "Shown for shape rather than scored: "
+        "what a response SHOULD look like is a property of the family, and "
+        "the family-specific panels below test that.", spread, "response SD")
+
+
+def _score_coefficient_forest(stats):
+    if not stats.get("has_intervals", True):
+        return PanelVerdict(
+            "check", "the effects are shown without their uncertainty",
+            ("This backend reports no standard errors, so the panel is a "
+             "ranking rather than a set of intervals. A ranking read as "
+             "intervals is read with more confidence than the fit supports."),
+            None, "confidence intervals")
+    shown = _number(stats, "n_shown")
+    total = _number(stats, "n_total")
+    return PanelVerdict(
+        "pass", "the effects are shown with their intervals",
+        (f"{int(shown or 0)} of {int(total or 0)} coefficients drawn, largest "
+         "first. Not scored: the SIZE of an effect is the result, not a "
+         "diagnostic of it."),
+        None, "")
+
+
+#: What each p-value-histogram shape means for a screen, and whether it is a
+#: problem. A SPIKE AT ZERO IS THE GOOD OUTCOME and is the one most easily
+#: mistaken for a fault: it is what real hits look like.
+_HISTOGRAM_LEVELS = {
+    "uniform": ("pass", "the p-values are uniform, as a null screen should be"),
+    "uniform-with-spike": ("pass", "uniform with a spike at zero — real hits"),
+    "excess-large": ("check", "too many large p-values — the test may be "
+                              "conservative"),
+    "anti-uniform": ("fail", "the p-values pile up near one"),
+    "u-shaped": ("fail", "p-values pile up at BOTH ends"),
+    "too-few": ("unknown", "too few p-values to judge the shape"),
+}
+
+
+def _score_p_value_histogram(stats):
+    shape = str(stats.get("verdict") or "")
+    level, headline = _HISTOGRAM_LEVELS.get(shape, ("unknown",
+                                                    "the shape was not judged"))
+    first = _number(stats, "first_bin_ratio")
+    return PanelVerdict(
+        level, headline,
+        (str(stats.get("message") or "")
+         + ("" if first is None else
+            f" The first bin holds {first:.2f}x the uniform expectation.")
+         + " A correction applied to a distribution that is not uniform under "
+           "the null does not control what it claims to control.").strip(),
+        first, "first-bin excess")
+
+
+def _score_calibration(stats):
+    ece = _number(stats, "ece")
+    if ece is None:
+        return PanelVerdict("unknown", "calibration was not computed")
+    level = _band(ece, 0.05, 0.10)
+    brier = _number(stats, "brier")
+    return PanelVerdict(
+        level,
+        "the predicted probabilities are calibrated" if level == "pass"
+        else "the predicted probabilities are off",
+        (f"Expected calibration error {ece:.3f}"
+         + ("" if brier is None else f", Brier score {brier:.3f}")
+         + ". ECE is the average gap between the predicted probability and "
+           "the observed rate, so 0.05 is five percentage points out."),
+        ece, "expected calibration error")
+
+
+def _score_roc(stats):
+    auc = _number(stats, "auc")
+    if auc is None:
+        return PanelVerdict("unknown", "no AUC was computed")
+    level = _band(auc, 0.7, 0.6, above_is_bad=False)
+    return PanelVerdict(
+        level,
+        "the fit separates the two classes" if level == "pass"
+        else "the fit barely separates the two classes",
+        (f"AUC {auc:.3f}. 0.5 is a coin toss and is the number a fit with no "
+         "signal returns; this is measured on the DATA THE MODEL WAS FITTED "
+         "TO, so it is an upper bound rather than an estimate of new-data "
+         "performance."),
+        auc, "AUC")
+
+
+def _score_precision_recall(stats):
+    average = _number(stats, "average_precision")
+    prevalence = _number(stats, "prevalence")
+    if average is None or prevalence is None:
+        return PanelVerdict("unknown", "no average precision was computed")
+    lift = average / prevalence if prevalence else None
+    level = _band(lift, 1.5, 1.1)
+    return PanelVerdict(
+        level,
+        "precision beats the base rate" if level == "pass"
+        else "precision is close to the base rate",
+        (f"Average precision {average:.3f} against a prevalence of "
+         f"{prevalence:.3f}"
+         + ("" if lift is None else f", a lift of {lift:.2f}x")
+         + ". Average precision is compared with the prevalence rather than "
+           "with 0.5: on an imbalanced response the baseline IS the "
+           "prevalence."),
+        lift, "average precision / prevalence")
+
+
+def _score_count_fit(stats):
+    dispersion = _number(stats, "dispersion")
+    if dispersion is None:
+        return PanelVerdict("unknown", "dispersion was not computed")
+    distance = abs(dispersion - 1.0)
+    level = _band(distance, 0.5, 2.0)
+    return PanelVerdict(
+        level,
+        "the counts fit the assumed mean-variance relation" if level == "pass"
+        else str(stats.get("verdict") or "the counts are over-dispersed"),
+        (f"Pearson dispersion {dispersion:.3g}; 1.0 is the assumed "
+         "relationship. Over-dispersion narrows every interval by roughly "
+         f"sqrt({dispersion:.3g}), so the p-values are too small by a factor "
+         "nothing in the output otherwise reveals."),
+        dispersion, "Pearson dispersion")
+
+
+def _score_positional(stats, what):
+    p = _number(stats, "kruskal_p")
+    level = _diagnostic_p(p)
+    if level == "unknown":
+        return PanelVerdict("unknown", f"{what} effects were not tested")
+    worst = stats.get("worst_group")
+    edge = _number(stats, "edge_minus_interior_median")
+    detail = (f"Kruskal-Wallis across {what}s: p = {p:.3g}. The null is that "
+              f"every {what} has the same residual distribution, so a LARGE p "
+              f"is the good outcome. A {what} effect in the RESIDUALS is "
+              "variation the model did not account for, which is what a batch "
+              "effect is.")
+    if edge is not None and np.isfinite(edge):
+        detail += f" Edge minus interior median: {edge:+.3g}."
+    return PanelVerdict(
+        level,
+        f"no {what} fits differently" if level == "pass"
+        else (f"{what} {worst} fits differently" if worst
+              else f"{what}s fit differently"),
+        detail, p, "Kruskal-Wallis p")
+
+
+def _score_cell_count(stats):
+    p = _number(stats, "spearman_p")
+    rho = _number(stats, "spearman_rho")
+    level = _diagnostic_p(p)
+    if level == "unknown":
+        return PanelVerdict("unknown", "cell count against residual was not "
+                                       "tested")
+    return PanelVerdict(
+        level,
+        "residual size does not track cell count" if level == "pass"
+        else "the extreme residuals are the small wells",
+        (f"Spearman rho = {rho:+.3f}, p = {p:.3g} between cell count and "
+         "|standardised residual|. The null is NO relationship, so a large p "
+         "is the good outcome. A negative rho means the low-count wells carry "
+         "the tails, and weighting or a minimum cell count is the fix rather "
+         "than dropping the outliers."),
+        p, "Spearman p")
+
+
+def _score_volcano_reference(stats):
+    state = str(stats.get("state") or "")
+    if state == "found":
+        return PanelVerdict("unknown", "the run's volcano, for reference",
+                            "Named rather than scored: the volcano is the "
+                            "result, and this suite is about whether the fit "
+                            "was entitled to it.")
+    return PanelVerdict("unknown", "no volcano was written for this run",
+                        "The reference is a pointer, not a diagnostic.")
+
+
+#: Panel name -> the function that reads its statistics. One entry per panel
+#: in :data:`PANEL_ORDER`; a test asserts that, because a panel added without
+#: a scorer would silently go back to being a picture with a number on it.
+_SCORERS: Dict[str, Callable[[Dict[str, Any]], "PanelVerdict"]] = {
+    "residuals_vs_fitted": _score_residuals_vs_fitted,
+    "residual_distribution": _score_residual_distribution,
+    "scale_location": _score_scale_location,
+    "qq_residuals": _score_qq,
+    "observed_vs_predicted": _score_observed_vs_predicted,
+    "cooks_distance": _score_cooks,
+    "influence": _score_influence,
+    "dffits": _score_dffits,
+    "vif": _score_vif,
+    "condition_number": _score_condition_number,
+    "predictor_correlation": _score_predictor_correlation,
+    "response_distribution": _score_response_distribution,
+    "coefficient_forest": _score_coefficient_forest,
+    "p_value_histogram": _score_p_value_histogram,
+    "calibration": _score_calibration,
+    "roc": _score_roc,
+    "precision_recall": _score_precision_recall,
+    "count_fit": _score_count_fit,
+    "plate_effects": lambda stats: _score_positional(stats, "plate"),
+    "row_effects": lambda stats: _score_positional(stats, "row"),
+    "column_effects": lambda stats: _score_positional(stats, "column"),
+    "cell_count_vs_effect": _score_cell_count,
+    "volcano_reference": _score_volcano_reference,
+}
+
+#: Badge ink per level, from the house palette so a report reads as one
+#: document. `check` and `fail` are the two colours the style already spends
+#: on "this is the thing the sentence is about".
+_VERDICT_INK = {
+    "pass": ROLES["control_negative"],
+    "check": ROLES["highlight"],
+    "fail": ROLES["down"],
+    "unknown": ROLES["data"],
+}
+
+
+def score_panel(name, stats) -> PanelVerdict:
+    """The verdict for one panel's statistics. Never raises.
+
+    :param name: a name from :data:`PANEL_ORDER`.
+    :param stats: the dict :func:`draw_panel` returned.
+    :returns: a :class:`PanelVerdict`. An unknown panel, absent statistics or
+        a scorer that trips over an unexpected value all come back as
+        ``'unknown'`` rather than raising -- a diagnostic that crashes while
+        judging a diagnostic would take down a fit that already succeeded, for
+        the sake of a sentence.
+    """
+    scorer = _SCORERS.get(str(name))
+    if scorer is None:
+        return PanelVerdict("unknown", "this panel is not scored")
+    try:
+        verdict = scorer(stats if isinstance(stats, dict) else {})
+    except Exception as exc:                    # noqa: BLE001 - see docstring
+        return PanelVerdict("unknown", "the verdict could not be computed",
+                            f"{type(exc).__name__}: {exc}")
+    if verdict.level not in VERDICT_LEVELS:
+        return PanelVerdict("unknown", verdict.headline, verdict.detail)
+    return verdict
+
+
+def draw_verdict(ax, verdict) -> None:
+    """Stamp a verdict onto the panel it belongs to.
+
+    BOTTOM LEFT, in a box, because every panel in this module already spends
+    its top corners on the statistics block and its own annotations -- and a
+    verdict written over a data point is a verdict that gets moved instead of
+    read. The box is what separates it from the panel's own annotation: this
+    is the suite talking about the panel rather than the panel talking about
+    the data.
+    """
+    if verdict is None or verdict.level == "unknown":
+        return
+    ink = _VERDICT_INK.get(verdict.level, ROLES["data"])
+    ax.text(0.02, 0.02, f"{verdict.word}  {verdict.headline}",
+            transform=ax.transAxes, ha="left", va="bottom",
+            fontsize=TYPE_SCALE["annotation"], color=ink, zorder=6,
+            bbox=dict(boxstyle="round,pad=0.28", facecolor="white",
+                      edgecolor=ink, linewidth=WEIGHTS["spine"], alpha=0.9))
+
+
+def worst_verdict(verdicts):
+    """The verdict a suite should be summarised by, or None when there is none.
+
+    THE WORST ONE, not the commonest and not an average. Nineteen panels
+    passing and one saying the design is rank deficient is a run whose
+    coefficients are one of infinitely many solutions, and a summary that
+    reports "95% passed" is a summary that hides exactly the panel the suite
+    was run for.
+    """
+    chosen = None
+    for verdict in verdicts:
+        if verdict is None:
+            continue
+        if chosen is None or verdict.worse_than(chosen):
+            chosen = verdict
+    return chosen
+
+
 def panel_names(group=None):
     """Return the panel names, optionally restricted to one report section.
 
@@ -3355,6 +3993,21 @@ def format_qc_report(manifest):
         for panel in panels:
             head = f"  [{panel.status.upper():<7}] {panel.title}"
             lines.append(head)
+            # THE VERDICT FIRST, because it is the line a reader acts on and
+            # the statistics under it are the evidence for it. A report that
+            # lists eight numbers and then concludes is a report whose
+            # conclusion is read last or not at all.
+            if panel.verdict is not None and panel.verdict.level != "unknown":
+                lines.append(f"      verdict: {panel.verdict.word} — "
+                             f"{panel.verdict.headline}")
+                if panel.verdict.statistic and panel.verdict.score is not None:
+                    lines.append(f"      {panel.verdict.statistic}: "
+                                 f"{panel.verdict.score:.6g}")
+                if panel.verdict.detail:
+                    lines.append(textwrap.fill(
+                        panel.verdict.detail, 72,
+                        initial_indent="      means: ",
+                        subsequent_indent="             "))
             if panel.reason:
                 lines.append(textwrap.fill(panel.reason, 72,
                                            initial_indent="      reason: ",
@@ -3384,6 +4037,20 @@ def format_qc_report(manifest):
     lines.append("=" * 60)
     lines.append(f"{written} panel(s) drawn, {len(skipped)} skipped, "
                  f"{len(failed)} failed")
+    # THE WORST VERDICT, NAMED, AND EVERY PANEL THAT REACHED IT. A count of
+    # passes is the summary that hides the one panel the suite was run for.
+    counts = manifest.get("verdict_counts") or {}
+    if counts:
+        lines.append("verdicts: " + ", ".join(
+            f"{count} {VERDICT_WORDS.get(level, level)}"
+            for level, count in sorted(
+                counts.items(), key=lambda item: -_LEVEL_RANK.get(item[0], 0))
+            if count))
+    for level in ("fail", "check"):
+        for panel in manifest["panels"]:
+            if panel.verdict is not None and panel.verdict.level == level:
+                lines.append(f"  {panel.verdict.word:<5}: {panel.name} — "
+                             f"{panel.verdict.headline}")
     for panel in skipped:
         lines.append(f"  skipped: {panel.name} — {panel.reason}")
     for panel in failed:
@@ -3495,6 +4162,13 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
                                          status="failed", reason=message))
             continue
         limitation = stats.get("limitation") if isinstance(stats, dict) else None
+        # SCORED AFTER IT DREW, STAMPED BEFORE IT IS WRITTEN. The verdict is
+        # read off the statistics the panel just returned, so it cannot
+        # disagree with the numbers printed beside it, and the axes is still
+        # open -- which is what lets the judgement go ON the panel rather than
+        # into a table the reader has to go and find.
+        verdict = score_panel(name, stats)
+        draw_verdict(ax, verdict)
         # No extension unless the caller forced one: `save_figure` appends the
         # one that matches the format it actually writes.
         path = os.path.join(out_dir, name if not fmt else f"{name}.{fmt}")
@@ -3511,7 +4185,8 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         results.append(QCPanelResult(
             name=name, title=title, group=group,
             status="partial" if limitation else "written",
-            path=path, reason=limitation, stats=dict(stats)))
+            path=path, reason=limitation, stats=dict(stats),
+            verdict=verdict))
 
     combined_path = None
     if combined:
@@ -3542,6 +4217,18 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
                                   if ctx.standardisation is not None else None),
         "notes": list(ctx.notes),
     }
+    verdicts = [r.verdict for r in results if r.verdict is not None]
+    manifest["verdicts"] = {r.name: r.verdict for r in results
+                            if r.verdict is not None}
+    manifest["verdict_counts"] = {
+        level: sum(1 for v in verdicts if v.level == level)
+        for level in VERDICT_LEVELS}
+    # THE SUITE'S OWN VERDICT IS ITS WORST PANEL. Nineteen passes and one
+    # rank-deficient design is a run whose coefficients are one of infinitely
+    # many solutions; "95% passed" is the sentence that loses that.
+    worst = worst_verdict(verdicts)
+    manifest["verdict"] = worst
+    manifest["verdict_level"] = worst.level if worst else "unknown"
     report_path = os.path.join(out_dir, "regression_qc_report.txt")
     with open(report_path, "w", encoding="utf-8") as handle:
         handle.write(format_qc_report(manifest))
@@ -3550,6 +4237,11 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         drawn = sum(1 for r in results if r.status in ("written", "partial"))
         print(f"[regression_qc] {drawn}/{len(results)} panel(s) written to "
               f"{out_dir}")
+        for level in ("fail", "check"):
+            for panel in results:
+                if panel.verdict is not None and panel.verdict.level == level:
+                    print(f"[regression_qc]   {panel.verdict.word} "
+                          f"{panel.name}: {panel.verdict.headline}")
         for panel in results:
             if panel.status == "skipped":
                 print(f"[regression_qc]   skipped {panel.name}: {panel.reason}")
@@ -3579,6 +4271,11 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None):
             continue
         try:
             fn(ctx, ax)
+            # THE VERDICT THE PANEL ALREADY REACHED, not a second opinion.
+            # Re-scoring the redraw would let the combined page and the
+            # individual file disagree about the same panel, which is exactly
+            # the failure this suite exists to catch elsewhere.
+            draw_verdict(ax, result.verdict)
         except Exception as exc:                # noqa: BLE001
             # The panel drew a moment ago on its own figure, so this can only
             # be an axes-specific problem; state it rather than leaving a
