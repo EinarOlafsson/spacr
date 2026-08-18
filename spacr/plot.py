@@ -174,6 +174,30 @@ def _with_extension(path, fmt):
     return f"{text}.{fmt}"
 
 
+def figure_path(path, fmt=None):
+    """``path`` with the extension the figure-format preference will write.
+
+    THE ONE PLACE A NON-MATPLOTLIB RENDERER CAN ASK. ``save_figure`` rewrites
+    the extension itself, which is why every matplotlib save has honoured the
+    preference for months -- but pyqtgraph decides what it writes FROM THE
+    NAME (``FastPlot.export`` branches on ``.pdf`` / ``.svg`` / else), so a
+    renderer that is handed ``volcano.pdf`` writes a PDF whatever the user
+    chose. The name has to be settled before the export sees it, and settling
+    it twice in two modules is how the two drift apart.
+
+    :param path: a destination, with or without an extension.
+    :param fmt: force a format, bypassing the preference. Unknown formats fall
+        back to the preference rather than raising: a run must not lose a
+        figure over a typo.
+    :returns: the path as a ``str``.
+    """
+    preferred, _ = figure_output_preferences()
+    chosen = str(fmt or preferred).strip().lower().lstrip(".")
+    if chosen not in FIGURE_FORMATS:
+        chosen = preferred
+    return _with_extension(path, chosen)
+
+
 # ---------------------------------------------------------------------------
 # A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN (instruction 150).
 #
