@@ -211,6 +211,12 @@ class SweepRunsPanel(QWidget):
     #: itself -- it says what happened and the screen does the wiring, which
     #: is what keeps this widget usable outside that screen.
     runs_removed = Signal(list)
+    #: Emitted with ONE run's row when the user asks to see it BESIDE the
+    #: loaded one (instruction 116). Opening a second run is a deliberate
+    #: act: two runs is what a comparison needs and twelve is what makes the
+    #: screen unusable, so it has its own gesture rather than happening on a
+    #: click. The screen decides whether the bound allows it.
+    compare_requested = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1147,6 +1153,14 @@ class SweepRunsPanel(QWidget):
         remove.setData("remove")
         remove.setToolTip("The folders on disk are untouched. Reload brings "
                           "them back.")
+        if count == 1 and _is_ok(records[0]):
+            beside = menu.addAction("Open beside the loaded run")
+            beside.setData("beside")
+            beside.setToolTip(
+                "Show this run's own volcano next to the loaded run's, each "
+                "answering its own hover and click. Two runs can be live at "
+                "once.")
+            menu.addSeparator()
         delete = menu.addAction(f"Delete {count} run{plural} from disk…")
         delete.setData("delete")
         delete.setToolTip("Deletes the run folder and everything in it. This "
@@ -1178,11 +1192,25 @@ class SweepRunsPanel(QWidget):
             return
         menu = self._build_run_menu(records)
         chosen = menu.exec(self.table.table.viewport().mapToGlobal(position))
-        verb = chosen.data() if chosen is not None else ""
+        self._apply_run_menu(chosen.data() if chosen is not None else "",
+                             records)
+
+    def _apply_run_menu(self, verb, records) -> bool:
+        """Do what one menu entry says. The seam a test can drive.
+
+        Apart from :meth:`_run_menu` because that method ends in
+        `QMenu.exec`, a C++ event loop -- so a test that wants to know what
+        an entry DOES either enters it and hangs, or re-implements the
+        dispatch and tests its own copy.
+        """
         if verb == "remove":
-            self.remove_runs(records)
-        elif verb == "delete":
-            self.delete_runs_from_disk(records)
+            return bool(self.remove_runs(records))
+        if verb == "beside" and records:
+            self.compare_requested.emit(dict(records[0]))
+            return True
+        if verb == "delete":
+            return bool(self.delete_runs_from_disk(records))
+        return False
 
     def eventFilter(self, watched, event):                    # noqa: N802
         """Delete on the selection removes it FROM THE LIST.
