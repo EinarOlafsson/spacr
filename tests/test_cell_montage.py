@@ -910,3 +910,227 @@ def test_a_well_selection_describes_itself_in_the_caption_s_own_terms():
                             n_selected=1, note="only 1 of 4 objects fall "
                                                "inside the score window")
     assert starved.describe().endswith("inside the score window")
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 B -- the montage shows its arithmetic
+# --------------------------------------------------------------------------- #
+
+def test_the_caption_states_the_whole_sum_a_reader_can_check():
+    """Every number in the rule, with the per-well counts that add to it.
+
+    The montage asks to be trusted on ``round(n x fraction)`` and on a score
+    window nobody can see, so it states both in full: where the baseline came
+    from and over how many objects, ``baseline + effect`` worked through with
+    the actual numbers, ``1.4826 x MAD``, the bounds, and the per-well line
+    for EVERY well ending in a total whose terms are printed beside it.
+    """
+    plan = select_montage(_objects(), _counts(), "GRA14", 0.2)
+    arithmetic = plan.arithmetic()
+    window = plan.window
+
+    assert "median per-object pred over EVERY object supplied" in arithmetic
+    assert f"({window.n_scored:,} objects" in arithmetic
+    assert (f"target   = baseline + effect = {window.baseline:.6g} + 0.2 = "
+            f"{window.target:.6g}") in arithmetic
+    assert f"1.4826 x MAD of those same scores = {window.scale:.6g}" in arithmetic
+    assert (f"window   = target +/- 1 x scale = [{window.low:.6g}, "
+            f"{window.high:.6g}]") in arithmetic
+
+    # The per-well line for each well, in the caption's own spelling, and a
+    # total whose terms are printed so the sum can be added up by hand.
+    assert "round(8 x 0.5) = 4 -> 4 shown" in arithmetic
+    assert "round(8 x 0.125) = 1 -> 1 shown" in arithmetic
+    assert "total: 4 + 1 + 4 = 9 objects shown" in arithmetic
+    assert sum(w.n_selected for w in plan.wells) == plan.n_objects == 9
+    # And it is IN the caption, not merely available beside it.
+    assert arithmetic in plan.caption()
+
+
+def test_a_degenerate_window_says_so_in_the_arithmetic_rather_than_a_zero():
+    """Every score identical: the sum must not print a window of width zero."""
+    objects = _objects()
+    objects["pred"] = 0.5
+    plan = select_montage(objects, _counts(), "GRA14", 0.2, half_widths=1.0)
+    arithmetic = plan.arithmetic()
+    assert "every object scores the same" in arithmetic
+    assert "degenerate" in arithmetic
+    assert "window   = target +/- 1 x scale" not in arithmetic
+
+
+def test_the_arithmetic_elides_a_long_well_list_and_says_how_many():
+    """A gene spanning dozens of wells must not print a 200-line caption --
+    and must not trail off either, so the elision carries its own count."""
+    wells = tuple(f"r1_c{i}" for i in range(1, 61))
+    fractions = {well: {"GRA14_1": 0.5, "OTHER_1": 0.5} for well in wells}
+    plan = select_montage(_objects(wells=wells),
+                          _counts(fractions=fractions), "GRA14", 0.2,
+                          cap=MAX_OBJECTS)
+    arithmetic = plan.arithmetic()
+    assert arithmetic.count(" -> ") == MontagePlan.WELL_LINES
+    assert f"... and {60 - MontagePlan.WELL_LINES} more wells" in arithmetic
+    assert "objects shown across 60 wells" in arithmetic
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 C -- the settings, written onto the montage
+# --------------------------------------------------------------------------- #
+
+def test_every_setting_is_on_the_montage_and_a_changed_one_announces_itself():
+    """Each of these changes WHICH CELLS a reader is looking at."""
+    default = select_montage(_objects(), _counts(), "GRA14", 0.2)
+    line = default.settings_line()
+    assert "settings (per screen, not per gene)" in line
+    assert "window half-width 1 robust scale(s)" in line
+    assert "baseline the screen median" in line
+    assert "score column 'pred'" in line
+    assert f"cap {MAX_OBJECTS:,} objects" in line
+    assert "NON-DEFAULT" not in line
+
+    changed = select_montage(_objects(), _counts(), "GRA14", 0.2,
+                             half_widths=2.5, cap=5)
+    line = changed.settings_line()
+    assert "NON-DEFAULT SETTINGS ON THIS MONTAGE" in line
+    assert "window half-width 2.5 instead of the default 1" in line
+    assert "cap 5 objects instead of the default 300" in line
+    assert "not comparable to one made with the defaults" in line
+    assert changed.settings_line() in changed.caption()
+
+
+def test_the_fitted_intercept_is_named_as_the_baseline_and_moves_the_window():
+    """The other baseline the request asks for, and it is not called 'given'.
+
+    A montage centred on the intercept while the caption says ``given`` names
+    no source at all, and the two baselines select different cells -- so the
+    name has to be the one the user chose.
+    """
+    objects = _objects()
+    median = select_montage(objects, _counts(), "GRA14", 0.2)
+    intercept = select_montage(objects, _counts(), "GRA14", 0.2,
+                               baseline=0.9,
+                               baseline_label="the model's fitted intercept")
+    assert median.window.baseline_source == "screen_median"
+    assert intercept.window.baseline_source == "the model's fitted intercept"
+    assert intercept.window.target == pytest.approx(0.9 + 0.2)
+    assert "baseline the model's fitted intercept" in intercept.settings_line()
+    assert "NON-DEFAULT" in intercept.settings_line()
+    # And it really is a different montage, not just a different sentence.
+    assert list(intercept.objects["pred"]) != list(median.objects["pred"])
+    # Unlabelled, it is still recorded as 'given' -- the old spelling stands.
+    assert score_window(objects, 0.2, baseline=0.9).baseline_source == "given"
+
+
+def test_the_score_column_is_a_setting_and_the_caption_names_it():
+    objects = _objects()
+    objects["prob_dead"] = 1.0 - objects["pred"]
+    plan = select_montage(objects, _counts(), "GRA14", 0.2,
+                          score_column="prob_dead")
+    assert plan.score_column == "prob_dead"
+    assert "score column 'prob_dead'" in plan.settings_line()
+    assert "NON-DEFAULT" in plan.settings_line()
+    assert "median per-object prob_dead" in plan.arithmetic()
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 E -- the two routes, and what each one needs
+# --------------------------------------------------------------------------- #
+
+def test_the_merged_route_with_a_mask_and_a_label_can_cut_either_shape(tmp_path):
+    from spacr.cell_montage import montage_route_requirements
+
+    root, db_path = _screen(tmp_path, with_png=False)
+    choice = resolve_montage_crop_source(root, object_type="cell")
+    objects = load_montage_objects(db_path)
+    req = montage_route_requirements(choice, objects, object_type="cell",
+                                     channels=(0, 1, 2))
+    assert req.route == "merged-mask"
+    assert req.shapes == ("object", "bbox")
+    assert req.satisfied and not req.missing
+    assert req.offers("object") and req.why_not("object") == ""
+
+
+def test_a_route_with_only_coordinates_refuses_the_object_shaped_crop(tmp_path):
+    """ROUTE 2's whole point: no mask, so bounding boxes ONLY.
+
+    An object-shaped crop must not appear as a choice that silently does
+    something else, so the shape is not offered and the refusal names the
+    reason rather than the symptom.
+    """
+    from spacr.cell_montage import montage_route_requirements
+
+    root, db_path = _screen(tmp_path, with_png=False)
+    choice = resolve_montage_crop_source(root, object_type="cell")
+    # A coordinate table: bounding boxes, and no object label anywhere.
+    coordinates = load_montage_objects(db_path).drop(
+        columns=[c for c in ("object_label", "label", "cell_id", "nucleus_id",
+                             "pathogen_id", "cytoplasm_id")
+                 if c in load_montage_objects(db_path).columns])
+    for index, name in enumerate(("bbox-0", "bbox-1", "bbox-2", "bbox-3")):
+        coordinates[name] = index * 4
+
+    req = montage_route_requirements(choice, coordinates, object_type="cell",
+                                     channels=(0, 1, 2))
+    assert req.route == "merged-bbox"
+    assert req.shapes == ("bbox",)
+    assert not req.offers("object")
+    assert "no mask array, only coordinates" in req.why_not("object")
+    assert "bounding-box crops only" in req.describe()
+
+
+def test_neither_an_object_id_nor_a_box_is_refused_up_front_by_name(tmp_path):
+    from spacr.cell_montage import montage_route_requirements
+
+    root, db_path = _screen(tmp_path, with_png=False)
+    choice = resolve_montage_crop_source(root, object_type="cell")
+    bare = load_montage_objects(db_path)[["prc", "pred"]]
+    req = montage_route_requirements(choice, bare, object_type="cell",
+                                     channels=(0, 1, 2))
+    assert not req.satisfied
+    assert any("object id or a bounding box" in m for m in req.missing)
+
+
+def test_a_missing_channel_list_is_reported_as_a_missing_channel_list(tmp_path):
+    """"a user missing a channel list is told THAT rather than being told
+    there is no source" -- the request's own sentence."""
+    root, db_path = _screen(tmp_path, with_png=False)
+    objects = load_montage_objects(db_path)
+
+    choice = resolve_montage_crop_source(root, object_type="cell",
+                                         objects=objects)
+    assert choice.available                       # NOT "there is no source"
+    assumed = " ".join(choice.requirements.assumed)
+    assert "no channel list" in assumed
+    assert "records no png_dims and none was typed" in assumed
+    assert "default planes" in assumed
+    assert any("no channel list" in note
+               for note in choice.requirement_notes())
+
+    # Typed in, the assumption goes away.
+    told = resolve_montage_crop_source(root, object_type="cell",
+                                       objects=objects, channels=(0, 1, 2))
+    assert told.requirements.assumed == ()
+
+
+def test_the_png_route_offers_no_shape_choice_and_says_why(tmp_path):
+    from spacr.cell_montage import montage_route_requirements
+
+    root, db_path = _screen(tmp_path, with_png=True)
+    choice = resolve_montage_crop_source(root, object_type="cell")
+    req = montage_route_requirements(choice, load_montage_objects(db_path))
+    assert req.route == "png"
+    assert req.shapes == ()
+    assert "cut when the run wrote them" in req.why_not("object")
+
+
+def test_no_source_at_all_is_a_route_of_its_own_rather_than_an_exception(
+        tmp_path):
+    from spacr.cell_montage import montage_route_requirements
+
+    bare = tmp_path / "nothing"
+    bare.mkdir()
+    choice = resolve_montage_crop_source(str(bare))
+    assert not choice.available
+    assert choice.requirements.route == "none"
+    assert not choice.requirements.satisfied
+    assert montage_route_requirements(None).route == "none"
+    assert "no route to pixels" in choice.requirements.describe()
