@@ -4629,6 +4629,19 @@ class VolcanoPlot(FastPlot):
                     if value[0] is not None)
                 parts.append(f"{level} ({thresholds}): {called} of {tested} "
                              f"called.")
+                # WHY THE LINE ALWAYS TOUCHES A POINT, said once, because it
+                # reads as a coincidence and is not one. The threshold is
+                # `max(p over the called tests)` -- an OBSERVED value, not a
+                # formula evaluated in the abstract -- so it is necessarily
+                # some test's own p, and the line therefore lands exactly on
+                # the last test it called. A reader who notices two genes
+                # sitting on the line is seeing the borderline, and asked
+                # whether those are in or out; `p<=` in the label answers it
+                # and this says which points those are.
+                parts.append(
+                    "The threshold is itself an observed p, so the line lands "
+                    "on the last test it called; points on the line are "
+                    "called.")
             else:
                 parts.append(f"Nothing is called at {level}, so there is no "
                              f"threshold line to draw.")
