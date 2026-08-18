@@ -257,3 +257,109 @@ Per the standing rule, no module was removed. These are for the maintainer:
     correctness item of the five and it was outside this session's territory.
   * `regression_search.py` (finding 5) and the duplicated VIF (finding 4) --
     untouched.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (evening) -- FINDING 2 WAS ALREADY DONE, 4 AND 5 ARE DONE NOW
+--------------------------------------------------------------------------------
+
+FINDING 2 IS CLOSED AND THE NOTE ABOVE IS WRONG ABOUT IT. "sp_stats vs
+figures/stats (finding 2) -- untouched. It is the correctness item of the five
+and it was outside this session's territory" was written on 2026-08-18; the
+work had landed the previous afternoon in commit ``abca1d06``, "One engine
+decides which statistical test applies". The header lied and so did the
+trailing note; the code was right. This is the eighth entry for HANDOFF 0a.
+
+RE-MEASURED THIS EVENING before believing either of them, same five rows, the
+same arrays through both entry points:
+
+    case                        sp_stats             p          engine  same p
+    normal, equal var, n=30     T-test               0.0028882  Student's t  y
+    normal, UNEQUAL var, n=30   Welch's T-test       0.394734   Welch's t    y
+    skewed (exponential) n=30   Mann-Whitney U test  0.00442719 M-W U        y
+    n=3 vs 24                   Mann-Whitney U test  0.244786   M-W U        y
+    n=5 vs 5                    Mann-Whitney U test  0.222222   M-W U        y
+
+Bit-identical on all five, and the old unconditional t-test would have said
+0.0028882 / 0.391727 / 0.00268354 / 0.200121 / 0.232468 -- so on the rows that
+moved it was reporting a p-value between 1.2x and 1.7x smaller than the test
+the data supports. `tests/test_one_engine_decides_which_test_applies.py` pins
+all five. 104 tests green across the four stats-engine files.
+
+ONE ENGINE IS NOT YET *ALL* THE ENGINES, AND THIS IS NOT IN MY TERRITORY.
+`spacr/utils.py:8940` has a THIRD `perform_statistical_tests` -- same name as
+sp_stats', different module -- choosing ANOVA against Kruskal-Wallis from
+`utils.check_normality`, which is D'Agostino-Pearson at alpha 0.05 with no
+power floor. Its own docstring already records the trap ("Small samples
+therefore look normal for want of power") and it still takes the parametric
+branch: under 8 observations scipy returns NaN, `NaN < alpha` is False, and the
+feature is reported as normal. That is finding 2's mechanism exactly, one
+module over, deciding which test a cluster-feature table reports. HANDOFF.
+
+--------------------------------------------------------------------------------
+FINDING 4 -- THE DUPLICATED VIF. CONSOLIDATED.
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, because "a small correctness risk of the same shape as finding
+2" is a claim about numbers. Both implementations, same designs, 200x20 /
+400x60 / 96x30 each with a near-collinear pair:
+
+    largest relative difference   2.3e-10
+    exact collinearity            both name g0, g2, g9 as inf
+    cost at 60 guides             130.8 ms (aux regressions) vs 13.0 ms (corr)
+
+SO IT IS NOT THE SAME SHAPE AS FINDING 2, and the difference is worth keeping:
+the two statistical engines DISAGREED, these two AGREED. That is precisely why
+this one was worth removing rather than arbitrating -- two routes to one number
+that agree today are two routes that can stop agreeing, and nothing in the
+package was comparing them.
+
+`regression_qc.variance_inflation_factors` survives, chosen on cost since it
+could not be chosen on correctness: ``VIF_j = (R^-1)_jj`` is one O(p^3)
+decomposition where the auxiliary-regression form is O(p^4). 7.0 ms after the
+change on the 400x60 case. `regression_diagnostics.variance_inflation_factors`
+keeps its signature and everything that is CONTRACT rather than statistic --
+the refusal on a rank-deficient design (the engine answers inf for every guide,
+which is true and useless), the widest-support-first report cap, the
+`wells_with_guide` column -- and calls the engine for the numbers.
+
+`tests/test_one_vif_not_two.py`, 11 cases, including the inventory count in the
+shape `test_one_volcano_for_each_job.py` established: a third implementation is
+not forbidden, an UNRECORDED third one is.
+
+--------------------------------------------------------------------------------
+FINDING 5 -- THE SHIM. THE QUESTION IS ANSWERED; THE DELETION IS NOT MINE.
+--------------------------------------------------------------------------------
+
+"check whether any RELEASED version advertised the name" -- NO.
+
+    for tag in v1.3.5 v1.3.6 v1.4.9.8 v1.4.9.9 v1.5.0.1 v1.5.0.4; do
+        git cat-file -e $tag:spacr/regression_search.py    # absent, all six
+    done
+
+And none of the six carries `spacr/parameter_sweep.py` either, so BOTH names
+arrived after the last release: no installed spaCR has ever exposed either one
+and there is no downstream import to keep working. By the finding's own rule
+that is "delete it".
+
+NOT DELETED. Which modules exist is the maintainer's decision (the rule
+instruction 06 set for the GUI apps, and this brief repeats it). The evidence
+is written into the module docstring so the decision costs a sentence rather
+than the check again, and `tests/test_the_shim_that_never_shipped.py` pins the
+five aliases and the star-import against `parameter_sweep.__all__` so it cannot
+rot while it waits -- an alias that has quietly stopped resolving is worse than
+the deprecation it was written to soften. That test also fails the moment
+anything in `spacr/` imports the old name, because that would change the
+answer.
+
+REMOVAL CANDIDATES, FOR THE MAINTAINER, all flagged and none acted on:
+  * `spacr/regression_search.py` -- clean delete, zero external obligation.
+  * `plot.volcano_plot` -> `figures.panels.volcano` (unchanged from the note
+    above: an API change with a real blast radius, not a rename).
+  * `toxo.custom_volcano_plot` -- still returns the hit list; move the hit
+    rule out first.
+  * `volcano_style.py` -- KEEP. The corrected evidence above stands.
+
+THE COUNTING TEST THE ACCEPTANCE ASKS FOR ALREADY EXISTS and is green:
+`tests/test_one_volcano_for_each_job.py`. Nothing was added to it; the two
+survivors are still pinned by name and the inventory still has twelve entries.
