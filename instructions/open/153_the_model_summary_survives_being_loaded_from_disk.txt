@@ -1,0 +1,107 @@
+================================================================================
+THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "i get: 'No summary: this panel was opened from a results table on disk
+   rather than from a run, so the fitted model is not here. Re-run to see it.'
+   dor the run, also eaven if this was loaded from disk i should still have
+   access to the summary."
+
+Related: 132/144 are the model box. 146 is the Runs tab. 139 C established that
+         saved and visible are the same event -- this is the same principle
+         applied to text instead of pictures.
+
+--------------------------------------------------------------------------------
+A. THE SUMMARY IS ALREADY ON DISK. NOTHING READS IT BACK.
+--------------------------------------------------------------------------------
+
+FOUND 2026-08-18. `spacr/ml.py:6270` already does this:
+
+    save_summary_to_file(model, file_path=f'{res_folder}/mode_summary.csv')
+
+So a run DOES write `model.summary().as_text()` into its results folder. The
+panel simply never looks: `regression_results.summary_text(model)` returns the
+"not here, re-run" sentence the moment `model is None`, and there is no path
+that consults the run folder.
+
+THE FIX IS TO READ THE FILE THAT IS ALREADY BEING WRITTEN. A panel opened from
+a results table knows its folder -- that is how it found `results.csv` -- so
+the summary is one `open()` away. Nothing needs recomputing and no fit needs
+repeating, which is what makes "Re-run to see it" the wrong advice as well as
+an unhelpful one: it asks for minutes of GPU time to recover a file already
+sitting beside the table.
+
+TWO DEFECTS IN THE FILE ITSELF, to fix while here, under the standing rule
+that the format is corrected going forward and old content is migrated:
+
+  * IT IS CALLED `mode_summary.csv`. "mode" is a typo for "model", and the
+    contents are plain text, not CSV -- `save_summary_to_file`'s own docstring
+    says so: "Despite the default 'summary.csv' name, the content is the
+    statsmodels text summary, never CSV." A name that does not follow the file
+    is a path nobody can open, which is the same rule the figure work landed
+    on.
+  * WRITE `model_summary.txt` GOING FORWARD, and READ BOTH -- old runs on disk
+    keep working, and their summaries appear where they always should have.
+
+--------------------------------------------------------------------------------
+B. "OPENED FROM DISK" IS SOMETIMES A FALSE EXPLANATION
+--------------------------------------------------------------------------------
+
+The maintainer says they get this "dor the run" -- for a live run, not only for
+a table loaded from disk. That is possible, and the code says how:
+
+    regression_results.py ~853-871
+        except PanelUnavailable as error:  -> clear_diagnostics(...); return
+        except Exception as error:         -> clear_diagnostics(...); return
+        self._model = model                <- only reached if neither fired
+
+`self._model` is assigned AFTER the diagnostics are computed. If the QC context
+cannot be built -- an unsupported backend, a fit the diagnostics do not cover,
+any exception at all -- the function returns before the assignment, and the
+model is discarded even though the run produced one. The Summary tab then says
+the panel "was opened from a results table on disk", WHICH IS NOT TRUE, and
+sends the user to re-run something that just ran.
+
+TWO THINGS WRONG AND BOTH MATTER:
+
+  1. THE MODEL SHOULD BE KEPT REGARDLESS. It is the fit; the diagnostics are a
+     view of it. Store it FIRST, then attempt the diagnostics, so a failure in
+     the view cannot destroy the thing being viewed.
+  2. A MESSAGE MUST NOT ASSERT A CAUSE IT HAS NOT CHECKED. "No summary" is
+     honest; "because this panel was opened from a results table on disk" is a
+     story, and it is told with equal confidence whether or not it happened.
+     Distinguish the cases and say the true one -- there is no summary because
+     the panel was loaded from disk, or because the diagnostics failed (naming
+     the error), or because the backend has none (already handled correctly at
+     the next branch down, which is the model to follow).
+
+--------------------------------------------------------------------------------
+C. WHAT "ACCESS TO THE SUMMARY" SHOULD MEAN
+--------------------------------------------------------------------------------
+
+The request is for the summary to be there, not for a placeholder that explains
+itself better. So:
+
+  * loaded from disk with a summary file present -> the summary, with a line
+    saying it was read from the run rather than recomputed, because a reader
+    pasting it into a methods section should know it is the run's own;
+  * loaded from disk with NO summary file (an older run) -> say exactly that,
+    naming the folder looked in;
+  * a live run -> the live model's summary, as today.
+
+Every path ends in either a summary or a true sentence about why not.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Run a regression, close the panel, re-open the results table from disk: the
+  Summary tab holds the same text it held during the run, byte for byte.
+* A run whose diagnostics fail still shows its summary, and the reason the
+  diagnostics failed is stated where the diagnostics would have been.
+* No message claims the panel was opened from disk unless it was.
+* An old run folder holding `mode_summary.csv` still shows its summary; new
+  runs write `model_summary.txt`.
