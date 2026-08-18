@@ -1631,11 +1631,14 @@ def generate_shap_summary_plot(df,target='prauc', clean=True, dst=None):
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X)
 
-    # Summary plot
-    shap.summary_plot(
-        shap_values, X, rng=np.random.default_rng(42))
-    save_shap_plot(plt.gcf(), src=_figures_dst(dst), variable='shap', i=1)
-    #save_shap_plot(fig, src, variable, i)
+    # Summary plot. shap builds the figure itself, so the style has to be
+    # open around the CALL -- there is no earlier point to reach the axes it
+    # creates. Its own colour map is left alone: a SHAP summary encodes the
+    # feature value on that ramp, so it is the data and not decoration.
+    with figure_style(theme_target()):
+        shap.summary_plot(
+            shap_values, X, rng=np.random.default_rng(42))
+        save_shap_plot(plt.gcf(), src=_figures_dst(dst), variable='shap', i=1)
     return plt.gcf()
 
 
