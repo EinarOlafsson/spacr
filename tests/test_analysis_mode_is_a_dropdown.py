@@ -127,3 +127,76 @@ def test_level_still_means_object_well_plate_for_the_proportion_plots():
     assert kind == "combo"
     assert options == ["object", "well", "plate"]
     assert default == "object"
+
+
+# ---------------------------------------------------------------------------
+# Instruction 135: the sections the maintainer asked for
+# ---------------------------------------------------------------------------
+
+def test_controls_and_filters_is_one_section():
+    """Asked for on 2026-08-17: "merge quality & filters in here".
+
+    Controls and filters are one question -- which rows reach the model --
+    and they were two sections with the response, the estimator and the
+    hit-calling rules between them.
+    """
+    sections = _regression_sections()
+    assert "Controls & Filters" in sections
+    assert "Controls & Plate Design" not in sections
+    assert "Quality Filters" not in sections
+    for key in ("min_cell_count", "min_n", "fraction_threshold",
+                "outlier_detection", "filter_column", "negative_control"):
+        assert key in sections["Controls & Filters"], key
+
+
+def test_significance_merged_into_model_and_inference():
+    """"merge all of these settings into Model and inference"."""
+    sections = _regression_sections()
+    assert "Significance & Hit Calling" not in sections
+    for key in ("multiple_testing_method", "fdr_alpha", "threshold_method",
+                "threshold_multiplier", "toxo"):
+        assert key in sections["Model & Inference"], key
+
+
+def test_cov_type_moved_to_estimator_tuning():
+    """"mooveCov type here".
+
+    It is estimator-specific in exactly the way the rest of that section is:
+    the penalised, robust and quantile fits have no such estimator and refuse
+    it rather than reporting ordinary errors under a robust label.
+    """
+    sections = _regression_sections()
+    assert "cov_type" in sections["Estimator Tuning"]
+    assert "cov_type" not in sections["Model & Inference"]
+
+
+def test_level_is_directly_under_regression_type():
+    """"moove level from aditional settings to right under Regression type".
+
+    Adjacency, not just membership. `regression_type='mixed'` is what greys
+    `level` out, and a control that goes grey when the row above it changes
+    explains itself.
+    """
+    section = list(_regression_sections()["Model & Inference"])
+    assert section[section.index("regression_type") + 1] == "level"
+
+
+def test_no_setting_was_dropped_by_the_regroup():
+    """Merging sections must not lose a key into Additional Settings."""
+    sections = _regression_sections()
+    everywhere = {key for keys in sections.values() for key in keys}
+    for key in ("min_cell_count", "outlier_detection", "cov_type",
+                "multiple_testing_method", "fdr_alpha", "toxo",
+                "threshold_method", "threshold_multiplier", "tolerance",
+                "target_unique_count"):
+        assert key in everywhere, key
+
+
+def test_a_key_is_named_in_exactly_one_section():
+    """Two sections would draw the same setting twice, each with a widget."""
+    from collections import Counter
+    from spacr.qt.screens.settings_model import _APP_CATEGORY_SPECS
+
+    counts = Counter(key for _name, keys in _APP_CATEGORY_SPECS["regression"]
+                     for key in keys)
+    assert [k for k, n in counts.items() if n > 1] == []

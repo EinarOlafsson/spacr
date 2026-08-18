@@ -792,9 +792,17 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
     ),
     "regression": (
         ("Input Tables", ("paired_data", "metadata_files")),
-        ("Controls & Plate Design", (
+        # CONTROLS AND FILTERS ARE ONE QUESTION: which rows reach the model.
+        # Asked for on 2026-08-17 -- "merge quality & filters in here. change
+        # the settings categoty to Controlls & Filters". They were two
+        # sections with the response, the estimator and the hit-calling rules
+        # between them, so it was not obvious that seven separate settings
+        # each drop data.
+        ("Controls & Filters", (
             "positive_control", "negative_control", "controls",
             "control_wells", "filter_column", "filter_value",
+            "min_cell_count", "min_n", "fraction_threshold",
+            "target_unique_count", "tolerance", "outlier_detection",
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
@@ -824,13 +832,27 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # state is decided by `regression_type` belongs beside it, not
             # three sections away.
             "inference", "analysis_mode", "regression_type", "level",
-            "random_row_column_effects", "cov_type",
+            "random_row_column_effects",
+            # SIGNIFICANCE MERGED IN, asked for on 2026-08-17: "significance
+            # nad hit calling is good but merge all of these settings into
+            # Model and inference". They are not a separate question -- which
+            # correction, at what level, above which effect size IS how the
+            # model's output is turned into a claim, and a user reading the
+            # model section had to scroll past three others to find out.
+            "multiple_testing_method", "fdr_alpha", "threshold_method",
+            "threshold_multiplier", "toxo",
         )),
         # The estimator-specific knobs, added by the robust and regularised
         # fits after this layout was first written. They landed in
         # "Additional Settings" -- the bucket a layout exists to keep empty --
         # because only the shared estimator settings above were named.
         ("Estimator Tuning", (
+            # `cov_type` moved here from Model & Inference on 2026-08-17 --
+            # "mooveCov type here". It is estimator-specific in exactly the
+            # way everything else in this section is: the penalised, robust
+            # and quantile fits have no such estimator and REFUSE it rather
+            # than quietly reporting ordinary errors under a robust label.
+            "cov_type",
             "alpha", "l1_ratio", "quantile", "huber_t",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
             "lasso_selection_threshold",
@@ -845,17 +867,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "guide_permutations", "guide_permutation_seed",
             "guide_permutation_block", "guide_nuisance_columns",
             "guide_presence_threshold", "guide_permutation_batch_size",
-        )),
-        ("Significance & Hit Calling", (
-            "multiple_testing_method", "fdr_alpha", "threshold_method",
-            "threshold_multiplier", "toxo",
-        )),
-        # Every setting that drops rows, together, because each one shrinks
-        # the dataset the model finally sees and they were previously spread
-        # between the estimator knobs and the hit-calling rules.
-        ("Quality Filters", (
-            "min_cell_count", "min_n", "fraction_threshold",
-            "target_unique_count", "tolerance", "outlier_detection",
         )),
         # `regression_qc` leads: it decides whether the diagnostic suite is
         # drawn at all, and the knobs under it only style the plots that are.

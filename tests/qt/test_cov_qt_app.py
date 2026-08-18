@@ -266,6 +266,13 @@ EXPECTED_SECTIONS = {
     # because its reproducible file inputs are also its headless API.
     "explain_cv":      SECTION_RESULTS,
     "investigate_hit": SECTION_RESULTS,
+    # Registered without this list being updated, which is the drift this
+    # test exists to catch. Both belong here for the same reason as the pair
+    # above: neither asks the data anything new. The Volcano Explorer redraws
+    # a finished regression's coefficient table, and the Parameter Sweep
+    # reads the trials of a search that has already run.
+    "volcano_explorer": SECTION_RESULTS,
+    "parameter_sweep":  SECTION_RESULTS,
     # Explore's first two. The section was declared and empty until they
     # registered -- "page through image layers" is the example in its own
     # definition, and the Graph Builder family is what it was named for.
@@ -339,6 +346,11 @@ EXPECTED_STAGES = {
     # earned yet.
     "pca": "alpha", "tabulate": "alpha",
     "explain_cv": "alpha", "investigate_hit": "alpha",
+    # Registered without these ledgers being updated. Alpha like every other
+    # screen that is built and reachable but not yet trusted end to end --
+    # absent from this table they read as "stable", which is the one claim
+    # nobody has earned yet.
+    "volcano_explorer": "alpha", "parameter_sweep": "alpha",
     "make_masks": "beta", "train_cellpose": "beta", "cellpose_masks": "beta",
     "timelapse": "beta", "motility": "beta", "analyze_plaques": "beta",
     "replication": "beta", "umap": "beta", "activation": "beta",
@@ -928,7 +940,13 @@ def test_every_other_key_builds_a_generic_app_screen(win):
                  "graph_builder", "hit_list", "image_scatter", "layer_viewer",
                  "lineage", "methods_export", "pca", "pipeline_graph",
                  "power", "profiler", "qc_dashboard", "run_compare",
-                 "tabulate", "explain_cv", "investigate_hit"}
+                 "tabulate", "explain_cv", "investigate_hit",
+                 # Two more, registered without this set being updated. The
+                 # Volcano Explorer redraws a finished regression's
+                 # coefficient table and the Parameter Sweep reads the trials
+                 # of a search that already ran; both are screens built for
+                 # their own job, not settings forms over a pipeline entry.
+                 "volcano_explorer", "parameter_sweep"}
 
     built_generic, built_dedicated = set(), set()
     for key, *_r in APPS:
