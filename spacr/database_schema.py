@@ -389,8 +389,22 @@ def migrate_database(
     :raises FileNotFoundError: ``db_path`` is not an existing file.
     """
 
-    path = os.path.abspath(os.fspath(db_path))
+    given = os.fspath(db_path)
+    path = os.path.abspath(given)
     if not os.path.isfile(path):
+        # A TILDE THAT NOBODY EXPANDED IS THE COMMONEST WAY TO REACH HERE, and
+        # `FileNotFoundError: ~/x/measurements.db` is a message that reads as
+        # "your database is missing" when the database is fine and the PATH was
+        # never resolved. GitHub issue #108 is exactly this, from a macOS user
+        # whose settings carried `~`. This function's contract stays strict --
+        # see the docstring, and `ensure_database_schema` is where expansion
+        # belongs -- but it can at least name the real problem.
+        if given.startswith("~"):
+            raise FileNotFoundError(
+                f"{path} (from {given!r}) -- the '~' was never expanded, so "
+                f"this was looked for under the working directory rather than "
+                f"your home. The database itself may be fine; the path was "
+                f"not resolved before it got here.")
         raise FileNotFoundError(path)
     connection = connect_database(path, timeout=timeout)
     try:
@@ -440,6 +454,17 @@ def ensure_database_schema(
     explicit one-time migration path.
     """
 
+    # EXPANDED HERE, AND ONLY HERE. This is the function every reader calls
+    # to make a database usable, so it is the boundary a user-supplied path
+    # crosses -- and `os.path.abspath(os.path.expanduser(os.fspath(path)))` is
+    # already the idiom in `annotation.py` and `artifacts.py`. `database_schema`
+    # was the outlier, and GitHub issue #108 is what that cost: a macOS user
+    # whose settings carried `~` got FileNotFoundError from four frames down.
+    #
+    # `migrate_database` keeps its strict contract deliberately: it is the
+    # low-level operation, its docstring promises no expansion, and a caller
+    # that has already resolved a path should not have it resolved twice.
+    db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
     report = migrate_database(
         db_path,
         target_version=target_version,
