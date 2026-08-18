@@ -1,6 +1,7 @@
 """Scientific plotting and statistical-annotation helpers."""
 
 from __future__ import annotations
+import contextlib
 import os, random, cv2, glob, math, torch, itertools
 
 from typing import Optional, Tuple, Union
@@ -173,7 +174,234 @@ def _with_extension(path, fmt):
     return f"{text}.{fmt}"
 
 
-def save_figure(fig, path, *, fmt=None, dpi=None, close=False, **kwargs):
+# ---------------------------------------------------------------------------
+# A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN (instruction 150).
+#
+# The DECISION -- which ground, which ink, whether to repaint at all -- is
+# `spacr.figure_style.saved_figure_appearance`, deliberately in a matplotlib-
+# free module so the pyqtgraph exporter can ask the same question and get the
+# same answer. What follows is only the matplotlib APPLICATION of it.
+#
+# WHY IT CANNOT BE rcParams ALONE, measured rather than assumed. rcParams are
+# read when an artist is CREATED. By the time `save_figure` runs the figure is
+# already drawn, so `rc_context({"text.color": "black"})` changes nothing that
+# is on it. Only `savefig.facecolor`, `savefig.edgecolor` and
+# `savefig.transparent` are read at write time, and those are exactly the three
+# set in the rc block below. The chrome has to be repainted artist by artist
+# and put back, which is what makes "the plot on screen is byte-identical
+# before and after the save" an assertion rather than a hope.
+# ---------------------------------------------------------------------------
+
+
+def _chrome(fig, ax=None):
+    """Yield ``(kind, artist, getter, setter)`` for a figure's FURNITURE.
+
+    THE LIST IS THE DESIGN. Instruction 150 A: the chrome flips and the data
+    does not, "and it is easy to get wrong" -- a blanket white-to-black would
+    turn a white data point black, which on a volcano is the colour of "not a
+    hit". So nothing here reaches a collection, an image, a bar or a data
+    line.
+
+    THE ONE HARD CASE IS `ax.lines`, because a significance line, a zero line
+    and a plotted series are all `Line2D`. They are told apart by their
+    TRANSFORM: `axhline`/`axvline` draw in a blended axes/data transform, a
+    plotted series draws in `ax.transData` itself. Checked on this matplotlib:
+    a data line's `get_transform() is ax.transData` and both reference lines'
+    are `BlendedGenericTransform`. That is a property of what the line MEANS,
+    not of how it was coloured, which is why it survives a user restyle.
+    """
+    from matplotlib.axes import Axes
+
+    if ax is None:
+        yield "ground", fig.patch, fig.patch.get_facecolor, fig.patch.set_facecolor
+        for text in fig.texts:                       # suptitle lives here too
+            yield "text", text, text.get_color, text.set_color
+        for legend in getattr(fig, "legends", []):
+            yield from _legend_chrome(legend)
+        for axes in fig.axes:
+            if isinstance(axes, Axes):
+                yield from _chrome(fig, axes)
+        return
+
+    yield "ground", ax.patch, ax.patch.get_facecolor, ax.patch.set_facecolor
+    for spine in ax.spines.values():
+        yield "chrome", spine, spine.get_edgecolor, spine.set_edgecolor
+    yield "text", ax.title, ax.title.get_color, ax.title.set_color
+    for axis in (ax.xaxis, ax.yaxis):
+        label = axis.label
+        yield "text", label, label.get_color, label.set_color
+        for tick in list(axis.get_major_ticks()) + list(axis.get_minor_ticks()):
+            for line in (tick.tick1line, tick.tick2line):
+                yield "chrome", line, line.get_color, line.set_color
+            for text in (tick.label1, tick.label2):
+                yield "text", text, text.get_color, text.set_color
+            grid = tick.gridline
+            yield "grid", grid, grid.get_color, grid.set_color
+    legend = ax.get_legend()
+    if legend is not None:
+        yield from _legend_chrome(legend)
+    for text in ax.texts:
+        yield "text", text, text.get_color, text.set_color
+        arrow = getattr(text, "arrow_patch", None)
+        if arrow is not None:
+            yield "chrome", arrow, arrow.get_edgecolor, arrow.set_color
+    for line in ax.lines:
+        if line.get_transform() is not ax.transData:
+            yield "chrome", line, line.get_color, line.set_color
+
+
+def _legend_chrome(legend):
+    frame = legend.get_frame()
+    yield "chrome", frame, frame.get_edgecolor, frame.set_edgecolor
+    yield "ground", frame, frame.get_facecolor, frame.set_facecolor
+    for text in legend.get_texts():
+        yield "text", text, text.get_color, text.set_color
+
+
+def data_colours(fig):
+    """Every colour in ``fig`` that carries the CLAIM rather than the frame.
+
+    Used only to say when one of them stops working on paper (150 D), never to
+    change one. A data line is identified the same way `_chrome` identifies a
+    reference line, from the opposite side of the same test.
+    """
+    from matplotlib.axes import Axes
+
+    found = []
+    for axes in fig.axes:
+        if not isinstance(axes, Axes):
+            continue
+        for line in axes.lines:
+            if line.get_transform() is axes.transData:
+                found.append(line.get_color())
+        for collection in axes.collections:
+            for getter in ("get_facecolor", "get_edgecolor"):
+                try:
+                    found.extend(list(getattr(collection, getter)()))
+                except Exception:                                # noqa: BLE001
+                    pass
+        for patch in axes.patches:
+            try:
+                found.append(patch.get_facecolor())
+            except Exception:                                    # noqa: BLE001
+                pass
+    return found
+
+
+def illegible_data_colours(fig, ground, floor=None):
+    """The data colours a reader will not find on ``ground``, as hex.
+
+    Instruction 150 D. The data deliberately does NOT flip, so a palette
+    chosen against near-black can be illegible on paper -- and the honest
+    answer is to NAME the colour, because a substitution the user did not ask
+    for changes what the picture says. Deduplicated and sorted so the same
+    sentence comes out of the same figure twice.
+    """
+    from .figure_style import DATA_CONTRAST_FLOOR, is_legible_on, to_rgb
+
+    floor = DATA_CONTRAST_FLOOR if floor is None else float(floor)
+    bad = set()
+    for colour in data_colours(fig):
+        # A WASH IS NOT A MARK. `figures.plates` lays the "never measured"
+        # colour down at 9% opacity, and judging its base hue would name a
+        # colour nobody is being asked to find -- on every plate figure. An
+        # artist drawn at less than half opacity is de-emphasis by
+        # construction, so it is not held to a legibility floor.
+        try:
+            components = tuple(float(value) for value in colour)
+        except (TypeError, ValueError):
+            components = ()
+        if len(components) == 4 and components[3] < 0.5:
+            continue
+        rgb = to_rgb(colour)
+        if rgb is None or is_legible_on(rgb, ground, floor):
+            continue
+        bad.add("#%02X%02X%02X" % tuple(
+            int(round(min(max(channel, 0.0), 1.0) * 255)) for channel in rgb))
+    return sorted(bad)
+
+
+@contextlib.contextmanager
+def print_ready(fig, mode=None, announce=True):
+    """Repaint ``fig``'s chrome for paper for the length of the block.
+
+    THE CONTRACT IS THAT NOTHING SURVIVES IT. Every artist touched is restored
+    in a ``finally``, so a user watching a plot while it saves must not see it
+    flash and the figure is byte-identical afterwards -- instruction 150's own
+    acceptance, and the reason this is a context manager rather than a
+    function that fixes a figure up.
+
+    WHAT MOVES: an illegible ground becomes the page; illegible chrome becomes
+    the ink; an illegible GRID becomes a faint print grey rather than the ink,
+    because a grid repainted in the ink is a cage over the data.
+
+    WHAT DOES NOT MOVE: every data colour, and any chrome that was already
+    legible on the page. A light-mode save therefore changes nothing at all,
+    which is the property that makes this safe to switch on by default.
+
+    :param mode: one of :data:`spacr.figure_style.SAVE_MODES`; None asks the
+        preference. ``'screen'`` is a no-op by construction.
+    :param announce: print the 150 D sentence when a data colour has stopped
+        working on the page. Off for a caller that saves in a loop.
+    """
+    from .figure_style import (is_legible_on, relative_luminance,
+                               saved_figure_appearance)
+
+    look = saved_figure_appearance(mode)
+    if not look.flip or fig is None:
+        yield look
+        return
+
+    page = look.ground or "#FFFFFF"
+    restore = []
+    try:
+        for kind, _artist, getter, setter in _chrome(fig):
+            try:
+                current = getter()
+            except Exception:                                    # noqa: BLE001
+                continue
+            if kind == "ground":
+                # Only a DARK ground is repainted. A deliberately tinted light
+                # background is somebody's choice, and 'transparent' has no
+                # ground to argue about -- savefig(transparent=True) owns it.
+                luminance = relative_luminance(current)
+                if (look.ground is None or luminance is None
+                        or luminance >= 0.5):
+                    continue
+                new = look.ground
+            elif kind == "grid":
+                if is_legible_on(current, page):
+                    continue
+                new = look.grid
+            else:
+                if is_legible_on(current, page):
+                    continue
+                new = look.ink
+            try:
+                setter(new)
+            except Exception:                                    # noqa: BLE001
+                continue
+            restore.append((setter, current))
+        if announce:
+            stranded = illegible_data_colours(fig, page)
+            if stranded:
+                print("Saved-figure warning: these data colours have almost "
+                      "no contrast on the light page and are NOT being "
+                      f"changed, because the colour is the claim: "
+                      f"{', '.join(stranded)}. Pick an accessible palette in "
+                      "Preferences > Figures if the marks are meant to be "
+                      "read.")
+        yield look
+    finally:
+        for setter, previous in reversed(restore):
+            try:
+                setter(previous)
+            except Exception:                                    # noqa: BLE001
+                pass
+
+
+def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
+                save_mode=None, announce_colours=True, **kwargs):
     """Write ``fig`` to ``path``, honouring the figure preferences.
 
     The single place a spaCR figure the user keeps gets written. Before this
@@ -206,12 +434,30 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False, **kwargs):
     byte-identical files. What is passed is :func:`deliverable_dpi`, which
     says so out loud when the requested number is not achievable here.
 
+    **The chrome is repainted for paper**, and only for the length of the
+    write. A figure saved from a dark-themed session was white ink on a white
+    page -- `spacr.qt.preferences.get_figure_colors` hands both renderers a
+    white foreground in dark mode and nothing inverted it at export time, so
+    the file was a blank rectangle with some coloured dots in it, and a
+    transparent PNG even looked right in a dark file manager and disappeared
+    when it was pasted into a manuscript. :func:`print_ready` moves the
+    furniture and puts it back; the DATA is never touched, because a white
+    point turned black is, on a volcano, the colour of "not a hit".
+
     :param fig: a matplotlib ``Figure``.
     :param path: destination; its extension is corrected to the format.
     :param fmt: force a format, bypassing the preference.
     :param dpi: force a DPI, bypassing the preference.
     :param close: close the figure once written.
-    :param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.).
+    :param save_mode: force one of
+        :data:`spacr.figure_style.SAVE_MODES` -- ``'print'`` (light page, dark
+        chrome), ``'screen'`` (exactly what is on screen, the old behaviour)
+        or ``'transparent'``. None asks the preference, which defaults to
+        ``'print'``.
+    :param announce_colours: say when a data colour has stopped working on the
+        light page (instruction 150 D). It is NAMED, never substituted.
+    :param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.). An
+        explicit ``facecolor`` still wins over the print ground.
     :returns: the path actually written, as a ``str``.
     """
     preferred_fmt, preferred_dpi = figure_output_preferences()
@@ -228,7 +474,21 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False, **kwargs):
     kwargs.pop("format", None)
     kwargs.pop("dpi", None)
     from matplotlib import rc_context
-    with rc_context({"pdf.fonttype": 42}):
+
+    from .figure_style import saved_figure_appearance
+
+    look = saved_figure_appearance(save_mode)
+    rc = {"pdf.fonttype": 42}
+    if look.ground is not None and "facecolor" not in kwargs:
+        # The three rcParams matplotlib reads at WRITE time rather than at
+        # artist-creation time, which is why the rest of the flip cannot be
+        # done here. `savefig.facecolor` covers the figure patch; the AXES
+        # patch is a separate artist and is repainted by `print_ready`.
+        rc["savefig.facecolor"] = look.ground
+        rc["savefig.edgecolor"] = look.ground
+    rc["savefig.transparent"] = bool(look.transparent)
+    with rc_context(rc), print_ready(fig, mode=look.mode,
+                                     announce=announce_colours):
         fig.savefig(destination, format=chosen_fmt,
                     dpi=deliverable_dpi(fig, chosen_dpi, destination),
                     **kwargs)

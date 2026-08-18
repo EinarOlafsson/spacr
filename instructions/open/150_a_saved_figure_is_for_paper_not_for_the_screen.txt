@@ -123,3 +123,107 @@ HOW TO KNOW IT WORKED
 * A data colour that would be illegible on the light background is named
   before the file is written.
 * A saved PDF pasted into a white document is readable with nothing adjusted.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE MATPLOTLIB HALF IS DONE. THE DECISION IS SHARED; THE
+              APPLICATION IS NOT.
+--------------------------------------------------------------------------------
+
+THE NAME THE PYQTGRAPH HALF WANTS:
+
+    spacr.figure_style.saved_figure_appearance(mode=None) -> SavedFigureAppearance
+                       (mode, ground, ink, grid, transparent, flip)
+
+That is the whole decision and it is matplotlib-free and Qt-free, in the module
+whose docstring already promised to stay that way (a test now asserts it). The
+pyqtgraph exporter should call it in `FastPlot._paint_scene` inside the
+`setExportMode(True)` / `finally` pair section C names, and repaint nothing it
+does not have to. Beside it:
+
+    spacr.figure_style.SAVE_MODES / PRINT_GROUND / PRINT_INK / PRINT_GRID
+    spacr.figure_style.CHROME_CONTRAST_FLOOR / DATA_CONTRAST_FLOOR
+    spacr.figure_style.contrast_ratio / relative_luminance / is_legible_on / to_rgb
+    spacr.figure_style.figure_save_mode()        the preference, read defensively
+    spacr.plot.print_ready(fig, mode, announce)  the MATPLOTLIB application
+    spacr.plot.illegible_data_colours(fig, ground)   section D
+    spacr.plot.save_figure(..., save_mode=, announce_colours=)
+
+WHY IT COULD NOT ALL GO IN THE rc_context, MEASURED RATHER THAN ASSUMED. The
+instruction points at `save_figure`'s existing `rc_context({"pdf.fonttype":
+42})` and says the colour flip belongs in the same block. Half of it does and
+half of it cannot: rcParams are read when an artist is CREATED, and by the time
+`save_figure` runs the figure is already drawn, so `rc_context({"text.color":
+"black"})` changes nothing that is on it. The only three rcParams matplotlib
+reads at WRITE time are `savefig.facecolor`, `savefig.edgecolor` and
+`savefig.transparent` -- those are in the rc block, and they cover the FIGURE
+patch. Everything else is repainted artist by artist and restored in a
+`finally`, which is what makes "the plot on screen is byte-identical before and
+after the save" an assertion rather than a hope. The axes patch is a separate
+artist from the figure patch and is one of the things the rc block misses; a
+dark one left behind is a dark rectangle inside a white page.
+
+THE HARD CASE IN "THE CHROME FLIPS, THE DATA DOES NOT" IS `ax.lines`. A
+significance line, a zero line and a plotted series are all `Line2D`, so no
+colour rule can separate them -- and section A names the first two as things
+that MUST flip. They are told apart by their TRANSFORM: `axhline`/`axvline`
+draw in a blended axes/data transform, a plotted series draws in
+`ax.transData` itself. Verified on this matplotlib. That is a property of what
+the line MEANS rather than of how it was coloured, so it survives a restyle.
+
+WHAT DECIDES WHETHER A PIECE OF CHROME MOVES IS LEGIBILITY, NOT DARK MODE. An
+artist is repainted only when its colour has less than `CHROME_CONTRAST_FLOOR`
+= 2.0 contrast against the page. Two consequences, both wanted:
+  * a LIGHT-MODE save changes nothing at all -- asserted -- which is what makes
+    'print' safe as the default;
+  * this never reads the theme, so it is independent of what `get_figure_
+    colors()` answers and of the 152 work going on in that file at the same
+    time. It reads the FIGURE.
+Gridlines are chrome that is MEANT to be faint, so an illegible grid becomes
+`PRINT_GRID` (#DDDDDD, the light-mode default) rather than the ink. A grid
+repainted in the ink is a cage over the data.
+
+SECTION D'S FLOOR IS SET FROM THE HOUSE STYLE, NOT FROM THE GUIDELINE, and this
+is the one number worth recording. WCAG's 3.0 for graphical objects names the
+house style's OWN greys on every save -- measured on `figures.style.ROLES`
+against white:
+
+    fill  #E8A88C 2.02      data #B4B4B4 2.07     control_negative #7F7F7F 4.00
+    up    #2E7D4F 5.05      down #C4441C 5.01     highlight        #2E77BC 4.69
+
+A warning that fires on every figure is a warning nobody reads, so
+`DATA_CONTRAST_FLOOR` is 1.8: under everything the house style deliberately
+puts on the page, over the colours that only work on a dark ground -- white
+1.00, the pale yellow this instruction describes 1.03, Okabe-Ito yellow
+#F0E442 1.32. `guide_permutation`'s "not a hit" grey #B8BDC5 is 1.89 and stays
+quiet, which is right: it is de-emphasis, not a mark the reader has to find.
+The colour is NAMED and never substituted.
+
+MEASURED ON THE PIXELS, dark-themed volcano saved three ways, 100 dpi PNG:
+
+    mode         corner pixel        darkest ink in    UP/DOWN/GREY   screen
+                                     the title band    survive        unchanged
+    print        (255,255,255,255)   (34,34,34)        yes            yes
+    screen       (30,30,30,255)      (30,30,30)        yes            yes
+    transparent  (255,255,255,  0)   (34,34,34)        yes            yes
+
+`tests/test_a_saved_figure_is_for_paper.py`, 20 cases; 3 of them fail against
+the pre-fix save path, checked by putting it back.
+
+WHAT REMAINS ON THIS INSTRUCTION
+
+  * SECTION C, THE PYQTGRAPH HALF. Untouched: `fast_plots.py` is another
+    session's file. `saved_figure_appearance` exists precisely so that half
+    does not invent a second answer.
+  * THE PREFERENCE CONTROL. `figure_save_mode()` looks up
+    `spacr.qt.preferences.get_figure_save_mode` BY NAME and falls back to
+    'print', so adding the three-way control in Preferences (instruction 118)
+    is a change in that file alone with nothing to wire here. Until it exists,
+    `SPACR_FIGURE_SAVE_MODE=print|screen|transparent` selects the mode, which
+    is also how a headless run or a test asks without a store.
+  * THE PER-FIGURE RESTYLE MENUS (108/147) do not offer the mode yet.
+  * The house style's own `savefig.transparent` is now overridden at write
+    time for anything that goes through `save_figure`, which is section B's
+    stated intent ("transparent is not the answer") but is a visible change
+    for a published panel: a house-style figure that used to come out with no
+    ground now comes out on white unless the mode is 'transparent'.

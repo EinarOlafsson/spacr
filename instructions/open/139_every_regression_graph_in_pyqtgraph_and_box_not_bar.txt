@@ -313,3 +313,82 @@ ignored by the one call that should have honoured it.
 `tests/test_regression_qc.py`'s `_save` spy was updated to match -- it keys on
 the STEM rather than on `regression_qc_report.pdf`, because a path with the
 extension already on it is exactly the bug.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (evening) -- THE LAST BARE savefig ON THE REGRESSION PATH IS GONE
+--------------------------------------------------------------------------------
+
+The item the section C note handed off: "`spacr/guide_permutation.py:574` still
+writes with a bare `fig.savefig`, with `dpi=600` applied to PNG only -- the
+same two bugs `_finish` had." Done.
+
+`plot_guide_permutation_volcano` now publishes through
+`spacr.figure_sink.publish` and takes `fmt=None` / `dpi=None`. The permutation
+null is the only picture a nonparametric run draws of its OWN null
+distribution, which makes it the worst figure in the package to write to disk
+and leave there.
+
+THE dpi MEASUREMENT, on the number `savefig` is handed rather than on the file:
+with the resolution preference at 331 the old line passed 600 for a PNG and
+None for a PDF. It is 331 for both now. The old conditional was wrong in two
+different ways at once and each hid the other -- a hard-coded number that
+overrode the preference, and a None that meant matplotlib rasterised the
+scatter cloud at the figure's own 100.
+
+ONE THING DELIBERATELY NOT COLLAPSED, AND IT IS A HANDOFF, NOT AN OVERSIGHT.
+`ml.py:4568` asks for this picture twice:
+
+    for suffix in ('pdf', 'png'):
+        paths[key] = plot_guide_permutation_volcano(..., f'{stem}.{suffix}')
+
+Letting the format preference rewrite both extensions -- the convention
+everywhere else, and the one `save_figure`'s docstring states -- puts both
+calls on ONE destination. One of the two files a run has always written
+disappears, and the gallery gets two tiles for one file, which fails this
+section's own acceptance because that acceptance is a COUNT of tiles against
+files. So `_named_format` reads a suffix that names a real figure format as a
+request and passes it through as `fmt`; a bare stem, or a name like
+`guide_permutation_min_2.5_wells`, leaves `fmt=None` and the preference
+decides.
+
+    THE FIX ml.py NEEDS: drop the `for suffix` loop, one call, one key
+    `plot_min_{threshold}`. It is exactly the fix `write_diagnostic_suite`
+    got when its `formats=("pdf","png")` default was removed. The moment it
+    lands the preference takes over here with no further change in this file.
+    ml.py was outside this session's territory.
+
+`plt.close` is kept rather than `publish(close=True)`: `close=True` calls
+`fig.clf()`, which clears a figure without releasing it, and this one comes
+from `plt.subplots`, so pyplot holds a reference. A sweep over four thresholds
+and two outcomes draws eight.
+
+THE GREP THIS SECTION ASKS FOR, done with `ast` over all 381 files rather than
+with a text search, because three modules on this path DISCUSS `savefig` in
+prose and a grep that counts a docstring is a check nobody can keep green.
+21 `.savefig(` call sites remain in `spacr/`; NONE is on the regression path:
+
+    plot.py:232                  save_figure itself -- the one that should be
+    classifier_evaluation.py     1642, 1667
+    gui_elements.py              6512
+    illumination.py              1326
+    qt/screens/app_screen.py     4711
+    qt/screens/hyperparam.py     275
+    qt/widgets/figure_queue.py   154, 222, 1591
+    qt/widgets/figure_settings.py 1193
+    report.py                    2401, 2406
+    sequencing.py                1101
+    sequencing_qc.py             1211
+    spacr_cellpose.py            435
+    spacrops.py                  950, 1148
+    surrogate.py                 879, 913
+    volcano_style.py             387
+
+Every one of those is outside this instruction and outside this session's
+territory, and each is the same two bugs waiting: no format preference, no
+resolution preference, no tile. `volcano_style.py:387` is the interesting one
+-- it is a live screen's renderer (see 127's correction) writing its own file.
+
+`tests/test_the_permutation_null_is_published_too.py`, 12 cases, 9 of which
+fail against the old savefig line (checked by putting it back). The last one
+keeps the grep above as an assertion over the five regression modules.
