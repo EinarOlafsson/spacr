@@ -1863,6 +1863,39 @@ class FastPlot(QWidget):
         action.setToolTip(reason)
         return action
 
+    @staticmethod
+    def _group(menu, title: str):
+        """A named submenu that can also show a greyed entry's reason.
+
+        ``setToolTipsVisible`` IS PER MENU. Setting it on the top-level menu
+        does nothing for an entry inside a group, so a gated control moved
+        into one would keep its reason in an invisible tooltip -- which is
+        exactly the present-but-inert control instruction 106 forbids. Every
+        group is built here so none can be built without it.
+
+        BUILT WITH AN EXPLICIT PARENT, not by ``menu.addMenu(title)``. That
+        overload hands PySide a QMenu it considers Python-owned, so the
+        submenu -- and every QAction in it -- is collected the moment the
+        local holding it goes out of scope, i.e. as soon as this method
+        returns. The failure is a *later* "Internal C++ object (QAction)
+        already deleted" from whoever reads the menu next, and it is
+        intermittent, because it depends on when the collector runs.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        submenu = QMenu(title, menu)
+        submenu.setToolTipsVisible(True)
+        menu.addMenu(submenu)
+        return submenu
+
+    @staticmethod
+    def _checkable(menu, options) -> None:
+        """``[(label, callback, checked)]`` as ticked entries on ``menu``."""
+        for label, callback, checked in options:
+            action = menu.addAction(label, callback)
+            action.setCheckable(True)
+            action.setChecked(bool(checked))
+
     def build_style_menu(self):
         """The right-click menu, built from what the plot actually has on it.
 
@@ -1871,6 +1904,25 @@ class FastPlot(QWidget):
         not patchable from a test -- it is a C++ slot, and assigning over it
         leaves the real one dispatching -- so a test that reached in to read
         the entries hung the suite instead of failing it.
+
+        THE ORDER IS THE ORDER OF USE, not alphabetical, and it is the whole
+        design of instruction 147 C:
+
+          * the two entries every user reaches for stay at the TOP LEVEL and
+            one click away. A menu reorganised until nothing is one click
+            away is worse than the flat list it replaced.
+          * then what changes the CLAIM -- which rows are drawn, which
+            p-value the axis means, where the cut is, what zero is measured
+            from. These come first because they change what the figure says.
+          * then what changes the LOOK -- the mark, the colour, the axes, the
+            appearance, the size.
+          * then, alone under its own heading, the one entry that re-runs the
+            analysis. A user reaching for "Point size" must not be one slip
+            away from starting a fit.
+
+        Groups appear only when this plot HAS the thing they hold, so a Q-Q
+        is not offered a p-value axis it does not draw and a volcano is not
+        offered a violin.
         """
         from PySide6.QtWidgets import QMenu
 
@@ -1878,119 +1930,104 @@ class FastPlot(QWidget):
         # A DISABLED ENTRY'S REASON HAS TO BE READABLE. Qt hides action
         # tooltips unless a menu asks for them, so without this the greyed
         # entries would be exactly the "present but inert" control that
-        # instruction 106 forbids.
+        # instruction 106 forbids. Each group repeats it -- see `_group`.
         menu.setToolTipsVisible(True)
-        points = self.point_reason()
-        self._gated(menu, "Point size…", self._ask_point_size, points)
-        self._gated(menu, "Point colour…", self._ask_point_colour, points)
-        self._gated(menu, "Opacity…", self._ask_opacity, points)
-        # THE TWO THAT MAP A COLUMN rather than setting one value, which is
-        # why they sit together under the point controls and not among them.
-        self._gated(menu, "Colour by a column…", self._ask_colour_column,
-                    self.colour_map_reason())
-        self._gated(menu, "Shape by a column…", self._ask_shape_column,
-                    self.shape_reason())
-        if self._colour_column or self._shape_column:
-            menu.addAction("Back to this plot's own colouring",
-                           self.clear_column_mapping)
-        menu.addSeparator()
-        menu.addAction("Axis labels…", self._ask_labels)
-        menu.addAction("Font size…", self._ask_font_size)
-        menu.addAction("Font colour…", self._ask_font_colour)
-        menu.addSeparator()
-        menu.addAction("Axis limits…", self._ask_axis_limits)
-        menu.addAction("Axis limits: back to automatic", self.auto_range_axes)
-        menu.addAction("Aspect ratio…", self._ask_aspect_ratio)
-        self._gated(menu, "Line colour and width…", self._ask_line_style,
-                    self.line_reason())
-        menu.addSeparator()
-        # NAMED SEPARATELY BECAUSE THEY ARE DIFFERENT QUANTITIES. "Dimensions"
-        # as one entry is the misleading version: on the live plot it is the
-        # widget's size, on a saved figure it is the page, and a user who sets
-        # one and inspects the other finds nothing changed.
-        menu.addAction("Size on screen…", self._ask_screen_size)
-        menu.addAction("Exported page size…", self._ask_export_size)
-        menu.addAction("Size on screen: back to automatic",
-                       self.clear_screen_size)
-        menu.addSeparator()
-        grid = menu.addAction("Grid")
-        grid.setCheckable(True)
-        grid.setChecked(self._grid.isChecked())
-        grid.toggled.connect(self._grid.setChecked)
-        if self._legend_box.isEnabled():
-            legend = menu.addAction("Legend")
-            legend.setCheckable(True)
-            legend.setChecked(self._legend_box.isChecked())
-            legend.toggled.connect(self._legend_box.setChecked)
-        menu.addSeparator()
         menu.addAction("Reset view", self.plot.autoRange)
         menu.addAction("Export…", self.export)
-        if self._marks:
-            # WHAT THE GROUPS ARE DRAWN AS. Above "Measured from" because it
-            # changes the picture and not the numbers, which is what
-            # everything above this point does. Every option is offered --
-            # including the ones that mislead for the data on screen, because
-            # a menu that hides them cannot explain why -- and the plot says
-            # so in its status line once the choice is made.
-            menu.addSection("Draw as")
-            for label, callback, checked in self._marks:
-                action = menu.addAction(label, callback)
-                action.setCheckable(True)
-                action.setChecked(bool(checked))
+
+        # ------------------------------------------------ what the plot CLAIMS
+        claims = False
+        if self._levels:
+            # WHICH ROWS, not how they look. First, because a filtered plot
+            # that looks like a restyled one is read as the whole screen.
+            self._checkable(self._group(menu, "Show"), self._levels)
+            claims = True
         if self._p_values:
             # THE Y-AXIS ITSELF. Above the effect-size cut because it changes
             # what the axis MEANS, while the cut changes where a line is
             # drawn on it.
-            menu.addSection("p-value")
-            for label, callback, checked in self._p_values:
-                action = menu.addAction(label, callback)
-                action.setCheckable(True)
-                action.setChecked(bool(checked))
-
+            self._checkable(self._group(menu, "p-value"), self._p_values)
+            claims = True
         options, multiplier, on_multiplier = self._thresholds
         if options:
-            # ITS OWN SECTION. It changes which points count as hits, so it
-            # belongs neither with the restyling above nor with the re-fit
-            # below -- it re-reads a fit that has already happened, like the
-            # baseline.
-            menu.addSection("Effect-size cut")
+            # It changes which points count as hits, so it belongs neither
+            # with the restyling below nor with the re-fit at the end -- it
+            # re-reads a fit that has already happened, like the baseline.
+            cut = self._group(menu, "Effect-size cut")
             if multiplier is not None and on_multiplier is not None:
-                menu.addAction(
+                cut.addAction(
                     f"Multiplier: {multiplier:g}…",
                     lambda: self._ask_threshold_multiplier(multiplier,
                                                            on_multiplier))
-            for label, callback, checked in options:
-                action = menu.addAction(label, callback)
-                action.setCheckable(True)
-                action.setChecked(bool(checked))
-        if self._levels:
-            # WHICH ROWS, not how they look. Above the baselines and under
-            # its own heading: a filtered plot that looks like a restyled one
-            # is read as the whole screen.
-            menu.addSection("Show")
-            for label, callback, checked in self._levels:
-                action = menu.addAction(label, callback)
-                action.setCheckable(True)
-                action.setChecked(bool(checked))
+            self._checkable(cut, options)
+            claims = True
         if self._baselines:
-            # WHAT THE EFFECTS ARE MEASURED FROM. Under the restyling
-            # entries because it moves the points, and above the re-fit
-            # because it does NOT change the fit -- it changes where zero is
-            # drawn on a fit that has already happened.
-            menu.addSection("Measured from")
-            for label, callback, checked in self._baselines:
-                action = menu.addAction(label, callback)
-                action.setCheckable(True)
-                action.setChecked(bool(checked))
+            # WHAT THE EFFECTS ARE MEASURED FROM. It moves the points and
+            # does NOT change the fit: it changes where zero is drawn on a
+            # fit that has already happened.
+            self._checkable(self._group(menu, "Measured from"),
+                            self._baselines)
+            claims = True
+        if claims:
+            menu.addSeparator()
+
+        # -------------------------------------------------- how it is DRAWN
+        if self._marks:
+            # Every option is offered -- including the ones that mislead for
+            # the data on screen, because a menu that hides them cannot
+            # explain why -- and the plot says so in its status line once the
+            # choice is made.
+            self._checkable(self._group(menu, "Draw as"), self._marks)
+        points = self.point_reason()
+        colour = self._group(menu, "Colour by")
+        self._gated(colour, "Point colour…", self._ask_point_colour, points)
+        self._gated(colour, "Colour by a column…", self._ask_colour_column,
+                    self.colour_map_reason())
         if self._compartments:
-            # A SUBMENU, because this is the one list that can be long -- and
+            # ITS OWN LIST, because this is the one that can be long -- and
             # it holds only what this screen actually has, so a choice that
             # would colour nothing is not offered at all.
-            sub = menu.addMenu("Colour by localisation")
-            for label, callback, checked in self._compartments:
-                action = sub.addAction(label, callback)
-                action.setCheckable(True)
-                action.setChecked(bool(checked))
+            self._checkable(self._group(colour, "Colour by localisation"),
+                            self._compartments)
+        if self._colour_column or self._shape_column:
+            colour.addAction("Back to this plot's own colouring",
+                             self.clear_column_mapping)
+
+        axes = self._group(menu, "Axes")
+        axes.addAction("Axis labels…", self._ask_labels)
+        axes.addAction("Axis limits…", self._ask_axis_limits)
+        axes.addAction("Axis limits: back to automatic", self.auto_range_axes)
+        axes.addAction("Aspect ratio…", self._ask_aspect_ratio)
+
+        look = self._group(menu, "Appearance")
+        self._gated(look, "Point size…", self._ask_point_size, points)
+        self._gated(look, "Opacity…", self._ask_opacity, points)
+        self._gated(look, "Shape by a column…", self._ask_shape_column,
+                    self.shape_reason())
+        look.addAction("Font size…", self._ask_font_size)
+        look.addAction("Font colour…", self._ask_font_colour)
+        self._gated(look, "Line colour and width…", self._ask_line_style,
+                    self.line_reason())
+        grid = look.addAction("Grid")
+        grid.setCheckable(True)
+        grid.setChecked(self._grid.isChecked())
+        grid.toggled.connect(self._grid.setChecked)
+        if self._legend_box.isEnabled():
+            legend = look.addAction("Legend")
+            legend.setCheckable(True)
+            legend.setChecked(self._legend_box.isChecked())
+            legend.toggled.connect(self._legend_box.setChecked)
+
+        # NAMED SEPARATELY BECAUSE THEY ARE DIFFERENT QUANTITIES. "Dimensions"
+        # as one entry is the misleading version: on the live plot it is the
+        # widget's size, on a saved figure it is the page, and a user who sets
+        # one and inspects the other finds nothing changed.
+        size = self._group(menu, "Size")
+        size.addAction("Size on screen…", self._ask_screen_size)
+        size.addAction("Exported page size…", self._ask_export_size)
+        size.addAction("Size on screen: back to automatic",
+                       self.clear_screen_size)
+
         if self._refit is not None:
             callback, label = self._refit
             # A SECTION, not another line in the list. Everything above
