@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpinBox,
     QDoubleSpinBox,
+    QTextBrowser,
     QTextEdit,
     QToolButton,
     QVBoxLayout,
@@ -45,6 +46,7 @@ from PySide6.QtWidgets import (
 from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.channel_mapping import ChannelMappingWidget
 from ..widgets.class_editor import ClassEditorWidget
+from ..widgets.database_set import DatabaseSetWidget
 from ..widgets.external_mask_inputs import ExternalMaskInputWidget
 from ..widgets.file_list import FilePathListWidget, PairedFileTableWidget
 from ..widgets.row_exclusion import RowExclusionEditor
@@ -4523,6 +4525,253 @@ CHANNEL_LIST_KEYS = frozenset({
 })
 
 
+class _RegressionBackendField(QWidget):
+    """The backend dropdown, and the box that says what every backend IS.
+
+    Instruction 141 asked for two things about `regression_backend` and only
+    the first of them was on screen: "the options that are available via that
+    method should be choosable the others grayed out, the text box should
+    discribe all of the packages that are available and what they do, briefly
+    and linkt the the API for each".
+
+    WHAT WAS ACTUALLY THERE, measured on 2026-08-18 before this widget
+    existed: a plain ``QComboBox`` with all eight labels, every one of them
+    enabled. `spacr.regression_backends.describe_backends` had been written
+    and tested and NOTHING IN spacr/qt CALLED IT, so the descriptions and the
+    API links existed only in the test suite; and a user could pick
+    ``numpyro (GPU)`` -- which spaCR routes no fit through and whose package
+    is not installed -- with nothing to say otherwise until
+    :func:`spacr.ml._require_backend` refused the run.
+
+    So the control is a combo plus a box:
+
+    * EVERY ENTRY IS PRESENT AND THE UNAVAILABLE ONES ARE DISABLED, per
+      instruction 106 and INVARIANTS 6 -- greyed, never absent. An entry that
+      vanished when the regression type changed would take the user's chosen
+      value with it.
+
+    * THE REASON IS WRITTEN WHERE IT CANNOT BE MISSED. Three places, because
+      the two obvious ones are each missable on their own: appended to the
+      entry's own text (a greyed row otherwise says only "not this one"), on
+      the entry's tooltip in full, and in the box below, which is on screen
+      whether or not the popup is open.
+
+    * THE BOX FOLLOWS `regression_type`. An entry greyed for one family is
+      choosable for another -- ``cuML (GPU)`` is refused under ``mixed`` and
+      offered under ``lasso`` -- so a static description would be wrong half
+      the time.
+
+    * THE SELECTED BACKEND IS NOT SILENTLY CHANGED when the regression type
+      moves under it. It stays selected, disabled, with the refusal at the
+      top of the box in the same words the run will use. Re-pointing the
+      setting at statsmodels would be the silent fallback instruction 141 C
+      forbids, one step earlier than the fit.
+
+    The text is :func:`spacr.regression_backends.describe_backends` in its
+    ``compact`` form; that function's docstring says why the full form does
+    not belong on a settings page.
+    """
+
+    #: Emitted when the chosen backend changes. Named `value_changed` because
+    #: that is the first signal `_connect_setting_dependency_signals` looks
+    #: for, so a rule gated on this setting re-evaluates on a pick.
+    value_changed = Signal()
+
+    #: How tall the description may get before it scrolls, in pixels.
+    #: Instruction 135 is that the regression settings are ONE PAGE, so this
+    #: box has a ceiling rather than growing with its text: the panel is the
+    #: same length whichever backend is selected and whatever the environment
+    #: has to say about the other seven.
+    BOX_HEIGHT = 168
+
+    def __init__(self, default: Any = None, regression_type: Any = None,
+                 parent: Optional[QWidget] = None):
+        """
+        :param default: the stored value -- a label, a short name or None.
+        :param regression_type: what the panel currently asks to fit, used to
+            decide which entries are choosable. ``'auto'``/``None`` mean the
+            family is chosen from the response after the data is read.
+        """
+        super().__init__(parent)
+        from spacr.regression_backends import backend_choices
+
+        self._regression_type = self._normalise_type(regression_type)
+
+        self.combo = QComboBox(self)
+        self.combo.setObjectName("RegressionBackendCombo")
+        self.combo.setSizeAdjustPolicy(
+            QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.combo.setMinimumContentsLength(12)
+        for label in backend_choices():
+            # The LABEL is the stored value (spacr.settings.
+            # _resolve_regression_backend says why), and it is kept in
+            # userData rather than read back off the text: the text carries
+            # the refusal for a disabled entry and is therefore not the value.
+            self.combo.addItem(label, userData=label)
+
+        self.description = QTextBrowser(self)
+        self.description.setObjectName("RegressionBackendBox")
+        self.description.setReadOnly(True)
+        # CLICKABLE, which is the ask -- "linkt the the API for each". A
+        # QTextBrowser without this swallows the click and tries to navigate
+        # itself to a URL it cannot render.
+        self.description.setOpenExternalLinks(True)
+        self.description.setMaximumHeight(self.BOX_HEIGHT)
+        # Seven lines at the pane's default width, measured on the real
+        # screen: enough that the selected backend's paragraph and the first
+        # of the other seven are both on screen before anyone scrolls.
+        self.description.setMinimumHeight(132)
+        self.description.setSizePolicy(QSizePolicy.Preferred,
+                                       QSizePolicy.Preferred)
+
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(4)
+        column.addWidget(self.combo, 0)
+        column.addWidget(self.description, 1)
+        self.setFocusProxy(self.combo)
+
+        self.set_value(default)
+        self.combo.currentIndexChanged.connect(self._on_choice_changed)
+        self.refresh()
+
+    # -- the settings-widget contract ---------------------------------------
+
+    def get_value(self) -> Optional[str]:
+        """The chosen backend, as the label the settings CSV stores."""
+        index = self.combo.currentIndex()
+        if index < 0:
+            return None
+        return self.combo.itemData(index)
+
+    def set_value(self, value: Any) -> None:
+        """Select whatever ``value`` names -- label, short name or alias.
+
+        An unknown name is LEFT ALONE rather than raising or silently
+        selecting the default: this is called while a settings CSV is being
+        loaded, and a typo there is answered by
+        :func:`spacr.regression_backends.resolve_backend_name` at run time
+        with a message naming every valid choice.
+        """
+        from spacr.regression_backends import backend_label
+
+        try:
+            label = backend_label(value)
+        except (ValueError, KeyError):
+            return
+        index = self.combo.findData(label)
+        if index >= 0:
+            self.combo.setCurrentIndex(index)
+
+    def text(self) -> str:
+        """The chosen label -- the QComboBox contract callers may still use."""
+        return str(self.get_value() or "")
+
+    def setText(self, value: str) -> None:  # noqa: N802 - Qt contract
+        """Select by label -- the QComboBox contract callers may still use."""
+        self.set_value(value)
+
+    # -- what is choosable, and what the box says ---------------------------
+
+    @staticmethod
+    def _normalise_type(value: Any) -> Optional[str]:
+        """`'auto'`, `''` and `None` all mean "chosen from the response".
+
+        The regression-type combo offers ``'auto'`` as the readable spelling
+        of the historical ``None``, and
+        :func:`spacr.settings.get_perform_regression_default_settings`
+        normalises it back. `backend_status` is asked the same question in
+        the same spelling, so the panel and the run agree about which
+        backends can promise to fit a family nobody has chosen yet.
+        """
+        text = str(value if value is not None else "").strip().lower()
+        return None if text in ("", "auto", "none") else text
+
+    def regression_type(self) -> Optional[str]:
+        """The family the entries are currently judged against."""
+        return self._regression_type
+
+    def set_regression_type(self, value: Any) -> None:
+        """Re-judge every entry against a new ``regression_type``."""
+        normalised = self._normalise_type(value)
+        if normalised == self._regression_type:
+            return
+        self._regression_type = normalised
+        self.refresh()
+
+    def refresh(self) -> None:
+        """Re-grey the entries and re-render the box."""
+        from spacr.regression_backends import (backend_menu,
+                                               describe_backends)
+
+        statuses = backend_menu(self._regression_type)
+        model = self.combo.model()
+        blocked = self.combo.blockSignals(True)
+        try:
+            for index, status in enumerate(statuses):
+                if index >= self.combo.count():
+                    break
+                label = str(status['label'])
+                # THE REFUSAL IS IN THE ENTRY'S OWN TEXT. A disabled row in a
+                # dropdown is grey and silent; Qt's item tooltip is shown only
+                # while the popup is open and only under the cursor, so on its
+                # own it is a reason a user can walk straight past.
+                self.combo.setItemText(
+                    index,
+                    label if status['enabled']
+                    else f"{label}  --  {status['short_reason']}")
+                self.combo.setItemData(index, label)
+                self.combo.setItemData(index, status['reason'] or
+                                       f"{label}: {status['summary']}",
+                                       Qt.ToolTipRole)
+                item = model.item(index) if hasattr(model, "item") else None
+                if item is not None:
+                    item.setEnabled(bool(status['enabled']))
+        finally:
+            self.combo.blockSignals(blocked)
+
+        current = self.get_value()
+        html = describe_backends(self._regression_type, html=True,
+                                 selected=current, compact=True)
+        chosen = next((status for status in statuses
+                       if status['label'] == current), None)
+        if chosen is not None and not chosen['enabled']:
+            # THE SELECTION IS KEPT AND THE REFUSAL IS SHOWN. Re-pointing the
+            # setting at statsmodels here would be exactly the silent
+            # fallback instruction 141 C forbids -- and the sentence below is
+            # the one `spacr.ml._require_backend` will use if the run starts
+            # anyway, so the panel and the run say the same thing.
+            html = ("<p><b>This run will be refused.</b><br>"
+                    + escape(str(chosen['reason'])) + "</p>") + html
+        self.description.setHtml(html)
+
+    def api_links(self) -> List[str]:
+        """Every URL the box renders AS A LINK, in document order.
+
+        Read back off the laid-out document rather than off the HTML string,
+        because "the text contains a URL" and "Qt parsed an anchor a user can
+        click" are different claims and only the second is what was asked
+        for.
+        """
+        from PySide6.QtGui import QTextCursor
+
+        found: List[str] = []
+        cursor = QTextCursor(self.description.document())
+        while not cursor.atEnd():
+            cursor.movePosition(QTextCursor.NextCharacter,
+                                QTextCursor.KeepAnchor)
+            href = cursor.charFormat().anchorHref()
+            if href and href not in found:
+                found.append(href)
+            cursor.clearSelection()
+        return found
+
+    def _on_choice_changed(self, *_args) -> None:
+        """A new backend: re-render the box for it, then tell the panel."""
+        self.refresh()
+        self.value_changed.emit()
+
+
 class _FlowLayout(QLayout):
     """A left-to-right layout that wraps onto a new line when it runs out.
 
@@ -5386,6 +5635,12 @@ class SettingsWidgets:
         if isinstance(src_widget, QLineEdit):
             src_widget.editingFinished.connect(
                 self._refresh_contextual_widgets)
+        elif isinstance(src_widget, DatabaseSetWidget):
+            # The same obligation through a different control: adding a plate
+            # changes which columns and which rows the dependent fields can
+            # offer, so the panel follows the SET as it is edited rather than
+            # only when the screen is built.
+            src_widget.value_changed.connect(self._refresh_contextual_widgets)
 
         # The training basis changes which controls matter, so the panel has
         # to follow it as it is changed rather than only when the screen is
@@ -5409,6 +5664,20 @@ class SettingsWidgets:
                     signal.connect(self._on_training_basis_changed)
                     break
 
+        # An entry greyed for one family is choosable for another, so the
+        # backend control has to follow `regression_type` rather than be
+        # judged once when the panel is built. Bound method, not a lambda:
+        # INVARIANTS 4.
+        type_widget = self._widgets.get("regression_type")
+        if (isinstance(self._widgets.get("regression_backend"),
+                       _RegressionBackendField) and type_widget is not None):
+            for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "textChanged"):
+                signal = getattr(type_widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_regression_type_changed)
+                    break
+
         reducer_widget = self._widgets.get("reduction_method")
         if self.app_key == "umap" and isinstance(reducer_widget, QComboBox):
             reducer_widget.currentTextChanged.connect(
@@ -5425,6 +5694,7 @@ class SettingsWidgets:
 
         self._refresh_contextual_widgets()
         self._refresh_umap_reducer_enablement()
+        self._refresh_regression_backend()
 
         # Bucket into sections.
         cats = categories_for_app(self.app_key, get_categories())
@@ -5579,6 +5849,25 @@ class SettingsWidgets:
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:
         parent = self._parent
+        # MORE THAN ONE DATABASE (instruction 109). A screen acquired as three
+        # plates is three project folders, and `generate_image_umap` has
+        # always taken a list of them -- the panel was the half that could
+        # only express one, so the comparison the user actually wants could
+        # not be asked for from the application at all. The control adds,
+        # removes, and SAYS WHAT THE MERGE WOULD COST before anything runs.
+        #
+        # `on_colour_by` writes into this panel's own `color_by` field, looked
+        # up when the box is ticked rather than captured now: the fields are
+        # built in one pass and `color_by` does not exist yet at this point.
+        if self.app_key == "umap" and key == "src":
+            return DatabaseSetWidget(
+                value=self._defaults.get(key, default),
+                mode="folder",
+                table="cell",
+                title="Choose one or more spaCR project folders",
+                on_colour_by=partial(self.set_value_for_key, "color_by"),
+                parent=parent,
+            )
         if self.app_key == "umap" and key == "exclude_rows":
             return RowExclusionEditor(
                 value=self._defaults.get(key, default),
@@ -5642,6 +5931,16 @@ class SettingsWidgets:
                 # captures should be visible rather than implied.
                 paths=partial(self._input_csv_paths, source.roles),
                 what=source.what,
+                parent=parent,
+            )
+        # WHO fits the model gets a control that can say why an option is
+        # not choosable and what each one is. A plain combo could only offer
+        # eight labels and be silent about all of it -- which is what it did
+        # until 2026-08-18. See _RegressionBackendField.
+        if key == "regression_backend":
+            return _RegressionBackendField(
+                default=self._defaults.get(key, default),
+                regression_type=self._defaults.get("regression_type"),
                 parent=parent,
             )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
@@ -5907,8 +6206,10 @@ class SettingsWidgets:
                     _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
-                    ClassEditorWidget, FilePathListWidget,
+                    ClassEditorWidget, DatabaseSetWidget,
+                    FilePathListWidget,
                     PairedFileTableWidget, _CsvColumnField,
+                    _RegressionBackendField,
                 ),
             ):
                 w.set_value(value)
@@ -5939,6 +6240,31 @@ class SettingsWidgets:
             return False
         self._defaults[key] = value
         return True
+
+    def _on_regression_type_changed(self, *_args) -> None:
+        """Re-judge the backends against the family now being fitted."""
+        self._refresh_regression_backend()
+
+    def _refresh_regression_backend(self) -> None:
+        """Point the backend control at the panel's current regression type.
+
+        Reads the WIDGET rather than the defaults, so the greying and the
+        description follow what is on screen. With no `regression_type`
+        widget -- another module, or a layout that hides it -- the declared
+        default is used, which is what the run would fit anyway.
+        """
+        backend = self._widgets.get("regression_backend")
+        if not isinstance(backend, _RegressionBackendField):
+            return
+        widget = self._widgets.get("regression_type")
+        if widget is None:
+            value = self._defaults.get("regression_type")
+        else:
+            try:
+                value = self._read_widget(widget)
+            except Exception:                                  # noqa: BLE001
+                value = self._defaults.get("regression_type")
+        backend.set_regression_type(value)
 
     def _on_umap_reducer_changed(self, *_args) -> None:
         """Re-grey method-specific Image UMAP controls immediately."""
@@ -6344,8 +6670,10 @@ class SettingsWidgets:
             (
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
-                ChannelMappingWidget, ClassEditorWidget, FilePathListWidget,
+                ChannelMappingWidget, ClassEditorWidget, DatabaseSetWidget,
+                FilePathListWidget,
                 PairedFileTableWidget, _CsvColumnField,
+                _RegressionBackendField,
             ),
         ):
             return w.get_value()
