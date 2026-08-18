@@ -371,3 +371,142 @@ def test_a_legacy_column_spelling_is_canonicalised_on_the_way_in(tmp_path):
 
     assert "rowID" in merged.columns
     assert "row" not in merged.columns
+
+
+# --------------------------------------------------------------------------- #
+#  The name a source carries, which is the colour of a point on the map
+# --------------------------------------------------------------------------- #
+
+def test_a_plate_folder_layout_names_the_plate_and_not_the_file(tmp_path):
+    """spaCR writes every plate to ``<plate>/measurements/measurements.db``.
+
+    So the stem AND its immediate parent are the same string for every plate
+    in a screen, and disambiguating on the immediate parent produced
+    ``measurements``, ``measurements/measurements`` and
+    ``measurements/measurements (2)`` -- three labels that are distinct and
+    tell the user nothing, in the column a merged embedding is COLOURED BY.
+    """
+    from spacr.core import _umap_source_label
+
+    roots, paths = [], []
+    for index in (1, 2, 3):
+        root = tmp_path / f"plate{index}"
+        (root / "measurements").mkdir(parents=True)
+        roots.append(str(root))
+        paths.append(_database(root / "measurements" / "measurements.db",
+                               f"plate{index}"))
+
+    labels = [s.label for s in describe_merge(paths, "cell").sources]
+    assert labels == ["plate1", "plate2", "plate3"], labels
+    # And the Image UMAP names them the same way, which is the whole reason
+    # the two are allowed to share one column name.
+    assert labels == [_umap_source_label(root) for root in roots]
+
+
+def test_source_labels_is_the_one_answer_both_a_chip_and_a_legend_use(tmp_path):
+    """A chip reading ``plate1`` beside a legend reading ``measurements (2)``
+    is provenance the user cannot follow, so there is one function."""
+    from spacr.multi_database import source_labels
+
+    roots = []
+    for index in (1, 2):
+        root = tmp_path / f"plate{index}" / "measurements"
+        root.mkdir(parents=True)
+        roots.append(_database(root / "measurements.db", f"plate{index}"))
+
+    assert source_labels(roots) == ("plate1", "plate2")
+    assert [s.label for s in describe_merge(roots, "cell").sources] == [
+        "plate1", "plate2"]
+
+
+# --------------------------------------------------------------------------- #
+#  Three plates, which is the case the instruction is about
+# --------------------------------------------------------------------------- #
+
+def test_three_databases_keep_every_per_source_count(tmp_path):
+    """The anti-pooling test at the size the instruction describes.
+
+    Rows in equals rows out, per source, for every source -- and the counts
+    travel ON the frame, so a reader does not have to go back to the files to
+    prove nothing was pooled.
+    """
+    paths, before = [], {}
+    for index, rows in enumerate((4, 7, 5), start=1):
+        path = _database(tmp_path / f"plate{index}.db", f"plate{index}",
+                         rows=rows)
+        paths.append(path)
+        before[f"plate{index}"] = rows
+
+    merged = read_merged(paths, "cell")
+
+    after = merged.groupby(SOURCE_COLUMN).size().to_dict()
+    assert after == before
+    assert len(merged) == sum(before.values())
+    assert merged.attrs["source_rows"] == before
+
+
+# --------------------------------------------------------------------------- #
+#  Told, and recorded
+# --------------------------------------------------------------------------- #
+
+def test_the_refusal_does_not_recommend_hiding_the_screen_in_the_plate_id(
+        colliding):
+    """`on_collision='qualify'` stays available to a caller who wants it, and
+    stops being the advice a user is given.
+
+    Rewriting ``plate1`` to ``runA-plate1`` makes the keys unique -- which is
+    all it was built to do -- and hides which experiment a plate belongs to
+    inside its own id, where it can no longer be blocked on, tested for or
+    coloured by (instruction 122).
+    """
+    with pytest.raises(MergeRefused) as caught:
+        read_merged(list(colliding), "cell")
+
+    message = str(caught.value)
+    assert "plate1" in message
+    assert "qualify" not in message
+    assert "Remove one of those databases" in message
+
+
+def test_a_merge_decision_is_written_down(tmp_path, colliding):
+    """"The user is TOLD, and what they choose is RECORDED."
+
+    A collision the user resolves by dropping one of two databases leaves no
+    trace in the surviving frame -- it cannot say which ``plate1`` it is -- so
+    the record is the only thing that can answer it afterwards.
+    """
+    import json
+
+    from spacr.multi_database import decision_for, record_decision
+
+    plan = describe_merge(list(colliding), "cell")
+    decision = decision_for(plan, outcome="resolved",
+                            resolution="removed runB from the working set")
+
+    log = tmp_path / "merge_decisions.jsonl"
+    assert record_decision(decision, str(log)) == str(log)
+
+    written = [json.loads(line) for line in log.read_text().splitlines()]
+    assert len(written) == 1
+    record = written[0]
+    assert record["outcome"] == "resolved"
+    assert record["resolution"] == "removed runB from the working set"
+    assert record["colliding_plates"]["plate1"] == ["runA", "runB"]
+    assert record["rows"] == {"runA": 4, "runB": 4}
+    assert record["when"]
+
+    # Appended, not rewritten: two screens deciding at once must not lose one
+    # of the two answers.
+    record_decision(decision_for(plan, outcome="refused"), str(log))
+    assert len(log.read_text().splitlines()) == 2
+
+
+def test_an_unwritable_decision_log_does_not_take_the_screen_down(colliding):
+    """An audit line is never worth failing a load for -- but the caller is
+    told it was not kept, rather than being left to assume it was."""
+    from spacr.multi_database import decision_for, record_decision
+
+    plan = describe_merge(list(colliding), "cell")
+    written = record_decision(decision_for(plan, outcome="refused"),
+                              "/proc/not/a/writable/place/merge.jsonl")
+    assert written == ""

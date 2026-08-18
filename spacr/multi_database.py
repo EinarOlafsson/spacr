@@ -48,6 +48,8 @@ effect, or colour by it without parsing a string back apart.
 """
 from __future__ import annotations
 
+import datetime as _datetime
+import json
 import os
 import sqlite3
 from dataclasses import dataclass, field
@@ -62,9 +64,14 @@ __all__ = [
     "SOURCE_COLUMN",
     "SCREEN_COLUMN",
     "MergePlan",
+    "MergeDecision",
     "SourceSummary",
+    "decision_for",
+    "decision_log_path",
     "describe_merge",
     "read_merged",
+    "record_decision",
+    "source_labels",
     "MergeRefused",
 ]
 
@@ -242,6 +249,74 @@ def _label_for(path: str, used: Sequence[str]) -> str:
     return f"{candidate} ({index})"
 
 
+#: Folder names that say nothing about WHICH database is which.
+#:
+#: spaCR's own layout is ``<plate>/measurements/measurements.db``, so both the
+#: file stem AND its immediate parent are the same string for every plate in a
+#: screen. Disambiguating on the immediate parent therefore produced
+#: ``measurements``, ``measurements/measurements`` and
+#: ``measurements/measurements (2)`` for three plates -- three labels that are
+#: distinct and tell the user nothing, in the column the merged embedding is
+#: COLOURED BY.
+_GENERIC_FOLDERS = frozenset({
+    "measurements", "measurement", "db", "database", "databases",
+    "data", "results", "result", "analysis", "output", "outputs",
+})
+
+
+def _meaningful_parent(path: str) -> str:
+    """The nearest ancestor directory whose name says which source this is.
+
+    Climbs past :data:`_GENERIC_FOLDERS`, which is what makes the plate folder
+    -- ``plate1`` in ``plate1/measurements/measurements.db`` -- the name of the
+    source, exactly as :func:`spacr.core._umap_source_label` already names it.
+    """
+    parent = os.path.dirname(str(path))
+    while parent:
+        name = os.path.basename(parent)
+        if not name:
+            break
+        if name.casefold() not in _GENERIC_FOLDERS:
+            return name
+        nxt = os.path.dirname(parent)
+        if nxt == parent:
+            break
+        parent = nxt
+    return ""
+
+
+def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
+    """One short, unique, human name per database, decided for the whole set.
+
+    Public because a chip, a legend and the :data:`SOURCE_COLUMN` value have to
+    be the SAME string: a screen that labels a chip ``plate1`` while the
+    provenance column says ``measurements (2)`` has provenance the user cannot
+    follow.
+
+    Decided across all the paths at once rather than one at a time, because
+    "is this name ambiguous?" is a question about the set. Three rules, in
+    order:
+
+    1. the file stems, when they differ -- that is what the user called them;
+    2. the nearest MEANINGFUL parent folder (:func:`_meaningful_parent`), which
+       is the plate folder in spaCR's own ``<plate>/measurements/
+       measurements.db`` layout;
+    3. the historical parent/stem rule with a numeric tail, for the case where
+       even the folders repeat.
+    """
+    paths = [str(path) for path in paths]
+    stems = [os.path.splitext(os.path.basename(path))[0] for path in paths]
+    if len(set(stems)) == len(stems):
+        return tuple(stems)
+    folders = [_meaningful_parent(path) for path in paths]
+    if all(folders) and len(set(folders)) == len(folders):
+        return tuple(folders)
+    used: List[str] = []
+    for path in paths:
+        used.append(_label_for(path, used))
+    return tuple(used)
+
+
 def _table_columns(path: str, table: str) -> List[str]:
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
@@ -344,10 +419,10 @@ def describe_merge(paths: Sequence[str], table: str, *,
     """
     assigned = _resolve_screens(paths, screens)
     summaries: List[SourceSummary] = []
-    labels: List[str] = []
-    for path, screen in zip(paths, assigned):
-        label = _label_for(path, labels)
-        labels.append(label)
+    # Named for the whole set at once -- see :func:`source_labels` for why a
+    # per-path rule gave every plate of a screen the same useless name.
+    labels = list(source_labels(paths))
+    for path, screen, label in zip(paths, assigned, labels):
         columns = _table_columns(path, table)
         canonical = _canonical_columns(columns)
         stored = {value: key for key, value in canonical.items()}
@@ -402,6 +477,122 @@ def describe_merge(paths: Sequence[str], table: str, *,
 
     return MergePlan(tuple(summaries), tuple(sorted(common)), partial,
                      colliding, colliding_identities, shared)
+
+
+# --------------------------------------------------------------------------- #
+#  What the user decided, written down
+# --------------------------------------------------------------------------- #
+#
+# Instruction 109: "Two databases that both contain a plate called plate1 do
+# NOT silently merge those plates. The user is TOLD, and what they choose is
+# RECORDED."
+#
+# Telling them is the refusal and the plan. RECORDING is this: a merge that a
+# user resolved by hand -- by dropping one of two colliding databases, say --
+# leaves no trace in the result, and six months later the frame cannot say
+# which of the two plate1s it is. One appended JSON line per merge, in one
+# place, is the smallest thing that answers that question afterwards.
+
+
+@dataclass(frozen=True)
+class MergeDecision:
+    """One merge, and what was decided about it.
+
+    Deliberately flat and JSON-safe: this is written to a log that outlives
+    the session, so it holds strings and numbers rather than objects whose
+    class may not exist by the time somebody reads it back.
+    """
+
+    table: str
+    sources: Tuple[str, ...]
+    labels: Tuple[str, ...]
+    #: Rows per source label, BEFORE the merge. The per-source count that a
+    #: reader can compare against the merged frame to prove nothing pooled.
+    rows: Mapping[str, int]
+    columns: str
+    dropped_columns: Tuple[str, ...]
+    colliding_plates: Mapping[str, Tuple[str, ...]]
+    #: ``'merged'`` or ``'refused'`` -- what actually happened.
+    outcome: str
+    #: What the user did about it, in their own terms. Empty when there was
+    #: nothing to decide.
+    resolution: str = ""
+    when: str = ""
+
+    def as_dict(self) -> Dict[str, Any]:
+        """The record as plain JSON-safe data."""
+        return {
+            "when": self.when,
+            "table": self.table,
+            "outcome": self.outcome,
+            "resolution": self.resolution,
+            "columns": self.columns,
+            "sources": list(self.sources),
+            "labels": list(self.labels),
+            "rows": {str(k): int(v) for k, v in dict(self.rows).items()},
+            "dropped_columns": list(self.dropped_columns),
+            "colliding_plates": {
+                str(plate): list(labels)
+                for plate, labels in dict(self.colliding_plates).items()},
+        }
+
+
+def decision_for(plan: MergePlan, *, outcome: str, columns: str = "common",
+                 resolution: str = "",
+                 when: Optional[str] = None) -> MergeDecision:
+    """Build the record for what ``plan`` was asked to do.
+
+    :param plan: the plan the decision is about.
+    :param outcome: ``'merged'`` or ``'refused'``.
+    :param columns: the column rule that was used.
+    :param resolution: what the user chose, in words.
+    :param when: ISO timestamp; ``None`` takes the current local time.
+    """
+    return MergeDecision(
+        table=plan.sources[0].table if plan.sources else "",
+        sources=tuple(source.path for source in plan.sources),
+        labels=tuple(source.label for source in plan.sources),
+        rows={source.label: source.rows for source in plan.sources},
+        columns=columns,
+        dropped_columns=tuple(plan.dropped_columns) if columns == "common"
+        else (),
+        colliding_plates={plate: tuple(labels) for plate, labels
+                          in dict(plan.colliding_plates).items()},
+        outcome=outcome,
+        resolution=resolution,
+        when=when or _datetime.datetime.now().isoformat(timespec="seconds"),
+    )
+
+
+def decision_log_path() -> str:
+    """Where merge decisions are appended.
+
+    Beside ``~/.spacr/runs``, which is where this application already keeps
+    the record of what it was asked to do.
+    """
+    return os.path.join(os.path.expanduser("~"), ".spacr",
+                        "merge_decisions.jsonl")
+
+
+def record_decision(decision: MergeDecision,
+                    path: Optional[str] = None) -> str:
+    """Append ``decision`` to the merge log and return the file it went to.
+
+    JSON lines, appended: a merge decision is an event, and rewriting a whole
+    document to add one would lose the others if two screens decided at once.
+
+    Never raises for an unwritable log -- a read-only home directory must not
+    take a screen down for the sake of an audit line -- but returns ``""`` so
+    a caller that wants to say the record was not kept can.
+    """
+    target = path or decision_log_path()
+    try:
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(decision.as_dict(), sort_keys=True) + "\n")
+    except OSError:
+        return ""
+    return target
 
 
 def _qualified_plate(plate: Any, label: str) -> str:
@@ -477,6 +668,7 @@ def read_merged(paths: Sequence[str],
             if columns == "common" else None)
     dropped = plan.dropped_columns if columns == "common" else ()
     frames = []
+    source_rows: Dict[str, int] = {}
     for source in plan.sources:
         query = f'SELECT * FROM "{source.table}"'
         if limit_per_source:
@@ -507,12 +699,19 @@ def read_merged(paths: Sequence[str],
             ]
         frame[SOURCE_COLUMN] = source.label
         frames.append(frame)
+        source_rows[source.label] = len(frame)
 
     merged = pd.concat(frames, ignore_index=True, sort=False)
     # The set a caller is about to analyse, and the set they are not. Carried
     # on the frame so it cannot be separated from the data it describes.
     merged.attrs["dropped_columns"] = dropped
     merged.attrs["screens"] = plan.screens
+    # THE ANTI-POOLING EVIDENCE, carried with the data. Pooling two plates
+    # that share a name is the one failure here with no symptom, so the counts
+    # that would expose it travel on the frame rather than being recomputable
+    # only by going back to the files.
+    merged.attrs["source_rows"] = dict(source_rows)
+    merged.attrs["labels"] = tuple(source.label for source in plan.sources)
     if dropped and report is not None:
         report(
             f"{len(dropped)} measurement(s) present in only some databases "
@@ -546,9 +745,15 @@ def _collision_message(plan: MergePlan) -> str:
     detail = "; ".join(
         f"{plate!r} in {', '.join(labels)}"
         for plate, labels in sorted(plan.colliding_plates.items()))
+    # NO 'qualify' IN THIS SENTENCE. It is still available to a caller who
+    # wants the plate id rewritten, and it is still the wrong thing to put in
+    # front of a user: `plate1` becoming `runA-plate1` makes the keys unique
+    # and hides which experiment a plate belongs to INSIDE its own id, where
+    # it can no longer be blocked on, tested for or coloured by. This message
+    # is what the Gate Editor and the Image UMAP show, so it names the
+    # resolutions that keep the experiment analysable.
     return (
         "the same plate id appears in more than one database, so merging "
         "would compute every per-well number over two experiments at "
-        f"once: {detail}. Rename the plates, drop one database, pass "
-        "screens=[...] if these really are separate screens, or pass "
-        "on_collision='qualify' to prefix each with its source.")
+        f"once: {detail}. Remove one of those databases, rename the plates, "
+        "or say these are separate screens so each keeps its own identity.")
