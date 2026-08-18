@@ -1,0 +1,137 @@
+================================================================================
+EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "in my last run i also got: 'No summary: this run came back without a fitted
+   model, so there is none to summarise.' with a nonparametric mixed model? I
+   want a summary for every regression mode with all the relevant information
+   (R2, parametric, equal variance, samples explainers, etc, etc.)"
+
+Related: 153 made the summary survive a reload. 132/144 are the model box. 115
+         is every diagnostic saved and scored. 141 is the backend inventory.
+
+--------------------------------------------------------------------------------
+A. WHY THERE IS NO SUMMARY, AND WHY THE MESSAGE IS RIGHT AND USELESS
+--------------------------------------------------------------------------------
+
+`regression_results.summary_text` relays THE STATSMODELS SUMMARY, verbatim and
+deliberately -- "the point of asking for the statsmodels summary is to get the
+statsmodels summary; a re-implementation would differ from every textbook".
+That is correct for what it is, and it means the tab has exactly one source.
+
+So there are three ways to get no summary, and all three are already
+distinguished honestly (which is 153's work, and it should not be undone):
+
+    model is None                  -> nothing was handed over
+    model has no .summary()        -> an sklearn-backed fit
+    summary() raised               -> named with its exception
+
+`inference='nonparametric'` is the FIRST case. It is not a fitted model at all:
+it tests each guide as a plate-blocked marginal association by permutation, so
+there is no design matrix, no coefficient covariance and no statsmodels object
+to ask. The sentence is true. It is also useless, because the user did run
+something, it did produce results, and those results have properties worth
+reporting -- just not the ones statsmodels prints.
+
+THE ASK IS NOT "MAKE statsmodels WORK FOR NONPARAMETRIC". It is: spaCR should
+write ITS OWN summary, for every mode, and include the statsmodels one where it
+exists rather than instead of it.
+
+--------------------------------------------------------------------------------
+B. A spaCR SUMMARY, THE SAME SHAPE FOR ALL NINETEEN TYPES AND BOTH INFERENCES
+--------------------------------------------------------------------------------
+
+Every field is either COMPUTED or explicitly NOT APPLICABLE WITH A REASON. A
+blank is not allowed and neither is a zero standing in for "we did not check" --
+that is the failure this whole instruction is about, in miniature.
+
+  WHAT WAS FITTED
+    regression_type, level(s), inference (parametric / nonparametric), backend
+    (141), the formula actually fitted (132), and whether plate position was
+    in it (143).
+
+  THE DESIGN, WHICH IS WHAT MAKES EVERY NUMBER BELOW READABLE
+    n wells, n guides, n genes, n cells, rows fitted, rank of the design, and
+    parameters estimated. spaCR ALREADY has the identifiability warning that
+    fires when parameters approach observations -- keep it, at the top, where
+    it is now.
+
+  FIT QUALITY
+    R^2 and adjusted R^2 where defined; pseudo-R^2 (McFadden) for the GLM
+    family, NAMED as pseudo so it is not compared against an OLS R^2; log-
+    likelihood, AIC, BIC where the estimator reports them. For a penalised fit
+    say plainly that R^2 on the training data is not a fit statistic and give
+    the bootstrap selection frequency instead, which is what those types are
+    ranked by today.
+    FOR THE NONPARAMETRIC PATH: R^2 does not exist and the summary says so in
+    those words. What it reports instead: permutations run, the finest p
+    expressible (1/(n+1) -- 1,000 permutations cannot express p < 1e-3, which
+    is instruction 149 C), how many guides reached it, and the blocking used.
+
+  ASSUMPTIONS, EACH WITH ITS TEST AND ITS VERDICT
+    equal variance (Breusch-Pagan / White), normality of residuals (already
+    computed -- `regression_qc` returns skew, excess kurtosis and a normality
+    p, and refuses below n=8 with "normality test needs n >= 8"), independence
+    / clustering, influence and leverage, and multicollinearity (VIF, which
+    127 finding 4 says is currently duplicated).
+    A NONPARAMETRIC RUN REPORTS THESE AS "not assumed", not as blanks -- that
+    is the POINT of choosing it, and a summary that leaves them empty makes
+    the safer method look like the less informative one.
+
+  THE CALL
+    multiple-testing method and alpha, n tested, n called, the BH critical raw
+    p (149 F.2), and genomic inflation lambda.
+
+  WHAT WAS EXCLUDED AND WHY
+    rows dropped by min_cell_count, by fraction_threshold, by missing
+    metadata -- counted. A summary that reports on 1,945 rows without saying
+    which 300 went is a summary of a dataset the user never chose.
+
+  THE STATSMODELS SUMMARY VERBATIM, at the end, when there is one. Unchanged,
+  for the reason the current docstring gives.
+
+--------------------------------------------------------------------------------
+C. MOST OF THIS IS ALREADY COMPUTED. COLLECT IT, DO NOT REDERIVE IT.
+--------------------------------------------------------------------------------
+
+  * `regression_qc.context_from_model` already builds the diagnostic context
+    and already returns skew / excess kurtosis / normality p.
+  * The Runs tab already records `r_squared`, `genomic_inflation`,
+    `n_rows_fitted`, `n_wells`, `n_guides`, `n_cells`, `n_results`,
+    `n_below_alpha` per run (`sweep_runs.PREFERRED_COLUMNS`) -- so the columns
+    a run is COMPARED by should be the columns its summary REPORTS. If those
+    two disagree, one of them is wrong.
+  * The identifiability warning, the effect-size cut and the correction are all
+    already decided elsewhere in the run.
+
+SO THE WORK IS A COLLECTOR AND A CONTRACT, not new statistics: one function
+that takes the run and returns the summary, with a named field per row and an
+explicit "not applicable, because ..." for every field a given mode cannot
+fill. THAT CONTRACT IS THE DELIVERABLE -- a test should assert that EVERY one
+of the nineteen types, crossed with both inferences, produces a summary with no
+silently missing field.
+
+--------------------------------------------------------------------------------
+D. IT IS SAVED WITH THE RUN
+--------------------------------------------------------------------------------
+
+Per 153: written to the run folder as it is produced, read back when the run is
+reopened, and identical either way. A summary that exists only in a live
+session is one a user cannot put in a methods section three weeks later.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A nonparametric mixed run shows a full summary: what was fitted, the design,
+  the permutation resolution, the assumptions listed as "not assumed", the
+  call, and the exclusions. No "No summary" anywhere.
+* Each of the nineteen regression types, under both inferences, produces a
+  summary in which every field is either a number or a stated reason -- pinned
+  by a test that iterates the whole product.
+* The Runs tab's comparison columns and the summary's fields agree.
+* Reopening the run from disk shows the same summary, byte for byte.
+* Where statsmodels has a summary it is still there, verbatim, at the end.
