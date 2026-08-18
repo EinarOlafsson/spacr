@@ -721,8 +721,13 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
                       f"MemoryMax={memory_max}. {tail}").strip()}
 
 
-def _trial_settings(base_settings, trial, destination):
-    """Build one trial's settings dict and its own output folder."""
+def _trial_settings(base_settings, trial, destination, *, qc: bool = False):
+    """Build one trial's settings dict and its own output folder.
+
+    :param qc: draw the full diagnostic suite for every trial. Off, because
+        a hundred trials of it is ten minutes and two thousand files almost
+        nobody opens; see the note at ``regression_qc`` below.
+    """
     settings = dict(base_settings)
     settings.update({k: v for k, v in trial.items() if k != "trial_id"})
     folder = os.path.join(destination, f"trial_{trial['trial_id']:04d}")
@@ -739,11 +744,22 @@ def _trial_settings(base_settings, trial, destination):
     # summarise_trial computes them in ~150 ms and they are unaffected by
     # this, so a sweep still sorts by control rank, inflation and R^2.
     #
-    # setdefault, so a sweep that explicitly wants the pictures gets them.
-    # Reopening one interesting trial goes through settings_for_trial, which
-    # does not pass here -- so the trial you choose to look at again is
-    # fitted WITH the diagnostics, which is the point of choosing it.
-    settings.setdefault("regression_qc", False)
+    # ASSIGNED, NOT setdefault -- and this is the whole bug. `setdefault`
+    # does nothing when the key is already there, and EVERY base dict reaching
+    # here already carries it at True: the Tk panel, the Qt panel and
+    # `spacr-run` all build theirs from
+    # `get_perform_regression_default_settings`, which defaults it on.
+    # Measured 2026-08-18: `_trial_settings(get_perform_regression_default_settings({}), ...)`
+    # came back with regression_qc=True, so a sweep driven from the
+    # application paid the full suite on every trial -- roughly ten minutes
+    # and two thousand files per hundred trials -- while the comment above
+    # said it did not.
+    #
+    # `qc` is the caller's explicit say. A sweep that wants the pictures asks
+    # for them; reopening one interesting trial goes through
+    # settings_for_trial, which does not pass here, so the trial you choose to
+    # look at again is still fitted WITH the diagnostics.
+    settings["regression_qc"] = bool(qc)
     # Write the settings the way the GUI writes them, so a trial worth a
     # second look can be opened straight in the regression module -- point it
     # at the trial folder and press run. A sweep whose interesting rows cannot
@@ -763,12 +779,20 @@ def _execute_trial(payload):
     worker imports spaCR itself: ``perform_regression`` pulls in torch and
     matplotlib, and a forked copy of those is not safe to reuse.
     """
-    base_settings, trial, destination, controls, contained = payload
+    # SIX OR FIVE. `qc` was appended on 2026-08-18 and this tuple is an
+    # internal, pickled, POSITIONAL contract -- growing it broke four
+    # tests that build a payload by hand, and would break any caller
+    # pickled by an older process mid-sweep. Reading it with a default
+    # costs one line and makes the addition backward compatible; the
+    # default is False, which is what a sweep wants.
+    base_settings, trial, destination, controls, contained = payload[:5]
+    qc = bool(payload[5]) if len(payload) > 5 else False
     # Before anything expensive: this work yields to the user's machine.
     be_polite()
     _pin_threads()
 
-    settings, folder = _trial_settings(base_settings, trial, destination)
+    settings, folder = _trial_settings(base_settings, trial, destination,
+                                       qc=qc)
     row = {"trial_id": trial["trial_id"], "folder": folder,
            "preparation_key": _preparation_key(settings)}
     row.update({k: v for k, v in trial.items() if k != "trial_id"})
@@ -837,6 +861,7 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                         controls: Mapping[str, str] | None = None,
                         n_jobs: int = 8,
                         contained: bool = True,
+                        qc: bool = False,
                         progress_every: int = 25) -> pd.DataFrame:
     """Run the sweep across processes, writing results as they land.
 
@@ -900,7 +925,8 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     print(f"[sweep] {len(trials)} trials across {n_jobs} workers ({reason})",
           flush=True)
 
-    payloads = [(dict(base_settings), trial, destination, controls, contained)
+    payloads = [(dict(base_settings), trial, destination, controls,
+                 contained, qc)
                 for trial in trials]
     rows: list[dict] = []
     started = time.time()
@@ -972,6 +998,7 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                learn_from_failures: int = 2,
                corrections: Sequence[str] | None = None,
                contained: bool = True,
+               qc: bool = False,
                memory_floor_gb: float = FREE_MEMORY_FLOOR_GB,
                runner: Callable | None = None) -> pd.DataFrame:
     """Run every trial and return one tidy row per trial.
@@ -1037,16 +1064,14 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                 "seconds": 0.0,
             })
             continue
-        settings = dict(base_settings)
-        settings.update({k: v for k, v in trial.items() if k != "trial_id"})
-        folder = os.path.join(destination,
-                              f"trial_{trial['trial_id']:04d}")
-        os.makedirs(folder, exist_ok=True)
-        settings["src"] = folder
-        # Every trial writes into its own folder, so a sweep never overwrites
-        # a previous answer and any trial can be reopened afterwards.
-        settings.setdefault("verbose", False)
-        settings.setdefault("Toxoplasma", False)
+        # THE ONE HELPER, not a second copy of it. This branch had its own
+        # inline version of _trial_settings and had drifted from it: it never
+        # set `regression_qc` at all, so an in-process sweep paid the full
+        # ~5.8 s diagnostic suite and ~19 figures on every trial while the
+        # parallel branch was trying not to. Two copies of "build one trial's
+        # settings" is how a sweep ends up meaning two different things.
+        settings, folder = _trial_settings(base_settings, trial, destination,
+                                           qc=qc)
 
         row = {"trial_id": trial["trial_id"], "folder": folder,
                "preparation_key": _preparation_key(settings)}
