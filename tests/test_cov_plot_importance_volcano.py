@@ -18,6 +18,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from spacr.figures.style import ROLES
+
 import matplotlib
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt  # noqa: E402
@@ -630,9 +632,9 @@ def test_volcano_plot_thresholds_none_transform_draws_lines_and_colors():
 
     # A (fc=+2) is crimson, B (fc=-3) royalblue, the rest lightgray.
     fc_colors = ax.collections[0].get_facecolors()[:, :3]
-    assert np.allclose(fc_colors[0], to_rgb("crimson"))
-    assert np.allclose(fc_colors[1], to_rgb("royalblue"))
-    assert np.allclose(fc_colors[2], to_rgb("lightgray"))
+    assert np.allclose(fc_colors[0], to_rgb(ROLES["up"]))
+    assert np.allclose(fc_colors[1], to_rgb(ROLES["down"]))
+    assert np.allclose(fc_colors[2], to_rgb(ROLES["data"]))
 
 
 @pytest.mark.parametrize(
@@ -734,7 +736,7 @@ def test_volcano_plot_uses_supplied_axes_and_style_kwargs(tmp_path):
                            else to_rgb(l.get_color()), 3)) for l in ax.lines[:3]] == \
         [tuple(np.round(to_rgb("green"), 3))] * 3
     assert ax.lines[0].get_linestyle() == ":"
-    assert to_rgb(ax.lines[3].get_color()) == to_rgb("black")
+    assert to_rgb(ax.lines[3].get_color()) == to_rgb(ROLES["reference"])
     # text kwargs reached the annotations
     assert [t.get_text() for t in ax.texts] == hits == ["A", "B"]
     assert all(t.get_fontsize() == 14 for t in ax.texts)
@@ -761,7 +763,7 @@ def test_volcano_plot_without_thresholds_is_all_gray():
     )
     colors = ax.collections[0].get_facecolors()
     assert colors.shape == (1, 4)                       # scalar colour spec
-    assert np.allclose(colors[0, :3], to_rgb("lightgray"))
+    assert np.allclose(colors[0, :3], to_rgb(ROLES["data"]))
     assert len(ax.lines) == 1                            # only the x=0 line
 
 
