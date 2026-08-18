@@ -232,6 +232,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # terms are jointly significant at p=6.7e-23 and dropping them loses 8.4
     # points of R2 and swaps named genes in and out of the hit list.
     "model_plate_position",
+    # Instruction 141: WHO fits the model, as opposed to which model is
+    # fitted. Defaults to statsmodels, because every existing result was
+    # produced with it and a default that changes the numbers is not a
+    # default.
+    "regression_backend",
     # Plate-blocked marginal guide analysis added to the regression workflow.
     "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
     "guide_permutations", "guide_permutation_seed",
