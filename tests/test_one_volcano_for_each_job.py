@@ -120,14 +120,30 @@ def test_there_are_six_renderers_and_two_of_them_are_the_survivors():
         "survivor means the consolidation went backwards")
 
 
+def _function_source(relative, name):
+    """The current text of one function, found by re-parsing its file.
+
+    NOT `inspect.getsource`. That maps the loaded code object's line numbers
+    onto a fresh read of the file, so if the file has been edited since import
+    -- which happens constantly while this repo is being worked on -- it
+    returns a window from the wrong place and the assertion is about somebody
+    else's function. Cost one confusing failure to learn.
+    """
+    path = os.path.join(SPACR, relative)
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+    tree = ast.parse(text)
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                             ast.ClassDef)) and node.name == name:
+            return ast.get_source_segment(text, node) or ""
+    raise AssertionError(f"{relative} has no {name}")
+
+
 def test_the_qc_panel_draws_no_volcano():
     """It is a signpost. If it ever grows marks it becomes a seventh
     renderer, and the inventory above stops being true."""
-    import inspect
-
-    from spacr import regression_qc
-
-    source = inspect.getsource(regression_qc._panel_volcano_reference)
+    source = _function_source("regression_qc.py", "_panel_volcano_reference")
     assert "set_axis_off" in source
     for drawing in ("scatter(", "ax.plot(", "hexbin(", "hist("):
         assert drawing not in source, (
@@ -140,10 +156,10 @@ def test_the_volcano_explorer_still_imports_the_renderer_127_called_dead():
     Kept as a test rather than a note because the recommendation is still in
     the instruction file, and whoever acts on it should fail here first.
     """
-    import inspect
-
-    explorer = pytest.importorskip("spacr.qt.widgets.volcano_explorer")
-    source = inspect.getsource(explorer)
+    pytest.importorskip("PySide6")
+    with open(os.path.join(SPACR, "qt/widgets/volcano_explorer.py"),
+              encoding="utf-8") as handle:
+        source = handle.read()
     assert "render_volcano" in source
 
 
