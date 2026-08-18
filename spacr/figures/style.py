@@ -116,9 +116,64 @@ def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
     return INK_PRINT if target == "print" else INK_SCREEN
 
 
+def user_overrides(kind: Optional[str] = None) -> dict:
+    """The rcParams the user's OWN figure preferences lay over the house style.
+
+    Instruction 127, finding 3: spaCR has two figure-style systems --
+    :mod:`spacr.figure_style`, which is the user's preference (general plus
+    per-graph, instruction 118), and this module, which is the publication
+    house style from the apicomplexan-figures skill. Both are legitimate; the
+    two being unaware of each other is not, and the bug that overlap hid is
+    that *a user preference could not reach a house-style panel at all*. Every
+    panel drawn through :func:`figure_style` -- the whole regression QC suite,
+    the toxo figures, the house-style sheet -- ignored the settings the
+    Preferences dialog offers.
+
+    THE HOUSE STYLE IS THE BASE AND THE PREFERENCE IS THE OVERRIDE. That
+    order matters and it is the reason this returns a DIFF rather than the
+    user's resolved style: :data:`spacr.figure_style.GENERAL_DEFAULTS` is a
+    complete style of its own -- 11 pt DejaVu Sans, gridlines on, a white
+    ground -- so laying the resolved style over the house style would replace
+    the house style for every user who has never opened Preferences. Only the
+    keys the user actually MOVED are returned, so a fresh install draws
+    exactly the published look and a user who set one thing changes one thing.
+
+    :param kind: a member of :data:`spacr.figure_style.GRAPH_KINDS`, when the
+        panel knows which kind of graph it is. None reads the general layer
+        only.
+    :returns: rcParams, possibly empty. Empty on every failure -- no display,
+        no settings store, a stored value of the wrong type -- because a
+        preference is never worth losing a figure over.
+    """
+    try:
+        from ..qt.preferences import (get_figure_style,
+                                      get_figure_style_per_graph)
+
+        general = get_figure_style()
+        per_graph = get_figure_style_per_graph()
+    except Exception:                                          # noqa: BLE001
+        return {}
+    # Both stores are EMPTY until the user changes something -- they hold the
+    # deltas, not the defaults, on purpose -- so this is the common case and
+    # it costs nothing.
+    if not general and not per_graph:
+        return {}
+    try:
+        from ..figure_style import rc_params, resolve
+
+        chosen = resolve(kind, general, per_graph)
+        untouched = resolve(kind)
+        after, before = rc_params(chosen), rc_params(untouched)
+        return {key: value for key, value in after.items()
+                if before.get(key) != value}
+    except Exception:                                          # noqa: BLE001
+        return {}
+
+
 def rc(target: str = "screen", *, frame: str = "L",
        ink: Optional[str] = None,
-       ground: Optional[str] = None) -> dict:
+       ground: Optional[str] = None,
+       kind: Optional[str] = None) -> dict:
     """The rcParams for the house style, as a plain dict.
 
     Returned rather than applied, so a caller can hand it to
@@ -132,11 +187,13 @@ def rc(target: str = "screen", *, frame: str = "L",
     :param ground: the figure and axes background. Defaults to transparent,
         which is the maintainer's standing preference and lets the GUI theme
         show through.
+    :param kind: which graph kind this is, so the user's PER-GRAPH preference
+        for it can be applied on top. See :func:`user_overrides`.
     """
     box = frame == "box"
     colour = resolve_ink(target, ink)
     ground = TRANSPARENT if ground is None else ground
-    return {
+    params = {
         "figure.dpi": 120,
         "savefig.dpi": 300,
         "font.family": "sans-serif",
@@ -174,6 +231,10 @@ def rc(target: str = "screen", *, frame: str = "L",
         "lines.linewidth": WEIGHTS["data"],
         "patch.linewidth": WEIGHTS["spine"],
     }
+    # LAST, so the user wins. Everything above is the published look; this is
+    # the handful of settings they went into Preferences and changed.
+    params.update(user_overrides(kind))
+    return params
 
 
 @contextlib.contextmanager
@@ -317,5 +378,5 @@ __all__ = [
     "INK_PRINT", "INK_SCREEN", "TRANSPARENT", "Palette", "ROLES",
     "TYPE_SCALE", "WEIGHTS", "annotate", "descriptor", "figure_style",
     "hide_unused", "panel_letter", "rc", "reference_line", "resolve_ink",
-    "rotate_ticks", "text_legend", "theme_target",
+    "rotate_ticks", "text_legend", "theme_target", "user_overrides",
 ]

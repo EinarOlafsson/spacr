@@ -165,3 +165,95 @@ HOW TO KNOW IT WORKED
 * A user's figure preference reaches a house-style panel.
 * `spacr.figures` and the modules it replaced do not both ship the same
   picture.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE COUNT IS A TEST NOW, AND TWO OF THE FINDINGS ABOVE ARE WRONG
+--------------------------------------------------------------------------------
+
+RE-MEASURED BEFORE ANYTHING WAS TOUCHED, and the audit above does not survive
+contact with the current tree on two points. Both are recorded here rather
+than corrected in place, because the recommendations were acted on elsewhere.
+
+  1. THE SEVEN VOLCANO RENDERERS ARE SIX. `regression_qc._panel_volcano_
+     reference` draws no volcano: it is `set_axis_off` and three lines of text
+     naming the file the real one was written to. Counting a signpost as a
+     renderer made the duplication look worse than it is.
+
+  2. `volcano_style.render_volcano` IS NOT UNIMPORTED, so the "strongest
+     single deletion candidate in the package" would have deleted a live
+     screen. `spacr/qt/widgets/volcano_explorer.py:56` imports
+     `VolcanoStyle`, `render_volcano` and `point_details` from it, and
+     `qt/screens/volcano.py:49` names the function in its own help text. The
+     original claim was true of an older tree; it is not true of this one.
+
+WHAT SHIPPED
+
+  * `tests/test_one_volcano_for_each_job.py` -- the counting test the
+     acceptance asks for. It walks spacr/ with `ast`, finds every def/class
+     whose name says "volcano", and compares the set against an inventory
+     that says WHAT EACH ONE IS: six renderers, six things that host, name or
+     describe one. An eighth is not forbidden; an UNRECORDED eighth is, and
+     recording one costs a sentence about which job it does -- the step that
+     was skipped the last three times. The two survivors (`figures.panels.
+     volcano` for saved, `fast_plots.VolcanoPlot` for interactive) are pinned
+     by name, so a third survivor fails.
+
+     It also pins the two corrections above as assertions rather than prose:
+     the signpost fails the test if it ever grows a `scatter`, and the
+     explorer's import of `render_volcano` fails it if that module is deleted
+     on the stale evidence.
+
+     And it checks the saved renderer's HIT RULE off the picture -- counting
+     the marks drawn in the up/down role colours, not reading the caption --
+     against `adjusted p <= alpha`. That is the failure this finding is really
+     about: two renderers that disagree is how a figure in a paper stops
+     matching the figure on screen.
+
+  * FINDING 3 IS FIXED, not only recommended. "Today a user preference cannot
+    reach a house-style panel at all, which is the bug this overlap is
+    hiding" -- it can now. `spacr/figures/style.py` gains `user_overrides()`,
+    and `rc()` applies it LAST, so the house style is the base and the user's
+    preference is the override layer, which is the order the finding asks for.
+
+    IT RETURNS A DIFF, NOT THE USER'S RESOLVED STYLE, and that is the whole
+    design. `figure_style.GENERAL_DEFAULTS` is a complete style of its own --
+    11 pt DejaVu Sans, gridlines ON, a white ground -- so laying the resolved
+    style over the house style would replace the published look for every user
+    who has never opened Preferences. Only the keys they actually moved are
+    applied.
+
+    `figures.sheet.build_panel` passes `kind=key`, so the PER-GRAPH layer
+    reaches the panel it belongs to and no other -- "changing the volcano's
+    point size must not touch the heatmaps" is asserted.
+
+    ONE DELIBERATE EXCLUSION, asserted so it is not read as a gap: the palette
+    preference does NOT reach a house-style panel. The house style fixes the
+    colour vocabulary -- grey for everything the sentence is not about, one
+    highlight for what it is -- and a seaborn categorical cycle laid over that
+    is the rainbow the style exists to forbid. It holds by construction
+    (`rc_params` carries no palette key); the test makes the choice visible.
+
+    MEASURED on this machine, where the store really holds
+    `{'font_size': 16.0, 'palette': 'deep'}` and `{'volcano': {'marker_size':
+    40.0}}`: the font size now reaches every house-style panel, and it did not
+    before.
+
+WHAT REMAINS, AND NOTHING WAS DELETED
+
+Per the standing rule, no module was removed. These are for the maintainer:
+
+  * `plot.volcano_plot` -> `figures.panels.volcano`. The consolidation the
+    acceptance names for SAVED figures. Not done: `volcano_plot` is a
+    general-purpose reader (CSV/TSV/Excel, x/y transforms, its own threshold
+    vocabulary) and `panels.volcano` takes an axes and a tidy frame, so this
+    is an API change with a real blast radius on `ml.py:3449` and its tests,
+    not a rename.
+  * `toxo.custom_volcano_plot`. Still cannot go: it RETURNS the hit list the
+    GT1 phenotype plot and the ME49 heatmap are built from. Moving the hit
+    rule out is the first step and is worth doing on its own.
+  * `volcano_style.py` -- KEEP, on the corrected evidence above.
+  * `sp_stats` vs `figures/stats` (finding 2) -- untouched. It is the
+    correctness item of the five and it was outside this session's territory.
+  * `regression_search.py` (finding 5) and the duplicated VIF (finding 4) --
+    untouched.
