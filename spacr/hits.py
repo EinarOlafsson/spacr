@@ -863,6 +863,7 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
                    *,
                    metadata_files: Sequence[Union[str, os.PathLike]] = (),
                    metadata_key: str = "Gene ID",
+                   toxoplasma: bool = False,
                    regression_type: str = "",
                    alpha: float = DEFAULT_ALPHA,
                    include_controls: bool = True,
@@ -875,6 +876,11 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
     :param metadata_files: annotation CSVs to join, each collapsed to one row
         per gene first. See :func:`load_gene_metadata`.
     :param metadata_key: the gene identifier column in those files.
+    :param toxoplasma: also join the bundled *Toxoplasma* annotation — gene
+        name, signal peptide and transmembrane, hyperLOPIT compartment, the
+        published CRISPR fitness scores, and tachyzoite / tissue-cyst /
+        EES1-5 expression. Applied AFTER ``metadata_files`` so a column the
+        user's own file supplies is never replaced by the bundle's.
     :param regression_type: the backend, if known. Only affects how the list
         is ranked: the penalised backends have no p-value, so they rank by
         bootstrap selection frequency and carry no q-value.
@@ -947,6 +953,22 @@ def build_hit_list(source: Union[str, os.PathLike, Mapping[str, pd.DataFrame]],
     joined, join_notes = join_metadata(table, metadata_files,
                                        key=metadata_key)
     notes.extend(join_notes)
+    if toxoplasma:
+        # AFTER the user's files, deliberately. `annotate` leaves a column
+        # that is already there alone, so this order means a name the user
+        # supplied always wins over the bundle's -- which is the precedence
+        # anybody would expect from a file they passed by hand.
+        from .annotation import annotate
+        before, had = len(joined), set(joined.columns)
+        joined = annotate(joined, key_column="gene", quiet=True)
+        if len(joined) != before:  # pragma: no cover - many_to_one raises
+            raise ValueError(
+                f"the Toxoplasma annotation changed the row count from "
+                f"{before} to {len(joined)}.")
+        gained = [c for c in joined.columns if c not in had]
+        notes.append(
+            f"Bundled Toxoplasma annotation joined by gene number: "
+            f"{len(gained)} column(s).")
     if len(joined) != len(table):  # pragma: no cover - validate already raises
         raise ValueError(
             f"the metadata join changed the row count from {len(table)} to "
