@@ -1,0 +1,102 @@
+================================================================================
+A LOG AXIS MOVES THE DOTS, AND THE LIMITS HOLD
+================================================================================
+
+Status:    filed 2026-08-18. The log half is a CORRECTNESS bug, not a nit.
+Requested: 2026-08-18 --
+
+  "on the interactive plot the axis limits dont quite work and the log x and
+   log y just change the numbers not the possition of the dots. grid log x and
+   y can be right click options not under the graph options."
+
+Related: 147 is the menu categories this feeds. 129 is the pyqtgraph plots.
+
+--------------------------------------------------------------------------------
+A. THE LOG AXES ARE LYING, AND HERE IS WHY
+--------------------------------------------------------------------------------
+
+FOUND 2026-08-18, and it is exact:
+
+    FastPlot._apply_log  ->  self.plot.setLogMode(x, y)
+
+`PlotItem.setLogMode` sets the AXES to log ticks and then walks its items
+calling `setLogMode` on each one that has the method. Checked directly:
+
+    pyqtgraph.PlotDataItem.setLogMode      exists
+    pyqtgraph.ScatterPlotItem.setLogMode   DOES NOT EXIST
+
+Every point on every one of these plots is a `ScatterPlotItem` -- the volcano,
+the Q-Q, the control panel, the guide-agreement plot, the effect ranking. So
+ticking "log y":
+
+    the axis relabels itself to a log scale
+    the dots do not move
+
+THE PLOT THEN CLAIMS A LOG SCALE AND SHOWS LINEAR DATA. That is not a cosmetic
+failure. A reader looking at a volcano with log-y on reads every p-value off a
+ruler that does not describe the marks beside it, and there is nothing on
+screen to tell them. A wrong figure that runs is worse than a control that
+does nothing, and this is the first kind.
+
+THE FIX: transform the DATA and label the axis, rather than asking pyqtgraph
+to do it for an item type that cannot. Compute log10 of the coordinates when
+building the scatter, keep the untransformed values for the hit-testing and
+the tooltips -- a user hovering a point must still see its real p-value, not
+its logarithm -- and set the axis ticks to the powers.
+
+WHAT MUST NOT BREAK, because each already works: clicking a point returns its
+row (the key round-trip), the selection ring lands on the dot the user sees,
+and the exported figure matches the screen. All three read coordinates, so all
+three have to read the same ones.
+
+NON-POSITIVE VALUES HAVE NO LOGARITHM. A coefficient of zero or below is real
+and common on a volcano's x axis. Decide and SAY: drop them with a count
+("log x hides 41 of 1,213 points at or below zero") or refuse log on an axis
+that has them. Do not let them silently vanish -- that is the same class of
+bug as the one above.
+
+--------------------------------------------------------------------------------
+B. THE AXIS LIMITS
+--------------------------------------------------------------------------------
+
+`set_axis_limits` calls `setXRange` / `setYRange` and disables auto-range on
+the pinned axis, which is right as far as it goes. Two things to check against
+the report of "don't quite work":
+
+  * WITH LOG MODE ON, pyqtgraph's ranges are in LOG UNITS. A user typing
+    `1e-6, 1` gets a view from 1e-6 to 1 of the log values, which is not what
+    they asked for. Once (A) is fixed the transform is ours, so the limits are
+    typed in DATA units and converted -- and the dialog says which it wants.
+  * A REDRAW MUST NOT SPRING THEM BACK. The docstring says auto-range is
+    disabled for exactly this reason; verify it survives `set_results`, a
+    recolour, and a level change, because those rebuild the items.
+
+--------------------------------------------------------------------------------
+C. GRID AND LOG BELONG ON THE RIGHT-CLICK MENU
+--------------------------------------------------------------------------------
+
+"grid log x and y can be right click options not under the graph options."
+
+They are `QCheckBox`es in a row under the plot today. They move into the
+right-click menu as checkable entries, under the categories instruction 147
+defines -- log under Axes, grid under Appearance -- and the strip under the
+graph loses them.
+
+THE STATE MUST STILL BE VISIBLE. A checkable menu entry shows its own tick, so
+that is covered; what is not is that a plot with a log axis should say so
+where the axis is, not only in a menu nobody has open. The axis label carries
+it: "-log10(p)" is already that idea, and a log-x volcano says so on the x
+label.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Ticking log y MOVES the points, checked by reading two dots' screen
+  positions before and after.
+* Hovering a point still reports its real value, not its logarithm.
+* Clicking a point still selects its row, with log on.
+* Non-positive values are counted and named, not silently dropped.
+* Typed limits are in data units, and survive a recolour and a level change.
+* Grid and log are checkable entries on the right-click menu; the strip under
+  the graph no longer carries them.
