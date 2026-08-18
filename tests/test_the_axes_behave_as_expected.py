@@ -94,9 +94,25 @@ def _screen(plot, index: int):
     return scatter.mapToScene(point.pos())
 
 
+def _log_entry(plot, axis: str):
+    """The right-click entry that logs ``axis``.
+
+    Instruction 148 C moved it off the checkbox strip under the plot, so this
+    is now the control a user actually presses.
+    """
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    for action in menu_entries(plot.build_style_menu()):
+        if action.text().startswith(f"Log {axis} axis"):
+            return action
+    raise AssertionError(f"no log {axis} entry on the menu")
+
+
 def _tick_log(plot, axis: str, on: bool = True) -> None:
-    """Turn a log axis on the way a user does."""
-    getattr(plot, f"_log_{axis}").setChecked(on)
+    """Turn a log axis on the way a user does: off the right-click menu."""
+    entry = _log_entry(plot, axis)
+    if entry.isChecked() != on:
+        entry.trigger()
 
 
 # --------------------------------------------------------------------------- #
@@ -263,9 +279,11 @@ def test_a_refused_axis_leaves_the_control_disabled_and_explaining_itself(
     coefficients[0] = 0.0
     volcano.set_results(_frame(coefficients))
 
-    assert not volcano._log_x.isEnabled()
-    assert volcano._log_x.toolTip() == volcano.log_reason("x")
-    assert volcano._log_y.isEnabled()
+    entry = _log_entry(volcano, "x")
+    assert not entry.isEnabled()
+    assert volcano.log_reason("x") in entry.text()
+    assert entry.toolTip() == volcano.log_reason("x")
+    assert _log_entry(volcano, "y").isEnabled()
 
 
 def test_asking_for_a_refused_scale_changes_nothing_at_all(volcano):
@@ -504,3 +522,74 @@ def test_panning_by_hand_forgets_the_typed_limit(volcano):
     volcano.plot.getViewBox().sigRangeChangedManually.emit((False, True))
 
     assert volcano._pinned == {"x": None, "y": None}
+
+
+# --------------------------------------------------------------------------- #
+#  Section C: grid and log are right-click entries, not a strip of checkboxes
+# --------------------------------------------------------------------------- #
+
+def test_log_and_grid_are_entries_on_the_right_click_menu(volcano):
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    entries = {action.text(): action
+               for action in menu_entries(volcano.build_style_menu())}
+
+    for wanted in ("Log x axis", "Log y axis", "Grid"):
+        matched = [text for text in entries if text.startswith(wanted)]
+        assert matched, f"{wanted} is not on the menu: {sorted(entries)}"
+        assert entries[matched[0]].isCheckable(), wanted
+
+
+def test_log_is_under_axes_and_grid_is_under_appearance(volcano):
+    """Named groups, and the obvious ones: a scale is a fact about the axis,
+    a grid is a fact about how the plot looks."""
+    menu = volcano.build_style_menu()
+    where = {}
+    for action in menu.actions():
+        submenu = action.menu()
+        if submenu is None:
+            continue
+        for entry in submenu.actions():
+            where[entry.text()] = action.text()
+
+    assert where.get("Log x axis") == "Axes", where
+    assert where.get("Log y axis") == "Axes", where
+    assert where.get("Grid") == "Appearance", where
+
+
+def test_the_strip_under_the_plot_no_longer_carries_them(volcano):
+    """"grid log x and y can be right click options not under the graph
+    options"."""
+    from PySide6.QtWidgets import QCheckBox
+
+    labels = {box.text().lower() for box in volcano.findChildren(QCheckBox)}
+
+    assert "log x" not in labels, labels
+    assert "log y" not in labels, labels
+    assert "grid" not in labels, labels
+    assert "legend" in labels, "the legend was moved too"
+
+
+def test_the_menu_entry_shows_the_scale_that_is_in_force(volcano):
+    """A checkable entry that does not show its own state is one the user has
+    to press to find out what it was."""
+    assert not _log_entry(volcano, "y").isChecked()
+
+    _tick_log(volcano, "y")
+
+    assert _log_entry(volcano, "y").isChecked()
+    assert not _log_entry(volcano, "x").isChecked()
+
+
+def test_the_grid_entry_turns_the_grid_off_and_on(volcano):
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    assert volcano.grid_shown()
+    grid = next(a for a in menu_entries(volcano.build_style_menu())
+                if a.text() == "Grid")
+
+    grid.trigger()
+
+    assert not volcano.grid_shown()
+    assert not next(a for a in menu_entries(volcano.build_style_menu())
+                    if a.text() == "Grid").isChecked()

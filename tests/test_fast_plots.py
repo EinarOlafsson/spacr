@@ -106,9 +106,18 @@ class TestTheVolcano:
 
         start = time.perf_counter()
         for index in range(20):
-            plot._log_y.setChecked(index % 2 == 0)
+            plot.set_log_axes(y=index % 2 == 0)
         each = (time.perf_counter() - start) / 20 * 1000
         # matplotlib redraws the whole figure for this: ~115 ms.
+        #
+        # THE TRANSFORM IS OURS NOW (instruction 148 A), so this is no longer
+        # a bare axis relabel -- it is a numpy log10 over every drawn
+        # coordinate and an in-place update of each item. That is still a
+        # vectorised pass rather than a per-point Python loop, which is the
+        # property this test is really guarding; a version that moved the
+        # points one at a time would blow the budget by an order of
+        # magnitude, and would also be the version that silently re-slowed
+        # the plot the module exists to speed up.
         assert each < 25, f"a log toggle took {each:.0f} ms"
 
 
