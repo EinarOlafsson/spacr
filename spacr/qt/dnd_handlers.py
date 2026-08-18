@@ -63,13 +63,56 @@ LOG = logging.getLogger("spacr.qt.dnd_handlers")
 # have their own _open_source / _open_folder methods.
 # ---------------------------------------------------------------------------
 
+def _add_to_source_set(screen, path):
+    """Add ``path`` to a multi-source ``src`` control, or ``None``.
+
+    ``None`` means "this screen's ``src`` is not a set" and the caller should
+    fall through to the single-valued paths below. A boolean means the set
+    answered.
+
+    WHY THIS COMES FIRST. Instruction 109 turned ``src`` into a SET of project
+    folders on the modules that merge databases -- Image UMAP is the first --
+    and its own "Add project folders…" button promises, in its tooltip, that
+    it "adds to the set rather than replacing it, so three plates can be
+    gathered in three trips". Dropping is the same gesture with the mouse, and
+    it went through ``set_value_for_key``, which calls ``set_value``, which
+    REPLACES. Measured before the fix: dropping plate1, plate2 and plate3 on
+    an Image UMAP screen left ``['plate3']``. Two of the three merges the user
+    asked for were discarded silently, which is worse than a refusal.
+    """
+    try:
+        widget = screen._settings_model._widgets.get("src")
+    except Exception:
+        return None
+    adder = getattr(widget, "add_sources", None)
+    if not callable(adder):
+        return None
+    values = ([str(item) for item in path]
+              if isinstance(path, (list, tuple)) else [str(path)])
+    try:
+        adder(values)
+    except Exception:
+        return None
+    # ALREADY IN THE SET IS A SUCCESSFUL DROP. `add_sources` returns how many
+    # were NEW, which is a different question: a user who drops plate2 twice
+    # has a screen pointing where they pointed it, and reporting failure
+    # would put "this module has no source field" in front of them.
+    try:
+        present = set(widget.sources())
+    except Exception:
+        return True
+    return all(value in present for value in values)
+
+
 def _set_src_on(screen, path) -> bool:
     """Best-effort set the screen's source path.
 
-    Tries three shapes:
+    Tries four shapes:
       1. ``screen._open_source(path)``          — AnnotateScreen
       2. ``screen._open_folder(path)``          — MakeMasksScreen
-      3. ``screen._settings_model._widgets["src"].setText(path)`` — AppScreen
+      3. ``screen._settings_model._widgets["src"].add_sources([path])``
+         — every module whose ``src`` is a SET of databases (109). ADDS.
+      4. ``screen._settings_model._widgets["src"].setText(path)`` — AppScreen
     """
     if hasattr(screen, "_open_source"):
         try:
@@ -82,6 +125,9 @@ def _set_src_on(screen, path) -> bool:
         except Exception:
             pass
     if hasattr(screen, "_settings_model"):
+        added = _add_to_source_set(screen, path)
+        if added is not None:
+            return added
         try:
             model = screen._settings_model
             if model.set_value_for_key("src", path):
