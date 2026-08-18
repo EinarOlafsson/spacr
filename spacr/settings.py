@@ -657,7 +657,20 @@ def set_default_plot_data_from_db(settings):
     settings.setdefault('pathogen_plate_metadata', None)
     settings.setdefault('treatments', None)
     settings.setdefault('treatment_plate_metadata', None)
-    settings.setdefault('graph_type', 'jitter')
+    # A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for
+    # on 2026-08-18: "the bargraphs with jutter plot backgrounds should be
+    # boxplots with jutter".
+    #
+    # It is a statistical correction rather than a preference, which is why
+    # the DEFAULT moves rather than the option merely existing. A bar drawn at
+    # a mean with points behind it shows ONE number and hides the shape: two
+    # groups with the same mean and completely different spreads draw the same
+    # bar. A box shows the median, the quartiles and the whiskers, so the
+    # reader sees the distribution the points already imply -- and the jitter
+    # stays, because the box summarises and the points are the evidence.
+    #
+    # `jitter_box` already existed as an option; only the default was wrong.
+    settings.setdefault('graph_type', 'jitter_box')
     settings.setdefault('theme', 'deep')
     settings.setdefault('save', True)
     settings.setdefault('y_lim', None)
@@ -5303,7 +5316,20 @@ def set_graph_importance_defaults(settings):
     settings.setdefault('csvs','list of paths')
     settings.setdefault('grouping_column','compartment')
     settings.setdefault('data_column','compartment_importance_sum')
-    settings.setdefault('graph_type','jitter_bar')
+    # A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for
+    # on 2026-08-18: "the bargraphs with jutter plot backgrounds should be
+    # boxplots with jutter".
+    #
+    # It is a statistical correction rather than a preference, which is why
+    # the DEFAULT moves rather than the option merely existing. A bar drawn at
+    # a mean with points behind it shows ONE number and hides the shape: two
+    # groups with the same mean and completely different spreads draw the same
+    # bar. A box shows the median, the quartiles and the whiskers, so the
+    # reader sees the distribution the points already imply -- and the jitter
+    # stays, because the box summarises and the points are the evidence.
+    #
+    # `jitter_box` already existed as an option; only the default was wrong.
+    settings.setdefault('graph_type','jitter_box')
     settings.setdefault('save',False)
     return settings
 
@@ -5480,7 +5506,20 @@ def get_plot_data_from_csv_default_settings(settings):
     settings.setdefault('src','path')
     settings.setdefault('data_column','choose column')
     settings.setdefault('grouping_column','choose column')
-    settings.setdefault('graph_type','violin')
+    # A BOX WITH JITTER, NOT A BAR WITH JITTER. Instruction 139 B, asked for
+    # on 2026-08-18: "the bargraphs with jutter plot backgrounds should be
+    # boxplots with jutter".
+    #
+    # It is a statistical correction rather than a preference, which is why
+    # the DEFAULT moves rather than the option merely existing. A bar drawn at
+    # a mean with points behind it shows ONE number and hides the shape: two
+    # groups with the same mean and completely different spreads draw the same
+    # bar. A box shows the median, the quartiles and the whiskers, so the
+    # reader sees the distribution the points already imply -- and the jitter
+    # stays, because the box summarises and the points are the evidence.
+    #
+    # `jitter_box` already existed as an option; only the default was wrong.
+    settings.setdefault('graph_type','jitter_box')
     settings.setdefault('save',False)
     settings.setdefault('y_lim',None)
     settings.setdefault('log_y',False)
