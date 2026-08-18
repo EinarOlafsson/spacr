@@ -1,8 +1,16 @@
 ================================================================================
-A LOG AXIS MOVES THE DOTS, AND THE LIMITS HOLD
+THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
 ================================================================================
 
-Status:    filed 2026-08-18. The log half is a CORRECTNESS bug, not a nit.
+Status:    filed 2026-08-18. Retitled 2026-08-18 at the maintainer's request
+           -- the scope is BOTH AXES BEHAVING CORRECTLY in either mode, not
+           only the log transform. The log half is a CORRECTNESS bug, not a
+           nit; the linear half is that a typed limit must hold.
+
+THE WHOLE OF IT, IN ONE LINE: an axis must describe the marks drawn against
+it, and a limit the user typed must be the limit that is used -- whether the
+axis is logarithmic or not. Everything below is a way that is currently
+untrue.
 Requested: 2026-08-18 --
 
   "on the interactive plot the axis limits dont quite work and the log x and
