@@ -392,3 +392,115 @@ def test_the_bars_themselves_move_when_the_axis_is_logged(qtbot):
                        np.log10(edges[:-1]))
     assert np.allclose(np.asarray(bars.opts["x1"], dtype="float64"),
                        np.log10(edges[1:]))
+
+
+# --------------------------------------------------------------------------- #
+#  Section B: a limit the user typed is the limit that is used
+# --------------------------------------------------------------------------- #
+
+def test_a_typed_limit_is_in_data_units_with_the_scale_on(volcano):
+    """pyqtgraph's ranges are in DRAWN units, so before this a user who typed
+    "1e-6 to 1" on a logged axis got a view from a millionth to one OF THE
+    LOGARITHMS -- twenty decades away from what they asked for."""
+    volcano.set_log_axes(y=True)
+
+    volcano.set_axis_limits(y=(0.5, 8.0))
+
+    (y_from, y_to) = volcano.axis_limits()[1]
+    assert (round(y_from, 6), round(y_to, 6)) == (0.5, 8.0)
+    drawn = volcano.plot.getViewBox().viewRange()[1]
+    assert drawn[0] == pytest.approx(np.log10(0.5))
+    assert drawn[1] == pytest.approx(np.log10(8.0))
+
+
+def test_the_dialog_says_which_units_it_is_asking_for(volcano, monkeypatch):
+    """The one axis where the two differ is the one nobody can guess."""
+    from PySide6.QtWidgets import QInputDialog
+
+    volcano.set_log_axes(y=True)
+    prompts = []
+
+    def _ask(parent, title, prompt, *args, **kwargs):
+        prompts.append(prompt)
+        return (1.0, True)
+
+    monkeypatch.setattr(QInputDialog, "getDouble", staticmethod(_ask))
+
+    volcano._ask_axis_limits()
+
+    assert prompts == ["X from:", "X to:",
+                       "Y from in data units, not log10:",
+                       "Y to in data units, not log10:"]
+
+
+def test_the_same_data_window_is_kept_when_the_scale_changes(volcano):
+    """The user pinned a range of p-values, not a range of logarithms."""
+    volcano.set_axis_limits(y=(0.5, 8.0))
+
+    volcano.set_log_axes(y=True)
+
+    (y_from, y_to) = volcano.axis_limits()[1]
+    assert (round(y_from, 6), round(y_to, 6)) == (0.5, 8.0)
+
+
+def test_a_typed_limit_survives_a_level_change(volcano):
+    """A redraw with a different family of rows rebuilds every item."""
+    volcano.set_axis_limits(x=(-0.25, 0.25))
+
+    volcano.set_results(_frame(np.linspace(3.0, 9.0, len(P_VALUES))))
+
+    (x_from, x_to) = volcano.axis_limits()[0]
+    assert (round(x_from, 6), round(x_to, 6)) == (-0.25, 0.25)
+
+
+def test_a_typed_limit_survives_a_recolour(volcano):
+    volcano.set_axis_limits(y=(1.0, 4.0))
+
+    volcano.colour_by_column("p_value")
+
+    (y_from, y_to) = volcano.axis_limits()[1]
+    assert (round(y_from, 6), round(y_to, 6)) == (1.0, 4.0)
+
+
+def test_a_typed_limit_survives_a_redraw_with_the_scale_on(volcano):
+    volcano.set_log_axes(y=True)
+    volcano.set_axis_limits(y=(0.5, 8.0))
+
+    volcano.set_results(_frame())
+
+    (y_from, y_to) = volcano.axis_limits()[1]
+    assert (round(y_from, 6), round(y_to, 6)) == (0.5, 8.0)
+
+
+def test_a_non_positive_limit_on_a_logged_axis_is_refused_and_says_so(volcano):
+    """Substituting a bound the user did not type is how a figure comes to
+    show a range nobody chose."""
+    volcano.set_log_axes(y=True)
+    before = volcano.axis_limits()[1]
+
+    volcano.set_axis_limits(y=(0.0, 8.0))
+
+    assert volcano.axis_limits()[1] == before
+    assert "no logarithm" in volcano._status.text()
+
+
+def test_back_to_automatic_forgets_the_pin_for_good(volcano):
+    """Not merely re-enables auto-range: a scale change afterwards must not
+    put the old window back."""
+    volcano.set_axis_limits(y=(1.0, 4.0))
+    volcano.auto_range_axes()
+    automatic = volcano.axis_limits()[1]
+
+    volcano.set_log_axes(y=True)
+    volcano.set_log_axes(y=False)
+
+    assert volcano.axis_limits()[1] == pytest.approx(automatic)
+
+
+def test_panning_by_hand_forgets_the_typed_limit(volcano):
+    """A drag is a user saying "not that window any more"."""
+    volcano.set_axis_limits(y=(1.0, 4.0))
+
+    volcano.plot.getViewBox().sigRangeChangedManually.emit((False, True))
+
+    assert volcano._pinned == {"x": None, "y": None}
