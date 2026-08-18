@@ -212,3 +212,48 @@ of them. 27 in the file, all green.
 WHAT REMAINS in 148: section C -- grid and log out of the QCheckBox strip and
 onto the right-click menu -- which waits on instruction 147 C for the
 categories they go under.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION C SHIPPED. 148 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+"grid log x and y can be right click options not under the graph options."
+
+The strip under the plot has lost all three. Log x and log y are checkable
+entries under AXES; grid is a checkable entry under APPEARANCE -- the
+categories instruction 147 C landed an hour earlier. The legend checkbox
+STAYS in the strip, deliberately: it is the one a reader flicks on and off
+while looking at the figure, where the other three are set once and then read
+off the axis.
+
+The state is on the plot, not on a widget: `grid_shown()` / `set_grid()`, and
+`log_axes()` / `set_log_axes()` from section A. A menu entry is rebuilt on
+every right-click and cannot be the thing that remembers.
+
+A GATED LOG ENTRY CARRIES ITS REASON IN THE LABEL, the same as every other
+control instruction 106 covers -- "Log x axis  —  log x: 4 of 12 points are
+at or below zero and have no logarithm" -- and is disabled. It is readable
+inside a submenu because `_group` sets `setToolTipsVisible` on every one.
+
+A TRAP WORTH THE LINE: `menu.addAction(text, callable)` connects `triggered`,
+whose bool is DROPPED for a slot that does not ask for one. A checkable entry
+wired that way reports the state it had BEFORE the press, so "Log y axis"
+ticked itself and turned nothing on. Checkable entries connect `toggled`,
+which always carries the new state. `_gated` takes callback=None for them.
+
+THE AXIS STILL SAYS SO: the label carries " (log scale)" from section A, so a
+logged plot announces itself where the axis is and not only in a menu nobody
+has open.
+
+STILL FAST. The transform is a numpy pass rather than an axis relabel now, so
+this was worth measuring: 0.37 ms per toggle on the real 1,215-point,
+27-category volcano, against the 4.7 ms the module's header quotes for
+pyqtgraph's own log toggle and 115 ms for matplotlib. tests/test_fast_plots.py
+::test_it_is_fast drives `set_log_axes` and keeps the 25 ms budget.
+
+TESTS: 32 in tests/test_the_axes_behave_as_expected.py, five of them new here
+-- the entries exist and are checkable, they are under the right groups, the
+strip no longer carries them, the tick shows the scale in force, and the grid
+entry works.
+
+INSTRUCTION 148 IS COMPLETE: A, B and C all shipped 2026-08-18.

@@ -545,16 +545,13 @@ class FastPlot(QWidget):
             pass
         layout.addWidget(self.plot, 1)
 
+        # THE STRIP CARRIES WHAT IS PRESSED, NOT WHAT IS SET. Log x, log y
+        # and grid were checkboxes here and are entries on the right-click
+        # menu now (instruction 148 C): they are set once and then read off
+        # the axis, so a permanent row of them under every plot spent screen
+        # on three states nobody looks at twice. The legend stays, because it
+        # is the one a reader flicks on and off while looking at the figure.
         controls = QHBoxLayout()
-        self._log_x = QCheckBox("log x")
-        self._log_y = QCheckBox("log y")
-        # THE BOX ASKS; :meth:`set_log_axes` DECIDES. An axis holding a value
-        # at or below zero refuses, and the box goes back to where it was
-        # rather than leaving a tick over a scale that was not applied.
-        self._log_x.toggled.connect(lambda on: self.set_log_axes(x=on))
-        self._log_y.toggled.connect(lambda on: self.set_log_axes(y=on))
-        for box in (self._log_x, self._log_y):
-            controls.addWidget(box)
         self._legend_box = QCheckBox("legend")
         self._legend_box.setEnabled(False)
         self._legend_box.setToolTip(
@@ -562,12 +559,6 @@ class FastPlot(QWidget):
             "~40 ms of every redraw, against 3 ms for the plot itself.")
         self._legend_box.toggled.connect(self._toggle_legend)
         controls.addWidget(self._legend_box)
-
-        self._grid = QCheckBox("grid")
-        self._grid.setChecked(True)
-        self._grid.toggled.connect(
-            lambda on: self.plot.showGrid(x=on, y=on, alpha=0.25))
-        controls.addWidget(self._grid)
         controls.addStretch(1)
 
         reset = QPushButton("Reset view")
@@ -686,7 +677,6 @@ class FastPlot(QWidget):
         self._frame = None
         self._style_note = ""
         self._restyle_state()
-        self._grid = QCheckBox("Grid")
         self._legend_box = QCheckBox("Legend")
         self._legend_box.setEnabled(False)
 
@@ -963,6 +953,10 @@ class FastPlot(QWidget):
         #: says an axis is logged -- so the note is added once however many
         #: times the scale is switched.
         self._base_labels: dict = {}
+        #: Whether the grid is drawn. State rather than a widget since the
+        #: control moved onto the menu: a menu entry is built fresh on every
+        #: right-click and cannot be the thing that remembers.
+        self._grid_on: bool = True
         #: The limits the user typed, IN DATA UNITS, per axis -- or None
         #: where the axis still follows its data. Kept in data units because
         #: that is what was typed: the drawn range is log10 of this while the
@@ -1126,7 +1120,6 @@ class FastPlot(QWidget):
             return
         if self._log["x"] or self._log["y"]:
             self._place(entry)
-        self._refresh_log_controls()
 
     def log_reason(self, axis: str) -> str:
         """Why ``axis`` cannot be drawn on a log scale, or ``""``.
@@ -1277,7 +1270,15 @@ class FastPlot(QWidget):
         self._drawn = kept
         self._relabel_axes()
         self._reapply_pinned()
-        self._refresh_log_controls()
+
+    def grid_shown(self) -> bool:
+        """Whether the grid is drawn behind the marks."""
+        return bool(self._grid_on)
+
+    def set_grid(self, on: bool) -> None:
+        """Draw the grid, or stop. Reachable from the Appearance group."""
+        self._grid_on = bool(on)
+        self.plot.showGrid(x=self._grid_on, y=self._grid_on, alpha=0.25)
 
     def _axis_label_text(self, edge: str) -> str:
         """What the label on ``edge`` reads, given the scale it is drawn at."""
@@ -1303,20 +1304,6 @@ class FastPlot(QWidget):
             # `setLabel` takes the style with the text, so relabelling drops
             # a font the user chose off the menu unless it is put back.
             self.apply_text_style()
-
-    def _refresh_log_controls(self) -> None:
-        """Tick, untick, enable and explain the two log controls."""
-        for axis in ("x", "y"):
-            box = getattr(self, f"_log_{axis}", None)
-            if box is None:
-                continue
-            reason = self.log_reason(axis)
-            blocked = box.blockSignals(True)
-            box.setChecked(self._log[axis])
-            box.blockSignals(blocked)
-            box.setEnabled(not reason)
-            box.setToolTip(reason or
-                           f"Draw the {axis} axis on a log10 scale.")
 
     def _point_tip(self, x, y, data) -> str:
         """The hover text for one point, IN DATA UNITS whatever the scale.
@@ -1857,6 +1844,13 @@ class FastPlot(QWidget):
         tooltip as well for the themes that elide a long entry.
         """
         if not reason:
+            if callback is None:
+                # A CHECKABLE ENTRY WIRES ITSELF. `addAction(text, callable)`
+                # connects `triggered`, whose bool is dropped for a slot that
+                # does not ask for one -- so a checkable entry connected that
+                # way reports the state it had BEFORE the press, i.e. never
+                # turns anything on. Those connect `toggled` themselves.
+                return menu.addAction(label)
             return menu.addAction(label, callback)
         action = menu.addAction(f"{label}  —  {reason}")
         action.setEnabled(False)
@@ -1998,6 +1992,17 @@ class FastPlot(QWidget):
         axes.addAction("Axis limits…", self._ask_axis_limits)
         axes.addAction("Axis limits: back to automatic", self.auto_range_axes)
         axes.addAction("Aspect ratio…", self._ask_aspect_ratio)
+        for axis in ("x", "y"):
+            # CHECKABLE, AND GATED. The tick is the state, and an axis that
+            # cannot be logged says why in the entry itself rather than
+            # sitting there live and doing nothing.
+            reason = self.log_reason(axis)
+            entry = self._gated(axes, f"Log {axis} axis", None, reason)
+            entry.setCheckable(True)
+            entry.setChecked(self._log[axis])
+            if not reason:
+                entry.toggled.connect(
+                    lambda on, which=axis: self.set_log_axes(**{which: on}))
 
         look = self._group(menu, "Appearance")
         self._gated(look, "Point size…", self._ask_point_size, points)
@@ -2010,8 +2015,8 @@ class FastPlot(QWidget):
                     self.line_reason())
         grid = look.addAction("Grid")
         grid.setCheckable(True)
-        grid.setChecked(self._grid.isChecked())
-        grid.toggled.connect(self._grid.setChecked)
+        grid.setChecked(self.grid_shown())
+        grid.toggled.connect(self.set_grid)
         if self._legend_box.isEnabled():
             legend = look.addAction("Legend")
             legend.setCheckable(True)
