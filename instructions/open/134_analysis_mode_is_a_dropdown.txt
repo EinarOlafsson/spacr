@@ -1,0 +1,52 @@
+================================================================================
+ANALYSIS MODE IS A DROPDOWN, NOT A TEXT BOX
+================================================================================
+
+Status:    filed 2026-08-17.
+Requested: 2026-08-17 -- "analasys mode should be a dropdown"
+
+Related: 132 is the model and inference tab this sits in. 106 is the rule a
+         greyed-out state has to follow.
+
+--------------------------------------------------------------------------------
+WHAT IS WRONG TODAY
+--------------------------------------------------------------------------------
+
+`analysis_mode` has exactly TWO valid values -- `regression` and
+`guide_permutation` -- and both GUIs render it as a FREE-TEXT ENTRY. The combo
+dispatch in `settings_spec.py` (the table around line 158, `'metadata_type'`,
+`'dataset_mode'`, `'cov_type'` and the rest) does not list it, and the Qt
+`settings_model.py` combo table lists `inference` and not `analysis_mode`.
+
+So a setting whose entire domain is two strings is typed by hand, and a typo
+in it is not caught until the run has read the whole database.
+
+--------------------------------------------------------------------------------
+WHAT IT SHOULD DO
+--------------------------------------------------------------------------------
+
+* A COMBO with `regression` and `guide_permutation`, default `regression`,
+  in BOTH GUIs -- one entry in the shared `settings_spec` table so the Tk and
+  Qt front ends cannot end up offering different lists.
+
+* GREYED OUT WHILE `inference` IS NOT `auto`, and saying why. `inference` is
+  the readable front end that SETS `analysis_mode` (settings.py ~1706:
+  "'inference' selects 'analysis_mode'"), and an explicit `analysis_mode`
+  overrides it. A user who picks `nonparametric` and then sees a live
+  `analysis_mode` box saying `regression` is looking at two controls that
+  contradict each other. Instruction 106's rule applies: greyed out with the
+  reason on it, never silently inert.
+
+* THE LABELS SHOULD READ. `guide_permutation` is what the settings key is
+  called; what the dropdown shows can be the sentence the tooltip already
+  has -- one guide at a time, plate-blocked Freedman-Lane permutations --
+  the same way 132's model box explains what it fits.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `analysis_mode` is a dropdown in `spacr` and in `spacr-qt`, with the same
+  two entries in both.
+* Choosing `nonparametric` for `inference` greys it out and says why.
+* A settings CSV carrying either value still loads.
