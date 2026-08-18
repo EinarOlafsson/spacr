@@ -430,13 +430,21 @@ dependencies = [
     # package is what stops that message ever being shown.
     'openpyxl>=3.1,<4.0',
     'imageio>=2.34.0,<3.0',
-    # Ceiling LOWERED from `<1.0`, which protected nothing. pingouin 0.6.0
-    # renamed every dashed result column ("p-val" -> "p_val", "W-val" ->
-    # "W_val"), and spaCR indexes the old names directly:
-    # spacr/plot.py:3493 `.iloc[0][['T', 'p-val']]` and plot.py:3502
-    # `.iloc[0][['W-val', 'p-val']]`. Reproduced against pingouin 0.6.1: both
-    # raise KeyError. `<1.0` would have shipped that to every fresh install.
-    'pingouin>=0.5.5,<0.6',
+    # PINGOUIN IS GONE FROM THE CORE, and the cap it needed with it.
+    #
+    # It was here because plot.py indexed pingouin's dashed result columns
+    # directly -- `.iloc[0][['T', 'p-val']]` -- which is why the ceiling had
+    # to be `<0.6`: 0.6.0 renamed every one of them ("p-val" -> "p_val").
+    # Those two call sites were the last uses in the package, and routing
+    # plot.py's selectors through spacr.figures.stats (2026-08-17) removed
+    # them. Nothing under spacr/ imports pingouin now; the statistics it used
+    # to provide come from scipy.stats, which is already a core dependency.
+    #
+    # It survives as a `dev` dependency, because that is what it now is: an
+    # INDEPENDENT implementation to check spaCR's own Welch ANOVA against
+    # (tests/test_spacrgraph_equal_variance.py). A wrong statistic that runs
+    # is worse than the one it replaced, so that cross-check is worth a test
+    # dependency -- and worth nothing at all in a user's install.
     # NOT unused, whatever an import census says. spaCR reaches umap through
     # `umap = _LazyModule('umap.umap_', block_roots=_TF_BACKED_ROOTS)` at
     # spacr/utils.py:197 — the module name is a string literal, so there is no
@@ -702,6 +710,11 @@ setup(
             'ruff>=0.9,<1',
             'mypy>=1.11,<2',
             'xenon>=0.9,<1',
+            # The outside reference for spaCR's own Welch ANOVA. Was a core
+            # dependency until 2026-08-17; see the note where it used to be.
+            # Unpinned at the top: the cross-check reads `F` and `p-unc`,
+            # neither of which the 0.6 column rename touched.
+            'pingouin>=0.5.5,<2.0',
         ],
         # Pinned identically to the core dependency. Unpinned, this extra
         # silently widened the core `<5.0` cap to "any opencv", so
