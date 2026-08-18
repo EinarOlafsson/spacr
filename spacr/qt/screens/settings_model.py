@@ -3252,8 +3252,9 @@ _HISTORY_POINTER = ("WHY THE FORMULA CHANGED -> "
 #: rather than assumed: the pane opens at ~400px and the splitter stretches it
 #: to ~490 for this box, which is about 57 monospace characters. Wrapping
 #: prose wider than that put every sentence behind a horizontal scrollbar.
-#: The indented mixed formula is 62 characters and deliberately exceeds this
-#: -- it is one line, it must not be broken, and the box does not soft-wrap.
+#: The indented mixed formula is 63 characters and deliberately exceeds this
+#: -- it is one line and it must not be broken, so :func:`explainer_width`
+#: hands that length to the box as its minimum rather than this column.
 _EXPLAINER_WIDTH = 54
 
 #: The short name shown in the box header beside the key the user selected.
