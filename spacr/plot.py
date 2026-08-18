@@ -4162,10 +4162,30 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
                 x=grouping_column, y=data_column, hue=grouping_column,
                 data=df, order=order, palette=color_palette, legend=False)
         elif graph_type == 'jitter_box':
+            # The ink follows the theme, like every sibling branch here --
+            # a hard-coded black is invisible axes on the dark theme.
+            _ink = resolve_ink(theme_target())
+            # THE BOX IS A REFERENCE OVER THE POINTS, NOT A BLOCK COMPETING
+            # WITH THEM. Instruction 139 B and the house rule it follows:
+            # the points are the data and carry the ink; the box summarises.
+            # A filled box per group is a rainbow behind a dot strip, and the
+            # reader's eye goes to the fill rather than to the observations.
             sns.boxplot(
                 x=grouping_column, y=data_column, hue=grouping_column,
-                data=df, order=order, palette=color_palette, legend=False)
-            sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color=Palette.GREY_DARK, size=3.0, linewidth=0, order=order)
+                data=df, order=order, palette=color_palette, legend=False,
+                showfliers=False,
+                boxprops={'facecolor': 'none', 'edgecolor': _ink,
+                          'linewidth': WEIGHTS['spine']},
+                whiskerprops={'color': _ink, 'linewidth': WEIGHTS['spine']},
+                capprops={'color': _ink, 'linewidth': WEIGHTS['spine']},
+                medianprops={'color': _ink, 'linewidth': WEIGHTS['data']})
+            # OUTLIERS OFF ON THE BOX, and that is not hiding them: the strip
+            # below draws EVERY observation, so seaborn's own flier markers
+            # would double-plot the extreme points and only those -- which
+            # reads as the tails being twice as dense as they are.
+            sns.stripplot(x=grouping_column, y=data_column, data=df,
+                          jitter=True, color=ROLES['data'], size=3.0,
+                          linewidth=0, order=order)
 
         # Create a DataFrame to summarize the test results
         results_df = pd.DataFrame(test_results)
