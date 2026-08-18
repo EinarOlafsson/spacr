@@ -138,8 +138,14 @@ def _fill_the_well_level_tabs(panel, wells: int = 240) -> None:
 
 def test_the_coefficient_table_narrows_with_the_volcano(panel):
     """The tab the maintainer named. It used to keep all 800 rows while the
-    volcano beside it drew 200, which is two tabs disagreeing on screen."""
-    assert panel.table.table.rowCount() == ROWS
+    volcano beside it drew 200, which is two tabs disagreeing on screen.
+
+    A NEW TABLE OPENS ON THE GUIDES, not on the whole fit. Changed 2026-08-18
+    (instruction 147 A) so a gene is not drawn once per guide, which is the
+    four-dots-for-one-gene report; every tab still moves together, which is
+    what this test is about.
+    """
+    assert panel.table.table.rowCount() == GUIDES
 
     panel.set_level("gene")
 
@@ -166,8 +172,10 @@ def test_the_control_panel_narrows_with_it(panel):
     term is, so "genes only" has to empty the negative group entirely. A
     control panel still showing 200 negatives is drawing the whole table."""
     negatives, others = panel.controls.group_sizes()
-    assert (negatives, others) == (GENES, GENES * 2 + GENES), (
-        negatives, others)   # 200 nc guides; 400 other guides + 200 genes
+    # The panel opens on the guides (instruction 147 A), so the whole fit's
+    # 200 gene rows are not in either group until the level is widened.
+    assert (negatives, others) == (GENES, GENES * 2), (
+        negatives, others)   # 200 nc guides; 400 other guides
 
     panel.set_level("gene")
 
@@ -225,6 +233,7 @@ def test_the_inflation_figure_is_a_different_number_per_family(panel):
     """This is why a filtered Q-Q must be labelled. The same plot answers
     "is this screen calibrated" with 2.9, 0.97 and 4.07 depending only on
     which family is selected, and none of those is wrong."""
+    panel.set_level(None)
     both = _inflation(panel)
     panel.set_level("gene")
     genes = _inflation(panel)
@@ -283,6 +292,11 @@ def test_the_title_survives_a_click_where_a_status_line_would_not(panel):
 def test_unfiltered_is_said_as_plainly_as_filtered(panel):
     """"the whole fit" is a claim too, and the default is where a reader is
     most likely to assume rather than read."""
+    # REACHED DELIBERATELY, not by default. A new table opens on the guides
+    # now (instruction 147 A), so "the whole fit" is a level the user chooses
+    # -- and it is still a claim, which is what this test is about.
+    panel.set_level(None)
+
     note = panel.family_note()
 
     assert f"all {ROWS} coefficients" in note, note
@@ -456,11 +470,20 @@ def test_a_new_table_clears_the_filter_and_every_label_with_it(panel):
 
     panel.set_frame(_frame(seed=9))
 
-    assert panel.level() is None
-    assert _tabs(panel) == ["Volcano", "p-values", "Q-Q", "Controls",
-                            "Residuals", "Scale-location", "Influence",
-                            "Summary", "Guide support", "Gene"]
-    assert _title(panel.qq) == "p-value Q-Q"
+    # A NEW TABLE GOES BACK TO THE DEFAULT, which is the guides rather than
+    # None since instruction 147 A. The point of the test is that the label
+    # does not survive the run that earned it: "(genes)" over the next
+    # screen's guide fit is the same lie the filter was built to stop.
+    assert panel.level() == "grna"
+    # THE CLAIM, NOT THE INVENTORY. Which tabs exist belongs to the
+    # instructions that add them and has changed twice since this was
+    # written; what this test is about is that no label survives the run that
+    # earned it.
+    labels = _tabs(panel)
+    assert not any("(genes)" in label for label in labels), labels
+    assert "Volcano (guides)" in labels, labels
+    assert "Q-Q (guides)" in labels, labels
+    assert _title(panel.qq) == "p-value Q-Q — guides only"
 
 
 def test_the_selection_survives_the_filter_on_every_plot(panel):
