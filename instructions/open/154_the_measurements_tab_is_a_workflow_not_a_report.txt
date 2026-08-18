@@ -1,0 +1,188 @@
+================================================================================
+THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18, after loading four measurements.db files --
+
+  "i dont understand how this is all set up, its probably broken. the point of
+   the meanurements tab is to perge beasurements so that regression can be run
+   on any column in the databases. i cliuck merge and the application freezes
+   with no indication that something is working.
+   i should be able to
+   1. loade the measurements.
+   2. merge the measurements tables
+   3. mearge the databases
+   4 pick a column and to regression based on this column
+   4b do regression on a selection of columns each gets saved as a run that i
+     can evaluate.
+   and the cell table just says that no regression results are loaded. but i
+   just ran a gegression so that should be loaded automatically and otherwise
+   there should be a checkbox in runs that specifies which run is loaded if
+   there are several runs if there is one run then that is the loaded there
+   should also be the opertunity to loaded rund."
+
+Related: 109 is the multi-database working set. 79 is one anchor and the right
+         aggregation per kind. 130 is a database per plate. 146 is the Runs
+         tab. 122 is regressing across screens. 140 is a long job saying so.
+
+--------------------------------------------------------------------------------
+A. THE FREEZE. FOUND, AND IT IS THE WHOLE OF IT.
+--------------------------------------------------------------------------------
+
+`measurement_scan_panel.py:992::merge` calls `merge_across_databases(...)`
+DIRECTLY, on the GUI thread. Counted in that file:
+
+    JobRunner / QThread / start_job occurrences:  0
+
+So the entire merge -- four databases, 226,467 cell rows before any join, three
+joined tables, and an aggregation over ~85 defaulted columns per table -- runs
+inside the button's own click handler. Qt cannot paint, cannot show a spinner
+and cannot accept a cancel until it returns. THE APPLICATION IS NOT HUNG; it is
+working, and there is no way for it to say so. That is exactly the report.
+
+EVERY OTHER LONG JOB IN THIS APPLICATION ALREADY HAS THE ANSWER: `JobRunner`,
+which this panel is the one that does not use. So this is not new machinery,
+it is an omission -- and instruction 140 asks for the same thing on the
+regression fit, so both should land on one idiom rather than two.
+
+WHAT IT MUST DO: run off the GUI thread, say what stage it is on (reading
+plate3, joining pathogen, aggregating 85 columns), show rows processed against
+rows expected -- the plan ALREADY KNOWS the total, it prints it -- and be
+cancellable, leaving nothing half-written.
+
+--------------------------------------------------------------------------------
+B. THE PREVIEW IS TRUE AND UNREADABLE
+--------------------------------------------------------------------------------
+
+The plan text is correct and nobody can use it. It prints EIGHTY-FIVE column
+names inline for `nucleus`, then EIGHTY-FIVE more for `pathogen` -- a hundred
+and seventy names in a 190-pixel-tall read-only box -- so the three lines that
+matter (what joins how, how many rows, what the anchor is) are buried in
+`nucleus_channel_2_channel_3_M2_correlation_85` and its brothers.
+
+    "85 columns match no aggregation rule and would take the default (mean)"
+    is the SENTENCE. The list is the EVIDENCE, and evidence goes behind a
+    disclosure, not in front of the summary.
+
+Collapse it: the count, the kinds it breaks into, and a "show them" that opens
+the full list. The house already has this idiom -- a foldable section -- and
+instruction 110 is about exactly this failure elsewhere.
+
+--------------------------------------------------------------------------------
+C. `file_name` AND `path_name` CANNOT TAKE A MEAN, AND THE PANEL SAYS THEY WILL
+--------------------------------------------------------------------------------
+
+This is the one to fix first, because it is a correctness claim rather than a
+presentation one. Both defaulted lists BEGIN with
+
+    file_name, path_name
+
+which are TEXT. "Would take the default (mean)" is not merely unhelpful for a
+string, it is impossible, and a user reading it has been told something about
+their data that cannot happen. Either the aggregation silently drops them (so
+the sentence is wrong), or it attempts a mean (so the merge is wrong).
+FIND OUT WHICH AND SAY THE TRUE THING -- and per instruction 79 they should be
+classified rather than defaulted: an identifier column is carried through as
+`first` when it is constant within the group and REFUSED when it is not,
+because a file name that differs across the cells being combined is a genuine
+ambiguity and picking one silently invents provenance.
+
+THE DEEPER POINT: a "no rule matched" bucket that mixes 83 numeric texture
+features with 2 filesystem paths is not one bucket. Classify by dtype before
+reporting, and the 85 becomes "83 numeric measurements -> mean" and "2 text
+identifiers -> first, or refused". That is a sentence a user can approve.
+
+--------------------------------------------------------------------------------
+D. THE PLATE IDS READ `pplate1`
+--------------------------------------------------------------------------------
+
+    plate1: 60,816 rows, plates pplate1
+
+The label is `plate1` and the id beside it is `pplate1`. spaCR's well key is
+`p<plate>_<row>_<column>` (submodules.py:826 builds it), so a plate already
+named `plate1` becomes `pplate1` when the prefix is applied to a name rather
+than to a number. Establish which is stored and which is displayed, and show
+the user the plate as the plate is called. A doubled prefix in a preview is
+small; the same doubling in a JOIN KEY is not, and instruction 145 (one key
+vocabulary) is where that risk lives. CHECK WHETHER THE KEY ITSELF IS AFFECTED
+before deciding this is cosmetic.
+
+--------------------------------------------------------------------------------
+E. "Nothing to scan. Load a run whose wells carry both the gene assignment and
+   the measurement"
+--------------------------------------------------------------------------------
+
+`measurement_scan_panel.py:1202`. The maintainer got this WHILE having four
+measurement databases loaded, which means either the sentence is wrong about
+what is missing, or it is right and cannot say what to DO about it. It names
+two things a well must carry and no way to give it them.
+
+Say which half is absent -- there is no gene assignment, or there is no
+measurement, or the two exist and do not join -- and if they do not join, name
+the key that failed and show one example from each side. "Nothing to scan" with
+a generic remedy is the same defect as 153's "opened from disk": a message
+asserting a cause it has not checked.
+
+--------------------------------------------------------------------------------
+F. THE WORKFLOW THE TAB IS FOR, AS FOUR STEPS
+--------------------------------------------------------------------------------
+
+The request states the purpose plainly: "the point of the measurements tab is
+to merge measurements so that regression can be run on any column in the
+databases." The tab should therefore READ as those steps, in order, with the
+state of each visible:
+
+    1. LOAD the measurement databases            (109's working set -- built)
+    2. MERGE THE TABLES within each database     (cell/nucleus/pathogen/cyto)
+    3. MERGE THE DATABASES into one frame        (plates side by side)
+    4. PICK A COLUMN and regress on it
+
+Today steps 2 and 3 are one button and one wall of text, and step 4 is not on
+this tab at all, so the tab ends without reaching its own purpose. A user who
+has merged has no idea what to do next, which is most of "i dont understand how
+this is all set up".
+
+  * 4b. A SELECTION OF COLUMNS, EACH ITS OWN RUN. "do regression on a selection
+    of columns each gets saved as a run that i can evaluate." So the column
+    picker is multi-select, each column produces ONE run with its own folder
+    and its own row in the Runs tab, and they are comparable afterwards -- which
+    is what the Runs tab exists for. A queue of N fits is a long job: it gets
+    140's progress and cancellation, and a fit that fails does not take the
+    other N-1 with it.
+  * THE MERGED FRAME MUST SURVIVE THE TAB. Regression on "any column in the
+    databases" means the merge is an artefact, not a preview: written once,
+    named, reusable, and not recomputed for every fit.
+
+--------------------------------------------------------------------------------
+G. A RUN THAT JUST RAN SHOULD BE THE RUN THAT IS LOADED
+--------------------------------------------------------------------------------
+
+"the cell table just says that no regression results are loaded. but i just ran
+a regression so that should be loaded automatically" -- `cell_montage_view.py:873`.
+
+    * A run that finishes BECOMES the loaded run. No step in between.
+    * ONE run in the folder means that run is loaded. There is nothing to
+      choose between.
+    * SEVERAL runs means the Runs tab carries the choice -- one control saying
+      which is loaded, per the request -- and the choice is visible from the
+      views that depend on it, not only from the tab that sets it.
+    * AND A RUN CAN BE LOADED DELIBERATELY, including one from an earlier
+      session on disk. That is 153's other half: a run on disk is a first-class
+      run, not a degraded one.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Merging four databases keeps the window responsive, names the stage it is
+  on, counts rows against the total it already printed, and can be cancelled.
+* The plan's summary fits in the box; the 170 column names are one click away.
+* No column is reported as taking a mean unless a mean is what it will take;
+  text identifiers are named as identifiers and are carried or refused.
+* A plate called `plate1` is shown as `plate1`, and the join key is verified
+  to be unaffected either way.
+* "Nothing to scan" names which half is missing, or which key failed to join.
+* From a fresh start: load 4 databases, merge, pick 3 columns, get 3 runs, and
+  evaluate them against each other in the Runs tab, without leaving the app.
+* A finished run is the loaded run, with no further action.
