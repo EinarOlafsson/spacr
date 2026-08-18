@@ -360,7 +360,32 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Set once at the end, with every agent stopped and the tree clean --
     # which is the third time today that rule has been the difference between
     # a correct number and a stale one.
-    expected = 7020
+    #
+    # +62/-0 on 2026-08-18, the night that finished instructions 131, 133 and
+    # 135. A pure admission; nothing was retired, because the settings that
+    # went away (score_column, log_x, log_y, x_lim, y_lims, split_axis_lims,
+    # guide_permutation_plot, volcano, toxo) are dict keys and tooltip
+    # strings, not public docstrings. Enumerated by module, because a ratchet
+    # moved without saying what it admitted is a rubber stamp:
+    #   25  spacr.qt.widgets.cell_montage_view -- instruction 131's Cells
+    #                          tab: which objects a dot on the volcano is
+    #                          most consistent with, loaded off disk or out
+    #                          of the merged .npy stacks
+    #    8  spacr.columns    -- a column that is not there offers the ones
+    #                          that are: headers/available/missing/resolve/
+    #                          describe/suggest and ColumnNotFound
+    #    6  spacr.annotation -- the bundled Toxoplasma join: annotate,
+    #                          supplementary, columns, gene_number,
+    #                          clear_cache and SOURCES
+    #    6  spacr.group_lasso -- fit, gene_effects, stability_selection,
+    #                          max_lambda, describe and the module
+    #    3  spacr.rra        -- rank_aggregate, describe and the module
+    #   14  spread across spacr.ml, spacr.settings, spacr.parameter_sweep and
+    #                          spacr.qt.screens: _toxoplasma_is_on's public
+    #                          neighbours, the two new sweep `qc` parameters,
+    #                          Section.add_prose, and the section-explainer
+    #                          registry and its two helpers
+    expected = 7082
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -375,7 +400,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7139
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7201
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
