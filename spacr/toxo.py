@@ -1,4 +1,13 @@
-"""Toxoplasma-specific visualisation helpers."""
+"""Toxoplasma-specific visualisation helpers.
+
+Every figure here is built inside :func:`_house`, which is
+:mod:`spacr.figures.style` applied as a context manager. Read that module
+before adding a panel; the rule it exists to enforce is that **everything is
+grey except what the sentence is about**, and this file is where breaking it
+was measured -- see :func:`custom_volcano_plot`.
+"""
+
+import contextlib
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -6,7 +15,110 @@ import numpy as np
 from adjustText import adjust_text
 import pandas as pd
 from scipy.stats import fisher_exact
+
+from .figures.style import (ROLES, TYPE_SCALE, Palette, reference_line,
+                            resolve_ink, rotate_ticks, text_legend,
+                            theme_target)
+from .figures.style import rc as style_rc
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
+
+#: The page width the published type scale was measured at: 180 mm, the double
+#: column of Cell and Nature Microbiology, which is what
+#: :data:`spacr.figures.style.TYPE_SCALE` pins its absolute points to.
+REFERENCE_WIDTH_IN = 7.09
+
+
+@contextlib.contextmanager
+def _house(width, *, frame='L'):
+    """The house style, with the type scaled to the canvas this module asks for.
+
+    THE STYLE IS A CONTEXT, NEVER A GLOBAL WRITE. spaCR draws from a
+    long-lived GUI, so an ``rcParams.update`` here would style every figure
+    drawn afterwards, in every other module, until the process exits. This
+    file already paid for that once: ``custom_volcano_plot`` set 18 pt
+    globally and every plot the session opened after a volcano came out at
+    the volcano's font size.
+
+    WHY THE SIZES ARE SCALED. ``figures.style`` pins absolute points -- 7 pt
+    axis labels, 6.2 pt ticks -- because the skill measured them on a 180 mm
+    page. These figures are not 180 mm: ``ml.perform_regression`` asks for a
+    20-inch square volcano with 600-point markers, and 7 pt text on a canvas
+    that wide is a footnote on a poster. The skill states the scale as
+    RATIOS (panel letter 1.9-2.2x the axis label, tick 0.85-0.9x); multiplying
+    every tier by one factor keeps those ratios, which is the look, where
+    pinning the points keeps only the numbers.
+
+    :param width: the figure's width in inches.
+    :param frame: ``'L'`` (left and bottom spines) or ``'box'``.
+    :yields: ``(ink, scale)`` -- the resolved text/axis colour, and the factor
+        every explicit ``fontsize`` in the block has to be multiplied by.
+    """
+    target = theme_target()
+    params = style_rc(target, frame=frame)
+    scale = max(1.0, float(width) / REFERENCE_WIDTH_IN)
+    for key in ('font.size', 'axes.labelsize', 'axes.titlesize',
+                'xtick.labelsize', 'ytick.labelsize', 'legend.fontsize'):
+        params[key] = params[key] * scale
+    with plt.rc_context(params):
+        yield resolve_ink(target), scale
+
+
+#: Leader lines from a label to its point. Grey and hairline, because a
+#: leader is furniture: it says which point a name belongs to and nothing
+#: else. They were solid black at the default width.
+_LEADER = dict(arrowstyle='-', color=ROLES['reference'], linewidth=0.6)
+
+#: Marker shapes for a genuinely categorical second variable, in the order
+#: the published figures reach for them. Shape, not hue -- the colour budget
+#: belongs to the claim.
+_MARKERS = ('o', 's', '^', 'D', 'v', 'P')
+
+
+def _scaled_sizes(values, low=50.0, high=200.0):
+    """Marker areas spanning ``low`` to ``high`` across ``values``.
+
+    What seaborn's ``sizes=(50, 200)`` did for the enrichment panels, kept so
+    the points are the same sizes after the hue came out. A constant column
+    maps to the small end rather than dividing by a zero range.
+    """
+    values = np.asarray(values, dtype=float)
+    if values.size == 0:
+        return values
+    span = float(np.nanmax(values) - np.nanmin(values))
+    if not np.isfinite(span) or span <= 0:
+        return np.full(values.shape, low)
+    return low + (values - np.nanmin(values)) / span * (high - low)
+
+
+def _sized_text_legend(ax, entries, scale, **kwargs):
+    """:func:`spacr.figures.style.text_legend`, at this canvas's type size.
+
+    ``text_legend`` writes at the pinned 6 pt annotation size, which on the
+    20-inch volcano is invisible. The entries are re-sized after the fact
+    rather than re-implemented, so the placement rule stays in one place.
+    """
+    first = len(ax.texts)
+    text_legend(ax, entries, **kwargs)
+    for text in ax.texts[first:]:
+        text.set_fontsize(TYPE_SCALE['annotation'] * scale)
+
+
+def _compartment_mask(values, wanted):
+    """Boolean mask of the rows whose localisation is one of ``wanted``.
+
+    :param values: the merged metadata column, one localisation per row.
+    :param wanted: ``None``, one compartment name, or a sequence of them.
+    :returns: ``(mask, label)``, or ``(None, '')`` when nothing was asked for.
+    """
+    if wanted is None:
+        return None, ''
+    names = [wanted] if isinstance(wanted, str) else list(wanted)
+    names = [str(name) for name in names if str(name)]
+    if not names:
+        return None, ''
+    mask = values.astype(str).isin(names)
+    return mask, ', '.join(names)
+
 
 def custom_volcano_plot(
     data_path,
@@ -19,20 +131,41 @@ def custom_volcano_plot(
     x_lim=None,
     y_lims=None,
     draw=True,
+    highlight_location=None,
 ):
-    """Render a volcano plot coloured by T. gondii subcellular localisation.
+    """Render the screen's volcano: grey guides, coloured calls.
 
-    Points are placed at ``(coefficient, -log10(p_value))`` and coloured by the
-    ``metadata_column`` value on the merged gene metadata. Supports a broken
-    y-axis for high ``-log10(p)`` outliers.
+    Points are placed at ``(coefficient, -log10(p_value))``. THE COLOUR IS THE
+    CLAIM: everything the screen did not call is grey, a called guide is green
+    when its coefficient is positive and rust when it is negative, and that is
+    the whole vocabulary unless ``highlight_location`` asks for one more.
+
+    IT USED TO COLOUR BY LOCALISATION, all 27 LOPIT compartments at once, and
+    that was decoration rather than an argument. Eight of the 27 were the same
+    slategray and two more the same black, so the hues did not even separate
+    the compartments they claimed to name; the legend ran taller than the
+    figure ("I can't really see the results because the legend is way too
+    big"); and :mod:`spacr.localisation` records the cost of the same mistake
+    elsewhere -- a 27-entry volcano spent 40 ms of a 49 ms redraw and said
+    nothing, because no reader holds 27 hues apart. THE NUMBERS ARE
+    UNCHANGED: the same p and coefficient rule calls the same hits, the same
+    genes are labelled, and the returned list is byte-for-byte what it was.
+    Only which marks carry colour changed.
+
+    The compartments are still reachable, one at a time and against grey,
+    which is what :mod:`spacr.localisation` already decided is the readable
+    form of that question.
 
     :param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,
         ``p_value`` columns.
     :param metadata_path: DataFrame or CSV path with ``gene_nr`` and the
         ``metadata_column`` values to merge on gene number.
-    :param metadata_column: Metadata column that drives point colouring.
+    :param metadata_column: Metadata column carrying each gene's localisation.
+        It is what ``highlight_location`` selects on; it no longer drives the
+        colour of every point.
     :param point_size: Marker size passed to ``ax.scatter``.
-    :param figsize: Side length in inches of the (square) figure.
+    :param figsize: Side length in inches of the (square) figure. The type
+        scale follows it -- see :func:`_house`.
     :param threshold: Absolute coefficient threshold used to select hits.
     :param save_path: Optional destination for the figure. Saving goes through
         :func:`spacr.plot.save_figure`, so the format and the file extension
@@ -51,127 +184,100 @@ def custom_volcano_plot(
         to lose. Gating the DRAWING keeps them.
 
         It is also the fast path, which is the point: "your new volcano plot
-        is much much faster than my old one". Skipping the figure skips a
-        per-row Python loop over every coefficient, twice.
+        is much much faster than my old one". Skipping the figure skips the
+        whole build.
+    :param highlight_location: one compartment name, or a sequence of them,
+        from ``metadata_column``. Those genes are drawn in the highlight blue
+        on top of everything else and named in the in-panel legend. ``None``
+        (the default) colours nothing by localisation.
     :returns: List of ``variable`` names that are significant hits.
     """
     if x_lim is None:
         x_lim = [-0.5, 0.5]
     from matplotlib.gridspec import GridSpec
 
-    colors = {
-        'micronemes': 'black',
-        'rhoptries 1': 'darkviolet',
-        'rhoptries 2': 'darkviolet',
-        'nucleus - chromatin': 'blue',
-        'nucleus - non-chromatin': 'blue',
-        'dense granules': 'teal',
-        'ER 1': 'pink',
-        'ER 2': 'pink',
-        'unknown': 'black',
-        'tubulin cytoskeleton': 'slategray',
-        'IMC': 'slategray',
-        'PM - peripheral 1': 'slategray',
-        'PM - peripheral 2': 'slategray',
-        'cytosol': 'turquoise',
-        'mitochondrion - soluble': 'red',
-        'mitochondrion - membranes': 'red',
-        'apicoplast': 'slategray',
-        'Golgi': 'green',
-        'PM - integral': 'slategray',
-        'apical 1': 'orange',
-        'apical 2': 'orange',
-        '19S proteasome': 'slategray',
-        '20S proteasome': 'slategray',
-        '60S ribosome': 'slategray',
-        '40S ribosome': 'slategray',
-    }
+    # --- Load data ---
+    if isinstance(data_path, pd.DataFrame):
+        data = data_path.copy()
+    else:
+        data = pd.read_csv(data_path)
 
-    fontsize = 18
-    # Scoped to this figure. A bare `rcParams.update` set 18pt for the
-    # whole process, so every plot drawn after a volcano -- on any screen,
-    # in any module -- came out at the volcano's font size, and the user's
-    # own choice in figure preferences was overridden by whichever figure
-    # they happened to open first.
-    with plt.rc_context({'font.size': fontsize}):
+    data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
+    data['variable'] = data['variable'].fillna(data['feature'])
+    data['gene_nr'] = data['variable'].str.split('_').str[0]
+    data = data[data['variable'] != 'Intercept']
 
-        # --- Load data ---
-        if isinstance(data_path, pd.DataFrame):
-            data = data_path.copy()
-        else:
-            data = pd.read_csv(data_path)
+    # --- Load metadata ---
+    if isinstance(metadata_path, pd.DataFrame):
+        # .copy() for the same reason `data` above takes one: the next line
+        # rewrites 'gene_nr' to str in place, and without the copy that edit
+        # landed in the CALLER's frame. A caller that plots two volcanoes from
+        # one metadata table got its integer gene numbers silently retyped by
+        # the first call.
+        metadata = metadata_path.copy()
+    else:
+        metadata = pd.read_csv(metadata_path)
 
-        data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
-        data['variable'] = data['variable'].fillna(data['feature'])
-        data['gene_nr'] = data['variable'].str.split('_').str[0]
-        data = data[data['variable'] != 'Intercept']
+    metadata['gene_nr'] = metadata['gene_nr'].astype(str)
+    data['gene_nr'] = data['gene_nr'].astype(str)
 
-        # --- Load metadata ---
-        if isinstance(metadata_path, pd.DataFrame):
-            # .copy() for the same reason `data` above takes one: the next line
-            # rewrites 'gene_nr' to str in place, and without the copy that edit
-            # landed in the CALLER's frame. A caller that plots two volcanoes from
-            # one metadata table got its integer gene numbers silently retyped by
-            # the first call.
-            metadata = metadata_path.copy()
-        else:
-            metadata = pd.read_csv(metadata_path)
+    # many_to_one: `data` holds one row per regression *feature*, and several
+    # features share a gene -- a gRNA-level fit contributes one row per guide,
+    # so gene_nr repeats on the left by design. `metadata` is a lookup table:
+    # one localisation per gene, which is what the shipped
+    # resources/data/lopit.csv is (3832 rows, 3832 distinct gene_nr). A
+    # duplicated gene_nr on the right is therefore not a legitimate shape here,
+    # it is a fan-out: every affected gene gets plotted twice and appended to
+    # the returned hit list twice, which then propagates into
+    # plot_gene_phenotypes and plot_gene_heatmaps as duplicate genes. Declaring
+    # the relationship turns that into a stop rather than a wrong figure.
+    try:
+        merged_data = pd.merge(
+            data,
+            metadata[['gene_nr', metadata_column]],
+            on='gene_nr',
+            how='left',
+            validate='many_to_one',
+        )
+    except pd.errors.MergeError as exc:
+        duplicated = metadata.loc[
+            metadata['gene_nr'].duplicated(keep=False), 'gene_nr']
+        if duplicated.empty:
+            # MergeError also covers things this message would misdescribe --
+            # a colliding suffix, for one. Only claim the cardinality story
+            # when the duplicates that would justify it are actually there.
+            raise
+        examples = duplicated.unique()[:5].tolist()
+        raise pd.errors.MergeError(
+            f"The gene metadata lists {duplicated.nunique()} gene_nr value(s) "
+            f"more than once (e.g. {examples}), so it cannot say which "
+            f"{metadata_column!r} belongs to a gene. Joining it anyway would "
+            f"plot those genes once per duplicate row and return each of them "
+            f"more than once in the hit list. De-duplicate the metadata on "
+            f"gene_nr before plotting. (pandas: {exc})"
+        ) from exc
+    merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
+    merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
 
-        metadata['gene_nr'] = metadata['gene_nr'].astype(str)
-        data['gene_nr'] = data['gene_nr'].astype(str)
+    # ONE RULE, ONE PLACE. The hit list and the colouring below read the same
+    # mask, so a gene the volcano marks and a gene the phenotype plot reports
+    # cannot disagree -- they used to be a vectorised expression and a
+    # row-by-row `if` written separately.
+    called = ((merged_data['p_value'] <= 0.05)
+              & (merged_data['coefficient'].abs() >= abs(threshold)))
+    hit_list = list(merged_data.loc[called, 'variable'])
 
-        # many_to_one: `data` holds one row per regression *feature*, and several
-        # features share a gene -- a gRNA-level fit contributes one row per guide,
-        # so gene_nr repeats on the left by design. `metadata` is a lookup table:
-        # one localisation per gene, which is what the shipped
-        # resources/data/lopit.csv is (3832 rows, 3832 distinct gene_nr) and what
-        # `colors[row[metadata_column]]` below assumes when it paints one point one
-        # colour. A duplicated gene_nr on the right is therefore not a legitimate
-        # shape here, it is a fan-out: every affected gene gets plotted twice and
-        # appended to the returned hit list twice, which then propagates into
-        # plot_gene_phenotypes and plot_gene_heatmaps as duplicate genes. Declaring
-        # the relationship turns that into a stop rather than a wrong figure.
-        try:
-            merged_data = pd.merge(
-                data,
-                metadata[['gene_nr', metadata_column]],
-                on='gene_nr',
-                how='left',
-                validate='many_to_one',
-            )
-        except pd.errors.MergeError as exc:
-            duplicated = metadata.loc[
-                metadata['gene_nr'].duplicated(keep=False), 'gene_nr']
-            if duplicated.empty:
-                # MergeError also covers things this message would misdescribe --
-                # a colliding suffix, for one. Only claim the cardinality story
-                # when the duplicates that would justify it are actually there.
-                raise
-            examples = duplicated.unique()[:5].tolist()
-            raise pd.errors.MergeError(
-                f"The gene metadata lists {duplicated.nunique()} gene_nr value(s) "
-                f"more than once (e.g. {examples}), so it cannot say which "
-                f"{metadata_column!r} belongs to a gene. Joining it anyway would "
-                f"plot those genes once per duplicate row and return each of them "
-                f"more than once in the hit list. De-duplicate the metadata on "
-                f"gene_nr before plotting. (pandas: {exc})"
-            ) from exc
-        merged_data[metadata_column] = merged_data[metadata_column].fillna('unknown')
-        merged_data['neg_log_p'] = -np.log10(merged_data['p_value'])
+    if not draw:
+        return hit_list
 
-        if not draw:
-            # THE SAME RULE the scatter loop below applies, vectorised. Written
-            # against the same two columns rather than re-derived, because a
-            # hit list that disagreed with the picture would be the worst of
-            # both: the phenotype plot would report genes the volcano does not
-            # mark.
-            called = ((merged_data['p_value'] <= 0.05)
-                      & (merged_data['coefficient'].abs() >= abs(threshold)))
-            return list(merged_data.loc[called, 'variable'])
+    # --- Normalise y_lims into (is_broken, lower_lim, upper_lim) ---
+    is_broken, lower_lim, upper_lim = _normalize_y_lims(
+        y_lims, merged_data['neg_log_p'])
 
-        # --- Normalise y_lims into (is_broken, lower_lim, upper_lim) ---
-        is_broken, lower_lim, upper_lim = _normalize_y_lims(y_lims, merged_data['neg_log_p'])
-
+    # THE STYLE HAS TO BE ON BEFORE THE FIGURE EXISTS: rcParams colour an
+    # artist when it is CREATED, so a context opened after plt.subplots would
+    # leave the spines, ticks and text at the caller's global style.
+    with _house(figsize) as (ink, scale):
         # --- Axes ---
         if is_broken:
             fig = plt.figure(figsize=(figsize, figsize))
@@ -185,119 +291,115 @@ def custom_volcano_plot(
             ax_upper = None
             all_axes = [ax_lower]
 
-        def _pick_axis(y_val):
-            """Return the upper broken-axis panel when ``y_val`` clears it, else the lower."""
-            if is_broken and y_val > upper_lim[0]:
-                return ax_upper
-            return ax_lower
+        coefficient = merged_data['coefficient'].to_numpy(dtype=float)
+        neg_log_p = merged_data['neg_log_p'].to_numpy(dtype=float)
+        called_mask = called.to_numpy(dtype=bool)
+        # Which panel each point belongs to, decided once for the whole column
+        # rather than by a function call per row.
+        on_upper = (neg_log_p > upper_lim[0]) if is_broken \
+            else np.zeros(len(neg_log_p), dtype=bool)
 
-        hit_list = []
+        up = called_mask & (coefficient > 0)
+        down = called_mask & (coefficient <= 0)
+        wanted, wanted_label = _compartment_mask(
+            merged_data[metadata_column], highlight_location)
 
-        # --- Scatter ---
-        for _, row in merged_data.iterrows():
-            y_val = row['neg_log_p']
-            ax = _pick_axis(y_val)
-            ax.scatter(
-                row['coefficient'],
-                y_val,
-                color=colors.get(row[metadata_column], 'gray'),
-                marker='o',
-                s=point_size,
-                edgecolor='black',
-                alpha=0.6,
-            )
-            if (row['p_value'] <= 0.05) and (abs(row['coefficient']) >= abs(threshold)):
-                hit_list.append(row['variable'])
+        # ONE SCATTER CALL PER ARGUMENT, not one per point. The old loop ran
+        # `ax.scatter` once for each of the ~3,800 rows and then a second full
+        # pass to build the hit list; both are gone. zorder puts the claim on
+        # top of the grey rather than leaving it to row order.
+        layers = [(~called_mask, ROLES['data'], 1, None),
+                  (up, ROLES['up'], 2, f"called, positive ({int(up.sum())})"),
+                  (down, ROLES['down'], 2, f"called, negative ({int(down.sum())})")]
+        if wanted is not None:
+            layers.append((wanted.to_numpy(dtype=bool), ROLES['highlight'], 3,
+                           wanted_label))
+
+        entries = []
+        for selected, colour, zorder, label in layers:
+            for axis, side in ((ax_lower, ~on_upper), (ax_upper, on_upper)):
+                if axis is None:
+                    continue
+                take = selected & side
+                if not take.any():
+                    continue
+                # Opaque, no edge: the published figures handle overplotting
+                # with size and with grey, not with alpha.
+                axis.scatter(coefficient[take], neg_log_p[take], color=colour,
+                             marker='o', s=point_size, linewidths=0,
+                             zorder=zorder)
+            if label and selected.any():
+                entries.append((label, colour))
 
         # --- Limits and spines ---
         ax_lower.set_ylim(lower_lim)
         ax_lower.set_xlim(x_lim)
         ax_lower.set_xlabel('Coefficient')
         ax_lower.set_ylabel('-log10(p-value)')
-        ax_lower.spines['right'].set_visible(False)
 
         if is_broken:
             ax_upper.set_ylim(upper_lim)
             ax_upper.set_ylabel('-log10(p-value)')
-            ax_upper.spines['right'].set_visible(False)
-            ax_upper.spines['top'].set_visible(False)
+            # The break itself: the two panels face each other across a gap,
+            # so the spines that would draw a line through it come off.
             ax_upper.spines['bottom'].set_visible(False)
-            ax_lower.spines['top'].set_visible(False)
-        else:
-            ax_lower.spines['top'].set_visible(False)
 
         # --- Threshold lines ---
-        for ax in all_axes:
-            ax.axvline(x=-abs(threshold), linestyle='--', color='black')
-            ax.axvline(x=abs(threshold), linestyle='--', color='black')
-        ax_lower.axhline(y=-np.log10(0.05), linestyle='--', color='black')
+        # Grey, thin, dashed, behind the data. A reference is not a result.
+        for axis in all_axes:
+            if threshold:
+                reference_line(axis, x=-abs(threshold))
+                reference_line(axis, x=abs(threshold))
+            else:
+                # threshold=0 means "no coefficient cut": the two lines would
+                # land on top of each other, so draw the zero once.
+                reference_line(axis, x=0.0)
+        reference_line(ax_lower, y=-np.log10(0.05))
 
         # --- Annotate significant points ---
         texts_upper, texts_lower = [], []
-        for _, row in merged_data.iterrows():
-            if row['p_value'] > 0.05 or abs(row['coefficient']) < abs(threshold):
-                continue
-            y_val = row['neg_log_p']
-            ax = _pick_axis(y_val)
-            text = ax.text(
-                row['coefficient'],
-                y_val,
-                row['variable'],
-                fontsize=fontsize,
+        label_size = TYPE_SCALE['annotation'] * scale
+        for index in np.flatnonzero(called_mask):
+            axis = ax_upper if on_upper[index] else ax_lower
+            text = axis.text(
+                coefficient[index],
+                neg_log_p[index],
+                merged_data['variable'].iat[index],
+                fontsize=label_size,
+                color=ink,
                 ha='center',
                 va='bottom',
             )
-            if ax is ax_upper:
+            if axis is ax_upper:
                 texts_upper.append(text)
             else:
                 texts_lower.append(text)
 
+        leader = dict(arrowstyle='-', color=ROLES['reference'],
+                      linewidth=0.6)
         if texts_lower:
-            adjust_text(texts_lower, ax=ax_lower, arrowprops=dict(arrowstyle='-', color='black'))
+            adjust_text(texts_lower, ax=ax_lower, arrowprops=leader)
         if is_broken and texts_upper:
-            adjust_text(texts_upper, ax=ax_upper, arrowprops=dict(arrowstyle='-', color='black'))
+            adjust_text(texts_upper, ax=ax_upper, arrowprops=leader)
 
         # --- Legend ---
-        legend_handles = [
-            plt.Line2D([0], [0], marker='o', color=c, label=name, linewidth=0, markersize=8)
-            for name, c in colors.items()
-        ]
-        # THE LEGEND MUST NOT BE BIGGER THAN THE PLOT.
-        #
-        # labelspacing=2 double-spaced every entry, markerscale=1.5 enlarged each
-        # swatch, and the label font was the full AXIS font size. With the LOPIT
-        # compartment set that is 27 entries, so the legend column ran taller than
-        # the figure and squeezed the data into a strip -- reported as "I can't
-        # really see the results because the legend is way too big".
-        #
-        # A legend is an index, not a feature of the data: size it to be readable
-        # and no larger, and wrap it into columns once there are more entries than
-        # fit down one side.
-        entries = len(legend_handles)
-        columns = 1 if entries <= 14 else 2 if entries <= 30 else 3
-        legend = ax_lower.legend(
-            handles=legend_handles,
-            bbox_to_anchor=(1.02, 1),
-            loc='upper left',
-            borderaxespad=0.25,
-            labelspacing=0.4,
-            handletextpad=0.4,
-            markerscale=0.9,
-            ncol=columns,
-            columnspacing=1.0,
-            frameon=False,
-            # Two-thirds of the axis font, floored so it stays readable.
-            prop={'size': max(fontsize * 0.6, 7)},
-        )
-
-        _fit_outside_legend(fig, legend)
+        # THREE LINES OF TEXT, INSIDE THE PANEL. It was 27 framed swatches
+        # anchored outside the axes, which is why `_fit_outside_legend` had to
+        # exist and why the data was squeezed into a strip beside it. A legend
+        # is an index; with grey as the default ink there are only the called
+        # directions to index.
+        if entries:
+            _sized_text_legend(ax_lower, entries, scale)
 
         if save_path:
-            save_path = save_figure(plt.gcf(), save_path,
-                                    bbox_inches='tight')
+            # Saved INSIDE the context: savefig.transparent and
+            # savefig.facecolor are read at write time, so a save outside it
+            # would put the default white ground back under the figure.
+            save_path = save_figure(fig, save_path, bbox_inches='tight')
         plt.show()
 
         return hit_list
+
 
 
 def _fit_outside_legend(fig, legend, pad=0.02, min_axes_width=0.45):
@@ -313,6 +415,11 @@ def _fit_outside_legend(fig, legend, pad=0.02, min_axes_width=0.45):
     Measuring the legend and shrinking the axes to fit it means the figure is
     correct as drawn, on screen and on disk alike, instead of being correct
     only after a save-time rescue.
+
+    NO FIGURE IN THIS MODULE ANCHORS A LEGEND OUTSIDE ITS AXES ANY MORE: the
+    house style puts a two-line text legend inside the panel, which is what
+    made the 27-swatch column that this helper was written to survive
+    unnecessary in the first place. It is kept for a panel that has to.
 
     :param fig: Figure holding the legend.
     :param legend: The legend to make room for.
@@ -466,22 +573,53 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
         combined_results.append(results_df)
 
         # Plot the enrichment results for each individual column
-        plt.figure(figsize=(10, 6))
-        
-        # Create a scatter plot of Enrichment Score vs -log10(p-value)
-        sns.scatterplot(data=results_df, x='Enrichment Score', y=-np.log10(results_df['P-value']), hue='GO Term', size='Enrichment Score', sizes=(50, 200))
-        
-        # Set plot labels and title
-        plt.title(f'GO Term Enrichment Analysis for {go_term_column}')
-        plt.xlabel('Enrichment Score')
-        plt.ylabel('-log10(P-value)')
-        
-        # Move the legend to the right of the plot
-        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
-        
-        # Show the plot
-        plt.tight_layout()  # Ensure everything fits in the figure area
-        plt.show()
+        # GREY, WITH THE CALLED TERMS COLOURED. `hue='GO Term'` gave every
+        # term of the ontology its own hue and its own legend row -- the
+        # 27-colour failure again, and worse here, because a GO column carries
+        # hundreds of terms and the legend was anchored outside the axes. The
+        # sentence is "these terms are enriched among the hits and the
+        # enrichment is significant", so significance is what carries colour,
+        # and the terms that carry it are named on the points instead.
+        # ONE scatter call, in the frame's own row order, so the points are
+        # the same points in the same order as before.
+        with _house(10) as (ink, scale):
+            fig = plt.figure(figsize=(10, 6))
+            ax = fig.gca()
+            enrichment = results_df['Enrichment Score'].to_numpy(dtype=float)
+            significance = -np.log10(results_df['P-value'].to_numpy(dtype=float))
+            called = results_df['P-value'].to_numpy(dtype=float) <= 0.05
+            # Size still reads the effect, as `sizes=(50, 200)` did; only the
+            # hue moved.
+            ax.scatter(enrichment, significance, s=_scaled_sizes(enrichment),
+                       color=[ROLES['highlight'] if hit else ROLES['data']
+                              for hit in called],
+                       linewidths=0, zorder=2)
+            reference_line(ax, y=-np.log10(0.05))
+            # Enrichment of 1 is "as common among the hits as in the
+            # background", which is the null this panel is read against.
+            reference_line(ax, x=1.0)
+
+            # Set plot labels and title
+            ax.set_title(f'GO Term Enrichment Analysis for {go_term_column}')
+            ax.set_xlabel('Enrichment Score')
+            ax.set_ylabel('-log10(P-value)')
+
+            # The terms that cleared p <= 0.05 are named on the panel, which is
+            # what the every-term legend was there to do and could not.
+            texts = [ax.text(enrichment[i], significance[i],
+                             results_df['GO Term'].iat[i],
+                             fontsize=TYPE_SCALE['annotation'] * scale,
+                             color=ink)
+                     for i in np.flatnonzero(called)]
+            if texts:
+                adjust_text(texts, ax=ax, arrowprops=_LEADER)
+            _sized_text_legend(
+                ax,
+                [(f'p <= 0.05 ({int(called.sum())})', ROLES['highlight']),
+                 (f'not called ({int((~called).sum())})', ROLES['data'])],
+                scale)
+            fig.tight_layout()
+            plt.show()
 
         # Optionally return or save the results for each column
         print(f'Results for {go_term_column}')
@@ -490,31 +628,58 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     combined_df = pd.concat(combined_results)
 
     # Plot the combined results with text labels
-    plt.figure(figsize=(12, 8))
-    sns.scatterplot(data=combined_df, x='Enrichment Score', y=-np.log10(combined_df['P-value']),
-                    style='GO Column', size='Enrichment Score', sizes=(50, 200))
+    with _house(12) as (ink, scale):
+        fig = plt.figure(figsize=(12, 8))
+        ax = fig.gca()
+        enrichment = combined_df['Enrichment Score'].to_numpy(dtype=float)
+        significance = -np.log10(combined_df['P-value'].to_numpy(dtype=float))
+        called = combined_df['P-value'].to_numpy(dtype=float) <= 0.05
+        sizes = _scaled_sizes(enrichment)
+        colours = [ROLES['highlight'] if hit else ROLES['data']
+                   for hit in called]
+        # WHICH ONTOLOGY A TERM CAME FROM IS A REAL SECOND VARIABLE, so it
+        # keeps its encoding -- as marker shape, which is what `style='GO
+        # Column'` already used and what the style spends no colour on. One
+        # collection per shape, in frame order within each.
+        for index, column in enumerate(dict.fromkeys(combined_df['GO Column'])):
+            rows = np.flatnonzero(
+                (combined_df['GO Column'] == column).to_numpy(dtype=bool))
+            ax.scatter(enrichment[rows], significance[rows], s=sizes[rows],
+                       color=[colours[i] for i in rows],
+                       marker=_MARKERS[index % len(_MARKERS)],
+                       linewidths=0, zorder=2)
+        reference_line(ax, y=-np.log10(0.05))
+        reference_line(ax, x=1.0)
 
-    # Set plot labels and title for the combined graph
-    plt.title('Combined GO Term Enrichment Analysis')
-    plt.xlabel('Enrichment Score')
-    plt.ylabel('-log10(P-value)')
-    
-    # Annotate the points with labels and connecting lines
-    texts = []
-    for i, row in combined_df.iterrows():
-        texts.append(plt.text(row['Enrichment Score'], -np.log10(row['P-value']), row['GO Term'], fontsize=9))
-    
-    # Adjust text to avoid overlap
-    adjust_text(texts, arrowprops=dict(arrowstyle='-', color='black'))
-    
-    # Show the combined plot
-    plt.tight_layout()
-    plt.show()
+        # Set plot labels and title for the combined graph
+        ax.set_title('Combined GO Term Enrichment Analysis')
+        ax.set_xlabel('Enrichment Score')
+        ax.set_ylabel('-log10(P-value)')
+
+        # Annotate the points with labels and connecting lines
+        texts = [ax.text(enrichment[i], significance[i],
+                         combined_df['GO Term'].iat[i],
+                         fontsize=TYPE_SCALE['annotation'] * scale, color=ink)
+                 for i in range(len(combined_df))]
+
+        # Adjust text to avoid overlap
+        adjust_text(texts, ax=ax, arrowprops=_LEADER)
+        fig.tight_layout()
+        plt.show()
+
 
 def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
     """Plot ranked mean phenotype with SE shading and highlight selected genes.
 
+    THE RANKED CURVE IS THE BACKGROUND, THE SELECTED GENES ARE THE CLAIM. The
+    curve and its SE band are grey and the highlights are the house blue --
+    they were a saturated teal curve and purple points, two full-strength
+    hues for a panel whose sentence is only "here is where these genes fall".
+
     :param data: DataFrame with gene identifiers and phenotype/error columns.
+        Copied before use: this function coerces two columns to numeric, and
+        the coercion used to land in the CALLER's frame -- ``ml`` hands it the
+        GT1 metadata table it goes on to use afterwards.
     :param gene_list: Gene names (or ``TGGT1_<id>`` tags) to highlight.
     :param x_column: Column holding gene identifiers used for matching.
     :param data_column: Numeric column plotted on the y-axis.
@@ -531,13 +696,18 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
             return gene.split('_')[1]
         return str(gene)
 
+    # The caller's table is not ours to retype. `data.loc[:, col] = ...` below
+    # writes through to whatever frame was passed, and `ml.perform_regression`
+    # passes the GT1 metadata table it read once and uses again.
+    data = data.copy()
+
     data.loc[:, data_column] = pd.to_numeric(data[data_column], errors='coerce')
     data = data.dropna(subset=[data_column])
     data.loc[:, error_column] = pd.to_numeric(data[error_column], errors='coerce')
     data = data.dropna(subset=[error_column])
 
     data['x'] = data[x_column].apply(extract_gene_id)
-    
+
     # Sort by the data_column and assign ranks
     data = data.sort_values(by=data_column).reset_index(drop=True)
     data['rank'] = range(1, len(data) + 1)
@@ -548,66 +718,76 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
     yerr = data[error_column]
 
     # Create the plot
-    plt.figure(figsize=(10, 10))
+    with _house(10) as (ink, scale):
+        fig = plt.figure(figsize=(10, 10))
 
-    # Plot the mean phenotype with standard error shading
-    plt.plot(x, y, label='Mean Phenotype', color=(0/255, 155/255, 155/255), linewidth=2)
-    plt.fill_between(
-        x, y - yerr, y + yerr, 
-        color=(0/255, 155/255, 155/255), alpha=0.1, label='Standard Error'
-    )
+        # Plot the mean phenotype with standard error shading. The band takes
+        # the line's own hue at 0.25, which is the only alpha the published
+        # figures use on a curve.
+        plt.plot(x, y, label='Mean Phenotype', color=Palette.GREY_DARK,
+                 linewidth=1.2)
+        plt.fill_between(
+            x, y - yerr, y + yerr,
+            color=Palette.GREY_DARK, alpha=0.25, label='Standard Error',
+            linewidth=0,
+        )
 
-    # Prepare for adjustText
-    texts = []  # Store text objects for adjustment
+        # Prepare for adjustText
+        texts = []  # Store text objects for adjustment
 
-    # Highlight the genes in the gene_list
-    for gene in gene_list:
-        gene_id = extract_gene_id(gene)
-        gene_data = data[data['x'] == gene_id]
-        if not gene_data.empty:
-            # Scatter the highlighted points in purple and add labels for adjustment
-            plt.scatter(
-                gene_data['rank'], 
-                gene_data[data_column], 
-                color=(155/255, 55/255, 155/255), 
-                s=200,
-                alpha=0.6,
-                label=f'Highlighted Gene: {gene}',
-                zorder=3  # Ensure the points are on top
-            )
-            # Add the text label next to the highlighted gene
-            texts.append(
-                plt.text(
-                    gene_data['rank'].values[0], 
-                    gene_data[data_column].values[0], 
-                    gene, 
-                    fontsize=18, 
-                    ha='right'
+        # Highlight the genes in the gene_list
+        for gene in gene_list:
+            gene_id = extract_gene_id(gene)
+            gene_data = data[data['x'] == gene_id]
+            if not gene_data.empty:
+                plt.scatter(
+                    gene_data['rank'],
+                    gene_data[data_column],
+                    color=ROLES['highlight'],
+                    s=200,
+                    linewidths=0,
+                    label=f'Highlighted Gene: {gene}',
+                    zorder=3  # Ensure the points are on top
                 )
-            )
+                # Add the text label next to the highlighted gene
+                texts.append(
+                    plt.text(
+                        gene_data['rank'].values[0],
+                        gene_data[data_column].values[0],
+                        gene,
+                        fontsize=TYPE_SCALE['annotation'] * scale,
+                        color=ink,
+                        ha='right',
+                    )
+                )
 
-    # Adjust text to avoid overlap with lines drawn from points to text
-    adjust_text(texts, arrowprops=dict(arrowstyle='-', color='gray'))
+        # Adjust text to avoid overlap with lines drawn from points to text
+        adjust_text(texts, arrowprops=_LEADER)
 
-    # Label the plot
-    plt.xlabel('Rank')
-    plt.ylabel('Mean Phenotype')
-    #plt.xticks(rotation=90)  # Rotate x-axis labels for readability
-    plt.legend().remove()  # Remove the legend if not needed
-    plt.tight_layout()
+        # Label the plot
+        plt.xlabel('Rank')
+        plt.ylabel('Mean Phenotype')
+        plt.legend().remove()  # Remove the legend if not needed
+        plt.tight_layout()
 
-    # Save the plot if a path is provided
-    if save_path:
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-        print(f"Figure saved to {save_path}")
-    
-    plt.show()
+        # Save the plot if a path is provided
+        if save_path:
+            save_path = save_figure(fig, save_path, bbox_inches='tight')
+            print(f"Figure saved to {save_path}")
+
+        plt.show()
 
 def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=False, save_path=None):
-    """Render a viridis heatmap for selected genes across selected metadata columns.
+    """Render a heatmap for selected genes across selected metadata columns.
 
-    :param data: DataFrame containing per-gene rows.
+    THE RAMP IS SINGLE-HUE. It was viridis, a rainbow that reads as five
+    categories where the quantity is one ordered score; the house style's
+    ``Blues`` runs light to dark, so "more" is one direction rather than a
+    tour of the spectrum. A diverging map would be right only if the values
+    were signed, and after ``normalize`` they run 0 to 1.
+
+    :param data: DataFrame containing per-gene rows. Copied before use -- the
+        row-key column this adds used to appear on the caller's frame.
     :param gene_list: Genes to include as heatmap rows.
     :param columns: Column names to include as heatmap columns.
     :param x_column: Column holding gene identifiers for row matching.
@@ -624,6 +804,9 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
             return gene.split('_')[1]
         return str(gene)
 
+    # `data['x'] = ...` is a new column on the caller's table otherwise, and
+    # `ml.perform_regression` reuses the ME49 frame it passes here.
+    data = data.copy()
     data['x'] = data[x_column].apply(extract_gene_id)
 
     # Filter the data to only include the specified genes
@@ -638,35 +821,42 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
     height = len(gene_list) * 1
 
     # Create the heatmap
-    plt.figure(figsize=(width, height))
-    cmap = sns.color_palette("viridis", as_cmap=True)
+    with _house(width, frame='box') as (ink, scale):
+        fig = plt.figure(figsize=(width, height))
+        cmap = sns.color_palette(Palette.SEQUENTIAL, as_cmap=True)
 
-    # Plot the heatmap with genes on the y-axis and columns on the x-axis
-    sns.heatmap(
-        filtered_data, 
-        cmap=cmap, 
-        cbar=True, 
-        annot=False, 
-        linewidths=0.5, 
-        square=True
-    )
+        # Plot the heatmap with genes on the y-axis and columns on the x-axis
+        # linewidths=0: the white rules between cells were a grid, and the
+        # rule the style states is no gridlines ever.
+        ax = sns.heatmap(
+            filtered_data,
+            cmap=cmap,
+            cbar=True,
+            annot=False,
+            linewidths=0,
+            square=True
+        )
 
-    # Set the labels
-    plt.xticks(rotation=90, ha='center')  # Rotate x-axis labels for better readability
-    plt.yticks(rotation=0)  # Keep y-axis labels horizontal
-    plt.xlabel('')
-    plt.ylabel('')
+        # Long column names rotate 45 and anchor right, as every categorical
+        # axis in the style does.
+        rotate_ticks(ax, 45)
+        plt.yticks(rotation=0)  # Keep y-axis labels horizontal
+        plt.xlabel('')
+        plt.ylabel('')
+        for bar in fig.axes[len(fig.axes) - 1:]:
+            bar.tick_params(colors=ink, labelsize=TYPE_SCALE['tick'] * scale)
+            for spine in bar.spines.values():
+                spine.set_visible(False)
 
-    # Adjust layout to ensure the plot fits well
-    plt.tight_layout()
+        # Adjust layout to ensure the plot fits well
+        plt.tight_layout()
 
-    # Save the plot if a path is provided
-    if save_path:
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-        print(f"Figure saved to {save_path}")
+        # Save the plot if a path is provided
+        if save_path:
+            save_path = save_figure(fig, save_path, bbox_inches='tight')
+            print(f"Figure saved to {save_path}")
 
-    plt.show()
+        plt.show()
 
 def generate_score_heatmap(settings):
     """Build combined classification-score and control-fraction heatmaps for a plate.
