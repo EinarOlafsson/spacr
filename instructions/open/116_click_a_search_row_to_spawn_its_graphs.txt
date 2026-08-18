@@ -167,3 +167,70 @@ HOW TO KNOW IT WORKED
 * Deleting a run takes its plot state with it and leaves the others intact.
 * The frame budget is met with the stated number of live plots open, measured
   the way 129 measured it and not by eye.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE STATE HALF OF "EVERY RUN HAS ITS OWN VOLCANO" IS SHIPPED.
+Commit d4113297. THE SIDE-BY-SIDE HALF IS NOT.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED. `RegressionResultsPanel` keeps a plot state per run, keyed by
+that run's own source path: level, colour-by column, baseline, compartment,
+p-value kind, effect-cut method and multiplier, typed axis limits, and the
+selection. Saved on the way OUT of a run (which is the last moment it is
+true), restored on the way IN, after every default `set_frame` reads off the
+table -- so a FIRST look at a run is still the table's own defaults, which is
+128 J's contract, and only the SECOND look changes.
+
+Driven on the real panel, run A -> run B -> run A:
+
+    A built  {'level': 'gene', 'colour_by': 'condition',
+              'threshold_multiplier': 2.0, 'x_limits': (-1.5, 1.5),
+              'selected_key': 'gene_fraction:gene[200002]'}
+    A back    identical, field for field
+
+THE LEAK IS THE OTHER HALF, AND IT IS THE WORSE ONE. It is not in the
+instruction and it was found by the same drive. Before the fix, "B fresh" read
+
+    {'level': 'grna', 'colour_by': 'condition',
+     'threshold_multiplier': 2.0, 'x_limits': (-1.5, 1.5), ...}
+
+-- run B drawn inside run A's typed x-window with run A's effect cut, a
+picture nobody chose with nothing on screen saying where it came from.
+`set_frame` already reset the baseline, the compartment, the level and the
+selection for exactly this reason; the effect cut, the p-value kind and the
+axis pins were simply missing from that list. They are in it now, and
+`DEFAULT_THRESHOLD_METHOD` / `DEFAULT_THRESHOLD_MULTIPLIER` are named so the
+reset and the constructor cannot drift into two different literals.
+
+THREE DECISIONS WORTH NOT REDISCOVERING
+  * THE COLOUR COLUMN IS STORED BY NAME, not by index. The combo is rebuilt
+    from each table's own columns, so index 3 is a different column next run.
+    There is a test with an extra category column inserted ahead of it.
+  * ONLY LIMITS THE USER TYPED ARE STORED, read from the plot's `_pinned`.
+    Storing the view RANGE would freeze an auto-ranged plot at whatever it
+    happened to show, so a run returned to would stop following its own data.
+  * `apply_plot_state` assigns the fields and redraws ONCE. Nine public
+    setters would redraw nine times per run switch, through combinations the
+    user never chose.
+
+`remembered_runs()` is what has been STORED. The run on screen holds its
+state live in the widgets and joins the store when it is left -- said out
+loud because "what is retained" and "what is being looked at" are different
+questions.
+
+`forget_plot_state(source)` is the hook instruction 146 calls when a run is
+deleted: without it a later run written into the same folder inherits the
+deleted one's level and colouring with nothing saying where they came from.
+146 is not built yet, so nothing calls it; when it is, note that deleting the
+run CURRENTLY ON SCREEN must also clear the panel, or leaving that run
+re-saves the state that was just forgotten.
+
+WHAT REMAINS in this section, and it is the expensive half:
+  * TWO RUNS ON SCREEN AT ONCE. Deliberate, bounded, with the bound stated.
+    The state half above is what makes it cheap when it comes: a second live
+    widget only needs a state to be handed.
+  * A PHOTOGRAPH standing in for the runs that are not live.
+  * A read of `fast_plots.FastPlot._pinned` through `getattr` is the one
+    private coupling here. A public `pinned_limits()` on FastPlot would
+    retire it; that file is another territory, so it is named rather than
+    changed.

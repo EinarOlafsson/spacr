@@ -398,3 +398,58 @@ QUEUED AS A STRICT XFAIL rather than narrated:
 tests/test_both_fits_are_visible.py::test_the_panels_level_sentence_survives_a_click.
 It flips to a failure the moment the line lands, which is the reminder to
 delete the marker.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A IS CLOSED. THE ONE-LINE HANDOFF LANDED, AND IT WAS
+MEASURED BEFORE AND AFTER RATHER THAN JUST WIRED.
+--------------------------------------------------------------------------------
+
+Commit 84eb8c36. WITH THIS, A, B AND C ARE ALL DONE AND 147 IS COMPLETE.
+
+REPRODUCED FIRST, on the real RegressionResultsPanel, 240 coefficients with
+both levels in the table:
+
+    on load    "220 coefficients. Click a point for detail.   guides only:
+                220 of 240 coefficients. The gene fit is in this run too --
+                switch with Level."
+    NOTE SLOT  ''
+    one click  "220 coefficients. Click a point for detail.
+                fraction:grna[g7_2]"
+
+The sentence was in the right widget and the wrong drawer. `set_status_note`
+is the CLICK slot -- fast_plots documents it as "a sentence about the CLICKED
+thing" -- so the one line telling the user the other half of the run existed
+was gone the first time they used the plot.
+
+AFTER, same script:
+
+    on load    "... guides only: 220 of 240 ... switch with Level."
+    NOTE SLOT  'guides only: 220 of 240 coefficients. ...'
+    one click  "220 coefficients. Click a point for detail.   guides only:
+                220 of 240 coefficients. The gene fit is in this run too --
+                switch with Level.   fraction:grna[g7_2]"
+    gene level "genes only: 20 of 240 ... The guide fit is in this run too
+                ...   fraction:grna[g7_2]"
+
+Both sentences, which is what `_compose` is for.
+
+WHAT CHANGED, and it is two lines plus their reasons:
+  * `_offer_levels` passes `note=self.both_levels_note()` into
+    `volcano.offer_levels(...)`. The note now travels WITH the control, so
+    the counts, the combo and the sentence are one call and cannot disagree.
+  * `_mark_the_level_on_the_plots` DELEGATES to `_offer_levels` instead of
+    writing a second copy through the click slot. One writer.
+
+TESTS. The strict xfail queued for this
+(test_the_panels_level_sentence_survives_a_click) flipped, so its marker is
+deleted -- which is what it was for. One new test asserts the SLOT rather
+than the composed line: `volcano.level_note()` holds it, in both directions
+and after a click, so a later change cannot quietly put the sentence back
+where a click can reach it.
+
+TWO ASSERTIONS MIGRATED, in test_both_fits_are_announced.py. They read
+`volcano._note`, which is the click slot -- the very drawer this section is
+about. They now read `level_note()` and the status line: what the requirement
+is about is that a reader looking at the dots can see it, not which attribute
+it is stored in. Same migration idea as section C's menu work: assert
+REACHABILITY, not depth.

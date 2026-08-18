@@ -412,3 +412,107 @@ the six that remains, and G is now done as well.
 
 Left here rather than edited into the G note, because the two are separate
 records and rewriting somebody else's would lose the reason theirs was wrong.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION F SHIPPED. A THROUGH G ARE NOW ALL DONE. Commit d81fa77b.
+--------------------------------------------------------------------------------
+
+THE TAB REACHES ITS OWN PURPOSE. It merged and then stopped, one step short of
+the thing the merging is for, and that is most of "i dont understand how this
+is all set up".
+
+1-2-3-4, NAMED, WITH STATE.  Four `WorkflowStep` headings, one per step, and a
+live state line under each of the first three:
+
+    1. LOAD THE MEASUREMENT DATABASES        "2 database(s) attached, from 2
+                                              plate row(s)."
+    2. MERGE THE TABLES INSIDE EACH DATABASE "cell → cell, one row per cell."
+    3. MERGE THE DATABASES INTO ONE FRAME    "Merged: 8 rows, 11 columns.
+                                              Written to <path>."
+    4. PICK A COLUMN AND REGRESS ON IT       the new panel
+
+`step_states()` is the same three sentences for a headless caller and a test.
+They are repainted from `describe()`, which is where a click, a refresh and a
+new provider all end, so the headings cannot drift from the controls. Step 1's
+line is left to `_fill_table`, which already counts the attached rows and
+names the missing ones -- overwriting the richer sentence with the shorter one
+would be a step backwards on screen.
+
+THE MERGED FRAME IS AN ARTEFACT. `merged_measurements.csv`, written ONCE by
+`write_merged_frame` at the end of `_merge_worker` -- on the WORKER thread,
+because 200k rows of 80 columns is seconds of CSV and doing it in
+`_finish_merge` would put those seconds back on the GUI thread, which is
+section A's defect moved twenty lines later. `merged_frame_path()` is what
+step 4 reads. A merged frame nobody can write is still a merged frame, so a
+failure to write is a NOTE and never a refusal.
+
+Where it goes: `app_screen._measurements_destination`, which follows
+`spacr.refit.destination`'s rule in the same order so the frame and the runs
+fitted from it cannot land in different projects. WORTH KNOWING: the
+regression screen HAS NO `src` -- checked, `'src' not in collect()` -- so the
+live branch is the first pair row's COUNT file, exactly as it is for the run
+folder. `count_data` is never in `collect()` either; it is what
+`perform_regression` migrates `paired_data` into. Reading only the flat list
+found nothing on every real screen.
+
+4b: EACH COLUMN IS ONE RUN.  `ColumnRegressionPanel` is a multi-select picker
+over `regressable_columns(frame)` -- the NUMERIC measurements that VARY.
+Identity is excluded by name AND `object_label` explicitly, because it is an
+integer and it is a NAME: a fit against it is a well-formed regression onto an
+arbitrary numbering. A constant column is excluded too: the fit is degenerate
+and every backend reports that differently, which turns one unusable choice
+into N different-looking failures.
+
+`column_run_settings(base, column, score_path)` is one fit's settings: a COPY,
+the response replaced, every pair's SCORE pointed at the merged frame and the
+COUNT side untouched. What varies between these runs is the response and
+nothing else, which is what makes them comparable.
+
+THE QUEUE IS A LONG JOB, on a JobRunner, with the same four properties section
+A gave the merge:
+  * off the GUI thread (asserted by which thread the fits ran on, not by a
+    progress label, which is the only version of that test that cannot be
+    faked);
+  * it names the column and the position -- "Fitting cell_area — run 1 of 3";
+  * cancellable BETWEEN fits and deliberately not inside one: a regression
+    stopped half way has written part of a results folder and there is no
+    saying what that folder means. `QueueCancelled` is not a failure, for the
+    same reason `MergeCancelled` is not a refusal;
+  * A FIT THAT FAILS DOES NOT TAKE THE OTHER N-1. `run_column_fits` records
+    the exception's own words and goes on.
+
+THE RUNS TAB.  `fit_started` puts the row up BEFORE the fit comes back;
+`fit_finished` decides it. `dependent_variable` joins `RUN_SETTING_COLUMNS`
+and `PREFERRED_COLUMNS` in sweep_runs, because a table of runs that differ
+only in the response is a list of identical-looking rows without it. Driven on
+the real screen:
+
+    loaded  run          source              dependent_variable  status  n_results
+            cell_area    measurement column  cell_area           ok      3
+            cell_wobble  measurement column  cell_wobble         failed
+    loaded  cell_shape   measurement column  cell_shape          ok      3
+
+TWO THINGS THAT COST TIME
+  1. ANNOUNCING THE FIRST COLUMN BEFORE SUBMITTING EMITTED `fit_started`
+     TWICE for it -- once from `start_regressions` and once from the worker's
+     own progress callback. That is TWO ROWS IN THE RUNS TAB FOR ONE FIT, and
+     the first says "running" for ever because the second overwrote its
+     handle in `_column_run_handles`. Found by driving the real queue; the
+     tests were green. The pre-call now sets the LABEL only.
+  2. `_on_column_fit_finished` must use the column's OWN handle.
+     `_update_run_in_runs_tab` knows only about the last run the screen
+     started, so routing a queue through it would move every outcome onto one
+     row and leave the other N-1 saying "running".
+
+TESTS: tests/test_the_measurements_tab_reaches_a_regression.py, 37 of them,
+including the instruction's own acceptance path -- load databases, merge, pick
+columns, get one run each in the Runs tab, one of them failing without taking
+the others -- driven on a real AppScreen.
+
+NEW PUBLIC API (do not bump the ratchet, per the run's instructions): 25
+documented symbols across this work, most of them in measurement_scan_panel --
+WORKFLOW_STEPS, MERGED_FRAME_NAME, IDENTITY_RESPONSES, step_header,
+regressable_columns, write_merged_frame, column_run_settings, ColumnFit,
+QueueCancelled, run_column_fits, ColumnRegressionPanel and its nine methods,
+DatabaseMergePanel.step_states / .merged_frame_path,
+MeasurementScanPanel.databases_frame, and sweep_runs.SOURCE_MEASUREMENT.
