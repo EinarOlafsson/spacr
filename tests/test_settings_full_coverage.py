@@ -660,9 +660,18 @@ def test_non_quantile_regression_keeps_alpha_and_aggregation():
 def test_regression_defaults_track_the_dependent_variable():
     got = S.get_perform_regression_default_settings(
         {"dependent_variable": "pathogen_area"})
-    # score_column must be the column being regressed, or the simulated
-    # minimum cell count describes a different measurement.
-    assert got["score_column"] == "pathogen_area"
+    # THERE IS NO SECOND NAME FOR IT ANY MORE. `score_column` shadowed
+    # `dependent_variable` here and defaulted to it, so the only thing the
+    # setting could do was describe a DIFFERENT measurement from the one the
+    # regression fits -- and then the simulated minimum cell count would keep
+    # or drop wells on the wrong evidence. Retired 2026-08-18, instruction
+    # 135 A; minimum_cell_simulation resamples the response itself.
+    assert got["dependent_variable"] == "pathogen_area"
+    assert "score_column" not in got
+    # An old settings CSV carrying it still loads, and is not silently
+    # ignored -- it just does not survive as a second control.
+    assert "score_column" not in S.get_perform_regression_default_settings(
+        {"dependent_variable": "pathogen_area", "score_column": "pred"})
 
 
 def test_regression_control_wells_default_from_filter_value():
