@@ -90,7 +90,7 @@ from __future__ import annotations
 import math
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -110,6 +110,10 @@ __all__ = [
     "WellSelection",
     "MontagePlan",
     "CropSourceChoice",
+    "CROP_SHAPES",
+    "DEFAULT_SCORE_COLUMN",
+    "RouteRequirements",
+    "montage_route_requirements",
     "round_half_up",
     "objects_to_show",
     "coefficient_level",
@@ -180,6 +184,22 @@ WINDOW_HALF_WIDTHS = 1.0
 #: the common one. Whatever the cap trims is named in the caption rather than
 #: dropped quietly.
 MAX_OBJECTS = 300
+
+#: The per-object classification score a montage selects on, by default.
+#: Named because a screen with more than one classifier output has more than
+#: one candidate, and the caption has to say which one produced the picture.
+DEFAULT_SCORE_COLUMN = "pred"
+
+#: The two shapes a crop can take.
+#:
+#: ``'object'`` follows the object's own mask -- the better picture, and the
+#: one worth defaulting to. ``'bbox'`` is its padded bounding box. THE TWO
+#: ROUTES TO PIXELS DO NOT BOTH OFFER BOTH: a crop cut live from ``merged/``
+#: has the mask plane and can do either, while a route that has only a
+#: coordinate table has no mask and can do bounding boxes ONLY. That is why
+#: :func:`montage_route_requirements` exists -- an object-shaped crop must not
+#: appear as a choice that silently does something else.
+CROP_SHAPES: Tuple[str, ...] = ("object", "bbox")
 
 #: The well key, in the spelling every spaCR table uses.
 WELL_KEY_COLUMNS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
@@ -380,9 +400,10 @@ def _finite_scores(objects: pd.DataFrame, score_column: str) -> np.ndarray:
 
 
 def score_window(objects: pd.DataFrame, effect: float, *,
-                 score_column: str = "pred",
+                 score_column: str = DEFAULT_SCORE_COLUMN,
                  half_widths: float = WINDOW_HALF_WIDTHS,
-                 baseline: Optional[float] = None) -> ScoreWindow:
+                 baseline: Optional[float] = None,
+                 baseline_label: Optional[str] = None) -> ScoreWindow:
     """Return the band of scores the coefficient ``effect`` implies.
 
     THE RULE, stated once and applied identically to every coefficient:
@@ -408,6 +429,12 @@ def score_window(objects: pd.DataFrame, effect: float, *,
         because a widened window changes which cells a reader is looking at.
     :param baseline: use this baseline instead of the screen median -- the
         fitted intercept, say. Recorded as ``'given'``.
+    :param baseline_label: what to record as the baseline's SOURCE when one
+        is given, e.g. ``'the model\'s fitted intercept'``. The caption reads
+        this back, so a montage centred on the intercept says so rather than
+        saying ``given``, which names no source at all. Ignored when
+        ``baseline`` is None -- the screen median has one source and it is
+        already named.
     :raises MissingScores: no usable score column, or no finite score in it.
     :raises MontageError: a non-positive or non-finite ``half_widths``.
     """
@@ -424,7 +451,7 @@ def score_window(objects: pd.DataFrame, effect: float, *,
         base = float(baseline)
         if not math.isfinite(base):
             raise MontageError(f"baseline {baseline!r} is not a finite score")
-        base_source = "given"
+        base_source = str(baseline_label) if baseline_label else "given"
 
     median = float(np.median(values))
     mad = float(np.median(np.abs(values - median)))
@@ -691,7 +718,7 @@ class MontagePlan:
     window: ScoreWindow
     wells: Tuple[WellSelection, ...]
     objects: pd.DataFrame
-    score_column: str = "pred"
+    score_column: str = DEFAULT_SCORE_COLUMN
     guide_aggregation: str = "sum"
     guides: Tuple[str, ...] = ()
     source_kind: str = ""
@@ -741,10 +768,141 @@ class MontagePlan:
         source = f" via the {self.source_kind} crop source" if self.source_kind else ""
         return f"{self.coefficient.describe()}: {drawn}{source}"
 
+    #: How many per-well lines the arithmetic prints in full. A gene can span
+    #: dozens of wells, and a caption that is 200 lines long is one nobody
+    #: reads -- but the point of printing them is that a reader can add them
+    #: up, so the elision says how many it hid rather than trailing off.
+    WELL_LINES = 40
+
+    def settings_line(self) -> str:
+        """Every setting that decided WHICH CELLS this is, defaults included.
+
+        Instruction 155 C: each of these changes which cells a reader is
+        looking at, so each is written onto the montage and a non-default
+        value says that it is one. THE SETTINGS ARE PER SCREEN, NEVER PER
+        GENE -- a width chosen per gene is a width that can be tuned until
+        the pictures look right, and nothing in the output would show that it
+        had been. This sentence is what makes that visible either way.
+
+        :returns: one or two lines -- what was in force, and (only when
+            something was) what was changed from the default.
+        """
+        baseline = ("the screen median"
+                    if self.window.baseline_source == "screen_median"
+                    else self.window.baseline_source)
+        guides = ("summed across the gene's guides"
+                  if self.guide_aggregation == "sum" else "one at a time")
+        lines = [
+            "settings (per screen, not per gene): window half-width "
+            f"{self.window.half_widths:g} robust scale(s); baseline "
+            f"{baseline}; score column {self.score_column!r}; cap "
+            f"{self.cap:,} objects; guides {guides}"]
+        changed: List[str] = []
+        if self.window.half_widths != WINDOW_HALF_WIDTHS:
+            changed.append(
+                f"window half-width {self.window.half_widths:g} instead of "
+                f"the default {WINDOW_HALF_WIDTHS:g}")
+        if self.window.baseline_source != "screen_median":
+            changed.append(
+                f"baseline taken from {baseline} instead of the default "
+                "screen median")
+        if self.score_column != DEFAULT_SCORE_COLUMN:
+            changed.append(
+                f"score column {self.score_column!r} instead of the default "
+                f"{DEFAULT_SCORE_COLUMN!r}")
+        if self.cap != MAX_OBJECTS:
+            changed.append(
+                f"cap {self.cap:,} objects instead of the default "
+                f"{MAX_OBJECTS:,}")
+        if self.guide_aggregation != "sum":
+            changed.append(
+                "guides kept apart instead of the default summed")
+        if changed:
+            lines.append(
+                "NON-DEFAULT SETTINGS ON THIS MONTAGE: " + "; ".join(changed)
+                + ". Each of these changes which cells are shown, so this "
+                  "montage is not comparable to one made with the defaults.")
+        return "\n".join(lines)
+
+    def arithmetic(self) -> str:
+        """The whole sum, in words a reader can check.
+
+        Instruction 155 B. Everything a reader would need to reproduce the
+        selection by hand: where the baseline came from, what the target is
+        and why, how wide the window is and in what units, and
+        ``round(n x fraction)`` for each well with the total they add to.
+        """
+        window = self.window
+        effect = self.coefficient.effect
+        lines = ["how these cells were chosen -- the arithmetic:"]
+        if window.baseline_source == "screen_median":
+            lines.append(
+                f"  baseline = median per-object {self.score_column} over "
+                f"EVERY object supplied ({window.n_scored:,} objects, the "
+                f"whole screen and not this coefficient's wells) = "
+                f"{window.baseline:.6g}")
+        else:
+            lines.append(
+                f"  baseline = {window.baseline_source} = "
+                f"{window.baseline:.6g} (not the screen median; the median of "
+                f"the {window.n_scored:,} supplied objects was not used)")
+        lines.append(
+            f"  target   = baseline + effect = {window.baseline:.6g} + "
+            f"{effect:.6g} = {window.target:.6g}   <- {SCORE_TARGET_RULE}")
+        if window.degenerate:
+            lines.append(
+                "  scale    = 1.4826 x MAD of those same scores = 0, and the "
+                "standard deviation is 0 too: every object scores the same")
+            lines.append(
+                "  window   = degenerate, so it admits every object and "
+                "'closest' does not distinguish anything")
+        else:
+            lines.append(
+                f"  scale    = 1.4826 x MAD of those same scores = "
+                f"{window.scale:.6g}")
+            lines.append(
+                f"  window   = target +/- {window.half_widths:g} x scale = "
+                f"[{window.low:.6g}, {window.high:.6g}]")
+        lines.append(
+            "  kept     = the objects inside that window, closest first "
+            f"(smallest |{self.score_column} - target|)")
+        lines.append(
+            "per-well count = round(objects in well x guide fraction in "
+            "well), halves away from zero:")
+        shown = self.wells[:self.WELL_LINES]
+        for well in shown:
+            line = (f"  {well.well}: round({well.n_objects} x "
+                    f"{well.fraction:.4g}) = {well.n_expected} -> "
+                    f"{well.n_selected} shown")
+            if well.note:
+                line += f" ({well.note})"
+            lines.append(line)
+        if len(self.wells) > len(shown):
+            hidden = self.wells[len(shown):]
+            lines.append(
+                f"  ... and {len(hidden)} more wells contributing "
+                f"{sum(w.n_selected for w in hidden)} objects between them, "
+                "by the same rule")
+        total = sum(w.n_selected for w in self.wells)
+        if len(self.wells) <= 12:
+            summed = " + ".join(str(w.n_selected) for w in self.wells) or "0"
+            lines.append(f"  total: {summed} = {total} objects shown")
+        else:
+            lines.append(
+                f"  total: {total} objects shown across "
+                f"{len(self.wells)} wells")
+        if total != self.n_objects:
+            lines.append(
+                f"  (the grid holds {self.n_objects}; the difference is the "
+                "cap, named above)")
+        return "\n".join(lines)
+
     def caption(self) -> str:
         """Return the caption the montage must carry.
 
-        States the wells, the score window, the count rule, which crop source
+        States the wells, the score window, EVERY SETTING THAT DECIDED WHICH
+        CELLS THESE ARE (:meth:`settings_line`), THE WHOLE ARITHMETIC A
+        READER CAN CHECK THE SUM FROM (:meth:`arithmetic`), which crop source
         drew the pixels, every well that contributed nothing, and -- last, so
         it is the sentence a reader leaves with -- that guide membership is
         inferred rather than observed.
@@ -763,15 +921,14 @@ class MontagePlan:
             f"the guide contributed an object "
             f"({', '.join(w.well for w in contributing) or 'none'})")
         lines.append(self.window.describe())
+        lines.append(self.settings_line())
+        lines.append(self.arithmetic())
         if not self.window.target_is_observable:
             lines.append(
                 f"the implied score {self.window.target:.4g} lies OUTSIDE the "
                 f"observed range [{self.window.observed_low:.4g}, "
                 f"{self.window.observed_high:.4g}]: no object in this screen "
                 "scores anything like it")
-        lines.append(
-            "count per well: round(objects in well x guide fraction in well) "
-            "-- the expected number the pooled design supports")
         if self.source_kind:
             lines.append(f"images: {self.source_kind} crop source "
                          f"({self.source_reason})" if self.source_reason
@@ -821,9 +978,10 @@ def _object_sort_key(objects: pd.DataFrame) -> pd.Series:
 def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    name: str, effect: float, *,
                    level: Optional[str] = None,
-                   score_column: str = "pred",
+                   score_column: str = DEFAULT_SCORE_COLUMN,
                    half_widths: float = WINDOW_HALF_WIDTHS,
                    baseline: Optional[float] = None,
+                   baseline_label: Optional[str] = None,
                    cap: int = MAX_OBJECTS,
                    guide_aggregation: str = "sum",
                    guide_column: str = "grna",
@@ -851,6 +1009,8 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     :param score_column: the per-object classification score.
     :param half_widths: the score window's half-width in robust scales.
     :param baseline: an explicit baseline instead of the screen median.
+    :param baseline_label: what to record as that baseline's source, so the
+        caption names it -- ``'the fitted intercept'`` rather than ``given``.
     :param cap: the largest montage to return; the objects closest to the
         implied score survive, and the caption says what was trimmed.
     :param guide_aggregation: ``'sum'`` or ``'separate'``. ``'separate'`` is
@@ -903,7 +1063,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                               guides=tuple(covered))
     window = score_window(objects, coefficient.effect,
                           score_column=score_column, half_widths=half_widths,
-                          baseline=baseline)
+                          baseline=baseline, baseline_label=baseline_label)
 
     well_frame = wells_for_coefficient(
         selected_counts, name, level=resolved_level,
@@ -1194,6 +1354,212 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
 # The crop source
 # ---------------------------------------------------------------------------
 
+#: Columns a row can carry an object's integer label in, in the order
+#: :meth:`spacr.crops.MergedCropSource.spec_for` reads them.
+_LABEL_COLUMNS: Tuple[str, ...] = (
+    "object_label", "label", "cell_id", "nucleus_id", "pathogen_id",
+    "cytoplasm_id")
+
+#: The four bounding-box columns, in either spelling. All four or none:
+#: three of them describe no box.
+_BBOX_COLUMNS: Tuple[Tuple[str, str], ...] = tuple(
+    (f"bbox-{i}", f"bbox_{i}") for i in range(4))
+
+
+@dataclass(frozen=True)
+class RouteRequirements:
+    """What one route to pixels needs, and what it can therefore offer.
+
+    Instruction 155 E. THE TWO ROUTES NEED DIFFERENT THINGS and they are
+    checked UP FRONT, because the alternative is a montage that fails halfway
+    through cutting, or -- worse -- one that quietly cuts a different picture
+    from the one the user chose:
+
+    ROUTE 1, ``'merged-mask'`` -- live crop out of ``merged/<fov>.npy``.
+    Needs THE IMAGE CHANNELS, THE MASK ARRAY and A BOUNDING BOX OR AN OBJECT
+    ID. With an object id the crop follows the object's own outline, which is
+    the better picture and the one worth defaulting to.
+
+    ROUTE 2, ``'merged-bbox'`` -- coordinates from a table, then cut from the
+    merged arrays. Needs THE TABLE AND THE CHANNELS, and offers BOUNDING-BOX
+    CROPS ONLY: there is no mask in this route, so an object-shaped crop
+    cannot be produced and MUST NOT be offered as a choice that silently does
+    something else.
+
+    ``'png'`` is the third answer and is not one of the two: the exported
+    crops were cut when the run wrote them, so their shape is whatever
+    ``measure_crop`` used and nothing here can change it.
+
+    :param route: ``'png'`` / ``'merged-mask'`` / ``'merged-bbox'`` /
+        ``'none'``.
+    :param shapes: the crop shapes this route can actually produce, out of
+        :data:`CROP_SHAPES`. Empty for the PNG route, which produces what it
+        already produced.
+    :param missing: what is needed and absent, each as a sentence naming the
+        thing rather than the failure it would cause later.
+    :param assumed: what was not stated and has been defaulted -- a channel
+        list nobody recorded, say. Not a refusal: the montage draws, and the
+        caption says which planes it drew from.
+    :param detail: how the route was identified, for the status line.
+    """
+
+    route: str
+    shapes: Tuple[str, ...] = ()
+    missing: Tuple[str, ...] = ()
+    assumed: Tuple[str, ...] = ()
+    detail: str = ""
+
+    @property
+    def satisfied(self) -> bool:
+        """True when this route has everything it needs to cut a crop."""
+        return not self.missing and self.route != "none"
+
+    def offers(self, shape: str) -> bool:
+        """True when ``shape`` is a crop this route can really produce."""
+        return str(shape) in self.shapes
+
+    def why_not(self, shape: str) -> str:
+        """Why ``shape`` is unavailable, or ``''`` when it is available.
+
+        The sentence a disabled control carries. An object-shaped crop that
+        cannot be cut is greyed out WITH THIS, never left clickable and
+        quietly served a bounding box.
+        """
+        if self.offers(shape):
+            return ""
+        if self.route == "png":
+            return ("The exported PNGs were cut when the run wrote them, so "
+                    "their shape is whatever measure_crop used and cannot be "
+                    "changed here. Force 'cut from merged/*.npy' to choose.")
+        if str(shape) == "object":
+            return ("This route has no mask array, only coordinates, so it "
+                    "can cut bounding boxes and nothing else. An "
+                    "object-shaped crop needs the mask plane the merged "
+                    "array carries. " + (self.detail or ""))
+        return f"{shape!r} is not one of {list(CROP_SHAPES)}"
+
+    def describe(self) -> str:
+        """The one-line answer for the tab's status line."""
+        if self.route == "none":
+            return "no route to pixels: " + "; ".join(self.missing)
+        head = {
+            "png": "exported PNG crops",
+            "merged-mask": "live crop from merged/ (object-shaped available)",
+            "merged-bbox": "coordinates from the table, bounding-box crops "
+                           "only -- there is no mask in this route",
+        }.get(self.route, self.route)
+        if self.missing:
+            return f"{head}; MISSING: " + "; ".join(self.missing)
+        return head
+
+
+def _has_column(frame, name: str) -> bool:
+    return frame is not None and name in getattr(frame, "columns", ())
+
+
+def montage_route_requirements(source, objects=None, *,
+                               object_type: str = "cell",
+                               channels: Optional[Sequence[int]] = None,
+                               channels_declared: Optional[bool] = None
+                               ) -> RouteRequirements:
+    """Check what the chosen route needs BEFORE anything is cut.
+
+    :param source: the :class:`spacr.crops.CropSource` (or the
+        :class:`CropSourceChoice` holding one) that will draw the montage.
+        ``None`` is the "no source" answer and comes back as route
+        ``'none'``.
+    :param objects: the per-object frame the crops will be cut from. Its
+        COLUMNS are what decide between the two merged routes -- an object id
+        means the mask can be followed, only a bounding box means it cannot.
+        ``None`` skips the row checks and reports the route the source alone
+        implies.
+    :param object_type: which mask plane the crop is cut by.
+    :param channels: the channels the user asked for, if any.
+    :param channels_declared: whether a channel list exists at all -- typed
+        by the user or recorded by the run. ``None`` infers it from
+        ``channels``. False is the case the request names specifically: A
+        USER MISSING A CHANNEL LIST IS TOLD THAT, not told there is no
+        source.
+    :returns: the :class:`RouteRequirements`.
+    """
+    choice = getattr(source, "source", source)
+    if choice is None:
+        reason = getattr(source, "reason", "") or "no crop source was resolved"
+        return RouteRequirements(route="none", missing=(reason,))
+
+    kind = str(getattr(choice, "kind", "") or "")
+    assumed: List[str] = []
+    missing: List[str] = []
+
+    if kind == "png":
+        if not _has_column(objects, "png_path") and objects is not None:
+            missing.append(
+                "the 'png_path' column: the exported-PNG route needs the path "
+                "of each crop, and this object table carries none")
+        return RouteRequirements(
+            route="png", shapes=(), missing=tuple(missing),
+            detail="the run's exported crops, read as written")
+
+    # -- the merged routes ---------------------------------------------------
+    spec = getattr(choice, "spec", None)
+    declared = bool(channels) if channels_declared is None else bool(channels_declared)
+    spec_channels = tuple(getattr(spec, "channels", ()) or ())
+    if not declared:
+        assumed.append(
+            "no channel list: this run's measurements.db records no png_dims "
+            "and none was typed, so the picture is made from the default "
+            f"planes {list(channels or spec_channels) or [0, 1, 2]}. Set the "
+            "channels if that is not what you meant.")
+
+    mask_dims = dict(getattr(spec, "mask_dims", None) or {})
+    if object_type == "cytoplasm":
+        # Derived as cell minus nucleus/pathogen/organelle, so it needs the
+        # cell plane and at least one to subtract.
+        has_mask = "cell" in mask_dims and bool(
+            {"nucleus", "pathogen"} & set(mask_dims))
+        mask_detail = ("cytoplasm is derived as cell minus "
+                       "nucleus/pathogen, so it needs both planes")
+    else:
+        has_mask = object_type in mask_dims
+        mask_detail = (f"the merged arrays record no {object_type} mask "
+                       f"plane; the planes they name are "
+                       f"{sorted(mask_dims) or 'none'}")
+
+    has_id = any(_has_column(objects, c) for c in _LABEL_COLUMNS)
+    has_bbox = all(any(_has_column(objects, n) for n in pair)
+                   for pair in _BBOX_COLUMNS)
+    if objects is None:
+        has_id = has_bbox = True
+
+    if not has_id and not has_bbox:
+        missing.append(
+            "an object id or a bounding box: a crop cannot be located in the "
+            "merged array without one. The object table needs "
+            f"{list(_LABEL_COLUMNS[:3])} or all four of bbox-0..bbox-3.")
+
+    if has_mask and has_id:
+        route = "merged-mask"
+        shapes: Tuple[str, ...] = ("object", "bbox")
+        detail = (f"the merged arrays carry the {object_type} mask plane and "
+                  "the objects carry their labels")
+    else:
+        route = "merged-bbox"
+        shapes = ("bbox",)
+        if not has_mask:
+            detail = mask_detail
+        else:
+            detail = ("the object table carries bounding boxes but no object "
+                      "label, so the mask cannot be followed")
+        if not has_bbox and not missing:
+            missing.append(
+                "a bounding box: without a mask plane the crop can only be "
+                "the recorded box, and this object table has no "
+                "bbox-0..bbox-3 columns")
+    return RouteRequirements(route=route, shapes=shapes,
+                             missing=tuple(missing), assumed=tuple(assumed),
+                             detail=detail)
+
+
 @dataclass(frozen=True)
 class CropSourceChoice:
     """Which crop source will draw a montage, or why none can.
@@ -1206,12 +1572,17 @@ class CropSourceChoice:
     :param kind: ``'png'``, ``'merged'``, or ``''`` when unavailable.
     :param reason: why that source was picked, or why none could be.
     :param available: whether a montage can be drawn at all.
+    :param requirements: what that route needs and what it can offer --
+        :class:`RouteRequirements`, checked up front so a missing channel
+        list is reported as a missing channel list rather than surfacing
+        later as a crop that will not cut. ``None`` when nothing asked.
     """
 
     source: Any
     kind: str
     reason: str
     available: bool
+    requirements: Optional[RouteRequirements] = None
 
     def describe(self) -> str:
         """Return the one-line sentence for the tab's status line."""
@@ -1219,9 +1590,21 @@ class CropSourceChoice:
             return f"no crop source: {self.reason}"
         return f"{self.kind} crop source ({self.reason})"
 
+    def requirement_notes(self) -> Tuple[str, ...]:
+        """The caption lines this route's requirements oblige, if any."""
+        req = self.requirements
+        if req is None:
+            return ()
+        notes = [f"crop route: {req.describe()}"]
+        notes.extend(f"ASSUMED -- {a}" for a in req.assumed)
+        notes.extend(f"MISSING -- {m}" for m in req.missing)
+        return tuple(notes)
+
 
 def resolve_montage_crop_source(src, *, object_type: str = "cell",
-                                prefer: Optional[str] = None
+                                prefer: Optional[str] = None,
+                                objects: Optional[pd.DataFrame] = None,
+                                channels: Optional[Sequence[int]] = None
                                 ) -> CropSourceChoice:
     """Pick the crop source for a montage, and never raise for "none".
 
@@ -1235,16 +1618,49 @@ def resolve_montage_crop_source(src, *, object_type: str = "cell",
         ``crop_source``) or the experiment root / its ``merged`` folder.
     :param object_type: which object the crops are cut by.
     :param prefer: force ``'png'`` or ``'merged'``.
+    :param objects: the per-object frame, so the ROUTE's own requirements can
+        be checked up front -- an object id means the mask can be followed, a
+        bounding box alone means it cannot. Left out, the requirements are
+        those the source alone implies.
+    :param channels: the channels the caller asked for, so "no channel list
+        anywhere" can be reported as exactly that.
     :returns: a :class:`CropSourceChoice`; ``available`` is False, with the
         reason, when neither source exists.
     """
-    from .crops import CropError, resolve_crop_source
+    from .crops import CropError, crop_settings_from_db, resolve_crop_source
 
     try:
         source = resolve_crop_source(src, object_type=object_type,
                                      prefer=prefer)
     except CropError as exc:
         return CropSourceChoice(source=None, kind="", reason=str(exc),
-                                available=False)
+                                available=False,
+                                requirements=RouteRequirements(
+                                    route="none", missing=(str(exc),)))
+    declared = bool(channels)
+    if not declared:
+        # WHETHER A CHANNEL LIST EXISTS AT ALL, which is a different question
+        # from whether the spec has channels: `crop_spec_from_settings`
+        # always produces some, so an unrecorded run silently draws planes
+        # 0,1,2 and looks like a deliberate choice.
+        root = src.get("src") if isinstance(src, Mapping) else src
+        if isinstance(root, (list, tuple)):
+            root = root[0] if root else None
+        if root:
+            root = str(root)
+            if os.path.basename(os.path.abspath(root)) == "merged":
+                root = os.path.dirname(os.path.abspath(root))
+            db = os.path.join(root, "measurements", "measurements.db")
+            if os.path.isfile(db):
+                try:
+                    saved = crop_settings_from_db(db)
+                except Exception:                               # noqa: BLE001
+                    saved = {}
+                declared = bool(saved.get("png_channel_mapping")
+                                or saved.get("png_dims"))
+    requirements = montage_route_requirements(
+        source, objects, object_type=object_type, channels=channels,
+        channels_declared=declared)
     return CropSourceChoice(source=source, kind=source.kind,
-                            reason=source.reason, available=True)
+                            reason=source.reason, available=True,
+                            requirements=requirements)
