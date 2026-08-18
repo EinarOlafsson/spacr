@@ -1768,6 +1768,73 @@ def _resolve_regression_analysis_choices(settings):
     return settings
 
 
+def _reject_a_threshold_that_cannot_mean_what_it_says(settings):
+    """Refuse the hit-calling numbers that are off by a factor of a hundred.
+
+    Every value checked here has a plausible-looking spelling that is wrong
+    by exactly that much -- ``p_threshold_alpha=5`` for "5%",
+    ``rra_alpha=25`` for "the top 25%" -- and none of them CRASHES anything
+    downstream. An alpha of 5 calls every coefficient a hit and writes the
+    list out; an rra_alpha of 25 scores the whole ranking as the top of the
+    ranking. Caught here the mistake costs a sentence, and the sentence names
+    the legal range; caught later it costs the run that produced the hits,
+    because nothing about the output says the threshold was impossible.
+
+    ``p_threshold_kind`` is a closed pair rather than a range: 'Adjusted' or
+    'bh' falling back to 'adjusted' would silently answer a question the user
+    asked in words spaCR does not use.
+
+    :param settings: the resolved regression settings, read in place.
+    :raises ValueError: on any value outside its documented range.
+    """
+    kind = settings['p_threshold_kind']
+    if not isinstance(kind, str) or kind.lower() not in ('adjusted', 'raw'):
+        raise ValueError(
+            f"p_threshold_kind must be 'adjusted' or 'raw'; got {kind!r}. "
+            f"'adjusted' cuts on the multiple-testing-corrected P value "
+            f"produced by multiple_testing_method, 'raw' on the "
+            f"per-coefficient P value the fit reports.")
+
+    def _number(key, low, high, *, low_open=True, high_open=True):
+        value = settings[key]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"{key} must be a number; got {value!r}.")
+        below = value <= low if low_open else value < low
+        above = value >= high if high_open else value > high
+        if below or above:
+            raise ValueError(
+                f"{key} must be between {low} and {high}"
+                f"{' exclusive' if low_open and high_open else ''}; got "
+                f"{value!r}. A probability is a fraction: 0.05, not 5.")
+
+    _number('p_threshold_alpha', 0, 1)
+    # (0, 1]: rra_alpha=1 scores the whole ranked list, which is the
+    # degenerate but meaningful "no cut-off" end of the sweep.
+    _number('rra_alpha', 0, 1, high_open=False)
+    permutations = settings['rra_permutations']
+    if isinstance(permutations, bool) or not isinstance(permutations, int) \
+            or permutations < 1:
+        raise ValueError(
+            f"rra_permutations must be a positive integer; got "
+            f"{permutations!r}. The smallest P value the null can report is "
+            f"about 1/rra_permutations.")
+    penalty = settings['group_lasso_lambda']
+    if isinstance(penalty, bool) or not isinstance(penalty, (int, float)) \
+            or penalty < 0:
+        raise ValueError(
+            f"group_lasso_lambda must be zero or positive; got {penalty!r}. "
+            f"A negative penalty rewards large coefficients instead of "
+            f"shrinking them.")
+    for key in ('count_grna_column', 'count_value_column'):
+        name = settings[key]
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError(
+                f"{key} must name a column of the count CSV; got {name!r}. "
+                f"An empty name cannot be looked up, and the failure would "
+                f"come out of pandas rather than out of the settings.")
+    return settings
+
+
 def get_perform_regression_default_settings(settings):
     """Populate default settings for gRNA/score regression analysis.
 
@@ -1841,17 +1908,59 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('guide_nuisance_columns', [])
     settings.setdefault('guide_presence_threshold', 0.0)
     settings.setdefault('guide_permutation_batch_size', 500)
-    settings.setdefault('guide_permutation_plot', True)
     # 'none' by default: the correction to apply is a judgement about the
     # family being tested, not something spaCR should decide silently. The
     # dropdown offers all thirteen; picking one is a deliberate act.
     settings.setdefault('multiple_testing_method', 'none')
     settings.setdefault('fdr_alpha', 0.05)
+    # WHAT "SIGNIFICANT" MEANT, DECIDED BY THE RUN AND NOT BY THE PICTURE.
+    #
+    # Instruction 135: "add a setting that setts what alpha the p threshold is
+    # set at and if adjusted p or raw p is used". The volcano already offers
+    # raw-vs-adjusted on its right-click menu and the RUN had no say in it, so
+    # results_significant.csv and the figure printed beside it could be drawn
+    # to two different rules with nothing on either saying which.
+    settings.setdefault('p_threshold_alpha', 0.05)
+    settings.setdefault('p_threshold_kind', 'adjusted')
+    # Robust rank aggregation's two knobs, declared here because the hit
+    # caller that reads them is being written in another file: a setting no
+    # defaults factory produces cannot be reached from the Tk panel, the Qt
+    # panel or `spacr-run regression`, which all build their dict here.
+    settings.setdefault('rra_alpha', 0.25)
+    settings.setdefault('rra_permutations', 10000)
     settings.setdefault('positive_control','239740')
     settings.setdefault('negative_control','233460')
     settings.setdefault('min_n',0)
     settings.setdefault('controls',['000000_1','000000_10','000000_11','000000_12','000000_13','000000_14','000000_15','000000_16','000000_17','000000_18','000000_19','000000_20','000000_21','000000_22','000000_23','000000_24','000000_25','000000_26','000000_27','000000_28','000000_29','000000_3','000000_30','000000_31','000000_32','000000_4','000000_5','000000_6','000000_8','000000_9'])
     settings.setdefault('fraction_threshold',None)
+    # ONE COLUMN, NOT TWO (instruction 135 A). `score_column` named the column
+    # `minimum_cell_simulation` resamples to find how many objects a well
+    # needs before its mean stops moving, and it has been
+    # `setdefault('score_column', settings['dependent_variable'])` ever since
+    # the two were reconciled -- one measurement under two names. All a second
+    # control could add was a way to simulate the minimum cell count on a
+    # column the model does not fit, and then keep or drop wells on it.
+    #
+    # MIGRATED, NOT DROPPED, the way `toxo` -> `Toxoplasma` is below: every
+    # regression settings CSV written before today carries it. A file with no
+    # `dependent_variable` gets the old value; a file whose two keys DISAGREE
+    # is told which one this run fits, because that disagreement is what
+    # changed the old run's answer and silence about it is what makes the
+    # re-run inexplicable.
+    #
+    # THE KEY ITSELF IS NOT RETIRED. `interpret_vision_model` and
+    # `hit_investigation` use `score_column` for the CNN score column
+    # ('cv_predictions'), so it keeps its type, its tooltip and a category
+    # there; what is retired is the REGRESSION module's duplicate.
+    if 'score_column' in settings:
+        legacy_score_column = settings.pop('score_column')
+        if settings.get('dependent_variable') in (None, ''):
+            settings['dependent_variable'] = legacy_score_column
+        elif legacy_score_column != settings['dependent_variable']:
+            print(f"score_column={legacy_score_column!r} was dropped: the "
+                  f"regression fits dependent_variable="
+                  f"{settings['dependent_variable']!r}, and the minimum cell "
+                  f"count is simulated on that same column now.")
     settings.setdefault('dependent_variable','pred')
     settings.setdefault('threshold_method','std')
     settings.setdefault('threshold_multiplier',3)
@@ -1859,9 +1968,6 @@ def get_perform_regression_default_settings(settings):
     # log by default: screen responses are fractions and skew hard, and the
     # normality check fails on the raw column far more often than not.
     settings.setdefault('transform', 'log')
-    settings.setdefault('log_x',False)
-    settings.setdefault('log_y',False)
-    settings.setdefault('x_lim',None)
     settings.setdefault('outlier_detection',True)
     settings.setdefault('agg_type','mean')
     # 100 cells: below that a well's score is noise dressed as a measurement.
@@ -1886,7 +1992,6 @@ def get_perform_regression_default_settings(settings):
     # says why, rather than hiding it or leaving it present and inert.
     settings.setdefault('level', 'both')
     settings.setdefault('random_row_column_effects',False)
-    settings.setdefault('split_axis_lims','')
     settings.setdefault('cov_type',None)
     # A PENALTY OF 1 IS NOT A DEFAULT, IT IS A FAILURE, for these families.
     #
@@ -1919,6 +2024,17 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('huber_t', 1.345)
     settings.setdefault('lasso_n_boot', 200)
     settings.setdefault('lasso_selection_threshold', 0.6)
+    # The group lasso's penalty weight. Declared here for the same reason as
+    # the RRA pair above -- the family that reads it lives in spacr/ml.py and
+    # a knob no defaults factory produces is a knob no entry point can set.
+    #
+    # WHICH FAMILY READS IT IS NOT WRITTEN BY HAND, for any of the three.
+    # `regression_spec.REGRESSION_SETTINGS_USED` claims them for
+    # 'group_lasso' and 'rra', so `_name_the_family_in_every_estimator_tooltip`
+    # ends each tooltip with "Read by regression_type '...'", and the same
+    # table generates the rule that greys the control out. A second,
+    # hand-written list would be the one that drifted.
+    settings.setdefault('group_lasso_lambda', 0.05)
     # The diagnostic suite, on by default because one analysis wants it and
     # the person running one analysis is the one who will not think to ask.
     # It is NOT a per-family knob: every regression_type is fitted through the
@@ -1927,9 +2043,39 @@ def get_perform_regression_default_settings(settings):
     # policed by _reject_unused_settings. A parameter sweep turns it off in
     # `parameter_sweep._trial_settings`, where a hundred trials would be ten
     # minutes and two thousand figures nobody opens.
+    #
+    # STILL A PARAMETER, THOUGH THE PANEL NO LONGER OFFERS ONE. Instruction
+    # 135 asks for it hard-coded True and says to check the sweep first, and
+    # the check says do not: the sweep's escape route IS this key.
+    # `parameter_sweep._trial_settings` writes `regression_qc=False` into the
+    # trial's dict, `perform_regression` re-applies THIS function to that dict
+    # (ml.py:4922) and only then reads `settings.get('regression_qc', True)`,
+    # so forcing True here would overwrite the sweep's False and put ~5.8 s
+    # and ~19 figures per trial back on all hundred of them. setdefault leaves
+    # the parameter reachable by the sweep while the GUI control goes.
+    #
+    # THE SWEEP'S OWN ESCAPE IS HALF BROKEN ALREADY, measured the same day and
+    # reported rather than fixed here because parameter_sweep is another
+    # file: its `setdefault("regression_qc", False)` does nothing when the
+    # base dict already carries the key, and every base dict built by the Tk
+    # panel, the Qt panel or `spacr-run` carries it at True -- because all
+    # three build it HERE. Pinned by
+    # tests/test_the_regression_settings_fit_on_one_page.py. That is an
+    # argument for keeping the key, not for removing it: it is the only way
+    # the sweep has of saying no at all.
     settings.setdefault('regression_qc', True)
     settings.setdefault('filter_value',['c1', 'c2', 'c3'])
     settings.setdefault('filter_column','columnID')
+    # THE COUNT TABLE'S TWO COLUMNS, WHICH WERE HARD-CODED (instruction 135 B:
+    # "i think these are hardcoded and dont have a settins"). spacr.ml demands
+    # ['rowID', 'columnID', 'grna', 'count'] of the count CSV and raises "The
+    # CSV file must contain 'grna', 'count', 'rowID', and 'columnID' columns"
+    # -- naming the four it wants and none of the ones the file HAS, which is
+    # the failure that instruction's whole section is about. The plate
+    # coordinates are resolved elsewhere; these two are the ones a sequencing
+    # pipeline spells differently ('sgRNA', 'reads', 'n').
+    settings.setdefault('count_grna_column', 'grna')
+    settings.setdefault('count_value_column', 'count')
     # sequencing.graph_sequencing_stats iterates settings['control_wells'] and
     # drops those wells from the count table before it sweeps for the fraction
     # threshold, exactly as ml.clean_controls drops filter_value from the score
@@ -1966,20 +2112,56 @@ def get_perform_regression_default_settings(settings):
     # a key nothing reads. Same treatment `location_column`,
     # `positive_control` and `negative_control` already get above.
     settings.pop('volcano', None)
+    # THE REGRESSION PLOT SETTINGS STOP BEING SETTINGS (instruction 135):
+    # "Regression plot can be removed . hard code regression qc and guide
+    # permutation plot to true, logx and logy to false and x and y lim should
+    # be set automatically and can be changed on the plot."
+    #
+    # None of the six was a question about the SCREEN. They styled the figures
+    # a run draws, which is a decision better made while looking at the figure
+    # than before the fit: x_lim/y_lims absent means the plotting code scales
+    # to the data and the interactive volcano rescales afterwards, log_x and
+    # log_y are False, guide_permutation_plot is True, and split_axis_lims was
+    # read by nothing at all.
+    #
+    # ACCEPTED AND DROPPED rather than refused, exactly like `volcano` above:
+    # every regression settings CSV written before today carries all six, and
+    # a saved file that suddenly fails to load is a worse outcome than a key
+    # nothing reads. A value that DISAGREED with the hard-coded one changed
+    # what that run drew, so it is named on the way out instead of vanishing.
+    for _retired, _forced in (('log_x', False), ('log_y', False),
+                              ('x_lim', None), ('y_lims', None),
+                              ('split_axis_lims', ''),
+                              ('guide_permutation_plot', True)):
+        if _retired not in settings:
+            continue
+        _was = settings.pop(_retired)
+        if _was != _forced:
+            print(f"{_retired}={_was!r} was dropped: it is hard-coded to "
+                  f"{_forced!r} now. The regression plots scale to the data "
+                  f"and are changed on the plot itself.")
     # `toxo` BECAME `Toxoplasma` on 2026-08-17 (instruction 133): "change
     # the toxo settings to Toxoplasma". An old settings CSV carries the old
     # spelling, and dropping it would turn the annotation off without saying
-    # so -- so the value MIGRATES rather than being ignored, and both keys
-    # stay in the dict so a caller reading either gets the same answer.
-    if 'toxo' in settings and 'Toxoplasma' not in settings:
-        settings['Toxoplasma'] = settings['toxo']
-    settings.setdefault('Toxoplasma', True)
+    # so -- so the value MIGRATES rather than being ignored.
+    #
     # POPPED, not kept alongside. Keeping both would put two controls for one
     # question on the panel and give `toxo` a category it is no longer
     # entitled to. Every reader goes through `ml._toxoplasma_is_on`, which
     # accepts either spelling, so a caller that hands ml.py a raw dict with
     # the old key still works.
-    settings.pop('toxo', None)
+    #
+    # ONE POP RATHER THAN AN INDEXED READ BEHIND AN `in`. The two lines meant
+    # the same thing, but the contract test that walks perform_regression and
+    # the helpers it hands the dict to (test_regression_entry_points) reads
+    # `settings['toxo']` as a key that must have a default -- it cannot see
+    # the guard -- and `toxo` is a key this function exists to REMOVE, so it
+    # never can have one. That assertion has been failing on the old spelling
+    # since the rename; taking the value out with the pop that was always
+    # coming answers it without changing what any run does.
+    if 'toxo' in settings:
+        settings.setdefault('Toxoplasma', settings.pop('toxo'))
+    settings.setdefault('Toxoplasma', True)
     # perform_regression prints a per-stage row count and display()s the whole
     # per-object score table under verbose, which is millions of rows on a real
     # screen, so this pipeline is one of the False ones.
@@ -1988,17 +2170,8 @@ def get_perform_regression_default_settings(settings):
     # (percent) or a float (fraction); anything else raises ValueError. 0.02 is
     # the 2% the function's own worked example uses.
     settings.setdefault('tolerance', 0.02)
-    # minimum_cell_simulation resamples settings['score_column'] out of the
-    # score CSV to find how many cells a well needs before its mean is stable.
-    # That has to be the column being regressed, or the simulated minimum
-    # describes a different measurement than the one the model fits, so it
-    # follows dependent_variable rather than hard-coding 'pred'.
-    settings.setdefault('score_column', settings['dependent_variable'])
     # process_scores: False/0 = as measured, True/1 = 1 - x, -1 = 1 / x.
     settings.setdefault('invert_dependent_variable', False)
-    # toxo.custom_volcano_plot's y limits: None auto-scales, [lo, hi] fixes the
-    # axis, [[lo1, hi1], [lo2, hi2]] draws a broken axis.
-    settings.setdefault('y_lims', None)
 
     _resolve_regression_analysis_choices(settings)
 
@@ -2068,6 +2241,7 @@ def get_perform_regression_default_settings(settings):
     # here is an explicit per-run choice and wins over the environment.
     settings.setdefault('strict_errors', None)
     settings.setdefault('max_failure_rate', None)
+    _reject_a_threshold_that_cannot_mean_what_it_says(settings)
     return settings
 
 def get_check_cellpose_models_default_settings(settings):
@@ -2416,16 +2590,38 @@ expected_types = {
     "guide_nuisance_columns": list,
     "guide_presence_threshold": (int, float),
     "guide_permutation_batch_size": int,
-    "guide_permutation_plot": bool,
     "multiple_testing_method": str,
     "fdr_alpha": (int, float),
-    # The four regression keys perform_regression indexes directly. They had no
+    # The significance line the RUN draws, so the exported hit list and the
+    # volcano cannot be cut to two different rules (instruction 135).
+    "p_threshold_alpha": (int, float),
+    "p_threshold_kind": str,
+    # Robust rank aggregation, and the group lasso's penalty. Declared before
+    # their readers exist because a knob with no entry here is dropped by
+    # check_settings ("Warning: Key ... not found in expected types"), which
+    # is how a Tk panel once discarded the regression_type a user picked.
+    "rra_alpha": (int, float),
+    "rra_permutations": int,
+    "group_lasso_lambda": (int, float),
+    # The count CSV's two variable column names, hard-coded in spacr.ml until
+    # instruction 135 B.
+    "count_grna_column": str,
+    "count_value_column": str,
+    # The regression keys perform_regression indexes directly. They had no
     # entry here at all, so the GUIs could not render them, check_settings could
     # not coerce them out of a settings CSV and validate could not type-check
     # them -- see get_perform_regression_default_settings.
-    "score_column": str,
     "tolerance": (int, float),
     "invert_dependent_variable": (bool, int),
+    # NOT a regression key any more (instruction 135 A): the regression
+    # module's duplicate of `dependent_variable` is retired in
+    # get_perform_regression_default_settings. It stays declared for
+    # `interpret_vision_model` and `hit_investigation`, where it names the CNN
+    # score column.
+    "score_column": str,
+    # y_lims styles the volcano and the regression module no longer offers it
+    # -- the plot scales to the data and is rescaled on the plot. It stays
+    # declared for the plotting helpers that take it directly.
     "y_lims": (list, type(None)),
     # The model-choice keys. The first three -- regression_type, alpha and
     # random_row_column_effects -- were categorised, tooltipped and defaulted
@@ -3066,7 +3262,7 @@ tooltips = {
     "cytoplasm_min_size": "(int) - (Depreceated) Pixel-area floor for the cytoplasm mask, which is the cell mask with nucleus, pathogen and organelle pixels removed. Cytoplasm regions below this are erased before measurement, so their host cell yields no cytoplasm features and any recruitment ratio built on them is lost. 0 or None disables. Default 0.",
     "nucleus_min_size": "(int) - (Depreceated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer nucleus_min_area, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
-    "score_column": "(str) - Which column of the per-object score CSV minimum_cell_simulation resamples when it works out how many objects a well needs before its mean stops moving. It must name the same measurement as dependent_variable, or the simulated min_cell_count describes a different quantity than the one the regression fits and wells are kept or dropped on the wrong evidence; the regression defaults therefore follow dependent_variable. In the interpret-vision-model helper the same key names the CNN score column instead, default 'cv_predictions'.",
+    "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. Normally set for you by 'inference'; set it directly only to override that choice. Default 'regression'.",
     "inference": "(str) - How effects are tested; the readable front end for analysis_mode. 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or the per-guide coefficients are not identifiable. 'nonparametric' tests each guide separately as a plate-blocked marginal association with Freedman-Lane permutations and an empirical P value, which stays valid however many guides there are. 'auto' counts guides and analysed wells, picks the simultaneous fit only when the design supports it, and prints which it chose and why. Default 'auto'.",
     "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
@@ -3078,8 +3274,13 @@ tooltips = {
     "guide_nuisance_columns": "(list) - Additional measured well-level covariates to residualize from both phenotype and guide fraction before testing. Do not put post-treatment outcomes here. Default [].",
     "guide_presence_threshold": "(float) - A guide counts as present in a well only when its fraction is above this value. The effect still uses the unthresholded fraction. Default 0.0.",
     "guide_permutation_batch_size": "(int) - Number of permutation outcomes evaluated together. Lower this if memory is tight; it does not change the result. Default 500.",
-    "guide_permutation_plot": "(bool) - Write PDF and PNG volcano plots for every requested guide_min_wells support family. Disable it for table-only batch runs; inference is unchanged. Default True.",
     "multiple_testing_method": "(str) - Correction applied within each outcome/support family: fdr_bh (Benjamini--Hochberg, default), fdr_by, bonferroni, holm, or none. Stricter family-wise methods generally call fewer guides.",
+    "p_threshold_alpha": "(float) - The P value a coefficient has to beat to be called a hit, and the line the volcano draws. It cuts on whichever P p_threshold_kind names, so results_significant.csv and the figure printed beside it agree: until this existed the plot's own right-click raw/adjusted choice was the only say anyone had, and the table and the picture could mean two different things by 'significant'. A fraction, strictly between 0 and 1 -- 5 for '5%' is refused. Default 0.05.",
+    "p_threshold_kind": "(str) - Whether p_threshold_alpha cuts on the ADJUSTED P value ('adjusted' -- the multiple-testing-corrected column multiple_testing_method produces) or on the raw per-coefficient P ('raw'). The volcano's right-click menu offers the same two, and this is the one the RUN uses, so the exported hits and the plot cannot disagree. 'raw' calls far more genes on a screen of thousands of guides. Anything else is refused rather than falling back. Default 'adjusted'.",
+    "rra_alpha": "(float) - The top fraction of the ranked guide list robust rank aggregation scores against: 0.25 asks whether a gene's guides cluster in the best quarter of the ranking more than chance allows, ignoring the rest. Smaller is stricter and returns fewer, better-supported genes. Above 0 and at most 1; 25 for '25%' is refused. Default 0.25.",
+    "rra_permutations": "(int) - How many permuted rankings the robust rank aggregation null is built from. The smallest P value it can report is about 1/rra_permutations, so 10000 resolves the tail to 1e-4; raise it when many genes pile up at that floor and lower it while exploring, since the cost is linear in this number. Default 10000.",
+    "count_grna_column": "(str) - Name of the column in the count CSV holding the guide identifier. It was hard-coded to 'grna', so a file naming it 'sgRNA' or 'guide' died on a message listing the four columns spaCR wanted and none of the ones the file actually had. Set it to whatever your sequencing pipeline wrote. Default 'grna'.",
+    "count_value_column": "(str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Hard-coded to 'count' until now, so a file naming it 'reads' or 'n' failed with a message naming only the columns spaCR expected. Default 'count'.",
     "fdr_alpha": "(float) - Family-level rejection threshold for adjusted P values in guide_permutation mode. Must be between 0 and 1. Default 0.05.",
     "tolerance": "(int or float) - How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
     "invert_dependent_variable": "(bool or int) - Flip the response before it is aggregated per well, for scores whose useful direction is downward. False or 0 leaves it as measured, True or 1 uses 1 - x (right for a probability, so a low infection score becomes a high phenotype), and -1 uses 1 / x (right for a distance or a count). Any other value raises ValueError in process_scores. It changes the sign of every coefficient and therefore which side of the volcano your hits land on. Default False.",
@@ -3196,6 +3397,7 @@ tooltips = {
     "hinge_n_boot": "(int) - Number of bootstrap resamples behind the hinge p-values. A support vector machine has no likelihood and so no Wald test; spaCR refits it on this many resamples of the wells and compares each coefficient to its bootstrap standard deviation. Treat the result as a stability statistic, not a hypothesis test. Higher is steadier and linearly slower; below about 50 the standard deviations are too noisy to rank on. Default 200.",
     "huber_t": "(float) - Where Huber's loss switches from squared to linear, in units of the estimated residual scale, for the robust fits. Smaller values downweight more wells and resist heavier contamination; larger values approach ordinary least squares. The default 1.345 gives 95 percent of the efficiency of OLS when the residuals really are normal. Read only by regression_type 'rlm' and 'huber'. Default 1.345.",
     "lasso_n_boot": "(int) - Number of bootstrap resamples used to rank lasso and elastic-net hits by how often each gRNA survives the penalty. These models have no valid p-values, so selection frequency replaces the significance test entirely. Higher is steadier and linearly slower; the cost is one full penalised fit per resample, doubled when alpha is 'auto' because each resample cross-validates. Default 200.",
+    "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Default 0.05.",
     "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "regression_qc": "(bool) - Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
@@ -3869,7 +4071,7 @@ categories = {
     # HOW IT IS JUDGED. Shared by both families: an evaluation is an
     # evaluation, and `save_to_db` is where the result goes rather than a
     # category of its own.
-    "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds", "cv_group_by", "nested_cv_inner_folds", "classifier_evaluation", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "save_to_db"],
+    "Model Evaluation": ["cross_validation_enabled", "cross_validation_folds", "cv_group_by", "nested_cv_inner_folds", "classifier_evaluation", "evaluation_calibration", "evaluation_bins", "evaluation_fail_on_leakage", "leakage_audit_train_test", "leakage_hash_content", "leakage_require_identity", "score_threshold", "n_top_examples", "score_column", "save_to_db"],
 
     # THE FEATURE-BASED CLASSIFIER: which model, and which features it may
     # see. Feature preparation and feature importance were two headings asking
@@ -3903,8 +4105,19 @@ categories = {
     # `analysis_unit`) and both are readable front ends for decisions that
     # were previously side effects of `analysis_mode` and `agg_type`; see
     # _resolve_regression_analysis_choices.
+    # `score_column` LEFT on 2026-08-18 (instruction 135 A). It was the
+    # regression's duplicate of `dependent_variable` -- one measurement under
+    # two names -- and it is retired in
+    # get_perform_regression_default_settings. The key lives on under "Model
+    # Evaluation" for Explain CV, which uses it for the CNN score column.
+    #
+    # The count table's two column names sit here because this heading is
+    # where a column is NAMED: `dependent_variable` names the score table's
+    # response, and these two name the guide and the read count in the count
+    # table. The Qt regression layout shows them under "Input Tables".
     "Regression: Response": [
-        "dependent_variable", "score_column", "invert_dependent_variable",
+        "dependent_variable", "invert_dependent_variable",
+        "count_grna_column", "count_value_column",
         "analysis_unit", "agg_type", "transform",
     ],
     # inference and regression_type lead: they decide whether anything in
@@ -3919,13 +4132,14 @@ categories = {
     "Regression: Model Tuning": [
         "alpha", "l1_ratio", "quantile", "huber_t", "hinge_threshold",
         "hinge_n_boot", "lasso_n_boot", "lasso_selection_threshold",
+        "group_lasso_lambda",
     ],
     # Read only when inference resolves to the permutation test.
     "Regression: Permutation Test": [
         "guide_min_wells", "guide_primary_min_wells", "guide_permutations",
         "guide_permutation_seed", "guide_permutation_block",
         "guide_nuisance_columns", "guide_presence_threshold",
-        "guide_permutation_batch_size", "guide_permutation_plot",
+        "guide_permutation_batch_size",
     ],
     "Regression: Significance": [
         "multiple_testing_method", "fdr_alpha", "threshold_method",
@@ -3936,6 +4150,11 @@ categories = {
         # name in a category made the panel offer a control with no
         # expected_types entry and no default.
         "threshold_multiplier", "Toxoplasma",
+        # WHAT THE RUN MEANS BY SIGNIFICANT, which the plot could previously
+        # contradict from its right-click menu (instruction 135), and the two
+        # knobs of the RRA hit caller.
+        "p_threshold_alpha", "p_threshold_kind",
+        "rra_alpha", "rra_permutations",
     ],
     # Everything that decides which rows reach the model. These were spread
     # across the old list with the fitting knobs between them, so it was not
@@ -4247,7 +4466,7 @@ def get_setting_dependencies():
         'guide_min_wells', 'guide_primary_min_wells', 'guide_permutations',
         'guide_permutation_seed', 'guide_permutation_block',
         'guide_nuisance_columns', 'guide_presence_threshold',
-        'guide_permutation_batch_size', 'guide_permutation_plot',
+        'guide_permutation_batch_size',
     )
 
     def permutation_active(settings, _context):
@@ -4264,6 +4483,23 @@ def get_setting_dependencies():
                 f"inference (currently {settings.get('inference')!r}). The "
                 "value is kept and saved."),
         )
+
+    # THE GROUP LASSO'S PENALTY IS DEAD UNTIL THE GROUP LASSO IS CHOSEN.
+    #
+    # setdefault, not assignment: the loop above generates exactly this rule
+    # for every key `REGRESSION_SETTINGS_USED` claims, and the moment
+    # regression_spec lists 'group_lasso' there the generated rule -- which
+    # cannot drift from the family table or from the tooltip generator that
+    # reads the same table -- takes over and this one stops being used.
+    setting_dependencies.setdefault('group_lasso_lambda', rule(
+        ('regression_type',),
+        lambda settings, context: str(
+            settings.get('regression_type') or '').lower() == 'group_lasso',
+        lambda settings, context: (
+            f"group_lasso_lambda is not read when regression_type is "
+            f"{settings.get('regression_type')!r}; it is the group lasso's "
+            f"penalty weight. The value is kept and saved."),
+    ))
 
     # `analysis_mode` IS DEAD WHILE `inference` IS DECIDING IT.
     #
