@@ -1938,6 +1938,21 @@ class AppScreen(QWidget):
                 from ..widgets.sweep_runs import SweepRunsPanel
                 self._sweep_runs = SweepRunsPanel(self._figures_card)
                 self._sweep_runs.trial_activated.connect(self._show_trial)
+                # WHICH RUN IS LOADED IS WHICH RUN IS ON SCREEN. Instruction
+                # 157, reported 2026-08-18: "even if the ols model is marked
+                # as loaded i still see the mixed results and no summary".
+                # `loaded_run_changed` was emitted from four places in the
+                # Runs tab and connected in none, so the mark moved and the
+                # coefficients, the figures and the summary stayed on the
+                # previous run -- and the empty summary was the same fault,
+                # the panel still holding the run the user had left.
+                #
+                # THE SAME FUNCTION AS THE CLICK, deliberately. Two entry
+                # points into two loaders is how a run that becomes loaded by
+                # FINISHING ended up on a path nothing drove. `_show_trial`
+                # returns early for the run already on screen, so the two
+                # signals the Runs tab emits together cost one load.
+                self._sweep_runs.loaded_run_changed.connect(self._show_trial)
                 left = QTabWidget(self._figures_card)
                 # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
                 # 2026-08-17: "the run tab should be before the results tab
@@ -3902,16 +3917,44 @@ class AppScreen(QWidget):
             runs.load(folder)
 
     def _results_source_path(self) -> str:
-        """Where the results table on screen was read from, or ``""``.
+        """The FOLDER of the run every view on this screen is describing.
 
         The montage needs ``regression_data.csv``, which
         ``perform_regression`` writes into the SAME folder as the coefficient
-        table -- so the results path is the whole of the answer, and reading
+        table -- so the run's folder is the whole of the answer, and reading
         it live rather than storing a copy is what keeps the tab pointed at
         whichever run the Runs tab last selected.
+
+        ASK THE RUN, NOT THE WIDGET HOLDING THE TABLE. Instruction 155 A,
+        2026-08-18: a regression run IN the application was reported as a
+        "coefficient table on screen [that] was not read from a run folder",
+        which is the sentence for a stray CSV -- about a folder the
+        application had made ten seconds earlier. This used to read
+        ``_results_panel._path``, which a live run leaves as a directory and
+        a load off disk leaves as a CSV, and which is empty for any path that
+        hands the frame over without a source. The loaded run knows its own
+        folder and answers the same way in a later session, because the run
+        IS the folder.
+
+        The panel is the FALLBACK, for results opened with "Load results…"
+        without going through the Runs tab -- there is no run row then, and
+        the table on screen is still a run's.
         """
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is not None:
+            try:
+                folder = runs.loaded_run_folder()
+            except Exception:                                    # noqa: BLE001
+                folder = ""
+            if folder:
+                return str(folder)
         panel = getattr(self, "_results_panel", None)
-        return str(getattr(panel, "_path", "") or "") if panel is not None else ""
+        if panel is None:
+            return ""
+        try:
+            return str(panel.run_folder() or "")
+        except AttributeError:
+            return str(getattr(panel, "_path", "") or "")
 
     def _scan_source_frame(self):
         """The well-level frame the measurement scan should run on.
@@ -3923,11 +3966,16 @@ class AppScreen(QWidget):
         """
         import os as _os
 
-        panel = getattr(self, "_results_panel", None)
-        source = getattr(panel, "_path", "") if panel is not None else ""
-        if not source:
+        # THE RUN'S FOLDER, asked of the run. `_path` was read directly here
+        # and passed through `dirname`, which is right for the CSV a load off
+        # disk leaves behind and WRONG for the directory a live run leaves --
+        # it climbed to `results/` and looked for regression_data.csv beside
+        # the other runs, where there is none. Same fault as 155 A, one view
+        # over.
+        folder = self._results_source_path()
+        if not folder:
             return None
-        folder = _os.path.dirname(_os.path.abspath(source))
+        folder = _os.path.abspath(folder)
         # `regression_data.csv` is what perform_regression writes after the
         # merge: one row per well, the guides and the response together.
         for name in ("regression_data.csv", "merged_data.csv"):
@@ -3999,19 +4047,48 @@ class AppScreen(QWidget):
             self._console.append_stdout(
                 f"{trial} is still going. Its results appear here when it "
                 "finishes.\n")
+            self._the_run_did_not_open(f"{trial} is still going.")
             return
         if status != "ok":
             self._console.append_stdout(
                 f"{trial} did not produce a regression: "
                 f"{record.get('error_type', '')} "
                 f"{record.get('error', 'no reason recorded')}\n")
+            self._the_run_did_not_open(
+                f"{trial} did not produce a regression.")
             return
         folder = record.get("folder")
         panel = getattr(self, "_results_panel", None)
-        if not folder or panel is None or not panel.load(folder):
+        if panel is None:
+            return
+        # ALREADY ON SCREEN: SHOW IT, DO NOT RE-READ IT. The run that has just
+        # finished arrives here twice -- `_on_pipeline_result` puts its table,
+        # its fitted model, its diagnostics and its statsmodels summary in the
+        # panel straight from the run, and a moment later the Runs tab
+        # announces the same run as loaded. Re-reading the folder would replace
+        # every one of those with what could be recovered off disk: `set_frame`
+        # clears the diagnostics by design, and the summary would fall back to
+        # the saved text. The model is the better answer and this is the only
+        # place that can keep it.
+        #
+        # It is also what makes the two signals the Runs tab emits together
+        # cost one load rather than two.
+        if folder and self._same_run_folder(panel.run_folder(), folder):
+            self._figures_card.show()
+            tabs = getattr(self, "_results_tabs", None)
+            if tabs is not None:
+                tabs.setCurrentWidget(panel)
+            return
+        if not folder or not panel.load(folder):
             self._console.append_stdout(
                 f"{trial} has no saved results on disk. Re-run it from "
                 "the sweep panel to draw them.\n")
+            # AND THE MARK GOES BACK WHERE IT WAS. A run marked loaded whose
+            # results are not on screen is the disagreement of instruction
+            # 157 pointing the other way: the run the user IS looking at
+            # would then be named nowhere.
+            self._the_run_did_not_open(
+                f"{trial} has no saved results on disk.")
             return
         # Its figures too, so the grid on the right is that trial's and not
         # whatever the last run left there.
@@ -4024,6 +4101,39 @@ class AppScreen(QWidget):
         tabs = getattr(self, "_results_tabs", None)
         if tabs is not None:
             tabs.setCurrentWidget(panel)
+
+    @staticmethod
+    def _same_run_folder(one, other) -> bool:
+        """Whether two paths name the same run folder.
+
+        Both ends are noisy: the panel holds a CSV for a run opened off disk
+        and a directory for one handed straight over by `perform_regression`
+        (`run_folder` reconciles that), and a row's folder comes off a
+        concatenated frame, so it can be NaN rather than a string.
+        """
+        try:
+            if not one or not other:
+                return False
+            return (os.path.abspath(os.path.expanduser(str(one)))
+                    == os.path.abspath(os.path.expanduser(str(other))))
+        except (TypeError, ValueError):
+            return False
+
+    def _the_run_did_not_open(self, why: str) -> None:
+        """Tell the Runs tab its newly-marked run could not be shown.
+
+        THE MARK IS A CONSEQUENCE OF THE RUN BEING SHOWN (157). The tab moves
+        it and asks; this is the other half of that conversation, and without
+        it a failed load leaves a mark pointing at nothing on screen.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is None:
+            return
+        try:
+            runs.the_load_failed(why)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not hand the mark back to the Runs tab",
+                      exc_info=True)
 
     @staticmethod
     def _figure_names_under(folder: str, recursive: bool = True):

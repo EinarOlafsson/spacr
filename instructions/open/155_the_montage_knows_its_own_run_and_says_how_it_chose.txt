@@ -260,3 +260,53 @@ HOW TO KNOW IT WORKED
 * An old root containing its own `data/` folder re-anchors to the file, not to
   a directory. This one is a regression test for a silent corruption.
 * Paths that cannot be re-anchored are counted and one is named.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A DONE. THE RUN CARRIES ITS FOLDER.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED (A only; B-F are untouched by this pass)
+
+  * `RegressionResultsPanel.run_folder()` and `.run_name()`. The panel held
+    the folder all along, in `_path` -- and `_path` is a CSV when a run is
+    opened off disk and a DIRECTORY when `_on_pipeline_result` hands
+    `res_folder` straight over, so every caller had to guess which it was
+    holding, and every caller guessed differently. Both are answered here,
+    once. `""` for a table with no run behind it, which is a different
+    situation and keeps its own sentence.
+  * `app_screen._results_source_path` -- the montage's provider -- ASKS THE
+    RUN. The Runs tab's `loaded_run_folder()` first, the panel second (for
+    results opened with "Load results…" without a run row). It now always
+    returns a FOLDER.
+  * A RUN RELOADED FROM DISK ANSWERS THE SAME WAY, and needs nothing written
+    to make that true: the folder is not a fact carried beside the run, it IS
+    the run. Which is what "this information should all be saved in whatever
+    form in the run" comes to once the run is a folder -- no manifest, no
+    sidecar, and nothing that can disagree with where the file actually is.
+
+TWO BUGS FOUND ON THE WAY, BOTH FIXED, BOTH FROM THE SAME AMBIGUITY
+
+  * `cell_montage.load_fraction_frame` resolves a DIRECTORY to
+    `<dir>/regression_data.csv` and takes a FILE as the fraction CSV itself.
+    A run opened off disk left `_path` as `<run>/results.csv`, so the montage
+    read the COEFFICIENT table as the fraction table and failed on a missing
+    `fraction` column -- a confusing error for a run that had everything it
+    needed. Returning the folder is what fixes it.
+  * `app_screen._scan_source_frame` ran `dirname` over `_path`
+    unconditionally. Right for the CSV, WRONG for the directory a live run
+    leaves: it climbed to `results/` and looked for `regression_data.csv`
+    beside the sibling runs, where there is none -- so the Measurements tab
+    silently found no source frame after a live run. Now asks
+    `_results_source_path()`.
+
+WHAT REMAINS IN A
+
+  * THE SENTENCE. `cell_montage_view.RESULTS_WITHOUT_A_FOLDER` should say
+    "the LOADED coefficient table" -- what the user calls it -- rather than
+    "the coefficient table on screen", which describes a widget. NOT CHANGED
+    HERE: `cell_montage_view.py` belongs to another agent this session. It is
+    a one-string change and it is in `handoffs`.
+  * With the provider fixed, that branch should now be reached only by a
+    table genuinely opened from a bare CSV, which is the case the sentence is
+    FOR. Worth re-reading it once both halves have landed.
+
