@@ -216,9 +216,12 @@ def test_level_both_states_two_fits_two_tables_and_not_one_design():
     assert "TWO MODELS, TWO TABLES" in text
     # The distinction that matters: two fits, NOT one design holding both.
     assert "NOT one design containing both" in text
-    # Each corrected on its own, and why pooling would be wrong.
+    # Each corrected on its own. The SECOND half of that explanation -- that
+    # the two sets are not independent because the gene regressor is the sum
+    # of the guide regressors -- moved out of the box on 2026-08-18 when it
+    # was cut from 2,438 characters to 892 (instruction 143 B). It is read
+    # once and then never again, which is the test for what belongs here.
     assert "OWN multiple-testing family" in text
-    assert "sum of the guide regressors" in text
 
 
 def test_every_backend_the_pipeline_can_fit_has_its_own_paragraph():
@@ -268,18 +271,34 @@ def test_a_backend_with_no_p_value_is_not_described_as_bh_corrected(name):
         assert "selection frequency is not a false-discovery rate" in correction
 
 
-def test_every_box_carries_the_reason_the_formula_changed():
-    """The collinearity finding is in the box, for every selection."""
+def test_every_box_says_where_the_reason_went_and_the_reason_is_still_there():
+    """The collinearity finding is still readable, and the box points at it.
+
+    IT LEFT THE BOX ON 2026-08-18. "WHY THE FORMULA CHANGED" was 880 of the
+    2,438 characters `ols`/`both` rendered -- the longest block in it,
+    describing a design no shipped version fits, read once and then in the way
+    every time after. Instruction 143 B cut the box to 892 characters.
+
+    IT WAS NOT DELETED, and that is what this asserts. The measurement is the
+    evidence for why the module works the way it does, so it moved to
+    `regression_model_explainer.__doc__` and the box says so. A box that
+    dropped it silently would leave the claim unfalsifiable.
+    """
     for name in ("auto", "mixed", "ols", "ridge", "hinge"):
         text = _flat(regression_model_explainer(name))
-        assert COLLINEAR_FORMULA in text
-        assert "perfectly collinear BY CONSTRUCTION" in text
-        assert "SUM of that gene's gRNA fractions" in text
-        # It names what statsmodels does instead of refusing, which is why
-        # the bug was silent.
-        assert "pseudo-inverse" in text
-        # ...and the evidence from the real screen.
-        assert "244480" in text and "3.389291" in text
+        assert "WHY THE FORMULA CHANGED" in text
+        assert "regression_model_explainer.__doc__" in text
+
+    history = _flat(regression_model_explainer.__doc__ or "")
+    assert COLLINEAR_FORMULA in history
+    assert "perfectly collinear BY CONSTRUCTION" in history
+    assert "SUM of that gene's gRNA fractions" in history
+    # It names what statsmodels does instead of refusing, which is why the
+    # bug was silent.
+    assert "pseudo-inverse" in history
+    # ...and the evidence from the real screen, with its figures intact:
+    # shortening the box was not allowed to make what survived vaguer.
+    assert "244480" in history and "3.389291" in history
 
 
 def test_the_box_never_offers_the_collinear_formula_as_something_it_fits():
