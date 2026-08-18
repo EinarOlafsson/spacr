@@ -535,3 +535,29 @@ discovered:
   * the volcano's gene/guide filter (129 A) becomes a choice between two
     RESULT SETS rather than a filter on rows of one -- and that is the
     honest version of what the maintainer asked for.
+
+
+================================================================================
+FOUND 2026-08-18: A CLICK ON THE AGREEMENT PLOT CAN LAND NOWHERE
+================================================================================
+
+The gene/guide filter reaches every tab, which is what L asked for. The
+guide-agreement plot is ONE ROW PER GENE by construction -- it is the plot
+that answers "do this gene's guides agree" -- so while the filter is on
+`grna`, the coefficient table holds no row for anything drawn on it.
+
+Clicking a dot there therefore does nothing at all: no ring, no selected row,
+no gene tile, and nothing anywhere saying why. That is worse than either
+behaviour alone, because the plot still looks clickable.
+
+THE FIX THAT WAS TRIED AND REVERTED: let the click move the filter to the
+level that contains the key, on the reasoning that a click is more specific
+than a standing filter. `set_level` rebuilds every view from inside the
+click's own signal, which invalidated the point objects mid-dispatch and broke
+ten other round-trips. It needs a DEFERRED re-selection -- move the level,
+then re-apply the key on the next event-loop turn -- which is its own change
+and should not be squeezed into a test-repair commit.
+
+The other honest option is instruction 106's rule: if the agreement plot
+cannot be clicked at the current level, it should SAY so rather than accept
+clicks that go nowhere.
