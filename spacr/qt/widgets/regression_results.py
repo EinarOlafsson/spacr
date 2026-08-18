@@ -555,7 +555,7 @@ class RegressionResultsPanel(QWidget):
         # table by the same one-line route, which is why they cannot disagree
         # about what a click means.
         for plot in self._keyed_plots():
-            plot.key_selected.connect(self.table.select_key)
+            plot.key_selected.connect(self._select_from_a_plot)
         # A BAR IS NOT A POINT. The histogram is the one mark here that stands
         # for many rows, so it narrows the table to them rather than pretending
         # to pick one -- see PValueHistogram.select_bin. When a bar happens to
@@ -2187,6 +2187,69 @@ class RegressionResultsPanel(QWidget):
             if name in frame.columns and frame[name].is_unique:
                 return name
         return None
+
+    def _select_from_a_plot(self, key: str) -> None:
+        """A point was clicked: reach its row, MOVING THE FILTER if it must.
+
+        THE CLICK IS MORE SPECIFIC THAN THE STANDING FILTER, so it wins.
+
+        Instruction 128, found 2026-08-18. The gene/guide filter reaches every
+        tab, and the guide-agreement plot is ONE ROW PER GENE by construction
+        -- it is the plot that answers "do this gene's guides agree". While
+        the filter is on `grna` the coefficient table holds no row for
+        anything drawn on it, so a click landed nowhere: no ring, no selected
+        row, no gene tile, and nothing saying why, on a plot that still looked
+        clickable.
+
+        DEFERRED, AND THAT IS THE WHOLE TRICK. The obvious version -- call
+        `set_level` and then select -- was tried first and broke ten other
+        round-trips: `set_level` rebuilds every view from inside the click's
+        own signal, which invalidates the point objects Qt is still
+        dispatching through. The level moves now and the key is re-applied on
+        the NEXT event-loop turn, after the rebuild has finished and the
+        signal has unwound.
+
+        Nothing happens on the ordinary path. A click on the volcano, the
+        Q-Q, the effect ranking or the control panel at its usual level finds
+        its row already visible, so the filter does not twitch under a user
+        browsing within it.
+        """
+        if self._reachable(key):
+            self.table.select_key(key)
+            return
+        from ...hits import guide_of
+        from PySide6.QtCore import QTimer
+
+        self.set_level("grna" if guide_of(str(key)) else "gene")
+        # A single shot rather than a direct call: see the docstring. The
+        # bound method keeps the panel alive for the one turn it needs.
+        QTimer.singleShot(0, lambda k=str(key): self.table.select_key(k))
+        self.say(f"Showing {self.LEVEL_NAMES.get(self._level, 'everything')} "
+                 f"so the point you clicked has a row.")
+
+    def _reachable(self, key) -> bool:
+        """Whether ``key`` has a row in the table at the current level.
+
+        True when there is no filter, no frame or no `feature` column -- in
+        each of those the table is not hiding anything and an unfound key is
+        somebody else's problem to report.
+        """
+        if not key or not self._level or self._frame is None:
+            return True
+        if "feature" not in getattr(self._frame, "columns", ()):
+            return True
+        mask = self._level_mask(self._frame)
+        if mask is None:
+            return True
+        features = self._frame["feature"].astype(str)
+        # A KEY THE TABLE DOES NOT HOLD AT ANY LEVEL IS REACHABLE, which
+        # reads oddly and is right: moving the filter cannot produce a row
+        # that does not exist, so the only thing it would achieve is
+        # rearranging the panel around a click nobody can honour. The plot
+        # that emitted it reports the miss; that is its job, not this one's.
+        if str(key) not in set(features):
+            return True
+        return str(key) in set(features[mask])
 
     def _select_key(self, key: str) -> None:
         """A row was picked: mark it on EVERY plot that drew it.
