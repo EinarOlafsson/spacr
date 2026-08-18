@@ -70,8 +70,26 @@ They name the same thing and a user has to guess which one is read. Keep
 an old settings CSV carrying it must still load, with its value moved over and
 a line saying so, not dropped in silence.
 
-Audit BEFORE deleting: find every reader of `score_column`. If a path exists
-where the two are genuinely different, say so rather than merging over it.
+AUDIT DONE 2026-08-17, and it says the request is right, with one boundary.
+
+IN THE REGRESSION MODULE the two are already the same thing BY CONTRACT.
+settings.py:1983 is `settings.setdefault('score_column',
+settings['dependent_variable'])`, and the tooltip already says out loud that
+they must agree: "It must name the same measurement as dependent_variable, or
+the simulated min_cell_count describes a different quantity than the one the
+regression fits and wells are kept or dropped on the wrong evidence." Having
+both therefore offers the user a way to make the run wrong and nothing else.
+
+Its ONLY reader on the regression path is `minimum_cell_simulation`, which
+resamples the per-object score CSV to work out how many objects a well needs
+before its mean stops moving. Substituting `dependent_variable` there is
+exactly what the default already does.
+
+THE BOUNDARY: `score_column` is NOT only a regression setting. In
+`interpret_vision_model` (Explain CV) and in `hit_investigation.py` the same
+key names the CNN score column, default 'cv_predictions'. It stays alive
+there. What is retired is the regression module's duplicate -- the panel
+control and the regression default -- not the key.
 
 --------------------------------------------------------------------------------
 B. A COLUMN THAT IS NOT THERE OFFERS THE COLUMNS THAT ARE
