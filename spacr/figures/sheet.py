@@ -166,7 +166,11 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
     """
     import matplotlib.pyplot as plt
 
-    with figure_style(target or theme_target()):
+    # `kind=key` is how the user's PER-GRAPH preference reaches this panel:
+    # the volcano's point size is not the heatmap's, which is the whole reason
+    # instruction 118 has a per-graph layer. A key that is not a known graph
+    # kind simply has no overrides, so this is safe for every panel.
+    with figure_style(target or theme_target(), kind=key):
         figure = plt.figure(figsize=figsize)
         ax = figure.add_subplot(111)
         panel = REGISTRY[key](ax, frame, **kwargs)
