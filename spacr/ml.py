@@ -6079,6 +6079,36 @@ def perform_regression(settings):
                 f"{settings['multiple_testing_method']} "
                 f"alpha={settings['fdr_alpha']}."
             )
+        # THE SUMMARY, BEFORE THE EARLY RETURN. Instruction 156 placed its
+        # call at the end of the parametric path, which this branch never
+        # reaches -- so the ONE mode that has no statsmodels summary to fall
+        # back on was also the one mode that wrote no spaCR summary either,
+        # which is exactly the run the maintainer reported: "No summary: this
+        # run came back without a fitted model, so there is none to
+        # summarise", from a nonparametric mixed fit.
+        #
+        # There is no `model` here and there never will be: a permutation test
+        # has no design matrix and no coefficient covariance. That is what the
+        # summary says, rather than being the reason it is absent.
+        try:
+            from .regression_summary import write_run_summary
+        except ImportError:
+            pass
+        else:
+            try:
+                # No `inference=` argument: `_is_nonparametric` reads it off
+                # the settings, which is the more robust answer -- an
+                # `inference='auto'` resolved into `analysis_mode`, and a
+                # settings CSV predating the `inference` key, both still come
+                # out right, where a keyword passed from here would only be
+                # right at this one call site.
+                write_run_summary(
+                    res_folder, model=None, settings=settings,
+                    coef_df=output.get('primary'),
+                    regression_type=settings.get('regression_type'))
+            except Exception as error:  # noqa: BLE001 - never lose a run
+                print(f"Could not write the run summary: "
+                      f"{type(error).__name__}: {error}")
         return output
         
     # EVERY PLATE AS ONE FIGURE, on one colour scale, with square wells.
