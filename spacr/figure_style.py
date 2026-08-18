@@ -19,7 +19,7 @@ read, merged and tested without a display.
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, NamedTuple, Optional
 
 #: Applied to every figure unless a graph kind overrides it.
 GENERAL_DEFAULTS: dict[str, Any] = {
@@ -223,3 +223,242 @@ def _apply_palette(name: str) -> None:
         colours = list(PALETTE)
     if colours:
         mpl.rcParams["axes.prop_cycle"] = cycler(color=colours)
+
+
+# ---------------------------------------------------------------------------
+# A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN.
+#
+# Instruction 150, reported 2026-08-18: "when a graph is saved and the user is
+# in dark mode white elements are changed to black for saving (text lines,
+# etc)". In dark mode `spacr.qt.preferences.get_figure_colors()` hands both
+# renderers a WHITE foreground, so the axes, ticks, labels, title and legend
+# are white -- and nothing anywhere inverted them at export time. A PNG saved
+# with a transparent ground even looks right in a dark file manager and
+# disappears when it is pasted into a manuscript, which means the user finds
+# out at the point of writing the paper.
+#
+# THE DECISION LIVES HERE AND THE APPLICATION DOES NOT. This half is
+# matplotlib-free and Qt-free, like the rest of the module, so the pyqtgraph
+# exporter (`FastPlot._paint_scene`, instruction 150 C) can import
+# `saved_figure_appearance` and get the same answer as `spacr.plot.print_ready`
+# without either of them owning the rule. Two renderers deciding separately
+# what "print" means is the same defect as two engines deciding which
+# statistical test applies.
+# ---------------------------------------------------------------------------
+
+#: The three states, which are genuinely different jobs (instruction 150 B).
+#:
+#: ``print``        light ground, dark chrome. The default, because a figure
+#:                  saved from spaCR is going into a manuscript.
+#: ``screen``       exactly what the user is looking at. The old behaviour,
+#:                  kept reachable rather than removed.
+#: ``transparent``  no ground, chrome still follows the print rule -- dark ink
+#:                  on a transparent ground is still unreadable on a dark
+#:                  slide, but the compositing is then the user's choice.
+SAVE_MODES = ("print", "screen", "transparent")
+
+#: The page a printed figure is going onto, and the ink it is printed in.
+PRINT_GROUND = "#FFFFFF"
+PRINT_INK = "#222222"
+
+#: Gridlines are chrome, and they are chrome that is MEANT to be faint. A grid
+#: repainted in the ink is a cage over the data, so an illegible grid becomes
+#: this rather than :data:`PRINT_INK` -- which is also the light-mode default,
+#: so a light-mode save is unchanged.
+PRINT_GRID = "#DDDDDD"
+
+#: Contrast below which chrome is repainted, WCAG 2.x ratio against the ground.
+#:
+#: 2.0 rather than the 3.0 the guideline gives for graphical objects: this
+#: number decides whether to CHANGE A USER'S FIGURE, so it is set where the
+#: change is unarguable. White on white is 1.0 and #DDDDDD on white is 1.27;
+#: the palest thing anyone deliberately draws chrome in sits above 2.
+CHROME_CONTRAST_FLOOR = 2.0
+
+#: Contrast below which a DATA colour is NAMED rather than changed (150 D).
+#:
+#: SET FROM THE HOUSE STYLE RATHER THAN FROM THE GUIDELINE, because a warning
+#: that fires on every figure is a warning nobody reads. Measured on
+#: `figures.style.ROLES` against white: the palest colour the house style
+#: deliberately puts on the page is ``fill`` #E8A88C at 2.02, with ``data``
+#: #B4B4B4 at 2.07 -- so WCAG's 3.0 for graphical objects would name the house
+#: style's own greys on every save.
+#:
+#: 1.8 sits under both and over the colours that are genuinely chosen for a
+#: dark ground: white 1.0, the pale yellow the instruction describes 1.03,
+#: Okabe-Ito yellow #F0E442 1.32. `guide_permutation`'s "not a hit" grey
+#: #B8BDC5 is 1.89 and stays quiet, which is the point -- it is de-emphasis,
+#: not a mark the reader has to find.
+DATA_CONTRAST_FLOOR = 1.8
+
+_NAMED_COLOURS = {
+    "white": (1.0, 1.0, 1.0), "black": (0.0, 0.0, 0.0),
+    "none": None, "transparent": None,
+}
+
+
+def to_rgb(colour) -> Optional[tuple]:
+    """``colour`` as an ``(r, g, b)`` triple on 0-1, or None if it has none.
+
+    None means "no colour to judge" -- ``'none'``, a fully transparent RGBA, a
+    colour map, anything this cannot read. Every caller below treats that as
+    "leave it alone", which is the safe direction: the failure to avoid is
+    repainting something that was never white.
+
+    matplotlib is consulted only if it is already importable, and only for the
+    spellings this cannot parse itself, so the rule stays testable headless.
+    """
+    if colour is None:
+        return None
+    if isinstance(colour, str):
+        text = colour.strip().lower()
+        if text in _NAMED_COLOURS:
+            return _NAMED_COLOURS[text]
+        if text.startswith("#"):
+            digits = text[1:]
+            if len(digits) in (3, 4):
+                digits = "".join(character * 2 for character in digits)
+            if len(digits) in (6, 8):
+                try:
+                    values = [int(digits[i:i + 2], 16) / 255.0
+                              for i in range(0, 6, 2)]
+                except ValueError:
+                    return None
+                if len(digits) == 8 and int(digits[6:8], 16) == 0:
+                    return None          # fully transparent is not a colour
+                return tuple(values)
+            return None
+    else:
+        try:
+            values = tuple(float(component) for component in colour)
+        except (TypeError, ValueError):
+            values = ()
+        if len(values) == 4 and values[3] == 0:
+            return None
+        if len(values) in (3, 4):
+            return tuple(values[:3])
+    try:                                   # pragma: no cover - optional path
+        from matplotlib.colors import to_rgba
+
+        red, green, blue, alpha = to_rgba(colour)
+    except Exception:                      # pragma: no cover
+        return None
+    return None if alpha == 0 else (red, green, blue)
+
+
+def relative_luminance(colour) -> Optional[float]:
+    """WCAG relative luminance of ``colour``, or None when it has no colour."""
+    rgb = to_rgb(colour)
+    if rgb is None:
+        return None
+    channels = []
+    for value in rgb:
+        value = min(max(float(value), 0.0), 1.0)
+        channels.append(value / 12.92 if value <= 0.04045
+                        else ((value + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast_ratio(colour, other) -> Optional[float]:
+    """WCAG contrast ratio between two colours, 1.0 to 21.0.
+
+    None when either has no colour -- which is not "no contrast", and the
+    distinction matters: a caller that read None as 1.0 would repaint every
+    transparent artist in the figure.
+    """
+    first = relative_luminance(colour)
+    second = relative_luminance(other)
+    if first is None or second is None:
+        return None
+    lighter, darker = max(first, second), min(first, second)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def is_legible_on(colour, ground, floor: float = CHROME_CONTRAST_FLOOR) -> bool:
+    """Whether ``colour`` can be seen on ``ground``. Unreadable colours are
+    the only ones the save is allowed to change."""
+    ratio = contrast_ratio(colour, ground)
+    return True if ratio is None else ratio >= float(floor)
+
+
+class SavedFigureAppearance(NamedTuple):
+    """What a save should look like. The answer both renderers act on.
+
+    :param mode: one of :data:`SAVE_MODES`.
+    :param ground: the background to paint, or None to leave it as it is.
+        None is what ``screen`` and ``transparent`` both want, for opposite
+        reasons -- one keeps the ground, the other has none.
+    :param ink: the colour illegible CHROME is repainted in, or None to leave
+        every colour alone.
+    :param grid: the colour illegible GRIDLINES are repainted in.
+    :param transparent: pass ``transparent=True`` to the writer.
+    :param flip: whether anything is repainted at all. False for ``screen``,
+        which is the whole meaning of that mode.
+    """
+
+    mode: str
+    ground: Optional[str]
+    ink: Optional[str]
+    grid: Optional[str]
+    transparent: bool
+    flip: bool
+
+
+def figure_save_mode() -> str:
+    """The save mode in force: the user's preference, else ``'print'``.
+
+    Read defensively for the same reason as
+    :func:`spacr.plot.figure_output_preferences`: the preference store is
+    Qt's, and the pipelines that save figures run headless from the CLI and
+    from notebooks, where importing PySide6 to decide an ink colour would be
+    absurd. ``SPACR_FIGURE_SAVE_MODE`` overrides, which is how a headless run
+    or a test asks for one without a store at all.
+
+    The Qt getter is looked up by NAME rather than imported, so this works
+    before ``spacr.qt.preferences`` grows one -- that module belongs to
+    another session and adding the control there is its call, not this one's.
+    """
+    import os
+
+    requested = os.environ.get("SPACR_FIGURE_SAVE_MODE", "").strip().lower()
+    if requested in SAVE_MODES:
+        return requested
+    try:                                   # pragma: no cover - needs Qt
+        from .qt import preferences
+
+        getter = getattr(preferences, "get_figure_save_mode", None)
+        if getter is not None:
+            stored = str(getter()).strip().lower()
+            if stored in SAVE_MODES:
+                return stored
+    except Exception:                      # pragma: no cover
+        pass
+    return "print"
+
+
+def saved_figure_appearance(mode: Optional[str] = None
+                            ) -> SavedFigureAppearance:
+    """THE shared decision. Both renderers ask this and neither decides.
+
+    :param mode: force one of :data:`SAVE_MODES`; None asks
+        :func:`figure_save_mode`. An unrecognised mode falls back to
+        ``'print'`` rather than raising -- a run must not lose its figures
+        over a misspelt preference.
+
+    NOTE WHAT THIS DOES NOT SAY. It names a ground and an ink for the
+    FURNITURE. It says nothing about point colours, colour maps or the up/down
+    colouring on a volcano, and that omission is the design: those carry the
+    claim, and a white data point turned black is, on a volcano, the colour of
+    "not a hit".
+    """
+    chosen = str(mode).strip().lower() if mode is not None else figure_save_mode()
+    if chosen not in SAVE_MODES:
+        chosen = "print"
+    if chosen == "screen":
+        return SavedFigureAppearance("screen", None, None, None, False, False)
+    if chosen == "transparent":
+        return SavedFigureAppearance("transparent", None, PRINT_INK,
+                                     PRINT_GRID, True, True)
+    return SavedFigureAppearance("print", PRINT_GROUND, PRINT_INK,
+                                 PRINT_GRID, False, True)
