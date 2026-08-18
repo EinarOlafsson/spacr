@@ -467,11 +467,43 @@ def set_figure_png_dpi(dpi: int) -> None:
     _settings().setValue(_KEY_FIG_PNG_DPI, dpi)
 
 
-# Figure colours. Stored as hex strings; "auto" (the default) follows the app
-# theme — dark → black background + white text, light → white + black.
+# Figure colours. Stored as TOKENS, never as answers: either an explicit
+# colour the user picked, or "auto" (the default), which is resolved against
+# the live theme on every read.
+#
+# NEVER PERSIST A RESOLVED DEFAULT.
+# ---------------------------------
+# This is the rule the whole section exists to enforce, and it is written
+# here because this is where the next person will be standing when they are
+# about to break it. Writing back what "auto" happened to resolve to turns a
+# preference that TRACKS into a preference that FREEZES, and the damage
+# outlives the session that caused it: a store holding "#ffffff" cannot be
+# told apart from a user who chose white, so nothing downstream can ever undo
+# it. That is not hypothetical -- `_FigureSettingsDialog` seeded itself from
+# `get_figure_colors()` (resolved) and wrote the same pair back on OK, so
+# opening the dialog once on a dark theme and pressing OK without touching
+# anything froze every future figure white, including on a light theme. See
+# `_migrate_frozen_figure_colors` for the clean-up that costs.
+#
+# The same reasoning is already recorded one screen up for `get_figure_style`,
+# which stores {} rather than today's defaults for exactly this reason.
+#
+# So: anything that can WRITE this preference back seeds itself from
+# `get_figure_color_tokens()`, shows `auto_figure_colors()` as a labelled
+# PREVIEW, and passes "auto" to `set_figure_colors` unless the user picked.
 _KEY_FIG_BG = "prefs/figure_bg"
 _KEY_FIG_FG = "prefs/figure_fg"
 _KEY_FIG_TEXT_SIZE = "prefs/figure_text_size"
+#: Marker recording which generation of the un-freeze migration a store has
+#: been through — see :func:`_migrate_frozen_figure_colors`.
+_KEY_FIG_COLOR_SCALE = "prefs/figure_color_scale"
+
+#: Bump when a *new* family of frozen values needs unfreezing; every store
+#: below this number is examined once and then marked.
+FIGURE_COLOR_SCALE = 1
+
+#: The token meaning "ask the theme, every time". Not a colour.
+AUTO_FIGURE_COLOR = "auto"
 
 
 #: What "no background at all" is spelled as, in the one place that decides
@@ -486,41 +518,171 @@ def figure_bg_is_transparent(bg: str) -> bool:
     return str(bg).strip().lower() in {"none", "transparent", ""}
 
 
+def figure_color_is_auto(token) -> bool:
+    """Whether ``token`` is the "follow the theme" token rather than a colour.
+
+    Case- and space-insensitive because a token can reach the store from a
+    hand-edited INI as easily as from the dialog.
+    """
+    return str(token).strip().lower() == AUTO_FIGURE_COLOR
+
+
+def auto_figure_colors() -> tuple:
+    """What :data:`AUTO_FIGURE_COLOR` resolves to *right now*, as
+    ``(background, text)``.
+
+    Public because a control that offers "Follow the theme" has to SHOW what
+    that currently means without storing it. Storing what this returns is the
+    bug the section header describes; previewing it is the fix.
+
+    TRANSPARENT, not the theme's window colour. "auto" used to resolve to
+    #000000 on a dark theme, which is where the black slab behind every plot
+    came from: an opaque black rectangle sitting on a container that is a
+    translucent SURFACE. ``bg`` is the window colour and a figure is not a
+    window (INVARIANTS 2).
+
+    Transparent also means the page-opacity preference reaches the plot for
+    free, and one value is right for both themes — baking in a grey would
+    freeze one opacity into every figure while everything around it kept
+    following the preference.
+    """
+    # Light is the only light theme; Space is a dark one, so a `== "dark"`
+    # test here would have handed it white figures.
+    dark = resolve_effective_theme() != "light"
+    return TRANSPARENT_FIGURE_BG, ("#ffffff" if dark else "#000000")
+
+
+#: Every background "auto" has ever resolved to, on any theme and any release
+#: — the current transparent one, plus the two opaque ones it resolved to
+#: before 2026-08-06. A stored value equal to one of these is
+#: indistinguishable from a resolution that was written back, which is why
+#: the migration below cannot be cleverer than "assume the bug".
+_FROZEN_BG_VALUES = frozenset({TRANSPARENT_FIGURE_BG, "#000000", "#ffffff"})
+#: The same, for the text colour. "auto" has only ever produced black or
+#: white, so any black or white in the store is suspect.
+_FROZEN_FG_VALUES = frozenset({"#000000", "#ffffff"})
+
+
+def _migrate_frozen_figure_colors() -> None:
+    """Undo, once per store, a resolved default that was persisted.
+
+    The dialog used to seed from :func:`get_figure_colors` (already resolved)
+    and write the pair straight back, so pressing OK without changing
+    anything replaced "auto" with whatever the theme said at that moment.
+    Nothing downstream can tell that apart from a deliberate choice — the
+    maintainer's own store held ``bg='none'``/``fg='#ffffff'`` on a dark
+    theme, which is character-for-character the resolution — so the only
+    honest repair is to assume the bug and hand the tracking preference back:
+
+        a stored value equal to something "auto" resolves to on SOME theme
+        → back to "auto", once, with a line in the console.
+
+    A user who genuinely picked #ffffff loses one click they can repeat. A
+    user who picked nothing — every user who never opened the dialog with an
+    intent, which is nearly all of them — gets their theme back. Leaving it
+    alone would leave the reported "in white mode lots of graphs still have
+    white text and axes color" permanently true for exactly the people who
+    never asked for anything.
+
+    Both halves are examined together on purpose. Migrating the text but
+    keeping a frozen white BACKGROUND would give white-on-white again on a
+    dark theme, which is the same bug wearing the other colour.
+
+    Runs once, and writes the marker even when there was nothing to migrate,
+    so a fresh store is not re-examined on every read. Never raises: a
+    preference that cannot be migrated is a cosmetic loss, not a crash in a
+    figure render.
+    """
+    settings = _settings()
+    try:
+        if int(settings.value(_KEY_FIG_COLOR_SCALE, 0) or 0) >= \
+                FIGURE_COLOR_SCALE:
+            return
+    except (TypeError, ValueError):
+        pass
+    try:
+        changed = []
+        for key, frozen, label in (
+                (_KEY_FIG_BG, _FROZEN_BG_VALUES, "background"),
+                (_KEY_FIG_FG, _FROZEN_FG_VALUES, "text colour")):
+            raw = settings.value(key, None)
+            if raw is None:
+                continue
+            token = str(raw).strip().lower()
+            if token != AUTO_FIGURE_COLOR and token in frozen:
+                settings.setValue(key, AUTO_FIGURE_COLOR)
+                changed.append(f"{label} {str(raw).strip()!r}")
+        settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+        settings.sync()
+        if changed:
+            LOG.info(
+                "Figure colours: %s had been saved as a fixed colour that is "
+                "exactly what \"follow the theme\" produces, which is how an "
+                "older Figure settings dialog left them. They now follow the "
+                "theme again. Pick a colour in Figure settings… to set one "
+                "deliberately.", " and ".join(changed))
+    except Exception:
+        LOG.debug("could not migrate the figure colour keys", exc_info=True)
+
+
+def get_figure_color_tokens() -> tuple:
+    """The STORED ``(background, text)`` tokens, *unresolved*.
+
+    Either half may be :data:`AUTO_FIGURE_COLOR`. Anything that will write the
+    preference back must seed itself from here rather than from
+    :func:`get_figure_colors`, because a resolved pair has already lost the
+    one bit that matters: whether the user chose it.
+    """
+    _migrate_frozen_figure_colors()
+    settings = _settings()
+    return (str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR)),
+            str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR)))
+
+
 def get_figure_colors() -> tuple:
     """Return ``(background, text)`` hex colours for rendered figures,
-    resolving "auto" against the current theme."""
-    bg = str(_settings().value(_KEY_FIG_BG, "auto"))
-    fg = str(_settings().value(_KEY_FIG_FG, "auto"))
-    if bg == "auto" or fg == "auto":
-        # Light is the only light theme; Space is a dark one, so a
-        # `== "dark"` test here would have handed it white figures.
-        dark = resolve_effective_theme() != "light"
-        # TRANSPARENT, not the theme's window colour. "auto" used to resolve
-        # to #000000 on a dark theme, which is where the black slab behind
-        # every plot came from: an opaque black rectangle sitting on a
-        # container that is a translucent SURFACE. `bg` is the window
-        # colour and a figure is not a window (INVARIANTS 2).
-        #
-        # Transparent also means the page-opacity preference reaches the
-        # plot for free, and one value is right for both themes -- baking in
-        # a grey would freeze one opacity into every figure while everything
-        # around it kept following the preference.
-        #
+    resolving "auto" against the current theme.
+
+    For DRAWING. A caller that will later write the preference back wants
+    :func:`get_figure_color_tokens`; see the section header for why.
+    """
+    bg, fg = get_figure_color_tokens()
+    if figure_color_is_auto(bg) or figure_color_is_auto(fg):
+        auto_bg, auto_fg = auto_figure_colors()
         # An EXPLICIT colour the user has chosen is still honoured; only the
-        # "auto" resolution changed.
-        auto_bg = TRANSPARENT_FIGURE_BG
-        auto_fg = "#ffffff" if dark else "#000000"
-        if bg == "auto":
+        # "auto" halves are substituted.
+        if figure_color_is_auto(bg):
             bg = auto_bg
-        if fg == "auto":
+        if figure_color_is_auto(fg):
             fg = auto_fg
     return bg, fg
 
 
 def set_figure_colors(bg: str, fg: str) -> None:
-    """Persist background and text colour tokens for generated figures."""
-    _settings().setValue(_KEY_FIG_BG, bg)
-    _settings().setValue(_KEY_FIG_FG, fg)
+    """Persist background and text colour TOKENS for generated figures.
+
+    Pass :data:`AUTO_FIGURE_COLOR` for a half the user has not chosen — NEVER
+    what :func:`auto_figure_colors` returned for it. See the section header.
+
+    Writing also marks the store as migrated: a value set here is a decision
+    taken under the current scheme, so :func:`_migrate_frozen_figure_colors`
+    must not second-guess it afterwards.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_FIG_BG, bg)
+    settings.setValue(_KEY_FIG_FG, fg)
+    settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+    settings.sync()
+
+
+def set_figure_colors_auto() -> None:
+    """Put both halves back to "follow the theme".
+
+    The explicit way out. A user who has been frozen — by the old dialog or
+    by their own click — otherwise has no route back to automatic at all,
+    and a preference you can only ever set is a trap.
+    """
+    set_figure_colors(AUTO_FIGURE_COLOR, AUTO_FIGURE_COLOR)
 
 
 def get_figure_text_size() -> int:

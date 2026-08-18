@@ -31,7 +31,6 @@ from PySide6.QtCore import QEvent, Qt, QTimer
 from PySide6.QtGui import QAction, QColor
 from PySide6.QtWidgets import (
     QCheckBox,
-    QColorDialog,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -48,6 +47,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+from .colour_picker import pick_colour
 
 #: Axis scales offered. ``symlog`` is included because screen scores are often
 #: signed and a plain log drops every non-positive point silently.
@@ -103,7 +104,9 @@ def _colour_button(initial, on_pick: Callable[[str], None]) -> QPushButton:
                 f"color: {'#000' if colour.lightness() > 127 else '#fff'};")
 
     def _choose():
-        colour = QColorDialog.getColor(QColor(state["colour"]), button)
+        # Qt's own dialog, never the platform one -- see
+        # :mod:`spacr.qt.widgets.colour_picker`.
+        colour = pick_colour(button, state["colour"])
         if colour.isValid():
             state["colour"] = colour.name()
             _paint()

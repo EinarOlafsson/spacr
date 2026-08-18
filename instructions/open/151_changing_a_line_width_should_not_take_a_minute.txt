@@ -106,3 +106,50 @@ HOW TO KNOW IT WORKED
 * No `QColorDialog.getColor` call in the tree lacks the non-native option --
   a grep test, so a seventh site cannot reintroduce it.
 * Choosing a width does not open a colour dialog at all.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- ITEM 2 DONE FOR THREE OF THE SIX SITES (TERRITORY B). ITEMS 1, 3,
+4 ARE fast_plots.py AND ARE NOT.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+`spacr/qt/widgets/colour_picker.py` -- `pick_colour(parent, initial, title)`,
+the one colour picker, passing `QColorDialog.ColorDialogOption
+.DontUseNativeDialog`. Returns an INVALID QColor on cancel rather than None,
+deliberately: every existing call site already tests `.isValid()`, so adopting
+it is a one-line change per site and a cancel cannot silently become a colour.
+An unusable initial value ("auto", "none", "") opens on white instead of
+transparent black.
+
+Wired at the three sites in this territory:
+
+    figure_queue.py  _FigureSettingsDialog._pick
+    figure_settings.py  _colour_button
+    dna_rain.py  DnaRainSettingsBar.pick_color
+
+`QColorDialog` is no longer imported by any of the three.
+
+STILL OPEN, another agent's file: the sites in `fast_plots.py` (there were
+three when this file was written; there are four now). They are named in
+`tests/qt/test_colour_picker.py::PENDING`, which is a DEBT AND NOT A DESIGN --
+delete the entry when they land, and never add to it.
+
+TESTS  tests/qt/test_colour_picker.py, 8 tests. Two are structural greps over
+the whole package, done with `ast` rather than a regex so a call spanning
+lines is still one call:
+
+    test_no_call_site_asks_for_the_platform_colour_dialog
+    test_only_the_helper_names_get_color_at_all       <- so a seventh cannot
+                                                        appear anywhere
+
+The rest drive the helper and the two swatch widgets and assert the option
+actually reaches Qt.
+
+HONEST ABOUT THE EVIDENCE, as this file already insists. The portal stall
+CANNOT be reproduced headless -- offscreen Qt never asks the portal, so
+nothing in the suite can watch it appear or disappear. "The portal is the
+minute" remains a named hypothesis; what is now proven is only that no call
+site can ask for the platform dialog. Confirming it needs the maintainer's
+real display: open the current build, pick a line width, and time how long the
+COLOUR dialog takes to appear.
