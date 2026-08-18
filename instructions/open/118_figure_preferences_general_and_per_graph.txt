@@ -77,3 +77,113 @@ a Word document. Both halves belong to this instruction now.
 One request spanned seven instructions; the whole of it is quoted in
 instructions/open/119_the_regression_figure_surface.txt, which indexes the
 pieces.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE PANEL SHIPPED. The model was already there; the way in was not.
+--------------------------------------------------------------------------------
+
+WHAT THE STATE ACTUALLY WAS, audited rather than read off this header. The
+MODEL for 118 had already been built by somebody:
+
+    spacr/figure_style.py            GENERAL_DEFAULTS (19 keys), GRAPH_DEFAULTS
+                                     (7 kinds, 37 keys), resolve(), rc_params()
+    spacr/qt/preferences.py          get/set_figure_style,
+                                     get/set_figure_style_per_graph,
+                                     apply_figure_style
+    spacr/figures/style.py           user_overrides(): the user's DELTAS laid
+                                     over the publication house style
+
+Every layer existed and nothing could set any of it. The Figures tab held
+format, DPI, cache size and the dynamic switch -- all about the FILE, none
+about how a plot LOOKS. So the stores were empty for everybody and the whole
+mechanism was unreachable, which is the "described but unreachable backend
+box" failure this repo has shipped before.
+
+WHAT SHIPPED
+
+  `FigureStylePreferences` in spacr/qt/widgets/figure_settings.py, on the
+  Figures tab under a "Graph style" heading. Measured on the real dialog:
+  19 general controls, 7 graph types, 37 per-kind controls, built in 5.9 ms
+  (the whole Preferences dialog is 17.1 ms).
+
+  BUILT FROM `figure_style`'S OWN TABLES, not from a hand-written list. A key
+  added to GENERAL_DEFAULTS or GRAPH_DEFAULTS gains a control without this
+  panel being edited -- the same decision `add_style_entries` made for
+  instruction 108, and two tests assert it by comparing the control set
+  against the dicts.
+
+  THE CONTROL KIND COMES FROM THE VALUE: bool -> checkbox, a key with a closed
+  set -> combo, `#rrggbb` -> colour button, float/int -> spin box, else a line
+  edit. From the VALUE and not from a declared type, for 108's own reason:
+  these are plain dicts with no annotations at all.
+
+  ONE GRAPH KIND AT A TIME, from a combo over a hidden QTabWidget. Seven kinds
+  times a dozen settings is eighty-odd rows, and a preferences tab that long
+  is one nobody finds anything in. One page per kind rather than a rebuild on
+  change, so switching kinds cannot lose an edit made on another.
+
+  THE STORE KEEPS DELTAS, WHICH IS NOT AN OPTIMISATION. `figures.style.
+  user_overrides` returns only the keys the user MOVED, precisely so that a
+  fresh install draws the published house style; a panel that wrote every
+  control back would freeze today's defaults into everybody's settings AND
+  replace the house style for every user who had ever opened the tab. Same
+  class of mistake as 152 A's persisted resolution, one layer up. There is a
+  test that an untouched panel stores {}.
+
+  FLOATS ARE COMPARED WITH A TOLERANCE. `grid_width` is 0.6 and a two-decimal
+  spin box returns 0.6000000000000001, so an exact comparison would mark
+  every user as having overridden a setting they never touched.
+
+  A STORED VALUE THE PACKAGE NO LONGER OFFERS IS KEPT AND SHOWN as
+  "<value> (not offered)" rather than snapped to the first entry. Silently
+  changing a user's setting inside the dialog that exists to show them their
+  settings is the worst possible place to do it.
+
+  RESET WORKS. Preferences' "Reset to defaults" re-reads every other getter
+  against a throwaway store; this panel holds its controls, not its store, so
+  it is told directly. Each control's SETTER is built beside its getter, so
+  a new control kind cannot be forgotten by the reset -- and the colour
+  button's swatch is repainted, because a reset the user cannot see did not
+  happen.
+
+MEASURED END TO END, through the dialog's own Save and not through the setter
+it calls:
+
+    panel: palette=muted, font_size=17, grid=off, volcano marker_size=44
+    stored general  {'font_size': 17.0, 'palette': 'muted', 'grid': False}
+    stored per-graph {'volcano': {'marker_size': 44.0}}
+    rcParams after apply_figure_style('volcano')
+        font.size   10.0 -> 17.0
+        prop_cycle  #1f77b4 -> #4878d0     (matplotlib's -> seaborn muted)
+    resolved volcano marker_size        44.0
+    resolved plate_heatmap marker_size  28.0   <- the acceptance criterion
+    figures.style.user_overrides('volcano')
+        {'font.size': 17.0, 'axes.grid': False, 'lines.markersize': 6.63}
+
+TESTS  tests/qt/test_the_figure_preferences_are_general_and_per_graph.py, 16,
+including the instruction's own "a volcano-specific point size does not alter
+the plate heatmaps" driven through `resolve`, and two that drive the real
+PreferencesDialog -- one asserting the panel is under `PreferencesTabFigures`,
+one clicking Save.
+
+WHAT REMAINS, and it is the 2026-08-16 restatement rather than the header:
+
+  * "figures should not have a background not black not white just
+    transparent". THE LIVE FIGURE ALREADY IS: `auto_figure_colors()` resolves
+    the background to TRANSPARENT_FIGURE_BG and has since 2026-08-06 (152 A).
+    What is not is `figure_style.GENERAL_DEFAULTS["background"] = "#FFFFFF"`,
+    which is a different key for a different job -- the house style's page.
+    The two overlap and neither knows about the other, which is the same
+    finding instruction 127 recorded about the two style systems. Reconciling
+    them means editing spacr/figure_style.py, NOT this territory, so the
+    background row here is a plain colour button and cannot express
+    "transparent" yet. HANDED OFF.
+  * The closed sets for `error_bars`, `bins`, `aspect` and `colormap` are
+    declared in figure_settings.STYLE_CHOICES because figure_style.py is not
+    this territory. They are read off the comments beside the defaults
+    ("sem | sd | ci95 | none") and belong in that module as field metadata
+    the next time it is opened. `spines` is already derived from its
+    SPINE_PRESETS rather than copied, which is what all of them should be.
+  * The EXPORT half of the restatement -- "white-on-transparent is invisible
+    in a Word document" -- is instruction 150's `print_ready`, which shipped.
