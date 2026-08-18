@@ -1,0 +1,177 @@
+================================================================================
+THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18, from the cells-behind-a-gene feature --
+
+  "the coefficient table on the screen was not read from a run folder ... it is
+   true ... but that is because it was not externally loaded it was run in the
+   application so the application should know where the run folder is given
+   that it just created it. this information should all be saved is whatever
+   form in the run. for this feature there should also be more settings ...
+   for each well that is pulled it should get its own tab that is only closed
+   when an x in the top left of the tab (which states the well and gRNA) is
+   clicked ... how is the infered classefication score calculated here? please
+   discribe that to me and if appropreate give the user some settings to
+   influence how stringent this equation is."
+
+Related: 131 built this feature. 154 G / 153 are the run-is-loaded work. 116 is
+         per-run state. 99 resolves hits back to cells.
+
+--------------------------------------------------------------------------------
+A. THE APPLICATION FORGETS A FOLDER IT CREATED ITSELF
+--------------------------------------------------------------------------------
+
+CONFIRMED 2026-08-18. `ml.py:5954` writes `regression_data.csv` into
+`res_folder`, so the run knows exactly where it is. And:
+
+    grep -n "res_folder|run_folder|_folder" spacr/qt/widgets/regression_results.py
+    -> NOTHING
+
+The results panel never receives it. So `results_provider` has nothing to
+return for a LIVE run, and the montage reports RESULTS_WITHOUT_A_FOLDER
+(`cell_montage_view.py:660`) -- a sentence that is literally true and
+practically absurd: the application is telling the user it cannot find a folder
+it created ten seconds earlier.
+
+THE FIX IS NOT A BETTER MESSAGE. The run must carry its own folder, and every
+view that needs it asks the run rather than the widget that happens to hold the
+table. Per the request: "this information should all be saved in whatever form
+in the run" -- so it is written into the run, not merely passed in memory, and a
+run reloaded from disk answers the same question the same way. 154 G already
+made a finished run the LOADED run and gave a run on disk first-class status;
+this is the same object gaining the one attribute it was missing.
+
+ALSO: the sentence should say "the LOADED coefficient table", which is what the
+user calls it. "The coefficient table on screen" describes a widget; the user is
+thinking about a run.
+
+WHAT MUST STILL BE SAID: a table genuinely pasted or opened from a bare CSV has
+no run folder, and that case keeps its message. The bug is that a run made in
+the application takes the same branch as a stray CSV.
+
+--------------------------------------------------------------------------------
+B. HOW THE SCORE IS CALCULATED -- WRITE IT WHERE THE USER CAN READ IT
+--------------------------------------------------------------------------------
+
+Asked directly, so it is recorded here in full and must also appear ON SCREEN.
+`cell_montage.score_window` (spacr/cell_montage.py:380):
+
+    baseline  = median per-object score over EVERY object supplied
+                (the whole screen, not the gene's wells)
+    target    = baseline + effect          <- SCORE_TARGET_RULE
+    scale     = 1.4826 * MAD of the same screen-wide scores
+    window    = target +/- half_widths * scale     (half_widths = 1.0)
+    "closest" = smallest |score - target|
+
+WHY `baseline + effect` IS THE TARGET: under the well-level model a well scores
+`baseline + fraction * effect`, so a well made ENTIRELY of cells carrying the
+guide would score `baseline + effect` -- which is the score one such cell
+implies. It is an inference from a pooled fit, not a measurement of that cell.
+
+HOW MANY COME FROM EACH WELL: `round(n_objects_in_well * guide_fraction)`
+(`objects_to_show`), the expected number carrying the guide. 200 cells at 15%
+gives 30. A well rounding to zero is REPORTED as a zero-contribution well rather
+than vanishing. Halves round away from zero, not banker's rounding, so the
+caption's "round(n x fraction)" is reconstructable.
+
+DEGENERATE CASES ALREADY HANDLED: MAD of zero falls back to the plain standard
+deviation, and if that is zero too the window is infinite and SAYS it is
+degenerate rather than admitting nothing.
+
+THE ONE-WIDTH RULE IS DELIBERATE AND MUST SURVIVE ANY SETTING ADDED HERE.
+`WINDOW_HALF_WIDTHS` is one number for the whole screen and every coefficient,
+because "a window recomputed per gene is a window that can be tuned until the
+pictures look right, and nothing in the output would show that it had been."
+
+--------------------------------------------------------------------------------
+C. THE SETTINGS, AND THE ONE RULE THEY MAY NOT BREAK
+--------------------------------------------------------------------------------
+
+"give the user some settings to influence how stringent this equation is."
+
+  * WINDOW HALF-WIDTH (`half_widths`, default 1.0 robust scales). The direct
+    stringency control. Already an argument and already written into the
+    caption when overridden -- surface it.
+  * BASELINE SOURCE: the screen median (default) or THE FITTED INTERCEPT, which
+    `score_window` already accepts as `baseline=` and records as 'given'. The
+    intercept is the model's own answer and is arguably the better one; offer
+    both and say which is in force.
+  * SCORE COLUMN (`pred` by default) -- a screen with more than one classifier
+    output has more than one candidate.
+  * MAX OBJECTS (`MAX_OBJECTS`, 300) with its measured cost visible: the merged
+    source is priced by FIELDS TOUCHED, not crops cut -- 300 crops cost 11.43
+    ms each over 30 fields against 2.58 ms over 6.
+  * PER-GUIDE OR SUMMED for a gene with several guides
+    (`select_montage_per_guide` exists).
+
+EVERY ONE OF THESE CHANGES WHICH CELLS A READER IS LOOKING AT, so every one is
+written into the caption, and a non-default value says so ON the montage.
+THE SETTING IS PER SCREEN, NEVER PER GENE. A per-gene width is the tuning the
+module was built to prevent; if a per-gene control is ever wanted it must record
+itself so loudly that a figure made that way cannot be mistaken for one that
+was not.
+
+--------------------------------------------------------------------------------
+D. A TAB PER WELL, CLOSED ONLY BY ITS OWN X
+--------------------------------------------------------------------------------
+
+"for each well that is pulled it should get its own tab that is only closed when
+an x in the top left of the tab (which states the well and gRNA) is clicked."
+
+  * ONE TAB PER WELL, not one montage of everything. The well is the unit the
+    fraction and the count are defined on, so it is the unit a user checks.
+  * THE TAB'S LABEL NAMES THE WELL AND THE gRNA, both, because a gene with
+    several guides pulls the same well more than once and two tabs called
+    `p1_r3_c7` are indistinguishable.
+  * THE X IS THE ONLY WAY IT CLOSES. It must survive selecting another
+    coefficient, re-sorting the table and re-running -- comparing two genes'
+    cells side by side is the whole point, and a tab that closes itself when
+    the selection moves makes that impossible.
+  * BOUNDED, and the bound stated: tabs hold pixmaps, so say what the limit is
+    rather than letting a user discover it by filling memory.
+
+--------------------------------------------------------------------------------
+E. WHAT MUST BE TRUE FOR IT TO WORK -- THE CONTRACT, AS THE MAINTAINER STATES IT
+--------------------------------------------------------------------------------
+
+  1. The database tables -- AT MINIMUM `png_list` -- can be merged with the
+     classification scores.
+  2. The measurements database sits in:
+
+         folder/measurements/measurements.db
+         folder/data/      <- the exported PNGs
+         folder/merged/    <- the arrays crops can be cut from
+
+TWO ROUTES TO PIXELS, AND THEY NEED DIFFERENT THINGS. State the requirement,
+check it up front, and name what is missing instead of failing later:
+
+  ROUTE 1 -- LIVE CROP FROM `merged/`. Needs IMAGE CHANNELS, THE MASK ARRAY, and
+  A BOUNDING BOX OR OBJECT ID. With an object id the crop follows the object's
+  own mask; that is the better picture and the one worth defaulting to.
+
+  ROUTE 2 -- COORDINATES FROM A TABLE, then crop from the merged arrays. Needs
+  THE TABLE AND THE CHANNELS. BOUNDING-BOX CROPS ONLY -- there is no mask in
+  this route, so an object-shaped crop cannot be offered and must not appear as
+  a choice that silently does something else.
+
+`crops.resolve_crop_source` and `cell_montage.resolve_montage_crop_source`
+already choose between the PNGs and `merged/` AND say which they chose. This
+adds the two routes' own requirements to that answer, so a user missing a
+channel list is told THAT rather than being told there is no source.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Run a regression in the application, click a gene, and the montage appears --
+  no "Load run…", no folder to point at. The run knew where it was.
+* The same run, reopened from disk in a later session, behaves identically.
+* Each well is its own tab, labelled with well AND gRNA, and stays open until
+  its x is clicked -- including after another coefficient is selected.
+* The montage states the target, the baseline and its source, the window in
+  robust scales, and `round(n x fraction)` for each well, in words a reader can
+  check the arithmetic from.
+* Changing the half-width changes which cells appear AND changes the caption.
+* A screen missing the channel list is told the channel list is missing.
