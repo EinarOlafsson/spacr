@@ -175,3 +175,40 @@ the previous code, and the acceptance one fails with the bug's own signature --
 WHAT REMAINS: section B (the axis limits) and section C (grid and log onto the
 right-click menu). Section C waits on instruction 147 C, which owns the menu
 categories the two entries go under.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION B SHIPPED. THE LIMITS ARE IN DATA UNITS.
+--------------------------------------------------------------------------------
+
+`axis_limits()` and `set_axis_limits()` both speak DATA units now, whatever
+the scale, and the conversion is this class's own because the transform is.
+The dialog's prompt says so on a logged axis -- "Y from in data units, not
+log10:" -- and says nothing extra on a linear one, where there is nothing to
+disambiguate.
+
+The pin is REMEMBERED as well as applied (`_pinned`, in data units), which is
+what makes a scale change keep the same data window rather than leaving the
+view wherever the old units put it. Rounding is avoided by keeping what was
+typed rather than re-deriving it from the drawn range.
+
+Three ways out of a pin, all of them needed:
+  * "Axis limits: back to automatic" forgets it, so a later scale change does
+    not put the old window back.
+  * a mouse drag or wheel forgets it -- `sigRangeChangedManually` -- because
+    panning by hand is the user saying "not that window any more", and a plot
+    that snapped back would be arguing with the person driving it.
+  * a limit that cannot survive a scale change (a non-positive bound on a
+    newly logged axis) is dropped rather than clamped.
+
+A non-positive limit TYPED on a logged axis is refused with the reason in the
+status line. Substituting a bound nobody typed is how a figure comes to show
+a range nobody chose.
+
+VERIFIED SURVIVING: `set_results` with a different family, `colour_by_column`,
+a redraw with the scale on, and the scale being switched under a live pin.
+Tests: the section B block of tests/test_the_axes_behave_as_expected.py, nine
+of them. 27 in the file, all green.
+
+WHAT REMAINS in 148: section C -- grid and log out of the QCheckBox strip and
+onto the right-click menu -- which waits on instruction 147 C for the
+categories they go under.
