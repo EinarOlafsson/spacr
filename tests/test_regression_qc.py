@@ -1806,16 +1806,48 @@ def _all_fitted_models(n=240, seed=200):
         "ridge": (continuous, {"alpha": 1.0}),
         "elasticnet": (continuous, {"alpha": 0.01, "l1_ratio": 0.5}),
         "hinge": (continuous, {"hinge_threshold": float(continuous.median())}),
+        # The two backends that answer the gene question WITHOUT forming
+        # `gene_fraction` -- the sum of a gene's guide fractions, which makes
+        # a guide-and-gene design singular by construction. They join this
+        # sweep for the same reason as every other family: the QC report has
+        # to describe the fit that actually ran.
+        #
+        # `rra_permutations` is small here on purpose. The default is 10,000
+        # per distinct guide count, which is right for a screen and is a
+        # quarter of a second of pure permutation per fixture in a test that
+        # already drives seventeen families.
+        "group_lasso": (continuous, {"group_lasso_lambda": 0.01}),
+        "rra": (continuous, {"rra_alpha": 0.25, "rra_permutations": 200}),
     }
     # horseshoe is the one type with no fitted values at all; it has its own
     # test above and cannot be built without spacr.power_model.
     assert set(plan) | {"horseshoe"} == set(REGRESSION_TYPES), (
         "a regression type appeared or vanished; the QC sweep must follow it")
 
+    # A SCREEN-SHAPED DESIGN FOR THE TWO THAT NEED ONE.
+    #
+    # `group_lasso` penalises a GENE's guide columns as one block and refuses
+    # a design where every column would be its own block -- which is ordinary
+    # lasso under another name, and is exactly what this fixture's
+    # ['Intercept', 'x1', 'x2'] would give it. `rra` groups guides by gene for
+    # the same reason. Both read the gene off the COLUMN NAME, so they need
+    # the terms `prepare_formula` actually builds.
+    #
+    # Same data, renamed: two guides of one gene and two of another, so there
+    # is a block to keep or drop and a rank to aggregate.
+    screen_X = X.rename(columns={
+        "x1": "fraction:grna[224750_1]",
+        "x2": "fraction:grna[224750_2]",
+    })
+    screen_X["fraction:grna[201180_1]"] = X["x1"] * 0.6 + X["x2"] * 0.4
+    screen_X["fraction:grna[201180_2]"] = X["x1"] * 0.4 - X["x2"] * 0.6
+
+    shaped = {"group_lasso", "rra"}
     fits = {}
     for name, (y, kwargs) in plan.items():
-        model = regression_model(X, y, regression_type=name, **kwargs)
-        fits[name] = (model, X, y, kwargs.get("weights"))
+        design = screen_X if name in shaped else X
+        model = regression_model(design, y, regression_type=name, **kwargs)
+        fits[name] = (model, design, y, kwargs.get("weights"))
     return fits
 
 

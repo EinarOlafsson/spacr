@@ -215,27 +215,34 @@ def test_the_sweep_turns_it_off_through_the_settings_dict(tmp_path):
     assert defaults(**settings)["regression_qc"] is False
 
 
-def test_a_base_dict_that_already_carries_the_key_defeats_that_setdefault(
-        tmp_path):
-    """MEASURED 2026-08-18, and REPORTED rather than fixed here because
-    `spacr/parameter_sweep.py` is not this slice's file.
+def test_a_base_dict_carrying_the_key_no_longer_defeats_the_sweep(tmp_path):
+    """The bug this test was written to pin, now inverted because it is fixed.
 
-    `_trial_settings` says `settings.setdefault("regression_qc", False)`,
-    which does nothing when the base dict already has the key -- and every
-    base dict built by the Tk panel, the Qt panel or `spacr-run` has it,
-    because all three build from `get_perform_regression_default_settings`
-    and it defaults to True. So the sweep pays ~5.8 s and ~19 figures per
-    trial exactly when it is driven from the application. The fix belongs in
-    parameter_sweep (assign False unless the caller asked for diagnostics),
-    not here: taking the key out of the defaults would remove the only way
-    the sweep has of saying no at all.
+    MEASURED 2026-08-18: `_trial_settings` said
+    `settings.setdefault("regression_qc", False)`, which does nothing when
+    the base dict already has the key -- and every base dict built by the Tk
+    panel, the Qt panel or `spacr-run` has it, because all three build from
+    `get_perform_regression_default_settings` and it defaults to True. So the
+    sweep paid ~5.8 s and ~19 figures per trial exactly when it was driven
+    from the application: roughly ten minutes and two thousand files per
+    hundred trials.
 
-    Pinned so the day parameter_sweep is fixed, this says so."""
+    A DICT CANNOT TELL "the panel filled this in" from "I asked for this",
+    which is why the fix was a `qc=` parameter and an assignment rather than
+    a setdefault. Taking the key out of the defaults would have removed the
+    only way the sweep has of saying no at all, which is why it was not that.
+    """
     from spacr.parameter_sweep import _trial_settings
 
     settings, _folder = _trial_settings(
         defaults(), {"trial_id": 2, "alpha": 1}, str(tmp_path))
-    assert settings["regression_qc"] is True
+    assert settings["regression_qc"] is False, (
+        "a base dict carrying the panel's default must not turn the "
+        "diagnostic suite on for every trial of a sweep")
+
+    asked, _folder = _trial_settings(
+        defaults(), {"trial_id": 3, "alpha": 1}, str(tmp_path), qc=True)
+    assert asked["regression_qc"] is True
 
 
 # ---------------------------------------------------------------------------
