@@ -105,3 +105,93 @@ HOW TO KNOW IT WORKED
 * No message claims the panel was opened from disk unless it was.
 * An old run folder holding `mode_summary.csv` still shows its summary; new
   runs write `model_summary.txt`.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SHIPPED, ALL OF A AND B AND C. Commit cab06a6b.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+A. THE FILE IS READ BACK. `regression_results.find_summary_file(path)` takes a
+   results CSV, a run folder, or a parent of one and returns the summary
+   beside the table that was actually chosen. `summary_text` grew two keyword
+   arguments -- `path=` and `reason=` -- and with no live model it reads the
+   file and prefixes it with
+
+       Read from <path>: this is the run's own summary, written when it was
+       fitted, not recomputed here.
+
+   Nothing is recomputed and no fit is repeated. Driven through the real
+   AppScreen: Load run… -> the Results tab -> the Summary tab holds the run's
+   own text.
+
+   THE PROOF THAT IT IS READ AND NOT RE-RENDERED, worth keeping because it
+   cost ten minutes to interpret: a fresh `model.summary().as_text()` differs
+   from the file in exactly one place, the `Time:` field in the header. An
+   equality test against a re-render therefore FAILS even when the feature is
+   perfect. Compare against the bytes on disk, not against a new render.
+
+A'. THE NAME. `spacr.ml.SUMMARY_FILENAME` is `model_summary.txt` and
+   `SUMMARY_FILENAMES` is `(model_summary.txt, mode_summary.csv,
+   summary.csv)` -- newest first, all three read. `save_summary_to_file`'s
+   default moved to the new name, it makes its parent folder, it returns the
+   path it wrote, and it no longer raises: a backend with no `summary()` and
+   one whose `summary()` throws both come back `None` rather than taking a
+   finished run down over a text file.
+
+A''. ONE DEFECT THE INSTRUCTION DID NOT KNOW ABOUT. The save was INSIDE the
+   `if settings['verbose']:` branch, beside the `print`. So a quiet run --
+   the normal case -- wrote no summary at all, and "the summary is already on
+   disk" was true only for verbose runs. It is written unconditionally now;
+   printing stayed behind `verbose`, where it belongs. A test holds the
+   indentation relationship, because this is the kind of thing a later edit
+   re-introduces silently.
+
+B. THE MODEL IS STORED FIRST. `set_diagnostics` assigns `self._model` before
+   it imports regression_qc or builds a context; the three failure branches
+   now go through a new private `_clear_diagnostic_views`, which empties the
+   tabs and says why WITHOUT discarding the fit. `clear_diagnostics` still
+   drops it, because it is called when a NEW TABLE arrives and the old fit has
+   nothing to say about that.
+
+   So a fit whose diagnostics cannot be built still shows its summary, and the
+   three tabs carry the error that stopped them.
+
+B'. NO MESSAGE ASSERTS A CAUSE IT HAS NOT CHECKED. `_no_model_reason` returns
+   only reasons that actually happened:
+     * the diagnostics failed and the fit was not kept (naming the error) --
+       defensive now, since B makes it unreachable;
+     * `NO_MODEL_FROM_THIS_RUN`, when a run of this session handed over its
+       settings and no model. `set_run_settings` is called ONLY by the live
+       path, which is what makes "from a run" checkable rather than guessed;
+     * otherwise `summary_text` decides from what it can see: a path means
+       disk, no path means nothing has been fitted yet.
+
+C. `set_frame` refreshes the Summary tab. It did not, so a table opened from
+   disk sat under the PREVIOUS run's statsmodels output with nothing saying
+   whose it was -- a stale summary is worse than an absent one.
+
+TESTS: tests/test_the_model_summary_survives_being_loaded_from_disk.py, 23 of
+them. tests/test_the_regression_summary_is_a_tab.py lost its assertion that a
+bare `summary_text(None)` says "results table on disk" -- that was the false
+explanation this instruction is about, asserted as a property.
+
+WHAT REMAINS
+
+* NOTHING IN 153. Every path ends in a summary or a sentence that was checked.
+* The api-i18n ratchet wants +6 for the public surface added across 153 and
+  154 G -- `find_summary_file`, `SweepRunsPanel.loaded_run`,
+  `.loaded_run_folder`, `.set_loaded_run`, `.load_run_from_disk`, and
+  `CellMontageView.loaded_run_name`. The documented CONSTANTS do not count;
+  only functions and methods with docstrings do. Measured, not guessed:
+  the counter reads 7214 against a reviewed 7185, and the other 23 are
+  another session's.
+
+ONE FINDING WORTH NOT REDISCOVERING
+
+`RegressionResultsPanel._path` is a FOLDER when a live run hands the table
+over (`res_folder`) and a CSV FILE PATH when `load()` found it on disk. Every
+reader has to handle both -- `find_summary_file` does, and so does
+`CellMontageView.loaded_run_name`. It is not a bug worth changing under this
+instruction, but it is a trap: `os.path.dirname(panel._path)` is right in one
+case and silently wrong in the other.
