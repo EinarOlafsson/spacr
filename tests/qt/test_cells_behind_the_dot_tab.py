@@ -361,9 +361,9 @@ def test_the_caption_always_says_membership_is_inferred(qtbot, tmp_path):
     assert "INFERRED, not observed" in caption
     assert "pooled screen" in caption
     assert "GRA14" in caption
-    # And the thumbnails do not claim otherwise either.
-    thumbs = [view._grid.itemAt(i).widget() for i in range(view._grid.count())]
-    tips = [t.toolTip() for t in thumbs if t is not None]
+    # And the thumbnails do not claim otherwise either -- across every
+    # per-well tab, which is where the pictures now are.
+    tips = [t.toolTip() for t in view.thumbnails()]
     assert tips and all("membership is inferred" in tip for tip in tips)
     assert not any("carries" in tip for tip in tips)
 
@@ -390,12 +390,13 @@ def test_a_coefficient_whose_wells_contribute_nothing_says_so_not_a_blank_grid(
     plan = view.plans()[0]
     assert plan.is_empty
     assert view.images()[0] == ()
-    labels = [view._grid.itemAt(i).widget().text()
-              for i in range(view._grid.count())
-              if hasattr(view._grid.itemAt(i).widget(), "text")]
-    assert any("No object was selected" in text for text in labels)
-    assert "INFERRED, not observed" in view.caption_text()
-    assert "OUTSIDE the observed range" in view.caption_text()
+    # No well contributed, so no well tab was opened -- and the summary says
+    # so rather than leaving a blank rectangle to be read as a bug.
+    assert view.well_tabs() == ()
+    caption = view.caption_text()
+    assert "no object was selected" in caption
+    assert "INFERRED, not observed" in caption
+    assert "OUTSIDE the observed range" in caption
 
 
 def test_one_guide_at_a_time_is_a_different_question_and_says_which(qtbot,
@@ -621,7 +622,7 @@ def test_the_thumbnail_is_the_view_and_the_crop_underneath_is_untouched(
     view.build()
     crop = view.images()[0][0]
     assert max(crop.shape[:2]) != THUMBNAIL_PX or crop.shape[0] == crop.shape[1]
-    thumb = view._grid.itemAt(0).widget()
+    thumb = view.thumbnails()[0]
     assert thumb.pixmap().width() <= THUMBNAIL_PX
 
 
@@ -704,11 +705,25 @@ def test_opening_the_tab_re_reads_what_it_can_now_do(screen, tmp_path,
 
 def test_the_results_path_provider_names_the_run_now_on_screen(screen,
                                                                tmp_path):
-    """regression_data.csv is written beside the coefficient table."""
+    """regression_data.csv is written beside the coefficient table.
+
+    THE FOLDER IS THE ANSWER, however it is spelled. ``load`` resolves a file
+    to its directory before reading, because ``regression_data.csv`` sits
+    beside whichever coefficient table the panel loaded -- so the contract
+    this provider owes is "a path that identifies the run's folder", and it
+    is held that way rather than against one of the two spellings. Instruction
+    155 A moved it from the CSV to the folder; both satisfy the montage and a
+    test pinned to the old spelling would have failed for a fix.
+    """
     _root, _db, results_csv = _screen(tmp_path, with_png=True)
     assert screen._results_source_path() == ""
     screen._results_panel.load(results_csv)
-    assert screen._results_source_path() == results_csv
+
+    named = screen._results_source_path()
+    assert named
+    folder = os.path.dirname(named) if os.path.isfile(named) else named
+    assert os.path.abspath(folder) == os.path.abspath(
+        os.path.dirname(results_csv))
 
 
 def test_a_screen_that_is_not_the_regression_module_has_no_cells_tab(qtbot):
@@ -884,9 +899,7 @@ def test_a_merged_array_that_has_gone_missing_leaves_a_named_gap(qtbot,
     assert any(c is None for c in crops)
     assert "could not be cut" in view.caption_text()
     # The gap is a labelled placeholder in the grid, not a missing cell.
-    texts = [view._grid.itemAt(i).widget().text()
-             for i in range(view._grid.count())
-             if hasattr(view._grid.itemAt(i).widget(), "text")]
+    texts = [t.text() for t in view.thumbnails() if hasattr(t, "text")]
     assert "no crop" in texts
     # And the figure draws it as one too.
     figure = montage_figure(view.plans(), view.images(), columns=4)
@@ -957,9 +970,13 @@ def test_a_source_that_hands_back_the_wrong_thing_does_not_crash_the_grid(
     too_many = tuple([grey] * (plan.n_objects + 1))
     view._on_loaded(MontageLoad(plans=(plan,), images=(too_many,)))
     assert view.plans() == (plan,)
-    thumbs = [view._grid.itemAt(i).widget() for i in range(view._grid.count())]
-    assert len(thumbs) == plan.n_objects + 1
-    assert thumbs[0].pixmap().width() == THUMBNAIL_PX
+    thumbs = view.thumbnails()
+    # The greyscale array is widened to RGB rather than refused...
+    assert thumbs and thumbs[0].pixmap().width() == THUMBNAIL_PX
+    # ...and the extra image, which pairs with no selected object, is NOT
+    # drawn into some well it does not belong to. It is counted and said.
+    assert len(thumbs) == plan.n_objects
+    assert f"returned {plan.n_objects + 1} images" in view.caption_text()
 
 
 def test_saving_through_the_dialog_honours_a_cancelled_dialog(qtbot, tmp_path,
@@ -993,25 +1010,27 @@ def test_the_grid_reflows_when_the_tab_gets_wider(qtbot, tmp_path):
     # count would not move and the test would prove nothing. It is the same
     # trap that made a snapshot of the unshown volcano one flat colour.
     view.show()
-    qtbot.waitUntil(lambda: view._scroll.viewport().width() > 0, timeout=5000)
+    qtbot.waitUntil(lambda: view._tabs.width() > 0, timeout=5000)
     view.set_coefficient(GENE_KEY)
     view.build()
     narrow = view._columns
     assert narrow >= 1
+    assert view.well_tabs()
 
     view.resize(1600, 900)
     qtbot.waitUntil(lambda: view._columns > narrow, timeout=5000)
     # A second reflow at the same width is a no-op rather than a rebuild.
-    before = view._grid.count()
+    tab = view.well_tabs()[0]
+    before = tab._grid.count()
     view._relayout()
-    assert view._grid.count() == before
+    assert tab._grid.count() == before
 
     # And with nothing on screen there is nothing to reflow.
     empty = CellMontageView(threaded=False)
     qtbot.addWidget(empty)
     empty.resize(900, 600)
     empty._relayout()
-    assert empty._grid.count() == 0
+    assert empty.well_tabs() == ()
 
 
 def test_a_montage_never_outlives_the_point_it_was_built_for(qtbot, tmp_path):
@@ -1092,3 +1111,387 @@ def test_closing_the_regression_screen_shuts_the_cells_loader_down(screen,
     screen.close()
     assert screen._cell_montage._pending is None
     assert not screen._cell_montage._jobs.is_busy()
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 D -- a tab per well, closed only by its own x
+# --------------------------------------------------------------------------- #
+
+def test_every_well_that_contributes_gets_its_own_tab(qtbot, tmp_path):
+    """THE WELL IS THE UNIT the fraction and the count are defined on.
+
+    Three wells report GRA14 and all three contribute, so there are three
+    tabs -- and the objects in each are that well's, not a slice of one
+    montage of everything.
+    """
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    assert view.build() is True
+
+    plan = view.plans()[0]
+    tabs = view.well_tabs()
+    assert len(tabs) == 3
+    per_tab = {tab.key[3]: len(tab.thumbs()) for tab in tabs}
+    assert per_tab == {"plate1_r1_c1": 4, "plate1_r1_c2": 1,
+                       "plate1_r1_c3": 4}
+    assert sum(per_tab.values()) == plan.n_objects
+    # Each tab is self-contained: it names its own well, its own count and
+    # the coefficient, so it can be read beside another gene's.
+    caption = tabs[0].caption_text()
+    assert "well plate1_r1_c1" in caption
+    assert "round(8 x 0.5) = 4" in caption
+    assert "GRA14" in caption
+    assert "INFERRED, not observed" in caption
+
+
+def test_the_tab_label_names_the_well_and_the_grna_both(qtbot, tmp_path):
+    """Two tabs called ``plate1_r1_c1`` are indistinguishable."""
+    from spacr.qt.widgets.cell_montage_view import well_tab_label
+
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    labels = view.tab_labels()
+    assert labels[0] == "Summary"
+    assert labels[1:] == ("plate1_r1_c1 · GRA14 (2 guides)",
+                          "plate1_r1_c2 · GRA14 (2 guides)",
+                          "plate1_r1_c3 · GRA14 (2 guides)")
+
+    # ONE GUIDE AT A TIME names the guide, and the gene it belongs to -- the
+    # guide-level coefficient GRA14_1 and the GENE GRA14 shown one guide at a
+    # time both produce a tab for GRA14_1 in the same well, and they are
+    # different montages with different effects and different cells.
+    assert well_tab_label("p1_r3_c7", ("GRA14_1",), "GRA14_1",
+                          "grna") == "p1_r3_c7 · GRA14_1"
+    assert well_tab_label("p1_r3_c7", ("GRA14_1",), "GRA14",
+                          "gene") == "p1_r3_c7 · GRA14_1 (of GRA14)"
+    assert well_tab_label("p1_r3_c7", (), "GRA14") == "p1_r3_c7 · GRA14"
+
+
+def test_a_well_tab_survives_the_selection_moving_and_a_re_run(qtbot,
+                                                               tmp_path):
+    """"comparing two genes' cells side by side is the whole point".
+
+    A tab that closed itself when the selection moved would make that
+    impossible, so the tabs stay and the SUMMARY -- which describes the
+    selection -- is what is emptied.
+    """
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    before = view.tab_labels()
+    assert len(before) == 4
+
+    view.set_coefficient(GUIDE_KEY)
+    assert view.tab_labels() == before        # the tabs stayed
+    assert view.caption_text() == ""          # the summary did not
+    assert view.plans() == ()
+
+    view.build()
+    after = view.tab_labels()
+    assert set(before) <= set(after)          # nothing was taken away
+    assert "plate1_r1_c1 · GRA14_1" in after  # and the new gene arrived
+
+    # RE-RUNNING THE SAME COEFFICIENT REFRESHES, it does not duplicate.
+    view.build()
+    assert view.tab_labels() == after
+
+
+def test_a_well_tab_closes_by_its_own_x_and_by_nothing_else(qtbot, tmp_path):
+    """The x is in the top left, which is not where Qt's style puts it."""
+    from PySide6.QtCore import Qt as _Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QTabBar
+
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    bar = view._tabs.tabBar()
+
+    # The summary has no x at all -- it is where every refusal is read.
+    assert bar.tabButton(0, QTabBar.LeftSide) is None
+    assert bar.tabButton(0, QTabBar.RightSide) is None
+
+    close = bar.tabButton(1, QTabBar.LeftSide)
+    assert close is not None, "the x must be on the LEFT of the tab"
+    assert bar.tabButton(1, QTabBar.RightSide) is None
+    assert "closes from here and nowhere else" in close.toolTip()
+
+    doomed = view._tabs.tabText(1)
+    QTest.mouseClick(close, _Qt.LeftButton)
+    assert doomed not in view.tab_labels()
+    assert len(view.well_tabs()) == 2
+    # And closing it did not take the montage with it.
+    assert view.plans()
+
+
+def test_the_number_of_well_tabs_is_bounded_and_the_bound_is_stated(
+        qtbot, tmp_path, monkeypatch):
+    """Tabs hold pixmaps and are only ever closed by hand, so the number is
+    bounded -- and it is SAID rather than discovered by filling memory. No
+    tab is ever closed for the user, because the x is the only way one goes.
+    """
+    import spacr.qt.widgets.cell_montage_view as module
+
+    monkeypatch.setattr(module, "MAX_WELL_TABS", 2)
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+
+    assert len(view.well_tabs()) == 2
+    caption = view.caption_text()
+    assert "1 well tab(s) were NOT opened" in caption
+    assert "plate1_r1_c3" in caption
+    assert "because 2 well tabs are already open" in caption
+    assert "close one with its × to make room" in caption
+    assert "No tab is ever closed for you" in caption
+    # And the bound is on the montage whether or not it was reached.
+    assert "Up to 2 stay open at once" in caption
+
+
+def test_a_tab_this_run_no_longer_fills_is_emptied_rather_than_left_stale(
+        qtbot, tmp_path):
+    """Found by driving the real widget: narrow the cap, re-run, and the
+    wells that dropped out kept their old thumbnails under a summary
+    describing the new settings. The tab is not closed -- only its x does
+    that -- it says it is empty."""
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    assert sum(len(t.thumbs()) for t in view.well_tabs()) == 9
+
+    view._cap.setValue(2)
+    view.build()
+    assert len(view.well_tabs()) == 3          # nothing was closed
+    assert len(view.thumbnails()) == view.plans()[0].n_objects == 2
+    emptied = [t for t in view.well_tabs() if not t._crops]
+    assert emptied
+    assert "contributed no object under the settings now in force" in \
+        emptied[0].caption_text()
+    # And the tab says it is empty rather than being a blank rectangle.
+    assert emptied[0]._note.isVisible() or emptied[0]._note.text()
+    assert "stays until its × is clicked" in emptied[0]._note.text()
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 C -- the settings, on screen and on the montage
+# --------------------------------------------------------------------------- #
+
+def test_narrowing_the_window_changes_which_cells_appear_and_the_caption(
+        qtbot, tmp_path):
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    wide = view.plans()[0].n_objects
+    assert "NON-DEFAULT" not in view.caption_text()
+
+    view._half_widths.setValue(0.05)
+    view.build()
+    assert view.plans()[0].n_objects < wide
+    assert view.plans()[0].window.half_widths == 0.05
+    assert "window half-width 0.05 instead of the default 1" in \
+        view.caption_text()
+
+
+def test_the_baseline_can_be_the_fitted_intercept_and_the_montage_says_so(
+        qtbot, tmp_path):
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    median_target = view.plans()[0].window.target
+
+    view._baseline.setCurrentIndex(1)
+    assert view.reason() == ""
+    assert view.request().baseline == pytest.approx(0.5)   # the Intercept row
+    view.build()
+    window = view.plans()[0].window
+    assert window.baseline == pytest.approx(0.5)
+    assert window.target != median_target
+    assert window.baseline_source == "the model's fitted intercept"
+    assert "baseline the model's fitted intercept" in view.caption_text()
+
+
+def test_a_table_with_no_intercept_says_so_rather_than_using_the_median(
+        qtbot, tmp_path):
+    """Falling back would caption 'the screen median' under a control reading
+    'fitted intercept', which is a different montage from the one asked for."""
+    _root, db_path, results_csv = _screen(tmp_path, with_png=True)
+    frame = pd.read_csv(results_csv)
+    frame = frame[frame["feature"] != "Intercept"]
+    view = CellMontageView(frame_provider=lambda: frame,
+                           results_provider=lambda: results_csv,
+                           database_provider=lambda: _rows(db_path),
+                           threaded=False)
+    qtbot.addWidget(view)
+    view.set_coefficient(GENE_KEY)
+    view._baseline.setCurrentIndex(1)
+    assert "names no Intercept term" in view.reason()
+    assert not view._show.isEnabled()
+    assert view.build() is False
+
+
+def test_the_score_column_and_the_cap_are_settings_the_caption_carries(
+        qtbot, tmp_path):
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view._cap.setValue(3)
+    view.build()
+    assert view.plans()[0].n_objects == 3
+    assert len(view.thumbnails()) == 3
+    assert "cap 3 objects instead of the default 300" in view.caption_text()
+
+    view._score.setText("no_such_column")
+    view.build()
+    assert "no 'no_such_column' column" in view.status_text()
+
+
+def test_the_settings_are_per_screen_and_not_per_gene(qtbot, tmp_path):
+    """One width for every coefficient. A per-gene width is the tuning this
+    module was built to prevent, so there is no per-coefficient state to
+    hold one."""
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view._half_widths.setValue(3.0)
+    view.build()
+    assert view.request().half_widths == 3.0
+
+    view.set_coefficient(GUIDE_KEY)
+    assert view.request().half_widths == 3.0     # it did not reset per gene
+    view.build()
+    assert view.plans()[0].window.half_widths == 3.0
+    assert "window half-width 3 instead of the default 1" in \
+        view.caption_text()
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 E -- the routes' requirements, on screen
+# --------------------------------------------------------------------------- #
+
+def test_the_crop_shape_is_greyed_out_where_the_route_cannot_cut_it(
+        qtbot, tmp_path):
+    """"an object-shaped crop must not appear as a choice that silently does
+    something else"."""
+    png_view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    png_view.set_coefficient(GENE_KEY)
+    assert png_view._shape.isEnabled()          # nothing has looked yet
+    png_view.build()
+    # The exported crops were cut when the run wrote them: no shape to pick.
+    assert not png_view._shape.isEnabled()
+    assert "cut when the run wrote them" in png_view._shape.toolTip()
+
+    merged, _root2, _db2, _csv2 = _view(qtbot, tmp_path / "b", with_png=False)
+    merged.set_coefficient(GENE_KEY)
+    merged.build()
+    assert merged._shape.isEnabled()
+    model = merged._shape.model()
+    assert all(model.item(i).isEnabled() for i in range(merged._shape.count()))
+    assert "live crop from merged/" in merged.caption_text()
+
+
+def test_the_crop_shape_actually_changes_the_pixels(qtbot, tmp_path):
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=False)
+    view.set_coefficient(GENE_KEY)
+    view._shape.setCurrentIndex(0)
+    view.build()
+    shaped = view.images()[0][0]
+
+    view._shape.setCurrentIndex(1)
+    view.build()
+    boxed = view.images()[0][0]
+    assert not np.array_equal(shaped, boxed)
+
+
+def test_a_run_with_no_recorded_channels_is_told_that_and_still_draws(
+        qtbot, tmp_path):
+    """The request's own sentence: told the CHANNEL LIST is missing, not
+    told there is no source."""
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=False)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    caption = view.caption_text()
+    assert view.plans()[0].n_objects > 0          # it still drew
+    assert "ASSUMED -- no channel list" in caption
+    assert "records no png_dims and none was typed" in caption
+
+    view._channels.setText("0,1,2")
+    view.build()
+    assert "no channel list" not in view.caption_text()
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 155 F -- the folder moved
+# --------------------------------------------------------------------------- #
+
+def test_a_run_folder_moved_to_a_new_path_still_shows_its_montage(tmp_path):
+    """The case asked for, end to end: written at one path, opened at
+    another, with no setting changed. The merged route, because ``path_name``
+    is the column ``correct_paths`` never re-anchored."""
+    import shutil
+
+    root, db_path, results_csv = _screen(tmp_path / "written", with_png=False)
+    recorded = sqlite3.connect(db_path).execute(
+        "SELECT path_name FROM cell LIMIT 1").fetchone()[0]
+    assert recorded.startswith(root)
+
+    moved = str(tmp_path / "elsewhere" / "renamed_experiment")
+    shutil.copytree(root, moved)
+    shutil.rmtree(root)                       # the old location is gone
+    assert not os.path.exists(recorded)
+
+    result = load(MontageRequest(
+        name="GRA14", effect=0.2,
+        results_path=os.path.dirname(results_csv),
+        databases=(str(os.path.join(moved, "measurements",
+                                    "measurements.db")),)))
+    assert result.ok, result.error
+    crops = result.images[0]
+    assert crops and all(c is not None for c in crops)
+
+
+def test_a_path_that_cannot_be_re_anchored_is_counted_and_named_on_the_montage(
+        qtbot, tmp_path):
+    """A silent pass-through is how a re-anchor that had lost the file name
+    stayed invisible, so the montage says how many it could not place."""
+    _root, db_path, results_csv = _screen(tmp_path, with_png=True)
+    conn = sqlite3.connect(db_path)
+    conn.execute("UPDATE png_list SET png_path = '/gone/entirely/x.png' "
+                 "WHERE cell_id = 'o1'")
+    conn.commit()
+    conn.close()
+
+    result = load(MontageRequest(name="GRA14", effect=0.2,
+                                 results_path=results_csv,
+                                 databases=(db_path,)))
+    assert result.ok
+    caption = result.plans[0].caption()
+    assert "could not be re-anchored under" in caption
+    assert "/gone/entirely/x.png" in caption
+
+
+def test_the_tab_still_fits_the_splitter_it_lives_in(qtbot):
+    """The results side of the regression splitter starts at 780 px.
+
+    A minimum width wider than that is not a cosmetic problem: it forces the
+    whole screen wider. Two rows of controls with their prose spelled out in
+    the widgets rather than in their tooltips took this to 1346 px, which is
+    how this test came to exist -- driving the real screen, not running the
+    suite.
+    """
+    from PySide6.QtWidgets import QLabel
+
+    view = CellMontageView(threaded=False)
+    qtbot.addWidget(view)
+    assert view.minimumSizeHint().width() <= 780
+
+    # The words did not disappear, they moved. Hover help belongs on a
+    # setting's NAME and not on the field the user types into (instruction
+    # 113), and `retarget_field_tooltips` is what puts it there -- so the
+    # sentences that came out of the widgets are on the labels beside them.
+    hover = " ".join(
+        [w.toolTip() for w in view.findChildren(QLabel)]
+        + [view._half_widths.toolTip(), view._cap.toolTip(),
+           view._score.toolTip(), view._shape.toolTip()])
+    assert "robust scales" in hover
+    assert "more than one classifier output" in hover
+    assert "FIELDS TOUCHED" in hover
+    assert "not a per-gene control" in hover
