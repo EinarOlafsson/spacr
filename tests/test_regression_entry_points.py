@@ -71,10 +71,22 @@ _DERIVED_KEYS = frozenset({"src", "score_data", "count_data"})
 MISSING_BEFORE = {
     "verbose": "ml.py:1409 -- `if settings['verbose']:`",
     "tolerance": "ml.py:1412 -- minimum_cell_simulation(settings, tolerance=...)",
-    "score_column": "ml.py:408 -- the column minimum_cell_simulation resamples",
+    # `score_column` and `y_lims` LEFT this table on 2026-08-18. Both were
+    # here because a reader indexed them and nothing supplied them; both were
+    # then retired outright rather than defaulted -- `score_column` because it
+    # named the same measurement as `dependent_variable` (instruction 135 A)
+    # and `y_lims` because the axis is chosen automatically and changed on the
+    # plot now (instruction 135, "Regression plot can be removed"). Their
+    # readers were changed with them: minimum_cell_simulation resamples
+    # `dependent_variable`, and the volcano call reads `y_lims` with `.get`,
+    # whose None is that function's own "scale to the data".
+    #
+    # The live AST guard below is what actually protects this now. It reads
+    # ml.py and names any key a reader SUBSCRIPTS without a default, so a
+    # third key going missing is caught whether or not anybody remembers to
+    # add it here.
     "invert_dependent_variable": "ml.py:1424 -- passed to process_scores",
     "control_wells": "sequencing.py:988 -- iterated by graph_sequencing_stats",
-    "y_lims": "ml.py:1669 -- passed to toxo.custom_volcano_plot",
 }
 
 
@@ -308,8 +320,9 @@ def test_the_missing_six_have_values_their_readers_accept():
     assert isinstance(defaults["tolerance"], (int, float))
     assert 0 < defaults["tolerance"] <= 100
 
-    # The column it resamples has to exist in the score table it is given.
-    assert defaults["score_column"] == defaults["dependent_variable"]
+    # The column minimum_cell_simulation resamples is the response itself
+    # now, so there is no second name that can disagree with it.
+    assert "score_column" not in defaults
 
     # process_scores accepts False/0, True/1 or -1 and raises on anything else.
     assert defaults["invert_dependent_variable"] in (False, 0, True, 1, -1)
@@ -319,8 +332,11 @@ def test_the_missing_six_have_values_their_readers_accept():
     assert isinstance(defaults["control_wells"], list)
     iter(defaults["control_wells"])
 
-    # toxo.custom_volcano_plot normalises this and raises on any other shape.
-    assert _normalize_y_lims(defaults["y_lims"], pd.Series([1.0, 2.0]))
+    # `y_lims` is retired, and its reader takes None -- which is
+    # custom_volcano_plot's own "scale to the data", i.e. exactly the
+    # automatic axis instruction 135 asked for.
+    assert "y_lims" not in defaults
+    assert _normalize_y_lims(None, pd.Series([1.0, 2.0]))
 
 
 def test_control_wells_names_the_same_wells_as_filter_value():
@@ -345,17 +361,30 @@ def test_control_wells_names_the_same_wells_as_filter_value():
         {"filter_value": "c1"})["control_wells"] == []
 
 
-def test_score_column_follows_a_chosen_dependent_variable():
-    """Otherwise the cell-count simulation describes a different measurement."""
+def test_the_cell_count_simulation_resamples_the_response_itself():
+    """There is no second column name that can disagree with the response.
+
+    `score_column` used to shadow `dependent_variable` here and default to
+    it, which meant the only thing the setting could do was describe a
+    DIFFERENT measurement from the one the regression fits -- and then wells
+    would be kept or dropped on the wrong evidence. Instruction 135 A retired
+    it; an old settings CSV that carries it still loads, and the value is not
+    silently ignored.
+    """
+    import inspect
+
+    from spacr import ml
     from spacr.settings import get_perform_regression_default_settings
 
     chosen = get_perform_regression_default_settings(
-        {"dependent_variable": "pathogen_nucleus_shortest_distance"})
-    assert chosen["score_column"] == "pathogen_nucleus_shortest_distance"
-    # An explicit score_column still wins.
-    explicit = get_perform_regression_default_settings(
-        {"dependent_variable": "recruitment", "score_column": "pred"})
-    assert explicit["score_column"] == "pred"
+        {"dependent_variable": "pathogen_nucleus_shortest_distance",
+         "score_column": "something_else"})
+    assert "score_column" not in chosen
+    assert chosen["dependent_variable"] == "pathogen_nucleus_shortest_distance"
+
+    source = inspect.getsource(ml.minimum_cell_simulation)
+    assert "settings['score_column']" not in source
+    assert "settings['dependent_variable']" in source
 
 
 def test_quantile_regression_still_clears_agg_type():
@@ -630,7 +659,10 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     # same screen through a different model has it without reading a file --
     # the shared settings/ copy is overwritten by every later run of the same
     # screen, so on a second run the file describes the wrong one.
-    assert out["settings"]["regression_type"] == "ols"
+    # 'mixed' since instruction 132: it makes the gene a fixed effect and
+    # each guide a random effect nested in it, which is the only model here
+    # that says what a guide IS. The run still reports whatever it fitted.
+    assert out["settings"]["regression_type"] == "mixed"
     assert out["settings"] is not settings, (
         "the run handed back the caller's own dict, so mutating the copy "
         "would reach back into the settings the caller still holds")

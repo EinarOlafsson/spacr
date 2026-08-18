@@ -86,7 +86,7 @@ RESULT_FILES: Dict[str, str] = {
 #: q-value would be a correction applied to a number that is not a p-value.
 #: Mirrors :data:`spacr.ml.NO_P_VALUE_TYPES`; kept as a literal so importing
 #: this module does not drag torch in, and asserted equal in the test suite.
-NO_P_VALUE_TYPES: Tuple[str, ...] = ("lasso", "elasticnet")
+NO_P_VALUE_TYPES: Tuple[str, ...] = ("lasso", "elasticnet", "group_lasso")
 
 #: The FDR a hit list defaults to calling a hit at.
 DEFAULT_ALPHA = 0.05
