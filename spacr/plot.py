@@ -2593,20 +2593,38 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
     # call works instead of raising TypeError.
     df['-log10(p)'] = -np.log10(df['p'])
 
-    # Create the volcano plot
-    plt.figure(figsize=(40, 30))
-    plt.scatter(df['effect'], df['-log10(p)'], c=np.sign(df['effect']), cmap='coolwarm')
-    plt.title('Volcano Plot', fontsize=12)
-    plt.xlabel('Coefficient', fontsize=12)
-    plt.ylabel('-log10(P-value)', fontsize=12)
+    # THE ONE RULE: everything grey except what the sentence is about. This
+    # volcano used to run `cmap='coolwarm'` over `np.sign(effect)`, which
+    # colours EVERY point by a fact the x-axis already states -- the exact
+    # failure the rule exists to prevent. Only the called genes (p < 0.05, the
+    # same rows that get a label) carry colour now, GREEN up and RUST down,
+    # and every other gene is the grey they are compared against.
+    called = np.asarray(df['p'] < 0.05)
+    effect = np.asarray(df['effect'], dtype=float)
+    colours = np.where(called & (effect >= 0), ROLES['up'],
+                       np.where(called, ROLES['down'], ROLES['data']))
 
-    # Add text for specified points
-    for idx, row in df.iterrows():
-        if row['p'] < 0.05:# and abs(row['effect']) > 0.1:
-            plt.text(row['effect'], -np.log10(row['p']), idx, fontsize=12, ha='center', va='bottom', color='black')
+    # 40x30 inches was a poster, not a panel: at the 300 dpi the save
+    # preference asks for, that canvas is 12000x9000 px -- 108 megapixels for
+    # a scatter of a few thousand dots.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(5.6, 4.4))
+        ax.scatter(effect, df['-log10(p)'], c=colours, s=12,
+                   edgecolors='none')
+        descriptor(ax, 'Volcano Plot')
+        ax.set_xlabel('Coefficient')
+        ax.set_ylabel('-log10(P-value)')
 
-    plt.axhline(y=-np.log10(0.05), color='gray', linestyle='--')  # line for p=0.05
-    plt.show()
+        # Add text for specified points
+        for idx, row in df.iterrows():
+            if row['p'] < 0.05:# and abs(row['effect']) > 0.1:
+                ax.text(row['effect'], -np.log10(row['p']), idx,
+                        fontsize=TYPE_SCALE['annotation'], ha='center',
+                        va='bottom', color=resolve_ink(theme_target()))
+
+        # line for p=0.05
+        reference_line(ax, y=-np.log10(0.05))
+        plt.show()
 
 def _well_axis_labels(tokens, parse, render):
     """Map raw row (or column) tokens onto ``(index, canonical label)``.
@@ -6268,20 +6286,40 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     unique_to_file1 = genes1.difference(genes2)
     unique_to_file2 = genes2.difference(genes1)
 
-    # Create a Venn diagram
-    plt.figure(figsize=(8, 6))
-    venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'))
-    plt.title("Venn Diagram of Overlapping Genes")
+    # Create a Venn diagram. THE SENTENCE A VENN MAKES IS THE OVERLAP, so the
+    # overlap is the only region that carries colour and the two private sets
+    # are the grey it is read against. matplotlib_venn's own defaults are a
+    # red circle and a green one at alpha 0.4 -- the one pair red-green
+    # deficiency removes, and two arguments where the figure has one.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(8, 6))
+        diagram = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'),
+                        ax=ax)
+        for region, colour in (('10', ROLES['data']),
+                               ('01', Palette.GREY_DARK),
+                               ('11', ROLES['highlight'])):
+            patch = diagram.get_patch_by_id(region)
+            # A region with no genes in it has no patch at all.
+            if patch is not None:
+                patch.set_color(colour)
+                patch.set_alpha(1.0)
+                patch.set_edgecolor('none')
+        for label in list(diagram.set_labels or []) + list(
+                diagram.subset_labels or []):
+            if label is not None:
+                label.set_fontsize(TYPE_SCALE['annotation'])
+                label.set_color(resolve_ink(theme_target()))
+        descriptor(ax, "Venn Diagram of Overlapping Genes")
 
-    # Save or show the figure
-    if save:
-        if save_path is None:
-            raise ValueError("save_path must be provided when save=True.")
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches="tight")
-        print(f"Venn diagram saved to {save_path}")
-    else:
-        plt.show()
+        # Save or show the figure
+        if save:
+            if save_path is None:
+                raise ValueError("save_path must be provided when save=True.")
+            save_path = save_figure(fig, save_path,
+                                    bbox_inches="tight")
+            print(f"Venn diagram saved to {save_path}")
+        else:
+            plt.show()
 
     # Return the results
     return {
@@ -6494,94 +6532,114 @@ def volcano_plot(
             else:
                 mask &= (y <= y_thr_plot)
 
-    # -------------------- figure --------------------
-    if ax is None:
-        fig, ax = plt.subplots(figsize=figsize)
-    else:
-        fig = ax.figure
+    # THE WHOLE BUILD SITS INSIDE THE HOUSE STYLE, as a context
+    # manager. A volcano is the figure spaCR shows most often and it
+    # is drawn from a long-lived GUI, so a global rcParams write here
+    # would restyle every later figure of the session in every other
+    # module until the process exits.
+    with figure_style(theme_target()):
+        # -------------------- figure --------------------
+        if ax is None:
+            fig, ax = plt.subplots(figsize=figsize)
+        else:
+            fig = ax.figure
 
-    scatter_defaults = dict(s=point_size, alpha=alpha, edgecolors="none")
-    if scatter_kwargs:
-        scatter_defaults.update(scatter_kwargs)
+        scatter_defaults = dict(s=point_size, alpha=alpha, edgecolors="none")
+        if scatter_kwargs:
+            scatter_defaults.update(scatter_kwargs)
 
-    # color hits if thresholds are provided; otherwise all gray
-    if (fold_change_threshold is not None) or (p_value_threshold is not None):
-        colors = np.where(mask & (x >= 0), "crimson", np.where(mask & (x < 0), "royalblue", "lightgray"))
-    else:
-        colors = "lightgray"
+        # color hits if thresholds are provided; otherwise all gray.
+        # The hues are the house roles, fixed across every spaCR panel: GREEN is
+        # upregulated / called positive, RUST is downregulated, and everything
+        # that was not called is the one grey every figure compares against. They
+        # were crimson, royalblue and lightgray -- three hues that appear in no
+        # other spaCR figure, so a reader who learned them here learned nothing
+        # they could carry to the next panel.
+        if (fold_change_threshold is not None) or (p_value_threshold is not None):
+            colors = np.where(mask & (x >= 0), ROLES["up"],
+                              np.where(mask & (x < 0), ROLES["down"],
+                                       ROLES["data"]))
+        else:
+            colors = ROLES["data"]
 
-    ax.scatter(x, y, c=colors, **scatter_defaults)
+        ax.scatter(x, y, c=colors, **scatter_defaults)
 
-    # labels
-    xlab = fold_change_col if x_transform.lower() == "none" else f"{x_transform}({fold_change_col})"
-    ylab = p_value_col if y_transform.lower() == "none" else f"{y_transform}({p_value_col})"
-    ax.set_xlabel(xlab)
-    ax.set_ylabel(ylab)
-    if title:
-        ax.set_title(title)
+        # labels
+        xlab = fold_change_col if x_transform.lower() == "none" else f"{x_transform}({fold_change_col})"
+        ylab = p_value_col if y_transform.lower() == "none" else f"{y_transform}({p_value_col})"
+        ax.set_xlabel(xlab)
+        ax.set_ylabel(ylab)
+        if title:
+            ax.set_title(title)
 
-    # threshold lines
-    line_defaults = dict(color="black", linestyle="--", linewidth=1.0, alpha=0.9)
-    if threshold_line_kwargs:
-        line_defaults.update(threshold_line_kwargs)
+        # threshold lines. A THRESHOLD IS NOT A RESULT: thin, dashed and grey, so
+        # it cannot compete with the points it is there to sort. They were black
+        # at 1.0 pt, heavier than any mark on the panel.
+        line_defaults = dict(color=ROLES["reference"], linestyle=(0, (4, 3)),
+                             linewidth=WEIGHTS["reference"], alpha=1.0)
+        if threshold_line_kwargs:
+            line_defaults.update(threshold_line_kwargs)
 
-    if x_thr_plot is not None:
-        ax.axvline(-x_thr_plot, **line_defaults)
-        ax.axvline(+x_thr_plot, **line_defaults)
-    if y_thr_plot is not None:
-        ax.axhline(y_thr_plot, **line_defaults)
+        if x_thr_plot is not None:
+            ax.axvline(-x_thr_plot, **line_defaults)
+            ax.axvline(+x_thr_plot, **line_defaults)
+        if y_thr_plot is not None:
+            ax.axhline(y_thr_plot, **line_defaults)
 
-    if xlim is not None:
-        ax.set_xlim(xlim)
-    if ylim is not None:
-        ax.set_ylim(ylim)
+        if xlim is not None:
+            ax.set_xlim(xlim)
+        if ylim is not None:
+            ax.set_ylim(ylim)
 
-    # cosmetics
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.axvline(0, color="black", linewidth=0.8, alpha=0.4)
+        # cosmetics. The spines are set explicitly as well as by the style,
+        # because a caller may hand in an `ax` that was built outside it.
+        ax.spines["right"].set_visible(False)
+        ax.spines["top"].set_visible(False)
+        reference_line(ax, x=0)
 
-    # -------------------- annotation --------------------
-    hits: list = []
-    if annotate and (name_col is not None):
-        eligible = mask.copy()
+        # -------------------- annotation --------------------
+        hits: list = []
+        if annotate and (name_col is not None):
+            eligible = mask.copy()
 
-        # If no thresholds were set, annotate nothing unless annotate_max is provided
-        if (fold_change_threshold is None) and (p_value_threshold is None) and (annotate_max is None):
-            eligible[:] = False
+            # If no thresholds were set, annotate nothing unless annotate_max is provided
+            if (fold_change_threshold is None) and (p_value_threshold is None) and (annotate_max is None):
+                eligible[:] = False
 
-        if np.any(eligible):
-            idx = np.where(eligible)[0]
-            if annotate_max is not None and len(idx) > int(annotate_max):
-                idx = idx[np.argsort(y[idx])[::-1][: int(annotate_max)]]
+            if np.any(eligible):
+                idx = np.where(eligible)[0]
+                if annotate_max is not None and len(idx) > int(annotate_max):
+                    idx = idx[np.argsort(y[idx])[::-1][: int(annotate_max)]]
 
-            try:
-                from adjustText import adjust_text
-            except ImportError as e:
-                raise ImportError(
-                    "Annotation requires the 'adjustText' package. Install with:\n"
-                    "  pip install adjustText"
-                ) from e
+                try:
+                    from adjustText import adjust_text
+                except ImportError as e:
+                    raise ImportError(
+                        "Annotation requires the 'adjustText' package. Install with:\n"
+                        "  pip install adjustText"
+                    ) from e
 
-            tkw = dict(fontsize=8, ha="center", va="bottom")
-            if text_kwargs:
-                tkw.update(text_kwargs)
+                tkw = dict(fontsize=TYPE_SCALE["annotation"], ha="center",
+                           va="bottom", color=resolve_ink(theme_target()))
+                if text_kwargs:
+                    tkw.update(text_kwargs)
 
-            texts = []
-            for i in idx:
-                label = str(df.iloc[i][name_col])
-                hits.append(label)
-                texts.append(ax.text(x[i], y[i], label, **tkw))
+                texts = []
+                for i in idx:
+                    label = str(df.iloc[i][name_col])
+                    hits.append(label)
+                    texts.append(ax.text(x[i], y[i], label, **tkw))
 
-            adjust_text(
-                texts,
-                ax=ax,
-                arrowprops=dict(arrowstyle="-", color="black", lw=0.8, alpha=0.7),
-            )
+                adjust_text(
+                    texts,
+                    ax=ax,
+                    arrowprops=dict(arrowstyle="-", color=ROLES["reference"],
+                                    lw=WEIGHTS["reference"], alpha=1.0),
+                )
 
-    if save_path:
-        save_path = save_figure(fig, save_path, bbox_inches="tight")
-    if show:
-        plt.show()
+        if save_path:
+            save_path = save_figure(fig, save_path, bbox_inches="tight")
+        if show:
+            plt.show()
 
     return fig, ax, hits
