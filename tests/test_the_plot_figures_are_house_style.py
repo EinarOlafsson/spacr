@@ -568,3 +568,181 @@ def test_drawing_every_score_figure_leaves_the_globals_alone(tmp_path, capsys):
     after = {k: repr(v) for k, v in mpl.rcParams.items()}
     assert {k for k in set(before) | set(after)
             if before.get(k) != after.get(k)} == set()
+
+
+# --------------------------------------------------------------------------- #
+#  The volcanoes
+# --------------------------------------------------------------------------- #
+
+def _volcano_frame(n=200):
+    """A genome-wide-shaped table: a few called genes among many that are not."""
+    rng = np.random.default_rng(3)
+    effect = rng.normal(0.0, 0.6, n)
+    p = rng.uniform(0.06, 1.0, n)
+    effect[:4] = [2.4, 2.0, -2.6, -2.2]
+    p[:4] = [1e-6, 1e-5, 1e-6, 1e-4]
+    return pd.DataFrame({"fc": effect, "p": p,
+                         "name": [f"g{i}" for i in range(n)]})
+
+
+def test_the_volcano_is_grey_with_a_minority_highlighted(rcparams_guard):
+    """Grey is the default ink; GREEN up and RUST down are the argument.
+
+    The hues were crimson, royalblue and lightgray -- three colours that
+    appear in no other spaCR panel, so a reader who learned them here could
+    carry nothing to the next figure.
+    """
+    figure, ax, hits = P.volcano_plot(
+        _volcano_frame(), fold_change_col="fc", p_value_col="p",
+        name_col="name", fold_change_threshold=1.5, p_value_threshold=1e-3,
+        annotate=False, show=False)
+
+    faces = np.atleast_2d(ax.collections[0].get_facecolors())[:, :3]
+    counts = {}
+    for face in faces:
+        counts[to_hex(face).lower()] = counts.get(to_hex(face).lower(), 0) + 1
+
+    assert set(counts) == {_hex(ROLES["up"]), _hex(ROLES["down"]),
+                           _hex(ROLES["data"])}
+    assert counts[_hex(ROLES["up"])] == 2
+    assert counts[_hex(ROLES["down"])] == 2
+    # ...and the highlight is a small minority of the marks, which is the rule.
+    coloured = counts[_hex(ROLES["up"])] + counts[_hex(ROLES["down"])]
+    assert coloured / sum(counts.values()) < 0.1
+
+
+def test_the_volcano_thresholds_are_references_not_results(rcparams_guard):
+    """A threshold sorts the points; it is not one of them.
+
+    The three lines were black at 1.0 pt -- heavier than any mark on the
+    panel -- plus a fourth black rule at x = 0.
+    """
+    figure, ax, hits = P.volcano_plot(
+        _volcano_frame(), fold_change_col="fc", p_value_col="p",
+        fold_change_threshold=1.5, p_value_threshold=1e-3, show=False)
+
+    assert len(ax.lines) == 4              # two FC rules, one p rule, x = 0
+    assert all(_is_reference_line(line) for line in ax.lines)
+
+
+def test_an_explicit_threshold_colour_still_wins(rcparams_guard):
+    """The house default is a default. A caller who asks for green gets green."""
+    figure, ax, hits = P.volcano_plot(
+        _volcano_frame(), fold_change_col="fc", p_value_col="p",
+        fold_change_threshold=1.5, p_value_threshold=1e-3,
+        threshold_line_kwargs={"color": "green", "linestyle": ":"},
+        show=False)
+
+    assert [_hex(line.get_color()) for line in ax.lines[:3]] == [
+        _hex("green")] * 3
+    # ...and the cosmetic x = 0 rule is not a threshold, so it does not.
+    assert _is_reference_line(ax.lines[3])
+
+
+def test_the_volcano_calls_did_not_move(rcparams_guard):
+    """This is a restyle: the same genes are called and labelled as before."""
+    frame = _volcano_frame()
+    figure, ax, hits = P.volcano_plot(
+        frame, fold_change_col="fc", p_value_col="p", name_col="name",
+        fold_change_threshold=1.5, p_value_threshold=1e-3, show=False)
+
+    expected = frame[(frame["fc"].abs() >= 1.5) & (frame["p"] <= 1e-3)]
+    assert sorted(hits) == sorted(expected["name"])
+    assert all(text.get_fontsize() == pytest.approx(TYPE_SCALE["annotation"])
+               for text in ax.texts)
+
+
+def test_a_volcano_with_no_thresholds_is_entirely_grey(rcparams_guard):
+    """Nothing was called, so nothing is claimed, so nothing is coloured."""
+    figure, ax, hits = P.volcano_plot(
+        _volcano_frame(), fold_change_col="fc", p_value_col="p", show=False)
+
+    faces = np.atleast_2d(ax.collections[0].get_facecolors())[:, :3]
+    assert {to_hex(f).lower() for f in faces} == {_hex(ROLES["data"])}
+
+
+def test_the_regression_volcano_stopped_colouring_every_gene(rcparams_guard):
+    """``_reg_v_plot`` ran ``cmap='coolwarm'`` over ``np.sign(effect)``: every
+    point coloured, by a fact the x axis already states. That is the failure
+    the grey rule exists to prevent."""
+    frame = pd.DataFrame(
+        {"effect": [1.5, -2.0, 0.3, -0.1, 0.8, -0.6],
+         "p": [0.001, 0.02, 0.4, 0.9, 0.7, 0.6]},
+        index=[f"g{i}" for i in range(6)])
+
+    P._reg_v_plot(frame)
+    ax = _figures()[0].axes[0]
+
+    faces = np.atleast_2d(ax.collections[0].get_facecolors())[:, :3]
+    drawn = [to_hex(f).lower() for f in faces]
+    assert drawn == [_hex(ROLES["up"]), _hex(ROLES["down"])] + \
+        [_hex(ROLES["data"])] * 4
+    # The p = 0.05 rule is a reference, and the canvas is a panel: 40x30
+    # inches at the 300 dpi the save preference asks for is 108 megapixels.
+    assert any(_is_reference_line(line) for line in ax.lines)
+    assert max(_figures()[0].get_size_inches()) <= 12.0
+
+
+# --------------------------------------------------------------------------- #
+#  create_venn_diagram
+# --------------------------------------------------------------------------- #
+
+def _gene_csv(path, genes, coefficients):
+    pd.DataFrame({"gene": list(genes),
+                  "coefficient": list(coefficients)}).to_csv(path, index=False)
+    return str(path)
+
+
+def test_only_the_overlap_of_a_venn_is_coloured(rcparams_guard, tmp_path,
+                                                capsys):
+    """The sentence a Venn makes is the overlap.
+
+    matplotlib_venn's own defaults are a red circle and a green one at alpha
+    0.4 -- two arguments where the figure has one, in the one hue pair
+    red-green deficiency removes.
+    """
+    first = _gene_csv(tmp_path / "a.csv", ["a", "b", "c"], [0.5, 0.5, 0.5])
+    second = _gene_csv(tmp_path / "b.csv", ["b", "c", "d"], [0.5, 0.5, 0.5])
+
+    result = P.create_venn_diagram(first, second, save=False)
+    capsys.readouterr()
+
+    ax = _figures()[0].axes[0]
+    faces = [_hex(p.get_facecolor()) for p in ax.patches]
+    assert faces.count(_hex(ROLES["highlight"])) == 1
+    assert set(faces) == {_hex(ROLES["data"]), _hex(Palette.GREY_DARK),
+                          _hex(ROLES["highlight"])}
+    assert all(p.get_alpha() in (None, 1.0) for p in ax.patches)
+    # ...and the sets themselves are untouched.
+    assert sorted(result["overlap"]) == ["b", "c"]
+    assert result["unique_to_file1"] == ["a"]
+    assert result["unique_to_file2"] == ["d"]
+
+
+def test_a_venn_with_no_overlap_still_draws(rcparams_guard, tmp_path, capsys):
+    """An empty region has no patch at all, which is a None to step over."""
+    first = _gene_csv(tmp_path / "a.csv", ["a"], [0.5])
+    second = _gene_csv(tmp_path / "b.csv", ["z"], [0.5])
+
+    result = P.create_venn_diagram(first, second, save=False)
+    capsys.readouterr()
+    assert result["overlap"] == []
+
+
+def test_drawing_every_volcano_leaves_the_globals_alone(tmp_path, capsys):
+    """Rule 2, over the group that draws the figure spaCR shows most."""
+    before = {k: repr(v) for k, v in mpl.rcParams.items()}
+
+    P.volcano_plot(_volcano_frame(), fold_change_col="fc", p_value_col="p",
+                   name_col="name", fold_change_threshold=1.5,
+                   p_value_threshold=1e-3, show=False)
+    P._reg_v_plot(pd.DataFrame({"effect": [1.0, -1.0], "p": [0.01, 0.5]},
+                               index=["a", "b"]))
+    P.create_venn_diagram(
+        _gene_csv(tmp_path / "a.csv", ["a", "b"], [0.5, 0.5]),
+        _gene_csv(tmp_path / "b.csv", ["b", "c"], [0.5, 0.5]), save=False)
+    capsys.readouterr()
+
+    after = {k: repr(v) for k, v in mpl.rcParams.items()}
+    assert {k for k in set(before) | set(after)
+            if before.get(k) != after.get(k)} == set()
