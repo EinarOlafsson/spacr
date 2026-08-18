@@ -6303,7 +6303,30 @@ def perform_regression(settings):
             print(model.summary())
         save_summary_to_file(
             model, file_path=os.path.join(res_folder, SUMMARY_FILENAME))
-    
+
+    # THE spaCR SUMMARY, for EVERY mode -- instruction 156. The block above
+    # writes the statsmodels summary and only two of the nineteen regression
+    # types reach it; a nonparametric run has no fitted model at all, so it got
+    # nothing. This writes what spaCR itself knows about the fit -- the design,
+    # the assumptions with their tests, the call, and what was excluded -- so a
+    # mode statsmodels cannot summarise still has a summary.
+    #
+    # GUARDED, and deliberately so: a run must not die for a summary. The
+    # module is optional at this point in its life, and a failure here is
+    # reported rather than raised, because losing an hour's fit to a reporting
+    # bug is the trade nobody would make.
+    try:
+        from .regression_summary import write_run_summary
+    except ImportError:
+        pass
+    else:
+        try:
+            write_run_summary(res_folder, model=model, settings=settings,
+                              coef_df=coef_df, regression_type=regression_type)
+        except Exception as error:  # noqa: BLE001 - never lose a run
+            print(f"Could not write the run summary: "
+                  f"{type(error).__name__}: {error}")
+
     significant.to_csv(hits_path, index=False)
     significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
     significant_gene_filtered = significant[significant['n_gene'] > settings['min_n']]
