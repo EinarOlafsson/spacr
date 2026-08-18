@@ -1296,15 +1296,95 @@ def _bootstrap_wald_p_values(model, X, y, n_boot=200, random_state=0):
 
 
 #: Backends whose fitted results object carries ``params`` and ``pvalues``
-#: directly (statsmodels). ``mixed`` is here too, and its variance components
-#: are dropped below - they are not effects on the response.
+#: directly. Most are statsmodels; ``horseshoe`` and ``rra`` are spaCR's own
+#: adapters (:class:`_HorseshoeResults`, :class:`_RRAResults`), which exist so
+#: that a model with a posterior or a permutation null lands in the same table
+#: as the likelihood fits instead of getting a private code path.
+#: ``mixed`` is here too, and its variance components are dropped below - they
+#: are not effects on the response.
 _STATSMODELS_COEF_TYPES = (
     'ols', 'wls', 'rlm', 'huber', 'glm', 'poisson', 'logit', 'probit',
-    'quasi_binomial', 'quantile', 'mixed', 'horseshoe',
+    'quasi_binomial', 'quantile', 'mixed', 'horseshoe', 'rra',
 )
 
-#: Backends that expose ``coef_`` (scikit-learn) and no inference of their own.
-_SKLEARN_COEF_TYPES = ('ridge', 'lasso', 'elasticnet')
+#: Backends whose fitted object exposes ``coef_`` and ``predict`` and carries
+#: no inference of its own, so :func:`calculate_p_values` supplies the
+#: (deliberately conservative) p-value. Three are scikit-learn's; ``group_lasso``
+#: is :class:`_GroupLassoResults` around :mod:`spacr.group_lasso`, and it is
+#: here rather than in a branch of its own precisely so it reports what the
+#: other penalised backends report.
+_SKLEARN_COEF_TYPES = ('ridge', 'lasso', 'elasticnet', 'group_lasso')
+
+
+#: The level term patsy writes for one gRNA or one gene:
+#: ``fraction:grna[224750_2]`` or ``gene_fraction:gene[T.224750]``. Anchored,
+#: so a nuisance column -- ``Intercept``, ``rowID[T.r2]``, ``columnID[T.c7]``,
+#: ``screenID[T.b]`` -- does not match and is answered with None. An unanchored
+#: search would read ``r2`` out of ``rowID[T.r2]`` and hand the row and column
+#: dummies to the grouping as though they were genes.
+_LEVEL_TERM_IN_FEATURE = re.compile(
+    r'^(?:fraction:grna|gene_fraction:gene)\[(?:T\.)?(.*)\]$')
+
+#: The guide number a gRNA id ends with: ``224750_2`` -> gene ``224750``.
+_GUIDE_SUFFIX = re.compile(r'_\d+$')
+
+
+def _gene_of_design_column(column):
+    """The gene a design column belongs to, or ``None`` for a nuisance term.
+
+    THE GROUPING BOTH NEW BACKENDS RUN ON. ``group_lasso`` penalises a gene's
+    guide columns as one block and ``rra`` aggregates their ranks, so both need
+    to know which columns are the same gene's -- and the design matrix is all
+    either of them is given. It is parsed from the column name rather than
+    passed in, because the name is what patsy actually built the column from;
+    a second, separately supplied grouping could disagree with it and would
+    then split a gene silently.
+
+    ``perform_regression`` reduces ``TGGT1_224750_2`` to ``224750_2`` before
+    the fit (the three-token org/gene/guide split it makes on the merged
+    frame), but a caller that fits ``regression_model`` directly may not have,
+    so the trailing guide number is stripped from whatever is there and the
+    ORG PREFIX IS LEFT ALONE: it is constant across a screen, so ``TGGT1_224750`` and ``224750``
+    are each a consistent key for their own frame, and stripping it would be a
+    guess about naming.
+
+    :param column: a design-matrix column name.
+    :returns: the gene id, or ``None`` when the column is not a level term.
+    """
+    text = str(column)
+    match = _LEVEL_TERM_IN_FEATURE.match(text)
+    if match is None:
+        return None
+    identifier = match.group(1)
+    if text.startswith('gene_fraction:'):
+        return identifier
+    # A gene whose guides carry no numeric suffix would collapse to the empty
+    # string, which is one group for every such guide in the screen; keep the
+    # id itself instead, which makes it its own single-guide gene.
+    return _GUIDE_SUFFIX.sub('', identifier) or identifier
+
+
+def _level_term_mask(columns):
+    """A boolean mask of the columns that name a gRNA or a gene.
+
+    ``dtype=bool`` is not incidental: an empty design gives ``np.array([])``,
+    which is float64, and boolean-indexing a coefficient vector with a float
+    array raises ``IndexError`` instead of selecting nothing.
+    """
+    return np.array([_gene_of_design_column(column) is not None
+                     for column in columns], dtype=bool)
+
+
+def _design_column_groups(columns):
+    """One group label per design column, nuisance terms in groups of their own.
+
+    :mod:`spacr.group_lasso` groups by label, so every column needs one. A
+    nuisance column gets its OWN name as its label, which makes it a singleton
+    group: it is penalised on its own, exactly as ordinary lasso would, and it
+    can never be pulled into a gene's block and dragged to zero with it.
+    """
+    return [_gene_of_design_column(column) or str(column)
+            for column in columns]
 
 
 def label_control_condition(features, guides, nc=None, pc=None, controls=None):
@@ -1789,12 +1869,25 @@ _SETTING_NOT_APPLICABLE = {
     'hinge_n_boot': "it sizes the bootstrap that stands in for the standard "
                     "errors an SVM does not have; every other model reports "
                     "its own inference.",
+    'group_lasso_lambda': "it is the block penalty of the group lasso, "
+                          "measured against THIS design's own "
+                          "group_lasso.max_lambda, so it is not the same "
+                          "quantity as 'alpha' and no other model has a "
+                          "block to penalise.",
+    'rra_alpha': "it is the top fraction of the guide ranking alpha-RRA "
+                 "aggregates over, and only 'rra' ranks anything; every other "
+                 "model estimates coefficients jointly.",
+    'rra_permutations': "it sizes the permutation null RRA's P value is read "
+                        "off, and every other model gets its P value from a "
+                        "likelihood, a posterior or a bootstrap.",
 }
 
 
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None, l1_ratio=0.5, quantile=0.5,
-                     hinge_threshold=None, huber_t=1.345, exposure=None):
+                     hinge_threshold=None, huber_t=1.345, exposure=None,
+                     group_lasso_lambda=0.05, rra_alpha=0.25,
+                     rra_permutations=10000):
     """Dispatch to the requested regression backend and return the fitted model.
 
     Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
@@ -1828,6 +1921,16 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     ``hinge``                           Linear SVM (hinge loss) on a binarised response.
     ``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's
                                         power-analysis model), via :mod:`spacr.power_model`.
+    ``group_lasso``                     Penalised least squares with a gene's guide columns
+                                        penalised as ONE block, so a gene is selected or dropped
+                                        as a set rather than one guide at a time - the penalised
+                                        analogue of the mixed model's nesting, via
+                                        :mod:`spacr.group_lasso`.
+    ``rra``                             MAGeCK-style robust rank aggregation: guides ranked by
+                                        their marginal effect, aggregated to the gene BY RANK
+                                        with a permutation P value, via :mod:`spacr.rra`. It
+                                        forms no joint fit, so the collinearity and the p >> n
+                                        width that constrain every backend above do not reach it.
     ==================================  ========================================================
 
     Settings a backend cannot read are REFUSED, not ignored — see
@@ -1856,6 +1959,16 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     :param exposure: Per-observation exposure (the well's cell count) used as
         ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by
         ``glm`` when it auto-selects a Poisson family).
+    :param group_lasso_lambda: The block penalty for ``group_lasso``. Its own
+        key rather than ``alpha`` because it is compared against
+        :func:`spacr.group_lasso.max_lambda`, which is a property of the
+        design, so a value carried over from a lasso run would mean something
+        else here.
+    :param rra_alpha: The top fraction of the guide ranking alpha-RRA
+        aggregates over. MAGeCK's 0.25, which is what keeps a gene with one
+        strong guide and three that did not cut findable.
+    :param rra_permutations: Draws per distinct guide count in RRA's
+        permutation null; 10,000 puts the smallest reportable P value at 1e-4.
     :returns: Fitted statsmodels / sklearn estimator.
     :raises ValueError: on an unsupported ``regression_type``, or when a
         setting the chosen backend cannot read was set to a non-default value.
@@ -1890,6 +2003,9 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         'quantile': quantile,
         'hinge_threshold': hinge_threshold,
         'huber_t': huber_t,
+        'group_lasso_lambda': group_lasso_lambda,
+        'rra_alpha': rra_alpha,
+        'rra_permutations': rra_permutations,
     }
     _reject_unused_settings(regression_type, {
         name: (supplied[name], default)
@@ -2116,6 +2232,170 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         model.fit(X, y_binary)
         return model
 
+    def _named_design(name):
+        """The design's column names, or a refusal that says why they matter.
+
+        Both instruction-133 backends work on the GENE BEHIND EACH COLUMN, and
+        the only place that is written down is the column name patsy built.
+        A bare array would silently become one gene per column for the group
+        lasso -- i.e. ordinary lasso under a different label -- so it is
+        refused rather than fitted.
+        """
+        columns = getattr(X, 'columns', None)
+        if columns is None:
+            raise ValueError(
+                f"regression_type={name!r} groups the design's columns by "
+                f"gene and reads that grouping from the COLUMN NAMES, so it "
+                f"needs a DataFrame design; a bare array has no names to "
+                f"group by. Build the design with "
+                f"dmatrices(..., return_type='dataframe'), which is what the "
+                f"pipeline hands in.")
+        return columns
+
+    def _group_lasso():
+        from . import group_lasso as group_lasso_module
+
+        columns = _named_design('group_lasso')
+        design = np.asarray(X, dtype=float)
+        blocks = _design_column_groups(columns)
+        lam = float(group_lasso_lambda)
+        beta, intercept, converged = group_lasso_module.fit(
+            design, y_flat, blocks, lam=lam)
+
+        # THE REFUSAL IS ABOUT THE GENE BLOCKS, not about the design as a
+        # whole. `np.any(beta)` is not the test: the row and column dummies
+        # are singleton groups with far larger correlations than any guide
+        # block, so they survive a penalty that has already emptied every
+        # gene -- measured on the 384-well synthetic screen, lambda=0.02
+        # leaves two row terms standing and not one gene. The user is then
+        # handed a fit whose every gRNA coefficient is zero, which reads
+        # downstream as "0 significant gRNAs" and is indistinguishable from a
+        # screen with no hits. That is the same failure the lasso branch
+        # below refuses, and it has to be refused on the same grounds.
+        gene_terms = _level_term_mask(columns)
+        if not gene_terms.any():
+            raise ValueError(
+                "regression_type='group_lasso' penalises a GENE's guide "
+                f"columns as one block, and none of this design's "
+                f"{len(gene_terms)} columns is a gRNA or gene term "
+                f"(columns: {[str(c) for c in columns][:6]}). Every column "
+                f"would be its own block, which is ordinary lasso under "
+                f"another name. It is fitted on the design prepare_formula "
+                f"builds, whose terms are 'fraction:grna[...]' or "
+                f"'gene_fraction:gene[...]'.")
+        if not np.any(beta[gene_terms]):
+            # max_lambda is the smallest penalty that zeroes EVERY group, so
+            # it is an upper bound rather than the working value; on the same
+            # fixture it is 0.384 and the planted gene is recovered at 0.001.
+            # The message names it because a scale is what the user is
+            # missing, and "lower it" alone gives them none.
+            ceiling = group_lasso_module.max_lambda(design, y_flat, blocks)
+            raise ValueError(
+                f"group_lasso shrank every one of the "
+                f"{int(gene_terms.sum())} gRNA/gene coefficients to exactly "
+                f"zero at group_lasso_lambda={lam!r}, so the fit carries no "
+                f"information about any gene. This design's "
+                f"group_lasso.max_lambda -- the penalty above which nothing "
+                f"at all survives -- is {ceiling:.4g}, and the gene blocks "
+                f"empty well below it, so try a small fraction of that. Or "
+                f"fit an unpenalised model ('ols') to see the effect sizes "
+                f"the penalty is shrinking away.")
+
+        if not converged:
+            print(f"Warning: the group lasso did not reach its tolerance in "
+                  f"{group_lasso_module.MAX_ITERATIONS} sweeps. The "
+                  f"coefficients are the last iterate, not the solution; "
+                  f"treat the selection as provisional.")
+
+        genes_in_design = {label for label, is_gene in zip(blocks, gene_terms)
+                           if is_gene}
+        selected = {label for label, coefficient, is_gene
+                    in zip(blocks, beta, gene_terms)
+                    if is_gene and coefficient != 0}
+        model = _GroupLassoResults(beta, intercept, blocks, lam, converged)
+        mse = mean_squared_error(y_flat, model.predict(X))
+        print(f"Group lasso MSE: {mse:.4f}, lambda={lam:g}, "
+              f"{len(selected)} of {len(genes_in_design)} gene blocks "
+              f"selected ({int(np.sum(beta[gene_terms] != 0))} of "
+              f"{int(gene_terms.sum())} gRNA columns).")
+        return model
+
+    def _rra():
+        from . import rra as rra_module
+
+        columns = _named_design('rra')
+        design = np.asarray(X, dtype=float)
+        genes = [_gene_of_design_column(column) for column in columns]
+        gene_terms = _level_term_mask(columns)
+        if not gene_terms.any():
+            raise ValueError(
+                "regression_type='rra' aggregates a GENE's guides by rank, "
+                f"and none of this design's {len(genes)} columns is a "
+                f"gRNA or gene term (columns: {[str(c) for c in columns][:6]}"
+                f"). It is fitted on the design prepare_formula builds, "
+                f"whose terms are 'fraction:grna[...]' or "
+                f"'gene_fraction:gene[...]'.")
+
+        # THE PER-GUIDE SCORE IS THE MARGINAL SLOPE -- the least-squares slope
+        # of the response on that guide's column ALONE, one parameter at a
+        # time. It is not the joint fit's coefficient, and that is the whole
+        # point of offering RRA: with 823 guides and 610 wells the joint fit
+        # is undefined, and every backend that forms one is answering a
+        # question the data cannot support (instruction 133). A marginal
+        # slope exists at any width and is the direct analogue of MAGeCK's
+        # per-guide log fold change, which is what alpha-RRA ranks.
+        centred = design - design.mean(axis=0)
+        response = y_flat - float(y_flat.mean())
+        spread = (centred ** 2).sum(axis=0)
+        moving = spread > 0
+        slopes = np.zeros(design.shape[1], dtype=float)
+        slopes[moving] = (centred[:, moving].T @ response) / spread[moving]
+
+        # A CONSTANT COLUMN IS NOT RANKED. The intercept explains no variation
+        # in the response, so it has no slope to rank; NaN is what
+        # rank_aggregate drops, and dropping it is right because ranking it
+        # would give it a rank it did not earn and shift every real guide's.
+        ranked = np.where(moving, slopes, np.nan)
+        table = rra_module.rank_aggregate(
+            ranked, genes, alpha=float(rra_alpha), direction='both',
+            n_permutations=int(rra_permutations))
+        if not len(table) or 'p_neg' not in table.columns:
+            raise ValueError(
+                "regression_type='rra' ranked no guide: every gRNA column of "
+                "this design is constant, so no guide has a marginal effect "
+                "to rank. Check the fraction threshold - a design whose guide "
+                "columns do not vary carries no information about any guide.")
+
+        # BOTH TAILS, COMBINED THE STANDARD WAY. rank_aggregate reports
+        # depletion and enrichment separately because they are two questions;
+        # the coefficient table has one p_value column, so the two one-sided
+        # permutation P values become the two-sided
+        # min(1, 2 * min(p_neg, p_pos)). Taking the smaller tail WITHOUT
+        # doubling would be a one-sided test chosen after seeing which way the
+        # gene went, which is the classic way to halve a P value for free.
+        two_sided = np.minimum(1.0, 2.0 * np.minimum(
+            table['p_neg'].to_numpy(dtype=float),
+            table['p_pos'].to_numpy(dtype=float)))
+        by_gene = dict(zip(table['gene'].astype(str), two_sided))
+        # ONE ROW PER DESIGN COLUMN, exactly as every other backend produces,
+        # and the mapping is: the column keeps its OWN marginal slope as the
+        # coefficient and carries its GENE's aggregated P value. RRA tests
+        # genes, not guides, so a gene's guides share its P value; at
+        # level='grna' that makes the BH family the guide count rather than
+        # the gene count, which is conservative, and the level='gene' fit is
+        # the one whose family matches what was tested.
+        p_values = np.array(
+            [by_gene.get(str(gene), np.nan) if gene is not None else np.nan
+             for gene in genes], dtype=float)
+
+        called = int(np.sum(two_sided <= 0.05))
+        print(f"RRA: {len(table)} genes aggregated from "
+              f"{int(np.sum(moving & gene_terms))} ranked guides, "
+              f"alpha={float(rra_alpha):g}, {int(rra_permutations)} "
+              f"permutations per guide count; {called} genes at an "
+              f"uncorrected two-sided p <= 0.05.")
+        return _RRAResults(slopes, p_values, columns, table)
+
     def _horseshoe():
         return _fit_horseshoe_poisson(X, y, exposure)
 
@@ -2149,6 +2429,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                                           max_iter=10000).fit(X, y_flat),
         'hinge':  _hinge,
         'horseshoe': _horseshoe,
+        'group_lasso': _group_lasso,
+        'rra': _rra,
     }
 
     model = model_map[regression_type]()
@@ -2351,6 +2633,101 @@ class _HorseshoeResults:
     def summary(self):
         """Return the per-term posterior summary, for save_summary_to_file."""
         return self.estimates
+
+
+class _GroupLassoResults:
+    """Adapt :mod:`spacr.group_lasso` to the estimator API spaCR reads.
+
+    ``coef_`` and ``predict`` are all :data:`_SKLEARN_COEF_TYPES`' branch of
+    :func:`process_model_coefficients` and :func:`calculate_p_values` ask of a
+    penalised fit, so the group lasso reports EXACTLY what ``lasso`` and
+    ``elasticnet`` report -- one signed coefficient per design column, and a
+    selection frequency attached by the run -- rather than a second convention
+    of its own.
+
+    WHY THE COEFFICIENT AND NOT ``gene_effects``' NORM. ``gene_effects``
+    answers with ``||b_g||_2``, one non-negative number per gene, which is the
+    natural summary of a block but is not what the pipeline downstream of the
+    fit is built on: the volcano's x axis, ``coefficient_threshold``'s
+    control spread and the hit table's sign all read a SIGNED per-column
+    effect. The block's own coefficients carry that sign, and because the
+    block is zero or none of it is, ``||b_g||_2 > 0`` and "this gene has a
+    non-zero coefficient" are the same statement -- so nothing is lost by
+    tabling the coefficients, and a caller who wants the norm is one
+    ``np.linalg.norm`` away from it: ``coef_`` and ``groups`` are both on this
+    object, which is why ``groups`` is kept rather than discarded after the
+    fit.
+
+    :param coefficients: one coefficient per design column, in column order.
+    :param intercept: the unpenalised intercept.
+    :param groups: the group label of each column, from
+        :func:`_design_column_groups`.
+    :param lam: the penalty that was applied.
+    :param converged: whether block coordinate descent met its tolerance.
+    """
+
+    def __init__(self, coefficients, intercept, groups, lam, converged):
+        self.coef_ = np.asarray(coefficients, dtype=float).ravel()
+        self.intercept_ = float(intercept)
+        self.groups = list(groups)
+        self.lam = float(lam)
+        self.converged = bool(converged)
+
+    def predict(self, X):
+        """``X @ coef_ + intercept_``, the fit's prediction for a design.
+
+        :func:`calculate_p_values` needs the residual, and the residual needs
+        this. Taking ``np.asarray`` rather than relying on pandas' matmul keeps
+        it working for a plain array as well as the DataFrame the pipeline
+        hands in.
+        """
+        return np.asarray(X, dtype=float) @ self.coef_ + self.intercept_
+
+
+class _RRAResults:
+    """Adapt :mod:`spacr.rra` to the results API :func:`process_model_coefficients` reads.
+
+    ``params`` and ``pvalues``, the same two attributes every statsmodels fit
+    and :class:`_HorseshoeResults` expose, so ``rra`` needs no branch of its
+    own. What each one IS, stated rather than implied, because neither comes
+    from a joint fit:
+
+    * ``params`` is the guide's MARGINAL least-squares slope -- the slope of
+      the response on that guide's column alone, one parameter estimated at a
+      time. RRA's whole claim is that it never forms the joint fit (see
+      :mod:`spacr.rra`), and this screen is 823 guides against 610 wells,
+      where the joint fit is undefined. A marginal slope is defined for every
+      column at any width and is the analogue of MAGeCK's per-guide log fold
+      change, which is what alpha-RRA ranks.
+    * ``pvalues`` is the guide's GENE's permutation P value, two-sided as
+      ``min(1, 2 * min(p_neg, p_pos))`` -- the standard combination of the two
+      one-sided permutation tests :func:`spacr.rra.rank_aggregate` reports.
+      Taking whichever tail is smaller and NOT doubling would be a one-sided
+      test chosen after seeing the data.
+
+    A row that names no gene -- the intercept, the row/column dummies -- was
+    never ranked, so its P value is NaN rather than 1.0: it was not tested, and
+    a 1.0 would read as "tested and found null".
+
+    :param scores: the marginal slope of each design column, in column order.
+    :param p_values: the two-sided permutation P value of each column's gene.
+    :param index: the design column names.
+    :param genes: :func:`spacr.rra.rank_aggregate`'s per-gene table, kept whole
+        so ``rho_neg``/``rho_pos`` and the direction split are not lost.
+    """
+
+    def __init__(self, scores, p_values, index, genes):
+        feature_index = pd.Index([str(name) for name in index])
+        self.params = pd.Series(np.asarray(scores, dtype=float),
+                                index=feature_index)
+        self.pvalues = pd.Series(np.asarray(p_values, dtype=float),
+                                 index=feature_index)
+        self.genes = genes
+
+    def summary(self):
+        """The per-gene RRA table, for :func:`save_summary_to_file`."""
+        return self.genes
+
 
 #: Regression types ``random_row_column_effects=True`` may be combined with.
 #: ``'ols'`` is here because it is the DEFAULT value of ``regression_type``, so
@@ -2623,7 +3000,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
                hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True,
                legacy_volcano=False, level='grna', level_dst=None,
-               draw_shared_panels=True):
+               draw_shared_panels=True, group_lasso_lambda=0.05,
+               rra_alpha=0.25, rra_permutations=10000):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -2647,6 +3025,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param hinge_threshold: Response cut used to binarise for ``hinge``.
     :param hinge_n_boot: Bootstrap resamples behind the hinge p-values.
     :param huber_t: Huber tuning constant for ``rlm``/``huber``.
+    :param group_lasso_lambda: Block penalty for ``group_lasso``.
+    :param rra_alpha: Top fraction of the guide ranking ``rra`` aggregates.
+    :param rra_permutations: Draws per guide count in ``rra``'s null.
     :param qc: Write the regression QC suite into ``<dst>/regression_qc/``.
     :param legacy_volcano: also draw the ORIGINAL matplotlib volcano.
         Default ``False``. The interactive one is far faster and the
@@ -2814,6 +3195,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             hinge_threshold=hinge_threshold,
             huber_t=huber_t,
             exposure=weights,
+            group_lasso_lambda=group_lasso_lambda,
+            rra_alpha=rra_alpha,
+            rra_permutations=rra_permutations,
         )
 
         coef_df = process_model_coefficients(
@@ -4417,6 +4801,7 @@ def _call_level_hits(coef_df, level, settings, regression_type,
             random_state=0,
             regression_type=regression_type,
             l1_ratio=settings['l1_ratio'],
+            group_lasso_lambda=settings.get('group_lasso_lambda', 0.05),
         )
         # One row per model term on both sides: coef_df['feature'] is the
         # design-matrix column index (X.columns for lasso), sel_df['feature']
@@ -4834,7 +5219,8 @@ def perform_regression(settings):
     
     def bootstrap_selection_frequencies(X, y, formula, alpha='auto', n_boot=200,
                                         random_state=None,
-                                        regression_type='lasso', l1_ratio=0.5):
+                                        regression_type='lasso', l1_ratio=0.5,
+                                        group_lasso_lambda=0.05):
         """Return per-feature selection frequencies from a nonparametric bootstrap.
 
         Output ranks features by how often their coefficient is non-zero
@@ -4848,11 +5234,16 @@ def perform_regression(settings):
             cross-validated estimator per resample.
         :param n_boot: Number of bootstrap resamples. Default ``200``.
         :param random_state: Seed for the resampling RNG.
-        :param regression_type: ``'lasso'`` or ``'elasticnet'`` - the same
-            penalty the reported coefficients were fitted with, or the
-            frequencies would describe a different model from the one in
-            ``results.csv``.
+        :param regression_type: ``'lasso'``, ``'elasticnet'`` or
+            ``'group_lasso'`` - the same penalty the reported coefficients
+            were fitted with, or the frequencies would describe a different
+            model from the one in ``results.csv``.
         :param l1_ratio: ``elasticnet`` mix; ignored for ``'lasso'``.
+        :param group_lasso_lambda: the block penalty, for ``'group_lasso'``.
+            It is a separate argument from ``alpha`` because it is a separate
+            setting: ``alpha`` is not read by that backend at all, so a
+            resample fitted at ``alpha`` would be a different model from the
+            one whose coefficients this is ranking.
         :returns: DataFrame with columns ``feature``,
             ``selection_frequency`` and ``mean_coefficient``.
         :raises RuntimeError: if every resample fails to fit.
@@ -4872,6 +5263,35 @@ def perform_regression(settings):
         # Build the reference design once so the feature index is stable.
         _, X0 = dmatrices(formula, data=X, return_type='dataframe')
         feature_index = pd.Index(X0.columns)
+
+        # THE GROUP LASSO IS RESAMPLED THROUGH ITS OWN SOLVER, not through
+        # sklearn's. Falling through to `_estimator()` would have fitted an
+        # ORDINARY lasso on every resample and reported its stability under
+        # the group lasso's name -- selecting one guide out of a gene's
+        # correlated set, which is the exact behaviour the group penalty
+        # exists to remove.
+        #
+        # PER FEATURE, not per gene, even though spacr.group_lasso.
+        # stability_selection answers per gene: `_call_level_hits` merges this
+        # frame onto the coefficient table on `feature`, one to one. Nothing
+        # is lost by it -- a block is entirely zero or entirely non-zero, so
+        # every column of a gene carries that gene's frequency -- and the
+        # resampling scheme stays the one the other two penalties use, so the
+        # number in the column means the same thing whichever penalty wrote it.
+        blocks = (_design_column_groups(feature_index)
+                  if regression_type == 'group_lasso' else None)
+
+        def _resample_coefficients(design, response):
+            if blocks is not None:
+                from . import group_lasso as group_lasso_module
+
+                beta, _intercept, _converged = group_lasso_module.fit(
+                    np.asarray(design, dtype=float),
+                    np.asarray(response, dtype=float).ravel(),
+                    blocks, lam=float(group_lasso_lambda))
+                return np.asarray(beta, dtype=float).ravel()
+            return np.asarray(_estimator().fit(design, response).coef_).ravel()
+
         nonzero_counts = pd.Series(0.0, index=feature_index)
         coef_sums = pd.Series(0.0, index=feature_index)
 
@@ -4890,8 +5310,8 @@ def perform_regression(settings):
                 continue
             Xb = Xb.reindex(columns=feature_index, fill_value=0.0)
             yb = np.asarray(yb).ravel()
-            m = _estimator().fit(Xb, yb)
-            coefs = pd.Series(np.asarray(m.coef_).ravel(), index=feature_index)
+            coefs = pd.Series(_resample_coefficients(Xb, yb),
+                              index=feature_index)
             nonzero_counts += (coefs != 0).astype(float)
             coef_sums += coefs
             successful += 1
@@ -5405,6 +5825,15 @@ def perform_regression(settings):
         hinge_threshold=settings['hinge_threshold'],
         hinge_n_boot=settings['hinge_n_boot'],
         huber_t=settings['huber_t'],
+        # DEFAULTED HERE, not indexed. `group_lasso_lambda`, `rra_alpha` and
+        # `rra_permutations` are declared in spacr.settings, but a settings
+        # CSV written before instruction 133 has none of them and must still
+        # run -- and every one of these three is only read by the backend that
+        # names it, so its default is never the difference between two
+        # answers for any other type.
+        group_lasso_lambda=settings.get('group_lasso_lambda', 0.05),
+        rra_alpha=settings.get('rra_alpha', 0.25),
+        rra_permutations=settings.get('rra_permutations', 10000),
         # THE QC SUITE HAS TO BE DECLINABLE, and until this line it was not.
         # `regression()` grew a `qc` parameter precisely so a parameter sweep
         # could turn it off, and then nothing passed one -- so every trial of
