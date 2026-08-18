@@ -1908,13 +1908,19 @@ class AppScreen(QWidget):
                     results_provider=self._results_source_path,
                     database_provider=self._attached_database_rows,
                     parent=left)
-                left.addTab(self._cell_montage, "Cells")
+                # THE INDEX `addTab` RETURNS, not the literal the tabs above
+                # it use. This is the last tab, so anything inserted ahead of
+                # it moves it -- and a tooltip on the wrong tab is not a
+                # visible failure, it is a sentence about the Measurements
+                # tab appearing over the Cells one.
+                cells_tab = left.addTab(self._cell_montage, "Cells")
                 left.setTabToolTip(
-                    3, "The cells most consistent with the selected "
-                       "coefficient. This screen is POOLED: the sequencing "
-                       "says what fraction of a well carried a guide, never "
-                       "which cells did, so these are candidates consistent "
-                       "with the effect and the caption says so.")
+                    cells_tab,
+                    "The cells most consistent with the selected "
+                    "coefficient. This screen is POOLED: the sequencing says "
+                    "what fraction of a well carried a guide, never which "
+                    "cells did, so these are candidates consistent with the "
+                    "effect and the caption says so.")
                 self._results_panel.table.key_selected.connect(
                     self._cell_montage.set_coefficient)
 
