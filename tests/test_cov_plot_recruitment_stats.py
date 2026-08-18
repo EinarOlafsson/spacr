@@ -478,11 +478,32 @@ def test_reg_v_plot_annotates_only_significant_points():
     assert [t.get_position() for t in ax.texts] == [
         (1.5, -np.log10(0.001)), (-2.0, -np.log10(0.02)),
     ]
-    # Every row is scattered, coloured by the sign of the effect.
+    # EVERY ROW IS SCATTERED, AND ONLY THE CALLED ONES CARRY COLOUR.
+    #
+    # It used to hand the scatter a scalar-mappable array of np.sign(effect)
+    # under a coolwarm ramp, so every point was coloured by a fact the x axis
+    # already states -- and the house rule is that colour is an ARGUMENT.
+    # The restyle on 2026-08-18 gives explicit per-point colours instead:
+    # a called row (p < 0.05) takes ROLES["up"] or ROLES["down"] by sign,
+    # everything else is ROLES["data"] grey.
+    from matplotlib.colors import to_rgb
+
+    from spacr.figures.style import ROLES
+
     offsets = np.asarray(ax.collections[0].get_offsets())
     assert offsets.shape == (4, 2)
     assert np.allclose(offsets[:, 0], df["effect"])
-    assert np.allclose(ax.collections[0].get_array(), np.sign(df["effect"]))
+    assert ax.collections[0].get_array() is None, (
+        "a colormap over the sign colours every point, which is the thing "
+        "the restyle removed")
+    drawn = [tuple(round(v, 3) for v in rgba[:3])
+             for rgba in ax.collections[0].get_facecolors()]
+    expected = []
+    for effect, p_value in zip(df["effect"], df["p"]):
+        role = ("data" if p_value >= 0.05
+                else ("up" if effect > 0 else "down"))
+        expected.append(tuple(round(v, 3) for v in to_rgb(ROLES[role])))
+    assert drawn == expected
     # Significance threshold line at p = 0.05.
     assert any(np.allclose(ln.get_ydata(), -np.log10(0.05)) for ln in ax.lines)
 

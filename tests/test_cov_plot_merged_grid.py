@@ -579,7 +579,18 @@ def test_plot_images_on_grid_channel_name_banner(tmp_path):
 
     # The 4th name falls off the end of channel_colors and defaults to white.
     assert [t.get_text() for t in fig.texts] == ["red", "green", "blue", "extra"]
-    assert [t.get_color() for t in fig.texts] == ["red", "green", "blue", "white"]
+    # A CHANNEL WITH NO COLOUR OF ITS OWN TAKES THE THEME'S INK, not a hard
+    # "white". The first three headers are the channel's own colour, which is
+    # the skill's rule for a micrograph column header; the fourth has none,
+    # and white is only right on a dark ground -- on the print target it was
+    # white text on a white page.
+    from spacr.figures.style import resolve_ink, theme_target
+
+    assert [t.get_color() for t in fig.texts] == [
+        "red", "green", "blue", resolve_ink(theme_target())]
+    # The black bbox behind each name is gone with it: it existed to make
+    # white text legible on any ground, which is the problem the ink solves.
+    assert all(t.get_bbox_patch() is None for t in fig.texts)
     assert [round(t.get_position()[0], 3) for t in fig.texts] == [0.02, 0.07, 0.12, 0.17]
     assert all(t.get_position()[1] == 0.99 for t in fig.texts)
     assert all(t.get_fontsize() == 9 for t in fig.texts)
