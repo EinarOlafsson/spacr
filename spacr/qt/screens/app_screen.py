@@ -1607,9 +1607,16 @@ class AppScreen(QWidget):
         # If src already points at a real path, don't show the banner.
         # `path`, `""` and None are all placeholders the settings dicts
         # use as "no src set yet".
-        existing = ""
-        if isinstance(src_widget, QLineEdit):
-            existing = (src_widget.text() or "").strip()
+        #
+        # ASKED OF `_settings_src_path`, NOT of `isinstance(src, QLineEdit)`.
+        # Instruction 109 gave the merging modules a `DatabaseSetWidget` for
+        # `src`, and this test read a text box that no longer existed there:
+        # `existing` stayed "" whatever was loaded, so Image UMAP showed
+        # "Point image umap at some data" over three loaded databases.
+        # `_settings_src_path` already knows how to read both shapes, and
+        # asking it is what keeps the next control that replaces a QLineEdit
+        # from reintroducing this.
+        existing = self._settings_src_path()
         placeholders = {"", "path", "/path/to/src", "/path"}
         if existing and existing not in placeholders:
             return None
@@ -1639,11 +1646,37 @@ class AppScreen(QWidget):
             cta_label="Open Demos menu",
             on_action=lambda: self._open_demos_menu(),
         )
-        # Auto-hide once the user sets src
+        # Auto-hide once the user sets src -- through whichever signal the
+        # control has. A set of databases has no `textChanged`, so without
+        # this arm the card stayed on screen for the whole session however
+        # many plates were added.
         if isinstance(src_widget, QLineEdit):
             src_widget.textChanged.connect(self._maybe_hide_empty_state)
+        else:
+            changed = getattr(src_widget, "value_changed", None)
+            if changed is not None and hasattr(changed, "connect"):
+                # A BOUND METHOD, not a closure over `src_widget` (INVARIANTS
+                # 4), and it re-reads the control rather than being told: the
+                # signal carries no payload and the answer is "does src hold
+                # anything", which only the control knows.
+                changed.connect(self._refresh_empty_state)
         card.setObjectName(EMPTY_STATE_NAME)
         return card
+
+    def _refresh_empty_state(self) -> None:
+        """Show or hide the card from what ``src`` holds right now.
+
+        Both directions, unlike :meth:`_maybe_hide_empty_state`, because a
+        set can be emptied: removing the last database returns the screen to
+        exactly the state the card describes, and leaving it hidden would
+        leave a user with no data and nothing telling them how to get some.
+        """
+        card = getattr(self, "_empty_state_card", None)
+        if card is None:
+            return
+        existing = self._settings_src_path()
+        placeholders = {"", "path", "/path/to/src", "/path"}
+        card.setVisible(not existing or existing in placeholders)
 
     def _wire_live_preview_autoload(self) -> None:
         """Feed the first tile under ``src`` into the live-preview panel.
