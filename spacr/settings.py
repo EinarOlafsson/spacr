@@ -3870,7 +3870,13 @@ categories = {
     ],
     "Regression: Significance": [
         "multiple_testing_method", "fdr_alpha", "threshold_method",
-        "threshold_multiplier", "volcano", "toxo",
+        # `volcano` is not here because it is RETIRED (see the note at
+        # `settings.pop('volcano', None)`): the interactive volcano filters
+        # between genes and guides by right-click now, so a setting that
+        # chose which table it drew has nothing left to choose. Leaving the
+        # name in a category made the panel offer a control with no
+        # expected_types entry and no default.
+        "threshold_multiplier", "toxo",
     ],
     # Everything that decides which rows reach the model. These were spread
     # across the old list with the fitting knobs between them, so it was not
@@ -4199,6 +4205,28 @@ def get_setting_dependencies():
                 f"inference (currently {settings.get('inference')!r}). The "
                 "value is kept and saved."),
         )
+
+    # `analysis_mode` IS DEAD WHILE `inference` IS DECIDING IT.
+    #
+    # Instruction 134, and instruction 106's rule about how: greyed out with
+    # the reason on it, never silently inert. `inference` is the readable
+    # front end that SETS `analysis_mode`
+    # (_resolve_regression_analysis_choices), and it does so for every value
+    # except 'auto'. A user who picks 'nonparametric' and then reads a live
+    # `analysis_mode` box still saying 'regression' is looking at two
+    # controls that contradict each other, and the one they can edit is the
+    # one that loses.
+    setting_dependencies['analysis_mode'] = rule(
+        ('inference',),
+        lambda settings, context: str(
+            settings.get('inference') or 'auto').lower() == 'auto',
+        lambda settings, context: (
+            f"analysis_mode is set for you by inference="
+            f"{settings.get('inference')!r}, which selects "
+            f"{INFERENCE_MODES.get(str(settings.get('inference') or '').lower()) or 'regression'!r}. "
+            f"Choose inference='auto' to pick the mode by hand. The value is "
+            f"kept and saved."),
+    )
 
     # THE LEVEL IS DEAD UNDER A MIXED MODEL, AND THE PANEL SAYS SO.
     #
