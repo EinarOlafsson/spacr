@@ -4273,6 +4273,28 @@ def _level_control_rows(frame, level, controls):
     return frame.loc[frame['grna'].astype(str).isin(names)]
 
 
+#: What the setting is called now, and what it used to be called.
+#:
+#: Instruction 133, asked for on 2026-08-17: "change the toxo settings to
+#: Toxoplasma". Both are accepted for the same reason `volcano` was retired
+#: rather than deleted -- every settings CSV written before today carries the
+#: old spelling, and a run that silently ignored it would turn the annotation
+#: off without saying so.
+TOXOPLASMA_KEYS = ('Toxoplasma', 'toxo')
+
+
+def _toxoplasma_is_on(settings) -> bool:
+    """Whether the bundled *Toxoplasma* annotation was asked for.
+
+    The NEW key wins when both are present, because a user who set the new
+    one meant it; an old CSV that carries only `toxo` still works.
+    """
+    for key in TOXOPLASMA_KEYS:
+        if key in settings:
+            return bool(settings[key])
+    return False
+
+
 def _call_level_hits(coef_df, level, settings, regression_type,
                      merged_df, dependent_variable, bootstrap=None):
     """Correct ONE fit within itself and call that fit's hits.
@@ -5448,6 +5470,46 @@ def perform_regression(settings):
     coef_df = _stack(corrected.values())
     significant = _stack(hits_by_level.values())
 
+    # EVERY EXPORTED TABLE CARRIES THE ANNOTATION, not just the volcano's
+    # colours. Instruction 133, asked for on 2026-08-17: "if it is on all the
+    # exported tables should be merged with the relevant Toxoplasma
+    # information".
+    #
+    # Until this block `toxo=True` reached two places -- the volcano and two
+    # heatmaps -- and the CSV a reader actually opens came out as bare gene
+    # numbers and coefficients. The annotation was then joined by hand in a
+    # spreadsheet, which is where wrong-key mistakes live.
+    #
+    # `spacr.annotation` declares every merge many_to_one and collapses each
+    # source to one row per gene first, so this cannot change a row count.
+    # It is checked anyway: this table's contract is one row per coefficient
+    # and it is worth being the kind of code that says so.
+    if _toxoplasma_is_on(settings):
+        from .annotation import annotate, supplementary
+
+        annotated = {}
+        for name, frame in (('results', coef_df), ('gene', gene_coef_df),
+                            ('grna', grna_coef_df),
+                            ('significant', significant)):
+            before = len(frame)
+            annotated[name] = annotate(frame, quiet=(name != 'results'))
+            if len(annotated[name]) != before:
+                raise ValueError(
+                    f"the Toxoplasma annotation changed {name} from {before} "
+                    f"to {len(annotated[name])} row(s).")
+        coef_df = annotated['results']
+        gene_coef_df = annotated['gene']
+        grna_coef_df = annotated['grna']
+        significant = annotated['significant']
+
+        # The DeepTMHMM topology, as its own supplementary table: 72 columns
+        # of segment coordinates beside a coefficient is a table nobody opens
+        # twice, and "where does its third helix start" is a different
+        # question from "does this protein have a signal peptide".
+        supplementary(
+            coef_df['feature'] if 'feature' in coef_df.columns else None,
+            path=os.path.join(res_folder, 'supplementary_topology.csv'))
+
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)
     grna_coef_df.to_csv(results_path_grna, index=False)
@@ -5525,7 +5587,7 @@ def perform_regression(settings):
               "style figure are drawn instead). Set legacy_volcano=True to "
               "draw the original matplotlib one as well.")
 
-    if settings['toxo']:
+    if _toxoplasma_is_on(settings):
         data_path = merged_df
         data_path_gene = gene_merged_df
         data_path_grna = grna_merged_df
@@ -5620,14 +5682,14 @@ def perform_regression(settings):
     
     # A VOLCANO IS NOT A TOXOPLASMA FEATURE.
     #
-    # Everything above sits under `if settings['toxo']`, because the
+    # Everything above sits under `if _toxoplasma_is_on(settings)`, because the
     # compartment colouring needs the LOPIT table. But the volcano itself is
     # the figure this module exists to produce, and gating it on an
     # organism-specific flag meant a run with toxo=False wrote sixteen
     # diagnostic figures and NOT the one the user came for -- silently, with
     # nothing saying why. Drawn here without the compartment colouring, which
     # is the only part that ever needed the metadata.
-    if not settings.get('toxo') and draw_legacy_volcano:
+    if not _toxoplasma_is_on(settings) and draw_legacy_volcano:
         try:
             from .plot import volcano_plot as _plain_volcano
             # The gene table, for the same reason as the toxo branch above.

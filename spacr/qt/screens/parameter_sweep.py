@@ -351,7 +351,7 @@ def _make_screen(app_key=None, host=None):
                 "score_data": self.score_data.get_value(),
                 "count_data": self.count_data.get_value(),
                 "dependent_variable": self.dependent_variable.text().strip(),
-                "toxo": False,
+                "Toxoplasma": False,
                 "verbose": False,
             }
 
