@@ -259,6 +259,84 @@ QWIDGET_SIZE_MAX = (1 << 24) - 1
 _Drawn = namedtuple("_Drawn", "item x y blocks kind counts")
 
 
+def menu_entries(menu) -> list:
+    """Every action a user can actually TRIGGER on ``menu``, submenus included.
+
+    THE MIGRATION THIS EXISTS FOR. ``QMenu.actions()`` returns a SUBMENU'S OWN
+    action and not what is inside it, so sixty-odd assertions written against
+    a flat menu read every grouped entry as a removed feature -- which is what
+    reverted the first attempt at instruction 147 C. Asserting REACHABILITY
+    instead of depth makes those assertions true of the flat menu and of the
+    grouped one alike, so the restructure stops being a rewrite of the suite.
+
+    Two things are skipped because a user cannot do them:
+
+    * separators, which are not entries at all;
+    * ``addSection`` labels, which Qt implements as a separator that HAS text
+      -- so ``isSeparator()`` catches both, and a naive text filter would
+      count a heading as a feature.
+
+    :param menu: a ``QMenu``.
+    :returns: the ``QAction``s, in the order a reader meets them, with each
+        submenu's contents spliced in where the submenu sits.
+    """
+    found = []
+    for action in menu.actions():
+        submenu = action.menu()
+        if submenu is not None:
+            found.extend(menu_entries(submenu))
+        elif not action.isSeparator():
+            found.append(action)
+    return found
+
+
+def menu_groups(menu) -> list:
+    """The names a reader sees dividing ``menu`` into parts, in order.
+
+    An ``addSection`` heading and a submenu title are the same idea to a
+    reader and two different objects to Qt -- which is exactly why a test
+    that names one cannot be written against the other, and why moving a
+    heading into a submenu title read as a deleted feature the first time
+    instruction 147 C was attempted.
+
+    :param menu: a ``QMenu``.
+    """
+    names = []
+    for action in menu.actions():
+        submenu = action.menu()
+        if submenu is not None:
+            names.append(action.text())
+            names.extend(menu_groups(submenu))
+        elif action.isSeparator() and action.text():
+            names.append(action.text())
+    return names
+
+
+def menu_reading_order(menu) -> list:
+    """``menu`` as a reader meets it: entry texts, ``"|"`` at every boundary.
+
+    A separator, a section heading and the edge of a submenu are all one
+    thing to the person reading the menu -- a break -- and are three
+    different things to Qt. This flattens them into the same mark, so
+    "these two entries are kept apart" is a claim that survives being
+    reorganised into submenus.
+
+    :param menu: a ``QMenu``.
+    """
+    order = []
+    for action in menu.actions():
+        submenu = action.menu()
+        if submenu is not None:
+            order.append("|")
+            order.extend(menu_reading_order(submenu))
+            order.append("|")
+        elif action.isSeparator():
+            order.append("|")
+        else:
+            order.append(action.text())
+    return order
+
+
 def mark_advice(kind: str, counts) -> str:
     """Why this mark misleads for groups of these sizes, or ``""``.
 
