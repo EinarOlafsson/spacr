@@ -447,9 +447,24 @@ def test_setup_py_contains_no_pip_install_shellout():
 # 4. The unused Qt binding stays gone
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("banned", ["pyqt6", "pyqtgraph", "qtpy", "superqt"])
+@pytest.mark.parametrize("banned", ["pyqt6", "qtpy", "superqt"])
 def test_no_second_qt_binding_is_declared(banned):
-    """spaCR uses PySide6 in 75 files and none of these in any file.
+    """spaCR uses PySide6 and none of these in any file.
+
+    PYQTGRAPH WAS ON THIS LIST AND CAME OFF IT on 2026-08-17. It was on it
+    for a true reason -- the hand-copied `gui` extra pulled it in and zero
+    files imported it -- and that stopped being true when
+    spacr/qt/widgets/fast_plots.py was written: the volcano, the Q-Q, the
+    p-histogram, the control panel and the guide-agreement plot are all
+    pyqtgraph, and the regression results panel builds all five.
+
+    It is also not the same KIND of thing as the other three. PyQt6, qtpy and
+    superqt are Qt bindings or binding shims, and two bindings in one process
+    is the ABI hazard this test exists for. pyqtgraph is a plotting library
+    that draws through whichever binding is already installed. Keeping it
+    banned meant the dependency spaCR actually imports could not be declared,
+    which is how an install ends up with PySide6, no pyqtgraph, and a
+    RuntimeError out of the screen factory on every module.
 
     The old subprocess loop installed all four (plus pyqt6.sip), which is
     ~100 MB of second Qt binding, an ABI hazard next to PySide6, and a
