@@ -300,3 +300,52 @@ test_the_restyle_menu_is_complete.py's by-name list, with the reason beside it
 -- instruction 128's ask is still answered, by two entries instead of one.
 
 WHAT REMAINS in 147: section A, both fits visible.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A: THE FAST_PLOTS HALF SHIPPED. ONE LINE IS HANDED OFF.
+--------------------------------------------------------------------------------
+
+THE LEVEL CONTROL IS ON THE PLOT. `FastPlot` grows a "Level:" combo box above
+the axes the moment a host calls `offer_levels`, filled with the same labels
+and counts the right-click menu carries and showing which one is drawn. A plot
+nobody offers levels to never grows one -- the header layout is empty and
+costs no height -- and offering an empty list takes it away again.
+
+It is IN ADDITION to the right-click entries, not instead of them. Removing
+the menu group would contradict instruction 128 L, whose whole subject is that
+the filter IS a right-click, and one piece of state drives both. The ask was
+discoverability.
+
+`offer_levels(options, *, note="")` carries the sentence, and the sentence has
+a slot of its own in the status line beside the headline, the style note and
+the click note -- so it survives a redraw AND a click, which is the whole
+point of it. It is also shown beside the control, above the axes.
+
+HANDOFF, ONE LINE, in spacr/qt/widgets/regression_results.py (not this
+territory): `_offer_levels` should pass `note=self.level_note()`.
+`level_note()` IS ALREADY WRITTEN THERE and returns exactly the sentence this
+instruction asked for --
+
+    "guides: 16 of 22 coefficients. The gene fit is in this run too --
+     switch with Level."
+
+-- and `grep -rn level_note spacr/` finds NO caller. It is written, correct,
+and dead. Until that line lands, the app shows the visible control with its
+counts (which already answers "it only runs once": the user can see the gene
+fit exists and how big it is) but not the sentence.
+
+FIVE STALE TESTS FIXED WHILE HERE, in
+tests/test_the_gene_guide_filter_reaches_every_tab.py. They asserted that a
+new table opens on the WHOLE FIT; it opens on the guides since the
+2026-08-18 default change this section is about, and that change was right.
+They now assert the new default with the reason beside it, and reach "the
+whole fit" by choosing it. One of them also pinned the entire tab inventory,
+which has grown twice since it was written -- it asserts the claim (no label
+survives the run that earned it) rather than the inventory, which belongs to
+the instructions that add tabs.
+
+TESTS: tests/test_both_fits_are_visible.py, 12 of them, including one against
+the REAL RegressionResultsPanel: it opens with the control reading "guides
+only (n)".
+
+WHAT REMAINS in 147: nothing in this territory. The one-line handoff above.

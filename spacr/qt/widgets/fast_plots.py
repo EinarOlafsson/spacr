@@ -516,6 +516,14 @@ class FastPlot(QWidget):
         # fire on the very first setLabel, and the pyqtgraph-absent path
         # still has to answer log_axes() without raising.
         self._init_axis_state()
+        #: The level control that lives ON the plot rather than three clicks
+        #: into a menu, and the sentence beside it. Born as None: a plot
+        #: whose host never offers levels never grows either.
+        self._header = None
+        self._level_label = None
+        self._level_box = None
+        self._level_note_label = None
+        self._level_note = ""
         if not HAVE_PYQTGRAPH:
             self._build_without_pyqtgraph(title)
             return
@@ -535,6 +543,13 @@ class FastPlot(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
+        # ABOVE THE PLOT, BESIDE THE TITLE. Empty it costs no height, and it
+        # stays empty on every plot whose host offers no levels -- which is
+        # every plot but the volcano.
+        self._header = QHBoxLayout()
+        self._header.setContentsMargins(0, 0, 0, 0)
+        self._header.setSpacing(6)
+        layout.addLayout(self._header)
 
         self.plot = pg.PlotWidget(title=title or None)
         # EVERY ITEM AND EVERY LABEL, CAUGHT ON THE WAY IN -- see
@@ -771,17 +786,30 @@ class FastPlot(QWidget):
         """
         self._thresholds = (list(options or ()), multiplier, on_multiplier)
 
-    def offer_levels(self, options) -> None:
-        """Offer "show only genes / only guides / both" on the menu.
+    def offer_levels(self, options, *, note: str = "") -> None:
+        """Offer "show only genes / only guides / both", ON the plot.
 
         :param options: ``[(label, callback, checked)]``.
+        :param note: one sentence naming what is shown and what is not, for
+            the host to supply -- only the host knows the run. Shown beside
+            the control and in the status line, and it survives a redraw.
 
-        Its own section, above the baselines, because it changes WHICH ROWS
-        are on the plot rather than how they are drawn or where zero is. A
-        user who cannot tell "I am looking at a subset" from "I restyled it"
-        will read a filtered plot as the whole screen.
+        ITS OWN SECTION ON THE MENU, above the baselines, because it changes
+        WHICH ROWS are on the plot rather than how they are drawn or where
+        zero is. A user who cannot tell "I am looking at a subset" from "I
+        restyled it" will read a filtered plot as the whole screen.
+
+        AND A CONTROL ON THE PLOT, which is what instruction 147 A is about.
+        A run with ``level='both'`` fits twice, and the panel opens on the
+        guide fit so a gene is not drawn once per guide -- both correct, and
+        neither said out loud. The report was "it only runs once", and from
+        the user's side that was the honest reading: half the run was
+        invisible behind a right-click nobody had performed. A filter that
+        hides half a run may not be three clicks deep.
         """
         self._levels = list(options or ())
+        self._level_note = str(note or "")
+        self._refresh_level_control()
 
     def offer_baselines(self, options) -> None:
         """Offer "measure the effects from ..." on the right-click menu.
@@ -809,6 +837,54 @@ class FastPlot(QWidget):
         answer there.
         """
         self._marks = list(options or ())
+
+    def _refresh_level_control(self) -> None:
+        """Build, fill or hide the level control above the plot."""
+        if self._header is None:
+            return
+        from PySide6.QtWidgets import QComboBox, QLabel
+
+        if self._level_box is None:
+            self._level_label = QLabel("Level:")
+            self._level_box = QComboBox()
+            self._level_box.setToolTip(
+                "Which family of coefficients is drawn. A run fitted at both "
+                "levels holds two of them.")
+            self._level_box.activated.connect(self._on_level_chosen)
+            self._level_note_label = QLabel("")
+            self._level_note_label.setWordWrap(True)
+            self._header.addWidget(self._level_label)
+            self._header.addWidget(self._level_box)
+            self._header.addWidget(self._level_note_label, 1)
+        showing = bool(self._levels)
+        for widget in (self._level_label, self._level_box,
+                       self._level_note_label):
+            widget.setVisible(showing)
+        if showing:
+            # `activated` fires on a USER's choice only, so refilling cannot
+            # re-enter the callback -- blocked anyway, because a future
+            # currentIndexChanged here would, and silently.
+            blocked = self._level_box.blockSignals(True)
+            self._level_box.clear()
+            current = 0
+            for index, (label, _callback, checked) in enumerate(self._levels):
+                self._level_box.addItem(str(label))
+                if checked:
+                    current = index
+            self._level_box.setCurrentIndex(current)
+            self._level_box.blockSignals(blocked)
+        self._level_note_label.setText(self._level_note)
+        self._level_note_label.setVisible(showing and bool(self._level_note))
+        self._refresh_status()
+
+    def _on_level_chosen(self, index: int) -> None:
+        """The user picked a level off the control above the plot."""
+        if 0 <= int(index) < len(self._levels):
+            self._levels[int(index)][1]()
+
+    def level_note(self) -> str:
+        """The sentence naming what is drawn and what is not, or ``""``."""
+        return self._level_note
 
     def _restyle_state(self) -> None:
         """Every field the restyle menu reads, born before anything can ask.
@@ -2531,7 +2607,8 @@ class FastPlot(QWidget):
     def set_status(self, text: str) -> None:
         """What this plot has to say about ITSELF. Survives a selection."""
         self._headline = text
-        self._status.setText(self._compose(text, self._style_note))
+        self._status.setText(self._compose(text, self._level_note,
+                                           self._style_note))
 
     def set_style_note(self, note: str) -> None:
         """What a RESTYLE has to say. Survives a redraw and a selection.
@@ -2544,7 +2621,8 @@ class FastPlot(QWidget):
         overwritten by something unrelated.
         """
         self._style_note = note
-        self._status.setText(self._compose(self._headline, note, self._note))
+        self._status.setText(self._compose(self._headline, self._level_note,
+                                           note, self._note))
 
     @staticmethod
     def _compose(*parts) -> str:
@@ -2562,8 +2640,19 @@ class FastPlot(QWidget):
         """
         self._note = note
         self._status.setText(self._compose(getattr(self, "_headline", ""),
+                                           getattr(self, "_level_note", ""),
                                            getattr(self, "_style_note", ""),
                                            note))
+
+    def _refresh_status(self) -> None:
+        """Rewrite the status line from the four sentences it can hold."""
+        status = getattr(self, "_status", None)
+        if status is None:              # pragma: no cover - before the layout
+            return
+        status.setText(self._compose(getattr(self, "_headline", ""),
+                                     getattr(self, "_level_note", ""),
+                                     getattr(self, "_style_note", ""),
+                                     getattr(self, "_note", "")))
 
     def note_selection(self, key, found: bool) -> None:
         """Say a row was picked -- unless this plot already said MORE about it.
