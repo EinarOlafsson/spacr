@@ -1351,7 +1351,8 @@ class AppScreen(QWidget):
         screen is usually to put it in a methods section, and a formula you
         cannot copy is a formula you retype.
 
-        NoWrap, like that Summary tab. The text arrives pre-wrapped to a fixed
+        WRAPPED AT THE WIDGET'S WIDTH since 2026-08-18. It used to arrive
+        pre-wrapped to a fixed
         column by `regression_model_explainer`, so the box needs no wrapping
         of its own -- and soft-wrapping on top of a hard wrap is what made it
         unreadable at the pane's default width: every prose line broke a
@@ -1367,7 +1368,20 @@ class AppScreen(QWidget):
         box = QPlainTextEdit()
         box.setObjectName("ModelExplainer")
         box.setReadOnly(True)
-        box.setLineWrapMode(QPlainTextEdit.NoWrap)
+        # WRAP AT THE BOX'S OWN WIDTH. Asked for on 2026-08-18, once per box:
+        # "the text in the text box should span the width of the textbox".
+        #
+        # It was NoWrap over text `_wrap_block` had already hard-wrapped to 54
+        # columns, so the paragraph was 54 characters wide whatever the pane
+        # was and the right-hand side of the box sat empty. The prose is one
+        # logical line per paragraph now and this wraps it, so it reflows when
+        # the pane is resized.
+        #
+        # A FORMULA STILL CANNOT BREAK, and that is why the minimum width
+        # below is `explainer_width()` -- the longest unbreakable line in any
+        # explainer, measured from them rather than declared. The widget is
+        # never narrow enough to wrap one.
+        box.setLineWrapMode(QPlainTextEdit.WidgetWidth)
 
         # MONOSPACE HAS TO COME THROUGH QSS, NOT setFont().
         #

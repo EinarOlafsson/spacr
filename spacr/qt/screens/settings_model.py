@@ -3455,30 +3455,71 @@ _WHY_BODY = (
 
 
 def explainer_width() -> int:
-    """The column the explainer's prose is wrapped to.
+    """The narrowest the box may be, in monospace characters.
 
-    Read by `AppScreen._install_model_explainer` to size the widget, so the
-    wrap column and the box width cannot drift apart.
+    THE LONGEST FORMULA, not a prose column. The prose wraps to whatever
+    width the box is given (see :func:`_wrap_block`); the formulas must never
+    wrap, so the floor is set by the longest line that cannot be broken.
+
+    Measured from the explainers themselves rather than declared, so a
+    formula added to one of them widens the floor with it instead of being
+    the first thing to wrap.
     """
-    return _EXPLAINER_WIDTH
+    longest = _EXPLAINER_WIDTH
+    for text in _every_explainer_line():
+        if text.strip().startswith(("y ~", "rho =", "minimise")):
+            longest = max(longest, len(text))
+    return longest
+
+
+def _every_explainer_line():
+    """Every line any explainer can render, for :func:`explainer_width`.
+
+    Cheap: these are dict lookups and f-strings over a handful of families,
+    and the result is asked for once when a panel is built.
+    """
+    from spacr.regression_spec import REGRESSION_TYPES
+
+    lines = []
+    for family in REGRESSION_TYPES:
+        for level in REGRESSION_LEVELS:
+            try:
+                lines.extend(regression_model_explainer(family,
+                                                        level).splitlines())
+            except Exception:                                  # noqa: BLE001
+                continue
+    return lines
 
 
 def _wrap_block(text: str, indent: str = "    ") -> str:
-    """Wrap one prose paragraph into the box's fixed column.
+    """One prose paragraph, indented and left for the WIDGET to wrap.
 
-    Hard-wrapped here rather than left to the widget so the text has a stable
-    shape a test can assert, and so a formula pasted out of the box arrives in
-    a methods section as the line it was written as.
+    Asked for on 2026-08-18, once per box: "the text in the text box should
+    span the width of the textbox". It did not, because this function ran
+    `textwrap.wrap` at a fixed 54 columns -- so the paragraph was 54
+    characters wide whatever the pane was, and widening the settings pane
+    widened the box and left its right-hand side empty.
+
+    THE PARAGRAPH IS NOW ONE LOGICAL LINE and the box wraps it at its own
+    width. Two things that were true before stay true, and they are the
+    reason the old shape existed:
+
+    * A FORMULA IS NEVER BROKEN. Formulas are not sent through here; they are
+      emitted as their own lines, and the box's minimum width is the longest
+      of them (:func:`explainer_width`), so the widget can never be narrow
+      enough to wrap one. A formula split at an arbitrary column is not a
+      formula, and copying one into a methods section is the reason to have
+      it on screen at all.
+    * SOFT-WRAP ON TOP OF A HARD WRAP IS WHAT BROKE IT BEFORE -- every prose
+      line breaking a second time at a different column with no hanging
+      indent. There is only one wrap now, so that cannot happen.
     """
     out = []
     for paragraph in str(text).split("\n"):
         if not paragraph.strip():
             out.append("")
             continue
-        out.extend(textwrap.wrap(
-            paragraph, width=_EXPLAINER_WIDTH,
-            initial_indent=indent, subsequent_indent=indent,
-            break_long_words=False, break_on_hyphens=False))
+        out.append(indent + " ".join(paragraph.split()))
     return "\n".join(out)
 
 
