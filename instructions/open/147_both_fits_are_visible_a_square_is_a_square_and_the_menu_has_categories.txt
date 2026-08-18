@@ -245,3 +245,58 @@ WHAT REMAINS in 147: section A (both fits visible) and section B (the canvas
 shape). Instruction 148 C -- grid and log onto this menu -- is next, and the
 categories it needs are now here: log under Axes, grid already under
 Appearance.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION B SHIPPED. THE SQUARE IS THE CANVAS, AND IT REACHES THE FILE.
+--------------------------------------------------------------------------------
+
+BOTH EXIST AND ARE NAMED APART, as this section asked:
+
+    Appearance ▸ Shape ▸ square / wide / tall / free
+        THE CANVAS. `set_canvas_shape` / `canvas_shape` / `canvas_ratio`, with
+        CANVAS_SHAPES holding height-over-width: square 1, wide 2/3, tall 3/2.
+    Axes ▸ Lock axis scales (1 y unit = n x units)…
+        THE DATA. `set_aspect_ratio`, unchanged in behaviour and renamed. It
+        is still what a Q-Q wants and it was the only thing on offer, which
+        is the whole of the report.
+
+Neither touches the other, and there is a test for each direction: setting the
+page square must not tie the axes together (on a volcano one coefficient unit
+is not one -log10(p) unit, and pretending so squashes the plot into a sliver),
+and locking the axes must not reshape the page.
+
+IT REACHES THE EXPORT, WHICH IS THE POINT. `export_size()` is the one place
+every export path reads, so that is where the shape lands: the PDF page, the
+SVG's declared size and the PNG's pixels all come out at the ratio. AN
+EXPLICIT PAGE SIZE STILL WINS -- a user who typed millimetres said something
+more specific than "square".
+
+THE PNG NEEDED ITS OWN LINE. pyqtgraph LINKS the exporter's width and height
+parameters: setting one recomputes the other from the scene's aspect, so
+setting both in sequence loses the first. Each is set with the other's handler
+blocked, which is what the exporter does internally. The WIDTH is kept as it
+was: a shape is a statement about the proportion, not about the resolution,
+and quietly rescaling every PNG in the application would be a second change
+nobody asked for.
+
+ON SCREEN TOO, so the file is not letterboxed into a difference between the
+two. The shape gives way on the long side rather than overflowing: the height
+stops at the room the widget has after its controls and status line, and the
+width is capped to keep the proportion exact. Measured as a stable fixed point
+-- 800x400, 400x800 and 600x600 all settle in one pass and do not creep. The
+chrome is measured from the layout's OTHER items, never from the plot's
+current height, because reading the number about to be changed is how a shape
+creeps a few pixels per resize.
+
+THE FILE IS MEASURED, NOT THE SCREEN:
+tests/test_a_square_is_the_canvas_not_the_data.py, 16 tests. The PNG is read
+back with QImage, the SVG's width/height are parsed out of its header, and the
+PDF's own /MediaBox is read out of the bytes. The fixture is deliberately
+800x400 and there is a test that a FREE canvas still comes out non-square, so
+a control that did nothing could not pass.
+
+RENAMED IN THE TESTS: "Aspect ratio" became "Lock axis scales" in
+test_the_restyle_menu_is_complete.py's by-name list, with the reason beside it
+-- instruction 128's ask is still answered, by two entries instead of one.
+
+WHAT REMAINS in 147: section A, both fits visible.

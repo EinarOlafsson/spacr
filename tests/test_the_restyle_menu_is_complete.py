@@ -129,10 +129,15 @@ def _action(plot, fragment):
 #  Everything the maintainer named is on the menu
 # --------------------------------------------------------------------------- #
 
+#: "Aspect ratio" is here as "Lock axis scales": instruction 147 B renamed it,
+#: because the maintainer read the old name as "make the figure square" and it
+#: is a statement about the DATA. The figure's own shape is a separate control
+#: -- see the canvas-shape tests below -- so the ask is still answered, by two
+#: entries instead of one.
 @pytest.mark.parametrize("wanted", [
-    "Axis limits", "Aspect ratio", "Font colour", "Line colour and width",
-    "Colour by a column", "Shape by a column", "Size on screen",
-    "Exported page size",
+    "Axis limits", "Lock axis scales", "Font colour",
+    "Line colour and width", "Colour by a column", "Shape by a column",
+    "Size on screen", "Exported page size",
 ])
 def test_the_menu_offers_everything_that_was_asked_for_by_name(volcano,
                                                                wanted):
@@ -276,7 +281,7 @@ def test_asking_for_no_ratio_unlocks_rather_than_locking_to_nothing(
     monkeypatch.setattr(QInputDialog, "getDouble",
                         staticmethod(lambda *a, **k: (0.0, True)))
 
-    _action(volcano, "Aspect ratio").trigger()
+    _action(volcano, "Lock axis scales").trigger()
 
     assert volcano.aspect_ratio() is None
 

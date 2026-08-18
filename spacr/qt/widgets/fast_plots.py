@@ -237,6 +237,20 @@ MAX_SHAPE_VALUES = len(SHAPE_SYMBOLS)
 #: How wide a saved page is, in millimetres: a journal's double-column width.
 EXPORT_WIDTH_MM = 180.0
 
+#: The shape of the CANVAS -- the thing that gets exported -- as
+#: ``(name, height / width)``. ``None`` is "whatever the box it sits in is".
+#:
+#: NOT THE ASPECT LOCK. That one ties one y unit to n x units and is a
+#: statement about the DATA, which is what a Q-Q wants and is not what "save
+#: it as a square" means. The two are built and named apart (instruction
+#: 147 B) because the old control was the second wearing the first's name.
+CANVAS_SHAPES = (
+    ("square", 1.0),
+    ("wide", 2.0 / 3.0),
+    ("tall", 1.5),
+    ("free", None),
+)
+
 #: Qt's own "no maximum", which PySide6 does not re-export from QtWidgets --
 #: checked: ``from PySide6.QtWidgets import QWIDGETSIZE_MAX`` raises
 #: ImportError on 6.11.1. Needed to give a widget its stretch back after a
@@ -953,6 +967,10 @@ class FastPlot(QWidget):
         #: says an axis is logged -- so the note is added once however many
         #: times the scale is switched.
         self._base_labels: dict = {}
+        #: Which of :data:`CANVAS_SHAPES` the canvas is held at.
+        self._canvas_shape: str = "free"
+        #: Guards the re-entrant resize the shape imposes.
+        self._shaping: bool = False
         #: Whether the grid is drawn. State rather than a widget since the
         #: control moved onto the menu: a menu entry is built fresh on every
         #: right-click and cannot be the thing that remembers.
@@ -1801,11 +1819,105 @@ class FastPlot(QWidget):
                             max_h if max_h else QWIDGET_SIZE_MAX)
         self._size_bounds = None
 
+    def canvas_shape(self) -> str:
+        """Which of :data:`CANVAS_SHAPES` the FIGURE is held at."""
+        return self._canvas_shape
+
+    def canvas_ratio(self) -> Optional[float]:
+        """Height over width for the current shape, or None when free."""
+        return dict(CANVAS_SHAPES).get(self._canvas_shape)
+
+    def set_canvas_shape(self, name: str) -> None:
+        """Hold the CANVAS at ``name``: square, wide, tall, or free.
+
+        THE CANVAS, NOT THE DATA. :meth:`set_aspect_ratio` locks one y unit
+        to n x units, which is a statement about the numbers and is what a
+        Q-Q needs; this is a statement about the PAGE, and it is what "there
+        should be an option to make the graph a perfect square" asked for.
+
+        IT REACHES THE EXPORT, which is the whole point of it: a square on
+        screen that is written out at the widget's accidental proportions has
+        not done the job. :meth:`export_size` derives the page height from
+        this, so the PDF, the SVG and the PNG all come out at the shape --
+        and the plot is held at the same shape on screen, so the two agree
+        and nothing is letterboxed into the difference.
+        """
+        name = str(name)
+        if name not in dict(CANVAS_SHAPES):
+            raise ValueError(
+                f"unknown shape {name!r}; known shapes: "
+                f"{', '.join(shape for shape, _ in CANVAS_SHAPES)}")
+        self._canvas_shape = name
+        self._apply_canvas_shape()
+
+    def _chrome_height(self) -> int:
+        """How much of this widget is NOT the plot: controls, status, margins.
+
+        Measured from the layout's OTHER items rather than from the plot's
+        current height, which is the number about to be changed -- reading it
+        would make the next resize depend on the last one and the shape would
+        creep a few pixels every pass.
+        """
+        layout = self.layout()
+        if layout is None:                  # pragma: no cover - always laid out
+            return 0
+        margins = layout.contentsMargins()
+        total = margins.top() + margins.bottom()
+        total += max(0, layout.count() - 1) * max(0, layout.spacing())
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            if item is None or item.widget() is self.plot:
+                continue
+            total += int(item.sizeHint().height())
+        return int(total)
+
+    def _apply_canvas_shape(self) -> None:
+        """Hold the plot at the shape's proportion on screen.
+
+        CLAMPED TO THE ROOM THERE IS. A square imposed on a panel that is
+        twice as wide as it is tall would push the controls and the status
+        line off the bottom, so the shape gives way on the long side: the
+        height stops at the room available and the width is capped to keep
+        the proportion exact. That is a stable fixed point rather than a
+        negotiation -- the next pass computes the same two numbers.
+        """
+        if not self.plots_available or self._shaping:
+            return
+        ratio = self.canvas_ratio()
+        self._shaping = True
+        try:
+            if ratio is None:
+                self.plot.setMinimumHeight(0)
+                self.plot.setMaximumHeight(QWIDGET_SIZE_MAX)
+                self.plot.setMaximumWidth(QWIDGET_SIZE_MAX)
+                return
+            room = max(1, int(self.height()) - self._chrome_height())
+            width = max(1, int(self.plot.width()))
+            height = max(1, min(int(round(width * ratio)), room))
+            self.plot.setFixedHeight(height)
+            self.plot.setMaximumWidth(max(1, int(round(height / ratio))))
+        finally:
+            self._shaping = False
+
+    def resizeEvent(self, event) -> None:      # noqa: N802 - Qt's own name
+        """Re-impose the canvas shape whenever the box around it changes."""
+        super().resizeEvent(event)
+        if self._canvas_shape != "free":
+            self._apply_canvas_shape()
+
     def export_size(self) -> tuple:
         """``(width mm, height mm)`` of a saved page.
 
-        A height of None means "follow the plot's own aspect".
+        A height of None means "follow the plot's own aspect" -- which is
+        what a FREE canvas does. A shape set by :meth:`set_canvas_shape` is
+        an answer to that question, so it is honoured here: this is the one
+        place every export path reads, so it is the one place the shape has
+        to land to reach all three of them.
         """
+        ratio = self.canvas_ratio()
+        if self._export_height_mm is None and ratio is not None:
+            return (float(self._export_width_mm),
+                    float(self._export_width_mm) * ratio)
         return (float(self._export_width_mm), self._export_height_mm)
 
     def set_export_size(self, width_mm: float,
@@ -1991,7 +2103,13 @@ class FastPlot(QWidget):
         axes.addAction("Axis labels…", self._ask_labels)
         axes.addAction("Axis limits…", self._ask_axis_limits)
         axes.addAction("Axis limits: back to automatic", self.auto_range_axes)
-        axes.addAction("Aspect ratio…", self._ask_aspect_ratio)
+        # NAMED FOR WHAT IT DOES. It was "Aspect ratio", which everybody
+        # read as "make the figure square" -- and it is a statement about the
+        # DATA: one y unit drawn as n x units, which is what a Q-Q's
+        # 45-degree diagonal needs and is nothing to do with the page. The
+        # page is "Shape", under Appearance.
+        axes.addAction("Lock axis scales (1 y unit = n x units)…",
+                       self._ask_aspect_ratio)
         for axis in ("x", "y"):
             # CHECKABLE, AND GATED. The tick is the state, and an axis that
             # cannot be logged says why in the entry itself rather than
@@ -2009,6 +2127,13 @@ class FastPlot(QWidget):
         self._gated(look, "Opacity…", self._ask_opacity, points)
         self._gated(look, "Shape by a column…", self._ask_shape_column,
                     self.shape_reason())
+        shape = self._group(look, "Shape")
+        for name, _ratio in CANVAS_SHAPES:
+            entry = shape.addAction(
+                name, lambda _checked=False, which=name:
+                self.set_canvas_shape(which))
+            entry.setCheckable(True)
+            entry.setChecked(self._canvas_shape == name)
         look.addAction("Font size…", self._ask_font_size)
         look.addAction("Font colour…", self._ask_font_colour)
         self._gated(look, "Line colour and width…", self._ask_line_style,
@@ -2299,8 +2424,9 @@ class FastPlot(QWidget):
 
         current = self.aspect_ratio()
         value, ok = QInputDialog.getDouble(
-            self, "Aspect ratio",
-            "X units per Y unit; 0 lets the plot fill its box:",
+            self, "Lock axis scales",
+            "X units per Y unit; 0 lets the data fill its box. This is the "
+            "DATA's scale, not the figure's shape:",
             float(current or 0.0), 0.0, 1000.0, 3)
         if ok:
             self.set_aspect_ratio(None if value <= 0 else value)
@@ -2879,8 +3005,35 @@ class FastPlot(QWidget):
                 exporter.parameters()["background"] = QColor(0, 0, 0, 0)
             except (KeyError, TypeError):   # pragma: no cover - older pyqtgraph
                 pass
+            self._shape_the_image(exporter)
             exporter.export(path)
         return path
+
+    def _shape_the_image(self, exporter) -> None:
+        """Hold a raster export at the canvas shape, KEEPING ITS WIDTH.
+
+        The width is left alone deliberately: a shape is a statement about
+        the proportion, not about the resolution, and quietly rescaling every
+        PNG in the application to answer "make it square" would be a second
+        change nobody asked for.
+
+        pyqtgraph links the two parameters -- setting one recomputes the
+        other from the scene's aspect -- so each is set with the other's
+        handler blocked, which is what the exporter itself does internally.
+        """
+        ratio = self.canvas_ratio()
+        if ratio is None:
+            return
+        try:
+            parameters = exporter.parameters()
+            width = int(exporter.getSourceRect().width())
+            parameters.param("width").setValue(
+                width, blockSignal=exporter.widthChanged)
+            parameters.param("height").setValue(
+                max(1, int(round(width * ratio))),
+                blockSignal=exporter.heightChanged)
+        except Exception:       # pragma: no cover - a different exporter API
+            pass
 
     def snapshot(self, width: int = SNAPSHOT_PX[0]):
         """A picture of this plot, even on a page nobody has opened.
