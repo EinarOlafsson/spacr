@@ -3216,6 +3216,12 @@ _BASIS_NOTE_PROPERTY = "_spacr_basis_note"
 #: SEPARATELY and writes both tables.
 REGRESSION_LEVELS = ("both", "grna", "gene")
 
+#: The model part of each formula, without the plate terms -- those are
+#: decided by the settings and added by :func:`formula_for`.
+GRNA_TERM = "fraction:grna"
+GENE_TERM = "gene_fraction:gene"
+MIXED_TERM = "gene_fraction:gene + (1 | gene/grna)"
+
 #: One coefficient per guide. The guide is the unit the screen measures.
 GRNA_FORMULA = "y ~ fraction:grna + rowID + columnID"
 
@@ -3224,6 +3230,48 @@ GENE_FORMULA = "y ~ gene_fraction:gene + rowID + columnID"
 
 #: The mixed model: gene fixed, guide random and nested inside its gene.
 MIXED_FORMULA = "y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID"
+
+
+def formula_for(term: str, *, plate_position: bool = True,
+                random_row_column: bool = False) -> str:
+    """The formula actually fitted, for one model term and the plate settings.
+
+    THE BOX MUST NOT SHOW A FORMULA THE RUN DOES NOT FIT. Reported
+    2026-08-18: "the state of the model plate possition and random row and
+    column effects should influence this equation". It did not --
+    `regression_model_explainer` took only `(regression_type, level)`, so the
+    three constants above were printed whatever the two plate settings said,
+    and a user who turned plate position OFF still read `+ rowID + columnID`.
+
+    That is the same class of failure as an axis that relabels itself without
+    moving its dots: the display asserts something the code does not do, and
+    nothing on screen says which to believe.
+
+    The three states, and they are the three `spacr.ml.prepare_formula`
+    produces:
+
+        plate_position=False            no row or column term at all
+        plate_position=True             ``+ rowID + columnID``, fixed effects
+        random_row_column=True          ``+ (1 | rowID) + (1 | columnID)``,
+                                        variance components -- the terms are
+                                        still IN the model, they are simply
+                                        not fixed effects
+
+    ``random_row_column`` implies the terms are present, so it wins over
+    ``plate_position=False``; that combination is refused upstream
+    (`_reconcile_random_row_column_effects`) and this renders what the refusal
+    would be about rather than inventing a fourth state.
+
+    :param term: the model part, e.g. ``"fraction:grna"`` or
+        ``"gene_fraction:gene + (1 | gene/grna)"``.
+    """
+    if random_row_column:
+        position = " + (1 | rowID) + (1 | columnID)"
+    elif plate_position:
+        position = " + rowID + columnID"
+    else:
+        position = ""
+    return f"y ~ {term}{position}"
 
 #: THE FORMULA THIS INSTRUCTION EXISTS TO RETIRE, kept by name because the box
 #: has to be able to show a user what changed and why. `gene_fraction` is the
@@ -3524,8 +3572,21 @@ def normalise_regression_level(level: Any) -> str:
 
 
 def regression_model_explainer(regression_type: Any,
-                               level: Any = "both") -> str:
-    """The box's text for one (`regression_type`, `level`) selection.
+                               level: Any = "both",
+                               plate_position: Any = True,
+                               random_row_column: Any = False) -> str:
+    """The box's text for the current selection.
+
+    :param plate_position: whether rowID and columnID are in the model at all
+        (`model_plate_position`).
+    :param random_row_column: whether they are variance components rather
+        than fixed effects (`random_row_column_effects`).
+
+    THE FORMULA SHOWN IS THE FORMULA FITTED, and the last two parameters are
+    what makes that true. They were absent until 2026-08-18, so the box
+    printed `+ rowID + columnID` however the plate settings were set --
+    reported as "the state of the model plate possition and random row and
+    column effects should influence this equation".
 
     States THE FORMULA that will be fitted and WHAT IS MODELLED, plus what the
     chosen mode does and how the results are corrected. Pure text: no Qt, no
@@ -3567,6 +3628,8 @@ def regression_model_explainer(regression_type: Any,
     :data:`spacr.ml.COLLINEAR_FORMULA_FRAGMENT` carries the same measurement
     from the fitting side.
     """
+    position = {"plate_position": bool(plate_position),
+                "random_row_column": bool(random_row_column)}
     key = str(regression_type or "auto").strip().lower() or "auto"
     if key not in _MODE_NOTES:
         # An unknown name is the pipeline's error to raise, with its own list
@@ -3586,7 +3649,7 @@ def regression_model_explainer(regression_type: Any,
         lines.append("LEVEL: not applicable -- one model carries both levels")
         lines.append("")
         lines.append("FORMULA")
-        lines.append(f"    {MIXED_FORMULA}")
+        lines.append(f"    {formula_for(MIXED_TERM, **position)}")
         lines.append("")
         lines.append("WHAT IS MODELLED")
         lines.append(_wrap_block(_MODE_NOTES["mixed"]))
@@ -3630,14 +3693,14 @@ def regression_model_explainer(regression_type: Any,
         # reader needs it for, and it belongs to the formula above it.
         if chosen in ("both", "grna"):
             lines.append("FORMULA (guide fit)  ->  results_grna.csv")
-            lines.append(f"    {GRNA_FORMULA}")
+            lines.append(f"    {formula_for(GRNA_TERM, **position)}")
             lines.append(_wrap_block(
                 "One coefficient per guide, the unit the screen "
                 "measures."))
             lines.append("")
         if chosen in ("both", "gene"):
             lines.append("FORMULA (gene fit)   ->  results_gene.csv")
-            lines.append(f"    {GENE_FORMULA}")
+            lines.append(f"    {formula_for(GENE_TERM, **position)}")
             lines.append(_wrap_block(
                 "One coefficient per gene, from the summed guide "
                 "fraction."))

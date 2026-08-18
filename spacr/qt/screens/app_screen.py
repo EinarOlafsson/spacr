@@ -1445,13 +1445,21 @@ class AppScreen(QWidget):
         # lifetime reasoning applies to any connection that outlives the call
         # that made it.
         widgets = getattr(self._settings_model, "_widgets", {})
-        for key in ("regression_type", "level"):
+        for key in ("regression_type", "level", "model_plate_position",
+                    "random_row_column_effects"):
             # `level` is a NEW setting and may not be on the panel yet; the
             # box still has to render for the model that IS there.
             widget = widgets.get(key)
             if widget is None:
                 continue
+            # `toggled` FIRST-CLASS, not an afterthought. Two of the four
+            # settings this box follows are `Toggle`, which is a QCheckBox and
+            # therefore has NONE of the combo/text signals below -- so no
+            # connection was made at all and the formula never moved when the
+            # plate settings did. Silent, because a `for/else` that finds
+            # nothing simply finds nothing.
             for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "toggled", "stateChanged",
                                 "textChanged", "value_changed"):
                 signal = getattr(widget, signal_name, None)
                 if signal is not None:
@@ -1482,8 +1490,14 @@ class AppScreen(QWidget):
             except Exception:
                 return fallback
 
+        # THE PLATE SETTINGS REACH THE FORMULA. Without them the box printed
+        # `+ rowID + columnID` however they were set, so a user who turned
+        # plate position off still read it in the formula -- the display
+        # asserting something the run does not do.
         box.setPlainText(regression_model_explainer(
-            value("regression_type", "auto"), value("level", "both")))
+            value("regression_type", "auto"), value("level", "both"),
+            plate_position=value("model_plate_position", True),
+            random_row_column=value("random_row_column_effects", False)))
 
     def refresh_maturity_visibility(self) -> None:
         """Show/hide Alpha and Beta settings without discarding typed values."""
