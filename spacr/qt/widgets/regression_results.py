@@ -1494,15 +1494,19 @@ class RegressionResultsPanel(QWidget):
         user comes back to the tab, and the answer belongs beside the marks
         it describes.
         """
-        # THE VOLCANO ONLY, and deliberately. `set_status_note` is how the
-        # diagnostics carry the numbers they exist for -- the inflation
-        # factor, the control medians, how many genes rest on one guide --
-        # and writing the level sentence over those would trade a panel's
-        # whole content for something the header already says. The volcano is
-        # the plot the report was about and the one a user looks at first.
-        setter = getattr(self.volcano, "set_status_note", None)
-        if callable(setter):
-            setter(self.both_levels_note())
+        # THE VOLCANO ONLY, and deliberately. The diagnostics carry the
+        # numbers they exist for -- the inflation factor, the control
+        # medians, how many genes rest on one guide -- and writing the level
+        # sentence over those would trade a panel's whole content for
+        # something the header already says. The volcano is the plot the
+        # report was about and the one a user looks at first.
+        #
+        # THROUGH `_offer_levels`, NOT `set_status_note`. The click slot is
+        # rewritten by every click, so the sentence was gone the first time
+        # the plot was used; `offer_levels`' own note slot is durable. One
+        # call keeps the control, its counts and its sentence in step, which
+        # is why this is a delegation and not a second copy of the sentence.
+        self._offer_levels()
 
     def refresh_views(self) -> None:
         """Draw EVERY tab from the coefficient table at the chosen level.
@@ -1887,12 +1891,30 @@ class RegressionResultsPanel(QWidget):
         return None
 
     def _offer_levels(self) -> None:
-        """Put genes / guides / both on the volcano's right-click menu."""
+        """Put genes / guides / both on the volcano, with the sentence.
+
+        THE NOTE TRAVELS WITH THE CONTROL, and that is the whole of it. The
+        sentence used to be written with `set_status_note`, which fast_plots
+        documents as "a sentence about the CLICKED thing" -- so the first
+        click on the plot erased the one line telling the user the other half
+        of the run existed. Measured on the real panel:
+
+            on load    "220 coefficients. Click a point for detail.
+                        guides only: 220 of 240 coefficients. ..."
+            one click  "220 coefficients. Click a point for detail.
+                        fraction:grna[g7_2]"
+
+        which is the half-the-run-invisible failure instruction 147 A exists
+        to fix, one click later. `offer_levels` has a slot of its own for
+        exactly this, and that slot survives a redraw AND a click, so both
+        sentences are on screen at once.
+        """
         counts = self.level_counts()
-        self.volcano.offer_levels([
-            (f"{label} ({counts.get(key, 0)})",
-             (lambda k=key: self.set_level(k)), key == self._level)
-            for key, label in self.LEVELS])
+        self.volcano.offer_levels(
+            [(f"{label} ({counts.get(key, 0)})",
+              (lambda k=key: self.set_level(k)), key == self._level)
+             for key, label in self.LEVELS],
+            note=self.both_levels_note())
 
     def build_level_menu(self):
         """The genes / guides / both menu, with this table's counts on it.

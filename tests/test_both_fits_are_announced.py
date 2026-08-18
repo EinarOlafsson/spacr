@@ -74,10 +74,18 @@ def test_it_says_the_other_way_round_too(qtbot):
 def test_the_note_is_on_the_plot_not_only_in_the_header(qtbot):
     """A status line at the top is read once, on load. "Am I looking at guides
     or genes" is asked every time the user comes back to the tab, so the
-    answer belongs beside the marks."""
+    answer belongs beside the marks.
+
+    READ OFF THE PLOT, not off a chosen slot. These two assertions used to
+    name `volcano._note`, which is the CLICK slot, and that was the bug: the
+    sentence was in the right widget and in the wrong drawer, so the first
+    click erased it. What the requirement is about is that a reader looking
+    at the dots can see it, so that is what is asserted -- and it is now
+    carried by `level_note()`, whose slot no click can reach.
+    """
     panel = _panel(qtbot, _frame())
 
-    assert "gene fit is in this run too" in panel.volcano._note
+    assert "gene fit is in this run too" in panel.volcano.level_note()
     assert "gene fit is in this run too" in panel.volcano._status.text()
 
 
@@ -85,7 +93,8 @@ def test_it_follows_the_level_without_being_asked(qtbot):
     panel = _panel(qtbot, _frame())
     panel.set_level("gene")
 
-    assert "guide fit is in this run too" in panel.volcano._note
+    assert "guide fit is in this run too" in panel.volcano.level_note()
+    assert "guide fit is in this run too" in panel.volcano._status.text()
 
 
 def test_the_header_carries_it_on_load(qtbot):
@@ -101,7 +110,8 @@ def test_a_one_level_table_says_nothing(qtbot):
     """
     panel = _panel(qtbot, _frame(genes=False))
     assert panel.both_levels_note() == ""
-    assert "is in this run too" not in panel.volcano._note
+    assert "is in this run too" not in panel.volcano.level_note()
+    assert "is in this run too" not in panel.volcano._status.text()
 
 
 def test_the_whole_fit_says_nothing_either(qtbot):
