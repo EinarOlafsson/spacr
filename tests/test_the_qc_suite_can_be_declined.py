@@ -81,15 +81,32 @@ def test_a_sweep_trial_declines_it(tmp_path):
 
 
 def test_a_sweep_that_asks_for_the_pictures_gets_them(tmp_path):
-    """setdefault, not a hard override: the choice stays the caller's."""
+    """The opt-in is a PARAMETER, not a key in the settings dict.
+
+    It was `setdefault` on `regression_qc`, on the reasoning that a caller
+    who wanted the pictures would put the key in. Measured 2026-08-18: EVERY
+    base dict already carries it at True, because the Tk panel, the Qt panel
+    and `spacr-run` all build theirs from
+    `get_perform_regression_default_settings`, which defaults it on. So the
+    escape never once fired from the application, and a hundred-trial sweep
+    paid roughly ten minutes and two thousand files it was trying not to.
+
+    A dict cannot tell "the panel filled this in" from "I asked for this".
+    `qc=` can.
+    """
     from spacr.parameter_sweep import _trial_settings
 
-    settings, _folder = _trial_settings(
-        {"src": str(tmp_path), "regression_type": "ols",
-         "regression_qc": True},
-        {"trial_id": 2}, str(tmp_path))
+    base = {"src": str(tmp_path), "regression_type": "ols",
+            "regression_qc": True}
 
-    assert settings["regression_qc"] is True
+    off, _folder = _trial_settings(base, {"trial_id": 2}, str(tmp_path))
+    assert off["regression_qc"] is False, (
+        "a base dict carrying the panel's default must not turn the suite on "
+        "for every trial -- that is the bug this parameter exists for")
+
+    on, _folder = _trial_settings(base, {"trial_id": 3}, str(tmp_path),
+                                  qc=True)
+    assert on["regression_qc"] is True
 
 
 def test_reopening_one_trial_fits_it_with_the_diagnostics(tmp_path):
@@ -104,3 +121,34 @@ def test_reopening_one_trial_fits_it_with_the_diagnostics(tmp_path):
 
     assert settings.get("regression_qc", True) is True, (
         "reopening a trial should draw its diagnostics")
+
+
+
+def test_both_sweep_entry_points_offer_the_escape(tmp_path):
+    """The in-process branch of run_sweep had its own inline copy of
+    _trial_settings and had drifted from it -- it never set `regression_qc`
+    at all. Two copies of "build one trial's settings" is how a sweep ends up
+    meaning two different things depending on which branch ran it."""
+    import inspect
+
+    from spacr import parameter_sweep as ps
+
+    for entry in (ps.run_sweep, ps.run_sweep_parallel):
+        assert "qc" in inspect.signature(entry).parameters, entry.__name__
+        assert inspect.signature(entry).parameters["qc"].default is False
+
+    source = inspect.getsource(ps.run_sweep)
+    assert "_trial_settings(" in source, (
+        "run_sweep must build a trial through the one helper, not a copy")
+
+
+def test_the_pickled_payload_still_accepts_the_older_five_tuple():
+    """It is an internal positional contract; growing it must not break a
+    caller pickled by an older process mid-sweep."""
+    import inspect
+
+    from spacr import parameter_sweep as ps
+
+    source = inspect.getsource(ps._execute_trial)
+    assert "payload[:5]" in source
+    assert "len(payload) > 5" in source
