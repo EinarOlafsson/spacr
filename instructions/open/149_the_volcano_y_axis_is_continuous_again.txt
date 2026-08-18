@@ -326,3 +326,78 @@ WHAT COST TIME, SO IT COSTS NOBODY ELSE ANY
     to be one-way-until-overruled. `RegressionResultsPanel` redraws on every
     level, baseline and compartment change; honouring it unconditionally made
     any one of them silently undo a choice the user had made on the menu.
+
+
+================================================================================
+2026-08-18 -- F.5 AND F.6 SHIPPED. Section F is complete; 149 is done.
+================================================================================
+
+WHAT SHIPPED, all of it in spacr/qt/widgets/fast_plots.py::VolcanoPlot.
+
+  F.5  A CONTINUOUS COLOUR RAMP OVER q. `set_q_colour("ramp")` / `"call"`,
+       under a new "Show the FDR as" group beside the Correction.
+
+       IT TAKES THE COLOUR CHANNEL AND NAMES WHAT IT TOOK IT FROM. A dot
+       cannot be coloured for its condition and for its q at once, so the
+       colouring that would otherwise be in force is not drawn and the
+       caption says which one it was:
+
+         "Colour is a continuous ramp over q, brightest at the smallest q;
+          the condition colouring is off while it is."
+
+       Silently dropping it is how a reader ends up reading a q ramp as a
+       condition, which is this instruction's own failure mode.
+
+       THE RAMP IS OVER -log10(q), NOT OVER q. q values pile up near 1 and
+       the interesting ones are decades apart, so a linear ramp over q spends
+       nearly all its colour on the tests nobody is looking at. viridis, from
+       the five perceptually uniform maps this module already allows on a
+       continuous quantity.
+
+       ONE q FOR THE WHOLE SCREEN GREYS THE ENTRY, saying "every q on this
+       plot is the same number, so a ramp would be one colour". That is the
+       staircase at its limit and it is a real state on a permutation run.
+
+  F.6  SIZE OR OPACITY BY q. `set_q_mark("size" | "opacity" | "none")`.
+
+       THE ONE ENCODING THAT COMPOSES, and the test that proves it drives a
+       volcano coloured by condition, turns size on, and asserts the brush
+       set is UNCHANGED while the diameters spread. Opacity replaces only the
+       alpha of each point's own brush, so both conditions are still on the
+       plot as themselves.
+
+       A FADED POINT IS NEVER INVISIBLE. `Q_ALPHA_RANGE` floors at 55: a
+       point faded to nothing is a point removed from the plot, and this
+       instruction exists because a plot was showing something the data did
+       not say.
+
+  BOTH ARE OFFERS. A volcano opens on F.1 -- the binary call, the field's
+  own volcano -- and there is a test named for it.
+
+NEITHER COSTS A BRUSH PER POINT, which is the constraint the whole module is
+built around. Both are quantised to `Q_STOPS` (32) and the brushes are cached;
+opacity keys its cache on (base colour, step), so a two-condition volcano uses
+at most 64 brushes rather than 1,215. Measured on 1,215 coefficients, best of
+five redraws, against the 30 ms budget `test_colouring_does_not_cost_a_brush_
+per_point` enforces:
+
+    F.1 binary call (the default)     9.7 ms
+    F.5 ramp over q                  11.5 ms
+    F.6 size by q                    12.3 ms
+    F.6 opacity by q                 13.9 ms
+    ramp + size together             13.6 ms
+
+AND ON THE SCREEN, not on the objects: the ramped canvas grabs 550 distinct
+sampled colours against 320 for the binary one.
+
+`add_scatter` grew `size_list`. A float array goes straight into pyqtgraph's
+own arrays, so unlike a brush per point it costs nothing per point -- which is
+why size was the cheap half and opacity the dear one.
+
+TESTS  tests/test_the_adjusted_p_has_more_than_one_encoding.py, 20 of them,
+including `test_no_encoding_moves_a_point`: all six combinations are driven
+and every point's position is compared against where it started. WHAT NOT TO
+OFFER is jitter on the y axis, and that is now enforced rather than promised.
+
+STILL NOT MINE: section C's other half, the permutation box in
+spacr/settings.py saying what resolution its count buys.
