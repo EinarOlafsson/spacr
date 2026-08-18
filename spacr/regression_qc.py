@@ -72,8 +72,8 @@ Reading the output
 ------------------
 ``regression_qc_report(...)`` writes into ``<dst>/regression_qc/``:
 
-* one file per panel (``residuals_vs_fitted.pdf`` and friends),
-* ``regression_qc_report.pdf`` — every panel on one page, skipped panels shown
+* one file per panel (``residuals_vs_fitted`` and friends),
+* ``regression_qc_report`` — every panel on one page, skipped panels shown
   as a grey box stating why,
 * ``regression_qc_report.txt`` — the same thing as text, with the numbers,
   so it can be grepped or pasted into a lab notebook,
@@ -81,7 +81,12 @@ Reading the output
 and returns a manifest dict listing every panel, its status, its path and the
 statistics it computed. The statistics are the point: the manifest is what a
 caller (or a test) reads to find out that Cook's distance flagged well
-``plate1_r3_c11``, not just that a PDF exists.
+``plate1_r3_c11``, not just that a file exists.
+
+THE FIGURE EXTENSIONS ARE LEFT OFF ABOVE ON PURPOSE. They follow the user's
+figure-format preference, and writing ``.pdf`` down as if it were fixed is
+exactly how the code came to record ``residuals_vs_fitted.pdf`` in the
+manifest for a file that is ``residuals_vs_fitted.png`` on disk.
 
 Figures are built through ``matplotlib.figure.Figure`` directly rather than
 through ``pyplot``. That is deliberate: a Figure that pyplot never sees cannot
@@ -3203,7 +3208,7 @@ def draw_panel(name, ctx, ax):
 # ---------------------------------------------------------------------------
 
 
-def _save(fig, path):
+def _save(fig, path, fmt=None):
     """Write a figure, MAKE IT VISIBLE, and return the path.
 
     Never touches pyplot's registry -- and that is exactly why this suite was
@@ -3222,11 +3227,14 @@ def _save(fig, path):
 
     The format still follows the user's preference: `publish` writes through
     `spacr.plot.save_figure` rather than calling `fig.savefig` with a literal
-    extension.
+    extension. An explicit ``fmt`` overrides that, for the caller that
+    genuinely needs one particular format -- and it is passed on rather than
+    baked into the file NAME, because the name has to follow whatever is
+    actually written or the manifest points at a file that is not there.
     """
     from .figure_sink import publish
 
-    written = publish(fig, path, bbox_inches="tight")
+    written = publish(fig, path, fmt=fmt, bbox_inches="tight")
     # Figures built via matplotlib.figure.Figure are not registered with
     # pyplot, so there is nothing for plt.close() to close; dropping the last
     # reference is the whole clean-up. clf() is belt-and-braces for the case
@@ -3316,7 +3324,7 @@ def format_qc_report(manifest):
 
 def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
                          coef_df=None, regression_type=None, volcano_path=None,
-                         panels=None, fmt="pdf", combined=True, strict=False,
+                         panels=None, fmt=None, combined=True, strict=False,
                          verbose=True):
     """Write the full regression QC suite and return a manifest of what was written.
 
@@ -3348,7 +3356,11 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     :param volcano_path: Path of the volcano plot for this run, named on the
         report instead of drawing a second volcano.
     :param panels: Optional subset of :data:`PANEL_ORDER`.
-    :param fmt: Figure format for the individual panels. Default ``'pdf'``.
+    :param fmt: force a figure format for the individual panels. ``None``,
+        the default, lets the user's figure-format preference decide -- which
+        is what it used to say ``'pdf'`` for, so a user who had chosen PNG got
+        PDFs anyway and the manifest named files that were not there. An
+        explicit format still wins, for a caller that genuinely needs one.
     :param combined: Also write the single-page multi-panel report.
     :param strict: Re-raise a panel's unexpected exception instead of recording
         it as ``failed``. Tests use this; the pipeline should not, because a
@@ -3414,7 +3426,9 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
                                          status="failed", reason=message))
             continue
         limitation = stats.get("limitation") if isinstance(stats, dict) else None
-        path = os.path.join(out_dir, f"{name}.{fmt}")
+        # No extension unless the caller forced one: `save_figure` appends the
+        # one that matches the format it actually writes.
+        path = os.path.join(out_dir, name if not fmt else f"{name}.{fmt}")
         fig.tight_layout()
         # THE PATH THAT WAS WRITTEN, not the one that was asked for. `_save`
         # goes through `spacr.plot.save_figure`, which rewrites the extension
@@ -3424,7 +3438,7 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         # (the text report, `written`, the gallery link) then named a file
         # that does not exist, which is "saved but I cannot see it" wearing a
         # different hat.
-        path = _save(fig, path)
+        path = _save(fig, path, fmt=fmt)
         results.append(QCPanelResult(
             name=name, title=title, group=group,
             status="partial" if limitation else "written",
@@ -3432,7 +3446,8 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
 
     combined_path = None
     if combined:
-        combined_path = _write_combined_page(ctx, results, out_dir, selected)
+        combined_path = _write_combined_page(ctx, results, out_dir, selected,
+                                             fmt=fmt)
 
     manifest = {
         "directory": out_dir,
@@ -3472,7 +3487,7 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     return manifest
 
 
-def _write_combined_page(ctx, results, out_dir, selected):
+def _write_combined_page(ctx, results, out_dir, selected, fmt=None):
     """Draw every panel again onto one page, skipped ones as grey tiles.
 
     Redrawing rather than re-parenting the individual axes is deliberate:
@@ -3512,5 +3527,6 @@ def _write_combined_page(ctx, results, out_dir, selected):
           f"{drawn}/{len(results)} panels available",
         fontsize=13, y=0.995)
     fig.tight_layout(rect=(0, 0, 1, 0.985))
-    path = os.path.join(out_dir, "regression_qc_report.pdf")
-    return _save(fig, path)
+    path = os.path.join(out_dir, "regression_qc_report" if not fmt
+                        else f"regression_qc_report.{fmt}")
+    return _save(fig, path, fmt=fmt)
