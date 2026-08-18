@@ -399,3 +399,16 @@ WHAT REMAINS IN G
   should use that signal rather than adding a third path.
 
 WHAT REMAINS IN A-F: all of it. The GUI-thread merge freeze (A) is untouched.
+
+--------------------------------------------------------------------------------
+2026-08-18 - CORRECTION TO THE LINE ABOVE. A-E ARE DONE.
+--------------------------------------------------------------------------------
+
+"WHAT REMAINS IN A-F: all of it. The GUI-thread merge freeze (A) is untouched"
+was written from a read taken before ``7fa6a25b``, which was already on the
+branch when the G note landed at ``81c10a13``. Sections A, B, C, D and E are
+shipped and are described in the note above the G one; F is the only one of
+the six that remains, and G is now done as well.
+
+Left here rather than edited into the G note, because the two are separate
+records and rewriting somebody else's would lose the reason theirs was wrong.
