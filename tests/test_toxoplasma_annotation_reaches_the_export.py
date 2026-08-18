@@ -316,3 +316,56 @@ def test_a_users_own_column_beats_the_bundle(tmp_path):
     # And the rest of the bundle still arrives.
     assert frame.loc[frame["gene"] == "201180",
                      "hyperlopit"].iloc[0] == "dense granules"
+
+
+# ---------------------------------------------------------------------------
+# The supplementary topology table
+# ---------------------------------------------------------------------------
+
+def test_the_supplementary_table_is_every_protein_and_every_segment():
+    full = annotation.supplementary()
+    assert len(full) == 8140
+    assert "tm_24_start" in full.columns
+    assert full["gene_nr"].duplicated().sum() == 0
+
+
+def test_the_supplementary_table_restricts_to_the_screens_genes():
+    """Any spelling of a gene, because the caller has design terms in hand."""
+    out = annotation.supplementary(["gene_fraction:gene[224750]",
+                                    "fraction:grna[201180_2]",
+                                    "TGGT1_200130"])
+    assert sorted(out["gene_nr"].astype(str)) == ["200130", "201180", "224750"]
+    row = out.loc[out["gene_nr"].astype(str) == "201180"].iloc[0]
+    assert row["dtm_type"] == "SP+TM"
+    assert row["n_tm"] == 3
+    assert row["tm_1_start"] == 94
+
+
+def test_a_soluble_screen_gets_no_columns_of_nothing():
+    """Ten columns, not eighty-two. The same rule the whole module follows."""
+    out = annotation.supplementary(["200010", "200110"])
+    assert list(out.columns) == list(annotation._TOPOLOGY_SUMMARY)
+    assert (out["n_tm"] == 0).all()
+
+
+def test_the_supplementary_table_writes_where_it_is_told(tmp_path, capsys):
+    target = tmp_path / "nested" / "topology.csv"
+    out = annotation.supplementary(["201180"], path=str(target))
+    assert target.is_file()
+    assert "topology for 1 protein(s) written to" in capsys.readouterr().out
+    pd.testing.assert_frame_equal(pd.read_csv(target), out)
+
+
+def test_no_deeptmhmm_means_no_supplementary_table(monkeypatch, capsys):
+    annotation.clear_cache()
+    monkeypatch.setattr(annotation, "_DATA", "/nonexistent/spacr/data")
+    try:
+        assert annotation.supplementary() is None
+        assert "deeptmhmm.csv is not bundled" in capsys.readouterr().out
+    finally:
+        annotation.clear_cache()
+
+
+def test_a_gene_in_no_screen_returns_an_empty_table_not_everything():
+    out = annotation.supplementary(["999999"])
+    assert len(out) == 0
