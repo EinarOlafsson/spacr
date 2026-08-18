@@ -272,3 +272,52 @@ def test_the_generated_sentence_is_added_once():
     S._name_the_family_in_every_estimator_tooltip()
     for key in _owned():
         assert S.tooltips[key].count("Read by regression_type") <= 1, key
+
+
+# ---------------------------------------------------------------------------
+# The regression-type combo is the inventory, not a hand-written list
+# ---------------------------------------------------------------------------
+
+def _regression_type_options():
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    _kind, options, _default = convert_settings_dict_for_gui(
+        {"regression_type": "mixed"})["regression_type"]
+    return options
+
+
+def test_the_combo_offers_no_family_that_raises():
+    """`gls` was on the hand-written list and is in
+    UNSUPPORTED_REGRESSION_TYPES, so the Tk panel could pick a type that
+    fails after the whole database had been read."""
+    from spacr.regression_spec import UNSUPPORTED_REGRESSION_TYPES
+
+    offered = set(_regression_type_options())
+    assert not offered & set(UNSUPPORTED_REGRESSION_TYPES)
+    assert "gls" not in offered
+
+
+def test_the_combo_offers_every_family_that_fits():
+    """Six were missing: huber, beta, quasi_binomial, elasticnet, hinge and
+    horseshoe -- a third of the inventory, unreachable from the Tk panel."""
+    from spacr.regression_spec import (REGRESSION_TYPES,
+                                       UNSUPPORTED_REGRESSION_TYPES)
+
+    expected = set(REGRESSION_TYPES) - set(UNSUPPORTED_REGRESSION_TYPES)
+    assert set(_regression_type_options()) == expected
+    for family in ("huber", "beta", "quasi_binomial", "elasticnet", "hinge",
+                   "horseshoe"):
+        assert family in _regression_type_options(), family
+
+
+def test_mixed_is_first_and_the_default():
+    """It answers the most central question, so it leads the list."""
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    _kind, options, default = convert_settings_dict_for_gui(
+        {"regression_type": "mixed"})["regression_type"]
+    assert options[0] == "mixed"
+    assert default == "mixed"
+    # The rest alphabetically, so a family added to the inventory lands
+    # somewhere predictable rather than at the end.
+    assert options[1:] == sorted(options[1:])

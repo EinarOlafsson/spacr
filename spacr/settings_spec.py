@@ -62,6 +62,28 @@ _TORCHVISION_MODELS_CURATED = [
 ]
 
 
+def _regression_type_choices():
+    """Every family that fits, in a stable order, mixed first.
+
+    `spacr.regression_spec` imports nothing -- that is the whole reason it
+    was split out of `spacr.ml`, which pulls in torch through `spacr.plot` --
+    so asking it here costs a dict lookup rather than 2.2 seconds.
+
+    Mixed first because it is the default and answers the most central
+    question; the rest alphabetically, so a family added to the inventory
+    lands somewhere predictable instead of at the end.
+    """
+    from .regression_spec import (REGRESSION_TYPES,
+                                  UNSUPPORTED_REGRESSION_TYPES)
+
+    families = sorted(set(REGRESSION_TYPES)
+                      - set(UNSUPPORTED_REGRESSION_TYPES))
+    if 'mixed' in families:
+        families.remove('mixed')
+        families.insert(0, 'mixed')
+    return families
+
+
 def _torchvision_model_names():
     """Return model names for the combo WITHOUT importing torchvision. If
     torchvision is already loaded (e.g. after a training run) use its full zoo;
@@ -184,7 +206,13 @@ def convert_settings_dict_for_gui(settings):
         # the most central question best". A combo whose default differs
         # from the settings default posts a different model than the one
         # the panel was built for.
-        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'mixed'),
+        # READ FROM THE INVENTORY, NOT LISTED BY HAND. The hand-written
+        # list offered 'gls' -- which is in UNSUPPORTED_REGRESSION_TYPES and
+        # RAISES -- and omitted six families that fit: huber, beta,
+        # quasi_binomial, elasticnet, hinge and horseshoe. So the Tk panel
+        # could pick a type that fails and could not reach a third of the
+        # ones that work. Reported by the run that built instruction 132.
+        'regression_type': ('combo', _regression_type_choices(), 'mixed'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
