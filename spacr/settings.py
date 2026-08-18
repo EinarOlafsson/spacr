@@ -1677,6 +1677,25 @@ INFERENCE_MODES = {
 #: ``analysis_unit`` -> whether scores are collapsed per well before fitting.
 ANALYSIS_UNITS = ('well', 'cell')
 
+#: ``level`` -> which fit a FIXED-EFFECTS regression runs (instruction 132 A).
+#:
+#: 'both' is two fits, not one design holding both blocks. That distinction is
+#: the whole reason the setting exists: ``gene_fraction`` is the SUM of the
+#: gene's gRNA fractions (``ml.check_and_clean_data``), so
+#: ``fraction:grna + gene_fraction:gene`` in one formula is collinear BY
+#: CONSTRUCTION and statsmodels answers it with a pseudo-inverse instead of
+#: refusing. Measured on the maintainer's tsg101 screen
+#: (results/ols_13/regression_data.csv, 1945 rows, 610 wells): the design has
+#: 1248 columns and rank 862 -- 386 redundant -- and 386 of the 389
+#: ``gene_fraction:gene`` columns are an EXACT linear combination of their own
+#: gene's ``fraction:grna`` columns. The single-guide gene 244480 came back
+#: identical to its guide 244480_3, both 3.389291 at p = 2.873149e-13.
+#:
+#: ``'mixed'`` does not read this: it models both levels at once by nesting the
+#: guide inside the gene, which is why :func:`get_setting_dependencies` greys
+#: the control out under it rather than hiding it or leaving it inert.
+REGRESSION_LEVELS = ('both', 'grna', 'gene')
+
 
 def _resolve_regression_analysis_choices(settings):
     """Map ``inference`` / ``analysis_unit`` / ``regression_type='auto'``.
@@ -1724,6 +1743,24 @@ def _resolve_regression_analysis_choices(settings):
     elif settings.get('agg_type') is None and unit == 'well':
         # A well-level run needs a statistic. 'mean' is the historical default.
         settings['agg_type'] = 'mean'
+
+    # `level` DEFAULTS HERE TOO, not only in
+    # get_perform_regression_default_settings, because this function is the one
+    # place the analysis choices are resolved and a caller that assembled its
+    # own dict (spacr.refit, a sweep trial, a settings CSV written before
+    # 2026-08-17) reaches the fit through it. Absent means 'both', which is
+    # what every one of those older runs meant.
+    level = str(settings.get('level', 'both')).strip().lower()
+    if level not in REGRESSION_LEVELS:
+        raise ValueError(
+            f"level={settings.get('level')!r} must be one of "
+            f"{list(REGRESSION_LEVELS)}. 'grna' fits one coefficient per "
+            f"guide, 'gene' one per gene from the summed guide fraction, and "
+            f"'both' fits those two models SEPARATELY and BH-corrects each "
+            f"within itself. A value spaCR does not recognise is refused "
+            f"rather than falling back to 'both', because falling back would "
+            f"quietly fit two models when one was asked for.")
+    settings['level'] = level
 
     if isinstance(settings.get('regression_type'), str) and \
             settings['regression_type'].strip().lower() == 'auto':
@@ -1829,7 +1866,25 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('agg_type','mean')
     # 100 cells: below that a well's score is noise dressed as a measurement.
     settings.setdefault('min_cell_count', 100)
-    settings.setdefault('regression_type','ols')
+    # MIXED IS THE DEFAULT, and the maintainer's reason is the design
+    # rationale rather than a preference: "mixed answers the most central
+    # question best" (2026-08-17, instruction 132). The central question a
+    # CRISPR screen asks is about the GENE, and mixed is the only model here
+    # that says what a guide is -- a biological replicate of one intended
+    # perturbation, nested inside its gene -- instead of a second independent
+    # variable competing with it for the same variance.
+    #
+    # It was 'ols' until 2026-08-17. This is a setdefault, so a settings CSV
+    # that names a type still gets that type; only a dict that never chose one
+    # moves.
+    settings.setdefault('regression_type', 'mixed')
+    # WHICH LEVEL A FIXED-EFFECTS FIT REPORTS AT. No settings CSV written
+    # before 2026-08-17 carries this key, and every regression run before then
+    # wrote one, so the default has to be the behaviour those files meant:
+    # 'both' levels. Read only by the non-mixed families; see
+    # get_setting_dependencies, which greys the control out under 'mixed' and
+    # says why, rather than hiding it or leaving it present and inert.
+    settings.setdefault('level', 'both')
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('split_axis_lims','')
     settings.setdefault('cov_type',None)
@@ -3112,7 +3167,7 @@ tooltips = {
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
     "randomize": "(bool) - Shuffle the order of the per-field arrays before they are grouped into normalization batches, so each batch spans plates and wells instead of one acquisition block - this matters because normalization percentiles are computed per batch. Forced to False for timelapse runs to keep frames in sequence. Default True.",
-    "regression_type": "(str) - Choose by what the per-well response IS. Continuous: 'ols', 'wls' (weight by cell count), 'rlm'/'huber' (robust), 'quantile'. A FRACTION: 'logit', 'probit', 'beta', 'quasi_binomial' (over-dispersed). Counts: 'poisson'. 'glm' picks the family. 'mixed' adds well or plate as a random effect. Many correlated predictors: 'ridge' shrinks all, 'lasso' zeroes some, 'elasticnet' both, 'horseshoe' shrinks hard but spares large effects. 'hinge' for a separable two-class response. ols on a bounded response predicts values outside it. Default 'ols'.",
+    "regression_type": "(str) - Which model is fitted. Default 'mixed' ('ols' until 2026-08-17): mixed answers the most central question best, making the gene a fixed effect and each guide a RANDOM effect nested in it, so guides that disagree widen their gene's interval. Mixed fits both levels at once, so 'level' greys out, and reports guides as shrunken predictions, not p-values. The others fit ONE level, fixed effects only: 'ols'/'wls'/'rlm'/'huber'/'quantile' continuous, 'logit'/'probit'/'beta'/'quasi_binomial' a fraction, 'poisson' counts, 'ridge'/'lasso'/'elasticnet'/'horseshoe' penalised, 'hinge', 'glm'.",
     "remove_background": "(bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False.",
     "remove_background_cell": "(bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False.",
     "remove_background_nucleus": "(bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first.",
@@ -3398,7 +3453,13 @@ tooltips = {
     'group_column': "(str) - Column whose values become the experimental conditions compared against each other; 'condition' is the combined host-cell / pathogen / treatment label built from the plate-metadata maps. Point it at 'pathogen' or 'treatment' to compare on one factor alone. Rows with no value here are dropped before anything is counted. Default 'condition'.",
     'inflation_warn': '(float) - Extra invasion efficiency, in proportion units, that raising the threshold by threshold_sensitivity may add to a well before the well is flagged. Only the upward move is watched, because lowering a threshold can only turn invaded back into attached and never invents a result. 0.05 flags a well whose efficiency would gain more than five percentage points. Default 0.05.',
     'intensity_statistic': "(str) - Which per-object statistic of the pre-permeabilisation channel is thresholded. That stain sits on the parasite's SURFACE, so the object's mean divides a rim by the whole area and reads a large parasite as dimmer than a small one stained identically -- a bias that turns outside parasites into apparent inside ones as size varies. A percentile of the rim pixels is the honest choice. Default 'mean'.",
-    'level': "(str) - The unit of replication, for the figure AND the statistics. 'object' pools every parasite into one bar, 'well' averages per-well proportions with SD whiskers, 'plate' does the same across plates. The results table reports the object chi-squared, a test on the per-unit proportions, and a clustered model, each with its own n. Objects in one well are not independent, so the object p-value is smaller than the experiment supports -- compare the three. Default 'object'.",
+    # ONE KEY, TWO MODULES. 'level' was the proportion plots' unit of
+    # replication long before instruction 132 gave the regression a level
+    # of its own, and this table is keyed by NAME with no module scope --
+    # so the hover has to be right in both panels or it is wrong in one.
+    # Renaming either side was not available: a new tooltip key has to
+    # exist in all nine i18n catalogs, which are generated elsewhere.
+    'level': "(str) - Which unit results are reported at; each module brings its own vocabulary. REGRESSION: default 'both' fits the guide model and the gene model as TWO separate fits, results_grna.csv and results_gene.csv, BH-corrected within each, because one design holding both is collinear by construction - a gene's fraction is the sum of its guides'. 'grna' or 'gene' fits that one alone. Greyed out under regression_type 'mixed', which nests guides in genes. PROPORTION PLOTS: default 'object' pools every object, 'well' averages per-well proportions, 'plate' across plates.",
     'max_parasite_area': '(float or None) - Largest object area in pixels kept as a parasite. Anything bigger is several parasites merged by the mask, whose rim statistic mixes them and whose single classification then stands for all of them. None keeps everything. Default None.',
     'min_control_objects': "(int) - Objects a plate's control wells must contribute before their quantile is trusted as a threshold. Below it the plate falls back to the automatic per-field method and says so, rather than taking a 99th percentile from a handful of points. Default 10.",
     'min_objects_for_bimodality': '(int) - Objects required before the bimodality coefficient is computed at all; below it the coefficient is left NaN and the field or well is flagged. The statistic exceeds its cutoff on genuinely unimodal data about 45% of the time at ten objects and 15% at twenty, so computing it there would silence the check exactly where the classification is least trustworthy. Default 30, where that false-pass rate is 5%.',
@@ -4138,6 +4199,52 @@ def get_setting_dependencies():
                 f"inference (currently {settings.get('inference')!r}). The "
                 "value is kept and saved."),
         )
+
+    # THE LEVEL IS DEAD UNDER A MIXED MODEL, AND THE PANEL SAYS SO.
+    #
+    # Instruction 132 A, and instruction 106's rule about how: disabled and
+    # SAYING WHY, never absent and never present-but-inert. A mixed model
+    # already answers both levels at once -- the gene is a fixed effect and
+    # each guide a random effect nested inside it -- so there is no single
+    # level left to choose, and a dropdown that still looked live would be
+    # accepting a choice nothing would honour.
+    #
+    # random_row_column_effects IS PART OF THE CONDITION, not an afterthought.
+    # ml._reconcile_random_row_column_effects rewrites regression_type to
+    # 'mixed' before anything is fitted, so ticking that box with
+    # regression_type='ols' and level='grna' fits a mixed model and ignores
+    # the level. Reading only regression_type here would leave the control
+    # enabled for a run that cannot use it, which is the exact failure the
+    # rule exists to prevent.
+    #
+    # HARMLESS IN THE OTHER MODULES THAT OWN A 'level'. The proportion and
+    # endodyogeny panels use the same key for 'object'/'well'/'plate' and
+    # carry no regression_type, so the predicate reads '' != 'mixed' -> True
+    # -> applicable, and their control is never greyed by this.
+    def _level_is_read(settings, _context):
+        if settings.get('random_row_column_effects', False):
+            return False
+        return str(settings.get('regression_type') or '').lower() != 'mixed'
+
+    def _level_reason(settings, _context):
+        if settings.get('random_row_column_effects', False) and \
+                str(settings.get('regression_type') or '').lower() != 'mixed':
+            return (
+                "level is not read because random_row_column_effects=True "
+                "fits a mixed model whatever regression_type says, and a "
+                "mixed model already covers both levels at once. Untick it, "
+                "or choose the level on a fixed-effects family. The value is "
+                "kept and saved.")
+        return (
+            "level is not read when regression_type is 'mixed': the mixed "
+            "model fits the gene as a fixed effect and each guide as a random "
+            "effect NESTED inside its gene, so it answers both levels at once "
+            "and there is no single one to pick. Choose any other family to "
+            "fit one level at a time. The value is kept and saved.")
+
+    setting_dependencies['level'] = rule(
+        ('regression_type', 'random_row_column_effects'),
+        _level_is_read, _level_reason)
 
     setting_dependencies['agg_type'] = rule(
         ('analysis_unit',),
