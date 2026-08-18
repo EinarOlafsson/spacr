@@ -74,3 +74,93 @@ HOW TO KNOW IT WORKED
   two never disagree.
 * The test drives the FINISHING path, not only the clicking path. That is the
   one that was missing.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- DONE. THE MARK AND THE VIEWS ARE ONE FACT.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+  * `SweepRunsPanel._announce_the_loaded_run(before)` is the ONE funnel. Every
+    path that can move the mark ends there: a row clicked (`_on_selection`), a
+    run chosen (`set_loaded_run`), a folder opened (`load_run_from_disk`), a
+    folder that turns out to hold exactly one run (`_settle_the_loaded_run`,
+    via `_rebuild`), and -- THE ONE THAT WAS MISSING -- a run that becomes
+    loaded BY FINISHING (`update_run`). `_rebuild` takes `since=` so a caller
+    that moves the mark before rebuilding still gets one announcement, after
+    the table has settled and outside `_rebuilding`.
+  * `app_screen` connects `loaded_run_changed` to `_show_trial`, the same
+    function `trial_activated` drives. Both are emitted together from the
+    funnel and `_show_trial` returns early for the run already on screen, so
+    two signals cost one load.
+  * THE MARK IS A CONSEQUENCE. `_show_trial` calls `_the_run_did_not_open`
+    on every refusal -- a run still going, a run that failed, a folder with no
+    saved table -- and `SweepRunsPanel.the_load_failed` puts the mark back and
+    says why on the status line. The undo is SPENT at the end of the
+    announcement it answers, so a refusal arriving two choices later cannot
+    drag the mark to a run nobody chose.
+  * THE RESULTS PANEL NAMES ITS OWN RUN: a "Run: ols_3" label in its header,
+    from `run_name()`, "No run" for a table that came from no run folder.
+
+REPRODUCED FIRST, THROUGH THE REAL SCREEN. A driver that builds
+`AppScreen("regression")`, runs `mixed`, runs `ols` and prints what a user
+would see, against HEAD:
+
+    [after mixed] coefficients=30 marked=['mixed'] montage_folder='mixed_1'
+    [after ols]   coefficients=30 marked=['ols']   montage_folder='mixed_1'
+
+and against this commit:
+
+    [after ols]   coefficients=70 marked=['ols']   montage_folder='ols_1'
+                  run_label='Run: ols_1'
+
+THE FINDING THAT MATTERS MOST, and it is not the one in the header. The
+finishing path is not only the untested one, it is the one where a reload is
+WRONG. `_on_pipeline_result` puts the run's table, its fitted model, its
+diagnostics and its statsmodels summary into the panel straight from
+`perform_regression`; `_on_finished` then marks the run loaded a moment
+later. Connecting the signal WITHOUT the early return would have re-read the
+folder and replaced all four with what can be recovered off disk --
+`set_frame` clears the diagnostics by design and the summary falls back to
+the saved text. The idempotence is not an optimisation; it is what keeps the
+model. A future change that makes `_show_trial` unconditional will look
+harmless and will quietly delete the diagnostics of every live run.
+
+ALSO FOUND, ALSO FIXED
+
+  * `tests/test_results_follows_the_selected_run.py::test_switching_back_does_
+    not_restore_what_the_switch_cleared` WAS RED AT HEAD, and not from this
+    work: `d4113297` (116's per-run plot state) asserts the exact opposite of
+    what that test was written to protect. Verified by running the file with
+    all three of this instruction's files reverted to HEAD -- 1 failed, 7
+    passed. Rewritten as `test_switching_back_gives_the_run_its_own_view_
+    again`, which states the resolution: 128 J governs the FIRST look at a run
+    (defaults off its own table, nothing inherited from the previous run) and
+    116 governs the SECOND (a run gets its own view back). Both halves are now
+    asserted in one test, so the next person to land one cannot silently
+    reverse the other.
+
+
+THE ONE PLACE 157 AND 154 G PULL AGAINST EACH OTHER, and where the line was
+drawn. "A failed load leaves the mark where it was" and "a run that finishes
+IS the loaded run" disagree when the FIRST run of a session finishes and its
+folder holds no readable table: rolling the mark back then answers "No run is
+loaded" immediately after a run the user watched finish, which is 154 G's own
+report arrived at from the other side. So the undo requires somewhere to go
+back TO. With a previous run on screen the mark returns to it; with nothing on
+screen the mark stays on the run that finished and the status line says why it
+cannot be drawn. The rule being enforced is "the mark must not name a run
+OTHER than the one on screen", and with no other run there is nothing to
+mis-name. `tests/test_the_measurements_tab_reaches_a_regression.py::
+test_three_columns_become_three_rows_in_the_runs_tab` is the case that found
+it -- a queued column fit whose stub writes no table.
+
+WHAT REMAINS
+
+  * The empty summary has a SECOND cause that is not this one and is
+    instruction 156's: a mode whose model has no `summary()` writes no summary
+    file, so a run reloaded from disk has nothing to show even when the right
+    run is on screen. 156 landed `ml`'s call site at `1870cdce`; this
+    instruction only guarantees the panel is holding the right run.
+  * MERGE THIS FILE INTO 154 G, as the header says, now that both have landed.
+

@@ -171,7 +171,9 @@ def ordered_columns(frame) -> list:
 class SweepRunsPanel(QWidget):
     """One row per RUN -- the sweep's trials and this session's own.
 
-    :ivar trial_activated: emitted with the selected run's row, as a dict.
+    :ivar trial_activated: emitted with a run's row, as a dict, whenever a
+        view should be showing that run. The older of the two names for that
+        one event -- see :attr:`loaded_run_changed`.
     :ivar loaded: emitted with the number of rows shown.
     """
 
@@ -182,6 +184,11 @@ class SweepRunsPanel(QWidget):
     #: cases too (a run finishing, a folder holding exactly one run), because
     #: a view that only learns about deliberate choices shows the wrong run
     #: after the common one.
+    #:
+    #: THE SAME EVENT AS :attr:`trial_activated`, from the same funnel
+    #: (:meth:`_announce_the_loaded_run`), because "a run was activated" and
+    #: "the loaded run changed" turned out to be one fact -- and while they
+    #: were two, only one of them was connected to anything (157).
     loaded_run_changed = Signal(dict)
 
     def __init__(self, parent=None):
@@ -245,6 +252,14 @@ class SweepRunsPanel(QWidget):
         #: every time a run is recorded and an index would name a different
         #: run afterwards.
         self._loaded_key = ""
+        #: WHERE THE MARK WAS BEFORE the current one, so a load that fails
+        #: can put it back. Instruction 157: "the mark is set by the load,
+        #: not beside it -- a failed load leaves the mark where it was rather
+        #: than pointing at something not on screen." The mark moves first
+        #: and the view is asked to follow, because the panel cannot know
+        #: whether a run will open until something tries; what it can do is
+        #: be told when it did not, which is :meth:`the_load_failed`.
+        self._previous_loaded_key = ""
         #: The sentence the last load or refusal added to the status line,
         #: kept so moving the mark can rewrite the line without losing it.
         self._source_note = ""
@@ -346,9 +361,16 @@ class SweepRunsPanel(QWidget):
         # between (154 G): "i just ran a regression so that should be loaded
         # automatically". The views were being told nothing had been loaded
         # by the run the user had just watched finish.
+        #
+        # AND THEY ARE TOLD NOW (157). This line moved the mark and stopped
+        # there, so a second run finishing left the first run's coefficients,
+        # figures and summary on screen under a mark naming the second. The
+        # key the mark was on is carried into the rebuild, which announces
+        # the change once everything else has settled.
+        before = self._loaded_key
         if _is_ok(row):
             self._loaded_key = self._row_key(row)
-        self._rebuild()
+        self._rebuild(since=before)
         return True
 
     def load_run_from_disk(self, folder: str = "") -> bool:
@@ -415,15 +437,12 @@ class SweepRunsPanel(QWidget):
                     row[name] = value
             self._recorded[handle] = row
 
+        before = self._loaded_key
         self._loaded_key = self._row_key(self._recorded[handle])
-        self._rebuild(f"Loaded the run in {run_folder}.")
-        record = self.loaded_run() or dict(self._recorded[handle])
-        self.loaded_run_changed.emit(record)
-        # AND THE VIEWS FOLLOW IT. `trial_activated` is what re-points the
-        # results panel, the summary and the figure grid; a run that is
-        # marked loaded and shown nowhere would be the same broken click as
-        # a row that does nothing.
-        self.trial_activated.emit(record)
+        # AND THE VIEWS FOLLOW IT -- through the same funnel every other path
+        # uses (157). This used to emit the two signals itself, which is how
+        # the finishing path came to be the only one that did not.
+        self._rebuild(f"Loaded the run in {run_folder}.", since=before)
         return True
 
     def _handle_for_folder(self, folder: str):
@@ -515,6 +534,7 @@ class SweepRunsPanel(QWidget):
         if not wanted:
             return False
         expanded = os.path.abspath(os.path.expanduser(wanted))
+        before = self._loaded_key
         for record in self._all_rows():
             key = self._row_key(record)
             if key and key in (wanted, expanded):
@@ -527,16 +547,94 @@ class SweepRunsPanel(QWidget):
                     self._source_note = ""
                 self._paint_the_loaded_mark()
                 if changed:
-                    record = self.loaded_run() or record
-                    self.loaded_run_changed.emit(record)
                     # AND THE VIEWS FOLLOW THE CHOICE. Moving the mark and
                     # leaving the results panel, the summary and the figure
                     # grid on the previous run is the failure 154 G is about:
                     # the choice has to be visible from the views that depend
                     # on it, not only from the tab that sets it.
-                    self.trial_activated.emit(record)
+                    self._announce_the_loaded_run(before)
                 return True
         return False
+
+    def _announce_the_loaded_run(self, before: str) -> bool:
+        """THE ONE PLACE the views are told which run is on screen.
+
+        Instruction 157, reported 2026-08-18:
+
+            "i ran a mixed model and a ols model and eaven if the ols model is
+             marked as loaded i think i still see the mixed results and no
+             summary (because the ols is actually not loaded)"
+
+        Which was one missing connection and one missing emission. The three
+        DELIBERATE paths -- a row clicked, a run chosen, a folder opened --
+        each announced themselves; the path a user actually reaches most, A
+        RUN THAT BECOMES LOADED BY FINISHING, moved the mark inside
+        :meth:`update_run` and told nobody. So the mark said `ols` and the
+        coefficients, the figures and the summary were still the `mixed` run's.
+
+        ONE FUNNEL, NOT FOUR. Every path that can move the mark ends here, so
+        a fifth cannot be added without being announced, and the finishing
+        path cannot drift from the clicking one -- which is exactly how only
+        one of them ended up tested.
+
+        :param before: the key the mark was on when the caller started.
+        :returns: whether anything was announced.
+        """
+        if not self._loaded_key or self._loaded_key == before:
+            return False
+        record = self.loaded_run()
+        if record is None:
+            # The key names a row the composed frame does not hold, which is
+            # not a run anybody can be shown. Say nothing rather than hand a
+            # view a record it cannot open.
+            return False
+        self._previous_loaded_key = before
+        # BOTH NAMES FOR ONE EVENT. `loaded_run_changed` is the question the
+        # screen connects ("which run is on screen"); `trial_activated`
+        # predates it and is what the sweep's own listeners were written
+        # against. They are emitted together and the screen's handler is
+        # idempotent on the run already showing, so connecting either -- or
+        # both -- costs one load.
+        self.loaded_run_changed.emit(dict(record))
+        self.trial_activated.emit(dict(record))
+        # THE UNDO IS SPENT. `the_load_failed` is answering THIS announcement,
+        # and a listener that comes back later -- a click on a trial that
+        # failed, say -- must not be able to drag the mark back to a run two
+        # choices ago. Consumed here rather than on a timer or a flag: the
+        # window in which a load can fail is the emission itself.
+        self._previous_loaded_key = self._loaded_key
+        return True
+
+    def the_load_failed(self, why: str = "") -> bool:
+        """The run that was just announced could not be shown: undo the mark.
+
+        THE MARK IS A CONSEQUENCE OF THE RUN BEING SHOWN (157). A mark on a
+        run whose results are not on screen is the same disagreement between
+        two views that this instruction is about, only pointing the other
+        way -- and it is the one a user cannot act on, because the run they
+        ARE looking at is no longer named anywhere.
+
+        :param why: added to the status line, so the refusal is readable
+            rather than a mark that silently jumped back.
+        :returns: whether the mark moved back.
+        """
+        previous = self._previous_loaded_key
+        if previous == self._loaded_key:
+            return False
+        if not previous:
+            # NOTHING TO GO BACK TO, so the mark stays on the run that
+            # finished. Clearing it here would answer "no run is loaded"
+            # immediately after a run the user watched finish -- which is
+            # 154 G's report, arrived at from the other direction. The run IS
+            # the loaded one; what failed is drawing it, and the status line
+            # says so. The rule this rolls back is "the mark must not point
+            # at a run OTHER than the one on screen", and with nothing on
+            # screen there is no other run to point at.
+            return False
+        self._loaded_key = previous
+        self._source_note = str(why or "")
+        self._paint_the_loaded_mark()
+        return True
 
     def _all_rows(self) -> list:
         """Every run the table is SHOWING, in the order it shows them.
@@ -603,14 +701,25 @@ class SweepRunsPanel(QWidget):
             [LOADED_MARK if key and key == self._loaded_key else ""
              for key in keys], index=frame.index, dtype=object)
 
-    def _rebuild(self, source: str = "") -> bool:
+    def _rebuild(self, source: str = "", since: Optional[str] = None) -> bool:
         """Compose the session's runs and the sweep's trials into one table.
 
         THE SESSION'S OWN RUNS COME FIRST. A sweep is sixty rows and the run
         the user just made is the one they are looking for; sorting is one
         click away for every other question.
+
+        :param since: the key the mark was on before the caller touched it.
+            Every rebuild can move the mark -- a run finishing sets it, and
+            :meth:`_settle_the_loaded_run` places it when a folder turns out
+            to hold exactly one run -- so the announcement belongs HERE
+            rather than at each of those call sites, which is how the
+            finishing one came to be missing (157). ``None`` means "compare
+            against wherever the mark is now", so a rebuild that does not
+            move it says nothing.
         """
         import pandas as pd
+
+        before = self._loaded_key if since is None else str(since)
 
         frames = []
         recorded = self._recorded_rows()
@@ -633,6 +742,7 @@ class SweepRunsPanel(QWidget):
             self.table.set_frame(None)
             self._status.setText(source or "Nothing run yet.")
             self.loaded.emit(0)
+            self._announce_the_loaded_run(before)
             return False
         if len(frames) == 1:
             frame = frames[0]
@@ -666,6 +776,13 @@ class SweepRunsPanel(QWidget):
         self._source_note = source
         self._status.setText(self._describe(self._frame, source))
         self.loaded.emit(len(self._frame))
+        # LAST, AND OUTSIDE `_rebuilding`. A listener re-points the results
+        # panel and the figure grid, and one that came back into this method
+        # would be refilling a table Qt is still holding items from -- the
+        # crash `_paint_the_loaded_mark` exists to avoid. Nothing below this
+        # line reads `_loaded_key`, so a listener that hands the mark back
+        # (:meth:`the_load_failed`) cannot leave the table half-built.
+        self._announce_the_loaded_run(before)
         return True
 
     @staticmethod
@@ -761,9 +878,18 @@ class SweepRunsPanel(QWidget):
         # mark that did not follow it would be a second answer to "which run
         # is loaded" -- and instruction 145's rule is one vocabulary.
         key = self._row_key(record)
-        if key and key != self._loaded_key and _is_ok(record):
+        before = self._loaded_key
+        if key and key != before and _is_ok(record):
             self._loaded_key = key
             self._source_note = ""
             self._paint_the_loaded_mark()
-            self.loaded_run_changed.emit(record)
+            if self._announce_the_loaded_run(before):
+                # The funnel emitted `trial_activated` with the row read back
+                # off the composed frame. Emitting again here is the same
+                # click twice, and the screen would load the run twice.
+                return
+        # A ROW THAT CANNOT BECOME THE LOADED RUN IS STILL A CLICK. A trial
+        # that failed or is still going has no results to show, and the
+        # screen answers with the reason -- which is the whole difference
+        # between a table that ignores clicks and one that explains them.
         self.trial_activated.emit(record)
