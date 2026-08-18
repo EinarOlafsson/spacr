@@ -190,6 +190,66 @@ def find_results_table(path) -> Optional[str]:
     return tables[0] if tables else None
 
 
+def _summary_filenames() -> tuple:
+    """Every name a run's summary may be on disk under, newest first.
+
+    Read from :mod:`spacr.ml`, which is the module that WRITES it -- one
+    vocabulary, so a rename there cannot leave this reader hunting for a file
+    nobody makes any more. Private because it is an implementation detail of
+    :func:`find_summary_file`, which is the thing a caller wants.
+    """
+    try:
+        from ...ml import SUMMARY_FILENAMES
+    except Exception:                  # pragma: no cover - ml unavailable
+        # Named rather than guessed: without the writer there is nothing to
+        # agree with, and inventing the list here would be the second source
+        # of truth this indirection exists to avoid.
+        return ()
+    return tuple(SUMMARY_FILENAMES)
+
+
+def find_summary_file(path) -> Optional[str]:
+    """The statsmodels summary written beside ``path``, or ``None``.
+
+    ``path`` is whatever the panel was pointed at: a results CSV, the run
+    folder holding it, or a parent of one. THE SUMMARY IS ALREADY ON DISK --
+    ``perform_regression`` writes it into the run folder next to
+    ``results.csv`` -- so a panel opened from a table has it one ``open()``
+    away and never needs a re-fit to show it.
+
+    BOTH NAMES ARE ACCEPTED. Runs from before 2026-08-18 wrote
+    ``mode_summary.csv``; new ones write ``model_summary.txt``. Old runs keep
+    working, which is the standing rule: correct the format going forward and
+    migrate the old content rather than preserve the bug.
+    """
+    names = _summary_filenames()
+    if not path or not names:
+        return None
+    try:
+        root = os.path.abspath(os.path.expanduser(os.fspath(path)))
+    except TypeError:
+        return None
+    folders = []
+    if os.path.isfile(root):
+        folders.append(os.path.dirname(root))
+    elif os.path.isdir(root):
+        folders.append(root)
+    # A PARENT OF A RUN FOLDER IS ALSO A LEGAL ANSWER, and it is the one
+    # `load` accepts, so the summary is looked for beside the table that was
+    # actually chosen rather than only in the folder the user typed.
+    table = find_results_table(root)
+    if table:
+        folder = os.path.dirname(table)
+        if folder not in folders:
+            folders.append(folder)
+    for folder in folders:
+        for name in names:
+            candidate = os.path.join(folder, name)
+            if os.path.isfile(candidate):
+                return candidate
+    return None
+
+
 #: What the run says when a fit is not identifiable. Repeated on the Summary
 #: tab because statsmodels prints a full table of standard errors and P
 #: values regardless, and it looks exactly like a summary of a well-posed
@@ -205,21 +265,78 @@ UNIDENTIFIABLE_WARNING = (
     "marginal association, which stays valid at any width.\n")
 
 
-def summary_text(model, regression_type=None) -> str:
+#: Prefixed to a summary that was READ rather than rendered. A reader pasting
+#: this into a methods section is entitled to know it is the run's own text,
+#: recovered from the run folder and not recomputed here -- and if the folder
+#: were ever pointed at the wrong run, this line is what would show it.
+SUMMARY_FROM_DISK = (
+    "Read from {path}: this is the run's own summary, written when it was "
+    "fitted, not recomputed here.")
+
+#: Why there is no fitted model, when nothing more specific is known. Used
+#: ONLY where it has been checked -- see :func:`summary_text`.
+NO_MODEL_FROM_DISK = (
+    "this panel was opened from a results table on disk rather than from a "
+    "run, so the fitted model is not here")
+NO_MODEL_AT_ALL = "no run in this session has fitted anything yet"
+
+
+def _why_no_model(path, reason) -> str:
+    """The TRUE reason there is no fitted model to summarise.
+
+    A MESSAGE MUST NOT ASSERT A CAUSE IT HAS NOT CHECKED. This panel used to
+    say "opened from a results table on disk" for every absent model, with
+    equal confidence whether or not that had happened -- and the case the
+    maintainer hit was a LIVE run whose model had been discarded by a failure
+    in the diagnostics. The story was told, the user re-ran a fit that had
+    just finished, and the second run said the same thing.
+    """
+    if reason:
+        return str(reason)
+    return NO_MODEL_FROM_DISK if path else NO_MODEL_AT_ALL
+
+
+def summary_text(model, regression_type=None, *, path=None,
+                 reason: str = "") -> str:
     """The statsmodels summary for ``model``, or why there is none.
 
     VERBATIM, not rebuilt. The point of asking for the statsmodels summary is
     to get the statsmodels summary; a re-implementation would differ from
     every textbook and every other tool a reader compares it against.
 
+    :param path: the results table or run folder this panel is showing. With
+        no live model the run's OWN summary is read back from beside it --
+        the file is already there, so "re-run to see it" was asking for GPU
+        minutes to recover something one ``open()`` away.
+    :param reason: why there is no model, when the caller knows. Without it
+        the absence is explained by what can actually be checked here.
     :returns: the summary text, always a string -- a backend without one
         comes back as a sentence naming the backend rather than as an
         exception or an empty tab, both of which read as a bug.
     """
     if model is None:
-        return ("No summary: this panel was opened from a results table on "
-                "disk rather than from a run, so the fitted model is not "
-                "here. Re-run to see it.")
+        found = find_summary_file(path)
+        if found:
+            try:
+                with open(found, "r", encoding="utf-8", errors="replace") as f:
+                    text = f.read().strip()
+            except OSError as error:
+                return (f"No summary: {_why_no_model(path, reason)}, and the "
+                        f"summary this run wrote could not be read "
+                        f"({error}).")
+            if text:
+                return f"{SUMMARY_FROM_DISK.format(path=found)}\n\n{text}"
+            return (f"No summary: {_why_no_model(path, reason)}, and the "
+                    f"summary file this run wrote ({found}) is empty.")
+        why = _why_no_model(path, reason)
+        if path:
+            names = _summary_filenames()
+            looked = os.path.dirname(str(path)) if os.path.isfile(
+                str(path)) else str(path)
+            return (f"No summary: {why}, and this run wrote none — looked "
+                    f"for {' or '.join(names) if names else 'a summary file'} "
+                    f"in {looked}. Re-running with this build writes one.")
+        return f"No summary: {why}."
 
     summary = getattr(model, "summary", None)
     if not callable(summary):
@@ -626,6 +743,16 @@ class RegressionResultsPanel(QWidget):
         #: produced it. BORN HERE for the same reason as everything else in
         #: this block.
         self._model = None
+        #: What went wrong drawing the diagnostics, verbatim, or "". Kept so
+        #: an absent summary can name the error that caused it rather than
+        #: telling the "opened from disk" story regardless.
+        self._diagnostics_error = ""
+        #: True once a run of this session has handed over its settings --
+        #: which only the live path does. It is how "there is no model
+        #: because this table was read off disk" is told apart from "there is
+        #: no model because the run came back without one", and both of those
+        #: used to be reported as the first.
+        self._from_live_run = False
         #: The :class:`spacr.regression_qc.RegressionQCContext` the residual
         #: tabs were drawn from, kept so the homogeneity verdict is read off
         #: the SAME arrays the saved report used rather than rebuilt.
@@ -661,6 +788,15 @@ class RegressionResultsPanel(QWidget):
         screen, so on a second run it describes the wrong one.
         """
         self._run_settings = dict(settings) if settings else None
+        # ONLY THE LIVE PATH CALLS THIS, so it is also the answer to "did
+        # this table come from a run in this session or off the disk" -- a
+        # question the Summary tab used to answer with a guess.
+        self._from_live_run = True
+        # The reason for an absent summary has just changed, so the sentence
+        # on the tab has to. Only when there is no model to render: a summary
+        # already on screen is the run's own and is not rewritten.
+        if self._model is None:
+            self.set_summary(None)
 
     def ask_refit(self) -> bool:
         """Offer another model for the same data, and ask for the run.
@@ -798,8 +934,19 @@ class RegressionResultsPanel(QWidget):
         :param reason: the specific reason, when there is one. The default is
             :data:`NO_MODEL_MESSAGE` -- "no run in this session has fitted
             anything yet", which is the ordinary case and still an answer.
+
+        THIS DROPS THE MODEL, and that is what it is for: it is called when a
+        NEW TABLE arrives, and the previous fit has nothing to say about it.
+        A failure to DRAW the diagnostics is a different event and goes
+        through :meth:`_clear_diagnostic_views`, which leaves the fit alone --
+        a failure in the view must not destroy the thing being viewed.
         """
         self._model = None
+        self._diagnostics_error = ""
+        self._clear_diagnostic_views(reason)
+
+    def _clear_diagnostic_views(self, reason: str = "") -> None:
+        """Empty the three tabs and say why, WITHOUT discarding the fit."""
         self._qc_context = None
         for plot in self.diagnostic_plots():
             plot._reset_scene()
@@ -823,9 +970,48 @@ class RegressionResultsPanel(QWidget):
         summary, and a re-implementation would differ from every textbook and
         every other tool the reader compares it against.
         """
-        text = summary_text(model, regression_type)
+        if model is None:
+            # THE MODEL THIS PANEL ALREADY HAS. A caller handing over a
+            # payload whose `model` key is empty is saying "the run returned
+            # none", not "throw away the one you were given" -- and the fit
+            # kept by `set_diagnostics` is the same fit this table came from.
+            model = self._model
+        text = summary_text(model, regression_type, path=self._path,
+                            reason=self._no_model_reason())
         self._summary.setPlainText(text)
         return not text.startswith("No summary")
+
+    #: Said when a run of this session came back with no fitted model at all.
+    #: CHECKED, not assumed: the panel knows this table came from a run
+    #: because the run handed over its settings, and it knows there is no
+    #: model because it was handed none.
+    NO_MODEL_FROM_THIS_RUN = (
+        "this run came back without a fitted model, so there is none to "
+        "summarise")
+
+    def _no_model_reason(self) -> str:
+        """Why this panel has no fitted model, when it knows a real reason.
+
+        "" means nothing more specific than what :func:`summary_text` can
+        check for itself. EVERY REASON RETURNED HERE ACTUALLY HAPPENED, which
+        is the whole point of the method: the old message explained every
+        absence with "opened from a results table on disk" -- including the
+        live run whose diagnostics had thrown, which is the case the
+        maintainer hit.
+        """
+        if self._model is not None:
+            return ""
+        if self._diagnostics_error:
+            # Defensive rather than expected: `set_diagnostics` now stores the
+            # fit BEFORE it tries to draw anything, so a diagnostics failure
+            # no longer takes the model with it. If some other path ever
+            # loses one, the tab says which error did it rather than telling
+            # the disk story again.
+            return (f"the diagnostics failed and the fit was not kept "
+                    f"({self._diagnostics_error})")
+        if self._from_live_run:
+            return self.NO_MODEL_FROM_THIS_RUN
+        return ""
 
     def set_diagnostics(self, model, regression_type=None) -> bool:
         """Fill the residual tabs from the model a run just fitted.
@@ -849,26 +1035,42 @@ class RegressionResultsPanel(QWidget):
         if model is None:
             self.clear_diagnostics()
             return False
+
+        # THE FIT IS STORED BEFORE ANYTHING IS DRAWN FROM IT.
+        #
+        # It used to be assigned at the bottom, after the context had been
+        # built, so every early return below threw the model away -- and the
+        # Summary tab then explained its absence with "this panel was opened
+        # from a results table on disk", which for a live run whose
+        # diagnostics could not be built is simply untrue. A failure in the
+        # VIEW must not destroy the thing being viewed: the model is the fit,
+        # the diagnostics are one way of looking at it, and the summary is
+        # another that works perfectly well when this one does not.
+        self._model = model
+        self._diagnostics_error = ""
         try:
             from ...regression_qc import (PanelUnavailable, context_from_model,
                                           cooks_distance)
         except Exception as error:                               # noqa: BLE001
-            self.clear_diagnostics(
+            self._diagnostics_error = f"could not load the diagnostics module: {error}"
+            self._clear_diagnostic_views(
                 f"Could not load the diagnostics module: {error}")
             return False
         try:
             ctx = context_from_model(model, coef_df=self._frame,
                                      regression_type=regression_type)
         except PanelUnavailable as error:
-            self.clear_diagnostics(str(error))
+            self._diagnostics_error = str(error)
+            self._clear_diagnostic_views(str(error))
             return False
         except Exception as error:                               # noqa: BLE001
-            self.clear_diagnostics(
+            self._diagnostics_error = (
+                f"{type(error).__name__}: {error}")
+            self._clear_diagnostic_views(
                 f"The diagnostics could not be computed for this fit "
                 f"({type(error).__name__}: {error}).")
             return False
 
-        self._model = model
         self._qc_context = ctx
         labels = list(ctx.labels) if ctx.labels is not None else []
         reason = (ctx.standardisation.reason
@@ -1146,7 +1348,18 @@ class RegressionResultsPanel(QWidget):
         # this; the caller that loaded a CSV has none, and leaving the last
         # run's residuals on the tabs would describe a fit the user is no
         # longer looking at -- with nothing on screen saying so.
+        self._from_live_run = False
         self.clear_diagnostics()
+
+        # AND THE SUMMARY IS THE SAME KIND OF STALENESS. It was left
+        # untouched here, so a table opened from disk sat under the PREVIOUS
+        # run's statsmodels output with nothing saying whose it was. Refreshed
+        # from the new table's own folder: `perform_regression` writes the
+        # summary beside `results.csv`, so a run re-opened from disk shows the
+        # text it showed while it was running -- byte for byte, because it is
+        # the same bytes. A live run overrides this a moment later with the
+        # model itself, which is better still.
+        self.set_summary(None)
 
         # WHICH SETTINGS PRODUCED THIS TABLE. Read from beside the table, and
         # REPLACED rather than kept: a new table is a new experiment, and
