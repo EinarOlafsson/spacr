@@ -1,0 +1,86 @@
+================================================================================
+A LONG FIT SAYS IT WILL BE LONG, AND SAYS WHERE IT HAS GOT TO
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 -- "im running the mixed model now and it is taking much
+           longer than before is that normal?" ... "it is still going, cpu at
+           100 percent"
+
+Related: 132 made `mixed` the default. 129/139 are the graphs. 106 is the rule
+         about a control saying what it does.
+
+--------------------------------------------------------------------------------
+THE MEASUREMENT
+--------------------------------------------------------------------------------
+
+Taken 2026-08-18 on a well-conditioned gene-level design, `regression_model`
+called directly so nothing else is in the timing:
+
+    40 genes x 400 wells     ols 0.03 s     mixed  1.62 s     54x
+    80 genes x 600 wells     ols 0.16 s     mixed 10.66 s     67x
+
+THE RATIO GROWS WITH THE SCREEN. Doubling the genes cost OLS 5x and mixed
+6.6x, and that is the GENE-LEVEL design alone -- 40 to 80 columns. The mixed
+fit the module actually runs adds a random effect PER GUIDE nested in gene, so
+on the maintainer's screen (823 guides, 389 genes, 610 wells) the expected
+range is tens of minutes to hours.
+
+Nothing is wrong. statsmodels' MixedLM is an iterative REML optimisation and
+it is SINGLE-THREADED, so 100% of one core is exactly what a healthy fit looks
+like -- and it will not use the other cores however long it runs.
+
+--------------------------------------------------------------------------------
+A. THE MODEL BOX SAYS WHAT IT COSTS
+--------------------------------------------------------------------------------
+
+132's box states the formula and what is modelled. It does not say that the
+default is roughly sixty times the cost of the alternative and rising with
+screen size. A user who picks the default -- which is everybody, that is what
+a default is -- has no way to know that before they wait.
+
+Put it in the box, beside "what you do not get": the order of magnitude, that
+it is single-threaded, and what to choose instead when the answer is wanted
+now (`ols` with `level='both'` is the pre-2026-08-17 behaviour; `rra` needs no
+joint fit at all).
+
+Say it as a MEASURED RANGE, not "this may be slow" -- the numbers above are
+what make it actionable.
+
+--------------------------------------------------------------------------------
+B. A LONG FIT REPORTS WHERE IT HAS GOT TO
+--------------------------------------------------------------------------------
+
+An hour of silence at 100% CPU is indistinguishable from a hang. That is not a
+guess about how it feels; it is the question that was asked, twice, while the
+fit was running correctly.
+
+The run should say, before it starts, what it is about to do and roughly how
+long that is for a design of this size -- and then report progress while it
+does it. statsmodels exposes the optimiser's iterations; at minimum the run
+can print that it has entered the mixed fit, the number of parameters and
+random effects, and a heartbeat.
+
+WHAT NOT TO DO: a spinner with no content. The useful line names the design --
+"fitting 389 genes and 823 guide random effects over 610 wells" -- because
+that is also the line that tells a user their filters did something
+unexpected.
+
+--------------------------------------------------------------------------------
+C. AND IT MUST BE INTERRUPTIBLE
+--------------------------------------------------------------------------------
+
+A fit that will run for an hour has to be stoppable from the GUI without
+killing the application, and a stopped fit must leave the run folder in a
+state the user can see. spaCR has `spacr.cancellation` for exactly this; the
+mixed branch should honour it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The model box states the measured cost of `mixed` and names the faster
+  choices.
+* Starting a mixed fit prints the design it is fitting before it blocks.
+* A fit longer than a few seconds reports progress.
+* Cancelling one stops it and says what was written.
