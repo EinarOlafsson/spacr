@@ -453,9 +453,9 @@
       "slug": "cell_perimeter_fraction",
       "title": "Cell perimeter merge",
       "validation": {
-        "bytes": 135364,
+        "bytes": 76630,
         "frames": 18,
-        "sha256": "179b43abba88742480053687d19555ca199771faef80037309412c6e51a7f7d0",
+        "sha256": "b0dbb4b88ec30a32fb65063b490834ea2258e215af73e39a7b205f499bb05c80",
         "unique_frames": 17
       }
     },
@@ -475,9 +475,9 @@
       "slug": "cell_intensity_merge",
       "title": "Cell intensity merge",
       "validation": {
-        "bytes": 140530,
+        "bytes": 76830,
         "frames": 18,
-        "sha256": "4339bd04bd26b763e0ad12c06f6ce088e4f5bb1f919ddafc0d15b3072c240994",
+        "sha256": "45c89b950ed5d448aad772aef3872bc496eb40468ab9b8dc078c8409873c7a43",
         "unique_frames": 17
       }
     },
@@ -516,9 +516,9 @@
       "slug": "nucleus_perimeter_fraction",
       "title": "Nucleus perimeter merge",
       "validation": {
-        "bytes": 146231,
+        "bytes": 127371,
         "frames": 18,
-        "sha256": "b5ef3400dcbd1aea4027e4c3f254df72506fc3fc0b21b5f2c1eda77726ae370b",
+        "sha256": "e121f2f56c158c2654c717b5cda59fcbf6e2a8490f7728e5af1529c5ec749f33",
         "unique_frames": 17
       }
     },
@@ -538,9 +538,9 @@
       "slug": "nucleus_intensity_merge",
       "title": "Nucleus intensity merge",
       "validation": {
-        "bytes": 149664,
+        "bytes": 128245,
         "frames": 18,
-        "sha256": "6eea92137816c79b4a2f9d970fc8c62c4e360605e541c9a4f567368f3b2114dc",
+        "sha256": "83351ec3d16c424a17d9082d69e72abb37ddcb3948a779be6bad917d5e704b17",
         "unique_frames": 17
       }
     },
@@ -579,9 +579,9 @@
       "slug": "pathogen_perimeter_fraction",
       "title": "Pathogen perimeter merge",
       "validation": {
-        "bytes": 263345,
+        "bytes": 231370,
         "frames": 18,
-        "sha256": "365a51c866af124e7e5b9b9e7bef8e67acef08d94fdec7bbe25771f7eb839fa1",
+        "sha256": "5591adfc82702ca24537e516cd4182997475fb8d942765c9996eca82393000e6",
         "unique_frames": 17
       }
     },
@@ -601,9 +601,9 @@
       "slug": "pathogen_intensity_merge",
       "title": "Pathogen intensity merge",
       "validation": {
-        "bytes": 266306,
+        "bytes": 210396,
         "frames": 18,
-        "sha256": "4d21b97afbdc59b3e561d20e5b5220f8273ab6f18ab83095d7795291606529bd",
+        "sha256": "b3d57a3d5c5464ce01ad70c46f4662fcd8477ff1639b9a460585b50902ff29b3",
         "unique_frames": 17
       }
     },
@@ -642,9 +642,9 @@
       "slug": "organelle_perimeter_fraction",
       "title": "Organelle perimeter merge",
       "validation": {
-        "bytes": 291929,
+        "bytes": 176732,
         "frames": 18,
-        "sha256": "ba45dcebf220620f3dd4e80ae829832c6906a198ddbdb8303a3302d703c4a660",
+        "sha256": "be0fbca30c9e2e78e6a2c05d47dc934151b7582ea9dee58b0355599e1229ffce",
         "unique_frames": 17
       }
     },
@@ -664,9 +664,9 @@
       "slug": "organelle_intensity_merge",
       "title": "Organelle intensity merge",
       "validation": {
-        "bytes": 293634,
+        "bytes": 173929,
         "frames": 18,
-        "sha256": "96908f70a2f58f02834998af7dedef22f7b5006eab8219297336ef225fa848c2",
+        "sha256": "0237fbdfc88bb961763f69ba1a6001f8c7f844201b490002d1655a61a9bb18f1",
         "unique_frames": 17
       }
     },
