@@ -177,19 +177,37 @@ DELETE
 D. "IM NOT SURE I SEE A DIFERENCE WHEN I USE IT" -- BATCH CORRECTION
 --------------------------------------------------------------------------------
 
-That is a bug report, not a preference, and it must be ANSWERED WITH A
-MEASUREMENT rather than an explanation. Fit one screen with
-`batch_correction` off and on and compare the coefficient tables. Three
-outcomes and each has a different fix:
+MEASURED 2026-08-17, and the answer is outcome 1, not outcome 3. The
+correction WORKS; what it did not do was say which of three things had just
+happened.
 
-  1. It genuinely does nothing on this data -- e.g. a SINGLE PLATE, where
-     ComBat has no between-batch variance to remove. Then the control must
-     SAY so and grey out, per 106.
-  2. It runs and the effect is real but small. Then the run should report how
-     much it moved: the shift it applied, per batch.
-  3. It is silently not being applied. Then it is a bug and it is the most
-     important item on this page, because every run since has been reported
-     under a correction that did not happen.
+    three plates, real offset   center  mean|delta| 0.4579   spread 0.527 -> 0.000
+    three plates, real offset   zscore  mean|delta| 0.5421   spread 0.527 -> 0.000
+    three plates, no offset     center  mean|delta| 0.0102   spread 0.011 -> 0.000
+    ONE plate                   center  mean|delta| 0.000000 spread 0.000 -> 0.000
+    any                         combat  raises, demanding a covariate
+
+NOTHING WAS SILENTLY UNAPPLIED, which was the outcome that would have made
+every run since wrong. On plates with a real offset the correction collapses
+the between-plate spread to exactly zero and moves each value by about 0.46.
+
+The single-plate case is an EXACT no-op -- mean|delta| = 0.000000, because
+there is no between-batch variance to remove -- and it is almost certainly
+what was seen. The old console line reported "0.000 -> 0.000 centroid
+spread", which is indistinguishable from a correction that worked perfectly:
+the centroid spread goes to 0.000 in every case that runs, including the ones
+that change nothing.
+
+FIXED by making the run say how far it moved the data -- the mean absolute
+shift in the dependent variable, which is the number a user comparing two runs
+is actually looking for -- and by saying outright when the answer is "nothing,
+and it could not": fewer than two batches means there is nothing between
+batches to remove, and `batch_correction='none'` gives an identical result.
+
+STILL OPEN: greying the control out when the score table has one plate. The
+dependency rules see only the settings dict, and how many plates a run has is
+a fact about the DATA, so it needs a different mechanism from the 106 rule the
+other controls use.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED

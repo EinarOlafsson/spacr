@@ -4985,19 +4985,61 @@ def perform_regression(settings):
                 settings.get('batch_combat_mean_only', False)),
             **correction_kwargs(settings),
         )
-        score_data_df.loc[:, dependent_variable] = corrected[
-            dependent_variable
-        ]
         report_path = write_report(
             correction_report,
             os.path.join(res_folder, 'batch_correction.json'),
         )
+        # IT SAYS HOW FAR IT MOVED THE DATA, and says so when the answer is
+        # "not at all".
+        #
+        # Instruction 135 D, reported on 2026-08-17: "plate and batch
+        # correction is good but im not sure i see a diference when i use
+        # it". MEASURED rather than explained. On three plates with a real
+        # offset, `center` and `zscore` collapse the centroid spread from
+        # 0.527 to exactly 0.000 and move each value by ~0.46 on average --
+        # the correction works. On ONE plate they are an exact no-op,
+        # mean|delta| = 0.000000, because there is no between-plate variance
+        # to remove; on plates that genuinely agree they move values by
+        # ~0.01. Both are correct, and both used to print a centroid-spread
+        # line that a reader could not tell apart from a correction that had
+        # done something.
+        #
+        # The centroid spread alone does not answer the question either: it
+        # goes to 0.000 in every case that ran, including the ones that
+        # changed nothing. The mean absolute shift is the number a user
+        # comparing two runs is actually looking for.
+        shift = float(np.abs(
+            np.asarray(corrected[dependent_variable], dtype=float)
+            - np.asarray(score_data_df[dependent_variable], dtype=float)
+        ).mean()) if len(score_data_df) else 0.0
+        n_batches = len(getattr(correction_report, 'batches', ()) or ())
         print(
             f"Batch correction {correction_report.method}: "
             f"{correction_report.centroid_spread_before} -> "
-            f"{correction_report.centroid_spread_after} centroid spread. "
+            f"{correction_report.centroid_spread_after} centroid spread, "
+            f"across {n_batches} batch(es); "
+            f"{dependent_variable} moved by {shift:.6g} on average. "
             f"Report: {report_path}"
         )
+        if n_batches < 2:
+            print(
+                f"  It changed nothing, and could not: batch correction "
+                f"removes variance BETWEEN batches and this run has "
+                f"{n_batches}. Set batch_column to a column that varies, or "
+                f"batch_correction='none' -- the result is identical either "
+                f"way."
+            )
+        elif shift == 0.0:
+            print(
+                "  It changed nothing: the batches already agree on "
+                f"{dependent_variable}. That is a finding about the screen, "
+                "not a failure of the correction."
+            )
+        # ASSIGNED LAST, so the shift above compares the corrected values
+        # with the originals rather than with themselves.
+        score_data_df.loc[:, dependent_variable] = corrected[
+            dependent_variable
+        ]
         for note in correction_report.warnings:
             print(f"Warning: batch correction: {note}")
 
