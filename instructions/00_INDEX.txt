@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-106 done / 27 open (79%).
+106 done / 28 open (79%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -104,6 +104,9 @@ OPEN
 
   142  FORCE RESTART, FOR WHEN STOP DOES NOT STOP
        142_force_restart_when_stop_does_not_stop.txt
+
+  143  PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
+       143_plate_position_is_opt_in_and_the_box_is_shorter.txt
 
 --------------------------------------------------------------------------------
 DONE
