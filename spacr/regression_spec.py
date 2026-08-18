@@ -223,3 +223,187 @@ _RUN_LEVEL_DEFAULTS = {
     'lasso_selection_threshold': 0.6,
     'hinge_n_boot': 200,
 }
+
+
+# ---------------------------------------------------------------------------
+# WHO fits it (instruction 141). `regression_type` says WHAT is fitted.
+# ---------------------------------------------------------------------------
+
+#: The backend every existing result was produced with.
+#:
+#: A DEFAULT THAT CHANGES THE NUMBERS IS NOT A DEFAULT. Every results.csv,
+#: every volcano and every hit list in this project came out of statsmodels
+#: and sklearn, so that is what an unconfigured run keeps getting; a faster
+#: backend is something a user opts into, per screen, with the cost stated.
+DEFAULT_REGRESSION_BACKEND = 'statsmodels'
+
+#: ``types`` value meaning "every family in :data:`REGRESSION_TYPES`".
+ALL_REGRESSION_TYPES = '*'
+
+#: What each backend is, what it can fit, and what it costs.
+#:
+#: PURE DATA, like everything else in this module -- the availability
+#: question ("is the package here, is there a GPU, can it fit the chosen
+#: type") is :mod:`spacr.regression_backends`, which is the only place that
+#: touches the environment. Splitting them is what lets a settings panel read
+#: this table without importing torch; see
+#: ``tests/test_a_settings_panel_does_not_import_torch.py``.
+#:
+#: Keys:
+#:
+#: ``label``       what the combo entry reads. ALWAYS ends in ``(CPU)`` or
+#:                 ``(GPU)`` -- instruction 141 C, so a user can see which
+#:                 choice needs hardware before making it.
+#: ``device``      ``'cpu'`` or ``'gpu'``. The greying rule reads this.
+#: ``package``     the import name to probe for. ``None`` means "already a
+#:                 hard dependency of spaCR", which is true of statsmodels
+#:                 and, since :mod:`spacr.power_model`, of torch.
+#: ``pip``         the command that would provide it, shown ON the greyed-out
+#:                 entry rather than in a manual.
+#: ``types``       which :data:`REGRESSION_TYPES` it can fit.
+#: ``url``         its API documentation.
+#: ``summary``     one sentence: what it is for.
+#: ``cost``        the measured or stated speed claim. Never "may be faster".
+#: ``differs``     ``None`` when the backend must return the SAME numbers as
+#:                 statsmodels, otherwise the sentence saying what is
+#:                 different about its answer. Instruction 141 D: a backend
+#:                 that returns different numbers is a bug unless the box
+#:                 says the difference is the point.
+#: ``implemented`` whether spaCR routes anything through it TODAY. False
+#:                 entries are greyed out as "not wired up yet" rather than
+#:                 hidden, so the list is the plan and the plan is visible.
+REGRESSION_BACKENDS = {
+    'statsmodels': {
+        'label': 'statsmodels (CPU)',
+        'device': 'cpu',
+        'package': None,
+        'pip': None,
+        'types': ALL_REGRESSION_TYPES,
+        'url': 'https://www.statsmodels.org/stable/api.html',
+        'summary': ("The default. Inference-first: coefficients, standard "
+                    "errors, p-values and the diagnostics the QC suite "
+                    "reads."),
+        'cost': ("Generic dense linear algebra, which is why 'mixed' is slow "
+                 "-- measured at 54x OLS on 40 genes and 67x on 80, the "
+                 "ratio rising with screen size."),
+        'differs': None,
+        'implemented': True,
+    },
+    'torch': {
+        'label': 'torch (GPU)',
+        'device': 'gpu',
+        # torch is already a hard dependency -- spacr.power_model fits with
+        # it -- so this backend adds no package, only a device requirement.
+        'package': 'torch',
+        'pip': 'pip install torch',
+        'types': ('mixed',),
+        'url': 'https://docs.pytorch.org/docs/stable/index.html',
+        'summary': ("The mixed model's profiled REML objective written out "
+                    "and optimised on the GPU (spacr.mixed_gpu). Same model, "
+                    "same estimates."),
+        'cost': ("Measured on an RTX 3090: the dense Cholesky each iteration "
+                 "spends its time in takes 204 ms on the CPU and 7.69 ms on "
+                 "the GPU at q=1212, and the whole fit is 6-9x faster end to "
+                 "end on screen-sized problems."),
+        'differs': None,
+        'implemented': True,
+    },
+    'pymer4': {
+        'label': 'pymer4 / lme4 (CPU)',
+        'device': 'cpu',
+        'package': 'pymer4',
+        'pip': 'pip install pymer4',
+        'types': ('mixed',),
+        'url': 'https://eshinjolly.com/pymer4/',
+        'summary': ("The reference implementation for mixed models. Sparse "
+                    "Cholesky over the nested structure rather than dense "
+                    "algebra -- an algorithmic win, not a hardware one."),
+        'cost': "Version 0.9.2 needs no R.",
+        'differs': None,
+        'implemented': False,
+    },
+    'cuml': {
+        'label': 'cuML (GPU)',
+        'device': 'gpu',
+        'package': 'cuml',
+        'pip': "pip install 'spacr[rapids]'",
+        'types': ('lasso', 'ridge', 'elasticnet'),
+        'url': 'https://docs.rapids.ai/api/cuml/stable/',
+        'summary': ("RAPIDS' GPU ridge / lasso / elastic-net, near drop-in "
+                    "for scikit-learn. Speeds the PENALISED families."),
+        'cost': ("It has NO mixed model, so it does not touch that "
+                 "bottleneck."),
+        'differs': ("A penalised path solved to a different tolerance can "
+                    "select a different set of coefficients at the same "
+                    "alpha."),
+        'implemented': False,
+    },
+    'pyfixest': {
+        'label': 'pyfixest (CPU)',
+        'device': 'cpu',
+        'package': 'pyfixest',
+        'pip': 'pip install pyfixest',
+        'types': ('ols', 'wls', 'poisson'),
+        'url': 'https://py-econometrics.github.io/pyfixest/',
+        'summary': ("Absorbs high-dimensional FIXED effects by alternating "
+                    "projections instead of building dummy columns."),
+        'cost': ("rowID + columnID are real columns in the design today; "
+                 "absorbing them shrinks the problem before any backend "
+                 "runs, so it helps every family, not just the mixed one."),
+        'differs': None,
+        'implemented': False,
+    },
+    'glum': {
+        'label': 'glum (CPU)',
+        'device': 'cpu',
+        'package': 'glum',
+        'pip': 'pip install glum',
+        'types': ('glm', 'poisson', 'logit', 'probit', 'quasi_binomial'),
+        'url': 'https://glum.readthedocs.io/',
+        'summary': "Fast GLMs, with the same families statsmodels offers.",
+        'cost': "Helps poisson, logit, probit and quasi_binomial.",
+        'differs': None,
+        'implemented': False,
+    },
+    'numpyro': {
+        'label': 'numpyro (GPU)',
+        'device': 'gpu',
+        'package': 'numpyro',
+        'pip': 'pip install numpyro',
+        'types': ('mixed', 'horseshoe'),
+        'url': 'https://num.pyro.ai/',
+        'summary': "Bayesian, NUTS on the GPU.",
+        'cost': "Sampling, so slower per fit and parallel across chains.",
+        'differs': ("Gives POSTERIORS rather than point estimates plus "
+                    "standard errors -- a different answer, not a faster "
+                    "version of the same one."),
+        'implemented': False,
+    },
+    'gpytorch': {
+        'label': 'gpytorch (GPU)',
+        'device': 'gpu',
+        'package': 'gpytorch',
+        'pip': 'pip install gpytorch',
+        'types': ('mixed',),
+        'url': 'https://docs.gpytorch.ai/',
+        'summary': ("A linear mixed model IS a Gaussian process with a "
+                    "linear kernel plus one kernel per nesting level."),
+        'cost': "GPU kernel algebra, and scales with the number of wells.",
+        'differs': None,
+        'implemented': False,
+    },
+}
+
+#: The order the panels list them: the default first, then the one that is
+#: wired up, then the rest as instruction 141 B writes them.
+REGRESSION_BACKEND_ORDER = (
+    'statsmodels', 'torch', 'pymer4', 'cuml', 'pyfixest', 'glum', 'numpyro',
+    'gpytorch',
+)
+
+#: ``label -> canonical name``, so a panel may post either. Built from the
+#: table rather than written twice, because a second copy is the one that
+#: drifts.
+REGRESSION_BACKEND_LABELS = {
+    spec['label']: name for name, spec in REGRESSION_BACKENDS.items()
+}
