@@ -1410,6 +1410,71 @@
       "source_sha256": "1aa6a2be3819135bc8786f08dad355dc6faf7df7314e7649fa4710b9e717521c",
       "text": "Run the export from a settings dict. The headless entry point.\n\nThe ``fn(settings)`` shape ``spacr-run``, the Qt Run button and\n:mod:`spacr.validate` all dispatch to, wrapped around\n:func:`export_anndata` -- which keeps its own explicit keyword\nsignature, because a function whose arguments are a dict is a function\nnobody can call from a notebook.\n\nEvery key it reads is one :func:`anndata_export_settings` declares and\n:func:`register_anndata_settings` gave a type and a tooltip, so the form\nthe GUI draws and the keys honoured here are the same list.\n\n:param settings: the run settings. ``src`` is the project root (or the\n    database); everything else falls back to\n    :func:`anndata_export_settings`.\n:returns: the :class:`ExportResult`, whose ``describe()`` is what the\n    console prints.\n:raises ValueError: when ``src`` is empty -- there is nothing to export\n    and no path to name in the message otherwise.\n:raises AnnDataExtraMissing: when ``anndata`` is not installed."
     },
+    "spacr.annotation": {
+      "source_blocks_sha256": [
+        "be52d8ed707b444727318ed0539e28c3594ada39b72d79cba2d466dac1c680b2",
+        "1bf286311e56a4b4b58d8731ba4f5bde3d1f2cf6a550875669deffeabd67637e",
+        "585834e128ab674e7e94a71a828fbcf8a5976c7baf20b3c6e54240873d79c013",
+        "32bfc0031b34ab1a116406f25cf8268be49cd84415ee436c63b44a85b55bd88b",
+        "dd233d8c1cfd78a9d38f0fa56019135d7473f81b1275bdd4eec464dfbf1c7c64",
+        "244af230e33c9f9a9615017c9b8b76bbfb50c671a63e1f3568219d62391096e6",
+        "79a716c7414b4fa1fd835d8cc82dc5d7887d2405eac45b268a7458725401830e",
+        "7515050dbb850917b95bc14d59139ad96f979ca3032c861410f84dd874df1cc2",
+        "b2f8cc9b584e156bbcca7ed4aafad7b73347f0519d3238694982825731a3ec6e"
+      ],
+      "source_sha256": "8bfe067a0da017e64ebf974fe2d054023ecfb5956886ab50e8f988d4062f5049",
+      "text": "Everything spaCR knows about a *Toxoplasma* gene, joined onto an export.\n\nAsked for on 2026-08-17: \"if it is on all the exported tables should be merged\nwith the relevant Toxoplasma information (gene name, signal peptide,\ntransmembrane domain, the phenotype scores from the screens we have\ndownloaded, tachyzoite expression, bradyzoite expression, sexual stages\nexpression, hyperLopit expression)\".\n\nInstruction 133. Until this module, `toxo=True` reached exactly two places --\nthe volcano's colours and two heatmaps -- and the CSV a reader actually opens\ncame out as bare gene numbers and coefficients. Somebody then joined the\nannotation by hand in Excel, which is where the wrong-key mistakes live.\n\nTHREE THINGS MAKE THIS SAFE, and each is a bug this project has already had.\n\n1.  ONE KEY SPACE: the bare gene NUMBER. `TGGT1_224750` (what the screen\n    library uses), `TGME49_224750` (what every annotation table uses),\n    `gene_fraction:gene[224750]` (what patsy names a term) and `224750_2` (a\n    guide) are all gene ``224750``. :func:`gene_number` is the single parse.\n\n2.  THE JOIN CANNOT MULTIPLY ROWS. Every source is collapsed to one row per\n    gene before it is merged and the merge is declared ``many_to_one``, so a\n    duplicated annotation key raises instead of silently turning one\n    coefficient into four rows. That failure has already reached a user's\n    figure once, and it looked entirely plausible while it was wrong.\n\n3.  A COLUMN THAT CANNOT BE FILLED IS ABSENT, WITH A REASON. Never a column\n    of NaN, which reads as \"measured, found nothing\" rather than \"not\n    available here\".\n\nWHAT IS BUNDLED, and why it is small enough to bundle:\n\n    toxoplasma_metadata.csv  2.97 MB  gene name, product, expression\n    deeptmhmm.csv            1.11 MB  signal peptide and transmembrane\n    phenotype.csv            0.48 MB  the published CRISPR fitness screens\n    lopit.csv                0.20 MB  hyperLOPIT/TAGM compartment\n    uniprot.csv              0.13 MB  accession\n\ndeeptmhmm.csv is this project's own DeepTMHMM run over 8,140 proteins, at 82\ncolumns: the summary (`dtm_type`, `n_tm`, `sp_length`) that :func:`annotate`\njoins, and the coordinates of every one of the up to 24 transmembrane\nsegments, which :func:`supplementary` writes as its own table. The 25\nper-segment SEQUENCE columns of the source file are dropped -- they are 16 of\nits 17 MB and every one of them is recoverable from the proteome."
+    },
+    "spacr.annotation.annotate": {
+      "source_blocks_sha256": [
+        "b06a543fb39b88cb054f661aa1e63d8b1b2d16759b77c21d5f4e1b885659e8ed",
+        "cc1358a1f525b109284b4b638c91071984e0df01014c487f414d3385470b8ef2",
+        "9097a6caa18db07d9af864f3390910fc8911c436bc8d07bd74e6ee053da74b08",
+        "13c0cd9dd23e7f669a6d7730a5081220642e61e654f83a95145bf86d893ca080",
+        "5f47ab6b5cacd2ae0490ac7813b4f347ec836103499c9fe1db3bd07e1a63567c",
+        "df4a6af959aa2b65e5a450e0e5dd2a5857ffe422cfff1d6c8dc609c8460179d8"
+      ],
+      "source_sha256": "b4115fdec4607bc331d3d75a2a738e50d941075e180c590bae0815a91053dfc1",
+      "text": "``frame`` with the bundled *Toxoplasma* annotation joined on.\n\n:param frame: any exported table -- coefficients, significant hits, the\n    montage sidecar.\n:param key_column: the column naming a gene. Found automatically when not\n    given, and a table naming no gene comes back UNCHANGED rather than\n    gaining a block of empty columns.\n:param quiet: suppress the console line saying what was joined.\n:returns: a COPY. The caller is usually holding the run's own results,\n    and annotating them in place would move what every other panel and\n    export sees.\n\nColumns already present in ``frame`` are not overwritten -- a run that\ncomputed its own ``gene_name`` keeps it, and the annotation's version is\nleft out rather than silently replacing it."
+    },
+    "spacr.annotation.clear_cache": {
+      "source_blocks_sha256": [
+        "122b93585b52d14be999dc2df669b6f302db83f12e6c53a2831ef0672300a017"
+      ],
+      "source_sha256": "122b93585b52d14be999dc2df669b6f302db83f12e6c53a2831ef0672300a017",
+      "text": "Forget the bundled tables. For tests, and for a reinstall mid-session."
+    },
+    "spacr.annotation.columns": {
+      "source_blocks_sha256": [
+        "663d5f80a7cf4bfbefc24516720e2d4bffff3c6dc97cb45c9b8d6372e9c41879",
+        "d7be5d7ef2187e42bed5ca032fba1d725c07c47d0546fdee862b7da130f4c36f"
+      ],
+      "source_sha256": "2d2cc672bcfaf9fea7c2bd81faf2e318f851d7b72b65aa96f26db8f7b4df99d6",
+      "text": "Every column :func:`annotate` can add, in order.\n\nEmpty when nothing is bundled. Used to state up front what an export will\ncarry, and by the tests, so a source added here cannot be forgotten."
+    },
+    "spacr.annotation.gene_number": {
+      "source_blocks_sha256": [
+        "5ad4131e24513866ef54ed6f838c70afe8d317d2e7d56a6f8178128764dd1312",
+        "5294f15bbebf22becb3bf1fe6d4c53c4f995fd7a3a235bda57b31f2864d9e2dd",
+        "51291bd0dfbf1f048195f2e8370440e835a9aa69aac69fdca1532ec763f45ec5",
+        "cf422e1847ebc6344bb4bafea7a8205bbee65e9f1424b407856ff61bd824f642"
+      ],
+      "source_sha256": "dde564262bf4b2744faa6ea2e1a31634980b6959cb5f27fa21c3e03051621ad7",
+      "text": "The bare gene number named by ``value``, or ``None``.\n\nAccepts every spelling this project has: a design term\n(``gene_fraction:gene[224750]``, ``fraction:grna[224750_2]``), a gene id\nin either strain (``TGGT1_224750``, ``TGME49_224750``), a split gene\nmodel (``TGME49_201180A``), a guide id (``224750_2``) or the bare number.\n\n:returns: the number as a string, or ``None`` for anything that names no\n    gene -- ``Intercept``, ``rowID[T.r03]``, an empty cell, NaN.\n\nA SPLIT GENE MODEL COLLAPSES TO ITS PARENT. ``TGME49_201180A`` and\n``TGME49_201180B`` are both ``201180``, because the screen's library\ntargets the locus and has no way to tell the two models apart. It is why\nevery source here is deduplicated before it is joined."
+    },
+    "spacr.annotation.supplementary": {
+      "source_blocks_sha256": [
+        "0372322993c6c55588a9f4286dc3bdd417f86fef197f419ef963b4cea9e12d6a",
+        "880d9461936df29622c337dcdc82b0ee8386080fbe439d668176aea3f9a2c8c8",
+        "476285cb5b011646fdd3cf005e683e589104db68390bf177a198ecc075395fb5",
+        "d3200463b46fa536860d647f452079bb0a9dcfb9cffb2c84ea7006cf677c7ec9",
+        "80a6007d54584d8ced72f90290cc03565478157cc2b3d1600f53dd6a6eb2b547",
+        "d591886fea1263f27c97007a3ae70857715caf1a9b6a2cfec3af40dfda764f93",
+        "a786a8aaad8ecf0c6d912f95fccf61beeda4f406da668408067e6c1b34aa0cb2"
+      ],
+      "source_sha256": "9756237f0b9f8cf8ee9c390fad0b9e06023d2713c275c65a883a77c0ed74fc4b",
+      "text": "The full DeepTMHMM table, as its own supplementary data table.\n\nAsked for on 2026-08-17: \"add that as a suplimentary data table (a csv\nwith all the information from DeepTMHMM on all toxo proteins)\".\n\n:param genes: restrict to these genes -- any spelling\n    :func:`gene_number` accepts. ``None`` writes all 8,140 proteins.\n:param path: write here as CSV as well as returning the frame.\n:returns: the table, or ``None`` when DeepTMHMM is not bundled.\n\nSEPARATE FROM :func:`annotate` ON PURPOSE. The per-segment coordinates\nare 72 columns, and a coefficient export carrying them is a table nobody\nopens twice. What belongs beside a coefficient is \"does this protein have\na signal peptide, and how many transmembrane helices\"; where each helix\nstarts is a different question and gets a different file.\n\nONLY THE SEGMENTS THAT EXIST. A screen of soluble proteins gets a table\nending at `n_tm`, not 72 columns of nothing -- the same rule the rest of\nthis module follows."
+    },
     "spacr.app_annotate": {
       "source_blocks_sha256": [
         "bf67a2b876d287e7beb248d2039e0b62647a32aade3b88a28cd25ef21703aa49"
@@ -5199,6 +5264,80 @@
       ],
       "source_sha256": "d60ac828102ab3b57cdda6dd9c562465de538c12466391321ebafbd4a241e566",
       "text": "One line saying what is selected, for the picker to show.\n\nA reduction over 400 columns and one over 4 look identical in a dialog\nuntil something says which it is."
+    },
+    "spacr.columns": {
+      "source_blocks_sha256": [
+        "e6ef8b90ae8d9187286d1de890f8842c815dd13583fd5b0a5662e66c853577bc",
+        "d1680a1238243e46559f7a14aee1d242e4bfe0ab7ddba6203266620c90b7a1ee",
+        "5466dc55af5b2196251e9c77686e79c7a804fe60959806b6b741f3daf465e693",
+        "9c7aa52aed6968a82fd5170f419150a87203e61a5e87312ad684d9104b99c8e9",
+        "3254e9dbce9cf608e6b098729ec7513125dbc6ae31fc20000f9dab598cb8363c",
+        "963a8c65eb69c42372cb0d59ba03431c125788c2a6b357fc3d79e2a507cb702f",
+        "df9047040d8ec3be37bc1adc863d1d0125bdc8def441ea26c5c46edddba2271c"
+      ],
+      "source_sha256": "b5f40fa65871fa5720de432f50caed3850b4785b4b79c311e44d1b4a21dc83b2",
+      "text": "A column that is not there offers the columns that are.\n\nInstruction 135, asked for on 2026-08-17: \"if dependent variable is not found\nin the score table then present the user with the columns in the score csvs so\nthe user can choose which column ... also if the count columns ar not found id\nlike similar behaviour\".\n\nTHE FAILURE THIS REPLACES. A misnamed `dependent_variable` survives every\nearly check and dies inside the merge, after the whole score table has been\nread, with a message naming a column the file does not have and saying nothing\nabout what it does have. The user then opens the CSV by hand to read its\nheader. On a large screen that is minutes of reading to answer a question the\nheader row answers instantly.\n\nTHREE RULES, and each is a different failure this must not blur:\n\n1.  THE HEADER ROW ONLY. `nrows=0`. This runs before the run, sometimes to\n    populate a GUI dropdown on the GUI thread, and a score CSV is hundreds of\n    megabytes.\n\n2.  A MISSING FILE IS NOT A MISSING COLUMN. The first cannot answer the\n    question; the second answers it with \"not that name, one of these\". A\n    caller told \"column not found\" about a path that does not exist goes\n    looking in the wrong place.\n\n3.  THE SUGGESTION IS SEPARATE FROM THE LIST. Near-misses are offered first\n    because `predictions` for `prediction` is the common typo, but the FULL\n    list is always there too -- a suggestion that is wrong and a list that is\n    absent is worse than no suggestion at all."
+    },
+    "spacr.columns.ColumnNotFound": {
+      "source_blocks_sha256": [
+        "74bc4c22c1ac44fc74a78a058bc592d536301ecf03485c53a0a48c5bc8e0531d",
+        "00f6ba111501639c03d9cf945ce2266ee79ba263a7b3dd96395ef4aa5690825c"
+      ],
+      "source_sha256": "13be0b5fd8f2a23111e4f689d0580d089b19cdb579e6711dea12bbe9bb8b02d7",
+      "text": "A named column is absent, and the message says what is present.\n\nA KeyError subclass so existing `except KeyError` paths still catch it,\nand so `settings['x']` failures and this one read the same way to a\ncaller that does not care which it was."
+    },
+    "spacr.columns.available": {
+      "source_blocks_sha256": [
+        "ea11e0b519f946828283f7ef9797d8da8c4e7c9a6a2204f23660d8f288b5689e",
+        "de75520f3aa2f85488e9e6deb9b5e86ec84916667c6895d5b1a01003b82a8ae8"
+      ],
+      "source_sha256": "f0726fd366b87e3dcce3beaf25990f446771560233406ad49486e3f57a63956b",
+      "text": "Every column across ``paths``, in order, without duplicates.\n\nAcross, not per file: `score_data` is routinely a list of one CSV per\nplate with identical headers, and a user choosing a column does not care\nwhich plate it came from."
+    },
+    "spacr.columns.describe": {
+      "source_blocks_sha256": [
+        "e74b335ca7883e56c6fefe2f6b2e646a392bf3445d18a5046a48ebea68647c2f",
+        "df26a066aca6bb24a5278c0e63cb2342edcfd046b852bf6270147d8cba586cff"
+      ],
+      "source_sha256": "1ab614e4e27b7abfa5a76db49fb1d3a58f2d8d88c93766d3df11c55b8b5891ba",
+      "text": "The sentence to print or raise when ``name`` is not there.\n\nNames the setting, the files that were read, the near-misses and then\nevery column. Long on purpose: this is the message that decides whether\nthe user fixes it in two minutes or re-runs the screen to find out."
+    },
+    "spacr.columns.headers": {
+      "source_blocks_sha256": [
+        "951cd40733c46a3ee29856d0d82756484db80e248de76ae166288dbf242572b2",
+        "eab561fc4b0cb18c61047acceacf37bc38309377ea65d844b504f2a8d24a79cd",
+        "33aa3b37dc8945d16cb30f8c08e0b09ff36e39854650ecb74a9b866551bf12e2"
+      ],
+      "source_sha256": "b33a34b0e4f4f3c3e9713b4c804077bc76836d26b2c6681da7eee1b1d8810382",
+      "text": "``{path: [column, ...]}`` for every readable CSV in ``paths``.\n\n:param paths: one path, a sequence of them, or None.\n:returns: a dict in the order given. A path that does not exist or cannot\n    be parsed is ABSENT from the result rather than mapped to an empty\n    list -- see rule 2. Use :func:`missing` to ask which those were."
+    },
+    "spacr.columns.missing": {
+      "source_blocks_sha256": [
+        "5242155b3ae38e94904af8e5f5b5998b9ebce267ce352b974b116eb251aead4b"
+      ],
+      "source_sha256": "5242155b3ae38e94904af8e5f5b5998b9ebce267ce352b974b116eb251aead4b",
+      "text": "The paths that could not be read. The other half of :func:`headers`."
+    },
+    "spacr.columns.resolve": {
+      "source_blocks_sha256": [
+        "8725fd83db926e783a85953dd5919ca8e7bed249718ae788f4488b38c59a22f2",
+        "8eece491efad997c5288d474c93a7d1b708ce0cbd346a77185eebcd05772ee69",
+        "399b44a5bd47fe496c0a03b720c8052e71ede340f17e9874c5e092a4df44c527",
+        "758109c3b4671cd88587de9aaee27daf061317f660c7b898c66da6be95bec75d",
+        "6c22369e32a4ae27d8e31ab8bc282ef33867d573381fef57df7bfdfa60f93aba",
+        "49432789d6c8ffd534750ac135bbbd281837bd21ce281dd748ea7db46ca0d5fc",
+        "1414b843a6aa77bf7e2c02649a26a8f7cde6f54056223ae565e3cc5b725de878"
+      ],
+      "source_sha256": "2d6648bf84ddcc6cf6c97a0e05db975f7694bab0a889d4e185505bd14f91d882",
+      "text": "``name`` if the CSVs have it, else raise with what they do have.\n\n:param name: the column asked for.\n:param paths: the CSVs to look in.\n:param what: what kind of column, for the message (\"response column\",\n    \"count column\").\n:param setting: the settings key this came from, so the message names the\n    control the user has to change.\n:raises ColumnNotFound: carrying `.available`, so a GUI can offer the\n    list rather than re-reading the files to build it.\n\nA CASE-INSENSITIVE MATCH IS ACCEPTED AND RETURNED IN THE FILE'S SPELLING.\n`Predictions` when the file says `predictions` is not a different column,\nand failing on it teaches a user to distrust the message rather than to\nfix the name."
+    },
+    "spacr.columns.suggest": {
+      "source_blocks_sha256": [
+        "231389c6dcf6a1e50ed5e5beb8bbafeacb1ca582840e30ff8cf1036d878c8001",
+        "aea95ea4442951243a7f36a2be7dd9672c897d037e425805aa3c359a5c9992eb"
+      ],
+      "source_sha256": "6db107240a0524d15901c5ee9fe43fab20171d8ad9c67397284fb2134e398ba9",
+      "text": "Column names close to ``name``, best first.\n\nCase-insensitive, because `Prediction` for `prediction` is a typo nobody\nshould have to see spelled out."
     },
     "spacr.confusion": {
       "source_blocks_sha256": [
@@ -11573,6 +11712,69 @@
       "source_sha256": "4959760e112cbde39431b2eb9dca8e002242fa57106a92e5c54ca542411180be",
       "text": "Is cuML importable AND is there a device for it?\n\nBoth halves matter: cuML imports happily on a machine with no GPU and\nthen fails at fit time, which would turn an optional accelerator into a\ncrash on exactly the machines that did not ask for one."
     },
+    "spacr.group_lasso": {
+      "source_blocks_sha256": [
+        "55584f94431091c78812ccdee8a9336896ea163dcb0d0d45b77083cc43c8b841",
+        "03a1e884913cb1425e210f188408d53af9089d45264f84f703bfba3bf5d1df48",
+        "88f8ddf36f3be8a98d2b5dbd8d1c77187d81b7b885e840a29825be7f76743d9f",
+        "4fbb6e1b69b6d982d81ced68876d4eb651a68f6f4ab9bf7c6cb71a98eb64416c",
+        "69bba1839d913c21ac3f8e864eeb1ac3a4d94400360d1d5bc8fc750c9d3045e7",
+        "21465713aab0b185be3013cef213a0db4669d4f893a4b96691b801f68f7dbf0c",
+        "4623dd371b5ee4f7c8db0f7c768eaa48fd21acf8ffbada1f262434c406df5576",
+        "9d80962fdf612dd541c758b49b0bdc447e3eb147e12a68479ea044f116817598",
+        "ebbbc4c63ca362aa2e4f4c3ae18e6eec8d2c6fd568f64592799e84308ec5d148"
+      ],
+      "source_sha256": "c90d823a7f06b31eba34f4224cb58b6637b3e0eff72d2fd9a6a035f4ae7c062c",
+      "text": "Guides grouped by gene, selected or dropped as a set.\n\nInstruction 133, asked for on 2026-08-17 alongside RRA as one of the \"modeling\ntools ... where we could plug in the same dependent and independent variables\nand get an estimate of which gRNAs/genes are involved\".\n\nWHAT IT IS. Ordinary lasso penalises each guide on its own, so from a gene's\nfour correlated guides it keeps whichever one happens to fit best and drops\nthe rest -- which reads as \"one guide works and three do not\" when the truth\nis \"the gene matters and the four guides are four measurements of it\". Group\nlasso penalises the gene's guides as a BLOCK:\n\n    minimise  ||y - Xb||^2 / (2n)  +  lambda * sum_g sqrt(p_g) * ||b_g||_2\n\nThe L2 norm inside the sum is not squared, so its subgradient at zero is a\nball rather than a point, and the whole block goes to exactly zero or none of\nit does. sqrt(p_g) is the standard correction that stops a gene with six\nguides being penalised more than one with three purely for having more.\n\nWHY IT IS RECOMMENDED FOR A CRISPR SCREEN. It is the penalised analogue of\nwhat the mixed model says with random effects -- \"which GENES are involved,\nwhere each gene is measured by several guides\" -- and it reaches the same\nquestion with no random effects, no REML fit, and no `gene_fraction` column.\nThat last part matters: `gene_fraction` is the sum of a gene's guide\nfractions, so a design carrying both blocks is singular by construction\n(instruction 132). Here the gene enters as a GROUPING of the guide columns,\nnever as a column of its own, so the design stays full rank.\n\nIt also fits where OLS is undefined. This screen is 610 wells and 823 guides;\nthe penalty is what makes the answer well posed at p > n, and it is honest\nabout that -- a penalised fit is a statement about the assumption that most\nguides do nothing, not new information.\n\nWHAT IT DOES NOT GIVE YOU IS A P VALUE. A penalised coefficient's sampling\ndistribution is not the OLS one and a naive P value from it is wrong in a\ndirection that flatters the fit. :func:`stability_selection` is the answer:\nre-fit on many subsamples and report the FRACTION of them in which a gene\nsurvives, which is an error-controlled statement (Meinshausen & Buhlmann)\nthat needs no distributional assumption at all.\n\nTHE SOLVER is block coordinate descent with the exact group-soft-threshold\nproximal step, in numpy. No new dependency: scikit-learn has no group lasso,\nand the two packages that do are unmaintained."
+    },
+    "spacr.group_lasso.describe": {
+      "source_blocks_sha256": [
+        "3d4476298f92c9f22b76a8aa47faccbb892790a10d1b64acccb13818b8a797f3"
+      ],
+      "source_sha256": "3d4476298f92c9f22b76a8aa47faccbb892790a10d1b64acccb13818b8a797f3",
+      "text": "The formula and what is modelled, for the model tab's text box."
+    },
+    "spacr.group_lasso.fit": {
+      "source_blocks_sha256": [
+        "5194e4db88561ab1cd2c7955d3da497cefbd47adb2f45fddaeb066999feb6547",
+        "5f59cc5377ba3095675ad52a7fc4a5508ac06556739a5255ef94b56188fc7ab8",
+        "88c60c4a418f211b1c02cd958b3a53f00c474da2e6dd435e765c9a0935fabebd",
+        "dbda8c3cf1b81b43df608db84e7477eb20d60ebfcfb329b9b7cab3d9ebb01695",
+        "2c110d129a7fa9661997f8ef4a4f0035f1b6a3e5422af6a55c3c32f062b57938",
+        "1a4eaac7752cc6c5dd9f436acd6266123024f487c603426ea439f6bd672fe552",
+        "9d77ab68a0bfc8c30dd4969a7f8fe542f6cf54ea406e3b8dd573dc71d8e3971e",
+        "53fe904315395e3e7249be1689547582ca5bd1df4db941145b240f862611953e"
+      ],
+      "source_sha256": "5b9c8fbf414f44a591d9a92edd2eb53794b7213e105691af149aaf3bb6e36cef",
+      "text": "Fit the group lasso and return ``(coefficients, intercept, converged)``.\n\n:param X: the design, one column per guide.\n:param y: the response, one entry per well.\n:param labels: the gene each COLUMN belongs to, length ``X.shape[1]``.\n:param lam: the penalty. Zero is ordinary least squares and is allowed --\n    it is how a caller checks the solver against a known answer.\n:param fit_intercept: centre both sides, so the intercept is never\n    penalised. Penalising it would shrink the response's mean toward zero,\n    which is not a claim anybody wants to make.\n:returns: ``coefficients`` (one per column), ``intercept``, and whether\n    the sweep converged inside ``max_iterations``.\n\n:raises ValueError: the shapes disagree, or ``lam`` is negative."
+    },
+    "spacr.group_lasso.gene_effects": {
+      "source_blocks_sha256": [
+        "1498b16c6798d4d99902ae28bffc70607d7ef8b8c710a8abaf4e20dd808371d8",
+        "5c355ca3ec412491dbbd78c622cabcd60430119bb916e21bc4e346d204fd07cd"
+      ],
+      "source_sha256": "bf71d3240a3840fc29410c4bda3f33a95f11ec1622c75a565f184d692a1df524",
+      "text": "One number per gene: the L2 norm of its guide block.\n\nThe block is zero or it is not, so the norm is the natural per-gene effect\nsize -- and unlike a coefficient it is never negative, which is honest:\ngroup lasso says a gene's guides move the response TOGETHER, not in which\ndirection each one does."
+    },
+    "spacr.group_lasso.max_lambda": {
+      "source_blocks_sha256": [
+        "d3f7db84a6f0b62ce1c177fdbd72ceeaa374986a41e9cf84659b8588a658f007",
+        "16391f03e8108c509d3ddf71aad86c061aebc55a77310a2f711f0b7b9d9ef037"
+      ],
+      "source_sha256": "d79367b0ab11c99e469dc34b36030c6177e1dc46bf2f09efd4a984f37c175682",
+      "text": "The smallest penalty that zeroes every group.\n\nUseful as the top of a path: any larger value gives the same all-zero fit,\nand starting a path above it wastes every iteration spent there."
+    },
+    "spacr.group_lasso.stability_selection": {
+      "source_blocks_sha256": [
+        "68b723bb48ed91bd913ccaf6ea2108383f5e520ad3de5af5fcf88e624142f975",
+        "581ecc4e8a767f1304caedda1702dc9b18b28da17d909e780f980ab713c50f08",
+        "edef8677319d4a0bc9580ea7bb34bad4e02c7f197c95afe6d56a4b57f5ec1aef",
+        "48181c7564998433b72edac904021cc00b2f034baa88bf46418d903c86c475ef",
+        "e78787c106ce66040d0442e65df06d14e87c38349d67951995c8ce448e525448"
+      ],
+      "source_sha256": "96f2810df8a347549e86934adde4b3fe4f480ed293c04f081140b9bb8c4403ba",
+      "text": "How often each gene survives a re-fit on half the wells.\n\n:param n_boot: subsamples.\n:param fraction: the share of ROWS in each subsample. Half is\n    Meinshausen & Buhlmann's choice and the one their error bound is\n    stated for.\n:returns: a DataFrame with a ``selection_frequency`` per gene, sorted.\n\nTHIS IS THE HONEST ANSWER TO \"WHAT IS THE P VALUE\". There is not one --\nthe sampling distribution of a penalised coefficient is not the OLS one,\nand a P value computed as though it were is wrong in the direction that\nflatters the fit. A selection frequency is a statement about how\nreproducible the selection is, which is what a screen actually wants to\nknow, and it needs no distributional assumption at all."
+    },
     "spacr.gui": {
       "source_blocks_sha256": [
         "0671211f893e71d525ca7d341f8f3178f4b046f47c2d4a02403db09d6cdf170d"
@@ -13901,12 +14103,46 @@
       "source_sha256": "c94e4ec712f58b2b93e72afdf53a9213172783f2317f0d3c4221eb7b995dd4bf",
       "text": "Axis/legend label for the adjusted value produced by ``method``.\n\nAn FDR method yields a q value, a family-wise method an adjusted P, and\n``none`` leaves the raw P value. Labelling every correction \"BH q\" -- as\nthis module did while it offered only four methods -- mislabels the axis\nof every plot drawn with any other correction."
     },
+    "spacr.guide_permutation.analyse_long_gene_table": {
+      "source_blocks_sha256": [
+        "e1615566e3505be5ff15e45398bea95cad8191e9b730fdede0c36972c9305029",
+        "01a983f0fadda1e749799dc8df728eab66ce459bb8fa81613a5640a1953843e3"
+      ],
+      "source_sha256": "132adb437647fd4304cac059e6b4a51657ffd9be8f97c1a4903c42d6a1a6b08c",
+      "text": "The gene pass over spaCR's saved ``regression_data.csv``.\n\nThe counterpart of :func:`analyse_long_guide_table`. Its BH correction is\ncomputed over GENES ONLY: two families, never one. Pooling them would be\nwrong twice over -- the same wells produce both, and a gene's regressor is\nliterally the sum of its guides' regressors, so they are not independent;\nand doubling the family size costs power for no protection."
+    },
     "spacr.guide_permutation.analyse_long_guide_table": {
       "source_blocks_sha256": [
         "f956a8d5532cff31ba7e8f0419000c510262d3fc7225809d9b514cbc6ca468c3"
       ],
       "source_sha256": "f956a8d5532cff31ba7e8f0419000c510262d3fc7225809d9b514cbc6ca468c3",
       "text": "Convenience wrapper for spaCR's saved ``regression_data.csv``."
+    },
+    "spacr.guide_permutation.gene_fraction_matrix": {
+      "source_blocks_sha256": [
+        "86168d4f00e1e26924d3bb89767b72fb24fb9f270948140b9f45ca3abc8a5203",
+        "1fdba4d0a4663ef8d0928826ee4bd7c079871bf02e83c1030e8df3af4112af78",
+        "cd4121cc7226d937de0000d1205b3d800549b2d25ec8a614c35412ababad18a2",
+        "03eac606b2e6e212588c285084ba807be6a879e1ca7d8c4e5d9416257aa742a0",
+        "7e9c1293760be2e904ed947aaa41ef7b20acd4d5abbb630b80136115b07bf9e4",
+        "059f6b2cf1f9d788f849a8fd1b6d1a7fa8f9591582e19767c9705b2d23352411"
+      ],
+      "source_sha256": "06b3f659d451b34a8f85ec4e5a04057311afb9ea26b5c6bb26d3de1f3992715e",
+      "text": "Sum each gene's guide columns into ONE column per gene.\n\nThis is exactly the quantity the parametric gene fit regresses on:\n:func:`spacr.ml.check_and_clean_data` defines ``gene_fraction`` as the sum\nof the gene's gRNA fractions within a well, and this builds the same\nnumber from the well-by-guide matrix. The two paths therefore test the\nsame regressor, one with a t statistic and one with a permutation null.\n\n:param fractions: well-by-guide fractions from\n    :func:`prepare_long_guide_data`.\n:param gene_of_guide: guide id -> gene id.\n:returns: a well-by-gene frame, columns sorted, one column per gene that\n    has at least one guide in ``fractions``.\n:raises ValueError: when a guide column has no gene."
+    },
+    "spacr.guide_permutation.gene_freedman_lane_test": {
+      "source_blocks_sha256": [
+        "86e33472e728763dfc874b19ddff17066d731d1ddfdac83ddd63ddf480f01c33",
+        "245b351d0914e59f04f389e89219a1e8639f2b0471ab49ba091b2e3557a49460",
+        "0fb4857cd306538ae4238637351f6f037ce7f11e42ae7d4d64c2aae459420078",
+        "6115da7e964c0faee0b020313244eafe5b76a31ea63e14a23f8515103f3badbd",
+        "9fc849dc2179171ac35996a6a6e61cb9423361cfdaa200d5c7c64015a21eb129",
+        "a93de7380737259a69bb7907abca2cc71cc20a83c0b4cdfbd8b66ce734ed9413",
+        "8c9d20b729db4577d46d3cfd11fd672dc0257e25d6921007cd31e772a562f639",
+        "0164e02bca2650c7d38172afe833e83132331597f40dcb7dbed9e912620dc9da"
+      ],
+      "source_sha256": "d9bb23d23f580e29fb3f5de56ffa873ddd30b21ff5a1dd86276208b874ad04b6",
+      "text": "Test each GENE's guides as a SET, against the same permutation null.\n\nInstruction 132 asks the nonparametric path for a gene pass beside its\nguide pass. The gene's regressor is the SUM of its guides' fractions --\none column, one test, one degree of freedom -- residualized against the\nsame block/nuisance design and permuted with the same Freedman--Lane\nscheme. Passing the same ``random_state`` as the guide pass makes the\npermutations literally identical, because the permuted object is the\nresidual of the same outcome against the same nuisance design.\n\nIT IS NOT A COMBINATION OF PER-GUIDE P VALUES, and that is deliberate.\nFisher's and Stouffer's methods both assume the p-values being combined\nare independent, and two guides measured in the same wells are not: they\nshare the well's phenotype, the well's plate effect and the well's cells.\nCombining them would report a confidence the design cannot support.\n\nWHAT A ONE-DEGREE-OF-FREEDOM SET TEST CANNOT SEE, and the reason\n``guides_in_gene`` travels with every row: a gene whose guides push the\nphenotype in OPPOSITE directions cancels in the sum, exactly as it does in\nthe parametric ``y ~ gene_fraction:gene`` fit that this mirrors. Such a\ngene is not evidence of no effect; it is evidence the guides disagree, and\nthe guide-level table is where that shows. A gene resting on one guide\n(``guides_in_gene == 1``) is the same test as that guide's own row.\n\n:param gene_fractions: well-by-gene matrix from\n    :func:`prepare_long_gene_data`.\n:param gene_metadata: the per-gene guide counts, joined onto the result.\n:param kwargs: forwarded to :func:`guide_freedman_lane_test`.\n:returns: one row per gene per minimum-wells family, BH-corrected WITHIN\n    the gene family and never pooled with the guide family."
     },
     "spacr.guide_permutation.guide_freedman_lane_test": {
       "source_blocks_sha256": [
@@ -13932,6 +14168,15 @@
       ],
       "source_sha256": "62447b8e82860cc23aa03a8e5c2e56b491bb448b072a80d2be20286f02023693",
       "text": "Draw a volcano using standardized effect and adjusted P value.\n\n:param effect_threshold: half-width of the effect-size cut, drawn as a\n    pair of vertical lines at ``-threshold`` and ``+threshold``. ``None``\n    -- and any non-finite or non-positive number -- draws none, because a\n    cut at zero excludes nothing and a line at zero is the axis that is\n    already there.\n\n    A permutation run drew no cut at all until 2026-08-17, on the reading\n    that an empirical P value makes the question moot. It does not: a P\n    value says an effect is distinguishable from zero and this line says\n    it is big enough to follow up, and the second question is about the\n    coefficient however the first was answered. Asked by the maintainer\n    as \"why cant i see the coefficient threshold if im running\n    nonparametric regression?\".\n:param effect_threshold_label: the sentence that attributes the cut, e.g.\n    ``3x std of 30 controls = 0.84``, for the legend.\n    :func:`spacr.thresholds.coefficient_threshold` returns it beside the\n    number. Falls back to the number alone."
+    },
+    "spacr.guide_permutation.prepare_long_gene_data": {
+      "source_blocks_sha256": [
+        "269cdc149cc2fa4e3da17c7cf9d57bcae65ba17f9148470b941d2a7a24405a1a",
+        "44329f2618a53fb5678c7b0cba9851f448bf4469f3480e155702539b009d7e80",
+        "20ab481121ba2a4efe0a3a8ed6679f7421b7841e12e648c30eddcc5c1a6898b8"
+      ],
+      "source_sha256": "85b1196c4958cdeb859076aef3b53375a589a9cf273f8352b4fe72de447fbb18",
+      "text": "Well-by-GENE fractions, the well table, and how many guides each gene has.\n\n:returns: ``(gene_fractions, outcomes, gene_metadata)``, the gene-level\n    counterpart of :func:`prepare_long_guide_data`.\n:raises ValueError: when ``gene_column`` is absent."
     },
     "spacr.guide_permutation.prepare_long_guide_data": {
       "source_blocks_sha256": [
@@ -14344,6 +14589,7 @@
         "4a25b0247f1ee9042a59b6e3fc6dede38193071cc175c40c889b1e5d57962cea",
         "6af4ac5ceb3e0ec1375a886a3f1451952d40c6eca6b819dfe9f2177bdd5c257c",
         "61af7fd0e0a2ffe03a70fb349f45cb4981d690093a02d38f61c88eb8efc80534",
+        "4c3a7dcf00601f0ef2b98622059c0520f91586178200d67e9256cef30f603523",
         "7878ebc583c987b97144411e13ae288d5c1c713ded9174ac2e5e82934fa93b3d",
         "b8c844581c27b1330a46772f2da165fc0e8764681fe41821da440317b2cdd327",
         "d81db703e29cd4817fcff501af0d46fd5e07bd7242d6f8431b93c147763ceea9",
@@ -14351,8 +14597,8 @@
         "3b3a8df2fec032216e3a62a739a0dca5d0448b5396ecdf0f399d3f91f33ac169",
         "e20ea5dcb6cb553157e8f6069942258c6afc431311782ce9cc9d55032d8294f2"
       ],
-      "source_sha256": "a37e7f0006dc0fb0d6bd602b698c74f03522055b1d9d38630c76d66d060309b2",
-      "text": "Build the ranked, annotated hit list of one regression run.\n\n:param source: a results folder, or a ``{role: DataFrame}`` mapping as\n    :func:`load_results` returns — the second form is what a caller with\n    the frames already in hand (or a test) uses.\n:param metadata_files: annotation CSVs to join, each collapsed to one row\n    per gene first. See :func:`load_gene_metadata`.\n:param metadata_key: the gene identifier column in those files.\n:param regression_type: the backend, if known. Only affects how the list\n    is ranked: the penalised backends have no p-value, so they rank by\n    bootstrap selection frequency and carry no q-value.\n:param alpha: the FDR (or the selection frequency) a hit is called at.\n:param include_controls: keep the control rows in the list. They belong\n    there by default — a screen whose positive control is not near the\n    top has a problem, and that is visible only if it is listed.\n:returns: a :class:`HitList`, ranked and with exactly one row per gene.\n:raises FileNotFoundError: when ``source`` is a path that is not a folder.\n:raises ValueError: when no gene-level coefficients could be found."
+      "source_sha256": "456e87cbdd57bb2f9d37829eb8fd156ef54fb1e6f5ac1ee0f67047f3c8a60f2f",
+      "text": "Build the ranked, annotated hit list of one regression run.\n\n:param source: a results folder, or a ``{role: DataFrame}`` mapping as\n    :func:`load_results` returns — the second form is what a caller with\n    the frames already in hand (or a test) uses.\n:param metadata_files: annotation CSVs to join, each collapsed to one row\n    per gene first. See :func:`load_gene_metadata`.\n:param metadata_key: the gene identifier column in those files.\n:param toxoplasma: also join the bundled *Toxoplasma* annotation — gene\n    name, signal peptide and transmembrane, hyperLOPIT compartment, the\n    published CRISPR fitness scores, and tachyzoite / tissue-cyst /\n    EES1-5 expression. Applied AFTER ``metadata_files`` so a column the\n    user's own file supplies is never replaced by the bundle's.\n:param regression_type: the backend, if known. Only affects how the list\n    is ranked: the penalised backends have no p-value, so they rank by\n    bootstrap selection frequency and carry no q-value.\n:param alpha: the FDR (or the selection frequency) a hit is called at.\n:param include_controls: keep the control rows in the list. They belong\n    there by default — a screen whose positive control is not near the\n    top has a problem, and that is visible only if it is listed.\n:returns: a :class:`HitList`, ranked and with exactly one row per gene.\n:raises FileNotFoundError: when ``source`` is a path that is not a folder.\n:raises ValueError: when no gene-level coefficients could be found."
     },
     "spacr.hits.gene_of": {
       "source_blocks_sha256": [
@@ -19504,14 +19750,27 @@
     },
     "spacr.ml.fit_mixed_model": {
       "source_blocks_sha256": [
-        "c0fc7e318f658eba3ec7250c53f8ff62afd816854982af3ce821b3a70c36f5a8",
-        "ef689e980993c1f9f58102ade91c66a7a2143b410eabfe39e9618b6dd8d8cb92",
-        "2b74ab6dd765c992ee7f0ef735152712e760149cd63e19847eb3e2a70e08593e",
+        "523df140459ea1432d0554814d9bf49d14953e460ba0756fa46bebacadbf1156",
+        "b9e5fc3d3701e8b2fbd66eb40650fa5645f321a4ff66c93343025b5a1daa9169",
+        "051732fa3b45caa0c9e7c207e556c559a4ca4ea4989de984dca02db7ac49ccc0",
+        "312e900bd07bc88a2116b9b72114b327de65ef9d9eefa8306bcc595a93a872c9",
+        "8ac4740c0534f1ebffb8c475790bc237ce0f01c8b488735325bab9d659b8f268",
+        "608b94f2abc0fd30bed5e92ae25591e095d9c212eecf0f3af5371a5274b56029",
+        "ee9b225b7a99fabff2231eb2449289944c0aa9a82eb4ce09be1b0c3f0eff6e0e",
+        "bb128b7c1d48acf18845adbfb2798551393f112628e99204c7cc5f7262acb6bd",
+        "3591950dcef566728eee15c97d30e631f5614b012a82b79314d0770327031fe9",
+        "7eae170515215b7cc89f93a6a654dcd9a19690db1681e66101ea3995258f3b05",
+        "881ae569caf57d6b2e135a7f0f113a6d2b2aa1dc31140b4a3df55119f7ff32c9",
+        "182be519c4c3abe84a43dadc99e445d16fead58d071ba60f5198f8066f3c044a",
         "b00399051ffa0f5501063649921709f92fa554bd2fe86b76314272b3030d4bd9",
-        "ac763032f2b251c223c9cb3906c537c29da2b9eb8d85a51df256cc17c58ca92c"
+        "04638ddc2d44d424d79ce602a784f79bb22ab06a0f3a65790d1595dff1911660",
+        "d3d82f6f68764c4d7dbcfc08eb3983f7f87b4fdc8527a6905bf183525d1ed68f",
+        "a5b1a2f151f6af13058d8616a10374507caafdfdb381ff3682e734c5e7239680",
+        "c386da7168694bf5ebb453a7512df0b66c6793bbf017e3b9a1f675a0a5f99ed4",
+        "e53c3cac185757591ef7cf77f610b05d84f2b051d404a44ffc63399a975a35e9"
       ],
-      "source_sha256": "dfe4270a523e877643e3c6550bb11cd8673f8a95761056dfcaca67a953a5c7be",
-      "text": "Fit a mixed-effects model with plate/row/column random structure and return coefficients.\n\n:param df: DataFrame containing the model variables plus\n    ``plateID``, ``rowID`` and ``columnID``.\n:param formula: Formula string for fixed effects.\n:param dst: Destination for the residual histogram PDF.\n:returns: ``(mixed_model, coef_df)`` — the fitted results object\n    and a DataFrame with columns ``feature``, ``coefficient``,\n    ``p_value``."
+      "source_sha256": "4e1c87fa06bf6af901ffc1cd38257cf3b6718de9ce311b8d3c28ea4a9fd41ea8",
+      "text": "Fit ``y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID``.\n\nTHE GENE IS FIXED AND THE GUIDE IS RANDOM, NESTED INSIDE IT. This is the\nonly model spaCR offers that says what a guide actually is: a biological\nreplicate of one intended perturbation, carrying its own cutting\nefficiency and off-target profile, rather than a second independent\nvariable competing with the gene for the same wells.\n\nTHIS IS A REWRITE, NOT A SWITCH. Until instruction 132 this function\ngrouped on ``plateID`` with ``re_formula='1 + rowID + columnID'`` and row /\ncolumn variance components, and its fixed part was the collinear\n``fraction:grna + gene_fraction:gene`` design (see\n:data:`COLLINEAR_FORMULA_FRAGMENT`). Both halves are gone: the fixed part\nis the gene level alone, and the random structure is the gene/guide\nnesting.\n\n``(1 | gene/grna)`` is ``(1 | gene) + (1 | gene:grna)``. statsmodels has one\n``groups`` argument, so the nesting is expressed the way MixedLM expresses\nnesting: ``groups=gene`` with ``re_formula='1'`` is the outer intercept,\nand a variance component evaluated WITHIN each group is the inner one.\nA variance component is by definition nested in the group, so\n``vc_formula={'grna': '0 + C(grna)'}`` is ``(1 | gene:grna)`` exactly --\nguide effects are not shared across genes and each gene contributes only\nthe guides it actually has.\n\n``random_row_column_effects=True`` moves row and column out of the fixed\npart (:func:`prepare_formula` drops them from the formula) and into two\nfurther variance components, which is what that setting has always meant.\nIt is an ADDITION to the nesting, not a replacement for it.\n\nWHAT COMES BACK, and the distinction the caller must not lose:\n\n* fixed effects -- one per gene, plus the row/column terms and the\n  intercept -- with standard errors and p-values. ``term_type='fixed'``.\n* variance components -- ``Group Var``, ``grna Var`` and any row/column\n  ones. These are variances, not effects on the response.\n  ``term_type='variance'``, ``p_value`` NaN.\n* guide BLUPs -- one per guide, named :data:`BLUP_FEATURE_TEMPLATE`, with\n  ``term_type='random_effect_blup'`` and ``p_value`` NaN.\n\nA BLUP HAS NO P VALUE AND THIS FUNCTION WILL NOT INVENT ONE. It is a\nshrunken conditional prediction of a random effect, not an estimate of a\nfixed parameter, so there is no null hypothesis \"this guide's effect is\nzero\" to reject and no guide-level hit list to correct. A run that needs\none must fit a fixed-effects backend with ``level='grna'``.\n\n:param df: DataFrame with the model variables plus ``gene``, ``grna``,\n    ``rowID`` and ``columnID``.\n:param formula: Fixed-effects formula, from :func:`prepare_formula` with\n    ``level='gene'``.\n:param dst: Destination for the residual histogram PDF.\n:param random_row_column_effects: add row and column variance components.\n:param gene_column: the outer grouping column. Default ``'gene'``.\n:param guide_column: the nested column. Default ``'grna'``.\n:returns: ``(mixed_model, coef_df)``.\n:raises ValueError: when the frame cannot express the nesting -- a missing\n    column, a single gene, or no gene with more than one guide -- and when\n    MixedLM itself refuses the design."
     },
     "spacr.ml.generate_ml_scores": {
       "source_blocks_sha256": [
@@ -19586,7 +19845,7 @@
         "a8ec64662d8bba85fdc357e0fa1aac8d736cb086e573decc9fbb80d6d096fbbc",
         "60f6148bc019c6eab3f0bbcc545618394bd081d561843452f883c8800ddbb4ac",
         "3858a3de991221b6feba1b4f82794ac76dc984ce3ed8bfa65b4e2dbc9a24e8fe",
-        "8797042e27a93766fda8608a5949377a2a7da703a0885140ee2485b703f2ac50",
+        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -19596,8 +19855,8 @@
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "f77591bceb91595c1d9fae24e51533a5ee4901c3f6fb7784ea0af6d078c15afd",
-      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``cell_min_threshold.pdf`` into ``dst``.\n\nWHERE THE FIGURE GOES IS THE CALLER'S DECISION, because the two callers\nwant different folders and only one of them can be derived from the\nsettings. Without ``dst`` this drew into ``<count folder>/results/``, the\nSCREEN folder -- one path shared by every run of that screen. Two things\nfollowed from that, and the second is not a tidiness complaint:\n\n  * a run's own folder is the record of the run, and the picture was not\n    in it, so :func:`perform_regression` had to snapshot the shared\n    folder and copy back whatever appeared;\n  * :func:`spacr.parameter_sweep.run_sweep_parallel` fits ``n_jobs``\n    trials of ONE screen in a ``ProcessPoolExecutor``, and this figure is\n    drawn on every trial whether or not ``min_cell_count`` is being\n    chosen. Every worker therefore wrote the same path at the same time,\n    and the copy-back -- \"every figure in the shared folder whose stamp\n    changed since I started\" -- could not tell its own trial's curve from\n    the one the worker next to it had just written.\n\n``perform_regression`` now passes its run folder, so each trial's curve\nis written once, where that trial's results are. ``dst=None`` keeps the\nhistorical screen-folder path for a notebook or script that calls this\ndirectly.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``score_column``, ``tolerance`` (int percent or float fraction) and\n    ``min_cell_count``. ``count_data`` is needed only when ``dst`` is\n    left unset, and only to locate the figure.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:param dst: Folder for ``cell_min_threshold.pdf``, created if missing.\n    Default ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
+      "source_sha256": "558cea74a832ffad387359a40d0f64ba66093b4c1b5c3fa8f83dba2cfd7c05d0",
+      "text": "Estimate the minimum number of cells per well needed for a stable well mean.\n\nFor the wells with the most objects, repeatedly subsamples cells at\nincreasing sample sizes and records the mean absolute difference from\nthe well's full mean. Plots the smoothed curve with a ±1 s.d. band,\nmarks the elbow point (or ``settings['min_cell_count']`` when it is\nset) and writes ``cell_min_threshold.pdf`` into ``dst``.\n\nWHERE THE FIGURE GOES IS THE CALLER'S DECISION, because the two callers\nwant different folders and only one of them can be derived from the\nsettings. Without ``dst`` this drew into ``<count folder>/results/``, the\nSCREEN folder -- one path shared by every run of that screen. Two things\nfollowed from that, and the second is not a tidiness complaint:\n\n  * a run's own folder is the record of the run, and the picture was not\n    in it, so :func:`perform_regression` had to snapshot the shared\n    folder and copy back whatever appeared;\n  * :func:`spacr.parameter_sweep.run_sweep_parallel` fits ``n_jobs``\n    trials of ONE screen in a ``ProcessPoolExecutor``, and this figure is\n    drawn on every trial whether or not ``min_cell_count`` is being\n    chosen. Every worker therefore wrote the same path at the same time,\n    and the copy-back -- \"every figure in the shared folder whose stamp\n    changed since I started\" -- could not tell its own trial's curve from\n    the one the worker next to it had just written.\n\n``perform_regression`` now passes its run folder, so each trial's curve\nis written once, where that trial's results are. ``dst=None`` keeps the\nhistorical screen-folder path for a notebook or script that calls this\ndirectly.\n\n:param settings: Requires ``score_data`` (CSV path or list of paths),\n    ``dependent_variable``, ``tolerance`` (int percent or float\n    fraction) and\n    ``min_cell_count``. ``count_data`` is needed only when ``dst`` is\n    left unset, and only to locate the figure.\n:param num_repeats: Subsamples drawn per sample size. Default ``10``.\n:param sample_size: Number of wells, taken largest-first by cell\n    count, to simulate. Default ``100``.\n:param tolerance: Unused; the tolerance applied is\n    ``settings['tolerance']``.\n:param smoothing: Rolling-window width used to smooth the curve.\n:param increment: Step between the simulated sample sizes.\n:param dst: Folder for ``cell_min_threshold.pdf``, created if missing.\n    Default ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: The elbow point's sample size, i.e. the minimum cell count\n    per well, for passing to :func:`process_scores`.\n:raises ValueError: if ``settings['tolerance']`` is neither an int nor\n    a float."
     },
     "spacr.ml.ml_analysis": {
       "source_blocks_sha256": [
@@ -19699,17 +19958,26 @@
     },
     "spacr.ml.prepare_formula": {
       "source_blocks_sha256": [
-        "957a3be05f0b1b23c7e1fef2cb0485fdbd364e8b561068368c750b4f6991d8d1",
-        "5e3eeabb3caef4c0b9a550b1721186cd60ad8f76253c2706e6890c4fee66879f",
+        "a54cab5a151039ea03a5e8f5ab1d43eaf7da0ae0b526fd58155cd09d07de6238",
+        "5436df1c7f7e89b1954d8f481a2f8a8e2bfb262dd0b39ca3d1edfa64276d0d77",
+        "7b1d5ff99fd566bd78fdf516053ce92d0f5ec341a8defe99176ad441b6ca78e1",
+        "d1e576df92e40c18220b02eaeaa504c183eaf8609ae7b9fd137af3f27683783a",
+        "3ecb8343c145822de3b130bb372b953d3a6aeeb7a49d8b63db06eaed966324d1",
+        "d43d9f2d6b76fbb4e1e927846e97aaf174629f688647666f8a1967e5a3d306ab",
+        "8f214bc9908ac23c9783062a305657985d7f24cd8b8fa5fbab745a206ac7254b",
+        "9417c935c07e61fc6e4ccfb08653d538f1f50a4172e16af2f97d6fda0b5fea6b",
+        "02abc9e008c35a513953d09d1a8454f3fa9455a713003d93680635b0c9c8e7d4",
         "85f06650665284513b0436b4786b2b2cd9e0a372c7479ac783efdda62aea0d0c",
         "1f07c856178d8dcef46ebbb3fda1462d3cc6e595c183d3b0ef23b5da26e6f317",
         "40c7aaa88a1bdd1604a8b46da43df0c226f29e8af37fb946d4c062159a99871e",
         "45c342958a6264b21ba2806ea3bee68bce4ac4f82bf4f456c4b34a76e37f06d7",
         "5c4c0253bc33ed56786606170fc3c0970eb78f9012452474cd23b5ab08206911",
-        "c0efa64a9294dd16ce8e37fa4144b9dbc509140e06abd40d52a065d37572d3d2"
+        "789a67f2fd54c26ccb52ae89e09f52d6ee4c87c0c9de968025243e21a261f9f5",
+        "c0efa64a9294dd16ce8e37fa4144b9dbc509140e06abd40d52a065d37572d3d2",
+        "ac1acebe659949e577c368c1b7dfc86a6ef8e25469d3409ed7a3675a614e3e30"
       ],
-      "source_sha256": "3c1840a5ffec3aacc937f9fd93ff6d076f5fda3cefbb681a6eac29b7884f8367",
-      "text": "Build the fixed-effects formula for the gRNA / gene regression.\n\nBoth branches regress the response on ``fraction:grna`` and\n``gene_fraction:gene``. By default ``rowID`` and ``columnID`` are\nadded as *fixed* effects; with ``random_row_column_effects=True``\nthey are left out of the formula because :func:`fit_mixed_model`\nputs plate, row and column into its random structure instead.\n\n``block_screen`` adds ``screenID`` (instruction 122). Two screens sharing\na guide library can be stacked into one frame and fitted together, which\nis worth twice the wells -- but only if the screen itself is in the model.\nWithout the term, a systematic difference between the two experiments is\ncharged to whichever guides happen to be over-represented in one of them.\n\nIT DEFAULTS TO OFF, and the caller decides, because a single-screen\nproject's ``screenID`` column has ONE value. A constant term makes the\ndesign rank-deficient: statsmodels answers with a pseudo-inverse rather\nthan refusing, so the run would appear to succeed and hand back standard\nerrors that mean nothing. :func:`screen_is_blockable` is the check.\n\n:param dependent_variable: Name of the response column.\n:param random_row_column_effects: Drop the fixed ``rowID`` /\n    ``columnID`` terms. Default ``False``.\n:param block_screen: Add ``screenID`` as a fixed effect. Default\n    ``False``.\n:returns: The formula string."
+      "source_sha256": "d5e162da788949fd339950d28dd8d0b4671e39fddbba3b099d0757cc77cedcf9",
+      "text": "Build the fixed-effects formula for ONE level of the screen model.\n\nONE LEVEL PER FIT. This function used to return\n\n    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``\n\nand that design is unidentifiable BY CONSTRUCTION -- see\n:data:`COLLINEAR_FORMULA_FRAGMENT` for the measurement. It now emits\nexactly one of\n\n    ``level='grna'``   ``y ~ fraction:grna + rowID + columnID``\n    ``level='gene'``   ``y ~ gene_fraction:gene + rowID + columnID``\n\nand ``level='both'`` is refused here because it is an instruction to fit\nTWICE, which is :func:`regression_levels`'s job, not a formula.\n\nMeasured on the maintainer's TSG101 screen (1945 rows): the guide design\nis 859 parameters at rank 859, the gene design 425 at rank 425 -- both\nfull rank, against the combined design's 1248 parameters at rank 862.\n\nBy default ``rowID`` and ``columnID`` are added as *fixed* effects; with\n``random_row_column_effects=True`` they are left out of the formula\nbecause :func:`fit_mixed_model` puts them into its variance components\ninstead.\n\n``block_screen`` adds ``screenID`` (instruction 122). Two screens sharing\na guide library can be stacked into one frame and fitted together, which\nis worth twice the wells -- but only if the screen itself is in the model.\nWithout the term, a systematic difference between the two experiments is\ncharged to whichever guides happen to be over-represented in one of them.\n\nIT DEFAULTS TO OFF, and the caller decides, because a single-screen\nproject's ``screenID`` column has ONE value. A constant term makes the\ndesign rank-deficient: statsmodels answers with a pseudo-inverse rather\nthan refusing, so the run would appear to succeed and hand back standard\nerrors that mean nothing. :func:`screen_is_blockable` is the check.\n\n:param dependent_variable: Name of the response column.\n:param random_row_column_effects: Drop the fixed ``rowID`` /\n    ``columnID`` terms. Default ``False``.\n:param block_screen: Add ``screenID`` as a fixed effect. Default\n    ``False``.\n:param level: ``'grna'`` (default) or ``'gene'``.\n:returns: The formula string.\n:raises ValueError: for ``level='both'`` or an unknown level."
     },
     "spacr.ml.process_model_coefficients": {
       "source_blocks_sha256": [
@@ -19783,12 +20051,35 @@
         "06f7103d25e3e50e589241dba3e8514b5697444f5428c6a6a06dde138a295bc5",
         "3203add6c91e2dc489f73b2855369ac8e69197fdc270136ad19c6b7c8dda966c",
         "bda235492b0a5a69537308ee78d4a9a838626e5f1f42434682cd1808be29e39f",
+        "f84d6fb145410e98227738931f8bfe322b648c26a210cc534dca679e26dbca45",
+        "14e4a24d021a0d3fd3d56f35ee2285e53ac741953004b0188a0b9e58be4b4e5f",
+        "a469ba1917ce69dc843b8c37bf2b50636c75e6e78faa60738fa9fecd228a98f4",
         "fb22fcfb327bd3af39b0136ee4a826d224b333a9f6d5559aee61d70d6aa7493b",
         "4d27b944e84976103cf36078a1eef1cba3e35fd355112571867c88dc4378c83c",
+        "b55208fcc7dc60bbe227e40e1f93d10468c3e8e4349531c89f52b034a123751c",
+        "479c675a568acfc8ba1f7f58df6ff64e6fdb40b08bb9ed2f14fd47934e4e6e6f",
+        "6c39f4c029ea8ed9a8be4f1e96c46f192bccc9decf183b1494b9115e95f48242",
         "f65c67b0194410f8114d14cc25120bdbdffc748d5ec339076626cf1a5b38bb17"
       ],
-      "source_sha256": "6e6e963e21e3787452cfe10a52d192db2439b0548e7ea9592ad61f91e84fc4e9",
-      "text": "Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.\n\n:param df: Long-format DataFrame with gRNA/gene fractions and the\n    dependent variable.\n:param csv_path: Path used to derive the volcano-plot filename.\n:param dependent_variable: Response column name. Default\n    ``'predictions'``.\n:param regression_type: Model type; auto-selected via\n    :func:`check_distribution` when ``None``.\n:param alpha: Regularisation strength for penalised models.\n:param random_row_column_effects: If True, fit a mixed model with\n    random row/column effects.\n:param nc: Negative-control gene identifier. Default ``'233460'``.\n:param pc: Positive-control gene identifier. Default ``'220950'``.\n:param controls: Explicit list of control identifiers.\n:param dst: Output directory for plots and summaries.\n:param cov_type: Optional covariance estimator for the likelihood fits.\n:param plot: If True, render the volcano plot after fitting.\n:param l1_ratio: ``elasticnet`` L1/L2 mix.\n:param quantile: Quantile fitted by ``quantile`` regression.\n:param hinge_threshold: Response cut used to binarise for ``hinge``.\n:param hinge_n_boot: Bootstrap resamples behind the hinge p-values.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``.\n:param qc: Write the regression QC suite into ``<dst>/regression_qc/``.\n:param legacy_volcano: also draw the ORIGINAL matplotlib volcano.\n    Default ``False``. The interactive one is far faster and the\n    house-style panel is what a run now produces; drawing both gives two\n    volcanoes in two idioms on the same grid.\n    Requires ``dst`` and a design matrix, so it is skipped for the mixed\n    branch and when no destination was given.\n:returns: ``(model, coef_df, regression_type)``."
+      "source_sha256": "a3ee078c517608185365c39f0114755a005c0d19d0fa79a4ced7ccfc5c7a745d",
+      "text": "Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.\n\n:param df: Long-format DataFrame with gRNA/gene fractions and the\n    dependent variable.\n:param csv_path: Path used to derive the volcano-plot filename.\n:param dependent_variable: Response column name. Default\n    ``'predictions'``.\n:param regression_type: Model type; auto-selected via\n    :func:`check_distribution` when ``None``.\n:param alpha: Regularisation strength for penalised models.\n:param random_row_column_effects: If True, fit a mixed model with\n    random row/column effects.\n:param nc: Negative-control gene identifier. Default ``'233460'``.\n:param pc: Positive-control gene identifier. Default ``'220950'``.\n:param controls: Explicit list of control identifiers.\n:param dst: Output directory for plots and summaries.\n:param cov_type: Optional covariance estimator for the likelihood fits.\n:param plot: If True, render the volcano plot after fitting.\n:param l1_ratio: ``elasticnet`` L1/L2 mix.\n:param quantile: Quantile fitted by ``quantile`` regression.\n:param hinge_threshold: Response cut used to binarise for ``hinge``.\n:param hinge_n_boot: Bootstrap resamples behind the hinge p-values.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``.\n:param group_lasso_lambda: Block penalty for ``group_lasso``.\n:param rra_alpha: Top fraction of the guide ranking ``rra`` aggregates.\n:param rra_permutations: Draws per guide count in ``rra``'s null.\n:param qc: Write the regression QC suite into ``<dst>/regression_qc/``.\n:param legacy_volcano: also draw the ORIGINAL matplotlib volcano.\n    Default ``False``. The interactive one is far faster and the\n    house-style panel is what a run now produces; drawing both gives two\n    volcanoes in two idioms on the same grid.\n    Requires ``dst`` and a design matrix, so it is skipped for the mixed\n    branch and when no destination was given.\n:param level: WHICH MODEL TO FIT -- ``'grna'`` (default) or ``'gene'``.\n    One level, one design; ``'both'`` is refused here because it is two\n    fits. :func:`regression_levels` is the entry point that does both.\n    Ignored by ``regression_type='mixed'``, which fits the gene fixed and\n    the guide random inside it and so is already both levels.\n:param level_dst: Where THIS LEVEL's figures go -- the QC suite, the\n    volcano, the publication sheet. Defaults to ``dst``, which is what a\n    single-level run wants. :func:`regression_levels` gives each level its\n    own subfolder so two fits cannot overwrite each other's\n    ``regression_figure.pdf``.\n:param draw_shared_panels: Draw the guide-fraction and response\n    distributions, which describe the DATA and not the fit. False on the\n    second of two fits, so the figure grid gets one copy rather than two\n    identical ones.\n:returns: ``(model, coef_df, regression_type)``."
+    },
+    "spacr.ml.regression_levels": {
+      "source_blocks_sha256": [
+        "bc4a920892bf5c55bdcdeb3ec6a7c9f9e81f3a4857054bad68af04d341493699",
+        "35e27a88334a307cc6e74d5c1137cd964b46c973ffc159e0edc2026fe3fe8b1e",
+        "7b1d5ff99fd566bd78fdf516053ce92d0f5ec341a8defe99176ad441b6ca78e1",
+        "ef2fb3d8b385d299ee6d60895f08c8bc961e5c97d24fd7253afcc25a18ac03e1",
+        "7b3d6bc38a6d1a0cef0c937771ce34a8b9f45cbc06de72dc66b880c40d97fb3a",
+        "94933110c12ab286e7b86c65039275d3e77a8c15fabaa36b5e24a566236d69c2",
+        "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
+        "d6e2314b337e5f80daf1545218f9a69cc2ce5fe0e9f3b17cf230e30ce81ce32b",
+        "de9c3a99bb37bbfba0afc84bf1eefaa355aef8c5bd6e33ca6211864ca20b4549",
+        "36503a405d36248422633e175b415fcbd2d82a4d800883972900db5f9253247b",
+        "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342"
+      ],
+      "source_sha256": "d02b34d42daaefeef3e50d8246804cdfe97350a995379e4cad8df7b5aa52599d",
+      "text": "Fit every level the run asked for, SEPARATELY, and return one per level.\n\nTHIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one\ndesign spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the\nSUM of the gene's gRNA fractions, so\n\n    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``\n\nputs a block of columns and their own sums into one design. Measured on\nthe maintainer's TSG101 screen: 1248 parameters at rank 862 -- a\n386-dimensional EXACT null space -- and the fit statsmodels returned had a\nresidual sum of squares bit-identical to the one you get by adding seven\ntimes a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.\n\nTwo fits, two tables, TWO CORRECTIONS. Each fit is its own\nmultiple-testing family and is corrected within itself. Pooling them would\nbe wrong twice over: they are not independent -- same wells, and the gene\nregressor IS the sum of the guide regressors -- and doubling the family\nsize costs power for no protection. :func:`perform_regression` applies the\ncorrection per level and writes ``results_grna.csv`` and\n``results_gene.csv``.\n\n``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``:\nthat model has both levels inside it already, the gene as a fixed effect\nand the guide as a random effect nested in the gene. Its guide output is\nBLUPs, which is why it cannot be split into two testing families.\n\n:param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.\n:param dst: the run folder. With more than one fit each level's FIGURES go\n    into ``<dst>/<level>/`` so they cannot overwrite each other; the\n    tables stay in ``<dst>``, where every consumer looks for them.\n:param kwargs: passed straight through to :func:`regression`.\n:returns: ``dict`` mapping level to ``(model, coef_df, regression_type)``,\n    in fit order.\n:raises ValueError: for a level that is not one of :data:`LEVEL_CHOICES`."
     },
     "spacr.ml.regression_model": {
       "source_blocks_sha256": [
@@ -19809,6 +20100,8 @@
         "90106d617c9229a569bfa1af53d2e836144df9fe087e833abab51b7152ba488f",
         "381fe9f66efc61be9cbb9964c12971a80a3f7aa7594a874819ac20487e004f82",
         "54932ce56f398d5b4e6069f22da59d5ce939c04fd94851f3cbcce4b8729dbf63",
+        "307b4a17152cec942632f84ecd5d06c78a3707e53c7cec3a64f733dcdc642c81",
+        "38bc40498635149c0d29711520c5a33f7bb696f55a876e803d860fc54082c887",
         "73bef83802f25a6f66f6fc021502f5d7aeaac8dcb01025e7b2ddbb3110b1260e",
         "fb88eb96a0a0e9e8af0e52f2bd192e46b1cc57a82e0c148563df1bde3af5cdba",
         "c680f833ff8cc1b312cc86e6446a1688a877927a36bd45eda1c5c6965622a090",
@@ -19822,12 +20115,15 @@
         "5bbe2c2ae375360dbc8d634ad14e4c42fd6dd97e20b9e0c7b82b96b4100f1d59",
         "6b9e72829bc7222daf77f87deb050fa92b9e3d42947751dc97b2d9eda5d8e0ba",
         "9d3cc0de88209babb1325631f22ab3fbd04a39ff08d4805add4d57c576c712fb",
+        "0bcb19b325999fa55bc8e2981d506e7b2b4e7626ab4e0c40c32b9507ebdd4e8f",
+        "6bffb4eb7fdde28282ed5513e41d8c67eef9a7b778b5b763b2f1b355caf5dc04",
+        "46eecdf78856cbbfed36195478aa83df1143fc00795de99a5cdd2e2b46cd81c4",
         "503e174033dbf98c2bc0d5070b43a0257ff672f28e7968a91f6421c70ea1b479",
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ],
-      "source_sha256": "2fbbf73c59f0ef8708fc7198165ba85e48af80ecd1bd850c55be0163b72e8581",
-      "text": "Dispatch to the requested regression backend and return the fitted model.\n\nEvery name in :data:`REGRESSION_TYPES` is fittable here, and every one of\nthem has a matching branch in :func:`process_model_coefficients`, so a\nmodel that fits can always be turned into a coefficient table.\n\nThe backends, and what each is for:\n\n==================================  ========================================================\n``ols``                             Ordinary least squares on a continuous well response.\n``wls``                             Weighted least squares; ``weights`` is the well's cell\n                                    count, so a well of 400 cells outweighs one of 30.\n``rlm``/``huber``                   Robust M-estimation (Huber loss). For outlier-heavy\n                                    wells: a handful of runaway wells no longer drag the\n                                    fit.\n``glm``                             GLM with the family auto-selected from the response by\n                                    :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM with a log link and\n                                    ``offset(log(exposure))``, for per-well counts - so the\n                                    coefficients are effects on the per-cell RATE, not on\n                                    the well's headcount.\n``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the\n                                    Pearson chi-square, for overdispersed fractions.\n``beta``                            Beta regression, for a fraction strictly inside (0, 1).\n``logit``/``probit``                GLM-binomial on a fraction, weighted by cell count.\n``quantile``                        Quantile regression at ``quantile``; fits the tail of\n                                    the response rather than its mean.\n``mixed``                           Mixed-effects linear model with ``groups`` as the random\n                                    intercept.\n``lasso``/``ridge``/``elasticnet``  Penalised least squares.\n``hinge``                           Linear SVM (hinge loss) on a binarised response.\n``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's\n                                    power-analysis model), via :mod:`spacr.power_model`.\n==================================  ========================================================\n\nSettings a backend cannot read are REFUSED, not ignored — see\n:data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; column names become feature names).\n:param y: Response variable.\n:param regression_type: One of :data:`REGRESSION_TYPES`.\n:param groups: Cluster identifiers for the mixed model.\n:param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and\n    the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by\n    5-fold cross-validation for all four (mean squared error for the\n    penalised least-squares three, balanced accuracy for ``hinge``).\n:param cov_type: Covariance estimator for the likelihood fits\n    (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.\n:param weights: Per-observation weights - the well's cell count. Used as\n    ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the\n    WLS weights by ``wls``.\n:param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.\n:param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).\n:param hinge_threshold: Cut used to binarise a continuous response for\n    ``hinge``; see :func:`binarise_response`.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of\n    the estimated residual scale. 1.345 gives 95% efficiency under\n    normality.\n:param exposure: Per-observation exposure (the well's cell count) used as\n    ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by\n    ``glm`` when it auto-selects a Poisson family).\n:returns: Fitted statsmodels / sklearn estimator.\n:raises ValueError: on an unsupported ``regression_type``, or when a\n    setting the chosen backend cannot read was set to a non-default value.\n\nExample:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope"
+      "source_sha256": "931b57b9fae7bbd17c60851bc5f053bfcfa56662e7ab5a625c53910826709482",
+      "text": "Dispatch to the requested regression backend and return the fitted model.\n\nEvery name in :data:`REGRESSION_TYPES` is fittable here, and every one of\nthem has a matching branch in :func:`process_model_coefficients`, so a\nmodel that fits can always be turned into a coefficient table.\n\nThe backends, and what each is for:\n\n==================================  ========================================================\n``ols``                             Ordinary least squares on a continuous well response.\n``wls``                             Weighted least squares; ``weights`` is the well's cell\n                                    count, so a well of 400 cells outweighs one of 30.\n``rlm``/``huber``                   Robust M-estimation (Huber loss). For outlier-heavy\n                                    wells: a handful of runaway wells no longer drag the\n                                    fit.\n``glm``                             GLM with the family auto-selected from the response by\n                                    :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM with a log link and\n                                    ``offset(log(exposure))``, for per-well counts - so the\n                                    coefficients are effects on the per-cell RATE, not on\n                                    the well's headcount.\n``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the\n                                    Pearson chi-square, for overdispersed fractions.\n``beta``                            Beta regression, for a fraction strictly inside (0, 1).\n``logit``/``probit``                GLM-binomial on a fraction, weighted by cell count.\n``quantile``                        Quantile regression at ``quantile``; fits the tail of\n                                    the response rather than its mean.\n``mixed``                           Mixed-effects linear model with ``groups`` as the random\n                                    intercept.\n``lasso``/``ridge``/``elasticnet``  Penalised least squares.\n``hinge``                           Linear SVM (hinge loss) on a binarised response.\n``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's\n                                    power-analysis model), via :mod:`spacr.power_model`.\n``group_lasso``                     Penalised least squares with a gene's guide columns\n                                    penalised as ONE block, so a gene is selected or dropped\n                                    as a set rather than one guide at a time - the penalised\n                                    analogue of the mixed model's nesting, via\n                                    :mod:`spacr.group_lasso`.\n``rra``                             MAGeCK-style robust rank aggregation: guides ranked by\n                                    their marginal effect, aggregated to the gene BY RANK\n                                    with a permutation P value, via :mod:`spacr.rra`. It\n                                    forms no joint fit, so the collinearity and the p >> n\n                                    width that constrain every backend above do not reach it.\n==================================  ========================================================\n\nSettings a backend cannot read are REFUSED, not ignored — see\n:data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; column names become feature names).\n:param y: Response variable.\n:param regression_type: One of :data:`REGRESSION_TYPES`.\n:param groups: Cluster identifiers for the mixed model.\n:param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and\n    the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by\n    5-fold cross-validation for all four (mean squared error for the\n    penalised least-squares three, balanced accuracy for ``hinge``).\n:param cov_type: Covariance estimator for the likelihood fits\n    (``'HC0'``..``'HC3'``); ``None`` for classical standard errors.\n:param weights: Per-observation weights - the well's cell count. Used as\n    ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the\n    WLS weights by ``wls``.\n:param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.\n:param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).\n:param hinge_threshold: Cut used to binarise a continuous response for\n    ``hinge``; see :func:`binarise_response`.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of\n    the estimated residual scale. 1.345 gives 95% efficiency under\n    normality.\n:param exposure: Per-observation exposure (the well's cell count) used as\n    ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by\n    ``glm`` when it auto-selects a Poisson family).\n:param group_lasso_lambda: The block penalty for ``group_lasso``. Its own\n    key rather than ``alpha`` because it is compared against\n    :func:`spacr.group_lasso.max_lambda`, which is a property of the\n    design, so a value carried over from a lasso run would mean something\n    else here.\n:param rra_alpha: The top fraction of the guide ranking alpha-RRA\n    aggregates over. MAGeCK's 0.25, which is what keeps a gene with one\n    strong guide and three that did not cut findable.\n:param rra_permutations: Draws per distinct guide count in RRA's\n    permutation null; 10,000 puts the smallest reportable P value at 1e-4.\n:returns: Fitted statsmodels / sklearn estimator.\n:raises ValueError: on an unsupported ``regression_type``, or when a\n    setting the chosen backend cannot read was set to a non-default value.\n\nExample:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope"
     },
     "spacr.ml.resolve_auto_inference": {
       "source_blocks_sha256": [
@@ -19840,6 +20136,19 @@
       ],
       "source_sha256": "bb4f4e4d52258633eb6e03bb5ec39ebd37e2849274bb35bb897504da7ca6c3c3",
       "text": "Choose ``analysis_mode`` for ``inference='auto'`` from the design.\n\nThe simultaneous model estimates one coefficient per guide from the wells,\nso it needs more wells than guides -- with an intercept and any plate fixed\neffects on top -- before those coefficients are identifiable at all. Below\nthat the design matrix is rank deficient: statsmodels still returns a\nnumber for every guide, but the numbers are one arbitrary solution out of\ninfinitely many, and their P values describe nothing.\n\nThat is not a hypothetical. The screen this was written for has 824 guides\nin 587 analysed wells; the published fit had 825 parameters, rank 579 and\n8 residual degrees of freedom, and refitting it did not reproduce its own\ncoefficients.\n\n``auto`` therefore picks the permutation test whenever the simultaneous fit\nwould be unidentifiable, and says so. It is deliberately conservative: it\nneeds a real margin (``_IDENTIFIABILITY_MARGIN`` wells per guide) rather\nthan a bare majority, because a design that only just fits is one dropped\nwell away from not fitting.\n\nAnything other than ``inference='auto'`` is returned untouched, so an\nexplicit choice is never overridden.\n\n:returns: ``(analysis_mode, reason)``. ``reason`` is a sentence naming the\n    counts, suitable for the log and for the Methods section."
+    },
+    "spacr.ml.resolve_levels": {
+      "source_blocks_sha256": [
+        "97ca8403715a0ff094fa17b6c0619c5a26992368a795744fb60847b04ecbc4b3",
+        "18b3a0eafa5aba954f006177df26e385531db8af78831e112f96536893d54412",
+        "067b1a39b3515764c8facf2017928e336085751629da08a3d918d1bbb1133b82",
+        "8ed0d7eb0275ff1757916deade559e1ea28596260cec8e637d991509ee9595c0",
+        "6e604094dd6249e5ec74de6194cb8e755d06002d16daece0305d65250ad8416c",
+        "a2001048c5b823cd8932297488ac2ffd850c46a17018ab2eeb7b19bd426630b2",
+        "865eaa1be2505059a461326afa1015fd8bef1631ba5eb0764cada93b6024d342"
+      ],
+      "source_sha256": "c9f635e13ac8c31bdfca46d4f7d595330295e3c95759f829703a8a6052ce6b36",
+      "text": "Which level(s) a run fits, given the backend and the ``level`` setting.\n\n``mixed`` fits ONE model that already contains both levels -- the gene as a\nfixed effect and the guide as a random effect nested inside it -- so it\nignores ``level`` entirely and answers ``('gene',)``. That is why the GUI\ngreys the dropdown out rather than hiding it (instruction 106): the\nsetting exists, it is simply not this model's to read.\n\nEvery other backend is fixed effects only and cannot nest, so it fits one\nlevel at a time and ``level`` chooses which. ``'both'`` is TWO FITS.\n\n:param regression_type: the backend name, or ``None`` (not yet chosen).\n:param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.\n:returns: a tuple of levels to fit, in the order they are fitted.\n:raises ValueError: for a level that is not one of :data:`LEVEL_CHOICES`."
     },
     "spacr.ml.save_summary_to_file": {
       "source_blocks_sha256": [
@@ -40135,6 +40444,14 @@
       "source_sha256": "238912d4542619e61714e6244b7b67fc6b6b3eb7c8206e73ee819039ccca9885",
       "text": "The settings a first-time user of ``app_key`` should meet first.\n\nProgressive disclosure needs a defensible answer to \"which of these 190\nmatter?\", and a hand-written list per module would rot the first time a\nlayout changed. So it is *derived*: the first group of the module's\ncurated layout, which is always its inputs, plus whatever\n:data:`_APP_ESSENTIAL_EXTRAS` adds for that module.\n\nA module with no curated layout gets the first shared category, which is\n\"Paths\" — still the right answer, just a thinner one.\n\n:param app_key: the module's app key.\n:param categories: optional pre-computed :func:`categories_for_app`\n    output, to save recomputing it.\n:returns: setting keys in display order, without duplicates."
     },
+    "spacr.qt.screens.settings_model.explainer_width": {
+      "source_blocks_sha256": [
+        "d31dbb709c4cc8403c9098dcba0ee0e67615af9216cb714296e40ff976b010b1",
+        "b76e930e9af57e59362478e195d1e1dbac4b8224ded7e0145f347932e457b238"
+      ],
+      "source_sha256": "e4b3f38dc1e7215b460b97097f82e52343e765eeb4f14ae15dbc666fdb0b19c0",
+      "text": "The column the explainer's prose is wrapped to.\n\nRead by `AppScreen._install_model_explainer` to size the widget, so the\nwrap column and the box width cannot drift apart."
+    },
     "spacr.qt.screens.settings_model.format_tooltip": {
       "source_blocks_sha256": [
         "e35fb1b547401cf09a889f6ae3a5f076a454341a19f897018c5db9253ff2d4db"
@@ -40156,6 +40473,14 @@
       "source_sha256": "a76e09bb659bf716a6a5ac42315a5b532c72ac9f5eb3ce867d76fde60de87471",
       "text": "Return per-key tooltip text (spacr.settings.descriptions and .tooltips)."
     },
+    "spacr.qt.screens.settings_model.has_csv_column_picker": {
+      "source_blocks_sha256": [
+        "d3d82f27660b16f0888b0d848e98c03b3246a2eb02cf04d31bcfbf1105b2f616",
+        "6885baf109336186d25a16b03ed0d309907060a0980995e44a5feb5a74dfc3b3"
+      ],
+      "source_sha256": "154a40bac3447b7fd18638a34e1fd5f529ccc1c7f0bcbb212b8207ed56e5775b",
+      "text": "True when this module gives ``key`` a CSV picker of its own.\n\nRead by the screen so it does not ALSO hang the measurements.db \"SQL\"\nbutton off the same field: two buttons that disagree about which file the\ncolumn comes from is worse than the one wrong button this replaces."
+    },
     "spacr.qt.screens.settings_model.has_curated_layout": {
       "source_blocks_sha256": [
         "8dc0156a4f578cc509632ef340fd815e8836357b525412c04fb1d319f09ff7de",
@@ -40165,6 +40490,13 @@
       ],
       "source_sha256": "260fb216fa9c47ed759b0b6989ff9d752cdfd72dd4db7cd1668eabdf21f614d4",
       "text": "Return True when ``app_key``'s settings panel has a layout of its own.\n\n\"Of its own\" means somebody decided what this module's groups are — a\n:data:`_APP_CATEGORY_SPECS` entry, an inline regroup in\n:func:`categories_for_app`, or a plugin that shipped ``categories``.\n\nFalling back to the shared category map is *not* curated. That map is\nkeyed by what a setting is (a path, a plot option, \"Advanced\"), not by\nwhat the module does with it, so a module that relies on it renders as\nhowever many buckets its keys happen to fall into — which for Cellpose\nMasks was thirteen knobs under one \"Cellpose\" heading.\n\n:param app_key: the module's app key."
+    },
+    "spacr.qt.screens.settings_model.has_section_explainer": {
+      "source_blocks_sha256": [
+        "32c91d6fdad0f33a20f1105b924efc23877f39a5a993d8b690d034c5d44ff361"
+      ],
+      "source_sha256": "32c91d6fdad0f33a20f1105b924efc23877f39a5a993d8b690d034c5d44ff361",
+      "text": "True when this module's section opens with a prose box."
     },
     "spacr.qt.screens.settings_model.install_api_tooltips": {
       "source_blocks_sha256": [
@@ -40196,6 +40528,22 @@
       "source_sha256": "8d18c1816d77a5cbd0103775377fc15b871e55e1cadf4d443112108dac4fa0e4",
       "text": "Return True when ``app_key`` has enough settings to need grouping.\n\nInteractive modules whose settings dict is the ``{\"src\": ...}``\nplaceholder render a bespoke screen, not the shared form; they have\nnothing to group. :data:`CURATION_THRESHOLD` draws the line.\n\n:param app_key: the module's app key."
     },
+    "spacr.qt.screens.settings_model.normalise_regression_level": {
+      "source_blocks_sha256": [
+        "aab17ca32d7501f984279ab257301c269df813aa8ae552c35d3d0b09ca33a15d",
+        "b2031692f3b3f2052eefce7e85c8acde0a0a59d35b0666aba6f652ba556439c4"
+      ],
+      "source_sha256": "ad544c75324f36c587c0170c0a10705744ea15f285be0b6d58ad29a615d12674",
+      "text": "Coerce whatever the panel holds into one of :data:`REGRESSION_LEVELS`.\n\nThe `level` widget may not be on the panel at all -- it is a new setting,\nand an older settings CSV has no value for it -- so anything unrecognised\nreads as the default rather than raising at paint time."
+    },
+    "spacr.qt.screens.settings_model.permutation_test_explainer": {
+      "source_blocks_sha256": [
+        "38f7401b11c3472e3b05ab65a948a6157e6a0743e67cc0cd4d7b1163b76b9674",
+        "e6d8b40484de6a17fd18e1285766f2530b1eb1b97158cd748c8d92da61a9c6d8"
+      ],
+      "source_sha256": "4de70f689aba4ce0f50cc34bbcb499fdfd72798e186965977a410cf9a171c3f4",
+      "text": "The Permutation Test section's box text.\n\nPure text, wrapped to the same column as the model box, so the two boxes\non the regression panel line up and neither needs the widget to soft-wrap.\nTakes no settings: unlike the model box, what this test does is the same\nwhatever the eight controls below it are set to -- they change its size,\nits seed and its support cutoff, not its meaning."
+    },
     "spacr.qt.screens.settings_model.plain_tooltip": {
       "source_blocks_sha256": [
         "180e143c7313a1918cf852412d8bd889a22e9872c8955ab073dd1aa9f995da27"
@@ -40210,6 +40558,14 @@
       ],
       "source_sha256": "4bd08b65bb151a7a6c94c8a68f8da15fcb3aeb9d67590c4af5773d43dacb1a7b",
       "text": "Refresh semantic setting help beneath ``root`` in ``language``.\n\nCanonical English prose is retained in ``apiTooltipDescriptionSource``;\nonly the presentation HTML/plain accessibility chrome is regenerated.\nField widgets marked ``metadata`` stay quiet because their visible label\nowns hover help. API-dot destinations carry the selected documentation\nlanguage while retaining the same module page."
+    },
+    "spacr.qt.screens.settings_model.regression_model_explainer": {
+      "source_blocks_sha256": [
+        "b8cba4be8912ee1764022a9714d6bf675c5b4d6a03a7a707bcd8be7fe2c06d7c",
+        "1877ad59e787cae9e0240fefd70c5ecd50af5cbf84fa5a38b872990ef70c71f8"
+      ],
+      "source_sha256": "b5ac7708ba722e179a2a8a7a9cc6a43699a1b35fde0c59de3c2f36600cf4af4c",
+      "text": "The box's text for one (`regression_type`, `level`) selection.\n\nStates THE FORMULA that will be fitted and WHAT IS MODELLED, plus what the\nchosen mode does and how the results are corrected. Pure text: no Qt, no\nsettings lookup, so it can be asserted directly."
     },
     "spacr.qt.screens.settings_model.resolve_default_settings": {
       "source_blocks_sha256": [
@@ -40232,6 +40588,16 @@
       ],
       "source_sha256": "adf1475b33f94462d4c511a50c483e2f27acf5cfcf7d930d3ac0dba9e50cc963",
       "text": "Move hover help off editors and onto the labels that name them.\n\nCall once at the end of a hand-built screen's construction. The generic\ndecorator (:func:`install_api_tooltips`) has done this since 2026-07-30 --\nit ends with ``widget.setToolTip(\"\")`` and the comment \"the editor itself\nremains quiet on hover\" -- but screens that build their own rows never go\nthrough it, and 155 editors across the Qt screens were still popping help\nover the field the user was about to type into.\n\nA post-pass rather than 155 edits: the rule is one rule, and a screen\nadded next month gets it by calling one function instead of by remembering\na convention.\n\nLeft alone, deliberately:\n\n* a field with no sibling label -- there the editor IS the setting's only\n  visible identity, so its tooltip is the only help there is;\n* a label that already carries its own tooltip -- it has been decorated\n  properly already and overwriting it would lose the richer text;\n* a tooltip marked :data:`DISABLED_REASON_TOOLTIP`, which explains why\n  THAT control does nothing and therefore belongs on it.\n\n:param root: the built screen or dialog.\n:returns: how many tooltips were moved."
+    },
+    "spacr.qt.screens.settings_model.section_explainer": {
+      "source_blocks_sha256": [
+        "b9164f017e761153c337bd629f3558bc12c512374a95b38d788cc125c7a84952",
+        "4b71fa2347465d9d02415cb86efb61b43d1d0ef3aa5ffa2a39baeee8bae0b5c9",
+        "c990dc19f8156816032a4991fc49bc7de7cbbb4b045b32648471d9af5c32e6fa",
+        "8938fe58c14d32743811fd36f60f3ae025915a236d277697b2c12cc88f827ca0"
+      ],
+      "source_sha256": "e4eb31c5374a4c3597b5eaf474366fdb2db25b66afbf8e304c95c7de68507fcc",
+      "text": "The text of one section's box, or \"\" when the section has none.\n\n:param app_key: the module being rendered.\n:param title: the section heading, as rendered.\n:param settings: the panel's CURRENT values, when the box depends on\n    them. The model box does -- it states the formula for the selected\n    `regression_type` and `level` -- and re-reading it on every change is\n    what keeps the formula and the controls from disagreeing."
     },
     "spacr.qt.screens.settings_model.timelapse_and_motility_keys": {
       "source_blocks_sha256": [
@@ -43801,6 +44167,254 @@
       ],
       "source_sha256": "7fdd8149e854c5f12304955198bb3507e80a7a3dca9462435c464c45f47c2f22",
       "text": "Rounded-border container with optional title/subtitle and a body area.\n\nConsumers add content to :attr:`body_layout`.\n\n:param title: optional heading rendered above the body.\n:param subtitle: optional muted subheading rendered under the title.\n:ivar body: inner QWidget that holds the body layout.\n:ivar body_layout: QVBoxLayout consumers add widgets to."
+    },
+    "spacr.qt.widgets.cell_montage_view": {
+      "source_blocks_sha256": [
+        "1d3156e68e742b93a11c1f20a4811a9e4830cf056325bda6bb74fed643415721",
+        "ce205544af706671eee97c9339e10469433de141293047ef5bc9eb04cdf20bf9",
+        "301face6a4ae2561645802b2a2c02f4aecd83d1e3bad88ada1f4e68068bf369c",
+        "a68d67f78e539b0cfb6c876fadf9daf743578a91d18773ad1e98c9c55dbcc181",
+        "8ffa0b53be5dabc5b9e4657a4611152fd231f9c98595fe2a8d3d5daab2d8a03f",
+        "b28157f782c23bb96c2bf35ec7fd8c65188bef57faf8fe3bae6d730c8fe1fce9",
+        "6b99ccf9399473dd5952d12bd18db6ae68dd23b0040d0c71fc66bcc8ece6e2c0",
+        "b51347993e82d00493305c6030c518fe6ce4f549fa79d42658b0e6dd68084960",
+        "b122570e4d3ccda885b4d97dff0f47e183c71711343f2a6d7edfd2970502db9b",
+        "cc29eb3ab72224a80cd96f4f4cf72f89096d19166a74df6c269b1d4fa486fd1a",
+        "541e965c75fb7f3b5744a7e494213b05fcba49479cf3fb0ba333407840c02d50",
+        "a7e5fc8964ae3a4c7f00889eeb17c67f8e09ef7c7405e5c43a746268b4a8d871",
+        "1c0c9469300df14621ed53a397e99135965691502a130ba6e7849f9b5a74cc50",
+        "864f964afb0308a6cd644a264f5f0058ca347159244269a223f752521ee73ceb",
+        "a7e5fc8964ae3a4c7f00889eeb17c67f8e09ef7c7405e5c43a746268b4a8d871",
+        "f644cada5a1fc6643cc1d6115c8935907d14d8802655beb4e1d95dcfc2890d66",
+        "4a1c4dce2075dbbcf57a648b67dcc670f0b4f78173a5fb1c3c0b0d629366f92a",
+        "aa14b3fe431c6a425293d2ed60f91688ad2e82c077765a54d5f60b13e23c9a3b",
+        "251acb19b28fc9b6c62df53e1552b03b83a006caa5b56dc07e40095bd3b2eecd",
+        "b54eaa9ded2497bb3acf0e6bbd5ee2ffb4d782051f326b8af69885eda84172cb",
+        "aed7df96ac4c64d1d7c63a728ef15f049e069b2eb68cf55bfbca583b309cb079"
+      ],
+      "source_sha256": "7870b1b616a3e102eb2ed829ccdf293f9c9d4bce1557b83a1f7c2897041775c8",
+      "text": "The cells behind one dot on the volcano, and how they were picked.\n\nInstruction 131's other half. :mod:`spacr.cell_montage` -- the headless one,\nalready built and tested -- decides WHICH objects belong behind a coefficient\nand writes the whole reason into :meth:`~spacr.cell_montage.MontagePlan.caption`.\nNothing of that is repeated here. This module loads the pixels for the objects\nthat plan names, puts them on screen in the tab beside the run's figures, and\nsays why when it cannot.\n\nWHAT THIS ADDS TO THE HEADLESS HALF -- three things, and deliberately no more\n----------------------------------------------------------------------------\n1. **The pixels.** :func:`spacr.crops.resolve_crop_source` already chooses\n   between the exported PNGs and ``merged/<fov>.npy`` AND says which it chose;\n   :func:`spacr.cell_montage.resolve_montage_crop_source` already turns \"there\n   is no source at all\" into a sentence rather than an exception. :func:`load`\n   calls them **once per attached database**, because two plates can be two\n   experiment folders with two different answers -- one with its crops still on\n   disk and one with only ``merged/`` -- and routes every selected object row\n   back to the source of the database it came from.\n\n2. **The two settings the request names.** \"the user needs to specify which\n   array the masks are in and which channels should be used to generate the\n   pictures\". Those are :attr:`spacr.crops.CropSpec.object_type` (which mask\n   plane a crop is cut by) and :attr:`~spacr.crops.CropSpec.channels`\n   (``png_dims``), both already fields of the spec, so they are passed through\n   rather than reinvented. Left alone, ``resolve_crop_source`` reads them back\n   out of the run's own ``measurements.db`` and the tab says that is where they\n   came from -- which is the right default, because it reproduces the crops\n   that run would have written.\n\n3. **A worker, and a tab that says why.** Below.\n\nTHE GUI THREAD NEVER READS AN IMAGE, AND HERE IS WHAT IT WOULD COST\n--------------------------------------------------------------------\nMeasured on this machine, 12 synthetic fields of 1080x1080x7 ``uint16``, crops\ncut through the real :mod:`spacr.crops` path:\n\n    ============================================  ==============\n    720 crops, 60 per field, ``merged/``            0.95 ms/crop\n    720 crops, 60 per field, exported PNGs          0.13 ms/crop\n    **12 crops, ONE per field, ``merged/``**       **13.36 ms/crop**\n    12 crops, one per field, exported PNGs          0.13 ms/crop\n    ============================================  ==============\n\nThe third row is the montage's own shape: one coefficient spans dozens of\nwells and takes a handful of objects from each, so it touches many fields and\ncuts few crops from each of them. That is the same finding\n:data:`spacr.cell_montage.MAX_OBJECTS` was chosen against -- the merged source\nis priced by FIELDS TOUCHED, not by crops cut -- and at the 300-object cap it\nis ~4.0 s of blocking read. On the GUI thread that is a four-second frozen\nwindow with no cursor and no way to cancel, which is the single thing this\napplication must never do.\n\nSo every read goes through a :class:`~spacr.qt.job_runner.JobRunner`, which is\nwhere this project's threading rules are already written down: ``finished`` is\nemitted on the WORKER thread, and the only safe thing a slot there may do is\nre-emit a Signal whose receiver is a **bound method** of a GUI-thread object.\n:meth:`CellMontageView._on_loaded` is that bound method, and it is the only\nplace the widgets are touched.\n\nWhat the GUI thread does keep is the numpy-to-``QPixmap`` conversion, and that\nwas measured too rather than assumed: 300 crops of 224x224 scaled to\n:data:`THUMBNAIL_PX` cost **21.1 ms** -- one frame and a bit, once, at the end\nof a load that took seconds. Moving it off the thread would mean shipping\nQPixmaps across a thread boundary, which QPixmap does not allow.\n\nA TAB THAT CANNOT BE FILLED SAYS WHY -- instruction 106\n-------------------------------------------------------\nThe tab is always present and the button is always visible. When there is\nnothing it can do it is DISABLED and :meth:`CellMontageView.reason` is on it,\non its tooltip and in the status line. A screen with no exported PNGs and no\n``merged/`` folder gets that sentence, not an empty grid -- an empty grid is\nindistinguishable from a bug, and this feature's whole risk is producing\nsomething plausible and wrong.\n\nThe one check that cannot be made up front is the crop source itself:\n``_has_png_folder`` walks up to three levels of ``data/``, which is a disk walk\nand not something to do on every click. So the button stays live until a load\nhas actually looked, and the answer is REMEMBERED -- the button greys out with\nthat reason afterwards, and un-greys the moment the coefficient, the databases\nor the crop settings change."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView": {
+      "source_blocks_sha256": [
+        "56182d6051523e853679e2626878940d65a849a0ab781cb76056f563cdb488f4",
+        "8bf9ebd4f7396ab5f251276a77b5ae4342cc6ab1f18ba6ab18d37b7fec81bab0",
+        "4307e6b4693e97c3ee0b4a33c4cb5d682189ab1241f3d9872601219b110035b8",
+        "9b1ae57a0f08515765f73248f166c8b41ab3706f12e7b5fd5f0bcab41a2cc015",
+        "b6491a101fa53feba10042b291d7888aed0753cf305100245a9afb2d2e4bb1a0",
+        "c85983ebd23c94f963a2e0821af2486e7a681bbac59dc6422790883ba30b2f62"
+      ],
+      "source_sha256": "478b4d4a10c3001f0689ed002b2af92c17f61627bfe55a8bb96876de9af14a27",
+      "text": "The cells behind the selected coefficient, beside the run's figures.\n\nConnect :meth:`set_coefficient` to the panel's existing selection --\n``RegressionResultsPanel.table.key_selected``, which is the funnel every\nplot and the table already pass through. There is deliberately no second\nselection mechanism here: a montage of a different gene from the one the\nvolcano is ringing is exactly the plausible-and-wrong output this feature\nis most at risk of.\n\n:param frame_provider: called with no arguments for the coefficient\n    table, which is where the fitted effect for a clicked key comes from.\n:param results_provider: called with no arguments for the results CSV\n    path, beside which ``regression_data.csv`` is found.\n:param database_provider: called with no arguments for the run's input\n    table rows, which is where the measurement databases are attached.\n    A callable rather than a snapshot, for the same reason the\n    Measurements tab takes one: databases are attached after this widget\n    is built, and a list captured at construction never grows.\n:param threaded: ``False`` runs the load inline, emitting the same\n    signals in the same order, so a test drives the whole tab without the\n    behaviour diverging."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.build": {
+      "source_blocks_sha256": [
+        "4e31fffb5d23b1ebe35da242e5bb6409b751230fee9a5bc3fcdbfed9f2e62c63",
+        "24930468d396b41df07417b31a626fb17af948274297c853edcb601a2b0a6732"
+      ],
+      "source_sha256": "a24963d0ea387e81aa688b771fc017c8e178e8a4d9268ea3a1d046675a0fbdce",
+      "text": "Load the montage for the selected coefficient, off the GUI thread.\n\n:returns: True when a load was started."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.caption_text": {
+      "source_blocks_sha256": [
+        "164624d4ae1e1a8d5efc07be7da7f9d1578b4b437abf9ae4041b972093b8f1e6"
+      ],
+      "source_sha256": "164624d4ae1e1a8d5efc07be7da7f9d1578b4b437abf9ae4041b972093b8f1e6",
+      "text": "Every caption now on screen, exactly as the figure would carry it."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.closeEvent": {
+      "source_blocks_sha256": [
+        "c34b711ff6b7d76b1590867a8a34df40796b02043ade0e89717128eae2ac110c"
+      ],
+      "source_sha256": "c34b711ff6b7d76b1590867a8a34df40796b02043ade0e89717128eae2ac110c",
+      "text": "Shut the loader down before the widget goes."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.databases": {
+      "source_blocks_sha256": [
+        "b3a4e1b9a3121426f9cf454e114171c8c207a2d60e9cae7396a7fda57202bb46",
+        "3768400ebdba815bd8dd24b00814eb5cab0b9f53c4d9e08d7212c0cefb15b81f"
+      ],
+      "source_sha256": "199ce8d9ac06763e6ec24b2a47417d8ad8f89a35ad6a92a8b7809ea8ad7e2f61",
+      "text": "The measurement databases attached to the run's input table.\n\nRead through :func:`spacr.qt.widgets.measurement_scan_panel.attached_databases`,\nwhich is the same reader the Measurements tab uses -- one vocabulary\nfor \"which plate has a database and is it still on disk\"."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.images": {
+      "source_blocks_sha256": [
+        "28e153cd6f2aa8a974d543594b8df61a6709c2b7eeb713ac66281fda1b4e5e4c"
+      ],
+      "source_sha256": "28e153cd6f2aa8a974d543594b8df61a6709c2b7eeb713ac66281fda1b4e5e4c",
+      "text": "The crops now on screen, one tuple per plan."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.plans": {
+      "source_blocks_sha256": [
+        "4f1a7624ffc9a19084de265f5f2393a7c5acb78b3b74c18cb645f080dfffcfe7"
+      ],
+      "source_sha256": "4f1a7624ffc9a19084de265f5f2393a7c5acb78b3b74c18cb645f080dfffcfe7",
+      "text": "The montage plans now on screen, in order."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.reason": {
+      "source_blocks_sha256": [
+        "f950c44678421e9bc937657bb83760461d18b6a6be7ea06f290ce062c51886a9",
+        "e1d297f5e4338ca3a72d12950bf1d49b86871daa77ed527b9b76a1d94ec4b025"
+      ],
+      "source_sha256": "cd4f4f963fbb9fc84f9f46c0d494705769ddf141e26651120fdf2917dd795f37",
+      "text": "Why the montage cannot be built right now, or ``''``.\n\nInstruction 106's rule: a control that cannot do anything is greyed\nout AND SAYS WHY. Every branch here is a sentence a user can act on,\nand the order is the order the inputs are needed in, so the first\nmissing thing is the one named."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.refresh": {
+      "source_blocks_sha256": [
+        "c197c640c98b92e5cca4d1588104aa65e087ec09dc5b8867e80f72c5ee9652ca",
+        "6fa7460db15186d3de7eaafc9ae3c32cb9b18e1c7d344c41b606d038dd7cc22c",
+        "8ed9c14bc4a90b431c054e93b6c6049bba68b85ab00d8bad42bc4ab362cbcbc0"
+      ],
+      "source_sha256": "6e44323344cb5450aea16603981887c4f4703323013ffb245c278d42bba89c9c",
+      "text": "Re-read the providers. Call this when the tab is opened.\n\nDatabases are attached to the input table while this tab is behind\nanother one, so what it can do changes without any signal reaching it\n-- the same reason the Measurements tab re-reads on open.\n\nThe grid is re-flowed too. A montage built while this tab was behind\nanother one was laid out against a viewport that had never been\nthrough a layout pass -- the same trap that made a snapshot of the\nunshown volcano a 100x9 rectangle of one colour -- so its column count\nis whatever fitted in that guess, which is one."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.request": {
+      "source_blocks_sha256": [
+        "c6951675bc885da7e74f9d8c98478a34c4ec4281346a1c440f17ebed57e88487",
+        "1cfb8e9cd8aaa188fd1b45fbdb8a71daf49a5dcfbb16328c8f2bfa30f0723e01"
+      ],
+      "source_sha256": "ab40d2d4b2384478a634b26ac4afd36149fddbc48fa8d307f51f7fb70f4db0ae",
+      "text": "The request the button would submit, or ``None`` if it cannot.\n\nPublic because it is what a test drives and what the completion\nhandler compares a landed answer against."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.resizeEvent": {
+      "source_blocks_sha256": [
+        "74a1cc3dcdfb3bf14845e3af03236a87982ff48920bfcad5de159d0ab8ec982a"
+      ],
+      "source_sha256": "74a1cc3dcdfb3bf14845e3af03236a87982ff48920bfcad5de159d0ab8ec982a",
+      "text": "Reflow the grid after a resize settles."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.save": {
+      "source_blocks_sha256": [
+        "d259560df497a7cbda0edc90b5d3eac073d3a8dfba42657ce7dbe90d551c9e6f",
+        "6c350d02399dba825d64843124dbd635bd523843fdb19cba8e436e2bcf53e011",
+        "2aef5423c906ef316e4a953499604e2814c9e8093dc0110dac8042681495b932"
+      ],
+      "source_sha256": "ad3a748a90d8dad7de7aabd863a734f920e870d18f3307de19ea03430f11af3d",
+      "text": "Write the montage as a figure, honouring the format preference.\n\n:param path: where to write. ``None`` asks. The extension is left to\n    :func:`spacr.plot.save_figure`, which corrects it to the format\n    the user chose -- naming one here is how a PNG ends up in a file\n    called ``.pdf``, which is a complaint this project has had twice.\n:returns: the path written, or ``None``."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.set_coefficient": {
+      "source_blocks_sha256": [
+        "1855bae4b96716ca0537547f2213824cb61bee26379070a88f82478692beafbb",
+        "ea447ef34a318b4cdaedcb9eca7e84fe1e5926f660ee6ed9581914fb2860cc19",
+        "2b8fb7e9f2049eb35cd4ab589e932d1c0053718131edce3d9ce3cf83855449fd",
+        "e7be1cf82bb7d268848d3a5781fc3bcd4f825eb9a153e56d3653e1bee81654dd"
+      ],
+      "source_sha256": "5e0e8af1f5d2fe60d911ea35e76377683125b6d600c57e64f3527b642e93d737",
+      "text": "A coefficient was picked. THE SLOT TO CONNECT ``key_selected`` TO.\n\nTakes the feature string and nothing else, so the volcano, the Q-Q,\nthe effect-rank plot and the coefficient table all reach it by the\nsame one route the gene tile already uses.\n\nIt does NOT load. A montage is seconds of disk for a click whose usual\npurpose is to read a row, so the selection arms the button and the\nuser asks for the pictures.\n\n:param key: the ``feature`` the panel emitted."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.shutdown": {
+      "source_blocks_sha256": [
+        "4713b73dd9661f35982e5bcae20acf29eecea160f3f191f6357302494b8d041f",
+        "8849a4ec56fa8a2faf74f8802dbb183121c0a7979318ccbb6419188e90077033"
+      ],
+      "source_sha256": "3b56dab349d5cd8e1deded2e9b977f148fe953f35b8d7114a28d786e356b74d6",
+      "text": "Stop waiting for a load, and let no QThread outlive this widget.\n\nQt aborts the whole process when a running ``QThread`` is destroyed,\nand a merged-source montage is seconds long -- so leaving the screen\nmid-load is not a rare case. ``JobRunner.shutdown`` drops the results\nand waits a bounded time rather than joining on the GUI thread, which\nis the freeze it exists to remove."
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.status_text": {
+      "source_blocks_sha256": [
+        "308b5d2f3b2ce0520374bdec5709d343f5f79bc4b1a43180d15815296ceb384f"
+      ],
+      "source_sha256": "308b5d2f3b2ce0520374bdec5709d343f5f79bc4b1a43180d15815296ceb384f",
+      "text": "The status line: the summary, or the reason there is none."
+    },
+    "spacr.qt.widgets.cell_montage_view.MontageLoad": {
+      "source_blocks_sha256": [
+        "ee2825cbce05da67c09eb677e6303150ed624bdee74b6afcdf707dafb2034437",
+        "82906da486b7c0275072f39041a22c4e536d85114a7aca10c4a47dabee2abf98",
+        "f76c44735ccc252d5dd71b48d836c2c996c04b203e6ba7d3bcca563253c1cf3d",
+        "37f019d536c762085454371e48de8f0076237f0d23a85ee93a50a6d7dcba986f",
+        "de11e3f8bf53b9c849061966beec04b829a6f7ecdb16325ce0bd6dce6b387d94",
+        "3f7a49e354d233b7beb8191c1a5b506450b3d79aafe1659008cffea00e64209c",
+        "dcd27730eed53b5b5b547daf7f5a99d08db6628596aa8a6191b1916a04910dec"
+      ],
+      "source_sha256": "1e489612a54087d5e1f5abab89fe89a3e581530a538e6dfd189e9e86f2d84022",
+      "text": "What came back from one load: the plans, the pixels, or the reason.\n\n:param request: the request this answers, so a stale answer can be\n    recognised and dropped.\n:param plans: one :class:`~spacr.cell_montage.MontagePlan` per montage --\n    one for a summed gene, one per guide when the guides were asked for\n    separately.\n:param images: the crops, one list per plan, aligned with that plan's\n    ``objects`` rows. An entry is ``None`` only where a source returned\n    nothing for a row.\n:param sources: ``{experiment root: description}`` -- which crop source\n    drew each plate, in words.\n:param error: why there is no montage, or ``''``. A SENTENCE, not an\n    exception: a tab that cannot be filled has to say why and stay on\n    screen.\n:param unavailable: ``True`` when the reason is a permanent property of\n    this run -- no crop source anywhere -- rather than a bad request.\n    That is what lets the button grey itself out afterwards instead of\n    inviting the same click again."
+    },
+    "spacr.qt.widgets.cell_montage_view.MontageLoad.n_objects": {
+      "source_blocks_sha256": [
+        "0b03f1e2104b0b80dfbc4eebaf82fe53cd3863bc73482081ddb8b9b3e294dc44"
+      ],
+      "source_sha256": "0b03f1e2104b0b80dfbc4eebaf82fe53cd3863bc73482081ddb8b9b3e294dc44",
+      "text": "How many objects the load drew in total."
+    },
+    "spacr.qt.widgets.cell_montage_view.MontageLoad.ok": {
+      "source_blocks_sha256": [
+        "0207e0b850e7cb1a1716941bfbfb16ea5db9bf2df24054184d4e7c9de09fe85c",
+        "666d4ef23f06400ae2ea6b53940a8a613cf56b93beabfa8159d47d7319241308"
+      ],
+      "source_sha256": "cd0f22f6ba509a5fe547dc699f33fc48d7a95bf448f9264a8f5fe4be36265fe6",
+      "text": "True when at least one plan came back, empty or not.\n\nAn EMPTY plan is a success: it carries the wells that reported the\nguide, the window that admitted nothing and the caption that says so,\nwhich is an answer. Only a missing plan is a failure."
+    },
+    "spacr.qt.widgets.cell_montage_view.MontageRequest": {
+      "source_blocks_sha256": [
+        "8da2f13357fd72557a1ea772c2b34d8813912a7063f5930af77471c8abe8b887",
+        "07bf881078eb904aef69eb155d4c4319fa5241dba44de3e74ef7e10aa190147d",
+        "8f512a1c784e03b176411a88f1d56e119204045ca899dd5ce9f584f609640b73",
+        "36ddb86aee807b028ccd6f550a3e87700bec6ca100de71bd1ac1577ff95564ed",
+        "075be2a1fb1583d7285dcbdf30e460446c2aa0cece8ed95dec7d63a9d6847165",
+        "a1e0978a791592c279966aea58b8512723720c04e7ac53a18a9cf61cb73b9a87",
+        "9e93c342a4538cd96b8459ecca091204b743f02d6c1d121961c9df8e8ebcffb8",
+        "43a177e0eeef4fa588c353410de8d2f85149d44bae3fca7a860429234d07af76",
+        "e32d02615e7e6473a4bcf15b02ed0cf606efc75ca5695f97b163ee36881cf42a",
+        "b937d829925a4cc5bd2be753becaaba63eddbe6e01ee2b92e6c65571600ff48c",
+        "e41765c92cc2d32a87069f22aa4a3de8514b00c7cbfcdcea09ac9e0b18deb0cf",
+        "6a9de87afc36d789127710a4d4ef2adf962907e30a3d5610847010a70df7686f",
+        "6580f1f5372f0638eee5c5d626145bc60b177928262d8a4397fff94b7d28fdc6"
+      ],
+      "source_sha256": "b710a5969e4ee0bab48cd383f01ac36bf5365a4cbfdd6cffd0fa950f1d6c2d29",
+      "text": "Everything one montage load needs, as plain data.\n\nA frozen record rather than a pile of arguments because it crosses a\nthread boundary and is what the completion handler compares against to\nknow whether the answer that arrived is still the one on screen.\n\n:param name: the gene or guide the coefficient names.\n:param effect: its fitted coefficient.\n:param level: ``'gene'`` or ``'grna'``.\n:param results_path: the results CSV, or the folder holding it. Either\n    way ``regression_data.csv`` in that FOLDER is what is read -- see\n    :func:`spacr.cell_montage.read_well_guide_fractions`, which refuses\n    the two obvious wrong CSVs by name.\n:param databases: the ``measurements.db`` files attached to the run's\n    input table.\n:param object_type: which mask plane a crop is cut by.\n:param channels: intensity planes for the picture, or ``None`` for the\n    ones the run itself saved.\n:param prefer: ``''`` / ``'png'`` / ``'merged'``.\n:param score_column: the per-object classification score.\n:param cap: the largest montage to draw.\n:param per_guide: one montage per guide instead of the gene's guides\n    summed. They are different questions -- see\n    :func:`spacr.cell_montage.select_montage_per_guide` -- and each plan\n    says in its own caption which one it answers."
+    },
+    "spacr.qt.widgets.cell_montage_view.coefficient_from_frame": {
+      "source_blocks_sha256": [
+        "208db1b452cd0d32f094b54f8833cdff9e1b7ad8d9778652858fc3ce4a1fe9dd",
+        "07f977549082ceeabd0d812ad729513d1d4d64b5db30ff704f7f7650f68e6b06",
+        "03318c291bab77b096009b5a9fbff74ab64717b10a0f947f0951332470800d83",
+        "5d50441e4c888a6c43ad88ced2fdb46a3d1696c77c259d1112e70b968ea725a1",
+        "23e30525634951770ea1ea61da515e33ee2dd00bb1d6dfc2545e8717a90654b8"
+      ],
+      "source_sha256": "faa286f17b2b11bcf7afe83b4de824a4abaa8d504bed5fd9c65ca8ca93b5752a",
+      "text": "Turn a clicked coefficient into ``(name, level, effect)``.\n\nThe join is on the KEY and the parse is\n:func:`spacr.hits.guide_of` / :func:`spacr.hits.gene_of`, which is the\nsame rule the volcano, the gene tile and the metadata join already use --\na fourth copy of \"which gene is this term\" is how two surfaces start\nnaming different guides for one dot.\n\n:param key: the ``feature`` the panel emitted, e.g.\n    ``fraction:grna[233460_1]`` or ``gene_fraction:gene[233460]``.\n:param frame: the coefficient table, for the fitted effect. ``None`` is\n    allowed and yields ``None`` for the effect rather than raising.\n:returns: the gene or guide name, ``'grna'`` or ``'gene'``, and the fitted\n    coefficient. The name is ``''`` for a term that names neither -- an\n    Intercept or a row/column nuisance term -- which is a real answer and\n    the reason the montage is refused for it."
+    },
+    "spacr.qt.widgets.cell_montage_view.experiment_root": {
+      "source_blocks_sha256": [
+        "c77bcb909765f6638abfc93cdd49025f7f8d5e52076cfaa5b734a0e960a9109e",
+        "47b1d0461c86f18a07f159868e6891c46ce75745a77a5c0378238dd12a1af36a",
+        "8844c5c1f9c953772d06feea70dcb8d62c2cef557977deee49253327d9ddc4f1"
+      ],
+      "source_sha256": "e625e352ba8a786bc986392baf33137bd8fa46609d4017a038e2b9f8ea35a56c",
+      "text": "The experiment folder holding ``measurements/measurements.db``.\n\n:param db_path: the database an attached plate names.\n:returns: the folder :func:`spacr.crops.resolve_crop_source` wants -- the\n    one with ``merged/`` and ``data/`` under it. A database somewhere\n    other than ``measurements/`` yields its own folder, so a project laid\n    out by hand still resolves instead of silently pointing one level up."
+    },
+    "spacr.qt.widgets.cell_montage_view.load": {
+      "source_blocks_sha256": [
+        "c0b5218de48a20ef87e3033932869b691b19e630e6b1f878924944ab6845d6ee",
+        "53791ec4287e51b47a9a55a4c7e9c50caf4403701be0df140ed842c41092af7d",
+        "c01be5bd77207a15310bff2932e9d0dbe230019d0d5839f0db69d298a455e5bd",
+        "8b0924996e03a76e4678f993aa937de9ee16f4b7f64a15fe5a001925f2f9c89f"
+      ],
+      "source_sha256": "262feb306fa6704e0d186e570e7c65d70f7beaa21068b4b4b703d84918a2b6ae",
+      "text": "Select the objects behind one coefficient and cut their crops.\n\n**Runs on a worker thread and touches no widget.** Every failure comes\nback as :attr:`MontageLoad.error` rather than as an exception, because the\ncaller is a tab that must stay on screen and say why.\n\n:param request: what to draw.\n:returns: the plans, the crops, and which source drew them."
+    },
+    "spacr.qt.widgets.cell_montage_view.montage_figure": {
+      "source_blocks_sha256": [
+        "f3c79927f4129f3bed4b8557a294e33823ffc4d946f67cea44f2ca2033822c30",
+        "338313fe34b802c539923a321bac578cd69e9f45397f6e21e86e1c70a512aee4",
+        "20bb2e62727c3d136aeb4db838494495f917247b5bb88fe38ddb55d21d29b6f0",
+        "7c51a23c9fed0e1637cf6189759deed9612d4373766ea3ccefa1b1b24db974ca",
+        "25525c93092bb06acf0f21560d996efa57ec261d80d218519894207ebebcaf04",
+        "f9c530dfc132c2f17653217eb6cda38e2b59a75f0ce3579b09d17b0bc86347cf"
+      ],
+      "source_sha256": "40962ecd12e17976b7f0682f685549af86d7bc2db84d25782c2608504baeac4a",
+      "text": "Draw the montage as one matplotlib figure, caption and all.\n\nThe caption is not decoration and is not optional: it is what stops a\nreader taking these for genotyped cells, and\n:meth:`~spacr.cell_montage.MontagePlan.caption` always ends with the\nsentence that says membership is inferred from a well-level fraction.\nA figure without it is the one output this feature must never produce, so\nit is drawn from the plan rather than passed in.\n\n:param plans: the plans to draw, in order.\n:param images: the crops for each plan.\n:param columns: how many crops per row.\n:returns: the ``Figure``. The caller writes it through\n    :func:`spacr.plot.save_figure`, which is what honours the user's\n    figure-format and resolution preferences -- never ``savefig``\n    directly, and never a hard-coded extension."
+    },
+    "spacr.qt.widgets.cell_montage_view.parse_channels": {
+      "source_blocks_sha256": [
+        "1e01c873461c3e2562faae6d43a5ec98c5b750dfd2a251075f3528b5aacca6c3",
+        "1d0f11e4c865a409b48bb229a1d52b8658d01b442ce9c72b917ffaf518a86301",
+        "a521289c0a027d56683c39acf160e4ca48646b7a285c48956fbbd97a7d7983e7",
+        "922a8150bb4c7607f2cd91e5bc4b9d8e2cdadb430c67dd88d13ddb852db1d0d9"
+      ],
+      "source_sha256": "2adc3f3033207b2e19b6a4f81101544695e9626e99aa9575d35a4e7eca971c32",
+      "text": "Read the channel box: ``\"0,1,2\"`` -> ``(0, 1, 2)``.\n\n:param text: what the user typed. Empty means \"as the run saved them\",\n    which is ``None`` -- and ``None`` is not the same as ``()``: it is\n    what lets :func:`spacr.crops.resolve_crop_source` read ``png_dims``\n    back out of ``measurements.db`` and reproduce that run's own crops.\n:returns: the channel indices, or ``None`` for \"leave it to the run\".\n:raises ValueError: the box holds something that is not a channel index."
     },
     "spacr.qt.widgets.channel_mapping": {
       "source_blocks_sha256": [
@@ -54734,6 +55348,16 @@
       "source_sha256": "c78b0bbbe6bf6033ff4e6db5637865a02a65bc24dfd62d74dca3dd0b55bdaa4f",
       "text": "Collapsible section with an animated chevron header + form body."
     },
+    "spacr.qt.widgets.section.Section.add_prose": {
+      "source_blocks_sha256": [
+        "1efda532ea93b0f1f07a82e2f1942ff69c490ecfb323cc998ae0c7719474034f",
+        "3c7c89435fc0bb85601486e1aa0db765f2b01ba9363713092ed71c638da8f836",
+        "bb29f5a4340e0b870b327394d5221f0533ecdd9cb7a0c6d3d4cbd8240c7f2812",
+        "eeaa5a26a883f1a6578c92545d3d65d896c61f381a5060b5d894294548380ce7"
+      ],
+      "source_sha256": "2fe642d26a155a3ec8f24c49cd3cfecceaf70f24cedeaad24f753dc606daa2de",
+      "text": "Add full-width content that is NOT a setting row.\n\n:param at_top: put it above the section's controls rather than below.\n\nTHE DIFFERENCE FROM :meth:`add_widget` IS `_row_widgets`, and it is\nthe whole reason this exists. Every entry there is taken to BE a\nlabelled setting row by\n``tests/qt/test_all_module_smoke.py::_setting_row_contract``, which\nasserts each field carries a ``settingKey`` and that its label is a\nQLabel holding linked API help. A prose box is neither a setting nor\nlabelled, so registering it there would either fail that contract or\nforce a fake ``settingKey`` onto a non-setting -- which would then be\npushed into the tooltip and API-documentation machinery.\n\n`add_widget` has the same signature and the opposite bookkeeping, and\nhad no caller in the GUI, so nothing had yet exposed the conflation."
+    },
     "spacr.qt.widgets.section.Section.add_row": {
       "source_blocks_sha256": [
         "8656aea2bda6922a67b73b1c4172a00094cf4b2773366c27840d4256639ace80",
@@ -58330,6 +58954,46 @@
       ],
       "source_sha256": "80739d6841103ddc4b599f5f80c298962489abe2a2501021ff20b095e63b3331",
       "text": "Return ``{column: [values...]}`` from settings or CSV text.\n\n``None`` and an empty value mean no exclusions. A scalar value is accepted\nas a one-item list so hand-written settings remain convenient."
+    },
+    "spacr.rra": {
+      "source_blocks_sha256": [
+        "e5d8ffa731b408060fdaeeb40700626798bfa3dfb177c1edd5966d1883936901",
+        "4b9200a6b2e5feb7a4272416a856efb72c4cd6891265bc41ddc4b72a1b48285f",
+        "c983214c65811167924514dd6d623e1ebb5a8ea7898c06bd9e1eabc2e0b9848c",
+        "661bf737106711ae449634f8fd4f92e100a97cfcfd515af03baa2994c0bb89f9",
+        "791c6267b4fe1db128a3317357e866c40b44fa62ae169bb4c75d54b0e8959c76",
+        "bbb37555815f2dd2dee9f3e1d1c9fa2013673d3200b9cef40e76c1c8e6fba1c6",
+        "3f0eff6338e3a123a926d24094824769f20a56ae4d6b8540f3196499b35f5733",
+        "50bf074d0a5df08fc6a7c966958ec5f249894e36d97549b5eb1bb41359f4cfd5",
+        "37820bfb5a0a75b1350458bac3fb375e4166e2ff6f889a20efdcd5876f7e5e14"
+      ],
+      "source_sha256": "a17dec631298ce53cb0dcb65a9897aebb74e31cb25027009feea156bfe7d142e",
+      "text": "Robust rank aggregation: guides ranked, then aggregated to a gene BY RANK.\n\nInstruction 133, asked for on 2026-08-17 as one of the \"modeling tools ...\nwhere we could plug in the same dependent and independent variables and get an\nestimate of which gRNAs/genes are involved\".\n\nWHY THIS ONE IS RECOMMENDED FOR A CRISPR SCREEN, and it is not a preference.\nEvery regression backend spaCR has answers the gene question by SUMMING the\ngene's guide fractions into a `gene_fraction` term -- which is exactly the\ncollinearity instruction 132 exists to fix, because the sum of a gene's guides\nis a linear combination of those guides by construction. RRA never forms that\nsum. It ranks guides against each other and asks a question about the RANKS a\ngene's guides occupy, so a design matrix that is singular for OLS is not a\nproblem it can have.\n\nIt is also the field standard: this is MAGeCK's alpha-RRA, which is what a\nreviewer of a pooled screen expects to see, and running it makes this screen\ndirectly comparable to the published ones its phenotype scores come from.\n\nTHE STATISTIC. Rank every guide in the screen by its score, worst first for\nthe depleted direction. A gene with k guides occupies normalised ranks\nr_1 <= ... <= r_k in (0, 1]. Under the null -- this gene is no different from\nany other -- those are the order statistics of k draws from Uniform(0, 1), so\nr_i is Beta(i, k - i + 1). The statistic is\n\n    rho = min_i  Beta(i, k - i + 1).cdf(r_i)\n\nthe smallest probability of seeing an i-th-best guide at least that good.\nalpha-RRA restricts the minimum to ranks in the top `alpha` fraction: a gene\nwith one strong guide and three dead ones is a real hit in a library where a\nthird of guides do not cut, and taking the minimum over all k lets the dead\nguides pull rho back toward 1.\n\nTHE P VALUE IS PERMUTED, NOT READ OFF A TABLE. `rho` is a minimum over k\ndependent order statistics, so its null distribution is not Beta and there is\nno closed form. Genes are permuted at the GUIDE level -- guides reassigned to\ngenes of the same size -- which is the null \"this gene's guides are an\narbitrary set of k guides\", i.e. exactly what a screen hit is a departure\nfrom. Genes with the same k share a null, so the cost is one permutation set\nper distinct guide count, not one per gene.\n\nBOTH DIRECTIONS, SEPARATELY. Depletion and enrichment are two questions and\nMAGeCK reports them apart; a two-sided rank statistic would call a gene whose\nguides split half up and half down, which is the signature of a bad guide set\nrather than of a phenotype."
+    },
+    "spacr.rra.describe": {
+      "source_blocks_sha256": [
+        "3d4476298f92c9f22b76a8aa47faccbb892790a10d1b64acccb13818b8a797f3"
+      ],
+      "source_sha256": "3d4476298f92c9f22b76a8aa47faccbb892790a10d1b64acccb13818b8a797f3",
+      "text": "The formula and what is modelled, for the model tab's text box."
+    },
+    "spacr.rra.rank_aggregate": {
+      "source_blocks_sha256": [
+        "dd1646325a2000ff52c26ff8bebefd2a481cd3c9e241c881f9f7289a7bdae56c",
+        "8383bc1a506a0e947fd5d2b6f68372823f6f03a15a35d1f03d135759e7480bc5",
+        "84e9cd5906e6511b18b754c9393b88f21d7298c02de9a9899878f949b0a9df04",
+        "f51ed93141ae06cdc6ff9bb5a8ed63ac7f6aa22f0748de03c0c82154543f7824",
+        "4c2b257de9edc448e04ce2a6f515a5d7875d51b5d93d00dac7f2851a1d4901a6",
+        "2d251c6496f3516b80dbd2a92ad7b65083693915eaf3ecd82a2232e63c68f2b3",
+        "763770acb67f2a826a422574f70b5ff8ba6269c16ded5de88a8d4609f06dd05a",
+        "f2c94798af733c2225eae5f47d4440a64935fe88a914927b8946ce76069fe4ef",
+        "e1f4dfa6b8c40b7544a6d322a23f6584a2a56b3167b9698735e9d5aef61a74a3",
+        "b0f538772edb0c5cbfd8457bae689684598d35c76f3548cc80bd3f5c8bd64c94",
+        "4c4a440a9fd46b6d9bc06c142186e96fbfc9d24770291653613a82096b2aa01e",
+        "44d6b35a9c67bfb16413bef831bcae062c5a2a2402c63955c998aca95aad264b"
+      ],
+      "source_sha256": "522aab63872e30f4824c16205614d9c95291a98c44e0f9de4a43a6a86d662d5e",
+      "text": "Aggregate per-guide scores to per-gene calls by rank.\n\n:param scores: one score per guide -- a coefficient, a log fold change,\n    anything where more negative means more depleted.\n:param groups: the gene each guide belongs to, same length.\n:param alpha: the top fraction of the ranking to aggregate over.\n:param direction: ``\"neg\"``, ``\"pos\"`` or ``\"both\"``.\n:param n_permutations: draws per distinct guide count.\n:param seed: the permutation seed, so a re-run of the same screen gives\n    the same P values. A screen whose hit list moves between runs of the\n    same data is a screen nobody can act on.\n:param correction: any method :mod:`spacr.multiple_testing` accepts.\n:param fdr_alpha: the level the correction targets.\n:returns: a DataFrame, one row per gene, sorted by the strongest\n    direction's P value.\n\n:raises ValueError: ``scores`` and ``groups`` differ in length, ``alpha``\n    is outside (0, 1], or ``direction`` is not one of :data:`DIRECTIONS`.\n\nGuides whose score is not finite are DROPPED, not ranked last. A NaN\ncoefficient means the fit could not estimate that guide; ranking it worst\nwould turn \"not measured\" into \"strongly depleted\", which is the most\nconsequential silent error this function could make."
     },
     "spacr.run_compare": {
       "source_blocks_sha256": [
