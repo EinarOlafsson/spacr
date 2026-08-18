@@ -128,10 +128,19 @@ def test_a_non_statsmodels_backend_says_which_one():
 
 
 def test_no_model_says_why_rather_than_being_blank():
+    """And it does NOT invent the disk story when nothing was read off disk.
+
+    This used to assert "results table on disk" for a bare `summary_text(None)`
+    -- a cause the function had not checked, and which instruction 153 B
+    records the maintainer hitting on a LIVE run. With no path there is
+    nothing on disk to have been opened from, so that sentence would be
+    false; what IS true is that nothing has been fitted.
+    """
     text = summary_text(None)
 
     assert text.startswith("No summary")
-    assert "results table on disk" in text
+    assert "nothing" in text or "no run" in text
+    assert "results table on disk" not in text
 
 
 def test_a_summary_that_raises_is_reported_not_propagated():

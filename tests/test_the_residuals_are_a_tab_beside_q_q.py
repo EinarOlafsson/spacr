@@ -275,5 +275,12 @@ def test_a_payload_with_no_model_does_not_take_the_screen_down(
 
     screen._on_pipeline_result({"results": coefficients, "res_folder": ""})
 
-    assert screen._results_panel.table.table.rowCount() == len(coefficients)
-    assert "fitted model" in screen._results_panel.residuals._status.text()
+    # AGAINST WHAT THE TABLE IS SHOWING, not against the raw payload. The
+    # panel opens on the GUIDE level, so the fixture's `Intercept` row is
+    # filtered out and this asserted 201 against a table of 200 -- a stale
+    # number, red for a reason that has nothing to do with the missing model
+    # this test is about.
+    panel = screen._results_panel
+    assert panel.table.table.rowCount() == len(panel.filtered_frame())
+    assert panel.table.table.rowCount() == len(coefficients) - 1
+    assert "fitted model" in panel.residuals._status.text()
