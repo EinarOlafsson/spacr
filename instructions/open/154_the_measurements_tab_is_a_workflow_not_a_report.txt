@@ -321,3 +321,81 @@ WORTH NOT REDISCOVERING
   * A `Section` body takes `add_prose`, not `add_widget`: `add_widget`
     registers the child as a labelled SETTING row and the smoke contract then
     demands a `settingKey` on a read-only text box.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION G SHIPPED. A THROUGH F ARE UNTOUCHED. Commit 21c7da29.
+--------------------------------------------------------------------------------
+
+ONLY G. Sections A-F live in `measurement_scan_panel.py`, which was another
+agent's territory during this run; this note covers the loaded-run half and
+nothing else.
+
+WHAT SHIPPED, in `sweep_runs.py` (the Runs tab) and `cell_montage_view.py`
+
+* A `loaded` COLUMN, first in `PREFERRED_COLUMNS`. One row carries the mark
+  and the rest are blank. A COLUMN AND NOT A CHECKBOX, and the reason is worth
+  recording: the table is the shared `ResultsTable`, which draws text items,
+  and a second table implementation to carry one tick box is a second set of
+  bugs. It reads the same way and it sorts, filters and copies with the row.
+
+* A RUN THAT FINISHES BECOMES THE LOADED RUN. `update_run(handle,
+  status="ok")` moves the mark. A run still going does not take it -- a row
+  claiming to be loaded is a click that opens nothing -- and neither does one
+  that failed.
+
+* ONE RUN IS THE LOADED RUN. `_settle_the_loaded_run` runs inside every
+  rebuild: if the marked run is gone the key is cleared, and if exactly one
+  row is loadable it takes the mark. Several with no choice made says so out
+  loud -- "No run is loaded — pick one to show it everywhere else" -- rather
+  than leaving an empty column that looks like a broken feature.
+
+* THE CHOICE REACHES THE VIEWS. `set_loaded_run` and picking a row both emit
+  `trial_activated`, which is what `app_screen._show_trial` already listens to,
+  so the results panel, the Summary tab and the figure grid follow. Verified
+  by driving a real `AppScreen`: the panel's path, the summary text and
+  `CellMontageView.loaded_run_name()` all move to the chosen run.
+
+* A RUN ON DISK IS FIRST-CLASS. A "Load run…" button beside Reload:
+  `load_run_from_disk(folder)` resolves the folder (a parent works), gives it
+  a row with `source = "on disk"`, reads its settings back through
+  `refit.settings_of_run` so it is described by the SAME columns as a session
+  run, marks it loaded and shows it. Opening the same folder twice is one row.
+  A folder with no results table names the files it looked for and where.
+
+* THE CELLS TAB STOPS TELLING ONE STORY FOR TWO SITUATIONS. `reason()` split
+  "No regression results are loaded" into `NO_RUN_LOADED` (nothing at all --
+  and it names the Runs tab and Load run… as the way out) and
+  `RESULTS_WITHOUT_A_FOLDER` (a coefficient table on screen with no run folder
+  behind it, where the old sentence contradicted what the user was looking
+  at). When it is ready it names the run it would build from.
+
+TESTS: tests/test_which_run_is_loaded.py, 27 of them.
+tests/test_the_runs_tab_holds_every_run.py::test_which_run_a_row_is_comes_first
+asserts `["loaded", "run", "source"]` now; its property -- `run` and `source`
+lead everything DESCRIPTIVE, `trial_id` does not -- is unchanged.
+
+TWO THINGS THAT COST TIME AND SHOULD NOT COST ANYBODY ELSE ANY
+
+1. A REBUILD INSIDE A SELECTION HANDLER DESTROYS THE ITEM QT IS HOLDING.
+   Marking the run from `_on_selection` by calling `_rebuild` raised
+   `RuntimeError: libshiboken: Internal C++ object (_NumericItem) already
+   deleted` from inside `ResultsTable.select_key`, which was still holding the
+   item it had just selected. The mark is painted cell by cell instead
+   (`_paint_the_loaded_mark`), which also keeps the user's selection.
+
+2. THE STATUS LINE NAMED TWO RUNS AT ONCE. `_describe`'s `source` note
+   describes the LAST LOAD; leaving it up after the mark moved produced
+   "Loaded: ols_1. Loaded the run in .../ols_2." Moving the mark clears the
+   note. Found by driving the widget, not by a test -- the tests were green.
+
+WHAT REMAINS IN G
+
+* The Runs tab is the only place the choice can be MADE. Reading it from
+  elsewhere is `loaded_run()` / `loaded_run_folder()`; there is no second
+  control, deliberately.
+* `app_screen` does not yet connect `loaded_run_changed` to anything. It does
+  not need to for the behaviour above -- `trial_activated` carries it -- but a
+  view that wants to follow the loaded run WITHOUT reloading the results panel
+  should use that signal rather than adding a third path.
+
+WHAT REMAINS IN A-F: all of it. The GUI-thread merge freeze (A) is untouched.
