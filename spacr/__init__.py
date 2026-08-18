@@ -210,6 +210,13 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # from `toxo` because that module draws figures and this one only reads
     # the five bundled CSVs.
     "annotation",
+    # The two backends that answer "which genes are involved" WITHOUT ever
+    # forming `gene_fraction` -- the sum of a gene's guide fractions, which
+    # makes a guide-and-gene design singular by construction. `rra` ranks
+    # guides and aggregates by rank (MAGeCK alpha-RRA); `group_lasso`
+    # penalises a gene's guides as a block. Pure numpy/scipy, no Qt, no ml.
+    "rra",
+    "group_lasso",
     # What an effect size is measured FROM, and the sentence that says so.
     # Separate from `figures` because the answer belongs to the fit, not to
     # the picture: the console summary and the exported stats table state the
