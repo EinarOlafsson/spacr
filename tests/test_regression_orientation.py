@@ -941,6 +941,7 @@ def test_random_row_column_effects_names_the_results_folder_end_to_end(
     disagreeing.
     """
     import os
+    import re
 
     import spacr.ml as ML
     import spacr.plot as P
@@ -961,11 +962,24 @@ def test_random_row_column_effects_names_the_results_folder_end_to_end(
     out = ML.perform_regression(settings)
 
     assert settings["regression_type"] == "mixed"
-    assert os.path.isfile(os.path.join(
-        os.path.dirname(count), "results", "screen_scores", "mixed", "list",
-        "results.csv"))
+    # THE FOLDER IS ASKED FOR, NOT SPELLED OUT. This assertion named
+    # `results/screen_scores/mixed/list/` -- the four-level path from before
+    # the output rule became `<count folder>/results/<type>`, with `_1`, `_2`
+    # for a repeat. tests/test_regression_types.py hit the same staleness and
+    # says so in its own comment; this copy was missed and stayed red.
+    #
+    # What the test is actually about survives intact, and is the whole point
+    # of it: a run configured as 'ols' with the flag on fits a MixedLM, and
+    # the folder must be named for the model that was FITTED rather than the
+    # one that was asked for -- otherwise a mixed fit lands in an `ols`
+    # folder with nothing anywhere disagreeing.
+    folder = out["res_folder"]
+    assert os.path.isfile(os.path.join(folder, "results.csv"))
+    # `_1`, `_2` stripped by matching DIGITS at the end, never by splitting
+    # on "_": `quasi_binomial` and `guide_permutation` contain the separator.
+    assert re.sub(r"_\d+$", "", os.path.basename(folder)) == "mixed", folder
     assert not os.path.isdir(os.path.join(
-        os.path.dirname(count), "results", "screen_scores", "ols"))
+        os.path.dirname(folder), "ols"))
     assert len(out["results"]) > 0
 
 
