@@ -321,28 +321,14 @@ def illegible_data_colours(fig, ground, floor=None):
     for changes what the picture says. Deduplicated and sorted so the same
     sentence comes out of the same figure twice.
     """
-    from .figure_style import DATA_CONTRAST_FLOOR, is_legible_on, to_rgb
+    from .figure_style import illegible_colours
 
-    floor = DATA_CONTRAST_FLOOR if floor is None else float(floor)
-    bad = set()
-    for colour in data_colours(fig):
-        # A WASH IS NOT A MARK. `figures.plates` lays the "never measured"
-        # colour down at 9% opacity, and judging its base hue would name a
-        # colour nobody is being asked to find -- on every plate figure. An
-        # artist drawn at less than half opacity is de-emphasis by
-        # construction, so it is not held to a legibility floor.
-        try:
-            components = tuple(float(value) for value in colour)
-        except (TypeError, ValueError):
-            components = ()
-        if len(components) == 4 and components[3] < 0.5:
-            continue
-        rgb = to_rgb(colour)
-        if rgb is None or is_legible_on(rgb, ground, floor):
-            continue
-        bad.add("#%02X%02X%02X" % tuple(
-            int(round(min(max(channel, 0.0), 1.0) * 255)) for channel in rgb))
-    return sorted(bad)
+    # THE JUDGEMENT IS SHARED, ONLY THE HARVEST IS MATPLOTLIB'S. `data_colours`
+    # knows how to find a figure's marks; deciding which of them stops working
+    # on paper is the same question the pyqtgraph exporter asks of its pens,
+    # and a second copy of it here is how the two renderers would come to warn
+    # about different colours in the same palette.
+    return illegible_colours(data_colours(fig), ground, floor)
 
 
 @contextlib.contextmanager
@@ -368,7 +354,7 @@ def print_ready(fig, mode=None, announce=True):
     :param announce: print the 150 D sentence when a data colour has stopped
         working on the page. Off for a caller that saves in a loop.
     """
-    from .figure_style import (is_legible_on, relative_luminance,
+    from .figure_style import (export_colour, illegible_colour_warning,
                                saved_figure_appearance)
 
     look = saved_figure_appearance(mode)
@@ -384,37 +370,26 @@ def print_ready(fig, mode=None, announce=True):
                 current = getter()
             except Exception:                                    # noqa: BLE001
                 continue
-            if kind == "ground":
-                # Only a DARK ground is repainted. A deliberately tinted light
-                # background is somebody's choice, and 'transparent' has no
-                # ground to argue about -- savefig(transparent=True) owns it.
-                luminance = relative_luminance(current)
-                if (look.ground is None or luminance is None
-                        or luminance >= 0.5):
-                    continue
-                new = look.ground
-            elif kind == "grid":
-                if is_legible_on(current, page):
-                    continue
-                new = look.grid
-            else:
-                if is_legible_on(current, page):
-                    continue
-                new = look.ink
+            # ONE DECISION, ASKED BY BOTH RENDERERS. `_chrome` says what each
+            # artist IS; `export_colour` says what that means for a save, and
+            # the pyqtgraph exporter asks the same function of its pens.
+            # `_chrome` yields "text" for the artists that are chrome made of
+            # letters, which is the same rule as a spine.
+            new = export_colour(current,
+                                kind if kind in ("ground", "grid") else "chrome",
+                                look)
+            if new is None:
+                continue
             try:
                 setter(new)
             except Exception:                                    # noqa: BLE001
                 continue
             restore.append((setter, current))
         if announce:
-            stranded = illegible_data_colours(fig, page)
-            if stranded:
-                print("Saved-figure warning: these data colours have almost "
-                      "no contrast on the light page and are NOT being "
-                      f"changed, because the colour is the claim: "
-                      f"{', '.join(stranded)}. Pick an accessible palette in "
-                      "Preferences > Figures if the marks are meant to be "
-                      "read.")
+            message = illegible_colour_warning(
+                illegible_data_colours(fig, page))
+            if message:
+                print(message)
         yield look
     finally:
         for setter, previous in reversed(restore):
