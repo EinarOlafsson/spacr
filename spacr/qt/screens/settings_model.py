@@ -57,6 +57,9 @@ from ...object_roles import ORGANELLE_ROLES, setting_label
 # joining the no-p-value set changes what the box says about correction
 # without a second edit here.
 from ...regression_spec import NO_P_VALUE_TYPES
+# The one separator a spaCR key is built from, so the design scan below
+# splits gRNA names the way the pipeline does rather than on a literal '_'.
+from ...schema import KEY_SEPARATOR
 
 
 LOGGER = logging.getLogger(__name__)
@@ -3501,6 +3504,218 @@ _MODE_NOTES["probit"] = (
 )
 
 
+# ---------------------------------------------------------------------------
+# What the default costs (instruction 140)
+# ---------------------------------------------------------------------------
+#
+# Reported 2026-08-18: "im running the mixed model now and it is taking much
+# longer than before is that normal?" ... "it is still going, cpu at 100
+# percent". NOTHING WAS WRONG. MixedLM is an iterative REML optimisation and
+# it is single-threaded, so one core at 100% for an hour is exactly what a
+# healthy fit looks like -- and an hour of silence at 100% CPU is
+# indistinguishable from a hang. 132 made `mixed` the DEFAULT, which means
+# everybody pays this, so it belongs where the model is chosen.
+
+#: The measurement, as ``(genes, wells, ols seconds, mixed seconds)``.
+#:
+#: Taken 2026-08-18 with :func:`spacr.ml.regression_model` called directly so
+#: nothing else is in the timing, on a well-conditioned GENE-LEVEL design --
+#: no guide random effect at all. The fit this module actually runs adds one
+#: random effect PER GUIDE nested in gene, so these are a FLOOR and the prose
+#: below says so rather than quoting them as an estimate.
+MIXED_COST_ANCHORS = (
+    (40, 400, 0.03, 1.62),
+    (80, 600, 0.16, 10.66),
+)
+
+#: The screen the "tens of minutes to hours" expectation is stated for: the
+#: maintainer's TSG101 design, which is also the one measured throughout
+#: :func:`regression_model_explainer`'s history section.
+MIXED_COST_SCREEN = (823, 389, 610)
+
+
+def mixed_cost_note() -> str:
+    """What ``mixed`` costs, as one paragraph, built from the measurement.
+
+    ONE SOURCE FOR TWO PLACES. The model box states it before the user
+    chooses, and the run states it again before it blocks; two hand-written
+    copies of a measurement are two numbers that drift apart, and the second
+    one to be edited is the one nobody believes afterwards.
+
+    A MEASURED RANGE, NOT "THIS MAY BE SLOW" -- the digits are what make it
+    actionable, and "may be slow" is what the console said by saying nothing.
+    """
+    (small_genes, small_wells, small_ols, small_mixed), \
+        (big_genes, big_wells, big_ols, big_mixed) = MIXED_COST_ANCHORS
+    guides, _genes, wells = MIXED_COST_SCREEN
+    return (
+        f"MEASURED 2026-08-18: {small_genes} genes over {small_wells} wells "
+        f"took {small_ols:g} s as ols and {small_mixed:g} s as mixed "
+        f"({round(small_mixed / small_ols):g}x); {big_genes} over "
+        f"{big_wells}, {big_ols:g} s against {big_mixed:g} s "
+        f"({round(big_mixed / big_ols):g}x). THE RATIO RISES WITH THE "
+        f"SCREEN, and both designs were gene level only -- this fit adds a "
+        f"random effect per guide as well, so {guides} guides over {wells} "
+        f"wells is tens of minutes to hours. It is a single-threaded REML "
+        f"optimisation: one core at 100% is a healthy fit, not a hang. IF "
+        f"THE ANSWER IS WANTED NOW, ols at level='both' is the "
+        f"pre-2026-08-17 behaviour and rra needs no joint fit at all."
+    )
+
+
+#: The models worth warning about before they block, and the reason for each.
+#: `mixed` is the one that is MEASURED (:func:`mixed_cost_note`) and the one
+#: that is the default. The other two are named because their cost is set by
+#: a control on this panel -- `rra_permutations` for the permuted null, and
+#: the sampler behind `horseshoe` -- rather than by the size of the screen,
+#: so a user who is waiting has something to change.
+SLOW_MODELS = ("mixed", "rra", "horseshoe")
+
+
+def _count_files_of(settings) -> list:
+    """The sgRNA count CSVs this run was given, in order.
+
+    ``paired_data`` is the current shape (one row per score/count pair) and
+    ``count_data`` is the legacy list :func:`spacr.ml.perform_regression`
+    still migrates; both are read here because a settings CSV saved before
+    the migration is exactly the kind of run somebody re-opens.
+    """
+    paths = []
+    pairs = (settings or {}).get("paired_data") or []
+    if isinstance(pairs, (list, tuple)):
+        for pair in pairs:
+            value = pair.get("count") if isinstance(pair, dict) else None
+            if isinstance(value, str) and value.strip():
+                paths.append(value.strip())
+    if not paths:
+        legacy = (settings or {}).get("count_data")
+        if isinstance(legacy, str):
+            legacy = [legacy]
+        for value in legacy or []:
+            if isinstance(value, str) and value.strip():
+                paths.append(value.strip())
+    return paths
+
+
+def _well_keys(frame):
+    """One identifier per well in a count frame, or ``None``.
+
+    Mirrors :func:`spacr.ml.process_reads`: a well is plate + row + column,
+    ``plate_row`` is ``<plate>_<row>`` split on the LAST separator (the plate
+    is the half that may itself contain one), and ``prc`` is that answer
+    already composed. Returns ``None`` when the frame carries none of them,
+    rather than guessing -- a well count off by the number of plates is
+    worse than no well count.
+    """
+    if "prc" in frame.columns:
+        return frame["prc"].astype(str)
+    columns = set(frame.columns)
+    if "plate_row" in columns and "columnID" in columns:
+        return (frame["plate_row"].astype(str) + KEY_SEPARATOR
+                + frame["columnID"].astype(str))
+    if {"rowID", "columnID"} <= columns:
+        plate = (frame["plateID"].astype(str) if "plateID" in columns
+                 else "plate1")
+        return (plate + KEY_SEPARATOR + frame["rowID"].astype(str)
+                + KEY_SEPARATOR + frame["columnID"].astype(str))
+    return None
+
+
+def _split_guide_names(names):
+    """``(genes, guides)`` for a set of gRNA names, or ``(None, guides)``.
+
+    THE SAME POSITIONAL RULE THE PIPELINE USES, and it is positional:
+    :func:`spacr.ml.process_reads` splits ``<org>_<gene>_<guide>`` and
+    requires EVERY name to have the same three components, because
+    ``str.split(expand=True)`` pads a short name with ``None`` instead of
+    raising -- which silently deleted those reads from the screen. Names of
+    another shape get no gene count here for the same reason: a gene total
+    taken from a rule the run will not apply is a number that disagrees with
+    the fit.
+    """
+    guides = {str(name) for name in names}
+    widths = {len(name.split(KEY_SEPARATOR)) for name in guides}
+    if widths == {3}:
+        genes = {name.split(KEY_SEPARATOR)[1] for name in guides}
+        return genes, {KEY_SEPARATOR.join(name.split(KEY_SEPARATOR)[1:])
+                       for name in guides}
+    if widths == {2}:
+        return {name.split(KEY_SEPARATOR)[0] for name in guides}, guides
+    return None, guides
+
+
+def regression_design_scan(settings) -> dict:
+    """How big the fit is about to be, read off the count files it was given.
+
+    Instruction 140 B: "The useful line names the design -- 'fitting 389
+    genes and 823 guide random effects over 610 wells' -- because that is
+    also the line that tells a user their filters did something unexpected."
+
+    WHAT THIS IS AND IS NOT. It reads the sgRNA count CSVs and nothing else,
+    so it is the design AS THE INPUT FILES HOLD IT: before the merge with
+    the score data, before ``fraction_threshold`` and before the well
+    filters. That is deliberate -- it is the number to compare the run's own
+    post-cleaning counts against, and comparing them is how a filter that
+    did something unexpected becomes visible. Every caller says which it is.
+
+    NEVER RAISES. It runs to put a sentence in the console beside a fit that
+    is already starting; a scan that threw would take the run's own message
+    with it. What it could not work out comes back as ``None`` with a
+    ``note`` saying why.
+
+    :returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.
+    """
+    out = {"genes": None, "guides": None, "wells": None, "rows": 0,
+           "files": 0, "note": ""}
+    paths = _count_files_of(settings)
+    if not paths:
+        out["note"] = "no count files in the settings"
+        return out
+
+    import pandas as pd
+
+    names, wells, unread = set(), set(), []
+    no_wells = False
+    for path in paths:
+        try:
+            frame = pd.read_csv(path)
+        except Exception as error:                              # noqa: BLE001
+            unread.append(f"{path} ({type(error).__name__})")
+            continue
+        out["files"] += 1
+        out["rows"] += int(len(frame))
+        column = ("grna" if "grna" in frame.columns else
+                  "grna_name" if "grna_name" in frame.columns else None)
+        if column is not None:
+            names |= set(frame[column].astype(str).unique().tolist())
+        keys = _well_keys(frame)
+        if keys is None:
+            no_wells = True
+        else:
+            wells |= set(keys.unique().tolist())
+
+    notes = []
+    if unread:
+        notes.append("could not read " + ", ".join(unread))
+    if names:
+        genes, guides = _split_guide_names(names)
+        out["guides"] = len(guides)
+        if genes is None:
+            notes.append("the gRNA names are not "
+                         "'<org>_<gene>_<guide>', so genes were not counted")
+        else:
+            out["genes"] = len(genes)
+    else:
+        notes.append("no 'grna' column")
+    if no_wells:
+        notes.append("no 'prc', 'plate_row' or 'rowID'/'columnID' column, "
+                     "so wells were not counted")
+    elif wells:
+        out["wells"] = len(wells)
+    out["note"] = "; ".join(notes)
+    return out
+
+
 def explainer_width() -> int:
     """The narrowest the box may be, in monospace characters.
 
@@ -3678,6 +3893,12 @@ def regression_model_explainer(regression_type: Any,
             "a ranked, tested list of individual guides is what you need, "
             "choose any other model with level='grna', which fits one "
             "coefficient per guide and does give p-values."))
+        lines.append("")
+        # WHAT IT COSTS, beside "what you do not get" and for the same
+        # reason: both are things a user can only find out by having already
+        # spent the afternoon. Instruction 140.
+        lines.append("WHAT IT COSTS")
+        lines.append(_wrap_block(mixed_cost_note()))
         lines.append("")
         lines.append("MULTIPLE TESTING")
         lines.append(_wrap_block(
