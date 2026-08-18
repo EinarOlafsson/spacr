@@ -493,6 +493,14 @@ def set_figure_png_dpi(dpi: int) -> None:
 # PREVIEW, and passes "auto" to `set_figure_colors` unless the user picked.
 _KEY_FIG_BG = "prefs/figure_bg"
 _KEY_FIG_FG = "prefs/figure_fg"
+#: The LINE half of instruction 152's two controls. The maintainer's decision
+#: divides a figure by what a mark IS rather than by which code draws it: one
+#: Line colour for every line, the axis spines and the tick MARKS included,
+#: and one Font colour for every piece of text, the tick LABELS included.
+#: `_KEY_FIG_FG` is the font half and predates the split, which is why it is
+#: still spelled `fg` -- renaming the key would silently discard the colour of
+#: every store that already holds one.
+_KEY_FIG_LINE = "prefs/figure_line"
 _KEY_FIG_TEXT_SIZE = "prefs/figure_text_size"
 #: Marker recording which generation of the un-freeze migration a store has
 #: been through — see :func:`_migrate_frozen_figure_colors`.
@@ -602,9 +610,15 @@ def _migrate_frozen_figure_colors() -> None:
         pass
     try:
         changed = []
+        # The line key is examined on the same pass rather than behind a
+        # scale bump, and that is safe rather than lucky: it did not exist
+        # before this migration shipped, so a store already marked cannot
+        # hold a frozen one. A key that CAN predate the marker needs the
+        # bump; this one cannot.
         for key, frozen, label in (
                 (_KEY_FIG_BG, _FROZEN_BG_VALUES, "background"),
-                (_KEY_FIG_FG, _FROZEN_FG_VALUES, "text colour")):
+                (_KEY_FIG_FG, _FROZEN_FG_VALUES, "text colour"),
+                (_KEY_FIG_LINE, _FROZEN_FG_VALUES, "line colour")):
             raw = settings.value(key, None)
             if raw is None:
                 continue
@@ -637,6 +651,55 @@ def get_figure_color_tokens() -> tuple:
     settings = _settings()
     return (str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR)),
             str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR)))
+
+
+def get_figure_line_token() -> str:
+    """The STORED line colour token, *unresolved*.
+
+    Seed a control that will write the preference back from HERE, never from
+    :func:`get_figure_line_colour` -- the section header says why, and the
+    line half is new enough that it has not yet been frozen by anybody.
+    """
+    _migrate_frozen_figure_colors()
+    return str(_settings().value(_KEY_FIG_LINE, AUTO_FIGURE_COLOR))
+
+
+def get_figure_line_colour() -> str:
+    """The colour a figure's LINES are drawn in, "auto" resolved.
+
+    Automatic means the same ink as the text, which is what every figure did
+    before there were two controls -- so a store that has never been touched
+    renders exactly as it did, and the split costs nobody a changed figure
+    until they choose one.
+
+    WHAT THIS REACHES AND WHAT IT DOES NOT. It is the colour of the figure's
+    CHROME: the axis spines and the tick marks. It is deliberately not pushed
+    over the data's own lines on every render, because a preference that
+    repainted every series in one ink would flatten every multi-series figure
+    in the package the first time a theme was read. The control that DOES
+    reach the data's lines is the per-figure one
+    (:func:`spacr.qt.widgets.figure_settings.apply_line_colour`), which
+    is a user asking for it about one figure -- the same division as the
+    pyqtgraph side, where the theme sets `_foreground` and `set_line_colour`
+    is a menu entry.
+
+    GRIDLINES ARE LEFT ALONE, and that is the one exclusion. A grid repainted
+    in the ink is a cage over the data; `spacr.figure_style.PRINT_GRID`
+    already states it for the save path and this agrees with it.
+    """
+    token = get_figure_line_token()
+    if not figure_color_is_auto(token):
+        return token
+    return get_figure_colors()[1]
+
+
+def set_figure_line_colour(token: str) -> None:
+    """Persist the line colour TOKEN. Pass :data:`AUTO_FIGURE_COLOR` for
+    "follow the text", never what it resolved to."""
+    settings = _settings()
+    settings.setValue(_KEY_FIG_LINE, token)
+    settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+    settings.sync()
 
 
 def get_figure_colors() -> tuple:
@@ -683,6 +746,9 @@ def set_figure_colors_auto() -> None:
     and a preference you can only ever set is a trap.
     """
     set_figure_colors(AUTO_FIGURE_COLOR, AUTO_FIGURE_COLOR)
+    # All THREE, because "follow the theme" that left one of them frozen
+    # would be the trap this function exists to be the way out of.
+    set_figure_line_colour(AUTO_FIGURE_COLOR)
 
 
 def get_figure_text_size() -> int:

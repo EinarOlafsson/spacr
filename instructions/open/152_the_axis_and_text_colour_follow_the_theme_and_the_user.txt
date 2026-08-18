@@ -284,3 +284,97 @@ WHAT IS NOT MINE AND WAS NOT TOUCHED
   * The controls here are PER PLOT, which is what `set_font_colour` already
     documented ("the user overriding it for one figure"). A colour for EVERY
     figure is the preferences dialog, i.e. the other half.
+
+
+================================================================================
+2026-08-18 -- THE MATPLOTLIB HALF. Section B now reaches BOTH renderers.
+================================================================================
+
+WHAT SHIPPED
+
+  A THIRD TOKEN, `prefs/figure_line`, in spacr/qt/preferences.py:
+
+      get_figure_line_token()    the stored token, UNRESOLVED -- seed here
+      get_figure_line_colour()   what it resolves to right now -- draw here
+      set_figure_line_colour()   writes a TOKEN
+
+  "auto" resolves to THE FONT'S ink rather than to the theme directly, so a
+  store nobody has touched renders exactly as it did before there were two
+  controls and the split costs nobody a changed figure until they choose one.
+  It is examined by section A's migration on the SAME pass rather than behind
+  a scale bump, and that is safe rather than lucky: the key did not exist
+  before the migration shipped, so a store already marked cannot hold a
+  frozen one. A key that CAN predate the marker still needs the bump.
+  `set_figure_colors_auto()` un-sets all three.
+
+  `figure_queue._style_figure_colors(fig, bg, fg, text_size, line)` -- the
+  pass EVERY matplotlib render goes through. The split is exactly the
+  pyqtgraph one:
+
+      spines + tick MARKS   <- line      `tick_params(color=...)`
+      all text + tick LABELS <- fg       `tick_params(labelcolor=...)`
+
+  IT WAS ONE CALL AND THAT IS THE WHOLE BUG ON THIS SIDE:
+  `tick_params(colors=fg)` sets the mark and the label together, so the two
+  could not be told apart at all. `colors` and `color` differ by one letter
+  and by the entire instruction.
+
+  `FigureQueue._style_figure` was a character-for-character copy of the
+  module function and the two HAD ALREADY DRIFTED -- the copy missed the
+  legend title. It now delegates; there is one implementation.
+
+  THE PER-FIGURE CONTROLS, in figure_settings.py:
+
+      apply_line_colour(figure, colour)   every Line2D, every spine, the
+                                          tick marks, and a legend's sample
+                                          lines. Dashes survive: only
+                                          `set_color` is called.
+      apply_font_colour(figure, colour)   `_every_text` (which already knew
+                                          about the annotation, the suptitle
+                                          and the legend title -- issue #108)
+                                          plus `tick_params(labelcolor=)`.
+      figure_follows_the_theme(figure)    the way back.
+
+  On the Figure tab as two rows ("Line colour", "Font colour" -- the one "All
+  text colour" row is gone), on the right-click menu under a new "Appearance"
+  submenu, and in the Figures panel's own dialog as a third button beside
+  Background and Font colour.
+
+WHY THE THEME PASS DOES NOT REPAINT THE DATA'S LINES, written down because it
+is the one place the two engines look different. `_style_figure_colors` runs
+on EVERY render, from the preference; a preference that repainted every
+series in one ink would flatten every multi-series figure in the package the
+first time a theme was read. The control that does reach the data's lines is
+`apply_line_colour`, which is a user asking about ONE figure -- the same
+division as the pyqtgraph side, where the theme sets `_foreground` and
+`set_line_colour` is a menu entry.
+
+GRIDLINES ARE THE ONE EXCLUSION, on both sides. A grid repainted in the ink
+is a cage over the data; `figure_style.PRINT_GRID` already says so for the
+save path and this agrees with it rather than re-arguing it.
+
+MEASURED, NOT ASSUMED. A figure rendered through `render_figure_to_png` with
+the line preference set to #0000ff on a light theme, opaque pixels counted:
+
+    #0000ff  16,880   the spines and the tick marks
+    #000000   5,771   the title, the axis labels, the tick labels
+    #ff0000   8,312   the data line, NOT repainted
+
+A BUG FOUND IN PASSING, and it was live: `menu.addMenu("Axis scale")` hands
+PySide a QMenu it considers Python-owned, so the submenu is collected as soon
+as the local goes out of scope -- "Internal C++ object (QMenu) already
+deleted" when anything reads it afterwards. `FastPlot._group` already knew
+this and says so in its docstring; `build_figure_context_menu` did not.
+Both submenus there are now built with an explicit parent.
+
+TESTS  tests/qt/test_the_line_and_the_font_are_two_colours.py, 23 of them.
+The one that names the reversal is
+`test_the_tick_mark_is_a_line_and_the_tick_label_is_text`, which fails on the
+old `tick_params(colors=fg)` because the two came back equal whatever was
+asked for. The menu entry is driven through the ACTION, not through the
+helper it calls.
+
+WHAT REMAINS: `figures/style.py` is NOT this territory and still resolves the
+figure colours as one ink. It reads the same preference, so it already
+follows the theme; what it does not yet do is honour a SEPARATE line colour.
+Handed off.
