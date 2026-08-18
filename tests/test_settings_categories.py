@@ -190,6 +190,13 @@ KEYS_RETIRED = frozenset({
     # -- whose DEFAULT VALUE is the string 'infection_xgb_proba'. The value
     # had been pasted into the category list beside the key it belongs to.
     "infection_xgb_proba",
+    # Retired 2026-08-17 with instruction 132. `volcano` chose WHICH
+    # coefficient table the volcano plot drew, genes or guides -- a question
+    # the interactive volcano now answers by right-click, on every tab at
+    # once, from `level`. `set_default_*` pops it, nothing reads it, and it
+    # has neither an expected_types entry nor a default, so leaving its name
+    # in a category made the panel offer a control that could not be built.
+    "volcano",
 })
 
 
