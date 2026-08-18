@@ -15,6 +15,7 @@ from html import escape
 import logging
 import os
 import sys
+import textwrap
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
@@ -47,6 +48,11 @@ from ..widgets.file_list import FilePathListWidget, PairedFileTableWidget
 from ..widgets.row_exclusion import RowExclusionEditor
 from ..widgets.toggle import Toggle
 from ...object_roles import ORGANELLE_ROLES, setting_label
+# Pure data, and it imports nothing -- that is the whole point of the module
+# (see its docstring). The explainer box below reads it so that a backend
+# joining the no-p-value set changes what the box says about correction
+# without a second edit here.
+from ...regression_spec import NO_P_VALUE_TYPES
 
 
 LOGGER = logging.getLogger(__name__)
@@ -3035,6 +3041,403 @@ class _ApiTooltipFilter(QObject):
 #: Marks a tooltip carrying a "not used here" note, so the note is appended
 #: once and removed cleanly rather than accumulating.
 _BASIS_NOTE_PROPERTY = "_spacr_basis_note"
+
+
+# ---------------------------------------------------------------------------
+# The Model & Inference explainer box (instruction 132)
+# ---------------------------------------------------------------------------
+#
+# "it is important for the user to know all of this."  A read-only box in the
+# Model & Inference section that states, for the CURRENT selection, the formula
+# that will be fitted and what it models.
+#
+# It is prose, not a tooltip, because the thing it has to say does not fit in
+# one: the default changed to `mixed`, and a mixed fit answers the gene
+# question WELL while giving up something the previous default appeared to
+# give -- a guide-level hit list. A user who takes the default and later goes
+# looking for their guide p-values is exactly who this box is for, so the cost
+# is a named section of it rather than a clause someone might not hover.
+#
+# THE TEXT IS BUILT BY A PURE FUNCTION so it can be asserted without a
+# QApplication, and so the formulas have one spelling in this file rather than
+# one per branch of a widget callback.
+
+#: The `level` choices offered when the backend is a fixed-effects one.
+#: `both` is the default: it fits the guide model and the gene model
+#: SEPARATELY and writes both tables.
+REGRESSION_LEVELS = ("both", "grna", "gene")
+
+#: One coefficient per guide. The guide is the unit the screen measures.
+GRNA_FORMULA = "y ~ fraction:grna + rowID + columnID"
+
+#: One coefficient per gene, from the summed guide fraction.
+GENE_FORMULA = "y ~ gene_fraction:gene + rowID + columnID"
+
+#: The mixed model: gene fixed, guide random and nested inside its gene.
+MIXED_FORMULA = "y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID"
+
+#: THE FORMULA THIS INSTRUCTION EXISTS TO RETIRE, kept by name because the box
+#: has to be able to show a user what changed and why. `gene_fraction` is the
+#: SUM of the gene's gRNA fractions (`spacr.ml.check_and_clean_data`), so every
+#: gene column here is an exact linear combination of that gene's own guide
+#: columns. Never fitted again; `tests/qt/test_model_explainer.py` measures the
+#: rank deficiency on real screen data rather than taking the claim on trust.
+COLLINEAR_FORMULA = (
+    "y ~ fraction:grna + gene_fraction:gene + rowID + columnID")
+
+#: The column the prose is wrapped to.
+#:
+#: Set against the width the settings pane ACTUALLY grants the box, measured
+#: rather than assumed: the pane opens at ~400px and the splitter stretches it
+#: to ~490 for this box, which is about 57 monospace characters. Wrapping
+#: prose wider than that put every sentence behind a horizontal scrollbar.
+#: The indented mixed formula is 62 characters and deliberately exceeds this
+#: -- it is one line, it must not be broken, and the box does not soft-wrap.
+_EXPLAINER_WIDTH = 54
+
+#: The short name shown in the box header beside the key the user selected.
+_MODE_TITLES = {
+    "auto": "chosen from the response",
+    "ols": "ordinary least squares",
+    "wls": "weighted least squares",
+    "rlm": "robust M-estimation",
+    "huber": "robust M-estimation (Huber)",
+    "glm": "generalised linear model",
+    "poisson": "Poisson GLM",
+    "quasi_binomial": "quasi-binomial GLM",
+    "beta": "beta regression",
+    "logit": "binomial GLM, logit link",
+    "probit": "binomial GLM, probit link",
+    "quantile": "quantile regression",
+    "mixed": "mixed effects, guides nested in genes",
+    "lasso": "penalised least squares, L1",
+    "ridge": "penalised least squares, L2",
+    "elasticnet": "penalised least squares, L1 + L2",
+    "hinge": "linear SVM on a binarised response",
+    "horseshoe": "sparse Poisson GLM, horseshoe",
+}
+
+#: WHAT THE MODE DOES -- one paragraph each, taken from what
+#: :func:`spacr.ml.regression_model` actually fits rather than from the general
+#: reputation of the method. Where a backend reads a setting from this panel it
+#: is named, so the box and the Estimator Tuning section below it agree.
+_MODE_NOTES = {
+    "auto": (
+        "spaCR reads the response and picks the model itself "
+        "(check_distribution): 0/1 data gets logit; a fraction strictly "
+        "inside (0, 1) gets beta, or quasi_binomial when values sit within "
+        "1e-6 of a boundary; a fraction including exact 0 or 1 gets "
+        "quasi_binomial; otherwise it tests for normality and takes ols when "
+        "that passes. The run prints the model it chose -- read the console "
+        "before naming a model in a methods section."
+    ),
+    "ols": (
+        "Least squares: minimises the summed squared residual and assumes "
+        "the well residuals are roughly normal around one common variance. "
+        "It is the plain reading of a continuous well score, and the "
+        "baseline the others are worth comparing against."
+    ),
+    "wls": (
+        "Least squares weighted by the well's cell count, so a well of 400 "
+        "cells outweighs one of 30. Worth choosing when wells differ widely "
+        "in how many cells their score was averaged over -- which is the "
+        "usual case, and which ols ignores."
+    ),
+    "rlm": (
+        "Robust M-estimation with a Huber loss, tuned by huber_t (default "
+        "1.345, which is 95% efficient under normality). Wells far from the "
+        "fit are down-weighted instead of being allowed to drag it, so a "
+        "handful of runaway wells no longer set the slope. It reports no "
+        "R-squared."
+    ),
+    "hinge": (
+        "A linear support-vector fit (hinge loss) on the response BINARISED "
+        "at hinge_threshold, so it asks which guides SEPARATE high wells "
+        "from low wells rather than how far they move the score. It has no "
+        "likelihood: the p-values are bootstrap Wald values over "
+        "hinge_n_boot resamples, and they are not a likelihood-ratio test."
+    ),
+    "glm": (
+        "A generalised linear model whose FAMILY AND LINK are picked from "
+        "the response by pick_glm_family_and_link rather than assumed, and "
+        "the run prints the pair it chose. Where the family comes out "
+        "Poisson, log(cell_count) enters as an offset, so the coefficients "
+        "are effects on a per-cell rate."
+    ),
+    "poisson": (
+        "Poisson GLM with a log link and offset(log(cell_count)), for "
+        "per-well counts. The offset is what makes the coefficients effects "
+        "on the per-cell RATE rather than on the well's headcount -- without "
+        "it, a well simply holding more cells reads as a hit."
+    ),
+    "quasi_binomial": (
+        "Binomial GLM whose dispersion is estimated from the Pearson "
+        "chi-square instead of being fixed at 1, for a fraction that varies "
+        "more than binomial sampling allows. The cell count enters as "
+        "var_weights. Choose it over logit when the residual deviance says "
+        "the response is overdispersed."
+    ),
+    "beta": (
+        "Beta regression, for a response that is a fraction strictly inside "
+        "(0, 1). It models the mean of a bounded variable as bounded, rather "
+        "than fitting a proportion as if it could exceed 1 -- which is what "
+        "ols on a fraction does. Exact 0 or 1 values must be handled before "
+        "it can fit."
+    ),
+    "quantile": (
+        "Quantile regression fits a CONDITIONAL QUANTILE of the response -- "
+        "the `quantile` setting, where 0.5 is the median -- NOT the mean. A "
+        "perturbation that moves the tail of the well distribution without "
+        "shifting its centre appears here and does not appear in any mean "
+        "model. It is the one backend whose answer changes meaning with a "
+        "setting, so name the quantile alongside the result."
+    ),
+    "lasso": (
+        "Penalised least squares with an L1 penalty, which sets coefficients "
+        "to exactly zero. IT REPORTS NO P-VALUE: features are ranked by "
+        "SELECTION FREQUENCY -- the share of lasso_n_boot bootstrap "
+        "resamples in which the feature survived the penalty -- and "
+        "lasso_selection_threshold is where the hit list is cut. "
+        "alpha='auto' picks the penalty by 5-fold cross-validation. There is "
+        "no FDR to correct here, because there are no p-values to correct."
+    ),
+    "elasticnet": (
+        "Penalised least squares mixing L1 and L2 by l1_ratio (1.0 is lasso, "
+        "0.0 is ridge). Like lasso it sets coefficients to exactly zero and "
+        "REPORTS NO P-VALUE: features are ranked by bootstrap selection "
+        "frequency over lasso_n_boot resamples, cut at "
+        "lasso_selection_threshold. alpha='auto' picks the penalty by 5-fold "
+        "cross-validation."
+    ),
+    "ridge": (
+        "Penalised least squares with an L2 penalty. Unlike lasso and "
+        "elasticnet it never sets a coefficient to exactly zero, so it has "
+        "no selection frequency to report -- every feature would score 1.0 "
+        "-- and it falls back to an approximate p-value instead. That test "
+        "is mis-specified: the standard error is unpenalised while the "
+        "coefficient it divides has been shrunk. The error runs one way, and "
+        "it is the safe one -- the statistic is too small and the p-value "
+        "too large, so ridge under-detects rather than manufacturing hits."
+    ),
+    "horseshoe": (
+        "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's "
+        "power-analysis model -- with offset(log(cell_count)). The prior "
+        "shrinks the bulk of the guides hard toward zero while leaving a "
+        "genuinely large effect close to untouched, which suits a screen "
+        "where most guides are expected to do nothing."
+    ),
+    "mixed": (
+        "The gene effect is a FIXED effect; each guide is a RANDOM effect "
+        "nested inside its gene. This is the only model here that says what "
+        "a guide actually is -- a biological replicate of one intended "
+        "perturbation, carrying its own efficiency and off-target profile -- "
+        "rather than a second independent variable. Guides that disagree "
+        "about a gene widen that gene's interval instead of silently "
+        "averaging out, and a gene resting on one noisy guide is shrunk "
+        "toward zero."
+    ),
+}
+_MODE_NOTES["huber"] = _MODE_NOTES["rlm"]
+_MODE_NOTES["logit"] = (
+    "Binomial GLM with a logit link on a fraction, weighted by the well's "
+    "cell count as var_weights -- which is what tells the variance function "
+    "that a fraction measured from 400 cells is firmer evidence than the "
+    "same fraction measured from 30. Coefficients are log-odds."
+)
+_MODE_NOTES["probit"] = (
+    "Binomial GLM with a probit link on a fraction, weighted by the well's "
+    "cell count as var_weights. It differs from logit only in the link: the "
+    "fitted probabilities are near-identical, the coefficients are on a "
+    "different scale and are not log-odds."
+)
+
+#: WHY ANY OF THIS EXISTS. The numbers are measured on the maintainer's
+#: TSG101 screen (610 wells, 823 guides, 389 genes) -- the shipped
+#: `results.csv` from that run is where 3.389291 comes from, and the ranks are
+#: from the design patsy builds for that same frame.
+_WHY_LEAD = "Until this release spaCR fitted ONE design holding both blocks:"
+_WHY_BODY = (
+    "`gene_fraction` is the SUM of that gene's gRNA fractions, so every gene "
+    "column is an exact linear combination of that gene's own guide columns. "
+    "The two blocks are perfectly collinear BY CONSTRUCTION -- not by "
+    "accident of the data, and no number of wells fixes it. statsmodels does "
+    "not refuse: it takes a pseudo-inverse and returns one arbitrary solution "
+    "out of infinitely many. On the TSG101 screen that design was 1248 "
+    "parameters at rank 862 -- 386 short -- a single-guide gene came back "
+    "identical to its own guide (244480 and 244480_3, both 3.389291 at "
+    "p = 2.873149e-13), and the volcano drew each gene once per guide plus "
+    "once for itself. Fitting ONE LEVEL AT A TIME is full rank on the same "
+    "wells: 859 parameters at rank 859 for the guide fit, 425 at 425 for the "
+    "gene fit."
+)
+
+
+def explainer_width() -> int:
+    """The column the explainer's prose is wrapped to.
+
+    Read by `AppScreen._install_model_explainer` to size the widget, so the
+    wrap column and the box width cannot drift apart.
+    """
+    return _EXPLAINER_WIDTH
+
+
+def _wrap_block(text: str, indent: str = "    ") -> str:
+    """Wrap one prose paragraph into the box's fixed column.
+
+    Hard-wrapped here rather than left to the widget so the text has a stable
+    shape a test can assert, and so a formula pasted out of the box arrives in
+    a methods section as the line it was written as.
+    """
+    out = []
+    for paragraph in str(text).split("\n"):
+        if not paragraph.strip():
+            out.append("")
+            continue
+        out.extend(textwrap.wrap(
+            paragraph, width=_EXPLAINER_WIDTH,
+            initial_indent=indent, subsequent_indent=indent,
+            break_long_words=False, break_on_hyphens=False))
+    return "\n".join(out)
+
+
+def normalise_regression_level(level: Any) -> str:
+    """Coerce whatever the panel holds into one of :data:`REGRESSION_LEVELS`.
+
+    The `level` widget may not be on the panel at all -- it is a new setting,
+    and an older settings CSV has no value for it -- so anything unrecognised
+    reads as the default rather than raising at paint time.
+    """
+    text = str(level or "").strip().lower()
+    return text if text in REGRESSION_LEVELS else "both"
+
+
+def regression_model_explainer(regression_type: Any,
+                               level: Any = "both") -> str:
+    """The box's text for one (`regression_type`, `level`) selection.
+
+    States THE FORMULA that will be fitted and WHAT IS MODELLED, plus what the
+    chosen mode does and how the results are corrected. Pure text: no Qt, no
+    settings lookup, so it can be asserted directly.
+    """
+    key = str(regression_type or "auto").strip().lower() or "auto"
+    if key not in _MODE_NOTES:
+        # An unknown name is the pipeline's error to raise, with its own list
+        # of what it accepts. The box says it cannot describe the choice
+        # rather than inventing a formula for it.
+        return (f"MODEL: {key}\n\n"
+                + _wrap_block(
+                    "spaCR has no description for this model, which means it "
+                    "is not one of the backends spacr.ml can fit. The run "
+                    "will refuse it and name the models it accepts."))
+
+    title = _MODE_TITLES.get(key, key)
+    lines: List[str] = []
+
+    if key == "mixed":
+        lines.append(f"MODEL: mixed -- {title}")
+        lines.append("LEVEL: not applicable -- one model carries both levels")
+        lines.append("")
+        lines.append("FORMULA")
+        lines.append(f"    {MIXED_FORMULA}")
+        lines.append("")
+        lines.append("WHAT IS MODELLED")
+        lines.append(_wrap_block(_MODE_NOTES["mixed"]))
+        lines.append("")
+        # THE COST OF THE DEFAULT, in its own named section. This is the
+        # paragraph the box exists for.
+        lines.append("WHAT YOU DO NOT GET")
+        lines.append(_wrap_block(
+            "Guide-level results come back as BLUPs -- shrunken PREDICTIONS "
+            "of each guide's departure from its gene, NOT coefficients with "
+            "standard errors and p-values. A mixed fit reports p-values for "
+            "its FIXED effects only, and the guides are not fixed effects "
+            "here. So there is NO GUIDE-LEVEL HIT LIST from this model, and "
+            "nothing guide-level to BH-correct: the correction below applies "
+            "to the gene table alone. If a ranked, tested list of individual "
+            "guides is what you need, choose any other model with "
+            "level='grna', which fits one coefficient per guide and does "
+            "give p-values."))
+        lines.append("")
+        lines.append("MULTIPLE TESTING")
+        lines.append(_wrap_block(
+            "The gene coefficients are BH-corrected as one family. There is "
+            "no second family here, because the guide effects are not tested."))
+    else:
+        chosen = normalise_regression_level(level)
+        level_line = {
+            "both": "both -- the two fits below, run SEPARATELY",
+            "grna": "grna -- the guide fit only",
+            "gene": "gene -- the gene fit only",
+        }[chosen]
+        lines.append(f"MODEL: {key} -- {title}")
+        lines.append(f"LEVEL: {level_line}")
+        lines.append("")
+        lines.append(_wrap_block(
+            "Fixed effects only, so this model CANNOT nest guides inside "
+            "genes. It fits one level at a time, chosen by `level`.", ""))
+        lines.append("")
+
+        if chosen in ("both", "grna"):
+            lines.append("FORMULA (guide fit)  ->  results_grna.csv")
+            lines.append(f"    {GRNA_FORMULA}")
+            lines.append("")
+            lines.append(_wrap_block(
+                "One coefficient per guide. The guide is the unit the screen "
+                "measures; genes are not in this model at all."))
+            lines.append("")
+        if chosen in ("both", "gene"):
+            lines.append("FORMULA (gene fit)   ->  results_gene.csv")
+            lines.append(f"    {GENE_FORMULA}")
+            lines.append("")
+            lines.append(_wrap_block(
+                "One coefficient per gene, from the summed guide fraction. "
+                "Guides are not in this model."))
+            lines.append("")
+        if chosen == "both":
+            lines.append(_wrap_block(
+                "TWO MODELS, TWO TABLES -- fitted separately, and NOT one "
+                "design containing both. One design containing both is the "
+                "collinear formula described at the foot of this box, and the "
+                "bug this replaces.", ""))
+            lines.append("")
+
+        lines.append(f"WHAT {key.upper()} DOES")
+        lines.append(_wrap_block(_MODE_NOTES[key]))
+        lines.append("")
+        lines.append("MULTIPLE TESTING")
+        if key in NO_P_VALUE_TYPES:
+            # Saying "BH-corrected" under a backend that reports no p-value
+            # would contradict this box's own WHAT ... DOES paragraph two
+            # lines above it.
+            fits = "Each fit ranks" if chosen == "both" else "The fit ranks"
+            lines.append(_wrap_block(
+                f"{fits} features by bootstrap selection frequency and "
+                f"reports no p-value, so there is NOTHING TO BH-CORRECT. The "
+                f"hit list is cut at lasso_selection_threshold, not at an "
+                f"FDR. A selection frequency is not a false-discovery rate "
+                f"and should not be quoted as one."))
+        elif chosen == "both":
+            lines.append(_wrap_block(
+                "Each fit is its OWN multiple-testing family and is "
+                "BH-corrected within itself. Pooling them would be wrong "
+                "twice: the two sets are not independent -- same wells, and "
+                "the gene regressor is literally the sum of the guide "
+                "regressors -- and doubling the family size costs power for "
+                "no protection. Note also that a gene called by the gene fit "
+                "AND its guides called by the guide fit is two tests of one "
+                "hypothesis; say which the claim rests on."))
+        else:
+            lines.append(_wrap_block(
+                "The single fit is BH-corrected as one family."))
+
+    lines.append("")
+    lines.append("WHY THE FORMULA CHANGED")
+    lines.append(_wrap_block(_WHY_LEAD))
+    lines.append("")
+    lines.append(f"        {COLLINEAR_FORMULA}")
+    lines.append("")
+    lines.append(_wrap_block(_WHY_BODY))
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _basis_note(basis: str) -> str:

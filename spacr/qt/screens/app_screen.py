@@ -563,6 +563,9 @@ class AppScreen(QWidget):
         self._last_error_text: str = ""
         self._hint_map: dict = {}       # widget → plain-text hint
         self._html_tip_map: dict = {}   # widget → HTML tooltip (sticky popup)
+        # The Model & Inference explainer (instruction 132). Only the
+        # regression panel builds one; every other screen leaves it None.
+        self._model_explainer = None
 
         # This module is imported lazily by `app.py`, long after the launch
         # stylesheet was generated, so the block registered above is not in
@@ -1303,11 +1306,155 @@ class AppScreen(QWidget):
                                 wrap_label=True)
                 self._attach_column_picker(field_key, widget)
             layout.addWidget(section)
+            # THE EXPLAINER, immediately under the controls it explains, and
+            # shown or hidden with them so it never dangles beneath a
+            # collapsed section.
+            #
+            # It goes into the PANE rather than into the section via
+            # `Section.add_widget`, which would read better. Every entry in
+            # `Section._row_widgets` is taken to be a labelled SETTING row by
+            # `tests/qt/test_all_module_smoke.py::_setting_row_contract`,
+            # which asserts each field carries a `settingKey` and that its
+            # label is a QLabel holding linked API help. This box is neither
+            # a setting nor labelled, and `add_widget` -- whose entire purpose
+            # is full-width label-less content -- had no other caller in the
+            # GUI, so nothing had yet exposed that conflation. Giving the box
+            # a `settingKey` to satisfy the contract would push a non-setting
+            # into the tooltip and API-documentation machinery instead.
+            if self.app_key == "regression" and title == "Model & Inference":
+                self._install_model_explainer(section, layout)
 
         self.refresh_maturity_visibility()
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
+
+    def _install_model_explainer(self, section, layout) -> None:
+        """Add the read-only "what will be fitted" box to Model & Inference.
+
+        INSTRUCTION 132: "it is important for the user to know all of this."
+        The box states the FORMULA for the current selection and WHAT IS
+        MODELLED, and it changes with `regression_type` and `level`.
+
+        MONOSPACE, READ-ONLY AND SELECTABLE, following the Summary tab in
+        `qt/widgets/regression_results.py`: the reason to want a formula on
+        screen is usually to put it in a methods section, and a formula you
+        cannot copy is a formula you retype.
+
+        NoWrap, like that Summary tab. The text arrives pre-wrapped to a fixed
+        column by `regression_model_explainer`, so the box needs no wrapping
+        of its own -- and soft-wrapping on top of a hard wrap is what made it
+        unreadable at the pane's default width: every prose line broke a
+        second time, at a different column, with no hanging indent. A line
+        wider than the pane is reached by scrolling, which leaves the
+        formulas intact and copyable.
+        """
+        from PySide6.QtGui import QFontDatabase, QFontMetrics
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        from .settings_model import explainer_width
+
+        box = QPlainTextEdit()
+        box.setObjectName("ModelExplainer")
+        box.setReadOnly(True)
+        box.setLineWrapMode(QPlainTextEdit.NoWrap)
+
+        # MONOSPACE HAS TO COME THROUGH QSS, NOT setFont().
+        #
+        # The theme opens with a global `QWidget { font-family: "Open Sans",
+        # ... }` rule, and in Qt a stylesheet font beats a programmatic one.
+        # Measured under the real theme: a read-only QPlainTextEdit given
+        # setFont(systemFont(FixedFont)) reports a rendered QFontInfo family
+        # of 'Open Sans' with fixedPitch False -- proportional, so the
+        # formulas do not align and the box is monospace in intention only.
+        # Setting the document's default font loses the same way, because
+        # polishing pushes the widget font back into the document.
+        # `qt/widgets/regression_results.py`'s Summary tab has the same
+        # defect; it is not this slice's file to change.
+        #
+        # setFont stays too, so anything reading font() rather than the
+        # rendered QFontInfo still gets the fixed font.
+        #
+        # THE RULE NAMES THE FONT AND NOTHING ELSE, deliberately. Colours are
+        # left to the app-wide stylesheet. Baking palette values in here would
+        # PIN them at construction, so the box would keep the old colours
+        # after a runtime theme switch while the screen around it re-themed.
+        # Checked on the composited screen rather than on a widget grab: a
+        # bare `box.grab()` writes the transparent page background as
+        # transparent pixels, which an image viewer shows as white -- that
+        # artefact reads exactly like white-on-white text and is not.
+        fixed = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        box.setFont(fixed)
+        box.setStyleSheet(
+            "QPlainTextEdit#ModelExplainer {"
+            f' font-family: "{fixed.family()}", "DejaVu Sans Mono", "Menlo",'
+            " \"Consolas\", monospace; }")
+        # Read-only, but NOT unselectable: TextSelectableByMouse and
+        # ByKeyboard are what make Ctrl+A / Ctrl+C work in a disabled-looking
+        # box.
+        box.setTextInteractionFlags(
+            Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
+        # WIDE ENOUGH FOR THE WRAP COLUMN, measured from the font actually
+        # rendered rather than guessed. The settings pane opens at about
+        # 400px, which holds ~46 monospace characters -- narrower than the
+        # 62-character mixed formula, so the one line that most needs to stay
+        # intact was the first to soft-wrap. Asking for the width here lets
+        # the splitter give the pane what this content needs.
+        advance = QFontMetrics(box.font()).horizontalAdvance("M") or 8
+        box.setMinimumWidth(advance * (explainer_width() + 3))
+        box.setMinimumHeight(220)
+        self._model_explainer = box
+        layout.addWidget(box)
+
+        # Track the section's collapse so the box reads as belonging to it.
+        # Sections start collapsed, so the box starts hidden with it.
+        box.setVisible(section.is_expanded())
+        section.header().toggled.connect(box.setVisible)
+
+        # Follow the two settings it describes. Bound methods, not lambdas:
+        # INVARIANTS 4 is about QThread.finished specifically, but the same
+        # lifetime reasoning applies to any connection that outlives the call
+        # that made it.
+        widgets = getattr(self._settings_model, "_widgets", {})
+        for key in ("regression_type", "level"):
+            # `level` is a NEW setting and may not be on the panel yet; the
+            # box still has to render for the model that IS there.
+            widget = widgets.get(key)
+            if widget is None:
+                continue
+            for signal_name in ("currentTextChanged", "currentIndexChanged",
+                                "textChanged", "value_changed"):
+                signal = getattr(widget, signal_name, None)
+                if signal is not None:
+                    signal.connect(self._on_model_selection_changed)
+                    break
+        self._refresh_model_explainer()
+
+    def _on_model_selection_changed(self, *_args) -> None:
+        """Re-render the explainer when the model or the level moves."""
+        self._refresh_model_explainer()
+
+    def _refresh_model_explainer(self) -> None:
+        """Put the current selection's formula and description in the box."""
+        box = self._model_explainer
+        if box is None:
+            return
+        from .settings_model import regression_model_explainer
+
+        widgets = getattr(self._settings_model, "_widgets", {})
+        read = self._settings_model._read_widget
+
+        def value(key, fallback):
+            widget = widgets.get(key)
+            if widget is None:
+                return fallback
+            try:
+                return read(widget)
+            except Exception:
+                return fallback
+
+        box.setPlainText(regression_model_explainer(
+            value("regression_type", "auto"), value("level", "both")))
 
     def refresh_maturity_visibility(self) -> None:
         """Show/hide Alpha and Beta settings without discarding typed values."""
