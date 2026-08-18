@@ -540,7 +540,8 @@ def _level_term(level):
 
 
 def prepare_formula(dependent_variable, random_row_column_effects=False,
-                    block_screen=False, level='grna'):
+                    block_screen=False, level='grna',
+                    model_plate_position=True):
     """Build the fixed-effects formula for ONE level of the screen model.
 
     ONE LEVEL PER FIT. This function used to return
@@ -561,10 +562,63 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     is 859 parameters at rank 859, the gene design 425 at rank 425 -- both
     full rank, against the combined design's 1248 parameters at rank 862.
 
-    By default ``rowID`` and ``columnID`` are added as *fixed* effects; with
-    ``random_row_column_effects=True`` they are left out of the formula
-    because :func:`fit_mixed_model` puts them into its variance components
-    instead.
+    PLATE POSITION HAS THREE STATES, AND ``model_plate_position`` CHOOSES THE
+    FIRST OF THEM (instruction 143 A):
+
+        ``model_plate_position=False``  out of the model entirely
+        ``model_plate_position=True``   in, as FIXED effects (the default)
+        ``+ random_row_column_effects=True``  in, as VARIANCE COMPONENTS
+
+    The third is :func:`fit_mixed_model`'s job -- the terms are left out of
+    the formula string so they are not also fixed -- and OUT plus RANDOM is a
+    fourth state that does not exist, so it is refused here rather than
+    resolved to one of the other two.
+
+    IT DEFAULTS TO ON, AND THE DEFAULT WAS MEASURED, not chosen. Instruction
+    143 asked for default OFF; fitting the maintainer's TSG101 screen
+    (regression_data.csv, 1945 rows, 610 wells, 823 guides, 389 genes) twice
+    per level said otherwise, and the costs are asymmetric by more than an
+    order of magnitude:
+
+    * THE TERMS ARE REAL. Joint F test that all 35 of them are zero:
+      F = 5.781, p = 6.71e-23 at the guide level and F = 6.277, p = 2.33e-26
+      at the gene level. 23 of the 35 are individually p < 0.05 and 8 survive
+      Bonferroni. Not peculiar to this screen: of the nine real
+      ``regression_data.csv`` screens on the maintainer's machine, eight
+      reject the joint null at p < 0.05 and seven at p < 1e-5. The one that
+      does not is the smallest, at 264 wells.
+    * DROPPING THEM COSTS ACCURACY, NOT JUST FIT. 8.4 points of R2
+      (0.5477 -> 0.4634) and 7.2% more residual sd (0.05268 -> 0.05647), so
+      standard errors come out 5.5% LARGER without the terms than with them
+      (median se_off/se_on 1.0552 at the guide level) -- the drop in residual
+      sd more than pays for the 35 degrees of freedom. Coefficients move a
+      median of 0.271 standard errors (guide) and 0.272 (gene); 429 of 823
+      guides move more than a quarter of an SE.
+    * THE HIT LIST CHANGES. At the pipeline default (BH q < 0.05 plus the
+      control-calibrated width cut) the gene level keeps 8 hits but swaps two
+      of them: 277230 leaves (q 0.0394 -> 0.4071) and 258462 enters
+      (q 0.1134 -> 0.0146). On synthetic data with the truth planted -- the
+      same real design, response re-simulated, position effect at the size
+      this plate actually carries -- leaving position out loses 17% of the
+      planted true hits at BH and 20% at raw p.
+    * CARRYING IT ON A PLATE THAT DOES NOT NEED IT IS NEARLY FREE. On the
+      synthetic arm with no position effect at all, the 35 terms cost 1.6% on
+      the standard errors (se_off/se_on 0.9842, which is sqrt(1121/1086)) and
+      0.02 hits out of 20. Coefficients move a median of 0.121 SE, which is
+      noise.
+
+    35 TERMS, NOT 36. Instruction 143 counts a full 384-well plate: 16 rows
+    plus 24 columns is 38 levels less two references. This screen occupies 16
+    rows and 21 columns, so it spends 35, and its "6% of the residual degrees
+    of freedom" is 35/610 WELLS -- against residual df it is 3.1% at the
+    guide level (1121 -> 1086) and 2.3% at the gene level (1555 -> 1520).
+
+    AND THE INSTRUCTION'S LEAD EXAMPLE ALREADY COSTS NOTHING: a screen on one
+    plate row emits ZERO ``rowID`` columns, because patsy drops a single-level
+    factor into the intercept. Verified on a one-row subset of the real
+    screen: 20 ``columnID`` terms and no ``rowID`` term. The case the setting
+    is genuinely for is a RANDOMISED layout, where position is not a nuisance
+    the plate carries and the 1.6% is spent for nothing.
 
     ``block_screen`` adds ``screenID`` (instruction 122). Two screens sharing
     a guide library can be stacked into one frame and fitted together, which
@@ -579,18 +633,41 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     errors that mean nothing. :func:`screen_is_blockable` is the check.
 
     :param dependent_variable: Name of the response column.
-    :param random_row_column_effects: Drop the fixed ``rowID`` /
-        ``columnID`` terms. Default ``False``.
+    :param random_row_column_effects: Move ``rowID`` / ``columnID`` out of the
+        formula and into :func:`fit_mixed_model`'s variance components.
+        Default ``False``.
     :param block_screen: Add ``screenID`` as a fixed effect. Default
         ``False``.
     :param level: ``'grna'`` (default) or ``'gene'``.
+    :param model_plate_position: Whether ``rowID`` and ``columnID`` are in the
+        model AT ALL. Default ``True``.
     :returns: The formula string.
-    :raises ValueError: for ``level='both'`` or an unknown level.
+    :raises ValueError: for ``level='both'``, an unknown level, or
+        ``model_plate_position=False`` with
+        ``random_row_column_effects=True``.
     """
     from .schema import SCREEN_KEY
 
     term = _level_term(level)
     screen = f' + {SCREEN_KEY}' if block_screen else ''
+    if random_row_column_effects and not model_plate_position:
+        raise ValueError(
+            "model_plate_position=False takes rowID and columnID out of the "
+            "model entirely and random_row_column_effects=True asks for them "
+            "as variance components, so there is no term left for the mixed "
+            "fit to make random: one of the two has to go. Plate position "
+            "has three states -- OUT (model_plate_position=False), FIXED "
+            "(model_plate_position=True) and RANDOM (both True) -- and this "
+            "is a fourth. Set model_plate_position=True to fit row and "
+            "column as variance components, or "
+            "random_row_column_effects=False to leave plate position out of "
+            "the model.")
+    if not model_plate_position:
+        # OUT. The screen either has no plate-position effect to model -- a
+        # randomised layout -- or the caller is spending its 35 parameters
+        # somewhere else; see the measurement in this function's docstring for
+        # what that costs on a plate that does have one.
+        return f'{dependent_variable} ~ {term}{screen}'
     if random_row_column_effects:
         # Row and column become variance components in fit_mixed_model, so
         # they must not also be fixed terms here.
@@ -2801,10 +2878,30 @@ def _reconcile_random_row_column_effects(settings):
 
     :param settings: The finished settings dict; mutated in place.
     :raises ValueError: when the flag is combined with a named model that is
-        not a mixed model, or with a setting the mixed model cannot read.
+        not a mixed model, with ``model_plate_position=False``, or with a
+        setting the mixed model cannot read.
     """
     if not settings.get('random_row_column_effects', False):
         return settings
+
+    # OUT PLUS RANDOM IS NOT A STATE (instruction 143 A). Plate position has
+    # three: out of the model (model_plate_position=False), in as fixed
+    # effects (True), in as variance components (True plus this flag). Asking
+    # for variance components on terms that are not in the model is a fourth,
+    # and it is refused here -- before a folder is named or a file is written
+    # -- rather than resolved to whichever of the two the reader guesses,
+    # because both guesses fit a DIFFERENT model from the one asked for and
+    # neither would say so. Same seam, same voice, as the model conflict
+    # below; prepare_formula refuses the same pair for a caller that never
+    # goes through a settings dict.
+    if not settings.get('model_plate_position', True):
+        raise ValueError(
+            "random_row_column_effects=True fits rowID and columnID as "
+            "variance components, and model_plate_position=False takes them "
+            "out of the model entirely: there is nothing left for the mixed "
+            "fit to make random. Set model_plate_position=True to fit plate "
+            "position as variance components, or "
+            "random_row_column_effects=False to leave it out.")
 
     reg_type = settings.get('regression_type', 'ols')
     if reg_type not in _RANDOM_EFFECTS_COMPATIBLE:
@@ -3014,7 +3111,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True,
                legacy_volcano=False, level='grna', level_dst=None,
                draw_shared_panels=True, group_lasso_lambda=0.05,
-               rra_alpha=0.25, rra_permutations=10000):
+               rra_alpha=0.25, rra_permutations=10000,
+               model_plate_position=True):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -3027,6 +3125,12 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     :param alpha: Regularisation strength for penalised models.
     :param random_row_column_effects: If True, fit a mixed model with
         random row/column effects.
+    :param model_plate_position: Whether ``rowID`` and ``columnID`` are terms
+        in the model at all. Default ``True``, which is what every run before
+        instruction 143 did and what the measurement in
+        :func:`prepare_formula` says to keep. ``False`` with
+        ``random_row_column_effects=True`` is refused: there is nothing left
+        to make random.
     :param nc: Negative-control gene identifier. Default ``'233460'``.
     :param pc: Positive-control gene identifier. Default ``'220950'``.
     :param controls: Explicit list of control identifiers.
@@ -3137,7 +3241,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         formula = prepare_formula(
             dependent_variable,
             random_row_column_effects=random_row_column_effects,
-            block_screen=block_screen, level='gene')
+            block_screen=block_screen, level='gene',
+            model_plate_position=model_plate_position)
         mixed_model, coef_df = fit_mixed_model(
             df, formula, level_dst,
             random_row_column_effects=random_row_column_effects)
@@ -3145,7 +3250,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     else:
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
-                                  block_screen=block_screen, level=level)
+                                  block_screen=block_screen, level=level,
+                                  model_plate_position=model_plate_position)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
         # Rows patsy actually kept. Every per-row vector handed to the model
         # below - weights, groups, exposure - is taken through this index, so
@@ -4801,7 +4907,13 @@ def _call_level_hits(coef_df, level, settings, regression_type,
         sel_threshold = settings.get('lasso_selection_threshold', 0.6)
         formula = prepare_formula(
             dependent_variable, random_row_column_effects=False,
-            block_screen=screen_is_blockable(merged_df), level=level)
+            block_screen=screen_is_blockable(merged_df), level=level,
+            # The bootstrap must resample the design the fit used, so the
+            # selection frequencies are frequencies for THAT model. Reading
+            # the setting rather than passing True was worth a comment: with
+            # plate position out of the fit and in the bootstrap, a guide
+            # would be selected against a different set of competitors.
+            model_plate_position=settings.get('model_plate_position', True))
         # Apply the same preprocessing the OLS path uses, so derived columns
         # referenced by the formula (e.g. gene_fraction) exist in the bootstrap.
         cleaned_df = check_and_clean_data(merged_df.copy(), dependent_variable)
@@ -5856,6 +5968,12 @@ def perform_regression(settings):
         level=settings.get('level', 'both'),
         alpha=settings['alpha'],
         random_row_column_effects=settings['random_row_column_effects'],
+        # IS PLATE POSITION IN THE MODEL AT ALL (instruction 143 A).
+        # `.get`, not indexed, for the same reason as the three below: no
+        # settings CSV written before 2026-08-18 carries this key, and the
+        # value an absent one meant is True -- every run before today fitted
+        # rowID and columnID unconditionally.
+        model_plate_position=settings.get('model_plate_position', True),
         nc=settings['negative_control'], pc=settings['positive_control'],
         controls=settings['controls'], dst=res_folder,
         cov_type=settings['cov_type'],

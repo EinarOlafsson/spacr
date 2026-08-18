@@ -2002,6 +2002,41 @@ def get_perform_regression_default_settings(settings):
     # get_setting_dependencies, which greys the control out under 'mixed' and
     # says why, rather than hiding it or leaving it present and inert.
     settings.setdefault('level', 'both')
+    # IS PLATE POSITION IN THE MODEL AT ALL (instruction 143 A: "is rowID +
+    # columnID always run? this should be an opt in"). It was: prepare_formula
+    # ended with an unconditional "+ rowID + columnID", and
+    # random_row_column_effects only chose FIXED or RANDOM for terms that were
+    # already in. There are three states now -- out, fixed, random -- and this
+    # key picks the first one. Out plus random is a contradiction and is
+    # refused by ml._reconcile_random_row_column_effects, not resolved.
+    #
+    # DEFAULT ON, AGAINST THE INSTRUCTION'S SUGGESTION OF OFF, because the
+    # instruction asked for the default to be MEASURED and the measurement
+    # says on. Fitting the maintainer's TSG101 screen (1945 rows, 610 wells)
+    # twice per level: the 35 position terms are jointly significant at
+    # F = 5.781, p = 6.71e-23 (guide) and F = 6.277, p = 2.33e-26 (gene);
+    # eight of the nine real screens on that machine reject the same null at
+    # p < 0.05. Dropping them costs 8.4 points of R2 (0.5477 -> 0.4634),
+    # inflates the residual sd 7.2% and so makes standard errors 5.5% LARGER,
+    # moves the median guide coefficient 0.271 of its standard error, and
+    # swaps named genes in and out of the exported hit list (277230 out at
+    # q 0.0394 -> 0.4071, 258462 in at q 0.1134 -> 0.0146). On synthetic data
+    # with the truth planted it loses 17% of the true hits at BH.
+    #
+    # Default ON is wrong only on a plate with no position effect at all, and
+    # there it costs 35 parameters, 3% of the residual degrees of freedom,
+    # 1.6% on the standard errors and 0.02 hits out of 20. The two mistakes
+    # are more than an order of magnitude apart, so the default is the cheap
+    # one to be wrong about. See ml.prepare_formula for the whole measurement.
+    #
+    # AND IT IS THE MIGRATION. Unlike `toxo` -> `Toxoplasma` or the retired
+    # `score_column` there is no old key to pop and no old value to carry
+    # across: no settings CSV written before 2026-08-18 has this key at all,
+    # and what every one of those files MEANT is plate position in the model.
+    # A setdefault of True is therefore what makes an old file still mean what
+    # it meant -- and the same setdefault is what keeps an old CSV carrying
+    # random_row_column_effects=True from landing in the refused fourth state.
+    settings.setdefault('model_plate_position', True)
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('cov_type',None)
     # A PENALTY OF 1 IS NOT A DEFAULT, IT IS A FAILURE, for these families.
@@ -2649,6 +2684,10 @@ expected_types = {
     # NoneType) because 'auto'/None select it by cross-validation.
     "regression_type": (str, type(None)),
     "alpha": (int, float, str, type(None)),
+    # Instruction 143 A: whether rowID and columnID are terms at all, which
+    # random_row_column_effects never decided -- it only chose fixed vs
+    # random for terms that were always in.
+    "model_plate_position": bool,
     "random_row_column_effects": bool,
     "l1_ratio": float,
     "quantile": float,
@@ -3411,6 +3450,7 @@ tooltips = {
     "group_lasso_lambda": "(float) - Penalty weight of the group lasso, which shrinks all of one gene's guides together rather than one at a time, so a gene enters or leaves the model as a unit instead of on its luckiest guide. Larger values keep fewer genes; 0 leaves the fit unpenalised and negative is refused. Default 0.05.",
     "lasso_selection_threshold": "(float) - Minimum bootstrap selection frequency, between 0 and 1, for a lasso or elastic-net coefficient to be called a hit. 0.6 means the gRNA kept a non-zero coefficient in at least three fifths of the resamples. Raise it for a shorter, harder-to-argue-with list; lowering it below about 0.5 admits terms the penalty drops as often as it keeps. Default 0.6.",
     "regression_qc": "(bool) - Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
+    "model_plate_position": "(bool) - Whether plate row and column (rowID, columnID) are terms in the model at all. random_row_column_effects then chooses fixed or random for them; turning this off while that is on is refused, because there is nothing left to make random. Measured on a real 610-well screen: the 35 position terms are jointly significant at p=6.7e-23, and dropping them inflates the residual sd 7.2%, moves the median guide coefficient 0.27 of a standard error and swaps genes in and out of the hit list. On a plate with no position effect, keeping them costs 1.6% on the standard errors. Default True.",
     "random_row_column_effects": "(bool) - Fit plate, row and column as random effects instead of fixed ones: True overrides regression_type to 'mixed' and fits a MixedLM grouped by plateID with rowID and columnID variance components, dropping them from the fixed-effect formula. Use it when edge or row artefacts differ between plates; it is slower and may fail to converge. Default False.",
     "resample": "(bool) - Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",
     "rescale": "(bool) - Let Cellpose rescale each image by 30/diameter before segmenting, so objects arrive at the size the model expects. Turn off only when the diameter is already correct for the model. Default False.",
@@ -4133,9 +4173,14 @@ categories = {
     ],
     # inference and regression_type lead: they decide whether anything in
     # "Model Tuning" or "Permutation Test" does anything at all.
+    # `model_plate_position` sits immediately before
+    # `random_row_column_effects` because the two are one decision read in
+    # order: the first says whether plate row and column are in the model at
+    # all, the second says fixed or random for a term that is. Reversed, the
+    # panel offers the refinement before the question.
     "Regression: Model": [
         "inference", "analysis_mode", "regression_type",
-        "random_row_column_effects", "cov_type",
+        "model_plate_position", "random_row_column_effects", "cov_type",
     ],
     # Per-family knobs. spacr.ml.REGRESSION_SETTINGS_USED says which family
     # reads which, and a family REFUSES the ones it cannot read rather than
