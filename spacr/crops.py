@@ -2640,6 +2640,234 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
 # Crop sources
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Re-anchoring a recorded path after the folder has moved
+# ---------------------------------------------------------------------------
+
+#: The folders under an experiment root that a recorded path can be anchored
+#: on. The structure a spaCR run writes is ``<root>/data/`` (the exported
+#: crop PNGs), ``<root>/merged/`` (the arrays a crop is cut from) and
+#: ``<root>/measurements/measurements.db``, so BOTH anchors live under one
+#: root and one function can re-anchor every path-bearing column against
+#: whichever anchor its own path happens to contain.
+PATH_ANCHORS: Tuple[str, ...] = ("data", "merged")
+
+#: The columns a measurement frame records a path in. ``png_path`` is the
+#: exported crop, ``path_name`` / ``merged_path`` the array it was cut from --
+#: re-anchoring only the first is why a moved folder used to show its PNGs and
+#: fail on its merged arrays.
+PATH_COLUMNS: Tuple[str, ...] = ("png_path", "path_name", "merged_path")
+
+#: :func:`reanchor_path` outcomes.
+ALREADY_ANCHORED = "already"     #: the path is already under the root.
+REANCHORED = "reanchored"        #: the path was rewritten under the root.
+NO_ANCHOR = "no-anchor"          #: no anchor folder in it; left untouched.
+
+
+def normalise_separators(path: Any) -> str:
+    """Return ``path`` with every ``\\`` turned into ``/``.
+
+    A database written on Windows records ``C:\\lab\\exp1\\data\\plate1\\a.png``
+    and is then opened on Linux, where ``str.split('/data/')`` cannot match
+    and :func:`os.path.basename` returns the WHOLE string because posix knows
+    nothing of backslashes. Every path comparison in this module therefore
+    starts here, so the re-anchor works on a share mounted both ways.
+
+    :param path: anything path-like. ``None`` becomes ``''``.
+    :returns: the path in forward-slash spelling. A UNC ``\\\\server\\share``
+        becomes ``//server/share``, which is the same location.
+    """
+    if path is None:
+        return ""
+    return os.fspath(path).replace("\\", "/") if not isinstance(path, str) \
+        else path.replace("\\", "/")
+
+
+def basename_any(path: Any) -> str:
+    """The file name after the last separator of EITHER kind.
+
+    :param path: a recorded path, written on any OS.
+    :returns: the last component. ``os.path.basename`` cannot be used for
+        this: on Linux it hands back the whole of
+        ``C:\\lab\\exp1\\merged\\x.npy``, which then fails as a missing file
+        with no hint that the separator was the problem.
+    """
+    return normalise_separators(path).rstrip("/").rpartition("/")[2]
+
+
+def path_components(path: Any) -> Tuple[str, ...]:
+    """Split ``path`` into components, separator-agnostically and resolved.
+
+    ``.`` is dropped and ``..`` pops the component before it, so two spellings
+    of one location compare equal. The leading ``''`` of an absolute posix
+    path is kept, which is what stops ``old/data/x`` matching ``/old/data/x``.
+
+    :param path: a recorded path.
+    :returns: the components, root first.
+    """
+    text = normalise_separators(path)
+    if not text:
+        return ()
+    parts = text.split("/")
+    out: List[str] = []
+    for index, part in enumerate(parts):
+        if part == "" and index > 0:
+            continue                      # a doubled or trailing separator
+        if part == ".":
+            continue
+        if part == ".." and out and out[-1] not in ("", ".."):
+            out.pop()
+            continue
+        out.append(part)
+    return tuple(out)
+
+
+def path_is_under(path: Any, root: Any) -> bool:
+    """True when ``path`` already sits under ``root``.
+
+    A COMPONENT-WISE PREFIX TEST, not a substring one. ``base_path not in
+    path`` -- what :func:`spacr.utils.correct_paths` used to ask -- answers
+    yes for ``/mnt/newdisk`` against ``/old/mnt/newdisk-backup/x.png`` and no
+    for a path that differs only in spelling, and neither answer is what the
+    question means.
+
+    :param path: the recorded path.
+    :param root: the destination root.
+    :returns: whether ``path`` is ``root`` or lies inside it.
+    """
+    here = path_components(path)
+    there = path_components(root)
+    if not there or not here:
+        return False
+    return len(there) <= len(here) and here[:len(there)] == there
+
+
+def reanchor_path(path: Any, root: Any,
+                  anchors: Sequence[str] = PATH_ANCHORS) -> Tuple[str, str]:
+    """Re-anchor one recorded path under ``root``, and say what happened.
+
+    THE ANCHOR IS FOUND FROM THE RIGHT, and that is the whole correctness of
+    this function. Splitting on the FIRST ``/data/`` turned
+    ``/old/data/exp1/data/plate1/a.png`` into ``<root>/data/exp1`` -- a path
+    that has silently lost ``plate1/a.png`` and now names a directory. An
+    experiment whose old root itself contained a ``data`` folder is not
+    exotic, and the corruption did not raise: it produced a plausible path
+    that failed much later as a missing file. The anchor nearest the FILE is
+    the one that separates the root from the part that must be preserved.
+
+    :param path: the recorded path, in any OS's spelling.
+    :param root: the experiment root on this machine.
+    :param anchors: the folder names that may anchor the rewrite, e.g.
+        ``('data', 'merged')``. The rightmost occurrence of ANY of them wins.
+    :returns: ``(path, outcome)`` where outcome is
+        :data:`ALREADY_ANCHORED`, :data:`REANCHORED` or :data:`NO_ANCHOR`.
+        The path comes back unchanged for the first and the last, so a caller
+        that ignores the outcome behaves exactly as before -- but a caller
+        that reads it can COUNT what it could not place instead of letting it
+        fail later somewhere with less context.
+    """
+    text = path if isinstance(path, str) else normalise_separators(path)
+    if not text or not root:
+        return text, NO_ANCHOR
+    if path_is_under(text, root):
+        return text, ALREADY_ANCHORED
+    parts = path_components(text)
+    wanted = {str(a).strip("/\\") for a in anchors if str(a).strip("/\\")}
+    # From the RIGHT, and never the final component: an anchor with nothing
+    # after it names a folder, and there would be no file left to re-anchor.
+    for index in range(len(parts) - 2, -1, -1):
+        if parts[index] in wanted:
+            remainder = parts[index + 1:]
+            return os.path.join(str(root), parts[index], *remainder), REANCHORED
+    return text, NO_ANCHOR
+
+
+@dataclass(frozen=True)
+class ReanchorReport:
+    """What one re-anchoring pass did, INCLUDING what it could not do.
+
+    The last field is the reason this is a record and not a bare frame. A
+    path with no recognisable anchor used to be returned unchanged and failed
+    later as a missing file somewhere with less context, which is exactly how
+    the nested-``data/`` corruption stayed invisible for as long as it did.
+
+    :param root: the root everything was re-anchored under.
+    :param n_paths: how many non-null paths were looked at.
+    :param n_reanchored: how many were rewritten.
+    :param n_already: how many were already under ``root``.
+    :param failures: the paths that carried no anchor folder, in order.
+    """
+
+    root: str
+    n_paths: int = 0
+    n_reanchored: int = 0
+    n_already: int = 0
+    failures: Tuple[str, ...] = ()
+
+    @property
+    def n_failed(self) -> int:
+        """How many paths could not be re-anchored."""
+        return len(self.failures)
+
+    def describe(self) -> str:
+        """The sentence to log or put in a caption, or ``''`` when all placed.
+
+        Names ONE of the failures, the way the measurement merge names its
+        dropped columns: a count alone says something is wrong and a named
+        example says what.
+        """
+        if not self.failures:
+            return ""
+        return (f"{self.n_failed:,} of {self.n_paths:,} recorded paths could "
+                f"not be re-anchored under {self.root} -- they contain none "
+                f"of {list(PATH_ANCHORS)}; the first is {self.failures[0]}")
+
+
+def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
+                   anchors: Sequence[str] = PATH_ANCHORS):
+    """Re-anchor every path-bearing column of ``df`` under one experiment root.
+
+    GENERALISED FROM THE COLUMN TO THE ROOT. :func:`spacr.utils.correct_paths`
+    re-anchors ``png_path`` and nothing else, so a folder moved between
+    machines showed its exported crops and failed on ``path_name`` /
+    ``merged_path`` -- the columns the on-demand crop source reads. One root
+    has both ``data/`` and ``merged/`` under it, so one pass can place every
+    column against whichever anchor its own path contains.
+
+    :param df: a measurement frame. Not copied -- the named columns are
+        written in place, which is what the callers already expect.
+    :param root: the experiment root on this machine.
+    :param columns: the columns to re-anchor. Absent ones are skipped.
+    :param anchors: the anchor folder names.
+    :returns: ``(df, report)`` with a :class:`ReanchorReport`.
+    """
+    seen = 0
+    moved = 0
+    already = 0
+    failures: List[str] = []
+    for column in columns:
+        if column not in getattr(df, "columns", ()):
+            continue
+        values = df[column].tolist()
+        out = []
+        for value in values:
+            if not isinstance(value, str) or not value:
+                out.append(value)
+                continue
+            seen += 1
+            new, outcome = reanchor_path(value, root, anchors=anchors)
+            if outcome == REANCHORED:
+                moved += 1
+            elif outcome == ALREADY_ANCHORED:
+                already += 1
+            else:
+                failures.append(value)
+            out.append(new)
+        df[column] = out
+    return df, ReanchorReport(root=str(root), n_paths=seen, n_reanchored=moved,
+                              n_already=already, failures=tuple(failures))
+
+
 def _row_get(row: Any, *names: str, default: Any = None) -> Any:
     """Read the first present key/attribute of ``row`` out of ``names``."""
     for name in names:
@@ -2748,20 +2976,23 @@ class PngCropSource(CropSource):
 
         :param row: a row carrying ``png_path`` (or ``path``), or a bare path
             string, which is accepted as-is and only re-anchored. A row with
-            neither raises :class:`CropError`. Re-anchoring is attempted only
-            when ``root`` is set and is not already a substring of the path,
-            and only when the path contains a literal ``/<folder>/`` segment;
-            a path that does not is returned untouched even if it points
-            nowhere on this machine, and the failure surfaces on read.
+            neither raises :class:`CropError`. Re-anchoring goes through
+            :func:`reanchor_path`, so it is separator-agnostic (a Windows
+            path opened on Linux re-anchors), it takes the LAST ``<folder>``
+            component rather than the first (an old root that itself
+            contained a ``data`` folder used to produce a path naming a
+            directory), and "already under the root" is a component-wise
+            prefix test rather than a substring one. A path carrying no
+            anchor at all is returned untouched even if it points nowhere on
+            this machine, and the failure surfaces on read.
         """
         path = row if isinstance(row, str) else _row_get(row, "png_path", "path")
         if not path:
             raise CropError("row has no 'png_path'")
         path = str(path)
-        if self.root and self.root not in path:
-            parts = path.split(f"/{self.folder}/")
-            if len(parts) > 1:
-                path = os.path.join(self.root, self.folder, parts[1])
+        if self.root:
+            path, _outcome = reanchor_path(path, self.root,
+                                           anchors=(self.folder,))
         return path
 
     def get(self, row: Any) -> np.ndarray:
@@ -2835,7 +3066,18 @@ class MergedCropSource(CropSource):
         if path:
             path = str(path)
             if self.merged_root and not os.path.isfile(path):
-                candidate = os.path.join(self.merged_root, os.path.basename(path))
+                # The anchor first -- it preserves any sub-folder under
+                # merged/ -- then the flat basename, which is the older
+                # fallback and is kept because a hand-built project may have
+                # no `merged` component in the recorded path at all.
+                # `basename_any` and not `os.path.basename`: on Linux the
+                # latter hands back the whole of C:\lab\exp1\merged\x.npy.
+                anchored, outcome = reanchor_path(
+                    path, os.path.dirname(os.path.abspath(self.merged_root)),
+                    anchors=("merged",))
+                if outcome == REANCHORED and os.path.isfile(anchored):
+                    return anchored
+                candidate = os.path.join(self.merged_root, basename_any(path))
                 if os.path.isfile(candidate):
                     return candidate
             return path

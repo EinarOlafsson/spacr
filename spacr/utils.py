@@ -8213,11 +8213,38 @@ def correct_paths(df, base_path, folder='data'):
     such a row, and it has to keep its position so the rewritten column still
     aligns with ``df``.
 
+    THE REWRITE ITSELF IS :func:`spacr.crops.reanchor_path`, and moving it
+    there fixed three ways this function used to get a moved folder wrong --
+    all four cases were measured through the real function on 2026-08-18:
+
+    ======  =========================================  =======================
+    was     case                                       now
+    ======  =========================================  =======================
+    OK      same-OS move                               OK
+    FAIL    ``C:\\lab\\exp1\\data\\p1\\a.png`` read on Linux    re-anchored
+    WRONG   ``/old/data/exp1/data/p1/a.png``           re-anchored TO THE FILE
+    FAIL    no ``data/`` component                     counted and named
+    ======  =========================================  =======================
+
+    The third was the dangerous one: ``split`` took the FIRST ``/data/``, so
+    the result was ``<base>/data/exp1`` -- a path that had silently lost
+    ``p1/a.png`` and named a directory. It did not raise; it failed much later
+    as a missing file. The anchor is now found from the RIGHT, the separator
+    is normalised before matching, and "already under ``base_path``" is a
+    component-wise prefix comparison rather than a substring test.
+
+    AND IT SAYS WHAT IT COULD NOT PLACE. Paths carrying no ``folder``
+    component are still returned untouched -- some of them are legitimately
+    elsewhere -- but they are now counted and one is named on stdout, because
+    a silent pass-through is how the third row above stayed invisible.
+
     :param df: DataFrame with a ``png_path`` column, or a list of paths.
     :param base_path: destination root to prepend.
     :param folder: intermediate folder name that anchors the rewrite.
     :returns: DataFrame + list, or list, mirroring the input type.
     """
+    from .crops import NO_ANCHOR, REANCHORED, reanchor_path
+
     if isinstance(df, pd.DataFrame):
 
         if 'png_path' not in df.columns:
@@ -8230,18 +8257,22 @@ def correct_paths(df, base_path, folder='data'):
         image_paths = df
 
     adjusted_image_paths = []
+    unanchored = []
+    n_paths = 0
     for path in image_paths:
-        if not isinstance(path, str):
+        if not isinstance(path, str) or not path:
             adjusted_image_paths.append(path)
-        elif base_path not in path:
-            parts = path.split(f'/{folder}/')
-            if len(parts) > 1:
-                new_path = os.path.join(base_path, f'{folder}', parts[1])
-                adjusted_image_paths.append(new_path)
-            else:
-                adjusted_image_paths.append(path)
-        else:
-            adjusted_image_paths.append(path)
+            continue
+        n_paths += 1
+        new_path, outcome = reanchor_path(path, base_path, anchors=(folder,))
+        if outcome == NO_ANCHOR:
+            unanchored.append(path)
+        adjusted_image_paths.append(new_path)
+
+    if unanchored:
+        print(f"{len(unanchored):,} of {n_paths:,} recorded paths could not be "
+              f"re-anchored under {base_path}: they contain no '{folder}' "
+              f"component. The first is {unanchored[0]}")
 
     if isinstance(df, pd.DataFrame):
         df['png_path'] = adjusted_image_paths
