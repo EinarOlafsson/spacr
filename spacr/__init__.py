@@ -204,6 +204,10 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # Where each gene's protein lives, for colouring ONE compartment against
     # grey. Pure pandas: the join belongs to the screen, not to the picture.
     "localisation",
+    # A column that is not there offers the columns that are. Reads only the
+    # header row, so it can populate a GUI dropdown on the GUI thread from a
+    # score CSV that is hundreds of megabytes.
+    "columns",
     # Everything spaCR knows about a Toxoplasma gene, joined onto an export
     # by gene NUMBER. Next to `localisation` because it is the same join
     # widened from one compartment to the whole annotation, and separate
