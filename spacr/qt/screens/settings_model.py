@@ -3230,6 +3230,22 @@ MIXED_FORMULA = "y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID"
 COLLINEAR_FORMULA = (
     "y ~ fraction:grna + gene_fraction:gene + rowID + columnID")
 
+#: THE LAST LINE OF EVERY BOX, and the whole of what is left of the history.
+#:
+#: "WHY THE FORMULA CHANGED" was 880 of the 2,438 characters `ols`/`both`
+#: rendered -- the longest block in the box, describing a design no shipped
+#: version fits. Instruction 143 moved it into
+#: :func:`regression_model_explainer`'s docstring, which is published as API
+#: documentation, and left this pointer behind: a measurement nobody can find
+#: is a measurement deleted, and it is the evidence for why this module fits
+#: one level at a time.
+#:
+#: 61 characters, which is inside the box's own floor (:func:`explainer_width`
+#: returns 63, the indented mixed formula), so it cannot be the line that
+#: wraps.
+_HISTORY_POINTER = ("WHY THE FORMULA CHANGED -> "
+                    "regression_model_explainer.__doc__")
+
 #: The column the prose is wrapped to.
 #:
 #: Set against the width the settings pane ACTUALLY grants the box, measured
@@ -3268,45 +3284,48 @@ _MODE_TITLES = {
     "rra": "MAGeCK alpha rank aggregation",
 }
 
-#: WHAT THE MODE DOES -- one paragraph each, taken from what
+#: WHAT THE MODE DOES -- ONE OR TWO SENTENCES each, taken from what
 #: :func:`spacr.ml.regression_model` actually fits rather than from the general
 #: reputation of the method. Where a backend reads a setting from this panel it
 #: is named, so the box and the Estimator Tuning section below it agree.
+#:
+#: TRIMMED TO TWO SENTENCES on 2026-08-18 (instruction 143). These paragraphs
+#: are re-read every time the panel opens, so length here is paid on every
+#: visit: `rra` alone was 829 characters, which put its box at 3,035. What was
+#: cut is the second reading of a point already made; every setting name and
+#: every figure that stayed kept its digits.
 _MODE_NOTES = {
     "auto": (
         "spaCR reads the response and picks the model itself "
-        "(check_distribution): 0/1 data gets logit; a fraction strictly "
-        "inside (0, 1) gets beta, or quasi_binomial when values sit within "
-        "1e-6 of a boundary; a fraction including exact 0 or 1 gets "
-        "quasi_binomial; otherwise it tests for normality and takes ols when "
-        "that passes. The run prints the model it chose -- read the console "
-        "before naming a model in a methods section."
+        "(check_distribution): 0/1 data gets logit, a fraction strictly "
+        "inside (0, 1) gets beta -- or quasi_binomial when values sit within "
+        "1e-6 of a boundary -- a fraction including exact 0 or 1 gets "
+        "quasi_binomial, and anything that passes a normality test gets ols. "
+        "The run prints the model it chose, so read the console before "
+        "naming a model in a methods section."
     ),
     "ols": (
         "Least squares: minimises the summed squared residual and assumes "
         "the well residuals are roughly normal around one common variance. "
-        "It is the plain reading of a continuous well score, and the "
-        "baseline the others are worth comparing against."
+        "It is the baseline the others are worth comparing against."
     ),
     "wls": (
         "Least squares weighted by the well's cell count, so a well of 400 "
         "cells outweighs one of 30. Worth choosing when wells differ widely "
-        "in how many cells their score was averaged over -- which is the "
-        "usual case, and which ols ignores."
+        "in how many cells their score was averaged over, which ols ignores."
     ),
     "rlm": (
         "Robust M-estimation with a Huber loss, tuned by huber_t (default "
         "1.345, which is 95% efficient under normality). Wells far from the "
-        "fit are down-weighted instead of being allowed to drag it, so a "
-        "handful of runaway wells no longer set the slope. It reports no "
-        "R-squared."
+        "fit are down-weighted instead of dragging it, and no R-squared is "
+        "reported."
     ),
     "hinge": (
         "A linear support-vector fit (hinge loss) on the response BINARISED "
         "at hinge_threshold, so it asks which guides SEPARATE high wells "
         "from low wells rather than how far they move the score. It has no "
         "likelihood: the p-values are bootstrap Wald values over "
-        "hinge_n_boot resamples, and they are not a likelihood-ratio test."
+        "hinge_n_boot resamples, not a likelihood-ratio test."
     ),
     "glm": (
         "A generalised linear model whose FAMILY AND LINK are picked from "
@@ -3324,51 +3343,49 @@ _MODE_NOTES = {
     "quasi_binomial": (
         "Binomial GLM whose dispersion is estimated from the Pearson "
         "chi-square instead of being fixed at 1, for a fraction that varies "
-        "more than binomial sampling allows. The cell count enters as "
+        "more than binomial sampling allows; the cell count enters as "
         "var_weights. Choose it over logit when the residual deviance says "
         "the response is overdispersed."
     ),
     "beta": (
         "Beta regression, for a response that is a fraction strictly inside "
-        "(0, 1). It models the mean of a bounded variable as bounded, rather "
-        "than fitting a proportion as if it could exceed 1 -- which is what "
+        "(0, 1): it models the mean of a bounded variable as bounded, rather "
+        "than fitting a proportion as if it could exceed 1, which is what "
         "ols on a fraction does. Exact 0 or 1 values must be handled before "
         "it can fit."
     ),
     "quantile": (
         "Quantile regression fits a CONDITIONAL QUANTILE of the response -- "
-        "the `quantile` setting, where 0.5 is the median -- NOT the mean. A "
-        "perturbation that moves the tail of the well distribution without "
-        "shifting its centre appears here and does not appear in any mean "
-        "model. It is the one backend whose answer changes meaning with a "
-        "setting, so name the quantile alongside the result."
+        "the `quantile` setting, where 0.5 is the median -- NOT the mean, so "
+        "a perturbation that moves the tail without shifting the centre "
+        "appears here and in no mean model. It is the one backend whose "
+        "answer changes meaning with a setting, so name the quantile "
+        "alongside the result."
     ),
     "lasso": (
         "Penalised least squares with an L1 penalty, which sets coefficients "
-        "to exactly zero. IT REPORTS NO P-VALUE: features are ranked by "
+        "to exactly zero; alpha='auto' picks the penalty by 5-fold "
+        "cross-validation. IT REPORTS NO P-VALUE: features are ranked by "
         "SELECTION FREQUENCY -- the share of lasso_n_boot bootstrap "
-        "resamples in which the feature survived the penalty -- and "
-        "lasso_selection_threshold is where the hit list is cut. "
-        "alpha='auto' picks the penalty by 5-fold cross-validation. There is "
-        "no FDR to correct here, because there are no p-values to correct."
+        "resamples in which the feature survived the penalty -- and cut at "
+        "lasso_selection_threshold."
     ),
     "elasticnet": (
         "Penalised least squares mixing L1 and L2 by l1_ratio (1.0 is lasso, "
-        "0.0 is ridge). Like lasso it sets coefficients to exactly zero and "
-        "REPORTS NO P-VALUE: features are ranked by bootstrap selection "
+        "0.0 is ridge), with alpha='auto' picking the penalty by 5-fold "
+        "cross-validation. Like lasso it sets coefficients to exactly zero "
+        "and REPORTS NO P-VALUE: features are ranked by bootstrap selection "
         "frequency over lasso_n_boot resamples, cut at "
-        "lasso_selection_threshold. alpha='auto' picks the penalty by 5-fold "
-        "cross-validation."
+        "lasso_selection_threshold."
     ),
     "ridge": (
-        "Penalised least squares with an L2 penalty. Unlike lasso and "
-        "elasticnet it never sets a coefficient to exactly zero, so it has "
-        "no selection frequency to report -- every feature would score 1.0 "
-        "-- and it falls back to an approximate p-value instead. That test "
-        "is mis-specified: the standard error is unpenalised while the "
-        "coefficient it divides has been shrunk. The error runs one way, and "
-        "it is the safe one -- the statistic is too small and the p-value "
-        "too large, so ridge under-detects rather than manufacturing hits."
+        "Penalised least squares with an L2 penalty, which never sets a "
+        "coefficient to exactly zero -- so there is no selection frequency "
+        "to report, every feature would score 1.0, and it falls back to an "
+        "approximate p-value. That test is mis-specified, in the safe "
+        "direction: the standard error is unpenalised while the coefficient "
+        "it divides has been shrunk, so the statistic is too small and ridge "
+        "under-detects rather than manufacturing hits."
     ),
     "horseshoe": (
         "A sparse Poisson GLM with a horseshoe prior -- spaCRPower's "
@@ -3379,9 +3396,8 @@ _MODE_NOTES = {
     ),
     "mixed": (
         "The gene effect is a FIXED effect; each guide is a RANDOM effect "
-        "nested inside its gene. This is the only model here that says what "
-        "a guide actually is -- a biological replicate of one intended "
-        "perturbation, carrying its own efficiency and off-target profile -- "
+        "nested inside its gene -- a biological replicate of one intended "
+        "perturbation, carrying its own efficiency and off-target profile, "
         "rather than a second independent variable. Guides that disagree "
         "about a gene widen that gene's interval instead of silently "
         "averaging out, and a gene resting on one noisy guide is shrunk "
@@ -3390,33 +3406,21 @@ _MODE_NOTES = {
     "group_lasso": (
         "Penalised least squares in which A GENE'S GUIDES ARE ONE BLOCK: the "
         "L2 norm inside the penalty is not squared, so a block goes to "
-        "exactly zero or none of it does. Plain lasso penalises each guide "
-        "on its own and keeps whichever of a gene's four correlated guides "
-        "happens to fit best, which reads as 'one guide works and three do "
-        "not' when the truth is 'the gene matters and four guides measured "
-        "it'. The gene is a GROUPING of the guide columns, read off their "
-        "names, never a column of its own. IT REPORTS NO P-VALUE, for the "
-        "reason lasso does not: features are ranked by bootstrap selection "
-        "frequency over lasso_n_boot resamples and cut at "
-        "lasso_selection_threshold. Its penalty is group_lasso_lambda and "
-        "NOT alpha -- it is measured against group_lasso.max_lambda, which "
-        "is a property of THIS design, so a number carried over from a lasso "
-        "run means something else here."
+        "exactly zero or none of it does, where plain lasso keeps whichever "
+        "of a gene's four correlated guides happens to fit best. Its penalty "
+        "is group_lasso_lambda, measured against group_lasso.max_lambda -- a "
+        "property of THIS design, not alpha -- and its hit list is cut at "
+        "lasso_selection_threshold over lasso_n_boot bootstrap resamples."
     ),
     "rra": (
-        "MAGeCK's alpha-RRA, and the only entry here that ranks rather than "
-        "fits. Guides are ranked against every other guide in the screen; a "
-        "gene with k guides occupies normalised ranks r_1 <= ... <= r_k, and "
-        "its statistic is the smallest Beta(i, k-i+1) probability over the "
-        "top rra_alpha fraction of them -- restricting to that top fraction "
-        "is what keeps a gene findable when one guide cuts and three do not, "
-        "which in a real library is most of them. THE P VALUE IS PERMUTED, "
-        "not read off a table: rho is a minimum over dependent order "
-        "statistics and has no closed form, so a null of rra_permutations "
-        "draws is built per distinct guide count, with guides reassigned to "
-        "genes of the same size. Depletion and enrichment are reported "
-        "apart, because a gene whose guides split half up and half down is a "
-        "bad guide set rather than a phenotype."
+        "MAGeCK's alpha-RRA, the only entry here that ranks rather than "
+        "fits: guides are ranked against every other guide in the screen, "
+        "and a gene with k guides scores the smallest Beta(i, k-i+1) "
+        "probability over the top rra_alpha fraction of its ranks, which is "
+        "what keeps a gene findable when one guide cuts and three do not. "
+        "THE P VALUE IS PERMUTED -- rho has no closed form, so a null of "
+        "rra_permutations draws is built per distinct guide count -- and "
+        "depletion and enrichment are reported apart."
     ),
 }
 _MODE_NOTES["huber"] = _MODE_NOTES["rlm"]
@@ -3429,28 +3433,8 @@ _MODE_NOTES["logit"] = (
 _MODE_NOTES["probit"] = (
     "Binomial GLM with a probit link on a fraction, weighted by the well's "
     "cell count as var_weights. It differs from logit only in the link: the "
-    "fitted probabilities are near-identical, the coefficients are on a "
+    "fitted probabilities are near-identical, and the coefficients are on a "
     "different scale and are not log-odds."
-)
-
-#: WHY ANY OF THIS EXISTS. The numbers are measured on the maintainer's
-#: TSG101 screen (610 wells, 823 guides, 389 genes) -- the shipped
-#: `results.csv` from that run is where 3.389291 comes from, and the ranks are
-#: from the design patsy builds for that same frame.
-_WHY_LEAD = "Until this release spaCR fitted ONE design holding both blocks:"
-_WHY_BODY = (
-    "`gene_fraction` is the SUM of that gene's gRNA fractions, so every gene "
-    "column is an exact linear combination of that gene's own guide columns. "
-    "The two blocks are perfectly collinear BY CONSTRUCTION -- not by "
-    "accident of the data, and no number of wells fixes it. statsmodels does "
-    "not refuse: it takes a pseudo-inverse and returns one arbitrary solution "
-    "out of infinitely many. On the TSG101 screen that design was 1248 "
-    "parameters at rank 862 -- 386 short -- a single-guide gene came back "
-    "identical to its own guide (244480 and 244480_3, both 3.389291 at "
-    "p = 2.873149e-13), and the volcano drew each gene once per guide plus "
-    "once for itself. Fitting ONE LEVEL AT A TIME is full rank on the same "
-    "wells: 859 parameters at rank 859 for the guide fit, 425 at 425 for the "
-    "gene fit."
 )
 
 
@@ -3541,6 +3525,42 @@ def regression_model_explainer(regression_type: Any,
     States THE FORMULA that will be fitted and WHAT IS MODELLED, plus what the
     chosen mode does and how the results are corrected. Pure text: no Qt, no
     settings lookup, so it can be asserted directly.
+
+    SHORT ON PURPOSE. `ols`/`both` came to 2,438 characters over 29 lines and
+    instruction 143 cut it to under 900 -- the box keeps what a reader needs
+    on EVERY visit (the model and level, each formula with the file it
+    writes, one sentence on what a coefficient IS, and one or two on what the
+    backend does) and drops what is read once. The longest of those
+    read-once blocks was the history below. It is kept HERE, and the last
+    line of every box points at it by name, because it is the evidence for
+    why this module fits one level at a time.
+
+    WHY THE FORMULA CHANGED
+    -----------------------
+    Until instruction 132 split the fit in two, spaCR fitted ONE design
+    holding both blocks::
+
+        y ~ fraction:grna + gene_fraction:gene + rowID + columnID
+
+    `gene_fraction` is the SUM of that gene's gRNA fractions
+    (:func:`spacr.ml.check_and_clean_data`), so every gene column is an exact
+    linear combination of that gene's own guide columns. The two blocks are
+    perfectly collinear BY CONSTRUCTION -- not by accident of the data, and no
+    number of wells fixes it. statsmodels does not refuse: it takes a
+    pseudo-inverse and returns one arbitrary solution out of infinitely many.
+
+    MEASURED on the maintainer's TSG101 screen (610 wells, 823 guides, 389
+    genes, 1945 rows): that design was 1248 parameters at rank 862 -- 386
+    short -- a single-guide gene came back identical to its own guide (244480
+    and 244480_3, both 3.389291 at p = 2.873149e-13), and the volcano drew
+    each gene once per guide plus once for itself. Fitting ONE LEVEL AT A
+    TIME is full rank on the same wells: 859 parameters at rank 859 for the
+    guide fit, 425 at 425 for the gene fit.
+
+    :data:`COLLINEAR_FORMULA` is that retired design, kept by name so neither
+    this module nor its tests has to re-type it, and
+    :data:`spacr.ml.COLLINEAR_FORMULA_FRAGMENT` carries the same measurement
+    from the fitting side.
     """
     key = str(regression_type or "auto").strip().lower() or "auto"
     if key not in _MODE_NOTES:
@@ -3567,19 +3587,19 @@ def regression_model_explainer(regression_type: Any,
         lines.append(_wrap_block(_MODE_NOTES["mixed"]))
         lines.append("")
         # THE COST OF THE DEFAULT, in its own named section. This is the
-        # paragraph the box exists for.
+        # paragraph the box exists for, and the one section instruction 143
+        # left at full length: a user who takes the default and then goes
+        # looking for guide p-values reads it exactly once, but they cannot
+        # be told to go elsewhere for it.
         lines.append("WHAT YOU DO NOT GET")
         lines.append(_wrap_block(
             "Guide-level results come back as BLUPs -- shrunken PREDICTIONS "
             "of each guide's departure from its gene, NOT coefficients with "
-            "standard errors and p-values. A mixed fit reports p-values for "
-            "its FIXED effects only, and the guides are not fixed effects "
-            "here. So there is NO GUIDE-LEVEL HIT LIST from this model, and "
-            "nothing guide-level to BH-correct: the correction below applies "
-            "to the gene table alone. If a ranked, tested list of individual "
-            "guides is what you need, choose any other model with "
-            "level='grna', which fits one coefficient per guide and does "
-            "give p-values."))
+            "standard errors and p-values -- so there is NO GUIDE-LEVEL HIT "
+            "LIST from this model, and nothing guide-level to BH-correct. If "
+            "a ranked, tested list of individual guides is what you need, "
+            "choose any other model with level='grna', which fits one "
+            "coefficient per guide and does give p-values."))
         lines.append("")
         lines.append("MULTIPLE TESTING")
         lines.append(_wrap_block(
@@ -3596,32 +3616,31 @@ def regression_model_explainer(regression_type: Any,
         lines.append(f"LEVEL: {level_line}")
         lines.append("")
         lines.append(_wrap_block(
-            "Fixed effects only, so this model CANNOT nest guides inside "
-            "genes. It fits one level at a time, chosen by `level`.", ""))
+            "Fixed effects only -- no nesting of guides inside genes.",
+            ""))
         lines.append("")
 
+        # ONE SENTENCE UNDER EACH FORMULA, and no blank line between them:
+        # the sentence says what a coefficient IS, which is the one thing a
+        # reader needs it for, and it belongs to the formula above it.
         if chosen in ("both", "grna"):
             lines.append("FORMULA (guide fit)  ->  results_grna.csv")
             lines.append(f"    {GRNA_FORMULA}")
-            lines.append("")
             lines.append(_wrap_block(
-                "One coefficient per guide. The guide is the unit the screen "
-                "measures; genes are not in this model at all."))
+                "One coefficient per guide, the unit the screen "
+                "measures."))
             lines.append("")
         if chosen in ("both", "gene"):
             lines.append("FORMULA (gene fit)   ->  results_gene.csv")
             lines.append(f"    {GENE_FORMULA}")
-            lines.append("")
             lines.append(_wrap_block(
-                "One coefficient per gene, from the summed guide fraction. "
-                "Guides are not in this model."))
+                "One coefficient per gene, from the summed guide "
+                "fraction."))
             lines.append("")
         if chosen == "both":
             lines.append(_wrap_block(
-                "TWO MODELS, TWO TABLES -- fitted separately, and NOT one "
-                "design containing both. One design containing both is the "
-                "collinear formula described at the foot of this box, and the "
-                "bug this replaces.", ""))
+                "TWO MODELS, TWO TABLES -- fitted separately, NOT one "
+                "design containing both.", ""))
             lines.append("")
 
         lines.append(f"WHAT {key.upper()} DOES")
@@ -3635,31 +3654,24 @@ def regression_model_explainer(regression_type: Any,
             fits = "Each fit ranks" if chosen == "both" else "The fit ranks"
             lines.append(_wrap_block(
                 f"{fits} features by bootstrap selection frequency and "
-                f"reports no p-value, so there is NOTHING TO BH-CORRECT. The "
-                f"hit list is cut at lasso_selection_threshold, not at an "
-                f"FDR. A selection frequency is not a false-discovery rate "
-                f"and should not be quoted as one."))
+                f"reports no p-value, so there is NOTHING TO BH-CORRECT. A "
+                f"selection frequency is not a false-discovery rate and "
+                f"should not be quoted as one."))
         elif chosen == "both":
+            # ITS FIRST SENTENCE ONLY, per instruction 143. The four that
+            # followed said why pooling would be wrong and warned that a gene
+            # called by both fits is two tests of one hypothesis -- both true,
+            # both read once, and the second belongs beside the hit list where
+            # somebody is making the claim.
             lines.append(_wrap_block(
                 "Each fit is its OWN multiple-testing family and is "
-                "BH-corrected within itself. Pooling them would be wrong "
-                "twice: the two sets are not independent -- same wells, and "
-                "the gene regressor is literally the sum of the guide "
-                "regressors -- and doubling the family size costs power for "
-                "no protection. Note also that a gene called by the gene fit "
-                "AND its guides called by the guide fit is two tests of one "
-                "hypothesis; say which the claim rests on."))
+                "BH-corrected within itself."))
         else:
             lines.append(_wrap_block(
                 "The single fit is BH-corrected as one family."))
 
     lines.append("")
-    lines.append("WHY THE FORMULA CHANGED")
-    lines.append(_wrap_block(_WHY_LEAD))
-    lines.append("")
-    lines.append(f"        {COLLINEAR_FORMULA}")
-    lines.append("")
-    lines.append(_wrap_block(_WHY_BODY))
+    lines.append(_HISTORY_POINTER)
     return "\n".join(lines).rstrip() + "\n"
 
 
