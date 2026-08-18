@@ -175,3 +175,88 @@ HOW TO KNOW IT WORKED
   check the arithmetic from.
 * Changing the half-width changes which cells appear AND changes the caption.
 * A screen missing the channel list is told the channel list is missing.
+
+
+================================================================================
+F. THE PATHS MUST SURVIVE THE FOLDER MOVING MACHINE
+================================================================================
+
+Requested: 2026-08-18 -- "there is logic in spacr, make sure that if a source
+           folder moves computer the paths still work as long as the folder
+           structure i described is upheld. please find this logic and see if
+           it will hold in this context. it may need to be generalized further."
+
+THE LOGIC EXISTS, IN TWO PLACES, WITH TWO DIFFERENT STRATEGIES:
+
+  * `utils.correct_paths(df, base_path, folder='data')` -- splits a path on
+    `/data/` and re-anchors the remainder under the new root. Used for
+    `png_path`.
+  * `crops.MergedCropSource.resolve_path` -- if the recorded path does not
+    exist, retries `<merged_root>/<basename>`. Used for `merged_path` /
+    `path_name`.
+
+And the anchor itself is already derivable and already correct:
+`cell_montage_view.experiment_root(db_path)` walks up from
+`<folder>/measurements/measurements.db` to `<folder>`, which is exactly the
+structure the request describes. So the ROOT is not the problem.
+
+MEASURED 2026-08-18, four cases through the real `correct_paths`:
+
+    OK    same-OS move        /old/home/exp1/data/plate1/a.png
+                           -> /mnt/newdisk/exp1/data/plate1/a.png
+
+    FAIL  Windows path read on Linux
+                              C:\lab\exp1\data\plate1\a.png
+                           -> unchanged
+
+    WRONG nested `data/` twice
+                              /old/data/exp1/data/plate1/a.png
+                           -> /mnt/newdisk/exp1/data/exp1
+
+    FAIL  no `data/` component
+                              /old/home/exp1/crops/plate1/a.png
+                           -> unchanged
+
+SO THE ANSWER TO THE QUESTION IS: IT HOLDS FOR THE CASE ASKED ABOUT AND FAILS
+TWO OTHERS, ONE OF THEM SILENTLY.
+
+1. THE SEPARATOR IS HARD-CODED. `path.split(f'/{folder}/')` cannot match
+   `\data\`, and `os.path.basename` on Linux returns the WHOLE of
+   `C:\lab\exp1\merged\x.npy` because it knows nothing of backslashes. A
+   database written on Windows and opened on Linux -- or on a share mounted
+   both ways -- re-anchors through neither route. Both need a
+   separator-agnostic split: normalise `\` to `/` before matching, and take the
+   basename after the last separator of EITHER kind.
+
+2. THE THIRD CASE IS THE DANGEROUS ONE, because it does not fail. `split` takes
+   the FIRST `/data/`, so an experiment whose old root itself contained a
+   `data` folder produced `/mnt/newdisk/exp1/data/exp1` -- a path that has
+   silently lost `plate1/a.png` and now names a directory. SPLIT ON THE LAST
+   OCCURRENCE, not the first: the anchor is the one nearest the file.
+
+3. `base_path not in path` IS A SUBSTRING TEST standing in for "is this already
+   re-anchored". It answers wrongly whenever the old path happens to contain
+   the new root as a substring, and it is not what the question means. Compare
+   resolved prefixes.
+
+4. GENERALISE IT TO THE FOLDER, NOT THE COLUMN. `correct_paths` re-anchors
+   `png_path` only, while this feature needs `path_name` and `merged_path` too,
+   and the structure the request states has TWO anchor folders (`data/` and
+   `merged/`) under one root. One function should take the experiment root and
+   re-anchor every path-bearing column against whichever anchor its own path
+   contains -- with the anchor found from the RIGHT, per point 2.
+
+5. AND IT MUST SAY WHEN IT CANNOT. A path with no recognisable anchor is
+   returned unchanged today and fails later as a missing file, somewhere with
+   less context. Count them and name one, the way the merge names its dropped
+   columns: "31 of 1,204 crops could not be re-anchored under <root>; the first
+   is <path>". A silent pass-through is how case 3 stayed invisible.
+
+HOW TO KNOW IT WORKED
+
+* A run folder written on machine A, moved to machine B at a different path,
+  opens and shows its montage with no setting changed -- the case asked for.
+* The same with a database whose paths were written on Windows.
+* An old root containing its own `data/` folder re-anchors to the file, not to
+  a directory. This one is a regression test for a silent corruption.
+* Paths that cannot be re-anchored are counted and one is named.
