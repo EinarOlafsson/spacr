@@ -75,9 +75,9 @@
       "slug": "cell_min_intensity_percentile",
       "title": "Cell \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 34434,
+        "bytes": 38108,
         "frames": 18,
-        "sha256": "1230cf5378766054d7c3e4e43711c2ed0408a49d458167137cbe68a92451137c",
+        "sha256": "c90c464d90d3a5b7d6678fe61d1b27544d9bd3635e43a84116efebd7b102ee93",
         "unique_frames": 17
       }
     },
@@ -95,9 +95,9 @@
       "slug": "cell_max_intensity_percentile",
       "title": "Cell \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 110357,
+        "bytes": 40021,
         "frames": 18,
-        "sha256": "542d90bd45ed2261779c91d7707ff1f7f099c4faeda9341f8f16411efd3977ee",
+        "sha256": "6f04c3f62efa6388f662699f490a39f86379a7473ef123885a0a490cb39549c4",
         "unique_frames": 17
       }
     },
@@ -176,9 +176,9 @@
       "slug": "nucleus_min_intensity_percentile",
       "title": "Nucleus \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 59582,
+        "bytes": 67735,
         "frames": 18,
-        "sha256": "aae72da12e86e09c6a16563664d464f427c6e0e727fcdc956e0bdcbe35191582",
+        "sha256": "b0684b73479e4c8fb05d7a772b241b1c2f45f48156064ad6571ca237d112f352",
         "unique_frames": 17
       }
     },
@@ -196,9 +196,9 @@
       "slug": "nucleus_max_intensity_percentile",
       "title": "Nucleus \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 73803,
+        "bytes": 68592,
         "frames": 18,
-        "sha256": "8d839f0d769641fdd84c4afaa6f99a484db7e1f050ceab81af42a8fc54d8f1a7",
+        "sha256": "252a7459a22b8dac1a7ad4084f9005276caebab4d5cc53f8dde8496ea5812a5c",
         "unique_frames": 17
       }
     },
@@ -277,9 +277,9 @@
       "slug": "pathogen_min_intensity_percentile",
       "title": "Pathogen \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 80529,
+        "bytes": 136919,
         "frames": 18,
-        "sha256": "b8f788b50d055c1bff28079459fb1d308c5fafe5f47abbabeb93cfd85a6e7f9f",
+        "sha256": "f54977eda72d0f072bfabf299efb9bbcdf884dc73a4ccfc3a0c48ccff150cd8f",
         "unique_frames": 17
       }
     },
@@ -297,9 +297,9 @@
       "slug": "pathogen_max_intensity_percentile",
       "title": "Pathogen \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 121462,
+        "bytes": 155932,
         "frames": 18,
-        "sha256": "78f49eab638b5480ff4c6bc0254afa2919041809f5bee8755abb405d7f597f7f",
+        "sha256": "3b5c3df08060fba972b874fe6d06cb0f5d586b74117e8ed3714200f70a2c595f",
         "unique_frames": 17
       }
     },
@@ -380,9 +380,9 @@
       "slug": "organelle_min_intensity_percentile",
       "title": "Organelle \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 187579,
+        "bytes": 144037,
         "frames": 18,
-        "sha256": "9cdc84be9f5bb4d6275fcb926defae7b4e44465ceb374a0cddfa137aa60c55cc",
+        "sha256": "1268c447c1ea94c5333009336c51123ba5eccf31c5866dcd5fe39ccbf38ce58d",
         "unique_frames": 17
       }
     },
@@ -400,9 +400,9 @@
       "slug": "organelle_max_intensity_percentile",
       "title": "Organelle \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 206209,
+        "bytes": 137771,
         "frames": 18,
-        "sha256": "9c029fda712656e2bc3cf41a4599d75dc035d95df675b0d9a3dccc89c28c875e",
+        "sha256": "cce0014d777288c1a5d75e04778065bd2c50bf3a53864c5fee0362e1535a74bf",
         "unique_frames": 17
       }
     },

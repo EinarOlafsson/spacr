@@ -663,6 +663,16 @@ def _filter_scene(painter: Painter, spec: Spec, action: float) -> None:
     # exist at all; area variants read their order off the sizes.
     base = [0.4, 0.6, 0.8, 1.0] if by_intensity else [1.0] * len(sizes)
     if by_intensity:
+        # AND THEY NEED ONE SIZE. Until 2026-08-18 the intensity animations
+        # kept the four different sizes the area animations use, so the
+        # objects differed in size AND brightness and the two families were
+        # the same picture -- 20-22% of the drawn ink separated
+        # `*_min_area` from `*_min_intensity_percentile`, and nothing told a
+        # viewer which property the threshold had read. One size leaves
+        # brightness as the only order there is, which is the criterion.
+        uniform = sizes[2]
+        sizes = [uniform] * len(sizes)
+    if by_intensity:
         rank_by = lambda index: base[index]
     else:
         rank_by = lambda index: sizes[index][0] * sizes[index][1]
