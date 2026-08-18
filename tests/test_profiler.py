@@ -106,7 +106,12 @@ def _fit(regression_type, design):
 def test_the_backend_list_is_the_one_ml_publishes():
     from spacr.ml import REGRESSION_TYPES
 
-    assert len(REGRESSION_TYPES) == 17
+    # 19 since instruction 133 added 'group_lasso' and 'rra'. The names are
+    # asserted beside the count so this cannot go stale in the direction where
+    # a backend is REMOVED and another added on the same day and the number
+    # still matches.
+    assert len(REGRESSION_TYPES) == 19
+    assert {"group_lasso", "rra"} <= set(REGRESSION_TYPES)
 
 
 @pytest.mark.parametrize("regression_type", [
