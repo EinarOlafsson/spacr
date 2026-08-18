@@ -152,3 +152,80 @@ cannot export is a restyle they redo every time they need the picture.
 One request spanned seven instructions; the whole of it is quoted in
 instructions/open/119_the_regression_figure_surface.txt, which indexes the
 pieces.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- POINT 3 SHIPPED: THE MENU IS BUILT FROM THE STYLE'S FIELDS
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED, all of it in spacr/qt/widgets/fast_plots.py:
+
+    add_style_entries(menu, style, on_change=None, *, choices=None)
+        Puts EVERY field of a style dataclass onto a menu, grouped, with the
+        editor its kind wants, and calls on_change(name, value).
+    style_field_kind(name, value, choices=None, declared="")
+        flag | colour | choice | number | pair | text | unsupported.
+    style_field_choices(style, name, choices=None)
+        The closed set, looked for in three places -- the caller's mapping,
+        the field's metadata["choices"], and a CHOICES dict on the style's
+        class -- because the styles in this package declare theirs in all
+        three and a mechanism reading one would silently turn a closed set
+        into a free-text box.
+    style_field_group(name) / style_field_label(name, value, kind)
+    FastPlot.offer_style(style, on_change=None, *, choices=None)
+        A host hands its style over and the plot's right-click menu grows a
+        "Figure style" group. Offered rather than built in, the same as
+        offer_refit: only the host knows which style drives the picture.
+
+NOTHING IS SKIPPED, and that is what makes the acceptance test mean anything.
+A field with no dialog -- the split axis's pair of PAIRS, the per-point
+annotation map -- is still listed, GREYED, and says why. A setting silently
+absent from the menu is one the user has been told about and cannot find,
+which is the failure instruction 106 exists to prevent.
+
+MEASURED ON THE REAL `VolcanoStyle`: 63 fields, 63 entries, nothing missing,
+and the mechanism was written against none of them by name. 13 flags, 20
+numbers, 7 colours, 2 pairs, 19 text, 2 unsupported (`split_y_lims` and
+`annotations`, both genuinely nested).
+
+THE ONE THING WORTH NOT REDISCOVERING: a dataclass under
+`from __future__ import annotations` carries its type as a STRING, and
+resolving it needs the defining module's namespace, which a general mechanism
+does not have. So the VALUE is read first and the annotation only for fields
+that are None -- as text, not resolved. Without that second read,
+`effect_threshold: float | None = None` came out as a free-text box and the
+user typed a number into a string field.
+
+TESTS: tests/test_a_style_field_cannot_hide_from_the_menu.py, 20 of them,
+including the comparison against `dataclasses.fields(style)` on both a
+purpose-built style and the real VolcanoStyle, and a test that a field ADDED
+to a style appears without the menu being touched.
+
+--------------------------------------------------------------------------------
+WHAT REMAINS OF 108, HONESTLY
+--------------------------------------------------------------------------------
+
+Point 3 is the mechanism and it is done. The rest is outside the interactive
+plot widget and was not attempted here:
+
+  1. THE SHARED STYLE BASE (spacr/figure_style.py holds general/per-graph
+     DICTS today, not a dataclass hierarchy; volcano_style.VolcanoStyle is
+     the only dataclass). NOT DONE.
+  2. THE RENDERER CONTRACT `render(data, style, figure=None, save_path=None)`
+     per figure type. NOT DONE -- only the volcano has it.
+  4. FIGURES MUST STAY LIVE: where a screen shows a saved image it must hold
+     the Figure. NOT DONE, and it is the real prerequisite for the matplotlib
+     half: `add_style_entries` will attach to any canvas that has a style
+     object, and there is nothing for it to attach to yet.
+  5. SAVE / LOAD A STYLE, and a per-project default. NOT DONE. The
+     serialisation exists (`VolcanoStyle.from_dict` / `asdict`); what is
+     missing is the two menu entries and the project default.
+  6. THE PREFERENCE LEAK -- 21 `savefig` calls bypassing `save_figure`. NOT
+     DONE; it is a sweep across spacr/*.py and touches no file here.
+
+A NOTE ON WHERE THIS LIVES. `add_style_entries` and its helpers are in
+fast_plots.py because that is where the menu machinery they generalise is,
+and because that was the territory this session held. They import nothing
+from pyqtgraph and nothing from this module's plot classes, so moving them to
+a `spacr/qt/widgets/style_menu.py` when the matplotlib half lands is a
+cut-and-paste plus an import -- worth doing then, not worth a new module now
+with one caller.

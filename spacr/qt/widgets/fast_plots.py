@@ -351,6 +351,285 @@ def menu_reading_order(menu) -> list:
     return order
 
 
+# Which group of the right-click menu a style field belongs on, as
+# ``(group, name fragments)`` tried in order; anything unmatched is
+# Appearance. A plain module constant rather than a documented one, because
+# it is a layout table for this module's menu and not a contract anyone
+# outside it holds.
+#
+# ORDER IS THE ORDER OF USE, the same as `build_style_menu`: what changes what
+# the figure CLAIMS, then its axes, then how it looks, then how big it is.
+_STYLE_GROUPS = (
+    ("Data", ("column", "threshold", "alpha", "control", "annotat",
+              "label_top", "significant")),
+    ("Axes", ("scale", "_lim", "invert", "split", "x_label", "y_label",
+              "title", "grid", "spine", "log")),
+    ("Size", ("figure_", "dpi")),
+    ("Appearance", ()),
+)
+
+# What a style field can be edited WITH. A field whose kind is "unsupported"
+# still gets an entry, greyed and saying so: a setting silently absent from
+# the menu is one the user is told exists and cannot find.
+STYLE_FIELD_KINDS = ("flag", "colour", "choice", "number", "pair", "text",
+                     "unsupported")
+
+
+def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
+    """What ``name`` can be edited with: one of ``STYLE_FIELD_KINDS``.
+
+    THE VALUE FIRST, THE ANNOTATION SECOND. A dataclass under
+    ``from __future__ import annotations`` carries its type as a STRING --
+    ``"float | None"`` -- and resolving it needs the defining module's
+    namespace, which a general mechanism does not have. The value answers for
+    every field that has one; the annotation is read as text for the ones
+    that are ``None``, where the value says nothing at all.
+
+    Without that second read, ``effect_threshold: float | None = None`` comes
+    out as free text and the user types a number into a string field.
+
+    :param name: the field's name; its ending is read, to spot a colour.
+    :param value: what the style currently holds there.
+    :param choices: the values this field may take, if it is a closed set.
+    :param declared: the field's annotation, as text.
+    """
+    if choices:
+        return "choice"
+    if isinstance(value, bool):
+        return "flag"
+    if isinstance(value, (int, float)):
+        return "number"
+    if isinstance(value, str):
+        return "colour" if str(name).endswith(("color", "colour")) else "text"
+    if isinstance(value, (tuple, list)):
+        return ("pair" if len(value) == 2
+                and all(isinstance(part, (int, float)) for part in value)
+                else "unsupported")
+    if value is not None:
+        return "unsupported"
+    written = str(declared or "").replace(" ", "").lower()
+    if "tuple[tuple" in written or "dict" in written or "list[" in written:
+        # A NESTED SHAPE HAS NO DIALOG. Offering the split axis's pair of
+        # pairs as one pair of numbers would write a value the renderer
+        # cannot read -- worse than saying it is not editable here.
+        return "unsupported"
+    if written.startswith("bool") or "bool|" in written:
+        return "flag"
+    if "tuple" in written:
+        return "pair"
+    if "float" in written or written.startswith("int") or "int|" in written:
+        return "number"
+    if "str" in written:
+        return "colour" if str(name).endswith(("color", "colour")) else "text"
+    # Nothing declared and nothing held: the name is the only clue left.
+    if str(name).endswith(("_lim", "_lims")):
+        return "pair"
+    if str(name).endswith(("color", "colour")):
+        return "colour"
+    return "text"
+
+
+def style_field_choices(style, name: str, choices=None):
+    """The closed set ``name`` may take, or ``()``.
+
+    Looked for in three places, most specific first: the argument, the
+    field's own ``metadata["choices"]``, and a ``CHOICES`` mapping on the
+    style's class. Three, because the styles in this package declare their
+    sets in all three ways and a mechanism that read only one would silently
+    turn a closed set into a free-text box.
+    """
+    import dataclasses
+
+    if choices and name in choices:
+        return tuple(choices[name])
+    for entry in dataclasses.fields(style):
+        if entry.name == name:
+            declared = entry.metadata.get("choices")
+            if declared:
+                return tuple(declared)
+            break
+    declared = getattr(type(style), "CHOICES", {})
+    if isinstance(declared, dict) and name in declared:
+        return tuple(declared[name])
+    return ()
+
+
+def style_field_group(name: str) -> str:
+    """Which menu group ``name`` belongs on."""
+    lowered = str(name).lower()
+    for group, fragments in _STYLE_GROUPS:
+        if any(fragment in lowered for fragment in fragments):
+            return group
+    return "Appearance"
+
+
+def style_field_label(name: str, value, kind: str) -> str:
+    """What the entry for ``name`` reads.
+
+    The CURRENT VALUE is in the label for everything but a flag, which shows
+    its state as a tick. A menu of settings that does not say what they are
+    set to is one the user has to open each entry to read.
+    """
+    pretty = str(name).replace("_", " ").strip().capitalize()
+    if kind == "flag":
+        return pretty
+    if kind == "unsupported":
+        return pretty
+    if value is None:
+        return f"{pretty}: automatic…"
+    if kind == "pair":
+        return f"{pretty}: {value[0]:g} to {value[1]:g}…"
+    if kind == "number":
+        return f"{pretty}: {value:g}…"
+    return f"{pretty}: {value}…"
+
+
+def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
+    """Put EVERY field of ``style`` onto ``menu``, grouped and editable.
+
+    Instruction 108's point 3: the menu is built FROM THE STYLE OBJECT'S
+    FIELDS rather than from a hand-written list per figure, so "as many
+    settings as possible, depending on the graph" is automatic -- a style
+    gains a field, the menu gains an entry, and the two cannot fall out of
+    step. The acceptance test compares what this produces against
+    ``dataclasses.fields(style)``, which is only a meaningful check because
+    NOTHING IS SKIPPED: a field this cannot edit is still listed, greyed, and
+    says why, exactly as instruction 106 requires of every other control here.
+
+    :param menu: a ``QMenu`` to add groups to.
+    :param style: any dataclass instance describing how a figure looks.
+    :param on_change: called ``(name, value)`` when the user changes one.
+        Without it the entries are built and inert, which is what a test
+        reading the menu wants and what a caller with nothing to redraw gets.
+    :param choices: ``{field: values}`` for fields that are a closed set,
+        overriding the field's own metadata and the style class's ``CHOICES``.
+    :returns: the ``QAction``s added, in menu order.
+
+    THE GROUPS ARE :func:`build_style_menu`'S OWN, and in the same order --
+    Data, Axes, Appearance, Size -- so a figure's own settings and the plot's
+    read as one menu rather than two conventions side by side.
+
+    ``menu`` MUST OUTLIVE THE CALL. The groups are parented to it, but a
+    ``QMenu()`` built with no parent of its own is Python-owned and takes
+    every action here with it when the local holding it goes out of scope.
+    :meth:`FastPlot.build_style_menu` parents its menu to the widget, which
+    is why the application does not meet this.
+    """
+    import dataclasses
+    from PySide6.QtWidgets import QMenu
+
+    entries = dataclasses.fields(style)
+    groups: dict = {}
+    added = []
+    for name in [group for group, _ in _STYLE_GROUPS]:
+        wanted = [entry for entry in entries
+                  if style_field_group(entry.name) == name]
+        if not wanted:
+            continue
+        submenu = QMenu(name, menu)
+        submenu.setToolTipsVisible(True)
+        menu.addMenu(submenu)
+        groups[name] = submenu
+        for entry in wanted:
+            added.append(_add_style_entry(submenu, style, entry.name,
+                                          on_change, choices))
+    return added
+
+
+def _add_style_entry(menu, style, name: str, on_change, choices):
+    """One field of ``style`` as one entry on ``menu``."""
+    from PySide6.QtWidgets import QMenu
+
+    import dataclasses
+
+    value = getattr(style, name, None)
+    options = style_field_choices(style, name, choices)
+    declared = next((str(entry.type) for entry in dataclasses.fields(style)
+                     if entry.name == name), "")
+    kind = style_field_kind(name, value, options, declared)
+    label = style_field_label(name, value, kind)
+    if kind == "unsupported":
+        action = menu.addAction(
+            f"{label}  —  this setting is not one the menu can edit")
+        action.setEnabled(False)
+        action.setToolTip("It is kept in the style and written to a saved "
+                          "style file; it is changed from the plot itself.")
+        return action
+    if kind == "choice":
+        submenu = QMenu(label.rstrip("…"), menu)
+        submenu.setToolTipsVisible(True)
+        menu.addMenu(submenu)
+        for option in options:
+            entry = submenu.addAction(str(option))
+            entry.setCheckable(True)
+            entry.setChecked(option == value)
+            entry.triggered.connect(
+                lambda _checked=False, chosen=option:
+                _apply_style(style, name, chosen, on_change))
+        # The GROUP's action is what a reader meets, so it carries the name.
+        return submenu.menuAction()
+    action = menu.addAction(label)
+    if kind == "flag":
+        action.setCheckable(True)
+        action.setChecked(bool(value))
+        action.toggled.connect(
+            lambda on: _apply_style(style, name, bool(on), on_change))
+        return action
+    action.triggered.connect(
+        lambda _checked=False: _ask_style_value(menu, style, name, value,
+                                                kind, on_change))
+    return action
+
+
+def _apply_style(style, name: str, value, on_change) -> None:
+    """Write one field and tell whoever is drawing from it."""
+    setattr(style, name, value)
+    if on_change is not None:
+        on_change(name, value)
+
+
+def _ask_style_value(parent, style, name, value, kind, on_change) -> None:
+    """Ask for one field's new value with the dialog its kind wants."""
+    from PySide6.QtGui import QColor
+    from PySide6.QtWidgets import QColorDialog, QInputDialog
+
+    pretty = str(name).replace("_", " ").strip().capitalize()
+    if kind == "colour":
+        colour = QColorDialog.getColor(QColor(value or "#000000"), parent,
+                                       pretty)
+        if colour.isValid():
+            _apply_style(style, name, colour.name(), on_change)
+        return
+    if kind == "number":
+        decimals = 0 if isinstance(value, int) else 3
+        new, ok = QInputDialog.getDouble(parent, pretty, f"{pretty}:",
+                                         float(value or 0.0), -1e12, 1e12,
+                                         decimals)
+        if ok:
+            _apply_style(style, name,
+                         int(round(new)) if isinstance(value, int) else new,
+                         on_change)
+        return
+    if kind == "pair":
+        low, high = (value if value is not None else (0.0, 1.0))
+        first, ok = QInputDialog.getDouble(parent, pretty, f"{pretty} from:",
+                                           float(low), -1e12, 1e12, 4)
+        if not ok:
+            return
+        second, ok = QInputDialog.getDouble(parent, pretty, f"{pretty} to:",
+                                            float(high), -1e12, 1e12, 4)
+        if ok:
+            # CANCELLING THE SECOND ABANDONS THE FIRST, the same rule the
+            # axis-limit dialog follows: a half-set pair is a range nobody
+            # chose.
+            _apply_style(style, name, (first, second), on_change)
+        return
+    text, ok = QInputDialog.getText(parent, pretty, f"{pretty}:",
+                                    text="" if value is None else str(value))
+    if ok:
+        _apply_style(style, name, text or None, on_change)
+
+
 def mark_advice(kind: str, counts) -> str:
     """Why this mark misleads for groups of these sizes, or ``""``.
 
@@ -653,6 +932,10 @@ class FastPlot(QWidget):
         #: "draw it as a violin" is not a question that has an answer.
         self._marks = []
 
+        #: ``(style, on_change, choices)`` for a figure style whose fields
+        #: become menu entries, or None.
+        self._style = None
+
         #: ``(callback, label)`` for an action that re-runs the analysis, or
         #: None. BORN HERE, not on first use: a filter control connected in
         #: __init__ to a handler that reads an attribute created later is the
@@ -822,6 +1105,24 @@ class FastPlot(QWidget):
         replaces the fit.
         """
         self._baselines = list(options or ())
+
+    def offer_style(self, style, on_change=None, *, choices=None) -> None:
+        """Put a figure's OWN style object onto this plot's right-click menu.
+
+        :param style: any dataclass describing how the figure looks --
+            :class:`spacr.volcano_style.VolcanoStyle` and whatever joins it.
+        :param on_change: called ``(name, value)`` when the user changes one,
+            which is where the host redraws.
+        :param choices: ``{field: values}`` for fields that are a closed set.
+
+        Instruction 108: the entries come from ``dataclasses.fields(style)``,
+        so a style that gains a field gains a menu entry and the two cannot
+        fall out of step. Offered by the host for the same reason
+        :meth:`offer_refit` is -- only the host knows which style object is
+        driving the picture, and the same widget draws a simulation and a
+        sweep trial.
+        """
+        self._style = (style, on_change, dict(choices or {}))
 
     def offer_marks(self, options) -> None:
         """Offer "draw the groups as ..." on the right-click menu.
@@ -2234,6 +2535,13 @@ class FastPlot(QWidget):
         size.addAction("Size on screen: back to automatic",
                        self.clear_screen_size)
 
+        if self._style is not None:
+            # THE FIGURE'S OWN SETTINGS, under one heading and below the
+            # plot's, because they belong to whoever supplied them and a
+            # reader has to be able to tell the two apart.
+            style, on_change, choices = self._style
+            add_style_entries(self._group(menu, "Figure style"), style,
+                              on_change, choices=choices)
         if self._refit is not None:
             callback, label = self._refit
             # A SECTION, not another line in the list. Everything above
