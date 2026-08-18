@@ -1505,6 +1505,27 @@ class AppScreen(QWidget):
         """
         if key not in COLUMN_TABLES:
             return
+        # NOT BOTH BUTTONS. A field that already carries a CSV column picker
+        # has answered this question from the right file, and the SQL button
+        # beside it would answer it from the wrong one.
+        #
+        # Asked for on 2026-08-17: "for the filter column there is an SQL
+        # buton this should be a csv buton that can read the input csvs". In
+        # the regression module `filter_column` names a column of the INPUT
+        # CSVs; the SQL picker opens the run's measurements.db, which a
+        # regression run need not even have. Two buttons on one row, offering
+        # two different column lists for one setting, is worse than either
+        # alone -- and the SQL one could no longer write into the field once
+        # the CSV field wrapped it, so it was a control that did nothing.
+        #
+        # Detected from the WIDGET rather than from a second per-module table:
+        # whoever gave the field a CSV picker has already decided which file
+        # the setting reads, and a table here would be a second place for that
+        # decision to be made differently.
+        from .settings_model import _CsvColumnField
+
+        if isinstance(widget, _CsvColumnField):
+            return
         from ..widgets.column_picker import attach_column_picker
         attach_column_picker(widget, self._settings_src_path,
                              COLUMN_TABLES[key])
