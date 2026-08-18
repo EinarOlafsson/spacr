@@ -1733,6 +1733,10 @@ class AppScreen(QWidget):
         # navigation between runs, the other is reading within a run.
         self._results_panel = None
         self._figures_stack = None
+        #: Instruction 131's tab. BORN HERE, like everything else a handler
+        #: reads: `_on_results_tab_changed` is connected below and runs on
+        #: every tab change, including on a screen that never built one.
+        self._cell_montage = None
         if self.app_key in ("regression", "ml_analyze_regression"):
             try:
                 from ..widgets.regression_results import RegressionResultsPanel
@@ -1878,6 +1882,42 @@ class AppScreen(QWidget):
                        "each measurement -- a measurement that passes alone "
                        "and fails across the scan is the one worth knowing "
                        "about.")
+                # THE CELLS BEHIND A DOT ON THE VOLCANO (131). "there should
+                # be an option to visualize the cells most likely to represent
+                # dots on the regression plot ... to show to the user in a new
+                # tab where the figures are."
+                #
+                # A TAB, NOT A DIALOG, and it is always present. Instruction
+                # 131 C and 129 both settled that: one tab per view, named,
+                # and a tab that cannot be filled SAYS WHY rather than being
+                # absent -- which for this one is the common case, because
+                # most runs have no measurement database attached and the
+                # montage needs per-object rows.
+                #
+                # REACHED FROM THE SELECTION THAT ALREADY EXISTS. The panel's
+                # `table.key_selected` is the funnel every plot and the table
+                # pass through -- volcano -> table.select_key -> selection
+                # change -> re-emit -- and the gene tile is already on it. A
+                # second selection mechanism here would mean a montage of a
+                # different gene from the one the volcano is ringing, which is
+                # the plausible-and-wrong output this module is most careful
+                # about.
+                from ..widgets.cell_montage_view import CellMontageView
+                self._cell_montage = CellMontageView(
+                    frame_provider=self._results_panel.results_frame,
+                    results_provider=self._results_source_path,
+                    database_provider=self._attached_database_rows,
+                    parent=left)
+                left.addTab(self._cell_montage, "Cells")
+                left.setTabToolTip(
+                    3, "The cells most consistent with the selected "
+                       "coefficient. This screen is POOLED: the sequencing "
+                       "says what fraction of a well carried a guide, never "
+                       "which cells did, so these are candidates consistent "
+                       "with the effect and the caption says so.")
+                self._results_panel.table.key_selected.connect(
+                    self._cell_montage.set_coefficient)
+
                 # Read the table when the tab is OPENED, not on a timer. A
                 # sweep writes each trial as it finishes, so the answer is
                 # different every time somebody looks -- and nobody is looking
@@ -1930,6 +1970,7 @@ class AppScreen(QWidget):
                 LOG.debug("no fast results panel", exc_info=True)
                 self._results_panel = None
                 self._figures_stack = None
+                self._cell_montage = None
         if self._results_panel is None:
             self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         # "Figure settings…" on the NON-LIVE figure holds every Image UMAP
@@ -3260,6 +3301,18 @@ class AppScreen(QWidget):
                     jobs.shutdown()
                 except RuntimeError:
                     pass
+        # THE CELLS TAB HAS A WORKER OF ITS OWN, and for the same reason the
+        # exclusion editor below does: it is a child widget, so navigation
+        # destroying this screen never gives it a close event to shut its
+        # loader down from -- and a QThread destroyed while running aborts
+        # the process, which a seconds-long merged-source montage makes an
+        # ordinary case rather than a rare one.
+        montage = getattr(self, "_cell_montage", None)
+        if montage is not None:
+            try:
+                montage.shutdown()
+            except RuntimeError:
+                pass
         # The settings panel's own background work goes with the screen. The
         # exclusion editor reads distinct values off a worker, and it is a
         # child widget, so navigation destroying the panel never gives it a
@@ -3594,6 +3647,19 @@ class AppScreen(QWidget):
             return
         current = tabs.widget(index)
 
+        # THE CELLS TAB, for the same reason as the Measurements tab and one
+        # more: the databases it needs are attached to the input table while
+        # it is behind another tab, and so is the results table it reads the
+        # fitted effect from. Nothing signals either, so opening the tab is
+        # when it can learn what it is now able to do.
+        montage = getattr(self, "_cell_montage", None)
+        if montage is not None and current is montage:
+            try:
+                montage.refresh()
+            except Exception:
+                LOG.debug("could not refresh the cells tab", exc_info=True)
+            return
+
         scan = getattr(self, "_scan_panel", None)
         if scan is not None and current is scan:
             try:
@@ -3611,6 +3677,18 @@ class AppScreen(QWidget):
         folder = self._sweep_destination()
         if folder:
             runs.load(folder)
+
+    def _results_source_path(self) -> str:
+        """Where the results table on screen was read from, or ``""``.
+
+        The montage needs ``regression_data.csv``, which
+        ``perform_regression`` writes into the SAME folder as the coefficient
+        table -- so the results path is the whole of the answer, and reading
+        it live rather than storing a copy is what keeps the tab pointed at
+        whichever run the Runs tab last selected.
+        """
+        panel = getattr(self, "_results_panel", None)
+        return str(getattr(panel, "_path", "") or "") if panel is not None else ""
 
     def _scan_source_frame(self):
         """The well-level frame the measurement scan should run on.
