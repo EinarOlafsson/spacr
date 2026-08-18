@@ -17,8 +17,37 @@ from multiprocessing import cpu_count, Pool, Manager
 from copy import deepcopy
 from io import StringIO
 
+from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
+                            reference_line, resolve_ink, theme_target)
+from .plot import save_figure  # every kept figure goes through the format/DPI preference
+
+#: The simulator's own vocabulary, from the published palette. These are
+#: DIAGNOSTICS of a simulation rather than a user's data, but the same rule
+#: applies: the guides that were made active are the claim, everything else
+#: is the ground.
+SIM_INACTIVE = ROLES['data']
+SIM_ACTIVE = ROLES['highlight']
+SIM_MIXED = Palette.RUST
+SIM_CONTROL = ROLES['control_negative']
+
 warnings.filterwarnings("ignore")
 warnings.filterwarnings("ignore", category=RuntimeWarning) # Ignore RuntimeWarning
+
+def _style_colour_bar(fig):
+    """Put a seaborn heatmap's colour bar into the house style.
+
+    ``sns.heatmap`` builds the bar's axes after the figure exists, with
+    matplotlib's default black ticks and a full frame -- a white box around
+    the ramp on the dark ground.
+    """
+    if len(fig.axes) < 2:
+        return
+    ink = resolve_ink(theme_target())
+    bar = fig.axes[-1]
+    bar.tick_params(colors=ink, labelsize=TYPE_SCALE['tick'])
+    for spine in bar.spines.values():
+        spine.set_visible(False)
+
 
 def generate_gene_list(number_of_genes, number_of_all_genes):
     """Return ``number_of_genes`` randomly-drawn gene indices without replacement.
@@ -597,12 +626,15 @@ def plot_roc_pr(data, ax, title, x_label, y_label):
     :param y_label: Column name plotted on the y-axis.
     :returns: None.
     """
-    ax.plot(data[x_label], data[y_label], color='black', lw=0.5)
-    ax.plot([0, 1], [0, 1], color='black', lw=0.5, linestyle="--", label='random classifier')
+    # The curve is the result and the diagonal is the null, so they must not
+    # be the same weight in the same colour: they were both 0.5 pt black.
+    ax.plot(data[x_label], data[y_label], color=SIM_ACTIVE, lw=1.2)
+    ax.plot([0, 1], [0, 1], color=ROLES['reference'], lw=0.6,
+            linestyle=(0, (4, 3)), label='random classifier', zorder=0)
     ax.set_title(title)
     ax.set_ylabel(y_label)
     ax.set_xlabel(x_label)
-    ax.legend(loc="lower right")
+    ax.legend(loc="lower right", frameon=False)
 
 def plot_confusion_matrix(data, ax, title):
     """Render a 2x2 confusion matrix as an annotated Seaborn heatmap.
@@ -616,11 +648,14 @@ def plot_confusion_matrix(data, ax, title):
     group_counts = ["{0:0.0f}".format(value) for value in data.flatten()]
     group_percentages = ["{0:.2%}".format(value) for value in data.flatten()/np.sum(data)]
     
-    sns.heatmap(data, cmap='Blues', ax=ax)
+    # 'Blues' is already the style's single-hue ramp for a count.
+    sns.heatmap(data, cmap=Palette.SEQUENTIAL, ax=ax)
+    ink = resolve_ink(theme_target())
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
             ax.text(j+0.5, i+0.5, f'{group_names[i*2+j]}\n{group_counts[i*2+j]}\n{group_percentages[i*2+j]}',
-                    ha="center", va="center", color="black")
+                    ha="center", va="center", color=ink,
+                    fontsize=TYPE_SCALE['annotation'])
 
     ax.set_title(title)
     ax.set_xlabel('\nPredicted Values')
@@ -693,11 +728,14 @@ def vis_dists(dists, src, v, i):
     height_graphs = 4
     n=0
     width_graphs = height_graphs*n_graphs
-    fig2, ax =plt.subplots(1,n_graphs, figsize = (width_graphs,height_graphs))
+    with figure_style(theme_target()):
+        fig2, ax =plt.subplots(1,n_graphs, figsize = (width_graphs,height_graphs))
     names = ['genes/well', 'wells/gene', 'genes/well gini', 'wells/gene gini', 'gene_weights', 'well_weights']
     for index, dist in enumerate(dists):
         temp = pd.DataFrame(dist, columns = [f'{names[index]}'])
-        sns.histplot(data=temp, x=f'{names[index]}', kde=False, binwidth=None, stat='count', element="step", ax=ax[n], color='teal', log_scale=False)
+        # One series per panel, so no panel has a claim to make: the style's
+        # histogram fill, not a saturated teal.
+        sns.histplot(data=temp, x=f'{names[index]}', kde=False, binwidth=None, stat='count', element="step", ax=ax[n], color=ROLES['fill'], log_scale=False)
         n+=1
     save_plot(fig2, src, 'dists', i)
     plt.close(fig2)
@@ -734,136 +772,154 @@ def visualize_all(output):
     n=0
     width_graphs = height_graphs*n_graphs
 
-    fig, ax =plt.subplots(1,n_graphs, figsize = (width_graphs,height_graphs))
+    with figure_style(theme_target()):
+        fig, ax =plt.subplots(1,n_graphs, figsize = (width_graphs,height_graphs))
 
-    #plot genes per well
-    gini_genes_per_well = gini(genes_per_well_df['genes_per_well'].tolist())
-    plot_histogram(genes_per_well_df, "genes_per_well", ax[n], 'slategray', f'gene/well (gini = {gini_genes_per_well:.2f})', binwidth=None, log=False)
-    n+=1
+        #plot genes per well
+        gini_genes_per_well = gini(genes_per_well_df['genes_per_well'].tolist())
+        plot_histogram(genes_per_well_df, "genes_per_well", ax[n], SIM_INACTIVE, f'gene/well (gini = {gini_genes_per_well:.2f})', binwidth=None, log=False)
+        n+=1
     
-    #plot wells per gene
-    gini_wells_per_gene = gini(wells_per_gene_df['wells_per_gene'].tolist())
-    plot_histogram(wells_per_gene_df, "wells_per_gene", ax[n], 'slategray', f'well/gene (Gini = {gini_wells_per_gene:.2f})', binwidth=None, log=False)
-    #ax[n].set_xscale('log')
-    n+=1
+        #plot wells per gene
+        gini_wells_per_gene = gini(wells_per_gene_df['wells_per_gene'].tolist())
+        plot_histogram(wells_per_gene_df, "wells_per_gene", ax[n], SIM_INACTIVE, f'well/gene (Gini = {gini_wells_per_gene:.2f})', binwidth=None, log=False)
+        #ax[n].set_xscale('log')
+        n+=1
     
-    #plot cell classification score by inactive and active
-    active_distribution = cell_scores[cell_scores['is_active'] == 1] 
-    inactive_distribution = cell_scores[cell_scores['is_active'] == 0]
-    plot_histogram(active_distribution, "score", ax[n], 'slategray', 'Cell scores', log=False)#, binwidth=0.01, log=False)
-    plot_histogram(inactive_distribution, "score", ax[n], 'teal', 'Cell scores', log=False)#, binwidth=0.01, log=False)
+        #plot cell classification score by inactive and active
+        active_distribution = cell_scores[cell_scores['is_active'] == 1] 
+        inactive_distribution = cell_scores[cell_scores['is_active'] == 0]
+        # THE ACTIVE GUIDES ARE THE CLAIM. The two series were slategray and
+        # teal, both full strength, so the panel gave the background distribution
+        # the same weight as the thing the simulation is about.
+        #
+        # THE LEGEND WAS ALSO INVERTED, which is a wrong figure and not a style
+        # complaint: `active_distribution` is plotted first, and the first legend
+        # patch said 'Inactive'. Every colour on this panel therefore named the
+        # opposite series. Fixed here rather than filed -- the plotting order is
+        # unchanged, only the labels now follow it.
+        plot_histogram(active_distribution, "score", ax[n], SIM_ACTIVE, 'Cell scores', log=False)#, binwidth=0.01, log=False)
+        plot_histogram(inactive_distribution, "score", ax[n], SIM_INACTIVE, 'Cell scores', log=False)#, binwidth=0.01, log=False)
 
-    legend_elements = [Patch(facecolor='slategray', edgecolor='slategray', label='Inactive'),
-                   Patch(facecolor='teal', edgecolor='teal', label='Active')]
-    
-    ax[n].legend(handles=legend_elements, loc='upper right')
+        # The legend now names the series it is actually drawn from: the first
+        # call plots `active_distribution` and used to be labelled 'Inactive'.
+        legend_elements = [Patch(facecolor=SIM_ACTIVE, edgecolor=SIM_ACTIVE, label='Active'),
+                       Patch(facecolor=SIM_INACTIVE, edgecolor=SIM_INACTIVE, label='Inactive')]
+
+        ax[n].legend(handles=legend_elements, loc='upper right', frameon=False)
 
 
-    ax[n].set_xlim([0, 1])
-    n+=1
+        ax[n].set_xlim([0, 1])
+        n+=1
     
-    #plot classifier cell predictions by inactive and active well average
-    inactive_distribution_well = inactive_distribution.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
-    active_distribution_well = active_distribution.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
-    mixed_distribution_well = cell_scores.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
+        #plot classifier cell predictions by inactive and active well average
+        inactive_distribution_well = inactive_distribution.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
+        active_distribution_well = active_distribution.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
+        mixed_distribution_well = cell_scores.groupby(['plate_id', 'row_id', 'column_id'])['score'].mean().reset_index(name='score')
 
-    plot_histogram(inactive_distribution_well, "score", ax[n], 'slategray', 'Well scores', log=False)#, binwidth=0.01, log=False)
-    plot_histogram(active_distribution_well, "score", ax[n], 'teal', 'Well scores', log=False)#, binwidth=0.01, log=False)
-    plot_histogram(mixed_distribution_well, "score", ax[n], 'red', 'Well scores', log=False)#, binwidth=0.01, log=False)
-    
-    legend_elements = [Patch(facecolor='slategray', edgecolor='slategray', label='Inactive'),
-                   Patch(facecolor='teal', edgecolor='teal', label='Active'),
-                   Patch(facecolor='red', edgecolor='red', label='Mixed')]
-    
-    ax[n].legend(handles=legend_elements, loc='upper right')
+        plot_histogram(inactive_distribution_well, "score", ax[n], SIM_INACTIVE, 'Well scores', log=False)#, binwidth=0.01, log=False)
+        plot_histogram(active_distribution_well, "score", ax[n], SIM_ACTIVE, 'Well scores', log=False)#, binwidth=0.01, log=False)
+        plot_histogram(mixed_distribution_well, "score", ax[n], SIM_MIXED, 'Well scores', log=False)#, binwidth=0.01, log=False)
 
-    ax[n].set_xlim([0, 1])
-    #ax[n].legend()
-    n+=1
-    
-    #plot ROC (cell classification)
-    plot_roc_pr(cell_roc_dict_df, ax[n], 'ROC (Cell)', 'fpr', 'tpr')
-    ax[n].plot([0, 1], [0, 1], color='black', lw=0.5, linestyle="--", label='random classifier')
-    n+=1
-    
-    #plot Presision recall (cell classification)
-    plot_roc_pr(cell_pr_dict_df, ax[n], 'Precision recall (Cell)', 'recall', 'precision')
-    ax[n].set_ylim([-0.1, 1.1])
-    ax[n].set_xlim([-0.1, 1.1])
-    n+=1
-    
-    #Confusion matrix at optimal threshold
-    plot_confusion_matrix(cell_cm, ax[n], 'Confusion Matrix Cell')
-    n+=1
-    
-    #plot well score
-    plot_histogram(well_score, "score", ax[n], 'teal', 'Well score', binwidth=0.005, log=True)
-    #ax[n].set_xlim([0, 1])
-    n+=1
+        legend_elements = [Patch(facecolor=SIM_INACTIVE, edgecolor=SIM_INACTIVE, label='Inactive'),
+                       Patch(facecolor=SIM_ACTIVE, edgecolor=SIM_ACTIVE, label='Active'),
+                       Patch(facecolor=SIM_MIXED, edgecolor=SIM_MIXED, label='Mixed')]
 
-    control_df = results_df[results_df['color'] == 'control']
-    control_mean = control_df['coef'].mean()
-    control_var = control_df['coef'].std()
-    #control_var = control_df['coef'].var()
-    cutoff = abs(control_mean)+(3*control_var)
-    categories = ['inactive', 'control', 'active']
-    colors = ['lightgrey', 'black', 'purple']
+        ax[n].legend(handles=legend_elements, loc='upper right', frameon=False)
+
+        ax[n].set_xlim([0, 1])
+        #ax[n].legend()
+        n+=1
     
-    for category, color in zip(categories, colors):
-        df = results_df[results_df['color'] == category]
-        ax[n].scatter(df['coef'], df['logp'], c=color, alpha=0.7, label=category)
-
-    reg_lab = ax[n].legend(title='', frameon=False, prop={'size': 10})
-    ax[n].add_artist(reg_lab)
-    ax[n].axhline(hline, zorder = 0,c = 'k', lw = 0.5,ls = '--')
-    ax[n].axvline(-cutoff, zorder = 0,c = 'k', lw = 0.5,ls = '--')
-    ax[n].axvline(cutoff, zorder = 0,c = 'k', lw = 0.5,ls = '--')
-    ax[n].set_title(f'Regression, threshold {cutoff:.3f}')
-    ax[n].set_xlim([-1, 1.1])
-    n+=1
-
-    # error plot
-    df = results_df[['gene', 'coef', 'std err', 'p']].copy()
-    df = df.sort_values(by = ['coef', 'p'], ascending = [True, False], na_position = 'first')
-    df['rank'] = [*range(0,len(df),1)]
+        #plot ROC (cell classification)
+        plot_roc_pr(cell_roc_dict_df, ax[n], 'ROC (Cell)', 'fpr', 'tpr')
+        n+=1
     
-    #df['rank'] = pd.to_numeric(df['rank'], errors='coerce')
-    #df['coef'] = pd.to_numeric(df['coef'], errors='coerce')
-    #df['std err'] = pd.to_numeric(df['std err'], errors='coerce')
-    #df['rank'] = df['rank'].astype(float)
-    #df['coef'] = df['coef'].astype(float)
-    #df['std err'] = df['std err'].astype(float)
-    #epsilon = 1e-6  # A small constant to ensure std err is never zero
-    #df['std err adj'] = df['std err'].replace(0, epsilon)
-
-    ax[n].plot(df['rank'], df['coef'], '-', color = 'black')
-    ax[n].fill_between(df['rank'], df['coef'] - abs(df['std err']), df['coef'] + abs(df['std err']), alpha=0.4, color='slategray')
-    ax[n].set_title('Effect score error')
-    ax[n].set_xlabel('rank')
-    ax[n].set_ylabel('Effect size')
-    n+=1
-
-    #plot ROC (gene classification)
-    plot_roc_pr(reg_roc_dict_df, ax[n], 'ROC (gene)', 'fpr', 'tpr')
-    ax[n].legend(loc="lower right")
-    n+=1
+        #plot Presision recall (cell classification)
+        plot_roc_pr(cell_pr_dict_df, ax[n], 'Precision recall (Cell)', 'recall', 'precision')
+        ax[n].set_ylim([-0.1, 1.1])
+        ax[n].set_xlim([-0.1, 1.1])
+        n+=1
     
-    #plot Presision recall (regression classification)
-    plot_roc_pr(reg_pr_dict_df, ax[n], 'Precision recall (gene)', 'recall', 'precision')
-    ax[n].legend(loc="lower right")
-    n+=1
+        #Confusion matrix at optimal threshold
+        plot_confusion_matrix(cell_cm, ax[n], 'Confusion Matrix Cell')
+        n+=1
     
-    #Confusion matrix at optimal threshold
-    plot_confusion_matrix(reg_cm, ax[n], 'Confusion Matrix Reg')
+        #plot well score
+        plot_histogram(well_score, "score", ax[n], ROLES['fill'], 'Well score', binwidth=0.005, log=True)
+        #ax[n].set_xlim([0, 1])
+        n+=1
 
-    for n in [*range(0,n_graphs,1)]:
-        ax[n].spines['top'].set_visible(False)
-        ax[n].spines['right'].set_visible(False)
+        control_df = results_df[results_df['color'] == 'control']
+        control_mean = control_df['coef'].mean()
+        control_var = control_df['coef'].std()
+        #control_var = control_df['coef'].var()
+        cutoff = abs(control_mean)+(3*control_var)
+        # The simulator's volcano, and the same rule as the screen's: the genes
+        # made active are the claim, the controls are the reference, everything
+        # else is grey.
+        categories = ['inactive', 'control', 'active']
+        colors = [SIM_INACTIVE, SIM_CONTROL, SIM_ACTIVE]
 
-    plt.tight_layout()
-    plt.show()
-    gc.collect()
-    return fig
+        for category, color in zip(categories, colors):
+            df = results_df[results_df['color'] == category]
+            ax[n].scatter(df['coef'], df['logp'], c=color, alpha=0.7, label=category,
+                          linewidths=0)
+
+        reg_lab = ax[n].legend(title='', frameon=False,
+                               prop={'size': TYPE_SCALE['legend']})
+        ax[n].add_artist(reg_lab)
+        reference_line(ax[n], y=hline)
+        reference_line(ax[n], x=-cutoff)
+        reference_line(ax[n], x=cutoff)
+        ax[n].set_title(f'Regression, threshold {cutoff:.3f}')
+        ax[n].set_xlim([-1, 1.1])
+        n+=1
+
+        # error plot
+        df = results_df[['gene', 'coef', 'std err', 'p']].copy()
+        df = df.sort_values(by = ['coef', 'p'], ascending = [True, False], na_position = 'first')
+        df['rank'] = [*range(0,len(df),1)]
+    
+        #df['rank'] = pd.to_numeric(df['rank'], errors='coerce')
+        #df['coef'] = pd.to_numeric(df['coef'], errors='coerce')
+        #df['std err'] = pd.to_numeric(df['std err'], errors='coerce')
+        #df['rank'] = df['rank'].astype(float)
+        #df['coef'] = df['coef'].astype(float)
+        #df['std err'] = df['std err'].astype(float)
+        #epsilon = 1e-6  # A small constant to ensure std err is never zero
+        #df['std err adj'] = df['std err'].replace(0, epsilon)
+
+        # One series with its own error band: the band takes the line's hue at
+        # the 0.25 the published figures use, not a second colour at 0.4.
+        ax[n].plot(df['rank'], df['coef'], '-', color=Palette.GREY_DARK, lw=1.2)
+        ax[n].fill_between(df['rank'], df['coef'] - abs(df['std err']), df['coef'] + abs(df['std err']), alpha=0.25, color=Palette.GREY_DARK, linewidth=0)
+        ax[n].set_title('Effect score error')
+        ax[n].set_xlabel('rank')
+        ax[n].set_ylabel('Effect size')
+        n+=1
+
+        #plot ROC (gene classification)
+        plot_roc_pr(reg_roc_dict_df, ax[n], 'ROC (gene)', 'fpr', 'tpr')
+        ax[n].legend(loc="lower right", frameon=False)
+        n+=1
+    
+        #plot Presision recall (regression classification)
+        plot_roc_pr(reg_pr_dict_df, ax[n], 'Precision recall (gene)', 'recall', 'precision')
+        ax[n].legend(loc="lower right", frameon=False)
+        n+=1
+    
+        #Confusion matrix at optimal threshold
+        plot_confusion_matrix(reg_cm, ax[n], 'Confusion Matrix Reg')
+
+        for n in [*range(0,n_graphs,1)]:
+            ax[n].spines['top'].set_visible(False)
+            ax[n].spines['right'].set_visible(False)
+
+        plt.tight_layout()
+        plt.show()
+        gc.collect()
+        return fig
 
 def create_database(db_path):
     """Ensure a SQLite database file exists at ``db_path``.
@@ -959,7 +1015,14 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
     return
 
 def save_plot(fig, src, variable, i):
-    """Save a Matplotlib figure to ``<src>/<variable>/<i>_figure.pdf``.
+    """Save a Matplotlib figure to ``<src>/<variable>/<i>_figure``.
+
+    THE FORMAT IS THE USER'S, NOT THIS FUNCTION'S. It was
+    ``fig.savefig(..., format='pdf', dpi=600)``, which is one of the literal
+    formats instruction 136 exists to remove: the "Figure format" and
+    "Resolution" preferences reached every other saved figure in spaCR and
+    not this one. ``.pdf`` is still what a default install writes, because
+    that is what the preference defaults to.
 
     :param fig: Figure to save.
     :param src: Root directory for outputs.
@@ -969,7 +1032,7 @@ def save_plot(fig, src, variable, i):
     """
     os.makedirs(f'{src}/{variable}', exist_ok=True)
     filename_fig = f'{src}/{variable}/{str(i)}_figure.pdf'
-    fig.savefig(filename_fig, dpi=600, format='pdf', bbox_inches='tight')
+    save_figure(fig, filename_fig, bbox_inches='tight')
     return
     
 def run_and_save(i, settings, time_ls, total_sims):
@@ -1241,7 +1304,8 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
     num_rows = math.ceil(np.sqrt(num_combinations))
     num_cols = math.ceil(num_combinations / num_rows)
 
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows))
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows))
     if num_rows * num_cols > 1:
         axes = axes.flatten()
     else:
@@ -1259,8 +1323,10 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
         grouped = grouped.sort_index()  # Sort by the variable for orderly plots
 
         # Plotting the mean of 'prauc' with std deviation as shaded area
-        ax.plot(grouped.index, grouped['mean'], marker='o', linestyle='-', color='b', label='Mean PRAUC')
-        ax.fill_between(grouped.index, grouped['mean'] - grouped['std'], grouped['mean'] + grouped['std'], color='gray', alpha=0.5, label='Std Dev')
+        # One series with its own spread: the band is the line's hue at the
+        # 0.25 the published figures use, not a second grey at 0.5.
+        ax.plot(grouped.index, grouped['mean'], marker='o', linestyle='-', color=SIM_ACTIVE, label='Mean PRAUC')
+        ax.fill_between(grouped.index, grouped['mean'] - grouped['std'], grouped['mean'] + grouped['std'], color=SIM_ACTIVE, alpha=0.25, linewidth=0, label='Std Dev')
 
         # Setting plot labels and title
         ax.set_xlabel(variable)
@@ -1269,7 +1335,7 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
         ax.grid(grid)
 
         if legend:
-            ax.legend()
+            ax.legend(frameon=False)
 
         # Set x-ticks and rotate them as specified
         ax.set_xticks(grouped.index)
@@ -1277,7 +1343,12 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
         
         if verbose:
             verbose_text = '\n'.join([f"{var}: {val}" for var, val in condition.items()])
-            ax.text(0.95, 0.05, verbose_text, transform=ax.transAxes, fontsize=9, verticalalignment='bottom', horizontalalignment='right', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+            # No box: the style draws none, and a white round panel is a
+            # white rectangle on the dark theme.
+            ax.text(0.95, 0.05, verbose_text, transform=ax.transAxes,
+                    fontsize=TYPE_SCALE['annotation'],
+                    color=resolve_ink(theme_target()),
+                    verticalalignment='bottom', horizontalalignment='right')
     
     # Hide any unused axes if there are any
     for ax in axes[idx+1:]:
@@ -1306,18 +1377,22 @@ def _figures_dst(dst=None):
         return str(dst)
     return os.environ.get('SPACR_SIM_FIGURES', 'figures')
 
-def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True, dst=None):
+def plot_correlation_matrix(df, annot=False, cmap=None, clean=True, dst=None):
     """Render a lower-triangular correlation heatmap of the standard sweep + metric columns.
 
     :param df: DataFrame containing sweep variables plus ``prauc``, ``roc_auc``
         and related outputs.
     :param annot: When True, write numeric correlations in each cell.
-    :param cmap: Colormap name or object (overridden internally to a diverging
-        palette).
+    :param cmap: Colormap name or object. ``None`` uses the house diverging
+        map, which is the one case the style allows a diverging map for --
+        a correlation is genuinely signed. The parameter used to default to
+        ``'inferno'`` and then be OVERWRITTEN two lines later, so a caller
+        who passed one got the diverging map anyway and never knew.
     :param clean: When True, drop constant columns before computing correlations.
     :returns: The generated Matplotlib figure.
     """
-    cmap = sns.diverging_palette(240, 10, as_cmap=True)
+    if cmap is None:
+        cmap = sns.diverging_palette(240, 10, as_cmap=True)
     grouping_vars = ['number_of_active_genes', 'number_of_control_genes', 'avg_reads_per_gene',
                      'classifier_accuracy', 'nr_plates', 'number_of_genes', 'avg_genes_per_well',
                      'avg_cells_per_well', 'sequencing_error', 'well_ineq_coeff', 'gene_ineq_coeff']
@@ -1340,13 +1415,20 @@ def plot_correlation_matrix(df, annot=False, cmap='inferno', clean=True, dst=Non
     mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
     
     # Plotting the correlation matrix
-    fig = plt.figure(figsize=(12, 8))
-    sns.heatmap(corr_matrix, mask=mask, annot=annot, cmap=cmap, fmt=".2f", linewidths=.5, robust=True)
+    # THE MAP HAS TO BE CENTRED. It was diverging but unbounded, so seaborn
+    # scaled it to the data: an all-positive block ran to the hot end and read
+    # as a finding when the weakest correlation in it might be 0.05.
+    with figure_style(theme_target(), frame='box'):
+        fig = plt.figure(figsize=(12, 8))
+        axis = sns.heatmap(corr_matrix, mask=mask, annot=annot, cmap=cmap,
+                           fmt=".2f", linewidths=0, robust=True,
+                           vmin=-1.0, vmax=1.0, center=0.0)
+        _style_colour_bar(fig)
     #plt.title('Correlation Matrix with Heatmap')
 
-    plt.tight_layout()
-    plt.show()
-    save_plot(fig, src=_figures_dst(dst), variable='correlation_matrix', i=1)
+        plt.tight_layout()
+        plt.show()
+        save_plot(fig, src=_figures_dst(dst), variable='correlation_matrix', i=1)
     return fig
 
 def plot_feature_importance(df, target='prauc', exclude=None, clean=True, dst=None):
@@ -1383,16 +1465,19 @@ def plot_feature_importance(df, target='prauc', exclude=None, clean=True, dst=No
     indices = np.argsort(importances)[::-1]
     
     # Plot horizontal bar chart
-    fig = plt.figure(figsize=(12, 6))
-    plt.barh(range(len(indices)), importances[indices], color="teal", align="center", alpha=0.6)
+    # One series ranked by length: grey, opaque. It was a translucent teal.
+    with figure_style(theme_target()):
+        fig = plt.figure(figsize=(12, 6))
+        plt.barh(range(len(indices)), importances[indices],
+                 color=Palette.GREY_DARK, align="center")
     # Bar k carries importances[indices][k], so its label must be features[indices[k]].
-    plt.yticks(range(len(indices)), [features[i] for i in indices])
-    plt.gca().invert_yaxis()  # Invert the axis to have the highest importance at the top
-    plt.xlabel('Feature Importance')
-    plt.title('Feature Importances')
-    plt.tight_layout()
-    plt.show()
-    save_plot(fig, src=_figures_dst(dst), variable='feature_importance', i=1)
+        plt.yticks(range(len(indices)), [features[i] for i in indices])
+        plt.gca().invert_yaxis()  # Invert the axis to have the highest importance at the top
+        plt.xlabel('Feature Importance')
+        plt.title('Feature Importances')
+        plt.tight_layout()
+        plt.show()
+        save_plot(fig, src=_figures_dst(dst), variable='feature_importance', i=1)
     return fig
 
 def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats=10, clean=True, dst=None):
@@ -1432,8 +1517,10 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     sorted_idx = perm_importance.importances_mean.argsort()
     
     # Create a figure and a set of subplots
-    fig, ax = plt.subplots()
-    ax.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx], color="teal", align="center", alpha=0.6)
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots()
+    ax.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx],
+            color=Palette.GREY_DARK, align="center")
     ax.set_yticks(range(len(sorted_idx)))
     # sorted_idx indexes the feature list that was fitted, not df.columns —
     # those only coincide when df happens to start with exactly these columns.
@@ -1477,8 +1564,11 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
     n_rows = (len(features) + n_cols - 1) // n_cols  # Calculate rows needed
     
     # Plot partial dependence
-    fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(5 * n_cols, 5 * n_rows))
-    fig.suptitle('Partial Dependence Plots', fontsize=20, y=1.03)
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(5 * n_cols, 5 * n_rows))
+    fig.suptitle('Partial Dependence Plots',
+                 fontsize=TYPE_SCALE['panel_letter'],
+                 color=resolve_ink(theme_target()), y=1.03)
     
     # Flatten the array of axes (subplots always returns an array here, since
     # ncols > 1 — a bare `[axs]` would hand the whole row to a single feature).
@@ -1501,11 +1591,15 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
     return fig
 
 def save_shap_plot(fig, src, variable, i):
-    """Save a SHAP figure to ``<src>/<variable>/<i>_figure.pdf``."""
+    """Save a SHAP figure to ``<src>/<variable>/<i>_figure``.
+
+    Through :func:`spacr.plot.save_figure` for the same reason
+    :func:`save_plot` is: the format follows the preference, not a literal.
+    """
     import os
     os.makedirs(f'{src}/{variable}', exist_ok=True)
     filename_fig = f'{src}/{variable}/{str(i)}_figure.pdf'
-    fig.savefig(filename_fig, dpi=600, format='pdf', bbox_inches='tight')
+    filename_fig = save_figure(fig, filename_fig, bbox_inches='tight')
     print(f"Saved figure as {filename_fig}")
 
 def generate_shap_summary_plot(df,target='prauc', clean=True, dst=None):
