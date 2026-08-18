@@ -405,7 +405,40 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # `spacr.plot`'s restyle added none: 45 figures moved inside the house
     # style and one private helper (_montage_type_size) was added, which is
     # private and therefore not surface.
-    expected = 7117
+    # +68 on 2026-08-18, measured rather than counted off a diff: 7117 ->
+    # 7185. NINETEEN of them are the interactive plot widget's, from
+    # instructions 147, 148 and 108 -- enumerated below, each measured by
+    # taking the set difference against `a3944e21`, the commit that batch
+    # started from:
+    #
+    #   spacr.qt.widgets.fast_plots -- 19
+    #     the log transform being OURS rather than pyqtgraph's (148 A):
+    #       log_axes, set_log_axes, log_reason
+    #     grid and the canvas shape, off the checkbox strip and onto the
+    #     right-click menu (148 C, 147 B):
+    #       grid_shown, set_grid, canvas_shape, canvas_ratio,
+    #       set_canvas_shape, resizeEvent
+    #     reading a menu by what a user can REACH, which is what let the
+    #     categories land without rewriting sixty assertions (147 C):
+    #       menu_entries, menu_groups, menu_reading_order
+    #     the level a plot is drawing, said on the plot (147 A):
+    #       level_note
+    #     a restyle menu built from a style dataclass's own fields (108.3):
+    #       offer_style, add_style_entries, style_field_kind,
+    #       style_field_choices, style_field_group, style_field_label
+    #
+    # THE OTHER 49 ARE NOT THIS BATCH'S and are not enumerated here: several
+    # sessions land public surface concurrently, this count was already 7166
+    # with the plot widget at a3944e21, and attributing another session's
+    # symbols by guesswork would be a worse record than saying so. Whoever
+    # lands the next bump should name theirs the same way -- by set
+    # difference, not by reading a diff.
+    #
+    # THE CATALOGS FOR ALL 68 ARE NOT REGENERATED. The same debt the two
+    # bumps above record: tools/build_documentation_i18n.py behind a
+    # translation model is a separate job, and until it runs the localized
+    # API pages omit these contracts. The English ones do not.
+    expected = 7185
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -420,7 +453,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7236
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7304
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
