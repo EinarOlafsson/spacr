@@ -1752,6 +1752,34 @@ class RegressionResultsPanel(QWidget):
         return self._plot_states.pop(self._plot_state_key(source),
                                      None) is not None
 
+    def forget_run(self, source) -> bool:
+        """A run was deleted: drop its view, and clear the panel if it is IT.
+
+        THE ORDER IS THE WHOLE POINT, and instruction 116 wrote the trap down
+        before 146 existed: "deleting the run CURRENTLY ON SCREEN must also
+        clear the panel, or leaving that run re-saves the state that was just
+        forgotten." `set_frame` calls `_remember_plot_state` on the way out of
+        a run, so forgetting first and clearing second files the deleted run
+        again, under the same key, with the state it was just relieved of.
+
+        So the panel lets go of the run FIRST -- `_path` and `_frame` cleared
+        by hand rather than through `set_frame`, which is a route INTO a run
+        and re-saves on the way -- and forgets afterwards.
+
+        :param source: the run's folder, or any path inside it.
+        :returns: whether anything was dropped: a state, the table, or both.
+        """
+        key = self._plot_state_key(source)
+        was_showing = bool(key) and self._plot_state_key(self._path) == key
+        if was_showing:
+            self._path = ""
+            self._frame = None
+            self.clear_diagnostics(
+                "the run this was describing has been deleted")
+            self.say("The run this was showing has been deleted. "
+                     "Pick another in the Runs tab.")
+        return bool(self.forget_plot_state(source)) or was_showing
+
     @classmethod
     def _plot_state_key(cls, source) -> str:
         """What a run's remembered view is filed under: ITS FOLDER.
