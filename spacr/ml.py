@@ -3721,11 +3721,18 @@ def _write_regression_sheet(coef_df, dst):
         folder = str(dst)
         os.makedirs(folder, exist_ok=True)
         path = os.path.join(folder, 'regression_figure.pdf')
-        from .plot import save_figure
+        from .figure_sink import publish
 
-        # The sheet is THE publication figure of the run, so it is the last
-        # one that should ignore the format and resolution the user chose.
-        path = save_figure(sheet.figure, path, bbox_inches='tight')
+        # PUBLISHED, not merely saved. Instruction 139 C: saving a figure and
+        # showing it are the SAME event. This is THE publication figure of a
+        # regression run and it was the one figure of the run nobody could
+        # look at -- written and then closed in the next breath, so no
+        # `plt.show()` ever walked past it and the gallery never held it.
+        #
+        # `publish` still writes through `spacr.plot.save_figure`, so the
+        # sheet remains the last figure that should ignore the format and
+        # resolution the user chose.
+        path = publish(sheet.figure, path, bbox_inches='tight') or path
         with open(os.path.join(folder, 'regression_figure_legend.txt'),
                   'w') as handle:
             handle.write(sheet.legend() + '\n')
@@ -7400,11 +7407,32 @@ def generate_ml_scores(settings):
     train_features_df.to_csv(ml_features, mode='w', encoding='utf-8')
     metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
 
-    plate_heatmap_path = save_figure(plate_heatmap, plate_heatmap_path)
-    permutation_fig_path = save_figure(figs[0], permutation_fig_path)
-    feature_importance_fig_path = save_figure(
+    # PUBLISHED, not merely saved -- instruction 139 C. `plot_permutation`,
+    # `plot_feature_importance` and `shap_analysis` all RETURN a figure and
+    # none of them shows it, and `shap_analysis` closes its own, so these four
+    # were written to the results folder and then never seen again by anybody
+    # running the app. `publish` writes through `spacr.plot.save_figure`
+    # exactly as before -- same file, same format preference -- and announces
+    # the figure as part of the same event.
+    #
+    # The plate heatmap is the one that can arrive twice: `plot_plates` shows
+    # it itself when `verbose` is on. The bridge de-duplicates by figure, so
+    # it is one tile either way.
+    #
+    # A FIGURE THAT WAS NEVER DRAWN IS NOT PUBLISHED, and `publish` is where
+    # that is decided. `ml_analysis` returns ``feature_importance_fig = None``
+    # for every model without ``feature_importances_`` -- logistic regression
+    # and HistGradientBoostingClassifier, two of the offered `model_type_ml`
+    # values -- and the old `save_figure(figs[1], ...)` went straight into
+    # ``None.savefig`` and took the whole scoring run down AFTER the model had
+    # been fitted and every object scored.
+    from .figure_sink import publish
+
+    plate_heatmap_path = publish(plate_heatmap, plate_heatmap_path)
+    permutation_fig_path = publish(figs[0], permutation_fig_path)
+    feature_importance_fig_path = publish(
         figs[1], feature_importance_fig_path)
-    shap_fig_path = save_figure(shap_fig, shap_fig_path)
+    shap_fig_path = publish(shap_fig, shap_fig_path)
 
     # The model scored every object in every source database, so the scores
     # belong back on every one of those databases -- not only in a CSV, and not
