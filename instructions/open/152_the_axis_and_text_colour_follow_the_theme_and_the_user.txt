@@ -1,0 +1,109 @@
+================================================================================
+THE AXIS AND TEXT COLOUR FOLLOW THE THEME, AND THE USER CAN SET THEM
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 -- two reports, one surface:
+
+  "dosnt look like there is an option to change the exis color for the colcano
+   plot"
+
+  "in white mode lots of graphs still have white text and axes color"
+
+Related: 150 is the SAVED figure (dark mode writes white ink onto paper). This
+         is the LIVE figure. 108/147 are the menus the control belongs on.
+         118 is figure preferences. 106 is the greying rule.
+
+--------------------------------------------------------------------------------
+A. THE WHITE-TEXT-IN-LIGHT-MODE BUG. FOUND, AND IT IS EXACT.
+--------------------------------------------------------------------------------
+
+`preferences.get_figure_colors()` is written correctly. It stores the TOKEN
+"auto" and resolves it against the live theme at read time:
+
+    auto_fg = "#ffffff" if dark else "#000000"
+
+So on a light theme "auto" gives black text, and the reported bug should be
+impossible. IT IS NOT, because the token gets overwritten with its own
+resolution:
+
+    figure_queue.py:1884   self._bg, self._fg = get_figure_colors()
+                           ^ the RESOLVED pair -- "#ffffff" on a dark theme,
+                             never the word "auto"
+
+    figure_queue.py:2019   set_figure_colors(self._bg, self._fg)
+                           ^ writes that resolution back as an EXPLICIT value
+
+THE DIALOG DOES NOT NEED TO BE CHANGED FOR THIS TO FIRE. Open the figure style
+dialog once while on a dark theme, press OK, alter nothing -- and "auto" is
+gone for good, replaced by a hard "#ffffff". Every figure is then white-on-
+whatever for the rest of time, and switching to a light theme leaves white
+text on a white page. That is the second report, exactly.
+
+VERIFIED ON THE MAINTAINER'S OWN SETTINGS, 2026-08-18:
+
+    stored fig bg : 'none'        <- the resolved TRANSPARENT_FIGURE_BG
+    stored fig fg : '#ffffff'     <- the resolved dark-theme foreground
+    theme         : dark
+    resolved      : ('none', '#ffffff')
+
+Both are explicit, so the "auto" branch never runs. It already happened.
+
+THE FIX IS TO STORE THE TOKEN, NOT ITS ANSWER. A dialog seeded from a resolved
+value cannot tell "the user chose white" apart from "the theme is dark", and
+once it writes back, nothing can. So:
+
+  * the dialog seeds from the STORED tokens and shows what "auto" currently
+    resolves to as a preview, labelled as automatic rather than as a choice;
+  * it writes "auto" back unless the user actually picked a colour;
+  * there is an explicit way BACK to automatic -- "Follow the theme" -- because
+    a user who has been bitten by this has no other route to it;
+  * and this is a general rule worth stating once: NEVER PERSIST A RESOLVED
+    DEFAULT. It converts a preference that tracks into a preference that
+    freezes, and the damage outlives the session that caused it.
+
+MIGRATING WHAT IS ALREADY BROKEN. Per the standing rule, correct the format
+going forward AND convert the old content: a stored value that exactly equals
+what "auto" would have resolved to on some theme is indistinguishable from the
+bug and should be migrated back to "auto" once, with a line saying so. A user
+who genuinely chose #ffffff on a dark theme loses nothing they cannot re-pick,
+and every user who never chose anything gets their theme back.
+
+--------------------------------------------------------------------------------
+B. THERE IS NO AXIS-COLOUR CONTROL, AND "FONT COLOUR" IS NOT IT
+--------------------------------------------------------------------------------
+
+The menu offers "Font colour…" (`_ask_font_colour` -> `set_font_colour`), which
+is the TEXT. The axes themselves -- the spines, the ticks, the tick labels --
+take `_foreground` at construction and there is no control that changes them
+afterwards. So the first report is correct: there is no option.
+
+WHAT TO ADD, on the plot's own menu under Appearance (147's categories):
+
+    Axis colour…        spines, ticks and tick labels
+    Text colour…        title, axis labels, annotations   (today's "Font colour")
+    Follow the theme    puts both back to automatic
+
+NAME THEM APART because they are genuinely different marks and a user asked for
+one of them specifically. And make the pair reachable from the figure
+preferences too (118), so it can be set once rather than per plot.
+
+THE SAME CONTROL MUST REACH THE MATPLOTLIB FIGURES. `figures/style.py` and
+`figure_queue._style_figure_colors` read the same preference, so an axis colour
+set in one place is the axis colour everywhere -- that shared source is the
+good half of the present design and this must not break it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Switch to the light theme with no explicit colour set: every figure's text
+  AND axes are dark. Checked by sampling pixels on a rendered figure, both a
+  pyqtgraph one and a matplotlib one.
+* Open the figure style dialog, press OK without touching anything, switch
+  theme: the figures still follow. This is the regression test for A and it
+  fails today.
+* A settings store already holding '#ffffff' is migrated back to 'auto' once,
+  and the migration says so in the console.
+* The volcano's menu has an axis colour entry, it changes the spines and ticks
+  and not the title, and "Follow the theme" undoes both.

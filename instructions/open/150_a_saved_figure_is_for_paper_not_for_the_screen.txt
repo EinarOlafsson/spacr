@@ -1,0 +1,125 @@
+================================================================================
+A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "when a graph is saved and the user is in dark mode white elements are
+   changed to black for saving (text lines, etc)."
+
+Related: 136 is the house style. 118 is the figure preferences this becomes a
+         setting in. 139 is every generated graph. 108/147 are the per-figure
+         restyle menus it has to be reachable from.
+
+--------------------------------------------------------------------------------
+THE MECHANISM, FOUND 2026-08-18 RATHER THAN ASSUMED
+--------------------------------------------------------------------------------
+
+There is ONE source of figure colour and BOTH renderers read it:
+
+    spacr.qt.preferences.get_figure_colors() -> (background, foreground)
+
+    spacr/qt/widgets/fast_plots.py::_figure_colors   (pyqtgraph)
+    the matplotlib renderer, same function
+
+That shared source is a good design and is why a theme switch moves both. It
+is also exactly why this bug reaches every figure at once: in dark mode
+`foreground` is white, so the axes, ticks, tick labels, axis labels, title,
+legend text and any annotation line are white -- and
+
+    THERE IS NO EXPORT-TIME INVERSION ANYWHERE.
+
+Grepped: `save_figure` decides format, font type and DPI, and says nothing
+about colour. `_export_pdf` / `_export_png` / `_paint_scene` render the scene
+as it stands. So a figure saved from a dark-themed session is white ink, and
+white ink on a white page is a blank rectangle with some coloured dots in it.
+
+WHY THIS IS WORSE THAN IT LOOKS. A PNG saved with a transparent background
+looks fine in the file manager's dark preview and disappears when it is
+pasted into a manuscript. The user finds out at the point of writing the
+paper, which is the most expensive possible moment.
+
+--------------------------------------------------------------------------------
+A. THE CHROME FLIPS. THE DATA DOES NOT.
+--------------------------------------------------------------------------------
+
+THIS IS THE WHOLE OF THE DESIGN AND IT IS EASY TO GET WRONG. "Change white
+elements to black" must mean the FIGURE'S FURNITURE and must not mean every
+white pixel:
+
+    FLIPS -- axes, spines, ticks, tick labels, axis labels, title, legend
+             text and frame, grid lines, annotation text, the significance
+             line, the zero line, arrows and leader lines.
+
+    DOES NOT FLIP -- the data. A point coloured for its localisation, a
+             heatmap's colour map, the up/down colouring on a volcano, the
+             highlighted group in the house style. Those carry the CLAIM;
+             inverting them changes what the figure says.
+
+A blanket white->black would turn a white data point black, which on a
+volcano is the colour of "not a hit". That is the failure this section exists
+to prevent.
+
+--------------------------------------------------------------------------------
+B. THE BACKGROUND IS THE OTHER HALF, AND TRANSPARENT IS NOT THE ANSWER
+--------------------------------------------------------------------------------
+
+Dark ink on a transparent background is still unreadable on a dark slide, and
+a figure saved for a manuscript is going onto white. So the saved figure gets
+an EXPLICIT LIGHT BACKGROUND by default rather than a transparent one, and
+transparency stays available for anyone compositing onto their own colour.
+
+Three states, named, because they are genuinely different jobs:
+
+    For print (default)   light background, dark chrome
+    As on screen          exactly what the user is looking at
+    Transparent           no background, chrome follows the print rule
+
+--------------------------------------------------------------------------------
+C. IT MUST REACH BOTH RENDERERS, AND THE CHECK IS THE SAME FOR BOTH
+--------------------------------------------------------------------------------
+
+matplotlib figures go through `spacr.plot.save_figure`, and it already scopes
+`pdf.fonttype` with `rc_context` -- so the colour flip belongs in the same
+`rc_context`, for the same reason: SCOPED TO THE SAVE. Nothing on screen may
+change. A user watching a plot while it saves must not see it flash.
+
+pyqtgraph figures go through `FastPlot._paint_scene`, which already sets
+`setExportMode(True)` on every mark for the length of the render and puts it
+back in a `finally`. That is precisely the shape this needs, and it is the
+place to do it.
+
+Both are covered by 139 C's rule that saved and visible are one event: the
+tile in the gallery is the SCREEN version, the file is the PRINT version, and
+the difference is deliberate rather than a disagreement.
+
+--------------------------------------------------------------------------------
+D. SAY WHEN A DATA COLOUR STOPS WORKING
+--------------------------------------------------------------------------------
+
+A palette chosen against a dark background can be illegible on white -- a pale
+yellow that reads well on near-black has almost no contrast on paper. Since the
+data colours deliberately do NOT flip (section A), this is a real possibility
+and the figure must not simply become unreadable in a new way.
+
+Measure the contrast of each data colour against the light background at save
+time, and where one falls below the legibility floor, SAY SO rather than
+silently substituting: the house style already has an accessible palette, and
+a substitution the user did not ask for changes the picture. Naming the colour
+and offering the swap is the honest version.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* In dark mode, save a volcano and OPEN THE FILE: the text and axes are dark,
+  the background is light, and the dots are the same colours they were on
+  screen. Measured on the pixels, not judged by eye.
+* The plot on screen is byte-identical before and after the save.
+* The same is true of a pyqtgraph export and a matplotlib one, checked
+  separately, because they are two code paths.
+* "As on screen" still produces the old behaviour for anyone who wants it.
+* A data colour that would be illegible on the light background is named
+  before the file is written.
+* A saved PDF pasted into a white document is readable with nothing adjusted.
