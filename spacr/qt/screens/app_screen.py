@@ -527,6 +527,24 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     return out
 
 
+def _elapsed_words(seconds: float) -> str:
+    """``473.0`` -> ``"7 min 53 s"``. What the heartbeat says out loud.
+
+    WHOLE UNITS ONLY, and never a bare float. "473.0 s" is a number a reader
+    has to divide before it means anything, and the question the heartbeat
+    answers -- has this been going long enough to worry -- is asked in
+    minutes and hours.
+    """
+    total = int(max(0.0, float(seconds)))
+    hours, rest = divmod(total, 3600)
+    minutes, secs = divmod(rest, 60)
+    if hours:
+        return f"{hours} h {minutes} min"
+    if minutes:
+        return f"{minutes} min {secs} s"
+    return f"{secs} s"
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -566,6 +584,13 @@ class AppScreen(QWidget):
         # The Model & Inference explainer (instruction 132). Only the
         # regression panel builds one; every other screen leaves it None.
         self._model_explainer = None
+        # THE HEARTBEAT (140). Named here rather than created lazily so a
+        # screen that never runs anything still answers `_stop_the_heartbeat`
+        # -- `_on_finished` calls it on every module, not only the two that
+        # start one.
+        self._heartbeat = None
+        self._heartbeat_said = 0.0
+        self._slow_fit = False
         #: {section title: its prose box}. Born here for the same reason
         #: everything else in this block is: a screen that has not built its
         #: settings pane yet still answers "which sections carry a box".
@@ -2896,6 +2921,11 @@ class AppScreen(QWidget):
         except Exception:
             LOG.debug("could not read the hashing preference", exc_info=True)
 
+        # A LONG FIT SAYS IT WILL BE LONG (instruction 140). Before the
+        # worker is even built, so the sentence is on screen ahead of the
+        # first line the run prints.
+        self._announce_the_fit(settings)
+
         self._thread, worker = make_thread(entry, settings)
         # Keep a strong reference to the worker on ``self``. PySide6
         # does NOT keep a QObject alive through a bound-method signal
@@ -2921,6 +2951,187 @@ class AppScreen(QWidget):
         # ("QThread: Destroyed while thread is still running" → abort).
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
+
+    # ------------------------------------------------------------------
+    # A long fit says it will be long, and says where it has got to (140)
+    # ------------------------------------------------------------------
+    #
+    # Reported 2026-08-18, twice, while a fit was running correctly: "im
+    # running the mixed model now and it is taking much longer than before is
+    # that normal?" ... "it is still going, cpu at 100 percent". AN HOUR OF
+    # SILENCE AT 100% CPU IS INDISTINGUISHABLE FROM A HANG, and that is the
+    # whole of the report -- the run was healthy and had no way to say so.
+
+    #: When the heartbeat speaks, in seconds since the run started.
+    #:
+    #: SPARSE AND WIDENING, not a fixed tick. A line every thirty seconds is
+    #: 120 lines in the hour this exists for, and a console holding 120
+    #: identical lines is the same silence with more scrolling. The early
+    #: entries are close together because that is when a user is deciding
+    #: whether anything is happening at all.
+    HEARTBEAT_SCHEDULE = (30, 60, 120, 300, 600, 1200, 1800, 2700, 3600)
+
+    #: And every this many seconds after the last scheduled one.
+    HEARTBEAT_INTERVAL = 1800
+
+    #: How often the timer wakes to check the schedule. Cheap, and finer than
+    #: the schedule so no entry is skipped by a slow event loop.
+    HEARTBEAT_TICK_MS = 5000
+
+    def _announce_the_fit(self, settings) -> None:
+        """Say what is about to run, what it costs, and how big it is.
+
+        THREE SENTENCES, IN THIS ORDER, and each is a different question:
+
+        * WHAT IS RUNNING -- the model, its level and its backend, read off
+          the settings the run was actually started with rather than off the
+          widgets, so a re-fit describes the re-fit.
+        * WHAT IT COSTS -- the measurement from
+          :func:`~spacr.qt.screens.settings_model.mixed_cost_note`, which the
+          model box states too. One source, so the two cannot drift.
+        * HOW BIG THE DESIGN IS -- and that one needs the count files read,
+          so it goes through the screen's `JobRunner` and arrives when it
+          arrives. Reading a 500,000-row count CSV on the GUI thread to warn
+          somebody about a slow fit would be its own freeze.
+
+        A no-op outside the regression screens: no other module has a
+        measured cost to quote, and "still running" over a segmentation is
+        what the progress bar is already for.
+        """
+        if self.app_key not in ("regression", "sweep"):
+            return
+        from .settings_model import (SLOW_MODELS, mixed_cost_note,
+                                     normalise_regression_level,
+                                     regression_design_scan)
+
+        model = str((settings or {}).get("regression_type") or "auto").lower()
+        self._console.append_notice(
+            "→ Model: {model}, level {level}, backend {backend}.\n",
+            model=model,
+            level=normalise_regression_level((settings or {}).get("level")),
+            backend=str((settings or {}).get("regression_backend")
+                        or "statsmodels (CPU)"),
+        )
+        if model == "mixed":
+            self._console.append_notice("■ {note}\n", note=mixed_cost_note())
+        self._slow_fit = model in SLOW_MODELS
+        self._start_the_heartbeat()
+
+        # THE DESIGN, off the GUI thread. `submit` returns before the read
+        # starts; the sentence lands a moment after the run's own first line
+        # and says which it is.
+        scan = dict(settings or {})
+        try:
+            self._jobs.submit(lambda: regression_design_scan(scan),
+                              self._on_design_scanned)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not scan the design", exc_info=True)
+
+    def _on_design_scanned(self, design) -> None:
+        """Put the size of the design in the console.
+
+        SAYS WHICH NUMBER IT IS. This is the design as the COUNT FILES hold
+        it -- before the merge with the scores, before `fraction_threshold`
+        and before the well filters -- and the run prints its own
+        post-cleaning counts a few lines later. Two numbers that differ is
+        the filter having done something, which is exactly what instruction
+        140 wants this line to be able to reveal; two numbers that both claim
+        to be "the design" and disagree is a bug report.
+        """
+        if not isinstance(design, dict):
+            return
+        genes, guides = design.get("genes"), design.get("guides")
+        wells, note = design.get("wells"), str(design.get("note") or "")
+        if genes is not None and guides is not None and wells is not None:
+            self._console.append_notice(
+                "■ The design in the count files: {genes} genes and {guides} "
+                "guides over {wells} wells, from {rows} rows in {files} "
+                "file(s). That is BEFORE the merge with the scores and "
+                "before the filters — the run's own counts follow.\n",
+                genes=genes, guides=guides, wells=wells,
+                rows=design.get("rows", 0), files=design.get("files", 0))
+        elif guides is not None:
+            self._console.append_notice(
+                "■ The count files hold {guides} distinct gRNAs in {rows} "
+                "rows. {why}\n",
+                guides=guides, rows=design.get("rows", 0),
+                why=note or "The rest of the design could not be read.")
+        else:
+            self._console.append_notice(
+                "■ Could not size the design from the count files: {why}\n",
+                why=note or "nothing readable in them")
+
+    def _start_the_heartbeat(self) -> None:
+        """Begin reporting where a long run has got to."""
+        self._heartbeat_said = 0.0
+        timer = getattr(self, "_heartbeat", None)
+        if timer is None:
+            timer = QTimer(self)
+            timer.setInterval(self.HEARTBEAT_TICK_MS)
+            timer.timeout.connect(self._on_heartbeat)
+            self._heartbeat = timer
+        timer.start()
+
+    def _stop_the_heartbeat(self) -> None:
+        """The run is over: stop talking about it."""
+        timer = getattr(self, "_heartbeat", None)
+        if timer is not None:
+            timer.stop()
+
+    def _due_heartbeat(self, elapsed: float) -> bool:
+        """Whether the schedule has passed a mark this run has not spoken at.
+
+        Kept apart from the timer so the schedule can be driven directly: a
+        test that had to wait 3,600 real seconds to check the last entry
+        would not be written, and the entry nobody checks is the one that is
+        wrong.
+        """
+        said = float(getattr(self, "_heartbeat_said", 0.0))
+        due = [mark for mark in self.HEARTBEAT_SCHEDULE
+               if said < mark <= elapsed]
+        if due:
+            self._heartbeat_said = float(due[-1])
+            return True
+        last = self.HEARTBEAT_SCHEDULE[-1]
+        if elapsed < last + self.HEARTBEAT_INTERVAL:
+            return False
+        steps = int((elapsed - last) // self.HEARTBEAT_INTERVAL)
+        mark = last + steps * self.HEARTBEAT_INTERVAL
+        if said >= mark:
+            return False
+        self._heartbeat_said = float(mark)
+        return True
+
+    def _on_heartbeat(self) -> None:
+        """One scheduled line saying the run is alive and where it has got to.
+
+        NOT A SPINNER WITH NO CONTENT. The line names the elapsed time and,
+        for a fit that holds one core by design, says that holding one core
+        is what healthy looks like -- because "cpu at 100 percent" was the
+        observation the user could not interpret.
+        """
+        import time as _time
+
+        thread = getattr(self, "_thread", None)
+        if thread is None or not thread.isRunning():
+            self._stop_the_heartbeat()
+            return
+        started = getattr(self, "_run_started_at", None)
+        if not started:
+            return
+        elapsed = _time.time() - float(started)
+        if not self._due_heartbeat(elapsed):
+            return
+        if getattr(self, "_slow_fit", False):
+            self._console.append_notice(
+                "■ Still fitting — {elapsed} so far. This model is a "
+                "single-threaded optimisation, so one core at 100% and the "
+                "others idle is what a healthy fit looks like. Stop is "
+                "live.\n", elapsed=_elapsed_words(elapsed))
+        else:
+            self._console.append_notice(
+                "■ Still running — {elapsed} so far.\n",
+                elapsed=_elapsed_words(elapsed))
 
     def _open_preferences_dialog(self) -> None:
         """Open Preferences from this screen.
@@ -3393,6 +3604,10 @@ class AppScreen(QWidget):
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
         """
+        # The heartbeat outlives the run it describes unless it is stopped:
+        # a QTimer parented to this widget keeps firing until the widget is
+        # destroyed, and its slot touches the console.
+        self._stop_the_heartbeat()
         th = getattr(self, "_thread", None)
         if th is not None:
             try:
@@ -3492,6 +3707,10 @@ class AppScreen(QWidget):
 
     def _on_finished(self, ok: bool):
         from ..button_roles import set_button_busy
+        # BEFORE ANYTHING ELSE. A heartbeat that fires after the run has
+        # finished says "still fitting" underneath "Finished", and the last
+        # line of a console is the one a user reads.
+        self._stop_the_heartbeat()
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)
         set_button_busy(self._btn_run, False)
