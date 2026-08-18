@@ -26,13 +26,26 @@ NC = "233460"   # spacr default negative control
 PC = "220950"   # spacr default positive control
 GENES = [NC, PC, "gene3", "gene4"]
 
-# Coefficients patsy produces for the fixed-effects formula, minus the
-# row / column terms that process_model_coefficients filters out.
-EXPECTED_FEATURES = (
+# Coefficients patsy produces for ONE LEVEL's formula, minus the row / column
+# terms that process_model_coefficients filters out.
+#
+# CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17). This used to be the
+# UNION of both -- guides and genes in one design -- and that design cannot be
+# fitted: `gene_fraction` is the sum of the gene's guide fractions
+# (`check_and_clean_data`), so the gene block is an exact linear combination of
+# the guide block. Measured on the maintainer's TSG101 screen: 1248 parameters
+# at rank 862, a 386-dimensional null space, and a fit whose residual sum of
+# squares is unchanged when the coefficients are moved along it. `regression()`
+# fits ONE level now; `regression_levels()` fits both, separately.
+EXPECTED_GRNA_FEATURES = (
     {"Intercept"}
     | {f"fraction:grna[{g}_{s}]" for g in GENES for s in ("a", "b")}
+)
+EXPECTED_GENE_FEATURES = (
+    {"Intercept"}
     | {f"gene_fraction:gene[{g}]" for g in GENES}
 )
+EXPECTED_FEATURES = EXPECTED_GRNA_FEATURES
 
 
 @pytest.fixture(autouse=True)
@@ -275,26 +288,44 @@ def test_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
     )
 
     assert reg_type == "ols"
+    # `level` says which of the two fits produced the row, so a stacked
+    # results.csv can be read back apart. Instruction 132.
     assert list(coef_df.columns) == [
-        "feature", "coefficient", "p_value", "-log10(p_value)", "grna", "condition",
+        "feature", "coefficient", "p_value", "-log10(p_value)", "grna",
+        "condition", "level",
     ]
+    assert set(coef_df["level"]) == {"grna"}     # the default level
     # Row / column fixed effects are stripped from the reported coefficients.
     assert not coef_df["feature"].str.contains("row|column").any()
-    # One coefficient per gRNA plus one per gene plus the intercept.
-    assert set(coef_df["feature"]) == EXPECTED_FEATURES
-    assert len(coef_df) == 8 + 4 + 1
+    # One coefficient per gRNA plus the intercept -- and NO gene terms, which
+    # is the collinearity instruction 132 removed.
+    assert set(coef_df["feature"]) == EXPECTED_GRNA_FEATURES
+    assert len(coef_df) == 8 + 1
+
+    # ...and the gene level is a SEPARATE fit of the same wells.
+    _model, gene_coef, _kind = regression(
+        df, csv_path, dependent_variable="predictions",
+        regression_type="ols", nc=NC, pc=PC, dst=dst, level="gene",
+    )
+    assert set(gene_coef["feature"]) == EXPECTED_GENE_FEATURES
+    assert set(gene_coef["level"]) == {"gene"}
     assert np.allclose(coef_df["-log10(p_value)"], -np.log10(coef_df["p_value"]),
                        equal_nan=True)
     # Control annotation is driven by the nc / pc identifiers.
+    # Two guide rows each, not three: the third was the gene term, and the
+    # gene term is a different fit now (instruction 132).
     nc_rows = coef_df[coef_df["feature"].str.contains(NC)]
     pc_rows = coef_df[coef_df["feature"].str.contains(PC)]
-    assert set(nc_rows["condition"]) == {"nc"} and len(nc_rows) == 3
-    assert set(pc_rows["condition"]) == {"pc"} and len(pc_rows) == 3
+    assert set(nc_rows["condition"]) == {"nc"} and len(nc_rows) == 2
+    assert set(pc_rows["condition"]) == {"pc"} and len(pc_rows) == 2
+    gene_nc = gene_coef[gene_coef["feature"].str.contains(NC)]
+    assert set(gene_nc["condition"]) == {"nc"} and len(gene_nc) == 1
     assert hasattr(model, "params") and "Intercept" in model.params.index
 
     out = capsys.readouterr().out
     assert "Using regression type: ols" in out
-    assert "Performing ols regression" in out
+    # The line names the LEVEL too, because a run fits two models now.
+    assert "Performing ols grna-level regression" in out
     assert "Data will not be scaled" in out
     # The proof that matters: the intercept column reached the fit as ones.
     intercept = model.model.exog[:, list(model.model.exog_names).index("Intercept")]
@@ -327,7 +358,7 @@ def test_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
     assert "Data will not be scaled" in out          # bounded response is left unscaled
     assert type(model.model.family).__name__ == "Binomial"
     assert isinstance(model.model.family.link, Logit)
-    assert len(coef_df) == 13
+    assert len(coef_df) == 9          # 8 guides + intercept, one level
     assert coef_df["p_value"].between(0, 1).all()
     # dst=None -> nothing is written to disk.
     assert list(tmp_path.iterdir()) == []
@@ -360,7 +391,7 @@ def test_regression_lasso_skips_scaling_and_reports_pvalues(tmp_path, capsys):
 
     assert reg_type == "lasso"
     assert hasattr(model, "coef_")
-    assert len(coef_df) == 13
+    assert len(coef_df) == 9          # 8 guides + intercept, one level
     assert "Data will not be scaled" in capsys.readouterr().out
     # lasso/ridge coefficients come straight off the sklearn estimator, so the
     # feature column is the design-matrix column names.
@@ -381,9 +412,25 @@ def test_regression_random_row_column_effects_fits_mixed_model(tmp_path):
 
     # The mixed branch overrides whatever regression_type was requested.
     assert reg_type == "mixed"
-    assert list(coef_df.columns) == ["feature", "coefficient", "p_value"]
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): mixed is now
+    # y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID. The gene is
+    # a FIXED effect and the guide is a RANDOM effect nested inside it, so
+    # `fraction:grna` is not a term of this model at all -- it was half of the
+    # collinear design that instruction removed. Each row says what it is, and
+    # the guide rows are BLUPs with no p-value.
+    from spacr.ml import TERM_BLUP, TERM_FIXED
+
+    assert list(coef_df.columns) == ["feature", "coefficient", "p_value",
+                                     "term_type", "level"]
+    assert set(coef_df["level"]) == {"gene"}
     assert "Intercept" in set(coef_df["feature"])
-    assert any(f.startswith("fraction:grna[") for f in coef_df["feature"])
+    assert not any(f.startswith("fraction:grna[") for f in coef_df["feature"])
+    assert any(f.startswith("gene_fraction:gene[") for f in coef_df["feature"])
+    blups = coef_df[coef_df["term_type"] == TERM_BLUP]
+    assert len(blups) == df["grna"].nunique()
+    assert blups["p_value"].isna().all()
+    assert coef_df.loc[coef_df["term_type"] == TERM_FIXED,
+                       "p_value"].notna().any()
     assert hasattr(model, "fe_params")
     assert len(model.resid) == len(df)
     # The mixed branch produces fit_mixed_model's residual histogram; the

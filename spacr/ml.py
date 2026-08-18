@@ -483,15 +483,88 @@ def select_glm_family(y):
         print("Using Gaussian family (for continuous data).")
         return sm.families.Gaussian()
 
-def prepare_formula(dependent_variable, random_row_column_effects=False,
-                    block_screen=False):
-    """Build the fixed-effects formula for the gRNA / gene regression.
+#: The two things a fixed-effects screen model can be ABOUT, and the term each
+#: one regresses on. One level per fit -- see :func:`prepare_formula`.
+LEVEL_TERMS: dict = {
+    'grna': 'fraction:grna',
+    'gene': 'gene_fraction:gene',
+}
 
-    Both branches regress the response on ``fraction:grna`` and
-    ``gene_fraction:gene``. By default ``rowID`` and ``columnID`` are
-    added as *fixed* effects; with ``random_row_column_effects=True``
-    they are left out of the formula because :func:`fit_mixed_model`
-    puts plate, row and column into its random structure instead.
+#: What ``level`` may be. ``'both'`` is not a design; it is an instruction to
+#: fit BOTH of the above SEPARATELY and correct each within itself.
+LEVEL_CHOICES: tuple = ('both', 'grna', 'gene')
+
+#: The design spaCR fitted from its first commit until instruction 132, kept
+#: as a literal so :func:`spacr.ml` can refuse to emit it and so a test has
+#: something exact to grep the tree for.
+#:
+#: ``check_and_clean_data`` builds ``gene_fraction`` as the SUM of the gene's
+#: gRNA fractions within a well, so every ``gene_fraction:gene[G]`` column is
+#: the sum of gene G's ``fraction:grna`` columns whenever G's guides do not
+#: share a well -- which is 386 of the 389 genes on the maintainer's TSG101
+#: screen. Measured there: the design is 1945 rows x 1248 parameters with RANK
+#: 862, a 386-dimensional null space that annihilates it EXACTLY (max |Xv| =
+#: 0.0, not merely small), and a condition number of 2.3e18. statsmodels does
+#: not refuse a singular design; it pseudo-inverts, so the fit came back with a
+#: coefficient and a P value for every term while the residual sum of squares
+#: was bit-identical at the answer it gave and at that answer plus seven times
+#: a null vector. That is the whole defect: one arbitrary solution out of
+#: infinitely many, reported as if it were the solution. Its visible signature
+#: is the 102 single-guide genes whose gene column is an exact duplicate of
+#: their one guide column -- 244480 and 244480_3 come back identical to the
+#: fifteenth digit.
+COLLINEAR_FORMULA_FRAGMENT = 'fraction:grna + gene_fraction:gene'
+
+
+def _level_term(level):
+    """``LEVEL_TERMS[level]``, with the error that says why ``'both'`` is not one.
+
+    :raises ValueError: for ``'both'`` (two fits, so ask for one at a time) or
+        for anything that is not a level at all.
+    """
+    key = str(level).strip().lower()
+    if key in LEVEL_TERMS:
+        return LEVEL_TERMS[key]
+    if key == 'both':
+        raise ValueError(
+            "level='both' is TWO fits, not one design, so it has no single "
+            "formula: call prepare_formula once with level='grna' and once "
+            "with level='gene'. Putting both terms in one design is the "
+            "collinear model instruction 132 removed -- gene_fraction is the "
+            "sum of the gene's gRNA fractions, so the gene block is an exact "
+            "linear combination of the gRNA block and the fit is one "
+            "arbitrary solution out of infinitely many.")
+    raise ValueError(
+        f"level={level!r} is not a model level. Choose one of "
+        f"{LEVEL_CHOICES!r}.")
+
+
+def prepare_formula(dependent_variable, random_row_column_effects=False,
+                    block_screen=False, level='grna'):
+    """Build the fixed-effects formula for ONE level of the screen model.
+
+    ONE LEVEL PER FIT. This function used to return
+
+        ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
+
+    and that design is unidentifiable BY CONSTRUCTION -- see
+    :data:`COLLINEAR_FORMULA_FRAGMENT` for the measurement. It now emits
+    exactly one of
+
+        ``level='grna'``   ``y ~ fraction:grna + rowID + columnID``
+        ``level='gene'``   ``y ~ gene_fraction:gene + rowID + columnID``
+
+    and ``level='both'`` is refused here because it is an instruction to fit
+    TWICE, which is :func:`regression_levels`'s job, not a formula.
+
+    Measured on the maintainer's TSG101 screen (1945 rows): the guide design
+    is 859 parameters at rank 859, the gene design 425 at rank 425 -- both
+    full rank, against the combined design's 1248 parameters at rank 862.
+
+    By default ``rowID`` and ``columnID`` are added as *fixed* effects; with
+    ``random_row_column_effects=True`` they are left out of the formula
+    because :func:`fit_mixed_model` puts them into its variance components
+    instead.
 
     ``block_screen`` adds ``screenID`` (instruction 122). Two screens sharing
     a guide library can be stacked into one frame and fitted together, which
@@ -510,17 +583,19 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
         ``columnID`` terms. Default ``False``.
     :param block_screen: Add ``screenID`` as a fixed effect. Default
         ``False``.
+    :param level: ``'grna'`` (default) or ``'gene'``.
     :returns: The formula string.
+    :raises ValueError: for ``level='both'`` or an unknown level.
     """
     from .schema import SCREEN_KEY
 
+    term = _level_term(level)
     screen = f' + {SCREEN_KEY}' if block_screen else ''
     if random_row_column_effects:
-        # Random effects for row and column + gene weighted by gene_fraction + grna weighted by fraction
-        return (f'{dependent_variable} ~ fraction:grna + '
-                f'gene_fraction:gene{screen}')
-    return (f'{dependent_variable} ~ fraction:grna + gene_fraction:gene + '
-            f'rowID + columnID{screen}')
+        # Row and column become variance components in fit_mixed_model, so
+        # they must not also be fixed terms here.
+        return f'{dependent_variable} ~ {term}{screen}'
+    return f'{dependent_variable} ~ {term} + rowID + columnID{screen}'
 
 
 def screen_is_blockable(df) -> bool:
@@ -541,43 +616,232 @@ def screen_is_blockable(df) -> bool:
         return False
     return int(df[SCREEN_KEY].astype(str).nunique(dropna=True)) > 1
 
-def fit_mixed_model(df, formula, dst):
-    """Fit a mixed-effects model with plate/row/column random structure and return coefficients.
+#: How a guide's BLUP is named in the coefficient table. NOT ``fraction:grna``
+#: -- a BLUP is a shrunken prediction of a random effect, not a fixed
+#: coefficient, and giving it the fixed term's name is exactly how it would end
+#: up in a hit list with a q value beside it.
+BLUP_FEATURE_TEMPLATE = 'blup:grna[{}]'
 
-    :param df: DataFrame containing the model variables plus
-        ``plateID``, ``rowID`` and ``columnID``.
-    :param formula: Formula string for fixed effects.
+#: What each row of a mixed fit's coefficient table IS. The column exists so
+#: nothing downstream has to guess from the name, and so a variance component
+#: or a BLUP can never be read as an effect on the response.
+TERM_FIXED = 'fixed'
+TERM_VARIANCE = 'variance'
+TERM_BLUP = 'random_effect_blup'
+
+
+def _blup_guide_name(key):
+    """The guide id inside a statsmodels variance-component BLUP key.
+
+    ``vc_formula={'grna': '0 + C(grna)'}`` labels its columns
+    ``grna[C(grna)[244480_3]]``, so the id is the innermost bracket.
+    Returns ``None`` for the group's own intercept (``'Group'``) and for
+    anything that is not a guide component.
+    """
+    text = str(key)
+    match = re.search(r'C\(grna\)\[(?:T\.)?([^\]]+)\]', text)
+    if match:
+        return match.group(1)
+    return None
+
+
+def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
+                    gene_column='gene', guide_column='grna'):
+    """Fit ``y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID``.
+
+    THE GENE IS FIXED AND THE GUIDE IS RANDOM, NESTED INSIDE IT. This is the
+    only model spaCR offers that says what a guide actually is: a biological
+    replicate of one intended perturbation, carrying its own cutting
+    efficiency and off-target profile, rather than a second independent
+    variable competing with the gene for the same wells.
+
+    THIS IS A REWRITE, NOT A SWITCH. Until instruction 132 this function
+    grouped on ``plateID`` with ``re_formula='1 + rowID + columnID'`` and row /
+    column variance components, and its fixed part was the collinear
+    ``fraction:grna + gene_fraction:gene`` design (see
+    :data:`COLLINEAR_FORMULA_FRAGMENT`). Both halves are gone: the fixed part
+    is the gene level alone, and the random structure is the gene/guide
+    nesting.
+
+    ``(1 | gene/grna)`` is ``(1 | gene) + (1 | gene:grna)``. statsmodels has one
+    ``groups`` argument, so the nesting is expressed the way MixedLM expresses
+    nesting: ``groups=gene`` with ``re_formula='1'`` is the outer intercept,
+    and a variance component evaluated WITHIN each group is the inner one.
+    A variance component is by definition nested in the group, so
+    ``vc_formula={'grna': '0 + C(grna)'}`` is ``(1 | gene:grna)`` exactly --
+    guide effects are not shared across genes and each gene contributes only
+    the guides it actually has.
+
+    ``random_row_column_effects=True`` moves row and column out of the fixed
+    part (:func:`prepare_formula` drops them from the formula) and into two
+    further variance components, which is what that setting has always meant.
+    It is an ADDITION to the nesting, not a replacement for it.
+
+    WHAT COMES BACK, and the distinction the caller must not lose:
+
+    * fixed effects -- one per gene, plus the row/column terms and the
+      intercept -- with standard errors and p-values. ``term_type='fixed'``.
+    * variance components -- ``Group Var``, ``grna Var`` and any row/column
+      ones. These are variances, not effects on the response.
+      ``term_type='variance'``, ``p_value`` NaN.
+    * guide BLUPs -- one per guide, named :data:`BLUP_FEATURE_TEMPLATE`, with
+      ``term_type='random_effect_blup'`` and ``p_value`` NaN.
+
+    A BLUP HAS NO P VALUE AND THIS FUNCTION WILL NOT INVENT ONE. It is a
+    shrunken conditional prediction of a random effect, not an estimate of a
+    fixed parameter, so there is no null hypothesis "this guide's effect is
+    zero" to reject and no guide-level hit list to correct. A run that needs
+    one must fit a fixed-effects backend with ``level='grna'``.
+
+    :param df: DataFrame with the model variables plus ``gene``, ``grna``,
+        ``rowID`` and ``columnID``.
+    :param formula: Fixed-effects formula, from :func:`prepare_formula` with
+        ``level='gene'``.
     :param dst: Destination for the residual histogram PDF.
-    :returns: ``(mixed_model, coef_df)`` — the fitted results object
-        and a DataFrame with columns ``feature``, ``coefficient``,
-        ``p_value``.
+    :param random_row_column_effects: add row and column variance components.
+    :param gene_column: the outer grouping column. Default ``'gene'``.
+    :param guide_column: the nested column. Default ``'grna'``.
+    :returns: ``(mixed_model, coef_df)``.
+    :raises ValueError: when the frame cannot express the nesting -- a missing
+        column, a single gene, or no gene with more than one guide -- and when
+        MixedLM itself refuses the design.
     """
     from .plot import plot_histogram
 
-    """Fit the mixed model with plate, row_name, and columnID as random effects and return results."""
-    # Specify random effects for plate, row, and column
-    model = smf.mixedlm(formula, 
-                        data=df, 
-                        groups=df['plateID'], 
-                        re_formula="1 + rowID + columnID", 
-                        vc_formula={"rowID": "0 + rowID", "columnID": "0 + columnID"})
-    
-    mixed_model = model.fit()
+    for column in (gene_column, guide_column):
+        if column not in df.columns:
+            raise ValueError(
+                f"the mixed model nests {guide_column!r} inside "
+                f"{gene_column!r}, and this frame has no {column!r} column. "
+                f"Columns: {sorted(df.columns)[:20]}")
+
+    response = str(formula).split('~', 1)[0].strip() or 'the response'
+    groups = _mixed_model_groups(df, response, df.index,
+                                 gene_column=gene_column)
+
+    # THE NESTING HAS TO HAVE SOMETHING TO ESTIMATE. With one guide per gene
+    # everywhere, the guide variance component is confounded with the residual
+    # and MixedLM returns a boundary variance of zero for it - a number that
+    # looks like an answer and is not one.
+    guides_per_gene = df.groupby(gene_column, observed=True)[
+        guide_column].nunique()
+    if int((guides_per_gene > 1).sum()) == 0:
+        raise ValueError(
+            f"the mixed model nests guides inside genes, and no gene in this "
+            f"frame has more than one guide ({len(guides_per_gene)} genes, "
+            f"one guide each). The guide variance component would be exactly "
+            f"confounded with the residual and would come back as zero. Use a "
+            f"fixed-effects regression_type with level='gene' -- with one "
+            f"guide per gene the two levels are the same model anyway.")
+
+    vc_formula = {guide_column: f'0 + C({guide_column})'}
+    if random_row_column_effects:
+        vc_formula['rowID'] = '0 + C(rowID)'
+        vc_formula['columnID'] = '0 + C(columnID)'
+
+    try:
+        model = smf.mixedlm(formula, data=df, groups=groups,
+                            re_formula='1', vc_formula=vc_formula)
+        mixed_model = model.fit()
+    except Exception as error:
+        # SAY WHAT COULD NOT BE EXPRESSED, rather than falling back to a model
+        # nobody asked for. The old plate-grouped model is not a substitute:
+        # it answers a different question, and substituting it silently is the
+        # class of failure this module is most careful about.
+        raise ValueError(
+            f"MixedLM could not fit y ~ gene_fraction:gene + (1 | "
+            f"{gene_column}/{guide_column}) on this frame: "
+            f"{type(error).__name__}: {error}. The nesting needs several "
+            f"genes, several guides inside at least some of them, and more "
+            f"wells than genes. Choose a fixed-effects regression_type with "
+            f"level='gene' or level='grna' if this screen cannot support "
+            f"it.") from error
 
     # Plot residuals
     df['residuals'] = mixed_model.resid
     plot_histogram(df, 'residuals', dst=dst)
 
-    # Return coefficients and p-values
+    # FIXED EFFECTS AND VARIANCE COMPONENTS, kept apart by name.
+    # MixedLMResults.params is the fixed effects followed by the variance
+    # parameters; fe_params is the fixed half alone, so the difference is what
+    # says which is which without parsing ' Var' out of a string.
+    fixed_names = set(map(str, mixed_model.fe_params.index))
     coefs = mixed_model.params
     p_values = mixed_model.pvalues
+    term_types = [TERM_FIXED if str(name) in fixed_names else TERM_VARIANCE
+                  for name in coefs.index]
+    parameter_p = np.asarray(p_values.values, dtype=float)
+    # A VARIANCE COMPONENT'S WALD P VALUE IS NOT A TEST EITHER, and
+    # statsmodels reports one anyway (0.331 and 0.975 for the two components
+    # on the synthetic nesting; NaN for others, which is why the NaN alone
+    # cannot be relied on to mark them). The null it would test is
+    # sigma^2 = 0, which sits on the BOUNDARY of the parameter space, so the
+    # normal reference distribution the Wald statistic assumes does not hold
+    # and the number is not a probability of anything. Reported as NaN, with
+    # the variance itself in `coefficient` where it belongs.
+    parameter_p = np.where(
+        np.array(term_types) == TERM_VARIANCE, np.nan, parameter_p)
+    frames = [pd.DataFrame({
+        'feature': [str(name) for name in coefs.index],
+        'coefficient': np.asarray(coefs.values, dtype=float),
+        'p_value': parameter_p,
+        'term_type': term_types,
+    })]
 
-    coef_df = pd.DataFrame({
-        'feature': coefs.index,
-        'coefficient': coefs.values,
-        'p_value': p_values.values
-    })
-    
+    # THE BLUPS, ONE PER GUIDE, WITH NO P VALUE.
+    # random_effects is {gene: Series}; each Series carries the group's own
+    # intercept under 'Group' and one entry per variance-component column.
+    blups = {}
+    for group_key, values in (mixed_model.random_effects or {}).items():
+        for key, value in dict(values).items():
+            guide = _blup_guide_name(key)
+            if guide is None:
+                continue
+            blups[guide] = float(value)
+    if blups:
+        guides = sorted(blups)
+        frames.append(pd.DataFrame({
+            'feature': [BLUP_FEATURE_TEMPLATE.format(g) for g in guides],
+            'coefficient': [blups[g] for g in guides],
+            'p_value': np.full(len(guides), np.nan, dtype=float),
+            'term_type': [TERM_BLUP] * len(guides),
+        }))
+
+    coef_df = pd.concat(frames, ignore_index=True)
+    n_blups = int((coef_df['term_type'] == TERM_BLUP).sum())
+    print(f"Mixed model: gene fixed, guide random nested in gene "
+          f"({groups.nunique()} genes, {n_blups} guide BLUPs). "
+          f"A BLUP has no p-value, so results_grna.csv from a mixed run is a "
+          f"shrunken prediction per guide and carries no q value.")
+
+    # A NON-CONVERGED MLE STILL RETURNS A COEFFICIENT AND A P VALUE, and
+    # nothing in statsmodels' return value says it should not be believed.
+    # Measured on the maintainer's TSG101 screen (389 genes, 823 guides, 610
+    # wells): this fit does not converge inside twenty minutes, and a 50-gene
+    # subset converges to a gene-intercept variance on the boundary in 16
+    # seconds. Both would have written results.csv in silence.
+    #
+    # It WARNS rather than raising, because the maintainer chose 'mixed' as
+    # the default and a boundary variance component is a normal, informative
+    # outcome -- "the genes do not differ in intercept beyond what the gene
+    # fixed effect already explains" -- not a broken run. What is not
+    # acceptable is not being told.
+    if not bool(getattr(mixed_model, 'converged', True)):
+        variances = ', '.join(
+            f"{name}={value:.3g}" for name, value in
+            zip(vc_formula, np.atleast_1d(np.asarray(mixed_model.vcomp,
+                                                     dtype=float))))
+        print("\n"
+              "  ###############################################################\n"
+              "  #  WARNING: the mixed model did not converge.                 #\n"
+              "  ###############################################################\n"
+              f"  Variance components: {variances}; group variance "
+              f"{float(np.asarray(mixed_model.cov_re).ravel()[0]):.3g}.\n"
+              "  A variance on the boundary at zero is the usual cause and is\n"
+              "  itself an answer, but the standard errors and p-values of the\n"
+              "  gene fixed effects are not trustworthy while it stands. Fit a\n"
+              "  fixed-effects regression_type with level='gene' to get gene\n"
+              "  effects whose intervals can be reported.\n")
     return mixed_model, coef_df
 
 def check_and_clean_data(df, dependent_variable):
@@ -2183,33 +2447,33 @@ def _reconcile_random_row_column_effects(settings):
     return settings
 
 
-def _mixed_model_groups(df, dependent_variable, model_index):
-    """Return the random-intercept grouping for ``regression_type='mixed'``.
+def _mixed_model_groups(df, dependent_variable, model_index, *,
+                        gene_column='gene'):
+    """Return the outer random-intercept grouping for ``regression_type='mixed'``.
 
-    The cluster is the PLATE, always. A random intercept has to sit at a level
-    ABOVE the unit the covariates vary at, and in this design the covariates
-    (``fraction``, ``gene_fraction``) are properties of the WELL. Grouping on
-    the well therefore asks the model to explain a well-level covariate with a
-    well-level random intercept, and the answer it gives is zero - which is
-    what ``groups = df['prc']`` did, silently, on every mixed run:
+    THE CLUSTER IS THE GENE, and the guide is nested inside it. Instruction
+    132 replaced the model, not just the grouping: ``mixed`` used to group on
+    ``plateID`` and fit row and column variance components over the collinear
+    ``fraction:grna + gene_fraction:gene`` design. It now fits
 
-    * with an aggregated response there is one value per well, so the random
-      intercept is exactly confounded with the residual and every fixed effect
-      came back at ~1e-11 with p ~ 1;
-    * with ``agg_type=None`` the frame is the CROSS PRODUCT of the well's
-      gRNAs with the well's cells, so a well does have several response
-      values - but its within-well variation in ``fraction:grna`` is an
-      artefact of that cross product and carries no signal about the
-      response. A well-level random intercept makes GLS weight exactly that
-      artefact (1/sigma_e^2) far above the between-well contrasts that hold
-      the biology (1/(sigma_u^2 + sigma_e^2/n)), and the fixed effects are
-      dragged to zero again. Measured on a 96-well synthetic screen with a
-      planted +0.45 gene effect: OLS recovered 0.31, the well-grouped mixed
-      model returned 0.003 with p = 0.79.
+        y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
 
-    Both failures WROTE results.csv and neither said anything.
+    and ``(1 | gene/grna)`` is ``groups=gene`` plus a guide variance component
+    inside each group. See :func:`fit_mixed_model`.
 
-    A single plate leaves one cluster, which is not a random effect at all, so
+    THE OLD REASONING STILL APPLIES AND IS WHY THE PLATE IS NOT THE GROUP
+    HERE. A random intercept has to sit ABOVE the unit its covariates vary
+    at. The old worry was the WELL: ``groups = df['prc']`` asked the model to
+    explain a well-level covariate with a well-level intercept and it answered
+    zero -- on a 96-well synthetic screen with a planted +0.45 gene effect,
+    OLS recovered 0.31 and the well-grouped mixed model returned 0.003 at
+    p = 0.79, and it wrote results.csv without saying anything. The gene sits
+    above the guide, which is the level the new model's random effect
+    describes, so the same rule now names the gene. Row, column and plate
+    structure are carried by the fixed row/column terms, or by variance
+    components when ``random_row_column_effects=True``.
+
+    A single gene leaves one cluster, which is not a random effect at all, so
     that case is refused rather than fitted.
 
     :param df: The cleaned long-format frame.
@@ -2217,29 +2481,26 @@ def _mixed_model_groups(df, dependent_variable, model_index):
         the message points at the run the user actually configured.
     :param model_index: Row index patsy kept, so the returned vector aligns
         with the design matrix row for row.
-    :returns: Series of plate ids, one per design row.
-    :raises ValueError: when the screen has a single plate, naming the three
-        ways out.
+    :param gene_column: The outer grouping column. Default ``'gene'``.
+    :returns: Series of gene ids, one per design row.
+    :raises ValueError: when the screen has a single gene, naming the way out.
     """
-    plates = df.loc[model_index, 'plateID']
-    n_plates = plates.nunique()
-    if n_plates > 1:
-        print(f"Mixed model: grouping on plateID ({n_plates} plates). Wells "
-              f"are the unit the gRNA fractions vary at, so the plate is the "
-              f"level a random intercept can describe.")
-        return plates
+    genes = df.loc[model_index, gene_column]
+    n_genes = genes.nunique()
+    if n_genes > 1:
+        print(f"Mixed model: grouping on {gene_column} ({n_genes} genes), "
+              f"with guides nested inside. The gene sits above the guide, "
+              f"which is the level the random effect describes.")
+        return genes
 
     raise ValueError(
         f"a mixed model needs at least two clusters and this screen has one "
-        f"plate. The random intercept has to sit above the well - the well is "
-        f"where 'fraction' and 'gene_fraction' vary - so with a single plate "
-        f"there is nothing left for it to describe, and it would return a "
-        f"coefficient of zero for every gRNA against "
-        f"{dependent_variable!r}. Either set random_row_column_effects=True, "
-        f"which fits row and column variance components and is the mixed "
-        f"model a one-plate screen supports; or pass every plate of the "
-        f"experiment in score_data/count_data so the plate effect has "
-        f"something to vary against; or use 'ols' with cov_type='HC3'.")
+        f"{gene_column}. The random intercept has to sit above the guide, so "
+        f"with a single gene there is nothing left for it to describe and "
+        f"every guide BLUP against {dependent_variable!r} would be shrunk to "
+        f"the same number. Fit a fixed-effects regression_type with "
+        f"level='grna', which tests the guides directly and is the model a "
+        f"one-gene screen supports.")
 
 
 def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
@@ -2326,11 +2587,43 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
         return None
 
 
+def resolve_levels(regression_type, level='both'):
+    """Which level(s) a run fits, given the backend and the ``level`` setting.
+
+    ``mixed`` fits ONE model that already contains both levels -- the gene as a
+    fixed effect and the guide as a random effect nested inside it -- so it
+    ignores ``level`` entirely and answers ``('gene',)``. That is why the GUI
+    greys the dropdown out rather than hiding it (instruction 106): the
+    setting exists, it is simply not this model's to read.
+
+    Every other backend is fixed effects only and cannot nest, so it fits one
+    level at a time and ``level`` chooses which. ``'both'`` is TWO FITS.
+
+    :param regression_type: the backend name, or ``None`` (not yet chosen).
+    :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
+    :returns: a tuple of levels to fit, in the order they are fitted.
+    :raises ValueError: for a level that is not one of :data:`LEVEL_CHOICES`.
+    """
+    key = str(level).strip().lower()
+    if key not in LEVEL_CHOICES:
+        raise ValueError(
+            f"level={level!r} is not a model level. Choose one of "
+            f"{LEVEL_CHOICES!r}: 'grna' fits y ~ fraction:grna + rowID + "
+            f"columnID, 'gene' fits y ~ gene_fraction:gene + rowID + "
+            f"columnID, and 'both' fits each of them SEPARATELY.")
+    if regression_type == 'mixed':
+        return ('gene',)
+    if key == 'both':
+        return ('grna', 'gene')
+    return (key,)
+
+
 def regression(df, csv_path, dependent_variable='predictions', regression_type=None, alpha=1.0,
                random_row_column_effects=False, nc='233460', pc='220950', controls=None,
                dst=None, cov_type=None, plot=False, l1_ratio=0.5, quantile=0.5,
                hinge_threshold=None, hinge_n_boot=200, huber_t=1.345, qc=True,
-               legacy_volcano=False):
+               legacy_volcano=False, level='grna', level_dst=None,
+               draw_shared_panels=True):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -2361,6 +2654,20 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         volcanoes in two idioms on the same grid.
         Requires ``dst`` and a design matrix, so it is skipped for the mixed
         branch and when no destination was given.
+    :param level: WHICH MODEL TO FIT -- ``'grna'`` (default) or ``'gene'``.
+        One level, one design; ``'both'`` is refused here because it is two
+        fits. :func:`regression_levels` is the entry point that does both.
+        Ignored by ``regression_type='mixed'``, which fits the gene fixed and
+        the guide random inside it and so is already both levels.
+    :param level_dst: Where THIS LEVEL's figures go -- the QC suite, the
+        volcano, the publication sheet. Defaults to ``dst``, which is what a
+        single-level run wants. :func:`regression_levels` gives each level its
+        own subfolder so two fits cannot overwrite each other's
+        ``regression_figure.pdf``.
+    :param draw_shared_panels: Draw the guide-fraction and response
+        distributions, which describe the DATA and not the fit. False on the
+        second of two fits, so the figure grid gets one copy rather than two
+        identical ones.
     :returns: ``(model, coef_df, regression_type)``.
     """
 
@@ -2372,12 +2679,29 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # rather than by the model name, because two quantiles of the same screen
     # are two different results that must not overwrite each other. That used
     # to be alpha, which is no longer the quantile.
+    # Per-level figures go where the caller says. A single-level run keeps
+    # writing straight into dst, which is every existing path; a two-fit run
+    # gets one subfolder per level so the second fit's regression_figure.pdf
+    # does not land on top of the first fit's.
+    level_dst = dst if level_dst is None else level_dst
+
     volcano_path = create_volcano_filename(
         csv_path, regression_type,
-        quantile if regression_type == 'quantile' else alpha, dst)
+        quantile if regression_type == 'quantile' else alpha, level_dst)
 
     if regression_type is None:
         regression_type = check_distribution(df[dependent_variable])
+
+    # ONE LEVEL PER FIT, and `mixed` decides its own. 'both' is refused rather
+    # than quietly resolved to one of them: a caller that asked for two fits
+    # and silently got one would read the guide table as if it were both.
+    wanted = resolve_levels(regression_type, level)
+    if len(wanted) != 1:
+        raise ValueError(
+            f"regression() fits ONE level; level={level!r} asks for "
+            f"{list(wanted)}. Call regression_levels(), which fits each of "
+            f"them separately and corrects each within itself.")
+    level = wanted[0]
 
     print(f"Using regression type: {regression_type}")
 
@@ -2407,17 +2731,27 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         print(f"Blocking on {df['screenID'].nunique()} screens: "
               f"{sorted(df['screenID'].astype(str).unique())}")
 
-    if random_row_column_effects:
+    # THE MIXED BRANCH IS THE NESTED MODEL, and it is reached by NAME as well
+    # as by the random row/column flag. `regression_type='mixed'` used to fall
+    # through to the fixed-effects branch and be fitted by regression_model
+    # with groups=plateID, which is a different model from the one
+    # fit_mixed_model built -- two things called 'mixed' in one function. There
+    # is one now: gene fixed, guide random nested inside it.
+    if regression_type == 'mixed' or random_row_column_effects:
         regression_type = 'mixed'
-        formula = prepare_formula(dependent_variable,
-                                  random_row_column_effects=True,
-                                  block_screen=block_screen)
-        mixed_model, coef_df = fit_mixed_model(df, formula, dst)
+        level = 'gene'
+        formula = prepare_formula(
+            dependent_variable,
+            random_row_column_effects=random_row_column_effects,
+            block_screen=block_screen, level='gene')
+        mixed_model, coef_df = fit_mixed_model(
+            df, formula, level_dst,
+            random_row_column_effects=random_row_column_effects)
         model = mixed_model
     else:
         formula = prepare_formula(dependent_variable,
                                   random_row_column_effects=False,
-                                  block_screen=block_screen)
+                                  block_screen=block_screen, level=level)
         y, X = dmatrices(formula, data=df, return_type='dataframe')
         # Rows patsy actually kept. Every per-row vector handed to the model
         # below - weights, groups, exposure - is taken through this index, so
@@ -2431,13 +2765,17 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         #
         # Falls back to the old plot_histogram if the new module cannot draw
         # them, because a figure is not worth losing a fit over.
-        if not _show_well_distributions(df, dependent_variable, dst,
-                                        plot=plot):
+        #
+        # DRAWN ONCE PER RUN, NOT ONCE PER FIT. They describe the data, which
+        # is the same data both levels are fitted to, so a two-fit run that
+        # drew them twice would put two identical panels on the figure grid.
+        if draw_shared_panels and not _show_well_distributions(
+                df, dependent_variable, dst, plot=plot):
             plot_histogram(y, dependent_variable, dst=dst)
             plot_histogram(df, 'fraction', dst=dst)
 
         # No scaling, for any type. The design this pipeline builds is
-        # `fraction:grna + gene_fraction:gene + rowID + columnID`: dummies and
+        # one level's fraction terms plus row and column dummies: dummies and
         # fractions, already on one common [0, 1] scale, so there is nothing
         # for a scaler to put on a common footing. What MinMax scaling DID do
         # was divide each gRNA's column by that gRNA's own maximum fraction,
@@ -2458,10 +2796,12 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         # Per-well cell counts: var_weights for the binomial links, the WLS
         # weights, and the Poisson exposure for the horseshoe model.
         weights = df['cell_count'].loc[model_index] if 'cell_count' in df.columns else None
-        groups = (_mixed_model_groups(df, dependent_variable, model_index)
-                  if regression_type == 'mixed' else None)
+        # `mixed` never reaches here any more -- it is caught by name at the
+        # top and fitted by fit_mixed_model with the gene/guide nesting -- so
+        # there is no grouping vector to build on this branch.
+        groups = None
 
-        print(f'Performing {regression_type} regression')
+        print(f'Performing {regression_type} {level}-level regression')
         model = regression_model(
             X, y,
             regression_type=regression_type,
@@ -2509,9 +2849,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # After the volcano, so the report can name a file that is already on disk.
     # Skipped without a destination: regression_qc_report raises on a falsy dst
     # on purpose, and a fit run with dst=None has nowhere to put diagnostics.
-    if qc and qc_design is not None and dst:
+    if qc and qc_design is not None and level_dst:
         _write_regression_qc(
-            model, qc_design[0], qc_design[1], df, dst,
+            model, qc_design[0], qc_design[1], df, level_dst,
             coef_df=coef_df, regression_type=regression_type,
             volcano_path=volcano_path if plot else None)
 
@@ -2526,9 +2866,9 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # held the same old pictures. These go through plt.show(), which the Qt
     # bridge intercepts, so each panel arrives in the figure queue and lands
     # on the grid as its own lettered cell.
-    if dst:
+    if level_dst:
         _show_house_style_panels(coef_df, plot=plot)
-        _write_regression_sheet(coef_df, dst)
+        _write_regression_sheet(coef_df, level_dst)
 
     # THE PARAGRAPH. "id also like a little written summary at the end in the
     # console saying what is significant and so on". Printed last so it is the
@@ -2547,7 +2887,81 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     except Exception as error:  # noqa: BLE001 - never lose a run over prose
         print(f"Could not summarise the run: {error}")
 
+    # WHICH MODEL PRODUCED THIS ROW, carried on the table itself. Two fits
+    # write two tables and the volcano chooses between them; a row that cannot
+    # say which family it belongs to is a row whose q value cannot be read.
+    coef_df = coef_df.copy()
+    coef_df['level'] = level
     return model, coef_df, regression_type
+
+
+def regression_levels(df, csv_path, dependent_variable='predictions',
+                      regression_type=None, level='both', dst=None, **kwargs):
+    """Fit every level the run asked for, SEPARATELY, and return one per level.
+
+    THIS IS THE TWO-FIT ENTRY POINT, and the reason it exists is that the one
+    design spaCR used to fit cannot be fitted at all. ``gene_fraction`` is the
+    SUM of the gene's gRNA fractions, so
+
+        ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
+
+    puts a block of columns and their own sums into one design. Measured on
+    the maintainer's TSG101 screen: 1248 parameters at rank 862 -- a
+    386-dimensional EXACT null space -- and the fit statsmodels returned had a
+    residual sum of squares bit-identical to the one you get by adding seven
+    times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.
+
+    Two fits, two tables, TWO CORRECTIONS. Each fit is its own
+    multiple-testing family and is corrected within itself. Pooling them would
+    be wrong twice over: they are not independent -- same wells, and the gene
+    regressor IS the sum of the guide regressors -- and doubling the family
+    size costs power for no protection. :func:`perform_regression` applies the
+    correction per level and writes ``results_grna.csv`` and
+    ``results_gene.csv``.
+
+    ``regression_type='mixed'`` fits ONCE and returns one entry, ``'gene'``:
+    that model has both levels inside it already, the gene as a fixed effect
+    and the guide as a random effect nested in the gene. Its guide output is
+    BLUPs, which is why it cannot be split into two testing families.
+
+    :param level: ``'both'`` (default), ``'grna'`` or ``'gene'``.
+    :param dst: the run folder. With more than one fit each level's FIGURES go
+        into ``<dst>/<level>/`` so they cannot overwrite each other; the
+        tables stay in ``<dst>``, where every consumer looks for them.
+    :param kwargs: passed straight through to :func:`regression`.
+    :returns: ``dict`` mapping level to ``(model, coef_df, regression_type)``,
+        in fit order.
+    :raises ValueError: for a level that is not one of :data:`LEVEL_CHOICES`.
+    """
+    import os
+
+    levels = resolve_levels(regression_type, level)
+    if regression_type == 'mixed' and str(level).strip().lower() != 'both':
+        # SAID, not silently overridden. The GUI greys `level` out for mixed
+        # (instruction 106), but a script can still set it, and a run that
+        # quietly ignored it would hand back a gene table to a caller who
+        # asked for a guide table.
+        print(f"regression_type='mixed' fits the gene fixed with guides "
+              f"random nested inside, so it is already both levels and "
+              f"level={level!r} is not read. Its guide output is BLUPs, not "
+              f"coefficients with p-values.")
+
+    fits = {}
+    for index, one in enumerate(levels):
+        level_dst = dst
+        if dst and len(levels) > 1:
+            level_dst = os.path.join(str(dst), one)
+            os.makedirs(level_dst, exist_ok=True)
+        print(f"Fitting level {index + 1} of {len(levels)}: {one}")
+        fits[one] = regression(
+            df, csv_path, dependent_variable=dependent_variable,
+            regression_type=regression_type, dst=dst, level=one,
+            level_dst=level_dst, draw_shared_panels=(index == 0), **kwargs)
+        # check_distribution may have chosen the type on the first fit; the
+        # second must be the SAME model, not a second auto-selection that
+        # could pick differently and give two tables from two backends.
+        regression_type = fits[one][2]
+    return fits
 
 
 def _show_well_distributions(frame, response_name, dst, plot=True):
@@ -3274,24 +3688,36 @@ def _check_score_count_pairing(independent_df, dependent_df, merged_df, *,
 
 
 def _identifiability_warning(data, settings, *, well_column='prc',
-                             guide_column='grna'):
-    """Warn when a simultaneous fit is about to be run on too few wells.
+                             guide_column='grna', level='grna'):
+    """Warn when a fit is about to be run on too few wells.
 
     Returns the warning text, or ``None`` when the design is fine. Kept
     separate from :func:`resolve_auto_inference` because this one never
     changes what runs -- it only makes sure the user cannot miss what they
     are about to get.
+
+    COUNTED AT THE LEVEL BEING FITTED. Since instruction 132 a run fits one
+    level at a time, and the two have very different widths: on the
+    maintainer's TSG101 screen the guide fit estimates 823 guide effects from
+    610 wells and IS unidentifiable, while the gene fit estimates 389 and is
+    not. Counting guides for both would put the warning on a gene fit that
+    does not deserve it, and a warning that fires when it should not is a
+    warning people learn to scroll past.
+
+    :param level: ``'grna'`` (default) or ``'gene'`` -- which fit is about to
+        run, and therefore which identifiers are the parameters.
     """
+    identifier = 'gene' if str(level).strip().lower() == 'gene' else guide_column
     try:
         n_wells = int(data[well_column].nunique())
-        n_guides = int(data[guide_column].nunique())
+        n_terms = int(data[identifier].nunique())
     except (KeyError, TypeError):
         return None
     blocks = 0
     block_column = str(settings.get('guide_permutation_block', 'plateID'))
     if block_column in getattr(data, 'columns', ()):
         blocks = max(int(data[block_column].nunique()) - 1, 0)
-    parameters = 1 + blocks + n_guides
+    parameters = 1 + blocks + n_terms
     if n_wells > parameters:
         return None
     return (
@@ -3301,7 +3727,7 @@ def _identifiability_warning(data, settings, *, well_column='prc',
         "  ###############################################################\n"
         f"  {n_wells} analysed wells are being used to estimate "
         f"{parameters} parameters\n"
-        f"  ({n_guides} guides + intercept + {blocks} block terms).\n"
+        f"  ({n_terms} {identifier}s + intercept + {blocks} block terms).\n"
         "\n"
         "  With fewer wells than parameters the fit still returns a\n"
         "  coefficient and a P value for every guide, but they are one\n"
@@ -3574,13 +4000,80 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
               f"of {int(called.sum())} guides that passed correction but "
               f"whose effect is narrower than {float(effect_threshold):.3g}.")
 
+    # THE GENE PASS. Instruction 132 gives the parametric path two fits and two
+    # tables; the permutation path answered only the guide question, so
+    # choosing inference='nonparametric' silently lost the gene level
+    # altogether -- results_gene.csv was never written by this branch at all.
+    #
+    # Each gene is tested as a SET: its regressor is the SUM of its guides'
+    # fractions, which is the same `gene_fraction` the parametric gene fit
+    # uses, residualized against the same block design and permuted with the
+    # same Freedman--Lane scheme and the same seed. It is NOT a combination of
+    # the guides' P values -- Fisher and Stouffer both assume independence, and
+    # guides scored in the same wells share that well's phenotype, plate and
+    # cells, so combining them would claim a confidence the design cannot
+    # support.
+    #
+    # ITS OWN BH FAMILY, never pooled with the guides: same wells, and the gene
+    # regressor is literally the sum of the guide regressors.
+    gene_primary = None
+    if bool(settings.get('guide_permutation_gene_level', True)):
+        try:
+            from .guide_permutation import analyse_long_gene_table
+
+            gene_results = analyse_long_gene_table(
+                data, outcomes,
+                min_wells=thresholds,
+                block_column=str(settings.get('guide_permutation_block',
+                                              'plateID')),
+                nuisance_columns=list(settings.get('guide_nuisance_columns')
+                                      or []),
+                n_permutations=int(settings.get('guide_permutations', 200000)),
+                random_state=int(settings.get('guide_permutation_seed', 0)),
+                multiple_testing=str(settings.get('multiple_testing_method',
+                                                  'fdr_bh')),
+                alpha=float(settings.get('fdr_alpha', 0.05)),
+                presence_threshold=float(
+                    settings.get('guide_presence_threshold', 0.0)),
+                batch_size=int(settings.get('guide_permutation_batch_size',
+                                            500)),
+            )
+            gene_results['feature'] = (
+                'gene_fraction:gene[' + gene_results['gene'].astype(str) + ']')
+            gene_results['grna'] = None
+            gene_results['coefficient'] = gene_results[
+                'standardized_marginal_effect']
+            gene_results['p_value'] = gene_results['permutation_p_value']
+            gene_results['q_value'] = gene_results['adjusted_p_value']
+            gene_results['condition'] = label_control_condition(
+                gene_results['feature'], gene_results['gene'],
+                nc=settings.get('negative_control'),
+                pc=settings.get('positive_control'),
+                controls=settings.get('controls'))
+            gene_primary = gene_results.loc[
+                gene_results['minimum_wells_threshold'] == primary].copy()
+            print(f"Gene pass: {len(gene_primary)} genes tested as sets in "
+                  f"the primary >={primary}-well family, corrected as their "
+                  f"OWN BH family beside the {len(primary_table)} guides.")
+        except Exception as error:  # noqa: BLE001 - the guide pass still stands
+            print(f"The gene-level permutation pass could not run: "
+                  f"{type(error).__name__}: {error}. results_gene.csv will be "
+                  f"empty; the guide results are unaffected.")
+            gene_primary = None
+
     compatibility = {
         'results': os.path.join(destination, 'results.csv'),
         'results_grna': os.path.join(destination, 'results_grna.csv'),
+        'results_gene': os.path.join(destination, 'results_gene.csv'),
         'significant': os.path.join(destination, 'results_significant.csv'),
     }
     primary_table.to_csv(compatibility['results'], index=False)
     primary_table.to_csv(compatibility['results_grna'], index=False)
+    # Written every run, empty when the pass could not be made, because a file
+    # that is absent is indistinguishable from a run that crashed.
+    (gene_primary if gene_primary is not None
+     else primary_table.iloc[0:0]).to_csv(
+        compatibility['results_gene'], index=False)
     significant.to_csv(compatibility['significant'], index=False)
     paths.update(compatibility)
     return {
@@ -3607,6 +4100,9 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         # `guide_permutation_min_<n>_wells.csv`.
         'results': primary_table,
         'families': results,
+        # The gene pass, corrected within itself. None when it was declined
+        # with guide_permutation_gene_level=False or could not be made.
+        'gene_results': gene_primary,
         'primary': primary_table,
         'significant': significant,
         'primary_min_wells': primary,
@@ -3714,6 +4210,318 @@ def _next_results_folder(root, kind, limit=1000):
         except OSError:            # unreadable: treat as taken and move on
             continue
     return f"{base}_{limit}"
+
+
+def _bracketed_identifier(pattern, text):
+    """The id inside ``pattern``'s bracket, or ``None`` when there is none.
+
+    The inline version of this was ``re.search(...).group(1) if 'grna' in x
+    else None``, which assumes a term containing the word also contains the
+    bracket. It does not: a mixed fit's variance component is named
+    ``'grna Var'``, so the search returns None and ``.group(1)`` raises
+    ``AttributeError`` on a run that had already fitted its model.
+    """
+    match = re.search(pattern, str(text))
+    return match.group(1) if match else None
+
+
+def _annotate_level_coefficients(coef_df, n_grna, n_gene):
+    """Attach the guide / gene id and the per-id row counts to ONE fit's table.
+
+    :param coef_df: one level's coefficient table, straight out of
+        :func:`regression`.
+    :param n_grna: value_counts frame, one row per guide.
+    :param n_gene: value_counts frame, one row per gene.
+    :returns: a new frame with ``grna``, ``gene``, ``n_grna`` and ``n_gene``.
+    """
+    coef_df = coef_df.copy()
+    coef_df['grna'] = coef_df['feature'].map(
+        lambda value: _bracketed_identifier(r'grna\[(.*?)\]', value))
+    coef_df['gene'] = coef_df['feature'].map(
+        lambda value: _bracketed_identifier(r'gene\[(.*?)\]', value))
+
+    # n_grna / n_gene are value_counts frames, so one row per gRNA and one per
+    # gene. coef_df is many rows against either of them — every gene[...] term
+    # carries grna=None and vice versa — so many-to-one is the contract, and it
+    # is the right side (the counts) that must stay unique: a duplicate there
+    # would fan the coefficient table out and every hit would be written to
+    # results_significant.csv more than once.
+    coef_df = coef_df.merge(n_grna, how='left', on='grna',
+                            validate='many_to_one')
+    coef_df = coef_df.merge(n_gene, how='left', on='gene',
+                            validate='many_to_one')
+    return coef_df
+
+
+def _level_control_rows(frame, level, controls):
+    """The control rows of ONE fit's table, matched at that fit's own level.
+
+    ``settings['controls']`` names GUIDES. The guide fit matches them whole,
+    exactly as it always has. The gene fit has no guide column at all -- every
+    ``gene_fraction:gene[...]`` row carries ``grna=None`` -- so matching the
+    same list there selects nothing and the gene table silently gets no
+    effect-size cut. A control guide identifies its gene by spaCR's own rule
+    (:func:`spacr.hits.gene_of`: truncate at the first underscore), so the
+    gene fit matches on that.
+    """
+    names = {str(name) for name in (controls or [])}
+    if not names:
+        return frame.iloc[0:0]
+    if level == 'gene':
+        names |= {name.split('_')[0] for name in names}
+        return frame.loc[frame['gene'].astype(str).isin(names)]
+    return frame.loc[frame['grna'].astype(str).isin(names)]
+
+
+def _call_level_hits(coef_df, level, settings, regression_type,
+                     merged_df, dependent_variable, bootstrap=None):
+    """Correct ONE fit within itself and call that fit's hits.
+
+    EACH FIT IS ITS OWN MULTIPLE-TESTING FAMILY. Instruction 132: "for each do
+    a BH FDR correction". Pooling the guide fit and the gene fit would be
+    wrong twice over -- they are not independent (the same wells, and the gene
+    regressor is literally the SUM of the guide regressors), and doubling the
+    family size costs power for no protection. It is the principle spaCR
+    already states for multiple outcomes: correct each as its OWN family,
+    because pooling makes two correlated readouts of the same wells look like
+    twice as many tests.
+
+    :param coef_df: one fit's annotated coefficient table.
+    :param level: ``'grna'`` or ``'gene'`` -- which fit this is.
+    :param regression_type: the backend that produced it.
+    :param merged_df: the pre-clean long frame, for the lasso bootstrap.
+    :param bootstrap: ``perform_regression``'s ``bootstrap_selection_frequencies``
+        closure. It is defined inside that function, so it cannot be looked up
+        from here and the penalised backends need it passed in.
+    :returns: ``(coef_df, significant, reg_threshold, effect_rule)``.
+    """
+    from .thresholds import coefficient_threshold
+
+    # OWNED, not borrowed. Every caller so far handed in a slice of a bigger
+    # frame -- the mixed path slices the BLUP rows off -- and assigning
+    # `q_value` onto a slice raises SettingWithCopyWarning, which this suite
+    # promotes to an error and pandas 3 will make a hard failure.
+    coef_df = coef_df.copy()
+
+    # reg_threshold used to be bound only inside the branch below, so a
+    # control-free screen (settings['controls'] is None) hit UnboundLocalError
+    # as soon as the toxo volcano block read it. 0 is custom_volcano_plot's own
+    # default and means "no coefficient cut-off, select on p <= 0.05 alone",
+    # which is the only sensible threshold when there are no controls to
+    # calibrate against.
+    reg_threshold = 0
+    effect_rule = 'no effect-size cut'
+
+    if settings['controls'] is not None:
+        control_coef_df = _level_control_rows(
+            coef_df, level, settings['controls'])
+
+        # SEVEN METHODS, in one place. It was two -- std and var -- and the
+        # maintainer asked for "at least 4 more" reachable from the plot, so
+        # the arithmetic moved to `spacr.thresholds` where the GUI can reach
+        # the same list rather than keeping a second copy of it.
+        measured_threshold, threshold_rule = coefficient_threshold(
+            control_coef_df['coefficient'],
+            method=settings['threshold_method'],
+            multiplier=settings['threshold_multiplier'],
+            # The MEDIAN of the controls, computed inside, rather than the
+            # mean this used to add: `000000_22` is a non-targeting control
+            # and the strongest effect in this whole screen at +4.37, and a
+            # mean centre moves the cut for every guide because of it.
+            centre=None)
+        effect_rule = threshold_rule
+        print(f"Effect-size cut ({level}): {threshold_rule}")
+
+        # `coefficient_threshold` answers None when NO CUT CAN BE MADE --
+        # `threshold_method='none'`, fewer than two control coefficients, or a
+        # set of controls with no spread at all. It is deliberately not a
+        # silent 0, so that the caller has to decide what to do about it, and
+        # every one of this function's three readers wanted a number:
+        #
+        #   * the hit list below compared a Series against None. pandas 2.x
+        #     evaluates `series >= None` as all-False rather than raising, so
+        #     BOTH masks were empty and the run wrote an EMPTY
+        #     results_significant.csv -- measured on the synthetic screen,
+        #     16 of 16 corrected hits lost, with nothing said.
+        #   * `custom_volcano_plot` does `abs(threshold)` and died with
+        #     `TypeError: bad operand type for abs(): 'NoneType'` after the
+        #     whole fit, every results CSV and every QC panel had been
+        #     written.
+        #   * `plot.volcano_plot` takes it as `fold_change_threshold`.
+        #
+        # 0 is what "no coefficient cut" already means to all three -- the
+        # value a control-free screen has carried for as long as this line has
+        # existed -- and `threshold_rule`, printed above, is what says WHY
+        # there is none. The reason is on the record; only the sentinel is
+        # normalised.
+        reg_threshold = (0 if measured_threshold is None
+                         else float(measured_threshold))
+    else:
+        # SAID, not left silent. A run WITH controls prints its cut and the
+        # rule behind it; a run without them printed nothing, so "there is no
+        # effect-size cut" looked exactly like "that line scrolled past". It
+        # is the more surprising of the two, because a hit list called on the
+        # corrected P value alone is a different claim from one that also had
+        # to clear a width.
+        print(f"Effect-size cut ({level}): no control gRNAs were named, so "
+              f"there is none; a hit is the corrected P value alone.")
+
+    if regression_type in NO_P_VALUE_TYPES and bootstrap is None:
+        raise ValueError(
+            f"regression_type={regression_type!r} ranks features by bootstrap "
+            f"selection frequency and has no p-value to correct, so "
+            f"_call_level_hits needs perform_regression's "
+            f"bootstrap_selection_frequencies passed as `bootstrap`.")
+
+    if regression_type in NO_P_VALUE_TYPES:
+        # Lasso and elastic net have no valid frequentist p-values (the ones
+        # process_model_coefficients attaches are OLS-style and ignore the
+        # penalty). Use bootstrap selection frequency as the feature-importance
+        # ranking. Treat as a selection method, not a hypothesis test.
+        n_boot = settings.get('lasso_n_boot', 200)
+        sel_threshold = settings.get('lasso_selection_threshold', 0.6)
+        formula = prepare_formula(
+            dependent_variable, random_row_column_effects=False,
+            block_screen=screen_is_blockable(merged_df), level=level)
+        # Apply the same preprocessing the OLS path uses, so derived columns
+        # referenced by the formula (e.g. gene_fraction) exist in the bootstrap.
+        cleaned_df = check_and_clean_data(merged_df.copy(), dependent_variable)
+        sel_df = bootstrap(
+            X=cleaned_df,
+            y=cleaned_df[dependent_variable],
+            formula=formula,
+            alpha=settings.get('alpha', 'auto'),
+            n_boot=n_boot,
+            random_state=0,
+            regression_type=regression_type,
+            l1_ratio=settings['l1_ratio'],
+        )
+        # One row per model term on both sides: coef_df['feature'] is the
+        # design-matrix column index (X.columns for lasso), sel_df['feature']
+        # is the same index taken off the reference design built once at the
+        # top of bootstrap_selection_frequencies. Both are pandas Index
+        # objects from patsy, so the join is one-to-one by construction, and a
+        # duplicate on either side means the two designs have gone out of step
+        # — which is exactly when a selection frequency must not be silently
+        # attached to the wrong coefficient.
+        coef_df = coef_df.merge(sel_df, on='feature', how='left',
+                                validate='one_to_one')
+
+        significant = coef_df[
+            (coef_df['coefficient'] != 0)
+            & (coef_df['selection_frequency'] >= sel_threshold)
+        ].copy()
+        significant = significant.sort_values(
+            by='coefficient', key=lambda c: c.abs(), ascending=False,
+        )
+        significant = significant[~significant['feature'].str.contains('row|column')]
+        return coef_df, significant, reg_threshold, effect_rule
+
+    # THE CORRECTION IS APPLIED HERE, and until instruction 128 it never was.
+    #
+    # `multiple_testing_method` has existed as a setting, been offered in
+    # the panel and been named in Methods sections, while this branch
+    # called a hit on the RAW OLS p-value. With 1,208 coefficients an
+    # uncorrected 0.05 expects about sixty false positives from noise
+    # alone, and that is the defect behind a published volcano whose
+    # figure showed a P = 0.05 line while its Methods claimed BH q < 0.05.
+    #
+    # The family is the guide/gene coefficients OF THIS FIT -- not the
+    # intercept and not the row/column nuisance terms, which are covariates
+    # rather than hypotheses and would only inflate the family, and not the
+    # other fit's coefficients either.
+    #
+    # 'none' reproduces the historical rule exactly, so a run that wants
+    # the old behaviour can still ask for it and is on record as having
+    # asked.
+    from .multiple_testing import adjust_p_values, canonical_method
+
+    method = canonical_method(settings.get('multiple_testing_method',
+                                           'fdr_bh'))
+    alpha = float(settings.get('fdr_alpha', 0.05))
+    # ONE STATEMENT OF WHAT IS BEING TESTED, shared with the volcano.
+    # A plot drawn from a different family than the one corrected here is
+    # a plot of a different experiment; see spacr.hits.tested_family.
+    from .hits import tested_family
+
+    tested = pd.Series(tested_family(coef_df['feature']),
+                       index=coef_df.index)
+    # A ROW WITHOUT A P VALUE IS NOT A TEST. The mixed fit returns variance
+    # components and guide BLUPs alongside its fixed effects, and both carry
+    # a NaN p-value BY CONSTRUCTION -- a BLUP is a shrunken prediction of a
+    # random effect, not an estimate of a parameter that could be zero. Left
+    # in the family they would enlarge it (weakening every real q value) and
+    # come back with a q value of their own, which is a p-value manufactured
+    # for a quantity that has none.
+    tested &= coef_df['p_value'].notna()
+    # A VARIANCE IS NOT A HYPOTHESIS ABOUT A GENE. The mixed fit's 'grna Var'
+    # row carries a real Wald p-value (0.109 on the synthetic nesting), so the
+    # NaN guard above does not catch it -- and left in the family it both
+    # enlarges the correction and comes back with a q value, which would put a
+    # 'hit' on the volcano that no gene owns. Only fixed effects are tests.
+    if 'term_type' in coef_df.columns:
+        tested &= coef_df['term_type'].eq(TERM_FIXED)
+    coef_df['q_value'] = np.nan
+    coef_df['multiple_testing_method'] = method
+    if tested.any():
+        adjusted, _rejected = adjust_p_values(
+            coef_df.loc[tested, 'p_value'].to_numpy(dtype=float),
+            method=method, alpha=alpha)
+        coef_df.loc[tested, 'q_value'] = adjusted
+    raw_hits = int((coef_df.loc[tested, 'p_value'] <= alpha).sum())
+    corrected_hits = int((coef_df.loc[tested, 'q_value'] < alpha).sum())
+    print(f"Multiple testing ({level}): {method} across {int(tested.sum())} "
+          f"tested coefficients at alpha={alpha:g} — {raw_hits} pass the raw "
+          f"P value, {corrected_hits} pass correction.")
+
+    significant = coef_df.loc[coef_df['q_value'] < alpha].copy()
+    # THE EFFECT-SIZE CUT IS A WIDTH, SO IT IS SYMMETRIC. Until instruction
+    # 128 this was a pair of one-sided masks whose UNION was every row:
+    #
+    #     high = coefficient >= reg_threshold
+    #     low  = coefficient <= reg_threshold
+    #
+    # `reg_threshold` is `|median| + k x spread`, so it is never negative
+    # and every coefficient satisfies one side or the other. Measured on
+    # the synthetic screen with `threshold_method='std'`: the cut was
+    # 0.57, and all 16 corrected hits survived it -- the narrowest at
+    # |coefficient| = 0.0026, more than two hundred times inside the cut.
+    # `custom_volcano_plot`, handed the SAME number, marks hits with
+    # `abs(coefficient) >= abs(threshold)` and would have called none of
+    # them, so the figure and results_significant.csv described different
+    # experiments and only the figure was right.
+    #
+    # A cut that admits +0.9 but not -0.9 would also call half a screen:
+    # a guide that moves the phenotype DOWN by more than the controls ever
+    # move is exactly as much a hit as one that moves it up, and which
+    # direction is 'good' is the biology's business, not the filter's.
+    #
+    # This is the rule `_run_guide_permutation_analysis` already applies
+    # (`passes_effect_size`), so the parametric and nonparametric paths
+    # now call a hit the same way.
+    #
+    # NOTHING IS DROPPED SILENTLY: every coefficient keeps its row in
+    # results.csv with its q value, and the line below says how many the
+    # cut removed and how wide it was.
+    coef_df['effect_size_threshold'] = (
+        np.nan if not reg_threshold else abs(float(reg_threshold)))
+    coef_df['effect_size_rule'] = effect_rule
+    significant = significant.assign(
+        effect_size_threshold=(np.nan if not reg_threshold
+                               else abs(float(reg_threshold))),
+        effect_size_rule=effect_rule)
+    if reg_threshold:
+        wide_enough = (significant['coefficient'].abs()
+                       >= abs(reg_threshold))
+        called = len(significant)
+        significant = significant.loc[wide_enough].copy()
+        print(f"Effect-size cut ({level}) removed {called - len(significant)} "
+              f"of {called} coefficients that passed correction but whose "
+              f"effect is narrower than {abs(reg_threshold):.3g}.")
+    significant = significant.sort_values(
+        by='coefficient', ascending=False)
+    significant = significant[~significant['feature'].str.contains('row|column')]
+    return coef_df, significant, reg_threshold, effect_rule
 
 
 def perform_regression(settings):
@@ -4467,9 +5275,17 @@ def perform_regression(settings):
         # arbitrary solution out of infinitely many, and saying nothing is how
         # a published figure came to carry coefficients that could not be
         # reproduced from their own inputs. So: run it, and say so loudly.
-        warning = _identifiability_warning(merged_df, settings)
-        if warning:
-            print(warning)
+        # ONE CHECK PER FIT. `level='both'` runs two models of very
+        # different widths and only one of them may be too wide, so a single
+        # verdict for the run would either cry wolf about the gene fit or
+        # stay silent about the guide fit.
+        for _one in resolve_levels(settings.get('regression_type'),
+                                   settings.get('level', 'both')):
+            warning = _identifiability_warning(merged_df, settings,
+                                               level=_one)
+            if warning:
+                print(f"  level={_one!r}:")
+                print(warning)
 
     if settings.get('analysis_mode') == 'guide_permutation':
         output = _run_guide_permutation_analysis(
@@ -4495,9 +5311,28 @@ def perform_regression(settings):
                         min_max='allq', cmap='viridis', min_count=None,
                         dst=res_folder)
 
-    model, coef_df, regression_type = regression(
-        merged_df, csv_path, dependent_variable, settings['regression_type'],
-        settings['alpha'], settings['random_row_column_effects'],
+    # TWO FITS, NOT ONE DESIGN WITH BOTH LEVELS IN IT.
+    #
+    # `gene_fraction` is the SUM of the gene's gRNA fractions
+    # (check_and_clean_data), so the design this pipeline fitted until
+    # instruction 132 -- `fraction:grna + gene_fraction:gene + rowID +
+    # columnID` -- contained a block of columns and its own sums. Measured on
+    # the maintainer's TSG101 screen: 1945 rows, 1248 parameters, RANK 862, an
+    # exact 386-dimensional null space, condition number 2.3e18. statsmodels
+    # pseudo-inverted it and reported a coefficient and a P value for every
+    # term; the residual sum of squares is bit-identical at the answer it gave
+    # and at that answer plus seven times a null vector. 102 single-guide
+    # genes came back as exact duplicates of their one guide -- 244480 and
+    # 244480_3 both 3.389291 at 2.873149e-13.
+    #
+    # Split in two, each level is full rank: 859 parameters at rank 859 for
+    # the guide fit, 425 at 425 for the gene fit.
+    fits = regression_levels(
+        merged_df, csv_path, dependent_variable=dependent_variable,
+        regression_type=settings['regression_type'],
+        level=settings.get('level', 'both'),
+        alpha=settings['alpha'],
+        random_row_column_effects=settings['random_row_column_effects'],
         nc=settings['negative_control'], pc=settings['positive_control'],
         controls=settings['controls'], dst=res_folder,
         cov_type=settings['cov_type'],
@@ -4516,245 +5351,106 @@ def perform_regression(settings):
         qc=bool(settings.get('regression_qc', True)),
         legacy_volcano=bool(settings.get('legacy_volcano', False)),
     )
-    
-    coef_df['grna'] = coef_df['feature'].apply(lambda x: re.search(r'grna\[(.*?)\]', x).group(1) if 'grna' in x else None)
-    coef_df['gene'] = coef_df['feature'].apply(lambda x: re.search(r'gene\[(.*?)\]', x).group(1) if 'gene' in x else None)
-    
-    # n_grna / n_gene are value_counts frames, so one row per gRNA and one per
-    # gene. coef_df is many rows against either of them — every gene[...] term
-    # carries grna=None and vice versa — so many-to-one is the contract, and it
-    # is the right side (the counts) that must stay unique: a duplicate there
-    # would fan the coefficient table out and every hit would be written to
-    # results_significant.csv more than once.
-    coef_df = coef_df.merge(n_grna, how='left', on='grna',
-                            validate='many_to_one')
-    coef_df = coef_df.merge(n_gene, how='left', on='gene',
-                            validate='many_to_one')
+    regression_type = next(iter(fits.values()))[2]
 
-    gene_coef_df = coef_df[coef_df['n_gene'] != None]
-    grna_coef_df = coef_df[coef_df['n_grna'] != None]
-    gene_coef_df = gene_coef_df.dropna(subset=['n_gene'])
-    grna_coef_df = grna_coef_df.dropna(subset=['n_grna'])
-    
-    # reg_threshold used to be bound only inside the branch below, so a
-    # control-free screen (settings['controls'] is None) hit UnboundLocalError
-    # as soon as the toxo volcano block read it. 0 is custom_volcano_plot's own
-    # default and means "no coefficient cut-off, select on p <= 0.05 alone",
-    # which is the only sensible threshold when there are no controls to
-    # calibrate against.
-    reg_threshold = 0
+    level_tables = {
+        one: _annotate_level_coefficients(one_coef, n_grna, n_gene)
+        for one, (_model, one_coef, _type) in fits.items()
+    }
 
-    if settings['controls'] is not None:
+    # THE MIXED FIT IS ALREADY BOTH LEVELS, so it is split by TERM TYPE rather
+    # than fitted twice. Its gene rows are fixed effects with standard errors
+    # and p-values; its guide rows are BLUPs -- shrunken predictions of a
+    # random effect. A BLUP has no null hypothesis to reject, so it gets no
+    # q value here and no line in the hit list, and results_grna.csv from a
+    # mixed run says so in its `term_type` column.
+    if regression_type == 'mixed' and 'gene' in level_tables:
+        whole = level_tables.pop('gene')
+        blups = whole['term_type'] == TERM_BLUP
+        level_tables['gene'] = whole.loc[~blups].copy()
+        guide_table = whole.loc[blups].copy()
+        guide_table['level'] = 'grna'
+        guide_table['q_value'] = np.nan
+        guide_table['multiple_testing_method'] = 'none'
+        level_tables['grna'] = guide_table
+        print(f"Mixed fit: {len(level_tables['gene'])} gene rows corrected as "
+              f"one family, {len(guide_table)} guide BLUPs written without a "
+              f"q value. Choose a fixed-effects model with level='grna' for a "
+              f"guide-level hit list.")
 
-        control_coef_df = grna_coef_df[grna_coef_df['grna'].isin(settings['controls'])]
-        mean_coef = control_coef_df['coefficient'].mean()
-        significant_c = control_coef_df[control_coef_df['p_value']<= 0.05]
-        mean_coef_c = significant_c['coefficient'].mean()
-        
-        if settings['verbose']:
-            print(mean_coef, mean_coef_c)
-        
-        # SEVEN METHODS, in one place. It was two -- std and var -- and the
-        # maintainer asked for "at least 4 more" reachable from the plot, so
-        # the arithmetic moved to `spacr.thresholds` where the GUI can reach
-        # the same list rather than keeping a second copy of it.
-        from .thresholds import coefficient_threshold
+    # EACH FIT CORRECTED WITHIN ITSELF. Two families, never one: same wells,
+    # and the gene regressor IS the sum of the guide regressors, so pooling
+    # would both break the independence the correction assumes and double the
+    # family for no protection.
+    corrected = {}
+    hits_by_level = {}
+    thresholds_by_level = {}
+    for one, table in level_tables.items():
+        if regression_type == 'mixed' and one == 'grna':
+            # BLUPs: no test, so nothing to correct and nothing to call.
+            corrected[one] = table
+            hits_by_level[one] = table.iloc[0:0]
+            thresholds_by_level[one] = 0
+            continue
+        table, level_hits, level_threshold, _rule = _call_level_hits(
+            table, one, settings, regression_type, merged_df,
+            dependent_variable, bootstrap=bootstrap_selection_frequencies)
+        corrected[one] = table
+        hits_by_level[one] = level_hits
+        thresholds_by_level[one] = level_threshold
 
-        measured_threshold, threshold_rule = coefficient_threshold(
-            control_coef_df['coefficient'],
-            method=settings['threshold_method'],
-            multiplier=settings['threshold_multiplier'],
-            # The MEDIAN of the controls, computed inside, rather than the
-            # mean this used to add: `000000_22` is a non-targeting control
-            # and the strongest effect in this whole screen at +4.37, and a
-            # mean centre moves the cut for every guide because of it.
-            centre=None)
-        print(f"Effect-size cut: {threshold_rule}")
+    # THE PRIMARY LEVEL is the guide when there is one: the guide is the unit
+    # the screen measures, and it is what results.csv, the volcano's default
+    # and the model summary have always been about.
+    primary = 'grna' if 'grna' in fits else next(iter(fits))
+    model = fits[primary][0]
+    reg_threshold = thresholds_by_level.get(primary, 0)
 
-        # `coefficient_threshold` answers None when NO CUT CAN BE MADE --
-        # `threshold_method='none'`, fewer than two control coefficients, or a
-        # set of controls with no spread at all. It is deliberately not a
-        # silent 0, so that the caller has to decide what to do about it, and
-        # every one of this function's three readers wanted a number:
-        #
-        #   * the hit list below compared a Series against None. pandas 2.x
-        #     evaluates `series >= None` as all-False rather than raising, so
-        #     BOTH masks were empty and the run wrote an EMPTY
-        #     results_significant.csv -- measured on the synthetic screen,
-        #     16 of 16 corrected hits lost, with nothing said.
-        #   * `custom_volcano_plot` does `abs(threshold)` and died with
-        #     `TypeError: bad operand type for abs(): 'NoneType'` after the
-        #     whole fit, every results CSV and every QC panel had been
-        #     written.
-        #   * `plot.volcano_plot` takes it as `fold_change_threshold`.
-        #
-        # 0 is what "no coefficient cut" already means to all three -- the
-        # value a control-free screen has carried for as long as this line has
-        # existed -- and `threshold_rule`, printed above, is what says WHY
-        # there is none. The reason is on the record; only the sentinel is
-        # normalised.
-        reg_threshold = (0 if measured_threshold is None
-                         else float(measured_threshold))
-    else:
-        # SAID, not left silent. A run WITH controls prints its cut and the
-        # rule behind it; a run without them printed nothing, so "there is no
-        # effect-size cut" looked exactly like "that line scrolled past". It
-        # is the more surprising of the two, because a hit list called on the
-        # corrected P value alone is a different claim from one that also had
-        # to clear a width.
-        print("Effect-size cut: no control gRNAs were named, so there is "
-              "none; a hit is the corrected P value alone.")
+    # ONE ROW PER GUIDE / PER GENE in the per-level files. The intercept and
+    # the mixed fit's variance components are terms of the fit, not units of
+    # the screen, and results_gene.csv has never carried them -- the results
+    # panel, `hits.load_results` and the volcano all read these files as a list
+    # of things that were tested. They stay in results.csv, which is the whole
+    # fit. (`n_grna` / `n_gene` are NaN exactly for the rows that name no unit,
+    # which is the same rule this used before the split.)
+    grna_coef_df = corrected.get('grna')
+    gene_coef_df = corrected.get('gene')
+    if grna_coef_df is not None:
+        grna_coef_df = grna_coef_df.dropna(subset=['n_grna'])
+    if gene_coef_df is not None:
+        gene_coef_df = gene_coef_df.dropna(subset=['n_gene'])
+    # A LEVEL THAT WAS NOT FITTED GETS AN EMPTY TABLE WITH THE RIGHT COLUMNS,
+    # not a missing file. `hits.load_results`, the results panel and
+    # `run_compare` all read results_gene.csv / results_grna.csv by name, and
+    # a file that is absent is indistinguishable from a run that crashed.
+    template = corrected[primary].iloc[0:0]
+    if grna_coef_df is None:
+        print("level='gene': no guide fit was run, so results_grna.csv is "
+              "written empty. Set level='both' or level='grna' for one.")
+        grna_coef_df = template
+    if gene_coef_df is None:
+        print("level='grna': no gene fit was run, so results_gene.csv is "
+              "written empty. Set level='both' or level='gene' for one.")
+        gene_coef_df = template
+
+    # results.csv is BOTH tables stacked, each row carrying the `level` it was
+    # fitted and corrected at. One row per guide and one per gene, never a
+    # gene once per guide -- which is what the collinear single design
+    # produced and what put every gene on the volcano several times.
+    def _stack(frames):
+        # pd.concat([]) raises "No objects to concatenate", and a run where
+        # neither level called a hit is an ordinary outcome, not an error --
+        # it is what a screen with nothing in it looks like. The empty table
+        # keeps its columns so results_significant.csv still has a header.
+        kept = [frame for frame in frames if len(frame)]
+        return pd.concat(kept, ignore_index=True) if kept else template
+
+    coef_df = _stack(corrected.values())
+    significant = _stack(hits_by_level.values())
 
     coef_df.to_csv(results_path, index=False)
     gene_coef_df.to_csv(results_path_gene, index=False)
     grna_coef_df.to_csv(results_path_grna, index=False)
-    
-    #v2
-    #if regression_type == 'lasso':
-    #    significant = coef_df[coef_df['coefficient'] > 0]
-    
-    #v1
-    #if regression_type == 'lasso':
-    #    significant = coef_df[coef_df['coefficient'] != 0].copy()
-    #    significant = significant.sort_values(by='coefficient', key=lambda c: c.abs(), ascending=False)
-    #    significant = significant[~significant['feature'].str.contains('row|column')]
-    
-    #v3
-    if regression_type in NO_P_VALUE_TYPES:
-        # Lasso and elastic net have no valid frequentist p-values (the ones
-        # process_model_coefficients attaches are OLS-style and ignore the
-        # penalty). Use bootstrap selection frequency as the feature-importance
-        # ranking. Treat as a selection method, not a hypothesis test.
-        n_boot = settings.get('lasso_n_boot', 200)
-        sel_threshold = settings.get('lasso_selection_threshold', 0.6)
-        formula = prepare_formula(
-            dependent_variable, random_row_column_effects=False,
-            block_screen=screen_is_blockable(merged_df))
-        # Apply the same preprocessing the OLS path uses, so derived columns
-        # referenced by the formula (e.g. gene_fraction) exist in the bootstrap.
-        cleaned_df = check_and_clean_data(merged_df.copy(), dependent_variable)
-        sel_df = bootstrap_selection_frequencies(
-            X=cleaned_df,
-            y=cleaned_df[dependent_variable],
-            formula=formula,
-            alpha=settings.get('alpha', 'auto'),
-            n_boot=n_boot,
-            random_state=0,
-            regression_type=regression_type,
-            l1_ratio=settings['l1_ratio'],
-        )
-        # One row per model term on both sides: coef_df['feature'] is the
-        # design-matrix column index (X.columns for lasso), sel_df['feature']
-        # is the same index taken off the reference design built once at the
-        # top of bootstrap_selection_frequencies. Both are pandas Index
-        # objects from patsy, so the join is one-to-one by construction, and a
-        # duplicate on either side means the two designs have gone out of step
-        # — which is exactly when a selection frequency must not be silently
-        # attached to the wrong coefficient.
-        coef_df = coef_df.merge(sel_df, on='feature', how='left',
-                                validate='one_to_one')
-
-        significant = coef_df[
-            (coef_df['coefficient'] != 0)
-            & (coef_df['selection_frequency'] >= sel_threshold)
-        ].copy()
-        significant = significant.sort_values(
-            by='coefficient', key=lambda c: c.abs(), ascending=False,
-        )
-        significant = significant[~significant['feature'].str.contains('row|column')]
-    else:
-        # THE CORRECTION IS APPLIED HERE, and until now it never was.
-        #
-        # `multiple_testing_method` has existed as a setting, been offered in
-        # the panel and been named in Methods sections, while this branch
-        # called a hit on the RAW OLS p-value. With 1,208 coefficients an
-        # uncorrected 0.05 expects about sixty false positives from noise
-        # alone, and that is the defect behind a published volcano whose
-        # figure showed a P = 0.05 line while its Methods claimed BH q < 0.05.
-        #
-        # The family is the guide/gene coefficients actually being tested --
-        # not the intercept and not the row/column nuisance terms, which are
-        # covariates rather than hypotheses and would only inflate the family.
-        #
-        # 'none' reproduces the historical rule exactly, so a run that wants
-        # the old behaviour can still ask for it and is on record as having
-        # asked.
-        from .multiple_testing import adjust_p_values, canonical_method
-
-        method = canonical_method(settings.get('multiple_testing_method',
-                                               'fdr_bh'))
-        alpha = float(settings.get('fdr_alpha', 0.05))
-        # ONE STATEMENT OF WHAT IS BEING TESTED, shared with the volcano.
-        # A plot drawn from a different family than the one corrected here is
-        # a plot of a different experiment; see spacr.hits.tested_family.
-        from .hits import tested_family
-
-        tested = pd.Series(tested_family(coef_df['feature']),
-                           index=coef_df.index)
-        coef_df['q_value'] = np.nan
-        coef_df['multiple_testing_method'] = method
-        if tested.any():
-            adjusted, _rejected = adjust_p_values(
-                coef_df.loc[tested, 'p_value'].to_numpy(dtype=float),
-                method=method, alpha=alpha)
-            coef_df.loc[tested, 'q_value'] = adjusted
-        raw_hits = int((coef_df.loc[tested, 'p_value'] <= alpha).sum())
-        corrected_hits = int((coef_df.loc[tested, 'q_value'] < alpha).sum())
-        print(f"Multiple testing: {method} across {int(tested.sum())} tested "
-              f"coefficients at alpha={alpha:g} — {raw_hits} pass the raw P "
-              f"value, {corrected_hits} pass correction.")
-        # Rewrite the tables so the corrected value is in the file, not only
-        # in the hit list: a volcano drawn from results.csv must be able to
-        # plot the quantity the hits were called on.
-        for frame, path in ((coef_df, results_path),
-                            (gene_coef_df, results_path_gene),
-                            (grna_coef_df, results_path_grna)):
-            if frame is not coef_df and 'feature' in frame.columns:
-                frame['q_value'] = frame['feature'].map(
-                    coef_df.set_index('feature')['q_value'])
-                frame['multiple_testing_method'] = method
-            frame.to_csv(path, index=False)
-
-        significant = coef_df.loc[coef_df['q_value'] < alpha].copy()
-        # THE EFFECT-SIZE CUT IS A WIDTH, SO IT IS SYMMETRIC. Until now this
-        # was a pair of one-sided masks whose UNION was every row:
-        #
-        #     high = coefficient >= reg_threshold
-        #     low  = coefficient <= reg_threshold
-        #
-        # `reg_threshold` is `|median| + k x spread`, so it is never negative
-        # and every coefficient satisfies one side or the other. Measured on
-        # the synthetic screen with `threshold_method='std'`: the cut was
-        # 0.57, and all 16 corrected hits survived it -- the narrowest at
-        # |coefficient| = 0.0026, more than two hundred times inside the cut.
-        # `custom_volcano_plot`, handed the SAME number, marks hits with
-        # `abs(coefficient) >= abs(threshold)` and would have called none of
-        # them, so the figure and results_significant.csv described different
-        # experiments and only the figure was right.
-        #
-        # A cut that admits +0.9 but not -0.9 would also call half a screen:
-        # a guide that moves the phenotype DOWN by more than the controls ever
-        # move is exactly as much a hit as one that moves it up, and which
-        # direction is 'good' is the biology's business, not the filter's.
-        #
-        # This is the rule `_run_guide_permutation_analysis` already applies
-        # (`passes_effect_size`), so the parametric and nonparametric paths
-        # now call a hit the same way.
-        #
-        # NOTHING IS DROPPED SILENTLY: every coefficient keeps its row in
-        # results.csv with its q value, and the line below says how many the
-        # cut removed and how wide it was.
-        if reg_threshold:
-            wide_enough = (significant['coefficient'].abs()
-                           >= abs(reg_threshold))
-            called = len(significant)
-            significant = significant.loc[wide_enough].copy()
-            print(f"Effect-size cut removed {called - len(significant)} of "
-                  f"{called} coefficients that passed correction but whose "
-                  f"effect is narrower than {abs(reg_threshold):.3g}.")
-        significant = significant.sort_values(
-            by='coefficient', ascending=False)
-        significant = significant[~significant['feature'].str.contains('row|column')]
         
     if regression_type in ['ols', 'beta']:
         if settings['verbose']:

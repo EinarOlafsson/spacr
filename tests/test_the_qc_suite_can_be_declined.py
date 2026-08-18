@@ -37,12 +37,17 @@ def test_perform_regression_actually_passes_it():
     """The defect: the parameter existed and nothing reached it."""
     from spacr import ml
 
+    # RENAMED BY INSTRUCTION 132 (maintainer, 2026-08-17): the call is
+    # `regression_levels(...)` now, because level='both' fits the guide model
+    # and the gene model SEPARATELY rather than putting both in one collinear
+    # design. `regression_levels` forwards **kwargs to `regression`, so `qc=`
+    # still has to be on the call for the switch to reach the suite.
     source = inspect.getsource(ml.perform_regression)
-    call = re.search(r"regression\(\s*merged_df.*?\n\s*\)", source, re.S)
-    assert call, "could not find the regression() call to check"
+    call = re.search(r"regression_levels\(\s*merged_df.*?\n\s*\)", source, re.S)
+    assert call, "could not find the regression_levels() call to check"
     assert "qc=" in call.group(0), (
-        "perform_regression calls regression() without qc=, so the switch is "
-        "unreachable and every sweep trial pays the full suite")
+        "perform_regression calls regression_levels() without qc=, so the "
+        "switch is unreachable and every sweep trial pays the full suite")
 
 
 def test_the_settings_key_survives_normalisation():

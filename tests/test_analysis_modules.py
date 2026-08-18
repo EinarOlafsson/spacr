@@ -63,9 +63,20 @@ def test_ml_select_glm_family_gaussian():
 
 
 def test_ml_prepare_formula_with_random_effects():
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): one level per fit.
+    # This used to assert "gene" was in the DEFAULT formula, because the
+    # default put fraction:grna and gene_fraction:gene in the same design --
+    # the collinear model that instruction removed. The default is now the
+    # guide level, and the gene level is asked for by name.
     f = ML.prepare_formula("score", random_row_column_effects=True)
     assert "rowID" not in f  # random effects hidden in re_formula
-    assert "gene" in f
+    assert f == "score ~ fraction:grna"
+
+    g = ML.prepare_formula("score", random_row_column_effects=True,
+                           level="gene")
+    assert g == "score ~ gene_fraction:gene"
+    # Never both in one design.
+    assert "fraction:grna" not in g.replace("gene_fraction:gene", "")
 
 
 def test_ml_prepare_formula_without_random_effects():
