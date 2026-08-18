@@ -124,3 +124,87 @@ HOW TO KNOW IT WORKED
 * The y axis can be split from the plot's own menu.
 * Switching to adjusted p on the axis is still possible, and still shows the
   steps, because that is what BH is.
+
+
+================================================================================
+E. THE CORRECTION IS CHOSEN ON THE GRAPH
+================================================================================
+
+Requested: 2026-08-18 -- "id also like to do fdr by right clicking the graph."
+
+`spacr.multiple_testing.METHODS` already holds thirteen corrections and the
+run picks one. The PLOT should offer them too, under 147's Data category, and
+recompute on the spot -- comparing BH against Bonferroni against Storey on
+the screen in front of you is a two-second question that currently costs a
+re-run.
+
+TWO THINGS IT MUST NOT DO.
+
+  * IT MUST NOT SILENTLY DISAGREE WITH THE EXPORTED TABLE. results.csv carries
+    a `multiple_testing_method` column and its q values came from the run. A
+    plot recorrected to something else is showing a different analysis from
+    the file beside it, and that is how a figure and its table end up telling
+    a reader two things. The plot SAYS which correction it is drawing and
+    whether that is the run's: "Bonferroni (the run used fdr_bh)".
+  * IT MUST RECORRECT THE RIGHT FAMILY. The correction applies within a level
+    -- `spacr.hits.tested_family`, and each of the two fits is its own family
+    (instruction 128 R). Recomputing over whatever happens to be on screen
+    would pool two families and quietly change every number.
+
+Offer to write the re-corrected table, or say plainly that it is a view only.
+Do not leave it ambiguous.
+
+================================================================================
+F. EVERY FIELD-ACCEPTABLE WAY OF SHOWING THE ADJUSTED P
+================================================================================
+
+Requested: 2026-08-18 -- "id like the user to have access to visualizing
+adjusted P in all the ways that are acceptable to the field. showing as color,
+showing the descrete P on the axis buy showing the line where the adjusted p
+threshold lands, etc."
+
+All of these keep the axis continuous. Offer them; do not pick one silently.
+
+1. RAW P ON THE AXIS, COLOUR BY q <= alpha.
+   The most common volcano in the literature. Continuous height, binary
+   colour, and the colour is doing what the house style says colour is for --
+   carrying the claim.
+
+2. RAW P ON THE AXIS, WITH THE BH CRITICAL LINE. This is the one the request
+   describes and it is exact rather than approximate. Under BH at level alpha,
+   with n tests,
+
+       q_(i) <= alpha   if and only if   p_(i) <= alpha * i / n
+
+   for the largest i satisfying it. Call that rank k; then EVERY test with
+   p <= p_(k) is called and every test above it is not. So a single horizontal
+   line at -log10(p_(k)) divides the plot exactly as the FDR does, on a
+   continuous axis, with no steps anywhere.
+
+   THE LINE IS NOT alpha. Drawing the line at -log10(0.05) is the mistake this
+   replaces: that is the uncorrected threshold and it calls far too much. The
+   caption gives both numbers -- "FDR 5% (raw p <= 1.7e-4)" -- because the
+   second is the one the reader is measuring against.
+
+   When NOTHING is called, there is no k and there is no line. Say that
+   instead of drawing one at alpha: an empty result is a finding.
+
+3. ADJUSTED P ON THE AXIS. Honest, stepped, and kept -- because that is what
+   BH is, and a user comparing against a published figure drawn that way needs
+   to be able to reproduce it. It is not the default.
+
+4. LOCAL FDR ON THE AXIS. Continuous by construction; see section B.
+
+5. A CONTINUOUS COLOUR RAMP OVER q rather than a binary call. Available, and
+   it CONFLICTS with the up/down colouring -- a dot cannot be coloured for its
+   direction and for its q at once. Whichever is chosen, the other becomes
+   grey, and the legend says which is in force. That is the localisation rule
+   again: one sentence per figure.
+
+6. SIZE OR OPACITY BY q, leaving colour for direction. The one encoding that
+   composes with the others rather than competing.
+
+WHAT NOT TO OFFER: jitter on the y axis to separate the ties. It moves a point
+away from its own value, which is the one thing a plot may never do -- and
+this instruction exists because a plot was showing something the data did not
+say.
