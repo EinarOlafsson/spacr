@@ -240,17 +240,38 @@ def test_switching_runs_does_not_leave_the_last_fits_residuals_on_screen(
         assert not plot.plot.listDataItems()
 
 
-def test_switching_back_does_not_restore_what_the_switch_cleared(
+def test_switching_back_gives_the_run_its_own_view_again(
         screen, screen_folder):
-    """The other half of the same contract, asserted so a later session does
-    not read the test above as "state should be remembered per run" and build
-    a cache 128 J explicitly does not ask for."""
+    """SUPERSEDED BY 116, and the supersession is the point of this test.
+
+    This assertion used to read "switching back does NOT restore what the
+    switch cleared", written so a later session would not read the test above
+    as "state should be remembered per run" and build a cache 128 J did not
+    ask for. The maintainer then asked for exactly that cache, on 2026-08-18:
+
+        "every regression run should have its own interactive volcano plot"
+
+    which landed at ``d4113297`` -- and left this test red, because the two
+    contracts are opposites and only one of them can be true.
+
+    THEY ARE NOT ACTUALLY IN CONFLICT, and the resolution is what is asserted
+    here. 128 J is about the FIRST look at a run: its defaults come off its
+    own table, and nothing of the previous run leaks forward -- which is the
+    test above and still holds. 116 is about the SECOND look, where resetting
+    threw away the view the user had built. A run gets back what it had; it
+    never inherits what another run had.
+    """
     runs = _runs_table(screen, screen_folder)
+    panel = screen._results_panel
     assert _pick(runs, "ols_11")
-    screen._results_panel._compartment = "rhoptry"
+    panel._compartment = "rhoptry"
+
     assert _pick(runs, "ols_12")
+    # NOT INHERITED. The other run's compartment on this run's table is the
+    # picture nobody chose, and it is what 128 J was protecting.
+    assert panel._compartment is None
 
     assert _pick(runs, "ols_11")
 
-    assert screen._results_panel._compartment is None
-    assert len(screen._results_panel.results_frame()) == 30
+    assert panel._compartment == "rhoptry"
+    assert len(panel.results_frame()) == 30
