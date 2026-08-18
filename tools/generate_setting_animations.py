@@ -832,26 +832,69 @@ def _adjust_cells(painter: Painter, action: float) -> None:
 
 
 def _generic_merge(painter: Painter, spec: Spec, action: float) -> None:
+    """Two touching pairs, of which the setting's criterion merges exactly one.
+
+    THESE ARE TWO DIFFERENT SETTINGS AND THEY USED TO BE ONE PICTURE. A single
+    pair merged, and `*_intensity_merge` added a pulsing line over it; measured
+    against `*_perimeter_fraction`, 98% of the drawn pixels were identical. A
+    viewer comparing the two animations learned that the settings do the same
+    thing, which is the failure this whole audit is about -- an animation is a
+    stronger claim than a sentence.
+
+    So each now draws its own criterion, and draws a pair that FAILS it:
+
+    * `perimeter_fraction` is shared boundary length over the smaller object's
+      perimeter. One pair overlaps deeply and merges; one pair touches at a
+      point, shares almost no boundary, and stays two objects.
+    * `intensity_merge` asks whether there is a real membrane between them.
+      The pair with no visible boundary merges; the pair divided by a bright
+      membrane stays two objects, and the membrane is drawn the whole time
+      rather than pulsed, because it is the evidence and not decoration.
+
+    A threshold that keeps something is the honest illustration of a
+    threshold. One that dissolves the only pair on screen shows a merge, not a
+    criterion.
+    """
     _well(painter)
     kind = spec.params["kind"]
-    scale = 1.45 if kind == "cell" else 1.0
+    scale = {"cell": 1.45, "organelle": 0.72, "pathogen": 0.82}.get(kind, 1.0)
+    wide, narrow = 58 * scale, 29 * scale
+    tall = 31 * scale
+    top, bottom = 70.0, 172.0
+    intensity = bool(spec.params.get("intensity"))
+
+    # The pair that MERGES. For perimeter_fraction it is the deeply overlapping
+    # one; for intensity_merge it is the one with no membrane between halves.
+    _object_outline(painter, kind, (168, top), (wide, 42 * scale), action, 0.5)
     _object_outline(
-        painter, kind, (176, 120), (67 * scale, 42 * scale), action, 0.5,
-    )
-    _object_outline(
-        painter, kind, (145, 120), (34 * scale, 38 * scale),
+        painter, kind, (168 - narrow * 0.42, top), (narrow, tall),
         1.0 - action, 0.2,
     )
     _object_outline(
-        painter, kind, (207, 120), (34 * scale, 38 * scale),
+        painter, kind, (168 + narrow * 0.42, top), (narrow, tall),
         1.0 - action, 0.9,
     )
-    if spec.params.get("intensity"):
-        pulse = 0.4 + 0.6 * math.sin(action * math.pi)
+
+    # The pair that does NOT merge, and the reason it does not.
+    if intensity:
+        # Same geometry as above; the membrane is what keeps them apart.
+        _object_outline(
+            painter, kind, (168 - narrow * 0.42, bottom), (narrow, tall), 1.0, 0.3,
+        )
+        _object_outline(
+            painter, kind, (168 + narrow * 0.42, bottom), (narrow, tall), 1.0, 1.1,
+        )
         painter.line(
-            [(176, 85), (176, 155)],
-            _mix(OBJECT_COLORS[kind], pulse),
-            0.7,
+            [(168, bottom - tall * 0.62), (168, bottom + tall * 0.62)],
+            WHITE, 0.9,
+        )
+    else:
+        # Barely touching, so the shared boundary is a fraction of a perimeter.
+        _object_outline(
+            painter, kind, (168 - narrow * 1.05, bottom), (narrow, tall), 1.0, 0.3,
+        )
+        _object_outline(
+            painter, kind, (168 + narrow * 1.05, bottom), (narrow, tall), 1.0, 1.1,
         )
 
 
