@@ -127,3 +127,21 @@ def test_an_unknown_kind_is_treated_as_adjusted():
     assert len(odd) == len(default)
     _t, nonsense = _call(_settings(p_threshold_kind="sideways"))
     assert len(nonsense) == len(default)
+
+
+def test_the_line_follows_the_correction_level_unless_it_is_moved():
+    """What stops this becoming a second `score_column`.
+
+    Two controls for one question, where the only thing the second can
+    express is a disagreement with the first, is exactly what instruction
+    135 A had just retired. Every existing caller moves `fdr_alpha` alone and
+    means "call hits at this level"; a hard 0.05 default would silently
+    ignore all of them.
+    """
+    from spacr.settings import get_perform_regression_default_settings as g
+
+    assert g({})["p_threshold_alpha"] == g({})["fdr_alpha"]
+    assert g({"fdr_alpha": 0.2})["p_threshold_alpha"] == 0.2
+    # And an explicit choice still wins, which is the point of having it.
+    assert g({"fdr_alpha": 0.2,
+              "p_threshold_alpha": 0.01})["p_threshold_alpha"] == 0.01
