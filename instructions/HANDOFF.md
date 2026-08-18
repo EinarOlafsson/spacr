@@ -203,6 +203,48 @@ Grep the module you are about to accuse, not just its callers.
 
 ---
 
+### 3f. `pip -e` POINTED AT THE WRONG CHECKOUT, AND A CHECK CAN'T SEE IT
+
+FOUND AND FIXED 2026-08-18. `pip show spacr` reported
+
+    Editable project location: /mnt/firecuda2/Claude/repo/spacr
+
+which is the STALE MIRROR (§2), frozen at commit `90714c9e`, while all work
+happens in `/mnt/firecuda2/codex/repo/spacr`. Consequences, both real:
+
+  * `spacr` on PATH launched dead code. The maintainer had the GUI open all
+    day against a tree fifteen commits behind, which makes "I still see the
+    bug" impossible to interpret.
+  * ANY CHECK RUN AS `python /some/other/dir/script.py` VERIFIED THE MIRROR.
+    `python script.py` puts the SCRIPT's directory on `sys.path` and never
+    adds cwd, so it falls through to site-packages and the editable finder
+    answers. Four such checks ran before this was noticed.
+
+Fixed with `pip install -e /mnt/firecuda2/codex/repo/spacr --no-deps
+--no-build-isolation`. Verify after any env change:
+
+    cd <live tree>  && python -c "import spacr; print(spacr.__file__)"
+    python /tmp/anywhere/check.py        # <- the one that used to lie
+
+WHAT DOES *NOT* SAVE YOU, measured rather than assumed: setting PYTHONPATH is
+not the general fix and neither is trusting cwd. On this interpreter
+`sys.meta_path` is
+
+    [DistutilsMetaFinder, PynvmlFinder, BuiltinImporter, FrozenImporter,
+     PathFinder, _EditableFinder, _EditableFinder]
+
+so `_EditableFinder` sits AFTER `PathFinder` and cwd/PYTHONPATH DO win here --
+but that ordering is a setuptools implementation detail, not a guarantee, and
+a peer session had a recorded incident from a repo where a `git worktree`
+control silently tested current code for this family of reason.
+
+THE RULE THAT SURVIVES BOTH: ASSERT THE RESOLVED PATH INSIDE THE CHECK.
+
+    import spacr; assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
+
+A check that prints its own `__file__` cannot lie about which tree it read.
+One that trusts its invocation can, and did.
+
 ## 4. Findings filed but not fixed
 
 **93 — the intensity rescale factor is per field and unrecorded.**
