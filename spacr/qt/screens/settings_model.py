@@ -2825,6 +2825,10 @@ _APP_API_MODULE = {
     # The Volcano Explorer redraws a finished regression's coefficient table
     # and the Parameter Sweep reads the trials of a search that already ran;
     # each points at the module that produced what it is showing.
+    # The Cells tab -- which objects a dot on the volcano is most consistent
+    # with. Instruction 131; the answer is pure pandas in `cell_montage` and
+    # the tab only loads what it names.
+    "cell_montage": "cell_montage",
     "volcano_explorer": "volcano_style",
     "parameter_sweep": "parameter_sweep",
     "align": "align",
