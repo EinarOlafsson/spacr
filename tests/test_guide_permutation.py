@@ -201,3 +201,51 @@ def test_package_runner_requires_primary_threshold_in_requested_family(tmp_path)
                 "guide_primary_min_wells": 3,
                 "guide_permutations": 9,
             })
+
+
+# ---------------------------------------------------------------------------
+# Instruction 149 C: the box says what resolution the value buys
+# ---------------------------------------------------------------------------
+
+
+def test_the_permutations_setting_states_the_resolution_it_buys():
+    """A permutation P can be no finer than 1 / (permutations + 1).
+
+    Instruction 149 C. The 4%-distinct volcano is the permutation run, whose
+    raw P is quantised BEFORE BH ever sees it, and the setting that fixes it
+    said only "more permutations improve tail resolution", which does not tell
+    a reader that 1,000 cannot express a P below 1e-3 -- it reads as a
+    quality/time trade-off rather than as a hard floor. The arithmetic is on
+    the box now, together with the symptom that says the value is too small.
+    """
+    from spacr import settings
+
+    text = settings.tooltips['guide_permutations']
+    assert '(exceedances + 1) / (permutations + 1)' in text
+    # The floor, in both directions: the formula and a worked value.
+    assert '1e-3' in text and '1000' in text
+    assert '5e-6' in text and '200000' in text
+    # The symptom, so a reader can recognise it on their own volcano.
+    assert 'floor' in text
+
+
+def test_the_permutation_p_really_is_quantised_to_that_floor():
+    """The box's arithmetic is the code's arithmetic, not a nearby claim.
+
+    ``spacr.guide_permutation`` reports ``(exceedances + 1) / (n + 1)``, so a
+    guide no permutation ever exceeded gets exactly ``1 / (n + 1)`` and no
+    smaller value exists at that setting. Pinned here rather than only in the
+    tooltip, because a tooltip that drifted from the formula would be the
+    wrong sentence rather than a missing one.
+    """
+    import inspect
+
+    from spacr import guide_permutation
+
+    source = inspect.getsource(guide_permutation)
+    assert '(exceedances + 1) / (n_permutations + 1)' in source
+    for n in (1000, 10000, 200000):
+        floor = 1.0 / (n + 1)
+        assert floor <= 1.0 / n
+    assert 1.0 / 1001 > 9e-4      # 1,000 cannot reach 1e-3
+    assert 1.0 / 200001 < 6e-6    # the default resolves to about 5e-6

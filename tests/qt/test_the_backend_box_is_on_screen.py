@@ -369,3 +369,38 @@ def test_the_box_says_what_the_absorbed_fit_does_not_report(screen, field):
     text = field.description.toPlainText()
     assert "DIFFERENT ANSWER" in text
     assert "Intercept" in text
+
+
+def test_the_permutation_resolution_reaches_the_setting_on_screen(screen,
+                                                                  qtbot):
+    """Instruction 149 C, on the widget rather than in the dict.
+
+    ``guide_permutations`` is a QSpinBox and its hover help is the only place
+    the arithmetic can be read, so this asserts the sentence is on the
+    control the user actually points at.
+    """
+    widget = screen._settings_model._widgets["guide_permutations"]
+    # INSTRUCTION 113 MOVED THE HOVER HELP OFF THE EDITABLE FIELD, so the
+    # QSpinBox itself answers with an empty string and the sentence lives on
+    # the setting's LABEL. Reading the spin box would have passed before this
+    # change and failed after it, for a reason that has nothing to do with
+    # what the sentence says.
+    for section in screen._settings_sections:
+        if any(row is widget for _label, row in section._row_widgets):
+            section.show()
+            section.set_expanded(True)
+    # THE HOVER HELP IS INSTALLED BY THE APPLICABILITY REFRESH, not by the
+    # first layout: instruction 106 re-greys every setting whenever one of
+    # them changes, and that pass is what writes each control's hint. Reading
+    # a freshly built panel finds an empty string, which is why this touches
+    # a setting first rather than only expanding the section.
+    screen._settings_model._widgets["regression_type"].setCurrentText("ols")
+    qtbot.wait(100)
+    hint = ""
+    for section in screen._settings_sections:
+        for label, row in section._row_widgets:
+            if row is widget:
+                hint = widget.toolTip() or label.toolTip()
+    assert hint, "guide_permutations carries no hover help at all"
+    assert "(exceedances + 1) / (permutations + 1)" in hint
+    assert "1e-3" in hint
