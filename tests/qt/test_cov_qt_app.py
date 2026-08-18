@@ -394,7 +394,9 @@ def test_every_app_carries_the_maturity_it_was_given():
     # columns have still not moved, which is the shape the docstring above
     # describes: alpha is the column that grows, and only use empties it.
     # 39 alpha since the two model-explanation stages arrived.
-    assert counts == {"alpha": 39, "beta": 9, "stable": 8}
+    # 39 -> 41 on 2026-08-17: the Volcano Explorer and the Parameter Sweep
+    # were registered without any of this file's three ledgers being updated.
+    assert counts == {"alpha": 41, "beta": 9, "stable": 8}
 
 
 def test_no_section_is_used_that_was_never_declared():
