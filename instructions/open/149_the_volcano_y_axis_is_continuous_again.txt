@@ -401,3 +401,43 @@ OFFER is jitter on the y axis, and that is now enforced rather than promised.
 
 STILL NOT MINE: section C's other half, the permutation box in
 spacr/settings.py saying what resolution its count buys.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- C IS DONE. THE BOX STATES THE FLOOR.
+--------------------------------------------------------------------------------
+
+`guide_permutations` said "More permutations improve tail resolution but take
+longer", which reads as a quality-against-time trade-off. It is not one, it is
+a HARD FLOOR, and the box says so now:
+
+    P = (exceedances + 1) / (permutations + 1)   [spacr/guide_permutation.py:312]
+
+so the smallest P that can ever be reported is 1 / (permutations + 1) and every
+guide at least that extreme is given exactly it.
+
+      1,000 permutations  ->  cannot express P < 1e-3   (1/1001 = 9.99e-4)
+     10,000 permutations  ->  cannot express P < 1e-4
+    200,000 (the default) ->  resolves the tail to 5e-6
+
+The box also names the SYMPTOM, because a reader who has one needs to
+recognise it rather than compute it: a stack of guides sharing one identical P
+at the floor, which BH cannot separate and the volcano draws as a flat row of
+dots. That is the 4%-distinct case this section is about.
+
+Two tests: one on the sentence, one pinning the formula against
+`spacr.guide_permutation` itself, so a tooltip that drifted from the code
+fails rather than misinforms. A third drives the real regression panel and
+asserts the sentence reaches the control.
+
+FOUND WHILE DRIVING THE PANEL, NOT MINE TO FIX (spacr/qt is not this
+territory): THE HOVER HELP IS INSTALLED BY THE APPLICABILITY REFRESH, NOT
+WHEN THE PANEL IS BUILT. On a freshly opened `AppScreen("regression")`,
+`guide_permutations` answers `toolTip()` with '' on BOTH its QSpinBox and its
+label, expanded section or not; touching any setting (which fires instruction
+106's re-greying pass) installs it. So a user who opens the module and hovers
+a setting before changing anything is told nothing. Verified twice, once
+outside pytest. The test works around it by touching `regression_type` first
+and says why.
+
+WHAT REMAINS IN 149: A, B, D, E and F are untouched by this work.
