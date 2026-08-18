@@ -4859,6 +4859,24 @@ def _call_level_hits(coef_df, level, settings, regression_type,
     method = canonical_method(settings.get('multiple_testing_method',
                                            'fdr_bh'))
     alpha = float(settings.get('fdr_alpha', 0.05))
+    # WHERE THE LINE IS DRAWN, AND ON WHICH P. Instruction 135, asked for on
+    # 2026-08-17: "add a setting that setts what alpha the p threshold is set
+    # at and if adjusted p or raw p is used".
+    #
+    # Until these two, the CORRECTION's alpha was also the hit cut, and the
+    # cut was always on the adjusted P -- while the volcano's own right-click
+    # menu could switch the axis to the raw P. So the exported hit list and
+    # the picture printed beside it could mean two different things by
+    # "significant", with nothing saying which.
+    #
+    # They are separate from `fdr_alpha` on purpose. `fdr_alpha` is the level
+    # the CORRECTION targets, an input to the procedure; this is the level a
+    # coefficient is CALLED at. Same number by default, and a reader is
+    # entitled to move one without the other -- correcting at 0.05 and
+    # reporting at 0.01 is an ordinary thing to want.
+    cut_alpha = float(settings.get('p_threshold_alpha', alpha) or alpha)
+    cut_kind = str(settings.get('p_threshold_kind', 'adjusted')).strip().lower()
+    cut_column = 'p_value' if cut_kind == 'raw' else 'q_value'
     # ONE STATEMENT OF WHAT IS BEING TESTED, shared with the volcano.
     # A plot drawn from a different family than the one corrected here is
     # a plot of a different experiment; see spacr.hits.tested_family.
@@ -4893,8 +4911,16 @@ def _call_level_hits(coef_df, level, settings, regression_type,
     print(f"Multiple testing ({level}): {method} across {int(tested.sum())} "
           f"tested coefficients at alpha={alpha:g} — {raw_hits} pass the raw "
           f"P value, {corrected_hits} pass correction.")
+    if cut_kind == 'raw' or cut_alpha != alpha:
+        # SAID OUT LOUD, because it is the one line that decides what the
+        # exported table means. A cut on the raw P over hundreds of guides is
+        # a defensible choice and an indefensible accident, and the only way
+        # to tell them apart is whether the run announced it.
+        print(f"  Calling hits on the {cut_kind} P at {cut_alpha:g}"
+              + (", NOT corrected for multiple testing."
+                 if cut_kind == 'raw' else "."))
 
-    significant = coef_df.loc[coef_df['q_value'] < alpha].copy()
+    significant = coef_df.loc[coef_df[cut_column] < cut_alpha].copy()
     # THE EFFECT-SIZE CUT IS A WIDTH, SO IT IS SYMMETRIC. Until instruction
     # 128 this was a pair of one-sided masks whose UNION was every row:
     #
