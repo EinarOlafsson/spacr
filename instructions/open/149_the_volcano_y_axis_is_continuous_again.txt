@@ -1,0 +1,126 @@
+================================================================================
+THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "gra14 and 225160 allways have the same adjusted p value, why is there a
+   sealing. als othe code all seems to work but the graph itself looks pretty
+   ugly. when log(p) is on the x axis the graph looks great but whit hthe BH
+   adjustment then graph looks pretty terrible. i think something that would
+   fix this somewhat is if we could have the option to insert an axis split on
+   the y axis. but the main problem is that with BH FDR adjustment it looks
+   like the p values have been binned and are not continuous as there are
+   allways several on the same level with none inbetween. is there a way
+   arround this?"
+
+Related: 148 is the axes behaving. 147 is the plot's menu.
+
+--------------------------------------------------------------------------------
+THE OBSERVATION IS CORRECT, AND IT IS NOT A BUG
+--------------------------------------------------------------------------------
+
+MEASURED on the maintainer's own runs, 2026-08-18:
+
+    guide_permutation_22   823 q values, 31 DISTINCT (4%)
+                           19 tied levels covering 811 of 823 coefficients
+    ols_10                1169 q values, 28 DISTINCT (2%)
+                           8 tied levels covering 1149
+
+    239740_3 (GRA14)  p = 5.0e-06   q = 4.1150e-03
+    225160_2          p = 1.0e-05   q = 4.1150e-03     <- the report, exactly
+
+BH's adjusted p is a CUMULATIVE MINIMUM taken from the largest p downwards:
+
+    q_(i) = min over j >= i of ( n * p_(j) / j )
+
+The `min` is what enforces monotonicity -- an adjusted p must not decrease as
+the raw p increases -- and it is also what creates the ties. The moment a
+later rank produces a smaller value, EVERY earlier rank is pulled down to it,
+so a whole block of coefficients collapses onto one number with nothing
+between. That is the procedure working, not binning.
+
+AND THAT IS THE CEILING. q cannot go below min_j (n*p_(j)/j) whatever the
+smallest p is. On ols_13 the raw p reaches 2.873e-13 while BH's floor is
+1.741e-10, attained at rank j=2 -- so the top TWO sit on the floor, tied.
+
+THE PERMUTATION PATH IS DISCRETE TWICE OVER, which is why it looks worst. A
+permutation p is (1 + #{null <= observed}) / (n + 1), so with 1,000
+permutations there are only 1,001 possible values and many guides already
+share one before BH ever runs. Then the step function collapses them further:
+823 coefficients onto 31 levels.
+
+--------------------------------------------------------------------------------
+A. THE FIX: RAW P ON THE AXIS, q FOR THE CALL
+--------------------------------------------------------------------------------
+
+Plot -log10(RAW p) on y and let q decide COLOUR and the significance line.
+
+That is what the field does and it is honest rather than a workaround: the
+axis shows the evidence per test, which is continuous, and the colour shows
+which of them survive multiple-testing control, which is the discrete thing it
+actually is. Nothing is hidden and nothing is invented -- the same two numbers
+are on the plot, each doing the job it can do.
+
+It also explains the maintainer's own observation that "when log(p) is on the
+x axis the graph looks great": that axis is already the raw p.
+
+THE CAPTION MUST SAY WHICH IS WHICH. A volcano whose height is raw p and whose
+colour is FDR, with nothing saying so, is a figure a reader will misread in
+the direction of over-confidence.
+
+--------------------------------------------------------------------------------
+B. AND OFFER A GENUINELY CONTINUOUS FDR QUANTITY
+--------------------------------------------------------------------------------
+
+For a reader who wants an FDR number ON the axis, the answer is the LOCAL
+false discovery rate rather than BH's tail-area q. lfdr is a density ratio --
+the posterior probability that a given test is null -- so it is continuous BY
+CONSTRUCTION and has no step function and no ceiling.
+
+Offer it beside BH rather than instead of it: they answer different questions,
+and `spacr.multiple_testing` already holds thirteen corrections, so this is
+one more entry in a table that exists.
+
+Storey's q is NOT the answer here and the instruction says so: it applies a
+pi0 scaling to the same cumulative minimum, so it moves the values and keeps
+the steps.
+
+--------------------------------------------------------------------------------
+C. MORE PERMUTATIONS, FOR THE PERMUTATION PATH
+--------------------------------------------------------------------------------
+
+The 4%-distinct case is the permutation run, and its raw p is quantised to
+1/(n+1) before BH sees it. `guide_permutations` is a setting; raising it is
+the direct fix for that half, and the box should say what resolution the
+current value buys -- 1,000 permutations cannot express a p below 1e-3.
+
+--------------------------------------------------------------------------------
+D. THE AXIS SPLIT, WHICH WAS ASKED FOR
+--------------------------------------------------------------------------------
+
+"the option to insert an axis split on the y axis".
+
+Worth having and worth being honest about: it fixes the DYNAMIC RANGE -- a
+handful of hits at 1e-46 flattening everything else into the floor -- and it
+does not fix the discreteness. Build it, and do not sell it as the answer to
+the ties.
+
+spaCR already has this for the legacy volcano: `y_lims` accepted
+`[[low1, high1], [low2, high2]]` and `spacr.toxo._normalize_y_lims` drew a
+broken axis. That behaviour was retired as a SETTING with instruction 135; it
+belongs on the interactive plot's right-click menu instead, under 147's Axes
+category.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The volcano's y axis is raw p by default, continuous, with q deciding the
+  colour and the line -- and the caption says so.
+* A local-FDR option exists and its values are distinct where BH's are tied.
+* The permutation box states the finest p its permutation count can express.
+* The y axis can be split from the plot's own menu.
+* Switching to adjusted p on the axis is still possible, and still shows the
+  steps, because that is what BH is.
