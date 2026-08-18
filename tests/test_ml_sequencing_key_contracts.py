@@ -667,17 +667,27 @@ def test_every_merge_in_perform_regression_states_its_cardinality(merge_line):
     """No merge on the regression path is left without a key contract.
 
     69 of the 70 ``.merge()`` calls in this package used to pass no
-    ``validate=``. These five are the ones inside ``perform_regression`` that
-    are not otherwise reachable from a test without fitting a model per case;
-    the contract itself is asserted here so a future edit cannot quietly drop
-    it.
+    ``validate=``. These five are the ones on the regression path that are
+    not otherwise reachable from a test without fitting a model per case; the
+    contract itself is asserted here so a future edit cannot quietly drop it.
+
+    READ FROM THE MODULE, NOT FROM ONE FUNCTION. It used to scan
+    `inspect.getsource(ml.perform_regression)`, and the two-fits split moved
+    three of the five into helpers (`_annotate_level_coefficients`,
+    `_call_level_hits`) -- so the test failed with "substring not found" while
+    every contract it exists to protect was still in place. What matters is
+    that the merge carries a `validate=`, not which function it sits in.
     """
     import inspect
 
     from spacr import ml
 
-    source = inspect.getsource(ml.perform_regression)
-    index = source.index(merge_line)
+    source = inspect.getsource(ml)
+    index = source.find(merge_line)
+    assert index >= 0, (
+        f"{merge_line} is gone from spacr.ml. If the merge was removed, "
+        f"remove it from this list; if it was renamed, rename it here -- "
+        f"silently dropping it would retire a key contract by accident.")
     window = source[index:index + 400]
     assert "validate=" in window, f"{merge_line} has no key contract"
 
