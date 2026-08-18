@@ -66,6 +66,17 @@ def panel(qtbot, results):
 
     widget = GenePanel(frame_provider=lambda: results, threaded=False)
     qtbot.addWidget(widget)
+    # SHOWN, because nothing warms a panel nobody shows -- and showing it is
+    # what a user does.
+    #
+    # The warm-up starts a QThread, and Qt calls abort() when a running
+    # QThread is destroyed. A panel that is never shown is never closed
+    # either, so neither `closeEvent` nor `QApplication.aboutToQuit` fires:
+    # `QApplication([]); RegressionResultsPanel()` was SIGABRT. Gating every
+    # start on first show fixes the class rather than the case, and a shown
+    # panel is inside a running event loop by definition, which is the state
+    # both guards need.
+    widget.show()
     return widget
 
 
@@ -96,6 +107,7 @@ def test_the_annotation_loads_on_a_worker_thread_and_lands_on_the_gui_thread(
     gene_facts.clear_cache()
     widget = GenePanel(frame_provider=lambda: results, threaded=True)
     qtbot.addWidget(widget)
+    widget.show()
 
     assert not widget.is_warm(), (
         "the annotation was already loaded before the event loop ran, so it "
@@ -122,6 +134,7 @@ def test_before_it_is_warm_the_panel_says_it_is_loading(qtbot, results):
     gene_facts.clear_cache()
     widget = GenePanel(frame_provider=lambda: results, threaded=True)
     qtbot.addWidget(widget)
+    widget.show()
 
     assert LOADING_TEXT in _lower(widget)
     widget.show_feature("fraction:grna[239740_3]")
@@ -198,6 +211,7 @@ def test_the_screens_own_numbers_come_from_the_frame_and_not_from_anywhere_else(
 
     widget = GenePanel(frame_provider=lambda: moved, threaded=False)
     qtbot.addWidget(widget)
+    widget.show()
     widget.show_feature("gene_fraction:gene[239740]")
 
     assert widget.tile.effect == pytest.approx(-12.3456)
@@ -326,6 +340,7 @@ def test_the_button_says_so_when_the_annotation_is_not_installed(
     try:
         widget = GenePanel(frame_provider=lambda: results, threaded=False)
         qtbot.addWidget(widget)
+        widget.show()
         widget.show_feature("fraction:grna[239740_3]")
 
         assert not widget.topology_button.isEnabled()
