@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-106 done / 31 open (77%).
+106 done / 32 open (76%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -116,6 +116,9 @@ OPEN
 
   146  DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
        146_delete_a_run_from_the_runs_tab.txt
+
+  147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
+       147_both_fits_are_visible_a_square_is_a_square_and_the_menu_has_categories.txt
 
 --------------------------------------------------------------------------------
 DONE

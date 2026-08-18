@@ -1,0 +1,115 @@
+================================================================================
+BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "i jsut ran glm and gota interactive colcano plot, i can only see guides
+   only and it only runs once. i thought there would be 2 runs one with gene
+   and one with guide if i choose level=both. fix this.
+   aspect ration should be in terms of the graph dimentions not the within
+   graph dimentions. it is to be able to save the graph as a square but now it
+   just changes the graph internally. instead of aspect ratio call it what you
+   want but there should be an option to make the graph a perfect square.
+   the menue upon right clickin the graph needs to be organized into
+   categories."
+
+Related: 128 asked for the menu categories already. 132/135 are the two fits.
+
+--------------------------------------------------------------------------------
+A. BOTH FITS DO RUN. THE PANEL HIDES ONE OF THEM.
+--------------------------------------------------------------------------------
+
+REPRODUCED 2026-08-18, glm with level='both', end to end:
+
+    resolve_levels('glm','both') -> ('grna', 'gene')
+    results_grna.csv    15 rows
+    results_gene.csv     5 rows
+    results.csv         22 rows   -- grna 16, gene 6
+
+So the backend is right and the run is not "only running once". What is wrong
+is that the panel shows one level and says nothing about the other.
+
+THIS IS A REGRESSION INTRODUCED ON 2026-08-18. The volcano's level used to
+default to the whole fit; it was changed to `grna` to stop a gene being drawn
+once per guide (the four-dots-for-one-gene report), and the change was right.
+What it did not do is TELL ANYBODY. Half the run became invisible with nothing
+on screen saying the other half existed, so the honest reading from the user's
+side is "it only ran once" -- which is exactly what was reported.
+
+THE FIX IS DISCOVERABILITY, NOT REVERTING THE DEFAULT:
+
+  * WHEN THE TABLE HOLDS BOTH LEVELS AND ONE IS SHOWN, SAY SO, on the plot
+    and in the status line, naming the other and how to get to it: "guides:
+    16 of 22 coefficients. The gene fit is also in this run -- Level."
+  * THE LEVEL CONTROL COMES OUT OF THE RIGHT-CLICK MENU. A filter that hides
+    half a run must not be three clicks deep and invisible until found. It
+    belongs on the plot, beside the title, showing the current level.
+  * THE COUNTS ARE ALREADY THERE. `level_counts()` returns
+    `{None: total, 'grna': n, 'gene': n}` -- the sentence needs no new
+    computation, only somewhere to be said.
+
+--------------------------------------------------------------------------------
+B. "ASPECT RATIO" LOCKS THE DATA, NOT THE CANVAS
+--------------------------------------------------------------------------------
+
+`FastPlot.set_aspect_ratio` calls `viewBox.setAspectLocked(True, ratio=...)`.
+That locks ONE Y UNIT TO N X UNITS -- it is a statement about the DATA, and it
+is what a Q-Q wants, where a 45-degree diagonal is only meaningful when the
+axes share a scale. It is not what was asked for and it is not what the name
+suggests to anyone else.
+
+WHAT IS WANTED: the FIGURE is square -- the canvas, the thing that gets
+exported -- so a plot saved for a figure panel comes out square regardless of
+what the data does inside it.
+
+BUILD BOTH, AND NAME THEM APART:
+
+    Shape: square / wide / tall / free        the CANVAS
+    Lock axis scales (1 y unit = 1 x unit)    the DATA, today's behaviour
+
+The Q-Q needs the second and nothing else does by default. The first is what
+"save it as a square" means, and it has to reach the EXPORT, not only the
+screen: `_ask_export_size` and the page-size path are where a square must
+actually land, because a square on screen that exports at the widget's
+accidental proportions has not done the job.
+
+Keep the data lock reachable and keep its current behaviour; it is correct,
+it is just misnamed and was the only thing on offer.
+
+--------------------------------------------------------------------------------
+C. THE RIGHT-CLICK MENU IS A FLAT LIST
+--------------------------------------------------------------------------------
+
+Instruction 128 asked for this and it did not happen: `build_style_menu` is a
+run of `addAction` calls separated by `addSeparator()`. Separators are not
+categories -- nothing is named, nothing collapses, and the list is long enough
+that finding one entry means reading all of them.
+
+SUBMENUS, NAMED. A first cut from what is on it today:
+
+    Data        colour by, baseline, compartment, level, p-value kind,
+                effect-size threshold
+    Axes        labels, limits, back to automatic, log scales
+    Appearance  font size, font colour, grid, legend, shape
+    Size        on screen, exported page size, back to automatic
+    Export      save as…, copy
+    Re-fit      (the refit entry, which stays on its own)
+
+THE ORDER IS THE ORDER OF USE, not alphabetical: what changes the CLAIM comes
+before what changes the LOOK. And the most-used entries stay at the top level
+rather than being buried for tidiness -- a menu reorganised until nothing is
+one click away is worse than the flat list it replaced.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A run with both fits says so on the plot, names the level shown and the one
+  that is not, and the level control is visible without a right-click.
+* "Square" makes the exported figure square, checked by exporting one and
+  measuring the file.
+* The data-unit lock still exists, still works, and is named for what it does.
+* The right-click menu has named submenus and the common entries are still
+  one click away.
