@@ -49,11 +49,19 @@ row (the key round-trip), the selection ring lands on the dot the user sees,
 and the exported figure matches the screen. All three read coordinates, so all
 three have to read the same ones.
 
-NON-POSITIVE VALUES HAVE NO LOGARITHM. A coefficient of zero or below is real
-and common on a volcano's x axis. Decide and SAY: drop them with a count
-("log x hides 41 of 1,213 points at or below zero") or refuse log on an axis
-that has them. Do not let them silently vanish -- that is the same class of
-bug as the one above.
+NON-POSITIVE VALUES HAVE NO LOGARITHM, AND THE ANSWER IS TO REFUSE.
+Decided 2026-08-18: "refuse log on that axis".
+
+A coefficient of zero or below is real and common on a volcano's x axis. The
+control is DISABLED for an axis that holds any, with the reason on it, per
+instruction 106 -- "log x: 41 of 1,213 points are at or below zero and have no
+logarithm". Never dropped, never silently, and never a plot drawn from a
+subset the user did not choose.
+
+That is the conservative half of the same principle the whole instruction is
+about: the plot may not show something the data does not say. Hiding 41 points
+would make a volcano whose visible point count is a number nobody can account
+for.
 
 --------------------------------------------------------------------------------
 B. THE AXIS LIMITS
