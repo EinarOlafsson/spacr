@@ -204,6 +204,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # Where each gene's protein lives, for colouring ONE compartment against
     # grey. Pure pandas: the join belongs to the screen, not to the picture.
     "localisation",
+    # Saved and visible are the SAME event. A module hands a figure here and
+    # it is written AND announced -- through no pyplot registry, so a figure
+    # built as a bare matplotlib.figure.Figure reaches the GUI too. That was
+    # the whole ~19-panel regression QC report, on disk and invisible.
+    "figure_sink",
     # A column that is not there offers the columns that are. Reads only the
     # header row, so it can populate a GUI dropdown on the GUI thread from a
     # score CSV that is hundreds of megabytes.
@@ -214,6 +219,12 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # from `toxo` because that module draws figures and this one only reads
     # the five bundled CSVs.
     "annotation",
+    # WHO fits the model, as opposed to WHICH model is fitted. `mixed_gpu`
+    # is the profiled REML objective in torch, for the fit that dominates a
+    # screen's runtime; `regression_backends` is the inventory the panel
+    # offers and greys.
+    "regression_backends",
+    "mixed_gpu",
     # The two backends that answer "which genes are involved" WITHOUT ever
     # forming `gene_fraction` -- the sum of a gene's guide fractions, which
     # makes a guide-and-gene design singular by construction. `rra` ranks

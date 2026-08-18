@@ -3204,14 +3204,36 @@ def draw_panel(name, ctx, ax):
 
 
 def _save(fig, path):
-    """Write a figure and return the path. Never touches pyplot's registry."""
-    fig.savefig(path, bbox_inches="tight")
+    """Write a figure, MAKE IT VISIBLE, and return the path.
+
+    Never touches pyplot's registry -- and that is exactly why this suite was
+    invisible until 2026-08-18. Reported as "several graphs are saved but I
+    cannot see them in the software".
+
+    A figure used to reach the GUI by one route: `spacr/qt/bridge.py` replaces
+    `matplotlib.pyplot.show` and emits everything in `plt.get_fignums()`. This
+    module builds bare `matplotlib.figure.Figure` objects, which are not IN
+    that registry, and never calls `show` -- so every panel of the ~19-panel
+    report was on disk and none of it was in the application.
+
+    Building a Figure directly is the CORRECT thing for a library to do; the
+    delivery mechanism was what was wrong. `spacr.figure_sink.publish` saves
+    and announces as one event, through no global registry.
+
+    The format still follows the user's preference: `publish` writes through
+    `spacr.plot.save_figure` rather than calling `fig.savefig` with a literal
+    extension.
+    """
+    from .figure_sink import publish
+
+    written = publish(fig, path, bbox_inches="tight")
     # Figures built via matplotlib.figure.Figure are not registered with
     # pyplot, so there is nothing for plt.close() to close; dropping the last
     # reference is the whole clean-up. clf() is belt-and-braces for the case
-    # where a panel parked a callback on the figure.
+    # where a panel parked a callback on the figure. It happens AFTER the
+    # publish, because a cleared figure has nothing left to render.
     fig.clf()
-    return path
+    return written or path
 
 
 def format_qc_report(manifest):

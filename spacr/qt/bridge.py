@@ -983,6 +983,42 @@ class PipelineWorker(QObject):
 
             capture_show = _capture_show
             _register_matplotlib_show(plt, capture_show)
+
+            # AND A SINK FOR FIGURES PYPLOT NEVER SEES.
+            #
+            # `_capture_show` walks `plt.get_fignums()`, so it can only ever
+            # emit figures that are IN pyplot's registry and only when
+            # somebody calls `show`. A module that builds a bare
+            # `matplotlib.figure.Figure` and writes it with savefig -- which
+            # is the correct thing for a library to do, and what
+            # `spacr.regression_qc` does for its whole ~19-panel report --
+            # satisfies neither condition. Every one of those panels was on
+            # disk and none of them was in the application, reported
+            # 2026-08-18 as "several graphs are saved but I cannot see them".
+            #
+            # Same rendering path as above: the PNG is written HERE, on the
+            # worker thread, so the GUI thread only moves a file and loads a
+            # pixmap.
+            def _publish_figure(fig, path=""):
+                png_path = ""
+                try:
+                    import tempfile
+                    from .widgets.figure_queue import render_figure_to_png
+                    fig_counter[0] += 1
+                    tmp = os.path.join(
+                        tempfile.gettempdir(),
+                        f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
+                    if render_figure_to_png(fig, tmp):
+                        png_path = tmp
+                except Exception:
+                    png_path = ""
+                worker.figure_ready.emit(fig, png_path)
+
+            try:
+                from spacr.figure_sink import set_sink
+                set_sink(_publish_figure)
+            except Exception:
+                LOG.debug("could not install the figure sink", exc_info=True)
         except Exception:
             plt = None
 
@@ -1091,6 +1127,14 @@ class PipelineWorker(QObject):
             _unregister_worker_streams(
                 redirect, stdout_router, stderr_router
             )
+            # THE SINK COMES DOWN WITH THE RUN. A finished run is not
+            # still publishing, and a sink left installed holds `worker`
+            # alive and emits into a dead signal on the next run.
+            try:
+                from spacr.figure_sink import clear_sink
+                clear_sink()
+            except Exception:
+                LOG.debug("could not clear the figure sink", exc_info=True)
             if capture_show is not None and plt is not None:
                 try:
                     _unregister_matplotlib_show(capture_show)
