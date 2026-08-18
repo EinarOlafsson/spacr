@@ -307,22 +307,30 @@ def test_an_unfittable_model_name_is_not_given_an_invented_formula():
     assert "y ~" not in text
 
 
-def test_only_the_formulas_are_wider_than_the_wrap_column():
-    """The box does not soft-wrap, so an over-long line needs scrolling.
+def test_only_the_formulas_have_to_fit_the_box():
+    """INVERTED ON 2026-08-18, instruction 138.
 
-    Prose must therefore fit the column outright. The formulas are the
-    deliberate exception: the indented mixed formula is 62 characters, it is
-    one line, and breaking it to fit would defeat the point of the box.
+    It used to require EVERY line to fit a fixed column, because the box was
+    NoWrap over text that had already been hard-wrapped to 54 characters. That
+    is exactly what the maintainer asked to change: "the text in the text box
+    should span the width of the textbox". Prose is one logical line per
+    paragraph now and the widget wraps it, so a long prose line is the
+    intended shape rather than a defect.
+
+    What still has to fit is the FORMULA, and that is what this asserts. A
+    formula is the one thing that must never break -- the reason to have it on
+    screen is to paste it into a methods section as the line it was written
+    as -- so the box's minimum width is the longest of them.
     """
     width = explainer_width()
     for name in ("auto",) + tuple(REGRESSION_TYPES):
         for level in REGRESSION_LEVELS:
             for line in regression_model_explainer(name, level).splitlines():
-                if line.strip().startswith("y ~"):
+                if not line.strip().startswith(("y ~", "rho =", "minimise")):
                     continue
                 assert len(line) <= width, (
-                    f"{name}/{level} has a {len(line)}-character line that "
-                    f"will need horizontal scrolling: {line!r}")
+                    f"{name}/{level} has a {len(line)}-character FORMULA and "
+                    f"the box floor is {width}, so it can wrap: {line!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -366,12 +374,22 @@ def test_the_box_sits_directly_under_the_model_and_inference_section(
     qtbot.addWidget(screen)
     box = screen._model_explainer
 
-    layout = box.parentWidget().layout()
-    order = [layout.itemAt(i).widget() for i in range(layout.count())]
-    position = order.index(box)
-    previous = order[position - 1]
-    # Section.title() upper-cases the header text it was given.
-    assert previous.title().lower() == "model & inference"
+    # INSIDE THE SECTION, AT THE TOP, since 2026-08-18: "just ad the text box
+    # i asked for (at the top)". It used to be appended to the PANE after the
+    # section, which put it BELOW every control it describes -- a user read
+    # eleven settings and then found out what they were choosing between.
+    from PySide6.QtWidgets import QFormLayout
+
+    section = next(s for s in screen._settings_sections
+                   if s.title().lower() == "model & inference")
+    form = section._form
+    rows = {row
+            for row in range(form.rowCount())
+            for role in (QFormLayout.SpanningRole, QFormLayout.FieldRole,
+                         QFormLayout.LabelRole)
+            if (form.itemAt(row, role) is not None
+                and form.itemAt(row, role).widget() is box)}
+    assert rows == {0}, f"box at rows {sorted(rows)}, not the top"
 
 
 def test_the_box_text_is_legible_against_its_own_background(qtbot,
@@ -402,11 +420,18 @@ def test_the_box_text_is_legible_against_its_own_background(qtbot,
     box.setMinimumHeight(500)
     qtbot.waitUntil(lambda: box.height() >= 500 and box.width() > 200)
 
+    # A REPAINT BETWEEN THE GRABS. `setPlainText` schedules an update; it
+    # does not paint. Without letting the event loop run, both grabs come
+    # back byte-identical and the test reports "the text is not painting"
+    # about a box that is painting perfectly -- which it did, once the box
+    # moved inside its section and the layout took a turn to settle.
     written = box.toPlainText()
+    qtbot.wait(20)
     with_text = screen.grab().toImage()
     box.setPlainText("\n".join(
         "".join(ch if ch.isspace() else " " for ch in line)
         for line in written.splitlines()))
+    qtbot.wait(20)
     blank = screen.grab().toImage()
     box.setPlainText(written)
 
@@ -448,12 +473,27 @@ def test_the_box_collapses_with_the_section_it_explains(qtbot,
                    if s.title().lower() == "model & inference")
     screen.show()
 
+    # THE SECTION OWNS IT NOW. The box is a row of the section's own form
+    # since 2026-08-18, so Qt hides it with the section's body rather than
+    # through a `toggled -> setVisible` connection the panel had to maintain.
+    # Asked against the SECTION, because "visible to its parent" is answered
+    # by the parent that actually collapses.
+    # `isVisible()`, not `isVisibleTo(...)`. The section collapses by hiding
+    # its BODY, and the box is a row of that body's form since 2026-08-18 --
+    # so Qt hides it with the section rather than through a
+    # `toggled -> setVisible` connection the panel had to maintain.
+    # `isVisibleTo(ancestor)` asks whether the widget WOULD show if the
+    # ancestor were shown, which is a different question and answers True on
+    # a collapsed section.
+    # `set_expanded`, which is the public door: it sets the header AND runs
+    # the toggle. Driving `header().setChecked` alone leaves the two halves
+    # to a signal and tests Qt rather than the section.
     section.set_expanded(True)
-    assert box.isVisibleTo(box.parentWidget())
-    section.header().setChecked(False)
-    assert not box.isVisibleTo(box.parentWidget())
-    section.header().setChecked(True)
-    assert box.isVisibleTo(box.parentWidget())
+    assert box.isVisible()
+    section.set_expanded(False)
+    assert not box.isVisible()
+    section.set_expanded(True)
+    assert box.isVisible()
 
 
 def test_other_modules_do_not_get_the_regression_explainer(qtbot,
