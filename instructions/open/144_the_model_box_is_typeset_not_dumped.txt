@@ -1,0 +1,140 @@
+================================================================================
+THE MODEL BOX IS TYPESET, NOT DUMPED
+================================================================================
+
+Status:    filed 2026-08-18. Supersedes the FORMAT half of 143 B; 143's
+           "make it short" still stands.
+Requested: 2026-08-18 --
+
+  "actually my main problem was it dosnt look great. i want you to use
+   markdown and colors for negative (CANNOT) and positive (MODEL, LEVEL, ETC.)
+   text.
+   make the formula look better (write the math symbol version then the code
+   version if possible)
+   short discriptions that contain the vital information for the user and
+   links to APIs for the different methods"
+
+Related: 132 built the box. 138 made it fill its width. 141 is the backend
+         selector, whose entries need the same API links.
+
+--------------------------------------------------------------------------------
+THE REAL COMPLAINT
+--------------------------------------------------------------------------------
+
+143 read this as "too long". It is partly that, but the maintainer has since
+said plainly: "my main problem was it dosnt look great". It is 2,438
+characters of undifferentiated monospace in one colour. Nothing is emphasised,
+so nothing stands out, and a formula reads exactly like a caveat.
+
+Length is a symptom. The box is UNTYPESET.
+
+--------------------------------------------------------------------------------
+A. RICH TEXT, WHICH MEANS A DIFFERENT WIDGET
+--------------------------------------------------------------------------------
+
+The box is a `QPlainTextEdit`, which cannot do colour or weight. It becomes a
+`QTextEdit` rendering HTML.
+
+WHAT MUST SURVIVE THE CHANGE, because each was fixed at some cost:
+  * read-only AND selectable -- a formula you cannot copy is a formula you
+    retype into a methods section;
+  * monospace for the CODE formula, through a QSS rule on the objectName. A
+    `setFont` loses to the theme's global `QWidget { font-family: "Open
+    Sans" }`, measured: the box reported QFontInfo family 'Open Sans' with
+    fixedPitch False and was monospace in intention only;
+  * the prose wraps to the box's width (138) and the code formula does not.
+    Rich text makes this EASIER, not harder: prose in a normal block, the code
+    formula in `<pre>`, which is per-block rather than per-widget -- so
+    `explainer_width()`'s job shrinks to sizing the `<pre>`.
+
+--------------------------------------------------------------------------------
+B. THE COLOUR VOCABULARY, FROM THE THEME
+--------------------------------------------------------------------------------
+
+EVERY COLOUR COMES FROM `spacr.qt.theme.active_palette()`. Never a literal.
+The box must be legible on the light theme and the dark one, and the palette
+was contrast-checked against `CONTRAST_RULES` -- a hand-picked hex has not
+been.
+
+    MODEL:, LEVEL:, section headings      accent
+    CANNOT, NOT, "no q value", refusals   error
+    affirmations: TWO MODELS, TWO TABLES  success
+    output file names (results_grna.csv)  chip_value
+    body text                             fg
+    secondary / the caveat sentence       fg_muted
+    API links                             accent, underlined
+
+FOUR COLOURS ON SCREEN AT ONCE IS THE CEILING, not a target. The house rule
+from `spacr/figures/style.py` applies to text as much as to a figure:
+everything is plain except what the sentence is about. If every heading, every
+noun and every caveat is coloured, the box is a ransom note and nothing is
+emphasised at all.
+
+--------------------------------------------------------------------------------
+C. THE FORMULA, TWICE
+--------------------------------------------------------------------------------
+
+"write the math symbol version then the code version if possible".
+
+The statistical statement first, in proper notation; the patsy string second,
+so it can be pasted. For example, for OLS at guide level:
+
+    yᵢ = μ + Σ_g β_g·f_gi + ρ_r(i) + γ_c(i) + εᵢ        εᵢ ~ N(0, σ²)
+
+    y ~ fraction:grna + rowID + columnID
+
+and for the mixed model the random terms have to be visible as random:
+
+    yᵢ = μ + Σ_G β_G·F_Gi + u_G + u_G:g + ρ_r(i) + γ_c(i) + εᵢ
+        u_G ~ N(0, σ²_gene)   u_G:g ~ N(0, σ²_guide)   εᵢ ~ N(0, σ²)
+
+    y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
+
+USE REAL UNICODE, not LaTeX source: β σ ε μ ρ γ Σ ~ ᵢ. The box is a widget,
+not a renderer, and `\beta` on screen is worse than no symbol.
+
+THE TWO MUST AGREE. If the code line says `+ rowID + columnID`, the maths has
+the ρ and γ terms; if instruction 143 turns plate position off, BOTH lose
+them. A box whose two formulas disagree is worse than a box with one.
+
+--------------------------------------------------------------------------------
+D. SHORT DESCRIPTIONS, AND A LINK TO THE API
+--------------------------------------------------------------------------------
+
+"short discriptions that contain the vital information for the user and links
+to APIs for the different methods".
+
+Per model: ONE sentence on what it does, ONE on when to reach for it, and a
+link. The vital information is what makes the CHOICE, not what makes the
+method:
+
+    ols           statsmodels.regression.linear_model.OLS
+    wls           ...WLS
+    rlm / huber   statsmodels.robust.robust_linear_model.RLM
+    glm/poisson/logit/probit/quasi_binomial
+                  statsmodels.genmod.generalized_linear_model.GLM
+    quantile      statsmodels.regression.quantile_regression.QuantReg
+    mixed         statsmodels.regression.mixed_linear_model.MixedLM
+    ridge/lasso/elasticnet
+                  scikit-learn linear_model
+    hinge         sklearn.svm.LinearSVC
+    group_lasso   spacr.group_lasso
+    rra           spacr.rra  (MAGeCK alpha-RRA)
+    horseshoe     spacr.power_model
+
+LINKS OPEN IN A BROWSER (`setOpenExternalLinks(True)`) and are real URLs, not
+bare module paths. A link that does not open is worse than a module name,
+which at least can be searched.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The box renders HTML; headings, negations and file names are distinguishable
+  at a glance.
+* Every colour is a palette token; the box is legible on both themes, checked
+  by rendering under each.
+* Each model shows the maths and then the code, and the two agree.
+* Every model links its API and the link opens.
+* The formula is still selectable and copies as one line.
+* No more than four colours are in play at once.
