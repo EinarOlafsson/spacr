@@ -344,3 +344,96 @@ WHAT STILL DOES NOT SHIP
   off by default and the row-reopen path (rerun_trial) turning them back on.
 
   perform_regression()'s returned dict still does not carry the QC manifest.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (night) -- RESULT: EVERY PANEL NOW CARRIES ITS OWN VERDICT
+--------------------------------------------------------------------------------
+
+The two RESULT sections above shipped the panels (normal runs) and the scalars
+(sweep rows). Both left the SAME step to the reader: deciding, per panel,
+whether the number is fine. That is the "and scored" in this instruction's own
+title, and it was the half that had not been done. A quantile correlation of
+0.982 printed beside a Q-Q tells a statistician something and tells everybody
+else nothing; twenty-three of those is twenty-three judgements a user is
+quietly expected to make, which is how a run with a rank-deficient design gets
+reported as "the QC looked fine".
+
+WHAT SHIPPED, commit cf7bcd39, all in `spacr/regression_qc.py`:
+
+  score_panel(name, stats) -> PanelVerdict(level, headline, detail, score,
+                              statistic)
+  draw_verdict(ax, verdict)         the badge, bottom-left, in a box
+  worst_verdict(verdicts)           the suite's own verdict
+  VERDICT_LEVELS / VERDICT_WORDS    unknown < pass < check < fail
+
+  * ONE SCORER PER PANEL, all 23, and a test asserts `_SCORERS` and
+    `PANEL_ORDER` have the same keys -- a panel added without a scorer would
+    silently go back to being a picture with a number on it.
+  * SCORED AFTER IT DREW, STAMPED BEFORE IT IS WRITTEN. The verdict is read
+    off the statistics the panel just returned, so it cannot disagree with the
+    numbers printed beside it, and the axes is still open, which is what lets
+    the judgement go ON the panel. The combined page redraws the panel and
+    stamps THE SAME verdict rather than re-scoring -- a second opinion there
+    would let the page and the file disagree about one panel.
+  * QCPanelResult carries it; the manifest gains `verdicts`,
+    `verdict_counts`, `verdict` and `verdict_level`; the text report prints
+    the verdict FIRST, then the statistic it was read off, then a "means:"
+    sentence. The run's stdout names every CHECK and FAIL by panel.
+  * THE SUITE'S VERDICT IS ITS WORST PANEL. Nineteen passes and one aliased
+    predictor is a run whose coefficients are one of infinitely many
+    solutions; "95% passed" is the summary that loses exactly that.
+  * A SKIPPED PANEL HAS NO VERDICT. "The panel is not there" and "the panel
+    is fine" must not look the same, which is the rule this module already
+    followed for status.
+
+THE THRESHOLDS ARE THE CONVENTIONAL ONES and are cited in each `detail`
+string: VIF 5/10, Belsley's scaled condition number 30/100, Cook's D 0.5/1,
+p >= 0.05 for a diagnostic test, hat 0.2/0.5, |r| 0.7/0.9, ECE 0.05/0.10, AUC
+0.7/0.6. A threshold invented here would be a number a reviewer cannot check.
+
+THE DIRECTION IS THE COMMONEST WAY TO READ ONE WRONG: a LARGE p is the GOOD
+outcome for every test these panels run, because the null is "the assumption
+holds". `_diagnostic_p` is the only place that is written down and each
+sentence says which way it read.
+
+TWO CALIBRATIONS FOUND BY DRIVING IT ON REAL FITS, NOT BY READING THE CODE.
+
+  * A SPIKE AT ZERO IN THE p-VALUE HISTOGRAM IS A PASS. It is what real hits
+    look like, and scoring it as a fault would flag every successful screen.
+    `uniform` and `uniform-with-spike` pass; `excess-large` checks;
+    `anti-uniform` and `u-shaped` fail.
+  * DFFITS IS SCORED ON THE FRACTION ABOVE THE LINE, NOT THE MAXIMUM.
+    2*sqrt(p/n) is a SCREENING threshold that a correctly specified model is
+    EXPECTED to cross for a few percent of its observations. Measured on a
+    clean 400-well Gaussian fit with nothing wrong with it, the largest
+    |DFFITS| was over twice the threshold -- so the obvious rule flagged a
+    clean fit, which is a warning nobody reads. `_panel_dffits` now also
+    returns `n_points` so the fraction is computable.
+
+ACCEPTANCE, MEASURED. A clean 400x7 OLS flags NOTHING (17 pass, 0 check, 0
+fail, 2 not scored). The same design made collinear and heteroscedastic fails
+five panels BY NAME -- residual_distribution, scale_location, vif,
+condition_number, predictor_correlation -- and the suite verdict is FAIL. The
+badge is on the pixels: the FAIL ink is present in the bottom band of a
+failing panel's PNG and absent from a passing one's.
+
+`tests/test_every_regression_diagnostic_is_scored.py`, 26 cases.
+
+WHAT REMAINS ON THIS INSTRUCTION
+
+  * The sweep row does not carry the verdict. `trial_metrics` computes the
+    same statistics for a trial; `score_panel` would give each row a
+    `worst_verdict` column, and sorting a sweep by "which trials passed their
+    diagnostics" would then be possible alongside sorting by control rank.
+    Not done: `parameter_sweep.py` / `trial_metrics.py` were outside this
+    session's territory.
+  * The refuted claim from the previous section is STILL LIVE and is still one
+    line: `perform_regression` calls `regression()` at ml.py:3838 without
+    `qc=`, so every sweep trial pays the full ~5.8 s suite with no way to
+    decline. ml.py is not this session's file either.
+  * `perform_regression()`'s returned dict still does not carry the QC
+    manifest -- and now that the manifest holds a verdict, that is the thing
+    a caller would most want from it.
+  * The GUI does not show the verdict anywhere. The manifest has it; a tile
+    or a row that says PASS/CHECK/FAIL is a `qt/` change.
