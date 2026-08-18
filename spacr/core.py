@@ -1169,13 +1169,17 @@ def generate_image_umap(settings=None, return_fig=False):
     all_df.to_csv(results_csv, index=False)
     print(f'Results saved to {results_csv}')
 
-    if settings['analyze_clusters']:
+    if settings['analyze_clusters'] and all_df['cluster'].nunique(dropna=True) >= 2:
         combined_results = cluster_feature_analysis(all_df)
         results_dir = os.path.join(settings['src'][0], 'results')
         cluster_results_csv = os.path.join(results_dir,'cluster_results.csv')
         os.makedirs(results_dir, exist_ok=True)
         combined_results.to_csv(cluster_results_csv, index=False)
         print(f'Cluster results saved to {cluster_results_csv}')
+    elif settings['analyze_clusters']:
+        print(
+            "Cluster analysis skipped: at least two clusters are required "
+            "for between-cluster statistical tests.")
 
     fig = umap_plt.gcf() if hasattr(umap_plt, "gcf") else plt.gcf()
 
