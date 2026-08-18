@@ -134,6 +134,7 @@ __all__ = [
     "overdispersion_statistic",
     "panel_names",
     "regression_qc_report",
+    "residual_normality",
     "resolve_residual_standardisation",
     "variance_inflation_factors",
 ]
@@ -723,6 +724,72 @@ def overdispersion_statistic(y, mu, df_resid, variance=None, weights=None):
         verdict = "consistent with the assumed mean-variance relationship"
     return {"dispersion": phi, "pearson_chi2": chi2,
             "df_resid": float(df_resid), "verdict": verdict}
+
+
+#: Below this many residuals D'Agostino's K-squared test has no useful null
+#: distribution, so it is refused rather than reported. scipy raises outright
+#: below 8; saying WHY costs a sentence and stops a summary from carrying a
+#: blank where a verdict belongs.
+NORMALITY_MIN_N = 8
+
+#: What :func:`residual_normality` calls the test it could not run. The
+#: summary prints this string as the verdict, so it has to read as a
+#: sentence rather than as a missing value.
+NORMALITY_TOO_FEW = f"normality test needs n >= {NORMALITY_MIN_N}"
+
+
+def residual_normality(resid, *, min_n=NORMALITY_MIN_N):
+    """Skew, excess kurtosis and a normality P value for one residual vector.
+
+    ONE STATEMENT OF THE NORMALITY VERDICT, because there are now two readers
+    of it: :func:`_panel_residual_distribution` draws it, and
+    :func:`spacr.regression_summary.build_run_summary` prints it in the
+    assumptions section. A second copy of "skew, kurtosis, K-squared, and
+    refuse below eight" is how the picture and the prose come to disagree
+    about the same fit.
+
+    THE REFUSAL IS A RESULT, NOT AN ERROR. Below ``min_n`` residuals the
+    K-squared statistic has no usable null -- scipy raises -- so ``normality_p``
+    is ``NaN`` and ``test`` says :data:`NORMALITY_TOO_FEW`. A caller must print
+    ``test``; a caller that prints only the P value reports a blank for a
+    check that was made and declined.
+
+    :param resid: residuals; non-finite entries are dropped first.
+    :param min_n: fewest residuals the test will run on. Default
+        :data:`NORMALITY_MIN_N`.
+    :returns: ``{'skew', 'excess_kurtosis', 'normality_p', 'test', 'n'}``.
+        ``excess_kurtosis`` is Fisher's, so 0 is normal.
+
+    ::
+
+        >>> import numpy as np
+        >>> out = residual_normality(np.arange(4.0))
+        >>> out["test"]
+        'normality test needs n >= 8'
+    """
+    from scipy import stats as sps
+
+    values = np.asarray(resid, dtype=float).ravel()
+    values = values[np.isfinite(values)]
+    n = int(values.size)
+    if n < 3:
+        # skew and kurtosis of two points are not undefined so much as
+        # meaningless, and scipy returns them without complaint. Naming the
+        # count is the only honest answer.
+        return {"skew": float("nan"), "excess_kurtosis": float("nan"),
+                "normality_p": float("nan"),
+                "test": f"only {n} finite residual(s); a shape needs at least 3",
+                "n": n}
+    skew = float(sps.skew(values))
+    kurt = float(sps.kurtosis(values))
+    if n >= int(min_n):
+        _stat, pval = sps.normaltest(values)
+        test = "D'Agostino K\u00b2"
+    else:
+        pval = float("nan")
+        test = NORMALITY_TOO_FEW
+    return {"skew": skew, "excess_kurtosis": kurt, "normality_p": float(pval),
+            "test": test, "n": n}
 
 
 def diagnose_p_value_histogram(p_values, n_bins=20):
@@ -1848,14 +1915,15 @@ def _panel_residual_distribution(ctx, ax):
             entries.insert(0, ("KDE", ROLES["highlight"]))
         text_legend(ax, entries)
 
-        skew = float(sps.skew(resid))
-        kurt = float(sps.kurtosis(resid))
-        if resid.size >= 8:
-            stat, pval = sps.normaltest(resid)
-            test = "D'Agostino K²"
-        else:
-            stat, pval = float("nan"), float("nan")
-            test = "normality test needs n >= 8"
+        # ONE STATEMENT OF THE VERDICT, shared with the summary -- see
+        # `residual_normality`. The panel and `spacr.regression_summary`
+        # print the same three numbers about the same residuals, and they
+        # only stay the same three numbers because there is one function.
+        shape = residual_normality(resid)
+        skew = shape["skew"]
+        kurt = shape["excess_kurtosis"]
+        pval = shape["normality_p"]
+        test = shape["test"]
         ink = _house_axes(ax, "residual distribution", "residual", "density")
         # The n moved off the title and into the note: the descriptor says
         # which panel this is, the note carries everything a reader needs to
@@ -1867,6 +1935,7 @@ def _panel_residual_distribution(ctx, ax):
                  f"excess kurtosis = {kurt:+.2f}\n{test}",
                  x=0.98, ha="right", colour=ink)
     return {"skew": skew, "excess_kurtosis": kurt, "normality_p": float(pval),
+            "normality_test": test,
             "n_bins": bins, "n_points": int(resid.size),
             "limitation": ctx.prediction_note}
 

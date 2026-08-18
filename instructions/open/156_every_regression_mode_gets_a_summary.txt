@@ -135,3 +135,149 @@ HOW TO KNOW IT WORKED
 * The Runs tab's comparison columns and the summary's fields agree.
 * Reopening the run from disk shows the same summary, byte for byte.
 * Where statsmodels has a summary it is still there, verbatim, at the end.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SHIPPED: B, C AND D. ONE LINE OF A REMAINS AND IT IS NOT MINE.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+`spacr/regression_summary.py`, new. `write_run_summary(res_folder, model=,
+settings=, coef_df=, regression_type=)` is the signature ml.py's placed call
+site uses; `build_run_summary(...)` returns the structure and
+`format_run_summary(...)` renders it.
+
+B. THE CONTRACT IS A MODULE CONSTANT, NOT A CONVENTION. `CONTRACT` names all
+   52 fields of the six sections, `LABELS` names each one, and `SummaryField`
+   REFUSES to be built with both a value and a reason, with neither, or with a
+   blank either side. So "a blank is not allowed and neither is a zero" is
+   enforced by the type rather than by review. Three kinds, because two were
+   not enough: computed / not applicable / NOT ASSUMED -- a permutation test
+   does not FAIL to check equal variance, it declines to assume it, and
+   printing that as "not applicable" reads like a gap in the method.
+
+   `build_run_summary` BACKFILLS. A section builder that raises, or a name
+   added to `CONTRACT` and not yet to its builder, comes back as a stated
+   reason rather than a hole. `RunSummary.missing()` is empty on every
+   well-formed summary and is what the product test asserts.
+
+   The identifiability warning is at the TOP, above every section, and the
+   design section carries rank / parameters / observations-per-parameter.
+
+C. COLLECTED, NOT REDERIVED. `trial_metrics.fit_quality`,
+   `.residual_diagnostics`, `.design_diagnostics`, `.calibration` and
+   `.control_recovery` supply every scalar; `multiple_testing.critical_p_value`
+   supplies the exact BH threshold; `hits.tested_family` draws the same
+   tested/covariate line `_call_level_hits` draws; `regression_qc.
+   context_from_model` + `cooks_distance` supply leverage and influence.
+   `COMPARISON_FIELDS` maps every `sweep_runs.PREFERRED_COLUMNS` entry onto
+   the field that reports it and `NOT_A_FIT_PROPERTY` names the seven that are
+   bookkeeping, so a test walks the Runs tab's ordering against the summary
+   and neither can drift.
+
+   ONE NEW PUBLIC FUNCTION IN regression_qc: `residual_normality(resid)`.
+   Skew, excess kurtosis, D'Agostino K-squared and the n>=8 refusal were
+   locked inside `_panel_residual_distribution`, which needs an axes and draws
+   a figure. The panel now calls it, so the picture and the prose report the
+   same three numbers about the same residuals by construction; a test drives
+   the panel and the summary and compares.
+
+   THE NONPARAMETRIC ARM: R2 does not exist and the summary says "R2 DOES NOT
+   EXIST" in those words, then reports permutations run, 1/(n+1) with the
+   sentence that 1,000 permutations cannot express p < 1e-3, how many tests
+   sit ON that floor, and the blocking. All five assumptions are NOT ASSUMED
+   with the reason the permutation buys each one.
+
+D. WRITTEN INTO THE RUN FOLDER as `spacr.ml.SUMMARY_FILENAME`
+   (`model_summary.txt`) -- the file 153 already taught the Summary tab to
+   read back, so NO GUI CHANGE was needed. The statsmodels text is appended
+   VERBATIM at the end: rendered from the model where it can be, and otherwise
+   read back off the file `save_summary_to_file` wrote minutes earlier, so an
+   ols/beta run keeps its statsmodels summary and gains the spaCR one above
+   it. The whole text is built in memory first, so a failure leaves the
+   existing file untouched.
+
+DRIVEN, NOT ONLY TESTED
+   * `perform_regression` run end to end on a synthetic screen, ols: the
+     summary is in the run folder, with the statsmodels block at the end.
+   * The same, `inference='nonparametric'`: see WHAT REMAINS.
+   * The REAL `RegressionResultsPanel`: `load(<run folder>)` -> Summary tab ->
+     the widget's own text holds the spaCR summary, "No summary" nowhere.
+     `tests/qt/test_the_summary_tab_shows_every_mode.py`, 5 tests.
+
+TESTS  tests/test_every_regression_mode_gets_a_summary.py, 119. The product
+   test is 19 REGRESSION_TYPES x 2 inferences x {no model, a real fit} = 76 of
+   them, each asserting `missing() == []`, no blank, and no reason shorter
+   than a sentence.
+
+WHAT REMAINS -- ONE LINE, IN ml.py, WHICH IS NOT THIS TERRITORY
+
+   THE PLACED CALL SITE IS NEVER REACHED ON THE NONPARAMETRIC PATH, which is
+   the run the request is about. `perform_regression` returns at
+
+       if settings.get('analysis_mode') == 'guide_permutation':
+           output = _run_guide_permutation_analysis(...)
+           ...
+           return output                          # ml.py ~6070
+
+   and `write_run_summary` is called at ml.py ~6324, after it. MEASURED: a
+   nonparametric run's folder has regression_data.csv, results.csv,
+   results_gene.csv, the four min-wells families and the diagnostics, and NO
+   model_summary.txt. So the tab still says "No summary" for exactly the case
+   reported.
+
+   THE FIX IS ONE CALL, before that `return output`:
+
+       write_run_summary(res_folder, model=None, settings=settings,
+                         coef_df=output['primary'],
+                         regression_type=settings['regression_type'])
+
+   guarded like its twin. `output['primary']` is the right table: it carries
+   `permutations`, `block_column`, `permutation_p_value`, `significant`,
+   `passes_effect_size` and `effect_size_threshold`, which is everything the
+   nonparametric arm reports. Verified by making that call by hand on a real
+   permutation run -- the full summary above came out of it.
+
+   THE THREE EXCLUSION COUNTS ARE PRINTED AND NOT RECORDED. min_cell_count,
+   fraction_threshold and the unpaired-well drop each print their count in
+   `process_scores` / `process_reads` / `_check_score_count_pairing` and store
+   it nowhere, so the summary states the RULE and says the count is in the
+   console log. Writing them into `settings['exclusions']` at the three sites
+   would let the summary report them; the field is ready for it.
+
+FINDINGS WORTH NOT REDISCOVERING
+
+ * `n_cells` IS IN `PREFERRED_COLUMNS` AND `METRIC_COLUMNS` AND NOTHING FILLS
+   IT. `trial_metrics.design_summary` emits n_rows_fitted, n_wells and
+   n_guides only, so the Runs tab orders a column no run produces. The summary
+   computes it -- summed over DISTINCT WELLS, because regression_data.csv
+   repeats cell_count once per guide in the well and summing the column
+   multiplies the screen's objects by its guides per well.
+ * ml AND trial_metrics DISAGREE ON THE HIT RULE BY ONE COMPARISON.
+   `_call_level_hits` calls `q_value < cut_alpha`; `trial_metrics.hit_counts`
+   counts `q <= alpha` for `n_below_alpha`. They differ by exactly the
+   coefficients sitting on alpha. The summary reports the run's own rule (`<`,
+   which is what results_significant.csv holds).
+ * THE BELSLEY BANDS ARE FOR THE SCALED CONDITION NUMBER.
+   `trial_metrics.fit_quality` reads `model.condition_number`, which is
+   statsmodels' UNSCALED one; feeding it to `regression_qc.condition_verdict`
+   reported "severe collinearity" for a full-rank design with a max VIF of
+   1.38 on the first real run. The summary computes the scaled one from the
+   exog and falls back to naming the unscaled number as unscaled.
+ * 'none' IS A REAL VALUE FOR multiple_testing_method -- it is one of the
+   thirteen in `spacr.multiple_testing.METHODS` and it is the DEFAULT out of
+   `get_perform_regression_default_settings`. A helper that treated it as
+   absent made the summary say "neither the results table nor the settings
+   record which correction was applied" about a run that recorded it twice.
+ * A FIXTURE WITH CONSTANT `fraction` IS RANK DEFICIENT. Twelve
+   `fraction:grna[...]` columns at a constant 1/3 sum to a constant and are
+   exactly collinear with the intercept. The identifiability warning caught
+   it, which is what it is for.
+ * `regression_results.UNIDENTIFIABLE_WARNING` cannot be imported from a
+   headless run -- that module imports PySide6 at the top -- so the sentence
+   is duplicated in `regression_summary.UNIDENTIFIABLE_WARNING`. Recorded
+   rather than hidden.
+ * A LIVE run's Summary tab still renders `model.summary()` directly, so
+   during the run an ols fit shows the statsmodels text and the spaCR summary
+   only appears after a reload. Making the live path prefer the file is a
+   change in `regression_results.py`, which is not this territory.
