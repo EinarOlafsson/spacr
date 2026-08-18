@@ -39,7 +39,37 @@ from natsort import natsorted
 from torch.utils.data import Dataset
 
 from . import schema
+from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
+                            reference_line, resolve_ink, rotate_ticks,
+                            theme_target)
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
+
+#: The categorical vocabulary for a plot whose categories genuinely ARE the
+#: data -- one line per measured column, one bar per class. Taken from the
+#: published palette in the order the figures reach for it, and held fixed so
+#: a series cannot change colour between two panels of the same run. Anything
+#: that is not a category in its own right stays grey; this is not a licence
+#: to colour by group.
+SERIES_COLOURS = (Palette.BLUE, Palette.RUST, Palette.GREEN, Palette.GOLD,
+                  Palette.PURPLE, Palette.NAVY, Palette.OCHRE,
+                  Palette.BLUE_LIGHT, Palette.CORAL, Palette.GREY_DARK)
+
+
+def _style_colour_bar(fig):
+    """Put a seaborn heatmap's colour bar into the house style.
+
+    ``sns.heatmap`` builds its own axes for the bar AFTER the figure exists,
+    with matplotlib's default black ticks and a full frame. On spaCR's dark
+    ground that frame is a white box around the ramp; the style draws no
+    boxes and the ink follows the theme.
+    """
+    if len(fig.axes) < 2:
+        return
+    ink = resolve_ink(theme_target())
+    bar = fig.axes[-1]
+    bar.tick_params(colors=ink, labelsize=TYPE_SCALE['tick'])
+    for spine in bar.spines.values():
+        spine.set_visible(False)
 
 
 #: How many image/label pairs :func:`train_cellpose` previews before training.
@@ -333,35 +363,45 @@ def test_cellpose_model(settings):
         :param flow: Cellpose flow field.
         """
         from . plot import generate_mask_random_cmap
-        fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
-        cmap_lbl = generate_mask_random_cmap(lbl)
-        cmap_pred = generate_mask_random_cmap(pred)
+        # THE STYLE OPENS BEFORE THE FIGURE EXISTS: rcParams reach an artist
+        # when it is CREATED, so a context entered after plt.subplots leaves
+        # the titles and the ground at whatever the session's globals are.
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            cmap_lbl = generate_mask_random_cmap(lbl)
+            cmap_pred = generate_mask_random_cmap(pred)
 
-        axs[0].imshow(img, cmap='gray')
-        axs[0].set_title('Image')
-        axs[0].axis('off')
+            # Greyscale per channel, the label maps in their random colours
+            # because a mask's colours are identities and not a quantity, and
+            # the column name as the header -- the micrograph row the style
+            # describes.
+            axs[0].imshow(img, cmap='gray')
+            axs[0].set_title('Image')
+            axs[0].axis('off')
 
-        axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
-        axs[1].set_title('True Mask')
-        axs[1].axis('off')
+            axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
+            axs[1].set_title('True Mask')
+            axs[1].axis('off')
 
-        axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')
-        axs[2].set_title('Predicted Mask')
-        axs[2].axis('off')
-        
-        axs[3].imshow(flow[2], cmap='gray')
-        axs[3].set_title('Cell Probability')
-        axs[3].axis('off')
+            axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')
+            axs[2].set_title('Predicted Mask')
+            axs[2].axis('off')
 
-        axs[4].imshow(flow[0], cmap='gray')
-        axs[4].set_title('Flows')
-        axs[4].axis('off')
+            axs[3].imshow(flow[2], cmap='gray')
+            axs[3].set_title('Cell Probability')
+            axs[3].axis('off')
 
-        save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-        plt.show()
-        plt.close(fig)
+            axs[4].imshow(flow[0], cmap='gray')
+            axs[4].set_title('Flows')
+            axs[4].axis('off')
+
+            save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
+            # Saved inside the context: savefig.transparent and
+            # savefig.facecolor are read at write time.
+            save_path = save_figure(fig, save_path,
+                                    bbox_inches='tight')
+            plt.show()
+            plt.close(fig)
         
         
     settings = get_default_test_cellpose_model_settings(settings)
@@ -561,30 +601,31 @@ def apply_cellpose_model(settings):
         """
         from .plot import generate_mask_random_cmap
         
-        fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
-        cmap_pred = generate_mask_random_cmap(pred)
+        with figure_style(theme_target()):
+            fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            cmap_pred = generate_mask_random_cmap(pred)
 
-        axs[0].imshow(img, cmap='gray')
-        axs[0].set_title('Image')
-        axs[0].axis('off')
+            axs[0].imshow(img, cmap='gray')
+            axs[0].set_title('Image')
+            axs[0].axis('off')
 
-        axs[1].imshow(pred, cmap=cmap_pred, interpolation='nearest')
-        axs[1].set_title('Predicted Mask')
-        axs[1].axis('off')
-        
-        axs[2].imshow(flow[2], cmap='gray')
-        axs[2].set_title('Cell Probability')
-        axs[2].axis('off')
-        
-        axs[3].imshow(flow[0], cmap='gray')
-        axs[3].set_title('Flows')
-        axs[3].axis('off')
+            axs[1].imshow(pred, cmap=cmap_pred, interpolation='nearest')
+            axs[1].set_title('Predicted Mask')
+            axs[1].axis('off')
 
-        save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
-        save_path = save_figure(plt.gcf(), save_path,
-                                bbox_inches='tight')
-        plt.show()
-        plt.close(fig)
+            axs[2].imshow(flow[2], cmap='gray')
+            axs[2].set_title('Cell Probability')
+            axs[2].axis('off')
+
+            axs[3].imshow(flow[0], cmap='gray')
+            axs[3].set_title('Flows')
+            axs[3].axis('off')
+
+            save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
+            save_path = save_figure(fig, save_path,
+                                    bbox_inches='tight')
+            plt.show()
+            plt.close(fig)
         
         
     settings = get_default_apply_cellpose_model_settings(settings)
@@ -694,15 +735,16 @@ def plot_cellpose_batch(images, labels):
     # squeeze=False keeps axs 2-D for every batch size; with the default
     # squeeze=True a single-image batch collapsed to a 1-D array and the
     # axs[0, i] indexing below raised IndexError.
-    fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
-    for i in range(batch_size):
-        axs[0, i].imshow(images[i], cmap='gray')
-        axs[0, i].set_title(f'Image {i+1}')
-        axs[0, i].axis('off')
-        axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
-        axs[1, i].set_title(f'Label {i+1}')
-        axs[1, i].axis('off')
-    plt.show()
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
+        for i in range(batch_size):
+            axs[0, i].imshow(images[i], cmap='gray')
+            axs[0, i].set_title(f'Image {i+1}')
+            axs[0, i].axis('off')
+            axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
+            axs[1, i].set_title(f'Label {i+1}')
+            axs[1, i].axis('off')
+        plt.show()
 
 def analyze_percent_positive(settings):
     """Annotate objects above a threshold and summarise positive fractions per well.
@@ -1285,66 +1327,80 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
         """
 
         def _set_theme(theme):
-            """Return a reordered Seaborn palette for consistent line coloring."""
+            """The colours the lines are drawn in, house palette first.
 
-            def __set_reordered_theme(theme='deep', order=None, n_colors=100, show_theme=False):
-                """Return a Seaborn palette optionally reordered by index list ``order``."""
-                palette = sns.color_palette(theme, n_colors)
-                if order:
-                    reordered_palette = [palette[i] for i in order]
-                else:
-                    reordered_palette = palette
-                if show_theme:
-                    sns.palplot(reordered_palette)
-                    plt.show()
-                return reordered_palette
+            ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY
+            ARE THE DATA, so these series keep distinct hues -- but they come
+            from the published palette in a fixed order rather than from
+            seaborn's 100-colour 'deep' ramp reordered by an index list. A
+            hundred hues is a hundred series nobody can tell apart, and the
+            eighth one was a pastel that vanished on the dark ground.
 
-            integer_list = list(range(1, 81))
-            color_order = [7, 9, 4, 0, 3, 6, 2] + integer_list
-            sns_palette = __set_reordered_theme(theme, color_order, 100)
-            return sns_palette
+            An explicit non-default ``theme`` still wins, for a caller who
+            deliberately asked for a seaborn palette.
+            """
+            if theme and theme != 'deep':
+                return sns.color_palette(theme, 100)
+            return list(SERIES_COLOURS)
 
         sns_palette = _set_theme(theme)
 
         # Sort the DataFrame based on the x_column
         df = df.loc[natsorted(df.index, key=lambda x: df.loc[x, x_column])]
-        
-        fig, ax = plt.subplots(figsize=figsize)
 
-        # Handle multiple y-columns, each as a separate line
-        if isinstance(y_columns, list):
-            for idx, y_col in enumerate(y_columns):
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=figsize)
+
+            # Handle multiple y-columns, each as a separate line
+            if isinstance(y_columns, list):
+                for idx, y_col in enumerate(y_columns):
+                    sns.lineplot(
+                        data=df, x=x_column, y=y_col, ax=ax, label=y_col,
+                        color=sns_palette[idx % len(sns_palette)], linewidth=1
+                    )
+            elif group_column:
+                # One hue per group, from the fixed palette and no longer
+                # than the number of groups -- seaborn raises when a palette
+                # is longer than the hue levels it is given.
                 sns.lineplot(
-                    data=df, x=x_column, y=y_col, ax=ax, label=y_col, 
-                    color=sns_palette[idx % len(sns_palette)], linewidth=1
+                    data=df, x=x_column, y=y_columns, hue=group_column, ax=ax,
+                    palette=sns_palette[:df[group_column].nunique()],
+                    linewidth=2
                 )
-        else:
-            sns.lineplot(
-                data=df, x=x_column, y=y_columns, hue=group_column, ax=ax, 
-                palette=sns_palette, linewidth=2
-            )
+            else:
+                # A single series is the claim by default.
+                sns.lineplot(
+                    data=df, x=x_column, y=y_columns, ax=ax,
+                    color=sns_palette[0], linewidth=2
+                )
 
-        # Set axis labels and title
-        ax.set_xlabel(xlabel if xlabel else x_column)
-        ax.set_ylabel(ylabel if ylabel else 'Value')
-        ax.set_title(title if title else 'Line Plot')
+            # Set axis labels and title
+            ax.set_xlabel(xlabel if xlabel else x_column)
+            ax.set_ylabel(ylabel if ylabel else 'Value')
+            ax.set_title(title if title else 'Line Plot')
 
-        # Remove top and right spines
-        sns.despine(ax=ax)
+            # Remove top and right spines
+            sns.despine(ax=ax)
 
-        # Ensure legend only appears when needed and place it to the right
-        if group_column or isinstance(y_columns, list):
-            ax.legend(title='Legend', loc='center left', bbox_to_anchor=(1, 0.5))
+            # Ensure legend only appears when needed and place it to the
+            # right. The frame comes off -- the style draws no boxes -- but
+            # the 'Legend' title stays, because
+            # tests/test_cov_submodules_reads_vs_scores.py reads it back as
+            # the marker that this figure is the line plot and not the
+            # scatter beside it.
+            if group_column or isinstance(y_columns, list):
+                ax.legend(title='Legend', loc='center left',
+                          bbox_to_anchor=(1, 0.5), frameon=False)
 
-        plt.tight_layout()
+            plt.tight_layout()
 
-        # Save the plot if a save path is provided
-        if save_path:
-            save_path = save_figure(plt.gcf(), save_path,
-                                    bbox_inches='tight')
-            print(f"Plot saved to {save_path}")
+            # Save the plot if a save path is provided
+            if save_path:
+                save_path = save_figure(fig, save_path,
+                                        bbox_inches='tight')
+                print(f"Plot saved to {save_path}")
 
-        plt.show()
+            plt.show()
         return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
@@ -1661,14 +1717,20 @@ def interpret_vision_model(settings=None):
         angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
         angles += angles[:1]
 
-        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-        ax.plot(angles, values, linewidth=2, linestyle='solid')
-        ax.fill(angles, values, alpha=0.25)
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+            # One series, so it is the claim and takes the highlight; the fill
+            # is the same hue at the one alpha the published figures use under
+            # a curve.
+            ax.plot(angles, values, linewidth=1.2, linestyle='solid',
+                    color=ROLES['highlight'])
+            ax.fill(angles, values, alpha=0.25, color=ROLES['highlight'])
 
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(labels, fontsize=10, rotation=45, ha='right')
-        plt.title(title, pad=20)
-        plt.show()
+            ax.set_xticks(angles[:-1])
+            ax.set_xticklabels(labels, fontsize=TYPE_SCALE['tick'],
+                               rotation=45, ha='right')
+            plt.title(title, pad=20)
+            plt.show()
 
     def extract_compartment_channel(feature_name):
         """Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.
@@ -1864,13 +1926,20 @@ def interpret_vision_model(settings=None):
             print(f"Feature Importance ...")
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
-            # Plot Feature Importance
-            plt.figure(figsize=(10, 6))
-            plt.barh(top_feature_importance_df['feature'], top_feature_importance_df['importance'])
-            plt.xlabel('Importance')
-            plt.title(f"Top {settings['top_features']} Features - Feature Importance")
-            plt.gca().invert_yaxis()
-            plt.show()
+            # Plot Feature Importance. ONE SERIES, SO IT IS GREY: the
+            # ranking is the claim and the bars carry it by length, so
+            # matplotlib's default saturated blue was decoration on every bar
+            # at once.
+            with figure_style(theme_target()):
+                plt.figure(figsize=(10, 6))
+                plt.barh(top_feature_importance_df['feature'],
+                         top_feature_importance_df['importance'],
+                         color=Palette.GREY_DARK)
+                plt.xlabel('Importance')
+                plt.title(f"Top {settings['top_features']} Features - Feature Importance")
+                plt.gca().invert_yaxis()
+                plt.tight_layout()
+                plt.show()
 
             output['feature_importance'] = feature_importance_df
             fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
@@ -1888,12 +1957,16 @@ def interpret_vision_model(settings=None):
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
 
         # Plot Permutation Importance
-        plt.figure(figsize=(10, 6))
-        plt.barh(top_perm_importance_df['feature'], top_perm_importance_df['importance'])
-        plt.xlabel('Importance')
-        plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
-        plt.gca().invert_yaxis()
-        plt.show()
+        with figure_style(theme_target()):
+            plt.figure(figsize=(10, 6))
+            plt.barh(top_perm_importance_df['feature'],
+                     top_perm_importance_df['importance'],
+                     color=Palette.GREY_DARK)
+            plt.xlabel('Importance')
+            plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
+            plt.gca().invert_yaxis()
+            plt.tight_layout()
+            plt.show()
             
         output['permutation_importance'] = perm_importance_df
     
@@ -4345,14 +4418,17 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
         # Nothing was classifiable anywhere — no threshold existed. Say that
         # on the axes rather than dying inside pandas' bar plot, because the
         # unclassified count in the well table is the real answer here.
-        fig, axes = plt.subplots(figsize=(12, 8))
-        axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
-                            'outside-stain threshold', ha='center',
-                  va='center', transform=axes.transAxes)
-        axes.set_xlabel('Group')
-        axes.set_ylabel('Proportion')
-        axes.set_title(title)
-        axes.set_ylim(0, 1.15)
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(figsize=(12, 8))
+            axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
+                                'outside-stain threshold', ha='center',
+                      va='center', transform=axes.transAxes,
+                      fontsize=TYPE_SCALE['label'],
+                      color=resolve_ink(theme_target()))
+            axes.set_xlabel('Group')
+            axes.set_ylabel('Proportion')
+            axes.set_title(title)
+            axes.set_ylim(0, 1.15)
         results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
                                    'p_value': [np.nan],
                                    'degrees_of_freedom': [np.nan]})
@@ -4411,10 +4487,19 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     :param cmap: Matplotlib colormap the histogram bars are drawn from.
     :returns: matplotlib Figure.
     """
-    try:
-        face = plt.get_cmap(cmap)(0.5)
-    except ValueError:
-        face = '0.6'
+    # THE HISTOGRAM FILL IS FURNITURE, NOT A CLAIM: it is the same
+    # distribution in every panel, so it takes the style's one fill colour and
+    # `cmap` is only consulted when a caller has deliberately asked for
+    # something else. It used to be the middle of viridis -- a saturated green
+    # against which the crimson threshold line was the only louder thing on
+    # the panel.
+    if cmap in (None, 'viridis'):
+        face = ROLES['fill']
+    else:
+        try:
+            face = plt.get_cmap(cmap)(0.5)
+        except ValueError:
+            face = ROLES['fill']
     order = sorted(str(value) for value in wells['prc'].unique())
     truncated = len(order) > int(max_panels)
     order = order[:int(max_panels)]
@@ -4422,50 +4507,62 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     n_panels = max(1, len(order))
     n_columns = min(4, n_panels)
     n_rows = int(np.ceil(n_panels / n_columns))
-    fig, axes = plt.subplots(n_rows, n_columns,
-                             figsize=(4.0 * n_columns, 3.0 * n_rows),
-                             squeeze=False)
-    flat = axes.ravel()
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(n_rows, n_columns,
+                                 figsize=(4.0 * n_columns, 3.0 * n_rows),
+                                 squeeze=False)
+        flat = axes.ravel()
 
-    lookup = wells.set_index(wells['prc'].astype(str))
-    for index, prc in enumerate(order):
-        axis = flat[index]
-        subset = parasites[parasites['prc'].astype(str) == prc]
-        values = subset['outside_intensity'].to_numpy(dtype=float)
-        values = values[np.isfinite(values)]
-        if values.size:
-            axis.hist(values, bins=min(40, max(5, values.size // 3)),
-                      color=face, edgecolor='none')
-        row = lookup.loc[prc]
-        if isinstance(row, pd.DataFrame):
-            row = row.iloc[0]
-        threshold = float(row['threshold_median'])
-        reference = float(row['reference_threshold_median'])
-        if np.isfinite(threshold):
-            axis.axvline(threshold, color='crimson', linewidth=1.5,
-                         label=f"threshold ({row['threshold_source']})")
-        if np.isfinite(reference) and reference != threshold:
-            axis.axvline(reference, color='steelblue', linewidth=1.2,
-                         linestyle='--', label='reference')
-        coefficient = float(row['bimodality_coefficient'])
-        axis.set_title(
-            f"{prc}\nn={int(row['n_total'])}  BC="
-            + ('n/a' if not np.isfinite(coefficient) else f'{coefficient:.2f}'),
-            fontsize=9)
-        axis.set_xlabel('Outside-channel signal')
-        axis.set_ylabel('Parasites')
-        handles, labels = axis.get_legend_handles_labels()
-        if handles:
-            axis.legend(handles, labels, fontsize=7)
+        lookup = wells.set_index(wells['prc'].astype(str))
+        for index, prc in enumerate(order):
+            axis = flat[index]
+            subset = parasites[parasites['prc'].astype(str) == prc]
+            values = subset['outside_intensity'].to_numpy(dtype=float)
+            values = values[np.isfinite(values)]
+            if values.size:
+                axis.hist(values, bins=min(40, max(5, values.size // 3)),
+                          color=face, edgecolor='none')
+            row = lookup.loc[prc]
+            if isinstance(row, pd.DataFrame):
+                row = row.iloc[0]
+            threshold = float(row['threshold_median'])
+            reference = float(row['reference_threshold_median'])
+            # THE APPLIED THRESHOLD IS THE CLAIM AND THE REFERENCE IS A
+            # REFERENCE. They were crimson at 1.5 and steelblue at 1.2, two
+            # equally loud lines, so the panel did not say which one the
+            # classification actually used.
+            if np.isfinite(threshold):
+                axis.axvline(threshold, color=ROLES['highlight'], linewidth=1.2,
+                             label=f"threshold ({row['threshold_source']})")
+            if np.isfinite(reference) and reference != threshold:
+                reference_line(axis, x=reference)
+                # A proxy handle, so the grey dashed reference is named in the
+                # legend without being drawn twice.
+                axis.plot([], [], color=ROLES['reference'], linestyle=(0, (4, 3)),
+                          linewidth=0.6, label='reference')
+            coefficient = float(row['bimodality_coefficient'])
+            axis.set_title(
+                f"{prc}\nn={int(row['n_total'])}  BC="
+                + ('n/a' if not np.isfinite(coefficient) else f'{coefficient:.2f}'),
+                fontsize=TYPE_SCALE['annotation'])
+            axis.set_xlabel('Outside-channel signal')
+            axis.set_ylabel('Parasites')
+            handles, labels = axis.get_legend_handles_labels()
+            if handles:
+                axis.legend(handles, labels, fontsize=TYPE_SCALE['legend'],
+                            frameon=False)
 
-    for index in range(len(order), len(flat)):
-        flat[index].axis('off')
-    if truncated:
-        fig.suptitle(f'Outside-stain thresholds (first {len(order)} wells)')
-    else:
-        fig.suptitle('Outside-stain thresholds')
-    fig.tight_layout()
-    return fig
+        for index in range(len(order), len(flat)):
+            flat[index].axis('off')
+        ink = resolve_ink(theme_target())
+        if truncated:
+            fig.suptitle(f'Outside-stain thresholds (first {len(order)} wells)',
+                         fontsize=TYPE_SCALE['label'], color=ink)
+        else:
+            fig.suptitle('Outside-stain thresholds',
+                         fontsize=TYPE_SCALE['label'], color=ink)
+        fig.tight_layout()
+        return fig
 
 
 def analyze_invasion(settings):
@@ -5192,24 +5289,27 @@ def generate_score_heatmap(settings):
         # Extract only numeric data for the heatmap
         heatmap_data = df.select_dtypes(include=[float, int])
 
-        # Plot heatmap with square boxes, no annotations, and 'viridis' colormap
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(
-            heatmap_data,
-            cmap=cmap,
-            cbar=True,
-            square=True,
-            annot=False
-        )
+        # Plot heatmap with square boxes and no annotations
+        with figure_style(theme_target(), frame='box'):
+            fig = plt.figure(figsize=(12, 8))
+            axis = sns.heatmap(
+                heatmap_data,
+                cmap=cmap,
+                cbar=True,
+                square=True,
+                annot=False
+            )
 
-        plt.title("Heatmap of Prediction Scores for All Channels")
-        plt.xlabel("Channels")
-        plt.ylabel("Plate-Row-Column")
-        plt.tight_layout()
+            plt.title("Heatmap of Prediction Scores for All Channels")
+            plt.xlabel("Channels")
+            plt.ylabel("Plate-Row-Column")
+            # Long channel names rotate 45 and anchor right, as every
+            # categorical axis in the style does.
+            rotate_ticks(axis, 45)
+            _style_colour_bar(fig)
+            plt.tight_layout()
 
-        # Save the figure object and return it
-        fig = plt.gcf()
-        plt.show()
+            plt.show()
 
         return fig
 
@@ -5366,20 +5466,28 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
             # Save the correlation matrix
             correlation_matrix.to_csv(os.path.join(save_folder, 'correlation_matrix.csv'))
         
-        # Visualize the correlation matrix as a heatmap
-        plt.figure(figsize=(10, 8))
-        sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', cbar=True)
-        plt.title('gRNA Correlation Matrix')
-        plt.xlabel('gRNAs')
-        plt.ylabel('gRNAs')
-        plt.tight_layout()
-        
-        if save:
-            correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
-            correlation_fig_path = save_figure(plt.gcf(),
-                                               correlation_fig_path)
-        
-        plt.show()
+        # Visualize the correlation matrix as a heatmap. A CORRELATION IS
+        # SIGNED, which is the one case the style allows a diverging map for,
+        # so coolwarm stays and is centred on zero -- it was not, so an
+        # all-positive matrix came out red end to end and looked like a
+        # finding.
+        with figure_style(theme_target(), frame='box'):
+            fig = plt.figure(figsize=(10, 8))
+            axis = sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm',
+                               cbar=True, vmin=-1.0, vmax=1.0, center=0.0)
+            plt.title('gRNA Correlation Matrix')
+            plt.xlabel('gRNAs')
+            plt.ylabel('gRNAs')
+            rotate_ticks(axis, 45)
+            _style_colour_bar(fig)
+            plt.tight_layout()
+
+            if save:
+                correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
+                correlation_fig_path = save_figure(fig,
+                                                   correlation_fig_path)
+
+            plt.show()
 
         return correlation_matrix
 
@@ -5406,30 +5514,42 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
             # Save the effect sizes
             effect_sizes.to_csv(os.path.join(save_folder, 'effect_sizes.csv'))
 
-        # Visualization
-        plt.figure(figsize=(10, 6))
-        sns.barplot(
-            x=effect_sizes.index,
-            y=effect_sizes.values,
-            hue=effect_sizes.index,
-            palette="viridis",
-            legend=False,
-        )
+        # Visualization. GREY BARS, AND THE ANCHORS COLOURED: `hue` was the
+        # gRNA name and `palette='viridis'` gave every bar its own hue, so a
+        # 40-guide panel was a 40-colour ramp that encoded nothing the x axis
+        # did not already say. The gRNAs whose effect was FIXED by
+        # `grna_dict` -- the anchors the rest were propagated from -- are the
+        # ones a reader has to be able to pick out, so those are the coloured
+        # minority.
+        with figure_style(theme_target()):
+            fig = plt.figure(figsize=(10, 6))
+            anchors = set(grna_dict)
+            axis = sns.barplot(
+                x=effect_sizes.index,
+                y=effect_sizes.values,
+                hue=effect_sizes.index,
+                palette=[ROLES['highlight'] if name in anchors
+                         else ROLES['data'] for name in effect_sizes.index],
+                # saturation=1: seaborn desaturates a bar fill to 0.75 by
+                # default, so the palette's #2E77BC reached the canvas as
+                # #4076AA. A fixed hue that arrives as a different hue is not
+                # a fixed hue.
+                saturation=1,
+                legend=False,
+            )
 
-        #for i, val in enumerate(effect_sizes.values):
-        #    plt.text(i, val + 0.02, f"{val:.2f}", ha='center', va='bottom', fontsize=9)
-        plt.title("Effect Sizes of gRNAs")
-        plt.xlabel("gRNAs")
-        plt.ylabel("Effect Size")
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        
-        if save:
-            effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
-            effect_sizes_fig_path = save_figure(plt.gcf(),
-                                                effect_sizes_fig_path)
-        
-        plt.show()
+            plt.title("Effect Sizes of gRNAs")
+            plt.xlabel("gRNAs")
+            plt.ylabel("Effect Size")
+            rotate_ticks(axis, 45)
+            plt.tight_layout()
+
+            if save:
+                effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
+                effect_sizes_fig_path = save_figure(fig,
+                                                    effect_sizes_fig_path)
+
+            plt.show()
 
         return effect_sizes
     
