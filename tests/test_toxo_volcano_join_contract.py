@@ -173,16 +173,25 @@ def test_the_metadata_frame_the_caller_passed_is_not_retyped_underneath_them():
 def test_a_volcano_does_not_resize_the_text_of_the_next_plot():
     """Opening one figure must not restyle the ones opened after it.
 
-    The volcano draws at 18pt, which is right for a volcano and wrong for
-    everything else -- and it used to set that with a bare ``rcParams.update``,
-    which is process-wide. Every plot the session drew afterwards came out at
-    18pt: other screens, other modules, and whatever the user had chosen in
+    The volcano used to set its own font with a bare ``rcParams.update``,
+    which is process-wide. Every plot the session drew afterwards inherited
+    it: other screens, other modules, and whatever the user had chosen in
     figure preferences, overridden by whichever figure they happened to open
     first.
 
-    The volcano's own text must still be 18pt, so both halves are asserted.
+    BOTH HALVES ARE ASSERTED -- the globals are untouched, AND the volcano
+    drew at its own size while it had the chance. A test that only checked
+    the first would pass on a figure that had stopped styling itself at all.
+
+    THE SIZE IS READ FROM THE HOUSE STYLE, not written here. It was a literal
+    18, which is what the volcano hard-coded before the restyle on
+    2026-08-18; it is `TYPE_SCALE["label"]` now, and asking the style means
+    this test cannot fail the next time the scale is tuned -- while still
+    failing if the volcano stops honouring it.
     """
     import matplotlib.pyplot as plt
+
+    from spacr.figures.style import TYPE_SCALE
 
     before = matplotlib.rcParams['font.size']
     data = _results([(220001, 1), (220002, 1)])
@@ -194,11 +203,11 @@ def test_a_volcano_does_not_resize_the_text_of_the_next_plot():
     T.custom_volcano_plot(data, metadata, figsize=4, threshold=0)
 
     assert matplotlib.rcParams['font.size'] == before, (
-        "the volcano left its 18pt font on matplotlib's globals; every figure "
+        "the volcano left its font on matplotlib's globals; every figure "
         "drawn after it in the same session inherits the size")
-    # ...and it did draw at its own size while it had the chance.
+    # ...and it did draw at the house size while it had the chance.
     axis = plt.gcf().axes[0]
-    assert axis.xaxis.label.get_fontsize() == 18
+    assert axis.xaxis.label.get_fontsize() == TYPE_SCALE["label"]
     plt.close('all')
 
 
