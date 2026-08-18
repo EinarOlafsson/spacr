@@ -178,7 +178,13 @@ def test_level_is_directly_under_regression_type():
     explains itself.
     """
     section = list(_regression_sections()["Model & Inference"])
-    assert section[section.index("regression_type") + 1] == "level"
+    # `regression_backend` took the slot immediately after `regression_type`
+    # on 2026-08-18 -- "regression backend should be in Model and inference
+    # right after regression type" -- and `level` follows it. The property
+    # this test protects is unchanged: `level` is adjacent to the control
+    # that greys it out, not three sections away.
+    after = section[section.index("regression_type") + 1:]
+    assert after[:2] == ["regression_backend", "level"], after
 
 
 def test_no_setting_was_dropped_by_the_regroup():
