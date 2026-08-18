@@ -78,6 +78,53 @@ def _torchvision_model_names():
     return list(_TORCHVISION_MODELS_CURATED)
 
 
+#: Settings whose widget cannot be decided from the NAME alone, because two
+#: modules use that name for two different closed vocabularies. The value in
+#: hand decides; anything not listed falls through to the name-keyed table.
+#:
+#: ``level`` is the only one. The proportion and endodyogeny plots have meant
+#: 'object'/'well'/'plate' by it for years; instruction 132 gives the
+#: regression a ``level`` of its own -- 'both'/'grna'/'gene' -- and the shared
+#: tables here and in :mod:`spacr.settings` are keyed by name with no module
+#: scope. Offering the regression's three options on a proportion panel would
+#: be a combo that cannot express what that module needs, so the dispatch is
+#: on the value the panel is being built from.
+#:
+#: Deliberately NOT a fallback: a value in neither vocabulary returns None and
+#: takes the ordinary path, so no module's existing widget changes shape.
+_VALUE_SPECIAL_CASES = {
+    'level': (
+        (('both', 'grna', 'gene'),
+         ('combo', ['both', 'grna', 'gene'], 'both')),
+        (('object', 'well', 'plate'),
+         ('combo', ['object', 'well', 'plate'], 'object')),
+    ),
+}
+
+
+def _value_special_cases(key, value):
+    """The widget spec for ``key`` when its VALUE decides, else ``None``.
+
+    :param key: the setting name.
+    :param value: the value the panel is being built from.
+    :returns: a ``(kind, options, default)`` triple, or ``None`` to fall
+        through to the name-keyed ``special_cases`` table.
+    """
+    table = _VALUE_SPECIAL_CASES.get(key)
+    if not table:
+        return None
+    if not isinstance(value, str):
+        return None
+    current = value.strip().lower()
+    for vocabulary, spec in table:
+        if current in vocabulary:
+            kind, options, _default = spec
+            # The panel's own value is the default, so opening a settings
+            # screen never rewrites the setting it was opened on.
+            return (kind, list(options), current)
+    return None
+
+
 def convert_settings_dict_for_gui(settings):
     """Convert a plain settings dict into the GUI variable spec.
 
@@ -127,7 +174,12 @@ def convert_settings_dict_for_gui(settings):
         'clustering': ('combo', ['dbscan', 'kmean'], 'dbscan'),
         'reduction_method': ('combo', ['umap', 'tsne'], 'umap'),
         'model_name': ('combo', cellpose_models, cellpose_models[0]),
-        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'ols'),
+        # DEFAULT 'mixed' since 2026-08-17, matching
+        # settings.get_perform_regression_default_settings: "mixed answers
+        # the most central question best". A combo whose default differs
+        # from the settings default posts a different model than the one
+        # the panel was built for.
+        'regression_type': ('combo', ['ols','gls','wls','rlm','glm','mixed','quantile','logit','probit','poisson','lasso','ridge'], 'mixed'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
@@ -180,7 +232,10 @@ def convert_settings_dict_for_gui(settings):
                 default)
 
     for key, value in settings.items():
-        if key in special_cases:
+        by_value = _value_special_cases(key, value)
+        if by_value is not None:
+            variables[key] = by_value
+        elif key in special_cases:
             variables[key] = special_cases[key]
         elif isinstance(value, bool):
             variables[key] = ('check', None, value)
