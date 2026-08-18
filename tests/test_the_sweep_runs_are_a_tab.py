@@ -93,7 +93,7 @@ def test_the_runs_are_a_tab_beside_the_results(screen):
     """
     tabs = screen._results_tabs
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
-        "Runs", "Results", "Measurements"]
+        "Runs", "Results", "Measurements", "Cells"]
 
 
 def test_results_is_what_opens_first(screen):

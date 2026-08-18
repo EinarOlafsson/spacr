@@ -296,7 +296,10 @@ def test_inference_and_analysis_unit_grey_the_controls_they_do_not_use(qtbot):
         "guide_min_wells", "guide_primary_min_wells", "guide_permutations",
         "guide_permutation_seed", "guide_permutation_block",
         "guide_nuisance_columns", "guide_presence_threshold",
-        "guide_permutation_batch_size", "guide_permutation_plot",
+        # `guide_permutation_plot` left this list on 2026-08-18 with
+        # instruction 135: the permutation plot is always written now, so
+        # there is no control to grey out. The other eight still are.
+        "guide_permutation_batch_size",
     }
     builder.set_value_for_key("inference", "parametric")
     assert all(not builder._widgets[key].isEnabled() for key in guide_keys)
@@ -1193,7 +1196,13 @@ class TestTheVolcanoIsNotAToxoplasmaFeature:
         block = block[:block.index("print('Significant Genes')")]
         # Guarded on toxo being OFF, so the coloured version still wins when
         # the metadata is there.
-        assert "not settings.get('toxo')" in block
+        # The sentinel is `_toxoplasma_is_on(settings)` since the rename on
+        # 2026-08-17 (instruction 133, "change the toxo settings to
+        # Toxoplasma"). Reading the source for a literal is fragile by
+        # nature; what this test is really asserting is that the fallback
+        # volcano is guarded by the Toxoplasma switch and not drawn
+        # unconditionally, so it asks for the resolver by name.
+        assert "not _toxoplasma_is_on(settings)" in block
         assert "volcano_plot" in block
 
     def test_it_still_announces_where_the_file_went(self):
@@ -1283,7 +1292,12 @@ class TestASettingThatCannotDoAnythingIsGreyedOut:
     def test_parametric_inference_greys_the_permutation_controls(self, qtbot):
         panel = self._panel(qtbot)
         guides = [key for key in panel._widgets if key.startswith("guide_")]
-        assert len(guides) >= 9
+        # EIGHT since 2026-08-18. `guide_permutation_plot` was the ninth and
+        # is retired: the permutation plot is always written now, so there is
+        # no control to grey out. A floor rather than an equality, because
+        # the point of this test is that the permutation controls go dark
+        # TOGETHER -- a new one arriving must be covered, not counted.
+        assert len(guides) >= 8
 
         self._set(panel, "inference", "parametric")
         panel._refresh_setting_dependencies()
