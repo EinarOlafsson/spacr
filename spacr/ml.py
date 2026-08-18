@@ -6083,8 +6083,16 @@ def perform_regression(settings):
         gene_list = custom_volcano_plot(
             gene_merged_df, metadata_path, metadata_column='tagm_location',
             point_size=600, figsize=20, threshold=reg_threshold,
-            save_path=volcano_path, x_lim=settings['x_lim'],
-            y_lims=settings['y_lims'],
+            # `.get`, NOT `[...]`. Both keys are optional axis limits with a
+            # documented None meaning ("auto-scale", and [-0.5, 0.5] for
+            # x_lim), and `get_perform_regression_default_settings` does not
+            # put either of them in the dict -- so this raised
+            # `KeyError: 'x_lim'` from inside the Toxoplasma block, AFTER the
+            # fit, every results CSV and every QC panel had been written.
+            # A key that is absent and a key that is None mean the same thing
+            # to `custom_volcano_plot`, and neither is an error.
+            save_path=volcano_path, x_lim=settings.get('x_lim'),
+            y_lims=settings.get('y_lims'),
             draw=draw_legacy_volcano,
         )
 
