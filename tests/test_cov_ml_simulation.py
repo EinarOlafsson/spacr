@@ -58,7 +58,7 @@ def _settings(tmp_path, score_data, tolerance, min_cell_count=None,
               count_name="counts.csv"):
     return {
         "score_data": score_data,
-        "score_column": "pred",
+        "dependent_variable": "pred",
         "tolerance": tolerance,
         "min_cell_count": min_cell_count,
         "count_data": [str(tmp_path / count_name)],

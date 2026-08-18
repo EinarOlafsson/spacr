@@ -612,20 +612,44 @@ class TestTheTileLinksOut:
         assert uniprot, [r.label for r in tile.references]
         assert uniprot[0].url.startswith("https://www.uniprot.org/")
 
-    def test_the_uniprot_link_is_a_SEARCH_and_says_so(self):
+    def test_the_uniprot_link_is_a_SEARCH_when_nothing_maps(self):
         """A search makes no claim -- it asks UniProt the reader's question.
         A record link asserts "this is the protein", and asserting that from
         a gene id nothing mapped is how a figure legend ends up citing the
-        wrong accession."""
+        wrong accession.
+
+        DRIVEN AT THE FUNCTION, not through the tile, and the gene changed.
+        This used to build a tile for 244480, which was unmapped when the
+        test was written and is not any more: `uniprot.csv` was bundled on
+        2026-08-17 and 244480 resolves to S8F438. A gene the bundled table
+        also lacks builds no tile references at all -- the tile only links a
+        gene ToxoDB knows -- so the fallback is unreachable from there and
+        this asks the function that owns it.
+        """
+        from spacr.gene_tile import uniprot_reference
+
+        label, url, is_record = uniprot_reference("TGGT1_999999")
+
+        assert is_record is False
+        assert "search" in label.lower(), label
+        assert "query=" in url
+        assert "/uniprotkb/T" not in url, (
+            "a record URL was built from a gene id nothing mapped")
+
+    def test_a_bundled_accession_makes_the_link_a_RECORD(self):
+        """The other half, and the one the bundled tables turned on.
+
+        244480 resolves to S8F438 now, so the link stops being a question
+        and becomes an answer -- which is the whole reason for shipping the
+        accession table.
+        """
         from spacr.gene_tile import gene_tile
 
         tile = gene_tile("gene_fraction:gene[244480]", self._frame())
         uniprot = [r for r in tile.references if "UniProt" in r.label][0]
 
-        assert "search" in uniprot.label.lower(), uniprot.label
-        assert "query=" in uniprot.url
-        assert "/uniprotkb/" not in uniprot.url, (
-            "a record URL was built from a gene id nothing mapped")
+        assert "/uniprotkb/" in uniprot.url, uniprot.url
+        assert "query=" not in uniprot.url
 
     def test_an_accession_in_the_annotation_is_used_as_a_RECORD(self):
         """The branch to prefer. If an annotation file ever carries one, the
@@ -639,13 +663,32 @@ class TestTheTileLinksOut:
         assert "S8ENL5" in label and "S8ENL5" in url
         assert "query=" not in url
 
-    def test_a_blank_accession_in_the_annotation_falls_back_to_search(self):
-        """A column that exists and is empty is not an accession."""
+    def test_a_blank_accession_in_the_annotation_is_not_used_as_one(self):
+        """A column that exists and is empty is not an accession.
+
+        WHAT HAPPENS NEXT CHANGED ON 2026-08-17, and the change is an
+        improvement worth stating rather than hiding: a blank column used to
+        mean "fall back to a search", because there was nowhere else to look.
+        spaCR now BUNDLES `uniprot.csv`, so the blank is rejected and the
+        bundled table answers instead -- the reader gets a record link where
+        they used to get a question.
+
+        Both halves are asserted: the empty value is not taken as the
+        accession, and a gene the bundled table also lacks still falls back
+        to a search rather than inventing a record.
+        """
         from spacr.gene_tile import uniprot_reference
 
         for value in ("", "   ", None, "nan"):
-            _label, url, is_record = uniprot_reference(
+            label, url, is_record = uniprot_reference(
                 "TGGT1_244480", {"UniProt ID": value})
+            # The bundled table knows this one, so the blank costs nothing.
+            assert is_record is True, value
+            assert url.endswith("/S8F438/entry"), (value, url)
+
+        for value in ("", "   ", None, "nan"):
+            _label, url, is_record = uniprot_reference(
+                "TGGT1_999999", {"UniProt ID": value})
             assert is_record is False, value
             assert "query=" in url
 
