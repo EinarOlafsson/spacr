@@ -815,3 +815,45 @@ def test_a_permutation_p_is_told_it_is_quantised_before_bh_ever_runs(qtbot):
 
 def test_a_continuous_p_is_not_accused_of_being_quantised(volcano):
     assert "quantised" not in volcano.caption()
+
+
+def test_the_caption_says_why_the_line_touches_a_point(qtbot):
+    """The threshold is an observed p, so the line always sits on a dot.
+
+    REPORTED AS A SURPRISE: "if i do the show raw p on x axis then draw line
+    at adjusted p the line is drawn exactly where gra14 and eaf1 are, why?"
+
+    Because `critical_p_value` returns `max(p over the called tests)` -- a
+    value some test actually holds -- so the line is guaranteed to pass
+    through the last test it called. That is not a coincidence and it is not
+    a rounding artefact, and a caption that does not say so leaves the reader
+    to wonder whether a point ON the line is in or out.
+    """
+    import numpy as np
+    import pandas as pd
+    from spacr.qt.widgets.fast_plots import VolcanoPlot
+
+    plot = VolcanoPlot()
+    qtbot.addWidget(plot)
+    n = 60
+    rng = np.random.default_rng(11)
+    frame = pd.DataFrame({
+        "coefficient": rng.normal(0, 1, n),
+        "p_value": np.concatenate([np.linspace(1e-8, 1e-4, 6),
+                                   rng.uniform(0.2, 0.9, n - 6)]),
+        "feature": [f"g{i}" for i in range(n)],
+    })
+    plot.set_results(frame)
+
+    caption = plot.caption()
+    assert "observed p" in caption, caption
+    assert "points on the line are called" in caption.lower(), caption
+
+    # And the claim the sentence makes is TRUE of the number drawn: the
+    # threshold equals one of the p values, exactly.
+    criticals = [v[0] for v in plot.families().values() if v[0] is not None]
+    assert criticals, "this fixture must call something"
+    for value in criticals:
+        assert value in set(frame["p_value"]), (
+            f"the threshold {value!r} is not one of the observed p values, so "
+            f"the caption's claim would be false")
