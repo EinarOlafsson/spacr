@@ -200,3 +200,75 @@ def test_a_key_is_named_in_exactly_one_section():
     counts = Counter(key for _name, keys in _APP_CATEGORY_SPECS["regression"]
                      for key in keys)
     assert [k for k, n in counts.items() if n > 1] == []
+
+
+# ---------------------------------------------------------------------------
+# Instruction 135: every estimator tooltip names its family
+# ---------------------------------------------------------------------------
+
+def _owned():
+    from spacr.regression_spec import REGRESSION_SETTINGS_USED
+
+    families = {}
+    for family, keys in REGRESSION_SETTINGS_USED.items():
+        for key in keys:
+            families.setdefault(key, []).append(family)
+    return families
+
+
+def test_every_estimator_setting_names_the_family_that_reads_it():
+    """"make sure the tooltips make apparent which regression type each
+    setting here is for"."""
+    from spacr.settings import tooltips
+
+    for key, owners in _owned().items():
+        text = tooltips[key]
+        assert "regression_type" in text, key
+        for family in owners:
+            assert f"'{family}'" in text, (key, family)
+
+
+def test_the_sentence_is_generated_from_the_same_table_as_the_greying():
+    """One table, so the tooltip and the enabled state cannot disagree.
+
+    A hand-written list drifts the first time a family is added; this reads
+    REGRESSION_SETTINGS_USED, which is what the dependency rule is built from
+    too.
+    """
+    from spacr.settings import get_setting_dependencies, tooltips
+
+    deps = get_setting_dependencies()
+    for key, owners in _owned().items():
+        assert deps[key]["sources"] == ("regression_type",), key
+        for family in owners:
+            assert deps[key]["predicate"]({"regression_type": family}, {}), \
+                (key, family)
+        assert not deps[key]["predicate"]({"regression_type": "ols"}, {}) \
+            or "ols" in owners
+
+
+def test_a_tooltip_that_already_named_its_family_is_not_told_twice():
+    """The project's existing "Read only by regression_type 'x'." convention
+    answers the same question in the same place; a second sentence saying it
+    again reads as a mistake."""
+    from spacr.settings import tooltips
+
+    for key in ("l1_ratio", "quantile", "huber_t", "hinge_threshold"):
+        assert "Read only by regression_type" in tooltips[key], key
+        assert "Read by regression_type" not in tooltips[key], key
+
+
+def test_the_generated_sentence_is_added_once():
+    """Running the generator again must not append it twice.
+
+    Called directly rather than by reloading the module: `spacr.settings`
+    registers categories as a side effect of import, and reloading it drops
+    a registration that another test then finds missing. A test that breaks
+    a different test is not a test of anything.
+    """
+    import spacr.settings as S
+
+    S._name_the_family_in_every_estimator_tooltip()
+    S._name_the_family_in_every_estimator_tooltip()
+    for key in _owned():
+        assert S.tooltips[key].count("Read by regression_type") <= 1, key
