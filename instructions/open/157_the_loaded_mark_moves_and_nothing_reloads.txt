@@ -1,0 +1,76 @@
+================================================================================
+THE LOADED MARK MOVES AND NOTHING RELOADS
+================================================================================
+
+Status:    filed 2026-08-18. A defect in the run-loading work of the same day.
+Requested: 2026-08-18 --
+
+  "i ran a mixed model and a ols model and eaven if the ols model is marked as
+   loaded i think i still see the mixed results and no summary (because the ols
+   is actually not loaded)"
+
+Related: 154 G introduced the loaded mark. 153 is the summary. 116 is per-run
+         state. Filed separately from 154 rather than appended because 154's
+         file is being edited concurrently; MERGE IT INTO 154 G when both land.
+
+--------------------------------------------------------------------------------
+THE CAUSE, AND IT IS ONE MISSING CONNECTION
+--------------------------------------------------------------------------------
+
+CONFIRMED 2026-08-18:
+
+    spacr/qt/widgets/sweep_runs.py:185   loaded_run_changed = Signal(dict)
+    spacr/qt/widgets/sweep_runs.py:421   self.loaded_run_changed.emit(record)
+    spacr/qt/widgets/sweep_runs.py:531   self.loaded_run_changed.emit(record)
+    spacr/qt/widgets/sweep_runs.py:768   self.loaded_run_changed.emit(record)
+
+    grep -rn "loaded_run_changed" spacr/qt/screens/  ->  NOTHING
+
+`app_screen` connects `trial_activated` -> `_show_trial` and nothing else. So
+the signal that says WHICH RUN IS LOADED is emitted three times and received
+nowhere. The mark in the Runs table moves; the results, the figures and the
+summary do not.
+
+WHICH IS EXACTLY THE REPORTED SEQUENCE. Run `mixed`; run `ols`. The ols run
+finishes, becomes the loaded run, emits, and the screen keeps showing `mixed`.
+The summary is empty because the panel still holds the run the user is no
+longer looking at -- so "no summary" is a SECOND symptom of the same cause and
+not a separate bug.
+
+THIS WAS KNOWN AND MISJUDGED, which is worth recording rather than hiding. The
+agent that built 154 G reported it in its own remaining list -- "app_screen does
+not connect loaded_run_changed to anything. It does not need to for the
+behaviour above" -- and that judgement is right for the path it drove (CLICKING
+a row activates a trial, which goes through `trial_activated`) and wrong for the
+path it did not: a run that becomes loaded BY FINISHING, which is 154 G's own
+headline requirement. Handoff section 0b, again: the model layer was correct and
+tested, and no test pressed the control that a user actually reaches.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  * CONNECT IT. `loaded_run_changed` drives the same reload `trial_activated`
+    does -- results table, figures, summary, diagnostics, the model box.
+  * ONE PATH, NOT TWO. Clicking a row and a run finishing must end in the SAME
+    function, or they will drift and only one will be tested. Whichever is the
+    real "show this run" routine, both call it.
+  * THE MARK IS SET BY THE LOAD, NOT BESIDE IT. Today the mark and the content
+    are two independent facts, which is how they disagreed. The mark should be
+    a consequence of the run having been shown -- so a failed load leaves the
+    mark where it was rather than pointing at something not on screen.
+  * SAY WHICH RUN IS ON SCREEN WHERE THE RESULTS ARE, not only in the Runs tab.
+    The user could only tell these had diverged by comparing two views; the
+    results panel should name its own run.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Run `mixed`, then run `ols`: the coefficients, the volcano, the diagnostics
+  and the summary are all the OLS run's, and the results panel says so.
+* Marking a different run loaded in the Runs tab changes all of them together.
+* A load that fails leaves the previous run on screen AND the mark on it -- the
+  two never disagree.
+* The test drives the FINISHING path, not only the clicking path. That is the
+  one that was missing.
