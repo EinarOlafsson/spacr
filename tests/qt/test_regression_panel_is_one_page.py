@@ -227,10 +227,34 @@ def test_the_permutation_box_is_shorter_than_the_model_box():
     assert "\n\n" not in body.strip()
 
 
-def test_neither_box_needs_a_horizontal_scrollbar():
-    """The widget does not soft-wrap, so the text arrives pre-wrapped."""
-    for line in permutation_test_explainer().splitlines():
+def test_no_line_that_cannot_wrap_is_wider_than_the_box_will_ever_be():
+    """The FORMULAS must not break; the prose is the widget's to wrap.
+
+    THIS TEST USED TO ASSERT THE OPPOSITE and had been failing since
+    instruction 138 landed. It said "the widget does not soft-wrap, so the
+    text arrives pre-wrapped" and checked EVERY line of the permutation box
+    against `explainer_width()`. Both halves of that premise are gone:
+    `_install_section_explainer` sets `QPlainTextEdit.WidgetWidth`, and
+    `_wrap_block` now emits one logical line per paragraph precisely so the
+    box can wrap it at whatever width the pane has -- hard-wrapping at 54
+    columns was what left the right-hand side of a widened box empty.
+
+    What survives is the invariant that has to survive: a line the widget
+    MUST NOT break -- a model formula, which is on screen so it can be copied
+    into a methods section -- is never wider than `explainer_width()`, which
+    is measured from those same formulas. The permutation box contains no
+    formula, so nothing in it is unbreakable.
+    """
+    from spacr.qt.screens.settings_model import _every_explainer_line
+
+    unbreakable = [line for line in _every_explainer_line()
+                   if line.strip().startswith(("y ~", "rho =", "minimise"))]
+    assert unbreakable, "no formula lines found; the floor measures nothing"
+    for line in unbreakable:
         assert len(line) <= explainer_width(), repr(line)
+    for line in permutation_test_explainer().splitlines():
+        assert not line.strip().startswith(("y ~", "rho =", "minimise")), (
+            "the permutation box grew a formula; it needs the width floor now")
 
 
 def test_each_section_gets_the_box_that_belongs_to_it():

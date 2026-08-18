@@ -394,7 +394,16 @@ def test_an_incompatible_regression_type_greys_the_entry_out_with_its_reason():
 
 
 def test_a_missing_package_greys_the_entry_out_with_the_pip_command():
-    """A backend whose package is not installed says what would provide it."""
+    """A backend whose package is not installed says what would provide it.
+
+    NO ESCAPE HATCH FOR THE UNWIRED ONES ANY MORE. This used to accept
+    ``"pip install" in reason OR not implemented``, and every optional
+    backend takes the second branch on every machine -- they are extras, so
+    nobody has them -- which meant the pip command instruction 141 C asks for
+    was shown by nothing, ever. Both facts belong on the same entry:
+    installing the package would not make it choosable, and neither would
+    wiring it up alone.
+    """
     from spacr.regression_backends import package_installed
 
     absent = [name for name in REGRESSION_BACKEND_ORDER
@@ -406,7 +415,64 @@ def test_a_missing_package_greys_the_entry_out_with_the_pip_command():
         spec = REGRESSION_BACKENDS[name]
         status = backend_status(name, spec["types"][0])
         assert not status["enabled"]
-        assert "pip install" in status["reason"] or not spec["implemented"]
+        assert spec["pip"] in status["reason"], name
+        assert "not installed" in status["reason"], name
+
+
+def test_every_refusal_also_comes_at_combo_entry_length():
+    """`short_reason` is the same refusal, short enough to go IN the entry.
+
+    A greyed-out dropdown row says only "not this one", and Qt shows an item
+    tooltip lazily and only while the popup is open -- so the full sentence
+    was reachable and missable. The short form is what the Qt panel appends
+    to the entry's own text and prints in the box under it.
+    """
+    for regression_type in ("mixed", "lasso", "ols", None):
+        for status in backend_menu(regression_type):
+            if status["enabled"]:
+                assert status["short_reason"] == ""
+                continue
+            short = status["short_reason"]
+            assert short, (status["name"], regression_type)
+            # 80 is the longest that is still an entry rather than a
+            # paragraph: glum's "no mixed model; fits glm, poisson, logit,
+            # probit, quasi_binomial" is 64, and the label in front of it
+            # takes the rendered row to 80.
+            assert len(short) <= 80, (status["name"], regression_type, short)
+            assert not short.endswith("."), (
+                "a fragment appended to a label, not a sentence")
+
+
+def test_the_compact_box_keeps_every_backend_and_every_link():
+    """Instruction 135: the settings are ONE PAGE a user can read.
+
+    The full description is 3,101 characters -- about ninety wrapped lines in
+    a settings field. Compact drops the measured cost and the trailing
+    sentences of the seven backends the user did NOT pick, and keeps what the
+    ask names: every package, what it does, and its API link.
+    """
+    full = describe_backends("mixed", html=False)
+    compact = describe_backends("mixed", html=False,
+                                selected="statsmodels (CPU)", compact=True)
+    assert len(compact) < len(full) / 2
+    for name, spec in REGRESSION_BACKENDS.items():
+        assert spec["label"] in compact, name
+        assert spec["url"] in compact, name
+    # The selected one keeps its measured cost; the others lose theirs.
+    assert REGRESSION_BACKENDS["statsmodels"]["cost"] in compact
+    assert REGRESSION_BACKENDS["gpytorch"]["cost"] not in compact
+    html = describe_backends("mixed", html=True,
+                             selected="torch (GPU)", compact=True)
+    assert html.count("<a href=") == len(REGRESSION_BACKENDS)
+    assert REGRESSION_BACKENDS["torch"]["cost"] in html
+
+
+def test_the_compact_box_states_the_refusal_for_the_entries_it_greys():
+    """An unavailable backend is described AND said to be unavailable."""
+    compact = describe_backends("lasso", html=False,
+                                selected="statsmodels (CPU)", compact=True)
+    assert "unavailable: no lasso model; fits mixed" in compact
+    assert "pip install 'spacr[rapids]'" in compact
 
 
 def test_a_gpu_backend_is_greyed_out_when_there_is_no_device(monkeypatch):
