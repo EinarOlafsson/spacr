@@ -197,6 +197,13 @@ KEYS_RETIRED = frozenset({
     # has neither an expected_types entry nor a default, so leaving its name
     # in a category made the panel offer a control that could not be built.
     "volcano",
+    # RENAMED, not removed, on 2026-08-17 with instruction 133: "change the
+    # toxo settings to Toxoplasma". `get_perform_regression_default_settings`
+    # migrates an old CSV's value onto the new key and pops this one, so the
+    # panel offers one control for one question. `ml._toxoplasma_is_on` still
+    # accepts either spelling, so a caller handing ml.py a raw dict with the
+    # old key keeps working.
+    "toxo",
 })
 
 
@@ -207,6 +214,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # `analysis_unit` spells out the per-well/per-cell switch that agg_type
     # used to make silently by being set to None.
     "inference", "analysis_unit", "paired_data",
+    # `toxo` renamed to `Toxoplasma` on 2026-08-17 (instruction 133). The old
+    # name is in KEYS_RETIRED below; this is the same control under the name
+    # the maintainer asked for.
+    "Toxoplasma",
     # Plate-blocked marginal guide analysis added to the regression workflow.
     "analysis_mode", "guide_min_wells", "guide_primary_min_wells",
     "guide_permutations", "guide_permutation_seed",

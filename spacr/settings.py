@@ -1966,7 +1966,20 @@ def get_perform_regression_default_settings(settings):
     # a key nothing reads. Same treatment `location_column`,
     # `positive_control` and `negative_control` already get above.
     settings.pop('volcano', None)
-    settings.setdefault('toxo', True)
+    # `toxo` BECAME `Toxoplasma` on 2026-08-17 (instruction 133): "change
+    # the toxo settings to Toxoplasma". An old settings CSV carries the old
+    # spelling, and dropping it would turn the annotation off without saying
+    # so -- so the value MIGRATES rather than being ignored, and both keys
+    # stay in the dict so a caller reading either gets the same answer.
+    if 'toxo' in settings and 'Toxoplasma' not in settings:
+        settings['Toxoplasma'] = settings['toxo']
+    settings.setdefault('Toxoplasma', True)
+    # POPPED, not kept alongside. Keeping both would put two controls for one
+    # question on the panel and give `toxo` a category it is no longer
+    # entitled to. Every reader goes through `ml._toxoplasma_is_on`, which
+    # accepts either spelling, so a caller that hands ml.py a raw dict with
+    # the old key still works.
+    settings.pop('toxo', None)
     # perform_regression prints a per-stage row count and display()s the whole
     # per-object score table under verbose, which is millions of rows on a real
     # screen, so this pipeline is one of the False ones.
@@ -2584,7 +2597,7 @@ expected_types = {
     "paired_data":list,
     "min_n":int,
     "controls":list,
-    "toxo":bool,
+    "Toxoplasma":bool,
     "metadata_files":list,
     "filter_value":list,
     "split_axis_lims":str,
@@ -3595,7 +3608,7 @@ tooltips = {
     'target_unique_count': "(int) - Desired mean number of distinct gRNAs per well. spaCR sweeps 1000 read-fraction thresholds, picks the one whose per-well mean unique gRNA count lands closest to this number, then discards every gRNA call below that fraction. Lower it for a stricter, cleaner well assignment; raise it to keep more gRNAs per well. Default 5.",
     'threshold_method': "(str) - How the spread of the control-gRNA regression coefficients is measured when the hit-calling threshold is built: 'std' or 'standard_deveation' uses the standard deviation, 'var' or 'variance' uses the variance (much wider once the spread exceeds 1). Any other value raises an error. Only used when 'controls' is set. Default 'std'.",
     'threshold_multiplier': "(float) - How many units of control-coefficient spread are added to the mean control coefficient to form the regression hit threshold: reg_threshold = mean(control coefficients) + multiplier * spread, where spread comes from threshold_method. Larger values place the threshold further out in the control distribution. Only used when 'controls' is set. Default 3.",
-    'toxo': "(bool) - Merge the regression hits with the bundled Toxoplasma metadata (LOPIT/TAGM localisations in resources/data/lopit.csv) and, from that, draw the volcano plot plus GT1 phenotype and ME49 transcription heatmaps read from metadata_files. Turn it off for non-Toxoplasma screens - doing so also disables the volcano plot entirely. Default True.",
+    'Toxoplasma': "(bool) - Join the bundled Toxoplasma annotation onto every exported table and colour the volcano by it: gene name and product, signal peptide and transmembrane domain from the project's DeepTMHMM run, hyperLOPIT/TAGM compartment, the published CRISPR fitness scores, and tachyzoite / tissue-cyst / EES1-5 expression. Joined on the gene NUMBER, so TGGT1 and TGME49 ids meet. Writes supplementary_topology.csv beside the results. Turn it off for non-Toxoplasma screens. Was called 'toxo' before 2026-08-17; an old settings CSV still loads. Default True.",
     'use_checkpoint': "(bool) - Run the backbone's forward pass through torch.utils.checkpoint: intermediate activations are discarded and recomputed during the backward pass, trading extra compute for a large drop in activation memory. Enable when a bigger batch_size or image_size gives CUDA out-of-memory; disable for the fastest epochs when VRAM is not the constraint. Default True.",
     'x_lim': "(list) - Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when toxo mode is on. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None."
 }
@@ -3922,7 +3935,7 @@ categories = {
         # chose which table it drew has nothing left to choose. Leaving the
         # name in a category made the panel offer a control with no
         # expected_types entry and no default.
-        "threshold_multiplier", "toxo",
+        "threshold_multiplier", "Toxoplasma",
     ],
     # Everything that decides which rows reach the model. These were spread
     # across the old list with the fitting knobs between them, so it was not
