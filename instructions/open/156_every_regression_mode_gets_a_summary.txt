@@ -148,7 +148,7 @@ site uses; `build_run_summary(...)` returns the structure and
 `format_run_summary(...)` renders it.
 
 B. THE CONTRACT IS A MODULE CONSTANT, NOT A CONVENTION. `CONTRACT` names all
-   52 fields of the six sections, `LABELS` names each one, and `SummaryField`
+   53 fields of the six sections, `LABELS` names each one, and `SummaryField`
    REFUSES to be built with both a value and a reason, with neither, or with a
    blank either side. So "a blank is not allowed and neither is a zero" is
    enforced by the type rather than by review. Three kinds, because two were
