@@ -316,7 +316,14 @@ def test_every_column_a_run_records_is_a_column_the_ordering_knows(qtbot):
 
 def test_which_run_a_row_is_comes_first(qtbot, trials):
     """Over a mixed table the first question is which run this is, and a
-    trial number names nothing when half the rows are not trials."""
+    trial number names nothing when half the rows are not trials.
+
+    `loaded` sits ahead of both from 2026-08-18 (instruction 154 G). It is a
+    MARK, not a description -- one row carries it and the rest are blank --
+    and a mark belongs at the edge the eye scans down. The property this test
+    was written for is unchanged: `run` and `source` still lead everything
+    that describes a run, and `trial_id` still does not.
+    """
     from spacr.qt.widgets.sweep_runs import SweepRunsPanel
 
     panel = SweepRunsPanel()
@@ -324,7 +331,7 @@ def test_which_run_a_row_is_comes_first(qtbot, trials):
     panel.record_run("run  10:00:00", "run", _settings())
     panel.set_frame(trials)
 
-    assert list(panel._frame.columns)[:2] == ["run", "source"]
+    assert list(panel._frame.columns)[:3] == ["loaded", "run", "source"]
     assert list(panel._frame["run"]) == ["run  10:00:00", "trial 1", "trial 2"]
 
 
