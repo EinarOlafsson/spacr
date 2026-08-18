@@ -100,7 +100,16 @@ def controls(qtbot):
 
 
 def _entries(plot):
-    return [action.text() for action in plot.build_style_menu().actions()]
+    """What a user can DO on this plot's menu, submenus walked into.
+
+    Reachability, not depth. `QMenu.actions()` returns a submenu's own action
+    and not what is inside it, so an assertion written against a flat menu
+    reads every grouped entry as a removed feature -- which is what reverted
+    the first attempt at instruction 147 C.
+    """
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    return [action.text() for action in menu_entries(plot.build_style_menu())]
 
 
 def _joined(plot):
@@ -108,7 +117,9 @@ def _joined(plot):
 
 
 def _action(plot, fragment):
-    for action in plot.build_style_menu().actions():
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    for action in menu_entries(plot.build_style_menu()):
         if fragment in action.text():
             return action
     raise AssertionError(f"no entry containing {fragment!r}: {_entries(plot)}")
@@ -774,9 +785,11 @@ def test_a_histogram_greys_the_point_controls_rather_than_hiding_them(
     of a control that looks live and does nothing -- and hiding it instead
     would leave a user hunting a menu for an entry they have seen elsewhere,
     with nothing saying where it went."""
-    menu = histogram.build_style_menu()
-    greyed = {action.text() for action in menu.actions()
-              if not action.isEnabled() and not action.isSeparator()}
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    greyed = {action.text()
+              for action in menu_entries(histogram.build_style_menu())
+              if not action.isEnabled()}
 
     assert any("Point size" in text for text in greyed), greyed
     assert any("Shape by a column" in text for text in greyed), greyed

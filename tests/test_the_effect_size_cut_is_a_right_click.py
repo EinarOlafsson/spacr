@@ -177,7 +177,10 @@ def test_the_menu_offers_every_method_and_the_multiplier(qtbot):
     qtbot.addWidget(panel)
     panel.set_frame(frame)
 
-    text = " ".join(a.text() for a in panel.volcano.build_style_menu().actions())
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    text = " ".join(a.text() for a
+                    in menu_entries(panel.volcano.build_style_menu()))
     assert "Multiplier" in text
     for method in METHODS:
         assert method in text, method

@@ -136,3 +136,49 @@ HOW TO KNOW IT WORKED
 * The data-unit lock still exists, still works, and is named for what it does.
 * The right-click menu has named submenus and the common entries are still
   one click away.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION C, STEP ONE: THE TEST MIGRATION, GREEN ON THE FLAT MENU
+--------------------------------------------------------------------------------
+
+The migration the reverted attempt improvised is landed on its own, BEFORE any
+restructure, and the whole suite is green against the menu exactly as it was.
+That is the trick this instruction asked for: these assertions are now true of
+the flat menu and of the grouped one alike, so the restructure is a second
+commit that changes only the menu.
+
+THREE HELPERS, in spacr/qt/widgets/fast_plots.py rather than in the test tree,
+because instruction 108's acceptance test needs the first two as well:
+
+  menu_entries(menu)        every action a user can TRIGGER, submenus walked
+                            into. Skips separators AND addSection labels --
+                            Qt implements a section as a separator that HAS
+                            text, so isSeparator() catches both and a text
+                            filter would count a heading as a feature.
+  menu_groups(menu)         the names dividing the menu: section headings and
+                            submenu titles alike. A heading and a submenu
+                            title are the same idea to a reader and two
+                            objects to Qt, which is why moving one to the
+                            other read as a deleted feature last time.
+  menu_reading_order(menu)  the entries with "|" at every boundary, so
+                            "these two are kept apart" survives being
+                            reorganised into submenus.
+
+MIGRATED, nine files, by hand and not by regex (the regex is what put a `from`
+import inside a multi-line import statement and left the suite red):
+  test_the_restyle_menu_is_complete.py       _entries, _action, the greyed set
+  test_genes_or_guides_is_a_right_click.py   _menu, the separation assertion
+  test_the_effect_size_cut_is_a_right_click.py
+  test_the_mark_is_a_right_click_away.py     + "Draw as" is now a GROUP name
+  test_the_volcano_says_its_baseline.py      _items, the ticked set, _submenu
+                                             (which now searches to any depth,
+                                             because a group can be grouped)
+  test_the_plot_can_refit.py
+  test_the_gene_guide_filter_reaches_every_tab.py
+  test_regression_screen_layout.py
+  test_every_saved_figure_reaches_the_grid.py
+
+233 tests green across the eight of them that pass at HEAD. The five failures
+in test_the_gene_guide_filter_reaches_every_tab.py are PRE-EXISTING at HEAD and
+belong to section A of this instruction: the panel's level now defaults to
+'grna' and those tests still expect the whole fit.
