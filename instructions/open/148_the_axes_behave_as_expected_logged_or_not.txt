@@ -116,3 +116,62 @@ HOW TO KNOW IT WORKED
 * Typed limits are in data units, and survive a recolour and a level change.
 * Grid and log are checkable entries on the right-click menu; the strip under
   the graph no longer carries them.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A SHIPPED. THE TRANSFORM IS OURS NOW.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+`FastPlot` no longer calls `PlotItem.setLogMode` at all. It transforms the
+DATA and labels the axis itself:
+
+  * `_install_axis_hooks` wraps `PlotItem.addItem` and `PlotItem.setLabel`, so
+    every scatter, line, curve, bar and selection ring is caught on its way
+    onto the plot with the DATA coordinates it was handed. Eighteen call sites
+    draw on these plots; a transform written at each one is a transform that
+    gets missed on the mark nobody tested.
+  * `set_log_axes(x=, y=)` / `log_axes()` / `log_reason(axis)` are the API.
+    `set_log_axes` RETURNS the state afterwards, because a request can be
+    refused and a caller that assumed otherwise repeats the original mistake.
+  * The drawn coordinates are always derived from the stored data, never from
+    the previous drawn ones, so log-on-then-off is the identity.
+  * The axis label gains " (log scale)" and loses it again.
+  * Hover reports the real value: a custom `tip` inverts the transform.
+  * `BinnedPlot._on_scene_clicked` converts back to data units before asking
+    `bin_at`, which it did not before -- a click on a logged histogram landed
+    in the wrong bar.
+
+THE TRAP THAT COST AN HOUR, WRITTEN DOWN SO IT COSTS NOBODY ELSE ANY:
+`PlotWidget.__init__` does `setattr(self, m, getattr(self.plotItem, m))` for a
+list of methods that INCLUDES `addItem`. It is a bound-method SNAPSHOT taken
+at construction, not a `__getattr__` forward. Wrapping only the PlotItem
+therefore catches `self.plot.plot(...)` and misses every
+`self.plot.addItem(...)` -- which is every scatter and every bar in this
+module. Measured that way once: the Q-Q reported "1 of 2 values" on an axis
+carrying a hundred points. Both copies are wrapped now.
+
+THE REFUSALS, all with the reason on the control (instruction 106):
+  * points at or below zero  -> "log x: 4 of 12 points are at or below zero
+    and have no logarithm", the sentence this instruction asked for.
+  * a line or bar reaching zero -> named as such, with the value.
+  * bars measured from a zero baseline -> "the bars are measured from zero,
+    which has no logarithm", which is more use than "50 of 100 values".
+  * an axis carrying hand-placed category ticks (the control panel's x, the
+    effect ranking's y) -> "this axis names its groups rather than measuring
+    a quantity".
+  * A REDRAW THAT ADMITS A NON-POSITIVE TAKES A LIVE LOG SCALE OFF and says
+    so in the status line, rather than drawing log10 of it as NaN and losing
+    the points silently.
+
+Consequence worth knowing: neither shipped histogram can take log x. The
+p-value one bins over (0, 1) so its first edge is 0; the effect one draws a
+reference line at x=0. Both are correct refusals, not omissions.
+
+TESTS: tests/test_the_axes_behave_as_expected.py, 18 of them. Thirteen fail on
+the previous code, and the acceptance one fails with the bug's own signature --
+"the dots did not move: [0.0, 0.0] px".
+
+WHAT REMAINS: section B (the axis limits) and section C (grid and log onto the
+right-click menu). Section C waits on instruction 147 C, which owns the menu
+categories the two entries go under.
