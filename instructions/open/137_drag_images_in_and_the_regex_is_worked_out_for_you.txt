@@ -1,0 +1,128 @@
+================================================================================
+DRAG IMAGES IN, AND THE REGEX IS WORKED OUT FOR YOU
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "for the import data modulation the user should be able to drag and drop
+   images into a table and the program based on those chooses desires the
+   regex to use for detecting what all files are. The table should have
+   control columns specified by the user (or e.g. channel 1 channel 2 channel
+   3 and channel 4 and cell and nuclei, they choose from predetermined set of
+   channels. Then a regex is proposed and, which is modifiable, and the user
+   can hit test to show how file names would be changed and how files would be
+   organized into a spacr structure."
+
+Related: 106 is the rule a control that cannot act has to follow.
+
+--------------------------------------------------------------------------------
+WHAT EXISTS TODAY, AND WHY IT IS NOT THIS
+--------------------------------------------------------------------------------
+
+`spacr.utils._get_regex(metadata_type, img_format, custom_regex)` is a
+four-branch lookup: 'cellvoyager', 'cq1', 'auto' and 'custom'. Three are FIXED
+PATTERNS -- 'auto' is not automatic, it is a fourth hard-coded regex -- and
+'custom' means the user types a regex with named groups by hand:
+
+    (?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)
+    L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif
+
+So a microscope spaCR has not met is a Python regex the user has to write,
+with the right group NAMES, before anything can be imported at all. That is
+the wall this removes.
+
+`_run_test_mode` already exists and already does half of what "hit test"
+asks: it matches a sample, groups by (plate, well, field) and writes a `test`
+folder. It is reachable only from a settings flag, it needs the regex to be
+correct ALREADY, and it copies real files to prove it. The new Test is the
+same idea moved before the commitment: it shows the answer instead of writing
+it.
+
+--------------------------------------------------------------------------------
+A. DRAG FILES IN, GET A TABLE
+--------------------------------------------------------------------------------
+
+Drop images (or a folder) onto the import screen and they land in a table --
+one row per file, the filename shown whole. This is the input to everything
+below; nothing is copied, moved or renamed at this stage.
+
+--------------------------------------------------------------------------------
+B. THE PROGRAM PROPOSES THE REGEX
+--------------------------------------------------------------------------------
+
+"the program based on those chooses desires the regex to use for detecting
+what all files are."
+
+INFER IT FROM THE NAMES THEMSELVES. Tokenise each filename, align the set, and
+the fields that VARY are the candidate groups while the parts that never vary
+are literals. A field taking few distinct values across many files is a
+channel; one taking many is a field or a slice; one that matches a well
+pattern (a letter and one or two digits, or r##c##) is the well.
+
+Rank the proposals and show the best. NEVER SILENTLY PICK ONE: the whole
+failure being fixed is a regex that looked right and grouped the files wrong.
+
+State the evidence next to it -- how many of the dropped files it matches, how
+many distinct values each group takes, and which files it does NOT match. An
+unmatched file is the most useful thing on that screen.
+
+--------------------------------------------------------------------------------
+C. THE COLUMNS ARE THE USER'S, FROM A CLOSED SET
+--------------------------------------------------------------------------------
+
+"The table should have control columns specified by the user (or e.g. channel
+1 channel 2 channel 3 and channel 4 and cell and nuclei, they choose from
+predetermined set of channels."
+
+Each inferred group gets a column, and the user says what it MEANS from a
+dropdown -- not by typing. The closed set is what the rest of spaCR already
+knows how to read: plateID, wellID, fieldID, timeID, sliceID, channel 1-4,
+and the object roles cell, nucleus, pathogen, cytoplasm.
+
+A CLOSED SET, because these names are not decoration: `_rename_and_organize_image_files`
+and `_move_to_chan_folder` read `plateID` / `wellID` / `fieldID` / `chanID`
+by name, and a typo in a hand-written group name is a silent import of
+nothing. The dropdown is what makes that impossible.
+
+Two columns claiming the same role is an error stated on the spot, not at run
+time.
+
+--------------------------------------------------------------------------------
+D. MODIFIABLE, AND TEST BEFORE IT COMMITS
+--------------------------------------------------------------------------------
+
+"Then a regex is proposed and, which is modifiable, and the user can hit test
+to show how file names would be changed and how files would be organized into
+a spacr structure."
+
+The proposed regex is editable text. Editing it re-runs the match against the
+dropped files LIVE -- the table is the preview.
+
+TEST SHOWS, IT DOES NOT WRITE. Two things, side by side:
+
+  * the new NAME for each file, beside its old one;
+  * the FOLDER TREE it would produce -- the spaCR structure, per plate, well,
+    field and channel -- with the counts at each level.
+
+Nothing is copied until the user accepts. `_run_test_mode` writes a `test`
+folder of real files today; this is the same question answered before any
+commitment, which is the point.
+
+A FILE THAT DOES NOT MATCH IS LISTED, not dropped in silence. "412 of 480
+files matched" with the other 68 named is an answer; 412 files appearing
+without comment is how half a plate goes missing.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Dropping a folder of Yokogawa images proposes a regex equivalent to the
+  bundled 'cellvoyager' one, without the user typing anything.
+* Dropping images from a microscope spaCR has never seen produces a working
+  regex from the names alone.
+* Every group is labelled from a dropdown; no user types a group name.
+* Test shows old name -> new name and the folder tree, and writes nothing.
+* Unmatched files are named and counted.
+* The accepted regex reaches `_get_regex`'s 'custom' branch, so the headless
+  path and `spacr-run` are unchanged.
