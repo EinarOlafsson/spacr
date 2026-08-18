@@ -80,8 +80,15 @@ def test_the_box_wraps_at_its_own_width(qtbot):
 
 
 def test_the_box_the_panel_builds_wraps_at_its_width(qtbot):
-    """Not a box built by this test -- the one the screen actually installs."""
-    from PySide6.QtWidgets import QPlainTextEdit
+    """Not a box built by this test -- the one the screen actually installs.
+
+    A QTextEdit SINCE 2026-08-18 (instruction 144): the box renders HTML now,
+    and a QPlainTextEdit cannot do colour or weight at all. Both classes
+    spell the mode `WidgetWidth` and both give it the value 1, but they are
+    DIFFERENT ENUM TYPES -- so comparing across them is False for two modes
+    that are the same mode, which is what this line used to do.
+    """
+    from PySide6.QtWidgets import QTextEdit
 
     from spacr.qt.screens.app_screen import AppScreen
 
@@ -89,7 +96,7 @@ def test_the_box_the_panel_builds_wraps_at_its_width(qtbot):
     qtbot.addWidget(screen)
     assert screen._section_explainers
     for title, box in screen._section_explainers.items():
-        assert box.lineWrapMode() == QPlainTextEdit.WidgetWidth, title
+        assert box.lineWrapMode() == QTextEdit.WidgetWidth, title
 
 
 def test_no_formula_can_ever_wrap():

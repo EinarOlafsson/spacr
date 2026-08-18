@@ -35,10 +35,25 @@ pytestmark = pytest.mark.qt
 #: number: 892 characters when this was written, from 2,438.
 OLS_BOTH_CEILING = 900
 
-#: What the WORST selection may cost -- `group_lasso`/`both`, 1,303
-#: characters, which is the two-formula layout plus the longest description
-#: of a backend in the panel. It was 2,910.
-WORST_CEILING = 1400
+#: What the WORST selection may cost.
+#:
+#: RAISED FROM 1,400 ON 2026-08-18 (instruction 140), and the reason is worth
+#: keeping because raising a ceiling is normally how one stops meaning
+#: anything. `mixed` gained a WHAT IT COSTS section -- the measured 54x/67x
+#: against ols, that the optimiser is single-threaded, and which model to
+#: reach for instead -- and it took the longest box from `group_lasso`/`both`
+#: at 1,303 to `mixed`/anything at 1,795.
+#:
+#: That is not the volume 143 cut. 143 removed a block describing a design no
+#: shipped version fits; this one describes the cost of the DEFAULT, which
+#: every user pays and which two people in a row could only discover by
+#: waiting. The ceiling still bites: at 1,900 the next paragraph has to
+#: justify itself the same way.
+WORST_CEILING = 1900
+
+#: And `mixed` specifically, so the section that cost the 400 characters
+#: cannot quietly grow past what it bought.
+MIXED_CEILING = 1850
 
 
 def _every_explainer():
@@ -72,6 +87,27 @@ def test_no_selection_anywhere_goes_back_to_being_a_wall():
     family, level, text = worst
     assert len(text) < WORST_CEILING, (
         f"{family}/{level} is the longest box at {len(text)} characters")
+
+
+def test_the_cost_section_is_what_made_mixed_the_longest_box():
+    """The one box that grew, and by how much, held as a number.
+
+    `mixed` is the DEFAULT (132), so this is the box everybody reads. The
+    section it gained is the measured cost of taking that default; the
+    ceiling is set just above it so a fourth paragraph has to argue for
+    itself rather than arriving.
+    """
+    from spacr.qt.screens.settings_model import regression_model_explainer
+
+    text = regression_model_explainer("mixed")
+    assert "WHAT IT COSTS" in text
+    assert len(text) < MIXED_CEILING, (
+        f"the mixed box is {len(text)} characters")
+    # And every other box is still under what 143 left them at.
+    for family, level, other in _every_explainer():
+        if family == "mixed":
+            continue
+        assert len(other) < 1400, f"{family}/{level} is {len(other)}"
 
 
 def test_what_a_reader_needs_every_time_is_still_there():

@@ -955,12 +955,43 @@ class AppScreen(QWidget):
             return
         self.refresh_ambient_background()
         self._retheme_backdrops()
+        # THE EXPLAINER BOXES PAINT WITH PALETTE TOKENS (instruction 144), so
+        # a theme switch has to re-render them -- rich text stores the colour
+        # it was given, and re-applying the stylesheet cannot reach inside a
+        # QTextDocument's character formats.
+        self._retheme_section_explainers()
         # The page colour is resolved at paint time from the live theme,
         # so a theme switch has to ask for a repaint — nothing else on
         # this screen invalidates it. The palette moves with it, or Qt
         # keeps erasing to the OLD theme's page between the two.
         self._sync_page_palette()
         self.update()
+
+    def _retheme_section_explainers(self) -> None:
+        """Re-render every prose box in the theme that is live now."""
+        from ..theme import active_palette
+        from .settings_model import section_explainer_html
+
+        boxes = getattr(self, "_section_explainers", {}) or {}
+        if not boxes:
+            return
+        try:
+            palette = active_palette()
+        except Exception:                                        # noqa: BLE001
+            return
+        for title, box in boxes.items():
+            if box is None:
+                continue
+            try:
+                if box is getattr(self, "_model_explainer", None):
+                    self._refresh_model_explainer()
+                else:
+                    box.setHtml(section_explainer_html(
+                        self.app_key, title, palette=palette))
+            except (RuntimeError, AttributeError):
+                # A box whose C++ side has gone, on a screen being torn down.
+                LOG.debug("could not re-theme the %s box", title,
+                          exc_info=True)
 
     def _retheme_backdrops(self) -> None:
         """Re-apply the current theme's fill + wallpaper to both backdrops.
@@ -1376,23 +1407,40 @@ class AppScreen(QWidget):
         screen is usually to put it in a methods section, and a formula you
         cannot copy is a formula you retype.
 
-        WRAPPED AT THE WIDGET'S WIDTH since 2026-08-18. It used to arrive
-        pre-wrapped to a fixed
-        column by `regression_model_explainer`, so the box needs no wrapping
-        of its own -- and soft-wrapping on top of a hard wrap is what made it
-        unreadable at the pane's default width: every prose line broke a
-        second time, at a different column, with no hanging indent. A line
-        wider than the pane is reached by scrolling, which leaves the
-        formulas intact and copyable.
+        RICH TEXT SINCE 2026-08-18, WHICH MEANS A DIFFERENT WIDGET
+        (instruction 144): "actually my main problem was it dosnt look
+        great... i want you to use markdown and colors". A `QPlainTextEdit`
+        cannot render colour or weight at all, so a formula read exactly like
+        a caveat and 892 characters of one-colour monospace had nothing to
+        rest the eye on. It is a `QTextEdit` fed HTML.
+
+        THE THREE THINGS THAT SURVIVED THE CHANGE, because each was fixed at
+        some cost and a rewrite is where they get lost:
+
+        * READ-ONLY AND SELECTABLE, as above.
+        * MONOSPACE THROUGH QSS ON THE objectName, never `setFont` -- see
+          below.
+        * THE PROSE WRAPS AND THE FORMULA DOES NOT. This got EASIER rather
+          than harder: wrapping is per BLOCK in rich text and was per WIDGET
+          in plain text, so the prose is in ordinary paragraphs and the
+          formulas are in `<pre>`, and the two settings stopped fighting.
+          `explainer_width()`'s job shrinks to sizing the `<pre>`.
         """
         from PySide6.QtGui import QFontDatabase, QFontMetrics
-        from PySide6.QtWidgets import QPlainTextEdit
+        from PySide6.QtWidgets import QTextBrowser, QTextEdit
 
         from .settings_model import explainer_width
 
-        box = QPlainTextEdit()
+        # A QTextBrowser RATHER THAN A BARE QTextEdit, and the difference is
+        # the one thing instruction 144 D needs: `setOpenExternalLinks` is
+        # QTextBrowser's. A QTextEdit renders the same HTML and its links do
+        # nothing when clicked, which is worse than a module name -- a module
+        # name can at least be searched. Everything else is inherited, so
+        # read-only, selectable and the wrap mode are unchanged.
+        box = QTextBrowser()
         box.setObjectName("ModelExplainer")
         box.setReadOnly(True)
+        box.setOpenExternalLinks(True)
         # WRAP AT THE BOX'S OWN WIDTH. Asked for on 2026-08-18, once per box:
         # "the text in the text box should span the width of the textbox".
         #
@@ -1406,7 +1454,7 @@ class AppScreen(QWidget):
         # below is `explainer_width()` -- the longest unbreakable line in any
         # explainer, measured from them rather than declared. The widget is
         # never narrow enough to wrap one.
-        box.setLineWrapMode(QPlainTextEdit.WidgetWidth)
+        box.setLineWrapMode(QTextEdit.WidgetWidth)
 
         # MONOSPACE HAS TO COME THROUGH QSS, NOT setFont().
         #
@@ -1435,7 +1483,7 @@ class AppScreen(QWidget):
         fixed = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         box.setFont(fixed)
         box.setStyleSheet(
-            "QPlainTextEdit#ModelExplainer {"
+            "QTextBrowser#ModelExplainer {"
             f' font-family: "{fixed.family()}", "DejaVu Sans Mono", "Menlo",'
             " \"Consolas\", monospace; }")
         # Read-only, but NOT unselectable: TextSelectableByMouse and
@@ -1460,9 +1508,11 @@ class AppScreen(QWidget):
             # A STATIC BOX NEEDS NO REFRESH. Only the model box depends on
             # the panel's current values; the permutation box says what the
             # test does, which does not change with a setting.
-            from .settings_model import section_explainer
+            from ..theme import active_palette
+            from .settings_model import section_explainer_html
 
-            box.setPlainText(section_explainer(self.app_key, title))
+            box.setHtml(section_explainer_html(self.app_key, title,
+                                               palette=active_palette()))
             return
 
         # Follow the two settings it describes. Bound methods, not lambdas:
@@ -1497,11 +1547,19 @@ class AppScreen(QWidget):
         self._refresh_model_explainer()
 
     def _refresh_model_explainer(self) -> None:
-        """Put the current selection's formula and description in the box."""
+        """Put the current selection's formula and description in the box.
+
+        HTML, AND THE COLOURS COME FROM THE LIVE PALETTE (instruction 144).
+        That is why `changeEvent` calls this: baked-in colours would keep the
+        old theme's ink after a runtime switch, which is the failure the old
+        comment here refused to risk by using no colour at all. Re-rendering
+        is the other way to be safe, and it is the one that can be seen.
+        """
         box = self._model_explainer
         if box is None:
             return
-        from .settings_model import regression_model_explainer
+        from ..theme import active_palette
+        from .settings_model import regression_model_explainer_html
 
         widgets = getattr(self._settings_model, "_widgets", {})
         read = self._settings_model._read_widget
@@ -1519,10 +1577,16 @@ class AppScreen(QWidget):
         # `+ rowID + columnID` however they were set, so a user who turned
         # plate position off still read it in the formula -- the display
         # asserting something the run does not do.
-        box.setPlainText(regression_model_explainer(
+        # SELECTION KEPT ACROSS THE RE-RENDER. `setHtml` replaces the whole
+        # document, so a user part-way through dragging out a formula to
+        # paste loses it; the scroll position goes with it. Both are put back.
+        scroll = box.verticalScrollBar().value()
+        box.setHtml(regression_model_explainer_html(
             value("regression_type", "auto"), value("level", "both"),
             plate_position=value("model_plate_position", True),
-            random_row_column=value("random_row_column_effects", False)))
+            random_row_column=value("random_row_column_effects", False),
+            palette=active_palette()))
+        box.verticalScrollBar().setValue(scroll)
 
     def refresh_maturity_visibility(self) -> None:
         """Show/hide Alpha and Beta settings without discarding typed values."""
