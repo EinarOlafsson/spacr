@@ -69,6 +69,29 @@ MAX_FIGURE_PX = 2 ** 16 - 1
 MAX_FIGURE_MEGAPIXELS = 200
 
 
+# The house type scale is anchored to a single-column DATA panel, about 5.6
+# inches wide. The image montages in this module are not that: `figuresize` is
+# a panel edge in inches and the figures come out 10 to 40 inches across, so
+# the absolute 7 pt label tier would be a title nobody can read at any size
+# the montage is looked at. The tiers keep their RATIOS and are scaled by the
+# canvas, which is what the skill states them as in the first place.
+_HOUSE_PANEL_INCHES = 5.6
+
+
+def _montage_type_size(figuresize, tier='label'):
+    """The house type tier for ``tier``, scaled to a montage-sized canvas.
+
+    :param figuresize: the panel edge in inches the caller asked for.
+    :param tier: a key of :data:`spacr.figures.style.TYPE_SCALE`.
+    :returns: a point size, never smaller than the tier itself.
+    """
+    try:
+        scale = max(1.0, float(figuresize) / _HOUSE_PANEL_INCHES)
+    except (TypeError, ValueError):
+        scale = 1.0
+    return TYPE_SCALE[tier] * scale
+
+
 def figure_output_preferences():
     """Return ``(format, dpi)`` from the user's preferences.
 
@@ -412,59 +435,28 @@ def plot_image_mask_overlay(
                 )
             return image
 
-        num_channels = image.shape[-1]
-        fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
-        # The grid is always num_channels + 1 wide, so a single channel still
-        # yields a 2-axes array -- the old `if num_channels == 1: ax = [ax]`
-        # wrapped that array in a list and made ax[0] the array, not an Axes.
-        ax = np.atleast_1d(ax).ravel()
+        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+        # and no axes to frame. What the house style gives a montage is the
+        # ground, the type scale and the theme's own ink -- applied as a
+        # context manager, so it does not follow the session out of here.
+        with figure_style(theme_target()):
+            num_channels = image.shape[-1]
+            fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+            # The grid is always num_channels + 1 wide, so a single channel still
+            # yields a 2-axes array -- the old `if num_channels == 1: ax = [ax]`
+            # wrapped that array in a list and made ax[0] the array, not an Axes.
+            ax = np.atleast_1d(ax).ravel()
 
-        channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
+            channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
 
-        for v in range(num_channels):
-            channel_image = image[..., v]
-            channel_image_normalized = _normalize_image(channel_image, percentiles)
-            channel_image_rgb = np.dstack([channel_image_normalized] * 3)
+            for v in range(num_channels):
+                channel_image = image[..., v]
+                channel_image_normalized = _normalize_image(channel_image, percentiles)
+                channel_image_rgb = np.dstack([channel_image_normalized] * 3)
 
-            current_channel = channels[v]
+                current_channel = channels[v]
 
-            if all_on_all:
-                for idx, (outline, color) in enumerate(zip(outlines, outline_colors)):
-                    if mode == 'outlines':
-                        channel_image_rgb = _apply_contours(
-                            channel_image_rgb, outline, color, thickness
-                        )
-                    else:
-                        cmap = random_color_cmap(
-                            int(outline.max() + 1),
-                            seed=1000 + idx
-                        )
-                        mask = _generate_colored_mask(outline, cmap)
-                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
-
-            elif current_channel in channels_with_outlines:
-                outline_info = channel_to_outline.get(current_channel, None)
-
-                if outline_info is not None:
-                    outline = outline_info['mask']
-                    color = outline_info['color']
-                    cmap_seed = outline_info.get('cmap_seed', current_channel + 1000)
-
-                    if outline is not None:
-                        if mode == 'outlines':
-                            channel_image_rgb = _apply_contours(
-                                channel_image_rgb, outline, color, thickness
-                            )
-                        else:
-                            cmap = random_color_cmap(
-                                int(outline.max() + 1),
-                                seed=cmap_seed
-                            )
-                            mask = _generate_colored_mask(outline, cmap)
-                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
-
-            else:
-                if all_outlines:
+                if all_on_all:
                     for idx, (outline, color) in enumerate(zip(outlines, outline_colors)):
                         if mode == 'outlines':
                             channel_image_rgb = _apply_contours(
@@ -478,53 +470,89 @@ def plot_image_mask_overlay(
                             mask = _generate_colored_mask(outline, cmap)
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
-            title = channel_to_label.get(current_channel, f'channel {current_channel}')
-            ax[v].imshow(channel_image_rgb)
-            ax[v].set_title(title)
-            ax[v].axis('off')
+                elif current_channel in channels_with_outlines:
+                    outline_info = channel_to_outline.get(current_channel, None)
 
-        if len(outlines) > 0:
-            # Priority order is the order in which outlines were added:
-            # cell < nucleus < pathogen < organelle
-            # Later objects overwrite earlier ones in overlapping pixels.
-            combined_mask = np.zeros_like(outlines[0], dtype=np.int64)
-            label_offset = 0
+                    if outline_info is not None:
+                        outline = outline_info['mask']
+                        color = outline_info['color']
+                        cmap_seed = outline_info.get('cmap_seed', current_channel + 1000)
 
-            for outline in outlines:
-                outline_int = outline.astype(np.int64)
-                object_pixels = outline_int > 0
+                        if outline is not None:
+                            if mode == 'outlines':
+                                channel_image_rgb = _apply_contours(
+                                    channel_image_rgb, outline, color, thickness
+                                )
+                            else:
+                                cmap = random_color_cmap(
+                                    int(outline.max() + 1),
+                                    seed=cmap_seed
+                                )
+                                mask = _generate_colored_mask(outline, cmap)
+                                channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
-                if np.any(object_pixels):
-                    combined_mask[object_pixels] = outline_int[object_pixels] + label_offset
-                    label_offset += int(outline_int.max())
+                else:
+                    if all_outlines:
+                        for idx, (outline, color) in enumerate(zip(outlines, outline_colors)):
+                            if mode == 'outlines':
+                                channel_image_rgb = _apply_contours(
+                                    channel_image_rgb, outline, color, thickness
+                                )
+                            else:
+                                cmap = random_color_cmap(
+                                    int(outline.max() + 1),
+                                    seed=1000 + idx
+                                )
+                                mask = _generate_colored_mask(outline, cmap)
+                                channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
-            cmap = random_color_cmap(int(combined_mask.max() + 1), seed=9999)
-            mask = _generate_colored_mask(combined_mask, cmap)
-            blank_image = np.zeros((*combined_mask.shape, 3))
-            filled_image = _overlay_mask(blank_image, mask)
+                title = channel_to_label.get(current_channel, f'channel {current_channel}')
+                ax[v].imshow(channel_image_rgb)
+                ax[v].set_title(title)
+                ax[v].axis('off')
 
-            ax[-1].imshow(filled_image)
-            ax[-1].set_title('combined objects')
-            ax[-1].axis('off')
-        else:
-            ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
-            ax[-1].set_title('no objects')
-            ax[-1].axis('off')
+            if len(outlines) > 0:
+                # Priority order is the order in which outlines were added:
+                # cell < nucleus < pathogen < organelle
+                # Later objects overwrite earlier ones in overlapping pixels.
+                combined_mask = np.zeros_like(outlines[0], dtype=np.int64)
+                label_offset = 0
 
-        plt.tight_layout()
+                for outline in outlines:
+                    outline_int = outline.astype(np.int64)
+                    object_pixels = outline_int > 0
 
-        if save_pdf:
-            pdf_dir = os.path.join(
-                os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
-            )
-            os.makedirs(pdf_dir, exist_ok=True)
-            pdf_path = os.path.join(
-                pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
-            )
-            pdf_path = save_figure(fig, pdf_path)
+                    if np.any(object_pixels):
+                        combined_mask[object_pixels] = outline_int[object_pixels] + label_offset
+                        label_offset += int(outline_int.max())
 
-        plt.show()
-        return fig
+                cmap = random_color_cmap(int(combined_mask.max() + 1), seed=9999)
+                mask = _generate_colored_mask(combined_mask, cmap)
+                blank_image = np.zeros((*combined_mask.shape, 3))
+                filled_image = _overlay_mask(blank_image, mask)
+
+                ax[-1].imshow(filled_image)
+                ax[-1].set_title('combined objects')
+                ax[-1].axis('off')
+            else:
+                ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
+                ax[-1].set_title('no objects')
+                ax[-1].axis('off')
+
+            plt.tight_layout()
+
+            if save_pdf:
+                pdf_dir = os.path.join(
+                    os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
+                )
+                os.makedirs(pdf_dir, exist_ok=True)
+                pdf_path = os.path.join(
+                    pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
+                )
+                pdf_path = save_figure(fig, pdf_path)
+
+            plt.show()
+            return fig
 
     def _save_channels_as_tiff(stack, save_dir, filename):
         """Save each channel in the stack as a grayscale TIFF."""
@@ -816,65 +844,32 @@ def plot_image_mask_overlay_magenta_outlines(
                 )
             return image
 
-        num_channels = image.shape[-1]
-        fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+        # and no axes to frame. What the house style gives a montage is the
+        # ground, the type scale and the theme's own ink -- applied as a
+        # context manager, so it does not follow the session out of here.
+        with figure_style(theme_target()):
+            num_channels = image.shape[-1]
+            fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
 
-        # Identify channels without associated outlines
-        channels_with_outlines = []
-        if cell_channel is not None:
-            channels_with_outlines.append(cell_channel)
-        if nucleus_channel is not None:
-            channels_with_outlines.append(nucleus_channel)
-        if pathogen_channel is not None:
-            channels_with_outlines.append(pathogen_channel)
+            # Identify channels without associated outlines
+            channels_with_outlines = []
+            if cell_channel is not None:
+                channels_with_outlines.append(cell_channel)
+            if nucleus_channel is not None:
+                channels_with_outlines.append(nucleus_channel)
+            if pathogen_channel is not None:
+                channels_with_outlines.append(pathogen_channel)
 
-        for v in range(num_channels):
-            channel_image = image[..., v]
-            channel_image_normalized = _normalize_image(channel_image, percentiles)
-            channel_image_rgb = np.dstack([channel_image_normalized] * 3)
+            for v in range(num_channels):
+                channel_image = image[..., v]
+                channel_image_normalized = _normalize_image(channel_image, percentiles)
+                channel_image_rgb = np.dstack([channel_image_normalized] * 3)
 
-            current_channel = channels[v]
+                current_channel = channels[v]
 
-            if all_on_all:
-                # Apply all outlines to all channels
-                for outline, color in zip(outlines, outline_colors):
-                    if mode == 'outlines':
-                        channel_image_rgb = _apply_contours(
-                            channel_image_rgb, outline, color, thickness
-                        )
-                    else:
-                        cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
-                        mask = _generate_colored_mask(outline, cmap)
-                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
-            elif current_channel in channels_with_outlines:
-                # Apply only the relevant outline to each channel
-                outline = None
-                color = None
-
-                if current_channel == cell_channel and cell_outlines is not None:
-                    outline = cell_outlines
-                elif current_channel == nucleus_channel and nucleus_outlines is not None:
-                    outline = nucleus_outlines
-                elif current_channel == pathogen_channel and pathogen_outlines is not None:
-                    outline = pathogen_outlines
-
-                if outline is not None:
-                    if mode == 'outlines':
-                        # Use magenta color when all_on_all=False
-                        channel_image_rgb = _apply_contours(
-                            channel_image_rgb, outline, '#FF00FF', thickness
-                        )
-                    else:
-                        cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
-                        mask = _generate_colored_mask(outline, cmap)
-                        channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
-            else:
-                # Channel without associated outlines
-                if all_outlines:
-                    # Apply all outlines with specified colors. The colours must
-                    # come from outline_colors (as the all_on_all branch above
-                    # does); a hard-coded list mislabels the objects and silently
-                    # truncates the zip when a fourth object type is present.
+                if all_on_all:
+                    # Apply all outlines to all channels
                     for outline, color in zip(outlines, outline_colors):
                         if mode == 'outlines':
                             channel_image_rgb = _apply_contours(
@@ -884,44 +879,82 @@ def plot_image_mask_overlay_magenta_outlines(
                             cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
                             mask = _generate_colored_mask(outline, cmap)
                             channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+                elif current_channel in channels_with_outlines:
+                    # Apply only the relevant outline to each channel
+                    outline = None
+                    color = None
 
-            ax[v].imshow(channel_image_rgb)
-            ax[v].set_title(f'Image - Channel {current_channel}')
+                    if current_channel == cell_channel and cell_outlines is not None:
+                        outline = cell_outlines
+                    elif current_channel == nucleus_channel and nucleus_outlines is not None:
+                        outline = nucleus_outlines
+                    elif current_channel == pathogen_channel and pathogen_outlines is not None:
+                        outline = pathogen_outlines
 
-        # Create an image combining all objects filled with colors.
-        # outlines is empty when no object channel was supplied, and outlines[0]
-        # then raises IndexError instead of drawing an empty panel.
-        if len(outlines) > 0:
-            combined_mask = np.zeros_like(outlines[0])
-            for outline in outlines:
-                combined_mask = np.maximum(combined_mask, outline)
+                    if outline is not None:
+                        if mode == 'outlines':
+                            # Use magenta color when all_on_all=False
+                            channel_image_rgb = _apply_contours(
+                                channel_image_rgb, outline, '#FF00FF', thickness
+                            )
+                        else:
+                            cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
+                            mask = _generate_colored_mask(outline, cmap)
+                            channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
+                else:
+                    # Channel without associated outlines
+                    if all_outlines:
+                        # Apply all outlines with specified colors. The colours must
+                        # come from outline_colors (as the all_on_all branch above
+                        # does); a hard-coded list mislabels the objects and silently
+                        # truncates the zip when a fourth object type is present.
+                        for outline, color in zip(outlines, outline_colors):
+                            if mode == 'outlines':
+                                channel_image_rgb = _apply_contours(
+                                    channel_image_rgb, outline, color, thickness
+                                )
+                            else:
+                                cmap = random_color_cmap(int(outline.max() + 1), random.randint(0, 100))
+                                mask = _generate_colored_mask(outline, cmap)
+                                channel_image_rgb = _overlay_mask(channel_image_rgb, mask)
 
-            cmap = random_color_cmap(int(combined_mask.max() + 1), random.randint(0, 100))
-            mask = _generate_colored_mask(combined_mask, cmap)
-            blank_image = np.zeros((*combined_mask.shape, 3))
-            filled_image = _overlay_mask(blank_image, mask)
+                ax[v].imshow(channel_image_rgb)
+                ax[v].set_title(f'Image - Channel {current_channel}')
 
-            ax[-1].imshow(filled_image)
-            ax[-1].set_title('Combined Objects Image')
-        else:
-            ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
-            ax[-1].set_title('no objects')
+            # Create an image combining all objects filled with colors.
+            # outlines is empty when no object channel was supplied, and outlines[0]
+            # then raises IndexError instead of drawing an empty panel.
+            if len(outlines) > 0:
+                combined_mask = np.zeros_like(outlines[0])
+                for outline in outlines:
+                    combined_mask = np.maximum(combined_mask, outline)
 
-        plt.tight_layout()
+                cmap = random_color_cmap(int(combined_mask.max() + 1), random.randint(0, 100))
+                mask = _generate_colored_mask(combined_mask, cmap)
+                blank_image = np.zeros((*combined_mask.shape, 3))
+                filled_image = _overlay_mask(blank_image, mask)
 
-        # Save the figure as a PDF
-        if save_pdf:
-            pdf_dir = os.path.join(
-                os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
-            )
-            os.makedirs(pdf_dir, exist_ok=True)
-            pdf_path = os.path.join(
-                pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
-            )
-            pdf_path = save_figure(fig, pdf_path)
+                ax[-1].imshow(filled_image)
+                ax[-1].set_title('Combined Objects Image')
+            else:
+                ax[-1].imshow(np.zeros((*image.shape[:2], 3)))
+                ax[-1].set_title('no objects')
 
-        plt.show()
-        return fig
+            plt.tight_layout()
+
+            # Save the figure as a PDF
+            if save_pdf:
+                pdf_dir = os.path.join(
+                    os.path.dirname(os.path.dirname(file)), 'results', 'overlay'
+                )
+                os.makedirs(pdf_dir, exist_ok=True)
+                pdf_path = os.path.join(
+                    pdf_dir, os.path.basename(file).replace('.npy', '.pdf')
+                )
+                pdf_path = save_figure(fig, pdf_path)
+
+            plt.show()
+            return fig
 
     def _save_channels_as_tiff(stack, save_dir, filename):
         """Save each channel in the stack as a grayscale TIFF."""
@@ -1099,23 +1132,28 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
         if index < nr:
             index += 1
             chans = image.shape[-1]
-            fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
-            for v in range(0, image.shape[-1]):
-                ax[v].imshow(image[..., v], cmap=cmap, interpolation='nearest')
-                ax[v].set_title('Image - Channel'+str(v))
-            ax[chans].imshow(mask, cmap=random_cmap, interpolation='nearest')
-            ax[chans].set_title('Mask')
-            if print_object_number:
-                # Drop the background label explicitly: [1:] assumes 0 sorts
-                # first, so a mask with no background pixel loses a real object.
-                unique_objects = np.unique(mask)
-                unique_objects = unique_objects[unique_objects != 0]
-                for obj in unique_objects:
-                    cy, cx = ndi.center_of_mass(mask == obj)
-                    ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
-            ax[chans+1].imshow(flow, cmap='viridis', interpolation='nearest')
-            ax[chans+1].set_title('Flow')
-            plt.show()
+            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+            # and no axes to frame. What the house style gives a montage is the
+            # ground, the type scale and the theme's own ink -- applied as a
+            # context manager, so it does not follow the session out of here.
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
+                for v in range(0, image.shape[-1]):
+                    ax[v].imshow(image[..., v], cmap=cmap, interpolation='nearest')
+                    ax[v].set_title('Image - Channel'+str(v))
+                ax[chans].imshow(mask, cmap=random_cmap, interpolation='nearest')
+                ax[chans].set_title('Mask')
+                if print_object_number:
+                    # Drop the background label explicitly: [1:] assumes 0 sorts
+                    # first, so a mask with no background pixel loses a real object.
+                    unique_objects = np.unique(mask)
+                    unique_objects = unique_objects[unique_objects != 0]
+                    for obj in unique_objects:
+                        cy, cx = ndi.center_of_mass(mask == obj)
+                        ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
+                ax[chans+1].imshow(flow, cmap='viridis', interpolation='nearest')
+                ax[chans+1].set_title('Flow')
+                plt.show()
     return
 
 def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize=10, nr=1, print_object_number=True):
@@ -1147,33 +1185,38 @@ def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize
         # Generate diagnostic image based on morphology/method
         diag_img, diag_title = _organelle_diagnostic(img, morphology, method, settings)
 
-        n_panels = 3
-        fig, ax = plt.subplots(1, n_panels, figsize=(n_panels * figuresize, figuresize))
+        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+        # and no axes to frame. What the house style gives a montage is the
+        # ground, the type scale and the theme's own ink -- applied as a
+        # context manager, so it does not follow the session out of here.
+        with figure_style(theme_target()):
+            n_panels = 3
+            fig, ax = plt.subplots(1, n_panels, figsize=(n_panels * figuresize, figuresize))
 
-        # Panel 1: Raw image
-        ax[0].imshow(img, cmap=cmap, interpolation='nearest')
-        ax[0].set_title(f'Organelle channel ({morphology}/{method})')
+            # Panel 1: Raw image
+            ax[0].imshow(img, cmap=cmap, interpolation='nearest')
+            ax[0].set_title(f'Organelle channel ({morphology}/{method})')
 
-        # Panel 2: Label mask
-        ax[1].imshow(mask, cmap=random_cmap, interpolation='nearest')
-        ax[1].set_title(f'Mask ({num_objects} objects)')
-        if print_object_number:
-            unique_objects = np.unique(mask)
-            unique_objects = unique_objects[unique_objects != 0]
-            for obj in unique_objects:
-                cy, cx = ndi.center_of_mass(mask == obj)
-                ax[1].text(cx, cy, str(obj), color='white', fontsize=font,
-                           ha='center', va='center')
+            # Panel 2: Label mask
+            ax[1].imshow(mask, cmap=random_cmap, interpolation='nearest')
+            ax[1].set_title(f'Mask ({num_objects} objects)')
+            if print_object_number:
+                unique_objects = np.unique(mask)
+                unique_objects = unique_objects[unique_objects != 0]
+                for obj in unique_objects:
+                    cy, cx = ndi.center_of_mass(mask == obj)
+                    ax[1].text(cx, cy, str(obj), color='white', fontsize=font,
+                               ha='center', va='center')
 
-        # Panel 3: Diagnostic
-        ax[2].imshow(diag_img, cmap='viridis', interpolation='nearest')
-        ax[2].set_title(diag_title)
+            # Panel 3: Diagnostic
+            ax[2].imshow(diag_img, cmap='viridis', interpolation='nearest')
+            ax[2].set_title(diag_title)
 
-        for a in ax:
-            a.axis('off')
+            for a in ax:
+                a.axis('off')
 
-        plt.tight_layout()
-        plt.show()
+            plt.tight_layout()
+            plt.show()
 
     return
 
@@ -1223,23 +1266,28 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
         if index < nr:
             index += 1
             chans = image.shape[-1]
-            fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
-            for v in range(0, image.shape[-1]):
-                ax[v].imshow(image[..., v], cmap=cmap) #_imshow
-                ax[v].set_title('Image - Channel'+str(v))
-            ax[chans].imshow(mask, cmap=random_cmap) #_imshow
-            ax[chans].set_title('Mask')
-            if print_object_number:
-                # Drop the background label explicitly: [1:] assumes 0 sorts
-                # first, so a mask with no background pixel loses a real object.
-                unique_objects = np.unique(mask)
-                unique_objects = unique_objects[unique_objects != 0]
-                for obj in unique_objects:
-                    cy, cx = ndi.center_of_mass(mask == obj)
-                    ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
-            ax[chans+1].imshow(flow, cmap='viridis') #_imshow
-            ax[chans+1].set_title('Flow')
-            plt.show()
+            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+            # and no axes to frame. What the house style gives a montage is the
+            # ground, the type scale and the theme's own ink -- applied as a
+            # context manager, so it does not follow the session out of here.
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
+                for v in range(0, image.shape[-1]):
+                    ax[v].imshow(image[..., v], cmap=cmap) #_imshow
+                    ax[v].set_title('Image - Channel'+str(v))
+                ax[chans].imshow(mask, cmap=random_cmap) #_imshow
+                ax[chans].set_title('Mask')
+                if print_object_number:
+                    # Drop the background label explicitly: [1:] assumes 0 sorts
+                    # first, so a mask with no background pixel loses a real object.
+                    unique_objects = np.unique(mask)
+                    unique_objects = unique_objects[unique_objects != 0]
+                    for obj in unique_objects:
+                        cy, cx = ndi.center_of_mass(mask == obj)
+                        ax[chans].text(cx, cy, str(obj), color='white', fontsize=font, ha='center', va='center')
+                ax[chans+1].imshow(flow, cmap='viridis') #_imshow
+                ax[chans+1].set_title('Flow')
+                plt.show()
     return
 
 def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
@@ -1265,20 +1313,29 @@ def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
         for i in range(min(nr, num_images)):
             img = stack[i]
 
-            # Create subplots
-            if num_channels == 1:
-                fig, axs = plt.subplots(1, 1, figsize=(figuresize, figuresize))
-                axs = [axs]  # Make axs a list to use axs[c] later
-            else:
-                fig, axs = plt.subplots(1, num_channels, figsize=(num_channels * figuresize, figuresize))
+            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+            # and no axes to frame. What the house style gives a montage is the
+            # ground, the type scale and the theme's own ink -- applied as a
+            # context manager, so it does not follow the session out of here.
+            with figure_style(theme_target()):
+                # Create subplots
+                if num_channels == 1:
+                    fig, axs = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+                    axs = [axs]  # Make axs a list to use axs[c] later
+                else:
+                    fig, axs = plt.subplots(1, num_channels, figsize=(num_channels * figuresize, figuresize))
 
-            for c in range(num_channels):
-                axs[c].imshow(img[:, :, c], cmap=cmap) #_imshow
-                axs[c].set_title(f'Channel {c}', size=24)
-                axs[c].axis('off')
+                for c in range(num_channels):
+                    axs[c].imshow(img[:, :, c], cmap=cmap) #_imshow
+                    # 24 pt regardless of the canvas: on the 2-inch panels this
+                    # function is called with in a browse loop, the title was taller
+                    # than the image under it.
+                    axs[c].set_title(f'Channel {c}',
+                                     size=_montage_type_size(figuresize))
+                    axs[c].axis('off')
 
-            fig.tight_layout()
-            plt.show()
+                fig.tight_layout()
+                plt.show()
     return
 
 def generate_mask_random_cmap(mask):
@@ -1459,32 +1516,37 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
                     mask_data = data
 
             if image_data is not None and mask_data is not None:
-                fig, axes = plt.subplots(1, 2, figsize=(15, 7))
+                # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+                # and no axes to frame. What the house style gives a montage is the
+                # ground, the type scale and the theme's own ink -- applied as a
+                # context manager, so it does not follow the session out of here.
+                with figure_style(theme_target()):
+                    fig, axes = plt.subplots(1, 2, figsize=(15, 7))
                 
-                # Display the mask with random colormap
-                cmap = random_cmap(num_objects=len(np.unique(mask_data)))
-                axes[0].imshow(mask_data, cmap=cmap)
-                axes[0].set_title(f"{filename} - Mask")
-                axes[0].axis('off')
+                    # Display the mask with random colormap
+                    cmap = random_cmap(num_objects=len(np.unique(mask_data)))
+                    axes[0].imshow(mask_data, cmap=cmap)
+                    axes[0].set_title(f"{filename} - Mask")
+                    axes[0].axis('off')
 
-                # Display the normalized image
-                axes[1].imshow(image_data, cmap='gray')
-                if overlay:
-                    labeled_mask = label(mask_data)
-                    for region in regionprops(labeled_mask):
-                        if region.image.shape[0] >= 2 and region.image.shape[1] >= 2:
-                            contours = find_contours(region.image, 0.75)
-                            for contour in contours:
-                                # Adjust contour coordinates relative to the full image
-                                contour[:, 0] += region.bbox[0]
-                                contour[:, 1] += region.bbox[1]
-                                axes[1].plot(contour[:, 1], contour[:, 0], linewidth=2, color='magenta')
+                    # Display the normalized image
+                    axes[1].imshow(image_data, cmap='gray')
+                    if overlay:
+                        labeled_mask = label(mask_data)
+                        for region in regionprops(labeled_mask):
+                            if region.image.shape[0] >= 2 and region.image.shape[1] >= 2:
+                                contours = find_contours(region.image, 0.75)
+                                for contour in contours:
+                                    # Adjust contour coordinates relative to the full image
+                                    contour[:, 0] += region.bbox[0]
+                                    contour[:, 1] += region.bbox[1]
+                                    axes[1].plot(contour[:, 1], contour[:, 0], linewidth=2, color='magenta')
 
-                axes[1].set_title(f"{filename} - Normalized Image")
-                axes[1].axis('off')
+                    axes[1].set_title(f"{filename} - Normalized Image")
+                    axes[1].axis('off')
 
-                plt.tight_layout()
-                plt.show()
+                    plt.tight_layout()
+                    plt.show()
 
                 if save:
                     save_path = os.path.join(folder, f"{filename}.png")
@@ -1642,24 +1704,30 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
             else:
                 img = normalize_to_dtype(array=img, p1=q1, p2=q2)
 
-        if img.ndim == 3:
-            array_nr = img.shape[2]
-            fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
-            if array_nr == 1:
-                axs = [axs]  # ensure iterable
-            for channel in range(array_nr):
-                i = img[:, :, channel]
-                axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
-                axs[channel].set_title(f'Channel {channel}', size=24)
-                axs[channel].axis('off')
-        else:
-            fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
-            ax.imshow(img, cmap=plt.get_cmap(cmap))
-            ax.set_title('Channel 0', size=24)
-            ax.axis('off')
+        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+        # and no axes to frame. What the house style gives a montage is the
+        # ground, the type scale and the theme's own ink -- applied as a
+        # context manager, so it does not follow the session out of here.
+        with figure_style(theme_target()):
+            if img.ndim == 3:
+                array_nr = img.shape[2]
+                fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
+                if array_nr == 1:
+                    axs = [axs]  # ensure iterable
+                for channel in range(array_nr):
+                    i = img[:, :, channel]
+                    axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
+                    axs[channel].set_title(f'Channel {channel}',
+                                           size=_montage_type_size(figuresize))
+                    axs[channel].axis('off')
+            else:
+                fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+                ax.imshow(img, cmap=plt.get_cmap(cmap))
+                ax.set_title('Channel 0', size=_montage_type_size(figuresize))
+                ax.axis('off')
 
-        fig.tight_layout()
-        plt.show()
+            fig.tight_layout()
+            plt.show()
 
 def _normalize_and_outline(image, remove_background, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
     """
@@ -1742,52 +1810,57 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
         fig (Figure): The generated matplotlib figure.
     """
     
-    if overlay:
-        fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims) + 1, figsize=(4 * figuresize, figuresize))
-        ax[0].imshow(overlayed_image) #_imshow
-        ax[0].set_title('Overlayed Image')
-        ax_index = 1
-    else:
-        fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims), figsize=(4 * figuresize, figuresize))
-        ax_index = 0
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        if overlay:
+            fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims) + 1, figsize=(4 * figuresize, figuresize))
+            ax[0].imshow(overlayed_image) #_imshow
+            ax[0].set_title('Overlayed Image')
+            ax_index = 1
+        else:
+            fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims), figsize=(4 * figuresize, figuresize))
+            ax_index = 0
 
-    # Normalize and plot each channel with outlines
-    for v in range(0, image.shape[-1]):
-        channel_image = image[..., v]
-        channel_image_normalized = channel_image.astype(float)
-        channel_image_normalized -= channel_image_normalized.min()
-        channel_image_normalized /= channel_image_normalized.max()
-        channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
+        # Normalize and plot each channel with outlines
+        for v in range(0, image.shape[-1]):
+            channel_image = image[..., v]
+            channel_image_normalized = channel_image.astype(float)
+            channel_image_normalized -= channel_image_normalized.min()
+            channel_image_normalized /= channel_image_normalized.max()
+            channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
 
-        # Apply the outlines onto the RGB image
-        for outline, color in zip(outlines, outline_colors):
-            for j in np.unique(outline)[1:]:
-                channel_image_rgb[outline == j] = mpl.colors.to_rgb(color)
+            # Apply the outlines onto the RGB image
+            for outline, color in zip(outlines, outline_colors):
+                for j in np.unique(outline)[1:]:
+                    channel_image_rgb[outline == j] = mpl.colors.to_rgb(color)
 
-        ax[v + ax_index].imshow(channel_image_rgb)
-        # 1-based, human-friendly channel label.
-        ax[v + ax_index].set_title(f'Channel {v + 1}')
+            ax[v + ax_index].imshow(channel_image_rgb)
+            # 1-based, human-friendly channel label.
+            ax[v + ax_index].set_title(f'Channel {v + 1}')
 
-    for i, mask_dim in enumerate(mask_dims):
-        mask = np.take(stack, mask_dim, axis=2)
-        random_cmap = _generate_mask_random_cmap(mask)
-        ax[i + image.shape[-1] + ax_index].imshow(mask, cmap=random_cmap)
-        # Name the mask by its object class + live object count, e.g.
-        # "Cell Mask - 200 objects".
-        n_obj = int(len(np.unique(mask)) - 1)   # exclude background 0
-        cls = (mask_names[i] if mask_names and i < len(mask_names)
-               else f'Mask {i + 1}')
-        ax[i + image.shape[-1] + ax_index].set_title(
-            f'{cls} - {n_obj} object' + ('' if n_obj == 1 else 's'))
-        if print_object_number:
-            unique_objects = np.unique(mask)[1:]
-            for obj in unique_objects:
-                cy, cx = ndi.center_of_mass(mask == obj)
-                ax[i + image.shape[-1] + ax_index].text(cx, cy, str(obj), color='white', fontsize=8, ha='center', va='center')
+        for i, mask_dim in enumerate(mask_dims):
+            mask = np.take(stack, mask_dim, axis=2)
+            random_cmap = _generate_mask_random_cmap(mask)
+            ax[i + image.shape[-1] + ax_index].imshow(mask, cmap=random_cmap)
+            # Name the mask by its object class + live object count, e.g.
+            # "Cell Mask - 200 objects".
+            n_obj = int(len(np.unique(mask)) - 1)   # exclude background 0
+            cls = (mask_names[i] if mask_names and i < len(mask_names)
+                   else f'Mask {i + 1}')
+            ax[i + image.shape[-1] + ax_index].set_title(
+                f'{cls} - {n_obj} object' + ('' if n_obj == 1 else 's'))
+            if print_object_number:
+                unique_objects = np.unique(mask)[1:]
+                for obj in unique_objects:
+                    cy, cx = ndi.center_of_mass(mask == obj)
+                    ax[i + image.shape[-1] + ax_index].text(cx, cy, str(obj), color='white', fontsize=8, ha='center', va='center')
 
-    plt.tight_layout()
-    plt.show()
-    return fig
+        plt.tight_layout()
+        plt.show()
+        return fig
 
 def plot_merged(src, settings):
     """Show multi-channel image stacks with per-object outlines overlaid.
@@ -1901,62 +1974,76 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
     # squeeze=False keeps the return a 2-D array: a single image gives a 1x1
     # grid, which matplotlib otherwise collapses to a bare Axes with no
     # .flatten().
-    fig, axes = plt.subplots(int(rows), int(cols), figsize=(20, 20), facecolor='black', squeeze=False)
-    fig.patch.set_facecolor('black')
-    axes = axes.flatten()
-    # Calculate the scale bar length in pixels
-    scale_bar_length_px = int(scale_bar_length_um / um_per_pixel)  # Convert to pixels
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        # THE GROUND COMES FROM THE STYLE, which is transparent: the standing
+        # preference is "not black not white just transparent", and this
+        # montage carries TEXT -- filenames and channel names -- so a ground
+        # baked to black forces the text to white, and white text on a white
+        # page is the failure rule 3 exists for.
+        fig, axes = plt.subplots(int(rows), int(cols), figsize=(20, 20), squeeze=False)
+        axes = axes.flatten()
+        # Calculate the scale bar length in pixels
+        scale_bar_length_px = int(scale_bar_length_um / um_per_pixel)  # Convert to pixels
 
-    channel_colors = ['red','green','blue']
-    for i, image_file in enumerate(image_files):
-        img_array = read_image_rgb(image_file, cv2.IMREAD_UNCHANGED)
-        # Handle different channel selections
-        if channel_indices is not None:
-            if len(channel_indices) == 1:  # Single channel (grayscale)
-                img_array = img_array[:, :, channel_indices[0]]
-                cmap = 'gray'
-            elif len(channel_indices) == 2:  # Dual channels
-                img_array = np.mean(img_array[:, :, channel_indices], axis=2)
-                cmap = 'gray'
-            else:  # RGB or more channels
-                img_array = img_array[:, :, channel_indices]
-                cmap = None
-        else:
-            cmap = None if img_array.ndim == 3 else 'gray'
-        # Normalize based on dtype
-        if img_array.dtype == np.uint16:
-            img_array = img_array.astype(np.float32) / 65535.0
-        elif img_array.dtype == np.uint8:
-            img_array = img_array.astype(np.float32) / 255.0
-        ax = axes[i]
-        ax.imshow(img_array, cmap=cmap)
-        ax.axis('off')
-        if show_filename:
-            ax.set_title(os.path.basename(image_file), color='white', fontsize=fontsize, pad=20)
-        # Add scale bar
-        ax.plot([10, 10 + scale_bar_length_px], [img_array.shape[0] - 10] * 2, lw=2, color='white')
-    # Add channel names at the top if specified
-    initial_offset = 0.02  # Starting offset from the left side of the figure
-    increment = 0.05  # Fixed increment for each subsequent channel name, adjust based on figure width
-    if channel_names:
-        current_offset = initial_offset
-        for ci, channel_name in enumerate(channel_names):
-            color = channel_colors[ci] if ci < len(channel_colors) else 'white'
-            fig.text(current_offset, 0.99, channel_name, color=color, fontsize=fontsize,
-                        verticalalignment='top', horizontalalignment='left',
-                        bbox=dict(facecolor='black', edgecolor='none', pad=3))
-            current_offset += increment
+        channel_colors = ['red','green','blue']
+        for i, image_file in enumerate(image_files):
+            img_array = read_image_rgb(image_file, cv2.IMREAD_UNCHANGED)
+            # Handle different channel selections
+            if channel_indices is not None:
+                if len(channel_indices) == 1:  # Single channel (grayscale)
+                    img_array = img_array[:, :, channel_indices[0]]
+                    cmap = 'gray'
+                elif len(channel_indices) == 2:  # Dual channels
+                    img_array = np.mean(img_array[:, :, channel_indices], axis=2)
+                    cmap = 'gray'
+                else:  # RGB or more channels
+                    img_array = img_array[:, :, channel_indices]
+                    cmap = None
+            else:
+                cmap = None if img_array.ndim == 3 else 'gray'
+            # Normalize based on dtype
+            if img_array.dtype == np.uint16:
+                img_array = img_array.astype(np.float32) / 65535.0
+            elif img_array.dtype == np.uint8:
+                img_array = img_array.astype(np.float32) / 255.0
+            ax = axes[i]
+            ax.imshow(img_array, cmap=cmap)
+            ax.axis('off')
+            if show_filename:
+                ax.set_title(os.path.basename(image_file), color=resolve_ink(theme_target()), fontsize=fontsize, pad=20)
+            # Add scale bar
+            ax.plot([10, 10 + scale_bar_length_px], [img_array.shape[0] - 10] * 2, lw=2, color='white')
+        # Add channel names at the top if specified
+        initial_offset = 0.02  # Starting offset from the left side of the figure
+        increment = 0.05  # Fixed increment for each subsequent channel name, adjust based on figure width
+        if channel_names:
+            current_offset = initial_offset
+            for ci, channel_name in enumerate(channel_names):
+                # A channel name takes ITS CHANNEL'S colour -- the skill's rule
+                # for a micrograph column header. A channel beyond the three
+                # has no colour of its own and falls back to the theme's ink,
+                # which was a hard 'white'. The black box behind each name is
+                # gone: the style has no other boxes for it to match.
+                color = (channel_colors[ci] if ci < len(channel_colors)
+                         else resolve_ink(theme_target()))
+                fig.text(current_offset, 0.99, channel_name, color=color, fontsize=fontsize,
+                            verticalalignment='top', horizontalalignment='left')
+                current_offset += increment
 
-    # Pad from the image count, not from a leaked loop variable: the
-    # channel_names loop above used to rebind `i`, so the unused cells were
-    # blanked starting at the wrong index whenever channel_names was given.
-    for j in range(nr_of_images, len(axes)):
-        axes[j].axis('off')
+        # Pad from the image count, not from a leaked loop variable: the
+        # channel_names loop above used to rebind `i`, so the unused cells were
+        # blanked starting at the wrong index whenever channel_names was given.
+        for j in range(nr_of_images, len(axes)):
+            axes[j].axis('off')
 
-    plt.tight_layout(pad=3)
-    if plot:
-        plt.show()
-    return fig
+        plt.tight_layout(pad=3)
+        if plot:
+            plt.show()
+        return fig
 
 def _save_scimg_plot(src, nr_imgs=16, channel_indices=None, um_per_pixel=0.1, scale_bar_length_um=10, standardize=True, fontsize=8, show_filename=True, channel_names=None, dpi=300, plot=False, i=1, all_folders=1):
 
@@ -2121,23 +2208,28 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
             title = f'{title}, {num_objects} (obj.)'
 
         ax.imshow(array, cmap=chosen_cmap)
-        ax.set_title(title, size=18)
+        ax.set_title(title, size=_montage_type_size(figuresize))
         ax.axis('off')
 
-    if len(dim) == 2:
-        fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
-        plot_single_array(stack, ax, 'Channel one', plt.get_cmap(cmap))
-        fig.tight_layout()
-        plt.show()
-    elif len(dim) > 2:
-        num_channels = dim[2]
-        fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
-        # A single channel makes plt.subplots return a bare Axes, not an array,
-        # so axs[channel] below would raise TypeError.
-        axs = np.atleast_1d(axs)
-        for channel in range(num_channels):
-            plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
-        fig.tight_layout()    
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        if len(dim) == 2:
+            fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+            plot_single_array(stack, ax, 'Channel one', plt.get_cmap(cmap))
+            fig.tight_layout()
+            plt.show()
+        elif len(dim) > 2:
+            num_channels = dim[2]
+            fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
+            # A single channel makes plt.subplots return a bare Axes, not an array,
+            # so axs[channel] below would raise TypeError.
+            axs = np.atleast_1d(axs)
+            for channel in range(num_channels):
+                plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
+            fig.tight_layout()    
     #print(f'{filename}')
     return fig
     
@@ -2184,24 +2276,29 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         Returns:
         None
         """
-        fig, ax = plt.subplots(figsize=geometry['figsize'], dpi=geometry['dpi'])
-        current_mask = masks[frame]
-        ax.imshow(current_mask, cmap=cmap, norm=norm)  # Apply both colormap and normalization
-        ax.set_title(f'Frame: {frame}', fontsize=geometry['title_pt'])
+        # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+        # and no axes to frame. What the house style gives a montage is the
+        # ground, the type scale and the theme's own ink -- applied as a
+        # context manager, so it does not follow the session out of here.
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=geometry['figsize'], dpi=geometry['dpi'])
+            current_mask = masks[frame]
+            ax.imshow(current_mask, cmap=cmap, norm=norm)  # Apply both colormap and normalization
+            ax.set_title(f'Frame: {frame}', fontsize=geometry['title_pt'])
 
-        # Directly annotate each object with its label number from the mask
-        for label_value in np.unique(current_mask):
-            if label_value == 0: continue  # Skip background
-            y, x = np.mean(np.where(current_mask == label_value), axis=1)
-            ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
+            # Directly annotate each object with its label number from the mask
+            for label_value in np.unique(current_mask):
+                if label_value == 0: continue  # Skip background
+                y, x = np.mean(np.where(current_mask == label_value), axis=1)
+                ax.text(x, y, str(label_value), color='white', fontsize=geometry['label_pt'], ha='center', va='center')
 
-        # Overlay tracks
-        for track in tracks_df['track_id'].unique():
-            _track = tracks_df[tracks_df['track_id'] == track]
-            ax.plot(_track['x'], _track['y'], '-k', linewidth=1)
+            # Overlay tracks
+            for track in tracks_df['track_id'].unique():
+                _track = tracks_df[tracks_df['track_id'] == track]
+                ax.plot(_track['x'], _track['y'], '-k', linewidth=1)
 
-        ax.axis('off')
-        plt.show()
+            ax.axis('off')
+            plt.show()
 
     if plot:
         if interactive:
@@ -2445,15 +2542,20 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
             idx = i * n_col + j
             if idx < n_images:
                 canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = np.transpose(img[idx], (1, 2, 0))        
-    fig = plt.figure(figsize=(50, 50))
-    plt.imshow(canvas)
-    plt.axis("off")
-    for i, label in enumerate(labels):
-        row = i // n_col
-        col = i % n_col
-        x = col * img_width + 2
-        y = row * img_height + 15
-        plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        fig = plt.figure(figsize=(50, 50))
+        plt.imshow(canvas)
+        plt.axis("off")
+        for i, label in enumerate(labels):
+            row = i // n_col
+            col = i % n_col
+            x = col * img_width + 2
+            y = row * img_height + 15
+            plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
     return fig
 
 def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
@@ -2489,16 +2591,21 @@ def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
 
     canvas = canvas.numpy()  # Convert to NumPy for plotting
 
-    fig = plt.figure(figsize=(50, 50))
-    plt.imshow(canvas)
-    plt.axis("off")
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        fig = plt.figure(figsize=(50, 50))
+        plt.imshow(canvas)
+        plt.axis("off")
 
-    for i, label in enumerate(labels):
-        row = i // n_col
-        col = i % n_col
-        x = col * img_width + 2
-        y = row * img_height + 15
-        plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
+        for i, label in enumerate(labels):
+            row = i // n_col
+            col = i % n_col
+            x = col * img_width + 2
+            y = row * img_height + 15
+            plt.text(x, y, label, color=color, fontsize=fontsize, fontweight='bold')
 
     return fig
     
@@ -3030,54 +3137,59 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
     # Resize if necessary
     stack = resize_if_needed(stack, max_size)
     mask = resize_if_needed(mask, max_size)
-    if flows != None:
-        flows = [resize_if_needed(flow, max_size) for flow in flows]
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        if flows != None:
+            flows = [resize_if_needed(flow, max_size) for flow in flows]
 
-        fig, axs = plt.subplots(1, 3, figsize=(12, 4))
-    else:
-        fig, axs = plt.subplots(1, 2, figsize=(12, 4))
-
-    if stack.shape[-1] == 1:
-        stack = np.squeeze(stack)
-
-    # Display original image
-    if stack.ndim == 2:
-        original_image = stack
-    elif stack.ndim == 3:
-        original_image = stack[..., 0]  # Use the first channel as the base
-    else:
-        raise ValueError("Unexpected stack dimensionality.")
-
-    axs[0].imshow(original_image, cmap='gray')
-    axs[0].set_title('Original Image')
-    axs[0].axis('off')
-
-    # Overlay mask outlines on original image if overlay is True
-    if overlay:
-        outlined_image = apply_contours_on_image(original_image, mask, color=(255, 0, 0), thickness=thickness)
-        axs[1].imshow(outlined_image)
-    else:
-        axs[1].imshow(mask, cmap='gray')
-
-    axs[1].set_title('Mask with Overlay' if overlay else 'Mask')
-    axs[1].axis('off')
-
-    if flows != None:
-
-        # Display flow image or its first channel
-        if flows and isinstance(flows, list) and flows[0].ndim in [2, 3]:
-            flow_image = flows[0]
-            if flow_image.ndim == 3:
-                flow_image = flow_image[:, :, 0]  # Use first channel for 3D
-            axs[2].imshow(flow_image, cmap='jet')
+            fig, axs = plt.subplots(1, 3, figsize=(12, 4))
         else:
-            raise ValueError("Unexpected flow dimensionality or structure.")
+            fig, axs = plt.subplots(1, 2, figsize=(12, 4))
 
-        axs[2].set_title('Flows')
-        axs[2].axis('off')
+        if stack.shape[-1] == 1:
+            stack = np.squeeze(stack)
 
-    fig.tight_layout()
-    plt.show()
+        # Display original image
+        if stack.ndim == 2:
+            original_image = stack
+        elif stack.ndim == 3:
+            original_image = stack[..., 0]  # Use the first channel as the base
+        else:
+            raise ValueError("Unexpected stack dimensionality.")
+
+        axs[0].imshow(original_image, cmap='gray')
+        axs[0].set_title('Original Image')
+        axs[0].axis('off')
+
+        # Overlay mask outlines on original image if overlay is True
+        if overlay:
+            outlined_image = apply_contours_on_image(original_image, mask, color=(255, 0, 0), thickness=thickness)
+            axs[1].imshow(outlined_image)
+        else:
+            axs[1].imshow(mask, cmap='gray')
+
+        axs[1].set_title('Mask with Overlay' if overlay else 'Mask')
+        axs[1].axis('off')
+
+        if flows != None:
+
+            # Display flow image or its first channel
+            if flows and isinstance(flows, list) and flows[0].ndim in [2, 3]:
+                flow_image = flows[0]
+                if flow_image.ndim == 3:
+                    flow_image = flow_image[:, :, 0]  # Use first channel for 3D
+                axs[2].imshow(flow_image, cmap='jet')
+            else:
+                raise ValueError("Unexpected flow dimensionality or structure.")
+
+            axs[2].set_title('Flows')
+            axs[2].axis('off')
+
+        fig.tight_layout()
+        plt.show()
     
 def plot_resize(images, resized_images, labels, resized_labels):
     """Show original vs. resized image/label pairs in a 2x2 grid.
@@ -3116,29 +3228,34 @@ def plot_resize(images, resized_images, labels, resized_labels):
         else:
             raise ValueError(f"Unsupported image shape: {img.shape}")
 
-    fig, ax = plt.subplots(2, 2, figsize=(20, 20))
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(2, 2, figsize=(20, 20))
 
-    # Original Image
-    img, cmap = prepare_image(images[0])
-    ax[0, 0].imshow(img, cmap=cmap)
-    ax[0, 0].set_title('Original Image')
+        # Original Image
+        img, cmap = prepare_image(images[0])
+        ax[0, 0].imshow(img, cmap=cmap)
+        ax[0, 0].set_title('Original Image')
 
-    # Resized Image
-    img, cmap = prepare_image(resized_images[0])
-    ax[0, 1].imshow(img, cmap=cmap)
-    ax[0, 1].set_title('Resized Image')
+        # Resized Image
+        img, cmap = prepare_image(resized_images[0])
+        ax[0, 1].imshow(img, cmap=cmap)
+        ax[0, 1].set_title('Resized Image')
 
-    # Labels (assumed grayscale or single-channel)
-    lbl, cmap = prepare_image(labels[0])
-    ax[1, 0].imshow(lbl, cmap=cmap)
-    ax[1, 0].set_title('Original Label')
+        # Labels (assumed grayscale or single-channel)
+        lbl, cmap = prepare_image(labels[0])
+        ax[1, 0].imshow(lbl, cmap=cmap)
+        ax[1, 0].set_title('Original Label')
 
-    lbl, cmap = prepare_image(resized_labels[0])
-    ax[1, 1].imshow(lbl, cmap=cmap)
-    ax[1, 1].set_title('Resized Label')
+        lbl, cmap = prepare_image(resized_labels[0])
+        ax[1, 1].imshow(lbl, cmap=cmap)
+        ax[1, 1].set_title('Resized Label')
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
     
 def normalize_and_visualize(image, normalized_image, title=""):
     """Show the original and the normalised image side by side in grayscale.
@@ -3150,22 +3267,27 @@ def normalize_and_visualize(image, normalized_image, title=""):
     :param title: Suffix appended to both panel titles. Default ``""``.
     :returns: None
     """
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-    if image.ndim == 3:  # Multi-channel image
-        ax[0].imshow(np.mean(image, axis=-1), cmap='gray')  # Display the average over channels for visualization
-    else:  # Grayscale image
-        ax[0].imshow(image, cmap='gray')
-    ax[0].set_title("Original " + title)
-    ax[0].axis('off')
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+        if image.ndim == 3:  # Multi-channel image
+            ax[0].imshow(np.mean(image, axis=-1), cmap='gray')  # Display the average over channels for visualization
+        else:  # Grayscale image
+            ax[0].imshow(image, cmap='gray')
+        ax[0].set_title("Original " + title)
+        ax[0].axis('off')
 
-    if normalized_image.ndim == 3:
-        ax[1].imshow(np.mean(normalized_image, axis=-1), cmap='gray')  # Similarly, display the average over channels
-    else:
-        ax[1].imshow(normalized_image, cmap='gray')
-    ax[1].set_title("Normalized " + title)
-    ax[1].axis('off')
+        if normalized_image.ndim == 3:
+            ax[1].imshow(np.mean(normalized_image, axis=-1), cmap='gray')  # Similarly, display the average over channels
+        else:
+            ax[1].imshow(normalized_image, cmap='gray')
+        ax[1].set_title("Normalized " + title)
+        ax[1].axis('off')
     
-    plt.show()
+        plt.show()
     
 def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     """Show three masks side by side with random colormaps.
@@ -3176,22 +3298,27 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     :param title: Figure suptitle. Default ``"Masks Comparison"``.
     :returns: None
     """
-    fig, axs = plt.subplots(1, 3, figsize=(30, 10))
-    # The loop variable must not be named `title`: it shadowed the parameter,
-    # so the suptitle below always read 'Mask 3' instead of the caller's title.
-    for ax, mask, panel_title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
-        cmap = generate_mask_random_cmap(mask)
-        # If the mask is binary, we can skip normalization
-        if np.isin(mask, [0, 1]).all():
-            ax.imshow(mask, cmap=cmap)
-        else:
-            # Normalize the image for displaying purposes
-            norm = plt.Normalize(vmin=0, vmax=mask.max())
-            ax.imshow(mask, cmap=cmap, norm=norm)
-        ax.set_title(panel_title)
-        ax.axis('off')
-    plt.suptitle(title)
-    plt.show()
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(1, 3, figsize=(30, 10))
+        # The loop variable must not be named `title`: it shadowed the parameter,
+        # so the suptitle below always read 'Mask 3' instead of the caller's title.
+        for ax, mask, panel_title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
+            cmap = generate_mask_random_cmap(mask)
+            # If the mask is binary, we can skip normalization
+            if np.isin(mask, [0, 1]).all():
+                ax.imshow(mask, cmap=cmap)
+            else:
+                # Normalize the image for displaying purposes
+                norm = plt.Normalize(vmin=0, vmax=mask.max())
+                ax.imshow(mask, cmap=cmap, norm=norm)
+            ax.set_title(panel_title)
+            ax.axis('off')
+        plt.suptitle(title)
+        plt.show()
 
 def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=None):
     """Display several Cellpose-style label masks side by side for a quick visual QC.
@@ -3238,22 +3365,27 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
     # Ensure the length of titles matches the number of masks
     assert len(titles) == len(masks), "Number of titles and masks must match"
     
-    num_masks = len(masks)
-    fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))  # Adjusting figure size dynamically
-    # A single mask makes plt.subplots return a bare Axes, which zip() below
-    # cannot iterate.
-    axs = np.atleast_1d(axs)
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        num_masks = len(masks)
+        fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))  # Adjusting figure size dynamically
+        # A single mask makes plt.subplots return a bare Axes, which zip() below
+        # cannot iterate.
+        axs = np.atleast_1d(axs)
 
-    for ax, mask, title in zip(axs, masks, titles):
-        cmap = generate_mask_random_cmap(mask)
-        # Normalize and display the mask
-        norm = plt.Normalize(vmin=0, vmax=mask.max())
-        ax.imshow(mask, cmap=cmap, norm=norm)
-        ax.set_title(title)
-        ax.axis('off')
+        for ax, mask, title in zip(axs, masks, titles):
+            cmap = generate_mask_random_cmap(mask)
+            # Normalize and display the mask
+            norm = plt.Normalize(vmin=0, vmax=mask.max())
+            ax.imshow(mask, cmap=cmap, norm=norm)
+            ax.set_title(title)
+            ax.axis('off')
     
-    plt.suptitle(comparison_title)
-    plt.show()
+        plt.suptitle(comparison_title)
+        plt.show()
     
     if save:
         if src is None:
@@ -5827,37 +5959,42 @@ def plot_image_grid(image_paths, percentiles):
     # Calculate the smallest square grid size to fit all images
     grid_size = math.ceil(math.sqrt(N))  
 
-    # Create the square grid of subplots with a black background
-    fig, axs = plt.subplots(
-        grid_size, grid_size,
-        figsize=(grid_size * 2, grid_size * 2),
-        facecolor='black',  # Set figure background to black
-        # A single image gives a 1x1 grid, which matplotlib otherwise collapses
-        # to a bare Axes with no .flatten().
-        squeeze=False
-    )
+    # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+    # and no axes to frame. What the house style gives a montage is the
+    # ground, the type scale and the theme's own ink -- applied as a
+    # context manager, so it does not follow the session out of here.
+    with figure_style(theme_target()):
+        # Create the square grid of subplots with a black background
+        fig, axs = plt.subplots(
+            grid_size, grid_size,
+            figsize=(grid_size * 2, grid_size * 2),
+            facecolor='black',  # Set figure background to black
+            # A single image gives a 1x1 grid, which matplotlib otherwise collapses
+            # to a bare Axes with no .flatten().
+            squeeze=False
+        )
 
-    # Flatten axs in case of a 2D array
-    axs = axs.flatten()
+        # Flatten axs in case of a 2D array
+        axs = axs.flatten()
 
-    for i, img_path in enumerate(image_paths):
-        ax = axs[i]
+        for i, img_path in enumerate(image_paths):
+            ax = axs[i]
 
-        # Load the image
-        img = Image.open(img_path)
-        img = _normalize_image(img, percentiles)
+            # Load the image
+            img = Image.open(img_path)
+            img = _normalize_image(img, percentiles)
 
-        # Display the image
-        ax.imshow(img)
-        ax.axis('off')  # Hide axes
+            # Display the image
+            ax.imshow(img)
+            ax.axis('off')  # Hide axes
 
-    # Fill any unused subplots with black
-    for j in range(i + 1, len(axs)):
-        axs[j].imshow([[0, 0, 0]], cmap='gray')  # Black square
-        axs[j].axis('off')  # Hide axes
+        # Fill any unused subplots with black
+        for j in range(i + 1, len(axs)):
+            axs[j].imshow([[0, 0, 0]], cmap='gray')  # Black square
+            axs[j].axis('off')  # Hide axes
 
-    # Adjust layout to minimize white space
-    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
+        # Adjust layout to minimize white space
+        plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, top=1, bottom=0)
 
     return fig
 
@@ -5955,11 +6092,16 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
         
         if plot:
             # Display the result
-            plt.figure(figsize=(10, 10))
-            plt.imshow(blended)
-            plt.title(f"Overlay: {filename}")
-            plt.axis('off')
-            plt.show()
+            # AN IMAGE PANEL IS NOT A DATA PANEL: there is no ink to grey out
+            # and no axes to frame. What the house style gives a montage is the
+            # ground, the type scale and the theme's own ink -- applied as a
+            # context manager, so it does not follow the session out of here.
+            with figure_style(theme_target()):
+                plt.figure(figsize=(10, 10))
+                plt.imshow(blended)
+                plt.title(f"Overlay: {filename}")
+                plt.axis('off')
+                plt.show()
 
 def graph_importance(settings):
     """Concatenate feature-importance CSVs and hand off to :class:`spacrGraph` for plotting.
