@@ -1,0 +1,131 @@
+================================================================================
+EVERY MODEL EXPLAINED AND FLAGGED, AND TOXOPLASMA ANNOTATION ON EVERY EXPORT
+================================================================================
+
+Status:    filed 2026-08-17, follows 132.
+Requested: 2026-08-17 --
+
+  "all of the above should be options with explinations in the text box (the
+   ones that are closest to answering a question in a screen like this should
+   det a 'Recommended for CRISPR screens' in the text box)
+   additionally change the toxo settings to Toxoplasma and if it is on all the
+   exported tables should be merged with the relevant Toxoplasma information
+   (gene name, signal peptide, transmembrane domain, the phenotype scores from
+   the screens we have downloaded, tachyzoite expression, bradyzoite
+   expression, sexual stages expression, hyperLopit expression.) for the
+   transmembrane information use the DeepTMHMM dataset we generated ... all
+   this data shouldnt me more than a couple of megabytes and should be
+   included in the package."
+
+Related: 132 is the model tab this extends. 121 is the gene tile, which reads
+         the same annotation.
+
+--------------------------------------------------------------------------------
+A. EVERY MODEL IN THE LIST, EXPLAINED, AND THE GOOD ONES FLAGGED
+--------------------------------------------------------------------------------
+
+132 requires a text box stating the formula and what is modelled. This adds
+the alternatives discussed on 2026-08-17 and a RECOMMENDATION FLAG.
+
+RECOMMENDED FOR CRISPR SCREENS -- the ones that answer THIS question well,
+because a pooled screen is p >> n (823 guides, 610 wells) and sparse:
+
+  mixed         gene fixed, guide random nested in gene. The only model that
+                says what a guide IS. 132 has the formula. DEFAULT.
+  horseshoe     sparse Bayesian regression. Assumes most guides do nothing
+                and a few do a lot, which is what a screen is. Handles
+                p >> n natively where OLS is undefined, and answers "is this
+                guide involved" as a posterior probability rather than a
+                thresholded p. ALREADY IN spaCR AND UNDERUSED.
+  elasticnet    penalised, and better than lasso here because it does not
+                arbitrarily keep one guide from a correlated set of a gene's
+                guides. With `lasso_n_boot` / `lasso_selection_threshold` it
+                is stability selection, which gives error control without
+                p-values (Meinshausen & Buhlmann).
+  lasso         same family, sparser, same caveat about correlated guides.
+
+NOT YET IN spaCR, AND THE BEST FIT TO THE STATED QUESTION:
+
+  group lasso   guides GROUPED BY GENE, selected or dropped as a set. This is
+                the penalised analogue of the nesting -- "which genes are
+                involved, where each gene is measured by several guides" --
+                needs no random effects and works on any fixed-effect
+                backend. Sparse-group lasso goes further: which genes, AND
+                which guides within them.
+  RRA           MAGeCK-style robust rank aggregation. Rank guides by effect,
+                aggregate to gene BY RANK rather than by summing fractions --
+                so it is immune to the collinearity that 132 exists to fix.
+                Non-parametric, and it makes this screen directly comparable
+                to published ones, which is a reviewer-facing argument as
+                much as a statistical one.
+
+THE HONEST CAVEAT, and it belongs in the box: with 610 wells and 823 guides
+you are below the information limit for any method estimating one parameter
+per guide. Penalisation, priors and grouping do not create information -- they
+impose assumptions that make an answer well defined. The permutation test is
+the exception, because it tests one guide at a time and never needs the joint
+fit.
+
+--------------------------------------------------------------------------------
+B. `toxo` BECOMES `Toxoplasma`
+--------------------------------------------------------------------------------
+
+Rename the setting. An old settings CSV carrying `toxo` must still load --
+every run before today wrote one -- so accept both and migrate, the way
+`volcano` was retired.
+
+--------------------------------------------------------------------------------
+C. WHEN IT IS ON, EVERY EXPORTED TABLE CARRIES THE ANNOTATION
+--------------------------------------------------------------------------------
+
+Not just the volcano's colouring: results.csv, results_gene.csv,
+results_grna.csv, results_significant.csv and the montage's data sidecar.
+
+WHAT SPACR ALREADY BUNDLES -- do not re-download or re-derive:
+
+  resources/data/toxoplasma_metadata.csv   2.97 MB, 48 columns, keyed
+      `Gene ID`. Carries Product Description, Gene Name or Symbol, and the
+      expression the request asks for: `sense - Tachyzoites`,
+      `sense - Tissue cysts` (bradyzoite), `sense - EES1..EES5` (the
+      enteroepithelial/sexual stages).
+  resources/data/lopit.csv                 0.20 MB, hyperLOPIT/TAGM
+      compartment, keyed `gene_nr`.
+  resources/data/uniprot.csv               0.13 MB, gene number -> accession.
+
+ADDED 2026-08-17:
+
+  resources/data/deeptmhmm.csv             0.46 MB, 8,140 proteins, keyed
+      `gene_nr`, from the project's own DeepTMHMM run. SLIMMED FROM 17 MB by
+      dropping the 146 per-segment sequence columns, which are the bulk and
+      which nothing here needs. Keeps: `dtm_type` (GLOB 6053, TM 1142, SP
+      676, SP+TM 266, BETA 3 -- signal peptide AND transmembrane in one
+      field), `n_signal`, `n_tm`, `sp_length`, `length`, and `accession`.
+
+  Total bundled annotation: ~3.8 MB, within the "couple of megabytes" the
+  request allows for the new data.
+
+STILL MISSING, and it must be sourced rather than invented: the PHENOTYPE
+SCORES "from the screens we have downloaded". `toxoplasma_metadata.csv` has
+no Phenotype column -- checked, all 48. The GT1 CRISPR phenotype arrives
+today through `metadata_files`, which is why a run with fewer than two of
+those skips the phenotype and transcription reports. Either bundle that table
+too or keep reading it from `metadata_files` and say which.
+
+THE JOIN IS ON THE GENE NUMBER, right-to-left, the same rule everything else
+uses -- `TGGT1_224750` and `TGME49_224750` are the same gene and the screen
+uses the first while the annotation tables use the second.
+
+A COLUMN THAT CANNOT BE FILLED IS ABSENT WITH A REASON IN THE CONSOLE, never
+a column of NaN that reads as "measured and found nothing".
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The model text box lists every backend, explains each, and flags mixed,
+  horseshoe, elasticnet, lasso, group lasso and RRA as recommended.
+* group lasso and RRA are selectable and fit.
+* `Toxoplasma` is the setting name; a CSV with `toxo` still loads.
+* With it on, every exported table carries gene name, SP/TM, hyperLOPIT
+  compartment and the four expression columns, joined on the gene number.
+* The bundled annotation adds under 1 MB to the wheel.
