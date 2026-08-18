@@ -63,6 +63,8 @@ REGRESSION_TYPES = (
     'elasticnet',
     'hinge',
     'horseshoe',
+    'group_lasso',
+    'rra',
 )
 
 #: Names spaCR advertised but has never been able to fit, mapped to the
@@ -117,6 +119,19 @@ UNSUPPORTED_REGRESSION_TYPES = {
 #:   coefficient for :func:`process_model_coefficients` to table, no volcano
 #:   plot and no hit list. Everything downstream of the fit is built on one
 #:   linear coefficient per feature.
+#: * ``group_lasso`` and ``rra`` both read the GENE OF EACH DESIGN COLUMN,
+#:   which is parsed from the column name rather than set on a panel: the
+#:   guides of one gene are the block ``group_lasso`` penalises as a unit and
+#:   the ranks ``rra`` aggregates. Neither has a setting for it, because a
+#:   grouping the user could mistype is a grouping that would silently split
+#:   a gene in two.
+#: * ``group_lasso`` does NOT read ``alpha``. Its penalty is
+#:   ``group_lasso_lambda``, kept as its own key precisely so it cannot be
+#:   confused with the per-coefficient penalty of ``lasso``/``ridge``: the
+#:   two are on different scales (``group_lasso_lambda`` is compared against
+#:   ``spacr.group_lasso.max_lambda``, which is a property of THIS design),
+#:   so one number carried across from a lasso run would mean something else
+#:   here.
 REGRESSION_SETTINGS_USED = {
     'ols': ('cov_type',),
     'wls': ('cov_type',),
@@ -136,6 +151,9 @@ REGRESSION_SETTINGS_USED = {
                    'lasso_selection_threshold'),
     'hinge': ('alpha', 'hinge_threshold', 'hinge_n_boot'),
     'horseshoe': (),
+    'group_lasso': ('group_lasso_lambda', 'lasso_n_boot',
+                    'lasso_selection_threshold'),
+    'rra': ('rra_alpha', 'rra_permutations'),
 }
 
 #: The subset of :data:`REGRESSION_SETTINGS_USED` that :func:`regression_model`
@@ -146,7 +164,7 @@ REGRESSION_SETTINGS_USED = {
 RUN_LEVEL_SETTINGS = ('lasso_n_boot', 'lasso_selection_threshold',
                       'hinge_n_boot')
 
-#: The six knobs that reach the estimator, and the value of each that means
+#: The nine knobs that reach the estimator, and the value of each that means
 #: "not asked for". Comparing against these is what lets a GUI post every
 #: widget on the panel without every widget counting as a request.
 #:
@@ -167,12 +185,33 @@ _MODEL_LEVEL_DEFAULTS = {
     'quantile': 0.5,
     'hinge_threshold': None,
     'huber_t': 1.345,
+    # Instruction 133's two new backends. Their defaults are the ones
+    # `spacr.group_lasso` and `spacr.rra` document for themselves, so a panel
+    # that posts the untouched widget posts the value the module would have
+    # used anyway and no other backend is refused because of it.
+    'group_lasso_lambda': 0.05,
+    'rra_alpha': 0.25,
+    'rra_permutations': 10000,
 }
 
 #: Backends that report a coefficient but no frequentist p-value, so
 #: ``p_value <= 0.05`` is not a hit rule for them. :func:`perform_regression`
 #: ranks these by bootstrap selection frequency instead.
-NO_P_VALUE_TYPES = ('lasso', 'elasticnet')
+#:
+#: ``group_lasso`` belongs here for exactly the reason ``lasso`` does: the
+#: sampling distribution of a penalised coefficient is not the OLS one, so the
+#: p-value :func:`process_model_coefficients` attaches to it is mis-specified
+#: and only safe to read as "too large". ``spacr.group_lasso`` says the same
+#: thing in its own words and offers ``stability_selection`` instead.
+#:
+#: ``rra`` DOES NOT belong here and putting it here would change its answer.
+#: Its P value is a permutation P value -- ``spacr.rra`` draws a null of
+#: ``rho`` per distinct guide count and reports ``(1 + #{null <= rho}) /
+#: (n + 1)`` -- so it is a real test with a real null, and BH over the fit's
+#: gene calls is the correct correction. Routed through the selection-
+#: frequency branch it would instead be ranked by a bootstrap it never ran,
+#: and ``_call_level_hits`` would refuse the run outright for want of one.
+NO_P_VALUE_TYPES = ('lasso', 'elasticnet', 'group_lasso')
 
 
 #: Defaults for the run-level settings, matched to
