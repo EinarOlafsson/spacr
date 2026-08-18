@@ -368,6 +368,11 @@ _STYLE_GROUPS = (
     ("Appearance", ()),
 )
 
+#: The file dialog filter for a saved style. JSON, because the serialisation
+#: is `dataclasses.asdict` and a style a user can open in a text editor is one
+#: they can fix when a field name changes under them.
+STYLE_FILE_FILTER = "spaCR figure style (*.json);;All files (*)"
+
 # What a style field can be edited WITH. A field whose kind is "unsupported"
 # still gets an entry, greyed and saying so: a setting silently absent from
 # the menu is one the user is told exists and cannot find.
@@ -534,6 +539,260 @@ def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
             added.append(_add_style_entry(submenu, style, entry.name,
                                           on_change, choices))
     return added
+
+
+def style_kind(style) -> str:
+    """A stable name for the KIND of style ``style`` is.
+
+    ``VolcanoStyle`` -> ``"volcano"``. It is what a saved default is keyed on,
+    so it has to be derived from the class rather than passed in: a caller
+    that had to name its own kind would eventually name two of them the same
+    and one lab's house style would land on another figure type.
+    """
+    name = type(style).__name__
+    if name.endswith("Style"):
+        name = name[:-len("Style")]
+    out = []
+    for index, character in enumerate(name):
+        if character.isupper() and index:
+            out.append("_")
+        out.append(character.lower())
+    return "".join(out) or "figure"
+
+
+def style_as_dict(style) -> dict:
+    """``style`` as plain JSON-able data.
+
+    ``dataclasses.asdict`` recurses and turns tuples into lists, which is what
+    JSON does anyway -- so a pair field round-trips as a list and
+    :func:`apply_style_dict` puts it back as a tuple rather than leaving two
+    representations of one value in the store.
+    """
+    import dataclasses
+
+    return dataclasses.asdict(style)
+
+
+def apply_style_dict(style, values, on_change=None) -> list:
+    """Write ``values`` into ``style``. Returns the field names that changed.
+
+    FORWARDS-COMPATIBLE LOADING, which is the half a bare ``**values`` would
+    lose: a style file written by a later spaCR carries fields this one has
+    never heard of, and a file written by an earlier one is missing some. An
+    unknown field is skipped rather than raising, and a missing one keeps
+    whatever the style already had -- so a house style saved today is still
+    loadable after the dataclass grows.
+
+    ``on_change`` is called ONCE, with ``(None, style)``, rather than per
+    field: a host that redraws per field would redraw sixty times for one
+    load, and the interesting question for the host is "the whole style
+    changed", not "line_width did".
+    """
+    import dataclasses
+
+    known = {entry.name for entry in dataclasses.fields(style)}
+    changed = []
+    for name, value in dict(values or {}).items():
+        if name not in known:
+            continue
+        current = getattr(style, name, None)
+        if isinstance(current, tuple) and isinstance(value, list):
+            value = tuple(value)
+        if value != current:
+            setattr(style, name, value)
+            changed.append(name)
+    if changed and on_change is not None:
+        on_change(None, style)
+    return changed
+
+
+def save_style(style, path) -> str:
+    """Write ``style`` to ``path`` as JSON. Returns the path written.
+
+    Instruction 108 point 5. The serialisation already existed
+    (``VolcanoStyle.from_dict`` / ``asdict``); what did not was any way for a
+    user to reach it, which made a restyle something they redid every time
+    they needed the picture.
+    """
+    import json
+    from pathlib import Path
+
+    target = Path(str(path))
+    if not target.suffix:
+        target = target.with_suffix(".json")
+    payload = {"spacr_style_kind": style_kind(style),
+               "fields": style_as_dict(style)}
+    target.write_text(json.dumps(payload, indent=2, sort_keys=True,
+                                 default=str))
+    return str(target)
+
+
+def load_style(style, path, on_change=None) -> list:
+    """Read a saved style into ``style``. Returns the fields that changed.
+
+    :raises ValueError: for a file that is not a style, and for a style of
+        the WRONG KIND. Refused rather than partially applied: a volcano's
+        style loaded into a heatmap would set the four fields whose names
+        happen to match and leave the rest, which looks like a corrupted
+        figure rather than like a mistake.
+    """
+    import json
+    from pathlib import Path
+
+    try:
+        payload = json.loads(Path(str(path)).read_text())
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"{path} is not a readable style file: {exc}") from exc
+    if not isinstance(payload, dict) or "fields" not in payload:
+        raise ValueError(f"{path} is not a spaCR style file")
+    saved = str(payload.get("spacr_style_kind", ""))
+    mine = style_kind(style)
+    if saved and saved != mine:
+        raise ValueError(
+            f"that is a {saved} style and this figure is a {mine} one")
+    return apply_style_dict(style, payload.get("fields"), on_change)
+
+
+def add_style_file_entries(menu, style, on_change=None, *, parent=None,
+                           note=None, ask_path=None) -> list:
+    """Save, load and default a whole style -- instruction 108 point 5.
+
+    :param menu: the "Figure style" group to add to.
+    :param style: the style dataclass the figure is drawn from.
+    :param on_change: called ``(None, style)`` when a load or a default
+        changes it, i.e. where the host redraws.
+    :param parent: the widget file dialogs are parented to.
+    :param note: called with one sentence saying what happened, for the
+        plot's status line. A save that says nothing is a save the user
+        repeats because they cannot tell whether it worked.
+    :param ask_path: ``(mode, suggested) -> path`` for a test to answer
+        instead of a modal. ``None`` uses ``QFileDialog``.
+    :returns: the actions added, in menu order.
+
+    THE DEFAULT IS PER STYLE KIND, not per figure. That is what makes it a
+    house style: every volcano this project draws from now on starts from it,
+    which is the difference between saving a style and re-picking one.
+    """
+    from PySide6.QtWidgets import QFileDialog
+
+    kind = style_kind(style)
+    added = []
+
+    def _say(message: str) -> None:
+        if note is not None:
+            note(message)
+
+    def _ask(mode: str, suggested: str) -> str:
+        if ask_path is not None:
+            return str(ask_path(mode, suggested) or "")
+        if mode == "save":
+            path, _ = QFileDialog.getSaveFileName(
+                parent, "Save this figure's style", suggested,
+                STYLE_FILE_FILTER, options=QFileDialog.DontUseNativeDialog)
+        else:
+            path, _ = QFileDialog.getOpenFileName(
+                parent, "Load a figure style", suggested,
+                STYLE_FILE_FILTER, options=QFileDialog.DontUseNativeDialog)
+        return str(path or "")
+
+    def _save() -> None:
+        path = _ask("save", f"{kind}_style.json")
+        if not path:
+            return
+        try:
+            written = save_style(style, path)
+        except OSError as exc:
+            _say(f"Could not write the style: {exc}")
+            return
+        _say(f"Saved this {kind} style to {written}.")
+
+    def _load() -> None:
+        path = _ask("load", f"{kind}_style.json")
+        if not path:
+            return
+        try:
+            changed = load_style(style, path, on_change)
+        except ValueError as exc:
+            # NAMED, not swallowed. The two ways this fails -- a file that is
+            # not a style and a style of another kind -- are both things the
+            # user can act on, and a menu entry that silently does nothing is
+            # the one failure this module keeps being written to avoid.
+            _say(f"Could not load that style: {exc}")
+            return
+        _say(f"Loaded {len(changed)} setting{'s' if len(changed) != 1 else ''}"
+             f" from {path}." if changed else
+             f"That style is identical to this figure's; nothing changed.")
+
+    def _make_default() -> None:
+        try:
+            from ..preferences import set_figure_style_default
+
+            set_figure_style_default(kind, style_as_dict(style))
+        except Exception:       # pragma: no cover - no settings store
+            _say("There is no settings store to save a default into.")
+            return
+        _say(f"Every {kind} figure from now on starts from this style. "
+             f"'Clear the default' puts it back.")
+
+    def _clear_default() -> None:
+        try:
+            from ..preferences import clear_figure_style_default
+
+            cleared = clear_figure_style_default(kind)
+        except Exception:       # pragma: no cover - no settings store
+            return
+        _say(f"The saved {kind} default is gone; new figures use the "
+             f"package's own." if cleared else
+             f"There was no saved {kind} default.")
+
+    added.append(menu.addAction("Save style…", _save))
+    added[-1].setToolTip(
+        "Write every setting on this figure to a file, so the same look can "
+        "be put back on another figure of the same kind.")
+    added.append(menu.addAction("Load style…", _load))
+    added[-1].setToolTip(
+        "Read a saved style into this figure. A style of another kind is "
+        "refused rather than half applied.")
+    added.append(menu.addAction(f"Use as the default for every {kind}",
+                                _make_default))
+    added[-1].setToolTip(
+        "This project's house style for this kind of figure. Every one drawn "
+        "from now on starts from it.")
+    has_default = False
+    try:
+        from ..preferences import get_figure_style_default
+
+        has_default = bool(get_figure_style_default(kind))
+    except Exception:           # pragma: no cover - no settings store
+        pass
+    action = menu.addAction("Clear the default", _clear_default)
+    # Greyed when there is nothing to clear (106), and it doubles as the
+    # readout for "is a house style in force here?", which is the question a
+    # user arrives with when a figure does not look like the package's.
+    action.setEnabled(has_default)
+    if not has_default:
+        action.setToolTip(f"No {kind} default is saved.")
+    added.append(action)
+    return added
+
+
+def apply_default_style(style, on_change=None) -> list:
+    """Start ``style`` from this project's saved default. Returns the fields
+    it changed, or ``[]`` when there is no default for this kind.
+
+    Called by the HOST before it draws, not by the menu: only the host knows
+    when a figure is new, and applying a default to a style the user has
+    already edited would undo their edits at the next redraw -- the same
+    mistake as a host that re-asserts an axis choice, which cost this module
+    a day.
+    """
+    try:
+        from ..preferences import get_figure_style_default
+
+        saved = get_figure_style_default(style_kind(style))
+    except Exception:           # pragma: no cover - no settings store
+        return []
+    return apply_style_dict(style, saved, on_change) if saved else []
 
 
 def _add_style_entry(menu, style, name: str, on_change, choices):
@@ -943,6 +1202,10 @@ class FastPlot(QWidget):
         #: correction the plot draws. Empty on a plot that corrects nothing.
         self._corrections = []
 
+        #: ``[(label, callback, checked)]`` for HOW the corrected p is shown
+        #: -- as a call, as a ramp, as a size. Empty on a plot with no q.
+        self._encodings = []
+
         #: ``([(label, callback, checked)], multiplier, on_multiplier)`` for
         #: the effect-size cut, or an empty triple.
         self._thresholds = ([], None, None)
@@ -1019,6 +1282,7 @@ class FastPlot(QWidget):
         self._baselines = []
         self._compartments = []
         self._corrections = []
+        self._encodings = []
         self._p_values = []
         self._thresholds = ([], None, None)
         self._marks = []
@@ -1104,6 +1368,25 @@ class FastPlot(QWidget):
         """
         self._corrections = list(options or ())
 
+    def offer_encodings(self, options) -> None:
+        """Offer every field-acceptable way of SHOWING the adjusted p.
+
+        :param options: ``[(label, callback, checked)]``, or empty when this
+            plot has no corrected p to encode.
+
+        Instruction 149 F: "id like the user to have access to visualizing
+        adjusted P in all the ways that are acceptable to the field. showing
+        as color, showing the descrete P on the axis buy showing the line
+        where the adjusted p threshold lands, etc."
+
+        BESIDE THE CORRECTION AND ABOVE THE RESTYLING, because these are
+        statements about what the picture MEANS -- which channel carries the
+        FDR -- and not about how it looks. Two of them compete for the colour
+        channel and one composes with whatever is on it; the entries say so
+        and the caption says which is in force.
+        """
+        self._encodings = list(options or ())
+
     def offer_thresholds(self, options, *, multiplier=None,
                          on_multiplier=None) -> None:
         """Offer the effect-size cut: how it is measured and how wide.
@@ -1156,7 +1439,8 @@ class FastPlot(QWidget):
         """
         self._baselines = list(options or ())
 
-    def offer_style(self, style, on_change=None, *, choices=None) -> None:
+    def offer_style(self, style, on_change=None, *, choices=None,
+                    use_default: bool = True) -> None:
         """Put a figure's OWN style object onto this plot's right-click menu.
 
         :param style: any dataclass describing how the figure looks --
@@ -1164,6 +1448,18 @@ class FastPlot(QWidget):
         :param on_change: called ``(name, value)`` when the user changes one,
             which is where the host redraws.
         :param choices: ``{field: values}`` for fields that are a closed set.
+        :param use_default: start ``style`` from this project's saved default
+            for its kind, if there is one. This is where a house style
+            actually reaches a figure -- point 5 is otherwise a preference
+            nothing reads.
+
+            APPLIED ONCE PER STYLE OBJECT, not on every call. A host that
+            re-offers the SAME object after the user has edited it gets
+            nothing done to it; a host that builds a fresh one per redraw had
+            no edits to lose. Re-asserting it unconditionally is the mistake
+            that cost this module a day on the p-axis: the host redraws on
+            every level, baseline and compartment change, and any one of them
+            would silently undo a choice the user had made.
 
         Instruction 108: the entries come from ``dataclasses.fields(style)``,
         so a style that gains a field gains a menu entry and the two cannot
@@ -1172,7 +1468,15 @@ class FastPlot(QWidget):
         driving the picture, and the same widget draws a simulation and a
         sweep trial.
         """
+        first_time = self._style is None or self._style[0] is not style
         self._style = (style, on_change, dict(choices or {}))
+        if use_default and first_time:
+            changed = apply_default_style(style, on_change)
+            if changed:
+                self.set_style_note(
+                    f"Started from this project's saved "
+                    f"{style_kind(style)} style ({len(changed)} settings). "
+                    f"'Clear the default' on the Figure style menu undoes it.")
 
     def offer_marks(self, options) -> None:
         """Offer "draw the groups as ..." on the right-click menu.
@@ -2888,6 +3192,14 @@ class FastPlot(QWidget):
                 group.addAction("Write this correction as a table…",
                                 self._correction_writer)
             claims = True
+        if self._encodings:
+            # WHICH CHANNEL CARRIES THE FDR. Under the correction rather than
+            # beside "Colour by", because it changes what the picture MEANS
+            # and not how it looks -- and because two of its entries take the
+            # colour channel away from the colouring below.
+            self._checkable(self._group(menu, "Show the FDR as"),
+                            self._encodings)
+            claims = True
         options, multiplier, on_multiplier = self._thresholds
         if options:
             # It changes which points count as hits, so it belongs neither
@@ -3014,8 +3326,15 @@ class FastPlot(QWidget):
             # plot's, because they belong to whoever supplied them and a
             # reader has to be able to tell the two apart.
             style, on_change, choices = self._style
-            add_style_entries(self._group(menu, "Figure style"), style,
-                              on_change, choices=choices)
+            group = self._group(menu, "Figure style")
+            add_style_entries(group, style, on_change, choices=choices)
+            # SAVABLE, not only editable -- the half the maintainer restated
+            # on 2026-08-16 ("each figure should be editable and savable").
+            # A restyle the user cannot keep is a restyle they redo every
+            # time they need the picture.
+            group.addSeparator()
+            add_style_file_entries(group, style, on_change, parent=self,
+                                   note=self.set_style_note)
         if self._refit is not None:
             callback, label = self._refit
             # A SECTION, not another line in the list. Everything above
@@ -3488,12 +3807,17 @@ class FastPlot(QWidget):
             else f"{key} is in the table but not on this plot.")
 
     def add_scatter(self, x, y, *, colours=None, brush_list=None,
-                    size: float = 8.0, labels: Sequence[str] = (),
+                    size: float = 8.0, size_list=None,
+                    labels: Sequence[str] = (),
                     symbol: str = "o", name: str = "",
                     rows=None) -> ScatterPlotItem:
         """Add points and wire up clicking them.
 
         :param colours: one QColor per point, or None for a single colour.
+        :param size_list: one diameter per point, or None for ``size``
+            everywhere. A plain float array -- pyqtgraph takes it straight
+            into its own arrays, so unlike a brush per point this costs
+            nothing per point (instruction 149 F.6).
         :param labels: per-point text, shown on hover and on click.
         :param rows: the FRAME ROW each element of ``x``/``y`` came from.
             Default ``None`` means the arrays are already in frame order.
@@ -3551,8 +3875,11 @@ class FastPlot(QWidget):
 
         # `data` must go in with the points: calling setData afterwards ADDS
         # points rather than annotating the ones already there.
+        sizes = size
+        if size_list is not None:
+            sizes = np.asarray(size_list, dtype=float)[drawn]
         item = pg.ScatterPlotItem(
-            x=x[keep], y=y[keep], size=size, symbol=symbol,
+            x=x[keep], y=y[keep], size=sizes, symbol=symbol,
             pen=pg.mkPen(None),
             brush=brushes if brushes is not None else pg.mkBrush(colour_for(0)),
             hoverable=len(drawn) <= HOVER_LIMIT, tip=self._point_tip,
@@ -4072,6 +4399,43 @@ class VolcanoPlot(FastPlot):
     #: What the y axis measures, in the order the menu offers them.
     P_AXES = ("raw", "adjusted", "lfdr")
 
+    #: How the corrected p is carried on the COLOUR channel (instruction
+    #: 149 F.5). ONE AT A TIME, and that is by construction rather than by
+    #: policy: a dot cannot be coloured for its direction and for its q at
+    #: once, so whichever is chosen the other is not shown and the legend
+    #: and the caption say which is in force.
+    Q_COLOURS = ("call", "ramp")
+
+    #: The encoding that COMPOSES instead of competing (F.6): the colour
+    #: stays wherever it is and the FDR goes into the mark itself. This is
+    #: the only one of the six that can be on at the same time as another.
+    Q_MARKS = ("none", "size", "opacity")
+
+    #: Stops the ramp and the opacity ladder are quantised to.
+    #:
+    #: NOT ONE BRUSH PER POINT. `add_scatter` records the measurement: a
+    #: brush constructed per point costs 39.5 ms on the real screen's 1,215
+    #: coefficients against 3.5 ms for a reused set, and it is the whole of
+    #: the lag this module was written to remove. 32 stops is more than a
+    #: reader can distinguish on a scatter and caps the brush count at 32.
+    Q_STOPS = 32
+
+    #: The diameters "size by q" draws between. The weakest evidence is
+    #: SMALLER than the plot's own 8.0 and the strongest is larger, so the
+    #: encoding reads as a range rather than as "everything got bigger".
+    Q_SIZE_RANGE = (3.0, 13.0)
+
+    #: The alphas "opacity by q" draws between. The floor is well clear of
+    #: invisible: a point faded to nothing is a point removed from the plot,
+    #: and this instruction exists because a plot was showing something the
+    #: data did not say.
+    Q_ALPHA_RANGE = (55, 255)
+
+    #: How many stops of the ramp the legend names. Five, because a legend
+    #: is a key and not a colour bar -- and because 27 entries cost 40 ms of
+    #: a 49 ms redraw, which is why the legend is opt-in at all.
+    Q_LEGEND_STOPS = 5
+
     def __init__(self, parent=None):
         super().__init__(title="Volcano", x_label="coefficient",
                          y_label="-log10(p)", parent=parent)
@@ -4106,6 +4470,12 @@ class VolcanoPlot(FastPlot):
         #: None -- the permutation path, which is discrete before BH runs.
         self._raw_resolution = None
         self._y_floor = 1e-300
+        #: Which of :data:`Q_COLOURS` has the colour channel. The binary
+        #: call by default, which is F.1 and is the field's own volcano.
+        self._q_colour = "call"
+        #: Which of :data:`Q_MARKS` is composed on top of it. Neither by
+        #: default: both are OFFERS, and nobody asked for one as a default.
+        self._q_mark = "none"
         self._correction_writer = self._write_corrected_table
 
     # -------------------------------------------------------- what is drawn
@@ -4128,6 +4498,169 @@ class VolcanoPlot(FastPlot):
         #: True once a person has picked an axis off this plot's own menu.
         self._p_axis_chosen = True
         self.redraw()
+
+    def q_colour(self) -> str:
+        """Which of :data:`Q_COLOURS` has the colour channel."""
+        return self._q_colour
+
+    def set_q_colour(self, mode: str) -> None:
+        """Carry the FDR as a binary call, or as a continuous ramp over q.
+
+        THEY CANNOT BOTH BE ON, and not because this refuses: a dot has one
+        colour. Instruction 149 F.5 says so and says what follows from it --
+        whichever is chosen, the other is not shown, and the LEGEND says
+        which is in force. That is the localisation rule again: one sentence
+        per figure.
+
+        THE RAMP DOES NOT REPLACE THE CALL AS THE DEFAULT. F.1 is the
+        field's own volcano -- continuous height, binary colour, and the
+        colour carrying the claim -- and a ramp answers a different question:
+        it shows how far each test is from the threshold, which is a reading
+        aid and not a call. It is an OFFER.
+        """
+        mode = str(mode)
+        if mode not in self.Q_COLOURS:
+            raise ValueError(
+                f"q colour must be one of {self.Q_COLOURS}; got {mode!r}")
+        self._q_colour = mode
+        self.redraw()
+
+    def q_mark(self) -> str:
+        """Which of :data:`Q_MARKS` is composed on top of the colour."""
+        return self._q_mark
+
+    def set_q_mark(self, mode: str) -> None:
+        """Put the FDR into the SIZE or the OPACITY of the mark, or neither.
+
+        THE ONE ENCODING THAT COMPOSES (instruction 149 F.6). Size and
+        opacity are channels the colour is not using, so this can be on at
+        the same time as either colouring -- a volcano coloured by condition
+        with the marks sized by q says both things at once, which is what the
+        colour ramp cannot do.
+
+        Both are offers, not defaults. Neither is on until it is asked for.
+        """
+        mode = str(mode)
+        if mode not in self.Q_MARKS:
+            raise ValueError(
+                f"q mark must be one of {self.Q_MARKS}; got {mode!r}")
+        self._q_mark = mode
+        self.redraw()
+
+    def _q_strength(self, q):
+        """``q`` as 0 (weakest evidence on the plot) to 1 (strongest).
+
+        On -log10(q) rather than on q, for the same reason the height is:
+        q values pile up near 1 and the interesting ones are decades apart,
+        so a linear ramp over q spends nearly all its colour on the tests
+        nobody is looking at. NaN stays NaN -- a row with no q is not a weak
+        result, and painting it at the bottom of the scale would be a made-up
+        measurement (the rule `colour_by_column` already states for a
+        missing value).
+        """
+        q = np.asarray(q, dtype=float)
+        strength = np.full(q.shape, np.nan)
+        usable = np.isfinite(q) & (q > 0)
+        if not usable.any():
+            return strength
+        logged = -np.log10(q[usable])
+        low, high = float(logged.min()), float(logged.max())
+        if high <= low:
+            # Every test on the plot holds the same q. Half way up, so the
+            # ramp is one colour and is honest about being one colour.
+            strength[usable] = 0.5
+        else:
+            strength[usable] = (logged - low) / (high - low)
+        # A q of exactly zero underflowed; it is the strongest evidence
+        # there is, not a missing value.
+        strength[np.isfinite(q) & (q <= 0)] = 1.0
+        return strength
+
+    def _q_ramp(self, q):
+        """``(brush_list, legend, missing)`` for the continuous ramp (F.5).
+
+        Perceptually uniform, from the same five this module already allows
+        on a continuous quantity: a rainbow puts bright bands where the data
+        has none and reads as structure.
+        """
+        strength = self._q_strength(q)
+        table = pg.colormap.get("viridis")
+        lookup = table.getLookupTable(nPts=self.Q_STOPS, alpha=True)
+        missing_brush = pg.mkBrush(QColor(MISSING_COLOUR))
+        cache: dict = {}
+
+        def _brush(step: int):
+            brush = cache.get(step)
+            if brush is None:
+                r, g, b, a = (int(c) for c in lookup[step])
+                brush = cache[step] = pg.mkBrush(QColor(r, g, b, a))
+            return brush
+
+        steps = np.where(np.isnan(strength), 0.0, strength)
+        steps = np.clip(np.round(steps * (self.Q_STOPS - 1)),
+                        0, self.Q_STOPS - 1).astype(int)
+        brushes = [missing_brush if np.isnan(value) else _brush(step)
+                   for value, step in zip(strength, steps)]
+        missing = int(np.isnan(strength).sum())
+
+        legend = {}
+        finite = np.asarray(q, dtype=float)[np.isfinite(q)]
+        if finite.size:
+            # The stops are named by the q they stand for, strongest first,
+            # so the key reads in the direction a volcano is read.
+            for fraction in np.linspace(1.0, 0.0, self.Q_LEGEND_STOPS):
+                step = int(round(fraction * (self.Q_STOPS - 1)))
+                r, g, b, _a = (int(c) for c in lookup[step])
+                # The q at this stop, inverted back out of the log scale.
+                logged = -np.log10(np.clip(finite, 1e-300, 1.0))
+                low, high = float(logged.min()), float(logged.max())
+                value = 10 ** -(low + fraction * (high - low))
+                legend[f"q {value:.2g}"] = QColor(r, g, b).name()
+        if missing:
+            legend[f"no q ({missing})"] = MISSING_COLOUR
+        return brushes, legend, missing
+
+    def _q_sizes(self, q):
+        """One diameter per point, from the evidence against it (F.6)."""
+        strength = self._q_strength(q)
+        smallest, largest = self.Q_SIZE_RANGE
+        filled = np.where(np.isnan(strength), 0.0, strength)
+        return smallest + filled * (largest - smallest)
+
+    def _q_opacity(self, brush_list, q, count: int):
+        """``brush_list`` again, faded by the evidence against each point.
+
+        COMPOSES WITH WHATEVER THE COLOUR IS, which is the point of F.6: the
+        base colour is read off each point's own brush and only the alpha is
+        replaced, so a volcano coloured by condition keeps its conditions.
+        Quantised to :data:`Q_STOPS` alphas and cached by
+        ``(base colour, step)``, so the brush count stays a few dozen rather
+        than one per point.
+        """
+        strength = self._q_strength(q)
+        floor, ceiling = self.Q_ALPHA_RANGE
+        cache: dict = {}
+        default = QColor(colour_for(0))
+        out = []
+        for index in range(count):
+            base = default
+            if brush_list is not None:
+                try:
+                    base = QColor(brush_list[index].color())
+                except Exception:       # pragma: no cover - an odd brush
+                    base = default
+            value = strength[index] if index < len(strength) else np.nan
+            fraction = 0.0 if np.isnan(value) else float(value)
+            step = int(round(fraction * (self.Q_STOPS - 1)))
+            key = (base.rgb(), step)
+            brush = cache.get(key)
+            if brush is None:
+                alpha = floor + (ceiling - floor) * step / (self.Q_STOPS - 1)
+                faded = QColor(base)
+                faded.setAlpha(int(round(alpha)))
+                brush = cache[key] = pg.mkBrush(faded)
+            out.append(brush)
+        return out
 
     def correction(self) -> str:
         """The correction being DRAWN, canonical, whoever chose it."""
@@ -4420,7 +4953,22 @@ class VolcanoPlot(FastPlot):
         self.plot.setLabel("left", axis_label)
 
         brush_list, legend = None, {}
-        if compartment:
+        # F.5 -- THE RAMP TAKES THE COLOUR CHANNEL, and what it takes it from
+        # is named. A dot cannot be coloured for its condition and for its q
+        # at once, so the colouring that would otherwise be in force is not
+        # drawn and the caption says which one it was. Silently dropping it
+        # is how a reader ends up reading a q ramp as a condition.
+        ramp_on = self._q_colour == "ramp" and bool(np.isfinite(q).any())
+        displaced = ""
+        if ramp_on:
+            brush_list, legend, _missing = self._q_ramp(q)
+            if compartment:
+                displaced = f"the {compartment} colouring"
+            elif category_column:
+                displaced = f"the {category_column} colouring"
+            else:
+                displaced = "the called/not-called colouring"
+        elif compartment:
             # ONE COMPARTMENT AGAINST GREY. Two brushes and a two-entry
             # legend: the 27-colour version is what the house style forbids
             # and, measured, its legend cost 40 ms of a 49 ms redraw.
@@ -4497,7 +5045,18 @@ class VolcanoPlot(FastPlot):
                              else label_column)
         self.set_keys(frame[key] if key in frame.columns else frame.index)
 
-        self.add_scatter(effects, neglog, brush_list=brush_list)
+        # F.6 -- THE ENCODING THAT COMPOSES. Size and opacity are channels
+        # the colour is not using, so either can be on at the same time as
+        # any of the colourings above: a volcano coloured by condition with
+        # its marks sized by q says both things at once, which is exactly
+        # what the ramp cannot do.
+        size_list = None
+        if self._q_mark == "size":
+            size_list = self._q_sizes(q)
+        elif self._q_mark == "opacity":
+            brush_list = self._q_opacity(brush_list, q, len(neglog))
+        self.add_scatter(effects, neglog, brush_list=brush_list,
+                         size_list=size_list)
         controls = METHODS[method].controls
         level = f"{controls} {self._alpha:g}" if controls != "nothing" \
             else f"p {self._alpha:g}"
@@ -4535,10 +5094,11 @@ class VolcanoPlot(FastPlot):
             self.highlight_key(self._selected_key)
 
         plotted = int(np.sum(~(np.isnan(effects) | np.isnan(neglog))))
-        self._caption = self._build_caption(method, level, agrees,
-                                            drawn_lines, bool(brush_list)
-                                            and not (compartment
-                                                     or category_column))
+        self._caption = self._build_caption(
+            method, level, agrees, drawn_lines,
+            bool(brush_list) and not (compartment or category_column
+                                      or ramp_on),
+            displaced=displaced)
         note = f"{plotted} coefficients."
         if untested:
             # Reported, not silently removed: the difference between a filter
@@ -4549,6 +5109,7 @@ class VolcanoPlot(FastPlot):
         self._offer_p_axes(method, int(np.isfinite(raw).sum()),
                            LOCAL_FDR_MIN_TESTS, method_label)
         self._offer_corrections(method)
+        self._offer_encodings(method, method_label)
         self.set_status(f"{note} {self._caption} Click a point for detail.")
         return plotted
 
@@ -4598,7 +5159,8 @@ class VolcanoPlot(FastPlot):
         return drawn
 
     def _build_caption(self, method: str, level: str, agrees,
-                       drawn_lines: int, colour_is_the_call: bool) -> str:
+                       drawn_lines: int, colour_is_the_call: bool,
+                       displaced: str = "") -> str:
         """The sentence that says which number is which.
 
         THE CAPTION IS NOT OPTIONAL. A volcano whose height is the raw P and
@@ -4619,6 +5181,21 @@ class VolcanoPlot(FastPlot):
             parts.append(f"Height is {height}.")
         if colour_is_the_call:
             parts.append(f"Colour is the call at {level}.")
+        # ONE SENTENCE PER FIGURE saying which encoding has which channel.
+        # A ramp that silently replaced a condition colouring, or a mark
+        # sized by q with nothing saying so, is a figure that shows one thing
+        # and is read as another.
+        if self._q_colour == "ramp" and displaced:
+            parts.append(f"Colour is a continuous ramp over q, brightest at "
+                         f"the smallest q; {displaced} is off while it is.")
+        if self._q_mark == "size":
+            parts.append("Point SIZE is the evidence against the null: "
+                         "largest at the smallest q. It composes with the "
+                         "colour rather than replacing it.")
+        elif self._q_mark == "opacity":
+            parts.append("Point OPACITY is the evidence against the null: "
+                         "most solid at the smallest q. It composes with the "
+                         "colour rather than replacing it.")
         called = sum(value[1] for value in self._families.values())
         tested = sum(value[2] for value in self._families.values())
         if self._p_axis == "raw":
@@ -4704,6 +5281,45 @@ class VolcanoPlot(FastPlot):
                             lambda k=key: self.set_correction(k),
                             key == method))
         self.offer_corrections(options)
+
+    def _offer_encodings(self, method: str, method_label) -> None:
+        """Every field-acceptable way of showing the adjusted p (F).
+
+        THE TWO GROUPS ARE DIFFERENT KINDS OF THING and the labels say so.
+        The colour entries are exclusive of each other because a dot has one
+        colour; the mark entries compose with whichever colour is in force,
+        which is the one property F.6 was singled out for.
+
+        Both are OFFERS. Nothing here is a default and nothing here is
+        chosen for the user -- F.1's binary call keeps the colour channel
+        until somebody says otherwise.
+        """
+        q = self._q_values
+        label = method_label(method)
+        has_q = q is not None and bool(np.isfinite(q).any())
+        no_q = "" if has_q else "this fit has no corrected p to encode"
+        flat = ""
+        if has_q and np.unique(q[np.isfinite(q)]).size < 2:
+            # The staircase at its limit: one q for the whole screen. A ramp
+            # over it is one colour, and offering it live would be the
+            # present-but-inert control instruction 106 forbids.
+            flat = ("every q on this plot is the same number, so a ramp "
+                    "would be one colour")
+        self.offer_encodings([
+            (f"colour: called or not, at the {label} threshold",
+             lambda: self.set_q_colour("call"), self._q_colour == "call",
+             no_q),
+            ("colour: a continuous ramp over q",
+             lambda: self.set_q_colour("ramp"), self._q_colour == "ramp",
+             no_q or flat),
+            ("mark: nothing (colour only)",
+             lambda: self.set_q_mark("none"), self._q_mark == "none"),
+            ("mark: size by q — composes with the colour",
+             lambda: self.set_q_mark("size"), self._q_mark == "size", no_q),
+            ("mark: opacity by q — composes with the colour",
+             lambda: self.set_q_mark("opacity"), self._q_mark == "opacity",
+             no_q),
+        ])
 
     def _write_corrected_table(self) -> Optional[str]:
         """Write the numbers ON SCREEN out, so the table can be made to agree.
