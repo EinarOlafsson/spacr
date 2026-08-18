@@ -885,6 +885,12 @@ class FastPlot(QWidget):
         #: says an axis is logged -- so the note is added once however many
         #: times the scale is switched.
         self._base_labels: dict = {}
+        #: The limits the user typed, IN DATA UNITS, per axis -- or None
+        #: where the axis still follows its data. Kept in data units because
+        #: that is what was typed: the drawn range is log10 of this while the
+        #: axis is logged, and re-deriving it from the drawn range would put
+        #: a rounding error into a number the user chose exactly.
+        self._pinned: dict = {"x": None, "y": None}
 
     def _install_axis_hooks(self) -> None:
         """Catch every item and every label on its way onto the plot.
@@ -931,6 +937,17 @@ class FastPlot(QWidget):
         plot_item.setLabel = _label
         self.plot.addItem = _add
         self.plot.setLabel = _label
+        # A MOUSE DRAG FORGETS A TYPED LIMIT. Panning or zooming by hand is a
+        # user saying "not that window any more"; remembering the old one and
+        # snapping back to it the next time the scale changes would make the
+        # plot argue with the person driving it.
+        try:
+            plot_item.vb.sigRangeChangedManually.connect(self._forget_pins)
+        except Exception:               # pragma: no cover - no such signal
+            pass
+
+    def _forget_pins(self, *_args) -> None:
+        self._pinned = {"x": None, "y": None}
 
     # -- what is drawn, and what it says about being logged ------------------
 
@@ -1181,6 +1198,7 @@ class FastPlot(QWidget):
             self._place(entry)
         self._drawn = kept
         self._relabel_axes()
+        self._reapply_pinned()
         self._refresh_log_controls()
 
     def _axis_label_text(self, edge: str) -> str:
@@ -1237,30 +1255,86 @@ class FastPlot(QWidget):
     # --------------------------------------------------------- axes and shape
 
     def axis_limits(self) -> tuple:
-        """``((x from, x to), (y from, y to))`` as currently shown."""
+        """``((x from, x to), (y from, y to))`` as shown, IN DATA UNITS.
+
+        Data units whatever the scale, because that is the only answer that
+        means one thing. pyqtgraph's view range is in DRAWN units, so on a
+        logged axis it reads ``(-6, 0)`` where the plot shows a millionth to
+        one -- and a caller pre-filling a dialog from it would offer the user
+        a logarithm to edit.
+        """
         ranges = self.plot.getViewBox().viewRange()
-        return ((float(ranges[0][0]), float(ranges[0][1])),
-                (float(ranges[1][0]), float(ranges[1][1])))
+        return ((self._to_data(ranges[0][0], "x"),
+                 self._to_data(ranges[0][1], "x")),
+                (self._to_data(ranges[1][0], "y"),
+                 self._to_data(ranges[1][1], "y")))
 
     def set_axis_limits(self, x=None, y=None) -> None:
-        """Pin an axis to ``(from, to)``. ``None`` leaves that axis alone.
+        """Pin an axis to ``(from, to)`` IN DATA UNITS. ``None`` skips it.
+
+        DATA UNITS, and converted here, because the transform is this class's
+        own: a user who types ``1e-6, 1`` on a logged axis means a millionth
+        to one, not log10 of those, and pyqtgraph's ranges are in the drawn
+        units it knows nothing about the meaning of.
 
         AUTO-RANGE IS TURNED OFF ON THE AXIS THAT IS PINNED, and only that
         one. pyqtgraph re-fits the view to the data on the next redraw
         otherwise, so a limit the user typed would survive until the first
         recolour and then silently spring back -- which reads as the control
-        not working rather than as a redraw.
+        not working rather than as a redraw. The pin is REMEMBERED as well as
+        applied, so a scale change re-imposes the same data window rather
+        than leaving the view where the old units put it.
+
+        A NON-POSITIVE LIMIT ON A LOGGED AXIS IS REFUSED, with the reason in
+        the status line: it has no logarithm, and quietly substituting a
+        bound the user did not type is how a figure comes to show a range
+        nobody chose.
 
         :param x: ``(from, to)`` for the bottom axis, or None.
         :param y: ``(from, to)`` for the left axis, or None.
         """
         box = self.plot.getViewBox()
-        if x is not None:
-            box.setXRange(float(x[0]), float(x[1]), padding=0)
-            box.enableAutoRange(axis=box.XAxis, enable=False)
-        if y is not None:
-            box.setYRange(float(y[0]), float(y[1]), padding=0)
-            box.enableAutoRange(axis=box.YAxis, enable=False)
+        refused = []
+        for axis, limits, setter, which in (
+                ("x", x, box.setXRange, box.XAxis),
+                ("y", y, box.setYRange, box.YAxis)):
+            if limits is None:
+                continue
+            low, high = float(limits[0]), float(limits[1])
+            if self._log[axis] and min(low, high) <= 0:
+                refused.append(f"{axis} from {min(low, high):g}")
+                continue
+            self._pinned[axis] = (low, high)
+            setter(self._to_drawn_value(low, axis),
+                   self._to_drawn_value(high, axis), padding=0)
+            box.enableAutoRange(axis=which, enable=False)
+        if refused:
+            self.set_style_note(
+                f"{' and '.join(refused)} has no logarithm, so that limit "
+                f"was not applied while the axis is on a log scale.")
+
+    def _to_drawn_value(self, value, axis: str) -> float:
+        """One data coordinate as it is DRAWN. The scalar of :meth:`_to_drawn`."""
+        value = float(value)
+        return float(np.log10(value)) if self._log[axis] else value
+
+    def _reapply_pinned(self) -> None:
+        """Put the typed limits back, in whatever units are drawn now."""
+        box = self.plot.getViewBox()
+        for axis, setter, which in (("x", box.setXRange, box.XAxis),
+                                    ("y", box.setYRange, box.YAxis)):
+            limits = self._pinned.get(axis)
+            if limits is None:
+                continue
+            if self._log[axis] and min(limits) <= 0:
+                # The scale just changed under a limit that cannot survive
+                # it. Forgetting it is the honest answer -- the axis goes
+                # back to its data rather than to a bound nobody typed.
+                self._pinned[axis] = None
+                continue
+            setter(self._to_drawn_value(limits[0], axis),
+                   self._to_drawn_value(limits[1], axis), padding=0)
+            box.enableAutoRange(axis=which, enable=False)
 
     def auto_range_axes(self) -> None:
         """Give both axes back to the data. The way out of a typed limit.
@@ -1269,6 +1343,7 @@ class FastPlot(QWidget):
         wrong decade has no way back to the picture they started from except
         reloading the run.
         """
+        self._pinned = {"x": None, "y": None}
         box = self.plot.getViewBox()
         box.enableAutoRange(x=True, y=True)
         box.autoRange()
@@ -2080,12 +2155,18 @@ class FastPlot(QWidget):
         from PySide6.QtWidgets import QInputDialog
 
         (x_from, x_to), (y_from, y_to) = self.axis_limits()
+        # THE DIALOG SAYS WHICH UNITS IT WANTS. They are always the data's
+        # own -- a logged axis is drawn in log10 and typed in the quantity --
+        # and a prompt that does not say so is a number the user has to guess
+        # the meaning of on the one axis where the two differ.
+        units = {axis: (" in data units, not log10" if self._log[axis] else "")
+                 for axis in ("x", "y")}
         asked = []
         for title, prompt, current in (
-                ("X axis limits", "X from:", x_from),
-                ("X axis limits", "X to:", x_to),
-                ("Y axis limits", "Y from:", y_from),
-                ("Y axis limits", "Y to:", y_to)):
+                ("X axis limits", f"X from{units['x']}:", x_from),
+                ("X axis limits", f"X to{units['x']}:", x_to),
+                ("Y axis limits", f"Y from{units['y']}:", y_from),
+                ("Y axis limits", f"Y to{units['y']}:", y_to)):
             value, ok = QInputDialog.getDouble(
                 self, title, prompt, float(current), -1e12, 1e12, 4)
             if not ok:
