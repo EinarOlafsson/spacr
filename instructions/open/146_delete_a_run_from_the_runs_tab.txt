@@ -84,3 +84,62 @@ HOW TO KNOW IT WORKED
 * A running run cannot be deleted and says why.
 * A run removed from the tab is gone from the figure grid too.
 * Reload brings back anything that was only removed from the list.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SHIPPED except the figure-grid half. Commit 338ff34c.
+--------------------------------------------------------------------------------
+
+A. BOTH MEANINGS EXIST AND ARE NAMED. `remove_runs` takes the row and leaves the
+folder; `delete_runs_from_disk` destroys it. The default gesture -- the Delete
+key, and the FIRST menu entry -- is the safe one. The confirmation names every
+folder and says what is in it (`describe_folder` -> "12 figures, 4 CSVs, 31 MB"),
+because somebody deciding whether to destroy an overnight fit cannot decide from
+a path. `confirm` is injectable so a headless test drives the real method rather
+than a copy of it.
+
+A RUNNING RUN IS REFUSED AND SAYS WHY, per 106: both menu entries grey out
+carrying the reason, and the Delete key answers on the status line rather than
+doing nothing.
+
+B. GESTURES: a context menu on the row, Delete on the selection, and
+multi-select -- ExtendedSelection is now SAID on the table rather than inherited
+from a QTableWidget default that could change.
+
+TWO THINGS THAT COST TIME AND WILL COST IT AGAIN:
+  * `QMenu.exec` IS A C++ EVENT LOOP AND CANNOT BE MONKEYPATCHED OFF A PySide
+    TYPE. A test that patched `QMenu.exec` and called `_run_menu` hung inside
+    it for ten minutes. The seam has to be in the widget: `_build_run_menu`
+    builds, `_apply_run_menu` dispatches on `action.data()`, and `_run_menu` is
+    the thin thing that execs. Any future test of a menu here should use the
+    first two.
+  * UNDER ExtendedSelection, `QTableWidget.selectRow` BEHAVES LIKE A PLAIN
+    CLICK and clears the selection. Three calls leave ONE row selected, so a
+    multi-select test written that way quietly checks the single-row case. Go
+    through the selection model with `Select | Rows`.
+
+C. UNDO. "Removed N runs from the list; Reload brings them back" -- and a test
+performs the reload rather than trusting the sentence. No undo is offered for
+the disk delete, because an undo that cannot honour itself is worse than none.
+
+BUG FOUND WHILE DRIVING IT: REMOVING A SWEEP TRIAL REMOVED NOTHING. A trial's
+name is DERIVED during `_rebuild` ("trial 2" from `trial_id`) and its row in the
+raw `_sweep_frame` carries neither a `run` column nor a `folder`, so `_row_key`
+answered "" for every one of them and the filter matched nothing at all. It
+matches on the trial number as well now. The test that caught it is the "Reload
+brings it back" one, on rows that had never left.
+
+116's HOOK IS CONNECTED, AND ITS TRAP IS HANDLED WHERE THE STATE LIVES.
+`RegressionResultsPanel.forget_run(source)` clears the panel FIRST and forgets
+after: `set_frame` remembers the outgoing run's view on the way out, so the
+other order forgets a run and then has it filed again, under the same key, with
+the state it was just relieved of. `_path` and `_frame` are cleared by hand
+rather than through `set_frame`, which is a route INTO a run and re-saves on the
+way. The screen wires `runs_removed` to it, and 116's later work makes a removal
+also close the run if it is the one open beside and drop its photograph.
+
+STILL OPEN, AND IT IS ANOTHER TERRITORY: "what leaves the list leaves the
+figures with it". `figure_queue` has `mark_run(label)` and `run_sections()` ->
+[(label, start, count)] but NO way to drop one run's tiles -- `clear()` is
+all-or-nothing. The shape it needs is `forget_run(label)`, dropping that
+section's indices from `_ram`, `_png_paths`, `_figures`, `_titles` and
+`_fig_index` and closing the gap in `_count`. In `handoffs`.
