@@ -639,9 +639,19 @@ def mixedlm_torch(formula, data, groups, vc_formula=None, *,
     import patsy
 
     y_design, X_design = patsy.dmatrices(formula, data, return_type="dataframe")
+    # THE ROWS PATSY KEPT, taken by INDEX and not by position. patsy drops a
+    # row whose predictor is NaN, so `groups[:len(X_design)]` would take the
+    # first n labels rather than the surviving ones and shift every remaining
+    # row into the wrong cluster from the first dropped row onwards. Nothing
+    # about the result would look wrong -- the fit completes, the standard
+    # errors are simply computed against the wrong grouping. spacr.ml.
+    # regression() takes weights, groups and exposure through the same index
+    # for the same reason.
+    kept = X_design.index
     if isinstance(groups, str):
         groups = data[groups]
-    groups = pd.Series(np.asarray(groups)).iloc[:len(X_design)]
+    groups = pd.Series(np.asarray(groups), index=pd.Index(data.index))
+    groups = groups.loc[kept]
     vc = {}
     for name, spec in (vc_formula or {}).items():
         match = _VC_FORMULA.match(str(spec))
@@ -657,7 +667,7 @@ def mixedlm_torch(formula, data, groups, vc_formula=None, *,
             raise ValueError(
                 f"variance component {name!r} names column {column!r}, which "
                 f"this frame does not have.")
-        vc[name] = data[column].to_numpy()
+        vc[name] = data[column].loc[kept].to_numpy()
     return fit_mixed_reml_torch(
         y_design.iloc[:, 0].to_numpy(), X_design, groups.to_numpy(), vc,
         device=device, **kwargs)
