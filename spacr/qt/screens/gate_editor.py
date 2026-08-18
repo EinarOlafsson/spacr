@@ -100,6 +100,14 @@ class GateEditorScreen(QWidget):
         self._merge_plan = None
         #: The working set: every table whose measurements are on offer.
         self._tables: List[str] = []
+        #: The OTHER working set: every database those tables are read from.
+        #: A screen acquired as three plates is three databases, and the
+        #: comparison the user wants is all three in one gate (instruction
+        #: 109). One database is not a special case -- it is a set of one.
+        self._paths: List[str] = []
+        #: What was decided about the last merge, as recorded. Held so the
+        #: screen can say it and a test can read it.
+        self._merge_decision = None
         self._settings = GateEditorSettings()
         self._settings_dialog: Optional[GateSettingsDialog] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
@@ -200,6 +208,20 @@ class GateEditorScreen(QWidget):
         # Cluster, where the rest of the gating controls are. Two buttons
         # opening one window is one too many.
         outer.addLayout(head)
+
+        # The DATABASE working set, one removable chip per source. Same idiom
+        # as the table chips below it, because it is the same idea: a
+        # combination the user assembled, which has to be visible and has to
+        # be editable a member at a time (instruction 109, point 1).
+        self._db_chips = QHBoxLayout()
+        self._db_chips.setContentsMargins(0, 0, 0, 0)
+        self._db_chips.setSpacing(SPACING["xs"])
+        self._db_chips_label = QLabel("Databases", self)
+        self._db_chips_label.setObjectName("GateDatabaseChipsLabel")
+        self._db_chips_label.setVisible(False)
+        self._db_chips.addWidget(self._db_chips_label)
+        self._db_chips.addStretch(1)
+        outer.addLayout(self._db_chips)
 
         # The working set, one removable chip per table.
         self._chips = QHBoxLayout()
@@ -460,24 +482,37 @@ class GateEditorScreen(QWidget):
         if not paths:
             return
         self._path = paths[0]
+        names: List[str] = []
         chosen = table
+        try:
+            names = table_names(paths[0])
+        except Exception as exc:
+            self._source.setText(f"could not read {paths[0]}: {exc}")
+            return
         if chosen is None:
-            try:
-                names = table_names(paths[0])
-            except Exception as exc:
-                self._source.setText(f"could not read {paths[0]}: {exc}")
-                return
             chosen = names[0] if names else None
         if not chosen:
             self._source.setText("no table to merge in the chosen files")
             return
 
+        # The plan first and on its own, because it is the thing that has to
+        # survive a refusal: a merge that is refused still has to be able to
+        # say WHICH plates clashed and in which databases, and that answer
+        # comes from the plan rather than from the read that refused.
+        plan = None
         try:
             plan = describe_merge(paths, chosen)
             frame = read_merged(paths, chosen, plan=plan)
         except MergeRefused as exc:
+            # REFUSED, AND WRITTEN DOWN. The refusal is the screen telling the
+            # user; the record is what makes the decision they then take --
+            # dropping one of the two databases, usually -- answerable six
+            # months later, when the surviving frame can no longer say which
+            # plate1 it is.
             self._source.setText(str(exc))
             LOG.info("merge refused for %s: %s", paths, exc)
+            self._record_merge(plan, "refused", str(exc),
+                               paths=paths, table=chosen)
             return
         except Exception as exc:
             self._source.setText(f"could not merge {len(paths)} files: {exc}")
@@ -485,6 +520,22 @@ class GateEditorScreen(QWidget):
             return
 
         self._merge_plan = plan
+        self._paths = paths
+        # The table pickers follow the merge. Without this a multi-database
+        # session had no table working set at all: the picker was never
+        # filled, so nucleus could not be added to a merged frame, and a
+        # later reload would have read only the FIRST database.
+        self._table_picker.blockSignals(True)
+        self._table_picker.clear()
+        self._table_picker.addItems(names)
+        self._table_picker.setVisible(bool(names))
+        if chosen in names:
+            self._table_picker.setCurrentText(chosen)
+        self._table_picker.blockSignals(False)
+        self._table = chosen
+        self._tables = [chosen]
+        self._rebuild_chips()
+        self._rebuild_database_chips()
         self.set_frame(
             frame,
             label=(f"{len(plan.sources)} databases · {chosen} · "
@@ -494,11 +545,51 @@ class GateEditorScreen(QWidget):
             LOG.info("merge kept only shared columns; %d were present in some "
                      "sources only: %s", len(plan.partial_columns),
                      sorted(plan.partial_columns))
+        self._record_merge(plan, "merged",
+                           f"merged {len(plan.sources)} databases into the "
+                           f"Gate Editor")
+
+    def _record_merge(self, plan, outcome: str, resolution: str, *,
+                      paths=None, table: str = "") -> None:
+        """Write down what happened to this merge, and hold on to it.
+
+        Instruction 109: the user is TOLD about a collision, "and what they
+        choose is RECORDED". A refusal the user resolves by dropping one of
+        two databases leaves no trace in the result -- the surviving frame
+        cannot say which ``plate1`` it is -- so the merge log is where that
+        answer lives.
+        """
+        from ...multi_database import (MergeDecision, decision_for,
+                                       record_decision)
+
+        try:
+            if plan is not None:
+                decision = decision_for(plan, outcome=outcome,
+                                        resolution=resolution)
+            else:
+                decision = MergeDecision(
+                    table=table, sources=tuple(paths or ()), labels=(),
+                    rows={}, columns="common", dropped_columns=(),
+                    colliding_plates={}, outcome=outcome,
+                    resolution=resolution,
+                    when="")
+            self._merge_decision = decision
+            record_decision(decision)
+        except Exception:
+            # An audit line must never be the reason a screen fails to load.
+            LOG.info("could not record the merge decision", exc_info=True)
 
     def load_path(self, path: str, table: Optional[str] = None) -> None:
         """Read a CSV or one table of a measurement database, off the GUI
         thread."""
         self._path = path
+        # One database is a working set of one, not a different mode. Keeping
+        # the two in one list is what lets `_reload_working_set` stay a single
+        # code path -- and what stopped a merged session silently reloading
+        # only its first database when a table was added to it.
+        if self._paths != [path]:
+            self._paths = [path]
+            self._rebuild_database_chips()
         names: List[str] = []
         if not str(path).lower().endswith((".csv", ".tsv", ".txt")):
             try:
@@ -552,9 +643,13 @@ class GateEditorScreen(QWidget):
         chosen, frame = payload
         path = self._path or ""
         suffix = f" · {chosen}" if chosen else ""
+        # WHAT THE FRAME ACTUALLY IS. Naming one file after a merge of three
+        # would be the screen saying something untrue about the numbers on it.
+        head = (f"{len(self._paths)} databases" if len(self._paths) > 1
+                else os.path.basename(path))
         self.set_frame(
             frame,
-            label=f"{os.path.basename(path)}{suffix} · {len(frame):,} rows "
+            label=f"{head}{suffix} · {len(frame):,} rows "
                   f"× {len(frame.columns)} columns")
 
     # -- settings ---------------------------------------------------------
@@ -1136,12 +1231,96 @@ class GateEditorScreen(QWidget):
             chip.removed.connect(self.remove_table)
             self._chips.insertWidget(index, chip)
 
+    # -- the database working set (instruction 109) ------------------------
+    def database_labels(self) -> List[str]:
+        """The name each loaded database carries in the provenance column.
+
+        Asked of :mod:`spacr.multi_database` rather than derived here, so a
+        chip and the ``source_database`` value it stands for cannot disagree
+        -- a chip reading ``plate1`` beside a legend reading
+        ``measurements (2)`` is provenance the user cannot follow.
+        """
+        from ...multi_database import source_labels
+
+        if not self._paths:
+            return []
+        try:
+            return list(source_labels(self._paths))
+        except Exception:
+            return [os.path.splitext(os.path.basename(p))[0]
+                    for p in self._paths]
+
+    def _rebuild_database_chips(self) -> None:
+        """One removable chip per source database.
+
+        Shown only when there is more than one: a single-database session is
+        every session this screen has ever had, and a chip strip naming the
+        file the header already names is noise.
+        """
+        while self._db_chips.count() > 2:
+            item = self._db_chips.takeAt(1)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        show = len(self._paths) > 1
+        self._db_chips_label.setVisible(show)
+        if not show:
+            return
+        for index, (path, label) in enumerate(
+                zip(self._paths, self.database_labels())):
+            chip = TableChip(label, self, removable=True)
+            chip.setToolTip(path)
+            chip.removed.connect(self.remove_database)
+            self._db_chips.insertWidget(index + 1, chip)
+
+    def remove_database(self, name: str) -> None:
+        """Drop one database from the working set and re-merge the rest.
+
+        By its CHIP's label or by its path, because the chip shows the label
+        and a caller usually holds the path.
+
+        This is also the resolution the screen offers for a plate-id
+        collision, and the reason it does not offer ``on_collision='qualify'``
+        instead: qualifying rewrites ``plate1`` to ``runA-plate1``, which
+        makes the keys unique by hiding which experiment a plate belongs to
+        inside its own id, where nothing can block on it or colour by it.
+        Dropping one of the two databases keeps every remaining number
+        meaning what it says.
+        """
+        labels = self.database_labels()
+        target = None
+        if name in self._paths:
+            target = name
+        else:
+            for path, label in zip(self._paths, labels):
+                if label == name:
+                    target = path
+                    break
+        if target is None or len(self._paths) <= 1:
+            return
+        remaining = [path for path in self._paths if path != target]
+        self._record_merge(self._merge_plan, "resolved",
+                           f"removed {name} from the working set",
+                           paths=self._paths, table=self._table or "")
+        if len(remaining) == 1:
+            self._paths = remaining
+            self._rebuild_database_chips()
+            self.load_path(remaining[0], self._table)
+        else:
+            self.load_paths(remaining, self._table)
+
     def _reload_working_set(self) -> None:
-        """Re-read the tables in the working set, merged.
+        """Re-read the working set: every chosen table, from every database.
 
         One table is read straight, because merging a table onto itself only
         renames its columns and would make every saved gate on a single-table
         session stop matching.
+
+        Several DATABASES go through
+        :func:`spacr.plate_measurements.merge_plate_databases`, which is the
+        composition of the two things that already exist -- 41's per-table
+        merge rules and 109's per-database stacking -- rather than a third
+        set of rules that could disagree with either.
         """
         if not self._path or not self._tables:
             return
@@ -1153,10 +1332,39 @@ class GateEditorScreen(QWidget):
         fraction = self._settings.sample_fraction
         cap = self._settings.max_points or None
         policy = self._merge_policy()
+        if len(self._paths) > 1:
+            paths = list(self._paths)
+            labels = self.database_labels()
+            self._jobs.submit(
+                lambda p=paths, l=labels, t=tables, c=cap, m=policy:
+                    (t[0], self._read_across_databases(p, l, t, c, m)),
+                self._on_frame_loaded)
+            return
         self._jobs.submit(
             lambda p=self._path, t=tables, f=fraction, c=cap, m=policy:
                 (t[0], self._read_working_set(p, t, f, c, m)),
             self._on_frame_loaded)
+
+    @staticmethod
+    def _read_across_databases(paths: List[str], labels: List[str],
+                               tables: List[str], cap: Optional[int], policy):
+        """Every chosen table, from every chosen database, in one frame.
+
+        Off the GUI thread. The frame keeps
+        :data:`spacr.multi_database.SOURCE_COLUMN`, so the merged view can
+        still be coloured by which database a point came from -- which is the
+        single most valuable thing a multi-plate view can show.
+        """
+        from ...plate_measurements import merge_plate_databases
+
+        merge = merge_plate_databases(
+            dict(zip(labels, paths)), tables,
+            anchor=tables[0], policy=policy)
+        frame = merge.frame
+        if cap and len(frame) > int(cap):
+            step = max(1, len(frame) // int(cap))
+            frame = frame.iloc[::step].head(int(cap)).reset_index(drop=True)
+        return frame
 
     def _merge_policy(self):
         from ...merge_tables import MergePolicy

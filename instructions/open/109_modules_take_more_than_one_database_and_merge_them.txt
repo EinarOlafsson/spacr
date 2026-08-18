@@ -186,3 +186,110 @@ offering it as the recommended fix in the GUI.
 Instruction 122 owns that work. This note exists so nobody reads the
 collision section above and builds the qualification path into the
 cross-screen feature.
+
+
+--------------------------------------------------------------------------------
+RESULT (2026-08-18) -- BOTH SCREENS ARE WIRED, AND THE CHIPS EXIST
+--------------------------------------------------------------------------------
+
+The 2026-08-15 note above says "one of two screens wired". Verified before
+building: the Gate Editor's `load_paths` did go through `multi_database`, and
+the Image UMAP's `src` was a `_ScalarEdit` -- a single-line text box -- so the
+GUI could not express more than one source at all, even though
+`generate_image_umap` has always taken a list. Both are now done.
+
+WHAT SHIPPED
+
+1. THE CHIP WORKING SET, point 1's "add, remove, and see what is loaded", for
+   both screens, in the idiom 41 established.
+
+   * `spacr/qt/widgets/database_set.py` -- `DatabaseSetWidget`. Add button,
+     one removable `TableChip` per source, and a summary line that runs
+     `describe_merge` on every change. It says how many rows, how many columns
+     are common, WHICH measurements are about to be dropped, and whether two
+     databases claim one plate -- before anything is computed, which is the
+     whole point of `describe_merge` being metadata-only.
+   * The Gate Editor grew a second chip strip for its databases, above the
+     table strip. Removing one re-merges the rest; down to one, the strip goes
+     away and the session is the ordinary single-database one again.
+
+2. IMAGE UMAP TAKES A LIST. `settings_model._widget_for` routes the umap
+   `src` to `DatabaseSetWidget(mode='folder')`, so `collect()['src']` is now a
+   list of project roots -- exactly the shape `generate_image_umap` builds on
+   its first line -- and the panel follows the set as it is edited.
+
+   COLOURING BY SOURCE IS REACHABLE. `color_by` is a free-text field with an
+   SQL column picker, and `source_database` is not a column of any database:
+   it is added at merge time, so the picker could never offer it and a user
+   would have had to know the name and type it. The source control now carries
+   a "Colour the map by source database" box, shown only when more than one
+   source is chosen, which writes `source_database` into `color_by`.
+
+3. A BUG THE LABELS HAD, which mattered more than it looks.
+   `multi_database._label_for` disambiguated on the file's IMMEDIATE parent.
+   spaCR writes every plate to `<plate>/measurements/measurements.db`, so the
+   stem and its parent are the same string for every plate in a screen, and
+   three plates were labelled `measurements`, `measurements/measurements` and
+   `measurements/measurements (2)` -- three names that are distinct and name
+   no plate, IN THE COLUMN THE MERGED EMBEDDING IS COLOURED BY. Replaced with
+   `source_labels(paths)`, decided for the whole set at once: stems if they
+   differ, else the nearest meaningful parent folder (skipping `measurements`
+   and friends), else the old parent/stem rule with its numeric tail. Three
+   plates are now `plate1`, `plate2`, `plate3` -- and identical to what
+   `core._umap_source_label` produces, which the docstring had claimed all
+   along. `tests/test_the_databases_in_the_measurements_tab.py` had pinned the
+   old labels; that assertion is corrected, and it is the only file outside
+   this instruction's territory that was touched.
+
+4. RECORDED, not just told. `MergeDecision`, `decision_for`,
+   `record_decision` and `decision_log_path` append one JSON line per merge to
+   `~/.spacr/merge_decisions.jsonl`: the sources, their labels, the rows each
+   held, the columns rule, what was dropped, the colliding plates, the
+   outcome, and the resolution in words. The Gate Editor writes one when it
+   merges, one when it refuses, and one when the user drops a database to
+   resolve a collision -- which is the case that has no other trace, because
+   the surviving frame cannot say which `plate1` it is. An unwritable log
+   returns "" rather than taking the screen down.
+
+5. THE 2026-08-16 SUPERSESSION IS HONOURED. `on_collision='qualify'` still
+   exists for callers who want it and is no longer offered as advice anywhere
+   a user reads: `_collision_message` now says "remove one of those databases,
+   rename the plates, or say these are separate screens", and the widget says
+   the same. Tests assert the word "qualify" is absent from both. The screenID
+   path was NOT built -- that is 122's.
+
+6. THE MULTI-DATABASE SESSION IS NOW A REAL SESSION. `load_paths` never
+   filled the table picker or `self._tables`, so a merged frame had no table
+   working set: nucleus could not be added to it, and `_reload_working_set`
+   would have read only `paths[0]`. It now fills both, and
+   `_reload_working_set` routes several databases through
+   `plate_measurements.merge_plate_databases` -- the existing composition of
+   41's per-table rules and 109's per-database stacking -- rather than a third
+   set of rules.
+
+TESTS. `tests/test_multi_database.py` +8 (labels, three-plate per-source
+counts, `frame.attrs['source_rows']`, the decision log, the refusal wording);
+`tests/qt/test_the_databases_are_a_working_set.py` is new, 14 tests, and
+presses the actual controls -- it counts chips, CLICKS the x, and compares the
+per-source counts the screen ended up with against the counts in the files.
+Every one of them fails without the change.
+
+WHAT REMAINS
+
+* Dropping a folder on the Image UMAP REPLACES the source set rather than
+  adding to it. `dnd_handlers._set_src_on` calls `set_value_for_key`, whose
+  contract is replace -- correct for loading a settings CSV, wrong for a
+  second drop. Making a drop add needs a branch in `spacr/qt/dnd_handlers.py`.
+* The empty-state banner on the Image UMAP checks `isinstance(src, QLineEdit)`
+  to decide whether a source is set, so it now shows even when three are
+  chosen. `app_screen._build_empty_state_banner`, one line.
+* The other modules the instruction names -- the annotator, the database
+  browser, the classifier -- still take one database. The shared thing they
+  need is built and now has two callers; giving a third module the control is
+  the same three lines the umap `src` branch is.
+
+A TRAP WORTH NOT REDISCOVERING. `python /some/script.py` puts THE SCRIPT's
+directory on `sys.path`, not the cwd, so a check written to a scratch file
+imported spaCR from a different checkout on this machine entirely and reported
+that a just-made edit had not taken effect. `python -c`, or
+`PYTHONPATH=<repo>`, or pytest -- but not a bare script path.
