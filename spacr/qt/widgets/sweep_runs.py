@@ -85,7 +85,8 @@ LOADED_MARK = "loaded"
 PREFERRED_COLUMNS = (
     LOADED_COLUMN,
     "run", "source",
-    "trial_id", "status", "regression_type", "inference", "analysis_unit",
+    "trial_id", "status", "dependent_variable",
+    "regression_type", "inference", "analysis_unit",
     "agg_type", "transform", "multiple_testing_method", "fdr_alpha",
     "fraction_threshold", "min_cell_count",
     "n_wells", "n_guides", "n_cells", "n_rows_fitted",
@@ -99,6 +100,11 @@ PREFERRED_COLUMNS = (
 #: not know lands past the last sweep column, which is the far right of a
 #: twenty-column table -- recorded, and never seen.
 RUN_SETTING_COLUMNS = (
+    # WHAT WAS FITTED, first. Instruction 154 F queues one run per column of
+    # the merged measurements, so a table of those runs differs in the
+    # RESPONSE and in nothing else -- and a comparison table whose only
+    # varying column is missing is a list of identical-looking rows.
+    "dependent_variable",
     "regression_type", "inference", "analysis_unit", "agg_type", "transform",
     "multiple_testing_method", "fdr_alpha", "fraction_threshold",
     "min_cell_count",
@@ -114,6 +120,13 @@ SOURCE_SWEEP = "sweep trial"
 #: degraded one -- it gets a row, a source, its settings read back beside its
 #: results, and it can be the loaded run like any other.
 SOURCE_DISK = "on disk"
+#: One fit of the Measurements tab's column queue. Instruction 154 F: "do
+#: regression on a selection of columns each gets saved as a run that i can
+#: evaluate." Its own source rather than :data:`SOURCE_RUN`, because what
+#: makes those rows worth having together is that they came from one queue
+#: over one merged frame -- which is exactly the thing a `source` column is
+#: for.
+SOURCE_MEASUREMENT = "measurement column"
 
 #: A run that has been started and has not come back yet. Not "ok": a run
 #: still going has produced nothing to look at, and a row that claims
