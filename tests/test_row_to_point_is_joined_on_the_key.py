@@ -183,7 +183,17 @@ def test_a_new_table_drops_the_old_selection(panel, results):
 
 def test_selecting_the_intercept_says_it_is_not_on_the_plot(panel):
     """It is in the table and deliberately not in the plot. Saying so beats
-    ringing whichever point happens to be nearest."""
+    ringing whichever point happens to be nearest.
+
+    THE WHOLE FIT IS CHOSEN FIRST, and that is not a workaround. The panel
+    has opened on the GUIDES since the 2026-08-18 default change -- which was
+    right, and stopped a gene being drawn once per guide -- and `Intercept`
+    is neither a guide nor a gene, so the guide table does not carry it. Five
+    sibling tests in test_the_gene_guide_filter_reaches_every_tab.py were
+    migrated for this reason on the day; this one was missed and had been red
+    at HEAD ever since. The claim it guards is unchanged.
+    """
+    panel.set_level(None)
     assert panel.table.select_key("Intercept")
 
     assert panel.volcano._highlight is None
