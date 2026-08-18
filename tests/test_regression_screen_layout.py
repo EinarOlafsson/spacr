@@ -331,8 +331,10 @@ def test_right_clicking_the_live_tile_offers_the_graphs_own_menu(screen):
     screen._figure_grid._pinned.menu_requested.emit(-1, None)
 
     assert len(seen) == 1, "the live tile's right-click reached nobody"
+    from spacr.qt.widgets.fast_plots import menu_entries
+
     menu = screen._results_panel.volcano.build_style_menu()
-    assert "Point size…" in [a.text() for a in menu.actions()]
+    assert "Point size…" in [a.text() for a in menu_entries(menu)]
 
 
 def test_the_grid_keeps_a_pinned_tile_apart_from_the_runs_figures(qtbot):
