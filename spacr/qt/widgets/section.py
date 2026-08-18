@@ -125,6 +125,30 @@ class Section(QFrame):
         self._row_widgets.append((None, widget))
         self._apply_maturity(widget, setting=True)
 
+    def add_prose(self, widget: QWidget, *, at_top: bool = False) -> None:
+        """Add full-width content that is NOT a setting row.
+
+        :param at_top: put it above the section's controls rather than below.
+
+        THE DIFFERENCE FROM :meth:`add_widget` IS `_row_widgets`, and it is
+        the whole reason this exists. Every entry there is taken to BE a
+        labelled setting row by
+        ``tests/qt/test_all_module_smoke.py::_setting_row_contract``, which
+        asserts each field carries a ``settingKey`` and that its label is a
+        QLabel holding linked API help. A prose box is neither a setting nor
+        labelled, so registering it there would either fail that contract or
+        force a fake ``settingKey`` onto a non-setting -- which would then be
+        pushed into the tooltip and API-documentation machinery.
+
+        `add_widget` has the same signature and the opposite bookkeeping, and
+        had no caller in the GUI, so nothing had yet exposed the conflation.
+        """
+        if at_top:
+            self._form.insertRow(0, widget)
+        else:
+            self._form.addRow(widget)
+        self._apply_maturity(widget, setting=True)
+
     def title(self) -> str:
         """Return the section's header text, un-escaped."""
         return self._title

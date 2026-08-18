@@ -566,6 +566,10 @@ class AppScreen(QWidget):
         # The Model & Inference explainer (instruction 132). Only the
         # regression panel builds one; every other screen leaves it None.
         self._model_explainer = None
+        #: {section title: its prose box}. Born here for the same reason
+        #: everything else in this block is: a screen that has not built its
+        #: settings pane yet still answers "which sections carry a box".
+        self._section_explainers = {}
 
         # This module is imported lazily by `app.py`, long after the launch
         # stylesheet was generated, so the block registered above is not in
@@ -1305,36 +1309,42 @@ class AppScreen(QWidget):
                 section.add_row(lbl_widget, widget, info_widget=None,
                                 wrap_label=True)
                 self._attach_column_picker(field_key, widget)
-            layout.addWidget(section)
-            # THE EXPLAINER, immediately under the controls it explains, and
-            # shown or hidden with them so it never dangles beneath a
-            # collapsed section.
+            # THE EXPLAINER GOES AT THE TOP OF THE SECTION IT EXPLAINS.
             #
-            # It goes into the PANE rather than into the section via
-            # `Section.add_widget`, which would read better. Every entry in
-            # `Section._row_widgets` is taken to be a labelled SETTING row by
-            # `tests/qt/test_all_module_smoke.py::_setting_row_contract`,
-            # which asserts each field carries a `settingKey` and that its
-            # label is a QLabel holding linked API help. This box is neither
-            # a setting nor labelled, and `add_widget` -- whose entire purpose
-            # is full-width label-less content -- had no other caller in the
-            # GUI, so nothing had yet exposed that conflation. Giving the box
-            # a `settingKey` to satisfy the contract would push a non-setting
-            # into the tooltip and API-documentation machinery instead.
-            if self.app_key == "regression" and title == "Model & Inference":
-                self._install_model_explainer(section, layout)
+            # Asked for on 2026-08-17: "just ad the text box i asked for (at
+            # the top)". It used to be appended to the PANE after
+            # `layout.addWidget(section)`, which put it BELOW every control it
+            # describes -- so a user read eleven settings and then found out
+            # what they were choosing between.
+            #
+            # `Section.add_prose`, not `Section.add_widget`: the second
+            # registers the widget in `_row_widgets`, where every entry is
+            # taken to BE a labelled setting row by
+            # `tests/qt/test_all_module_smoke.py::_setting_row_contract`. A
+            # prose box is neither a setting nor labelled.
+            from .settings_model import has_section_explainer
+
+            if has_section_explainer(self.app_key, title):
+                self._install_section_explainer(section, title)
+            layout.addWidget(section)
 
         self.refresh_maturity_visibility()
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
 
-    def _install_model_explainer(self, section, layout) -> None:
-        """Add the read-only "what will be fitted" box to Model & Inference.
+    def _install_section_explainer(self, section, title) -> None:
+        """Add a section's read-only prose box, above its controls.
 
         INSTRUCTION 132: "it is important for the user to know all of this."
-        The box states the FORMULA for the current selection and WHAT IS
-        MODELLED, and it changes with `regression_type` and `level`.
+        The Model & Inference box states the FORMULA for the current
+        selection and WHAT IS MODELLED, and it changes with `regression_type`
+        and `level`. Instruction 135 adds a shorter one to Permutation Test.
+
+        WHICH SECTIONS HAVE ONE IS `settings_model.SECTION_EXPLAINERS`, not a
+        chain of `if title ==` here. This method used to be
+        `_install_model_explainer` and named its one section inline, which is
+        why the second box had nowhere to go.
 
         MONOSPACE, READ-ONLY AND SELECTABLE, following the Summary tab in
         `qt/widgets/regression_results.py`: the reason to want a formula on
@@ -1403,13 +1413,18 @@ class AppScreen(QWidget):
         advance = QFontMetrics(box.font()).horizontalAdvance("M") or 8
         box.setMinimumWidth(advance * (explainer_width() + 3))
         box.setMinimumHeight(220)
-        self._model_explainer = box
-        layout.addWidget(box)
+        section.add_prose(box, at_top=True)
+        self._section_explainers[title] = box
+        if title == "Model & Inference":
+            self._model_explainer = box
+        else:
+            # A STATIC BOX NEEDS NO REFRESH. Only the model box depends on
+            # the panel's current values; the permutation box says what the
+            # test does, which does not change with a setting.
+            from .settings_model import section_explainer
 
-        # Track the section's collapse so the box reads as belonging to it.
-        # Sections start collapsed, so the box starts hidden with it.
-        box.setVisible(section.is_expanded())
-        section.header().toggled.connect(box.setVisible)
+            box.setPlainText(section_explainer(self.app_key, title))
+            return
 
         # Follow the two settings it describes. Bound methods, not lambdas:
         # INVARIANTS 4 is about QThread.finished specifically, but the same
