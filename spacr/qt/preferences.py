@@ -3267,6 +3267,30 @@ class PreferencesDialog:
         )
         figures.addRow(tr("Dynamic figures"), dynamic_check)
 
+        # -- HOW THE GRAPHS LOOK (instruction 118) -------------------------
+        #
+        # Everything above this line is about the FILE: its format, its
+        # resolution, how many stay editable. Nothing above it is about how a
+        # plot LOOKS -- no font, no palette, no marker size, no grid default,
+        # and nothing specific to any one kind of graph -- which is what "the
+        # graphs look pretty ugly" means in practice: every plot inherited
+        # matplotlib's defaults.
+        #
+        # The panel builds itself from `spacr.figure_style`'s own tables, so a
+        # style key added there gains a control here without this file being
+        # touched. It stores DELTAS only; see its docstring for why that is
+        # not an optimisation.
+        from .widgets.figure_settings import FigureStylePreferences
+
+        style_panel = FigureStylePreferences(get_figure_style(),
+                                             get_figure_style_per_graph())
+        style_heading = QLabel(tr(
+            "<b>Graph style</b> — how every figure is drawn, and per graph "
+            "type where they differ."))
+        style_heading.setWordWrap(True)
+        figures.addRow(style_heading)
+        figures.addRow(style_panel)
+
         # -- Performance ---------------------------------------------------
         # The mode, then the four things the two performance modes press on
         # your behalf. They are in the same tab deliberately: a mode that
@@ -3484,6 +3508,10 @@ class PreferencesDialog:
                 _select(png_dpi_combo, get_figure_png_dpi())
                 live_cache_spin.setValue(get_figure_live_cache())
                 dynamic_check.setChecked(get_figure_dynamic())
+                # Told directly rather than re-read: this panel holds its
+                # controls, not its store, so the throwaway-settings trick
+                # every getter above uses does not reach it.
+                style_panel.reset()
                 _select(mode_combo, get_spacr_mode())
 
                 resolution_slider.setValue(
@@ -3564,6 +3592,9 @@ class PreferencesDialog:
             set_figure_png_dpi(png_dpi_combo.currentData())
             set_figure_live_cache(live_cache_spin.value())
             set_figure_dynamic(dynamic_check.isChecked())
+            style_general, style_per_graph = style_panel.values()
+            set_figure_style(style_general)
+            set_figure_style_per_graph(style_per_graph)
             # LAST of the writes, and deliberately: entering Extra
             # Performance overrides five of the settings written above with
             # their minimums, and leaving it puts back what it stashed. Do
