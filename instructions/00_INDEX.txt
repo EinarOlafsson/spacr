@@ -132,7 +132,7 @@ OPEN
   151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
        151_changing_a_line_width_should_not_take_a_minute.txt
 
-  152  THE AXIS AND TEXT COLOUR FOLLOW THE THEME, AND THE USER CAN SET THEM
+  152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
        152_the_axis_and_text_colour_follow_the_theme_and_the_user.txt
 
   153  THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
