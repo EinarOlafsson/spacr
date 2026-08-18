@@ -307,3 +307,65 @@ def test_a_selection_the_new_type_cannot_fit_is_kept_and_refused_out_loud(
     text = field.description.toPlainText()
     assert "This run will be refused." in text
     assert "cannot fit regression_type='ols'" in text
+
+
+# ---------------------------------------------------------------------------
+# Instruction 141 G: the two backends wired on 2026-08-18 reach the panel
+# ---------------------------------------------------------------------------
+
+
+def test_the_wired_backends_are_choosable_for_their_own_families(screen,
+                                                                 field):
+    """`pyfixest` under ols, `glum` under poisson -- ON THE REAL COMBO.
+
+    Before this, the panel offered exactly two enabled entries for every
+    family -- statsmodels always and torch under `mixed` -- and every other
+    row read "is described here but spaCR does not route any fit through it
+    yet". Two of them now do, and the only place that can prove it is the
+    widget: a spec table saying ``implemented: True`` proves nothing about
+    what a dropdown lets a user press.
+    """
+    pytest.importorskip("pyfixest")
+    pytest.importorskip("glum")
+    types = screen._settings_model._widgets["regression_type"]
+    items = field.combo.model()
+
+    def offered(label):
+        return bool(items.item(_entry_for(field, label)).isEnabled())
+
+    types.setCurrentText("ols")
+    assert offered("pyfixest (CPU)")
+    assert not offered("glum (CPU)"), "glum has no least-squares family"
+
+    types.setCurrentText("poisson")
+    assert offered("glum (CPU)")
+    assert not offered("pyfixest (CPU)"), "pyfixest fits ols and wls"
+
+
+def test_the_box_states_the_measured_cost_of_a_wired_backend(screen, field):
+    """Instruction 141 B: measured, never "may be faster".
+
+    Read off the SHOWN description widget rather than off
+    `describe_backends`, because the compact box writes the SELECTED backend
+    out in full and one line for each of the others -- so the measured
+    numbers are on screen only when the backend is the one chosen.
+    """
+    pytest.importorskip("pyfixest")
+    screen._settings_model._widgets["regression_type"].setCurrentText("ols")
+    index = _entry_for(field, "pyfixest (CPU)")
+    field.combo.setCurrentIndex(index)
+    assert field.description.isVisible()
+    text = field.description.toPlainText()
+    assert "16.7x" in text, text
+    assert "3.9e-9" in text, "the box does not say what it agrees to"
+    assert "may be faster" not in text.lower()
+
+
+def test_the_box_says_what_the_absorbed_fit_does_not_report(screen, field):
+    """141 D: where it cannot agree by construction, the box says so."""
+    pytest.importorskip("pyfixest")
+    screen._settings_model._widgets["regression_type"].setCurrentText("ols")
+    field.combo.setCurrentIndex(_entry_for(field, "pyfixest (CPU)"))
+    text = field.description.toPlainText()
+    assert "DIFFERENT ANSWER" in text
+    assert "Intercept" in text

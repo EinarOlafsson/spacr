@@ -312,13 +312,32 @@ REGRESSION_BACKENDS = {
         'label': 'pymer4 / lme4 (CPU)',
         'device': 'cpu',
         'package': 'pymer4',
-        'pip': 'pip install pymer4',
+        # THE PIP LINE STAYS SHORT because `backend_status` puts it inside
+        # a combo entry; what it does not say -- that the package alone is
+        # not enough -- is in `cost` below and in the box, which is on screen
+        # whether or not the popup is open.
+        'pip': 'pip install pymer4  (plus R, rpy2, lme4)',
         'types': ('mixed',),
         'url': 'https://eshinjolly.com/pymer4/',
         'summary': ("The reference implementation for mixed models. Sparse "
                     "Cholesky over the nested structure rather than dense "
                     "algebra -- an algorithmic win, not a hardware one."),
-        'cost': "Version 0.9.2 needs no R.",
+        # IT STILL NEEDS R, and the earlier note here saying otherwise was
+        # read off a metadata gap. pymer4 0.9.2's wheel declares NO
+        # dependencies at all -- `importlib.metadata.requires('pymer4')`
+        # returns None -- so `pip install --dry-run --report` truthfully said
+        # "adds one package, changes nothing" and that was mistaken for "needs
+        # no R". Installed and imported on 2026-08-18 it fails at
+        # `pymer4/io.py: import polars`, and every model module under it opens
+        # with `from rpy2.robjects.packages import importr`; its own README
+        # says "This is accomplished using rpy2 to interface between
+        # languages". So the maintainer's question -- can lme4 be had without
+        # installing or interfacing with R -- is answered NO on this version.
+        'cost': ("Needs R, rpy2 and lme4 installed alongside it: measured "
+                 "2026-08-18, pymer4 0.9.2 imports rpy2 in every model "
+                 "module and polars in its loader, and declares neither, so "
+                 "pip reports it as a single additive package and it is not "
+                 "one."),
         'differs': None,
         'implemented': False,
     },
@@ -331,8 +350,22 @@ REGRESSION_BACKENDS = {
         'url': 'https://docs.rapids.ai/api/cuml/stable/',
         'summary': ("RAPIDS' GPU ridge / lasso / elastic-net, near drop-in "
                     "for scikit-learn. Speeds the PENALISED families."),
+        # IT IS NOT ADDITIVE, MEASURED 2026-08-18 and this is the one that
+        # matters: `pip install --dry-run --report cuml-cu12` against this
+        # environment moves NUMPY 1.26.4 -> 2.2.6, downgrades numba
+        # 0.62.1 -> 0.61.2 and llvmlite 0.45.1 -> 0.44.0, and moves eight
+        # nvidia-cu12 runtime libraries torch is built against. The
+        # dependency table at the top of instruction 141 tested pymer4,
+        # gpytorch, numpyro, glum, linearmodels and pyfixest -- cuML was
+        # never among them, and "all six are purely additive" was read as
+        # covering it. The maintainer's condition was "first test if adding
+        # any of those dependencies causes any problems"; for this one the
+        # answer is yes, so it is not installed here.
         'cost': ("It has NO mixed model, so it does not touch that "
-                 "bottleneck."),
+                 "bottleneck. And it is the one optional backend that is NOT "
+                 "a safe install here: resolving cuml-cu12 against this "
+                 "environment moves numpy 1.26.4 -> 2.2.6 and the CUDA "
+                 "runtime torch is built against, measured 2026-08-18."),
         'differs': ("A penalised path solved to a different tolerance can "
                     "select a different set of coefficients at the same "
                     "alpha."),
@@ -343,27 +376,51 @@ REGRESSION_BACKENDS = {
         'device': 'cpu',
         'package': 'pyfixest',
         'pip': 'pip install pyfixest',
-        'types': ('ols', 'wls', 'poisson'),
+        'types': ('ols', 'wls'),
         'url': 'https://py-econometrics.github.io/pyfixest/',
-        'summary': ("Absorbs high-dimensional FIXED effects by alternating "
-                    "projections instead of building dummy columns."),
-        'cost': ("rowID + columnID are real columns in the design today; "
-                 "absorbing them shrinks the problem before any backend "
-                 "runs, so it helps every family, not just the mixed one."),
-        'differs': None,
-        'implemented': False,
+        'summary': ("Absorbs the rowID and columnID fixed effects by "
+                    "alternating projections instead of carrying them as "
+                    "dummy columns, then solves the remaining normal "
+                    "equations directly."),
+        # MEASURED 2026-08-18 on synthetic screens of the shape
+        # prepare_formula builds, against sm.OLS on the identical design.
+        # See `spacr.ml._fit_absorbed_least_squares` for the table and for
+        # why the win is the SOLVER rather than the 5% narrower design --
+        # pyfixest's own `feols` was measured too and is slower here.
+        'cost': ("Measured on this machine: 1.4x at n=1830/p=736 (the "
+                 "TSG101 shape), 5.9x at n=6000/p=2242 and 16.7x at "
+                 "n=12000/p=4601, the ratio rising with screen size. "
+                 "Coefficients agree with statsmodels to 3.9e-9 absolute "
+                 "and standard errors to 1.3e-13 relative."),
+        'differs': ("The absorbed terms have no coefficient row, so the "
+                    "Intercept is missing from the table. rowID and columnID "
+                    "were dropped from it anyway; the Intercept is a "
+                    "nuisance term the volcano is better without. Every "
+                    "gRNA and gene coefficient is reported and unchanged."),
+        'implemented': True,
     },
     'glum': {
         'label': 'glum (CPU)',
         'device': 'cpu',
         'package': 'glum',
         'pip': 'pip install glum',
-        'types': ('glm', 'poisson', 'logit', 'probit', 'quasi_binomial'),
+        # NOT probit AND NOT quasi_binomial, measured rather than dropped:
+        # glum 3.4 ships identity, log, logit, cloglog and Tweedie links and
+        # has NO probit, and it has no equivalent of statsmodels'
+        # scale='X2', which is the free dispersion that IS quasi-binomial.
+        # See `spacr.ml._GLUM_FAMILIES`.
+        'types': ('glm', 'poisson', 'logit'),
         'url': 'https://glum.readthedocs.io/',
-        'summary': "Fast GLMs, with the same families statsmodels offers.",
-        'cost': "Helps poisson, logit, probit and quasi_binomial.",
+        'summary': ("Fast GLMs by IRLS over tabmat's column-typed design, "
+                    "with the Poisson, binomial and Gaussian families "
+                    "statsmodels offers."),
+        'cost': ("Measured on this machine: 2.4x on poisson and 3.1x on "
+                 "logit at n=6000/p=2242, and SLOWER than statsmodels on a "
+                 "small screen -- 0.70x on poisson at n=1830/p=736. Its "
+                 "setup is fixed and repays itself only once the design is "
+                 "wide."),
         'differs': None,
-        'implemented': False,
+        'implemented': True,
     },
     'numpyro': {
         'label': 'numpyro (GPU)',

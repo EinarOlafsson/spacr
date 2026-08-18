@@ -2058,6 +2058,677 @@ _SETTING_NOT_APPLICABLE = {
 }
 
 
+
+# ---------------------------------------------------------------------------
+# THE ABSORBING BACKEND (instruction 141 G.1) -- pyfixest
+# ---------------------------------------------------------------------------
+
+#: The design factors :mod:`pyfixest` absorbs instead of carrying as columns.
+#:
+#: `prepare_formula` puts ``rowID`` and ``columnID`` in the model as FIXED
+#: effects, so patsy dummy-codes them: 35 columns on the maintainer's TSG101
+#: screen, 38 on a full 384-well plate. They are nuisance terms --
+#: `process_model_coefficients` drops every one of them from the coefficient
+#: table before anybody reads it -- and a nuisance term that is never reported
+#: does not have to be a column. Absorbing it by alternating projections
+#: (Frisch-Waugh-Lovell) leaves the coefficients that ARE reported unchanged
+#: to the last digit and takes the solve down with the design.
+#:
+#: ``screenID`` is deliberately NOT here. Instruction 122 puts it in the model
+#: so a two-screen fit is blocked on the experiment, and it is a term a reader
+#: may want to see; absorbing it would remove it from the table as well as
+#: from the design.
+_ABSORBED_FIXED_EFFECTS = ('rowID', 'columnID')
+
+
+def _absorbed_factor_codes(X, factors=_ABSORBED_FIXED_EFFECTS):
+    """Recover the level of each factor patsy dummy-coded, per observation.
+
+    patsy writes a k-level factor as k-1 indicator columns against a dropped
+    reference level, so the reference is the row where every one of them is
+    zero. Reading the codes back out of the design is what lets an absorbing
+    backend be handed the SAME matrix statsmodels was, rather than the raw
+    frame -- there is then no second construction of the design to disagree
+    with the first.
+
+    :param X: the design DataFrame patsy built.
+    :param factors: term names to look for, each dummy-coded as
+        ``name[T.level]``.
+    :returns: ``(codes, names, n_absorbed_params)`` -- an ``(n, k)`` uint64
+        array of level codes, the factors actually found, and how many
+        parameters of the dense design they account for (the intercept plus
+        each factor's k-1 indicators, which is what the residual degrees of
+        freedom must still be charged for). ``codes`` is ``None`` when no
+        factor is present.
+    :raises ValueError: when a factor's indicator columns are not 0/1, which
+        means the column named ``rowID[...]`` is not a dummy and absorbing it
+        would silently fit a different model.
+    """
+    columns = list(getattr(X, 'columns', []))
+    blocks, names = [], []
+    n_params = 1 if 'Intercept' in columns else 0
+    for factor in factors:
+        prefix = f'{factor}['
+        block = [c for c in columns if str(c).startswith(prefix)]
+        if not block:
+            # A factor with ONE level emits no columns at all -- patsy folds
+            # it into the intercept. A screen on a single plate row is the
+            # documented case (see prepare_formula), and it is not an error.
+            continue
+        values = np.asarray(X[block], dtype=float)
+        if not np.all(np.isin(values, (0.0, 1.0))):
+            raise ValueError(
+                f"the design's {factor!r} columns are not 0/1 indicators, so "
+                f"they cannot be a dummy-coded factor and absorbing them "
+                f"would fit a different model. Columns: {block[:4]}.")
+        if np.any(values.sum(axis=1) > 1):
+            raise ValueError(
+                f"a row of the design is in more than one {factor!r} level, "
+                f"so {factor!r} is not a factor and cannot be absorbed.")
+        blocks.append(np.where(values.any(axis=1), values.argmax(axis=1) + 1,
+                               0).astype(np.uint64))
+        names.append(factor)
+        n_params += len(block)
+    if not blocks:
+        return None, [], n_params
+    return np.column_stack(blocks), names, n_params
+
+
+class _AbsorbedDesign:
+    """The design an absorbed fit was run on, in statsmodels' shape.
+
+    :mod:`spacr.regression_qc` recovers a design from ``results.model.exog``
+    and decides the scale rule from ``type(results.model).__mro__`` (see
+    ``regression_qc._model_kind``), so an absorbed fit that carried neither
+    would lose the diagnostics tab. It carries the FULL design -- the one with
+    the dummy columns still in it -- because that is the model that was
+    fitted; absorption is how it was solved, not what it was.
+    """
+
+    def __init__(self, endog, exog, exog_names):
+        self.endog = np.asarray(endog, dtype=float).reshape(-1)
+        self.exog = np.asarray(exog, dtype=float)
+        self.exog_names = list(exog_names)
+
+
+#: ``kind`` -> the design class :mod:`spacr.regression_qc` resolves BY NAME.
+#:
+#: ``regression_qc._model_kind`` walks ``type(results.model).__mro__`` looking
+#: for a class called ``OLS`` or ``WLS``, because ``sm.OLS(...).fit()`` and
+#: ``sm.WLS(...).fit()`` share one results class and only ``results.model``
+#: tells them apart. An absorbed least-squares fit obeys exactly the scale
+#: rule that name selects -- ``scale`` is RSS / (n - p) over the FULL
+#: parameter count, and the weighted version is in the metric of
+#: ``sqrt(w) * (y - fitted)`` -- so it answers to it. Built with ``type()``
+#: rather than written as two ``class`` statements so ``spacr.ml`` does not
+#: grow public names ``OLS`` and ``WLS`` that would read as statsmodels'.
+_ABSORBED_DESIGN_CLASSES = {
+    name: type(name, (_AbsorbedDesign,),
+               {'__doc__': f"The design of an absorbed {name} fit."})
+    for name in ('OLS', 'WLS')
+}
+
+
+class _AbsorbedLeastSquaresResults:
+    """A least-squares fit solved by absorbing its nuisance factors.
+
+    Reports what :func:`process_model_coefficients` and
+    :mod:`spacr.regression_qc` read off a statsmodels results object --
+    ``params``, ``bse``, ``pvalues``, ``tvalues``, ``resid``,
+    ``fittedvalues``, ``scale``, ``df_resid`` -- for the coefficients that
+    SURVIVE absorption. The absorbed ones have no row, which is the one way
+    this fit's answer differs from statsmodels' and is why
+    ``REGRESSION_BACKENDS['pyfixest']['differs']`` says so.
+
+    The residuals and ``scale`` are the FULL model's, not the demeaned
+    regression's: Frisch-Waugh-Lovell makes them the same vector, and the
+    degrees of freedom are charged for every absorbed parameter, so the
+    standard errors match statsmodels to the last digit rather than to a
+    tolerance.
+    """
+
+    def __init__(self, params, bse, pvalues, resid, fitted, scale,
+                 df_model, df_resid, nobs, model, converged, absorbed,
+                 rsquared):
+        self.params = params
+        self.bse = bse
+        self.pvalues = pvalues
+        with np.errstate(divide='ignore', invalid='ignore'):
+            self.tvalues = params / bse
+        self.resid = resid
+        self.fittedvalues = fitted
+        self.scale = float(scale)
+        self.df_model = float(df_model)
+        self.df_resid = float(df_resid)
+        self.nobs = float(nobs)
+        self.model = model
+        self.converged = bool(converged)
+        self.absorbed = tuple(absorbed)
+        self.rsquared = float(rsquared)
+
+    def predict(self, exog=None):
+        """Fitted values. ``exog`` is accepted and ignored, as sm's OLS does
+        for the in-sample case; an absorbed fit cannot predict a new row
+        because it never estimated the absorbed levels."""
+        if exog is None:
+            return self.fittedvalues
+        raise ValueError(
+            "an absorbed fit did not estimate the levels of "
+            f"{', '.join(self.absorbed) or 'its nuisance factors'}, so it "
+            "cannot predict a row it has not seen. Fit with "
+            "regression_backend='statsmodels' if you need out-of-sample "
+            "predictions.")
+
+    def summary(self):
+        """A text summary, so :func:`_write_model_summary` still has one."""
+        return _AbsorbedSummary(self)
+
+
+class _AbsorbedSummary:
+    """``.as_text()`` for :class:`_AbsorbedLeastSquaresResults`."""
+
+    def __init__(self, results):
+        self._results = results
+
+    def as_text(self):
+        r = self._results
+        lines = [
+            "Absorbed least squares (pyfixest alternating projections)",
+            f"  observations          {int(r.nobs)}",
+            f"  reported coefficients {len(r.params)}",
+            f"  absorbed factors      {', '.join(r.absorbed) or 'none'}",
+            f"  residual df           {int(r.df_resid)}",
+            f"  error variance        {r.scale:.6g}",
+            f"  R-squared             {r.rsquared:.6f}",
+            f"  demeaning converged   {r.converged}",
+            "",
+            "coefficient / std err / t / P>|t|",
+        ]
+        for name in r.params.index:
+            lines.append(f"  {name}  {r.params[name]:.6g}  "
+                         f"{r.bse[name]:.6g}  {r.tvalues[name]:.4f}  "
+                         f"{r.pvalues[name]:.4g}")
+        return "\n".join(lines)
+
+    def __str__(self):
+        return self.as_text()
+
+
+def _fit_absorbed_least_squares(X, y, weights=None, kind='OLS'):
+    """Least squares with ``rowID``/``columnID`` absorbed, via pyfixest.
+
+    THE MEASUREMENT THIS EXISTS FOR (instruction 141 G, on this machine,
+    synthetic screens of the shape ``prepare_formula`` builds, against
+    ``sm.OLS(y, X).fit()`` on the identical design):
+
+    ===========================  ==========  ==========  =======
+    design                       statsmodels  absorbed    ratio
+    ===========================  ==========  ==========  =======
+    n=1830, p=736 (TSG101)         0.244 s     0.172 s     1.4x
+    n=6000, p=2242                 3.37 s      0.572 s     5.9x
+    n=12000, p=4601               43.3 s       2.59 s     16.7x
+    ===========================  ==========  ==========  =======
+
+    and the agreement, on the same fits: coefficients to 3.9e-9 ABSOLUTE,
+    standard errors to 1.3e-13 RELATIVE, p-values to 8.5e-12 absolute. The
+    ratio RISES with screen size, which is the shape instruction 140 measured
+    for the cost this is paying off.
+
+    THE WIN IS NOT WHERE INSTRUCTION 141 B GUESSED IT WAS, and the difference
+    is worth writing down because it cost a measurement to find. Absorbing 36
+    of 736 columns is a 5% smaller design and cannot be worth 16x on its own.
+    What it buys is the SOLVER: statsmodels' OLS answers through
+    ``pinv_wexog``, a Moore-Penrose pseudo-inverse computed by SVD, which is
+    O(n p^2) with a large constant and gets no cheaper for a well-conditioned
+    design. Once the nuisance factors are projected out, the remaining normal
+    equations are symmetric positive definite and a Cholesky solve answers
+    them. ``pyfixest``'s own ``feols`` was measured too and is SLOWER than
+    statsmodels here (1.24 s against 0.26 s on the TSG101 shape) -- its
+    formula parsing and collinearity sweep cost more than the absorption
+    saves at these widths -- so this routes through
+    ``pyfixest.core.demean``, which is the alternating-projections kernel
+    itself.
+
+    :param X: the design DataFrame, dummy columns included.
+    :param y: the response.
+    :param weights: per-observation weights for a WLS fit, or ``None``.
+    :param kind: ``'OLS'`` or ``'WLS'``, which is what
+        :mod:`spacr.regression_qc` reads to pick its scale rule.
+    :returns: :class:`_AbsorbedLeastSquaresResults`.
+    :raises ValueError: when the design carries no absorbable factor (there
+        is then nothing for this backend to do that statsmodels does not do
+        better), or when the normal equations are singular.
+    """
+    from pyfixest.core.demean import demean
+
+    columns = list(getattr(X, 'columns', []))
+    if not columns:
+        raise ValueError(
+            "the absorbing backend reads which columns are rowID/columnID "
+            "dummies from the design's COLUMN NAMES, so it needs a DataFrame "
+            "design; a bare array has no names. Build it with "
+            "dmatrices(..., return_type='dataframe'), which is what the "
+            "pipeline hands in.")
+    codes, absorbed, n_absorbed_params = _absorbed_factor_codes(X)
+    if codes is None:
+        raise ValueError(
+            "regression_backend='pyfixest' absorbs the rowID and columnID "
+            "fixed effects, and this design has neither -- either "
+            "model_plate_position=False took them out of the model or the "
+            "screen sits on one row and one column. There is nothing to "
+            "absorb, so the fit would be the statsmodels fit with an extra "
+            "projection in front of it. Set "
+            "regression_backend='statsmodels'.")
+
+    keep = [c for c in columns
+            if str(c) != 'Intercept'
+            and not any(str(c).startswith(f'{f}[') for f in absorbed)]
+    if not keep:
+        raise ValueError(
+            "every column of this design is an intercept or an absorbed "
+            "fixed effect, so the absorbed fit would report no coefficient "
+            "at all.")
+
+    y_flat = np.asarray(y, dtype=float).reshape(-1)
+    n = y_flat.size
+    if weights is None:
+        w = np.ones(n, dtype=float)
+    else:
+        w = np.asarray(weights, dtype=float).reshape(-1)
+        if w.size != n:
+            raise ValueError(
+                f"the absorbed fit was given {w.size} weights for {n} "
+                f"observations.")
+        if not np.isfinite(w).all() or np.any(w <= 0):
+            raise ValueError(
+                "WLS weights must be finite and positive (they are per-well "
+                f"cell counts); got {np.nanmin(w)}-{np.nanmax(w)}.")
+
+    stacked = np.asfortranarray(
+        np.column_stack([y_flat, np.asarray(X[keep], dtype=float)]))
+    # tol is on the alternating projections, not on the answer: 1e-10 is
+    # tighter than the 1e-6 pyfixest defaults to, because the agreement this
+    # backend is held to (instruction 141 D) is against statsmodels' exact
+    # solve rather than against another approximation.
+    demeaned, converged = demean(stacked, codes, w, tol=1e-10)
+    if not converged:
+        raise ValueError(
+            "the alternating projections that absorb "
+            f"{', '.join(absorbed)} did not converge, so the design was "
+            "never fully partialled out and the coefficients would not be "
+            "the least-squares ones. Fit with "
+            "regression_backend='statsmodels'.")
+    y_d = demeaned[:, 0]
+    X_d = demeaned[:, 1:]
+
+    # WEIGHTED normal equations. `demean` already takes weighted group means,
+    # which is the weighted Frisch-Waugh-Lovell projection, so the only thing
+    # left is to weight the cross-products.
+    Xw = X_d * w[:, None]
+    xtx = X_d.T @ Xw
+    xty = Xw.T @ y_d
+    try:
+        beta = np.linalg.solve(xtx, xty)
+    except np.linalg.LinAlgError as exc:
+        raise ValueError(
+            f"the absorbed design's normal equations are singular ({exc}), "
+            f"so its {len(keep)} coefficients are not identified. That is a "
+            f"rank-deficient design, not a backend failure: statsmodels "
+            f"answers the same design with a pseudo-inverse, which picks one "
+            f"arbitrary solution out of infinitely many.") from exc
+
+    resid = y_d - X_d @ beta
+    # DEGREES OF FREEDOM ARE CHARGED FOR WHAT WAS ABSORBED. n - p_kept alone
+    # would report the standard errors of a model that never had the 36
+    # nuisance parameters, which is smaller than the truth and is exactly the
+    # way an absorbing fit gets its inference wrong.
+    p_full = len(keep) + n_absorbed_params
+    df_resid = n - p_full
+    if df_resid <= 0:
+        raise ValueError(
+            f"the design has {p_full} parameters ({len(keep)} reported plus "
+            f"{n_absorbed_params} absorbed) for {n} observations, so there "
+            f"are no residual degrees of freedom to estimate a standard "
+            f"error from.")
+    rss = float(resid @ (resid * w))
+    scale = rss / df_resid
+    try:
+        cov = scale * np.linalg.inv(xtx)
+    except np.linalg.LinAlgError as exc:      # pragma: no cover - solve first
+        raise ValueError(
+            f"the absorbed design's cross-product matrix is singular "
+            f"({exc}).") from exc
+    se = np.sqrt(np.clip(np.diag(cov), 0.0, None))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        t_stats = np.where(se > 0, beta / se, 0.0)
+    p_values = 2.0 * st.t.sf(np.abs(t_stats), df_resid)
+
+    names = [str(c) for c in keep]
+    params = pd.Series(beta, index=names)
+    # The residual of the DEMEANED regression is the residual of the full
+    # one -- that is what Frisch-Waugh-Lovell says -- so the fitted values
+    # follow from it and the diagnostics see the same numbers statsmodels
+    # would have shown them.
+    full_resid = resid
+    fitted = y_flat - full_resid
+    centred = y_flat - np.average(y_flat, weights=w)
+    tss = float(centred @ (centred * w))
+    rsquared = 1.0 - rss / tss if tss > 0 else float('nan')
+
+    model = _ABSORBED_DESIGN_CLASSES[kind](
+        y_flat, np.asarray(X, dtype=float), [str(c) for c in columns])
+    return _AbsorbedLeastSquaresResults(
+        params=params,
+        bse=pd.Series(se, index=names),
+        pvalues=pd.Series(p_values, index=names),
+        resid=full_resid, fitted=fitted, scale=scale,
+        df_model=p_full - 1, df_resid=df_resid, nobs=n, model=model,
+        converged=converged, absorbed=absorbed, rsquared=rsquared)
+
+
+# ---------------------------------------------------------------------------
+# THE FAST-GLM BACKEND (instruction 141 G.3) -- glum
+# ---------------------------------------------------------------------------
+
+#: ``regression_type`` -> the glum family, and how the fit is set up.
+#:
+#: ``probit`` IS NOT HERE, and that is measured rather than an omission: glum
+#: 3.4 ships ``IdentityLink``, ``LogLink``, ``LogitLink``, ``CloglogLink`` and
+#: ``TweedieLink`` and has no probit link at all, so a probit fitted "by glum"
+#: could only be a logit under the wrong label. ``quasi_binomial`` is not here
+#: either -- statsmodels spells it as a Binomial mean with the dispersion
+#: taken from the Pearson chi-square (``scale='X2'``), and glum has no
+#: equivalent knob, so its standard errors would be the fixed-dispersion ones
+#: on a model chosen BECAUSE its dispersion is free. `backend_status` greys
+#: the pair out for exactly these reasons.
+_GLUM_FAMILIES = {
+    'poisson': 'poisson',
+    'logit': 'binomial',
+    'glm': None,        # chosen from the response, like the statsmodels path
+}
+
+
+class _GlumResults:
+    """A GLM fitted by glum, reporting what statsmodels' GLM results report.
+
+    THE STANDARD ERRORS ARE COMPUTED HERE AND NOT TAKEN FROM GLUM. glum's own
+    ``std_errors`` defaults to a sandwich estimator and, with ``robust=False``
+    and the dispersion fixed, still applies a finite-sample correction of
+    ``N / (N - p)`` that statsmodels does not -- measured on the TSG101-shaped
+    screen as a constant ratio of 1.2934 for the Poisson fit and 1.00059 for
+    the weighted logit, which is exactly ``sqrt(N / (N - p))`` in each case
+    with ``N`` the observation count and the weight total respectively. A
+    p-value that differs by 29% is not a tolerance, it is a different answer,
+    and instruction 141 D calls that a bug.
+
+    So the covariance is formed from the information matrix directly,
+    ``(X' W X)^-1`` with ``W_ii = v_i (dmu/deta)^2 / V(mu_i)`` and the
+    dispersion fixed at 1, which is what a canonical-link GLM with a known
+    dispersion has and what statsmodels reports. It agrees with statsmodels
+    to the tolerance ``tests/test_the_backends_agree_with_statsmodels.py``
+    states rather than to a convention that could change between glum
+    releases.
+    """
+
+    def __init__(self, params, bse, pvalues, resid, fitted, scale,
+                 df_model, df_resid, nobs, model, family, llf,
+                 null_deviance, deviance, n_iter):
+        self.params = params
+        self.bse = bse
+        self.pvalues = pvalues
+        with np.errstate(divide='ignore', invalid='ignore'):
+            self.tvalues = params / bse
+        self.resid = resid
+        self.resid_response = resid
+        self.fittedvalues = fitted
+        self.scale = float(scale)
+        self.df_model = float(df_model)
+        self.df_resid = float(df_resid)
+        self.nobs = float(nobs)
+        self.model = model
+        self.family = family
+        self.llf = float(llf)
+        self.null_deviance = float(null_deviance)
+        self.deviance = float(deviance)
+        self.n_iter = int(n_iter)
+
+    def predict(self, exog=None):
+        """In-sample fitted values on the RESPONSE scale, as sm's GLM does."""
+        if exog is None:
+            return self.fittedvalues
+        raise ValueError(
+            "this GLM was fitted by glum through spaCR's design matrix and "
+            "does not carry the link's inverse for a new row. Fit with "
+            "regression_backend='statsmodels' if you need to predict.")
+
+    def summary(self):
+        return _GlumSummary(self)
+
+
+class _GlumSummary:
+    """``.as_text()`` for :class:`_GlumResults`."""
+
+    def __init__(self, results):
+        self._results = results
+
+    def as_text(self):
+        r = self._results
+        lines = [
+            f"Generalized linear model fitted by glum "
+            f"({type(r.family).__name__})",
+            f"  observations   {int(r.nobs)}",
+            f"  coefficients   {len(r.params)}",
+            f"  residual df    {int(r.df_resid)}",
+            f"  deviance       {r.deviance:.6g}",
+            f"  null deviance  {r.null_deviance:.6g}",
+            f"  log-likelihood {r.llf:.6g}",
+            f"  IRLS steps     {r.n_iter}",
+            "",
+            "coefficient / std err / z / P>|z|",
+        ]
+        for name in r.params.index:
+            lines.append(f"  {name}  {r.params[name]:.6g}  "
+                         f"{r.bse[name]:.6g}  {r.tvalues[name]:.4f}  "
+                         f"{r.pvalues[name]:.4g}")
+        return "\n".join(lines)
+
+    def __str__(self):
+        return self.as_text()
+
+
+def _glum_information_weights(family, mu, var_weights):
+    """``W_ii`` of the GLM information matrix, for the families glum fits.
+
+    For a canonical link ``dmu/deta`` equals the variance function, so the
+    weight collapses to ``v_i V(mu_i)``: ``v * mu`` for a log-link Poisson and
+    ``v * mu (1 - mu)`` for a logit Binomial. Gaussian identity is ``v``. They
+    are written out per family rather than differenced numerically because a
+    finite difference here would put its own error into every standard error
+    on the volcano.
+    """
+    weights = np.asarray(var_weights, dtype=float).reshape(-1)
+    mu = np.asarray(mu, dtype=float).reshape(-1)
+    if isinstance(family, sm.families.Poisson):
+        return weights * mu
+    if isinstance(family, sm.families.Binomial):
+        return weights * mu * (1.0 - mu)
+    if isinstance(family, sm.families.Gaussian):
+        return weights
+    raise ValueError(
+        f"spaCR does not know the information weight for "
+        f"{type(family).__name__}, so it cannot form the standard errors of a "
+        f"glum fit of it. Fit with regression_backend='statsmodels'.")
+
+
+def _fit_glum_glm(X, y, regression_type, weights=None, exposure=None):
+    """Fit one of the GLM families through glum instead of statsmodels.
+
+    THE MEASUREMENT (instruction 141 G, this machine, synthetic screens of the
+    shape ``prepare_formula`` builds, against the statsmodels GLM on the
+    identical design):
+
+    =========================  ===========  ========  ======
+    fit                        statsmodels  glum      ratio
+    =========================  ===========  ========  ======
+    poisson, n=1830, p=736        1.21 s     1.72 s    0.70x
+    logit,   n=1830, p=736        0.99 s     0.85 s    1.16x
+    poisson, n=6000, p=2242      41.4 s     16.9 s     2.44x
+    logit,   n=6000, p=2242      14.3 s      4.65 s    3.08x
+    =========================  ===========  ========  ======
+
+    SO IT IS NOT A WIN ON A SMALL SCREEN and the box says so. glum's advantage
+    is IRLS on tabmat's column-typed matrix with an active-set solver, which
+    costs a fixed setup and repays it once the design is wide; on the TSG101
+    shape the Poisson fit is slower than statsmodels'. The coefficients agree
+    to 2.6e-10 (Poisson) and 1.5e-9 (logit) on those fits.
+
+    :param X: the design DataFrame.
+    :param y: the response.
+    :param regression_type: one of :data:`_GLUM_FAMILIES`.
+    :param weights: per-well cell counts, used as ``var_weights`` by the
+        binomial families exactly as the statsmodels path uses them.
+    :param exposure: per-well cell counts for the Poisson ``offset(log(.))``.
+    :returns: :class:`_GlumResults`.
+    :raises ValueError: for a family glum cannot fit, or a response the family
+        refuses.
+    """
+    from glum import GeneralizedLinearRegressor
+
+    columns = list(getattr(X, 'columns', []))
+    if not columns:
+        raise ValueError(
+            "the glum backend reports one coefficient per design column and "
+            "reads the names from the design, so it needs a DataFrame; a "
+            "bare array has no names.")
+    design = np.asarray(X, dtype=float)
+    y_flat = np.asarray(y, dtype=float).reshape(-1)
+    n = y_flat.size
+
+    offset = None
+    var_weights = np.ones(n, dtype=float)
+    if regression_type == 'poisson':
+        _validate_poisson_response(y, X)
+        family = sm.families.Poisson(link=sm.families.links.Log())
+    elif regression_type == 'logit':
+        family = sm.families.Binomial(link=sm.families.links.Logit())
+    else:
+        family = pick_glm_family_and_link(y)
+        if isinstance(family, sm.families.Poisson):
+            _validate_poisson_response(y, X)
+
+    if isinstance(family, sm.families.Poisson):
+        # THE SAME OFFSET THE STATSMODELS BRANCH USES. Without it the
+        # coefficients are effects on the well's headcount rather than on the
+        # per-cell rate -- see `_poisson_offset` for the simulation that
+        # measured what that costs -- and a backend that dropped it would be
+        # answering a different question, not answering the same one faster.
+        n_total = None
+        if exposure is not None:
+            n_total = np.asarray(exposure, dtype=float).reshape(-1)
+            if n_total.size != n:
+                raise ValueError(
+                    f"the Poisson exposure has {n_total.size} entries but "
+                    f"the response has {n}; each well must carry its own "
+                    f"cell count.")
+            if not np.isfinite(n_total).all() or np.any(n_total <= 0):
+                raise ValueError(
+                    "the Poisson exposure is the well's cell count, so it "
+                    f"must be finite and strictly positive; got "
+                    f"{np.nanmin(n_total)}-{np.nanmax(n_total)}.")
+            offset = np.log(n_total)
+        else:
+            print("Warning: no per-well cell count reached the Poisson fit, "
+                  "so it models the raw count with no offset(log(cell_count)).")
+    elif isinstance(family, sm.families.Binomial) and weights is not None:
+        var_weights = np.asarray(weights, dtype=float).reshape(-1)
+        if var_weights.size != n:
+            raise ValueError(
+                f"the binomial fit was given {var_weights.size} weights for "
+                f"{n} observations.")
+
+    glum_family = {
+        'Poisson': 'poisson', 'Binomial': 'binomial', 'Gaussian': 'normal',
+    }.get(type(family).__name__)
+    if glum_family is None:
+        raise ValueError(
+            f"regression_backend='glum' cannot fit a "
+            f"{type(family).__name__} family; spaCR routes poisson, binomial "
+            f"and gaussian through it. Fit with "
+            f"regression_backend='statsmodels'.")
+
+    # alpha=0 is the UNPENALISED fit, which is the only one that can agree
+    # with statsmodels. fit_intercept=False because patsy already put an
+    # 'Intercept' column in the design and a second one would be collinear
+    # with it.
+    estimator = GeneralizedLinearRegressor(
+        family=glum_family, alpha=0, fit_intercept=False,
+        gradient_tol=1e-10, max_iter=500)
+    fit_kwargs = {}
+    if offset is not None:
+        fit_kwargs['offset'] = offset
+    if weights is not None and isinstance(family, sm.families.Binomial):
+        fit_kwargs['sample_weight'] = var_weights
+    estimator.fit(design, y_flat, **fit_kwargs)
+
+    beta = np.asarray(estimator.coef_, dtype=float).reshape(-1)
+    eta = design @ beta + (0.0 if offset is None else offset)
+    mu = family.link.inverse(eta)
+
+    info_w = _glum_information_weights(family, mu, var_weights)
+    xtwx = design.T @ (design * info_w[:, None])
+    if isinstance(family, sm.families.Gaussian):
+        # A Gaussian GLM has a FREE dispersion, and statsmodels estimates it
+        # as the Pearson chi-square over the residual degrees of freedom.
+        scale = float(np.sum(info_w * (y_flat - mu) ** 2)) / (n - len(beta))
+    else:
+        scale = 1.0
+    try:
+        cov = scale * np.linalg.inv(xtwx)
+    except np.linalg.LinAlgError as exc:
+        raise ValueError(
+            f"the glum fit's information matrix is singular ({exc}), so its "
+            f"{len(beta)} coefficients are not identified. statsmodels "
+            f"answers the same design with a pseudo-inverse, which picks one "
+            f"arbitrary solution out of infinitely many.") from exc
+    se = np.sqrt(np.clip(np.diag(cov), 0.0, None))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        z = np.where(se > 0, beta / se, 0.0)
+    p_values = 2.0 * st.norm.sf(np.abs(z))
+
+    # THE NULL MODEL IS FITTED, not approximated, because `regression_model`
+    # prints McFadden's R2 for 'glm' and 'poisson' off `null_deviance` and a
+    # backend that changed that number would have changed a number a reader
+    # compares between runs. It is an intercept-only GLM: one column, so it
+    # costs nothing next to the fit above.
+    null_kwargs = {'family': family}
+    if offset is not None:
+        null_kwargs['offset'] = offset
+    if weights is not None and isinstance(family, sm.families.Binomial):
+        null_kwargs['var_weights'] = var_weights
+    null_fit = sm.GLM(y_flat, np.ones((n, 1)), **null_kwargs).fit()
+
+    names = [str(c) for c in columns]
+    model = _AbsorbedDesign(y_flat, design, names)
+    model.__class__ = _GLUM_DESIGN_CLASS
+    llf = family.loglike(y_flat, mu, var_weights=var_weights, scale=scale)
+    deviance = family.deviance(y_flat, mu, var_weights=var_weights)
+    return _GlumResults(
+        params=pd.Series(beta, index=names),
+        bse=pd.Series(se, index=names),
+        pvalues=pd.Series(p_values, index=names),
+        resid=y_flat - mu, fitted=mu, scale=scale,
+        df_model=len(beta) - 1, df_resid=n - len(beta), nobs=n, model=model,
+        family=family, llf=llf, null_deviance=float(null_fit.null_deviance),
+        deviance=deviance, n_iter=int(getattr(estimator, 'n_iter_', 0)))
+
+
+#: The design class name :mod:`spacr.regression_qc` resolves a GLM by. Its
+#: scale rule reads the dispersion off ``model.scale``, which is what
+#: :class:`_GlumResults` reports -- 1 for the fixed-dispersion families and
+#: the Pearson estimate for Gaussian, exactly as statsmodels does.
+_GLUM_DESIGN_CLASS = type('GLM', (_AbsorbedDesign,),
+                          {'__doc__': "The design of a glum-fitted GLM."})
+
 def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None, l1_ratio=0.5, quantile=0.5,
                      hinge_threshold=None, huber_t=1.345, exposure=None,
@@ -2193,7 +2864,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     # WHO fits it, checked before WHAT is fitted is dispatched. A backend
     # that cannot fit this family, is not installed, or wants a GPU that is
     # not here fails now rather than after the design has been built.
-    _require_backend(regression_type, regression_backend)
+    backend = _require_backend(regression_type, regression_backend)
     _reject_unused_settings(regression_type, {
         name: (supplied[name], default)
         for name, default in _MODEL_LEVEL_DEFAULTS.items()})
@@ -2621,7 +3292,55 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         'rra': _rra,
     }
 
-    model = model_map[regression_type]()
+    # THE ALTERNATIVE FITTERS COME BEFORE THE DEFAULT MAP, and each one is
+    # held to instruction 141 D: it fits the SAME model and reports the same
+    # numbers, or it is not offered. What each one may be chosen for is
+    # policed by `backend_status` above, so an unroutable pairing has already
+    # been refused by name and this is only the dispatch.
+    if backend == 'pyfixest':
+        if cov_type is not None:
+            # A SANDWICH IS NOT ABSORBED FOR FREE. HC0's meat is
+            # X~' diag(e^2) X~ and does survive Frisch-Waugh-Lovell, but
+            # HC1/HC2/HC3 correct by the FULL model's leverage, which an
+            # absorbed fit never forms -- so three of the four spaCR offers
+            # would come out different from the statsmodels number under the
+            # same label. Instruction 141 D calls that a bug, so it is
+            # refused instead of approximated.
+            raise ValueError(
+                f"regression_backend='pyfixest' absorbs rowID and columnID, "
+                f"and the HC1/HC2/HC3 corrections are computed from the full "
+                f"model's leverage, which an absorbed fit never forms. It "
+                f"reports classical standard errors only, so "
+                f"cov_type={cov_type!r} would be a label on numbers that did "
+                f"not come from it. Fit with "
+                f"regression_backend='statsmodels' to use cov_type, or clear "
+                f"cov_type to absorb.")
+        if regression_type == 'wls' and weights is None:
+            # The same refusal `_wls` makes, made here too: WLS with unit
+            # weights IS OLS, and a run labelled 'wls' that fitted OLS is the
+            # silent mislabelling that branch exists to prevent.
+            raise ValueError(
+                "regression_type='wls' needs per-well weights, and no "
+                "'cell_count' column reached the model. Weighted least "
+                "squares with unit weights is exactly OLS, so spaCR will not "
+                "fit it under the 'wls' label. Use 'ols', or run the scores "
+                "through process_scores so each well carries its cell count.")
+        model = _fit_absorbed_least_squares(
+            X, y, weights=weights if regression_type == 'wls' else None,
+            kind='WLS' if regression_type == 'wls' else 'OLS')
+    elif backend == 'glum':
+        if cov_type is not None:
+            raise ValueError(
+                f"regression_backend='glum' reports the classical GLM "
+                f"standard errors -- the inverse information matrix at a "
+                f"fixed dispersion -- and has no HC0..HC3 estimator that "
+                f"matches statsmodels', so cov_type={cov_type!r} would be a "
+                f"label on numbers that did not come from it. Fit with "
+                f"regression_backend='statsmodels' to use cov_type.")
+        model = _fit_glum_glm(X, y, regression_type, weights=weights,
+                              exposure=exposure)
+    else:
+        model = model_map[regression_type]()
 
     if regression_type in ['glm', 'poisson']:
         llf_model = model.llf
