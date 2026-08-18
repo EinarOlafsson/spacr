@@ -27,13 +27,16 @@ CONDA_NAMES = {
 }
 
 # The conda package is an application distribution, not only setup.py's core
-# library wheel. These are deliberate conda-only runtime additions: Cellpose's
-# recipe currently omits its SAM import, while spaCR's Qt extra cannot be
-# selected through conda package extras.
+# library wheel. This is the one deliberate conda-only runtime addition:
+# Cellpose's recipe currently omits its SAM import.
+#
+# pyside6 and qtawesome used to be here for the reason the name says -- spaCR's
+# Qt extra cannot be selected through conda package extras. They are core
+# dependencies of the wheel as of 2026-08-17 ("lets stop hiding the qt behind
+# a qt"), so they arrive through `expected` now and naming them here as well
+# would only hide it if they were ever removed from setup.py.
 CONDA_APPLICATION_DEPENDENCIES = {
     "segment-anything",
-    "pyside6",
-    "qtawesome",
 }
 
 
@@ -49,9 +52,17 @@ def _core_dependency_names() -> set[str]:
             for target in node.targets
         ):
             requirements = ast.literal_eval(node.value)
+            # A REQUIREMENT WITH AN ENVIRONMENT MARKER IS NOT EXPECTED IN
+            # THE RECIPE. `win10toast` is declared
+            # `platform_system == "Windows"`, and this recipe is
+            # `noarch: python` -- one package for every platform, with no way
+            # to express the marker. Listing it would make a Windows-only
+            # toast library a hard runtime dependency on Linux and macOS,
+            # where it does not build.
             return {
                 _normalise(Requirement(requirement).name)
                 for requirement in requirements
+                if not Requirement(requirement).marker
             }
     raise AssertionError("setup.py has no literal dependencies assignment")
 
