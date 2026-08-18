@@ -236,20 +236,15 @@ def test_the_real_panel_puts_the_level_on_the_volcano(qtbot):
 
 
 # --------------------------------------------------------------------------- #
-#  Found in passing, on the real panel: the sentence does not survive a click
+#  Found on the real panel: the sentence must survive a click. It now does.
+#
+#  It was written with `set_status_note`, which fast_plots documents as "a
+#  sentence about the CLICKED thing", so the first click erased the one line
+#  saying the other half of the run existed -- 147 A's own failure, one click
+#  later. `_offer_levels` passes `note=` to `offer_levels`, whose slot is
+#  durable, and `_mark_the_level_on_the_plots` goes through it.
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.xfail(strict=True, reason=(
-    "spacr/qt/widgets/regression_results.py writes the level sentence with "
-    "`set_status_note`, which is the CLICK slot -- fast_plots documents it as "
-    "'a sentence about the CLICKED thing', and every click rewrites it. So the "
-    "sentence 147 A asked for is gone the first time the user uses the plot, "
-    "which is the same half-run-invisible failure one click later. "
-    "THE FIX IS ONE LINE and is verified: `_offer_levels` passes "
-    "`note=self.both_levels_note()` to `offer_levels`, whose own slot survives "
-    "a redraw and a click, and `_mark_the_level_on_the_plots` stops writing it "
-    "through the click slot. That file is another territory; delete this "
-    "marker when the line lands."))
 def test_the_panels_level_sentence_survives_a_click(qtbot):
     from spacr.qt.widgets.regression_results import RegressionResultsPanel
 
@@ -271,3 +266,35 @@ def test_the_panels_level_sentence_survives_a_click(qtbot):
     assert "gene fit is in this run" in said, said
     assert "fraction:grna[g7_2]" in said, (
         "the clicked row's name was lost instead")
+
+
+def test_the_sentence_lives_in_the_durable_slot_not_the_click_slot(qtbot):
+    """`level_note()` holds it, so nothing a user does can overwrite it.
+
+    The distinction is the whole bug: `set_status_note` is one slot shared
+    with every click, and `offer_levels(note=...)` is a slot of its own.
+    Asserting the SLOT rather than the composed line is what keeps a later
+    change from putting the sentence back where a click can reach it.
+    """
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    n = 60
+    features = [f"fraction:grna[g{i // 3}_{i % 3}]" for i in range(n)]
+    features[:9] = [f"gene_fraction:gene[g{i}]" for i in range(9)]
+    rng = np.random.default_rng(1)
+    panel.set_frame(pd.DataFrame({
+        "feature": features,
+        "coefficient": rng.normal(0, 0.5, n),
+        "p_value": rng.uniform(1e-9, 0.99, n)}))
+
+    assert "gene fit is in this run" in panel.volcano.level_note()
+
+    # The OTHER direction: switching level rewrites the sentence to name the
+    # fit that is now hidden, and it is still in the durable slot afterwards.
+    panel.set_level("gene")
+    assert "guide fit is in this run" in panel.volcano.level_note()
+    panel._select_key(str(panel.filtered_frame()["feature"].iloc[0]))
+    assert "guide fit is in this run" in panel.volcano.level_note()
+    assert "guide fit is in this run" in panel.volcano._status.text()
