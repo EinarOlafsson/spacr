@@ -916,7 +916,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # measuring, and how should it be tested -- were answered in one
         # twelve-row block.
         ("Response", (
-            "dependent_variable", "score_column", "invert_dependent_variable",
+            # `score_column` retired with instruction 135 A: it named the
+            # same measurement as `dependent_variable` and only offered a
+            # way to disagree with it.
+            "dependent_variable", "invert_dependent_variable",
             "analysis_unit", "agg_type", "transform",
         )),
         # `inference` leads because it decides whether "Estimator Tuning" or
