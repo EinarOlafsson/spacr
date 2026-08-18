@@ -1,0 +1,96 @@
+================================================================================
+EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "in the regression modual all of the generated graphs should be generated
+   with pyqtgraph, not matplotlib, and the bargraphs with jutter plot
+   backgrounds should be boxplots with jutter in the same style as the graph
+   skill in the repo that is based on sebastian louridos papers"
+
+Related: 129 put every INTERACTIVE plot in pyqtgraph, a tab each. This is the
+         GENERATED half -- the figures a run writes to disk. 136 is the house
+         style those figures have to be drawn in. 115 wants every diagnostic
+         saved and scored.
+
+--------------------------------------------------------------------------------
+A. THE GENERATED GRAPHS MOVE TO PYQTGRAPH
+--------------------------------------------------------------------------------
+
+MEASURED 2026-08-18, matplotlib figures still produced on the regression path:
+
+    spacr/regression_diagnostics.py    8
+    spacr/toxo.py                      7
+    spacr/ml.py                        5
+    spacr/guide_permutation.py         1
+                                      21
+
+129 already put the interactive plots in pyqtgraph -- the volcano, the Q-Q,
+the p-histogram, the control panel, the guide agreement, the effect ranking
+and the three residual panels are `spacr/qt/widgets/fast_plots.py`. So the
+same screen currently draws each plot TWICE, in two libraries, from two code
+paths: one for the tab and one for the PDF. That is the real cost, and it is
+not only duplication -- the two can and do disagree, which is how a figure in
+a paper stops matching the figure on screen.
+
+WHAT MOVING MEANS, and it needs stating because pyqtgraph is a screen library:
+the generated file is a RENDER of the pyqtgraph scene, not a second drawing of
+the same data. `FastPlot.snapshot` already photographs a live widget for the
+grid; the export path needs the vector equivalent, at print resolution.
+
+TWO THINGS THAT MUST NOT BE LOST, both already true of the matplotlib path:
+  * every save goes through `spacr.plot.save_figure`, which honours the
+    user's figure-format preference. A literal '.pdf' is a complaint this
+    project has had twice.
+  * a headless run writes its figures. The regression module runs from
+    `spacr-run` and from a notebook with no GUI, and pyqtgraph needs a
+    QApplication -- so the export has to work offscreen or say plainly that
+    it cannot, per instruction 106. A run that silently stops writing
+    figures when there is no display is the worst outcome here.
+
+--------------------------------------------------------------------------------
+B. A BOXPLOT WITH JITTER, NOT A BAR WITH JITTER
+--------------------------------------------------------------------------------
+
+"the bargraphs with jutter plot backgrounds should be boxplots with jutter".
+
+THIS IS A STATISTICAL CORRECTION, not a preference, and that is why it is
+worth doing rather than styling around. A bar drawn at a mean with points
+behind it shows ONE number and hides the shape of the data: two groups with
+the same mean and completely different spreads draw the same bar. A boxplot
+shows the median, the quartiles and the whiskers, so the reader sees the
+distribution the points already imply -- and the jitter stays, because the
+box summarises and the points are the evidence.
+
+WHERE IT IS: `spacrGraph` / `create_grouped_plot` in `spacr/plot.py` default
+to `graph_type='bar'`, and `spacr/settings.py` defaults `graph_type` to
+'jitter', 'jitter_bar' and 'violin' in three different modules. `jitter_box`
+already exists as an option -- so this is largely changing which one is the
+DEFAULT and making sure the box is drawn to the house rules, not writing a
+new plot type.
+
+THE STYLE IS THE ONE IN THE REPO: `spacr/figures/style.py`, which implements
+`.claude/skills/apicomplexan-figures`, derived from Waldman et al. Cell 2020
+and Giuliano et al. Nature Microbiology 2024 -- the Lourido-lab figures the
+request names. Its rules apply here directly:
+  * everything is grey except what the sentence is about; a box per group in
+    a different colour is a rainbow, not an argument;
+  * thin spines, small type, no gridlines;
+  * the points are the data, so they carry the ink, and the box is a
+    reference over them rather than a filled block competing with them.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A regression run produces no matplotlib figure on its own path.
+* Every generated figure matches the tab it corresponds to, because both come
+  from one scene.
+* `spacr-run regression` on a headless machine still writes its figures, or
+  says why it cannot.
+* Every save still honours the figure-format preference.
+* A grouped comparison draws a box with jitter by default; the mean-bar is
+  still reachable for anyone who wants it.
+* The box obeys the house style: one highlighted group against grey.
