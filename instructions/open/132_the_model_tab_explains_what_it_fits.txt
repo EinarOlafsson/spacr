@@ -139,3 +139,40 @@ HOW TO KNOW IT WORKED
   that formula is gone.
 * The not-identifiable warning stops firing on this screen: the guide fit
   drops 452 parameters and the gene fit drops 823, against 610 wells.
+
+
+================================================================================
+ADDENDUM, 2026-08-17: `level` BELONGS IN THIS TAB
+================================================================================
+
+Requested: "level should be in model and inference not additional settings"
+
+WHERE IT ACTUALLY IS. `level` is listed under "Plate Layout & Controls" in
+settings.py's category table, and the Qt regression layout in
+`qt/screens/settings_model.py` names it in no section at all -- so it falls
+into "Additional Settings", which the comment in that very file calls "the
+bucket a layout exists to keep empty".
+
+WHERE IT GOES. Beside the controls it depends on, in both front ends:
+
+    settings.py            "Regression: Model"  -- with inference,
+                           analysis_mode, regression_type,
+                           random_row_column_effects, cov_type
+    settings_model.py      "Model & Inference"  -- the same five
+
+It is not a plate-layout setting. It decides WHICH FITS RUN -- 'both' fits the
+guide model and the gene model as two separate fits, 'grna' or 'gene' fits one
+-- and it is greyed out under `regression_type='mixed'`, which nests guides in
+genes and therefore fits both levels at once. A control whose enabled state is
+decided by `regression_type` and which is drawn three sections away from it is
+the arrangement this move fixes.
+
+ONE KEY, TWO MODULES, and the reason to be careful. `level` is also the
+proportion plots' unit ('object' / 'well' / 'plate'), which settings.py:3456
+already says out loud. Moving the REGRESSION category entry must not move it
+for those modules; if the category table cannot express per-module placement,
+say so rather than regrouping the proportion plots by accident.
+
+HOW TO KNOW IT WORKED: opening the regression module in `spacr-qt` shows
+`level` in "Model & Inference" and nothing in "Additional Settings" that has a
+home; the proportion-plot modules still show their own `level` where it was.
