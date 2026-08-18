@@ -225,6 +225,17 @@ MIN_VISIBLE_CHANGE = 0.01
 #: palette quantisation rather than a real change.
 _CHANGE_THRESHOLD = 30
 
+#: Width in pixels of the frame border inspected for the GIF disposal
+#: artifact. Six is wide enough to sample the ring the encoder leaves and
+#: narrow enough that a scene drawing near the edge -- the border-object
+#: family does -- only ever changes part of it.
+_BORDER_BAND = 6
+
+#: A frame whose whole perimeter changed is not a picture, it is the GIF
+#: encoder. Measured across all 94: the artifact scores exactly 1.0 and the
+#: highest legitimate score is 0.14, so anything above half is the encoder.
+MAX_BORDER_ARTIFACT = 0.5
+
 
 def measure_visible_change(path) -> float:
     """Fraction of the frame that changes between an animation's states.
@@ -282,6 +293,99 @@ def validate_animations_show_something(
     for animation in setting_animations():
         fraction = measure_visible_change(animation.path)
         if fraction < minimum:
+            failures[animation.slug] = round(fraction, 4)
+    return failures
+
+
+def _animation_frames(path):
+    """Decode one GIF to a list of RGB arrays, or ``None`` if it cannot be read.
+
+    Shared by the two measurements below so they agree about what a frame is.
+    GIF decoding is not a detail here: Pillow coalesces identical frames, so
+    the stored frame count is lower than the rendered one and no index maps
+    to a phase of the scene.
+    """
+    try:
+        import numpy as np
+        from PIL import Image
+    except Exception:                       # pragma: no cover - no imaging
+        return None
+    frames = []
+    try:
+        with Image.open(path) as image:
+            while True:
+                frames.append(np.asarray(image.convert("RGB"), dtype=np.int16))
+                image.seek(image.tell() + 1)
+    except EOFError:
+        pass
+    except Exception:
+        return []
+    return frames
+
+
+def measure_border_artifact(path) -> float:
+    """Largest fraction of the frame border that changes after the first frame.
+
+    This measures an ENCODING fault rather than a drawing one. Saving a GIF
+    with ``disposal=2`` tells a decoder to clear each frame to the background
+    colour before drawing the next; when the encoder then optimises a frame
+    down to the sub-rectangle that actually changed, everything outside that
+    rectangle is left showing the background. The animation plays with a
+    bright ring flashing around it once per loop, and Qt's ``QMovie`` renders
+    it exactly as described -- this was measured through the GUI path, not
+    inferred from the file.
+
+    It also corrupts :func:`measure_visible_change`, because a ring around a
+    360x360 frame is 9.75% of it: an animation that shows almost nothing
+    scores over 10% and clears the threshold on the artifact alone.
+
+    :param path: the GIF to measure.
+    :returns: 0.0 to 1.0, where 1.0 means an entire frame border changed.
+        Returns 0.0 when the file cannot be read, so a caller sees the other
+        animations rather than a traceback.
+    """
+    try:
+        import numpy as np
+    except Exception:                       # pragma: no cover - no imaging
+        return 0.0
+    frames = _animation_frames(path)
+    if not frames or len(frames) < 2:
+        return 0.0
+    band = _BORDER_BAND
+
+    def perimeter(frame):
+        return np.concatenate([
+            frame[:band].reshape(-1, 3),
+            frame[-band:].reshape(-1, 3),
+            frame[band:-band, :band].reshape(-1, 3),
+            frame[band:-band, -band:].reshape(-1, 3),
+        ])
+
+    first = perimeter(frames[0])
+    return max(
+        float((np.abs(perimeter(frame) - first).sum(axis=1) > _CHANGE_THRESHOLD).mean())
+        for frame in frames[1:]
+    )
+
+
+def validate_animations_have_no_border_artifact(
+        *, maximum: float = MAX_BORDER_ARTIFACT) -> Dict[str, float]:
+    """No animation may flash a ring around itself.
+
+    Separate from :func:`validate_animations_show_something` because the two
+    fail in opposite directions: this artifact ADDS 9.75% of changed frame,
+    so an animation carrying it passes the "shows something" check while
+    showing the viewer a rectangle the setting has nothing to do with.
+
+    :param maximum: fraction of the frame border allowed to change.
+    :returns: ``{slug: fraction}`` for every animation ABOVE the threshold,
+        empty when they all pass. Returned rather than raised so a caller can
+        report the whole list.
+    """
+    failures: Dict[str, float] = {}
+    for animation in setting_animations():
+        fraction = measure_border_artifact(animation.path)
+        if fraction > maximum:
             failures[animation.slug] = round(fraction, 4)
     return failures
 

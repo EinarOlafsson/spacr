@@ -35,10 +35,10 @@
       "slug": "cell_min_area",
       "title": "Cell \u2014 Minimum object area",
       "validation": {
-        "bytes": 119324,
+        "bytes": 35900,
         "frames": 18,
-        "sha256": "89ec0c551e543f18d178b480e291bdb535965a08143a6e27822ff7890f438a94",
-        "unique_frames": 18
+        "sha256": "b252289ae196076ea0c80a3d7fa41241212051ad5fe33a4c9709a0dac2eaf0bd",
+        "unique_frames": 17
       }
     },
     {
@@ -75,10 +75,10 @@
       "slug": "cell_min_intensity_percentile",
       "title": "Cell \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 119059,
+        "bytes": 34434,
         "frames": 18,
-        "sha256": "2d4f7a797686afee76d34e41ce3022f86d75db4e6153f9c88b334c56da222ad2",
-        "unique_frames": 18
+        "sha256": "1230cf5378766054d7c3e4e43711c2ed0408a49d458167137cbe68a92451137c",
+        "unique_frames": 17
       }
     },
     {
@@ -176,9 +176,9 @@
       "slug": "nucleus_min_intensity_percentile",
       "title": "Nucleus \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 132412,
+        "bytes": 59582,
         "frames": 18,
-        "sha256": "24acc70e5c8277ce8b29e854dc4de4842fed72fc1c2b869c0b45270b8d492fa3",
+        "sha256": "aae72da12e86e09c6a16563664d464f427c6e0e727fcdc956e0bdcbe35191582",
         "unique_frames": 17
       }
     },
@@ -196,9 +196,9 @@
       "slug": "nucleus_max_intensity_percentile",
       "title": "Nucleus \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 115219,
+        "bytes": 73803,
         "frames": 18,
-        "sha256": "fa8795cd5b33508bcd2298a319d7d89a7fac66678d1cdd709a3ee36a244eb459",
+        "sha256": "8d839f0d769641fdd84c4afaa6f99a484db7e1f050ceab81af42a8fc54d8f1a7",
         "unique_frames": 17
       }
     },
@@ -237,10 +237,10 @@
       "slug": "pathogen_min_area",
       "title": "Pathogen \u2014 Minimum object area",
       "validation": {
-        "bytes": 199520,
+        "bytes": 130949,
         "frames": 18,
-        "sha256": "17a5297d8d06dc32a613e49b3c8aba5149fdc416dc0152528a954ad06b28a97d",
-        "unique_frames": 18
+        "sha256": "0814aab9aff575ca27c2acc7472d6f2faeef0cdbaf3e4f7b70ead4b4bf3d8054",
+        "unique_frames": 17
       }
     },
     {
@@ -277,10 +277,10 @@
       "slug": "pathogen_min_intensity_percentile",
       "title": "Pathogen \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 195467,
+        "bytes": 80529,
         "frames": 18,
-        "sha256": "b128a5cc43198e598124c685b5a1f0890e43806bcf8fbff6d8d2bf31f5563f82",
-        "unique_frames": 18
+        "sha256": "b8f788b50d055c1bff28079459fb1d308c5fafe5f47abbabeb93cfd85a6e7f9f",
+        "unique_frames": 17
       }
     },
     {
@@ -297,9 +297,9 @@
       "slug": "pathogen_max_intensity_percentile",
       "title": "Pathogen \u2014 Maximum intensity percentile",
       "validation": {
-        "bytes": 161817,
+        "bytes": 121462,
         "frames": 18,
-        "sha256": "154d7a295b784525a6ff7e47e577db02ff333d5695cc5ec953101e856f106bb1",
+        "sha256": "78f49eab638b5480ff4c6bc0254afa2919041809f5bee8755abb405d7f597f7f",
         "unique_frames": 17
       }
     },
@@ -339,9 +339,9 @@
       "slug": "organelle_min_area",
       "title": "Organelle \u2014 Minimum object area",
       "validation": {
-        "bytes": 266242,
+        "bytes": 140397,
         "frames": 18,
-        "sha256": "54dd7a3b1552d9247e3cf653b13b43277063fa6a57ed9835592af0495e040ea6",
+        "sha256": "875f3d08b59b711278c7ece62a768cd67dd3860369a50846b28ed0f2b27ca557",
         "unique_frames": 17
       }
     },
@@ -380,10 +380,10 @@
       "slug": "organelle_min_intensity_percentile",
       "title": "Organelle \u2014 Minimum intensity percentile",
       "validation": {
-        "bytes": 259982,
+        "bytes": 187579,
         "frames": 18,
-        "sha256": "6d1066c1c4a698dded27675650a7acc306d605047d75c87b03c99be11de120c3",
-        "unique_frames": 18
+        "sha256": "9cdc84be9f5bb4d6275fcb926defae7b4e44465ceb374a0cddfa137aa60c55cc",
+        "unique_frames": 17
       }
     },
     {
@@ -705,10 +705,10 @@
       "slug": "cell_CP_prob",
       "title": "Cell probability threshold",
       "validation": {
-        "bytes": 109923,
+        "bytes": 34189,
         "frames": 15,
-        "sha256": "13bef4907a3dcdf17bfef5ab91becf17311418373f3993b10100711abff0c449",
-        "unique_frames": 15
+        "sha256": "00809d9361e343ce467e10f8226a606239f1c927576bff26de17c948a13715a2",
+        "unique_frames": 14
       }
     },
     {
@@ -801,9 +801,9 @@
       "slug": "nucleus_CP_prob",
       "title": "Nucleus probability threshold",
       "validation": {
-        "bytes": 141491,
+        "bytes": 69750,
         "frames": 15,
-        "sha256": "5ce3f90cbb698b33c859fa7f1db64f71cd1470113537055c63464673fc5ac2ba",
+        "sha256": "6dd44126e063b0bc4def34ac36407770e1cd240e9f7295109fae6670a80a2d76",
         "unique_frames": 14
       }
     },
@@ -839,9 +839,9 @@
       "slug": "nucleus_diameter",
       "title": "Nucleus diameter",
       "validation": {
-        "bytes": 86875,
+        "bytes": 59860,
         "frames": 18,
-        "sha256": "bc731add313663c88aef6ff111655402efe32a2bd568fe30b55cb6056b3c5891",
+        "sha256": "045082a1d415186bbd284b81fb75dbb6814bf0b7147f7505808b96ad14d25fef",
         "unique_frames": 16
       }
     },
@@ -897,10 +897,10 @@
       "slug": "pathogen_CP_prob",
       "title": "Pathogen probability threshold",
       "validation": {
-        "bytes": 215905,
+        "bytes": 148300,
         "frames": 15,
-        "sha256": "5af20dc3085d26ff2f378e4ab0e04812b239e5920986cf84b0c86f9916f72405",
-        "unique_frames": 15
+        "sha256": "b7beb0c228fd4ddd009e83d200a4d5e1a95632c6d444c1bfe1fb842805675ef0",
+        "unique_frames": 14
       }
     },
     {
@@ -935,9 +935,9 @@
       "slug": "pathogen_diameter",
       "title": "Pathogen diameter",
       "validation": {
-        "bytes": 114098,
+        "bytes": 88493,
         "frames": 18,
-        "sha256": "cae6b082e799a7304068d3adb45f1b1e5d401969f5a938d285ac8e521ddc562d",
+        "sha256": "7a97d928d11666fe447283428635998bc31a093d1a26f43e4623ada472850893",
         "unique_frames": 16
       }
     },
@@ -993,10 +993,10 @@
       "slug": "organelle_diameter",
       "title": "Organelle diameter",
       "validation": {
-        "bytes": 136518,
+        "bytes": 114748,
         "frames": 18,
-        "sha256": "77e2a69c7ca13d3390ae7e8816cadd1883c6edf226760d259170f59c86f044f8",
-        "unique_frames": 18
+        "sha256": "33fc6e227cfbbf2cd20c08ce3768ff855391705a1c17e488f3a50416ae81ff4e",
+        "unique_frames": 17
       }
     },
     {
@@ -1012,10 +1012,10 @@
       "slug": "organelle_CP_prob",
       "title": "Organelle probability threshold",
       "validation": {
-        "bytes": 287983,
+        "bytes": 149614,
         "frames": 15,
-        "sha256": "f1671472959a9c300be9e91371b8fe2aa834e0a856f1b265a8c2ea8f46108f6b",
-        "unique_frames": 15
+        "sha256": "db147a04932fe1666da408ab6d85790dbed82742db625d2ded19530dee237cca",
+        "unique_frames": 14
       }
     },
     {
@@ -1127,9 +1127,9 @@
       "slug": "organelle_rolling_ball",
       "title": "Rolling-ball background correction",
       "validation": {
-        "bytes": 166226,
+        "bytes": 114040,
         "frames": 16,
-        "sha256": "f182b13410b972f7ac2ba327919141d0556278dedbcc6779dee1e7f7a33fe4f9",
+        "sha256": "3583832e96cb70514e9896f5097db6ee82d67614fedc79f9042a22d2b0975c54",
         "unique_frames": 15
       }
     },
@@ -1166,9 +1166,9 @@
       "slug": "organelle_mask_within_cells",
       "title": "Mask organelles within cells",
       "validation": {
-        "bytes": 452241,
+        "bytes": 366560,
         "frames": 17,
-        "sha256": "4343e4cae74ccc13d2c204dc10ebe3ac40540c323ed06dd763529257aff93533",
+        "sha256": "b2867d7d5190132fa33ebc754062fd50a1be73bce41bf80021c4c0562ac1d97a",
         "unique_frames": 16
       }
     },
@@ -1584,9 +1584,9 @@
       "slug": "n_neighbors",
       "title": "UMAP neighborhood size",
       "validation": {
-        "bytes": 73404,
+        "bytes": 54778,
         "frames": 7,
-        "sha256": "bd03244da331bd6d3c1dbd58e8fa2be3bada7e6c749c48088842aa2eec981a88",
+        "sha256": "be64077f410a6f5d079e9254bd6407c30dbbe76a74aeff7994e0209292b9fa3d",
         "unique_frames": 4
       }
     },
@@ -1622,9 +1622,9 @@
       "slug": "plot_images",
       "title": "Show object images",
       "validation": {
-        "bytes": 155434,
+        "bytes": 120672,
         "frames": 18,
-        "sha256": "759b02c5303f54728d869d435d4f2df25fe767d56df623c0adf7cf64587eb5b4",
+        "sha256": "788dcd3392e1331e2d9a08069e57f32ea05607431e1bf5e5974c4867fa750d83",
         "unique_frames": 17
       }
     },
@@ -1641,9 +1641,9 @@
       "slug": "remove_image_canvas",
       "title": "Remove image canvas",
       "validation": {
-        "bytes": 133610,
+        "bytes": 86085,
         "frames": 18,
-        "sha256": "a834872a535c7d2e58ef0465300b0bc4331901a4745b687c99753cd3854af08c",
+        "sha256": "7c4384c8efabdcf71e331c45e2d6e5434115d0875136e7c42fa8ac57702cba15",
         "unique_frames": 17
       }
     },
@@ -1660,10 +1660,10 @@
       "slug": "plot_outlines",
       "title": "Show cluster outlines",
       "validation": {
-        "bytes": 210799,
+        "bytes": 126838,
         "frames": 18,
-        "sha256": "81a9d953864e84eda3f669ca6aef17b947e81bc89d7acbadc33ac797c4319a85",
-        "unique_frames": 18
+        "sha256": "7cf8822f80b220118b6c38d47c79b596bc36ac041314dc150ba857ac04b30b5c",
+        "unique_frames": 17
       }
     },
     {
@@ -1736,9 +1736,9 @@
       "slug": "plot_by_cluster",
       "title": "Sample images by cluster",
       "validation": {
-        "bytes": 173674,
+        "bytes": 108855,
         "frames": 18,
-        "sha256": "f7e9ca481f364b8e454829bf6c2d3df595c69f64b2147e9d5d8ccc2f6f02b3c0",
+        "sha256": "ddf83c2404520eb379028166c18f0a2291e6d500c3d1f8acd0472dfa4d4cb7d3",
         "unique_frames": 17
       }
     },
@@ -1755,9 +1755,9 @@
       "slug": "dot_size",
       "title": "Embedding point size",
       "validation": {
-        "bytes": 153565,
+        "bytes": 129468,
         "frames": 18,
-        "sha256": "021dc4475e5d58bada1e5c14d9e1a1590a4fa1bca02f8d7abee426593cd967ce",
+        "sha256": "e1424d92aeb949d9b9ceba0021e6b7d99390e3dfa7c3c3eb1d59bcfe21282c1b",
         "unique_frames": 17
       }
     },
@@ -1774,9 +1774,9 @@
       "slug": "img_zoom",
       "title": "Embedding image zoom",
       "validation": {
-        "bytes": 113641,
+        "bytes": 89366,
         "frames": 18,
-        "sha256": "dabfc839643f76243105ed296eb837b8aa44008094b00504b9b8c8005c44edca",
+        "sha256": "8c7e5b2c997b7ac576c9754f75b4b44a9e5c4dbff3f438e8594edae47dc4dfdb",
         "unique_frames": 17
       }
     },
@@ -1795,9 +1795,9 @@
       "slug": "eps",
       "title": "Density clustering radius",
       "validation": {
-        "bytes": 178636,
+        "bytes": 125755,
         "frames": 18,
-        "sha256": "92f87620028c6e90fba60e3e328ffe84ad82b96a06cf82b5a89424c52afb9a11",
+        "sha256": "cb276f576a2c0c41997b3594e29e80045a53e89a1e81e140e44d0603c35200ee",
         "unique_frames": 16
       }
     },

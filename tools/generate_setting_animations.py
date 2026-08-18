@@ -1795,6 +1795,23 @@ def _specs() -> List[Spec]:
 
 
 def _write_gif(spec: Spec) -> Path:
+    """Encode one scene, keeping the canvas between frames.
+
+    ``disposal=1`` -- leave the previous frame in place -- rather than
+    ``disposal=2``, which clears to the background colour first. With
+    ``optimize=True`` Pillow shrinks each later frame to the sub-rectangle
+    that changed, so under disposal 2 everything OUTSIDE that rectangle
+    reverts to background: a bright 9-pixel ring appears on every frame after
+    the first and flashes once per loop. It is invisible in a still and
+    invisible in the file size, and it shipped in 26 of the 94 animations --
+    exactly the ones regenerated after 2026-08-09, whose changes sit away
+    from the edges. The other 68 were encoded with full-canvas frames that
+    happened to cover it.
+
+    These scenes are opaque and never need the canvas cleared, so disposal 1
+    is not only correct here, it is smaller: cell_min_area falls from 119 KB
+    to 36 KB because the encoder no longer has to re-send hidden background.
+    """
     frames = [render_frame(spec, index) for index in range(FRAMES)]
     path = ASSETS / f"{spec.slug}.gif"
     frames[0].save(
@@ -1803,7 +1820,7 @@ def _write_gif(spec: Spec) -> Path:
         append_images=frames[1:],
         duration=85,
         loop=0,
-        disposal=2,
+        disposal=1,
         optimize=True,
     )
     return path
