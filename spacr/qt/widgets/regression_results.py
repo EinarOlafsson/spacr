@@ -1257,6 +1257,14 @@ class RegressionResultsPanel(QWidget):
         # cannot leave it in two different states -- which is the whole of
         # instruction 128 L.
         self.refresh_views()
+        self._mark_the_level_on_the_plots()
+        # BOTH FITS ARE ANNOUNCED ON LOAD. A run at level='both' writes two
+        # tables and the panel opens on one; until this line nothing said the
+        # other existed, and a user who ran glm reported "it only runs once"
+        # about a run that had written both.
+        note = self.both_levels_note()
+        if note:
+            self.say(f"{self._status} {note}")
         if self._colour_by_note:
             # SAID, not swallowed. A colouring the user expected and cannot
             # find is a bug report; the same colouring listed with the reason
@@ -1264,6 +1272,24 @@ class RegressionResultsPanel(QWidget):
             self.say(f"{self._status} Colouring: {self._colour_by_note}.")
         self.loaded.emit(source or "")
         return True
+
+    def _mark_the_level_on_the_plots(self) -> None:
+        """Put the level sentence where the dots are, not only in a header.
+
+        A status line at the top of a panel is read once, on load. The
+        question "am I looking at guides or genes" is asked every time the
+        user comes back to the tab, and the answer belongs beside the marks
+        it describes.
+        """
+        # THE VOLCANO ONLY, and deliberately. `set_status_note` is how the
+        # diagnostics carry the numbers they exist for -- the inflation
+        # factor, the control medians, how many genes rest on one guide --
+        # and writing the level sentence over those would trade a panel's
+        # whole content for something the header already says. The volcano is
+        # the plot the report was about and the one a user looks at first.
+        setter = getattr(self.volcano, "set_status_note", None)
+        if callable(setter):
+            setter(self.both_levels_note())
 
     def refresh_views(self) -> None:
         """Draw EVERY tab from the coefficient table at the chosen level.
@@ -1565,6 +1591,36 @@ class RegressionResultsPanel(QWidget):
             (label, (lambda k=kind: self.set_baseline(k)), kind == chosen)
             for kind, label in self.BASELINES])
 
+    def both_levels_note(self) -> str:
+        """One sentence naming the level shown and the one that is not.
+
+        THE RUN FITS TWICE AND THE PANEL SHOWS ONE. Instruction 128 R splits
+        `level='both'` into a guide fit and a gene fit -- two tables, two
+        multiple-testing families -- and the panel opens on guides so a gene
+        is not drawn once per guide. Both of those are right.
+
+        What was missing is that NOTHING SAID SO. Reported 2026-08-18 after a
+        glm run: "i can only see guides only and it only runs once". Both fits
+        HAD run -- results_grna.csv 15 rows, results_gene.csv 5 -- and half of
+        it was invisible with nothing on screen naming the other half, so "it
+        only runs once" is the honest reading from the user's side.
+
+        Empty when there is nothing to say: one level in the table, or no
+        filter on. A note that fires every time is a note nobody reads.
+        """
+        counts = self.level_counts()
+        total = counts.get(None, 0)
+        if not self._level or not total:
+            return ""
+        shown = counts.get(self._level, 0)
+        other = "gene" if self._level == "grna" else "grna"
+        if not counts.get(other, 0):
+            return ""
+        return (f"{self.LEVEL_NAMES.get(self._level, 'everything')}: "
+                f"{shown} of {total} coefficients. The "
+                f"{'gene' if other == 'gene' else 'guide'} fit is in this run "
+                f"too — switch with Level.")
+
     def level_counts(self) -> dict:
         """``{None: n, "gene": n, "grna": n}`` for the table on screen.
 
@@ -1729,6 +1785,7 @@ class RegressionResultsPanel(QWidget):
         self._level = level
         self._offer_levels()
         self.refresh_views()
+        self._mark_the_level_on_the_plots()
         counts = self.level_counts()
         shown = counts.get(level, counts.get(None, 0))
         self.say(f"{shown} of {counts.get(None, 0)} coefficients — "
