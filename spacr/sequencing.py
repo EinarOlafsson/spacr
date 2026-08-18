@@ -1136,7 +1136,15 @@ def graph_sequencing_stats(settings):
 
     dst = os.path.dirname(settings['count_data'][0])
 
-    closest_threshold = find_and_visualize_fraction_threshold(df, settings['target_unique_count'], log_x=settings['log_x'], log_y=settings['log_y'], dst=dst)
+    # `.get`, because instruction 135 retired log_x/log_y as settings --
+    # the axes are chosen automatically and changed on the plot now. This
+    # runs on the DEFAULT regression path, whenever fraction_threshold is
+    # None, so a subscript here killed every run 25 lines after the one
+    # that killed it first.
+    closest_threshold = find_and_visualize_fraction_threshold(
+        df, settings['target_unique_count'],
+        log_x=settings.get('log_x', False),
+        log_y=settings.get('log_y', False), dst=dst)
 
     # Apply the closest threshold to the DataFrame
     df = df[df['fraction'] >= closest_threshold]

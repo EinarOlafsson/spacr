@@ -1017,7 +1017,8 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     directly.
 
     :param settings: Requires ``score_data`` (CSV path or list of paths),
-        ``score_column``, ``tolerance`` (int percent or float fraction) and
+        ``dependent_variable``, ``tolerance`` (int percent or float
+        fraction) and
         ``min_cell_count``. ``count_data`` is needed only when ``dst`` is
         left unset, and only to locate the figure.
     :param num_repeats: Subsamples drawn per sample size. Default ``10``.
@@ -1066,7 +1067,19 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
 
     # Group by wells and iterate over them
     for i, (prc, group) in enumerate(df.groupby('prc')):
-        original_mean = group[settings['score_column']].mean()  # Original full-well mean
+        # `dependent_variable`, NOT `score_column`. The two named the same
+        # measurement -- settings.py defaulted one to the other and the
+        # tooltip said they must agree -- so instruction 135 A retired the
+        # duplicate. This function was its only regression-path reader and
+        # kept the old name, which killed every run here with
+        # KeyError: 'score_column', AFTER the settings had been
+        # canonicalised and before a single well was fitted.
+        #
+        # `score_column` still exists and still means something ELSE: in
+        # interpret_vision_model below it names the CNN score column,
+        # default 'cv_predictions'. That is why this is three targeted
+        # edits and not a rename.
+        original_mean = group[settings['dependent_variable']].mean()
         max_cells = len(group)
         sample_sizes = np.arange(2, max_cells + 1, increment)  # Sample sizes from 2 to max cells
 
@@ -1077,7 +1090,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
             # Perform multiple random samples to reduce noise
             for _ in range(num_repeats):
                 sample = group.sample(n=sample_size, replace=False)
-                sampled_mean = sample[settings['score_column']].mean()
+                sampled_mean = sample[settings['dependent_variable']].mean()
                 abs_diff = abs(sampled_mean - original_mean)  # Absolute difference
                 abs_diffs.append(abs_diff)
 
@@ -1109,7 +1122,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
 
     # Compute the relative threshold for each well
     relative_thresholds = {
-        prc: tolerance_fraction * group[settings['score_column']].mean()  # Compute % of original mean
+        prc: tolerance_fraction * group[settings['dependent_variable']].mean()
         for prc, group in df.groupby('prc')
     }
 
