@@ -110,11 +110,12 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QPoint, QRect, Qt, QTimer,
                             Signal)
 from PySide6.QtGui import (QColor, QFont, QFontDatabase, QFontMetricsF,
                            QImage, QPainter, QPen, QPixmap)
-from PySide6.QtWidgets import (QColorDialog, QGridLayout,
+from PySide6.QtWidgets import (QGridLayout,
                                QHBoxLayout, QLabel, QPushButton, QSizePolicy,
                                QSlider, QWidget)
 
 from ..theme import RADIUS, SPACING, palette_for
+from .colour_picker import pick_colour
 from .toggle import Toggle
 
 # ---------------------------------------------------------------------------
@@ -1500,7 +1501,9 @@ class DnaRainSettingsBar(QWidget):
 
     def pick_color(self) -> None:
         """Open the colour picker; keep the current colour on cancel."""
-        chosen = QColorDialog.getColor(self._color, self, "DNA rain colour")
+        # Qt's own dialog, never the platform one -- see
+        # :mod:`spacr.qt.widgets.colour_picker`.
+        chosen = pick_colour(self, self._color, "DNA rain colour")
         if chosen.isValid():
             self.set_color(chosen)
 
