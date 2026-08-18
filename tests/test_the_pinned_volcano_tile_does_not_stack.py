@@ -231,13 +231,35 @@ def test_the_regression_screen_pins_one_volcano_however_often_it_refreshes(
     # No tile at all would make the count below pass for the wrong reason.
     assert screen._results_panel.volcano.snapshot() is not None
 
+    def live_tiles():
+        return [tile for tile in _tiles(screen._figure_grid)
+                if tile.index == -1]
+
+    screen._refresh_figure_grid()
+    qtbot.wait(5)
+    after_one = len(live_tiles())
+    # There IS something to stack. A grid with no live tile would make the
+    # comparison below pass for the wrong reason.
+    assert after_one >= 1
+
     for _ in range(5):
         screen._refresh_figure_grid()
         qtbot.wait(5)
 
-    pinned = [tile for tile in _tiles(screen._figure_grid)
-              if tile.index == -1]
-    assert len(pinned) == 1
+    # SIX MORE REFRESHES, THE SAME TILES. The count is compared against
+    # itself rather than against a literal 1, because there is no longer one
+    # pinned tile: instruction 129's grid half puts EVERY live panel on the
+    # grid -- volcano, effect ranking, p-values, Q-Q, controls, guide
+    # support, residuals, scale-location, influence -- each as a photograph
+    # of the widget, because live pyqtgraph tiles cost 74.99 ms a frame
+    # against 5.19 ms for pictures at 18 tiles on a 16.7 ms budget.
+    #
+    # What this test is about is unchanged and is the whole point: a refresh
+    # REPLACES the live tiles rather than adding another layer of them. That
+    # was reported as "the thumbnail iage of the volcano plot looks like
+    # several volcano plot itterations pasted on top of each other", and
+    # measured through this exact path as five tiles after five refreshes.
+    assert len(live_tiles()) == after_one
 
 
 # --------------------------------------------------------------------------- #
