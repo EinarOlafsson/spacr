@@ -24,7 +24,7 @@ Priority is the order to work them in. Difficulty is what a "left" item costs.
 
 | # | Summary | % | Priority | Difficulty |
 |---|---|---|---|---|
-| 148 | A log axis moves the dots, and the limits hold | 20% | 1 | Medium |
+| 148 | The x and y axes behave as expected, logged or not | 20% | 4 | Medium |
 | 147 | Both fits visible; a square is a square; the menu has categories | 0% | 2 | Medium |
 | 144 | The model box is typeset, not dumped | 0% | 3 | Medium |
 | 139 | Every regression graph in pyqtgraph; saved graphs you cannot see | 0% | 4 | High |
