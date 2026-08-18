@@ -11,7 +11,22 @@ from IPython.display import display
 # Aliased: this module also defines its own `save_figure(fig, src, figure_number)`
 # helper below, which would otherwise shadow this import for every call site
 # after it. Every kept figure still goes through the format/DPI preference.
+from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
+                            reference_line, resolve_ink, theme_target)
 from .plot import save_figure as save_figure_to_path
+
+#: THE TWO CONDITIONS EVERY TIMELAPSE PANEL COMPARES, coloured once and never
+#: re-mapped: a reader who has learned that blue is infected in the intensity
+#: histogram must not find it means something else in the motility plot.
+#:
+#: They were "red" and "green" at equal weight in eleven figures. That is two
+#: full-strength hues where the house style asks for one -- the condition is
+#: the claim, the control is the ground -- and it is the one pair a
+#: red-green-colour-blind reader cannot separate at all. Infected takes the
+#: highlight; uninfected takes the dark grey every control in the published
+#: figures takes.
+INFECTED_COLOUR = ROLES['highlight']
+UNINFECTED_COLOUR = Palette.GREY_DARK
 from .openmp_guard import single_threaded_openmp  # duplicate libomp is fatal — see that module
 from IPython.display import Image as ipyimage
 import trackpy as tp
@@ -1627,7 +1642,8 @@ def infected_vs_noninfected(result_df, measurement):
     uninfected_cells_df = result_df[result_df.groupby('plate_row_column_field_object')['parasite_count'].transform('max') == 0]
 
     # Plotting
-    fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
 
     # Plot for cells that were infected at some time
     for group_id in infected_cells_df['plate_row_column_field_object'].unique():
@@ -2135,7 +2151,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     save_results_dataframe(df=summary_df_inf_non_inf, src=db_loc, results_name='well_results_inf_non_inf')
 
     # Plotting
-    fig, ax = plt.subplots(figsize=(10, 8))
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(10, 8))
     sampled_groups = result_df['plate_row_column_field_object'].unique()
     if num_lines is not None and 0 < num_lines < len(sampled_groups):
         sampled_groups = np.random.choice(sampled_groups, size=num_lines, replace=False)
@@ -2208,12 +2225,16 @@ def create_results_figure():
 
     :returns: tuple ``(fig, ax_pca, ax_xgb, ax_hist)``.
     """
-    fig = Figure(figsize=(7, 6), dpi=100)
-    gs = fig.add_gridspec(2, 2, height_ratios=[2, 1])
+    # The context has to be open when the AXES are created, not only the
+    # Figure: rcParams reach an artist at construction, so the spines, the
+    # ticks and the label colour are decided by these four lines.
+    with figure_style(theme_target()):
+        fig = Figure(figsize=(7, 6), dpi=100)
+        gs = fig.add_gridspec(2, 2, height_ratios=[2, 1])
 
-    ax_pca = fig.add_subplot(gs[0, 0])
-    ax_xgb = fig.add_subplot(gs[0, 1])
-    ax_hist = fig.add_subplot(gs[1, :])
+        ax_pca = fig.add_subplot(gs[0, 0])
+        ax_xgb = fig.add_subplot(gs[0, 1])
+        ax_hist = fig.add_subplot(gs[1, :])
 
     return fig, ax_pca, ax_xgb, ax_hist
 
@@ -2414,23 +2435,24 @@ def _make_intensity_motility_panel(
                 intens_uninf,
                 bins=bin_edges,
                 alpha=0.5,
-                color="green",
+                color=UNINFECTED_COLOUR,
                 label="Uninfected",
             )
             ax.hist(
                 intens_inf,
                 bins=bin_edges,
                 alpha=0.5,
-                color="red",
+                color=INFECTED_COLOUR,
                 label="Infected",
             )
             if np.isfinite(thr_val):
-                ax.axvline(thr_val, color="black", linestyle="--", linewidth=1)
+                # A threshold is a reference, not a result: thin, dashed, grey.
+                reference_line(ax, x=thr_val)
 
             ax.set_xlabel(intensity_col)
             ax.set_ylabel("Count")
             ax.set_title("Pathogen-channel intensity\n(adjusted labels)")
-            ax.legend(fontsize=7)
+            ax.legend(fontsize=TYPE_SCALE["legend"], frameon=False)
         except Exception as e:
             print(f"[_make_intensity_motility_panel] Histogram payload invalid: {e}")
             ax.set_visible(False)
@@ -2461,7 +2483,7 @@ def _make_intensity_motility_panel(
             y[~labels],
             s=5,
             alpha=0.4,
-            color="green",
+            color=UNINFECTED_COLOUR,
             label="Uninfected",
         )
         ax.scatter(
@@ -2469,7 +2491,7 @@ def _make_intensity_motility_panel(
             y[labels],
             s=5,
             alpha=0.4,
-            color="red",
+            color=INFECTED_COLOUR,
             label="Infected",
         )
     
@@ -2558,7 +2580,7 @@ def _make_intensity_motility_panel(
                 probs_uninf,
                 bins=bins,
                 alpha=0.5,
-                color="green",
+                color=UNINFECTED_COLOUR,
                 label="Uninfected",
             )
         if probs_inf.size:
@@ -2566,13 +2588,13 @@ def _make_intensity_motility_panel(
                 probs_inf,
                 bins=bins,
                 alpha=0.5,
-                color="red",
+                color=INFECTED_COLOUR,
                 label="Infected",
             )
         ax.set_xlabel("XGBoost infection probability")
         ax.set_ylabel("Cells")
         ax.set_title("Probability separation (adjusted labels)")
-        ax.legend(fontsize=7)
+        ax.legend(fontsize=TYPE_SCALE["legend"], frameon=False)
 
     def _plot_inf_uninf_bar(ax, df_vals, value_col, title, ylabel):
         """
@@ -2610,13 +2632,13 @@ def _make_intensity_motility_panel(
         if vals_inf.size:
             data.append(vals_inf)
             positions.append(pos)
-            colors.append("red")
+            colors.append(INFECTED_COLOUR)
             labels_xtick.append("Inf")
             pos += 1
         if vals_uninf.size:
             data.append(vals_uninf)
             positions.append(pos)
-            colors.append("green")
+            colors.append(UNINFECTED_COLOUR)
             labels_xtick.append("Uninf")
 
         if not data:
@@ -2633,15 +2655,17 @@ def _make_intensity_motility_panel(
             showextrema=False,
         )
 
-        # Color each violin (Inf = red, Uninf = green)
+        # Infected takes the highlight, uninfected the control grey.
+        ink = resolve_ink(theme_target())
         for body, color in zip(vp["bodies"], colors):
             body.set_facecolor(color)
-            body.set_edgecolor("black")
+            body.set_edgecolor(ink)
             body.set_alpha(0.6)
 
-        # Overlay means as black points
+        # Overlay means, in the ink rather than a hard-coded black that
+        # disappears into spaCR's dark ground.
         means = [float(np.nanmean(d)) for d in data]
-        ax.scatter(positions, means, color="black", s=10, zorder=3)
+        ax.scatter(positions, means, color=ink, s=10, zorder=3)
 
         ax.set_xticks(positions)
         ax.set_xticklabels(labels_xtick)
@@ -2727,7 +2751,8 @@ def _make_intensity_motility_panel(
         # +qc_axes_count for adjusted panel QC subplots
         n_cols = n_int_plots + 3 + (1 if qc_panel_needed_mask else 0) + qc_axes_count
 
-        fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
+        with figure_style(theme_target()):
+            fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
         if n_cols == 1:
             axes = np.array([axes])
         else:
@@ -2799,7 +2824,7 @@ def _make_intensity_motility_panel(
                 x = x_px * coord_scale
                 y = y_px * coord_scale
                 infected_tr = bool(tr.get("infected", False))
-                color = "red" if infected_tr else "green"
+                color = INFECTED_COLOUR if infected_tr else UNINFECTED_COLOUR
                 ax.plot(x, y, color=color, alpha=0.15, linewidth=0.5)
                 ax.scatter(x[-1], y[-1], color=color, s=5)
                 xs_all.append(x)
@@ -2846,8 +2871,11 @@ def _make_intensity_motility_panel(
                 transform=ax.transAxes,
                 ha="right",
                 va="bottom",
-                fontsize=8,
-                bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.8),
+                fontsize=TYPE_SCALE["annotation"],
+                color=resolve_ink(theme_target()),
+                # NO BOX. A rounded white panel is furniture the style has no
+                # other boxes to match, and on the dark theme it is a white
+                # rectangle over the data.
             )
 
         ax_all = axes[axis_idx]
@@ -2857,7 +2885,7 @@ def _make_intensity_motility_panel(
         # ----- motility origin plots (infected vs uninfected) for this well -----
         def _plot_origin(ax, want_infected: bool):
             n_tr = 0
-            color = "red" if want_infected else "green"
+            color = INFECTED_COLOUR if want_infected else UNINFECTED_COLOUR
 
             for tr in well_tracks:
                 if bool(tr.get("infected", False)) != want_infected:
@@ -4270,13 +4298,14 @@ def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pa
     extra = 1 if combined_mask is not None else 0
     n_cols = n_channels + n_masks + extra
 
-    fig, axes = plt.subplots(
-        1,
-        n_cols,
-        figsize=(3 * n_cols, 3),
-        dpi=150,
-        squeeze=False,
-    )
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(
+            1,
+            n_cols,
+            figsize=(3 * n_cols, 3),
+            dpi=150,
+            squeeze=False,
+        )
     axes = axes[0]
 
     col_idx = 0
@@ -5144,7 +5173,8 @@ def _infection_qc_pca_clustering(
             import matplotlib.pyplot as plt
 
             os.makedirs(motility_dir, exist_ok=True)
-            fig, ax = plt.subplots(figsize=(4, 4))
+            with figure_style(theme_target()):
+                fig, ax = plt.subplots(figsize=(4, 4))
 
             # Masks for remaining cells
             mask_uninf_cluster_plot = cluster_labels == uninfected_cluster
@@ -5156,7 +5186,7 @@ def _infection_qc_pca_clustering(
                 coords[mask_uninf_cluster_plot, 1],
                 s=2,
                 alpha=0.6,
-                color="green",
+                color=UNINFECTED_COLOUR,
                 label=(
                     f"Uninfected cluster "
                     f"({frac_inf_uninfected_cluster*100:.1f}% infected at start)"
@@ -5167,7 +5197,7 @@ def _infection_qc_pca_clustering(
                 coords[mask_inf_cluster_plot, 1],
                 s=2,
                 alpha=0.6,
-                color="red",
+                color=INFECTED_COLOUR,
                 label=(
                     f"Infected cluster "
                     f"({frac_inf_infected_cluster*100:.1f}% infected at start)"
@@ -5957,13 +5987,14 @@ def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir
         heights = [mean_inf, mean_uninf]
         errors = [std_inf, std_uninf]
 
-        fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
+        with figure_style(theme_target()):
+            fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
         ax_ch.bar(
             x_pos,
             heights,
             yerr=errors,
             capsize=5,
-            color=["red", "green"],
+            color=[INFECTED_COLOUR, UNINFECTED_COLOUR],
             alpha=0.7,
         )
         ax_ch.set_xticks(x_pos)
@@ -6055,14 +6086,15 @@ def _make_motility_plots(
     os.makedirs(motility_dir, exist_ok=True)
 
     # Combined plot over all wells
-    fig_all, ax_all = plt.subplots(figsize=(6, 6))
+    with figure_style(theme_target()):
+        fig_all, ax_all = plt.subplots(figsize=(6, 6))
 
     for tracks in per_well_tracks.values():
         for tr in tracks:
             x = tr["x_px"] * coord_scale
             y = tr["y_px"] * coord_scale
             infected_track = tr["infected"]
-            color = "red" if infected_track else "green"
+            color = INFECTED_COLOUR if infected_track else UNINFECTED_COLOUR
             ax_all.plot(x, y, color=color, alpha=0.2, linewidth=0.5)
             ax_all.scatter(x[-1], y[-1], color=color, s=5)
 
@@ -6092,10 +6124,15 @@ def _make_motility_plots(
         box_width,
         box_height,
         transform=ax_all.transAxes,
-        facecolor="white",
-        edgecolor="black",
+        # NO PANEL BEHIND THE NOTE: a rounded white box with a black edge is
+        # furniture the style has no other boxes to match, and on the dark
+        # theme it is a white rectangle laid over the tracks. The patch itself
+        # stays as an invisible spacer -- the four text lines below are
+        # positioned against its corner.
+        facecolor="none",
+        edgecolor="none",
         boxstyle="round,pad=0.02",
-        alpha=0.8,
+        alpha=0.0,
     )
     ax_all.add_patch(bbox_all)
 
@@ -6103,7 +6140,7 @@ def _make_motility_plots(
         text_x,
         y_top,
         f"Infected ({_fmt_vel(mean_vel_inf)} {vel_unit})",
-        color="red",
+        color=INFECTED_COLOUR,
         transform=ax_all.transAxes,
         fontsize=fontsize_main,
         va="top",
@@ -6112,7 +6149,7 @@ def _make_motility_plots(
         text_x,
         y_top - line_spacing,
         f"Uninfected ({_fmt_vel(mean_vel_uninf)} {vel_unit})",
-        color="green",
+        color=UNINFECTED_COLOUR,
         transform=ax_all.transAxes,
         fontsize=fontsize_main,
         va="top",
@@ -6121,7 +6158,7 @@ def _make_motility_plots(
         text_x,
         y_top - 2 * line_spacing,
         unit_line1,
-        color="black",
+        color=resolve_ink(theme_target()),
         transform=ax_all.transAxes,
         fontsize=fontsize_units,
         va="top",
@@ -6130,7 +6167,7 @@ def _make_motility_plots(
         text_x,
         y_top - 3 * line_spacing,
         unit_line2,
-        color="black",
+        color=resolve_ink(theme_target()),
         transform=ax_all.transAxes,
         fontsize=fontsize_units,
         va="top",
@@ -6152,7 +6189,8 @@ def _make_motility_plots(
             well_summary_map[(row["plateID"], row["wellID"])] = row
 
     for (plateID, wellID), tracks in per_well_tracks.items():
-        fig_w, ax_w = plt.subplots(figsize=(6, 6))
+        with figure_style(theme_target()):
+            fig_w, ax_w = plt.subplots(figsize=(6, 6))
         has_infected = False
         has_uninfected = False
 
@@ -6160,7 +6198,7 @@ def _make_motility_plots(
             x = tr["x_px"] * coord_scale
             y = tr["y_px"] * coord_scale
             infected_track = tr["infected"]
-            color = "red" if infected_track else "green"
+            color = INFECTED_COLOUR if infected_track else UNINFECTED_COLOUR
             if infected_track:
                 has_infected = True
             else:
@@ -6185,10 +6223,10 @@ def _make_motility_plots(
             box_width,
             box_height,
             transform=ax_w.transAxes,
-            facecolor="white",
-            edgecolor="black",
+            facecolor="none",
+            edgecolor="none",
             boxstyle="round,pad=0.02",
-            alpha=0.8,
+            alpha=0.0,
         )
         ax_w.add_patch(bbox_w)
 
@@ -6196,7 +6234,7 @@ def _make_motility_plots(
             text_x,
             y_top,
             f"Infected ({_fmt_vel(mean_inf_w)} {vel_unit})",
-            color="red",
+            color=INFECTED_COLOUR,
             transform=ax_w.transAxes,
             fontsize=fontsize_main,
             va="top",
@@ -6205,7 +6243,7 @@ def _make_motility_plots(
             text_x,
             y_top - line_spacing,
             f"Uninfected ({_fmt_vel(mean_uninf_w)} {vel_unit})",
-            color="green",
+            color=UNINFECTED_COLOUR,
             transform=ax_w.transAxes,
             fontsize=fontsize_main,
             va="top",
@@ -6214,7 +6252,7 @@ def _make_motility_plots(
             text_x,
             y_top - 2 * line_spacing,
             unit_line1,
-            color="black",
+            color=resolve_ink(theme_target()),
             transform=ax_w.transAxes,
             fontsize=fontsize_units,
             va="top",
@@ -6223,7 +6261,7 @@ def _make_motility_plots(
             text_x,
             y_top - 3 * line_spacing,
             unit_line2,
-            color="black",
+            color=resolve_ink(theme_target()),
             transform=ax_w.transAxes,
             fontsize=fontsize_units,
             va="top",
@@ -6242,14 +6280,15 @@ def _make_motility_plots(
 
         # infected-only, re-centred to (0,0)
         if has_infected:
-            fig_inf, ax_inf = plt.subplots(figsize=(6, 6))
+            with figure_style(theme_target()):
+                fig_inf, ax_inf = plt.subplots(figsize=(6, 6))
             for tr in tracks:
                 if not tr["infected"]:
                     continue
                 x = (tr["x_px"] - tr["x_px"][0]) * coord_scale
                 y = (tr["y_px"] - tr["y_px"][0]) * coord_scale
-                ax_inf.plot(x, y, color="red", alpha=0.2, linewidth=0.5)
-                ax_inf.scatter(x[-1], y[-1], color="red", s=5)
+                ax_inf.plot(x, y, color=INFECTED_COLOUR, alpha=0.2, linewidth=0.5)
+                ax_inf.scatter(x[-1], y[-1], color=INFECTED_COLOUR, s=5)
             ax_inf.set_aspect("equal", "box")
             ax_inf.set_xlabel(coord_label_x)
             ax_inf.set_ylabel(coord_label_y)
@@ -6267,14 +6306,15 @@ def _make_motility_plots(
 
         # uninfected-only, re-centred to (0,0)
         if has_uninfected:
-            fig_uninf, ax_uninf = plt.subplots(figsize=(6, 6))
+            with figure_style(theme_target()):
+                fig_uninf, ax_uninf = plt.subplots(figsize=(6, 6))
             for tr in tracks:
                 if tr["infected"]:
                     continue
                 x = (tr["x_px"] - tr["x_px"][0]) * coord_scale
                 y = (tr["y_px"] - tr["y_px"][0]) * coord_scale
-                ax_uninf.plot(x, y, color="green", alpha=0.2, linewidth=0.5)
-                ax_uninf.scatter(x[-1], y[-1], color="green", s=5)
+                ax_uninf.plot(x, y, color=UNINFECTED_COLOUR, alpha=0.2, linewidth=0.5)
+                ax_uninf.scatter(x[-1], y[-1], color=UNINFECTED_COLOUR, s=5)
             ax_uninf.set_aspect("equal", "box")
             ax_uninf.set_xlabel(coord_label_x)
             ax_uninf.set_ylabel(coord_label_y)
@@ -6497,22 +6537,25 @@ def _make_adjusted_qc_panel(
             vals_uninf,
             bins=bin_edges,
             alpha=0.5,
-            color="green",
+            color=UNINFECTED_COLOUR,
             label="Uninfected",
         )
         ax_hist.hist(
             vals_inf,
             bins=bin_edges,
             alpha=0.5,
-            color="red",
+            color=INFECTED_COLOUR,
             label="Infected",
         )
         if thr_val is not None:
+            # Thin, dashed and grey. It was 2 pt solid black -- heavier than
+            # either distribution it separates, and a reference is not a
+            # result.
             ax_hist.axvline(
                 thr_val,
-                linestyle="--",
-                linewidth=2,
-                color="black",
+                linestyle=(0, (4, 3)),
+                linewidth=0.6,
+                color=ROLES["reference"],
                 label=f"thr={thr_val:.2f}",
             )
         if pathogen_chan is not None:
@@ -6524,7 +6567,7 @@ def _make_adjusted_qc_panel(
             ax_hist.set_xlabel("Intensity")
         ax_hist.set_ylabel("Cell count")
         ax_hist.set_title("Pathogen-channel intensity histogram")
-        ax_hist.legend(loc="best")
+        ax_hist.legend(loc="best", frameon=False)
     else:
         ax_hist.text(
             0.5,
@@ -6554,7 +6597,7 @@ def _make_adjusted_qc_panel(
                 x[~labels],
                 y[~labels],
                 s=8,
-                c="green",
+                c=UNINFECTED_COLOUR,
                 alpha=0.5,
                 label="Uninfected",
             )
@@ -6562,14 +6605,14 @@ def _make_adjusted_qc_panel(
                 x[labels],
                 y[labels],
                 s=8,
-                c="red",
+                c=INFECTED_COLOUR,
                 alpha=0.5,
                 label="Infected",
             )
             ax_pca.set_xlabel("component 1")
             ax_pca.set_ylabel("component 2")
             ax_pca.set_title(f"{method_label} embedding")
-            ax_pca.legend(loc="best")
+            ax_pca.legend(loc="best", frameon=False)
         else:
             ax_pca.text(
                 0.5,
@@ -6893,26 +6936,27 @@ def _infection_qc_histogram(
         # Plot histogram
         os.makedirs(motility_dir, exist_ok=True)
 
-        fig_h, ax_h = plt.subplots(figsize=(6, 4))
+        with figure_style(theme_target()):
+            fig_h, ax_h = plt.subplots(figsize=(6, 4))
         ax_h.hist(
             vals_uninf,
             bins=bin_edges,
             alpha=0.5,
-            color="green",
+            color=UNINFECTED_COLOUR,
             label="Uninfected (mask-based)",
         )
         ax_h.hist(
             vals_inf,
             bins=bin_edges,
             alpha=0.5,
-            color="red",
+            color=INFECTED_COLOUR,
             label="Infected (mask-based)",
         )
         ax_h.axvline(
             thr_val,
-            linestyle="--",
-            linewidth=2,
-            color="black",
+            linestyle=(0, (4, 3)),
+            linewidth=0.6,
+            color=ROLES["reference"],
             label=f"Threshold = {thr_val:.1f}",
         )
         if do_log:
@@ -6924,7 +6968,7 @@ def _infection_qc_histogram(
             f"Pathogen-channel intensity histogram (thr={thr_val:.1f}, "
             f"{hist_pct:.1f}th pct fallback)"
         )
-        ax_h.legend(loc="best")
+        ax_h.legend(loc="best", frameon=False)
 
         hist_filename = f"infection_intensity_histogram_{meta_tag}.png"
         hist_path = os.path.join(motility_dir, hist_filename)
