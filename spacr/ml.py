@@ -3752,22 +3752,51 @@ def _write_regression_sheet(coef_df, dst):
         print(f"Could not draw the regression figure: {error}")
         return None
 
-def save_summary_to_file(model, file_path='summary.csv'):
+#: What a run's statsmodels summary is written as, and every older name the
+#: reader still accepts. NEWEST FIRST -- the first one found wins.
+#:
+#: The name used to be ``mode_summary.csv``, which was wrong twice over:
+#: "mode" is a typo for "model", and the content is the statsmodels TEXT
+#: summary, never CSV. A name that does not follow the file is a path nobody
+#: can open, so the format is corrected going forward and the old names are
+#: still READ -- a run finished last month keeps its summary.
+SUMMARY_FILENAME = 'model_summary.txt'
+SUMMARY_FILENAMES = (SUMMARY_FILENAME, 'mode_summary.csv', 'summary.csv')
+
+
+def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
     """
     Write ``model.summary().as_text()`` to ``file_path`` as plain text.
 
-    Despite the default ``'summary.csv'`` name, the content is the
-    statsmodels text summary, never CSV.
+    The content is the statsmodels text summary, never CSV -- which is why
+    the default name is :data:`SUMMARY_FILENAME` and no longer
+    ``summary.csv``. Older runs on disk wrote ``mode_summary.csv``; every
+    reader in this repository accepts both, see :data:`SUMMARY_FILENAMES`.
 
     :param model: Fitted statsmodels results object.
-    :param file_path: Destination path. Default ``'summary.csv'``.
-    """
-    # Get the summary as a string
-    summary_str = model.summary().as_text()
+    :param file_path: Destination path. Default :data:`SUMMARY_FILENAME`.
+    :returns: the path written, or ``None`` if there was nothing to write.
 
-    # Save it as a plain text file or CSV
+    NEVER RAISES INTO A FINISHED RUN. This is called after every table has
+    been written; a backend whose ``summary()`` throws must not take the run
+    down with it, and the caller is told by the ``None`` rather than by a
+    traceback.
+    """
+    summary = getattr(model, 'summary', None)
+    if not callable(summary):
+        return None
+    try:
+        summary_str = summary().as_text()
+    except Exception as error:  # noqa: BLE001 - a summary is not worth a run
+        print(f"Could not render the model summary: "
+              f"{type(error).__name__}: {error}")
+        return None
+    folder = os.path.dirname(os.path.abspath(file_path))
+    if folder:
+        os.makedirs(folder, exist_ok=True)
     with open(file_path, 'w') as f:
         f.write(summary_str)
+    return file_path
 
 
 def _split_prc(text):
@@ -6265,9 +6294,15 @@ def perform_regression(settings):
     grna_coef_df.to_csv(results_path_grna, index=False)
         
     if regression_type in ['ols', 'beta']:
+        # WRITTEN WHETHER OR NOT ANYBODY IS WATCHING. The save used to sit
+        # inside the `verbose` branch beside the print, so a quiet run -- the
+        # normal case -- left no summary on disk at all, and the results panel
+        # re-opened from that folder had nothing to read back. Printing is a
+        # console preference; the summary is part of the run's output.
         if settings['verbose']:
             print(model.summary())
-            save_summary_to_file(model, file_path=f'{res_folder}/mode_summary.csv')
+        save_summary_to_file(
+            model, file_path=os.path.join(res_folder, SUMMARY_FILENAME))
     
     significant.to_csv(hits_path, index=False)
     significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
