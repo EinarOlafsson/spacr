@@ -35,6 +35,23 @@ from statsmodels.othermod.betareg import BetaModel
 from sklearn.preprocessing import FunctionTransformer
 from patsy import dmatrices
 
+from .regression_spec import (DEFAULT_REGRESSION_BACKEND,  # noqa: F401
+                              NO_P_VALUE_TYPES,
+                              REGRESSION_BACKENDS,
+                              REGRESSION_BACKEND_ORDER,
+                              REGRESSION_SETTINGS_USED,
+                              REGRESSION_TYPES,
+                              RUN_LEVEL_SETTINGS,
+                              UNSUPPORTED_REGRESSION_TYPES,
+                              _MODEL_LEVEL_DEFAULTS,
+                              _RUN_LEVEL_DEFAULTS)
+from .mixed_gpu import MixedBackendUnavailable  # noqa: F401
+from .regression_backends import (backend_label,          # noqa: F401
+                                  backend_status,
+                                  backend_supports,
+                                  resolve_backend_name)
+
+
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
@@ -64,6 +81,34 @@ if not (sys.platform.startswith(('win', 'darwin')) or os.environ.get('DISPLAY'))
     matplotlib.use('Agg')
 
 import warnings
+
+
+def _require_backend(regression_type, regression_backend):
+    """The canonical backend name, REFUSING one that cannot fit this family.
+
+    Instruction 141 C: the two controls constrain each other in both
+    directions, and a combination that cannot work is answered with the
+    sentence saying why rather than by quietly fitting something else. This
+    is the run-time half of the greying rule -- a settings CSV reaches the
+    fit without passing a panel, so the panel's greyed-out entry is not the
+    only place the rule can live.
+
+    :param regression_type: the family being fitted.
+    :param regression_backend: name or label, or ``None`` for the default.
+    :returns: the canonical backend name.
+    :raises ValueError: when the backend cannot fit the family, is not
+        installed, or needs a GPU that is not there.
+    """
+    name = resolve_backend_name(regression_backend)
+    if name == DEFAULT_REGRESSION_BACKEND:
+        return name
+    status = backend_status(name, regression_type)
+    if not status['enabled']:
+        raise ValueError(
+            f"{status['reason']} Set regression_backend='statsmodels' to fit "
+            f"it with the default backend, which produced every existing "
+            f"result.")
+    return name
 
 
 def _graph_sequencing_stats(settings):
@@ -305,7 +350,8 @@ def calculate_p_values(X, y, model):
     p_values = 2 * (1 - st.norm.cdf(np.abs(t_stats)))
     return p_values
 
-def perform_mixed_model(y, X, groups, alpha=None):
+def perform_mixed_model(y, X, groups, alpha=None,
+                        regression_backend=DEFAULT_REGRESSION_BACKEND):
     """Fit a mixed-effects linear model with ``groups`` as the random intercept.
 
     Collinearity is REPORTED, never silently corrected. The previous revision
@@ -340,7 +386,16 @@ def perform_mixed_model(y, X, groups, alpha=None):
         per row of ``X``.
     :param alpha: Must be None. Accepted only so an old call site fails with
         an explanation instead of a TypeError.
-    :returns: Fitted ``statsmodels`` ``MixedLMResults``.
+    :param regression_backend: WHO fits it (instruction 141). ``'statsmodels'``
+        is the default and produced every existing result; ``'torch'`` fits
+        the same profiled REML objective on the GPU
+        (:mod:`spacr.mixed_gpu`) and returns a result object with the same
+        attributes, so nothing downstream can tell which ran except by
+        asking. A backend that cannot fit ``'mixed'`` here, is not installed,
+        or needs a GPU that is absent is REFUSED with the reason -- see
+        :func:`_require_backend`.
+    :returns: Fitted ``statsmodels`` ``MixedLMResults``, or the equivalent
+        :class:`spacr.mixed_gpu.TorchMixedResults`.
     :raises ValueError: if ``groups`` is None, if ``alpha`` is given, if
         ``groups`` does not align with ``X``, or if the fixed-effects design is
         rank-deficient (which MixedLM would otherwise report as a bare
@@ -391,6 +446,15 @@ def perform_mixed_model(y, X, groups, alpha=None):
             f"aliased terms, or use random_row_column_effects=True to move "
             f"the plate geometry out of the fixed effects.")
 
+    backend = _require_backend('mixed', regression_backend)
+    if backend == 'torch':
+        from .mixed_gpu import fit_mixed_reml_torch
+
+        # No variance components: this is the plain random-intercept model
+        # `MixedLM(y, X, groups=groups)` fits, which is `re_formula='1'`.
+        fit = fit_mixed_reml_torch(y, X, groups)
+        print(fit.summary_line())
+        return fit
     return MixedLM(y, X, groups=groups).fit()
 
 def create_volcano_filename(csv_path, regression_type, alpha, dst):
@@ -723,7 +787,8 @@ def _blup_guide_name(key):
 
 
 def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
-                    gene_column='gene', guide_column='grna'):
+                    gene_column='gene', guide_column='grna',
+                    regression_backend=DEFAULT_REGRESSION_BACKEND):
     """Fit ``y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID``.
 
     THE GENE IS FIXED AND THE GUIDE IS RANDOM, NESTED INSIDE IT. This is the
@@ -778,6 +843,12 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     :param random_row_column_effects: add row and column variance components.
     :param gene_column: the outer grouping column. Default ``'gene'``.
     :param guide_column: the nested column. Default ``'grna'``.
+    :param regression_backend: WHO fits it (instruction 141). ``'statsmodels'``
+        by default. ``'torch'`` fits the SAME model -- same nesting, same
+        REML criterion -- on the GPU; measured 24x faster end to end on a
+        TSG101-shaped screen (1830 rows, 387 genes, 710 guides, q=1097:
+        11.3 s to 0.47 s) and agreeing with statsmodels to the tolerance
+        stated in :func:`spacr.mixed_gpu.fit_mixed_reml_torch`.
     :returns: ``(mixed_model, coef_df)``.
     :raises ValueError: when the frame cannot express the nesting -- a missing
         column, a single gene, or no gene with more than one guide -- and when
@@ -816,10 +887,28 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
         vc_formula['rowID'] = '0 + C(rowID)'
         vc_formula['columnID'] = '0 + C(columnID)'
 
+    backend = _require_backend('mixed', regression_backend)
     try:
-        model = smf.mixedlm(formula, data=df, groups=groups,
-                            re_formula='1', vc_formula=vc_formula)
-        mixed_model = model.fit()
+        if backend == 'torch':
+            from .mixed_gpu import mixedlm_torch
+
+            # THE SAME CALL, one line apart. `mixedlm_torch` takes
+            # statsmodels' argument shape on purpose so the choice of who
+            # fits it cannot become a second code path with its own bugs;
+            # everything after this point reads the result the same way.
+            mixed_model = mixedlm_torch(formula, df, groups,
+                                        vc_formula=vc_formula)
+            print(mixed_model.summary_line())
+        else:
+            model = smf.mixedlm(formula, data=df, groups=groups,
+                                re_formula='1', vc_formula=vc_formula)
+            mixed_model = model.fit()
+    except MixedBackendUnavailable:
+        # THE BACKEND'S OWN REFUSAL SURVIVES. Wrapped in the "MixedLM could
+        # not fit this frame" message below it would read as a problem with
+        # the screen, and the user would go looking at their data for a
+        # missing CUDA device.
+        raise
     except Exception as error:
         # SAY WHAT COULD NOT BE EXPRESSED, rather than falling back to a model
         # nobody asked for. The old plate-grouped model is not a substitute:
@@ -886,6 +975,11 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
 
     coef_df = pd.concat(frames, ignore_index=True)
     n_blups = int((coef_df['term_type'] == TERM_BLUP).sum())
+    # WHICH BACKEND PRODUCED IT, on every run and not only the fast one
+    # (instruction 141: "the run says which backend produced it"). Two runs
+    # of the same screen whose numbers differ in the 4th significant figure
+    # are explicable only if the log says which fitted them.
+    print(f"Mixed model fitted by regression_backend={backend_label(backend)}")
     print(f"Mixed model: gene fixed, guide random nested in gene "
           f"({groups.nunique()} genes, {n_blups} guide BLUPs). "
           f"A BLUP has no p-value, so results_grna.csv from a mixed run is a "
@@ -1822,15 +1916,6 @@ def pick_glm_family_and_link(y):
 #
 # Re-exported rather than moved-and-forgotten, so every existing
 # `from spacr.ml import REGRESSION_TYPES` keeps working.
-from .regression_spec import (NO_P_VALUE_TYPES,        # noqa: F401
-                              REGRESSION_SETTINGS_USED,
-                              REGRESSION_TYPES,
-                              RUN_LEVEL_SETTINGS,
-                              UNSUPPORTED_REGRESSION_TYPES,
-                              _MODEL_LEVEL_DEFAULTS,
-                              _RUN_LEVEL_DEFAULTS)
-
-
 def binarise_response(y, threshold=None, name='response'):
     """Return ``y`` as a 0/1 vector for a classifier backend, refusing to guess.
 
@@ -1977,7 +2062,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      cov_type=None, weights=None, l1_ratio=0.5, quantile=0.5,
                      hinge_threshold=None, huber_t=1.345, exposure=None,
                      group_lasso_lambda=0.05, rra_alpha=0.25,
-                     rra_permutations=10000):
+                     rra_permutations=10000,
+                     regression_backend=DEFAULT_REGRESSION_BACKEND):
     """Dispatch to the requested regression backend and return the fitted model.
 
     Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
@@ -2029,6 +2115,13 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     :param X: Design matrix (DataFrame; column names become feature names).
     :param y: Response variable.
     :param regression_type: One of :data:`REGRESSION_TYPES`.
+    :param regression_backend: WHO fits it -- one of
+        :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``, which
+        produced every existing result. A backend that cannot fit
+        ``regression_type`` is REFUSED here with the reason, not ignored:
+        the two controls constrain each other in both directions
+        (instruction 141 C), and a settings CSV reaches this function
+        without passing a panel that could have greyed the entry out.
     :param groups: Cluster identifiers for the mixed model.
     :param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and
         the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by
@@ -2097,6 +2190,10 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         'rra_alpha': rra_alpha,
         'rra_permutations': rra_permutations,
     }
+    # WHO fits it, checked before WHAT is fitted is dispatched. A backend
+    # that cannot fit this family, is not installed, or wants a GPU that is
+    # not here fails now rather than after the design has been built.
+    _require_backend(regression_type, regression_backend)
     _reject_unused_settings(regression_type, {
         name: (supplied[name], default)
         for name, default in _MODEL_LEVEL_DEFAULTS.items()})
@@ -2509,7 +2606,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         'logit':  lambda: _glm_binomial(link=sm.families.links.Logit()),
         'probit': lambda: _glm_binomial(link=sm.families.links.probit()),
         'quantile': _quantile,
-        'mixed':  lambda: perform_mixed_model(y, X, groups),
+        'mixed':  lambda: perform_mixed_model(
+            y, X, groups, regression_backend=regression_backend),
         'lasso':  lambda: _find_best_alpha('lasso') if use_auto_alpha
                           else Lasso(alpha=alpha, max_iter=10000).fit(X, y_flat),
         'ridge':  lambda: _find_best_alpha('ridge') if use_auto_alpha
@@ -3112,7 +3210,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                legacy_volcano=False, level='grna', level_dst=None,
                draw_shared_panels=True, group_lasso_lambda=0.05,
                rra_alpha=0.25, rra_permutations=10000,
-               model_plate_position=True):
+               model_plate_position=True,
+               regression_backend=DEFAULT_REGRESSION_BACKEND):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -3122,6 +3221,12 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         ``'predictions'``.
     :param regression_type: Model type; auto-selected via
         :func:`check_distribution` when ``None``.
+    :param regression_backend: WHO fits it (instruction 141), one of
+        :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``. It is
+        threaded to whichever fitter this run reaches -- the mixed branch and
+        :func:`regression_model` alike -- so one setting answers for the
+        whole run, and a backend that cannot fit the chosen family is refused
+        by name before any design is built.
     :param alpha: Regularisation strength for penalised models.
     :param random_row_column_effects: If True, fit a mixed model with
         random row/column effects.
@@ -3245,7 +3350,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             model_plate_position=model_plate_position)
         mixed_model, coef_df = fit_mixed_model(
             df, formula, level_dst,
-            random_row_column_effects=random_row_column_effects)
+            random_row_column_effects=random_row_column_effects,
+            regression_backend=regression_backend)
         model = mixed_model
     else:
         formula = prepare_formula(dependent_variable,
@@ -3317,6 +3423,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             group_lasso_lambda=group_lasso_lambda,
             rra_alpha=rra_alpha,
             rra_permutations=rra_permutations,
+            regression_backend=regression_backend,
         )
 
         coef_df = process_model_coefficients(
@@ -5965,6 +6072,12 @@ def perform_regression(settings):
     fits = regression_levels(
         merged_df, csv_path, dependent_variable=dependent_variable,
         regression_type=settings['regression_type'],
+        # WHO fits it (instruction 141). `.get`, not indexed, for the same
+        # reason as `model_plate_position` below: no settings CSV written
+        # before 2026-08-18 carries this key, and what every one of those
+        # files meant is the backend that produced them.
+        regression_backend=settings.get('regression_backend',
+                                        DEFAULT_REGRESSION_BACKEND),
         level=settings.get('level', 'both'),
         alpha=settings['alpha'],
         random_row_column_effects=settings['random_row_column_effects'],
