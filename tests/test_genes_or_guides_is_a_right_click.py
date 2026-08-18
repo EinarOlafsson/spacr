@@ -50,7 +50,10 @@ def _panel(qtbot, frame=None):
 
 
 def _menu(panel):
-    return [a.text() for a in panel.volcano.build_style_menu().actions()]
+    """Every entry a user can reach, whichever group it now lives in."""
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    return [a.text() for a in menu_entries(panel.volcano.build_style_menu())]
 
 
 # --------------------------------------------------------------------------- #
@@ -77,8 +80,9 @@ def test_the_counts_are_in_the_menu(qtbot):
 def test_the_filter_is_separated_from_the_restyling(qtbot):
     """It changes WHICH ROWS are on the plot. A filtered plot that looks like
     a restyled one is read as the whole screen."""
-    items = ["|" if a.isSeparator() else a.text()
-             for a in _panel(qtbot).volcano.build_style_menu().actions()]
+    from spacr.qt.widgets.fast_plots import menu_reading_order
+
+    items = menu_reading_order(_panel(qtbot).volcano.build_style_menu())
 
     level = next(i for i, t in enumerate(items) if "genes only" in t)
     size = next(i for i, t in enumerate(items) if "Point size" in t)

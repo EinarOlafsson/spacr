@@ -44,8 +44,15 @@ def _panel(qtbot, frame=None):
 
 
 def _items(plot):
-    return ["|" if a.isSeparator() else a.text()
-            for a in plot.build_style_menu().actions()]
+    """The menu as a reader meets it, with a mark at every boundary.
+
+    A separator, a section heading and the edge of a submenu are one thing to
+    the reader and three to Qt, so "these are kept apart" is asserted against
+    the flattened reading order rather than against the flat menu.
+    """
+    from spacr.qt.widgets.fast_plots import menu_reading_order
+
+    return menu_reading_order(plot.build_style_menu())
 
 
 def test_the_volcano_offers_the_baselines(qtbot):
@@ -71,7 +78,10 @@ def test_the_chosen_one_is_ticked(qtbot):
     panel = _panel(qtbot)
     panel.set_baseline("controls")
 
-    ticked = {a.text() for a in panel.volcano.build_style_menu().actions()
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    ticked = {a.text()
+              for a in menu_entries(panel.volcano.build_style_menu())
               if a.isCheckable() and a.isChecked()}
     assert any("non-targeting" in t for t in ticked), ticked
 
@@ -172,11 +182,27 @@ def _lopit_frame(n=400, seed=0):
 
 
 def _submenu(plot, title):
-    for action in plot.build_style_menu().actions():
-        menu = action.menu()
-        if menu is not None and title in action.text():
-            return [a.text() for a in menu.actions()]
-    return []
+    """The entries of the submenu whose title contains ``title``.
+
+    Searched to any DEPTH, because a group can itself be grouped: the
+    compartment list sits under "Colour by" once the menu has categories,
+    and a one-level search would report it missing.
+    """
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    def _find(menu):
+        for action in menu.actions():
+            inner = action.menu()
+            if inner is None:
+                continue
+            if title in action.text():
+                return [a.text() for a in menu_entries(inner)]
+            found = _find(inner)
+            if found:
+                return found
+        return []
+
+    return _find(plot.build_style_menu())
 
 
 def test_the_compartments_are_a_submenu(qtbot):

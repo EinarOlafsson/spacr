@@ -77,7 +77,16 @@ def _support(n=120, seed=1):
 
 
 def _menu_entries(plot):
-    return [action.text() for action in plot.build_style_menu().actions()]
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    return [action.text() for action in menu_entries(plot.build_style_menu())]
+
+
+def _menu_groups(plot):
+    """The headings dividing the menu -- sections and submenu titles alike."""
+    from spacr.qt.widgets.fast_plots import menu_groups
+
+    return menu_groups(plot.build_style_menu())
 
 
 # --------------------------------------------------------------------------- #
@@ -90,7 +99,8 @@ def test_the_right_click_menu_offers_every_mark_by_name(controls):
 
     entries = _menu_entries(controls)
 
-    assert "Draw as" in entries, f"no mark section on the menu: {entries}"
+    assert "Draw as" in _menu_groups(controls), (
+        f"no mark group on the menu: {_menu_groups(controls)}")
     for wanted in ("Jittered points", "Box plot", "Violin plot", "Bar chart"):
         assert wanted in entries, f"{wanted} is not offered: {entries}"
 
@@ -101,8 +111,10 @@ def test_the_menu_ticks_the_mark_that_is_actually_drawn(controls):
     controls.set_groups(_groups())
     controls.set_mark("violin")
 
+    from spacr.qt.widgets.fast_plots import menu_entries
+
     ticked = [action.text()
-              for action in controls.build_style_menu().actions()
+              for action in menu_entries(controls.build_style_menu())
               if action.isCheckable() and action.isChecked()]
 
     assert "Violin plot" in ticked
@@ -114,7 +126,9 @@ def test_picking_a_mark_off_the_menu_redraws_the_plot(controls):
     controls.set_groups(_groups())
     assert controls.mark() == "jitter"
 
-    action = next(a for a in controls.build_style_menu().actions()
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    action = next(a for a in menu_entries(controls.build_style_menu())
                   if a.text() == "Bar chart")
     action.trigger()
 
@@ -135,7 +149,8 @@ def test_a_plot_with_no_groups_is_not_offered_a_violin(qtbot):
         "p_value": np.linspace(0.001, 0.9, 50),
     }))
 
-    assert "Draw as" not in _menu_entries(volcano)
+    assert "Draw as" not in _menu_groups(volcano)
+    assert "Violin plot" not in _menu_entries(volcano)
 
 
 # --------------------------------------------------------------------------- #

@@ -65,8 +65,9 @@ def _menu_items(plot):
     not patchable -- a first version of this helper reached in to swap it out
     and hung the whole suite rather than failing.
     """
-    return ["|" if action.isSeparator() else action.text()
-            for action in plot.build_style_menu().actions()]
+    from spacr.qt.widgets.fast_plots import menu_reading_order
+
+    return menu_reading_order(plot.build_style_menu())
 
 
 # --------------------------------------------------------------------------- #

@@ -420,8 +420,10 @@ def test_the_table_is_wired_for_a_context_menu_at_all(panel):
 def test_both_gestures_set_the_same_state(panel):
     """ONE PIECE OF STATE. Two menus that each kept their own idea of the
     level is precisely the disagreement this instruction is about."""
+    from spacr.qt.widgets.fast_plots import menu_entries
+
     volcano_entry = next(
-        a for a in panel.volcano.build_style_menu().actions()
+        a for a in menu_entries(panel.volcano.build_style_menu())
         if a.text().startswith("guides only"))
 
     volcano_entry.trigger()

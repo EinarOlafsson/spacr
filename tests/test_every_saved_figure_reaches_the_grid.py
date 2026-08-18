@@ -161,10 +161,18 @@ def _panel(qtbot, frame):
     return panel
 
 
+def _menu_text(panel):
+    """Every entry a user can reach on the volcano's menu, as one string."""
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    return " ".join(a.text() for a
+                    in menu_entries(panel.volcano.build_style_menu()))
+
+
 def test_a_corrected_run_offers_both(qtbot):
     panel = _panel(qtbot, _frame("fdr_bh"))
 
-    text = " ".join(a.text() for a in panel.volcano.build_style_menu().actions())
+    text = _menu_text(panel)
     assert "raw p-value" in text
     assert "adjusted (fdr_bh)" in text
 
@@ -174,7 +182,7 @@ def test_the_correction_is_named_not_just_called_adjusted(qtbot):
     offered."""
     panel = _panel(qtbot, _frame("bonferroni"))
 
-    text = " ".join(a.text() for a in panel.volcano.build_style_menu().actions())
+    text = _menu_text(panel)
     assert "bonferroni" in text
 
 
@@ -184,7 +192,7 @@ def test_an_uncorrected_run_offers_no_toggle(qtbot):
     there."""
     panel = _panel(qtbot, _frame("none"))
 
-    text = " ".join(a.text() for a in panel.volcano.build_style_menu().actions())
+    text = _menu_text(panel)
     assert "adjusted" not in text
 
 
