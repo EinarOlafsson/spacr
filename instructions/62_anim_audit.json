@@ -1,848 +1,680 @@
-[
- {
-  "name": "adjust_cells",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 4.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6219
- },
- {
-  "name": "blend",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 2883
- },
- {
-  "name": "cell_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 1.3,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 592
- },
- {
-  "name": "cell_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4098
- },
- {
-  "name": "cell_Signal_to_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.6,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 1058
- },
- {
-  "name": "cell_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 178
- },
- {
-  "name": "cell_intensity_merge",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6589
- },
- {
-  "name": "cell_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6528
- },
- {
-  "name": "cell_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3491
- },
- {
-  "name": "cell_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3534
- },
- {
-  "name": "cell_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 760
- },
- {
-  "name": "cell_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 682
- },
- {
-  "name": "cell_perimeter_fraction",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6623
- },
- {
-  "name": "cell_remove_border_objects",
-  "frames": 20,
-  "after": 6,
-  "pct_changed": 14.2,
-  "border": 1,
-  "interior": 3,
-  "biggest_interior": 5284
- },
- {
-  "name": "crop_mode",
-  "frames": 9,
-  "after": 1,
-  "pct_changed": 0.8,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 422
- },
- {
-  "name": "cytoplasm",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 13.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 17527
- },
- {
-  "name": "dialate_pngs",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 9288
- },
- {
-  "name": "dot_size",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 0.7,
-  "border": 0,
-  "interior": 15,
-  "biggest_interior": 67
- },
- {
-  "name": "eps",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 1.1,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 192
- },
- {
-  "name": "fill_in",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 426
- },
- {
-  "name": "img_zoom",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.0,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 146
- },
- {
-  "name": "merge_edge_pathogen_cells",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 8.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 10325
- },
- {
-  "name": "min_dist",
-  "frames": 18,
-  "after": 3,
-  "pct_changed": 0.3,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "n_neighbors",
-  "frames": 7,
-  "after": 3,
-  "pct_changed": 1.6,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 793
- },
- {
-  "name": "normalization_percentiles",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.2,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 2583
- },
- {
-  "name": "nucleus_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 519
- },
- {
-  "name": "nucleus_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4789
- },
- {
-  "name": "nucleus_Signal_to_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 619
- },
- {
-  "name": "nucleus_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.1,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 92
- },
- {
-  "name": "nucleus_intensity_merge",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 4392
- },
- {
-  "name": "nucleus_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 4561
- },
- {
-  "name": "nucleus_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3614
- },
- {
-  "name": "nucleus_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3644
- },
- {
-  "name": "nucleus_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 627
- },
- {
-  "name": "nucleus_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 132
- },
- {
-  "name": "nucleus_perimeter_fraction",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 4442
- },
- {
-  "name": "nucleus_remove_border_objects",
-  "frames": 20,
-  "after": 7,
-  "pct_changed": 12.0,
-  "border": 1,
-  "interior": 4,
-  "biggest_interior": 3627
- },
- {
-  "name": "organelle_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 1.5,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 669
- },
- {
-  "name": "organelle_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.4,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 3702
- },
- {
-  "name": "organelle_clahe",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.0,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 686
- },
- {
-  "name": "organelle_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.1,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 80
- },
- {
-  "name": "organelle_fill_holes",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 207
- },
- {
-  "name": "organelle_intensity_merge",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.8,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 7600
- },
- {
-  "name": "organelle_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.9,
-  "border": 0,
-  "interior": 8,
-  "biggest_interior": 8835
- },
- {
-  "name": "organelle_log_threshold",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 1.3,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 603
- },
- {
-  "name": "organelle_mask_within_cells",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 393
- },
- {
-  "name": "organelle_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.9,
-  "border": 0,
-  "interior": 10,
-  "biggest_interior": 845
- },
- {
-  "name": "organelle_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.2,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 1576
- },
- {
-  "name": "organelle_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 773
- },
- {
-  "name": "organelle_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 706
- },
- {
-  "name": "organelle_perimeter_fraction",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 7.8,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 7607
- },
- {
-  "name": "organelle_remove_border_objects",
-  "frames": 20,
-  "after": 7,
-  "pct_changed": 11.9,
-  "border": 1,
-  "interior": 18,
-  "biggest_interior": 1298
- },
- {
-  "name": "organelle_rolling_ball",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 253
- },
- {
-  "name": "organelle_skeletonize",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.6,
-  "border": 0,
-  "interior": 10,
-  "biggest_interior": 4465
- },
- {
-  "name": "organelle_watershed_spots",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 5.3,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 6418
- },
- {
-  "name": "outline_thickness",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 1355
- },
- {
-  "name": "overlap",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.1,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 2378
- },
- {
-  "name": "pathogen_CP_prob",
-  "frames": 15,
-  "after": 6,
-  "pct_changed": 2.2,
-  "border": 0,
-  "interior": 4,
-  "biggest_interior": 964
- },
- {
-  "name": "pathogen_FT",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 6.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 7883
- },
- {
-  "name": "pathogen_Signal_to_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.7,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 1148
- },
- {
-  "name": "pathogen_diameter",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.0,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "pathogen_intensity_merge",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 10.5,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 13501
- },
- {
-  "name": "pathogen_intensity_split",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 11.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 14163
- },
- {
-  "name": "pathogen_max_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 4.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 2799
- },
- {
-  "name": "pathogen_max_intensity_percentile",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 4.8,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 2799
- },
- {
-  "name": "pathogen_min_area",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 0.9,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 1156
- },
- {
-  "name": "pathogen_min_intensity_percentile",
-  "frames": 16,
-  "after": 7,
-  "pct_changed": 0.8,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 640
- },
- {
-  "name": "pathogen_perimeter_fraction",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 10.5,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 13530
- },
- {
-  "name": "pathogen_remove_border_objects",
-  "frames": 20,
-  "after": 6,
-  "pct_changed": 17.8,
-  "border": 1,
-  "interior": 6,
-  "biggest_interior": 2802
- },
- {
-  "name": "plot_by_cluster",
-  "frames": 18,
-  "after": 9,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 92
- },
- {
-  "name": "plot_images",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.6,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "plot_outlines",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 543
- },
- {
-  "name": "plot_points",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.2,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "png_size",
-  "frames": 18,
-  "after": 6,
-  "pct_changed": 2.0,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 1524
- },
- {
-  "name": "radial_dist",
-  "frames": 18,
-  "after": 7,
-  "pct_changed": 1.9,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 404
- },
- {
-  "name": "remove_background_cell",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.5,
-  "border": 0,
-  "interior": 7,
-  "biggest_interior": 1041
- },
- {
-  "name": "remove_background_nucleus",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 7,
-  "biggest_interior": 480
- },
- {
-  "name": "remove_background_pathogen",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.4,
-  "border": 0,
-  "interior": 7,
-  "biggest_interior": 944
- },
- {
-  "name": "remove_cluster_noise",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.1,
-  "border": 0,
-  "interior": 0,
-  "biggest_interior": 0
- },
- {
-  "name": "remove_image_canvas",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 0.7,
-  "border": 0,
-  "interior": 9,
-  "biggest_interior": 100
- },
- {
-  "name": "smooth_lines",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 4.7,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 6067
- },
- {
-  "name": "stitch_threshold",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 2972
- },
- {
-  "name": "straightness_filter",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 2.1,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 2727
- },
- {
-  "name": "t_link_threshold",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 3.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4287
- },
- {
-  "name": "t_project_for_tracking",
-  "frames": 18,
-  "after": 9,
-  "pct_changed": 4.0,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 5202
- },
- {
-  "name": "timelapse_displacement",
-  "frames": 18,
-  "after": 6,
-  "pct_changed": 1.4,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 937
- },
- {
-  "name": "timelapse_memory",
-  "frames": 17,
-  "after": 8,
-  "pct_changed": 0.5,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 523
- },
- {
-  "name": "timelapse_remove_transient",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 1609
- },
- {
-  "name": "ultrack_contour_sigma",
-  "frames": 18,
-  "after": 9,
-  "pct_changed": 2.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 2953
- },
- {
-  "name": "ultrack_division_weight",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 1.2,
-  "border": 0,
-  "interior": 3,
-  "biggest_interior": 773
- },
- {
-  "name": "uninfected",
-  "frames": 17,
-  "after": 7,
-  "pct_changed": 3.3,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 4256
- },
- {
-  "name": "use_bounding_box",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.6,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3326
- },
- {
-  "name": "z_projection",
-  "frames": 18,
-  "after": 8,
-  "pct_changed": 2.8,
-  "border": 0,
-  "interior": 1,
-  "biggest_interior": 3622
- },
- {
-  "name": "zscore_thresh",
-  "frames": 18,
-  "after": 13,
-  "pct_changed": 1.0,
-  "border": 0,
-  "interior": 2,
-  "biggest_interior": 712
- }
-]
+{
+ "audited": "2026-08-18",
+ "audited_against": "aefd32fd",
+ "animations_total": 94,
+ "counts": {
+  "wrong": 2,
+  "weak": 31,
+  "correct": 61
+ },
+ "verdicts": {
+  "correct": "the visible difference is the difference the setting makes, and it is readable",
+  "weak": "on the right subject but ambiguous, undirected, or too faint to read at tooltip size",
+  "wrong": "the picture does not show what the setting does"
+ },
+ "method": [
+  "Every animation was WATCHED: all stored frames rendered as a contact sheet and read against the setting's own description in spacr/settings.py.",
+  "The pixel metric was used only as a floor, never as a verdict. It cannot see a composition fault in either direction: cytoplasm scores 13.5% (13th highest of 94) and shows nothing, while crop_mode scores 1.8% and is one of the clearest.",
+  "The border family was measured from pixels with spacr.setting_animations.measure_border_object_removal, which reads the well edge off the drawn rule and compares two frames at the SAME zoom -- never frame 0, which is zoomed out, and never the generator's own touches flag."
+ ],
+ "animations": [
+  {
+   "slug": "cytoplasm",
+   "scene": "cytoplasm",
+   "verdict": "wrong",
+   "visible_change": 0.1353,
+   "note": "Shows a grey blob pulsing in brightness. No nucleus, pathogen or organelle appears in ANY frame, so nothing is ever subtracted. Cause found in the generator: _cytoplasm draws all three and then paints over them with painter.line(..., closed=True), whose fill_closed defaults to True."
+  },
+  {
+   "slug": "organelle_watershed_spots",
+   "scene": "organelle",
+   "verdict": "wrong",
+   "visible_change": 0.0529,
+   "note": "Meant as one blob cross-fading into two spots (62x30 at x=180 -> 32x25 at x=150 and x=210). Because both products use the same multi-stroke Golgi glyph and sit 60 px apart, they overlap each other and the fading original; the 'after' state is one wide mush, not two objects. The split the setting performs is not visible."
+  },
+  {
+   "slug": "use_bounding_box",
+   "scene": "crop",
+   "verdict": "weak",
+   "visible_change": 0.0257,
+   "note": "The box grows and a neighbouring cell appears -- the documented consequence -- but the mask-crop versus box-crop contrast itself is never drawn, and it reads much like png_size."
+  },
+  {
+   "slug": "organelle_diameter",
+   "scene": "diameter",
+   "verdict": "weak",
+   "visible_change": 0.0329,
+   "note": "The drawing is right, but settings.py documents this key as DEPRECEATED and says the Cellpose-SAM path calls model.eval with diameter=None. An animation showing a visible effect for a setting with no effect is misleading by context."
+  },
+  {
+   "slug": "cell_max_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0555,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "cell_min_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.034,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "nucleus_max_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0536,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "nucleus_min_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0297,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "organelle_max_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0583,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "organelle_min_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0347,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "pathogen_max_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0928,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "pathogen_min_intensity_percentile",
+   "scene": "filter",
+   "verdict": "weak",
+   "visible_change": 0.0537,
+   "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+  },
+  {
+   "slug": "cell_FT",
+   "scene": "flow",
+   "verdict": "weak",
+   "visible_change": 0.0316,
+   "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+  },
+  {
+   "slug": "nucleus_FT",
+   "scene": "flow",
+   "verdict": "weak",
+   "visible_change": 0.037,
+   "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+  },
+  {
+   "slug": "organelle_FT",
+   "scene": "flow",
+   "verdict": "weak",
+   "visible_change": 0.0342,
+   "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+  },
+  {
+   "slug": "pathogen_FT",
+   "scene": "flow",
+   "verdict": "weak",
+   "visible_change": 0.0611,
+   "note": "A poorly-fitting doubled mask beside a clean one is discarded, which is the right subject. But nothing indicates DIRECTION, and flow_threshold's direction is counter-intuitive: the tooltip says LOWERING it discards more masks, while the animation runs off -> on and so implies the opposite."
+  },
+  {
+   "slug": "cell_intensity_merge",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0451,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "cell_perimeter_fraction",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0451,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "nucleus_intensity_merge",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0397,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "nucleus_perimeter_fraction",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0396,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "organelle_intensity_merge",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0361,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "organelle_perimeter_fraction",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0364,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "pathogen_intensity_merge",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0426,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "pathogen_perimeter_fraction",
+   "scene": "merge",
+   "verdict": "weak",
+   "visible_change": 0.0425,
+   "note": "Two touching objects fuse and the shared boundary disappears, which is right. But intensity_merge and perimeter_fraction render identically, so the criterion the setting actually applies -- boundary brightness versus boundary length -- is not visible. NOTE: these eight were being regenerated by a concurrent session on 2026-08-18; this verdict is against the assets committed at aefd32fd."
+  },
+  {
+   "slug": "organelle_skeletonize",
+   "scene": "organelle",
+   "verdict": "weak",
+   "visible_change": 0.0561,
+   "note": "The network does thin to a one-pixel line, but the skeleton is a five-point zigzag that does not follow the branches it replaced. It reads as the object being erased and a line drawn, rather than as a medial axis."
+  },
+  {
+   "slug": "cell_Signal_to_noise",
+   "scene": "signal",
+   "verdict": "weak",
+   "visible_change": 0.0496,
+   "note": "A brightness ramp across five objects responds to the setting, which is the right subject, but the direction is not indicated: raising S/N raises the normalisation ceiling, which makes things dimmer, while the animation brightens."
+  },
+  {
+   "slug": "nucleus_Signal_to_noise",
+   "scene": "signal",
+   "verdict": "weak",
+   "visible_change": 0.0563,
+   "note": "A brightness ramp across five objects responds to the setting, which is the right subject, but the direction is not indicated: raising S/N raises the normalisation ceiling, which makes things dimmer, while the animation brightens."
+  },
+  {
+   "slug": "pathogen_Signal_to_noise",
+   "scene": "signal",
+   "verdict": "weak",
+   "visible_change": 0.1121,
+   "note": "A brightness ramp across five objects responds to the setting, which is the right subject, but the direction is not indicated: raising S/N raises the normalisation ceiling, which makes things dimmer, while the animation brightens."
+  },
+  {
+   "slug": "stitch_threshold",
+   "scene": "tracking",
+   "verdict": "weak",
+   "visible_change": 0.0231,
+   "note": "Two labels stop being treated as one and separate, with a faint dashed link. On topic, but there is no z-plane cue at all, so it looks like the watershed-split animation; and the link is drawn too faint to read at tooltip size."
+  },
+  {
+   "slug": "t_link_threshold",
+   "scene": "tracking",
+   "verdict": "weak",
+   "visible_change": 0.0332,
+   "note": "Two timepoint detections drift apart as the required overlap rises. Correct subject, but the two frames are drawn identically so the 'one timepoint then the next' reading depends on the dashed link, which is faint."
+  },
+  {
+   "slug": "n_neighbors",
+   "scene": "umap",
+   "verdict": "weak",
+   "visible_change": 0.0162,
+   "note": "A neighbour graph appears and thickens inside each cluster, which is exactly the setting -- but the edges are drawn so faint they are invisible at tooltip size; they only become legible above about 300 px."
+  },
+  {
+   "slug": "plot_by_cluster",
+   "scene": "umap",
+   "verdict": "weak",
+   "visible_change": 0.0157,
+   "note": "The contrast is right: with the setting off one cluster carries no thumbnails, with it on every cluster does. But it is two thumbnails per cluster and the difference is hard to see small."
+  },
+  {
+   "slug": "remove_image_canvas",
+   "scene": "umap",
+   "verdict": "weak",
+   "visible_change": 0.0152,
+   "note": "The thumbnails do lose their dark canvas, but the canvas was barely visible to begin with, so the change is easy to miss."
+  },
+  {
+   "slug": "adjust_cells",
+   "scene": "adjust_cells",
+   "verdict": "correct",
+   "visible_change": 0.048,
+   "note": "Two fragments of one cell fuse and the nucleus-less fragment goes. Both halves of the setting."
+  },
+  {
+   "slug": "blend",
+   "scene": "alignment",
+   "verdict": "correct",
+   "visible_change": 0.0231,
+   "note": "The tile seam fades and the two halves become one continuous cell."
+  },
+  {
+   "slug": "overlap",
+   "scene": "alignment",
+   "verdict": "correct",
+   "visible_change": 0.0313,
+   "note": "The overlap band widens from a sliver to a wide rectangle."
+  },
+  {
+   "slug": "remove_background_cell",
+   "scene": "background",
+   "verdict": "correct",
+   "visible_change": 0.0355,
+   "note": "Faint diffuse haze is removed; the three cells stay."
+  },
+  {
+   "slug": "remove_background_nucleus",
+   "scene": "background",
+   "verdict": "correct",
+   "visible_change": 0.0233,
+   "note": "As above, nucleus channel."
+  },
+  {
+   "slug": "remove_background_pathogen",
+   "scene": "background",
+   "verdict": "correct",
+   "visible_change": 0.0338,
+   "note": "As above, pathogen channel."
+  },
+  {
+   "slug": "cell_remove_border_objects",
+   "scene": "border",
+   "verdict": "correct",
+   "visible_change": 0.1642,
+   "note": "Two objects crossing the well edge go, two clear of it stay. Verified from pixels: crossing=2 interior=0."
+  },
+  {
+   "slug": "nucleus_remove_border_objects",
+   "scene": "border",
+   "verdict": "correct",
+   "visible_change": 0.1353,
+   "note": "crossing=2 interior=0 measured on the shipped GIF."
+  },
+  {
+   "slug": "organelle_remove_border_objects",
+   "scene": "border",
+   "verdict": "correct",
+   "visible_change": 0.1354,
+   "note": "crossing=2 interior=0 measured on the shipped GIF."
+  },
+  {
+   "slug": "pathogen_remove_border_objects",
+   "scene": "border",
+   "verdict": "correct",
+   "visible_change": 0.2108,
+   "note": "crossing=2 interior=0 measured on the shipped GIF."
+  },
+  {
+   "slug": "crop_mode",
+   "scene": "crop",
+   "verdict": "correct",
+   "visible_change": 0.0179,
+   "note": "The crop box hops between cell, nucleus, pathogen and organelle -- the list of choices. Only 1.8% of the frame changes because just the box moves; low score, right picture."
+  },
+  {
+   "slug": "dialate_pngs",
+   "scene": "crop",
+   "verdict": "correct",
+   "visible_change": 0.0717,
+   "note": "The mask grows so the crop keeps a rim."
+  },
+  {
+   "slug": "png_size",
+   "scene": "crop",
+   "verdict": "correct",
+   "visible_change": 0.0204,
+   "note": "The crop box grows around an object that does not change size."
+  },
+  {
+   "slug": "cell_diameter",
+   "scene": "diameter",
+   "verdict": "correct",
+   "visible_change": 0.0275,
+   "note": "The outline scales with the setting; the caliper annotates it."
+  },
+  {
+   "slug": "nucleus_diameter",
+   "scene": "diameter",
+   "verdict": "correct",
+   "visible_change": 0.0256,
+   "note": "As above."
+  },
+  {
+   "slug": "pathogen_diameter",
+   "scene": "diameter",
+   "verdict": "correct",
+   "visible_change": 0.0415,
+   "note": "As above."
+  },
+  {
+   "slug": "fill_in",
+   "scene": "fill_holes",
+   "verdict": "correct",
+   "visible_change": 0.0192,
+   "note": "Three holes in the mask close over."
+  },
+  {
+   "slug": "organelle_fill_holes",
+   "scene": "fill_holes",
+   "verdict": "correct",
+   "visible_change": 0.014,
+   "note": "As above, on the organelle."
+  },
+  {
+   "slug": "cell_max_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0556,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "cell_min_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0346,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "nucleus_max_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0538,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "nucleus_min_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0307,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "organelle_max_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0585,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "organelle_min_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0353,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "pathogen_max_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0933,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "pathogen_min_area",
+   "scene": "filter",
+   "verdict": "correct",
+   "visible_change": 0.0547,
+   "note": "A threshold sweeps through the four objects in the documented order and one always survives."
+  },
+  {
+   "slug": "merge_edge_pathogen_cells",
+   "scene": "merge_edge_pathogen_cells",
+   "verdict": "correct",
+   "visible_change": 0.0797,
+   "note": "A vacuole straddles two host cells and the two cell labels fuse into one. That is the documented second branch: 'otherwise the overlapping cell labels are fused into a single cell'. Checked against settings.py rather than assumed."
+  },
+  {
+   "slug": "normalization_percentiles",
+   "scene": "normalization",
+   "verdict": "correct",
+   "visible_change": 0.0316,
+   "note": "Three objects gain contrast as the percentile stretch is applied."
+  },
+  {
+   "slug": "organelle_clahe",
+   "scene": "organelle",
+   "verdict": "correct",
+   "visible_change": 0.0201,
+   "note": "Four organelles at different brightnesses are pulled up to a common contrast."
+  },
+  {
+   "slug": "organelle_log_threshold",
+   "scene": "organelle",
+   "verdict": "correct",
+   "visible_change": 0.0134,
+   "note": "Dim blobs drop out as the response threshold rises; the brightest survives."
+  },
+  {
+   "slug": "organelle_mask_within_cells",
+   "scene": "organelle",
+   "verdict": "correct",
+   "visible_change": 0.0655,
+   "note": "Organelles outside the cell go; the ones inside stay."
+  },
+  {
+   "slug": "organelle_rolling_ball",
+   "scene": "organelle",
+   "verdict": "correct",
+   "visible_change": 0.0394,
+   "note": "A wavy illumination background is subtracted; the objects stay."
+  },
+  {
+   "slug": "outline_thickness",
+   "scene": "outline_thickness",
+   "verdict": "correct",
+   "visible_change": 0.0121,
+   "note": "The outlines thicken. Unambiguous."
+  },
+  {
+   "slug": "cell_CP_prob",
+   "scene": "probability",
+   "verdict": "correct",
+   "visible_change": 0.0331,
+   "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+  },
+  {
+   "slug": "nucleus_CP_prob",
+   "scene": "probability",
+   "verdict": "correct",
+   "visible_change": 0.0361,
+   "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+  },
+  {
+   "slug": "organelle_CP_prob",
+   "scene": "probability",
+   "verdict": "correct",
+   "visible_change": 0.0524,
+   "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+  },
+  {
+   "slug": "pathogen_CP_prob",
+   "scene": "probability",
+   "verdict": "correct",
+   "visible_change": 0.0842,
+   "note": "Dim objects fall below the probability threshold and go; the confident ones stay."
+  },
+  {
+   "slug": "radial_dist",
+   "scene": "radial",
+   "verdict": "correct",
+   "visible_change": 0.0188,
+   "note": "Concentric shells expand from the pathogen inside the cell -- the binned distance measurement."
+  },
+  {
+   "slug": "cell_intensity_split",
+   "scene": "split",
+   "verdict": "correct",
+   "visible_change": 0.0504,
+   "note": "One oversized object is split into two or three by a watershed line."
+  },
+  {
+   "slug": "nucleus_intensity_split",
+   "scene": "split",
+   "verdict": "correct",
+   "visible_change": 0.0376,
+   "note": "One oversized object is split into two or three by a watershed line."
+  },
+  {
+   "slug": "organelle_intensity_split",
+   "scene": "split",
+   "verdict": "correct",
+   "visible_change": 0.0788,
+   "note": "One oversized object is split into two or three by a watershed line."
+  },
+  {
+   "slug": "pathogen_intensity_split",
+   "scene": "split",
+   "verdict": "correct",
+   "visible_change": 0.1097,
+   "note": "One oversized object is split into two or three by a watershed line."
+  },
+  {
+   "slug": "straightness_filter",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.021,
+   "note": "Of two tracks, the overly STRAIGHT one is removed and the meandering one survives -- the right way round."
+  },
+  {
+   "slug": "t_project_for_tracking",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0401,
+   "note": "Several plane outlines collapse into one before linking."
+  },
+  {
+   "slug": "timelapse_displacement",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0136,
+   "note": "A search radius grows until a farther detection comes inside it and links. The clearest animation in the set."
+  },
+  {
+   "slug": "timelapse_memory",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0326,
+   "note": "A run of detections is missed and the track survives across the gap."
+  },
+  {
+   "slug": "timelapse_remove_transient",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0124,
+   "note": "The short track that is not present in every frame is dropped; the full-length one stays."
+  },
+  {
+   "slug": "ultrack_contour_sigma",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0228,
+   "note": "A ragged contour smooths as the blur grows."
+  },
+  {
+   "slug": "ultrack_division_weight",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0121,
+   "note": "A track splits into two daughters as division gets cheaper."
+  },
+  {
+   "slug": "z_projection",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0283,
+   "note": "Plane outlines collapse into a single projected object."
+  },
+  {
+   "slug": "zscore_thresh",
+   "scene": "tracking",
+   "verdict": "correct",
+   "visible_change": 0.0105,
+   "note": "An outlier point in a track is pulled back onto the trend."
+  },
+  {
+   "slug": "dot_size",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0627,
+   "note": "The markers grow. Unambiguous."
+  },
+  {
+   "slug": "eps",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0116,
+   "note": "A neighbourhood radius grows around each cluster."
+  },
+  {
+   "slug": "img_zoom",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.027,
+   "note": "The pasted thumbnails scale up."
+  },
+  {
+   "slug": "min_dist",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0396,
+   "note": "Tight clusters relax outward as the minimum spacing rises."
+  },
+  {
+   "slug": "plot_images",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0258,
+   "note": "Bare points become object crops."
+  },
+  {
+   "slug": "plot_outlines",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0126,
+   "note": "Cluster boundaries appear."
+  },
+  {
+   "slug": "plot_points",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0231,
+   "note": "Outlines alone gain their scatter markers."
+  },
+  {
+   "slug": "remove_cluster_noise",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0132,
+   "note": "The scattered white noise points fade; the clusters remain."
+  },
+  {
+   "slug": "smooth_lines",
+   "scene": "umap",
+   "verdict": "correct",
+   "visible_change": 0.0413,
+   "note": "A raw hull becomes a smooth spline."
+  },
+  {
+   "slug": "uninfected",
+   "scene": "uninfected",
+   "verdict": "correct",
+   "visible_change": 0.0329,
+   "note": "Of two cells the one with no pathogen is removed."
+  }
+ ]
+}
