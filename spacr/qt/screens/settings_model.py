@@ -11,12 +11,13 @@ from __future__ import annotations
 
 import ast
 import csv
+from functools import partial
 from html import escape
 import logging
 import os
 import sys
 import textwrap
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt, Signal
 from PySide6.QtWidgets import (
@@ -29,6 +30,7 @@ from PySide6.QtWidgets import (
     QLayout,
     QLineEdit,
     QPlainTextEdit,
+    QPushButton,
     QSizePolicy,
     QSpinBox,
     QDoubleSpinBox,
@@ -285,6 +287,38 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # The setting remains in _defaults and therefore in collect(); only the
     # duplicate form control is hidden.
     "umap": {"gpu"},
+    # WHAT "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" HELD, per
+    # instruction 135. The sections are deleted from the layout above; these
+    # keys keep their values and reach the run exactly as before, they are
+    # simply not asked about.
+    #
+    # Hidden and not dropped, deliberately, and each for its own reason:
+    #
+    #   regression_qc          `parameter_sweep` sets it False so a
+    #                          hundred-trial sweep does not pay ~5.8 s and
+    #                          ~19 figures per trial. Drop the key and the
+    #                          sweep has nothing to set. One analysis still
+    #                          gets the suite, because the default is True.
+    #   guide_permutation_plot hard True: the permutation run's only picture.
+    #   log_x, log_y           hard False.
+    #   x_lim, y_lims,         set ON the plot, where the axes being changed
+    #   split_axis_lims        are visible; a number typed before the figure
+    #                          exists is a guess.
+    #   strict_errors,         how the APPLICATION behaves on a failure, not
+    #   max_failure_rate,      how this regression is fitted. The same answer
+    #   verbose, random_seed,  on every module, so it is one answer in
+    #   on_error*              Preferences rather than eleven in the modules.
+    #
+    # Keys this module does not declare (`on_error`, `random_seed`, ...) are
+    # named anyway: hiding a key that is not there costs nothing, and the day
+    # a shared runtime default reaches this module it must not appear on the
+    # panel the instruction just cleared.
+    "regression": {
+        "regression_qc", "guide_permutation_plot",
+        "log_x", "log_y", "x_lim", "y_lims", "split_axis_lims",
+        "strict_errors", "max_failure_rate", "on_error",
+        "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
+    },
 }
 
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
@@ -369,6 +403,11 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "transform": [None, "log", "sqrt", "square"],
         "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
         "threshold_method": ["std", "var"],
+        # WHICH P THE SIGNIFICANCE LINE IS DRAWN ON. Two values and no third
+        # reading, so it is a closed alphabet rather than a box a user can
+        # type "adj" into. "adjusted" leads because it is the only one of the
+        # two that is evidence with hundreds of guides in the family.
+        "p_threshold_kind": ["adjusted", "raw"],
     },
     "classify": {
         "evaluation_calibration": ["temperature", "none"],
@@ -406,6 +445,61 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "hit_split_by": ["auto", "plate", "well"],
     },
 }
+
+
+class _CsvColumnSource(NamedTuple):
+    """Where a column-name setting's candidate names come from."""
+
+    #: Which side of the paired input table holds the CSVs to read --
+    #: ``score``, ``count``, or both. `dependent_variable` is a column of the
+    #: score CSV and of nothing else; `filter_column` is applied to BOTH
+    #: (`ml.clean_controls` on the scores, `ml.process_reads` on the counts),
+    #: so offering only one side would hide half the answer.
+    roles: Tuple[str, ...]
+    #: What kind of column, for the message. It reads "no response column
+    #: dependent_variable='pred' in ..." rather than "no column ...".
+    what: str
+
+
+#: Settings whose value NAMES A COLUMN OF AN INPUT CSV, per module.
+#:
+#: Instruction 135, asked for on 2026-08-17: "for the filter column there is
+#: an SQL buton this should be a csv buton that can read the input csvs, the
+#: dependent variable should have a simmilr CSV version of this buton."
+#:
+#: THE SQL BUTTON WAS POINTED AT THE WRONG FILE. `app_screen.COLUMN_TABLES`
+#: gives a column field a picker that opens the run's `measurements.db`; the
+#: regression module's inputs are CSVs and it has no measurements.db of its
+#: own to open, so the picker could only ever offer columns from a different
+#: table than the one the setting is read against -- a list of plausible
+#: names, none of which the run will find.
+#:
+#: The reading is `spacr.columns`, which takes the HEADER ROW ONLY
+#: (`nrows=0`). This runs on the GUI thread against score CSVs that are
+#: hundreds of megabytes, and there is no second reader here for that reason.
+CSV_COLUMN_SOURCES: Dict[str, Dict[str, _CsvColumnSource]] = {
+    "regression": {
+        "dependent_variable": _CsvColumnSource(("score",), "response column"),
+        "filter_column": _CsvColumnSource(("score", "count"),
+                                          "filter column"),
+        # The count table's own header names, which were HARD-CODED and had
+        # no setting at all until instruction 135. They fail the same way
+        # `dependent_variable` did -- inside the merge, naming a column the
+        # file has not got -- and they earn the same button.
+        "count_grna_column": _CsvColumnSource(("count",), "count column"),
+        "count_value_column": _CsvColumnSource(("count",), "count column"),
+    },
+}
+
+
+def has_csv_column_picker(app_key: str, key: str) -> bool:
+    """True when this module gives ``key`` a CSV picker of its own.
+
+    Read by the screen so it does not ALSO hang the measurements.db "SQL"
+    button off the same field: two buttons that disagree about which file the
+    column comes from is worse than the one wrong button this replaces.
+    """
+    return str(key or "") in CSV_COLUMN_SOURCES.get(str(app_key or ""), {})
 
 
 # Settings read by exactly one Image UMAP reducer.  The controls remain in the
@@ -791,7 +885,13 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", ("n_jobs",)),
     ),
     "regression": (
-        ("Input Tables", ("paired_data", "metadata_files")),
+        # `count_grna_column` and `count_value_column` are the count CSV's
+        # own header names, which were HARD-CODED until instruction 135.
+        # They belong beside the table they name: a user who has to say what
+        # their count file calls its guide column is looking at the count
+        # file, not at the model.
+        ("Input Tables", ("paired_data", "metadata_files",
+                          "count_grna_column", "count_value_column")),
         # CONTROLS AND FILTERS ARE ONE QUESTION: which rows reach the model.
         # Asked for on 2026-08-17 -- "merge quality & filters in here. change
         # the settings categoty to Controlls & Filters". They were two
@@ -839,7 +939,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # correction, at what level, above which effect size IS how the
             # model's output is turned into a claim, and a user reading the
             # model section had to scroll past three others to find out.
-            "multiple_testing_method", "fdr_alpha", "threshold_method",
+            # `p_threshold_alpha` and `p_threshold_kind` are the line the
+            # plot draws significance at. The plot already had a raw/adjusted
+            # choice on its right-click menu and the RUN had no say in it, so
+            # the exported hit list and the picture could disagree about what
+            # "significant" meant. They sit with `fdr_alpha` because the three
+            # of them are one question: what counts as a hit.
+            "multiple_testing_method", "fdr_alpha", "p_threshold_alpha",
+            "p_threshold_kind", "threshold_method",
             "threshold_multiplier", "Toxoplasma",
         )),
         # The estimator-specific knobs, added by the robust and regularised
@@ -856,6 +963,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "alpha", "l1_ratio", "quantile", "huber_t",
             "hinge_threshold", "hinge_n_boot", "lasso_n_boot",
             "lasso_selection_threshold",
+            # One knob per family, filed with the rest of them:
+            # `group_lasso_lambda` is the group lasso's penalty, and
+            # `rra_alpha`/`rra_permutations` are robust rank aggregation's
+            # cutoff and null size.
+            "group_lasso_lambda", "rra_alpha", "rra_permutations",
         )),
         # The permutation test's own settings, previously split across three
         # sections: its block and nuisance columns sat under the model, its
@@ -868,21 +980,21 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "guide_permutation_block", "guide_nuisance_columns",
             "guide_presence_threshold", "guide_permutation_batch_size",
         )),
-        # `regression_qc` leads: it decides whether the diagnostic suite is
-        # drawn at all, and the knobs under it only style the plots that are.
-        ("Regression Plots", (
-            "regression_qc",
-            # `volcano` retired with instruction 132: which coefficient table
-            # the plot draws is `level` now, answered by right-click on every
-            # tab at once. It is gone from the settings dict, so naming it
-            # here only asked the panel for a control that cannot be built.
-            "log_x", "log_y", "x_lim", "y_lims",
-            "split_axis_lims", "guide_permutation_plot",
-        )),
-        ("Runtime & Reliability", (
-            "strict_errors", "max_failure_rate", "on_error",
-            "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
-        )),
+        # "REGRESSION PLOTS" AND "RUNTIME & RELIABILITY" ARE GONE, asked for
+        # on 2026-08-17: "Regression plot can be removed" and "Runtime and
+        # reliability should be removed and go to prefgerences/general".
+        #
+        # Neither was a question about the regression. The plot section asked
+        # a user to decide the axis scaling of a figure they had not seen yet
+        # -- `x_lim` and `y_lims` are set on the plot now -- and the runtime
+        # section asked how the whole application handles a failure, which is
+        # the same answer for every module and belongs in Preferences.
+        #
+        # The keys they held are not dropped, they are HIDDEN
+        # (`_APP_HIDDEN_KEYS`): dropping `regression_qc` would take
+        # `parameter_sweep`'s `settings.setdefault("regression_qc", False)`
+        # with it, and a hundred-trial sweep would pay ~5.8 s and ~19 figures
+        # per trial for diagnostics nobody opens.
     ),
     "activation": (
         ("Model & Data", (
@@ -1128,7 +1240,7 @@ _APP_ESSENTIAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "measure": ("@Mask & Channel Mapping", "test_mode"),
     "motility": ("@Spatial & Temporal Calibration",),
     "ml_analyze": ("channel_of_interest", "model_type_ml"),
-    "regression": ("@Controls & Plate Design", "regression_type",
+    "regression": ("@Controls & Filters", "regression_type",
                    "dependent_variable"),
     "activation": ("cam_type", "target_layer"),
     "replication": ("@Vacuole Assignment",),
@@ -1882,12 +1994,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "several and each is fitted and corrected as its own family), "
         "whether one row is a well or a single cell, and how the values are "
         "collapsed and transformed before the model sees them.",
-    "MODEL & INFERENCE":
-        "How the effect is estimated. 'Inference' is the top-level choice: a "
-        "parametric model fits every guide simultaneously, a nonparametric "
-        "one tests each guide by plate-blocked permutation, and 'auto' picks "
-        "whichever the design can actually support — a simultaneous fit needs "
-        "more wells than guides. 'Regression type' then selects the family.",
     "PERMUTATION TEST":
         "Read only when inference resolves to the nonparametric test. These "
         "control the permutation itself: how many, what is held fixed "
@@ -2185,10 +2291,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     # heading were retired when the regression layout was split into Response
     # / Model & Inference / Estimator Tuning / Permutation Test / Significance
     # & Hit Calling / Quality Filters. Their replacements are above.
-    "REGRESSION PLOTS":
-        "The volcano plot, and the axis transforms and ranges used to draw "
-        "the regression output. Cosmetic: the fitted coefficients do not "
-        "change.",
     "ADDITIONAL SETTINGS":
         "The remaining knobs belonging to individual regression families "
         "and plots — bootstrap counts, quantile and hinge parameters, "
@@ -2610,11 +2712,6 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "on the way. Lower the worker count when the machine has other "
             "work to do; raise the verbosity when a fit is failing and you "
             "cannot see where.",
-    },
-    "regression": {
-        "RUNTIME & RELIABILITY":
-            "Whether a failed plate stops the run, and how large a fraction "
-            "of failures is tolerated before it does.",
     },
     "replication": {
         "OBJECT FILTERING":
@@ -3156,6 +3253,12 @@ _MODE_TITLES = {
     "elasticnet": "penalised least squares, L1 + L2",
     "hinge": "linear SVM on a binarised response",
     "horseshoe": "sparse Poisson GLM, horseshoe",
+    # Kept short on purpose: the header renders as "MODEL: <key> -- <title>"
+    # on ONE unwrapped line, and the box does not soft-wrap, so a title long
+    # enough to pass 54 characters puts the model's own name behind a
+    # horizontal scrollbar.
+    "group_lasso": "guides grouped by gene",
+    "rra": "MAGeCK alpha rank aggregation",
 }
 
 #: WHAT THE MODE DOES -- one paragraph each, taken from what
@@ -3276,6 +3379,37 @@ _MODE_NOTES = {
         "about a gene widen that gene's interval instead of silently "
         "averaging out, and a gene resting on one noisy guide is shrunk "
         "toward zero."
+    ),
+    "group_lasso": (
+        "Penalised least squares in which A GENE'S GUIDES ARE ONE BLOCK: the "
+        "L2 norm inside the penalty is not squared, so a block goes to "
+        "exactly zero or none of it does. Plain lasso penalises each guide "
+        "on its own and keeps whichever of a gene's four correlated guides "
+        "happens to fit best, which reads as 'one guide works and three do "
+        "not' when the truth is 'the gene matters and four guides measured "
+        "it'. The gene is a GROUPING of the guide columns, read off their "
+        "names, never a column of its own. IT REPORTS NO P-VALUE, for the "
+        "reason lasso does not: features are ranked by bootstrap selection "
+        "frequency over lasso_n_boot resamples and cut at "
+        "lasso_selection_threshold. Its penalty is group_lasso_lambda and "
+        "NOT alpha -- it is measured against group_lasso.max_lambda, which "
+        "is a property of THIS design, so a number carried over from a lasso "
+        "run means something else here."
+    ),
+    "rra": (
+        "MAGeCK's alpha-RRA, and the only entry here that ranks rather than "
+        "fits. Guides are ranked against every other guide in the screen; a "
+        "gene with k guides occupies normalised ranks r_1 <= ... <= r_k, and "
+        "its statistic is the smallest Beta(i, k-i+1) probability over the "
+        "top rra_alpha fraction of them -- restricting to that top fraction "
+        "is what keeps a gene findable when one guide cuts and three do not, "
+        "which in a real library is most of them. THE P VALUE IS PERMUTED, "
+        "not read off a table: rho is a minimum over dependent order "
+        "statistics and has no closed form, so a null of rra_permutations "
+        "draws is built per distinct guide count, with guides reassigned to "
+        "genes of the same size. Depletion and enrichment are reported "
+        "apart, because a gene whose guides split half up and half down is a "
+        "bad guide set rather than a phenotype."
     ),
 }
 _MODE_NOTES["huber"] = _MODE_NOTES["rlm"]
@@ -3479,6 +3613,102 @@ def regression_model_explainer(regression_type: Any,
     lines.append("")
     lines.append(_wrap_block(_WHY_BODY))
     return "\n".join(lines).rstrip() + "\n"
+
+
+# ---------------------------------------------------------------------------
+# The Permutation Test explainer box (instruction 135)
+# ---------------------------------------------------------------------------
+#
+# "Permutation test is good it just needs a text box at the top briefly
+# explaining what it does."  ONE PARAGRAPH, and shorter than the model box
+# above: the eight controls under it are already named for what they do, so
+# what is missing is only the sentence that says what the test IS.
+#
+# Written from `spacr.guide_permutation` rather than from the general
+# reputation of permutation tests, which is why it says "marginal" out loud.
+# The module's own docstring is explicit that it "does not claim to estimate a
+# simultaneous conditional coefficient for every guide", and a user who reads
+# "permutation test" as "the same fit, only distribution-free" would take a
+# marginal association for a conditional one.
+
+#: What the nonparametric branch actually runs, in one paragraph.
+#:
+#: Every clause is a line of `guide_freedman_lane_test`: the block-wise
+#: reshuffle is its `for indexes in block_indexes` loop, the two-sided
+#: comparison is `np.abs(permutation_effects) >= np.abs(observed)`, the floor
+#: on the P value is `(exceedances + 1) / (n_permutations + 1)`, and the
+#: per-threshold family is the `for threshold in thresholds` loop that
+#: corrects each support level on its own.
+_PERMUTATION_NOTE = (
+    "Each guide is tested ON ITS OWN, as a marginal association rather "
+    "than as one coefficient in a design holding every guide at once. Its "
+    "read fraction and the well phenotype are first residualised against "
+    "the block (normally plateID) and any nuisance columns; the P value is "
+    "then the share of Freedman-Lane permutations -- the phenotype residual "
+    "reshuffled WITHIN each block -- whose statistic reaches the observed "
+    "one, so it is empirical and two-sided and can never be smaller than "
+    "1/(permutations + 1). A guide becomes testable once it appears in "
+    "guide_min_wells wells above guide_presence_threshold, and each of "
+    "those thresholds is corrected as its own family. That answer stays "
+    "valid however many guides the screen carries, which the simultaneous "
+    "fit does not: with more guides than wells its design is unidentified, "
+    "and it would report marginal associations as though they were "
+    "conditional coefficients."
+)
+
+
+def permutation_test_explainer() -> str:
+    """The Permutation Test section's box text.
+
+    Pure text, wrapped to the same column as the model box, so the two boxes
+    on the regression panel line up and neither needs the widget to soft-wrap.
+    Takes no settings: unlike the model box, what this test does is the same
+    whatever the eight controls below it are set to -- they change its size,
+    its seed and its support cutoff, not its meaning.
+    """
+    return ("WHAT THIS TEST DOES\n"
+            + _wrap_block(_PERMUTATION_NOTE) + "\n")
+
+
+#: Sections that open with a read-only prose box instead of a control, per
+#: module. Asked for by instruction 132 (the model box) and 135 (this one and
+#: the model box's position): "Model and Inference is good just ad the text
+#: box i asked for (at the top)".
+#:
+#: A TABLE RATHER THAN TWO `if app_key == ... and title == ...` BRANCHES in
+#: the screen: the box for Model & Inference was installed by exactly such a
+#: branch, and it went in AFTER the section rather than at the top of it,
+#: which is the placement this instruction is correcting. One table is one
+#: place to read the answer and one place to add the third box.
+SECTION_EXPLAINERS: Dict[str, Tuple[str, ...]] = {
+    "regression": ("Model & Inference", "Permutation Test"),
+}
+
+
+def has_section_explainer(app_key: str, title: str) -> bool:
+    """True when this module's section opens with a prose box."""
+    return str(title or "") in SECTION_EXPLAINERS.get(str(app_key or ""), ())
+
+
+def section_explainer(app_key: str, title: str,
+                      settings: Optional[Dict[str, Any]] = None) -> str:
+    """The text of one section's box, or "" when the section has none.
+
+    :param app_key: the module being rendered.
+    :param title: the section heading, as rendered.
+    :param settings: the panel's CURRENT values, when the box depends on
+        them. The model box does -- it states the formula for the selected
+        `regression_type` and `level` -- and re-reading it on every change is
+        what keeps the formula and the controls from disagreeing.
+    """
+    if not has_section_explainer(app_key, title):
+        return ""
+    values = settings or {}
+    if title == "Model & Inference":
+        return regression_model_explainer(
+            values.get("regression_type", "auto"),
+            values.get("level", "both"))
+    return permutation_test_explainer()
 
 
 def _basis_note(basis: str) -> str:
@@ -3935,6 +4165,172 @@ class _ScalarEdit(QLineEdit):
     def set_value(self, v: Any) -> None:
         """Set the field text; ``None`` clears the field."""
         self.setText("" if v is None else str(v))
+
+
+class _CsvColumnField(QWidget):
+    """A column-name box with a CSV button that offers the columns that exist.
+
+    The box is the setting; the button answers the question the box asks. A
+    misnamed `dependent_variable` used to survive every early check and die
+    inside the merge -- after the whole score table had been read -- with a
+    message naming a column the file does not have and saying nothing about
+    what it does have.
+
+    THREE RULES, and each is a failure this is built not to repeat:
+
+    * THE HEADER ROW ONLY. Every read goes through :mod:`spacr.columns`,
+      which uses ``nrows=0``. This runs on the GUI thread and a score CSV is
+      hundreds of megabytes; a picker that has to load the file to populate
+      itself is a picker nobody waits for.
+
+    * NO CSV IS NOT AN EMPTY LIST. With nothing loaded the button SAYS SO --
+      `columns.describe` writes the sentence -- rather than opening a chooser
+      with nothing in it. An empty list of choices presented as though it
+      were the answer teaches a user that the file has no columns.
+
+    * THE CHOOSER AND THE REPORTER ARE INJECTABLE (:meth:`set_chooser`,
+      :meth:`set_reporter`), so a headless test drives the whole path without
+      ever entering a modal event loop.
+    """
+
+    #: Emitted when the name changes, typed or picked. Named `value_changed`
+    #: because that is the first signal `_connect_setting_dependency_signals`
+    #: looks for, so a rule gated on this setting re-evaluates on a pick and
+    #: not only on a keystroke.
+    value_changed = Signal()
+
+    def __init__(self, key: str = "", default: Any = None,
+                 paths: Any = None, what: str = "column",
+                 parent: Optional[QWidget] = None):
+        """
+        :param key: the settings key, named in the not-found message.
+        :param default: the column name to start with.
+        :param paths: callable returning the CSVs to read, or a fixed
+            sequence of them. A CALLABLE by default: the user picks their
+            input files after the panel is built, so a list captured at
+            construction is always the empty one.
+        :param what: what kind of column, for the message.
+        """
+        super().__init__(parent)
+        self._key = str(key or "")
+        self._what = str(what or "column")
+        self._paths = paths
+        self._chooser: Optional[Callable[[List[str], Any], Any]] = None
+        self._reporter: Optional[Callable[[str], None]] = None
+
+        self.edit = _ScalarEdit()
+        self.edit.set_value(default)
+        self.edit.textChanged.connect(self._on_edited)
+        self.button = QPushButton("CSV", self)
+        self.button.setObjectName("CsvColumnPicker")
+        self.button.setCursor(Qt.PointingHandCursor)
+        self.button.setToolTip(
+            "Read the header row of the input CSVs and choose a column.")
+        self.button.clicked.connect(self.pick)
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(4)
+        row.addWidget(self.edit, 1)
+        row.addWidget(self.button, 0)
+        # Typing goes to the box, not to the button, when the row is tabbed
+        # into or given focus programmatically.
+        self.setFocusProxy(self.edit)
+
+    # -- the settings-widget contract ---------------------------------------
+
+    def get_value(self) -> Optional[str]:
+        """The column name currently typed or picked, or None if empty."""
+        return self.edit.get_value()
+
+    def set_value(self, value: Any) -> None:
+        """Write a column name into the box; ``None`` clears it."""
+        self.edit.set_value(value)
+
+    def text(self) -> str:
+        """The raw text -- the QLineEdit contract callers may still use."""
+        return self.edit.text()
+
+    def setText(self, value: str) -> None:  # noqa: N802 - QLineEdit contract
+        """Set the raw text -- the QLineEdit contract callers may still use."""
+        self.edit.setText(value)
+
+    # -- the picker ---------------------------------------------------------
+
+    def set_chooser(self, chooser) -> None:
+        """Replace the modal chooser with ``chooser(choices, current)``."""
+        self._chooser = chooser
+
+    def set_reporter(self, reporter) -> None:
+        """Replace the modal message box with ``reporter(message)``."""
+        self._reporter = reporter
+
+    def input_paths(self) -> List[str]:
+        """The CSVs this field's columns are read from, right now."""
+        paths = self._paths() if callable(self._paths) else self._paths
+        return [path for path in (paths or []) if path]
+
+    def pick(self) -> Optional[str]:
+        """Offer the columns the input CSVs have; return the one chosen.
+
+        :returns: the chosen name, or None when there was nothing to offer or
+            the user cancelled.
+        """
+        from spacr import columns as columns_module
+
+        paths = self.input_paths()
+        # ONE read, and it is the only one. `columns.describe` and
+        # `columns.resolve` would each re-read the headers to build the same
+        # list; the list is already here, so the near-miss below is computed
+        # from it rather than by asking the files a second time.
+        choices = columns_module.available(paths)
+        if not choices:
+            self.report(columns_module.describe(
+                self.get_value(), paths, what=self._what, setting=self._key))
+            return None
+        current = self.get_value()
+        chosen = self.choose(choices, current,
+                             self._prompt(columns_module, choices, current))
+        if chosen:
+            self.set_value(chosen)
+        return chosen or None
+
+    def _prompt(self, columns_module, choices: List[str],
+                current: Any) -> str:
+        """The line above the chooser: how many, and the likely typo."""
+        if current is not None and current not in choices:
+            close = columns_module.suggest(current, choices)
+            if close:
+                return (f"No {self._what} {current!r} in the input CSVs. "
+                        f"Did you mean {close[0]!r}?")
+            return f"No {self._what} {current!r} in the input CSVs."
+        return f"{len(choices)} column(s) in the input CSVs:"
+
+    def choose(self, choices: List[str], current: Any,
+               prompt: str = "") -> Optional[str]:
+        """Ask the user which column. Overridden by :meth:`set_chooser`."""
+        if self._chooser is not None:
+            return self._chooser(choices, current)
+        from PySide6.QtWidgets import QInputDialog
+
+        index = choices.index(current) if current in choices else 0
+        name, ok = QInputDialog.getItem(
+            self, f"Choose a {self._what}",
+            prompt or f"{len(choices)} column(s) available:",
+            choices, index, False)
+        return name if ok else None
+
+    def report(self, message: str) -> None:
+        """Say why there is nothing to choose from. See :meth:`set_reporter`."""
+        if self._reporter is not None:
+            self._reporter(message)
+            return
+        from PySide6.QtWidgets import QMessageBox
+
+        QMessageBox.information(self, "No columns to offer", message)
+
+    def _on_edited(self, *_args) -> None:
+        self.value_changed.emit()
 
 
 # ---------------------------------------------------------------------------
@@ -5091,6 +5487,27 @@ class SettingsWidgets:
         if key == "paired_data":
             return PairedFileTableWidget(
                 value=self._defaults.get(key, default), parent=parent)
+        # A setting whose value NAMES A COLUMN of an input CSV gets the box
+        # plus a button that reads those CSVs' header row. Checked before the
+        # combo and chip paths below because these keys are declared `str`
+        # and would otherwise take the plain text box that made a typo
+        # indistinguishable from a name.
+        #
+        # The paths are read WHEN THE BUTTON IS PRESSED, not here: the user
+        # chooses their input files after this panel is built, so a list read
+        # at construction is always the empty one.
+        source = CSV_COLUMN_SOURCES.get(self.app_key, {}).get(key)
+        if source is not None:
+            return _CsvColumnField(
+                key=key,
+                default=self._defaults.get(key, default),
+                # `partial`, not a lambda: the callable outlives this call
+                # and is read on a button press minutes later, so what it
+                # captures should be visible rather than implied.
+                paths=partial(self._input_csv_paths, source.roles),
+                what=source.what,
+                parent=parent,
+            )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
@@ -5355,7 +5772,7 @@ class SettingsWidgets:
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
                     ClassEditorWidget, FilePathListWidget,
-                    PairedFileTableWidget,
+                    PairedFileTableWidget, _CsvColumnField,
                 ),
             ):
                 w.set_value(value)
@@ -5626,25 +6043,65 @@ class SettingsWidgets:
         paired table is read first for that reason, with the flat keys kept
         for the panels that still use them.
         """
+        return [(index, path)
+                for index, _role, path in self._input_tables(current)]
+
+    @staticmethod
+    def _input_tables(current: Dict[str, Any],
+                      roles: Tuple[str, ...] = ('score', 'count')):
+        """``[(index, role, path)]`` for the loaded regression input CSVs.
+
+        THE ONE PLACE THE PAIRED TABLE IS UNPACKED, and it carries the role
+        because its two callers need different projections of the same read:
+        the plate-count scan wants every path with its logical index, and the
+        CSV column picker wants one side only -- `dependent_variable` names a
+        column of the SCORE file and offering it `grna` from the count file
+        would offer a name the run cannot use. A second unpacker would be a
+        second thing to update the day the table gains a third side.
+        """
         pairs = current.get('paired_data')
         if isinstance(pairs, (list, tuple)) and pairs:
             found = []
             for index, row in enumerate(pairs):
                 if not isinstance(row, dict):
                     continue
-                for role in ('score', 'count'):
+                for role in roles:
                     path = row.get(role)
                     if path:
-                        found.append((index, path))
+                        found.append((index, role, path))
             if found:
                 return found
         found = []
-        for key in ('score_data', 'count_data'):
-            paths = current.get(key) or []
+        for role in roles:
+            paths = current.get(f'{role}_data') or []
             if isinstance(paths, (str, os.PathLike)):
                 paths = [paths]
-            found.extend(enumerate(paths))
+            found.extend((index, role, path)
+                         for index, path in enumerate(paths))
         return found
+
+    def _input_csv_paths(self, roles: Tuple[str, ...]) -> List[str]:
+        """The input CSVs a column picker for ``roles`` should read.
+
+        Deduplicated in order: one score CSV shared by two plate rows is one
+        file to read, and `spacr.columns.available` would merge its columns
+        anyway.
+
+        Only the three input keys are read, not the whole panel: this runs on
+        a button press and `_current_dependency_settings` walks every widget
+        on the screen to answer a question about three of them.
+        """
+        current = {}
+        for key in ('paired_data', 'score_data', 'count_data'):
+            widget = self._widgets.get(key)
+            current[key] = (self._read_widget(widget) if widget is not None
+                            else self._defaults.get(key))
+        seen: List[str] = []
+        for _index, _role, path in self._input_tables(current, tuple(roles)):
+            text = os.fspath(path)
+            if text not in seen:
+                seen.append(text)
+        return seen
 
     @staticmethod
     def _plate_context(paths) -> Dict[str, Any]:
@@ -5752,7 +6209,7 @@ class SettingsWidgets:
                 _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
                 ChannelMappingWidget, ClassEditorWidget, FilePathListWidget,
-                PairedFileTableWidget,
+                PairedFileTableWidget, _CsvColumnField,
             ),
         ):
             return w.get_value()
