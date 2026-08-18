@@ -310,3 +310,147 @@ that sentence is part of the work rather than a follow-up.
 AND EACH ONE'S SPEEDUP IS MEASURED, NOT CLAIMED, on a real screen, the way
 torch's 25x end-to-end and 27x per-Cholesky were. A backend offered with an
 unmeasured "may be faster" is the thing section B forbids.
+
+
+================================================================================
+2026-08-18 (later) -- G IS DONE FOR TWO OF THE SIX, AND TWO MORE ARE ANSWERED
+================================================================================
+
+INSTALLED, under the maintainer's live approval, and nothing else:
+
+    pyfixest 0.60.0   + 11 transitive (faicons, formulaic, great-tables,
+                        htmltools, importlib-resources, interface-meta,
+                        maketables, multimark, narwhals, nokap, websockets)
+    glum 3.4.1        + tabmat 4.2.1
+
+Both re-verified additive with `pip install --dry-run --report` immediately
+before installing, and confirmed afterwards: numpy 1.26.4, scipy 1.15.3,
+pandas 2.3.3, sklearn 1.7.2, statsmodels 0.14.5, torch 2.9.1+cu128 all
+unmoved.
+
+WIRED, MEASURED AND AGREED (commit 1bf59232)
+
+1. pyfixest -- `ols` and `wls`. `spacr.ml._fit_absorbed_least_squares`.
+
+   THE ORDER IN THIS FILE WAS RIGHT AND ITS REASON WAS NOT, which is the
+   thing worth not rediscovering. "Absorbing rowID/columnID shrinks the
+   problem" is 36 columns out of 736 -- 5% -- and cannot be worth what was
+   measured. What absorption actually buys is the SOLVER: statsmodels' OLS
+   answers through `pinv_wexog`, a Moore-Penrose pseudo-inverse computed by
+   SVD; once the nuisance factors are projected out the remaining normal
+   equations are SPD and a Cholesky answers them.
+
+       n=1830  p=736   sm 0.244 s   absorbed 0.172 s    1.4x
+       n=6000  p=2242  sm 3.37 s    absorbed 0.572 s    5.9x
+       n=12000 p=4601  sm 43.3 s    absorbed 2.59 s    16.7x
+
+   coefficients 3.9e-9 absolute, standard errors 1.3e-13 relative, p-values
+   8.5e-12 absolute, and `scale`, `df_resid` and the per-observation
+   residuals reproduced to 1.1e-11.
+
+   AND IT DOES NOT ROUTE THROUGH `pf.feols`. The high-level API was measured
+   first and is SLOWER than statsmodels on every shape tried (1.24 s against
+   0.26 s at n=1830; 80 s against 41 s at n=12000) -- formulaic's parsing and
+   the collinearity sweep cost more than the absorption saves at these
+   widths. The win is in `pyfixest.core.demean`, the alternating-projections
+   kernel itself. Anyone who benchmarks `feols` and concludes pyfixest is not
+   worth wiring has measured the wrapper.
+
+   THE DEGREES OF FREEDOM ARE THE TRAP. n - p_kept is the wrong denominator;
+   the absorbed parameters must still be charged for. On the TSG101 shape
+   that is 1094 residual df against 1129 -- every standard error 1.6% small,
+   which looks like rounding and moves a gene across a q cut. There is a test
+   on it.
+
+   ONE THING DIFFERS BY CONSTRUCTION and the box says so: the absorbed terms
+   have no coefficient row, so `Intercept` is missing from the table. rowID
+   and columnID were dropped from it anyway.
+
+   cov_type is REFUSED rather than approximated: HC0's meat survives FWL but
+   HC1/HC2/HC3 correct by the full model's leverage, which an absorbed fit
+   never forms.
+
+2. glum -- `glm`, `poisson`, `logit`. `spacr.ml._fit_glum_glm`.
+
+       poisson n=1830 p=736    sm 1.21 s   glum 1.72 s   0.70x
+       logit   n=1830 p=736    sm 0.99 s   glum 0.85 s   1.16x
+       poisson n=6000 p=2242   sm 41.4 s   glum 16.9 s   2.44x
+       logit   n=6000 p=2242   sm 14.3 s   glum 4.65 s   3.08x
+
+   IT IS SLOWER ON A SMALL SCREEN and the box says that too -- section B
+   forbids an unmeasured claim in either direction. Coefficients agree to
+   2.6e-10 (poisson) and 1.5e-9 (logit); llf and null_deviance are identical,
+   so the McFadden R2 the run prints does not move.
+
+   DO NOT TAKE glum's OWN STANDARD ERRORS. `std_errors` defaults to a
+   sandwich, and even with robust=False and dispersion fixed it applies an
+   N/(N-p) correction statsmodels does not: measured as a CONSTANT ratio of
+   1.2934 on the Poisson fit and 1.00059 on the weighted logit, which is
+   sqrt(N/(N-p)) with N the observation count and the weight total. A 29%
+   difference in every p-value is a different answer. The covariance is
+   formed here from the information matrix, (X'WX)^-1 at dispersion 1, and
+   then agrees to 8.3e-6 relative.
+
+   NOT probit AND NOT quasi_binomial. glum 3.4's links are Identity, Log,
+   Logit, Cloglog, Tweedie -- there is no probit -- and it has no equivalent
+   of statsmodels' scale='X2', which IS quasi-binomial. Either would be a
+   different model under the right label. The spec's `types` were narrowed
+   from the five this file guessed at to the three that are true.
+
+NOT WIRED, AND NOT BECAUSE THERE WAS NO TIME
+
+3. cuML -- IT IS NOT A SAFE INSTALL HERE, and this is the correction that
+   matters most in this file. The dependency table at the top tested pymer4,
+   gpytorch, numpyro, glum, linearmodels and pyfixest. cuML WAS NEVER IN IT,
+   and "every one is purely additive" was read as covering it. Re-run
+   2026-08-18:
+
+       pip install --dry-run --report cuml-cu12
+       -> numpy 1.26.4 -> 2.2.6            (the exact risk the test is for)
+          numba 0.62.1 -> 0.61.2
+          llvmlite 0.45.1 -> 0.44.0
+          eight nvidia-*-cu12 runtime libraries torch is built against
+
+   The maintainer's condition was "first test if adding any of those
+   dependencies causes any problems". For this one the answer is yes. It
+   stays greyed out, and its entry now says why rather than "not wired up".
+   A future attempt needs a separate environment or conda-forge's rapids
+   build pinned to numpy 1.26, not a pip install into this one.
+
+4. pymer4 -- IT STILL NEEDS R. This file said "pymer4 0.9.2, rpy2 NOT among
+   its requirements ... on this version, yes". That was read off a metadata
+   gap: the 0.9.2 wheel declares NO dependencies at all --
+   `importlib.metadata.requires('pymer4')` returns None -- so pip truthfully
+   reported one additive package and none of its real ones. Installed and
+   imported here it fails at `pymer4/io.py: import polars`, every module
+   under `pymer4/models/` opens with `from rpy2.robjects.packages import
+   importr`, and its own README says so. Uninstalled again. The maintainer's
+   question -- can lme4 be had without R -- is answered NO for this version.
+
+5. numpyro / gpytorch -- untouched, still inventory, still last for the
+   reason section B gives.
+
+WHAT REMAINS IN G
+
+* `poisson` through pyfixest (`fepois`). The spec's `types` were narrowed to
+  ('ols', 'wls') because glum covers poisson and the IRLS-over-demeaned-data
+  path is a second implementation to hold to section D. Worth doing if a
+  screen turns up where the Poisson design is wide enough for absorption to
+  matter.
+* The penalised families (`lasso`, `ridge`, `elasticnet`) still have only
+  sklearn. cuML was the plan and cuML is out; glum can fit an L1/L2 GLM and
+  would be the CPU answer, but section D's agreement is harder there -- two
+  coordinate-descent paths at the same alpha can select different sets, which
+  is what the cuML entry's `differs` already says.
+* A backend the user picks is not yet written into the run summary beside the
+  fit, except for `mixed` (`ml.py` prints "Mixed model fitted by
+  regression_backend=..."). The other two print nothing.
+
+FOUND IN PASSING, NOT MINE TO FIX:
+`tests/test_regression_entry_points.py::test_every_settings_key_perform_
+regression_indexes_has_a_default` and `::test_the_only_keys_without_a_default_
+are_derived_and_written_first` are RED and were red before this work:
+`perform_regression` hands its settings dict to `write_run_summary`, which is
+importable from none of the test's `_HELPER_MODULES`. Instruction 156's
+module needs adding to that tuple. Both `write_run_summary` call sites in
+ml.py were left alone as instructed.
