@@ -389,6 +389,164 @@ def default_aggregated_columns(
     return tuple(named)
 
 
+# --------------------------------------------------------------------------- #
+#  Instruction 154 C: a "no rule matched" bucket is not one bucket
+# --------------------------------------------------------------------------- #
+#
+# The panel used to report 85 columns as "matched no aggregation rule and
+# would take the default (mean)", and two of them were `file_name` and
+# `path_name`. A mean of a path is not merely unhelpful, it is impossible --
+# and it is not what happens: `aggregation_plan` asks the DTYPE first, so a
+# text column takes `TEXT_AGGREGATION` (first) whatever its name. The list was
+# right about which columns no NAME rule matched and wrong about what would
+# be done to them.
+#
+# So the bucket is split by kind before it is reported, and the text half gets
+# the treatment instruction 79 asks for rather than a silent `first`.
+
+
+#: What a text identifier gets when its value is the same for every child of
+#: a parent -- it is one fact about the parent, carried through.
+IDENTIFIER_CARRIED = "first"
+#: ...and what it gets when it is not. Picking one of three file names for a
+#: cell invents provenance, so the column is left out and NAMED.
+IDENTIFIER_REFUSED = "refused"
+
+
+def classify_default_columns(
+        columns: Sequence[str],
+        kinds: Optional[Mapping[str, str]] = None, *,
+        overrides: Optional[Mapping[str, str]] = None
+) -> Dict[str, Tuple[str, ...]]:
+    """Split the columns no rule names into what will ACTUALLY happen to them.
+
+    :param columns: the column names about to be aggregated.
+    :param kinds: ``{column: 'numeric' | 'text' | 'unknown'}``, as
+        :func:`spacr.multi_database.column_kinds` returns it. A column absent
+        from the mapping is ``'unknown'``.
+    :param overrides: the caller's explicit choices. A column they set is not
+        a fall-through and appears in neither bucket -- they chose it.
+    :returns: ``{'mean': (...), 'identifier': (...), 'unknown': (...)}``:
+
+        ``mean``
+            numeric, no rule matched, so
+            :data:`spacr.merge_tables.DEFAULT_AGGREGATION` is what it takes.
+        ``identifier``
+            text. It takes :data:`spacr.merge_tables.TEXT_AGGREGATION`, not a
+            mean, and whether it is CARRIED or REFUSED depends on the data --
+            see :func:`ambiguous_identifiers`, which can only be answered by
+            reading the rows.
+        ``unknown``
+            the database declared no type, so neither can be promised. Named
+            separately rather than folded into either: an absent answer that
+            reads as a definite one is the failure this module exists to
+            avoid.
+    """
+    chosen = dict(overrides or {})
+    kinds = dict(kinds or {})
+    out: Dict[str, List[str]] = {"mean": [], "identifier": [], "unknown": []}
+    for column in columns:
+        name = str(column)
+        if name in chosen:
+            continue
+        lowered = name.lower()
+        if any(re.search(pattern, lowered)
+               for pattern, _how in mt.AGGREGATION_RULES):
+            continue
+        kind = str(kinds.get(name, "unknown"))
+        if kind == "numeric":
+            out["mean"].append(name)
+        elif kind == "text":
+            out["identifier"].append(name)
+        else:
+            out["unknown"].append(name)
+    return {key: tuple(value) for key, value in out.items()}
+
+
+def ambiguous_identifiers(child: pd.DataFrame, keys: Sequence[str], *,
+                          plan: Optional[Mapping[str, str]] = None,
+                          overrides: Optional[Mapping[str, str]] = None,
+                          examples: int = 1) -> Dict[str, Dict[str, Any]]:
+    """Text identifiers that are NOT constant within their roll-up group.
+
+    Instruction 79 item 2, arrived at from the other side: when two things
+    that must agree do not, that is a real inconsistency and it is named
+    rather than silently resolved. A cell with three pathogens has ONE
+    ``path_name`` if all three came off the same image; if it has three,
+    ``first`` names one of them and the merged row then claims a provenance
+    the data does not support.
+
+    Only TEXT columns are examined, and this is deliberate. ``object_label``
+    also takes ``first``, by the identity rule, and it is SUPPOSED to differ
+    across the children -- :data:`spacr.merge_tables.AGGREGATION_RULES` says
+    so in as many words: the label is carried verbatim only so a row can be
+    traced back. A numeric label that varies is the normal case; a text
+    identifier that varies is the ambiguity.
+
+    :param child: the many-per-parent table, before the roll-up.
+    :param keys: the group keys the roll-up will use.
+    :param plan: the aggregation plan, from
+        :func:`spacr.merge_tables.aggregation_plan`. Recomputed when omitted.
+    :param overrides: the caller's explicit choices. A column they set is
+        theirs, and is not second-guessed here.
+    :param examples: how many offending group keys to record per column.
+    :returns: ``{column: {'groups': n, 'examples': [(key, [values])]}}`` --
+        empty when every identifier is constant, which is the normal case.
+    """
+    keys = [key for key in keys if key in child.columns]
+    if not keys or child.empty:
+        return {}
+    plan = dict(plan if plan is not None
+                else aggregation_plan(child, overrides=overrides,
+                                      skip=list(keys)))
+    chosen = dict(overrides or {})
+    suspects = [column for column, how in plan.items()
+                if how == mt.TEXT_AGGREGATION
+                and column not in chosen
+                and column in child.columns
+                and not pd.api.types.is_numeric_dtype(child[column])]
+    if not suspects:
+        return {}
+    grouped = child.groupby(list(keys), dropna=False)
+    out: Dict[str, Dict[str, Any]] = {}
+    for column in suspects:
+        counts = grouped[column].nunique(dropna=False)
+        offending = counts[counts > 1]
+        if not len(offending):
+            continue
+        found = []
+        for key in list(offending.index)[:max(int(examples), 1)]:
+            rows = child
+            key_values = key if isinstance(key, tuple) else (key,)
+            for name, value in zip(keys, key_values):
+                rows = rows[rows[name] == value]
+            found.append((key_values,
+                          sorted({str(value) for value in rows[column]})))
+        out[str(column)] = {"groups": int(len(offending)), "examples": found}
+    return out
+
+
+def describe_identifier_refusal(table: str, column: str,
+                                detail: Mapping[str, Any]) -> str:
+    """One line saying why ``column`` was left out, with an example.
+
+    Written here rather than in the panel so the headless merge and the Qt one
+    say the same sentence.
+    """
+    examples = list(detail.get("examples") or ())
+    groups = int(detail.get("groups", 0))
+    line = (f"  {table}: {column} is a text identifier that differs WITHIN "
+            f"{groups:,} group(s), so it was left out rather than set to one "
+            f"of its values — picking one invents provenance")
+    if examples:
+        key, values = examples[0]
+        shown = ", ".join(str(value) for value in values[:3])
+        if len(values) > 3:
+            shown += f", … ({len(values)} values)"
+        line += f" (e.g. {'/'.join(str(part) for part in key)}: {shown})"
+    return line + "."
+
+
 def _screen_labels(attached: Sequence[PlateDatabase], screens: Any) -> Any:
     """One screen label per database, from a per-PLATE mapping or a sequence.
 
@@ -445,6 +603,7 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
                           screens: Any = None,
                           columns: str = "common",
                           report: Optional[Callable[[str], None]] = None,
+                          on_ambiguous_identifier: str = "refuse",
                           ) -> PlateMerge:
     """Merge every attached plate database into one frame, one row per anchor.
 
@@ -467,6 +626,12 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
     :param columns: ``'common'`` or ``'union'``, passed to ``read_merged``.
     :param report: called with one line per thing the merge cost, the table
         named.
+    :param on_ambiguous_identifier: ``'refuse'`` (default) leaves out a text
+        identifier that differs within a roll-up group and names it on
+        ``report``; ``'first'`` restores the old silent pick. See
+        :func:`ambiguous_identifiers` -- and note that this is the same
+        default the Measurements tab applies, because two answers to one
+        question is how two merges of one screen come to disagree.
     :returns: the :class:`PlateMerge`.
     :raises MergeRefused: nothing attached, a database that has moved, one
         database attached to two plates, an anchor that is not one row per
@@ -521,8 +686,15 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
     chosen = [table for table in dict.fromkeys([anchor_table, *tables])]
     _refuse_missing_tables(attached, chosen)
 
+    if on_ambiguous_identifier not in ("refuse", "first"):
+        raise MergeRefused(
+            f"on_ambiguous_identifier must be 'refuse' or 'first', got "
+            f"{on_ambiguous_identifier!r}. There is no option that averages a "
+            f"file name -- text takes no mean.")
+
     merged: Optional[pd.DataFrame] = None
     records: List[TableMerge] = []
+    refused_identifiers: Dict[str, Tuple[str, ...]] = {}
     for table in chosen:
         plan = describe_merge(paths, table, screens=labels)
         # `on_collision` is deliberately left at 'refuse'. 'qualify' rewrites
@@ -577,6 +749,24 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
             # function, so they cannot disagree.
             plan_for_table = aggregation_plan(frame, overrides=policy.overrides,
                                               skip=keys)
+            # REFUSED, NOT PICKED. A text identifier that differs across the
+            # children being combined is a genuine ambiguity (instruction 79
+            # item 2): `first` would put one of two file names on the cell and
+            # the merged row would claim a provenance the data cannot support.
+            ambiguous = ambiguous_identifiers(frame, keys,
+                                              plan=plan_for_table,
+                                              overrides=policy.overrides)
+            if ambiguous and on_ambiguous_identifier == "refuse":
+                for column, detail in ambiguous.items():
+                    line = describe_identifier_refusal(table, column, detail)
+                    LOG.info("%s", line.strip())
+                    if report is not None:
+                        report(line.strip())
+                frame = frame.drop(columns=list(ambiguous))
+                plan_for_table = {name: how for name, how
+                                  in plan_for_table.items()
+                                  if name not in ambiguous}
+                refused_identifiers[table] = tuple(sorted(ambiguous))
             rolled = roll_up(frame, keys, name=table, policy=policy)
         rolled = rolled.rename(columns={link: OBJECT_COLUMN})
 
@@ -613,4 +803,5 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
         result.default_aggregation_columns
     merged.attrs["screens"] = tuple(
         records[0].plan.screens) if records else ()
+    merged.attrs["refused_identifiers"] = dict(refused_identifiers)
     return result

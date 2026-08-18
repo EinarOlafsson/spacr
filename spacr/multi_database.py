@@ -63,6 +63,7 @@ from . import schema
 __all__ = [
     "SOURCE_COLUMN",
     "SCREEN_COLUMN",
+    "MergeCancelled",
     "MergePlan",
     "MergeDecision",
     "SourceSummary",
@@ -72,6 +73,8 @@ __all__ = [
     "read_merged",
     "record_decision",
     "source_labels",
+    "column_kinds",
+    "canonical_plate_id",
     "MergeRefused",
 ]
 
@@ -99,6 +102,21 @@ _ALWAYS_KEPT: Tuple[str, ...] = (SCREEN_COLUMN, SOURCE_COLUMN)
 
 class MergeRefused(RuntimeError):
     """The merge would have silently changed what the numbers mean."""
+
+
+class MergeCancelled(RuntimeError):
+    """The user stopped the merge before it finished.
+
+    NOT a :class:`MergeRefused`, and the distinction is the whole reason this
+    is its own class. A refusal is an ANSWER about the data and the caller
+    shows it; a cancellation is the user changing their mind and there is
+    nothing to report about their databases. A caller that caught both as one
+    would put "the merge was refused" in front of somebody who pressed Stop.
+
+    Nothing is half-written when this is raised: every merge in this module
+    builds a frame in memory and returns it at the end, so abandoning one
+    leaves the previous result exactly where it was.
+    """
 
 
 @dataclass(frozen=True)
@@ -285,6 +303,30 @@ def _meaningful_parent(path: str) -> str:
     return ""
 
 
+def canonical_plate_id(plate: Any) -> str:
+    """The plate id in the form the rest of spaCR keys on.
+
+    ONE RULE, IN ONE PLACE (instruction 145). A legacy score CSV stamps its
+    plate ``pplate1`` while the sequencing counts stamp it ``plate1``, and
+    :func:`spacr.utils.correct_metadata` has repaired that for frames since
+    the day it cost a whole run: it rewrites ``^pp`` to ``p`` in ``plateID``,
+    ``prc`` and ``prcfo``. Nothing repaired the plate ids read out of a
+    measurements DATABASE, so the Measurements tab showed ``pplate1`` beside a
+    plate the user calls ``plate1`` -- and, worse than the display, a
+    measurements database stamped ``pplate1`` will not join a score CSV that
+    ``correct_metadata`` has already normalised to ``plate1``.
+
+    This is the scalar form of that same rule, so the two cannot drift.
+    ``tests/test_multi_database.py`` pins them to the same answer.
+
+    :param plate: a plate id, from anywhere.
+    :returns: the id with a doubled ``p`` prefix collapsed; everything else
+        unchanged.
+    """
+    text = str(plate)
+    return "p" + text[2:] if text.startswith("pp") else text
+
+
 def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
     """One short, unique, human name per database, decided for the whole set.
 
@@ -321,6 +363,58 @@ def _table_columns(path: str, table: str) -> List[str]:
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
     return [row[1] for row in rows]
+
+
+#: SQLite's own type-affinity rules, in the order the engine applies them.
+#: Substring, first match wins -- ``VARCHAR`` is TEXT because it contains
+#: ``CHAR``, ``FLOAT`` is REAL because it contains ``FLOA``.
+_AFFINITY_RULES: Tuple[Tuple[str, str], ...] = (
+    ("INT", "numeric"),
+    ("CHAR", "text"), ("CLOB", "text"), ("TEXT", "text"),
+    ("BLOB", "unknown"),
+    ("REAL", "numeric"), ("FLOA", "numeric"), ("DOUB", "numeric"),
+)
+
+
+def column_kinds(path: str, table: str) -> Dict[str, str]:
+    """``{column: 'numeric' | 'text' | 'unknown'}`` for one table, WITHOUT
+    reading a row.
+
+    WHY THIS EXISTS, and it is a correctness answer rather than a convenience.
+    A pre-merge plan has to say how each column will be combined, and the
+    merge decides that from the column's pandas dtype
+    (:func:`spacr.merge_tables.aggregation_plan` asks
+    ``is_numeric_dtype``). A plan that matched only on the column NAME told
+    users that ``file_name`` and ``path_name`` "would take the default
+    (mean)", which is not what happens and is not a thing that can happen to
+    a string. The declared affinity is what predicts the dtype, and reading
+    it costs one ``PRAGMA``.
+
+    ``'unknown'`` is returned rather than guessed for a column declared with
+    no type or as a BLOB -- an absent answer that reads as a definite one is
+    the failure this module exists to avoid.
+
+    :param path: the database.
+    :param table: the table.
+    :returns: one entry per column, in the table's own column order.
+    """
+    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+        rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
+    out: Dict[str, str] = {}
+    for row in rows:
+        declared = str(row[2] or "").upper()
+        kind = "unknown"
+        for token, answer in _AFFINITY_RULES:
+            if token in declared:
+                kind = answer
+                break
+        else:
+            # SQLite's fifth rule: anything else declared is NUMERIC. Nothing
+            # declared at all stays unknown.
+            if declared.strip():
+                kind = "numeric"
+        out[str(row[1])] = kind
+    return out
 
 
 def _row_count(path: str, table: str) -> int:
@@ -614,7 +708,11 @@ def read_merged(paths: Sequence[str],
                 on_collision: str = "refuse",
                 screens: Any = None,
                 report: Optional[Callable[[str], None]] = None,
-                limit_per_source: Optional[int] = None) -> pd.DataFrame:
+                limit_per_source: Optional[int] = None,
+                progress: Optional[Callable[[str, int, int], None]] = None,
+                cancelled: Optional[Callable[[], bool]] = None,
+                rows_done: int = 0,
+                rows_total: Optional[int] = None) -> pd.DataFrame:
     """Read ``table`` from every path and return one frame.
 
     :param paths: measurement databases.
@@ -642,11 +740,28 @@ def read_merged(paths: Sequence[str],
     :param report: called with one human-readable line per thing the merge
         cost -- currently the dropped measurements.
     :param limit_per_source: row cap per database, for previews.
+    :param progress: called ``progress(stage, done, total)`` before and after
+        each database is read. ``stage`` is a sentence naming the table and
+        the database it is on; ``done`` and ``total`` are ROWS, counted
+        against ``rows_total`` so a caller reading several tables can show one
+        bar across all of them. Called from whatever thread this runs on, so a
+        GUI caller must relay it rather than touch a widget in it.
+    :param cancelled: called before each database; a true answer raises
+        :class:`MergeCancelled` and nothing is returned. Checked between
+        sources rather than inside one, because a half-read source is not a
+        thing this function can hand back.
+    :param rows_done: rows already counted by an earlier call, for the
+        multi-table case.
+    :param rows_total: the denominator for ``progress``. Defaults to this
+        plan's own total, which is right for a single table and too small for
+        a caller merging several -- so a caller merging several passes the
+        grand total it computed from all their plans.
     :returns: one frame carrying :data:`SOURCE_COLUMN` and
         :data:`SCREEN_COLUMN`, with ``frame.attrs['dropped_columns']`` naming
         the measurements that did not survive.
     :raises MergeRefused: on a within-screen plate collision under
         ``on_collision='refuse'``, or an unknown option.
+    :raises MergeCancelled: when ``cancelled()`` answered true.
     """
     if columns not in ("common", "union"):
         raise MergeRefused(
@@ -669,7 +784,20 @@ def read_merged(paths: Sequence[str],
     dropped = plan.dropped_columns if columns == "common" else ()
     frames = []
     source_rows: Dict[str, int] = {}
+    done = int(rows_done)
+    total = int(rows_total) if rows_total is not None else (
+        int(rows_done) + plan.total_rows)
     for source in plan.sources:
+        # BETWEEN SOURCES, NOT INSIDE ONE. A source is read by a single
+        # `read_sql_query`; interrupting that would leave a partial frame
+        # this function has no honest way to return, and the point of a
+        # cancel is that nothing half-made survives it.
+        if cancelled is not None and cancelled():
+            raise MergeCancelled(
+                f"stopped while reading {table} — {done:,} of {total:,} rows "
+                f"had been read and none of them were kept.")
+        if progress is not None:
+            progress(f"reading {table} from {source.label}", done, total)
         query = f'SELECT * FROM "{source.table}"'
         if limit_per_source:
             query += f" LIMIT {int(limit_per_source)}"
@@ -700,8 +828,15 @@ def read_merged(paths: Sequence[str],
         frame[SOURCE_COLUMN] = source.label
         frames.append(frame)
         source_rows[source.label] = len(frame)
+        done += len(frame)
+        if progress is not None:
+            progress(f"read {table} from {source.label}", done, total)
 
     merged = pd.concat(frames, ignore_index=True, sort=False)
+    # HOW FAR THIS CALL GOT, carried on the frame so a caller stacking several
+    # tables can continue the count without re-deriving it from row lengths
+    # that the column filter may already have changed.
+    merged.attrs["rows_done"] = done
     # The set a caller is about to analyse, and the set they are not. Carried
     # on the frame so it cannot be separated from the data it describes.
     merged.attrs["dropped_columns"] = dropped

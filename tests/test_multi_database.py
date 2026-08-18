@@ -510,3 +510,133 @@ def test_an_unwritable_decision_log_does_not_take_the_screen_down(colliding):
     written = record_decision(decision_for(plan, outcome="refused"),
                               "/proc/not/a/writable/place/merge.jsonl")
     assert written == ""
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 154: the plate id, the declared types, and a merge that can stop
+# --------------------------------------------------------------------------- #
+
+def test_the_plate_id_rule_here_is_the_same_rule_correct_metadata_applies():
+    """ONE KEY VOCABULARY (instruction 145), pinned rather than trusted.
+
+    ``utils.correct_metadata`` has repaired ``pplate1`` -> ``plate1`` in
+    frames since the day it cost a whole run -- score files stamped
+    ``pplate1`` met count files stamped ``plate1``, every ``prc`` differed by
+    one character, the join produced ZERO rows, and the run died two hundred
+    lines later inside a plot with ``KeyError: 0``. Nothing repaired the plate
+    ids read out of a measurements DATABASE, which is how the Measurements tab
+    came to show ``pplate1`` beside a plate the user calls ``plate1``.
+
+    Two implementations of one rule drift, so this asserts they agree instead
+    of asserting a list of answers typed here.
+    """
+    from spacr.multi_database import canonical_plate_id
+    from spacr.utils import correct_metadata
+
+    for stored in ("pplate1", "plate1", "pp3", "p1", "plate", "", "ppp1"):
+        expected = correct_metadata(
+            pd.DataFrame({"plateID": [stored]}))["plateID"][0]
+        assert canonical_plate_id(stored) == expected, stored
+
+
+def test_the_declared_type_is_what_predicts_the_aggregation(tmp_path):
+    """Instruction 154 C. A pre-merge plan has to say how each column will be
+    combined, and the merge decides that from the pandas DTYPE. Matching on
+    the column NAME alone announced that ``file_name`` "would take the default
+    (mean)", which is not what happens and is not a thing that can happen to a
+    string. The declared affinity is what predicts the dtype.
+    """
+    from spacr.merge_tables import aggregation_plan
+    from spacr.multi_database import column_kinds
+
+    path = str(tmp_path / "kinds.db")
+    frame = pd.DataFrame({"plateID": ["plate1"], "file_name": ["a.tif"],
+                          "area": [1.0], "count": [2]})
+    with sqlite3.connect(path) as db:
+        frame.to_sql("cell", db, index=False)
+
+    kinds = column_kinds(path, "cell")
+    assert kinds == {"plateID": "text", "file_name": "text",
+                     "area": "numeric", "count": "numeric"}
+
+    # ...and it agrees with what the merge will actually do.
+    plan = aggregation_plan(frame)
+    assert plan["file_name"] == "first"
+    assert plan["area"] == "sum"
+
+
+def test_a_column_with_no_declared_type_is_unknown_rather_than_guessed(
+        tmp_path):
+    """"An absent fingerprint that reads as an absent difference is a false
+    assurance." A column SQLite was given no type for cannot be promised
+    either treatment, so it is named as unanswerable instead."""
+    from spacr.multi_database import column_kinds
+
+    path = str(tmp_path / "untyped.db")
+    with sqlite3.connect(path) as db:
+        db.execute('CREATE TABLE cell (plateID TEXT, mystery, blobby BLOB)')
+
+    kinds = column_kinds(path, "cell")
+    assert kinds == {"plateID": "text", "mystery": "unknown",
+                     "blobby": "unknown"}
+
+
+def test_a_read_says_which_database_it_is_on_and_counts_rows(two_plates):
+    """Instruction 154 A: "say what stage it is on ... show rows processed
+    against rows expected". The denominator is the plan's own total, so the
+    count can be checked against the sentence printed above it."""
+    from spacr.multi_database import read_merged
+
+    plan = describe_merge(list(two_plates), "cell")
+    seen = []
+    read_merged(list(two_plates), "cell", plan=plan,
+                progress=lambda stage, done, total: seen.append(
+                    (stage, done, total)))
+
+    assert seen[0] == ("reading cell from plateA", 0, plan.total_rows)
+    assert seen[-1] == ("read cell from plateB", plan.total_rows,
+                        plan.total_rows)
+
+
+def test_a_read_that_is_asked_to_stop_returns_nothing_at_all(two_plates):
+    """"leaving nothing half-written". A source is read by a single query, so
+    the check is BETWEEN sources -- interrupting one would leave a partial
+    frame this function has no honest way to hand back."""
+    from spacr.multi_database import MergeCancelled, read_merged
+
+    calls = []
+
+    def stop_after_the_first():
+        calls.append(1)
+        return len(calls) > 1
+
+    with pytest.raises(MergeCancelled) as raised:
+        read_merged(list(two_plates), "cell", cancelled=stop_after_the_first)
+
+    assert "none of them were kept" in str(raised.value)
+
+
+def test_a_cancellation_is_not_a_refusal(two_plates):
+    """A refusal is an ANSWER about the data and the caller shows it; a
+    cancellation is the user changing their mind. Catching both as one would
+    put "the merge was refused" in front of somebody who pressed Stop."""
+    from spacr.multi_database import MergeCancelled
+
+    assert not issubclass(MergeCancelled, MergeRefused)
+    assert not issubclass(MergeRefused, MergeCancelled)
+
+
+def test_a_reader_can_continue_another_readers_count(two_plates):
+    """One bar across several tables: the panel merges cell, then nucleus,
+    then pathogen, and a count that restarted at zero for each would read as
+    the merge going backwards."""
+    from spacr.multi_database import read_merged
+
+    seen = []
+    frame = read_merged(list(two_plates), "cell", rows_done=100,
+                        rows_total=500,
+                        progress=lambda stage, done, total: seen.append(
+                            (done, total)))
+
+    assert seen[0] == (100, 500)
+    assert frame.attrs["rows_done"] == 100 + len(frame)

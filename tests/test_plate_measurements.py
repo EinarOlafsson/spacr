@@ -615,3 +615,185 @@ def test_the_anchor_is_always_merged_even_when_it_was_not_ticked(two_plates):
 
     assert [entry.table for entry in merge.tables] == ["cell", "pathogen"]
     assert "cell_area" in merge.frame.columns
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 154 C: a text identifier is carried or refused, never averaged
+# --------------------------------------------------------------------------- #
+
+def test_an_identifier_that_is_constant_within_the_group_is_no_ambiguity():
+    """Two pathogens of one cell off the SAME image have one ``path_name``
+    between them. Carrying it invents nothing, and reporting it as an
+    ambiguity would make the honest case look like the broken one."""
+    import pandas as pd
+
+    from spacr.plate_measurements import ambiguous_identifiers
+
+    child = pd.DataFrame({"cell_id": [1, 1, 2], "path_name": ["a", "a", "b"],
+                          "area": [1.0, 2.0, 3.0]})
+
+    assert ambiguous_identifiers(child, ["cell_id"]) == {}
+
+
+def test_an_identifier_that_differs_within_the_group_is_named_with_an_example():
+    """Instruction 79 item 2 from the other side: when two things that must
+    agree do not, that is a real inconsistency and it is NAMED rather than
+    silently resolved. ``first`` would put one of two file names on the cell
+    and the merged row would then claim a provenance the data cannot support.
+    """
+    import pandas as pd
+
+    from spacr.plate_measurements import (ambiguous_identifiers,
+                                          describe_identifier_refusal)
+
+    child = pd.DataFrame({"cell_id": [1, 1, 2],
+                          "path_name": ["a.tif", "b.tif", "c.tif"]})
+
+    found = ambiguous_identifiers(child, ["cell_id"])
+
+    assert list(found) == ["path_name"]
+    assert found["path_name"]["groups"] == 1
+    key, values = found["path_name"]["examples"][0]
+    assert key == (1,)
+    assert values == ["a.tif", "b.tif"]
+
+    said = describe_identifier_refusal("pathogen", "path_name",
+                                       found["path_name"])
+    assert "differs WITHIN 1 group(s)" in said
+    assert "invents provenance" in said
+    assert "a.tif" in said and "b.tif" in said
+
+
+def test_a_numeric_label_that_differs_across_children_is_not_examined():
+    """``object_label`` also takes ``first``, by the identity rule, and it is
+    SUPPOSED to differ -- three pathogens in a cell are labelled 1, 2 and 3.
+    :data:`spacr.merge_tables.AGGREGATION_RULES` says as much: the label is
+    carried verbatim only so a row can be traced back."""
+    import pandas as pd
+
+    from spacr.plate_measurements import ambiguous_identifiers
+
+    child = pd.DataFrame({"cell_id": [1, 1], "object_label": [1, 2]})
+
+    assert ambiguous_identifiers(child, ["cell_id"]) == {}
+
+
+def test_an_identifier_the_caller_chose_for_themselves_is_not_second_guessed():
+    """An explicit override beats every rule, including this one."""
+    import pandas as pd
+
+    from spacr.plate_measurements import ambiguous_identifiers
+
+    child = pd.DataFrame({"cell_id": [1, 1], "path_name": ["a", "b"]})
+
+    assert ambiguous_identifiers(child, ["cell_id"],
+                                 overrides={"path_name": "first"}) == {}
+
+
+def test_an_empty_child_or_a_missing_key_is_answered_rather_than_raised():
+    """A diagnosis that raises is a diagnosis nobody reads."""
+    import pandas as pd
+
+    from spacr.plate_measurements import ambiguous_identifiers
+
+    assert ambiguous_identifiers(pd.DataFrame({"cell_id": []}),
+                                 ["cell_id"]) == {}
+    assert ambiguous_identifiers(pd.DataFrame({"path_name": ["a"]}),
+                                 ["cell_id"]) == {}
+
+
+def test_the_default_bucket_splits_into_the_two_answers_it_always_was():
+    """"a 'no rule matched' bucket that mixes 83 numeric texture features with
+    2 filesystem paths is not one bucket." The mean is right for one half and
+    impossible for the other."""
+    from spacr.merge_tables import DEFAULT_AGGREGATION, TEXT_AGGREGATION
+    from spacr.plate_measurements import classify_default_columns
+
+    buckets = classify_default_columns(
+        ["texture_85", "file_name", "path_name"],
+        {"texture_85": "numeric", "file_name": "text", "path_name": "text"})
+
+    assert DEFAULT_AGGREGATION == "mean" and TEXT_AGGREGATION == "first"
+    assert buckets["mean"] == ("texture_85",)
+    assert buckets["identifier"] == ("file_name", "path_name")
+
+
+def test_the_headless_merge_refuses_the_same_ambiguity_the_panel_does(
+        tmp_path):
+    """ONE ANSWER TO ONE QUESTION. This module and the Measurements tab merge
+    the same screens; two defaults would let one of them carry a file name the
+    other left out, and a user comparing the two frames would find columns
+    that appear and disappear with no rule they can read."""
+    import sqlite3
+
+    import pandas as pd
+
+    from spacr.plate_measurements import merge_plate_databases
+
+    folder = tmp_path / "plate1"
+    folder.mkdir()
+    path = str(folder / "measurements.db")
+    identity = {"rowID": "r1", "columnID": "c1", "fieldID": "f1"}
+    cell = pd.DataFrame({"plateID": ["plate1"] * 2,
+                         **{k: [v] * 2 for k, v in identity.items()},
+                         "object_label": [1, 2], "area": [10.0, 20.0]})
+    pathogen = pd.DataFrame({"plateID": ["plate1"] * 3,
+                             **{k: [v] * 3 for k, v in identity.items()},
+                             "cell_id": [1, 1, 2],
+                             "object_label": [1, 2, 1],
+                             "path_name": ["a.tif", "b.tif", "c.tif"],
+                             "file_name": ["one.tif"] * 3,
+                             "pathogen_area": [1.0, 2.0, 3.0]})
+    with sqlite3.connect(path) as db:
+        cell.to_sql("cell", db, index=False)
+        pathogen.to_sql("pathogen", db, index=False)
+
+    said = []
+    merge = merge_plate_databases([{"plate": "plate1", "database": path}],
+                                  ["pathogen"], report=said.append)
+
+    assert "pathogen_path_name" not in merge.frame.columns
+    # The unambiguous identifier beside it is untouched, and so is the number.
+    assert "pathogen_file_name" in merge.frame.columns
+    assert merge.frame["pathogen_area"].tolist() == [3.0, 3.0]
+    assert any("invents provenance" in line for line in said), said
+    assert merge.frame.attrs["refused_identifiers"] == {
+        "pathogen": ("path_name",)}
+
+
+def test_the_old_silent_pick_is_still_reachable_from_the_headless_merge(
+        tmp_path):
+    """"Refuse rather than fall back silently where the fallback would be
+    presented as the thing that was asked for." A caller who wants one of the
+    values has to say so in writing."""
+    import sqlite3
+
+    import pandas as pd
+
+    from spacr.plate_measurements import merge_plate_databases
+
+    folder = tmp_path / "plate1"
+    folder.mkdir()
+    path = str(folder / "measurements.db")
+    identity = {"rowID": "r1", "columnID": "c1", "fieldID": "f1"}
+    cell = pd.DataFrame({"plateID": ["plate1"], **{k: [v] for k, v
+                                                   in identity.items()},
+                         "object_label": [1], "area": [10.0]})
+    pathogen = pd.DataFrame({"plateID": ["plate1"] * 2,
+                             **{k: [v] * 2 for k, v in identity.items()},
+                             "cell_id": [1, 1], "object_label": [1, 2],
+                             "path_name": ["a.tif", "b.tif"],
+                             "pathogen_area": [1.0, 2.0]})
+    with sqlite3.connect(path) as db:
+        cell.to_sql("cell", db, index=False)
+        pathogen.to_sql("pathogen", db, index=False)
+
+    rows = [{"plate": "plate1", "database": path}]
+    picked = merge_plate_databases(rows, ["pathogen"],
+                                   on_ambiguous_identifier="first")
+
+    assert "pathogen_path_name" in picked.frame.columns
+
+    with pytest.raises(MergeRefused):
+        merge_plate_databases(rows, ["pathogen"],
+                              on_ambiguous_identifier="mean")

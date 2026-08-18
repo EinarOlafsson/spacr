@@ -186,3 +186,138 @@ HOW TO KNOW IT WORKED
 * From a fresh start: load 4 databases, merge, pick 3 columns, get 3 runs, and
   evaluate them against each other in the Runs tab, without leaving the app.
 * A finished run is the loaded run, with no further action.
+
+--------------------------------------------------------------------------------
+2026-08-18 - A, B, C, D AND E SHIPPED. F AND G ARE NOT STARTED.
+--------------------------------------------------------------------------------
+
+A. THE FREEZE IS GONE, AND IT WAS THE WHOLE OF IT.
+
+`DatabaseMergePanel` now holds a `JobRunner` (the idiom the other twenty-odd
+screens already use) and the Merge button is wired to `start_merge`, never to
+`merge`. `merge` is still there and still blocks -- it is the synchronous
+entry point for a headless caller and for a test that wants the frame on the
+next line -- and both go through the same `_prepare_merge` / `_merge_worker` /
+`_finish_merge` triple, so the two paths cannot diverge.
+
+MEASURED IN THE REAL WIDGET, not in a test. Four databases, 160,000 cells,
+480,000 rows read across cell+pathogen, driven by clicking the actual button:
+
+    merge took 6.2s; the GUI kept running for 100 event-loop passes
+    the progress label changed 16 times while it ran
+    plan box: 10 lines (it used to be the same 10 plus 170 column names)
+
+The stages name the table AND the database ("reading cell from plate3"), and
+the row count is against the plan's OWN total -- `describe_merge` is now run
+for every chosen table BEFORE the first read, so the denominator exists before
+the first row does. That also moved a missing table's failure to before the
+expensive anchor read rather than after it.
+
+Cancellation: `threading.Event`, checked between sources and between stages.
+`read_merged` raises the new `MergeCancelled`, which is deliberately NOT a
+`MergeRefused` -- a refusal is an answer about the data and a cancel is the
+user changing their mind, and wording them the same puts "Refused" in front of
+somebody who pressed Stop. Nothing is written until the merge RETURNS, so a
+stopped merge leaves the previous frame exactly where it was; there is a test
+that asserts `panel.frame is` the earlier object.
+
+C. WHAT ACTUALLY HAPPENED TO `file_name` AND `path_name` -- MEASURED.
+
+    NEITHER. They were not dropped and no mean was attempted.
+
+`roll_up` calls `aggregation_plan`, which asks `is_numeric_dtype` FIRST, so a
+text column takes `TEXT_AGGREGATION` = `first` whatever its name. They reached
+the merged frame as `pathogen_file_name` / `pathogen_path_name` carrying the
+first child's value.
+
+SO THE MERGE WAS RIGHT AND THE SENTENCE WAS WRONG -- but only the PRE-merge
+sentence. `merge_report` filtered on the actual plan and was already correct;
+`_table_notes` (the plan) walked column NAMES against AGGREGATION_RULES and
+never looked at a dtype, which is why the false claim appeared only before the
+merge and vanished after it. Reproduced before the fix:
+
+    pathogen: 3 column(s) match no aggregation rule and would take the
+    default (mean) - file_name, path_name, texture_thing_85
+
+The bucket is now split by dtype before it is counted, from
+`multi_database.column_kinds` (one PRAGMA, no rows read), into
+numeric -> mean / text identifier / no declared type. The third bucket is
+named rather than folded into either: a column SQLite was given no type for
+cannot be promised either treatment.
+
+AND THERE WAS A REAL CORRECTNESS GAP UNDERNEATH THE SENTENCE. The `first` was
+silent even where the identifier was NOT constant within the group. Per
+instruction 79 item 2 that is a genuine ambiguity: such a column is now LEFT
+OUT and named with an example from the offending group, in BOTH merges (the
+panel's `merge_across_databases` and the headless
+`plate_measurements.merge_plate_databases`), under one shared helper
+`ambiguous_identifiers`. `on_ambiguous_identifier='first'` restores the old
+pick for a caller who asks for it in writing. Only TEXT columns are examined:
+`object_label` also takes `first`, by the identity rule, and it is SUPPOSED to
+differ across three pathogens -- refusing it would delete the column the rules
+carry verbatim so a row can be traced back.
+
+B. The plan and the report each split into a COUNT (in the box) and the NAMES
+(behind a collapsed `Section`, the house foldable). `plan_text()` and
+`merge_report()` still return the whole statement for a headless caller, and
+`panel.statement()` is what a test reads when it wants to know whether the
+panel said something at all. One existing assertion moved from
+`report.toPlainText()` to `statement()`; the requirement it guards is
+unchanged.
+
+D. THE PLATE ID IS NOT COSMETIC, AND THE PANEL WAS NOT THE ONE DOUBLING IT.
+
+Measured: a database whose `plateID` holds `plate1` shows `plate1`; one that
+holds `pplate1` shows `pplate1`. Nothing in the panel, in `describe_merge` or
+in `read_merged` adds a prefix. **The doubling is in the data.** So:
+
+  * every join INSIDE the merge is unaffected -- both sides read the same
+    stored value out of the same file;
+  * the join to the REGRESSION side is affected, because
+    `utils.correct_metadata` already rewrites `^pp` -> `p` in `plateID`,
+    `prc` and `prcfo` on the score and count CSVs and nothing did it for a
+    measurements database. That is the recorded zero-row join that died two
+    hundred lines later in a plot with `KeyError: 0`, arrived at from the
+    other direction.
+
+The plate is now DISPLAYED as it is called, via the new
+`multi_database.canonical_plate_id`, and the stored id is named beside it with
+the join risk spelled out. `canonical_plate_id` is pinned by test to give the
+same answer as `correct_metadata` for every input, so the one rule stays one
+rule (instruction 145).
+
+E. "Nothing to scan" now names which half is missing and checks it:
+`why_nothing_to_scan` distinguishes no provider wired / no run loaded / a run
+whose table has no rows, and in every case says what IS attached and whether
+it has been merged. When a scan is REFUSED and both halves exist,
+`what_is_available` runs `describe_key_overlap`, which names the key
+(`prc`, or plateID_rowID_columnID) and shows one example from each side -- and
+recognises the case where the two sides name the same wells and differ only by
+the `pp` doubling, which is section D seen from here.
+
+WHAT IS NOT DONE
+  * F (the four steps, the multi-select column picker, one run per column,
+    the merged frame surviving the tab) and G (a finished run is the loaded
+    run) were explicitly out of scope this round. F needs the regression tab
+    and the Runs tab, neither of which is this file.
+  * `tests/test_api_i18n_extractor.py` wants a bump: the surface is 7214
+    against a reviewed 7185. **21 of those 29 are this work** (3 in
+    multi_database, 3 in plate_measurements, 15 in measurement_scan_panel);
+    the other 8 are the concurrent DatabaseSetWidget session, which owns that
+    file.
+  * `tests/test_tooltips_are_on_the_setting_not_the_field.py` fails on
+    `regression_results.RegressionResultsPanel`, which is not this territory
+    and is at HEAD.
+
+WORTH NOT REDISCOVERING
+  * `aggregation_plan` is dtype-aware and every name-only reimplementation of
+    it will be wrong about text. `default_aggregation_columns` in the panel is
+    the name-only one and is still used where the dtype is already known
+    (post-merge, off the real plan); anything PRE-merge must go through
+    `column_kinds`.
+  * `read_merged` reads one source per `read_sql_query`, so a cancel can only
+    be honest BETWEEN sources. Checking inside would leave a partial frame
+    with no honest way to return it.
+  * A `Section` body takes `add_prose`, not `add_widget`: `add_widget`
+    registers the child as a labelled SETTING row and the smoke contract then
+    demands a `settingKey` on a read-only text box.
