@@ -122,6 +122,19 @@ def panel(qtbot, results):
     widget = RegressionResultsPanel()
     qtbot.addWidget(widget)
     widget.set_frame(results, source="results.csv")
+    # THE WHOLE FIT, PINNED. These tests are about the CLICK MECHANISM -- a
+    # point drawn on any plot reaches its row in the table, and the row
+    # reaches back -- so they must not also ride the panel's default
+    # gene/guide filter.
+    #
+    # That default became "guides" on 2026-08-18, to stop a gene being drawn
+    # once per guide on the volcano (the four-dots-for-one-gene report). It
+    # is the right default and it changes WHICH rows are present, which is a
+    # different question from whether a click lands: with it on, the
+    # Intercept is off every plot, a gene-level term is off the table, and
+    # eleven tests here failed for reasons that have nothing to do with the
+    # link they were written to check.
+    widget.set_level(None)
     # Sort the table too, so neither end of the link is in frame order.
     widget.table.table.sortItems(1)
     return widget
@@ -708,6 +721,13 @@ class TestTheLinkSurvivesTheThingsThatBreakIt:
         assert panel.table._key_restriction is not None
 
         panel.set_frame(results.iloc[:80].copy(), source="other.csv")
+        # RE-PINNED, because `set_frame` re-reads the default level for the
+        # table it was just handed -- which is the point of that default and
+        # is tested where it belongs, in
+        # tests/test_a_gene_only_table_is_not_an_empty_volcano.py. What this
+        # test is about is that a key restriction chosen off the LAST table
+        # does not survive into this one.
+        panel.set_level(None)
 
         assert panel.table._key_restriction is None
         shown = sum(not panel.table.table.isRowHidden(row)
@@ -798,6 +818,8 @@ class TestAgainstTheRealScreen:
         widget = RegressionResultsPanel()
         qtbot.addWidget(widget)
         widget.set_frame(screen, source=REAL_RESULTS)
+        # The whole fit, for the reason the other fixture gives.
+        widget.set_level(None)
         return widget
 
     def test_the_first_qq_point_is_the_intercept_and_it_says_so(self, panel):
