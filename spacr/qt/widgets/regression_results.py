@@ -13,7 +13,9 @@ This panel is what a finished run opens into:
     Q-Q            calibration, with the inflation figure
     Controls       the assay window
     Guide support  which genes rest on one guide, as a plot and a table
-    Gene           the tile for whatever was last clicked
+    Gene           what the last-clicked dot IS: the gene, this screen's own
+                   numbers for it, and everything the bundled annotation
+                   holds about it
 
 EVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --
 instruction 124 F. Clicking a point selects its row; selecting a row marks
@@ -512,8 +514,18 @@ class RegressionResultsPanel(QWidget):
         # question the user has the instant they click one. The frame is
         # reached through a callable rather than stored, so a newly loaded
         # regression is never answered from the previous one.
-        from .gene_tile import GeneTilePanel
-        self.gene = GeneTilePanel(frame_provider=lambda: self._frame)
+        #
+        # `GenePanel` and not `GeneTilePanel`: the tile alone says WHICH gene
+        # a dot is and what THIS screen measured about it, both read out of
+        # the frame already on screen. The panel adds the other half the
+        # instruction asks for -- product, DeepTMHMM topology with each
+        # segment's coordinates, hyperLOPIT compartment, the published
+        # fitness screens and the stage expression -- out of
+        # `spacr.annotation`, and it loads those five CSVs on a worker
+        # thread. Cold that read is 360 ms, and 360 ms inside a mouse press
+        # is a plot that reads as broken.
+        from .gene_panel import GenePanel
+        self.gene = GenePanel(frame_provider=lambda: self._frame)
         if not self.external_volcano:
             self.tabs.addTab(self.gene, "Gene")
         # When the volcano is external the tile goes WITH IT, not behind a
@@ -1208,6 +1220,15 @@ class RegressionResultsPanel(QWidget):
             plot.clear_highlight()
         for histogram in (self.p_values, self.effect_distribution):
             histogram.clear_highlight()
+        # AND THE GENE TILE, for the same reason and it is the worst offender:
+        # a plot re-rings a point, but the tile keeps a whole paragraph about
+        # a gene from the previous screen, with this screen's effect nowhere
+        # near it and nothing on it saying which run it came from.
+        self.gene.clear()
+        # Warm the annotation for THIS screen's genes, off the GUI thread.
+        # One join covers the whole table -- 400 genes cost the same 21 ms as
+        # one -- so every click afterwards is a dictionary lookup.
+        self.gene.warm_for(frame)
 
         # THE COMPARTMENT MENU IS BUILT FROM THE TABLE, so it has to be
         # rebuilt when the table changes. Built once in __init__ it is built
