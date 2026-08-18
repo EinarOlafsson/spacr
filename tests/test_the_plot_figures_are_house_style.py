@@ -370,3 +370,201 @@ def test_drawing_every_distribution_figure_leaves_the_globals_alone(tmp_path,
               for k in set(before) | set(after)
               if before.get(k) != after.get(k)}
     assert leaked == {}
+
+
+# --------------------------------------------------------------------------- #
+#  plot_comparison_results -- four metric panels of one comparison
+# --------------------------------------------------------------------------- #
+
+def _comparison_rows(n=6):
+    rng = np.random.default_rng(11)
+    return [{"filename": f"f{i}",
+             "jaccard_a_b": float(rng.uniform(0.6, 0.9)),
+             "dice_a_b": float(rng.uniform(0.6, 0.9)),
+             "boundary_f1_a_b": float(rng.uniform(0.5, 0.8)),
+             "average_precision_a_b": float(rng.uniform(0.4, 0.7))}
+            for i in range(n)]
+
+
+def test_the_comparison_panels_are_lettered(rcparams_guard):
+    """Four panels are a sheet, and a sheet is read by its letters."""
+    figure = P.plot_comparison_results(_comparison_rows())
+
+    letters = []
+    for ax in figure.axes:
+        letters += [t.get_text() for t in ax.texts
+                    if t.get_fontsize() == pytest.approx(
+                        TYPE_SCALE["panel_letter"])]
+    assert letters == ["A", "B", "C", "D"]
+    assert all(t.get_fontweight() == "bold"
+               for ax in figure.axes for t in ax.texts)
+
+
+def test_the_comparison_panels_are_grey_and_opaque(rcparams_guard):
+    """No metric of the four is the claim, so no mark of them is coloured.
+
+    The points were drawn at alpha 0.6; the style handles overplotting with
+    point size and greying, never by making a colour translucent.
+    """
+    figure = P.plot_comparison_results(_comparison_rows())
+
+    for ax in figure.axes:
+        strip = ax.collections[0]
+        assert {_hex(tuple(c)) for c in strip.get_facecolors()} == {
+            _hex(Palette.GREY_DARK)}
+        assert strip.get_alpha() in (None, 1.0)
+        boxes = {_hex(p.get_facecolor()) for p in ax.patches}
+        assert boxes <= {_hex(ROLES["data"])}
+
+
+def test_the_comparison_tick_labels_rotate_and_anchor(rcparams_guard):
+    """A comparison name is a pair of filenames; at 0 degrees it runs off the
+    panel and at 45 degrees unanchored it drifts off its own tick."""
+    figure = P.plot_comparison_results(_comparison_rows())
+
+    for ax in figure.axes:
+        for label in ax.get_xticklabels():
+            assert label.get_rotation() == pytest.approx(45.0)
+            assert label.get_ha() == "right"
+
+
+def test_the_comparison_values_did_not_move(rcparams_guard):
+    """Restyle only: each metric is still on its own panel at its own value."""
+    values = {"jaccard_a_b": 0.8, "dice_a_b": 0.9,
+              "boundary_f1_a_b": 0.7, "average_precision_a_b": 0.6}
+    figure = P.plot_comparison_results([{"filename": "x", **values}])
+
+    for ax, value in zip(figure.axes, values.values()):
+        points = np.vstack([c.get_offsets() for c in ax.collections])
+        assert points[0, 1] == pytest.approx(value)
+
+
+# --------------------------------------------------------------------------- #
+#  plot_permutation / plot_feature_importance
+# --------------------------------------------------------------------------- #
+
+def _importance_frame(n=12, low=0.01):
+    return pd.DataFrame({
+        "feature": [f"f{i}" for i in range(n)],
+        "importance": np.linspace(low, 1.0, n),
+        "importance_mean": np.linspace(low, 1.0, n),
+        "importance_std": np.full(n, 0.02),
+    })
+
+
+@pytest.mark.parametrize("builder,column", [
+    (lambda f: P.plot_permutation(f), "importance_mean"),
+    (lambda f: P.plot_feature_importance(f), "importance"),
+])
+def test_an_importance_ranking_is_all_grey(rcparams_guard, builder, column):
+    """The ranking IS the claim; no single bar of it is, so none is coloured.
+
+    The two panels used to be solid teal and solid BLUE at alpha 0.6 -- and
+    BLUE is the palette's highlight, the hue that means "this one".
+    """
+    figure = builder(_importance_frame())
+    ax = figure.axes[0]
+
+    assert {_hex(p.get_facecolor()) for p in ax.patches} == {
+        _hex(ROLES["data"])}
+    assert all(p.get_alpha() in (None, 1.0) for p in ax.patches)
+    assert not ax.spines["top"].get_visible()
+
+
+@pytest.mark.parametrize("builder,column", [
+    (lambda f: P.plot_permutation(f), "importance_mean"),
+    (lambda f: P.plot_feature_importance(f), "importance"),
+])
+def test_the_zero_rule_is_drawn_only_where_a_bar_can_cross_it(
+        rcparams_guard, builder, column):
+    """A negative permutation importance means shuffling the feature IMPROVED
+    the model. Without a zero rule you cannot see which bars cross it -- and
+    with every bar positive the rule is the axis, so it is not drawn twice."""
+    positive = _importance_frame()
+    assert len(builder(positive).axes[0].lines) == 0
+
+    mixed = _importance_frame()
+    mixed[column] = np.linspace(-0.4, 1.0, len(mixed))
+    ax = builder(mixed).axes[0]
+    assert len(ax.lines) == 1
+    assert _is_reference_line(ax.lines[0])
+    assert np.allclose(ax.lines[0].get_xdata(), 0.0)
+
+
+def test_the_importance_bars_still_measure_what_they_measured(rcparams_guard):
+    """Restyle only: the widths are the importances and the error bars the
+    standard deviations."""
+    frame = _importance_frame()
+    ax = P.plot_permutation(frame).axes[0]
+
+    assert [p.get_width() for p in ax.patches] == pytest.approx(
+        list(frame["importance_mean"]))
+    from matplotlib.container import ErrorbarContainer
+    errors = [c for c in ax.containers if isinstance(c, ErrorbarContainer)]
+    segments = errors[0][2][0].get_segments()
+    assert [s[0][0] for s in segments] == pytest.approx(
+        list(frame["importance_mean"] - frame["importance_std"]))
+
+
+# --------------------------------------------------------------------------- #
+#  read_and_plot__vision_results
+# --------------------------------------------------------------------------- #
+
+def _vision_tree(base, models):
+    for epoch, (model, scores) in models.items():
+        directory = base / epoch
+        directory.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame({"accuracy": scores}).to_csv(
+            directory / f"{model}_time1700000000_test_result.csv", index=False)
+
+
+def test_only_the_best_model_is_coloured(rcparams_guard, tmp_path, capsys):
+    """THE SENTENCE IS "this model scored best". The rows arrive sorted
+    ascending, so exactly one bar -- the last -- carries the highlight."""
+    base = tmp_path / "runs"
+    _vision_tree(base, {"e1": ("resnet50", [0.80, 0.90]),
+                        "e2": ("vgg16", [0.70, 0.72]),
+                        "e3": ("densenet", [0.60, 0.62])})
+
+    P.read_and_plot__vision_results(str(base), y_lim=[0.5, 1.0])
+    capsys.readouterr()
+
+    ax = _figures()[0].axes[0]
+    faces = [_hex(p.get_facecolor()) for p in ax.patches]
+    assert faces[:-1] == [_hex(ROLES["data"])] * (len(faces) - 1)
+    assert faces[-1] == _hex(ROLES["highlight"])
+    # ...and the highlighted bar is the highest-scoring model.
+    assert [t.get_text() for t in ax.get_xticklabels()][-1] == "resnet50"
+    assert [p.get_height() for p in ax.patches] == pytest.approx(
+        [0.61, 0.71, 0.85])
+
+
+def test_a_single_model_is_not_a_comparison(rcparams_guard, tmp_path, capsys):
+    """One bar highlighted out of one bar is 100% of the marks coloured, which
+    is a figure with no claim rather than a figure making one."""
+    base = tmp_path / "runs"
+    _vision_tree(base, {"e1": ("resnet50", [0.80, 0.90])})
+
+    P.read_and_plot__vision_results(str(base), y_lim=[0.5, 1.0])
+    capsys.readouterr()
+
+    ax = _figures()[0].axes[0]
+    assert [_hex(p.get_facecolor()) for p in ax.patches] == [
+        _hex(ROLES["data"])]
+
+
+def test_drawing_every_score_figure_leaves_the_globals_alone(tmp_path, capsys):
+    """Rule 2 again, over the second group."""
+    before = {k: repr(v) for k, v in mpl.rcParams.items()}
+
+    P.plot_comparison_results(_comparison_rows())
+    P.plot_permutation(_importance_frame())
+    P.plot_feature_importance(_importance_frame())
+    base = tmp_path / "runs"
+    _vision_tree(base, {"e1": ("a", [0.8]), "e2": ("b", [0.7])})
+    P.read_and_plot__vision_results(str(base), y_lim=[0.5, 1.0])
+    capsys.readouterr()
+
+    after = {k: repr(v) for k, v in mpl.rcParams.items()}
+    assert {k for k in set(before) | set(after)
+            if before.get(k) != after.get(k)} == set()

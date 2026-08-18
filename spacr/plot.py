@@ -3248,39 +3248,39 @@ def plot_comparison_results(comparison_results):
     df_dice = df_melted[df_melted['metric'].str.contains('dice')]
     df_boundary_f1 = df_melted[df_melted['metric'].str.contains('boundary_f1')]
     df_ap = df_melted[df_melted['metric'].str.contains('average_precision')]
-    fig, axs = plt.subplots(1, 4, figsize=(40, 10))
-    
-    # Jaccard Index Plot
-    sns.boxplot(data=df_jaccard, x='metric', y='value', ax=axs[0], color='lightgrey')
-    sns.stripplot(data=df_jaccard, x='metric', y='value', ax=axs[0], jitter=True, alpha=0.6)
-    axs[0].set_title('Jaccard Index by Comparison')
-    plt.setp(axs[0].get_xticklabels(), rotation=45, horizontalalignment='right')
-    axs[0].set_xlabel('Comparison')
-    axs[0].set_ylabel('Jaccard Index')
-    # Dice Coefficient Plot
-    sns.boxplot(data=df_dice, x='metric', y='value', ax=axs[1], color='lightgrey')
-    sns.stripplot(data=df_dice, x='metric', y='value', ax=axs[1], jitter=True, alpha=0.6)
-    axs[1].set_title('Dice Coefficient by Comparison')
-    plt.setp(axs[1].get_xticklabels(), rotation=45, horizontalalignment='right')
-    axs[1].set_xlabel('Comparison')
-    axs[1].set_ylabel('Dice Coefficient')
-    # Border F1 scores
-    sns.boxplot(data=df_boundary_f1, x='metric', y='value', ax=axs[2], color='lightgrey')
-    sns.stripplot(data=df_boundary_f1, x='metric', y='value', ax=axs[2], jitter=True, alpha=0.6)
-    axs[2].set_title('Boundary F1 Score by Comparison')
-    plt.setp(axs[2].get_xticklabels(), rotation=45, horizontalalignment='right')
-    axs[2].set_xlabel('Comparison')
-    axs[2].set_ylabel('Boundary F1 Score')
-    # AP scores plot
-    sns.boxplot(data=df_ap, x='metric', y='value', ax=axs[3], color='lightgrey')
-    sns.stripplot(data=df_ap, x='metric', y='value', ax=axs[3], jitter=True, alpha=0.6)
-    axs[3].set_title('Average Precision by Comparison')
-    plt.setp(axs[3].get_xticklabels(), rotation=45, horizontalalignment='right')
-    axs[3].set_xlabel('Comparison')
-    axs[3].set_ylabel('Average Precision')
-    
-    plt.tight_layout()
-    plt.show()
+
+    # Four metrics of the same comparison, so no one panel is the claim and
+    # nothing here is coloured. The points are the data and the box is the
+    # summary drawn under them: GREY for the box, the darker grey for the
+    # marks, opaque -- overplotting is handled by point size, not by alpha.
+    panels = (
+        (df_jaccard, 'Jaccard Index by Comparison', 'Jaccard Index'),
+        (df_dice, 'Dice Coefficient by Comparison', 'Dice Coefficient'),
+        (df_boundary_f1, 'Boundary F1 Score by Comparison', 'Boundary F1 Score'),
+        (df_ap, 'Average Precision by Comparison', 'Average Precision'),
+    )
+    with figure_style(theme_target()):
+        fig, axs = plt.subplots(1, 4, figsize=(40, 10))
+        for index, (frame, title, ylabel) in enumerate(panels):
+            ax = axs[index]
+            sns.boxplot(data=frame, x='metric', y='value', ax=ax,
+                        color=ROLES['data'], linecolor=resolve_ink(theme_target()),
+                        linewidth=WEIGHTS['spine'], fliersize=2.0)
+            sns.stripplot(data=frame, x='metric', y='value', ax=ax,
+                          jitter=True, color=Palette.GREY_DARK, size=3.0,
+                          linewidth=0)
+            descriptor(ax, title)
+            # 45 degrees, right-aligned and anchored: a comparison name is a
+            # pair of filenames and runs off the panel at any other angle.
+            rotate_ticks(ax)
+            ax.set_xlabel('Comparison')
+            ax.set_ylabel(ylabel)
+            # A four-panel figure is a figure sheet, and a sheet is read by
+            # its letters.
+            panel_letter(ax, 'ABCD'[index])
+
+        fig.tight_layout()
+        plt.show()
     return fig
 
 def plot_object_outlines(src, objects=None, channels=None, max_nr=10):
@@ -3531,11 +3531,28 @@ def plot_permutation(permutation_df):
     fig_width = 10  # Width can be fixed or adjusted similarly
     font_size = max(10, 12 - num_features * 0.2)  # Adjust font size dynamically
 
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-    ax.barh(permutation_df['feature'], permutation_df['importance_mean'], xerr=permutation_df['importance_std'], color="teal", align="center", alpha=0.6)
-    ax.set_xlabel('Permutation Importance', fontsize=font_size)
-    ax.tick_params(axis='both', which='major', labelsize=font_size)
-    plt.tight_layout()
+    # The house type scale is anchored to a single-column panel. This canvas
+    # is not one: it grows to 0.3 inch per feature, so a 100-feature figure is
+    # 30 inches tall and the 7 pt label tier would be unreadable on it. The
+    # measured dynamic size stays; everything else is the house style.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        # Grey, opaque. A ranking IS the claim -- no single bar of it is --
+        # so nothing is singled out with colour, and the teal at alpha 0.6
+        # was a saturated hue made translucent, which the style forbids.
+        ax.barh(permutation_df['feature'], permutation_df['importance_mean'],
+                xerr=permutation_df['importance_std'], color=ROLES['data'],
+                align="center", ecolor=resolve_ink(theme_target()),
+                error_kw={'lw': WEIGHTS['reference']})
+        # A permutation importance below zero means shuffling the feature made
+        # the model BETTER. Without a zero rule you cannot see which bars
+        # cross it, so it is drawn -- as a reference, only when it is needed.
+        if float(np.nanmin(np.asarray(
+                permutation_df['importance_mean'], dtype=float))) < 0:
+            reference_line(ax, x=0)
+        ax.set_xlabel('Permutation Importance', fontsize=font_size)
+        ax.tick_params(axis='both', which='major', labelsize=font_size)
+        fig.tight_layout()
     return fig
 
 def plot_feature_importance(feature_importance_df):
@@ -3550,11 +3567,22 @@ def plot_feature_importance(feature_importance_df):
     fig_width = 10  # Width can be fixed or adjusted similarly
     font_size = max(10, 12 - num_features * 0.2)  # Adjust font size dynamically
 
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-    ax.barh(feature_importance_df['feature'], feature_importance_df['importance'], color="blue", align="center", alpha=0.6)
-    ax.set_xlabel('Feature Importance', fontsize=font_size)
-    ax.tick_params(axis='both', which='major', labelsize=font_size)
-    plt.tight_layout()
+    # Same reasoning as plot_permutation: the dynamic label size is kept
+    # because the canvas is not a single-column panel, the rest is the house
+    # style. The bars were solid blue at alpha 0.6 -- BLUE is the palette's
+    # highlight and means "the one thing being argued about", which is the
+    # opposite of what a whole ranking of bars is.
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        ax.barh(feature_importance_df['feature'],
+                feature_importance_df['importance'], color=ROLES['data'],
+                align="center")
+        if float(np.nanmin(np.asarray(
+                feature_importance_df['importance'], dtype=float))) < 0:
+            reference_line(ax, x=0)
+        ax.set_xlabel('Feature Importance', fontsize=font_size)
+        ax.tick_params(axis='both', which='major', labelsize=font_size)
+        fig.tight_layout()
     return fig
 
 def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time', y_lim=None):
@@ -3612,17 +3640,24 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
         avg_metric = avg_metric.sort_values(by=y_axis)
         print(avg_metric)
         
-        # Plotting the results
-        plt.figure(figsize=(10, 6))
-        plt.bar(avg_metric['model'], avg_metric[y_axis])
-        plt.xlabel('Model')
-        plt.ylabel(f'{y_axis}')
-        plt.title(f'Average {y_axis.capitalize()} per Model')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        if y_lim is not None:
-            plt.ylim(y_lim)
-        plt.show()
+        # Plotting the results. THE SENTENCE IS "this model scored best", and
+        # the rows are already sorted ascending, so the last bar is the one
+        # the figure is about and the rest are the comparison it is made
+        # against. One highlight out of N, never a bar per cycle colour.
+        colours = [ROLES['data']] * len(avg_metric)
+        if len(colours) > 1:
+            colours[-1] = ROLES['highlight']
+        with figure_style(theme_target()):
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.bar(avg_metric['model'], avg_metric[y_axis], color=colours)
+            ax.set_xlabel('Model')
+            ax.set_ylabel(f'{y_axis}')
+            descriptor(ax, f'Average {y_axis.capitalize()} per Model')
+            rotate_ticks(ax)
+            fig.tight_layout()
+            if y_lim is not None:
+                ax.set_ylim(y_lim)
+            plt.show()
     else:
         print("No CSV files found in the specified directory.")
 
