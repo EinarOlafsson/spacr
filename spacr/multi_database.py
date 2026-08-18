@@ -75,6 +75,8 @@ __all__ = [
     "source_labels",
     "column_kinds",
     "canonical_plate_id",
+    "normalise_plate_ids",
+    "PLATE_BEARING_COLUMNS",
     "MergeRefused",
 ]
 
@@ -327,6 +329,56 @@ def canonical_plate_id(plate: Any) -> str:
     return "p" + text[2:] if text.startswith("pp") else text
 
 
+#: The columns a doubled plate prefix reaches. ``plateID`` is the plate itself;
+#: the composed keys carry it as their FIRST component, which is why a rewrite
+#: of the plate column alone leaves the joins still broken.
+PLATE_BEARING_COLUMNS = ("plateID", "prc", "prcf", "prcfo")
+
+
+def normalise_plate_ids(frame: "pd.DataFrame") -> "pd.DataFrame":
+    """Collapse a doubled ``p`` prefix in every column that carries a plate.
+
+    WHY THIS IS NOT COSMETIC, and why the display fix was not enough.
+    :func:`canonical_plate_id` was added so the Measurements tab could SHOW a
+    plate by the name its owner uses. It was applied to the label and to the
+    warning, and never to the data -- so a measurements database stamped
+    ``pplate1`` still produced merged rows stamped ``pplate1``, while
+    :func:`spacr.utils.correct_metadata` had already normalised the score and
+    count CSVs to ``plate1``.
+
+    The two then do not meet. Every join INSIDE the merge is unaffected,
+    because both sides read the same stored value -- which is exactly what
+    makes it hard to see: the merge succeeds, the row counts are right, and the
+    failure appears later and somewhere else, as a gene half that is missing
+    for no visible reason.
+
+    THE COMPOSED KEYS MATTER AS MUCH AS THE PLATE COLUMN. ``prc`` is
+    ``<plate>_<row>_<column>``, so a doubled prefix rides in its first
+    component; rewriting ``plateID`` alone would leave ``prc`` unjoinable and
+    the two columns disagreeing about the same plate.
+
+    Applied on READ, so nothing on disk is rewritten and an old database keeps
+    working -- the standing rule is to correct the format going forward and
+    migrate the content, and a measurements database is the user's data rather
+    than ours to edit.
+
+    :param frame: any frame read from a measurements database.
+    :returns: the same frame, with the plate-bearing columns normalised in
+        place. Columns it does not have are skipped.
+    """
+    for column in PLATE_BEARING_COLUMNS:
+        if column not in frame.columns:
+            continue
+        values = frame[column]
+        # `.str` refuses a non-object column, and a plate id stored as an
+        # INTEGER cannot carry a "pp" prefix, so there is nothing to do.
+        if values.dtype != object:
+            continue
+        frame[column] = values.map(
+            lambda v: canonical_plate_id(v) if isinstance(v, str) else v)
+    return frame
+
+
 def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
     """One short, unique, human name per database, decided for the whole set.
 
@@ -441,7 +493,11 @@ def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
-    return sorted(str(row[0]) for row in rows if row[0] is not None)
+    # Normalised, so the PLAN names a plate the same way the DATA will after
+    # `normalise_plate_ids`. A plan that says `pplate1` while the frame says
+    # `plate1` would make the collision check compare two vocabularies.
+    return sorted(canonical_plate_id(row[0])
+                  for row in rows if row[0] is not None)
 
 
 def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
@@ -810,6 +866,12 @@ def read_merged(paths: Sequence[str],
         mapping = schema.canonical_rename_plan(frame.columns)
         if mapping:
             frame = frame.rename(columns=mapping)
+        # THE PLATE ID, BEFORE ANYTHING KEYS ON IT. A database stamped
+        # `pplate1` will not meet a score CSV that `correct_metadata` has
+        # already normalised to `plate1`, and the failure is invisible here --
+        # every join inside this merge reads the same stored value on both
+        # sides and succeeds. See `normalise_plate_ids`.
+        frame = normalise_plate_ids(frame)
         # BEFORE the column filter, so a screen stored in only one source is
         # not intersected away, and so an explicitly named screen reaches
         # every row whether the database had the column or not.
