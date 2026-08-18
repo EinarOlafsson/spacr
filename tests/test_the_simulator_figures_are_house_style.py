@@ -150,19 +150,25 @@ def test_the_verbose_note_lost_its_white_box():
     assert to_hex(notes[0].get_color()) == to_hex(resolve_ink(theme_target()))
 
 
-def test_the_correlation_matrix_is_centred_on_zero():
-    """It was diverging but unbounded, so seaborn scaled it to the data."""
-    figure = S.plot_correlation_matrix(_sweep_results(), dst=None)
+def test_the_correlation_matrix_is_centred_on_zero(tmp_path):
+    """It was diverging but unbounded, so seaborn scaled it to the data.
+
+    ``dst`` is passed explicitly, and has to be: ``_figures_dst(None)``
+    resolves to a RELATIVE ``figures/``, so a test that leaves it out writes
+    a ``figures/correlation_matrix`` tree into the repo working copy.
+    """
+    figure = S.plot_correlation_matrix(_sweep_results(), dst=str(tmp_path))
     image = figure.axes[0].collections[0]
     assert (image.norm.vmin, image.norm.vmax) == (-1.0, 1.0)
     # ...and no white rules between the cells.
     assert float(np.ravel(image.get_linewidths())[0]) == 0.0
 
 
-def test_an_explicit_colormap_is_no_longer_thrown_away():
+def test_an_explicit_colormap_is_no_longer_thrown_away(tmp_path):
     """``cmap`` defaulted to 'inferno' and was overwritten two lines later,
     so a caller who passed one got the diverging map anyway."""
-    figure = S.plot_correlation_matrix(_sweep_results(), cmap="magma", dst=None)
+    figure = S.plot_correlation_matrix(_sweep_results(), cmap="magma",
+                                       dst=str(tmp_path))
     image = figure.axes[0].collections[0]
     assert image.cmap(0.9) == pytest.approx(plt.get_cmap("magma")(0.9))
 
@@ -210,7 +216,7 @@ def test_no_sim_figure_leaves_its_style_on_the_globals(tmp_path):
 
     frame = _sweep_results()
     S.plot_simulations(frame, "nr_plates")
-    S.plot_correlation_matrix(frame, dst=None)
+    S.plot_correlation_matrix(frame, dst=str(tmp_path))
     S.vis_dists([np.random.default_rng(i).random(30) for i in range(6)],
                 str(tmp_path), "v", 1)
 
