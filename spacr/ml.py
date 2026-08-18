@@ -3125,7 +3125,6 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
     :param volcano_path: the volcano plot for this run, named on the report.
     :returns: the manifest dict, or ``None`` if the report could not be written.
     """
-    from .plot import figure_output_preferences
     from .regression_qc import regression_qc_report
 
     # Per-well labels: what turns "well 41 is an outlier" into a plate, a row
@@ -3154,14 +3153,17 @@ def _write_regression_qc(model, X, y, df, dst, *, coef_df=None,
               f"panels will skip rather than label the wrong well.")
         metadata = None
 
-    # The panels are figures the user keeps, so they follow the same format
-    # preference as every other figure the pipeline writes.
-    fmt, _dpi = figure_output_preferences()
+    # NO `fmt`. The panels are figures the user keeps, so they follow the
+    # format preference -- and `regression_qc_report` reads it itself now, so
+    # resolving it here as well would be two places deciding one thing. An
+    # explicit `fmt` is a caller FORCING a format, which this caller is not
+    # doing; passing the preference under that name made a preference
+    # indistinguishable from an override.
     try:
         return regression_qc_report(
             model, X, y, dst, metadata=metadata, coef_df=coef_df,
             regression_type=regression_type, volcano_path=volcano_path,
-            fmt=fmt, verbose=True)
+            verbose=True)
     except Exception as error:                      # noqa: BLE001 - advisory
         # A diagnostic that fails must never destroy a fit that already
         # succeeded and cost an hour. The report itself already downgrades a

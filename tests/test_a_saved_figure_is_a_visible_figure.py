@@ -366,3 +366,102 @@ def test_the_regression_sheet_reaches_the_gallery(tmp_path, monkeypatch):
     assert path and os.path.isfile(path)
     assert announced == [path], (
         "the run's publication figure was saved and never announced")
+
+
+def test_a_headless_run_still_writes_its_regression_figures(tmp_path, monkeypatch):
+    """`spacr-run regression` and a notebook have no GUI at all.
+
+    Instruction 139 A moves the generated figures to pyqtgraph, which is a
+    SCREEN library and needs a QApplication. "A run that silently stops
+    writing figures when there is no display is the worst outcome here", so
+    the guarantee is pinned here BEFORE the renderer changes: no
+    QApplication, no sink, and the QC suite still puts its twenty files on
+    disk.
+    """
+    regression_qc = pytest.importorskip("spacr.regression_qc")
+    from spacr import plot
+
+    try:
+        from PySide6.QtWidgets import QApplication
+        assert QApplication.instance() is None, (
+            "this test is only meaningful without a QApplication")
+    except ImportError:                                # pragma: no cover
+        pass
+
+    monkeypatch.setattr(plot, "figure_output_preferences", lambda: ("png", 150))
+    assert figure_sink.sink() is None, "the fixture left a sink installed"
+
+    model, design, y, metadata = _small_ols()
+    manifest = regression_qc.regression_qc_report(
+        model, design, y, dst=str(tmp_path), metadata=metadata,
+        regression_type="ols")
+
+    on_disk = _image_files(manifest["directory"])
+    assert len(on_disk) == len(manifest["written"]) + 1, on_disk
+    assert len(on_disk) >= 20, (
+        f"a headless run wrote only {len(on_disk)} figure(s)")
+    for name in on_disk:
+        assert _opens(os.path.join(manifest["directory"], name))
+
+
+def test_an_explicit_format_wins_and_none_lets_the_preference_through(tmp_path,
+                                                                      monkeypatch):
+    """`fmt` used to default to 'pdf' and be baked into the file NAME.
+
+    Two failures in one line. A user who had chosen PNG got PDFs, because a
+    hard default is not a preference; and a caller who explicitly asked for
+    PNG got its request thrown away by `save_figure`, which saw no `fmt` and
+    used the preference -- while the manifest still recorded the `.png` name
+    the caller had asked for, naming a file that was not there.
+    """
+    regression_qc = pytest.importorskip("spacr.regression_qc")
+    from spacr import plot
+
+    monkeypatch.setattr(plot, "figure_output_preferences", lambda: ("pdf", 150))
+    model, design, y, metadata = _small_ols()
+
+    forced = regression_qc.regression_qc_report(
+        model, design, y, dst=str(tmp_path / "forced"), metadata=metadata,
+        regression_type="ols", panels=("residuals_vs_fitted",),
+        combined=False, fmt="png", verbose=False)
+    assert forced["written"], forced["skipped"]
+    for path in forced["written"]:
+        assert path.endswith(".png"), "an explicit fmt did not win"
+        assert os.path.isfile(path)
+        assert _opens(path)
+
+    preferred = regression_qc.regression_qc_report(
+        model, design, y, dst=str(tmp_path / "preferred"), metadata=metadata,
+        regression_type="ols", panels=("residuals_vs_fitted",),
+        combined=False, verbose=False)
+    for path in preferred["written"]:
+        assert path.endswith(".pdf"), "the format preference did not decide"
+        assert os.path.isfile(path)
+        assert _opens(path)
+
+
+def test_the_pipeline_qc_report_follows_the_format_preference(tmp_path,
+                                                              monkeypatch):
+    """`ml._write_regression_qc` is the pipeline's route into the QC suite.
+
+    It used to resolve the preference itself and pass it as `fmt=`, which made
+    a PREFERENCE indistinguishable from a caller FORCING a format. The report
+    reads the preference now, so there is one place that decides; this asserts
+    the pipeline path still lands on the user's choice.
+    """
+    pd = pytest.importorskip("pandas")
+    ml = pytest.importorskip("spacr.ml")
+    from spacr import plot
+
+    monkeypatch.setattr(plot, "figure_output_preferences", lambda: ("png", 150))
+    model, design, y, metadata = _small_ols()
+    frame = pd.DataFrame(metadata)
+
+    manifest = ml._write_regression_qc(model, design, y, frame, str(tmp_path),
+                                       regression_type="ols")
+
+    assert manifest and manifest["written"], manifest
+    for path in manifest["written"]:
+        assert path.endswith(".png"), (
+            "the pipeline's QC panels ignored the figure-format preference")
+        assert os.path.isfile(path)

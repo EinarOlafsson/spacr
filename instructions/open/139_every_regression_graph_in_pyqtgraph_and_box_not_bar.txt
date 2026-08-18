@@ -222,3 +222,94 @@ WHAT REMAINS ON THIS INSTRUCTION
     deliberately: the user asked not to be shown plots, and overriding that
     to satisfy a count would be the wrong reading of "saved and visible are
     the same event". Worth a decision rather than a guess.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A RECOUNTED. THE NUMBER IN THE HEADER IS HALF THE TRUTH.
+--------------------------------------------------------------------------------
+
+THE ORIGINAL 21 COUNTED FUNCTIONS IN FOUR MODULES and missed the two biggest
+producers on the path. Counted the way that matters -- MATPLOTLIB FIGURES ONE
+REGRESSION RUN PRODUCES, which is what a user sees and what the gallery holds:
+
+    spacr/regression_qc.py            20   19 panels + the combined page
+                                           (23 attempted; 4 are skipped on a
+                                           Gaussian fit, measured)
+    spacr/ml.py                       12   7 house-style panels (SHEET_ORDER)
+                                           + 2 well distributions
+                                           + 1 plate heatmap
+                                           + 1 regression_figure sheet
+                                           + 1 cell_min_threshold
+    spacr/toxo.py                      5   volcano, 2 GO enrichment,
+                                           phenotypes, heatmaps
+    spacr/regression_diagnostics.py    3   design, residual, inference; each
+                                           is one multi-panel figure
+    spacr/guide_permutation.py         1   the permutation null
+                                    ----
+                                      41
+
+The seven house-style panels and the QC suite are the bulk of it and neither
+appears in the header's list. `spacr/figures/` is matplotlib too.
+
+NOTHING WAS CONVERTED, and the reason is a territory boundary rather than a
+judgement about the work: the export the section describes ("the generated
+file is a RENDER of the pyqtgraph scene ... the vector equivalent, at print
+resolution") already exists as `FastPlot.export` / `FastPlot.snapshot` in
+`spacr/qt/widgets/fast_plots.py`, which this session did not own and which
+another session was editing at the same time. Doing it from outside that file
+would mean a second exporter, which is the duplication the section exists to
+end.
+
+TWO MEASUREMENTS TO SAVE THE NEXT ATTEMPT THE EXPERIMENT:
+
+  * THE HEADLESS HALF WORKS. With `QT_QPA_PLATFORM=offscreen` and a
+    QApplication, `pyqtgraph.exporters.ImageExporter` writes a PNG and a
+    `QPdfWriter` + `scene().render(painter)` writes a real vector PDF, on this
+    machine, with no display -- 16 kB and 9.9 kB respectively. So "a run that
+    silently stops writing figures when there is no display" is avoidable;
+    what it costs is importing PySide6 from `spacr-run` and from a notebook,
+    which is the decision to make rather than the risk to fear.
+  * THAT GUARANTEE IS NOW PINNED BY A TEST, deliberately written BEFORE the
+    renderer changes: `test_a_headless_run_still_writes_its_regression_figures`
+    asserts there is no QApplication, no sink, and twenty QC files on disk
+    that each open. It fails the moment a conversion makes a figure depend on
+    a display.
+
+THE ORDER TO DO IT IN, largest value first, from the recount: the 20-figure QC
+suite is the biggest single block but the least duplicated -- the tabs do not
+draw those panels, so converting it buys no agreement, only a renderer change.
+The DUPLICATED ones are the seven house-style panels, which are exactly
+`SHEET_ORDER` and exactly the seven `fast_plots` classes 129 shipped: volcano,
+effect_rank, effect_distribution, controls, agreement, p_histogram, qq. That
+is where "the same screen draws each plot twice in two libraries" is literally
+true, and it is seven figures rather than forty-one. START THERE.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION C FOLLOW-UP: `fmt='pdf'` WAS A DEFAULT PRETENDING TO BE
+              A REQUEST
+--------------------------------------------------------------------------------
+
+Found by a house-style test failing after the section C work, and it is a
+second bug of the same family rather than a consequence of that work.
+
+`regression_qc_report(..., fmt=...)` did TWO wrong things with one line.
+
+  * It DEFAULTED to 'pdf'. A hard default is not a preference, so a user who
+    had chosen PNG got PDFs from the whole nineteen-panel suite. `fmt` is None
+    now, and None means the preference decides.
+  * It baked the format into the file NAME and then threw the request away.
+    `path = f"{name}.{fmt}"` was handed to `_save`, which called
+    `save_figure` WITHOUT a format -- so `save_figure` used the preference,
+    rewrote the extension, and the caller's explicit `fmt='png'` produced a
+    PDF. `save_figure`'s own contract says an explicit format wins; it never
+    got one. The request is passed through now, and the extension is left to
+    whatever is actually written.
+
+The two failure modes are opposite and they were both live: the default
+overrode a preference that should have won, and an explicit request was
+ignored by the one call that should have honoured it.
+
+`tests/test_regression_qc.py`'s `_save` spy was updated to match -- it keys on
+the STEM rather than on `regression_qc_report.pdf`, because a path with the
+extension already on it is exactly the bug.

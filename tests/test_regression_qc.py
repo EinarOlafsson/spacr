@@ -1043,10 +1043,17 @@ def test_the_combined_page_shows_the_skip_reason_on_the_page(tmp_path, monkeypat
     captured = {}
     real_save = rq._save
 
-    def spy(fig, path):
-        if os.path.basename(path) == "regression_qc_report.pdf":
+    # The STEM, not the file name. `_save` is handed a path with no extension
+    # unless the caller forced a format, because the extension follows
+    # whatever `save_figure` actually writes -- a manifest that names
+    # `report.pdf` for a file written as `report.png` is a path nobody can
+    # open. `**kwargs` for the same reason: `_save` now carries the caller's
+    # explicit format through.
+    def spy(fig, path, **kwargs):
+        stem = os.path.splitext(os.path.basename(path))[0]
+        if stem == "regression_qc_report":
             captured["texts"] = [t.get_text() for ax in fig.axes for t in ax.texts]
-        return real_save(fig, path)
+        return real_save(fig, path, **kwargs)
 
     monkeypatch.setattr(rq, "_save", spy)
     model, X, y, meta = _ols_case(n=96, seed=75)
