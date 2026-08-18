@@ -250,3 +250,69 @@ def test_the_bundled_tables_have_one_row_per_gene():
         frame = source()
         assert frame is not None, label
         assert not frame["gene_nr"].duplicated().any(), label
+
+
+# ---------------------------------------------------------------------------
+# The hit list -- the deliverable a collaborator actually receives
+# ---------------------------------------------------------------------------
+
+def _gene_frame():
+    return pd.DataFrame({
+        "feature": ["gene_fraction:gene[224750]",
+                    "gene_fraction:gene[201180]",
+                    "gene_fraction:gene[999999]"],
+        "coefficient": [1.5, -2.0, 0.1],
+        "p_value": [1e-5, 1e-4, 0.9],
+        "std_err": [0.2, 0.3, 0.4],
+    })
+
+
+def test_the_hit_list_carries_the_annotation_when_asked():
+    from spacr.hits import build_hit_list
+
+    hits = build_hit_list({"gene": _gene_frame(), "__source__": "(test)"},
+                          toxoplasma=True)
+    frame = hits.to_frame()
+    assert frame.loc[frame["gene"] == "201180", "gene_name"].iloc[0] == "MSF"
+    assert frame.loc[frame["gene"] == "201180",
+                     "hyperlopit"].iloc[0] == "dense granules"
+    assert pd.notna(frame.loc[frame["gene"] == "201180",
+                              "fit_invitro_hff"].iloc[0])
+    assert any("Toxoplasma annotation joined" in note for note in hits.notes)
+
+
+def test_the_hit_list_is_unannotated_by_default():
+    """Off unless asked. A non-Toxoplasma screen gets no Toxoplasma columns."""
+    from spacr.hits import build_hit_list
+
+    frame = build_hit_list({"gene": _gene_frame(),
+                            "__source__": "(test)"}).to_frame()
+    assert "gene_name" not in frame.columns
+    assert "hyperlopit" not in frame.columns
+
+
+def test_the_annotation_does_not_change_the_number_of_hits():
+    """One row per gene, before and after. The guard, on the real path."""
+    from spacr.hits import build_hit_list
+
+    plain = build_hit_list({"gene": _gene_frame(), "__source__": "(test)"})
+    rich = build_hit_list({"gene": _gene_frame(), "__source__": "(test)"},
+                          toxoplasma=True)
+    assert len(rich.hits) == len(plain.hits) == 3
+    assert [h.gene for h in rich.hits] == [h.gene for h in plain.hits]
+
+
+def test_a_users_own_column_beats_the_bundle(tmp_path):
+    """`metadata_files` is applied first and its columns are not replaced."""
+    from spacr.hits import build_hit_list
+
+    mine = tmp_path / "mine.csv"
+    mine.write_text("Gene ID,gene_name\nTGME49_201180,my own name\n")
+    hits = build_hit_list({"gene": _gene_frame(), "__source__": "(test)"},
+                          metadata_files=[str(mine)], toxoplasma=True)
+    frame = hits.to_frame()
+    assert frame.loc[frame["gene"] == "201180",
+                     "gene_name"].iloc[0] == "my own name"
+    # And the rest of the bundle still arrives.
+    assert frame.loc[frame["gene"] == "201180",
+                     "hyperlopit"].iloc[0] == "dense granules"
