@@ -1215,7 +1215,17 @@ class RegressionResultsPanel(QWidget):
         # -- and a new screen would otherwise be offered the last one's
         # compartments.
         self._compartment = None
-        self._level = "grna"
+        # THE DEFAULT LEVEL IS READ OFF THE TABLE, not asserted.
+        #
+        # Defaulting to "grna" unconditionally is what fixed the four-fold
+        # duplication -- a gene drawn once per guide -- and it is right for
+        # the table a mixed or hierarchical run writes, which carries both
+        # levels. It is WRONG for the table instruction 128 R produces: the
+        # separate gene fit writes `results_gene.csv`, whose every row is a
+        # gene term, and a guide filter over it selects nothing. The panel
+        # then draws an empty volcano with a full coefficient table beside
+        # it, which reads as a broken plot rather than as an empty filter.
+        self._level = self._default_level()
         self._offer_levels()
         self._offer_p_values()
         self._offer_thresholds()
@@ -1553,6 +1563,38 @@ class RegressionResultsPanel(QWidget):
                 # gene term. Counted as the complement rather than by a second
                 # parse, so the two cannot disagree about a row.
                 "gene": int((~guides).sum())}
+
+    def _default_level(self):
+        """The level to open a new table at.
+
+        Guides when the table has any -- the guide is the unit the screen
+        measures, and drawing a gene once per guide is the duplication this
+        default exists to prevent. Genes when it has no guide terms at all,
+        which is exactly what the separate gene fit writes. Whole fit when it
+        has neither, so an unrecognised table is shown rather than hidden.
+        """
+        frame = self._frame
+        if frame is None or "feature" not in getattr(frame, "columns", ()):
+            return None
+        from ...hits import guide_of, tested_family
+
+        features = frame["feature"].map(str)
+        if features.map(lambda f: guide_of(f) is not None).any():
+            return "grna"
+        # `tested_family`, NOT `level_counts()["gene"]` and NOT `gene_of`.
+        #
+        # `level_counts()["gene"]` is the COMPLEMENT of the guides, so it
+        # counts `Intercept` and every row/column term as a gene -- the right
+        # number for the menu label, because "genes only" is what the mask
+        # actually selects, and the wrong test here.
+        #
+        # `gene_of` does not draw the line either: it parses the bracketed
+        # token, so `rowID[T.r03]` comes back as the "gene" r03. The one
+        # statement of which coefficients are hypotheses lives in `hits`, and
+        # asking it is what stops this becoming a second copy that drifts.
+        if tested_family(features).any():
+            return "gene"
+        return None
 
     def _offer_levels(self) -> None:
         """Put genes / guides / both on the volcano's right-click menu."""
