@@ -423,10 +423,14 @@ def test_it_says_what_each_source_gave_and_what_the_join_took_away(panel):
     report = panel.report.toPlainText()
 
     assert len(frame) == 5
-    assert frame.attrs["rows_before"] == {"measurements": 3,
-                                          "plate2/measurements": 3}
-    assert frame.attrs["rows_after"] == {"measurements": 3,
-                                         "plate2/measurements": 2}
+    # The plate folder, not the file. spaCR writes every plate to
+    # <plate>/measurements/measurements.db, so the stem and its immediate
+    # parent are identical for every plate in a screen; this used to read
+    # {"measurements": 3, "plate2/measurements": 3}, which is two distinct
+    # labels that name no plate. See
+    # spacr.multi_database.source_labels (instruction 109).
+    assert frame.attrs["rows_before"] == {"plate1": 3, "plate2": 3}
+    assert frame.attrs["rows_after"] == {"plate1": 3, "plate2": 2}
     assert "2 of 3 cell rows" in report
     assert "nucleus: inner join, removed 1 of 6 rows" in report
 
