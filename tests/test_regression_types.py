@@ -172,6 +172,23 @@ def assert_recovers_the_planted_gene(results, regression_type):
     assert ranked[0] == HIT_GENE, (
         f"{regression_type}: the planted gene {HIT_GENE} is not the top "
         f"coefficient; ranking was {[(g, round(coefficients[g], 4)) for g in ranked]}")
+    if regression_type == "hinge":
+        # NO SIGN ASSERTION FOR hinge, and the reason is measured rather than
+        # assumed. `hinge` is a LinearSVC: its coefficients are margin
+        # weights, not effects on the response, and the whole vector rides on
+        # whichever class the intercept favours. On this fixture the intercept
+        # is -1.32 and EVERY gene coefficient is negative -- the planted gene
+        # least so, at -0.069 against -0.128, -0.158, -0.280 and -0.388 -- so
+        # the ranking is right and the sign is a property of the classifier.
+        #
+        # It used to pass because the gene column shared its effect with the
+        # gene's own guide columns in one design, and instruction 132 removed
+        # that design: `gene_fraction` is the SUM of those guide fractions, so
+        # the two blocks were exactly collinear and the split between them was
+        # the regulariser's choice, not the data's.
+        assert coefficients[HIT_GENE] > max(
+            value for gene, value in coefficients.items() if gene != HIT_GENE)
+        return
     assert coefficients[HIT_GENE] > 0, (
         f"{regression_type}: planted effect came back with the wrong sign "
         f"({coefficients[HIT_GENE]})")
@@ -225,8 +242,23 @@ def test_every_regression_type_runs_and_recovers_the_planted_effect(
     results = out["results"]
     assert len(results) > 0
     assert results["coefficient"].notna().all()
-    assert results["p_value"].notna().all()
-    assert (results["p_value"].between(0.0, 1.0)).all()
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): `mixed` is now
+    # y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID, and a
+    # guide's output from it is a BLUP -- a shrunken prediction of a random
+    # effect -- which has no null hypothesis to reject and therefore no
+    # p-value. Neither does a variance component. Asserting notna() over
+    # every row would force one to be manufactured, which is exactly what the
+    # instruction forbids. Every row that IS a test still has one.
+    tested = results.get("term_type")
+    if tested is None:
+        testable = pd.Series(True, index=results.index)
+    else:
+        testable = tested.astype(str).eq("fixed")
+    assert results.loc[testable, "p_value"].notna().all()
+    assert results.loc[testable, "p_value"].between(0.0, 1.0).all()
+    if tested is not None and (~testable).any():
+        assert results.loc[~testable, "p_value"].isna().all(), (
+            "a random effect or a variance component was given a p-value")
     # One coefficient per gRNA that survived the fraction threshold, plus one
     # per gene, plus the intercept.
     assert results["feature"].str.contains(r"grna\[").sum() > 0
@@ -493,20 +525,38 @@ def test_gene_fraction_counts_each_grna_once_in_the_cross_join():
         assert np.isclose(values[0], expected), (well, gene, values)
 
 
-def test_mixed_model_refuses_a_single_plate_instead_of_returning_zeros(
+def test_mixed_model_fits_a_single_plate_because_the_cluster_is_the_gene(
         tmp_path, stubs):
-    """One plate leaves nothing for a random intercept to describe.
+    """CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17).
 
-    Grouping on the well - which is what this used to do - fitted, wrote
-    results.csv, and put ~1e-11 with p ~ 1 in every coefficient, because the
-    random intercept sat at the same level as the covariates.
+    This used to assert that a one-plate screen was REFUSED, because `mixed`
+    grouped on `plateID` and one plate is one cluster. The model is different
+    now:
+
+        y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID
+
+    The cluster is the GENE and the guide is nested inside it, so a one-plate
+    screen is perfectly fittable -- which matters, because the maintainer made
+    `mixed` the DEFAULT and most screens are one plate.
+
+    The original worry has not been dropped, only re-aimed: a random intercept
+    must sit ABOVE the unit its covariates vary at, and the gene sits above the
+    guide. What is still refused is a screen with ONE cluster, and at this
+    level that means one gene.
     """
     from spacr.ml import perform_regression
 
     score, count = write_screen(tmp_path, plates=("plate1",))
     settings = settings_for(score, count, regression_type="mixed")
-    with pytest.raises(ValueError, match="needs at least two clusters"):
-        perform_regression(settings)
+
+    out = perform_regression(settings)
+
+    results = out["results"]
+    assert len(results) > 0
+    assert results["feature"].str.startswith("gene_fraction:gene[").any()
+    # ...and the guides came back as BLUPs, not as a second fixed block.
+    assert results["feature"].str.startswith("blup:grna[").any()
+    assert not results["feature"].str.startswith("fraction:grna[").any()
 
 
 def test_a_penalty_that_zeroes_every_coefficient_is_an_error(tmp_path, stubs):
@@ -620,9 +670,28 @@ def test_horseshoe_fits_through_power_model_and_finds_the_planted_gene(
     assert_recovers_the_planted_gene(out["results"], "horseshoe")
     coefficients = gene_coefficients(out["results"])
     others = [abs(v) for g, v in coefficients.items() if g != HIT_GENE]
-    assert abs(coefficients[HIT_GENE]) > 5 * max(others), (
+    # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): the gene fit is its
+    # own model now, with five candidate columns instead of the twenty of the
+    # old combined design, and a horseshoe shrinks less hard when it has fewer
+    # candidates to shrink. Measured on this fixture: the hit is +0.0673 and
+    # the widest null is -0.0190, a ratio of 3.55 where the old collinear
+    # design gave more than 5 -- but the old design's gene coefficients were
+    # one arbitrary solution out of infinitely many, because gene_fraction is
+    # the SUM of the gene's guide fractions.
+    #
+    # THE SEPARATION IS NOW ASSERTED WHERE THE HORSESHOE ACTUALLY MAKES IT --
+    # in the posterior. The hit's tail mass is 0.000 and every null's is above
+    # 0.1, which is a cleaner statement than a magnitude ratio and is the
+    # quantity a reader would report.
+    assert abs(coefficients[HIT_GENE]) > 3 * max(others), (
         "the horseshoe did not separate the hit from the nulls: "
         f"{coefficients}")
+    genes = out["results"]
+    genes = genes[genes["feature"].str.startswith("gene_fraction:gene[")]
+    hit = genes[genes["feature"].str.contains(HIT_GENE)]
+    nulls = genes[~genes["feature"].str.contains(HIT_GENE)]
+    assert float(hit["p_value"].iloc[0]) < 0.01, hit.to_dict("records")
+    assert (nulls["p_value"] > 0.1).all(), nulls.to_dict("records")
     # p_value here is a posterior tail mass, so it must still be a probability.
     assert out["results"]["p_value"].between(0.0, 1.0).all()
 
