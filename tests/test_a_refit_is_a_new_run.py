@@ -87,8 +87,8 @@ def test_auto_alpha_is_not_a_request():
 
 @pytest.mark.parametrize("regression_type", sorted(REGRESSION_TYPES))
 def test_every_backend_can_be_refit_into(regression_type):
-    """THE GUARD AGAINST DRIFT. For all 17 backends, a settings dict with
-    every policed knob set away from its default must come out of the prune
+    """THE GUARD AGAINST DRIFT. For every backend, a settings dict with every
+    policed knob set away from its default must come out of the prune
     acceptable to the check that would otherwise refuse it.
 
     Written as the fit's own check rather than a restatement of it: a second
@@ -97,7 +97,20 @@ def test_every_backend_can_be_refit_into(regression_type):
     """
     loaded = _base(alpha=0.3, l1_ratio=0.9, cov_type="HC3", quantile=0.25,
                    hinge_threshold=0.5, huber_t=2.0, lasso_n_boot=50,
-                   lasso_selection_threshold=0.9, hinge_n_boot=50)
+                   lasso_selection_threshold=0.9, hinge_n_boot=50,
+                   # Instruction 133's two new backends: the group lasso's
+                   # block penalty, and RRA's ranking depth and null size.
+                   group_lasso_lambda=0.2, rra_alpha=0.5,
+                   rra_permutations=500)
+    # THE LIST ABOVE IS A SECOND COPY and this is what stops it going stale
+    # quietly. A knob added to the defaults table and not to it is simply
+    # absent from `loaded`, and the assertion below then raises KeyError from
+    # inside the loop -- 19 red parametrisations that all say 'KeyError' and
+    # none that say which table is behind.
+    missing = sorted(set(refit.policed_settings()) - set(loaded))
+    assert not missing, (
+        f"policed knob(s) {missing} are not set away from their defaults "
+        f"here, so this test does not check that a re-fit resets them")
 
     settings, _notes = refit.refit_settings(loaded,
                                             regression_type=regression_type)
