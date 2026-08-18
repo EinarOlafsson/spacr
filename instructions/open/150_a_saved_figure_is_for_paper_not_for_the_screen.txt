@@ -227,3 +227,71 @@ WHAT REMAINS ON THIS INSTRUCTION
     stated intent ("transparent is not the answer") but is a visible change
     for a published panel: a house-style figure that used to come out with no
     ground now comes out on white unless the mode is 'transparent'.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (night) -- SECTION C: THE SHARED DECISION IS NOW PER-ARTIST, WHICH
+                      IS THE PART THE PYQTGRAPH HALF ACTUALLY NEEDS
+--------------------------------------------------------------------------------
+
+The note above named `saved_figure_appearance` as "the name the pyqtgraph half
+wants". Building against it showed that is only half a name. It hands both
+renderers the same GROUND and the same INK; it does not hand them the rule
+that turns those into a decision about ONE ARTIST -- is this thing legible,
+and if not what does it become, and is it even allowed to change. That rule
+lived inside `spacr.plot.print_ready`, i.e. inside the matplotlib
+application, so the exporter would have had to write a second copy of it.
+Two renderers deciding separately what "print" means is the same defect as two
+engines deciding which statistical test applies.
+
+THE NAME THE PYQTGRAPH HALF WANTS, and it is now the whole rule:
+
+    spacr.figure_style.export_colour(current, kind, look=None) -> str | None
+
+        kind is one of ARTIST_KINDS = ("ground", "grid", "chrome", "data")
+        returns the colour to paint, or None for "leave this one alone"
+
+    spacr.figure_style.ARTIST_KINDS
+    spacr.figure_style.illegible_colours(colours, ground, floor=None) -> [hex]
+    spacr.figure_style.illegible_colour_warning(names) -> str
+    spacr.figure_style.saved_figure_appearance(mode=None)   (unchanged)
+
+Called from `FastPlot._paint_scene` inside the existing
+`setExportMode(True)` / `finally` pair, per section C. For each pen and brush
+the exporter already touches: ask `export_colour(pen.color(), kind, look)`,
+repaint when it answers, restore in the `finally`. The KIND is the exporter's
+one judgement call and section A is the whole of it -- axes, ticks, labels,
+title, legend, grid, annotation and reference lines are chrome; point
+colours, colour maps, the up/down colouring and the highlighted group are
+DATA and `export_colour` refuses to touch them whatever is passed as
+`current`.
+
+Section D from the same module: collect the DATA pen colours, hand the list to
+`illegible_colours`, print `illegible_colour_warning` of the result. It takes
+any iterable rather than a Figure precisely so the exporter can hand it pens,
+and the alpha<0.5 "a wash is not a mark" rule is inside it, so the two
+renderers cannot come to warn about different colours in one palette.
+
+`spacr.plot.print_ready` now CALLS `export_colour` instead of keeping its own
+branches, and `plot.illegible_data_colours` is the matplotlib harvest and
+nothing else. That is what makes this a shared decision rather than a shared
+constant: a change to the rule reaches the file and the tab together, and a
+test asserts it by patching `export_colour` and watching the matplotlib
+chrome move.
+
+ONE CORRECTION MADE WHILE FACTORING IT. A colour is no longer "repainted" in
+the colour it already is. The light-mode grid default IS `PRINT_GRID`, which
+is 1.27 contrast on white -- correctly under `CHROME_CONTRAST_FLOOR`, and
+already the answer -- so the old code set it to itself and recorded a restore
+entry for it. Harmless, and it made "a light-mode save changes nothing at all"
+true of the pixels but not of the artists.
+
+`tests/test_the_save_decision_is_shared_by_both_renderers.py`, 21 cases.
+Commit dabd9a66.
+
+WHAT REMAINS
+
+  * THE APPLICATION IN `fast_plots.py`. Untouched again: another session's
+    file. There is now nothing left to decide there -- only to call.
+  * The preference control (118) and the per-figure restyle menus (108/147),
+    both unchanged from the previous note.

@@ -392,3 +392,81 @@ resolution preference, no tile. `volcano_style.py:387` is the interesting one
 `tests/test_the_permutation_null_is_published_too.py`, 12 cases, 9 of which
 fail against the old savefig line (checked by putting it back). The last one
 keeps the grep above as an assertion over the five regression modules.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (night) -- SECTION A: THE SEVEN DUPLICATED PANELS HAVE A RENDERER.
+                      THE COUNT STANDS AT 41 AND ONLY 7 OF THEM MATTER.
+--------------------------------------------------------------------------------
+
+THE RECOUNT WAS RE-CHECKED AND IT HOLDS: 41 matplotlib figures per regression
+run -- 20 regression_qc, 12 ml, 5 toxo, 3 regression_diagnostics, 1
+guide_permutation. THE NUMBER TO ACT ON IS SEVEN, and the previous note is
+right about why: those are the ones with an interactive twin, so they are the
+only ones where "the same screen draws each plot twice" is literally true.
+Converting the other 34 buys a change of renderer and no agreement at all.
+
+WHAT SHIPPED: `spacr/figures/fast_render.py`, commit cdf313ca.
+
+    render_panel(key, frame, path, plot=live_widget)
+
+renders THE WIDGET, through `FastPlot.export`, which is the public entry
+section A asked about -- it exists and it is enough, so there is NO handoff
+for the exporter itself. Handed no widget it builds one from the frame using
+`figures.panels`' own column resolution (`effect_column`, `p_column`,
+`q_column`, `tested`), so the rows drawn are the rows the house-style panel
+would have drawn. `write_panels(frame, dst)` does all seven.
+
+  * FAST_PANELS maps the seven SHEET_ORDER keys to the seven fast_plots
+    classes. That mapping IS the claim that the two are one picture, and a
+    test asserts its keys are exactly SHEET_ORDER.
+  * `spacr.plot.figure_path` settles the extension BEFORE the export sees it.
+    pyqtgraph branches on the file NAME (`.pdf` / `.svg` / else), so a
+    renderer handed `volcano.pdf` writes a PDF whatever the user chose.
+  * `spacr.figure_sink.publish_file` announces a file matplotlib never held.
+    Without it, moving a plot to the screen's renderer would silently take it
+    out of the gallery -- 139 C's bug, reintroduced by 139 A.
+
+MEASURED, headless, `QT_QPA_PLATFORM=offscreen`, no display: all seven render;
+PDF and PNG both correct by magic bytes under both preferences; 540-1770
+distinct colours per panel, so they are plots and not blank pages.
+
+TWO RULES FOR DECIDING THE RENDERER WERE BUILT AND BOTH WERE WRONG. Recorded
+because the second looked obviously right after the first failed.
+
+  * "A QApplication is running" is FALSE as a proxy for "the GUI is up".
+    matplotlib's QtAgg backend -- THE DEFAULT BACKEND IN THIS ENVIRONMENT --
+    calls `_create_qApp` inside `plt.figure()` and constructs
+    `QApplication(["matplotlib"])`. So a headless run drew panel 1 in
+    matplotlib, saw a live QApplication, and drew panels 2-7 in pyqtgraph.
+    Seven figures of one run in two libraries. Caught by driving it, not by
+    reading it.
+  * "`spacr.qt.widgets.fast_plots` is in sys.modules" is ALSO false. A test
+    that does nothing but check the seven classes exist puts it there.
+
+SO THERE IS NO DETECTION. A scene is rendered when a caller HANDS ONE IN;
+otherwise the house-style page is written, and the run SAYS which renderer
+drew it. `SPACR_FIGURE_RENDERER=pyqtgraph` asks for the scene anyway and works
+offscreen. The renderer is decided ONCE per `write_panels`, never per panel.
+
+Note this also answers "a headless run writes its figures" by writing them.
+The pre-existing `test_a_headless_run_still_writes_its_regression_figures`
+guarantee is untouched: nothing on the QC path changed renderer.
+
+THE HANDOFF, and it is the only thing between this and the section being done:
+
+    ml.py:3686  `_show_house_style_panels` draws the seven with `build_panel`
+                and `plt.show()`s them. It should call
+                `spacr.figures.write_panels(coef_df, dst, plots=...)`.
+    ml.py:3722  `_write_regression_sheet` -- the sheet is the composite of the
+                same seven.
+    qt/widgets/regression_results.py  HOLDS THE LIVE WIDGETS. Passing them as
+                `plots={key: widget}` is what turns this from "the same data
+                drawn twice" into "the file is the tab", and it is a dict
+                comprehension at the call site. Until it does, the auto rule
+                correctly declines to guess and writes matplotlib.
+
+ml.py and regression_results.py were both outside this session's territory.
+
+STILL OPEN ON A: the other 34 figures (no twin, low value), and section B.
+NOT ATTEMPTED THIS SESSION: section B, the boxplot-with-jitter default.
