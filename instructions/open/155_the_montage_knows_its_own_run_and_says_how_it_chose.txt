@@ -310,3 +310,123 @@ WHAT REMAINS IN A
     table genuinely opened from a bare CSV, which is the case the sentence is
     FOR. Worth re-reading it once both halves have landed.
 
+
+
+================================================================================
+2026-08-18 -- B, C, D, E AND F SHIPPED. (A is recorded above by its own agent.)
+================================================================================
+
+WHAT LANDED
+
+B -- THE ARITHMETIC IS ON THE MONTAGE. `MontagePlan.arithmetic()` prints the
+    whole sum with the real numbers: where the baseline came from and over how
+    many objects, `baseline + effect` worked through, `1.4826 x MAD`, the
+    bounds, `round(n x fraction) = k -> j shown` for every well, and a total
+    whose terms are printed beside it (`total: 4 + 1 + 4 = 9`). A degenerate
+    window says so instead of printing a width of zero. Over 40 wells the list
+    elides AND CARRIES ITS OWN COUNT rather than trailing off
+    (`MontagePlan.WELL_LINES`). It is inside `caption()`, so the saved figure
+    has it too.
+
+C -- FIVE SETTINGS, ALL SURFACED, ALL WRITTEN INTO THE CAPTION.
+    Window half-width, baseline source (screen median | THE FITTED INTERCEPT),
+    score column, MAX_OBJECTS and per-guide/summed are on a second controls
+    row. `MontagePlan.settings_line()` prints every one of them WHETHER OR NOT
+    it is a default, and a non-default adds a second line naming what changed
+    and saying the montage is not comparable to one made with the defaults.
+    THE SETTINGS ARE PER SCREEN: they live on the view, not per coefficient,
+    and `test_the_settings_are_per_screen_and_not_per_gene` holds it.
+    `score_window(baseline_label=...)` is new -- a montage centred on the
+    intercept says "the model's fitted intercept" instead of "given", which
+    named no source at all. A table with NO Intercept row is told so and the
+    button greys; falling back to the median would caption one baseline under
+    a control reading the other.
+
+D -- ONE TAB PER WELL. `_WellTab`, keyed on
+    `(coefficient, level, guides, well)`, labelled with the WELL AND THE gRNA,
+    carrying its OWN caption (well, count, window, settings, the inference
+    notice) so it is safe beside another gene's. Tab 0 is a non-closable
+    Summary -- no thumbnails, it is where the arithmetic and every refusal are
+    read. THE BOUND IS `MAX_WELL_TABS = 12` and it is STATED on the montage;
+    when it is reached the new wells are refused BY NAME and no tab is ever
+    closed for the user.
+
+E -- THE TWO ROUTES, CHECKED UP FRONT. `montage_route_requirements` ->
+    `RouteRequirements(route, shapes, missing, assumed, detail)`, attached to
+    `CropSourceChoice.requirements`. `merged-mask` (channels + mask plane +
+    object id) offers both shapes; `merged-bbox` (coordinates, no mask) offers
+    BOUNDING BOXES ONLY and the object-shaped entry is DISABLED with the
+    reason; the PNG route greys the whole shape control ("cut when the run
+    wrote them"). A run whose measurements.db records no `png_dims` is told
+    THE CHANNEL LIST IS MISSING and which planes were assumed -- it still
+    draws.
+
+F -- THE PATHS. New in `spacr/crops.py`: `normalise_separators`,
+    `basename_any`, `path_components`, `path_is_under`, `reanchor_path`,
+    `ReanchorReport`, `reanchor_frame`, `PATH_ANCHORS`, `PATH_COLUMNS`.
+    `utils.correct_paths` delegates to them; `PngCropSource.resolve` and
+    `MergedCropSource.resolve_path` use them too, so there is ONE re-anchor.
+    All four measured cases now behave:
+
+        OK     same-OS move
+        OK     C:\lab\exp1\data\plate1\a.png read on Linux
+        OK     /old/data/exp1/data/plate1/a.png -> <root>/data/plate1/a.png
+               (the anchor is found from the RIGHT -- this was the silent one)
+        SAID   no anchor: unchanged, but COUNTED and one NAMED
+
+    `reanchor_frame` re-anchors `png_path`, `path_name` AND `merged_path`
+    against `data/` and `merged/` in one pass, and the montage loader runs it
+    per database against `experiment_root(db)`; its report becomes a caption
+    line. `tests/test_paths_survive_a_move.py` is the named regression test
+    for the silent corruption.
+
+FIVE THINGS THE TEST SUITE WAS GREEN THROUGH AND DRIVING THE WIDGET FOUND
+
+  1. THE X WAS ON THE RIGHT. Qt puts the close button wherever
+     `SH_TabBar_CloseButtonPosition` says, and on this style that is the
+     right. The request asks for the top LEFT. The automatic button is now
+     removed and ours placed on the left -- and it closes BY WIDGET, not by
+     the index it was created at, which moves whenever an earlier tab closes.
+  2. TWO TABS WITH THE SAME LABEL. The guide-level coefficient `GRA14_1` and
+     the GENE `GRA14` shown one guide at a time both open a tab for `GRA14_1`
+     in the same well. Different effect, different window, different cells,
+     identical label. Now `GRA14_1` vs `GRA14_1 (of GRA14)`, with a
+     last-resort `#2` suffix if two ever still collide.
+  3. A TAB THIS RUN NO LONGER FILLS KEPT ITS OLD THUMBNAILS. Narrow the cap,
+     re-run, and the wells that dropped out still showed the previous
+     montage under a summary describing the new settings. The tab is not
+     closed -- only its x does that -- it is emptied and says why.
+  4. THE WIDGET'S MINIMUM WIDTH WENT TO 1346 px. The tab lives in the left
+     half of the figures splitter, which starts at 780. Two rows of controls
+     with their prose spelled out in the widgets did it. The words moved to
+     the tooltips (where instruction 113 wants them anyway) and the combos
+     elide: 503 px now, BELOW the 978 it was before this work.
+  5. The empty-tab message sat IN the grid, so anything counting thumbnails
+     counted it. It is a label above the scroll area now; the "no crop"
+     placeholders stay in the grid because they ARE one per object.
+
+TAKEN OVER FROM A's AGENT, AS ASKED: `RESULTS_WITHOUT_A_FOLDER` and the
+"no fitted effect" sentence now say "the LOADED coefficient table".
+
+WORTH NOT REDISCOVERING
+
+  * `channels_from_settings` ALWAYS returns channels -- it defaults to
+    `{r:2, g:1, b:0}`. So "the spec has channels" is NOT the same question as
+    "a channel list exists", and the second is the one the user is asking.
+    `resolve_montage_crop_source` reads `measurements.db` itself to answer it.
+  * `MergedCropSource.spec_for` REQUIRES `object_label`; a bounding box alone
+    is not enough for it. That is why `merged-bbox` reports the missing id
+    rather than pretending the route is complete.
+  * Widening the score window does NOT show more cells. The count rule caps
+    each well at `round(n x fraction)` whatever the window admits, so only
+    NARROWING is visible. A test written the other way proves nothing.
+
+NOT DONE
+
+  * The tab bound is a count, not a memory budget. 12 tabs x 300 objects is
+    ~130 MB of pixmaps in the worst case; a real budget would count pixmaps.
+  * `plot.py:6155` re-anchors the activation folder with
+    `folder=settings['activation_mode']`, which is neither `data` nor
+    `merged`. It goes through the fixed `correct_paths` and is correct, but
+    it is a third anchor name that `PATH_ANCHORS` does not know about --
+    worth folding in if that folder ever moves too.
