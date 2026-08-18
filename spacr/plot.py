@@ -2268,7 +2268,13 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
     # figures on other screens, and including the palette the user chose in
     # figure preferences. `rc_context` keeps the colours while these axes
     # are built and puts the cycle back when they are done.
-    with mpl.rc_context({'axes.prop_cycle': mpl.cycler(color=color_list)}):
+    # The four hues stay: here the CATEGORY IS THE DATA -- one colour per
+    # pathogen strain, held across all four panels -- which is the one case
+    # the style allows a categorical palette. Everything else about the
+    # figure is the house style, applied around the palette rather than
+    # instead of it.
+    with mpl.rc_context({'axes.prop_cycle': mpl.cycler(color=color_list)}), \
+            figure_style(theme_target()):
         font = figuresize/2
         width=figuresize
         height=figuresize/4
@@ -2299,9 +2305,11 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         axes[3].legend(handles, labels, bbox_to_anchor=(1.05, 0.5), loc='center left')
         for i in [0,1,2,3]:
             axes[i].tick_params(axis='both', which='major', labelsize=font)
-            plt.setp(axes[i].get_xticklabels(), rotation=45)
+            # Right-aligned and anchored, not merely rotated: a condition name
+            # rotated about its centre drifts off the tick it belongs to.
+            rotate_ticks(axes[i])
 
-        plt.tight_layout()
+        fig.tight_layout()
         plt.show()
 
         columns = columns + ['pathogen_cytoplasm_mean_mean', 'pathogen_cytoplasm_q75_mean', 'pathogen_periphery_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_mean_mean', 'pathogen_outside_cytoplasm_q75_mean']
@@ -2325,14 +2333,15 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
             if ax.get_legend() is not None:
                 ax.legend_.remove()
             ax.tick_params(axis='both', which='major', labelsize=font)
-            plt.setp(ax.get_xticklabels(), rotation=45)
+            rotate_ticks(ax)
             if i <= 5:
                 ax.set_ylim(1, None)
 
-        for i in range(len(columns), len(axes)):
-            axes[i].axis('off')
+        # An empty framed box reads as a panel that failed to draw, which is
+        # worse than a gap.
+        hide_unused(axes[len(columns):])
 
-        plt.tight_layout()
+        fig.tight_layout()
         plt.show()
     
 def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
@@ -2372,42 +2381,47 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     if len(unique_conditions) ==1:
         unique_conditions=unique_conditions+unique_conditions
 
-    fig, axes = plt.subplots(len(unique_conditions), len(mask_chans)+1, figsize=(figuresize*len(mask_chans), figuresize*len(unique_conditions)))
+    # The four components are ALREADY the x axis of every panel, so colouring
+    # them a second time argues nothing -- this is colour-by-category where
+    # the category is not the point, which the style names as the failure.
+    # One grey for all four; the panels differ by condition and channel, and
+    # those are what the descriptors say.
+    color_list = [ROLES['data']] * 4
 
-    # Define RGB color tuples (scaled to 0-1 range)
-    color_list = [(55/255, 155/255, 155/255), 
-                  (155/255, 55/255, 155/255), 
-                  (55/255, 155/255, 255/255), 
-                  (255/255, 55/255, 155/255)]
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(len(unique_conditions), len(mask_chans)+1, figsize=(figuresize*len(mask_chans), figuresize*len(unique_conditions)))
 
-    for idx_condition, condition in enumerate(unique_conditions):
-        df_temp = df[df['condition'] == condition]
-        for idx_channel, control_cols_c in enumerate(controls_cols):
-            # Build labels and colours alongside the data. The bar call used to
-            # pass all four component names unconditionally while the guard
-            # above skips missing columns, so any absent component (or a whole
-            # absent channel) made x and height different lengths and raised.
-            names = []
-            data = []
-            std_dev = []
-            colors = []
-            for color, control_col in zip(color_list, control_cols_c):
-                if control_col in df_temp.columns:
-                    mean_intensity = df_temp[control_col].mean()
-                    mean_intensity = 0 if np.isnan(mean_intensity) else mean_intensity
-                    names.append(control_col.split('_channel_')[0])
-                    data.append(mean_intensity)
-                    std_dev.append(df_temp[control_col].std())
-                    colors.append(color)
+        for idx_condition, condition in enumerate(unique_conditions):
+            df_temp = df[df['condition'] == condition]
+            for idx_channel, control_cols_c in enumerate(controls_cols):
+                # Build labels and colours alongside the data. The bar call used to
+                # pass all four component names unconditionally while the guard
+                # above skips missing columns, so any absent component (or a whole
+                # absent channel) made x and height different lengths and raised.
+                names = []
+                data = []
+                std_dev = []
+                colors = []
+                for color, control_col in zip(color_list, control_cols_c):
+                    if control_col in df_temp.columns:
+                        mean_intensity = df_temp[control_col].mean()
+                        mean_intensity = 0 if np.isnan(mean_intensity) else mean_intensity
+                        names.append(control_col.split('_channel_')[0])
+                        data.append(mean_intensity)
+                        std_dev.append(df_temp[control_col].std())
+                        colors.append(color)
 
-            current_axis = axes[idx_condition][idx_channel]
-            current_axis.bar(names, data, yerr=std_dev,
-                             capsize=4, color=colors)
-            current_axis.set_xlabel('Component')
-            current_axis.set_ylabel('Mean Intensity')
-            current_axis.set_title(f'Condition: {condition} - Channel {idx_channel}')
-    plt.tight_layout()
-    plt.show()
+                current_axis = axes[idx_condition][idx_channel]
+                current_axis.bar(names, data, yerr=std_dev,
+                                 capsize=4, color=colors,
+                                 ecolor=resolve_ink(theme_target()),
+                                 error_kw={'lw': WEIGHTS['reference']})
+                current_axis.set_xlabel('Component')
+                current_axis.set_ylabel('Mean Intensity')
+                descriptor(current_axis,
+                           f'Condition: {condition} - Channel {idx_channel}')
+        fig.tight_layout()
+        plt.show()
 
 def _imshow(img, labels, nrow=20, color='white', fontsize=12):
     """
@@ -3787,27 +3801,44 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
         x_column, observed=False, group_keys=False
     ).sample(n=min_count, random_state=42).reset_index(drop=True)
 
-    # Create the jitter plot
-    plt.figure(figsize=(10, 6))
-    sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column, jitter=True, palette='viridis', dodge=False)
-    plt.title(plot_title)
-    plt.xlabel(x_column)
-    plt.ylabel(y_column)
-    
-    # Customize the x-axis labels
-    plt.xticks(rotation=45, ha='right')
-    
-    # Adjust the position of the x-axis labels to be centered below the data
-    ax = plt.gca()
-    plt.setp(ax.get_xticklabels(), rotation=45, ha='center')
-    
-    # Save the plot to a file or display it
-    if output_path:
-        output_path = save_figure(plt.gcf(), output_path,
-                                  bbox_inches='tight')
-        print(f"Jitter plot saved to {output_path}")
-    else:
-        plt.show()
+    # Create the jitter plot. The annotation classes are the X AXIS, so
+    # painting them a second time with a viridis ramp said nothing the axis
+    # had not already said -- and a sequential colormap over unordered
+    # categories implies an order that is not there. Every point is grey; the
+    # hue split is kept only because it gives each class its own collection,
+    # which is how callers address a class's points.
+    groups = list(pd.unique(balanced_df[x_column]))
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column,
+                      jitter=True, dodge=False, legend=False, size=3.0,
+                      linewidth=0,
+                      palette={group: ROLES['data'] for group in groups})
+        # A dot strip without its mean is a cloud. GREY_DARK is the palette's
+        # own role for a mean bar, and the bar is drawn as a Line2D so a
+        # caller counting per-class collections still counts classes.
+        for index, group in enumerate(groups):
+            mean = float(balanced_df.loc[balanced_df[x_column] == group,
+                                         y_column].mean())
+            ax.plot([index - 0.28, index + 0.28], [mean, mean],
+                    color=Palette.GREY_DARK, lw=WEIGHTS['data'],
+                    solid_capstyle='butt', zorder=3)
+        descriptor(ax, plot_title)
+        ax.set_xlabel(x_column)
+        ax.set_ylabel(y_column)
+
+        # Customize the x-axis labels. Right-aligned and anchored: the old
+        # code rotated to 45 degrees and then re-centred them, so every label
+        # drifted off the tick it belonged to.
+        rotate_ticks(ax)
+
+        # Save the plot to a file or display it
+        if output_path:
+            output_path = save_figure(fig, output_path,
+                                      bbox_inches='tight')
+            print(f"Jitter plot saved to {output_path}")
+        else:
+            plt.show()
 
     return balanced_df
 
@@ -6141,6 +6172,14 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
 
     from .sp_stats import chi_pairwise
 
+    # The bins are an ORDERED quantity (volume), so their encoding is a
+    # single-hue ramp, light to dark -- the house sequential map. `'viridis'`
+    # is the literal every internal call site was written with rather than a
+    # choice anybody made, so it is treated as unset here exactly as
+    # `plot_plates` treats it; any other colormap is a choice and is honoured.
+    if isinstance(cmap, str) and cmap.strip().lower() == LEGACY_PLATE_CMAP:
+        cmap = Palette.SEQUENTIAL
+
     # Calculate contingency table for overall chi-squared test
     raw_counts = df.groupby([group_column, bin_column], observed=True).size().unstack(fill_value=0)
     chi2, p, dof, expected = chi2_contingency(raw_counts)
@@ -6191,26 +6230,31 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
         std_proportions = well_proportions.groupby(
             group_column, observed=False).std()
 
-        mean_proportions.plot(
-            kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
-        )
-        plt.title(f'Proportion of Volume Bins by Group (Mean ± SD across {"plates" if _level != "well" else "wells"})')
-    else:
-        group_counts = df.groupby([group_column, bin_column], observed=True).size()
-        group_totals = group_counts.groupby(
-            level=0, observed=False).sum()
-        proportions = group_counts / group_totals
-        proportion_df = proportions.unstack(fill_value=0)
+    with figure_style(theme_target()):
+        if _level in _AGGREGATED:
+            axis = mean_proportions.plot(
+                kind='bar', stacked=True, yerr=std_proportions, capsize=5, colormap=cmap, figsize=(12, 8)
+            )
+            title = (f'Proportion of Volume Bins by Group (Mean ± SD across '
+                     f'{"plates" if _level != "well" else "wells"})')
+        else:
+            group_counts = df.groupby([group_column, bin_column], observed=True).size()
+            group_totals = group_counts.groupby(
+                level=0, observed=False).sum()
+            proportions = group_counts / group_totals
+            proportion_df = proportions.unstack(fill_value=0)
 
-        proportion_df.plot(kind='bar', stacked=True, colormap=cmap, figsize=(12, 8))
-        plt.title('Proportion of Volume Bins by Group')
+            axis = proportion_df.plot(kind='bar', stacked=True, colormap=cmap, figsize=(12, 8))
+            title = 'Proportion of Volume Bins by Group'
 
-    plt.xlabel('Group')
-    plt.ylabel('Proportion')
+        descriptor(axis, title)
+        axis.set_xlabel('Group')
+        axis.set_ylabel('Proportion')
 
-    plt.legend(title='Classes', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.ylim(0, 1)
-    fig = plt.gcf()
+        axis.legend(title='Classes', bbox_to_anchor=(1.05, 1), loc='upper left')
+        rotate_ticks(axis)
+        axis.set_ylim(0, 1)
+        fig = axis.figure
 
     # THREE NUMBERS, EACH LABELLED WITH ITS UNIT AND ITS N.
     #
