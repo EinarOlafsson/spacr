@@ -28,6 +28,7 @@ free of spaCR imports so they can be tested, and reused, on their own.
 
 from __future__ import annotations
 
+from collections import namedtuple
 from typing import Callable, Optional, Sequence
 
 import numpy as np
@@ -243,6 +244,21 @@ EXPORT_WIDTH_MM = 180.0
 QWIDGET_SIZE_MAX = (1 << 24) - 1
 
 
+# One positionable thing on a plot, with the DATA coordinates it was handed.
+# Private on purpose: it is bookkeeping for the log transform, not a contract
+# anyone outside this module holds.
+#
+#   x, y     float arrays -- or None where the item does not move on that
+#            axis, as a horizontal reference line does not move in x.
+#   blocks   {axis: why this item can NEVER be logged on that axis}
+#   kind     "points", "bar", or "line" -- so a refusal can name what is in
+#            the way rather than quoting a count of anonymous "values".
+#   counts   {axis: (at or below zero, finite in total, the lowest of them)},
+#            measured once at registration rather than re-measured every time
+#            a menu opens.
+_Drawn = namedtuple("_Drawn", "item x y blocks kind counts")
+
+
 def mark_advice(kind: str, counts) -> str:
     """Why this mark misleads for groups of these sizes, or ``""``.
 
@@ -404,6 +420,10 @@ class FastPlot(QWidget):
         #: False when pyqtgraph is absent. The widget still constructs, still
         #: lays out, and says why it is empty rather than raising.
         self.plots_available = HAVE_PYQTGRAPH
+        # BEFORE THE BRANCH, so both constructors have it: the hooks below
+        # fire on the very first setLabel, and the pyqtgraph-absent path
+        # still has to answer log_axes() without raising.
+        self._init_axis_state()
         if not HAVE_PYQTGRAPH:
             self._build_without_pyqtgraph(title)
             return
@@ -425,6 +445,10 @@ class FastPlot(QWidget):
         layout.setSpacing(4)
 
         self.plot = pg.PlotWidget(title=title or None)
+        # EVERY ITEM AND EVERY LABEL, CAUGHT ON THE WAY IN -- see
+        # :meth:`_install_axis_hooks`. It goes in before the first label is
+        # set, because the label is one of the two things it catches.
+        self._install_axis_hooks()
         self.plot.setLabel("bottom", x_label)
         self.plot.setLabel("left", y_label)
         self.plot.showGrid(x=True, y=True, alpha=0.25)
@@ -446,8 +470,12 @@ class FastPlot(QWidget):
         controls = QHBoxLayout()
         self._log_x = QCheckBox("log x")
         self._log_y = QCheckBox("log y")
+        # THE BOX ASKS; :meth:`set_log_axes` DECIDES. An axis holding a value
+        # at or below zero refuses, and the box goes back to where it was
+        # rather than leaving a tick over a scale that was not applied.
+        self._log_x.toggled.connect(lambda on: self.set_log_axes(x=on))
+        self._log_y.toggled.connect(lambda on: self.set_log_axes(y=on))
         for box in (self._log_x, self._log_y):
-            box.toggled.connect(self._apply_log)
             controls.addWidget(box)
         self._legend_box = QCheckBox("legend")
         self._legend_box.setEnabled(False)
@@ -605,6 +633,11 @@ class FastPlot(QWidget):
         self._row_xy = {}
         self._highlight = None
         self._labels = ()
+        # The log transform's bookkeeping goes with the artists it described.
+        # THE SCALE ITSELF STAYS: a user who asked for a log axis has not
+        # unasked for it by filtering the table, and every item the redraw
+        # puts back is transformed as it arrives.
+        self._drawn = []
 
     # ------------------------------------------------------------- restyling
 
@@ -831,6 +864,375 @@ class FastPlot(QWidget):
         """
         return ("" if self._scatter_items()
                 else "nothing on this plot is drawn as points")
+
+    # ----------------------------------------------------- the log transform
+
+    def _init_axis_state(self) -> None:
+        """The axis bookkeeping, born before the first item can be drawn.
+
+        Called from BOTH constructors, and before the first ``setLabel``,
+        because :meth:`_install_axis_hooks` writes into these the moment an
+        axis is named.
+        """
+        #: Which axes are drawn on a logarithmic scale.
+        self._log = {"x": False, "y": False}
+        #: Every positionable item on the plot, with the DATA coordinates it
+        #: was handed. The drawn coordinates are always derived from these
+        #: and never the other way round, so logging and unlogging an axis is
+        #: exactly the identity rather than a round trip through log10.
+        self._drawn: list = []
+        #: The axis labels as the plot asked for them, WITHOUT the note that
+        #: says an axis is logged -- so the note is added once however many
+        #: times the scale is switched.
+        self._base_labels: dict = {}
+
+    def _install_axis_hooks(self) -> None:
+        """Catch every item and every label on its way onto the plot.
+
+        WHY A HOOK RATHER THAN TWENTY CALL SITES. Eighteen places in this
+        module put something on a plot -- scatters, threshold lines, box
+        rectangles, violin outlines, whisker segments, bars, the selection
+        ring -- and every one of them has to be transformed when an axis is
+        logged. A transform applied at each call site is one that gets
+        missed on the mark nobody tested, and a plot that logs its points
+        and not its threshold line is a WORSE lie than the one this fixes.
+
+        ``PlotItem.addItem`` and ``PlotItem.setLabel`` are the two funnels
+        everything already goes through: ``PlotItem.plot()`` builds its
+        ``PlotDataItem`` and then calls its own ``addItem``, and
+        ``PlotWidget`` forwards the rest.
+
+        AND THE WIDGET'S OWN COPY, WHICH IS THE TRAP. ``PlotWidget.__init__``
+        does ``setattr(self, m, getattr(self.plotItem, m))`` for a list that
+        includes ``addItem`` -- a bound method SNAPSHOT taken at
+        construction, not a ``__getattr__`` forward. Wrapping only the
+        ``PlotItem`` therefore catches ``self.plot.plot(...)`` and misses
+        every ``self.plot.addItem(...)``, which is every scatter and every
+        bar on every plot here. Measured that way once: the Q-Q reported
+        "1 of 2 values" on an axis carrying a hundred points.
+        ``setLabel`` is NOT in that list, so it forwards and needs no copy --
+        but it is given one anyway, because the list is pyqtgraph's and a
+        version that adds to it would silently reopen the same hole.
+        """
+        plot_item = self.plot.plotItem
+        add_item = plot_item.addItem
+        set_label = plot_item.setLabel
+
+        def _add(item, *args, **kwargs):
+            add_item(item, *args, **kwargs)
+            self._register_drawn(item)
+
+        def _label(axis, text=None, units=None, unitPrefix=None, **kwargs):
+            self._base_labels[str(axis)] = "" if text is None else str(text)
+            set_label(axis, self._axis_label_text(str(axis)), units,
+                      unitPrefix, **kwargs)
+
+        plot_item.addItem = _add
+        plot_item.setLabel = _label
+        self.plot.addItem = _add
+        self.plot.setLabel = _label
+
+    # -- what is drawn, and what it says about being logged ------------------
+
+    def _describe_item(self, item):
+        """A :data:`_Drawn` record for ``item``, or ``None`` if it does not move.
+
+        Read at ADD TIME, when the item still holds the coordinates the
+        caller handed it. Everything after this reads the record.
+        """
+        blocks: dict = {}
+        if isinstance(item, ScatterPlotItem):
+            x = np.array(item.data["x"], dtype="float64")
+            y = np.array(item.data["y"], dtype="float64")
+            return _Drawn(item, x, y, blocks, "points",
+                          self._counts_of(x, y))
+        if isinstance(item, pg.InfiniteLine):
+            angle = float(getattr(item, "angle", 90.0)) % 180.0
+            value = float(item.value())
+            if angle == 90.0:
+                x, y = np.array([value]), None
+            elif angle == 0.0:
+                x, y = None, np.array([value])
+            else:                       # pragma: no cover - no oblique lines
+                return None
+            return _Drawn(item, x, y, blocks, "line", self._counts_of(x, y))
+        if isinstance(item, pg.BarGraphItem):
+            try:
+                edges = [np.atleast_1d(np.asarray(v, dtype="float64"))
+                         for v in item._getNormalizedCoords()]
+            except Exception:           # pragma: no cover - an odd bar spec
+                # A BAR WE CANNOT READ IS A BAR WE CANNOT MOVE, and a scale
+                # that leaves one item behind is the bug this file is fixing.
+                blocks = {"x": "one of the bars cannot be re-measured",
+                          "y": "one of the bars cannot be re-measured"}
+                return _Drawn(item, None, None, blocks, "bar",
+                              self._counts_of(None, None))
+            width = max(len(part) for part in edges)
+            x0, y0, x1, y1 = (np.resize(part, width) for part in edges)
+            x = np.vstack([x0, x1])
+            y = np.vstack([y0, y1])
+            if not np.any(y0 > 0):
+                # THE BASELINE IS THE POINT. A histogram's bars are measured
+                # from zero, and zero has no logarithm; saying that is a
+                # better answer than "50 of 100 values are at or below zero",
+                # which is true and tells the reader nothing they can act on.
+                blocks["y"] = ("the bars are measured from zero, which has "
+                               "no logarithm")
+                y = None
+            return _Drawn(item, x, y, blocks, "bar", self._counts_of(x, y))
+        getter = getattr(item, "getData", None)
+        if callable(getter):
+            try:
+                data = getter()
+            except Exception:           # pragma: no cover - an empty curve
+                return None
+            if not data or data[0] is None or data[1] is None:
+                return None
+            x = np.array(data[0], dtype="float64")
+            y = np.array(data[1], dtype="float64")
+            return _Drawn(item, x, y, blocks, "line", self._counts_of(x, y))
+        return None
+
+    @staticmethod
+    def _counts_of(x, y) -> dict:
+        """``{axis: (at or below zero, finite in total, the lowest)}``."""
+        counts = {}
+        for axis, values in (("x", x), ("y", y)):
+            if values is None:
+                counts[axis] = (0, 0, None)
+                continue
+            flat = np.asarray(values, dtype="float64").ravel()
+            finite = flat[np.isfinite(flat)]
+            bad = finite[finite <= 0]
+            counts[axis] = (int(bad.size), int(finite.size),
+                            float(bad.min()) if bad.size else None)
+        return counts
+
+    def _register_drawn(self, item) -> None:
+        """Remember ``item``'s data coordinates and draw it at the current scale."""
+        entry = self._describe_item(item)
+        if entry is None:
+            return
+        self._drawn.append(entry)
+        # A REDRAW CAN MAKE A LIVE LOG SCALE IMPOSSIBLE. The level filter
+        # admits a coefficient of zero, a compartment's p-values reach 1 --
+        # and log10 of those is not a number, so the points would silently
+        # leave the plot. The scale comes off instead, and says so.
+        refused = [axis for axis in ("x", "y")
+                   if self._log[axis] and (axis in entry.blocks
+                                           or entry.counts[axis][0])]
+        for axis in refused:
+            self._log[axis] = False
+        if refused:
+            names = " and ".join(f"log {axis}" for axis in refused)
+            self._apply_log()
+            self.set_style_note(
+                f"{names} came off: {self.log_reason(refused[0])}")
+            return
+        if self._log["x"] or self._log["y"]:
+            self._place(entry)
+        self._refresh_log_controls()
+
+    def log_reason(self, axis: str) -> str:
+        """Why ``axis`` cannot be drawn on a log scale, or ``""``.
+
+        Instruction 106's rule, and instruction 148's decision: a value at or
+        below zero has no logarithm, and the answer is to REFUSE the axis
+        rather than drop the points. Dropping them would make a volcano whose
+        visible point count is a number nobody can account for.
+
+        :param axis: ``"x"`` or ``"y"``.
+        """
+        axis = "y" if str(axis).lower().startswith("y") else "x"
+        if not self.plots_available:
+            return "this build has no pyqtgraph, so nothing is drawn"
+        edge = "left" if axis == "y" else "bottom"
+        try:
+            named = getattr(self.plot.getAxis(edge), "_tickLevels", None)
+        except Exception:               # pragma: no cover - absent axis
+            named = None
+        if named:
+            # THE AXIS IS A LIST OF GROUPS. A control panel's x and an effect
+            # ranking's y carry names at hand-placed positions; a logarithm
+            # of a position that stands for "nc" is not a quantity.
+            return (f"log {axis}: this axis names its groups rather than "
+                    f"measuring a quantity")
+        point_bad = point_total = 0
+        scenery = None
+        for entry in self._drawn:
+            if axis in entry.blocks:
+                return f"log {axis}: {entry.blocks[axis]}"
+            bad, total, worst = entry.counts[axis]
+            if entry.kind == "points":
+                point_bad += bad
+                point_total += total
+            elif bad and (scenery is None or worst < scenery[1]):
+                scenery = (entry.kind, worst)
+        if point_bad:
+            # THE SENTENCE INSTRUCTION 148 ASKED FOR, to the comma. A count
+            # and a total, because "some points cannot be logged" leaves the
+            # reader unable to judge whether the scale is worth having.
+            return (f"log {axis}: {point_bad:,} of {point_total:,} points "
+                    f"are at or below zero and have no logarithm")
+        if scenery is not None:
+            noun = "a bar" if scenery[0] == "bar" else "a line"
+            return (f"log {axis}: {noun} on this plot reaches "
+                    f"{scenery[1]:g}, which has no logarithm")
+        return ""
+
+    # -- the scale itself ----------------------------------------------------
+
+    def log_axes(self) -> tuple:
+        """``(log x, log y)`` -- whether each axis is drawn logarithmically."""
+        return bool(self._log["x"]), bool(self._log["y"])
+
+    def set_log_axes(self, x=None, y=None) -> tuple:
+        """Put an axis onto a log scale, or take it off one.
+
+        THE DATA IS TRANSFORMED, NOT ONLY THE AXIS. ``PlotItem.setLogMode``
+        relabels the axis and then walks its items asking each to re-transform
+        itself -- and ``ScatterPlotItem`` HAS NO ``setLogMode``, while every
+        point on every plot in this module is one. The axis therefore claimed
+        a log scale and the dots did not move: a reader took p-values off a
+        ruler that did not describe the marks beside it, with nothing on
+        screen to say so. That is a wrong figure, not an inert control.
+
+        :param x: True, False, or None to leave the bottom axis alone.
+        :param y: the same for the left axis.
+        :returns: :meth:`log_axes` afterwards, because a request can be
+            REFUSED -- see :meth:`log_reason` -- and a caller that assumed it
+            was honoured would be making the original mistake again.
+        """
+        for axis, wanted in (("x", x), ("y", y)):
+            if wanted is None:
+                continue
+            wanted = bool(wanted)
+            if wanted == self._log[axis] or (wanted and self.log_reason(axis)):
+                continue
+            self._log[axis] = wanted
+        self._apply_log()
+        return self.log_axes()
+
+    def _to_drawn(self, values, axis: str):
+        """Data coordinates as they are DRAWN on ``axis``."""
+        if values is None:
+            return None
+        values = np.asarray(values, dtype="float64")
+        if not self._log[axis]:
+            return values
+        with np.errstate(divide="ignore", invalid="ignore"):
+            return np.log10(values)
+
+    def _to_data(self, value, axis: str) -> float:
+        """A drawn coordinate back in DATA units. The tooltip's inverse."""
+        value = float(value)
+        return 10.0 ** value if self._log[axis] else value
+
+    def _place(self, entry) -> None:
+        """Move one item to where the current scale says it belongs."""
+        item = entry.item
+        xs = self._to_drawn(entry.x, "x")
+        ys = self._to_drawn(entry.y, "y")
+        if isinstance(item, pg.InfiniteLine):
+            position = xs if xs is not None else ys
+            if position is not None and len(position):
+                item.setValue(float(position[0]))
+            return
+        if isinstance(item, pg.BarGraphItem):
+            options = {}
+            if xs is not None:
+                options.update(x=None, width=None, x0=xs[0], x1=xs[1])
+            if ys is not None:
+                options.update(y=None, height=None, y0=ys[0], y1=ys[1])
+            if options:
+                item.setOpts(**options)
+            return
+        if isinstance(item, ScatterPlotItem):
+            # IN PLACE, not through setData. `ScatterPlotItem.setData` clears
+            # the item and re-adds the points, which drops the per-point row
+            # index every click on this plot is resolved through -- so the
+            # dots would move and stop identifying anything.
+            if xs is not None:
+                item.data["x"] = xs
+            if ys is not None:
+                item.data["y"] = ys
+            item.bounds = [None, None]
+            item.prepareGeometryChange()
+            item.informViewBoundsChanged()
+            item.invalidate()
+            return
+        setter = getattr(item, "setData", None)
+        if callable(setter):
+            setter(x=xs if xs is not None else entry.x,
+                   y=ys if ys is not None else entry.y)
+
+    def _apply_log(self) -> None:
+        """Re-place every item, relabel the axes, and re-gate the controls."""
+        if not self.plots_available:
+            return
+        live = {id(item) for item in self.plot.plotItem.items}
+        kept = []
+        for entry in self._drawn:
+            if id(entry.item) not in live:
+                # Removed since it was registered -- the previous selection
+                # ring, a bar that was outlined and then was not.
+                continue
+            kept.append(entry)
+            self._place(entry)
+        self._drawn = kept
+        self._relabel_axes()
+        self._refresh_log_controls()
+
+    def _axis_label_text(self, edge: str) -> str:
+        """What the label on ``edge`` reads, given the scale it is drawn at."""
+        base = self._base_labels.get(edge, "")
+        axis = "x" if edge in ("bottom", "top") else "y"
+        if not self._log.get(axis):
+            return base
+        # SAY IT WHERE THE AXIS IS. A tick on a menu nobody has open is not
+        # notice; "-log10(p)" was already this idea, and a logged axis owes
+        # the reader the same sentence.
+        return f"{base} (log scale)" if base else "log scale"
+
+    def _relabel_axes(self) -> None:
+        for edge, axis in (("bottom", "x"), ("left", "y")):
+            base = self._base_labels.get(edge, "")
+            if not base and not self._log[axis]:
+                # AN UNLABELLED AXIS STAYS UNLABELLED. `setLabel` calls
+                # `showLabel()`, so writing the empty string onto the control
+                # panel's deliberately bare x-axis grows a blank strip there.
+                continue
+            self.plot.setLabel(edge, base)
+        if self._font_colour is not None or self._font_size is not None:
+            # `setLabel` takes the style with the text, so relabelling drops
+            # a font the user chose off the menu unless it is put back.
+            self.apply_text_style()
+
+    def _refresh_log_controls(self) -> None:
+        """Tick, untick, enable and explain the two log controls."""
+        for axis in ("x", "y"):
+            box = getattr(self, f"_log_{axis}", None)
+            if box is None:
+                continue
+            reason = self.log_reason(axis)
+            blocked = box.blockSignals(True)
+            box.setChecked(self._log[axis])
+            box.blockSignals(blocked)
+            box.setEnabled(not reason)
+            box.setToolTip(reason or
+                           f"Draw the {axis} axis on a log10 scale.")
+
+    def _point_tip(self, x, y, data) -> str:
+        """The hover text for one point, IN DATA UNITS whatever the scale.
+
+        pyqtgraph's own tip reads the point's DRAWN position, so on a logged
+        axis it reports the logarithm -- a volcano saying "y: 1.30" where the
+        p-value is 0.05. Undone here, which is the same inversion the axis
+        ticks already make.
+        """
+        return (f"x: {self._to_data(x, 'x'):.3g}\n"
+                f"y: {self._to_data(y, 'y'):.3g}\n"
+                f"data={data}")
 
     # --------------------------------------------------------- axes and shape
 
@@ -1775,8 +2177,6 @@ class FastPlot(QWidget):
             self.set_export_size(new_width,
                                  None if new_height <= 0 else new_height)
 
-    def _apply_log(self) -> None:
-        self.plot.setLogMode(self._log_x.isChecked(), self._log_y.isChecked())
 
     def _build_legend(self) -> None:
         """Add the legend. Only ever called when it is actually wanted."""
@@ -1928,7 +2328,7 @@ class FastPlot(QWidget):
             x=x[keep], y=y[keep], size=size, symbol=symbol,
             pen=pg.mkPen(None),
             brush=brushes if brushes is not None else pg.mkBrush(colour_for(0)),
-            hoverable=len(drawn) <= HOVER_LIMIT,
+            hoverable=len(drawn) <= HOVER_LIMIT, tip=self._point_tip,
             data=rows_drawn, name=name or None,
         )
         item.sigClicked.connect(self._on_points_clicked)
@@ -2999,7 +3399,10 @@ class BinnedPlot(FastPlot):
             point = item.vb.mapSceneToView(position)
         except Exception:          # pragma: no cover - no viewbox to map into
             return
-        index = self.bin_at(float(point.x()))
+        # THE BAR IS FOUND IN DATA UNITS. `mapSceneToView` answers in DRAWN
+        # units, which are log10 of the data while the x axis is logged, and
+        # a bin looked up with those lands in the wrong bar or in none.
+        index = self.bin_at(self._to_data(point.x(), "x"))
         if index is not None:
             self.select_bin(index)
 
