@@ -1,0 +1,108 @@
+================================================================================
+CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "for some reason changing the line width takes like 1 minut to implement,
+   this is a bug. look over the figure modefications in and saving code for
+   the regression model."
+
+Related: 108/147 are the restyle menus this lives on. 126 is the other
+         responsiveness item.
+
+--------------------------------------------------------------------------------
+IT IS NOT THE RESTYLE. MEASURED 2026-08-18.
+--------------------------------------------------------------------------------
+
+Timed on a 1,200-point volcano, the size of a real screen:
+
+    set_results          0.008 s
+    line_items()         0.000 s
+    set_line_style       0.000 s
+    build_style_menu     0.003 s
+    numeric_columns      0.000 s
+    point_reason         0.000 s
+    line_reason          0.000 s
+
+So the work the control does is FREE and the minute is somewhere else. Nothing
+here needs optimising and an afternoon spent making `set_line_style` faster
+would have moved nothing.
+
+--------------------------------------------------------------------------------
+A. THE CAUSE: ONE CONTROL ASKS TWO QUESTIONS, AND THE SECOND IS SLOW
+--------------------------------------------------------------------------------
+
+`FastPlot._ask_line_style` (spacr/qt/widgets/fast_plots.py:2302) runs, in
+order:
+
+    QInputDialog.getDouble(...)        "Line width"     <- what was asked for
+    QColorDialog.getColor(...)         "Line colour"    <- not asked for
+    self.set_line_style(colour, width) <- the width lands only HERE
+
+THE WIDTH IS APPLIED AFTER THE COLOUR DIALOG CLOSES. That is deliberate and
+the reasoning in the code is sound as far as it goes -- a cancelled colour
+still applies the width, so the user does not lose the answer they gave. But
+it means a user who wants ONLY a width waits for a colour picker they did not
+ask for, and cannot get their width until it is dismissed.
+
+AND THE COLOUR PICKER IS THE SLOW PART. Six sites call
+`QColorDialog.getColor` and NOT ONE passes `DontUseNativeDialog`:
+
+    spacr/qt/widgets/fast_plots.py:2216, 2259, 2318
+    spacr/qt/widgets/figure_queue.py:2008
+    spacr/qt/widgets/figure_settings.py:106
+    spacr/qt/widgets/dna_rain.py:1503
+
+so every one asks the platform for its native picker. On this machine that is
+GNOME with `xdg-desktop-portal`, `-gnome` AND `-gtk` all running
+(XDG_CURRENT_DESKTOP=ubuntu:GNOME), and a Qt native colour dialog brokered
+through the portal is the classic tens-of-seconds stall. The reported minute
+is the portal, not spaCR.
+
+HONEST ABOUT THE EVIDENCE: the timings above are measured and the six
+unguarded call sites are counted, but the portal stall itself CANNOT be
+reproduced headless -- offscreen Qt never asks the portal. So that half is
+a named, checkable hypothesis rather than a measurement, and the first step
+is to confirm it on the real display (below) rather than to assume it.
+
+--------------------------------------------------------------------------------
+B. WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. SPLIT THE CONTROL. "Line width…" and "Line colour…" are two entries, and
+   each asks one question and applies it. A user who wants a width gets one
+   dialog. This is worth doing whatever the portal turns out to be doing,
+   because chaining an unrelated modal onto a control is a defect on its own.
+
+2. PASS `QColorDialog.DontUseNativeDialog` AT ALL SIX SITES. Qt's own colour
+   dialog opens instantly, is identical on every platform, and matches the
+   application's theme -- which the GNOME one does not, so this is a
+   consistency win as well as a speed one. One helper, `pick_colour(parent,
+   initial, title)`, so the option cannot be forgotten at a seventh site.
+
+3. APPLY THE WIDTH BEFORE ASKING ANYTHING ELSE, if the two are ever chained
+   again. An answer the user has given should take effect when they give it.
+
+4. CHECK THE REST OF THE RESTYLE AND SAVE PATH FOR THE SAME SHAPE, which is
+   what the request asks for in its second sentence. Any restyle that opens a
+   file dialog, a colour dialog or a font dialog has the same exposure --
+   `_ask_font_colour`, `_ask_point_colour`, `_ask_export_size` and the export
+   itself. A save that goes through a native FILE dialog is the same portal
+   round trip.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* On the maintainer's real display, in the app: right-click a plot, change a
+  line width, and the line changes at once. Timed with a watch, not judged.
+* Confirm the cause before fixing it: open the current build, pick a line
+  width, and time how long the COLOUR dialog takes to appear. If that is the
+  minute, A is right; if the width dialog itself is slow, this file is wrong
+  and the next place to look is the menu build on the real screen with a real
+  results table.
+* No `QColorDialog.getColor` call in the tree lacks the non-native option --
+  a grep test, so a seventh site cannot reintroduce it.
+* Choosing a width does not open a colour dialog at all.
