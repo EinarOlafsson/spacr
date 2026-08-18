@@ -1,5 +1,5 @@
 ================================================================================
-THE AXIS AND TEXT COLOUR FOLLOW THE THEME, AND THE USER CAN SET THEM
+TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
 ================================================================================
 
 Status:    filed 2026-08-18.
@@ -78,15 +78,54 @@ is the TEXT. The axes themselves -- the spines, the ticks, the tick labels --
 take `_foreground` at construction and there is no control that changes them
 afterwards. So the first report is correct: there is no option.
 
-WHAT TO ADD, on the plot's own menu under Appearance (147's categories):
+DECIDED BY THE MAINTAINER 2026-08-18, and it replaces the three-control
+proposal this file carried until now:
 
-    Axis colour…        spines, ticks and tick labels
-    Text colour…        title, axis labels, annotations   (today's "Font colour")
-    Follow the theme    puts both back to automatic
+  "I want one color option when picking color for the graph elements. called
+   line color which should cahnge the color of all lines including axis lines
+   and ticks. and then a font color theat controlls the color of all font in
+   the graph."
 
-NAME THEM APART because they are genuinely different marks and a user asked for
-one of them specifically. And make the pair reachable from the figure
-preferences too (118), so it can be set once rather than per plot.
+SO THERE ARE EXACTLY TWO COLOUR CONTROLS, and they divide the figure by what a
+mark IS rather than by which part of the code draws it:
+
+    Line colour     EVERY line. The data's own lines, the reference and
+                    threshold lines, the Q-Q diagonal, the trend lines, AND
+                    the axis spines and the tick marks.
+
+    Font colour     EVERY piece of text. Title, axis labels, TICK LABELS,
+                    legend text, annotations, the p=0.05 caption.
+
+TICK MARKS ARE LINES AND TICK LABELS ARE TEXT. That split is the one place the
+two controls meet and it is the one a reader could take either way, so it is
+written down: the little dash beside the axis follows Line colour, the number
+printed next to it follows Font colour. Anything else would make "all font in
+the graph" untrue.
+
+WHY THIS IS MORE THAN A RENAME. Today these are two unrelated mechanisms:
+
+    set_line_style()   sets a QPen on each item in line_items()
+    _foreground        a pyqtgraph axis/foreground setting, applied at
+                       construction, with no control after
+
+and `line_items()` DELIBERATELY EXCLUDES anything that is not a plot item, so
+no existing call reaches the axis at all. One control covering both means
+`set_line_style` must also drive the axis pen and the tick pen, and the
+existing exclusions have to be re-read: the selection ring stays excluded (it
+is a cursor, not a mark), and the scatters stay excluded (they are points, and
+they have their own control).
+
+THE DASH PATTERNS STILL SURVIVE, for the reason set_line_style already gives:
+each pen is copied and only the colour is replaced, so a threshold line stays
+dashed. Extending the reach must not lose that.
+
+151 SPLITS "Line colour and width…" INTO TWO ENTRIES. The "Line colour…" half
+it creates is this control; there is not a third one.
+
+AND "FOLLOW THE THEME" STAYS. Two colours plus a way back to automatic, which
+is what section A is about -- a user who has set a colour needs a route to
+un-set it, or the freeze this instruction exists to fix simply happens by hand
+instead of by accident.
 
 THE SAME CONTROL MUST REACH THE MATPLOTLIB FIGURES. `figures/style.py` and
 `figure_queue._style_figure_colors` read the same preference, so an axis colour
