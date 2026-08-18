@@ -1918,6 +1918,12 @@ class AppScreen(QWidget):
         # are a tab, because picking a run replaces the whole grid. One is
         # navigation between runs, the other is reading within a run.
         self._results_panel = None
+        # THE SECOND RUN, when the user has deliberately asked for one, and
+        # the stills of the runs that are not live (instruction 116).
+        self._results_page = None
+        self._results_split = None
+        self._compare_panel = None
+        self._run_photographs = {}
         self._figures_stack = None
         #: Instruction 131's tab. BORN HERE, like everything else a handler
         #: reads: `_on_results_tab_changed` is connected below and runs on
@@ -2046,6 +2052,9 @@ class AppScreen(QWidget):
                 # (instruction 146). The panel keeps a plot state per run and
                 # the results tab may be showing the very run being removed.
                 self._sweep_runs.runs_removed.connect(self._on_runs_removed)
+                # TWO RUNS ON SCREEN AT ONCE, deliberately (116).
+                self._sweep_runs.compare_requested.connect(
+                    self.open_run_beside)
                 left = QTabWidget(self._figures_card)
                 # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
                 # 2026-08-17: "the run tab should be before the results tab
@@ -2057,7 +2066,16 @@ class AppScreen(QWidget):
                 # DETAIL of whatever Runs has selected, and a detail tab
                 # ahead of the thing it details reads backwards.
                 left.addTab(self._sweep_runs, "Runs")
-                left.addTab(self._results_panel, "Results")
+                # THE RESULTS PAGE IS A SPLITTER, not the panel itself
+                # (instruction 116). A second run opened deliberately for
+                # comparison goes in beside this one, and a tab page cannot
+                # gain a sibling. Empty until somebody asks, so a screen that
+                # never compares pays for one child widget and no layout.
+                self._results_split = QSplitter(Qt.Horizontal)
+                self._results_split.setChildrenCollapsible(False)
+                self._results_split.addWidget(self._results_panel)
+                self._results_page = self._results_split
+                left.addTab(self._results_split, "Results")
                 left.setTabToolTip(0, "Every run: this session's own, its "
                                       "re-fits, and every trial the parameter "
                                       "sweep ran. Pick one to see its results "
@@ -2158,7 +2176,7 @@ class AppScreen(QWidget):
                 # has held since the Runs tab arrived, and nothing in J asks
                 # for it back. Set explicitly because QTabWidget's own default
                 # is index 0, which is now Runs.
-                left.setCurrentWidget(self._results_panel)
+                left.setCurrentWidget(self._results_page)
 
                 split = QSplitter(Qt.Horizontal, self._figures_card)
                 split.setChildrenCollapsible(False)
@@ -4156,6 +4174,141 @@ class AppScreen(QWidget):
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not update the column fit's row", exc_info=True)
 
+    # ------------------------------------------------------------------
+    # Two runs on screen at once -- deliberate, and BOUNDED (116)
+    # ------------------------------------------------------------------
+    #
+    # "every regression run should have its own interactive volcano plot".
+    # The state half shipped in d4113297: each run keeps its level, its
+    # colouring, its axis pins, its effect cut and its selection, and gets
+    # them back. This is the other half, and the bound is the substance of it
+    # rather than a caveat on it.
+    #
+    # WHY THE ANSWER IS NOT "N LIVE VOLCANOES". 129 measured live pyqtgraph
+    # tiles at 74.99 ms per window-drag frame against 5.19 ms for
+    # photographs, on a 16.7 ms budget. Two runs is what a comparison needs;
+    # twelve is what makes the screen unusable, and a user who discovers the
+    # bound by their machine stopping has been told nothing.
+
+    #: How many runs may be LIVE at once. Two: a comparison needs two, and
+    #: every one after that is bought at 74.99 ms a frame.
+    MAX_LIVE_RUNS = 2
+
+    #: Said out loud when the bound refuses. A bound discovered through a
+    #: refusal with no reason is indistinguishable from a broken button.
+    LIVE_RUNS_NOTE = (
+        "Two runs can be live at once. A live plot costs about 75 ms a frame "
+        "against 5 ms for a still, on a 17 ms budget, so a third would be "
+        "paid for on every drag of the window. Close the run beside this one "
+        "to open another.")
+
+    def live_run_count(self) -> int:
+        """How many runs have a live, interactive plot on screen right now."""
+        count = 1 if getattr(self, "_results_panel", None) is not None else 0
+        if getattr(self, "_compare_panel", None) is not None:
+            count += 1
+        return count
+
+    def open_run_beside(self, record) -> bool:
+        """Open a second run's results beside the loaded one.
+
+        DELIBERATE, NOT THE DEFAULT (instruction 116). Reached from the Runs
+        tab's context menu; nothing opens a second run on its own.
+
+        :param record: a Runs-tab row, or a run folder.
+        :returns: whether a second run is now live.
+        """
+        folder = (str(record.get("folder") or "") if isinstance(record, dict)
+                  else str(record or ""))
+        if self._results_panel is None or self._results_split is None:
+            return False
+        if not folder:
+            self._console.append_notice(
+                "■ That run has no folder on disk, so there is nothing "
+                "to open beside this one.\n")
+            return False
+        if self._same_run_folder(self._results_panel.run_folder(), folder):
+            # ALREADY THE LIVE ONE. Opening a run beside itself is two views
+            # of one run, which is not the comparison that was asked for.
+            self._console.append_notice(
+                "■ That run is the one already on screen.\n")
+            return False
+        if self.live_run_count() >= self.MAX_LIVE_RUNS:
+            self._console.append_notice("■ {note}\n",
+                                        note=self.LIVE_RUNS_NOTE)
+            return False
+
+        from ..widgets.regression_results import RegressionResultsPanel
+
+        # ITS OWN VOLCANO, which is the whole request. The loaded run's plot
+        # is placed externally (`external_volcano=True`, in the figures
+        # stack); this one keeps its own, so the two are on screen at the
+        # same time and each answers its own hover and its own click.
+        panel = RegressionResultsPanel(self._results_split)
+        if not panel.load(folder):
+            panel.setParent(None)
+            panel.deleteLater()
+            self._console.append_notice(
+                "■ No results in {folder} to open beside this run.\n",
+                folder=folder)
+            return False
+        self._compare_panel = panel
+        self._results_split.addWidget(panel)
+        self._results_split.setSizes([1, 1])
+        self._raise_the_results_tab()
+        self._console.append_notice(
+            "■ {name} is open beside the loaded run. {note}\n",
+            name=panel.run_name(), note=self.LIVE_RUNS_NOTE)
+        return True
+
+    def close_run_beside(self) -> bool:
+        """Take the second run's live plot away, keeping its PHOTOGRAPH.
+
+        A STILL IS WHAT STANDS IN FOR A RUN THAT IS NOT LIVE (instruction
+        116). The picture stays at about 5 ms a frame instead of 75, and the
+        run's plot STATE was never in the widget -- so making it live again
+        is cheap, and that is what the bound buys.
+        """
+        panel = getattr(self, "_compare_panel", None)
+        if panel is None:
+            return False
+        folder = panel.run_folder()
+        photo = None
+        try:
+            photo = panel.volcano.grab()
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not photograph the run beside", exc_info=True)
+        if folder and photo is not None and not photo.isNull():
+            self._run_photographs[os.path.abspath(folder)] = photo
+        self._compare_panel = None
+        panel.setParent(None)
+        panel.deleteLater()
+        return True
+
+    def run_photograph(self, folder):
+        """The still kept for a run that is no longer live, or ``None``."""
+        if not folder:
+            return None
+        return self._run_photographs.get(os.path.abspath(str(folder)))
+
+    def _raise_the_results_tab(self) -> None:
+        """Bring the Results page forward, whatever is sharing it.
+
+        The page is a SPLITTER rather than the panel, since a second run can
+        be opened beside the first, and `setCurrentWidget` only accepts a
+        widget the tab bar itself owns -- so a call naming the panel becomes
+        a silent no-op the moment the panel stops being the page.
+        """
+        tabs = getattr(self, "_results_tabs", None)
+        page = (getattr(self, "_results_page", None)
+                or getattr(self, "_results_panel", None))
+        if tabs is None or page is None:
+            return
+        try:
+            tabs.setCurrentWidget(page)
+        except (RuntimeError, TypeError):                # pragma: no cover
+            LOG.debug("could not raise the results tab", exc_info=True)
+
     def _on_runs_removed(self, records) -> None:
         """Runs left the Runs tab: take their retained views with them.
 
@@ -4171,10 +4324,20 @@ class AppScreen(QWidget):
         panel = getattr(self, "_results_panel", None)
         if panel is None or not records:
             return
+        beside = getattr(self, "_compare_panel", None)
         for record in records:
             folder = str((record or {}).get("folder") or "")
             if not folder:
                 continue
+            # A DELETED RUN TAKES ITS STILL WITH IT TOO. A photograph of a
+            # run that no longer exists is the same stale answer its plot
+            # state would have been.
+            self._run_photographs.pop(os.path.abspath(folder), None)
+            if beside is not None and self._same_run_folder(
+                    beside.run_folder(), folder):
+                self.close_run_beside()
+                self._run_photographs.pop(os.path.abspath(folder), None)
+                beside = None
             try:
                 panel.forget_run(folder)
             except Exception:                                    # noqa: BLE001
@@ -4387,9 +4550,7 @@ class AppScreen(QWidget):
         # cost one load rather than two.
         if folder and self._same_run_folder(panel.run_folder(), folder):
             self._figures_card.show()
-            tabs = getattr(self, "_results_tabs", None)
-            if tabs is not None:
-                tabs.setCurrentWidget(panel)
+            self._raise_the_results_tab()
             return
         if not folder or not panel.load(folder):
             self._console.append_stdout(
@@ -4410,9 +4571,7 @@ class AppScreen(QWidget):
                 "is empty rather than showing the last run's.\n")
         self._figures_card.show()
         # THE PANEL IS ON A TAB, so re-pointing it is only half of showing it.
-        tabs = getattr(self, "_results_tabs", None)
-        if tabs is not None:
-            tabs.setCurrentWidget(panel)
+        self._raise_the_results_tab()
 
     @staticmethod
     def _same_run_folder(one, other) -> bool:

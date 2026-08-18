@@ -249,11 +249,18 @@ def test_the_context_menu_puts_the_safe_entry_first(qtbot, tmp_path):
 
     assert panel.table.table.selectionMode() == \
         QAbstractItemView.ExtendedSelection
-    actions = panel._build_run_menu(panel.selected_runs()).actions()
+    actions = [action
+               for action in panel._build_run_menu(
+                   panel.selected_runs()).actions()
+               if not action.isSeparator()]
+    verbs = [action.data() for action in actions]
+    assert verbs[0] == "remove"
     assert actions[0].text().startswith("Remove 1 run from the list")
-    assert actions[0].data() == "remove"
-    assert actions[1].text().startswith("Delete 1 run from disk")
-    assert actions[1].data() == "delete"
+    # DESTRUCTIVE LAST, whatever else the menu grows. 116's "open beside"
+    # arrived between the two and the ordering rule is the one that matters:
+    # what is at the top must not be the irreversible one.
+    assert verbs[-1] == "delete"
+    assert actions[-1].text().startswith("Delete 1 run from disk")
     assert all(action.isEnabled() for action in actions)
 
 
