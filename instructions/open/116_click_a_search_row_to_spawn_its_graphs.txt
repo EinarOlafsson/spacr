@@ -99,3 +99,71 @@ TAB, and take the rest from the module setup that already exists.
 Clicking a run row still swaps the figures -- that part of the request is
 unchanged and is the substance of this instruction. Only the furniture around
 it changed.
+
+
+================================================================================
+EVERY RUN HAS ITS OWN INTERACTIVE VOLCANO, NOT ONLY ITS SAVED FIGURES
+================================================================================
+
+Requested: 2026-08-18 -- "every regression run should have its own interactive
+           volcano plot".
+
+Filed here rather than as a new number because this file already owns "click a
+row and spawn the set of graphs for the particular run". It is the same
+surface. What it ADDS is which of those graphs is live.
+
+THE ARCHITECTURE TODAY, AND WHY THE ASK IS NOT ALREADY SATISFIED:
+
+    regression_results.py:459    self.volcano = VolcanoPlot()
+
+ONE instance, for the whole screen. A run's saved figures are per-run -- they
+are files in that run's folder -- but the INTERACTIVE volcano is a single
+widget whose contents are replaced when the selection changes. So a run does
+not have a volcano; the screen has one, and a run gets to borrow it.
+
+THREE THINGS THAT FOLLOW, AND THEY ARE THE REASON THIS IS WORTH DOING:
+
+  * A RUN IS NOT FULLY EVALUABLE FROM ITS ROW. 154 F asks for a selection of
+    columns to produce one run each, "each gets saved as a run that i can
+    evaluate". Evaluating means hovering points, clicking through to cells,
+    re-cutting the effect size -- the interactive things. If those live on a
+    shared widget, evaluating run B destroys the state of run A.
+  * TWO RUNS CANNOT BE COMPARED SIDE BY SIDE, which is the entire point of
+    running several columns. The comparison a user wants is two volcanoes
+    next to each other, not one volcano twice in succession from memory.
+  * THE STATE A USER BUILDS IS LOST ON EVERY SWITCH. A chosen level, a
+    colouring, a typed axis limit, a selected gene: all of it belongs to the
+    run being looked at, and today all of it belongs to the widget.
+
+WHAT "ITS OWN" HAS TO MEAN, and the cost is real so it is stated:
+
+  * EACH RUN OWNS ITS PLOT STATE -- level, colouring, limits, effect cut,
+    selection, correction (149 E) -- and gets it back when returned to,
+    unchanged. That is the minimum, and it is achievable without holding N
+    live widgets: the STATE is small, the WIDGET is not.
+  * WIDGETS ARE NOT FREE AND THE MEASUREMENT ALREADY EXISTS. 129's work
+    measured live pyqtgraph tiles at 74.99 ms per window-drag frame against
+    5.19 ms for photographs, on a 16.7 ms budget. So N live volcanoes for N
+    runs is not the answer; the answer is a live widget for the run(s) on
+    screen and retained STATE for the rest, with a photograph standing in.
+  * SIDE BY SIDE IS A DELIBERATE ACT, not the default. Two runs open at once
+    is what a comparison needs; twelve is what makes the screen unusable.
+    Opening a second is explicit and the count is bounded, with the bound
+    stated rather than discovered by a user whose machine has stopped.
+
+RELATED, so the pieces are not built twice: 154 G decides WHICH run is loaded
+and says a finished run becomes the loaded one. 146 deletes a run, and must
+also drop its retained state. 125 wants every run in the Runs tab. 129 put the
+plots in pyqtgraph with a tab each -- those tabs are per-SCREEN today and this
+makes them per-RUN, which is the same change viewed from the other end.
+
+HOW TO KNOW IT WORKED
+
+* Run three columns, get three runs. Open run A's volcano, colour it by
+  localisation, type an axis limit, select a gene. Open run B. Return to A:
+  the colouring, the limit and the selection are exactly as left.
+* Two runs' volcanoes can be on screen together and each responds to its own
+  hover and click.
+* Deleting a run takes its plot state with it and leaves the others intact.
+* The frame budget is met with the stated number of live plots open, measured
+  the way 129 measured it and not by eye.
