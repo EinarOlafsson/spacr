@@ -102,6 +102,29 @@ before what changes the LOOK. And the most-used entries stay at the top level
 rather than being buried for tidiness -- a menu reorganised until nothing is
 one click away is worse than the flat list it replaced.
 
+ATTEMPTED AND REVERTED 2026-08-18, and the reason is worth having before the
+next attempt. The restructure itself is ~90 lines and works: six named groups
+-- Show, p-value, Effect-size cut, Measured from, Colour by, then Axes,
+Appearance, Size, with Reset view and Export left at the top. The cost is
+THE TESTS: 63 of them read `build_style_menu().actions()`, which sees a
+submenu's own action and not what is inside it, so every group移动 reads as a
+removed feature.
+
+DO IT WITH THE TEST MIGRATION PLANNED, NOT IMPROVISED. The migration itself is
+one idea -- assert REACHABILITY rather than depth -- and a `menu_entries(menu)`
+helper that walks submenus is all it needs. But it touches nine test files and
+about sixty assertions, and rewriting them by regex mid-session put a `from`
+import inside a multi-line import statement and left the suite red. That is
+the whole of what went wrong; nothing about the design was found wanting.
+
+Two things the attempt did establish, so the next one need not rediscover
+them:
+  * `setToolTipsVisible` is PER MENU. A gated entry inside a submenu needs it
+    set on the SUBMENU or its reason is invisible -- which is exactly the
+    present-but-inert control instruction 106 forbids.
+  * `addSection` inserts a non-clickable label, so anything counting what a
+    user can DO must skip it.
+
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
