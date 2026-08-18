@@ -3975,19 +3975,24 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
                 'Test Name': 'Tukey HSD Post-hoc'
             })
 
-    # Create plot
-    # `sns.set` writes a whole seaborn theme -- style, context, palette,
-    # fonts -- into matplotlib's process-wide rcParams. Scoped here, so a
-    # grouped plot no longer decides how every later figure of the session
-    # looks, on any screen and in any module.
-    with mpl.rc_context():
-        plt.figure(figsize=(10, 6))
-        sns.set(style="whitegrid")
+    # Create plot.
+    # `figure_style` is the same kind of scope the old `mpl.rc_context()` was
+    # -- `sns.set` writes a whole seaborn theme (style, context, palette,
+    # fonts) into matplotlib's process-wide rcParams, so a grouped plot used
+    # to decide how every later figure of the session looked. It also brought
+    # a GRID, which the house style does not have at all: a grid is the
+    # fastest way to make a panel look like a spreadsheet.
+    with figure_style(theme_target()):
+        fig = plt.figure(figsize=(10, 6))
 
         if colors:
             color_palette = colors
         else:
-            color_palette = sns.color_palette("husl", len(unique_groups))
+            # `sns.color_palette("husl", n)` is a rainbow across the groups,
+            # and the groups are the x axis. The comparison between them is
+            # what the test above reports; the bars themselves are not the
+            # argument, so they are the one grey.
+            color_palette = [ROLES['data']] * len(unique_groups)
     
         # Choose graph type
         if graph_type == 'bar':
@@ -4009,7 +4014,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
                 palette=color_palette, legend=False)
 
             # Add error bars (standard deviation or standard error of the mean)
-            plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c='black', capsize=5)
+            plt.errorbar(x=np.arange(len(summary_df)), y=summary_df[summary_func], yerr=error_bars, fmt='none', c=resolve_ink(theme_target()), capsize=5, lw=WEIGHTS['reference'])
     
         elif graph_type == 'violin':
             sns.violinplot(
@@ -4028,7 +4033,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
             sns.boxplot(
                 x=grouping_column, y=data_column, hue=grouping_column,
                 data=df, order=order, palette=color_palette, legend=False)
-            sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color='black', alpha=0.5, order=order)
+            sns.stripplot(x=grouping_column, y=data_column, data=df, jitter=True, color=Palette.GREY_DARK, size=3.0, linewidth=0, order=order)
 
         # Create a DataFrame to summarize the test results
         results_df = pd.DataFrame(test_results)
@@ -4037,6 +4042,16 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
         if isinstance(y_lim, list) and len(y_lim) == 2:
             plt.ylim(y_lim)
 
+        # THE FIGURE ON SCREEN IS THE FIGURE ON DISK. The title naming the
+        # test and the rotated group labels used to be applied inside the
+        # `save` branch only, so a user who looked at the plot saw an
+        # untitled one with horizontal labels and a user who saved it got a
+        # different picture out of the same call.
+        axis = plt.gca()
+        descriptor(axis, f'{test_name} results for {graph_type} plot')
+        rotate_ticks(axis)
+        plt.tight_layout()
+
         # If save is True, save the plot and the results table
         if save:
             # No extension: `save_figure` appends the one the figure-format
@@ -4044,9 +4059,6 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
             # PDF into it was the old behaviour, and it is a file no viewer
             # opens.
             plot_path = os.path.join(output_dir, 'grouped_plot')
-            plt.title(f'{test_name} results for {graph_type} plot')
-            plt.xticks(rotation=45)
-            plt.tight_layout()
             plot_path = save_figure(plt.gcf(), plot_path)
             print(f"Plot saved to {plot_path}")
 
@@ -4163,6 +4175,32 @@ class spacrGraph:
             sns.palplot(reordered_palette)
             plt.show()
         return reordered_palette
+
+    def _plot_palette(self, count):
+        """The colours for ``count`` drawn series, under the house rule.
+
+        EVERYTHING IS GREY EXCEPT WHAT THE SENTENCE IS ABOUT. With a single
+        data column the hue is the grouping column -- which is already the x
+        axis -- so painting each group a different colour argues nothing and
+        every series is the one grey. The reordered seaborn theme stays in
+        charge of the case where a categorical palette is genuinely the data:
+        several measurements overlaid on one axis, where the colour is the
+        only thing saying which measurement a mark belongs to.
+
+        ``colors`` wins over both. It was a documented constructor parameter
+        that was stored and never read, so a caller who passed a palette got
+        the theme's anyway.
+
+        :param count: how many series will be drawn.
+        :returns: a list of ``count`` colour specs.
+        """
+        count = max(1, int(count))
+        if self.colors:
+            chosen = list(self.colors)
+            return [chosen[index % len(chosen)] for index in range(count)]
+        if len(self.data_column) == 1:
+            return [ROLES['data']] * count
+        return list(self.sns_palette[:count])
   
     def preprocess_data(self):
         """Return a new DataFrame aggregated to the configured representation.
@@ -4683,13 +4721,13 @@ class spacrGraph:
             # Place row labels vertically aligned with symbols
             for row_idx, title in enumerate(row_labels):
                 y_pos = symbol_start_y - (row_idx * y_spacing)  # Calculate vertical position for each label
-                ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=12, fontweight='regular')
+                ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=TYPE_SCALE['annotation'], fontweight='regular')
 
             # Place symbols under each bar or jitter point based on x-positions
             for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
                 for row_idx, text in enumerate(column_data):
                     y_pos = symbol_start_y - (row_idx * y_spacing)  # Adjust vertical spacing for symbols
-                    ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=12, fontweight='regular')
+                    ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=TYPE_SCALE['annotation'], fontweight='regular')
 
             # Redraw to apply changes
             ax.figure.canvas.draw()
@@ -4735,10 +4773,12 @@ class spacrGraph:
                 line_y = y_max + (0.1 * y_max) * (idx + 1)
 
                 # Draw the comparison line
-                ax.plot([x1, x1, x2, x2], [line_y - 0.02, line_y, line_y, line_y - 0.02], lw=1.5, c='black')
+                # A statistics bracket is drawn in the ink, at the spine's
+                # weight: it is annotation, not a series.
+                ax.plot([x1, x1, x2, x2], [line_y - 0.02, line_y, line_y, line_y - 0.02], lw=WEIGHTS['spine'], c=resolve_ink(theme_target()))
 
                 # Add the significance marker
-                ax.text((x1 + x2) / 2, line_y, significance, ha='center', va='bottom', fontsize=12)
+                ax.text((x1 + x2) / 2, line_y, significance, ha='center', va='bottom', fontsize=TYPE_SCALE['annotation'])
 
         # Optional: Remove outliers for plotting
         # THE TRIM IS FOR THE PICTURE, NOT FOR THE TEST, and it used to be
@@ -4802,85 +4842,90 @@ class spacrGraph:
         if  self.graph_type in ['line','line_std']:
             self.fig_height, self.fig_width = 10, 10 
 
-        if ax is None:
-            self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
-        else:
-            self.fig = ax.figure
+        # THE WHOLE BUILD IS INSIDE THE HOUSE STYLE. spacrGraph is what
+        # the GUI's graph button produces, drawn from a long-lived
+        # process, so a global style write here would follow the user
+        # through every later figure of the session.
+        with figure_style(theme_target()):
+            if ax is None:
+                self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
+            else:
+                self.fig = ax.figure
 
-        if len(self.data_column) == 1:
-            self.hue=self.grouping_column
-            self.jitter_bar_dodge = False
-        else:
-            self.hue='Data Column'
-            self.jitter_bar_dodge = True
+            if len(self.data_column) == 1:
+                self.hue=self.grouping_column
+                self.jitter_bar_dodge = False
+            else:
+                self.hue='Data Column'
+                self.jitter_bar_dodge = True
         
-        # Handle the different plot types based on `graph_type`
-        if self.graph_type == 'bar':
-            self._create_bar_plot(ax)
-        elif self.graph_type == 'jitter':
-            self._create_jitter_plot(ax)
-        elif self.graph_type == 'box':
-            self._create_box_plot(ax)
-        elif self.graph_type == 'violin':
-            self._create_violin_plot(ax)
-        elif self.graph_type == 'jitter_box':
-            self._create_jitter_box_plot(ax)
-        elif self.graph_type == 'jitter_bar':
-            self._create_jitter_bar_plot(ax)
-        elif self.graph_type == 'line':
-            self._create_line_graph(ax)
-        elif self.graph_type == 'line_std':
-            self._create_line_with_std_area(ax)
-        else:
-            raise ValueError(f"Unknown graph type: {self.graph_type}") 
+            # Handle the different plot types based on `graph_type`
+            if self.graph_type == 'bar':
+                self._create_bar_plot(ax)
+            elif self.graph_type == 'jitter':
+                self._create_jitter_plot(ax)
+            elif self.graph_type == 'box':
+                self._create_box_plot(ax)
+            elif self.graph_type == 'violin':
+                self._create_violin_plot(ax)
+            elif self.graph_type == 'jitter_box':
+                self._create_jitter_box_plot(ax)
+            elif self.graph_type == 'jitter_bar':
+                self._create_jitter_bar_plot(ax)
+            elif self.graph_type == 'line':
+                self._create_line_graph(ax)
+            elif self.graph_type == 'line_std':
+                self._create_line_with_std_area(ax)
+            else:
+                raise ValueError(f"Unknown graph type: {self.graph_type}") 
         
-        if len(self.data_column) == 1:
-            num_groups = len(self.df[self.grouping_column].unique())
-            self._standerdize_figure_format(ax=ax, num_groups=num_groups, graph_type=self.graph_type)
+            if len(self.data_column) == 1:
+                num_groups = len(self.df[self.grouping_column].unique())
+                self._standerdize_figure_format(ax=ax, num_groups=num_groups, graph_type=self.graph_type)
 
-        # Set y-axis start
-        if isinstance(self.y_lim, list):
-            if len(self.y_lim) == 2:
-                ax.set_ylim(self.y_lim[0], self.y_lim[1])
-            elif len(self.y_lim) == 1:
-                ax.set_ylim(self.y_lim[0], None)
+            # Set y-axis start
+            if isinstance(self.y_lim, list):
+                if len(self.y_lim) == 2:
+                    ax.set_ylim(self.y_lim[0], self.y_lim[1])
+                elif len(self.y_lim) == 1:
+                    ax.set_ylim(self.y_lim[0], None)
 
-        sns.despine(ax=ax, top=True, right=True)
-        handles, labels = ax.get_legend_handles_labels()
-        if handles:
-            ax.legend(
-                handles, labels, loc='center left',
-                bbox_to_anchor=(1, 0.5), title='Data Column')
+            sns.despine(ax=ax, top=True, right=True)
+            handles, labels = ax.get_legend_handles_labels()
+            if handles:
+                ax.legend(
+                    handles, labels, loc='center left',
+                    bbox_to_anchor=(1, 0.5), title='Data Column')
         
-        if not self.graph_type in ['line','line_std']:
-            ax.set_xlabel('')
+            if not self.graph_type in ['line','line_std']:
+                ax.set_xlabel('')
 
-        x_positions = _get_positions(self, ax)
+            x_positions = _get_positions(self, ax)
         
-        if len(self.data_column) == 1 and not self.graph_type in ['line','line_std']:
-            legend = ax.get_legend()
-            if legend is not None:
-                legend.remove()
-            for label in ax.get_xticklabels():
-                label.set_rotation(45)
-                label.set_ha('right')
+            if len(self.data_column) == 1 and not self.graph_type in ['line','line_std']:
+                legend = ax.get_legend()
+                if legend is not None:
+                    legend.remove()
+                # Anchored as well as rotated: a group name turned about its
+                # centre lands beside the tick it belongs to, not under it.
+                rotate_ticks(ax)
 
-        elif len(self.data_column) > 1 and not self.graph_type in ['line','line_std']:
-            ax.set_xticks([])
-            ax.tick_params(bottom=False)
-            ax.set_xticklabels([])
-            legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])  # Position the table closer to the graph
-            legend_ax.set_axis_off()
+            elif len(self.data_column) > 1 and not self.graph_type in ['line','line_std']:
+                ax.set_xticks([])
+                ax.tick_params(bottom=False)
+                ax.set_xticklabels([])
+                legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])  # Position the table closer to the graph
+                legend_ax.set_axis_off()
 
-            row_labels, table_data = _generate_tabels(unique_groups)
-            _place_symbols(row_labels, table_data, x_positions, ax)
+                row_labels, table_data = _generate_tabels(unique_groups)
+                _place_symbols(row_labels, table_data, x_positions, ax)
             
-        #_draw_comparison_lines(ax, x_positions)    
+            #_draw_comparison_lines(ax, x_positions)    
         
-        if self.save:
-            self._save_results()
+            if self.save:
+                self._save_results()
 
-        ax.margins(x=0.12)
+            ax.margins(x=0.12)
 
     def _standerdize_figure_format(self, ax, num_groups, graph_type):
         """
@@ -4922,7 +4967,7 @@ class spacrGraph:
         #group_labels = self.order
         #ax.set_xticks(range(len(group_labels)))
         #ax.set_xticklabels(group_labels, rotation=45, ha='right')
-        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+        rotate_ticks(ax)
 
         # Customize elements based on the graph type
         if graph_type == 'bar':
@@ -4974,7 +5019,7 @@ class spacrGraph:
             plot_order = self.order
 
         plot_hue = hue or x_axis_column
-        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         summary_df = self.df_melted.groupby(
             [x_axis_column], observed=False
@@ -5000,7 +5045,7 @@ class spacrGraph:
         for bar, (_, row) in zip(bars, summary_df.iterrows()):
             x_bar = bar.get_x() + bar.get_width() / 2
             err = row[self.error_bar_type]
-            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c='black', capsize=5, lw=2)
+            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c=resolve_ink(theme_target()), capsize=5, lw=WEIGHTS['data'])
     
         # Set legend and labels
         ax.set_xlabel(self.grouping_column)
@@ -5029,7 +5074,7 @@ class spacrGraph:
             plot_order = self.order
 
         plot_hue = hue or x_axis_column
-        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         # Create the jitter plot
         self.summary_df = self.df_melted.copy()
@@ -5077,8 +5122,8 @@ class spacrGraph:
 
         # Create the line graph with one line per group
         self.summary_df = self.df.copy()
-        line_palette = self.sns_palette[
-            :max(1, self.df[hue].nunique(dropna=True))]
+        line_palette = self._plot_palette(
+            self.df[hue].nunique(dropna=True))
         sns.lineplot(
             data=self.df, x=x_axis_column, y=y_axis_column, hue=hue,
             palette=line_palette, ax=ax, marker='o', linewidth=1,
@@ -5110,11 +5155,15 @@ class spacrGraph:
             
         # Plot the mean accuracy as a line
         self.summary_df = summary_df.copy()
-        sns.lineplot(data=summary_df,x=x_axis_column,y=y_axis_column_mean,ax=ax,marker='o',linewidth=1,markersize=0,color='blue',label=y_axis_column_mean)
+        # One line, so the line IS the claim and takes the highlight hue. Its
+        # SD band is the same hue at 0.25 -- the one opacity the published
+        # figures use for a band, and enough to read at all; at 0.1 the band
+        # disappeared against a dark ground.
+        sns.lineplot(data=summary_df,x=x_axis_column,y=y_axis_column_mean,ax=ax,marker='o',linewidth=WEIGHTS['data'],markersize=0,color=ROLES['highlight'],label=y_axis_column_mean)
 
 
         # Fill the area representing the standard deviation
-        ax.fill_between(summary_df[x_axis_column],summary_df[y_axis_column_mean] - summary_df[y_axis_column_std],summary_df[y_axis_column_mean] + summary_df[y_axis_column_std],color='blue',  alpha=0.1 )
+        ax.fill_between(summary_df[x_axis_column],summary_df[y_axis_column_mean] - summary_df[y_axis_column_std],summary_df[y_axis_column_mean] + summary_df[y_axis_column_std],color=ROLES['highlight'],  alpha=0.25 )
 
         # Adjust axis labels
         ax.set_xlabel(f"{x_axis_column}")
@@ -5139,7 +5188,7 @@ class spacrGraph:
             plot_order = self.order
 
         plot_hue = hue or x_axis_column
-        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         # Create the box plot
         self.summary_df = self.df_melted.copy()
@@ -5181,7 +5230,7 @@ class spacrGraph:
             plot_order = self.order
 
         plot_hue = hue or x_axis_column
-        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         # Create the violin plot
         self.summary_df = self.df_melted.copy()
@@ -5224,7 +5273,7 @@ class spacrGraph:
             plot_order = self.order
 
         plot_hue = hue or x_axis_column
-        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         summary_df = self.df_melted.groupby(
             [x_axis_column], observed=False
@@ -5239,7 +5288,7 @@ class spacrGraph:
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
-            alpha=0.6, edgecolor='white', linewidth=1, size=16,
+            alpha=0.6, edgecolor='none', linewidth=0, size=16,
             order=plot_order)
         
         # Adjust the bar width manually
@@ -5285,7 +5334,7 @@ class spacrGraph:
             plot_order = self.order
 
         plot_hue = hue or x_axis_column
-        plot_palette = self.sns_palette[:max(1, len(plot_order))]
+        plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         # Create the box plot
         self.summary_df = self.df_melted.copy()
@@ -5297,7 +5346,7 @@ class spacrGraph:
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
-            alpha=0.6, edgecolor='white', linewidth=1, size=12,
+            alpha=0.6, edgecolor='none', linewidth=0, size=12,
             order=plot_order)
     
         # Adjust legend and labels
