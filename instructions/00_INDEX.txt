@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-106 done / 25 open (80%).
+106 done / 27 open (79%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -98,6 +98,12 @@ OPEN
 
   140  A LONG FIT SAYS IT WILL BE LONG, AND SAYS WHERE IT HAS GOT TO
        140_a_long_fit_says_it_is_long_and_says_where_it_is.txt
+
+  141  THE USER PICKS THE BACKEND, AND IS TOLD WHAT EACH ONE IS
+       141_the_user_picks_the_backend_and_is_told_what_it_costs.txt
+
+  142  FORCE RESTART, FOR WHEN STOP DOES NOT STOP
+       142_force_restart_when_stop_does_not_stop.txt
 
 --------------------------------------------------------------------------------
 DONE
