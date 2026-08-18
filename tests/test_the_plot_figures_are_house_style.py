@@ -1106,3 +1106,128 @@ def test_drawing_a_grouped_graph_leaves_the_globals_alone(tmp_path, capsys):
     after = {k: repr(v) for k, v in mpl.rcParams.items()}
     assert {k for k in set(before) | set(after)
             if before.get(k) != after.get(k)} == set()
+
+
+# --------------------------------------------------------------------------- #
+#  The image panels: a montage gets the ground, the type scale and the ink
+# --------------------------------------------------------------------------- #
+
+def _npz_stack(path, stack):
+    np.savez(path, data=stack)
+    return str(path)
+
+
+def test_a_montage_title_is_scaled_to_its_canvas_not_pinned_at_24(
+        rcparams_guard, tmp_path):
+    """``size=24`` was hard-coded whatever the panel size was, so on the
+    2-inch panels a browse loop draws the title was taller than the image
+    under it. The house tiers keep their ratios and scale with the canvas.
+    """
+    from spacr.plot import _montage_type_size
+
+    stack = np.random.default_rng(5).random((1, 16, 16, 3)).astype(np.float32)
+    _npz_stack(tmp_path / "field.npz", stack)
+    P._plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=1, nr=1)
+
+    figure = _figures()[0]
+    expected = _montage_type_size(2)
+    assert expected == pytest.approx(TYPE_SCALE["label"])   # clamped, not 24
+    for ax in figure.axes:
+        assert ax.title.get_size() == pytest.approx(expected)
+
+    # ...and a montage-sized canvas gets a montage-sized title.
+    assert _montage_type_size(20) > _montage_type_size(5)
+    assert _montage_type_size(20) == pytest.approx(
+        TYPE_SCALE["label"] * 20 / 5.6)
+    assert _montage_type_size(None) == pytest.approx(TYPE_SCALE["label"])
+
+
+def test_a_montage_that_carries_text_gets_the_theme_ink(rcparams_guard,
+                                                        tmp_path, capsys):
+    """The grid was baked to a black ground, which forced its filenames and
+    channel names to white -- and white text on a white page is exactly the
+    failure rule 3 exists for."""
+    import cv2
+
+    from spacr.plot import _plot_images_on_grid
+
+    path = tmp_path / "img.png"
+    cv2.imwrite(str(path), np.random.default_rng(2).integers(
+        0, 255, (16, 16, 3), dtype=np.uint8))
+
+    figure = _plot_images_on_grid([str(path)], channel_indices=[0, 1, 2],
+                                  um_per_pixel=0.1, channel_names=["a", "b",
+                                                                   "c", "d"],
+                                  plot=False)
+    capsys.readouterr()
+
+    ink = _hex(resolve_ink(theme_target()))
+    assert _hex(figure.axes[0].title.get_color()) == ink
+    # The first three channel names keep THEIR CHANNEL'S colour, which is the
+    # skill's rule for a micrograph column header; the fourth has no channel
+    # colour and falls back to the ink rather than to a hard white.
+    assert [_hex(t.get_color()) for t in figure.texts] == [
+        _hex("red"), _hex("green"), _hex("blue"), ink]
+    # ...and the black box behind each name is gone; the style has no boxes.
+    assert all(t.get_bbox_patch() is None for t in figure.texts)
+
+
+def test_drawing_the_montages_leaves_the_globals_alone(tmp_path, capsys):
+    """Rule 2 over the image panels, which are the bulk of this file's
+    figures."""
+    before = {k: repr(v) for k, v in mpl.rcParams.items()}
+
+    stack = np.random.default_rng(1).random((1, 12, 12, 2)).astype(np.float32)
+    _npz_stack(tmp_path / "field.npz", stack)
+    P._plot_4D_arrays(str(tmp_path), figuresize=2, nr_npz=1, nr=1)
+    P.normalize_and_visualize(np.zeros((8, 8)), np.ones((8, 8)), title="t")
+    P.visualize_masks(np.eye(8, dtype=int), np.eye(8, dtype=int),
+                      np.eye(8, dtype=int))
+    P.plot_resize([np.zeros((8, 8))], [np.zeros((4, 4))],
+                  [np.zeros((8, 8), dtype=int)], [np.zeros((4, 4), dtype=int)])
+    capsys.readouterr()
+
+    after = {k: repr(v) for k, v in mpl.rcParams.items()}
+    assert {k for k in set(before) | set(after)
+            if before.get(k) != after.get(k)} == set()
+
+
+def test_every_figure_this_module_builds_is_inside_the_style(rcparams_guard):
+    """THE COUNT INSTRUCTION 136 MEASURED: 45 figures, zero uses of the house
+    style. A `plt.subplots(` or `plt.figure(` that no `figure_style` scope
+    encloses is a figure drawn in matplotlib's defaults.
+
+    Read off the source rather than by drawing, because the alternative is a
+    test that has to build all 45 -- and this is the one property that can be
+    checked statically without lying: `figure_style` is a context manager, so
+    a figure created inside one is textually inside its `with`.
+    """
+    import ast
+    import inspect
+
+    tree = ast.parse(inspect.getsource(P))
+
+    styled_spans = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.With):
+            for item in node.items:
+                call = item.context_expr
+                if (isinstance(call, ast.Call)
+                        and getattr(call.func, "id", "") == "figure_style"):
+                    styled_spans.append((node.lineno, node.end_lineno))
+
+    unstyled = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if not (isinstance(func, ast.Attribute)
+                and func.attr in ("subplots", "figure")
+                and getattr(func.value, "id", "") == "plt"):
+            continue
+        if not any(start <= node.lineno <= end for start, end in styled_spans):
+            unstyled.append(node.lineno)
+
+    assert unstyled == [], (
+        "these plt.subplots/plt.figure calls are outside every figure_style "
+        f"scope, at spacr/plot.py lines {unstyled}")
