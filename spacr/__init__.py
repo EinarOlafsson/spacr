@@ -204,6 +204,12 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # Where each gene's protein lives, for colouring ONE compartment against
     # grey. Pure pandas: the join belongs to the screen, not to the picture.
     "localisation",
+    # Everything spaCR knows about a Toxoplasma gene, joined onto an export
+    # by gene NUMBER. Next to `localisation` because it is the same join
+    # widened from one compartment to the whole annotation, and separate
+    # from `toxo` because that module draws figures and this one only reads
+    # the five bundled CSVs.
+    "annotation",
     # What an effect size is measured FROM, and the sentence that says so.
     # Separate from `figures` because the answer belongs to the fit, not to
     # the picture: the console summary and the exported stats table state the
