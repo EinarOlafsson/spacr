@@ -1,0 +1,66 @@
+================================================================================
+THE EXPLAINER TEXT FILLS THE WIDTH OF ITS BOX
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18, twice, once per box --
+
+  "in model and inference in regression module the text in the text box
+   should span the width of the textbox"
+
+  "in permutation test in regression module the text in the text box should
+   span the width of the textbox"
+
+Related: 132 built the Model & Inference box. 135 asked for the Permutation
+         Test one. This is one behaviour across both.
+
+--------------------------------------------------------------------------------
+WHY IT DOES NOT TODAY
+--------------------------------------------------------------------------------
+
+The text is HARD-WRAPPED before it reaches the widget.
+`settings_model._wrap_block` runs `textwrap.wrap` at `_EXPLAINER_WIDTH`, and
+`app_screen._install_section_explainer` then sets
+`QPlainTextEdit.NoWrap` and a minimum width of that same column.
+
+So the paragraph is a fixed number of characters wide whatever the panel is.
+Widen the settings pane and the box widens with it; the text does not. The
+right-hand side of the box is empty.
+
+BOTH DECISIONS WERE MADE FOR REAL REASONS, and the fix has to keep them:
+
+  * NoWrap is there because soft-wrapping ON TOP of a hard wrap broke every
+    prose line a second time, at a different column, with no hanging indent.
+    That is worse than either alone.
+  * The hard wrap is there so a FORMULA pasted out of the box arrives in a
+    methods section as the line it was written as, and so the text has a
+    stable shape a test can assert.
+
+--------------------------------------------------------------------------------
+WHAT IT SHOULD DO
+--------------------------------------------------------------------------------
+
+PROSE WRAPS TO THE BOX. Stop hard-wrapping paragraphs; let the widget do it,
+so the text reflows when the pane is resized and fills the width it is given.
+
+FORMULAS DO NOT WRAP. They are the reason the box exists -- a formula broken
+across two lines at an arbitrary column is not a formula. A formula line that
+is wider than the box is reached by scrolling, or by the box growing, never by
+breaking it.
+
+That means the two need different treatment rather than one wrap mode for the
+whole box: a rich-text box whose paragraphs wrap and whose formula lines sit
+in a non-wrapping block is the obvious shape. Whatever is chosen, keep the box
+READ-ONLY, SELECTABLE and MONOSPACE for the formulas, and keep the monospace
+coming through a QSS rule on the objectName -- a `setFont` loses to the
+theme's global `QWidget { font-family: "Open Sans" }` and the box renders
+proportional, which was measured.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Widening the settings pane reflows the prose; the right margin stays even.
+* No paragraph is wrapped at a column narrower than the box.
+* Every formula is on one line, at any pane width, and copies out as one line.
+* Both boxes behave the same way -- Model & Inference and Permutation Test.
