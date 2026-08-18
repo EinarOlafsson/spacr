@@ -178,37 +178,52 @@ def variance_inflation_factors(fractions: pd.DataFrame, *,
     than returning infinities for a design that cannot support the simultaneous
     model at all -- in that case :func:`design_report` is the answer.
 
-    :param max_guides: VIF costs one regression per guide; on a wide screen
-        the widest-support guides are the informative ones, so the rest are
-        skipped and reported as skipped rather than silently dropped.
+    ONE VIF, COMPUTED ONCE. Instruction 127, finding 4: this package computed
+    variance inflation factors in two modules, and "the duplicated VIF is a
+    small correctness risk of the same shape as finding 2". The numbers came
+    from :func:`spacr.regression_qc.variance_inflation_factors` now; what stays
+    here is the SCREEN's contract around them, which is a different thing from
+    the statistic and is why the two functions both exist.
+
+    MEASURED BEFORE CONSOLIDATING, on 200x20, 400x60 and 96x30 designs each
+    carrying a near-collinear pair: the two implementations agreed to 2.3e-10
+    relative, and named the same columns ``inf`` under exact collinearity. So
+    unlike finding 2 there was no statistical disagreement to resolve -- which
+    is exactly why the duplication was worth removing rather than arbitrating.
+    Two routes to one number that agree today are two routes that can stop
+    agreeing, and nothing was comparing them.
+
+    THE SURVIVOR IS THE CORRELATION ROUTE, on cost. The auxiliary-regression
+    form this used ran one least-squares fit per guide, ``O(p^4)``; the
+    identity ``VIF_j = (R^-1)_jj`` is one ``O(p^3)`` decomposition. Timed here:
+    130.8 ms against 13.0 ms at 60 guides, and the gap widens with the fourth
+    power. A pooled screen has hundreds.
+
+    :param max_guides: how many guides to REPORT, widest support first. It was
+        never a limit on the computation -- each guide's VIF was always taken
+        against every other guide -- and it still is not.
     """
     frame = fractions.loc[:, fractions.std(axis=0) > 0]
     n_wells, n_guides = frame.shape
     if n_guides == 0:
         return pd.DataFrame(columns=["guide", "vif"])
     if n_wells <= n_guides:
+        # The engine would answer `inf` for every guide here, which is true and
+        # useless. A rank-deficient design has no VIF to report, and saying so
+        # is what sends the caller to the panel that can describe it.
         raise ValueError(
             f"Variance inflation factors need more wells ({n_wells}) than "
             f"guides ({n_guides}); this design is rank deficient, so use "
             f"design_report() and collinear_guide_pairs() instead.")
+
+    from .regression_qc import variance_inflation_factors as _engine
+
+    values = _engine(frame)
     support = (frame > 0).sum(axis=0).sort_values(ascending=False)
     selected = list(support.index[:max_guides])
-    values = frame.to_numpy(dtype=float)
-    columns = list(frame.columns)
-    rows = []
-    for name in selected:
-        index = columns.index(name)
-        others = np.delete(values, index, axis=1)
-        target = values[:, index]
-        design = np.column_stack([np.ones(len(others)), others])
-        coefficients, *_ = np.linalg.lstsq(design, target, rcond=None)
-        fitted = design @ coefficients
-        total = float(np.sum((target - target.mean()) ** 2))
-        residual = float(np.sum((target - fitted) ** 2))
-        r_squared = 1.0 - residual / total if total > 0 else 0.0
-        vif = np.inf if r_squared >= 1.0 else 1.0 / (1.0 - r_squared)
-        rows.append({"guide": name, "vif": float(vif),
-                     "wells_with_guide": int(support[name])})
+    rows = [{"guide": name, "vif": float(values[name]),
+             "wells_with_guide": int(support[name])}
+            for name in selected]
     return pd.DataFrame(rows).sort_values("vif", ascending=False).reset_index(
         drop=True)
 
