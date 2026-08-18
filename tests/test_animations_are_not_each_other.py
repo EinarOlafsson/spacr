@@ -159,3 +159,60 @@ class TestTheSceneDrawsItsCriterion:
             "the pair that survives must overlap visibly less than the pair "
             f"that merges: {gap}"
         )
+
+
+@pytest.mark.parametrize("kind", KINDS)
+@pytest.mark.parametrize("bound", ["min", "max"])
+def test_the_intensity_filter_is_not_the_area_filter(kind, bound, paths):
+    """`*_min_area` and `*_min_intensity_percentile` were 20% distinct.
+
+    Both drew four objects of four different sizes, and the intensity variant
+    additionally gave them four brightnesses. So the two orders agreed, size
+    was the visible one, and nothing told a viewer which property the
+    threshold had actually read.
+    """
+    got = _ink_difference(
+        paths[f"{kind}_{bound}_area"],
+        paths[f"{kind}_{bound}_intensity_percentile"])
+    assert got > MIN_DISTINCT_INK * 2, (
+        f"{kind}_{bound}_intensity_percentile differs from {kind}_{bound}_area "
+        f"in only {got:.1%} of its drawn area"
+    )
+
+
+class TestTheIntensityFilterVariesOnlyIntensity:
+
+    def _outlines(self, slug, action):
+        gen = pytest.importorskip("generate_setting_animations")
+        spec = next(s for s in gen._specs() if s.slug == slug)
+        seen = []
+        real, well = gen._object_outline, gen._well
+        gen._object_outline = (
+            lambda p, k, c, size, amount=1.0, phase=0.0, **kw: seen.append((c, size, amount)))
+        gen._well = lambda *a, **k: None
+        try:
+            gen._filter_scene(object(), spec, action)
+        finally:
+            gen._object_outline, gen._well = real, well
+        return seen
+
+    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("bound", ["min", "max"])
+    def test_every_object_is_the_same_size(self, kind, bound):
+        sizes = {s for _c, s, _a in
+                 self._outlines(f"{kind}_{bound}_intensity_percentile", 0.0)}
+        assert len(sizes) == 1, f"the objects still differ in size: {sizes}"
+
+    @pytest.mark.parametrize("kind", KINDS)
+    @pytest.mark.parametrize("bound", ["min", "max"])
+    def test_and_they_differ_in_brightness(self, kind, bound):
+        amounts = sorted(a for _c, _s, a in
+                         self._outlines(f"{kind}_{bound}_intensity_percentile", 0.0))
+        assert len(set(amounts)) == 4, amounts
+        assert amounts[-1] - amounts[0] > 0.4, "the range is too small to read"
+
+    @pytest.mark.parametrize("kind", KINDS)
+    def test_the_area_filter_still_varies_size(self, kind):
+        """The fix must not flatten the family it was distinguishing from."""
+        sizes = {s for _c, s, _a in self._outlines(f"{kind}_min_area", 0.0)}
+        assert len(sizes) == 4, sizes
