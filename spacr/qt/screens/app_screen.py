@@ -2042,6 +2042,10 @@ class AppScreen(QWidget):
                 # returns early for the run already on screen, so the two
                 # signals the Runs tab emits together cost one load.
                 self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+                # A RUN THAT LEAVES THE TABLE LEAVES THE OTHER VIEWS
+                # (instruction 146). The panel keeps a plot state per run and
+                # the results tab may be showing the very run being removed.
+                self._sweep_runs.runs_removed.connect(self._on_runs_removed)
                 left = QTabWidget(self._figures_card)
                 # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
                 # 2026-08-17: "the run tab should be before the results tab
@@ -4151,6 +4155,31 @@ class AppScreen(QWidget):
                 str((outcome or {}).get("error") or "did not fit"))
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not update the column fit's row", exc_info=True)
+
+    def _on_runs_removed(self, records) -> None:
+        """Runs left the Runs tab: take their retained views with them.
+
+        Instruction 116 left this hook waiting, and `forget_run` is where
+        the ordering trap it wrote down is handled -- clearing the panel and
+        forgetting the state have to happen in one order and not the other.
+        This method's job is only to know WHICH runs left.
+
+        Without it, a later run written into the same folder inherits the
+        deleted one's level, colouring and effect cut, with nothing on screen
+        saying where they came from.
+        """
+        panel = getattr(self, "_results_panel", None)
+        if panel is None or not records:
+            return
+        for record in records:
+            folder = str((record or {}).get("folder") or "")
+            if not folder:
+                continue
+            try:
+                panel.forget_run(folder)
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not forget the run in %s", folder,
+                          exc_info=True)
 
     def _on_results_tab_changed(self, index: int) -> None:
         """Opening a tab re-reads what it shows.
