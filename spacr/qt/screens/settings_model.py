@@ -3716,6 +3716,403 @@ def regression_design_scan(settings) -> dict:
     return out
 
 
+# ---------------------------------------------------------------------------
+# The box is TYPESET, not dumped (instruction 144)
+# ---------------------------------------------------------------------------
+#
+# 2026-08-18: "actually my main problem was it dosnt look great. i want you to
+# use markdown and colors for negative (CANNOT) and positive (MODEL, LEVEL,
+# ETC.) text. make the formula look better (write the math symbol version then
+# the code version if possible) short discriptions that contain the vital
+# information for the user and links to APIs for the different methods".
+#
+# 143 read the first report as "too long" and cut 2,438 characters to 892. The
+# content is settled; what was left is that nothing was EMPHASISED, so a
+# formula read exactly like a caveat.
+#
+# ONE SOURCE, TWO LAYOUTS. Everything below composes the SAME pieces the plain
+# renderer does -- `_MODE_TITLES`, `_MODE_NOTES`, `formula_for`,
+# `mixed_cost_note` -- so the two cannot say different things. Only the layout
+# is written twice, and the plain one stays because it is what a test can
+# assert on and what a headless caller can print.
+
+#: The maths, per model term. Instruction 144 C: "write the math symbol
+#: version then the code version if possible."
+#:
+#: REAL UNICODE, NOT LATEX SOURCE. The box is a widget, not a renderer, and
+#: ``\beta`` on screen is worse than no symbol at all.
+_MATHS_RESPONSE = {
+    "grna": "yᵢ = μ + Σ_g β_g·f_gi",
+    "gene": "yᵢ = μ + Σ_G β_G·F_Gi",
+    "mixed": "yᵢ = μ + Σ_G β_G·F_Gi + u_G + u_G:g",
+}
+
+
+def maths_for(kind: str, *, plate_position: bool = True,
+              random_row_column: bool = False) -> List[str]:
+    """The statistical statement, as lines, for one model term.
+
+    THE MATHS AND THE CODE MUST AGREE, and this is the half that keeps them
+    agreeing: it takes the same two plate arguments :func:`formula_for` does
+    and reads them the same way. If the code line says ``+ rowID +
+    columnID``, ρ and γ are here; if instruction 143's plate-position toggle
+    turns them off, BOTH lose them; if they are random effects, both say
+    random. A box whose two formulas disagree is worse than a box with one.
+
+    :param kind: ``'grna'``, ``'gene'`` or ``'mixed'``.
+    :returns: the response line first, then the distribution line(s).
+    """
+    response = _MATHS_RESPONSE[str(kind)]
+    distributions = []
+    if str(kind) == "mixed":
+        distributions.append("u_G ~ N(0, σ²_gene)   u_G:g ~ N(0, σ²_guide)")
+    if random_row_column:
+        response += " + u_r(i) + u_c(i)"
+        distributions.append("u_r(i) ~ N(0, σ²_row)   u_c(i) ~ N(0, σ²_col)")
+    elif plate_position:
+        response += " + ρ_r(i) + γ_c(i)"
+    response += " + εᵢ"
+    distributions.append("εᵢ ~ N(0, σ²)")
+    return [response] + distributions
+
+
+_STATSMODELS = "https://www.statsmodels.org/stable/generated/"
+_SKLEARN = "https://scikit-learn.org/stable/modules/generated/"
+
+#: Where each backend's API lives, as ``(what to call it, where it is)``.
+#:
+#: REAL URLS, NOT BARE MODULE PATHS (instruction 144 D). A link that does not
+#: open is worse than a module name, which at least can be searched.
+MODEL_API_LINKS = {
+    "auto": ("spacr.ml.check_distribution", "ml"),
+    "ols": ("statsmodels OLS",
+            _STATSMODELS + "statsmodels.regression.linear_model.OLS.html"),
+    "wls": ("statsmodels WLS",
+            _STATSMODELS + "statsmodels.regression.linear_model.WLS.html"),
+    "rlm": ("statsmodels RLM",
+            _STATSMODELS + "statsmodels.robust.robust_linear_model.RLM.html"),
+    "huber": ("statsmodels RLM",
+              _STATSMODELS
+              + "statsmodels.robust.robust_linear_model.RLM.html"),
+    "glm": ("statsmodels GLM",
+            _STATSMODELS
+            + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "poisson": ("statsmodels GLM",
+                _STATSMODELS
+                + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "logit": ("statsmodels GLM",
+              _STATSMODELS
+              + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "probit": ("statsmodels GLM",
+               _STATSMODELS
+               + "statsmodels.genmod.generalized_linear_model.GLM.html"),
+    "quasi_binomial": ("statsmodels GLM",
+                       _STATSMODELS
+                       + "statsmodels.genmod.generalized_linear_model.GLM"
+                         ".html"),
+    "beta": ("statsmodels BetaModel",
+             _STATSMODELS + "statsmodels.othermod.betareg.BetaModel.html"),
+    "quantile": ("statsmodels QuantReg",
+                 _STATSMODELS
+                 + "statsmodels.regression.quantile_regression.QuantReg"
+                   ".html"),
+    "mixed": ("statsmodels MixedLM",
+              _STATSMODELS
+              + "statsmodels.regression.mixed_linear_model.MixedLM.html"),
+    "ridge": ("scikit-learn Ridge",
+              _SKLEARN + "sklearn.linear_model.Ridge.html"),
+    "lasso": ("scikit-learn Lasso",
+              _SKLEARN + "sklearn.linear_model.Lasso.html"),
+    "elasticnet": ("scikit-learn ElasticNet",
+                   _SKLEARN + "sklearn.linear_model.ElasticNet.html"),
+    "hinge": ("scikit-learn LinearSVC",
+              _SKLEARN + "sklearn.svm.LinearSVC.html"),
+    "group_lasso": ("spacr.group_lasso", "group_lasso"),
+    "rra": ("spacr.rra (MAGeCK alpha-RRA)", "rra"),
+    "horseshoe": ("spacr.power_model", "power_model"),
+}
+
+
+def model_api_link(regression_type: Any) -> Tuple[str, str]:
+    """``(name, url)`` for one backend's API, or ``("", "")``.
+
+    A spaCR backend is named by its MODULE and resolved against the published
+    API documentation, so `group_lasso` and `rra` get the same kind of link
+    statsmodels does rather than a module path a user has to go and find.
+    """
+    key = str(regression_type or "").strip().lower()
+    entry = MODEL_API_LINKS.get(key)
+    if entry is None:
+        return "", ""
+    name, target = entry
+    if target.startswith("http"):
+        return name, target
+    return name, f"{DOCS_API_BASE}/spacr/{target}/index.html"
+
+
+#: Phrases the box emphasises, and the palette token each takes.
+#:
+#: AN EXPLICIT, SHORT TABLE rather than a rule over the prose. "Everything is
+#: plain except what the sentence is about" (`spacr/figures/style.py`) applies
+#: to text as much as to a figure; a regex that coloured every capitalised
+#: phrase would make the box a ransom note, which is the failure this
+#: instruction is correcting rather than a smaller version of it.
+_EMPHASIS = (
+    ("NO GUIDE-LEVEL HIT LIST", "error"),
+    ("REPORTS NO P-VALUE", "error"),
+    ("NOTHING TO BH-CORRECT", "error"),
+    ("TWO MODELS, TWO TABLES", "success"),
+)
+
+#: The one heading that is a refusal rather than a description, so it takes
+#: `error` where every other heading takes `accent`.
+_REFUSAL_HEADING = "WHAT YOU DO NOT GET"
+
+#: What the box falls back to when no palette is handed in -- which is what a
+#: test that is not about colour wants. Named tokens, not hexes, so a reader
+#: of the rendered HTML can see which token a colour came from.
+_TOKEN_FALLBACK = {name: name for name in
+                   ("fg", "fg_muted", "accent", "error", "success",
+                    "chip_value")}
+
+
+def _colours(palette: Optional[Dict[str, Any]]) -> Dict[str, str]:
+    """The six tokens the box paints with, from the theme or by name.
+
+    EVERY COLOUR COMES FROM THE THEME (instruction 144 B). The palette was
+    contrast-checked against `CONTRAST_RULES`; a hand-picked hex has not been,
+    and it would be a fourth opinion about what "negative" looks like in an
+    application that already has one.
+    """
+    if not palette:
+        return dict(_TOKEN_FALLBACK)
+    return {name: str(palette.get(name) or _TOKEN_FALLBACK[name])
+            for name in _TOKEN_FALLBACK}
+
+
+def _ink(text: str, colour: str, *, bold: bool = False) -> str:
+    """One coloured run of already-escaped text."""
+    weight = " font-weight:600;" if bold else ""
+    return f'<span style="color:{colour};{weight}">{text}</span>'
+
+
+def _prose_html(text: str, ink: Dict[str, str]) -> str:
+    """One paragraph, escaped, with the emphasis table applied."""
+    out = escape(str(text))
+    for phrase, token in _EMPHASIS:
+        if phrase in out:
+            out = out.replace(phrase, _ink(phrase, ink[token], bold=True))
+    return f'<p style="margin:2px 0 8px 0;">{out}</p>'
+
+
+def _heading_html(text: str, ink: Dict[str, str], *,
+                  writes: str = "") -> str:
+    """A section heading: accent, or `error` when the section is a refusal.
+
+    :param writes: the output file this section's formula produces. It is on
+        the HEADING rather than under the formula because "which file does
+        this end up in" is the question asked while scanning, and a name in
+        `chip_value` is what makes it findable without reading the prose.
+    """
+    token = "error" if text == _REFUSAL_HEADING else "accent"
+    tail = (f' → {_ink(escape(writes), ink["chip_value"])}' if writes else "")
+    return (f'<p style="margin:10px 0 2px 0;">'
+            f'{_ink(escape(text), ink[token], bold=True)}{tail}</p>')
+
+
+def _formula_html(maths: List[str], code: str, ink: Dict[str, str]) -> str:
+    """The maths, then the code, both unwrapped and both copyable.
+
+    ``<pre>`` rather than a widget-wide no-wrap setting, which is what makes
+    instruction 138 (the prose fills the box) and "a formula is never broken"
+    stop fighting each other: wrapping is per BLOCK in rich text and was
+    per WIDGET in plain text, so one of the two always lost.
+    """
+    lines = "\n".join(escape(line) for line in maths)
+    return (f'<pre style="margin:2px 0 2px 12px; color:{ink["fg"]};">'
+            f'{lines}</pre>'
+            f'<pre style="margin:2px 0 8px 12px;">'
+            f'{_ink(escape(code), ink["accent"])}</pre>')
+
+
+def _api_html(regression_type: Any, ink: Dict[str, str]) -> str:
+    """The backend's API link, or "" when there is none to give."""
+    name, url = model_api_link(regression_type)
+    if not url:
+        return ""
+    return (f'<p style="margin:10px 0 2px 0;">'
+            f'{_ink("API", ink["accent"], bold=True)} '
+            f'<a href="{escape(url)}" style="color:{ink["accent"]};">'
+            f'{escape(name)}</a></p>')
+
+
+def regression_model_explainer_html(regression_type: Any,
+                                    level: Any = "both",
+                                    plate_position: Any = True,
+                                    random_row_column: Any = False,
+                                    palette: Optional[Dict[str, Any]] = None
+                                    ) -> str:
+    """The box's text, TYPESET -- the same content as the plain renderer.
+
+    :param palette: `spacr.qt.theme.active_palette()`. Omitted, the tokens
+        render under their own names, which is what a test that is not about
+        colour wants and is never what the widget passes.
+
+    WHAT IS COLOURED AND WHY, because the ceiling is four colours on screen
+    at once and not four as a target:
+
+    ==================================  ==========
+    section headings, ``MODEL:``/``LEVEL:``, links   accent
+    the refusal heading and its negations            error
+    the output file each formula writes              chip_value
+    ``TWO MODELS, TWO TABLES``                       success
+    body                                             fg
+    the caveat sentence and the history pointer      fg_muted
+    ==================================  ==========
+
+    The most any one box renders is four of the emphasis colours at once
+    (`lasso` at `level='both'`: accent, chip_value, success, error), which is
+    the ceiling rather than a coincidence -- there is a test on it.
+    """
+    position = {"plate_position": bool(plate_position),
+                "random_row_column": bool(random_row_column)}
+    ink = _colours(palette)
+    key = str(regression_type or "auto").strip().lower() or "auto"
+    parts = [f'<div style="color:{ink["fg"]};">']
+
+    if key not in _MODE_NOTES:
+        parts.append(f'<p>{_ink("MODEL:", ink["accent"], bold=True)} '
+                     f'{escape(key)}</p>')
+        parts.append(_prose_html(
+            "spaCR has no description for this model, which means it is not "
+            "one of the backends spacr.ml can fit. The run will refuse it "
+            "and name the models it accepts.", ink))
+        parts.append("</div>")
+        return "".join(parts)
+
+    title = _MODE_TITLES.get(key, key)
+    if key == "mixed":
+        parts.append(
+            f'<p style="margin:0 0 2px 0;">'
+            f'{_ink("MODEL:", ink["accent"], bold=True)} mixed — '
+            f'{escape(title)}<br/>'
+            f'{_ink("LEVEL:", ink["accent"], bold=True)} not applicable — '
+            f'one model carries both levels</p>')
+        parts.append(_heading_html("FORMULA", ink))
+        parts.append(_formula_html(maths_for("mixed", **position),
+                                   formula_for(MIXED_TERM, **position), ink))
+        parts.append(_heading_html("WHAT IS MODELLED", ink))
+        parts.append(_prose_html(_MODE_NOTES["mixed"], ink))
+        parts.append(_heading_html(_REFUSAL_HEADING, ink))
+        parts.append(_prose_html(
+            "Guide-level results come back as BLUPs — shrunken PREDICTIONS "
+            "of each guide's departure from its gene, NOT coefficients with "
+            "standard errors and p-values — so there is NO GUIDE-LEVEL HIT "
+            "LIST from this model, and nothing guide-level to BH-correct. If "
+            "a ranked, tested list of individual guides is what you need, "
+            "choose any other model with level='grna'.", ink))
+        parts.append(_heading_html("WHAT IT COSTS", ink))
+        parts.append(_prose_html(mixed_cost_note(), ink))
+        parts.append(_heading_html("MULTIPLE TESTING", ink))
+        parts.append(_prose_html(
+            "The gene coefficients are BH-corrected as one family. There is "
+            "no second family here, because the guide effects are not "
+            "tested.", ink))
+    else:
+        chosen = normalise_regression_level(level)
+        level_line = {
+            "both": "both — the two fits below, run SEPARATELY",
+            "grna": "grna — the guide fit only",
+            "gene": "gene — the gene fit only",
+        }[chosen]
+        parts.append(
+            f'<p style="margin:0 0 2px 0;">'
+            f'{_ink("MODEL:", ink["accent"], bold=True)} {escape(key)} — '
+            f'{escape(title)}<br/>'
+            f'{_ink("LEVEL:", ink["accent"], bold=True)} '
+            f'{escape(level_line)}</p>')
+        parts.append(f'<p style="margin:2px 0 6px 0; '
+                     f'color:{ink["fg_muted"]};">'
+                     f'Fixed effects only — no nesting of guides inside '
+                     f'genes.</p>')
+        if chosen in ("both", "grna"):
+            parts.append(_heading_html("FORMULA (guide fit)", ink,
+                                       writes="results_grna.csv"))
+            parts.append(_formula_html(maths_for("grna", **position),
+                                       formula_for(GRNA_TERM, **position),
+                                       ink))
+            parts.append(_prose_html(
+                "One coefficient per guide, the unit the screen measures.",
+                ink))
+        if chosen in ("both", "gene"):
+            parts.append(_heading_html("FORMULA (gene fit)", ink,
+                                       writes="results_gene.csv"))
+            parts.append(_formula_html(maths_for("gene", **position),
+                                       formula_for(GENE_TERM, **position),
+                                       ink))
+            parts.append(_prose_html(
+                "One coefficient per gene, from the summed guide fraction.",
+                ink))
+        if chosen == "both":
+            parts.append(_prose_html(
+                "TWO MODELS, TWO TABLES — fitted separately, NOT one design "
+                "containing both.", ink))
+        parts.append(_heading_html(f"WHAT {key.upper()} DOES", ink))
+        parts.append(_prose_html(_MODE_NOTES[key], ink))
+        parts.append(_heading_html("MULTIPLE TESTING", ink))
+        if key in NO_P_VALUE_TYPES:
+            fits = "Each fit ranks" if chosen == "both" else "The fit ranks"
+            parts.append(_prose_html(
+                f"{fits} features by bootstrap selection frequency and "
+                f"REPORTS NO P-VALUE, so there is NOTHING TO BH-CORRECT. A "
+                f"selection frequency is not a false-discovery rate and "
+                f"should not be quoted as one.", ink))
+        elif chosen == "both":
+            parts.append(_prose_html(
+                "Each fit is its OWN multiple-testing family and is "
+                "BH-corrected within itself.", ink))
+        else:
+            parts.append(_prose_html(
+                "The single fit is BH-corrected as one family.", ink))
+
+    parts.append(_api_html(key, ink))
+    parts.append(f'<p style="margin:12px 0 0 0; color:{ink["fg_muted"]};">'
+                 f'{escape(_HISTORY_POINTER)}</p>')
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def permutation_test_explainer_html(
+        palette: Optional[Dict[str, Any]] = None) -> str:
+    """The Permutation Test box, typeset the same way the model box is.
+
+    The two boxes sit on one panel, and one of them being rich text while the
+    other is a monospace dump is the same complaint one section further down.
+    """
+    ink = _colours(palette)
+    return (f'<div style="color:{ink["fg"]};">'
+            + _heading_html("WHAT THIS TEST DOES", ink)
+            + _prose_html(_PERMUTATION_NOTE, ink)
+            + '</div>')
+
+
+def section_explainer_html(app_key: str, title: str,
+                           settings: Optional[Dict[str, Any]] = None,
+                           palette: Optional[Dict[str, Any]] = None) -> str:
+    """One section's box as HTML, or ``""`` when the section has none."""
+    if not has_section_explainer(app_key, title):
+        return ""
+    values = settings or {}
+    if title == "Model & Inference":
+        return regression_model_explainer_html(
+            values.get("regression_type", "auto"),
+            values.get("level", "both"),
+            plate_position=values.get("model_plate_position", True),
+            random_row_column=values.get("random_row_column_effects", False),
+            palette=palette)
+    return permutation_test_explainer_html(palette)
+
+
 def explainer_width() -> int:
     """The narrowest the box may be, in monospace characters.
 
