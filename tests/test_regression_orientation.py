@@ -1033,6 +1033,16 @@ COVERED_ELSEWHERE = {
     # separation are pinned by test_regression_types.py (marked slow) and the
     # null case by test_power_model.test_null_screen_auroc_is_near_chance.
     "horseshoe": "tests/test_regression_types.py + tests/test_power_model.py",
+    # Instruction 133. Both need the DESIGN COLUMN NAMES to find the gene
+    # behind each guide, and the fixtures in this file build a design whose
+    # columns are 'a', 'b', 'c' -- there is no gene in them to group by, so
+    # the planted-effect test has to be run on a screen-shaped design.
+    "group_lasso":
+        "tests/test_group_lasso_and_rra_backends.py"
+        "::test_group_lasso_selects_a_genes_guides_as_a_block",
+    "rra":
+        "tests/test_group_lasso_and_rra_backends.py"
+        "::test_rra_recovers_the_planted_gene_as_the_top_call",
 }
 
 
