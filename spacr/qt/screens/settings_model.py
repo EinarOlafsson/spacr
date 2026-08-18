@@ -934,7 +934,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # therefore fits both levels at once. A control whose enabled
             # state is decided by `regression_type` belongs beside it, not
             # three sections away.
-            "inference", "analysis_mode", "regression_type", "level",
+            # WHICH MODEL, THEN WHO FITS IT, THEN AT WHICH LEVELS. Asked for
+            # on 2026-08-18: "regression backend should be in Model and
+            # inference right after regression type". `regression_type` says
+            # WHAT is fitted and `regression_backend` says WHO fits it -- the
+            # same mixed model through statsmodels or through torch on the
+            # GPU should give the same answer and not the same runtime -- so
+            # the two belong adjacent, and `level` follows them.
+            "inference", "analysis_mode", "regression_type",
+            "regression_backend", "level",
             # `model_plate_position` decides whether rowID and columnID are in
             # the model at all; `random_row_column_effects` then decides fixed
             # vs random for terms that ARE in. Adjacent because setting one
