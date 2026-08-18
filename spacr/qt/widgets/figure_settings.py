@@ -1491,3 +1491,300 @@ def export_sidecars(figure, path) -> list:
 
 __all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
            "export_sidecars", "save_figure_as"]
+
+
+# ---------------------------------------------------------------------------
+# INSTRUCTION 118 -- FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
+#
+#   "in the general app preferences in the figure tab theere should be general
+#    graph settings and specialized settings for al the possible different
+#    sets of graphs"
+#
+# The MODEL for this already existed: `spacr.figure_style` holds
+# GENERAL_DEFAULTS, GRAPH_DEFAULTS and `resolve`, and `spacr.figures.style`
+# lays a user's deltas over the publication house style. What did not exist
+# was any way to SET them -- the Figures tab held format, DPI, cache size and
+# the dynamic switch, and nothing at all about how a plot looks.
+#
+# BUILT FROM `figure_style`'S OWN TABLES, not from a hand-written list. That
+# is the same decision `add_style_entries` made for instruction 108 and for
+# the same reason: a style gains a key, the panel gains a control, and the two
+# cannot fall out of step. It also means this file never has to know what a
+# volcano is.
+#
+# THE STORE HOLDS DELTAS, NOT THE RESOLVED STYLE, and that contract is older
+# than this panel -- `get_figure_style` returns {} on a fresh install and
+# `figures.style.user_overrides` returns only the keys the user MOVED, so a
+# user who has never opened Preferences gets the published house style
+# exactly. Writing the whole resolved style here would replace the house style
+# for everybody, which is the same class of mistake as instruction 152 A's
+# persisted resolution.
+# ---------------------------------------------------------------------------
+
+#: Closed sets for style keys whose values are a choice rather than a number.
+#:
+#: DECLARED HERE AND NOT IN `figure_style`, which is another territory this
+#: session does not own. `spines` is derived from that module's own
+#: SPINE_PRESETS rather than copied, so the one set that already exists as
+#: data cannot drift; the rest are read off the comments beside their
+#: defaults ("sem | sd | ci95 | none") and SHOULD move into the module as
+#: metadata the next time it is opened. Noted rather than silently duplicated.
+STYLE_CHOICES = {
+    "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
+    "grid_style": tuple(style for style, _label in LINE_STYLES),
+    "threshold_style": tuple(style for style, _label in LINE_STYLES),
+    "reference_style": tuple(style for style, _label in LINE_STYLES),
+    "format": ("pdf", "png", "svg"),
+    "colormap": ("viridis", "plasma", "inferno", "magma", "cividis",
+                 "coolwarm", "RdBu_r"),
+    "bins": ("auto", "sturges", "fd", "scott", "sqrt"),
+    "error_bars": ("sem", "sd", "ci95", "none"),
+    "aspect": ("equal", "auto"),
+}
+
+
+def style_choices_for(name: str) -> tuple:
+    """The closed set ``name`` may take, or ``()``."""
+    if name == "spines":
+        try:
+            from ...figure_style import SPINE_PRESETS
+
+            return tuple(SPINE_PRESETS)
+        except Exception:               # pragma: no cover - import guard
+            return ("all", "left_bottom", "none")
+    return tuple(STYLE_CHOICES.get(name, ()))
+
+
+def _looks_like_a_colour(value) -> bool:
+    return isinstance(value, str) and value.startswith("#")
+
+
+def style_setting_label(name: str) -> str:
+    """``grid_colour`` -> ``Grid colour``. British spelling is kept as the
+    key spells it, because the key is what a user editing the INI sees."""
+    return str(name).replace("_", " ").strip().capitalize()
+
+
+class FigureStylePreferences(QWidget):
+    """The Figures tab's GENERAL and PER-GRAPH style settings.
+
+    Instruction 118. Two levels, and the split is the whole design: a general
+    style covers what every figure shares, and a per-graph style overrides it
+    for one kind, because the settings that make a volcano readable are not
+    the ones that make a plate heatmap readable. Changing the volcano's point
+    size must not touch the heatmaps -- there is a test named for it.
+
+    :param general: the user's stored general deltas.
+    :param per_graph: the user's stored per-graph deltas, ``{kind: {...}}``.
+
+    ONE KIND AT A TIME, chosen from a combo. Seven kinds times a dozen
+    settings is eighty-odd rows, and a preferences tab that long is one
+    nobody finds anything in -- which is the failure the report ("the graphs
+    look pretty ugly") is downstream of, not a new one to introduce.
+    """
+
+    def __init__(self, general=None, per_graph=None, parent=None):
+        super().__init__(parent)
+        from ...figure_style import (GENERAL_DEFAULTS, GRAPH_DEFAULTS,
+                                     GRAPH_KINDS)
+
+        self._general_defaults = dict(GENERAL_DEFAULTS)
+        self._graph_defaults = {kind: dict(values)
+                                for kind, values in GRAPH_DEFAULTS.items()}
+        self._kinds = tuple(GRAPH_KINDS)
+        self._general = dict(general or {})
+        self._per_graph = {str(kind): dict(values)
+                           for kind, values in (per_graph or {}).items()
+                           if isinstance(values, dict)}
+
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+
+        heading = QLabel(
+            "Applies to every figure. A graph type below can override any "
+            "of it.")
+        heading.setWordWrap(True)
+        column.addWidget(heading)
+
+        general_form = QFormLayout()
+        general_form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        column.addLayout(general_form)
+        #: ``{name: (getter, default)}`` for the general layer.
+        self._general_controls = {}
+        for name, default in self._general_defaults.items():
+            value = self._general.get(name, default)
+            widget, getter, setter = self._control(name, value)
+            self._general_controls[name] = (getter, setter, default)
+            general_form.addRow(style_setting_label(name), widget)
+
+        column.addSpacing(8)
+        picker_row = QHBoxLayout()
+        picker_row.addWidget(QLabel("Graph type"))
+        self._kind_box = QComboBox()
+        self._kind_box.setToolTip(
+            "Settings for one kind of graph, laid over the general ones "
+            "above. Only what you change here is stored, so a graph type you "
+            "have not touched follows the general settings.")
+        for kind in self._kinds:
+            self._kind_box.addItem(style_setting_label(kind), kind)
+        picker_row.addWidget(self._kind_box, 1)
+        column.addLayout(picker_row)
+
+        #: One page per kind, so switching kinds cannot lose an edit made on
+        #: another -- which a rebuild-on-change panel would do silently.
+        self._pages = QTabWidget()
+        self._pages.tabBar().setVisible(False)
+        #: ``{kind: {name: (getter, default)}}``.
+        self._kind_controls = {}
+        for kind in self._kinds:
+            page = QWidget()
+            form = QFormLayout(page)
+            form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+            controls = {}
+            stored = self._per_graph.get(kind, {})
+            for name, default in self._graph_defaults.get(kind, {}).items():
+                value = stored.get(name, default)
+                widget, getter, setter = self._control(name, value)
+                controls[name] = (getter, setter, default)
+                form.addRow(style_setting_label(name), widget)
+            self._kind_controls[kind] = controls
+            self._pages.addTab(page, kind)
+        column.addWidget(self._pages)
+        self._kind_box.currentIndexChanged.connect(self._pages.setCurrentIndex)
+
+    # -- building one control ------------------------------------------------
+
+    def _control(self, name: str, value):
+        """``(widget, getter, setter)`` for one style setting, from its VALUE.
+
+        The value and not a declared type, for the reason instruction 108
+        records: a dataclass under ``from __future__ import annotations``
+        carries its type as a string, and these are plain dicts with no
+        annotation at all. The value is the only thing that is always there.
+
+        THE SETTER IS BUILT HERE, beside the getter, and that is deliberate.
+        "Reset to defaults" has to put every control back, and the
+        alternative -- working out from the widget's class how to write to it
+        -- misses exactly the newest control kind, which is the one nobody
+        remembers to add to the reset. Built together, they cannot disagree.
+        """
+        choices = style_choices_for(name)
+        if isinstance(value, bool):
+            box = QCheckBox()
+            box.setChecked(bool(value))
+            return box, box.isChecked, lambda v: box.setChecked(bool(v))
+        if choices:
+            combo = QComboBox()
+            for option in choices:
+                combo.addItem(str(option), option)
+            index = combo.findData(value)
+            if index < 0:
+                # A stored value the package no longer offers. Kept and
+                # shown rather than snapped to the first entry, because
+                # silently changing a user's setting while showing them a
+                # settings dialog is the worst place to do it.
+                combo.addItem(f"{value} (not offered)", value)
+                index = combo.count() - 1
+            combo.setCurrentIndex(index)
+
+            def _set_combo(v, box=combo):
+                found = box.findData(v)
+                if found >= 0:
+                    box.setCurrentIndex(found)
+            return combo, combo.currentData, _set_combo
+        if _looks_like_a_colour(value):
+            holder = {"value": str(value)}
+            button = _colour_button(
+                str(value), lambda chosen: holder.__setitem__("value", chosen))
+
+            def _set_colour(v, b=button, h=holder):
+                h["value"] = str(v)
+                # THE SWATCH TOO. `_colour_button` paints itself from its own
+                # state, so writing the holder alone would leave the button
+                # showing the old colour -- a reset the user can see did not
+                # happen. Rebuilt in place rather than reaching into the
+                # button's private state.
+                b.setText(str(v))
+                colour = QColor(str(v))
+                if colour.isValid():
+                    ink = "#000" if colour.lightness() > 127 else "#fff"
+                    b.setStyleSheet(f"background-color: {colour.name()}; "
+                                    f"color: {ink};")
+            return button, lambda h=holder: h["value"], _set_colour
+        if isinstance(value, float):
+            spin = QDoubleSpinBox()
+            spin.setDecimals(2)
+            spin.setRange(0.0, 1000.0)
+            spin.setSingleStep(0.1)
+            spin.setValue(float(value))
+            return spin, spin.value, lambda v: spin.setValue(float(v))
+        if isinstance(value, int):
+            spin = QSpinBox()
+            spin.setRange(0, 10000)
+            spin.setValue(int(value))
+            return spin, spin.value, lambda v: spin.setValue(int(v))
+        line = QLineEdit(str(value))
+        return line, line.text, lambda v: line.setText(str(v))
+
+    # -- reading it back -----------------------------------------------------
+
+    def values(self) -> tuple:
+        """``(general, per_graph)`` -- ONLY what differs from the defaults.
+
+        The deltas, never the resolved style. A panel that wrote every
+        control back would freeze today's defaults into every user's
+        settings, so improving a default would stop reaching anybody who had
+        ever opened this tab -- and, through `figures.style.user_overrides`,
+        would replace the publication house style for all of them.
+        """
+        general = {}
+        for name, (getter, _setter, default) in self._general_controls.items():
+            value = getter()
+            if not _same_setting(value, default):
+                general[name] = value
+        per_graph = {}
+        for kind, controls in self._kind_controls.items():
+            changed = {}
+            for name, (getter, _setter, default) in controls.items():
+                value = getter()
+                if not _same_setting(value, default):
+                    changed[name] = value
+            if changed:
+                per_graph[kind] = changed
+        return general, per_graph
+
+    def reset(self) -> None:
+        """Put every control back to the package default.
+
+        Preferences' "Reset to defaults" re-reads every other getter against
+        a throwaway store; this panel holds its controls rather than its
+        store, so it is told directly. A reset that quietly skipped this
+        section would leave the graph style standing while everything around
+        it moved, which reads as a broken reset.
+        """
+        for controls in [self._general_controls] + \
+                list(self._kind_controls.values()):
+            for _name, (_getter, setter, default) in controls.items():
+                setter(default)
+
+    def select_kind(self, kind: str) -> None:
+        """Show one graph type's page. For a caller that knows which figure
+        the user was looking at when they opened Preferences."""
+        index = self._kind_box.findData(str(kind))
+        if index >= 0:
+            self._kind_box.setCurrentIndex(index)
+
+
+def _same_setting(value, default) -> bool:
+    """Whether a control still holds its default.
+
+    Numbers are compared with a tolerance, because a QDoubleSpinBox with two
+    decimals cannot hold 0.6 exactly and a panel that stored `grid_width:
+    0.6000000000000001` would mark every user as having overridden a setting
+    they never touched.
+    """
+    if isinstance(default, bool) or isinstance(value, bool):
+        return bool(value) == bool(default)
+    if isinstance(default, (int, float)) and isinstance(value, (int, float)):
+        return abs(float(value) - float(default)) < 1e-6
+    return str(value) == str(default)
