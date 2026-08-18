@@ -1,0 +1,106 @@
+================================================================================
+THE OLD MATPLOTLIB FIGURES GET THE HOUSE STYLE
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 -- "also overhaul the old matplotlib figures to look
+           better in accordance with the figure making skill"
+
+Related: 118 is figure preferences, which decides where a figure is GOING.
+         129 is the pyqtgraph rewrite, which is a different set of plots.
+
+--------------------------------------------------------------------------------
+THE STYLE ALREADY EXISTS. ALMOST NOTHING USES IT.
+--------------------------------------------------------------------------------
+
+`spacr/figures/style.py` implements the visual system in
+`.claude/skills/apicomplexan-figures`, derived by direct inspection of
+Waldman et al. Cell 2020 and Giuliano et al. Nature Microbiology 2024. It has
+the palette, the type scale, the frame, `figure_style()` as a CONTEXT MANAGER
+(never a global rcParams write), `panel_letter`, `descriptor`,
+`reference_line`, `text_legend` and `theme_target()`.
+
+MEASURED 2026-08-18, by counting `plt.subplots(` / `plt.figure(` against uses
+of `figures.style` per file:
+
+    file                              figures   uses the style
+    spacr/plot.py                          45   0
+    spacr/submodules.py                    12   0
+    spacr/timelapse.py                     11   0
+    spacr/sim.py                            9   0
+    spacr/regression_diagnostics.py         8   5
+    spacr/toxo.py                           6   0
+    spacr/ml.py                             5   0
+    spacr/utils.py                          5   0
+    spacr/io.py                             4   0
+    spacr/figures/sheet.py                  4   3
+    spacr/deep_spacr.py                     3   0
+    spacr/measure.py                        3   0
+    spacr/classifier_evaluation.py          2   0
+    spacr/figures/plates.py                 2   4
+    spacr/sequencing_qc.py                  2   0
+    spacr/spacrops.py                       2   0
+    spacr/surrogate.py                      2   0
+    ... plus 9 more files with one figure each and no style
+
+    TOTAL: ~133 figures created, and 4 files use the house style at all.
+
+`spacr/plot.py` ALONE holds 45 of them and uses the style zero times. That is
+the file a user sees most: it is what every module's own plots come from.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+THE ONE RULE THAT MATTERS MOST, from the skill, restated because every panel
+has to obey it: **everything is grey except what the sentence is about.**
+Grey is the default ink for data; colour is an argument. If half the marks
+are coloured, the figure has no claim. A rainbow of 27 categories is the
+failure this rule exists to prevent -- `spacr/localisation.py` already
+records that a 27-colour volcano cost 40 ms of a 49 ms redraw AND said
+nothing.
+
+1. `with figure_style(theme_target()):` AROUND THE BUILD, never an rcParams
+   write. A global write in a long-running GUI styles every later figure in
+   the session, in every other module, until the process exits. Five
+   functions were doing exactly that and it cost this repository a day --
+   `figures/style.py` says so at the top. That failure must not be
+   reintroduced at 133 new sites.
+
+2. `theme_target()`, not a hard-coded 'print'. The published palette is near
+   black on white; on spaCR's dark theme that is invisible axes on a
+   transparent page.
+
+3. EVERY SAVE GOES THROUGH `spacr.plot.save_figure`, which honours the user's
+   figure-format preference. A literal '.pdf' in a savefig call is a
+   complaint this project has already had twice.
+
+4. ORDER OF WORK, by what a user actually sees:
+     a. spacr/plot.py                45 figures, the shared plotting surface
+     b. spacr/submodules.py          12
+     c. spacr/toxo.py                 6, and they are the screen's own figures
+     d. spacr/ml.py                   5
+     e. spacr/timelapse.py           11
+     f. the long tail
+
+5. DO NOT CHANGE WHAT A FIGURE MEANS. This is a restyle. If a panel is wrong
+   -- wrong statistic, wrong axis, a claim the data does not support -- that
+   is a separate finding: FIX IT or file it, but say which you did. A
+   restyle that silently changes a number is the worst outcome available
+   here.
+
+6. A FIGURE WITH FEWER THAN TEN REPLICATES PER GROUP may move its published
+   numbers when the statistics engine behind it changed; that release note is
+   already owed. Do not let a restyle be blamed for it -- if a number moves
+   under your hands, say so.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A count of `plt.subplots(` / `plt.figure(` against `figure_style` uses is
+  no longer 133 to 4.
+* No module writes rcParams globally; there is already a test asserting the
+  headless import graph, and this needs its own.
+* Every figure still saves in the user's chosen format, via save_figure.
+* Opening a run's figures shows one visual system, not twelve.
