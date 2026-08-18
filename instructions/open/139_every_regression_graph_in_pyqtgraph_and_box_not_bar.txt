@@ -94,3 +94,57 @@ HOW TO KNOW IT WORKED
 * A grouped comparison draws a box with jitter by default; the mean-bar is
   still reachable for anyone who wants it.
 * The box obeys the house style: one highlighted group against grey.
+
+
+================================================================================
+C. EVERY GRAPH IS BOTH SAVED AND VISIBLE IN THE SOFTWARE
+================================================================================
+
+Requested: 2026-08-18 -- "all graphs should be sable and observable in the
+           software, currently several graphs are saved but I cannot see them
+           in the software"
+
+THE CAUSE, FOUND 2026-08-18. A figure reaches the GUI by exactly ONE route:
+`spacr/qt/bridge.py` installs `_capture_show`, which replaces
+`matplotlib.pyplot.show` and emits every open figure through
+`worker.figure_ready` when a module calls `plt.show()`.
+
+So the rule the application actually runs on is:
+
+    a figure is visible in spaCR if and only if somebody calls plt.show()
+
+WHICH IS NOT THE RULE ANYBODY WROTE DOWN, and the regression module breaks it
+in the largest place it could. Counted:
+
+    spacr/ml.py                  10 plt.show()
+    spacr/toxo.py                 5 plt.show()
+    spacr/regression_qc.py        0 plt.show()   <- the ~19-panel QC suite
+    spacr/regression_diagnostics.py  0 plt.show()
+
+`regression_qc` writes one file per panel plus a combined
+`regression_qc_report.pdf` with `fig.savefig(...)` and never shows anything.
+Every one of those panels is on disk and none of them is in the application.
+That is the report, exactly.
+
+WHAT TO DO, and NOT by sprinkling `plt.show()` around:
+
+  * A FIGURE IS REGISTERED, NOT SHOWN. `plt.show()` as the delivery mechanism
+    is why this happened -- it couples "the user can see it" to a call that
+    exists for a completely different reason, and a module that correctly
+    saves-and-closes gets punished for it. There should be one function that
+    says "here is a figure, it belongs to this run, keep it", and both the
+    file and the gallery should come from it.
+  * SAVED AND VISIBLE ARE THE SAME EVENT. Anything worth writing to the run
+    folder is worth a tile; anything not worth a tile should not be written.
+    If a panel is deliberately file-only, it says so where it is written.
+  * THE QC SUITE IS THE TEST CASE. Nineteen panels plus the combined report;
+    when this works, all twenty are in the gallery under the run that made
+    them, and clicking one opens it.
+  * THIS SURVIVES THE MOVE TO PYQTGRAPH (section A). Whatever draws the
+    figure, the register-it step is the same, so do this first: it is the
+    half that fixes the reported bug, and it makes the pyqtgraph move a
+    change of renderer rather than a change of plumbing.
+
+HOW TO KNOW IT WORKED: after a regression run with `regression_qc` on, the
+number of figures in the gallery equals the number of image files in the run
+folder, and every one of them opens.
