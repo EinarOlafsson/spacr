@@ -154,7 +154,7 @@ def test_significance_merged_into_model_and_inference():
     sections = _regression_sections()
     assert "Significance & Hit Calling" not in sections
     for key in ("multiple_testing_method", "fdr_alpha", "threshold_method",
-                "threshold_multiplier", "toxo"):
+                "threshold_multiplier", "Toxoplasma"):
         assert key in sections["Model & Inference"], key
 
 
@@ -186,7 +186,7 @@ def test_no_setting_was_dropped_by_the_regroup():
     sections = _regression_sections()
     everywhere = {key for keys in sections.values() for key in keys}
     for key in ("min_cell_count", "outlier_detection", "cov_type",
-                "multiple_testing_method", "fdr_alpha", "toxo",
+                "multiple_testing_method", "fdr_alpha", "Toxoplasma",
                 "threshold_method", "threshold_multiplier", "tolerance",
                 "target_unique_count"):
         assert key in everywhere, key
@@ -321,3 +321,50 @@ def test_mixed_is_first_and_the_default():
     # The rest alphabetically, so a family added to the inventory lands
     # somewhere predictable rather than at the end.
     assert options[1:] == sorted(options[1:])
+
+
+# ---------------------------------------------------------------------------
+# Instruction 133: `toxo` became `Toxoplasma`
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("given, expected", [
+    ({}, True),                       # the default
+    ({"toxo": False}, False),         # an old settings CSV
+    ({"toxo": True}, True),
+    ({"Toxoplasma": False}, False),   # the new name
+    ({"Toxoplasma": True, "toxo": False}, True),   # the new name wins
+])
+def test_an_old_settings_csv_still_turns_the_annotation_off(given, expected):
+    """The value MIGRATES. Dropping it would turn the annotation off -- or
+    on -- without saying so, on every settings CSV written before today."""
+    from spacr.settings import get_perform_regression_default_settings
+
+    resolved = get_perform_regression_default_settings(dict(given))
+    assert resolved["Toxoplasma"] is expected
+    # And only one key survives, so the panel offers one control.
+    assert "toxo" not in resolved
+
+
+@pytest.mark.parametrize("settings, expected", [
+    ({"toxo": True}, True),
+    ({"toxo": False}, False),
+    ({"Toxoplasma": True}, True),
+    ({"Toxoplasma": False, "toxo": True}, False),
+    ({}, False),
+])
+def test_ml_accepts_either_spelling(settings, expected):
+    """A caller handing ml.py a raw dict with the old key keeps working.
+
+    `False` for a dict naming neither: the annotation is opt-in at that
+    layer, and a caller who says nothing has not asked for a Toxoplasma
+    join on a screen that may not be Toxoplasma at all.
+    """
+    from spacr.ml import _toxoplasma_is_on
+
+    assert _toxoplasma_is_on(settings) is expected
+
+
+def test_the_setting_is_named_Toxoplasma_in_the_panel():
+    assert "Toxoplasma" in _regression_sections()["Model & Inference"]
+    everywhere = {k for keys in _regression_sections().values() for k in keys}
+    assert "toxo" not in everywhere
