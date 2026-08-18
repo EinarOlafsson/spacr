@@ -454,6 +454,34 @@ def _drawable_threshold(value) -> float | None:
     return number
 
 
+def _named_format(save_path) -> str | None:
+    """The format a caller ASKED for by typing an extension, or ``None``.
+
+    Every other figure in this package is written by
+    :func:`spacr.plot.save_figure`, whose documented convention is that a
+    typed ``.pdf`` does *not* force PDF -- the extension follows the user's
+    format preference. That convention is right for a caller that names one
+    artefact and means "put it here".
+
+    It is wrong for a caller that asks for the SAME picture twice under two
+    extensions, which is exactly what ``ml.py`` does around this function:
+    ``for suffix in ('pdf', 'png')``. Under the plain convention both calls
+    resolve to one destination, so one of the two files a run has always
+    written disappears and the gallery gets two tiles for one file -- and
+    instruction 139 C's acceptance is a COUNT, tiles against files.
+
+    So a suffix that names a real figure format is read as a request and
+    passed through as ``fmt``; anything else (no extension, or ``min_2.5``)
+    leaves ``fmt=None`` and the preference decides. When the duplicated loop
+    in ``ml.py`` becomes one call with a bare stem, the preference takes over
+    here with no further change.
+    """
+    from .plot import FIGURE_FORMATS
+
+    suffix = Path(save_path).suffix.lower().lstrip(".")
+    return suffix if suffix in FIGURE_FORMATS else None
+
+
 def plot_guide_permutation_volcano(
     results: pd.DataFrame,
     *,
@@ -464,6 +492,8 @@ def plot_guide_permutation_volcano(
     title: str | None = None,
     effect_threshold: float | None = None,
     effect_threshold_label: str | None = None,
+    fmt: str | None = None,
+    dpi: int | None = None,
 ):
     """Draw a volcano using standardized effect and adjusted P value.
 
@@ -484,6 +514,25 @@ def plot_guide_permutation_volcano(
         ``3x std of 30 controls = 0.84``, for the legend.
         :func:`spacr.thresholds.coefficient_threshold` returns it beside the
         number. Falls back to the number alone.
+    :param fmt: force a figure format. ``None`` reads one off ``save_path``'s
+        extension (see :func:`_named_format`) and otherwise lets the user's
+        preference decide.
+    :param dpi: force a resolution. ``None`` is the preference. It used to be
+        a hard-coded 600 applied only when the path ended ``.png``, so the
+        resolution preference reached this figure in NEITHER format -- and the
+        permutation null is a scatter cloud, which is the kind of picture the
+        number is for.
+    :returns: the path actually written, which need not be ``save_path``:
+        :func:`spacr.plot.save_figure` corrects the extension to the format it
+        used. A caller that records the requested name records a file that may
+        not be there.
+
+    PUBLISHED, NOT SAVED. Instruction 139 C -- "several graphs are saved but I
+    cannot see them in the software". This was the last bare ``fig.savefig``
+    on the regression path: the permutation volcano was written to disk and
+    never announced, so it appeared in no gallery.
+    :func:`spacr.figure_sink.publish` saves and announces as one event, and
+    does nothing but save when no GUI is listening.
     """
     import matplotlib.pyplot as plt
 
@@ -571,9 +620,18 @@ def plot_guide_permutation_volcano(
     fig.tight_layout()
     save_path = Path(save_path)
     save_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(save_path, dpi=600 if save_path.suffix.lower() == ".png" else None)
-    plt.close(fig)
-    return save_path
+    from .figure_sink import publish
+
+    try:
+        written = publish(fig, save_path,
+                          fmt=fmt or _named_format(save_path), dpi=dpi)
+    finally:
+        # `publish(close=True)` clears the figure but does not release it:
+        # this one comes from `plt.subplots`, so pyplot holds a reference
+        # until `plt.close`. A sweep over thresholds and outcomes calls this
+        # dozens of times.
+        plt.close(fig)
+    return Path(written) if written else save_path
 
 
 def gene_fraction_matrix(fractions: pd.DataFrame,
