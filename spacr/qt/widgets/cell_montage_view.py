@@ -93,9 +93,17 @@ import numpy as np
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPlainTextEdit, QPushButton, QScrollArea, QSplitter, QVBoxLayout,
-    QWidget,
+    QComboBox, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout, QLabel,
+    QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSizePolicy,
+    QSpinBox, QSplitter, QTabBar, QTabWidget, QVBoxLayout, QWidget,
+)
+
+# The headless half's own vocabulary, so the controls speak it rather than
+# re-declaring their defaults. `spacr.cell_montage` costs numpy and pandas and
+# nothing else -- crops and io are lazy inside it -- so this is not the torch
+# import the module docstring is careful about.
+from ...cell_montage import (                                   # noqa: E402
+    DEFAULT_SCORE_COLUMN, MAX_OBJECTS, WINDOW_HALF_WIDTHS,
 )
 
 LOG = logging.getLogger(__name__)
@@ -104,11 +112,16 @@ __all__ = [
     "THUMBNAIL_PX",
     "OBJECT_CHOICES",
     "SOURCE_CHOICES",
+    "SHAPE_CHOICES",
+    "BASELINE_CHOICES",
+    "MAX_WELL_TABS",
     "MontageRequest",
     "MontageLoad",
     "experiment_root",
     "parse_channels",
     "coefficient_from_frame",
+    "intercept_from_frame",
+    "well_tab_label",
     "load",
     "montage_figure",
     "CellMontageView",
@@ -140,6 +153,41 @@ SOURCE_CHOICES: Tuple[Tuple[str, str], ...] = (
     ("png", "exported PNGs only"),
     ("merged", "cut from merged/*.npy only"),
 )
+
+#: The crop's SHAPE, as the user may choose it. ``'object'`` follows the
+#: object's own mask and is the better picture; ``'bbox'`` is its padded
+#: bounding box. THE CHOICE IS NOT ALWAYS AVAILABLE -- a route that has only a
+#: coordinate table has no mask to follow -- and
+#: :func:`spacr.cell_montage.montage_route_requirements` is what says so, up
+#: front, so the entry is disabled with its reason instead of being clickable
+#: and quietly serving a bounding box.
+SHAPE_CHOICES: Tuple[Tuple[str, str], ...] = (
+    ("object", "object-shaped"),
+    ("bbox", "bounding box"),
+)
+
+#: Where the score window's baseline comes from. The screen median is the
+#: default and is a property of the objects; the fitted intercept is the
+#: model's own answer to the same question and is arguably the better one.
+#: Whichever is in force is written into the caption, because moving the
+#: baseline moves the target and therefore which cells are shown.
+BASELINE_CHOICES: Tuple[Tuple[str, str], ...] = (
+    ("median", "screen median"),
+    ("intercept", "fitted intercept"),
+)
+
+#: How many well tabs may be open at once.
+#:
+#: STATED RATHER THAN DISCOVERED. A tab holds one ``QPixmap`` per object and
+#: they are only ever closed by hand -- that is the point of them -- so
+#: without a bound a session comparing gene after gene fills memory and the
+#: user finds out by watching the application slow down. At the 300-object
+#: cap a well tab is at most 300 thumbnails of 96x96 RGBA, ~11 MB, so twelve
+#: tabs is ~130 MB in the worst case and a small fraction of that in the
+#: ordinary one. When the bound is reached NO TAB IS CLOSED FOR THE USER: the
+#: new wells are refused, by name, with the sentence that says which x to
+#: click.
+MAX_WELL_TABS = 12
 
 #: How long the grid waits after a resize before it reflows. A drag is a
 #: stream of resize events and re-laying out 300 thumbnails on each one turns
@@ -231,6 +279,82 @@ def coefficient_from_frame(key: str, frame) -> Tuple[str, str, Optional[float]]:
     return name, level, effect
 
 
+def intercept_from_frame(frame) -> Optional[float]:
+    """The fitted intercept out of the coefficient table, or ``None``.
+
+    The other baseline the score window can be centred on. Under the
+    well-level model the intercept IS the score of a well carrying none of
+    the guide, which is the same quantity the screen median estimates -- so
+    offering both is offering the model's answer beside the data's, and the
+    caption says which produced the picture.
+
+    :param frame: the coefficient table. Every spelling statsmodels and this
+        project use is accepted (``Intercept``, ``(Intercept)``, ``const``),
+        because a baseline silently not found would fall back to the median
+        and the montage would say ``median`` while the user had asked for the
+        intercept.
+    :returns: the fitted value, or ``None`` when the table names no intercept
+        or its value is not a finite number.
+    """
+    if frame is None or not len(frame):
+        return None
+    columns = getattr(frame, "columns", ())
+    if "feature" not in columns:
+        return None
+    from ...figures.panels import effect_column
+
+    column = effect_column(frame)
+    if not column:
+        return None
+    names = frame["feature"].astype(str).str.strip().str.lower()
+    wanted = names.isin(("intercept", "(intercept)", "const", "constant"))
+    match = frame[wanted]
+    if not len(match):
+        return None
+    try:
+        value = float(match[column].iloc[0])
+    except (TypeError, ValueError):
+        return None
+    return value if np.isfinite(value) else None
+
+
+def well_tab_label(well, guides, name="", level="gene"):
+    """The tab's own name: THE WELL AND THE gRNA, both.
+
+    A gene with several guides pulls the same well more than once, so two
+    tabs called ``p1_r3_c7`` are indistinguishable -- and the whole point of
+    a tab that outlives the selection is comparing one gene's cells with
+    another's, which a label naming only the well makes impossible.
+
+    THE COEFFICIENT IS NAMED TOO WHEN THE GUIDE ALONE DOES NOT IDENTIFY IT.
+    Driving the real tab found the case: the guide-level coefficient
+    ``GRA14_1``, and the GENE ``GRA14`` shown one guide at a time, both open
+    a tab for ``GRA14_1`` in the same well -- and they are DIFFERENT montages
+    with different effects, different windows and different cells. Both read
+    ``plate1_r1_c1 \u00b7 GRA14_1`` and nothing on the tab bar told them apart.
+
+    :param well: the well key as the plan spells it.
+    :param guides: the guides this montage covers.
+    :param name: the coefficient's own name, used when the guides are summed
+        and there is therefore no single guide to name.
+    :param level: ``'gene'`` or ``'grna'`` -- which kind of coefficient this
+        montage answers for.
+    :returns: e.g. ``'plate1_r1_c1 \u00b7 GRA14_1'`` for a guide term,
+        ``'plate1_r1_c1 \u00b7 GRA14_1 (of GRA14)'`` for that same guide inside
+        a gene term, or ``'plate1_r1_c1 \u00b7 GRA14 (2 guides)'`` for the sum.
+    """
+    listed = [str(g) for g in guides if str(g)]
+    if len(listed) == 1:
+        guide = listed[0]
+        if name and str(name) != guide and str(level) != "grna":
+            guide = f"{guide} (of {name})"
+    elif listed:
+        guide = f"{name or listed[0]} ({len(listed)} guides)"
+    else:
+        guide = str(name or "?")
+    return f"{well} \u00b7 {guide}"
+
+
 @dataclass(frozen=True)
 class MontageRequest:
     """Everything one montage load needs, as plain data.
@@ -252,12 +376,23 @@ class MontageRequest:
     :param channels: intensity planes for the picture, or ``None`` for the
         ones the run itself saved.
     :param prefer: ``''`` / ``'png'`` / ``'merged'``.
-    :param score_column: the per-object classification score.
+    :param score_column: the per-object classification score. A screen with
+        more than one classifier output has more than one candidate.
     :param cap: the largest montage to draw.
     :param per_guide: one montage per guide instead of the gene's guides
         summed. They are different questions -- see
         :func:`spacr.cell_montage.select_montage_per_guide` -- and each plan
         says in its own caption which one it answers.
+    :param half_widths: the score window's half-width in robust scales -- the
+        direct stringency control. ``0`` means the module's own default.
+        ONE NUMBER FOR THE WHOLE SCREEN AND EVERY COEFFICIENT: a width chosen
+        per gene is a width that can be tuned until the pictures look right,
+        and nothing in the output would show that it had been.
+    :param baseline: the baseline to centre the window on, or ``None`` for
+        the screen median.
+    :param baseline_label: what to call that baseline in the caption.
+    :param crop_shape: ``'object'`` or ``'bbox'`` -- see
+        :data:`SHAPE_CHOICES`.
     """
 
     name: str
@@ -271,6 +406,10 @@ class MontageRequest:
     score_column: str = "pred"
     cap: int = 0
     per_guide: bool = False
+    half_widths: float = 0.0
+    baseline: Optional[float] = None
+    baseline_label: str = ""
+    crop_shape: str = "object"
 
 
 @dataclass(frozen=True)
@@ -294,6 +433,12 @@ class MontageLoad:
         this run -- no crop source anywhere -- rather than a bad request.
         That is what lets the button grey itself out afterwards instead of
         inviting the same click again.
+    :param shapes: the crop shapes EVERY plate's route can actually cut. A
+        shape one plate cannot produce is not offered, because a montage in
+        which some crops follow the mask and some do not is a montage whose
+        pictures are not comparable.
+    :param shape_reason: why a shape is missing from ``shapes``, for the
+        disabled entry's tooltip.
     """
 
     request: Optional[MontageRequest] = None
@@ -302,6 +447,8 @@ class MontageLoad:
     sources: Dict[str, str] = field(default_factory=dict)
     error: str = ""
     unavailable: bool = False
+    shapes: Tuple[str, ...] = ()
+    shape_reason: str = ""
 
     @property
     def ok(self) -> bool:
@@ -341,9 +488,9 @@ def load(request: MontageRequest) -> MontageLoad:
     :returns: the plans, the crops, and which source drew them.
     """
     from ...cell_montage import (
-        MontageError, read_well_guide_fractions, load_montage_objects,
-        resolve_montage_crop_source, select_montage, select_montage_per_guide,
-        CropSourceChoice, MAX_OBJECTS,
+        CROP_SHAPES, MontageError, read_well_guide_fractions,
+        load_montage_objects, resolve_montage_crop_source, select_montage,
+        select_montage_per_guide, CropSourceChoice, MAX_OBJECTS,
     )
     import pandas as pd
 
@@ -393,7 +540,22 @@ def load(request: MontageRequest) -> MontageLoad:
         # answers -- one with its crops exported and one with only merged/ --
         # so "which source" is a property of the row, not of the montage.
         objects = objects.copy()
-        objects["montage_source_root"] = experiment_root(db_path)
+        root = experiment_root(db_path)
+        # THE PATHS MUST SURVIVE THE FOLDER MOVING MACHINE (instruction 155
+        # F). The database records absolute paths as they were on the machine
+        # that wrote it, and this is the one place that knows both the
+        # recorded path and the root it is under NOW. Every path-bearing
+        # column is re-anchored -- png_path for the exported crops AND
+        # path_name / merged_path for the arrays they are cut from -- and
+        # whatever carries no recognisable anchor is COUNTED and one is
+        # NAMED, because a silent pass-through is how a re-anchor that had
+        # already lost the file name stayed invisible.
+        from ...crops import reanchor_frame
+
+        objects, report = reanchor_frame(objects, root)
+        if report.describe():
+            troubles.append(report.describe())
+        objects["montage_source_root"] = root
         frames.append(objects)
 
     if not frames:
@@ -412,13 +574,44 @@ def load(request: MontageRequest) -> MontageLoad:
     sources: Dict[str, Any] = {}
     described: Dict[str, str] = {}
     refusals: List[str] = []
+    route_notes: List[str] = []
+    shape = str(request.crop_shape or "object")
     for root in sorted(set(objects["montage_source_root"].astype(str))):
+        here = objects[objects["montage_source_root"].astype(str) == root]
+        # THE ROUTE'S OWN REQUIREMENTS, CHECKED UP FRONT (instruction 155 E).
+        # The two routes to pixels need different things, and a user missing
+        # a channel list has to be told THAT rather than told there is no
+        # source -- which is what a check made at cutting time reports.
         choice = resolve_montage_crop_source(
             _crop_settings(request, root), object_type=request.object_type,
-            prefer=request.prefer or None)
+            prefer=request.prefer or None, objects=here,
+            channels=request.channels)
         if not choice.available:
             refusals.append(f"{root}: {choice.reason}")
             continue
+        label = os.path.basename(root.rstrip(os.sep)) or root
+        for note in choice.requirement_notes():
+            route_notes.append(f"{label}: {note}")
+        requirements = choice.requirements
+        if requirements is not None and requirements.missing:
+            refusals.append(f"{root}: " + "; ".join(requirements.missing))
+            continue
+        # THE SHAPE IS APPLIED HERE OR IT IS SAID NOT TO BE. An
+        # object-shaped crop this route cannot cut must never quietly become
+        # a bounding box.
+        if requirements is not None and requirements.shapes:
+            if not requirements.offers(shape):
+                route_notes.append(
+                    f"{label}: the {shape!r} crop shape was asked for and "
+                    f"this route cannot cut it -- {requirements.why_not(shape)}"
+                    f" The crops here are {requirements.shapes[0]!r}.")
+                effective = requirements.shapes[0]
+            else:
+                effective = shape
+            spec = getattr(choice.source, "spec", None)
+            if spec is not None:
+                choice.source.spec = spec.with_(
+                    use_bounding_box=(effective == "bbox"))
         sources[root] = choice
         described[root] = choice.describe()
     if not sources:
@@ -438,12 +631,18 @@ def load(request: MontageRequest) -> MontageLoad:
         available=True)
 
     cap = int(request.cap) if request.cap else MAX_OBJECTS
+    from ...cell_montage import WINDOW_HALF_WIDTHS
+
+    half_widths = float(request.half_widths or WINDOW_HALF_WIDTHS)
+    selection = dict(
+        level=request.level, score_column=request.score_column, cap=cap,
+        half_widths=half_widths, baseline=request.baseline,
+        baseline_label=request.baseline_label or None, crop_source=combined)
     try:
         if request.per_guide:
             plans = select_montage_per_guide(
                 objects, counts, request.name, float(request.effect),
-                level=request.level, score_column=request.score_column,
-                cap=cap, crop_source=combined)
+                **selection)
             if not plans:
                 return MontageLoad(
                     request=request,
@@ -453,8 +652,7 @@ def load(request: MontageRequest) -> MontageLoad:
         else:
             plans = [select_montage(
                 objects, counts, request.name, float(request.effect),
-                level=request.level, score_column=request.score_column,
-                cap=cap, crop_source=combined)]
+                **selection)]
     except MontageError as error:
         return MontageLoad(request=request, error=str(error))
     except Exception as error:                                  # noqa: BLE001
@@ -466,11 +664,26 @@ def load(request: MontageRequest) -> MontageLoad:
     for plan in plans:
         images.append(_cut(plan, sources, request, troubles))
 
-    notes = tuple(f"NOTE {t}" for t in troubles)
+    notes = tuple(route_notes) + tuple(f"NOTE {t}" for t in troubles)
     if notes:
         plans = [_with_notes(plan, notes) for plan in plans]
+    # WHAT THE ROUTES CAN ACTUALLY CUT, so the shape control can disable what
+    # they cannot rather than accepting the click and doing something else.
+    offered: Optional[set] = None
+    why = ""
+    for choice in sources.values():
+        req = choice.requirements
+        if req is None:
+            continue
+        offered = set(req.shapes) if offered is None else offered & set(req.shapes)
+        for candidate in CROP_SHAPES:
+            if not why and not req.offers(candidate):
+                why = req.why_not(candidate)
     return MontageLoad(request=request, plans=tuple(plans),
-                       images=tuple(images), sources=described)
+                       images=tuple(images), sources=described,
+                       shapes=tuple(s for s in CROP_SHAPES
+                                    if s in (offered or set())),
+                       shape_reason=why)
 
 
 def _with_notes(plan, notes: Tuple[str, ...]):
@@ -604,6 +817,175 @@ class _Thumb(QLabel):
         self.setFrameShape(QFrame.NoFrame)
 
 
+class _WellTab(QWidget):
+    """One WELL's cells, in a tab that closes only when its x is clicked.
+
+    THE WELL IS THE UNIT, and that is not a layout preference. The guide
+    fraction is defined per well and the count rule is
+    ``round(objects in well x fraction in well)`` per well, so the well is
+    what a reader checks -- a single grid of everything hides the one
+    arithmetic the montage is asking to be trusted on.
+
+    Each tab carries its OWN caption naming its own well, guide and
+    coefficient, which is what makes it safe for it to outlive the selection:
+    a tab left open while the volcano rings another gene still says which
+    gene it is, so two genes' cells can sit side by side without either being
+    mistaken for the other.
+
+    :param key: the identity used to recognise this tab on a re-run --
+        ``(coefficient, level, guide label, well)``.
+    :param label: the tab's own text: the well AND the guide.
+    :param parent: the tab widget.
+    """
+
+    def __init__(self, key: Tuple[str, ...], label: str, parent=None):
+        super().__init__(parent)
+        self.key = tuple(key)
+        self.label = str(label)
+        self._rows = None
+        self._crops: Tuple[Any, ...] = ()
+        self._caption_text = ""
+        self._columns = 1
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        # WHY THIS TAB IS EMPTY, above the grid rather than inside it. In the
+        # grid it would be indistinguishable from a thumbnail to anything
+        # counting them -- including the 'no crop' placeholders, which ARE
+        # one per object and must stay countable.
+        self._note = QLabel()
+        self._note.setWordWrap(True)
+        self._note.setVisible(False)
+        layout.addWidget(self._note)
+        split = QSplitter(Qt.Vertical)
+        split.setChildrenCollapsible(False)
+
+        self._scroll = QScrollArea()
+        self._scroll.setWidgetResizable(True)
+        self._body = QWidget()
+        self._grid = QGridLayout(self._body)
+        self._grid.setContentsMargins(6, 6, 6, 6)
+        self._grid.setSpacing(4)
+        self._grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self._scroll.setWidget(self._body)
+        split.addWidget(self._scroll)
+
+        self._caption = QPlainTextEdit()
+        self._caption.setReadOnly(True)
+        self._caption.setMinimumHeight(70)
+        split.addWidget(self._caption)
+        split.setStretchFactor(0, 3)
+        split.setStretchFactor(1, 1)
+        split.setSizes([380, 140])
+        layout.addWidget(split, 1)
+
+    # ------------------------------------------------------------- content
+    def set_content(self, rows, crops: Sequence[Any], caption: str,
+                    columns: int) -> None:
+        """Replace what this tab shows.
+
+        :param rows: the well's own object rows, index-reset.
+        :param crops: the crops for those rows, aligned with them.
+        :param caption: this well's own account of itself.
+        :param columns: how many thumbnails fit across.
+        """
+        self._rows = rows
+        self._crops = tuple(crops)
+        self._caption_text = str(caption)
+        self._caption.setPlainText(self._caption_text)
+        self.fill(columns)
+
+    def caption_text(self) -> str:
+        """This tab's caption, exactly as it is on screen."""
+        return self._caption_text
+
+    def thumbs(self) -> Tuple[QWidget, ...]:
+        """Every widget now in this tab's grid, in order."""
+        return tuple(self._grid.itemAt(i).widget()
+                     for i in range(self._grid.count()))
+
+    def fill(self, columns: int) -> None:
+        """Lay the crops out at ``columns`` per row."""
+        self._columns = max(int(columns), 1)
+        self.clear()
+        if self._rows is None or not len(self._crops):
+            self._note.setText(
+                "This well contributed no object to the montage. The caption "
+                "below says why. The tab stays until its × is clicked.")
+            self._note.setVisible(True)
+            return
+        self._note.setVisible(False)
+        for index, crop in enumerate(self._crops):
+            row = self._rows.iloc[index] if index < len(self._rows) else None
+            self._grid.addWidget(_thumbnail(crop, row, self._body),
+                                 index // self._columns,
+                                 index % self._columns)
+
+    def clear(self) -> None:
+        """Empty the grid, leaving nothing of the previous fill behind."""
+        while self._grid.count():
+            item = self._grid.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                # setParent(None) as well as deleteLater: a widget removed
+                # from the layout is still a visible child of the body at its
+                # old geometry until the deferred delete runs, which is how a
+                # rebuilt grid paints the previous montage under the new one.
+                widget.setParent(None)
+                widget.deleteLater()
+
+
+def _tooltip(row) -> str:
+    """The provenance line on one thumbnail."""
+    if row is None:
+        return ""
+    parts = []
+    for name, label in (("montage_well", "well"),
+                        ("object_label", "label"),
+                        ("pred", "score"),
+                        ("montage_distance", "|score − target|")):
+        if name in getattr(row, "index", ()):
+            value = row[name]
+            if isinstance(value, float):
+                parts.append(f"{label} {value:.4g}")
+            else:
+                parts.append(f"{label} {value}")
+    # NOT "carries this guide". The pooled design cannot say that of any
+    # single object, and a tooltip is exactly where that claim would get
+    # made by accident.
+    parts.append("consistent with the effect — membership is inferred")
+    return " · ".join(parts)
+
+
+def _thumbnail(crop, row, parent=None) -> QWidget:
+    """One crop as a widget, or a labelled placeholder when it is missing."""
+    tooltip = _tooltip(row)
+    if crop is None:
+        label = QLabel("no crop")
+        label.setToolTip(tooltip or "this object could not be cut")
+        label.setAlignment(Qt.AlignCenter)
+        label.setFixedSize(THUMBNAIL_PX, THUMBNAIL_PX)
+        return label
+    return _Thumb(_pixmap(crop), tooltip, parent)
+
+
+def _pixmap(crop) -> QPixmap:
+    """A crop as a thumbnail-sized ``QPixmap``."""
+    array = np.ascontiguousarray(np.asarray(crop, dtype=np.uint8))
+    if array.ndim == 2:
+        array = np.repeat(array[:, :, None], 3, axis=2)
+    height, width = array.shape[:2]
+    image = QImage(array.data, width, height, 3 * width,
+                   QImage.Format_RGB888)
+    # `.copy()` is not optional: QImage does not own the numpy buffer, and
+    # without it the pixmap points at freed memory the moment the array
+    # goes out of scope.
+    return QPixmap.fromImage(image.copy()).scaled(
+        THUMBNAIL_PX, THUMBNAIL_PX, Qt.KeepAspectRatio,
+        Qt.SmoothTransformation)
+
+
 class CellMontageView(QWidget):
     """The cells behind the selected coefficient, beside the run's figures.
 
@@ -656,8 +1038,15 @@ class CellMontageView(QWidget):
     #: to be reported as the one above: the coefficients are on screen, so
     #: "no regression results are loaded" reads as a contradiction of what
     #: the user is looking at.
+    #:
+    #: "THE LOADED COEFFICIENT TABLE", which is what the user calls it. "The
+    #: coefficient table on screen" describes a widget; the user is thinking
+    #: about a run (instruction 155 A, handed over by the agent that fixed
+    #: the provider). With that provider fixed this branch is reached only by
+    #: a table genuinely opened from a bare CSV -- which is the case this
+    #: sentence is FOR.
     RESULTS_WITHOUT_A_FOLDER = (
-        "The coefficient table on screen was not read from a run folder, so "
+        "The LOADED coefficient table was not read from a run folder, so "
         "there is nowhere to find the regression_data.csv this montage needs. "
         "Open the run in the Runs tab with “Load run…” to point at its "
         "folder.")
@@ -696,6 +1085,9 @@ class CellMontageView(QWidget):
         self._unavailable: str = ""
         self._status_text = self.NOTHING_SELECTED
         self._columns = 1
+        #: The open well tabs, by their identity, so a re-run refreshes the
+        #: tab a well already has instead of opening a second one.
+        self._well_tabs: Dict[Tuple[str, ...], _WellTab] = {}
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -728,6 +1120,19 @@ class CellMontageView(QWidget):
         self._channels.textChanged.connect(self._on_settings_changed)
         controls.addWidget(self._channels)
 
+        controls.addWidget(QLabel("crop shape"))
+        self._shape = QComboBox()
+        for value, label in SHAPE_CHOICES:
+            self._shape.addItem(label, value)
+        self._shape.setToolTip(
+            "Object-shaped crops follow the object's own mask and are the "
+            "better picture. A route that has only a coordinate table has no "
+            "mask to follow and can cut bounding boxes only — when that is "
+            "the case the entry is disabled with its reason rather than "
+            "quietly giving you a box.")
+        self._shape.currentIndexChanged.connect(self._on_settings_changed)
+        controls.addWidget(self._shape)
+
         controls.addWidget(QLabel("images from"))
         self._source = QComboBox()
         for value, label in SOURCE_CHOICES:
@@ -752,37 +1157,127 @@ class CellMontageView(QWidget):
         controls.addWidget(self._save)
         layout.addLayout(controls)
 
+        # THE STRINGENCY ROW. Every control here changes WHICH CELLS a reader
+        # is looking at, so every one is written into the caption and a
+        # non-default value says so ON the montage
+        # (:meth:`spacr.cell_montage.MontagePlan.settings_line`). They are
+        # PER SCREEN, NEVER PER GENE: one width for every coefficient, because
+        # a width chosen per gene is a width that can be tuned until the
+        # pictures look right and nothing in the output would show that it
+        # had been.
+        stringency = QHBoxLayout()
+        stringency.addWidget(QLabel("half-width"))
+        self._half_widths = QDoubleSpinBox()
+        self._half_widths.setDecimals(2)
+        self._half_widths.setRange(0.05, 20.0)
+        self._half_widths.setSingleStep(0.25)
+        self._half_widths.setValue(float(WINDOW_HALF_WIDTHS))
+        self._half_widths.setSuffix(" scales")
+        self._half_widths.setToolTip(
+            "How wide the score window is, in robust scales (1.4826 x MAD) "
+            "either side of the implied score. Wider admits more cells and "
+            "'closest' means less. ONE NUMBER FOR THE WHOLE SCREEN AND EVERY "
+            "COEFFICIENT — this is deliberately not a per-gene control.")
+        self._half_widths.valueChanged.connect(self._on_settings_changed)
+        stringency.addWidget(self._half_widths)
+
+        self._baseline = QComboBox()
+        for value, label in BASELINE_CHOICES:
+            self._baseline.addItem(label, value)
+        self._baseline.setToolTip(
+            "What the implied score is measured from. The screen median is "
+            "the objects' own answer; the fitted intercept is the model's, "
+            "and under the well-level fit it is the score of a well carrying "
+            "none of the guide. Whichever is in force is named in the "
+            "caption.")
+        self._baseline.currentIndexChanged.connect(self._on_settings_changed)
+
+        stringency.addWidget(QLabel("baseline"))
+        stringency.addWidget(self._baseline)
+
+        stringency.addWidget(QLabel("score column"))
+        self._score = QLineEdit()
+        self._score.setPlaceholderText(DEFAULT_SCORE_COLUMN)
+        self._score.setMaximumWidth(110)
+        self._score.setToolTip(
+            "The per-object classification score the window is applied to. "
+            "A screen with more than one classifier output has more than one "
+            "candidate, and the caption says which produced the picture.")
+        self._score.textChanged.connect(self._on_settings_changed)
+        stringency.addWidget(self._score)
+
+        stringency.addWidget(QLabel("max objects"))
+        self._cap = QSpinBox()
+        self._cap.setRange(1, 5000)
+        self._cap.setValue(int(MAX_OBJECTS))
+        self._cap.setToolTip(
+            "The largest montage to draw. The merged source is priced by "
+            "FIELDS TOUCHED, not crops cut: 300 crops cost 11.43 ms each "
+            "over 30 fields against 2.58 ms over 6, so a montage spanning "
+            "many wells is the expensive one however few it takes from each.")
+        self._cap.valueChanged.connect(self._on_settings_changed)
+        stringency.addWidget(self._cap)
+        stringency.addStretch(1)
+        layout.addLayout(stringency)
+
+        # THE TAB LIVES IN THE LEFT HALF OF THE FIGURES SPLITTER, which
+        # starts at 780 px. Two rows of controls with their prose spelled out
+        # in the widgets pushed this widget's minimum width to 1346 px, which
+        # is not a cosmetic problem: a minimum wider than the splitter forces
+        # the whole screen wider. The words live in the tooltips and the
+        # combos elide.
+        for box in (self._object, self._shape, self._source, self._per_guide,
+                    self._baseline):
+            box.setSizeAdjustPolicy(
+                QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            box.setMinimumContentsLength(10)
+            box.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+
+        self._channels.setMinimumWidth(60)
+        self._score.setMinimumWidth(60)
+
         self._status = QLabel(self._status_text)
         self._status.setWordWrap(True)
         layout.addWidget(self._status)
 
-        split = QSplitter(Qt.Vertical)
-        split.setChildrenCollapsible(False)
+        # ONE TAB PER WELL, CLOSED ONLY BY ITS OWN X. The first tab is the
+        # summary and is not closable: it is where the arithmetic, the
+        # settings and every refusal are read, and it has to be somewhere
+        # even when there is no montage at all.
+        self._tabs = QTabWidget()
+        self._tabs.setTabsClosable(True)
+        self._tabs.setMovable(True)
+        self._tabs.setDocumentMode(True)
+        self._tabs.tabCloseRequested.connect(self._close_tab)
 
-        self._scroll = QScrollArea()
-        self._scroll.setWidgetResizable(True)
-        self._body = QWidget()
-        self._grid = QGridLayout(self._body)
-        self._grid.setContentsMargins(6, 6, 6, 6)
-        self._grid.setSpacing(4)
-        self._grid.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        self._scroll.setWidget(self._body)
-        split.addWidget(self._scroll)
-
+        summary = QWidget()
+        summary_layout = QVBoxLayout(summary)
+        summary_layout.setContentsMargins(4, 4, 4, 4)
+        summary_layout.setSpacing(4)
         # THE CAPTION IS PART OF THE OUTPUT, NOT A TOOLTIP. It states the
-        # wells, the score window, the count rule and -- last, so it is the
-        # sentence a reader leaves with -- that guide membership is INFERRED
-        # from a well-level fraction rather than observed. Selectable, because
-        # the reason to want it is usually to paste it into a methods section.
+        # wells, the score window, EVERY SETTING that decided which cells
+        # these are, the whole arithmetic a reader can check the sum from,
+        # and -- last, so it is the sentence a reader leaves with -- that
+        # guide membership is INFERRED from a well-level fraction rather than
+        # observed. Selectable, because the reason to want it is usually to
+        # paste it into a methods section.
         self._caption = QPlainTextEdit()
         self._caption.setReadOnly(True)
         self._caption.setPlainText("")
         self._caption.setMinimumHeight(90)
-        split.addWidget(self._caption)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 1)
-        split.setSizes([420, 160])
-        layout.addWidget(split, 1)
+        summary_layout.addWidget(self._caption, 1)
+        self._tabs.addTab(summary, "Summary")
+        self._summary_tab = summary
+        # The summary tab has no x. Qt puts the close button on whichever
+        # side the style names; removing BOTH is the only way that does not
+        # depend on the style.
+        for side in (QTabBar.LeftSide, QTabBar.RightSide):
+            self._tabs.tabBar().setTabButton(0, side, None)
+        self._tabs.setTabToolTip(
+            0, "The whole montage in words: the wells, the window, the "
+               "arithmetic and every setting that decided which cells these "
+               "are. The pictures are in the per-well tabs beside it.")
+        layout.addWidget(self._tabs, 1)
 
         self._reflow = QTimer(self)
         self._reflow.setSingleShot(True)
@@ -888,7 +1383,7 @@ class CellMontageView(QWidget):
                     "intercept or a plate/row nuisance term — so no well "
                     "reports it and there are no cells behind it.")
         if self._effect is None:
-            return (f"The coefficient table on screen has no fitted effect "
+            return (f"The loaded coefficient table has no fitted effect "
                     f"for {self._name}, and the score window is "
                     "'baseline + effect'. Load the run's results table first.")
         if not self._results_path():
@@ -908,6 +1403,15 @@ class CellMontageView(QWidget):
         except ValueError:
             return (f"'{self._channels.text()}' is not a list of channel "
                     "indices. Use numbers separated by commas, e.g. 0,1,2.")
+        if (str(self._baseline.currentData() or "median") == "intercept"
+                and intercept_from_frame(self._frame()) is None):
+            # SAID, NEVER FALLEN BACK FROM. Quietly using the median while
+            # the user has asked for the intercept moves the target and
+            # therefore which cells are shown, and the caption would say
+            # 'the screen median' under a setting reading 'fitted intercept'.
+            return ("This coefficient table names no Intercept term, so "
+                    "there is no fitted intercept to centre the score window "
+                    "on. Choose the screen median instead.")
         return self._unavailable
 
     def databases(self) -> Tuple[str, ...]:
@@ -937,6 +1441,7 @@ class CellMontageView(QWidget):
         """
         if self.reason():
             return None
+        baseline, label = self._baseline_value()
         return MontageRequest(
             name=self._name, effect=float(self._effect),
             level=self._level, results_path=self._results_path(),
@@ -944,7 +1449,27 @@ class CellMontageView(QWidget):
             object_type=str(self._object.currentData() or "cell"),
             channels=parse_channels(self._channels.text()),
             prefer=str(self._source.currentData() or ""),
-            per_guide=bool(self._per_guide.currentData()))
+            per_guide=bool(self._per_guide.currentData()),
+            score_column=(self._score.text().strip()
+                          or DEFAULT_SCORE_COLUMN),
+            cap=int(self._cap.value()),
+            half_widths=float(self._half_widths.value()),
+            baseline=baseline, baseline_label=label,
+            crop_shape=str(self._shape.currentData() or "object"))
+
+    def _baseline_value(self) -> Tuple[Optional[float], str]:
+        """The baseline the window is centred on, and what to call it.
+
+        :returns: ``(None, '')`` for the screen median -- which
+            :func:`spacr.cell_montage.score_window` computes itself -- or the
+            fitted intercept and the name the caption gives it.
+        """
+        if str(self._baseline.currentData() or "median") != "intercept":
+            return None, ""
+        value = intercept_from_frame(self._frame())
+        if value is None:
+            return None, ""
+        return value, "the model's fitted intercept"
 
     def build(self) -> bool:
         """Load the montage for the selected coefficient, off the GUI thread.
@@ -1000,6 +1525,7 @@ class CellMontageView(QWidget):
         self._sources = dict(result.sources)
         self._shown_key = self._key
         self._unavailable = ""
+        self._apply_shape_availability(result)
         self._fill()
         self._set_status(self._summary())
         self._refresh_controls()
@@ -1110,6 +1636,56 @@ class CellMontageView(QWidget):
         self._status_text = str(text)
         self._status.setText(self._status_text)
 
+    def _apply_shape_availability(self, result: MontageLoad) -> None:
+        """Grey the crop shapes this run's route cannot actually cut.
+
+        Instruction 155 E: "an object-shaped crop must not appear as a choice
+        that silently does something else". A route with no mask -- a
+        coordinate table, or exported PNGs that were cut when the run wrote
+        them -- cannot follow an outline, so the entry is DISABLED with the
+        reason on it rather than accepted and quietly served a box.
+
+        The check cannot be made before a load, because which source answers
+        is a fact about the disk. So the entries are all live until a load has
+        looked, and the answer is applied afterwards -- the same shape as the
+        remembered "this run has no crop source".
+        """
+        model = self._shape.model()
+        offered = tuple(result.shapes)
+        answered = bool(result.plans) or bool(result.shape_reason)
+        # NO SHAPE CHOICE AT ALL is a real answer and not "everything is
+        # available": the exported PNGs were cut when the run wrote them, so
+        # neither entry does anything. The whole control greys out with that
+        # sentence rather than offering two options that both do nothing.
+        self._shape.setEnabled(not answered or bool(offered))
+        if answered and not offered:
+            self._shape.setToolTip(result.shape_reason)
+        else:
+            self._shape.setToolTip(
+                "Object-shaped crops follow the object's own mask and are "
+                "the better picture. A route that has only a coordinate "
+                "table has no mask to follow and can cut bounding boxes "
+                "only — when that is the case the entry is disabled with its "
+                "reason rather than quietly giving you a box.")
+        for index in range(self._shape.count()):
+            item = model.item(index) if hasattr(model, "item") else None
+            if item is None:
+                continue
+            value = str(self._shape.itemData(index) or "")
+            ok = (not answered) or value in offered
+            item.setEnabled(ok)
+            item.setToolTip("" if ok else result.shape_reason)
+        if offered and str(self._shape.currentData() or "") not in offered:
+            # The choice on screen is not the one that was cut. Move it, and
+            # say so -- a control reading 'object-shaped' over bounding-box
+            # crops is the silent substitution this is here to prevent.
+            for index in range(self._shape.count()):
+                if str(self._shape.itemData(index) or "") in offered:
+                    self._shape.blockSignals(True)
+                    self._shape.setCurrentIndex(index)
+                    self._shape.blockSignals(False)
+                    break
+
     def _on_settings_changed(self, *_args) -> None:
         """A crop setting moved: the remembered refusal no longer applies.
 
@@ -1121,6 +1697,10 @@ class CellMontageView(QWidget):
         # The load in flight is answering the previous settings.
         self._jobs.cancel()
         self._pending = None
+        # And a shape greyed out by the LAST route is re-armed: forcing
+        # 'merged' after a run whose PNGs are gone is exactly the case where
+        # a remembered refusal would keep a real choice unavailable.
+        self._apply_shape_availability(MontageLoad())
         self._refresh_controls()
         self._announce()
 
@@ -1167,116 +1747,208 @@ class CellMontageView(QWidget):
                     + (f", from the run {run}." if run else "."))
 
     def _drop_montage(self) -> None:
-        """Empty the grid and the caption. Nothing on screen is stale."""
+        """Forget the montage the plans describe. THE WELL TABS STAY.
+
+        A tab is closed only when its own x is clicked -- that is the whole
+        point of it, because comparing one gene's cells with another's is
+        what a montage that vanishes on the next click makes impossible. Each
+        tab carries its own caption naming its own well, guide and
+        coefficient, so a tab left standing under a moved selection still
+        says what it is; the SUMMARY, which describes the selection, is what
+        must not survive it.
+        """
         self._plans, self._images, self._sources = (), (), {}
         self._shown_key = ""
-        self._clear()
         self._caption.setPlainText("")
 
+    def well_tabs(self) -> Tuple["_WellTab", ...]:
+        """The open well tabs, in the order they are on screen."""
+        return tuple(self._tabs.widget(i) for i in range(1, self._tabs.count())
+                     if isinstance(self._tabs.widget(i), _WellTab))
+
+    def tab_labels(self) -> Tuple[str, ...]:
+        """Every tab's text, summary first -- what a user reads across."""
+        return tuple(self._tabs.tabText(i) for i in range(self._tabs.count()))
+
+    def thumbnails(self) -> Tuple[QWidget, ...]:
+        """Every thumbnail on screen, across every open well tab."""
+        out: List[QWidget] = []
+        for tab in self.well_tabs():
+            out.extend(t for t in tab.thumbs() if t is not None)
+        return tuple(out)
+
+    def _open_well_tab(self, key: Tuple[str, ...], label: str,
+                       tooltip: str) -> "_WellTab":
+        """Add one well tab, WITH ITS X IN THE TOP LEFT.
+
+        Qt puts the close button on whichever side
+        ``SH_TabBar_CloseButtonPosition`` names, and on this project's style
+        that is the RIGHT -- the request asks for "an x in the top left of
+        the tab", so the automatic button is removed and ours is placed on
+        the left. It closes by WIDGET and not by index, because a tab's index
+        moves whenever an earlier one is closed and an index captured at
+        creation time would close somebody else's tab.
+        """
+        from PySide6.QtWidgets import QToolButton
+
+        # A LABEL NO OTHER OPEN TAB ALREADY HAS. The rule above makes a
+        # collision unlikely rather than impossible, and two identical tabs
+        # is precisely the failure this label exists to prevent.
+        taken = {t.label for t in self.well_tabs()}
+        unique, suffix = label, 2
+        while unique in taken:
+            unique, suffix = f"{label} #{suffix}", suffix + 1
+        tab = _WellTab(key, unique, self._tabs)
+        self._well_tabs[key] = tab
+        index = self._tabs.addTab(tab, tab.label)
+        self._tabs.setTabToolTip(index, tooltip)
+        bar = self._tabs.tabBar()
+        bar.setTabButton(index, QTabBar.RightSide, None)
+        close = QToolButton(bar)
+        close.setText("\u00d7")
+        close.setAutoRaise(True)
+        close.setCursor(Qt.PointingHandCursor)
+        close.setToolTip(
+            f"Close “{tab.label}”. This tab closes from here and nowhere "
+            "else — it survives another coefficient, a re-sort and a re-run, "
+            "because comparing two genes' cells side by side is the point.")
+        close.clicked.connect(lambda *_a, w=tab: self._close_widget(w))
+        bar.setTabButton(index, QTabBar.LeftSide, close)
+        return tab
+
+    def _close_widget(self, widget) -> None:
+        """Close the tab holding ``widget``, whatever index it now has."""
+        index = self._tabs.indexOf(widget)
+        if index > 0:
+            self._close_tab(index)
+
+    def _close_tab(self, index: int) -> None:
+        """A tab's own x was clicked. THE ONLY WAY A WELL TAB CLOSES."""
+        widget = self._tabs.widget(index)
+        if widget is None or widget is self._summary_tab:
+            return
+        self._tabs.removeTab(index)
+        for key, tab in list(self._well_tabs.items()):
+            if tab is widget:
+                del self._well_tabs[key]
+        widget.setParent(None)
+        widget.deleteLater()
+
     def _column_count(self) -> int:
-        width = max(self._scroll.viewport().width() - 12, _CELL_PX)
+        width = max(self._tabs.width() - 40, _CELL_PX)
         return max(1, width // _CELL_PX)
 
     def _fill(self) -> None:
-        """Rebuild the grid from the plans and crops now held."""
+        """Open or refresh one tab per well, and write the summary.
+
+        A well the plans no longer mention keeps its tab -- it closes by its
+        x and by nothing else -- and a well that is mentioned again refreshes
+        the tab it already has rather than opening a second one.
+        """
         self._columns = self._column_count()
-        self._clear()
         captions: List[str] = []
-        row = 0
+        refused: List[str] = []
+        refreshed: set = set()
+        answered: set = set()
         for plan, crops in zip(self._plans, self._images):
             captions.append(plan.caption())
-            if len(self._plans) > 1:
-                heading = QLabel(plan.summary())
-                heading.setWordWrap(True)
-                self._grid.addWidget(heading, row, 0, 1, self._columns)
-                row += 1
-            if not len(plan.objects):
-                # AN EMPTY MONTAGE IS AN ANSWER, NOT AN EMPTY GRID. The wells
-                # that reported the guide and gave nothing are named in the
-                # caption below; this is the sentence in the grid's own space
-                # so the view is never a blank rectangle.
-                empty = QLabel(
-                    "No object was selected. Every well reporting this "
-                    "coefficient contributed none — the caption below names "
-                    "each one and why.")
-                empty.setWordWrap(True)
-                self._grid.addWidget(empty, row, 0, 1, self._columns)
-                row += 1
-                continue
+            guides = tuple(plan.guides) or (plan.coefficient.name,)
+            answered.add((plan.coefficient.name, plan.coefficient.level,
+                          "|".join(guides)))
             rows = plan.objects.reset_index(drop=True)
-            for index, crop in enumerate(crops):
-                widget = self._thumb(crop, rows.iloc[index]
-                                     if index < len(rows) else None)
-                self._grid.addWidget(widget, row + index // self._columns,
-                                     index % self._columns)
-            row += max(1, -(-len(crops) // self._columns))
+            wells = list(rows["montage_well"].astype(str)) \
+                if "montage_well" in rows.columns else []
+            if len(crops) != len(rows):
+                captions.append(
+                    f"NOTE the crop source returned {len(crops)} images for "
+                    f"{len(rows)} selected objects; only the pairs that line "
+                    "up are drawn.")
+            for well in plan.wells:
+                if not well.contributed:
+                    continue
+                key = (plan.coefficient.name, plan.coefficient.level,
+                       "|".join(guides), well.well)
+                positions = [i for i, value in enumerate(wells)
+                             if value == well.well and i < len(crops)]
+                tab = self._well_tabs.get(key)
+                if tab is None:
+                    if len(self._well_tabs) >= MAX_WELL_TABS:
+                        refused.append(well.well)
+                        continue
+                    tab = self._open_well_tab(key, well_tab_label(
+                        well.well, guides, plan.coefficient.name,
+                        plan.coefficient.level),
+                        f"{plan.coefficient.describe()} — {well.describe()}. "
+                        "This tab closes only when its × is clicked.")
+                tab.set_content(rows.iloc[positions].reset_index(drop=True),
+                                [crops[i] for i in positions],
+                                self._well_caption(plan, well, guides),
+                                self._columns)
+                refreshed.add(key)
+        # A TAB THIS RUN NO LONGER FILLS MUST NOT KEEP SHOWING THE OLD ONE.
+        # Driving the real widget found it: narrow the cap and re-run, and the
+        # wells that dropped out kept their previous thumbnails under a
+        # summary describing the new settings. The tab is NOT closed -- only
+        # its x does that -- it is emptied and says why, which is the same
+        # rule the empty montage follows.
+        for key, tab in self._well_tabs.items():
+            if key in refreshed or key[:3] not in answered:
+                continue
+            tab.set_content(
+                None, (),
+                f"{key[3]} contributed no object under the settings now in "
+                "force, so this tab is empty rather than showing the cells a "
+                "previous run put here. The Summary tab has the arithmetic.",
+                self._columns)
+        if refused:
+            captions.append(
+                f"{len(refused)} well tab(s) were NOT opened -- "
+                f"{', '.join(refused[:6])}"
+                + (" and others" if len(refused) > 6 else "")
+                + f" -- because {MAX_WELL_TABS} well tabs are already open. "
+                  "A tab holds one thumbnail per object, so the number is "
+                  "bounded; close one with its × to make room. No tab is "
+                  "ever closed for you.")
+        captions.append(
+            f"tabs: one per well that contributed an object, labelled with "
+            f"the well AND the guide, closed only by the × on the tab. Up to "
+            f"{MAX_WELL_TABS} stay open at once.")
         self._caption.setPlainText("\n\n".join(captions))
 
-    def _thumb(self, crop, row) -> QWidget:
-        tooltip = self._tooltip(row)
-        if crop is None:
-            label = QLabel("no crop")
-            label.setToolTip(tooltip or "this object could not be cut")
-            label.setAlignment(Qt.AlignCenter)
-            label.setFixedSize(THUMBNAIL_PX, THUMBNAIL_PX)
-            return label
-        return _Thumb(self._pixmap(crop), tooltip, self._body)
-
     @staticmethod
-    def _tooltip(row) -> str:
-        if row is None:
-            return ""
-        parts = []
-        for name, label in (("montage_well", "well"),
-                            ("object_label", "label"),
-                            ("pred", "score"),
-                            ("montage_distance", "|score − target|")):
-            if name in getattr(row, "index", ()):
-                value = row[name]
-                if isinstance(value, float):
-                    parts.append(f"{label} {value:.4g}")
-                else:
-                    parts.append(f"{label} {value}")
-        # NOT "carries this guide". The pooled design cannot say that of any
-        # single object, and a tooltip is exactly where that claim would get
-        # made by accident.
-        parts.append("consistent with the effect — membership is inferred")
-        return " · ".join(parts)
+    def _well_caption(plan, well, guides: Sequence[str]) -> str:
+        """One well's own account of itself, for its own tab.
 
-    @staticmethod
-    def _pixmap(crop) -> QPixmap:
-        array = np.ascontiguousarray(np.asarray(crop, dtype=np.uint8))
-        if array.ndim == 2:
-            array = np.repeat(array[:, :, None], 3, axis=2)
-        height, width = array.shape[:2]
-        image = QImage(array.data, width, height, 3 * width,
-                       QImage.Format_RGB888)
-        # `.copy()` is not optional: QImage does not own the numpy buffer, and
-        # without it the pixmap points at freed memory the moment the array
-        # goes out of scope.
-        return QPixmap.fromImage(image.copy()).scaled(
-            THUMBNAIL_PX, THUMBNAIL_PX, Qt.KeepAspectRatio,
-            Qt.SmoothTransformation)
+        SELF-CONTAINED ON PURPOSE. A tab outlives the selection that made it,
+        so it has to name its coefficient, its well and its guide without
+        anything else on screen agreeing -- otherwise a tab left open beside
+        another gene's is a picture that reads as the new one.
+        """
+        from ...cell_montage import INFERENCE_NOTICE
+
+        lines = [
+            f"Cells behind {plan.coefficient.describe()}",
+            f"well {well.well}, guide(s) {', '.join(guides)}",
+            f"count: {well.describe()}",
+            plan.window.describe(),
+            plan.settings_line(),
+            INFERENCE_NOTICE.format(name=plan.coefficient.name),
+        ]
+        return "\n".join(lines)
 
     def _clear(self) -> None:
-        while self._grid.count():
-            item = self._grid.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                # setParent(None) as well as deleteLater: a widget removed
-                # from the layout is still a visible child of the body at its
-                # old geometry until the deferred delete runs, which is how a
-                # rebuilt grid paints the previous montage under the new one.
-                widget.setParent(None)
-                widget.deleteLater()
+        """Empty every open well tab's grid, leaving the tabs standing."""
+        for tab in self.well_tabs():
+            tab.clear()
 
     def _relayout(self) -> None:
         """Reflow to the current width, but only if the column count moved."""
-        if not self._plans:
+        columns = self._column_count()
+        if columns == self._columns:
             return
-        if self._column_count() == self._columns:
-            return
-        self._fill()
+        self._columns = columns
+        for tab in self.well_tabs():
+            tab.fill(columns)
 
     def resizeEvent(self, event):        # noqa: N802 - Qt's spelling
         """Reflow the grid after a resize settles."""
