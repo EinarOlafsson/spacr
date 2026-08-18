@@ -454,3 +454,107 @@ are_derived_and_written_first` are RED and were red before this work:
 importable from none of the test's `_HELPER_MODULES`. Instruction 156's
 module needs adding to that tuple. Both `write_run_summary` call sites in
 ml.py were left alone as instructed.
+
+
+================================================================================
+H. TWO CLAIMS IN THIS FILE WERE WRONG. BOTH ARE CORRECTED HERE.
+================================================================================
+
+Measured 2026-08-18 while wiring the backends. Both errors are MINE, in this
+file's own section at the top, and both were the same mistake: a dependency
+table read as covering more than it tested.
+
+--------------------------------------------------------------------------------
+H1. cuML IS NOT A SAFE INSTALL. THE TABLE NEVER TESTED IT.
+--------------------------------------------------------------------------------
+
+This file opens with "EVERY ONE IS PURELY ADDITIVE ... Not one of them upgrades
+or downgrades numpy, scipy, pandas, torch or scikit-learn." That table tested
+SIX packages: pymer4, gpytorch, numpyro, glum, linearmodels and pyfixest.
+
+cuML WAS NEVER IN IT. The sentence was then read -- by me, writing section G --
+as covering all the GPU entries, and section G put cuML second in the wiring
+order on that basis.
+
+RE-MEASURED, `pip install --dry-run --report cuml-cu12`:
+
+    numpy      1.26.4  ->  2.2.6      (a MAJOR upgrade)
+    numba      0.62.1  ->  0.61.2     (a DOWNGRADE)
+    llvmlite   0.45.1  ->  0.44.0     (a DOWNGRADE)
+    plus eight nvidia-*-cu12 runtime libraries torch is built against
+
+That is precisely the risk the original test existed to catch: "a resolver that
+quietly moves numpy under a package doing image analysis is how a working
+install stops working." NOT INSTALLED. Its spec entry now says this rather than
+"not wired up yet", because the two are different answers and a user deciding
+whether to wait for it deserves the real one.
+
+THE PENALISED FAMILIES THEREFORE HAVE NO GPU PATH. glum can fit an L1/L2 GLM,
+but two coordinate-descent implementations at the same alpha can select
+DIFFERENT SETS -- which is section D's `differs` problem and not a tolerance.
+
+--------------------------------------------------------------------------------
+H2. pymer4 0.9.2 STILL NEEDS R. THE ANSWER TO THE MAINTAINER IS NO.
+--------------------------------------------------------------------------------
+
+This file says: "pymer4 NO LONGER NEEDS R. Checked on PyPI: pymer4 0.9.2,
+rpy2 NOT among its requirements ... The maintainer asked specifically whether
+lme4 could be had without installing or interfacing with R; on this version,
+yes."
+
+THAT WAS READ OFF A METADATA GAP. The 0.9.2 wheel declares NO dependencies at
+all -- `importlib.metadata.requires('pymer4')` returns None -- which is why the
+dry-run reported ONE additive package and none of its real ones. An absent
+requirement list is not an empty requirement list, and the check could not tell
+the two apart.
+
+INSTALLED AND TRIED, 2026-08-18: it fails at `pymer4/io.py: import polars`, and
+every module under `pymer4/models/` opens with
+`from rpy2.robjects.packages import importr`. Its own README says it uses rpy2.
+UNINSTALLED AGAIN.
+
+So the maintainer's question -- "for lme4 if there is a way to run it and not
+have to install or interface with R at all that is fine" -- is answered NO for
+this version, and the honest options are: accept an R dependency for lme4, or
+do not offer lme4. The reference sparse-Cholesky implementation is not
+available in pure Python here.
+
+--------------------------------------------------------------------------------
+H3. WHAT THE AGREEMENT TEST CAUGHT, WHICH IS WHY SECTION D IS NOT OPTIONAL
+--------------------------------------------------------------------------------
+
+glum's own `std_errors()` would have shipped WRONG P VALUES. It defaults to a
+sandwich estimator, and even with `robust=False` and the dispersion fixed it
+applies a finite-sample N/(N-p) correction statsmodels does not -- measured as a
+CONSTANT ratio of 1.2934 on the Poisson fit and 1.00059 on the weighted logit,
+i.e. sqrt(N/(N-p)).
+
+A 29% difference in every standard error is A DIFFERENT ANSWER, not a
+tolerance, and nothing on screen would have said so. The covariance is formed in
+spacr/ml.py from the information matrix instead. This is exactly what section D
+was written to prevent, and it caught it on the first backend it was applied to.
+
+--------------------------------------------------------------------------------
+H4. WHAT IS ACTUALLY WIRED NOW
+--------------------------------------------------------------------------------
+
+    pyfixest (CPU)   ols, wls      1.4x at n=1830/p=736
+                                   5.9x at n=6000/p=2242
+                                  16.7x at n=12000/p=4601   -- rising with size
+                     agreement: coefficients 3.9e-9 absolute, SEs 1.3e-13
+                     relative, p-values 8.5e-12 absolute
+
+    glum (CPU)       glm, poisson, logit
+                                   2.44x poisson, 3.08x logit at n=6000/p=2242
+                                   0.70x poisson at n=1830/p=736 -- SLOWER on a
+                                   small screen, and the box says so
+                     agreement: coefficients 2.6e-10 / 1.5e-9; llf and
+                     null_deviance identical, so the McFadden R2 does not move
+
+Both REFUSE a cov_type they cannot form (HC1/HC2/HC3 need the full model's
+leverage, which absorption never builds) rather than labelling numbers that did
+not come from it.
+
+STILL INVENTORY: cuML (refused, H1), pymer4 (refused, H2), numpyro and gpytorch
+(untouched, and last for the reason section B gives -- a posterior is a
+different answer, not a faster one).
