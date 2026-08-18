@@ -218,3 +218,69 @@ reaching every text including tick LABELS, and `set_line_style` extended to
 the axis pen without losing the per-pen dash patterns. `figures/style.py` and
 `figure_queue._style_figure_colors` already share the preference, so whatever
 B stores must be a token too or this bug returns by the other door.
+
+
+================================================================================
+2026-08-18 -- SECTION B SHIPPED (the menu half). Section A is the other agent.
+================================================================================
+
+WHAT SHIPPED, in spacr/qt/widgets/fast_plots.py only.
+
+EXACTLY TWO COLOUR CONTROLS, on every plot's Appearance group:
+
+    "Line colour…"   -> set_line_colour()  -> set_line_style(colour=...)
+    "Font colour…"   -> set_font_colour()  -> apply_text_style()
+
+LINE COLOUR NOW REACHES THE AXES, which is what the first report asked for
+and what nothing could do before. `set_line_style` walks `line_items()` as it
+always did AND the new `axis_items()`, setting both `setPen` (the spine) and
+`setTickPen` (the tick MARKS).
+
+  THE TICK PEN IS A SEPARATE CALL AND IT IS NOT OPTIONAL. pyqtgraph falls
+  back to the spine's pen for the ticks only while no tick pen has ever been
+  set, so an axis that has been given one keeps drawing its ticks in the old
+  ink unless setTickPen is called too.
+
+FONT COLOUR NOW REACHES THE CAPTIONS AND THE LEGEND. `apply_text_style` was
+already doing the axis text pen, the axis labels and the title; it now also
+does every `InfiniteLine.label` and every legend LabelItem.
+
+THE p=0.05 CAPTION CHANGED SIDES, and this file is why. It used to be
+recoloured by `set_line_style`, with a comment arguing that a red word beside
+a green line is wrong. The maintainer's decision is the other way -- "a font
+color that controls the color of all font in the graph" -- so the caption is
+TEXT. `set_line_style` no longer touches labels at all, and `add_line` gives
+a new caption the font colour from the moment it is drawn.
+`test_the_threshold_caption_is_text_and_follows_the_font_control` records the
+reversal so nobody re-argues it from the old comment.
+
+THE WIDTH DOES NOT REACH THE AXES. Colour does, width does not: a spine three
+pixels thick is not what "line width" was asked for, and the axes have no
+dash pattern to preserve. Written down because it is the one asymmetry.
+
+GATING SPLIT IN TWO, because the two controls now have different answers:
+
+    line_reason()          -> "this plot has no lines on it"  (WIDTH)
+    line_colour_reason()   -> "" on any drawn plot            (COLOUR)
+
+A plot with axes and no data lines can be recoloured and cannot be widened.
+
+"FOLLOW THE THEME (COLOURS)" is `follow_the_theme()`: both controls back to
+automatic. Every line's ORIGINAL colour is remembered on first restyle
+(`item._spacr_base_colour`) so the way back restores what the line was drawn
+with rather than inventing one -- which would be the same class of mistake as
+section A's "never persist a resolved default", performed by hand.
+
+THE DASHES SURVIVE the extended reach; there is a test for it.
+THE SELECTION RING AND THE SCATTERS STAY EXCLUDED; there is a test for that.
+
+WHAT IS NOT MINE AND WAS NOT TOUCHED
+
+  * Section A -- the resolved-colour-over-"auto" freeze, the dialog seeding,
+    and the migration -- is preferences.py / figure_queue.py, the other agent
+    in this wave. This side only READS the preference, through the existing
+    `_figure_colors()` -> `preferences.get_figure_colors()`, and
+    "Follow the theme" returns to it.
+  * The controls here are PER PLOT, which is what `set_font_colour` already
+    documented ("the user overriding it for one figure"). A colour for EVERY
+    figure is the preferences dialog, i.e. the other half.
