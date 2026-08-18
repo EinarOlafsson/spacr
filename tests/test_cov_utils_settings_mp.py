@@ -154,19 +154,41 @@ def test_load_settings_show_true_uses_display(tmp_path, monkeypatch):
     assert list(seen[0]["setting_key"]) == ["a", "b"]
 
 
-def test_load_settings_wrong_columns_raises(tmp_path):
+def test_load_settings_reads_either_spelling_and_refuses_neither(tmp_path):
+    """`save_settings` writes Key/Value, so `load_settings` must read them.
+
+    This test used to assert that a Key/Value file RAISES, which was true and
+    was the bug: the documented inverse pair did not round-trip, and callers
+    had each worked around it separately -- spacr/qt/dnd.py tried one
+    spelling and caught the failure to try the other. Nothing that used the
+    defaults was reading a file spacr had written.
+
+    What must still raise is a file with NEITHER spelling, and that is the
+    half worth keeping: a settings CSV whose columns are called something
+    else is not a settings CSV, and loading it as an empty dict would start a
+    run on defaults while the user believed their file had been read.
+    """
     from spacr.utils import load_settings
 
-    csv = tmp_path / "s.csv"
-    pd.DataFrame({"Key": ["a"], "Value": ["cell"]}).to_csv(csv, index=False)
+    written_by_spacr = tmp_path / "s.csv"
+    pd.DataFrame({"Key": ["a"], "Value": ["cell"]}).to_csv(
+        written_by_spacr, index=False)
+    assert load_settings(str(written_by_spacr)) == {"a": "cell"}
+    # An explicitly named column still wins, so a caller that knows its
+    # file's header is unaffected.
+    assert load_settings(str(written_by_spacr), setting_key="Key",
+                         setting_value="Value") == {"a": "cell"}
 
+    the_other_spelling = tmp_path / "t.csv"
+    pd.DataFrame({"setting_key": ["a"], "setting_value": ["cell"]}).to_csv(
+        the_other_spelling, index=False)
+    assert load_settings(str(the_other_spelling)) == {"a": "cell"}
+
+    not_a_settings_file = tmp_path / "u.csv"
+    pd.DataFrame({"name": ["a"], "amount": ["cell"]}).to_csv(
+        not_a_settings_file, index=False)
     with pytest.raises(ValueError, match="setting_key"):
-        load_settings(str(csv))
-
-    # ...but the same file loads fine once the column names are declared.
-    assert load_settings(str(csv), setting_key="Key", setting_value="Value") == {
-        "a": "cell"
-    }
+        load_settings(str(not_a_settings_file))
 
 
 def test_load_settings_all_numeric_column(tmp_path):
