@@ -120,8 +120,8 @@ OPEN
   147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
        147_both_fits_are_visible_a_square_is_a_square_and_the_menu_has_categories.txt
 
-  148  A LOG AXIS MOVES THE DOTS, AND THE LIMITS HOLD
-       148_a_log_axis_moves_the_dots.txt
+  148  THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
+       148_the_axes_behave_as_expected_logged_or_not.txt
 
 --------------------------------------------------------------------------------
 DONE
