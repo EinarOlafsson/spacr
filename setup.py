@@ -7,9 +7,20 @@
 # failures behind a bare `except CalledProcessError: pass`, invoked the bare
 # name `pip` (absent from PATH in many venv layouts), and installed an entire
 # second, unused Qt binding: pyqtgraph, pyqt6, pyqt6.sip, qtpy and superqt —
-# a hand-copy of cellpose's `gui` extra, duplicated within itself. 75 files
-# under spacr/ import PySide6; zero import PyQt6, pyqtgraph, qtpy or superqt.
+# a hand-copy of cellpose's `gui` extra, duplicated within itself. Files under
+# spacr/ import PySide6; zero import PyQt6, qtpy or superqt.
 # The block is gone; nothing replaced it, because nothing needed it.
+#
+# PYQTGRAPH IS NO LONGER PART OF THAT BAN, and the paragraph above is left
+# standing because it was true when it was written. spacr/qt/widgets/
+# fast_plots.py is the volcano, the Q-Q, the p-histogram, the control panel
+# and the guide-agreement plot, and the regression results panel builds all
+# five -- so pyqtgraph is now a first-class dependency spaCR imports, declared
+# in the core requirements beside PySide6. It is not a Qt BINDING; it draws
+# through whichever binding is installed, so none of the ABI reasoning that
+# banned PyQt6 applies to it. Reported from a real install that had PySide6
+# and not this, where opening ANY module raised RuntimeError out of the
+# screen factory.
 #
 # Project metadata that PEP 621 owns (name, requires-python, classifiers,
 # authors, URLs) now lives in pyproject.toml. The fields below stay here
@@ -1046,6 +1057,12 @@ setup(
         'all': [
             'PySide6>=6.6,<7',
             'qtawesome>=1.3,<2',
+            # The interactive plots. In `qt` since the regression panel was
+            # built on them, and missing here until 2026-08-17 -- so
+            # `pip install spacr[all]` installed strictly LESS than
+            # `pip install spacr[qt]`, which is the one thing the name of
+            # this extra promises cannot happen.
+            'pyqtgraph>=0.13,<1',
             'win10toast>=0.9; platform_system == "Windows"',
             'piper-tts>=1.2,<2',
             'trackastra>=0.5,<1.0',
