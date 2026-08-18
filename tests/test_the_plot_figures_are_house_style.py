@@ -968,3 +968,141 @@ def test_drawing_every_categorical_figure_leaves_the_globals_alone(capsys):
     after = {k: repr(v) for k, v in mpl.rcParams.items()}
     assert {k for k in set(before) | set(after)
             if before.get(k) != after.get(k)} == set()
+
+
+# --------------------------------------------------------------------------- #
+#  create_grouped_plot and spacrGraph -- the graphs the GUI's button makes
+# --------------------------------------------------------------------------- #
+
+def _grouped_frame(groups=("a", "b", "c"), n=20):
+    rng = np.random.default_rng(5)
+    return pd.DataFrame({
+        "grp": list(groups) * n,
+        "v1": rng.normal(10.0, 2.0, len(groups) * n),
+        "v2": rng.normal(4.0, 1.0, len(groups) * n),
+        "prc": [f"p1_r1_c{i % 6}" for i in range(len(groups) * n)],
+    })
+
+
+def test_a_grouped_plot_has_no_grid_and_no_rainbow(rcparams_guard, capsys):
+    """``sns.set(style="whitegrid")`` brought a grid the house style does not
+    have at all, and ``color_palette("husl", n)`` was a rainbow across the
+    groups -- which are the x axis."""
+    figure, results = P.create_grouped_plot(
+        _grouped_frame(), grouping_column="grp", data_column="v1",
+        graph_type="bar", save=False)
+    capsys.readouterr()
+
+    ax = figure.axes[0]
+    assert not any(line.get_visible()
+                   for line in ax.get_xgridlines() + ax.get_ygridlines())
+    assert {_hex(p.get_facecolor()) for p in ax.patches} == {
+        _hex(ROLES["data"])}
+    assert not results.empty
+
+
+def test_the_grouped_plot_on_screen_is_the_one_on_disk(rcparams_guard,
+                                                       tmp_path, capsys):
+    """The title naming the test and the rotated labels were applied inside
+    the `save` branch only, so looking at the plot and saving it produced two
+    different pictures from one call."""
+    shown, _results = P.create_grouped_plot(
+        _grouped_frame(), grouping_column="grp", data_column="v1",
+        graph_type="bar", save=False)
+    shown_title = shown.axes[0].get_title()
+    shown_rotation = shown.axes[0].get_xticklabels()[0].get_rotation()
+    plt.close("all")
+
+    saved, _results = P.create_grouped_plot(
+        _grouped_frame(), grouping_column="grp", data_column="v1",
+        graph_type="bar", save=True, output_dir=str(tmp_path))
+    capsys.readouterr()
+
+    assert shown_title == saved.axes[0].get_title() != ""
+    assert shown_rotation == pytest.approx(45.0)
+
+
+def test_a_single_measurement_graph_is_all_grey(rcparams_guard):
+    """One data column means the hue IS the grouping column, and the grouping
+    column is already the x axis."""
+    from spacr.plot import spacrGraph
+
+    graph = spacrGraph(_grouped_frame(), "grp", "v1", graph_type="bar",
+                       representation="object")
+    graph.create_plot()
+    ax = graph.get_figure().axes[0]
+
+    assert {_hex(p.get_facecolor()) for p in ax.patches} == {
+        _hex(ROLES["data"])}
+
+
+def test_several_measurements_keep_a_categorical_palette(rcparams_guard):
+    """Two measurements overlaid on one axis: here the colour is the only
+    thing saying which measurement a mark belongs to, so it stays."""
+    from spacr.plot import spacrGraph
+
+    graph = spacrGraph(_grouped_frame(), "grp", ["v1", "v2"],
+                       graph_type="bar", representation="object")
+    graph.create_plot()
+    ax = graph.get_figure().axes[0]
+
+    assert len({_hex(p.get_facecolor()) for p in ax.patches}) > 1
+
+
+def test_the_colors_parameter_is_no_longer_dead(rcparams_guard):
+    """``colors`` was a documented constructor parameter that was stored and
+    never read: a caller who passed a palette got the theme's anyway."""
+    from spacr.plot import spacrGraph
+
+    graph = spacrGraph(_grouped_frame(groups=("a", "b")), "grp", "v1",
+                       graph_type="bar", representation="object",
+                       colors=["#ff0000", "#00ff00"])
+    graph.create_plot()
+    ax = graph.get_figure().axes[0]
+
+    # seaborn draws bars at saturation 0.75, so the expectation goes through
+    # its own desaturate rather than being typed as the raw hexes.
+    import seaborn as sns
+    assert {_hex(p.get_facecolor()) for p in ax.patches} == {
+        _hex(sns.desaturate(colour, 0.75)) for colour in ("#ff0000", "#00ff00")}
+
+
+def test_the_grouped_graph_statistics_did_not_move(rcparams_guard):
+    """A restyle that silently changes a number is the worst outcome here."""
+    from spacr.plot import spacrGraph
+
+    frame = _grouped_frame(groups=("a", "b"), n=30)
+    graph = spacrGraph(frame, "grp", "v1", graph_type="bar",
+                       representation="object")
+    graph.create_plot()
+    results = graph.get_results()
+
+    ax = graph.get_figure().axes[0]
+    # A hue split gives every group a bar in every hue level, so the bars a
+    # group does not own are drawn at zero height. Only the real ones carry a
+    # mean.
+    heights = sorted(round(p.get_height(), 6) for p in ax.patches
+                     if p.get_height() > 0)
+    expected = sorted(round(float(frame.loc[frame["grp"] == group,
+                                            "v1"].mean()), 6)
+                      for group in ("a", "b"))
+    assert heights == expected
+    assert not results.empty
+
+
+def test_drawing_a_grouped_graph_leaves_the_globals_alone(tmp_path, capsys):
+    """Rule 2 over the graph the GUI's own button produces."""
+    from spacr.plot import spacrGraph
+
+    before = {k: repr(v) for k, v in mpl.rcParams.items()}
+
+    P.create_grouped_plot(_grouped_frame(), grouping_column="grp",
+                          data_column="v1", graph_type="bar", save=False)
+    for graph_type in ("bar", "jitter", "box", "violin"):
+        spacrGraph(_grouped_frame(), "grp", "v1", graph_type=graph_type,
+                   representation="object").create_plot()
+    capsys.readouterr()
+
+    after = {k: repr(v) for k, v in mpl.rcParams.items()}
+    assert {k for k in set(before) | set(after)
+            if before.get(k) != after.get(k)} == set()
