@@ -154,3 +154,97 @@ HOW TO KNOW IT WORKED
 * The box describes every backend and links its API.
 * A mixed fit through pymer4 or torch agrees with statsmodels on the same
   screen, and the run says which backend produced it.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- THE BOX IS ON SCREEN. The panel half shipped.
+--------------------------------------------------------------------------------
+
+AUDITED FIRST, and the header of this file was right about the model layer and
+silent about the only thing left. What was already true and was left alone:
+REGRESSION_BACKENDS (8 entries, every label (CPU)/(GPU), package / pip / API
+url / greying reason), the `regression_backend` setting defaulting to
+'statsmodels (CPU)' with an old CSV still loading, `spacr/mixed_gpu.py`,
+`ml.py::_require_backend`, and the panel placement (a3944e21).
+
+WHAT WAS ACTUALLY MISSING, measured on the built panel before touching
+anything:
+
+    regression_backend was a PLAIN QComboBox with all eight labels and EVERY
+    ONE OF THEM ENABLED.
+
+`describe_backends` had been written and tested and NOTHING IN spacr/qt called
+it -- confirmed by grep and by driving the widget -- so no description and no
+API link was ever on screen; and no entry was greyed for any reason, so a user
+could pick `numpyro (GPU)` (no package here, no fit routed through it) and
+hear nothing until `_require_backend` refused the run. Handoff 0b exactly.
+
+SHIPPED
+
+* `settings_model._RegressionBackendField` -- the combo plus a QTextBrowser.
+  It is the field widget for `regression_backend`, so it needed no change
+  outside this territory. Entries are greyed from `backend_menu()`; the box
+  is `describe_backends(..., compact=True)`; the links are real anchors and
+  `setOpenExternalLinks(True)` opens them.
+* It FOLLOWS `regression_type` (SettingsWidgets._refresh_regression_backend),
+  because an entry greyed for one family is choosable for another -- cuML is
+  refused under `mixed` and offered under `lasso`.
+* `backend_status` gained `short_reason`: the same refusal at combo-entry
+  length. THE REASON IS IN THREE PLACES because two of them are missable --
+  in the entry's own text ("cuML (GPU)  --  no mixed model; fits lasso,
+  ridge, elasticnet"), in full on the entry tooltip, and in the box, which is
+  on screen whether or not the popup is open.
+* `describe_backends(..., compact=True)`. HOW IT FITS INSTRUCTION 135: the
+  full text is 3,101 characters, about ninety wrapped lines in a settings
+  field. Compact writes the SELECTED backend out in full -- summary, measured
+  cost, and the DIFFERENT ANSWER caveat where there is one -- and gives the
+  other seven one line each: label, API link, first sentence, or the refusal.
+  1,220 characters, and the box has a 168 px ceiling and scrolls, so the page
+  is the same length whichever backend is chosen and whatever the machine has
+  to say about the rest.
+* A SELECTION THE NEW TYPE CANNOT FIT IS KEPT, not silently re-pointed at
+  statsmodels. The box leads with "This run will be refused." and the
+  sentence `_require_backend` will print. Re-pointing it would be the silent
+  fallback C forbids, one step earlier than the fit.
+* `backend_status` now says NOT INSTALLED alongside NOT WIRED UP instead of
+  returning at the first of them. The unimplemented test came first, so on
+  any machine without the extras -- which is every machine, they are extras --
+  the pip command C asks for was shown by nothing, ever.
+
+VERIFIED ON THIS MACHINE, through AppScreen("regression"), shown, with
+isVisible() (isVisibleTo() is True inside a collapsed section and would have
+proved nothing):
+
+    incompatible regression_type   cuML under `mixed`      -> greyed, own reason
+    missing package                torch, probe forced     -> greyed, "pip install torch"
+    missing CUDA device            torch, probe forced     -> greyed, own reason
+    all eight labels + all eight API URLs                  -> in the box, as anchors
+
+`tests/qt/test_the_backend_box_is_on_screen.py`, 12 tests, all of which fail
+without this change. `tests/test_mixed_gpu_backend.py` is 36 green, including
+the mixed fit agreeing through torch and statsmodels.
+
+WHAT IS TRUE AND SHOULD NOT BE FORGOTTEN
+
+ONLY statsmodels AND torch FIT ANYTHING. pymer4, cuML, pyfixest, glum,
+numpyro and gpytorch are INVENTORY ONLY: described so the plan is visible,
+greyed out as not wired up, and on this machine not installed either -- both
+sentences now on the entry, with the pip command. So the last acceptance line
+("a mixed fit through pymer4 or torch agrees with statsmodels") is satisfied
+by torch alone, and no package was installed to get there. The next agent to
+wire one of the six needs D's agreement test, not just a call site.
+
+FOUND IN PASSING, FIXED HERE:
+`tests/qt/test_regression_panel_is_one_page.py::test_neither_box_needs_a_
+horizontal_scrollbar` had been RED since instruction 138 landed. It asserted
+"the widget does not soft-wrap, so the text arrives pre-wrapped", and both
+halves stopped being true when `_wrap_block` began emitting one logical line
+per paragraph and the box was set to WidgetWidth. Rewritten to pin the
+invariant that survives: a line that must NOT break -- a formula -- is never
+wider than explainer_width().
+
+FOUND IN PASSING, NOT MINE TO FIX (outside this territory):
+`spacr/qt/screens/cell_montage_view.py::CellMontageView` puts hover help on
+its editable fields; `tests/test_tooltips_are_on_the_setting_not_the_field.py
+::test_no_screen_puts_hover_help_on_an_editable_field` is red because of it
+and was red before this work. The fix is one line -- call
+`settings_model.retarget_field_tooltips(self)` at the end of its __init__.
