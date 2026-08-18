@@ -46,14 +46,24 @@ about it would have looked wrong.
 
 from __future__ import annotations
 
+import logging
 import os
-from typing import Optional
+from typing import Dict, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QLabel, QPushButton, QSplitter, QTabWidget,
     QVBoxLayout, QWidget,
 )
+
+LOG = logging.getLogger(__name__)
+
+#: How the effect-size cut is measured, and how wide, on a run nobody has
+#: told otherwise. Named so :meth:`RegressionResultsPanel.set_frame`'s reset
+#: and the constructor cannot drift: they used to be two literals, and the
+#: reset did not exist at all -- so run B inherited run A's cut.
+DEFAULT_THRESHOLD_METHOD = "mad"
+DEFAULT_THRESHOLD_MULTIPLIER = 3.0
 
 #: Files a regression writes, best first. ``results.csv`` is the full
 #: coefficient table; the gene/grna splits are views of it.
@@ -697,6 +707,17 @@ class RegressionResultsPanel(QWidget):
         self._frame = None
         self._path = None
         self._selected_key = None
+        #: EVERY RUN OWNS ITS PLOT STATE, keyed by the run's own source path.
+        #: Instruction 116's new section, requested 2026-08-18: "every
+        #: regression run should have its own interactive volcano plot."
+        #:
+        #: THE STATE, NOT N WIDGETS, and the measurement is why. 129 clocked
+        #: live pyqtgraph tiles at 74.99 ms per window-drag frame against
+        #: 5.19 ms for photographs, on a 16.7 ms budget -- so one live
+        #: volcano for whatever is on screen and retained state for the rest
+        #: is the only shape that both answers the ask and stays usable. The
+        #: state is small; the widget is not.
+        self._plot_states: Dict[str, dict] = {}
         self._status = "No regression loaded."
         self._ranking = (None, None)
         #: The settings that produced the table on screen, when they are
@@ -714,8 +735,8 @@ class RegressionResultsPanel(QWidget):
         self._p_value_kind = "raw"
         self._p_value_note = ""
         #: How the effect-size cut is measured, and how wide.
-        self._threshold_method = "mad"
-        self._threshold_multiplier = 3.0
+        self._threshold_method = DEFAULT_THRESHOLD_METHOD
+        self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
         #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
@@ -1339,6 +1360,11 @@ class RegressionResultsPanel(QWidget):
             self.say("The results table is empty: it has columns but no "
                       "rows, so the fit produced no coefficients.")
             return False
+        # THE OUTGOING RUN KEEPS WHAT THE USER BUILT ON IT. Saved BEFORE
+        # anything is replaced, because every line below this one resets a
+        # piece of it -- and saved against the OLD path, which is the key the
+        # user will come back through.
+        self._remember_plot_state()
         self._frame = frame
         self._path = source
         self._ranking = self._rank_by(frame, source)
@@ -1449,6 +1475,23 @@ class RegressionResultsPanel(QWidget):
         # -- and a new screen would otherwise be offered the last one's
         # compartments.
         self._compartment = None
+        # AND SO DO THE EFFECT CUT AND THE AXIS WINDOW, which they did not.
+        # Measured on the real panel: after typing an x-range of (-1.5, 1.5)
+        # and a 2-spread cut on run A, opening run B drew run B inside run
+        # A's window with run A's cut -- a picture nobody chose, with nothing
+        # on screen saying where it came from. The other four resets in this
+        # block exist for exactly that reason; these two were missing.
+        #
+        # A run RETURNED TO gets its own back at the end of this method
+        # (`_restore_plot_state`), so the reset costs nothing a user built.
+        self._threshold_method = DEFAULT_THRESHOLD_METHOD
+        self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
+        self._p_value_kind = "raw"
+        try:
+            self.volcano.auto_range_axes()
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not release the previous run's axis limits",
+                      exc_info=True)
         # THE DEFAULT LEVEL IS READ OFF THE TABLE, not asserted.
         #
         # Defaulting to "grna" unconditionally is what fixed the four-fold
@@ -1483,8 +1526,136 @@ class RegressionResultsPanel(QWidget):
             # find is a bug report; the same colouring listed with the reason
             # it is useless is an answer.
             self.say(f"{self._status} Colouring: {self._colour_by_note}.")
+        # AND A RUN COME BACK TO GETS ITS PLOT BACK. Last, so it wins over
+        # every default the lines above chose from the table -- which is the
+        # whole point: those defaults are right the FIRST time a run is
+        # opened and wrong every time after, because by then the user has
+        # said what they want to look at.
+        self._restore_plot_state(source)
         self.loaded.emit(source or "")
         return True
+
+    # ----------------------------------------------- a run owns its plot
+
+    def plot_state(self) -> dict:
+        """What the user has built on the plot, as data.
+
+        Instruction 116: "every regression run should have its own
+        interactive volcano plot." A run does not have a volcano today -- the
+        screen has one and a run borrows it -- so opening run B destroyed the
+        level, the colouring, the axis limits, the effect cut and the
+        selection a user had chosen on run A.
+
+        EVERYTHING HERE BELONGS TO THE RUN AND NOT TO THE WIDGET. The colour
+        column is stored by NAME rather than by index, because the combo box
+        is rebuilt from each table's own columns and index 3 is a different
+        column in the next run.
+        """
+        pinned = getattr(self.volcano, "_pinned", None) or {}
+        return {
+            "level": self._level,
+            "colour_by": self._colour_by.currentData(),
+            "baseline": tuple(self._baseline),
+            "compartment": self._compartment,
+            "p_value_kind": self._p_value_kind,
+            "threshold_method": self._threshold_method,
+            "threshold_multiplier": self._threshold_multiplier,
+            "selected_key": self._selected_key,
+            # ONLY WHAT THE USER PINNED. Storing the view range would freeze
+            # an auto-ranged plot at whatever it happened to show, so a run
+            # returned to would stop following its own data.
+            "x_limits": pinned.get("x"),
+            "y_limits": pinned.get("y"),
+        }
+
+    def apply_plot_state(self, state) -> bool:
+        """Put a saved :meth:`plot_state` back. Returns whether it applied.
+
+        ONE REDRAW, not one per setting. Every public setter here redraws,
+        so restoring nine of them through nine setters would draw the panel
+        nine times on every run switch -- and the intermediate frames are of
+        combinations the user never chose.
+        """
+        if not isinstance(state, dict) or self._frame is None:
+            return False
+        if "level" in state:
+            self._level = state["level"]
+        if "baseline" in state:
+            kind, name = tuple(state["baseline"])
+            self._baseline = (kind, name)
+        for field in ("compartment", "p_value_kind", "threshold_method",
+                      "threshold_multiplier"):
+            if field in state:
+                setattr(self, f"_{field}", state[field])
+        colour = state.get("colour_by")
+        if colour is not None:
+            index = self._colour_by.findData(colour)
+            if index >= 0:
+                # Blocked: the redraw below covers it, and letting the combo
+                # fire here would draw the panel against a level that has
+                # not been re-offered yet.
+                blocked = self._colour_by.blockSignals(True)
+                self._colour_by.setCurrentIndex(index)
+                self._colour_by.blockSignals(blocked)
+        self._offer_levels()
+        self._offer_p_values()
+        self._offer_thresholds()
+        self._offer_compartments()
+        self._offer_baselines()
+        self.refresh_views()
+        self._mark_the_level_on_the_plots()
+        limits = (state.get("x_limits"), state.get("y_limits"))
+        if any(limit is not None for limit in limits):
+            try:
+                self.volcano.set_axis_limits(x=limits[0], y=limits[1])
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not restore the run's axis limits",
+                          exc_info=True)
+        key = state.get("selected_key")
+        if key:
+            # THE ROW MAY NOT BE THERE. A saved selection is a feature NAME,
+            # and the level restored above may filter it out -- a gene picked
+            # at level=None is not in the guide table. Missing is not an
+            # error; it is a row the user cannot currently see.
+            try:
+                self._select_key(str(key))
+            except Exception:                                    # noqa: BLE001
+                LOG.debug("could not restore the run's selection",
+                          exc_info=True)
+        return True
+
+    def remembered_runs(self) -> tuple:
+        """The run paths whose plot state this panel has STORED.
+
+        The run on screen is not among them: it holds its state live, in the
+        widgets, and joins the store when it is left. Saying so rather than
+        folding the two together, because "what is retained" and "what is
+        being looked at" are different questions and a caller asking the
+        first usually means it.
+        """
+        return tuple(self._plot_states)
+
+    def forget_plot_state(self, source) -> bool:
+        """Drop one run's remembered plot. Instruction 146 deletes a run.
+
+        :returns: whether there was anything to drop.
+
+        A deleted run must take its state with it, or a later run written
+        into the same folder inherits the deleted one's level and colouring
+        and there is nothing on screen saying where they came from.
+        """
+        return self._plot_states.pop(str(source or ""), None) is not None
+
+    def _remember_plot_state(self) -> None:
+        """Save the run on screen, if it has a path to be saved under."""
+        key = str(self._path or "")
+        if key and self._frame is not None:
+            self._plot_states[key] = self.plot_state()
+
+    def _restore_plot_state(self, source: str) -> bool:
+        """Put back what this run was left looking like, if anything."""
+        state = self._plot_states.get(str(source or ""))
+        return self.apply_plot_state(state) if state else False
 
     def _mark_the_level_on_the_plots(self) -> None:
         """Put the level sentence where the dots are, not only in a header.

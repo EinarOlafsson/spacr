@@ -3972,11 +3972,14 @@ class AppScreen(QWidget):
         no saved table, hides the row the user would pick next behind a page
         that says nothing.
 
-        WHAT IT DOES NOT DO IS REMEMBER. ``set_frame`` deliberately resets the
-        baseline, the compartment, the gene/guide filter and the selection --
-        a new table is a new experiment -- so switching runs resets them and
-        switching back does not restore them. That is the contract 128 J
-        states, not a gap in this method.
+        IT DOES REMEMBER NOW, and this paragraph used to say it did not.
+        Instruction 116's new section, requested 2026-08-18 -- "every
+        regression run should have its own interactive volcano plot" -- makes
+        the panel keep each run's level, colouring, axis limits, effect cut
+        and selection against that run's own path and hand them back when it
+        is opened again. A FIRST look at a run is still the table's own
+        defaults, which is what 128 J was about; what changed is the SECOND
+        look, where resetting threw away the view the user had built.
         """
         from ..widgets.sweep_runs import STATUS_RUNNING
 
