@@ -248,3 +248,65 @@ its editable fields; `tests/test_tooltips_are_on_the_setting_not_the_field.py
 ::test_no_screen_puts_hover_help_on_an_editable_field` is red because of it
 and was red before this work. The fix is one line -- call
 `settings_model.retarget_field_tooltips(self)` at the end of its __init__.
+
+
+================================================================================
+G. THE SIX ARE NOT BROKEN, THEY ARE NOT WIRED -- AND THE ASK WAS WIDER
+================================================================================
+
+Asked 2026-08-18: "for the regression backends, only statsmodels and torch GPU
+are available (even for lasso, mixed, ridge) etcetera. I dont know if this just
+hasnt been implemented yet or if something is wrong with the implementation."
+
+NOTHING IS WRONG. MEASURED through `backend_status` for five types:
+
+    ols       statsmodels                pyfixest would fit it -- NOT ROUTED
+    mixed     statsmodels, torch         pymer4/numpyro/gpytorch -- NOT ROUTED
+    lasso     statsmodels                cuML would fit it -- NOT ROUTED
+    ridge     statsmodels                cuML would fit it -- NOT ROUTED
+    poisson   statsmodels                pyfixest, glum -- NOT ROUTED
+
+The greying distinguishes the two cases correctly, which is what section C asked
+for: "cannot fit regression_type='lasso'; it fits mixed" is a genuine capability
+mismatch, and "is described here but spaCR does not route any fit through it
+yet" is the honest admission. Only `torch` was ever wired, and only for `mixed`.
+
+SO THE REMAINING WORK IS THE WIDER HALF OF THE ORIGINAL REQUEST, which asked for
+"anything and everything that could speed up any of the regression steps, NOT
+JUST THE MIXED MODEL" -- and the mixed model is the only thing that got faster.
+
+THE DEPENDENCY QUESTION IS ALREADY ANSWERED AND THE ANSWER WAS YES. The
+`pip install --dry-run --report` comparison at the top of this file measured all
+six as PURELY ADDITIVE: not one upgrades or downgrades numpy, scipy, pandas,
+torch or scikit-learn. The maintainer's condition -- "first test if adding any of
+those dependencies causes any problems, if they dont then i would like to add
+anything and everything" -- is met.
+
+WIRE THEM IN THIS ORDER, WHICH IS BY HOW MUCH OF THE SCREEN THEY SPEED UP:
+
+  1. pyfixest -- ABSORBS rowID/columnID INSTEAD OF BUILDING DUMMY COLUMNS.
+     They are real columns in the design today, so absorbing them shrinks the
+     problem before ANY backend runs. This is the one that helps every model,
+     which is precisely what "not just the mixed model" asked for, and it is
+     first for that reason rather than because it is the fastest single fit.
+  2. cuML -- GPU lasso / ridge / elasticnet, near drop-in for scikit-learn,
+     which is what the penalised types already use.
+  3. glum -- fast GLMs: glm, poisson, logit, probit, quasi_binomial.
+  4. pymer4 / lme4 -- the reference mixed-model implementation, a sparse
+     Cholesky over the nested structure rather than dense algebra. An
+     ALGORITHMIC win, and the best-tested LMM code that exists.
+  5. numpyro / gpytorch -- last, because numpyro returns posteriors rather than
+     point estimates plus SEs, which is a DIFFERENT answer and not a faster
+     version of the same one. Section B already says the box must state that.
+
+SECTION D IS NOT OPTIONAL FOR ANY OF THEM. "A backend that returns different
+numbers is a bug, not a trade-off." Each one lands with a test that fits the
+SAME screen through it and through statsmodels and asserts the coefficients
+agree to a stated tolerance -- the torch backend set the precedent at 2e-5 on
+the variance components. Where a backend CANNOT agree by construction
+(numpyro's posteriors, cuML's penalised paths), the box says what differs, and
+that sentence is part of the work rather than a follow-up.
+
+AND EACH ONE'S SPEEDUP IS MEASURED, NOT CLAIMED, on a real screen, the way
+torch's 25x end-to-end and 27x per-Cholesky were. A backend offered with an
+unmeasured "may be faster" is the thing section B forbids.
