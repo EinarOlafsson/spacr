@@ -99,15 +99,22 @@ def test_the_runs_are_a_tab_beside_the_results(screen):
 def test_results_is_what_opens_first(screen):
     """A finished regression opens into its results, not into a run list.
 
-    UNCHANGED IN SUBSTANCE, only in index: 128 J moved Runs in front of
-    Results, so "opens into its results" is index 1 rather than 0. J asks for
-    a different tab ORDER and says nothing about which tab a finished
-    regression lands on, so this property survives the reorder -- and it has
-    to be set explicitly now, because QTabWidget's own default is index 0,
-    which is the run list this test exists to say we do not open into.
+    UNCHANGED IN SUBSTANCE, twice now. 128 J moved Runs in front of Results,
+    so "opens into its results" is index 1 rather than 0; 116 made the
+    Results PAGE a splitter, because a second run opened for comparison goes
+    in beside the first and a tab page cannot gain a sibling. Neither says
+    anything about which tab a finished regression lands on, so the property
+    survives both -- and it has to be set explicitly, because QTabWidget's
+    own default is index 0, which is the run list this test exists to say we
+    do not open into.
+
+    THE PANEL IS STILL WHAT IS SHOWN, which is the part that matters: the
+    page is asserted to be the panel's own parent chain rather than the
+    panel, so a page that stopped containing it would fail here.
     """
     tabs = screen._results_tabs
-    assert tabs.currentWidget() is screen._results_panel
+    assert tabs.currentWidget() is screen._results_page
+    assert screen._results_panel.parent() is screen._results_page
     assert tabs.currentIndex() == 1
 
 
