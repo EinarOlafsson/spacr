@@ -208,3 +208,121 @@ WHAT NOT TO OFFER: jitter on the y axis to separate the ties. It moves a point
 away from its own value, which is the one thing a plot may never do -- and
 this instruction exists because a plot was showing something the data did not
 say.
+
+
+================================================================================
+2026-08-18 -- SHIPPED. The axis is continuous and the line is exact.
+================================================================================
+
+WHAT SHIPPED
+
+  F.1  RAW P ON THE AXIS BY DEFAULT. `VolcanoPlot.p_axis()` is "raw" and the
+       height is -log10(raw p), continuous. q decides the COLOUR (two
+       brushes, a two-entry legend "called (n)" / "not called (n)") and the
+       LINE. On a screen with no category colouring the colour channel now
+       carries the call, which is the field's own volcano.
+
+  F.2  THE BH CRITICAL LINE, EXACT. `multiple_testing.critical_p_value()`.
+       Not the F.2 formula transcribed -- computed from the correction's own
+       REJECTION CALL, so the line cannot disagree with the colours beside
+       it, and so ONE function answers for all thirteen methods instead of
+       one. Checked against the textbook identity anyway:
+
+           p_(k) from  q_(i) <= alpha iff p_(i) <= alpha*i/n   =  5.6997e-05
+           critical_p_value(p, "fdr_bh", 0.05)                 =  5.6997e-05
+
+       The premise is that every correction's rejection region is a LOWER
+       SET. That is asserted, not assumed: a parametrised test walks all
+       thirteen and checks no unrejected p sits below the largest rejected
+       one. All thirteen pass.
+
+       NOTHING CALLED -> NO LINE, and the caption says "Nothing is called at
+       FDR 0.05, so there is no threshold line to draw."
+
+       TWO FAMILIES WITH DIFFERENT CUTS GET A LINE EACH, named. One line is
+       exact for one family; drawing one for two would be exact for one of
+       them and wrong for the other.
+
+  F.3  ADJUSTED P ON THE AXIS. Still there, still stepped, not the default.
+
+  E    THE CORRECTION ON THE GRAPH. All thirteen from `METHODS` under a
+       "Correction" group, recomputed on the spot. It says which is drawn and
+       whether it is the run's ("Benjamini-Hochberg FDR (the run's)"), and it
+       says "The run used fdr_bh; this is a VIEW and the exported table still
+       holds the run's q" when they differ. Not left ambiguous: there is also
+       "Write this correction as a table…", which writes q, local_fdr and
+       called_at_<alpha> beside the run's own columns.
+
+       THE FAMILY IS RESPECTED. `hits.family_labels()` is the single
+       statement of the split; each level is corrected separately, and the
+       caption says "Corrected within each level separately (gene, grna)".
+
+       AND THE PLOT CHECKS ITSELF AGAINST THE TABLE. When the correction in
+       force IS the run's, the recomputed q is compared with the q_value
+       column; a mismatch prints "WARNING: recomputing the run's own method
+       does not reproduce the table's q values". IT FIRED FOR REAL while this
+       was being written, on a fixture whose q had been corrected over 823
+       rows against a plot correcting the 822 that are hypotheses. It is the
+       single most useful thing in this change.
+
+  D    THE Y-AXIS SPLIT, under Axes. `set_y_split(low, high)` /
+       `clear_y_split()`. A piecewise-linear ruler with the tick labels
+       printing the DATA's own values across the break, so no mark is
+       anywhere its number is not. The status line says: "A split gives the
+       rest of the screen its height back; it does not make a stepped
+       adjusted P continuous."
+
+       IT REFUSES A BAND THAT HOLDS POINTS, with the count. A mark inside the
+       hidden band has no number left on the ruler to sit at, and drawing it
+       in the break is the jitter this instruction forbids by another route.
+
+  B    LOCAL FDR ON THE AXIS -- done, and the estimator was CHANGED once on a
+       measurement. The first build used the Grenander estimator (the
+       decreasing density's nonparametric MLE, what fdrtool uses). It is
+       assumption-free and it is a STEP FUNCTION, so it reproduced on this
+       axis the exact discreteness the option exists to escape:
+
+           823 tests   BH q: 48 distinct   Grenander lfdr: 8   raw p: 823
+
+       Replaced with the beta-uniform mixture (Pounds and Morris), fitted by
+       closed-form EM -- no bandwidth, no bin count, no optimiser tolerance:
+
+           the same 823 tests                 lfdr: 823 distinct
+
+       The shape assumption (alternatives ~ Beta(a,1)) is what buys the
+       continuity and it is stated in the docstring and in the caption.
+       Below `LOCAL_FDR_MIN_TESTS` (20) it returns 1 everywhere and the menu
+       entry greys out saying "a family of 8 is too small to read a density
+       off" rather than drawing a curve fitted to a dozen numbers.
+
+  C    HALF DONE, AND THE HALF THAT IS DONE IS THE PLOT'S. The volcano now
+       detects a quantised raw p and says so: "The RAW p is itself quantised
+       -- 562 distinct values among 823, the smallest 0.000999 -- so a
+       permutation p can be no finer than 1/(permutations + 1)". THE
+       SETTINGS BOX IS NOT MINE (spacr/settings.py) -- see the handoff.
+
+NOT DONE, DELIBERATELY
+
+  * F.5 (a continuous colour ramp over q) and F.6 (size/opacity by q) are not
+    built. F.5 conflicts with the up/down colouring by construction and the
+    binary call is what F.1 asks for; F.6 composes but nobody asked for it.
+  * NO Y-AXIS JITTER, and there is a test named for it: two tied q values
+    land on exactly the same height on the adjusted axis.
+
+WHAT COST TIME, SO IT COSTS NOBODY ELSE ANY
+
+  * `round(p, 15)` IS NOT ROUNDING TO 15 SIGNIFICANT DIGITS. It was used to
+    dedupe two families' critical values and it sent every p below 1e-15 to
+    ZERO -- so a screen whose critical p is 1.7e-20 drew its line at
+    -log10(0) and pyqtgraph died with "cannot convert float NaN to integer",
+    a traceback naming nothing. Never round a P value to decimal places.
+  * THE LOCAL FDR MUST BE LAZY. Computed on every redraw it was 25 ms of a
+    40 ms redraw on the real screen's 1,215 coefficients -- more than drawing
+    the plot -- and `test_colouring_does_not_cost_a_brush_per_point` caught
+    it at 32 ms against its 30 ms budget. Computed on demand: 8.9 ms.
+  * `hits.family_labels` had to be VECTORISED for the same reason: 2.1 ms per
+    redraw as a Python loop over `guide_of`.
+  * THE HOST STILL DRIVES THE AXIS THROUGH `p_column`, and honouring that had
+    to be one-way-until-overruled. `RegressionResultsPanel` redraws on every
+    level, baseline and compartment change; honouring it unconditionally made
+    any one of them silently undo a choice the user had made on the menu.

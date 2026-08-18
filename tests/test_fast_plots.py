@@ -333,13 +333,21 @@ class TestTheLastGraphIsNotSlowAnyMore:
         plot._legend_box.setChecked(False)
         assert plot.plot.plotItem.legend is None
 
-    def test_a_frame_with_no_category_offers_no_legend(self, qtbot, big):
+    def test_a_frame_with_no_category_names_the_fdr_call_instead(self, qtbot,
+                                                                big):
+        """The volcano used to have nothing to colour by without a category
+        column, so no legend. Instruction 149 gave the colour a job -- it
+        carries the FDR call, which is the discrete thing q actually is --
+        so there IS a legend, and it is two entries rather than 27."""
         from spacr.qt.widgets.fast_plots import VolcanoPlot
 
         plot = VolcanoPlot()
         qtbot.addWidget(plot)
         plot.set_results(big)
-        assert not plot._legend_box.isEnabled()
+
+        assert plot._legend_box.isEnabled()
+        assert "2" in plot._legend_box.text()
+        assert set(plot._legend_colours) == {"called (0)", "not called (1215)"}
 
 
 class TestRestylingTheFastPlots:
@@ -380,11 +388,15 @@ class TestRestylingTheFastPlots:
         assert plot.plot.getAxis("bottom").labelText == "effect size"
 
     def test_the_menu_offers_the_legend_only_when_there_is_one(self, qtbot):
+        """A plot with no tested family has nothing for colour to say, so it
+        offers no legend -- as against a volcano whose colour carries the FDR
+        call, which does."""
         from spacr.qt.widgets.fast_plots import VolcanoPlot
 
-        frame = pd.DataFrame({"feature": ["a", "b"], "coefficient": [1.0, 2.0],
+        frame = pd.DataFrame({"feature": ["Intercept", "rowID[T.2]"],
+                              "coefficient": [1.0, 2.0],
                               "p_value": [0.1, 0.2]})
         widget = VolcanoPlot()
         qtbot.addWidget(widget)
-        widget.set_results(frame)          # no category column
+        widget.set_results(frame, drop_untested=False)   # no category column
         assert not widget._legend_box.isEnabled()
