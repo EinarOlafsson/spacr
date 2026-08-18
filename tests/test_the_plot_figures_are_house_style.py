@@ -746,3 +746,225 @@ def test_drawing_every_volcano_leaves_the_globals_alone(tmp_path, capsys):
     after = {k: repr(v) for k, v in mpl.rcParams.items()}
     assert {k for k in set(before) | set(after)
             if before.get(k) != after.get(k)} == set()
+
+
+# --------------------------------------------------------------------------- #
+#  The categorical panels: recruitment, controls, jitter, proportions
+# --------------------------------------------------------------------------- #
+
+_RECRUITMENT_EXTRA = [
+    "pathogen_cytoplasm_mean_mean", "pathogen_cytoplasm_q75_mean",
+    "pathogen_periphery_cytoplasm_mean_mean",
+    "pathogen_outside_cytoplasm_mean_mean",
+    "pathogen_outside_cytoplasm_q75_mean",
+]
+
+
+def _recruitment_frame(channel=1, n=24):
+    rng = np.random.default_rng(0)
+    data = {"condition": ["ctrl", "trt"] * (n // 2),
+            "pathogen": ["wt", "mut"] * (n // 2)}
+    for component in ("cell", "nucleus", "cytoplasm", "pathogen"):
+        data[f"{component}_channel_{channel}_mean_intensity"] = rng.uniform(
+            10, 100, n)
+    for column in _RECRUITMENT_EXTRA:
+        data[column] = rng.uniform(2, 50, n)
+    return pd.DataFrame(data)
+
+
+def test_the_recruitment_grid_hides_the_axes_it_did_not_fill(rcparams_guard,
+                                                             capsys):
+    """An empty framed box reads as a panel that failed to draw."""
+    P._plot_recruitment(_recruitment_frame(), "test", 1, figuresize=4)
+    capsys.readouterr()
+
+    grid = _figures()[1]
+    assert len(grid.axes) == 6
+    assert grid.axes[5].axison is False
+    assert all(ax.axison for ax in grid.axes[:5])
+
+
+def test_the_recruitment_ticks_are_anchored_not_merely_rotated(rcparams_guard,
+                                                               capsys):
+    """A condition name rotated about its centre drifts off its own tick."""
+    P._plot_recruitment(_recruitment_frame(), "test", 1, figuresize=4)
+    capsys.readouterr()
+
+    for label in _figures()[0].axes[0].get_xticklabels():
+        assert label.get_rotation() == pytest.approx(45.0)
+        assert label.get_ha() == "right"
+
+
+def test_the_recruitment_palette_is_still_its_own_and_still_local(capsys):
+    """The four hues stay -- the category IS the data here -- and the house
+    style must not have turned the local palette into a global one."""
+    before = repr(mpl.rcParams["axes.prop_cycle"])
+    P._plot_recruitment(_recruitment_frame(), "test", 1, figuresize=4)
+    capsys.readouterr()
+
+    import seaborn as sns
+    intended = [(55 / 255, 155 / 255, 155 / 255),
+                (155 / 255, 55 / 255, 155 / 255)]
+    bars = {tuple(np.round(patch.get_facecolor()[:3], 4))
+            for patch in _figures()[0].axes[0].patches}
+    assert bars == {tuple(np.round(sns.desaturate(colour, 0.75), 4))
+                    for colour in intended}
+    assert repr(mpl.rcParams["axes.prop_cycle"]) == before
+
+
+def _controls_frame(chans=(0, 1), conditions=("ctrl", "trt"), n=12):
+    rng = np.random.default_rng(1)
+    data = {"condition": list(conditions) * (n // len(conditions))}
+    for chan in chans:
+        for component in ("cell", "nucleus", "pathogen", "cytoplasm"):
+            data[f"{component}_channel_{chan}_mean_intensity"] = rng.uniform(
+                5, 50, n)
+    return pd.DataFrame(data)
+
+
+def test_the_control_components_are_not_coloured_twice(rcparams_guard):
+    """The four components are already the x axis of every panel; giving each
+    one a hue as well argues nothing."""
+    P._plot_controls(_controls_frame(), [0], channel_of_interest=1,
+                     figuresize=1)
+
+    figure = _figures()[0]
+    faces = {_hex(patch.get_facecolor())
+             for ax in figure.axes for patch in ax.patches}
+    assert faces == {_hex(ROLES["data"])}
+
+
+def test_the_control_means_did_not_move(rcparams_guard):
+    """Restyle only: each bar is still its condition's mean intensity."""
+    frame = _controls_frame(chans=(0, 1))
+    P._plot_controls(frame, [0], channel_of_interest=1, figuresize=1)
+
+    ax = _figures()[0].axes[0]
+    expected = [frame[frame["condition"] == "ctrl"]
+                [f"{component}_channel_0_mean_intensity"].mean()
+                for component in ("cell", "nucleus", "pathogen", "cytoplasm")]
+    assert [p.get_height() for p in ax.patches] == pytest.approx(expected)
+
+
+# --------------------------------------------------------------------------- #
+#  plot_proportion_stacked_bars
+# --------------------------------------------------------------------------- #
+
+def _proportion_frame(n=120):
+    rng = np.random.default_rng(7)
+    return pd.DataFrame({
+        "group": rng.choice(["a", "b"], n),
+        "bin": rng.choice(["b1", "b2", "b3"], n),
+        "prc": rng.choice([f"p1_r1_c{i}" for i in range(4)], n),
+    })
+
+
+def test_the_ordered_bins_get_a_single_hue_ramp(rcparams_guard, capsys):
+    """Volume bins are ORDERED, so their encoding is one hue light-to-dark.
+
+    viridis was the literal every internal call site was written with, not a
+    choice; it is treated as unset here exactly as plot_plates treats it.
+    """
+    from matplotlib import colormaps
+
+    results, pairwise, figure = P.plot_proportion_stacked_bars(
+        {"verbose": False}, _proportion_frame(), "group", "bin",
+        level="object")
+    capsys.readouterr()
+
+    ax = figure.axes[0]
+    faces = [_hex(p.get_facecolor()) for p in ax.patches]
+    blues = colormaps[Palette.SEQUENTIAL]
+    assert set(faces) <= {_hex(blues(v)) for v in np.linspace(0, 1, 256)}
+    # ...and a caller who names another map still gets it.
+    _r, _p, other = P.plot_proportion_stacked_bars(
+        {"verbose": False}, _proportion_frame(), "group", "bin",
+        level="object", cmap="autumn")
+    capsys.readouterr()
+    autumn = colormaps["autumn"]
+    assert {_hex(p.get_facecolor()) for p in other.axes[0].patches} <= {
+        _hex(autumn(v)) for v in np.linspace(0, 1, 256)}
+
+
+def test_the_proportions_and_the_chi_squared_did_not_move(rcparams_guard,
+                                                          capsys):
+    """A restyle that silently changes a number is the worst outcome here."""
+    from scipy.stats import chi2_contingency
+
+    frame = _proportion_frame()
+    results, pairwise, figure = P.plot_proportion_stacked_bars(
+        {"verbose": False}, frame, "group", "bin", level="object")
+    capsys.readouterr()
+
+    counts = frame.groupby(["group", "bin"], observed=True).size().unstack(
+        fill_value=0)
+    chi2, p, _dof, _expected = chi2_contingency(counts)
+    assert results["chi_squared_stat"][0] == pytest.approx(chi2)
+    assert results["p_value"][0] == pytest.approx(p)
+    assert figure.axes[0].get_ylim() == (0.0, 1.0)
+
+
+# --------------------------------------------------------------------------- #
+#  jitterplot_by_annotation
+# --------------------------------------------------------------------------- #
+
+def test_the_jitter_classes_are_grey_and_carry_a_mean_bar(rcparams_guard,
+                                                          monkeypatch, capsys):
+    """The annotation classes ARE the x axis. A viridis ramp over them said
+    nothing the axis had not said, and implied an order that is not there.
+
+    The mean bar is ADDED, and this test says so: a dot strip without its
+    mean is a cloud, and GREY_DARK is the palette's own role for a mean bar.
+    """
+    import spacr.io as sio
+
+    frame = pd.DataFrame({
+        "annotation": ["pos"] * 6 + ["neg"] * 6,
+        "recruitment": np.concatenate([np.linspace(1.0, 2.0, 6),
+                                       np.linspace(3.0, 4.0, 6)]),
+        "plateID": ["p1"] * 12,
+        "rowID": ["r1"] * 12,
+        "columnID": [f"c{i % 3}" for i in range(12)],
+        "prcfo": [f"o{i}" for i in range(12)],
+    })
+    monkeypatch.setattr(sio, "_read_and_merge_data",
+                        lambda *a, **k: (frame.copy(), []))
+    monkeypatch.setattr(sio, "_read_db",
+                        lambda *a, **k: [frame[["prcfo"]].copy()])
+
+    out = P.jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
+    capsys.readouterr()
+
+    ax = _figures()[0].axes[0]
+    strips = list(ax.collections)
+    assert len(strips) == 2                      # one collection per class
+    for strip in strips:
+        assert {_hex(tuple(c)) for c in strip.get_facecolors()} == {
+            _hex(ROLES["data"])}
+
+    drawn = sorted(round(float(line.get_ydata()[0]), 6) for line in ax.lines)
+    expected = sorted(
+        round(float(out.loc[out["annotation"] == group,
+                            "recruitment"].mean()), 6)
+        for group in ("pos", "neg"))
+    assert drawn == expected
+    assert {_hex(line.get_color()) for line in ax.lines} == {
+        _hex(Palette.GREY_DARK)}
+    for label in ax.get_xticklabels():
+        assert label.get_ha() == "right"
+
+
+def test_drawing_every_categorical_figure_leaves_the_globals_alone(capsys):
+    """Rule 2, over the group that draws the most axes at once."""
+    before = {k: repr(v) for k, v in mpl.rcParams.items()}
+
+    P._plot_recruitment(_recruitment_frame(), "test", 1, figuresize=4)
+    P._plot_controls(_controls_frame(), [0], channel_of_interest=1,
+                     figuresize=1)
+    P.plot_proportion_stacked_bars({"verbose": False}, _proportion_frame(),
+                                   "group", "bin", level="object")
+    capsys.readouterr()
+
+    after = {k: repr(v) for k, v in mpl.rcParams.items()}
+    assert {k for k in set(before) | set(after)
+            if before.get(k) != after.get(k)} == set()
