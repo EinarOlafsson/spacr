@@ -2988,7 +2988,7 @@ tooltips = {
     "infection_intensity_qc_scope": "(str) - Whether infection QC is fitted once or per group: 'combined'/'global'/'all' fits one model on everything, 'plate'/'per_plate' one per plateID, 'well'/'per_well' one per plate-well, and 'none'/'off' skips QC; an unrecognised string falls back to combined behaviour with a warning. Per-well fitting absorbs staining and exposure differences but needs enough cells per well; every group still writes its own QC plot, only the QC payload embedded in the summary panel is taken from the first processed group. Default 'per_well'.",
     "adjust_cells": "(bool) - After segmentation, rewrite the cell masks so labels split across a single pathogen or nucleus are merged, and cell fragments with no nucleus are absorbed into the neighbour they share most perimeter with. Needs cell, nucleus and pathogen channels and is skipped for timelapse runs. Enable when large infected cells come back fragmented. Default False.",
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
-    "alpha": "(float) - Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
+    "alpha": "(float) - Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other family refuses a non-default alpha rather than ignoring it. Default 1.",
     # --- 3D (Beta) -------------------------------------------------------
     # These describe what the z plumbing does, and say plainly where it stops.
     # A user must not read these and believe spaCR measures volumes today.
@@ -3435,7 +3435,7 @@ tooltips = {
     'controls': "(list) - gRNA identifiers treated as non-targeting controls in the regression. Their coefficients are tagged 'control', and their spread sets reg_threshold = mean + threshold_multiplier x (std or var, per threshold_method) - the effect-size cut-off drawn on the volcano plot. A noisier or wider control set raises that bar. None skips the threshold. Default the built-in list of 30 non-targeting IDs, '000000_1' to '000000_32' (without _2 and _7).",
     "correlate": "(bool) - Intended to add pairwise correlations between selected measurements to the analysis output, but nothing reads settings['correlate']. Channel/activation correlations are controlled by the separate 'correlation' setting in the activation-map path. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder. Default 'list of paths', a placeholder that must be replaced; the barcode QC module defaults this key to 'path to unique_combinations.csv'.",
-    'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. Applies to regression_type 'ols', 'wls', 'glm', 'poisson', 'quasi_binomial', 'logit' and 'probit'; the penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None.",
+    'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. The penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None.",
     "resume": '(bool) - Continue an interrupted run at its last verified safe boundary instead of starting over. Each module verifies before it accepts work as done: Mask revalidates existing mask and merged arrays, Measure takes only fields complete in every table it owns and clears partial rows before retrying, and the Format Converter reopens each TIFF it checkpointed. So resuming cannot inherit a half-written result -- the cost is the re-reading, not correctness. Default False.',
     "resume_search": "(bool) - Continue the compatible Image UMAP hyperparameter checkpoint stored under the project results folder. Completed trial scores and embedding arrays are loaded without refitting. If an adaptive 2x2 round was interrupted, only its missing corners are evaluated before the direction is chosen. The feature data, labels, search space, criterion, seed, increments and stopping threshold must match. Default False.",
     "checkpoint_path": "(str or None) - Optional explicit path for an atomic resume checkpoint. Format Converter defaults to .spacr_conversion.checkpoint.json in its destination; Image UMAP defaults to results/.spacr_checkpoints/umap_search.json under the project. Keep checkpoints with their outputs. Default None.",
@@ -3601,6 +3601,52 @@ tooltips = {
 }
 
 _clone_organelle_registry(tooltips, tooltip=True)
+
+
+def _name_the_family_in_every_estimator_tooltip():
+    """Append "Read by: <families>" to each per-family estimator setting.
+
+    Instruction 135, asked for on 2026-08-17: "make sure the tooltips make
+    apparent which regression type each setting here is for".
+
+    GENERATED, NOT WRITTEN. Several of these tooltips already name their
+    family somewhere in a five-line paragraph -- `l1_ratio` says "elastic-net"
+    in its first clause, `cov_type` lists seven families in its third sentence
+    -- and a reader scanning the Estimator Tuning section has to read all of
+    it to find out whether the control applies to them. This puts the answer
+    in one place, in the same shape, at the end of every one.
+
+    Reading `REGRESSION_SETTINGS_USED` is the point. It is the same table the
+    greying rule is generated from, so the sentence and the enabled state
+    cannot disagree, and a family added there gets both without a second
+    edit. A hand-written list would drift the first time one did.
+    """
+    from .regression_spec import REGRESSION_SETTINGS_USED
+
+    families = {}
+    for family, keys in REGRESSION_SETTINGS_USED.items():
+        for key in keys:
+            families.setdefault(key, []).append(family)
+    for key, owners in families.items():
+        text = tooltips.get(key)
+        if not text or 'Read by regression_type' in text:
+            continue
+        # ALREADY SAID IS ALREADY SAID. Some of these tooltips end with the
+        # project's existing "Read only by regression_type 'x'." convention,
+        # which answers the same question in the same place; appending a
+        # second sentence saying it again reads as a mistake.
+        if 'Read only by regression_type' in text:
+            continue
+        listed = ', '.join(f"'{one}'" for one in sorted(owners))
+        # SHORT. The greyed-out state carries its own reason -- the
+        # dependency rule writes "not read when regression_type is 'x'" onto
+        # the disabled control -- so repeating it here spends the tooltip
+        # budget saying twice what the panel already says once.
+        tooltips[key] = (
+            f"{text.rstrip()} Read by regression_type {listed}.")
+
+
+_name_the_family_in_every_estimator_tooltip()
 
 # Keys owned by the standalone Timelapse module (spacr.qt app key 'timelapse').
 # NOTE `timelapse` itself is NOT in this list: it lives in the "General"

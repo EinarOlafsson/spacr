@@ -2721,6 +2721,12 @@ def get_tooltips() -> Dict[str, str]:
 DOCS_API_BASE = "https://einarolafsson.github.io/spacr/api"
 
 _APP_API_MODULE = {
+    # Registered without a mapping, so their help had no API page to link to.
+    # The Volcano Explorer redraws a finished regression's coefficient table
+    # and the Parameter Sweep reads the trials of a search that already ran;
+    # each points at the module that produced what it is showing.
+    "volcano_explorer": "volcano_style",
+    "parameter_sweep": "parameter_sweep",
     "align": "align",
     "convert": "convert",
     "foreign": "foreign",
