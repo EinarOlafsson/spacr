@@ -596,3 +596,43 @@ def test_the_gpu_backend_is_faster_end_to_end_on_a_screen_sized_problem(
     assert report["max_relative_variance_difference"] < 1e-2
     assert report["speedup"] > 1.0, (
         f"the GPU backend was not faster: {report}")
+
+
+def test_a_row_patsy_drops_does_not_shift_the_grouping(screen):
+    """The alignment bug that would have completed and been wrong.
+
+    patsy drops a row whose predictor is NaN. Taking the grouping labels by
+    POSITION (``groups[:len(X)]``) then hands every row after the first
+    dropped one its neighbour's cluster: the fit completes, the numbers look
+    ordinary, and every standard error is computed against the wrong
+    grouping.
+
+    THE REFERENCE IS THE SAME FRAME WITH THE HOLES ALREADY REMOVED, not a
+    statsmodels fit -- ``smf.mixedlm`` cannot fit this frame at all. It
+    drops the rows from the design and keeps the full-length ``groups``,
+    then dies with ``IndexError: index 1618 is out of bounds for axis 0 with
+    size 1618`` from three frames inside ``mixed_linear_model.py``. Loud is
+    better than silent, but it is not an answer to compare against, so the
+    check is that dropping the rows before the fit and letting patsy drop
+    them during it give the SAME fit.
+    """
+    from spacr.mixed_gpu import mixedlm_torch
+
+    holed = screen.copy()
+    holed.loc[holed.index[3], "gene_fraction"] = np.nan
+    holed.loc[holed.index[900], "gene_fraction"] = np.nan
+    prefiltered = holed.dropna(subset=["gene_fraction"])
+
+    measured = mixedlm_torch("y ~ gene_fraction", holed, holed["gene"],
+                             vc_formula={"grna": "0 + C(grna)"}, device="cpu")
+    reference = mixedlm_torch("y ~ gene_fraction", prefiltered,
+                              prefiltered["gene"],
+                              vc_formula={"grna": "0 + C(grna)"}, device="cpu")
+    assert measured.n_obs == len(screen) - 2 == reference.n_obs
+    difference = np.abs(measured.fe_params.to_numpy()
+                        - reference.fe_params.to_numpy()).max()
+    assert difference < 1e-12, (
+        f"the two rows patsy dropped moved a fixed effect by "
+        f"{difference:.3e} -- the grouping is misaligned")
+    assert measured.scale == pytest.approx(reference.scale, rel=1e-12)
+    assert set(measured.random_effects) == set(reference.random_effects)
