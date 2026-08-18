@@ -86,7 +86,11 @@ def test_the_filter_is_separated_from_the_restyling(qtbot):
 
     level = next(i for i, t in enumerate(items) if "genes only" in t)
     size = next(i for i, t in enumerate(items) if "Point size" in t)
-    assert "|" in items[size:level], items
+    # EITHER ORDER. The claim now comes before the look, so the filter sits
+    # ABOVE the point controls rather than below them; what is being asserted
+    # is that a reader meets a boundary between the two, not which is first.
+    first, second = sorted((level, size))
+    assert "|" in items[first:second], items
 
 
 # --------------------------------------------------------------------------- #

@@ -182,3 +182,66 @@ import inside a multi-line import statement and left the suite red):
 in test_the_gene_guide_filter_reaches_every_tab.py are PRE-EXISTING at HEAD and
 belong to section A of this instruction: the panel's level now defaults to
 'grna' and those tests still expect the whole fit.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION C, STEP TWO: THE MENU HAS CATEGORIES. SHIPPED.
+--------------------------------------------------------------------------------
+
+THE SHAPE, in order of use rather than alphabetically:
+
+    Reset view                      top level, one click away
+    Export…                         top level, one click away
+    ----
+    Show ▸                          WHAT THE FIGURE CLAIMS
+    p-value ▸                       (each appears only when offered)
+    Effect-size cut ▸
+    Measured from ▸
+    ----
+    Draw as ▸                       HOW IT IS DRAWN
+    Colour by ▸                     point colour, a column,
+                                      Colour by localisation ▸, back to own
+    Axes ▸                          labels, limits, back to automatic, aspect
+    Appearance ▸                    point size, opacity, shape by a column,
+                                      font size, font colour, line style,
+                                      grid, legend
+    Size ▸                          on screen, exported page, back to automatic
+    ----
+    Re-runs the analysis            a section, still
+    Re-fit…
+
+The two entries every user reaches for stay at the TOP LEVEL. A menu
+reorganised until nothing is one click away is worse than the flat list it
+replaced, and that was the risk this restructure carried.
+
+TWO BUGS FOUND WHILE DOING IT, both fixed here:
+
+  1. PYSIDE COLLECTS A SUBMENU BUILT BY `menu.addMenu(title)`. That overload
+     hands back a QMenu PySide considers PYTHON-owned, so the submenu and
+     every QAction in it is destroyed the moment the local holding it goes
+     out of scope -- which is when build_style_menu returns. The failure
+     surfaces later and INTERMITTENTLY, as "libshiboken: Internal C++ object
+     (PySide6.QtGui.QAction) already deleted" in whoever reads the menu next;
+     it passed a hand-run script and failed the suite. Every group is built
+     as `QMenu(title, menu)` and added, so Qt owns it. There is a test that
+     forces a gc.collect() between building and reading.
+  2. `setToolTipsVisible` is PER MENU, as the previous attempt recorded --
+     and it is now impossible to forget, because `_group` is the only way a
+     category is made and it sets the flag itself. Tested on every group.
+
+ONE MIGRATED ASSERTION NEEDED A SECOND PASS, and it is the one the ordering
+principle moved: test_the_filter_is_separated_from_the_restyling read
+`items[size:level]`, assuming the level filter came AFTER "Point size". The
+claim now comes before the look, so the slice was empty. It asserts a
+boundary between the two in whichever order they appear, which is what the
+test was always about.
+
+TESTS: eight new ones in test_the_restyle_menu_is_complete.py -- the
+categories exist and are named, the two common entries are top level, claim
+sorts before look, the re-fit is last under its heading, every group can show
+a greyed entry's reason, and the groups outlive the call that built them.
+370 green across the twelve files that read this widget.
+
+WHAT REMAINS in 147: section A (both fits visible) and section B (the canvas
+shape). Instruction 148 C -- grid and log onto this menu -- is next, and the
+categories it needs are now here: log under Axes, grid already under
+Appearance.

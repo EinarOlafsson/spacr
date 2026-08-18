@@ -1219,3 +1219,112 @@ def test_a_mark_whose_data_is_not_a_scatters_data_reports_no_rows():
         data = [1, 2, 3]
 
     assert FastPlot._rows_of(_Odd()) is None
+
+
+# --------------------------------------------------------------------------- #
+#  Instruction 147 C: the menu has categories
+# --------------------------------------------------------------------------- #
+
+def _groups(plot):
+    from spacr.qt.widgets.fast_plots import menu_groups
+
+    return menu_groups(plot.build_style_menu())
+
+
+def _order(plot):
+    from spacr.qt.widgets.fast_plots import menu_reading_order
+
+    return menu_reading_order(plot.build_style_menu())
+
+
+def test_the_menu_is_organised_into_named_categories(volcano):
+    """Separators are not categories: nothing is named, nothing collapses,
+    and the list was long enough that finding one entry meant reading all of
+    them."""
+    volcano.offer_levels([("genes only", lambda: None, False),
+                          ("guides only", lambda: None, True)])
+    volcano.offer_p_values([("raw p-value", lambda: None, True)])
+    volcano.offer_baselines([("the fit's own zero", lambda: None, True)])
+    volcano.offer_thresholds([("std of the controls", lambda: None, True)])
+
+    groups = _groups(volcano)
+
+    for wanted in ("Show", "p-value", "Effect-size cut", "Measured from",
+                   "Colour by", "Axes", "Appearance", "Size"):
+        assert wanted in groups, f"{wanted} is not a category: {groups}"
+
+
+def test_the_two_entries_everyone_reaches_for_stay_one_click_away(volcano):
+    """A menu reorganised until nothing is one click away is worse than the
+    flat list it replaced."""
+    top = [action.text() for action in volcano.build_style_menu().actions()
+           if action.menu() is None and not action.isSeparator()]
+
+    assert "Reset view" in top
+    assert "Export…" in top
+
+
+def test_what_changes_the_claim_comes_before_what_changes_the_look(volcano):
+    """The order is the order of use. A filter that decides which rows are
+    drawn is a different kind of thing from the point size, and it is the
+    kind a reader has to know about before they read the figure."""
+    volcano.offer_levels([("guides only", lambda: None, True)])
+    volcano.offer_p_values([("raw p-value", lambda: None, True)])
+    groups = _groups(volcano)
+
+    look = groups.index("Appearance")
+    assert groups.index("Show") < look, groups
+    assert groups.index("p-value") < look, groups
+
+
+def test_the_refit_is_last_and_under_its_own_heading(volcano):
+    """Everything above restyles; below there, the numbers change."""
+    volcano.offer_refit(lambda: None, "Re-fit with another model…")
+    order = _order(volcano)
+
+    assert order[-1] == "Re-fit with another model…", order
+    assert order[-2] == "|", order
+    assert _groups(volcano)[-1] == "Re-runs the analysis", _groups(volcano)
+
+
+def test_every_category_can_show_a_greyed_entry_its_reason(histogram):
+    """`setToolTipsVisible` is PER MENU. Set on the top level it does nothing
+    for an entry inside a group, so a gated control moved into one would keep
+    its reason in a tooltip Qt never shows -- the present-but-inert control
+    instruction 106 forbids."""
+    menu = histogram.build_style_menu()
+    groups = [action.menu() for action in menu.actions()
+              if action.menu() is not None]
+
+    assert groups, "the menu has no categories at all"
+    for submenu in groups:
+        assert submenu.toolTipsVisible(), submenu.title()
+
+
+def test_the_reason_is_still_readable_once_the_entry_is_in_a_group(histogram):
+    """The end of the same argument, driven rather than inspected."""
+    action = _action(histogram, "Point size")
+
+    assert not action.isEnabled()
+    assert "nothing on this plot is drawn as points" in action.text()
+    owners = [obj for obj in action.associatedObjects()
+              if hasattr(obj, "toolTipsVisible")]
+    assert owners, "the entry belongs to no menu"
+    assert all(owner.toolTipsVisible() for owner in owners)
+
+
+def test_the_groups_outlive_the_call_that_built_them(volcano):
+    """`menu.addMenu(title)` hands PySide a QMenu it considers PYTHON-owned,
+    so the submenu and every QAction in it is collected the moment the local
+    holding it goes out of scope -- which is when `build_style_menu` returns.
+    The failure surfaces later and intermittently, as "Internal C++ object
+    (QAction) already deleted" in whoever reads the menu next."""
+    import gc
+
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    menu = volcano.build_style_menu()
+    gc.collect()
+
+    texts = [action.text() for action in menu_entries(menu)]
+    assert any("Axis limits" in text for text in texts), texts
