@@ -1971,7 +1971,23 @@ class AppScreen(QWidget):
                     # Without this the tab builds and shows nothing, which is
                     # indistinguishable from having attached none.
                     database_provider=self._attached_database_rows,
+                    # STEP 3's ARTEFACT AND STEP 4's SETTINGS (154 F). The
+                    # merged frame is written once, and each column fit is
+                    # this screen's own run with one thing changed: the
+                    # response. Anything else varying would make the runs
+                    # incomparable, which is the whole point of putting them
+                    # in one table.
+                    destination_provider=self._measurements_destination,
+                    settings_provider=self._column_fit_settings,
                     parent=left)
+                # ONE ROW PER COLUMN, PUT UP AS EACH FIT STARTS. A queue of
+                # twelve that showed nothing until it ended would be the
+                # freeze this instruction was filed about, one screen along.
+                self._column_run_handles = {}
+                self._scan_panel.regression.fit_started.connect(
+                    self._on_column_fit_started)
+                self._scan_panel.regression.fit_finished.connect(
+                    self._on_column_fit_finished)
                 left.addTab(self._scan_panel, "Measurements")
                 left.setTabToolTip(
                     2, "Hold the model fixed and sweep the dependent "
@@ -3734,6 +3750,110 @@ class AppScreen(QWidget):
         except Exception:                                        # noqa: BLE001
             return []
 
+    def _measurements_destination(self) -> str:
+        """Where the Measurements tab writes its merged frame.
+
+        THE SAME ROOT THE RUNS WRITE UNDER, in a folder of its own, so the
+        artefact sits beside the results it produced rather than in a
+        temporary directory the user cannot find.
+
+        THE RULE IS `spacr.refit.destination`'s RULE, in the same order, so
+        the merged frame and the runs fitted from it cannot end up in
+        different projects: ``src`` when the module has one -- the regression
+        screen does NOT, checked, which is why the count file is the live
+        branch here -- then the first count file's folder, then the plate
+        folder of the first attached database for a project whose counts are
+        not named yet.
+        """
+        import os as _os
+
+        model = getattr(self, "_settings_model", None)
+        settings = {}
+        if model is not None:
+            try:
+                settings = model.collect() or {}
+            except Exception:                                    # noqa: BLE001
+                settings = {}
+        root = str(settings.get("src") or "").strip()
+        if root in ("path", "/path", "/path/to/src"):
+            root = ""
+        if not root:
+            root = _os.path.dirname(_first_count_file(settings))
+        if not root:
+            for row in self._attached_database_rows():
+                database = (row.get("database") or row.get("db") or "") \
+                    if isinstance(row, dict) else ""
+                if database:
+                    # THE PLATE FOLDER, which is where the score and count
+                    # CSVs of that plate sit. spaCR writes the database as
+                    # ``<plate>/measurements/measurements.db``, so that is
+                    # two levels up -- but only when the parent IS
+                    # ``measurements``. A loose database is one level up, and
+                    # assuming the deep layout for it would put the merged
+                    # frame in the plate's PARENT, which on a project root is
+                    # everybody's folder. The same rule
+                    # `AnnotateDropHandler` follows for the same reason.
+                    folder = _os.path.dirname(str(database))
+                    root = (_os.path.dirname(folder)
+                            if _os.path.basename(folder) == "measurements"
+                            else folder)
+                    break
+        return _os.path.join(root, "measurements") if root else ""
+
+    def _column_fit_settings(self) -> dict:
+        """This screen's settings, for one fit of the column queue.
+
+        Read LIVE and copied by the queue at the moment Run is pressed --
+        never per fit, which would let a user editing the panel mid-queue fit
+        twelve different models and compare them as though only the response
+        had changed.
+        """
+        model = getattr(self, "_settings_model", None)
+        if model is None:
+            return {}
+        try:
+            return dict(model.collect() or {})
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not read the settings for a column fit",
+                      exc_info=True)
+            return {}
+
+    def _on_column_fit_started(self, column: str, settings: dict) -> None:
+        """A column's fit began: give it a row in the Runs tab."""
+        import datetime as _dt
+
+        from ..widgets.sweep_runs import SOURCE_MEASUREMENT
+
+        label = _dt.datetime.now().strftime(f"{column}  %H:%M:%S")
+        handle = self._record_run_in_runs_tab(label, SOURCE_MEASUREMENT,
+                                              settings)
+        if handle is not None:
+            self._column_run_handles[str(column)] = handle
+
+    def _on_column_fit_finished(self, column: str, outcome: dict) -> None:
+        """A column's fit is decided: say so on ITS row.
+
+        Its OWN handle, not `_run_handle`. A queue puts several rows up at
+        once and `_update_run_in_runs_tab` only knows about the last run this
+        screen started -- using it here would move every outcome onto one row
+        and the other eleven would say "running" for ever.
+        """
+        runs = getattr(self, "_sweep_runs", None)
+        handle = self._column_run_handles.pop(str(column), None)
+        if runs is None or handle is None:
+            return
+        ok = bool((outcome or {}).get("ok"))
+        try:
+            runs.update_run(
+                handle,
+                status="ok" if ok else "failed",
+                folder=str((outcome or {}).get("folder") or "") or None,
+                n_results=(outcome or {}).get("n_results") if ok else None,
+                error_type=None if ok else
+                str((outcome or {}).get("error") or "did not fit"))
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not update the column fit's row", exc_info=True)
+
     def _on_results_tab_changed(self, index: int) -> None:
         """Opening a tab re-reads what it shows.
 
@@ -4751,6 +4871,27 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
     except Exception:
         pass
     return item
+
+
+def _first_count_file(settings: dict) -> str:
+    """The first sgRNA-count CSV a run of ``settings`` would read, or ``""``.
+
+    THE PAIR ROWS FIRST, because that is where a count lives today: the
+    regression panel's input table is one row per plate holding a score, a
+    count and (instruction 130) a database, and ``count_data`` is the older
+    flat list `perform_regression` migrates that into. Reading only the flat
+    list -- which is what this did first -- found nothing on every real
+    screen, because `collect()` never fills it.
+    """
+    for row in (settings.get("paired_data") or []):
+        count = (row.get("count") if isinstance(row, dict)
+                 else (list(row)[1] if len(list(row)) > 1 else ""))
+        if str(count or "").strip():
+            return str(count).strip()
+    counts = settings.get("count_data")
+    if isinstance(counts, (list, tuple)):
+        counts = counts[0] if counts else ""
+    return str(counts or "").strip()
 
 
 def _sweepable(app_key: str) -> bool:
