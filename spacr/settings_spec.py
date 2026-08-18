@@ -84,6 +84,29 @@ def _regression_type_choices():
     return families
 
 
+def _regression_backend_choices():
+    """Every backend, labelled ``(CPU)`` or ``(GPU)``, in panel order.
+
+    THE OPTIONS ARE THE LABELS, and so is the stored value -- see
+    :func:`spacr.settings._resolve_regression_backend` for why. Instruction
+    141 C: a user must be able to see that a choice needs a GPU before making
+    it, and both front ends render these strings verbatim.
+
+    Read from :mod:`spacr.regression_backends`, which imports nothing heavier
+    than stdlib, so a settings panel still costs a dict lookup rather than
+    ``import torch``.
+
+    Every entry is offered, including the ones that cannot run here. Greying
+    the unavailable ones out WITH THEIR REASON is instruction 106's rule and
+    the panel's job; :func:`spacr.regression_backends.backend_menu` returns
+    the reason per entry. An entry that is simply absent tells a user
+    nothing.
+    """
+    from .regression_backends import backend_choices
+
+    return backend_choices()
+
+
 def _torchvision_model_names():
     """Return model names for the combo WITHOUT importing torchvision. If
     torchvision is already loaded (e.g. after a training run) use its full zoo;
@@ -221,6 +244,12 @@ def convert_settings_dict_for_gui(settings):
         # could pick a type that fails and could not reach a third of the
         # ones that work. Reported by the run that built instruction 132.
         'regression_type': ('combo', _regression_type_choices(), 'mixed'),
+        # WHO fits it (instruction 141 A). Default 'statsmodels (CPU)' --
+        # every existing result was produced with it, and a default that
+        # changes the numbers under a user who changed nothing is not a
+        # default. The label is the value; see _regression_backend_choices.
+        'regression_backend': ('combo', _regression_backend_choices(),
+                               'statsmodels (CPU)'),
         'timelapse_objects': ('combo', ["['cell']", "['nucleus']", "['pathogen']", "['organelle']", "['cell', 'nucleus']", "['cell', 'pathogen']", "['cell', 'organelle']", "['nucleus', 'pathogen']", "['nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen']", "['cell', 'nucleus', 'organelle']", "['cell', 'nucleus', 'pathogen', 'organelle']"], "['cell']"),
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),

@@ -1697,6 +1697,42 @@ ANALYSIS_UNITS = ('well', 'cell')
 REGRESSION_LEVELS = ('both', 'grna', 'gene')
 
 
+def _resolve_regression_backend(value):
+    """The stored ``regression_backend`` value for whatever was posted.
+
+    THE STORED VALUE IS THE LABEL -- ``'statsmodels (CPU)'``, not
+    ``'statsmodels'`` -- and that is a deliberate choice with a reason.
+    Instruction 141 C requires every entry a user can pick to say ``(CPU)``
+    or ``(GPU)``, because whether a choice needs hardware has to be visible
+    before it is made. Both front ends render a combo's options verbatim and
+    both pre-select by matching the option against the module's default
+    (``qt/screens/settings_model.py`` inserts the default as an EXTRA item
+    when it matches nothing), so a short canonical value with labelled
+    options would put ``statsmodels`` and ``statsmodels (CPU)`` in the same
+    list. Storing the label is what makes one list.
+
+    Nothing compares this string directly: :mod:`spacr.ml` puts every read
+    through ``regression_backends.resolve_backend_name``, which accepts the
+    label, the short name, the aliases people type (``lme4``, ``rapids``) and
+    ``None``. So the CSV is self-documenting -- it records that the run cost
+    a CPU fit -- and the code still works in short names.
+
+    A THIN WRAPPER otherwise, so :mod:`spacr.settings` carries no second copy
+    of the vocabulary. The table is :mod:`spacr.regression_spec` and the
+    normaliser :mod:`spacr.regression_backends`; neither imports anything
+    heavier than stdlib, which is what lets a settings panel read them
+    without pulling in torch
+    (``tests/test_a_settings_panel_does_not_import_torch.py``).
+
+    :param value: the label, the short name, or ``None`` for "not chosen".
+    :returns: the label of a key of ``regression_spec.REGRESSION_BACKENDS``.
+    :raises ValueError: naming the valid backends, on anything else.
+    """
+    from .regression_backends import backend_label
+
+    return backend_label(value)
+
+
 def _resolve_regression_analysis_choices(settings):
     """Map ``inference`` / ``analysis_unit`` / ``regression_type='auto'``.
 
@@ -1995,6 +2031,24 @@ def get_perform_regression_default_settings(settings):
     # that names a type still gets that type; only a dict that never chose one
     # moves.
     settings.setdefault('regression_type', 'mixed')
+    # WHO FITS IT, as opposed to WHAT is fitted (instruction 141 A). The two
+    # are independent: the same mixed model can be fitted by statsmodels on
+    # the CPU or by spacr.mixed_gpu on the GPU, and the answer should be the
+    # same while the time is not.
+    #
+    # DEFAULT 'statsmodels', and this one is not a preference. Every
+    # results.csv, every volcano and every hit list this project has produced
+    # came out of statsmodels, so a default that moved would change the
+    # numbers under a user who changed nothing -- which is not a default.
+    #
+    # NORMALISED, not just defaulted, because both GUIs render a combo's
+    # options verbatim and instruction 141 C requires each option to read
+    # '(CPU)' or '(GPU)'. So the option strings ARE the labels, the panel
+    # posts 'torch (GPU)', and this is where it becomes 'torch'. An old
+    # settings CSV has no such key at all and gets the default, which is what
+    # every one of those files meant.
+    settings['regression_backend'] = _resolve_regression_backend(
+        settings.get('regression_backend'))
     # WHICH LEVEL A FIXED-EFFECTS FIT REPORTS AT. No settings CSV written
     # before 2026-08-17 carries this key, and every regression run before then
     # wrote one, so the default has to be the behaviour those files meant:
@@ -2683,6 +2737,11 @@ expected_types = {
     # "choose from the response distribution" value; alpha is (int, float, str,
     # NoneType) because 'auto'/None select it by cross-validation.
     "regression_type": (str, type(None)),
+    # WHO fits it (instruction 141). str, never None: an unset backend is
+    # 'statsmodels' by name, filled in by
+    # get_perform_regression_default_settings, so nothing downstream has to
+    # decide what None meant.
+    "regression_backend": str,
     "alpha": (int, float, str, type(None)),
     # Instruction 143 A: whether rowID and columnID are terms at all, which
     # random_row_column_effects never decided -- it only chose fixed vs
@@ -3441,6 +3500,7 @@ tooltips = {
     "remove_highly_correlated_features": "(bool) - In the machine-learning feature table, drop any feature whose absolute Pearson correlation with an already-kept feature exceeds 0.95, applied after the channel_of_interest filter. Leave it on so redundant measurements do not split importance scores and slow fitting; turn it off only when you need every original column. Default True. Note the UMAP path uses remove_highly_correlated instead.",
     "remove_image_canvas": "(bool) - When object thumbnails are overlaid on the embedding plot, make zero-valued background pixels fully transparent so only the segmented object shows instead of a black square. Turn it on for a cleaner montage, especially with black_background. Only L, I and RGB crops are supported; other PIL modes raise an error. Default False.",
     "remove_low_variance_features": "(bool) - Drop numeric features whose variance across objects falls below 0.01 before model fitting -- near-constant columns that carry no discriminative signal but still cost time and dilute importance rankings. Turn it off only when your features live on a very small numeric scale, where genuine signal can fall under that fixed cut-off. Default True.",
+    "regression_backend": "(str) - WHO fits the model, as opposed to regression_type, which says what is fitted. 'statsmodels (CPU)' is the default and produced every existing result, so leaving it alone cannot change a number. 'torch (GPU)' fits the same mixed model by profiled REML on the GPU: measured 25x faster end to end on a TSG101-sized screen, agreeing with statsmodels to 2e-5 on the variance components. Entries that need a package, a CUDA device or a different regression_type are greyed out with the reason. Default 'statsmodels (CPU)'.",
     "l1_ratio": "(float) - How the elastic-net penalty is split between L1 and L2: 1.0 is a pure lasso (sparse, picks one gRNA out of a correlated group), 0.0 is a pure ridge (dense, shares the effect across the group), and values between keep some of both. Use 0.5 when correlated gRNAs of the same gene should be selected together rather than arbitrarily. Read only by regression_type 'elasticnet'. Default 0.5.",
     "quantile": "(float) - Which quantile of the response quantile regression fits, strictly inside 0 and 1: 0.5 is the median (robust to outlier wells), 0.9 asks which gRNAs move the top of the distribution rather than its centre. Aggregation is turned off automatically so the quantile is taken over cells, not over well means. Read only by regression_type 'quantile'; it replaced the old overload of alpha. Default 0.5.",
     "hinge_threshold": "(float) - Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
@@ -4178,8 +4238,12 @@ categories = {
     # order: the first says whether plate row and column are in the model at
     # all, the second says fixed or random for a term that is. Reversed, the
     # panel offers the refinement before the question.
+    # `regression_backend` sits immediately after `regression_type` because
+    # the two are one decision read in order (instruction 141 A): the first
+    # says WHAT is fitted, the second says WHO fits it, and the second's
+    # options are greyed by the first's value.
     "Regression: Model": [
-        "inference", "analysis_mode", "regression_type",
+        "inference", "analysis_mode", "regression_type", "regression_backend",
         "model_plate_position", "random_row_column_effects", "cov_type",
     ],
     # Per-family knobs. spacr.ml.REGRESSION_SETTINGS_USED says which family
