@@ -1,0 +1,88 @@
+================================================================================
+FORCE RESTART, FOR WHEN STOP DOES NOT STOP
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "add an extra button to the stop popup window called Force restart, if forse
+   stop dosnt kill the running jobs then this should save the state (module and
+   its settings) then quit spacr, restart space, go back to the modual that was
+   open with the settings it had at closure. if other moduals are currently
+   also running warn about these and tell the user that theire settings states
+   will also be reloaded"
+
+Related: 140 is the long fit that makes this necessary. 114 is the search that
+         must not take the machine down.
+
+--------------------------------------------------------------------------------
+WHY THIS EXISTS
+--------------------------------------------------------------------------------
+
+A mixed fit runs for tens of minutes to hours (instruction 140, measured), in
+a worker, inside statsmodels' optimiser. There is no cooperative check inside
+a REML iteration, so a stop request can be ACCEPTED and still not land -- the
+thread is in C, not in Python, and it will finish its iteration whatever the
+GUI wants.
+
+So "Force stop" can fail to stop, and today the only thing left is to kill the
+application from outside and lose the whole configuration.
+
+--------------------------------------------------------------------------------
+A. A THIRD BUTTON, AND ONLY AS THE LAST ONE
+--------------------------------------------------------------------------------
+
+The stop dialog gains `Force restart`, after the existing choices. It is the
+most destructive option on the dialog, so it is last, and it says what it
+does before it does it -- this is not a gesture anyone should make by accident.
+
+WHAT IT DOES, in order:
+  1. save the state -- which module is open and the settings it holds;
+  2. quit spaCR;
+  3. start spaCR again;
+  4. reopen that module with those settings.
+
+THE SAVE HAPPENS FIRST AND IS VERIFIED BEFORE ANYTHING IS KILLED. A restart
+that loses the settings is worse than a stuck run, because a stuck run can at
+least be waited out. If the state cannot be written, the button says so and
+does NOT restart.
+
+--------------------------------------------------------------------------------
+B. EVERY RUNNING MODULE IS NAMED, NOT JUST THE ONE IN FRONT
+--------------------------------------------------------------------------------
+
+"if other moduals are currently also running warn about these and tell the
+user that theire settings states will also be reloaded".
+
+The warning NAMES them -- "Mask (running 14 min), Measure (running 2 min)" --
+rather than saying "other modules are running". A user deciding whether to
+lose two hours of segmentation needs to know that is what they are deciding.
+
+Their settings are saved and reloaded too, and the dialog says that plainly,
+because it changes the answer: losing the RUNS is not the same as losing the
+CONFIGURATION, and only the first happens.
+
+--------------------------------------------------------------------------------
+C. WHAT IS NOT PROMISED
+--------------------------------------------------------------------------------
+
+A killed run's PARTIAL OUTPUT is whatever reached disk. The dialog must not
+imply the run resumes -- it does not. It says which run folders exist and that
+they hold whatever was written before the restart, so a user knows where to
+look rather than assuming everything is gone or everything is fine.
+
+spaCR already has `spacr.resume` and `spacr.checkpoint`. If a module's work IS
+resumable, say so for that module specifically; do not make the claim
+generally.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The stop dialog has three buttons and Force restart is last.
+* Pressing it with a wedged mixed fit returns to the same module, with the
+  same settings, in a fresh process.
+* The state is written and verified BEFORE anything is killed; a failure to
+  write cancels the restart and says why.
+* Other running modules are named individually, with how long they have run.
+* The dialog says the settings come back and the runs do not.

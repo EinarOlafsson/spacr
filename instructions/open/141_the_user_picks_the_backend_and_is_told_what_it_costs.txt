@@ -1,0 +1,156 @@
+================================================================================
+THE USER PICKS THE BACKEND, AND IS TOLD WHAT EACH ONE IS
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 --
+
+  "i would like to add anything and everything that could speed up any of the
+   regression steps, not just the mixed model ... so the user will choose
+   Regression type and backend (i think this is the correct term?) (default to
+   statmodels) and if the backend uses GPU it should state that so cuML (GPU),
+   Statmodels (CPU), etc. the options that are available via that method
+   should be choosable the others grayed out, the text box should discribe all
+   of the packages that are available and what they do, briefly and linkt the
+   the API for each."
+
+Related: 132 is the model text box this extends. 140 is the cost the box has
+         to state. 106 is the greying rule.
+
+--------------------------------------------------------------------------------
+THE DEPENDENCY TEST, RUN FIRST BECAUSE IT WAS ASKED FOR FIRST
+--------------------------------------------------------------------------------
+
+"first test if adding any of those dependencies causes any problems".
+
+MEASURED 2026-08-18 with `pip install --dry-run --report` against the real
+environment, comparing every resolved version with what is installed:
+
+    package        new packages   changes to existing
+    pymer4                  1     NONE
+    gpytorch                2     NONE
+    numpyro                 4     NONE
+    glum                    5     NONE
+    linearmodels            6     NONE
+    pyfixest               12     NONE
+
+EVERY ONE IS PURELY ADDITIVE. Not one of them upgrades or downgrades numpy,
+scipy, pandas, torch or scikit-learn, which was the risk worth testing -- a
+resolver that quietly moves numpy under a package doing image analysis is how
+a working install stops working.
+
+AND pymer4 NO LONGER NEEDS R. Checked on PyPI: pymer4 0.9.2, `requires_python
+>=3.10`, rpy2 NOT among its requirements, and it adds exactly ONE package to
+this environment. The maintainer asked specifically whether lme4 could be had
+without installing or interfacing with R; on this version, yes.
+
+GPU is present and works: torch 2.9.1+cu128, CUDA available, RTX 3090, 25.3 GB.
+
+--------------------------------------------------------------------------------
+A. TWO CONTROLS, NOT ONE
+--------------------------------------------------------------------------------
+
+`regression_type` says WHAT is fitted -- ols, mixed, lasso, rra and the rest.
+A new `regression_backend` says WHO fits it. They are independent: the same
+mixed model can be fitted by statsmodels or by lme4, and the answer should be
+the same while the time is not.
+
+DEFAULT `statsmodels`. It is what every existing result was produced with, it
+needs no new dependency, and a default that changes the numbers under a user
+is not a default.
+
+--------------------------------------------------------------------------------
+B. WHAT THE BACKENDS ARE, AND WHAT EACH IS FOR
+--------------------------------------------------------------------------------
+
+The box describes each briefly and links its API. Measured or stated cost,
+never "may be faster".
+
+  statsmodels (CPU)   The default. Inference-first: coefficients, standard
+                      errors, p-values and the diagnostics the QC suite reads.
+                      Generic dense linear algebra, which is why `mixed` is
+                      slow -- measured at 54x OLS on 40 genes and 67x on 80,
+                      the ratio RISING with screen size (instruction 140).
+                      https://www.statsmodels.org/stable/api.html
+
+  pymer4 / lme4 (CPU) The reference implementation for mixed models. Uses a
+                      sparse Cholesky over the nested structure rather than
+                      dense algebra, which is an ALGORITHMIC win rather than a
+                      hardware one. Version 0.9.2 needs no R.
+                      https://eshinjolly.com/pymer4/
+
+  torch (GPU)         spaCR already depends on torch and already fits a model
+                      with it (`spacr.power_model`). The mixed model's profiled
+                      REML objective can be written directly and optimised on
+                      the GPU. MEASURED on this machine: the dense Cholesky
+                      that dominates each iteration at q=1212 takes 204 ms on
+                      the CPU and 7.69 ms on the RTX 3090 -- 27x, on the
+                      operation the fit spends its time in.
+                      https://docs.pytorch.org/docs/stable/index.html
+
+  cuML (GPU)          RAPIDS' GPU ridge / lasso / elastic-net, near drop-in
+                      for scikit-learn. Speeds the PENALISED backends. It has
+                      no mixed model, so it does not touch that bottleneck --
+                      say so rather than letting a user pick it and wait.
+                      https://docs.rapids.ai/api/cuml/stable/
+
+  pyfixest (CPU)      Absorbs high-dimensional FIXED effects by alternating
+                      projections instead of building dummy columns. Directly
+                      relevant here: `rowID + columnID` are real columns in the
+                      design today, and absorbing them shrinks the problem
+                      before any backend runs -- so this helps EVERY model,
+                      which is what "not just the mixed model" asks for.
+                      https://py-econometrics.github.io/pyfixest/
+
+  glum (CPU)          Fast GLMs. Helps `poisson`, `logit`, `probit`,
+                      `quasi_binomial`. https://glum.readthedocs.io/
+
+  numpyro (GPU)       Bayesian, NUTS on the GPU. Gives posteriors rather than
+                      point estimates plus SEs -- a DIFFERENT answer, not a
+                      faster version of the same one, and the box must say so.
+                      https://num.pyro.ai/
+
+  gpytorch (GPU)      A linear mixed model IS a Gaussian process with a linear
+                      kernel plus one kernel per nesting level.
+                      https://docs.gpytorch.ai/
+
+--------------------------------------------------------------------------------
+C. THE LABEL SAYS GPU OR CPU, AND WHAT IS MISSING IS GREYED OUT
+--------------------------------------------------------------------------------
+
+Each entry reads "statsmodels (CPU)", "cuML (GPU)". A GPU backend on a machine
+with no CUDA is greyed out and SAYS THAT, per instruction 106 -- disabled with
+the reason on it, never absent and never silently falling back to the CPU
+under a user who chose the GPU on purpose.
+
+A backend that cannot fit the chosen `regression_type` is greyed out for that
+reason instead: "cuML has no mixed model". So the two controls constrain each
+other in both directions, and the box says which.
+
+EVERY ONE OF THESE IS OPTIONAL. They go in extras, not core -- the dependency
+test above says they are additive, not that a microscopy user should download
+all of them. A backend whose package is not installed is greyed out with the
+pip command that would provide it.
+
+--------------------------------------------------------------------------------
+D. THE ANSWER MUST NOT CHANGE
+--------------------------------------------------------------------------------
+
+The point of a backend is speed, so a backend that returns different numbers
+is a bug, not a trade-off. Any backend added here needs a test that fits the
+SAME screen through it and through statsmodels and asserts the coefficients
+agree to a stated tolerance -- and where it cannot agree by construction
+(numpyro's posteriors, cuML's penalised paths), the box says what differs.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* `regression_backend` exists, defaults to statsmodels, and an old settings
+  CSV still loads.
+* Every entry is labelled (CPU) or (GPU).
+* A missing package, a missing GPU and an incompatible regression_type each
+  grey the entry out with their own reason.
+* The box describes every backend and links its API.
+* A mixed fit through pymer4 or torch agrees with statsmodels on the same
+  screen, and the run says which backend produced it.
