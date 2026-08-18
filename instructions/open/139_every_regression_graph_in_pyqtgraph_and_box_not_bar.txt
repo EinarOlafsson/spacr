@@ -148,3 +148,77 @@ WHAT TO DO, and NOT by sprinkling `plt.show()` around:
 HOW TO KNOW IT WORKED: after a regression run with `regression_qc` on, the
 number of figures in the gallery equals the number of image files in the run
 folder, and every one of them opens.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION C IS DONE. THE ADOPTION, NOT ONLY THE MECHANISM.
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+
+`spacr/figure_sink.publish` was already here and `regression_qc` already used
+it; the other half of the path did not, so the reported bug was still live.
+Now converted, and the whole regression path audited rather than the one file
+that was named:
+
+  * `regression_diagnostics._finish` published instead of `fig.savefig`. Its
+    design, residual and inference panels were on disk and in no gallery.
+  * `regression_diagnostics.write_diagnostic_suite` no longer defaults to
+    `formats=("pdf", "png")`. That default was wrong twice over: each entry
+    RE-RAN the whole panel, and the pair ignored the figure-format preference
+    entirely, so two files (and two tiles) came out of one picture in a format
+    the user had not chosen. `None` now means "the preference decides", one
+    file per panel.
+  * The suite's manifest is keyed by what was WRITTEN. `save_figure` rewrites
+    the extension to the preference, so with PNG selected every key named a
+    `.pdf` that is not there -- "saved but I cannot see it" wearing a
+    different hat. Same fix in `regression_qc_report`, which recorded the
+    requested path rather than `_save`'s return.
+  * `ml._write_regression_sheet` published. `regression_figure.pdf` is THE
+    publication figure of a run and it was written and closed in the next
+    breath, so no `plt.show()` ever walked past it.
+  * `ml.generate_ml_scores` publishes its four figures. `plot_permutation`,
+    `plot_feature_importance` and `shap_analysis` all RETURN a figure and none
+    of them shows it.
+
+A SECOND BUG THE dpi WORK UNCOVERED. `_finish` hard-coded `dpi=200` and
+applied it only when the path ended `.png`, so the resolution preference
+reached none of these panels -- and a PNG written to a `.pdf` name is a file
+no viewer opens. `dpi` and `fmt` default to None now, which is what lets the
+preference through.
+
+A THIRD, FOUND IN PASSING AND FIXED: `generate_ml_scores` called
+`save_figure(figs[1], ...)` unconditionally, and `ml_analysis` returns
+`feature_importance_fig = None` for every model without `feature_importances_`
+-- logistic regression and HistGradientBoostingClassifier, two of the offered
+`model_type_ml` values. `None.savefig` took the whole scoring run down after
+the model had been fitted and every object scored. `publish(None, ...)` now
+writes nothing, announces nothing and returns None.
+
+ONE PICTURE, ONE TILE. There are two routes into the gallery now -- `show`
+and `publish` -- and the acceptance is a COUNT, so a double is as wrong as a
+miss. `qt/bridge.py` de-duplicates across both routes on `id(fig)` AND a
+`_spacr_emitted` attribute, and it needs both: an id alone is reused by the
+next figure after a close, and dropping THAT loses a picture; the attribute
+alone outlives the run, so a figure cached across two runs would appear only
+in the first. The sequence that made this necessary is real --
+`generate_ml_scores` saves the plate heatmap that `plot_plates(verbose=True)`
+has already shown.
+
+ACCEPTANCE, MEASURED. On a real OLS fit through `regression_qc_report`:
+19 panels + 1 combined report = 20 files on disk, 20 figures announced, under
+BOTH the PNG and the PDF preference, and every file opens as the format its
+name claims (checked by magic bytes, not by extension).
+
+WHAT REMAINS ON THIS INSTRUCTION
+
+  * Section A. See the note below it for the recount.
+  * `spacr/guide_permutation.py:574` still writes with a bare `fig.savefig`,
+    with `dpi=600` applied to PNG only -- the same two bugs `_finish` had. It
+    is one line and it was left alone only because that file was outside this
+    session's territory. HANDOFF.
+  * `ml._show_well_distributions` and `ml._show_house_style_panels` take a
+    `plot` flag; with it off they save without showing. Left as-is
+    deliberately: the user asked not to be shown plots, and overriding that
+    to satisfy a count would be the wrong reading of "saved and visible are
+    the same event". Worth a decision rather than a guess.

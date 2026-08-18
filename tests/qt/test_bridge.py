@@ -218,3 +218,97 @@ def test_pipeline_worker_reemits_only_live_figures(qtbot, tmp_path):
     assert live_ids == [id(settings['live']), id(settings['live'])]
     assert static_ids == [id(settings['static'])]
     plt.close('all')
+
+
+def _collect(worker):
+    """Record every figure the worker announces, cleaning up its PNGs."""
+    received = []
+
+    def receive(fig, png_path):
+        received.append(id(fig))
+        if png_path:
+            from pathlib import Path
+            Path(png_path).unlink(missing_ok=True)
+
+    worker.figure_ready.connect(receive)
+    return received
+
+
+def test_a_figure_that_is_saved_and_shown_gets_exactly_one_tile(qtbot, tmp_path):
+    """ONE PICTURE, ONE TILE, whichever route delivered it.
+
+    There are two routes into the gallery now -- ``plt.show()`` and
+    ``spacr.figure_sink.publish`` -- and instruction 139 C's acceptance is
+    that the gallery and the run folder hold the SAME number of figures. A
+    module that saves a figure it also shows (``generate_ml_scores`` does
+    exactly that: ``plot_plates`` shows the plate heatmap when ``verbose`` is
+    on, and the heatmap is then written) must not put two tiles on the screen
+    for the one file it wrote.
+    """
+    import matplotlib.pyplot as plt
+    from spacr.figure_sink import publish
+    plt.close('all')
+
+    def _fn(settings):
+        fig, ax = plt.subplots()
+        ax.plot([0, 1], [0, 1])
+        plt.show()                       # shown first...
+        publish(fig, str(tmp_path / "heatmap.png"))   # ...then saved
+        settings['fig'] = fig
+
+    settings = {}
+    worker = PipelineWorker(_fn, settings)
+    received = _collect(worker)
+    worker.run()
+
+    assert received == [id(settings['fig'])]
+    plt.close('all')
+
+
+def test_a_figure_that_is_published_then_shown_gets_exactly_one_tile(qtbot,
+                                                                     tmp_path):
+    """The other order. A published figure stays in pyplot's registry, so the
+    next ``plt.show()`` anywhere in the run walks past it."""
+    import matplotlib.pyplot as plt
+    from spacr.figure_sink import publish
+    plt.close('all')
+
+    def _fn(settings):
+        first, ax = plt.subplots()
+        ax.plot([0, 1], [0, 1])
+        publish(first, str(tmp_path / "panel.png"))
+        second, ax2 = plt.subplots()
+        ax2.plot([1, 0], [0, 1])
+        plt.show()
+        settings['first'], settings['second'] = first, second
+
+    settings = {}
+    worker = PipelineWorker(_fn, settings)
+    received = _collect(worker)
+    worker.run()
+
+    assert received == [id(settings['first']), id(settings['second'])]
+    plt.close('all')
+
+
+def test_a_figure_pyplot_never_saw_still_gets_its_tile(qtbot, tmp_path):
+    """The whole reason the sink exists: ``regression_qc`` builds bare
+    ``matplotlib.figure.Figure`` objects, which no ``plt.show()`` can reach."""
+    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+    from spacr.figure_sink import publish
+    plt.close('all')
+
+    def _fn(settings):
+        fig = Figure()
+        fig.add_subplot(111).plot([0, 1], [0, 1])
+        publish(fig, str(tmp_path / "qc_panel.png"))
+        settings['fig'] = fig
+
+    settings = {}
+    worker = PipelineWorker(_fn, settings)
+    received = _collect(worker)
+    worker.run()
+
+    assert plt.get_fignums() == []
+    assert received == [id(settings['fig'])]

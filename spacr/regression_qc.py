@@ -3416,7 +3416,15 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         limitation = stats.get("limitation") if isinstance(stats, dict) else None
         path = os.path.join(out_dir, f"{name}.{fmt}")
         fig.tight_layout()
-        _save(fig, path)
+        # THE PATH THAT WAS WRITTEN, not the one that was asked for. `_save`
+        # goes through `spacr.plot.save_figure`, which rewrites the extension
+        # to the user's figure-format preference -- so with the preference on
+        # PNG this recorded `residuals_vs_fitted.pdf` for a file that is
+        # `residuals_vs_fitted.png` on disk. Every consumer of the manifest
+        # (the text report, `written`, the gallery link) then named a file
+        # that does not exist, which is "saved but I cannot see it" wearing a
+        # different hat.
+        path = _save(fig, path)
         results.append(QCPanelResult(
             name=name, title=title, group=group,
             status="partial" if limitation else "written",
