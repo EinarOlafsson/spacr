@@ -551,13 +551,15 @@ class RegressionResultsPanel(QWidget):
         # reason to want it is usually to paste a number into a methods
         # section, and a summary you cannot select is a summary you retype.
         from PySide6.QtGui import QFontDatabase
-        from PySide6.QtWidgets import QPlainTextEdit
+        # 168 D: "The Summary tab shows the verdict expanded and each
+        # section collapsed, with the section headings as the outline."
+        # A drop-in for the QPlainTextEdit that was here -- same
+        # setPlainText/toPlainText -- so nothing that fills or reads it
+        # changes, and text with no spaCR headings (the statsmodels summary)
+        # is still shown whole.
+        from .folding_summary import FoldingSummaryView
 
-        self._summary = QPlainTextEdit()
-        self._summary.setReadOnly(True)
-        self._summary.setLineWrapMode(QPlainTextEdit.NoWrap)
-        self._summary.setFont(
-            QFontDatabase.systemFont(QFontDatabase.FixedFont))
+        self._summary = FoldingSummaryView()
         self._summary.setPlainText(
             "Run a regression to see its summary.")
         # ADDED AFTER THE DIAGNOSTICS, not before them. Q-Q, Controls,

@@ -670,7 +670,16 @@ def test_the_statsmodels_summary_survives_and_stays_verbatim(tmp_path,
     # VERBATIM: every line of the statsmodels block, in order, at the end.
     # Compared against the BYTES ON DISK rather than a fresh render -- a new
     # `summary()` differs in its `Time:` header (instruction 153's finding).
+    #
+    # AND THE CLOCK LINE IS EXCLUDED, because comparing to the bytes on disk
+    # is not enough on its own: `write_run_summary` renders the model again,
+    # so if the two renders land either side of a second boundary the `Time:`
+    # header differs and this test fails. Measured 2026-08-19: one run in
+    # five. Every other line is a property of the FIT and must match exactly;
+    # the timestamp is a property of when it was printed.
     for line in original.splitlines():
+        if "Time:" in line:
+            continue
         assert line in text
 
 
