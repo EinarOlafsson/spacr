@@ -441,3 +441,40 @@ outside pytest. The test works around it by touching `regression_type` first
 and says why.
 
 WHAT REMAINS IN 149: A, B, D, E and F are untouched by this work.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- RE-AUDITED: A, B, C, D, E AND F ARE ALL SHIPPED. 149 IS DONE.
+--------------------------------------------------------------------------------
+
+The previous note's closing line -- "WHAT REMAINS IN 149: A, B, D, E and F are
+untouched by this work" -- says what THAT COMMIT did not touch, not what is
+open, and read cold it says the opposite of the truth. Corrected here rather
+than left to be re-derived, which is the failure HANDOFF 0a records eight
+times over.
+
+Checked against the code, not against the headers:
+
+    A  raw p on the axis by default          VolcanoPlot.P_AXES[0] == "raw"
+    B  a continuous FDR quantity             multiple_testing.local_fdr,
+                                             VolcanoPlot.local_fdr_values
+    C  the permutation floor                 the plot's own detection AND
+                                             the settings box sentence
+    D  the y-axis split                      set_y_split / clear_y_split
+    E  the correction chosen on the graph    set_correction, over
+                                             multiple_testing.METHODS
+    F  1-6, every field-acceptable encoding  p_axis, the exact BH critical
+                                             line, set_q_colour, set_q_mark
+
+105 tests across tests/test_the_volcano_y_axis_is_continuous.py and
+tests/test_the_adjusted_p_has_more_than_one_encoding.py, green today.
+
+STILL OPEN AND NOT THIS TERRITORY -- the finding the C note recorded, and it
+is a live defect rather than a loose end. THE HOVER HELP IS INSTALLED BY THE
+APPLICABILITY REFRESH, NOT WHEN THE PANEL IS BUILT: on a freshly opened
+`AppScreen("regression")`, `guide_permutations` answers `toolTip()` with ''
+on both its spin box and its label until any setting is touched. So the
+sentence section C added -- and every other tooltip on that panel -- reaches
+nobody who opens the module and hovers before changing anything, which is the
+common order. It is in the regression panel's own build, not in
+spacr/qt/widgets/fast_plots.py. HANDED OFF.
