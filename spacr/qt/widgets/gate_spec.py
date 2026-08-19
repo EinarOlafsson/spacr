@@ -299,7 +299,7 @@ class Gate:
         override that would have changed what a caller of the old one got
         back.
 
-        Instruction 52 point 4's read side: "the user should also be able to
+        The design: "the user should also be able to
         set thresholds for each individual gate for the measurements they are
         defined by". Derived from :meth:`range_filters`, so a gate whose shape
         is not a conjunction of ranges offers only the bounds it really has --
@@ -1197,7 +1197,7 @@ class BoxGate(Gate):
 
         What the 2D editor shows and edits. Its handles, its drag and its
         outline then all work unchanged, and the depth the 2D view cannot
-        express is simply left alone rather than silently reset.
+        express is retained rather than silently reset.
         """
         return RectGate(name=self.name, parent=self.parent,
                         x_column=self.x_column, y_column=self.y_column,
@@ -1262,7 +1262,7 @@ _GATE_CLASSES[BOX] = BoxGate
 class CylinderGate(Gate):
     """An oval drawn on one plane of the volume, extended along the third.
 
-    Instruction 52's cylinder. The user draws in 2D on the plane they chose
+    The cylinder. The user draws in 2D on the plane they chose
     -- which is the only place a drag has a well-defined meaning -- and the
     shape is extended along the axis pointing out of it.
 
@@ -1408,7 +1408,7 @@ class CylinderGate(Gate):
         """Bound the NORMAL. The oval/polygon is not a range and is not one.
 
         This is how the user bounds the cylinder's height, which is what point 4
-        of instruction 52 asks for.
+        of the design asks for.
         """
         if column != self.axis_column:
             return super().with_threshold(column, low, high)
@@ -1450,7 +1450,7 @@ class CylinderGate(Gate):
 class PrismGate(Gate):
     """A polygon drawn on one plane of the volume, extended along the third.
 
-    Instruction 52's prism, and the sibling of :class:`CylinderGate` in
+    The prism, and the sibling of :class:`CylinderGate` in
     every respect -- the plane is named by its columns, the normal is
     unbounded by default so it agrees with the 2D polygon, and the drawing
     stays 2D.
@@ -1560,7 +1560,7 @@ class PrismGate(Gate):
         """Bound the NORMAL. The oval/polygon is not a range and is not one.
 
         This is how the user bounds the prism's height, which is what point 4
-        of instruction 52 asks for.
+        of the design asks for.
         """
         if column != self.axis_column:
             return super().with_threshold(column, low, high)
@@ -1591,7 +1591,7 @@ _GATE_CLASSES[PRISM] = PrismGate
 
 @dataclass(frozen=True)
 class CompositeGate(Gate):
-    """Other gates, combined. Instruction 52's point 5.
+    """Other gates, combined. The point 5.
 
         "if the user draws another gate on the same 3d graph they should be
          able to set the new gate as being its own gate, subtracting or

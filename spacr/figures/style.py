@@ -1,15 +1,8 @@
-"""The house style for every figure spaCR draws.
+"""Apply spaCR's shared publication and on-screen figure style.
 
-Asked for on 2026-08-16: "i would like a more polished modern look ... i
-generally like figures in the style of Sebastian Lourido (papers he is last
-author on)", and "the all figures section should look like a publication
-ready figure".
-
-The visual system is the one in ``.claude/skills/apicomplexan-figures``,
-derived by direct inspection of published figures rather than from general
-design taste — Waldman *et al.* Cell 2020 and Giuliano *et al.* Nature
-Microbiology 2024. Read that skill before adding a panel; the rules it states
-are the ones this module implements.
+The visual system is derived from Waldman *et al.* (Cell, 2020) and Giuliano
+*et al.* (Nature Microbiology, 2024). The same palette and type hierarchy are
+used across panels so a colour retains one meaning throughout a figure.
 
 THE ONE RULE THAT MATTERS MOST, restated here because every panel has to obey
 it: **everything is grey except what the sentence is about.** Grey is the
@@ -17,17 +10,13 @@ default ink for data; colour is an argument. A highlight set is a small
 minority of the marks — if half the points are coloured, the figure has no
 claim.
 
-TWO THINGS THIS MODULE DOES THAT THE SKILL'S OWN HELPER DOES NOT, both
-because spaCR is an application and not a figure script:
+Two application-specific rules keep figures consistent and readable:
 
-1. **IT NEVER WRITES rcParams GLOBALLY.** The skill's ``use()`` calls
-   ``mpl.rcParams.update`` at module level. In a long-running GUI that is a
-   process-wide mutation: draw one figure and every later figure in the
-   session inherits its font, palette and ground. That is not hypothetical —
-   five spaCR functions were doing exactly that and were fixed the same day
-   this module was written. Everything here is a **context manager**.
+1. **Do not write rcParams globally.** In a long-running GUI, a process-wide
+   update changes every figure drawn later in the session. Apply the style
+   through the context managers in this module.
 
-2. **THE INK FOLLOWS THE THEME.** The published palette is for paper: near
+2. **The ink follows the theme.** The published palette is for paper: near
    black on white. On spaCR's dark theme that is invisible axes on a
    transparent page. The hues are fixed and never re-mapped; only the ink and
    the ground resolve against where the figure is going — screen or file.
@@ -45,9 +34,7 @@ INK_PRINT = "#231F20"
 #: maximal ink either.
 INK_SCREEN = "#E8EDEE"
 
-#: Transparent, spelled the way matplotlib understands it. The maintainer's
-#: standing preference (instruction 118): "not black not white just
-#: transparent".
+#: Transparent, spelled the way matplotlib understands it.
 TRANSPARENT = "none"
 
 
@@ -119,9 +106,9 @@ def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
 def user_overrides(kind: Optional[str] = None) -> dict:
     """The rcParams the user's OWN figure preferences lay over the house style.
 
-    Instruction 127, finding 3: spaCR has two figure-style systems --
+    finding 3: spaCR has two figure-style systems --
     :mod:`spacr.figure_style`, which is the user's preference (general plus
-    per-graph, instruction 118), and this module, which is the publication
+    per-graph, the design), and this module, which is the publication
     house style from the apicomplexan-figures skill. Both are legitimate; the
     two being unaware of each other is not, and the bug that overlap hid is
     that *a user preference could not reach a house-style panel at all*. Every
@@ -185,7 +172,7 @@ def rc(target: str = "screen", *, frame: str = "L",
         per figure and hold it — box reads better when panels are small and
         dense, L when they are sparse.
     :param ground: the figure and axes background. Defaults to transparent,
-        which is the maintainer's standing preference and lets the GUI theme
+        which lets the GUI theme
         show through.
     :param kind: which graph kind this is, so the user's PER-GRAPH preference
         for it can be applied on top. See :func:`user_overrides`.

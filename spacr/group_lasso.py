@@ -1,8 +1,7 @@
 """Guides grouped by gene, selected or dropped as a set.
 
-Instruction 133, asked for on 2026-08-17 alongside RRA as one of the "modeling
-tools ... where we could plug in the same dependent and independent variables
-and get an estimate of which gRNAs/genes are involved".
+This model estimates which guides and genes are associated with a response
+while respecting the grouping of guides within genes.
 
 WHAT IT IS. Ordinary lasso penalises each guide on its own, so from a gene's
 four correlated guides it keeps whichever one happens to fit best and drops
@@ -22,8 +21,8 @@ what the mixed model says with random effects -- "which GENES are involved,
 where each gene is measured by several guides" -- and it reaches the same
 question with no random effects, no REML fit, and no `gene_fraction` column.
 That last part matters: `gene_fraction` is the sum of a gene's guide
-fractions, so a design carrying both blocks is singular by construction
-(instruction 132). Here the gene enters as a GROUPING of the guide columns,
+fractions, so a design carrying both blocks is singular by construction.
+Here the gene enters as a GROUPING of the guide columns,
 never as a column of its own, so the design stays full rank.
 
 It also fits where OLS is undefined. This screen is 610 wells and 823 guides;

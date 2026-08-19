@@ -437,7 +437,7 @@ class SearchFigureGrid(QWidget):
     def figure_format() -> str:
         """The figure format from Preferences, not from a second setting.
 
-        Instruction 35 is explicit that this must not grow its own control:
+        The design is explicit that this must not grow its own control:
         a user who sets PDF once should get PDF everywhere.
         """
         return get_figure_format()

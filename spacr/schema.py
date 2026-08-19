@@ -865,7 +865,7 @@ def screen_id(screen: Any = None) -> str:
     rather than raising — every project that exists today has no screen
     anywhere in its settings, and demanding one would stop all of them from
     opening. Contrast :func:`_check_plate`, which *does* raise: an empty plate
-    is a broken key, but an empty screen is simply an ordinary single-screen
+    is a broken key, but an empty screen is an ordinary single-screen
     run.
 
     An empty value is never left empty inside a frame either, because a blank

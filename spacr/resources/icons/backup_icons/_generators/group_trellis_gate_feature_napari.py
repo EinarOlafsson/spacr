@@ -92,8 +92,7 @@ Every candidate below is held to one line and none is allowed to wander::
 napari's mark, and why five of the ten carry it
 -----------------------------------------------
 
-The user asked for "a black and white version of the napari logo".  napari's
-mark is **napari's trademark, not spaCR's**.  Using it to label a bridge *to*
+napari's mark is **napari's trademark, not spaCR's**. Using it to label a bridge *to*
 napari is ordinary nominative use and is what most integrations do, but it is
 a decision the user should make with the alternative in front of them, so both
 kinds are drawn:

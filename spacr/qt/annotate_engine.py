@@ -97,7 +97,7 @@ def label_to_hex(val: Optional[int], dark: bool = True) -> Optional[str]:
 
     That is issue #6 -- "labels do not appear with good contrast in the
     annotation app like they do on Linux machines" -- and it is a theme
-    difference rather than a platform one: macOS simply defaults to the
+    difference rather than a platform one: macOS defaults to the
     light appearance far more often.
 
     HUE IS PRESERVED so a class keeps its identity across themes; only
@@ -162,9 +162,8 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     ``convert('RGB')`` is CLIPPED at 255 by PIL and comes back solid white.
     Every crop is narrowed the same way now -- by its high byte.
 
-    :param path: the crop PNG.
-    TWO DIFFERENT QUESTIONS, and keeping them apart is why there are two
-    parameters rather than one control that does both:
+    Two different questions are kept separate rather than combined into one
+    control:
 
         stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the
                                bytes, resolved from the sidecar marker or the
@@ -181,6 +180,7 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
     hours, or to mark the folder as a format it is not. The second works and
     then lies to every later reader. A display preference does neither.
 
+    :param path: the crop PNG.
     :param db_path: optional ``measurements.db``, consulted when the crop
         folder carries no sidecar marker.
     :param display_order: one of ``spacr.crops.DISPLAY_ORDERS``. Applied

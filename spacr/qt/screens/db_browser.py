@@ -831,7 +831,7 @@ class WritableDb:
 
     Deliberately tiny: it knows how to write **one cell of one row** and
     nothing else. There is no ``execute()``, no DDL, no multi-row
-    update — the class simply has no method that could touch more than
+    update — the class has no method that could touch more than
     a single row.
 
     :param path: database file, or a run folder — see :func:`resolve_db_path`.
@@ -2142,7 +2142,7 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         Empty — not an error — for a table with no object identity in it
         (``png_list`` keyed on a path, a summary, a view). A shared selection
-        simply has nothing to say about those rows.
+        does not identify those rows.
         """
         if not selection.is_active or not self._model.rowCount():
             return []
@@ -2861,7 +2861,7 @@ class DbBrowserScreen(LinkedView, QWidget):
 
         Destroying a QThread that is still running aborts the process, so
         we wait (briefly) rather than hope. Jobs that have not started yet
-        are simply dropped — nothing has been spawned for them.
+        are dropped — nothing has been spawned for them.
 
         The shared link outlives this screen, so let go of it too.
         """

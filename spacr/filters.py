@@ -216,7 +216,7 @@ def resolve_column(columns: Iterable[str],
 def identity_columns_of(db_path: str, table: str) -> Dict[str, str]:
     """Map canonical identity name -> the spelling ``table`` uses.
 
-    Missing columns are simply absent from the map. A table without a field
+    Missing columns are absent from the map. A table without a field
     column still merges on the keys it does have; refusing outright would rule
     out databases that are perfectly usable.
 
@@ -252,7 +252,7 @@ def read_identity(db_path: str, table: str) -> pd.DataFrame:
     a moment and one that reads the whole database.
 
     :param table: must carry an ``object_label`` column -- that name, in any
-        case. Every other identity column is optional and is simply absent
+        case. Every other identity column is optional and absent
         from the returned frame; the object label is not, because without it
         the rows cannot be told apart.
     :raises FilterError: ``table`` has no object label column.

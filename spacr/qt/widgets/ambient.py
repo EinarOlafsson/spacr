@@ -82,7 +82,7 @@ to mud on a white one. So the *composition mode follows the background*:
 * light page -> ``CompositionMode_Multiply``, with the palette colour mixed
   toward white first. Multiply is the exact dual: overlaps get *darker* and
   still blend hue-wise, so the same geometry reads the same way. Plain
-  ``SourceOver`` was tried first and is wrong here — the later blob simply
+  ``SourceOver`` was tried first and is wrong here — the later blob
   covers the earlier one, so nothing blends and the field falls apart into
   discrete discs.
 
@@ -114,9 +114,8 @@ requirement rather than a nicety. Two things get it there:
 
 While a run is going
 --------------------
-"When something is running after hitting run, the theme starts lagging"
-(instruction 126). It does, it reproduces, and the cause is not the obvious
-one. Measured on a real X server at 1920x1080 with a real ``ConsolePanel``
+The animation can lag while a job is running, and the cause is not the obvious
+one. Measurements on a real X server at 1920x1080 with a real ``ConsolePanel``
 under the real stylesheet and a real Qt event loop, ``blobs`` at the shipped
 24 fps cap, best of five interleaved rounds:
 
@@ -2683,7 +2682,7 @@ class DriftEngine(AmbientEngine):
         to 0.077 across the whole density range, because a couple of hundred
         dots light 0.65 % of the page and almost never land on each other.
         Dividing their alpha by three would not un-brighten anything; it
-        would simply delete two thirds of the stars into the background.
+        would hide two thirds of the stars in the background.
         """
         return 1.0
 
@@ -3831,7 +3830,7 @@ class AmbientWidget(QWidget):
         """Pause or resume without destroying anything.
 
         A paused widget keeps its last frame on screen and its engine in
-        memory; it simply stops ticking. This is the "off" switch for the
+        memory; its timer stops ticking. This is the "off" switch for the
         Preferences toggle when the user wants the colours but not the
         motion — turning the feature off entirely is the install site's job,
         not this widget's.

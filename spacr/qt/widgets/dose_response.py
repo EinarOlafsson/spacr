@@ -348,9 +348,8 @@ def four_parameter_logistic(x, bottom, top, log10_ec50, hill):
 class MonotonicityCheck:
     """Whether the concentration-ordered response only ever goes one way.
 
-    Computed on the **per-concentration medians**, not the raw points: with
-    replicates the median is the robust summary of what happened at that
-    dose, and a single outlier well should not be able to veto a fit.
+    Computed on the **per-concentration medians**, not the raw points. The
+    median limits the influence of one outlier well on the fit decision.
 
     :param doses: the distinct positive concentrations, ascending.
     :param medians: the median response at each of them.
@@ -1801,7 +1800,7 @@ def candidate_concentration_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     column in the project. The classifier is still what excludes object keys
     and free text (:data:`~spacr.qt.widgets.graph_spec.UNPLOTTABLE`), which is
     the part of its judgement that transfers; the continuous/categorical split
-    is simply not the cut a dose column falls on.
+    does not identify dose columns reliably.
     """
     from .graph_spec import UNPLOTTABLE
     kinds = _kinds(frame)

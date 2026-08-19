@@ -39,9 +39,8 @@ Three generators, composed
     photosphere, and a corona that falls off smoothly with radial
     streamers.
 
-They are *composed* rather than offered as three separate wallpapers
-because the user asked for "a galaxy stars a sun" — one sky containing
-all three reads as a photograph of space; three separate wallpapers read
+They are *composed* rather than offered as three separate wallpapers because
+one sky containing all three reads as a photograph of space; separate wallpapers read
 as three clip-art assets. ``variant`` re-weights the composition
 (which element is the subject) rather than switching elements on and
 off, so no variant ever loses the stars.

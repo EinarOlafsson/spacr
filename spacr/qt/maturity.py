@@ -1,73 +1,25 @@
-"""What "alpha" is allowed to mean, and which modules still qualify.
+"""Assign evidence-based maturity labels to Qt applications.
 
-Twenty-six of the shell's forty-three modules shipped labelled **alpha**.
-Twenty-six is not a shelf of experiments, it is most of the application, and
-a label most of the application wears stops being information: a user who
-sees it on Database Browser, Report, Align & Stitch and Plaque Assay alike
-learns that it predicts nothing and starts ignoring it — including on the
-one module where it would have been worth heeding.
-
-So each of the twenty-six was assessed against evidence that exists in the
-repository rather than against how new it feels:
-
-* a dedicated test file with real assertions — the strongest signal, because
-  it is the only one that says somebody has pinned the behaviour down;
-* a headless path (a ``spacr-run`` module, or an explicit ``cli_note``
-  saying why there is deliberately none);
-* documentation or a shipped tutorial lesson;
-* whether anything else in the codebase depends on it.
-
-Nothing was found that qualified for removal. Every one of the twenty-six
-has an implementation of three hundred to three and a half thousand lines, a
-dedicated test file, and either a CLI module or a written reason it is
-GUI-only; none of the twenty-six screen modules contains a single
-``NotImplementedError``, ``TODO``, ``FIXME`` or "coming soon". The alpha
-shelf was not holding unfinished work. It was holding finished work nobody
-had gone back to relabel.
-
-The two levels below are therefore what the evidence supports:
+Application maturity is assessed from tests, command-line support or a stated
+GUI-only scope, documentation, tutorials, and use by other SPACR components.
+The labels have the following meanings:
 
 ``stable``
-    A real pipeline or library behind it, hundreds of assertions across
-    several test files, and documentation a user can be pointed at.
+    The application has a working pipeline or library, broad test coverage,
+    and user documentation.
 
 ``beta``
-    Real and wired and tested, but missing exactly one of those — usually
-    documentation, or time in use. Beta is an honest statement, and it is
-    the one that makes the remaining labels worth reading.
+    The application is functional and tested but has less documentation or
+    operational use than a stable application.
 
-Applied through :data:`spacr.qt.app.APP_STAGE` rather than by editing the
-table in ``app.py``, so the assessment and its reasons live together in one
-file that can be re-read and argued with, and so a module that registers
-itself from its own file is corrected the same way as a built-in one.
+The :func:`apply` function updates :data:`spacr.qt.app.APP_STAGE` from the
+assessments below. An application without an assessment or an explicitly
+declared stage is assigned :data:`UNASSESSED_STAGE` (``"alpha"``). Explicit
+beta labels are retained, while recorded assessments take precedence.
 
-What an *unassessed* module reads as
-------------------------------------
-
-``stable`` is the ABSENCE of a line in ``APP_STAGE``. That is a fine way to
-record a sign-off and a bad default: an app registered without a ``stage=``
-argument — a new screen, a plugin, a module whose author simply did not
-think about it — inherits the highest label in the system by saying nothing
-at all, and ``app_stage()`` answers ``"stable"`` for a key nobody has ever
-looked at.
-
-Twenty modules landed after the assessment above. Each of them happens to
-pass ``stage=STAGE_ALPHA`` at its own registration, so each is labelled
-correctly — but only because twenty separate authors remembered, and the one
-who forgets is silently promoted rather than silently demoted.
-
-So :func:`apply` has a second phase. Every registered app that appears in
-none of the three assessment tables below and carries no explicit stage is
-written into ``APP_STAGE`` as :data:`UNASSESSED_STAGE` — alpha — which is
-what "nobody has checked this one yet" means. It is a *default*, not a
-demotion: a module that declares beta keeps beta, and an assessment recorded
-here always wins over both.
-
-Eight apps had been inheriting stable in exactly that way — the seven
-original core-pipeline modules and Recruitment — so they were assessed too.
-:data:`AFFIRMED` records "looked at, already in the right place" the way
-:data:`PROMOTIONS` records "looked at, moved". Absence from ``APP_STAGE``
-now means one of those two things, and both are written down in this file.
+:data:`PROMOTIONS` contains applications whose labels changed;
+:data:`AFFIRMED` contains reviewed applications whose labels were already
+appropriate.
 """
 from __future__ import annotations
 

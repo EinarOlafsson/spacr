@@ -3904,7 +3904,7 @@ class FastPlot(QWidget):
 
         ``None`` -- either as the whole argument or as one entry -- means
         "this row has no identifier". Such a row still draws and can still be
-        clicked; it simply reports nothing to anyone else, which is the
+        clicked; it reports no identifier to other components, which is the
         truthful answer and is not the same as reporting the empty string,
         which would collide with every other unidentified row.
         """

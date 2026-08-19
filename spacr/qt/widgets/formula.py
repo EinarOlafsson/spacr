@@ -46,7 +46,7 @@ confusion rather than a feature nobody got round to:
   one column and nothing else;
 * **no arbitrary names** — a name is either a column of the frame or one of
   :data:`FUNCTIONS`. ``__import__``, ``open`` and ``eval`` are not blocked as
-  special cases; they are simply not columns, and the error says so;
+  special cases; they are not columns, and the error says so;
 * **comparisons do not chain** — ``0 < area < 5`` is refused rather than
   silently parsed as something numpy would evaluate elementwise into a shape
   nobody meant. The message says to write the conjunction.

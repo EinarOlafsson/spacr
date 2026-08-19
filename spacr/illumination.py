@@ -44,7 +44,7 @@ fields of the plate, followed by a fit of a smooth low-order surface.
 minority of the fields on a plate, so the across-field median at that pixel
 sees background almost every time and the objects drop out. Each field is
 first divided by its own median, so a densely-seeded field does not pull the
-estimate up simply because it has more cells in it -- what is being averaged
+estimate up because it has more cells in it -- what is being averaged
 is the *relative* profile, not the brightness.
 
 *Why the surface fit on top.* Illumination is a physically smooth,

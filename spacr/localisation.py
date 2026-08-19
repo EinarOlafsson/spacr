@@ -1,8 +1,7 @@
 """Where each gene's protein lives, for colouring one compartment at a time.
 
-Asked for on 2026-08-16: "make a new version of your volcanoplot where the
-data are colord by localization (LOPIT or at least make it an option when
-right clicking on the graph)".
+Interactive volcano plots can highlight genes from one selected LOPIT
+compartment while leaving the remaining genes grey.
 
 ONE COMPARTMENT AT A TIME, AGAINST GREY. The bundled TAGM/LOPIT table names
 27 real compartments, and a 27-colour volcano is precisely what the house

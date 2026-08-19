@@ -1044,7 +1044,7 @@ def disagreements(db_path: str, columns: Sequence[str],
     A row is a disagreement when at least two annotators committed to a
     label and those labels are not all the same. A row where one
     annotator abstained is **not** a disagreement — by default it is
-    simply scored on whoever did label it, and dropped entirely if that
+    scored from the available labels, and dropped entirely if that
     leaves fewer than two labels.
 
     :param db_path: path to ``measurements.db``; opened read-only.

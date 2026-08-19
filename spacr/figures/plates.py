@@ -1,8 +1,4 @@
-"""The plate heatmaps: every plate of a screen as ONE panel, wells square.
-
-Asked for on 2026-08-16, and it is the loudest of the figure complaints:
-
-    "the lpates look super small on the collected figure please"
+"""Draw every plate in a screen as one small-multiple heatmap panel.
 
 A plate is 16 rows by 24 columns, so ONE plate is a wide, short picture.
 :func:`spacr.plot.plot_plates` drew the four plates of a screen side by side
@@ -11,8 +7,7 @@ the figure grid that strip is one eighth of the tile high and uses about
 12% of its area, which is exactly what "super small" describes. The wells
 were not square either: 0.275 x 0.241 inches, a 1.14:1 rectangle.
 
-THE CHOICE MADE HERE, of the three instruction 124 offers: **all the plates
-as a SMALL MULTIPLE inside one panel** (option b).
+All plates are drawn as a small multiple inside one panel:
 
 * Four plates of one measurement are ONE figure, not four. They answer a
   single question -- does this measurement depend on where a well sits --
@@ -30,7 +25,7 @@ figure is SIZED FROM THE GRID rather than the grid squeezed into a figure,
 so square is what the layout produces rather than what it survives. A plate
 heatmap with rectangular wells is not a heatmap of a plate: positional
 artefacts, the whole reason to look at one, stop being visible. That is what
-instruction 117 exists for.
+the equal-aspect layout preserves.
 
 TWO THINGS THAT WERE WRONG WITH THE PICTURE, NOT JUST ITS SIZE
 ---------------------------------------------------------------
@@ -53,10 +48,10 @@ TWO THINGS THAT WERE WRONG WITH THE PICTURE, NOT JUST ITS SIZE
    reads as a hole -- and the colour scale is computed over the wells that
    were measured.
 
-The visual system is ``.claude/skills/apicomplexan-figures``; the style is
-applied with :func:`spacr.figures.style.figure_style`, a context manager,
-and NEVER by writing rcParams globally. spaCR draws from a long-lived GUI,
-where a global style change restyles every later figure in the session.
+The style is applied with :func:`spacr.figures.style.figure_style`, a context
+manager, and never by writing rcParams globally. spaCR draws from a long-lived
+GUI, where a global style change would restyle every later figure in the
+session.
 """
 
 from __future__ import annotations
@@ -120,7 +115,7 @@ def plate_ramp(target: str = "screen"):
     NAVY; on spaCR's dark theme NAVY is within a hair of the background, so
     a well at the top of the scale would be confusable with a well that has
     no measurement at all. The hues are the palette's and do not change --
-    the ramp simply stops one stop earlier where the page is dark.
+    the ramp stops one step earlier where the page is dark.
 
     :param target: ``'screen'`` or ``'print'``.
     :returns: a matplotlib ``Colormap`` whose "bad" colour is transparent,

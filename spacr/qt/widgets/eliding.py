@@ -2,7 +2,7 @@
 
 Qt's :class:`~PySide6.QtWidgets.QLabel` and
 :class:`~PySide6.QtWidgets.QPushButton` both *clip* text that doesn't fit
-the geometry the layout gave them — the last characters simply stop
+the geometry the layout gave them — the last characters stop
 being painted, with no ellipsis and no hint that anything is missing.
 On a navigation surface that is a real bug: a user cannot click what
 they cannot read, and "Annotator Agreeme" looks like a typo rather than

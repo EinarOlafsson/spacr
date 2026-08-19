@@ -474,7 +474,7 @@ class ChainingBar(QFrame):
 
         A method rather than an inline ``self._screen.window()`` so a test can
         stand a window in without reaching into Qt's ownership chain, and so a
-        screen shown outside a MainWindow simply finds nothing to navigate.
+        screen shown outside a MainWindow has no navigation host.
         """
         try:
             return self._screen.window()

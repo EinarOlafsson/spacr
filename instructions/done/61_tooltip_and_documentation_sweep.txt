@@ -936,3 +936,34 @@ robust scale were deliberately preserved.
 The API-writer audit now reports public-docstring and GUI/CLI flag counts
 separately from its all-record aggregate, so private implementation prose no
 longer obscures the published-text review.
+
+--------------------------------------------------------------------------------
+2026-08-19 - ZERO-WARNING API BUILD AND NEW-DOCSTRING REGRESSION CLEANUP
+--------------------------------------------------------------------------------
+
+Two remaining Sphinx warnings were resolved. ``spacr.settings.categories`` was
+assigned twice, causing AutoAPI to document the same public object twice; the
+regroup now updates the original dictionary in place and preserves its object
+identity. ``deep_spacr.apply_model`` incorrectly documented ``src`` as a
+sequence even though the implementation enumerates a directory; it now accepts
+and documents a string or path-like directory.
+
+The provenance guard also caught eight new public docstrings introduced by
+concurrent work. Rewrote them to remove instruction numbers, dated incident
+history, all-caps maintainer rationale, and creator-directed language while
+retaining their behavior, failure semantics, and parameter contracts.
+
+Current inventory: 446 Python files, 16,550 docstrings, 2,244 GUI/CLI literals,
+zero parse errors, and 70 aggregate heuristic review prompts. The 26 flagged
+public-name docstrings and three GUI literals use technical ``robust`` terms or
+named UI options; none are unfinished or maintainer-directed.
+
+Verification:
+
+* settings, inference, resource-accounting, dialog, and provenance tests:
+  151 passed in the first focused run and 95 passed after the concurrent HEAD
+  advance;
+* ``python -m compileall -q spacr`` and ``git diff --check`` passed;
+* a full Sphinx dummy build succeeded with zero warnings. The branch advanced
+  during the pinned build only by a test-file commit, which AutoAPI excludes;
+  the post-advance provenance guard passed.

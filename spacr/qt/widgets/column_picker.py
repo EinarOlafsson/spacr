@@ -561,7 +561,7 @@ class ColumnPickerDialog(QDialog):
     window.
 
     Both modes run the *same* reads in the same order through the same
-    :func:`read_schema`; the runner is simply constructed unthreaded in
+    :func:`read_schema`; the runner is constructed without a thread in
     the first, which makes it call its job inline.
 
     :param db_path: database file or run folder; may be empty.
@@ -1454,7 +1454,7 @@ def attach_column_picker(field: QWidget, db_path_getter: Any,
     field are wrapped in a small horizontal box that takes over the
     field's original slot, so a ``QFormLayout`` row keeps its label and a
     caller that stored a reference to the field keeps using it unchanged.
-    When the field is not in a layout yet the button is simply returned
+    When the field is not in a layout yet, the button is returned
     unplaced, and the caller positions it.
 
     :param field: the ``QLineEdit``/``QComboBox`` the user types into.
