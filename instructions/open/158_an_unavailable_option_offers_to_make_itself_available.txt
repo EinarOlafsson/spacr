@@ -18,9 +18,47 @@ Requested: 2026-08-18 --
 Related: 141 is the backend inventory. 106 is the greying rule. 95/109 are the
          Image UMAP. `spacr/gpu_reduce.py` already decided cuML is an EXTRA.
 
-READING NOTE: the request says "if it is available it should not be clickable",
-which is a slip for the obvious opposite -- available means CHOOSABLE. Recorded
-so nobody builds the sentence rather than the intent.
+CLARIFIED BY THE MAINTAINER 2026-08-18, and it is NOT what I first assumed:
+
+  "i meant if it is NOT available it should not be clickable, only the install
+   cuml i guess."
+
+So an unavailable entry is NOT SELECTABLE AS A CHOICE -- a user can never end up
+with a backend that cannot run -- and the ONLY thing it will do when pressed is
+offer the install. Two different actions on one row: choosing is off, installing
+is on.
+
+THIS IS A REAL Qt PROBLEM AND IT IS THE FIRST THING TO SOLVE. A disabled item in
+a QComboBox popup CANNOT BE PRESSED AT ALL -- Qt swallows the click, the popup
+stays open, and no signal is emitted. So "greyed out" and "clicking it offers the
+install" are, on the obvious implementation, mutually exclusive: whichever is
+built naively, the other silently does not happen. That is exactly the
+present-but-inert control instruction 106 forbids, arrived at by accident.
+
+THREE WAYS OUT, and the choice should be made deliberately and recorded:
+
+  a. A CUSTOM VIEW ON THE COMBO. Give the popup a QListView with an item
+     delegate, keep the item enabled for HIT-TESTING but refuse the SELECTION in
+     the activation handler, and route the press to the install offer instead.
+     The row still paints greyed. Most faithful to the request; needs the
+     paint and the keyboard path (arrow-key + Enter must behave the same way)
+     handled explicitly rather than inherited.
+  b. AN "INSTALL…" AFFORDANCE ON THE ROW -- a small trailing button or link in
+     the delegate, live while the label stays disabled. Unambiguous about which
+     of the two actions is being taken, and it survives a theme that draws
+     disabled text very faintly.
+  c. THE ENTRY STAYS DISABLED AND THE OFFER LIVES BESIDE THE COMBO -- the
+     description box already names the unavailable backends and their reasons
+     (141 C), so it can carry "Install cuML…" per named entry.
+
+(c) is the cheapest and needs no delegate; (a) is closest to what was asked.
+DECIDE, IMPLEMENT ONE, AND SAY WHICH AND WHY in the trailing note -- what must
+not happen is a greyed row that looks pressable and is not.
+
+WHICHEVER IS CHOSEN: the entry can NEVER become the selected value while it is
+unavailable, not even briefly, and not by keyboard. A settings CSV naming an
+unavailable backend is already refused by `_require_backend`; this must not open
+a second door to the same state.
 
 --------------------------------------------------------------------------------
 A. CAN IT BE MADE? YES, AND spaCR ALREADY HAS THE PARTS.
