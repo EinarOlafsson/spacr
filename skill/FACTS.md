@@ -7,17 +7,17 @@ stale; nothing here is a rule. The rules are in INVARIANTS.md.
 ## This checkout
 
 - version: **1.5.0.4**
-- branch: `nightly` at `4e897a24`
-- Python modules under `spacr/`: 403
-- of those under `spacr/qt/`: 217 (49 screens, 87 widgets)
-- test files: 1032 (305 under `tests/qt/`)
+- branch: `nightly` at `0f0ccae9`
+- Python modules under `spacr/`: 404
+- of those under `spacr/qt/`: 218 (49 screens, 87 widgets)
+- test files: 1039 (305 under `tests/qt/`)
 
 ## The biggest modules
 
 Size is not a defect, but it is where the work is. Read the docstring before the code in any of these -- they carry their own reasoning.
 
 - `spacr/utils.py` — 10666 lines
-- `spacr/ml.py` — 9523 lines
+- `spacr/ml.py` — 9541 lines
 - `spacr/timelapse.py` — 8309 lines
 - `spacr/io.py` — 8143 lines
 - `spacr/qt/screens/settings_model.py` — 7615 lines

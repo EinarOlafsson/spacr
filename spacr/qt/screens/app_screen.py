@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSlider,
     QSplitter,
     QStackedWidget,
     QTabWidget,
@@ -1932,7 +1933,9 @@ class AppScreen(QWidget):
         if self.app_key in ("regression", "ml_analyze_regression"):
             try:
                 from ..widgets.regression_results import RegressionResultsPanel
-                from ..widgets.figure_grid_view import FigureGridView
+                from ..preferences import get_figure_grid_size
+                from ..widgets.figure_grid_view import (
+                    MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
 
                 self._results_panel = RegressionResultsPanel(
                     self._figures_card, external_volcano=True)
@@ -2009,8 +2012,41 @@ class AppScreen(QWidget):
                 volcano_layout.addWidget(gene_split, 1)
                 self._volcano_page = volcano_page
 
+                # THE FIGURE SIZE IS THE USER'S (169 B). Reported: "cant
+                # control the height of the containers in the figures
+                # container in the measurements tab. i need to be able to
+                # make each taller". The grid has had `set_target_cell_width`
+                # all along and NOTHING CALLED IT -- a setter with no caller
+                # is a control that does not exist. This is the caller.
+                #
+                # Width, not height, because the tiles keep each figure's own
+                # aspect ratio: setting the width IS setting the height, and
+                # a separate height control would either fight the aspect or
+                # distort the figure.
+                grid_page = QWidget(self._figures_card)
+                grid_layout = QVBoxLayout(grid_page)
+                grid_layout.setContentsMargins(0, 0, 0, 0)
+                grid_layout.setSpacing(4)
+                size_row = QHBoxLayout()
+                size_row.addWidget(QLabel("Figure size"))
+                self._figure_size = QSlider(Qt.Horizontal, grid_page)
+                self._figure_size.setRange(MIN_CELL_PX, MAX_CELL_PX)
+                self._figure_size.setValue(get_figure_grid_size())
+                self._figure_size.setMaximumWidth(220)
+                self._figure_size.setToolTip(
+                    "How wide each figure is drawn, which is also how tall: "
+                    "the tiles keep each figure's own aspect ratio. Fewer, "
+                    "bigger figures per row to the right.")
+                self._figure_size.valueChanged.connect(self._on_figure_size)
+                size_row.addWidget(self._figure_size)
+                size_row.addStretch(1)
+                grid_layout.addLayout(size_row)
+                grid_layout.addWidget(self._figure_grid, 1)
+                self._figure_grid.set_target_cell_width(
+                    self._figure_size.value())
+
                 self._figures_stack = QStackedWidget(self._figures_card)
-                self._figures_stack.addWidget(self._figure_grid)   # index 0
+                self._figures_stack.addWidget(grid_page)           # index 0
                 self._figures_stack.addWidget(detail)              # index 1
                 self._figures_stack.addWidget(volcano_page)        # index 2
                 self._figure_grid.pinned_activated.connect(
@@ -4982,6 +5018,22 @@ class AppScreen(QWidget):
         # pictures, so it has to be rebuilt or the tile keeps showing the old
         # one and the menu looks broken.
         self._refresh_figure_grid()
+
+    def _on_figure_size(self, pixels: int) -> None:
+        """Redraw the grid at this tile width, and remember it.
+
+        Remembered because it is a reading preference, not a property of the
+        run: a user who wants big figures wants them on the next run too.
+        """
+        from ..preferences import set_figure_grid_size
+
+        grid = getattr(self, "_figure_grid", None)
+        if grid is not None:
+            grid.set_target_cell_width(int(pixels))
+        try:
+            set_figure_grid_size(int(pixels))
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not store the figure grid size", exc_info=True)
 
     def _show_figure_grid(self) -> None:
         """Back to every figure at once."""
