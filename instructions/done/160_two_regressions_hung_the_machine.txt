@@ -96,3 +96,59 @@ CPU-bound fit that prints nothing for half an hour is not distinguishable from
 a hung machine, and this report is what that looks like from the outside. The
 fit now announces its measured cost and names the one setting that removes it.
 The default is unchanged: statsmodels produced every existing result.
+
+--------------------------------------------------------------------------------
+2026-08-19, LATER -- THE CLOSE ABOVE NAMED THE WRONG CAUSE. Corrected here.
+--------------------------------------------------------------------------------
+
+The entry above closed this file on `plt.show()` reaching the real matplotlib
+show on a worker thread. That was a real bug and the fix stands. IT WAS NOT
+THIS ONE. The maintainer's application went on quitting after it, four more
+times, each time milliseconds after "run closed [success]".
+
+WHAT IT ACTUALLY WAS, and how it was found rather than guessed:
+
+  1. `faulthandler` was installed at launch, writing every thread's stack to
+     `~/.spacr/logs/spacr-crash.log` on a fatal signal. Until then there was
+     no traceback at all, which is why three hypotheses in a row were plausible
+     and wrong -- an off-thread `plt.show()`, pyplot building Qt canvases on
+     the worker, and `quitOnLastWindowClosed`. Each cost a launch-and-reproduce
+     cycle and none of them was it.
+  2. The dump proved a real SIGSEGV, and then proved it was not where it
+     looked: one crash inside the application-wide event filter, the next
+     inside pandas' CSV parser. Two unrelated places is heap corruption; the
+     crash site is wherever the next allocation gave way.
+  3. `QObject.__init__` was wrapped to report construction away from the GUI
+     thread. The next run named it outright:
+
+         WidgetGroup was CONSTRUCTED on 'Dummy-2'
+           bridge.py run  ->  perform_regression
+           ->  _run_guide_permutation_analysis  ->  write_diagnostic_suite
+           ->  plot_inference_diagnostics  ->  write_figure  ->  render_figure
+           ->  build_scene
+
+`build_scene` makes a `pg.GraphicsLayoutWidget`. A QWidget built on a worker
+LIVES on that worker; every later touch, including Qt destroying it when the
+thread ends, is undefined. This was the QC suite of EVERY regression, on the
+run's own thread.
+
+Gated in `pyqtgraph_ready`, which already existed to answer whether a scene
+can be built here and now, and whose callers already write the matplotlib page
+on a no. Confirmed working by the maintainer: "it finally worked with no
+errors so far and i see the table".
+
+THE WARNING WAS NEVER A RED HERRING, and it was called one twice in this
+session. `QBasicTimer::start: Timers cannot be started from another thread` is
+Qt reporting the ONE cross-thread access it can detect. It sat beside every
+one of these crashes and it was the only true thing in the log.
+
+WHAT THIS COST, recorded so it is not discovered as a surprise: instruction
+139 wants the regression graphs in pyqtgraph, and on this path they are
+matplotlib until the scene build is marshalled onto the GUI thread. A figure
+drawn by the other renderer is still a figure; a widget on a dying thread is a
+segfault somewhere else.
+
+VERIFIED BY DISABLING THE GATE: `tests/test_a_worker_never_builds_a_qt_widget.py`
+does not fail without it -- it HANGS, and has to be killed. That is the other
+half of the original report, "this hung my computer twice so i had to restart
+it", and it means a future removal of the gate announces itself.
