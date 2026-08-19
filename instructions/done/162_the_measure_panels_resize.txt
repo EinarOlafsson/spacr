@@ -24,3 +24,25 @@ HOW TO KNOW IT WORKED
 * Every element in Measure can be dragged taller and shorter.
 * The sizes are the same after a restart.
 * No panel can be dragged to a height it cannot be recovered from.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+THE PANES WERE ALREADY DRAGGABLE. Measure builds a vertical QSplitter with three
+panes and `setChildrenCollapsible(False)`, so the "modifiable in height" half was
+built. What was missing is that the sizes were never kept:
+`self._runtime_splitter` was assigned in seven branches of `_build_runtime_panel`
+and read in none, so every launch restored the hard-coded [420, 360, 300]. A
+layout that snaps back reads as one that will not move.
+
+The persistence existed as well -- `console_panel.get_split_state` /
+`set_split_state`, already used by the console splitter. The runtime splitter now
+uses it under its own `::runtime` key, because two splitters on one screen would
+otherwise restore each other's blob and `restoreState` on a mismatched one
+silently does nothing.
+
+Saved on every drag rather than at shutdown, so a crash does not discard the
+arrangement the user just made. All seven branches route through one helper, and
+a test asserts none of them sets the attribute directly -- a branch that did
+would be one whose sizes are silently not kept, which is this bug again.
