@@ -17,25 +17,29 @@ RESTATED, BECAUSE IT WAS DESCRIBED ONCE ALREADY AND BUILT AS ONE ROUTE.
 
 THE TWO MODES, AND WHAT THEY ARE CALLED
 
-The maintainer named them 2026-08-19: "change the name of the mode to live
-stream images and stream cropped images". Read onto the routes as --
+RENAMED TWICE ON 2026-08-19; THE SECOND IS THE ONE. First "live stream
+images and stream cropped images", then -- "unify the terminology stream
+images and load images. the default should always be loade images which
+loades from data folder. if that fails it should always try the other."
 
-    STREAM CROPPED IMAGES   the crops already on disk   (crop_source 'png')
-    LIVE STREAM IMAGES      cut from the arrays now     (crop_source 'merged')
+    LOAD IMAGES     the crops already in data/    (crop_source 'png')
+    STREAM IMAGES   cut from merged/ as it goes   (crop_source 'merged')
 
--- because the first streams images that were cropped at measure time, and the
-second crops them live as it streams. THESE ARE THE LABELS THE USER SEES. The
-stored values stay 'png' and 'merged', which is what
-`spacr.crops.resolve_crop_source` already reads, so no settings file written
-before today changes meaning.
+THESE ARE THE LABELS THE USER SEES. The stored values stay 'png' and
+'merged', which is what `spacr.crops.resolve_crop_source` already reads, so
+no settings file written before today changes meaning.
 
-  1. STREAM CROPPED IMAGES -- THE DEFAULT, AND THE EASY ONE.
+The naming and the fallback rule belong to instruction 171, which applies
+them to EVERY panel that offers this choice. This file is the Cells tab's
+share of it.
+
+  1. LOAD IMAGES -- THE DEFAULT, AND THE EASY ONE.
      Needs `measurements.db` and the `data/` folder in the spaCR structure.
      Reads the crops that were exported at measure time. The user chooses
      WHICH CHANNELS of the PNG to load, whether they are normalised, and
      whether object outlines are drawn from them.
 
-  2. LIVE STREAM IMAGES -- CUT FROM THE ARRAYS.
+  2. STREAM IMAGES -- CUT FROM THE ARRAYS.
      Needs the `merged/` folder and the database. The user specifies which
      channels to build the picture from, AND which array the intensity
      channels are cut by -- a mask label, or object coordinates from the
@@ -44,7 +48,7 @@ before today changes meaning.
 
 WHAT TO BUILD
 
-A. A MODE SETTING, defaulting to STREAM CROPPED IMAGES. It is the first
+A. A MODE SETTING, defaulting to LOAD IMAGES. It is the first
    control, not a consequence of what happens to be on disk.
    `resolve_montage_crop_source` already decides a route by looking at the
    folders; that stays as the ANSWER TO "what is available", and stops being
@@ -88,26 +92,34 @@ C. WHAT DOES NOT APPLY IS GREYED, NEVER HIDDEN (INVARIANTS 6). In saved-PNG
    backend selector already follows, and the same one the volcano's adjusted
    axis follows.
 
-D. AND THE REFUSALS STAY HONEST. A mode the folders cannot serve says which
-   folder is missing -- `merged/` for the live crop, `data/` for the PNGs --
-   rather than silently falling back to the other one. Falling back is what
-   makes a user believe they are looking at a crop they are not.
+D. IT FALLS BACK, AND IT SAYS THAT IT DID.
+
+   This file first said the opposite -- that a mode the folders cannot serve
+   should be refused by name rather than silently falling back, because a
+   silent fallback makes a user believe they are looking at a crop they are
+   not. The maintainer has since asked for the fallback outright: "if that
+   fails it should always try the other."
+
+   Both are satisfied by keeping the fallback and dropping the SILENCE. The
+   panel tries the other route and then states which one drew what is on
+   screen. A fallback nobody can see is the problem; a fallback that names
+   itself is a convenience.
 
 HOW TO KNOW IT WORKED
 
-* The Cells tab opens in STREAM CROPPED IMAGES without being told to, and
-  says so by name rather than leaving the user to infer it from 'auto'.
+* The Cells tab opens in LOAD IMAGES without being told to, and says so by
+  name rather than leaving the user to infer it from 'auto'.
 * The annotation app offers the same two named modes, so "stream from the
   database or from the dataset" is a choice a user can make in the panel.
 * The settings window offers the annotator's controls, under the annotator's
   names, and a change to any of them changes the picture.
-* Switching to LIVE STREAM IMAGES greys the PNG-only controls and enables the
+* Switching to STREAM IMAGES greys the PNG-only controls and enables the
   array and coordinate selectors; switching back reverses it, and nothing is
   hidden either way.
 * Choosing coordinates says that the cut will be a bounding box before it is
   made.
-* A screen with no `merged/` cannot be put into LIVE STREAM IMAGES silently:
-  it is refused by name.
+* A screen with no `merged/` asked for STREAM IMAGES falls back to LOAD
+  IMAGES and SAYS SO; it does not draw as though nothing happened.
 * No settings file written before today changes meaning: the stored values are
   still 'png' and 'merged'.
 

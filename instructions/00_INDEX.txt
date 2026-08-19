@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-117 done / 44 open (72%).
+117 done / 45 open (72%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -155,6 +155,9 @@ OPEN
 
   170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
        170_the_cells_tab_has_two_modes_and_the_annotator_settings.txt
+
+  171  ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
+       171_one_name_for_loading_and_one_for_streaming.txt
 
 --------------------------------------------------------------------------------
 DONE
