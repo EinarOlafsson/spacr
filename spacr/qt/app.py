@@ -2863,6 +2863,32 @@ def launch(argv: Optional[list[str]] = None) -> int:
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
+    # PYPLOT MUST NEVER MAKE A Qt CANVAS. Set here, before any figure can
+    # exist, because switching the backend later CLOSES every open figure.
+    #
+    # A regression runs on a JobRunner worker and draws with pyplot. Under the
+    # `qtagg` backend every `plt.figure()` on that worker builds a
+    # FigureCanvasQTAgg -- a QObject whose thread affinity is the WORKER. The
+    # main thread then renders it, and Qt answers with "QBasicTimer::start:
+    # Timers cannot be started from another thread" followed, milliseconds
+    # after `run closed [success]`, by the process going away with no Python
+    # traceback. That is the reported "it just spontaneously quit", and the
+    # `Internal C++ object (FigureCanvasQTAgg) already deleted` errors in the
+    # log are the same object seen from the other side.
+    #
+    # `bridge` already asked for Agg with `force=False`, which does NOTHING
+    # once a backend is active -- and by the time a run starts, `qtagg` is.
+    #
+    # NOTHING IS LOST. The two places that genuinely want a Qt canvas
+    # (`figure_queue`, `umap_explorer`) import FigureCanvasQTAgg and build it
+    # themselves on the GUI thread, which works under any global backend.
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg", force=True)
+    except Exception:                                    # noqa: BLE001
+        pass
+
     # EVERY DIALOG IS QT'S OWN, NOT THE DESKTOP'S. Instruction 151: a native
     # dialog on this desktop is brokered through xdg-desktop-portal, and a
     # brokered dialog is the tens-of-seconds stall reported as "changing the

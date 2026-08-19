@@ -2968,6 +2968,63 @@ def api_docs_url(
     return f"{url}?lang={code}" if code != "en" else url
 
 
+
+#: Phrases a setting's own description uses to state a 0-to-1 domain.
+_UNIT_INTERVAL_PHRASES = (
+    "between 0 and 1",
+    "strictly inside 0 and 1",
+    "0 and 1",
+)
+
+
+def _float_domain(key: str, default: float):
+    """``(minimum, maximum, step)`` for the spin box of one float setting.
+
+    WHY THIS EXISTS, from a run that failed on the maintainer's own screen:
+
+        ValueError: alpha must be strictly between 0 and 1; got -0.95
+
+    `fdr_alpha` defaults to 0.05. A QDoubleSpinBox's default `singleStep` is
+    1.0, and the box was built with `setRange(-1e12, 1e12)` and no step -- so
+    ONE scroll of the wheel over that field wrote 0.05 - 1 = -0.95, and the
+    run got forty seconds in, wrote its figures and its regression_data.csv,
+    and then failed inside the permutation. The same single tick turns
+    `fraction_threshold` 0.02 into -0.98, `tolerance` 0.02 into -0.98 and
+    `l1_ratio` 0.5 into -0.5.
+
+    So the step follows the VALUE's magnitude, and the range follows the
+    setting's OWN DESCRIPTION where that description states a domain -- rather
+    than a hand-kept list of key names, which would be one more thing to fall
+    out of step with `spacr.settings`.
+    """
+    magnitude = abs(float(default))
+    if magnitude and magnitude < 1:
+        step = 0.01
+    elif magnitude < 10:
+        step = 0.1
+    else:
+        step = 1.0
+
+    text = ""
+    try:
+        from ... import settings as _settings
+
+        # `tooltips`, not `descriptions`: `descriptions` is keyed by APP, and
+        # `tooltips` is the per-setting text that states the domain.
+        text = str(_settings.tooltips.get(key, "") or "").lower()
+    except Exception:                                    # noqa: BLE001
+        text = ""
+    if any(phrase in text for phrase in _UNIT_INTERVAL_PHRASES):
+        # The setting says it lives in the unit interval. Hold the box to it:
+        # a probability the user cannot type is better than a run that dies
+        # forty seconds in having already written half a results folder.
+        # The floor is the smallest value the box can express, not 0: a
+        # setting whose own text says "between 0 and 1" is refused at 0 by
+        # the code that reads it, so a box that clamps a bad saved value to
+        # 0.0 has only moved the failure. With decimals=6 that floor is 1e-6.
+        return 1e-6, 1.0, min(step, 0.01)
+    return -1e12, 1e12, step
+
 _TYPE_NAMES = {int: "integer", float: "float", bool: "boolean",
                str: "string", list: "list", tuple: "tuple",
                dict: "dictionary"}
@@ -6871,7 +6928,9 @@ class SettingsWidgets:
                 return w
             if isinstance(default, float):
                 w = QDoubleSpinBox()
-                w.setRange(-1e12, 1e12)
+                low, high, step = _float_domain(key, default)
+                w.setRange(low, high)
+                w.setSingleStep(step)
                 w.setDecimals(6)
                 w.setValue(default)
                 return w

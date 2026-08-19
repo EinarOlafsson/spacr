@@ -1965,7 +1965,14 @@ def get_perform_regression_default_settings(settings):
     # 'none' by default: the correction to apply is a judgement about the
     # family being tested, not something spaCR should decide silently. The
     # dropdown offers all thirteen; picking one is a deliberate act.
-    settings.setdefault('multiple_testing_method', 'none')
+    # fdr_bh, requested 2026-08-19. The DESCRIPTION already said
+    # "fdr_bh (Benjamini--Hochberg, default)" while the code defaulted to
+    # 'none', so the documentation and the behaviour had been disagreeing:
+    # a user reading the tooltip believed their screen was corrected and it
+    # was not. 'none' also writes a q_value EQUAL to the raw p, which is what
+    # greys the volcano's adjusted axis -- so the default run could not offer
+    # the axis its own menu is built around.
+    settings.setdefault('multiple_testing_method', 'fdr_bh')
     settings.setdefault('fdr_alpha', 0.05)
     # WHAT "SIGNIFICANT" MEANT, DECIDED BY THE RUN AND NOT BY THE PICTURE.
     #
