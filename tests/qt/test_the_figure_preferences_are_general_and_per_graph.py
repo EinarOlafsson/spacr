@@ -250,3 +250,126 @@ def test_saving_the_dialog_writes_the_style_through(qtbot, monkeypatch,
     assert preferences_module.get_figure_style()["palette"] == "muted"
     assert preferences_module.get_figure_style_per_graph()["volcano"][
         "marker_size"] == 44.0
+
+
+# --------------------------------------------------------------------------- #
+#  4. "not black not white just transparent" -- the 2026-08-16 restatement
+# --------------------------------------------------------------------------- #
+#
+# "figures should not have a background not black not white just transparent".
+#
+# The panel could not express that: `background` is a colour and every colour
+# a colour button returns is opaque. It now has a Transparent box beside it,
+# storing matplotlib's own spelling -- `to_rgba("none")` is (0, 0, 0, 0) --
+# which `figure_style.rc_params` already forwards into `figure.facecolor` and
+# `axes.facecolor`. So the vocabulary `spacr/figure_style.py` needed turned
+# out to be one it already had, and that module (another territory) is
+# untouched.
+#
+# MEASURED THROUGH THE WHOLE CHAIN, not off the widget:
+#     panel ticked            -> {'background': 'none'}
+#     rcParams                -> figure.facecolor none, axes.facecolor none
+#     figures.style.user_overrides('volcano')
+#                             -> {'figure.facecolor': 'none',
+#                                 'axes.facecolor': 'none'}
+#     the saved page's corner -> (255, 255, 255, 0)   <- alpha zero
+
+def _transparent_box(panel):
+    """The Transparent checkbox, found the way a user finds it."""
+    from PySide6.QtWidgets import QCheckBox
+
+    boxes = [b for b in panel.findChildren(QCheckBox)
+             if b.text() == "Transparent"]
+    assert len(boxes) == 1, [b.text() for b in panel.findChildren(QCheckBox)]
+    return boxes[0]
+
+
+def test_the_background_can_be_asked_to_be_transparent(panel):
+    _transparent_box(panel).setChecked(True)
+    general, per_graph = panel.values()
+    assert general == {"background": "none"}
+    assert per_graph == {}
+
+
+def test_transparent_reaches_matplotlib(panel):
+    """Through `resolve` and `rc_params`, which is the path a drawn figure
+    takes -- not through the widget's own getter."""
+    from spacr.figure_style import rc_params
+
+    _transparent_box(panel).setChecked(True)
+    general, per_graph = panel.values()
+    params = rc_params(resolve("volcano", general, per_graph))
+    assert params["figure.facecolor"] == "none"
+    assert params["axes.facecolor"] == "none"
+
+
+def test_a_transparent_page_really_has_no_ground(panel, tmp_path):
+    """THE PIXELS. A rcParam that is set and a page that is transparent are
+    two different claims, and only the second one is the request."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib import rc_context
+
+    from spacr.figure_style import rc_params
+
+    _transparent_box(panel).setChecked(True)
+    general, per_graph = panel.values()
+    path = tmp_path / "page.png"
+    with rc_context(rc_params(resolve(None, general, per_graph))):
+        figure, axis = plt.subplots(figsize=(2, 2))
+        axis.plot([0, 1], [0, 1])
+        figure.savefig(path)
+        plt.close(figure)
+    from PIL import Image
+
+    corner = np.asarray(Image.open(path).convert("RGBA"))[0, 0]
+    assert int(corner[3]) == 0, tuple(int(v) for v in corner)
+
+
+def test_unticking_puts_the_colour_back(panel):
+    """GREYED, NOT REMOVED. The colour the user had is still there, so the
+    way back is one click and stores nothing."""
+    box = _transparent_box(panel)
+    box.setChecked(True)
+    box.setChecked(False)
+    assert panel.values() == ({}, {})
+
+
+def test_the_colour_button_is_greyed_while_transparent(panel):
+    from PySide6.QtWidgets import QPushButton
+
+    box = _transparent_box(panel)
+    button = [b for b in panel.findChildren(QPushButton)
+              if b.text().lower() == GENERAL_DEFAULTS["background"].lower()]
+    assert button, [b.text() for b in panel.findChildren(QPushButton)]
+    box.setChecked(True)
+    assert not button[0].isEnabled()
+    box.setChecked(False)
+    assert button[0].isEnabled()
+
+
+def test_a_stored_transparent_comes_back_ticked(qtbot):
+    """A setting that could be saved and not restored would be worse than
+    one that could not be saved."""
+    widget = FigureStylePreferences({"background": "none"})
+    qtbot.addWidget(widget)
+    assert _transparent_box(widget).isChecked()
+    assert widget.values() == ({"background": "none"}, {})
+
+
+def test_reset_untickss_transparent(qtbot):
+    widget = FigureStylePreferences({"background": "none"})
+    qtbot.addWidget(widget)
+    widget.reset()
+    assert not _transparent_box(widget).isChecked()
+    assert widget.values() == ({}, {})
+
+
+def test_only_the_background_offers_transparency(panel):
+    """Invisible text is not a style, and `foreground` is a colour button."""
+    from spacr.qt.widgets.figure_settings import TRANSPARENT_CAPABLE
+
+    assert TRANSPARENT_CAPABLE == ("background",)
+    assert "foreground" not in TRANSPARENT_CAPABLE
