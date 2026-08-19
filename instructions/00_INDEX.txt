@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-117 done / 43 open (73%).
+117 done / 44 open (72%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -152,6 +152,9 @@ OPEN
 
   169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
        169_the_figures_container_is_resizable_and_collapsible.txt
+
+  170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
+       170_the_cells_tab_has_two_modes_and_the_annotator_settings.txt
 
 --------------------------------------------------------------------------------
 DONE
