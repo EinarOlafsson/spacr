@@ -437,3 +437,74 @@ WHAT REMAINS ON THIS INSTRUCTION
     a caller would most want from it.
   * The GUI does not show the verdict anywhere. The manifest has it; a tile
     or a row that says PASS/CHECK/FAIL is a `qt/` change.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (late) -- THE THREE SHEETS SCORE THEMSELVES TOO, AND lambda STOPPED
+                     BEING A NUMBER YOU COULD ONLY READ BY EYE
+--------------------------------------------------------------------------------
+
+The previous RESULT gave all 23 `regression_qc` panels a verdict and left the
+title's "and scored" done for that module. It was NOT done for the other half
+of this instruction's own enumeration: `regression_diagnostics`' three sheets
+-- design, residual, inference -- carried no verdict at all.
+
+THAT GAP WAS WORSE THAN IT LOOKS, AND THIS IS THE REASON IT WAS WORTH DOING.
+Those three sheets are what a run gets INSTEAD of the QC suite on the branches
+where there is no fitted design matrix: `regression_qc` is skipped on the
+mixed-model branch by design, and the permutation path never had one. So on
+exactly the analysis modes where a reader most needs telling, nothing in the
+whole output said whether the design was usable.
+
+WHAT SHIPPED, in `spacr/regression_diagnostics.py`:
+
+  score_design(report)      -> PanelVerdict
+  score_residuals(report)   -> PanelVerdict
+  score_inference(report)   -> PanelVerdict
+
+  * THE VOCABULARY IS BORROWED, NOT REBUILT. `PanelVerdict`, the four levels,
+    `worst_verdict` and the badge come from `regression_qc`. A second set of
+    words for the same four states is how a run comes to say CHECK on one page
+    and WARN on another about one fit.
+  * SCORED AFTER IT DREW, STAMPED BEFORE IT IS WRITTEN, exactly as the QC
+    suite does it: the verdict is read off the report the panels were drawn
+    from, so it cannot disagree with the numbers printed beside it.
+  * THE SUITE'S VERDICT IS ITS WORST SHEET, in `diagnostic_summary.csv` under
+    section `suite`. An unidentifiable design beside two clean sheets is not
+    "two out of three"; it is a run whose coefficients are one of infinitely
+    many answers.
+
+THE THRESHOLDS ARE THE CONVENTIONAL ONES AND ARE CITED IN EACH `detail`:
+Cook's D 0.5 / 1.0, p >= 0.05 for a diagnostic test (0.01 for the second band
+on Breusch-Pagan), genomic inflation 1.1 / 1.2. Rank deficiency is the one
+categorical FAIL and is not a matter of degree -- statsmodels answers a
+rank-deficient design with a pseudo-inverse rather than refusing, so the
+coefficients come back looking like any other fit.
+
+A NUMBER THAT WAS COMPUTED AND THROWN AWAY. `plot_inference_diagnostics`
+calculated the genomic inflation factor to decide the COLOUR of one annotation
+and then dropped it: the one statistic that says whether the whole family of
+p-values can be believed was readable by eye and by nothing else -- not by
+`diagnostic_summary.csv`, not by a caller, not by a sweep row. It is
+`genomic_inflation` on the report now, and it is what `score_inference` reads.
+
+AND THE DIRECTION IS WRITTEN DOWN AGAIN, because it is the commonest way to
+read one of these wrong: a LARGE p is the GOOD outcome for every test on these
+sheets, since the null is "the assumption holds". A SPIKE OF SMALL p IS NOT A
+FAULT either -- lambda is deliberately a MEDIAN so real hits barely move it,
+and scoring the spike would flag every successful screen.
+
+WHAT REMAINS ON THIS INSTRUCTION, unchanged from the previous note except that
+the first bullet is now smaller:
+
+  * The sweep row does not carry a verdict. `trial_metrics` computes the same
+    statistics; `score_panel` (QC) and now `score_residuals` / `score_design`
+    / `score_inference` would each give a row a column. Not done:
+    `parameter_sweep.py` / `trial_metrics.py` are outside this territory.
+  * `perform_regression` calls `regression()` at ml.py:3838 without `qc=`, so
+    every sweep trial still pays the full ~5.8 s suite with no way to decline.
+    One line. ml.py is outside this territory.
+  * `perform_regression()`'s returned dict still does not carry the QC
+    manifest -- and the manifest now holds a verdict AND the renderer that
+    drew each panel, which is the thing a caller would most want from it.
+  * The GUI does not show the verdict anywhere. A `qt/` change.

@@ -1,9 +1,6 @@
-"""The GENERATED figure, rendered from the SCREEN's scene.
+"""Render generated figures from the same scene shown on screen.
 
-Instruction 139 A, requested 2026-08-18: "in the regression modual all of the
-generated graphs should be generated with pyqtgraph, not matplotlib".
-
-THE DEFECT IS NOT DUPLICATION, IT IS DISAGREEMENT. Instruction 129 put every
+The main risk is not duplication but disagreement. Every
 interactive regression plot in pyqtgraph -- the volcano, the effect ranking,
 the effect distribution, the control separation, the guide agreement, the
 p-value histogram and the Q-Q are seven classes in
@@ -40,9 +37,7 @@ GUESSED:
 Two plots can only disagree where both exist, and the only proof that both
 exist is the widget. A ``spacr-run regression`` in a terminal has no tab to
 disagree with, so it keeps the matplotlib page it has always written rather
-than importing PySide6 to decide the colour of an axis -- which answers
-instruction 139 A's "a headless run writes its figures" by writing them
-instead of by explaining why it cannot.
+than importing PySide6 to decide the colour of an axis.
 
 Asking for the scene anyway is one environment variable, and it WORKS with no
 display: measured on this machine, ``QT_QPA_PLATFORM=offscreen`` renders all
@@ -55,7 +50,7 @@ writes from the file NAME, so the name is built by :func:`spacr.plot.figure_path
 before the export sees it, exactly as ``save_figure`` rewrites the extension on
 the matplotlib path. A literal '.pdf' is a complaint this project has had twice.
 
-AND EVERY SAVE IS ANNOUNCED. Instruction 139 C: saved and visible are one
+Every save is also announced: saved and visible are one
 event. A matplotlib figure reaches the gallery through
 ``spacr.figure_sink.publish``; a rendered file has no matplotlib figure to
 publish, so it goes through :func:`spacr.figure_sink.publish_file`, which is
@@ -204,6 +199,14 @@ def _pyqtgraph_ready(create: bool = True) -> tuple:
     global _APPLICATION
 
     application = qt_application()
+    # PySide6 IS NAMED BEFORE pyqtgraph IS IMPORTED, AND THE ORDER IS
+    # LOAD-BEARING. pyqtgraph binds to the first of PyQt5, PyQt6, PySide2,
+    # PySide6 that imports, and PyQt6 is installed in this environment -- so
+    # `import pyqtgraph` first loads PyQt6's libQt6Core and PySide6 6.11 then
+    # cannot load at all: "libpyside6.abi3.so.6.11: undefined symbol:
+    # _ZN9QtPrivate9sizedFreeEPvm". Measured 2026-08-18 on the generated-figure
+    # path, where it silently sent a whole QC suite back to matplotlib.
+    os.environ.setdefault("PYQTGRAPH_QT_LIB", "PySide6")
     try:
         from ..qt.widgets.fast_plots import HAVE_PYQTGRAPH
     except Exception as error:                                 # noqa: BLE001
@@ -356,7 +359,7 @@ def render_panel(key: str, frame=None, path=None, *, plot=None,
         widget rather than a second drawing of its data.
     :param renderer: force one of :data:`RENDERERS`.
     :param announce: put the file in the gallery as well as on disk
-        (instruction 139 C).
+       .
     :returns: a :class:`RenderedPanel`, always. A panel that could not be
         drawn comes back with ``drawn=False`` and a reason rather than
         raising -- losing a fit over a picture is the worst trade here.

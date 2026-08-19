@@ -204,7 +204,7 @@ class QCPanelResult:
     :param reason: Why the panel was skipped, or what limits it.
     :param stats: Numbers the panel computed, for callers and tests.
     :param verdict: What the panel CONCLUDED -- a :class:`PanelVerdict`, or
-        None for a panel that never drew. Instruction 115: a diagnostic that
+        None for a panel that never drew. The design: a diagnostic that
         reports a number and no judgement leaves the judging to a reader who
         is not going to do it, so the verdict travels with the panel into the
         report, into the manifest and onto the picture itself.
@@ -3915,8 +3915,13 @@ def draw_panel(name, ctx, ax):
 # ---------------------------------------------------------------------------
 
 
-def _save(fig, path, fmt=None):
-    """Write a figure, MAKE IT VISIBLE, and return the path.
+def _save(fig, path, fmt=None, renderer=None, title=None):
+    """Write a figure with the run's renderer, MAKE IT VISIBLE, and say which.
+
+    :param renderer: one of :data:`spacr.figures.scene.RENDERERS`, decided
+        ONCE for the whole report rather than per panel.
+    :returns: ``(path, renderer, reason)`` -- the path actually written, the
+        library that drew it, and, when that is not pyqtgraph, why not.
 
     Never touches pyplot's registry -- and that is exactly why this suite was
     invisible until 2026-08-18. Reported as "several graphs are saved but I
@@ -3938,17 +3943,27 @@ def _save(fig, path, fmt=None):
     genuinely needs one particular format -- and it is passed on rather than
     baked into the file NAME, because the name has to follow whatever is
     actually written or the manifest points at a file that is not there.
-    """
-    from .figure_sink import publish
 
-    written = publish(fig, path, fmt=fmt, bbox_inches="tight")
+    THE RENDERER IS pyqtgraph WHERE THAT IS POSSIBLE. The request was that the
+    generated graphs be drawn by the library the tabs are drawn by. The panel
+    is still COMPUTED here, exactly once, and
+    :func:`spacr.figures.scene.write_figure` translates its finished artists
+    into a scene rather than drawing the statistics a second time -- so the
+    file and the panel cannot come to different numbers, which is what a
+    second implementation would eventually do. A panel the translator cannot
+    carry completely is written by matplotlib exactly as before, and says so.
+    """
+    from .figures.scene import write_figure
+
+    written, drew, why = write_figure(fig, path, fmt=fmt, renderer=renderer,
+                                      title=title, bbox_inches="tight")
     # Figures built via matplotlib.figure.Figure are not registered with
     # pyplot, so there is nothing for plt.close() to close; dropping the last
     # reference is the whole clean-up. clf() is belt-and-braces for the case
     # where a panel parked a callback on the figure. It happens AFTER the
     # publish, because a cleared figure has nothing left to render.
     fig.clf()
-    return written or path
+    return (written or path), drew, why
 
 
 def format_qc_report(manifest):
@@ -4061,7 +4076,7 @@ def format_qc_report(manifest):
 def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
                          coef_df=None, regression_type=None, volcano_path=None,
                          panels=None, fmt=None, combined=True, strict=False,
-                         verbose=True):
+                         verbose=True, renderer=None):
     """Write the full regression QC suite and return a manifest of what was written.
 
     Every panel is attempted. A panel that cannot be computed for this model —
@@ -4102,9 +4117,15 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         it as ``failed``. Tests use this; the pipeline should not, because a
         broken diagnostic must not take down a fit that already succeeded.
     :param verbose: Print the destination and any failure.
+    :param renderer: force ``'pyqtgraph'`` or ``'matplotlib'``. ``None`` asks
+        :func:`spacr.figures.scene.scene_renderer`, which prefers the screen's
+        renderer and falls back where Qt is not available -- and the choice is
+        made ONCE here rather than per panel, so a suite cannot come out half
+        in one library and half in the other over an environment that changed
+        while it ran.
     :returns: dict manifest with ``directory``, ``combined``, ``report``,
         ``panels`` (list of :class:`QCPanelResult`), ``written``, ``skipped``,
-        ``failed`` and the model description.
+        ``failed``, ``renderer`` and the model description.
     :raises ValueError: if ``dst`` is falsy — a QC report nobody can find is
         worse than no QC report.
 
@@ -4135,6 +4156,16 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     unknown = [name for name in selected if name not in _PANEL_BY_NAME]
     if unknown:
         raise ValueError(f"unknown QC panel(s): {unknown}; known: {list(PANEL_ORDER)}")
+
+    from .figures.scene import scene_renderer
+
+    # DECIDED ONCE, FOR THE WHOLE SUITE. Asking per panel is not the same
+    # question asked twenty times: an earlier attempt elsewhere in this project
+    # drew one run's first figure in matplotlib and its other six in pyqtgraph,
+    # because the first figure itself changed the answer.
+    renderer, renderer_reason = scene_renderer(renderer)
+    drawn_by: Dict[str, int] = {}
+    fell_back: List[Tuple[str, str]] = []
 
     results: List[QCPanelResult] = []
     for name in selected:
@@ -4181,7 +4212,14 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         # (the text report, `written`, the gallery link) then named a file
         # that does not exist, which is "saved but I cannot see it" wearing a
         # different hat.
-        path = _save(fig, path, fmt=fmt)
+        path, drew, why = _save(fig, path, fmt=fmt, renderer=renderer,
+                                title=title)
+        drawn_by[drew] = drawn_by.get(drew, 0) + 1
+        if renderer == "pyqtgraph" and drew != renderer and why:
+            # Only when the SUITE was going to be drawn by pyqtgraph. Naming
+            # twenty panels as having "fallen back" on a machine that never had
+            # Qt is twenty lines saying the one thing the header already said.
+            fell_back.append((name, why))
         results.append(QCPanelResult(
             name=name, title=title, group=group,
             status="partial" if limitation else "written",
@@ -4190,8 +4228,11 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
 
     combined_path = None
     if combined:
-        combined_path = _write_combined_page(ctx, results, out_dir, selected,
-                                             fmt=fmt)
+        combined_path, drew, why = _write_combined_page(
+            ctx, results, out_dir, selected, fmt=fmt, renderer=renderer)
+        drawn_by[drew] = drawn_by.get(drew, 0) + 1
+        if renderer == "pyqtgraph" and drew != renderer and why:
+            fell_back.append(("regression_qc_report", why))
 
     manifest = {
         "directory": out_dir,
@@ -4216,6 +4257,13 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
         "residual_scale_reason": (ctx.standardisation.reason
                                   if ctx.standardisation is not None else None),
         "notes": list(ctx.notes),
+        # WHICH LIBRARY DREW THEM, recorded rather than assumed. A user
+        # comparing a figure in a run folder against a tab on screen has to be
+        # able to find out which one they are holding, and the answer varies
+        # per machine.
+        "renderer": renderer,
+        "renderer_counts": dict(drawn_by),
+        "renderer_fallbacks": list(fell_back),
     }
     verdicts = [r.verdict for r in results if r.verdict is not None]
     manifest["verdicts"] = {r.name: r.verdict for r in results
@@ -4235,8 +4283,14 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     manifest["report"] = report_path
     if verbose:
         drawn = sum(1 for r in results if r.status in ("written", "partial"))
+        by = ", ".join(f"{count} by {name}"
+                       for name, count in sorted(drawn_by.items()))
         print(f"[regression_qc] {drawn}/{len(results)} panel(s) written to "
-              f"{out_dir}")
+              f"{out_dir}" + (f" ({by})" if by else ""))
+        if renderer != "pyqtgraph" and renderer_reason:
+            print(f"[regression_qc]   drawn by matplotlib: {renderer_reason}")
+        for name, why in fell_back:
+            print(f"[regression_qc]   {name} fell back to matplotlib: {why}")
         for level in ("fail", "check"):
             for panel in results:
                 if panel.verdict is not None and panel.verdict.level == level:
@@ -4248,7 +4302,8 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     return manifest
 
 
-def _write_combined_page(ctx, results, out_dir, selected, fmt=None):
+def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
+                         renderer=None):
     """Draw every panel again onto one page, skipped ones as grey tiles.
 
     Redrawing rather than re-parenting the individual axes is deliberate:
@@ -4295,4 +4350,5 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None):
     fig.tight_layout(rect=(0, 0, 1, 0.985))
     path = os.path.join(out_dir, "regression_qc_report" if not fmt
                         else f"regression_qc_report.{fmt}")
-    return _save(fig, path, fmt=fmt)
+    return _save(fig, path, fmt=fmt, renderer=renderer,
+                 title="regression QC report")
