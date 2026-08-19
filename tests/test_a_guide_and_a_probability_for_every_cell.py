@@ -8,7 +8,7 @@ be wrong".
 import numpy as np
 import pytest
 
-from spacr.attribution import (AMBIGUOUS, DEFAULT_THRESHOLD, attributable,
+from spacr.guide_attribution import (AMBIGUOUS, DEFAULT_THRESHOLD, attributable,
                                attribute_well, normalise_fractions, posterior)
 
 SCORES = np.linspace(-3.0, 3.0, 400)
@@ -216,7 +216,7 @@ def test_the_beta_likelihood_is_available():
 
 def test_every_cell_gets_a_guide():
     """What the marginal posterior can never deliver when priors are small."""
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     got = assign_well(SCORES, {"x": 0.5, "y": 0.3, "z": 0.2},
                       {"x": 2.0, "y": 0.0, "z": -2.0})
@@ -227,7 +227,7 @@ def test_every_cell_gets_a_guide():
 
 def test_the_counts_are_exactly_what_sequencing_says():
     """The Sudoku rule: guide g occupies exactly round(N * pi_g) cells."""
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     got = assign_well(SCORES, {"x": 0.5, "y": 0.3, "z": 0.2},
                       {"x": 2.0, "y": 0.0, "z": -2.0})
@@ -241,7 +241,7 @@ def test_the_counts_are_exactly_what_sequencing_says():
 def test_the_counts_still_sum_to_every_cell_when_they_do_not_divide():
     """A rounding that left a cell unassigned would break the one rule that
     makes this an assignment."""
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     got = assign_well(list(range(7)), {"a": 1 / 3, "b": 1 / 3, "c": 1 / 3},
                       {"a": 1.0, "b": 0.0, "c": -1.0})
@@ -251,7 +251,7 @@ def test_the_counts_still_sum_to_every_cell_when_they_do_not_divide():
 
 
 def test_exclusion_puts_the_extremes_where_they_belong():
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     got = assign_well(SCORES, {"up": 0.5, "down": 0.5},
                       {"up": 2.0, "down": -2.0})
@@ -264,7 +264,7 @@ def test_exclusion_puts_the_extremes_where_they_belong():
 
 def test_a_guide_absent_from_the_well_occupies_none_of_it():
     """Pure elimination -- the Sudoku move."""
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     got = assign_well(SCORES, {"here": 1.0, "absent": 0.0},
                       {"here": 1.0, "absent": -5.0})
@@ -276,7 +276,7 @@ def test_a_guide_absent_from_the_well_occupies_none_of_it():
 def test_it_says_when_the_rules_did_not_pin_it_down():
     """An assignment being OPTIMAL does not make it CERTAIN. When many
     assignments are nearly as good, swapping two cells costs almost nothing."""
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     decided = assign_well(SCORES, {"a": 0.5, "b": 0.5},
                           {"a": 6.0, "b": -6.0})
@@ -290,7 +290,7 @@ def test_it_says_when_the_rules_did_not_pin_it_down():
 def test_two_guides_with_no_effect_still_get_their_exact_counts():
     """The counts are a constraint, not an inference: they hold even when
     nothing is learnable."""
-    from spacr.attribution import assign_well
+    from spacr.guide_attribution import assign_well
 
     got = assign_well(SCORES, {"a": 0.25, "b": 0.75}, {"a": 0.0, "b": 0.0})
 
