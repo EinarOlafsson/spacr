@@ -1,0 +1,63 @@
+================================================================================
+RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
+================================================================================
+
+Status:    filed 2026-08-19. Cause found, fix in the same commit.
+Requested: 2026-08-19 -- "i was changing the background graph color of the
+           first graph while a nonparametric statmodels mixed model was being
+           trained and spacr crashed"
+
+--------------------------------------------------------------------------------
+TWO THREADS, ONE matplotlib FIGURE
+--------------------------------------------------------------------------------
+
+matplotlib is NOT thread-safe, and spaCR touches a Figure from both sides:
+
+  THE WORKER THREAD, while a run streams its figures:
+      qt/bridge.py:1007  render_figure_to_png(fig, tmp)
+      qt/bridge.py:1050  render_figure_to_png(fig, tmp)
+    `_capture_show` renders each open figure to a PNG *on the worker*,
+    deliberately -- Agg savefig touches no Qt and it is the expensive part, so
+    the GUI thread only moves a file and loads a pixmap.
+
+  THE GUI THREAD, when the style dialog is accepted:
+      qt/widgets/figure_queue.py:2400  FigureQueue._style_figure(self._fig, ...)
+    which walks the figure's axes, texts, spines and legend and reassigns
+    colours.
+
+A fit that is training is a fit that is still emitting figures. So changing a
+colour at that moment has the GUI thread mutating a Figure the worker thread is
+rendering, and the crash is a segfault in the C layer rather than a Python
+exception -- which is why nothing was caught and nothing was logged.
+
+IT MATCHES THE REPORT EXACTLY: the FIRST graph is the one already on screen and
+therefore the one held in `_figures`, and a nonparametric mixed model is a long
+fit, which is a wide window in which to click.
+
+--------------------------------------------------------------------------------
+THE FIX: ONE LOCK, HELD BY BOTH SIDES
+--------------------------------------------------------------------------------
+
+Not "refuse to restyle during a run". A user who has to wait for a fit to end
+before they may change a colour has been given a rule to remember, and the fit
+they are waiting on is the one this application is for. The two accesses are
+short; serialising them costs a few milliseconds and removes the crash.
+
+One re-entrant lock in `figure_queue`, taken by:
+  * `render_figure_to_png`  -- the worker's render
+  * `_style_figure_colors`  -- every restyle, from the dialog or elsewhere
+
+RE-ENTRANT because `_style_figure_colors` is also called from inside the render
+path (`_prepare_for_display` styles before rendering), and a plain Lock would
+deadlock the first time a figure was styled and rendered in one call.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Restyling a figure while a run is streaming figures does not crash, driven by
+  a test that renders on one thread and restyles on another over the same
+  Figure, repeatedly.
+* The lock is held by BOTH functions -- a test greps for it, because a lock one
+  side forgets is not a lock.
+* A restyle during a fit still takes effect rather than being dropped.
