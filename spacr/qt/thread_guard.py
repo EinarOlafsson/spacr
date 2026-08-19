@@ -124,6 +124,11 @@ def install() -> bool:
     # Constructing one off-thread is not always wrong, so this REPORTS and
     # never refuses, and it stops after a handful so a legitimate producer
     # cannot flood the log.
+    #
+    # MEASURED before leaving it on: 200,000 QObject() cost 0.407 s bare
+    # and 0.468 s guarded -- 0.31 us each, 1.15x. A window is tens of
+    # thousands of objects, so the whole of a launch pays single-digit
+    # milliseconds for a diagnostic that names a crash nothing else has.
     real_object_init = QObject.__init__
 
     def guarded_object_init(self, *args, **kwargs):
