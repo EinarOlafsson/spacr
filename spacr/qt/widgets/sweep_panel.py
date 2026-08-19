@@ -267,13 +267,43 @@ class SweepPanel(QWidget):
                 f"{self.status.text()}  Showing the first {len(shown):,} of "
                 f"{len(keep):,} — save the table for all of them.")
 
+    def selected_gene(self):
+        """The gene the profile picture is about, or ``None``.
+
+        The row the user selected in the table, and failing that the
+        strongest survivor -- which is a DEFAULT, not a choice they made, so
+        `plot_gene_profile` puts the name in the title. Returning None when
+        there is nothing at all keeps the caller from drawing a picture of
+        a gene it invented.
+        """
+        rows = {index.row() for index in self.table.selectedIndexes()}
+        if rows:
+            item = self.table.item(sorted(rows)[0], 1)   # the gene column
+            if item is not None and item.text().strip():
+                return item.text().strip()
+        if self._result is None or not len(self._result.table):
+            return None
+        best = self._result.table.sort_values("q")
+        return str(best.iloc[0]["guide"]) if len(best) else None
+
     #: The pictures this panel can draw, in the order the chooser offers
     #: them. Each answers a question the others cannot -- see instruction
     #: 175 and `spacr.gene_measurement_sweep`.
+    #: THE HEATMAP STAYS FIRST, and so stays the default. Calibration is the
+    #: first thing to READ -- it says whether the other nine are worth
+    #: anything -- but a panel that opened on a QQ plot when the user asked
+    #: for "a comprehensive table and an intuitive visualisation" would be
+    #: answering a question they did not ask.
     PICTURES = (
         ("heatmap", "what survived, clustered"),
+        ("calibration", "is the screen calibrated at all?"),
+        ("volcano", "every pair: effect against evidence"),
         ("representation", "hits vs how much screen the gene is"),
         ("families", "what KIND of measurement each gene moves"),
+        ("profile", "one gene's fingerprint"),
+        ("similarity", "which genes behave alike"),
+        ("measurements", "which measurements discriminate"),
+        ("circularity", "corroboration or restatement"),
         ("concordance", "do a gene's own guides agree?"),
     )
 
@@ -286,8 +316,10 @@ class SweepPanel(QWidget):
         if self._result is None:
             return None
         from ...gene_measurement_sweep import (
-            plot_effect_against_representation, plot_guide_concordance,
-            plot_measurement_families, plot_sweep)
+            plot_calibration, plot_circularity,
+            plot_effect_against_representation, plot_gene_profile,
+            plot_gene_similarity, plot_grid_volcano, plot_guide_concordance,
+            plot_measurement_families, plot_measurement_hits, plot_sweep)
 
         wanted = str(kind or self.picture.currentData() or "heatmap")
         alpha = float(self.alpha.value())
@@ -299,6 +331,31 @@ class SweepPanel(QWidget):
         chosen = str(self.level.currentData() or "gene")
         level = None if chosen == "guide" else "gene"
 
+        if wanted == "calibration":
+            return plot_calibration(self._result, path=path, level=level)
+        if wanted == "volcano":
+            return plot_grid_volcano(self._result, path=path, alpha=alpha,
+                                     level=level)
+        if wanted == "similarity":
+            return plot_gene_similarity(self._result, path=path, alpha=alpha,
+                                        level=level)
+        if wanted == "measurements":
+            return plot_measurement_hits(self._result, path=path, alpha=alpha,
+                                         level=level)
+        if wanted == "circularity":
+            return plot_circularity(self._result, path=path, alpha=alpha,
+                                    level=level)
+        if wanted == "profile":
+            # THE ONE VIEW THAT NEEDS A SUBJECT. The row the user selected in
+            # the table is the gene they are asking about; with nothing
+            # selected the strongest survivor is the honest default, and it
+            # is named in the title so nobody mistakes it for a choice they
+            # made.
+            gene = self.selected_gene()
+            if gene is None:
+                return None
+            return plot_gene_profile(self._result, gene, path=path,
+                                     alpha=alpha)
         if wanted == "representation":
             return plot_effect_against_representation(
                 self._result, path=path, alpha=alpha, level=level)

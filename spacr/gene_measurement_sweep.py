@@ -812,3 +812,358 @@ def _one_level(table: pd.DataFrame, level: Optional[str]) -> str:
     if table["level"].nunique() > 1:
         return drawn or "gene"
     return drawn if drawn else ""
+
+
+# --------------------------------------------------------------------------- #
+# The other six views                                                          #
+# --------------------------------------------------------------------------- #
+#
+# Ten ways of looking at one grid, each answering a question the others
+# cannot. The list is kept HERE rather than in a message, because the first
+# four were built from a conversation and the other six nearly were not.
+
+
+def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
+                      alpha: float = 0.05, title: str = "",
+                      level: Optional[str] = None):
+    """#5 -- every gene x measurement pair at once: effect against evidence.
+
+    THE SHAPE OF THE WHOLE GRID, which the heatmap cannot show because it
+    draws only survivors. A screen where everything is significant looks
+    different here from one with a handful of real effects, and that
+    difference is the first thing to check before reading any single row.
+
+    Colour is CIRCULARITY where it is known -- a hit the classifier already
+    tracks is a restatement, not a corroboration -- and grey where it is not.
+    Grey is not "clean": the sweep says so in the legend rather than letting
+    an uncomputed number read as zero.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.table
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    # COERCED, not assumed numeric: an empty frame built from a column list
+    # carries object dtype, and `np.isfinite` on that raises a TypeError
+    # rather than returning an empty mask.
+    effect_values = pd.to_numeric(keep["effect"], errors="coerce")
+    p_values = pd.to_numeric(keep["p"], errors="coerce")
+    keep = keep[np.isfinite(effect_values) & np.isfinite(p_values)]
+    if not len(keep):
+        return None
+
+    effect = keep["effect"].to_numpy(dtype=float)
+    evidence = -np.log10(np.clip(keep["p"].to_numpy(dtype=float), 1e-300, 1.0))
+
+    figure, axes = plt.subplots(figsize=(7.4, 5.2))
+    if result.circularity_known:
+        colours = keep["circularity"].to_numpy(dtype=float)
+        dots = axes.scatter(effect, evidence, c=colours, cmap="viridis",
+                            s=12, alpha=0.7, edgecolor="none", vmin=0.0,
+                            vmax=max(0.5, float(np.nanmax(colours) or 0.5)))
+        bar = figure.colorbar(dots, ax=axes, fraction=0.03, pad=0.01)
+        bar.set_label("|rho(score, measurement)| — higher is circular",
+                      fontsize=7)
+        bar.ax.tick_params(labelsize=6)
+    else:
+        axes.scatter(effect, evidence, s=12, alpha=0.6, color="#6c757d",
+                     edgecolor="none",
+                     label="circularity NOT computed — not the same as zero")
+        axes.legend(fontsize=7, frameon=False, loc="upper left")
+
+    passed = keep[keep["q"] < float(alpha)]
+    if len(passed):
+        # The BH line is where the correction actually fell, not a nominal
+        # 0.05: drawing the nominal one puts the threshold in the wrong place
+        # on every corrected screen.
+        cut = float(passed["p"].max())
+        axes.axhline(-np.log10(max(cut, 1e-300)), color="#c1121f",
+                     linewidth=0.9, linestyle="--")
+        axes.text(axes.get_xlim()[0], -np.log10(max(cut, 1e-300)),
+                  f" BH q<{alpha:g} falls at p={cut:.2g}", fontsize=7,
+                  va="bottom", color="#c1121f")
+
+    axes.set_xlabel("effect (partial correlation, plate-blocked)", fontsize=8)
+    axes.set_ylabel("-log10(raw p)", fontsize=8)
+    axes.tick_params(labelsize=7)
+    axes.set_title(title or f"{len(keep):,} gene x measurement pair(s)",
+                   fontsize=9)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_gene_profile(result: "SweepResult", gene: Any,
+                      path: Optional[str] = None, *, alpha: float = 0.05,
+                      top: int = 24, title: str = ""):
+    """#6 -- ONE gene's fingerprint: every measurement it moves, in order.
+
+    The per-gene readout the grid cannot give. "GRA14 moves pathogen
+    intensity up and pathogen area down, and nothing else" is a sentence
+    somebody can take to a bench; a row of a heatmap is not.
+
+    Bars are coloured by measurement family, so a profile that is all one
+    family reads as one finding rather than as twenty.
+    """
+    import matplotlib.pyplot as plt
+
+    name = str(gene)
+    table = result.table
+    mine = table[table["guide"].astype(str) == name]
+    if not len(mine):
+        return None
+    passed = mine[mine["q"] < float(alpha)]
+    # Fall back to the strongest effects when nothing cleared the
+    # correction: "this gene has no significant measurement" is worth
+    # SEEING, and an empty axis does not say it.
+    shown = passed if len(passed) else mine
+    shown = shown.reindex(
+        shown["effect"].abs().sort_values(ascending=False).index).head(top)
+    if not len(shown):
+        return None
+
+    families = [measurement_family(m) for m in shown["measurement"]]
+    order = [f for f, _ in MEASUREMENT_FAMILIES] + ["other"]
+    palette = {f: plt.get_cmap("tab10")(i % 10) for i, f in enumerate(order)}
+
+    figure, axes = plt.subplots(
+        figsize=(7.0, max(3.0, 0.30 * len(shown) + 1.4)))
+    positions = range(len(shown))
+    axes.barh(list(positions), shown["effect"].to_numpy(dtype=float),
+              color=[palette[f] for f in families], height=0.7)
+    axes.axvline(0.0, color="#343a40", linewidth=0.8)
+    axes.set_yticks(list(positions))
+    axes.set_yticklabels([m[:44] for m in shown["measurement"]], fontsize=7)
+    axes.invert_yaxis()
+    axes.set_xlabel("effect (partial correlation, plate-blocked)", fontsize=8)
+    axes.tick_params(labelsize=7)
+    seen = []
+    for family in order:
+        if family in families and family not in seen:
+            seen.append(family)
+    axes.legend(handles=[plt.Line2D([], [], color=palette[f], linewidth=6,
+                                    label=f) for f in seen],
+                fontsize=7, frameon=False, ncol=min(4, len(seen)))
+    axes.set_title(
+        title or (f"{name} — {len(passed):,} measurement(s) past BH at "
+                  f"{alpha:g}" if len(passed) else
+                  f"{name} — NOTHING past BH at {alpha:g}; the strongest "
+                  f"effects are shown"),
+        fontsize=9)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
+                         alpha: float = 0.05, top: int = 30,
+                         title: str = "", level: Optional[str] = None):
+    """#7 -- which genes behave ALIKE, by correlating their whole profiles.
+
+    Two genes in one pathway should move the same measurements the same way,
+    and this is the only view here that can say so: every other one reads a
+    gene on its own. It is also the honest way to ask "is my hit list one
+    finding or twelve".
+
+    Correlated across the WHOLE effect row, not just the significant part --
+    a shared sub-threshold pattern is exactly the evidence that two genes
+    belong together, and thresholding first would throw it away.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.survivors(alpha=alpha)
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    if not len(keep):
+        return None
+
+    ranked = (keep.groupby("guide")["q"].min().sort_values().head(top).index)
+    genes = [g for g in ranked if g in result.effects.index]
+    if len(genes) < 2:
+        return None
+
+    profiles = result.effects.loc[genes].to_numpy(dtype=float)
+    profiles = np.nan_to_num(profiles, nan=0.0)
+    spread = profiles.std(axis=1, keepdims=True)
+    spread[spread <= 0] = 1.0
+    centred = (profiles - profiles.mean(axis=1, keepdims=True)) / spread
+    similarity = (centred @ centred.T) / max(profiles.shape[1], 1)
+    frame = pd.DataFrame(similarity, index=genes, columns=genes)
+    frame = _order_like_neighbours(frame)
+
+    size = max(3.6, 0.26 * len(frame.index) + 2.0)
+    figure, axes = plt.subplots(figsize=(size, size))
+    image = axes.imshow(frame.to_numpy(), cmap="RdBu_r", vmin=-1.0, vmax=1.0)
+    axes.set_xticks(range(len(frame.columns)))
+    axes.set_xticklabels(frame.columns, rotation=90, fontsize=7)
+    axes.set_yticks(range(len(frame.index)))
+    axes.set_yticklabels(frame.index, fontsize=7)
+    axes.set_title(title or f"do these {len(frame.index)} genes behave alike?",
+                   fontsize=9)
+    bar = figure.colorbar(image, ax=axes, fraction=0.035, pad=0.02)
+    bar.set_label("correlation of effect profiles", fontsize=7)
+    bar.ax.tick_params(labelsize=6)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
+                          *, alpha: float = 0.05, top: int = 26,
+                          title: str = "", level: Optional[str] = None):
+    """#8 -- which MEASUREMENTS are informative, and which everything moves.
+
+    The grid read down its other axis. A measurement moved by half the
+    library is not a discriminating readout: it is a plate effect, a focus
+    drift or a confluence artefact wearing a measurement's name, and it will
+    put a hit on every gene in the screen. Ranking measurements by how many
+    genes move them is how you find those before trusting any of them.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.survivors(alpha=alpha)
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    if not len(keep):
+        return None
+
+    counts = keep.groupby("measurement")["guide"].nunique().sort_values(
+        ascending=False).head(top)
+    if not len(counts):
+        return None
+    total = int(keep["guide"].nunique())
+
+    figure, axes = plt.subplots(
+        figsize=(7.4, max(3.0, 0.30 * len(counts) + 1.5)))
+    share = counts.to_numpy(dtype=float) / max(total, 1)
+    colours = ["#c1121f" if s >= 0.5 else "#457b9d" for s in share]
+    axes.barh(range(len(counts)), counts.to_numpy(), color=colours,
+              height=0.72)
+    axes.set_yticks(range(len(counts)))
+    axes.set_yticklabels([m[:46] for m in counts.index], fontsize=7)
+    axes.invert_yaxis()
+    axes.set_xlabel(f"genes moving it, of {total:,} tested", fontsize=8)
+    axes.tick_params(labelsize=7)
+    promiscuous = int((share >= 0.5).sum())
+    axes.set_title(
+        title or (f"which measurements discriminate"
+                  + (f" — {promiscuous} moved by half the library or more, "
+                     f"in red" if promiscuous else "")),
+        fontsize=9)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
+                     alpha: float = 0.05, title: str = "",
+                     level: Optional[str] = None):
+    """#9 -- corroboration or restatement, for every surviving pair.
+
+    A measurement the classifier already tracks cannot corroborate a result
+    derived from that classifier. Measured on the maintainer's own screen:
+    GRA14's only significant independent measurement was explained by
+    rho(pred, pathogen_channel_1_mean_intensity) = -0.389, and nothing on
+    the heatmap said so.
+
+    Drawn rather than filtered, because the cut-off is a judgement: 0.2 is
+    not a law, and a reader looking at their own screen should see where
+    their hits fall rather than be handed the ones that survived somebody
+    else's threshold.
+    """
+    import matplotlib.pyplot as plt
+
+    if not result.circularity_known:
+        # NOT AN EMPTY AXIS. The column is NaN, and a scatter of NaN is a
+        # blank panel that reads as "nothing is circular" -- which is the
+        # exact misreading this whole column exists to prevent.
+        return None
+
+    keep = result.survivors(alpha=alpha)
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    keep = keep[np.isfinite(keep["circularity"]) & np.isfinite(keep["effect"])]
+    if not len(keep):
+        return None
+
+    figure, axes = plt.subplots(figsize=(7.0, 5.0))
+    circular = keep["circularity"].to_numpy(dtype=float)
+    axes.scatter(np.abs(keep["effect"].to_numpy(dtype=float)), circular,
+                 s=16, alpha=0.6, edgecolor="none", color="#457b9d")
+    axes.axhline(0.15, color="#c1121f", linewidth=0.9, linestyle="--")
+    axes.text(axes.get_xlim()[1], 0.15, "0.15 — a working bar, not a law ",
+              fontsize=7, ha="right", va="bottom", color="#c1121f")
+    axes.set_xlabel("|effect| of the gene on the measurement", fontsize=8)
+    axes.set_ylabel("|rho(classification score, measurement)|", fontsize=8)
+    axes.tick_params(labelsize=7)
+    above = int((circular >= 0.15).sum())
+    axes.set_title(
+        title or (f"{above:,} of {len(keep):,} surviving pair(s) sit on a "
+                  f"measurement the score already tracks"), fontsize=9)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
+                     title: str = "", level: Optional[str] = None):
+    """#10 -- is this screen calibrated, or is everything significant?
+
+    The observed P values against the uniform they would follow if nothing
+    were real. A grid that hugs the diagonal has no signal; one that lifts
+    off it at the left has some; one that lifts off everywhere has a
+    systematic effect -- a plate term that did not get blocked out, or an
+    aggregation that correlated every well with itself.
+
+    THE FIRST PLOT TO LOOK AT and the last one anybody builds. It says
+    whether the other nine are worth reading at all.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.table
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    values = keep["p"].to_numpy(dtype=float)
+    values = values[np.isfinite(values)]
+    if values.size < 2:
+        return None
+
+    observed = np.sort(np.clip(values, 1e-300, 1.0))
+    expected = (np.arange(1, observed.size + 1) - 0.5) / observed.size
+
+    figure, axes = plt.subplots(figsize=(5.6, 5.4))
+    axes.plot(-np.log10(expected), -np.log10(observed), ".", markersize=3,
+              color="#457b9d")
+    edge = float(max(-np.log10(expected).max(), -np.log10(observed).max()))
+    axes.plot([0, edge], [0, edge], color="#6c757d", linewidth=0.9,
+              linestyle="--", label="no effect anywhere")
+
+    # THE INFLATION FACTOR, named. A number beats an eyeballed slope, and
+    # this one has a standard meaning: lambda near 1 is calibrated, and
+    # well above it means something systematic is inflating every test.
+    from scipy.stats import chi2
+
+    median = float(np.median(observed))
+    lam = (chi2.isf(median, 1) / chi2.isf(0.5, 1)) if median > 0 else np.nan
+    axes.set_xlabel("expected -log10(p)", fontsize=8)
+    axes.set_ylabel("observed -log10(p)", fontsize=8)
+    axes.tick_params(labelsize=7)
+    axes.legend(fontsize=7, frameon=False)
+    axes.set_title(
+        title or (f"calibration — lambda = {lam:.2f} "
+                  f"({'calibrated' if 0.9 <= lam <= 1.15 else 'inflated' if lam > 1.15 else 'conservative'})"),
+        fontsize=9)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure

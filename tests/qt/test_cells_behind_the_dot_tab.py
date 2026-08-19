@@ -316,7 +316,7 @@ def test_the_montage_draws_from_merged_when_no_pngs_were_exported(qtbot,
     assert view.build() is True
 
     plans = view.plans()
-    assert len(plans) == 1
+    assert len(plans) == 1, f"nothing was planned: {view.status_text()!r}"
     assert plans[0].source_kind == "merged"
     assert plans[0].n_objects > 0
     # Real pixels, cut through spacr.crops.
@@ -440,7 +440,9 @@ def test_the_channel_box_chooses_which_planes_become_the_picture(qtbot,
     view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=False)
     view.set_coefficient(GENE_KEY)
     view._channels.setText("0,1,2")
-    view.build()
+    built = view.build()
+    assert built, f"the montage refused to build: {view.status_text()!r}"
+    assert view.images(), f"nothing was drawn: {view.status_text()!r}"
     first = view.images()[0][0]
 
     view._channels.setText("3,2,1")
@@ -651,7 +653,14 @@ def test_the_cells_tab_is_a_named_tab_beside_the_figures(screen):
     assert tabs.tabText(3) == "Cells"
     assert "POOLED" in tabs.tabToolTip(3)
     # The tabs that were there before it are where they were.
-    assert tabs.widget(1) is screen._results_panel
+    #
+    # The Results tab is a QSplitter holding the panel, not the panel itself
+    # (instruction 116: a second run opened for comparison goes in BESIDE
+    # this one, and a tab page cannot gain a sibling). What this test is
+    # about is the ORDER of the tabs, so it asks whether the panel is on that
+    # page rather than whether it IS the page.
+    assert screen._results_panel in tabs.widget(1).findChildren(
+        type(screen._results_panel)) or tabs.widget(1) is screen._results_panel
     assert tabs.widget(2) is screen._scan_panel
 
 

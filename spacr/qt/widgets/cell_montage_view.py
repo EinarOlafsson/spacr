@@ -1466,8 +1466,10 @@ class CellMontageView(QWidget):
         self._half_widths.setSuffix(" scales")
         self._half_widths.setToolTip(
             "Score-window half-width in robust scales (1.4826 × MAD). Larger "
-            "values admit more cells and make 'closest' less selective. This "
-            "value applies to every coefficient on the current screen.")
+            "values admit more cells and make 'closest' less selective. ONE "
+            "NUMBER FOR THE WHOLE SCREEN AND EVERY COEFFICIENT — this is "
+            "deliberately not a per-gene control, so widening it to rescue "
+            "one gene widens it for all of them.")
         self._half_widths.valueChanged.connect(self._on_settings_changed)
         self._half_widths.setVisible(False)
 
