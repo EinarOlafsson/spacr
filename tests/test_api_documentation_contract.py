@@ -40,11 +40,18 @@ def test_every_public_api_function_and_class_has_a_docstring():
     )
 
 
-def test_sphinx_autoapi_covers_the_package_and_undocumented_members():
+def test_sphinx_autoapi_has_a_curated_public_landing_page():
     conf = (PACKAGE_ROOT.parent / "docs" / "source" / "conf.py").read_text(
         encoding="utf-8"
     )
     assert "'autoapi.extension'" in conf
     assert "autoapi_dirs" in conf
     assert "'members'" in conf
-    assert "'undoc-members'" in conf
+    assert "'undoc-members'" not in conf
+    assert "autoapi_template_dir" in conf
+    template = (
+        PACKAGE_ROOT.parent / "docs" / "source" / "_autoapi_templates" /
+        "index.rst"
+    ).read_text(encoding="utf-8")
+    assert "Start with the workflow you want to run" in template
+    assert "Complete module reference" in template

@@ -1065,18 +1065,15 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
 def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
                      alpha: float = 0.05, title: str = "",
                      level: Optional[str] = None):
-    """#9 -- corroboration or restatement, for every surviving pair.
+    """Plot whether each surviving measurement adds independent evidence.
 
     A measurement the classifier already tracks cannot corroborate a result
-    derived from that classifier. Measured on the maintainer's own screen:
-    GRA14's only significant independent measurement was explained by
-    rho(pred, pathogen_channel_1_mean_intensity) = -0.389, and nothing on
-    the heatmap said so.
+    derived from that classifier. The plot exposes that dependence rather
+    than presenting a correlated measurement as separate confirmation.
 
-    Drawn rather than filtered, because the cut-off is a judgement: 0.2 is
-    not a law, and a reader looking at their own screen should see where
-    their hits fall rather than be handed the ones that survived somebody
-    else's threshold.
+    Every point is drawn because the correlation cutoff is a judgment. This
+    lets users see where their hits fall and choose a threshold appropriate
+    to their screen.
     """
     import matplotlib.pyplot as plt
 

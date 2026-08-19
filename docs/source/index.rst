@@ -8,6 +8,12 @@ Welcome to spaCR
 
 **spaCR** — *Spatial phenotype analysis of CRISPR screens.*
 
+.. note::
+
+   You are reading the |docs-channel| documentation for spaCR
+   |spacr-version|. The public site follows released ``main``; nightly
+   builds validate upcoming changes without replacing the stable site.
+
 A Python toolkit for quantifying and visualising phenotypic changes in
 high-throughput microscopy screens. Ships with a modern PySide6 GUI
 (``spacr``), a headless pipeline (:mod:`spacr.core`), and a
@@ -23,7 +29,7 @@ screen outgrows one desktop.
    :gutter: 3
 
    .. grid-item-card:: 🚀 Get started
-      :link: https://github.com/EinarOlafsson/spacr#quickstart
+      :link: https://github.com/EinarOlafsson/spacr#install-spacr
       :link-type: url
 
       Install spaCR from PyPI and launch the Qt GUI in two commands.
@@ -32,17 +38,18 @@ screen outgrows one desktop.
       :link: tutorials/
       :link-type: url
 
-      The lesson library — 40 narrated, step-by-step lessons covering the
+      The lesson library — |lesson-count| narrated, step-by-step lessons covering the
       whole pipeline.
 
    .. grid-item-card:: 📖 API reference
       :link: api/index
       :link-type: doc
 
-      Every public function, method, and class — grouped by module.
+      Supported workflow entry points, with the complete module reference
+      available for contributors.
 
    .. grid-item-card:: 🎬 Video tutorials
-      :link: https://github.com/EinarOlafsson/spacr#narrated-video-tutorials
+      :link: tutorials/
       :link-type: url
 
       Narrated walkthroughs of each pipeline module.
@@ -61,9 +68,9 @@ Pipeline overview
    :alt: spaCR workflow
    :align: center
 
-The GUI ships 67 apps, grouped into seven categories — *Core*, *Data*,
+The GUI groups its apps into seven categories — *Core*, *Data*,
 *Segmentation models*, *Results & QC*, *Explore*, *Toxoplasma*, and *Design*.
-The nine Core apps form the main pipeline; these five are the path most
+The Core apps form the main pipeline; these six are the path most
 screens take, each with its own :doc:`API reference <api/index>` module:
 
 +---------------------+-----------------------------------------------------+
@@ -81,6 +88,9 @@ screens take, each with its own :doc:`API reference <api/index>` module:
 +---------------------+-----------------------------------------------------+
 | **Map Barcodes**    | Map FASTQ reads to row/column/gRNA barcodes.        |
 |                     | :mod:`spacr.sequencing`                             |
++---------------------+-----------------------------------------------------+
+| **Regression**      | Estimate guide, gene and condition effects.         |
+|                     | :mod:`spacr.ml`                                     |
 +---------------------+-----------------------------------------------------+
 
 
@@ -132,7 +142,7 @@ Headless (cluster, server, CI) — no Qt, no display:
 Learn spaCR
 -----------
 
-The `interactive tutorial library <tutorials/>`_ contains 69 narrated,
+The `interactive tutorial library <tutorials/>`_ contains |lesson-count| narrated,
 step-by-step lessons covering every module, with 50 voices across eight
 languages. It is also reachable from the GUI:
 **Help → Tutorial (web)**, or the spaCR logo on the classic Tk start screen.
@@ -145,6 +155,8 @@ Contents
    :maxdepth: 2
 
    installers
+   features
+   python_api
    localization
    setting_animations
    checkpoint_resume

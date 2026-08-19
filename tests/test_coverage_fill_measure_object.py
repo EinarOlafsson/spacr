@@ -630,8 +630,14 @@ def test_process_meassure_crop_results(tmp_path):
     ]
     settings = {"src": str(tmp_path / "run" / "data")}
     (tmp_path / "run").mkdir()
-    M.process_meassure_crop_results(partial, settings)
+    with pytest.deprecated_call(match="process_measure_crop_results"):
+        M.process_meassure_crop_results(partial, settings)
     assert list((tmp_path / "run" / "results").rglob("*.pdf"))
+
+
+def test_process_measure_crop_results(tmp_path):
+    settings = {"src": str(tmp_path / "merged")}
+    M.process_measure_crop_results([None], settings)
 
 
 # ---------------------------------------------------------------------------

@@ -12,6 +12,7 @@ DOCS_CONF = ROOT / "docs" / "source" / "conf.py"
 DOCS_CSS = ROOT / "docs" / "source" / "_static" / "custom.css"
 LOCALIZATION = ROOT / "docs" / "source" / "localization.rst"
 SETTING_ANIMATIONS = ROOT / "docs" / "source" / "setting_animations.rst"
+FEATURES = ROOT / "docs" / "source" / "features.rst"
 
 
 def _read(path: Path) -> str:
@@ -24,23 +25,21 @@ def test_readme_uses_an_explicit_supported_python_badge():
     assert ":alt: Python 3.9 through 3.14" in text
 
 
-def test_feature_catalog_is_one_equal_width_curated_table():
+def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     text = _read(README)
-    features = text[text.index("Features\n--------"):text.index("\nData\n----")]
+    features = _read(FEATURES)
 
-    assert features.count(".. list-table::") == 1
-    assert ":widths: 25 25 25 25" in features
+    assert "What you can do\n---------------" in text
+    assert "Most screens follow six modules" in text
+    assert "features.html" in text
+    assert len(text.split()) < 1800
     for heading in (
-        "**Desktop experience**",
-        "**Image analysis**",
-        "**AI and phenotyping**",
-        "**Sequencing and screen analysis**",
+        "Core screen workflow",
+        "Planning, quality control and exploration",
+        "Reproducibility and interoperability",
+        "Maturity labels",
     ):
         assert heading in features
-
-    rows = re.findall(r"^   \* - ", features, flags=re.MULTILINE)
-    # One column-header row, four category rows, and 28 feature rows.
-    assert len(rows) == 33
 
 
 def test_readme_contains_only_user_facing_installation_copy():

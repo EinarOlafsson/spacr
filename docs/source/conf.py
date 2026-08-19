@@ -38,6 +38,25 @@ except Exception:
         release = 'dev'
 version = release
 
+_source_branch = os.environ.get('GITHUB_REF_NAME', '').strip()
+if _source_branch not in {'main', 'nightly'}:
+    _source_branch = 'main'
+docs_channel = 'nightly' if _source_branch == 'nightly' else 'stable'
+_tutorial_root = os.path.join(
+    os.path.dirname(__file__), '_extra', 'tutorials', 'production')
+try:
+    lesson_count = sum(
+        os.path.isdir(os.path.join(_tutorial_root, name))
+        for name in os.listdir(_tutorial_root)
+    )
+except OSError:
+    lesson_count = 73
+rst_epilog = (
+    f'\n.. |spacr-version| replace:: {release}\n'
+    f'.. |docs-channel| replace:: {docs_channel}\n'
+    f'.. |lesson-count| replace:: {lesson_count}\n'
+)
+
 # -- General configuration -------------------------------------------------
 extensions = [
     'sphinx.ext.napoleon',     # Google / NumPy / reST field lists
@@ -47,7 +66,8 @@ extensions = [
     'autoapi.extension',       # AST-walk based auto reference
 ]
 
-suppress_warnings = ['misc.section']
+suppress_warnings = ['misc.section', 'toc.not_included']
+exclude_patterns = ['_autoapi_templates/**']
 default_role = 'py:obj'
 
 intersphinx_mapping = {
@@ -75,12 +95,11 @@ autoapi_dirs              = [os.path.abspath(
 )]
 autoapi_root              = 'api'
 autoapi_add_toctree_entry = True
+autoapi_template_dir      = '_autoapi_templates'
 autoapi_options           = [
     'members',
-    'undoc-members',
     'show-inheritance',
     'show-module-summary',
-    'special-members',
 ]
 # Imported objects already have a canonical page in the module that defines
 # them. Re-emitting them under every importing module creates duplicate or
@@ -102,7 +121,7 @@ autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical i
 
 # -- HTML output — furo ----------------------------------------------------
 html_theme      = 'furo'
-html_title      = 'spaCR'
+html_title      = f'spaCR {release} documentation'
 html_logo       = '_static/logo_spacr.png'
 html_favicon    = '_static/logo_spacr.png'
 templates_path  = ['_templates']
@@ -187,8 +206,8 @@ html_theme_options = {
     'sidebar_hide_name': False,
     'navigation_with_keys': True,
     'source_repository':  'https://github.com/EinarOlafsson/spacr/',
-    'source_branch':      'main',
-    'source_directory':   'spacr/',
+    'source_branch':      _source_branch,
+    'source_directory':   'docs/source/',
     'footer_icons': [
         {
             'name': 'GitHub',
@@ -198,3 +217,16 @@ html_theme_options = {
         },
     ],
 }
+
+
+def _skip_implementation_data(app, what, name, obj, skip, options):
+    """Hide mutable module state while retaining documented constants."""
+    if what in {'data', 'attribute'}:
+        short_name = str(name).rsplit('.', 1)[-1]
+        if not short_name.isupper():
+            return True
+    return None
+
+
+def setup(app):
+    app.connect('autoapi-skip-member', _skip_implementation_data)
