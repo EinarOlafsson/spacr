@@ -1581,8 +1581,32 @@ def style_choices_for(name: str) -> tuple:
     return tuple(STYLE_CHOICES.get(name, ()))
 
 
+#: The value a transparent ground is stored as. matplotlib's own spelling:
+#: ``to_rgba("none")`` is ``(0, 0, 0, 0)``, and
+#: :func:`spacr.figure_style.rc_params` already forwards ``background``
+#: straight into ``figure.facecolor`` and ``axes.facecolor``, so this reaches
+#: every figure drawn through the house style without
+#: :mod:`spacr.figure_style` being touched -- it is another territory, and
+#: the vocabulary it needed turned out to be one it already had.
+TRANSPARENT_STYLE_GROUND = "none"
+
+#: Style keys whose control offers "Transparent" beside the colour.
+#:
+#: The maintainer's restatement of instruction 118, 2026-08-16: "figures
+#: should not have a background not black not white just transparent". A
+#: plain colour button cannot say that -- every colour it can return is
+#: opaque -- so the one key a transparent value MEANS anything for gets a
+#: checkbox as well. Not `foreground`: invisible text is not a style.
+TRANSPARENT_CAPABLE = ("background",)
+
+
 def _looks_like_a_colour(value) -> bool:
     return isinstance(value, str) and value.startswith("#")
+
+
+def _is_transparent_ground(value) -> bool:
+    """Whether a stored style value means "no ground at all"."""
+    return str(value).strip().lower() in ("none", "transparent", "")
 
 
 def style_setting_label(name: str) -> str:
@@ -1695,6 +1719,9 @@ class FigureStylePreferences(QWidget):
         remembers to add to the reset. Built together, they cannot disagree.
         """
         choices = style_choices_for(name)
+        if name in TRANSPARENT_CAPABLE and (_looks_like_a_colour(value)
+                                            or _is_transparent_ground(value)):
+            return self._ground_control(name, value)
         if isinstance(value, bool):
             box = QCheckBox()
             box.setChecked(bool(value))
@@ -1751,6 +1778,61 @@ class FigureStylePreferences(QWidget):
             return spin, spin.value, lambda v: spin.setValue(int(v))
         line = QLineEdit(str(value))
         return line, line.text, lambda v: line.setText(str(v))
+
+    def _ground_control(self, name: str, value):
+        """A colour button with a "Transparent" box beside it.
+
+        GREYED, NOT REMOVED (INVARIANTS 6): ticking Transparent disables the
+        colour button rather than hiding it, so the colour the user had is
+        still on screen and is still there when they untick. A control that
+        vanishes takes its value with it.
+        """
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        transparent = _is_transparent_ground(value)
+        holder = {"value": (self._general_defaults.get(name, "#FFFFFF")
+                            if transparent else str(value))}
+        button = _colour_button(
+            holder["value"], lambda chosen: holder.__setitem__("value", chosen))
+        box = QCheckBox("Transparent")
+        box.setToolTip(
+            "No background at all, so the figure takes the colour of "
+            "whatever it is placed on. What a figure for a manuscript "
+            "usually wants -- but check the text is still legible against "
+            "the page, because white text on a transparent ground is "
+            "invisible in a document.")
+        box.setChecked(transparent)
+        layout.addWidget(button, 1)
+        layout.addWidget(box)
+
+        def _paint_button(colour: str) -> None:
+            button.setText(str(colour))
+            qcolour = QColor(str(colour))
+            if qcolour.isValid():
+                ink = "#000" if qcolour.lightness() > 127 else "#fff"
+                button.setStyleSheet(f"background-color: {qcolour.name()}; "
+                                     f"color: {ink};")
+
+        def _sync(*_):
+            button.setEnabled(not box.isChecked())
+        box.toggled.connect(_sync)
+        _sync()
+
+        def _get():
+            return (TRANSPARENT_STYLE_GROUND if box.isChecked()
+                    else holder["value"])
+
+        def _set(new_value):
+            if _is_transparent_ground(new_value):
+                box.setChecked(True)
+            else:
+                box.setChecked(False)
+                holder["value"] = str(new_value)
+                _paint_button(str(new_value))
+            _sync()
+
+        return row, _get, _set
 
     # -- reading it back -----------------------------------------------------
 
