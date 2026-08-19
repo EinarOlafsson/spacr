@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-116 done / 40 open (74%).
+117 done / 40 open (74%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -141,8 +141,8 @@ OPEN
   158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
        158_an_unavailable_option_offers_to_make_itself_available.txt
 
-  160  TWO REGRESSIONS HUNG THE MACHINE
-       160_two_regressions_hung_the_machine.txt
+  166  RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
+       166_restyling_a_figure_while_a_run_draws_it.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -259,6 +259,7 @@ DONE
   151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
   159  LOADING A RUN HANGS THE APPLICATION
+  160  TWO REGRESSIONS HUNG THE MACHINE
   161  A REGRESSION THAT FAILS SAYS WHY
   162  THE MEASURE MODULE'S ELEMENTS CAN BE RESIZED
   163  A TIMER STARTED OFF THE GUI THREAD NEVER FIRES

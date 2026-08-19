@@ -1,0 +1,98 @@
+================================================================================
+TWO REGRESSIONS HUNG THE MACHINE
+================================================================================
+
+Status:    filed 2026-08-18. NOT REPRODUCED. One guard shipped; the cause is
+           still unknown and this file says so rather than guessing.
+Requested: 2026-08-18 -- "i ran one ols then a mixed regression model and this
+           hung my computer twice so i had to restart it"
+
+A HUNG MACHINE IS NOT A HUNG APPLICATION, and the difference decides where to
+look: a frozen window is 159, while a machine that stops responding is memory,
+a driver, or a runaway process count.
+
+WHAT IS KNOWN. None of it is a diagnosis.
+
+  * `mixed_gpu` allocated a DENSE `n x q` design with no size check. GUARDED
+    NOW (`design_bytes` / `available_memory` / a refusal naming both numbers),
+    because an over-large request on Linux is answered by the OOM killer rather
+    than by an exception -- it takes the session and everything else open.
+  * THE GUARD IS NOT THE FIX FOR THIS REPORT. The maintainer's own merge is
+    226,467 cells x 1,212 random effects = 2.2 GB, which FITS, and a test pins
+    that it is not refused. So the reported hang was something else.
+  * Four databases had just been merged, so a large frame was already live.
+  * OLS ran FIRST: both results tables, both diagnostic sets and both figure
+    sets were in memory when the second fit began.
+  * `ml.py` carries an `n_jobs=-1` (the xgboost path). Not on the regression
+    path, but worth ruling in or out with a process count rather than by eye.
+
+WHAT TO DO NEXT, in order:
+  1. LOG RSS AND GPU MEMORY PER FIT STAGE, into the run folder. The next report
+     then arrives with a number instead of a description, which is the whole
+     difference between this file and a fix.
+  2. Count child processes during a fit. A hang with the fans up and the
+     pointer dead is what unbounded process spawning looks like.
+  3. Only then decide. Instruction 114 asked for a parameter search that cannot
+     take the machine down; this is the same requirement for a single fit.
+
+HOW TO KNOW IT WORKED
+* An OLS followed by a mixed fit on the maintainer's own screen completes, with
+  peak RSS and GPU memory recorded in the run folder.
+* No sequence of fits available from the GUI can make the machine unresponsive.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- CLOSED. Reproduced, diagnosed and fixed. Not by guessing.
+--------------------------------------------------------------------------------
+
+THE CAUSE WAS NOT MEMORY. It was `plt.show()` on the worker thread.
+
+A regression runs on a JobRunner worker. `bridge` registers a matplotlib show
+capture for that worker's thread id and unregisters it in a `finally` when the
+run ends. Any `plt.show()` outside that window fell through to the REAL
+matplotlib show, which under the Qt backend calls `start_main_loop` -- a Qt
+event loop started on a worker thread. That is the `QBasicTimer::start` warning
+the maintainer pasted before every crash, and the process aborts with no Python
+traceback, which is why nothing in the logs ever named it.
+
+Caught by running the maintainer's own four-plate screen headlessly under
+`faulthandler.dump_traceback_later`, which printed the stack the crash never
+did:
+
+    matplotlib/backends/backend_qt.py  start_main_loop
+    matplotlib/pyplot.py               show
+    spacr/ml.py                        minimum_cell_simulation
+
+FIXED in d95e0edb: the show router drops an uncaptured show off the GUI thread
+instead of entering an event loop there, and `minimum_cell_simulation`
+publishes through `figure_sink` rather than calling `plt.show()` at all. The
+router closes the class for all 85 remaining `plt.show()` call sites, not just
+that one.
+
+THE MEASUREMENTS THIS FILE ASKED FOR, and what they say.
+
+`fit_resources` was recording two stages -- "placing the results folder" and
+"reading the counts" -- both BEFORE any fitting, and writing them only into a
+FAILURE report. So the peak recorded was the peak of the setup, in the one case
+where the machine had not hung. Four stage points now bracket the fit itself, a
+run that COMPLETES writes `fit_resources.txt` beside its results, and the GPU
+reading is `max_memory_allocated` rather than the live allocation -- the latter
+is taken at a stage boundary, after the fit has freed its tensors, and read back
+as 0.0 B for a fit that ran on the GPU.
+
+HOW TO KNOW IT WORKED -- run on the maintainer's four-plate screen, one process:
+
+    ols    137s   PEAK resident 1.9 GB    PEAK GPU 0.0 B
+    mixed   24s   PEAK resident 2.6 GB    PEAK GPU 142.1 MB
+    BOTH FITS COMPLETED IN ONE PROCESS
+
+2.6 GB out of 125 GB. THE SEQUENCE REPORTED HERE NEVER EXHAUSTED MEMORY, and
+the `mixed_gpu` size guard shipped earlier was, as this file already suspected,
+not the fix for this report.
+
+WHAT WAS ALSO TRUE AND IS NOT A BUG. `mixed` on the default statsmodels backend
+took 24 SECONDS on `regression_backend='torch'` and was still inside scipy's
+BFGS after thirty-two minutes on the same data -- silent throughout. A
+CPU-bound fit that prints nothing for half an hour is not distinguishable from
+a hung machine, and this report is what that looks like from the outside. The
+fit now announces its measured cost and names the one setting that removes it.
+The default is unchanged: statsmodels produced every existing result.
