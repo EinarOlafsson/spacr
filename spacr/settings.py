@@ -3943,7 +3943,7 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
-    'crop_source': "(str) - Where the training images come from. 'pre_generated' uses crops already on disk, filtered by path_string and file_type. 'on_demand' cuts them from merged/*.npy as training runs, using extract_channels and object_array (or coordinate_columns when the objects come from a database). 'generate' writes a full crop set first, then trains on it. The settings that do not apply to the chosen source are greyed. Default 'pre_generated'.",
+    'crop_source': "(str) - Where the pictures come from. 'png' is LOAD IMAGES: the crops already written under data/, and the default everywhere a picture is shown. 'merged' is STREAM IMAGES: cut from merged/*.npy as it goes, needing the merged folder and the database. If the chosen one's folder is absent the other is used and the run says so. 'auto' is still read and means 'whichever is present' -- it answers what is AVAILABLE rather than which you want, so no panel offers it. For TRAINING the same setting also accepts the older 'pre_generated' / 'on_demand' / 'generate' spelling: 'pre_generated' uses crops already on disk. 'pre_generated' uses crops already on disk, filtered by path_string and file_type. 'on_demand' cuts them from merged/*.npy as training runs, using extract_channels and object_array (or coordinate_columns when the objects come from a database). 'generate' writes a full crop set first, then trains on it. The settings that do not apply to the chosen source are greyed. Default 'pre_generated'.",
     'extract_channels': "(list) - On-demand crops: which planes of merged/*.npy are INTENSITY channels, in the order they become image channels. Default [0, 1, 2].",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",
@@ -5234,7 +5234,19 @@ def set_annotate_default_settings(settings):
     # 'auto' uses the PNG crop folder when one exists and falls back to
     # cutting crops out of merged/*.npy on demand; 'png' and 'merged'
     # force one source. See spacr.crops.resolve_crop_source.
-    settings.setdefault('crop_source', 'auto')
+    # LOAD IMAGES BY DEFAULT, BY NAME (instructions 170 and 171).
+    #
+    # This shipped 'auto', which takes the PNG folder whenever one exists --
+    # the right answer for the wrong reason, and unaskable when a user wants
+    # the other. Asked 2026-08-19: "in the annotation app how do i choose to
+    # stream images from database or dataset". The answer was that you did
+    # not: the setting was here and the choice was never offered.
+    #
+    # 'png' IS "load images" and 'merged' is "stream images". The stored value
+    # does not change, so no settings file already on disk changes meaning,
+    # and `resolve_crop_source` falls back to the other route when this one's
+    # folder is absent -- saying so in its reason.
+    settings.setdefault('crop_source', 'png')
     # Active-learning queue (spacr.active_learning). Off by default: it
     # needs model scores in png_list, which only exist after Classify (CV).
     settings.setdefault('queue_by_uncertainty', False)
