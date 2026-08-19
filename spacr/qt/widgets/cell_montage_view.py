@@ -92,7 +92,8 @@ import numpy as np
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
-    QComboBox, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout, QLabel,
+    QComboBox, QDialog, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
+    QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSizePolicy,
     QSpinBox, QSplitter, QTabBar, QTabWidget, QVBoxLayout, QWidget,
 )
@@ -101,6 +102,8 @@ from PySide6.QtWidgets import (
 # re-declaring their defaults. `spacr.cell_montage` costs numpy and pandas and
 # nothing else -- crops and io are lazy inside it -- so this is not the torch
 # import the module docstring is careful about.
+from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
+                      STREAM_IMAGES_LABEL, picture_source_label)
 from ...cell_montage import (                                   # noqa: E402
     DEFAULT_SCORE_COLUMN, MAX_OBJECTS, WINDOW_HALF_WIDTHS,
 )
@@ -147,10 +150,21 @@ OBJECT_CHOICES: Tuple[str, ...] = ("cell", "nucleus", "pathogen", "cytoplasm")
 #: :func:`spacr.crops.resolve_crop_source`'s own ``auto``, which prefers the
 #: exported PNGs when they exist -- and the timing table in this module's
 #: docstring is the second reason that preference is right.
+#: THE TWO MODES, IN THE WORDS THE USER GAVE THEM (instruction 171).
+#:
+#: 'automatic' is gone from the panel and NOT from the code: it is still the
+#: answer to "what is available here", which
+#: :func:`spacr.cell_montage.resolve_montage_crop_source` computes, and it
+#: stops being an answer offered to somebody who was asked which mode they
+#: want. "the default should always be loade images which loades from data
+#: folder. if that fails it should always try the other."
+#:
+#: The stored values are unchanged -- 'png' and 'merged' -- so a saved
+#: montage setting means today what it meant yesterday. An empty string, the
+#: old 'automatic', still loads and resolves to LOAD IMAGES.
 SOURCE_CHOICES: Tuple[Tuple[str, str], ...] = (
-    ("", "automatic — exported PNGs if they exist, else merged/"),
-    ("png", "exported PNGs only"),
-    ("merged", "cut from merged/*.npy only"),
+    (LOAD_IMAGES, f"{LOAD_IMAGES_LABEL} — the crops already in data/"),
+    (STREAM_IMAGES, f"{STREAM_IMAGES_LABEL} — cut from merged/*.npy as it goes"),
 )
 
 #: The crop's SHAPE, as the user may choose it. ``'object'`` follows the
@@ -1185,7 +1199,19 @@ class CellMontageView(QWidget):
         for value, label in SOURCE_CHOICES:
             self._source.addItem(label, value)
         self._source.currentIndexChanged.connect(self._on_settings_changed)
+        self._source.currentIndexChanged.connect(self._on_mode_changed)
         controls.addWidget(self._source)
+
+        # THE ANNOTATOR'S CONTROL OVER THE PICTURE (instruction 170 B).
+        self._picture_settings: dict = {}
+        self._picture_button = QPushButton("Picture settings…")
+        self._picture_button.setToolTip(
+            "How the cells are drawn: channels, size, normalisation, "
+            "outlines. The same settings the annotation application offers, "
+            "under the same names. What the chosen mode cannot use is greyed "
+            "with the reason rather than hidden.")
+        self._picture_button.clicked.connect(self.edit_picture_settings)
+        controls.addWidget(self._picture_button)
 
         self._per_guide = QComboBox()
         self._per_guide.addItem("guides summed", False)
@@ -1657,6 +1683,45 @@ class CellMontageView(QWidget):
     def caption_text(self) -> str:
         """Every caption now on screen, exactly as the figure would carry it."""
         return self._caption.toPlainText()
+
+    # ------------------------------------------------------- picture settings
+
+    def picture_mode(self) -> str:
+        """The mode the user chose, as a stored crop-source value."""
+        return str(self._source.currentData() or LOAD_IMAGES)
+
+    def picture_settings(self) -> dict:
+        """How the cells are drawn. The annotator's keys, the annotator's
+        defaults, and whatever the user has changed."""
+        from ..widgets.picture_settings_dialog import picture_defaults
+
+        out = dict(picture_defaults())
+        out.update(self._picture_settings)
+        out["crop_source"] = self.picture_mode()
+        return out
+
+    def edit_picture_settings(self) -> bool:
+        """Open the settings window. Returns whether anything was changed."""
+        from ..widgets.picture_settings_dialog import PictureSettingsDialog
+
+        dialog = PictureSettingsDialog(values=self._picture_settings,
+                                       mode=self.picture_mode(), parent=self)
+        if dialog.exec() != QDialog.Accepted:
+            return False
+        # EVERY key, not only the ones this mode uses: a user who set a
+        # streaming setting, switched to load images and switched back must
+        # find it where they left it.
+        self._picture_settings = dialog.values()
+        self._on_settings_changed()
+        return True
+
+    def _on_mode_changed(self, *_args) -> None:
+        """Say which mode is in force, so a fallback is never silent."""
+        label = picture_source_label(self.picture_mode())
+        try:
+            self._status.setText(f"Images: {label}.")
+        except Exception:                                    # noqa: BLE001
+            pass
 
     def save(self, path: Optional[str] = None) -> Optional[str]:
         """Write the montage as a figure, honouring the format preference.
