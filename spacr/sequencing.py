@@ -1005,6 +1005,31 @@ def barecodes_reverse_complement(csv_file):
 
     print(f"Reverse complement file saved as {new_filename}")
 
+def _resolve_column(df, wanted):
+    """The frame's own spelling of ``wanted``.
+
+    :raises ValueError: when no column matches, naming what the frame HAS --
+        a KeyError four frames down says only the name that was asked for,
+        which is the one piece of information the user already had.
+    """
+    name = str(wanted or "").strip()
+    if not name:
+        raise ValueError(
+            "No filter_column is set, so the control wells cannot be removed. "
+            f"The counts hold {list(df.columns)[:12]}.")
+    if name in df.columns:
+        return name
+    folded = {str(c).strip().lower(): c for c in df.columns}
+    if name.lower() in folded:
+        return folded[name.lower()]
+    raise ValueError(
+        f"filter_column={name!r} is not a column of the count data, which "
+        f"holds {list(df.columns)[:12]}. spaCR renames headers to its own "
+        f"vocabulary on read (plate_name -> plateID, col -> columnID), so a "
+        f"settings file written against the original headers can name a "
+        f"column that no longer exists under that spelling.")
+
+
 def graph_sequencing_stats(settings):
     """Pick the fraction cutoff that yields a target mean of unique gRNAs per well.
 
@@ -1131,8 +1156,18 @@ def graph_sequencing_stats(settings):
 
     df = correct_metadata_column_names(df)
 
+    # THE SETTING IS CANONICALISED TOO, NOT ONLY THE FRAME. The line above
+    # renames the frame's headers to spaCR's vocabulary, and
+    # `settings['filter_column']` is the user's own spelling of one of them --
+    # so a settings CSV saying `ColumnID` indexed a frame holding `columnID`
+    # and every run died with `KeyError: 'ColumnID'`, four frames deep, after
+    # the counts had already been read. Found in ~/.spacr/logs/spacr.log.
+    #
+    # Instruction 145's rule is one vocabulary; applying it to the data and not
+    # to the setting that indexes the data is half a rule.
+    filter_column = _resolve_column(df, settings.get('filter_column'))
     for c in settings['control_wells']:
-        df = df[df[settings['filter_column']] != c]
+        df = df[df[filter_column] != c]
 
     dst = os.path.dirname(settings['count_data'][0])
 
