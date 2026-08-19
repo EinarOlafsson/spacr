@@ -214,3 +214,155 @@ HOW TO KNOW IT WORKED
 * The same control serves the regression backends and the Image UMAP.
 * The API docs carry a working recipe for pymer4-with-R, for cuML, and for
   numpyro/gpytorch, each saying what it costs and what differs.
+
+
+================================================================================
+2026-08-18 -- BUILT. The row is dead, the panel does the talking, and the
+install has three answers.
+================================================================================
+
+WHAT SHIPPED, and where.
+
+  spacr/qt/widgets/availability_panel.py   NEW. The one shared control.
+      `AvailabilityPanel`  the frameless tooltip-styled popup: a title, the
+                           explanation, then **API** and the install word to
+                           its RIGHT, both `QLabel`s with
+                           `Qt.TextBrowserInteraction` whose `linkActivated`
+                           routes "api" and "install" -- the route measured in
+                           this file, not `QToolTip`, which cannot carry a
+                           link.
+      `disable_combo_row`  setEnabled(False) AND clears `ItemIsSelectable`,
+                           and keeps the tooltip.
+      `run_install_offer`  the three answers.
+      `explain`            the two-line form for a caller with one control.
+  spacr/updater.py         the Qt-free half: `dry_run_install`,
+                           `install_decision`, `InstallOffer`,
+                           `install_requirement_command`,
+                           `run_install_command`, `PROTECTED_PACKAGES`.
+  spacr/regression_backends.py  `backend_install_offer`, `availability_entry`,
+                           `INSTALL_RECIPES`, `BACKEND_REQUIREMENTS`,
+                           `install_recipe`, `describe_install_recipes`, and
+                           section D written into the MODULE DOCSTRING.
+  spacr/gpu_reduce.py      `install_offer`, `availability_entry` -- the same
+                           shape, so one panel serves both callers.
+  spacr/qt/screens/settings_model.py  `_RegressionBackendField` wired: greying
+                           now goes through `disable_combo_row`, and three
+                           routes reach the panel.
+
+THREE MEASUREMENTS, TWO OF THEM CONFIRMING THIS FILE AND ONE CORRECTING A BUG
+IT WOULD HAVE CAUSED.
+
+  1. CONFIRMED. `QStandardItem.setEnabled(False)` leaves `ItemIsSelectable`
+     SET; clearing it works; the tooltip survives both. Kept as
+     `test_setEnabled_alone_leaves_the_row_selectable`, so nobody discovers
+     the hole a third time. Also measured and worth having: Qt's own keyboard
+     navigation SKIPS the disabled row (Down from 0 lands on 2), so the
+     remaining door was the model-level one this file named.
+
+  2. CONFIRMED, on the real resolver. `pip install --dry-run --report -
+     cuml-cu12` in the default env reports exactly what section B says:
+     numpy 1.26.4 -> 2.2.6, numba 0.62.1 -> 0.61.2, llvmlite 0.45.1 -> 0.44.0,
+     eight nvidia-cu12 runtime libraries moved, 24 packages added. The
+     protected-package refusal fires on it.
+
+  3. FOUND AND FIXED WHILE MEASURING IT. `--report -` writes the JSON to
+     STDOUT with pip's own progress BEFORE it and a "Would install ..." line
+     AFTER it. `json.loads` on the stream therefore raises on trailing data,
+     and the first implementation reported "the packaging tool produced no
+     readable plan" for a resolve that had SUCCEEDED -- which routes to the
+     refusal branch, so every install would have been unreachable and the
+     reason would have looked like a network problem. `json.JSONDecoder.
+     raw_decode` at the first `{` is the fix;
+     `test_the_pip_report_is_found_between_pips_own_chatter` is the guard.
+
+DESIGN CHOICES MADE HERE, one line each.
+
+  * THE POPUP IS CLOSED WHEN THE POINTER LEAVES IT. A `QComboBox` popup is a
+    `Qt.Popup` with an active mouse grab; with it still open the first press
+    on the panel is eaten by the grab, so Install would need two clicks and
+    the first would look inert. Leaving the popup viewport while the panel is
+    up calls `hidePopup()`, and the panel keeps the pointer.
+  * THE KEYBOARD ROUTE IS Shift+F1 ON THE COMBO -- Qt's own "explain this
+    control" chord, on the widget that IS focusable, since the rows are not.
+    It opens the panel pinned and focused; Up/Down cycle the unavailable
+    entries; Escape closes and hands focus back. A pinned panel ignores the
+    hover timer, because a reader who is not holding the mouse must not have
+    it taken away.
+  * THE GAP IS A CORRIDOR. The hide is a timer, cancelled on entry, and while
+    it is pending the cursor is tested against the union of the anchor's
+    rectangle and the panel's -- so travelling through the gap re-arms the
+    timer. Bounded by `CORRIDOR_GRACE_MS`, so a pointer parked in the corridor
+    still lets it go.
+  * THE ENVIRONMENT IS ASKED BEFORE spaCR's OWN WIRING. "cuML needs Python
+    3.11 and this is 3.10" is something a user can act on; "spaCR routes no
+    fit through it yet" is not, and saying that instead would hide the half
+    they could have acted on.
+  * THE RESOLVER IS NOT HANDED THE PROSE. `REGRESSION_BACKENDS['pymer4']
+    ['pip']` reads "pip install pymer4  (plus R, rpy2, lme4)", which is four
+    requirements and a syntax error to pip. `BACKEND_REQUIREMENTS` is the
+    machine-readable copy.
+  * THE DRY RUN RUNS OFF THE GUI THREAD behind a cancellable progress dialog.
+    Against cuml-cu12 it took minutes here, and a frozen window during "I
+    pressed Install" is indistinguishable from a crash. Cancelling returns a
+    DryRun that did not answer, which `install_decision` refuses.
+  * SECTION D IS IN THE MODULE DOCSTRING as well as in `INSTALL_RECIPES`,
+    because `docs/source/api` is built by sphinx-autoapi, which publishes a
+    module docstring verbatim and renders a dict as a truncated repr -- a
+    recipe living only in the dict would be in the GUI and not in the docs.
+    `test_the_module_docstring_carries_every_command_the_gui_shows` is what
+    stops the two copies drifting.
+
+HOW TO KNOW IT WORKED, against the list at the top of this file.
+
+  * Every backend visible, greyed when unavailable, reason ON the entry --
+    `test_every_greyed_row_is_unselectable_not_merely_disabled`,
+    `test_a_greyed_row_keeps_the_tooltip_the_panel_is_hung_off`.
+  * A greyed entry that CAN be satisfied here shows the dry run first and
+    installs on confirmation -- `test_the_dry_run_report_is_shown_before_the_
+    install`.
+  * cuML on Python 3.10 explains the environment and RUNS NOTHING --
+    `test_cuml_on_this_interpreter_is_answered_elsewhere_and_runs_nothing`,
+    `test_an_offer_that_cannot_install_here_runs_nothing`.
+  * numpy/torch/pandas/scikit-learn refused by default, second confirmation
+    NAMES what moves -- `test_a_protected_move_takes_two_confirmations_and_
+    names_what_moves`, `test_every_protected_package_triggers_the_second_
+    confirmation`.
+  * One control for both -- `test_one_panel_serves_both_callers`,
+    `test_the_image_umap_and_the_backend_picker_share_one_vocabulary`.
+  * The recipes -- `test_the_pymer4_recipe_is_the_real_one_in_order`,
+    `test_the_cuml_recipe_names_the_environment_and_what_it_costs`,
+    `test_the_sampler_recipes_say_different_answer_before_they_say_install`.
+
+101 tests across three files, all green:
+    tests/test_an_unavailable_option_offers_to_install_itself.py   (33)
+    tests/qt/test_the_greyed_row_explains_itself.py                (36)
+    tests/qt/test_the_backend_row_offers_to_install_itself.py      (15)
+  plus 17 in the adjacent suites re-run unchanged. The panel was also
+  RENDERED and read back -- `test_the_panel_paints_its_own_surface_and_not_
+  the_black_slab` counts pixels, because a separate top-level window does not
+  reliably get the application stylesheet and `HoverTooltip` learned that as a
+  black slab.
+
+WHAT REMAINS, and it is one wire in someone else's file.
+
+  * THE IMAGE UMAP'S GPU TOGGLE IS NOT YET ROUTED THROUGH THE PANEL.
+    `spacr/gpu_reduce.availability_entry()` is built and tested and the panel
+    takes it (`test_one_panel_serves_both_callers`), but the control that
+    would call it lives in `spacr/qt/screens/hyperparam.py::request_gpu_
+    enabled`, which is not this territory. The change is two lines --
+
+        from ..widgets.availability_panel import explain
+        from ...gpu_reduce import availability_entry
+        explain(self._gpu_action, [availability_entry()], parent=self)
+
+    -- replacing the `QMessageBox.information` / `QMessageBox.question` pair
+    there. Doing so also gets that path the dry run and the protected-package
+    refusal, which its current `subprocess.run(install_command())` does NOT
+    have: today pressing GPU on a 3.11 machine installs `spacr[rapids]` with
+    no report of what moves.
+  * `tests/qt/test_the_backend_box_is_on_screen.py::test_the_permutation_
+    resolution_reaches_the_setting_on_screen` IS RED AT HEAD and not from this
+    work: the concurrent tooltip rewrite dropped "(exceedances + 1) /
+    (permutations + 1)" from `spacr/settings.py`'s `guide_permutations` entry,
+    which is the string that test reads. Whoever owns that rewrite should
+    either keep the formula or update the test.
