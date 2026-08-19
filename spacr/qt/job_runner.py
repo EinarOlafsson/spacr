@@ -38,6 +38,7 @@ caller doing anything.
 from __future__ import annotations
 
 import logging
+import weakref
 from typing import Any, Callable, Dict, Optional, Tuple
 
 from PySide6.QtCore import QObject, Signal
@@ -58,6 +59,36 @@ def _capture(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
     touches nothing but ``payload``.
     """
     payload["result"] = fn()
+
+
+#: Every JobRunner alive in this process. Weak, so a runner whose widget has
+#: gone leaves no entry behind.
+#:
+#: WHY A REGISTRY. Qt ABORTS THE PROCESS if a running QThread is destroyed --
+#: no Python exception, no traceback, nothing in the log. Each runner shuts
+#: down in its own widget's `closeEvent`, which covers a widget being closed
+#: and does NOT cover the application quitting with a job still in flight: the
+#: widget is never closed, it is destroyed. Measured 2026-08-19 as spaCR dying
+#: immediately after every successful regression, with "run closed [success]"
+#: as the last line in the log and nothing after it.
+_LIVE_RUNNERS: "weakref.WeakSet" = weakref.WeakSet()
+
+
+def shutdown_all(timeout_ms: int = 3000) -> int:
+    """Stop every live JobRunner. Returns how many were asked.
+
+    Call once on the way out, before Qt starts destroying widgets. Ordering
+    matters more than completeness here: a runner that cannot stop in time is
+    parked by `bridge.drain_thread` rather than terminated, so this is bounded.
+    """
+    asked = 0
+    for runner in list(_LIVE_RUNNERS):
+        try:
+            runner.shutdown(timeout_ms)
+            asked += 1
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not shut down a job runner", exc_info=True)
+    return asked
 
 
 class JobRunner(QObject):
@@ -92,6 +123,10 @@ class JobRunner(QObject):
                  threaded: bool = True, app_key: str = "",
                  user_visible: bool = True) -> None:
         super().__init__(parent)
+        # REGISTERED THE MOMENT IT EXISTS, so a runner cannot be created and
+        # then missed by the quit-time drain. Weak, so this holds nothing
+        # alive that Qt would otherwise collect.
+        _LIVE_RUNNERS.add(self)
         self._threaded = bool(threaded)
         self._app_key = app_key or "loading"
         self._user_visible = bool(user_visible)
