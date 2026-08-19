@@ -1,0 +1,36 @@
+================================================================================
+ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
+================================================================================
+
+Status:    filed AND closed 2026-08-19, diagnosed on the live process.
+Reported:  2026-08-19 -- "i merged the measurements and ran pathogen_area as a
+           regression but it looks like it is not running while it does say
+           that it is running ... do you see anything running?"
+
+IT WAS RUNNING. Measured on the process itself rather than guessed:
+
+    PID 489199, 28 minutes, 219% CPU
+    the regression worker thread alone at 82%
+    write_bytes  2,752,598,016   static
+    read_bytes           1.4 MB  static
+    files written in twelve minutes: none
+
+A process that has written 2.75 GB and is now burning CPU with ZERO disk I/O
+is re-reading that file out of the page cache. Four times: regression on a
+measurement column writes the merged frame to one CSV and points EVERY pair
+row's score at it, and `load_regression_input_pairs` parsed it once per row.
+
+FIXED: each distinct path is parsed once and handed out as a copy -- a copy
+because the caller assigns `plateID` onto what it gets and filters it down to
+one plate, so sharing the frame would let the first pair row's edits reach the
+second. Eight `read_table` calls become five on a four-plate screen.
+
+WHAT IS STILL OWED, and it is the larger half. The 2.75 GB intermediate is
+itself the cost: the frame is ALREADY IN MEMORY when it is written, and
+writing it took 160 seconds before anything read it back. Nothing requires
+that handoff to be a CSV. Fixing that properly is worth more than the caching
+and is not done.
+
+AND NOTHING SAYS SO WHILE IT HAPPENS. There is no log line between the merge
+finishing and the fit starting, which is why a working run looked dead.
+Instruction 140 asks for exactly this and does not cover this path.
