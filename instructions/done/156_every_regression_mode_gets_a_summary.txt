@@ -281,3 +281,39 @@ FINDINGS WORTH NOT REDISCOVERING
    during the run an ols fit shows the statsmodels text and the spaCR summary
    only appears after a reload. Making the live path prefer the file is a
    change in `regression_results.py`, which is not this territory.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+The remaining three items from the trailing note above are closed.
+
+THE NONPARAMETRIC PATH REACHES THE WRITER. The call was placed at the end of the
+parametric path and `perform_regression` returns from the guide_permutation
+branch long before it -- so the one mode with no statsmodels summary to fall
+back on was the one mode that wrote nothing, which is exactly the run that was
+reported. A second call sits inside that branch now, and a test asserts the
+ORDERING in the source rather than running a fit, because a permutation run
+needs a screen and what was wrong was an ordering.
+
+THE EXCLUSION COUNTS ARE RECORDED. `process_reads` computed what
+fraction_threshold removed and printed it; it now accumulates into a `record=`
+dict -- accumulates, because it runs once per plate -- which
+`_perform_regression` supplies as `settings['_regression_exclusions']` and the
+summary reads. On settings rather than on the frame, because a count has to
+survive joins that do not carry `.attrs`.
+
+THE ADMISSION IS KEPT for runs predating the recorder, and a test holds that it
+is never replaced by a zero: "no row was dropped" and "nobody counted" are
+opposite findings, and spelling the second as the first would understate what
+the fit was given.
+
+VERIFIED END TO END for the mixed case that prompted the report: a real MixedLM
+fit through `write_run_summary` produces `model_summary.txt`,
+`find_summary_file` locates it, and `summary_text(model=None, path=folder)`
+returns the run's own summary rather than "No summary".
+
+STILL TRUE, and recorded rather than hidden: a LIVE run's Summary tab renders
+`model.summary()` directly, so during the run an ols fit shows the statsmodels
+text and the spaCR summary appears when the run is re-opened from disk. Both are
+the run's own summary; they are not the same text.
