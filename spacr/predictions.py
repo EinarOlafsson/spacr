@@ -828,6 +828,59 @@ def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]
 # the two callers
 # ---------------------------------------------------------------------------
 
+
+def attach_predictions(objects, results, *,
+                       score_source: str = "pred",
+                       class_source: str = "cv_predictions",
+                       score_col: str = CV_SCORE_COLUMN,
+                       class_col: str = CV_CLASS_COLUMN,
+                       timelapse: bool = False):
+    """Join prediction columns onto an object frame IN MEMORY.
+
+    THE SAME JOIN AS :func:`merge_prediction_results`, AND NOTHING WRITTEN.
+    `_choose_key` picks the key by MEASURING which one lands on the most rows,
+    so a montage reading scores out of a score CSV and a database that had the
+    same CSV merged into it cannot disagree about which object got which
+    number -- which two separate join implementations eventually would.
+
+    WHY THIS EXISTS. `load_montage_objects` refused a screen whose `png_list`
+    has no `pred` column and told the user to "Run Classify and merge its
+    predictions into the database first". On the maintainer's screen the
+    scores were not missing at all: they were in the score CSVs the regression
+    module already had loaded, one row per cell, and the fit had been run on
+    exactly those numbers. Instruction 167.
+
+    :param objects: the per-object frame, e.g. `png_list` read back.
+    :param results: the score table -- `path`, `pred`, `cv_predictions`, as
+        `process_vision_results` and the regression module's score CSVs carry.
+    :returns: ``(frame, matched)`` -- a COPY of ``objects`` with the score and
+        class columns added where they joined, and how many rows matched.
+        ``matched`` is 0 when nothing lined up, and the frame comes back
+        without the columns, so a caller can refuse with a real number.
+    """
+    if objects is None or results is None or not len(objects) or not len(results):
+        return objects, 0
+    try:
+        kind, result_keys, db_keys = _choose_key(results, objects, timelapse)
+    except ValueError:
+        return objects, 0
+
+    out = objects.copy()
+    wanted = {score_col: score_source, class_col: class_source}
+    matched = 0
+    for target, source in wanted.items():
+        if source not in getattr(results, "columns", ()):
+            continue
+        lookup = dict(zip(result_keys, results[source]))
+        joined = db_keys.map(lambda key: lookup.get(key))
+        found = int(joined.notna().sum())
+        if not found:
+            continue
+        out[target] = joined
+        matched = max(matched, found)
+    return (out, matched) if matched else (objects, 0)
+
+
 def merge_cv_predictions(df, db_path, table: str = PNG_TABLE,
                          score_col: str = CV_SCORE_COLUMN,
                          class_col: str = CV_CLASS_COLUMN,

@@ -1419,10 +1419,41 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
     return merged[keep].copy()
 
 
+
+def _read_scores(scores: Any):
+    """Whatever a caller offered as scores, as one frame or ``None``.
+
+    A frame, a path, or several paths -- a regression is paired per plate, so
+    the score side is a list as often as it is one file, and a caller should
+    not have to concatenate before asking.
+    """
+    if scores is None:
+        return None
+    if hasattr(scores, "columns"):
+        return scores if len(scores) else None
+    paths = [scores] if isinstance(scores, (str, os.PathLike)) else list(scores)
+    frames = []
+    for path in paths:
+        try:
+            text = os.fspath(path)
+        except TypeError:
+            continue
+        if not text or not os.path.isfile(text):
+            continue
+        try:
+            frames.append(pd.read_csv(text))
+        except Exception:                                        # noqa: BLE001
+            continue
+    if not frames:
+        return None
+    return pd.concat(frames, ignore_index=True, sort=False)
+
+
 def load_montage_objects(db_path: str, *, object_type: str = "cell",
                          score_column: str = "pred",
                          table: str = "png_list",
                          src: Optional[str] = None,
+                         scores: Any = None,
                          verbose: bool = False) -> pd.DataFrame:
     """Return the per-object rows a montage selects from, out of one database.
 
@@ -1445,6 +1476,10 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
         somewhere else -- carries 60,000 paths that no longer exist while
         every file is present; see :mod:`spacr.portable_paths`. Only paths
         that resolve to a file that EXISTS are rewritten.
+    :param scores: where the per-object classification scores are, when the
+        database has none: a frame, a path, or several paths -- the score CSVs
+        the run was fitted on. Used ONLY when `png_list` carries no score
+        column, and never written back. See instruction 167.
     :param verbose: let the io join report the rows it could not place.
     :returns: the object frame, with ``prc`` composed when the well keys are
         there.
@@ -1465,11 +1500,35 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
             "there are no per-object crops to show.") from exc
     finally:
         conn.close()
+    if score_column not in frame.columns and scores is not None:
+        # THE SCORES THE RUN ALREADY HAS (instruction 167). A screen whose
+        # png_list has no `pred` is not a screen without scores: the score
+        # CSVs the regression module is holding carry one row per cell, and
+        # the fit was run on exactly those numbers. Joined through
+        # `predictions.attach_predictions`, which is the SAME key choice
+        # `merge_prediction_results` makes, so a montage reading them here and
+        # a database that had them merged in cannot disagree.
+        #
+        # NOTHING IS WRITTEN. A montage is a read, which is the same rule the
+        # crop-path re-rooting follows.
+        from .predictions import attach_predictions
+
+        table_of_scores = _read_scores(scores)
+        if table_of_scores is not None:
+            frame, matched = attach_predictions(frame, table_of_scores)
+            if matched and verbose:
+                print(f"Took {matched:,} score(s) from the loaded score "
+                      f"table; {db_path} was not modified.")
+
     if score_column not in frame.columns:
+        looked = (" The loaded score table has no column that joins to it "
+                  "either." if scores is not None else
+                  " No score table was offered alongside it.")
         raise MissingScores(
             f"{table!r} in {db_path} has no {score_column!r} column, so no "
-            "object carries a classification score. Run Classify and merge "
-            "its predictions into the database first.")
+            f"object carries a classification score.{looked} Either load the "
+            "score CSVs this screen was fitted on, or run Classify and merge "
+            "its predictions into the database.")
     _finite_scores(frame, score_column)
 
     from .io import crop_rows_from_png_list

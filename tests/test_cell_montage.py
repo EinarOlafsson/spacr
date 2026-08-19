@@ -742,8 +742,15 @@ def test_a_database_without_classification_scores_says_so(tmp_path):
                  "columnID TEXT, fieldID TEXT, cell_id TEXT, png_path TEXT)")
     conn.commit()
     conn.close()
-    with pytest.raises(MissingScores, match="Run Classify"):
+    # The refusal now offers BOTH routes (instruction 167): the scores may be
+    # in the score CSVs the run was fitted on, and telling a user to go and
+    # produce something they already have loaded was the reported fault.
+    with pytest.raises(MissingScores) as raised:
         load_montage_objects(db_path)
+
+    message = str(raised.value)
+    assert "run Classify" in message
+    assert "load the score CSVs" in message
 
 
 def test_a_database_that_is_not_there_is_not_a_traceback(tmp_path):
