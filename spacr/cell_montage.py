@@ -1500,6 +1500,36 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
             "there are no per-object crops to show.") from exc
     finally:
         conn.close()
+    # CANONICALISE FIRST, the way every other reader in spaCR does -- and the
+    # way `fractions_from_counts` was taught to earlier the same day, for the
+    # same reason and by the same failure. Instruction 145.
+    #
+    # Measured on the maintainer's four plates, `png_list`:
+    #
+    #     plate1  rowID / columnID   and plateID = 'pplate1'
+    #     plate2  row_name / column_name
+    #     plate3  row_name / column_name
+    #     plate4  row_name / column_name
+    #
+    # So plates 2-4 could not compose a `prc` at all, and plate1 composed one
+    # against a doubled plate name that matches nothing in the counts. Every
+    # well then reported "no object in the imported databases comes from this
+    # well" and the montage drew nothing, while the baseline was happily
+    # computed over all 226,467 objects -- which is what made it look like a
+    # selection problem rather than a join one.
+    try:
+        from .utils import correct_metadata_column_names
+
+        frame = correct_metadata_column_names(frame)
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        from .multi_database import normalise_plate_ids
+
+        frame = normalise_plate_ids(frame)
+    except Exception:                                            # noqa: BLE001
+        pass
+
     if score_column not in frame.columns and scores is not None:
         # THE SCORES THE RUN ALREADY HAS (instruction 167). A screen whose
         # png_list has no `pred` is not a screen without scores: the score

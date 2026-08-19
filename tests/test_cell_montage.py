@@ -795,7 +795,13 @@ def test_the_source_says_which_of_the_two_it_picked(tmp_path):
     root, _db = _screen(tmp_path, with_png=True)
     png = resolve_montage_crop_source(root)
     assert png.available and png.kind == "png"
-    assert "PNG" in png.reason
+    # The reason now names the ROUTE in the words a user sees (171): "load
+    # images" for the crops already on disk, "stream images" for cutting from
+    # merged/. It still says which of the two was picked, which is what this
+    # test is for.
+    from spacr.crops import LOAD_IMAGES_LABEL
+
+    assert LOAD_IMAGES_LABEL in png.reason
     merged = resolve_montage_crop_source(root, prefer="merged")
     assert merged.kind == "merged"
     assert "png crop source" in png.describe()
