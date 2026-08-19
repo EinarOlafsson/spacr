@@ -213,6 +213,12 @@ def test_the_undo_is_spent_on_the_announcement_it_answers(qtbot, tmp_path):
         tmp_path, "ols_2", 5, 2))
     panel.update_run(second, status="ok")
 
+    # THE LOAD REPORTED SUCCESS, which is what spends the undo since the read
+    # moved to a worker (instruction 159). Before that it was spent when the
+    # announcement returned -- the same moment, while the listener read the run
+    # synchronously, and the wrong moment once the answer arrives later.
+    panel.the_load_succeeded()
+
     assert panel.the_load_failed("late") is False
 
     assert panel.loaded_run()["run"] == "run B"
@@ -282,10 +288,50 @@ def screen(qtbot):
     return widget
 
 
+def _settle(screen, timeout: float = 30.0) -> None:
+    """Wait for an asynchronous run load to finish.
+
+    Since instruction 159 the results panel reads a run on a worker, so the
+    coefficients are not on screen when the call that started the read
+    returns. Every assertion about WHAT is up has to come after this.
+    """
+    import time
+
+    from PySide6.QtWidgets import QApplication
+
+    panel = screen._results_panel
+    loading = getattr(panel, "is_loading", lambda: False)
+
+    def unsettled():
+        # BOTH conditions. `is_loading` goes False when the WORKER finishes,
+        # and the screen's own half -- the figures, and the rollback of the
+        # loaded mark when the read failed -- runs afterwards on a queued
+        # signal. Waiting on the worker alone returns before the rollback has
+        # been dispatched, which is how a failed load looked like a successful
+        # one for exactly one processEvents.
+        return loading() or getattr(screen, "_pending_trial", None) is not None
+
+    deadline = time.monotonic() + timeout
+    while unsettled() and time.monotonic() < deadline:
+        QApplication.processEvents()
+        time.sleep(0.01)
+    QApplication.processEvents()
+    assert not unsettled(), "the run was still settling when the wait expired"
+
+
 def _finish(screen, label, folder):
-    """Start a run and let it finish, the way the screen does it."""
+    """Start a run and let it finish, the way the screen does it.
+
+    AND WAIT FOR THE READ. Since instruction 159 the results panel loads a run
+    on a worker, so the coefficients are not on screen when `update_run`
+    returns -- the answer arrives through `load_finished`. Waiting here rather
+    than in each test keeps every assertion about WHAT is on screen instead of
+    about when: a test that polled the frame itself would pass on the previous
+    run's table while the new one was still being read.
+    """
     handle = screen._sweep_runs.record_run(label, folder=folder)
     screen._sweep_runs.update_run(handle, status="ok")
+    _settle(screen)
     return handle
 
 
@@ -339,7 +385,14 @@ def test_the_run_already_on_screen_is_not_re_read(screen, tmp_path, monkeypatch)
     _finish(screen, "ols", folder)
 
     assert loads == []
-    assert screen._results_tabs.currentWidget() is panel
+    # THE PANEL IS INSIDE A SPLITTER since 7486d492 put two runs on screen at
+    # once, so the tab's current widget is that splitter and not the panel.
+    # Asserting the panel is REACHABLE from the current tab keeps what this
+    # line was for -- the results tab is the one showing -- without pinning the
+    # widget tree, which is what broke when the second run arrived.
+    current = screen._results_tabs.currentWidget()
+    assert current is panel or panel in current.findChildren(type(panel)), (
+        f"the results panel is not on the current tab ({current!r})")
 
 
 def test_the_montage_gets_the_folder_of_a_run_made_in_the_application(
@@ -368,6 +421,7 @@ def test_the_screen_follows_the_loaded_run_signal(screen, tmp_path):
 
     screen._sweep_runs.loaded_run_changed.emit(
         {"run": "ols", "status": "ok", "folder": folder})
+    _settle(screen)
 
     frame = screen._results_panel.results_frame()
     assert frame is not None and len(frame) == 42

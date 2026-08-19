@@ -4600,6 +4600,12 @@ class AppScreen(QWidget):
             self._the_run_did_not_open(
                 f"{trial} has no saved results on disk.")
             return
+        # THE LOAD REPORTED SUCCESS, so the undo it was holding is spent. A
+        # refusal arriving after this is answering an announcement that is over
+        # (instruction 159, and 157's rule about the mark).
+        runs = getattr(self, "_sweep_runs", None)
+        if runs is not None and hasattr(runs, "the_load_succeeded"):
+            runs.the_load_succeeded()
         # Its figures too, so the grid on the right is that trial's and not
         # whatever the last run left there.
         if not self._load_trial_figures(str(folder)):
