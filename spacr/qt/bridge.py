@@ -786,6 +786,30 @@ def prune_job_pairs(pairs, finished=None) -> List[tuple]:
     return kept
 
 
+def emit_safely(signal, *args) -> bool:
+    """Emit ``signal``, tolerating a receiver whose C++ half is already gone.
+
+    A ``QThread.run`` override runs while its own widget may be torn down
+    underneath it, and a signal emitted at a destroyed C++ object raises
+    ``RuntimeError: Internal C++ object already deleted``. Raised inside
+    ``run``, that exception escapes a virtual override: PySide6 prints
+    "Error calling Python override of QThread::run()" and the process
+    ABORTS. It was caught doing exactly that in the full suite on
+    2026-08-19, with the worker mid-``PIL.Image.resize``.
+
+    Nothing is lost by swallowing it -- the only thing the emit would do is
+    hand a result to a screen that no longer exists -- and the return value
+    lets a loop stop rather than go on working for nobody.
+
+    :returns: whether the signal was delivered.
+    """
+    try:
+        signal.emit(*args)
+        return True
+    except RuntimeError:
+        return False
+
+
 def drain_thread(thread, worker=None, timeout_ms: int = 3000) -> bool:
     """Ask ``thread`` to stop, wait for it, and **never** terminate it.
 
