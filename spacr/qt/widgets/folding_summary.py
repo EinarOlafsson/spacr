@@ -1,9 +1,8 @@
-"""The run summary with its sections folded, for instruction 168 D.
+"""Show a run summary with its sections folded.
 
-    "THE PANEL FOLDS IT. The Summary tab shows the verdict expanded and each
-    section collapsed, with the section headings as the outline. The file on
-    disk stays plain text and stays readable in a terminal, because it is a
-    run artefact before it is a widget."
+The Summary tab shows the verdict expanded and each later section collapsed,
+using the headings as an outline. The file on disk remains plain text and
+readable in a terminal because it is a run artefact before it is a widget.
 
 PARSED FROM THE TEXT, NOT BUILT FROM `RunSummary`. That looks like the wrong
 way round -- the structure is right there -- but the tab does not always have

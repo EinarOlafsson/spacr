@@ -339,12 +339,8 @@ def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
 def normalised_share(well_fractions, fraction: float) -> Tuple[float, float]:
     """``(share, factor)`` -- the guide's fraction of what is left in the well.
 
-    Instruction 172: "first calculate what all the fractions in that well add
-    up to if not 1 then normalize to 1 and save the normalization factor then
-    take the chosen grna fraction and apply that normalization factor".
-
-    THE FACTOR IS NOT A NO-OP, and that is why this exists. Measured on the
-    maintainer's screen: the raw count tables give every well a fraction sum
+    THE FACTOR IS NOT A NO-OP, and that is why this exists. In a representative
+    screen, the raw count tables give every well a fraction sum
     of exactly 1.000000, but `fraction_threshold` defaults to 0.02 and the
     filtered table's sums fall to a median of 0.5526 with a minimum of
     0.1515. The filtered table is the ordinary case, so the un-normalised
@@ -1701,7 +1697,7 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     :param scores: where the per-object classification scores are, when the
         database has none: a frame, a path, or several paths -- the score CSVs
         the run was fitted on. Used ONLY when `png_list` carries no score
-        column, and never written back. See instruction 167.
+        column, and never written back.
     :param verbose: let the io join report the rows it could not place.
     :returns: the object frame, with ``prc`` composed when the well keys are
         there.

@@ -1,9 +1,9 @@
 """Every gene against every measurement, corrected, in one matrix operation.
 
-Instruction 175. The question is "which genes move which measurements", asked
-of the whole screen at once rather than one gene at a time.
+The question is "which genes move which measurements", asked of the whole
+screen at once rather than one gene at a time.
 
-IT IS ONE MATMUL. Measured on the maintainer's screen: 1,376 guides x 785
+IT IS ONE MATMUL. A representative screen with 1,376 guides x 785
 measurements over 1,366 wells, computed in 0.1 seconds. A loop over a million
 regressions answers the same question in a morning; anything here that looks
 like one is a bug.
@@ -563,17 +563,11 @@ def plot_effect_against_representation(
         result: "SweepResult", path: Optional[str] = None, *,
         alpha: float = 0.05, title: str = "",
         level: Optional[str] = None):
-    """How many measurements a gene moves, against how much screen it is.
+    """Plot effect counts against each gene's effective representation.
 
-    THE PICTURE THE MAINTAINER ASKED FOR: "should there not be some way of
-    taking into account the genes representation, 220950 is waaay over
-    represented and is therefore beeing attributed with a tone of mesauremnt
-    effects."
-
-    It is a fair question and this is the honest way to answer it -- not by
-    correcting the statistic, which would be inventing a model of what
-    over-representation does, but by DRAWING the confound so a reader can see
-    whether their hit sits on the trend or off it.
+    The plot exposes representation as a possible confound without modifying
+    the underlying statistic. It shows whether a gene's number of significant
+    measurements follows the overall representation trend or departs from it.
 
     x is the gene's EFFECTIVE WELL COUNT -- the participation ratio, which is
     literally the sample size each p-value was computed on -- and y is how
@@ -591,11 +585,8 @@ def plot_effect_against_representation(
     ranking is POWER, and the participation ratio is the number the test
     actually used.
 
-    Controls are drawn as their own mark rather than left out, because
-    "these are removed for regression are they removed here? i dont think
-    they should" -- a control that moves twenty measurements is telling you
-    something about the assay, and it is the calibration for everything else
-    on the plot.
+    Controls are drawn with a distinct marker because their relationship to
+    the trend provides a useful assay calibration.
 
     :returns: the matplotlib Figure, or ``None`` when nothing survived.
     """

@@ -59,15 +59,10 @@ def gpu_allocated() -> Optional[int]:
     stage, and on a settings panel it is the import this project has twice
     had to keep out (`tests/test_a_settings_panel_does_not_import_torch.py`).
 
-    `max_memory_allocated`, NOT `memory_allocated`. Stages are recorded at
-    their BOUNDARIES, and a fit frees its tensors before the boundary is
-    reached -- so the current allocation reads back as ~0 no matter how large
-    the fit was. Measured on the maintainer's screen: a mixed fit on the GPU
-    backend reported "PEAK GPU 0.0 B", which is the one number instruction
-    160 exists to obtain and the one reading that could not be true. The
-    high-water mark is cumulative across the process, which is right here:
-    the report being answered is about a SEQUENCE of fits, and the peak of
-    the sequence is what decides whether the machine can survive it.
+    Uses ``max_memory_allocated`` rather than the current allocation because
+    fit tensors may already be released when a stage boundary is recorded.
+    The high-water mark is cumulative across the process and therefore reports
+    the largest allocation reached across a sequence of fits.
     """
     import sys
 

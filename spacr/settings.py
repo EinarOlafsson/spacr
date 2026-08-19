@@ -2337,11 +2337,28 @@ def get_perform_regression_default_settings(settings):
             raise ValueError(
                 f"quantile must be a number strictly inside (0, 1); got "
                 f"{q!r}. 0.5 fits the median, 0.9 the upper tail.")
-        print(f"Fitting the {float(q):g} quantile of {settings['dependent_variable']}")
-        # Quantile regression on per-well MEANS would be the quantile of an
-        # average, which is not the quantile of the response.
-        settings['agg_type'] = None
-        print(f'agg_type set to None for quantile regression')
+        # ONLY WHEN THE QUANTILE FIT IS THE ONE THAT RUNS.
+        #
+        # Under analysis_mode='guide_permutation' -- the default since
+        # 2026-08-19 -- regression_type is never read: the permutation test
+        # is the analysis. Forcing agg_type=None on its behalf left the run
+        # with one row per OBJECT feeding a test that needs one per WELL, and
+        # it died on "Phenotype/block/nuisance values are not constant within
+        # well". A setting that will not be used must not be able to break
+        # the analysis that will.
+        if str(settings.get('analysis_mode')) == 'guide_permutation':
+            print(f"regression_type='quantile' is not read under "
+                  f"analysis_mode='guide_permutation' -- the permutation "
+                  f"test IS the analysis -- so agg_type stays "
+                  f"{settings.get('agg_type')!r}. Set "
+                  f"inference='parametric' to fit the quantile.")
+        else:
+            print(f"Fitting the {float(q):g} quantile of "
+                  f"{settings['dependent_variable']}")
+            # Quantile regression on per-well MEANS would be the quantile of
+            # an average, which is not the quantile of the response.
+            settings['agg_type'] = None
+            print(f'agg_type set to None for quantile regression')
 
     # A COUNT MODEL'S RESPONSE IS A COUNT, AND log(count) IS NOT ONE.
     #
@@ -3530,7 +3547,7 @@ tooltips = {
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
     "randomize": "(bool) - Shuffle the order of the per-field arrays before they are grouped into normalization batches, so each batch spans plates and wells instead of one acquisition block - this matters because normalization percentiles are computed per batch. Forced to False for timelapse runs to keep frames in sequence. Default True.",
-    "regression_type": "(str) - Which model is fitted. Default 'mixed' ('ols' until 2026-08-17): mixed answers the most central question best, making the gene a fixed effect and each guide a RANDOM effect nested in it, so guides that disagree widen their gene's interval. Mixed fits both levels at once, so 'level' greys out, and reports guides as shrunken predictions, not p-values. The others fit ONE level, fixed effects only: 'ols'/'wls'/'rlm'/'huber'/'quantile' continuous, 'logit'/'probit'/'beta'/'quasi_binomial' a fraction, 'poisson' counts, 'ridge'/'lasso'/'elasticnet'/'horseshoe' penalised, 'hinge', 'glm'. NOTE 'beta' HERE IS THE FAMILY OF THE FIT, not the transform of the same name: `regression_type='beta'` fits a beta GLM to the response as measured, while `transform='beta'` puts the response on the logit scale and fits it with whatever model is chosen here. They are different things and can be used together.",
+    "regression_type": "(str) - Model family. Default 'mixed' fits gene effects with guides nested as random effects, so guide disagreement widens the gene interval; it fits gene and guide levels together and disables level. Use 'ols', 'wls', 'rlm', 'huber', or 'quantile' for one continuous level; 'logit', 'probit', 'beta', or 'quasi_binomial' for fractions; 'poisson' for counts; and penalised families for many correlated predictors. regression_type 'beta' selects a beta GLM, while transform 'beta' only transforms the response.",
     "remove_background": "(bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False.",
     "remove_background_cell": "(bool) - Before normalisation, zero every pixel in the cell channel below cell_background. This flattens haze so the percentile stretch is driven by real signal, but it also erases genuinely dim cell edges and can shrink masks. Enable only once cell_background is set from an actual empty region. Default False.",
     "remove_background_nucleus": "(bool) - Before normalizing the nucleus channel, zero every pixel below nucleus_background and exclude those pixels from the percentile calculation. Enabling it raises contrast on real nuclei and suppresses haze, but clips genuinely dim nuclei to zero so they may become unsegmentable. Default False; check nucleus_background against raw images first.",
@@ -3943,7 +3960,7 @@ tooltips = {
     'pathogen_loc': "(list of lists) - Well locations of each pathogen condition, one inner list per name in pathogens, read by annotate_filter_vision when labelling vision-model score CSVs. Every entry must be a row or column ID string such as 'c1' or 'r3'; ranges are not expanded and unmatched entries leave those wells NaN. Set it alongside pathogens, or leave both None. Default None.",
     'pathogens': "(list) - Names of the pathogen conditions scored by annotate_filter_vision, e.g. ['wt','mutant']. Element i is written into the pathogen column for every well in pathogen_loc[i] and folded into the combined condition label. Must match pathogen_loc element for element; if pathogen_loc is None, only the first name is applied to every row. Default None.",
     'path_string': "(str) - A substring that must appear in a crop's path for it to join the dataset, e.g. 'cell_png' or 'nucleus_png'. It was called png_type, which named a type it never was: this is a path filter and nothing more. The old name still works. Default 'cell_png'.",
-    'crop_source': "(str) - Where the pictures come from. 'png' is LOAD IMAGES: the crops already written under data/, and the default everywhere a picture is shown. 'merged' is STREAM IMAGES: cut from merged/*.npy as it goes, needing the merged folder and the database. If the chosen one's folder is absent the other is used and the run says so. 'auto' is still read and means 'whichever is present' -- it answers what is AVAILABLE rather than which you want, so no panel offers it. For TRAINING the same setting also accepts the older 'pre_generated' / 'on_demand' / 'generate' spelling: 'pre_generated' uses crops already on disk. 'pre_generated' uses crops already on disk, filtered by path_string and file_type. 'on_demand' cuts them from merged/*.npy as training runs, using extract_channels and object_array (or coordinate_columns when the objects come from a database). 'generate' writes a full crop set first, then trains on it. The settings that do not apply to the chosen source are greyed. Default 'pre_generated'.",
+    'crop_source': "(str) - Image source. 'png' loads exported crops from data/ and is fastest; 'merged' cuts crops from merged/*.npy and requires the measurements database. If the selected source is unavailable, spaCR tries the other source and reports the change. Training also accepts 'pre_generated' for existing crops, 'on_demand' to cut while training, and 'generate' to write a complete crop set before training. Settings that do not apply to the selected source are disabled. Defaults are 'png' in viewers and 'pre_generated' in training.",
     'extract_channels': "(list) - On-demand crops: which planes of merged/*.npy are INTENSITY channels, in the order they become image channels. Default [0, 1, 2].",
     'object_array': "(str) - On-demand crops: which object the crops are cut around - 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. Its mask plane in merged/*.npy is what defines each object's extent. Default 'cell'.",
     'coordinate_columns': "(list) - On-demand crops from a DATABASE instead of masks: the columns holding each object's position, e.g. ['centroid_x', 'centroid_y']. Only bounding-box crops are possible this way, because a coordinate has no outline. None uses the merged masks, which is the default and the better source. Default None.",

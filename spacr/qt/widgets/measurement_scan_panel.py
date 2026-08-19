@@ -2753,9 +2753,9 @@ class MeasurementScanPanel(QWidget):
     def restore_section_layout(self) -> bool:
         """Put back the folds and divider positions from last time.
 
-        Instruction 169 C. Called once the sections exist -- including any
-        added later by :meth:`add_section`, which is why the host calls it
-        rather than the constructor.
+        Called once the sections exist, including any added later by
+        :meth:`add_section`, which is why the host calls it rather than the
+        constructor.
 
         :returns: whether anything was restored.
         """

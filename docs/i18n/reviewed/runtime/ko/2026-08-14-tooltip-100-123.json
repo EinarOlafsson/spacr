@@ -11,13 +11,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "regression_type",
-      "source_sha256": "37b8f7ab2f8445f78e599d74b2f95158780303485f1c42146c8ade42c83909a1",
-      "source": "Choose by what the per-well response IS. Continuous: 'ols', 'wls' (weight by cell count), 'rlm'/'huber' (robust), 'quantile'. A FRACTION: 'logit', 'probit', 'beta', 'quasi_binomial' (over-dispersed). Counts: 'poisson'. 'glm' picks the family. 'mixed' adds well or plate as a random effect. Many correlated predictors: 'ridge' shrinks all, 'lasso' zeroes some, 'elasticnet' both, 'horseshoe' shrinks hard but spares large effects. 'hinge' for a separable two-class response. ols on a bounded response predicts values outside it. Default 'ols'.",
-      "translation": "웰별 반응의 성격에 맞춰 선택합니다. 연속값: 'ols', 세포 수로 가중하는 'wls', 강건한 'rlm'/'huber', 'quantile'. 비율: 'logit', 'probit', 'beta', 과산포용 'quasi_binomial'. 계수: 'poisson'. 'glm' 은 분포군을 고릅니다. 'mixed' 는 웰 또는 플레이트를 무작위 효과로 추가합니다. 상관된 예측변수가 많으면 'ridge' 는 모두 축소하고 'lasso' 는 일부를 0 으로 만들며 'elasticnet' 은 둘을 섞고 'horseshoe' 는 강하게 축소하되 큰 효과를 보존합니다. 'hinge' 는 분리 가능한 이진 반응용입니다. 제한된 반응에 ols 를 쓰면 범위 밖 값을 예측합니다. 기본값 'ols'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "resample",
       "source_sha256": "79e57a720d5541c68768afeec996885b8a9b978c256c165e8efa0fd62370c557",
       "source": "Passed to Cellpose model.eval: run the mask-tracking dynamics at full image resolution instead of on the downsampled network grid. Enabling it gives smoother, better-fitting object outlines at the cost of time and memory, and helps most when objects differ a lot from the model's training diameter. Default False; the object pipeline sets True for cell/nucleus and False for pathogen.",

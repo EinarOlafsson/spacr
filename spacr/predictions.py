@@ -843,12 +843,9 @@ def attach_predictions(objects, results, *,
     same CSV merged into it cannot disagree about which object got which
     number -- which two separate join implementations eventually would.
 
-    WHY THIS EXISTS. `load_montage_objects` refused a screen whose `png_list`
-    has no `pred` column and told the user to "Run Classify and merge its
-    predictions into the database first". On the maintainer's screen the
-    scores were not missing at all: they were in the score CSVs the regression
-    module already had loaded, one row per cell, and the fit had been run on
-    exactly those numbers. Instruction 167.
+    This supports projects whose ``png_list`` table has no prediction column
+    but whose regression inputs already contain one score row per cell. The
+    join uses those scores without changing the database.
 
     :param objects: the per-object frame, e.g. `png_list` read back.
     :param results: the score table -- `path`, `pred`, `cv_predictions`, as

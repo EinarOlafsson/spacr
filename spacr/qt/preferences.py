@@ -3664,9 +3664,8 @@ _KEY_SECTION_LAYOUT = "panels/section_layout"
 def get_section_layout(panel: str) -> dict:
     """What ``panel`` looked like when it was last used.
 
-    Instruction 169 C: "IT SURVIVES A RELOAD. The sizes and the collapsed set
-    are remembered per category". A reader who folds four categories away
-    does not want them back on the next run.
+    Divider sizes and collapsed sections are remembered per category so the
+    next session restores the user's working layout.
 
     :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, or an empty
         dict when the panel has never been arranged. EMPTY, not a default
