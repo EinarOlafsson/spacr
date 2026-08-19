@@ -6988,6 +6988,22 @@ def _perform_regression(settings):
                 print(warning)
 
     if settings.get('analysis_mode') == 'guide_permutation':
+        # SAID BEFORE THE FIT, not only in the summary afterwards. With
+        # inference='nonparametric' -- the default since 2026-08-18 -- the
+        # permutation path fits no model, so regression_type is never read.
+        # Verified on the maintainer's four-plate screen: 'ols' and 'mixed'
+        # produced byte-identical results, 1612 rows across all 24 columns.
+        # That is why "i ran a mixed model and an ols model and even if the
+        # ols model is marked as loaded i think i still see the mixed
+        # results" was a correct observation: they ARE the same numbers. A
+        # user who is told this before the run does not queue the second one.
+        _chosen = settings.get('regression_type')
+        if _chosen:
+            print(f"inference='nonparametric': this is a permutation test, so "
+                  f"it fits no model and regression_type={_chosen!r} is not "
+                  f"read. Choosing a different regression_type with this "
+                  f"inference gives the same numbers; set "
+                  f"inference='parametric' to fit {_chosen!r} itself.")
         output = _run_guide_permutation_analysis(
             merged_df, dependent_variable, res_folder, settings)
         if settings.get('verbose'):
