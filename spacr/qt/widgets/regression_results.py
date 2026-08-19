@@ -1414,18 +1414,14 @@ class RegressionResultsPanel(QWidget):
         return self.load(folder)
 
     def closeEvent(self, event):                 # noqa: N802 - Qt's spelling
-        """Stop the loader's thread before this widget goes.
+        """Stop the results loader before closing the widget.
 
-        QT ABORTS THE PROCESS IF A RUNNING QThread IS DESTROYED -- no Python
-        exception, no traceback, just "QThread: Destroyed while thread is still
-        running" and a core dump. That is what a crash with nothing in the log
-        looks like, and instruction 159's worker introduced one here: every
-        other JobRunner in this package shuts down in its closeEvent and this
-        panel had no closeEvent at all.
+        Qt requires a running ``QThread`` to outlive every object that owns it.
+        The bounded shutdown cancels the load and waits briefly; a slower
+        worker is transferred to :func:`spacr.qt.bridge.drain_thread` so that
+        closing the screen neither terminates the worker nor blocks on it.
 
-        Bounded rather than indefinite: `shutdown` cancels, waits briefly, and
-        parks anything slower through `bridge.drain_thread` rather than
-        terminating it -- leaving a screen mid-load must not hang the close.
+        :param event: Qt close event passed to the parent implementation.
         """
         try:
             self._load_jobs.shutdown()
