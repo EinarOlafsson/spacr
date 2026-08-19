@@ -478,3 +478,45 @@ sentence section C added -- and every other tooltip on that panel -- reaches
 nobody who opens the module and hovers before changing anything, which is the
 common order. It is in the regression panel's own build, not in
 spacr/qt/widgets/fast_plots.py. HANDED OFF.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- A BUG SECTION E INTRODUCED: AN "ADJUSTED" AXIS WITH NO CORRECTION
+--------------------------------------------------------------------------------
+
+FOUND BY A RED TEST, NOT BY READING. `test_an_uncorrected_run_offers_no_toggle`
+in tests/test_every_saved_figure_reaches_the_grid.py had been failing since
+the p-axis rework, and its docstring is the finding:
+
+    "`multiple_testing_method='none'` writes a q_value EQUAL to the raw p. A
+     menu entry promising 'adjusted' there offers a number that is not there."
+
+The volcano was offering, on a run corrected with nothing:
+
+    adjusted p — None (raw P values) (stepped)          <- the y axis
+    colour: called or not, at the None (raw P values) threshold
+
+A user who picks the first sees a plot IDENTICAL to the one above it and
+concludes the correction made no difference, which is the reading this whole
+instruction exists to prevent. The label is also gibberish.
+
+FIXED, greyed rather than removed (INVARIANTS 6):
+
+    adjusted p — no correction applied
+        —  this run applied no correction, so the adjusted p IS the raw p
+           and the axis would be the one above
+
+A missing entry does not answer "where is the adjusted axis". This does.
+
+THE CONDITION IS THE CORRECTION IN FORCE, NOT THE RUN'S. Section E lets the
+plot recorrect on the spot, so a run saved with `none` and recorrected to
+Bonferroni on the menu HAS real q values and must keep the axis.
+
+AND THE ONE PATH THAT REACHES THE STATE ANYWAY IS UNWOUND: choosing "no
+correction" from the corrections menu while the height IS the adjusted p
+would leave the axis labelled "-log10(adjusted p, none)" over numbers that
+are the raw p. `set_correction` puts the axis back to raw.
+
+The other two assertions in that file were STALE rather than wrong -- they
+named the pre-rework labels ("raw p-value", "adjusted (fdr_bh)") -- and now
+name the current ones. Two tests were added: one that a corrected run can
+still choose the axis, so the greying cannot creep, and one for the unwind.
