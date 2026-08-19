@@ -606,6 +606,8 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
     assert "actions/upload-artifact@v7" in workflow
     assert "actions/download-artifact@v8" in workflow
     assert "python packaging/release.py collect" in workflow
+    assert "python packaging/release.py index" in workflow
+    assert "--current-installers spacr/application" in workflow
     assert "--localized-readme-dir docs/i18n/readme" in workflow
     assert "README.{sv,de,es,zh_CN,pt,hi,ko,is,fr}.rst" in workflow
     assert "for language in en sv de es zh_CN pt hi ko is fr" in workflow
@@ -761,7 +763,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
         source, destination, readme, setup, branch="nightly")
 
     assert {path.name for path in copied} == set(names)
-    assert not old.exists()
+    assert old.exists(), "an earlier version was deleted during collection"
     all_readmes = [readme] + [
         localized_dir / f"README.{code}.rst"
         for code in helper.LOCALIZED_README_CODES
@@ -786,7 +788,7 @@ def test_release_helper_collects_current_installers_and_rewrites_links(tmp_path)
         assert (destination / name).is_file()
     manifest = (destination / "README.rst").read_text(encoding="utf-8")
     assert f"Current version: ``{version}``" in manifest
-    assert manifest.count("SHA-256") == 4  # heading + one line per installer
+    assert manifest.count("SHA-256") == 4  # retained old file + three current
 
 
 def test_release_helper_refuses_an_incomplete_localized_readme_set(tmp_path):

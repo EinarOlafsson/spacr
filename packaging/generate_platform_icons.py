@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Draw the three README installer-download icons.
+"""Draw the README installer-download and archive icons.
 
 The README advertises one download per platform. Those three links are drawn
 marks rather than text, so the row reads as a row of equal choices.
@@ -46,6 +46,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QPointF, QRectF, Qt  # noqa: E402
 from PySide6.QtGui import (  # noqa: E402
     QColor,
+    QFont,
     QGuiApplication,
     QImage,
     QPainter,
@@ -191,6 +192,7 @@ ICONS = {
     "macos": (apple, 0.750),
     "windows": (windows, 0.540),
 }
+LEGACY_LOGO = ROOT / "spacr" / "resources" / "icons" / "logo_spacr.png"
 
 
 # ---------------------------------------------------------------------- paint
@@ -220,7 +222,24 @@ def render(name: str) -> QImage:
     chip.addRoundedRect(
         QRectF(0, 0, CANVAS, CANVAS), CHIP_RADIUS, CHIP_RADIUS)
     painter.fillPath(chip, CHIP)
-    painter.fillPath(ink(name), WHITE)
+    if name == "legacy":
+        logo = QImage(str(LEGACY_LOGO))
+        if logo.isNull():
+            raise RuntimeError(f"could not load {LEGACY_LOGO}")
+        painter.drawImage(QRectF(154, 42, 204, 204), logo)
+        font = QFont("Open Sans")
+        font.setBold(True)
+        font.setPixelSize(58)
+        font.setLetterSpacing(QFont.AbsoluteSpacing, 3)
+        painter.setFont(font)
+        painter.setPen(WHITE)
+        painter.drawText(
+            QRectF(38, 270, CANVAS - 76, 130),
+            Qt.AlignCenter,
+            "LEGACY",
+        )
+    else:
+        painter.fillPath(ink(name), WHITE)
     painter.end()
     return image
 
@@ -241,13 +260,14 @@ def main() -> int:
         QGuiApplication([])
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     off_weight = 0
-    for name in sorted(ICONS):
+    for name in (*sorted(ICONS), "legacy"):
         image = render(name)
         target = OUT_DIR / f"{name}.png"
         if not image.save(str(target), "PNG"):
             raise RuntimeError(f"could not write {target}")
         seen = coverage(image)
-        flag = "" if COVERAGE_LO <= seen <= COVERAGE_HI else "  <-- off-weight"
+        in_band = name == "legacy" or COVERAGE_LO <= seen <= COVERAGE_HI
+        flag = "" if in_band else "  <-- off-weight"
         off_weight |= bool(flag)
         print(f"{target.relative_to(ROOT)}  coverage {seen:6.3f}{flag}")
     print(f"band {COVERAGE_LO:.3f}..{COVERAGE_HI:.3f}")

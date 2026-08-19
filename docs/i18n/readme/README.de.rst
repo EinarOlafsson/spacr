@@ -103,29 +103,31 @@ Installationsdetails
 
 .. spacr-installer-links-begin
 
-|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11: SpaCR 1.5.0.4 herunterladen
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel und Apple Silicium): SpaCR 1.5.0.4 herunterladen
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-bit Linux: SpaCR 1.5.0.4 herunterladen
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Ältere spaCR-Installationsprogramme
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
 
 .. spacr-installer-links-end
 
 
-Die Symbole oben zeigen immer auf die neueste Version. Jede frühere
-Version bleibt über das `Installationsarchiv
-<https://einarolafsson.github.io/spacr/installers.html>`_ herunterladbar — eine Tabelle, eine Zeile
-je Version, und jedes Installationsprogramm ist auf die Version
-festgelegt, für die es gebaut wurde.
+Die ersten drei Symbole laden die neueste Version herunter. Legacy öffnet
+das vollständige Versionsarchiv; jedes Installationsprogramm ist auf die
+Version festgelegt, für die es gebaut wurde.
 
 Leichte Installationsprogramme — weder conda noch vorhandenes Python erforderlich
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

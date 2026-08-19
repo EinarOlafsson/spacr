@@ -71,6 +71,21 @@ ALL_THREE = ("Linux-x86_64-Online.run", "macOS-Universal-Online.pkg",
              "Windows-Online-Setup.exe")
 
 
+def _image_targets(text):
+    """Return ``substitution name -> target`` for linked RST images."""
+    targets = {}
+    current = None
+    for line in text.splitlines():
+        match = re.match(r"\.\. \|([^|]+)\| image::", line)
+        if match:
+            current = match.group(1)
+        elif current and line.startswith("   :target: "):
+            targets[current] = line.removeprefix("   :target: ")
+        elif not line.strip():
+            current = None
+    return targets
+
+
 # ---------------------------------------------------------------------------
 # the generator
 # ---------------------------------------------------------------------------
@@ -99,6 +114,29 @@ def test_a_new_release_adds_a_row_without_anyone_editing_the_page():
     assert "1.5.0.4 (current)" not in after
     assert "1.5.0.5 (current)" in after
     assert "1.5.0.4" in after
+
+
+def test_the_just_built_release_is_added_before_github_publishes_it(tmp_path):
+    R = _release_helper()
+    setup = tmp_path / "setup.py"
+    setup.write_text('VERSION = "2.0.0"\n', encoding="utf-8")
+    installers = tmp_path / "application"
+    installers.mkdir()
+    for suffix in ALL_THREE:
+        (installers / f"spaCR-2.0.0-{suffix}").write_bytes(b"installer")
+    output = tmp_path / "installers.rst"
+
+    R.write_installer_index(
+        output,
+        setup,
+        [_release("v1.5.0.4", *ALL_THREE)],
+        installers,
+    )
+
+    page = output.read_text(encoding="utf-8")
+    assert "2.0.0 (current)" in page
+    assert page.count("/download/v2.0.0/") == 3
+    assert "1.5.0.4" in page
 
 
 def test_the_table_is_newest_first_whatever_order_github_answers_in():
@@ -147,10 +185,13 @@ def test_a_platform_missing_from_one_release_gets_an_empty_cell():
     body = page.split("   * - 2.0.0", 1)[1]
     cells = [line.strip() for line in body.splitlines() if line.startswith("     - ")]
     assert len(cells) == 3
-    assert cells[0].startswith("- `.run <")     # Linux
+    assert cells[0] == "- |Linux-2-0-0|"        # Linux
     assert cells[1] == "-"                      # macOS: empty, not a link
-    assert cells[2].startswith("- `.exe <")     # Windows
-    assert ".pkg" not in page
+    assert cells[2] == "- |Windows-2-0-0|"      # Windows
+    targets = _image_targets(page)
+    assert targets["Linux-2-0-0"].endswith("Linux-x86_64-Online.run")
+    assert targets["Windows-2-0-0"].endswith("Windows-Online-Setup.exe")
+    assert "MacOS-2-0-0" not in targets
 
 
 def test_a_release_that_ships_installers_under_an_unreadable_tag_is_refused():
@@ -233,13 +274,15 @@ def test_every_link_in_a_row_belongs_to_that_row_s_version():
     the reader believes they have downloaded 1.4.9.9 and has 1.5.0.4.
     """
     rows = _committed_rows()
+    targets = _image_targets(PAGE.read_text(encoding="utf-8"))
     assert rows, "the committed page has no rows"
     for version, cells, _ in rows:
         assert len(cells) == 3, (version, cells)
         for cell in cells:
             if not cell:
                 continue
-            url = re.search(r"<(\S+)>", cell).group(1)
+            substitution = cell.strip("|")
+            url = targets[substitution]
             assert f"/download/v{version}/" in url, (version, url)
             assert f"-{version}-" in url, (version, url)
 
@@ -254,6 +297,23 @@ def test_the_committed_page_is_newest_first():
     assert len(set(versions)) == len(versions)
 
 
+def test_every_archived_installer_is_retained_in_the_application_folder():
+    """The repository copy is an archive, not a latest-version cache."""
+    targets = _image_targets(PAGE.read_text(encoding="utf-8"))
+    retained = {
+        path.name.lower()
+        for path in (ROOT / "spacr" / "application").iterdir()
+        if path.is_file()
+    }
+    release_targets = [
+        url for url in targets.values()
+        if "/releases/download/" in url
+    ]
+    assert release_targets
+    for url in release_targets:
+        assert url.rsplit("/", 1)[-1].lower() in retained
+
+
 def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
     """A page nothing links to is a page nobody reaches. The README's icons
     keep pointing at the latest; this is where someone goes for anything
@@ -261,7 +321,7 @@ def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
     index = (ROOT / "docs" / "source" / "index.rst").read_text(encoding="utf-8")
     assert re.search(r"^\s+installers$", index, re.MULTILINE)
     readme = README.read_text(encoding="utf-8")
-    assert "installers.html" in readme
+    assert "/blob/nightly/docs/source/installers.rst" in readme
 
 
 @pytest.mark.parametrize("script,pattern", [
@@ -291,7 +351,10 @@ def test_every_link_on_the_page_is_live():
     import urllib.error
     import urllib.request
 
-    urls = re.findall(r"<(https://github\.com/[^>]+)>", PAGE.read_text(encoding="utf-8"))
+    urls = [
+        url for url in _image_targets(PAGE.read_text(encoding="utf-8")).values()
+        if url.startswith("https://github.com/")
+    ]
     assert len(urls) >= 3, "the page has no download links to check"
 
     for url in urls:
