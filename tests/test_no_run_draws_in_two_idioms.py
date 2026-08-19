@@ -93,7 +93,11 @@ def test_a_run_reaches_for_the_house_style_plates_not_the_old_ones():
     would be the worst possible trade -- but a run tries the new one first."""
     from spacr import ml
 
-    source = inspect.getsource(ml.perform_regression)
+    # `_perform_regression`, not `perform_regression`: the latter is the
+    # failure-reporting WRAPPER since instruction 161 and contains none of
+    # the run. Scanning it found nothing and the ValueError read as a missing
+    # call rather than a moved one.
+    source = inspect.getsource(ml._perform_regression)
     show = source.index("_show_plates")
     legacy = source.index("plot_plates(", show)
 

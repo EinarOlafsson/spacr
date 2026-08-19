@@ -139,9 +139,15 @@ def test_the_three_states_are_three_different_jobs():
         FS.PRINT_GROUND, False, True)
     # 'as on screen' is a no-op BY CONSTRUCTION, not by a branch somewhere.
     assert (screen.ground, screen.ink, screen.flip) == (None, None, False)
-    # Dark ink on a transparent ground is still unreadable on a dark slide,
-    # so the chrome follows the print rule and only the ground goes away.
-    assert (clear.transparent, clear.ink) == (True, FS.PRINT_INK)
+    # THE INK FOLLOWS THE THEME HERE, changed 2026-08-19 on the maintainer's
+    # second request: "the lines should be white in dark mode and black in
+    # light mode", then reported as a fault when they were not. Transparent
+    # MEANS the ground is whatever the figure is pasted onto, and the only
+    # thing that knows what that is, is the user -- who says so by their
+    # theme. `print` is unchanged, so a manuscript figure is untouched.
+    assert clear.transparent is True
+    assert clear.ink in (FS.PRINT_INK, FS.DARK_INK)
+    assert clear.ink == FS.theme_ink()[0]
 
 
 def test_an_unreadable_preference_does_not_lose_the_figure():
@@ -222,14 +228,26 @@ def test_as_on_screen_still_produces_the_old_behaviour(tmp_path):
         assert _carries(image, colour)
 
 
-def test_transparent_keeps_the_dark_chrome_and_drops_the_ground(tmp_path):
-    fig, _ax = _dark_volcano()
-    image = _pixels(_save(fig, tmp_path, save_mode="transparent"))
+def test_transparent_drops_the_ground_and_inks_for_the_theme(tmp_path,
+                                                             monkeypatch):
+    """The ground always goes; the ink is whichever theme is in force."""
+    import spacr.figure_style as _fs
 
-    assert int(image[2, 2][3]) == 0, "the transparent save has a ground"
-    band = image[:int(image.shape[0] * 0.12), :, :3].reshape(-1, 3)
-    darkest = band[band.sum(axis=1).argmin()]
-    assert darkest.max() < 80, "transparent lost the print rule for the chrome"
+    for theme, readable in (("light", lambda v: v.max() < 80),
+                            ("dark", lambda v: v.min() > 150)):
+        monkeypatch.setattr(
+            "spacr.qt.preferences.resolve_effective_theme", lambda t=theme: t)
+        fig, _ax = _dark_volcano()
+        image = _pixels(_save(fig, tmp_path, save_mode="transparent"))
+
+        assert int(image[2, 2][3]) == 0, "the transparent save has a ground"
+        band = image[:int(image.shape[0] * 0.12), :, :3].reshape(-1, 3)
+        # In light mode the chrome is the darkest thing in the band; in dark
+        # mode it is the lightest. Either way it is the mark being checked.
+        mark = (band[band.sum(axis=1).argmin()] if theme == "light"
+                else band[band.sum(axis=1).argmax()])
+        assert readable(mark), (
+            f"{theme} mode chrome came out {tuple(int(v) for v in mark)}")
 
 
 def test_a_light_mode_save_changes_nothing_at_all(tmp_path):
