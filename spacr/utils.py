@@ -399,7 +399,7 @@ import tifffile
 # The one definition of what a spaCR database key is. Imported at module
 # scope rather than lazily because every key built in this file goes through
 # it and it costs nothing: schema.py is stdlib-only by design.
-from . import schema
+from . import schema, tabular
 from .tiff_io import write_tiff
 
 
@@ -1475,8 +1475,11 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
     See Also:
         :func:`save_settings` — inverse operation.
     """
-    # Read the CSV file into a DataFrame
-    df = pd.read_csv(csv_file_path)
+    # ONE READER. A settings CSV is key/value so the vocabulary is a no-op
+    # on it, but the `~` and `$VAR` expansion is not: a settings file carried
+    # between machines routinely holds one, and it used to be a
+    # FileNotFoundError naming a path the user can see is right.
+    df = tabular.read_table(csv_file_path, report=None)
 
     if show:
         display(df)
@@ -2076,7 +2079,8 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
 
     # Read the existing table into a DataFrame
     try:
-        existing_df = pd.read_sql(f"SELECT * FROM {table}", conn)
+        existing_df = tabular.read_database(
+            db_path, [table], report=None, migrate=False)[0]
     except Exception as e:
         print(f"Failed to read table {table} from database: {e}")
         conn.close()
@@ -3393,13 +3397,8 @@ def _pivot_counts_table(db_path):
     def _read_table_to_dataframe(db_path, table_name='object_counts'):
         """Return the given SQLite table as a DataFrame."""
         # Connect to the SQLite database
-        conn = sqlite3.connect(db_path, timeout=30)
-        # Read the entire table into a pandas DataFrame
-        query = f"SELECT * FROM {table_name}"
-        df = pd.read_sql_query(query, conn)
-        # Close the connection
-        conn.close()
-        return df
+        return tabular.read_database(
+            db_path, [table_name], report=None, migrate=False)[0]
 
     def _pivot_dataframe(df):
         """Pivot count-type rows into one column per object type, NaNs filled with 0."""
@@ -4869,8 +4868,8 @@ def suggest_training_changes(
         out["suggestions"].append("Could not locate val CSV; enable validation logging in _save_progress.")
         return out
 
-    tr = pd.read_csv(train_csv)
-    va = pd.read_csv(val_csv)
+    tr = tabular.read_table(train_csv, report=None)
+    va = tabular.read_table(val_csv, report=None)
 
     tr = _normalize_cols(tr)
     va = _normalize_cols(va)
@@ -5345,7 +5344,7 @@ def annotate_predictions(csv_loc):
     :returns: DataFrame enriched with parsed metadata and a ``cond`` column
         (``'screen'``/``'pc'``/``'nc'`` from the plate/well convention).
     """
-    df = pd.read_csv(csv_loc)
+    df = tabular.read_table(csv_loc, report=None)
     df['filename'] = df['path'].apply(lambda x: x.split('/')[-1])
     df[['plateID', 'well', 'fieldID', 'object']] = df['filename'].str.split('_', expand=True)
     df['object'] = df['object'].str.replace('.png', '')
@@ -8217,14 +8216,10 @@ def correct_paths(df, base_path, folder='data'):
     there fixed three ways this function used to get a moved folder wrong --
     all four cases were measured through the real function on 2026-08-18:
 
-    ======  =========================================  =======================
-    was     case                                       now
-    ======  =========================================  =======================
-    OK      same-OS move                               OK
-    FAIL    ``C:\\lab\\exp1\\data\\p1\\a.png`` read on Linux    re-anchored
-    WRONG   ``/old/data/exp1/data/p1/a.png``           re-anchored TO THE FILE
-    FAIL    no ``data/`` component                     counted and named
-    ======  =========================================  =======================
+    A same-OS move remains unchanged; a Windows path read on Linux is
+    re-anchored; an old absolute path is re-anchored to the file rather than
+    its directory; and a path without a ``data`` component is counted and
+    named.
 
     The third was the dangerous one: ``split`` took the FIRST ``/data/``, so
     the result was ``<base>/data/exp1`` -- a path that had silently lost
@@ -9417,8 +9412,12 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     :returns: merged DataFrame (also written to ``<results_file><name>.csv``).
     """
     # Read the CSV files into dataframes
-    df_results = pd.read_csv(results_file)
-    df_metadata = pd.read_csv(metadata_file)
+    df_results = tabular.read_table(results_file, report=None)
+    # canonicalise=False: this is a third-party gene annotation file whose
+    # header is the vendor's ('Gene ID'), not spaCR metadata, and renaming a
+    # column of it would break the merge two lines below.
+    df_metadata = tabular.read_table(metadata_file, canonicalise=False,
+                                     report=None)
     
     def extract_and_clean_gene(feature):
         """Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``."""
@@ -9913,7 +9912,7 @@ def add_column_to_database(settings):
     """
 
     # Read the DataFrame from the provided CSV path
-    df = pd.read_csv(settings['csv_path'])
+    df = tabular.read_table(settings['csv_path'], report=None)
 
     # Replace 0 values with 2 in the update column
     if (df[settings['update_column']] == 0).any():
@@ -9999,29 +9998,37 @@ def fill_holes_in_mask(mask):
     return filled_mask
 
 def correct_metadata_column_names(df):
-    """Rename legacy metadata columns to the canonical spacr names.
+    """Rename legacy metadata columns to the canonical spaCR names.
 
-    Handles the common aliases (``plate_name`` -> ``plateID``, ``col`` -> ``columnID``,
-    ``row_name`` -> ``rowID``, ``grna_name`` -> ``grna``) and splits ``plate_row``
-    into ``plateID`` and ``rowID``.
+    A thin name over :func:`spacr.schema.canonicalise_frame`, which is the
+    one vocabulary: case- and punctuation-insensitive, so ``Plate``,
+    ``PLATE``, ``plate_id`` and ``plateName`` all become ``plateID``. This
+    function used to carry its own list of six spellings, matched
+    case-sensitively, and that list is why a CSV whose header said ``Column``
+    reached a fit with no ``columnID`` in it.
+
+    Two things it does that the shared vocabulary deliberately does not:
+
+    * ``grna_name`` -> ``grna``. Not in the shared vocabulary because the
+      sequencing CSVs are still read with ``grna_name`` by name in
+      ``spacr.submodules`` and ``spacr.plot``; renaming it at the database
+      migration would break those reads, and a rename nobody can see is
+      worse than a spelling.
+    * ``plate_row`` split into ``plateID`` and ``rowID``. That is a *value*
+      split rather than a rename, so it has no place in a name table.
 
     :param df: DataFrame whose columns may use legacy names.
-    :returns: A DataFrame carrying the canonical names. The renames are not applied
-        in place, so the caller must use the returned frame.
+    :returns: A DataFrame carrying the canonical names. The renames are not
+        applied in place, so the caller must use the returned frame.
     """
-    if 'plate_name' in df.columns:
-        df = df.rename(columns={'plate_name': 'plateID'})
-    if 'column_name' in df.columns:
-        df = df.rename(columns={'column_name': 'columnID'})
-    if 'col' in df.columns:
-        df = df.rename(columns={'col': 'columnID'})
-    if 'row_name' in df.columns:
-        df = df.rename(columns={'row_name': 'rowID'})
-    if 'grna_name' in df.columns:
+    from . import schema
+    df = schema.canonicalise_frame(df, report=print, repair_plate_ids=False)
+    if 'grna_name' in df.columns and 'grna' not in df.columns:
         df = df.rename(columns={'grna_name': 'grna'})
     if 'plate_row' in df.columns:
         df[['plateID', 'rowID']] = df['plate_row'].str.split('_', expand=True)
     return df
+
 
 def control_filelist(folder, mode='columnID', values=None):
     """Return filenames in ``folder`` whose row or column ID matches one of ``values``.
@@ -10347,13 +10354,13 @@ def filter_and_save_csv(input_csv, output_csv, column_name, upper_threshold, low
         ``display`` for notebook users, and the destination is printed.
     """
     # Read the input CSV file into a DataFrame
-    df = pd.read_csv(input_csv)
+    df = tabular.read_table(input_csv, report=None)
 
     # Filter rows based on the thresholds
     filtered_df = df[(df[column_name] > upper_threshold) | (df[column_name] < lower_threshold)]
 
     # Save the filtered DataFrame to a new CSV file
-    filtered_df.to_csv(output_csv, index=False)
+    tabular.write_table(filtered_df, output_csv)
     display(filtered_df)
 
     print(f"Filtered DataFrame saved to {output_csv}")
@@ -10545,62 +10552,45 @@ def copy_images_to_consolidated(image_path_map, root_folder):
         #print(f"Copied: {original_path} -> {new_file_path}")
         
 def correct_metadata(df):
-    """Normalize a metadata DataFrame to the canonical spacr column names and plate ID form.
+    """Normalize a metadata DataFrame to the canonical spaCR names and plate ids.
 
-    Strips a duplicated ``pp`` prefix from plate IDs, promotes legacy
-    ``*_name`` columns to their ID equivalents, and renames
-    ``row``/``col``/``column``/``field`` (and their ``*_name`` variants) to
-    ``rowID``/``columnID``/``fieldID``.
+    One call into :func:`spacr.schema.canonicalise_frame`, which is the whole
+    vocabulary in one place:
+
+    * every legacy spelling renamed, folding case *and* punctuation, so
+      ``Plate``/``PLATE``/``plate``/``plateid``/``plate_name`` all arrive as
+      ``plateID`` and the same for the row, the column, the field and the
+      well;
+    * **one** column per key. A file carrying ``well`` and ``wellID`` has two
+      opinions about which well a row came from; they are compared row by row
+      as stripped strings (so ``1``, ``1.0`` and ``' 1 '`` agree and a dtype
+      difference is not a disagreement), one is kept, and the rest are
+      dropped. Agreement prints; disagreement warns and says how many rows
+      differ.
+    * the ``pp`` plate repair, over every column that embeds the plate id.
+
+    THE ``pp`` REPAIR RUNS AFTER THE RENAMES, and over every plate-bearing
+    column. It used to run first and only over ``plateID``/``prcfo``, which
+    meant it did nothing at all for the files that actually carry the
+    artifact: a legacy score CSV has a ``plate`` column and NO ``plateID``
+    column, so the guard was false, the repair was skipped, and the very next
+    line then copied the unrepaired ``plate`` value into ``plateID``.
+
+    The cost was silent and total. Score files stamped ``pplate1`` met count
+    files stamped ``plate1``, every ``prc`` differed by one character, the
+    join produced ZERO rows, and the run died several steps later inside a
+    plot with ``KeyError: 0`` -- nowhere near the mismatch, and with nothing
+    on screen naming a plate.
 
     :param df: Metadata DataFrame that may still use legacy naming.
     :returns: The DataFrame with canonical columns.
     """
-    #if 'object' in df.columns:
-    #    df['objectID'] = df['object']
+    from . import schema
     if 'object_name' in df.columns:
+        df = df.copy()
         df['objectID'] = df['object_name']
+    return schema.canonicalise_frame(df, report=print)
 
-    if 'plate' in df.columns:
-        df['plateID'] = df['plate']
-
-    if 'plate_name' in df.columns:
-        df['plateID'] = df['plate_name']
-
-    # The 'pp' repair runs AFTER the legacy promotions above, and over every
-    # column that embeds the plate ID.
-    #
-    # It used to run first and only over 'plateID'/'prcfo', which meant it did
-    # nothing at all for the files that actually carry the artifact: a legacy
-    # score CSV has a 'plate' column and NO 'plateID' column, so the guard was
-    # false, the repair was skipped, and the very next line then copied the
-    # unrepaired 'plate' value into 'plateID'. Even when 'plateID' did exist,
-    # the promotion overwrote the value that had just been fixed.
-    #
-    # The cost was silent and total. Score files stamped 'pplate1' met count
-    # files stamped 'plate1', every prc differed by one character, the join
-    # produced ZERO rows, and the run died several steps later inside a plot
-    # with `KeyError: 0` — nowhere near the mismatch, and with nothing on
-    # screen naming a plate.
-    for column in ('plateID', 'prcfo', 'prc'):
-        if column in df.columns:
-            df[column] = (df[column].astype(str)
-                          .str.replace(r"^pp", "p", regex=True))
-
-    # Rename legacy aliases to their canonical names, but never when the
-    # canonical column already exists — an unguarded rename produced two
-    # columns with the same name (e.g. 'field_name' renamed onto an existing
-    # 'fieldID'), which then breaks every downstream df['fieldID'] lookup.
-    for alias, canonical in (('row', 'rowID'),
-                             ('row_name', 'rowID'),
-                             ('col', 'columnID'),
-                             ('column', 'columnID'),
-                             ('column_name', 'columnID'),
-                             ('field', 'fieldID'),
-                             ('field_name', 'fieldID')):
-        if alias in df.columns and canonical not in df.columns:
-            df = df.rename(columns={alias: canonical})
-
-    return df
 
 def remove_outliers_by_group(df, group_col, value_col, method='iqr', threshold=1.5):
     """

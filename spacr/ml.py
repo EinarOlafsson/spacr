@@ -63,7 +63,7 @@ from sklearn.preprocessing import MinMaxScaler
 from scipy.spatial.distance import cosine, euclidean, mahalanobis, cityblock, minkowski, chebyshev, braycurtis
 from xgboost import XGBClassifier
 
-from . import schema
+from . import schema, tabular
 from .openmp_guard import single_threaded_openmp, guarded_n_jobs  # see spacr/openmp_guard.py — duplicate libomp is fatal
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
@@ -386,7 +386,7 @@ def perform_mixed_model(y, X, groups, alpha=None,
         per row of ``X``.
     :param alpha: Must be None. Accepted only so an old call site fails with
         an explanation instead of a TypeError.
-    :param regression_backend: WHO fits it (instruction 141). ``'statsmodels'``
+    :param regression_backend: WHO fits it. ``'statsmodels'``
         is the default and produced every existing result; ``'torch'`` fits
         the same profiled REML objective on the GPU
         (:mod:`spacr.mixed_gpu`) and returns a result object with the same
@@ -622,12 +622,12 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     and ``level='both'`` is refused here because it is an instruction to fit
     TWICE, which is :func:`regression_levels`'s job, not a formula.
 
-    Measured on the maintainer's TSG101 screen (1945 rows): the guide design
+    Measured on the reference TSG101 screen (1945 rows): the guide design
     is 859 parameters at rank 859, the gene design 425 at rank 425 -- both
     full rank, against the combined design's 1248 parameters at rank 862.
 
     PLATE POSITION HAS THREE STATES, AND ``model_plate_position`` CHOOSES THE
-    FIRST OF THEM (instruction 143 A):
+    FIRST OF THEM:
 
         ``model_plate_position=False``  out of the model entirely
         ``model_plate_position=True``   in, as FIXED effects (the default)
@@ -639,7 +639,7 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     resolved to one of the other two.
 
     IT DEFAULTS TO ON, AND THE DEFAULT WAS MEASURED, not chosen. Instruction
-    143 asked for default OFF; fitting the maintainer's TSG101 screen
+    Fitting the reference TSG101 screen
     (regression_data.csv, 1945 rows, 610 wells, 823 guides, 389 genes) twice
     per level said otherwise, and the costs are asymmetric by more than an
     order of magnitude:
@@ -648,7 +648,7 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
       F = 5.781, p = 6.71e-23 at the guide level and F = 6.277, p = 2.33e-26
       at the gene level. 23 of the 35 are individually p < 0.05 and 8 survive
       Bonferroni. Not peculiar to this screen: of the nine real
-      ``regression_data.csv`` screens on the maintainer's machine, eight
+      reference ``regression_data.csv`` screens, eight
       reject the joint null at p < 0.05 and seven at p < 1e-5. The one that
       does not is the smallest, at 264 wells.
     * DROPPING THEM COSTS ACCURACY, NOT JUST FIT. 8.4 points of R2
@@ -671,7 +671,7 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
       0.02 hits out of 20. Coefficients move a median of 0.121 SE, which is
       noise.
 
-    35 TERMS, NOT 36. Instruction 143 counts a full 384-well plate: 16 rows
+    35 TERMS, NOT 36. The design counts a full 384-well plate: 16 rows
     plus 24 columns is 38 levels less two references. This screen occupies 16
     rows and 21 columns, so it spends 35, and its "6% of the residual degrees
     of freedom" is 35/610 WELLS -- against residual df it is 3.1% at the
@@ -684,7 +684,7 @@ def prepare_formula(dependent_variable, random_row_column_effects=False,
     is genuinely for is a RANDOMISED layout, where position is not a nuisance
     the plate carries and the 1.6% is spent for nothing.
 
-    ``block_screen`` adds ``screenID`` (instruction 122). Two screens sharing
+    ``block_screen`` adds ``screenID``. Two screens sharing
     a guide library can be stacked into one frame and fitted together, which
     is worth twice the wells -- but only if the screen itself is in the model.
     Without the term, a systematic difference between the two experiments is
@@ -744,7 +744,7 @@ def screen_is_blockable(df) -> bool:
 
     True only when the column exists and carries more than one distinct
     value. A single-screen project is the normal case and must be untouched
-    by instruction 122: it has no screenID at all, or one value, and either
+    by the design: it has no screenID at all, or one value, and either
     way the term would be a constant column.
 
     The same rule :func:`spacr.measurement_scan._dummy_block` applies, stated
@@ -797,7 +797,7 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     efficiency and off-target profile, rather than a second independent
     variable competing with the gene for the same wells.
 
-    THIS IS A REWRITE, NOT A SWITCH. Until instruction 132 this function
+    THIS IS A REWRITE, NOT A SWITCH. Previously, this function
     grouped on ``plateID`` with ``re_formula='1 + rowID + columnID'`` and row /
     column variance components, and its fixed part was the collinear
     ``fraction:grna + gene_fraction:gene`` design (see
@@ -843,7 +843,7 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
     :param random_row_column_effects: add row and column variance components.
     :param gene_column: the outer grouping column. Default ``'gene'``.
     :param guide_column: the nested column. Default ``'grna'``.
-    :param regression_backend: WHO fits it (instruction 141). ``'statsmodels'``
+    :param regression_backend: WHO fits it. ``'statsmodels'``
         by default. ``'torch'`` fits the SAME model -- same nesting, same
         REML criterion -- on the GPU; measured 24x faster end to end on a
         TSG101-shaped screen (1830 rows, 387 genes, 710 guides, q=1097:
@@ -1215,7 +1215,9 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
 
     dfs = []
     for i, score_data in enumerate(settings['score_data']):
-        df = pd.read_csv(score_data)
+        # ONE READER: canonical metadata names, one column per key and the
+        # `pplate1` repair, all decided in spacr.tabular rather than here.
+        df = tabular.read_table(score_data)
         df = correct_metadata_column_names(df)
         df['plateID'] = f'plate{i + 1}'
         
@@ -2791,7 +2793,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         produced every existing result. A backend that cannot fit
         ``regression_type`` is REFUSED here with the reason, not ignored:
         the two controls constrain each other in both directions
-        (instruction 141 C), and a settings CSV reaches this function
+       , and a settings CSV reaches this function
         without passing a panel that could have greyed the entry out.
     :param groups: Cluster identifiers for the mixed model.
     :param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and
@@ -3899,7 +3901,7 @@ def resolve_levels(regression_type, level='both'):
     ``mixed`` fits ONE model that already contains both levels -- the gene as a
     fixed effect and the guide as a random effect nested inside it -- so it
     ignores ``level`` entirely and answers ``('gene',)``. That is why the GUI
-    greys the dropdown out rather than hiding it (instruction 106): the
+    greys the dropdown out rather than hiding it: the
     setting exists, it is simply not this model's to read.
 
     Every other backend is fixed effects only and cannot nest, so it fits one
@@ -3942,7 +3944,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         ``'predictions'``.
     :param regression_type: Model type; auto-selected via
         :func:`check_distribution` when ``None``.
-    :param regression_backend: WHO fits it (instruction 141), one of
+    :param regression_backend: WHO fits it, one of
         :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``. It is
         threaded to whichever fitter this run reaches -- the mixed branch and
         :func:`regression_model` alike -- so one setting answers for the
@@ -3953,7 +3955,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
         random row/column effects.
     :param model_plate_position: Whether ``rowID`` and ``columnID`` are terms
         in the model at all. Default ``True``, which is what every run before
-        instruction 143 did and what the measurement in
+        earlier runs did and what the measurement in
         :func:`prepare_formula` says to keep. ``False`` with
         ``random_row_column_effects=True`` is refused: there is nothing left
         to make random.
@@ -4237,7 +4239,7 @@ def regression_levels(df, csv_path, dependent_variable='predictions',
         ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
 
     puts a block of columns and their own sums into one design. Measured on
-    the maintainer's TSG101 screen: 1248 parameters at rank 862 -- a
+    the reference TSG101 screen: 1248 parameters at rank 862 -- a
     386-dimensional EXACT null space -- and the fit statsmodels returned had a
     residual sum of squares bit-identical to the one you get by adding seven
     times a null vector to it. See :data:`COLLINEAR_FORMULA_FRAGMENT`.
@@ -4891,7 +4893,7 @@ def load_regression_input_pairs(pairs):
     def read(path):
         if not path:
             return None
-        return correct_metadata(pd.read_csv(os.fspath(path)))
+        return correct_metadata(tabular.read_table(os.fspath(path)))
 
     def plates(frame):
         if frame is None or 'plateID' not in frame.columns:
@@ -7097,9 +7099,9 @@ def perform_regression(settings):
     #
     # The results tables are the correct default. Metadata is an annotation
     # join that adds columns; it is not what makes a volcano plottable.
-    merged_df = pd.read_csv(results_path)
-    gene_merged_df = pd.read_csv(results_path_gene)
-    grna_merged_df = pd.read_csv(results_path_grna)
+    merged_df = tabular.read_table(results_path, report=None)
+    gene_merged_df = tabular.read_table(results_path_gene, report=None)
+    grna_merged_df = tabular.read_table(results_path_grna, report=None)
 
     for metadata_file in settings['metadata_files']:
         file = os.path.basename(metadata_file)
@@ -7217,9 +7219,15 @@ def perform_regression(settings):
                   f"need two curated metadata tables (GT1 phenotypes and "
                   f"ME49 expression) and {len(metadata_files)} were given. "
                   f"The volcano and every results table are unaffected.")
-        data_GT1 = (pd.read_csv(metadata_files[1], low_memory=False)
+        # canonicalise=False: these are curated third-party annotation
+        # tables whose headers are the vendor's ('Gene ID', 'sense - EES1'),
+        # not spaCR metadata, and the columns below are selected by those
+        # exact names.
+        data_GT1 = (tabular.read_table(metadata_files[1], low_memory=False,
+                                       canonicalise=False, report=None)
                     if have_curated_tables else None)
-        data_ME49 = (pd.read_csv(metadata_files[0], low_memory=False)
+        data_ME49 = (tabular.read_table(metadata_files[0], low_memory=False,
+                                        canonicalise=False, report=None)
                      if have_curated_tables else None)
         columns = ['sense - Tachyzoites', 'sense - Tissue cysts',
                 'sense - EES1', 'sense - EES2', 'sense - EES3',
@@ -7477,7 +7485,7 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
         csv_df = csv_path
     else:
         # Read the CSV file into a DataFrame
-        csv_df = pd.read_csv(csv_path)
+        csv_df = tabular.read_table(csv_path)
 
     csv_df = correct_metadata(csv_df)    
     
@@ -9183,7 +9191,7 @@ def interpret_vision_model(settings=None):
             pathogen_limit=settings['pathogen_limit']
         )
 
-        scores_df = pd.read_csv(settings['scores'])
+        scores_df = tabular.read_table(settings['scores'])
 
         # Clean and align columns for merging
         df['object_label'] = df['object_label'].str.replace('o', '')

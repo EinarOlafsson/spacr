@@ -1,6 +1,6 @@
 """Load several measurement databases as one frame, without pooling them.
 
-Instruction 109. A screen acquired as three plates was three sessions in the
+A screen acquired as three plates used to require three sessions in the
 Gate Editor and three separate UMAPs, and the comparison a user actually
 wants -- all of it in one embedding, one gate, one figure -- could not be made
 inside spaCR at all.
@@ -28,7 +28,7 @@ ambiguity rather than resolving it silently, and never lose provenance.
 
 TWO SCREENS, AND A COLLISION THAT IS NOT ONE
 --------------------------------------------
-Instruction 122 added the case the first bullet above gets *backwards*. Two
+There is also a case where the first bullet above is *backwards*. Two
 screens that share a guide library both have ``plate1``..``plate4``, and there
 they are not two plates claiming one identity -- they are two *different*
 plates whose identity was only ever partly written down. The missing part is
@@ -58,7 +58,7 @@ from typing import (
 
 import pandas as pd
 
-from . import schema
+from . import schema, tabular
 
 __all__ = [
     "SOURCE_COLUMN",
@@ -305,78 +305,48 @@ def _meaningful_parent(path: str) -> str:
     return ""
 
 
-def canonical_plate_id(plate: Any) -> str:
-    """The plate id in the form the rest of spaCR keys on.
-
-    ONE RULE, IN ONE PLACE (instruction 145). A legacy score CSV stamps its
-    plate ``pplate1`` while the sequencing counts stamp it ``plate1``, and
-    :func:`spacr.utils.correct_metadata` has repaired that for frames since
-    the day it cost a whole run: it rewrites ``^pp`` to ``p`` in ``plateID``,
-    ``prc`` and ``prcfo``. Nothing repaired the plate ids read out of a
-    measurements DATABASE, so the Measurements tab showed ``pplate1`` beside a
-    plate the user calls ``plate1`` -- and, worse than the display, a
-    measurements database stamped ``pplate1`` will not join a score CSV that
-    ``correct_metadata`` has already normalised to ``plate1``.
-
-    This is the scalar form of that same rule, so the two cannot drift.
-    ``tests/test_multi_database.py`` pins them to the same answer.
-
-    :param plate: a plate id, from anywhere.
-    :returns: the id with a doubled ``p`` prefix collapsed; everything else
-        unchanged.
-    """
-    text = str(plate)
-    return "p" + text[2:] if text.startswith("pp") else text
-
-
-#: The columns a doubled plate prefix reaches. ``plateID`` is the plate itself;
-#: the composed keys carry it as their FIRST component, which is why a rewrite
-#: of the plate column alone leaves the joins still broken.
-PLATE_BEARING_COLUMNS = ("plateID", "prc", "prcf", "prcfo")
+#: The plate id in the form the rest of spaCR keys on, and the columns that
+#: carry it. Both are :mod:`spacr.schema`'s -- re-exported here, unchanged, so
+#: the callers that import them from this module keep working.
+#:
+#: They used to be DEFINED here, which made three copies of one rule:
+#: ``utils.correct_metadata`` repaired frames, this module repaired scalars
+#: and database reads, and ``tests/test_multi_database.py`` had to pin the
+#: two against each other by test precisely because they were two. One
+#: definition cannot disagree with itself.
+canonical_plate_id = schema.canonical_plate_id
+PLATE_BEARING_COLUMNS = schema.PLATE_BEARING_COLUMNS
 
 
 def normalise_plate_ids(frame: "pd.DataFrame") -> "pd.DataFrame":
     """Collapse a doubled ``p`` prefix in every column that carries a plate.
 
-    WHY THIS IS NOT COSMETIC, and why the display fix was not enough.
-    :func:`canonical_plate_id` was added so the Measurements tab could SHOW a
-    plate by the name its owner uses. It was applied to the label and to the
-    warning, and never to the data -- so a measurements database stamped
-    ``pplate1`` still produced merged rows stamped ``pplate1``, while
-    :func:`spacr.utils.correct_metadata` had already normalised the score and
-    count CSVs to ``plate1``.
-
-    The two then do not meet. Every join INSIDE the merge is unaffected,
-    because both sides read the same stored value -- which is exactly what
-    makes it hard to see: the merge succeeds, the row counts are right, and the
-    failure appears later and somewhere else, as a gene half that is missing
-    for no visible reason.
+    WHY THIS IS NOT COSMETIC. A measurements database stamped ``pplate1``
+    produces merged rows stamped ``pplate1``, while the score and count CSVs
+    have already been normalised to ``plate1``. The two then do not meet.
+    Every join INSIDE the merge is unaffected, because both sides read the
+    same stored value -- which is exactly what makes it hard to see: the
+    merge succeeds, the row counts are right, and the failure appears later
+    and somewhere else, as a gene half that is missing for no visible reason.
 
     THE COMPOSED KEYS MATTER AS MUCH AS THE PLATE COLUMN. ``prc`` is
     ``<plate>_<row>_<column>``, so a doubled prefix rides in its first
     component; rewriting ``plateID`` alone would leave ``prc`` unjoinable and
     the two columns disagreeing about the same plate.
 
-    Applied on READ, so nothing on disk is rewritten and an old database keeps
-    working -- the standing rule is to correct the format going forward and
-    migrate the content, and a measurements database is the user's data rather
-    than ours to edit.
+    Applied on READ, so nothing on disk is rewritten and an old database
+    keeps working -- the standing rule is to correct the format going forward
+    and migrate the content, and a measurements database is the user's data
+    rather than ours to edit.
+
+    A thin name over :func:`spacr.schema.normalise_plate_columns`, which is
+    the one implementation.
 
     :param frame: any frame read from a measurements database.
     :returns: the same frame, with the plate-bearing columns normalised in
         place. Columns it does not have are skipped.
     """
-    for column in PLATE_BEARING_COLUMNS:
-        if column not in frame.columns:
-            continue
-        values = frame[column]
-        # `.str` refuses a non-object column, and a plate id stored as an
-        # INTEGER cannot carry a "pp" prefix, so there is nothing to do.
-        if values.dtype != object:
-            continue
-        frame[column] = values.map(
-            lambda v: canonical_plate_id(v) if isinstance(v, str) else v)
-    return frame
+    return schema.normalise_plate_columns(frame)
 
 
 def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
@@ -854,24 +824,22 @@ def read_merged(paths: Sequence[str],
                 f"had been read and none of them were kept.")
         if progress is not None:
             progress(f"reading {table} from {source.label}", done, total)
-        query = f'SELECT * FROM "{source.table}"'
-        if limit_per_source:
-            query += f" LIMIT {int(limit_per_source)}"
-        with sqlite3.connect(f"file:{source.path}?mode=ro", uri=True,
-                             timeout=30) as db:
-            frame = pd.read_sql_query(query, db)
-        # One canonicaliser, so a column spelled differently across two
-        # databases becomes one column rather than two. Case-folded, so this
-        # cannot produce a frame SQLite will refuse (instruction 100, C1).
-        mapping = schema.canonical_rename_plan(frame.columns)
-        if mapping:
-            frame = frame.rename(columns=mapping)
-        # THE PLATE ID, BEFORE ANYTHING KEYS ON IT. A database stamped
-        # `pplate1` will not meet a score CSV that `correct_metadata` has
-        # already normalised to `plate1`, and the failure is invisible here --
-        # every join inside this merge reads the same stored value on both
-        # sides and succeeds. See `normalise_plate_ids`.
-        frame = normalise_plate_ids(frame)
+        # ONE READER. `tabular.read_database` is the door every spaCR read
+        # goes through, and it is what applies the vocabulary: canonical
+        # names, ONE column per metadata key (a `well` beside a `wellID` is
+        # collapsed and the disagreement counted), and the `pplate1` plate
+        # repair before anything keys on it. Case-folded, so it cannot
+        # produce a frame SQLite will refuse.
+        #
+        # read_only, because a merge reads the user's measurement databases
+        # and must not be able to write to one; migrate=False follows from
+        # that and is what this call has always done.
+        frame = tabular.read_database(
+            source.path, [source.table],
+            report=report, warn=report,
+            migrate=False, read_only=True,
+            limit=int(limit_per_source) if limit_per_source else None,
+        )[0]
         # BEFORE the column filter, so a screen stored in only one source is
         # not intersected away, and so an explicitly named screen reaches
         # every row whether the database had the column or not.
