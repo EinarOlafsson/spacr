@@ -2114,6 +2114,20 @@ class AppScreen(QWidget):
                     self._on_column_fit_started)
                 self._scan_panel.regression.fit_finished.connect(
                     self._on_column_fit_finished)
+                # EVERY GENE AGAINST EVERY MEASUREMENT (175), beside the
+                # scan because it is the same question asked of the whole
+                # screen at once. The three providers it needs -- the merged
+                # frame, the counts and the scores -- are all already on this
+                # screen; the panel was written to take them rather than to
+                # go looking, so it stays testable without any of this.
+                from ..widgets.sweep_panel import SweepPanel
+                self._sweep_panel = SweepPanel(
+                    cells_provider=self._scan_panel.databases_frame,
+                    counts_provider=self._sweep_counts,
+                    scores_provider=self._sweep_scores,
+                    parent=left)
+                self._scan_panel.layout().addWidget(self._sweep_panel)
+
                 left.addTab(self._scan_panel, "Measurements")
                 left.setTabToolTip(
                     2, "Hold the model fixed and sweep the dependent "
@@ -4494,6 +4508,50 @@ class AppScreen(QWidget):
             return str(panel.run_folder() or "")
         except AttributeError:
             return str(getattr(panel, "_path", "") or "")
+
+    def _sweep_counts(self):
+        """The per-well guide fractions the sweep needs.
+
+        The SAME reader the montage uses, from the SAME input table -- the
+        count CSVs the run was fitted on. A second way of turning counts into
+        fractions would be a second answer to what a fraction is.
+        """
+        from ...cell_montage import fractions_from_counts
+
+        try:
+            paths = [row.get("count", "") for row in
+                     (self._attached_database_rows() or [])
+                     if isinstance(row, dict)]
+            paths = [p for p in paths if p]
+            return fractions_from_counts(paths) if paths else None
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not build the sweep's counts", exc_info=True)
+            return None
+
+    def _sweep_scores(self):
+        """The per-object classification scores, for the circularity column.
+
+        The merged measurements frame has NO score column -- it is the
+        measurement tables -- so without these the column is NaN and the sweep
+        says so rather than reporting zeros.
+        """
+        import pandas as pd
+
+        try:
+            frames = []
+            for row in (self._attached_database_rows() or []):
+                path = row.get("score", "") if isinstance(row, dict) else ""
+                if path and os.path.isfile(str(path)):
+                    frames.append(pd.read_csv(str(path)))
+            if not frames:
+                return None
+            joined = pd.concat(frames, ignore_index=True, sort=False)
+            from ...utils import correct_metadata_column_names
+
+            return correct_metadata_column_names(joined)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("could not read the sweep's scores", exc_info=True)
+            return None
 
     def _scan_source_frame(self):
         """The well-level frame the measurement scan should run on.
