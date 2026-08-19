@@ -174,6 +174,66 @@ def upgrade_command(pre_release: bool = False) -> list:
     return args
 
 
+def editable_install_location() -> Optional[str]:
+    """The checkout ``spacr`` runs from, or ``None`` for an ordinary install.
+
+    :returns: the absolute path of the working tree, when this interpreter is
+        running spaCR out of one.
+
+    TWO CHECKS, BECAUSE NEITHER IS ENOUGH ALONE.
+
+    1. ``direct_url.json`` records ``{"dir_info": {"editable": true}}`` for a
+       pip editable install, which is the authoritative answer -- WHEN IT CAN
+       BE READ. It cannot always: with the current directory inside the
+       checkout, ``importlib.metadata`` resolves ``spacr`` to the SOURCE
+       TREE's own metadata, which carries no ``direct_url.json`` and returns
+       ``None``. Measured while writing this, and it is the state a developer
+       is in most often -- so relying on it alone would have made the guard
+       fail in exactly the case it exists for.
+
+    2. WHERE THE IMPORTED PACKAGE ACTUALLY LIVES. If ``spacr.__file__`` is not
+       under a ``site-packages`` directory, the code being run is a working
+       tree whatever the metadata says. This is the check that answers the
+       real question -- "would ``pip install --upgrade`` replace the source I
+       am editing?" -- and it needs no packaging metadata at all.
+    """
+    try:
+        import importlib.metadata as md
+        import json
+
+        direct = md.distribution("spacr").read_text("direct_url.json")
+        if direct:
+            record = json.loads(direct)
+            if record.get("dir_info", {}).get("editable"):
+                url = str(record.get("url", ""))
+                if url.startswith("file://"):
+                    from urllib.parse import unquote, urlparse
+
+                    return unquote(urlparse(url).path)
+                if url:
+                    return url
+    except Exception:                                            # noqa: BLE001
+        pass
+
+    try:
+        import spacr as _spacr
+
+        here = os.path.abspath(os.path.dirname(
+            os.path.dirname(os.path.abspath(_spacr.__file__))))
+    except Exception:                                            # noqa: BLE001
+        return None
+    for entry in sys.path + [getattr(sys, "prefix", "")]:
+        if not entry:
+            continue
+        marker = os.path.abspath(entry)
+        if os.path.basename(marker) in ("site-packages", "dist-packages") \
+                and here == marker:
+            return None
+    # Not under a site-packages: this is a checkout.
+    return here if os.path.isdir(os.path.join(here, ".git")) or \
+        os.path.isfile(os.path.join(here, "pyproject.toml")) else None
+
+
 def run_pip_upgrade(pre_release: bool = False):
     """Upgrade ``spacr`` in place, capturing what the packaging tool said.
 
@@ -186,6 +246,26 @@ def run_pip_upgrade(pre_release: bool = False):
         code with an invitation to "check the terminal" that could not be
         accepted.
     """
+    # NEVER UPGRADE OVER A DEVELOPMENT CHECKOUT. `pip install --upgrade spacr`
+    # uninstalls whatever is there and installs from the index -- including
+    # when what is there is an EDITABLE install pointing at a working tree.
+    # The developer's source stops being what runs, nothing says so, and every
+    # change they make afterwards has no effect they can see. Reported
+    # 2026-08-18: an update check ran mid-session and the console showed
+    # "Uninstalling spacr-1.5.0.4 ... Successfully installed spacr-1.5.0.4",
+    # which is that exact operation.
+    #
+    # An editable install is a statement that this checkout IS the package, so
+    # the upgrade is refused rather than confirmed -- there is no version of
+    # "yes" that leaves the checkout in charge, and `git pull` is the upgrade
+    # for a checkout.
+    editable = editable_install_location()
+    if editable:
+        return (0, (
+            f"spaCR is installed in editable mode from {editable}, so there "
+            f"is nothing to upgrade: that folder IS the package, and pip "
+            f"would replace it with a release build. Update it with `git "
+            f"pull` there instead.\n"))
     return run_install_command(upgrade_command(pre_release))
 
 
