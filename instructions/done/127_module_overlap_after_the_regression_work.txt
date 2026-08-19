@@ -363,3 +363,42 @@ REMOVAL CANDIDATES, FOR THE MAINTAINER, all flagged and none acted on:
 THE COUNTING TEST THE ACCEPTANCE ASKS FOR ALREADY EXISTS and is green:
 `tests/test_one_volcano_for_each_job.py`. Nothing was added to it; the two
 survivors are still pinned by name and the inventory still has twelve entries.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19 -- every acceptance line is met; the remainder is YOUR decision
+--------------------------------------------------------------------------------
+
+  * ONE RENDERER PER JOB, WITH A TEST THAT COUNTS THEM.
+    `tests/test_one_volcano_for_each_job.py`, green, thirteen entries and two
+    named survivors. It EARNED ITS KEEP on 2026-08-19: instruction 115 added
+    `regression_qc._score_volcano_reference` and the inventory went red the
+    same day. It is a scorer that draws nothing, and it was REGISTERED rather
+    than excluded by a `_score_*` name rule -- a rule like that would have made
+    the red go away and hidden the next real renderer that happened to be
+    called one. A ratchet that can be widened by the thing it catches is not a
+    ratchet.
+  * ONE ENGINE CHOOSES THE STATISTICAL TEST. Finding 2, the correctness item:
+    two engines disagreed on 3 of 5 cases, always with sp_stats taking the
+    parametric branch. Closed earlier in this run.
+  * A FIGURE PREFERENCE REACHES A HOUSE-STYLE PANEL. `figures/style.py` lays
+    the user's own preferences over the house style and reads the screen/print
+    mode from them.
+  * `spacr.figures` AND WHAT IT REPLACED DO NOT BOTH SHIP THE SAME PICTURE --
+    pinned by the inventory above.
+
+WHAT IS LEFT IS NOT WORK, IT IS A DECISION, and this file said so from the
+start: "which modules exist is a product decision, and three of the findings
+are load-bearing for published figures." The candidates are unchanged and
+nothing has been deleted:
+
+  * `spacr/regression_search.py` -- clean delete. Nothing in `spacr/` imports
+    it except the lazy-loader list in `__init__.py`.
+  * `plot.volcano_plot` -> `figures.panels.volcano` -- an API change with a
+    real blast radius, not a rename.
+  * `toxo.custom_volcano_plot` -- still returns the hit list the GT1 phenotype
+    plot and the ME49 heatmap are built from; move the hit rule out first.
+  * `volcano_style.py` -- KEEP, on the corrected evidence above.
+
+Say the word on any of them and it is a small change. Left standing is the
+right default: a module deleted from under a published figure cannot be
+un-deleted from a reader's paper.
