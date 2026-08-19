@@ -4627,31 +4627,10 @@ def _split_prc(text):
     return schema.unescape_filename_component(plate), row, column
 
 
-def _compose_prc_column(df):
-    """``prc`` from ``plateID``/``rowID``/``columnID``, escaped as the key is.
-
-    The vectorised counterpart of :func:`spacr.schema.compose_prc`, and the
-    reason it exists: seven sites in this module built ``prc`` with a bare
-    ``df['plateID'] + '_' + ...``, which is correct only while no plate id
-    contains the separator or a ``%``. ``compose_prc`` escapes both, so a
-    hand-joined key and a composed key were two different strings for the same
-    well, and anything joining one to the other silently matched nothing.
-
-    ESCAPING IS NOW THE ONE SPELLING (maintainer's decision, 2026-08-16).
-    A plate called ``exp1_plate2`` composes to ``exp1%5Fplate2_rB_c3`` -- three
-    components, always -- rather than to a four-component key separated by the
-    row/column guard. Databases written before this hold the old four-component
-    form, and :func:`_split_prc` still reads it: unescaping is a no-op on a key
-    that carries no escape, and the guard that separates an underscored plate
-    from a ``prcf`` is untouched. So old data reads and new data is
-    unambiguous, which is what "accept both, write one" means here.
-
-    :param df: frame carrying ``plateID``, ``rowID`` and ``columnID``.
-    :returns: the ``prc`` series.
-    """
-    return (df['plateID'].astype(str).map(schema.escape_filename_component)
-            + schema.KEY_SEPARATOR + df['rowID'].astype(str)
-            + schema.KEY_SEPARATOR + df['columnID'].astype(str))
+#: ``prc`` for a whole frame. :mod:`spacr.schema` owns it -- one place
+#: composes a key -- and this name is kept because seven call sites in this
+#: module use it.
+_compose_prc_column = schema.compose_prc_column
 
 
 def _is_row_column_pair(row, column):
