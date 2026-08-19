@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import logging
 import os
+from json import JSONDecodeError
 from typing import Callable, Optional
 
 LOG = logging.getLogger(__name__)
@@ -1159,6 +1160,176 @@ def figure_follows_the_theme(figure) -> None:
     apply_font_colour(figure, font)
 
 
+#: What a saved graph-style file says it is. A file that does not say this is
+#: refused rather than partially applied, for the reason
+#: `fast_plots.load_style` gives about a style of the WRONG KIND: settings
+#: whose names happen to match would be taken and the rest left, which looks
+#: like a corrupted house style rather than like a mistake.
+GRAPH_STYLE_FILE_KIND = "spacr_graph_style"
+
+
+def graph_style_as_dict(general=None, per_graph=None) -> dict:
+    """The user's graph style as the thing that gets written to a file.
+
+    Instruction 108 point 5 -- "Save style / Load style ... plus a per-project
+    default so a lab's house style is applied to every figure of that type
+    without re-setting it each time" -- for the figures that have no style
+    DATACLASS, which is nearly all of them.
+
+    IT SAVES INSTRUCTION 118'S OWN VOCABULARY AND INVENTS NOTHING. A second
+    set of appearance keys, captured off the artists of one drawn figure,
+    would be a third style system in a package instruction 127 has already
+    measured as having two -- and the deltas here are what
+    `figures.style.user_overrides` and `figure_style.resolve` already read,
+    so a loaded house style reaches every figure spaCR draws without anything
+    else being wired.
+
+    NO COLOURS BEYOND THE ONES 118 ALREADY STORES, and this is worth being
+    explicit about because the obvious extra -- "capture what this figure
+    looks like right now" -- would sample the ink the THEME resolved. Saving
+    that and applying it later is instruction 152 section A exactly: a
+    resolved default written back, invisible the first time the user changes
+    theme. The live figure's ink stays a token in `prefs/figure_*`.
+    """
+    if general is None or per_graph is None:
+        try:
+            from ..preferences import (get_figure_style,
+                                       get_figure_style_per_graph)
+            if general is None:
+                general = get_figure_style()
+            if per_graph is None:
+                per_graph = get_figure_style_per_graph()
+        except Exception:                    # pragma: no cover - no store
+            general, per_graph = general or {}, per_graph or {}
+    return {
+        "spacr_style_kind": GRAPH_STYLE_FILE_KIND,
+        "general": dict(general or {}),
+        "per_graph": {str(kind): dict(values)
+                      for kind, values in (per_graph or {}).items()
+                      if isinstance(values, dict)},
+    }
+
+
+def save_graph_style(path: str, general=None, per_graph=None) -> str:
+    """Write the graph style to ``path`` as JSON. Returns the path, or "".
+
+    The DELTAS, exactly as the store holds them, so a house style saved on a
+    machine whose package defaults have since improved still means "these
+    four things differ" rather than freezing the defaults of the day it was
+    written. Same reason `FigureStylePreferences.values` returns deltas.
+    """
+    import json
+
+    if not path:
+        return ""
+    try:
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(graph_style_as_dict(general, per_graph), handle,
+                      indent=2, sort_keys=True)
+    except OSError as error:
+        LOG.warning("could not save the graph style to %s: %s", path, error)
+        return ""
+    return path
+
+
+def load_graph_style(path: str) -> tuple:
+    """``(general, per_graph)`` from a saved graph style.
+
+    :raises ValueError: if the file is not a spaCR graph style. Refused
+        rather than partially applied -- see :data:`GRAPH_STYLE_FILE_KIND`.
+
+    FORWARDS-COMPATIBLE IN BOTH DIRECTIONS. A key the package no longer has
+    is KEPT, not dropped: `FigureStylePreferences` already shows such a value
+    as "<value> (not offered)" rather than snapping it to something else, and
+    a loader that discarded it would make opening and re-saving a colleague's
+    house style silently lose the parts this build does not know about.
+    """
+    import json
+
+    with open(path, "r", encoding="utf-8") as handle:
+        data = json.load(handle)
+    if not isinstance(data, dict) or \
+            data.get("spacr_style_kind") != GRAPH_STYLE_FILE_KIND:
+        raise ValueError(f"{path} is not a spaCR graph style")
+    general = data.get("general")
+    per_graph = data.get("per_graph")
+    return (dict(general) if isinstance(general, dict) else {},
+            {str(kind): dict(values)
+             for kind, values in (per_graph or {}).items()
+             if isinstance(values, dict)})
+
+
+def apply_graph_style(general, per_graph) -> None:
+    """Make a loaded graph style THIS PROJECT'S DEFAULT.
+
+    Written into the same preference the Figures tab writes, which is what
+    makes "applied to every figure of that type without re-setting it each
+    time" true: `figure_style.resolve` and `figures.style.user_overrides`
+    both read it already. Loading a style is therefore indistinguishable
+    afterwards from having set every one of its controls by hand, which is
+    the property that stops this being a fourth place a setting can live.
+    """
+    from ..preferences import set_figure_style, set_figure_style_per_graph
+
+    set_figure_style(dict(general or {}))
+    set_figure_style_per_graph({str(kind): dict(values)
+                                for kind, values in (per_graph or {}).items()
+                                if isinstance(values, dict)})
+
+
+def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
+    """"Save graph style…" / "Load graph style…" on ``menu``.
+
+    THE HALF THE MAINTAINER RESTATED -- "each figure should be editable and
+    savable" -- reaching the matplotlib figures. `fast_plots.save_style` and
+    `load_style` already do this for a style DATACLASS, and the only
+    dataclass in the package is `VolcanoStyle`, so on 2026-08-18 the savable
+    half existed and nothing a user could click reached it.
+    """
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+    owner = parent if parent is not None else menu
+
+    def _save():
+        path, _filter = QFileDialog.getSaveFileName(
+            owner, "Save graph style", "graph_style.json",
+            "spaCR graph style (*.json);;All files (*)")
+        if path:
+            save_graph_style(path)
+
+    def _load():
+        path, _filter = QFileDialog.getOpenFileName(
+            owner, "Load graph style", "",
+            "spaCR graph style (*.json);;All files (*)")
+        if not path:
+            return
+        try:
+            general, per_graph = load_graph_style(path)
+        except (OSError, ValueError, JSONDecodeError) as error:
+            QMessageBox.warning(owner, "Load graph style", str(error))
+            return
+        apply_graph_style(general, per_graph)
+        if callable(on_change):
+            try:
+                on_change(preview=True)
+            except TypeError:
+                on_change()
+
+    save = QAction("Save graph style…", owner)
+    save.setToolTip(
+        "Write the general and per-graph settings from Preferences to a "
+        "file, so a lab's house style can be shared and re-applied.")
+    save.triggered.connect(_save)
+    menu.addAction(save)
+
+    load = QAction("Load graph style…", owner)
+    load.setToolTip(
+        "Read a saved house style and make it this project's default, so "
+        "every figure drawn from now on uses it.")
+    load.triggered.connect(_load)
+    menu.addAction(load)
+
+
 def build_figure_context_menu(parent, figure, *, on_change=None,
                               open_settings=None) -> QMenu:
     """The right-click menu for a drawn figure.
@@ -1297,6 +1468,8 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
                     "on screen right now.")
     save.triggered.connect(lambda: save_figure_as(parent, figure))
     menu.addAction(save)
+
+    add_graph_style_file_entries(menu, parent, on_change=on_change)
 
     settings = QAction("Figure settings…", parent)
     if open_settings is not None:
@@ -1516,6 +1689,9 @@ def export_sidecars(figure, path) -> list:
 
 
 __all__ = ["FigureSettingsDialog", "build_figure_context_menu", "AXIS_SCALES",
+           "GRAPH_STYLE_FILE_KIND", "graph_style_as_dict", "save_graph_style",
+           "load_graph_style", "apply_graph_style",
+           "add_graph_style_file_entries",
            "export_sidecars", "save_figure_as"]
 
 
@@ -1701,6 +1877,84 @@ class FigureStylePreferences(QWidget):
             self._pages.addTab(page, kind)
         column.addWidget(self._pages)
         self._kind_box.currentIndexChanged.connect(self._pages.setCurrentIndex)
+
+        # SAVE / LOAD, instruction 108 point 5, on the panel that owns these
+        # settings. The same file the figure's right-click menu reads and
+        # writes -- one format, two ways in, and no third place a graph style
+        # can live.
+        file_row = QHBoxLayout()
+        save_button = QPushButton("Save style…")
+        save_button.setToolTip(
+            "Write these settings to a file, so a lab's house style can be "
+            "shared and re-applied without setting every control again.")
+        save_button.clicked.connect(self._save_to_file)
+        load_button = QPushButton("Load style…")
+        load_button.setToolTip(
+            "Read a saved house style into these controls. Press Save to "
+            "make it this project's default.")
+        load_button.clicked.connect(self._load_from_file)
+        file_row.addWidget(save_button)
+        file_row.addWidget(load_button)
+        file_row.addStretch(1)
+        column.addLayout(file_row)
+
+    # -- a house style as a file ---------------------------------------------
+
+    def _save_to_file(self) -> None:
+        """Write WHAT IS ON SCREEN, not what is stored.
+
+        A panel with unsaved edits that saved the store instead would write a
+        file the user can see does not match the controls in front of them.
+        """
+        from PySide6.QtWidgets import QFileDialog
+
+        path, _filter = QFileDialog.getSaveFileName(
+            self, "Save graph style", "graph_style.json",
+            "spaCR graph style (*.json);;All files (*)")
+        if path:
+            general, per_graph = self.values()
+            save_graph_style(path, general, per_graph)
+
+    def _load_from_file(self) -> None:
+        """Read a house style INTO THE CONTROLS, not into the store.
+
+        So the user sees what they are about to accept and can still press
+        Cancel -- a load that wrote straight through would be the one action
+        in this dialog that Cancel could not undo.
+        """
+        from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+        path, _filter = QFileDialog.getOpenFileName(
+            self, "Load graph style", "",
+            "spaCR graph style (*.json);;All files (*)")
+        if not path:
+            return
+        try:
+            general, per_graph = load_graph_style(path)
+        except (OSError, ValueError, JSONDecodeError) as error:
+            QMessageBox.warning(self, "Load graph style", str(error))
+            return
+        self.apply_values(general, per_graph)
+
+    def apply_values(self, general=None, per_graph=None) -> None:
+        """Put ``general``/``per_graph`` into the controls.
+
+        A setting the file does not mention goes back to the PACKAGE DEFAULT
+        rather than keeping whatever was on screen. Loading a house style
+        that leaves half of somebody else's settings behind is not the house
+        style, and the deltas the file stores only mean anything against the
+        defaults.
+        """
+        general = dict(general or {})
+        per_graph = {str(kind): dict(values)
+                     for kind, values in (per_graph or {}).items()
+                     if isinstance(values, dict)}
+        for name, (_getter, setter, default) in self._general_controls.items():
+            setter(general.get(name, default))
+        for kind, controls in self._kind_controls.items():
+            stored = per_graph.get(kind, {})
+            for name, (_getter, setter, default) in controls.items():
+                setter(stored.get(name, default))
 
     # -- building one control ------------------------------------------------
 
