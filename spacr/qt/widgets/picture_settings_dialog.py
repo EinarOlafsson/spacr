@@ -61,7 +61,19 @@ def _editor(value: Any, parent: Optional[QWidget] = None,
         # spaCR is built from the data.
         combo = QComboBox(parent)
         for option in choices:
-            combo.addItem(str(option), option)
+            # A chooser may offer (value, label) or a bare value. The STORED
+            # value is always the first, so a label can be renamed without
+            # changing what any settings file already on disk means.
+            #
+            # `stored`, NOT `value`: the first version of this loop unpacked
+            # into `value` and so clobbered the parameter it was about to
+            # search for -- every dropdown then opened on its LAST entry,
+            # whatever the setting actually was.
+            if isinstance(option, tuple) and len(option) == 2:
+                stored, label = option
+            else:
+                stored = label = option
+            combo.addItem(str(label), stored)
         current = combo.findData(value)
         if current < 0:
             current = combo.findText(str(value))
