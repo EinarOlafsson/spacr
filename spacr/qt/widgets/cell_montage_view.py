@@ -1361,16 +1361,25 @@ class CellMontageView(QWidget):
         self._object.currentIndexChanged.connect(self._on_settings_changed)
         controls.addWidget(self._object)
 
-        controls.addWidget(QLabel("channels"))
+        # CHANNELS LIVES IN THE SETTINGS WINDOW, not on the toolbar. Asked
+        # 2026-08-19: "in the cell tab there is no need to have object
+        # channels outisde of the settings pannel, moove it to the settings
+        # pannel with the other settings". It was already offered there under
+        # the annotator's own name, so the toolbar copy was a second control
+        # for one setting -- and two controls for one setting is two places
+        # for it to be wrong.
+        #
+        # The widget stays, unparented and hidden, because `channels()` and
+        # the run's saved state both read it and a removal would have been a
+        # rename disguised as a deletion. It mirrors the settings window.
         self._channels = QLineEdit()
         self._channels.setPlaceholderText("as the run saved them")
-        self._channels.setMaximumWidth(120)
+        self._channels.setVisible(False)
         self._channels.setToolTip(
             "Which intensity planes become the picture, e.g. 0,1,2. Left "
             "empty, the run's own png_dims are read back out of "
             "measurements.db, so the crops match the PNGs that run wrote.")
         self._channels.textChanged.connect(self._on_settings_changed)
-        controls.addWidget(self._channels)
 
         controls.addWidget(QLabel("crop shape"))
         self._shape = QComboBox()
@@ -1914,6 +1923,15 @@ class CellMontageView(QWidget):
         # streaming setting, switched to load images and switched back must
         # find it where they left it.
         self._picture_settings = dialog.values()
+        # ONE SETTING, ONE VALUE. `channels` is read from the hidden field by
+        # `channels()` and from the picture settings by the renderer, so the
+        # window writes it back rather than letting the two drift.
+        chosen = self._picture_settings.get("channels")
+        if chosen is not None:
+            text = (", ".join(str(c) for c in chosen)
+                    if isinstance(chosen, (list, tuple)) else str(chosen))
+            if text != self._channels.text():
+                self._channels.setText(text)
         self._on_settings_changed()
         return True
 
