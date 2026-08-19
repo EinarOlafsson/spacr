@@ -58,6 +58,13 @@ INVENTORY = {
         "not a renderer: asks a FastPlot to redraw",
     ("regression_qc.py", "_panel_volcano_reference"):
         "not a renderer: a text signpost pointing at the real one",
+    ("regression_qc.py", "_score_volcano_reference"):
+        "not a renderer: instruction 115's SCORER for the signpost above. It "
+        "returns a PanelVerdict and draws nothing -- 'Named rather than "
+        "scored: the volcano is the result, and this suite is about whether "
+        "the fit was entitled to it.' Counted here rather than excluded by a "
+        "name rule, because a rule that skipped every `_score_*` would hide "
+        "the next real renderer that happened to be called one.",
 }
 
 #: The two the maintainer asked for, one per job.
