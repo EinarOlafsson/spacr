@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-106 done / 41 open (72%).
+106 done / 43 open (71%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -146,6 +146,12 @@ OPEN
 
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
        156_every_regression_mode_gets_a_summary.txt
+
+  157  THE LOADED MARK MOVES AND NOTHING RELOADS
+       157_the_loaded_mark_moves_and_nothing_reloads.txt
+
+  158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
+       158_an_unavailable_option_offers_to_make_itself_available.txt
 
 --------------------------------------------------------------------------------
 DONE
