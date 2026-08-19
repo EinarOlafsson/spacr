@@ -56,6 +56,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "database_schema",
     "database_concurrency",
     "io",
+    # One reader and one writer for every table spaCR opens: CSV, SQLite,
+    # Parquet, Feather, Excel. Normalises column names through
+    # `spacr.schema` on read, so the CSV picker and the run agree about what
+    # a column is called. pandas + sqlite3 only, so a picker can import it.
+    "tabular",
     "utils",
     "errors",
     "settings",

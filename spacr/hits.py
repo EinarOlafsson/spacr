@@ -56,6 +56,8 @@ from typing import (Any, Callable, Dict, Iterable, List, Mapping, Optional,
 import numpy as np
 import pandas as pd
 
+from . import tabular
+
 __all__ = [
     "DEFAULT_ALPHA",
     "Hit",
@@ -171,7 +173,7 @@ def family_labels(features: Iterable[Any]) -> np.ndarray:
     :func:`tested_family` says WHETHER a coefficient is a hypothesis. This
     says WHICH FAMILY it is one of, and the two are not the same question.
     A run at ``level='both'`` fits twice and writes two families; the
-    correction applies WITHIN a level (instruction 128 R), so pooling the
+    correction applies WITHIN a level, so pooling the
     guide terms and the gene terms into one call to
     :func:`spacr.multiple_testing.adjust_p_values` changes ``n`` and with it
     every q value on the screen -- quietly, and in the direction that makes
@@ -365,7 +367,10 @@ def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
         path = os.path.join(root, name)
         if os.path.isfile(path):
             try:
-                found[role] = pd.read_csv(path)
+                # ONE READER, so a results CSV whose header says `column` is
+                # offered to the caller as `columnID` -- the name the joins
+                # in this module key on.
+                found[role] = tabular.read_table(path, report=None)
             except (pd.errors.EmptyDataError, pd.errors.ParserError):
                 continue
     return found
@@ -400,7 +405,11 @@ def load_gene_metadata(path: Union[str, os.PathLike], *,
     target = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if not os.path.isfile(target):
         raise FileNotFoundError(f"no metadata file at {target}")
-    frame = pd.read_csv(target)
+    # canonicalise=False: `key` is the caller's column name in a curated
+    # third-party export ('Gene ID'), not spaCR metadata, and a header the
+    # vocabulary renamed out from under the caller would raise the KeyError
+    # below on a file that was fine.
+    frame = tabular.read_table(target, canonicalise=False, report=None)
     if key not in frame.columns:
         raise KeyError(
             f"{os.path.basename(target)} has no {key!r} column, so its rows "
