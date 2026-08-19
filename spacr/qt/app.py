@@ -2863,6 +2863,24 @@ def launch(argv: Optional[list[str]] = None) -> int:
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
+    # EVERY DIALOG IS QT'S OWN, NOT THE DESKTOP'S. Instruction 151: a native
+    # dialog on this desktop is brokered through xdg-desktop-portal, and a
+    # brokered dialog is the tens-of-seconds stall reported as "changing the
+    # line width takes like 1 minute" -- the restyle itself measured at
+    # 0.000 s. The colour pickers were fixed one call site at a time; there
+    # are 117 QFileDialog calls across the widget package and five of them
+    # passed the option, so per-site fixing was never going to converge.
+    #
+    # SET BEFORE THE QApplication EXISTS, which is what Qt requires of this
+    # attribute -- after construction it is ignored, silently, which would
+    # look exactly like it had worked.
+    #
+    # The trade is real and worth stating: Qt's dialogs do not carry the
+    # desktop's bookmarks or its recent-files list. A file chooser that opens
+    # is better than a beautiful one that takes a minute, and a user who
+    # wants the native one can still set QT_QPA_PLATFORMTHEME.
+    QApplication.setAttribute(Qt.AA_DontUseNativeDialogs, True)
+
     app = QApplication(sys.argv[:1])
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
