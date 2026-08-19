@@ -4491,6 +4491,18 @@ class VolcanoPlot(FastPlot):
         kind = str(kind)
         if kind not in self.P_AXES:
             raise ValueError(f"p axis must be one of {self.P_AXES}; got {kind!r}")
+        # THE RUN-TIME HALF OF THE GREYING RULE. The menu entry for the
+        # adjusted axis is DISABLED when no correction is in force -- because
+        # the adjusted p then IS the raw p, and the axis is the one above with
+        # a label that reads "adjusted p (None (raw P values))". But the menu
+        # is not the only way in: the host drives this axis directly and
+        # redraws on every level, baseline and compartment change, so a user
+        # who chose the adjusted axis on a CORRECTED run and then moved to an
+        # uncorrected one got exactly the label this instruction removed.
+        # Same shape as `ml._require_backend`: a rule that lives only in the
+        # widget that greys it is a rule with one entry point unguarded.
+        if kind == "adjusted" and self.correction() in ("none", "", None):
+            kind = "raw"
         self._p_axis = kind
         #: True once a person has picked an axis off this plot's own menu.
         self._p_axis_chosen = True
