@@ -3709,3 +3709,32 @@ def set_section_layout(panel: str, folded=(), sizes=()) -> None:
         "sizes": [int(size) for size in (sizes or ())],
     }
     _settings().setValue(_KEY_SECTION_LAYOUT, json.dumps(stored))
+
+
+#: How wide one figure tile is drawn in the grid.
+_KEY_FIGURE_GRID_SIZE = "figures/grid_cell_px"
+
+
+def get_figure_grid_size() -> int:
+    """The tile width the user last chose, or the grid's own default.
+
+    A READING preference, not a property of a run: someone who wants big
+    figures wants them on the next run too.
+    """
+    from .widgets.figure_grid_view import (MAX_CELL_PX, MIN_CELL_PX,
+                                           TARGET_CELL_PX)
+
+    raw = _settings().value(_KEY_FIGURE_GRID_SIZE, TARGET_CELL_PX)
+    try:
+        pixels = int(raw)
+    except (TypeError, ValueError):
+        return TARGET_CELL_PX
+    return max(MIN_CELL_PX, min(pixels, MAX_CELL_PX))
+
+
+def set_figure_grid_size(pixels: int) -> None:
+    """Remember the tile width, clamped to what the grid will accept."""
+    from .widgets.figure_grid_view import MAX_CELL_PX, MIN_CELL_PX
+
+    _settings().setValue(_KEY_FIGURE_GRID_SIZE,
+                         max(MIN_CELL_PX, min(int(pixels), MAX_CELL_PX)))
