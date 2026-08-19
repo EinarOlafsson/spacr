@@ -43,3 +43,32 @@ HOW TO KNOW IT WORKED
   is the control where it should be" with no scrolling.
 * Every sentence that is in today's summary is still reachable.
 * `model_summary.txt` still opens in a terminal and still reads top to bottom.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- A, B AND C SHIPPED. D (the panel folds it) is not done.
+--------------------------------------------------------------------------------
+
+A. THE ANSWER FIRST. Six lines -- regression type, inference, wells,
+   coefficients called, alpha, positive control rank -- then "Everything below
+   is how that was arrived at." Every line is QUOTED VERBATIM from the section
+   it came from, so there is no second place for a number to be wrong and
+   nothing can drift between the headline and its source.
+
+B. THE LONG FORM IS UNCHANGED. Nothing was deleted. The reasoning is what
+   makes a permutation run legible at all, and a summary that dropped it to be
+   shorter would have traded away the thing worth reading.
+
+C. THE NOT-APPLICABLE BLOCK COLLAPSES. One line where they stood, NAMING them,
+   with every word kept under NOT APPLICABLE, AND WHY at the end -- and there,
+   fields sharing a reason share its explanation. Measured on the maintainer's
+   own run: eleven deferred fields carrying SIX distinct explanations, two of
+   them printed three times each. Six paragraphs where two would do, and that
+   repetition is most of what "not very accessable" was about.
+
+   A joined label longer than the label column gets its own line: the first
+   version squeezed the explanation into whatever was left and it came out one
+   word wide.
+
+STILL OWED
+  * D. The Summary tab does not fold the sections. The file is right; the
+    panel still shows it as one scroll.
