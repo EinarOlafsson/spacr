@@ -2223,6 +2223,10 @@ class CellMontageView(QWidget):
         the tab it already has rather than opening a second one.
         """
         self._columns = self._column_count()
+        # THE VIEW'S OWN SETTINGS. `_fill` runs from `self._plans` and has no
+        # request in scope -- reaching for one raised NameError on the real
+        # screen the moment a montage was drawn, after the run had succeeded.
+        picture = self.picture_settings()
         captions: List[str] = []
         refused: List[str] = []
         refreshed: set = set()
@@ -2257,7 +2261,6 @@ class CellMontageView(QWidget):
                         plan.coefficient.level),
                         f"{plan.coefficient.describe()} — {well.describe()}. "
                         "This tab closes only when its × is clicked.")
-                picture = request.picture or {}
                 tab.set_content(rows.iloc[positions].reset_index(drop=True),
                                 [crops[i] for i in positions],
                                 self._well_caption(plan, well, guides),
