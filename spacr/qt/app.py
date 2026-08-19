@@ -2859,6 +2859,48 @@ def _load_bundled_fonts() -> None:
             QFontDatabase.addApplicationFont(os.path.join(fonts_dir, name))
 
 
+
+#: Where a fatal signal's stacks are written, beside the ordinary log.
+CRASH_DUMP_NAME = "spacr-crash.log"
+
+
+def _install_crash_dump():
+    """Write every thread's Python stack if the process dies on a signal.
+
+    The file is opened for APPEND and kept open for the life of the process:
+    faulthandler writes from a signal handler, where opening a file is not
+    allowed. It is never closed for the same reason.
+
+    :returns: the path being written to, or ``""``.
+    """
+    import faulthandler
+
+    try:
+        from ..logging_util import log_dir
+    except Exception:                                    # noqa: BLE001
+        log_dir = None
+    try:
+        folder = log_dir() if callable(log_dir) else None
+    except Exception:                                    # noqa: BLE001
+        folder = None
+    if not folder:
+        folder = os.path.join(os.path.expanduser("~"), ".spacr", "logs")
+    try:
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, CRASH_DUMP_NAME)
+        handle = open(path, "a", buffering=1)
+        handle.write(f"\n=== spaCR started (pid {os.getpid()}) ===\n")
+        faulthandler.enable(file=handle, all_threads=True)
+        # Kept on the module so the handle cannot be garbage collected --
+        # faulthandler writes to the file descriptor, and a closed one is a
+        # crash inside the crash handler.
+        globals()["_CRASH_DUMP_FILE"] = handle
+        LOG.info("fatal-signal stacks will be written to %s", path)
+        return path
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not install the crash dump", exc_info=True)
+        return ""
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     if argv is None:
@@ -2866,6 +2908,22 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     # Support `spacr-qt <app>` to open directly into an app.
     initial_app = argv[0] if argv else None
+
+    # A FATAL SIGNAL MUST LEAVE A STACK BEHIND.
+    #
+    # Reported 2026-08-19 three times: a regression run closes [success] and
+    # the process is gone milliseconds later. The log ends mid-session with
+    # no shutdown lines, so it is not a clean exit; dmesg and coredumpctl
+    # have nothing; and Python prints nothing because the process dies below
+    # Python, in Qt or in a C extension. Three hypotheses were tested and
+    # eliminated against real sessions -- an off-thread plt.show(), pyplot
+    # building Qt canvases on the worker, and quitOnLastWindowClosed -- each
+    # costing a launch-and-reproduce cycle for the maintainer.
+    #
+    # faulthandler writes the Python stack of EVERY thread on SIGSEGV,
+    # SIGABRT, SIGBUS and SIGFPE. It costs nothing until one arrives, and the
+    # next occurrence then names the frame instead of the minute.
+    _install_crash_dump()
 
     # Enable high-DPI early.
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
