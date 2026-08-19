@@ -1,0 +1,170 @@
+"""Instruction 168 D: the Summary tab folds, the file on disk does not.
+
+    "The Summary tab shows the verdict expanded and each section collapsed,
+    with the section headings as the outline. The file on disk stays plain
+    text and stays readable in a terminal, because it is a run artefact
+    before it is a widget."
+
+The parser is the risky half. It works off the text rather than off
+`RunSummary` -- deliberately, because the tab may be showing a file written
+by another version of spaCR, or the statsmodels summary, which has no spaCR
+sections at all -- so every test here is about what it must NOT treat as a
+heading.
+"""
+import pytest
+
+from spacr.qt.widgets.folding_summary import (ANSWER_HEADING, split_sections)
+
+
+SUMMARY = """spaCR RUN SUMMARY
+=================
+
+A warning that goes above everything else.
+
+THE ANSWER
+----------
+  verdict        it worked
+
+Everything below is how that was arrived at.
+
+WHAT WAS FITTED
+---------------
+  model          ols
+
+THE DESIGN
+----------
+  wells          1536
+"""
+
+
+# ------------------------------------------------------------- the parsing
+
+
+def test_the_sections_are_found_in_order():
+    _preamble, sections = split_sections(SUMMARY)
+    assert [h for h, _ in sections] == [
+        "THE ANSWER", "WHAT WAS FITTED", "THE DESIGN"]
+
+
+def test_the_document_title_is_not_a_section():
+    """`spaCR RUN SUMMARY` names the file; it is not one of its parts."""
+    _preamble, sections = split_sections(SUMMARY)
+    assert "spaCR RUN SUMMARY" not in [h for h, _ in sections]
+
+
+def test_the_warning_stays_above_everything():
+    """A rank-deficiency warning under a fold is a warning nobody reads."""
+    preamble, _sections = split_sections(SUMMARY)
+    assert "goes above everything else" in preamble
+
+
+def test_each_body_holds_its_own_lines():
+    _preamble, sections = split_sections(SUMMARY)
+    bodies = dict(sections)
+    assert "ols" in bodies["WHAT WAS FITTED"]
+    assert "1536" in bodies["THE DESIGN"]
+    assert "ols" not in bodies["THE DESIGN"]
+
+
+def test_a_rule_of_the_wrong_length_is_not_a_heading():
+    """THE FAILURE MODE. statsmodels draws rows of dashes all over its
+    summary; if any line above one became a heading the tab would fold
+    itself into nonsense."""
+    text = "Dep. Variable:   pred\n" + "=" * 78 + "\ncoef   std err\n"
+    _preamble, sections = split_sections(text)
+    assert sections == []
+
+
+def test_text_with_no_headings_comes_back_whole():
+    text = "No summary: this backend is not a statsmodels fit."
+    preamble, sections = split_sections(text)
+    assert preamble == text
+    assert sections == []
+
+
+def test_an_empty_summary_is_not_an_error():
+    assert split_sections("") == ("", [])
+    assert split_sections(None) == ("", [])
+
+
+def test_a_heading_with_no_body_is_still_a_section():
+    """An empty section is a real answer -- "nothing was excluded"."""
+    text = "THE ANSWER\n----------\n  verdict  ok\n\nWHAT WAS EXCLUDED\n" \
+           "-----------------\n"
+    _preamble, sections = split_sections(text)
+    assert [h for h, _ in sections] == ["THE ANSWER", "WHAT WAS EXCLUDED"]
+
+
+# --------------------------------------------------------------- the widget
+
+
+@pytest.fixture()
+def view(qtbot):
+    from spacr.qt.widgets.folding_summary import FoldingSummaryView
+
+    widget = FoldingSummaryView()
+    qtbot.addWidget(widget)
+    return widget
+
+
+def test_the_verdict_is_open_and_the_rest_are_folded(view):
+    view.setPlainText(SUMMARY)
+
+    assert view.is_section_expanded(ANSWER_HEADING)
+    for title in view.section_titles():
+        if title != ANSWER_HEADING:
+            assert not view.is_section_expanded(title), title
+
+
+def test_every_sentence_is_still_reachable(view):
+    """168's own bar: "Every sentence that is in today's summary is still
+    reachable." Folded is not deleted."""
+    view.setPlainText(SUMMARY)
+
+    assert view.toPlainText() == SUMMARY
+    for title in view.section_titles():
+        view.set_section_expanded(title, True)
+        assert view.is_section_expanded(title)
+
+
+def test_refilling_replaces_the_sections(view):
+    """A second run must not leave the first run's headings behind."""
+    view.setPlainText(SUMMARY)
+    view.setPlainText("THE ANSWER\n----------\n  verdict  a different run\n")
+
+    assert view.section_titles() == ("THE ANSWER",)
+
+
+def test_a_statsmodels_summary_is_shown_whole(view):
+    """Not chopped up by a guess."""
+    text = "OLS Regression Results\n" + "=" * 78 + "\ncoef  std err\n"
+    view.setPlainText(text)
+
+    assert view.section_titles() == ()
+    assert view.toPlainText() == text
+
+
+# ------------------------------------------------------ mounted in the panel
+
+
+def test_the_panel_uses_it(qtbot):
+    from spacr.qt.widgets.folding_summary import FoldingSummaryView
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+
+    assert isinstance(panel._summary, FoldingSummaryView)
+    assert panel.tabs.indexOf(panel._summary) >= 0
+
+
+def test_the_panel_still_fills_it_the_same_way(qtbot):
+    """`setPlainText` is the whole contract with the panel."""
+    from spacr.qt.widgets.regression_results import RegressionResultsPanel
+
+    panel = RegressionResultsPanel()
+    qtbot.addWidget(panel)
+    panel._summary.setPlainText(SUMMARY)
+
+    assert "1536" in panel._summary.toPlainText()
+    assert panel._summary.is_section_expanded(ANSWER_HEADING)
