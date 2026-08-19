@@ -523,7 +523,7 @@ def disagreement(prob_sets: Any, method: str = "variance") -> np.ndarray:
         * ``'bald'`` — mutual information ``H(mean p) − mean H(p)``
           (Houlsby et al., 2011). 0 when the members agree, regardless
           of how uncertain they jointly are — so unlike ``entropy`` it
-          does not fire on crops that are simply ambiguous.
+          does not fire on crops that are ambiguous.
 
     :returns: ``(N,)`` scores; NaN where any member is unusable for that
         crop.
@@ -687,7 +687,7 @@ def predict_probabilities(model: Callable[[Any], Any], batches: Iterable[Any],
 
     torch is imported inside this function, and only to get
     ``no_grad``/``device`` handling; if it is not importable the batches
-    are simply iterated and the model called directly. Nothing else in
+    are iterated and the model is called directly. Nothing else in
     this module touches torch.
 
     :param model: any callable mapping a batch to raw head outputs. A
@@ -2348,7 +2348,7 @@ def holdout_report(y_true: Any, probs: Any,
 
     **``n`` is the number of rows the matrix actually contains**, and the
     supports sum to it. A row whose true class the head has no column for is
-    counted as an error rather than dropped: the matrix simply grows to hold
+    counted as an error rather than dropped: the matrix grows to hold
     it, and the missing column stays empty because the head can never predict
     that class. Reporting ``n`` over one population and ``accuracy`` over
     another is the one thing a model card must not do — a three-class

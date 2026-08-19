@@ -109,7 +109,7 @@ class spacrStitcher:
     """
     Pairwise stitcher with downsampled scoring and whole-well mosaic assembly.
 
-    Robustness features for very large datasets:
+    Memory and concurrency controls for very large datasets:
       - feature_cache_mode: "disk" (default) writes DS features to disk with an LRU RAM cap
       - pair_batch_size:    limit number of concurrent pair futures
       - stream_csv:         write pairwise rows immediately (low RAM)

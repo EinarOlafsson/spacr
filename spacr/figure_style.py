@@ -422,7 +422,7 @@ def export_colour(current, kind: str, look=None) -> Optional[str]:
     """The colour one artist should be painted for the save, or None.
 
     THE PER-ARTIST HALF OF THE SHARED DECISION, and the reason it is here
-    rather than in ``spacr.plot``: instruction 150 C says the rule has to
+    rather than in ``spacr.plot``: the design says the rule has to
     reach BOTH renderers, and a rule that lives in the matplotlib application
     forces the pyqtgraph exporter to write a second one. Two renderers
     deciding separately what "print" means is the same defect as two engines

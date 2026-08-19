@@ -237,7 +237,7 @@ def content_bounds(
     """Inclusive ``(left, top, right, bottom)`` of the content, or ``None``.
 
     ``None`` means the animation is blank once chrome is discounted, which is
-    not a failure — it simply cannot be zoomed, and callers show it as-is.
+    not a failure — it cannot be zoomed, and callers show it as-is.
     """
     mask = content_mask(frames, chrome, minimum_neighbours)
     if not mask.size:

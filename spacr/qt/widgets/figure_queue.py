@@ -1163,26 +1163,16 @@ class FigureQueue(QWidget):
         return start
 
     def forget_run(self, label: str) -> int:
-        """Drop one run's figures. Instruction 146: what leaves the list
-        leaves the figures with it.
+        """Remove one run's figures and compact the queue indices.
 
         :param label: the run's section label, as `run_sections` reports it.
         :returns: how many figures were dropped. ``0`` for a label this queue
             does not hold, which is not a failure -- a run that drew nothing
             is a run with nothing to forget.
 
-        THE HARD PART IS NOT THE DELETE, IT IS THE RENUMBERING. Every figure
-        is keyed by a dense integer index across six maps -- `_figures`,
-        `_titles`, `_png_paths`, `_ram`, `_pdf_state` and `_fig_index` -- and
-        `_runs` records each section's START as one of those integers. Removing
-        a section from the middle therefore has to shift every index above it
-        down by the gap, in all six, and move every later section's start with
-        them. Deleting the entries alone would leave holes that `_count` still
-        counts and that navigation walks into.
-
-        `clear()` was the only thing here before, which is all-or-nothing:
-        removing one run meant losing every other run's figures too, so the
-        Runs tab could not offer it.
+        Figure state is stored in several maps keyed by a dense integer index.
+        Removing a middle section shifts all later figure indices and run
+        boundaries so navigation does not encounter gaps.
         """
         wanted = str(label or "")
         span = next(((start, count) for name, start, count

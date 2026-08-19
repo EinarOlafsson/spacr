@@ -1543,7 +1543,7 @@ def parse_field_name(name: str) -> FieldAddress:
     """Split a field name into plate / well / row / column.
 
     Never raises and never guesses: a name that does not carry a well comes
-    back with empty well, row and column, and the callers below simply do not
+    back with empty well, row and column, and callers do not
     make the positional claims that need them.
 
     :param name: a field name, file name or path — extension and directories

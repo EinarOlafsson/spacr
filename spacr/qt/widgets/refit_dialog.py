@@ -1,8 +1,7 @@
 """Pick another model for the screen already on screen.
 
-Asked for on 2026-08-16: "when all the analasees are done id like to be able
-to right click on the regression plot and choose a different regression and
-the other related settings as well as FDR etc."
+Use the regression plot's context menu to choose another model, correction
+method, or FDR threshold.
 
 THIS DIALOG STARTS A FIT. Everything else reachable by right-clicking a plot
 changes how it looks, so this one has to read differently: it names the model

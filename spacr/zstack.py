@@ -820,7 +820,7 @@ def stitch_planes(masks_2d_stack, iou_threshold: float = 0.25) -> np.ndarray:
     Unlike ``cellpose.utils.stitch3D``, new labels are always drawn from a
     single monotonically increasing counter. Cellpose resets its counter after
     an empty plane, so ``[objects] [empty] [objects]`` there silently reuses
-    label ids and merges unrelated objects; here an empty plane simply links
+    label ids and merges unrelated objects; here an empty plane links
     nothing.
 
     :param masks_2d_stack: ``(Z, Y, X)`` array, or a sequence of 2-D arrays,
@@ -2313,7 +2313,7 @@ def project_labels(labels_3d) -> np.ndarray:
 
     Taking a maximum along z -- what :func:`spacr.zstack.project` does to
     *intensities* -- is meaningless for labels, because label values are
-    arbitrary ids and the maximum simply picks the highest-numbered object.
+    arbitrary ids and the maximum picks the highest-numbered object.
     This instead gives each pixel the label that occupies the most planes in
     that column, which is the only projection that answers "which object is
     here?".

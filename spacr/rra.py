@@ -1,13 +1,11 @@
 """Robust rank aggregation: guides ranked, then aggregated to a gene BY RANK.
 
-Instruction 133, asked for on 2026-08-17 as one of the "modeling tools ...
-where we could plug in the same dependent and independent variables and get an
-estimate of which gRNAs/genes are involved".
+RRA estimates which guides and genes are associated with a response without
+requiring a full-rank regression design.
 
 WHY THIS ONE IS RECOMMENDED FOR A CRISPR SCREEN, and it is not a preference.
 Every regression backend spaCR has answers the gene question by SUMMING the
-gene's guide fractions into a `gene_fraction` term -- which is exactly the
-collinearity instruction 132 exists to fix, because the sum of a gene's guides
+gene's guide fractions into a `gene_fraction` term, but the sum of a gene's guides
 is a linear combination of those guides by construction. RRA never forms that
 sum. It ranks guides against each other and asks a question about the RANKS a
 gene's guides occupy, so a design matrix that is singular for OLS is not a

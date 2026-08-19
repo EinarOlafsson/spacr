@@ -1006,7 +1006,7 @@ class GateEditorScreen(QWidget):
         """Write the current graph to a PNG or PDF.
 
         The format comes from the figure-format PREFERENCE rather than from
-        a setting of this screen's own; instruction 50 is explicit that a
+        a setting of this screen's own; the design is explicit that a
         second place to answer "am I making PDFs" is one too many. The file
         dialog still lets a single save differ, because "save as" is when a
         user thinks about format.

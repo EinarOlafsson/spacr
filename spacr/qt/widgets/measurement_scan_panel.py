@@ -1,14 +1,8 @@
 """Which measurement has genes with clear effect sizes.
 
-Instruction 122 part 3, as asked for:
-
-    "doing a sweep on these screen data of which measurements have genes with
-     an effect size. so instead of a parameter search a search for which
-     measurement has genes with clear effect sizes (one or several)"
-
 The pure logic is :mod:`spacr.measurement_scan`, which had no caller. This is
-the thin renderer over it, and it lives beside the sweep's runs for the reason
-the instruction gives: structurally this IS the parameter search with a
+the thin renderer over it, and it lives beside the sweep's runs because,
+structurally, this is the parameter search with a
 different thing varying -- the settings are held fixed and the DEPENDENT
 VARIABLE is swept.
 
@@ -33,7 +27,7 @@ trivial effect is significant, and "clear effect sizes" is what was asked for.
 
 THE MEASUREMENT DATABASES, AND WHY THEY LIVE HERE TOO
 -----------------------------------------------------
-Instruction 130 sections B and C. A regression row is one PLATE, and a plate
+A regression row is one plate, and a plate
 can now carry its measurements database beside its score and count CSVs. Those
 databases surface in this tab, with the join offered:
 :class:`DatabaseMergePanel` lists every attached database, its object tables
@@ -46,8 +40,8 @@ areas SUM, perimeters MEAN, a minimum takes MIN, a label takes FIRST -- and
 ``MergePolicy.how_for`` already decides the join PER TABLE from object
 cardinality. :func:`merge_across_databases` is the composition of those two and
 adds no arithmetic of its own, which is why there is no blanket "join type"
-control anywhere in this file: one ``how`` for every table is exactly the thing
-instruction 77 found wrong.
+control anywhere in this file: one ``how`` for every table would apply the
+wrong merge rule to some relationships.
 
 And it SAYS what the merge cost, because a merge that silently changed how a
 measurement was combined produces a number that is wrong and looks fine.
@@ -159,7 +153,7 @@ class AttachedDatabase:
     def present(self) -> bool:
         """Whether the attached database is on disk right now.
 
-        Checked here rather than at run time: instruction 130 asks that a row
+        Checked here rather than at run time: the design asks that a row
         whose database has gone missing says so BEFORE the run, not four
         minutes into it.
         """
@@ -270,7 +264,7 @@ def default_aggregation_columns(columns: Sequence[str], *,
                                 ) -> Tuple[str, ...]:
     """The columns NO :data:`~spacr.merge_tables.AGGREGATION_RULES` rule names.
 
-    Instruction 130 section C, third bullet: a measurement nobody thought
+    third bullet: a measurement nobody thought
     about is exactly the one worth naming. These fall through to
     :data:`~spacr.merge_tables.DEFAULT_AGGREGATION`, which is MEAN -- right
     more often than not for an unrecognised number, and silently wrong for a
@@ -637,7 +631,7 @@ def _rows_per_source(frame) -> Dict[str, int]:
 def merge_summary(frame) -> str:
     """What the merge cost, as COUNTS. This is what fits in the box.
 
-    Instruction 154 B. The old report put eighty-five column names inline and
+    The old report put eighty-five column names inline and
     then another eighty-five, so the three lines that matter -- what joined
     how, how many rows, what the anchor is -- were buried in
     ``nucleus_channel_2_channel_3_M2_correlation_85`` and its brothers.
@@ -745,7 +739,7 @@ def merge_report(frame) -> str:
 
     Kept as one string for a caller that wants everything -- a log line, a
     test, a headless script. The PANEL shows the two halves in two places,
-    which is the whole of instruction 154 B.
+    which is the whole of the design.
     """
     evidence = merge_evidence(frame)
     return merge_summary(frame) + (("\n" + evidence) if evidence else "")
@@ -1027,7 +1021,7 @@ def _fit_outcome(column: str, payload) -> ColumnFit:
 class DatabaseMergePanel(QWidget):
     """The databases attached to the input table, and the join offered.
 
-    Instruction 130 section B. One row per plate of the regression input
+    One row per plate of the regression input
     table, whether or not it has a database -- a plate with none is listed and
     disabled here, because it still runs in the regression and the user needs
     to see why it is absent from this tab.
@@ -1035,7 +1029,7 @@ class DatabaseMergePanel(QWidget):
     WHAT IS NOT OFFERED IS AS DELIBERATE AS WHAT IS. There is no join-type
     control: the join follows object cardinality per table through
     :meth:`spacr.merge_tables.MergePolicy.how_for`, and a blanket ``how`` is
-    the finding instruction 77 raised. The two checkboxes here are the two
+    the finding the design raised. The two checkboxes here are the two
     settings that policy actually reads.
 
     THE MERGE RUNS OFF THE GUI THREAD, and it did not used to. Four
@@ -1043,7 +1037,7 @@ class DatabaseMergePanel(QWidget):
     button's own click handler, so Qt could not paint, could not show a
     spinner and could not accept a cancel until it returned. The application
     was not hung; it was working, and had no way to say so -- which is
-    instruction 154 A in full. :class:`~spacr.qt.job_runner.JobRunner` is the
+    the design in full. :class:`~spacr.qt.job_runner.JobRunner` is the
     idiom every other long job here already uses, and this panel was the one
     that did not.
 
@@ -1550,7 +1544,7 @@ class DatabaseMergePanel(QWidget):
     def merged_frame_path(self) -> str:
         """Where the merged frame was written, or ``""``.
 
-        The artefact instruction 154 F asks for: written ONCE when the merge
+        The artefact the design asks for: written ONCE when the merge
         finishes, named, and read by every fit in the column queue rather
         than the merge being redone per fit.
         """
@@ -1596,7 +1590,7 @@ class DatabaseMergePanel(QWidget):
 
         Kept whole for a caller that wants everything. What the PANEL shows is
         :meth:`plan_summary` in the box and :meth:`plan_evidence` behind the
-        disclosure -- instruction 154 B.
+        disclosure -- the design.
         """
         summary, evidence = self._plan_lines()
         text = "\n".join(summary)
@@ -1802,7 +1796,7 @@ class DatabaseMergePanel(QWidget):
     def start_merge(self, *_args, **kwargs) -> bool:
         """Merge OFF the GUI thread, saying where it is and taking a cancel.
 
-        The whole of instruction 154 A. Everything that touches a widget --
+        The whole of the design. Everything that touches a widget --
         re-reading the input table, printing the plan, showing the result --
         happens here on the GUI thread; the join itself happens on a worker,
         and the only thing that crosses back is a Signal.
@@ -2016,8 +2010,8 @@ class DatabaseMergePanel(QWidget):
     def statement(self) -> str:
         """EVERYTHING the panel is saying: the box and the disclosure.
 
-        The box holds the counts and the disclosure holds the names
-        (instruction 154 B), so a caller that wants to know whether the panel
+        The box holds the counts and the disclosure holds the names, so a
+        caller that wants to know whether the panel
         said something has to read both. Reading only the box would report a
         column as unnamed when it is one click away.
         """
@@ -2113,7 +2107,7 @@ def describe_key_overlap(left_name: str, left, right_name: str,
                          right) -> str:
     """Whether two frames' wells meet, and one example from each side if not.
 
-    The sentence instruction 154 E asks for, and it is computed rather than
+    The sentence the design asks for, and it is computed rather than
     asserted. ``""`` when the two do overlap, because then the join is not the
     problem and saying anything about it would send the user the wrong way.
     """
@@ -2153,7 +2147,7 @@ def describe_key_overlap(left_name: str, left, right_name: str,
 class ColumnRegressionPanel(QWidget):
     """STEP 4: pick a column of the merged frame and regress on it.
 
-    Instruction 154 F, and the maintainer's own words for what the tab is
+    The tab is designed
     for: "the point of the measurements tab is to merge measurements so that
     regression can be run on any column in the databases ... 4b do regression
     on a selection of columns each gets saved as a run that i can evaluate."
@@ -2768,8 +2762,8 @@ class MeasurementScanPanel(QWidget):
     def why_nothing_to_scan(self, frame=None) -> str:
         """Which half is missing, checked rather than asserted.
 
-        Instruction 154 E. The old sentence named two things a well must
-        carry, checked neither, and was shown to the maintainer while four
+        The old sentence named two things a well must
+        carry, checked neither, and was shown while four
         measurement databases were loaded -- so it was wrong about the half
         that was there and silent about the half that was not.
 

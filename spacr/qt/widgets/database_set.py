@@ -1,8 +1,7 @@
 """The set of measurement databases a screen is working on.
 
-Instruction 109, point 1: *"Wherever a module accepts one database, accept
-several: add, remove, and see what is loaded."* And the idiom it names --
-"the little rounded box with an x per member of a working set" -- which is
+Where a workflow accepts one database, this widget lets you add, remove, and
+inspect several. It uses
 :class:`spacr.qt.widgets.table_chip.TableChip`, already used for the Gate
 Editor's table working set. Databases get the same control rather than a
 second one for the same idea.
@@ -11,8 +10,8 @@ WHAT THIS WIDGET IS FOR, beyond holding a list of paths:
 
     THE ANSWER HAS TO ARRIVE BEFORE THE USER COMMITS.
 
-Point 4 of the instruction is that the column set a merge produces IS the
-analysis about to be run, and finding out afterwards that half the
+The column set produced by a merge defines the analysis about to run, and
+finding out afterwards that half the
 measurements were dropped is finding out too late. So every time the set
 changes this asks :func:`spacr.multi_database.describe_merge` -- which reads
 only sqlite metadata and the distinct plate ids, and is therefore cheap enough

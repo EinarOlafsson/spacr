@@ -528,8 +528,8 @@ def correct_batch_effects(
 
     ``center`` removes per-batch mean shifts while preserving the global mean.
     ``zscore`` aligns per-batch means and variances to the global distribution.
-    ``robust_zscore`` does the same with median/MAD and is the safest default
-    for heavy-tailed single-cell measurements. ``control_center`` estimates
+    ``robust_zscore`` does the same with median/MAD and is less sensitive to
+    heavy-tailed single-cell measurements. ``control_center`` estimates
     only a location shift from negative/reference controls in every batch,
     preserving treatment dispersion and usually best preserving biology.
 

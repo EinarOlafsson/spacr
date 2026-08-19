@@ -134,7 +134,7 @@ def make_model_artifact(
         resumed run does not forget how close it was to stopping.
     :param preprocessing: the transform the inputs were prepared with.
         Without it a loaded model can be fed differently-normalised images
-        and will simply be wrong rather than fail.
+        and can produce incorrect results without failing.
     :param classes: class names in OUTPUT-COLUMN order. The order is the
         contract -- a reordered list silently relabels every prediction.
     :param channels: input channel names, in channel order, same contract.

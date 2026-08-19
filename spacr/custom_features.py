@@ -29,7 +29,7 @@ Example ``~/.spacr/features/asymmetry.py``::
         # Something the built-ins don't compute
         return float(np.std(xs) / (np.std(ys) + 1e-9))
 
-Errors are logged and swallowed: a feature that raises simply yields
+Errors are logged and swallowed: a feature that raises yields
 an empty mapping, so one bad function cannot break the caller's loop.
 
 Public API::
