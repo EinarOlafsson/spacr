@@ -203,8 +203,9 @@ def test_the_icon_carries_its_own_background_into_a_white_page(stem):
     """
     generator = _generator_module()
     image = _icon(stem)
-    colours = _opaque_colours(image)
-    assert sum(colours.values()) / (image.width * image.height) > 0.90, (
+    button = image.crop((0, 0, generator.CANVAS, generator.CANVAS))
+    colours = _opaque_colours(button)
+    assert sum(colours.values()) / (button.width * button.height) > 0.90, (
         f"{stem}.png is mostly transparent, so its white art has no backing")
 
     chip = generator.SLATE[:3]
@@ -268,7 +269,7 @@ def test_the_three_platform_marks_are_centred_and_fill_eighty_percent():
     generator = _generator_module()
     for stem in PLATFORM_ASSETS:
         image = _icon(stem)
-        assert image.size == (generator.CANVAS, generator.CANVAS)
+        assert image.size == (generator.CANVAS, generator.OUTPUT_HEIGHT)
         bounds = _bright_bounds(image)
         assert bounds is not None
         left, top, right, bottom = bounds
@@ -283,12 +284,14 @@ def test_the_three_platform_marks_are_centred_and_fill_eighty_percent():
 
 @pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
 def test_tiles_are_slate_squares_with_only_small_corner_rounding(stem):
-    """The polished tile is slate gray with a restrained 32 px radius."""
+    """The button is exactly #2B2F3A with a restrained 32 px radius."""
     generator = _generator_module()
     image = _icon(stem)
+    assert image.size == (generator.CANVAS, generator.OUTPUT_HEIGHT)
     assert image.getpixel((image.width // 2, 0)) == generator.SLATE
-    assert image.getpixel((0, image.height // 2)) == generator.SLATE
+    assert image.getpixel((0, generator.CANVAS // 2)) == generator.SLATE
     assert image.getpixel((0, 0))[3] == 0
+    assert image.getpixel((0, generator.CANVAS))[3] == 0
 
     first_opaque = next(
         x for x in range(image.width) if image.getpixel((x, 0))[3] > 0)
@@ -297,16 +300,28 @@ def test_tiles_are_slate_squares_with_only_small_corner_rounding(stem):
     assert generator.CORNER_RADIUS < generator.CANVAS * 0.10
 
 
-def test_legacy_is_the_only_tile_with_a_label_below_its_mark():
-    """The existing spaCR mark remains centred above the white LEGACY label."""
+def test_legacy_is_the_only_canvas_with_a_label_below_its_button():
+    """The spaCR mark fills its square; ``Legacy`` lives beneath the square."""
+    generator = _generator_module()
     image = _icon("legacy")
-    bounds = _bright_bounds(image)
+    button = image.crop((0, 0, generator.CANVAS, generator.CANVAS))
+    bounds = _bright_bounds(button)
     assert bounds is not None
     left, top, right, bottom = bounds
     assert abs((left + right - 1) / 2 - (image.width - 1) / 2) <= 1
-    assert image.height * 0.78 <= bottom - top <= image.height * 0.80
-    assert top < image.height / 3
-    assert bottom > image.height * 0.80
+    assert generator.MARK_SIZE - 6 <= max(right - left, bottom - top) \
+        <= generator.MARK_SIZE
+    assert abs((top + bottom - 1) / 2 - (generator.CANVAS - 1) / 2) <= 1
+
+    caption = image.crop(
+        (0, generator.CANVAS, generator.CANVAS, generator.OUTPUT_HEIGHT))
+    assert caption.getbbox() is not None, "Legacy caption is missing"
+    for stem in PLATFORM_ASSETS:
+        platform_caption = _icon(stem).crop(
+            (0, generator.CANVAS, generator.CANVAS,
+             generator.OUTPUT_HEIGHT))
+        assert platform_caption.getbbox() is None, (
+            f"{stem}.png contains text or artwork below its button")
 
 
 @pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))

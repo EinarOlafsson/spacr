@@ -15,6 +15,7 @@ Requested: 2026-08-19 - "for the readme and github page i tried to add a linux a
 Requested: 2026-08-19 - "ok great the icons are there now! but i want them to look slick not child like. i added 4 images to the platforms folder. use these on a square with rounded edges (but not rounded verry much, a small corner rounding) tat are slate gray."
 Requested: 2026-08-19 - "the icons should be centered with no text including the spacr logo one. the icons should take be centered and take up 80% of the button. write legacy in white text under the spacr logo legacy button."
 Requested: 2026-08-19 - "i added 3 not 4, you already have the white spacr logo."
+Requested: 2026-08-19 - "that was much better, but change to 80% of the button and the color should be #2B2F3A. if possible when the mouse hovers over the button make it #1F5EFF. and take the legacy text out of the button and put it under."
 
 --------------------------------------------------------------------------------
 WHAT TO BUILD
@@ -247,3 +248,41 @@ the exact slate tile, small corner radius, 80% platform geometry, centring,
 legacy-label placement, and byte-for-pixel agreement between committed assets
 and a fresh generator render. All 43 focused README-icon and installer-archive
 tests pass, and ``git diff --check`` is clean.
+
+--------------------------------------------------------------------------------
+REOPENED -- 2026-08-19, COLOUR AND LEGACY CAPTION
+--------------------------------------------------------------------------------
+
+Change the tile colour to ``#2B2F3A`` and keep every mark at 80% of the
+512 px button. The legacy image must contain only the centred spaCR mark;
+``Legacy`` belongs beneath the button rather than inside its slate square.
+
+GitHub renders this reStructuredText README with raw HTML and custom CSS
+disabled. A linked PNG therefore cannot react to pointer hover, and the page
+cannot install a ``:hover`` rule that changes its pixels to ``#1F5EFF``. Check
+the actual rendered HTML before closing this request, preserve a clickable
+archive target, and document this platform limitation rather than pretending
+that a static asset can hover.
+
+--------------------------------------------------------------------------------
+RESULT -- 2026-08-19, COLOUR AND LEGACY CAPTION
+--------------------------------------------------------------------------------
+
+All four visible buttons are 512 px squares filled exactly ``#2B2F3A``. Each
+white mark, including the spaCR legacy mark, is centred and fitted to 410 px:
+80% of the button. Every generated image shares a 600 px-high transparent
+canvas so the four square buttons align on one row; only the legacy canvas
+uses that space, drawing ``Legacy`` below the button rather than inside it.
+The white caption has a narrow ``#2B2F3A`` edge so it remains legible against
+both GitHub's light and dark page backgrounds.
+
+The requested ``#1F5EFF`` hover state is deliberately not faked. GitHub's
+reStructuredText README renderer disables raw HTML and custom CSS, while a
+linked PNG cannot respond to pointer state. The desired blue is recorded as
+``HOVER_BLUE`` in the generator for a future HTML/CSS surface where a genuine
+hover interaction can be implemented.
+
+The row was inspected at its actual 64 px README width on both light and dark
+backgrounds. All 43 focused icon/archive tests pass; they now assert the exact
+colour, 80% geometry, aligned output canvases, empty caption strips on the
+three platform buttons, the external legacy caption, and reproducible output.

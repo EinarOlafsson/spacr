@@ -7,11 +7,15 @@ cannot overwrite the originals.
 
 All four buttons use the same treatment:
 
-* a square 512 px slate-gray tile;
+* a square 512 px ``#2B2F3A`` tile;
 * a restrained 32 px corner radius (6.25% of the side);
 * a white, centered mark whose longest dimension is 80% of the tile;
-* no platform labels. The legacy button is the sole exception: the existing
-  white spaCR mark is followed by a compact white ``LEGACY`` label.
+* no text inside any button. ``Legacy`` is drawn below its square, in the
+  transparent caption strip shared by all four output canvases.
+
+The buttons are static PNGs embedded in a reStructuredText README. GitHub
+disables raw HTML and custom CSS in that renderer, so the requested blue
+``#1F5EFF`` hover state cannot be expressed there.
 
 The supplied files do not share an alpha convention. Linux is black artwork
 on transparency, Windows is white artwork over a baked dark checkerboard, and
@@ -38,11 +42,16 @@ OUT_DIR = ICON_DIR / "platforms"
 SOURCE_DIR = OUT_DIR / "source"
 
 CANVAS = 512
-SLATE = (71, 85, 105, 255)  # CSS/Tailwind slate-600: #475569
+OUTPUT_HEIGHT = 600
+SLATE = (43, 47, 58, 255)  # #2B2F3A
 WHITE = (255, 255, 255, 255)
+HOVER_BLUE = (31, 94, 255, 255)  # #1F5EFF; unavailable in GitHub README.rst
 CORNER_RADIUS = 32
 MARK_FRACTION = 0.80
 MARK_SIZE = round(CANVAS * MARK_FRACTION)
+CAPTION_GAP = 10
+CAPTION_FONT_SIZE = 58
+CAPTION_STROKE = 6
 
 SOURCE_FILES = {
     "linux": SOURCE_DIR / "linux.png",
@@ -118,7 +127,7 @@ def _trim_and_fit(mask: Image.Image, size: int) -> Image.Image:
 
 
 def _tile() -> Image.Image:
-    image = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))
+    image = Image.new("RGBA", (CANVAS, OUTPUT_HEIGHT), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     draw.rounded_rectangle(
         (0, 0, CANVAS - 1, CANVAS - 1),
@@ -147,25 +156,27 @@ def render_platform(name: str) -> Image.Image:
 
 
 def render_legacy() -> Image.Image:
-    """Render the existing spaCR mark with the sole permitted label."""
+    """Render the spaCR mark at 80%, with ``Legacy`` below the button."""
     image = _tile()
-    font = ImageFont.truetype(str(LEGACY_FONT), 50)
-    label = "LEGACY"
+    logo = _trim_and_fit(_alpha_mask(Image.open(LEGACY_LOGO)), MARK_SIZE)
+    _paste_white(image, logo)
+
+    font = ImageFont.truetype(str(LEGACY_FONT), CAPTION_FONT_SIZE)
+    label = "Legacy"
     draw = ImageDraw.Draw(image)
-    left, top, right, bottom = draw.textbbox((0, 0), label, font=font)
+    left, top, right, _bottom = draw.textbbox(
+        (0, 0), label, font=font, stroke_width=CAPTION_STROKE)
     label_width = right - left
-    label_height = bottom - top
-    gap = 14
-    logo = _trim_and_fit(
-        _alpha_mask(Image.open(LEGACY_LOGO)),
-        MARK_SIZE - gap - label_height,
-    )
-    group_height = logo.height + gap + label_height
-    group_top = (CANVAS - group_height) // 2
-    _paste_white(image, logo, y=group_top)
     text_x = (CANVAS - label_width) // 2 - left
-    text_y = group_top + logo.height + gap - top
-    draw.text((text_x, text_y), label, font=font, fill=WHITE)
+    text_y = CANVAS + CAPTION_GAP - top
+    draw.text(
+        (text_x, text_y),
+        label,
+        font=font,
+        fill=WHITE,
+        stroke_width=CAPTION_STROKE,
+        stroke_fill=SLATE,
+    )
     return image
 
 
