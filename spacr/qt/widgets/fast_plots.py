@@ -1157,7 +1157,10 @@ class FastPlot(QWidget):
         controls.addStretch(1)
 
         reset = QPushButton("Reset view")
-        reset.clicked.connect(lambda: self.plot.autoRange())
+        # `auto_range_axes`, NOT `plot.autoRange`: the bare call freezes the
+        # axes on today's points, so the NEXT redraw opens inside this run's
+        # window. See that method.
+        reset.clicked.connect(self.auto_range_axes)
         controls.addWidget(reset)
         export = QPushButton("Export…")
         export.clicked.connect(self.export)
@@ -2432,8 +2435,19 @@ class FastPlot(QWidget):
         """
         self._pinned = {"x": None, "y": None}
         box = self.plot.getViewBox()
-        box.enableAutoRange(x=True, y=True)
         box.autoRange()
+        # ENABLED LAST, AND THAT ORDER IS THE WHOLE FIX. pyqtgraph's
+        # `autoRange()` ends in `setRange(..., disableAutoRange=True)`, so
+        # calling it turns auto-ranging OFF -- and this method, whose entire
+        # job is to give the axes back to the data, was leaving them frozen
+        # on whatever happened to be drawn at the moment it ran.
+        #
+        # The panel calls this between runs, BEFORE drawing the new table.
+        # Measured: run A spanning +-13 followed by run B spanning +-0.6
+        # opened run B inside run A's window, twenty times too wide, and
+        # "Reset view" -- which autoranges the points that are now there --
+        # put it right. That is exactly what was reported.
+        box.enableAutoRange(x=True, y=True)
 
     def aspect_ratio(self) -> Optional[float]:
         """The locked ratio of y units to x units, or ``None`` if unlocked."""
@@ -3157,7 +3171,7 @@ class FastPlot(QWidget):
         # entries would be exactly the "present but inert" control that
         # instruction 106 forbids. Each group repeats it -- see `_group`.
         menu.setToolTipsVisible(True)
-        menu.addAction("Reset view", self.plot.autoRange)
+        menu.addAction("Reset view", self.auto_range_axes)
         menu.addAction("Export…", self.export)
 
         # ------------------------------------------------ what the plot CLAIMS
