@@ -127,3 +127,82 @@ def test_the_display_only_settings_are_deliberately_absent():
     for key in ("outline", "edge_thickness", "normalize_channels",
                 "percentiles", "object_size"):
         assert key not in CUT_SETTINGS
+
+
+# ------------------------------------- the display settings reach the picture
+
+
+def test_nothing_asked_for_changes_nothing():
+    import numpy as np
+
+    from spacr.picture_settings import draw_crop
+
+    crop = np.full((16, 16, 3), 100, dtype="uint8")
+
+    assert np.array_equal(draw_crop(crop, {}), crop)
+    assert np.array_equal(draw_crop(crop, None), crop)
+
+
+def test_normalisation_stretches_the_crop():
+    import numpy as np
+
+    from spacr.picture_settings import draw_crop
+
+    rng = np.random.default_rng(0)
+    crop = (rng.random((32, 32, 3)) * 60 + 90).astype("uint8")
+
+    out = draw_crop(crop, {"normalize_channels": ["r", "g", "b"],
+                           "percentiles": [2, 98]})
+
+    assert out.max() > crop.max(), "the stretch did not widen the range"
+    assert out.shape == crop.shape
+
+
+def test_a_channel_the_user_turned_off_is_off():
+    import numpy as np
+
+    from spacr.picture_settings import draw_crop
+
+    crop = np.full((8, 8, 3), 200, dtype="uint8")
+
+    out = draw_crop(crop, {"channels": ["r"]})
+
+    assert out[:, :, 0].max() > 0
+    assert out[:, :, 1].max() == 0 and out[:, :, 2].max() == 0
+
+
+def test_it_uses_the_ANNOTATORS_functions_not_its_own():
+    """A second implementation of 'normalise a crop' is a second answer to
+    what normalise MEANS."""
+    import inspect
+
+    from spacr import picture_settings
+
+    source = inspect.getsource(picture_settings.draw_crop)
+    assert "from .qt.annotate_engine import" in source
+    for name in ("normalize_pil", "filter_channels_pil", "outline_image"):
+        assert name in source
+
+
+def test_the_outline_is_computed_before_a_channel_is_zeroed():
+    """Zeroing a channel first would outline a channel that is not there."""
+    import inspect
+
+    from spacr import picture_settings
+
+    source = inspect.getsource(picture_settings.draw_crop)
+    assert source.index("outline_image(") < source.index("filter_channels_pil(")
+
+
+def test_a_bad_setting_never_costs_the_montage_its_picture():
+    """Losing a montage to an outline is the worst trade available."""
+    import numpy as np
+
+    from spacr.picture_settings import draw_crop
+
+    crop = np.full((8, 8, 3), 120, dtype="uint8")
+
+    out = draw_crop(crop, {"percentiles": "junk", "outline": ["r"],
+                           "edge_thickness": "nonsense"})
+
+    assert out.shape == crop.shape

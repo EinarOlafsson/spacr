@@ -995,6 +995,8 @@ class _WellTab(QWidget):
         self._thumb_px = THUMBNAIL_PX
         self._per_page = 0
         self._page = 0
+        #: How the crops are drawn -- the annotator's settings, or none.
+        self._picture: dict = {}
 
         self._pager = QWidget()
         pager = QHBoxLayout(self._pager)
@@ -1022,7 +1024,7 @@ class _WellTab(QWidget):
     # ------------------------------------------------------------- content
     def set_content(self, rows, crops: Sequence[Any], caption: str,
                     columns: int, thumb_px: int = 0,
-                    per_page: int = 0) -> None:
+                    per_page: int = 0, picture=None) -> None:
         """Replace what this tab shows.
 
         :param rows: the well's own object rows, index-reset.
@@ -1041,6 +1043,8 @@ class _WellTab(QWidget):
             self._thumb_px = int(thumb_px)
         if per_page:
             self._per_page = int(per_page)
+        if picture is not None:
+            self._picture = dict(picture)
         self._page = 0
         self.fill(columns)
 
@@ -1101,7 +1105,8 @@ class _WellTab(QWidget):
             crop = self._crops[index]
             row = self._rows.iloc[index] if index < len(self._rows) else None
             self._grid.addWidget(
-                _thumbnail(crop, row, self._body, size=self._thumb_px),
+                _thumbnail(crop, row, self._body, size=self._thumb_px,
+                           picture=self._picture),
                 position // self._columns, position % self._columns)
         self._refresh_pager()
 
@@ -1190,10 +1195,22 @@ def _is_candidate(row) -> bool:
         return False
 
 
-def _thumbnail(crop, row, parent=None, size: int = 0) -> QWidget:
-    """One crop as a widget, or a labelled placeholder when it is missing."""
+def _thumbnail(crop, row, parent=None, size: int = 0,
+               picture=None) -> QWidget:
+    """One crop as a widget, or a labelled placeholder when it is missing.
+
+    :param picture: the annotator-named display settings. Applied through
+        `picture_settings.draw_crop`, which calls the ANNOTATION APP'S OWN
+        functions -- so a crop here and the same crop in the annotator look
+        the same, which is the entire reason this tab borrowed its setting
+        names (instruction 170 B).
+    """
     tooltip = _tooltip(row)
     px = int(size or THUMBNAIL_PX)
+    if crop is not None and picture:
+        from ...picture_settings import draw_crop
+
+        crop = draw_crop(crop, picture)
     if crop is None:
         label = QLabel("no crop")
         label.setToolTip(tooltip or "this object could not be cut")
@@ -2228,7 +2245,8 @@ class CellMontageView(QWidget):
                                 self._well_caption(plan, well, guides),
                                 self._columns,
                                 thumb_px=_thumb_px_of(picture),
-                                per_page=_per_page_of(picture))
+                                per_page=_per_page_of(picture),
+                                picture=picture)
                 refreshed.add(key)
         # A TAB THIS RUN NO LONGER FILLS MUST NOT KEEP SHOWING THE OLD ONE.
         # Driving the real widget found it: narrow the cap and re-run, and the

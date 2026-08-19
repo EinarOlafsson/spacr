@@ -153,14 +153,14 @@ SHIPPED
 
 NOT DONE, AND NAMED RATHER THAN LEFT TO BE DISCOVERED
 
-  * THE DISPLAY SETTINGS DO NOT YET CHANGE THE PICTURE. `outline`,
-    `outline_threshold_factor`, `outline_sigma`, `edge_thickness`,
-    `edge_transparency`, `edge_image`, `normalize_channels`, `percentiles`
-    and `object_size` are offered, stored and carried, and the renderer does
-    not read them. They change how an obtained crop is DRAWN, which is the
-    montage's own painting step and not the crop spec -- so the mapping table
-    deliberately does not list them rather than pretending. This is the next
-    piece of work on this file.
+  * THE DISPLAY SETTINGS NOW DRAW THE PICTURE, through
+    `picture_settings.draw_crop`, which calls the ANNOTATION APP'S OWN
+    `normalize_pil`, `filter_channels_pil` and `outline_image`. A second
+    implementation of "normalise a crop" would be a second answer to what
+    normalise MEANS, which is the whole reason this tab borrowed the
+    annotator's setting names. The outline is computed BEFORE a channel is
+    zeroed, because zeroing first would outline a channel that is no longer
+    there. A bad setting never costs the montage its picture.
   * THE ANNOTATION APP STILL SHIPS `crop_source='auto'`. The Cells tab has the
     named modes; annotate has not been changed yet, so "how do i choose to
     stream images from database or dataset" is answered in one panel and not
