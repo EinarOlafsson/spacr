@@ -1,8 +1,8 @@
 """The mixed model's REML objective, written out and optimised on the GPU.
 
 WHY THIS MODULE EXISTS, in one measured number. ``regression_type='mixed'``
-is the default (instruction 132) and it is the slowest thing in
-:mod:`spacr.ml`: instruction 140 measured statsmodels' MixedLM at **54x**
+is the default and it is the slowest fit in
+:mod:`spacr.ml`: benchmarks measured statsmodels' MixedLM at **54x**
 OLS on a 40-gene screen and **67x** on 80, the ratio RISING with screen
 size. The operation each iteration spends its time in is a dense Cholesky of
 the ``q x q`` random-effects system, and on this machine (RTX 3090, torch
@@ -51,8 +51,8 @@ The deviance is differentiated by autograd and minimised over ``log
 theta`` with L-BFGS. ``log`` because a variance is positive and a bounded
 optimiser on a boundary is where MixedLM's own convergence failures live.
 
-NO SILENT FALL BACK TO THE CPU. Per instruction 106, a GPU backend asked for
-on a machine with no CUDA raises :class:`MixedBackendUnavailable` naming what
+NO SILENT FALL BACK TO THE CPU. A GPU backend selected
+on a machine with no CUDA raises :class:`MixedBackendUnavailable`, naming what
 is missing. A user who chose the GPU deliberately and got the CPU quietly has
 been told nothing, and the run they get is the run they were trying not to
 have.
@@ -66,6 +66,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
+import os
 import numpy as np
 import pandas as pd
 
@@ -73,7 +74,7 @@ import pandas as pd
 class MixedBackendUnavailable(RuntimeError):
     """The requested backend cannot run here, and the reason is the message.
 
-    Raised instead of falling back. See instruction 106: an inapplicable
+    Raised instead of falling back. See the design: an inapplicable
     choice is refused *with its reason*, never silently substituted.
     """
 
@@ -124,6 +125,66 @@ def torch_available() -> bool:
 # touches nothing heavier than stdlib). Re-exported here so a caller holding
 # this module does not have to know that.
 from .regression_backends import cuda_present_without_importing_torch  # noqa: E402,F401
+
+
+#: How much of the memory a device reports the dense design may take. A fit
+#: is not the only thing in the process -- the merged frame it came from, both
+#: results tables and every figure already drawn are live beside it -- so
+#: taking the whole of what is free is how the refusal arrives too late.
+MEMORY_HEADROOM = 0.5
+
+
+def design_bytes(n: int, q: int, *, itemsize: int = 8) -> int:
+    """Bytes the dense ``n x q`` random-effects design will occupy.
+
+    Exact rather than estimated: the shape is known before the matrix exists.
+    """
+    return int(n) * int(q) * int(itemsize)
+
+
+def available_memory(device: str = "cpu") -> int:
+    """Bytes that can plausibly be allocated on ``device`` right now."""
+    if str(device).startswith("cuda"):
+        try:
+            import torch
+
+            free, _total = torch.cuda.mem_get_info()
+            return int(free)
+        except Exception:                                        # noqa: BLE001
+            return 0
+    try:
+        return int(os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
+    except Exception:                                            # noqa: BLE001
+        return 0
+
+
+def _readable(total: int) -> str:
+    size = float(max(0, int(total)))
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if size < 1024 or unit == "TB":
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"                          # pragma: no cover - loop
+
+
+def _refuse_if_too_large(n: int, q: int, *, dtype=None, device: str = "cpu"):
+    """Raise before allocating a design that will not fit.
+
+    :raises MemoryError: with the two numbers a user needs -- what it wants
+        and what there is -- and what to do instead.
+    """
+    itemsize = getattr(dtype, "itemsize", 8) or 8
+    wanted = design_bytes(n, q, itemsize=itemsize)
+    have = available_memory(device)
+    if not have or wanted <= have * MEMORY_HEADROOM:
+        return
+    raise MemoryError(
+        f"This mixed fit needs a dense {n:,} x {q:,} design, which is "
+        f"{_readable(wanted)}, and {device} has {_readable(have)} free. "
+        f"Refused before allocating, because asking for it takes the machine "
+        f"rather than failing. Fit at well level instead of cell level, cut "
+        f"the random effects, or use regression_type='ols', which does not "
+        f"build this matrix.")
 
 
 def cuda_available() -> bool:
@@ -259,7 +320,7 @@ class TorchMixedResults:
     variances ``theta`` (that is what statsmodels puts in ``params``, checked
     against a real fit), while ``cov_re`` and ``vcomp`` are the absolute
     ones. Anything else would make the coefficient table silently wrong in
-    exactly the way instruction 141 D forbids.
+    exactly the way the design forbids.
     """
 
     fe_params: pd.Series
@@ -410,6 +471,18 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
     # function of these and of theta, so `n` leaves the optimiser's inner
     # loop entirely and the q x q Cholesky becomes the whole per-iteration
     # cost. That is the operation measured at 204 ms CPU / 7.69 ms GPU.
+    # WHAT THIS WILL COST, BEFORE ASKING FOR IT. `Z` is DENSE and n x q, and
+    # the shape is known exactly here -- so the bytes are known exactly here.
+    # Reported 2026-08-18: running an OLS and then a mixed fit hung the whole
+    # machine twice, badly enough to need a restart. An allocation that asks
+    # the operating system for more than it has does not fail politely; it
+    # takes the session, and everything else the user had open, with it.
+    #
+    # So the fit says the number and refuses. A refusal a user can read beats
+    # a machine they have to power-cycle, and the alternatives are real ones:
+    # `regression_type='ols'` does not build this matrix at all, and fitting
+    # at well level rather than cell level is usually what was meant.
+    _refuse_if_too_large(n, q, dtype=dtype, device=torch_device)
     Z = torch.zeros((n, q), dtype=dtype, device=torch_device)
     offset = 0
     slices = []
@@ -677,8 +750,8 @@ def benchmark_against_statsmodels(y, X, groups, vc=None, *,
                                   device: str = GPU_DEVICE):
     """Fit the same problem both ways and report seconds and disagreement.
 
-    THE HARNESS FOR INSTRUCTION 141 D AND 4. It exists in the package rather
-    than only in the tests so the number can be re-measured on a user's own
+    This benchmark lives in the package rather than only in the tests so the
+    number can be re-measured on a user's own
     screen -- the 27x in the module docstring is one operation on one machine,
     and the end-to-end ratio depends on ``q``.
 
