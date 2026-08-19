@@ -173,3 +173,52 @@ def test_it_says_what_it_did(screen):
     text = sweep(wells, fractions, blocks=plates).describe()
 
     assert "measurement(s)" in text and "identifier column(s)" in text
+
+
+# ------------------------------------------------------------- the picture
+
+
+def test_nothing_surviving_draws_nothing(screen):
+    """A picture of noise is worse than no picture."""
+    from spacr.gene_measurement_sweep import plot_sweep
+
+    rng = np.random.default_rng(3)
+    n = 60
+    index = [f"plate1_r{i}_c1" for i in range(n)]
+    wells = pd.DataFrame({"a": rng.normal(0, 1, n)}, index=index)
+    fractions = pd.DataFrame({"G": rng.random(n)}, index=index)
+    result = sweep(wells, fractions, blocks=["plate1"] * n)
+
+    assert plot_sweep(result) is None
+
+
+def test_it_draws_what_survived(screen, tmp_path):
+    import matplotlib
+    matplotlib.use("Agg")
+    from spacr.gene_measurement_sweep import plot_sweep
+
+    wells, fractions, plates = screen
+    result = sweep(wells, fractions, blocks=plates)
+
+    out = tmp_path / "sweep.png"
+    figure = plot_sweep(result, path=str(out))
+
+    assert figure is not None
+    assert out.exists() and out.stat().st_size > 1000
+
+
+def test_the_grid_is_ordered_so_neighbours_are_alike():
+    """A heatmap in arrival order hides every block structure in it."""
+    from spacr.gene_measurement_sweep import _order_like_neighbours
+
+    # Two blocks of correlated rows, interleaved on the way in.
+    grid = pd.DataFrame(
+        [[1, 1, 1, 0, 0, 0], [0, 0, 0, 1, 1, 1],
+         [1, 1, 1, 0, 0, 0], [0, 0, 0, 1, 1, 1]],
+        index=["a1", "b1", "a2", "b2"], dtype=float)
+
+    ordered = _order_like_neighbours(grid)
+
+    names = list(ordered.index)
+    assert abs(names.index("a1") - names.index("a2")) == 1
+    assert abs(names.index("b1") - names.index("b2")) == 1
