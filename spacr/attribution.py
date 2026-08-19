@@ -39,6 +39,8 @@ import numpy as np
 
 __all__ = [
     "AMBIGUOUS",
+    "assign_well",
+    "Assignment",
     "DEFAULT_THRESHOLD",
     "LIKELIHOODS",
     "Attribution",
@@ -259,3 +261,133 @@ def attributable(effect: float, scale: float, prior: float, *,
     ratio = math.exp(0.5 * separation * separation)
     best = (p * ratio) / (p * ratio + (1.0 - p))
     return best >= float(threshold), float(best)
+
+
+# --------------------------------------------------------------------------- #
+#  The constrained assignment -- the Sudoku one
+# --------------------------------------------------------------------------- #
+#
+# "my mind always goes to suduko where you have rules and conditions that must
+# be met and you use the little information you have within the confines of
+# the rules to do your inference."
+#
+# That is the better framing, and the soft posterior above throws away its
+# central mechanism. Sudoku's power is not probability, it is EXCLUSION: if
+# this cell takes that value, no other cell in the region can. `posterior`
+# gives each cell an independent marginal and then notices that none of them
+# is confident. The constraints here are exactly Sudoku's shape:
+#
+#     every cell carries EXACTLY ONE guide
+#     guide g occupies EXACTLY round(N * pi_g) cells of the well
+#     a guide absent from the well occupies NONE of it
+#
+# Solved as a minimum-cost assignment: expand each guide into its own integer
+# number of slots and match cells to slots so the total -log likelihood is
+# smallest. Every count is then exactly right BY CONSTRUCTION, and every cell
+# has a definite guide -- which the marginal posterior can never deliver when
+# the priors are small.
+#
+# WHAT IT DOES NOT DO, and this is the honest half. An assignment being
+# OPTIMAL does not make it CERTAIN. When the evidence is weak, many
+# assignments are nearly as good, and swapping two cells costs almost
+# nothing. `Assignment.degeneracy` reports exactly that, so a reader can tell
+# a solved grid from one that merely satisfies the rules.
+
+
+@dataclass(frozen=True)
+class Assignment:
+    """Every cell's guide, with the counts exactly as sequenced."""
+
+    guides: Tuple[str, ...]
+    #: -log likelihood of this assignment; lower is better.
+    cost: float
+    #: Mean cost of swapping two cells' guides, in nats. Near zero means many
+    #: assignments are equally good and this one is arbitrary.
+    degeneracy: float
+    #: How many cells each guide was given.
+    counts: Dict[str, int] = field(default_factory=dict)
+
+    @property
+    def decisive(self) -> bool:
+        """Whether the constraints actually pinned the answer down."""
+        return self.degeneracy > 1.0
+
+
+def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
+                effects: Mapping[str, float], *,
+                centre: float = 0.0, scale: float = 1.0,
+                likelihood: str = "lognormal",
+                seed: int = 0) -> Assignment:
+    """Give every cell exactly one guide, with the counts sequencing implies.
+
+    :returns: an :class:`Assignment`. ``guides`` is one name per cell, in the
+        order the scores came.
+
+    The counts are ``round(N * pi_g)`` adjusted to sum to N exactly -- a
+    rounding that left a cell unassigned would break the one rule that makes
+    this an assignment at all. The largest remainders take the slack, which is
+    the standard apportionment and is deterministic.
+    """
+    from scipy.optimize import linear_sum_assignment
+
+    priors = normalise_fractions(fractions)
+    values = np.asarray(list(scores), dtype=float)
+    n = int(values.size)
+    names = tuple(priors)
+    if not names or not n:
+        return Assignment(guides=(AMBIGUOUS,) * n, cost=float("inf"),
+                          degeneracy=0.0, counts={})
+
+    # HOW MANY SLOTS EACH GUIDE GETS, summing to n exactly.
+    exact = np.array([priors[g] * n for g in names], dtype=float)
+    slots = np.floor(exact).astype(int)
+    short = n - int(slots.sum())
+    if short > 0:
+        order = np.argsort(-(exact - np.floor(exact)))
+        for index in order[:short]:
+            slots[index] += 1
+    elif short < 0:                                   # pragma: no cover - rare
+        order = np.argsort(exact - np.floor(exact))
+        for index in order[: -short]:
+            slots[index] = max(slots[index] - 1, 0)
+
+    density = np.column_stack([
+        _density(likelihood, values, float(effects.get(g, 0.0)), centre, scale)
+        for g in names])
+    density = np.nan_to_num(density, nan=0.0, posinf=0.0, neginf=0.0)
+    cost_per_guide = -np.log(np.clip(density, 1e-300, None))
+
+    # One column per SLOT, so the counts are a property of the matrix rather
+    # than something checked afterwards.
+    columns = np.repeat(np.arange(len(names)), slots)
+    if columns.size != n:                             # pragma: no cover
+        columns = columns[:n]
+    cost = cost_per_guide[:, columns]
+    rows, picks = linear_sum_assignment(cost)
+    chosen = columns[picks]
+
+    total = float(cost[rows, picks].sum())
+    # HOW ARBITRARY IS IT: what this cell would cost under its best ALTERNATIVE
+    # GUIDE, not its second-cheapest slot. Slots of the same guide have
+    # identical cost, so the second-cheapest slot is almost always another
+    # slot of the guide already chosen and the difference is exactly zero --
+    # which made this read "arbitrary" for a perfectly decided grid. Caught by
+    # the test that asks a decided assignment to score above an undecided one.
+    order = np.empty(n, dtype=int)
+    order[rows] = chosen
+    best = cost_per_guide[np.arange(n), order]
+    others = cost_per_guide.copy()
+    others[np.arange(n), order] = np.inf
+    alternative = others.min(axis=1) if len(names) > 1 else best
+    gap = alternative - best
+    gap = gap[np.isfinite(gap)]
+    degeneracy = float(np.mean(gap)) if gap.size else 0.0
+
+    rng = np.random.default_rng(int(seed))
+    del rng                                            # ties are broken by the
+    # solver deterministically; the seed is accepted so the signature matches
+    # `attribute_well` and a caller can pass one without thinking about it.
+    assigned = tuple(str(names[c]) for c in chosen)
+    counts = {g: int((chosen == i).sum()) for i, g in enumerate(names)}
+    return Assignment(guides=assigned, cost=total, degeneracy=degeneracy,
+                      counts=counts)

@@ -206,3 +206,93 @@ def test_the_beta_likelihood_is_available():
 
     assert r.sum(axis=1) == pytest.approx(np.ones(len(scores)))
     assert r.sum(axis=0) / len(scores) == pytest.approx([0.5, 0.5], abs=1e-6)
+
+
+# ----------------------------------------------------- the constrained assignment
+# "my mind always goes to suduko where you have rules and conditions that must
+# be met and you use the little information you have within the confines of
+# the rules to do your inference."
+
+
+def test_every_cell_gets_a_guide():
+    """What the marginal posterior can never deliver when priors are small."""
+    from spacr.attribution import assign_well
+
+    got = assign_well(SCORES, {"x": 0.5, "y": 0.3, "z": 0.2},
+                      {"x": 2.0, "y": 0.0, "z": -2.0})
+
+    assert len(got.guides) == len(SCORES)
+    assert AMBIGUOUS not in got.guides
+
+
+def test_the_counts_are_exactly_what_sequencing_says():
+    """The Sudoku rule: guide g occupies exactly round(N * pi_g) cells."""
+    from spacr.attribution import assign_well
+
+    got = assign_well(SCORES, {"x": 0.5, "y": 0.3, "z": 0.2},
+                      {"x": 2.0, "y": 0.0, "z": -2.0})
+
+    assert sum(got.counts.values()) == len(SCORES)
+    assert got.counts["x"] == 200   # 0.5 of 400
+    assert got.counts["y"] == 120
+    assert got.counts["z"] == 80
+
+
+def test_the_counts_still_sum_to_every_cell_when_they_do_not_divide():
+    """A rounding that left a cell unassigned would break the one rule that
+    makes this an assignment."""
+    from spacr.attribution import assign_well
+
+    got = assign_well(list(range(7)), {"a": 1 / 3, "b": 1 / 3, "c": 1 / 3},
+                      {"a": 1.0, "b": 0.0, "c": -1.0})
+
+    assert sum(got.counts.values()) == 7
+    assert len(got.guides) == 7
+
+
+def test_exclusion_puts_the_extremes_where_they_belong():
+    from spacr.attribution import assign_well
+
+    got = assign_well(SCORES, {"up": 0.5, "down": 0.5},
+                      {"up": 2.0, "down": -2.0})
+
+    highest = np.argsort(SCORES)[-30:]
+    lowest = np.argsort(SCORES)[:30]
+    assert {got.guides[i] for i in highest} == {"up"}
+    assert {got.guides[i] for i in lowest} == {"down"}
+
+
+def test_a_guide_absent_from_the_well_occupies_none_of_it():
+    """Pure elimination -- the Sudoku move."""
+    from spacr.attribution import assign_well
+
+    got = assign_well(SCORES, {"here": 1.0, "absent": 0.0},
+                      {"here": 1.0, "absent": -5.0})
+
+    assert set(got.guides) == {"here"}
+    assert got.counts.get("absent", 0) == 0
+
+
+def test_it_says_when_the_rules_did_not_pin_it_down():
+    """An assignment being OPTIMAL does not make it CERTAIN. When many
+    assignments are nearly as good, swapping two cells costs almost nothing."""
+    from spacr.attribution import assign_well
+
+    decided = assign_well(SCORES, {"a": 0.5, "b": 0.5},
+                          {"a": 6.0, "b": -6.0})
+    arbitrary = assign_well(SCORES, {"a": 0.5, "b": 0.5},
+                            {"a": 0.0, "b": 0.0})
+
+    assert decided.degeneracy > arbitrary.degeneracy
+    assert not arbitrary.decisive, "no evidence must not read as a solved grid"
+
+
+def test_two_guides_with_no_effect_still_get_their_exact_counts():
+    """The counts are a constraint, not an inference: they hold even when
+    nothing is learnable."""
+    from spacr.attribution import assign_well
+
+    got = assign_well(SCORES, {"a": 0.25, "b": 0.75}, {"a": 0.0, "b": 0.0})
+
+    assert got.counts["a"] == 100
+    assert got.counts["b"] == 300
