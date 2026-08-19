@@ -263,9 +263,14 @@ class SweepPanel(QWidget):
 
         bar = 0.15 if (self.hide_circular.isChecked()
                        and self._result.circularity_known) else 1.0
+        # The picture follows the level the panel is showing, so a "both"
+        # sweep does not draw a gene and its own guides as if they were
+        # independent agreement.
+        chosen = str(self.level.currentData() or "gene")
         return plot_sweep(self._result, path=path,
                           alpha=float(self.alpha.value()),
-                          max_circularity=bar)
+                          max_circularity=bar,
+                          level=None if chosen == "guide" else "gene")
 
     def save(self, *_args) -> str:
         """Write the whole table -- not the page on screen."""

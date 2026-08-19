@@ -297,3 +297,68 @@ def draw_crop(array, picture):
         return np.asarray(image.convert("RGB"), dtype="uint8")
     except Exception:                                    # noqa: BLE001
         return array
+
+
+# --------------------------------------------------------------------------- #
+#  What THIS screen actually offers
+# --------------------------------------------------------------------------- #
+
+def available_arrays(source) -> Tuple[str, ...]:
+    """The mask planes this screen's merged arrays actually record.
+
+    `object_array` chooses which mask the intensity channels are cut by, and
+    offering it as free text asks the user to remember what their own screen
+    contains -- and to spell it the way `measure` did. Every other chooser in
+    spaCR is built from the data; this one was not.
+
+    :param source: a :class:`spacr.crops.CropSource`, a
+        :class:`CropSourceChoice`, or anything with a ``spec.mask_dims``.
+    :returns: the plane names, in a stable order. Empty when the screen
+        records none -- which is the answer, not a failure: a run whose
+        merged arrays carry no mask planes cannot cut by one.
+    """
+    spec = getattr(getattr(source, "source", source), "spec", None)
+    dims = dict(getattr(spec, "mask_dims", None) or {})
+    return tuple(sorted(str(name) for name in dims))
+
+
+def available_coordinate_columns(frame) -> Tuple[str, ...]:
+    """The object-table columns a bounding box could be cut from.
+
+    All four corners or none: three of them describe no box, so a chooser
+    that offered them singly would let a user assemble a request that cannot
+    be met.
+    """
+    # `or ()` on a pandas Index raises -- an Index has no truth value. The
+    # guard has to be an explicit None check.
+    names = getattr(frame, "columns", None)
+    if names is None:
+        return ()
+    columns = {str(c) for c in names}
+    if not columns:
+        return ()
+    out = []
+    for spelling in (("bbox-0", "bbox-1", "bbox-2", "bbox-3"),
+                     ("bbox_0", "bbox_1", "bbox_2", "bbox_3"),
+                     ("min_row", "min_col", "max_row", "max_col")):
+        if set(spelling) <= columns:
+            out.append(", ".join(spelling))
+    return tuple(out)
+
+
+def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
+    """What a chooser for ``key`` should list, or ``()`` for free text.
+
+    ONE PLACE, so the Cells tab and the annotation app cannot offer different
+    answers for the same screen.
+    """
+    name = str(key or "").strip()
+    if name == "object_array":
+        return available_arrays(source)
+    if name == "coordinate_columns":
+        return available_coordinate_columns(frame)
+    if name == "crop_shape":
+        return ("object", "bbox")
+    if name == "crop_source":
+        return (LOAD_IMAGES, STREAM_IMAGES)
+    return ()

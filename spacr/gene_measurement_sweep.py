@@ -360,7 +360,13 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         if not circularity_known:
             circular = np.full(len(chosen), np.nan)
 
-    effects = pd.DataFrame(R, index=guides, columns=chosen)
+    # THE SUFFIX GOES FROM BOTH, or the table and the grid disagree about what
+    # a row is called and `plot_sweep` looks a gene up under a name only the
+    # table uses. It exists only to keep a gene and its guides apart while
+    # they are concatenated, and a gene id never equals a guide id anyway.
+    effects = pd.DataFrame(
+        R, index=[str(g).replace(" (gene)", "") for g in guides],
+        columns=chosen)
     table = pd.DataFrame({
         "guide": np.repeat(guides, len(chosen)),
         "measurement": np.tile(chosen, len(guides)),
@@ -395,7 +401,7 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
 
 def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
                alpha: float = 0.05, max_circularity: float = 1.0,
-               top: int = 40, title: str = ""):
+               top: int = 40, title: str = "", level: Optional[str] = None):
     """A heatmap of what SURVIVED, clustered so related things sit together.
 
     THE WHOLE GRID IS NOT A PICTURE. 1,240 guides x 767 measurements is
@@ -415,6 +421,19 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     keep = result.survivors(alpha=alpha, max_circularity=max_circularity)
     if not len(keep):
         return None
+
+    # ONE LEVEL PER PICTURE. At `level='both'` the table holds a gene row and
+    # a row for each of its guides, and drawn together they are the same
+    # effect counted several times -- a block of near-identical rows that
+    # reads as agreement between independent things. Genes by default,
+    # because that is the question the sweep is usually asked.
+    drawn = str(level or "").strip().lower()
+    if "level" in keep.columns and keep["level"].nunique() > 1:
+        drawn = drawn or "gene"
+    if drawn and "level" in keep.columns:
+        keep = keep[keep["level"] == drawn]
+        if not len(keep):
+            return None
 
     guides = (keep.groupby("guide")["q"].min().sort_values().head(top).index)
     measures = (keep.groupby("measurement")["q"].min()
@@ -445,7 +464,8 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     axes.set_title(title or
                    f"{len(keep):,} association(s) past BH at {alpha:g}"
                    + (f", circularity < {max_circularity:g}"
-                      if max_circularity < 1.0 else ""),
+                      if max_circularity < 1.0 else "")
+                   + (f" — {drawn}s" if drawn else ""),
                    fontsize=9)
     bar = figure.colorbar(image, ax=axes, fraction=0.025, pad=0.01)
     bar.set_label("effect (partial correlation, plate-blocked)", fontsize=7)
