@@ -52,12 +52,22 @@ def host_rss() -> Optional[int]:
 
 
 def gpu_allocated() -> Optional[int]:
-    """Bytes torch has allocated on the current CUDA device, or ``None``.
+    """The HIGH-WATER mark of torch's CUDA allocation, or ``None``.
 
     ASKED ONLY IF TORCH IS ALREADY IMPORTED. Importing it to take a
     measurement would make the measurement the most expensive thing in the
     stage, and on a settings panel it is the import this project has twice
     had to keep out (`tests/test_a_settings_panel_does_not_import_torch.py`).
+
+    `max_memory_allocated`, NOT `memory_allocated`. Stages are recorded at
+    their BOUNDARIES, and a fit frees its tensors before the boundary is
+    reached -- so the current allocation reads back as ~0 no matter how large
+    the fit was. Measured on the maintainer's screen: a mixed fit on the GPU
+    backend reported "PEAK GPU 0.0 B", which is the one number instruction
+    160 exists to obtain and the one reading that could not be true. The
+    high-water mark is cumulative across the process, which is right here:
+    the report being answered is about a SEQUENCE of fits, and the peak of
+    the sequence is what decides whether the machine can survive it.
     """
     import sys
 
@@ -67,7 +77,8 @@ def gpu_allocated() -> Optional[int]:
     try:
         if not torch.cuda.is_available():
             return None
-        return int(torch.cuda.memory_allocated())
+        return int(max(torch.cuda.memory_allocated(),
+                       torch.cuda.max_memory_allocated()))
     except Exception:                                            # noqa: BLE001
         return None
 
