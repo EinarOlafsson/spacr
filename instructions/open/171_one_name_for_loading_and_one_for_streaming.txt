@@ -1,0 +1,75 @@
+================================================================================
+ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19 -- "add to instructions to unify the terminology stream
+           images and load images. the default should always be loade images
+           which loades from data folder. if that fails it should always try
+           the other."
+
+THE TWO NAMES
+
+    LOAD IMAGES     read the crops already in `data/`     -- THE DEFAULT
+    STREAM IMAGES   cut them from `merged/` as it goes
+
+And nothing else. Today spaCR has THREE vocabularies for this one choice, and
+a user reading two panels cannot tell they are the same question:
+
+    spacr.crops.resolve_crop_source   'auto' | 'png' | 'merged'
+    the training / classify settings  'pre_generated' | 'on_demand'
+                                      | 'generate'
+    the Cells tab (170, as filed)     two more, renamed twice in one day
+
+That is instruction 145's failure in its plainest form: one idea, three
+spellings, and the panels that use them cannot be compared by a reader.
+
+THE RULES
+
+A. LOAD IMAGES IS ALWAYS THE DEFAULT. Not 'auto', and not whichever folder
+   happens to exist. `set_annotate_default_settings` ships `crop_source='auto'`
+   today, which silently takes the PNG folder whenever there is one -- the
+   right answer for the wrong reason, and unaskable when a user wants the
+   other. The default becomes a NAMED mode that a user can see and change.
+
+B. IF IT FAILS, ALWAYS TRY THE OTHER. Either direction: LOAD IMAGES with no
+   `data/` streams instead, STREAM IMAGES with no `merged/` loads instead.
+   A screen that has one of the two folders always draws.
+
+C. AND IT SAYS WHICH ONE DREW. This is the condition on B, not a decoration.
+   170 first argued AGAINST a fallback on the ground that a silent one makes a
+   user believe they are looking at a crop they are not; the fallback is now
+   asked for, so the silence is what has to go. The panel states the route
+   that produced what is on screen, every time, the way the figure writer
+   already reports `"matplotlib"` and the reason when pyqtgraph could not
+   draw.
+
+D. THE STORED VALUES DO NOT CHANGE. 'png' and 'merged' are what
+   `resolve_crop_source` reads and what every settings file already on disk
+   carries. These are LABELS. The training vocabulary
+   ('pre_generated' / 'on_demand' / 'generate') is the one that has to be
+   migrated onto them, and 'generate' is a third thing -- it WRITES a crop set
+   -- so it stays as an action rather than being forced into a two-way naming
+   that does not fit it.
+
+E. 'auto' IS RETIRED FROM THE PANELS, not from the code. It remains the
+   answer to "what is available here", which is what
+   `resolve_montage_crop_source` computes; it stops being an answer a user is
+   given when they asked which mode to use.
+
+HOW TO KNOW IT WORKED
+
+* Every panel offering this choice offers LOAD IMAGES and STREAM IMAGES, in
+  those words, with LOAD IMAGES selected.
+* A screen with only `data/` and a screen with only `merged/` both draw,
+  whichever mode was asked for.
+* Each says which route drew, and the fallback is visible in that sentence.
+* No settings file written before this changes meaning: 'png' and 'merged'
+  still mean what they meant.
+* A grep for 'pre_generated' finds a documented migration onto the two names,
+  not a fourth spelling.
+
+RELATED
+  170 -- the Cells tab's share of this, and the panel that prompted it.
+  145 -- one reader, one writer, one vocabulary. This is that instruction
+         applied to the picture source.
