@@ -1487,10 +1487,18 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     # measured on, and a montage over 60,000 dead paths draws nothing and
     # blames the crops.
     root = src or portable_paths.source_root_for_database(db_path)
-    moved = sum(portable_paths.reroot_column(joined, column, root)
-                for column in ("png_path", "path_name"))
-    if moved and verbose:
-        print(f"Re-rooted {moved} crop path(s) under {root}.")
+    for column in ("png_path", "path_name"):
+        report = portable_paths.reroot_column(joined, column, root)
+        # SAID WHEN IT CANNOT, not only when it can -- a crop that could not
+        # be placed is returned unchanged and fails later as a missing file,
+        # somewhere with less context (instruction 155 F). But a column where
+        # NOTHING resolved is a route that is not on this machine, not 60,816
+        # failures: a screen with PNG crops and no `merged/` folder is
+        # healthy, and saying otherwise is the false alarm that teaches a
+        # reader to ignore the true one.
+        if report.partial or (report.moved and verbose) or (
+                report.absent and verbose):
+            print(report.describe())
 
     if "prc" not in joined.columns and all(
             c in joined.columns for c in WELL_KEY_COLUMNS):

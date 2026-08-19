@@ -34,6 +34,7 @@ first confirm.
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 #: The folder exported crops live under. Only used to PREFER a suffix that
@@ -144,6 +145,64 @@ def _reroot_with_prefix(path: Optional[str], src_root: Optional[str]
     return path, None
 
 
+@dataclass(frozen=True)
+class RerootReport:
+    """What one re-rooting pass did, INCLUDING what it could not do.
+
+    The last two fields are the reason this is a record and not a bare count.
+    A path with no recognisable structure under the root is returned unchanged
+    and fails later as a missing file, somewhere with less context -- which is
+    how a silent pass-through stays invisible. Instruction 155 F: "Count them
+    and name one".
+    """
+
+    column: str = ""
+    moved: int = 0
+    unresolved: int = 0
+    first_unresolved: str = ""
+    root: str = ""
+
+    def __bool__(self) -> bool:
+        return bool(self.moved)
+
+    def __int__(self) -> int:
+        return int(self.moved)
+
+    @property
+    def partial(self) -> bool:
+        """Some of this column resolved and some did not.
+
+        THE DISTINCTION THAT DECIDES WHETHER TO SHOUT. A column where nothing
+        resolved and nothing existed is a ROUTE THAT IS NOT ON THIS MACHINE --
+        a screen with PNG crops and no ``merged/`` folder has 60,816 unplaceable
+        ``path_name`` values and is completely healthy. A column where most
+        resolved and a few did not is the real signal instruction 155 F asks
+        to be counted and named.
+        """
+        return bool(self.moved) and bool(self.unresolved)
+
+    @property
+    def absent(self) -> bool:
+        """Nothing in this column could be placed, and nothing already was."""
+        return not self.moved and bool(self.unresolved)
+
+    def describe(self) -> str:
+        """One line for a caller to print, or "" when there is nothing to say."""
+        parts: List[str] = []
+        if self.moved:
+            parts.append(f"re-rooted {self.moved:,} {self.column} value(s) "
+                         f"under {self.root}")
+        if self.absent:
+            return (f"none of the {self.unresolved:,} {self.column} value(s) "
+                    f"are under {self.root} — that route's files are not on "
+                    f"this machine")
+        if self.unresolved:
+            parts.append(
+                f"{self.unresolved:,} could not be placed under {self.root}; "
+                f"the first is {self.first_unresolved}")
+        return "; ".join(parts)
+
+
 def reroot_column(frame, column: str, src_root: Optional[str]):
     """Re-root one path column of ``frame`` IN THE FRAME, never on disk.
 
@@ -151,7 +210,9 @@ def reroot_column(frame, column: str, src_root: Optional[str]):
         PNG route and the merged route carry different ones and a caller
         should be able to ask for both.
     :param src_root: anything :func:`candidate_roots` accepts.
-    :returns: how many values were rewritten.
+    :returns: a :class:`RerootReport`, which counts as its own ``moved`` in a
+        boolean or integer context, so a caller that only wants the number
+        still gets it.
 
     Resolves the first dead path against the filesystem, then applies the
     prefix that worked to the rest -- 60,816 rows cost one search plus one
@@ -159,9 +220,12 @@ def reroot_column(frame, column: str, src_root: Optional[str]):
     does not fix is still resolved on its own, so a frame holding crops from
     two different screens is not half-abandoned.
     """
+    root_label = (candidate_roots(src_root) or ("",))[0]
     if frame is None or column not in getattr(frame, "columns", ()):
-        return 0
+        return RerootReport(column=column, root=root_label)
     values = frame[column].tolist()
+    unresolved = 0
+    first_unresolved = ""
     prefix: Optional[Tuple[str, str]] = None
     # Folders already searched and NOT found. Every crop of a well shares a
     # folder, so without this a root that resolves nothing costs one full
@@ -185,19 +249,25 @@ def reroot_column(frame, column: str, src_root: Optional[str]):
                     continue
         folder = os.path.dirname(value.replace("\\", "/"))
         if folder in unresolvable:
+            unresolved += 1
+            first_unresolved = first_unresolved or value
             out.append(value)
             continue
         mapped, found = _reroot_with_prefix(value, src_root)
         if found is not None:
             prefix = found
-        elif mapped == value:
+        elif mapped == value and not os.path.exists(value):
             unresolvable.add(folder)
         if mapped != value:
             moved += 1
+        elif not os.path.exists(value):
+            unresolved += 1
+            first_unresolved = first_unresolved or value
         out.append(mapped)
     if moved:
         frame[column] = out
-    return moved
+    return RerootReport(column=column, moved=moved, unresolved=unresolved,
+                        first_unresolved=first_unresolved, root=root_label)
 
 
 def source_root_for_database(db_path: str) -> str:
