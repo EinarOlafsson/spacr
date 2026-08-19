@@ -207,10 +207,30 @@ def test_the_anchor_aura_lands_on_the_data_and_not_on_a_unit_square(volume):
 
     quads = [a for a in volume._artists if isinstance(a, Poly3DCollection)]
     assert len(quads) == 1
-    corners = np.asarray(quads[0]._vec, dtype=float)
     low, high = volume.axes_at(0, 0).get_xlim3d()
-    across = corners[0].max() - corners[0].min()
+    across = _x_span(quads[0])
     assert across > 0.5 * (high - low), "the aura is not on the data's scale"
+
+
+def _x_span(quad) -> float:
+    """How wide ``quad`` is in x, whatever matplotlib calls its vertex store.
+
+    ``_vec``, a 4 x N homogeneous array, up to matplotlib 3.9; ``_faces``,
+    shaped (polygons, corners, 3), from 3.10 -- where reading ``_vec`` raises
+    AttributeError. There is no public getter to use instead: ``get_vector``
+    is deprecated in 3.10, slated for removal in 3.12, and takes the segments
+    as an ARGUMENT rather than returning the stored ones.
+
+    So the private name is unavoidable and the version tolerance is the
+    point: pinned to one spelling, this test reports "the aura is not drawn"
+    on a matplotlib upgrade, which sends the reader to the wrong file.
+    """
+    faces = getattr(quad, "_faces", None)
+    if faces is not None:
+        x = np.asarray(faces, dtype=float)[..., 0]
+    else:
+        x = np.asarray(quad._vec, dtype=float)[0]
+    return float(x.max() - x.min())
 
 
 # ---------------------------------------------------------------------------
