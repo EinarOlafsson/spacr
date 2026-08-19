@@ -18,47 +18,72 @@ Requested: 2026-08-18 --
 Related: 141 is the backend inventory. 106 is the greying rule. 95/109 are the
          Image UMAP. `spacr/gpu_reduce.py` already decided cuML is an EXTRA.
 
-CLARIFIED BY THE MAINTAINER 2026-08-18, and it is NOT what I first assumed:
+DECIDED 2026-08-18, after two rounds of clarification. THIS SUPERSEDES the
+custom-delegate options this file carried before; do not build those.
 
-  "i meant if it is NOT available it should not be clickable, only the install
-   cuml i guess."
+  "if it is NOT available it should not be clickable, only the install"
+  "instead could we put the install in the tooltip? so the field is grayed out
+   when it is not available. and in the tooltip everything is explained and the
+   API is linked to and to the right of the API link there is an install which
+   prompts the install, is this possible?"
 
-So an unavailable entry is NOT SELECTABLE AS A CHOICE -- a user can never end up
-with a backend that cannot run -- and the ONLY thing it will do when pressed is
-offer the install. Two different actions on one row: choosing is off, installing
-is on.
+YES, WITH ONE SUBSTITUTION, and it is a better design than the delegate routes
+because the greyed entry stays HONESTLY dead -- unselectable, unpressable -- and
+everything interactive moves to the hover panel where it can be interactive.
 
-THIS IS A REAL Qt PROBLEM AND IT IS THE FIRST THING TO SOLVE. A disabled item in
-a QComboBox popup CANNOT BE PRESSED AT ALL -- Qt swallows the click, the popup
-stays open, and no signal is emitted. So "greyed out" and "clicking it offers the
-install" are, on the obvious implementation, mutually exclusive: whichever is
-built naively, the other silently does not happen. That is exactly the
-present-but-inert control instruction 106 forbids, arrived at by accident.
+MEASURED 2026-08-18, PySide6, three probes:
 
-THREE WAYS OUT, and the choice should be made deliberately and recorded:
+  1. A DISABLED COMBO ITEM KEEPS ITS TOOLTIP.
+         row 1: enabled=False  tooltip='tooltip for cuML (GPU)'
+     So hovering an unavailable backend can show something. This is the half
+     the whole design rests on and it works.
 
-  a. A CUSTOM VIEW ON THE COMBO. Give the popup a QListView with an item
-     delegate, keep the item enabled for HIT-TESTING but refuse the SELECTION in
-     the activation handler, and route the press to the install offer instead.
-     The row still paints greyed. Most faithful to the request; needs the
-     paint and the keyboard path (arrow-key + Enter must behave the same way)
-     handled explicitly rather than inherited.
-  b. AN "INSTALL…" AFFORDANCE ON THE ROW -- a small trailing button or link in
-     the delegate, live while the label stays disabled. Unambiguous about which
-     of the two actions is being taken, and it survives a theme that draws
-     disabled text very faintly.
-  c. THE ENTRY STAYS DISABLED AND THE OFFER LIVES BESIDE THE COMBO -- the
-     description box already names the unavailable backends and their reasons
-     (141 C), so it can carry "Install cuML…" per named entry.
+  2. A REAL QToolTip CANNOT CARRY A CLICKABLE LINK.
+         QToolTip has a linkActivated signal:  False
+         QToolTip is a QWidget:                False
+     `QToolTip` is a STATIC PAINTER, not a widget. It renders rich text, and
+     nothing in it can be clicked, hovered or focused. So "an install link in
+     the tooltip" cannot be `QToolTip` -- and a naive attempt renders a link
+     that LOOKS pressable and is not, which is instruction 106's inert control
+     yet again.
 
-(c) is the cheapest and needs no delegate; (a) is closest to what was asked.
-DECIDE, IMPLEMENT ONE, AND SAY WHICH AND WHY in the trailing note -- what must
-not happen is a greyed row that looks pressable and is not.
+  3. THE ROUTE THAT DOES WORK.
+         QLabel.linkActivated exists:            True
+         a link can be routed to an action:      ['install']
+     A frameless, tooltip-styled QLabel with `Qt.TextBrowserInteraction`,
+     shown on hover and kept alive while the pointer is over IT rather than
+     over the row. Its `linkActivated` carries the href, so "api" opens the
+     documentation and "install" opens the offer.
 
-WHICHEVER IS CHOSEN: the entry can NEVER become the selected value while it is
-unavailable, not even briefly, and not by keyboard. A settings CSV naming an
-unavailable backend is already refused by `_require_backend`; this must not open
-a second door to the same state.
+SO THE CONTROL IS:
+
+    the combo row        DISABLED -- greyed, not selectable, not pressable,
+                         and it can never become the chosen value (see below)
+    the hover panel      the explanation, then the API link, then INSTALL to
+                         the right of it, exactly as asked
+
+BUILD IT AS ONE REUSABLE HOVER PANEL, not as a backend feature: the Image UMAP
+needs the same thing (section C), and a second implementation of an interactive
+tooltip is a second set of hover, focus and dismissal bugs.
+
+THREE THINGS THE HOVER PANEL MUST GET RIGHT, all of them the reason people
+avoid interactive tooltips:
+  * IT MUST NOT VANISH WHEN THE POINTER MOVES TOWARD IT. The pointer has to
+    cross the gap between the row and the panel; a plain leave-event dismissal
+    closes it mid-journey and the Install link can never be reached.
+  * IT MUST BE DISMISSABLE -- Escape, clicking away, and moving well clear --
+    or it is a panel the user cannot get rid of.
+  * IT MUST BE REACHABLE BY KEYBOARD. A control that only a mouse can operate
+    is not an option for everyone, and the row itself is disabled, so the
+    keyboard route has to be explicit rather than inherited.
+
+AND THE INVARIANT, WHICHEVER WAY IT IS BUILT: an unavailable entry may never
+become the selected value, not briefly and not by keyboard. NOTE, measured
+above: `QStandardItem.setEnabled(False)` leaves `ItemIsSelectable` set in the
+flags -- Qt will not ACTIVATE a disabled row, but a model-level selection can
+still land on it. Clear the selectable flag too rather than relying on the
+enabled state alone. `_require_backend` already refuses a settings CSV naming
+an unavailable backend; this must not open a second door to the same state.
 
 --------------------------------------------------------------------------------
 A. CAN IT BE MADE? YES, AND spaCR ALREADY HAS THE PARTS.
