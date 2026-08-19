@@ -1299,7 +1299,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             here_fractions = _well_guide_fractions(
                 counts, label, keys, guide_column, fraction_column)
             if len(here_fractions) > 1:
-                from .attribution import (assign_well, attribute_well,
+                from .guide_attribution import (assign_well, attribute_well,
                                           normalise_fractions)
 
                 spread = float(ranked["_montage_score"].std()) or 1.0
