@@ -1,0 +1,86 @@
+================================================================================
+THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19 -- "cant control the height of the containers in the
+           figures container in the measurements tab. i need to be able to
+           make each taller and collapse each element category"
+
+A figure the user cannot make taller is a figure they cannot read. The
+measurements tab stacks several categories of element in one container and
+gives the reader no way to spend the height they have on the one they are
+looking at.
+
+WHAT TO BUILD
+
+A. EVERY CATEGORY IS A COLLAPSIBLE SECTION, with its heading as the toggle.
+   Collapsed is a real state and it persists: a reader who folds four
+   categories away does not want them back on the next run.
+
+B. THE HEIGHT IS THE USER'S. Sections are separated by a splitter so height
+   dragged out of one goes into another, rather than each having a fixed
+   height that the panel chose. A section dragged to its minimum is not the
+   same thing as a collapsed one, and both are available.
+
+C. IT SURVIVES A RELOAD. The sizes and the collapsed set are remembered per
+   category, with the same store the rest of the panel preferences use.
+
+HOW TO KNOW IT WORKED
+
+* Each category in the measurements figures container collapses from its own
+  heading, and stays collapsed across a restart.
+* Dragging a divider makes one section taller and its neighbour shorter, and
+  the sizes come back after a restart.
+* With every category collapsed but one, that one has the whole height.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE. A, B AND C.
+--------------------------------------------------------------------------------
+
+A. EVERY CATEGORY IS A COLLAPSIBLE SECTION.
+   `spacr.qt.widgets.collapsible_section.CollapsibleSection` -- a titled
+   header that folds its content away, used for all four Measurements-tab
+   sections: Attached databases, Regression, Measurement scan, and the
+   Gene x measurement sweep. FOLDED, NOT REMOVED: the header stays and says
+   what is folded, the same rule the greyed-out picture settings follow.
+
+   Showing and hiding moved to the SECTION rather than the panel inside it.
+   Hiding the panel alone left its header behind, and opening that header
+   would then have revealed a panel the tab had decided not to show.
+
+B. THE HEIGHT IS THE USER'S.
+   The sections are children of a QSplitter with setChildrenCollapsible(False)
+   and a minimum height each, so a divider drag moves height from one to its
+   neighbour and a section can be dragged small but never to nothing --
+   "dragged to its minimum is not the same thing as collapsed", and both are
+   available.
+
+   AND THE FIGURES THEMSELVES. `FigureGridView.set_target_cell_width` had
+   existed all along and NOTHING CALLED IT: a setter with no caller is a
+   control that does not exist, which is why writing the method did not
+   answer "cant control the height of the containers". The grid now sits in
+   a page with a slider that calls it. Width and not height, because the
+   tiles keep each figure's own aspect ratio -- setting the width IS setting
+   the height, and a separate height control would either fight the aspect
+   ratio or distort the figure.
+
+C. IT SURVIVES A RELOAD.
+   `preferences.get_section_layout` / `set_section_layout` store the folded
+   set and the divider sizes per panel; `get_figure_grid_size` /
+   `set_figure_grid_size` store the tile width. Nothing stored reads back as
+   an empty dict rather than as a default layout -- the panel's own first-run
+   arrangement is the right one, and freezing today's into every user's
+   settings would make improving it impossible, which is the reasoning
+   get_figure_style already carries.
+
+   Restored AFTER the last section is added, not in the constructor: a fold
+   restored before the sweep section exists cannot be applied to it. A stored
+   layout naming a section this version does not have is not an error, and a
+   section the layout has never heard of opens rather than inheriting
+   whatever the absent entry would imply.
+
+TESTS
+  tests/test_the_measurements_tab_sections_resize.py
+  tests/test_the_section_layout_survives_a_restart.py
+  tests/test_the_figure_size_is_the_users.py

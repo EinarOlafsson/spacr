@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-119 done / 49 open (70%).
+123 done / 45 open (73%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -150,23 +150,11 @@ OPEN
   168  THE RUN SUMMARY IS READABLE AT A GLANCE
        168_the_run_summary_is_readable_at_a_glance.txt
 
-  169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
-       169_the_figures_container_is_resizable_and_collapsible.txt
-
-  170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
-       170_the_cells_tab_has_two_modes_and_the_annotator_settings.txt
-
-  171  ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
-       171_one_name_for_loading_and_one_for_streaming.txt
-
   172  HOW MANY CELLS, AND WHICH ONES
        172_the_count_and_the_choice_of_cells.txt
 
   173  A GUIDE AND A PROBABILITY FOR EVERY CELL
        173_a_guide_and_a_probability_for_every_cell.txt
-
-  174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
-       174_beta_as_a_response_transform.txt
 
   175  EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
        175_every_gene_against_every_measurement.txt
@@ -292,5 +280,9 @@ DONE
   163  A TIMER STARTED OFF THE GUI THREAD NEVER FIRES
   164  THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
   165  AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
+  169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
+  170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
+  171  ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
+  174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
   176  A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
   177  ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW

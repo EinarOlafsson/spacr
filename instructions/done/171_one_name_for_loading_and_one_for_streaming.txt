@@ -73,3 +73,29 @@ RELATED
   170 -- the Cells tab's share of this, and the panel that prompted it.
   145 -- one reader, one writer, one vocabulary. This is that instruction
          applied to the picture source.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE.
+--------------------------------------------------------------------------------
+
+* EVERY PANEL SAYS THE WORDS. A combo option may be a (value, label) pair:
+  the label is shown, the value is stored. `_CROP_SOURCE_OPTIONS` gives
+  "load images — crops already in data/" and "stream images — cut from
+  merged/", load first, to the settings panels and to the Cells tab's own
+  settings window.
+
+* THE STORED VALUES DID NOT CHANGE. 'png' and 'merged' still mean what they
+  meant; no settings file written before this changes meaning.
+
+* 'auto' IS RETIRED FROM THE PANELS AND NOT FROM THE CODE. It remains what
+  `resolve_montage_crop_source` computes -- the answer to "what is available
+  here" -- and stops being an answer a user is given when they asked which
+  mode to use.
+
+* THE FALLBACK IS KEPT AND THE SILENCE IS DROPPED (D). A run asked for LOAD
+  IMAGES with no crop folder streams instead and says which route drew what
+  is on screen. Three tests in tests/test_crop_source_wiring.py encoded the
+  older refusal and now assert the fallback, the sentence naming it, and
+  output holding REAL crops -- with a new test keeping the original guard:
+  with neither route available, an empty tar announced as a full one must
+  still raise.
