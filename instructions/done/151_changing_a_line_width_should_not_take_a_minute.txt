@@ -205,3 +205,29 @@ STILL NOT PROVEN, AND THE FILE WAS RIGHT TO SAY SO: the portal stall cannot
 be reproduced headless -- offscreen Qt never asks the portal. What is proven
 here is that no call site can ask for the platform dialog. Timing it on the
 maintainer's real display is still the confirmation.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+B.4's remainder is closed, and not the way the file proposed. It asked for "one
+coordinated sweep" of the QFileDialog sites; there are 117 of them across the
+widget package and five passed the option, so a sweep would have been 112 edits
+that any new call site could undo.
+
+`Qt.AA_DontUseNativeDialogs`, set before the QApplication is constructed, covers
+every dialog Qt opens -- file, font, colour and any added later. Set AFTER
+construction it is ignored silently, which would look exactly like it had
+worked, so a test asserts the ordering in the source.
+
+THE TRADE, stated rather than glossed: Qt's own dialogs do not carry the
+desktop's bookmarks or recent-files list. A chooser that opens beats a beautiful
+one that takes a minute, and QT_QPA_PLATFORMTHEME is still there for anyone who
+wants the native one.
+
+The per-site `pick_colour` helper stays: it also carries spaCR's own defaults,
+so it is not made redundant by the attribute.
+
+STILL NOT REPRODUCIBLE HEADLESS, and still recorded as such: offscreen Qt never
+asks the portal, so what is proven is that no dialog can ask for the platform's
+own. That this was the minute needs a watch on the real display.

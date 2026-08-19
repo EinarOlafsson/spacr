@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-114 done / 42 open (73%).
+115 done / 41 open (73%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -125,9 +125,6 @@ OPEN
 
   150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
        150_a_saved_figure_is_for_paper_not_for_the_screen.txt
-
-  151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
-       151_changing_a_line_width_should_not_take_a_minute.txt
 
   152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
        152_the_axis_and_text_colour_follow_the_theme_and_the_user.txt
@@ -261,6 +258,7 @@ DONE
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
   146  DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
+  151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
   159  LOADING A RUN HANGS THE APPLICATION
   161  A REGRESSION THAT FAILS SAYS WHY
