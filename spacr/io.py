@@ -6667,17 +6667,28 @@ def generate_training_dataset(settings):
         return frame['png_path'].dropna().tolist()
 
     def _fix_path_under_src(src_root, p):
-        """Make sure png_path lives under the current src root (portable absolute fix)."""
+        """Make sure png_path lives under the current src root (portable absolute fix).
+
+        THE RULE ITSELF LIVES IN `spacr.portable_paths` and is shared with the
+        montage, which needs exactly this and used to get none of it -- the
+        rule was a nested local here, reachable only from this generator, so a
+        screen that had moved computer showed the montage 60,816 dead paths
+        while this function resolved every one.
+
+        The `/data/` rebuild is now only applied when it lands on a file that
+        EXISTS. Rewriting to somewhere equally absent is strictly worse than
+        leaving the recorded path alone: the copy below then fails naming a
+        folder the user never chose.
+        """
+        from .portable_paths import reroot_crop_path
+
         if not isinstance(p, str) or p.strip() == "":
             return None
-        # already under root?
-        if os.path.isabs(p) and p.startswith(src_root):
-            return p if os.path.exists(p) else p  # keep as-is; existence checked later when copying
-        # try CV folder pattern split and rebuild
-        parts = p.split('/data/')
-        if len(parts) > 1:
-            return os.path.join(src_root, 'data', parts[1])
-        # fallback: join relative to src_root
+        rerooted = reroot_crop_path(p, src_root)
+        if rerooted != p:
+            return rerooted
+        # A relative path has no recorded root to rebuild from; it is already
+        # written relative to the screen, so join it and let the copy report.
         if not os.path.isabs(p):
             return os.path.join(src_root, p.lstrip('/'))
         return p

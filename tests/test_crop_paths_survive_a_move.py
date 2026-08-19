@@ -90,3 +90,25 @@ def test_the_root_of_a_database_is_the_plate_folder_that_holds_data():
 
 def test_no_root_means_no_rewrite():
     assert reroot_crop_path("/gone/data/x.png", "") == "/gone/data/x.png"
+
+
+def test_the_dataset_generator_and_the_montage_share_ONE_rule(tmp_path):
+    """`io`'s generator and the montage must resolve a moved path identically.
+
+    The rule was a nested local inside `io.generate_dataset`, reachable only
+    from that generator -- so a screen that had moved computer had its crops
+    resolved for a training set and NOT for the montage, which showed 60,816
+    dead paths. Two copies of a rule is how they come to disagree, so this
+    pins that there is one.
+    """
+    import inspect
+
+    from spacr import io
+
+    source = inspect.getsource(io)
+    assert "from .portable_paths import reroot_crop_path" in source, (
+        "io re-implemented the rebuild instead of sharing it")
+    # And the shared rule is the one that decides: a rebuild that lands
+    # nowhere leaves the recorded path alone.
+    assert reroot_crop_path("/gone/plate1/data/x.png", str(tmp_path)) == \
+        "/gone/plate1/data/x.png"
