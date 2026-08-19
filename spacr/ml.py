@@ -4989,10 +4989,29 @@ def load_regression_input_pairs(pairs):
     seen_count_parts = set()
     audit = []
 
+    # ONE PARSE PER FILE, NOT ONE PER PAIR ROW.
+    #
+    # The Measurements tab points EVERY pair row's score at the single merged
+    # frame, so a four-plate screen handed the same file four times and this
+    # parsed it four times. Measured on the maintainer's screen: that file is
+    # 2.75 GB, and the process sat at 82% CPU with zero disk I/O -- reading it
+    # back out of the page cache -- for minutes, having already written it.
+    # "it looks like it is not running while it does say that it is running."
+    #
+    # A COPY PER CALLER, because the caller mutates what it gets: plateID is
+    # assigned onto it and it is filtered down to one plate. Handing out the
+    # cached frame itself would let the first pair row's edits reach the
+    # second.
+    _parsed: dict = {}
+
     def read(path):
         if not path:
             return None
-        return correct_metadata(tabular.read_table(os.fspath(path)))
+        key = os.path.abspath(os.fspath(path))
+        if key not in _parsed:
+            _parsed[key] = correct_metadata(
+                tabular.read_table(os.fspath(path)))
+        return _parsed[key].copy()
 
     def plates(frame):
         if frame is None or 'plateID' not in frame.columns:
