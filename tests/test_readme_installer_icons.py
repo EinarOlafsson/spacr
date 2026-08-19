@@ -7,8 +7,8 @@ ways an icon row silently stops working:
   light-mode page, and nobody notices because the maintainer reads in dark
   mode;
 * an icon hotlinked from a CDN dies the day that host moves;
-* one glyph drawn solid beside two drawn in outline turns a row of equal
-  choices into a recommendation;
+* a generator substitutes approximated clip art for the platform artwork the
+  user supplied, or lets one mark drift off-centre;
 * the release helper that bumps the download links every release stops
   recognising the block and either fails the release or leaves stale links.
 
@@ -201,12 +201,14 @@ def test_the_icon_carries_its_own_background_into_a_white_page(stem):
     must sit on an opaque chip that contrasts with a white page as well as
     with a dark one.
     """
+    generator = _generator_module()
     image = _icon(stem)
     colours = _opaque_colours(image)
     assert sum(colours.values()) / (image.width * image.height) > 0.90, (
         f"{stem}.png is mostly transparent, so its white art has no backing")
 
-    chip = colours.most_common(1)[0][0]
+    chip = generator.SLATE[:3]
+    assert chip in colours, f"{stem}.png does not use the specified slate"
     assert _contrast(chip, LIGHT_PAGE) >= 3.0, (
         f"{stem}.png's chip {chip} is invisible on a white README page")
     assert _contrast(chip, DARK_PAGE) >= 1.05, (
@@ -221,9 +223,10 @@ def test_the_glyph_is_white_and_nothing_else_is_painted(stem):
     of exactly those two. A second colour anywhere -- a grey substituted for
     "white", a coloured platform mark -- breaks that line.
     """
+    generator = _generator_module()
     image = _icon(stem)
     colours = _opaque_colours(image)
-    chip = colours.most_common(1)[0][0]
+    chip = generator.SLATE[:3]
     assert (255, 255, 255) in colours, f"{stem}.png has no pure white artwork"
     assert _contrast((255, 255, 255), chip) >= 4.5
 
@@ -235,25 +238,84 @@ def test_the_glyph_is_white_and_nothing_else_is_painted(stem):
                 f"{stem}.png paints {colour}, which is not white on {chip}")
 
 
-def test_the_three_icons_read_as_one_row_of_equal_choices():
-    """Same canvas, and no platform drawn heavier than the others."""
+def _bright_bounds(image):
+    """Return the visible white mark bounds, excluding its slate tile."""
+    white = image.convert("RGB").convert("L").point(
+        lambda value: 255 if value > 180 else 0)
+    return white.getbbox()
+
+
+def test_supplied_platform_artwork_is_kept_as_generator_input():
+    """Regeneration must never overwrite the three supplied source images."""
+    from PIL import Image
+
+    expected = {
+        "linux": ("linux.png", "PNG", (500, 500)),
+        "macos": ("macos.jpg", "JPEG", (840, 1070)),
+        "windows": ("windows.png", "PNG", (800, 800)),
+    }
     generator = _generator_module()
-    sizes = set()
-    coverage = {}
+    for stem, (filename, image_format, size) in expected.items():
+        source = ICON_DIR / "source" / filename
+        assert generator.SOURCE_FILES[stem] == source
+        with Image.open(source) as image:
+            assert image.format == image_format
+            assert image.size == size
+
+
+def test_the_three_platform_marks_are_centred_and_fill_eighty_percent():
+    """Equal geometry, rather than equal ink density, defines the icon row."""
+    generator = _generator_module()
     for stem in PLATFORM_ASSETS:
         image = _icon(stem)
-        sizes.add(image.size)
-        white = sum(1 for pixel in image.getdata()
-                    if pixel[3] == 255 and min(pixel[:3]) > 200)
-        coverage[stem] = white / float(image.width * image.height)
+        assert image.size == (generator.CANVAS, generator.CANVAS)
+        bounds = _bright_bounds(image)
+        assert bounds is not None
+        left, top, right, bottom = bounds
+        # Antialiasing can move the bright-pixel edge a few pixels inward.
+        assert generator.MARK_SIZE - 6 <= max(right - left, bottom - top) \
+            <= generator.MARK_SIZE
+        centre = ((left + right - 1) / 2, (top + bottom - 1) / 2)
+        expected_centre = (generator.CANVAS - 1) / 2
+        assert abs(centre[0] - expected_centre) <= 1
+        assert abs(centre[1] - expected_centre) <= 1
 
-    assert len(sizes) == 1, f"the icons are different sizes: {sizes}"
-    for stem, seen in coverage.items():
-        assert generator.COVERAGE_LO <= seen <= generator.COVERAGE_HI, (
-            f"{stem}.png covers {seen:.3f} of its tile, outside the shared "
-            f"band {generator.COVERAGE_LO:.3f}..{generator.COVERAGE_HI:.3f}")
-    spread = max(coverage.values()) - min(coverage.values())
-    assert spread < 0.02, f"one platform shouts louder than the rest: {coverage}"
+
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
+def test_tiles_are_slate_squares_with_only_small_corner_rounding(stem):
+    """The polished tile is slate gray with a restrained 32 px radius."""
+    generator = _generator_module()
+    image = _icon(stem)
+    assert image.getpixel((image.width // 2, 0)) == generator.SLATE
+    assert image.getpixel((0, image.height // 2)) == generator.SLATE
+    assert image.getpixel((0, 0))[3] == 0
+
+    first_opaque = next(
+        x for x in range(image.width) if image.getpixel((x, 0))[3] > 0)
+    assert generator.CORNER_RADIUS - 8 <= first_opaque \
+        <= generator.CORNER_RADIUS
+    assert generator.CORNER_RADIUS < generator.CANVAS * 0.10
+
+
+def test_legacy_is_the_only_tile_with_a_label_below_its_mark():
+    """The existing spaCR mark remains centred above the white LEGACY label."""
+    image = _icon("legacy")
+    bounds = _bright_bounds(image)
+    assert bounds is not None
+    left, top, right, bottom = bounds
+    assert abs((left + right - 1) / 2 - (image.width - 1) / 2) <= 1
+    assert image.height * 0.78 <= bottom - top <= image.height * 0.80
+    assert top < image.height / 3
+    assert bottom > image.height * 0.80
+
+
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
+def test_committed_tiles_match_the_generator(stem):
+    """A source or generator change must be accompanied by fresh artwork."""
+    generator = _generator_module()
+    rendered = (generator.render_legacy() if stem == "legacy"
+                else generator.render_platform(stem))
+    assert list(_icon(stem).getdata()) == list(rendered.getdata())
 
 
 def _generator_module():
