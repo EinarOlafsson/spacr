@@ -244,7 +244,10 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     from scipy.stats import t as _t
     p = 2.0 * _t.sf(np.abs(t), df)
 
-    circular = np.zeros(len(chosen), dtype=float)
+    # NaN, NOT ZERO, when it was never computed. A column of 0.00 reads as
+    # "nothing here is circular", which is the most confident possible way to
+    # say nothing -- and it is what the panel displayed before this line.
+    circular = np.full(len(chosen), np.nan)
     circularity_known = False
     if scores is not None:
         # Ranked once and correlated as a matrix, for the same reason.
