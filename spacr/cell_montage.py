@@ -250,6 +250,92 @@ def round_half_up(value: float) -> int:
 
 
 
+
+#: How the montage decides which cells belong to a coefficient.
+#:
+#: ``rank``       heuristic 1 -- the top x by score (instruction 172). The
+#:                default: it needs nothing but the scores and the fractions.
+#: ``attributed`` each cell's posterior probability of carrying the guide,
+#:                with the well's read fractions as the prior and the fitted
+#:                effects as the likelihood (173). Shows the cells whose
+#:                probability clears the threshold.
+#: ``assigned``   the constrained assignment -- every cell in the well gets
+#:                exactly one guide and each guide gets exactly the number of
+#:                cells its reads imply. Shows the cells assigned to this one.
+PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned")
+
+
+def effects_from_results(path) -> Dict[str, float]:
+    """``{guide: effect}`` from a run's results table.
+
+    The attribution needs every guide's effect in the well, not just the one
+    being drawn -- a posterior is a comparison, and comparing a guide against
+    nothing returns the prior. This reads them from the run the montage is
+    already showing.
+    """
+    import os
+
+    text = str(path or "")
+    if not text or not os.path.isfile(text):
+        return {}
+    try:
+        frame = pd.read_csv(text)
+    except Exception:                                            # noqa: BLE001
+        return {}
+    name = next((c for c in ("feature", "guide", "grna", "coefficient", "name")
+                 if c in frame.columns), None)
+    value = next((c for c in ("coefficient", "effect", "estimate", "beta",
+                              "standardized_marginal_effect")
+                  if c in frame.columns and c != name), None)
+    if name is None or value is None:
+        return {}
+    out: Dict[str, float] = {}
+    for key, number in zip(frame[name], pd.to_numeric(frame[value],
+                                                      errors="coerce")):
+        text_key = _guide_of_term(str(key))
+        if text_key and pd.notna(number):
+            out.setdefault(text_key, float(number))
+    return out
+
+
+def _guide_of_term(term: str) -> str:
+    """The guide inside a design term, or the term when it is already one.
+
+    A results table names its rows as the DESIGN did -- `fraction:grna[g1]`,
+    not `g1` -- so a lookup written for the bare name matches nothing at all,
+    and "nothing matched" here is an attribution that silently falls back to
+    the prior for every cell.
+    """
+    text = str(term or "").strip()
+    if not text or text.lower() == "intercept":
+        return ""
+    if "[" in text and text.endswith("]"):
+        inside = text[text.rindex("[") + 1:-1].strip()
+        # statsmodels writes `C(rowID)[T.r2]` for a factor level.
+        if inside.startswith("T."):
+            inside = inside[2:]
+        return inside
+    return text
+
+
+def _well_guide_fractions(counts, label, keys, guide_column, fraction_column):
+    """``{guide: fraction}`` for one well, from the full count table.
+
+    Every guide in the well, not only the one being drawn: a posterior is a
+    comparison and there is nothing to compare a lone guide against.
+    """
+    try:
+        frame = counts.copy()
+        frame["_montage_well"] = _well_labels(frame, keys)
+        here = frame[frame["_montage_well"].astype(str) == str(label)]
+        if guide_column not in here.columns:
+            return {}
+        return {str(g): float(v) for g, v in
+                zip(here[guide_column], here[fraction_column])
+                if v is not None}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
 def normalised_share(well_fractions, fraction: float) -> Tuple[float, float]:
     """``(share, factor)`` -- the guide's fraction of what is left in the well.
 
@@ -1030,7 +1116,10 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    fraction_column: str = "fraction",
                    crop_source: Optional["CropSourceChoice"] = None,
                    guides: Optional[Sequence[str]] = None,
-                   show_all: bool = False) -> MontagePlan:
+                   show_all: bool = False,
+                   picking: str = "rank",
+                   effects: Optional[Mapping[str, float]] = None,
+                   threshold: float = 0.55) -> MontagePlan:
     """Return the objects to show behind one coefficient.
 
     The whole selection, in the order the design states it: the wells
@@ -1201,6 +1290,38 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
             ["_montage_score", "_montage_tiebreak"],
             ascending=[coefficient.effect < 0, True])
         top = ranked.head(expected)
+
+        # THE OTHER TWO PICKERS (instruction 173). Both need every guide's
+        # fraction AND effect in this well, because a posterior is a
+        # comparison: comparing a guide against nothing returns the prior.
+        picked_by = "rank"
+        if picking in ("attributed", "assigned") and effects:
+            here_fractions = _well_guide_fractions(
+                counts, label, keys, guide_column, fraction_column)
+            if len(here_fractions) > 1:
+                from .attribution import (assign_well, attribute_well,
+                                          normalise_fractions)
+
+                spread = float(ranked["_montage_score"].std()) or 1.0
+                middle = float(ranked["_montage_score"].median())
+                values = ranked["_montage_score"].to_numpy()
+                if picking == "assigned":
+                    # EVERY cell in the well gets exactly one guide and each
+                    # guide gets exactly the cells its reads imply, so this
+                    # picker's count is x by construction rather than by
+                    # rounding.
+                    outcome = assign_well(values, here_fractions, effects,
+                                          centre=middle, scale=spread)
+                    mask = np.array([g == name for g in outcome.guides])
+                    top = ranked[mask]
+                    picked_by = "assigned"
+                else:
+                    calls = attribute_well(values, here_fractions, effects,
+                                           threshold=threshold, centre=middle,
+                                           scale=spread)
+                    mask = np.array([c.guide == name for c in calls])
+                    top = ranked[mask]
+                    picked_by = "attributed"
         direction = "lowest" if coefficient.effect < 0 else "highest"
         arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
                       f"where {share:.4g} is this guide's {fraction:.4g} "
