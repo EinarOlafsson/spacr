@@ -107,7 +107,7 @@ __all__ = [
     'is_row_column_pair',
     # identities
     'FieldID', 'ObjectID',
-    'compose_prc', 'compose_prcf', 'compose_prcfo',
+    'compose_prc', 'compose_prcf', 'compose_prcfo', 'compose_prc_column',
     'parse_prcf', 'parse_prcfo',
     'parse_field_stem', 'parse_object_stem',
     # plate formats
@@ -2539,6 +2539,44 @@ def canonicalise_columns(df):
     """
     mapping = canonical_rename_plan(df.columns)
     return df.rename(columns=mapping) if mapping else df.copy()
+
+
+def compose_prc_column(df, columns=None):
+    """``prc`` for a whole frame, escaped exactly as :func:`compose_prc` is.
+
+    THE VECTORISED COMPOSER, AND WHY IT IS HERE. Ten sites across spaCR built
+    ``prc`` with a bare ``df['plateID'] + '_' + df['rowID'] + '_' +
+    df['columnID']``, which is correct only while no plate id contains the
+    separator or a ``%``. :func:`compose_prc` escapes both -- so a
+    hand-joined key and a composed key were two different strings for the
+    same well, and anything joining one to the other silently matched
+    nothing. One place composes a key; this is that place for frames, as
+    :func:`compose_prc` is for scalars.
+
+    ESCAPING IS THE ONE SPELLING. A plate called ``exp1_plate2`` composes to
+    ``exp1%5Fplate2_rB_c3`` -- three components, always -- rather than to a
+    four-component key separated by the row/column guard. Databases written
+    before this hold the old four-component form and :func:`parse_prcf` still
+    reads it: unescaping is a no-op on a key that carries no escape. Old data
+    reads, new data is unambiguous.
+
+    :param df: frame carrying the well key columns.
+    :param columns: the three column names, in plate / row / column order.
+        Defaults to :data:`WELL_KEY_COLUMNS`.
+    :returns: the ``prc`` series.
+    :raises KeyError: when a key column is absent -- composing a key out of
+        columns that are not there is how a frame gets a ``prc`` of ``nan``
+        that joins to nothing.
+    """
+    plate, row, column = tuple(columns or WELL_KEY_COLUMNS)
+    missing = [name for name in (plate, row, column) if name not in df.columns]
+    if missing:
+        raise KeyError(
+            f'cannot compose {PRC_KEY!r}: {missing} not in the frame. '
+            f'Columns: {list(df.columns)}')
+    return (df[plate].astype(str).map(escape_filename_component)
+            + KEY_SEPARATOR + df[row].astype(str)
+            + KEY_SEPARATOR + df[column].astype(str))
 
 
 # ---------------------------------------------------------------------------

@@ -397,3 +397,92 @@ def test_tabular_imports_without_pandas_of_the_heavy_kind():
                             capture_output=True, text=True, timeout=300)
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "[]", result.stdout
+
+
+# ---------------------------------------------------------------------------
+# One place composes a key
+# ---------------------------------------------------------------------------
+
+def test_there_is_not_a_second_prc_composer():
+    """`ml._compose_prc_column` re-exports rather than redefining."""
+    from spacr import ml
+    assert ml._compose_prc_column is schema.compose_prc_column
+
+
+#: The hand-joined keys still left in the owned modules, and what has to be
+#: established before each moves. Both build a `prcfo` that is matched against
+#: `prcfo` values ALREADY IN the database, so switching them to the escaped
+#: composer is only safe once the writer that put those values there is known
+#: to escape too -- and that writer is `filepaths_to_database`, which is a
+#: different instruction's territory. Named here rather than left silent,
+#: because a remainder nobody wrote down is a remainder nobody finishes.
+KNOWN_HAND_JOINED = {"utils.py:prcfo"}
+
+_HAND_JOINED = re.compile(
+    r"\[.plateID.\][^\n]*\+[^\n]*['\"]_['\"][^\n]*\[.rowID.\]")
+
+
+def test_no_owned_module_grows_a_new_hand_joined_key():
+    """A bare `plateID + '_' + rowID + '_' + columnID` is a second spelling.
+
+    It is correct only while no plate id contains the separator or a `%`,
+    and `compose_prc` escapes both -- so the two produce different strings
+    for the same well and the join between them matches nothing. The known
+    remainder is named; anything else is new and fails here.
+    """
+    offenders = []
+    for name in ("hits.py", "ml.py", "multi_database.py",
+                 "plate_measurements.py", "utils.py"):
+        for number, line in enumerate(
+                (PACKAGE / name).read_text(encoding="utf-8").splitlines(), 1):
+            if line.lstrip().startswith("#"):
+                continue
+            if not _HAND_JOINED.search(line):
+                continue
+            key = "prcfo" if "prcfo" in line else (
+                "prcf" if "fieldID" in line else "prc")
+            if f"{name}:{key}" in KNOWN_HAND_JOINED:
+                continue
+            offenders.append(f"{name}:{number}: {line.strip()}")
+    assert offenders == [], (
+        "use schema.compose_prc_column:\n" + "\n".join(offenders))
+
+
+def test_an_underscored_plate_composes_the_same_key_from_either_door():
+    frame = pd.DataFrame({"plateID": ["exp1_plate2"], "rowID": ["r2"],
+                          "columnID": ["c3"]})
+    vectorised = list(schema.compose_prc_column(frame))
+    scalar = [schema.compose_prc("exp1_plate2", "r2", "c3")]
+    assert vectorised == scalar == ["exp1%5Fplate2_r2_c3"]
+
+
+def test_the_vision_results_prc_is_the_composed_one():
+    """`process_vision_results` used to hand-join its `prc`.
+
+    The regression path composes the same key through `compose_prc`, which
+    escapes the separator and `%`; the hand join did not. The two therefore
+    agreed only for as long as no plate id carried either character, and
+    disagreed silently when one did.
+    """
+    from spacr.utils import process_vision_results
+    frame = pd.DataFrame({"path": ["/x/plate1_B03_1_5.png"], "pred": [0.9]})
+    out = process_vision_results(frame, threshold=0.5)
+    assert list(out["prc"]) == [schema.compose_prc("plate1", "r2", "c3")]
+    assert list(out["cv_predictions"]) == [1]
+
+
+def test_compose_prc_column_refuses_a_frame_without_the_keys():
+    """A composed key of `nan` joins to nothing, silently."""
+    with pytest.raises(KeyError, match="rowID"):
+        schema.compose_prc_column(pd.DataFrame({"plateID": ["p1"],
+                                                "columnID": ["c1"]}))
+
+
+def test_a_hit_list_is_written_through_the_one_writer(tmp_path):
+    from spacr.hits import Hit, HitList
+    hits = HitList(hits=[Hit(gene="TGME49_233460", effect=1.0,
+                             p_value=0.001)])
+    target = hits.write_csv(tmp_path / "sub" / "hits.csv")
+    assert os.path.isfile(target)
+    back = tabular.read_table(target, report=None)
+    assert list(back["gene"]) == ["TGME49_233460"]

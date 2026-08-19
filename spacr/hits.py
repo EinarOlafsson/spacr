@@ -735,11 +735,13 @@ class HitList:
         return frame
 
     def write_csv(self, path: Union[str, os.PathLike]) -> str:
-        """Write the table as CSV and return the path written."""
+        """Write the table as CSV and return the path written.
+
+        Through :func:`spacr.tabular.write_table`, so a hit list is written
+        with the same column spellings every spaCR reader expects to find.
+        """
         target = os.path.abspath(os.path.expanduser(os.fspath(path)))
-        os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
-        self.to_frame().to_csv(target, index=False)
-        return target
+        return tabular.write_table(self.to_frame(), target)
 
     def summary(self) -> Dict[str, Any]:
         """Counts and settings, for a header line or a run digest.
