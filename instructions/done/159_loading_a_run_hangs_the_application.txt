@@ -34,3 +34,31 @@ HOW TO KNOW IT WORKED
 * Loading a run keeps the window alive and repainting throughout.
 * It can be cancelled, and cancelling leaves the run that was on screen.
 * A run whose folder is huge still loads, and says what it is doing.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+The panel has a `JobRunner`. `_read_run` is a staticmethod that walks the folder
+and parses the table and touches no widget, returning a dict rather than raising
+because a JobRunner job that raises loses its detail crossing back.
+`_finish_load` does everything with a widget in it. `load` stays as the
+synchronous entry point for tests and headless callers, and BOTH end in
+`_apply_loaded_run` -- with a test asserting they do, because the reason this
+was still on the GUI thread long after the merge was moved off it is that
+nobody had made the two one path.
+
+The screen's half moved too: `_show_trial` starts the read and returns, and
+`_on_trial_loaded` does what depended on the answer. `load_finished` is emitted
+on every ending including failures, because a spinner nothing clears is worse
+than no spinner.
+
+WHAT THE MOVE EXPOSED, and it is the part worth keeping. The loaded-mark undo
+was spent when `_announce_the_loaded_run` RETURNED, on the reasoning that the
+window in which a load can fail is the emission itself. That was true while the
+listener read the run inside that emission and false the moment the read became
+asynchronous -- so a failed load kept the mark. The undo now belongs to the load
+rather than to the call: it is spent by `the_load_succeeded` or
+`the_load_failed`, whichever the load reports, and a refusal arriving after a
+success is ignored. The rule that a stale listener must not drag the mark
+backwards is kept by NAMING what the undo answers instead of by timing it.
