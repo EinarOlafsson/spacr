@@ -1,0 +1,61 @@
+================================================================================
+THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
+================================================================================
+
+Status:    filed 2026-08-19. Reproduced on the maintainer's own screen.
+Requested: 2026-08-19 -- "when i try to show cells i get: No attached database
+           yielded per-object rows with a classification score. measurements.db:
+           'png_list' in .../plate1/measurements/measurements.db has no 'pred'
+           column ... Run Classify and merge its predictions into the database
+           first."
+
+THE REFUSAL IS TRUE AND THE ADVICE IS WRONG.
+
+`load_montage_objects` requires a `pred` column in `png_list`, written by
+`predictions.merge_cv_predictions`. The maintainer's four databases do not
+carry it. But the scores are NOT missing: they are in the score CSVs that the
+regression module is ALREADY HOLDING -- `plate1_dv.csv` and its three
+siblings carry `path`, `pred`, `cv_predictions`, `prc` and `object`, one row
+per cell, and the run was fitted on exactly those numbers.
+
+So the montage is telling a user to go and produce something they have had
+loaded the whole time, and to write it into a database it does not need to
+touch.
+
+MEASURED 2026-08-18 on a COPY of plate1's database:
+
+    merge_cv_predictions(pd.read_csv("plate1_dv.csv"), db)
+    -> Merged pred, cv_predictions into png_list on 'file_name':
+       60816/60816 rows matched
+
+Every row. The join is exact, on `file_name`, and it needed no argument the
+input table does not already have.
+
+WHAT TO BUILD
+
+A. THE SCORES COME FROM THE RUN WHEN THE DATABASE HAS NONE. `load_montage_objects`
+   gains an optional per-object score frame. When `png_list` has no `pred`, the
+   montage joins the score table the input pairing already names -- on the same
+   keys `merge_cv_predictions` uses -- and carries on. THE DATABASE IS NOT
+   WRITTEN TO. That is the standing rule for the crop paths and it is the same
+   rule here: a montage is a read.
+
+B. THE REFUSAL, WHEN IT IS STILL RIGHT, SAYS WHICH HALF IS MISSING. A screen
+   with no scores anywhere is a real refusal and must stay one. It should name
+   what it looked in -- the databases AND the loaded score files -- the way
+   `why_nothing_to_scan` names both halves, rather than naming only the
+   database and sending the user to Classify.
+
+C. AND THE OFFER, IF IT IS WANTED. `merge_cv_predictions` exists, it is exact,
+   and a user who WANTS the scores in the database should be able to say so
+   once rather than at a shell. Offered, never automatic: writing to a
+   measurements database is not something a montage should do behind anyone.
+
+HOW TO KNOW IT WORKED
+
+* On the maintainer's screen, with four databases that have no `pred` and four
+  score CSVs loaded, "show cells" draws a montage.
+* No database file is modified: same checksum before and after, and a test
+  pins it.
+* A screen with neither scores nor databases is refused in a sentence naming
+  both places that were looked in.
