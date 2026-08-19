@@ -2654,12 +2654,20 @@ class MeasurementScanPanel(QWidget):
         # `setChildrenCollapsible(False)` with a minimum height per section is
         # what makes "not be able to overlap" true rather than merely
         # unlikely: a section can be dragged small, never to nothing.
+        #
+        # AND EACH ONE FOLDS. Reported in the same breath: "there are to many
+        # elements in the measurements tab". Four panels is too many only
+        # when all four are open -- a user fitting a regression does not need
+        # the attach-database table on screen. See
+        # :class:`~.collapsible_section.CollapsibleSection`.
         self._sections = QSplitter(Qt.Vertical, self)
         self._sections.setChildrenCollapsible(False)
         layout.addWidget(self._sections, 1)
-        self._sections.addWidget(self.databases)
-        self.databases.setMinimumHeight(90)
-        self.databases.setVisible(bool(self.databases.databases))
+        self._folders = {}
+        self._add_folding_section(self.databases, "Attached databases",
+                                  minimum=90)
+        self._show_section("Attached databases",
+                           bool(self.databases.databases))
 
         # STEP 4, WHICH THE TAB USED TO END WITHOUT (154 F). Steps 1-3 merge;
         # merging so that "regression can be run on any column in the
@@ -2674,9 +2682,8 @@ class MeasurementScanPanel(QWidget):
         # the previous merge's columns and every fit reads a file that has
         # been overwritten underneath it.
         self.databases.merged.connect(self._on_merged)
-        self._sections.addWidget(self.regression)
-        self.regression.setMinimumHeight(110)
-        self.regression.setVisible(bool(self.databases.databases))
+        self._add_folding_section(self.regression, "Regression", minimum=110)
+        self._show_section("Regression", bool(self.databases.databases))
 
         scan = QWidget(self)
         scan_layout = QVBoxLayout(scan)
@@ -2712,11 +2719,54 @@ class MeasurementScanPanel(QWidget):
             significance_filter=False)
         self.table.table.itemSelectionChanged.connect(self._on_selection)
         scan_layout.addWidget(self.table, 1)
-        scan.setMinimumHeight(140)
-        self._sections.addWidget(scan)
+        self._add_folding_section(scan, "Measurement scan", minimum=140)
 
-    def add_section(self, widget) -> None:
-        """Put ``widget`` in the tab as its own resizable section.
+    def _add_folding_section(self, widget, title: str, *, minimum: int):
+        """One splitter child: ``widget`` under a header that folds it.
+
+        The section is what the splitter sees, so a fold really does hand its
+        height to the neighbours rather than leaving a gap where the panel
+        was.
+        """
+        from .collapsible_section import CollapsibleSection
+
+        widget.setMinimumHeight(minimum)
+        section = CollapsibleSection(title, widget, parent=self)
+        section.set_open_minimum(minimum)
+        self._folders[title] = section
+        self._sections.addWidget(section)
+        return section
+
+    def _show_section(self, title: str, showing: bool) -> None:
+        """Show or hide a whole section, HEADER INCLUDED.
+
+        Hiding the panel alone would leave its header behind, and opening
+        that header would then reveal a panel the tab had decided not to
+        show -- the fold and the "is there anything to show" question would
+        be answering each other.
+        """
+        section = self._folders.get(str(title))
+        if section is not None:
+            section.setVisible(bool(showing))
+        else:                       # pragma: no cover - defensive
+            self.databases.setVisible(bool(showing))
+
+    def section_titles(self) -> tuple:
+        """What can be folded, in the order the tab shows it."""
+        return tuple(self._folders)
+
+    def is_section_expanded(self, title: str) -> bool:
+        section = self._folders.get(str(title))
+        return bool(section is not None and section.is_expanded())
+
+    def set_section_expanded(self, title: str, expanded: bool) -> None:
+        """Fold or open one section by name. The hook a preference needs."""
+        section = self._folders.get(str(title))
+        if section is not None:
+            section.set_expanded(bool(expanded))
+
+    def add_section(self, widget, title: str = "") -> None:
+        """Put ``widget`` in the tab as its own resizable, foldable section.
 
         Anything added to this tab goes HERE and not into the layout: a widget
         appended to the layout takes its height out of the others, which is
@@ -2724,8 +2774,8 @@ class MeasurementScanPanel(QWidget):
         """
         if widget is None:
             return
-        widget.setMinimumHeight(120)
-        self._sections.addWidget(widget)
+        name = str(title) or widget.windowTitle() or type(widget).__name__
+        self._add_folding_section(widget, name, minimum=120)
 
         # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
         # into. A tooltip on an editable field is unreachable the moment the
@@ -2762,8 +2812,8 @@ class MeasurementScanPanel(QWidget):
         # database is missing or absent, because "this plate has none" is
         # exactly what a user opening this tab needs to be told.
         showing = bool(self.databases.databases)
-        self.databases.setVisible(showing)
-        self.regression.setVisible(showing)
+        self._show_section("Attached databases", showing)
+        self._show_section("Regression", showing)
 
     def databases_frame(self):
         """The merged frame step 3 produced, or ``None``.
