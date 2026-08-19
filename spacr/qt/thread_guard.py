@@ -1,27 +1,13 @@
-"""Say WHERE a timer was started off the GUI thread, not just that it was.
+"""Report timer starts attempted from the wrong Qt thread.
 
-Qt prints
+Qt normally reports only that a timer cannot start from another thread, without
+naming the responsible object or call site. This module wraps the timer entry
+points and logs a Python stack when that condition occurs. The recorded stacks
+can also be attached to a crash report if the process exits before the log is
+reviewed.
 
-    QBasicTimer::start: Timers cannot be started from another thread
-
-and stops there. The warning names no file, no function and no thread, so three
-attempts at finding the caller by reading code have missed it -- and it matters
-more than a warning usually would, for two reasons:
-
-  * A TIMER STARTED OFF ITS OWN THREAD DOES NOT START. Whatever it was
-    debouncing silently never happens, so the warning reports a dead feature.
-  * IT ARRIVES IMMEDIATELY BEFORE A CRASH, every time, on the maintainer's
-    machine. Touching QObject state from the wrong thread is exactly the kind
-    of thing that corrupts Qt's internals and aborts a moment later, so the
-    two are almost certainly one bug.
-
-So this installs a wrapper that logs a STACK when it happens. It is not a
-diagnostic to be enabled when someone remembers: the event is rare, arrives
-during a real run, and is followed by the process dying -- there is no second
-chance to turn instrumentation on.
-
-THE COST IS ONE THREAD COMPARISON per timer start, which is a pointer compare.
-Nothing is wrapped when the guard cannot be installed.
+Each timer start adds one thread-affinity comparison. If the Qt entry points
+cannot be wrapped safely, the guard leaves them unchanged.
 """
 
 from __future__ import annotations

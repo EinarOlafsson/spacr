@@ -16,6 +16,7 @@ Requested: 2026-08-19 - "ok great the icons are there now! but i want them to lo
 Requested: 2026-08-19 - "the icons should be centered with no text including the spacr logo one. the icons should take be centered and take up 80% of the button. write legacy in white text under the spacr logo legacy button."
 Requested: 2026-08-19 - "i added 3 not 4, you already have the white spacr logo."
 Requested: 2026-08-19 - "that was much better, but change to 80% of the button and the color should be #2B2F3A. if possible when the mouse hovers over the button make it #1F5EFF. and take the legacy text out of the button and put it under."
+Requested: 2026-08-19 - "just fix the buttons and forgett the blue."
 
 --------------------------------------------------------------------------------
 WHAT TO BUILD
@@ -276,11 +277,23 @@ uses that space, drawing ``Legacy`` below the button rather than inside it.
 The white caption has a narrow ``#2B2F3A`` edge so it remains legible against
 both GitHub's light and dark page backgrounds.
 
-The requested ``#1F5EFF`` hover state is deliberately not faked. GitHub's
-reStructuredText README renderer disables raw HTML and custom CSS, while a
-linked PNG cannot respond to pointer state. The desired blue is recorded as
-``HOVER_BLUE`` in the generator for a future HTML/CSS surface where a genuine
-hover interaction can be implemented.
+No hover treatment is part of the finished static button design. GitHub's
+reStructuredText README renderer cannot apply CSS to linked PNG pixels, and
+the later request explicitly dropped the blue treatment.
+
+The latest request supersedes that future-hover note. Remove the unused blue
+constant and the hover-specific prose; the static ``#2B2F3A`` buttons are the
+finished design.
+
+--------------------------------------------------------------------------------
+RESULT -- 2026-08-19, FINAL STATIC BUTTONS
+--------------------------------------------------------------------------------
+
+The unused blue-hover constant and its future-work commentary were removed.
+The generated assets themselves were already the requested final design:
+``#2B2F3A`` square buttons, 80% centred white marks, and ``Legacy`` below its
+button. A fresh generation produced no artwork changes, and all focused icon
+and installer-archive tests pass.
 
 The row was inspected at its actual 64 px README width on both light and dark
 backgrounds. All 43 focused icon/archive tests pass; they now assert the exact
