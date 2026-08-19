@@ -2989,10 +2989,26 @@ class PngCropSource(CropSource):
         path = row if isinstance(row, str) else _row_get(row, "png_path", "path")
         if not path:
             raise CropError("row has no 'png_path'")
-        path = str(path)
+        recorded = str(path)
+        path = recorded
         if self.root:
             path, _outcome = reanchor_path(path, self.root,
                                            anchors=(self.folder,))
+        # A RE-ANCHORED PATH THAT DOES NOT EXIST IS NOT A RESOLUTION.
+        # `reanchor_path` rewrites on structure alone and never asks the
+        # filesystem, which is right for its callers -- but it needs the root
+        # to be the folder holding `data/`, and a caller may hold the screen
+        # folder above it, the `measurements/` folder, or the database file.
+        # `portable_paths` searches the recorded structure under every folder
+        # the root could mean and returns ONLY what exists, so this cannot
+        # replace a good path with a worse one. Measured on the TSG101 screen:
+        # 0 of 60,816 recorded crops existed, 60,816 of 60,816 after this.
+        if path and not os.path.exists(path):
+            from .portable_paths import reroot_crop_path
+
+            found = reroot_crop_path(recorded, self.root or self.db_path)
+            if found and os.path.exists(found):
+                return found
         return path
 
     def get(self, row: Any) -> np.ndarray:

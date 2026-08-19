@@ -112,3 +112,102 @@ def test_the_dataset_generator_and_the_montage_share_ONE_rule(tmp_path):
     # nowhere leaves the recorded path alone.
     assert reroot_crop_path("/gone/plate1/data/x.png", str(tmp_path)) == \
         "/gone/plate1/data/x.png"
+
+
+# ---------------------------------------------------------------- robustness
+# "just make it work robustly and dont change the database" -- 2026-08-19.
+# A caller holds whichever root it happens to have, so all of them resolve.
+
+
+@pytest.fixture()
+def screen(tmp_path):
+    """A screen at `new/`, with crops recorded as living under `old/`."""
+    tail = os.path.join("data", "single_nucleus", "plate1_H19", "cell_png")
+    crop = tmp_path / "new" / "plate1" / tail / "crop.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+    db = tmp_path / "new" / "plate1" / "measurements" / "measurements.db"
+    db.parent.mkdir(parents=True)
+    db.write_bytes(b"")
+    recorded = str(tmp_path / "old" / "run7" / "plate1" / tail / "crop.png")
+    return {"recorded": recorded, "crop": str(crop), "db": str(db),
+            "plate": str(tmp_path / "new" / "plate1"),
+            "measurements": str(db.parent),
+            "screen": str(tmp_path / "new")}
+
+
+@pytest.mark.parametrize("root_key", ["plate", "measurements", "db", "screen"])
+def test_every_root_a_caller_might_hold_resolves(screen, root_key):
+    got = reroot_crop_path(screen["recorded"], screen[root_key])
+
+    assert got == screen["crop"], f"the {root_key} root did not resolve"
+
+
+def test_a_root_with_nothing_under_it_changes_nothing(tmp_path, screen):
+    assert reroot_crop_path(screen["recorded"], str(tmp_path)) == \
+        screen["recorded"]
+
+
+def test_the_database_file_is_never_written(screen):
+    import hashlib
+
+    before = hashlib.md5(open(screen["db"], "rb").read()).hexdigest()
+    reroot_crop_path(screen["recorded"], screen["db"])
+    after = hashlib.md5(open(screen["db"], "rb").read()).hexdigest()
+
+    assert before == after
+
+
+def test_a_column_resolves_once_and_reuses_the_prefix(screen, monkeypatch):
+    """60,816 rows must not cost 60,816 filesystem searches."""
+    import pandas as pd
+
+    from spacr import portable_paths
+
+    calls = {"n": 0}
+    real = portable_paths._reroot_with_prefix
+
+    def counted(path, root):
+        calls["n"] += 1
+        return real(path, root)
+
+    monkeypatch.setattr(portable_paths, "_reroot_with_prefix", counted)
+    frame = pd.DataFrame({"png_path": [screen["recorded"]] * 40})
+
+    moved = portable_paths.reroot_column(frame, "png_path", screen["plate"])
+
+    assert moved == 40
+    assert calls["n"] == 1, (
+        f"searched {calls['n']} times for one prefix; the map is not reused")
+
+
+def test_a_root_that_resolves_nothing_searches_each_FOLDER_once(screen,
+                                                                monkeypatch):
+    import pandas as pd
+
+    from spacr import portable_paths
+
+    calls = {"n": 0}
+    real = portable_paths._reroot_with_prefix
+
+    def counted(path, root):
+        calls["n"] += 1
+        return real(path, root)
+
+    monkeypatch.setattr(portable_paths, "_reroot_with_prefix", counted)
+    frame = pd.DataFrame({"png_path": [screen["recorded"]] * 40})
+
+    portable_paths.reroot_column(frame, "png_path", screen["screen"] + "/nope")
+
+    assert calls["n"] == 1, (
+        "an unresolvable folder was searched again for every row in it")
+
+
+def test_the_crop_source_falls_back_to_the_verifying_resolver(screen):
+    """`reanchor_path` rewrites on structure and never checks the disk."""
+    from spacr.crops import PngCropSource
+
+    got = PngCropSource(root=screen["screen"]).resolve(screen["recorded"])
+
+    assert got == screen["crop"]
+    assert os.path.exists(got)
