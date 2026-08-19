@@ -1353,7 +1353,25 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
                                 bbox_inches='tight')
     print(f"Saved {fig_file_path}")
 
-    plt.show()
+    # PUBLISHED, NOT SHOWN. `plt.show()` here blocks forever anywhere there is
+    # no GUI event loop to hand it to: with the Qt backend it calls
+    # `start_main_loop`, and a script, a notebook or `spacr-run regression`
+    # then sits in `qt_compat._exec` until it is killed. Measured 2026-08-19
+    # by running the maintainer's own four plates headlessly -- the stack ends
+    # exactly here.
+    #
+    # Instruction 139 C already settled what the delivery mechanism should be:
+    # saved and visible are ONE event, through `figure_sink.publish`, and a
+    # figure reaching the gallery must not depend on somebody calling `show`.
+    # The Qt bridge still streams it in the GUI, because publish announces it;
+    # nothing is lost by not blocking.
+    try:
+        from .figure_sink import publish_file
+
+        publish_file(fig_file_path, title="Minimum cell count")
+    except Exception:                                            # noqa: BLE001
+        # Never lose a run over a figure -- the file above is already written.
+        pass
     return elbow_point['sample_size']
 
 def _statsmodels_p_values(model, coefs):
