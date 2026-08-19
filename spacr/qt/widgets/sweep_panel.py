@@ -20,10 +20,10 @@ from typing import Any, Callable, Dict, Optional
 
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QDoubleSpinBox,
-                               QFileDialog, QHBoxLayout, QLabel, QPushButton,
-                               QTableWidget, QTableWidgetItem, QVBoxLayout,
-                               QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox,
+                               QDoubleSpinBox, QFileDialog, QHBoxLayout,
+                               QLabel, QPushButton, QTableWidget,
+                               QTableWidgetItem, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.sweep_panel")
 
@@ -110,6 +110,17 @@ class SweepPanel(QWidget):
         self.run_button.clicked.connect(self.start)
         row.addWidget(self.run_button)
 
+        self.level = QComboBox()
+        for value, label in (("gene", "genes"), ("guide", "guides"),
+                             ("both", "genes and guides")):
+            self.level.addItem(label, value)
+        self.level.setToolTip(
+            "A gene's fraction in a well is the SUM of its guides', which is "
+            "the same rule the regression applies — so 'does this gene move "
+            "this measurement' is not a different arithmetic from the fit "
+            "that found the gene.")
+        row.addWidget(self.level)
+
         row.addWidget(QLabel("q <"))
         self.alpha = QDoubleSpinBox()
         self.alpha.setDecimals(3)
@@ -139,10 +150,10 @@ class SweepPanel(QWidget):
         self.status.setWordWrap(True)
         layout.addWidget(self.status)
 
-        self.table = QTableWidget(0, 7)
+        self.table = QTableWidget(0, 8)
         self.table.setHorizontalHeaderLabels(
-            ["guide", "measurement", "effect", "q", "circularity",
-             "wells", "effective"])
+            ["level", "gene / guide", "measurement", "effect", "q",
+             "circularity", "wells", "effective"])
         self.table.setSortingEnabled(True)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -180,16 +191,18 @@ class SweepPanel(QWidget):
                 scores = self._scores_provider()
             except Exception:                            # noqa: BLE001
                 LOG.debug("could not read the scores", exc_info=True)
+        level = str(self.level.currentData() or "gene")
         return bool(self._jobs.submit(
-            lambda: self._work(cells, counts, scores), self._done))
+            lambda: self._work(cells, counts, scores, level), self._done))
 
     @staticmethod
-    def _work(cells, counts, scores=None):
+    def _work(cells, counts, scores=None, level="gene"):
         from ...gene_measurement_sweep import sweep
 
         wells, fractions, plates, found = sweep_inputs(cells, counts,
                                                        scores=scores)
-        return sweep(wells, fractions, blocks=plates, scores=found)
+        return sweep(wells, fractions, blocks=plates, scores=found,
+                     level=level)
 
     def _done(self, result) -> None:
         self.run_button.setEnabled(True)
@@ -227,7 +240,8 @@ class SweepPanel(QWidget):
         shown = keep.head(2000)
         self.table.setRowCount(len(shown))
         for row, (_index, entry) in enumerate(shown.iterrows()):
-            values = [str(entry["guide"]), str(entry["measurement"]),
+            values = [str(entry.get("level", "guide")), str(entry["guide"]),
+                      str(entry["measurement"]),
                       f"{entry['effect']:+.3f}", f"{entry['q']:.2e}",
                       ("—" if pd.isna(entry["circularity"])
                        else f"{entry['circularity']:.2f}"),

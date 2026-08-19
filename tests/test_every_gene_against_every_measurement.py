@@ -222,3 +222,76 @@ def test_the_grid_is_ordered_so_neighbours_are_alike():
     names = list(ordered.index)
     assert abs(names.index("a1") - names.index("a2")) == 1
     assert abs(names.index("b1") - names.index("b2")) == 1
+
+
+# ---------------------------------------------------------------- gene level
+
+
+def test_a_guide_name_maps_to_its_gene_in_both_spellings():
+    """`hits.gene_of` reads a DESIGN TERM and truncates at the first
+    underscore. Handed the bare `TGGT1_225160_2` a count table carries, that
+    returns `TGGT1` -- the organism, for every guide in the screen."""
+    from spacr.gene_measurement_sweep import gene_of_guide
+
+    assert gene_of_guide("TGGT1_225160_2") == "225160"
+    assert gene_of_guide("225160_2") == "225160"
+    assert gene_of_guide("fraction:grna[225160_1]") == "225160"
+    assert gene_of_guide("TGME49_239740_3") == "239740"
+
+
+def test_a_genes_fraction_is_the_sum_of_its_guides():
+    """The same rule the regression applies, so 'does this gene move this
+    measurement' is not a different arithmetic from the fit."""
+    from spacr.gene_measurement_sweep import gene_fractions
+
+    guides = pd.DataFrame(
+        {"TGGT1_225160_1": [0.1, 0.2], "TGGT1_225160_2": [0.2, 0.1],
+         "TGGT1_239740_1": [0.3, 0.3]},
+        index=["plate1_r1_c1", "plate1_r1_c2"])
+
+    genes = gene_fractions(guides)
+
+    assert sorted(genes.columns) == ["225160", "239740"]
+    assert genes["225160"].tolist() == pytest.approx([0.3, 0.3])
+
+
+def test_the_sweep_can_run_at_gene_level(screen):
+    wells, fractions, plates = screen
+    fractions = fractions.rename(columns={"A": "TGGT1_111_1",
+                                          "B": "TGGT1_222_1"})
+
+    result = sweep(wells, fractions, blocks=plates, level="gene")
+
+    assert set(result.table["guide"]) == {"111", "222"}
+    assert set(result.table["level"]) == {"gene"}
+
+
+def test_both_keeps_the_guide_rows_reachable(screen):
+    wells, fractions, plates = screen
+    fractions = fractions.rename(columns={"A": "TGGT1_111_1",
+                                          "B": "TGGT1_222_1"})
+
+    result = sweep(wells, fractions, blocks=plates, level="both")
+
+    assert set(result.table["level"]) == {"gene", "guide"}
+    assert "TGGT1_111_1" in set(result.table["guide"])
+    assert "111" in set(result.table["guide"])
+
+
+def test_a_gene_and_its_guide_are_different_rows(screen):
+    """`233460` the gene and `233460_1` the guide must not collide."""
+    wells, fractions, plates = screen
+    fractions = fractions.rename(columns={"A": "TGGT1_111_1",
+                                          "B": "TGGT1_222_1"})
+
+    result = sweep(wells, fractions, blocks=plates, level="both")
+    rows = result.table[result.table["measurement"] == "real"]
+
+    assert len(rows) == len(set(zip(rows["level"], rows["guide"])))
+
+
+def test_an_unknown_level_is_refused(screen):
+    wells, fractions, plates = screen
+
+    with pytest.raises(ValueError, match="level must be"):
+        sweep(wells, fractions, blocks=plates, level="nonsense")
