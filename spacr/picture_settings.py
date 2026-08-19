@@ -1,15 +1,9 @@
 """Which picture settings apply to which mode, and why the others do not.
 
-Instruction 170 asks the Cells tab for "a settings button that spawns a
-settings window like annotation aplication and gives the user the same
-controll over how to show the images", with "settings that do not apply for
-the chosen method are grayed out".
-
 THE KEYS ARE THE ANNOTATOR'S OWN, and that is the point of this module rather
 than a second list. `spacr.settings.set_annotate_default_settings` already
 names every one of them; a Cells tab with its own vocabulary for the same
-picture would be two panels that disagree about what "normalize" means, which
-is the failure instruction 145 exists to stop.
+picture would be two panels that disagree about what "normalize" means.
 
 WHY A TABLE AND NOT A BRANCH IN THE WIDGET. The greying rule has to hold
 wherever the settings are read -- a panel, a settings CSV, a macro -- and a
@@ -179,9 +173,8 @@ def greyed_in(mode: str) -> Tuple[str, ...]:
 def bounding_box_only(settings) -> bool:
     """Whether the chosen cut can only be a bounding box.
 
-    "this could only do bounding box" -- the maintainer, describing cutting
-    from object coordinates. A panel must say so BEFORE the cut is made
-    rather than quietly squaring off an object-shaped request.
+    Coordinate-only sources have no object outline, so a panel should disable
+    object-shaped crops before the cut rather than silently return a rectangle.
     """
     try:
         chosen = str(settings.get("crop_source") or LOAD_IMAGES).lower()
@@ -289,9 +282,8 @@ def draw_crop(array, picture):
     THE ANNOTATOR'S OWN FUNCTIONS DO THE WORK -- `normalize_pil`,
     `filter_channels_pil`, `outline_image` from
     :mod:`spacr.qt.annotate_engine`. A second implementation of "normalise a
-    crop" is a second answer to what normalise MEANS, and the whole reason the
-    Cells tab borrows the annotator's setting names is so that it cannot give
-    one (instruction 145).
+    crop" is a second answer to what normalise means. Reusing the annotator's
+    functions keeps identically configured images visually consistent.
 
     NEVER RAISES. A picture is the last thing this produces and the least
     important: losing a montage to an outline is the worst trade available.

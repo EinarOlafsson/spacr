@@ -4,13 +4,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "alpha",
-      "source_sha256": "0f590a8d2a89634204f364d2aa3498e105efccc5c5dd996ada0246bedf52fe2c",
-      "source": "Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
-      "translation": "仅用于惩罚模型的正则化强度：'lasso' 的 L1 惩罚、'ridge' 的 L2 惩罚、'elasticnet' 的组合惩罚，以及 'hinge' 的逆间隔。值越大，越多系数会向零收缩；设为 'auto' 或 None 可通过 5 折交叉验证选择，这通常是合适的做法，因为默认值 1 会把分数尺度的设计压缩到没有信号。其他所有回归类型都会拒绝非默认 alpha，而不是忽略它；alpha 也不再表示分位数，请参见 quantile 设置。默认值为 1。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "barcode_coordinates",
       "source_sha256": "3668db9d4c3209437d75ad94a9740ce3ae9c7ed5308e08e0a54cd8f96dbdaab0",
       "source": "Intended to give the start/stop offsets of each barcode inside the read, but nothing reads settings['barcode_coordinates']. The pipeline slices the read from target_sequence, offset_start and the per-barcode lengths instead. Kept only so old settings CSVs still load. No default is set: no set_default_* function fills this key, so it is absent unless an old settings CSV supplies it.",
