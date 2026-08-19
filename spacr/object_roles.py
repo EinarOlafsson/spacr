@@ -20,9 +20,8 @@ each load-bearing in their own module and are deliberately kept there. What
 lives here is the MEMBERSHIP and the distinction between roles, so a new kind
 is declared once.
 
-Instruction 76 (support more than one organelle) is what this is for: the
-vocabulary has to become derivable before a second organelle can be added to
-it.
+Keeping the vocabulary derivable from one source also allows additional
+organelle roles to be introduced without editing every consumer.
 """
 from __future__ import annotations
 
@@ -55,7 +54,7 @@ def is_segmented(role: str) -> bool:
 
     :param role: object kind, e.g. ``"nucleus"``. Unknown names are False
         rather than an error, because callers use this to decide whether to
-        look for a channel setting and an unknown kind simply has none.
+        look for a channel setting; an unknown kind has none.
     """
     return role in SEGMENTED_ROLES
 

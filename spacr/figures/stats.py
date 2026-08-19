@@ -1,8 +1,5 @@
 """Pick the right test from the data, and show the working.
 
-Asked for on 2026-08-16: "a stats table is generated with the correct stats
-( automatic detection of equal variance nr of groups ...".
-
 The choice is mechanical, so the software makes it:
 
     groups  variance   distribution   test
@@ -20,8 +17,8 @@ error when you get it wrong -- they hand back a confident number instead.
 power, so "p = 0.7, variances are equal" actually means "we could not tell".
 Reading that as licence to use Student's t is how a screen reports a
 difference that is not there. Below :data:`MIN_N_FOR_ASSUMPTIONS` this module
-records the check as UNINFORMATIVE and takes the robust branch -- Welch,
-Mann-Whitney -- which costs a little power when the assumption did hold and
+records the check as UNINFORMATIVE and selects Welch's t-test or
+Mann-Whitney, which costs a little power when the assumption did hold and
 protects the result when it did not. That asymmetry is the whole argument:
 one direction loses a bit of sensitivity, the other publishes a false
 positive.
@@ -37,8 +34,8 @@ per group, an effect size, and the assumption checks with their own numbers.
 
 THIS IS THE ONE ENGINE THAT CHOOSES A TEST. :mod:`spacr.sp_stats` used to
 choose its own and disagreed with this one on three of five inputs, always by
-taking the parametric branch where the checks had no power to refuse it
-(instruction 127, finding 2). It is now a translation layer onto :func:`compare`,
+taking the parametric branch where the checks had no power to refuse it. It is
+now a translation layer onto :func:`compare`,
 :func:`check_normality` and :func:`check_equal_variance` that keeps its older
 signatures and result keys. Change the choices here and both entry points move
 together; ``tests/test_one_engine_decides_which_test_applies.py`` fails if they
@@ -226,9 +223,9 @@ def check_normality(groups: Sequence[np.ndarray]) -> Assumption:
 def check_equal_variance(groups: Sequence[np.ndarray]) -> Assumption:
     """Levene, MEDIAN-centred.
 
-    The median-centred form (Brown-Forsythe) is the robust one and is the
-    right choice precisely when normality is itself in question -- which is
-    every time this function is called, since it is called before we know.
+    The median-centred Brown-Forsythe form is less sensitive to non-normal
+    data than the mean-centred form. This function is called before the
+    normality verdict is known.
     """
     from scipy import stats
 

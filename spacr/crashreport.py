@@ -1,4 +1,4 @@
-"""``spacr-crashreport`` — everything a maintainer needs, in one attachable file.
+"""Create an attachable diagnostic bundle with ``spacr-crashreport``.
 
 A bug report that says "it crashed" costs a round trip to ask for the log, a
 second one for the settings, a third for the versions, and by then the user has
@@ -9,8 +9,8 @@ spaCR already keeps rather than collected a second time:
 * :mod:`spacr.doctor` runs 17 checks over the installation — the running
   checkout, duplicate installs, the GPU, the Cellpose version, the project
   database, the settings — and every non-``PASS`` row already carries the fix.
-  A crash report that did not include it would be asking the maintainer to
-  re-derive what one command already knows.
+  Including it avoids asking support to re-derive what one command already
+  knows.
 * :mod:`spacr.runctx` writes a per-run JSONL log keyed by run id, so "show me
   everything from the run that produced this" has an answer. The bundle carries
   that run's log verbatim, not a filtered summary of it.
@@ -28,7 +28,7 @@ not be gathered and why. This is the one place in the codebase where catching
 ``Exception`` and carrying on is the correct behaviour rather than a swallowed
 error, and the reason it is correct is that the failure is *recorded in the
 output* — the manifest is part of the bundle, so a missing section is visible
-to the maintainer instead of silently absent.
+to the report recipient instead of silently absent.
 
 **Bounded size.** ``spacr.log`` rotates but a single run can still write
 hundreds of megabytes. The bundle takes the *tail* of it, capped by
@@ -38,13 +38,13 @@ attachment nobody can upload is not evidence.
 **Nothing secret.** Environment variables are included because ``SPACR_*``,
 ``CUDA_*`` and ``PATH`` explain a large fraction of "works here, not there" —
 but a value whose *name* looks like a credential is replaced with
-``"<redacted>"`` and listed by name in the manifest, so the user can see what
-was withheld and the maintainer can see that something was. Absolute paths are
+``"<redacted>"`` and listed by name in the manifest, so you can see what was
+withheld and the report recipient can see that something was. Absolute paths are
 kept: they name the checkout, the plate and the database, and a report with
 them stripped cannot be acted on.
 
-**Deterministic layout.** Same file names, same order, every time, so a
-maintainer opening their tenth report knows where to look.
+**Deterministic layout.** File names and ordering remain stable so repeated
+reports are quick to inspect.
 
 Usage
 -----
@@ -174,7 +174,7 @@ class CrashReport:
 
         No settings file was named, the project has no database, the run wrote
         no warnings. Each is a fact about the invocation rather than a failure,
-        and each is still listed, because a maintainer must be able to tell
+        and each is still listed, because the report recipient must be able to tell
         "there were no warnings" from "the warnings were not gathered".
 
         :returns: section names, in collection order.
@@ -186,7 +186,7 @@ class CrashReport:
         """One short block naming the run, the versions and what is missing.
 
         This is also ``summary.txt``, the first file in the bundle, because a
-        maintainer opening a zip should not have to guess which file to read
+        report recipient opening a zip should not have to guess which file to read
         first.
 
         :returns: the summary text.
@@ -399,7 +399,7 @@ def find_last_run_id(problems: Optional[List[str]] = None) -> str:
         the answer is appended to. The reason this exists rather than a bare
         ``return ''``: "no run was found" and "the run directory could not be
         read" are different answers, and a report that cannot tell them apart
-        sends the maintainer looking for a run that was there all along.
+        sends the report recipient looking for a run that was there all along.
         :func:`collect` passes one and puts it in the manifest.
     :returns: the run id, or ``''`` when none could be identified. Never raises
         -- a missing log directory is an ordinary answer here.

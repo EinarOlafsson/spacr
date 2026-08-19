@@ -1,8 +1,4 @@
-"""Saved and visible are the SAME event.
-
-Instruction 139 C, reported on 2026-08-18: "all graphs should be sable and
-observable in the software, currently several graphs are saved but I cannot
-see them in the software".
+"""Save generated figures and publish them to an attached viewer.
 
 THE DIAGNOSIS, and it is exact. A figure reaches the GUI by ONE route:
 ``spacr/qt/bridge.py`` replaces ``matplotlib.pyplot.show`` with a capture that
@@ -93,7 +89,7 @@ def file_sink() -> Optional[Callable[..., Any]]:
 def publish_file(path, title=None):
     """Announce a figure FILE somebody else already wrote. Returns the path.
 
-    Instruction 139 C's rule -- saved and visible are the same event -- with
+    The rule -- saved and visible are the same event -- with
     the half that :func:`publish` cannot cover. A pyqtgraph scene exported by
     ``FastPlot.export`` is a finished file and never was a matplotlib Figure,
     so there is nothing for the figure sink to render; without this, moving a

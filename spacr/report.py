@@ -25,7 +25,7 @@ is worse than no report:
 **Failure goes at the top.**
     :mod:`spacr.errors` stamps every artifact with a ``run_status``
     recording how many items failed. If anything failed — or if nothing was
-    stamped at all, so completeness is simply unknown — that is the first
+    stamped at all, so completeness is unknown — that is the first
     thing in the document, not an appendix entry.
 
 **Nothing is recomputed.**

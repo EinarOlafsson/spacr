@@ -2183,7 +2183,7 @@ def migrate_crop_folder(folder: str, *, mode: str = "rewrite",
       **"a staging file exists ⇒ the crop beside it is still legacy"**
       resolves every file at every point in the sequence. That is what
       :func:`crop_format_for_png` reads, and it is why a killed migration is
-      still read correctly and can simply be re-run.
+      still read correctly and can be run again.
 
     Running it on an already-converted folder is an immediate no-op: nothing
     is decoded, nothing is written, and ``result.already`` is True. Running it

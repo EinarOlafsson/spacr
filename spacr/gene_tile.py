@@ -33,12 +33,11 @@ and all three appear in that screen's ``results.csv`` as ``411710_2``,
 rows would be stating as fact a choice the data does not support: those reads
 are equally consistent with 241310 and 411210, and the effect cannot be
 assigned to one of the three. So the tile LISTS ALL THREE and says the mapping
-is ambiguous. That is the rule instruction 100 applied to duplicate
-protospacers and instruction 109 to colliding plate ids: refuse or
-disambiguate, never resolve silently.
+is ambiguous. The rule is to refuse or disambiguate ambiguous identifiers,
+never resolve them silently.
 
-The bundled ``resources/data/barcodes_grna.csv`` had those eight rows removed
-(commit ``cd5a8920``, instruction 100 D2), so against the SHIPPED reference the
+The bundled ``resources/data/barcodes_grna.csv`` omits those eight rows, so
+against the shipped reference the
 same three guides resolve to a different honest answer — "this guide is not in
 the reference" — rather than to a wrong one. Both answers are produced here and
 both are tested against the real rows.

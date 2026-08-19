@@ -5953,19 +5953,16 @@ def _stage(settings, name):
 
 
 def perform_regression(settings):
-    """Run the regression, and REPORT a failure instead of only raising it.
+    """Run the regression and report actionable details if it fails.
 
-    Instruction 161. A run that gets far enough to fail knows the stage it
-    reached, the design it had built, and the exception -- and reporting
-    "failed for an unknown reason" discards all three. The wrapper keeps the
-    exception exactly as it was (it is re-raised unchanged, so every caller and
-    every test behaves as before) and adds the report beside it: printed, and
-    written into the run folder, because a console has scrolled by the time
-    somebody asks about the run tomorrow.
+    On failure, the original exception is re-raised unchanged after a report
+    is printed and written to the run folder. The report includes the most
+    recent stage stored in ``settings['_regression_stage']``, available design
+    dimensions, and a remedy for recognized failures.
 
-    The stage comes from `settings['_regression_stage']`, which the body sets
-    as it goes -- a mutable breadcrumb rather than a return value, because the
-    point is knowing where it was when it stopped.
+    :param settings: Regression settings consumed by the fitting pipeline.
+    :returns: Result returned by the regression implementation.
+    :raises Exception: Re-raises the original regression failure.
     """
     from .regression_failure import describe_failure, write_failure_report
 

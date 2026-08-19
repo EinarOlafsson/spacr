@@ -669,18 +669,10 @@ class SweepRunsPanel(QWidget):
         return True
 
     def the_load_succeeded(self) -> None:
-        """The announced run IS on screen: the undo is spent.
+        """Finalize the selection after an asynchronous run load succeeds.
 
-        THE UNDO LIVES EXACTLY AS LONG AS THE LOAD IT ANSWERS. It used to be
-        spent when the announcement returned, which was the same moment while
-        the listener read the run synchronously -- and is not since instruction
-        159 put that read on a worker, where the answer arrives later.
-
-        So the load reports, once, either way: this on success and
-        :meth:`the_load_failed` on failure. A refusal arriving after a load has
-        been reported successful is answering an announcement that is over, and
-        is ignored -- which is the rule that stops a stale listener dragging the
-        mark back to a run nobody chose.
+        Records the loaded run as the current stable selection. A later failure
+        callback for an older request therefore cannot move the selection back.
         """
         self._previous_loaded_key = self._loaded_key
         self._undo_answers = self._loaded_key

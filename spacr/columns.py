@@ -1,9 +1,4 @@
-"""A column that is not there offers the columns that are.
-
-Instruction 135, asked for on 2026-08-17: "if dependent variable is not found
-in the score table then present the user with the columns in the score csvs so
-the user can choose which column ... also if the count columns ar not found id
-like similar behaviour".
+"""Report missing columns and offer the columns that are available.
 
 THE FAILURE THIS REPLACES. A misnamed `dependent_variable` survives every
 early check and dies inside the merge, after the whole score table has been

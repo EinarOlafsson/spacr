@@ -1,6 +1,6 @@
 """Click a gene, see everything spaCR knows about it -- in one panel.
 
-Instruction 121. Two modules already hold the two halves of the answer and
+Two modules already hold the two halves of the answer and
 neither of them is a widget, which is deliberate: the parts that can be WRONG
 are testable without a window.
 
@@ -36,8 +36,8 @@ closure, so the handler runs on the GUI thread and the QThread is retired.
 Given the screen's own terms it warms every gene in one join -- 400 genes
 cost the same 21 ms as one -- after which a click is a dictionary lookup.
 
-UNTIL IT IS WARM, THE PANEL SAYS SO, and the one control it has is greyed out
-with the reason on it (instruction 106). A gene with no annotation likewise
+Until it is warm, the panel says so, and the one control it has is greyed out
+with the reason on it. A gene with no annotation likewise
 says "no row in the bundled annotation" rather than showing a form of empty
 fields, which reads as "measured, found nothing".
 """
@@ -402,7 +402,7 @@ class GenePanel(QWidget):
     def topology_reason(self) -> str:
         """Why "Save topology CSV" cannot run, or ``""`` when it can.
 
-        Instruction 106: a control that cannot do anything is greyed out AND
+        The design: a control that cannot do anything is greyed out AND
         says why. This is the sentence, and it is the button's tooltip.
         """
         if not self._warm:

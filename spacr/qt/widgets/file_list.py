@@ -232,7 +232,7 @@ class PairedFileTableWidget(QWidget):
     database that plate's per-object tables live in. All three columns are
     filled BY ADDITION -- every arrival re-proposes the whole table from
     filename tokens -- so databases dropped in the opposite order to the CSVs
-    still land on the right plates. That is instruction 107's rule, and the
+    still land on the right plates. That is the rule, and the
     third column obeys it rather than keeping a list of its own.
 
     A plate with NO database is legal and is not an error: the regression is

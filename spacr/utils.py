@@ -5932,7 +5932,7 @@ def compute_ap_over_iou_thresholds(true_masks, pred_masks, iou_thresholds):
         trapezoid over the resulting points sorted by recall, so a single
         threshold gives an area of ``0`` -- pass at least two (COCO convention is
         ``np.linspace(0.5, 0.95, 10)``). Duplicate thresholds contribute
-        zero-width segments and simply do not count.
+        zero-width segments and do not count.
     :raises ValueError: if a computed precision or recall falls outside
         ``[0, 1]``, which indicates the mask counts disagree with the matches.
     """

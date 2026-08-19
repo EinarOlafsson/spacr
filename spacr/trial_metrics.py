@@ -58,8 +58,8 @@ def _numeric(frame: pd.DataFrame, column: Optional[str]) -> np.ndarray:
 def fit_quality(model) -> dict:
     """R-squared and the information criteria, when the model reports them.
 
-    Read defensively: the thirteen families spaCR fits do not agree on which
-    of these exist. A robust fit has no R-squared, a penalised one's is not
+    The supported model families do not agree on which statistics exist. An
+    RLM fit has no R-squared, a penalised model's value is not
     comparable to OLS's, and a permutation test has no model object at all.
     Reporting NaN for an absent statistic is honest; inventing one is not.
     """

@@ -1797,7 +1797,7 @@ def mark_surface(*widgets) -> None:
     transmission, which over a near-black window colour reads as a black box
     with the text floating on it.
 
-    So the sweep cannot simply be narrowed to exact types. Doing that flips
+    The sweep cannot be narrowed to exact types. Doing that flips
     **every** view in the application at once, and the ones already sitting on
     a pane would then stack two translucent greys and read about 0.49 — a
     shade no position of the page-opacity slider can produce. Nor can a type

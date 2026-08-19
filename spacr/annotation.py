@@ -1,13 +1,9 @@
-"""Everything spaCR knows about a *Toxoplasma* gene, joined onto an export.
+"""Join bundled *Toxoplasma* gene annotations onto exported results.
 
-Asked for on 2026-08-17: "if it is on all the exported tables should be merged
-with the relevant Toxoplasma information (gene name, signal peptide,
-transmembrane domain, the phenotype scores from the screens we have
-downloaded, tachyzoite expression, bradyzoite expression, sexual stages
-expression, hyperLopit expression)".
-
-Instruction 133. Until this module, `toxo=True` reached exactly two places --
-the volcano's colours and two heatmaps -- and the CSV a reader actually opens
+The joined fields include gene names, predicted signal peptides and
+transmembrane domains, published phenotype scores, stage-specific expression,
+and hyperLOPIT localisation. Previously, ``toxo=True`` reached only the
+volcano colours and two heatmaps, while the CSV a reader actually opens
 came out as bare gene numbers and coefficients. Somebody then joined the
 annotation by hand in Excel, which is where the wrong-key mistakes live.
 
@@ -306,8 +302,8 @@ _TOPOLOGY_SUMMARY = ("gene_nr", "identifier", "accession", "length",
 def supplementary(genes=None, path=None):
     """The full DeepTMHMM table, as its own supplementary data table.
 
-    Asked for on 2026-08-17: "add that as a suplimentary data table (a csv
-    with all the information from DeepTMHMM on all toxo proteins)".
+    This table contains the complete bundled DeepTMHMM results for all
+    *Toxoplasma* proteins.
 
     :param genes: restrict to these genes -- any spelling
         :func:`gene_number` accepts. ``None`` writes all 8,140 proteins.

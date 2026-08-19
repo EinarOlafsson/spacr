@@ -1025,8 +1025,8 @@ class MeasurementsDropHandler(DropHandler):
     per-plate input table gets it without a registry edit.
 
     It matters because the two gestures used to disagree. Dropping
-    ``measurements.db`` ON the regression input table attaches it to a plate
-    (instruction 130); dropping the same file two inches higher, on the
+    ``measurements.db`` on the regression input table attaches it to a plate;
+    dropping the same file two inches higher, on the
     screen around it, landed here and set ``src`` -- a key the regression
     panel does not even display. The drop reported success and changed
     nothing the user could see.

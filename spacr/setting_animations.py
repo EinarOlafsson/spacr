@@ -433,7 +433,7 @@ def _animation_frames(path):
 def measure_border_object_removal(path) -> Dict[str, int]:
     """Classify what a "remove border objects" animation actually removes.
 
-    The maintainer's report -- one edge object AND one non-edge object
+    The reported failure -- one edge object and one non-edge object
     disappear -- was true, and three separate ways of measuring it agreed it
     was fine. Each of those is avoided here, deliberately:
 

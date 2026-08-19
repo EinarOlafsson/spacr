@@ -1,8 +1,5 @@
 """The whole regression as one publication-ready figure.
 
-Asked for on 2026-08-16: "the all figures section should look like a
-publication ready figure".
-
 Not a gallery of separate pictures at separate sizes. One sheet, laid out the
 way a journal figure is: 6-12 panels, bold upper-case letters top-left,
 reading order matching the argument, related panels adjacent and sharing

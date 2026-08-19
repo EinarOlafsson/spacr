@@ -272,7 +272,7 @@ APP_KEY_ATTR = "__spacr_app_key__"
 class PauseGate:
     """A latch a worker thread waits on, so a pause is a *pause*.
 
-    **Why this is not simply hooked up to every pipeline.** Pausing a
+    **Why this is not connected to every pipeline.** Pausing a
     running job can only mean one of two things:
 
     * stop the thread wherever it happens to be — which, for spaCR,
@@ -1408,7 +1408,7 @@ def make_thread(
     still defers into a loop that has stopped, and the same race survives
     (2 crashes in 20 at 800 jobs). A PySide6 object constructed in Python is
     already owned by Python; adding ``deleteLater`` on top is the second owner.
-    So the worker is simply not scheduled for deletion — the caller's last
+    The worker is not scheduled for deletion — the caller's last
     reference frees it, on the thread that holds it.
 
     The QThread itself keeps ``deleteLater``: it is created on, and has the

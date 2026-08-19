@@ -515,7 +515,7 @@ class DesignSpec:
         Called before the run starts. The library would raise on each of
         these too — but it raises inside ``scan_parameters``, which records
         the point as ``status="failed"`` and carries on, so a design that is
-        simply impossible would come back as a full grid of failures rather
+        invalid would come back as a full grid of failures rather
         than as one sentence saying which box is wrong.
 
         :returns: list of problems; empty means the design will run.

@@ -395,7 +395,7 @@ def tree_for(frames: Mapping[str, pd.DataFrame], key: str, *,
 
     :param frames: ``{table name: rows}``, forwarded to :func:`build_forest`.
         Only the tables in :data:`LINEAGE_TABLES` are read, so anything else
-        handed over is ignored, and a run that measured no pathogens simply
+        handed over is ignored, and a run that measured no pathogens
         searches childless cells.
     :param key: a shared object key, compared against :attr:`LineageNode.key`
         after ``str()``. It is *not* compared against
@@ -545,7 +545,7 @@ def read_object_tables(db_path: str,
                        *, limit: int = 200_000) -> Dict[str, pd.DataFrame]:
     """Read the object tables a lineage needs. Safe on a worker thread.
 
-    Missing tables are simply absent from the result — a run that measured
+    Missing tables are absent from the result — a run that measured
     cells and nuclei but no pathogens is a legitimate experiment, not a
     broken database.
 

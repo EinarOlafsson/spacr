@@ -62,7 +62,7 @@ answered would be wrong for three of the axes — a stack whose spacing claims
 thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported
 alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`,
 :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing
-is lost; it is simply not pretending that seconds and micrometers are the same
+is lost; the reader does not treat seconds and micrometers as the same
 kind of number.
 
 **2. Units are translated through an explicit table, and an unknown one is
@@ -222,8 +222,8 @@ class ZarrExtraMissing(OmeZarrError, ImportError):
 
     Both parents are deliberate. It is an :class:`ImportError` because a caller
     guarding an optional feature writes ``except ImportError``; it is an
-    :class:`OmeZarrError` because from the caller's side this is simply one
-    more file that could not be read, and code that wraps a whole read in
+    :class:`OmeZarrError` because callers experience this as another file
+    that could not be read, and code that wraps a whole read in
     ``except OmeZarrError`` should not miss it.
     """
 

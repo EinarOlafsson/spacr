@@ -12,9 +12,9 @@ all-guide cut agree closely (0.83 against 0.84) -- but a screen with a
 strong signal pulls the all-guide spread up while leaving the controls where
 they are, and then only one of the two is still a null.
 
-Added 2026-08-17 at the maintainer's request: "coefficient threshold mode
-(none, var, std, also add several other methods that make sense at least 4
-more)", reachable from the plot's right-click menu.
+The available estimators are exposed in the plot's right-click menu. Each
+returns a width in coefficient units except ``var``, retained as a documented
+legacy option even though it returns squared units.
 """
 
 from __future__ import annotations

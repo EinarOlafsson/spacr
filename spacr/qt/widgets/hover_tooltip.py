@@ -260,7 +260,7 @@ class _AnimationView(QLabel):
         """Return ``pixmap`` clipped to this view's rounded rectangle.
 
         The black backing is painted inside the same path, not left to the
-        stylesheet: a square background behind a rounded pixmap would simply
+        stylesheet: a square background behind a rounded pixmap would
         fill the corners back in.
         """
         radius = float(self.CORNER_RADIUS)

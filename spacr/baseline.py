@@ -1,9 +1,7 @@
-"""What an effect size is measured FROM, said out loud and chosen by the user.
+"""Define and describe the reference used for reported effect sizes.
 
-Asked for on 2026-08-16: "the user should be able to determine the intercept".
-
-READ LITERALLY, THAT FEATURE DOES NOTHING, and it is worth writing down why
-rather than building it. The formula is
+Changing the formula intercept does not change guide or gene coefficients.
+For the model
 
     y ~ fraction:grna + gene_fraction:gene + rowID + columnID
 
@@ -15,15 +13,14 @@ r01 to r03 shifts the intercept by 0.806 and changes not one guide or gene
 coefficient. A control for it would be a control a user could set, watch the
 volcano not move, and reasonably conclude was broken.
 
-WHAT THE REQUEST IS ABOUT is the sentence beside it: an effect size with an
-unstated reference is not interpretable. The guide coefficients are SLOPES on
+an effect size with an unstated reference is not interpretable. The guide
+coefficients are slopes on
 the guide's own fraction, referenced to zero -- "no dose-response". A reader
 of a screen figure assumes they are looking at differences from the
 non-targeting controls, and today nothing on the figure says otherwise.
 
-So this module does the two things that DO change what the reader sees: it
-says what the baseline is, and it lets the user move it -- to the controls,
-to a named gene, or (2026-08-17) to any number they choose.
+This module states the baseline and can move it to the controls, to a named
+gene, or to an explicit value.
 
 THE MEDIAN, NOT THE MEAN. One control guide with a real phenotype drags a
 mean baseline and shifts every effect in the screen -- and this screen has

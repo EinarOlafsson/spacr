@@ -1,10 +1,4 @@
-"""Choosing measurement columns by NAME, in groups. Instruction 49.
-
-    "the user should be able to pick the columns that are dimentionally
-     reduced, they should be able to do this through choosing individual
-     columns for dimentional reduction and they should be able to chhose
-     categories based on name lik cell, cor channel_1 or intensity
-     measurements (have channel i thing), or morphology measurements, etc."
+"""Choose measurement columns individually or by named groups.
 
 Three ways of naming the same set, because a measurement table names a column
 three ways at once -- ``cell_channel_1_mean_intensity`` is a CELL measurement,

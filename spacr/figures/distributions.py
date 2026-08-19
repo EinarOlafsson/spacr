@@ -40,7 +40,7 @@ to answer one question:
   the gap between assumption and data is visible rather than inferred.
 
 CONVENTIONS, stated once. Skewness and excess kurtosis are the moment
-estimators. |skew| < 0.5 is read as near-symmetric, 0.5-1 as moderate and
+estimators. ``abs(skew) < 0.5`` is read as near-symmetric, 0.5-1 as moderate and
 above 1 as strong -- the usual rule of thumb, named in the caption so a reader
 is never handed a bare adjective. The Gini coefficient is the standard
 evenness statistic and runs 0 (every guide equal) to 1 (one guide holds
@@ -221,7 +221,7 @@ def shape_of(values) -> dict:
     """Skewness, excess kurtosis and the word that goes with them.
 
     Returned rather than printed so a test can assert the number a reader is
-    shown, and so the console summary (instruction 124 D) can quote the same
+    shown, and so the console summary can quote the same
     one the panel does instead of computing its own.
     """
     from scipy import stats
@@ -553,7 +553,7 @@ def save_distributions(frame, dst, *, response_variable: Optional[str] = None,
                        order: Sequence[str] = ORDER) -> Dict[str, str]:
     """Write both distributions into a run's results folder.
 
-    ``{key: path}`` for what was written, and a key is simply absent when its
+    ``{key: path}`` for what was written; a key is absent when its
     panel could not be drawn -- an empty figure in a results folder is worse
     than a missing one, because the grid view will show it.
 

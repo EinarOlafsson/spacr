@@ -6,8 +6,8 @@ Nothing of that is repeated here. This module loads the pixels for the objects
 that plan names, puts them on screen in the tab beside the run's figures, and
 says why when it cannot.
 
-WHAT THIS ADDS TO THE HEADLESS HALF -- three things, and deliberately no more
-----------------------------------------------------------------------------
+What this adds to the headless half
+-----------------------------------
 1. **The pixels.** :func:`spacr.crops.resolve_crop_source` already chooses
    between the exported PNGs and ``merged/<fov>.npy`` AND says which it chose;
    :func:`spacr.cell_montage.resolve_montage_crop_source` already turns "there
@@ -1216,10 +1216,9 @@ class CellMontageView(QWidget):
         self._half_widths.setValue(float(WINDOW_HALF_WIDTHS))
         self._half_widths.setSuffix(" scales")
         self._half_widths.setToolTip(
-            "How wide the score window is, in robust scales (1.4826 x MAD) "
-            "either side of the implied score. Wider admits more cells and "
-            "'closest' means less. ONE NUMBER FOR THE WHOLE SCREEN AND EVERY "
-            "COEFFICIENT — this is deliberately not a per-gene control.")
+            "Score-window half-width in robust scales (1.4826 × MAD). Larger "
+            "values admit more cells and make 'closest' less selective. This "
+            "value applies to every coefficient on the current screen.")
         self._half_widths.valueChanged.connect(self._on_settings_changed)
         stringency.addWidget(self._half_widths)
 

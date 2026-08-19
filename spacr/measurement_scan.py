@@ -1,11 +1,5 @@
 """Sweep the DEPENDENT variable: which measurement has genes with an effect.
 
-Instruction 122 part 3, in the maintainer's words:
-
-    "doing a sweep on these screen data of which measurements have genes with
-     an effect size -- so instead of a parameter search, a search for which
-     measurement has genes with clear effect sizes (one or several)"
-
 A parameter sweep holds the data fixed and varies the settings. This holds the
 model fixed and varies the RESPONSE: one linear model per measurement, over
 the same wells and the same guides, and a table saying which measurements the

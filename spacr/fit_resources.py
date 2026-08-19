@@ -1,18 +1,9 @@
-"""What a fit costs while it runs, recorded per stage. Instruction 160.
+"""Record process and GPU memory use for each regression stage.
 
-Filed after two regressions in a row made the machine unresponsive twice,
-badly enough to need a restart. That report could not be acted on because
-nothing recorded a number: a hung machine is not a hung application, and
-telling memory exhaustion from a driver fault from unbounded process spawning
-needs measurements taken WHILE the fit runs, not afterwards.
-
-So each stage records what was in use when it began, and the peak is carried
-into the run summary and the failure report. The next report then arrives with
-"peak RSS 61.2 GB at 'fitting the mixed model'" instead of "it hung".
-
-NOTHING HERE RAISES, and nothing here is required. A measurement that can fail
-the run it is measuring is worse than no measurement -- psutil may be absent,
-torch may not be importable, and a container may report neither.
+Stage readings are included in run summaries and failure reports so resource
+exhaustion can be distinguished from other failures. Measurements are
+best-effort: missing ``psutil``, an unavailable Torch runtime, or unsupported
+container metrics produce an unavailable reading rather than failing the fit.
 """
 
 from __future__ import annotations
@@ -94,13 +85,16 @@ def readable(total: Optional[int]) -> str:
 
 
 def record_stage(settings: Any, name: str) -> Dict[str, Any]:
-    """Name the stage a fit has reached, and note what it costs there.
+    """Record the current fit stage and its memory use.
 
-    One call does both on purpose: a stage recorded without its cost is the
-    state instruction 160 was filed about, and a cost recorded without its
-    stage cannot say WHERE the fit was when it grew.
+    Updates the stage and resource-history entries in ``settings`` when it is
+    mutable. Measurement and storage failures are ignored so diagnostics do
+    not interrupt the fit.
 
-    :returns: the reading, so a caller can print it without asking twice.
+    :param settings: Mutable fit settings or another mapping-like object.
+    :param name: Name of the stage being entered.
+    :returns: Dictionary containing the stage, resident memory, and allocated
+        GPU memory. Unavailable measurements are ``None``.
     """
     reading = {"stage": str(name), "rss": host_rss(), "gpu": gpu_allocated()}
     try:

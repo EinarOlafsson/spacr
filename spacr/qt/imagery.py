@@ -67,7 +67,7 @@ into ``~/.spacr/themes`` themselves.
 :func:`exposure_target`, :func:`brightest_window` and :func:`solve_dim`
 — on its generated sky, which for a long time was the one wallpaper in
 the app that had never been measured against the rule the photographs
-were held to. It cannot simply call :func:`solve_dim` on the finished
+were held to. It cannot call :func:`solve_dim` on the finished
 frame (that lands the sky on a solid black rectangle; the numbers are in
 that module's docstring), so it applies the ceiling where the frame
 actually breaks the rule and then measures the result here.

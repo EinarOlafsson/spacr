@@ -1,10 +1,7 @@
 """The Image UMAP search: a table of recipes, each of which redraws its map.
 
-Instruction 95, taking starplast's shape.
-
-    "during the search a table is formed with values and scores, i can click
-     each row in this table to spawn a that rows umap (3d umap) and then i can
-     luster that umap"
+Each search row stores the parameters and score needed to redraw its two- or
+three-dimensional embedding and continue with clustering.
 
 THE ROW IS THE RECIPE, and that is the whole design. starplast's
 ``EmbeddingSpec`` is one frozen record that round-trips, so a stored row can
@@ -18,9 +15,7 @@ rows came from both backends is comparing two libraries rather than the
 settings the search varied, so ``backend`` is a field and not a footnote.
 
 WHAT IS NOT HERE: Qt. This is the model the panel drives, so the search, the
-table and the recipe are testable without a display -- which is the mistake
-instruction 52 was reopened for, where the geometry was tested and the
-controls were not.
+table and the recipe are testable without a display.
 """
 from __future__ import annotations
 

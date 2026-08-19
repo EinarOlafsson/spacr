@@ -481,7 +481,7 @@ def variance_inflation_factors(X, tol=1e-10):
     Computed from the inverse of the predictor *correlation* matrix — the
     identity ``VIF_j = (R^-1)_jj`` — rather than by running ``p`` auxiliary
     regressions. On a screen design with 1,200 gRNA columns the auxiliary-
-    regression route is ``O(p^4)`` and simply does not finish; the correlation
+    regression route is ``O(p^4)`` and is impractical; the correlation
     route is one ``O(p^3)`` decomposition. The two agree exactly when the
     design contains an intercept (see the test that pins this against
     ``statsmodels.stats.outliers_influence.variance_inflation_factor``).
@@ -608,8 +608,8 @@ def calibration_curve(y_true, y_pred, n_bins=10, weights=None, strategy="quantil
     :param y_pred: Predicted probability in ``[0, 1]``.
     :param n_bins: Number of bins. Default 10.
     :param weights: Optional per-observation weights.
-    :param strategy: ``'quantile'`` (equal counts per bin, the default —
-        robust when predictions pile up) or ``'uniform'`` (equal width).
+    :param strategy: ``'quantile'`` (equal counts per bin, the default, which
+        avoids sparsely populated bins) or ``'uniform'`` (equal width).
     :returns: dict with ``pred_mean``, ``obs_mean``, ``counts``, ``weight``,
         ``ece`` (weighted mean absolute gap), ``max_gap`` and ``brier``.
     :raises ValueError: if the inputs disagree in length or ``n_bins < 2``.

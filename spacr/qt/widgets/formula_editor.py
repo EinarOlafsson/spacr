@@ -192,7 +192,7 @@ class FormulaPanel(QWidget):
         Existing formulas are **kept** and re-applied. That is the opposite of
         what the Local Data Filter does with its clauses, on purpose: a filter
         clause naming a missing column narrows by less than it claims and is
-        dangerous to keep, while a formula naming a missing column simply
+        dangerous to keep, while a formula naming a missing column
         fails, says which column, and is exactly what the user wants back when
         they reload the same table.
         """

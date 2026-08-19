@@ -1260,7 +1260,7 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
     """Overlay every series' ``metric`` on one axes and return the figure.
 
     Each series is drawn **over its own epochs**. Runs of different lengths are
-    not truncated to the shortest or padded to the longest: the lines simply
+    not truncated to the shortest or padded to the longest: the lines
     end where the runs ended, and the axes annotation says so.
 
     Colour identifies the run, line style the split (train dashed, validation

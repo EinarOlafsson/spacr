@@ -1,10 +1,10 @@
 """Named gating strategies, saved with the project rather than in a file dialog.
 
-Instruction 31's "saveable filter sets". The Gate Editor could already write a
+The Gate Editor can write a
 strategy to a path and read one back, but only through a file chooser, which
-makes reuse a matter of remembering where you put it. A screen is gated the
+makes reuse depend on remembering where it was saved. A screen is gated the
 same way over and over -- "live singlets", "infected cells", "the debris
-filter I always apply" -- and that is a LIBRARY, not a file.
+filter I always apply" -- and those reusable strategies form a library.
 
 So a strategy has a NAME and lives under ``<project>/gates/<name>.json``. The
 Gate Editor lists what is there, applies one by name, and saves the current

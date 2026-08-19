@@ -160,7 +160,7 @@ class MergePolicy:
             consolidate_on_cell=False  keep the cell and leave the child's
                                        columns NA
 
-        WITH ONE EXCEPTION, which is instruction 77 item (c) in full: an
+        WITH ONE EXCEPTION, which is the design) in full: an
         UNINFECTED cell is a cell, and in a screen it is usually the control
         population. Making pathogen inner silently conditions every result on
         infection and deletes the comparison group from the denominator --
@@ -267,7 +267,7 @@ def object_keys(values: pd.Series) -> pd.Series:
     The ``'o5'`` form is translated by the one function that already knows
     every way it goes wrong (``'omulti'``, ``'onone'``, ``'error'``, NULL);
     plain numeric text is converted directly. Anything left becomes NA, so
-    those rows simply do not match rather than taking the merge down.
+    those rows do not match rather than causing the merge to fail.
     """
     if pd.api.types.is_numeric_dtype(values):
         return pd.to_numeric(values, errors="coerce").astype("Int64")

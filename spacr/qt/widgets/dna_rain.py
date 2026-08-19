@@ -391,7 +391,7 @@ class Column:
         whole glyph heights, so a slow column (4 cells/s) sat still for six
         frames and then jumped a whole character — the stepping that reads as
         choppy. Raising the frame rate cannot fix that on its own: the
-        position simply has fewer places it is allowed to be.
+        position has fewer allowed values.
     :ivar hi_start: first cell index of the highlighted run.
     :ivar hi_end: one past the last cell index of the highlighted run.
     :ivar word_index: cell index of the multi-character token, or -1.

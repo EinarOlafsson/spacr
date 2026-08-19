@@ -1,6 +1,6 @@
 """One merged measurements frame from the plate rows of the input table.
 
-Instruction 130. A row of the regression input table is one PLATE: its score
+A row of the regression input table is one plate: its score
 CSV, its count CSV and now its measurements database. This module is the
 headless half of that feature -- given ``{plate: database path}``, the tables
 the user ticked and the anchor they chose, it returns the merged frame.
@@ -35,8 +35,8 @@ the children onto the anchor.
 The roll-up keys are the load-bearing detail. They are the identity columns
 PLUS ``screenID`` PLUS ``source_database`` PLUS the child's anchor column.
 Leave ``screenID`` out and two screens that legitimately share ``plate1``
-(instruction 122, which :func:`~spacr.multi_database.describe_merge`
-deliberately permits) collapse into one parent -- reintroducing, one layer up,
+(which :func:`~spacr.multi_database.describe_merge` deliberately permits)
+collapse into one parent -- reintroducing, one layer up,
 exactly the pooling ``multi_database`` exists to prevent.
 
 WHAT A CALLER MUST SHOW THE USER
@@ -96,7 +96,7 @@ class PlateDatabase:
     def exists(self) -> bool:
         """Whether the file is still where the input table says it is.
 
-        Checked before the run rather than during it: instruction 130 asks
+        Checked before the run rather than during it: the design asks
         that a database that has been moved is named up front, not four
         minutes into a regression.
         """
@@ -469,7 +469,7 @@ def ambiguous_identifiers(child: pd.DataFrame, keys: Sequence[str], *,
                           examples: int = 1) -> Dict[str, Dict[str, Any]]:
     """Text identifiers that are NOT constant within their roll-up group.
 
-    Instruction 79 item 2, arrived at from the other side: when two things
+    arrived at from the other side: when two things
     that must agree do not, that is a real inconsistency and it is named
     rather than silently resolved. A cell with three pathogens has ONE
     ``path_name`` if all three came off the same image; if it has three,

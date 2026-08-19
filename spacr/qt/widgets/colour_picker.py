@@ -5,19 +5,18 @@ WHY THIS MODULE EXISTS AT ALL
 ``QColorDialog.getColor`` defaults to the *platform's* colour chooser. On a
 GNOME desktop with ``xdg-desktop-portal`` running, that is not a Qt widget at
 all: Qt asks the portal, the portal starts (or wakes) the GTK implementation
-over D-Bus, and the dialog appears when it appears. The maintainer reported a
-line-width control that "takes like 1 minut", and every colour picker in the
+over D-Bus, and the dialog can be slow to appear. Every colour picker in the
 tree was reached through an unguarded ``getColor`` — six of them, none passing
-``DontUseNativeDialog`` (instruction 151).
+``DontUseNativeDialog``.
 
 Qt's own dialog opens immediately, looks the same on every platform, and
 follows the application palette — which the GTK one does not, so the option is
 a consistency win as well as a speed one.
 
-HONEST ABOUT THE EVIDENCE. The portal round trip **cannot be reproduced
+The portal round trip **cannot be reproduced
 headless**: an offscreen Qt never asks the portal, so no test in this suite can
-observe the stall or its absence. The measurement that stands is instruction
-151's — the restyle work itself is free (``set_line_style`` 0.000 s on a 1,200
+observe the stall or its absence. The restyle work itself is free
+(``set_line_style`` 0.000 s on a 1,200
 point plot) so the wait is in the dialog — and "the portal is what the wait is"
 is a named, checkable hypothesis to be confirmed on a real display, not
 something this file proves. What IS proven here, by

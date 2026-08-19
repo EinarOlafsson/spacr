@@ -294,7 +294,7 @@ assigns guide identities to wells, and joins them to imaged cells. Barcode QC
 reports reads per well, collision rate and unmapped fraction, sweeping around
 the number of gRNAs per well you say you expect rather than a fixed threshold.
 
-**Regression** estimates guide, gene, condition and control effects using 17
+**Regression** estimates guide, gene, condition and control effects using 19
 model families, including mixed models, logistic and probit, quantile, beta,
 GLMs with quasi-binomial variance, lasso, ridge, elastic net, hinge and
 horseshoe. The result is a ranked, annotated hit list rather than a
@@ -496,7 +496,7 @@ Module reference
    * - |api-regression|_
      - |api-regression-models|_
      - Stable
-     - Estimates guide, gene, condition and control effects with 17 model families.
+     - Estimates guide, gene, condition and control effects with 19 model families.
    * - |api-power|_
      - |api-power-design|_
      - Alpha
@@ -704,7 +704,7 @@ Tutorials
 The `interactive spaCR tutorial library
 <https://einarolafsson.github.io/spacr/tutorials/>`_ contains narrated,
 captioned walkthroughs of installation and of each application workflow, in
-69 lessons with 50 voices across eight languages.
+73 lessons with 50 voices across eight languages.
 
 Citing spaCR
 ~~~~~~~~~~~~

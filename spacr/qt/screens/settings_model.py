@@ -6006,7 +6006,7 @@ class _AlphabetSelect(QWidget):
         and the Live Preview both hand back ``"['r', 'g']"`` rather than a
         list. A value outside the alphabet is dropped rather than shown,
         which is the whole point of the control — but it is dropped
-        *visibly*, because the pill for it simply is not lit.
+        *visibly*, because the corresponding pill is not lit.
         """
         wanted = self._as_members(value)
         for member, button in self._buttons:

@@ -1,8 +1,7 @@
 """Re-fit the screen from the plot: same data, a different model.
 
-Asked for on 2026-08-16: "when all the analasees are done id like to be able
-to right click on the regression plot and choose a different regression and
-the other related settings as well as FDR etc."
+The regression plot's context menu can rerun an analysis with a different
+model, correction method, or FDR threshold.
 
 A RE-FIT IS NOT A RESTYLE, and that is the whole difficulty. Every other
 entry on that right-click menu changes how the figure looks; this one changes
@@ -11,13 +10,13 @@ because :func:`spacr.ml._next_results_folder` already gives every run its own
 folder -- it lands beside the run it came from rather than on top of it. The
 user can compare the two, which is the point of asking for it.
 
-The settings dict a run leaves behind CANNOT simply be handed back. Three
+The settings dictionary saved by a run cannot be passed back unchanged. Three
 things in it are wrong for a second run, each in a way that is silent:
 
   * ``plot`` is forced to False on the way out (:func:`spacr.utils.save_settings`
     does it so a reload reproduces the run headlessly), so re-running from the
-    saved copy produces no figures at all -- and the user asked for this from
-    a FIGURE.
+    saved copy produces no figures at all, even though the action starts from
+    a figure.
   * the per-backend knobs are still set to what the old backend read. Handing
     ``alpha=0.3`` to OLS does not quietly do nothing: :func:`_reject_unused_settings`
     raises, by design, so a lasso -> ols re-fit dies at the entry point.

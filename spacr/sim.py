@@ -1019,7 +1019,7 @@ def save_plot(fig, src, variable, i):
 
     THE FORMAT IS THE USER'S, NOT THIS FUNCTION'S. It was
     ``fig.savefig(..., format='pdf', dpi=600)``, which is one of the literal
-    formats instruction 136 exists to remove: the "Figure format" and
+    formats the API is intended to remove: the "Figure format" and
     "Resolution" preferences reached every other saved figure in spaCR and
     not this one. ``.pdf`` is still what a default install writes, because
     that is what the preference defaults to.

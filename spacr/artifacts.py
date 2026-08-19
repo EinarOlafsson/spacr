@@ -286,7 +286,7 @@ class Staleness:
     """Whether an artifact still matches what it was made from.
 
     Stale means an upstream artifact or a material setting changed *after*
-    this was produced. A file that has simply been deleted is reported by
+    this was produced. A deleted file is reported by
     :attr:`missing` instead — that is an availability problem, not a
     provenance one, and conflating the two hides both.
 
@@ -817,7 +817,7 @@ class Registry:
         :param artifact: id or :class:`Artifact`.
         :param transitive: follow inputs of inputs, to the roots of the DAG.
         :returns: registered ancestors, newest first. Input ids that are no
-            longer registered are simply absent — :meth:`is_stale` is what
+            longer registered are absent — :meth:`is_stale` is what
             reports them.
         """
         with self._open() as connection:

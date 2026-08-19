@@ -1717,7 +1717,7 @@ class GateCanvas(GraphCanvas):
     def set_pending_depth(self, low, high) -> None:
         """The slab depth the next volume gate is made with.
 
-        Instruction 52, at the maintainer's choice of "a slab you drag out"
+        The depth is represented as a slab you drag out
         over "all the way through": the depth is a second gesture after the
         shape is drawn, so the gate is finite from the start rather than
         something to narrow afterwards in a panel.

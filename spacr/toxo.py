@@ -178,7 +178,7 @@ def custom_volcano_plot(
 
         This function does two jobs -- it draws the volcano AND it decides
         which genes are hits -- and `perform_regression` needs the second
-        whether or not the maintainer wants the first. The GT1 phenotype plot
+        whether or not the caller wants the first. The GT1 phenotype plot
         and the ME49 transcription heatmap are both built from this return
         value, so gating the CALL would have removed two reports nobody asked
         to lose. Gating the DRAWING keeps them.

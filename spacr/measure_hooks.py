@@ -82,7 +82,7 @@ Reaching worker processes
 :func:`spacr.measure.measure_crop` measures fields in a
 :class:`multiprocessing.Pool`. Under ``fork`` (the Linux default) a worker
 inherits this module's registries from the parent and hooks registered with
-:func:`register_preprocessing_hook` simply work. Under ``spawn`` /
+:func:`register_preprocessing_hook` work without additional setup. Under ``spawn`` /
 ``forkserver`` (Windows, macOS, or ``SPACR_START_METHOD``) a worker is a fresh
 interpreter that has never seen them, so an in-process registration would be a
 **silent no-op in every worker**. For that case set

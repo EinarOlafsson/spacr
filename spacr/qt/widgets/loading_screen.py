@@ -132,7 +132,7 @@ class LoadingScreen(QWidget):
     """Full-window cover shown until the pipeline modules are imported.
 
     :param total: how many steps will be reported. Zero or negative means
-        "unknown", and the phases simply stay dim rather than dividing by it.
+        "unknown", and the phases stay dim rather than dividing by it.
     :param parent: the window this fills. It is sized to the parent and
         resizes with it, rather than being a separate top-level -- a second
         window would earn its own taskbar entry and could be dragged off the

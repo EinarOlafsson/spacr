@@ -1,11 +1,11 @@
 """The tile that appears when a gene is clicked in the interactive regression.
 
-Instruction 121. A thin renderer, deliberately: everything that can be WRONG
+A thin renderer, deliberately: everything that can be wrong
 about which gene a dot names lives in :mod:`spacr.gene_tile`, which is a pure
 function over the ``feature`` string and the results frame and is tested
 without a window. This module lays that record out and opens the links.
 
-Two ways in, because the instruction asks for both:
+There are two entry points:
 
 * :class:`GeneTilePanel` — a widget to sit beside the volcano and the results
   table, wired to the ``key_selected`` signal they both emit.

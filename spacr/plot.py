@@ -120,7 +120,7 @@ def deliverable_dpi(fig, dpi, path=None):
 
     A resolution preference is a request, not a guarantee. ``spacrGraph`` pins
     its canvas to at least 10 inches square and grows it with the number of
-    groups, so 600 and 1200 DPI are simply not available for a large grouped
+    groups, so 600 and 1200 DPI are not available for a large grouped
     figure -- the raster would be tens of thousands of pixels on a side.
 
     The old behaviour was to hand the number to matplotlib and find out. This
@@ -315,7 +315,7 @@ def data_colours(fig):
 def illegible_data_colours(fig, ground, floor=None):
     """The data colours a reader will not find on ``ground``, as hex.
 
-    Instruction 150 D. The data deliberately does NOT flip, so a palette
+    The data deliberately does NOT flip, so a palette
     chosen against near-black can be illegible on paper -- and the honest
     answer is to NAME the colour, because a substitution the user did not ask
     for changes what the picture says. Deduplicated and sorted so the same
@@ -337,7 +337,7 @@ def print_ready(fig, mode=None, announce=True):
 
     THE CONTRACT IS THAT NOTHING SURVIVES IT. Every artist touched is restored
     in a ``finally``, so a user watching a plot while it saves must not see it
-    flash and the figure is byte-identical afterwards -- instruction 150's own
+    flash and the figure is byte-identical afterwards -- the own
     acceptance, and the reason this is a context manager rather than a
     function that fixes a figure up.
 
@@ -454,7 +454,7 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         or ``'transparent'``. None asks the preference, which defaults to
         ``'print'``.
     :param announce_colours: say when a data colour has stopped working on the
-        light page (instruction 150 D). It is NAMED, never substituted.
+        light page. It is NAMED, never substituted.
     :param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.). An
         explicit ``facecolor`` still wins over the print ground.
     :returns: the path actually written, as a ``str``.
@@ -3043,7 +3043,7 @@ def generate_plate_heatmap(df, plate_number, variable, grouping, min_max, min_co
     The grid is **read off the data**. It used to be pinned to ``r1..r16``
     by ``c1..c27``, so every well of a 1536 plate past row P or past column
     27 fell outside the ``Categorical``, became NaN, and was dropped by the
-    groupby — measured, in the database, and simply absent from the figure
+    groupby — measured, in the database, and absent from the figure
     with nothing said. Rows and columns now go through
     :func:`spacr.plate_qc.parse_row_label` / ``parse_column_label`` (which
     is :mod:`spacr.schema`'s letter walk, so ``AA``…``AF`` and beyond are
@@ -3222,7 +3222,7 @@ def plot_plates(df, variable, grouping, min_max, cmap, min_count=0, verbose=True
     in :mod:`spacr.figures.plates`; this function is the call the pipeline
     already makes, kept at its own signature.
 
-    WHAT CHANGED, AND WHY (instruction 124 A -- "the lpates look super small
+    WHAT CHANGED, AND WHY (the design -- "the lpates look super small
     on the collected figure"): the plates were laid out four-per-row on a
     40 x 5 inch figure, an 8:1 strip that uses about an eighth of a square
     tile in the figure grid, with wells 1.14:1 rather than square. They are
@@ -4233,7 +4233,7 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
 
     return balanced_df
 
-def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
+def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
     """Plot grouped data with automatic normality-aware pairwise statistics.
 
     :func:`spacr.figures.stats.compare` decides which test each PAIR gets --
@@ -4243,7 +4243,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     normality check together. The requested plot type is rendered and both
     plot and stats optionally persist to ``output_dir``.
 
-    Two things moved on 2026-08-17 (instruction 127 finding 2) and both change
+    Two things moved on 2026-08-17 and both change
     a saved ``test_results.csv``:
 
     * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in
@@ -4260,7 +4260,16 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='bar', summ
     :param grouping_column: Categorical grouping variable.
     :param data_column: Numeric column to summarise.
     :param graph_type: One of ``'bar'``, ``'violin'``, ``'jitter'``,
-        ``'box'``, ``'jitter_box'``. Default ``'bar'``.
+        ``'box'``, ``'jitter_box'``. Default ``'jitter_box'``.
+
+        THE DEFAULT IS A STATISTICAL CORRECTION AND NOT A PREFERENCE. A bar
+        drawn at a mean with points behind it shows ONE number and hides the
+        shape of the data: two groups with the same mean and completely
+        different spreads draw the same bar. The box shows the median, the
+        quartiles and the whiskers, so the reader sees the distribution the
+        points already imply -- and the jitter stays, because the box
+        summarises and the points are the evidence. ``'bar'`` is still here
+        for anyone who wants it.
     :param summary_func: Summary function for bar plots. Default
         ``'mean'``.
     :param order: Explicit group ordering. Default: alphabetical.
@@ -4507,7 +4516,9 @@ class spacrGraph:
     :param df: Input DataFrame.
     :param grouping_column: Categorical grouping variable.
     :param data_column: Metric column (or list of columns) to summarise.
-    :param graph_type: Plot type. Default ``'bar'``.
+    :param graph_type: Plot type. Default ``'jitter_box'`` -- a box with the
+        points over it. See :func:`create_grouped_plot` for why that default
+        is a correction rather than a taste.
     :param summary_func: Aggregator for well/plate level. Default ``'mean'``.
     :param order: Explicit ordering of groups.
     :param colors: Optional colour palette.
@@ -4528,7 +4539,7 @@ class spacrGraph:
     :param graph_name: Prefix for saved file names.
     """
 
-    def __init__(self, df, grouping_column, data_column, graph_type='bar', summary_func='mean',
+    def __init__(self, df, grouping_column, data_column, graph_type='jitter_box', summary_func='mean',
                  order=None, colors=None, output_dir='./output', save=False, y_lim=None, log_y=False,
                  log_x=False, error_bar_type='std', remove_outliers=False, theme='pastel', representation='object',
                  paired=False, all_to_all=True, compare_group=None, graph_name=None):
@@ -4811,10 +4822,9 @@ class spacrGraph:
         things moved when it did, and both change the number a caller writes
         into a CSV:
 
-        * The centring is the median (Brown-Forsythe), not scipy's default
-          mean. The median-centred form is the robust one and is the right
-          choice precisely when normality is itself in question -- which is
-          every time this is called, since it is called before anyone knows.
+        * The centring is the median (Brown-Forsythe), not SciPy's default
+          mean. Median centring is less sensitive to non-normal data, and this
+          function is called before the normality verdict is known.
         * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations
           in the smallest group the result is ``(nan, nan)``. On three
           replicates Levene has almost no power, so "p = 0.7, variances are

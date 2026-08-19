@@ -1,8 +1,5 @@
 """What a finished regression found, in prose, for the console.
 
-Asked for on 2026-08-16: "id also like a little written summary at the end in
-the console saying what is significant and so on".
-
 PROSE, NOT A TABLE DUMP. A table of a thousand coefficients is already on
 screen and already in a CSV; what is missing is the paragraph a person would
 write after looking at it. So this says how many hypotheses were tested, how

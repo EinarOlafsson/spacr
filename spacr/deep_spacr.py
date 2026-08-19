@@ -97,8 +97,8 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
     The function loads a saved model, builds a dataset from the input images,
     runs batched inference, and saves prediction scores to a CSV file.
 
-    :param src: Path to the input image directory or collection of image paths.
-    :type src: str or sequence
+    :param src: Path to the directory containing the input images.
+    :type src: str or os.PathLike
     :param model_path: Path to the saved PyTorch model.
     :type model_path: str
     :param image_size: Final square crop size used before inference.

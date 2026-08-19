@@ -1,10 +1,4 @@
-"""Measure this machine, then choose the worker count from the measurement.
-
-Instruction 86:
-
-    "Add a small benchmark command that records throughput and peak RAM/VRAM
-     for representative fields, making worker-count defaults specific to the
-     current machine."
+"""Measure throughput and memory use to recommend a worker count.
 
 WHY A DEFAULT NEEDS THIS. spaCR's worker defaults are arithmetic on the core
 count -- ``cpu_count() - 4``, ``cpu_count() // 2``, ``-1``. Cores are the one

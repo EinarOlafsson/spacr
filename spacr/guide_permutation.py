@@ -507,7 +507,7 @@ def plot_guide_permutation_volcano(
         that an empirical P value makes the question moot. It does not: a P
         value says an effect is distinguishable from zero and this line says
         it is big enough to follow up, and the second question is about the
-        coefficient however the first was answered. Asked by the maintainer
+        coefficient however the first was answered. This distinction is
         as "why cant i see the coefficient threshold if im running
         nonparametric regression?".
     :param effect_threshold_label: the sentence that attributes the cut, e.g.
@@ -527,7 +527,7 @@ def plot_guide_permutation_volcano(
         used. A caller that records the requested name records a file that may
         not be there.
 
-    PUBLISHED, NOT SAVED. Instruction 139 C -- "several graphs are saved but I
+    PUBLISHED, NOT SAVED. The design -- "several graphs are saved but I
     cannot see them in the software". This was the last bare ``fig.savefig``
     on the regression path: the permutation volcano was written to disk and
     never announced, so it appeared in no gallery.
@@ -733,7 +733,7 @@ def gene_freedman_lane_test(
 ) -> pd.DataFrame:
     """Test each GENE's guides as a SET, against the same permutation null.
 
-    Instruction 132 asks the nonparametric path for a gene pass beside its
+    The design asks the nonparametric path for a gene pass beside its
     guide pass. The gene's regressor is the SUM of its guides' fractions --
     one column, one test, one degree of freedom -- residualized against the
     same block/nuisance design and permuted with the same Freedman--Lane

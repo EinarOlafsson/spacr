@@ -1,7 +1,7 @@
 """What spaCR already knows about one gene, ready to put on a tile.
 
-Instruction 121 asks that clicking a gene in the interactive regression show
-"all the information on that gene". :mod:`spacr.gene_tile` answers the half
+Clicking a gene in an interactive regression opens the information available
+for that gene. :mod:`spacr.gene_tile` answers the half
 that can be WRONG -- which gene a clicked guide actually names, and whether
 that mapping is ambiguous. This module answers the other half: given a gene,
 what does spaCR hold about it.
@@ -281,7 +281,7 @@ class GeneFacts:
     def known(self) -> bool:
         """Did the annotation hold anything at all about this gene?
 
-        The flag a caller greys a control on -- instruction 106: a control
+        The flag a caller greys a control on -- the design: a control
         that cannot do anything says why rather than sitting there inert.
         """
         return bool(self.values)
