@@ -13,7 +13,7 @@ what the volcano's adjusted axis needed at the API as well as in its menu.
 """
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from .crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
                     STREAM_IMAGES_LABEL)
@@ -196,6 +196,33 @@ CUT_SETTINGS: Dict[str, str] = {
 }
 
 
+def _as_indices(value) -> Optional[list]:
+    """``value`` as a list of source-channel indices, or ``None``.
+
+    ``None`` means "these are not indices" -- colour letters, most often --
+    and the caller leaves the setting to the renderer rather than guessing a
+    number for it. See :func:`to_crop_settings`.
+    """
+    if isinstance(value, str):
+        parts = [p.strip() for p in value.replace(";", ",").split(",")]
+    elif isinstance(value, (list, tuple)):
+        parts = [str(p).strip() for p in value]
+    elif isinstance(value, int) and not isinstance(value, bool):
+        return [int(value)]
+    else:
+        return None
+    parts = [p for p in parts if p]
+    if not parts:
+        return None
+    out = []
+    for part in parts:
+        try:
+            out.append(int(part))
+        except (TypeError, ValueError):
+            return None
+    return out
+
+
 def to_crop_settings(picture) -> Dict[str, object]:
     """The subset of a picture-settings dict the crop layer understands.
 
@@ -217,6 +244,35 @@ def to_crop_settings(picture) -> Dict[str, object]:
         value = items.get(mine)
         if value in (None, "", [], ()):
             continue
+        if theirs == "png_dims":
+            # THE ANNOTATOR'S `channels` IS NOT THE CROP LAYER'S `png_dims`,
+            # and this mapping treated them as one thing. `channels` defaults
+            # to 'r,g,b' -- which COLOUR PLANES OF AN EXISTING PNG to show,
+            # a display choice the renderer makes with the annotator's own
+            # `filter_channels_pil`. `png_dims` is which SOURCE ARRAY
+            # CHANNELS to cut, and it must be indices.
+            #
+            # Handed the letters, `resolve_png_channel_mapping` reached
+            # int('r') and the montage died with "invalid literal for int()
+            # with base 10: 'r'" -- from inside the worker, so what the user
+            # saw was "The montage load failed" with no mention of a setting.
+            # This is 145 exactly: one idea, two vocabularies, and the code
+            # in between assuming they agree.
+            #
+            # So only an INDEX form crosses over. Letters stay a display
+            # setting and reach the renderer, which is where they mean
+            # something.
+            indices = _as_indices(value)
+            if indices is None:
+                continue
+            value = indices
+        if theirs == "png_size" and isinstance(value, (int, float)) \
+                and not isinstance(value, bool):
+            # `img_size` is ONE number -- a single spin box -- and `png_size`
+            # is a (width, height) pair. Handed the scalar,
+            # `crop_spec_from_settings` raised "'int' object is not
+            # subscriptable" from inside the montage worker.
+            value = [int(value), int(value)]
         out[theirs] = value
     # The SHAPE of the cut, which only streaming decides -- a crop already
     # written to disk was cut when it was written.

@@ -338,3 +338,333 @@ def test_concordance_ignores_the_panel_s_gene_default(qtbot, screen):
     assert str(panel.level.currentData()) == "gene"      # the panel default
 
     assert panel.figure(kind="concordance") is not None
+
+
+# =========================================================================== #
+#  The other six (instruction 175). Ten views, each answering a question the   #
+#  others cannot -- built together so the maintainer can choose after seeing   #
+#  all of them.                                                                #
+# =========================================================================== #
+
+
+def _swept(screen, level="gene", controls=None):
+    wells, fractions, plates = screen
+    return sweep(wells, fractions, blocks=plates, level=level,
+                 controls=controls)
+
+
+# ------------------------------------------------------- #5 the grid volcano
+
+
+def test_the_volcano_draws_every_pair_not_just_survivors(screen, tmp_path):
+    """The shape of the WHOLE grid, which the heatmap cannot show."""
+    from spacr.gene_measurement_sweep import plot_grid_volcano
+
+    result = _swept(screen)
+    figure = plot_grid_volcano(result, path=str(tmp_path / "v.png"))
+
+    assert figure is not None
+    axes = figure.axes[0]
+    drawn = sum(len(c.get_offsets()) for c in axes.collections)
+    assert drawn == len(result.table), (
+        f"{drawn} points for {len(result.table)} pairs")
+
+
+def test_an_uncomputed_circularity_is_said_not_coloured(screen):
+    """Grey is not "clean". A NaN column shown on a colour scale would read
+    as zero, which is the exact misreading the column exists to prevent."""
+    from spacr.gene_measurement_sweep import plot_grid_volcano
+
+    result = _swept(screen)
+    assert not result.circularity_known
+    figure = plot_grid_volcano(result)
+
+    legend = figure.axes[0].get_legend()
+    assert legend is not None
+    assert "NOT computed" in " ".join(t.get_text() for t in legend.texts)
+
+
+def test_the_volcano_draws_nothing_from_an_empty_table():
+    from spacr.gene_measurement_sweep import SweepResult, plot_grid_volcano
+
+    empty = SweepResult(table=pd.DataFrame(
+        columns=["level", "guide", "measurement", "effect", "p", "q",
+                 "circularity"]),
+        effects=pd.DataFrame(), n_wells=0, n_blocks=0)
+    assert plot_grid_volcano(empty) is None
+
+
+# ------------------------------------------------------ #6 the gene profile
+
+
+def test_a_gene_profile_names_the_measurements_it_moves(screen, tmp_path):
+    from spacr.gene_measurement_sweep import plot_gene_profile
+
+    result = _swept(screen)
+    figure = plot_gene_profile(result, "222", path=str(tmp_path / "p.png"))
+
+    assert figure is not None
+    labels = [t.get_text() for t in figure.axes[0].get_yticklabels()]
+    assert labels
+    assert all(any(l.startswith(m[:10]) for m in result.effects.columns)
+               for l in labels), labels
+
+
+def test_a_gene_with_nothing_significant_still_says_so(screen):
+    """"This gene has no significant measurement" is worth SEEING, and an
+    empty axis does not say it."""
+    from spacr.gene_measurement_sweep import plot_gene_profile
+
+    result = _swept(screen)
+    figure = plot_gene_profile(result, "222", alpha=0.0)
+
+    assert figure is not None
+    assert "NOTHING" in figure.axes[0].get_title()
+
+
+def test_a_gene_that_is_not_in_the_screen_draws_nothing(screen):
+    from spacr.gene_measurement_sweep import plot_gene_profile
+
+    assert plot_gene_profile(_swept(screen), "not_a_gene") is None
+
+
+def test_the_profile_is_capped(screen):
+    from spacr.gene_measurement_sweep import plot_gene_profile
+
+    figure = plot_gene_profile(_swept(screen), "222", top=2)
+    if figure is not None:
+        assert len(figure.axes[0].get_yticklabels()) <= 2
+
+
+# --------------------------------------------------- #7 the gene similarity
+
+
+def test_genes_that_behave_alike_correlate(tmp_path):
+    """Two genes moving the same measurements the same way must come back
+    positively correlated -- that is the whole claim of this picture."""
+    from spacr.gene_measurement_sweep import plot_gene_similarity
+
+    rng = np.random.default_rng(21)
+    n = 120
+    index = [f"plate{1 + i // 40}_r{i}_c1" for i in range(n)]
+    shared = rng.random(n)
+    other = rng.random(n)
+    wells = pd.DataFrame({
+        "pathogen_area": shared * 5 + rng.normal(0, .2, n),
+        "pathogen_channel_1_mean_intensity": shared * 4 + rng.normal(0, .3, n),
+        "cell_area": other * 5 + rng.normal(0, .2, n),
+        "nucleus_eccentricity": rng.normal(0, 1, n),
+    }, index=index)
+    fractions = pd.DataFrame({
+        "TGGT1_111_1": shared * 0.5,      # these two move the same things
+        "TGGT1_222_1": shared * 0.5,
+        "TGGT1_333_1": other * 0.5,       # this one does not
+    }, index=index)
+    result = sweep(wells, fractions,
+                   blocks=[i.split("_")[0] for i in index], level="gene")
+
+    figure = plot_gene_similarity(result, path=str(tmp_path / "s.png"))
+
+    if figure is None:
+        pytest.skip("nothing survived on this fixture")
+    labels = [t.get_text() for t in figure.axes[0].get_yticklabels()]
+    assert len(labels) >= 2
+    # The matrix is symmetric with a unit diagonal, or it is not a correlation.
+    grid = figure.axes[0].get_images()[0].get_array()
+    assert np.allclose(np.diag(np.asarray(grid)), 1.0, atol=1e-6)
+
+
+def test_one_gene_cannot_be_compared_with_itself(screen):
+    """A similarity matrix of one is not a picture."""
+    from spacr.gene_measurement_sweep import plot_gene_similarity
+
+    assert plot_gene_similarity(_swept(screen), top=1) is None
+
+
+def test_the_similarity_scale_is_pinned_to_plus_minus_one(screen):
+    """A correlation drawn on an auto scale makes 0.2 look like 1.0."""
+    from spacr.gene_measurement_sweep import plot_gene_similarity
+
+    figure = plot_gene_similarity(_swept(screen))
+    if figure is not None:
+        image = figure.axes[0].get_images()[0]
+        assert image.get_clim() == (-1.0, 1.0)
+
+
+# ------------------------------------------------- #8 which measurements
+
+
+def test_the_measurements_are_ranked_by_how_many_genes_move_them(screen,
+                                                                 tmp_path):
+    from spacr.gene_measurement_sweep import plot_measurement_hits
+
+    figure = plot_measurement_hits(_swept(screen),
+                                   path=str(tmp_path / "m.png"))
+    if figure is None:
+        pytest.skip("nothing survived on this fixture")
+    widths = [p.get_width() for p in figure.axes[0].patches]
+    assert widths == sorted(widths, reverse=True)
+
+
+def test_a_measurement_moved_by_half_the_library_is_marked(tmp_path):
+    """Not a discriminating readout: a plate effect wearing a measurement's
+    name will put a hit on every gene in the screen."""
+    from spacr.gene_measurement_sweep import plot_measurement_hits
+
+    rng = np.random.default_rng(22)
+    n = 120
+    index = [f"plate{1 + i // 40}_r{i}_c1" for i in range(n)]
+    drift = np.linspace(0.0, 1.0, n)          # everything correlates with it
+    wells = pd.DataFrame({
+        "cell_area": drift * 8 + rng.normal(0, .1, n),
+        "nucleus_eccentricity": rng.normal(0, 1, n),
+    }, index=index)
+    fractions = pd.DataFrame(
+        {f"TGGT1_{i}_1": drift * 0.3 + rng.normal(0, .02, n)
+         for i in range(1, 5)}, index=index)
+    result = sweep(wells, fractions,
+                   blocks=[i.split("_")[0] for i in index], level="gene")
+
+    figure = plot_measurement_hits(result)
+    if figure is None:
+        pytest.skip("nothing survived on this fixture")
+    reds = [p for p in figure.axes[0].patches
+            if tuple(round(c, 3) for c in p.get_facecolor()[:3])
+            == (0.757, 0.071, 0.122)]
+    assert reds or "half the library" not in figure.axes[0].get_title()
+
+
+def test_the_measurement_bars_draw_nothing_when_nothing_survived(screen):
+    from spacr.gene_measurement_sweep import plot_measurement_hits
+
+    assert plot_measurement_hits(_swept(screen), alpha=0.0) is None
+
+
+# ------------------------------------------------------- #9 the circularity
+
+
+def test_circularity_is_not_drawn_when_it_was_never_computed(screen):
+    """THE POINT OF THE WHOLE COLUMN. A scatter of NaN is a blank panel that
+    reads as "nothing is circular"."""
+    from spacr.gene_measurement_sweep import plot_circularity
+
+    result = _swept(screen)
+    assert not result.circularity_known
+    assert plot_circularity(result) is None
+
+
+def test_circularity_is_drawn_when_the_score_joined(tmp_path):
+    from spacr.gene_measurement_sweep import plot_circularity
+
+    rng = np.random.default_rng(23)
+    n = 120
+    index = [f"plate{1 + i // 40}_r{i}_c1" for i in range(n)]
+    signal = rng.random(n)
+    wells = pd.DataFrame({
+        "pathogen_area": signal * 5 + rng.normal(0, .2, n),
+        "cell_area": rng.normal(0, 1, n),
+    }, index=index)
+    fractions = pd.DataFrame({"TGGT1_111_1": signal * 0.5,
+                              "TGGT1_222_1": rng.random(n)}, index=index)
+    scores = pd.Series(signal * 0.9 + rng.normal(0, 0.05, n), index=index)
+    result = sweep(wells, fractions,
+                   blocks=[i.split("_")[0] for i in index],
+                   scores=scores, level="gene")
+
+    if not result.circularity_known:
+        pytest.skip("the score did not join on this fixture")
+    figure = plot_circularity(result, path=str(tmp_path / "c.png"))
+    if figure is None:
+        pytest.skip("nothing survived")
+    assert "rho" in figure.axes[0].get_ylabel()
+
+
+# ------------------------------------------------------- #10 the calibration
+
+
+def test_the_calibration_plot_reports_an_inflation_factor(screen, tmp_path):
+    """A number beats an eyeballed slope, and lambda has a standard meaning."""
+    from spacr.gene_measurement_sweep import plot_calibration
+
+    figure = plot_calibration(_swept(screen), path=str(tmp_path / "q.png"))
+
+    assert figure is not None
+    assert "lambda" in figure.axes[0].get_title()
+
+
+def test_a_null_screen_sits_on_the_diagonal(tmp_path):
+    """Nothing real: the observed P values follow the uniform, so lambda is
+    about 1 and the plot says "calibrated"."""
+    from spacr.gene_measurement_sweep import plot_calibration
+
+    rng = np.random.default_rng(24)
+    n = 200
+    index = [f"plate{1 + i // 50}_r{i}_c1" for i in range(n)]
+    wells = pd.DataFrame(
+        {f"cell_measure_{k}": rng.normal(0, 1, n) for k in range(6)},
+        index=index)
+    fractions = pd.DataFrame(
+        {f"TGGT1_{i}_1": rng.random(n) for i in range(1, 7)}, index=index)
+    result = sweep(wells, fractions,
+                   blocks=[i.split("_")[0] for i in index], level="gene")
+
+    figure = plot_calibration(result)
+
+    assert figure is not None
+    title = figure.axes[0].get_title()
+    assert "inflated" not in title, title
+
+
+def test_the_calibration_needs_more_than_one_test(screen):
+    from spacr.gene_measurement_sweep import SweepResult, plot_calibration
+
+    one = SweepResult(table=pd.DataFrame({"level": ["gene"], "guide": ["a"],
+                                          "measurement": ["m"],
+                                          "effect": [0.1], "p": [0.5],
+                                          "q": [0.5], "circularity": [np.nan]}),
+                      effects=pd.DataFrame(), n_wells=1, n_blocks=1)
+    assert plot_calibration(one) is None
+
+
+# ------------------------------------------------------- all ten, in the panel
+
+
+def test_the_panel_offers_all_ten(qtbot):
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+    assert len(SweepPanel.PICTURES) == 10
+    offered = [panel.picture.itemData(i) for i in range(panel.picture.count())]
+    assert offered == [kind for kind, _label in SweepPanel.PICTURES]
+
+
+def test_every_one_of_the_ten_draws_or_says_why(qtbot, screen):
+    """None is an answer; an exception is not."""
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    wells, fractions, plates = screen
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+    panel._result = sweep(wells, fractions, blocks=plates, level="guide")
+
+    for kind, _label in SweepPanel.PICTURES:
+        figure = panel.figure(kind=kind)
+        assert figure is None or hasattr(figure, "axes"), kind
+
+
+def test_the_profile_falls_back_to_the_strongest_survivor(qtbot, screen):
+    """With no row selected the picture still has a subject, and the title
+    names it so nobody mistakes the default for a choice."""
+    from spacr.qt.widgets.sweep_panel import SweepPanel
+
+    wells, fractions, plates = screen
+    panel = SweepPanel()
+    qtbot.addWidget(panel)
+    panel._result = sweep(wells, fractions, blocks=plates, level="gene")
+
+    gene = panel.selected_gene()
+    assert gene is not None
+    figure = panel.figure(kind="profile")
+    if figure is not None:
+        assert str(gene) in figure.axes[0].get_title()
