@@ -1395,6 +1395,9 @@ class CellMontageView(QWidget):
 
         # THE ANNOTATOR'S CONTROL OVER THE PICTURE (instruction 170 B).
         self._picture_settings: dict = {}
+        #: What the last load resolved, for the settings window's choosers.
+        self._last_source = None
+        self._last_objects = None
         self._picture_button = QPushButton("Picture settings…")
         self._picture_button.setToolTip(
             "How the cells are drawn: channels, size, normalisation, "
@@ -1896,8 +1899,15 @@ class CellMontageView(QWidget):
         """Open the settings window. Returns whether anything was changed."""
         from ..widgets.picture_settings_dialog import PictureSettingsDialog
 
+        # BUILT FROM THIS SCREEN. The mask planes come from whatever crop
+        # source the montage resolved, and the coordinate columns from the
+        # object table it actually loaded -- so the choosers list what is
+        # there rather than asking the user to remember it.
+        source = getattr(self, "_last_source", None)
+        objects = getattr(self, "_last_objects", None)
         dialog = PictureSettingsDialog(values=self._picture_settings,
-                                       mode=self.picture_mode(), parent=self)
+                                       mode=self.picture_mode(), parent=self,
+                                       source=source, objects=objects)
         if dialog.exec() != QDialog.Accepted:
             return False
         # EVERY key, not only the ones this mode uses: a user who set a
@@ -1906,6 +1916,14 @@ class CellMontageView(QWidget):
         self._picture_settings = dialog.values()
         self._on_settings_changed()
         return True
+
+    def remember_inventory(self, source=None, objects=None) -> None:
+        """Keep what the last load resolved, so the settings window can offer
+        THIS screen's mask planes and object columns rather than free text."""
+        if source is not None:
+            self._last_source = source
+        if objects is not None:
+            self._last_objects = objects
 
     def _on_mode_changed(self, *_args) -> None:
         """Say which mode is in force, so a fallback is never silent."""

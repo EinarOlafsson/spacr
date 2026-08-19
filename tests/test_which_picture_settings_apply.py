@@ -206,3 +206,94 @@ def test_a_bad_setting_never_costs_the_montage_its_picture():
                            "edge_thickness": "nonsense"})
 
     assert out.shape == crop.shape
+
+
+# --------------------------------------------- built from the screen, not typed
+
+
+def test_the_arrays_come_from_the_screens_own_spec():
+    """Offering `object_array` as free text asks the user to remember what
+    their own screen contains, and to spell it the way `measure` did."""
+    from spacr.picture_settings import available_arrays
+
+    class Spec:
+        mask_dims = {"cell": 3, "nucleus": 4}
+
+    class Source:
+        spec = Spec()
+
+    assert available_arrays(Source()) == ("cell", "nucleus")
+
+
+def test_a_screen_with_no_mask_planes_offers_none():
+    """That is the answer, not a failure: a run whose arrays carry no mask
+    planes cannot cut by one."""
+    from spacr.picture_settings import available_arrays
+
+    assert available_arrays(None) == ()
+
+
+def test_a_box_needs_all_four_corners():
+    """Three of them describe no box, so a chooser that offered them singly
+    would let a user assemble a request that cannot be met."""
+    import pandas as pd
+
+    from spacr.picture_settings import available_coordinate_columns
+
+    four = pd.DataFrame(columns=["bbox-0", "bbox-1", "bbox-2", "bbox-3"])
+    three = pd.DataFrame(columns=["bbox-0", "bbox-1", "bbox-2"])
+
+    assert available_coordinate_columns(four)
+    assert available_coordinate_columns(three) == ()
+    assert available_coordinate_columns(None) == ()
+
+
+def test_a_pandas_index_has_no_truth_value():
+    """`getattr(frame, 'columns', ()) or ()` RAISES on a DataFrame."""
+    import pandas as pd
+
+    from spacr.picture_settings import available_coordinate_columns
+
+    assert available_coordinate_columns(pd.DataFrame()) == ()
+
+
+def test_a_setting_with_no_inventory_stays_free_text():
+    from spacr.picture_settings import offered_values
+
+    assert offered_values("img_size") == ()
+    assert offered_values("percentiles") == ()
+
+
+def test_the_dialog_offers_them_as_a_dropdown(qtbot):
+    import pandas as pd
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.widgets.picture_settings_dialog import PictureSettingsDialog
+
+    class Spec:
+        mask_dims = {"cell": 3, "pathogen": 5}
+
+    class Source:
+        spec = Spec()
+
+    dialog = PictureSettingsDialog(
+        mode=STREAM_IMAGES, source=Source(),
+        objects=pd.DataFrame(columns=["bbox-0", "bbox-1", "bbox-2", "bbox-3"]))
+    qtbot.addWidget(dialog)
+
+    editor = dialog._editors["object_array"]
+    assert isinstance(editor, QComboBox)
+    assert [editor.itemText(i) for i in range(editor.count())] == \
+        ["cell", "pathogen"]
+    assert dialog.values()["object_array"] == "cell"
+
+
+def test_a_screen_that_offers_nothing_still_lets_it_be_typed(qtbot):
+    from PySide6.QtWidgets import QComboBox
+
+    from spacr.qt.widgets.picture_settings_dialog import PictureSettingsDialog
+
+    dialog = PictureSettingsDialog(mode=STREAM_IMAGES)
+    qtbot.addWidget(dialog)
+
+    assert not isinstance(dialog._editors["object_array"], QComboBox)

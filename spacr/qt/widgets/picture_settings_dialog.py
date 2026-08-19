@@ -20,9 +20,10 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QCheckBox, QDialog, QDialogButtonBox,
-                               QDoubleSpinBox, QFormLayout, QLabel, QLineEdit,
-                               QSpinBox, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog,
+                               QDialogButtonBox, QDoubleSpinBox, QFormLayout,
+                               QLabel, QLineEdit, QSpinBox, QVBoxLayout,
+                               QWidget)
 
 from ...picture_settings import ALL_KEYS, applies_to, why_not
 
@@ -44,7 +45,8 @@ def picture_defaults() -> Dict[str, Any]:
     return {key: filled.get(key, OWN_DEFAULTS.get(key)) for key in ALL_KEYS}
 
 
-def _editor(value: Any, parent: Optional[QWidget] = None) -> QWidget:
+def _editor(value: Any, parent: Optional[QWidget] = None,
+            choices: Any = ()) -> QWidget:
     """A control suited to ``value``'s type.
 
     Deliberately small: a float gets a step that follows its magnitude, for
@@ -52,6 +54,19 @@ def _editor(value: Any, parent: Optional[QWidget] = None) -> QWidget:
     box left at Qt's default step of 1.0 turns 0.05 into -0.95 on one wheel
     tick.
     """
+    if choices:
+        # BUILT FROM THE SCREEN, not typed. Offering `object_array` as free
+        # text asks the user to remember what their own screen contains and
+        # to spell it the way `measure` did -- and every other chooser in
+        # spaCR is built from the data.
+        combo = QComboBox(parent)
+        for option in choices:
+            combo.addItem(str(option), option)
+        current = combo.findData(value)
+        if current < 0:
+            current = combo.findText(str(value))
+        combo.setCurrentIndex(max(current, 0))
+        return combo
     if isinstance(value, bool):
         box = QCheckBox(parent)
         box.setChecked(value)
@@ -74,6 +89,9 @@ def _editor(value: Any, parent: Optional[QWidget] = None) -> QWidget:
 
 
 def _value_of(widget: QWidget) -> Any:
+    if isinstance(widget, QComboBox):
+        data = widget.currentData()
+        return widget.currentText() if data is None else data
     if isinstance(widget, QCheckBox):
         return widget.isChecked()
     if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
@@ -85,7 +103,8 @@ class PictureSettingsDialog(QDialog):
     """How the cells are drawn, with what the mode cannot use greyed out."""
 
     def __init__(self, values: Optional[Dict[str, Any]] = None,
-                 mode: str = "png", parent: Optional[QWidget] = None):
+                 mode: str = "png", parent: Optional[QWidget] = None, *,
+                 source: Any = None, objects: Any = None):
         super().__init__(parent)
         self.setWindowTitle("Picture settings")
         self._mode = str(mode or "png")
@@ -98,8 +117,12 @@ class PictureSettingsDialog(QDialog):
         layout = QVBoxLayout(self)
         form = QFormLayout()
         form.setLabelAlignment(Qt.AlignRight)
+        from ...picture_settings import offered_values
+
         for key in ALL_KEYS:
-            editor = _editor(start.get(key), self)
+            editor = _editor(start.get(key), self,
+                             choices=offered_values(key, source=source,
+                                                    frame=objects))
             label = QLabel(key.replace("_", " "), self)
             # THE TOOLTIP IS ON THE LABEL, not the field: a tooltip on the
             # control fires while the user is editing it, which is the one
