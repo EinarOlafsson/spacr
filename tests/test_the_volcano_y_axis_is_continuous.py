@@ -857,3 +857,33 @@ def test_the_caption_says_why_the_line_touches_a_point(qtbot):
         assert value in set(frame["p_value"]), (
             f"the threshold {value!r} is not one of the observed p values, so "
             f"the caption's claim would be false")
+
+
+def test_the_host_cannot_set_an_adjusted_axis_that_does_not_exist(volcano):
+    """The greying rule has to hold at the API, not only in the menu.
+
+    `multiple_testing_method='none'` writes a q_value EQUAL to the raw p, so
+    an adjusted axis there is the axis above it under a label reading
+    "adjusted p (None (raw P values))" -- the gibberish this instruction
+    removed. The menu entry is disabled for it. But the menu is not the only
+    way in: `RegressionResultsPanel` drives this axis directly and redraws on
+    every level, baseline and compartment change, so a user who chose the
+    adjusted axis on a CORRECTED run and then moved to an uncorrected one got
+    the label back.
+    """
+    volcano.set_correction("none")
+
+    volcano.set_p_axis("adjusted")
+
+    assert volcano.p_axis() == "raw"
+    assert "adjusted p (None" not in volcano.caption()
+
+
+def test_a_real_correction_still_gets_its_adjusted_axis(volcano):
+    """The guard must not become a refusal. Steps and all -- that is what BH is."""
+    volcano.set_correction("fdr_bh")
+
+    volcano.set_p_axis("adjusted")
+
+    assert volcano.p_axis() == "adjusted"
+    assert "adjusted p" in volcano.caption()
