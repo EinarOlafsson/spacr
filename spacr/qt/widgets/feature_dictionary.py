@@ -765,6 +765,26 @@ def set_menu_runner(runner) -> None:
     _MENU_RUNNER = runner or _default_menu_runner
 
 
+
+def _still_alive(wrapped) -> bool:
+    """Whether a PySide wrapper still owns a live C++ object.
+
+    True when the question cannot be asked -- a plain Python object, or a
+    shiboken without `isValid` -- because refusing an event that is perfectly
+    fine would break the feature this module exists for.
+    """
+    if wrapped is None:
+        return False
+    try:
+        from shiboken6 import isValid
+    except Exception:                                    # noqa: BLE001
+        return True
+    try:
+        return bool(isValid(wrapped))
+    except Exception:                                    # noqa: BLE001
+        return True
+
+
 class FeatureHelpFilter(QObject):
     """Adds **What is this?** to the context menu of every results table.
 
@@ -774,7 +794,41 @@ class FeatureHelpFilter(QObject):
     """
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
-        if event.type() != QEvent.Type.ContextMenu:
+        # THIS RUNS FOR EVERY EVENT IN THE APPLICATION, and it segfaulted.
+        #
+        # Captured by the crash dump on 2026-08-19, milliseconds after a
+        # regression closed [success] while that run's figure widgets were
+        # being torn down:
+        #
+        #     Fatal Python error: Segmentation fault
+        #     Current thread (most recent call first):
+        #       feature_dictionary.py, line 776 in eventFilter
+        #       app.py, line 3110 in launch
+        #
+        # The frame EXISTS at the `def` line, so PySide had already built both
+        # wrappers and the crash is on the first bytecode -- `event.type()`,
+        # reading a QEvent whose C++ half was already freed. An
+        # application-wide filter is handed every event in the process,
+        # including ones whose receiver is being destroyed at that instant.
+        #
+        # THE FILTER STAYS APPLICATION-WIDE. Installing it on the item views
+        # instead was tried and REVERTED: the feature deliberately answers a
+        # right-click on an arbitrary child widget INSIDE a cell by walking
+        # back to the table behind it, and a per-view install cannot see
+        # those events. Three tests name that case.
+        #
+        # So this is a seatbelt, and its limit is worth stating: `isValid`
+        # reports a wrapper whose deletion shiboken was TOLD about. It turns
+        # that case from a segfault into a no-op. A C++ object freed without
+        # shiboken being told still dereferences, and the fix for that is
+        # wherever the object is being freed, not here.
+        if not _still_alive(event) or not _still_alive(obj):
+            return False
+        try:
+            kind = event.type()
+        except (RuntimeError, ReferenceError):   # died between the two checks
+            return False
+        if kind != QEvent.Type.ContextMenu:
             return False
         try:
             if not isinstance(obj, (QHeaderView, QAbstractItemView, QWidget)):
