@@ -61,6 +61,7 @@ from __future__ import annotations
 
 import math
 import os
+import threading
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -256,6 +257,44 @@ def pyqtgraph_ready() -> Tuple[bool, str]:
             _APPLICATION = QApplication.instance() or QApplication([])
     except Exception as error:                                 # noqa: BLE001
         return False, f"no QApplication could be started: {error}"
+
+    # NOT ON A WORKER THREAD, WHEN THERE IS A GUI TO BE A WORKER OF.
+    #
+    # `build_scene` makes a `pg.GraphicsLayoutWidget`, and a QWidget must be
+    # constructed on the GUI thread. Built on a worker it LIVES there, and
+    # every later touch -- including Qt destroying it -- is undefined. Qt
+    # reports the one case it can detect ("QBasicTimer::start: Timers cannot
+    # be started from another thread") and says nothing about the rest.
+    #
+    # Traced 2026-08-19 from a crash dump, after the process had segfaulted
+    # twice in places that had nothing to do with it: once inside an
+    # application-wide event filter, once inside pandas' CSV parser. The
+    # construction guard named the real one:
+    #
+    #   WidgetGroup was CONSTRUCTED on 'Dummy-2'
+    #     bridge.py run  ->  perform_regression
+    #     ->  _run_guide_permutation_analysis  ->  write_diagnostic_suite
+    #     ->  plot_inference_diagnostics  ->  write_figure  ->  render_figure
+    #     ->  build_scene
+    #
+    # i.e. the QC suite of every regression, on the run's own worker thread.
+    #
+    # Answered HERE because this function already exists to say whether a
+    # scene can be built "here and now", and its callers already know what to
+    # do with a no: `render_figure` returns None and the caller writes the
+    # matplotlib page instead. The figure is still produced; only the renderer
+    # changes, which is the trade this module already makes for a missing
+    # pyqtgraph.
+    #
+    # A HEADLESS RUN IS NOT AFFECTED. With no GUI, the run IS the main thread
+    # and this is true; the check only fires for a worker under a live
+    # application, which is exactly the dangerous case.
+    if threading.current_thread() is not threading.main_thread():
+        return False, (
+            "a pyqtgraph scene is made of Qt widgets and this is not the GUI "
+            f"thread (it is {threading.current_thread().name!r}); a widget "
+            "built here would live on a thread that is about to end. The "
+            "matplotlib page is written instead.")
     return True, ""
 
 
