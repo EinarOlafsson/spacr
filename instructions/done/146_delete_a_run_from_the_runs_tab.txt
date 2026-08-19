@@ -143,3 +143,25 @@ figures with it". `figure_queue` has `mark_run(label)` and `run_sections()` ->
 all-or-nothing. The shape it needs is `forget_run(label)`, dropping that
 section's indices from `_ram`, `_png_paths`, `_figures`, `_titles` and
 `_fig_index` and closing the gap in `_count`. In `handoffs`.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+The handoff above -- "what leaves the list leaves the figures with it" -- is
+closed. `FigureQueue.forget_run(label)` drops one section's tiles.
+
+The delete was never the hard part. Every figure is keyed by a dense integer
+index across SIX maps, and `_runs` records each section's start as one of those
+integers, so removing a section from the middle has to shift everything above it
+down in all six and move every later section's start with them. `_fig_index` is
+keyed the other way round -- id(fig) to index -- so it is rebuilt rather than
+shifted. A test asserts all six hold only indices inside the queue afterwards,
+because a map that missed the shift leaves a figure keyed to a slot belonging to
+a DIFFERENT run, which is worse than losing it.
+
+`_current` follows too: inside the span it names a figure that is gone, above it
+it has moved.
+
+Wired where the screen already drops the retained plot state and the run's
+photograph, so a removal is one event rather than three that can disagree.
