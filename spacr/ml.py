@@ -5518,6 +5518,7 @@ def _perform_regression_set_paths(settings):
     else:
         kind = str(settings['regression_type'])
     res_folder = _next_results_folder(os.path.join(src, 'results'), kind)
+    _stage(settings, "placing the results folder")
     # WHERE A FAILURE REPORT GOES, recorded as soon as the folder exists.
     settings["_regression_folder"] = res_folder
 
@@ -5927,6 +5928,28 @@ def _call_level_hits(coef_df, level, settings, regression_type,
         by='coefficient', ascending=False)
     significant = significant[~significant['feature'].str.contains('row|column')]
     return coef_df, significant, reg_threshold, effect_rule
+
+
+def _stage(settings, name):
+    """Name the stage this fit has reached AND record what it costs there.
+
+    Instruction 160. Two regressions in a row made the machine unresponsive,
+    and the report could not be acted on because nothing recorded a number.
+    One call does both: a stage without its cost is the state that was filed
+    about, and a cost without its stage cannot say where the fit was when it
+    grew. Never raises -- a measurement that can fail the run it measures is
+    worse than no measurement.
+    """
+    try:
+        from .fit_resources import record_stage
+
+        return record_stage(settings, name)
+    except Exception:                                            # noqa: BLE001
+        try:
+            settings["_regression_stage"] = str(name)
+        except Exception:                                        # noqa: BLE001
+            pass
+        return {}
 
 
 def perform_regression(settings):
@@ -6646,6 +6669,7 @@ def _perform_regression(settings):
     # because a count has to survive the joins and re-indexes the frame does
     # not carry `.attrs` through.
     _exclusions = settings.setdefault("_regression_exclusions", {})
+    _stage(settings, "reading the counts")
     independent_df = process_reads(
         count_data_df, settings['fraction_threshold'], None,
         filter_column=filter_column, filter_value=filter_value,
