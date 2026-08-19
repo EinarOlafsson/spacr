@@ -168,6 +168,15 @@ class FigureSettingsDialog(QDialog):
             self._snapshot = pickle.dumps(figure)
         except Exception:  # pragma: no cover - artists that will not pickle
             pass
+        # The per-figure text size is an ATTRIBUTE, and `reject` restores the
+        # figure by copying axes out of the snapshot rather than by swapping
+        # the object -- so the attribute would survive a Cancel that undid
+        # everything it applies to. Kept here and put back explicitly.
+        try:
+            from .figure_queue import figure_text_size_override
+            self._text_size_at_open = figure_text_size_override(figure)
+        except Exception:  # pragma: no cover - figure_queue unavailable
+            self._text_size_at_open = 0
 
         # Coalesce redraws. Every control calls _changed(); this restarts a
         # single-shot timer, so a burst of twenty value changes costs one
@@ -297,6 +306,12 @@ class FigureSettingsDialog(QDialog):
                 self._changed()
             except Exception:  # pragma: no cover - restore is best-effort
                 pass
+        try:
+            from .figure_queue import set_figure_text_size_override
+            set_figure_text_size_override(
+                self._figure, getattr(self, "_text_size_at_open", 0))
+        except Exception:  # pragma: no cover - figure_queue unavailable
+            pass
         super().reject()
 
     #: Input types that steal the wheel from the scroll area beneath them.
@@ -581,6 +596,8 @@ class FigureSettingsDialog(QDialog):
         return page
 
     def _figure_tab(self) -> QWidget:
+        from .figure_queue import set_figure_text_size_override
+
         page = QWidget()
         form = QFormLayout(page)
         figure = self._figure
@@ -646,8 +663,29 @@ class FigureSettingsDialog(QDialog):
         def set_all_text(size):
             for item in _every_text(figure):
                 item.set_fontsize(size)
+            # AND REMEMBER IT ON THE FIGURE. Setting the sizes alone was not
+            # enough and that is issue #108's third symptom: the next full
+            # render calls `render_figure_to_png`, which re-applies the
+            # GLOBAL text-size preference to every text object, so the user's
+            # choice survived only until the dialog closed -- and reopening
+            # the dialog, which reads the size off the figure, showed the
+            # preference again. The override is per FIGURE and is not written
+            # to the preference, for the same reason the colour buttons on
+            # this tab are not: this dialog restyles the figure in front of
+            # the user, and the setting for every figure is Preferences.
+            #
+            # Connected AFTER `setValue` above, so this runs only when a user
+            # moves the control -- seeding never writes back. That is the
+            # rule at the head of the figure colour section in
+            # `spacr/qt/preferences.py`: NEVER PERSIST A RESOLVED DEFAULT.
+            set_figure_text_size_override(figure, size)
             self._changed()
         all_text.valueChanged.connect(set_all_text)
+        all_text.setToolTip(
+            "The size of every piece of text in this figure: the title, the "
+            "axis labels, the tick labels, the legend and any annotation. It "
+            "is remembered for this figure, so a redraw keeps it. The size "
+            "every figure starts at is in Preferences → Figures.")
         form.addRow("All text size", all_text)
 
         # AND THE COLOUR OF ALL OF IT -- IN TWO CONTROLS, NOT ONE.
@@ -1033,7 +1071,7 @@ def figure_line_artists(figure) -> list:
 def apply_line_colour(figure, colour) -> int:
     """Draw every line on ``figure`` in ``colour``. Returns how many.
 
-    EVERY LINE MEANS THE AXES TOO (instruction 152 B) -- the spines and the
+    EVERY LINE MEANS THE AXES TOO -- the spines and the
     tick marks, which is the half that had no control at all and which the
     first report named. The same division as
     :meth:`spacr.qt.widgets.fast_plots.FastPlot.set_line_style` makes on the
@@ -1071,7 +1109,7 @@ def apply_line_colour(figure, colour) -> int:
 def apply_font_colour(figure, colour) -> int:
     """Draw every piece of text on ``figure`` in ``colour``. Returns how many.
 
-    EVERY PIECE MEANS THE TICK LABELS (instruction 152 B), the gene
+    EVERY PIECE MEANS THE TICK LABELS, the gene
     annotations, the suptitle and the legend's title -- the three that
     :func:`_every_text` exists to not miss, because a control called "all
     text" that reaches twenty of twenty-three objects reads as broken rather
@@ -1097,7 +1135,7 @@ def apply_font_colour(figure, colour) -> int:
 def figure_follows_the_theme(figure) -> None:
     """Put both colours back to what the app theme and the preferences say.
 
-    The way out of a colour, and it has to exist: instruction 152 A is a
+    The way out of a colour, and it has to exist: the design is a
     preference that froze because a resolved default was written back over
     the word "auto", and a per-figure control a user can only ever SET is
     that same freeze performed by hand.
@@ -1270,29 +1308,17 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 def _every_text(figure):
     """Every text object on ``figure``, including the ones easily missed.
 
-    The three that were missed are the point of this function, and each is a
-    different container: an ANNOTATION lives on ``axes.texts``, a SUPTITLE on
-    ``figure.texts``, and a legend's TITLE is not among its ``get_texts()``.
-    A control called "all text" that reaches twenty of twenty-three objects
-    is worse than one that reaches none, because the reader concludes the
-    control is broken rather than incomplete -- see issue #108.
+    ONE IMPLEMENTATION, in :func:`spacr.qt.widgets.figure_queue.figure_text_items`
+    -- which carries the measurement and the reason. It lives there and not
+    here because the RENDER pass needs it too and that pass runs on a worker
+    thread with no Qt, and because the second half of issue #108 was these
+    two reaching different sets of text: the dialog resized all twenty-three
+    objects and the render put the global preference back over twenty of
+    them. A copy here would drift again.
     """
-    items = []
-    for axis in getattr(figure, "axes", ()):
-        items += [axis.title, axis.xaxis.label, axis.yaxis.label]
-        items += list(axis.get_xticklabels()) + list(axis.get_yticklabels())
-        # Annotations: on the volcano these are the gene names, and they are
-        # the largest text on the plot.
-        items += list(getattr(axis, "texts", ()))
-        legend = axis.get_legend()
-        if legend is not None:
-            items += list(legend.get_texts())
-            title = legend.get_title()
-            if title is not None:
-                items.append(title)
-    # Figure-level text: the suptitle, and anything placed with figure.text.
-    items += list(getattr(figure, "texts", ()))
-    return [item for item in items if item is not None]
+    from .figure_queue import figure_text_items
+
+    return figure_text_items(figure)
 
 
 def _current_text_size(figure, default: int = 10) -> int:
@@ -1327,7 +1353,7 @@ def _current_text_size(figure, default: int = 10) -> int:
 def save_figure_as(parent, figure, path: str = "") -> str:
     """Write ``figure`` to a file the user picks. Returns the path, or "".
 
-    Instruction 108 asks for a figure to be savable from the same right-click
+    The design asks for a figure to be savable from the same right-click
     that restyles it, and 119 for "each figure should be editable and
     savable". The saved file is what is ON SCREEN: a restyle that survives to
     the display and not to the file is a restyle the user cannot use, which
@@ -1415,7 +1441,7 @@ def save_figure_as(parent, figure, path: str = "") -> str:
 def export_sidecars(figure, path) -> list:
     """Write the figure's DATA and its STATISTICS beside it.
 
-    Asked for on 2026-08-16: "if a graph is exported its data is also
+    When a graph is exported, its data is also
     exported with the filename of the graph and a stats table is generated
     with the correct stats".
 
@@ -1568,7 +1594,7 @@ def style_setting_label(name: str) -> str:
 class FigureStylePreferences(QWidget):
     """The Figures tab's GENERAL and PER-GRAPH style settings.
 
-    Instruction 118. Two levels, and the split is the whole design: a general
+    Two levels, and the split is the whole design: a general
     style covers what every figure shares, and a per-graph style overrides it
     for one kind, because the settings that make a volcano readable are not
     the ones that make a plate heatmap readable. Changing the volcano's point

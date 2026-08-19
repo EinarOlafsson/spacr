@@ -342,3 +342,95 @@ Point 4 is still the real prerequisite for the matplotlib half --
 only style object in the package is `VolcanoStyle`. Nothing calls
 `offer_style` yet either: `volcano_explorer.py` holds a `VolcanoStyle` and is
 the obvious first host, and it is not this territory.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- GITHUB ISSUE #108's SECOND BUG: THE FONT SIZE. THREE CAUSES.
+--------------------------------------------------------------------------------
+
+The issue's TITLE names a FileNotFoundError (fixed in ac22ac03). Its PROSE
+reports something else the reporter hit first, and that half was still live:
+
+  "the font size in the figure previews does not work as expected. Font size
+   is by default to large to be visible. Adjusting font size using the
+   'Figure settings...' button from 10 to 2, does not reduce the font size,
+   in fact increases it, and when returning to the 'Figure settings...'
+   button menu the font size has been returned to 10."
+
+REPRODUCED FIRST, all three symptoms, on this tree. Each had its own cause.
+
+  1  "BY DEFAULT TOO LARGE".  `_FigureSettingsDialog` seeded its spin box
+     from `get_figure_text_size() or 10` and `_apply_and_accept` wrote the
+     SHOWN number back. The store's 0 means "leave every figure the sizes it
+     was drawn with"; 10 is only what the box displays while that is true.
+     So pressing OK once -- to change a colour, or by accident -- froze 10
+     into every figure that user would ever draw. Measured: store 0 in, OK
+     with nothing touched, store 10 out.
+
+     THIS IS INSTRUCTION 152 SECTION A, IN THE SIZE KEY. The colours were
+     fixed by seeding from the TOKEN; the size has no token, so it took a
+     `_size_touched` flag connected AFTER `setValue` instead. A comparison
+     would not have done: a store of 0 and a box showing 10 are different
+     states and only one of them may be written.
+
+  2  "10 -> 2 INCREASES IT".  `_style_figure_colors`, the pass EVERY render
+     goes through, built its own list of text objects and that list missed
+     an ANNOTATION, the SUPTITLE and a legend's TITLE. Measured on a
+     volcano-shaped figure with the preference at 2:
+
+         EAF1, TSG101   22.0 -> 22.0     <- the gene labels, and the LARGEST
+         a run          12.0 -> 12.0        text on the plot
+         everything else 10.0 -> 2.0
+
+     Shrinking "all text" shrank everything EXCEPT the biggest thing on the
+     figure, which then dominated it. That reads exactly as "it got bigger",
+     and on a volcano it is the common case rather than a corner one.
+
+     `figure_settings._every_text` had already been fixed for the DIALOG and
+     the render pass kept its own copy, which is the drift itself. There is
+     now ONE list, `figure_queue.figure_text_items`, Qt-free because
+     `render_figure_to_png` runs on a worker thread, and `_every_text` IS
+     that function. A test compares the two by identity.
+
+     THE COLOUR RODE THE SAME LIST, so this also fixes a dark theme leaving
+     a black suptitle on a black page and a black gene label on top of it.
+     Exactly one artist in the package colours an annotation deliberately
+     (`gate_editor.py:1165`), and it draws into its own canvas rather than
+     through this pass.
+
+  3  "RETURNED TO 10".  The dialog's "All text size" set the sizes on the
+     artists and NOWHERE ELSE, so the next full render re-applied the global
+     preference over the top -- and the control reads its opening value off
+     the figure, so it then showed the preference back. Both halves, one
+     cause.
+
+     A size is now remembered ON THE FIGURE
+     (`figure_queue.set_figure_text_size_override`) and beats the global
+     default in `render_figure_to_png`. An ATTRIBUTE rather than a side
+     table, because an evicted figure is PICKLED to the temp directory and
+     read back, and a per-figure choice that vanished when the figure left
+     RAM would be worse than none. There is a test that pickles it.
+
+     NOT written to the preference, for the same reason the colour buttons
+     on that tab are not: this dialog restyles the figure in front of the
+     user, and the setting for EVERY figure is the other dialog. That one
+     clears the override when it is used, so the figure being looked at
+     cannot become the one figure that ignores what was just asked for.
+
+PREVIEW OR THE FILE? BOTH, and the instruction asked because the answer
+distinguishes display scaling from a preference. `render_figure_to_png`
+calls `set_fontsize` on the Figure's OWN artists, so whatever it decides is
+what the sibling vector page written in the same call gets, and what a later
+"Save figure as..." writes. Measured on the rendered PNG, ink composited
+onto white so a transparent page cannot be counted as text:
+
+    at the figure's own sizes      36,920 dark px in 1144x972
+    after asking for 2pt           17,536 dark px in 1058x906
+    the kept file, save_figure_as   19,470 dark px in 1058x906
+
+It is a preference that never reached all of the text. Nothing here is
+display scaling.
+
+TESTS  tests/qt/test_the_font_size_survives_the_next_render.py, 20 of them.
+17 of the 20 fail on the previous commit; the 3 that pass are the ones about
+what must NOT change. `test_reopening_the_dialog_shows_what_the_user_set`
+drives the reporter's own sentence: set 2, redraw, open the dialog again.
