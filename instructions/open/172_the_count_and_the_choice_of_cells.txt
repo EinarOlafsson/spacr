@@ -1,0 +1,67 @@
+================================================================================
+HOW MANY CELLS, AND WHICH ONES
+================================================================================
+
+Status:    filed 2026-08-19. Supersedes the montage's selection arithmetic.
+Requested: 2026-08-19 -- "now i see that each tab here is a well. then we need
+           to work on the math for desiding which images get chosen. the
+           number of images should be equivelent to the fraction. so first
+           calculate what all the fractions in that well add up to if not 1
+           then normalize to 1 and save the normalization factor then take the
+           chosen grna fraction and apply that normalization factor. that
+           number multiplied with the number of classified cells in that well
+           is what should be shown, x cells. then for determining which cells
+           to show rank all cells by classefication score and take the top x
+           cells and show them or encircle them if the setting for show all is
+           chosen."
+
+THE RULE, IN TWO HALVES
+
+HOW MANY -- x
+
+    total   = sum of every guide's fraction in this well
+    factor  = 1 / total          (1 when the fractions already sum to 1)
+    share   = this guide's fraction x factor
+    x       = round(share x number of CLASSIFIED cells in the well)
+
+WHICH ONES
+
+    rank every cell in the well by classification score
+    take the top x
+    show those -- or show the whole well and ENCIRCLE those, when
+    `show_all_in_well` is on.
+
+WHY THE NORMALISATION IS NOT A NO-OP, measured on the maintainer's screen:
+
+    the raw count tables      1,536 wells, fraction sum EXACTLY 1.000000
+    after fraction_threshold  1,536 wells, sum median 0.5526, min 0.1515
+                              -- a normalisation factor of up to 6.60x
+
+`fraction_threshold` defaults to 0.02, so the filtered table is the ordinary
+case and the un-normalised share understates every count by roughly half.
+
+WHAT THIS REPLACES. The montage chose cells by a SCORE WINDOW -- baseline plus
+the coefficient's effect, plus or minus a robust scale -- and took the objects
+closest to that target. That rule made the count and the choice independent:
+a well could expect 23 objects and contribute 0 because none of its cells fell
+inside the window, which is what the maintainer saw. Ranking by score and
+taking the top x cannot do that: x cells are shown whenever the well has x
+cells.
+
+THE DIRECTION OF THE RANK, and it is an assumption until it is confirmed. "the
+top x" is read here as the HIGHEST classification scores for a positive
+coefficient and the LOWEST for a negative one, because the cells a
+gene-knockout coefficient points at are the ones whose phenotype moved the way
+the coefficient says. Ranking always-descending would, for a negative
+coefficient, show the cells least consistent with the effect.
+
+HOW TO KNOW IT WORKED
+
+* A well with a guide at fraction 0.2 among fractions summing to 0.5, holding
+  100 classified cells, shows round(0.2 / 0.5 x 100) = 40 cells.
+* No well that has cells contributes zero because of a window.
+* The caption states total, factor, share and x, so a reader can redo the
+  arithmetic from what is on screen -- which the window version already did
+  and must not lose.
+* With `show_all_in_well`, every cell in the well is drawn and exactly x of
+  them are encircled.
