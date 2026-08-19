@@ -4722,6 +4722,15 @@ class AppScreen(QWidget):
             self._figures_card.show()
             self._raise_the_results_tab()
             return
+        # A FOLDER THAT IS NAMED BUT GONE IS THE SAME ANSWER AS NO FOLDER.
+        # The record keeps whatever path the trial wrote to, and that path
+        # outlives the directory -- a cleaned scratch disk, a run copied
+        # between machines, a results tree moved. Checked HERE, where the
+        # answer is one sentence, rather than left to the off-thread load to
+        # discover: the load reports it a second later, through a different
+        # path, after the run has already been marked loaded.
+        if folder and not os.path.isdir(str(folder)):
+            folder = ""
         if not folder:
             self._console.append_stdout(
                 f"{trial} has no saved results on disk. Re-run it from "
