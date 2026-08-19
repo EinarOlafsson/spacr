@@ -418,7 +418,7 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # Exactly the branches process_scores implements; anything else
         # reaches the pipeline and is silently ignored rather than applied.
         "agg_type": ["mean", "median", "quantile", None],
-        "transform": [None, "log", "sqrt", "square"],
+        "transform": [None, "log", "sqrt", "square", "beta"],
         "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
         "threshold_method": ["std", "var"],
         # WHICH P THE SIGNIFICANCE LINE IS DRAWN ON. Two values and no third

@@ -270,7 +270,7 @@ def convert_settings_dict_for_gui(settings):
         'agg_type': ('combo', ['mean', 'median'], 'mean'),
         'grouping': ('combo', ['mean', 'median'], 'mean'),
         'min_max': ('combo', ['allq', 'all'], 'allq'),
-        'transform': ('combo', ['log', 'sqrt', 'square', None], None),
+        'transform': ('combo', ['log', 'sqrt', 'square', 'beta', None], None),
         # The ONE visible organelle choice (instruction 72). A combo, not a
         # free-text field: the nine names are a closed set, and
         # `organelle_types.resolve_type` raises on anything else -- typing it

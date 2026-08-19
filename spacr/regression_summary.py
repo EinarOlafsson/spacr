@@ -714,9 +714,16 @@ def _fitted_section(run: "_Run") -> List[SummaryField]:
         value=str(agg) if agg is not None
         else "none — one row per object, not per well")
     transform = _setting(settings, "transform")
-    add("transform",
-        value=str(transform) if transform is not None
-        else "none — the response was fitted as measured")
+    if transform is not None and str(transform).lower() == "beta":
+        # NAMED HERE, not left in the run log. The logit squeeze moves a
+        # well sitting at exactly 0 or 1, and a reader comparing the fitted
+        # response to their own column has to be told that happened.
+        from .ml import BETA_SQUEEZE_NOTE
+        add("transform", value=BETA_SQUEEZE_NOTE)
+    else:
+        add("transform",
+            value=str(transform) if transform is not None
+            else "none — the response was fitted as measured")
 
     add("formula", **_formula(run))
 
