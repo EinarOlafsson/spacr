@@ -4925,11 +4925,37 @@ def load_regression_input_pairs(pairs):
                     f"{sorted(count_plates)}. Pair files from the same "
                     "plate.")
         elif score_plates:
-            resolved = score_plates
-            rule = 'copied from score file'
+            # ONE SIDE HOLDS EVERY PLATE AND THE OTHER NAMES NONE. This is
+            # the Measurements tab's own shape: `column_run_settings` points
+            # every pair row's score at the single merged frame, which carries
+            # all four plates, while a real count CSV carries
+            # `row_name, column_name, grna_name, count` and no plate column at
+            # all. Copying four plates onto a partner that names none is not
+            # possible, and refusing was wrong: the pair ROW already says
+            # which plate this row is, and that is the third resolution rule
+            # this function documents. So use it -- and only when the plate it
+            # names is one the partner actually holds, so a screen whose
+            # plates are named anything else still refuses rather than
+            # inventing a match.
+            if (len(score_plates) > 1 and count is not None
+                    and fallback in score_plates):
+                score = score[score['plateID'].astype(str) == fallback]
+                resolved = {fallback}
+                rule = ('assigned from pair row order; score file holds '
+                        f'{len(score_plates)} plates')
+            else:
+                resolved = score_plates
+                rule = 'copied from score file'
         elif count_plates:
-            resolved = count_plates
-            rule = 'copied from count file'
+            if (len(count_plates) > 1 and score is not None
+                    and fallback in count_plates):
+                count = count[count['plateID'].astype(str) == fallback]
+                resolved = {fallback}
+                rule = ('assigned from pair row order; count file holds '
+                        f'{len(count_plates)} plates')
+            else:
+                resolved = count_plates
+                rule = 'copied from count file'
         else:
             resolved = {fallback}
             rule = 'assigned from pair row order'
@@ -6909,6 +6935,19 @@ def _perform_regression(settings):
             except Exception as error:  # noqa: BLE001 - never lose a run
                 print(f"Could not write the run summary: "
                       f"{type(error).__name__}: {error}")
+        # THE KEYS EVERY CONSUMER OF A RUN READS, on this branch too.
+        # `app_screen._on_regression_done` and the Measurements queue both
+        # take the run's folder from `res_folder`, and this early return was
+        # the one path that did not carry it -- so the DEFAULT inference
+        # produced a complete results folder that the GUI then registered
+        # with no folder at all, which is the "No summary: this panel was
+        # opened from a results table on disk" the maintainer reported. A
+        # copy of `settings`, for the same reason the parametric path hands
+        # one back: the shared settings/ file is overwritten by the next run
+        # of the same screen, so it describes the wrong one.
+        output.setdefault('res_folder', res_folder)
+        output.setdefault('settings', dict(settings))
+        output.setdefault('regression_type', settings.get('regression_type'))
         return output
         
     # EVERY PLATE AS ONE FIGURE, on one colour scale, with square wells.
