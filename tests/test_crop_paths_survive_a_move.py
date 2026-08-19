@@ -69,9 +69,9 @@ def test_reroot_column_reports_how_many_moved_and_leaves_the_rest(moved):
     recorded, root, real = moved
     frame = pd.DataFrame({"png_path": [recorded, "", None, "/still/gone.png"]})
 
-    moved_count = reroot_column(frame, "png_path", root)
+    report = reroot_column(frame, "png_path", root)
 
-    assert moved_count == 1
+    assert report.moved == 1
     assert frame["png_path"].iloc[0] == real
     assert frame["png_path"].iloc[3] == "/still/gone.png"
 
@@ -79,7 +79,7 @@ def test_reroot_column_reports_how_many_moved_and_leaves_the_rest(moved):
 def test_a_column_that_is_not_there_is_not_an_error():
     # The PNG route and the merged route carry different path columns, so a
     # caller must be able to ask for both.
-    assert reroot_column(pd.DataFrame({"a": [1]}), "png_path", "/tmp") == 0
+    assert reroot_column(pd.DataFrame({"a": [1]}), "png_path", "/tmp").moved == 0
 
 
 def test_the_root_of_a_database_is_the_plate_folder_that_holds_data():
@@ -174,9 +174,9 @@ def test_a_column_resolves_once_and_reuses_the_prefix(screen, monkeypatch):
     monkeypatch.setattr(portable_paths, "_reroot_with_prefix", counted)
     frame = pd.DataFrame({"png_path": [screen["recorded"]] * 40})
 
-    moved = portable_paths.reroot_column(frame, "png_path", screen["plate"])
+    report = portable_paths.reroot_column(frame, "png_path", screen["plate"])
 
-    assert moved == 40
+    assert report.moved == 40
     assert calls["n"] == 1, (
         f"searched {calls['n']} times for one prefix; the map is not reused")
 
@@ -211,3 +211,109 @@ def test_the_crop_source_falls_back_to_the_verifying_resolver(screen):
 
     assert got == screen["crop"]
     assert os.path.exists(got)
+
+
+# -------------------------------------------------- instruction 155 F, in full
+
+
+def test_a_path_written_on_windows_resolves_on_linux(tmp_path):
+    """"The same with a database whose paths were written on Windows."
+
+    `path.split('/data/')` cannot match `\\data\\`, so a database written on
+    Windows and opened on Linux -- or a share mounted both ways -- re-anchored
+    through neither existing route.
+    """
+    crop = tmp_path / "new" / "data" / "plate1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+
+    got = reroot_crop_path(r"C:\lab\exp1\data\plate1\a.png",
+                           str(tmp_path / "new"))
+
+    assert got == str(crop)
+
+
+def test_what_could_not_be_placed_is_counted_and_one_is_named(tmp_path):
+    """"Paths that cannot be re-anchored are counted and one is named."
+
+    A silent pass-through is how a wrong re-anchor stayed invisible: the path
+    is returned unchanged and fails later as a missing file, somewhere with
+    less context.
+    """
+    import pandas as pd
+
+    crop = tmp_path / "new" / "data" / "w1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+    frame = pd.DataFrame({"png_path": [
+        "/old/exp/data/w1/a.png",          # resolvable
+        "/old/exp/nowhere/b.png",          # not
+        "/old/exp/nowhere/c.png",          # not, same folder
+    ]})
+
+    report = reroot_column(frame, "png_path", str(tmp_path / "new"))
+
+    assert report.moved == 1
+    assert report.unresolved == 2
+    assert report.first_unresolved == "/old/exp/nowhere/b.png"
+    described = report.describe()
+    assert "2 could not be placed" in described
+    assert "/old/exp/nowhere/b.png" in described
+
+
+def test_an_old_root_with_its_own_data_folder_lands_on_the_FILE(tmp_path):
+    """The silent-corruption regression test.
+
+    Splitting on the FIRST `/data/` turned `/old/data/exp1/data/plate1/a.png`
+    into `<root>/data/exp1` -- a path that has lost `plate1/a.png` and names a
+    DIRECTORY. It did not raise; it failed much later as a missing file.
+    """
+    crop = tmp_path / "new" / "data" / "plate1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+    decoy = tmp_path / "new" / "data" / "exp1"
+    decoy.mkdir(parents=True)
+
+    got = reroot_crop_path("/old/data/exp1/data/plate1/a.png",
+                           str(tmp_path / "new"))
+
+    assert got == str(crop)
+    assert os.path.isfile(got), "re-anchored to a directory, not to the file"
+
+
+def test_a_route_that_is_not_on_this_machine_is_not_60000_failures(tmp_path):
+    """A screen with PNG crops and no `merged/` folder is HEALTHY.
+
+    Measured on the real TSG101 screen: every one of the 60,816 `png_path`
+    values resolved, and every one of the 60,816 `path_name` values did not,
+    because that screen has no merged arrays. Reporting the second as 60,816
+    failures is the false alarm that teaches a reader to ignore the true one.
+    """
+    import pandas as pd
+
+    crop = tmp_path / "new" / "data" / "w1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+    absent = pd.DataFrame({"path_name": ["/old/exp/merged/x.npy",
+                                         "/old/exp/merged/y.npy"]})
+
+    report = reroot_column(absent, "path_name", str(tmp_path / "new"))
+
+    assert report.absent and not report.partial
+    assert "not on this machine" in report.describe()
+    assert "could not be placed" not in report.describe()
+
+
+def test_a_partial_failure_still_names_one(tmp_path):
+    import pandas as pd
+
+    crop = tmp_path / "new" / "data" / "w1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+    mixed = pd.DataFrame({"png_path": ["/old/exp/data/w1/a.png",
+                                       "/old/exp/data/w9/missing.png"]})
+
+    report = reroot_column(mixed, "png_path", str(tmp_path / "new"))
+
+    assert report.partial and not report.absent
+    assert "the first is /old/exp/data/w9/missing.png" in report.describe()
