@@ -318,8 +318,24 @@ class _PageLoadWorker(QThread):
                 loaded.append(self._load_fn(row))
         except Exception:
             loaded = []
-        if not self.isInterruptionRequested():
-            self.done.emit(self._gen, loaded)
+        # THE EMIT IS INSIDE THE GUARD, AND THAT IS THE WHOLE POINT.
+        #
+        # `emit` and `isInterruptionRequested` are calls into this worker's
+        # C++ half, and by the time a page finishes decoding the screen may
+        # already be gone -- Qt destroys the C++ object with its parent while
+        # this thread is still in PIL. Both then raise `RuntimeError:
+        # Internal C++ object already deleted`, and raised HERE, outside any
+        # try, the exception escapes a QThread::run override: PySide6 prints
+        # "Error calling Python override of QThread::run()" and the process
+        # aborts. Caught in the full suite on 2026-08-19, mid-`Image.resize`.
+        #
+        # Nothing is lost by swallowing it. The only thing this branch does
+        # is hand results to a screen that no longer exists.
+        try:
+            if not self.isInterruptionRequested():
+                self.done.emit(self._gen, loaded)
+        except RuntimeError:
+            pass
 
 
 class _RetrainWorker(QThread):
@@ -352,11 +368,20 @@ class _RetrainWorker(QThread):
             result = al.retrain_round(self._db_path, self._column,
                                       **self._options)
         except Exception as exc:                      # surfaced, never eaten
-            self.failed.emit(f"{type(exc).__name__}: {exc}")
+            try:
+                self.failed.emit(f"{type(exc).__name__}: {exc}")
+            except RuntimeError:
+                pass                  # the screen went first; see run() above
             return
-        if self.isInterruptionRequested():
-            return
-        self.done.emit(result)
+        # Guarded for the reason `_PageLoadWorker.run` sets out at length: a
+        # signal emitted at a destroyed C++ object raises out of run(), and
+        # an exception out of a QThread::run override aborts the process.
+        try:
+            if self.isInterruptionRequested():
+                return
+            self.done.emit(result)
+        except RuntimeError:
+            pass
 
 
 def _retire(obj) -> bool:

@@ -82,14 +82,24 @@ class _QueueRunner(QThread):
         self._token.cancel(reason)
 
     def run(self) -> None:
-        from ..bridge import resolve_pipeline_entry
+        # EVERY EMIT GOES THROUGH `emit_safely`. A queue run outlives the
+        # screen that started it -- closing the window mid-run leaves this
+        # thread emitting at a destroyed C++ object, which raises
+        # `RuntimeError: Internal C++ object already deleted` out of a
+        # QThread::run override, and an exception out of a virtual override
+        # aborts the process rather than failing the run.
+        #
+        # The database updates stay unguarded on purpose: a queue item that
+        # finished must be recorded as finished whether or not anyone is
+        # watching, and sqlite does not care that the window closed.
+        from ..bridge import emit_safely, resolve_pipeline_entry
         while not self._stop:
             item = self._queue.next_queued()
             if item is None:
                 break
             self._queue.update(item.id, status=Status.RUNNING,
                                   start_ts=time.time())
-            self.item_state_changed.emit(item.id)
+            emit_safely(self.item_state_changed, item.id)
             try:
                 fn = resolve_pipeline_entry(item.app_key)
                 if fn is None:
@@ -102,19 +112,19 @@ class _QueueRunner(QThread):
                 self._queue.update(item.id, status=Status.QUEUED,
                                       end_ts=None, error="")
                 LOG.info("queue item %s cancelled: %s", item.id, e)
-                self.item_state_changed.emit(item.id)
+                emit_safely(self.item_state_changed, item.id)
                 break
             except Exception as e:
                 LOG.warning("queue item %s failed: %s", item.id, e,
                               exc_info=True)
                 self._queue.update(item.id, status=Status.FAILED,
                                       end_ts=time.time(), error=str(e))
-                self.item_state_changed.emit(item.id)
+                emit_safely(self.item_state_changed, item.id)
                 continue
             self._queue.update(item.id, status=Status.SUCCESS,
                                   end_ts=time.time())
-            self.item_state_changed.emit(item.id)
-        self.queue_finished.emit()
+            emit_safely(self.item_state_changed, item.id)
+        emit_safely(self.queue_finished)
 
 
 # ---------------------------------------------------------------------------

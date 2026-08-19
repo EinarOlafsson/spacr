@@ -71,14 +71,18 @@ class _UpdateWorker(QThread):
 
     def run(self) -> None:
         """Execute the operation and surface every exception."""
+        from .bridge import emit_safely
+
         try:
             result = self._fn()
         except Exception:
             details = traceback.format_exc()
             LOG.exception("Updater %s failed", self.operation)
-            self.failed.emit(self.operation, details)
+            # `emit_safely`: an exception out of a QThread::run override
+            # aborts the process, and the window may be gone by now.
+            emit_safely(self.failed, self.operation, details)
             return
-        self.succeeded.emit(result)
+        emit_safely(self.succeeded, result)
 
 
 class _PipelinePreloader:
