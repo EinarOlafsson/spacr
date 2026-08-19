@@ -36,3 +36,24 @@ HOW TO KNOW IT WORKED
   QBasicTimer warning.
 * The timers those calls debounce are shown to actually fire, by a test that
   drives the path from the worker side.
+
+--------------------------------------------------------------------------------
+DONE 2026-08-19
+--------------------------------------------------------------------------------
+
+FOUND: pip runs on `_UpdateWorker`, a QThread, and its captured stdout reaches
+the console from that thread, where `_WorkingDots.start` starts a QTimer. That
+is why the four warnings arrived with the pip output. The pipeline worker's own
+connections were ruled out first: they are bound methods of a GUI-thread object,
+so Qt queues them.
+
+FIXED by marshalling rather than guarding. `start` and `stop` check the calling
+thread and, when it is the wrong one, re-invoke themselves on the widget's own
+thread through `QMetaObject.invokeMethod` with a queued connection. Refusing the
+call instead would have traded the warning for a spinner that never appears --
+the same defect with no message attached -- and the callers are stdout handlers,
+which cannot know which thread they are on.
+
+The test asserts the part that matters most: after a cross-thread start the
+timer IS ACTIVE. A fix that only silenced the warning would be the original bug
+with the evidence removed.
