@@ -295,3 +295,24 @@ def test_an_unknown_level_is_refused(screen):
 
     with pytest.raises(ValueError, match="level must be"):
         sweep(wells, fractions, blocks=plates, level="nonsense")
+
+
+def test_the_picture_draws_one_level_not_both(screen, tmp_path):
+    """A gene row and its own guide rows drawn together are the same effect
+    counted several times -- a block of near-identical rows that reads as
+    agreement between independent things."""
+    import matplotlib
+    matplotlib.use("Agg")
+    from spacr.gene_measurement_sweep import plot_sweep
+
+    wells, fractions, plates = screen
+    fractions = fractions.rename(columns={"A": "TGGT1_111_1",
+                                          "B": "TGGT1_222_1"})
+    result = sweep(wells, fractions, blocks=plates, level="both")
+
+    figure = plot_sweep(result, path=str(tmp_path / "s.png"))
+
+    assert figure is not None
+    drawn = [t.get_text() for t in figure.axes[0].get_yticklabels()]
+    assert not any("_" in name for name in drawn), (
+        f"guide rows reached a gene-level picture: {drawn}")
