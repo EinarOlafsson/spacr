@@ -977,7 +977,16 @@ class PipelineWorker(QObject):
         capture_show = None
         try:
             import matplotlib
-            matplotlib.use("Agg", force=False)
+            # force=True, and the difference is the whole bug: force=False is
+            # a NO-OP once a backend is active, and by the time a run starts
+            # `qtagg` is. Every plt.figure() on this worker then carried a
+            # FigureCanvasQTAgg owned by the worker thread. `app.launch` sets
+            # Agg before any figure exists, which is the real fix; this stays
+            # as the guard for the paths that do not come through launch --
+            # the CLI, a test, a script -- and is a no-op when it is already
+            # Agg.
+            if matplotlib.get_backend().lower() != "agg":
+                matplotlib.use("Agg", force=True)
             import matplotlib.pyplot as plt
             worker = self
             emitted_ids = set()
