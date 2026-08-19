@@ -87,6 +87,73 @@ def test_the_sweep_panel_is_a_section_and_not_a_layout_child(qtbot):
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
 
-    sections = [screen._scan_panel._sections.widget(i)
-                for i in range(screen._scan_panel._sections.count())]
-    assert screen._sweep_panel in sections
+    # Each splitter child is now a CollapsibleSection wrapping the panel --
+    # the panel is still a SECTION rather than a layout child, which is what
+    # this test is about, so it is looked for through the wrapper.
+    splitter = screen._scan_panel._sections
+    contents = []
+    for index in range(splitter.count()):
+        child = splitter.widget(index)
+        contents.append(child.content() if hasattr(child, "content") else child)
+    assert screen._sweep_panel in contents
+
+
+def test_every_section_can_be_folded_away(qtbot):
+    """Reported 2026-08-19: "there are to many elements in the measurements tab".
+
+    Four panels stacked is too many only when all four are open at once. The
+    answer is not to remove one -- each is a step of the same workflow -- but
+    to let the user fold the steps they are not on.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    panel = screen._scan_panel
+
+    titles = panel.section_titles()
+    assert len(titles) >= 4, titles
+    assert "Gene × measurement sweep" in titles
+
+    for title in titles:
+        assert panel.is_section_expanded(title), f"{title} started folded"
+        panel.set_section_expanded(title, False)
+        assert not panel.is_section_expanded(title), f"{title} would not fold"
+        panel.set_section_expanded(title, True)
+        assert panel.is_section_expanded(title), f"{title} would not reopen"
+
+
+def test_a_folded_section_gives_its_height_back(qtbot):
+    """A fold that left the panel's height behind would not declutter anything."""
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets.collapsible_section import CollapsibleSection
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    panel = screen._scan_panel
+    splitter = panel._sections
+    section = next(splitter.widget(i) for i in range(splitter.count())
+                   if isinstance(splitter.widget(i), CollapsibleSection))
+
+    open_minimum = section.minimumHeight()
+    section.set_expanded(False)
+    assert section.maximumHeight() <= CollapsibleSection.FOLDED_HEIGHT
+    assert section.minimumHeight() < open_minimum
+    section.set_expanded(True)
+    assert section.minimumHeight() == open_minimum
+
+
+def test_the_header_still_says_what_was_folded(qtbot):
+    """FOLDED, NOT REMOVED: a section that vanished would hide the feature."""
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets.collapsible_section import CollapsibleSection
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    splitter = screen._scan_panel._sections
+    for index in range(splitter.count()):
+        child = splitter.widget(index)
+        if isinstance(child, CollapsibleSection):
+            child.set_expanded(False)
+            assert child._header.isVisible() or not child.isVisible()
+            assert child.title(), "a section folded to an unlabelled bar"
