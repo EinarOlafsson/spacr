@@ -4709,7 +4709,10 @@ def save_file_lists(dst, data_set, ls):
     :returns: None.
     """
     df = pd.DataFrame(ls, columns=[data_set])
-    df.to_csv(f'{dst}/{data_set}.csv', index=False)
+    # canonicalise=False: the single column is NAMED by the caller's
+    # `data_set`, so the vocabulary would be renaming an identifier the
+    # caller chose rather than a metadata column somebody spelled loosely.
+    tabular.write_table(df, f'{dst}/{data_set}.csv', canonicalise=False)
     return
 
 def augment_single_image(args):
@@ -9498,7 +9501,7 @@ def merge_regression_res_with_metadata(results_file, metadata_file, name='_metad
     new_file = f"{base}{name}{ext}"
     
     # Save the merged dataframe to the new file
-    merged_df.to_csv(new_file, index=False)
+    tabular.write_table(merged_df, new_file)
     
     return merged_df
 
@@ -9521,7 +9524,13 @@ def process_vision_results(df, threshold=0.5):
     # TIMEPOINT. Splitting from the right is correct for both layouts.
     df['object'] = (df['path'].str.rsplit('/', n=1).str[-1]
                     .str.split('.').str[0].str.rsplit('_', n=1).str[-1])
-    df['prc'] = df['plateID'].astype(str) + '_' + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+    # ONE COMPOSER. A bare `plateID + '_' + rowID + '_' + columnID` is
+    # correct only while no plate id contains the separator or a `%`, and the
+    # regression path composes the SAME key through `schema.compose_prc`,
+    # which escapes both. A plate called `exp1_plate2` therefore produced two
+    # different strings for one well and the join between them matched
+    # nothing.
+    df['prc'] = schema.compose_prc_column(df)
     df['cv_predictions'] = (df['pred'] >= threshold).astype(int)
 
     return df
