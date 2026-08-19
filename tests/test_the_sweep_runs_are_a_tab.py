@@ -216,7 +216,8 @@ def test_a_trial_with_no_saved_output_says_so(screen, trials):
     assert "no saved results" in _console_text(screen).lower()
 
 
-def test_a_saved_trial_is_shown_without_refitting(screen, tmp_path, trials):
+def test_a_saved_trial_is_shown_without_refitting(screen, tmp_path, trials,
+                                                  qtbot):
     """"A saved run is instant and a re-fit is a minute." Re-fitting to see
     something already on disk is a minute of waiting for the same answer."""
     import matplotlib
@@ -240,6 +241,16 @@ def test_a_saved_trial_is_shown_without_refitting(screen, tmp_path, trials):
     record = dict(trials.iloc[0])
     record["folder"] = str(folder)
     screen._show_trial(record)
+
+    # WAITED FOR, because the read moved OFF THE GUI THREAD (instruction
+    # 159): walking a run folder and parsing its table stopped the window,
+    # reported as "i tried to load another run and this seemed to hang
+    # spacr". The answer arrives later at `_on_trial_loaded`, so asserting
+    # straight after the click measured an empty table and read as "the
+    # saved trial was not shown".
+    qtbot.waitUntil(
+        lambda: screen._results_panel.table.table.rowCount() == 20,
+        timeout=10000)
 
     assert screen._results_panel.table.table.rowCount() == 20
     assert len(screen._figure_grid._cells) == 2, (
