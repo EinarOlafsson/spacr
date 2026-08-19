@@ -26,7 +26,7 @@ Every run, not only the sweep's, appears here:
 
 This panel was fed by ``sweep_results.csv`` alone, so it answered "which
 trials did the sweep try" rather than "what have I run" -- an ordinary run of
-the module, and the re-fit from 124 E, simply did not appear. They are the
+the module, and the re-fit from 124 E, did not appear. They are the
 same kind of thing: a fit, its settings, its figures, and a folder to read
 them back out of. So an ordinary run is RECORDED as it happens
 (``record_run``, updated by ``update_run`` when it finishes) and shown in
@@ -306,6 +306,8 @@ class SweepRunsPanel(QWidget):
         #: whether a run will open until something tries; what it can do is
         #: be told when it did not, which is :meth:`the_load_failed`.
         self._previous_loaded_key = ""
+        #: Which announcement `_previous_loaded_key` answers.
+        self._undo_answers = None
         #: The sentence the last load or refusal added to the status line,
         #: kept so moving the mark can rewrite the line without losing it.
         self._source_note = ""
@@ -641,15 +643,47 @@ class SweepRunsPanel(QWidget):
         # against. They are emitted together and the screen's handler is
         # idempotent on the run already showing, so connecting either -- or
         # both -- costs one load.
+        # SET BEFORE THE EMITS. A listener that refuses SYNCHRONOUSLY -- which
+        # is how the screen behaved before the read moved to a worker, and how
+        # a test drives it -- calls back into `the_load_failed` from inside
+        # these two lines, and the token has to already name this announcement
+        # or its own refusal is rejected as stale.
+        self._undo_answers = self._loaded_key
         self.loaded_run_changed.emit(dict(record))
         self.trial_activated.emit(dict(record))
-        # THE UNDO IS SPENT. `the_load_failed` is answering THIS announcement,
-        # and a listener that comes back later -- a click on a trial that
-        # failed, say -- must not be able to drag the mark back to a run two
-        # choices ago. Consumed here rather than on a timer or a flag: the
-        # window in which a load can fail is the emission itself.
-        self._previous_loaded_key = self._loaded_key
+        # THE UNDO IS KEPT, AND IT NAMES WHAT IT ANSWERS.
+        #
+        # It used to be spent right here, on the reasoning that the window in
+        # which a load can fail IS the emission -- true while the listener read
+        # the run synchronously, and false since instruction 159 moved that
+        # read onto a worker. The failure now arrives after this method has
+        # returned, so an undo consumed here is gone before the only caller
+        # that needs it: a run whose folder does not exist kept the mark, which
+        # is 157's disagreement pointing the other way.
+        #
+        # Kept, but not open-ended. `_undo_answers` records WHICH announcement
+        # the undo belongs to, so a listener coming back later -- a click on a
+        # trial that failed two choices ago -- cannot drag the mark backwards:
+        # `the_load_failed` checks that the mark is still on the run it was
+        # told about, and does nothing when it is not.
         return True
+
+    def the_load_succeeded(self) -> None:
+        """The announced run IS on screen: the undo is spent.
+
+        THE UNDO LIVES EXACTLY AS LONG AS THE LOAD IT ANSWERS. It used to be
+        spent when the announcement returned, which was the same moment while
+        the listener read the run synchronously -- and is not since instruction
+        159 put that read on a worker, where the answer arrives later.
+
+        So the load reports, once, either way: this on success and
+        :meth:`the_load_failed` on failure. A refusal arriving after a load has
+        been reported successful is answering an announcement that is over, and
+        is ignored -- which is the rule that stops a stale listener dragging the
+        mark back to a run nobody chose.
+        """
+        self._previous_loaded_key = self._loaded_key
+        self._undo_answers = self._loaded_key
 
     def the_load_failed(self, why: str = "") -> bool:
         """The run that was just announced could not be shown: undo the mark.
@@ -665,6 +699,12 @@ class SweepRunsPanel(QWidget):
         :returns: whether the mark moved back.
         """
         previous = self._previous_loaded_key
+        # ONLY THE ANNOUNCEMENT THIS ANSWERS. An asynchronous read reports back
+        # after the mark may have moved again; rolling back then would undo a
+        # choice the user has since made.
+        answers = getattr(self, "_undo_answers", None)
+        if answers is not None and answers != self._loaded_key:
+            return False
         if previous == self._loaded_key:
             return False
         if not previous:
@@ -678,6 +718,8 @@ class SweepRunsPanel(QWidget):
             # screen there is no other run to point at.
             return False
         self._loaded_key = previous
+        # Spent: this undo has been used and must not be used twice.
+        self._undo_answers = previous
         self._source_note = str(why or "")
         self._paint_the_loaded_mark()
         return True
