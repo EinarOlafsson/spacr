@@ -126,3 +126,48 @@ def bounding_box_only(settings) -> bool:
     except AttributeError:
         return False
     return chosen == STREAM_IMAGES and bool(columns)
+
+
+#: The annotator's name for a setting -> the crop layer's name for it.
+#: ONLY the settings that change how the crop is CUT. The rest of the
+#: annotator's controls -- outline, edge_*, normalize_channels, percentiles,
+#: object_size -- change how an obtained crop is DRAWN, and belong to the
+#: renderer rather than the crop spec. They are not in this table because a
+#: mapping that pretended to apply them would be worse than an absent one.
+CUT_SETTINGS: Dict[str, str] = {
+    "img_size": "png_size",
+    "channels": "png_dims",
+}
+
+
+def to_crop_settings(picture) -> Dict[str, object]:
+    """The subset of a picture-settings dict the crop layer understands.
+
+    :param picture: the annotator-named settings, as
+        :class:`spacr.qt.widgets.picture_settings_dialog.PictureSettingsDialog`
+        returns them.
+    :returns: a mapping in the crop layer's own vocabulary, carrying only what
+        this mode actually uses and only what is set.
+    """
+    try:
+        items = dict(picture or {})
+    except (TypeError, ValueError):
+        return {}
+    mode = str(items.get("crop_source") or LOAD_IMAGES).strip().lower()
+    out: Dict[str, object] = {}
+    for mine, theirs in CUT_SETTINGS.items():
+        if not applies_to(mine, mode):
+            continue
+        value = items.get(mine)
+        if value in (None, "", [], ()):
+            continue
+        out[theirs] = value
+    # The SHAPE of the cut, which only streaming decides -- a crop already
+    # written to disk was cut when it was written.
+    if applies_to("crop_shape", mode):
+        shape = str(items.get("crop_shape") or "").strip().lower()
+        if shape in ("bbox", "bounding_box", "box"):
+            out["use_bounding_box"] = True
+        elif shape == "object":
+            out["use_bounding_box"] = False
+    return out

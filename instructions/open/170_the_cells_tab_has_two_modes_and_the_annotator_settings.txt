@@ -130,3 +130,41 @@ RELATED
   maintainer's screen.
 * 155 F -- the crop paths already re-root when the screen moves computer, and
   both modes inherit it.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- A AND B SHIPPED, C SHIPPED, D IS 171's. WHAT IS NOT DONE:
+--------------------------------------------------------------------------------
+
+SHIPPED
+  * The mode combo offers LOAD IMAGES and STREAM IMAGES by name, load first.
+    'automatic' is gone from the panel and stays in the code, where it is the
+    answer to "what is available" rather than to "which mode do you want".
+  * A "Picture settings..." button opens the annotator's own controls, with
+    the annotator's defaults read from `set_annotate_default_settings` rather
+    than declared a second time.
+  * What the mode cannot use is GREYED WITH THE REASON, from
+    `spacr.picture_settings` -- a table rather than a branch in the widget, so
+    the rule holds when a settings CSV reaches the code without a panel.
+  * A greyed setting is KEPT, not dropped: set it, switch mode, switch back,
+    and it is where it was left.
+  * The cut settings reach the picture: `img_size` -> `png_size`,
+    `channels` -> `png_dims`, `crop_shape` -> `use_bounding_box`, translated
+    by `picture_settings.to_crop_settings` and merged in `_crop_settings`.
+
+NOT DONE, AND NAMED RATHER THAN LEFT TO BE DISCOVERED
+
+  * THE DISPLAY SETTINGS DO NOT YET CHANGE THE PICTURE. `outline`,
+    `outline_threshold_factor`, `outline_sigma`, `edge_thickness`,
+    `edge_transparency`, `edge_image`, `normalize_channels`, `percentiles`
+    and `object_size` are offered, stored and carried, and the renderer does
+    not read them. They change how an obtained crop is DRAWN, which is the
+    montage's own painting step and not the crop spec -- so the mapping table
+    deliberately does not list them rather than pretending. This is the next
+    piece of work on this file.
+  * THE ANNOTATION APP STILL SHIPS `crop_source='auto'`. The Cells tab has the
+    named modes; annotate has not been changed yet, so "how do i choose to
+    stream images from database or dataset" is answered in one panel and not
+    the other.
+  * `object_array` and `coordinate_columns` are offered as free text. They
+    should be a list of what this screen's arrays and object table actually
+    hold, the way every other spaCR chooser is built from the data.

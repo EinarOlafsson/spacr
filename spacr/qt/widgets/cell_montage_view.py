@@ -423,6 +423,9 @@ class MontageRequest:
     #: score column of its own -- the scores are then taken from these, in
     #: memory, and the database is not written to (instruction 167).
     score_csvs: Tuple[str, ...] = ()
+    #: How the cells are drawn, in the annotator's own names. Empty means the
+    #: annotator's defaults.
+    picture: Optional[Dict[str, Any]] = None
     object_type: str = "cell"
     channels: Optional[Tuple[int, ...]] = None
     prefer: str = ""
@@ -492,6 +495,16 @@ class MontageLoad:
 def _crop_settings(request: "MontageRequest", root: str) -> Dict[str, Any]:
     """The settings mapping ``resolve_crop_source`` takes for one plate."""
     settings: Dict[str, Any] = {"src": root}
+    # WHAT THE USER ASKED FOR IN THE SETTINGS WINDOW (instruction 170 B),
+    # translated into the crop layer's own vocabulary by
+    # `picture_settings.to_crop_settings` -- which carries ONLY the settings
+    # that change how a crop is CUT, and only the ones this mode uses. A
+    # settings window whose values never reached the picture would be worse
+    # than no settings window.
+    if request.picture:
+        from ...picture_settings import to_crop_settings
+
+        settings.update(to_crop_settings(request.picture))
     if request.channels:
         # ``png_dims`` is the PNG path's own name for "which intensity planes
         # become the picture", so the user's choice is expressed in the
@@ -1574,6 +1587,7 @@ class CellMontageView(QWidget):
             databases=self.databases(),
             count_csvs=self.count_csvs(),
             score_csvs=self.score_csvs(),
+            picture=self.picture_settings(),
             object_type=str(self._object.currentData() or "cell"),
             channels=parse_channels(self._channels.text()),
             prefer=str(self._source.currentData() or ""),
