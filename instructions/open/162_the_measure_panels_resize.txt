@@ -1,0 +1,26 @@
+================================================================================
+THE MEASURE MODULE'S ELEMENTS CAN BE RESIZED
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 -- "the elements in measure need to be modifiable in
+           height"
+
+The Measure module's panels are fixed in height and the user wants to change
+them. `QSplitter` is the house answer and the regression screen already uses
+one, so this is adopting an existing pattern rather than choosing a new one.
+
+THE SIZES MUST SURVIVE A RESTART. A layout a user sets and loses is one they set
+once and then stop bothering with, which is worse than not offering it -- they
+have spent the effort and got nothing lasting for it. `QSplitter.saveState` /
+`restoreState` into the same preferences store every other per-screen setting
+uses.
+
+AND A PANEL MUST NOT BE DRAGGABLE TO NOTHING. A splitter that allows a zero
+height hides a panel with no way back that a user can see; set sensible minimums
+so every panel keeps a grab handle.
+
+HOW TO KNOW IT WORKED
+* Every element in Measure can be dragged taller and shorter.
+* The sizes are the same after a restart.
+* No panel can be dragged to a height it cannot be recovered from.

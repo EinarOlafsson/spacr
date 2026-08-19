@@ -1,0 +1,36 @@
+================================================================================
+LOADING A RUN HANGS THE APPLICATION
+================================================================================
+
+Status:    filed 2026-08-18. FOUND, not fixed.
+Requested: 2026-08-18 -- "i tried to load another run and this seemed to hang
+           spacr"
+
+THE CAUSE, COUNTED RATHER THAN GUESSED:
+
+    RegressionResultsPanel.load  ->  find_results_tables(folder)   a disk walk,
+                                     up to MAX_SEARCH_DEPTH deep
+                                 ->  pandas.read_csv(results.csv)
+                                 ->  set_frame(...)                rebuilds
+                                     every view, plot and diagnostic
+
+    grep -c JobRunner spacr/qt/widgets/regression_results.py  ->  0
+
+ALL OF IT ON THE GUI THREAD. Qt cannot paint, cannot show a spinner and cannot
+accept a cancel until it returns, so a big results table or a deep folder gives
+a window that has stopped -- which is indistinguishable from a crash.
+
+THIS IS THE SAME DEFECT AS 154 A, IN A SECOND PLACE. The merge froze the window
+for exactly this reason and was moved onto `JobRunner`; the run loader never
+was. So the fix is not new machinery, it is the machinery already written:
+`measurement_scan_panel`'s merge is the shape to copy rather than invent.
+
+WHAT IT MUST DO: run off the GUI thread, name the stage ("reading results.csv",
+"building the diagnostics"), count against a total where one is known, be
+cancellable, and leave the previous run on screen if it is cancelled or fails --
+never a half-applied view.
+
+HOW TO KNOW IT WORKED
+* Loading a run keeps the window alive and repainting throughout.
+* It can be cancelled, and cancelling leaves the run that was on screen.
+* A run whose folder is huge still loads, and says what it is doing.

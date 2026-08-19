@@ -2,9 +2,9 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    FOUR classes at zero and held by a guard test (2026-08-09).
-           Missing defaults down to 35; the mechanical ones are done.
+Status:    done 2026-08-18 after the repository-wide user-facing text audit.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
+           2026-08-18 — "look through the spacr README and every tool tip and docstring (basically all user facing text) and make sure the tool tips are acurate, helpeful, and dont sound AI generated, and all text is directed at the USER not at me (the creator), use the API writer skill to have a reference for API conventions."
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
@@ -818,3 +818,121 @@ The remaining product decision is unchanged and is NOT this task's: those
 eleven should either be deleted from the table or reconnected to whatever
 they were meant to do. Each now says which it is, which is what makes the
 decision possible.
+
+--------------------------------------------------------------------------------
+2026-08-18 - REOPENED: THE SCOPE IS NOW EVERY USER-FACING TEXT SURFACE
+--------------------------------------------------------------------------------
+
+WHAT THE STATE IS
+
+The 2026-08-09 pass established useful mechanical guards for setting tooltips,
+but it did not audit every public docstring, README paragraph, Qt/CLI string,
+or generated documentation surface for current accuracy and audience. The
+repository has changed since that pass. A fresh inventory and rendered-docs
+check are required before claiming the text is coherent.
+
+WHY IT MATTERS
+
+Users meet spaCR through several independent surfaces. If the README, hover
+help, runtime messages, and API docstrings disagree, a technically correct
+sentence in one place does not prevent a wrong analysis choice in another.
+Maintainer notes and generic promotional prose also make published help read
+like an internal draft instead of product documentation.
+
+WHAT TO DO
+
+1. Build the scientific Python API-writer skill from current NumPy,
+   scikit-learn, scikit-image, pandas, and Cellpose conventions.
+2. Inventory README prose, registered tooltips, public docstrings, Qt-visible
+   labels/help, CLI help, warnings, and errors. Exclude tests, internal
+   comments, generated translation catalogs, and bundled third-party text.
+3. Verify factual claims against the consuming code and current defaults.
+4. Rewrite only text with a concrete defect: wrong behavior/default/unit,
+   missing decision guidance, maintainer-directed language, or templated
+   AI-style filler. Preserve domain terms and compatibility warnings.
+5. Add focused guards for objective regressions and rebuild the API docs.
+
+HOW TO KNOW IT WORKED
+
+The inventory accounts for every scoped surface; existing tooltip and API-link
+contracts pass; all edited Python parses; focused tests pass; and a fresh
+Sphinx build introduces no new warnings. A final report names deliberately
+excluded surfaces and any text that needs a product decision rather than an
+editorial change.
+
+DELIBERATELY NOT DONE
+
+Do not rewrite internal comments, test rationale, historical instruction
+files, translation output, or third-party text merely to impose one voice.
+Do not change behavior to make inaccurate documentation become true; file a
+separate product defect when the implementation itself is the problem.
+
+--------------------------------------------------------------------------------
+2026-08-18 - DONE: REPOSITORY-WIDE USER-FACING TEXT AUDIT
+--------------------------------------------------------------------------------
+
+WHAT CHANGED
+
+* Centralized 18 reusable skills under
+  ``/mnt/firecuda2/Claude/toxoplasma_projects/skills``. Managed virtual-
+  environment and checkout copies were preserved so their owners still work.
+* Added and validated ``scientific-python-api-writer``, based on the current
+  NumPy/numpydoc, scikit-learn, scikit-image, pandas, and Cellpose documentation
+  conventions. Its inventory script accounts for 444 Python files, 16,521
+  docstring records, and 2,244 literal GUI/CLI text records with zero parse
+  errors. Heuristic "AI filler" hits were treated as review leads, not automatic
+  defects; terms such as robust statistics remain where technically correct.
+* Corrected README drift: 19 regression model families and 73 tutorial lessons.
+* Shortened the two setting tooltips that exceeded the 600-character ceiling,
+  corrected five ``Deprecated`` misspellings, and retained the type/default/
+  consequence guidance enforced by the existing tooltip contracts.
+* Rewrote public module, class, function, and method docstrings that exposed
+  internal instruction numbers, dated creator requests, maintainer anecdotes,
+  or local skill paths. Added ``tests/test_user_facing_docstrings.py`` so these
+  internal provenance markers cannot return to the published API.
+* Fixed RST defects found by the rendered-docs pass: accidental substitutions,
+  malformed simple tables, indented pseudo-tables, short title underlines, and
+  field-list/block-quote boundary errors.
+
+VERIFICATION
+
+* ``python -m compileall -q spacr``
+* API-writer ``quick_validate.py``: valid
+* API-writer self-audit: 0 parse errors and 0 heuristic flags
+* Documentation-focused pytest suite: 44 passed
+* Fresh Sphinx HTML build: succeeded; the final dummy render reduced the first
+  pass from 26 diagnostics to two unrelated Sphinx indexing/reference warnings
+  and no docstring-formatting warnings.
+
+EXCLUSIONS
+
+Internal comments, test rationale, historical instruction files, generated
+translation catalogs, vendored text, and third-party prose were not rewritten.
+Repository-managed source skills and virtual-environment skills were copied into
+the central library rather than destructively moved out of their owners.
+
+--------------------------------------------------------------------------------
+2026-08-18 - CONTINUED REVIEW: HEURISTIC LANGUAGE BACKLOG CLASSIFIED
+--------------------------------------------------------------------------------
+
+The API-writer inventory initially reported 153 ``ai_filler`` review prompts.
+The exact-text review found that 99 contained ``simply``, 49 contained
+``robust``, five contained ``easily``, and one contained ``intuitive``; some
+records contained more than one term. These were prompts, not 153 defects.
+
+Removed ``simply`` from every published public-name docstring and rewrote the
+surrounding sentences directly rather than substituting another intensifier.
+Also corrected concrete issues found during that pass: a stale count of model
+families, an unsupported "safest default" claim, maintainer history in the
+validation-holdout seed documentation, vague Brown-Forsythe wording, and an
+internal issue narrative in ``figure_text_items``.
+
+The aggregate heuristic count is now 70. Only 24 public-name records remain
+flagged, all for technically meaningful uses of ``robust``; one of those is an
+asset generator excluded from AutoAPI. Statistical terms such as robust
+z-score, robust rank aggregation, robust Mahalanobis distance, and MAD-based
+robust scale were deliberately preserved.
+
+The API-writer audit now reports public-docstring and GUI/CLI flag counts
+separately from its all-record aggregate, so private implementation prose no
+longer obscures the published-text review.

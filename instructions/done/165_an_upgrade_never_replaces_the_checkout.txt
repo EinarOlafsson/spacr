@@ -1,0 +1,32 @@
+================================================================================
+AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
+================================================================================
+
+Status:    filed and FIXED 2026-08-18, commit 592c4659.
+Requested: 2026-08-18 -- an OLS run's console carried
+
+    Uninstalling spacr-1.5.0.4:
+      Successfully uninstalled spacr-1.5.0.4
+    Successfully installed spacr-1.5.0.4
+
+spaCR reinstalled ITSELF mid-run. The startup update check reaches
+`updater.run_pip_upgrade`, which shells out to `pip install --upgrade spacr` --
+and that uninstalls whatever is present and installs from the index, INCLUDING
+an editable install pointing at a working tree. The developer's source then
+stops being what runs, nothing says so, and every change made afterwards has no
+visible effect. On this machine it would have silently detached a day of work
+from the application it was meant to be fixing.
+
+FIXED: refused rather than confirmed. An editable install is a statement that
+this checkout IS the package, and there is no version of "yes" that leaves the
+checkout in charge; `git pull` is the upgrade for a checkout and the message
+says so.
+
+THE DETECTION NEEDS TWO CHECKS and the first attempt shipped with only one.
+`direct_url.json` is authoritative and cannot always be read: with the current
+directory INSIDE the checkout, `importlib.metadata` resolves `spacr` to the
+source tree's own metadata, which has no `direct_url.json` -- and that is where
+a developer stands most of the time, so the guard would have failed in exactly
+the case it exists for. The second check asks where the imported package
+actually lives: outside site-packages means a working tree whatever the
+metadata says.

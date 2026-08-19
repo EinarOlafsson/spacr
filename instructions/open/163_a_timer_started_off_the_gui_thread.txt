@@ -1,0 +1,38 @@
+================================================================================
+A TIMER STARTED OFF THE GUI THREAD NEVER FIRES
+================================================================================
+
+Status:    filed 2026-08-18. NOT LOCATED.
+Requested: 2026-08-18 -- four of
+
+    Qt warning: QBasicTimer::start: Timers cannot be started from another thread
+
+immediately after the console showed spaCR reinstalling itself.
+
+THIS IS NOT ONLY LOG NOISE, which is why it has its own file. A QTimer started
+from a non-GUI thread does not start -- so whatever it was debouncing SILENTLY
+NEVER HAPPENS. A missing warning would be better news than a present one; the
+warning is telling us a feature is dead.
+
+WHAT HAS BEEN RULED OUT: the pipeline worker's own connections. `line_ready`,
+`figure_ready`, `result_ready` and `finished` are all connected to BOUND METHODS
+of the GUI-thread screen, so Qt queues them and their slots run on the GUI
+thread.
+
+WHERE TO LOOK. The warnings arrived with the pip output, and `app.py` submits
+both the update check and the upgrade through its own runner -- so a completion
+path off that worker is the first suspect. The two reachable `timer.start()`
+calls are `app_screen._queue_figure_grid_refresh` and
+`app_screen._start_the_heartbeat`.
+
+THE PROJECT ALREADY HAS THE RULE THIS BREAKS, in `spacr/qt/job_runner.py`:
+``finished`` is emitted ON THE WORKER THREAD, and the only safe thing a slot
+there may do is re-emit a Signal whose receiver is a bound method of a
+GUI-thread object. Find the path that does not, and fix it there rather than by
+moving the timer.
+
+HOW TO KNOW IT WORKED
+* A full session -- launch, update check, a run, a figure burst -- produces no
+  QBasicTimer warning.
+* The timers those calls debounce are shown to actually fire, by a test that
+  drives the path from the worker side.
