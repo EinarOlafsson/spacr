@@ -129,6 +129,17 @@ def describe_failure(error: BaseException, *, stage: str = "",
                 "\nWHAT TO CHANGE\n  This failure has no recorded remedy. The "
                 "traceback below is the whole of what is known; a guess here "
                 "would be worse than none.")
+        # WHAT IT COST ON THE WAY (instruction 160). A failure that ran out of
+        # memory looks identical to one that did not, unless the readings taken
+        # per stage are beside it.
+        try:
+            from .fit_resources import describe_resources
+
+            costs = describe_resources(settings)
+        except Exception:                                        # noqa: BLE001
+            costs = ""
+        if costs:
+            parts.append("\nWHAT IT COST, PER STAGE\n" + costs)
         if include_traceback:
             tb = "".join(traceback.format_exception(
                 type(error), error, error.__traceback__))
