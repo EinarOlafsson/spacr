@@ -313,8 +313,16 @@ def test_the_tab_reads_as_four_named_steps(qtbot, two_plates, tmp_path):
     from PySide6.QtWidgets import QLabel
 
     panel = _tab(qtbot, two_plates, tmp_path)
-    headings = [w.text() for w in panel.findChildren(QLabel)
-                if w.objectName() == "WorkflowStep"]
+    panel.resize(700, 1000)
+    panel.show()
+    # SORTED BY WHERE THEY ARE ON SCREEN, not by findChildren order. The
+    # traversal order is an accident of construction and reparenting -- the
+    # sections became QSplitter children on 2026-08-19 and it changed -- while
+    # "reads as four named steps" is a claim about the ORDER A READER SEES.
+    steps = [w for w in panel.findChildren(QLabel)
+             if w.objectName() == "WorkflowStep"]
+    steps.sort(key=lambda w: w.mapTo(panel, w.rect().topLeft()).y())
+    headings = [w.text() for w in steps]
 
     assert len(headings) == 4
     assert headings[0].startswith("1.")
