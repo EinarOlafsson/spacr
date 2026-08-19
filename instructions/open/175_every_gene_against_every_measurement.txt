@@ -117,3 +117,69 @@ ALSO SHIPPED
 STILL OWED
   * The picture is still per-row rather than per-gene: it draws whatever
     survived, and at 'both' that mixes the two levels in one grid.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- ALL TEN VIEWS BUILT.
+--------------------------------------------------------------------------------
+
+"i want you to implement afew ways of visualizing this data, come up with 10
+ways, ill tell you what i like" -- then, after four: "For 175 build all of the
+I'll let you know which one I like after looking at all of them!"
+
+WRITTEN DOWN HERE, because the first four were built from a conversation and
+the other six were nearly lost with it. Each answers a question the others
+cannot; that is the test for whether a view earns its place.
+
+  1. HEATMAP -- what survived, clustered so neighbours are alike.
+     `plot_sweep`. The default: it is what "a comprehensive table visualised
+     intuitively" asked for. Survivors only; the whole grid is a texture.
+
+  2. CALIBRATION -- is the screen calibrated at all? `plot_calibration`.
+     Observed P against the uniform, with the inflation factor lambda named
+     on the plot. THE FIRST THING TO READ and the last thing anybody builds:
+     it says whether the other nine are worth reading. Not the default,
+     because opening on a QQ plot answers a question the user did not ask.
+
+  3. GRID VOLCANO -- every pair, effect against evidence. `plot_grid_volcano`.
+     The shape of the WHOLE grid, which #1 cannot show. Coloured by
+     circularity where it is known and grey where it is not, with the legend
+     saying which -- grey is not "clean".
+
+  4. HITS vs REPRESENTATION -- `plot_effect_against_representation`. The
+     maintainer's own question: "220950 is waaay over represented". x is the
+     EFFECTIVE WELL COUNT, not `share`; see the function for why the two
+     order genes oppositely.
+
+  5. MEASUREMENT FAMILIES -- `plot_measurement_families`. What KIND of thing
+     each gene moves, in six coarse families. "moves pathogen intensity and
+     nothing else" is a sentence about biology; "41 significant
+     measurements" is not.
+
+  6. GENE PROFILE -- `plot_gene_profile`. One gene's fingerprint: every
+     measurement it moves, ordered, coloured by family. The per-gene readout
+     a row of a heatmap cannot give. A gene with nothing significant SAYS
+     SO and shows its strongest effects anyway.
+
+  7. GENE SIMILARITY -- `plot_gene_similarity`. Which genes behave alike,
+     by correlating whole effect profiles. The only view that reads two
+     genes against each other, and the honest way to ask "is my hit list one
+     finding or twelve". Correlated across the WHOLE row, because a shared
+     sub-threshold pattern is exactly the evidence that two genes belong
+     together.
+
+  8. WHICH MEASUREMENTS DISCRIMINATE -- `plot_measurement_hits`. The grid
+     read down its other axis. A measurement moved by half the library is a
+     plate effect wearing a measurement's name; it is marked in red.
+
+  9. CIRCULARITY -- `plot_circularity`. Corroboration or restatement, for
+     every surviving pair. Drawn rather than filtered: 0.15 is a working bar
+     and not a law, and a reader should see where their own hits fall.
+     Refuses to draw when circularity was never computed.
+
+ 10. GUIDE CONCORDANCE -- `plot_guide_concordance`. Do a gene's own guides
+     agree on the sign? The only internal control this design has.
+
+ALL TEN ARE IN THE PANEL'S CHOOSER and all ten save beside the table. Every
+one returns None rather than an empty axis when there is nothing to draw: a
+picture of nothing reads as "no effect" when it means "no data", and that
+misreading is the thing this whole instruction is about.

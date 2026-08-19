@@ -2586,6 +2586,18 @@ def crop_spec_from_settings(settings: Mapping[str, Any], merged_path: str = "",
     obj = object_type or (crop_mode[0] if crop_mode else "cell")
 
     size = settings.get("png_size", [224, 224])
+    # A BARE NUMBER IS A SQUARE. The annotator's `img_size` is one integer --
+    # it is a single spin box -- and mapping it straight onto `png_size` gave
+    # this function a scalar, where `size[0]` raises
+    #
+    #     TypeError: 'int' object is not subscriptable
+    #
+    # inside the montage worker, surfacing as "The montage load failed" with
+    # no hint that the cause was a settings shape. Normalised here as well as
+    # at the mapping, because every caller of this function reaches the same
+    # line and a settings CSV can carry the scalar too.
+    if isinstance(size, (int, float)) and not isinstance(size, bool):
+        size = [int(size), int(size)]
     if size and isinstance(size[0], (list, tuple)):
         # png_size may be a list-of-lists, one per crop_mode.
         try:
