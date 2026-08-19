@@ -1,0 +1,70 @@
+================================================================================
+EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19 -- "please bake all of this in to spacr. i would also
+           like a button that compares every gene to every measurement and
+           gives me a comprehensive table of this and visualises it in an
+           intuitive way."
+
+WHAT "ALL OF THIS" IS. Three corrections were found by hand while sweeping one
+gene, in about ten minutes, and every one of them would be made again by a
+user doing it themselves. They are the reason this is a feature and not a
+script.
+
+  1. IDENTIFIERS ARE NOT MEASUREMENTS. `pathogen_object_label` came out at
+     p=2.5e-07 for EAF1 and it is a LABEL: the cells picked out sit lower in
+     the segmentation's numbering. That is position in a list, not biology.
+     `pathogen_pathogen` is the same column under another name -- spearman
+     0.9979 against `pathogen_object_label`, identical in 141,626 of 226,467
+     rows -- and it slipped past the first filter. Both were nearly reported
+     as findings.
+
+  2. 785 TESTS IS NOT ONE TEST. Uncorrected, `pathogen_solidity` at p=1.8e-03
+     looked interesting; under Benjamini-Hochberg it is nothing. The scan
+     already knows this (`spacr.measurement_scan` corrects within AND across
+     measurements) and the sweep must too.
+
+  3. CIRCULARITY IS A COLUMN, NOT A FOOTNOTE. The classification score is
+     itself a function of the image, so a measurement it already tracks cannot
+     validate anything derived from it. Measured on this screen:
+     spearman(pred, pathogen_channel_1_mean_intensity) = -0.389, and the
+     "strongest result" for GRA14 was exactly that measurement, in exactly the
+     direction the correlation predicts. Every row of the table carries
+     |rho(pred, measurement)| so a reader can discount it without being told.
+
+WHAT TO BUILD
+
+A. THE SWEEP, at the WELL level, as one matrix operation. Measured: the full
+   guide x measurement grid -- 1,376 guides x 785 measurements over 1,366
+   wells -- is ONE matmul and takes 0.1 s. Anything that loops is doing it
+   wrong. Blocked on plate, so a plate difference cannot become a gene effect.
+
+B. THE TABLE: gene (and guide), measurement, effect, p, q, circularity, and
+   the well count behind it. Sortable, filterable, and exportable, because the
+   answer to "every gene against every measurement" is a million rows and
+   nobody reads a million rows.
+
+C. THE PICTURE. A million cells is not a heatmap anybody can read, so the
+   default view is the SURVIVORS: the genes and measurements that have at
+   least one entry surviving the correction, clustered so related measurements
+   sit together. Everything else is one click away, never the first thing
+   shown.
+
+D. AND THE CELL-LEVEL SWEEP FOR ONE GENE stays available beside it -- the
+   assignment from 173, then the same three corrections. That is the slow,
+   deep version of the same question and it answers a different one: not
+   "does this gene move this measurement" but "do the cells I attributed to it
+   differ".
+
+HOW TO KNOW IT WORKED
+
+* The whole grid computes in seconds, not minutes.
+* No identifier column appears in the table at all.
+* Every row carries its q value and its circularity, and the default sort
+  cannot put an uncorrected p at the top.
+* A gene with no effect on anything produces no survivors, and the picture
+  says so rather than showing a colourful grid of noise.
+* The EAF1 result reproduces: its three low-circularity survivors are the
+  pathogen channel co-localisation measures, at q ~ 1e-2.
