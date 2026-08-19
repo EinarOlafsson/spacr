@@ -379,3 +379,44 @@ HANDED ON
      CSVs; putting it in the vocabulary would make the database migration
      rename a column those readers then cannot find. It stays local to
      `utils.correct_metadata_column_names` until those two move.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- FOUR MORE READERS FOUND, ON THE MAINTAINER'S OWN SCREEN
+--------------------------------------------------------------------------------
+
+Every one of these was a reader that did not canonicalise, and every one
+produced a WRONG NUMBER THAT LOOKED RIGHT rather than an error.
+
+1. `fractions_from_counts` read the count CSVs raw. The real tables carry
+   `row_name, column_name, grna_name, count` and NO PLATE COLUMN AT ALL -- the
+   plate is which file it is -- so four plates' `r1/c1` pooled into one well:
+   384 wells instead of 1,536, every fraction a share of four plates' reads,
+   and the fractions still summed to 1 so nothing downstream could notice.
+
+2. `load_montage_objects` read `png_list` raw, and png_list is not spelled the
+   same way on every plate of one screen:
+
+       plate1   rowID / columnID    and plateID = 'pplate1'
+       plate2   row_name / column_name
+       plate3   row_name / column_name
+       plate4   row_name / column_name
+
+   Plates 2-4 could compose no well key at all and plate1 composed one against
+   a doubled plate name matching nothing. EVERY plate failed, the montage drew
+   nothing, and its caption said "no object in the imported databases comes
+   from this well" for wells holding 105 to 244 objects.
+
+3. The SCORE CSVs say `pplate1` too. A sweep joining them to the measurement
+   databases matched no well, and the resulting all-NaN circularity column was
+   reported as "0 of 5,959 hits are circular" -- the most confident possible
+   way to say nothing.
+
+4. `crop_source` means 'auto'/'png'/'merged' in the crop layer and
+   'pre_generated'/'on_demand'/'generate' in the training settings. One idea,
+   two spellings, in two panels a user is expected to compare. See 171, which
+   gives the choice ONE pair of names and bars a third.
+
+THE PATTERN, and it is the argument for the ratchet this file already asks
+for: a reader that does not canonicalise does not fail. It returns a number.
+All four of these returned numbers, and three of them were nearly reported as
+findings.
