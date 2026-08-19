@@ -1,6 +1,6 @@
-"""Which cells to show behind one coefficient on the regression plot.
+"""Select cells to show for a regression coefficient.
 
-Instruction 131, headless half. Given a coefficient (a gene or a guide), the
+Given a coefficient (a gene or a guide), the
 per-object rows out of the imported measurement databases, and the per-well
 guide fractions the regression was fitted on, this module decides **which
 objects to draw and says exactly how it decided**. It draws nothing: the
@@ -123,6 +123,7 @@ __all__ = [
     "select_montage",
     "select_montage_per_guide",
     "read_well_guide_fractions",
+    "fractions_from_counts",
     "load_montage_objects",
     "resolve_montage_crop_source",
 ]
@@ -777,7 +778,7 @@ class MontagePlan:
     def settings_line(self) -> str:
         """Every setting that decided WHICH CELLS this is, defaults included.
 
-        Instruction 155 C: each of these changes which cells a reader is
+        The design: each of these changes which cells a reader is
         looking at, so each is written onto the montage and a non-default
         value says that it is one. THE SETTINGS ARE PER SCREEN, NEVER PER
         GENE -- a width chosen per gene is a width that can be tuned until
@@ -827,7 +828,7 @@ class MontagePlan:
     def arithmetic(self) -> str:
         """The whole sum, in words a reader can check.
 
-        Instruction 155 B. Everything a reader would need to reproduce the
+        Everything a reader would need to reproduce the
         selection by hand: where the baseline came from, what the target is
         and why, how wide the window is and in what units, and
         ``round(n x fraction)`` for each well with the total they add to.
@@ -992,7 +993,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    ) -> MontagePlan:
     """Return the objects to show behind one coefficient.
 
-    The whole selection, in the order instruction 131 states it: the wells
+    The whole selection, in the order the design states it: the wells
     the count data reports the guide present in, the objects in those wells
     whose classification score is closest to what the coefficient implies,
     and ``round(n x fraction)`` of them per well.
@@ -1285,6 +1286,85 @@ def read_well_guide_fractions(path: str) -> pd.DataFrame:
     return frame
 
 
+def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
+    """Per-well guide fractions, built from the COUNT CSVs directly.
+
+    WHY THIS EXISTS. :func:`read_well_guide_fractions` reads
+    ``regression_data.csv`` out of a run folder, and the montage refused to
+    draw anything without one -- so a user who had loaded their scores and
+    their counts, run a regression, and was looking at its coefficients was
+    told "the loaded coefficient table was not read from a run folder". The
+    sentence was true and the requirement was not: nothing in the fraction
+    frame comes from the run.
+
+    A guide's fraction in a well is its share of that well's reads:
+
+        fraction = count / (sum of count over the well)
+
+    which is the same arithmetic :func:`spacr.ml.process_reads` does at
+    ``ml.py`` before the fit -- so this is the SAME NUMBER, computed from the
+    same input, not an approximation of it. ``regression_data.csv`` is that
+    join persisted, not the source of it.
+
+    :param paths: the count CSVs from the regression input table -- the
+        ``count`` column of the rows the database provider already returns, so
+        no new plumbing reaches them.
+    :returns: one row per (well, guide) with ``prc``, ``grna`` and
+        ``fraction``, and ``gene`` when the counts carry it.
+    :raises MontageError: no readable counts, or a file short of a column.
+
+    THE WELL TOTAL IS A ONE-ROW-PER-WELL FRAME BY CONSTRUCTION, and the merge
+    says so with ``validate='many_to_one'``. `ml.process_reads` carries the
+    same guard and the same comment: a duplicated well total would duplicate
+    every guide row of that well, and the fractions would still sum to 1 per
+    copy -- so the corruption would be invisible in every downstream check.
+    """
+    frames: List[pd.DataFrame] = []
+    problems: List[str] = []
+    for path in paths:
+        text = os.fspath(path)
+        if not text or not os.path.isfile(text):
+            continue
+        try:
+            frame = pd.read_csv(text)
+        except Exception as error:                               # noqa: BLE001
+            problems.append(f"{os.path.basename(text)}: {error}")
+            continue
+        missing = [c for c in ("grna", "count") if c not in frame.columns]
+        if missing:
+            problems.append(
+                f"{os.path.basename(text)} has no {missing} column")
+            continue
+        frames.append(frame)
+
+    if not frames:
+        detail = ("; ".join(problems) if problems
+                  else "no count CSV was attached to the input table")
+        raise MontageError(
+            f"The per-well guide fractions could not be built from the count "
+            f"CSVs: {detail}. They are the regression's own input -- the same "
+            f"files the fit read -- so a run that produced coefficients has "
+            f"them.")
+
+    counts = pd.concat(frames, ignore_index=True, sort=False)
+    if "prc" not in counts.columns:
+        try:
+            from .ml import _compose_prc_column
+            counts["prc"] = _compose_prc_column(counts)
+        except Exception as error:                               # noqa: BLE001
+            raise MontageError(
+                f"The count CSVs name no well: they need a 'prc' column, or "
+                f"plateID / rowID / columnID to compose one ({error}).")
+
+    totals = counts.groupby("prc")["count"].sum().reset_index()
+    totals = totals.rename(columns={"count": "_well_total"})
+    merged = pd.merge(counts, totals, on="prc", validate="many_to_one")
+    merged["fraction"] = merged["count"] / merged["_well_total"]
+    keep = [c for c in ("prc", "grna", "gene", "fraction", "count")
+            if c in merged.columns]
+    return merged[keep].copy()
+
+
 def load_montage_objects(db_path: str, *, object_type: str = "cell",
                          score_column: str = "pred",
                          table: str = "png_list",
@@ -1370,7 +1450,7 @@ _BBOX_COLUMNS: Tuple[Tuple[str, str], ...] = tuple(
 class RouteRequirements:
     """What one route to pixels needs, and what it can therefore offer.
 
-    Instruction 155 E. THE TWO ROUTES NEED DIFFERENT THINGS and they are
+    THE TWO ROUTES NEED DIFFERENT THINGS and they are
     checked UP FRONT, because the alternative is a montage that fails halfway
     through cutting, or -- worse -- one that quietly cuts a different picture
     from the one the user chose:
@@ -1564,7 +1644,7 @@ def montage_route_requirements(source, objects=None, *,
 class CropSourceChoice:
     """Which crop source will draw a montage, or why none can.
 
-    The tab needs both answers in the same shape: instruction 131 says a tab
+    The tab needs both answers in the same shape: the design says a tab
     that cannot be filled must say why rather than be absent, so "there is no
     source" is a value here and not an exception.
 

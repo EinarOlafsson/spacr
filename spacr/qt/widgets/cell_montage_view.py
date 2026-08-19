@@ -1,7 +1,6 @@
 """The cells behind one dot on the volcano, and how they were picked.
 
-Instruction 131's other half. :mod:`spacr.cell_montage` -- the headless one,
-already built and tested -- decides WHICH objects belong behind a coefficient
+:mod:`spacr.cell_montage` decides which objects belong behind a coefficient
 and writes the whole reason into :meth:`~spacr.cell_montage.MontagePlan.caption`.
 Nothing of that is repeated here. This module loads the pixels for the objects
 that plan names, puts them on screen in the tab beside the run's figures, and
@@ -64,8 +63,8 @@ was measured too rather than assumed: 300 crops of 224x224 scaled to
 of a load that took seconds. Moving it off the thread would mean shipping
 QPixmaps across a thread boundary, which QPixmap does not allow.
 
-A TAB THAT CANNOT BE FILLED SAYS WHY -- instruction 106
--------------------------------------------------------
+A tab that cannot be filled says why
+------------------------------------
 The tab is always present and the button is always visible. When there is
 nothing it can do it is DISABLED and :meth:`CellMontageView.reason` is on it,
 on its tooltip and in the status line. A screen with no exported PNGs and no
@@ -372,6 +371,11 @@ class MontageRequest:
         the two obvious wrong CSVs by name.
     :param databases: the ``measurements.db`` files attached to the run's
         input table.
+    :param count_csvs: the COUNT CSVs from the same input table. The fallback
+        source of the per-well guide fractions, and the reason a run folder is
+        no longer required: a fraction is ``count / well total``, which these
+        files carry outright. Used only when ``results_path`` yields nothing
+        readable.
     :param object_type: which mask plane a crop is cut by.
     :param channels: intensity planes for the picture, or ``None`` for the
         ones the run itself saved.
@@ -400,6 +404,7 @@ class MontageRequest:
     level: str = "gene"
     results_path: str = ""
     databases: Tuple[str, ...] = ()
+    count_csvs: Tuple[str, ...] = ()
     object_type: str = "cell"
     channels: Optional[Tuple[int, ...]] = None
     prefer: str = ""
@@ -488,7 +493,8 @@ def load(request: MontageRequest) -> MontageLoad:
     :returns: the plans, the crops, and which source drew them.
     """
     from ...cell_montage import (
-        CROP_SHAPES, MontageError, read_well_guide_fractions,
+        CROP_SHAPES, MontageError, fractions_from_counts,
+        read_well_guide_fractions,
         load_montage_objects, resolve_montage_crop_source, select_montage,
         select_montage_per_guide, CropSourceChoice, MAX_OBJECTS,
     )
@@ -516,8 +522,44 @@ def load(request: MontageRequest) -> MontageLoad:
     folder = request.results_path
     if folder and os.path.isfile(folder):
         folder = os.path.dirname(os.path.abspath(folder))
+    # THE RUN FOLDER IS A CONVENIENCE, NOT A REQUIREMENT. It holds
+    # `regression_data.csv`, which is the score/count join PERSISTED -- and the
+    # per-well guide fractions in it are `count / well total`, computable from
+    # the count CSVs the input table already names. Requiring the folder is
+    # what produced "the loaded coefficient table was not read from a run
+    # folder" for a user who had loaded their scores and counts and was
+    # looking at the coefficients those files produced.
+    #
+    # So: read the folder when there is one, and BUILD from the counts when
+    # there is not. Same arithmetic as `ml.process_reads`, same number.
+    counts = None
+    trouble = ""
+    if folder:
+        try:
+            counts = read_well_guide_fractions(folder)
+        except MontageError as error:
+            trouble = str(error)
+        except Exception as error:                              # noqa: BLE001
+            trouble = f"Could not read the per-well guide fractions: {error}"
+    if counts is None and request.count_csvs:
+        try:
+            counts = fractions_from_counts(request.count_csvs)
+        except MontageError as error:
+            trouble = trouble or str(error)
+        except Exception as error:                              # noqa: BLE001
+            trouble = trouble or (
+                f"Could not build the guide fractions from the count CSVs: "
+                f"{error}")
+    if counts is None:
+        return MontageLoad(
+            request=request,
+            error=trouble or (
+                "No per-well guide fractions are available: there is no run "
+                "folder holding regression_data.csv, and no count CSV is "
+                "attached to the input table. Either one is enough."),
+            unavailable=True)
     try:
-        counts = read_well_guide_fractions(folder)
+        pass
     except MontageError as error:
         return MontageLoad(request=request, error=str(error), unavailable=True)
     except Exception as error:                                  # noqa: BLE001
@@ -1369,7 +1411,7 @@ class CellMontageView(QWidget):
     def reason(self) -> str:
         """Why the montage cannot be built right now, or ``''``.
 
-        Instruction 106's rule: a control that cannot do anything is greyed
+        The rule: a control that cannot do anything is greyed
         out AND SAYS WHY. Every branch here is a sentence a user can act on,
         and the order is the order the inputs are needed in, so the first
         missing thing is the one named.
@@ -1386,10 +1428,13 @@ class CellMontageView(QWidget):
             return (f"The loaded coefficient table has no fitted effect "
                     f"for {self._name}, and the score window is "
                     "'baseline + effect'. Load the run's results table first.")
-        if not self._results_path():
-            # WHICH HALF IS MISSING. A table on screen with no folder behind
-            # it and no table at all are two different situations with two
-            # different answers, and both used to be told the second one.
+        if not self._results_path() and not self.count_csvs():
+            # A MISSING RUN FOLDER IS NO LONGER FATAL. The guide fractions are
+            # `count / well total`, which the input table's COUNT CSVs carry
+            # outright, so the folder is one of two sources rather than a
+            # requirement. This branch is now reached only when BOTH are
+            # absent -- which is the one case where there is genuinely nothing
+            # to compute a fraction from.
             frame = self._frame()
             if frame is not None and len(frame):
                 return self.RESULTS_WITHOUT_A_FOLDER
@@ -1413,6 +1458,29 @@ class CellMontageView(QWidget):
                     "there is no fitted intercept to centre the score window "
                     "on. Choose the screen median instead.")
         return self._unavailable
+
+    def count_csvs(self) -> Tuple[str, ...]:
+        """The COUNT CSVs attached to the run's input table.
+
+        THE SAME PROVIDER THE DATABASES COME FROM. The input table's rows are
+        ``{"plate", "score", "count", "database"}``, so the counts were always
+        one field away -- which is why requiring a run folder for the guide
+        fractions was never necessary, only unexamined.
+        """
+        if self._database_provider is None:
+            return ()
+        try:
+            rows = self._database_provider()
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not reach the input table", exc_info=True)
+            return ()
+        out: List[str] = []
+        for row in rows or ():
+            path = row.get("count", "") if isinstance(row, dict) else ""
+            text = str(path or "").strip()
+            if text and text not in out:
+                out.append(text)
+        return tuple(out)
 
     def databases(self) -> Tuple[str, ...]:
         """The measurement databases attached to the run's input table.
@@ -1446,6 +1514,7 @@ class CellMontageView(QWidget):
             name=self._name, effect=float(self._effect),
             level=self._level, results_path=self._results_path(),
             databases=self.databases(),
+            count_csvs=self.count_csvs(),
             object_type=str(self._object.currentData() or "cell"),
             channels=parse_channels(self._channels.text()),
             prefer=str(self._source.currentData() or ""),
@@ -1705,7 +1774,7 @@ class CellMontageView(QWidget):
         self._announce()
 
     def _refresh_controls(self) -> None:
-        """Grey what cannot act, and put the reason on it — instruction 106."""
+        """Disable controls that cannot act and show the reason."""
         reason = self.reason()
         self._show.setEnabled(not reason)
         self._show.setToolTip(reason or (
