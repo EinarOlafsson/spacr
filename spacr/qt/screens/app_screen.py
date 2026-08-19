@@ -2126,7 +2126,10 @@ class AppScreen(QWidget):
                     counts_provider=self._sweep_counts,
                     scores_provider=self._sweep_scores,
                     parent=left)
-                self._scan_panel.layout().addWidget(self._sweep_panel)
+                # ITS OWN SECTION, not appended to the layout: a widget
+                # added to the layout takes its height out of the others,
+                # which is how the tab came to overlap.
+                self._scan_panel.add_section(self._sweep_panel)
 
                 left.addTab(self._scan_panel, "Measurements")
                 left.setTabToolTip(
