@@ -414,3 +414,35 @@ colours were fixed by seeding from the TOKEN; the size has no token, so it
 took a flag recording whether the user moved the box. Written up under
 instruction 108, but it is section A's shape and it is recorded here so the
 next person looking for that pattern finds both.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- SECTION A'S NOTICE WAS WRITTEN AND NOBODY COULD READ IT
+--------------------------------------------------------------------------------
+
+FOUND BY A TEST THAT PASSED ALONE AND FAILED IN COMPANY, which is worth more
+than a green run: `test_a_frozen_line_colour_is_migrated_back_to_auto` failed
+whenever anything earlier in the process had pressed Save in Preferences.
+
+The migration's docstring says the repair is handed back "once, with a line in
+the console". THERE WAS NO LINE. It was `LOG.info` on
+`spacr.qt.preferences`, and the app's level policy pins `spacr.qt` -- MEASURED
+at level 30 immediately after the Preferences dialog's Save, with
+`spacr.qt.preferences` at NOTSET, so the module's effective level is WARNING
+and the record was dropped AT THE SOURCE before any handler could see it.
+
+    [spacr]                 level=20  handlers=[_ConsoleForwarder]
+    [spacr.qt]              level=30  handlers=[_ConsoleForwarder]
+    [spacr.qt.preferences]  level=0   handlers=[]
+
+So every user whose stored colours were un-frozen was told nothing, which is
+precisely the silence the line exists to break. NOW `LOG.warning`, and it is
+warning-grade on its own merits: something the user did not ask for happened
+to their settings.
+
+The test that only passed in isolation was therefore asserting something that
+was not true of the running app. A second test pins the level with
+`spacr.qt` set to WARNING -- the state the app is actually in -- so an INFO
+here fails rather than passing on pytest's more permissive default.
+
+WORTH KNOWING FOR ANY OTHER USER-FACING LINE IN spacr/qt: INFO does not
+arrive. Check the level before writing a message the user is meant to read.

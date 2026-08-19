@@ -382,7 +382,7 @@ def get_figure_style_default(kind: str) -> dict:
 def set_figure_style_default(kind: str, values) -> None:
     """Make ``values`` the default for every future figure of ``kind``.
 
-    Instruction 108 point 5: "a per-project default so a lab's house style is
+    The design: "a per-project default so a lab's house style is
     applied to every figure of that type without re-setting it each time".
     """
     import json
@@ -401,7 +401,7 @@ def clear_figure_style_default(kind: str) -> bool:
     """Forget the default for ``kind``. True if there was one.
 
     The way back, and it is not optional: a default that can only be set is
-    the same trap as a colour that can only be set (instruction 152 A).
+    the same trap as a colour that can only be set.
     """
     import json
 
@@ -707,7 +707,19 @@ def _migrate_frozen_figure_colors() -> None:
         settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
         settings.sync()
         if changed:
-            LOG.info(
+            # WARNING AND NOT INFO, AND THE LEVEL IS THE MESSAGE'S JOB. This
+            # line exists so that changing a stored preference underneath the
+            # user is not silent -- the docstring above says "with a line in
+            # the console". It was not reaching one: `spacr.qt` is pinned by
+            # the app's level policy, so an INFO logged from
+            # `spacr.qt.preferences` is dropped at the source before any
+            # handler sees it. Measured after pressing Save in Preferences:
+            # `spacr.qt` at level 30, `spacr.qt.preferences` at NOTSET, so
+            # the effective level for this module is WARNING.
+            #
+            # It is warning-grade on its own merits too: something the user
+            # did not ask for happened to their settings.
+            LOG.warning(
                 "Figure colours: %s had been saved as a fixed colour that is "
                 "exactly what \"follow the theme\" produces, which is how an "
                 "older Figure settings dialog left them. They now follow the "
