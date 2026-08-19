@@ -3902,7 +3902,7 @@ def resolve_levels(regression_type, level='both'):
     fixed effect and the guide as a random effect nested inside it -- so it
     ignores ``level`` entirely and answers ``('gene',)``. That is why the GUI
     greys the dropdown out rather than hiding it: the
-    setting exists, it is simply not this model's to read.
+    setting exists, but this model does not read it.
 
     Every other backend is fixed effects only and cannot nest, so it fits one
     level at a time and ``level`` chooses which. ``'both'`` is TWO FITS.
@@ -5518,6 +5518,9 @@ def _perform_regression_set_paths(settings):
     else:
         kind = str(settings['regression_type'])
     res_folder = _next_results_folder(os.path.join(src, 'results'), kind)
+    if isinstance(settings, dict):
+        # WHERE A FAILURE REPORT GOES, recorded as soon as the folder exists.
+        settings["_regression_folder"] = res_folder
 
     os.makedirs(res_folder, exist_ok=True)
     results_filename = 'results.csv'
@@ -5928,6 +5931,47 @@ def _call_level_hits(coef_df, level, settings, regression_type,
 
 
 def perform_regression(settings):
+    """Run the regression, and REPORT a failure instead of only raising it.
+
+    Instruction 161. A run that gets far enough to fail knows the stage it
+    reached, the design it had built, and the exception -- and reporting
+    "failed for an unknown reason" discards all three. The wrapper keeps the
+    exception exactly as it was (it is re-raised unchanged, so every caller and
+    every test behaves as before) and adds the report beside it: printed, and
+    written into the run folder, because a console has scrolled by the time
+    somebody asks about the run tomorrow.
+
+    The stage comes from `settings['_regression_stage']`, which the body sets
+    as it goes -- a mutable breadcrumb rather than a return value, because the
+    point is knowing where it was when it stopped.
+    """
+    from .regression_failure import describe_failure, write_failure_report
+
+    if isinstance(settings, dict):
+        settings.setdefault("_regression_stage", "starting")
+    try:
+        return _perform_regression(settings)
+    except Exception as error:                                   # noqa: BLE001
+        stage = ""
+        folder = ""
+        frame = None
+        if isinstance(settings, dict):
+            stage = str(settings.get("_regression_stage", "") or "")
+            folder = str(settings.get("_regression_folder", "") or "")
+            frame = settings.get("_regression_frame")
+        print(describe_failure(error, stage=stage, settings=settings,
+                               frame=frame, include_traceback=False))
+        written = write_failure_report(folder, error, stage=stage,
+                                       settings=settings, frame=frame)
+        if written:
+            print(f"The full report, with the traceback, is in {written}")
+        # RE-RAISED UNCHANGED. The reporter adds to a failure; it must never
+        # replace one, or a caller that handles a specific exception type
+        # stops seeing it.
+        raise
+
+
+def _perform_regression(settings):
     """Regress per-well phenotype scores against gRNA / gene counts to identify hits from a pooled CRISPR screen.
 
     Reads one or more score CSVs (from :func:`generate_ml_scores` or a
