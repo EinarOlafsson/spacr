@@ -316,3 +316,51 @@ def test_the_picture_draws_one_level_not_both(screen, tmp_path):
     drawn = [t.get_text() for t in figure.axes[0].get_yticklabels()]
     assert not any("_" in name for name in drawn), (
         f"guide rows reached a gene-level picture: {drawn}")
+
+
+# ------------------------------------------------- representation and controls
+
+
+def test_representation_is_on_every_row(screen):
+    """Measured on the real screen: 220950 sits in ALL 1,536 wells at a median
+    fraction of 0.176 while the median gene is in 73. Ranking by q therefore
+    ranks by representation as much as by biology, and a reader cannot see
+    that unless it is on the row."""
+    wells, fractions, plates = screen
+
+    result = sweep(wells, fractions, blocks=plates)
+
+    assert "share" in result.table.columns
+    assert "ubiquitous" in result.table.columns
+    assert (result.table["share"] > 0).any()
+
+
+def test_a_gene_in_every_well_is_flagged():
+    rng = np.random.default_rng(4)
+    n = 60
+    index = [f"plate1_r{i}_c1" for i in range(n)]
+    wells = pd.DataFrame({"m": rng.normal(0, 1, n)}, index=index)
+    everywhere = rng.random(n) * 0.2 + 0.1
+    somewhere = np.where(np.arange(n) < 10, rng.random(n), 0.0)
+    fractions = pd.DataFrame({"all": everywhere, "few": somewhere}, index=index)
+
+    result = sweep(wells, fractions, blocks=["plate1"] * n)
+    flags = dict(zip(result.table["guide"], result.table["ubiquitous"]))
+
+    assert flags["all"] is True or flags["all"] == True   # noqa: E712
+    assert not flags["few"]
+
+
+def test_controls_are_MARKED_and_not_removed(screen):
+    """The regression drops the control COLUMNS because they are not part of
+    the contrast it fits. This asks whether a gene moves a measurement, and a
+    control is exactly the thing whose answer you want to see."""
+    wells, fractions, plates = screen
+
+    result = sweep(wells, fractions, blocks=plates, controls=["A"])
+
+    marked = result.table[result.table["control"]]
+    assert set(marked["guide"]) == {"A"}
+    # Present, not filtered away.
+    assert "A" in set(result.table["guide"])
+    assert "B" in set(result.table["guide"])
