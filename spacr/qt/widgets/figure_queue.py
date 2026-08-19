@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import logging
 import shutil
+import threading
 import tempfile
 from collections import OrderedDict
 from pathlib import Path
@@ -117,6 +118,19 @@ def set_figure_text_size_override(fig, size: int) -> None:
         LOG.debug("could not remember a per-figure text size", exc_info=True)
 
 
+#: Serialises every touch of a matplotlib Figure. Instruction 166: the worker
+#: thread renders figures while a run streams them (`bridge._capture_show` ->
+#: `render_figure_to_png`) and the GUI thread recolours them when the style
+#: dialog is accepted. matplotlib is NOT thread-safe, so the two together are a
+#: segfault in the C layer -- no Python exception, nothing logged, reported as
+#: "i was changing the background graph color ... while a model was being
+#: trained and spacr crashed".
+#:
+#: RE-ENTRANT, because the render path styles before it renders; a plain Lock
+#: would deadlock the first time one call did both.
+FIGURE_LOCK = threading.RLock()
+
+
 def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
                          line: str = "") -> None:
     """Recolour a figure's background, LINES and TEXT.
@@ -162,24 +176,25 @@ def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
     a caller passing 0 is passing the global default and the figure's own
     answer is more specific than that.
     """
-    ink = str(line) if str(line).strip() else fg
-    if not text_size:
-        text_size = figure_text_size_override(fig)
-    try:
-        fig.patch.set_facecolor(bg)
-        for ax in fig.get_axes():
-            ax.set_facecolor(bg)
-            for sp in ax.spines.values():
-                sp.set_color(ink)
-            # `colors=` sets the mark AND the label together, which is
-            # exactly the conflation the two controls exist to undo.
-            ax.tick_params(color=ink, labelcolor=fg, which="both")
-        for t in figure_text_items(fig):
-            t.set_color(fg)
-            if text_size:
-                t.set_fontsize(text_size)
-    except Exception:
-        pass
+    with FIGURE_LOCK:
+        ink = str(line) if str(line).strip() else fg
+        if not text_size:
+            text_size = figure_text_size_override(fig)
+        try:
+            fig.patch.set_facecolor(bg)
+            for ax in fig.get_axes():
+                ax.set_facecolor(bg)
+                for sp in ax.spines.values():
+                    sp.set_color(ink)
+                # `colors=` sets the mark AND the label together, which is
+                # exactly the conflation the two controls exist to undo.
+                ax.tick_params(color=ink, labelcolor=fg, which="both")
+            for t in figure_text_items(fig):
+                t.set_color(fg)
+                if text_size:
+                    t.set_fontsize(text_size)
+        except Exception:
+            pass
 
 
 def _sibling_pdf(png_path) -> Path:
@@ -301,54 +316,55 @@ def render_figure_to_png(fig, png_path: str) -> bool:
     :mod:`spacr.plot`, :mod:`spacr.submodules` and friends, which hard-code
     their own format and DPI and never consult preferences at all.
     """
-    try:
-        from ..preferences import (get_figure_png_dpi, get_figure_format,
-                                   get_figure_colors, get_figure_line_colour,
-                                   get_figure_text_size)
-        dpi = get_figure_png_dpi()
-        bg, fg = get_figure_colors()
-        line = get_figure_line_colour()
-        text_size = get_figure_text_size()
-        fmt = get_figure_format()
-    except Exception:
-        dpi, fmt = 200, "png"
-        bg, fg, text_size = "#ffffff", "#000000", 0
-        line = fg
-    # THE FIGURE'S OWN CHOICE BEATS THE GLOBAL DEFAULT, and this line is the
-    # whole of issue #108's third symptom. Without it every full render put
-    # the preference back over the size the user had just set in "Figure
-    # settings…", so the control appeared to do nothing and reopening the
-    # dialog showed the old number again.
-    text_size = figure_text_size_override(fig) or text_size
-    _style_figure_colors(fig, bg, fg, text_size, line)
-    # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
-    # balloon into a slow-to-decode PNG. Screen never needs > ~4000 px on the
-    # long side; the vector .pdf keeps full quality for export.
-    try:
-        w_in, h_in = fig.get_size_inches()
-        longest_in = max(float(w_in), float(h_in)) or 1.0
-        display_dpi = min(dpi, max(72, int(4000 / longest_in)))
-    except Exception:
-        display_dpi = min(dpi, 200)
-    try:
-        # `transparent=True` when the background is "none": savefig
-        # otherwise falls back to the rcParam and writes an opaque page,
-        # so setting the facecolor alone is not enough.
-        from ..preferences import figure_bg_is_transparent
-        # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this is the
-        # screen raster, into a temp directory, at a capped display DPI. It is
-        # what the user is LOOKING at, so it follows the theme rather than the
-        # page. The file they keep is written by `figure_settings.save_figure_as`,
-        # which does go through `save_figure`.
-        fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
-                    facecolor=bg,
-                    transparent=figure_bg_is_transparent(bg))
-    except Exception as e:
-        LOG.info("figure render failed: %s", e)
-        return False
-    if fmt == "pdf":
-        _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
-    return True
+    with FIGURE_LOCK:
+        try:
+            from ..preferences import (get_figure_png_dpi, get_figure_format,
+                                       get_figure_colors, get_figure_line_colour,
+                                       get_figure_text_size)
+            dpi = get_figure_png_dpi()
+            bg, fg = get_figure_colors()
+            line = get_figure_line_colour()
+            text_size = get_figure_text_size()
+            fmt = get_figure_format()
+        except Exception:
+            dpi, fmt = 200, "png"
+            bg, fg, text_size = "#ffffff", "#000000", 0
+            line = fg
+        # THE FIGURE'S OWN CHOICE BEATS THE GLOBAL DEFAULT, and this line is the
+        # whole of issue #108's third symptom. Without it every full render put
+        # the preference back over the size the user had just set in "Figure
+        # settings…", so the control appeared to do nothing and reopening the
+        # dialog showed the old number again.
+        text_size = figure_text_size_override(fig) or text_size
+        _style_figure_colors(fig, bg, fg, text_size, line)
+        # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
+        # balloon into a slow-to-decode PNG. Screen never needs > ~4000 px on the
+        # long side; the vector .pdf keeps full quality for export.
+        try:
+            w_in, h_in = fig.get_size_inches()
+            longest_in = max(float(w_in), float(h_in)) or 1.0
+            display_dpi = min(dpi, max(72, int(4000 / longest_in)))
+        except Exception:
+            display_dpi = min(dpi, 200)
+        try:
+            # `transparent=True` when the background is "none": savefig
+            # otherwise falls back to the rcParam and writes an opaque page,
+            # so setting the facecolor alone is not enough.
+            from ..preferences import figure_bg_is_transparent
+            # BYPASSES `plot.save_figure` DELIBERATELY (108 point 6): this is the
+            # screen raster, into a temp directory, at a capped display DPI. It is
+            # what the user is LOOKING at, so it follows the theme rather than the
+            # page. The file they keep is written by `figure_settings.save_figure_as`,
+            # which does go through `save_figure`.
+            fig.savefig(png_path, dpi=display_dpi, bbox_inches="tight",
+                        facecolor=bg,
+                        transparent=figure_bg_is_transparent(bg))
+        except Exception as e:
+            LOG.info("figure render failed: %s", e)
+            return False
+        if fmt == "pdf":
+            _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
+        return True
 
 def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
                         timeout_ms: int = 30000):
@@ -1163,26 +1179,16 @@ class FigureQueue(QWidget):
         return start
 
     def forget_run(self, label: str) -> int:
-        """Drop one run's figures. Instruction 146: what leaves the list
-        leaves the figures with it.
+        """Remove one run's figures and compact the queue indices.
 
         :param label: the run's section label, as `run_sections` reports it.
         :returns: how many figures were dropped. ``0`` for a label this queue
             does not hold, which is not a failure -- a run that drew nothing
             is a run with nothing to forget.
 
-        THE HARD PART IS NOT THE DELETE, IT IS THE RENUMBERING. Every figure
-        is keyed by a dense integer index across six maps -- `_figures`,
-        `_titles`, `_png_paths`, `_ram`, `_pdf_state` and `_fig_index` -- and
-        `_runs` records each section's START as one of those integers. Removing
-        a section from the middle therefore has to shift every index above it
-        down by the gap, in all six, and move every later section's start with
-        them. Deleting the entries alone would leave holes that `_count` still
-        counts and that navigation walks into.
-
-        `clear()` was the only thing here before, which is all-or-nothing:
-        removing one run meant losing every other run's figures too, so the
-        Runs tab could not offer it.
+        Figure state is stored in several maps keyed by a dense integer index.
+        Removing a middle section shifts all later figure indices and run
+        boundaries so navigation does not encounter gaps.
         """
         wanted = str(label or "")
         span = next(((start, count) for name, start, count
