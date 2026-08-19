@@ -45,6 +45,14 @@ APP_KEY = "regression"
 _HELPER_MODULES = (
     "spacr.ml", "spacr.utils", "spacr.sequencing", "spacr.batch_correction",
     "spacr.settings", "spacr.toxo", "spacr.plot",
+    # Instruction 161: the failure reporter is handed the settings dict so it
+    # can name what the run was configured to do. It reads keys, so it belongs
+    # here -- which this test told us in so many words the moment it was added,
+    # and is the whole reason the list exists.
+    "spacr.regression_failure",
+    # Instruction 156: the per-mode run summary is handed the settings so it
+    # can state what was fitted. Same reason as the line above.
+    "spacr.regression_summary",
 )
 
 #: Keys ``perform_regression`` reads without a default, because it derives
@@ -142,12 +150,18 @@ def _helpers_given_the_settings_dict():
     Nested defs are excluded: ``inspect.getsource`` already contains them, so
     their subscripts are collected with the outer function's.
     """
-    from spacr.ml import perform_regression
+    # BOTH HALVES. `perform_regression` is the failure-reporting wrapper since
+    # instruction 161 and `_perform_regression` is the body, so scanning only
+    # the public name finds the reporter and none of the helpers that actually
+    # read settings -- `normalize_regression_input_pairs` among them, which is
+    # what derives score_data and count_data.
+    from spacr.ml import _perform_regression, perform_regression
 
-    tree = _tree(perform_regression)
-    nested = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    trees = [_tree(perform_regression), _tree(_perform_regression)]
+    nested = {n.name for tree in trees for n in ast.walk(tree)
+              if isinstance(n, ast.FunctionDef)}
     names = set()
-    for node in ast.walk(tree):
+    for node in [n for tree in trees for n in ast.walk(tree)]:
         if not isinstance(node, ast.Call):
             continue
         passed = list(node.args) + [kw.value for kw in node.keywords]
@@ -169,9 +183,16 @@ def _resolve(name):
 
 
 def _keys_read_by_the_whole_call(ctx=ast.Load):
-    from spacr.ml import perform_regression
+    # BOTH HALVES OF THE CALL. Instruction 161 wrapped `perform_regression` so
+    # a failure reports its stage and design instead of "failed for an unknown
+    # reason"; the body moved to `_perform_regression` and the public name is
+    # now the wrapper. THE READS DID NOT MOVE, THE PLACE TO LOOK FOR THEM DID
+    # -- which is the same correction this file already made when
+    # `_perform_regression_set_paths` stopped being a nested def, and the
+    # reason that note is a few lines below.
+    from spacr.ml import _perform_regression, perform_regression
 
-    functions = [perform_regression]
+    functions = [perform_regression, _perform_regression]
     for name in sorted(_helpers_given_the_settings_dict()):
         resolved = _resolve(name)
         assert resolved is not None, (
@@ -262,17 +283,25 @@ def test_the_only_keys_without_a_default_are_derived_and_written_first():
     # Asserted as the ORDERING, the same as the pair below, rather than as
     # "some function somewhere assigns it" -- which is the check this file
     # exists to be stricter than.
+    from spacr.ml import _perform_regression
+
     written = (_settings_subscripts(perform_regression, ast.Store)
+               | _settings_subscripts(_perform_regression, ast.Store)
                | _settings_subscripts(_perform_regression_set_paths, ast.Store))
     assert "src" in written, (
         "nothing derives settings['src'], so save_settings will raise KeyError "
         "placing settings/regression.csv")
-    _assert_derived_before_read(perform_regression,
+    # THE BODY, not the wrapper. `perform_regression` reports failures since
+    # instruction 161 and delegates; the ordering being asserted -- derive,
+    # then read -- lives in `_perform_regression`, which is where those calls
+    # are. Same correction as above: the derivation did not move, the place to
+    # look for it did.
+    _assert_derived_before_read(_perform_regression,
                                 "_perform_regression_set_paths", {"src"})
 
     # score_data/count_data are written by a helper, so the ordering that
     # matters is: the normalising call, then the first subscript read.
-    tree = ast.parse(textwrap.dedent(inspect.getsource(perform_regression)))
+    tree = ast.parse(textwrap.dedent(inspect.getsource(_perform_regression)))
     normalise = [
         node.lineno for node in ast.walk(tree)
         if isinstance(node, ast.Call)
