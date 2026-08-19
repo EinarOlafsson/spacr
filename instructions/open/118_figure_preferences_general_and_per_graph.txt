@@ -187,3 +187,75 @@ WHAT REMAINS, and it is the 2026-08-16 restatement rather than the header:
     SPINE_PRESETS rather than copied, which is what all of them should be.
   * The EXPORT half of the restatement -- "white-on-transparent is invisible
     in a Word document" -- is instruction 150's `print_ready`, which shipped.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- "NOT BLACK NOT WHITE JUST TRANSPARENT" NOW HAS A CONTROL. 118 CLOSES.
+--------------------------------------------------------------------------------
+
+The one thing the panel could not say was the 2026-08-16 restatement itself:
+
+    "figures should not have a background not black not white just
+     transparent"
+
+`background` is a colour and EVERY COLOUR A COLOUR BUTTON CAN RETURN IS
+OPAQUE, so the row could offer white, black, or a grey the user liked, and
+never the thing that was asked for. The previous note handed this off on the
+grounds that expressing it meant editing `spacr/figure_style.py`, which is
+another territory. THAT WAS WRONG, and pleasantly so: the vocabulary was
+already there.
+
+    `figure_style.rc_params` forwards `background` straight into
+    `figure.facecolor` AND `axes.facecolor`, and matplotlib's spelling for
+    "no ground at all" is the string "none" -- `to_rgba("none")` is
+    (0, 0, 0, 0). It is a value the store can already hold and the resolver
+    already carries.
+
+So the background row is now a colour button WITH a "Transparent" box beside
+it, storing `"none"`. `spacr/figure_style.py` is untouched.
+
+GREYED, NOT REMOVED (INVARIANTS 6). Ticking Transparent DISABLES the colour
+button rather than hiding it, so the colour the user had is still on screen
+and comes back on one click -- and unticking stores {} again rather than a
+delta, so the way back is genuinely a way back and not a new override.
+
+MEASURED THROUGH THE WHOLE CHAIN, not off the widget:
+
+    panel, box ticked        {'background': 'none'}, {}
+    rcParams after apply     figure.facecolor none, axes.facecolor none
+    figures.style.user_overrides('volcano')
+                             {'figure.facecolor': 'none',
+                              'axes.facecolor': 'none'}
+    the saved page's corner  (255, 255, 255, 0)     <- ALPHA ZERO
+
+THE PIXEL IS THE ASSERTION. An rcParam that is set and a page that is
+transparent are two different claims and only the second one is the request;
+there is a test that renders and reads the corner rather than reading the
+dict back.
+
+ONLY `background` OFFERS IT. A `TRANSPARENT_CAPABLE` tuple rather than a rule
+about colour-looking keys, because "invisible" is not a style for text: a
+transparent `foreground` is a figure with nothing written on it.
+
+TESTS  eight more in
+tests/qt/test_the_figure_preferences_are_general_and_per_graph.py, 24 in the
+file now.
+
+WHAT IS LEFT AND IS NOT THIS INSTRUCTION'S:
+
+  * The `STYLE_CHOICES` closed sets still live in figure_settings.py because
+    `spacr/figure_style.py` is another territory. They belong there as field
+    metadata beside the defaults they describe, exactly as `spines` already
+    reads its set from SPINE_PRESETS. HANDED OFF, unchanged from the previous
+    note.
+  * `figure_style.GENERAL_DEFAULTS["background"]` is still "#FFFFFF" -- the
+    house style's DEFAULT page, which a user can now move off but which
+    nobody has decided should ship transparent. That is a decision for the
+    maintainer and a one-line change in a module this territory does not own;
+    the CONTROL is what 118 asked for and the control is here.
+  * The other overlap instruction 127 recorded -- two style systems, this one
+    and `preferences.get_figure_colors`'s live-figure ink -- is unchanged.
+    They now agree on what transparent MEANS, which is more than they did.
+
+118 IS DONE on everything inside this territory: general settings, per-graph
+settings, the store keeping deltas, reset, and the restatement.
