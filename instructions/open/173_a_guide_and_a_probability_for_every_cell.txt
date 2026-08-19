@@ -1,0 +1,124 @@
+================================================================================
+A GUIDE AND A PROBABILITY FOR EVERY CELL
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19 -- "can i get a grna annotation for each cell based on
+           the fraction of each gran in each well and its classification
+           score. however this would only work for grnas that have a
+           measureble effect on classefication. luckaly that is what i care
+           about." and then, precisely --
+
+           "i want you to try and assigne every cell a guide but at a
+           unsertainty threshold. if a cell only has grna attributions that
+           are below 0.55 or something then it gets a ambiguous tag and the
+           highest probability any gran had for it if it gets a grna above
+           0.55 then it gets annotated with that gene and the probability
+           score if 2 genes get exactly the same score one is randomly
+           chosen."
+
+WHY HEURISTIC 1 IS NOT ENOUGH, in the maintainer's own words: "if i have 2
+grnas both in the same direction and want to attribute cells to both my
+arithmatic wont work well because both pick the top hits which would be
+wrong". Ranking by score and taking the top x per guide attributes the SAME
+cells to every guide pointing the same way.
+
+THE MODEL
+
+Per well, for cell i and guide g:
+
+    prior      pi_g          the guide's read fraction, normalised to sum to 1
+    likelihood f_g(s_i)      how likely this cell's score is if it carries g,
+                             from that guide's fitted effect beta_g
+    posterior  r_ig  ∝  pi_g * f_g(s_i)
+
+AND THE CONSTRAINT THAT ANSWERS THE TWO-GUIDE PROBLEM:
+
+    sum_i r_ig  =  N * pi_g          for every guide in the well
+
+enforced by iterative proportional fitting. The TOTAL mass attributed to each
+guide is pinned to its read fraction, so two guides pointing the same way
+SPLIT the top cells in proportion to their fractions instead of both claiming
+them. Plain Bayes does not do this; the constraint is the whole point.
+
+THE DIRECTION PROBLEM DISAPPEARS. beta_g carries its own sign, so a negative
+guide's likelihood peaks at low scores with no ranking rule to get right --
+which heuristic 1 needs and can get wrong.
+
+THE CALL, exactly as specified
+
+    best = max_g r_ig
+    if best >= ambiguity_threshold (default 0.55, settable):
+        assign that guide, record the probability, record its gene
+    else:
+        tag AMBIGUOUS, and record `best` anyway -- the highest any guide had
+
+    An exact tie is broken AT RANDOM, from a SEEDED generator: spaCR runs are
+    reproducible (`guide_permutation_seed` is already a setting) and a coin
+    flip that lands differently on a re-run would make the same screen give
+    two different annotations.
+
+THE LIKELIHOOD
+
+    log-normal FIRST, on the same scale the regression used, so beta_g and
+    s_i are commensurate. Beta KEPT AS AN OPTION -- better behaved at 0 and 1,
+    where a classification score actually lives, and the maintainer asked for
+    it to remain available. See 174 for the regression's own beta transform.
+
+WHAT IS ESTIMATED WHERE
+
+    pi_g                per WELL          it is what sequencing measures
+    beta_g              GLOBAL, per guide from the regression, which already
+                                          blocks on plate
+    location and scale  per PLATE         never per well: centring per well
+                                          destroys the between-well signal
+                                          that identifies the effect at all
+
+THE LONG TAIL. Measured on the maintainer's screen: a median well holds ~450
+cells and 403 DETECTED GUIDES, most at one or two reads. 30 guides cover 82%
+of a well's reads; 4 cover 55%. Attributing 400 trace guides is arithmetic on
+no evidence, so the guides covering a stated share of the reads are attributed
+and the remainder is pooled into one `other` component carrying the rest.
+
+WHICH GUIDES CAN BE ATTRIBUTED AT ALL, reported BEFORE anything is assigned.
+A guide whose effect is small against the spread of scores can never reach the
+threshold -- not with more cells, not with a better fit; it is arithmetic and
+not sample size. One number per guide says whether it can produce a real
+assignment or only ever `ambiguous`, so a user knows which hits support
+cell-level work before they do any.
+
+WHERE IT GOES
+
+  * `spacr/attribution.py`, headless and testable without Qt.
+  * An OPT-IN write of the columns into `png_list`:
+        grna_attributed, grna_attributed_p, gene_attributed,
+        grna_attribution_entropy, grna_attribution_coverage
+    Never automatic. Writing into measurements.db is not something a viewer
+    does behind the user, which is the rule the montage already keeps.
+  * A CELL-PICKING OPTION beside heuristic 1 -- "this should be one of the
+    options the user can choose to pick cells" -- not a replacement for it
+    until the validation below passes.
+
+IT IS NOT A GENOTYPE, and the column names say so. The pooled design never
+observed which cell carried what; this is an attribution under a model, and a
+reader who takes `grna_attributed` for an observation has been misled by the
+name alone.
+
+HOW TO KNOW IT WORKED
+
+* PERMUTATION: shuffle guide labels within a plate and re-attribute. Every
+  posterior must collapse to its prior and the entropy go maximal. Structure
+  surviving a permutation is structure the method invented.
+* CALIBRATION: sum_i r_ig / N == pi_g to numerical tolerance, by
+  construction -- so the test proves the solver converged.
+* AN INDEPENDENT MEASUREMENT, WITHIN THE WELL. Validating TSG101 recruitment
+  against an attribution made FROM the recruitment score is circular and the
+  maintainer said so. `pathogen_area` is not: attribute on `pred`, then ask
+  whether cells attributed to a pathway guide differ in `pathogen_area` from
+  cells attributed to controls IN THE SAME WELL. Same well removes plate and
+  well batch entirely, and it is a contrast the well-level fraction can never
+  make.
+* HELD-OUT PLATES: estimate the effects on three plates, attribute the fourth.
+* Two guides with identical effects come back at exactly pi_1 : pi_2 for every
+  cell -- flat, ambiguous, and correct. The data cannot separate them and the
+  method must not pretend otherwise.
