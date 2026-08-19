@@ -59,6 +59,74 @@ LOG = logging.getLogger("spacr.qt.figure_queue")
 PDF_DISPLAY_MAX_PX = 2200
 
 
+#: Where a figure remembers the text size a user chose for IT, as opposed to
+#: the size every figure gets from :func:`spacr.qt.preferences.get_figure_text_size`.
+#: An attribute on the Figure rather than a side table, so it survives the
+#: pickle that spills an evicted figure to the temp directory and comes back
+#: with it -- a per-figure choice that vanished when the figure left RAM would
+#: be worse than none.
+FIGURE_TEXT_SIZE_ATTR = "_spacr_text_size"
+
+
+def figure_text_items(fig):
+    """Every text object on ``fig``, including the three easily missed.
+
+    THE CANONICAL LIST. GitHub issue #108 measured this on a volcano-shaped
+    figure: 23 text objects, and a hand-written list reached 20. The three it
+    missed each live in a different container, which is how all three were
+    missed at once --
+
+        an ANNOTATION   on ``axes.texts``   (on a volcano, the gene labels,
+                                             and the LARGEST text on the plot)
+        the SUPTITLE    on ``figure.texts``
+        a legend TITLE  which is not among the legend's ``get_texts()``
+
+    so a control called "all text" that shrank everything EXCEPT the biggest
+    thing on the figure read, correctly, as "the font got bigger".
+
+    Qt-free, and it stays that way: :func:`render_figure_to_png` runs on a
+    worker thread. :func:`spacr.qt.widgets.figure_settings._every_text` is
+    this function, so the interactive control and the render pass cannot
+    reach different sets of text -- which is precisely how they drifted.
+    """
+    items = []
+    for ax in getattr(fig, "axes", ()):
+        items += [ax.title, ax.xaxis.label, ax.yaxis.label]
+        items += list(ax.get_xticklabels()) + list(ax.get_yticklabels())
+        items += list(getattr(ax, "texts", ()))
+        legend = ax.get_legend()
+        if legend is not None:
+            items += list(legend.get_texts())
+            title = legend.get_title()
+            if title is not None:
+                items.append(title)
+    items += list(getattr(fig, "texts", ()))
+    return [item for item in items if item is not None]
+
+
+def figure_text_size_override(fig) -> int:
+    """The text size the user set on THIS figure, or 0 for "no override"."""
+    try:
+        return max(0, int(getattr(fig, FIGURE_TEXT_SIZE_ATTR, 0) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def set_figure_text_size_override(fig, size: int) -> None:
+    """Remember a per-figure text size, or clear it with ``0``.
+
+    Written by the per-figure control in
+    :class:`spacr.qt.widgets.figure_settings.FigureSettingsDialog` and read by
+    :func:`render_figure_to_png`, which is the whole point: without it the
+    next full render puts the global preference straight back over the user's
+    choice, which is issue #108's "the font size has been returned to 10".
+    """
+    try:
+        setattr(fig, FIGURE_TEXT_SIZE_ATTR, max(0, int(size or 0)))
+    except (AttributeError, TypeError, ValueError):     # pragma: no cover
+        LOG.debug("could not remember a per-figure text size", exc_info=True)
+
+
 def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
                          line: str = "") -> None:
     """Recolour a figure's background, LINES and TEXT.
@@ -91,8 +159,22 @@ def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
     * the GRIDLINES. A grid repainted in the ink is a cage over the data;
       :data:`spacr.figure_style.PRINT_GRID` already says so for the save
       path and this agrees with it rather than arguing.
+
+    WHAT IT DOES REACH IS *EVERY* TEXT OBJECT, via
+    :func:`figure_text_items`. It used to build its own list here and that
+    list missed an annotation, the suptitle and a legend's title -- so the
+    size control shrank everything except the gene labels, which are the
+    largest text on a volcano, and the theme left a black suptitle on a black
+    page. GitHub issue #108, and both halves of it were this one list.
+
+    ``text_size`` of 0 means "whatever the figure already has". A per-figure
+    choice (:func:`set_figure_text_size_override`) is honoured then, because
+    a caller passing 0 is passing the global default and the figure's own
+    answer is more specific than that.
     """
     ink = str(line) if str(line).strip() else fg
+    if not text_size:
+        text_size = figure_text_size_override(fig)
     try:
         fig.patch.set_facecolor(bg)
         for ax in fig.get_axes():
@@ -102,18 +184,10 @@ def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
             # `colors=` sets the mark AND the label together, which is
             # exactly the conflation the two controls exist to undo.
             ax.tick_params(color=ink, labelcolor=fg, which="both")
-            texts = ([ax.title, ax.xaxis.label, ax.yaxis.label]
-                     + ax.get_xticklabels() + ax.get_yticklabels())
-            leg = ax.get_legend()
-            if leg is not None:
-                texts += list(leg.get_texts())
-                leg_title = leg.get_title()
-                if leg_title is not None:
-                    texts.append(leg_title)
-            for t in texts:
-                t.set_color(fg)
-                if text_size:
-                    t.set_fontsize(text_size)
+        for t in figure_text_items(fig):
+            t.set_color(fg)
+            if text_size:
+                t.set_fontsize(text_size)
     except Exception:
         pass
 
@@ -250,6 +324,12 @@ def render_figure_to_png(fig, png_path: str) -> bool:
         dpi, fmt = 200, "png"
         bg, fg, text_size = "#ffffff", "#000000", 0
         line = fg
+    # THE FIGURE'S OWN CHOICE BEATS THE GLOBAL DEFAULT, and this line is the
+    # whole of issue #108's third symptom. Without it every full render put
+    # the preference back over the size the user had just set in "Figure
+    # settings…", so the control appeared to do nothing and reopening the
+    # dialog showed the old number again.
+    text_size = figure_text_size_override(fig) or text_size
     _style_figure_colors(fig, bg, fg, text_size, line)
     # Cap the DISPLAY raster so a big multi-panel figure at a high DPI can't
     # balloon into a slow-to-decode PNG. Screen never needs > ~4000 px on the
@@ -1936,12 +2016,21 @@ class _FigureSettingsDialog(QDialog):
             # NEVER PERSIST A RESOLVED DEFAULT.
             self._bg, self._fg = get_figure_color_tokens()
             self._line = get_figure_line_token()
-            _init_size = get_figure_text_size() or 10
+            # THE SAME RULE, IN THE SIZE KEY. 0 means "leave every figure the
+            # sizes it was drawn with", and 10 is only what the box SHOWS
+            # while that is true. `_apply_and_accept` used to write the shown
+            # number back, so pressing OK once -- to change a colour, or by
+            # accident -- froze 10 into every figure this user would ever
+            # draw, which is issue #108's "the font size is by default too
+            # large". `_size_touched` is what tells the two apart.
+            self._stored_size = get_figure_text_size()
+            _init_size = self._stored_size or 10
         except Exception:
             # The literal rather than AUTO_FIGURE_COLOR: this branch exists
             # for the case where importing preferences failed.
             self._bg, self._fg, _init_size = "auto", "auto", 10
             self._line = "auto"
+            self._stored_size = 0
         self._bg_btn = _QPB("Background…")
         self._bg_btn.clicked.connect(lambda: self._pick("_bg", self._bg_btn))
         self._fg_btn = _QPB("Font colour…")
@@ -1971,6 +2060,14 @@ class _FigureSettingsDialog(QDialog):
         self._size = QSpinBox()
         self._size.setRange(4, 48)
         self._size.setValue(int(_init_size))
+        #: Whether the user moved the box. Connected AFTER `setValue`, so
+        #: seeding does not count as choosing -- see `_stored_size` above.
+        self._size_touched = False
+        self._size.valueChanged.connect(self._on_size_changed)
+        self._size.setToolTip(
+            "The text size EVERY figure is drawn at. Leave it alone to keep "
+            "each figure the sizes it was drawn with. One figure on its own "
+            "is resized from its right-click menu, under Figure settings.")
         form.addRow("Text size", self._size)
 
         self._umap_settings = None
@@ -2059,6 +2156,10 @@ class _FigureSettingsDialog(QDialog):
         if self._umap_settings is None:
             return {}
         return self._umap_settings.values()
+
+    def _on_size_changed(self, _value) -> None:
+        """The user moved the size box, so the number is now a choice."""
+        self._size_touched = True
 
     def _propagate(self) -> None:
         """Send the current values into the module's settings panel.
@@ -2212,7 +2313,13 @@ class _FigureSettingsDialog(QDialog):
         leave the store exactly as it was found, which is the regression this
         method exists to not repeat.
         """
-        size = int(self._size.value())
+        # 0 = automatic, and it stays 0 unless the user moved the box. The
+        # colours are seeded from their TOKENS for this reason and the size
+        # is seeded from a RESOLVED 10, which is why it needed the flag
+        # rather than a comparison: a store of 0 and a box showing 10 are not
+        # the same state, and only one of them may be written.
+        size = int(self._size.value()) if self._size_touched \
+            else int(getattr(self, "_stored_size", 0) or 0)
         bg, fg = self._resolved_pair()
         line = self._resolved_line()
         try:
@@ -2224,6 +2331,11 @@ class _FigureSettingsDialog(QDialog):
             set_figure_text_size(size)
         except Exception:
             pass
+        if self._size_touched:
+            # This box is the size for EVERY figure, so a per-figure override
+            # left on the figure in front of the user would make it the one
+            # figure that ignored what they just asked for.
+            set_figure_text_size_override(self._fig, 0)
         if self._umap_settings is not None:
             # A value still sitting on the debounce timer is a value the user
             # typed and would otherwise lose by pressing OK promptly.
