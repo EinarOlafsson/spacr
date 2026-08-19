@@ -12,6 +12,9 @@ Requested: 2026-08-19 - "for the readme and github page i tried to add a linux a
            i weant 3 black and white icons for linux a linux penguine in white, for apple an applie logo in white, and for windows a windows 11 window (the 4 adjacent rectangles, you know what i mean)
 
            these should be clickable a down loade of each installer. theere should be an icon to the right of these with the spacer logo, that says legacy, if clicked the user is brought to a page with the old versions of spacr. also make sure that the old versions are saved when new versions are released, the generation of the installers is automatic, so it should also be automatic that with a new release the installer links are incremented. but the old links should still be available via this legacy page. and the old installers not deleted but just kept in the folder, it can be the same folder as the new versions as the names will increment with version."
+Requested: 2026-08-19 - "ok great the icons are there now! but i want them to look slick not child like. i added 4 images to the platforms folder. use these on a square with rounded edges (but not rounded verry much, a small corner rounding) tat are slate gray."
+Requested: 2026-08-19 - "the icons should be centered with no text including the spacr logo one. the icons should take be centered and take up 80% of the button. write legacy in white text under the spacr logo legacy button."
+Requested: 2026-08-19 - "i added 3 not 4, you already have the white spacr logo."
 
 --------------------------------------------------------------------------------
 WHAT TO BUILD
@@ -207,3 +210,40 @@ Verified with 39 focused tests covering GitHub-style RST rendering, linked
 artwork and contrast, live release URLs, archive generation, pre-publication
 row insertion, file retention, workflow wiring, and all localized README
 copies. ``git diff --check`` is clean.
+
+--------------------------------------------------------------------------------
+REOPENED -- 2026-08-19, VISUAL REFINEMENT
+--------------------------------------------------------------------------------
+
+The four supplied images are now the source artwork. Preserve their design;
+the generator should only place each mark on a slate-gray square with a small,
+restrained corner radius. The previous teal, heavily rounded, hand-drawn tiles
+are explicitly superseded.
+
+Clarification: there are three supplied platform images; the existing white
+spaCR logo is the fourth source. Platform marks have no text and fill 80% of
+the tile. The legacy tile is the one exception: its centered spaCR logo has a
+white ``LEGACY`` label beneath it.
+
+--------------------------------------------------------------------------------
+RESULT -- 2026-08-19, VISUAL REFINEMENT
+--------------------------------------------------------------------------------
+
+The README now uses the three supplied platform marks rather than the earlier
+drawn approximations. Their originals are preserved under
+``spacr/resources/icons/platforms/source``: the transparent Linux PNG, the
+Windows PNG, and the Apple JPEG (stored with its correct ``.jpg`` extension).
+The generator removes each source's particular background without modifying
+or overwriting that source.
+
+All four generated buttons are 512 px squares in slate gray ``#475569`` with
+a restrained 32 px corner radius. Linux, Apple, and Windows are white,
+text-free, centred, and fitted so the longer dimension occupies 80% of the
+button. The fourth tile uses the existing white spaCR logo, centred above the
+only label in the row: ``LEGACY`` in white Open Sans Bold.
+
+The revised tests assert source provenance (including that Apple is JPEG),
+the exact slate tile, small corner radius, 80% platform geometry, centring,
+legacy-label placement, and byte-for-pixel agreement between committed assets
+and a fresh generator render. All 43 focused README-icon and installer-archive
+tests pass, and ``git diff --check`` is clean.
