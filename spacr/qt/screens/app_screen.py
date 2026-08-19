@@ -2312,7 +2312,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(2, 2)
             splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif self.app_key == "timelapse":
             # Timelapse takes the same slot Mask and Measure use for Live
             # Preview. Segmenting the sequence is the expensive half and is
@@ -2337,7 +2337,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(2, 2)
             splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif self.app_key == "motility":
             from ..widgets.motility_preview import build_motility_preview_card
             splitter = QSplitter(Qt.Vertical)
@@ -2358,7 +2358,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(2, 2)
             splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif self.app_key == "measure":
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
@@ -2378,7 +2378,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(2, 2)
             splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif _sweepable(self.app_key):
             # The regression module gets a Parameter sweep card in the same
             # place, behind the same kind of toggle, as the Hyperparameter
@@ -2400,7 +2400,7 @@ class AppScreen(QWidget):
             splitter.setSizes([720, 300, 220] if self._results_panel is not None
                               else [480, 360, 240])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         elif _hyperparam_searchable(self.app_key):
             # umap / classify / ml_analyze get a Hyperparameter search card in
             # the slot Mask and Measure use for Live Preview: same shape, same
@@ -2425,7 +2425,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(2, 2)
             splitter.setSizes([420, 360, 300])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
         else:
             # A plain vertical splitter so the figures/console divider is
             # draggable here too, which is where the regression module lives.
@@ -2437,7 +2437,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(1, 1)
             splitter.setSizes([560, 240])
             layout.addWidget(splitter, 1)
-            self._runtime_splitter = splitter
+            self._remember_runtime_splitter(splitter)
 
         # Route the verbose logger (if the user turned it on in
         # Preferences) at THIS screen's console. Only the last-focused
@@ -2766,6 +2766,54 @@ class AppScreen(QWidget):
         layout.addWidget(self._hint_strip)
 
         return wrap
+
+    #: Where a runtime splitter's state is stored. Distinct from the console
+    #: splitter's key, which `console_panel` already persists under the bare
+    #: app key -- two splitters on one screen would otherwise restore each
+    #: other's blob, and `restoreState` on a mismatched one silently does
+    #: nothing, which is a layout that ignores the user with no message.
+    RUNTIME_SPLIT_SUFFIX = "::runtime"
+
+    def _remember_runtime_splitter(self, splitter) -> None:
+        """Restore this screen's pane heights, and save them when dragged.
+
+        Instruction 162, reported as "the elements in measure need to be
+        modifiable in height". They already WERE draggable -- the Measure
+        branch builds a vertical QSplitter with three panes. What did not
+        happen is that the sizes were KEPT: `self._runtime_splitter` was
+        assigned in seven branches and READ IN NONE, so every launch went back
+        to the hard-coded `[420, 360, 300]`. A layout that snaps back is
+        indistinguishable from one that will not move, which is why the report
+        reads the way it does.
+
+        Saved on every drag rather than at shutdown: a crash, or a session
+        ended from the window manager, would otherwise discard the arrangement
+        the user had just made.
+        """
+        self._runtime_splitter = splitter
+        if splitter is None:
+            return
+        key = f"{self.app_key}{self.RUNTIME_SPLIT_SUFFIX}"
+        try:
+            from ..widgets.console_panel import get_split_state, set_split_state
+        except Exception:                                        # noqa: BLE001
+            return
+        try:
+            state = get_split_state(key)
+            if state is not None:
+                splitter.restoreState(state)
+        except Exception:                                        # noqa: BLE001
+            # A blob from an older layout restores nothing rather than
+            # raising; the default split is the right fallback.
+            pass
+
+        def _save(*_args):
+            try:
+                set_split_state(key, splitter.saveState())
+            except Exception:                                    # noqa: BLE001
+                pass
+
+        splitter.splitterMoved.connect(_save)
 
     def _sync_hint_strip_height(self) -> None:
         """Reserve four lines using the font Qt is actually painting."""
