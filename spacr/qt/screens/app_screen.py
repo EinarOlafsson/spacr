@@ -4392,6 +4392,22 @@ class AppScreen(QWidget):
                 LOG.debug("could not forget the run in %s", folder,
                           exc_info=True)
 
+            # AND ITS FIGURES (instruction 146's last open half). The queue
+            # sections its tiles by run label, and until `forget_run` existed
+            # there was no way to drop ONE section -- `clear()` is
+            # all-or-nothing, so removing a run would have taken every other
+            # run's figures with it. A grid still showing a deleted run's
+            # tiles is the same stale answer its plot state would have been.
+            queue = getattr(self, "_figure_queue", None)
+            label = str((record or {}).get("run") or "")
+            if queue is not None and label:
+                try:
+                    if queue.forget_run(label):
+                        self._queue_figure_grid_refresh()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not forget %s's figures", label,
+                              exc_info=True)
+
     def _on_results_tab_changed(self, index: int) -> None:
         """Opening a tab re-reads what it shows.
 
