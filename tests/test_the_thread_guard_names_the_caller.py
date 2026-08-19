@@ -44,15 +44,26 @@ def test_an_off_thread_start_is_recorded_with_a_stack(qtbot, caplog):
 
 def test_a_gui_thread_start_is_not_recorded(qtbot):
     """The guard must be silent on the ordinary path, or its output is noise
-    and nobody will read the one line that matters."""
+    and nobody will read the one line that matters.
+
+    SCOPED TO THIS TIMER rather than to a global count. Since the guard began
+    checking object AFFINITY it also sees Qt's own internal timers, including
+    ones belonging to threads another test left running -- so a count is
+    flaky in a way that says nothing about the ordinary path.
+    """
     from spacr.qt import thread_guard
 
     thread_guard.install()
-    before = len(thread_guard.offences())
     timer = QTimer()
-    timer.start(50)
-    timer.stop()
-    assert len(thread_guard.offences()) == before
+
+    def an_ordinary_gui_thread_start():
+        timer.start(50)
+        timer.stop()
+
+    an_ordinary_gui_thread_start()
+
+    assert not any("an_ordinary_gui_thread_start" in stack
+                   for stack in thread_guard.offences())
 
 
 def test_installing_twice_does_not_double_the_wrapper():
