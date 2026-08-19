@@ -2401,6 +2401,14 @@ class MainWindow(QMainWindow):
             except RuntimeError:
                 pass          # already deleted — nothing left to wait for
         super().closeEvent(event)
+        # WITH quitOnLastWindowClosed OFF, THIS IS WHAT ENDS THE PROGRAM.
+        # Nothing else may: a figure window closing must not take the session
+        # with it, and until this closes the application stays up even with
+        # no window on screen.
+        if event.isAccepted():
+            app = QApplication.instance()
+            if app is not None:
+                app.quit()
 
     # -- the app-list drawer ----------------------------------------------
     def dock_mode(self) -> str:
@@ -2963,6 +2971,24 @@ def launch(argv: Optional[list[str]] = None) -> int:
         "spaCR launched (python=%s.%s.%s, log=%s)",
         _sys.version_info.major, _sys.version_info.minor,
         _sys.version_info.micro, current_log_file())
+
+    # THE APPLICATION OUTLIVES ITS WINDOWS UNTIL THE MAIN ONE CLOSES.
+    #
+    # Qt's default is quitOnLastWindowClosed=True: the moment the number of
+    # visible top-level windows reaches zero, the event loop stops and the
+    # process exits CLEANLY -- no traceback, no core dump, the log simply
+    # ends. That is exactly the evidence for the reported "i ran it again and
+    # it just spontaneously quit": two runs closed [success], the log stops
+    # mid-session, and neither dmesg nor coredumpctl recorded anything,
+    # because nothing crashed.
+    #
+    # A run makes and destroys top-level windows -- a figure canvas being
+    # rebuilt, a transient dialog, a progress window -- and any instant with
+    # none of them up while the main window is not counted takes the whole
+    # application with it.
+    #
+    # So the main window decides, and it is the only thing that does.
+    app.setQuitOnLastWindowClosed(False)
 
     win = MainWindow(initial_app=initial_app)
     # Opens at its own size rather than maximised. Maximising assumes a
