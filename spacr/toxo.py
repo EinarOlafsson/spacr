@@ -20,6 +20,7 @@ from .figures.style import (ROLES, TYPE_SCALE, Palette, reference_line,
                             resolve_ink, rotate_ticks, text_legend,
                             theme_target)
 from .figures.style import rc as style_rc
+from . import tabular  # one reader: spacr.tabular is the funnel
 from .plot import save_figure  # every kept figure goes through the format/DPI preference
 
 #: The page width the published type scale was measured at: 180 mm, the double
@@ -200,7 +201,7 @@ def custom_volcano_plot(
     if isinstance(data_path, pd.DataFrame):
         data = data_path.copy()
     else:
-        data = pd.read_csv(data_path)
+        data = tabular.read_table(data_path, report=None)
 
     data['variable'] = data['feature'].str.extract(r'\[(.*?)\]')
     data['variable'] = data['variable'].fillna(data['feature'])
@@ -216,7 +217,7 @@ def custom_volcano_plot(
         # the first call.
         metadata = metadata_path.copy()
     else:
-        metadata = pd.read_csv(metadata_path)
+        metadata = tabular.read_table(metadata_path, report=None)
 
     metadata['gene_nr'] = metadata['gene_nr'].astype(str)
     data['gene_nr'] = data['gene_nr'].astype(str)
@@ -503,7 +504,7 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
     gene_list = significant_df['n_gene'].to_list()
 
     # Load metadata
-    metadata = pd.read_csv(metadata_path)
+    metadata = tabular.read_table(metadata_path, report=None)
     split_columns = metadata['Gene ID'].str.split('_', expand=True)
     metadata['gene_nr'] = split_columns[1]
 
