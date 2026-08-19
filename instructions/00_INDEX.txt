@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-117 done / 46 open (71%).
+117 done / 48 open (70%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -161,6 +161,12 @@ OPEN
 
   172  HOW MANY CELLS, AND WHICH ONES
        172_the_count_and_the_choice_of_cells.txt
+
+  173  A GUIDE AND A PROBABILITY FOR EVERY CELL
+       173_a_guide_and_a_probability_for_every_cell.txt
+
+  174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
+       174_beta_as_a_response_transform.txt
 
 --------------------------------------------------------------------------------
 DONE
