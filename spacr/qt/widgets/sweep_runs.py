@@ -1,11 +1,7 @@
 """The sweep's runs, as a tab beside the regression's results.
 
-Instruction 116, as corrected by the maintainer on 2026-08-16:
-
-    the parameter search is the main module setup plus one extra tab for the
-    runs (the maintainer's exact words are in instruction 116).
-
-Which is a smaller job than the plan it superseded, and a better one. The
+The parameter search uses the main module setup plus one extra tab for its
+runs. The
 parameter search was a bespoke screen carrying its own copies of the table,
 the figure queue and the results panel; every fix to the shared module screen
 had to be made again there, and this repository is already paying for that
@@ -23,7 +19,7 @@ same time as the plot. A runs table is a short list scanned top to bottom,
 and picking one replaces everything to its right -- so it is a tab. One is
 reading within a run, the other is navigating between them.
 
-EVERY RUN, NOT ONLY THE SWEEP'S (instruction 125 C):
+Every run, not only the sweep's, appears here:
 
     "the runs tab should capture all the runs in a sweep and all the runs run
      in the normal module."
@@ -275,6 +271,13 @@ class SweepRunsPanel(QWidget):
             QAbstractItemView.ExtendedSelection)
         self.table.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.table.customContextMenuRequested.connect(self._run_menu)
+        # DOUBLE-CLICK LOADS THE RUN, and it was connected to nothing at all.
+        # Selection alone already tried to load (see `_on_selection`), but a
+        # selection that is refused for any reason leaves the previous run on
+        # screen with no way to insist -- which is what "the first run is
+        # perpetually loaded" was. A double-click is the user saying it again,
+        # so it FORCES the load rather than asking politely.
+        self.table.table.doubleClicked.connect(self._on_double_click)
         self.table.table.installEventFilter(self)
         layout.addWidget(self.table, 1)
 
@@ -950,7 +953,7 @@ class SweepRunsPanel(QWidget):
 
         "12 figures, 4 CSVs, 31 MB". A user deciding whether to destroy an
         overnight fit needs to see WHAT they are destroying, and a folder
-        path alone is not that (instruction 146 A).
+        path alone is not that.
         """
         figures = tables = other = 0
         total = 0
@@ -987,7 +990,7 @@ class SweepRunsPanel(QWidget):
         The safe half, and the default gesture. It needs no confirmation
         because it is recoverable -- :meth:`reload` reads the folder again --
         and the status line says exactly that rather than leaving the user to
-        discover it (instruction 146 C).
+        discover it.
 
         :returns: how many rows left the table.
         """
@@ -1043,7 +1046,7 @@ class SweepRunsPanel(QWidget):
 
         NOT RECOVERABLE, so it takes a confirmation naming the folder and
         saying what is in it, and there is no undo offered -- an undo that
-        cannot honour itself is worse than none (instruction 146 C).
+        cannot honour itself is worse than none.
 
         :param confirm: called with the message and the list of folders;
             returns True to go ahead. Defaults to a modal question. Injected
@@ -1149,6 +1152,16 @@ class SweepRunsPanel(QWidget):
         count = len(records)
         plural = "s" if count != 1 else ""
         menu = QMenu(self)
+        # LOAD FIRST, because it is what a user opens this menu for. The menu
+        # offered Remove, Open beside and Delete and no way to LOAD -- so the
+        # only route to a different run was a single click, and when that was
+        # refused there was no second route at all.
+        load = None
+        if count == 1:
+            load = menu.addAction("Load this run")
+            load.setData("load")
+            load.setToolTip("Show this run's results, figures and summary.")
+            menu.addSeparator()
         remove = menu.addAction(f"Remove {count} run{plural} from the list")
         remove.setData("remove")
         remove.setToolTip("The folders on disk are untouched. Reload brings "
@@ -1172,12 +1185,57 @@ class SweepRunsPanel(QWidget):
             # is still updating would leave `update_run` writing to a handle
             # with nothing to show for it.
             why = self._why_it_cannot_be_deleted(running)
+            # LOAD IS GREYED TOO, and for its own reason rather than the
+            # delete reason: a run still going has produced no results table,
+            # no figures and no summary, so loading it would put an empty
+            # screen under a mark claiming a run. That is worse than a
+            # disabled entry, which at least says why.
+            if load is not None:
+                load.setEnabled(False)
+                load.setToolTip(
+                    "This run is still going, so it has no results to show "
+                    "yet. It becomes the loaded run when it finishes.")
             for action in (remove, delete):
                 action.setEnabled(False)
                 action.setToolTip(why)
             menu.addSeparator()
             menu.addAction(why).setEnabled(False)
         return menu
+
+    def _on_double_click(self, index=None) -> None:
+        """Load the double-clicked run, whatever state the mark is in."""
+        record = self.selected_trial()
+        if record is None:
+            return
+        self.load_this_run(record)
+
+    def load_this_run(self, record) -> bool:
+        """Load ``record`` NOW, even if the mark already claims it.
+
+        THE DIFFERENCE FROM `set_loaded_run`, and the reason both exist: that
+        one is idempotent -- it returns early when the key has not changed,
+        which is right for a run announcing itself and wrong for a user asking
+        twice. If the mark and the screen have drifted apart for any reason,
+        an idempotent load is exactly the one that cannot repair it.
+
+        So this always announces. Asking for the run already on screen costs a
+        redundant reload and gets a user out of a stuck state; refusing them
+        leaves them with a table that ignores clicks.
+        """
+        if not isinstance(record, dict):
+            return False
+        key = self._row_key(record)
+        if not key:
+            return False
+        before = self._loaded_key
+        self._loaded_key = key
+        self._source_note = ""
+        self._paint_the_loaded_mark()
+        if not self._announce_the_loaded_run(before):
+            # Nothing listened to the loaded-run signal; the results panel
+            # still has to be told, and `trial_activated` is the other door.
+            self.trial_activated.emit(dict(record))
+        return True
 
     def _run_menu(self, position) -> None:
         """Show the row menu where the user right-clicked, and act on it."""
@@ -1203,6 +1261,13 @@ class SweepRunsPanel(QWidget):
         an entry DOES either enters it and hangs, or re-implements the
         dispatch and tests its own copy.
         """
+        if verb == "load" and records:
+            # The menu greys it, and so does this: a menu is one door and
+            # `_apply_run_menu` is the seam tests drive, so a guard on the
+            # paint alone would be a guard a test could walk straight past.
+            if self._is_running(records[0]):
+                return False
+            return self.load_this_run(records[0])
         if verb == "remove":
             return bool(self.remove_runs(records))
         if verb == "beside" and records:
@@ -1215,7 +1280,7 @@ class SweepRunsPanel(QWidget):
     def eventFilter(self, watched, event):                    # noqa: N802
         """Delete on the selection removes it FROM THE LIST.
 
-        The safe half on the bare key, per instruction 146 A. Deleting from
+        The safe half on the bare key, per the design. Deleting from
         disk is a separate, explicitly-worded choice and is not something a
         keystroke can reach.
         """

@@ -254,14 +254,41 @@ def test_the_context_menu_puts_the_safe_entry_first(qtbot, tmp_path):
                    panel.selected_runs()).actions()
                if not action.isSeparator()]
     verbs = [action.data() for action in actions]
-    assert verbs[0] == "remove"
-    assert actions[0].text().startswith("Remove 1 run from the list")
+    # LOAD IS FIRST since 2026-08-18, and the rule this test guards is
+    # unchanged by that: the top entry must not be the irreversible one, and
+    # Load is the least destructive entry in the menu -- it shows a run. It is
+    # also what a user opens this menu FOR, which is why it went to the top;
+    # the menu previously offered no way to load at all, so the only route to
+    # another run was a single click.
+    assert verbs[0] == "load"
+    assert actions[0].text() == "Load this run"
+    assert verbs[1] == "remove"
+    assert actions[1].text().startswith("Remove 1 run from the list")
     # DESTRUCTIVE LAST, whatever else the menu grows. 116's "open beside"
     # arrived between the two and the ordering rule is the one that matters:
     # what is at the top must not be the irreversible one.
     assert verbs[-1] == "delete"
     assert actions[-1].text().startswith("Delete 1 run from disk")
     assert all(action.isEnabled() for action in actions)
+
+
+def test_load_is_greyed_while_the_run_is_still_going(qtbot, tmp_path):
+    """A run still going has no results, so loading it would show nothing.
+
+    An empty screen under a mark claiming a run is worse than a disabled
+    entry, which at least says why (instruction 106).
+    """
+    panel = _panel(qtbot)
+    panel.record_run("ols_2", folder=str(tmp_path / "ols_2"))
+    _select(panel, "ols_2")
+    actions = {action.data(): action
+               for action in panel._build_run_menu(panel.selected_runs()).actions()
+               if action.data()}
+    assert "load" in actions
+    assert not actions["load"].isEnabled()
+    assert "still going" in actions["load"].toolTip()
+    # And the seam a test drives is guarded too, not only the paint.
+    assert panel._apply_run_menu("load", panel.selected_runs()) is False
 
 
 def test_the_menu_greys_both_entries_for_a_running_run(qtbot):
