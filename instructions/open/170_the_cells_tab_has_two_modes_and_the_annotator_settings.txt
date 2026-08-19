@@ -1,0 +1,85 @@
+================================================================================
+THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
+================================================================================
+
+Status:    filed 2026-08-19. PRIORITISED at the maintainer's request, ahead of
+           167, 168 and 169.
+Requested: 2026-08-19 -- "for the cells tab. as i stated when discribing this
+           feature origionally. there should be 2 ways of doing this ... so to
+           start with there should be a mode setting that defaults to saved
+           PNGs vs live crop. then a settings button that spawns a settings
+           window like annotation aplication and gives the user the same
+           controll over how to show the images like the annotation
+           application. settings that do not apply for the chosen method are
+           grayed out."
+
+RESTATED, BECAUSE IT WAS DESCRIBED ONCE ALREADY AND BUILT AS ONE ROUTE.
+
+THE TWO MODES
+
+  1. SAVED PNGs -- THE DEFAULT, AND THE EASY ONE.
+     Needs `measurements.db` and the `data/` folder in the spaCR structure.
+     Reads the crops that were exported at measure time. The user chooses
+     WHICH CHANNELS of the PNG to load, whether they are normalised, and
+     whether object outlines are drawn from them.
+
+  2. LIVE CROP FROM THE ARRAYS.
+     Needs the `merged/` folder and the database. The user specifies which
+     channels to build the picture from, AND which array the intensity
+     channels are cut by -- a mask label, or object coordinates from the
+     object table. COORDINATES CAN ONLY GIVE A BOUNDING BOX, and the panel
+     must say so rather than offering an object-shaped cut it cannot make.
+
+WHAT TO BUILD
+
+A. A MODE SETTING, defaulting to saved PNGs. It is the first control, not a
+   consequence of what happens to be on disk. `resolve_montage_crop_source`
+   already decides a route by looking at the folders; that stays as the
+   ANSWER TO "what is available", and stops being the answer to "what did the
+   user ask for".
+
+B. A SETTINGS BUTTON THAT OPENS THE ANNOTATOR'S OWN CONTROLS. Not a new
+   vocabulary: `set_annotate_default_settings` already names every one of
+   them, and the Cells tab should offer the same keys with the same meanings
+   --
+
+       image_type, channels, img_size, normalize_channels, percentiles,
+       outline, outline_threshold_factor, outline_sigma, edge_thickness,
+       edge_transparency, edge_image, object_size, crop_source
+
+   A second set of names for the same picture is the "one vocabulary" failure
+   145 is about, and here it would be two panels that disagree about what
+   "normalize" means.
+
+C. WHAT DOES NOT APPLY IS GREYED, NEVER HIDDEN (INVARIANTS 6). In saved-PNG
+   mode the array/mask selectors are greyed with the reason; in live-crop
+   mode the PNG channel picker is. A control that vanishes cannot tell the
+   user why their mode does not offer it -- which is the same rule the
+   backend selector already follows, and the same one the volcano's adjusted
+   axis follows.
+
+D. AND THE REFUSALS STAY HONEST. A mode the folders cannot serve says which
+   folder is missing -- `merged/` for the live crop, `data/` for the PNGs --
+   rather than silently falling back to the other one. Falling back is what
+   makes a user believe they are looking at a crop they are not.
+
+HOW TO KNOW IT WORKED
+
+* The Cells tab opens in saved-PNG mode without being told to.
+* The settings window offers the annotator's controls, under the annotator's
+  names, and a change to any of them changes the picture.
+* Switching to live crop greys the PNG-only controls and enables the array
+  and coordinate selectors; switching back reverses it, and nothing is
+  hidden either way.
+* Choosing coordinates says that the cut will be a bounding box before it is
+  made.
+* A screen with no `merged/` cannot be put into live-crop mode silently: it
+  is refused by name.
+
+RELATED
+
+* 167 -- the scores the montage needs are in the loaded score CSVs, not only
+  in the database. Both modes need that fixed to draw anything at all on the
+  maintainer's screen.
+* 155 F -- the crop paths already re-root when the screen moves computer, and
+  both modes inherit it.
