@@ -6640,9 +6640,16 @@ def _perform_regression(settings):
         except Exception as error:                               # noqa: BLE001
             print(f"Could not re-save the resolved settings: {error}")
 
+    # WHERE THE EXCLUSION COUNTS ARE COLLECTED (instruction 156). One dict on
+    # the settings, filled by whichever step drops rows, read by the run
+    # summary at the end. It lives on `settings` rather than on the frame
+    # because a count has to survive the joins and re-indexes the frame does
+    # not carry `.attrs` through.
+    _exclusions = settings.setdefault("_regression_exclusions", {})
     independent_df = process_reads(
         count_data_df, settings['fraction_threshold'], None,
-        filter_column=filter_column, filter_value=filter_value)
+        filter_column=filter_column, filter_value=filter_value,
+        record=_exclusions)
         
     if settings['verbose']:
         print("independent_df columns:", list(independent_df.columns))
@@ -7492,7 +7499,8 @@ def _assign_prcfo_parts(df, object_column='objectID'):
     return df
 
 
-def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filter_value=None):
+def process_reads(csv_path, fraction_threshold, plate, filter_column=None,
+                  filter_value=None, record=None):
     """Load a per-gRNA read-count CSV and return per-well normalised fractions.
 
     Splits derived ``plate_row`` or ``prcfo`` identifiers, computes each
@@ -7609,6 +7617,17 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None, filte
         merged_df = merged_df[merged_df['fraction'] >= fraction_threshold]
         observations_after = len(merged_df)
         removed = observations_before - observations_after
+        # RECORDED, NOT ONLY PRINTED (instruction 156). The summary used to
+        # say "the run printed how many it removed and did not record it, so
+        # the count is in the console log and not in any file this summary can
+        # read" -- which was honest and is a gap rather than an answer. A
+        # console scrolls; a run somebody asks about tomorrow needs the number.
+        # Accumulated because this runs once per plate.
+        if record is not None:
+            record["fraction_threshold"] = (
+                record.get("fraction_threshold", 0) + int(removed))
+            record["fraction_threshold_of"] = (
+                record.get("fraction_threshold_of", 0) + int(observations_before))
 
         pct_retained = 100 * observations_after / observations_before if observations_before else 0
         print(

@@ -46,7 +46,7 @@ NOTHING HERE IS NEW STATISTICS. It is a collector:
 
 WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the
 file :func:`spacr.qt.widgets.regression_results.find_summary_file` already
-reads back (instruction 153), so re-opening a run from disk shows this summary
+reads back, so re-opening a run from disk shows this summary
 with no GUI change. The statsmodels text, where there is one, is appended
 VERBATIM at the end rather than replaced.
 """
@@ -1650,6 +1650,25 @@ def _effect_size_cut(run: "_Run") -> Dict[str, str]:
 #: not record. NAMED rather than left as a blank, because "0 rows removed" and
 #: "nobody counted" are opposite findings and a summary must not spell them
 #: the same way. Recording them is queued on instruction 156's trailing note.
+def _exclusion_count(settings, key):
+    """What a filter recorded dropping, or ``None`` when nothing recorded it.
+
+    ``None`` IS NOT ZERO and the caller must not spell them the same way: "no
+    row was dropped" and "nobody counted" are opposite findings, and a summary
+    that reported the second as the first would understate what the fit was
+    given.
+    """
+    try:
+        recorded = _setting(settings, "_regression_exclusions") or {}
+        value = recorded.get(key)
+    except Exception:                                            # noqa: BLE001
+        return None
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 _NOT_RECORDED = ("the run printed how many it removed and did not record it, "
                  "so the count is in the console log and not in any file "
                  "this summary can read")
@@ -1676,9 +1695,26 @@ def _excluded_section(run: "_Run") -> List[SummaryField]:
             value="not set, so no gRNA row was dropped for a low well "
                   "fraction")
     else:
-        add("fraction_threshold",
-            value=f"gRNA rows below a well fraction of {float(fraction):g} "
-                  f"were dropped; {_NOT_RECORDED}")
+        # RECORDED SINCE 2026-08-19. `ml.process_reads` takes a `record=` dict
+        # and accumulates what it dropped, per plate, into
+        # `settings['_regression_exclusions']` -- so this is a number now
+        # rather than an admission. The admission is kept for the runs that
+        # predate the recorder, because "0 removed" and "nobody counted" are
+        # opposite findings and must not be spelled the same way.
+        dropped = _exclusion_count(settings, "fraction_threshold")
+        outof = _exclusion_count(settings, "fraction_threshold_of")
+        if dropped is None:
+            add("fraction_threshold",
+                value=f"gRNA rows below a well fraction of "
+                      f"{float(fraction):g} were dropped; {_NOT_RECORDED}")
+        elif outof:
+            add("fraction_threshold",
+                value=f"{dropped:,} of {outof:,} gRNA rows were below a well "
+                      f"fraction of {float(fraction):g} and were dropped")
+        else:
+            add("fraction_threshold",
+                value=f"{dropped:,} gRNA rows were below a well fraction of "
+                      f"{float(fraction):g} and were dropped")
     add("missing_metadata",
         value=f"the score and count tables are joined on the well, so a well "
               f"present in only one of them takes no part in the fit; "
@@ -1954,8 +1990,8 @@ def write_run_summary(res_folder, *, model=None, settings=None, coef_df=None,
     both inferences. It writes the file
     :func:`spacr.qt.widgets.regression_results.find_summary_file` already
     reads back, so a run re-opened from disk shows this summary with no GUI
-    change (instruction 153 taught the panel to read the run folder;
-    instruction 156 is about there being something worth reading in it).
+    change (the design taught the panel to read the run folder;
+    the design is about there being something worth reading in it).
 
     THE STATSMODELS SUMMARY IS PRESERVED. ``ols`` and ``beta`` runs have
     already written the statsmodels text into this same file by the time this
