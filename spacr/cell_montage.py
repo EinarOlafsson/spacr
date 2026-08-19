@@ -249,6 +249,44 @@ def round_half_up(value: float) -> int:
     return int(math.floor(number + 0.5))
 
 
+
+def normalised_share(well_fractions, fraction: float) -> Tuple[float, float]:
+    """``(share, factor)`` -- the guide's fraction of what is left in the well.
+
+    Instruction 172: "first calculate what all the fractions in that well add
+    up to if not 1 then normalize to 1 and save the normalization factor then
+    take the chosen grna fraction and apply that normalization factor".
+
+    THE FACTOR IS NOT A NO-OP, and that is why this exists. Measured on the
+    maintainer's screen: the raw count tables give every well a fraction sum
+    of exactly 1.000000, but `fraction_threshold` defaults to 0.02 and the
+    filtered table's sums fall to a median of 0.5526 with a minimum of
+    0.1515. The filtered table is the ordinary case, so the un-normalised
+    share understates the count by roughly half.
+
+    :param well_fractions: every guide's fraction in this well.
+    :param fraction: the chosen guide's fraction.
+    :returns: the normalised share and the factor applied. A well whose
+        fractions sum to zero -- or to nothing usable -- keeps its fraction
+        and a factor of 1: there is nothing to normalise against, and
+        inventing one would be arithmetic on no evidence.
+    """
+    try:
+        total = float(sum(float(v) for v in well_fractions
+                          if math.isfinite(float(v))))
+    except (TypeError, ValueError):
+        total = 0.0
+    share = float(fraction)
+    if not math.isfinite(share):
+        return 0.0, 1.0
+    if total <= 0.0 or not math.isfinite(total):
+        return share, 1.0
+    factor = 1.0 / total
+    # Capped at 1: a share above 1 would mean this guide is more than all of
+    # the well, which is a join that did not line up rather than a number.
+    return min(share * factor, 1.0), factor
+
+
 def objects_to_show(n_objects: int, fraction: float) -> int:
     """Return ``round(n_objects * fraction)`` -- the montage's count rule.
 
@@ -992,7 +1030,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    fraction_column: str = "fraction",
                    crop_source: Optional["CropSourceChoice"] = None,
                    guides: Optional[Sequence[str]] = None,
-                   ) -> MontagePlan:
+                   show_all: bool = False) -> MontagePlan:
     """Return the objects to show behind one coefficient.
 
     The whole selection, in the order the design states it: the wells
@@ -1089,6 +1127,21 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
     grouped: Dict[Tuple[Any, ...], pd.DataFrame] = {}
     for label, frame in work.groupby(keys, dropna=False):
         grouped[label if isinstance(label, tuple) else (label,)] = frame
+    # EVERY GUIDE'S FRACTION IN EACH WELL, which is what the normalisation
+    # divides by (instruction 172). It comes from the FULL count table and
+    # not from `selected_counts`: the latter holds only the chosen
+    # coefficient, so summing it would always give that guide's own fraction
+    # and a factor of exactly 1 -- a normalisation that never normalised.
+    well_totals: Dict[str, float] = {}
+    try:
+        totals = counts.copy()
+        totals["_montage_well"] = _well_labels(totals, keys)
+        well_totals = {
+            str(k): float(v) for k, v in
+            totals.groupby("_montage_well")[fraction_column].sum().items()}
+    except Exception:                                        # noqa: BLE001
+        well_totals = {}
+
     notes: List[str] = []
     selections: List[WellSelection] = []
     chosen: List[pd.DataFrame] = []
@@ -1112,7 +1165,18 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         n_objects = int(len(here))
         if n_reported is not None and n_reported != n_objects:
             mismatched.append(f"{label} ({n_reported} reported, {n_objects} present)")
-        expected = objects_to_show(n_objects, fraction)
+
+        # HOW MANY (instruction 172). The guide's share of what the count
+        # table still holds for this well, times the number of cells that
+        # actually carry a classification score -- not the number of rows.
+        # An object with no score cannot be ranked, so counting it would
+        # promise cells the ranking cannot deliver.
+        total_here = float(well_totals.get(label, 0.0))
+        share, factor = normalised_share(
+            [total_here] if total_here else [], fraction)
+        here_scores = pd.to_numeric(here[score_column], errors="coerce")
+        n_classified = int(here_scores.notna().sum())
+        expected = objects_to_show(n_classified, share)
         admissible = here[here["_montage_in_window"]]
         n_in_window = int(len(admissible))
         if expected == 0:
@@ -1124,13 +1188,43 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 n_selected=0, note=note))
             continue
 
-        take = admissible.sort_values(
-            ["montage_distance", "_montage_tiebreak"]).head(expected)
-        n_taken = int(len(take))
-        note = ""
-        if n_taken < expected:
-            note = (f"only {n_taken} of {expected} objects fall inside the "
-                    "score window")
+        # WHICH ONES (instruction 172). "rank all cells by classefication
+        # score and take the top x cells".
+        #
+        # THE DIRECTION FOLLOWS THE COEFFICIENT. Highest scores for a positive
+        # effect, lowest for a negative one, because the cells a coefficient
+        # points at are the ones whose phenotype moved the way it says.
+        # Always-descending would show a negative coefficient the cells LEAST
+        # consistent with it.
+        ranked = here.assign(_montage_score=here_scores)
+        ranked = ranked.dropna(subset=["_montage_score"]).sort_values(
+            ["_montage_score", "_montage_tiebreak"],
+            ascending=[coefficient.effect < 0, True])
+        top = ranked.head(expected)
+        direction = "lowest" if coefficient.effect < 0 else "highest"
+        arithmetic = (f"round({share:.4g} x {n_classified}) = {expected}, "
+                      f"where {share:.4g} is this guide's {fraction:.4g} "
+                      f"normalised by {factor:.4g} (the well's fractions sum "
+                      f"to {total_here:.4g})")
+        if show_all:
+            # EVERY CELL IN THE WELL, with the chosen ones marked rather than
+            # the rest removed. "show all the images from each well and
+            # highlight the cells most likely to be whatever gene is picked".
+            take = ranked.copy()
+            take["montage_candidate"] = take.index.isin(top.index)
+            n_taken = int(len(take))
+            note = (f"showing all {n_taken} classified cells in the well; "
+                    f"the {int(take['montage_candidate'].sum())} with the "
+                    f"{direction} scores are highlighted -- {arithmetic}")
+        else:
+            take = top.copy()
+            take["montage_candidate"] = True
+            n_taken = int(len(take))
+            note = arithmetic
+            if n_taken < expected:
+                note = (f"only {n_taken} of {expected} cells in this well "
+                        f"carry a classification score -- {arithmetic}")
+        take = take.drop(columns=["_montage_score"], errors="ignore")
         selections.append(WellSelection(
             well=label, fraction=fraction, n_objects=n_objects,
             n_reported=n_reported, n_expected=expected,
@@ -1165,6 +1259,13 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
 
     picked = picked.sort_values(
         ["montage_well", "montage_distance", "_montage_tiebreak"])
+    # WHICH OF THEM THE COEFFICIENT POINTS AT, kept as a column so the panel
+    # can mark them. In the filtered view every row is a candidate by
+    # construction; in the show-all view it is the distinction the whole
+    # option exists for.
+    if "montage_candidate" not in picked.columns:
+        picked["montage_candidate"] = True
+    picked["montage_candidate"] = picked["montage_candidate"].fillna(False).astype(bool)
     picked = picked.drop(columns=["_montage_in_window", "_montage_tiebreak"])
     picked = picked.reset_index(drop=True)
     picked["montage_rank"] = np.arange(1, len(picked) + 1)

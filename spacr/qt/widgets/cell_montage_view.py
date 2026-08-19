@@ -492,6 +492,36 @@ class MontageLoad:
         return sum(int(getattr(p, "n_objects", 0)) for p in self.plans)
 
 
+
+def _thumb_px_of(picture) -> int:
+    """How big to draw each cell, from the picture settings.
+
+    `img_size` is the annotator's name for it, so a user who has set the
+    crop size in one panel finds the same number here.
+    """
+    try:
+        value = int((picture or {}).get("img_size") or 0)
+    except (TypeError, ValueError):
+        return 0
+    # Bounded: a thumbnail larger than the panel is a scroll bar, and one
+    # smaller than a few pixels is not a picture.
+    return max(24, min(value, 512)) if value else 0
+
+
+def _per_page_of(picture) -> int:
+    """How many cells one page of a well holds, from the picture settings."""
+    try:
+        value = int((picture or {}).get("cells_per_page") or 0)
+    except (TypeError, ValueError):
+        return 0
+    return max(1, value) if value else 0
+
+
+def _show_all_of(picture) -> bool:
+    """Whether to show every cell in the well rather than only the candidates."""
+    return bool((picture or {}).get("show_all_in_well"))
+
+
 def _crop_settings(request: "MontageRequest", root: str) -> Dict[str, Any]:
     """The settings mapping ``resolve_crop_source`` takes for one plate."""
     settings: Dict[str, Any] = {"src": root}
@@ -712,6 +742,10 @@ def load(request: MontageRequest) -> MontageLoad:
         level=request.level, score_column=request.score_column, cap=cap,
         half_widths=half_widths, baseline=request.baseline,
         baseline_label=request.baseline_label or None, crop_source=combined)
+    # THE WHOLE WELL, OR ONLY THE CHOSEN CELLS (instruction 172). Not the
+    # default: the two answer different questions, and a reader who cannot
+    # see the well cannot judge how many of it the fraction claims.
+    selection["show_all"] = _show_all_of(request.picture)
     try:
         if request.per_guide:
             plans = select_montage_per_guide(
@@ -882,13 +916,23 @@ class _Thumb(QLabel):
     ask for and that would need a second selection mechanism to deliver.
     """
 
-    def __init__(self, pixmap: QPixmap, tooltip: str, parent=None):
+    def __init__(self, pixmap: QPixmap, tooltip: str, parent=None,
+                 size: int = 0, highlight: str = ""):
         super().__init__(parent)
         self.setPixmap(pixmap)
         self.setToolTip(tooltip)
         self.setAlignment(Qt.AlignCenter)
-        self.setFixedSize(THUMBNAIL_PX, THUMBNAIL_PX)
+        self.setFixedSize(int(size or THUMBNAIL_PX), int(size or THUMBNAIL_PX))
         self.setFrameShape(QFrame.NoFrame)
+        # THE ANNOTATION APP'S OWN BORDER, asked for by appearance:
+        # "highlight the cells most likely to be whatever gene is picked ...
+        # as if they were annotated in the annotations app". `label_to_hex`
+        # is where that colour is decided, and it is theme-aware because
+        # contrast is -- so this borrows it rather than picking a blue.
+        self.highlight = str(highlight or "")
+        if self.highlight:
+            self.setStyleSheet(
+                f"border: 2px solid {self.highlight}; border-radius: 2px;")
 
 
 class _WellTab(QWidget):
@@ -945,6 +989,27 @@ class _WellTab(QWidget):
         self._scroll.setWidget(self._body)
         split.addWidget(self._scroll)
 
+        # HOW BIG THE CELLS ARE DRAWN AND HOW MANY FIT ON A PAGE. Both are
+        # the user's, set from the picture settings; the defaults are what
+        # this tab has always used, so a panel nobody touches is unchanged.
+        self._thumb_px = THUMBNAIL_PX
+        self._per_page = 0
+        self._page = 0
+
+        self._pager = QWidget()
+        pager = QHBoxLayout(self._pager)
+        pager.setContentsMargins(6, 0, 6, 0)
+        self._prev = QPushButton("‹ previous")
+        self._prev.clicked.connect(lambda: self.show_page(self._page - 1))
+        pager.addWidget(self._prev)
+        self._page_label = QLabel("")
+        pager.addWidget(self._page_label, 1)
+        self._next = QPushButton("next ›")
+        self._next.clicked.connect(lambda: self.show_page(self._page + 1))
+        pager.addWidget(self._next)
+        self._pager.setVisible(False)
+        layout.addWidget(self._pager)
+
         self._caption = QPlainTextEdit()
         self._caption.setReadOnly(True)
         self._caption.setMinimumHeight(70)
@@ -956,19 +1021,54 @@ class _WellTab(QWidget):
 
     # ------------------------------------------------------------- content
     def set_content(self, rows, crops: Sequence[Any], caption: str,
-                    columns: int) -> None:
+                    columns: int, thumb_px: int = 0,
+                    per_page: int = 0) -> None:
         """Replace what this tab shows.
 
         :param rows: the well's own object rows, index-reset.
         :param crops: the crops for those rows, aligned with them.
         :param caption: this well's own account of itself.
         :param columns: how many thumbnails fit across.
+        :param thumb_px: the size to draw each crop at; 0 keeps
+            :data:`THUMBNAIL_PX`.
+        :param per_page: how many crops one page holds; 0 means all of them.
         """
         self._rows = rows
         self._crops = tuple(crops)
         self._caption_text = str(caption)
         self._caption.setPlainText(self._caption_text)
+        if thumb_px:
+            self._thumb_px = int(thumb_px)
+        if per_page:
+            self._per_page = int(per_page)
+        self._page = 0
         self.fill(columns)
+
+    # ------------------------------------------------------------- paging
+
+    def page_count(self) -> int:
+        """How many pages this well's crops take at the current page size."""
+        if not self._per_page or not self._crops:
+            return 1
+        return max(1, -(-len(self._crops) // self._per_page))
+
+    def page(self) -> int:
+        """The page now shown, counting from zero."""
+        return self._page
+
+    def show_page(self, index: int) -> int:
+        """Show page ``index``, clamped. Returns the page actually shown."""
+        self._page = max(0, min(int(index), self.page_count() - 1))
+        self.fill(self._columns)
+        return self._page
+
+    def _page_slice(self):
+        """The crops and rows for the page now shown."""
+        if not self._per_page:
+            return list(range(len(self._crops)))
+        start = self._page * self._per_page
+        return list(range(start, min(start + self._per_page,
+                                     len(self._crops))))
 
     def caption_text(self) -> str:
         """This tab's caption, exactly as it is on screen."""
@@ -990,11 +1090,35 @@ class _WellTab(QWidget):
             self._note.setVisible(True)
             return
         self._note.setVisible(False)
-        for index, crop in enumerate(self._crops):
+        # ONE PAGE AT A TIME when a well has more cells than a page holds.
+        # A well capped at 300 objects drawn as one grid is a scroll nobody
+        # reads to the end of, and the alternative that was NOT taken is
+        # silently truncating it -- a montage that shows some of a well and
+        # says it showed the well is the failure this whole panel avoids
+        # everywhere else.
+        shown = self._page_slice()
+        for position, index in enumerate(shown):
+            crop = self._crops[index]
             row = self._rows.iloc[index] if index < len(self._rows) else None
-            self._grid.addWidget(_thumbnail(crop, row, self._body),
-                                 index // self._columns,
-                                 index % self._columns)
+            self._grid.addWidget(
+                _thumbnail(crop, row, self._body, size=self._thumb_px),
+                position // self._columns, position % self._columns)
+        self._refresh_pager()
+
+    def _refresh_pager(self) -> None:
+        """Say which page this is, and offer the others."""
+        pages = self.page_count()
+        if pages <= 1:
+            self._pager.setVisible(False)
+            return
+        first = self._page * self._per_page + 1
+        last = min(first + self._per_page - 1, len(self._crops))
+        self._page_label.setText(
+            f"cells {first}-{last} of {len(self._crops)}   "
+            f"(page {self._page + 1} of {pages})")
+        self._prev.setEnabled(self._page > 0)
+        self._next.setEnabled(self._page < pages - 1)
+        self._pager.setVisible(True)
 
     def clear(self) -> None:
         """Empty the grid, leaving nothing of the previous fill behind."""
@@ -1032,19 +1156,56 @@ def _tooltip(row) -> str:
     return " · ".join(parts)
 
 
-def _thumbnail(crop, row, parent=None) -> QWidget:
+def candidate_colour() -> str:
+    """The border a likely cell wears, in the annotation app's own palette.
+
+    Class 1 -- the first annotation colour -- because these ARE the panel's
+    first class of thing: the cells consistent with the coefficient. Theme
+    aware, because `label_to_hex` is: the same hue deepens against a light
+    tile so it stays readable, which is issue #6.
+    """
+    try:
+        from ..annotate_engine import label_to_hex
+    except Exception:                                        # noqa: BLE001
+        return "#3ea6ff"
+    dark = True
+    try:
+        from ..preferences import resolve_effective_theme
+
+        dark = str(resolve_effective_theme() or "").strip().lower() != "light"
+    except Exception:                                        # noqa: BLE001
+        pass
+    return label_to_hex(1, dark=dark) or "#3ea6ff"
+
+
+def _is_candidate(row) -> bool:
+    """Whether this object is one of the cells the coefficient points at."""
+    if row is None:
+        return False
+    try:
+        if "montage_candidate" not in getattr(row, "index", ()):
+            return False
+        return bool(row["montage_candidate"])
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _thumbnail(crop, row, parent=None, size: int = 0) -> QWidget:
     """One crop as a widget, or a labelled placeholder when it is missing."""
     tooltip = _tooltip(row)
+    px = int(size or THUMBNAIL_PX)
     if crop is None:
         label = QLabel("no crop")
         label.setToolTip(tooltip or "this object could not be cut")
         label.setAlignment(Qt.AlignCenter)
-        label.setFixedSize(THUMBNAIL_PX, THUMBNAIL_PX)
+        label.setFixedSize(px, px)
         return label
-    return _Thumb(_pixmap(crop), tooltip, parent)
+    highlight = candidate_colour() if _is_candidate(row) else ""
+    return _Thumb(_pixmap(crop, px), tooltip, parent, size=px,
+                  highlight=highlight)
 
 
-def _pixmap(crop) -> QPixmap:
+def _pixmap(crop, size: int = 0) -> QPixmap:
     """A crop as a thumbnail-sized ``QPixmap``."""
     array = np.ascontiguousarray(np.asarray(crop, dtype=np.uint8))
     if array.ndim == 2:
@@ -1055,9 +1216,9 @@ def _pixmap(crop) -> QPixmap:
     # `.copy()` is not optional: QImage does not own the numpy buffer, and
     # without it the pixmap points at freed memory the moment the array
     # goes out of scope.
+    px = int(size or THUMBNAIL_PX)
     return QPixmap.fromImage(image.copy()).scaled(
-        THUMBNAIL_PX, THUMBNAIL_PX, Qt.KeepAspectRatio,
-        Qt.SmoothTransformation)
+        px, px, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
 
 class CellMontageView(QWidget):
@@ -2061,10 +2222,13 @@ class CellMontageView(QWidget):
                         plan.coefficient.level),
                         f"{plan.coefficient.describe()} — {well.describe()}. "
                         "This tab closes only when its × is clicked.")
+                picture = request.picture or {}
                 tab.set_content(rows.iloc[positions].reset_index(drop=True),
                                 [crops[i] for i in positions],
                                 self._well_caption(plan, well, guides),
-                                self._columns)
+                                self._columns,
+                                thumb_px=_thumb_px_of(picture),
+                                per_page=_per_page_of(picture))
                 refreshed.add(key)
         # A TAB THIS RUN NO LONGER FILLS MUST NOT KEEP SHOWING THE OLD ONE.
         # Driving the real widget found it: narrow the cap and re-run, and the

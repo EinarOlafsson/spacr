@@ -462,19 +462,30 @@ def test_each_well_contributes_round_objects_times_fraction():
         "plate1_r1_c1": 4, "plate1_r1_c2": 1, "plate1_r1_c3": 4}
 
 
-def test_the_objects_chosen_are_the_ones_closest_to_the_implied_score():
-    """"Closest" is smallest |score - target|, and nothing else."""
+def test_the_objects_chosen_are_the_top_ranked_by_score():
+    """Instruction 172: "rank all cells by classefication score and take the
+    top x cells". The score WINDOW no longer decides which -- it decided
+    independently of the count, so a well could expect objects and contribute
+    none, which is what the maintainer saw."""
     objects = _objects()
     plan = select_montage(objects, _counts(), "GRA14", 0.2, half_widths=10.0)
-    target = plan.window.target
     for well, frame in plan.objects.groupby("montage_well"):
         pool = objects[objects["prc"] == well]
-        wanted = pool.reindex(
-            (pool["pred"] - target).abs().sort_values().index).head(len(frame))
+        # A POSITIVE effect, so the highest scores.
+        wanted = pool.sort_values("pred", ascending=False).head(len(frame))
         assert sorted(frame["object_label"]) == sorted(wanted["object_label"]), (
-            f"{well} did not take the objects nearest {target:.4g}")
-    assert (plan.objects["montage_distance"]
-            == (plan.objects["pred"] - target).abs()).all()
+            f"{well} did not take its highest-scoring cells")
+
+
+def test_a_negative_coefficient_takes_the_LOWEST_scores():
+    """Always-descending would show a negative coefficient the cells least
+    consistent with it."""
+    objects = _objects()
+    plan = select_montage(objects, _counts(), "GRA14", -0.2, half_widths=10.0)
+    for well, frame in plan.objects.groupby("montage_well"):
+        pool = objects[objects["prc"] == well]
+        wanted = pool.sort_values("pred", ascending=True).head(len(frame))
+        assert sorted(frame["object_label"]) == sorted(wanted["object_label"])
 
 
 def test_a_well_that_rounds_to_zero_is_reported_not_dropped():
@@ -492,15 +503,31 @@ def test_a_well_that_rounds_to_zero_is_reported_not_dropped():
     assert "contributed nothing" in plan.caption()
 
 
-def test_a_well_short_of_objects_inside_the_window_says_how_many_it_found():
-    """Silence here would make the caption's count rule a false statement."""
+def test_a_narrow_window_no_longer_starves_a_well():
+    """The window decided WHICH cells independently of how many were owed, so
+    a well could expect 23 and contribute 0 (instruction 172). Ranking cannot
+    do that: x cells are shown whenever the well has x scored cells."""
     plan = select_montage(_objects(), _counts(), "GRA14", 0.2,
                           half_widths=0.05)
-    short = [w for w in plan.wells if w.n_selected < w.n_expected]
-    assert short, "the narrow window must starve at least one well"
-    for well in short:
-        assert "fall inside the score window" in well.note
-        assert well.n_selected == min(well.n_expected, well.n_in_window)
+
+    starved = [w for w in plan.wells
+               if w.n_expected and not w.n_selected]
+
+    assert not starved, (
+        f"{[w.well for w in starved]} were owed cells and given none")
+
+
+def test_a_well_with_fewer_scored_cells_than_it_is_owed_says_so():
+    """The only honest shortfall left: the well does not HAVE that many."""
+    plan = select_montage(_objects(), _counts(), "GRA14", 0.2,
+                          half_widths=10.0)
+
+    for well in plan.wells:
+        if well.n_selected < well.n_expected:
+            assert "carry a classification score" in well.note
+        elif well.n_selected:
+            # And every well that filled says the arithmetic it filled by.
+            assert "normalised by" in well.note
 
 
 def test_a_well_with_no_objects_in_the_database_is_named():

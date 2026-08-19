@@ -39,7 +39,9 @@ def picture_defaults() -> Dict[str, Any]:
         filled = {}
     if not isinstance(filled, dict):
         filled = {}
-    return {key: filled.get(key) for key in ALL_KEYS}
+    from ...picture_settings import OWN_DEFAULTS
+
+    return {key: filled.get(key, OWN_DEFAULTS.get(key)) for key in ALL_KEYS}
 
 
 def _editor(value: Any, parent: Optional[QWidget] = None) -> QWidget:
