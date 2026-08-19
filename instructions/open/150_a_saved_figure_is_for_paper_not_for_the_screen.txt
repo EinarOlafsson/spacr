@@ -295,3 +295,65 @@ WHAT REMAINS
     file. There is now nothing left to decide there -- only to call.
   * The preference control (118) and the per-figure restyle menus (108/147),
     both unchanged from the previous note.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (late) -- SECTION C: THE SHARED DECISION NOW REACHES A pyqtgraph
+                     SCENE. THE GENERATED HALF IS DONE; THE TAB'S EXPORT IS
+                     STILL ONE CALL IN SOMEBODY ELSE'S FILE.
+--------------------------------------------------------------------------------
+
+The two notes above built `saved_figure_appearance` and then `export_colour`
+"precisely so that half does not invent a second answer", and both ended with
+the same remaining item: nothing in pyqtgraph was CALLING it.
+
+Something is now. `spacr/figures/scene.py` -- the generated-figure renderer
+built for instruction 139 A -- asks `export_colour` for every pen, brush,
+axis, label and text it puts into a scene, and it is in an unusually strong
+position to answer section A's hard question. IT KNOWS THE KIND FOR CERTAIN,
+because it is translating TYPED matplotlib artists rather than inspecting
+pixels: a tick label is chrome because it IS a tick label, a scatter's brush
+is data because it IS a scatter's brush. No colour rule has to guess.
+
+So section A's rule holds on the pyqtgraph side with no new judgement:
+
+    FLIPS      axes, spines, ticks, tick labels, axis labels, titles, legend
+               text, annotations, the reference lines drawn by axhline/axvline
+    DOES NOT   every scatter brush, every bar face, every colour map, every
+               up/down colour
+
+MEASURED ON THE PIXELS: a dark-grounded panel with a #C4441C mark exported in
+'print' comes out with (255,255,255) as the page and (196,68,28) still on it.
+A test patches `export_colour` and asserts the exporter asks it with kind
+'chrome' and NEVER with kind 'data'.
+
+NO RESTORE STEP, AND THAT IS NOT A SHORTCUT. This scene is built FOR the file
+and never appears on screen, so the print look is applied as it is built. The
+instruction's "the plot on screen is byte-identical before and after the save"
+is satisfied trivially rather than carefully -- the matplotlib figure the
+scene was translated from is never modified at all, and a test asserts that.
+
+SECTION D, WITH ONE CALIBRATION THE MATPLOTLIB HALF DID NOT NEED.
+
+  * A COLOUR MAP IS NOT A LIST OF MARKS. Sampling a ramp into the legibility
+    check named RdBu_r's midpoint -- #F7F6F6, near white BY DESIGN, because
+    that is what r = 0 looks like on a diverging map -- and would have fired
+    the warning on every correlation panel ever written. Ramps are excluded
+    and the reason is on the code.
+  * A SEPARATOR IS NOT A MARK EITHER. The white edge a histogram draws between
+    its bars is #FFFFFF and fired on every sheet in the diagnostic suite.
+    Excluded, by `record=False`, and NOT flipped -- a bar edge repainted in
+    the ink is a cage over the data, the same argument the grid already had.
+  Both are the floor's own rule applied to itself: a warning that fires on
+  every figure is a warning nobody reads.
+
+WHAT REMAINS
+
+  * THE TAB'S OWN EXPORT, in `FastPlot._paint_scene`. Still another session's
+    file, and still nothing left to decide there -- only to call
+    `export_colour(colour, kind, look)` per pen and brush inside the existing
+    `setExportMode(True)` / `finally` pair, and to restore in that `finally`.
+    HANDOFF. Note the difference from the generated half: that scene IS on
+    screen, so it must be restored, which is exactly why the pair is the place.
+  * The preference control (118) and the per-figure restyle menus (108/147),
+    both unchanged.
