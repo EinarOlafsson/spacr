@@ -203,6 +203,35 @@ def test_a_frozen_line_colour_is_migrated_back_to_auto(prefs, monkeypatch,
     assert "line colour" in caplog.text
 
 
+def test_the_migration_notice_is_loud_enough_to_arrive(prefs, monkeypatch,
+                                                       caplog):
+    """AT WARNING, NOT INFO, AND THAT IS NOT A STYLE CHOICE.
+
+    The notice exists so that changing a stored preference underneath the
+    user is not silent. It was INFO on `spacr.qt.preferences`, and the app's
+    level policy pins `spacr.qt` -- measured at level 30 after pressing Save
+    in Preferences -- so the record was dropped at the source before any
+    handler saw it. The message was written and nobody could ever read it.
+
+    This test is also why the file above it stopped depending on test order:
+    it used to pass alone and fail after anything that applied a level
+    policy, which is a green test asserting something that is not true.
+    """
+    import logging
+
+    monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "light")
+    store = prefs._settings()
+    store.setValue("prefs/figure_line", "#ffffff")
+    store.sync()
+    # The state the app is actually in, rather than pytest's default.
+    monkeypatch.setattr(logging.getLogger("spacr.qt"), "level",
+                        logging.WARNING)
+    with caplog.at_level("INFO"):
+        assert prefs.get_figure_line_token() == "auto"
+    assert "line colour" in caplog.text
+    assert [record.levelname for record in caplog.records] == ["WARNING"]
+
+
 def test_the_renderer_reads_the_line_preference(prefs, monkeypatch, figure,
                                                 tmp_path):
     """Not "the getter returns blue" -- the render pass actually asks for it.
