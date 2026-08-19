@@ -98,11 +98,22 @@ reported as findings:
   * Circularity that was never computed came back as 0.00 and the panel
     displayed it, which reads as "nothing here is circular".
 
+ALSO SHIPPED
+  * MOUNTED on the Measurements tab, beside the scan, wired to the merged
+    frame, the counts (through the same reader the montage uses) and the
+    score CSVs.
+  * GENE LEVEL, which is the question actually asked. A gene's fraction in a
+    well is the SUM of its guides', the same rule the regression applies, so
+    "does this gene move this measurement" is not a different arithmetic from
+    the fit that found the gene. `level` takes 'gene' (the panel's default),
+    'guide', or 'both' -- and with 'both' a gene and one of its guides are
+    different rows that a reader can tell apart.
+
+    The mapping needed its own rule. `hits.gene_of` reads a DESIGN TERM and
+    truncates at the first underscore; handed the bare `TGGT1_225160_2` that
+    a count table actually carries, it returns `TGGT1` -- the organism, for
+    every guide in the screen, pooling the whole library into one "gene".
+
 STILL OWED
-  * The panel is not mounted anywhere. It takes providers for the merged
-    frame, the counts and the scores, and nothing in the application hands
-    them to it yet -- the Measurements tab is where they all already live.
-  * GENE level. Everything here is per GUIDE. A gene's guides should be
-    summed the way the regression sums them, with the guide rows still
-    reachable, because "does this gene move this measurement" is the question
-    actually asked.
+  * The picture is still per-row rather than per-gene: it draws whatever
+    survived, and at 'both' that mixes the two levels in one grid.

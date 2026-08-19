@@ -9,6 +9,16 @@ import pandas as pd
 import pytest
 
 
+
+def _column(table, header: str) -> int:
+    """The index of a named column -- so adding one does not break a test."""
+    for i in range(table.columnCount()):
+        if table.horizontalHeaderItem(i).text() == header:
+            return i
+    raise AssertionError(f"no {header!r} column in "
+                         f"{[table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]}")
+
+
 @pytest.fixture()
 def inputs():
     """A small screen: guide A moves `real`, nothing moves `noise`."""
@@ -81,7 +91,8 @@ def test_the_table_shows_what_survived(panel):
     panel.start()
 
     assert panel.table.rowCount() > 0
-    measurements = {panel.table.item(r, 1).text()
+    column = _column(panel.table, "measurement")
+    measurements = {panel.table.item(r, column).text()
                     for r in range(panel.table.rowCount())}
     assert "real" in measurements
 
@@ -109,7 +120,8 @@ def test_circularity_that_was_never_computed_shows_as_a_dash(qtbot, inputs):
     widget.start()
 
     assert not widget._result.circularity_known
-    dashes = {widget.table.item(r, 4).text()
+    column = _column(widget.table, "circularity")
+    dashes = {widget.table.item(r, column).text()
               for r in range(widget.table.rowCount())}
     assert dashes == {"—"}, f"circularity displayed as {dashes}"
 
@@ -118,7 +130,8 @@ def test_circularity_IS_shown_when_the_score_is_there(panel):
     panel.start()
 
     assert panel._result.circularity_known
-    shown = {panel.table.item(r, 4).text()
+    column = _column(panel.table, "circularity")
+    shown = {panel.table.item(r, column).text()
              for r in range(panel.table.rowCount())}
     assert "—" not in shown
 

@@ -1084,7 +1084,13 @@ def test_save_results_without_summary_df(tmp_path):
     g.results_df = pd.DataFrame([{"Comparison": "a vs b", "p-value": 0.1}])
     g._save_results()
 
-    stem = "bare_v1_grp_bar"
+    # THE OBJECT'S OWN NAME, not a hard-coded one. The stem ends in the
+    # graph type, so spelling it out here made this a test of what the
+    # DEFAULT graph type happens to be -- and it failed the moment that
+    # default moved from a bar to a box with jitter, which is a statistical
+    # correction and not a change to `_save_results` at all.
+    stem = g.results_name
+    assert stem.startswith("bare_v1_grp_")
     assert (out / f"{stem}.pdf").is_file()
     assert (out / f"{stem}_stats.csv").is_file()
     assert not (out / f"{stem}_summary.csv").exists()

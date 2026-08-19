@@ -42,6 +42,8 @@ __all__ = [
     "is_measurement",
     "measurement_columns",
     "sweep",
+    "gene_fractions",
+    "gene_of_guide",
 ]
 
 #: WHOLE TOKENS, not substrings. `object` and `label` catch the
@@ -166,12 +168,78 @@ def _residualise(matrix: np.ndarray, blocks: np.ndarray) -> np.ndarray:
     return np.nan_to_num(out)
 
 
+
+
+#: Organism prefixes a guide name may carry. The counts of a real screen name
+#: guides `TGGT1_225160_2`; the regression's design names them `225160_2`.
+GUIDE_PREFIXES: Tuple[str, ...] = ("TGGT1_", "TGME49_", "TGVEG_", "TGRH88_")
+
+
+def gene_of_guide(guide: Any) -> Optional[str]:
+    """The gene a GUIDE NAME belongs to, for both spellings in use.
+
+    `spacr.hits.gene_of` reads a DESIGN TERM -- `fraction:grna[225160_1]` --
+    and truncates at the first underscore. Handed the bare `TGGT1_225160_2`
+    that a count table actually carries, that rule returns `TGGT1`: the
+    organism, for every guide in the screen, which pools the entire library
+    into one "gene". So a bracketed term still goes to `hits.gene_of`, and a
+    bare name has its organism prefix removed first.
+    """
+    text = str(guide or "").strip()
+    if not text:
+        return None
+    if "[" in text:
+        from .hits import gene_of as _design_gene_of
+
+        return _design_gene_of(text)
+    for prefix in GUIDE_PREFIXES:
+        if text.upper().startswith(prefix):
+            text = text[len(prefix):]
+            break
+    head = text.split("_", 1)[0].strip()
+    return head or None
+
+
+def gene_fractions(fractions: pd.DataFrame,
+                   gene_of: Optional[Any] = None) -> pd.DataFrame:
+    """A gene's fraction in each well: the SUM of its guides' fractions.
+
+    The same rule the regression applies -- `wells_for_coefficient` with
+    `guide_aggregation='sum'` -- because "does this GENE move this
+    measurement" must not be a different arithmetic from the fit that found
+    the gene in the first place.
+
+    :param gene_of: guide name -> gene id. Defaults to
+        :func:`spacr.hits.gene_of`, which is the key the metadata join uses,
+        so the two cannot disagree about which gene a guide belongs to.
+    :returns: one column per gene. Guides that name no gene are left out
+        rather than pooled into an "unknown" gene that no experiment ran.
+    """
+    if gene_of is None:
+        gene_of = gene_of_guide
+
+    mapping: Dict[str, List[str]] = {}
+    for guide in fractions.columns:
+        gene = None
+        try:
+            gene = gene_of(str(guide))
+        except Exception:                                # noqa: BLE001
+            gene = None
+        if gene:
+            mapping.setdefault(str(gene), []).append(guide)
+    if not mapping:
+        return pd.DataFrame(index=fractions.index)
+    return pd.DataFrame(
+        {gene: fractions[guides].sum(axis=1) for gene, guides in mapping.items()},
+        index=fractions.index)
+
 def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
           blocks: Optional[Sequence] = None,
           scores: Optional[Sequence[float]] = None,
           alpha: float = 0.05,
           min_wells: int = 5,
-          measurements: Optional[Iterable[str]] = None) -> SweepResult:
+          measurements: Optional[Iterable[str]] = None,
+          level: str = "guide") -> SweepResult:
     """Associate every guide with every measurement, blocked and corrected.
 
     :param wells: one row per well, the measurements in its columns.
@@ -184,8 +252,29 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         the caller must not read it as "not circular".
     :param min_wells: guides present in fewer wells than this are dropped --
         a correlation over three wells is not an effect.
-    :returns: a :class:`SweepResult`.
+    :param level: ``'guide'``, ``'gene'``, or ``'both'``. A gene's fraction in
+        a well is the SUM of its guides' -- the same rule the regression
+        applies, because "does this GENE move this measurement" must not be a
+        different arithmetic from the fit that found the gene.
+    :returns: a :class:`SweepResult`. With ``'both'`` the table carries a
+        ``level`` column and the guide rows stay reachable beside the gene
+        ones.
     """
+    wanted = str(level or "guide").strip().lower()
+    if wanted not in ("guide", "gene", "both"):
+        raise ValueError(
+            f"level must be 'guide', 'gene' or 'both'; got {level!r}")
+    if wanted != "guide":
+        genes = gene_fractions(fractions)
+        if wanted == "gene":
+            fractions = genes
+        elif len(genes.columns):
+            # Suffixed so a gene and one of its guides cannot collide in the
+            # index -- `233460` the gene and `233460_1` the guide are
+            # different rows and a reader must be able to tell which is which.
+            fractions = pd.concat(
+                [fractions, genes.rename(columns=lambda g: f"{g} (gene)")],
+                axis=1)
     common = wells.index.intersection(fractions.index)
     wells = wells.loc[common]
     fractions = fractions.loc[common]
@@ -278,6 +367,9 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         "effect": R.ravel(),
         "p": p.ravel(),
         "circularity": np.tile(circular, len(guides)),
+        "level": np.repeat(["gene" if str(g).endswith(" (gene)")
+                            or wanted == "gene" else "guide"
+                            for g in guides], len(chosen)),
         "n_wells": np.repeat([int(present.get(g, 0)) for g in guides],
                              len(chosen)),
         # What the P VALUE was actually computed on, which is not the same
@@ -288,8 +380,10 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     q, _rejected = adjust_p_values(table["p"].to_numpy(), method="fdr_bh",
                                    alpha=float(alpha))
     table["q"] = q
-    table = table[["guide", "measurement", "effect", "p", "q", "circularity",
-                   "n_wells", "effective_wells"]]
+    table["guide"] = table["guide"].astype(str).str.replace(
+        " (gene)", "", regex=False)
+    table = table[["level", "guide", "measurement", "effect", "p", "q",
+                   "circularity", "n_wells", "effective_wells"]]
     return SweepResult(table=table, effects=effects, n_wells=n,
                        n_blocks=n_blocks, dropped=dropped,
                        circularity_known=circularity_known)

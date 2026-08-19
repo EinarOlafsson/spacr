@@ -125,3 +125,37 @@ def test_the_bar_is_still_reachable(same_mean_different_spread):
     older figure needs the bar."""
     ax = _axis(same_mean_different_spread, graph_type="bar")
     assert ax.patches
+
+
+def test_a_direct_call_gets_the_box_too(same_mean_different_spread):
+    """THE HALF THE SETTINGS DEFAULTS DID NOT COVER.
+
+    `spacr.settings` was moved to 'jitter_box' in three places, and the two
+    functions that actually DRAW kept ``graph_type='bar'`` in their own
+    signatures. So a notebook, a script or any caller that does not come
+    through a settings factory -- which is every direct use of the public API
+    -- still got the mean bar this instruction calls a statistical error.
+    """
+    import inspect
+
+    from spacr.plot import create_grouped_plot, spacrGraph
+
+    for callable_ in (create_grouped_plot, spacrGraph.__init__):
+        default = inspect.signature(callable_).parameters["graph_type"].default
+        assert default == "jitter_box", callable_.__qualname__
+
+    ax = _axis(same_mean_different_spread)          # no graph_type at all
+    assert not ax.patches, "a direct call still drew a bar"
+    assert ax.collections, "a direct call drew no points"
+
+
+def test_the_saved_name_says_which_graph_it_is(tmp_path,
+                                               same_mean_different_spread):
+    """`results_name` ends in the graph type, so a folder of figures says
+    what each one is without opening it -- and it follows the default rather
+    than being spelled out anywhere."""
+    from spacr.plot import spacrGraph
+
+    graph = spacrGraph(same_mean_different_spread, "grp", "val",
+                       output_dir=str(tmp_path), graph_name="run")
+    assert graph.results_name.endswith("_jitter_box"), graph.results_name
