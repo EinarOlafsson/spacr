@@ -2131,6 +2131,14 @@ class AppScreen(QWidget):
                 # which is how the tab came to overlap.
                 self._scan_panel.add_section(self._sweep_panel,
                                              "Gene × measurement sweep")
+                # AFTER the last section is added, not in the panel's
+                # constructor: a fold restored before the sweep section
+                # exists cannot be applied to it (169 C).
+                try:
+                    self._scan_panel.restore_section_layout()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("could not restore the measurements layout",
+                              exc_info=True)
 
                 left.addTab(self._scan_panel, "Measurements")
                 left.setTabToolTip(
