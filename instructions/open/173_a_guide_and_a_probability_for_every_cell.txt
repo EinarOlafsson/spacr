@@ -122,3 +122,47 @@ HOW TO KNOW IT WORKED
 * Two guides with identical effects come back at exactly pi_1 : pi_2 for every
   cell -- flat, ambiguous, and correct. The data cannot separate them and the
   method must not pretend otherwise.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- OPTION C SHIPPED.
+--------------------------------------------------------------------------------
+
+`guide_attribution.posterior_multivariate` reads EVERY measurement instead of
+one score: each guide carries a vector of effects, a cell's evidence is the
+summed log-density across them, and the same iterative proportional fitting
+then pins the guide masses to the sequencing. On a single column it is
+byte-identical to option A -- a test asserts it, because if the two disagreed
+there would be no way to tell which was wrong.
+
+Two things decide whether it is honest rather than confident nonsense.
+
+LOG SPACE. A product of 785 densities underflows to exactly zero in double
+precision long before it reaches the end, and every cell then looks equally
+impossible -- which the solver answers by handing back the prior. The bug
+would present as "option C always says ambiguous", which reads as a property
+of the data rather than of the arithmetic.
+
+THE MEASUREMENTS ARE NOT INDEPENDENT. `cell_area` and `cell_perimeter` are one
+measurement wearing two names, and multiplying their likelihoods counts the
+same evidence twice. The summed log-likelihood is scaled by
+`effective_dimension / n_measurements` -- the participation ratio of the
+correlation matrix's eigenvalues, the same statistic the sweep uses to count
+a guide's effective wells, applied to the other axis. Twelve copies of one
+column measure 1.0, not 12. Without the correction the posterior saturates at
+0 or 1 for every cell and the 0.55 threshold is decorative.
+
+The correction is REPORTED: n_measurements, effective_dimension and the
+scale factor come back with the posterior, so a reader can see how much of
+their evidence was discounted.
+
+A CELL-PICKING OPTION beside the other three, as asked. It needs the gene x
+measurement sweep's effects grid -- one effect per measurement per guide --
+and when there is none it falls back to the single-score attribution AND SAYS
+SO in the caption. A montage that quietly changed how it chose its cells
+would be the failure this tab is most careful about.
+
+STILL OWED
+  * The opt-in write of the columns into png_list.
+  * The three validations that need the real screen: permutation on the
+    maintainer's own plates, the within-well pathogen_area contrast, and
+    held-out plates.
