@@ -139,6 +139,28 @@ class SourceSummary:
     #: **after** its screen is applied. This, not ``plates``, is what a
     #: collision is computed on.
     screen_plates: Tuple[Tuple[str, str], ...] = ()
+    #: The plate ids EXACTLY AS STORED, before
+    #: :func:`spacr.schema.canonical_plate_id` collapses a doubled ``pp``.
+    #:
+    #: ``plates`` is normalised, deliberately: a plan that said ``pplate1``
+    #: while the merged frame says ``plate1`` would make the collision check
+    #: compare two vocabularies. But that left NOTHING carrying the stored
+    #: spelling, so a caller wanting to tell the user "your database is
+    #: stamped ``pplate1``" had no source of truth to compare against and its
+    #: report was silent on every database. Both are carried now: ``plates``
+    #: is what the merge will key on, ``stored_plates`` is what is on disk,
+    #: and the difference between them is the thing worth saying.
+    stored_plates: Tuple[str, ...] = ()
+
+    @property
+    def odd_plates(self) -> Tuple[str, ...]:
+        """Stored plate ids whose spelling is not the canonical one.
+
+        Empty in the normal case, which is why a caller can print a line per
+        entry and stay silent when there is nothing to say.
+        """
+        return tuple(plate for plate in self.stored_plates
+                     if canonical_plate_id(plate) != str(plate))
 
     @property
     def name(self) -> str:
@@ -457,6 +479,23 @@ def _canonical_columns(columns: Sequence[str]) -> Dict[str, str]:
     return {name: mapping.get(name, name) for name in columns}
 
 
+def _stored_plates(path: str, table: str,
+                   plate_column: Optional[str]) -> List[str]:
+    """The plate ids exactly as the database spells them.
+
+    The un-normalised counterpart of :func:`_plates`. Somebody has to hold
+    the stored spelling or the doubled-prefix report has nothing to compare
+    against and is silent on every database, including the ones it exists
+    for.
+    """
+    if not plate_column:
+        return []
+    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+        rows = db.execute(
+            f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
+    return sorted(str(row[0]) for row in rows if row[0] is not None)
+
+
 def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
     if not plate_column:
         return []
@@ -553,6 +592,7 @@ def describe_merge(paths: Sequence[str], table: str, *,
             rows=_row_count(path, table),
             columns=tuple(columns),
             plates=tuple(_plates(path, table, plate_column)),
+            stored_plates=tuple(_stored_plates(path, table, plate_column)),
             screen=screen,
             screen_plates=tuple(_screen_plate_pairs(
                 path, table, plate_column, screen_column, screen)),

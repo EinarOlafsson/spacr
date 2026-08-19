@@ -423,3 +423,59 @@ NOT DONE / HANDED ON
     distinct screenID values -- a single-screen project must not gain a
     constant term that makes the design rank-deficient. `_dummy_block` in
     spacr/measurement_scan.py does exactly that check and can be copied.
+
+================================================================================
+AUDIT (2026-08-18) -- THE "NOT DONE" LIST ABOVE IS STALE
+================================================================================
+
+Checked against the code rather than against this file's own header, per the
+first lesson in HANDOFF 0a.
+
+  ml.py IS SCREEN-AWARE. The patch this file hands on ("THE PATCH NEEDED, when
+  it is free") has landed, and in the better form:
+
+      ml.prepare_formula(dependent_variable, ..., block_screen=False)
+          appends ` + screenID` on BOTH branches, the fixed and the mixed.
+      ml.screen_is_blockable(frame)
+          decides from the DATA -- two or more distinct screenID values --
+          and not from a setting somebody might tick.
+
+  Callers pass `block_screen=screen_is_blockable(merged_df)` at ml.py:4069,
+  4080 and 5753, and regression_summary.py:770 rebuilds the same formula.
+
+  WHY DATA-DRIVEN IS THE RIGHT SHAPE, and it is worth recording because it is
+  the failure that would not have shown: a single-screen project's screenID
+  has ONE value, blocking on a constant makes the design rank-deficient, and
+  statsmodels answers a rank-deficient design with a PSEUDO-INVERSE rather
+  than refusing. The run would appear to succeed and return standard errors
+  that mean nothing, with no error anywhere.
+
+  Pinned by tests/test_the_regression_blocks_on_the_screen.py (11 tests),
+  which drives it through patsy -- a formula string is not a design -- and
+  checks the constant-screen case is rank-deficient so nobody simplifies
+  `screen_is_blockable` into `SCREEN_KEY in columns`. It also asserts the
+  regression and `measurement_scan._dummy_block` agree about the same column,
+  so a frame cannot be blocked on by the scan and not by the fit.
+
+So parts 1, 2 and 3 are done, the GUI is done, and the ml.py hand-off is done.
+WHAT IS ACTUALLY LEFT on this instruction:
+
+  * `fit_mixed_model` groups on plateID with a row/column random structure and
+    still does not mention the screen. With two screens the screen is a FIXED
+    term (above) and that is defensible -- two levels make a poor random
+    effect -- but it is a decision nobody has written down. Write it down or
+    nest the plate inside the screen.
+  * Containment (114) for the measurement scan: it still runs in-process on
+    the GUI thread. 0.3 s on 152 measurements over 44 wells; a four-plate
+    merge has not been timed.
+
+--------------------------------------------------------------------------------
+AND ONE THING 122 NOW DEPENDS ON: 145 LANDED (2026-08-18)
+--------------------------------------------------------------------------------
+
+The merge reads through `spacr.tabular.read_database` now, so a screen whose
+database spells the key `Plate`/`well`/`column_name` arrives with the same
+column names as one that spells it canonically. Two screens sharing a broken
+key vocabulary was the failure 145 was ordered ahead of this one to prevent;
+`read_merged` no longer has its own canonicaliser and its own plate repair --
+it calls the shared ones. See the 145 trailing note.

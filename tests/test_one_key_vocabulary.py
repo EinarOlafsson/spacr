@@ -486,3 +486,46 @@ def test_a_hit_list_is_written_through_the_one_writer(tmp_path):
     assert os.path.isfile(target)
     back = tabular.read_table(target, report=None)
     assert list(back["gene"]) == ["TGME49_233460"]
+
+
+# ---------------------------------------------------------------------------
+# The stored spelling, kept so the doubled prefix can be reported
+# ---------------------------------------------------------------------------
+
+def _measurements_db(path, plate):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(path) as conn:
+        pd.DataFrame({"plateID": [plate] * 2, "rowID": ["r1", "r2"],
+                      "columnID": ["c1", "c1"], "fieldID": ["f1", "f1"],
+                      "object_label": [1, 2],
+                      "cell_area": [10.0, 12.0]}).to_sql("cell", conn,
+                                                         index=False)
+    return str(path)
+
+
+def test_the_plan_carries_the_stored_plate_spelling_as_well(tmp_path):
+    """A BUG FOUND IN PASSING, and the half of it that is fixable here.
+
+    `_plates` normalises `pplate1` to `plate1` on purpose -- a plan that
+    named a plate differently from the frame would make the collision check
+    compare two vocabularies. But nothing then carried the STORED spelling,
+    so a caller wanting to tell the user "your database is stamped pplate1"
+    had nothing to compare against and its report was silent on every
+    database, including the ones it exists for.
+    """
+    from spacr.multi_database import describe_merge
+
+    plan = describe_merge([_measurements_db(tmp_path / "p1" / "m.db",
+                                            "pplate1")], "cell")
+    source = plan.sources[0]
+    assert source.plates == ("plate1",)          # what the merge keys on
+    assert source.stored_plates == ("pplate1",)  # what is on disk
+    assert source.odd_plates == ("pplate1",)     # the difference, named
+
+
+def test_a_normal_database_has_nothing_odd_to_say(tmp_path):
+    from spacr.multi_database import describe_merge
+
+    plan = describe_merge([_measurements_db(tmp_path / "p1" / "m.db",
+                                            "plate1")], "cell")
+    assert plan.sources[0].odd_plates == ()
