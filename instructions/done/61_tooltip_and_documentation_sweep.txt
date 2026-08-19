@@ -2,7 +2,7 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    reopened 2026-08-19, in progress.
+Status:    done 2026-08-19 after nightly reconciliation and branch removal.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
            2026-08-18 — "look through the spacr README and every tool tip and docstring (basically all user facing text) and make sure the tool tips are acurate, helpeful, and dont sound AI generated, and all text is directed at the USER not at me (the creator), use the API writer skill to have a reference for API conventions."
            2026-08-19 — "also i want the user facing text in the nightly repo not a agent-user-facing-documentation branch. delete that branch, after fixing nightly if changes havnt been mooved to nightly yet."
@@ -23,6 +23,29 @@ agent branch.
 Close this task only after the final button cleanup is committed and pushed to
 ``nightly``, both the remote and local ``agent/user-facing-documentation``
 refs are deleted, and the relevant documentation guards pass on nightly.
+
+--------------------------------------------------------------------------------
+2026-08-19 - DONE: USER-FACING TEXT LIVES ON NIGHTLY
+--------------------------------------------------------------------------------
+
+The branch audit established that no text remained exclusive to
+``agent/user-facing-documentation``. Its one audit commit was already
+represented by ``070710e3`` on nightly; the only range-diff discrepancy was a
+docstring rewrite already present in the preceding nightly history.
+
+The existing provenance guard then found two public docstrings introduced
+after that audit. ``spacr.qt.thread_guard`` no longer addresses a maintainer or
+narrates a private crash history, and ``RegressionResults.closeEvent`` no
+longer exposes an instruction number. Both now describe their public behavior,
+failure semantics and parameters directly to API readers.
+
+The final static-button and docstring cleanup was pushed to remote nightly as
+``0f0ccae9``. Git ancestry checks confirmed both ``070710e3`` and
+``0f0ccae9`` were reachable from ``origin/nightly`` before deletion. The
+remote and local ``agent/user-facing-documentation`` refs were then deleted;
+fresh ``ls-remote`` and local ref queries return no match. Verification on
+nightly: 56 focused README, installer-archive, tooltip-quality and public-
+docstring tests pass, and ``git diff --check`` is clean.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
