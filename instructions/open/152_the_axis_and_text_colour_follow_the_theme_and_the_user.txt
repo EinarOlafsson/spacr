@@ -378,3 +378,39 @@ WHAT REMAINS: `figures/style.py` is NOT this territory and still resolves the
 figure colours as one ink. It reads the same preference, so it already
 follows the theme; what it does not yet do is honour a SEPARATE line colour.
 Handed off.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 -- NOTHING LEFT IN THIS TERRITORY. One handoff, and one relative.
+--------------------------------------------------------------------------------
+
+Re-audited rather than read off the header. Both sections are done on both
+renderers: the pyqtgraph half (`FastPlot.set_line_style` /
+`set_line_colour` / `follow_the_theme`), the matplotlib half
+(`figure_queue._style_figure_colors`, `figure_settings.apply_line_colour` /
+`apply_font_colour` / `figure_follows_the_theme`), the three tokens in
+`preferences.py`, and the migration. 23 tests, all green today.
+
+ONE THING CHANGED HERE SINCE, and it belongs on this file because it is
+section B's own division. `_style_figure_colors` recoloured the text off a
+hand-written list, and that list missed an ANNOTATION, the SUPTITLE and a
+legend's TITLE -- so "all font in the graph" was untrue by three objects and
+a dark theme left a black suptitle on a black page. It now uses
+`figure_queue.figure_text_items`, which is the same list the per-figure
+control uses. Committed with GitHub issue #108's font-size fix, which is the
+same list and the same three objects; the reasoning is written up there.
+
+STILL HANDED OFF, unchanged: `spacr/figures/style.py` resolves the figure
+colours as ONE ink. It reads the same preference, so it already follows the
+theme; what it does not do is honour the SEPARATE line colour. That module is
+another territory.
+
+A RELATIVE OF SECTION A, FOUND AND FIXED TODAY: the same
+seed-a-resolved-value-and-write-it-back bug was live in the SIZE key.
+`_FigureSettingsDialog` showed 10 when the store held 0 -- 0 meaning "leave
+every figure the sizes it was drawn with" -- and wrote the shown 10 back on
+OK. One press froze 10 into every figure that user would ever draw. The
+colours were fixed by seeding from the TOKEN; the size has no token, so it
+took a flag recording whether the user moved the box. Written up under
+instruction 108, but it is section A's shape and it is recorded here so the
+next person looking for that pattern finds both.
