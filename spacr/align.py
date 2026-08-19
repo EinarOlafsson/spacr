@@ -1795,7 +1795,7 @@ def plan_canvas(placements: Sequence[Placement],
     """Compute the canvas geometry from the offsets, allocating nothing.
 
     Negative offsets are the normal case — the solve fixes the gauge to
-    the nominal centroid, so a tile can easily land above or left of the
+    the nominal centroid, so a tile may land above or left of the
     origin. The canvas is sized to the bounding box of every placed tile
     and :attr:`CanvasSpec.origin_y` / :attr:`~CanvasSpec.origin_x` carry
     the mapping back to the global frame, so nothing is ever clipped.

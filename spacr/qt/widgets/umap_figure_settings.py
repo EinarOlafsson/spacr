@@ -1,7 +1,7 @@
 """Every Image UMAP setting, live-editable against the STATIC figure.
 
-Instruction 26 gave the LIVE explorer a settings window whose display half
-applies to the figure on screen. This is the same idea for the other half of
+The live explorer has a settings window whose display options apply to the
+figure on screen. This module provides the equivalent for
 the screen -- the ordinary, non-live figure the run leaves in
 :class:`spacr.qt.widgets.figure_queue.FigureQueue`::
 

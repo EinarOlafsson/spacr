@@ -1,11 +1,10 @@
-"""
-AnnotateScreen — Qt widget replacing the Tk AnnotateApp.
+"""Display and annotate image crops in the Qt interface.
 
 Displays a paginated grid of clickable image thumbnails backed by
-`png_list` in a `measurements/measurements.db`. Left-click = value 1,
-right-click = value 2, re-click the same value = clear. Annotations
-are persisted through a background SaveWorker (see
-`spacr.qt.annotate_engine.SaveWorker`).
+``png_list`` in ``measurements/measurements.db``. Left-click assigns value 1,
+right-click assigns value 2, and clicking the assigned value again clears it.
+Annotations are persisted through
+:class:`spacr.qt.annotate_engine.SaveWorker`.
 
 A keyboard-only rapid-annotation layer sits on top of the same write
 path (see :meth:`AnnotateScreen.handle_key`): ``1``–``9`` assign a class
@@ -28,10 +27,9 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
-Advanced features that are *not* yet ported (marked as TODOs in the UI):
-UMAP window, Deep spaCR training launcher, measurement-threshold
-filtering (the threshold filter can be entered in settings but only
-plain per-page fetch is used at query time in this MVP).
+The Qt screen does not currently provide the UMAP window, Deep SPACR training
+launcher, or measurement-threshold filtering. A threshold can be entered in
+settings, but page queries do not apply it.
 """
 from __future__ import annotations
 

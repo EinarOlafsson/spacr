@@ -1279,7 +1279,7 @@ def setup_usage_panel(horizontal_container, btn_col, uppdate_frequency):
             slots, so when the VRAM and GPU bars could not be created the list is
             two entries short and the core bars are off by two: the bar labelled
             ``C3`` shows core 1, the ``C1`` and ``C2`` bars never move, and the
-            last two cores are never displayed. Fewer than four entries simply
+            last two cores are never displayed. Fewer than four entries
             means no core bar is updated.
         :param parent_frame: object used only to re-arm the loop through
             ``parent_frame.after(...)``; the caller passes the usage panel's own

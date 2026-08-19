@@ -21,8 +21,7 @@ what "busy" reads as          "Preview     "Preview     n/a          "Preview
                               running."    running."                 running."
 worker freed on ``finished``  yes          no —         n/a          no —
                                            deleteLater               deleteLater
-announces its result          preview_     preview_     NO — none    preview_
-                              ready        ready                     ready
+announces its result          ready        ready        NO — none    ready
 work runs off the GUI thread  QThread      QThread      JobRunner    QThread
 what a knob change costs      nothing —    a re-link,   a re-crop,   a rescore
                               explicit     cached       superseded   from the

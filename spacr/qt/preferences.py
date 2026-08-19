@@ -607,8 +607,8 @@ def figure_bg_is_transparent(bg: str) -> bool:
 def figure_color_is_auto(token) -> bool:
     """Whether ``token`` is the "follow the theme" token rather than a colour.
 
-    Case- and space-insensitive because a token can reach the store from a
-    hand-edited INI as easily as from the dialog.
+    Matching is case- and space-insensitive because tokens can come from a
+    hand-edited INI file or the dialog.
     """
     return str(token).strip().lower() == AUTO_FIGURE_COLOR
 
@@ -992,8 +992,8 @@ def space_background_path(width: int = 0, height: int = 0):
     ``None`` only when neither can be produced, at which point the stylesheet
     paints a flat gradient.
 
-    A missing photo master is not an error and not a dead end — it
-    simply falls through to the generated sky, which needs no assets and
+    A missing photo master is not an error and not a dead end — the theme
+    falls back to the generated sky, which needs no assets and
     no network. **Never raises and never touches the network.**
     """
     try:
@@ -1245,7 +1245,7 @@ def ambient_default_palette(theme: str) -> str:
     :data:`spacr.qt.widgets.ambient.DEFAULT_PALETTE` when that theme
     offers it (spaCR's own brand colours are the intended default
     everywhere they exist), otherwise the theme's first palette. Never
-    raises for an unknown theme — it simply reports the global default.
+    raises for an unknown theme — it reports the global default.
     """
     from .widgets.ambient import DEFAULT_PALETTE, palettes_for
     try:
@@ -2193,9 +2193,8 @@ def image_display_primaries() -> str:
 def color_blind_categorical_palette() -> list:
     """Return a list of hex colours safe for the active CB mode.
 
-    Uses the Okabe-Ito palette for all three deficiencies (empirically
-    the most robust choice for categorical distinctions across
-    common types of colour-blindness).
+    Uses the Okabe-Ito categorical palette whenever colour-blind mode is
+    enabled.
     """
     if get_color_blind_mode() == "off":
         # Default spaCR categorical palette — matches theme accents

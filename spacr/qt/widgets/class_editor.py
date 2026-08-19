@@ -73,7 +73,7 @@ register_widget_qss(QSS_NAME, _class_editor_qss, replace=True)
 
 
 class ClassChip(QWidget):
-    """One class, as the two bubbles the maintainer asked for.
+    """One class, represented by its name and colour bubbles.
 
     "class then value class generating a teal bubble and the value generating
     a green bubble ... i just thought it was a good idea to consolidate the
@@ -144,7 +144,7 @@ class ClassEditorWidget(QWidget):
 
     :param value: the current setting -- a dict, or the old list of names.
     :param frame: the table whose columns and values are offered. Without one
-        the widget still edits an existing dict; it simply cannot populate new
+        the widget still edits an existing dictionary but cannot populate new
         rows, and says so rather than showing an empty column picker as though
         the table had no columns.
     """

@@ -21,8 +21,8 @@ user has no way to argue with it.
 MAKING AN UNAVAILABLE BACKEND AVAILABLE
 ---------------------------------------
 
-Instruction 158 D. Three of the optional backends cannot be had by pressing
-Install, and this section is the API documentation's copy of why and of what
+Three optional backends cannot be enabled by pressing Install, so this section
+explains why and what
 to do instead. It is written here rather than only in
 :data:`INSTALL_RECIPES` because ``docs/source/api`` is built by sphinx-autoapi
 from this source, and autoapi publishes a module DOCSTRING verbatim while it

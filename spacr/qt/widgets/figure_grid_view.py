@@ -20,8 +20,7 @@ size, and the existing one-at-a-time view is that detail view.
 
 THE LIVE TILES ARE PICTURES, AND THAT IS A MEASURED CHOICE
 
-Instruction 129 C asks for "same grid overview but pyqtgraph versions", and
-names the question rather than answering it: a tile could hold the live
+A tile could hold the live
 pyqtgraph widget, or a photograph of it taken by :meth:`FastPlot.snapshot`.
 The instruction says MEASURE IT before choosing, so it was measured, on the
 real widgets under the offscreen platform, at the volcano's 1,213 points:
@@ -40,9 +39,8 @@ instruction worried about are real but much the smaller half -- 60 mouse-moves
 over one live volcano cost 12.31 ms against 0.52 ms over a picture of it, i.e.
 0.205 ms against 0.009 ms per move.
 
-So the grid holds PICTURES of the pyqtgraph panels, and pressing one raises
-the live widget on its own tab -- which is what instruction 129 C guessed
-("with the live widget only when a tile is opened") and what the numbers
+So the grid holds pictures of the pyqtgraph panels, and pressing one raises
+the live widget on its own tab, which is what the numbers
 above confirm. :meth:`FigureGridView.set_live_tiles` is that section.
 """
 
@@ -198,7 +196,7 @@ def live_tiles_from_panels(panels) -> list:
     ``snapshot()`` IS NOT ALLOWED TO TAKE THE SCREEN DOWN. It renders through
     pyqtgraph's image exporter, which reaches into a scene that the panel may
     be part-way through rebuilding, and a photograph is never worth a
-    traceback: a panel that raises is simply one without a tile this refresh.
+    traceback: a panel that raises has no tile for that refresh.
     """
     tiles = []
     for entry in panels or ():
@@ -508,7 +506,7 @@ class FigureGridView(QScrollArea):
         """The pyqtgraph panels, as pictures, in their own foldable section.
 
         "i would still like to retain the grid to the right ... same grid
-        overview but pyqtgraph versions" -- instruction 129 C. This is that
+        overview but pyqtgraph versions" -- the design. This is that
         section: one tile per live panel, pressing one raises the real widget.
 
         PICTURES, NOT WIDGETS, and the module docstring carries the numbers
@@ -589,7 +587,7 @@ class FigureGridView(QScrollArea):
         """A tile that is always first and is not one of the run's figures.
 
         The regression graph is a LIVE widget, not a picture the pipeline
-        saved, and it is the one the maintainer asked to be interactive:
+        saved, and it is the interactive regression graph:
         "the regression plot isnt shown in all figures (i want it also shown
         there)". Pressing this tile opens the real widget, not a picture of
         it.
@@ -605,7 +603,7 @@ class FigureGridView(QScrollArea):
         shared signal would be the same bug with an extra step.
 
         THE TILE IT REPLACES IS DESTROYED, and that is the whole of the
-        stacked-volcano bug reported on 2026-08-17: "the thumbnail iage of the
+        stacked-volcano bug: "the thumbnail image of the
         volcano plot looks like several volcano plot itterations pasted on top
         of each other". This method used to rebind ``_pinned`` and relayout,
         and `_relayout`'s `takeAt` removes a widget from the LAYOUT while
@@ -620,7 +618,7 @@ class FigureGridView(QScrollArea):
         five `set_pinned` calls left five visible cells at identical geometry
         and all five volcanoes painted at once; one after the fix.
 
-        ONE TILE OF THE LIVE SECTION, since instruction 129 C -- the
+        ONE TILE OF THE LIVE SECTION, since the design -- the
         regression graph is no longer the only interactive panel on the grid,
         and :meth:`set_live_tiles` is the general form. This method touches
         only the regression tile and leaves any other panel's tile exactly
@@ -834,8 +832,8 @@ class FigureGridView(QScrollArea):
     def toggle_section(self, header) -> bool:
         """Reach the run first; fold it away second. Returns the new state.
 
-        THE CONSOLE'S RULE, verbatim, because the console is the model the
-        maintainer named. A heading that is not already at the top of the
+        The console provides the interaction model. A heading that is not
+        already at the top of the
         viewport is a request to GO THERE, whatever its state -- a first click
         that hid the very section the user was reaching for spends the gesture
         on the opposite of what it looked like. Only a heading already at the

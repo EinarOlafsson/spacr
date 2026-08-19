@@ -1,14 +1,6 @@
-"""What a crop holds on disk, and what the model sees at load time.
+"""Control crop storage precision and model-input normalization.
 
-Instruction 91:
-
-    "i would like the user to be able to choose to keep the origional dtpe or
-     scale the images to either 1-255 (uint8) or between 0 and 1. what do you
-     think, and what is the current code doing, i tried to keep uint16
-     throughout whenever possible to not loose any information. was this a
-     good call?"
-
-IT WAS A GOOD CALL, AND THE CODE ALREADY DOES IT. `.npy` crops keep whatever
+``.npy`` crops keep whatever
 the merged stack held, PNG crops narrow once through
 :func:`spacr.crops.narrow_to_uint8` -- the high byte of a uint16, a linear
 rescale rather than a clip -- and measurements are taken from the
@@ -16,13 +8,14 @@ full-precision array. So the structure the request asks for is the structure:
 original precision wherever it can be, one declared narrowing at the only
 boundary that requires one.
 
-THE CHOICE IS NOT REALLY THE DTYPE, and this module exists to say so in code
-rather than only in a comment. ``transforms.ToTensor()`` divides by 255 and
+Storage dtype and model input scaling are separate choices.
+``transforms.ToTensor()`` divides by 255 and
 hands the model a float in [0, 1] whatever the file held, so "scale to 0-1"
 is already what happens at the point it matters. The dtype on disk decides
 file size and what other tools can open the crop -- a storage decision.
 
-THE SETTING THAT MOVES A NUMBER IS THE ONE AFTER IT. spaCR normalises with
+The subsequent normalization setting changes the model input. spaCR has
+historically normalized with
 
     mean = std = (0.5, 0.5, 0.5)
 
@@ -36,10 +29,9 @@ differently from the ones they learned. A long finetune adapts; a short one,
 or a frozen backbone, pays for it. That was a literal in two places and is
 now a choice.
 
-THE DEFAULT IS UNCHANGED, deliberately. ``symmetric`` is what spaCR has
+The default remains ``symmetric`` for compatibility. This is what spaCR has
 always done, and switching it silently would move every existing model's
-scores with nothing in the artifact to say why. Somebody should measure both
-on a real dataset and then change the default on the evidence.
+scores with nothing in the artifact to say why.
 """
 from __future__ import annotations
 

@@ -568,8 +568,8 @@ class PlateViewScreen(LinkedView, QWidget):
         self._grouping_combo.addItems(list(pqc.GROUPINGS))
         self._grouping_combo.setToolTip(
             "(str) How the objects in a well are collapsed to one number. "
-            "'median' is the robust choice; 'count' plots objects per well "
-            "and ignores the measurement.")
+            "'median' limits the influence of outlying objects; 'count' plots "
+            "objects per well and ignores the measurement.")
         self._grouping_combo.currentIndexChanged.connect(self._on_view_changed)
         opt_row.addWidget(self._grouping_combo)
 
@@ -578,8 +578,8 @@ class PlateViewScreen(LinkedView, QWidget):
         for label, _spec in COLOUR_SCALES:
             self._scale_combo.addItem(label)
         self._scale_combo.setToolTip(
-            "(str) Robust clips the colours to the 2nd–98th percentile so a "
-            "single dead well cannot flatten the plate.")
+            "(str) The 'Robust' range clips colours to the 2nd–98th percentile "
+            "so one extreme well cannot flatten the plate.")
         self._scale_combo.currentIndexChanged.connect(self._on_view_changed)
         opt_row.addWidget(self._scale_combo)
 

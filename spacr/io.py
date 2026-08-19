@@ -6006,15 +6006,10 @@ def make_validation_holdout(labels, validation_fraction, groups, seed=0):
         ``cv_group_by`` names — and required, not optional, because the point
         of this function is that a group never straddles the split. Needs the
         same length as ``labels`` and at least two distinct values.
-    :param seed: Seed handed to :func:`make_cv_folds` and used again to pick
-        between candidate folds it rates equally. It really does move the
-        split: the grouped pass orders equally large groups and breaks ties
-        between equally good folds by this seed, so a second seed gives a
-        second, equally stratified holdout. It used to be dead — the grouped
-        branch was a fixed greedy pass — so every seed returned the same
-        holdout and a "robust across seeds" check was really one split tried
-        repeatedly. Where the groups admit only one partition (two groups over
-        two folds, say) no seed can move it.
+    :param seed: Seed passed to :func:`make_cv_folds` and used to break ties
+        between equally suitable folds. Different seeds can produce different
+        holdouts when several partitions satisfy the constraints. The seed has
+        no effect when the groups permit only one partition.
     :returns: One ``(train_idx, val_idx)`` pair of numpy integer arrays.
     :raises ValueError: if ``validation_fraction`` is outside ``(0, 1)``, if
         ``groups`` is missing or the wrong length, or if fewer than two

@@ -5,9 +5,8 @@ is the one engine that makes that choice, and the three functions below are a
 translation layer onto it that keeps this module's older call signatures and
 result keys working.
 
-Why the module stopped choosing for itself, measured on 2026-08-17 and filed
-as finding 2 of instruction 127: the two implementations were run on the same
-five inputs and disagreed on three of them, always in the same direction --
+The two former implementations were run on the same five inputs and disagreed
+on three of them, always in the same direction --
 this one took the parametric test wherever the assumption checks had no power
 to refuse it.
 
@@ -189,10 +188,9 @@ def perform_levene_test(df, grouping_column, data_column):
     Delegates to :func:`spacr.figures.stats.check_equal_variance`. Two things
     moved when it did, and both change the number a caller writes into a CSV:
 
-    * The centring is the median (Brown-Forsythe), not scipy's default mean.
-      The median-centred form is the robust one and is the right choice
-      precisely when normality is itself in question -- which is every time
-      this function is called, since it is called before anyone knows.
+    * The centring is the median (Brown-Forsythe), not SciPy's default mean.
+      Median centring is less sensitive to non-normal data, and this function
+      is called before the normality verdict is known.
     * Below :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in
       the smallest group the result is ``(nan, nan)``. On three replicates
       Levene has almost no power, so "p = 0.7, variances are equal" means "we

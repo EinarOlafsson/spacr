@@ -1,9 +1,7 @@
 """
 Live-preview segmentation widget — v2.
 
-Interactive Cellpose tuning surface for the Mask app screen. Compared
-to v1, this rewrite adds every enhancement the user requested after
-their first run through the panel:
+Interactive Cellpose tuning surface for the Mask app screen. It provides:
 
 * **Zoomable canvases (Ctrl+scroll, in sync).** Both the original and
   the mask overlay live in a shared :class:`QGraphicsView` pair — pan
@@ -1013,7 +1011,7 @@ class _ZoomView(QGraphicsView):
     def mouseReleaseEvent(self, event):      # noqa: N802 (Qt naming)
         """Emit :attr:`clicked` when the pointer did not really move.
 
-        The left button already pans this view, so a click cannot simply be
+        The left button already pans this view, so a click cannot be defined as
         "left release" -- that would fire at the end of every drag. A few
         pixels of slop, because a click with a real mouse is rarely exactly
         zero movement.

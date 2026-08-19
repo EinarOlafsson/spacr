@@ -1,22 +1,11 @@
-"""What a failed regression says, instead of "failed for an unknown reason".
+"""Describe and persist actionable regression failures.
 
-Instruction 161, filed 2026-08-18 after a run that merged four databases, fitted,
-and stopped with nothing a user could act on.
+Reports include the stage reached, available design dimensions, the original
+exception, and a suggested remedy when the failure is recognized. The same
+text is returned for the console and written beside the run results.
 
-THE MESSAGE IS ITS OWN BUG, whatever the underlying failure was. A run that got
-far enough to fail KNOWS four things -- the stage it reached, the shape of the
-design it had built by then, the exception, and often what to change about it --
-and reporting "failed" discards all four. This module turns them into a report,
-writes it beside the run, and returns it so the console shows the same text the
-folder keeps.
-
-It is the same correction already made three times elsewhere: 153's "no summary"
-named the wrong cause, 154 E's "nothing to scan" named none, and 155 A's "not
-read from a run folder" named a requirement that did not exist. Each was fixed
-by saying the true thing rather than by saying more.
-
-NOTHING HERE RAISES. A reporting path that can fail takes the real exception
-with it, and the user is then worse off than with the bare message this replaces.
+Failure reporting does not raise. If part of the diagnostic cannot be
+collected or written, the report retains the information that is available.
 """
 
 from __future__ import annotations

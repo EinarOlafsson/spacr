@@ -236,7 +236,7 @@ def channels_from_settings(settings: Dict[str, Any]) -> Dict[str, int]:
 
     Reads ``cell_channel``, ``nucleus_channel``, ``pathogen_channel`` and
     ``organelle_channel``; object types whose channel is None or unparseable
-    are simply absent from the result.
+    are absent from the result.
 
     :param settings: a spaCR settings dict (or anything dict-like).
     :returns: mapping suitable for :func:`estimate_diameters`.

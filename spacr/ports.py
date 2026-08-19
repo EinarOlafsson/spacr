@@ -212,7 +212,7 @@ class Port:
         labels the problem messages and the registered artifact.
     :param path: location relative to the project root. ``""`` is the root.
     :param pattern: glob applied inside ``path``. Empty means ``path`` names a
-        single file or folder that must simply exist. ``**`` is honoured, and
+        single file or folder that must exist. ``**`` is honoured, and
         ``|`` separates alternatives, all of which are searched.
     :param required: False for an output that may legitimately be absent
         (``masks/`` after cleanup) or an input a module can do without.

@@ -6,10 +6,9 @@ to know what a ridge filter is, which of `organelle_method`'s seven values
 are legal for which morphology, and what `organelle_network_threshold` does
 when they are not segmenting a network.
 
-WHAT THIS IS NOT. It is not a taxonomy compiled into a pipeline. The
-maintainer asked for nine cell-biology categories and asked, in the same
-breath, to verify rather than assume that they map onto the four
-`organelle_morphology` values. They do not:
+WHAT THIS IS NOT. It is not a taxonomy compiled into a pipeline. The nine
+cell-biology categories do not map one-to-one onto the four
+``organelle_morphology`` values:
 
     'spots'      punctate (vesicles, lipid droplets)
     'network'    filamentous (mitochondria, ER tubules)
@@ -68,7 +67,7 @@ class OrganelleType:
     """One named preset: what it is, what it looks like, what to run.
 
     :param label: what the user picks.
-    :param members: the structures the maintainer listed under this name.
+    :param members: the structures included under this name.
         Kept verbatim so the list a biologist recognises is the list they
         see.
     :param morphology: the `organelle_morphology` this maps to, or None when

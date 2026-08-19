@@ -485,21 +485,10 @@ class _WorkingDots(QLabel):
 
     @Slot()
     def start(self) -> None:
-        """Begin animating. SAFE TO CALL FROM ANY THREAD.
+        """Start the activity animation on the widget's Qt thread.
 
-        A QTimer STARTED OFF ITS OWN THREAD DOES NOT START -- Qt prints
-        "QBasicTimer::start: Timers cannot be started from another thread" and
-        the timer never fires. So the warning is not log noise: whatever it was
-        animating silently stops animating, which is the shape of instruction
-        163. Reported 2026-08-18 with four of them at once, arriving with the
-        output of a pip run -- and pip runs on `_UpdateWorker`, a QThread,
-        whose captured stdout reaches this console from that thread.
-        MARSHALLED RATHER THAN GUARDED. Refusing the call on the wrong thread
-        would trade a warning for a spinner that never appears, which is the
-        same defect with no message attached. `QMetaObject.invokeMethod` with
-        a queued connection runs it on the widget's own thread instead, so the
-        caller does not have to know which thread it is on -- and the callers
-        are stdout handlers, which cannot know.
+        This method may be called from any thread. Calls from a worker are
+        queued onto the widget's owning thread before the timer is started.
         """
         if not self._on_gui_thread():
             from PySide6.QtCore import QMetaObject, Qt

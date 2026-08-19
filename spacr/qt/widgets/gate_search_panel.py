@@ -1,10 +1,5 @@
 """The hyperparameter search, beside the filter instead of behind a modal.
 
-The last item of instruction 31:
-
-    "Filter and Hyperparameter-search become TABS, the active one blue like
-     the app's buttons, sitting above the console."
-
 WHY IT WAS WORTH MOVING, and not just rearranging. A search is a thing you
 ITERATE on -- change a parameter, look at the plot, change it again. It lived
 in ``_ClusterSettingsDialog``, a modal, so *looking* meant closing the dialog
