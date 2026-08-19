@@ -6070,7 +6070,7 @@ def perform_regression(settings):
     except AttributeError:                       # not a mapping; nothing to do
         pass
     try:
-        return _perform_regression(settings)
+        outcome = _perform_regression(settings)
     except Exception as error:                                   # noqa: BLE001
         stage = ""
         folder = ""
@@ -6091,6 +6091,52 @@ def perform_regression(settings):
         # replace one, or a caller that handles a specific exception type
         # stops seeing it.
         raise
+    _write_fit_resources(outcome, settings)
+    return outcome
+
+
+#: What a completed run's resource record is called, beside its results.
+FIT_RESOURCES_FILENAME = "fit_resources.txt"
+
+
+def _write_fit_resources(outcome, settings):
+    """Record what the fit COST, into the folder of a run that succeeded.
+
+    Instruction 160 asks for peak RSS and GPU memory in the run folder so the
+    next "two regressions hung the machine" arrives with a number instead of
+    a description. The per-stage readings were already being taken, and
+    `regression_failure` already printed them -- but only for a run that
+    FAILED, which is the one case where the machine did not hang. A run that
+    completes is exactly the run whose cost the next report needs to be
+    compared against.
+
+    Never raises: a measurement that can fail the run it measures is worse
+    than no measurement, which is the rule `_stage` already follows.
+    """
+    try:
+        from .fit_resources import describe_resources, peak
+
+        folder = ""
+        if isinstance(outcome, dict):
+            folder = str(outcome.get("res_folder") or "")
+        if not folder:
+            folder = str(settings.get("_regression_folder", "") or "")
+        table = describe_resources(settings)
+        if not folder or not table or not os.path.isdir(folder):
+            return ""
+        high = peak(settings)
+        lines = ["WHAT THIS FIT COST", "==================", "",
+                 "Recorded per stage as the run went. 'not measured' is not "
+                 "zero:", "psutil absent, or no CUDA tensor allocated yet.",
+                 "", table, ""]
+        if not high:
+            lines.append("No reading could be taken on this machine.")
+        path = os.path.join(folder, FIT_RESOURCES_FILENAME)
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(lines) + "\n")
+        return path
+    except Exception:                                            # noqa: BLE001
+        return ""
 
 
 def _perform_regression(settings):
