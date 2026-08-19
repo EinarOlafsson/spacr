@@ -160,3 +160,34 @@ def test_the_picture_is_drawn_from_what_is_shown(panel, tmp_path):
     figure = panel.figure(path=str(out))
 
     assert figure is not None and out.exists()
+
+
+# ------------------------------------------------------ mounted on the screen
+
+
+def test_the_button_is_on_the_measurements_tab(qtbot):
+    """A panel nobody can reach is a panel that does not exist."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+
+    assert hasattr(screen, "_sweep_panel")
+    assert "every gene" in screen._sweep_panel.run_button.text().lower()
+
+
+def test_it_is_wired_to_the_screens_own_inputs(qtbot):
+    """The merged frame, the counts and the scores all already live here; the
+    panel takes them rather than going looking, so it stays testable."""
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen("regression")
+    qtbot.addWidget(screen)
+    panel = screen._sweep_panel
+
+    assert callable(panel._cells_provider)
+    assert callable(panel._counts_provider)
+    assert callable(panel._scores_provider)
+    # And each answers without an attached run rather than raising.
+    assert panel._counts_provider() is None or True
+    assert panel._scores_provider() is None or True
