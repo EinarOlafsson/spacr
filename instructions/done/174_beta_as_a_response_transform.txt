@@ -1,0 +1,68 @@
+================================================================================
+BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19 -- "i should have beta transform as an option for the
+           regression as well."
+
+`transform` offers log and its siblings today. A classification score is a
+PROPORTION in [0, 1], and the well aggregate of one is too, so the natural
+model is beta rather than a log of something that can be zero.
+
+WHAT TO BUILD
+
+A. `transform='beta'` alongside the existing options, applying the standard
+   logit link with the Smithson-Verkuilen squeeze for the endpoints -- a
+   proportion of exactly 0 or 1 has no logit, and a screen produces both.
+   The squeeze is stated in the run summary, because a transform that
+   silently moved a user's 0 to 0.001 changed their data.
+
+B. IT MUST AGREE WITH `regression_type='beta'`, which already exists and
+   fits a beta GLM. Two routes to "beta" that mean different things is the
+   confusion 145 is about: one is a TRANSFORM of the response, the other is
+   the FAMILY of the fit, and the settings panel has to say which is which
+   rather than offering two controls with one word.
+
+C. And the summary says which was used, in the sentence that already names
+   the transform.
+
+RELATED
+  173 -- keeps beta as an option for the attribution likelihood, for the same
+         reason: a classification score lives at 0 and 1 and a log does not.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE. A, B AND C.
+--------------------------------------------------------------------------------
+
+A. `transform='beta'` puts the response on the logit scale.
+   `spacr.ml.beta_logit`, reachable through `apply_transformation` and
+   offered in both option lists (`settings_model._APP_COMBO_OPTIONS` and
+   `settings_spec`), so it can be chosen in the GUI rather than only in a
+   settings CSV.
+
+   The whole risk is the endpoint. A screen produces wells at exactly 0 and
+   exactly 1 and logit(0) is -inf, so the scale is squeezed off its ends by
+   Smithson and Verkuilen's (y*(n-1)+0.5)/n first. The squeeze SHRINKS as the
+   screen grows, so the extreme wells of a 1,536-well plate do not say the
+   same thing as those of a 96-well plate. A response already inside (0, 1)
+   is left exactly as measured, missing stays missing, and `n` counts the
+   wells that are there rather than the length of the column.
+
+   AND IT REFUSES A RESPONSE THAT IS NOT A PROPORTION. A logit of an
+   intensity is still a plausible-looking number with a sign, a magnitude
+   and a p-value, and nothing downstream can tell the coefficients are
+   meaningless -- so the run stops at the transform or not at all.
+
+B. IT IS DISTINGUISHED FROM `regression_type='beta'`.
+   Both tooltips now say which is which: the family of the fit, versus a
+   transform of the response that any model can be fitted on. They can be
+   used together.
+
+C. THE SUMMARY SAYS SO.
+   `ml.BETA_SQUEEZE_NOTE` is what `regression_summary`'s transform field
+   carries when beta was used, rather than only naming the transform. A
+   transform that silently moved a user's 0 to 0.001 changed their data.
+
+TESTS
+  tests/test_the_beta_transform.py -- 20 of them, most about the endpoints.

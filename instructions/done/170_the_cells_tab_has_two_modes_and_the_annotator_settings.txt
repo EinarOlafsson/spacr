@@ -168,3 +168,31 @@ NOT DONE, AND NAMED RATHER THAN LEFT TO BE DISCOVERED
   * `object_array` and `coordinate_columns` are offered as free text. They
     should be a list of what this screen's arrays and object table actually
     hold, the way every other spaCR chooser is built from the data.
+
+--------------------------------------------------------------------------------
+2026-08-19 (later) -- DONE. The three items above are closed.
+--------------------------------------------------------------------------------
+
+* THE ANNOTATION APP OFFERS THE NAMED MODES. `set_annotate_default_settings`
+  ships 'png' (LOAD IMAGES), and `_APP_COMBO_OPTIONS['annotate']` offers both
+  modes -- in the words, not the stored values, since 171. "in the annotation
+  app how do i choose to stream images from database or dataset" is now
+  answered in that panel.
+
+* `object_array` AND `coordinate_columns` ARE BUILT FROM THE DATA.
+  `picture_settings.available_arrays` reads this screen's mask planes and
+  `available_coordinate_columns` the object table's corner columns -- all
+  four or none, since three of them describe no box. The Cells tab hands the
+  dialog what its last load resolved (`remember_inventory`), so the choosers
+  list what is there rather than asking the user to spell it.
+
+* THE SETTINGS WINDOW OPENS ON THE SETTINGS IT HOLDS. A bug that made all of
+  the above unusable: the editor factory unpacked (value, label) choices into
+  the very name it searched for afterwards, so EVERY labelled dropdown
+  selected the last option offered rather than the setting -- the extraction
+  mode read "stream images" while the setting said 'png'. And `crop_shape`
+  had no default at all, so the settings dict said None while the window
+  showed "object".
+
+  Both were invisible to a green suite, because nothing had asserted what a
+  chooser opens ON. Two tests now do.
