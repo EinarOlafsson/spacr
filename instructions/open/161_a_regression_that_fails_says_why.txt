@@ -1,0 +1,38 @@
+================================================================================
+A REGRESSION THAT FAILS SAYS WHY
+================================================================================
+
+Status:    filed 2026-08-18.
+Requested: 2026-08-18 -- "merge works and the regression runs, but failed for
+           an unknown reason"
+
+THE MESSAGE IS ITS OWN BUG, whatever the underlying failure was. A run that got
+far enough to fail KNOWS: the settings it was handed, the shape of the frame it
+built, how far it got, and the exception it hit. Reporting "failed" discards all
+four and leaves a user with nothing to change.
+
+This is the same defect as 153's "no summary", 154 E's "nothing to scan" and
+155 A's "not read from a run folder" -- a sentence that names no cause and
+offers no next step. Three of those have been fixed by saying the true thing;
+this is the fourth.
+
+WHAT EVERY FAILURE REPORTS:
+  * THE STAGE IT REACHED -- reading the scores, joining the counts, building
+    the design, fitting, writing the results. A failure in the join is a
+    different problem from a failure in the fit and the user can act on the
+    difference.
+  * THE DESIGN IT HAD BUILT BY THEN: rows, wells, guides, genes, parameters.
+    These are the numbers that make every other number readable, and 156 already
+    collects them.
+  * THE EXCEPTION, with its type, not flattened to a string.
+  * WHAT TO CHANGE, where the failure has a known remedy -- a singular design,
+    a missing column, a fit too wide for its data.
+
+AND IT IS WRITTEN INTO THE RUN FOLDER, not only printed. A console scrolls and a
+session ends; a run that failed is a run somebody will ask about tomorrow.
+
+HOW TO KNOW IT WORKED
+* Every regression failure names its stage, its design, its exception and a
+  next step.
+* The same text is in the run folder afterwards.
+* No failure path reaches the user as the word "failed" alone.

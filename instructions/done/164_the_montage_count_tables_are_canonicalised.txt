@@ -1,0 +1,23 @@
+================================================================================
+THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
+================================================================================
+
+Status:    filed and FIXED 2026-08-18, commit fc029a91.
+Requested: 2026-08-18 -- "the cell montage failed because the column grna was
+           not found in any of the count tables"
+
+The tables had the identifier. `cell_montage.fractions_from_counts` read the
+CSVs RAW, making it the ONE reader in spaCR that did not go through
+`utils.correct_metadata_column_names` -- which exists precisely to map
+`grna_name` to `grna` and to put a header through `schema.canonicalise_frame`.
+
+That is instruction 145's one-vocabulary failure, and it was introduced the day
+before while fixing something else, which is how these arrive.
+
+FIXED: it canonicalises first, then accepts the same aliases the rest of the
+project accepts (`utils` looks for a gRNA identifier under seven spellings when
+reading metadata, and a count table is the same identifier in the same shape).
+The refusal now names the columns the file HAS -- "column grna was not found" is
+true and unactionable, because a user cannot tell from it whether they picked
+the wrong file or spelled the header differently, and those have different
+answers.
