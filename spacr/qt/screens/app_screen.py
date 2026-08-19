@@ -4212,7 +4212,7 @@ class AppScreen(QWidget):
     def open_run_beside(self, record) -> bool:
         """Open a second run's results beside the loaded one.
 
-        DELIBERATE, NOT THE DEFAULT (instruction 116). Reached from the Runs
+        DELIBERATE, NOT THE DEFAULT. Reached from the Runs
         tab's context menu; nothing opens a second run on its own.
 
         :param record: a Runs-tab row, or a run folder.
@@ -4264,8 +4264,8 @@ class AppScreen(QWidget):
     def close_run_beside(self) -> bool:
         """Take the second run's live plot away, keeping its PHOTOGRAPH.
 
-        A STILL IS WHAT STANDS IN FOR A RUN THAT IS NOT LIVE (instruction
-        116). The picture stays at about 5 ms a frame instead of 75, and the
+        A still stands in for a run that is not live. The picture stays at
+        about 5 ms a frame instead of 75, and the
         run's plot STATE was never in the widget -- so making it live again
         is cheap, and that is what the bound buys.
         """
@@ -4552,7 +4552,7 @@ class AppScreen(QWidget):
             self._figures_card.show()
             self._raise_the_results_tab()
             return
-        if not folder or not panel.load(folder):
+        if not folder:
             self._console.append_stdout(
                 f"{trial} has no saved results on disk. Re-run it from "
                 "the sweep panel to draw them.\n")
@@ -4560,6 +4560,43 @@ class AppScreen(QWidget):
             # results are not on screen is the disagreement of instruction
             # 157 pointing the other way: the run the user IS looking at
             # would then be named nowhere.
+            self._the_run_did_not_open(
+                f"{trial} has no saved results on disk.")
+            return
+        # OFF THE GUI THREAD (instruction 159). Reading a run walks its folder
+        # and parses its table, and doing that here stopped the window --
+        # reported as "i tried to load another run and this seemed to hang
+        # spacr". The answer arrives at `_on_trial_loaded`, so everything that
+        # depends on SUCCESS moves there: the mark can only be rolled back
+        # once the read has actually failed, which is later than this line.
+        self._pending_trial = (trial, str(folder))
+        if not getattr(self, "_trial_load_wired", False):
+            panel.load_finished.connect(self._on_trial_loaded)
+            self._trial_load_wired = True
+        if not panel.start_load(folder):
+            # A load is already running. The mark stays where the running load
+            # will put it; starting a second read of a different folder is how
+            # two answers arrive out of order.
+            return
+        self._figures_card.show()
+        self._raise_the_results_tab()
+
+    def _on_trial_loaded(self, ok: bool) -> None:
+        """The asynchronous half of :meth:`_show_trial`.
+
+        Split off because the read is on a worker now: success is not known
+        when `_show_trial` returns, so the figures and the rollback both have
+        to wait for the answer rather than assuming it.
+        """
+        pending = getattr(self, "_pending_trial", None)
+        if not pending:
+            return
+        trial, folder = pending
+        self._pending_trial = None
+        if not ok:
+            self._console.append_stdout(
+                f"{trial} has no saved results on disk. Re-run it from "
+                "the sweep panel to draw them.\n")
             self._the_run_did_not_open(
                 f"{trial} has no saved results on disk.")
             return

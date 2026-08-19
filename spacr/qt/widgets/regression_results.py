@@ -5,24 +5,16 @@ of which -- the volcano -- cost ~115 ms per redraw and made the whole window
 lag. Worse, the numbers behind it were only in a CSV, so "is EAF1 a hit" meant
 leaving the application.
 
-This panel is what a finished run opens into:
+This panel opens a finished run with a clickable volcano, sortable coefficient
+table, P-value histogram, Q-Q calibration view, assay controls, guide-support
+view, and annotation for the selected gene.
 
-    Volcano        every dot clickable, drawn by Qt, 3.6 ms
-    Table          the coefficients, sortable, filterable, wired to the plots
-    p-values       the histogram that says whether a correction means anything
-    Q-Q            calibration, with the inflation figure
-    Controls       the assay window
-    Guide support  which genes rest on one guide, as a plot and a table
-    Gene           what the last-clicked dot IS: the gene, this screen's own
-                   numbers for it, and everything the bundled annotation
-                   holds about it
-
-EVERY PLOT WHOSE MARKS ARE COEFFICIENTS IS CLICKABLE, not only the volcano --
-instruction 124 F. Clicking a point selects its row; selecting a row marks
+Every plot whose marks are coefficients is clickable, not only the volcano.
+Clicking a point selects its row; selecting a row marks
 that point on every plot that drew it. They are views of one table, which is
 the thing that was missing.
 
-ONE GENE/GUIDE FILTER FOR ALL OF THEM -- instruction 128 L. `set_level` is
+One gene/guide filter applies to all of them. `set_level` is
 read by every draw path, not by the volcano alone, because a filter that
 reaches four of six tabs is worse than one that reaches none: the two then
 disagree on screen at the same time and nothing says which is which. Filtering
@@ -412,6 +404,11 @@ class RegressionResultsPanel(QWidget):
 
     #: Emitted with the results CSV whenever a new one is loaded.
     loaded = Signal(str)
+    #: An asynchronous load finished. ``True`` when the run is on screen.
+    #: Separate from :attr:`loaded`, which carries a path and predates the
+    #: worker: a caller needs to know SUCCESS, and it arrives later than the
+    #: call that started it (instruction 159).
+    load_finished = Signal(bool)
 
     #: What the run label says when the table on screen came from no run --
     #: a bare CSV, or a frame handed straight in. NOT blank: an empty label
@@ -755,6 +752,18 @@ class RegressionResultsPanel(QWidget):
         self._threshold_multiplier = DEFAULT_THRESHOLD_MULTIPLIER
         #: Why a colour-by option is present but useless, or "".
         self._colour_by_note = ""
+        # LOADING A RUN GOES OFF THE GUI THREAD (instruction 159). `load`
+        # walked the folder, read the CSV and rebuilt every view inline, and
+        # this file contained no JobRunner at all -- so a big table or a deep
+        # folder stopped the window with no spinner and no cancel, which is
+        # indistinguishable from a crash. It is the same defect 154 A fixed
+        # for the merge, and this is the same machinery rather than a second
+        # one.
+        from ..job_runner import JobRunner
+
+        self._loading = False
+        self._load_jobs = JobRunner(self, threaded=True, app_key="results")
+        self._load_jobs.job_failed.connect(self._on_load_job_failed)
         #: None, "gene" or "grna" -- which rows EVERY tab draws. One piece of
         #: state, read by every draw path: see :meth:`refresh_views`.
         # "grna", NOT None. The coefficient table holds BOTH levels, so
@@ -1281,14 +1290,7 @@ class RegressionResultsPanel(QWidget):
     def run_folder(self) -> str:
         """The FOLDER of the run on screen, or ``""`` when there is no run.
 
-        Instruction 155 A, reported 2026-08-18:
-
-            "it is true [that the table was not read from a run folder] ...
-             but that is because it was not externally loaded it was run in
-             the application so the application should know where the run
-             folder is given that it just created it."
-
-        And it did know: ``perform_regression`` hands ``res_folder`` back
+        ``perform_regression`` hands ``res_folder`` back
         with the coefficients and writes ``regression_data.csv`` into it. What
         was missing is that nothing here would ANSWER the question, so every
         view that needed the folder had to reach for ``_path`` and guess
@@ -1342,8 +1344,7 @@ class RegressionResultsPanel(QWidget):
         ``results/<kind>_<n>`` is the folder a run writes, so the basename is
         ``ols_3`` -- which is what the Runs table shows, what the figure grid
         heads its section with and what the montage names. One vocabulary
-        (instruction 145): three views calling one run three things is how a
-        user is left comparing them by eye.
+        prevents three views from calling the same run three different things.
         """
         folder = self.run_folder()
         return os.path.basename(folder.rstrip(os.sep)) if folder else ""
@@ -1401,8 +1402,93 @@ class RegressionResultsPanel(QWidget):
             return False
         return self.load(folder)
 
+    def is_loading(self) -> bool:
+        """Whether a run is being read right now."""
+        return bool(self._loading)
+
+    def start_load(self, path) -> bool:
+        """Load a run OFF the GUI thread. Instruction 159.
+
+        The split is the one the merge uses: everything that touches a widget
+        stays here, the disk walk and the CSV read go to a worker, and only
+        data crosses back.
+
+        :returns: whether a load was started. ``False`` when one already is --
+            a second click must not read the same folder twice.
+        """
+        if self._loading:
+            return False
+        if not path:
+            self.say("Nothing was handed to the results panel, so there is "
+                     "no folder to search. Use “Load results…”.")
+            return False
+        self._loading = True
+        self.say(f"Reading the run in {os.path.basename(str(path)) or path}…")
+        started = self._load_jobs.submit(
+            lambda: self._read_run(path),
+            self._finish_load)
+        if not started:                      # pragma: no cover - JobRunner
+            self._loading = False            # always returns True today
+        return bool(started)
+
+    @staticmethod
+    def _read_run(path):
+        """THE WORKER HALF. Touches no widget; returns what the GUI needs.
+
+        Returns a dict rather than raising, because a JobRunner job that
+        raises loses the detail on the way back across the thread boundary --
+        the same reason `_merge_worker` returns its outcome.
+        """
+        import pandas as pd
+
+        searched = os.path.abspath(os.path.expanduser(os.fspath(path)))
+        if not os.path.exists(searched):
+            return {"error": f"{searched} does not exist, so there is "
+                             f"nothing to load from it."}
+        tables = find_results_tables(searched)
+        if not tables:
+            return {"error": (
+                f"Searched {searched} and found none of "
+                f"{', '.join(RESULT_FILENAMES)} in it or in any folder up to "
+                f"{MAX_SEARCH_DEPTH} deep.")}
+        found = tables[0]
+        try:
+            frame = pd.read_csv(found)
+        except Exception as error:  # noqa: BLE001 - report, do not raise
+            return {"error": f"Could not read {found}: {error}"}
+        return {"frame": frame, "found": found, "searched": searched,
+                "tables": tables}
+
+    def _finish_load(self, outcome) -> bool:
+        """THE GUI HALF: everything that touches a widget."""
+        self._loading = False
+        ok = False
+        if not isinstance(outcome, dict):
+            self.say("The run loader came back with nothing, which is a bug "
+                     "in the loader rather than in the run.")
+        elif outcome.get("error"):
+            self.say(str(outcome["error"]))
+        else:
+            ok = self._apply_loaded_run(
+                outcome["frame"], outcome["found"], outcome["searched"],
+                outcome["tables"])
+        # ALWAYS, on both endings. A caller waiting on this must not be left
+        # waiting by a failure -- that is a spinner nothing clears.
+        self.load_finished.emit(bool(ok))
+        return ok
+
+    def _on_load_job_failed(self, message: str) -> None:
+        self._loading = False
+        self.say(f"The run could not be read: {message}")
+        self.load_finished.emit(False)
+
     def load(self, path) -> bool:
         """Load a results CSV, a run folder, or a parent of one.
+
+        THE SYNCHRONOUS ENTRY POINT, kept for tests and headless callers.
+        The GUI goes through :meth:`start_load`; both end in
+        :meth:`_apply_loaded_run`, so the two cannot drift -- which is the
+        rule `start_merge` and `merge` already follow.
 
         EVERY WAY THIS FAILS SAYS SO. It used to return False five different
         ways and leave the user looking at a table with columns and no rows,
@@ -1434,6 +1520,16 @@ class RegressionResultsPanel(QWidget):
         except Exception as error:  # noqa: BLE001 - report, do not raise
             self.say(f"Could not read {found}: {error}")
             return False
+        return self._apply_loaded_run(frame, found, searched, tables)
+
+    def _apply_loaded_run(self, frame, found, searched, tables) -> bool:
+        """Put a read run on screen. THE ONE ENDING BOTH LOAD PATHS SHARE.
+
+        Split out so `load` (synchronous) and `start_load` (on a worker)
+        cannot drift -- the rule `merge` and `start_merge` already follow, and
+        the reason the run loader was still on the GUI thread long after the
+        merge had been moved off it is that nobody had made them one path.
+        """
         if not self.set_frame(frame, source=found):
             # set_frame said why -- an empty table is not the same failure as
             # a missing one -- but the folder it came from is worth adding.
@@ -1643,7 +1739,7 @@ class RegressionResultsPanel(QWidget):
     def plot_state(self) -> dict:
         """What the user has built on the plot, as data.
 
-        Instruction 116: "every regression run should have its own
+        The design: "every regression run should have its own
         interactive volcano plot." A run does not have a volcano today -- the
         screen has one and a run borrows it -- so opening run B destroyed the
         level, the colouring, the axis limits, the effect cut and the
@@ -1739,7 +1835,7 @@ class RegressionResultsPanel(QWidget):
         return tuple(self._plot_states)
 
     def forget_plot_state(self, source) -> bool:
-        """Drop one run's remembered plot. Instruction 146 deletes a run.
+        """Drop one run's remembered plot. The design deletes a run.
 
         :param source: the run's folder, or any path inside it -- the CSV a
             caller happens to be holding answers the same as the folder.
@@ -1755,7 +1851,7 @@ class RegressionResultsPanel(QWidget):
     def forget_run(self, source) -> bool:
         """A run was deleted: drop its view, and clear the panel if it is IT.
 
-        THE ORDER IS THE WHOLE POINT, and instruction 116 wrote the trap down
+        THE ORDER IS THE WHOLE POINT, and the failure sequence is explicit
         before 146 existed: "deleting the run CURRENTLY ON SCREEN must also
         clear the panel, or leaving that run re-saves the state that was just
         forgotten." `set_frame` calls `_remember_plot_state` on the way out of
@@ -2134,14 +2230,14 @@ class RegressionResultsPanel(QWidget):
     def both_levels_note(self) -> str:
         """One sentence naming the level shown and the one that is not.
 
-        THE RUN FITS TWICE AND THE PANEL SHOWS ONE. Instruction 128 R splits
+        THE RUN FITS TWICE AND THE PANEL SHOWS ONE. The design splits
         `level='both'` into a guide fit and a gene fit -- two tables, two
         multiple-testing families -- and the panel opens on guides so a gene
         is not drawn once per guide. Both of those are right.
 
-        What was missing is that NOTHING SAID SO. Reported 2026-08-18 after a
-        glm run: "i can only see guides only and it only runs once". Both fits
-        HAD run -- results_grna.csv 15 rows, results_gene.csv 5 -- and half of
+        Previously, nothing said so. In a representative GLM run, both fits
+        completed -- ``results_grna.csv`` had 15 rows and ``results_gene.csv``
+        had 5 -- while half of
         it was invisible with nothing on screen naming the other half, so "it
         only runs once" is the honest reading from the user's side.
 
