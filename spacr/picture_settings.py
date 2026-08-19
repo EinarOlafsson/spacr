@@ -41,7 +41,24 @@ BOTH_MODES: Tuple[str, ...] = (
     # the merged array" when streaming, which is the same question asked of
     # two sources -- not two settings.
     "channels",
+    # THE WELL, OR THE CANDIDATES. Asked for 2026-08-19: "an option to show
+    # all the images from each well and highlight the cells most likely to be
+    # whatever gene is picked". Not the default, because the two answer
+    # different questions -- the filtered view asks which cells look like the
+    # effect, this asks what the whole well looks like and where they are in
+    # it -- and a reader who cannot see the well cannot judge the window.
+    "show_all_in_well",
+    # How many cells one page of a well holds. A well capped at 300 drawn as
+    # one grid is a scroll nobody reads to the end of.
+    "cells_per_page",
 )
+
+#: Defaults for the keys that are this panel's own rather than the
+#: annotator's. Everything else comes from `set_annotate_default_settings`.
+OWN_DEFAULTS: Dict[str, object] = {
+    "show_all_in_well": False,
+    "cells_per_page": 60,
+}
 
 #: Settings that only mean something when the crops are read off disk.
 LOAD_ONLY: Dict[str, str] = {
