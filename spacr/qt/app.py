@@ -2882,6 +2882,15 @@ def launch(argv: Optional[list[str]] = None) -> int:
     QApplication.setAttribute(Qt.AA_DontUseNativeDialogs, True)
 
     app = QApplication(sys.argv[:1])
+    # NAME THE CALLER OF AN OFF-THREAD TIMER START, because Qt will not. Its
+    # own warning has no file, no function and no thread in it, and the event
+    # arrives during a real run and is followed by the process dying -- so
+    # there is no opportunity to switch instrumentation on afterwards.
+    try:
+        from .thread_guard import install as _install_thread_guard
+        _install_thread_guard()
+    except Exception:
+        pass
     app.setApplicationName("spaCR")
     app.setOrganizationName("Olafsson Lab")
     # Linux shells resolve dock/switcher identity through the desktop-file
