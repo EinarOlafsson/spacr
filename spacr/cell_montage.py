@@ -1330,10 +1330,47 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
         except Exception as error:                               # noqa: BLE001
             problems.append(f"{os.path.basename(text)}: {error}")
             continue
+
+        # CANONICALISE FIRST, the way every other reader in spaCR does.
+        # Reported 2026-08-18: "the cell montage failed because the column grna
+        # was not found in any of the count tables" -- and the tables had the
+        # identifier under one of the spellings `correct_metadata_column_names`
+        # exists to absorb (`grna_name`, and whatever `schema.canonicalise_frame`
+        # maps). Reading the CSV raw made this function the ONE reader that did
+        # not, which is exactly the "one vocabulary" failure instruction 145 is
+        # about, introduced while fixing something else.
+        try:
+            from .utils import correct_metadata_column_names
+            frame = correct_metadata_column_names(frame)
+        except Exception:                                        # noqa: BLE001
+            pass
+
+        # AND THE ALIASES THE REST OF THE PROJECT ALREADY ACCEPTS. `utils`
+        # looks for a gRNA identifier under seven spellings when reading
+        # metadata; a count table is the same identifier in the same shape, so
+        # refusing it here for its header would be this module inventing a
+        # stricter rule than the code around it.
+        if "grna" not in frame.columns:
+            for alias in ("grna_name", "name", "sgrna", "sgRNA", "guide",
+                          "sequence"):
+                if alias in frame.columns:
+                    frame = frame.rename(columns={alias: "grna"})
+                    break
+        if "count" not in frame.columns:
+            for alias in ("read_count", "reads", "counts", "n", "count_sum"):
+                if alias in frame.columns:
+                    frame = frame.rename(columns={alias: "count"})
+                    break
+
         missing = [c for c in ("grna", "count") if c not in frame.columns]
         if missing:
+            # NAME WHAT THE FILE ACTUALLY HAS. "column grna was not found" is
+            # true and unactionable: the user cannot tell whether they picked
+            # the wrong file or whether their header is spelled differently,
+            # and those have different answers.
             problems.append(
-                f"{os.path.basename(text)} has no {missing} column")
+                f"{os.path.basename(text)} has no {' or '.join(missing)} "
+                f"column; it has {list(frame.columns)[:12]}")
             continue
         frames.append(frame)
 
