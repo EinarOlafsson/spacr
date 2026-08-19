@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-108 done / 48 open (69%).
+109 done / 47 open (69%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -153,9 +153,6 @@ OPEN
   158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
        158_an_unavailable_option_offers_to_make_itself_available.txt
 
-  159  LOADING A RUN HANGS THE APPLICATION
-       159_loading_a_run_hangs_the_application.txt
-
   160  TWO REGRESSIONS HUNG THE MACHINE
        160_two_regressions_hung_the_machine.txt
 
@@ -278,5 +275,6 @@ DONE
   123  EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
+  159  LOADING A RUN HANGS THE APPLICATION
   164  THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
   165  AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
