@@ -367,6 +367,17 @@ _BATCH_CORRECTION_OPTIONS = [
 #: What ``control_center`` does on a plate with too few reference controls.
 _BATCH_MISSING_CONTROL_OPTIONS = ["error", "skip"]
 
+#: The two picture sources, IN THE WORDS THE USER ASKED FOR (instruction
+#: 171: "unify the terminology stream images and load images"). Load first,
+#: because it is the default and reads from data/.
+#:
+#: The stored values stay 'png' and 'merged' -- `spacr.crops` reads those,
+#: and no settings file written before this changes meaning.
+_CROP_SOURCE_OPTIONS = [
+    ("png", "load images — crops already in data/"),
+    ("merged", "stream images — cut from merged/"),
+]
+
 # Options that are enumerations for one module but not necessarily for every
 # setting with the same generic key.  Keeping these app-scoped avoids turning
 # unrelated ``mode`` fields into sequencing controls.
@@ -384,7 +395,7 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # 'auto' is retired FROM THE PANEL and not from the code
         # (instruction 171): it answers "what is available here", which is not
         # an answer to somebody asked which mode they want.
-        "crop_source": ["png", "merged"],
+        "crop_source": _CROP_SOURCE_OPTIONS,
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
     },
@@ -393,7 +404,7 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # never offered -- it shipped 'auto' and took the PNG folder whenever
         # one existed. "in the annotation app how do i choose to stream images
         # from database or dataset" (2026-08-19).
-        "crop_source": ["png", "merged"],
+        "crop_source": _CROP_SOURCE_OPTIONS,
     },
     "ml_analyze": {
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
@@ -6880,8 +6891,17 @@ class SettingsWidgets:
                 QComboBox.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(12)
             for opt in (options or []):
-                w.addItem("None" if opt is None else str(opt),
-                          userData=opt)
+                # A (value, label) pair shows the LABEL and stores the VALUE.
+                # Instruction 171 wants "load images" and "stream images" in
+                # those words in every panel that offers the choice, while
+                # 'png' and 'merged' go on meaning what they meant to every
+                # settings file already written.
+                if isinstance(opt, tuple) and len(opt) == 2:
+                    stored, shown = opt
+                else:
+                    stored = opt
+                    shown = "None" if opt is None else str(opt)
+                w.addItem(str(shown), userData=stored)
             # Pre-select the value THIS module declares, not the one
             # hard-coded in gui_utils.convert_settings_dict_for_gui's
             # special_cases table. That table is one row per key for the whole

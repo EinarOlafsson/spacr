@@ -330,7 +330,7 @@ def test_the_sql_column_list_is_canonical_too(tmp_path):
 #: reader does not turn this red on somebody else's change -- but it is a
 #: RATCHET: it may only ever be lowered, never raised, and it is already
 #: below the 101 the instruction set as the bar.
-DIRECT_READER_CEILING = 100
+DIRECT_READER_CEILING = 98
 
 _DIRECT_READER = re.compile(r"pd\.read_csv\(|pd\.read_sql")
 
