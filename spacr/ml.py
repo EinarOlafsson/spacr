@@ -151,6 +151,60 @@ def _say_what_a_mixed_fit_will_cost(backend, df=None):
         print(f"  The GPU backend would be faster but is not usable here: "
               f"{reason}")
 
+
+#: Settings that must lie strictly inside 0 and 1, and what each one is for.
+#: Checked BEFORE the run writes anything -- see
+#: :func:`_reject_impossible_probabilities`.
+_UNIT_INTERVAL_SETTINGS = {
+    'fdr_alpha': "the family-level rejection threshold for adjusted P values",
+    'p_threshold_alpha': "the cut applied to the P value column",
+    'alpha': None,          # 'alpha' is the PENALTY for ridge/lasso, not a
+                            # probability, so it is deliberately not checked.
+}
+
+
+def _reject_impossible_probabilities(settings):
+    """Refuse an out-of-range alpha BEFORE the run writes a results folder.
+
+    Reported 2026-08-19 from the maintainer's own screen: a run reached the
+    permutation forty seconds in -- having already written its figures, its
+    `regression_data.csv` and three QC plots -- and died with
+
+        ValueError: alpha must be strictly between 0 and 1; got -0.95
+
+    -0.95 is 0.05 minus 1: one scroll of the wheel over a QDoubleSpinBox
+    whose `singleStep` was left at its default of 1.0. The widget is fixed,
+    but the value was already SAVED into `settings/regression.csv`, and a
+    settings file reaches this function without passing a panel at all.
+
+    So the check lives here too -- the same argument `_require_backend`
+    makes for the backend greying rule. A run that cannot succeed should cost
+    a second and name the setting, not forty seconds and a half-written
+    folder.
+    """
+    for key, what in _UNIT_INTERVAL_SETTINGS.items():
+        if what is None or key not in settings:
+            continue
+        value = settings.get(key)
+        if value is None:
+            continue
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(
+                f"{key}={value!r} is not a number. It is {what}, and must "
+                f"be strictly between 0 and 1 (usually 0.05).") from None
+        if not (0.0 < number < 1.0):
+            raise ValueError(
+                f"{key}={number!r} is outside 0 and 1. It is {what}, so it "
+                f"has no meaning there; the usual value is 0.05. "
+                + ("A value one less than what you meant is what a spin box "
+                   "does when its arrow or the scroll wheel is nudged -- "
+                   f"{number + 1:g} may be the number you set."
+                   if -1.0 < number < 0.0 else
+                   "Set it in the Significance section, or in "
+                   "settings/regression.csv if this run came from a file."))
+
 def _graph_sequencing_stats(settings):
     """Resolve the sequencing threshold helper through one testable seam."""
     # Keep this lazy to avoid expanding ml.py's already-heavy import graph,
@@ -6265,6 +6319,7 @@ def _perform_regression(settings):
             # it accepted 'gls', 'wls', 'rlm' and 'quantile', which had no
             # backend - 'quantile' failing only at the last statement, after
             # every CSV and QC plot had been written.
+            _reject_impossible_probabilities(settings)
             mode = str(settings.get('analysis_mode', 'regression')).strip().lower()
             if mode not in {'regression', 'guide_permutation'}:
                 raise ValueError(
