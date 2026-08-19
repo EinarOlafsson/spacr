@@ -1,0 +1,45 @@
+================================================================================
+THE RUN SUMMARY IS READABLE AT A GLANCE
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19, having read one in full -- "not very accessable make it
+           more acessable and easier to read and overview"
+
+THE CONTENT IS RIGHT AND THE SHAPE IS WRONG. Nothing in the summary is
+inaccurate and very little of it is unnecessary: the "not applicable" lines
+each say WHY, which is the property that makes a permutation run legible at
+all, and they were written deliberately. The problem is that a reader opening
+it cannot find the three numbers they came for.
+
+Measured on the maintainer's own run: 108 lines, of which the answer to "did
+this work and what did it call" is 6.
+
+WHAT TO BUILD
+
+A. A VERDICT AT THE TOP, before anything else. What was fitted, how many
+   coefficients were called, at what alpha, and whether the positive control
+   came out where it should. Six lines that a reader can stop after.
+
+B. THE LONG-FORM BELOW IT, UNCHANGED. Every section that is there now stays
+   exactly as it is -- this is an addition, not a rewrite. A summary that
+   dropped the reasoning to be shorter would have traded the thing that makes
+   it worth reading.
+
+C. THE "NOT APPLICABLE" BLOCK COLLAPSES TO ONE LINE by default. Nine
+   consecutive not-applicables with a paragraph each is the bulk of what makes
+   this hard to scan, and they all say the same thing: this run fitted no
+   model. Say that once, name the nine, and keep every full explanation
+   available -- in the file, under a heading, not deleted.
+
+D. THE PANEL FOLDS IT. The Summary tab shows the verdict expanded and each
+   section collapsed, with the section headings as the outline. The file on
+   disk stays plain text and stays readable in a terminal, because it is a
+   run artefact before it is a widget.
+
+HOW TO KNOW IT WORKED
+
+* The first screen of the Summary tab answers "did it work, what did it call,
+  is the control where it should be" with no scrolling.
+* Every sentence that is in today's summary is still reachable.
+* `model_summary.txt` still opens in a terminal and still reads top to bottom.
