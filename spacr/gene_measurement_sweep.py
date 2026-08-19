@@ -290,3 +290,97 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     return SweepResult(table=table, effects=effects, n_wells=n,
                        n_blocks=n_blocks, dropped=dropped,
                        circularity_known=circularity_known)
+
+
+# --------------------------------------------------------------------------- #
+#  The picture
+# --------------------------------------------------------------------------- #
+
+def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
+               alpha: float = 0.05, max_circularity: float = 1.0,
+               top: int = 40, title: str = ""):
+    """A heatmap of what SURVIVED, clustered so related things sit together.
+
+    THE WHOLE GRID IS NOT A PICTURE. 1,240 guides x 767 measurements is
+    951,080 cells; drawn, it is a texture, and every one of them is coloured
+    whether or not it means anything. So the default view is the survivors --
+    the guides and measurements with at least one entry past the correction --
+    and everything else is a filter away.
+
+    :param result: what :func:`sweep` returned.
+    :param top: the most guides and measurements to draw. A screen with
+        hundreds of survivors is a table, not a picture, and saying so beats
+        drawing something illegible.
+    :returns: the matplotlib Figure, or ``None`` when nothing survived.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.survivors(alpha=alpha, max_circularity=max_circularity)
+    if not len(keep):
+        return None
+
+    guides = (keep.groupby("guide")["q"].min().sort_values().head(top).index)
+    measures = (keep.groupby("measurement")["q"].min()
+                .sort_values().head(top).index)
+    grid = result.effects.loc[
+        [g for g in guides if g in result.effects.index],
+        [m for m in measures if m in result.effects.columns]]
+    if grid.empty:
+        return None
+
+    # ORDERED SO NEIGHBOURS ARE ALIKE. A heatmap whose rows are in the order
+    # they happened to arrive hides every block structure in it; the
+    # measurements of one compartment belong together and a reader looking for
+    # "what kind of thing does this gene move" is looking for exactly that.
+    grid = _order_like_neighbours(grid)
+
+    height = max(3.0, 0.28 * len(grid.index) + 1.6)
+    width = max(5.0, 0.34 * len(grid.columns) + 3.2)
+    figure, axes = plt.subplots(figsize=(width, height))
+    limit = float(np.nanmax(np.abs(grid.to_numpy()))) or 1.0
+    image = axes.imshow(grid.to_numpy(), cmap="RdBu_r", vmin=-limit,
+                        vmax=limit, aspect="auto")
+    axes.set_xticks(range(len(grid.columns)))
+    axes.set_xticklabels([c[:34] for c in grid.columns], rotation=90,
+                         fontsize=7)
+    axes.set_yticks(range(len(grid.index)))
+    axes.set_yticklabels(grid.index, fontsize=7)
+    axes.set_title(title or
+                   f"{len(keep):,} association(s) past BH at {alpha:g}"
+                   + (f", circularity < {max_circularity:g}"
+                      if max_circularity < 1.0 else ""),
+                   fontsize=9)
+    bar = figure.colorbar(image, ax=axes, fraction=0.025, pad=0.01)
+    bar.set_label("effect (partial correlation, plate-blocked)", fontsize=7)
+    bar.ax.tick_params(labelsize=6)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def _order_like_neighbours(grid: pd.DataFrame) -> pd.DataFrame:
+    """Rows and columns ordered so similar ones are adjacent.
+
+    Hierarchical clustering when scipy is there, and a correlation-to-the-mean
+    ordering when it is not -- a picture that fell back to arrival order would
+    quietly lose the block structure the picture exists to show.
+    """
+    try:
+        from scipy.cluster.hierarchy import leaves_list, linkage
+        from scipy.spatial.distance import pdist
+
+        def order(matrix):
+            if matrix.shape[0] < 3:
+                return list(range(matrix.shape[0]))
+            distance = pdist(np.nan_to_num(matrix), metric="correlation")
+            distance = np.nan_to_num(distance, nan=1.0)
+            return list(leaves_list(linkage(distance, method="average")))
+
+        rows = order(grid.to_numpy())
+        columns = order(grid.to_numpy().T)
+        return grid.iloc[rows, columns]
+    except Exception:                                            # noqa: BLE001
+        centre = grid.mean(axis=1).sort_values().index
+        columns = grid.mean(axis=0).sort_values().index
+        return grid.loc[centre, columns]
