@@ -435,34 +435,53 @@ def test_the_plan_summary_is_shorter_than_the_plan_it_summarises(qtbot,
 #  D. The plate ids read `pplate1`
 # --------------------------------------------------------------------------- #
 
-def test_a_plate_stored_as_pplate1_is_shown_as_the_plate_is_called(qtbot,
-                                                                   tmp_path):
-    """Measured before deciding it was cosmetic: the panel prints exactly what
-    is stored, so the doubling is in the DATABASE. It is shown as the plate is
-    called, and the stored id is named beside it."""
+def test_a_plate_stored_as_pplate1_reads_as_the_plate_is_called(qtbot,
+                                                                tmp_path):
+    """The doubled prefix no longer reaches the panel, or the data.
+
+    THIS TEST USED TO ASSERT THE WARNING. It checked that the plan said
+    "stored as pplate1 ... shown as plate1", which was right while the
+    doubling reached the frame: the panel could only describe the problem.
+
+    `multi_database.normalise_plate_ids` now collapses it ON READ, so the
+    merged frame and the plan both say `plate1` and there is nothing left to
+    warn about. The fix removed the need for the caveat, so the caveat's test
+    becomes a test that the plate simply reads correctly -- which is the
+    stronger statement of the two.
+    """
     paths = [_database(tmp_path / "p1", "pplate1")]
     panel = _panel(qtbot, paths, plates=["plate1"])
 
     plan = panel.plan_text()
 
     assert "plates plate1" in plan, plan
-    assert "stored as pplate1" in plan
-    assert "shown as plate1" in plan
+    assert "pplate1" not in plan, (
+        "the stored doubling reached the panel, so it is reaching the data "
+        "too -- normalise_plate_ids is not being applied on read")
 
 
-def test_the_doubled_prefix_is_named_as_a_key_risk_not_a_rendering_choice(
-        qtbot, tmp_path):
-    """The join INSIDE this merge is safe -- both sides read the same stored
-    value out of the same file. The risk is the score CSV, which
-    `utils.correct_metadata` has already normalised. That is the sentence."""
+def test_the_doubled_prefix_cannot_reach_a_join_key(qtbot, tmp_path):
+    """The risk the old warning described, asserted as absent.
+
+    The warning said the merge's own joins were safe -- both sides read the
+    same stored value -- and that the danger was a score CSV which
+    `utils.correct_metadata` had already normalised to `plate1`. That was the
+    real defect and it cost the maintainer a run: the gene half went missing
+    with no message, because the two frames shared no well.
+
+    Now the measurement side is normalised on read as well, so the two meet.
+    Pinned here on the PANEL, and end to end in
+    tests/test_multi_database.py::test_a_merged_frame_can_meet_a_normalised_score_file.
+    """
+    from spacr.multi_database import canonical_plate_id, read_merged
+
     paths = [_database(tmp_path / "p1", "pplate1")]
     panel = _panel(qtbot, paths, plates=["plate1"])
+    assert "pplate1" not in panel.plan_text()
 
-    plan = panel.plan_text()
-
-    assert "correct_metadata" in plan
-    assert "unaffected" in plan
-    assert "will not meet a score file" in plan
+    frame = read_merged([str(p) for p in paths], "cell")
+    assert set(frame["plateID"]) == {"plate1"}
+    assert canonical_plate_id("pplate1") == "plate1"
 
 
 def test_a_plate_that_is_already_canonical_says_nothing_at_all(qtbot,
