@@ -434,3 +434,105 @@ TESTS  tests/qt/test_the_font_size_survives_the_next_render.py, 20 of them.
 17 of the 20 fail on the previous commit; the 3 that pass are the ones about
 what must NOT change. `test_reopening_the_dialog_shows_what_the_user_set`
 drives the reporter's own sentence: set 2, redraw, open the dialog again.
+
+--------------------------------------------------------------------------------
+2026-08-18 -- POINT 5 IS NOW REACHABLE, AND POINT 6 RECOUNTED
+--------------------------------------------------------------------------------
+
+THE GAP THE PREVIOUS NOTE ADMITTED AND DID NOT CLOSE, in its own last line:
+"Nothing calls `offer_style` yet either". So on this branch `save_style`,
+`load_style`, `apply_default_style` and `add_style_file_entries` were all
+written, all tested and all green, and NOTHING A USER COULD CLICK REACHED
+ANY OF THEM. That is HANDOFF 0b -- instruction 52 was closed on 97 passing
+tests with the controls unreachable -- arriving in this instruction.
+
+WHY IT COULD NOT SIMPLY BE WIRED: those helpers take a style DATACLASS and
+derive the kind from its CLASS, and the only style dataclass in the package
+is `VolcanoStyle`. Its host is `volcano_explorer.py`, which is not this
+territory. HANDED OFF: one call to `FastPlot.offer_style(self._style, ...)`
+there and the pyqtgraph half is live.
+
+WHAT SHIPPED INSTEAD, for the figures that have no dataclass -- which is
+nearly all of them. The same two entries over INSTRUCTION 118'S vocabulary,
+which every matplotlib figure already resolves through:
+
+    figure_settings.GRAPH_STYLE_FILE_KIND       "spacr_graph_style"
+    figure_settings.graph_style_as_dict()       the store, as a file
+    figure_settings.save_graph_style(path, ...)
+    figure_settings.load_graph_style(path)      refuses a file that is not
+                                                one, rather than applying
+                                                the keys that happen to match
+    figure_settings.apply_graph_style(g, p)     makes it the project default
+    figure_settings.add_graph_style_file_entries(menu, ...)
+
+  On the figure's RIGHT-CLICK MENU as "Save graph style…" / "Load graph
+  style…", and on the Figures tab's Graph style panel as two buttons. One
+  format, two ways in.
+
+IT INVENTS NO KEYS, AND THAT IS THE DESIGN. The obvious alternative --
+capture what this figure looks like right now, off its artists -- would be a
+THIRD style system in a package instruction 127 has already measured as
+having two. The file holds the DELTAS the Figures tab stores, so loading one
+is indistinguishable afterwards from having set every control by hand, and
+`figure_style.resolve` and `figures.style.user_overrides` both pick it up
+with nothing else wired. That is what makes "a per-project default ...
+applied to every figure of that type without re-setting it each time" true
+rather than a second store somebody has to remember to read.
+
+AND IT CARRIES NO RESOLVED COLOURS. A captured appearance would sample the
+ink the THEME resolved and write it into a file; applying that later is
+instruction 152 section A word for word -- a resolved default written back,
+invisible the first time the user changes theme. The live figure's ink stays
+a token in `prefs/figure_*`, and the file carries only what 118 already
+stores.
+
+DELTAS AND NOT A RESOLVED STYLE, for the reason `FigureStylePreferences`
+already gives: a house style saved on a machine whose package defaults have
+since improved still means "these four things differ" rather than freezing
+the defaults of the day it was written.
+
+A SETTING THE FILE OMITS GOES BACK TO THE PACKAGE DEFAULT when it is loaded
+into the panel, rather than keeping whatever was on screen. Loading a house
+style that left half of somebody else's settings standing is not that house
+style.
+
+TESTS  tests/qt/test_a_house_style_is_saved_and_loaded.py, 18 of them. Four
+press the MENU ENTRY with the file dialog replaced, rather than calling the
+helper it calls -- which is the distinction the previous state of this
+instruction failed on. One asserts the evicted-figure menu is still a single
+disabled sentence.
+
+POINT 6 RECOUNTED, 2026-08-18. Tokenised rather than grepped, so a `savefig`
+inside a docstring cannot be counted:
+
+    21 `.savefig(` call sites, down from 23 -- `figures/__init__.py` and
+    `figures/style.py` lost theirs to another agent's work since the count.
+
+  MINE, 4, EVERY ONE WITH A REASON WRITTEN BESIDE IT:
+    figure_queue.py:271    the vector page the queue rasterises FOR SCREEN
+    figure_queue.py:353    the screen raster, capped display DPI
+    figure_queue.py:1713   a BytesIO drag preview, never a file
+    figure_settings.py:1603 the SVG/EPS branch of `save_figure_as`;
+                           png/pdf go through `plot.save_figure`, and these
+                           two are not in `plot.FIGURE_FORMATS`, so routing
+                           them would rewrite the user's extension under them
+  NOT LEAKS, 3:
+    plot.py:491            this IS `save_figure`
+    qt/screens/app_screen.py:5448, qt/screens/hyperparam.py:275
+                           BytesIO thumbnails, never a file
+  STILL LEAKING, 14 in 10 files, for whoever takes point 6:
+    classifier_evaluation.py:1642, 1667   dpi=180
+    gui_elements.py:6512
+    illumination.py:1326
+    report.py:2401, 2406                  PdfPages, a multi-page book
+    sequencing.py:1101                    format='pdf', dpi=600
+    sequencing_qc.py:1211                 format='pdf', dpi=300
+    spacr_cellpose.py:435                 format='pdf'
+    spacrops.py:950, 1148                 dpi=200
+    surrogate.py:879, 913
+    volcano_style.py:387                  the headless renderer
+
+WHAT REMAINS OF 108: points 1 (the shared style base), 2 (the renderer
+contract) and 4 (a screen holding the Figure rather than a saved image), plus
+the one-line `offer_style` call in volcano_explorer.py. Point 5 is done on
+both sides that this territory can reach.
