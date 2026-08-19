@@ -2959,6 +2959,19 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # closeEvent: ensure every ConsolePanel drains its AI thread
     # before Qt starts destroying widgets.
     def _drain_ai():
+        # EVERY JOB RUNNER, NOT ONLY THE CONSOLES. Qt aborts the process if a
+        # running QThread is destroyed, and each runner's own `closeEvent`
+        # covers a widget being CLOSED -- not the application quitting with a
+        # job in flight, where the widget is destroyed without ever closing.
+        # Measured 2026-08-19: spaCR died immediately after every successful
+        # regression, "run closed [success]" the last line in the log and
+        # nothing after it, because the Runs tab's announce had just started a
+        # results read on a worker.
+        try:
+            from .job_runner import shutdown_all
+            shutdown_all()
+        except Exception:
+            LOG.debug("Could not drain the job runners", exc_info=True)
         from .widgets.console_panel import ConsolePanel
         for panel in win.findChildren(ConsolePanel):
             try:

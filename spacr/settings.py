@@ -1940,7 +1940,12 @@ def get_perform_regression_default_settings(settings):
     # design it cannot support: perform_regression prints an unmissable
     # warning naming the counts when the parametric path is asked to fit more
     # parameters than it has wells. See ml.resolve_auto_inference.
-    settings.setdefault('inference', 'parametric')
+    # NONPARAMETRIC BY DEFAULT, at the maintainer's direction 2026-08-19.
+    # The plate-blocked permutation test assumes less: no normal residuals, no
+    # equal variance, no leverage. It is slower and it cannot express a P
+    # below 1/(permutations + 1) -- 149 C -- and the summary now says both,
+    # which is what makes it a safe default rather than a silent one.
+    settings.setdefault('inference', 'nonparametric')
     # Preserve the historical, public ``agg_type=None`` spelling for a
     # per-cell analysis.  New settings use the explicit dropdown, but an old
     # CSV must not silently become per-well merely because this readable
@@ -1992,7 +1997,13 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('negative_control','233460')
     settings.setdefault('min_n',0)
     settings.setdefault('controls',['000000_1','000000_10','000000_11','000000_12','000000_13','000000_14','000000_15','000000_16','000000_17','000000_18','000000_19','000000_20','000000_21','000000_22','000000_23','000000_24','000000_25','000000_26','000000_27','000000_28','000000_29','000000_3','000000_30','000000_31','000000_32','000000_4','000000_5','000000_6','000000_8','000000_9'])
-    settings.setdefault('fraction_threshold',None)
+    # 0.02 BY DEFAULT, at the maintainer's direction 2026-08-19. None meant
+    # "work one out", which ran `graph_sequencing_stats` on every default run
+    # -- the path that produced the KeyError fixed this morning -- and made
+    # the cut different from screen to screen. A stated number is reproducible
+    # and is reported in the run summary's exclusions, which now counts what
+    # it removed rather than only printing it (156).
+    settings.setdefault('fraction_threshold', 0.02)
     # ONE COLUMN, NOT TWO (instruction 135 A). `score_column` named the column
     # `minimum_cell_simulation` resamples to find how many objects a well
     # needs before its mean stops moving, and it has been
@@ -2103,7 +2114,16 @@ def get_perform_regression_default_settings(settings):
     # A setdefault of True is therefore what makes an old file still mean what
     # it meant -- and the same setdefault is what keeps an old CSV carrying
     # random_row_column_effects=True from landing in the refused fourth state.
-    settings.setdefault('model_plate_position', True)
+    # OFF BY DEFAULT, at the maintainer's direction 2026-08-19. Instruction
+    # 143 chose True on a measurement -- omitting a real plate-position effect
+    # cost more than carrying an absent one -- and that measurement stands as
+    # a description of the two errors. The DEFAULT is a judgement about which
+    # error to take by default across everybody's screens, and that judgement
+    # is the maintainer's. An old settings CSV without the key now means
+    # "position out" rather than "position in": stated here because the
+    # comment above says the opposite about files written before 2026-08-18,
+    # and a reader of one line without the other would be misled.
+    settings.setdefault('model_plate_position', False)
     settings.setdefault('random_row_column_effects',False)
     settings.setdefault('cov_type',None)
     # A PENALTY OF 1 IS NOT A DEFAULT, IT IS A FAILURE, for these families.
