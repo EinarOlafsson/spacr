@@ -118,3 +118,46 @@ def test_no_run_folder_is_not_a_reason_when_counts_are_attached(qtbot, tmp_path)
     assert view.count_csvs() == (path,)
     # Whatever else stops it, it is no longer the missing folder.
     assert view.RESULTS_WITHOUT_A_FOLDER not in view.reason()
+
+
+def test_the_sequencing_spelling_of_the_guide_column_is_accepted(tmp_path):
+    """REPORTED: "the cell montage failed because the column grna was not
+    found in any of the count tables".
+
+    The tables had the identifier under a spelling the rest of spaCR absorbs.
+    `correct_metadata_column_names` maps `grna_name` -> `grna` and every other
+    reader runs through it; this function read the CSV raw, which made it the
+    one reader with a stricter rule than the code around it.
+    """
+    from spacr.cell_montage import fractions_from_counts
+
+    path = tmp_path / "unique_combinations.csv"
+    pd.DataFrame({
+        "plateID": ["plate1"] * 2, "rowID": ["r1", "r1"],
+        "columnID": ["c1", "c1"],
+        "grna_name": ["g1", "g2"],          # the sequencing spelling
+        "count": [40, 60],
+    }).to_csv(path, index=False)
+
+    frame = fractions_from_counts([str(path)])
+    assert sorted(frame["fraction"]) == pytest.approx([0.4, 0.6])
+    assert set(frame["grna"]) == {"g1", "g2"}
+
+
+def test_a_file_with_neither_column_names_what_it_has(tmp_path):
+    """"column grna was not found" is true and unactionable.
+
+    A user cannot tell from it whether they picked the wrong file or whether
+    their header is spelled differently, and those have different answers.
+    """
+    from spacr.cell_montage import MontageError, fractions_from_counts
+
+    path = tmp_path / "wrong.csv"
+    pd.DataFrame({"plateID": ["plate1"], "well": ["A1"],
+                  "value": [3]}).to_csv(path, index=False)
+
+    with pytest.raises(MontageError) as caught:
+        fractions_from_counts([str(path)])
+    message = str(caught.value)
+    assert "wrong.csv" in message
+    assert "value" in message, "the refusal must name the columns the file HAS"
