@@ -63,25 +63,56 @@ def install() -> bool:
 
     gui_thread = QThread.currentThread()
 
-    def _report(what: str) -> None:
+    def _report(what: str, why: str) -> None:
         stack = "".join(traceback.format_stack()[:-2])
         _OFFENCES.append(stack)
         LOG.warning(
-            "%s started from %r, not the GUI thread. The timer WILL NOT "
+            "%s is illegal here: %s (python thread %r). The timer WILL NOT "
             "START, so whatever it drives is now dead. Stack:\n%s",
-            what, threading.current_thread().name, stack)
+            what, why, threading.current_thread().name, stack)
 
     real_timer_start = QTimer.start
     real_object_start = QObject.startTimer
 
+    def _wrong_thread(obj) -> str:
+        """Why this start is illegal, or "" when it is fine.
+
+        TWO DIRECTIONS, and the first version of this guard only checked one.
+        Qt refuses a timer whenever the object's OWN thread is not the calling
+        thread, which happens both ways round:
+
+          * a worker thread starting a timer on a GUI object -- the case
+            everyone thinks of; and
+          * THE GUI THREAD TOUCHING A WORKER-AFFINE OBJECT, which is just as
+            illegal and is far easier to write by accident, because the code
+            reads as ordinary GUI-thread code.
+
+        Comparing the caller against the GUI thread catches only the first, so
+        the guard stayed silent through the very event it was installed for:
+        a QBasicTimer warning fourteen milliseconds after every run closed.
+        """
+        current = QThread.currentThread()
+        try:
+            owner = obj.thread()
+        except Exception:                                        # noqa: BLE001
+            owner = None
+        if owner is not None and owner is not current:
+            return (f"the object lives on {owner!r} and the caller is "
+                    f"{current!r}")
+        if current is not gui_thread:
+            return f"the caller is {current!r}, not the GUI thread"
+        return ""
+
     def guarded_timer_start(self, *args, **kwargs):
-        if QThread.currentThread() is not gui_thread:
-            _report("QTimer.start")
+        why = _wrong_thread(self)
+        if why:
+            _report("QTimer.start", why)
         return real_timer_start(self, *args, **kwargs)
 
     def guarded_object_start(self, *args, **kwargs):
-        if QThread.currentThread() is not gui_thread:
-            _report("QObject.startTimer")
+        why = _wrong_thread(self)
+        if why:
+            _report("QObject.startTimer", why)
         return real_object_start(self, *args, **kwargs)
 
     QTimer.start = guarded_timer_start
