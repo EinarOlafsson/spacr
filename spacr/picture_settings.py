@@ -51,6 +51,24 @@ BOTH_MODES: Tuple[str, ...] = (
     # How many cells one page of a well holds. A well capped at 300 drawn as
     # one grid is a scroll nobody reads to the end of.
     "cells_per_page",
+    # THE MONTAGE'S OWN CONTROLS, moved off the toolbar 2026-08-19: "the
+    # half-width baseline, score column, and max objects can be moved to the
+    # settings panel", and the three combos beside them read as stray labels
+    # once the row was crowded. A toolbar is for what you change constantly;
+    # these are set once for a screen.
+    "object_type",
+    "crop_source",
+    "half_widths",
+    "baseline",
+    "score_column",
+    "cap",
+    # WHICH CELLS BELONG TO THE COEFFICIENT (instructions 172 and 173).
+    # 'rank' is heuristic 1 -- the top x by score. 'attributed' is each
+    # cell's posterior of carrying the guide. 'assigned' is the constrained
+    # assignment, where every cell in the well gets exactly one guide and each
+    # guide gets exactly the cells its reads imply.
+    "cell_picking",
+    "picking_threshold",
 )
 
 #: Defaults for the keys that are this panel's own rather than the
@@ -58,6 +76,18 @@ BOTH_MODES: Tuple[str, ...] = (
 OWN_DEFAULTS: Dict[str, object] = {
     "show_all_in_well": False,
     "cells_per_page": 60,
+    "object_type": "cell",
+    "crop_source": LOAD_IMAGES,
+    "half_widths": 1.0,
+    "baseline": "screen_median",
+    "score_column": "pred",
+    "cap": 300,
+    "cell_picking": "rank",
+    "picking_threshold": 0.55,
+    # NAMED, not left to fall out of the dialog. Without an entry here the
+    # settings dict said None while the settings WINDOW showed "object" --
+    # the user reads one thing and the crop is cut by another.
+    "crop_shape": "object",
 }
 
 #: Settings that only mean something when the crops are read off disk.
@@ -66,6 +96,14 @@ LOAD_ONLY: Dict[str, str] = {
         "names which exported crop folder to read (cell_png, nucleus_png, "
         "...), and nothing is being read off disk when the images are "
         "streamed"),
+}
+
+#: Settings that only mean something for one way of picking cells.
+PICKING_ONLY: Dict[str, Tuple[str, str]] = {
+    "picking_threshold": (
+        "attributed",
+        "is the probability a cell must reach to be called, and the other "
+        "pickers do not compute one"),
 }
 
 #: Settings that only mean something when the crops are cut on demand.
@@ -91,6 +129,14 @@ def modes() -> Tuple[Tuple[str, str], ...]:
     """``(value, label)`` for the two modes, default first."""
     return ((LOAD_IMAGES, LOAD_IMAGES_LABEL),
             (STREAM_IMAGES, STREAM_IMAGES_LABEL))
+
+
+def applies_to_picking(key: str, picking: str) -> bool:
+    """Whether ``key`` means anything for the chosen way of picking cells."""
+    entry = PICKING_ONLY.get(str(key or "").strip())
+    if entry is None:
+        return True
+    return str(picking or "rank").strip().lower() == entry[0]
 
 
 def applies_to(key: str, mode: str) -> bool:
@@ -360,5 +406,19 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
     if name == "crop_shape":
         return ("object", "bbox")
     if name == "crop_source":
-        return (LOAD_IMAGES, STREAM_IMAGES)
+        # (value, label): the stored value never changes, and the label is
+        # what the user named it (instruction 171).
+        return ((LOAD_IMAGES, f"{LOAD_IMAGES_LABEL} — crops already in data/"),
+                (STREAM_IMAGES, f"{STREAM_IMAGES_LABEL} — cut from merged/"))
+    if name == "object_type":
+        return ("cell", "nucleus", "pathogen", "cytoplasm")
+    if name == "baseline":
+        return ("screen_median", "control_median", "zero")
+    if name == "cell_picking":
+        return (
+            ("rank", "top by score — the count the fraction implies"),
+            ("attributed", "attributed — each cell's probability, above the "
+                           "threshold"),
+            ("assigned", "assigned — every cell in the well gets one guide"),
+        )
     return ()

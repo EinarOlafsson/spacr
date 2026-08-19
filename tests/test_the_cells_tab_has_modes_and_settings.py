@@ -104,3 +104,47 @@ def test_a_greyed_setting_is_kept_not_dropped(qtbot):
 
     assert dialog.values()["object_array"] == "cell_mask"
     assert "object_array" not in dialog.applied_values()
+
+
+def test_every_dropdown_opens_on_its_own_setting(qtbot):
+    """NOT on the last choice offered.
+
+    The first version of ``_editor`` unpacked ``(value, label)`` pairs into
+    the very name it was about to search for, so after the loop it looked up
+    the LAST option instead of the setting. Every labelled dropdown opened
+    one entry too far down -- the extraction mode read "stream images" when
+    the setting said ``png``. It is invisible unless you check the value,
+    which is exactly why it survived a green suite.
+    """
+    from spacr.picture_settings import ALL_KEYS, offered_values
+    from spacr.qt.widgets.picture_settings_dialog import (
+        PictureSettingsDialog, picture_defaults)
+
+    defaults = picture_defaults()
+    dialog = PictureSettingsDialog(mode=LOAD_IMAGES)
+    qtbot.addWidget(dialog)
+    shown = dialog.values()
+
+    labelled = [k for k in ALL_KEYS if offered_values(k)]
+    assert labelled, "no chooser offers values -- the test cannot bite"
+    for key in labelled:
+        assert shown[key] == defaults[key], (
+            f"{key} opened on {shown[key]!r}, not on its default "
+            f"{defaults[key]!r}")
+
+
+def test_a_chooser_opens_on_a_value_that_is_not_the_default(qtbot):
+    """The stronger form: a value PASSED IN must be the one selected."""
+    from spacr.picture_settings import offered_values
+    from spacr.qt.widgets.picture_settings_dialog import PictureSettingsDialog
+
+    choices = offered_values("crop_source")
+    assert len(choices) >= 2
+    first = choices[0][0] if isinstance(choices[0], tuple) else choices[0]
+
+    dialog = PictureSettingsDialog(mode=STREAM_IMAGES,
+                                   values={"crop_source": first})
+    qtbot.addWidget(dialog)
+
+    assert dialog.values()["crop_source"] == first
+    assert dialog._editors["crop_source"].currentIndex() == 0

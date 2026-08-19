@@ -746,6 +746,25 @@ def load(request: MontageRequest) -> MontageLoad:
     # default: the two answer different questions, and a reader who cannot
     # see the well cannot judge how many of it the fraction claims.
     selection["show_all"] = _show_all_of(request.picture)
+    # WHICH CELLS BELONG TO THE COEFFICIENT (172, 173). 'attributed' and
+    # 'assigned' both need every guide's fitted effect in the well, because a
+    # posterior is a comparison -- so they read them out of the run the
+    # montage is already showing.
+    picking = str((request.picture or {}).get("cell_picking") or "rank")
+    selection["picking"] = picking
+    selection["threshold"] = float(
+        (request.picture or {}).get("picking_threshold") or 0.55)
+    if picking in ("attributed", "assigned"):
+        from ...cell_montage import effects_from_results
+
+        raw = effects_from_results(request.results_path)
+        # The results name guides as the DESIGN did (`225160_1`) while the
+        # counts name them as the library does (`TGGT1_225160_1`), so the two
+        # are matched on the design spelling.
+        selection["effects"] = {
+            str(g): raw[str(g).split("TGGT1_")[-1]]
+            for g in counts["grna"].unique()
+            if str(g).split("TGGT1_")[-1] in raw} or None
     try:
         if request.per_guide:
             plans = select_montage_per_guide(
@@ -1350,7 +1369,6 @@ class CellMontageView(QWidget):
         self._show.clicked.connect(self.build)
         controls.addWidget(self._show)
 
-        controls.addWidget(QLabel("object"))
         self._object = QComboBox()
         for name in OBJECT_CHOICES:
             self._object.addItem(name, name)
@@ -1359,7 +1377,7 @@ class CellMontageView(QWidget):
             "disk and is derived as cell minus nucleus/pathogen, exactly as "
             "measure_crop derives it.")
         self._object.currentIndexChanged.connect(self._on_settings_changed)
-        controls.addWidget(self._object)
+        self._object.setVisible(False)
 
         # CHANNELS LIVES IN THE SETTINGS WINDOW, not on the toolbar. Asked
         # 2026-08-19: "in the cell tab there is no need to have object
@@ -1381,7 +1399,6 @@ class CellMontageView(QWidget):
             "measurements.db, so the crops match the PNGs that run wrote.")
         self._channels.textChanged.connect(self._on_settings_changed)
 
-        controls.addWidget(QLabel("crop shape"))
         self._shape = QComboBox()
         for value, label in SHAPE_CHOICES:
             self._shape.addItem(label, value)
@@ -1392,15 +1409,14 @@ class CellMontageView(QWidget):
             "the case the entry is disabled with its reason rather than "
             "quietly giving you a box.")
         self._shape.currentIndexChanged.connect(self._on_settings_changed)
-        controls.addWidget(self._shape)
+        self._shape.setVisible(False)
 
-        controls.addWidget(QLabel("images from"))
         self._source = QComboBox()
         for value, label in SOURCE_CHOICES:
             self._source.addItem(label, value)
         self._source.currentIndexChanged.connect(self._on_settings_changed)
         self._source.currentIndexChanged.connect(self._on_mode_changed)
-        controls.addWidget(self._source)
+        self._source.setVisible(False)
 
         # THE ANNOTATOR'S CONTROL OVER THE PICTURE (instruction 170 B).
         self._picture_settings: dict = {}
@@ -1442,7 +1458,6 @@ class CellMontageView(QWidget):
         # pictures look right and nothing in the output would show that it
         # had been.
         stringency = QHBoxLayout()
-        stringency.addWidget(QLabel("half-width"))
         self._half_widths = QDoubleSpinBox()
         self._half_widths.setDecimals(2)
         self._half_widths.setRange(0.05, 20.0)
@@ -1454,7 +1469,7 @@ class CellMontageView(QWidget):
             "values admit more cells and make 'closest' less selective. This "
             "value applies to every coefficient on the current screen.")
         self._half_widths.valueChanged.connect(self._on_settings_changed)
-        stringency.addWidget(self._half_widths)
+        self._half_widths.setVisible(False)
 
         self._baseline = QComboBox()
         for value, label in BASELINE_CHOICES:
@@ -1467,10 +1482,8 @@ class CellMontageView(QWidget):
             "caption.")
         self._baseline.currentIndexChanged.connect(self._on_settings_changed)
 
-        stringency.addWidget(QLabel("baseline"))
-        stringency.addWidget(self._baseline)
+        self._baseline.setVisible(False)
 
-        stringency.addWidget(QLabel("score column"))
         self._score = QLineEdit()
         self._score.setPlaceholderText(DEFAULT_SCORE_COLUMN)
         self._score.setMaximumWidth(110)
@@ -1479,9 +1492,8 @@ class CellMontageView(QWidget):
             "A screen with more than one classifier output has more than one "
             "candidate, and the caption says which produced the picture.")
         self._score.textChanged.connect(self._on_settings_changed)
-        stringency.addWidget(self._score)
+        self._score.setVisible(False)
 
-        stringency.addWidget(QLabel("max objects"))
         self._cap = QSpinBox()
         self._cap.setRange(1, 5000)
         self._cap.setValue(int(MAX_OBJECTS))
@@ -1491,9 +1503,12 @@ class CellMontageView(QWidget):
             "over 30 fields against 2.58 ms over 6, so a montage spanning "
             "many wells is the expensive one however few it takes from each.")
         self._cap.valueChanged.connect(self._on_settings_changed)
-        stringency.addWidget(self._cap)
+        self._cap.setVisible(False)
+        # THE ROW IS GONE FROM THE TOOLBAR. Its four controls live in the
+        # settings window now; the widgets stay because `request()` and the
+        # saved state both read them, and the window writes back to them so
+        # the two cannot drift.
         stringency.addStretch(1)
-        layout.addLayout(stringency)
 
         # THE TAB LIVES IN THE LEFT HALF OF THE FIGURES SPLITTER, which
         # starts at 780 px. Two rows of controls with their prose spelled out
@@ -1900,6 +1915,11 @@ class CellMontageView(QWidget):
         from ..widgets.picture_settings_dialog import picture_defaults
 
         out = dict(picture_defaults())
+        # The widgets are the source of truth for the ones that used to be on
+        # the toolbar, so a value set before this window ever opened is shown
+        # in it rather than replaced by a default.
+        out.update({k: v for k, v in self._read_widgets().items()
+                    if v not in (None, "")})
         out.update(self._picture_settings)
         out["crop_source"] = self.picture_mode()
         return out
@@ -1926,12 +1946,7 @@ class CellMontageView(QWidget):
         # ONE SETTING, ONE VALUE. `channels` is read from the hidden field by
         # `channels()` and from the picture settings by the renderer, so the
         # window writes it back rather than letting the two drift.
-        chosen = self._picture_settings.get("channels")
-        if chosen is not None:
-            text = (", ".join(str(c) for c in chosen)
-                    if isinstance(chosen, (list, tuple)) else str(chosen))
-            if text != self._channels.text():
-                self._channels.setText(text)
+        self._write_back(self._picture_settings)
         self._on_settings_changed()
         return True
 
@@ -1942,6 +1957,69 @@ class CellMontageView(QWidget):
             self._last_source = source
         if objects is not None:
             self._last_objects = objects
+
+    #: settings key -> the hidden widget that is still the source of truth.
+    #: `request()` and the run's saved state read the WIDGETS, so the settings
+    #: window writes back rather than letting the two drift -- one setting,
+    #: one value, wherever it is edited.
+    _MIRRORED = {
+        "channels": "_channels",
+        "object_type": "_object",
+        "crop_source": "_source",
+        "crop_shape": "_shape",
+        "half_widths": "_half_widths",
+        "baseline": "_baseline",
+        "score_column": "_score",
+        "cap": "_cap",
+    }
+
+    def _write_back(self, values) -> None:
+        """Put what the settings window chose onto the widgets that read it."""
+        from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QLineEdit,
+                                       QSpinBox)
+
+        for key, name in self._MIRRORED.items():
+            if key not in (values or {}):
+                continue
+            widget = getattr(self, name, None)
+            value = values[key]
+            if widget is None or value is None:
+                continue
+            try:
+                if isinstance(widget, QComboBox):
+                    index = widget.findData(value)
+                    if index < 0:
+                        index = widget.findText(str(value))
+                    if index >= 0:
+                        widget.setCurrentIndex(index)
+                elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                    widget.setValue(type(widget.value())(value))
+                elif isinstance(widget, QLineEdit):
+                    text = (", ".join(str(v) for v in value)
+                            if isinstance(value, (list, tuple)) else str(value))
+                    if text != widget.text():
+                        widget.setText(text)
+            except (TypeError, ValueError):
+                continue
+
+    def _read_widgets(self) -> dict:
+        """What the hidden widgets currently hold, in settings terms."""
+        from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QLineEdit,
+                                       QSpinBox)
+
+        out = {}
+        for key, name in self._MIRRORED.items():
+            widget = getattr(self, name, None)
+            if widget is None:
+                continue
+            if isinstance(widget, QComboBox):
+                data = widget.currentData()
+                out[key] = widget.currentText() if data is None else data
+            elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                out[key] = widget.value()
+            elif isinstance(widget, QLineEdit):
+                out[key] = widget.text()
+        return out
 
     def _on_mode_changed(self, *_args) -> None:
         """Say which mode is in force, so a fallback is never silent."""
@@ -2090,12 +2168,21 @@ class CellMontageView(QWidget):
         """
         self._unavailable = ""
         # The load in flight is answering the previous settings.
+        showing = bool(self._plans)
         self._jobs.cancel()
         self._pending = None
         # And a shape greyed out by the LAST route is re-armed: forcing
         # 'merged' after a run whose PNGs are gone is exactly the case where
         # a remembered refusal would keep a real choice unavailable.
         self._apply_shape_availability(MontageLoad())
+        # A SETTING CHANGED WHILE CELLS WERE ON SCREEN MEANS REDRAW THEM.
+        # Reported 2026-08-19: "after the cells are loaded it looks like i
+        # cannot reapply the settings". This cancelled the load in flight and
+        # stopped, so a montage already drawn kept the OLD settings and
+        # nothing said why -- indistinguishable from a control that does
+        # nothing.
+        if showing:
+            self.build()
         self._refresh_controls()
         self._announce()
 
