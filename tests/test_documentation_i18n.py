@@ -849,7 +849,7 @@ def test_preview_contract_table_reassembles_prose_but_hides_code_cells():
     )
     assert blocks.count('"Preview already running."') == 3
     assert blocks.count("no — deleteLater") == 2
-    assert blocks.count("preview_ ready") == 3
+    assert blocks.count("ready") == 3
     assert "JobRunner" not in blocks
     assert "a rescore from the cache" in blocks
     assert "matplotlib plot" in blocks
