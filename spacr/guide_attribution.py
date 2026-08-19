@@ -395,3 +395,177 @@ def assign_well(scores: Sequence[float], fractions: Mapping[str, float],
     counts = {g: int((chosen == i).sum()) for i, g in enumerate(names)}
     return Assignment(guides=assigned, cost=total, degeneracy=degeneracy,
                       counts=counts)
+
+
+# --------------------------------------------------------------------------- #
+# Option C -- every measurement, not just the score                            #
+# --------------------------------------------------------------------------- #
+#
+# "best case i can use all the fraction information and all the measurement
+# and classefication data to estimate which grna is linked to which cell ...
+# eaven if it only holds a timy little bit of information it still might
+# work, right?"
+#
+# Right in principle, and the arithmetic below is what makes the "might"
+# honest. Two things have to be got correct or this produces confident
+# nonsense.
+#
+# 1. LOG SPACE. A product of 785 densities underflows to exactly zero in
+#    double precision long before it reaches the end, and every cell then
+#    looks equally impossible -- which the code above answers by handing back
+#    the prior. The bug would present as "option C always says ambiguous".
+#
+# 2. THE MEASUREMENTS ARE NOT INDEPENDENT, and pretending otherwise is the
+#    difference between a method and a fiction. `cell_area` and
+#    `cell_perimeter` are one measurement wearing two names; multiplying
+#    their likelihoods counts the same evidence twice. Measured on the
+#    maintainer's own screen, 785 measurement columns carry an effective
+#    dimension in the low tens. So the summed log-likelihood is SCALED by
+#    n_eff / n_measured, which is the standard design-effect correction.
+#    Without it the posterior saturates at 0 or 1 for every cell and the
+#    0.55 threshold becomes decorative.
+
+
+def effective_dimension(matrix: np.ndarray) -> float:
+    """How many INDEPENDENT measurements ``matrix``'s columns amount to.
+
+    The participation ratio of the correlation matrix's eigenvalues,
+    ``(sum lambda)^2 / sum lambda^2`` -- 785 for 785 orthogonal columns, and
+    1 for 785 copies of one column. The same statistic the sweep uses to
+    count a guide's effective wells, applied to the other axis.
+
+    :param matrix: cells x measurements, already finite.
+    :returns: the effective count, between 1 and the number of columns.
+    """
+    values = np.asarray(matrix, dtype=float)
+    if values.ndim != 2 or values.shape[1] == 0:
+        return 0.0
+    if values.shape[1] == 1:
+        return 1.0
+    centred = values - values.mean(axis=0, keepdims=True)
+    spread = centred.std(axis=0, ddof=0)
+    # A column that does not vary carries no information and must not be
+    # allowed to divide by zero; it is dropped rather than kept at scale 1,
+    # which would have made it look like an independent measurement.
+    alive = spread > 0
+    if not alive.any():
+        return 0.0
+    centred = centred[:, alive] / spread[alive]
+    correlation = (centred.T @ centred) / max(centred.shape[0], 1)
+    eigenvalues = np.linalg.eigvalsh(correlation)
+    eigenvalues = np.clip(eigenvalues, 0.0, None)
+    total = float(eigenvalues.sum())
+    squared = float((eigenvalues * eigenvalues).sum())
+    if squared <= 0:
+        return 0.0
+    return float(total * total / squared)
+
+
+def posterior_multivariate(measurements: np.ndarray,
+                           priors: Mapping[str, float],
+                           effects: Mapping[str, Sequence[float]], *,
+                           centres: Optional[Sequence[float]] = None,
+                           scales: Optional[Sequence[float]] = None,
+                           likelihood: str = "lognormal",
+                           correct_for_correlation: bool = True,
+                           iterations: int = 200,
+                           tolerance: float = 1e-9
+                           ) -> Tuple[np.ndarray, Tuple[str, ...], Dict[str, float]]:
+    """:func:`posterior`, but reading EVERY measurement instead of one score.
+
+    Option C. Each guide carries a vector of effects -- one per measurement --
+    and a cell's evidence is the summed log-density across them, scaled by
+    the design effect (see the note above). The same iterative proportional
+    fitting then applies, so the guide masses still match the sequencing.
+
+    :param measurements: cells x measurements.
+    :param effects: ``{guide: [effect per measurement]}``, in the columns'
+        order. A guide with no entry is flat, which is the honest prior for
+        a guide nothing was fitted for.
+    :param correct_for_correlation: scale the evidence by
+        ``effective_dimension / n_measurements``. Leave it on unless the
+        columns really are independent; see the note above for why.
+    :returns: ``(r, guides, diagnostics)``. The diagnostics carry
+        ``n_measurements``, ``effective_dimension`` and the ``scale_factor``
+        applied, because a reader has to be able to see how much the
+        correction did.
+    """
+    guides = tuple(priors.keys())
+    values = np.asarray(measurements, dtype=float)
+    if values.ndim == 1:
+        values = values[:, None]
+    n_cells, n_measured = values.shape
+    empty = np.zeros((n_cells, len(guides)), dtype=float)
+    report = {"n_measurements": float(n_measured),
+              "effective_dimension": 0.0, "scale_factor": 1.0}
+    if not guides or not n_cells or not n_measured:
+        return empty, guides, report
+
+    finite = np.isfinite(values)
+    values = np.where(finite, values, 0.0)
+
+    if centres is None:
+        centres = values.mean(axis=0)
+    if scales is None:
+        scales = values.std(axis=0, ddof=0)
+    centres = np.asarray(centres, dtype=float).ravel()
+    scales = np.asarray(scales, dtype=float).ravel()
+    scales = np.where(np.isfinite(scales) & (scales > 0), scales, 1.0)
+
+    n_eff = effective_dimension(values) if correct_for_correlation else float(n_measured)
+    report["effective_dimension"] = float(n_eff)
+    factor = 1.0
+    if correct_for_correlation and n_measured > 0 and n_eff > 0:
+        factor = float(min(n_eff / n_measured, 1.0))
+    report["scale_factor"] = factor
+
+    # LOG DENSITY, SUMMED. `_density` is per-measurement, so this is a loop
+    # over columns rather than one vectorised call -- 785 columns is nothing
+    # beside the per-cell work, and reusing the same densities is what keeps
+    # option C's answer commensurable with option A's.
+    log_density = np.zeros((n_cells, len(guides)), dtype=float)
+    for column, (centre, scale) in enumerate(zip(centres, scales)):
+        # A measurement missing for a cell contributes NOTHING for that cell
+        # rather than a zero score, which would be a real and usually
+        # extreme value.
+        present = finite[:, column]
+        if not present.any():
+            continue
+        scores = values[present, column]
+        for index, guide in enumerate(guides):
+            effect = effects.get(guide)
+            size = 0.0 if effect is None else float(
+                np.asarray(effect, dtype=float).ravel()[column]
+                if np.asarray(effect).ravel().size > column else 0.0)
+            density = _density(likelihood, scores, size, float(centre),
+                               float(scale))
+            density = np.nan_to_num(density, nan=0.0, posinf=0.0, neginf=0.0)
+            log_density[present, index] += np.log(np.maximum(density, 1e-300))
+
+    log_density *= factor
+    # Subtract the per-cell maximum before exponentiating: the shift cancels
+    # in the normalisation and is the difference between a usable number and
+    # exp(-4000).
+    log_density -= log_density.max(axis=1, keepdims=True)
+    density = np.exp(log_density)
+
+    weights = np.array([float(priors[g]) for g in guides], dtype=float)
+    dead = density.sum(axis=1) <= 0
+    if dead.any():
+        density[dead, :] = weights
+
+    target = weights * n_cells
+    r = density * weights
+    for _ in range(int(iterations)):
+        rows = r.sum(axis=1, keepdims=True)
+        rows[rows <= 0] = 1.0
+        r = r / rows
+        columns = r.sum(axis=0)
+        if np.abs(columns - target).max() <= tolerance * max(n_cells, 1):
+            break
+        step = np.divide(target, columns, out=np.ones_like(columns),
+                         where=columns > 0)
+        r = r * step
+    rows = r.sum(axis=1, keepdims=True)
+    rows[rows <= 0] = 1.0
+    return r / rows, guides, report

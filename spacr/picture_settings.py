@@ -412,5 +412,7 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
             ("attributed", "attributed — each cell's probability, above the "
                            "threshold"),
             ("assigned", "assigned — every cell in the well gets one guide"),
+            ("multivariate", "multivariate — every measurement, not just the "
+                             "score (needs a sweep)"),
         )
     return ()

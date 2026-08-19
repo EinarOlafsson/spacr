@@ -262,7 +262,8 @@ def round_half_up(value: float) -> int:
 #: ``assigned``   the constrained assignment -- every cell in the well gets
 #:                exactly one guide and each guide gets exactly the number of
 #:                cells its reads imply. Shows the cells assigned to this one.
-PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned")
+PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned",
+                                 "multivariate")
 
 
 def effects_from_results(path) -> Dict[str, float]:
@@ -1115,6 +1116,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                    show_all: bool = False,
                    picking: str = "rank",
                    effects: Optional[Mapping[str, float]] = None,
+                   effects_grid: Optional["pd.DataFrame"] = None,
                    threshold: float = 0.55) -> MontagePlan:
     """Return the objects to show behind one coefficient.
 
@@ -1291,7 +1293,40 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         # fraction AND effect in this well, because a posterior is a
         # comparison: comparing a guide against nothing returns the prior.
         picked_by = "rank"
-        if picking in ("attributed", "assigned") and effects:
+        wanted = str(picking or "rank")
+        if wanted == "multivariate" and effects_grid is None:
+            # SAID, NOT SUBSTITUTED SILENTLY. Option C needs one effect per
+            # MEASUREMENT per guide, which is the gene x measurement sweep's
+            # grid; a run that has not swept has nothing to read. Falling
+            # back to the single-score attribution is the right answer, and
+            # a montage that quietly changed how it chose its cells is not.
+            wanted = "attributed"
+            picked_by = "attributed (no sweep grid for multivariate)"
+        if wanted == "multivariate" and effects_grid is not None:
+            here_fractions = _well_guide_fractions(
+                counts, label, keys, guide_column, fraction_column)
+            columns = [c for c in effects_grid.columns if c in ranked.columns]
+            if len(here_fractions) > 1 and columns:
+                from .guide_attribution import (normalise_fractions,
+                                                posterior_multivariate)
+
+                priors = normalise_fractions(here_fractions)
+                grid = {g: effects_grid.loc[g, columns].to_numpy(dtype=float)
+                        for g in priors if g in effects_grid.index}
+                values = ranked[columns].to_numpy(dtype=float)
+                r, order, report = posterior_multivariate(values, priors, grid)
+                if name in order:
+                    mine = r[:, order.index(name)]
+                    top = ranked[mine >= float(threshold)]
+                    picked_by = (
+                        f"multivariate over {len(columns)} measurement(s), "
+                        f"worth {report['effective_dimension']:.1f} "
+                        f"independent one(s)")
+            else:
+                wanted = "attributed"
+                picked_by = ("attributed (this well has one guide, or none of "
+                             "the swept measurements are on the objects)")
+        if wanted in ("attributed", "assigned") and effects:
             here_fractions = _well_guide_fractions(
                 counts, label, keys, guide_column, fraction_column)
             if len(here_fractions) > 1:
@@ -1301,7 +1336,7 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
                 spread = float(ranked["_montage_score"].std()) or 1.0
                 middle = float(ranked["_montage_score"].median())
                 values = ranked["_montage_score"].to_numpy()
-                if picking == "assigned":
+                if wanted == "assigned":
                     # EVERY cell in the well gets exactly one guide and each
                     # guide gets exactly the cells its reads imply, so this
                     # picker's count is x by construction rather than by
