@@ -405,6 +405,10 @@ class MontageRequest:
     results_path: str = ""
     databases: Tuple[str, ...] = ()
     count_csvs: Tuple[str, ...] = ()
+    #: The score CSVs the run was fitted on. Used ONLY when a database has no
+    #: score column of its own -- the scores are then taken from these, in
+    #: memory, and the database is not written to (instruction 167).
+    score_csvs: Tuple[str, ...] = ()
     object_type: str = "cell"
     channels: Optional[Tuple[int, ...]] = None
     prefer: str = ""
@@ -573,7 +577,8 @@ def load(request: MontageRequest) -> MontageLoad:
         try:
             objects = load_montage_objects(
                 db_path, object_type=request.object_type,
-                score_column=request.score_column)
+                score_column=request.score_column,
+                scores=list(request.score_csvs) or None)
         except Exception as error:                              # noqa: BLE001
             troubles.append(f"{os.path.basename(db_path)}: {error}")
             continue
@@ -1481,6 +1486,34 @@ class CellMontageView(QWidget):
                 out.append(text)
         return tuple(out)
 
+    def score_csvs(self) -> Tuple[str, ...]:
+        """The SCORE CSVs attached to the run's input table.
+
+        The same provider and the same rows as :meth:`count_csvs` -- the input
+        table's rows are ``{"plate", "score", "count", "database"}``, so the
+        scores were always one field away too.
+
+        WHY THE MONTAGE WANTS THEM (instruction 167). A database whose
+        ``png_list`` has no ``pred`` column is not a screen without scores:
+        these files carry one row per cell and the fit was run on exactly
+        those numbers. `load_montage_objects` joins them in memory when the
+        database has none, and writes nothing.
+        """
+        if self._database_provider is None:
+            return ()
+        try:
+            rows = self._database_provider()
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not reach the input table", exc_info=True)
+            return ()
+        out: List[str] = []
+        for row in rows or ():
+            path = row.get("score", "") if isinstance(row, dict) else ""
+            text = str(path or "").strip()
+            if text and text not in out:
+                out.append(text)
+        return tuple(out)
+
     def databases(self) -> Tuple[str, ...]:
         """The measurement databases attached to the run's input table.
 
@@ -1514,6 +1547,7 @@ class CellMontageView(QWidget):
             level=self._level, results_path=self._results_path(),
             databases=self.databases(),
             count_csvs=self.count_csvs(),
+            score_csvs=self.score_csvs(),
             object_type=str(self._object.currentData() or "cell"),
             channels=parse_channels(self._channels.text()),
             prefer=str(self._source.currentData() or ""),
