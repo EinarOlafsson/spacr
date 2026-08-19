@@ -117,7 +117,11 @@ def test_the_summary_is_written_whether_or_not_the_run_is_verbose():
     """
     from spacr import ml
 
-    lines = inspect.getsource(ml.perform_regression).splitlines()
+    # `_perform_regression`, not `perform_regression`: the latter is the
+    # failure-reporting WRAPPER since instruction 161 and contains none of the
+    # run, so the scan found nothing and StopIteration read as "the call is
+    # missing" rather than "it moved".
+    lines = inspect.getsource(ml._perform_regression).splitlines()
     call = next(i for i, line in enumerate(lines)
                 if "save_summary_to_file(" in line)
     verbose = max(i for i in range(call)

@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import os
 import textwrap
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -1929,6 +1930,60 @@ def _wrap(label: str, text: str) -> List[str]:
     return lines
 
 
+
+#: What a reader came for, in the order they want it. Instruction 168:
+#: "not very accessable make it more acessable and easier to read and
+#: overview". Measured on the maintainer's own run: 108 lines, of which the
+#: answer to "did this work and what did it call" is six.
+HEADLINE: Tuple[Tuple[str, str], ...] = (
+    ("fitted", "regression type"),
+    ("fitted", "inference"),
+    ("design", "wells"),
+    ("call", "coefficients called"),
+    ("call", "alpha"),
+    ("call", "positive control rank"),
+)
+
+#: How a field says it does not apply. Nine of these in a row, with a
+#: paragraph each, is the bulk of what makes a permutation summary hard to
+#: scan -- and they all say the same thing: this run fitted no model.
+_NOT_APPLICABLE = "not applicable"
+
+
+def headline(summary: "RunSummary") -> List["SummaryField"]:
+    """The six lines a reader can stop after.
+
+    NOT A SUMMARY OF THE SUMMARY. Every line here is one of the fields below,
+    quoted verbatim -- so there is no second place for a number to be wrong,
+    and nothing can drift between the headline and the section it came from.
+    """
+    out: List[SummaryField] = []
+    for section_name, field_name in HEADLINE:
+        section = summary.section(section_name)
+        if section is None:
+            continue
+        for one in section.fields:
+            if one.label == field_name:
+                out.append(one)
+                break
+    return out
+
+
+def _split_not_applicable(fields):
+    """``(shown, deferred)`` -- the fields that say something, and the rest.
+
+    A field whose text begins "not applicable" is deferred: named in one line
+    where it stood, with its full explanation kept under a heading of its own.
+    NOTHING IS DELETED -- the reasoning is what makes a permutation run
+    legible at all, and a summary that dropped it to be shorter would have
+    traded away the thing worth reading.
+    """
+    shown, deferred = [], []
+    for one in fields:
+        text = str(one.text or "").strip().lower()
+        (deferred if text.startswith(_NOT_APPLICABLE) else shown).append(one)
+    return shown, deferred
+
 def format_run_summary(summary: RunSummary) -> str:
     """Render a :class:`RunSummary` as the text written to the run folder.
 
@@ -1944,11 +1999,62 @@ def format_run_summary(summary: RunSummary) -> str:
         for paragraph in str(warning).splitlines():
             lines.extend(textwrap.wrap(paragraph, width=_WIDTH) or [""])
         lines.append("")
+
+    # THE ANSWER FIRST, and every line of it quoted verbatim from below.
+    top = headline(summary)
+    if top:
+        lines.append("THE ANSWER")
+        lines.append("-" * len("THE ANSWER"))
+        for one in top:
+            lines.extend(_wrap(one.label, one.text))
+        lines.append("")
+        lines.append("Everything below is how that was arrived at.")
+        lines.append("")
+
+    postponed: List[Tuple[str, "SummaryField"]] = []
     for section in summary.sections:
         lines.append(section.title)
         lines.append("-" * len(section.title))
-        for one in section.fields:
+        shown, deferred = _split_not_applicable(section.fields)
+        for one in shown:
             lines.extend(_wrap(one.label, one.text))
+        if deferred:
+            # ONE LINE WHERE NINE STOOD, naming them, with every word of the
+            # explanation still in the file under its own heading.
+            names = ", ".join(one.label for one in deferred)
+            lines.extend(_wrap(
+                "not applicable here",
+                f"{len(deferred)} field(s) — {names}. Why each does not apply "
+                f"is under NOT APPLICABLE, AND WHY at the end."))
+            postponed.extend((section.title, one) for one in deferred)
+        lines.append("")
+
+    if postponed:
+        lines.append("NOT APPLICABLE, AND WHY")
+        lines.append("-" * len("NOT APPLICABLE, AND WHY"))
+        # ONE EXPLANATION PER REASON, NOT PER FIELD. Measured on the
+        # maintainer's own run: eleven deferred fields carry SIX distinct
+        # explanations, two of them printed three times each -- six paragraphs
+        # where two would do, and that repetition is most of what "not very
+        # accessable" was about. The fields sharing a reason are named
+        # together and the reason is given once.
+        grouped: "collections.OrderedDict[str, List[str]]" = OrderedDict()
+        for _title, one in postponed:
+            grouped.setdefault(str(one.text), []).append(one.label)
+        for text, labels in grouped.items():
+            joined = ", ".join(labels)
+            if len(joined) <= _LABEL_WIDTH:
+                lines.extend(_wrap(joined, text))
+                continue
+            # A JOINED LABEL LONGER THAN THE COLUMN gets its own line, or the
+            # explanation is squeezed into whatever is left and comes out one
+            # word wide.
+            lines.extend(textwrap.wrap(joined + ":", width=_WIDTH - 2,
+                                       initial_indent="  ",
+                                       subsequent_indent="  ") or [""])
+            lines.extend(textwrap.wrap(text, width=_WIDTH - 6,
+                                       initial_indent="      ",
+                                       subsequent_indent="      ") or [""])
         lines.append("")
     note = summary.verbatim_note or ""
     if note:
