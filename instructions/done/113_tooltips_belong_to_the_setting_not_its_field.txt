@@ -337,3 +337,34 @@ test_every_app_api_link_targets_an_existing_module` fails identically with
 these changes stashed -- it is pre-existing and not this.
 
 CLOSED.
+
+--------------------------------------------------------------------------------
+RESTATED ACROSS EVERY MODULE, 2026-08-19
+--------------------------------------------------------------------------------
+
+Requested: "for all tooltips across all modules, the tooltip should only be
+visible when hovering the mouse over the setting NAME text, and not when
+hovering over the field, checkbox, or whatever the setting controls."
+
+That is this instruction's rule, stated for the whole application rather than
+for the screens it was originally written against. It is already ENFORCED
+rather than merely intended:
+`tests/test_tooltips_are_on_the_setting_not_the_field.py::test_no_screen_puts_
+hover_help_on_an_editable_field` constructs every screen it can and fails on
+any that leaves help on an editable widget.
+
+THE GUARD KEEPS EARNING ITS KEEP, which is the argument for having it. Three
+screens have been caught by it rather than by a user:
+  * `CellMontageView` (2026-08-18) -- the last screen from the original sweep.
+  * `figure_settings.FigureStylePreferences` (2026-08-19) -- added by
+    instruction 118, hours old.
+  * `regression_results.RegressionResultsPanel` (2026-08-19) -- same day.
+
+The last two are the point: a rule enforced only at the moment it is written
+decays as new screens arrive, and both of these were new. The remedy is one
+line at the end of a screen's `__init__` --
+`settings_model.retarget_field_tooltips(self)` -- and the test names the screen
+and the widget count when it is missing, so the fix does not need a search.
+
+NOTHING ELSE IS OWED HERE. The rule holds, the helper exists, the guard runs
+over every constructible screen, and the two offenders are fixed.
