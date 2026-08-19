@@ -13,10 +13,6 @@ All four buttons use the same treatment:
 * no text inside any button. ``Legacy`` is drawn below its square, in the
   transparent caption strip shared by all four output canvases.
 
-The buttons are static PNGs embedded in a reStructuredText README. GitHub
-disables raw HTML and custom CSS in that renderer, so the requested blue
-``#1F5EFF`` hover state cannot be expressed there.
-
 The supplied files do not share an alpha convention. Linux is black artwork
 on transparency, Windows is white artwork over a baked dark checkerboard, and
 the Apple file is a JPEG with a baked light checkerboard. The extraction
@@ -45,7 +41,6 @@ CANVAS = 512
 OUTPUT_HEIGHT = 600
 SLATE = (43, 47, 58, 255)  # #2B2F3A
 WHITE = (255, 255, 255, 255)
-HOVER_BLUE = (31, 94, 255, 255)  # #1F5EFF; unavailable in GitHub README.rst
 CORNER_RADIUS = 32
 MARK_FRACTION = 0.80
 MARK_SIZE = round(CANVAS * MARK_FRACTION)
