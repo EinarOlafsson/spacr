@@ -529,3 +529,295 @@ def _order_like_neighbours(grid: pd.DataFrame) -> pd.DataFrame:
         centre = grid.mean(axis=1).sort_values().index
         columns = grid.mean(axis=0).sort_values().index
         return grid.loc[centre, columns]
+
+
+#: The measurement families, and the token that puts a column in one.
+#:
+#: Ordered: the first family whose token appears wins, so `pathogen_area`
+#: is a pathogen measurement rather than a shape one. Deliberately COARSE --
+#: six families a reader can hold in their head, not the 767 columns they
+#: are drawn from. A column matching none is "other", which is a real answer
+#: and not a failure: a screen may measure something none of these names.
+MEASUREMENT_FAMILIES: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
+    ("pathogen", ("pathogen",)),
+    ("nucleus", ("nucleus", "nucleolus")),
+    ("cytoplasm", ("cytoplasm", "cyto")),
+    ("cell", ("cell",)),
+    ("intensity", ("intensity", "quartile", "percentile", "mean", "median",
+                   "std", "skew", "kurtosis")),
+    ("shape", ("area", "perimeter", "eccentricity", "solidity", "extent",
+               "diameter", "axis", "zernike", "moment")),
+)
+
+
+def measurement_family(name: Any) -> str:
+    """Which family ``name`` belongs to. See :data:`MEASUREMENT_FAMILIES`."""
+    tokens = set(_tokens(str(name)))
+    for family, marks in MEASUREMENT_FAMILIES:
+        if tokens & set(marks):
+            return family
+    return "other"
+
+
+def plot_effect_against_representation(
+        result: "SweepResult", path: Optional[str] = None, *,
+        alpha: float = 0.05, title: str = "",
+        level: Optional[str] = None):
+    """How many measurements a gene moves, against how much screen it is.
+
+    THE PICTURE THE MAINTAINER ASKED FOR: "should there not be some way of
+    taking into account the genes representation, 220950 is waaay over
+    represented and is therefore beeing attributed with a tone of mesauremnt
+    effects."
+
+    It is a fair question and this is the honest way to answer it -- not by
+    correcting the statistic, which would be inventing a model of what
+    over-representation does, but by DRAWING the confound so a reader can see
+    whether their hit sits on the trend or off it.
+
+    x is the gene's EFFECTIVE WELL COUNT -- the participation ratio, which is
+    literally the sample size each p-value was computed on -- and y is how
+    many measurements it moved past the correction. A gene high on the trend
+    line is doing what its statistical weight predicts; a gene ABOVE the line
+    is the interesting one, and a gene at the far right with a huge count is
+    exactly the one to be suspicious of.
+
+    EFFECTIVE WELLS AND NOT `share`, WHICH MEASURES SOMETHING ELSE. `share`
+    is the median fraction a gene takes of the wells it is IN -- how
+    concentrated it is when present -- and a rare gene can score high on it
+    precisely by being rare. Measured on this module's own fixture: a gene in
+    18 of 120 wells has share 0.44 and one in all 120 has 0.20, which is the
+    opposite of the ordering the reader is asking about. What drives the
+    ranking is POWER, and the participation ratio is the number the test
+    actually used.
+
+    Controls are drawn as their own mark rather than left out, because
+    "these are removed for regression are they removed here? i dont think
+    they should" -- a control that moves twenty measurements is telling you
+    something about the assay, and it is the calibration for everything else
+    on the plot.
+
+    :returns: the matplotlib Figure, or ``None`` when nothing survived.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.table
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    if not len(keep):
+        return None
+
+    passed = keep[keep["q"] < float(alpha)]
+    if not len(passed):
+        # NOTHING, rather than every gene on a flat line at zero. That
+        # picture is not false -- no gene passed -- but it reads as a
+        # measured absence of effect when it is an absence of evidence, and
+        # the two are the thing this whole module tries to keep apart.
+        return None
+    per_gene = keep.groupby("guide").agg(
+        weight=("effective_wells", "first"),
+        share=("share", "first"),
+        wells=("n_wells", "first"),
+        control=("control", "first"))
+    per_gene["hits"] = passed.groupby("guide").size().reindex(
+        per_gene.index, fill_value=0)
+    per_gene = per_gene[per_gene["weight"].notna()]
+    if not len(per_gene):
+        return None
+
+    figure, axes = plt.subplots(figsize=(7.2, 5.0))
+    controls = per_gene[per_gene["control"].astype(bool)]
+    rest = per_gene[~per_gene["control"].astype(bool)]
+    axes.scatter(rest["weight"], rest["hits"], s=22, alpha=0.55,
+                 edgecolor="none", label=f"{len(rest):,} gene(s)")
+    if len(controls):
+        axes.scatter(controls["weight"], controls["hits"], s=54, marker="D",
+                     facecolor="none", edgecolor="#c1121f", linewidth=1.2,
+                     label=f"{len(controls):,} control(s)")
+
+    # THE TREND, and only when there is something to fit. Two points make a
+    # line through themselves and say nothing; drawing it anyway would put a
+    # confident diagonal on a plot that has no evidence for one.
+    if len(per_gene) >= 8 and per_gene["weight"].nunique() > 2:
+        x = per_gene["weight"].to_numpy(dtype=float)
+        y = per_gene["hits"].to_numpy(dtype=float)
+        slope, intercept = np.polyfit(x, y, 1)
+        span = np.linspace(x.min(), x.max(), 50)
+        axes.plot(span, slope * span + intercept, color="#6c757d",
+                  linewidth=1.0, linestyle="--",
+                  label="what statistical weight alone predicts")
+        # Named on the plot, because the number is the answer to the question
+        # and a reader should not have to eyeball the slope.
+        rho = float(np.corrcoef(x, y)[0, 1]) if len(set(x)) > 1 else np.nan
+        axes.set_title(
+            title or (f"hits vs representation — rho = {rho:.2f} "
+                      f"({'weight explains much of the ranking' if abs(rho) >= 0.5 else 'weight does not explain the ranking'})"),
+            fontsize=9)
+    else:
+        axes.set_title(title or "hits vs representation", fontsize=9)
+
+    axes.set_xlabel("effective wells — the sample size each p was computed "
+                "on", fontsize=8)
+    axes.set_ylabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
+    axes.tick_params(labelsize=7)
+    axes.legend(fontsize=7, frameon=False)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_measurement_families(result: "SweepResult",
+                              path: Optional[str] = None, *,
+                              alpha: float = 0.05, top: int = 14,
+                              title: str = "", level: Optional[str] = None):
+    """What KIND of thing each gene moves, as a stacked bar per gene.
+
+    767 measurements is not a list a reader can hold, but six families is.
+    "this gene moves pathogen intensity and nothing else" is a sentence about
+    biology; "this gene has 41 significant measurements" is not.
+
+    The families are coarse on purpose -- see :data:`MEASUREMENT_FAMILIES`.
+
+    :param top: how many genes to draw, most-hits first.
+    :returns: the matplotlib Figure, or ``None`` when nothing survived.
+    """
+    import matplotlib.pyplot as plt
+
+    keep = result.survivors(alpha=alpha)
+    drawn = _one_level(keep, level)
+    if drawn:
+        keep = keep[keep["level"] == drawn]
+    if not len(keep):
+        return None
+
+    keep = keep.assign(family=[measurement_family(m)
+                              for m in keep["measurement"]])
+    counts = keep.pivot_table(index="guide", columns="family",
+                              values="q", aggfunc="size").fillna(0)
+    order = counts.sum(axis=1).sort_values(ascending=False).head(top).index
+    counts = counts.loc[order]
+    if counts.empty:
+        return None
+
+    families = [f for f, _ in MEASUREMENT_FAMILIES] + ["other"]
+    families = [f for f in families if f in counts.columns]
+
+    figure, axes = plt.subplots(
+        figsize=(7.6, max(3.0, 0.34 * len(counts.index) + 1.4)))
+    left = np.zeros(len(counts.index))
+    for family in families:
+        values = counts[family].to_numpy(dtype=float)
+        axes.barh(range(len(counts.index)), values, left=left, height=0.72,
+                  label=family)
+        left = left + values
+    axes.set_yticks(range(len(counts.index)))
+    axes.set_yticklabels(counts.index, fontsize=7)
+    axes.invert_yaxis()
+    axes.set_xlabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
+    axes.tick_params(labelsize=7)
+    axes.set_title(title or "what kind of measurement each gene moves",
+                   fontsize=9)
+    axes.legend(fontsize=7, frameon=False, ncol=min(4, len(families)))
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
+                           *, alpha: float = 0.05, top: int = 20,
+                           title: str = ""):
+    """Do a gene's own guides agree with each other?
+
+    THE ONLY INTERNAL CONTROL THIS DESIGN HAS. Two guides against the same
+    gene are two independent perturbations of it, so a gene whose guides
+    agree on the sign of an effect is saying something the gene's own
+    biology explains, and a gene whose guides disagree is saying something
+    about the guides.
+
+    Needs a table with GUIDE rows: `sweep(..., level='guide')` or `'both'`.
+    A gene-level table has nothing to compare, which is a reason to say so
+    rather than to draw an empty axis.
+
+    :returns: the matplotlib Figure, or ``None`` when there is nothing to
+        compare.
+    """
+    import matplotlib.pyplot as plt
+
+    table = result.table
+    if "level" in table.columns:
+        table = table[table["level"] == "guide"]
+    if not len(table):
+        return None
+
+    genes = [gene_of_guide(g) for g in table["guide"]]
+    table = table.assign(gene=genes)
+    table = table[table["gene"].notna()]
+    if not len(table):
+        return None
+
+    # A gene needs TWO guides to agree or disagree about anything.
+    per_gene_guides = table.groupby("gene")["guide"].nunique()
+    table = table[table["gene"].isin(
+        per_gene_guides[per_gene_guides >= 2].index)]
+    if not len(table):
+        return None
+
+    passed = table[table["q"] < float(alpha)]
+    if not len(passed):
+        return None
+
+    rows = []
+    for (gene, measurement), block in passed.groupby(["gene", "measurement"]):
+        signs = np.sign(block["effect"].to_numpy(dtype=float))
+        signs = signs[signs != 0]
+        if len(signs) < 2:
+            continue
+        rows.append({"gene": gene,
+                     "agree": float(np.abs(signs.sum()) / len(signs)),
+                     "guides": int(len(signs))})
+    if not rows:
+        return None
+    frame = pd.DataFrame(rows)
+    summary = frame.groupby("gene").agg(agreement=("agree", "mean"),
+                                        pairs=("agree", "size"))
+    summary = summary.sort_values("agreement", ascending=False).head(top)
+
+    figure, axes = plt.subplots(
+        figsize=(6.6, max(3.0, 0.32 * len(summary.index) + 1.4)))
+    colours = ["#2a9d8f" if v >= 0.99 else "#e9c46a" if v >= 0.6 else "#e76f51"
+               for v in summary["agreement"]]
+    axes.barh(range(len(summary.index)), summary["agreement"],
+              color=colours, height=0.7)
+    axes.set_yticks(range(len(summary.index)))
+    axes.set_yticklabels(
+        [f"{g}  ({int(n)} measurement(s))"
+         for g, n in zip(summary.index, summary["pairs"])], fontsize=7)
+    axes.invert_yaxis()
+    axes.set_xlim(0.0, 1.02)
+    axes.axvline(1.0, color="#6c757d", linewidth=0.8, linestyle=":")
+    axes.set_xlabel("share of a gene's guides agreeing on the sign",
+                    fontsize=8)
+    axes.tick_params(labelsize=7)
+    axes.set_title(title or "do a gene's own guides agree?", fontsize=9)
+    figure.tight_layout()
+    if path:
+        figure.savefig(path, dpi=200, bbox_inches="tight")
+    return figure
+
+
+def _one_level(table: pd.DataFrame, level: Optional[str]) -> str:
+    """Which level to draw, given what was asked and what the table holds.
+
+    Shared by every picture here for the reason `plot_sweep` states: a gene
+    row and its own guide rows drawn together are the same effect counted
+    several times, which reads as agreement between independent things.
+    """
+    drawn = str(level or "").strip().lower()
+    if "level" not in table.columns:
+        return ""
+    if table["level"].nunique() > 1:
+        return drawn or "gene"
+    return drawn if drawn else ""

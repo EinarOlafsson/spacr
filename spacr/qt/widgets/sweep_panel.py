@@ -121,6 +121,18 @@ class SweepPanel(QWidget):
             "that found the gene.")
         row.addWidget(self.level)
 
+        # WHICH PICTURE. The heatmap answers "what moved"; it cannot answer
+        # "is this gene just over-represented", "what KIND of thing does it
+        # move" or "do its own guides agree", and those are the questions
+        # that decide whether a hit is worth following up.
+        row.addWidget(QLabel("picture"))
+        self.picture = QComboBox()
+        for value, label in self.PICTURES:
+            self.picture.addItem(label, value)
+        self.picture.setToolTip(
+            "Which view of the sweep to draw and to save beside the table.")
+        row.addWidget(self.picture)
+
         row.addWidget(QLabel("q <"))
         self.alpha = QDoubleSpinBox()
         self.alpha.setDecimals(3)
@@ -255,22 +267,53 @@ class SweepPanel(QWidget):
                 f"{self.status.text()}  Showing the first {len(shown):,} of "
                 f"{len(keep):,} — save the table for all of them.")
 
-    def figure(self, path: Optional[str] = None):
-        """The picture of what survived, or ``None``."""
+    #: The pictures this panel can draw, in the order the chooser offers
+    #: them. Each answers a question the others cannot -- see instruction
+    #: 175 and `spacr.gene_measurement_sweep`.
+    PICTURES = (
+        ("heatmap", "what survived, clustered"),
+        ("representation", "hits vs how much screen the gene is"),
+        ("families", "what KIND of measurement each gene moves"),
+        ("concordance", "do a gene's own guides agree?"),
+    )
+
+    def figure(self, path: Optional[str] = None, kind: Optional[str] = None):
+        """One picture of the sweep, or ``None`` when there is nothing to draw.
+
+        :param kind: one of :data:`PICTURES`; the chooser's current pick by
+            default.
+        """
         if self._result is None:
             return None
-        from ...gene_measurement_sweep import plot_sweep
+        from ...gene_measurement_sweep import (
+            plot_effect_against_representation, plot_guide_concordance,
+            plot_measurement_families, plot_sweep)
 
+        wanted = str(kind or self.picture.currentData() or "heatmap")
+        alpha = float(self.alpha.value())
         bar = 0.15 if (self.hide_circular.isChecked()
                        and self._result.circularity_known) else 1.0
         # The picture follows the level the panel is showing, so a "both"
         # sweep does not draw a gene and its own guides as if they were
         # independent agreement.
         chosen = str(self.level.currentData() or "gene")
-        return plot_sweep(self._result, path=path,
-                          alpha=float(self.alpha.value()),
-                          max_circularity=bar,
-                          level=None if chosen == "guide" else "gene")
+        level = None if chosen == "guide" else "gene"
+
+        if wanted == "representation":
+            return plot_effect_against_representation(
+                self._result, path=path, alpha=alpha, level=level)
+        if wanted == "families":
+            return plot_measurement_families(
+                self._result, path=path, alpha=alpha, level=level)
+        if wanted == "concordance":
+            # NOT given `level`: this picture IS the guide comparison, and
+            # passing the panel's gene default would leave it nothing to
+            # compare. It says so by drawing nothing when the sweep was run
+            # at gene level.
+            return plot_guide_concordance(self._result, path=path,
+                                          alpha=alpha)
+        return plot_sweep(self._result, path=path, alpha=alpha,
+                          max_circularity=bar, level=level)
 
     def save(self, *_args) -> str:
         """Write the whole table -- not the page on screen."""
