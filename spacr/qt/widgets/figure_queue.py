@@ -293,6 +293,25 @@ def _export_vector_pdf(fig, pdf_path: Path, dpi: int, bg: str) -> bool:
         return False
 
 
+def _retry_on_a_fresh_canvas(fig, png_path, dpi, bg) -> bool:
+    """Render ``fig`` through a new Agg canvas. ``True`` when it worked.
+
+    Split out so the reason is in one place: the figure survives its canvas,
+    and a canvas is what `savefig` needs rather than what the figure IS.
+    """
+    try:
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+        from ..preferences import figure_bg_is_transparent
+
+        FigureCanvasAgg(fig)
+        fig.savefig(png_path, dpi=dpi, bbox_inches="tight", facecolor=bg,
+                    transparent=figure_bg_is_transparent(bg))
+        return True
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
 def render_figure_to_png(fig, png_path: str) -> bool:
     """Style ``fig`` per the app theme and save it as a display-capped PNG —
     plus, in PDF mode, a genuinely vector ``.pdf`` beside it
@@ -360,8 +379,22 @@ def render_figure_to_png(fig, png_path: str) -> bool:
                         facecolor=bg,
                         transparent=figure_bg_is_transparent(bg))
         except Exception as e:
-            LOG.info("figure render failed: %s", e)
-            return False
+            # A DEAD Qt CANVAS IS NOT A DEAD FIGURE. `savefig` renders through
+            # whatever canvas the figure currently holds, and a figure that was
+            # ever shown in a Qt widget holds a FigureCanvasQTAgg -- which Qt
+            # destroys with the widget, leaving `Internal C++ object
+            # (FigureCanvasQTAgg) already deleted`. Seventy of those are in the
+            # maintainer's log, and every one is a tile that silently did not
+            # render.
+            #
+            # The figure itself is intact; only its painter is gone. Attaching
+            # a fresh Agg canvas gives it one that has no Qt object to lose,
+            # which is also the right canvas for a WORKER-THREAD render --
+            # Agg touches no Qt at all, which is why the render was put on a
+            # worker in the first place.
+            if not _retry_on_a_fresh_canvas(fig, png_path, display_dpi, bg):
+                LOG.info("figure render failed: %s", e)
+                return False
         if fmt == "pdf":
             _export_vector_pdf(fig, _sibling_pdf(png_path), dpi, bg)
         return True
