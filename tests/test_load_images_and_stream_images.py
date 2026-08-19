@@ -99,3 +99,51 @@ def test_auto_still_answers_what_is_available(tmp_path):
 
     assert source.kind == "png"
     assert LOAD_IMAGES_LABEL in source.reason
+
+
+# ------------------------------------------------ the annotation app's choice
+
+
+def test_the_annotation_app_defaults_to_load_images():
+    """"in the annotation app how do i choose to stream images from database
+    or dataset" -- the answer was that you did not: it shipped 'auto', which
+    takes the PNG folder whenever one exists, and the choice was never
+    offered."""
+    from spacr.settings import set_annotate_default_settings
+
+    assert set_annotate_default_settings({})["crop_source"] == LOAD_IMAGES
+
+
+def test_the_panel_offers_the_two_modes_and_not_auto():
+    """'auto' answers what is AVAILABLE, which is not an answer to somebody
+    asked which mode they want."""
+    import spacr.qt.screens.settings_model as model
+
+    offered = None
+    for name in dir(model):
+        value = getattr(model, name)
+        if isinstance(value, dict) and isinstance(value.get("annotate"), dict):
+            offered = value["annotate"].get("crop_source")
+            break
+
+    assert offered == [LOAD_IMAGES, STREAM_IMAGES]
+    assert "auto" not in (offered or [])
+
+
+def test_auto_is_still_read_by_the_code():
+    """Retired from the panels, not from the code."""
+    import inspect
+
+    from spacr import crops
+
+    assert "auto" in inspect.getsource(crops.resolve_crop_source)
+
+
+def test_the_tooltip_names_both_modes():
+    from spacr.settings import tooltips
+
+    text = tooltips["crop_source"]
+    assert "LOAD IMAGES" in text and "STREAM IMAGES" in text
+    assert "pre_generated" in text, (
+        "the training vocabulary still exists and a reader meeting it needs "
+        "to be told it is the same setting")
