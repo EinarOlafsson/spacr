@@ -188,3 +188,112 @@ def to_crop_settings(picture) -> Dict[str, object]:
         elif shape == "object":
             out["use_bounding_box"] = False
     return out
+
+
+# --------------------------------------------------------------------------- #
+#  Drawing a crop the way the annotator would
+# --------------------------------------------------------------------------- #
+
+#: Settings that change how an obtained crop is DRAWN rather than how it is
+#: cut. They are applied here, by the annotator's own functions, so a crop in
+#: the Cells tab and the same crop in the annotation app look the same.
+DRAW_SETTINGS: Tuple[str, ...] = (
+    "normalize_channels", "percentiles", "channels", "outline",
+    "outline_threshold_factor", "outline_sigma", "edge_thickness",
+    "edge_transparency", "edge_image", "object_size",
+)
+
+
+def _as_channel_list(value):
+    """``['r','g']`` from whatever a settings field holds."""
+    if value is None or value is False:
+        return None
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        if text.startswith("[") and text.endswith("]"):
+            text = text[1:-1]
+        return [p.strip().strip("'\"").lower() for p in text.split(",")
+                if p.strip().strip("'\"")]
+    try:
+        return [str(v).strip().lower() for v in value if str(v).strip()]
+    except TypeError:
+        return None
+
+
+def _as_pair(value, default=(1.0, 99.0)):
+    parts = _as_channel_list(value)
+    if not parts or len(parts) < 2:
+        return default
+    try:
+        return (float(parts[0]), float(parts[1]))
+    except (TypeError, ValueError):
+        return default
+
+
+def draw_crop(array, picture):
+    """``array`` drawn as the annotation application would draw it.
+
+    :param array: an ``(H, W, 3)`` uint8 crop.
+    :param picture: the annotator-named settings.
+    :returns: an array of the same shape, or the input unchanged when nothing
+        was asked for or the pipeline is unavailable.
+
+    THE ANNOTATOR'S OWN FUNCTIONS DO THE WORK -- `normalize_pil`,
+    `filter_channels_pil`, `outline_image` from
+    :mod:`spacr.qt.annotate_engine`. A second implementation of "normalise a
+    crop" is a second answer to what normalise MEANS, and the whole reason the
+    Cells tab borrows the annotator's setting names is so that it cannot give
+    one (instruction 145).
+
+    NEVER RAISES. A picture is the last thing this produces and the least
+    important: losing a montage to an outline is the worst trade available.
+    """
+    items = dict(picture or {})
+    if not any(items.get(key) for key in DRAW_SETTINGS):
+        return array
+    try:
+        import numpy as np
+        from PIL import Image
+
+        from .qt.annotate_engine import (filter_channels_pil, normalize_pil,
+                                         outline_image)
+    except Exception:                                    # noqa: BLE001
+        return array
+    try:
+        data = np.ascontiguousarray(np.asarray(array, dtype="uint8"))
+        if data.ndim == 2:
+            data = np.repeat(data[:, :, None], 3, axis=2)
+        image = Image.fromarray(data[:, :, :3])
+        full = image.copy()
+
+        normalise = _as_channel_list(items.get("normalize_channels"))
+        if normalise:
+            image = normalize_pil(image, _as_pair(items.get("percentiles")),
+                                  normalise)
+        outline = _as_channel_list(items.get("outline"))
+        if outline:
+            size = items.get("object_size") or 0
+            try:
+                bounds = (int(size), int(size)) if not isinstance(
+                    size, (list, tuple)) else (int(size[0]), int(size[1]))
+            except (TypeError, ValueError):
+                bounds = (0, 0)
+            image = outline_image(
+                image, full, outline_channels=outline,
+                edge_sigma=float(items.get("outline_sigma") or 1.0),
+                edge_thickness=float(items.get("edge_thickness") or 1.0),
+                edge_transparency=float(items.get("edge_transparency") or 100.0),
+                edge_image=bool(items.get("edge_image")),
+                outline_threshold_factor=float(
+                    items.get("outline_threshold_factor") or 1.0),
+                object_size=bounds)
+        # LAST, because zeroing a channel before the outline is computed would
+        # outline a channel that is no longer there.
+        shown = _as_channel_list(items.get("channels"))
+        if shown and all(c in ("r", "g", "b") for c in shown):
+            image = filter_channels_pil(image, shown)
+        return np.asarray(image.convert("RGB"), dtype="uint8")
+    except Exception:                                    # noqa: BLE001
+        return array
