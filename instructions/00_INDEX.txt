@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-117 done / 48 open (70%).
+117 done / 49 open (70%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -167,6 +167,9 @@ OPEN
 
   174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
        174_beta_as_a_response_transform.txt
+
+  175  EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
+       175_every_gene_against_every_measurement.txt
 
 --------------------------------------------------------------------------------
 DONE
