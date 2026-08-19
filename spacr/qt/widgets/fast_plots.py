@@ -279,7 +279,7 @@ def menu_entries(menu) -> list:
     THE MIGRATION THIS EXISTS FOR. ``QMenu.actions()`` returns a SUBMENU'S OWN
     action and not what is inside it, so sixty-odd assertions written against
     a flat menu read every grouped entry as a removed feature -- which is what
-    reverted the first attempt at instruction 147 C. Asserting REACHABILITY
+    reverted the first attempt at the design. Asserting REACHABILITY
     instead of depth makes those assertions true of the flat menu and of the
     grouped one alike, so the restructure stops being a rewrite of the suite.
 
@@ -291,7 +291,7 @@ def menu_entries(menu) -> list:
       count a heading as a feature.
 
     :param menu: a ``QMenu``.
-    :returns: the ``QAction``s, in the order a reader meets them, with each
+    :returns: the ``QAction`` objects, in the order a reader meets them, with each
         submenu's contents spliced in where the submenu sits.
     """
     found = []
@@ -311,7 +311,7 @@ def menu_groups(menu) -> list:
     reader and two different objects to Qt -- which is exactly why a test
     that names one cannot be written against the other, and why moving a
     heading into a submenu title read as a deleted feature the first time
-    instruction 147 C was attempted.
+    the design was attempted.
 
     :param menu: a ``QMenu``.
     """
@@ -492,14 +492,14 @@ def style_field_label(name: str, value, kind: str) -> str:
 def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
     """Put EVERY field of ``style`` onto ``menu``, grouped and editable.
 
-    Instruction 108's point 3: the menu is built FROM THE STYLE OBJECT'S
+    The point 3: the menu is built FROM THE STYLE OBJECT'S
     FIELDS rather than from a hand-written list per figure, so "as many
     settings as possible, depending on the graph" is automatic -- a style
     gains a field, the menu gains an entry, and the two cannot fall out of
     step. The acceptance test compares what this produces against
     ``dataclasses.fields(style)``, which is only a meaningful check because
     NOTHING IS SKIPPED: a field this cannot edit is still listed, greyed, and
-    says why, exactly as instruction 106 requires of every other control here.
+    says why, exactly as the design requires of every other control here.
 
     :param menu: a ``QMenu`` to add groups to.
     :param style: any dataclass instance describing how a figure looks.
@@ -508,9 +508,9 @@ def add_style_entries(menu, style, on_change=None, *, choices=None) -> list:
         reading the menu wants and what a caller with nothing to redraw gets.
     :param choices: ``{field: values}`` for fields that are a closed set,
         overriding the field's own metadata and the style class's ``CHOICES``.
-    :returns: the ``QAction``s added, in menu order.
+    :returns: the ``QAction`` objects added, in menu order.
 
-    THE GROUPS ARE :func:`build_style_menu`'S OWN, and in the same order --
+    The groups match :func:`build_style_menu` and use the same order --
     Data, Axes, Appearance, Size -- so a figure's own settings and the plot's
     read as one menu rather than two conventions side by side.
 
@@ -609,7 +609,7 @@ def apply_style_dict(style, values, on_change=None) -> list:
 def save_style(style, path) -> str:
     """Write ``style`` to ``path`` as JSON. Returns the path written.
 
-    Instruction 108 point 5. The serialisation already existed
+    The serialisation already existed
     (``VolcanoStyle.from_dict`` / ``asdict``); what did not was any way for a
     user to reach it, which made a restyle something they redid every time
     they needed the picture.
@@ -655,7 +655,7 @@ def load_style(style, path, on_change=None) -> list:
 
 def add_style_file_entries(menu, style, on_change=None, *, parent=None,
                            note=None, ask_path=None) -> list:
-    """Save, load and default a whole style -- instruction 108 point 5.
+    """Save, load and default a whole style -- the design.
 
     :param menu: the "Figure style" group to add to.
     :param style: the style dataclass the figure is drawn from.
@@ -969,15 +969,14 @@ def _figure_colors() -> tuple:
 def pick_colour(parent, initial=None, title: str = "Colour"):
     """Ask for a colour with QT'S OWN dialog. Re-exported, not implemented.
 
-    THE IMPLEMENTATION IS
+    The implementation is
     :func:`spacr.qt.widgets.colour_picker.pick_colour`, and this module goes
     through it rather than keeping a second copy. ``QColorDialog.getColor``
     defaults to the PLATFORM's chooser, and on a GNOME session that request
     is brokered through ``xdg-desktop-portal`` -- the tens-of-seconds stall
-    behind the reported "changing the line width takes like 1 minut"
-    (instruction 151). One helper, because an option that has to be
+    behind slow native colour dialogs. One helper, because an option that has to be
     remembered at each call site is one that gets forgotten at the seventh --
-    and there WERE seven here: the six instruction 151 counted plus
+    and there WERE seven here: the six the design counted plus
     :func:`_ask_style_value`, which its count missed.
 
     Imported inside the function because this module is imported at GUI start
@@ -1360,8 +1359,7 @@ class FastPlot(QWidget):
         :param options: ``[(label, callback, checked)]``, or empty when this
             plot has no correction to redo.
 
-        Asked for 2026-08-18: "id also like to do fdr by right clicking the
-        graph." :data:`spacr.multiple_testing.METHODS` already holds thirteen
+        :data:`spacr.multiple_testing.METHODS` holds thirteen methods
         and the run picks one; comparing BH against Bonferroni against Storey
         on the screen in front of you is a two-second question that otherwise
         costs a re-run.
@@ -1374,7 +1372,7 @@ class FastPlot(QWidget):
         :param options: ``[(label, callback, checked)]``, or empty when this
             plot has no corrected p to encode.
 
-        Instruction 149 F: "id like the user to have access to visualizing
+        The design: "id like the user to have access to visualizing
         adjusted P in all the ways that are acceptable to the field. showing
         as color, showing the descrete P on the axis buy showing the line
         where the adjusted p threshold lands, etc."
@@ -1397,7 +1395,7 @@ class FastPlot(QWidget):
 
         On the PLOT because the settings-panel controls for these grey out
         under `inference='nonparametric'` -- correctly, since the permutation
-        path uses no control-spread cut -- and the maintainer reported not
+        path uses no control-spread cut -- and users may otherwise not
         being able to find them.
         """
         self._thresholds = (list(options or ()), multiplier, on_multiplier)
@@ -1415,7 +1413,7 @@ class FastPlot(QWidget):
         zero is. A user who cannot tell "I am looking at a subset" from "I
         restyled it" will read a filtered plot as the whole screen.
 
-        AND A CONTROL ON THE PLOT, which is what instruction 147 A is about.
+        AND A CONTROL ON THE PLOT, which is what the design is about.
         A run with ``level='both'`` fits twice, and the panel opens on the
         guide fit so a gene is not drawn once per guide -- both correct, and
         neither said out loud. The report was "it only runs once", and from
@@ -1461,7 +1459,7 @@ class FastPlot(QWidget):
             every level, baseline and compartment change, and any one of them
             would silently undo a choice the user had made.
 
-        Instruction 108: the entries come from ``dataclasses.fields(style)``,
+        The design: the entries come from ``dataclasses.fields(style)``,
         so a style that gains a field gains a menu entry and the two cannot
         fall out of step. Offered by the host for the same reason
         :meth:`offer_refit` is -- only the host knows which style object is
@@ -1655,7 +1653,7 @@ class FastPlot(QWidget):
     def colour_map_reason(self) -> str:
         """Why "colour by a column" cannot act here, or ``""``.
 
-        Instruction 106's rule, applied to a menu: an entry that cannot do
+        The rule, applied to a menu: an entry that cannot do
         anything is greyed out AND SAYS WHY. Silently absent leaves the user
         hunting for a control they were told about; present-but-inert leaves
         them clicking it and concluding the application is broken.
@@ -1691,7 +1689,7 @@ class FastPlot(QWidget):
     def line_colour_reason(self) -> str:
         """Why "line colour" cannot act here, or ``""``.
 
-        Almost never, and that is the point of instruction 152: the control
+        Almost never, and that is the point of the design: the control
         reaches the AXES, and a drawn plot always has those. It was the
         absence of any control over them that the first report named.
         """
@@ -1703,7 +1701,7 @@ class FastPlot(QWidget):
     def follow_the_theme(self) -> None:
         """Put BOTH colour controls back to automatic.
 
-        The way out of a colour, and it has to exist: instruction 152 A is a
+        The way out of a colour, and it has to exist: the design is a
         preference that froze because a resolved default was written back
         over the word "auto", and a control a user can only set is the same
         freeze performed by hand.
@@ -1927,7 +1925,7 @@ class FastPlot(QWidget):
     def log_reason(self, axis: str) -> str:
         """Why ``axis`` cannot be drawn on a log scale, or ``""``.
 
-        Instruction 106's rule, and instruction 148's decision: a value at or
+        The rule, and the decision: a value at or
         below zero has no logarithm, and the answer is to REFUSE the axis
         rather than drop the points. Dropping them would make a volcano whose
         visible point count is a number nobody can account for.
@@ -2068,7 +2066,7 @@ class FastPlot(QWidget):
         its own number -- but a mark INSIDE the hidden band has no number left
         on the ruler to sit at, and drawing it in the break would put a point
         somewhere its value is not. That is the same thing y-axis jitter does,
-        and instruction 149 forbids it for the same reason.
+        and the design forbids it for the same reason.
 
         So the answer is the count, and the user moves the band.
         """
@@ -2564,7 +2562,7 @@ class FastPlot(QWidget):
         The reference lines and threshold lines added by :meth:`add_line`,
         the Q-Q's diagonal, the residual and scale-location trends, and the
         summary line across a points/jitter group -- all of them, because
-        each is a line the maintainer named ("line color and width") and a
+        each is a visible line with colour and width controls, and a
         control that reached three of five kinds would be worse than none.
 
         The scatters are excluded because they have their own controls, and
@@ -2584,7 +2582,7 @@ class FastPlot(QWidget):
 
         THE SPINES AND THE TICK MARKS ARE LINES. They were unreachable: the
         axis takes ``foreground`` at CONSTRUCTION and nothing changed it
-        afterwards, so the first report on instruction 152 -- "doesnt look
+        afterwards, so the first report on the design -- "doesnt look
         like there is an option to change the axis color for the volcano
         plot" -- was exactly right, and :meth:`line_items` deliberately
         excludes anything that is not a plot item, so no existing call could
@@ -2611,7 +2609,7 @@ class FastPlot(QWidget):
 
         ``None`` puts every line back to the colour it was drawn with and the
         axes back to the theme's -- the "Follow the theme" half, which a user
-        who has set a colour needs or the freeze instruction 152 exists to fix
+        who has set a colour needs or the freeze the API is intended to fix
         just happens by hand instead of by accident.
         """
         self._line_colour = None if colour is None else QColor(colour).name()
@@ -2621,8 +2619,8 @@ class FastPlot(QWidget):
                        width: Optional[float] = None) -> int:
         """Recolour and re-weight every line. Returns how many it reached.
 
-        EVERY LINE MEANS THE AXES TOO (instruction 152 B). The maintainer
-        settled the design on what a mark IS rather than on which part of the
+        Every line setting includes the axes. The design is based on what a
+        mark is rather than on which part of the
         code draws it: one Line colour for the data's own lines, the
         reference and threshold lines, the Q-Q diagonal, the trends, and the
         axis spines and tick marks; one Font colour for every piece of text.
@@ -3133,7 +3131,7 @@ class FastPlot(QWidget):
         the entries hung the suite instead of failing it.
 
         THE ORDER IS THE ORDER OF USE, not alphabetical, and it is the whole
-        design of instruction 147 C:
+        design of the design:
 
           * the two entries every user reaches for stay at the TOP LEVEL and
             one click away. A menu reorganised until nothing is one click
@@ -3817,7 +3815,7 @@ class FastPlot(QWidget):
         :param size_list: one diameter per point, or None for ``size``
             everywhere. A plain float array -- pyqtgraph takes it straight
             into its own arrays, so unlike a brush per point this costs
-            nothing per point (instruction 149 F.6).
+            nothing per point.
         :param labels: per-point text, shown on hover and on click.
         :param rows: the FRAME ROW each element of ``x``/``y`` came from.
             Default ``None`` means the arrays are already in frame order.
@@ -4203,8 +4201,7 @@ class FastPlot(QWidget):
         """Write the plot out: PDF, SVG or PNG, by the name given.
 
         BOTH VECTOR FORMATS GO THROUGH Qt rather than through pyqtgraph.
-        pyqtgraph ships no PDF exporter at all -- reported 2026-08-17,
-        "currently i can only save the volcano as a png i want png and pdf" --
+        pyqtgraph ships no PDF exporter at all,
         and its SVG exporter raises on every plot in this module; the whole
         diagnosis is on :meth:`_export_svg`. A QPdfWriter and a QSvgGenerator
         take the same QPainter the scene draws itself with, so the result is
@@ -4373,15 +4370,15 @@ class FastPlot(QWidget):
 class VolcanoPlot(FastPlot):
     """Effect against -log10(p), with the FDR carried by colour and a line.
 
-    THE Y AXIS IS THE RAW P VALUE AND IT IS CONTINUOUS. That is instruction
-    149, and the reasoning is worth having beside the code because the
+    The y axis is the raw P value and is continuous. The reasoning is worth
+    keeping beside the code because the
     observation that produced it looked like a bug and was not.
 
     Benjamini-Hochberg's adjusted P is a cumulative minimum taken from the
     largest P downwards -- ``q_(i) = min over j >= i of (n * p_(j) / j)`` --
     and the ``min`` is both what enforces monotonicity and what creates ties:
     the moment a later rank produces a smaller value, EVERY earlier rank is
-    pulled down onto it. Measured on the maintainer's own runs: 823 q values
+    pulled down onto it. Measured on reference runs: 823 q values
     with 31 distinct, 19 tied levels covering 811 coefficients, GRA14 and
     225160 both at 4.1150e-03. A volcano drawn against that has a staircase
     for a y-axis, and no transform can separate two tests that hold the same
@@ -4507,7 +4504,7 @@ class VolcanoPlot(FastPlot):
         """Carry the FDR as a binary call, or as a continuous ramp over q.
 
         THEY CANNOT BOTH BE ON, and not because this refuses: a dot has one
-        colour. Instruction 149 F.5 says so and says what follows from it --
+        colour. The design says so and says what follows from it --
         whichever is chosen, the other is not shown, and the LEGEND says
         which is in force. That is the localisation rule again: one sentence
         per figure.
@@ -4532,7 +4529,7 @@ class VolcanoPlot(FastPlot):
     def set_q_mark(self, mode: str) -> None:
         """Put the FDR into the SIZE or the OPACITY of the mark, or neither.
 
-        THE ONE ENCODING THAT COMPOSES (instruction 149 F.6). Size and
+        THE ONE ENCODING THAT COMPOSES. Size and
         opacity are channels the colour is not using, so this can be on at
         the same time as either colouring -- a volcano coloured by condition
         with the marks sized by q says both things at once, which is what the
@@ -4681,6 +4678,13 @@ class VolcanoPlot(FastPlot):
         from ...multiple_testing import canonical_method
 
         self._correction = None if method is None else canonical_method(method)
+        if self._correction == "none" and self._p_axis == "adjusted":
+            # Choosing "no correction" while the height IS the adjusted p
+            # would leave the axis labelled "-log10(adjusted p, none)" over
+            # numbers that are the raw p. The menu greys the adjusted entry
+            # for the same reason; this is the one path that can reach the
+            # state anyway, so it is unwound rather than left.
+            self._p_axis = "raw"
         self.redraw()
 
     def caption(self) -> str:
@@ -5258,12 +5262,31 @@ class VolcanoPlot(FastPlot):
         too_small = ("" if tested >= minimum else
                      f"a family of {tested} is too small to read a density "
                      f"off; {minimum} are needed")
+        # NO CORRECTION MEANS THERE IS NO ADJUSTED AXIS. With
+        # `multiple_testing_method='none'` the q value written for every row
+        # EQUALS its raw p, so this entry offered a second copy of the axis
+        # above it under a name -- "adjusted p — None (raw P values)
+        # (stepped)" -- that promises a number the run never computed. A user
+        # who picks it sees an identical plot and concludes the correction
+        # made no difference, which is the reading this module exists to
+        # prevent.
+        #
+        # GREYED, NOT REMOVED (INVARIANTS 6), and it says why: the answer to
+        # "where is the adjusted axis" is "this run applied no correction",
+        # which a missing entry does not give. The condition is the
+        # correction IN FORCE and not the run's, because a plot recorrected
+        # from the menu has real q values whatever the run did.
+        uncorrected = ("" if str(method) != "none" else
+                       "this run applied no correction, so the adjusted p "
+                       "IS the raw p and the axis would be the one above")
+        adjusted_label = ("adjusted p — no correction applied" if uncorrected
+                          else f"adjusted p — {method_label(method)} (stepped)")
         self.offer_p_values([
             ("raw p (continuous)", lambda: self.set_p_axis("raw"),
              self._p_axis == "raw"),
-            (f"adjusted p — {method_label(method)} (stepped)",
+            (adjusted_label,
              lambda: self.set_p_axis("adjusted"),
-             self._p_axis == "adjusted"),
+             self._p_axis == "adjusted", uncorrected),
             ("local FDR (continuous)", lambda: self.set_p_axis("lfdr"),
              self._p_axis == "lfdr", too_small),
         ])
@@ -5434,7 +5457,7 @@ class EffectRankPlot(FastPlot):
                     key_column: Optional[str] = None,
                     alpha: float = 0.05,
                     drop_untested: bool = True) -> int:
-        """Draw ``frame`` ranked by |effect|. Returns the number of dots drawn.
+        """Draw ``frame`` ranked by absolute effect. Return the number of dots drawn.
 
         :param frame: the coefficient table.
         :param effect: the fitted-effect column.
@@ -6118,10 +6141,10 @@ class ResidualPlot(FastPlot):
 
 
 class ScaleLocationPlot(FastPlot):
-    """sqrt(|standardised residual|) against fitted -- is the variance flat?
+    """Plot the square root of absolute standardised residual against fitted.
 
     The interactive twin of :func:`spacr.regression_qc._panel_scale_location`,
-    which the maintainer asked for by name as the variance-homogeneity panel.
+    used as the variance-homogeneity panel.
     A residual-vs-fitted plot shows the mean and the variance at once and a
     reader has to separate them by eye; taking the square root of the absolute
     standardised residual removes the sign, so what is left is only the
@@ -6975,7 +6998,7 @@ class ResultsTable(QWidget):
         """Select the row whose identifier is ``key``. The safe direction.
 
         A plot has no business knowing where a row sits in this table -- the
-        user sorts it, filters it, and after instruction 122 it may not even
+        user sorts it, filters it, and after the redesign it may not even
         be drawn from the same frame. It knows the key, and the key is enough.
 
         A hidden row is unhidden to select it: silently doing nothing because
