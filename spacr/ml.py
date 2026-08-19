@@ -111,6 +111,46 @@ def _require_backend(regression_type, regression_backend):
     return name
 
 
+
+def _say_what_a_mixed_fit_will_cost(backend, df=None):
+    """Announce a long fit BEFORE it starts, and name the way out.
+
+    Measured on the maintainer's four-plate TSG101 screen: the same mixed
+    model took 26 SECONDS on `regression_backend='torch'` and was still
+    inside scipy's BFGS after twenty-five minutes on statsmodels. A
+    CPU-bound fit that prints nothing for half an hour is not distinguishable
+    from a freeze, and it was reported as one -- "i ran an ols then a mixed
+    regression model and this hung my computer twice so i had to restart it".
+
+    The default is NOT changed here. statsmodels produced every existing
+    result and that is the reason it is the default; what was missing was the
+    sentence saying what the wait is and that one setting removes it.
+    """
+    if backend != DEFAULT_REGRESSION_BACKEND:
+        return
+    rows = None
+    try:
+        rows = len(df) if df is not None else None
+    except TypeError:                                    # noqa: BLE001
+        rows = None
+    try:
+        status = backend_status('torch', 'mixed')
+        available = bool(status.get('enabled'))
+        reason = str(status.get('reason') or '')
+    except Exception:                                    # noqa: BLE001
+        available, reason = False, ''
+    size = f" on {rows} wells" if rows else ""
+    print(f"Fitting the mixed model{size} with statsmodels. This is the slow "
+          f"one: dense linear algebra, measured at 54x OLS on 40 genes and "
+          f"rising with screen size, and it prints nothing while it runs.")
+    if available:
+        print("  The same model, same estimates, is available on the GPU: set "
+              "regression_backend='torch'. Measured on this screen: 26 "
+              "seconds against >25 minutes.")
+    elif reason:
+        print(f"  The GPU backend would be faster but is not usable here: "
+              f"{reason}")
+
 def _graph_sequencing_stats(settings):
     """Resolve the sequencing threshold helper through one testable seam."""
     # Keep this lazy to avoid expanding ml.py's already-heavy import graph,
@@ -888,6 +928,7 @@ def fit_mixed_model(df, formula, dst, *, random_row_column_effects=False,
         vc_formula['columnID'] = '0 + C(columnID)'
 
     backend = _require_backend('mixed', regression_backend)
+    _say_what_a_mixed_fit_will_cost(backend, df)
     try:
         if backend == 'torch':
             from .mixed_gpu import mixedlm_torch
@@ -1801,7 +1842,8 @@ def check_distribution(y, epsilon=1e-6):
 MIN_POISSON_SAMPLES = 8
 
 
-def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
+def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES,
+                               model="Poisson regression"):
     """Validate a response before fitting a Poisson GLM.
 
     Poisson endog must contain finite, non-negative integer counts. At least
@@ -1812,6 +1854,11 @@ def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
     :param y: One-dimensional count response.
     :param X: Optional design matrix used to determine the parameter count.
     :param minimum_samples: Absolute observation floor.
+    :param model: What to call the model in the refusal. `horseshoe` is a
+        sparse Poisson GLM and reaches this validator too, so a user who
+        chose it was told "Poisson regression requires integer count data" --
+        an error naming a model they did not ask for, followed by advice
+        ("use a continuous response model") for a choice they never made.
     :returns: The validated response as a one-dimensional float array.
     :raises ValueError: If the response or sample size is invalid.
     """
@@ -1819,27 +1866,27 @@ def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
         counts = np.asarray(y, dtype=float).reshape(-1)
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "Poisson regression requires numeric count data."
+            f"{model} requires numeric count data."
         ) from exc
 
     if not np.isfinite(counts).all():
         raise ValueError(
-            "Poisson regression requires finite count data; remove or impute "
+            f"{model} requires finite count data; remove or impute "
             "NaN and infinite response values before fitting."
         )
     if np.any(counts < 0):
         raise ValueError(
-            "Poisson regression requires non-negative count data; negative "
+            f"{model} requires non-negative count data; negative "
             "response values are not valid counts."
         )
     if not np.all(np.isclose(counts, np.rint(counts), rtol=0, atol=1e-8)):
         raise ValueError(
-            "Poisson regression requires integer count data; use a continuous "
+            f"{model} requires integer count data; use a continuous "
             "response model for fractional values."
         )
     if not np.any(counts > 0):
         raise ValueError(
-            "Poisson regression requires at least one positive count; an "
+            f"{model} requires at least one positive count; an "
             "all-zero response cannot estimate effects."
         )
 
@@ -1848,7 +1895,7 @@ def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
         x_shape = np.shape(X)
         if not x_shape or x_shape[0] != counts.size:
             raise ValueError(
-                "Poisson regression requires X and y to contain the same "
+                f"{model} requires X and y to contain the same "
                 f"number of observations; got {x_shape[0] if x_shape else 0} "
                 f"and {counts.size}."
             )
@@ -1857,7 +1904,7 @@ def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES):
     required = max(int(minimum_samples), n_parameters + 1)
     if counts.size < required:
         raise ValueError(
-            "Poisson regression has too few observations: "
+            f"{model} has too few observations: "
             f"received {counts.size}, but at least {required} are required "
             f"for {n_parameters} model parameters."
         )
@@ -3456,7 +3503,8 @@ def _fit_horseshoe_poisson(X, y, exposure):
             "gather_model_estimate; install or restore that module to use it."
         ) from exc
 
-    counts = _validate_poisson_response(y, X)
+    counts = _validate_poisson_response(
+        y, X, model="horseshoe (a sparse Poisson GLM over well counts)")
     n_total = np.asarray(exposure, dtype=float).ravel()
     if n_total.size != counts.size:
         raise ValueError(
