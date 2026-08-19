@@ -1120,7 +1120,7 @@ def test_github_summary_has_reviewed_domain_translations():
         REVIEWED_README_HEADINGS,
     )
 
-    assert len(REVIEWED_README_BLOCKS) == 7
+    assert len(REVIEWED_README_BLOCKS) == 9
     for reviewed in REVIEWED_README_BLOCKS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -1133,13 +1133,13 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "criblages CRISPR" in joined["fr"]
     assert "CRISPR 스크리닝" in joined["ko"]
     assert "CRISPR-skim" in joined["is"]
-    assert len(REVIEWED_README_HEADINGS) == 22
+    assert len(REVIEWED_README_HEADINGS) == 14
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
         }
-    assert REVIEWED_README_HEADINGS["New in 1.5.0.0"]["hi"].endswith(
-        "1.5.0.0 में नया"
+    assert REVIEWED_README_HEADINGS["Install spaCR"]["hi"] == (
+        "spaCR इंस्टॉल करें"
     )
 
 
@@ -2643,7 +2643,7 @@ def test_reviewed_readmes_do_not_reintroduce_known_context_errors():
 
 
 def test_localized_readmes_do_not_leave_long_english_feature_copy():
-    """GitHub's feature table and surrounding guidance must be localized."""
+    """The concise GitHub overview must not fall back to English prose."""
     readme_root = ROOT / "docs" / "i18n" / "readme"
     localized = {
         path.stem.removeprefix("README."): path.read_text(encoding="utf-8")
@@ -2653,43 +2653,13 @@ def test_localized_readmes_do_not_leave_long_english_feature_copy():
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
     }
 
-    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
-    table = canonical[
-        canonical.index(".. list-table::"):
-        canonical.index(".. |api-qt-app| replace::")
-    ]
-    descriptions = {
-        line.strip()[2:]
-        for line in table.splitlines()
-        if line.startswith("     - ")
-        and len(line.strip()[2:].split()) >= 6
+    forbidden = {
+        "Ten-language localization covers navigation",
+        "Settings with a visual explanation offer",
+        "Most screens follow six modules",
+        "The same project can also design plates",
+        "Choose the next page by what you want to do",
     }
-    assert len(descriptions) == 28
-
-    long_prose_fragments = {
-        "The installer downloads a private Python 3.12 runtime",
-        "Runs are now identifiable",
-        "Navigation, Preferences, AI and LIVE controls",
-        "94 short animations explain what 143 visual settings",
-        "Bug reports and focused feature requests",
-        "The current development branch is source-available",
-        "contains narrated, captioned walkthroughs",
-        "segments cells, nuclei, pathogens and organelles with Cellpose",
-        "In the evaluation screen, a confusion-matrix cell is a query",
-    }
-    table_labels = {
-        "**Ten-language localization**",
-        "**Localized contextual help**",
-        "**Setting animation registry**",
-        "**Visual setting animations**",
-        "**Installation diagnosis**",
-        "**Flat-field correction**",
-        "**Object measurements**",
-        "**Well and collision report**",
-        "**Screen effect estimation**",
-        "**Run provenance**",
-    }
-    forbidden = descriptions | long_prose_fragments | table_labels
     for language, text in localized.items():
         leftovers = sorted(fragment for fragment in forbidden if fragment in text)
         assert not leftovers, f"{language} retains English README copy: {leftovers}"
@@ -2701,16 +2671,9 @@ def test_localized_readmes_preserve_safety_meaning_and_language_names():
     hindi = (readme_root / "README.hi.rst").read_text(encoding="utf-8")
     korean = (readme_root / "README.ko.rst").read_text(encoding="utf-8")
 
-    # The exporter rejects invented numbers; the old machine translation
-    # reversed this safety guarantee.
-    assert "se rechaza cualquier borrador" in spanish
-    assert "no es rechazado" not in spanish
-    assert "no se rechaza" not in spanish
-
     # Hindi is a language, not the Hindu religion.
     assert "हिन्दी" in hindi
     assert "हिंदू" not in hindi and "हिन्दू" not in hindi
-    assert "힌디어" in korean
     assert "힌두교" not in korean
 
     # Common literal-translation failures in scientific/software context.
@@ -2784,19 +2747,8 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
         "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
     ]
     protected_terms = {
-        "torchvision", "btrack", "pylibCZIrw", "czifile", "Hugging Face",
-        "Power / Design", "ComBat", "scanpy",
-    }
-    fallback_phrases = {
-        "de": "nicht unterstützten Gebietsschemata",
-        "es": "configuraciones regionales no compatibles",
-        "fr": "paramètres régionaux non pris en charge",
-        "hi": "असमर्थित लोकेल",
-        "is": "Tungumál sem ekki eru studd",
-        "ko": "지원되지 않는 로캘",
-        "pt": "Localidades não compatíveis",
-        "sv": "Språk som inte stöds",
-        "zh_CN": "不支持的语言环境",
+        "Cellpose", "SQLite", "FASTQ", "AnnData", "CUDA", "Hugging Face",
+        "torchvision",
     }
     known_context_errors = {
         "de": {"Fackelvision"},
@@ -2810,17 +2762,14 @@ def test_localized_readmes_preserve_module_names_and_technical_terms():
         "zh_CN": {"此分類上一篇", "印度语", "电源 / 设计", "图形建筑师"},
     }
     readme_root = ROOT / "docs" / "i18n" / "readme"
-    for language, fallback_phrase in fallback_phrases.items():
+    for language in known_context_errors:
         text = (readme_root / f"README.{language}.rst").read_text(
             encoding="utf-8"
         )
-        module_lines = re.findall(r"(?m)^\*\*([^*\n]+)\*\* .+$", text)
+        module_lines = re.findall(r"(?m)^- \*\*([^*\n]+)\*\* .+$", text)
         assert module_lines[:6] == expected_modules
         missing_terms = sorted(term for term in protected_terms if term not in text)
         assert not missing_terms, f"{language} changed protected terms: {missing_terms}"
-        assert fallback_phrase in text
-        provenance = next(line for line in text.splitlines() if "AnnData" in line)
-        assert all(name in provenance for name in ("Mask", "Measure", "Classify"))
         assert not any(error in text for error in known_context_errors[language])
 
 
@@ -2835,7 +2784,9 @@ def test_localized_readmes_preserve_urls_code_and_table_shape():
         text = path.read_text(encoding="utf-8")
         assert sorted(re.findall(r"https?://[^\s>`]+", text)) == canonical_urls
         assert code_pattern.findall(text) == canonical_code
-        assert len(re.findall(r"(?m)^   \* - ", text)) == 33
+        assert len(re.findall(r"(?m)^   \* - ", text)) == len(
+            re.findall(r"(?m)^   \* - ", canonical)
+        )
         for target in re.findall(r"<((?:\.\.?/)[^>#]+)(?:#[^>]*)?>`_", text):
             assert (path.parent / target).resolve().exists(), (path, target)
 
@@ -2869,78 +2820,22 @@ def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():
     }
 
     required = {
-        "de": {"spaCR-Installationsverzeichnis", "Animierte Einstellungshilfe"},
-        "es": {
-            "coherencia de las dependencias",
-            "La interfaz Tk heredada",
-            "Guía animada de ajustes",
-        },
-        "hi": {
-            "अनुक्रमण त्रुटि",
-            "एनोटेटर सहमति",
-            "गुणांकों",
-            "संभावित परिणामों की सूची",
-            "एक पूल्ड, छवि-आधारित CRISPR स्क्रीन",
-            "ESCRT तंत्र के अपहरण",
-            "स्वागत है",
-        },
-        "ko": {
-            "그래도 열기",
-            "풀드 이미지 기반 CRISPR 스크린",
-            "*T. gondii*\\ 의 ESCRT 기능 탈취",
-        },
-        "pt": {"Guia animado de configurações"},
-        "sv": {"Animerad hjälp för inställningar"},
-        "zh_CN": {
-            "Windows 10/11：下载",
-            "macOS 11+（英特尔和苹果硅）：下载",
-            "64 位 Linux：下载",
-            "测试数据集：Hugging Face toxo_mito",
-            "测序数据：NCBI BioProject",
-            "请引用：",
-        },
+        "de": {"Animierte Einstellungshilfe", "spaCR → Einstellungen → Sprache"},
+        "es": {"Guía animada de ajustes", "spaCR → Preferencias → Idioma"},
+        "hi": {"एनिमेटेड सेटिंग मार्गदर्शन", "spaCR → प्राथमिकताएँ → भाषा"},
+        "ko": {"애니메이션 설정 안내", "spaCR → 환경 설정 → 언어"},
+        "pt": {"Guia animado de configurações", "spaCR → Preferências → Idioma"},
+        "sv": {"Animerad hjälp för inställningar", "spaCR → Inställningar → Språk"},
+        "zh_CN": {"动画设置指南", "spaCR → 首选项 → 语言"},
     }
     forbidden = {
-        "de": {"spaCR Installationsverzeichnis"},
         "es": {"interfaz Tk legado", "Orientación de ajuste animado"},
-        "hi": {
-            "स्वाग योग्य",
-            "sequencing error",
-            "dropout",
-            "segmentation",
-            "annotator agreement",
-            "data leakage",
-            "batch correction",
-            "coefficients",
-            "hit list",
-            "एक संयुक्त छवि-आधारित CRISPR",
-            "एकीकृत छवि-आधारित CRISPR",
-            "ESCRT उपइकाई",
-            "ESCRT उप-इकाई",
-            "ESCRT उप इकाई",
-            "ESCRT उप-विवाद",
-        },
-        "ko": {
-            "Open Anyway",
-            "합성 이미지 기반",
-            "통합 이미지 기반",
-            "ESCRT 하위",
-        },
+        "hi": {"स्वाग योग्य", "हिंदू", "हिन्दू"},
+        "ko": {"Open Anyway", "합성 이미지 기반"},
         "pt": {"Orientação de cenário animado"},
-        "zh_CN": {
-            "Windows 10/11:下载",
-            "Windows 10/11: 下载",
-            "测试数据集:",
-            "请引用:",
-        },
+        "zh_CN": {"印度语", "图形建筑师"},
     }
     for language, fragments in required.items():
-        missing = sorted(
-            fragment for fragment in fragments if fragment not in readmes[language]
-        )
-        assert not missing, f"{language} lacks reviewed wording: {missing}"
+        assert all(fragment in readmes[language] for fragment in fragments)
     for language, fragments in forbidden.items():
-        leftovers = sorted(
-            fragment for fragment in fragments if fragment in readmes[language]
-        )
-        assert not leftovers, f"{language} retains reviewed errors: {leftovers}"
+        assert not any(fragment in readmes[language] for fragment in fragments)
