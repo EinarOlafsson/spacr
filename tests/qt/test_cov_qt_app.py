@@ -2186,10 +2186,26 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
     monkeypatch.setenv("SPACR_LOG_DIR", str(tmp_path / "logs"))
     made: list = []
 
+    # THE STUB HAS TO CARRY `setAttribute`, and carrying it is not a
+    # formality. `launch` sets AA_DontUseNativeDialogs BEFORE constructing
+    # the QApplication, because Qt ignores that attribute afterwards --
+    # silently, which looks exactly like it worked. A bare function has no
+    # such attribute, so the call raised and every test through this fixture
+    # failed on `'function' object has no attribute 'setAttribute'`.
+    #
+    # Recorded rather than swallowed, so the ordering can be asserted: the
+    # attribute must be set while nothing has been constructed yet.
+    attributes: list = []
+
     def _factory(argv):
         shim = _AppShim(qapp, argv)
         made.append(shim)
         return shim
+
+    def _set_attribute(*args):
+        attributes.append((args, len(made)))
+
+    _factory.setAttribute = _set_attribute
 
     _ThreadShim.instances = []
     monkeypatch.setattr(app_mod, "QApplication", _factory)
@@ -2197,6 +2213,7 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
                         types.SimpleNamespace(Thread=_ThreadShim))
 
     state = {"shims": made, "threads": _ThreadShim.instances,
+             "attributes": attributes,
              "before": set(qapp.topLevelWidgets())}
 
     def _window():
@@ -2323,3 +2340,23 @@ def test_launch_survives_a_qimagereader_without_an_allocation_limit(
     win = launched["window"]()
     qtbot.addWidget(win)
     win.close()
+
+
+def test_native_dialogs_are_turned_off_before_the_app_exists(launched):
+    """Qt IGNORES AA_DontUseNativeDialogs once a QApplication exists.
+
+    Silently, which looks exactly like it worked -- and the consequence is
+    the native file chooser, which on the maintainer's desktop takes the
+    better part of a minute to open. So the ordering is the whole of this
+    setting, and asserting the call without asserting WHEN would pass on the
+    broken version.
+    """
+    app_mod.launch(["measure"])
+
+    calls = launched["attributes"]
+    assert calls, "AA_DontUseNativeDialogs was never set"
+    args, apps_made_so_far = calls[0]
+    assert apps_made_so_far == 0, (
+        "the attribute was set after a QApplication had been constructed, "
+        "where Qt ignores it")
+    assert args[-1] is True
