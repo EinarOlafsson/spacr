@@ -2856,6 +2856,21 @@ def reanchor_frame(df, root: str, columns: Sequence[str] = PATH_COLUMNS,
                 continue
             seen += 1
             new, outcome = reanchor_path(value, root, anchors=anchors)
+            # THE STRUCTURAL PASS NEVER ASKS THE DISK, and it needs `root` to
+            # be the folder that holds `data/`. Measured on the TSG101 screen
+            # with 3,000 recorded crops: the plate folder resolves all 3,000,
+            # and the SCREEN folder above it, the `measurements/` folder and
+            # the database file each resolve NONE -- the rewrite lands
+            # somewhere plausible that is not there. A caller holding one of
+            # those is not doing anything wrong, so fall back to the resolver
+            # that searches the recorded structure under every folder the root
+            # could mean and returns only what EXISTS.
+            if outcome != ALREADY_ANCHORED and not os.path.exists(new):
+                from .portable_paths import reroot_crop_path
+
+                found = reroot_crop_path(value, root)
+                if found and found != value and os.path.exists(found):
+                    new, outcome = found, REANCHORED
             if outcome == REANCHORED:
                 moved += 1
             elif outcome == ALREADY_ANCHORED:
