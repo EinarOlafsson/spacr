@@ -3073,7 +3073,47 @@ REVIEWED_README_BLOCKS = {
     },
 }
 
-REVIEWED_README_HEADINGS = {
+_LOCALIZATION_SOURCE = (
+    "Ten-language localization covers navigation, Preferences, AI and LIVE "
+    "controls, module descriptions and reviewed contextual help. Change "
+    "language under **spaCR → Preferences → Language** without restarting. "
+    "Logs, paths, database values and measurements are never translated; "
+    "scientific output remains canonical English. See the `contextual-help "
+    "policy <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_."
+)
+_ANIMATION_SOURCE = (
+    "Settings with a visual explanation offer an **Animation** control in "
+    "their tooltip. Browse the `setting animation gallery "
+    "<https://einarolafsson.github.io/spacr/setting_animations.html>`_ or the "
+    "`Setting animation registry "
+    "<https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_."
+)
+REVIEWED_README_BLOCKS.update({
+    _LOCALIZATION_SOURCE: {
+        "de": "Die Lokalisierung in zehn Sprachen umfasst Navigation, Einstellungen, AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
+        "es": "La localización en diez idiomas abarca la navegación, las preferencias, los controles AI y LIVE, las descripciones de módulos y la ayuda contextual revisada. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
+        "fr": "La localisation en dix langues couvre la navigation, les préférences, les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
+        "hi": "दस भाषाओं में स्थानीयकरण नेविगेशन, प्राथमिकताएँ, AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता को शामिल करता है। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ देखें।",
+        "is": "Staðfærsla á tíu tungumálum nær yfir leiðsögn, stillingar, AI- og LIVE-stýringar, lýsingar á einingum og yfirfarna samhengishjálp. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
+        "ko": "10개 언어 현지화는 탐색, 환경 설정, AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말을 포함합니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_을 참조하세요.",
+        "pt": "A localização em dez idiomas abrange navegação, preferências, controles AI e LIVE, descrições de módulos e ajuda contextual revisada. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
+        "sv": "Lokalisering på tio språk omfattar navigering, inställningar, AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
+        "zh_CN": "十种语言的本地化涵盖导航、首选项、AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_。",
+    },
+    _ANIMATION_SOURCE: {
+        "de": "Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche **Animation**. Durchsuchen Sie die `Galerie der Einstellungsanimationen <https://einarolafsson.github.io/spacr/setting_animations.html>`_ oder das `Register der Einstellungsanimationen <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "es": "Los ajustes con una explicación visual incluyen un control **Animación** en su información emergente. Consulte la `galería de animaciones de ajustes <https://einarolafsson.github.io/spacr/setting_animations.html>`_ o el `registro de animaciones de ajustes <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "fr": "Les paramètres accompagnés d’une explication visuelle proposent une commande **Animation** dans leur infobulle. Parcourez la `galerie des animations de paramètres <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou le `registre des animations de paramètres <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "hi": "दृश्य व्याख्या वाली सेटिंग के टूलटिप में **Animation** नियंत्रण मिलता है। `सेटिंग एनिमेशन गैलरी <https://einarolafsson.github.io/spacr/setting_animations.html>`_ या `सेटिंग एनिमेशन रजिस्ट्री <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_ देखें।",
+        "is": "Stillingar með sjónræna skýringu bjóða upp á **Animation**-stýringu í verkfæraábendingunni. Skoðaðu `myndasafn stillingahreyfimynda <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eða `skrá stillingahreyfimynda <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "ko": "시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 또는 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_를 살펴보세요.",
+        "pt": "As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "sv": "Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset. Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eller `registret över inställningsanimationer <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
+        "zh_CN": "带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。",
+    },
+})
+
+_REVIEWED_README_HEADINGS_ARCHIVE = {
     "Workflow at a glance": {
         "sv": "Arbetsflödet i korthet", "de": "Workflow auf einen Blick",
         "es": "Flujo de trabajo de un vistazo", "zh_CN": "工作流程概览",
@@ -3220,6 +3260,158 @@ REVIEWED_README_HEADINGS = {
         "sv": "Citera spaCR", "de": "spaCR zitieren", "es": "Citar spaCR",
         "zh_CN": "引用 spaCR", "pt": "Como citar o spaCR", "hi": "spaCR का संदर्भ",
         "ko": "spaCR 인용", "is": "Tilvísun í spaCR", "fr": "Citer spaCR",
+    },
+}
+
+# Keep the active registry aligned with headings that occur exactly once in
+# the canonical README.  The archive above retains reviewed wording for older
+# releases without making removed headings part of the current contract.
+REVIEWED_README_HEADINGS = {
+    heading: _REVIEWED_README_HEADINGS_ARCHIVE[heading]
+    for heading in (
+        "Workflow at a glance",
+        "Command-line entry points",
+        "Internationalized desktop interface",
+        "Animated setting guidance",
+        "Data",
+        "Reference datasets",
+        "Contributing and support",
+        "Licensing",
+        "Tutorials",
+        "Citing spaCR",
+    )
+}
+REVIEWED_README_HEADINGS.update({
+    "Install spaCR": {
+        "sv": "Installera spaCR", "de": "spaCR installieren",
+        "es": "Instalar spaCR", "zh_CN": "安装 spaCR",
+        "pt": "Instalar o spaCR", "hi": "spaCR इंस्टॉल करें",
+        "ko": "spaCR 설치", "is": "Setja upp spaCR", "fr": "Installer spaCR",
+    },
+    "Desktop application": {
+        "sv": "Skrivbordsprogram", "de": "Desktopanwendung",
+        "es": "Aplicación de escritorio", "zh_CN": "桌面应用程序",
+        "pt": "Aplicativo para desktop", "hi": "डेस्कटॉप एप्लिकेशन",
+        "ko": "데스크톱 애플리케이션", "is": "Skjáborðsforrit",
+        "fr": "Application de bureau",
+    },
+    "Python installation": {
+        "sv": "Python-installation", "de": "Python-Installation",
+        "es": "Instalación con Python", "zh_CN": "Python 安装",
+        "pt": "Instalação com Python", "hi": "Python इंस्टॉलेशन",
+        "ko": "Python 설치", "is": "Python-uppsetning",
+        "fr": "Installation avec Python",
+    },
+    "What you can do": {
+        "sv": "Det här kan du göra", "de": "Was Sie tun können",
+        "es": "Qué puede hacer", "zh_CN": "您可以做什么",
+        "pt": "O que você pode fazer", "hi": "आप क्या कर सकते हैं",
+        "ko": "할 수 있는 일", "is": "Það sem hægt er að gera",
+        "fr": "Ce que vous pouvez faire",
+    },
+})
+
+REVIEWED_README_ALT_TEXT = {
+    "de": (
+        "spaCR-Arbeitsablauf und Ausgabeorganisation",
+        "Windows 10/11: spaCR {version} herunterladen",
+        "macOS 11+ (Intel und Apple Silicon): spaCR {version} herunterladen",
+        "64-Bit-Linux: spaCR {version} herunterladen",
+        "Ältere spaCR-Installationsprogramme",
+    ),
+    "es": (
+        "Flujo de trabajo y organización de resultados de spaCR",
+        "Windows 10/11: descargar spaCR {version}",
+        "macOS 11+ (Intel y Apple silicon): descargar spaCR {version}",
+        "Linux de 64 bits: descargar spaCR {version}",
+        "Instaladores anteriores de spaCR",
+    ),
+    "fr": (
+        "Flux de travail spaCR et organisation des sorties",
+        "Windows 10/11 : télécharger spaCR {version}",
+        "macOS 11+ (Intel et Apple Silicon) : télécharger spaCR {version}",
+        "Linux 64 bits : télécharger spaCR {version}",
+        "Anciens programmes d’installation de spaCR",
+    ),
+    "hi": (
+        "spaCR कार्यप्रवाह और आउटपुट संगठन",
+        "Windows 10/11 के लिए spaCR {version} डाउनलोड करें",
+        "macOS 11+ (Intel और Apple Silicon) के लिए spaCR {version} डाउनलोड करें",
+        "64-बिट Linux के लिए spaCR {version} डाउनलोड करें",
+        "spaCR के पुराने इंस्टॉलर",
+    ),
+    "is": (
+        "Verkflæði spaCR og skipulag úttaks",
+        "Sækja spaCR {version} fyrir Windows 10/11",
+        "Sækja spaCR {version} fyrir macOS 11+ (Intel og Apple Silicon)",
+        "Sækja spaCR {version} fyrir 64-bita Linux",
+        "Eldri spaCR-uppsetningarforrit",
+    ),
+    "ko": (
+        "spaCR 작업 흐름 및 출력 구성",
+        "Windows 10/11용 spaCR {version} 다운로드",
+        "macOS 11+ (Intel 및 Apple Silicon)용 spaCR {version} 다운로드",
+        "64비트 Linux용 spaCR {version} 다운로드",
+        "이전 spaCR 설치 프로그램",
+    ),
+    "pt": (
+        "Fluxo de trabalho e organização das saídas do spaCR",
+        "Baixar o spaCR {version} para Windows 10/11",
+        "Baixar o spaCR {version} para macOS 11+ (Intel e Apple Silicon)",
+        "Baixar o spaCR {version} para Linux de 64 bits",
+        "Instaladores anteriores do spaCR",
+    ),
+    "sv": (
+        "spaCR:s arbetsflöde och struktur för utdata",
+        "Hämta spaCR {version} för Windows 10/11",
+        "Hämta spaCR {version} för macOS 11+ (Intel och Apple Silicon)",
+        "Hämta spaCR {version} för 64-bitars Linux",
+        "Äldre spaCR-installationsprogram",
+    ),
+    "zh_CN": (
+        "spaCR 工作流程及输出结构",
+        "下载适用于 Windows 10/11 的 spaCR {version}",
+        "下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR {version}",
+        "下载适用于 64 位 Linux 的 spaCR {version}",
+        "旧版 spaCR 安装程序",
+    ),
+}
+
+REVIEWED_README_BADGE_ALT_TEXT = {
+    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "PolyForm-Noncommercial-Lizenz", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Rezept", "spaCR"),
+    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia PolyForm Noncommercial", "DOI de Zenodo", "Instaladores más recientes", "Receta de conda-forge", "spaCR"),
+    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence PolyForm Noncommercial", "DOI Zenodo", "Derniers installateurs", "Recette conda-forge", "spaCR"),
+    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "PolyForm गैर-व्यावसायिक लाइसेंस", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge रेसिपी", "spaCR"),
+    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "PolyForm Noncommercial-leyfi", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-uppskrift", "spaCR"),
+    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "PolyForm 비상업용 라이선스", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 레시피", "spaCR"),
+    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença PolyForm Noncommercial", "DOI do Zenodo", "Instaladores mais recentes", "Receita do conda-forge", "spaCR"),
+    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "PolyForm Noncommercial-licens", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-recept", "spaCR"),
+    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "PolyForm 非商业许可证", "Zenodo DOI", "最新安装程序", "conda-forge 配方", "spaCR"),
+}
+
+REVIEWED_README_LANGUAGE_OVERRIDES = {
+    "es": {
+        "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.":
+            "En macOS, abra el archivo ``.pkg``. La beta actual no está notarizada; si Gatekeeper la bloquea, seleccione **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.",
+    },
+    "ko": {
+        "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.":
+            "macOS에서는 ``.pkg``를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 선택하세요.",
+        "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.":
+            "같은 프로젝트에서 플레이트를 설계하고, 검정력을 추정하고, 배치 효과를 보정하고, 분할 품질을 검사하고, 연결된 플롯과 이미지 크롭을 탐색하고, AnnData를 내보내고, 중단된 작업을 재개하고, 각 결과에 사용된 설정을 기록할 수도 있습니다.",
+        "Olafsson EB, *et al.* A pooled image-based CRISPR screen identifies EAF1 as a *T. gondii* modulator of ESCRT subversion.":
+            "Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.",
+        "Olafsson EB, *et al.* 합성 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii* ESCRT 하위 변형의 모듈로 식별합니다.":
+            "Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.",
+        "전체 미생물 데이터 세트": "전체 스크린 데이터셋",
+    },
+    "pt": {
+        "On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper blocks it, choose **System Settings → Privacy & Security → Open Anyway**.":
+            "No macOS, abra o arquivo ``.pkg``. A versão beta atual não é notarizada; se o Gatekeeper a bloquear, selecione **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**.",
+    },
+    "zh_CN": {
+        "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.":
+            "同一项目还可以设计孔板、估算统计功效、校正批次效应、检查分割质量、探索相互关联的图表和图像裁剪、导出 AnnData、恢复中断的工作，并记录每项结果所使用的设置。",
     },
 }
 
@@ -5567,6 +5759,13 @@ def main() -> int:
         "--force", action="store_true",
         help="retranslate current API entries and README instead of reusing them",
     )
+    parser.add_argument(
+        "--rebuild-readme", action="store_true",
+        help=(
+            "rebuild localized READMEs while continuing to reuse current API "
+            "translations"
+        ),
+    )
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--beams", type=int, default=4)
@@ -5577,8 +5776,9 @@ def main() -> int:
     if args.audit:
         return audit(docs, args.languages)
 
-    _write_json(API_DIR / "en.json", _english_manifest(docs))
-    print(f"wrote English API manifest: symbols={len(docs)}")
+    if not args.rebuild_readme:
+        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        print(f"wrote English API manifest: symbols={len(docs)}")
     if args.sources_only:
         return 0
     if args.repair_api_blocks:
@@ -5605,21 +5805,28 @@ def main() -> int:
         key = f"__readme_link_{index}__"
         readme_links.append((key, label, target))
     for language in args.languages:
-        reusable = {} if args.force else reusable_api_translations(
-            docs, language,
-        )
-        pending = {key: source for key, source in docs.items() if key not in reusable}
-        translated = dict(reusable)
-        if pending:
-            translated.update(
-                _translate_api_documents(
-                    pending, language, args.model_root, args,
-                )
+        pending = {}
+        if not args.rebuild_readme:
+            reusable = {} if args.force else reusable_api_translations(
+                docs, language,
             )
-        write_language(docs, language, translated)
+            pending = {
+                key: source for key, source in docs.items()
+                if key not in reusable
+            }
+            translated = dict(reusable)
+            if pending:
+                translated.update(
+                    _translate_api_documents(
+                        pending, language, args.model_root, args,
+                    )
+                )
+            write_language(docs, language, translated)
 
         readme_path = README_DIR / f"README.{language}.rst"
-        rebuild_readme = args.force or not readme_path.is_file()
+        rebuild_readme = (
+            args.force or args.rebuild_readme or not readme_path.is_file()
+        )
         if rebuild_readme:
             documents = {"__readme__": readme}
             documents.update({key: label for key, label, _target in readme_links})
@@ -5643,11 +5850,55 @@ def main() -> int:
             ).replace(
                 "<README.rst>", "<../../../README.rst>"
             )
+            for source_text, target_text in (
+                REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()
+            ):
+                localized_readme = localized_readme.replace(
+                    source_text, target_text
+                )
+            module_names = (
+                "Mask", "Measure", "Annotate", "Classify",
+                "Map Barcodes", "Regression",
+            )
+            module_name_iter = iter(module_names)
+            localized_readme = re.sub(
+                r"(?m)^- \*\*[^*\n]+\*\*\s*",
+                lambda _match: f"- **{next(module_name_iter)}** ",
+                localized_readme,
+                count=len(module_names),
+            )
+            version_match = re.search(
+                r"Download spaCR ([^ ]+) for Windows", readme
+            )
+            if version_match:
+                all_canonical_alt = re.findall(
+                    r"(?m)^   :alt: (.+)$", readme
+                )
+                for source_alt, target_alt in zip(
+                    all_canonical_alt[:13],
+                    REVIEWED_README_BADGE_ALT_TEXT[language],
+                ):
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
+                    )
+                canonical_alt = all_canonical_alt[-5:]
+                localized_alt = [
+                    value.format(version=version_match.group(1))
+                    for value in REVIEWED_README_ALT_TEXT[language]
+                ]
+                for source_alt, target_alt in zip(
+                    canonical_alt, localized_alt
+                ):
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
+                    )
             readme_path.write_text(localized_readme + "\n", encoding="utf-8")
         print(
             f"wrote {language}: API={len(docs)} "
             f"translated={len(pending)} README={int(rebuild_readme)}"
         )
+    if args.rebuild_readme:
+        return 0
     return audit(docs, args.languages)
 
 

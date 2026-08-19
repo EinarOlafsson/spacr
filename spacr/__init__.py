@@ -51,6 +51,7 @@ _warnings.filterwarnings(
 )
 
 _SUBMODULES: Final[tuple[str, ...]] = (
+    "api",
     "core",
     "schema",
     "database_schema",
@@ -101,6 +102,8 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "feature_dict",
     "image_colors",
     "crops",
+    "portable_paths",
+    "picture_settings",
     "align",
     "convert",
     "foreign",
@@ -108,7 +111,6 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "resume",
     "checkpoint",
     "normalization",
-    "openmp_guard",
     # Plate-wide intensity rescaling provenance and the desktop installer's
     # hardware/consent hand-off are both public, dependency-light modules.
     "intensity_rescale",
@@ -206,6 +208,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "selection",
     # Diagnostic figures for a fitted regression.
     "regression_qc",
+    "regression_failure",
     # spaCR's OWN summary of a run, for the eighteen of nineteen regression
     # types statsmodels writes none for and for the permutation path, which
     # has no fitted model at all. Every field is a number or a stated reason.
@@ -369,13 +372,37 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # built headless and tested without Qt.
     "gene_facts",
     "gene_tile",              # everything spaCR knows about one gene
+    "gene_measurement_sweep",
+    "guide_attribution",
+    "fit_resources",
     "parameter_sweep",        # the settings sweep and its containment
     "sweep_child",            # one contained trial, exec'd in its own cgroup
     "trial_metrics",          # what makes a sweep row judgeable
     "figure_style",           # the older per-figure style store
 )
 
-__all__ = ["__version__", "download_models", *_SUBMODULES]
+__all__ = [
+    "__version__",
+    "download_models",
+    "MaskConfig",
+    "MeasureConfig",
+    "run_mask",
+    "run_measure",
+]
+
+_FACADE_NAMES: Final[frozenset[str]] = frozenset({
+    "MaskConfig", "MeasureConfig", "run_mask", "run_measure",
+})
+
+
+def download_models(repo_id="einarolafsson/models", retries=5, delay=5):
+    """Download spaCR's optional model files on first use.
+
+    The implementation is imported only when called, keeping ``import spacr``
+    and wildcard imports lightweight.
+    """
+    from .utils import download_models as _download_models
+    return _download_models(repo_id=repo_id, retries=retries, delay=delay)
 
 
 def __getattr__(name: str):
@@ -385,9 +412,8 @@ def __getattr__(name: str):
     :returns: Imported submodule or the ``download_models`` callable.
     :raises AttributeError: If ``name`` is neither a known submodule nor ``download_models``.
     """
-    if name == "download_models":
-        from .utils import download_models
-        return download_models
+    if name in _FACADE_NAMES:
+        return getattr(import_module(".api", __name__), name)
 
     if name in _SUBMODULES:
         return import_module(f".{name}", __name__)
@@ -397,7 +423,7 @@ def __getattr__(name: str):
 
 def __dir__() -> list[str]:
     """Include lazy submodule names in ``dir(spacr)`` for tab-completion."""
-    return sorted(set(globals()) | {"download_models"} | set(_SUBMODULES))
+    return sorted(set(globals()) | _FACADE_NAMES | set(_SUBMODULES))
 
 
 def _silence_glyph_logging() -> None:

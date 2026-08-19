@@ -184,20 +184,10 @@ def _pool_context():
 
 
 class ManagerStartError(ConfigurationError):
-    """:func:`measure_crop` could not start its :class:`multiprocessing.Manager`.
+    """Raised when Measure cannot start its multiprocessing manager.
 
-    A :class:`~spacr.errors.ConfigurationError` because it is not a per-field
-    failure: the Manager owns the shared timing list every worker writes to, so
-    if it will not start then no field can be measured and continuing past it
-    produces nothing. The remedy is a configuration change
-    (:data:`START_METHOD_ENV_VAR`), which is what this class exists to say.
-
-    What it replaces is the point. ``ctx.Manager()`` fails as a bare
-    ``EOFError`` raised four frames down in ``multiprocessing/connection.py``
-    -- no message, no mention of spaCR, no mention of the start method, and no
-    hint that the process that called Measure is the thing at fault. This was
-    reproduced deterministically 33 times across 7 test modules; see
-    :func:`_manager_start_diagnosis` for the mechanism.
+    The exception message reports the active start method, underlying error,
+    and practical remedies. No fields are measured after this error.
     """
 
 
@@ -319,28 +309,11 @@ def _start_manager(ctx):
 
 
 def resolve_pool_size(n_jobs, n_files, start_method=None):
-    """Return how many worker processes to actually start for ``n_files`` fields.
+    """Return the worker count for a set of image fields.
 
-    Under ``fork`` a surplus worker is nearly free -- it is a page-table copy of
-    a process that has already imported everything -- so spaCR has always
-    started exactly the requested number and existing behaviour is preserved.
-
-    Under ``spawn`` and ``forkserver`` it is not free. Each worker is a fresh
-    interpreter that re-imports the whole measure chain from scratch; measured
-    on a developer box that was **8.1 s and ~1.54 GB of RSS per worker**, and
-    is **3.5 s and ~930 MB** now that ``spacr.plot`` and umap (and, through
-    umap, TensorFlow) are off that path. Either way it is paid before a single
-    field is read. A default ``n_jobs`` of ``cpu_count - 4`` on a 16-core
-    Windows machine therefore boots 12 interpreters and reserves 11-18 GB to
-    measure a 4-field test plate, and the run either swaps itself to a
-    standstill or has workers killed out from under it -- which presents as
-    "Measure prints 'using 12 cpu cores' and then nothing happens", because a
-    pool worker that dies at bootstrap is silently replaced and dies again.
-    Windows and macOS default to ``spawn``; Linux does not, which is exactly
-    why this only ever bit the other two.
-
-    A worker with no field to measure cannot contribute, so capping at the
-    number of fields costs nothing and is the whole fix.
+    ``spawn`` and ``forkserver`` start a fresh interpreter for every worker,
+    so their worker count is capped at the number of fields. ``fork`` keeps
+    the requested count for compatibility.
 
     :param n_jobs: the resolved worker count from :func:`resolve_n_jobs`.
     :param n_files: how many fields there are to measure.
@@ -361,16 +334,8 @@ def resolve_pool_size(n_jobs, n_files, start_method=None):
 def resolve_n_jobs(n_jobs, cpu_count=None):
     """Return the number of worker processes ``measure_crop`` will actually use.
 
-    This used to discard the user's value outright. The old block compared
-    ``n_jobs`` with the core count *before* the ``is None`` check -- so leaving
-    it blank, which the printed warning itself recommends, raised
-    ``TypeError: '>' not supported between instances of 'NoneType' and 'int'``
-    -- and then ended with an unconditional ``settings['n_jobs'] =
-    spacr_cores``, which threw the request away: on a 32-core machine
-    ``n_jobs=1`` ran 28 workers. That is not a performance detail. It is what
-    made the concurrent ``CREATE TABLE`` race reachable from a test that had
-    explicitly asked for one worker, and it takes away the only lever a user
-    has on a shared machine.
+    ``None`` selects spaCR's default. Explicit values are validated and capped
+    at the available CPU count.
 
     :param n_jobs: what the user asked for. ``None`` means "pick for me".
     :param cpu_count: core count to resolve against; defaults to
@@ -3645,7 +3610,7 @@ def measure_crop(settings):
                     :param result: The 4-tuple ``(index, average_time, cells,
                         figs)`` that :func:`_measure_crop_core` returns, taken
                         straight off the ``AsyncResult`` -- one result, not the
-                        list that :func:`process_meassure_crop_results` takes,
+                        list that :func:`process_measure_crop_results` takes,
                         which is why it is re-wrapped as ``[result]`` below.
                         ``index`` is the position in ``files`` and is translated
                         back through ``index_to_file`` so the ledger entry names
@@ -3673,7 +3638,7 @@ def measure_crop(settings):
                                 '(worker traceback in ~/.spacr/logs/spacr.log)')
                     else:
                         ledger.record_success(item, stage='measure')
-                    process_meassure_crop_results([result], settings)
+                    process_measure_crop_results([result], settings)
                     files_processed = len(completed_jobs)
                     files_to_process = len(files)
                     print_progress(files_processed, files_to_process, n_jobs, time_ls=time_ls, operation_type='Measure and Crop')
@@ -3822,15 +3787,13 @@ def measure_crop(settings):
             # recorded against each artifact covers the values actually used.
             run.register_outputs(settings=settings, roots=source_folders)
 
-def process_meassure_crop_results(partial_results, settings):
-    """
-    Save and display the figures carried by each partial result.
+def process_measure_crop_results(partial_results, settings):
+    """Save and display figures carried by completed Measure jobs.
 
-    Args:
-        partial_results (list): List of partial results; ``None`` entries are
-            skipped. Each figure is written under
-            ``<src>/../results/`` and then shown and closed.
-        settings (dict): Settings dictionary; ``src`` gives the output root.
+    :param partial_results: Completed job tuples. ``None`` entries are skipped;
+        each figure is written below ``<src>/../results/`` and then closed.
+    :param settings: Resolved Measure settings. ``src`` identifies the output
+        root.
     """
     for result in partial_results:
         if result is None:
@@ -3852,7 +3815,24 @@ def process_meassure_crop_results(partial_results, settings):
                 plt.show()
                 plt.close(fig)
             result = (index, None, None, None)
-            
+
+
+def process_meassure_crop_results(partial_results, settings):
+    """Deprecated alias for :func:`process_measure_crop_results`.
+
+    The misspelled name remains available for existing scripts and will be
+    removed in a future major release.
+    """
+    import warnings
+    warnings.warn(
+        "process_meassure_crop_results is deprecated; use "
+        "process_measure_crop_results",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return process_measure_crop_results(partial_results, settings)
+
+
 def generate_cellpose_train_set(folders, dst, min_objects=5):
     """Copy image/mask pairs from source folders into a Cellpose training set.
 

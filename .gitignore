@@ -176,6 +176,10 @@ tutorial_colab.ipynb
 !/docs/source/_static/i18n/**
 !/docs/source/module_audit.rst
 !/docs/source/installers.rst
+!/docs/source/features.rst
+!/docs/source/python_api.rst
+!/docs/source/_autoapi_templates/
+!/docs/source/_autoapi_templates/**
 !/docs/source/localization.rst
 !/docs/source/setting_animations.rst
 !/docs/source/checkpoint_resume.rst
