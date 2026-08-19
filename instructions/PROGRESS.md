@@ -1,12 +1,14 @@
 # spaCR — instruction progress
 
 Regenerated whenever an item is checked off or the maintainer adds one.
-Branch `nightly`. Last regenerated 2026-08-19 13:40.
+Branch `nightly`. Last regenerated 2026-08-19 16:05.
 
 ## Finished
 
 | # | Summary | % |
 |---|---|---|
+| **176** | **A panel cannot write an impossible number** | **100%** |
+| **177** | **One parse per input file** | **100%** |
 | **160** | **Two regressions hung the machine** | **100%** |
 | 144 | The model box is typeset, not dumped | 100% |
 | 125 | The old volcano, the Runs tab, Qt by default | 100% |
@@ -34,10 +36,15 @@ code -- the file was wrong about itself.
 
 | # | Summary | % |
 |---|---|---|
-| **170** | **The Cells tab: two modes + the annotator's settings** | **0% — PRIORITISED** |
-| **167** | **The montage uses the scores the run already has** | **0%** |
+| **170** | **Cells tab: two modes + annotator settings** | **75% — PRIORITISED** |
+| **175** | **Every gene against every measurement** | **80%** |
+| **173** | **A guide and a probability for every cell** | **75%** |
+| **172** | **How many cells, and which ones** | **90%** |
+| **171** | **One name for loading, one for streaming** | **60%** |
+| 167 | The montage uses the scores the run already has | 100% ✓ |
 | **168** | **The run summary is readable at a glance** | **0%** |
-| **169** | **The figures container resizes and collapses** | **0%** |
+| **169** | **The figures container resizes and collapses** | **60%** |
+| **174** | **Beta as a response transform** | **0%** |
 | 116 | Click a search row; every run has its own volcano | 99% |
 | 149 | The volcano's y axis is continuous again | 99% |
 | 152 | Two colours -- lines and font -- following the theme | 99% |
@@ -55,7 +62,7 @@ code -- the file was wrong about itself.
 | 141 | The user picks the backend and is told what each one is | 90% |
 | 108 | Right-click ANY figure to restyle it | 55% |
 | 139 | Every regression graph in pyqtgraph | 45% |
-| 145 | One reader, one writer, one key vocabulary | 10% |
+| 145 | One reader, one writer, one key vocabulary | 25% |
 | 122 | Regress across screens | 0% |
 | 142 | Force restart, for when stop does not stop | 0% |
 | 137 | Drag images in, and the regex is worked out for you | 0% |
