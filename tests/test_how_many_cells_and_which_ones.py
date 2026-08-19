@@ -142,3 +142,67 @@ def test_the_marked_cells_are_the_same_either_way():
 
     assert sorted(filtered.objects["object_label"]) == \
         sorted(marked["object_label"])
+
+
+# ------------------------------------------------------ the three pickers
+
+
+def test_the_pickers_are_named():
+    from spacr.cell_montage import PICKING_MODES
+
+    assert PICKING_MODES == ("rank", "attributed", "assigned")
+
+
+def test_a_results_table_names_its_rows_as_the_DESIGN_did(tmp_path):
+    """`fraction:grna[g1]`, not `g1` -- a lookup written for the bare name
+    matches nothing, and nothing matched here is an attribution that silently
+    falls back to the prior for every cell."""
+    from spacr.cell_montage import effects_from_results
+
+    csv = tmp_path / "results.csv"
+    pd.DataFrame([
+        {"feature": "Intercept", "coefficient": 0.5},
+        {"feature": "fraction:grna[GRA14_1]", "coefficient": 1.75},
+        {"feature": "C(rowID)[T.r2]", "coefficient": 0.1},
+    ]).to_csv(csv, index=False)
+
+    got = effects_from_results(str(csv))
+
+    assert got["GRA14_1"] == pytest.approx(1.75)
+    assert "Intercept" not in got
+    assert got["r2"] == pytest.approx(0.1)
+
+
+def test_assignment_gives_the_same_count_as_rank_but_not_the_same_cells():
+    """The counts are both round(share x classified); WHICH cells differs,
+    because the assignment lets another guide out-claim this one."""
+    from spacr.cell_montage import select_montage as pick
+
+    objects = _objects(n=200)
+    counts = _counts({"GRA14_1": 0.3, "OTHER_1": 0.3, "OTHER_2": 0.4})
+    # OTHER_1 points the same way and points HARDER, so under exclusion it
+    # takes the very top cells and GRA14_1 gets the next ones down. Ranking
+    # gives GRA14_1 the top cells regardless of who else wants them, which is
+    # the failure the assignment exists to fix.
+    effects = {"GRA14_1": 2.0, "OTHER_1": 4.0, "OTHER_2": -1.0}
+
+    ranked = pick(objects, counts, "GRA14_1", 2.0, picking="rank")
+    assigned = pick(objects, counts, "GRA14_1", 2.0, picking="assigned",
+                    effects=effects)
+
+    assert len(ranked.objects) == len(assigned.objects)
+    ranked_ids = set(ranked.objects["object_label"])
+    assigned_ids = set(assigned.objects["object_label"])
+    assert ranked_ids != assigned_ids, (
+        "exclusion changed nothing, so the constraint is not being used")
+
+
+def test_an_unknown_picker_falls_back_to_rank_rather_than_failing():
+    from spacr.cell_montage import select_montage as pick
+
+    objects = _objects(n=50)
+    counts = _counts({"GRA14_1": 0.5, "OTHER_1": 0.5})
+
+    plan = pick(objects, counts, "GRA14_1", 1.0, picking="nonsense")
+
+    assert len(plan.objects) > 0
