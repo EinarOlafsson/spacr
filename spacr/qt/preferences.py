@@ -3654,3 +3654,58 @@ def _hbox_wrap(layout):
     w = QWidget()
     w.setLayout(layout)
     return w
+
+
+#: Where a panel's folded sections and divider positions live, as one JSON
+#: blob keyed by panel name.
+_KEY_SECTION_LAYOUT = "panels/section_layout"
+
+
+def get_section_layout(panel: str) -> dict:
+    """What ``panel`` looked like when it was last used.
+
+    Instruction 169 C: "IT SURVIVES A RELOAD. The sizes and the collapsed set
+    are remembered per category". A reader who folds four categories away
+    does not want them back on the next run.
+
+    :returns: ``{"folded": [title, ...], "sizes": [int, ...]}``, or an empty
+        dict when the panel has never been arranged. EMPTY, not a default
+        layout -- the panel's own first-run arrangement is the right one, and
+        freezing today's into every user's settings would make improving it
+        impossible. Same reasoning as :func:`get_figure_style`.
+    """
+    import json
+
+    raw = _settings().value(_KEY_SECTION_LAYOUT, "")
+    if not raw:
+        return {}
+    try:
+        stored = json.loads(raw)
+    except (TypeError, ValueError):
+        return {}
+    if not isinstance(stored, dict):
+        return {}
+    layout = stored.get(str(panel))
+    return layout if isinstance(layout, dict) else {}
+
+
+def set_section_layout(panel: str, folded=(), sizes=()) -> None:
+    """Remember which sections of ``panel`` are folded, and the divider sizes.
+
+    :param folded: the titles that are folded away.
+    :param sizes: the splitter's sizes, in its own order.
+    """
+    import json
+
+    raw = _settings().value(_KEY_SECTION_LAYOUT, "")
+    try:
+        stored = json.loads(raw) if raw else {}
+    except (TypeError, ValueError):
+        stored = {}
+    if not isinstance(stored, dict):
+        stored = {}
+    stored[str(panel)] = {
+        "folded": [str(title) for title in (folded or ())],
+        "sizes": [int(size) for size in (sizes or ())],
+    }
+    _settings().setValue(_KEY_SECTION_LAYOUT, json.dumps(stored))

@@ -50,6 +50,7 @@ measurement was combined produces a number that is wrong and looks fine.
 from __future__ import annotations
 
 import os
+import logging
 import re
 from collections.abc import Mapping as _Mapping
 from dataclasses import dataclass
@@ -76,6 +77,8 @@ from ...plate_measurements import (ambiguous_identifiers,
                                    classify_default_columns,
                                    describe_identifier_refusal)
 from ...schema import PLATE_KEY
+
+LOG = logging.getLogger(__name__)
 
 #: Columns worth reading first, in this order. Effect size leads because it is
 #: the primary sort and the thing that was asked for; the two corrections sit
@@ -2664,6 +2667,11 @@ class MeasurementScanPanel(QWidget):
         self._sections.setChildrenCollapsible(False)
         layout.addWidget(self._sections, 1)
         self._folders = {}
+        # Set while the stored layout is being put back, so restoring does
+        # not write the half-restored state straight back out again.
+        self._restoring = False
+        self._sections.splitterMoved.connect(
+            lambda *_: self.remember_section_layout())
         self._add_folding_section(self.databases, "Attached databases",
                                   minimum=90)
         self._show_section("Attached databases",
@@ -2733,9 +2741,66 @@ class MeasurementScanPanel(QWidget):
         widget.setMinimumHeight(minimum)
         section = CollapsibleSection(title, widget, parent=self)
         section.set_open_minimum(minimum)
+        section.toggled.connect(lambda *_: self.remember_section_layout())
         self._folders[title] = section
         self._sections.addWidget(section)
         return section
+
+    #: What this panel is called in the stored layout. A NAME, not the class,
+    #: so renaming the class does not throw away every user's arrangement.
+    LAYOUT_KEY = "measurements"
+
+    def restore_section_layout(self) -> bool:
+        """Put back the folds and divider positions from last time.
+
+        Instruction 169 C. Called once the sections exist -- including any
+        added later by :meth:`add_section`, which is why the host calls it
+        rather than the constructor.
+
+        :returns: whether anything was restored.
+        """
+        from ..preferences import get_section_layout
+
+        try:
+            layout = get_section_layout(self.LAYOUT_KEY)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not read the stored section layout",
+                      exc_info=True)
+            return False
+        if not layout:
+            return False
+        self._restoring = True
+        try:
+            return self._apply_section_layout(layout)
+        finally:
+            self._restoring = False
+
+    def _apply_section_layout(self, layout) -> bool:
+        folded = set(layout.get("folded") or ())
+        for title in self._folders:
+            # ONLY the titles that are actually there. A stored layout from a
+            # version with a section this one does not have must not be an
+            # error, and a NEW section defaults to open rather than to
+            # whatever the absent entry would imply.
+            self.set_section_expanded(title, title not in folded)
+        sizes = [int(size) for size in (layout.get("sizes") or ())]
+        if len(sizes) == self._sections.count() and all(s >= 0 for s in sizes):
+            self._sections.setSizes(sizes)
+        return True
+
+    def remember_section_layout(self) -> None:
+        """Store the folds and divider positions. Called when the tab closes."""
+        from ..preferences import set_section_layout
+
+        if self._restoring:
+            return
+        try:
+            folded = [title for title in self._folders
+                      if not self.is_section_expanded(title)]
+            set_section_layout(self.LAYOUT_KEY, folded=folded,
+                               sizes=self._sections.sizes())
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not store the section layout", exc_info=True)
 
     def _show_section(self, title: str, showing: bool) -> None:
         """Show or hide a whole section, HEADER INCLUDED.
