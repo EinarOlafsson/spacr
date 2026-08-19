@@ -2,7 +2,7 @@
 WHAT IS LEFT -- INDEX
 ================================================================================
 
-Regenerated 2026-08-18 by `tools/build_instruction_index.py`, from the files
+Regenerated 2026-08-19 by `tools/build_instruction_index.py`, from the files
 themselves. Do not hand-edit: it went nine days stale last time, and an index
 that disagrees with the folder is worse than none, because it is believed.
 
@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-109 done / 47 open (69%).
+110 done / 46 open (70%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -156,9 +156,6 @@ OPEN
   160  TWO REGRESSIONS HUNG THE MACHINE
        160_two_regressions_hung_the_machine.txt
 
-  161  A REGRESSION THAT FAILS SAYS WHY
-       161_a_regression_that_fails_says_why.txt
-
   162  THE MEASURE MODULE'S ELEMENTS CAN BE RESIZED
        162_the_measure_panels_resize.txt
 
@@ -276,5 +273,6 @@ DONE
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
   159  LOADING A RUN HANGS THE APPLICATION
+  161  A REGRESSION THAT FAILS SAYS WHY
   164  THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
   165  AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
