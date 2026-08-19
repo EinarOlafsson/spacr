@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-117 done / 40 open (74%).
+117 done / 43 open (73%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -143,6 +143,15 @@ OPEN
 
   166  RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
        166_restyling_a_figure_while_a_run_draws_it.txt
+
+  167  THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
+       167_the_montage_uses_the_scores_the_run_already_has.txt
+
+  168  THE RUN SUMMARY IS READABLE AT A GLANCE
+       168_the_run_summary_is_readable_at_a_glance.txt
+
+  169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
+       169_the_figures_container_is_resizable_and_collapsible.txt
 
 --------------------------------------------------------------------------------
 DONE
