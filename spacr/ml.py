@@ -7004,8 +7004,10 @@ def _perform_regression(settings):
                   f"read. Choosing a different regression_type with this "
                   f"inference gives the same numbers; set "
                   f"inference='parametric' to fit {_chosen!r} itself.")
+        _stage(settings, "permuting the guides")
         output = _run_guide_permutation_analysis(
             merged_df, dependent_variable, res_folder, settings)
+        _stage(settings, "the permutation has returned")
         if settings.get('verbose'):
             print(
                 f"Guide permutation analysis tested "
@@ -7086,6 +7088,7 @@ def _perform_regression(settings):
     #
     # Split in two, each level is full rank: 859 parameters at rank 859 for
     # the guide fit, 425 at 425 for the gene fit.
+    _stage(settings, "fitting the model")
     fits = regression_levels(
         merged_df, csv_path, dependent_variable=dependent_variable,
         regression_type=settings['regression_type'],
@@ -7300,6 +7303,7 @@ def _perform_regression(settings):
         pass
     else:
         try:
+            _stage(settings, "the fit has returned")
             write_run_summary(res_folder, model=model, settings=settings,
                               coef_df=coef_df, regression_type=regression_type)
         except Exception as error:  # noqa: BLE001 - never lose a run

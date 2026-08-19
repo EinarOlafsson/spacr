@@ -83,3 +83,40 @@ def test_it_never_raises_whatever_it_is_handed():
     assert _write_fit_resources(None, None) == ""
     assert _write_fit_resources({"res_folder": "/does/not/exist"},
                                 {RESOURCE_KEY: [{"stage": "x", "rss": 1}]}) == ""
+
+
+def test_the_record_covers_the_FIT_and_not_only_the_setup(tmp_path):
+    """The stages recorded must include one taken after the fit returned.
+
+    Only two stage points existed -- "placing the results folder" and
+    "reading the counts" -- both BEFORE any fitting. So the peak was always
+    the peak of the setup, the GPU column read 0.0 B for a fit that ran on
+    the GPU, and instruction 160's "log RSS and GPU memory per fit stage" was
+    not what the file recorded.
+    """
+    import numpy as np
+    import pandas as pd
+
+    from spacr.cli import MODULES, resolve_settings
+    from spacr.fit_resources import RESOURCE_KEY
+    from spacr.ml import perform_regression
+    from tests.test_regression_entry_points import APP_KEY, _write_screen
+
+    score_csv, count_csv, _ = _write_screen(tmp_path)
+    settings_csv = tmp_path / "regression.csv"
+    pd.DataFrame(
+        [("score_data", repr([score_csv])), ("count_data", repr([count_csv])),
+         ("toxo", "False"), ("metadata_files", "[]")],
+        columns=["Key", "Value"]).to_csv(settings_csv, index=False)
+    settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
+    settings["min_cell_count"] = None
+    np.random.seed(0)
+
+    out = perform_regression(settings)
+
+    stages = [str(r.get("stage", "")) for r in settings.get(RESOURCE_KEY) or []]
+    assert stages, "nothing was recorded at all"
+    assert any("returned" in stage for stage in stages), (
+        f"no reading was taken after the fit; stages were {stages}")
+    folder = out.get("res_folder")
+    assert os.path.exists(os.path.join(folder, FIT_RESOURCES_FILENAME))
