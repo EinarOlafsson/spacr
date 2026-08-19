@@ -58,7 +58,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QAbstractItemView, QCheckBox, QComboBox, QHBoxLayout, QHeaderView, QLabel,
+    QAbstractItemView, QCheckBox, QComboBox, QSplitter, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
@@ -2644,7 +2644,21 @@ class MeasurementScanPanel(QWidget):
             database_provider, self, threaded=threaded,
             destination_provider=destination_provider)
         self.databases.databases_changed.connect(self._on_databases_changed)
-        layout.addWidget(self.databases)
+        # EVERY SECTION IS A SPLITTER CHILD, so its borders move and it cannot
+        # be squeezed into its neighbour. Reported 2026-08-19: "still cant
+        # resize the elements in the measurements tabs. now they overlap in
+        # such a way i dont have access to some of them" -- a QVBoxLayout
+        # gives the sections whatever height it decides, and adding one more
+        # widget to it took the space out of the others.
+        #
+        # `setChildrenCollapsible(False)` with a minimum height per section is
+        # what makes "not be able to overlap" true rather than merely
+        # unlikely: a section can be dragged small, never to nothing.
+        self._sections = QSplitter(Qt.Vertical, self)
+        self._sections.setChildrenCollapsible(False)
+        layout.addWidget(self._sections, 1)
+        self._sections.addWidget(self.databases)
+        self.databases.setMinimumHeight(90)
         self.databases.setVisible(bool(self.databases.databases))
 
         # STEP 4, WHICH THE TAB USED TO END WITHOUT (154 F). Steps 1-3 merge;
@@ -2660,9 +2674,13 @@ class MeasurementScanPanel(QWidget):
         # the previous merge's columns and every fit reads a file that has
         # been overwritten underneath it.
         self.databases.merged.connect(self._on_merged)
-        layout.addWidget(self.regression)
+        self._sections.addWidget(self.regression)
+        self.regression.setMinimumHeight(110)
         self.regression.setVisible(bool(self.databases.databases))
 
+        scan = QWidget(self)
+        scan_layout = QVBoxLayout(scan)
+        scan_layout.setContentsMargins(0, 0, 0, 0)
         top = QHBoxLayout()
         self._run = QPushButton("Scan measurements")
         self._run.setToolTip(
@@ -2682,18 +2700,32 @@ class MeasurementScanPanel(QWidget):
         self._rank.currentIndexChanged.connect(self._resort)
         top.addWidget(self._rank)
         top.addStretch(1)
-        layout.addLayout(top)
+        scan_layout.addLayout(top)
 
         self._status = QLabel("No scan yet.")
         self._status.setWordWrap(True)
-        layout.addWidget(self._status)
+        scan_layout.addWidget(self._status)
 
         self.table = ResultsTable()
         self.table.configure(
             placeholder="Filter measurements — a channel, a shape, anything",
             significance_filter=False)
         self.table.table.itemSelectionChanged.connect(self._on_selection)
-        layout.addWidget(self.table, 1)
+        scan_layout.addWidget(self.table, 1)
+        scan.setMinimumHeight(140)
+        self._sections.addWidget(scan)
+
+    def add_section(self, widget) -> None:
+        """Put ``widget`` in the tab as its own resizable section.
+
+        Anything added to this tab goes HERE and not into the layout: a widget
+        appended to the layout takes its height out of the others, which is
+        how the sections came to overlap.
+        """
+        if widget is None:
+            return
+        widget.setMinimumHeight(120)
+        self._sections.addWidget(widget)
 
         # HOVER HELP GOES ON THE SETTING'S NAME, not on the box you type
         # into. A tooltip on an editable field is unreachable the moment the
