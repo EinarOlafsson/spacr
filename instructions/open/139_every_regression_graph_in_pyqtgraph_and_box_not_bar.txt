@@ -470,3 +470,160 @@ ml.py and regression_results.py were both outside this session's territory.
 
 STILL OPEN ON A: the other 34 figures (no twin, low value), and section B.
 NOT ATTEMPTED THIS SESSION: section B, the boxplot-with-jitter default.
+
+
+--------------------------------------------------------------------------------
+2026-08-18 (late) -- SECTION A: THE OTHER 34 GET A RENDERER TOO. THE COUNT GOES
+                     41 -> 41 STILL DRAWN BY MATPLOTLIB ONLY WHERE THE GALLERY
+                     CANNOT SHOW A FILE; 23 OF THEM NOW RENDER AS A SCENE.
+--------------------------------------------------------------------------------
+
+THE COUNT, SAID BEFORE AND SAID AGAIN AFTER.
+
+BEFORE, per regression run, matplotlib figures with no pyqtgraph renderer:
+
+    spacr/regression_qc.py            20   19 panels + the combined page
+    spacr/ml.py                       12   7 house-style (renderer EXISTS,
+                                           call site not adopted) + 5 others
+    spacr/toxo.py                      5
+    spacr/regression_diagnostics.py    3
+    spacr/guide_permutation.py         1
+                                    ----
+                                      41   of which 7 had a renderer waiting
+
+AFTER: 23 of the 41 render as a pyqtgraph scene -- the whole QC suite (20) and
+the three diagnostic sheets. Measured, headless, `QT_QPA_PLATFORM=offscreen`,
+no display: 20/20 QC files and 3/3 sheets written by pyqtgraph, correct by
+magic bytes under BOTH the PNG and the PDF preference, every one announced.
+
+REMAINING, AND ALL OF IT IS OUTSIDE THIS SESSION'S TERRITORY: ml.py 12 (the 7
+house-style panels among them, whose renderer shipped in cdf313ca and is still
+not called), toxo.py 5, guide_permutation.py 1. Eighteen. Each is one call
+site: `spacr.figures.scene.write_figure(fig, path, fmt=...)` in place of a
+`publish` or a `savefig`, or `figures.write_panels` for the seven.
+
+--------------------------------------------------------------------------------
+THE DESIGN CHOICE, STATED IN ONE LINE BECAUSE IT WAS OPEN
+--------------------------------------------------------------------------------
+
+  A generated panel with no interactive twin is COMPUTED once by the code that
+  already computes it, and its finished matplotlib ARTISTS are translated into
+  a pyqtgraph scene which is what gets written -- one geometry, one renderer.
+
+Redrawing those 23 panels a second time in pyqtgraph would be the defect this
+instruction exists to remove, one library further along: two implementations of
+a Brown-Forsythe split at the quartiles of the fit, a Cook's-D bubble area, a
+DFFITS line at 2*sqrt(p/n), free to disagree. Translating cannot disagree,
+because there is only ever one set of numbers.
+
+`spacr/figures/scene.py`. `write_figure(fig, path, fmt=...)` is the whole
+public surface a module needs; `build_scene`, `render_figure`, `export_scene`
+and `scene_renderer` are underneath it.
+
+WHAT IS CARRIED, from a census of the 23 QC panels on a real OLS fit rather
+than from reading: Line2D 161, Text 105, Rectangle 66, PathCollection 32,
+Annotation 22, LineCollection 5, AxesImage 1, plus PolyCollection, Legend and
+colour bars. `CARRIED` is a WHITELIST: an artist outside it makes the
+translation INCOMPLETE and the panel is written by matplotlib WITH THE ARTIST
+NAMED. A silently poorer picture is the one outcome worse than not converting.
+
+THE EXPORTER IS NOT A SECOND EXPORTER. `FastPlot._export_pdf` / `_export_svg`
+are classmethods over a plot item and both go through `_paint_scene`, which is
+what makes a vector file vector rather than a sheet of cached marker pixmaps.
+`scene.export_scene` calls them.
+
+--------------------------------------------------------------------------------
+FIVE BUGS FOUND BY LOOKING AT A RENDERED PNG. NOT ONE OF THEM SHOWED IN A TEST.
+--------------------------------------------------------------------------------
+
+Recorded in full because each one produced a figure that looked FINISHED.
+
+  * EVERY BAR IN THE SUITE WAS DROPPED. `Patch.get_transform` is
+    `get_patch_transform() + the artist's`, so it is never `ax.transData`
+    itself and an identity test against it excluded all 66 rectangles. Correct
+    axes, correct ranges, correct reference line, correct annotation, no data.
+    `get_data_transform` is the artist's, and is. Twenty panels.
+  * THE CORRELATION MATRIX CAME OUT ON ITS ANTI-DIAGONAL. `imshow` states the
+    way up in its EXTENT (a default `origin='upper'` returns bottom > top) and
+    the view is inverted for it, so transposing is the whole conversion.
+    Flipping as well -- the obvious-looking thing -- put the identity cells at
+    (0,2), (1,1), (2,0).
+  * THE X-AXIS LABEL SAT ON THE TICK LABELS and a categorical y axis had no
+    room for a single character. A widget that is never SHOWN has never been
+    laid out, and a pyqtgraph AxisItem measures its own width while it PAINTS.
+    `widget.grab()` then a second `layout.activate()`. Same trap
+    `FastPlot.snapshot` records for `grab()` on an unraised page.
+  * MARKERS CAME OUT HALF SIZE. matplotlib carries POINTS, a pyqtgraph scene is
+    PIXELS, and the exchange rate is the figure's own dpi. At this suite's 140
+    dpi that is 1.94x. Fonts too, and `setPointSizeF` is the wrong call for the
+    same reason -- Qt resolves a point against the SCREEN's DPI (96) and
+    matplotlib against the FIGURE's.
+  * THE VARIANCE PANEL'S Y LABEL READ `$\sqrt{|\mathrm{...}|}$`. pyqtgraph has
+    no mathtext. A short vocabulary is converted to Unicode and ANYTHING ELSE
+    refuses -- `\frac{a}{b}` and `\lambda_{GC}` come back not-understood and
+    the panel falls back. Half a formula silently rewritten is a figure that
+    says something the panel did not.
+
+A SIXTH, IN THE ENVIRONMENT, AND IT IS WORTH THE WHOLE PARAGRAPH:
+
+  IMPORTING pyqtgraph BEFORE PySide6 BREAKS PySide6 IN THIS ENVIRONMENT.
+  pyqtgraph binds to the first of PyQt5, PyQt6, PySide2, PySide6 that imports;
+  PyQt6 IS installed here, so a bare `import pyqtgraph` loads PyQt6's
+  libQt6Core and PySide6 6.11 then cannot load at all --
+
+      libpyside6.abi3.so.6.11: undefined symbol: _ZN9QtPrivate9sizedFreeEPvm
+
+  It sent a whole QC suite back to matplotlib with a message that reads like a
+  broken install. Both `scene.py` and `fast_render.py` now name PySide6 first
+  and set PYQTGRAPH_QT_LIB. `spacr/qt/widgets/fast_plots.py:36` still imports
+  pyqtgraph at module level with no pin -- HANDOFF, one line.
+
+--------------------------------------------------------------------------------
+A RENDERER WHOSE OUTPUT CANNOT REACH THE GALLERY IS NOT USED
+--------------------------------------------------------------------------------
+
+THE LIVE BUG THIS TURNED UP, AND IT IS ALREADY IN THE TREE. There are two
+routes into the gallery -- a Figure through `figure_sink.publish` and a
+finished FILE through `figure_sink.publish_file` -- and MEASURED 2026-08-18,
+`spacr/qt/bridge.py` installs `set_sink` and NEVER installs a file sink. So in
+the running application every file pyqtgraph writes is announced to nobody.
+That is already true of the seven panels `fast_render.write_panels` shipped in
+cdf313ca, and converting twenty more would have taken all twenty out of the
+gallery -- section C's exact bug, reintroduced by section A.
+
+So `scene_renderer`'s `auto` refuses the scene while a figure sink is attached
+and no file sink is, and says so. Consequences, all wanted:
+
+  * a headless run installs neither sink and gets pyqtgraph;
+  * the GUI today gets matplotlib, i.e. exactly what it got yesterday;
+  * the moment bridge.py installs a file sink the renderer changes with NO
+    further edit here;
+  * `SPACR_FIGURE_RENDERER=pyqtgraph` or `renderer='pyqtgraph'` overrules it,
+    because a person overruling the rule is not the rule failing.
+
+  THE FIX bridge.py NEEDS, and it is the last thing between this and the whole
+  section: `from spacr.figure_sink import set_file_sink` beside the existing
+  `set_sink(_publish_figure)` at bridge.py:1057, emitting the path on the
+  existing `figure_ready(object, str)` signal with a None figure or on a new
+  one. `clear_sink()` at :1174 already clears both.
+
+--------------------------------------------------------------------------------
+WHAT IT COSTS, MEASURED
+--------------------------------------------------------------------------------
+
+The whole 20-figure QC suite on a 90-well OLS: 5.19 s by matplotlib, 5.38 s by
+pyqtgraph. Four per cent. The renderer is not the cost; the statistics are.
+
+The renderer is decided ONCE per report and recorded in the manifest
+(`renderer`, `renderer_counts`, `renderer_fallbacks`), because a suite half in
+one library and half in the other is worse than a suite entirely in the old
+one -- and because a user comparing a file against a tab has to be able to
+find out which one they are holding.
+
+`tests/test_the_generated_graphs_are_the_screens_renderer.py`, 33 cases. The
+five bugs above are each pinned by an assertion about PIXELS or GEOMETRY,
+because every one of them passed an assertion about calls.
+
+STILL OPEN ON A: the 18 figures in ml.py / toxo.py / guide_permutation.py, all
+one call site each. STILL NOT ATTEMPTED: section B, the boxplot-with-jitter
+default.

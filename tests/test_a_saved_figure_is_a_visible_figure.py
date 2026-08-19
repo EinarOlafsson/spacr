@@ -122,18 +122,34 @@ def test_set_sink_hands_back_the_previous_one():
 
 
 def test_the_qc_report_goes_through_the_sink(tmp_path):
-    """The suite the report was about. `_save` is its one funnel."""
+    """The suite the report was about. `_save` is its one funnel.
+
+    ASSERTED ON THE BEHAVIOUR, NOT ON THE SPELLING. This used to grep
+    ``_save``'s source for ``publish(fig, path``, which stopped being true the
+    moment the funnel moved behind
+    :func:`spacr.figures.scene.write_figure` -- and a test that fails on a
+    refactor which keeps the guarantee is a test that gets deleted rather than
+    read. The guarantee is that a figure handed to ``_save`` lands on disk AND
+    is announced, whichever library drew it; that is what is checked.
+    """
     import inspect
 
     from spacr import regression_qc
 
-    source = inspect.getsource(regression_qc._save)
-    assert "publish(fig, path" in source
-    # THE CALL, not the word. The docstring explains what it replaced, so a
-    # bare substring match finds its own prose and passes on a function that
-    # still writes directly.
-    assert "fig.savefig(" not in source, (
-        "the QC panels still write directly, so they are still invisible")
+    seen = []
+    figure_sink.set_sink(lambda fig, path: seen.append(path))
+    figure_sink.set_file_sink(lambda path, title: seen.append(path))
+
+    written, renderer, _why = regression_qc._save(_figure(),
+                                                  str(tmp_path / "panel"))
+
+    assert written and os.path.isfile(written)
+    assert seen == [written], (
+        "a QC panel was saved and not announced, which is the whole bug")
+    assert renderer in ("pyqtgraph", "matplotlib")
+    # A bare savefig is the thing that made the suite invisible in the first
+    # place, and it must not come back by any route.
+    assert "fig.savefig(" not in inspect.getsource(regression_qc._save)
 
 
 def test_the_bridge_installs_and_clears_the_sink():
@@ -372,21 +388,26 @@ def test_a_headless_run_still_writes_its_regression_figures(tmp_path, monkeypatc
     """`spacr-run regression` and a notebook have no GUI at all.
 
     Instruction 139 A moves the generated figures to pyqtgraph, which is a
-    SCREEN library and needs a QApplication. "A run that silently stops
-    writing figures when there is no display is the worst outcome here", so
-    the guarantee is pinned here BEFORE the renderer changes: no
-    QApplication, no sink, and the QC suite still puts its twenty files on
-    disk.
+    SCREEN library. "A run that silently stops writing figures when there is
+    no display is the worst outcome here", so the guarantee is pinned here:
+    NO DISPLAY, no sink, and the QC suite still puts its twenty files on disk.
+
+    IT USED TO ASSERT THERE WAS NO ``QApplication`` AND THAT IS THE WRONG
+    QUESTION, twice over. matplotlib's own QtAgg backend constructs one from
+    inside ``plt.figure()``, so the assertion was already about the import
+    order of the test file rather than about the run; and once the conversion
+    landed, the renderer creates one deliberately and offscreen. A
+    QApplication is not a display. What must stay true is that a machine with
+    NO DISPLAY writes every figure, so that is what is asserted -- and it is a
+    stronger statement than the old one, because it now also proves the
+    pyqtgraph path works with nothing on screen.
     """
     regression_qc = pytest.importorskip("spacr.regression_qc")
     from spacr import plot
 
-    try:
-        from PySide6.QtWidgets import QApplication
-        assert QApplication.instance() is None, (
-            "this test is only meaningful without a QApplication")
-    except ImportError:                                # pragma: no cover
-        pass
+    monkeypatch.delenv("DISPLAY", raising=False)
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
 
     monkeypatch.setattr(plot, "figure_output_preferences", lambda: ("png", 150))
     assert figure_sink.sink() is None, "the fixture left a sink installed"

@@ -57,6 +57,9 @@ _REFERENCE = ROLES["reference"]    # thresholds and guides
 
 __all__ = [
     "design_report",
+    "score_design",
+    "score_residuals",
+    "score_inference",
     "residual_report",
     "collinear_guide_pairs",
     "variance_inflation_factors",
@@ -178,7 +181,7 @@ def variance_inflation_factors(fractions: pd.DataFrame, *,
     than returning infinities for a design that cannot support the simultaneous
     model at all -- in that case :func:`design_report` is the answer.
 
-    ONE VIF, COMPUTED ONCE. Instruction 127, finding 4: this package computed
+    ONE VIF, COMPUTED ONCE. finding 4: this package computed
     variance inflation factors in two modules, and "the duplicated VIF is a
     small correctness risk of the same shape as finding 2". The numbers came
     from :func:`spacr.regression_qc.variance_inflation_factors` now; what stays
@@ -298,6 +301,200 @@ def residual_report(observed, fitted, *, design: np.ndarray | None = None) -> di
     return report
 
 
+# ------------------------------------------------------------------- verdicts
+#
+# EVERY DIAGNOSTIC REACHES A VERDICT, INCLUDING THESE THREE.
+#
+# `spacr.regression_qc` scores each of its twenty-three panels and stamps the
+# judgement on the panel, so a reader is told whether a number is fine instead
+# of being expected to know. These three sheets did not, and they are the ones
+# a permutation run gets INSTEAD of that suite -- so on the analysis mode where
+# there is no fitted design matrix, nothing in the whole output said whether
+# the design was usable. That is the reading this section exists to prevent.
+#
+# THE VOCABULARY IS BORROWED, NOT REBUILT. `PanelVerdict`, the four levels and
+# the badge come from `regression_qc`; a second set of words for the same four
+# states is how a run comes to say CHECK on one page and WARN on another about
+# the same fit.
+#
+# A SHEET GETS ONE VERDICT because a sheet answers one question -- is this
+# design usable, are these residuals behaved, is this null calibrated -- and
+# its panels are the evidence for that one answer.
+
+
+def _verdict(level, headline, detail="", score=None, statistic=""):
+    """A :class:`spacr.regression_qc.PanelVerdict`, imported lazily.
+
+    Lazily because `regression_qc` imports statsmodels-shaped things and this
+    module is deliberately importable for its plain-array functions alone.
+    """
+    from .regression_qc import PanelVerdict
+
+    return PanelVerdict(level=level, headline=headline, detail=detail,
+                        score=score, statistic=statistic)
+
+
+def _worst(verdicts):
+    """The verdict a summary should report: the worst one."""
+    from .regression_qc import worst_verdict
+
+    return worst_verdict([v for v in verdicts if v is not None])
+
+
+def score_design(report: Mapping) -> "object":
+    """Is a simultaneous fit on this design entitled to its coefficients?
+
+    :param report: the dict :func:`design_report` returns.
+    :returns: a ``PanelVerdict``.
+
+    RANK DEFICIENCY IS THE ONE FAIL AND IT IS NOT A MATTER OF DEGREE. A design
+    with fewer independent directions than parameters returns a coefficient per
+    guide that is ONE OF INFINITELY MANY solutions, and statsmodels answers
+    with a pseudo-inverse rather than refusing -- so the numbers look like any
+    other fit. Nothing else in the output says so.
+
+    The other two rules are the conventional ones and are cited in ``detail``:
+    a design needs more wells than parameters to have any residual degrees of
+    freedom at all, and a guide seen in one well or none has no contrast to be
+    estimated from.
+    """
+    if not report or not report.get("wells"):
+        return _verdict("unknown", "no design was supplied")
+    per_parameter = float(report.get("wells_per_parameter") or 0.0)
+    alone = int(report.get("guides_in_one_well") or 0)
+    condition = float(report.get("condition_number") or float("nan"))
+    evidence = (f"{report.get('wells')} wells, {report.get('parameters')} "
+                f"parameters, rank {report.get('design_rank')}, "
+                f"condition number {condition:.3g}")
+    if not report.get("identifiable"):
+        return _verdict(
+            "fail", "the design cannot identify one coefficient per guide",
+            "The rank is below the number of parameters, so every "
+            "per-guide coefficient is one of infinitely many solutions "
+            f"({evidence}). Use the permutation test.",
+            score=per_parameter, statistic="wells per parameter")
+    if per_parameter < 2.0:
+        return _verdict(
+            "check", "there is very little data per parameter",
+            f"{per_parameter:.2f} wells per parameter ({evidence}). The fit "
+            "is identifiable but every coefficient rests on a handful of "
+            "wells.", score=per_parameter, statistic="wells per parameter")
+    if alone:
+        return _verdict(
+            "check", f"{alone} guide(s) appear in one well or none",
+            "A guide seen in a single well has no contrast to be estimated "
+            f"from; its coefficient is that well ({evidence}).",
+            score=float(alone), statistic="guides in <=1 well")
+    return _verdict("pass", "the design supports a simultaneous fit",
+                    f"Identifiable, {per_parameter:.1f} wells per parameter "
+                    f"({evidence}).", score=per_parameter,
+                    statistic="wells per parameter")
+
+
+def score_residuals(report: Mapping) -> "object":
+    """Are these residuals behaved enough for the inference drawn from them?
+
+    :param report: the dict :func:`residual_report` returns.
+
+    A DIAGNOSTIC TEST'S p IS BACKWARDS AND THAT IS THE COMMONEST WAY TO READ
+    ONE WRONG: the null is "the assumption holds", so a LARGE p is the good
+    outcome. Every rule below is written in that direction and says so.
+
+    Thresholds are the conventional ones: p >= 0.05 for a diagnostic test,
+    Cook's distance of 0.5 and 1.0. A threshold invented here would be a number
+    a reviewer cannot check.
+    """
+    if not report or not report.get("n"):
+        return _verdict("unknown", "no residuals were supplied")
+    findings = []
+    cooks = report.get("max_cooks_distance")
+    if cooks is not None and np.isfinite(cooks):
+        if cooks > 1.0:
+            findings.append(_verdict(
+                "fail", "one observation dominates the fit",
+                f"The largest Cook's distance is {cooks:.2f}; above 1.0 is the "
+                "conventional line for a single point that moves the "
+                "coefficients on its own.", cooks, "max Cook's D"))
+        elif cooks > 0.5:
+            findings.append(_verdict(
+                "check", "one observation has a lot of influence",
+                f"The largest Cook's distance is {cooks:.2f}; 0.5 is the "
+                "conventional line for a point worth looking at.",
+                cooks, "max Cook's D"))
+    spread_p = report.get("heteroscedasticity_p_value")
+    if spread_p is not None and np.isfinite(spread_p):
+        if spread_p < 0.01:
+            findings.append(_verdict(
+                "fail", "the residual spread changes with the fitted value",
+                f"Breusch-Pagan p = {spread_p:.3g}. The null is constant "
+                "variance, so a SMALL p is the bad outcome, and the standard "
+                "errors this fit reports are not the right ones.",
+                spread_p, "Breusch-Pagan p"))
+        elif spread_p < 0.05:
+            findings.append(_verdict(
+                "check", "the residual spread may change with the fit",
+                f"Breusch-Pagan p = {spread_p:.3g}, under the conventional "
+                "0.05. The null is constant variance, so a small p is the bad "
+                "outcome.", spread_p, "Breusch-Pagan p"))
+    normal_p = report.get("normality_p_value")
+    if normal_p is not None and np.isfinite(normal_p) and normal_p < 0.05:
+        findings.append(_verdict(
+            "check", "the residuals are not normal",
+            f"{report.get('normality_test', 'normality')} p = {normal_p:.3g}. "
+            "The null is normality, so a small p is the bad outcome; with "
+            "enough wells this is common and matters most in the tails.",
+            normal_p, "normality p"))
+    if findings:
+        return _worst(findings)
+    return _verdict("pass", "the residuals are well behaved",
+                    f"n = {report['n']}, no diagnostic test under 0.05 and no "
+                    "single observation dominating the fit.",
+                    report.get("r_squared"), "r-squared")
+
+
+def score_inference(report: Mapping) -> "object":
+    """Is the null calibrated, or is the whole family shifted?
+
+    Read off the genomic inflation factor: the median observed chi-square over
+    its null median, which is 1.0 when the null behaves. The bands are the ones
+    the GWAS literature uses -- 1.1 is where a report starts explaining itself
+    and 1.2 is where the p-values are not believed.
+
+    A SPIKE OF SMALL p IS NOT A FAULT. It is what a screen with real hits looks
+    like, and lambda is deliberately a MEDIAN so a handful of true hits barely
+    move it. Scoring the spike itself would flag every successful screen.
+    """
+    if not report or not report.get("tests"):
+        return _verdict("unknown", "no p-values were supplied")
+    inflation = report.get("genomic_inflation")
+    if inflation is None or not np.isfinite(inflation):
+        return _verdict("unknown", "the inflation factor could not be computed")
+    distance = abs(inflation - 1.0)
+    detail = (f"lambda = {inflation:.3f} over {report['tests']} tests; "
+              f"pi0 = {report.get('pi0', float('nan')):.2f}, so about "
+              f"{report.get('estimated_non_null', 0):.0f} are estimated "
+              "non-null.")
+    if distance > 0.2:
+        direction = "inflated" if inflation > 1 else "deflated"
+        return _verdict("fail", f"the null is {direction}", detail,
+                        inflation, "genomic inflation")
+    if distance > 0.1:
+        return _verdict("check", "the null is a little off centre", detail,
+                        inflation, "genomic inflation")
+    return _verdict("pass", "the null is calibrated", detail, inflation,
+                    "genomic inflation")
+
+
+def _stamp(axis, verdict) -> None:
+    """Put a sheet's verdict on its first panel, in the suite's own badge."""
+    try:
+        from .regression_qc import draw_verdict
+
+        draw_verdict(axis, verdict)
+    except Exception:                       # pragma: no cover - advisory only
+        pass
+
+
 # ------------------------------------------------------------------- plotting
 
 
@@ -335,7 +532,7 @@ def _house(axis, title="", xlabel="", ylabel=""):
     return ink
 
 
-def _finish(fig, save_path, dpi=None, fmt=None):
+def _finish(fig, save_path, dpi=None, fmt=None, renderer=None, title=None):
     """Lay the figure out, PUBLISH it when there is somewhere to write it, close it.
 
     Published, not saved. Instruction 139 C: "several graphs are saved but I
@@ -361,6 +558,13 @@ def _finish(fig, save_path, dpi=None, fmt=None):
     preference through; the old hard-coded 200 applied to PNG only and was the
     reason the resolution preference reached none of these panels.
 
+    THE RENDERER IS THE SCREEN'S WHERE THAT IS POSSIBLE.
+    :func:`spacr.figures.scene.write_figure` translates the finished figure --
+    all six panels of it -- into a pyqtgraph scene and exports that, so the
+    generated file is drawn by the library the tabs are drawn by. The numbers
+    are still computed exactly once, here. A figure it cannot carry completely
+    is published by matplotlib exactly as it was.
+
     The figure is closed on BOTH paths. These figures come from ``plt.subplots``,
     so pyplot holds a reference to every one of them until it is closed;
     returning early on ``save_path=None`` -- the default of all three public
@@ -375,7 +579,7 @@ def _finish(fig, save_path, dpi=None, fmt=None):
     """
     import matplotlib.pyplot as plt
 
-    from .figure_sink import publish
+    from .figures.scene import write_figure
 
     fig.tight_layout()
     try:
@@ -383,7 +587,9 @@ def _finish(fig, save_path, dpi=None, fmt=None):
             return None
         path = os.fspath(save_path)
         os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
-        written = publish(fig, path, fmt=fmt, dpi=dpi, bbox_inches="tight")
+        written, _drew, _why = write_figure(fig, path, fmt=fmt, dpi=dpi,
+                                            renderer=renderer, title=title,
+                                            bbox_inches="tight")
         return written or path
     finally:
         plt.close(fig)
@@ -499,7 +705,16 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
         axis.set_title("Occupancy")
 
         fig.suptitle("Screen design diagnostics", fontsize=13, fontweight="bold")
-        return _finish(fig, save_path, fmt=save_format), report
+        # SCORED AFTER IT DREW AND STAMPED BEFORE IT IS WRITTEN, exactly as
+        # the QC suite does it: the verdict is read off the report the panels
+        # were drawn from, so it cannot disagree with the numbers printed
+        # beside it.
+        verdict = score_design(report)
+        _stamp(axes[0, 0], verdict)
+        report = dict(report, verdict=verdict.headline,
+                      verdict_level=verdict.level, verdict_detail=verdict.detail)
+        return _finish(fig, save_path, fmt=save_format,
+                       title="screen design diagnostics"), report
 
 
 def plot_residual_diagnostics(observed, fitted, *,
@@ -605,7 +820,11 @@ def plot_residual_diagnostics(observed, fitted, *,
             title = f"{title} — {label}"
         fig.suptitle(title, fontsize=13, fontweight="bold")
         report = residual_report(y, yhat, design=design)
-        return _finish(fig, save_path, fmt=save_format), report
+        verdict = score_residuals(report)
+        _stamp(flat[0], verdict)
+        report = dict(report, verdict=verdict.headline,
+                      verdict_level=verdict.level, verdict_detail=verdict.detail)
+        return _finish(fig, save_path, fmt=save_format, title=title), report
 
 
 def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
@@ -659,6 +878,7 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
         axis.set_ylabel("Observed −log₁₀(P)")
         axis.set_title("P-value Q-Q")
         # Genomic inflation: median observed chi-square over its null median.
+        inflation = float("nan")
         if n:
             from scipy import stats
             chi2 = stats.chi2.isf(np.clip(values, np.finfo(float).tiny, 1.0), df=1)
@@ -695,11 +915,21 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
             "tests": int(n),
             "pi0": float(pi0),
             "estimated_non_null": float((1.0 - pi0) * n),
+            # ON THE REPORT, NOT ONLY ON THE PICTURE. lambda was computed here
+            # to colour one annotation and then thrown away, so the one number
+            # that says whether the whole family of p-values can be believed
+            # was readable by eye and by nothing else -- not by the summary
+            # CSV, not by a sweep row, not by a verdict.
+            "genomic_inflation": inflation,
         }
         if adjusted is not None:
             q = np.asarray(adjusted, dtype=float)
             report["discoveries"] = int(np.sum(q[np.isfinite(q)] < alpha))
-        return _finish(fig, save_path, fmt=save_format), report
+        verdict = score_inference(report)
+        _stamp(axes[0], verdict)
+        report = dict(report, verdict=verdict.headline,
+                      verdict_level=verdict.level, verdict_detail=verdict.detail)
+        return _finish(fig, save_path, fmt=save_format, title=title), report
 
 
 def write_diagnostic_suite(destination, *, fractions=None, block=None,
@@ -717,6 +947,13 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
     a block that raises is recorded as an error rather than aborting the run --
     a diagnostic that fails must never take the analysis down with it.
 
+    Every sheet also SCORES itself -- see :func:`score_design`,
+    :func:`score_residuals` and :func:`score_inference` -- and wears its own
+    badge. The verdicts are rows in ``diagnostic_summary.csv``, per sheet and
+    for the suite (its worst), rather than entries in the returned mapping:
+    that mapping's contract is "key -> a file that exists". A reader is told
+    whether the numbers are fine rather than expected to know.
+
     :param formats: force particular formats, one file per format. ``None``,
         the default, writes ONE file per panel in the format the user's figure
         preference asks for.
@@ -725,7 +962,7 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
         over. Each entry re-runs the whole panel -- the same numbers computed
         and the same picture drawn a second time -- and the pair ignored the
         figure-format preference completely, so a user who had chosen PNG got
-        a PDF anyway. It also broke the rule instruction 139 C sets, that a
+        a PDF anyway. It also broke the rule the design sets, that a
         saved figure and a visible one are the same event: two files for one
         panel is two tiles in the gallery for one picture.
     """
@@ -785,6 +1022,31 @@ def write_diagnostic_suite(destination, *, fractions=None, block=None,
             for section, report in reports.items()
             for key, value in report.items()
         ]
+        # THE SUITE'S VERDICT IS ITS WORST SHEET, and it goes in the SUMMARY
+        # rather than in the returned mapping. That mapping's contract is
+        # "key -> a file that exists", and a caller iterating it to check its
+        # own output is entitled to that; a verdict string in it is a path
+        # that is not there. Per-sheet verdicts are already rows here, because
+        # each report carries `verdict`, `verdict_level` and `verdict_detail`.
+        #
+        # A design that cannot identify its own coefficients beside two clean
+        # sheets is not "two out of three": it is a run whose numbers are one
+        # of infinitely many answers, and a summary that averages that away
+        # loses exactly the thing worth reporting.
+        levels = [report.get("verdict_level") for report in reports.values()
+                  if report.get("verdict_level")]
+        if levels:
+            from .regression_qc import VERDICT_LEVELS
+
+            worst = max(levels, key=lambda level: VERDICT_LEVELS.index(level)
+                        if level in VERDICT_LEVELS else 0)
+            rows.append({"section": "suite", "metric": "verdict_level",
+                         "value": worst})
+            rows.append({"section": "suite", "metric": "verdict",
+                         "value": "; ".join(
+                             f"{section}: {report.get('verdict_level', 'unknown')}"
+                             f" - {report.get('verdict', '')}"
+                             for section, report in reports.items())})
         pd.DataFrame(rows).to_csv(summary, index=False)
         written["diagnostic_summary"] = summary
     return written
