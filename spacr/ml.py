@@ -7948,12 +7948,55 @@ def process_reads(csv_path, fraction_threshold, plate, filter_column=None,
 
     return merged_df
 
+#: The squeeze applied before a logit, and the reason it exists.
+#:
+#: A classification score is a PROPORTION, and a screen produces exact 0 and
+#: exact 1 -- neither of which has a logit. Smithson and Verkuilen's transform
+#: pulls the whole scale off the endpoints by (n-1)/n plus a half, which is
+#: the standard treatment and is reported in the run summary rather than
+#: applied quietly: a transform that silently moved a user's 0 to 0.001
+#: changed their data.
+BETA_SQUEEZE_NOTE = (
+    "beta: the response was mapped to the logit scale. A proportion of "
+    "exactly 0 or 1 has no logit, so the scale was squeezed off its "
+    "endpoints by the Smithson-Verkuilen rule ((y*(n-1)+0.5)/n) first")
+
+
+def beta_logit(values):
+    """A proportion on the logit scale, with the endpoints squeezed in.
+
+    Instruction 174. `transform='beta'` is the natural companion to a
+    response that IS a proportion -- which a classification score and its
+    well aggregate both are -- where `log` is not.
+
+    NOT THE SAME THING AS `regression_type='beta'`, which fits a beta GLM.
+    One is a transform OF the response, the other is the FAMILY of the fit,
+    and a settings panel that offered both under one word would be exactly
+    the confusion 145 is about.
+    """
+    array = np.asarray(values, dtype=float)
+    finite = np.isfinite(array)
+    n = int(finite.sum())
+    if n < 1:
+        return array
+    squeezed = array.copy()
+    # Only squeeze when an endpoint is actually present: a response already
+    # inside (0, 1) is left exactly as the user measured it.
+    inside = array[finite]
+    if inside.min() <= 0.0 or inside.max() >= 1.0:
+        squeezed[finite] = (inside * (n - 1) + 0.5) / n
+    squeezed[finite] = np.clip(squeezed[finite], 1e-9, 1.0 - 1e-9)
+    out = np.array(array, dtype=float, copy=True)
+    out[finite] = np.log(squeezed[finite] / (1.0 - squeezed[finite]))
+    return out
+
+
 def apply_transformation(X, transform):
     """Return an sklearn ``FunctionTransformer`` for the named transform.
 
     :param X: Ignored (kept for compatibility with sklearn pipeline flow).
-    :param transform: One of ``'log'``, ``'sqrt'``, ``'square'``. Any
-        other value returns ``None``.
+    :param transform: One of ``'log'``, ``'sqrt'``, ``'square'``, ``'beta'``.
+        Any other value returns ``None``.
     :returns: A ``FunctionTransformer`` or ``None``.
     """
     if transform == 'log':
@@ -7962,6 +8005,8 @@ def apply_transformation(X, transform):
         transformer = FunctionTransformer(np.sqrt, validate=True)
     elif transform == 'square':
         transformer = FunctionTransformer(np.square, validate=True)
+    elif transform == 'beta':
+        transformer = FunctionTransformer(beta_logit, validate=True)
     else:
         transformer = None
     return transformer
@@ -8180,6 +8225,23 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         print(f"Ignoring transform={transform!r}: {regression_type} models a "
               f"per-well count, and a transformed count is not a count.")
         transform = None
+
+    if transform == 'beta':
+        # A logit is only defined on a proportion. Saying so BEFORE the fit
+        # is the difference between a wrong number and a stopped run: a
+        # response in raw intensity units transformed this way produces
+        # coefficients that look ordinary and mean nothing.
+        column = pd.to_numeric(dependent_df[dependent_variable],
+                               errors='coerce')
+        inside = column[np.isfinite(column)]
+        if len(inside) and (inside.min() < 0.0 or inside.max() > 1.0):
+            raise ValueError(
+                f"transform='beta' puts the response on the logit scale, "
+                f"which is only defined for a proportion, but "
+                f"{dependent_variable!r} runs from {inside.min():.4g} to "
+                f"{inside.max():.4g}. Use a score or a fraction here, or "
+                f"pick transform='log' for a response in measured units.")
+        print(BETA_SQUEEZE_NOTE)
 
     if transform is not None:
         transformer = apply_transformation(dependent_df[dependent_variable], transform=transform)
