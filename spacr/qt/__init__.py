@@ -70,6 +70,31 @@ def _install_quiet_qt_logging() -> None:
             QtMsgType.QtFatalMsg: "Qt fatal",
         }.get(mode, "Qt")
         print(f"{label}: {message}", file=stream)
+        # AND INTO THE LOG. This handler printed to stderr and nowhere else,
+        # so every Qt warning was visible to whoever was watching the terminal
+        # and invisible to everyone reading ~/.spacr/logs/spacr.log afterwards.
+        # That cost real time on 2026-08-19: "QBasicTimer::start: Timers cannot
+        # be started from another thread" arrives immediately before a crash on
+        # the maintainer's machine, and the log had ZERO occurrences of it --
+        # so the one line that mattered could only be obtained by asking them
+        # to copy it out of a terminal that the crash had already closed.
+        #
+        # A crash report is written from the log, not from a screen someone
+        # happened to be looking at.
+        try:
+            import logging
+
+            logging.getLogger("spacr.qt").log(
+                {QtMsgType.QtDebugMsg: logging.DEBUG,
+                 QtMsgType.QtInfoMsg: logging.INFO,
+                 QtMsgType.QtWarningMsg: logging.WARNING,
+                 QtMsgType.QtCriticalMsg: logging.ERROR,
+                 QtMsgType.QtFatalMsg: logging.CRITICAL}.get(
+                     mode, logging.WARNING),
+                "%s: %s", label, message)
+        except Exception:
+            # Never let logging a warning become a second failure.
+            pass
 
     qInstallMessageHandler(handler)
 
