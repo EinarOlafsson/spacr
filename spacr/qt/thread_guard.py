@@ -18,7 +18,7 @@ import traceback
 
 LOG = logging.getLogger("spacr.qt.thread_guard")
 
-__all__ = ["install", "offences"]
+__all__ = ["install", "offences", "born_off_thread"]
 
 #: Every off-thread start seen this session, as formatted stacks. Kept so a
 #: crash report can carry them even if the log rotated.
@@ -26,10 +26,19 @@ _OFFENCES: list = []
 
 _INSTALLED = False
 
+#: Stacks of QObjects constructed off the GUI thread, capped.
+_BORN_OFF_THREAD: list = []
+_BORN_LIMIT = 20
+
 
 def offences() -> list:
     """Copies of the stacks recorded so far."""
     return list(_OFFENCES)
+
+
+def born_off_thread() -> list:
+    """Stacks where a QObject was constructed away from the GUI thread."""
+    return list(_BORN_OFF_THREAD)
 
 
 def install() -> bool:
@@ -102,6 +111,38 @@ def install() -> bool:
             _report("QObject.startTimer", why)
         return real_object_start(self, *args, **kwargs)
 
+    # AND WHERE A QObject IS BORN, because the timer warning names neither
+    # the object nor the code that made it, and the Python-level wrappers
+    # above never fired for the crash being chased: the start was in C++.
+    #
+    # A QObject constructed on a worker LIVES on that worker. Every later
+    # touch from the GUI thread is then illegal -- Qt says so about the one
+    # case it can detect (a timer) and says nothing about the rest, which is
+    # how the process comes to segfault somewhere entirely unrelated, in an
+    # event filter one time and inside pandas' CSV parser the next.
+    #
+    # Constructing one off-thread is not always wrong, so this REPORTS and
+    # never refuses, and it stops after a handful so a legitimate producer
+    # cannot flood the log.
+    real_object_init = QObject.__init__
+
+    def guarded_object_init(self, *args, **kwargs):
+        result = real_object_init(self, *args, **kwargs)
+        try:
+            if (threading.current_thread() is not threading.main_thread()
+                    and len(_BORN_OFF_THREAD) < _BORN_LIMIT):
+                stack = "".join(traceback.format_stack()[:-1])
+                _BORN_OFF_THREAD.append(stack)
+                LOG.warning(
+                    "%s was CONSTRUCTED on %r, so it lives there and every "
+                    "later touch from the GUI thread is illegal. Stack:\n%s",
+                    type(self).__name__, threading.current_thread().name,
+                    stack)
+        except Exception:                                    # noqa: BLE001
+            pass
+        return result
+
+    QObject.__init__ = guarded_object_init
     QTimer.start = guarded_timer_start
     QObject.startTimer = guarded_object_start
     _INSTALLED = True
