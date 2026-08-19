@@ -221,10 +221,43 @@ _MPL_MODULE = None
 
 
 def _matplotlib_show_router(*args, **kwargs):
+    """Send ``plt.show()`` to this thread's capture, or drop it safely.
+
+    THE FALLBACK IS THE DANGEROUS PART. Targets are keyed by thread, so a
+    `plt.show()` on a thread with no registered capture used to reach
+    `_MPL_ORIGINAL_SHOW` -- the REAL matplotlib show. With the Qt backend that
+    calls `start_main_loop`, which enters a Qt event loop; on a worker thread
+    that is illegal, and Qt says so:
+
+        QBasicTimer::start: Timers cannot be started from another thread
+
+    and then the process dies. Measured 2026-08-19 on the maintainer's own
+    screen: the warning arrives 3-14 ms after "run closed [success]" and the
+    application is gone immediately after, every time. Reproduced headlessly
+    from their four plates -- `ml.minimum_cell_simulation` calls `plt.show()`
+    and the stack ends in `qt_compat._exec`, blocked forever.
+
+    A blocking GUI event loop on a worker thread is NEVER what a pipeline
+    wants, so off the main thread this drops the call instead. The figure is
+    not lost: everything a run draws is published by `figure_sink` and reaches
+    the gallery whether or not `show` is called (instruction 139 C -- saved and
+    visible are one event).
+
+    On the MAIN thread the fallback stands: a notebook or a script calling
+    `plt.show()` outside a run means it, and there is no worker to confuse.
+    """
     with _MPL_SHOW_LOCK:
         stack = _MPL_SHOW_TARGETS.get(threading.get_ident(), [])
-        target = stack[-1] if stack else _MPL_ORIGINAL_SHOW
-    return target(*args, **kwargs) if target is not None else None
+        target = stack[-1] if stack else None
+        original = _MPL_ORIGINAL_SHOW
+    if target is not None:
+        return target(*args, **kwargs)
+    if threading.current_thread() is not threading.main_thread():
+        LOG.debug("plt.show() on %s with no capture: dropped rather than "
+                  "entering a Qt event loop off the GUI thread",
+                  threading.current_thread().name)
+        return None
+    return original(*args, **kwargs) if original is not None else None
 
 
 def _register_matplotlib_show(plt, target: Callable[..., Any]) -> None:
