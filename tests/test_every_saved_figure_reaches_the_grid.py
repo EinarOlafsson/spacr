@@ -173,8 +173,8 @@ def test_a_corrected_run_offers_both(qtbot):
     panel = _panel(qtbot, _frame("fdr_bh"))
 
     text = _menu_text(panel)
-    assert "raw p-value" in text
-    assert "adjusted (fdr_bh)" in text
+    assert "raw p (continuous)" in text
+    assert "adjusted p — Benjamini-Hochberg FDR (stepped)" in text
 
 
 def test_the_correction_is_named_not_just_called_adjusted(qtbot):
@@ -183,17 +183,52 @@ def test_the_correction_is_named_not_just_called_adjusted(qtbot):
     panel = _panel(qtbot, _frame("bonferroni"))
 
     text = _menu_text(panel)
-    assert "bonferroni" in text
+    assert "adjusted p — Bonferroni (stepped)" in text
 
 
-def test_an_uncorrected_run_offers_no_toggle(qtbot):
+def _adjusted_entry(panel):
+    from spacr.qt.widgets.fast_plots import menu_entries
+
+    entries = [a for a in menu_entries(panel.volcano.build_style_menu())
+               if a.text().startswith("adjusted p")]
+    assert len(entries) == 1, [a.text() for a in entries]
+    return entries[0]
+
+
+def test_an_uncorrected_run_offers_no_adjusted_axis(qtbot):
     """`multiple_testing_method='none'` writes a q_value EQUAL to the raw p.
-    A menu entry promising "adjusted" there offers a number that is not
-    there."""
+    An entry promising "adjusted" there offers a second copy of the axis
+    above it under a name that promises a number the run never computed.
+
+    GREYED, NOT REMOVED (INVARIANTS 6): a missing entry does not answer
+    "where is the adjusted axis", and "this run applied no correction" does.
+    """
     panel = _panel(qtbot, _frame("none"))
 
-    text = _menu_text(panel)
-    assert "adjusted" not in text
+    entry = _adjusted_entry(panel)
+    # `offer_p_values` appends the reason to the label of a greyed entry, so
+    # the name is the head of the text and the reason follows it.
+    assert entry.text().startswith("adjusted p — no correction applied")
+    assert not entry.isEnabled()
+    assert "no correction" in entry.toolTip()
+
+
+def test_a_corrected_run_can_still_choose_the_adjusted_axis(qtbot):
+    """The other direction, so the greying cannot creep."""
+    panel = _panel(qtbot, _frame("fdr_bh"))
+
+    assert _adjusted_entry(panel).isEnabled()
+
+
+def test_recorrecting_to_none_puts_the_axis_back(qtbot):
+    """The one path that reaches the state the greyed entry forbids: pick
+    the adjusted axis, then pick "no correction" from the corrections menu.
+    Leaving it would label the raw p as "-log10(adjusted p, none)"."""
+    panel = _panel(qtbot, _frame("fdr_bh"))
+
+    panel.volcano.set_p_axis("adjusted")
+    panel.volcano.set_correction("none")
+    assert panel.volcano.p_axis() == "raw"
 
 
 def test_and_it_says_why_there_is_no_toggle(qtbot):
