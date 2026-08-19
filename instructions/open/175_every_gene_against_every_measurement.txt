@@ -68,3 +68,41 @@ HOW TO KNOW IT WORKED
   says so rather than showing a colourful grid of noise.
 * The EAF1 result reproduces: its three low-circularity survivors are the
   pathogen channel co-localisation measures, at q ~ 1e-2.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- A, B, C AND D SHIPPED. What remains is where the button LIVES.
+--------------------------------------------------------------------------------
+
+SHIPPED
+  * `spacr.gene_measurement_sweep` -- the grid as ONE matmul. Measured on the
+    maintainer's screen: 1,240 guides x 767 measurements over 1,366 wells in
+    4 plate blocks, 1.2 seconds.
+  * The three corrections, in the ENGINE so a settings CSV, a macro and the
+    button cannot disagree: identifiers excluded (including twins caught by
+    correlation), Benjamini-Hochberg across the whole grid, circularity per
+    row.
+  * `plot_sweep` -- the survivors, clustered so neighbours are alike. Nothing
+    surviving draws nothing.
+  * `spacr.qt.widgets.sweep_panel.SweepPanel` -- the button, the table, the
+    q and circularity filters, and Save (which writes ALL the rows and the
+    figure beside them, not the page on screen). It runs on a JobRunner and
+    its worker touches no widget, which a test pins by reading the source.
+
+THREE THINGS THE TESTS CAUGHT IN MY OWN CODE, all of which would have been
+reported as findings:
+  * "path" is a substring of "pathogen", so a substring rule for identifier
+    names silently dropped EVERY pathogen measurement -- 354 columns.
+  * A guide in 7 of 1,366 wells was given the whole screen's degrees of
+    freedom and reported p = 0.0. The participation ratio fixed it and took
+    the survivor count from 5,959 to 186.
+  * Circularity that was never computed came back as 0.00 and the panel
+    displayed it, which reads as "nothing here is circular".
+
+STILL OWED
+  * The panel is not mounted anywhere. It takes providers for the merged
+    frame, the counts and the scores, and nothing in the application hands
+    them to it yet -- the Measurements tab is where they all already live.
+  * GENE level. Everything here is per GUIDE. A gene's guides should be
+    summed the way the regression sums them, with the guide rows still
+    reachable, because "does this gene move this measurement" is the question
+    actually asked.
