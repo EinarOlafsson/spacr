@@ -1,0 +1,292 @@
+"""Every gene against every measurement, corrected, in one matrix operation.
+
+Instruction 175. The question is "which genes move which measurements", asked
+of the whole screen at once rather than one gene at a time.
+
+IT IS ONE MATMUL. Measured on the maintainer's screen: 1,376 guides x 785
+measurements over 1,366 wells, computed in 0.1 seconds. A loop over a million
+regressions answers the same question in a morning; anything here that looks
+like one is a bug.
+
+THE THREE CORRECTIONS ARE THE POINT OF THE MODULE. Each was found by hand
+while sweeping ONE gene, in about ten minutes, and each would be made again by
+anyone doing this themselves:
+
+  * IDENTIFIERS ARE NOT MEASUREMENTS. `pathogen_object_label` came out at
+    p=2.5e-07 for EAF1 and it is a LABEL -- the cells picked out sit lower in
+    the segmentation's numbering, which is position in a list.
+    `pathogen_pathogen` is the same column under another name (spearman
+    0.9979, identical in 141,626 of 226,467 rows). Both were nearly reported.
+  * 785 TESTS IS NOT ONE TEST. `pathogen_solidity` at p=1.8e-03 looked
+    interesting and does not survive Benjamini-Hochberg.
+  * CIRCULARITY IS A COLUMN. The classification score is a function of the
+    image, so a measurement it already tracks cannot corroborate anything
+    derived from it. On this screen
+    spearman(pred, pathogen_channel_1_mean_intensity) = -0.389, and the
+    "strongest result" for GRA14 was exactly that measurement, in exactly the
+    direction the correlation predicts.
+"""
+from __future__ import annotations
+
+import math
+import re
+from dataclasses import dataclass, field
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+
+import numpy as np
+import pandas as pd
+
+__all__ = [
+    "IDENTIFIER_PATTERNS",
+    "SweepResult",
+    "is_measurement",
+    "measurement_columns",
+    "sweep",
+]
+
+#: WHOLE TOKENS, not substrings. `object` and `label` catch the
+#: segmentation's own numbering, which is what produced a p of 2.5e-07 and
+#: means nothing.
+#:
+#: MATCHED AS TOKENS BECAUSE SUBSTRINGS ARE WRONG HERE: "path" is in
+#: "png_path" and it is also in "pathogen", so a substring rule silently
+#: dropped EVERY pathogen measurement -- a third of the screen -- and the
+#: sweep reported the remainder as though that were all there was. Caught by
+#: the test that asks whether `pathogen_area` is a measurement.
+IDENTIFIER_PATTERNS: Tuple[str, ...] = (
+    "label", "id", "object", "screen", "source", "prc", "prcf", "prcfo",
+    "plate", "row", "col", "column", "field", "well", "path", "file",
+    "name", "png", "index",
+)
+
+
+def _tokens(name: str) -> Tuple[str, ...]:
+    """``plateID`` and ``object_label`` alike, as lower-case words."""
+    spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", str(name).strip())
+    return tuple(t for t in re.split(r"[^A-Za-z0-9]+", spaced.lower()) if t)
+
+
+def is_measurement(name: str) -> bool:
+    """Whether ``name`` measures the object rather than naming it."""
+    parts = _tokens(name)
+    if not parts:
+        return False
+    return not any(token in IDENTIFIER_PATTERNS for token in parts)
+
+
+def measurement_columns(frame: pd.DataFrame) -> List[str]:
+    """Every numeric column of ``frame`` that is a measurement.
+
+    A COLUMN THAT DUPLICATES AN IDENTIFIER IS ALSO OUT, whatever it is called.
+    `pathogen_pathogen` passes the name test and is the object label to four
+    decimal places; the only way to catch it is to look.
+    """
+    numeric = [c for c in frame.columns
+               if pd.api.types.is_numeric_dtype(frame[c])]
+    named = [c for c in numeric if is_measurement(c)]
+    identifiers = [c for c in numeric if not is_measurement(c)]
+    if not identifiers:
+        return named
+    # RANK ONCE, THEN ONE MATMUL -- not a correlation per pair. The pairwise
+    # version was 715 x 70 = 50,000 spearman calls and did not finish in two
+    # minutes, which is the very thing this module's docstring warns about.
+    usable = [c for c in named
+              if pd.to_numeric(frame[c], errors="coerce").nunique() >= 3]
+    if not usable:
+        return []
+    left = frame[usable].apply(pd.to_numeric, errors="coerce").rank()
+    right = frame[identifiers].apply(pd.to_numeric, errors="coerce").rank()
+    left = left.fillna(left.mean()).to_numpy(dtype=float)
+    right = right.fillna(right.mean()).to_numpy(dtype=float)
+    left = left - left.mean(axis=0)
+    right = right - right.mean(axis=0)
+    left /= (np.linalg.norm(left, axis=0) + 1e-12)
+    right /= (np.linalg.norm(right, axis=0) + 1e-12)
+    twin = np.abs(left.T @ right).max(axis=1) > 0.99
+    return [c for c, is_twin in zip(usable, twin) if not is_twin]
+
+
+@dataclass(frozen=True)
+class SweepResult:
+    """The grid, and the tidy table a reader actually looks at."""
+
+    table: pd.DataFrame
+    effects: pd.DataFrame
+    n_wells: int
+    n_blocks: int
+    dropped: Tuple[str, ...] = ()
+    #: Whether the score actually joined to the wells. False means the
+    #: circularity column is NaN and MUST NOT be read as "not circular".
+    circularity_known: bool = False
+
+    def survivors(self, alpha: float = 0.05,
+                  max_circularity: float = 1.0) -> pd.DataFrame:
+        """Rows past the correction, optionally past a circularity bar too.
+
+        :raises ValueError: a circularity bar was asked for and the score
+            never joined to the wells. Filtering on a column of NaN returns
+            nothing and looks like a result.
+        """
+        out = self.table[self.table["q"] < float(alpha)]
+        if max_circularity < 1.0:
+            if not self.circularity_known:
+                raise ValueError(
+                    "circularity was never computed -- the score did not join "
+                    "to any well, so filtering on it would return nothing and "
+                    "look like an answer. Check the plate names match "
+                    "(a score CSV may say 'pplate1' where the database says "
+                    "'plate1').")
+            out = out[out["circularity"] < float(max_circularity)]
+        return out.sort_values("q")
+
+    def describe(self) -> str:
+        survived = int((self.table["q"] < 0.05).sum())
+        clean = (int(((self.table["q"] < 0.05)
+                      & (self.table["circularity"] < 0.15)).sum())
+                 if self.circularity_known else None)
+        head = (f"{len(self.effects.index):,} gene/guide(s) x "
+                f"{len(self.effects.columns):,} measurement(s) over "
+                f"{self.n_wells:,} wells in {self.n_blocks} block(s). "
+                f"{survived:,} pass Benjamini-Hochberg at 0.05")
+        middle = (f", of which {clean:,} are not already tracked by the score. "
+                  if clean is not None else
+                  " (circularity NOT computed -- the score joined to no "
+                  "well, so it must not be read as 'not circular'). ")
+        return (head + middle
+                + f"{len(self.dropped):,} identifier column(s) were left out.")
+
+
+def _residualise(matrix: np.ndarray, blocks: np.ndarray) -> np.ndarray:
+    """Subtract each block's mean -- the plate cannot become a gene effect."""
+    out = matrix.astype(float, copy=True)
+    for value in np.unique(blocks):
+        mask = blocks == value
+        if mask.sum():
+            out[mask] -= np.nanmean(out[mask], axis=0)
+    return np.nan_to_num(out)
+
+
+def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
+          blocks: Optional[Sequence] = None,
+          scores: Optional[Sequence[float]] = None,
+          alpha: float = 0.05,
+          min_wells: int = 5,
+          measurements: Optional[Iterable[str]] = None) -> SweepResult:
+    """Associate every guide with every measurement, blocked and corrected.
+
+    :param wells: one row per well, the measurements in its columns.
+    :param fractions: one row per well, one column per guide, holding that
+        guide's fraction. Aligned to ``wells`` by index.
+    :param blocks: the plate of each well. Absent means one block, which is
+        honest but weaker: a plate difference can then look like a gene.
+    :param scores: the per-well classification score, used ONLY to compute
+        each measurement's circularity. Absent leaves that column at 0 and
+        the caller must not read it as "not circular".
+    :param min_wells: guides present in fewer wells than this are dropped --
+        a correlation over three wells is not an effect.
+    :returns: a :class:`SweepResult`.
+    """
+    common = wells.index.intersection(fractions.index)
+    wells = wells.loc[common]
+    fractions = fractions.loc[common]
+    n = int(len(common))
+    if n < 3:
+        empty = pd.DataFrame(columns=["guide", "measurement", "effect", "p",
+                                      "q", "circularity", "n_wells"])
+        return SweepResult(table=empty, effects=pd.DataFrame(), n_wells=n,
+                           n_blocks=0)
+
+    chosen = list(measurements) if measurements is not None \
+        else measurement_columns(wells)
+    dropped = tuple(c for c in wells.columns
+                    if pd.api.types.is_numeric_dtype(wells[c])
+                    and c not in chosen)
+
+    present = (fractions > 0).sum(axis=0)
+    guides = [g for g in fractions.columns if int(present.get(g, 0)) >= min_wells]
+    if not chosen or not guides:
+        empty = pd.DataFrame(columns=["guide", "measurement", "effect", "p",
+                                      "q", "circularity", "n_wells"])
+        return SweepResult(table=empty, effects=pd.DataFrame(), n_wells=n,
+                           n_blocks=0, dropped=dropped)
+
+    block = np.asarray(list(blocks) if blocks is not None else ["all"] * n)
+    n_blocks = int(len(np.unique(block)))
+
+    M = _residualise(wells[chosen].to_numpy(dtype=float), block)
+    F = _residualise(fractions[guides].to_numpy(dtype=float), block)
+    M /= (M.std(axis=0, keepdims=True) + 1e-12)
+    F /= (F.std(axis=0, keepdims=True) + 1e-12)
+
+    # ONE MATMUL. Every guide against every measurement, as a correlation
+    # after the block means are gone.
+    R = (F.T @ M) / max(n - n_blocks, 1)
+    R = np.clip(np.nan_to_num(R), -0.999999, 0.999999)
+
+    # THE DEGREES OF FREEDOM ARE THE GUIDE'S, NOT THE SCREEN'S.
+    #
+    # A guide present in 7 of 1,366 wells has a fraction vector that is zero
+    # almost everywhere, and its correlation is carried by those 7 points.
+    # Using n - blocks - 1 for it reported p = 0.0 from seven wells, which is
+    # the most confident possible statement of almost nothing, and it sat at
+    # the top of the table.
+    #
+    # The participation ratio (sum x^2)^2 / sum x^4 is the effective number of
+    # wells actually carrying a predictor: it equals n for a dense one and
+    # collapses to the count of non-zero wells for a sparse one. Cheap -- two
+    # column sums -- and conservative in the direction that matters.
+    sq = F * F
+    n_eff = (sq.sum(axis=0) ** 2) / np.maximum((sq * sq).sum(axis=0), 1e-300)
+    n_eff = np.clip(n_eff, 3.0, float(n))
+    df_guide = np.maximum(n_eff - n_blocks - 1.0, 1.0)
+    df = df_guide[:, None]
+    t = R * np.sqrt(df / (1.0 - R * R))
+    from scipy.stats import t as _t
+    p = 2.0 * _t.sf(np.abs(t), df)
+
+    circular = np.zeros(len(chosen), dtype=float)
+    circularity_known = False
+    if scores is not None:
+        # Ranked once and correlated as a matrix, for the same reason.
+        s = pd.Series(np.asarray(list(scores), dtype=float), index=common).rank()
+        block_m = wells[chosen].apply(pd.to_numeric, errors="coerce").rank()
+        sv = s.fillna(s.mean()).to_numpy(dtype=float)
+        mv = block_m.fillna(block_m.mean()).to_numpy(dtype=float)
+        sv = sv - sv.mean()
+        mv = mv - mv.mean(axis=0)
+        denom = (np.linalg.norm(sv) * np.linalg.norm(mv, axis=0)) + 1e-12
+        circular = np.abs((sv @ mv) / denom)
+        # A SCORE THAT JOINED TO NOTHING MUST NOT READ AS "NOT CIRCULAR".
+        # The score CSVs of a real screen carry `pplate1` where the
+        # measurement databases carry `plate1`, so an un-canonicalised join
+        # matches no well at all -- and the resulting all-NaN column was
+        # reported as "0 of 5,959 hits are circular", which is the most
+        # confident possible way to say nothing.
+        overlap = int(pd.Series(np.asarray(list(scores), dtype=float),
+                                index=common).notna().sum())
+        circularity_known = overlap >= 3 and bool(np.isfinite(circular).any())
+        if not circularity_known:
+            circular = np.full(len(chosen), np.nan)
+
+    effects = pd.DataFrame(R, index=guides, columns=chosen)
+    table = pd.DataFrame({
+        "guide": np.repeat(guides, len(chosen)),
+        "measurement": np.tile(chosen, len(guides)),
+        "effect": R.ravel(),
+        "p": p.ravel(),
+        "circularity": np.tile(circular, len(guides)),
+        "n_wells": np.repeat([int(present.get(g, 0)) for g in guides],
+                             len(chosen)),
+        # What the P VALUE was actually computed on, which is not the same
+        # number and is the one a reader needs to judge it.
+        "effective_wells": np.repeat(np.round(n_eff, 1), len(chosen)),
+    })
+    from .multiple_testing import adjust_p_values
+    q, _rejected = adjust_p_values(table["p"].to_numpy(), method="fdr_bh",
+                                   alpha=float(alpha))
+    table["q"] = q
+    table = table[["guide", "measurement", "effect", "p", "q", "circularity",
+                   "n_wells", "effective_wells"]]
+    return SweepResult(table=table, effects=effects, n_wells=n,
+                       n_blocks=n_blocks, dropped=dropped,
+                       circularity_known=circularity_known)
