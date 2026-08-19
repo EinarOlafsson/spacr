@@ -1,0 +1,138 @@
+================================================================================
+THE EVENING BATCH: HEIGHTS, HANGS, AND A RUN THAT WOULD NOT LOAD
+================================================================================
+
+Status:    filed 2026-08-18. Two of the seven are already fixed; the rest are
+           open with what has been found so far.
+Requested: 2026-08-18 --
+
+  "the elements in measure need to be modifiable in height, merge works and
+   the regression runs, but failed for an unknown reason. i ran one ols then a
+   mixed regression model and this hung my computer twice so i had to restart
+   it. i tried to load another run and this seemed to hang spacr. the cell
+   montage failed because the column grna was not found in any of the count
+   tables. i just tried to run an ols and i got: [pip uninstalling and
+   reinstalling spacr] Qt warning: QBasicTimer::start: Timers cannot be
+   started from another thread"
+
+--------------------------------------------------------------------------------
+A. FIXED ALREADY -- recorded so they are not re-investigated
+--------------------------------------------------------------------------------
+
+A1. THE MONTAGE'S MISSING `grna` COLUMN. `cell_montage.fractions_from_counts`
+    read the count CSVs RAW, so it was the one reader in spaCR that did not go
+    through `utils.correct_metadata_column_names` -- which exists to map
+    `grna_name` to `grna` and to canonicalise a header. Fixed at fc029a91: it
+    canonicalises, accepts the aliases the rest of the project accepts, and a
+    refusal now names the columns the file HAS rather than only the one it
+    wanted.
+
+A2. spaCR REINSTALLING ITSELF MID-RUN. The startup update check reaches
+    `updater.run_pip_upgrade`, which shells out to `pip install --upgrade
+    spacr` -- and that uninstalls whatever is present and installs from the
+    index, INCLUDING an editable install pointing at a working tree. On this
+    machine it would have silently detached a day of work from the application
+    it was fixing. Now refused with the reason, and `git pull` named as the
+    real remedy. The detection needs a metadata-free fallback: with the current
+    directory inside the checkout, `importlib.metadata` resolves to the source
+    tree's own metadata, which has no `direct_url.json`.
+
+--------------------------------------------------------------------------------
+B. LOADING A RUN HANGS THE APPLICATION -- FOUND, NOT YET FIXED
+--------------------------------------------------------------------------------
+
+`regression_results.RegressionResultsPanel.load` walks the folder with
+`find_results_tables` (up to `MAX_SEARCH_DEPTH` deep), reads the CSV with
+`pandas`, and then rebuilds every view from it -- ALL ON THE GUI THREAD.
+Counted: `JobRunner` appears in that file ZERO times.
+
+THIS IS THE SAME DEFECT AS 154 A, in a second place. The merge froze the window
+for the same reason and was moved onto `JobRunner`; the run loader never was.
+So a big results table, or a deep folder, gives a window that stops painting
+with no spinner and no cancel -- which is what "i tried to load another run and
+this seemed to hang spacr" is.
+
+THE FIX IS THE ONE ALREADY WRITTEN: `JobRunner`, the stage named, a count
+against a total, cancellable, and nothing half-applied if it is cancelled. Read
+`measurement_scan_panel`'s merge for the shape rather than inventing a second.
+
+--------------------------------------------------------------------------------
+C. TWO REGRESSIONS HUNG THE MACHINE -- NOT REPRODUCED, AND WHAT IS KNOWN
+--------------------------------------------------------------------------------
+
+"i ran one ols then a mixed regression model and this hung my computer twice so
+i had to restart it."
+
+A HUNG MACHINE IS NOT A HUNG APPLICATION and the difference matters: the GUI
+freezing is section B, while the whole machine stopping is memory or a driver.
+What is known, and none of it is yet a diagnosis:
+
+  * `mixed_gpu` allocates a DENSE `n x q` matrix -- `torch.zeros((n, q))` --
+    with NO SIZE CHECK before it. At well level that is small; over a merged
+    measurements frame (226,467 cell rows was the maintainer's own merge) it is
+    gigabytes, and the CPU path through statsmodels is worse.
+  * The maintainer had just merged four databases, so the frame in memory when
+    the fit started was large already.
+  * Running OLS FIRST and mixed SECOND means both results, both diagnostics
+    sets and both figure sets were live when the second fit allocated.
+
+WHAT TO DO, and the first is worth doing whatever the cause turns out to be:
+ESTIMATE BEFORE ALLOCATING. The shape is known before the matrix exists --
+`n`, `q` and the dtype give the bytes exactly -- so the fit can say "this needs
+14 GB" and refuse, rather than asking the operating system and being killed
+along with everything else the user had open. Instruction 114 asked for exactly
+this for the parameter search; it belongs on the fit too.
+Then: log RSS and GPU memory per fit stage, so the next report has a number.
+
+--------------------------------------------------------------------------------
+D. "FAILED FOR AN UNKNOWN REASON"
+--------------------------------------------------------------------------------
+
+The merge worked, the regression ran, and it failed with nothing a user could
+act on. Whatever the cause, THE MESSAGE IS ITS OWN BUG: a run that gets far
+enough to fail knows the settings it was given, the shape of the frame it
+built, and the exception it hit. A regression that says "failed" and stops is
+the same defect as 153's "no summary" and 154 E's "nothing to scan" -- a
+sentence that names no cause and offers no next step.
+Every regression failure reports: the stage it reached, the design it had built
+by then (rows, wells, guides, parameters), the exception with its type, and
+what to change. It goes to the console AND into the run folder, so it survives
+the session.
+
+--------------------------------------------------------------------------------
+E. THE MEASURE PANEL'S ELEMENTS NEED TO BE MODIFIABLE IN HEIGHT
+--------------------------------------------------------------------------------
+
+Asked directly. The elements in the Measure module are fixed-height and the
+user wants to resize them. `QSplitter` is the house answer -- the regression
+screen already uses one -- and the sizes should persist per screen, because a
+layout a user sets and loses on restart is one they set once and then stop
+using.
+
+--------------------------------------------------------------------------------
+F. `QBasicTimer::start: Timers cannot be started from another thread`
+--------------------------------------------------------------------------------
+
+Four of them, immediately after the pip output. NOT YET LOCATED. What has been
+ruled out: the pipeline worker's own connections (`line_ready`, `figure_ready`,
+`result_ready`, `finished`) are all bound methods of the GUI-thread screen, so
+Qt queues them.
+
+The likely shape, and where to look: `run_pip_upgrade` was running in a worker
+(`app.py` submits the update check and the upgrade through its own runner), and
+something in the completion path starts a timer -- `_queue_figure_grid_refresh`
+and `_start_the_heartbeat` are the two `timer.start()` calls reachable from a
+handler. A timer started off the GUI thread never fires, so whatever it was
+meant to debounce silently never happens: this is not only noise in the log.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Loading a run keeps the window alive, names its stage, and can be cancelled.
+* A fit that will not fit in memory says so with the number BEFORE it allocates.
+* A failed regression names the stage, the design, the exception and a next
+  step, in the console and in the run folder.
+* The Measure module's panels can be resized and the sizes survive a restart.
+* No `QBasicTimer` warning appears in a full session, and the timers those
+  calls were debouncing are shown to actually fire.
