@@ -572,6 +572,35 @@ def figure_save_mode() -> str:
     return "print"
 
 
+
+#: The ink a transparent figure takes in each theme, and the grid beside it.
+#: Light mode is the print pair exactly, so switching a light-mode user to
+#: transparent changes nothing about the marks -- only the ground goes.
+DARK_INK = "#EDEDED"
+DARK_GRID = "#4A4A4A"
+
+
+def theme_ink() -> Tuple[str, str]:
+    """``(ink, grid)`` for the theme the user is working in.
+
+    Matplotlib-free and Qt-free like the rest of this module: the preference
+    is read through a late import so a headless run that never built a GUI
+    still answers, and answers `print`'s pair -- there is no dark theme to
+    follow when there is no application.
+    """
+    try:
+        from .qt.preferences import resolve_effective_theme
+    except Exception:                                            # noqa: BLE001
+        return PRINT_INK, PRINT_GRID
+    try:
+        theme = str(resolve_effective_theme() or "").strip().lower()
+    except Exception:                                            # noqa: BLE001
+        return PRINT_INK, PRINT_GRID
+    # `resolve_effective_theme` says so itself: compare against "light" and
+    # treat everything else as dark, because Space and Cell are dark themes
+    # and "system" has already been resolved by the time it answers.
+    return (PRINT_INK, PRINT_GRID) if theme == "light" else (DARK_INK, DARK_GRID)
+
 def saved_figure_appearance(mode: Optional[str] = None
                             ) -> SavedFigureAppearance:
     """THE shared decision. Both renderers ask this and neither decides.
@@ -593,7 +622,24 @@ def saved_figure_appearance(mode: Optional[str] = None
     if chosen == "screen":
         return SavedFigureAppearance("screen", None, None, None, False, False)
     if chosen == "transparent":
-        return SavedFigureAppearance("transparent", None, PRINT_INK,
-                                     PRINT_GRID, True, True)
+        # THE INK FOLLOWS THE THEME HERE, and only here.
+        #
+        # Asked for twice: "the background of the figures should be
+        # transparent and the lines should be white in dark mode and black in
+        # light mode", and then reported as a fault -- "a lot of the text in
+        # the figures is black in dark mode and the axes as well".
+        #
+        # This mode used to keep the PRINT ink on the ground that it removes,
+        # on the argument that dark ink on a transparent ground is still
+        # unreadable on a dark slide. That argument is right about `print` and
+        # wrong about this: transparent MEANS the ground is whatever the
+        # figure is pasted onto, and the only thing that knows what that is,
+        # is the user -- who says so by the theme they are working in.
+        #
+        # `print` is unchanged and is still the default, so a figure going
+        # into a manuscript is untouched by this.
+        ink, grid = theme_ink()
+        return SavedFigureAppearance("transparent", None, ink, grid,
+                                     True, True)
     return SavedFigureAppearance("print", PRINT_GROUND, PRINT_INK,
                                  PRINT_GRID, False, True)
