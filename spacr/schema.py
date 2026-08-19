@@ -120,6 +120,10 @@ __all__ = [
     'CANONICAL_OBJECT_TABLES', 'OBJECT_TABLE_REQUIRED_COLUMNS',
     'OBJECT_TABLE_OPTIONAL_COLUMNS', 'ObjectTableSchema',
     'OBJECT_TABLE_SCHEMAS', 'object_table_schema',
+    'WELL_KEY', 'METADATA_KEYS', 'fold_column_name',
+    'canonical_plate_id', 'normalise_plate_columns', 'PLATE_BEARING_COLUMNS',
+    'ColumnCollision', 'comparable_key_value', 'comparable_key_values',
+    'resolve_metadata_collisions', 'canonicalise_frame',
     # pandas
     'add_identity_columns', 'canonicalise_columns',
     'validate_object_table_frame', 'coerce_model_feature_types',
@@ -168,6 +172,15 @@ PLATE_KEY = 'plateID'
 ROW_KEY = 'rowID'
 #: The plate column, 1-based, rendered ``'c<N>'``. Column ``01`` is ``'c1'``.
 COLUMN_KEY = 'columnID'
+#: The well as the plate reader spells it: ``'C07'``. See :func:`well_id`.
+#:
+#: spaCR keys on (:data:`ROW_KEY`, :data:`COLUMN_KEY`) and never on this, so
+#: it is not part of any composed key and not in
+#: :data:`WELL_KEY_COLUMNS` -- but user metadata routinely arrives with a
+#: ``Well`` / ``well_name`` column instead of a row and a column, and until
+#: instruction 145 it had no canonical spelling at all. It has one now, so
+#: the same file read twice cannot produce two different column names.
+WELL_KEY = 'wellID'
 #: The imaging site within the well, rendered ``'f<N>'``.
 FIELD_KEY = 'fieldID'
 #: The timepoint, rendered ``'t<N>'``. Absent outside a timelapse.
@@ -371,7 +384,22 @@ LEGACY_COLUMN_NAMES: Dict[str, str] = {
     'screen':       SCREEN_KEY,
     'screen_name':  SCREEN_KEY,
     'screen_id':    SCREEN_KEY,
+    'well':         WELL_KEY,
+    'well_name':    WELL_KEY,
+    'well_id':      WELL_KEY,
 }
+
+#: Every canonical metadata key -- the closed vocabulary that
+#: :func:`resolve_metadata_collisions` is allowed to collapse.
+#:
+#: Closed on purpose. Two columns that both mean ``wellID`` are two opinions
+#: about one fact and one of them has to go; two *feature* columns that
+#: happen to normalise alike are data, and dropping one to tidy a name is
+#: never the right trade (see :func:`canonicalise_columns`).
+METADATA_KEYS: Tuple[str, ...] = (
+    PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY, WELL_KEY, SCREEN_KEY,
+    TIME_KEY, CHANNEL_KEY, SLICE_KEY,
+)
 
 #: Both spellings of the time column that exist in databases on disk.
 #: ``png_list`` was written with ``time_id`` while every object table got
@@ -419,13 +447,70 @@ LEGACY_COLUMN_PATTERNS: Tuple[Tuple[Any, str], ...] = (
 )
 
 
+#: Everything that is not a letter or a digit, for :func:`fold_column_name`.
+_NON_ALPHANUMERIC = re.compile(r'[^0-9a-z]+')
+
+
+def fold_column_name(name: Any) -> str:
+    """The form a column name is looked up by: lower case, no punctuation.
+
+    ``'Plate_ID'``, ``'plate id'``, ``'plate.id'`` and ``'plateID'`` all fold
+    to ``'plateid'``. Folding is what keeps :data:`LEGACY_COLUMN_NAMES` a
+    short list of *words* rather than a combinatorial table of every
+    separator a plate reader has ever emitted. The supported aliases include
+    ``Plate``, ``PLATE``, ``plate``, ``plateid``, ``plate_id``,
+    ``plate_name`` and ``plateName`` and this is five entries, not seven.
+
+    :param name: a column name.
+    :returns: the folded form.
+    """
+    return _NON_ALPHANUMERIC.sub('', str(name).lower())
+
+
+def _build_folded_aliases() -> Dict[str, str]:
+    """``{folded spelling: canonical name}``, checked for contradictions.
+
+    Built once at import. A folded key that two different canonical names
+    claim is a bug in the vocabulary rather than something to resolve at
+    runtime, so it raises here -- at import, in every process, instead of
+    renaming a column one way on Tuesday.
+    """
+    folded: Dict[str, str] = {}
+    for canonical in METADATA_KEYS:
+        folded[fold_column_name(canonical)] = canonical
+    for alias, canonical in LEGACY_COLUMN_NAMES.items():
+        key = fold_column_name(alias)
+        existing = folded.get(key)
+        if existing is not None and existing != canonical:
+            raise RuntimeError(
+                f'column alias {alias!r} folds to {key!r}, which already '
+                f'means {existing!r}; it cannot also mean {canonical!r}')
+        folded[key] = canonical
+    return folded
+
+
+#: :data:`LEGACY_COLUMN_NAMES` and :data:`METADATA_KEYS`, keyed by
+#: :func:`fold_column_name`. The lookup :func:`canonical_column_name` uses.
+_FOLDED_ALIASES: Dict[str, str] = _build_folded_aliases()
+
+
 def canonical_column_name(name: Any) -> str:
     """Return the canonical spelling of a metadata or feature column name.
 
-    Metadata lookup is **case-insensitive**, so ``'RowID'``, ``'rowid'`` and
-    ``'row_name'`` all resolve to ``'rowID'``. Feature rewrites
+    Metadata lookup folds **case and punctuation**
+    (:func:`fold_column_name`), so ``'RowID'``, ``'rowid'``, ``'Row Name'``
+    and ``'row_name'`` all resolve to ``'rowID'``. Feature rewrites
     (:data:`LEGACY_COLUMN_PATTERNS`) are case-sensitive. A name matching
     neither is returned unchanged.
+
+    .. note:: What is deliberately **not** in the vocabulary
+
+       Aliases are whole words. ``col`` is here because spaCR itself wrote
+       it; a one-letter ``c`` is not, and never will be, because it would
+       capture a measurement column called ``c`` and rename a real variable
+       into a plate key. A name that is not normalised is visible the moment
+       a user looks at the picker; a measurement silently renamed to
+       ``columnID`` is not, and it corrupts the join it lands in.
 
     This is the *only* implementation. ``spacr.database_schema`` and
     ``spacr.utils`` re-export this function rather than defining their own.
@@ -465,17 +550,12 @@ def canonical_column_name(name: Any) -> str:
             'cell_area'
     """
     text = str(name)
-    lowered = text.lower()
-    for canonical in (PLATE_KEY, ROW_KEY, COLUMN_KEY, FIELD_KEY, TIME_KEY,
-                      CHANNEL_KEY, SLICE_KEY, SCREEN_KEY):
-        if lowered == canonical.lower():
-            return canonical
     # Metadata before features: the alias table is a closed vocabulary of
     # short names, none of which can also match a feature pattern (both
     # patterns are anchored and require a trailing '_<digits>_percentile' or
     # a leading 'organelle_summary_'), so the order is a cost decision, not a
-    # precedence one — a metadata column is answered without touching a regex.
-    alias = LEGACY_COLUMN_NAMES.get(lowered)
+    # precedence one -- a metadata column is answered without touching a regex.
+    alias = _FOLDED_ALIASES.get(fold_column_name(text))
     if alias is not None:
         return alias
     for pattern, replacement in LEGACY_COLUMN_PATTERNS:
@@ -2397,7 +2477,7 @@ def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
 
     * **The frame has no screen column.** It gains one, holding ``screen`` or
       :data:`DEFAULT_SCREEN`. That is a single-screen project, which is every
-      project written before instruction 122, and it must keep working.
+      project written before and it must keep working.
     * **The frame has one, and ``screen`` is ``None``.** Its labels are kept.
       Relabelling a frame that already knows which experiment it came from
       would move rows between screens with nothing on screen to say so.
@@ -2459,6 +2539,261 @@ def canonicalise_columns(df):
     """
     mapping = canonical_rename_plan(df.columns)
     return df.rename(columns=mapping) if mapping else df.copy()
+
+
+# ---------------------------------------------------------------------------
+# One vocabulary: the collision rule, and the plate-value repair
+# ---------------------------------------------------------------------------
+
+#: A doubled plate prefix, the one *value* repair every reader owes a frame.
+_DOUBLED_PLATE_PREFIX = re.compile(r'^pp')
+
+#: The columns a doubled plate prefix reaches. ``plateID`` is the plate
+#: itself; the composed keys carry it as their FIRST component, which is why
+#: repairing the plate column alone leaves every join still broken.
+PLATE_BEARING_COLUMNS: Tuple[str, ...] = (PLATE_KEY, PRC_KEY, PRCF_KEY,
+                                          PRCFO_KEY)
+
+
+def canonical_plate_id(plate: Any) -> str:
+    """The plate id in the form the rest of spaCR keys on.
+
+    A legacy score CSV stamps its plate ``pplate1`` while the sequencing
+    counts stamp it ``plate1``. The two then do not join, the merge returns
+    zero rows, and the run dies several steps later inside a plot with
+    ``KeyError: 0`` -- nowhere near the mismatch and with nothing on screen
+    naming a plate.
+
+    This lives here, and not in :mod:`spacr.multi_database` where it was
+    written, because there must be **one** normaliser:
+    ``utils.correct_metadata`` had the rule for frames, ``multi_database``
+    had it for scalars and for database reads, and the pair had to be pinned
+    against each other by test precisely because they were two. Both now call
+    this. :mod:`spacr.multi_database` re-exports the name, so no caller moved.
+
+    :param plate: a plate id, from anywhere.
+    :returns: the id with a doubled ``p`` prefix collapsed; everything else
+        unchanged.
+    """
+    text = str(plate)
+    return 'p' + text[2:] if text.startswith('pp') else text
+
+
+def normalise_plate_columns(frame):
+    """Collapse a doubled ``p`` prefix in every column that carries a plate.
+
+    Applied on READ, so nothing on disk is rewritten and an old database
+    keeps working. Modifies ``frame`` in place and returns it, which is what
+    the two callers that predate this function both did.
+
+    :param frame: any frame read from a database or a CSV.
+    :returns: the same frame.
+    """
+    for column in PLATE_BEARING_COLUMNS:
+        if column not in frame.columns:
+            continue
+        values = frame[column]
+        # `.str` refuses a non-object column, and a plate id stored as an
+        # INTEGER cannot carry a "pp" prefix, so there is nothing to do.
+        if getattr(values, 'dtype', None) != object:
+            continue
+        frame[column] = values.map(
+            lambda v: canonical_plate_id(v) if isinstance(v, str) else v)
+    return frame
+
+
+def comparable_key_value(value: Any) -> str:
+    """One metadata value, reduced to the form two spellings are compared in.
+
+    ``1``, ``1.0``, ``'01'`` and ``' 1 '`` are the same well. A dtype
+    difference is **not** a disagreement, and this is the whole reason the
+    comparison is not ``Series.equals``: a naive equality warns on every file
+    that stored one copy of the well as text and the other as a number, and a
+    warning that fires every time teaches the user to ignore the one that
+    matters.
+
+    Missing is its own value: ``None``, ``NaN`` and ``''`` all reduce to
+    ``''``, so two columns that are both blank on a row agree there.
+
+    :param value: a single cell.
+    :returns: the comparison string.
+    """
+    if value is None:
+        return ''
+    if isinstance(value, float) and value != value:
+        return ''
+    text = str(value).strip()
+    if not text:
+        return ''
+    try:
+        number = float(text)
+    except (TypeError, ValueError):
+        return text
+    if number != number:
+        return ''
+    if number == int(number):
+        return str(int(number))
+    return str(number)
+
+
+def comparable_key_values(values) -> Tuple[str, ...]:
+    """:func:`comparable_key_value` over a column."""
+    return tuple(comparable_key_value(value) for value in values)
+
+
+@dataclass(frozen=True)
+class ColumnCollision:
+    """What happened when several columns claimed one metadata key."""
+
+    #: the canonical key they all meant, e.g. ``'wellID'``.
+    canonical: str
+    #: every source column, in the order the frame carried them.
+    sources: Tuple[str, ...]
+    #: the one that was kept and renamed to :attr:`canonical`.
+    chosen: str
+    #: the ones that were dropped.
+    dropped: Tuple[str, ...]
+    #: how many rows the sources did not all agree on.
+    disagreeing_rows: int
+    #: how many rows there were.
+    rows: int
+
+    @property
+    def agreed(self) -> bool:
+        """Whether every row said the same thing."""
+        return self.disagreeing_rows == 0
+
+    @property
+    def message(self) -> str:
+        """The sentence a user is shown -- printed, or warned."""
+        listed = ', '.join(self.sources)
+        if self.agreed:
+            return (f'{self.canonical} metadata columns {listed} agree; '
+                    f'{self.chosen} is being used and the rest are dropped')
+        return (f'{self.canonical} metadata columns {listed} do not agree '
+                f'({self.disagreeing_rows} of {self.rows} rows differ); '
+                f'{self.chosen} is being used and the rest are dropped')
+
+
+def _choose_source(canonical: str, names: Tuple[str, ...]) -> str:
+    """Which spelling wins: the canonical one, else the leftmost."""
+    for name in names:
+        if name == canonical:
+            return name
+    return names[0]
+
+
+def resolve_metadata_collisions(frame, *, report=None, warn=None):
+    """Collapse every group of columns that mean the same metadata key.
+
+    Several columns can normalise to one
+    key -- a file carrying ``well``, ``wellID`` and ``well_name`` has three
+    opinions about which well a row came from, and every join downstream is
+    silently picking one of them. What happens is decided by whether they
+    **agree row by row** (:func:`comparable_key_value`):
+
+    * **they agree** -- keep one, drop the rest, and *print*. Nothing is
+      wrong, so nothing warns.
+    * **they disagree** -- the same action, and a **warning** naming the
+      columns, the choice, and *how many rows differ*. That count is the
+      point: "they disagree" is not actionable, "3 of 40 000 rows disagree"
+      is a typo and "40 000 of 40 000" is the wrong file.
+
+    Only :data:`METADATA_KEYS` are collapsed. Two feature columns that
+    normalise alike keep both spellings, because a measurement is data and
+    dropping one to tidy a name is not this function's call to make.
+
+    Duplicate column *labels* are handled positionally, so a frame that
+    already carries two columns both literally named ``rowID`` -- which
+    ``pandas`` allows and ``to_sql`` refuses -- is repaired rather than
+    raising.
+
+    :param frame: :class:`pandas.DataFrame`.
+    :param report: called with each agreeing collision's message. Pass
+        ``print`` to show them; ``None`` is silent.
+    :param warn: called with each disagreeing collision's message. ``None``
+        routes to :func:`warnings.warn`; pass a callable to capture them.
+    :returns: ``(frame, collisions)``. The frame is new when anything
+        changed and ``frame`` itself when nothing did.
+    """
+    import warnings
+
+    groups: Dict[str, list] = {}
+    for position, name in enumerate(frame.columns):
+        canonical = canonical_column_name(name)
+        if canonical in METADATA_KEYS:
+            groups.setdefault(canonical, []).append((position, str(name)))
+
+    collisions = []
+    dropped_positions = set()
+    for canonical, entries in groups.items():
+        if len(entries) < 2:
+            continue
+        names = tuple(name for _, name in entries)
+        chosen = _choose_source(canonical, names)
+        chosen_position = next(position for position, name in entries
+                               if name == chosen)
+        columns = [comparable_key_values(frame.iloc[:, position])
+                   for position, _ in entries]
+        first = columns[0]
+        differing = sum(1 for row in zip(*columns)
+                        if any(value != row[0] for value in row[1:]))
+        collision = ColumnCollision(
+            canonical=canonical, sources=names, chosen=chosen,
+            dropped=tuple(name for position, name in entries
+                          if position != chosen_position),
+            disagreeing_rows=differing, rows=len(first))
+        collisions.append(collision)
+        dropped_positions.update(position for position, _ in entries
+                                 if position != chosen_position)
+        if collision.agreed:
+            if report is not None:
+                report(collision.message)
+        elif warn is None:
+            warnings.warn(collision.message, stacklevel=2)
+        else:
+            warn(collision.message)
+
+    if dropped_positions:
+        keep = [position for position in range(len(frame.columns))
+                if position not in dropped_positions]
+        frame = frame.iloc[:, keep]
+    return frame, tuple(collisions)
+
+
+def canonicalise_frame(frame, *, report=None, warn=None,
+                       repair_plate_ids: bool = True):
+    """The whole vocabulary applied to one frame: the reader's normaliser.
+
+    Three steps, in this order and for this reason:
+
+    1. :func:`resolve_metadata_collisions` -- collapse duplicate opinions
+       *before* renaming, because renaming first is what produces two columns
+       called ``rowID`` and a ``to_sql`` that refuses the table.
+    2. :func:`canonical_rename_plan` -- the surviving legacy spellings, plus
+       the legacy *feature* spellings, renamed.
+    3. :func:`normalise_plate_columns` -- the ``pplate1`` value repair, on
+       every column that carries a plate.
+
+    Every collision is recorded on ``frame.attrs['column_collisions']`` as
+    well as reported, so a GUI can show what a read decided without having
+    intercepted the callbacks.
+
+    :param frame: :class:`pandas.DataFrame`.
+    :param report: see :func:`resolve_metadata_collisions`.
+    :param warn: see :func:`resolve_metadata_collisions`.
+    :param repair_plate_ids: apply step 3. Off for a caller that must see the
+        stored plate id exactly as written.
+    :returns: a new frame.
+    """
+    frame, collisions = resolve_metadata_collisions(
+        frame, report=report, warn=warn)
+    mapping = canonical_rename_plan(frame.columns)
+    frame = frame.rename(columns=mapping) if mapping else frame.copy()
+    if repair_plate_ids:
+        normalise_plate_columns(frame)
+    frame.attrs['column_collisions'] = collisions
+    return frame
 
 
 def validate_object_table_frame(
