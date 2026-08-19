@@ -2818,6 +2818,19 @@ class ReanchorReport:
         """
         if not self.failures:
             return ""
+        # A ROUTE THAT IS NOT ON THIS MACHINE IS NOT N FAILURES.
+        #
+        # Measured on the maintainer's screen: all 60,816 `png_path` values
+        # re-anchored and all 60,816 `path_name` values could not, because
+        # that screen has PNG crops and no `merged/` folder -- and it is
+        # completely healthy. Reported together they read as "60,816 of
+        # 121,632 could not be re-anchored", which is the false alarm that
+        # teaches a reader to ignore the true one. Same distinction
+        # `spacr.portable_paths.RerootReport` draws.
+        if self.n_reanchored == 0 and self.n_already == 0:
+            return (f"none of the {self.n_failed:,} recorded path(s) are "
+                    f"under {self.root} -- that route's files are not on this "
+                    f"machine")
         return (f"{self.n_failed:,} of {self.n_paths:,} recorded paths could "
                 f"not be re-anchored under {self.root} -- they contain none "
                 f"of {list(PATH_ANCHORS)}; the first is {self.failures[0]}")
@@ -2957,6 +2970,42 @@ class CropSource:
         return f"{self.kind} crop source ({self.reason})" if self.reason else f"{self.kind} crop source"
 
 
+
+#: Print the path of every crop as it is read. Asked for 2026-08-19 -- "can
+#: you have the software print the path for each cell it loads in the
+#: console" -- while working out whether a montage was looking in the right
+#: place. On by default because that is what it is for; a caller drawing
+#: thousands of crops can turn it off.
+PRINT_CROP_PATHS = True
+
+#: Paths already announced this session, so a montage redrawn five times does
+#: not print the same three hundred lines five times.
+_ANNOUNCED_CROPS: set = set()
+
+
+def say_crop_paths(on: bool = True) -> None:
+    """Turn the per-crop path printing on or off."""
+    global PRINT_CROP_PATHS
+    PRINT_CROP_PATHS = bool(on)
+
+
+def forget_announced_crops() -> None:
+    """Announce every path again -- a new montage is a new question."""
+    _ANNOUNCED_CROPS.clear()
+
+
+def _say_which_crop(path: str) -> None:
+    """Print the crop being opened, once per path."""
+    if not PRINT_CROP_PATHS or not path:
+        return
+    text = str(path)
+    if text in _ANNOUNCED_CROPS:
+        return
+    _ANNOUNCED_CROPS.add(text)
+    exists = "" if os.path.exists(text) else "   <- NOT ON DISK"
+    print(f"crop: {text}{exists}", flush=True)
+
+
 class PngCropSource(CropSource):
     """The existing behaviour: read the pre-generated PNG named by the row.
 
@@ -3039,7 +3088,9 @@ class PngCropSource(CropSource):
             legitimately give different pixels before and after a folder is
             marked or migrated.
         """
-        return read_crop_png(self.resolve(row), db_path=self.db_path)
+        path = self.resolve(row)
+        _say_which_crop(path)
+        return read_crop_png(path, db_path=self.db_path)
 
 
 class MergedCropSource(CropSource):
@@ -3249,6 +3300,45 @@ def _has_png_folder(root: str) -> bool:
     return False
 
 
+
+# --------------------------------------------------------------------------- #
+#  What the two picture sources are CALLED (instruction 171)
+# --------------------------------------------------------------------------- #
+#
+# One idea had three spellings: 'auto'/'png'/'merged' here,
+# 'pre_generated'/'on_demand'/'generate' in the training settings, and two more
+# proposed for the Cells tab. These are the names a USER sees; the stored
+# values stay 'png' and 'merged', so no settings file already on disk changes
+# meaning.
+#
+# 'auto' is not retired from the code -- it is still the answer to "what is
+# available here" -- it is retired from the panels, where it is not an answer
+# to "which mode do you want".
+
+#: Read the crops already written under ``data/``. THE DEFAULT, always.
+LOAD_IMAGES = "png"
+LOAD_IMAGES_LABEL = "load images"
+
+#: Cut them out of ``merged/*.npy`` as it goes.
+STREAM_IMAGES = "merged"
+STREAM_IMAGES_LABEL = "stream images"
+
+#: ``(value, label)`` in the order a panel should offer them.
+PICTURE_SOURCES: Tuple[Tuple[str, str], ...] = (
+    (LOAD_IMAGES, LOAD_IMAGES_LABEL),
+    (STREAM_IMAGES, STREAM_IMAGES_LABEL),
+)
+
+
+def picture_source_label(value: str) -> str:
+    """The user-facing name for a stored crop-source value."""
+    text = str(value or "").strip().lower()
+    for stored, label in PICTURE_SOURCES:
+        if text == stored:
+            return label
+    return text or LOAD_IMAGES_LABEL
+
+
 def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
                         *, object_type: Optional[str] = None,
                         prefer: Optional[str] = None) -> CropSource:
@@ -3301,14 +3391,34 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     has_png = _has_png_folder(root)
     has_merged = os.path.isdir(merged_dir)
 
-    if choice == "png":
-        return PngCropSource(root=root, reason="requested explicitly")
+    # LOAD IMAGES, AND FALL BACK TO STREAM IMAGES RATHER THAN FAIL LATER.
+    #
+    # Instruction 171: "the default should always be loade images which loades
+    # from data folder. if that fails it should always try the other."
+    #
+    # `choice == "png"` used to return a PngCropSource WITHOUT asking whether
+    # `data/` was there, so an explicit request on a screen that has only
+    # `merged/` handed back a source that could not read anything and failed
+    # later, somewhere with less context.
+    #
+    # THE FALLBACK IS RECORDED IN `reason`, which is the condition 171 puts on
+    # it: a fallback nobody can see is what makes a user believe they are
+    # looking at a crop they are not. Every caller already shows `reason`.
+    if choice == "png" and has_png:
+        return PngCropSource(root=root, reason=LOAD_IMAGES_LABEL)
     if choice == "auto" and has_png:
         return PngCropSource(
             root=root,
-            reason=f"pre-generated PNG crops found under {os.path.join(root, 'data')}")
+            reason=f"{LOAD_IMAGES_LABEL}: pre-generated crops found under "
+                   f"{os.path.join(root, 'data')}")
 
     if not has_merged:
+        if choice == "merged" and has_png:
+            return PngCropSource(
+                root=root,
+                reason=f"{STREAM_IMAGES_LABEL} was asked for and there is no "
+                       f"'merged/' folder under {root}, so this is "
+                       f"{LOAD_IMAGES_LABEL} instead")
         raise CropError(
             f"no crop source available for {root}: no '*_png' folder under "
             f"'data/' and no 'merged/' folder")
@@ -3330,9 +3440,16 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     spec = crop_spec_from_settings(merged_settings, object_type=object_type)
 
     if choice == "merged":
-        reason = "requested explicitly"
+        reason = STREAM_IMAGES_LABEL
+    elif choice == "png":
+        # Asked for by name, and `data/` is not there. The other route is,
+        # so it draws -- and says that it is not what was asked for.
+        reason = (f"{LOAD_IMAGES_LABEL} was asked for and there is no "
+                  f"'*_png' folder under {os.path.join(root, 'data')}, so "
+                  f"this is {STREAM_IMAGES_LABEL} instead")
     else:
-        reason = "no pre-generated PNG crops found; cutting from merged/*.npy"
+        reason = (f"{STREAM_IMAGES_LABEL}: no pre-generated crops found, "
+                  f"cutting from merged/*.npy")
     if saved:
         reason += " (crop settings recovered from measurements.db)"
     return MergedCropSource(spec=spec, merged_root=merged_dir,
