@@ -103,28 +103,31 @@ spaCR Python **3.9 से 3.14** का समर्थन करता है (
 
 .. spacr-installer-links-begin
 
-|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11: डाउनलोड SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (इंटेल और एप्पल सिलिकॉन): डाउनलोड SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-बिट Linux: डाउनलोड SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: spaCR के पुराने इंस्टॉलर
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
 
 .. spacr-installer-links-end
 
 
-ऊपर दिए गए चिह्न हमेशा नवीनतम संस्करण की ओर संकेत करते हैं। हर पुराना
-संस्करण `इंस्टॉलर संग्रह <https://einarolafsson.github.io/spacr/installers.html>`_ से अब भी डाउनलोड
-किया जा सकता है — एक तालिका, प्रति संस्करण एक पंक्ति, और हर इंस्टॉलर
-उसी संस्करण को स्थापित करता है जिसके लिए वह बनाया गया था।
+पहले तीन चिह्न नवीनतम संस्करण डाउनलोड करते हैं। पूरा संस्करण संग्रह खोलने के
+लिए Legacy चुनें; हर इंस्टॉलर उसी संस्करण को स्थापित करता है जिसके लिए
+वह बनाया गया था।
 
 हल्के इंस्टॉलर — conda या पहले से स्थापित Python की आवश्यकता नहीं
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

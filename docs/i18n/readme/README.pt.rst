@@ -103,28 +103,31 @@ Detalhes da instalação
 
 .. spacr-installer-links-begin
 
-|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11: baixar o SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel e Apple Silicon): baixar o SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Linux de 64 bits: baixar o SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Instaladores anteriores do spaCR
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
 
 .. spacr-installer-links-end
 
 
-Os ícones acima apontam sempre para a versão mais recente. Todas as
-anteriores continuam a poder ser transferidas a partir do `arquivo de
-instaladores <https://einarolafsson.github.io/spacr/installers.html>`_ — uma tabela, uma linha por
-versão, e cada instalador fixa a versão para a qual foi construído.
+Os três primeiros ícones transferem a versão mais recente. Selecione
+Legacy para abrir o arquivo completo; cada instalador fixa a versão para a
+qual foi construído.
 
 Instaladores leves — não exigem conda nem uma instalação existente do Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -103,28 +103,30 @@ Upplýsingar um uppsetningu
 
 .. spacr-installer-links-begin
 
-|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11: hala niður SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel og Apple silicon): hala niður SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-bita Linux: hala niður SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Eldri spaCR-uppsetningarforrit
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
 
 .. spacr-installer-links-end
 
 
-Táknin hér að ofan vísa alltaf á nýjustu útgáfuna. Allar eldri útgáfur
-eru enn niðurhalanlegar úr `uppsetningarsafninu
-<https://einarolafsson.github.io/spacr/installers.html>`_ — ein tafla, ein lína á útgáfu, og hvert
-uppsetningarforrit festir þá útgáfu sem það var byggt fyrir.
+Fyrstu þrjú táknin sækja nýjustu útgáfuna. Veldu Legacy fyrir allt
+útgáfusafnið; hvert uppsetningarforrit festir þá útgáfu sem það var byggt fyrir.
 
 Létt uppsetningarforrit — hvorki conda né uppsett Python nauðsynlegt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

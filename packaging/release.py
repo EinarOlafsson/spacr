@@ -35,7 +35,7 @@ LOCALIZED_README_CODES = (
 #: icon hotlinked from a CDN dies the day that host moves and leaks a request
 #: to a third party for every reader of the page.
 README_ICON_ROOT = (
-    "https://raw.githubusercontent.com/EinarOlafsson/spacr/main"
+    "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly"
     "/spacr/resources/icons/platforms"
 )
 README_ICON_WIDTH = 64
@@ -44,6 +44,15 @@ README_ICONS = (
     ("Windows", "windows", "Windows 10/11"),
     ("MacOS", "macos", "macOS 11+ (Intel and Apple silicon)"),
     ("Linux", "linux", "64-bit Linux"),
+)
+README_ICON_ORDER = ("Linux", "MacOS", "Windows")
+LEGACY_ICON = ("Legacy", "legacy", "Earlier spaCR installers")
+# GitHub renders this committed RST page directly, so the archive remains
+# reachable from the nightly README even while the public Sphinx site is only
+# deployed from main.
+INSTALLER_ARCHIVE_URL = (
+    "https://github.com/EinarOlafsson/spacr/blob/nightly/"
+    "docs/source/installers.rst"
 )
 
 #: Where the generated download archive is written. It is a page of the
@@ -102,7 +111,10 @@ def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:
     found = []
     for label, suffix in PLATFORMS:
         name = f"spaCR-{version}-{suffix}"
-        matches = list(source.rglob(name))
+        matches = [
+            path for path in source.rglob("*")
+            if path.is_file() and path.name.lower() == name.lower()
+        ]
         if len(matches) != 1:
             raise ValueError(
                 f"Expected exactly one {name} below {source}, found {len(matches)}")
@@ -136,7 +148,8 @@ def _readme_links(version: str, branch: str) -> str:
     # older local release commands. Published README links intentionally use
     # immutable GitHub release assets rather than mutable branch contents.
     del branch
-    references = " ".join(f"|Installer{key}|" for key, _, _ in README_ICONS)
+    references = " ".join(
+        f"|Installer{key}|" for key in (*README_ICON_ORDER, LEGACY_ICON[0]))
     lines = [README_BEGIN, "", references, ""]
     for (key, platform, alt), (label, suffix) in zip(README_ICONS, PLATFORMS):
         name = f"spaCR-{version}-{suffix}"
@@ -147,6 +160,14 @@ def _readme_links(version: str, branch: str) -> str:
             f"   :alt: Download spaCR {version} for {alt or label}",
             f"   :target: {url}",
         ])
+    legacy_key, legacy_stem, legacy_alt = LEGACY_ICON
+    lines.extend([
+        f".. |Installer{legacy_key}| image:: "
+        f"{README_ICON_ROOT}/{legacy_stem}.png",
+        f"   :width: {README_ICON_WIDTH}",
+        f"   :alt: {legacy_alt}",
+        f"   :target: {INSTALLER_ARCHIVE_URL}",
+    ])
     lines.extend(["", README_END])
     return "\n".join(lines)
 
@@ -252,7 +273,7 @@ def installer_index_rows(releases) -> list[tuple[str, dict[str, str]]]:
         not a version -- silently dropping it would be a missing row on a page
         nobody re-reads.
     """
-    rows = []
+    rows = {}
     for release in releases:
         tag = str(release.get("tag_name") or "")
         found = {}
@@ -272,9 +293,47 @@ def installer_index_rows(releases) -> list[tuple[str, dict[str, str]]]:
                 f"release {tag!r} ships installers but its tag is not a "
                 f"version, so it cannot be placed in the archive table"
             ) from exc
-        rows.append((version, found))
-    rows.sort(key=lambda row: row[0], reverse=True)
-    return [(str(version), assets) for version, assets in rows]
+        rows.setdefault(version, {}).update(found)
+    return [
+        (str(version), rows[version])
+        for version in sorted(rows, reverse=True)
+    ]
+
+
+def local_installer_release(directory: Path, version: str) -> dict:
+    """Describe locally collected installers as the release about to ship.
+
+    The installer workflow runs before GitHub creates the release. Supplying
+    this synthetic row lets the committed archive link to the new version on
+    the same run instead of staying one release behind.
+
+    :param directory: folder containing the just-built installers.
+    :param version: release version represented by those files.
+    :returns: a GitHub-release-shaped mapping for
+        :func:`installer_index_rows`.
+    :raises ValueError: when the folder does not contain exactly one file for
+        each supported platform.
+    """
+    assets = []
+    for _label, suffix in PLATFORMS:
+        matches = [
+            path for path in directory.iterdir()
+            if path.is_file()
+            and path.name.lower() == f"spacr-{version}-{suffix}".lower()
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                f"Expected exactly one spaCR-{version}-{suffix} in "
+                f"{directory}, found {len(matches)}"
+            )
+        name = matches[0].name
+        assets.append({
+            "name": name,
+            "browser_download_url": (
+                f"{RELEASE_DOWNLOAD_ROOT}/v{version}/{name}"
+            ),
+        })
+    return {"tag_name": f"v{version}", "assets": assets}
 
 
 def render_installer_index(releases, current_version: str) -> str:
@@ -303,13 +362,11 @@ def render_installer_index(releases, current_version: str) -> str:
         "Installer archive",
         "=================",
         "",
-        "Every spaCR release that shipped desktop installers, newest first.",
-        "The README always links to the latest; this page is where to find",
-        "any other version.",
+        "Choose a platform icon to download that version of spaCR. Releases",
+        "are listed newest first, and the current release is marked below.",
         "",
-        "These are *online* installers, and each one pins the version it was",
-        "built for -- ``spacr[...]==<version>`` -- so an installer from this",
-        "table installs that release and not the current one.",
+        "These are *online* installers. Each one installs the spaCR version",
+        "shown in its row, even when a newer release is available.",
         "",
     ]
     for key in INSTALLER_INDEX_COLUMNS:
@@ -317,6 +374,23 @@ def render_installer_index(releases, current_version: str) -> str:
             f".. |{key}| image:: {README_ICON_ROOT}/{stem_by_key[key]}.png",
             f"   :width: {INSTALLER_INDEX_ICON_WIDTH}",
             f"   :alt: {alt_by_key[key]}",
+            "",
+        ])
+    link_icons = []
+    for version, assets in rows:
+        for key in INSTALLER_INDEX_COLUMNS:
+            url = assets.get(suffix_by_key[key])
+            if url is None:
+                continue
+            substitution = f"{key}-{version.replace('.', '-')}"
+            link_icons.append((substitution, key, version, url))
+    for substitution, key, version, url in link_icons:
+        lines.extend([
+            f".. |{substitution}| image:: "
+            f"{README_ICON_ROOT}/{stem_by_key[key]}.png",
+            f"   :width: {INSTALLER_INDEX_ICON_WIDTH}",
+            f"   :alt: Download spaCR {version} for {alt_by_key[key]}",
+            f"   :target: {url}",
             "",
         ])
     lines.extend([
@@ -337,11 +411,8 @@ def render_installer_index(releases, current_version: str) -> str:
                 # cell, never a link that 404s.
                 lines.append("     - ")
             else:
-                extension = Path(suffix_by_key[key]).suffix
-                # An ANONYMOUS reference (two underscores). Every row reuses
-                # the same three link labels, and a named target repeated with
-                # a different URL is a duplicate-target error in docutils.
-                lines.append(f"     - `{extension} <{url}>`__")
+                substitution = f"{key}-{version.replace('.', '-')}"
+                lines.append(f"     - |{substitution}|")
     lines.append("")
     return "\n".join(lines)
 
@@ -373,16 +444,25 @@ def write_installer_index(
     destination: Path,
     setup_path: Path,
     releases=None,
+    current_installers: Path | None = None,
 ) -> Path:
     """Write the archive page and return where it went.
 
     :param destination: the page to write.
     :param setup_path: ``setup.py``, read for the current version.
     :param releases: release list; fetched from GitHub when omitted.
+    :param current_installers: optional just-built installer folder to merge
+        into the published release history.
     :returns: the written path.
     """
     if releases is None:
         releases = fetch_releases()
+    if current_installers is not None:
+        releases = [
+            *releases,
+            local_installer_release(
+                current_installers, read_version(setup_path)),
+        ]
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(
         render_installer_index(releases, read_version(setup_path)),
@@ -407,20 +487,41 @@ def collect_installers(
     }
     destination.mkdir(parents=True, exist_ok=True)
 
-    # This folder intentionally contains only the current lightweight set.
-    expected_names = {path.name for _, path in installers}
-    for old in destination.glob("spaCR-*-Online*"):
-        if old.name not in expected_names and old.is_file():
-            old.unlink()
-
     copied = []
-    manifest_rows = []
-    for label, path in installers:
-        target = destination / path.name
-        shutil.copy2(path, target)
+    for _label, path in installers:
+        case_match = next(
+            (existing for existing in destination.iterdir()
+             if existing.is_file()
+             and existing.name.lower() == path.name.lower()),
+            None,
+        )
+        target = case_match or destination / path.name
+        if path.resolve() != target.resolve():
+            shutil.copy2(path, target)
         copied.append(target)
-        digest = hashlib.sha256(target.read_bytes()).hexdigest()
-        manifest_rows.append((label, target.name, target.stat().st_size, digest))
+
+    manifest_rows = []
+    for candidate in destination.iterdir():
+        if not candidate.is_file():
+            continue
+        for label, suffix in PLATFORMS:
+            match = re.fullmatch(
+                rf"spacr-(?P<version>.+)-{re.escape(suffix)}",
+                candidate.name,
+                flags=re.IGNORECASE,
+            )
+            if match is None:
+                continue
+            parsed = Version(match.group("version"))
+            digest = hashlib.sha256(candidate.read_bytes()).hexdigest()
+            manifest_rows.append((parsed, label, candidate, digest))
+            break
+    platform_order = {
+        label: index
+        for index, (label, _suffix) in enumerate(reversed(PLATFORMS))
+    }
+    manifest_rows.sort(key=lambda row: platform_order[row[1]])
+    manifest_rows.sort(key=lambda row: row[0], reverse=True)
 
     application_readme = [
         "spaCR lightweight installers",
@@ -428,17 +529,19 @@ def collect_installers(
         "",
         f"Current version: ``{version}``",
         "",
+        "New releases are added here without removing earlier versions.",
         "These small online installers download a private Python runtime and",
-        "dependencies during installation. SHA-256 hashes:",
+        "dependencies during installation. Every installer pins the spaCR",
+        "version in its filename.",
         "",
     ]
-    for label, name, size, digest in manifest_rows:
+    for retained_version, label, path, digest in manifest_rows:
         application_readme.extend([
-            label,
-            "-" * len(label),
+            f"spaCR {retained_version} — {label}",
+            "-" * len(f"spaCR {retained_version} — {label}"),
             "",
-            f"* File: ``{name}``",
-            f"* Size: ``{size}`` bytes",
+            f"* File: ``{path.name}``",
+            f"* Size: ``{path.stat().st_size}`` bytes",
             f"* SHA-256: ``{digest}``",
             "",
         ])
@@ -492,6 +595,10 @@ def main() -> int:
     index_parser.add_argument(
         "--releases", type=Path,
         help="a recorded GitHub release list, instead of fetching one")
+    index_parser.add_argument(
+        "--current-installers", type=Path,
+        help=("folder containing the just-built release installers; adds the "
+              "new row before the GitHub release itself exists"))
 
     args = parser.parse_args()
     if args.command == "version":
@@ -507,7 +614,8 @@ def main() -> int:
         releases = (
             json.loads(args.releases.read_text(encoding="utf-8"))
             if args.releases else None)
-        print(write_installer_index(args.output, args.setup, releases))
+        print(write_installer_index(
+            args.output, args.setup, releases, args.current_installers))
     else:
         for path in collect_installers(
                 args.source, args.destination, args.readme, args.setup,

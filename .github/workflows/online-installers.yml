@@ -292,15 +292,16 @@ jobs:
             --readme README.rst \
             --localized-readme-dir docs/i18n/readme \
             --branch "$TARGET_BRANCH"
-      # `collect` above rewrote the README's three links to the version just
-      # released, so the previous version is now unreachable from anywhere in
-      # the project. The archive page is the only path back to it, and it is
-      # regenerated from the published release list rather than edited --
-      # a hand-maintained table of download links is wrong one release later.
+      # The GitHub release is created after this reusable workflow returns.
+      # Merge the just-built local files into the published history so the
+      # archive gains the new row on this run, not on the following release.
       - name: Regenerate the installer archive page
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python packaging/release.py index --output docs/source/installers.rst
+        run: |
+          python packaging/release.py index \
+            --output docs/source/installers.rst \
+            --current-installers spacr/application
       - name: Commit generated application installers
         id: commit
         env:

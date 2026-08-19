@@ -182,3 +182,12 @@ and `docs/source`. `.github/workflows/docs.yml` runs
 `sphinx-build docs/source docs/_build/html` after `rm -rf docs/_build`, so a
 page written into the built copy disappears on the next build. The page is in
 `docs/source/` and in `index.rst`'s toctree.
+
+--------------------------------------------------------------------------------
+SUPERSEDED -- 2026-08-19
+--------------------------------------------------------------------------------
+
+Instruction 120 was reopened for the follow-up request and now owns this
+surface. In particular, the earlier deliberate choice not to retain copies in
+``spacr/application`` no longer applies: the maintainer explicitly requested
+that each versioned lightweight installer remain in that folder.

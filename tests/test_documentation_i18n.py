@@ -2745,9 +2745,9 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        # thirteen badges, the workflow diagram, and the three installer
-        # download icons that replaced the installer text links
-        assert len(alt_text) == 17
+        # thirteen badges, the workflow diagram, three current-installer
+        # icons, and the legacy archive icon
+        assert len(alt_text) == 18
         assert workflow_alt in alt_text
         assert "spaCR workflow and output organization" not in alt_text
         assert "Interactive tutorials" not in alt_text
@@ -2755,10 +2755,11 @@ def test_localized_readme_images_have_reviewed_accessible_text():
 
         # The download icons carry the only text a screen reader gets for
         # them, so it has to be this language's own, not English left behind.
-        installers = alt_text[-3:]
-        for platform, alt in zip(("Windows", "macOS", "Linux"), installers):
+        installers = alt_text[-4:]
+        for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (
                 f"{language}: {alt!r} is not the {platform} download icon")
+        assert "spaCR" in installers[3]
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 

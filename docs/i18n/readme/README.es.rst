@@ -103,28 +103,31 @@ Detalles de instalación
 
 .. spacr-installer-links-begin
 
-|InstallerWindows| |InstallerMacOS| |InstallerLinux|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11: descargar SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel y silicio Apple): descargar SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64-bit Linux: descargar SpaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
+.. |InstallerLegacy| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/legacy.png
+   :width: 64
+   :alt: Instaladores anteriores de spaCR
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
 
 .. spacr-installer-links-end
 
 
-Los iconos de arriba apuntan siempre a la versión más reciente. Todas
-las anteriores siguen descargándose desde el `archivo de instaladores
-<https://einarolafsson.github.io/spacr/installers.html>`_ — una tabla, una fila por versión, y cada
-instalador fija la versión para la que se construyó.
+Los tres primeros iconos descargan la versión más reciente. Elija Legacy
+para abrir el archivo completo; cada instalador fija la versión para la que se
+construyó.
 
 Instaladores ligeros — no requieren conda ni una instalación de Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

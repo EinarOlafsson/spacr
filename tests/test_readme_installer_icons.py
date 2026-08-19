@@ -1,4 +1,4 @@
-"""The README's three installer downloads are drawn platform icons.
+"""The README's installers and archive are drawn as linked icons.
 
 What these tests protect is not "an image directive exists". It is the set of
 ways an icon row silently stops working:
@@ -44,6 +44,7 @@ PLATFORM_ASSETS = {
     "macos": "macOS-Universal-Online.pkg",
     "linux": "Linux-x86_64-Online.run",
 }
+ALL_ICON_STEMS = (*PLATFORM_ASSETS, "legacy")
 
 #: github/markup renders ``.rst`` with docutils configured like this. Raw HTML
 #: is off, which is why the README cannot use the ``<picture>`` +
@@ -158,15 +159,27 @@ def test_the_icons_are_committed_here_and_not_hotlinked():
     """Every image in the block is served from this repository."""
     block = _block()
     urls = re.findall(r"image:: (\S+)", block)
-    assert len(urls) == len(PLATFORM_ASSETS)
+    assert len(urls) == len(ALL_ICON_STEMS)
     prefix = (
-        "https://raw.githubusercontent.com/EinarOlafsson/spacr/main"
+        "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly"
         "/spacr/resources/icons/platforms/"
     )
     for url in urls:
         assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
         committed = ICON_DIR / url[len(prefix):]
         assert committed.is_file(), f"{url} has no committed artwork"
+
+
+def test_legacy_is_the_fourth_link_and_opens_the_version_archive():
+    html, _messages = _render_readme(README.read_text(encoding="utf-8"))
+    links = _linked_images(html)
+    legacy = next(src for src in links if src.endswith("/legacy.png"))
+    assert links[legacy].endswith("/blob/nightly/docs/source/installers.rst")
+    row = re.search(r"(?m)^\|Installer.+\|$", _block()).group(0)
+    assert row.split() == [
+        "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|",
+        "|InstallerLegacy|",
+    ]
 
 
 def test_no_platform_is_left_as_a_bare_text_link():
@@ -180,7 +193,7 @@ def test_no_platform_is_left_as_a_bare_text_link():
 
 # ------------------------------------------------------------------ the art
 
-@pytest.mark.parametrize("stem", sorted(PLATFORM_ASSETS))
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
 def test_the_icon_carries_its_own_background_into_a_white_page(stem):
     """White art on transparency is invisible on GitHub's light-mode page.
 
@@ -200,7 +213,7 @@ def test_the_icon_carries_its_own_background_into_a_white_page(stem):
         f"{stem}.png's chip {chip} vanishes into a dark README page")
 
 
-@pytest.mark.parametrize("stem", sorted(PLATFORM_ASSETS))
+@pytest.mark.parametrize("stem", sorted(ALL_ICON_STEMS))
 def test_the_glyph_is_white_and_nothing_else_is_painted(stem):
     """One ink, one chip.
 
@@ -269,7 +282,7 @@ def test_the_release_helper_still_bumps_the_icon_block(tmp_path):
         expected = ASSET_URL.format(version="9.9.9", fragment=fragment)
         assert expected in block, f"{expected} is not in the bumped block"
     assert "1.5.0" not in block, "a stale version survived the bump"
-    assert block.count("/platforms/") == 3, "the artwork links were rewritten"
+    assert block.count("/platforms/") == 4, "the artwork links were rewritten"
     assert updated[:start] == README.read_text(encoding="utf-8")[:start]
 
 

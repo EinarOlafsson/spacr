@@ -2,11 +2,16 @@
 THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
 ================================================================================
 
-Status:    filed 2026-08-16, not started.
+Status:    completed 2026-08-19.
 Requested: 2026-08-16 - "add to instructions in the readme the links for the
            installer downloads should be icons for linux (the penguin, but
            just with white lines) osx (the apple, just a white apple) and
            windows (the windows sign, but just white)"
+Requested: 2026-08-19 - "for the readme and github page i tried to add a linux an allpe and a windows icon to click on instead of just the blue text links, but they are not showing up. please look into this and fix them
+
+           i weant 3 black and white icons for linux a linux penguine in white, for apple an applie logo in white, and for windows a windows 11 window (the 4 adjacent rectangles, you know what i mean)
+
+           these should be clickable a down loade of each installer. theere should be an icon to the right of these with the spacer logo, that says legacy, if clicked the user is brought to a page with the old versions of spacr. also make sure that the old versions are saved when new versions are released, the generation of the installers is automatic, so it should also be automatic that with a new release the installer links are incremented. but the old links should still be available via this legacy page. and the old installers not deleted but just kept in the folder, it can be the same folder as the new versions as the names will increment with version."
 
 --------------------------------------------------------------------------------
 WHAT TO BUILD
@@ -159,3 +164,46 @@ NOT DONE, DELIBERATELY
   the new alt-text count (14 -> 17) and now also asserts the download alts are
   localised rather than English. Both were committed separately so they can be
   reverted on their own.
+
+--------------------------------------------------------------------------------
+REOPENED -- 2026-08-19
+--------------------------------------------------------------------------------
+
+The artwork exists on ``nightly`` but not on ``main``. Every README image URL
+hard-codes ``main``, so all three live image requests return 404. The legacy
+link also returns 404 because the generated installer page has not reached the
+published GitHub Pages site. This is a delivery failure, not a drawing failure.
+
+This reopened task absorbs instruction 123. Its earlier decision not to retain
+the lightweight installers in ``spacr/application`` is explicitly superseded
+by the maintainer's new request: versioned installers must accumulate there,
+the generated archive must include the release being built without waiting for
+a later release, and the fourth README tile must open that archive.
+
+--------------------------------------------------------------------------------
+RESULT -- 2026-08-19
+--------------------------------------------------------------------------------
+
+The broken delivery path is fixed. README artwork now comes from the shared
+``nightly`` branch where the committed images exist, instead of ``main`` where
+all three requests returned 404. The row is Linux, macOS, Windows, Legacy. The
+new Legacy tile uses the white spaCR mark and a visible ``LEGACY`` label on the
+same dark chip as the platform icons, and opens GitHub's rendered
+``docs/source/installers.rst`` directly rather than the currently undeployed
+Pages URL.
+
+The archive has no bare extension links: every Linux, macOS, and Windows cell
+is the corresponding clickable icon. The release workflow now merges the
+just-built installers into the GitHub release history before rendering the
+page, so a release adds its own row even though the GitHub release is created
+later in the job graph.
+
+``collect_installers`` no longer deletes older versions. It retains and hashes
+everything already in ``spacr/application``; the 1.4.9.9 and 1.5.0.4 sets were
+restored beside 1.5.0.1, for nine retained installers in total. Future release
+commits add the newly versioned files and preserve those nine.
+
+Verified with 39 focused tests covering GitHub-style RST rendering, linked
+artwork and contrast, live release URLs, archive generation, pre-publication
+row insertion, file retention, workflow wiring, and all localized README
+copies. ``git diff --check`` is clean.
