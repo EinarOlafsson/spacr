@@ -761,7 +761,11 @@ def test_the_nonparametric_path_reaches_the_summary_writer():
     import re
     from spacr import ml
 
-    source = inspect.getsource(ml.perform_regression)
+    # THE BODY. Instruction 161 made `perform_regression` a wrapper that reports
+    # failures and delegates, so the public name no longer contains the
+    # branches this test is about. The ordering did not move; the place to look
+    # for it did -- the same correction test_regression_entry_points.py needed.
+    source = inspect.getsource(ml._perform_regression)
     call = source.find("write_run_summary(")
     early_return = re.search(
         r"if settings\.get\('analysis_mode'\) == 'guide_permutation':", source)
@@ -773,3 +777,103 @@ def test_the_nonparametric_path_reaches_the_summary_writer():
     assert "write_run_summary(" in branch.split("return output")[0], (
         "write_run_summary is not reached on the guide_permutation path: it "
         "sits after the early return, which is the bug this test exists for")
+
+
+# ---------------------------------------------------------------------------
+# The exclusion counts are recorded, not only printed (156's trailing note)
+# ---------------------------------------------------------------------------
+
+def test_process_reads_records_what_it_dropped(tmp_path):
+    """The count has to survive the run, not just the console.
+
+    `process_reads` computed `removed` and printed it. A console scrolls, and
+    the run somebody asks about tomorrow needs the number.
+    """
+    import pandas as pd
+    from spacr.ml import process_reads
+
+    path = tmp_path / "counts.csv"
+    pd.DataFrame({
+        "plateID": ["plate1"] * 4, "rowID": ["r1", "r1", "r2", "r2"],
+        "columnID": ["c1", "c1", "c1", "c1"],
+        "grna": ["g1", "g2", "g1", "g3"],
+        "count": [95, 5, 50, 50],
+    }).to_csv(path, index=False)
+
+    record = {}
+    out = process_reads(str(path), 0.1, None, record=record)
+    assert record["fraction_threshold"] == 1
+    assert record["fraction_threshold_of"] == 4
+    assert len(out) == 3
+
+
+def test_the_record_accumulates_across_plates(tmp_path):
+    """It runs once per plate, so the count is a sum rather than the last one."""
+    import pandas as pd
+    from spacr.ml import process_reads
+
+    record = {}
+    for plate in ("plate1", "plate2"):
+        path = tmp_path / f"{plate}.csv"
+        pd.DataFrame({
+            "plateID": [plate] * 4, "rowID": ["r1", "r1", "r2", "r2"],
+            "columnID": ["c1", "c1", "c1", "c1"],
+            "grna": ["g1", "g2", "g1", "g3"],
+            "count": [95, 5, 50, 50],
+        }).to_csv(path, index=False)
+        process_reads(str(path), 0.1, None, record=record)
+
+    assert record["fraction_threshold"] == 2
+    assert record["fraction_threshold_of"] == 8
+
+
+def test_the_summary_reports_a_recorded_count(tmp_path):
+    import numpy as np
+    import pandas as pd
+    import statsmodels.formula.api as smf
+
+    from spacr.regression_summary import write_run_summary
+
+    rng = np.random.default_rng(1)
+    frame = pd.DataFrame({"y": rng.normal(0, 1, 200), "x": rng.normal(0, 1, 200)})
+    model = smf.ols("y ~ x", frame).fit()
+    path = write_run_summary(
+        str(tmp_path), model=model,
+        settings={"regression_type": "ols", "fdr_alpha": 0.05,
+                  "multiple_testing_method": "fdr_bh",
+                  "fraction_threshold": 0.1,
+                  "_regression_exclusions": {"fraction_threshold": 137,
+                                             "fraction_threshold_of": 1945}},
+        coef_df=pd.DataFrame({"feature": ["x"], "coefficient": [0.1],
+                              "p_value": [0.2]}),
+        regression_type="ols")
+    text = open(path).read()
+    assert "137 of 1,945" in text
+
+
+def test_nothing_recorded_is_not_reported_as_zero(tmp_path):
+    """"No row was dropped" and "nobody counted" are opposite findings.
+
+    A summary that spelled the second as the first would understate what the
+    fit was actually given.
+    """
+    import numpy as np
+    import pandas as pd
+    import statsmodels.formula.api as smf
+
+    from spacr.regression_summary import write_run_summary
+
+    rng = np.random.default_rng(1)
+    frame = pd.DataFrame({"y": rng.normal(0, 1, 200), "x": rng.normal(0, 1, 200)})
+    model = smf.ols("y ~ x", frame).fit()
+    path = write_run_summary(
+        str(tmp_path), model=model,
+        settings={"regression_type": "ols", "fdr_alpha": 0.05,
+                  "multiple_testing_method": "fdr_bh",
+                  "fraction_threshold": 0.1},
+        coef_df=pd.DataFrame({"feature": ["x"], "coefficient": [0.1],
+                              "p_value": [0.2]}),
+        regression_type="ols")
+    text = open(path).read()
+    assert "did not record it" in text
+    assert "0 of" not in text
