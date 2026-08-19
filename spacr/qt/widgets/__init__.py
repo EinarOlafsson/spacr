@@ -10,14 +10,16 @@ imports meant every other widget paid for it. Measured with
     333 ms      spacr.qt.widgets.data_filter_panel
     238 ms        pandas
 
-All of that lands before the first window is drawn, which is the startup
-stutter in instruction 55. `from spacr.qt.widgets import DataFilterPanel`
+All of that lands before the first window is drawn, causing a visible startup
+stutter. `from spacr.qt.widgets import DataFilterPanel`
 still works and still returns the same class; it just costs pandas at the
 moment something actually asks for it, which is when a data screen opens
 and pandas is needed anyway.
 """
 from .ai_chat_panel import AIChatPanel
 from .ai_toggle_label import AiToggleLabel
+from .availability_panel import (AvailabilityPanel, disable_combo_row,
+                                 explain, run_install_offer)
 from .card import Card
 from .column_picker import (ColumnPickerButton, ColumnPickerDialog,
                              attach_column_picker)

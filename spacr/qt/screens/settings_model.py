@@ -43,6 +43,9 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 
+from ..widgets.availability_panel import (AvailabilityPanel,
+                                         disable_combo_row,
+                                         run_install_offer)
 from ..widgets.barcode_regex import BarcodeRegexWidget
 from ..widgets.channel_mapping import ChannelMappingWidget
 from ..widgets.class_editor import ClassEditorWidget
@@ -3249,9 +3252,7 @@ def formula_for(term: str, *, plate_position: bool = True,
                 random_row_column: bool = False) -> str:
     """The formula actually fitted, for one model term and the plate settings.
 
-    THE BOX MUST NOT SHOW A FORMULA THE RUN DOES NOT FIT. Reported
-    2026-08-18: "the state of the model plate possition and random row and
-    column effects should influence this equation". It did not --
+    The box must show the formula the run fits. Previously,
     `regression_model_explainer` took only `(regression_type, level)`, so the
     three constants above were printed whatever the two plate settings said,
     and a user who turned plate position OFF still read `+ rowID + columnID`.
@@ -3260,15 +3261,10 @@ def formula_for(term: str, *, plate_position: bool = True,
     moving its dots: the display asserts something the code does not do, and
     nothing on screen says which to believe.
 
-    The three states, and they are the three `spacr.ml.prepare_formula`
-    produces:
-
-        plate_position=False            no row or column term at all
-        plate_position=True             ``+ rowID + columnID``, fixed effects
-        random_row_column=True          ``+ (1 | rowID) + (1 | columnID)``,
-                                        variance components -- the terms are
-                                        still IN the model, they are simply
-                                        not fixed effects
+    The three states produced by :func:`spacr.ml.prepare_formula` are no
+    position terms when ``plate_position=False``; fixed ``rowID`` and
+    ``columnID`` effects when ``plate_position=True``; and row/column variance
+    components when ``random_row_column=True``.
 
     ``random_row_column`` implies the terms are present, so it wins over
     ``plate_position=False``; that combination is refused upstream
@@ -3647,7 +3643,7 @@ def _split_guide_names(names):
 def regression_design_scan(settings) -> dict:
     """How big the fit is about to be, read off the count files it was given.
 
-    Instruction 140 B: "The useful line names the design -- 'fitting 389
+    The design: "The useful line names the design -- 'fitting 389
     genes and 823 guide random effects over 610 wells' -- because that is
     also the line that tells a user their filters did something unexpected."
 
@@ -3755,7 +3751,7 @@ def maths_for(kind: str, *, plate_position: bool = True,
     THE MATHS AND THE CODE MUST AGREE, and this is the half that keeps them
     agreeing: it takes the same two plate arguments :func:`formula_for` does
     and reads them the same way. If the code line says ``+ rowID +
-    columnID``, ρ and γ are here; if instruction 143's plate-position toggle
+    columnID``, ρ and γ are here; if the plate-position toggle
     turns them off, BOTH lose them; if they are random effects, both say
     random. A box whose two formulas disagree is worse than a box with one.
 
@@ -3961,14 +3957,9 @@ def regression_model_explainer_html(regression_type: Any,
     WHAT IS COLOURED AND WHY, because the ceiling is four colours on screen
     at once and not four as a target:
 
-    ==================================  ==========
-    section headings, ``MODEL:``/``LEVEL:``, links   accent
-    the refusal heading and its negations            error
-    the output file each formula writes              chip_value
-    ``TWO MODELS, TWO TABLES``                       success
-    body                                             fg
-    the caveat sentence and the history pointer      fg_muted
-    ==================================  ==========
+    Section headings, model/level labels, and links use ``accent``; refusals
+    use ``error``; output paths use ``chip_value``; the two-model confirmation
+    uses ``success``; body text uses ``fg``; and caveats use ``fg_muted``.
 
     The most any one box renders is four of the emphasis colours at once
     (`lasso` at `level='both'`: accent, chip_value, success, error), which is
@@ -4215,7 +4206,7 @@ def regression_model_explainer(regression_type: Any,
     settings lookup, so it can be asserted directly.
 
     SHORT ON PURPOSE. `ols`/`both` came to 2,438 characters over 29 lines and
-    instruction 143 cut it to under 900 -- the box keeps what a reader needs
+    the design cut it to under 900 -- the box keeps what a reader needs
     on EVERY visit (the model and level, each formula with the file it
     writes, one sentence on what a coefficient IS, and one or two on what the
     backend does) and drops what is read once. The longest of those
@@ -4225,7 +4216,7 @@ def regression_model_explainer(regression_type: Any,
 
     WHY THE FORMULA CHANGED
     -----------------------
-    Until instruction 132 split the fit in two, spaCR fitted ONE design
+    Previously, split the fit in two, spaCR fitted ONE design
     holding both blocks::
 
         y ~ fraction:grna + gene_fraction:gene + rowID + columnID
@@ -4237,7 +4228,7 @@ def regression_model_explainer(regression_type: Any,
     number of wells fixes it. statsmodels does not refuse: it takes a
     pseudo-inverse and returns one arbitrary solution out of infinitely many.
 
-    MEASURED on the maintainer's TSG101 screen (610 wells, 823 guides, 389
+    Measured on the reference TSG101 screen (610 wells, 823 guides, 389
     genes, 1945 rows): that design was 1248 parameters at rank 862 -- 386
     short -- a single-guide gene came back identical to its own guide (244480
     and 244480_3, both 3.389291 at p = 2.873149e-13), and the volcano drew
@@ -5251,6 +5242,7 @@ class _RegressionBackendField(QWidget):
 
         self.set_value(default)
         self.combo.currentIndexChanged.connect(self._on_choice_changed)
+        self._install_availability_hooks()
         self.refresh()
 
     # -- the settings-widget contract ---------------------------------------
@@ -5342,9 +5334,21 @@ class _RegressionBackendField(QWidget):
                 self.combo.setItemData(index, status['reason'] or
                                        f"{label}: {status['summary']}",
                                        Qt.ToolTipRole)
-                item = model.item(index) if hasattr(model, "item") else None
-                if item is not None:
-                    item.setEnabled(bool(status['enabled']))
+                if status['enabled']:
+                    item = (model.item(index) if hasattr(model, "item")
+                            else None)
+                    if item is not None:
+                        item.setEnabled(True)
+                        item.setFlags(item.flags() | Qt.ItemIsSelectable)
+                else:
+                    # NOT `setEnabled(False)` ALONE. Measured 2026-08-18: it
+                    # leaves `ItemIsSelectable` set, so Qt refuses to activate
+                    # the row from the popup but a model-level selection can
+                    # still land on it. `disable_combo_row` clears the flag
+                    # too, and keeps the tooltip -- which is what the hover
+                    # panel is hung off.
+                    disable_combo_row(self.combo, index,
+                                      tooltip=str(status['reason'] or ''))
         finally:
             self.combo.blockSignals(blocked)
 
@@ -5388,6 +5392,162 @@ class _RegressionBackendField(QWidget):
         """A new backend: re-render the box for it, then tell the panel."""
         self.refresh()
         self.value_changed.emit()
+
+    # -- the unavailable entries explain themselves (instruction 158) -------
+    #
+    # THE ROW STAYS DEAD and everything interactive lives in the hover panel.
+    # Three routes reach it and they are all here rather than in the panel,
+    # because the panel is shared with the Image UMAP and must not know what a
+    # regression backend is:
+    #
+    #   * hovering a greyed row in the OPEN popup, anchored on that row;
+    #   * hovering the CLOSED combo while the value it holds has gone
+    #     unavailable -- 141 C keeps a stale selection rather than silently
+    #     re-pointing it, so this is a state a user can sit in;
+    #   * Shift+F1 on the combo, which is the keyboard route. It has to be
+    #     explicit: the rows are disabled, so nothing about them is tabbable
+    #     and no help can be inherited from them.
+    #
+    # THE POPUP IS CLOSED THE MOMENT THE POINTER LEAVES IT. A QComboBox popup
+    # is a `Qt.Popup` with an active mouse grab, so with it still open the
+    # first click on the panel would be eaten by the grab -- the Install link
+    # would need two presses and the first would look like it did nothing.
+
+    def availability_entries(self) -> List[dict]:
+        """Every backend as the shared panel wants it, in panel order."""
+        from spacr.regression_backends import availability_entries
+        return availability_entries(self._regression_type)
+
+    def unavailable_entries(self) -> List[dict]:
+        """Just the greyed ones -- what the panel cycles through."""
+        return [entry for entry in self.availability_entries()
+                if not entry['enabled']]
+
+    def _install_availability_hooks(self) -> None:
+        """Watch the combo and its popup for the three routes above."""
+        self.combo.installEventFilter(self)
+        view = self.combo.view()
+        if view is not None:
+            view.viewport().installEventFilter(self)
+
+    def eventFilter(self, obj, event):  # noqa: N802 - Qt contract
+        """Route hover and Shift+F1 to the shared availability panel."""
+        try:
+            view = self.combo.view()
+        except RuntimeError:                             # pragma: no cover
+            return super().eventFilter(obj, event)
+        viewport = view.viewport() if view is not None else None
+        kind = event.type()
+        if obj is viewport:
+            if kind == QEvent.MouseMove:
+                self._hover_popup_row(view, event)
+            elif kind == QEvent.Leave:
+                # Leaving the popup is how the pointer travels to the panel.
+                self._release_popup()
+        elif obj is self.combo:
+            if kind == QEvent.KeyPress and self._is_help_key(event):
+                self.open_availability_panel()
+                return True
+            if kind == QEvent.Enter:
+                self._hover_closed_combo()
+            elif kind == QEvent.Leave:
+                panel = AvailabilityPanel.instance()
+                if panel.isVisible():
+                    panel.start_hide()
+        return super().eventFilter(obj, event)
+
+    @staticmethod
+    def _is_help_key(event) -> bool:
+        """Shift+F1 -- Qt's own "explain this control" chord."""
+        return (event.key() == Qt.Key_F1
+                and bool(event.modifiers() & Qt.ShiftModifier))
+
+    def _hover_popup_row(self, view, event) -> None:
+        """A greyed row under the pointer opens the panel beside it."""
+        try:
+            position = event.position().toPoint()
+        except AttributeError:                           # pragma: no cover
+            position = event.pos()
+        index = view.indexAt(position)
+        if not index.isValid():
+            return
+        statuses = self.availability_entries()
+        if index.row() >= len(statuses):
+            return
+        entry = statuses[index.row()]
+        if entry['enabled']:
+            panel = AvailabilityPanel.instance()
+            if panel.isVisible():
+                panel.start_hide()
+            return
+        rect = view.visualRect(index)
+        top_left = view.viewport().mapToGlobal(rect.topLeft())
+        self.show_availability_panel(
+            entry['key'], anchor=view.viewport(),
+            anchor_rect=QRect(top_left, rect.size()))
+
+    def _hover_closed_combo(self) -> None:
+        """Hovering the combo explains a selection that has gone stale."""
+        current = self.get_value()
+        entry = next((e for e in self.availability_entries()
+                      if e['title'] == current), None)
+        if entry is None or entry['enabled']:
+            return
+        self.show_availability_panel(entry['key'], anchor=self.combo)
+
+    def _release_popup(self) -> None:
+        """Close the dropdown so its mouse grab stops owning the pointer."""
+        panel = AvailabilityPanel.instance()
+        if panel.isVisible():
+            self.combo.hidePopup()
+
+    def show_availability_panel(self, key, *, anchor=None,
+                                anchor_rect=None, pinned: bool = False):
+        """Open the shared panel on the unavailable backend named ``key``.
+
+        :param key: a backend name. Ignored when it is not unavailable.
+        :returns: the panel, or ``None`` when there was nothing to explain.
+        """
+        entries = self.unavailable_entries()
+        if not entries:
+            return None
+        index = next((i for i, entry in enumerate(entries)
+                      if entry['key'] == key), 0)
+        panel = AvailabilityPanel.instance()
+        self._connect_panel(panel)
+        if pinned:
+            panel.open_for(anchor or self.combo, entries, index,
+                           anchor_rect=anchor_rect)
+        else:
+            panel.show_for(anchor or self.combo, entries, index,
+                           anchor_rect=anchor_rect)
+        return panel
+
+    def open_availability_panel(self):
+        """The keyboard route: Shift+F1 pins the panel and focuses it."""
+        current = self.get_value()
+        entries = self.unavailable_entries()
+        if not entries:
+            return None
+        key = next((e['key'] for e in entries if e['title'] == current),
+                   entries[0]['key'])
+        return self.show_availability_panel(key, anchor=self.combo,
+                                            pinned=True)
+
+    def _connect_panel(self, panel) -> None:
+        """Take ownership of the shared panel's Install signal.
+
+        The panel is a process-wide singleton with two callers, so the
+        connection is remade on every show rather than once in ``__init__`` --
+        otherwise the Image UMAP's copy and this one would both answer.
+        """
+        panel.set_install_handler(self._run_install_offer)
+
+    def _run_install_offer(self, offer) -> None:
+        """Press Install: the dry run first, then the install, or neither."""
+        outcome = run_install_offer(self, offer)
+        if outcome == "installed":
+            self.refresh()
 
 
 class _FlowLayout(QLayout):

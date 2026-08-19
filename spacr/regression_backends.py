@@ -2,11 +2,9 @@
 
 :mod:`spacr.regression_spec` says what the backends ARE -- pure data, no
 imports. This module is the only place that asks the environment about them:
-is the package installed, is there a CUDA device, can this backend fit the
-``regression_type`` the user picked. Instruction 141 C wants each answer
-written ON the disabled entry, which is instruction 106's rule -- an
-inapplicable control is disabled WITH ITS REASON, never absent and never
-silently substituted.
+is the package installed, is there a CUDA device, and can this backend fit the
+selected ``regression_type``? Each disabled entry includes its reason; an
+inapplicable control is never hidden or silently substituted.
 
 IT MUST NOT IMPORT TORCH. Deciding whether to grey out the GPU entry happens
 while a settings panel is being built, on the GUI thread, and
@@ -19,6 +17,63 @@ wrong in the permissive direction -- driver present, no usable device -- and
 with the real reason. A panel that offers an entry which later refuses is
 recoverable; a panel that greys out a GPU which works is not, because the
 user has no way to argue with it.
+
+MAKING AN UNAVAILABLE BACKEND AVAILABLE
+---------------------------------------
+
+Instruction 158 D. Three of the optional backends cannot be had by pressing
+Install, and this section is the API documentation's copy of why and of what
+to do instead. It is written here rather than only in
+:data:`INSTALL_RECIPES` because ``docs/source/api`` is built by sphinx-autoapi
+from this source, and autoapi publishes a module DOCSTRING verbatim while it
+renders a dict as a truncated repr. The two copies cannot drift:
+``test_the_module_docstring_carries_every_command_the_gui_shows`` asserts that
+every command in :data:`INSTALL_RECIPES` appears below.
+
+**pymer4 / lme4 needs R.** It is an interface to R's lme4, not a
+reimplementation of it. Measured 2026-08-18: pymer4 0.9.2's wheel declares NO
+dependencies at all, so ``pip install pymer4`` truthfully reports one additive
+package -- and the install then fails at ``import polars`` in ``pymer4/io.py``,
+while every module under ``pymer4/models/`` opens with ``from
+rpy2.robjects.packages import importr``. The real recipe, in order::
+
+    conda install -c conda-forge r-base
+    R -e 'install.packages(c("lme4","lmerTest"), repos="https://cloud.r-project.org")'
+    pip install rpy2 polars
+    pip install pymer4
+
+This is a heavier ask than the other backends -- a second language runtime, its
+own package library and a compiled bridge between them -- which is said plainly
+so a reader can decide before starting rather than halfway through.
+
+**cuML needs a different environment.** ``cuml-cu12`` 26.8.0 declares
+``requires_python >= 3.11`` and its recent wheels are cp311 ONLY (25.10, 25.12
+and 26.2 shipped cp310-cp313; 26.4, 26.6 and 26.8 ship cp311 alone -- the
+window is narrowing)::
+
+    conda create -n spacr-gpu python=3.11
+    conda activate spacr-gpu
+    pip install spacr
+    pip install cuml-cu12
+
+What it costs, measured: on the default 3.10 environment resolving it anyway
+moves numpy 1.26.4 -> 2.2.6 and downgrades numba and llvmlite; on a 3.12
+environment numpy is untouched but it still downgrades numba 0.66 -> 0.64 and
+llvmlite 0.48 -> 0.46, pins the CUDA runtime back to 12 (cuda-bindings
+13.3.1 -> 12.9.7, cuda-toolkit 13.0.3 -> 12.9.2) and moves pandas
+2.3.3 -> 3.0.3. And it can return a DIFFERENT answer rather than a faster one:
+two coordinate-descent implementations of a penalised path can select
+different variables at the same alpha, which is a different result and not a
+tolerance.
+
+**numpyro and gpytorch install cleanly and answer a different question.**
+numpyro samples a posterior with NUTS and gpytorch fits a Gaussian process;
+neither produces the point estimates and standard errors statsmodels does, so
+a reader installing them to go faster has misunderstood what they are for::
+
+    pip install numpyro
+    pip install --upgrade 'jax[cuda12]'
+    pip install gpytorch
 """
 
 from __future__ import annotations
@@ -36,7 +91,9 @@ __all__ = [
     "resolve_backend_name", "backend_label", "backend_supports",
     "backend_status", "backend_menu", "backend_choices",
     "describe_backends", "cuda_present_without_importing_torch",
-    "package_installed",
+    "package_installed", "INSTALL_RECIPES", "BACKEND_REQUIREMENTS",
+    "install_recipe", "describe_install_recipes", "backend_install_offer",
+    "availability_entry", "availability_entries",
 ]
 
 
@@ -46,7 +103,7 @@ def resolve_backend_name(value) -> str:
     Accepts the canonical name (``'torch'``), the label the combo shows
     (``'torch (GPU)'``), any casing, and ``None``/``''`` for "not chosen".
 
-    THE LABEL IS AN ACCEPTED SPELLING ON PURPOSE. Instruction 141 C requires
+    THE LABEL IS AN ACCEPTED SPELLING ON PURPOSE. The design requires
     every entry to read ``(CPU)`` or ``(GPU)``, and both GUIs render a combo's
     options verbatim -- so the option strings ARE the labels and the value
     posted back is a label. Normalising here is what keeps the settings CSV
@@ -269,7 +326,7 @@ def describe_backends(regression_type=None, html: bool = True,
                       selected=None, compact: bool = False) -> str:
     """The text the model box shows: every backend, briefly, with its link.
 
-    Instruction 141 B: "the text box should describe all of the packages that
+    The design: "the text box should describe all of the packages that
     are available and what they do, briefly, and link the API for each", and
     141 D: where a backend cannot agree with statsmodels by construction, the
     box says what differs.
@@ -282,7 +339,7 @@ def describe_backends(regression_type=None, html: bool = True,
         mode it is the one written out in full.
     :param compact: ONE LINE PER BACKEND instead of one paragraph.
 
-        THE SETTINGS PANEL IS ONE PAGE (instruction 135) and the full text is
+        THE SETTINGS PANEL IS ONE PAGE and the full text is
         3,101 characters -- about ninety wrapped lines in a settings field,
         which is not a description, it is a document that happens to be in a
         combo box's neighbourhood. Compact keeps every backend and every API
@@ -352,3 +409,278 @@ def describe_backends(regression_type=None, html: bool = True,
         return "".join(blocks)
     blocks.append("The other backends spaCR knows\n" + "\n".join(others))
     return "\n\n".join(blocks)
+
+
+# ---------------------------------------------------------------------------
+# What would make an unavailable backend available, and can it be done HERE
+# ---------------------------------------------------------------------------
+#
+# Instruction 158. `backend_status` already says WHY an entry is greyed out;
+# this half says what would ungrey it, and whether that is honestly possible
+# in this environment. The three answers are install-here, possible-elsewhere
+# and not-possible, and the shapes are `spacr.updater.InstallOffer` so the
+# Image UMAP's GPU acceleration (`spacr.gpu_reduce.install_offer`) answers in
+# the same vocabulary and one shared panel serves both.
+
+#: The recipes instruction 158 D asks the API documentation to carry. They are
+#: here rather than in a hand-written page because sphinx-autoapi builds
+#: ``docs/source/api`` from this source, so the recipe a reader is given and
+#: the recipe the GUI hands them are the same string and cannot drift.
+INSTALL_RECIPES = {
+    'pymer4': (
+        "pymer4 / lme4 NEEDS R. It is an interface to R's lme4, not a "
+        "reimplementation of it, so no amount of pip can supply it on its "
+        "own.\n"
+        "Measured 2026-08-18: pymer4 0.9.2's wheel declares NO dependencies "
+        "at all, so `pip install pymer4` truthfully reports one additive "
+        "package -- and the install then fails at `import polars` in "
+        "pymer4/io.py, and every module under pymer4/models/ opens with "
+        "`from rpy2.robjects.packages import importr`.\n"
+        "\n"
+        "    1. an R installation (4.2 or newer):\n"
+        "           conda install -c conda-forge r-base\n"
+        "    2. lme4 and lmerTest inside R:\n"
+        "           R -e 'install.packages(c(\"lme4\",\"lmerTest\"), "
+        "repos=\"https://cloud.r-project.org\")'\n"
+        "    3. the Python-to-R bridge:\n"
+        "           pip install rpy2 polars\n"
+        "    4. and only then:\n"
+        "           pip install pymer4\n"
+        "\n"
+        "THIS IS A HEAVIER ASK THAN THE OTHER BACKENDS -- a second language "
+        "runtime, its own package library and a compiled bridge between them "
+        "-- which is said here so a reader can decide before starting rather "
+        "than halfway through."),
+    'cuml': (
+        "cuML is RAPIDS' GPU ridge / lasso / elastic-net. It needs an "
+        "interpreter its wheels are built for and a CUDA 12 device, and on "
+        "the interpreter spaCR is usually run on it CANNOT be installed: "
+        "measured 2026-08-18, cuml-cu12 26.8.0 declares requires_python "
+        ">= 3.11 and the recent wheels are cp311 ONLY (25.10/25.12/26.2 "
+        "shipped cp310-cp313; 26.4/26.6/26.8 ship cp311 alone -- the window "
+        "is narrowing).\n"
+        "\n"
+        "    conda create -n spacr-gpu python=3.11\n"
+        "    conda activate spacr-gpu\n"
+        "    pip install spacr\n"
+        "    pip install cuml-cu12\n"
+        "\n"
+        "WHAT IT COSTS, measured rather than guessed. On the default spaCR "
+        "environment (Python 3.10, numpy 1.26.4) resolving it anyway moves "
+        "numpy 1.26.4 -> 2.2.6 and downgrades numba and llvmlite. On a 3.12 "
+        "environment numpy is untouched, but it still downgrades numba "
+        "0.66 -> 0.64 and llvmlite 0.48 -> 0.46, pins the CUDA runtime back "
+        "to 12 (cuda-bindings 13.3.1 -> 12.9.7, cuda-toolkit 13.0.3 -> "
+        "12.9.2), and moves pandas 2.3.3 -> 3.0.3.\n"
+        "\n"
+        "AND IT CAN RETURN A DIFFERENT ANSWER, not merely a faster one: two "
+        "coordinate-descent implementations of a penalised path, solved to "
+        "different tolerances, can SELECT DIFFERENT VARIABLES at the same "
+        "alpha. That is a different result and not a tolerance. cuML's UMAP "
+        "is likewise not bit-identical to umap-learn's."),
+    'numpyro': (
+        "numpyro ANSWERS A DIFFERENT QUESTION. It samples a posterior with "
+        "NUTS; it does not produce the point estimates and standard errors "
+        "statsmodels does, so a reader installing it to go faster has "
+        "misunderstood what it is for. Sampling is slower per fit and "
+        "parallel across chains.\n"
+        "\n"
+        "    pip install numpyro\n"
+        "    # for the GPU, install a CUDA build of jaxlib as well:\n"
+        "    pip install --upgrade 'jax[cuda12]'\n"),
+    'gpytorch': (
+        "gpytorch ANSWERS A DIFFERENT QUESTION. It fits a Gaussian process: "
+        "a posterior over functions with a predictive variance, not a "
+        "coefficient table with p-values. Install it because you want that, "
+        "not because you want the same answer sooner.\n"
+        "\n"
+        "    pip install gpytorch    # torch is already a spaCR dependency\n"),
+}
+
+#: Which pip requirement actually installs a backend. Separate from
+#: ``REGRESSION_BACKENDS[...]['pip']``, which is PROSE meant for a combo entry
+#: ("pip install pymer4  (plus R, rpy2, lme4)") and would be handed to the
+#: resolver verbatim if it were reused here.
+BACKEND_REQUIREMENTS = {
+    'torch': 'torch',
+    'pymer4': 'pymer4',
+    'cuml': 'cuml-cu12',
+    'pyfixest': 'pyfixest',
+    'glum': 'glum',
+    'numpyro': 'numpyro',
+    'gpytorch': 'gpytorch',
+}
+
+
+def install_recipe(name) -> str:
+    """The written recipe for making ``name`` available, or ``''``.
+
+    :param name: a backend name or label.
+    :returns: the entry in :data:`INSTALL_RECIPES`, or an empty string for a
+        backend that needs no recipe because ``pip install`` is the whole
+        story.
+    """
+    try:
+        key = resolve_backend_name(name)
+    except (ValueError, KeyError):
+        return ""
+    return INSTALL_RECIPES.get(key, "")
+
+
+def describe_install_recipes(html: bool = False) -> str:
+    """Every recipe in :data:`INSTALL_RECIPES`, in panel order.
+
+    Packages that cannot be installed directly need recipes on the API page.
+    This renders them in one block so a caller --
+    the documentation build, a log, or the box under the backend combo -- can
+    show all of them without knowing which backends have one.
+    """
+    blocks = []
+    for name in REGRESSION_BACKEND_ORDER:
+        recipe = INSTALL_RECIPES.get(name)
+        if not recipe:
+            continue
+        label = str(REGRESSION_BACKENDS[name]['label'])
+        if html:
+            blocks.append(
+                f"<p><b>{escape(label)}</b><br>"
+                + escape(recipe).replace("\n", "<br>") + "</p>")
+        else:
+            blocks.append(f"{label}\n{'-' * len(label)}\n{recipe}")
+    return ("".join(blocks) if html else "\n\n".join(blocks))
+
+
+def _cuml_python_supported() -> bool:
+    """Can ``cuml-cu12`` be installed into the running interpreter?
+
+    Delegates to :data:`spacr.gpu_reduce.SUPPORTED_PYTHON` rather than
+    repeating the version window, because the Image UMAP asks the same
+    question about the same wheel and two copies of it would drift.
+    """
+    from .gpu_reduce import python_supported
+    return bool(python_supported())
+
+
+def backend_install_offer(name, regression_type=None):
+    """What pressing **Install** on a greyed-out backend entry should do.
+
+    THE ENVIRONMENT IS ASKED FIRST, before spaCR's own wiring, because the
+    answer a user can act on is about their machine. "cuML needs Python 3.11
+    and this is 3.10" is a thing they can go and do; "spaCR routes no fit
+    through it yet" is a thing only spaCR can fix, and saying that instead
+    would hide the part they could have acted on.
+
+    :param name: a backend name or label.
+    :param regression_type: what the panel currently asks to fit. Used only
+        for the message, never to decide installability -- a family mismatch
+        is fixed by choosing another family, not by installing anything.
+    :returns: a :class:`spacr.updater.InstallOffer`.
+    """
+    from .updater import (offer_elsewhere, offer_impossible, offer_install,
+                          offer_ready)
+
+    key = resolve_backend_name(name)
+    spec = REGRESSION_BACKENDS[key]
+    label = str(spec['label'])
+    recipe = INSTALL_RECIPES.get(key, "")
+
+    if regression_type is not None and not backend_supports(key,
+                                                            regression_type):
+        types = spec['types']
+        listed = ', '.join(types) if types != ALL_REGRESSION_TYPES else 'any'
+        return offer_impossible(
+            label,
+            f"{label} is not greyed out because anything is missing -- it "
+            f"cannot fit regression_type={regression_type!r} at all. It fits "
+            f"{listed}. Nothing to install; change the regression type "
+            f"instead.", recipe)
+
+    if regression_type is None and spec['types'] != ALL_REGRESSION_TYPES:
+        return offer_impossible(
+            label,
+            f"{label} is greyed out because the regression type is still "
+            f"'auto'. With the family chosen from the response after the "
+            f"data is read, only {DEFAULT_REGRESSION_BACKEND} can promise to "
+            f"fit whichever one it turns out to be. Nothing to install; name "
+            f"a regression type instead.", recipe)
+
+    package = spec['package']
+    if not package:
+        return offer_ready(label, f"{label} is part of spaCR. Nothing to "
+                                  f"install.")
+
+    installed = package_installed(package)
+
+    # 1. NOT POSSIBLE BY INSTALLING -- said first when it is true of the
+    #    package itself rather than of this machine.
+    if key == 'pymer4' and not installed:
+        return offer_impossible(
+            label,
+            "pymer4 cannot be made available by installing a Python package: "
+            "it is a bridge to R's lme4 and needs R itself. spaCR will not "
+            "run a pip command that reports success and leaves you with an "
+            "import error.", recipe)
+
+    # 2. POSSIBLE, BUT NOT HERE.
+    if key == 'cuml' and not installed and not _cuml_python_supported():
+        version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        return offer_elsewhere(
+            label,
+            f"cuML needs Python 3.11; this spaCR is on {version}. Installing "
+            f"it here would either fail or succeed at breaking the install -- "
+            f"resolving cuml-cu12 against this environment moves numpy and "
+            f"the CUDA runtime torch is built against. Nothing has been run.",
+            recipe)
+
+    # 3. INSTALLABLE HERE.
+    if not installed:
+        requirement = BACKEND_REQUIREMENTS.get(key, package)
+        message = (f"{label} needs {requirement}, which is not installed in "
+                   f"this environment. What it would change is shown before "
+                   f"anything is installed.")
+        if not spec['implemented']:
+            message += (" NOTE: spaCR routes no fit through this backend yet, "
+                        "so installing the package will not make the entry "
+                        "choosable -- it makes the package available to you.")
+        return offer_install(label, message, requirement, recipe)
+
+    # The package is here. Whatever is left is not an install problem.
+    if spec['device'] == 'gpu' and not cuda_present_without_importing_torch():
+        return offer_impossible(
+            label,
+            f"{label} is installed; what is missing is a CUDA device, and "
+            f"installing more cannot supply one. Check the driver with "
+            f"nvidia-smi.", recipe)
+    if not spec['implemented']:
+        return offer_impossible(
+            label,
+            f"{label} is installed, but spaCR routes no fit through it yet, "
+            f"so choosing it would change nothing. Listed rather than hidden "
+            f"so the plan is visible.", recipe)
+    return offer_ready(label, f"{label} is available.")
+
+
+def availability_entry(name, regression_type=None) -> dict:
+    """One backend as the shared hover panel wants it.
+
+    The panel (:mod:`spacr.qt.widgets.availability_panel`) takes a mapping so
+    that neither of its two callers has to import Qt to build one, and so
+    that this module keeps its promise not to import torch or PySide6.
+
+    :returns: ``{key, title, reason, url, offer, enabled}``.
+    """
+    status = backend_status(name, regression_type)
+    return {
+        'key': status['name'],
+        'title': str(status['label']),
+        'reason': str(status['reason'] or status['summary']),
+        'url': str(status['url']),
+        'enabled': bool(status['enabled']),
+        'offer': backend_install_offer(name, regression_type),
+    }
+
+
+def availability_entries(regression_type=None) -> list:
+    """Every backend as a panel entry, in panel order."""
+    return [availability_entry(name, regression_type)
+            for name in REGRESSION_BACKEND_ORDER]

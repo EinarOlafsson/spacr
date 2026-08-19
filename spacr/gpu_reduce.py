@@ -1,6 +1,6 @@
 """RAPIDS cuML where it helps, and the CPU implementation everywhere else.
 
-Instruction 86's GPU insight, built as an EXTRA:
+Install the optional RAPIDS support with:
 
     pip install spacr[rapids]
 
@@ -19,7 +19,8 @@ big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered
 here. Everything else spaCR does -- barcode mapping, format conversion,
 SQLite, report assembly, grouped statistics -- is decompression, filesystem
 and small-table work, and moving it to a GPU would cost transfer time and buy
-nothing. That is a finding from instruction 70, not a guess.
+nothing. GPU acceleration is reserved for workloads where transfer overhead
+is outweighed by computation.
 
 **Determinism is a real difference, not a footnote.** cuML's UMAP is not
 bit-identical to umap-learn's, and its KMeans and DBSCAN can differ at the
@@ -176,17 +177,10 @@ def python_supported() -> bool:
 def install_plan() -> Dict[str, Any]:
     """What pressing GPU should do, decided before anything is installed.
 
-    :returns: ``{action, message}``. ``action`` is one of:
-
-        ``ready``      cuML is importable and a device answered. Turn it on.
-        ``install``    the interpreter can take it. The message says what it
-                       will pull -- GIGABYTES of CUDA libraries, not a small
-                       wheel, and a multi-gigabyte download with no progress
-                       reads as a hang.
-        ``wrong_python`` say exactly what is needed. "Make a 3.11 environment"
-                       is actionable; a pip resolver error is not.
-        ``no_device``  cuML is installed and there is no CUDA device, which
-                       installing more cannot fix.
+    :returns: ``{action, message}``. ``action`` is ``ready`` when cuML and a
+        device are available; ``install`` when this interpreter can install
+        it; ``wrong_python`` when another Python version is required; or
+        ``no_device`` when installing more cannot provide a CUDA device.
 
     NOTHING IS INSTALLED HERE. This function decides and reports; the caller
     installs, because installing is the part that needs a confirmation and a
@@ -252,3 +246,58 @@ def describe() -> str:
     if not devices:
         return f"cuML {getattr(cuml, '__version__', '?')} installed, no CUDA device"
     return f"cuML {getattr(cuml, '__version__', '?')} on {devices} device(s)"
+
+
+#: The requirement that actually installs the accelerator. ``install_command``
+#: above asks for ``spacr[rapids]`` because that is the documented spelling of
+#: the extra; the resolver is given the concrete wheel name, so a dry-run
+#: report names the package a user can look up.
+RAPIDS_REQUIREMENT = "cuml-cu12"
+
+
+def install_offer():
+    """The same offer :func:`install_plan` describes, in the shared shape.
+
+    The Image UMAP's GPU acceleration and the regression backend picker ask
+    the same question, so they answer it in the same
+    vocabulary and one hover panel serves both. This is the bridge --
+    :func:`install_plan` keeps its own dict because the Hyperparameter screen
+    already reads it.
+
+    :returns: a :class:`spacr.updater.InstallOffer`, whose ``action`` is
+        ``ready``, ``install``, ``elsewhere`` or ``impossible``.
+    """
+    from .regression_backends import INSTALL_RECIPES
+    from .updater import (offer_elsewhere, offer_impossible, offer_install,
+                          offer_ready)
+
+    recipe = INSTALL_RECIPES.get('cuml', "")
+    plan = install_plan()
+    action, message = plan["action"], plan["message"]
+    title = "GPU acceleration (cuML)"
+    if action == "ready":
+        return offer_ready(title, message)
+    if action == "no_device":
+        return offer_impossible(title, message, recipe)
+    if action == "wrong_python":
+        return offer_elsewhere(title, message, recipe)
+    return offer_install(title, message, RAPIDS_REQUIREMENT, recipe)
+
+
+def availability_entry() -> Dict[str, Any]:
+    """GPU acceleration as the shared hover panel wants it.
+
+    Mirrors :func:`spacr.regression_backends.availability_entry`, so the panel
+    takes one mapping shape and neither caller imports the other.
+
+    :returns: ``{key, title, reason, url, offer, enabled}``.
+    """
+    offer = install_offer()
+    return {
+        'key': 'cuml',
+        'title': "GPU acceleration (cuML)",
+        'reason': offer.message,
+        'url': "https://docs.rapids.ai/api/cuml/stable/",
+        'enabled': offer.action == "ready",
+        'offer': offer,
+    }
