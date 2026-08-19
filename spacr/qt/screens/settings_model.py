@@ -381,9 +381,19 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         "isomap_path_method": ["auto", "FW", "D"],
         "spectral_affinity": ["nearest_neighbors", "rbf"],
         "clustering": ["dbscan", "kmeans"],
-        "crop_source": ["auto", "png", "merged"],
+        # 'auto' is retired FROM THE PANEL and not from the code
+        # (instruction 171): it answers "what is available here", which is not
+        # an answer to somebody asked which mode they want.
+        "crop_source": ["png", "merged"],
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
+    },
+    "annotate": {
+        # The choice the annotation app has always had a SETTING for and
+        # never offered -- it shipped 'auto' and took the PNG folder whenever
+        # one existed. "in the annotation app how do i choose to stream images
+        # from database or dataset" (2026-08-19).
+        "crop_source": ["png", "merged"],
     },
     "ml_analyze": {
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
