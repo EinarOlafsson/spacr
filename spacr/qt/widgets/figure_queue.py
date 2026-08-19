@@ -69,25 +69,15 @@ FIGURE_TEXT_SIZE_ATTR = "_spacr_text_size"
 
 
 def figure_text_items(fig):
-    """Every text object on ``fig``, including the three easily missed.
+    """Return every text object attached to a Matplotlib figure.
 
-    THE CANONICAL LIST. GitHub issue #108 measured this on a volcano-shaped
-    figure: 23 text objects, and a hand-written list reached 20. The three it
-    missed each live in a different container, which is how all three were
-    missed at once --
+    Includes axis titles and labels, tick labels, annotations, legends and
+    legend titles, the figure title, and text stored directly on the figure.
+    The function has no Qt dependency and is safe to call from the figure
+    rendering worker.
 
-        an ANNOTATION   on ``axes.texts``   (on a volcano, the gene labels,
-                                             and the LARGEST text on the plot)
-        the SUPTITLE    on ``figure.texts``
-        a legend TITLE  which is not among the legend's ``get_texts()``
-
-    so a control called "all text" that shrank everything EXCEPT the biggest
-    thing on the figure read, correctly, as "the font got bigger".
-
-    Qt-free, and it stays that way: :func:`render_figure_to_png` runs on a
-    worker thread. :func:`spacr.qt.widgets.figure_settings._every_text` is
-    this function, so the interactive control and the render pass cannot
-    reach different sets of text -- which is precisely how they drifted.
+    :param fig: Matplotlib figure to inspect.
+    :returns: Text objects in traversal order, with duplicate objects removed.
     """
     items = []
     for ax in getattr(fig, "axes", ()):
@@ -368,7 +358,7 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
     so this is SAFE TO CALL FROM A WORKER THREAD, which is the entire point.
     The caller turns the returned QImage into a QPixmap on the GUI thread.
 
-    **Why this does not simply call** ``QPdfDocument.render()``. That call
+    **Why this does not call** ``QPdfDocument.render()``. That call
     does not release the GIL: PySide6 6.11 marks it blocking, so the Python
     interpreter is held for its entire duration. Moving it to a worker thread
     therefore moves the freeze without removing it — measured, on a nine-panel
@@ -1171,6 +1161,83 @@ class FigureQueue(QWidget):
         self._runs.append({"label": label or f"run {len(self._runs) + 1}",
                            "start": start})
         return start
+
+    def forget_run(self, label: str) -> int:
+        """Drop one run's figures. Instruction 146: what leaves the list
+        leaves the figures with it.
+
+        :param label: the run's section label, as `run_sections` reports it.
+        :returns: how many figures were dropped. ``0`` for a label this queue
+            does not hold, which is not a failure -- a run that drew nothing
+            is a run with nothing to forget.
+
+        THE HARD PART IS NOT THE DELETE, IT IS THE RENUMBERING. Every figure
+        is keyed by a dense integer index across six maps -- `_figures`,
+        `_titles`, `_png_paths`, `_ram`, `_pdf_state` and `_fig_index` -- and
+        `_runs` records each section's START as one of those integers. Removing
+        a section from the middle therefore has to shift every index above it
+        down by the gap, in all six, and move every later section's start with
+        them. Deleting the entries alone would leave holes that `_count` still
+        counts and that navigation walks into.
+
+        `clear()` was the only thing here before, which is all-or-nothing:
+        removing one run meant losing every other run's figures too, so the
+        Runs tab could not offer it.
+        """
+        wanted = str(label or "")
+        span = next(((start, count) for name, start, count
+                     in self.run_sections() if name == wanted), None)
+        if span is None:
+            return 0
+        start, count = span
+        if count <= 0:
+            # A section that drew nothing: forget the MARK so the label stops
+            # appearing, but there is nothing to renumber.
+            self._runs = [r for r in self._runs if r.get("label") != wanted]
+            return 0
+        end = start + count
+
+        def _shift(mapping):
+            out = type(mapping)()
+            for index, value in mapping.items():
+                if start <= index < end:
+                    continue
+                out[index - count if index >= end else index] = value
+            return out
+
+        self._figures = _shift(self._figures)
+        self._titles = _shift(self._titles)
+        self._png_paths = _shift(self._png_paths)
+        self._ram = _shift(self._ram)
+        self._pdf_state = _shift(self._pdf_state)
+        # `_fig_index` is the one keyed the OTHER way round -- id(fig) to
+        # index -- so it is rebuilt rather than shifted, and the ids of the
+        # forgotten figures go with it.
+        self._fig_index = {
+            key: (value - count if value >= end else value)
+            for key, value in self._fig_index.items()
+            if not (start <= value < end)}
+
+        self._count = max(0, self._count - count)
+        kept = []
+        for mark in self._runs:
+            mark_start = int(mark.get("start", 0))
+            if mark.get("label") == wanted and mark_start == start:
+                continue
+            if mark_start >= end:
+                mark = dict(mark, start=mark_start - count)
+            kept.append(mark)
+        self._runs = kept
+
+        # WHERE THE VIEW IS LOOKING. A current index inside the forgotten span
+        # names a figure that no longer exists; one above it has moved. Left
+        # alone, the queue shows the wrong figure or none, which is the same
+        # class of bug as a mark pointing at a run that is not on screen.
+        if self._current >= end:
+            self._current -= count
+        elif start <= self._current < end:
+            self._current = min(start, self._count - 1)
+        return count
 
     def run_sections(self):
         """``[(label, start, count)]`` over the figures held.
