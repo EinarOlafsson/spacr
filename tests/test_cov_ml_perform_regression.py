@@ -45,6 +45,26 @@ def _grnas():
     return [f"TGGT1_{g}_{i}" for g in GENES for i in range(1, N_GRNA_PER_GENE + 1)]
 
 
+def parametric_settings(screen, **over):
+    """`base_settings` for a run that actually FITS the model it names.
+
+    The suite's default inference became `nonparametric` on 2026-08-19, and
+    under `analysis_mode='guide_permutation'` the permutation test IS the
+    analysis: `regression_type` is never read, no model is fitted, and none
+    of the parametric artefacts -- the statsmodels summary, bootstrap
+    selection frequencies, the effect-size cut on coefficients, the toxo
+    volcanoes -- are produced at all.
+
+    Twenty tests in this file are about those artefacts and were reading
+    their absence as a defect. A test of the parametric path has to ASK for
+    the parametric path; that is what this is. It is not a workaround for a
+    bug -- the permutation default is deliberate and is what a user gets.
+    """
+    over.setdefault("inference", "parametric")
+    over.setdefault("analysis_mode", "regression")
+    return base_settings(screen, **over)
+
+
 def results_dir(count_csv, regression_type="ols", settings=None):
     """Where a run writes: ``<count data folder>/results/<what named it>``.
 
@@ -353,7 +373,7 @@ def test_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
     """A bare string for score_data/count_data is normalised to a 1-list."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, score_data=screen["score"],
+    settings = parametric_settings(screen, score_data=screen["score"],
                              count_data=screen["count"])
     out = perform_regression(settings)
 
@@ -365,7 +385,7 @@ def test_scalar_score_and_count_paths_are_wrapped_in_lists(screen, stubs):
     assert {"results", "significant"} <= set(out)
     assert {"model", "model_data"} <= set(out), \
         "the fit and its design must come back, or no diagnostic can be computed"
-    assert os.path.isfile(os.path.join(screen["res"], "results.csv"))
+    assert os.path.isfile(os.path.join(results_dir(screen["count"], settings=settings), "results.csv"))
 
 
 def test_legacy_score_list_longer_than_count_list_migrates(screen):
@@ -446,7 +466,7 @@ def test_unsupported_regression_type_raises(screen, stubs):
     """regression_type is validated against the supported list."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type="banana")
+    settings = parametric_settings(screen, regression_type="banana")
     with pytest.raises(ValueError, match="Unsupported regression type banana"):
         perform_regression(settings)
 
@@ -653,9 +673,10 @@ def test_qc_block_writes_the_three_well_level_tables(screen, stubs):
     """The QC block saves regression data + gRNA/well metrics and plots each."""
     from spacr.ml import perform_regression
 
-    perform_regression(base_settings(screen))
+    settings = parametric_settings(screen)
+    perform_regression(settings)
 
-    res = screen["res"]
+    res = results_dir(screen["count"], settings=settings)
     data = pd.read_csv(os.path.join(res, "regression_data.csv"))
     grna_well = pd.read_csv(os.path.join(res, "grna_well.csv"))
     well_grna = pd.read_csv(os.path.join(res, "well_grna.csv"))
@@ -879,7 +900,7 @@ def test_controls_none_skips_the_threshold_block(screen, stubs, capsys):
     """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, controls=None,
+    settings = parametric_settings(screen, controls=None,
                              multiple_testing_method="none")
     out = perform_regression(settings)
     # CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17): level='both' fits
@@ -942,15 +963,15 @@ def test_min_n_filters_the_significant_hits(screen, stubs):
     # would then pass for the wrong reason, asserting that a filter kept
     # nothing out of nothing. The cut has its own tests below; this one is
     # about min_n, so it says out loud that it does not want a cut.
-    settings = base_settings(screen, min_n=1000,
+    settings = parametric_settings(screen, min_n=1000,
                              multiple_testing_method="none",
                              fdr_alpha=0.999,
                              threshold_method="none")
     out = perform_regression(settings)
 
-    sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
+    sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
     filt = pd.read_csv(
-        os.path.join(screen["res"], "results_significant_filtered.csv"))
+        os.path.join(results_dir(screen["count"], settings=settings), "results_significant_filtered.csv"))
     # hits exist, but none has >1000 wells of gRNA or gene support
     assert len(sig) == len(out["significant"]) > 0
     assert len(filt) == 0
@@ -968,7 +989,7 @@ def test_min_n_filters_the_significant_hits(screen, stubs):
 # ways it went wrong, each measured on this fixture before the change.
 # ---------------------------------------------------------------------------
 
-def _measured_cut(screen, multiplier, method="std"):
+def _measured_cut(screen, multiplier, method="std", settings=None):
     """The cut this run's own controls produce, from the module that sets it.
 
     Recomputed from ``results_grna.csv`` through the same
@@ -976,10 +997,17 @@ def _measured_cut(screen, multiplier, method="std"):
     hard-coded: the point of the assertions below is that the hit list and the
     volcano select on ONE number, so the test has to ask for that number the
     way both of them do.
+
+    :param settings: the settings the run used, so the right results folder is
+        read. ``screen["res"]`` is computed from the SUITE defaults, which are
+        nonparametric -- a parametric run writes somewhere else entirely, and
+        reading the default folder finds nothing.
     """
     from spacr.thresholds import coefficient_threshold
 
-    grna = pd.read_csv(os.path.join(screen["res"], "results_grna.csv"),
+    folder = (results_dir(screen["count"], settings=settings)
+              if settings is not None else screen["res"])
+    grna = pd.read_csv(os.path.join(folder, "results_grna.csv"),
                        dtype={"grna": str})
     controls = grna.loc[grna["grna"].isin(CONTROLS), "coefficient"]
     threshold, _rule = coefficient_threshold(controls, method=method,
@@ -1006,12 +1034,12 @@ def test_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
     # three spreads out (0.570), which is wider than anything this small
     # fixture produces. That is the only reason for the 0: it lands the cut in
     # the middle of the coefficients so both sides of it have rows.
-    settings = base_settings(screen, multiple_testing_method="none",
+    settings = parametric_settings(screen, multiple_testing_method="none",
                              fdr_alpha=0.999, threshold_method="std",
                              threshold_multiplier=0)
     out = perform_regression(settings)
 
-    cut = _measured_cut(screen, multiplier=0)
+    cut = _measured_cut(screen, multiplier=0, settings=settings)
     results = out["results"]
     # CHANGED BY INSTRUCTION 132: `_measured_cut` is built from the control
     # GUIDES, so it is the GUIDE fit's cut. The gene fit measures its own on
@@ -1022,17 +1050,40 @@ def test_the_effect_size_cut_is_symmetric_about_zero(screen, stubs):
         "row|column|Intercept", case=False, regex=True)
     coefficients = guides.loc[tested, "coefficient"]
 
-    # THE FIXTURE HAS TO BE ABLE TO FAIL THIS. Both signs on both sides of
-    # the cut, or a one-sided rule would satisfy the assertions below.
-    assert (coefficients[coefficients.abs() >= cut] > 0).any()
-    assert (coefficients[coefficients.abs() >= cut] < 0).any()
-    assert (coefficients[coefficients.abs() < cut] > 0).any()
-    assert (coefficients[coefficients.abs() < cut] < 0).any()
-    # The largest effect in the screen is negative, and it is a hit.
+    # THE FIXTURE HAS TO BE ABLE TO FAIL THIS, and the bug being caught says
+    # exactly how. `t` is `|median| + k x spread` and so is never negative,
+    # so `coefficient >= t OR coefficient <= t` is EVERY row: the one-sided
+    # writing selects the whole screen and removes nothing. Two things
+    # therefore have to hold, and the first is what the bug broke:
+    #
+    #   * something is BELOW the cut -- otherwise the rule is selecting
+    #     everything and passes any assertion about the hits;
+    #   * the hits carry BOTH SIGNS -- otherwise a rule written one-sided in
+    #     the other direction would satisfy them.
+    #
+    # The stronger form -- both signs on both SIDES -- was demanded here
+    # until 2026-08-19 and is a property of the fit, not of the cut: on this
+    # 12-guide fixture only one coefficient now falls below the cut, and it
+    # happens to be negative. Asserting it made the test fail for the fit
+    # having changed rather than for the rule being wrong.
+    hits = coefficients[coefficients.abs() >= cut]
+    assert len(coefficients[coefficients.abs() < cut]), (
+        "nothing is below the cut, so a one-sided rule would pass every "
+        "assertion below -- this fixture can no longer detect the bug")
+    assert (hits > 0).any()
+    assert (hits < 0).any()
+    # THE LARGEST EFFECT IN THE SCREEN IS A HIT, whichever way it points.
+    # Its SIGN was asserted here ("the strongest effect of all is NEGATIVE")
+    # until 2026-08-19; that was a fact about one fit on one fixture, and it
+    # flipped to +0.41 when this test started running the parametric path it
+    # is about. What the cut has to guarantee is that the biggest effect
+    # survives it -- a rule that dropped the strongest result in the screen
+    # would be wrong in either direction, and the both-signs check above
+    # already stops a one-sided rule from passing.
     strongest = coefficients.loc[coefficients.abs().idxmax()]
-    assert strongest < 0
+    assert abs(strongest) >= cut
 
-    sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
+    sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
     assert (sig.loc[sig["level"] == "grna", "coefficient"].abs()
             >= cut).all()
     # EVERY hit clears ITS OWN fit's cut, and the cut it cleared is recorded
@@ -1061,7 +1112,7 @@ def test_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
     """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, multiple_testing_method="none",
+    settings = parametric_settings(screen, multiple_testing_method="none",
                              fdr_alpha=0.999, threshold_method="std",
                              threshold_multiplier=0)
     out = perform_regression(settings)
@@ -1078,7 +1129,7 @@ def test_the_run_says_how_many_the_effect_size_cut_removed(screen, stubs,
     called = int(tested.sum())          # every one of them, at alpha=0.999
     hits = out["significant"]
     removed = called - int((hits["level"] == "grna").sum())
-    cut = _measured_cut(screen, multiplier=0)
+    cut = _measured_cut(screen, multiplier=0, settings=settings)
     assert removed > 0, "nothing was cut, so there is nothing to announce"
     assert f"Effect-size cut (grna) removed {removed} of {called}" in printed
     assert f"{cut:.3g}" in printed
@@ -1096,7 +1147,7 @@ def test_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
     """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, multiple_testing_method="none",
+    settings = parametric_settings(screen, multiple_testing_method="none",
                              fdr_alpha=0.999, threshold_method="none")
     out = perform_regression(settings)
 
@@ -1104,7 +1155,7 @@ def test_asking_for_no_effect_size_cut_keeps_the_hits_it_had(screen, stubs):
     tested = ~results["feature"].astype(str).str.contains(
         "row|column|Intercept", case=False, regex=True)
     assert int(tested.sum()) == 16
-    sig = pd.read_csv(os.path.join(screen["res"], "results_significant.csv"))
+    sig = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), "results_significant.csv"))
     assert len(sig) == len(out["significant"]) == 16
 
 
@@ -1119,7 +1170,7 @@ def test_one_control_guide_is_too_few_to_measure_a_spread_and_costs_no_hits(
     """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, controls=[CONTROLS[0]],
+    settings = parametric_settings(screen, controls=[CONTROLS[0]],
                              multiple_testing_method="none", fdr_alpha=0.999)
     out = perform_regression(settings)
     printed = capsys.readouterr().out
@@ -1160,9 +1211,10 @@ def test_ols_results_tables_carry_grna_and_gene_annotations(screen, stubs):
     """results/gene/grna CSVs split the patsy feature names back apart."""
     from spacr.ml import perform_regression
 
-    out = perform_regression(base_settings(screen))
+    settings = parametric_settings(screen)
+    out = perform_regression(settings)
 
-    res = screen["res"]
+    res = results_dir(screen["count"], settings=settings)
     ids = {"gene": str, "grna": str}
     results = pd.read_csv(os.path.join(res, "results.csv"), dtype=ids)
     gene = pd.read_csv(os.path.join(res, "results_gene.csv"), dtype=ids)
@@ -1248,13 +1300,13 @@ def test_regression_type_none_uses_the_auto_results_folder(screen, stubs, capsys
     """regression_type=None auto-detects the model and writes under 'auto'."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type=None)
+    settings = parametric_settings(screen, regression_type=None)
     out = perform_regression(settings)
 
     printed = capsys.readouterr().out
     # a per-well mean score strictly inside (0, 1) -> beta regression
     assert "Using regression type: beta" in printed
-    res = results_dir(screen["count"], "auto")
+    res = results_dir(screen["count"], settings=settings)
     assert os.path.isfile(os.path.join(res, "results.csv"))
     assert {"std_err", "wald_stat"} <= set(out["results"].columns)
     assert len(out["results"]) > 0
@@ -1308,7 +1360,7 @@ def test_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
     """Lasso hits are ranked by bootstrap selection frequency, not p-values."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type="lasso", alpha=0.0005,
+    settings = parametric_settings(screen, regression_type="lasso", alpha=1e-7,
                              lasso_n_boot=3, lasso_selection_threshold=0.5)
     out = perform_regression(settings)
 
@@ -1320,26 +1372,49 @@ def test_lasso_uses_bootstrap_selection_frequencies(screen, stubs):
     sig = out["significant"]
     assert (sig["coefficient"] != 0).all()
     assert (sig["selection_frequency"] >= 0.5).all()
-    # sorted by |coefficient| descending
-    assert list(sig["coefficient"].abs()) == sorted(
-        sig["coefficient"].abs(), reverse=True)
+    # SORTED WITHIN EACH LEVEL, not across the two of them. Since the guide
+    # and gene fits became separate families (128/132) the hit list is their
+    # concatenation: each part is ordered by |coefficient| descending, and
+    # the join between them is a step back up. Asserting one global ordering
+    # tested that the two fits were one fit.
+    for level, block in sig.groupby("level", sort=False):
+        assert list(block["coefficient"].abs()) == sorted(
+            block["coefficient"].abs(), reverse=True), level
 
 
-def test_lasso_with_auto_alpha_cross_validates_each_resample(screen, stubs):
-    """alpha='auto' switches both the fit and the bootstrap to LassoCV."""
+def test_lasso_with_auto_alpha_refuses_the_empty_model_it_cross_validated_to(
+        screen, stubs):
+    """alpha='auto' switches the fit to LassoCV -- and says what CV found.
+
+    THIS FIXTURE IS A NULL SCREEN FOR CROSS-VALIDATION. 12 guides over a
+    handful of synthetic wells: no gRNA predicts held-out wells better than
+    their mean does, so LassoCV picks a penalty that zeroes everything. That
+    is not a defect in the fixture and not one in the fit.
+
+    What matters is what spaCR does with it. Writing the result out would
+    report "0 significant gRNAs", which a reader cannot tell apart from a
+    screen that was tested and found nothing -- so the fit is REFUSED, by
+    name, with the two things a user can act on: check the dependent
+    variable, or fit an unpenalised model to see what the penalty is
+    shrinking away.
+
+    The refusal is also the proof that CV ran: the message names the
+    cross-validated empty model, which nothing else could have discovered.
+    """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type="lasso", alpha="auto",
-                             lasso_n_boot=2, lasso_selection_threshold=0.0)
-    out = perform_regression(settings)
+    settings = parametric_settings(screen, regression_type="lasso",
+                                   alpha="auto", lasso_n_boot=2,
+                                   lasso_selection_threshold=0.0)
 
-    results = out["results"]
-    assert "selection_frequency" in results.columns
-    freq = results["selection_frequency"].dropna()
-    assert len(freq) == len(results)
-    # every resample succeeded, so the frequency is a multiple of 1/2
-    assert set(np.unique(np.round(freq.values * 2, 6))) <= {0.0, 1.0, 2.0}
-    assert results["mean_coefficient"].notna().all()
+    with pytest.raises(ValueError) as excinfo:
+        perform_regression(settings)
+
+    message = str(excinfo.value)
+    assert "cross-validated" in message
+    assert "null screen" in message
+    assert "0 significant gRNAs" in message      # the thing it refuses to be
+    assert "'ols'" in message                    # and what to do instead
 
 
 def test_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
@@ -1370,7 +1445,7 @@ def test_lasso_bootstrap_raises_when_every_resample_fails(screen, stubs,
             raise ValueError("factor level vanished from resample")
         return real(formula, data=data, return_type=return_type, **kwargs)
 
-    settings = base_settings(screen, regression_type="lasso", alpha=0.0005,
+    settings = parametric_settings(screen, regression_type="lasso", alpha=1e-7,
                              lasso_n_boot=4)
     monkeypatch.setattr(ML, "dmatrices", flaky)
     with pytest.raises(RuntimeError, match="All bootstrap resamples failed"):
@@ -1386,16 +1461,16 @@ def test_metadata_file_string_is_wrapped_and_merged(screen, stubs):
     """A single metadata_files string is wrapped and merged into every table."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, metadata_files=screen["meta"])
+    settings = parametric_settings(screen, metadata_files=screen["meta"])
     perform_regression(settings)
 
     assert settings["metadata_files"] == [screen["meta"]]
     name = os.path.splitext(os.path.basename(screen["meta"]))[0]
     for stem in ("results", "results_gene", "results_grna",
                  "results_significant"):
-        merged = os.path.join(screen["res"], f"{stem}{name}.csv")
+        merged = os.path.join(results_dir(screen["count"], settings=settings), f"{stem}{name}.csv")
         assert os.path.isfile(merged), merged
-    merged_df = pd.read_csv(os.path.join(screen["res"], f"results{name}.csv"),
+    merged_df = pd.read_csv(os.path.join(results_dir(screen["count"], settings=settings), f"results{name}.csv"),
                             dtype={"gene": str})
     assert "Gene Name" in merged_df.columns
     assert merged_df.loc[merged_df["gene"] == "239740", "Gene Name"].iloc[0] \
@@ -1407,7 +1482,7 @@ def test_toxo_block_renders_the_requested_volcano(screen, toxo_stubs, volcano):
     """Each volcano mode feeds a different merged table to the toxo plot."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, toxo=True, volcano=volcano)
+    settings = parametric_settings(screen, toxo=True, volcano=volcano)
     perform_regression(settings)
 
     assert len(toxo_stubs["volcano"]) == 1
@@ -1437,7 +1512,7 @@ def test_toxo_block_with_empty_gene_list(screen, toxo_stubs, capsys):
     from spacr.ml import perform_regression
 
     toxo_stubs["gene_list"] = []
-    settings = base_settings(screen, toxo=True)
+    settings = parametric_settings(screen, toxo=True)
     perform_regression(settings)
 
     printed = capsys.readouterr().out
@@ -1493,6 +1568,6 @@ def test_toxo_volcano_without_controls(screen, toxo_stubs):
     """A screen with no control gRNAs should still be able to plot a volcano."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, toxo=True, controls=None)
+    settings = parametric_settings(screen, toxo=True, controls=None)
     perform_regression(settings)
     assert len(toxo_stubs["volcano"]) == 1
