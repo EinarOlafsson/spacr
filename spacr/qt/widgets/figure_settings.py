@@ -1171,24 +1171,22 @@ GRAPH_STYLE_FILE_KIND = "spacr_graph_style"
 def graph_style_as_dict(general=None, per_graph=None) -> dict:
     """The user's graph style as the thing that gets written to a file.
 
-    Instruction 108 point 5 -- "Save style / Load style ... plus a per-project
-    default so a lab's house style is applied to every figure of that type
-    without re-setting it each time" -- for the figures that have no style
+    This supplies save, load, and per-project defaults for figures that have no
+    style
     DATACLASS, which is nearly all of them.
 
-    IT SAVES INSTRUCTION 118'S OWN VOCABULARY AND INVENTS NOTHING. A second
-    set of appearance keys, captured off the artists of one drawn figure,
-    would be a third style system in a package instruction 127 has already
-    measured as having two -- and the deltas here are what
-    `figures.style.user_overrides` and `figure_style.resolve` already read,
+    It uses the existing style vocabulary. Capturing a second set of
+    appearance keys from the artists of one drawn figure would create a third
+    style system. The deltas here are what
+    :func:`spacr.figures.style.user_overrides` and
+    :func:`spacr.figure_style.resolve` already read,
     so a loaded house style reaches every figure spaCR draws without anything
     else being wired.
 
-    NO COLOURS BEYOND THE ONES 118 ALREADY STORES, and this is worth being
-    explicit about because the obvious extra -- "capture what this figure
+    It stores no additional colours. The tempting alternative -- "capture what this figure
     looks like right now" -- would sample the ink the THEME resolved. Saving
-    that and applying it later is instruction 152 section A exactly: a
-    resolved default written back, invisible the first time the user changes
+    that and applying it later would write back a resolved default that stays
+    invisible until the first time the user changes
     theme. The live figure's ink stays a token in `prefs/figure_*`.
     """
     if general is None or per_graph is None:
@@ -1280,8 +1278,7 @@ def apply_graph_style(general, per_graph) -> None:
 def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
     """"Save graph style…" / "Load graph style…" on ``menu``.
 
-    THE HALF THE MAINTAINER RESTATED -- "each figure should be editable and
-    savable" -- reaching the matplotlib figures. `fast_plots.save_style` and
+    This makes matplotlib figures editable and savable. `fast_plots.save_style` and
     `load_style` already do this for a style DATACLASS, and the only
     dataclass in the package is `VolcanoStyle`, so on 2026-08-18 the savable
     half existed and nothing a user could click reached it.
@@ -1897,6 +1894,17 @@ class FigureStylePreferences(QWidget):
         file_row.addWidget(load_button)
         file_row.addStretch(1)
         column.addLayout(file_row)
+
+        # HOVER HELP BELONGS ON THE SETTING'S NAME, NOT ON THE CONTROL
+        # (instruction 113, restated across every module 2026-08-19: "the
+        # tooltip should only be visable when hovering the mouse over the
+        # setting name text, and not when hovering over the field, checkbox,
+        # or whatever the setting controlls"). One post-pass rather than a
+        # convention every hand-built row has to remember -- which is what
+        # `tests/test_tooltips_are_on_the_setting_not_the_field.py` exists to
+        # catch, and did catch this screen.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     # -- a house style as a file ---------------------------------------------
 

@@ -823,6 +823,17 @@ class RegressionResultsPanel(QWidget):
         self._offer_baselines()
         self._offer_compartments()
 
+        # HOVER HELP BELONGS ON THE SETTING'S NAME, NOT ON THE CONTROL
+        # (instruction 113, restated across every module 2026-08-19: "the
+        # tooltip should only be visable when hovering the mouse over the
+        # setting name text, and not when hovering over the field, checkbox,
+        # or whatever the setting controlls"). One post-pass rather than a
+        # convention every hand-built row has to remember -- which is what
+        # `tests/test_tooltips_are_on_the_setting_not_the_field.py` exists to
+        # catch, and did catch this screen.
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
     # -------------------------------------------------------------- re-fitting
 
     def set_run_settings(self, settings) -> None:
@@ -1407,12 +1418,12 @@ class RegressionResultsPanel(QWidget):
         return bool(self._loading)
 
     def start_load(self, path) -> bool:
-        """Load a run OFF the GUI thread. Instruction 159.
+        """Start loading a regression run outside the GUI thread.
 
-        The split is the one the merge uses: everything that touches a widget
-        stays here, the disk walk and the CSV read go to a worker, and only
-        data crosses back.
+        File discovery and CSV reads run in a worker. Only the resulting data
+        is returned to the GUI thread.
 
+        :param path: Regression-results directory to load.
         :returns: whether a load was started. ``False`` when one already is --
             a second click must not read the same folder twice.
         """
