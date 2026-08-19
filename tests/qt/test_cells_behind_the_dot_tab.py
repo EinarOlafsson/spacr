@@ -1078,7 +1078,18 @@ def test_editing_a_crop_setting_abandons_the_load_it_no_longer_describes(
                                    channels=(3, 2, 1))
     view._on_loaded(stale)
     assert view._pending is not None      # the answer that matters is still due
-    assert view.plans() == (first,) or view.plans() == ()
+
+    # THE STALE LOAD MUST NOT BE WHAT IS ON SCREEN. Asserted as "its blank
+    # images did not land" rather than by comparing plans: editing a setting
+    # now REBUILDS the view for the new setting, so `plans()` legitimately
+    # holds a plan for channels (3, 2, 1) that is neither `first` nor empty.
+    #
+    # And it cannot be compared with `==` in any case -- a plan carries a
+    # DataFrame, so `plans() == (first,)` raises "The truth value of a
+    # DataFrame is ambiguous" rather than answering False.
+    for row in view.images():
+        assert not all(image is None for image in row), (
+            "the superseded load's blank images were painted")
 
 
 def test_closing_the_tab_stops_waiting_for_a_load(qtbot, tmp_path):

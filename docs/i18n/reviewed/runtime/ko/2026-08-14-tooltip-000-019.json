@@ -11,13 +11,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "alpha",
-      "source_sha256": "0f590a8d2a89634204f364d2aa3498e105efccc5c5dd996ada0246bedf52fe2c",
-      "source": "Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other regression type refuses a non-default alpha rather than ignoring it, and it is no longer the quantile - see the quantile setting. Default 1.",
-      "translation": "벌점 모델에만 적용되는 정규화 강도입니다. 'lasso' 에는 L1 벌점, 'ridge' 에는 L2 벌점, 'elasticnet' 에는 결합 벌점, 'hinge' 에는 역 마진으로 쓰입니다. 값이 클수록 더 많은 계수를 0 쪽으로 줄입니다. 'auto' 또는 None 으로 두면 5 겹 교차 검증으로 선택하며, 기본값 1 은 비율 척도 설계를 모두 0 으로 줄일 수 있으므로 보통 이 선택이 적절합니다. 다른 회귀 유형은 기본값이 아닌 alpha 를 무시하지 않고 거부합니다. 이 값은 더 이상 분위수가 아니며 quantile 설정을 사용하십시오. 기본값 1."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "anndata_nan_policy",
       "source_sha256": "9dae4ee77d763706d2d07586ef76c3a858875bf6ed9b7eb59cec8a8f30faae25",
       "source": "What happens to missing values in X: 'keep' (default; AnnData stores them, scanpy's scale/pca/neighbors do not), 'drop_features', 'drop_objects', 'zero' or 'mean'. The two imputing policies also write a layers['missing'] mask.",

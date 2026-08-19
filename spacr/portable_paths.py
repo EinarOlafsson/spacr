@@ -13,10 +13,9 @@ Measured on the TSG101 screen: 0 of 60,816 recorded paths existed, and
 the folder the database was opened from.
 
 THE DATABASE IS NEVER WRITTEN TO. Resolution happens on the frame a reader
-already holds, every time it is read. That is the maintainer's own design and
-the reason it is safe to apply everywhere: a screen can be copied to a third
-machine, read there, and copied back, and the recorded paths are still
-whatever they were.
+already holds, every time it is read. A screen can therefore be copied to a
+third machine, read there, and copied back without changing its recorded
+paths.
 
 THE RULE
 --------
@@ -151,9 +150,9 @@ class RerootReport:
 
     The last two fields are the reason this is a record and not a bare count.
     A path with no recognisable structure under the root is returned unchanged
-    and fails later as a missing file, somewhere with less context -- which is
-    how a silent pass-through stays invisible. Instruction 155 F: "Count them
-    and name one".
+    and otherwise fails later as a missing file with less context. The report
+    counts unresolved paths and includes an example so callers can explain the
+    problem where re-rooting was attempted.
     """
 
     column: str = ""
@@ -176,8 +175,8 @@ class RerootReport:
         resolved and nothing existed is a ROUTE THAT IS NOT ON THIS MACHINE --
         a screen with PNG crops and no ``merged/`` folder has 60,816 unplaceable
         ``path_name`` values and is completely healthy. A column where most
-        resolved and a few did not is the real signal instruction 155 F asks
-        to be counted and named.
+        paths resolved and a few did not is the actionable partial-failure
+        case.
         """
         return bool(self.moved) and bool(self.unresolved)
 

@@ -1,6 +1,6 @@
 """One button: every gene against every measurement.
 
-Instruction 175. The engine is :mod:`spacr.gene_measurement_sweep`; this is
+The engine is :mod:`spacr.gene_measurement_sweep`; this is
 the thin panel over it, and it is thin on purpose -- the three corrections
 that make the answer trustworthy (identifiers excluded, Benjamini-Hochberg
 across the grid, circularity reported per row) live in the engine so a
@@ -37,7 +37,7 @@ def sweep_inputs(cells, counts, *, score_column: str = "pred", scores=None):
     screen says `pplate1` where its measurements database says `plate1`, so an
     un-canonicalised join matches no well at all -- and the resulting all-NaN
     circularity column reads as "nothing here is circular", which is the most
-    confident possible way to say nothing. Instruction 145.
+    confident possible way to say nothing.
     """
     from ... import schema
     from ...multi_database import normalise_plate_ids

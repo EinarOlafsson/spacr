@@ -1,14 +1,9 @@
-"""The annotator's control over the picture, offered wherever cells are shown.
-
-Instruction 170: "a settings button that spawns a settings window like
-annotation aplication and gives the user the same controll over how to show
-the images like the annotation application. settings that do not apply for
-the chosen method are grayed out."
+"""The annotator's picture controls, offered wherever cells are shown.
 
 THE DEFAULTS COME FROM `set_annotate_default_settings`, not from a list here.
 That is the whole reason this dialog is thin: the annotator already decides
 what these settings are called, what they default to and what type they are,
-and a second declaration would be a second answer. Instruction 145.
+and a second declaration would be a second answer.
 
 WHAT APPLIES TO WHICH MODE IS `spacr.picture_settings`, for the same reason
 one level up: the greying rule has to hold when a settings CSV reaches the

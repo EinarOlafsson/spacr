@@ -1,12 +1,8 @@
-"""A titled section that folds away, for tabs that hold several panels.
+"""A titled section that folds away in tabs containing several panels.
 
-Reported 2026-08-19: "there are to many elements in the measurements tab",
-and before it "i need to be able to make each taller and collapse each
-element category". Making the sections resizable (a QSplitter) answered the
-first half; this is the second. Four panels stacked in one tab is too many
-ONLY when all four are open at once -- a user fitting a regression does not
-need the attach-database table on screen, and folding it is the difference
-between a crowded tab and a tab with one thing in it.
+Resizable sections let users give the active panel more room, while folding
+inactive sections prevents controls from competing for the same vertical
+space.
 
 FOLDED, NOT REMOVED, and the header stays put: a section that disappeared
 would take with it the only clue that the feature exists, which is the same

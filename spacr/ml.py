@@ -4859,6 +4859,23 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
         return settings.get('analysis_mode', 'regression'), (
             f"inference={inference!r} was set explicitly.")
 
+    # AUTO MUST NOT CHOOSE A MODE THAT CANNOT RUN ON THIS DATA.
+    #
+    # The permutation test needs one row per WELL. With per-object rows it
+    # refuses -- correctly, and with a clear message -- but "auto" means
+    # "choose for me", and choosing something that raises the moment it is
+    # used is not a choice. `agg_type is None` is the reliable signal, not
+    # `analysis_unit`: some regression types force it to None themselves
+    # (quantile fits objects by construction), so a user who set
+    # analysis_unit='well' still ends up with object rows.
+    per_object = str(settings.get('analysis_unit', 'well')).lower() != 'well'
+    if per_object or settings.get('agg_type') is None:
+        return 'regression', (
+            "auto chose the simultaneous model: the rows are one per OBJECT "
+            "(agg_type is None or analysis_unit is not 'well'), and the "
+            "permutation test needs one row per well. Set an agg_type such "
+            "as 'mean' if the permutation test is wanted.")
+
     try:
         n_wells = int(data[well_column].nunique())
         n_guides = int(data[guide_column].nunique())
@@ -5316,11 +5333,30 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     # changes what was analysed, and a run that quietly analysed something
     # other than what was asked for is the failure this module is most
     # careful about elsewhere.
-    if str(settings.get('analysis_unit', 'well')).lower() != 'well':
+    # AND `agg_type is None` SAYS THE SAME THING. The check above reads
+    # `analysis_unit`, which is what a user SETS; `agg_type` is what decides
+    # whether the rows actually got rolled up, and some types force it to
+    # None themselves -- quantile fits objects by construction. A run with
+    # analysis_unit='well' and agg_type=None therefore reached the
+    # permutation test with per-object rows and died on
+    #
+    #     ValueError: Phenotype/block/nuisance values are not constant
+    #     within well 'plate1_r1_c4'
+    #
+    # which names a well and a pandas invariant rather than the two settings
+    # that cannot both be honoured. The message this branch already carries
+    # is the right one; it just was not reachable that way.
+    per_object = str(settings.get('analysis_unit', 'well')).lower() != 'well'
+    unaggregated = settings.get('agg_type') is None
+    if per_object or unaggregated:
+        why = (f"analysis_unit={settings.get('analysis_unit')!r}"
+               if per_object else
+               f"agg_type is None (regression_type="
+               f"{settings.get('regression_type')!r} fits objects)")
         raise ValueError(
             f"analysis_mode='guide_permutation' tests each guide across "
             f"WELLS, so it needs one row per well -- but "
-            f"analysis_unit={settings.get('analysis_unit')!r} gives one row "
+            f"{why} gives one row "
             f"per object, and a well's phenotype then has many values. Set "
             f"analysis_unit='well' (with an agg_type such as 'mean'), or "
             f"choose analysis_mode='regression', which can model objects.")
@@ -5676,12 +5712,7 @@ def _perform_regression_set_paths(settings):
     # first. That is also why the results panel could not find anything:
     # the path it had to guess at was four levels deep and named after a
     # file rather than the run.
-    if settings.get('analysis_mode') == 'guide_permutation':
-        kind = 'guide_permutation'
-    elif settings['regression_type'] is None:
-        kind = 'auto'
-    else:
-        kind = str(settings['regression_type'])
+    kind = results_folder_kind(settings)
     res_folder = _next_results_folder(os.path.join(src, 'results'), kind)
     _stage(settings, "placing the results folder")
     # WHERE A FAILURE REPORT GOES, recorded as soon as the folder exists.
@@ -5698,6 +5729,28 @@ def _perform_regression_set_paths(settings):
     hits_path=os.path.join(res_folder, hits_filename)
 
     return results_path, results_path_gene, results_path_grna, hits_path, res_folder, csv_path
+
+
+def results_folder_kind(settings) -> str:
+    """What a run's results folder is NAMED after.
+
+    The inference method when it decides the answer, and the regression type
+    otherwise. Under `analysis_mode='guide_permutation'` the regression type
+    is never read -- ols and mixed produce byte-identical results -- so a
+    folder called `ridge` would name something the run did not do.
+
+    PUBLIC, AND THE ONLY COPY. A test that re-derived this rule went stale
+    when the rule changed and reported 39 missing CSVs while every run that
+    wrote them was fine, which is the failure the `results_dir` helper in
+    tests/test_cov_ml_perform_regression.py was already written to prevent
+    once. A suite pointing at the wrong file is worse than a silent one.
+    """
+    settings = settings or {}
+    if settings.get('analysis_mode') == 'guide_permutation':
+        return 'guide_permutation'
+    if settings.get('regression_type') is None:
+        return 'auto'
+    return str(settings['regression_type'])
 
 
 def _next_results_folder(root, kind, limit=1000):
@@ -7965,14 +8018,12 @@ BETA_SQUEEZE_NOTE = (
 def beta_logit(values):
     """A proportion on the logit scale, with the endpoints squeezed in.
 
-    Instruction 174. `transform='beta'` is the natural companion to a
-    response that IS a proportion -- which a classification score and its
-    well aggregate both are -- where `log` is not.
+    ``transform='beta'`` is intended for proportional responses such as
+    classification scores and their well aggregates, where a logarithm is
+    not appropriate.
 
-    NOT THE SAME THING AS `regression_type='beta'`, which fits a beta GLM.
-    One is a transform OF the response, the other is the FAMILY of the fit,
-    and a settings panel that offered both under one word would be exactly
-    the confusion 145 is about.
+    This is distinct from ``regression_type='beta'``, which selects a beta
+    GLM. One transforms the response; the other selects the model family.
     """
     array = np.asarray(values, dtype=float)
     finite = np.isfinite(array)

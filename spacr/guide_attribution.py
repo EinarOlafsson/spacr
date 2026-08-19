@@ -4,8 +4,8 @@ NOT `spacr.attribution`, which is the Grad-CAM and saliency library -- "what
 a trained classifier attends to". This is "which guide is in this cell", a
 different question with an unfortunately similar name.
 
-Instruction 173. A pooled screen never observes which cell carried which
-guide: sequencing gives a FRACTION per well. But a guide with a measurable
+A pooled screen never observes which cell carried which guide: sequencing
+gives a FRACTION per well. But a guide with a measurable
 effect on the classification score leaves a trace in the scores themselves,
 and that is enough to attribute cells probabilistically.
 

@@ -1737,8 +1737,8 @@ class CellMontageView(QWidget):
         table's rows are ``{"plate", "score", "count", "database"}``, so the
         scores were always one field away too.
 
-        WHY THE MONTAGE WANTS THEM (instruction 167). A database whose
-        ``png_list`` has no ``pred`` column is not a screen without scores:
+        A database whose ``png_list`` has no ``pred`` column is not necessarily
+        a screen without scores:
         these files carry one row per cell and the fit was run on exactly
         those numbers. `load_montage_objects` joins them in memory when the
         database has none, and writes nothing.

@@ -45,8 +45,8 @@ def _grnas():
     return [f"TGGT1_{g}_{i}" for g in GENES for i in range(1, N_GRNA_PER_GENE + 1)]
 
 
-def results_dir(count_csv, regression_type="ols"):
-    """Where a run writes: ``<count data folder>/results/<regression type>``.
+def results_dir(count_csv, regression_type="ols", settings=None):
+    """Where a run writes: ``<count data folder>/results/<what named it>``.
 
     Asked for on 2026-08-16 -- "just store everything in the same location as
     the first count data ... then the type so for me .../claude/results/ols".
@@ -60,8 +60,30 @@ def results_dir(count_csv, regression_type="ols"):
 
     One helper rather than a literal per test, so the next layout change
     costs one line here instead of another twenty-three red marks.
+
+    AND IT HAPPENED AGAIN, for the reason the paragraph above describes: the
+    leaf stopped being the regression type. Under
+    `analysis_mode='guide_permutation'` -- the default these tests run with --
+    the run names the folder after the INFERENCE, because the regression type
+    is never read and a folder called `ridge` would name something the run
+    did not do. 39 tests in this file went red on missing CSVs that had been
+    written all along.
+
+    So the rule is no longer re-derived here. `spacr.ml.results_folder_kind`
+    is the one copy and this asks it, which is the only version of this
+    helper that cannot go stale a third time.
     """
-    return os.path.join(os.path.dirname(count_csv), "results", regression_type)
+    from spacr.ml import results_folder_kind
+    from spacr.settings import get_perform_regression_default_settings
+
+    if settings is None:
+        # THE SAME DEFAULTS THE RUN GETS, for the same reason `base_settings`
+        # finishes its dict with this builder: a helper that assumed
+        # parametric inference would answer for a run nobody performs.
+        settings = get_perform_regression_default_settings({})
+        settings["regression_type"] = regression_type
+    kind = results_folder_kind(settings)
+    return os.path.join(os.path.dirname(count_csv), "results", kind)
 
 
 def _score_records(plate, seed, n_cells=6, with_path=False, plate_token=None,
@@ -1169,16 +1191,43 @@ def test_ols_results_tables_carry_grna_and_gene_annotations(screen, stubs):
 
 
 def test_verbose_ols_writes_the_model_summary(screen, stubs):
-    """verbose + ols dumps the statsmodels summary next to the results."""
+    """verbose + ols dumps the statsmodels summary next to the results.
+
+    RUN PARAMETRIC, EXPLICITLY. The suite's default inference is
+    `guide_permutation`, which fits no model at all -- so this test was
+    asking a permutation run for a statsmodels summary and reading its
+    perfectly correct "the permutation test fits no model" as a failure.
+    A test of the statsmodels path has to ask for the statsmodels path.
+    """
     from spacr.ml import perform_regression
 
-    perform_regression(base_settings(screen, verbose=True))
+    # `inference='parametric'` AS WELL AS the mode: with `inference='auto'`
+    # (the default) `resolve_auto_inference` re-picks the permutation test
+    # from the design and quietly overrides `analysis_mode` -- correctly, for
+    # a screen with more guides than wells, which this fixture is.
+    settings = base_settings(screen, verbose=True, inference="parametric",
+                             analysis_mode="regression",
+                             regression_type="ols")
+    perform_regression(settings)
 
-    summary = os.path.join(screen["res"], "mode_summary.csv")
-    assert os.path.isfile(summary)
+    # THE NAME MOVED AND THIS TEST DID NOT. `mode_summary.csv` was wrong
+    # twice over -- "mode" is a typo for "model" and the content is the
+    # statsmodels TEXT summary, never CSV -- so runs write
+    # `model_summary.txt` now. Asked for by name from `spacr.ml` rather than
+    # spelled again here, so the next rename cannot leave this behind.
+    from spacr.ml import SUMMARY_FILENAME, SUMMARY_FILENAMES
+
+    res = results_dir(screen["count"], settings=settings)
+    summary = os.path.join(res, SUMMARY_FILENAME)
+    assert os.path.isfile(summary), (
+        f"looked for {summary}; found {sorted(os.listdir(res))}")
     with open(summary) as fh:
         text = fh.read()
     assert "OLS Regression Results" in text
+
+    # And the old names are still READ, so a run finished last month keeps
+    # its summary.
+    assert "mode_summary.csv" in SUMMARY_FILENAMES
 
 
 def test_ridge_regression_backend(screen, stubs):
@@ -1222,12 +1271,18 @@ def test_regression_type_quantile_fits_the_requested_quantile(screen, stubs):
     """
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, regression_type="quantile", quantile=0.75)
+    # PARAMETRIC, because that is the path this test is about. Under the
+    # default `inference='nonparametric'` the permutation test IS the
+    # analysis and regression_type is never read -- so there is no quantile
+    # fit to check, and agg_type deliberately stays 'mean' there.
+    settings = base_settings(screen, regression_type="quantile", quantile=0.75,
+                             inference="parametric",
+                             analysis_mode="regression")
     out = perform_regression(settings)
 
     # agg_type is forced to None for quantile, so the fit is on objects.
     assert settings["agg_type"] is None
-    res = results_dir(screen["count"], "quantile")
+    res = results_dir(screen["count"], settings=settings)
     assert os.path.isfile(os.path.join(res, "results.csv"))
     assert out["results"]["coefficient"].notna().all()
     assert out["results"]["p_value"].notna().all()
