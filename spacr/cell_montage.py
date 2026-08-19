@@ -95,6 +95,8 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from . import portable_paths
+
 __all__ = [
     "INFERENCE_NOTICE",
     "SCORE_TARGET_RULE",
@@ -1321,7 +1323,14 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
     """
     frames: List[pd.DataFrame] = []
     problems: List[str] = []
-    for path in paths:
+    # ENUMERATED, and the index is used even for the files that are skipped.
+    # A count CSV names its plate in a column or not at all -- the real ones
+    # carry `row_name, column_name, grna_name, count` and nothing else -- so
+    # the plate comes from WHICH FILE it is, exactly as
+    # `ml.load_regression_input_pairs` resolves it: own column, then pair-row
+    # order. Letting an unreadable file collapse the numbering would shift
+    # every later plate's label by one and silently mislabel the wells.
+    for index, path in enumerate(paths):
         text = os.fspath(path)
         if not text or not os.path.isfile(text):
             continue
@@ -1361,6 +1370,14 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
                 if alias in frame.columns:
                     frame = frame.rename(columns={alias: "count"})
                     break
+
+        # THE PLATE, from the pair row, and only when the file does not say.
+        # Without this the four plates' wells pool: `prc` composed from row
+        # and column alone makes plate1 r1/c1 and plate2 r1/c1 ONE well, and
+        # every fraction below is then a share of four plates' reads. That is
+        # a wrong number that looks right -- the fractions still sum to 1.
+        if "plateID" not in frame.columns or frame["plateID"].isna().all():
+            frame["plateID"] = f"plate{index + 1}"
 
         missing = [c for c in ("grna", "count") if c not in frame.columns]
         if missing:
@@ -1405,6 +1422,7 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
 def load_montage_objects(db_path: str, *, object_type: str = "cell",
                          score_column: str = "pred",
                          table: str = "png_list",
+                         src: Optional[str] = None,
                          verbose: bool = False) -> pd.DataFrame:
     """Return the per-object rows a montage selects from, out of one database.
 
@@ -1421,6 +1439,12 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     :param object_type: which crop mode's rows to read.
     :param score_column: the per-object classification score column.
     :param table: the table holding the crops; ``'png_list'``.
+    :param src: the folder the screen lives in NOW. Defaults to the plate
+        folder the database sits in. Crop paths are recorded absolute at crop
+        time, so a screen that has moved computer -- or a NAS mounted
+        somewhere else -- carries 60,000 paths that no longer exist while
+        every file is present; see :mod:`spacr.portable_paths`. Only paths
+        that resolve to a file that EXISTS are rewritten.
     :param verbose: let the io join report the rows it could not place.
     :returns: the object frame, with ``prc`` composed when the well keys are
         there.
@@ -1457,6 +1481,17 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
         # alone is still a montage, so fall back rather than returning none.
         joined = frame.copy()
         joined["object_type"] = object_type
+    # RE-ROOT BEFORE ANYTHING READS A PATH. The crop source is resolved from
+    # the folder the user is looking at, so it is found correctly; it was the
+    # per-object rows that still pointed at the machine the screen was
+    # measured on, and a montage over 60,000 dead paths draws nothing and
+    # blames the crops.
+    root = src or portable_paths.source_root_for_database(db_path)
+    moved = sum(portable_paths.reroot_column(joined, column, root)
+                for column in ("png_path", "path_name"))
+    if moved and verbose:
+        print(f"Re-rooted {moved} crop path(s) under {root}.")
+
     if "prc" not in joined.columns and all(
             c in joined.columns for c in WELL_KEY_COLUMNS):
         from . import schema

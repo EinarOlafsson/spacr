@@ -666,7 +666,18 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
     assert settings["min_cell_count"] == 100, (
         "the requested default; if this moves, move it here deliberately")
-    assert settings["fraction_threshold"] is None
+    # `inference` DEFAULTS TO NONPARAMETRIC since 2026-08-18, which routes the
+    # run through guide permutation and returns a different result shape. The
+    # exact-set assertion below is about the REGRESSION mode's contract, so
+    # the mode is pinned here rather than the assertion loosened -- the
+    # default's own shape is pinned by
+    # `test_the_default_inference_returns_the_permutation_shape`.
+    assert settings["inference"] == "nonparametric"
+    settings["inference"] = "parametric"
+    # Changed from None on request 2026-08-18, with model_plate_position off
+    # and inference nonparametric. Asserted rather than ignored so the CLI
+    # path and the GUI defaults cannot drift apart again.
+    assert settings["fraction_threshold"] == 0.02
 
     # …and now drive the simulated path, which the default no longer reaches.
     settings["min_cell_count"] = None
