@@ -81,6 +81,28 @@ def _install_quiet_qt_logging() -> None:
         #
         # A crash report is written from the log, not from a screen someone
         # happened to be looking at.
+        # A THREAD-AFFINITY WARNING GETS A PYTHON STACK. `QBasicTimer::start`
+        # is called from Qt's own C++ internals, so the Python-level guard on
+        # QTimer.start never sees it -- but THIS handler runs in the emitting
+        # thread at the moment of the warning, so the stack here names the
+        # Python call that entered Qt.
+        #
+        # Only for this family. A stack on every Qt warning would bury the one
+        # that matters, which is the mistake the guard's own test exists to
+        # prevent.
+        if "cannot be started from another thread" in (message or "") or \
+                "Cannot create children for a parent" in (message or ""):
+            try:
+                import logging
+                import threading
+                import traceback
+
+                logging.getLogger("spacr.qt").warning(
+                    "The Python stack at that warning (thread %r):\n%s",
+                    threading.current_thread().name,
+                    "".join(traceback.format_stack()[:-1]))
+            except Exception:
+                pass
         try:
             import logging
 
