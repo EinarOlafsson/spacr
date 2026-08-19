@@ -61,8 +61,6 @@ def install() -> bool:
     except Exception:                                            # noqa: BLE001
         return False
 
-    gui_thread = QThread.currentThread()
-
     def _report(what: str, why: str) -> None:
         stack = "".join(traceback.format_stack()[:-2])
         _OFFENCES.append(stack)
@@ -77,31 +75,34 @@ def install() -> bool:
     def _wrong_thread(obj) -> str:
         """Why this start is illegal, or "" when it is fine.
 
-        TWO DIRECTIONS, and the first version of this guard only checked one.
-        Qt refuses a timer whenever the object's OWN thread is not the calling
-        thread, which happens both ways round:
+        ASKS EXACTLY WHAT Qt ASKS: is the object's own thread the thread
+        calling? Qt refuses whenever they differ, which happens both ways
+        round -- a worker touching a GUI object, and the GUI thread touching a
+        WORKER-AFFINE object, the second being far easier to write by accident
+        because the code reads as ordinary GUI-thread code.
 
-          * a worker thread starting a timer on a GUI object -- the case
-            everyone thinks of; and
-          * THE GUI THREAD TOUCHING A WORKER-AFFINE OBJECT, which is just as
-            illegal and is far easier to write by accident, because the code
-            reads as ordinary GUI-thread code.
+        COMPARED WITH `==`, NOT `is`. `QThread.currentThread()` hands back a
+        fresh Python wrapper around the same underlying QThread on each call,
+        so an identity test reports every ordinary start as illegal -- which is
+        precisely what the first version of this did, flagging a plain
+        GUI-thread `timer.start()` as "the caller is Qt mainThread, not the GUI
+        thread". A guard that cries wolf on the common path is worse than none,
+        because the one line that matters is then buried.
 
-        Comparing the caller against the GUI thread catches only the first, so
-        the guard stayed silent through the very event it was installed for:
-        a QBasicTimer warning fourteen milliseconds after every run closed.
+        There is deliberately no "is the caller the GUI thread" fallback. It
+        added nothing the affinity test does not already cover, and it was the
+        half that misfired.
         """
-        current = QThread.currentThread()
         try:
             owner = obj.thread()
         except Exception:                                        # noqa: BLE001
-            owner = None
-        if owner is not None and owner is not current:
-            return (f"the object lives on {owner!r} and the caller is "
-                    f"{current!r}")
-        if current is not gui_thread:
-            return f"the caller is {current!r}, not the GUI thread"
-        return ""
+            return ""
+        if owner is None:
+            return ""
+        current = QThread.currentThread()
+        if owner == current:
+            return ""
+        return f"the object lives on {owner!r} and the caller is {current!r}"
 
     def guarded_timer_start(self, *args, **kwargs):
         why = _wrong_thread(self)
