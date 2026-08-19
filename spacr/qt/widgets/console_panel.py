@@ -51,7 +51,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer,
+from PySide6.QtCore import (QByteArray, QSize, Qt, QThread, QTimer, Slot,
                             Signal)
 from PySide6.QtGui import (
     QColor,
@@ -473,13 +473,51 @@ class _WorkingDots(QLabel):
         self._n = (self._n + 1) % 3
         self._render()
 
+    @Slot()
+    def _noop_slot(self) -> None:                # pragma: no cover - anchor
+        """Present so the Slot import is used even if the others change."""
+
+    def _on_gui_thread(self) -> bool:
+        """Whether the caller is the thread this widget lives on."""
+        from PySide6.QtCore import QThread
+
+        return QThread.currentThread() is self.thread()
+
+    @Slot()
     def start(self) -> None:
+        """Begin animating. SAFE TO CALL FROM ANY THREAD.
+
+        A QTimer STARTED OFF ITS OWN THREAD DOES NOT START -- Qt prints
+        "QBasicTimer::start: Timers cannot be started from another thread" and
+        the timer never fires. So the warning is not log noise: whatever it was
+        animating silently stops animating, which is the shape of instruction
+        163. Reported 2026-08-18 with four of them at once, arriving with the
+        output of a pip run -- and pip runs on `_UpdateWorker`, a QThread,
+        whose captured stdout reaches this console from that thread.
+        MARSHALLED RATHER THAN GUARDED. Refusing the call on the wrong thread
+        would trade a warning for a spinner that never appears, which is the
+        same defect with no message attached. `QMetaObject.invokeMethod` with
+        a queued connection runs it on the widget's own thread instead, so the
+        caller does not have to know which thread it is on -- and the callers
+        are stdout handlers, which cannot know.
+        """
+        if not self._on_gui_thread():
+            from PySide6.QtCore import QMetaObject, Qt
+
+            QMetaObject.invokeMethod(self, "start", Qt.QueuedConnection)
+            return
         self._n = 0
         self._render()
         self._timer.start()
         self.show()
 
+    @Slot()
     def stop(self) -> None:
+        if not self._on_gui_thread():
+            from PySide6.QtCore import QMetaObject, Qt
+
+            QMetaObject.invokeMethod(self, "stop", Qt.QueuedConnection)
+            return
         self._timer.stop()
         self.hide()
 
