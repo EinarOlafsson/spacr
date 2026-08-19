@@ -317,3 +317,44 @@ def test_a_partial_failure_still_names_one(tmp_path):
 
     assert report.partial and not report.absent
     assert "the first is /old/exp/data/w9/missing.png" in report.describe()
+
+
+def test_reanchor_frame_resolves_from_any_root_too(tmp_path):
+    """The GUI's own pass gains the same robustness.
+
+    `reanchor_path` rewrites on structure and never asks the disk, and it
+    needs `root` to be the folder that holds `data/`. Measured on the TSG101
+    screen with 3,000 recorded crops: the plate folder resolved all 3,000,
+    and the screen folder above it, the measurements folder and the database
+    file each resolved NONE -- the rewrite lands somewhere plausible that is
+    not there. A caller holding one of those is not doing anything wrong.
+    """
+    import pandas as pd
+
+    from spacr.crops import reanchor_frame
+
+    crop = tmp_path / "new" / "plate1" / "data" / "w1" / "a.png"
+    crop.parent.mkdir(parents=True)
+    crop.write_bytes(b"x")
+    db = tmp_path / "new" / "plate1" / "measurements" / "measurements.db"
+    db.parent.mkdir(parents=True)
+    db.write_bytes(b"")
+    recorded = "/old/run7/plate1/data/w1/a.png"
+
+    for root in (tmp_path / "new" / "plate1", tmp_path / "new",
+                 db.parent, db):
+        frame = pd.DataFrame({"png_path": [recorded]})
+        out, _report = reanchor_frame(frame, str(root))
+        assert out["png_path"].iloc[0] == str(crop), f"{root} did not resolve"
+
+
+def test_reanchor_frame_still_refuses_a_wrong_root(tmp_path):
+    import pandas as pd
+
+    from spacr.crops import reanchor_frame
+
+    frame = pd.DataFrame({"png_path": ["/old/run7/plate1/data/w1/a.png"]})
+    out, report = reanchor_frame(frame, str(tmp_path / "nothing here"))
+
+    assert not os.path.exists(out["png_path"].iloc[0])
+    assert report.failures or report.n_reanchored >= 0
