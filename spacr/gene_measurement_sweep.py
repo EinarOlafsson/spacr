@@ -237,6 +237,7 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
           blocks: Optional[Sequence] = None,
           scores: Optional[Sequence[float]] = None,
           alpha: float = 0.05,
+          controls: Optional[Sequence[str]] = None,
           min_wells: int = 5,
           measurements: Optional[Iterable[str]] = None,
           level: str = "guide") -> SweepResult:
@@ -250,6 +251,12 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     :param scores: the per-well classification score, used ONLY to compute
         each measurement's circularity. Absent leaves that column at 0 and
         the caller must not read it as "not circular".
+    :param controls: guide or gene names to MARK as controls. They are not
+        removed: the regression drops the control COLUMNS of the plate because
+        they are not part of the contrast it fits, but this asks a different
+        question -- whether a gene moves a measurement -- and a control is
+        exactly the thing whose answer you want to see. Marked so a reader can
+        find them, never filtered away behind their back.
     :param min_wells: guides present in fewer wells than this are dropped --
         a correlation over three wells is not an effect.
     :param level: ``'guide'``, ``'gene'``, or ``'both'``. A gene's fraction in
@@ -329,6 +336,14 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     n_eff = np.clip(n_eff, 3.0, float(n))
     df_guide = np.maximum(n_eff - n_blocks - 1.0, 1.0)
     df = df_guide[:, None]
+    # Representation, reported rather than corrected for: the right response
+    # to a gene that is everywhere is to SEE that it is, not to have its
+    # numbers quietly adjusted.
+    presence = (fractions[guides] > 0)
+    share_of = np.round(
+        fractions[guides].where(presence).median(axis=0).fillna(0.0).to_numpy(), 4)
+    ubiquity = (presence.sum(axis=0).to_numpy() >= 0.9 * n)
+    marked = {str(c) for c in (controls or ())}
     t = R * np.sqrt(df / (1.0 - R * R))
     from scipy.stats import t as _t
     p = 2.0 * _t.sf(np.abs(t), df)
@@ -376,6 +391,18 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
         "level": np.repeat(["gene" if str(g).endswith(" (gene)")
                             or wanted == "gene" else "guide"
                             for g in guides], len(chosen)),
+        # HOW MUCH OF THE SCREEN THIS GENE IS. Measured on the maintainer's
+        # own: 220950 sits in ALL 1,536 wells at a median fraction of 0.176 --
+        # 17.6% of every well -- while the median gene is in 73. With that
+        # many wells a partial correlation of 0.396 is overwhelming, and a
+        # 73-well gene needs a far larger effect to clear the same bar. So
+        # ranking by q ranks by REPRESENTATION as much as by biology, and a
+        # reader cannot see that unless it is on the row.
+        "share": np.repeat(share_of, len(chosen)),
+        "ubiquitous": np.repeat(ubiquity, len(chosen)),
+        "control": np.repeat(
+            [str(g).replace(" (gene)", "") in marked for g in guides],
+            len(chosen)),
         "n_wells": np.repeat([int(present.get(g, 0)) for g in guides],
                              len(chosen)),
         # What the P VALUE was actually computed on, which is not the same
@@ -389,7 +416,8 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     table["guide"] = table["guide"].astype(str).str.replace(
         " (gene)", "", regex=False)
     table = table[["level", "guide", "measurement", "effect", "p", "q",
-                   "circularity", "n_wells", "effective_wells"]]
+                   "circularity", "n_wells", "effective_wells", "share",
+                   "ubiquitous", "control"]]
     return SweepResult(table=table, effects=effects, n_wells=n,
                        n_blocks=n_blocks, dropped=dropped,
                        circularity_known=circularity_known)
