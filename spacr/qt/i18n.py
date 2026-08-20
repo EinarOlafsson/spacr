@@ -2041,6 +2041,13 @@ def retranslate_widget_tree(root, language: Optional[str] = None) -> None:
         if module_api_key and callable(set_url):
             from .screens.settings_model import api_docs_url
             set_url(api_docs_url(str(module_api_key), language=code))
+        retranslate_content = getattr(
+            widget, "retranslate_dynamic_content", None)
+        if callable(retranslate_content):
+            try:
+                retranslate_content(code)
+            except (AttributeError, RuntimeError, TypeError, ValueError):
+                pass
 
     actions = []
     try:

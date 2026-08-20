@@ -4319,8 +4319,14 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # After the volcano, so the report can name a file that is already on disk.
     # Skipped without a destination: regression_qc_report raises on a falsy dst
     # on purpose, and a fit run with dst=None has nowhere to put diagnostics.
+    qc_manifest = None
     if qc and qc_design is not None and level_dst:
-        _write_regression_qc(
+        # KEPT, not just written. Instruction 115: the manifest holds the
+        # per-panel VERDICT and the renderer that drew each panel, which is
+        # the thing a caller most wants out of a run -- and until now it went
+        # to disk and nowhere else, so `perform_regression`'s own return value
+        # could not say whether the fit it just handed back was diagnosable.
+        qc_manifest = _write_regression_qc(
             model, qc_design[0], qc_design[1], df, level_dst,
             coef_df=coef_df, regression_type=regression_type,
             volcano_path=volcano_path if plot else None)
@@ -4362,6 +4368,16 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
     # say which family it belongs to is a row whose q value cannot be read.
     coef_df = coef_df.copy()
     coef_df['level'] = level
+    # THE MANIFEST RIDES ON THE FRAME (115). `regression` returns a 3-tuple
+    # that `regression_levels` and every caller unpack positionally, so
+    # growing it would be a change to all of them for one optional fact.
+    # `.attrs` is pandas' own place for exactly this and survives the frame
+    # being passed around; a caller that does not know about it is unaffected.
+    if qc_manifest is not None and coef_df is not None:
+        try:
+            coef_df.attrs["qc_manifest"] = qc_manifest
+        except Exception:                            # noqa: BLE001
+            pass
     return model, coef_df, regression_type
 
 
@@ -7835,6 +7851,26 @@ def _perform_regression(settings):
               # second run it describes the wrong one. Copied, because the
               # caller is a GUI and this dict is still being read here.
               'settings': dict(settings)}
+
+    # THE QC VERDICT, CARRIED OUT OF THE RUN (instruction 115). It was written
+    # to disk and nowhere else, so the dict a caller gets back could not say
+    # whether the fit it was holding is diagnosable -- and the manifest is the
+    # only thing in the run that knows: it carries the per-panel verdict, the
+    # WORST of them, and the renderer that drew each one.
+    #
+    # `.attrs` off the coefficient frame, which is where `regression` put it,
+    # and absent rather than None when QC did not run: a key holding None is
+    # indistinguishable from a suite that ran and concluded nothing.
+    manifest = getattr(coef_df, "attrs", {}).get("qc_manifest")
+    if manifest:
+        output['qc'] = manifest
+        # The key the report writes is `verdict`, with `verdict_level` beside
+        # it. Both are lifted, because a caller wants the LEVEL to decide what
+        # to show and the verdict itself to say why.
+        worst = manifest.get('verdict')
+        if worst is not None:
+            output['qc_verdict'] = worst
+        output['qc_verdict_level'] = manifest.get('verdict_level', 'unknown')
 
     return output
 

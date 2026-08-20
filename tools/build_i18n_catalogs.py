@@ -2702,6 +2702,8 @@ def canonical_sources() -> dict[str, object]:
     # build and a long-lived GUI/test process expose the same source set.
     import spacr.runctx  # noqa: F401
 
+    from spacr.gene_tile import _GENE_TILE_UI_SOURCES
+
     from spacr.qt.screens.settings_model import (
         CATEGORY_TOOLTIPS,
         CATEGORY_TOOLTIPS_BY_APP,
@@ -2765,6 +2767,7 @@ def canonical_sources() -> dict[str, object]:
             if actual != generic:
                 labels[f"{app_key}.{key}"] = actual
     ui_sources = set(extract_static_ui_sources())
+    ui_sources.update(_GENE_TILE_UI_SOURCES)
     ui_sources.update(str(value) for value in APP_INTROS.values())
     ui_sources.update(str(value) for value in APP_TITLES.values())
     ui_sources.update(str(value) for value in _SECTION_NOTE_LIBRARY.values())

@@ -157,6 +157,21 @@ def test_dynamic_text_templates_enter_the_runtime_source_inventory():
     )
 
 
+def test_structured_gene_tile_text_enters_the_runtime_source_inventory():
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    sources = set(builder.canonical_sources()["ui"])
+    assert "gene id" in sources
+    assert "effect (coefficient)" in sources
+    assert any(source.startswith("guide {guide} is not in the gRNA reference")
+               for source in sources)
+
+
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(
     monkeypatch,
 ):
