@@ -674,13 +674,12 @@ def _level_term(level):
         return LEVEL_TERMS[key]
     if key == 'both':
         raise ValueError(
-            "level='both' is TWO fits, not one design, so it has no single "
+            "level='both' runs two fits, not one design, so it has no single "
             "formula: call prepare_formula once with level='grna' and once "
             "with level='gene'. Putting both terms in one design is the "
-            "collinear model instruction 132 removed -- gene_fraction is the "
-            "sum of the gene's gRNA fractions, so the gene block is an exact "
-            "linear combination of the gRNA block and the fit is one "
-            "arbitrary solution out of infinitely many.")
+            "collinear model: gene_fraction is the sum of the gene's gRNA "
+            "fractions, so the gene block is an exact linear combination of "
+            "the gRNA block and the coefficients are not identifiable.")
     raise ValueError(
         f"level={level!r} is not a model level. Choose one of "
         f"{LEVEL_CHOICES!r}.")

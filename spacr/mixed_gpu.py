@@ -511,15 +511,10 @@ def fit_mixed_reml_torch(y, X, groups, vc=None, *, device: str = GPU_DEVICE,
             f"identified -- some terms are exact linear combinations of "
             f"others, typically a row or column dummy that is constant "
             f"within every group. Drop the aliased terms, or set "
-            f"model_plate_position=False. THIS IS A DELIBERATE DIFFERENCE "
-            f"FROM statsmodels, which pseudo-inverts and returns a "
-            f"coefficient and a p-value for every term: measured on the "
-            f"maintainer's TSG101 screen that gave 1248 parameters at rank "
-            f"862, an exact 386-dimensional null space, and a residual sum "
-            f"of squares bit-identical at the answer it reported and at that "
-            f"answer plus seven times a null vector (see "
-            f"spacr.ml.regression_levels). Refusing is the same rule "
-            f"spacr.ml.perform_mixed_model already applies.")
+            f"model_plate_position=False. The torch backend refuses this "
+            f"design because pseudo-inversion would return non-identifiable "
+            f"coefficients and p-values. See spacr.ml.regression_levels for "
+            f"the corresponding fixed-effects validation.")
 
     expand = torch.zeros(q, dtype=torch.long, device=torch_device)
     for index, piece in enumerate(slices):
