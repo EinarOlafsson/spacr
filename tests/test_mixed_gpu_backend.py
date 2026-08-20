@@ -628,18 +628,14 @@ def test_fit_mixed_model_gives_the_same_table_through_either_backend(tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.heavy
+@pytest.mark.gpu
 def test_the_gpu_backend_is_faster_end_to_end_on_a_screen_sized_problem(
         capsys):
-    """The claim in the module docstring, re-measured rather than trusted.
-
-    NOT A TIGHT BOUND. The assertion is that torch is faster at all on a
-    problem the size of a real screen; the ratio measured on the maintainer's
-    machine was 24x and is printed, because a number in a docstring that
-    nothing re-measures is a number that quietly stops being true.
-    """
+    """Check numerical agreement and median GPU speed on a screen-sized fit."""
     if not mixed_gpu.cuda_available():
         pytest.skip("no CUDA device")
-    screen = _nested_screen(n_genes=60, guides_per_gene=4, n_wells=40, seed=5)
+    screen = _nested_screen(
+        n_genes=120, guides_per_gene=4, n_wells=40, seed=5)
     design = pd.DataFrame({
         "Intercept": 1.0,
         "gene_fraction": screen["gene_fraction"].to_numpy()})
@@ -649,9 +645,24 @@ def test_the_gpu_backend_is_faster_end_to_end_on_a_screen_sized_problem(
                          screen["gene"].to_numpy()[:40],
                          {"grna": screen["grna"].to_numpy()[:40]},
                          device="cuda")
-    report = mixed_gpu.benchmark_against_statsmodels(
-        screen["y"].to_numpy(), design, screen["gene"].to_numpy(),
-        {"grna": screen["grna"].to_numpy()}, device="cuda")
+    reports = [
+        mixed_gpu.benchmark_against_statsmodels(
+            screen["y"].to_numpy(), design, screen["gene"].to_numpy(),
+            {"grna": screen["grna"].to_numpy()}, device="cuda")
+        for _ in range(3)
+    ]
+    report = {
+        "statsmodels_seconds": float(np.median([
+            item["statsmodels_seconds"] for item in reports])),
+        "torch_seconds": float(np.median([
+            item["torch_seconds"] for item in reports])),
+        "speedup": float(np.median([
+            item["speedup"] for item in reports])),
+        "max_abs_coefficient_difference": max(
+            item["max_abs_coefficient_difference"] for item in reports),
+        "max_relative_variance_difference": max(
+            item["max_relative_variance_difference"] for item in reports),
+    }
     with capsys.disabled():
         print(f"\n  q={screen['gene'].nunique() + screen['grna'].nunique()} "
               f"statsmodels {report['statsmodels_seconds']:.2f}s -> torch "
