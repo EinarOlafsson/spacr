@@ -9,11 +9,13 @@ a directory this file builds itself with :func:`json.dump` and
 writer that agree with each other and with nothing else would pass a symmetric
 test suite perfectly.
 
-**zarr and numcodecs are not installed, and that is the point.** The whole
-module is exercised with the optional extra absent, which is the state a plain
-``pip install spacr`` leaves an environment in. The missing-dependency paths
-are called directly rather than skipped — a test that skips when the extra is
-missing tests nothing in the environment where it matters.
+**zarr and numcodecs are unavailable here, and that is the point.** The whole
+module is exercised with the optional extra hidden, which is the state a plain
+``pip install spacr`` leaves an environment in. A test fixture enforces that
+boundary even when another test dependency happens to install either package.
+The missing-dependency paths are called directly rather than skipped — a test
+that skips when the extra is missing tests nothing in the environment where it
+matters.
 
 **Laziness is counted, not asserted.** ``test_a_small_region_does_not_decode
 _every_chunk`` instruments :func:`spacr.ome_zarr._read_chunk_bytes`, the single
@@ -24,6 +26,7 @@ that gets a number.
 """
 from __future__ import annotations
 
+import builtins
 import gzip
 import json
 import zlib
@@ -39,6 +42,30 @@ from spacr.ome_zarr import (Axis, OmeZarrError, OmeZarrImage, ZarrExtraMissing,
                             read_ome_zarr, read_ome_zarr_array, require_codec,
                             require_zarr, spacing_from_axes,
                             spacr_unit_to_ngff, write_ome_zarr)
+
+
+@pytest.fixture(autouse=True)
+def _without_optional_zarr_extra(monkeypatch):
+    """Exercise the no-extra contract independently of transitive installs.
+
+    Cellpose currently installs zarr as a transitive dependency. That must not
+    turn this module's fallback-reader tests into tests of whichever zarr
+    release Cellpose selected, or make the missing-extra error paths
+    unreachable. Only imports of the two optional packages are blocked; all
+    arrays and chunk files remain real on-disk fixtures.
+    """
+    real_import = builtins.__import__
+
+    def import_without_extra(name, globals=None, locals=None, fromlist=(),
+                             level=0):
+        top_level = name.split(".", 1)[0]
+        if level == 0 and top_level in {"zarr", "numcodecs"}:
+            error = ModuleNotFoundError(f"No module named '{top_level}'")
+            error.name = top_level
+            raise error
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", import_without_extra)
 
 
 # ---------------------------------------------------------------------------
