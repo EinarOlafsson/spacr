@@ -572,6 +572,18 @@ class RegressionResultsPanel(QWidget):
             split = QSplitter(Qt.Vertical)
             split.setChildrenCollapsible(False)
             split.addWidget(self.volcano)
+            # WHICH MODEL DREW THIS (189 B), directly under the graph and not
+            # three tabs away. Two volcanoes can be correctly identical --
+            # glm and quasi_binomial share every coefficient, because
+            # dispersion moves the standard errors and not the point
+            # estimates -- and without a label that is indistinguishable from
+            # a bug. It was, and it is what "all the plots look the same no
+            # matter which regression type i do" was about.
+            self._model_line = QLabel("")
+            self._model_line.setObjectName("Muted")
+            self._model_line.setWordWrap(True)
+            self._model_line.setVisible(False)
+            split.addWidget(self._model_line)
             split.addWidget(self.table)
             split.setStretchFactor(0, 3)
             split.setStretchFactor(1, 2)
@@ -581,7 +593,7 @@ class RegressionResultsPanel(QWidget):
             # table showing its header and one row, which is what this looked
             # like on the real screen before the numbers were put in.
             self.volcano.setMinimumHeight(240)
-            split.setSizes([340, 220])
+            split.setSizes([340, 20, 220])
             self._volcano_tab, self._volcano_tab_name = split, "Volcano"
             self.tabs.addTab(split, "Volcano")
 
@@ -1097,7 +1109,34 @@ class RegressionResultsPanel(QWidget):
         text = summary_text(model, regression_type, path=self._path,
                             reason=self._no_model_reason())
         self._summary.setPlainText(text)
+        self._name_the_model(model, regression_type)
         return not text.startswith("No summary")
+
+    def _name_the_model(self, model, regression_type=None) -> str:
+        """Put the model's identity under the graph. Returns what it says.
+
+        One implementation with the run summary
+        (:func:`spacr.regression_summary.model_identity_line`), so the caption
+        under the figure and the text in the Summary tab cannot disagree
+        about what was fitted.
+        """
+        label = getattr(self, "_model_line", None)
+        if label is None:
+            return ""
+        try:
+            from ...regression_summary import model_identity_line
+
+            said = model_identity_line(regression_type,
+                                       self._run_settings or {}, model)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not name the model", exc_info=True)
+            said = ""
+        label.setText(said)
+        # HIDDEN WHEN IT HAS NOTHING TO SAY. An empty muted strip under the
+        # graph is a row of pixels that means nothing, and a caption that
+        # guessed would be worse than no caption.
+        label.setVisible(bool(said))
+        return said
 
     #: Reason reported when a live run returns no fitted model.
     NO_MODEL_FROM_THIS_RUN = (

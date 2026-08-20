@@ -192,3 +192,63 @@ class TestTheSummaryNamesTheModel:
         said = _hyperparameter_report("ols", {"cov_type": "HC3"}, Run())["value"]
 
         assert "cov_type" not in said
+
+
+class TestTheGraphSaysWhichModelDrewIt:
+    """189 B, where the ask put it: "under the volcano graph"."""
+
+    def test_it_names_the_type_the_backend_and_the_knobs(self, qtbot):
+        panel = _panel(qtbot)
+        panel.set_frame(_results(1), source="run-one")
+        panel._run_settings = {"backend": "statsmodels", "quantile": 0.9}
+
+        said = panel._name_the_model(None, "quantile")
+
+        assert "quantile" in said
+        assert "statsmodels" in said
+        assert "quantile=0.9" in said
+
+    def test_it_is_hidden_when_it_has_nothing_to_say(self, qtbot):
+        """An empty muted strip under the graph is pixels that mean nothing,
+        and a caption that guessed would be worse than no caption."""
+        panel = _panel(qtbot)
+        panel.set_frame(_results(1), source="run-one")
+
+        assert panel._name_the_model(None, None) == ""
+        assert not panel._model_line.isVisible()
+
+    def test_the_two_families_that_look_alike_are_told_apart(self, qtbot):
+        """glm and quasi_binomial share every coefficient to 1.5e-14 on the
+        maintainer's screen, correctly -- dispersion moves the standard
+        errors, not the point estimates. The label is the only thing that
+        distinguishes their volcanoes."""
+        panel = _panel(qtbot)
+        panel.set_frame(_results(1), source="run-one")
+        panel._run_settings = {"backend": "statsmodels"}
+
+        one = panel._name_the_model(None, "glm")
+        two = panel._name_the_model(None, "quasi_binomial")
+
+        assert one != two
+        assert "glm" in one and "quasi_binomial" in two
+
+    def test_the_caption_and_the_summary_cannot_disagree(self, qtbot):
+        """One implementation, so the text under the figure and the text in
+        the Summary tab are the same fact."""
+        from spacr.regression_summary import model_identity_line
+
+        panel = _panel(qtbot)
+        panel.set_frame(_results(1), source="run-one")
+        settings = {"backend": "glum", "huber_t": 1.345}
+        panel._run_settings = settings
+
+        assert (panel._name_the_model(None, "rlm")
+                == model_identity_line("rlm", settings, None))
+
+    def test_naming_the_model_never_breaks_the_panel(self, qtbot):
+        """A caption is a courtesy; it must not be why a figure does not draw."""
+        panel = _panel(qtbot)
+        panel.set_frame(_results(1), source="run-one")
+        panel._run_settings = object()          # not a mapping at all
+
+        assert panel._name_the_model(None, "ols") in ("", "model: ols")
