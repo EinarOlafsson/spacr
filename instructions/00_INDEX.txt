@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-142 done / 34 open (80%).
+143 done / 33 open (81%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -95,9 +95,6 @@ OPEN
 
   142  FORCE RESTART, FOR WHEN STOP DOES NOT STOP
        142_force_restart_when_stop_does_not_stop.txt
-
-  143  PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
-       143_plate_position_is_opt_in_and_the_box_is_shorter.txt
 
   145  ONE READER, ONE WRITER, ONE KEY VOCABULARY
        145_one_reader_one_writer_one_vocabulary.txt
@@ -239,6 +236,7 @@ DONE
   127  MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
   138  THE EXPLAINER TEXT FILLS THE WIDTH OF ITS BOX
+  143  PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
   144  THE MODEL BOX IS TYPESET, NOT DUMPED
   146  DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
   147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES

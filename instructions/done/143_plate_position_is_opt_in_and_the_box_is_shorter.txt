@@ -103,3 +103,43 @@ HOW TO KNOW IT WORKED
 * The box is under ~900 characters and every number that survives keeps its
   figures.
 * The removed history is still readable somewhere, and the box says where.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- A AND B DONE.
+--------------------------------------------------------------------------------
+
+A. `model_plate_position` exists, DEFAULTS FALSE, and is independent of
+   `random_row_column_effects` -- which then chooses fixed against random for
+   a term that is already in. The contradictory pair (position off, random
+   effects on) is REFUSED with the reason, per 106, rather than silently
+   picking one.
+
+   THE MEASUREMENT THE INSTRUCTION ASKED FOR BEFORE CHOOSING, and it is in
+   the setting's own description so a user can see it: on a 610-well screen
+   the 35 position terms were jointly significant (p=6.7e-23); omitting them
+   raised residual SD 7.2% and changed the hit list. On a screen with no
+   position effect, INCLUDING them raised standard errors 1.6%. So the cost
+   of leaving them out when they matter is large and the cost of putting them
+   in when they do not is small -- which is the argument for defaulting ON,
+   and the default is OFF because "always fitted, never asked for" was the
+   complaint. The setting is one click and the box states which of the three
+   states is in force.
+
+B. THE BOX FOR ols/both IS 913 CHARACTERS, from 2,438. Target was "under
+   about 900, a box a reader finishes". The history block -- 880 of the
+   original characters, describing a design no shipped version fits -- is in
+   `regression_model_explainer.__doc__`, which is published as API
+   documentation, with a 61-character pointer left behind: a measurement
+   nobody can find is a measurement deleted.
+
+   Every box measured today: ols 913, glm 1015, lasso 1199, rra 1236,
+   mixed 1595.
+
+   MIXED IS OVER AND STAYS OVER, deliberately. It carries WHAT IT COSTS,
+   which a later report put there -- a mixed run on a real screen looks
+   indistinguishable from a hang, and this is the paragraph that says one
+   core at 100% is a healthy REML fit and names the measured ratios (54x at
+   40 genes, 67x at 80). 143 B says plainly: "do not shorten by deleting the
+   numbers", so it was shortened by half its words with every figure kept.
+   A user who reads it once before starting an hour-long fit has had the
+   whole value of it.

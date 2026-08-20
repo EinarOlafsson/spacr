@@ -3594,11 +3594,11 @@ _MODE_NOTES = {
     ),
     "mixed": (
         "The gene effect is a FIXED effect; each guide is a RANDOM effect "
-        "nested inside its gene -- a biological replicate of one intended "
-        "perturbation, carrying its own efficiency and off-target profile, "
-        "rather than a second independent variable. Guides that disagree "
-        "about a gene widen that gene's interval instead of silently "
-        "averaging out, and a gene resting on one noisy guide is shrunk "
+        "nested "
+        "inside its gene -- a biological replicate of one perturbation, with "
+        "its own efficiency and off-target profile, not a second independent "
+        "variable. Guides that disagree widen their gene's interval instead "
+        "of averaging out, and a gene resting on one noisy guide is shrunk "
         "toward zero."
     ),
     "group_lasso": (
@@ -3680,18 +3680,19 @@ def mixed_cost_note() -> str:
     (small_genes, small_wells, small_ols, small_mixed), \
         (big_genes, big_wells, big_ols, big_mixed) = MIXED_COST_ANCHORS
     guides, _genes, wells = MIXED_COST_SCREEN
+    # EVERY NUMBER KEPT, half the words. Instruction 143 B: "do not shorten
+    # by deleting the numbers -- they are what makes the claim checkable.
+    # Shorten by removing what does not need re-reading."
     return (
-        f"MEASURED 2026-08-18: {small_genes} genes over {small_wells} wells "
-        f"took {small_ols:g} s as ols and {small_mixed:g} s as mixed "
-        f"({round(small_mixed / small_ols):g}x); {big_genes} over "
-        f"{big_wells}, {big_ols:g} s against {big_mixed:g} s "
-        f"({round(big_mixed / big_ols):g}x). THE RATIO RISES WITH THE "
-        f"SCREEN, and both designs were gene level only -- this fit adds a "
-        f"random effect per guide as well, so {guides} guides over {wells} "
-        f"wells is tens of minutes to hours. It is a single-threaded REML "
-        f"optimisation: one core at 100% is a healthy fit, not a hang. IF "
-        f"THE ANSWER IS WANTED NOW, ols at level='both' is the "
-        f"pre-2026-08-17 behaviour and rra needs no joint fit at all."
+        f"MEASURED 2026-08-18: {small_genes} genes/{small_wells} wells took "
+        f"{small_ols:g}s as ols and {small_mixed:g}s as mixed "
+        f"({round(small_mixed / small_ols):g}x); {big_genes}/{big_wells}, "
+        f"{big_ols:g}s against {big_mixed:g}s "
+        f"({round(big_mixed / big_ols):g}x) -- and both were gene level "
+        f"only. This fit adds a random effect per guide too, so {guides} "
+        f"guides over {wells} wells is tens of minutes to hours. "
+        f"Single-threaded REML: one core at 100% is a healthy fit, not a "
+        f"hang. For an answer now, use ols at level='both'."
     )
 
 
@@ -4142,9 +4143,9 @@ def regression_model_explainer_html(regression_type: Any,
         parts.append(_prose_html(mixed_cost_note(), ink))
         parts.append(_heading_html("MULTIPLE TESTING", ink))
         parts.append(_prose_html(
-            "The gene coefficients are BH-corrected as one family. There is "
-            "no second family here, because the guide effects are not "
-            "tested.", ink))
+            "The gene coefficients are BH-corrected as one family; the "
+            "guide effects are not tested, so there is no second family.",
+            ink))
     else:
         chosen = normalise_regression_level(level)
         level_line = {
