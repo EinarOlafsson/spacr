@@ -1677,6 +1677,11 @@ def set_generate_dataset_defaults(settings):
 #: ``inference`` -> the ``analysis_mode`` it selects. 'auto' is decided from
 #: the design at run time by :func:`spacr.ml.resolve_auto_inference`, not here,
 #: because the number of guides and wells is not known until the CSVs are read.
+#: The families whose `alpha` is a real penalty rather than a knob they
+#: ignore. Named once: the GUI, the defaults and the refusal all have to agree
+#: about which families this is, and three copies of a tuple is how they stop.
+PENALISED_REGRESSION_TYPES = ('ridge', 'lasso', 'elasticnet')
+
 INFERENCE_MODES = {
     'auto': None,
     'parametric': 'regression',
@@ -2144,8 +2149,28 @@ def get_perform_regression_default_settings(settings):
     # Only for the penalised families. quantile REFUSES any alpha but 1 (it
     # uses its own `quantile` key and an alpha there means the user has
     # confused the two), and the unpenalised families ignore it.
-    if settings.get('regression_type') in ('ridge', 'lasso', 'elasticnet'):
+    if settings.get('regression_type') in PENALISED_REGRESSION_TYPES:
         settings.setdefault('alpha', 'auto')
+        # AND THE POSTED DEFAULT COUNTS AS ABSENT. `setdefault` never fired
+        # from the GUI: the panel posts every key it shows, so `alpha` arrived
+        # as the integer 1 -- the default for the families that ignore it --
+        # and the penalised fit then refused, every time, on the first run a
+        # user made. Measured on the reference screen: alpha=1 shrank all 790
+        # coefficients to exactly zero.
+        #
+        # 1 IS NOT A PENALTY ANYBODY CHOOSES for a design of fractions; it is
+        # the value the panel had lying around. Cross-validating instead is
+        # strictly better than a guaranteed refusal, and it is ANNOUNCED
+        # rather than done quietly -- a penalty chosen for the user and never
+        # named is one they cannot put in a methods section. A user who wants
+        # a literal 1 writes 1.0.
+        if settings.get('alpha') == 1 and not isinstance(settings['alpha'], float):
+            settings['alpha'] = 'auto'
+            print(f"alpha=1 is the unpenalised families' default and shrinks a "
+                  f"fraction-scale design to nothing, so "
+                  f"{settings['regression_type']} is cross-validating the "
+                  f"penalty instead (alpha='auto'). Set a float such as 0.01 "
+                  f"to choose it yourself.")
     else:
         settings.setdefault('alpha', 1)
     # Every knob below is read by spacr.ml.regression_model for at least one
