@@ -2108,26 +2108,31 @@ def _summary_filename() -> str:
 
 def model_identity_line(regression_type, settings=None, model=None,
                         backend=None) -> str:
-    """One line naming the model that drew a figure: type, backend, knobs.
+    """Return a compact description of the model used for a figure.
 
-    ASKED FOR ON THE GRAPH, 2026-08-20: "in the summary under the volcano
-    graph please state which regression was used the backend and any
-    hyperparamiters used if applicable" -- and it is the answer to the unease
-    that came with it, "all the plots look the same no matter which
-    regression type i do".
+    Parameters
+    ----------
+    regression_type : str or None
+        Regression family. When omitted, the value is read from ``settings``.
+    settings : mapping, optional
+        Run settings used to resolve the backend and relevant hyperparameters.
+    model : object, optional
+        Fitted estimator. A cross-validated ``alpha_`` value is reported when
+        the estimator provides one.
+    backend : str or None, optional
+        Explicit backend name, overriding the value in ``settings``.
 
-    THEY DO LOOK THE SAME IN ONE REAL CASE. Measured on the maintainer's
-    screen, glm and quasi_binomial agree on every coefficient to 1.5e-14,
-    because quasi-binomial IS the binomial family with a free dispersion
-    parameter and dispersion moves the standard errors rather than the point
-    estimates. Two volcanoes that share an x axis are then correct and
-    indistinguishable from a bug -- unless the figure says which one it is.
+    Returns
+    -------
+    str
+        Model family, backend, and applicable hyperparameters, or an empty
+        string when the regression family is unknown.
 
-    Shared with the run summary so the caption under a graph and the text in
-    the Summary tab cannot disagree about what was fitted.
-
-    :returns: the line, or ``""`` when the type is not known -- a caption
-        that guessed would be worse than none.
+    Notes
+    -----
+    Related regression families can produce identical coefficients while
+    differing in uncertainty estimates. Displaying the model identity keeps
+    visually similar figures attributable to the fit that generated them.
     """
     kind = _clean(regression_type) or _clean(_setting(settings or {},
                                                       "regression_type"))
