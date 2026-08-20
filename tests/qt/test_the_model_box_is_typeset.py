@@ -255,9 +255,10 @@ def test_the_maths_comes_first_and_the_code_second(qtbot, qt_theme_applied):
 def test_real_unicode_not_latex_source():
     """The box is a widget, not a renderer: `\\beta` on screen is worse than
     no symbol at all."""
-    line = maths_for("mixed")[0]
+    rendered = maths_for("mixed", plate_position=True)
+    line = rendered[0]
     for symbol in ("β", "σ", "ε", "μ", "Σ", "ρ", "γ", "ᵢ"):
-        assert symbol in "".join(maths_for("mixed")), symbol
+        assert symbol in "".join(rendered), symbol
     assert "\\beta" not in line and "\\sigma" not in line
 
 

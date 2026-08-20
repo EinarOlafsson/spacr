@@ -3375,16 +3375,16 @@ GENE_TERM = "gene_fraction:gene"
 MIXED_TERM = "gene_fraction:gene + (1 | gene/grna)"
 
 #: One coefficient per guide. The guide is the unit the screen measures.
-GRNA_FORMULA = "y ~ fraction:grna + rowID + columnID"
+GRNA_FORMULA = "y ~ fraction:grna"
 
 #: One coefficient per gene, from the summed guide fraction.
-GENE_FORMULA = "y ~ gene_fraction:gene + rowID + columnID"
+GENE_FORMULA = "y ~ gene_fraction:gene"
 
 #: The mixed model: gene fixed, guide random and nested inside its gene.
-MIXED_FORMULA = "y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID"
+MIXED_FORMULA = "y ~ gene_fraction:gene + (1 | gene/grna)"
 
 
-def formula_for(term: str, *, plate_position: bool = True,
+def formula_for(term: str, *, plate_position: bool = False,
                 random_row_column: bool = False) -> str:
     """The formula actually fitted, for one model term and the plate settings.
 
@@ -3881,7 +3881,7 @@ _MATHS_RESPONSE = {
 }
 
 
-def maths_for(kind: str, *, plate_position: bool = True,
+def maths_for(kind: str, *, plate_position: bool = False,
               random_row_column: bool = False) -> List[str]:
     """The statistical statement, as lines, for one model term.
 
@@ -4081,7 +4081,7 @@ def _api_html(regression_type: Any, ink: Dict[str, str]) -> str:
 
 def regression_model_explainer_html(regression_type: Any,
                                     level: Any = "both",
-                                    plate_position: Any = True,
+                                    plate_position: Any = False,
                                     random_row_column: Any = False,
                                     palette: Optional[Dict[str, Any]] = None
                                     ) -> str:
@@ -4235,7 +4235,7 @@ def section_explainer_html(app_key: str, title: str,
         return regression_model_explainer_html(
             values.get("regression_type", "auto"),
             values.get("level", "both"),
-            plate_position=values.get("model_plate_position", True),
+            plate_position=values.get("model_plate_position", False),
             random_row_column=values.get("random_row_column_effects", False),
             palette=palette)
     return permutation_test_explainer_html(palette)
@@ -4268,13 +4268,19 @@ def _every_explainer_line():
     from spacr.regression_spec import REGRESSION_TYPES
 
     lines = []
+    positions = (
+        {"plate_position": False, "random_row_column": False},
+        {"plate_position": True, "random_row_column": False},
+        {"plate_position": True, "random_row_column": True},
+    )
     for family in REGRESSION_TYPES:
         for level in REGRESSION_LEVELS:
-            try:
-                lines.extend(regression_model_explainer(family,
-                                                        level).splitlines())
-            except Exception:                                  # noqa: BLE001
-                continue
+            for position in positions:
+                try:
+                    lines.extend(regression_model_explainer(
+                        family, level, **position).splitlines())
+                except Exception:                              # noqa: BLE001
+                    continue
     return lines
 
 
@@ -4323,7 +4329,7 @@ def normalise_regression_level(level: Any) -> str:
 
 def regression_model_explainer(regression_type: Any,
                                level: Any = "both",
-                               plate_position: Any = True,
+                               plate_position: Any = False,
                                random_row_column: Any = False) -> str:
     """The box's text for the current selection.
 

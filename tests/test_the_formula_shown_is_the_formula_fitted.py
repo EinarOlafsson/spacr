@@ -37,7 +37,7 @@ def _formulas(text):
 # --------------------------------------------------------------------------- #
 
 def test_plate_position_on_is_a_fixed_effect():
-    assert formula_for(MIXED_TERM) == (
+    assert formula_for(MIXED_TERM, plate_position=True) == (
         "y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID")
 
 
@@ -69,9 +69,9 @@ def test_random_wins_over_off_rather_than_inventing_a_fourth_state():
 # --------------------------------------------------------------------------- #
 
 def test_the_mixed_box_follows_plate_position():
-    with_it = _formulas(regression_model_explainer("mixed", "both"))
-    without = _formulas(regression_model_explainer("mixed", "both",
-                                                   plate_position=False))
+    with_it = _formulas(regression_model_explainer(
+        "mixed", "both", plate_position=True))
+    without = _formulas(regression_model_explainer("mixed", "both"))
     assert with_it != without
     assert all("rowID" in line for line in with_it)
     assert not any("rowID" in line for line in without)
@@ -86,11 +86,10 @@ def test_every_formula_in_the_box_follows_it_not_just_the_first():
     assert not any("rowID" in line for line in lines)
 
 
-def test_the_default_is_unchanged():
-    """Plate position defaults ON -- by measurement, instruction 143 -- so the
-    box a user opens without touching anything must read as it always did."""
+def test_the_box_default_matches_the_opt_in_setting():
+    """A new run leaves plate position out until the user enables it."""
     assert _formulas(regression_model_explainer("mixed", "both")) == [
-        "y ~ gene_fraction:gene + (1 | gene/grna) + rowID + columnID"]
+        "y ~ gene_fraction:gene + (1 | gene/grna)"]
 
 
 # --------------------------------------------------------------------------- #
@@ -113,13 +112,13 @@ def test_the_panel_updates_when_the_toggles_move(qtbot):
     widgets = screen._settings_model._widgets
 
     before = _formulas(box.toPlainText())
-    assert before and all("rowID" in line for line in before)
-
-    widgets["model_plate_position"].setChecked(False)
-    qtbot.wait(1)
-    assert not any("rowID" in line for line in _formulas(box.toPlainText()))
+    assert before and not any("rowID" in line for line in before)
 
     widgets["model_plate_position"].setChecked(True)
+    qtbot.wait(1)
+    assert all("+ rowID + columnID" in line
+               for line in _formulas(box.toPlainText()))
+
     widgets["random_row_column_effects"].setChecked(True)
     qtbot.wait(1)
     assert any("(1 | rowID)" in line for line in _formulas(box.toPlainText()))
@@ -136,7 +135,10 @@ def test_the_box_matches_what_ml_would_build():
     from spacr.ml import prepare_formula
 
     for level, term in (("grna", GRNA_TERM), ("gene", GENE_TERM)):
-        assert prepare_formula("y", level=level) == formula_for(term)
         assert prepare_formula(
-            "y", random_row_column_effects=True, level=level
-        ).startswith("y ~ " + term)
+            "y", level=level, model_plate_position=False
+        ) == formula_for(term)
+        assert prepare_formula(
+            "y", random_row_column_effects=True, level=level,
+            model_plate_position=True
+        ) == f"y ~ {term}"

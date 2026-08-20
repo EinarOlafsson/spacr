@@ -1626,7 +1626,7 @@ class AppScreen(QWidget):
         scroll = box.verticalScrollBar().value()
         box.setHtml(regression_model_explainer_html(
             value("regression_type", "auto"), value("level", "both"),
-            plate_position=value("model_plate_position", True),
+            plate_position=value("model_plate_position", False),
             random_row_column=value("random_row_column_effects", False),
             palette=active_palette()))
         box.verticalScrollBar().setValue(scroll)
