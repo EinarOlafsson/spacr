@@ -1283,6 +1283,24 @@ class AppScreen(QWidget):
             layout.addWidget(self._empty_state_card)
 
         self._settings_sections = []
+        # CATEGORIES AS TABS, where a screen has enough of them to be a wall.
+        # Asked for 2026-08-19: "in measure i dont like the black categories.
+        # can we make them into measurement subtabs?" -- and Measure is the
+        # screen with the most: stacked, its categories are a column of
+        # headers taller than the panel, and the expanded one paints a slab
+        # of `surface_alt` that reads as black.
+        #
+        # THE SECTIONS THEMSELVES ARE UNCHANGED. Each still knows its own
+        # maturity, hint and rows, and `_settings_sections` still holds every
+        # one in order -- so applicability greying, tooltip retargeting and
+        # every test that walks that list work exactly as before. Only where
+        # they are MOUNTED changes.
+        self._settings_tabs = None
+        if str(self.app_key) in self.SETTINGS_AS_TABS and len(sections) > 2:
+            self._settings_tabs = QTabWidget()
+            self._settings_tabs.setObjectName("SettingsCategoryTabs")
+            self._settings_tabs.setDocumentMode(True)
+            layout.addWidget(self._settings_tabs)
         self._maturity_notice = QLabel()
         self._maturity_notice.setObjectName("MaturityVisibilityNotice")
         self._maturity_notice.setWordWrap(True)
@@ -1383,7 +1401,23 @@ class AppScreen(QWidget):
 
             if has_section_explainer(self.app_key, title):
                 self._install_section_explainer(section, title)
-            layout.addWidget(section)
+            if self._settings_tabs is not None:
+                page = QWidget()
+                page_layout = QVBoxLayout(page)
+                page_layout.setContentsMargins(0, 0, 0, 0)
+                page_layout.addWidget(section)
+                page_layout.addStretch(1)
+                holder = QScrollArea()
+                holder.setWidgetResizable(True)
+                holder.setFrameShape(QScrollArea.NoFrame)
+                holder.setWidget(page)
+                self._settings_tabs.addTab(holder, str(title))
+                # A TAB IS ALREADY THE DISCLOSURE, so the header inside it
+                # would be a second one saying the same thing. It stays
+                # expanded and keeps its hint for screen readers.
+                section.set_expanded(True)
+            else:
+                layout.addWidget(section)
 
         self.refresh_maturity_visibility()
         layout.addStretch(1)
@@ -5043,6 +5077,12 @@ class AppScreen(QWidget):
             set_figure_grid_size(int(pixels))
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not store the figure grid size", exc_info=True)
+
+    #: Screens whose settings categories are TABS rather than a stack. Named
+    #: rather than inferred from the count: a screen with many categories may
+    #: still read better as a column, and this is a judgement about the
+    #: screen and not about arithmetic.
+    SETTINGS_AS_TABS = frozenset({"measure"})
 
     def _show_figure_grid(self) -> None:
         """Back to every figure at once."""
