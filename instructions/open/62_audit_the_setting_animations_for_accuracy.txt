@@ -838,3 +838,33 @@ eight one-offs. `organelle_diameter` stays a SETTINGS question rather than a
 drawing one: settings.py documents the key as DEPRECEATED with no effect on
 the Cellpose-SAM path, so an animation showing a visible effect is misleading
 by context however well it is drawn.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later still) -- THE FOUR FLOW THRESHOLDS. 27 -> 23.
+--------------------------------------------------------------------------------
+
+These were filed as showing no DIRECTION, and the file already recorded the
+sharper problem: flow_threshold's real direction is INVERTED. Lowering it
+discards more masks, and every animation in this set runs off -> on, so the
+frame where the ragged mask vanishes was also the frame a viewer reads as "the
+setting went up".
+
+THAT IS NOT A FAINT ANIMATION, IT IS A WRONG ONE -- by implication rather than
+by drawing, which is why it was filed under the milder heading. Nothing in the
+picture said which way the value moved, so the viewer supplied the only
+reading available and it was the wrong one.
+
+A TRACK BELOW THE MASKS EMPTIES as the discard happens. Measured: the fill
+reaches x=274 at action 0 and x=169 at action 1, in the same direction the
+ragged mask disappears. The value and its consequence now move together
+instead of opposite ways, which is the whole of it -- the subject was always
+right.
+
+All four regenerated: cell_FT, nucleus_FT, pathogen_FT, organelle_FT.
+
+STILL OPEN: 23 WEAK. Eight intensity-percentile filters drawing the same
+composition as their matching area filter, four intensity splits that never
+draw what decides a split, three signal-to-noise ramps showing no direction,
+and eight one-offs. None of them is now known to show the WRONG thing -- the
+three that were are fixed -- so what remains is a drawing job rather than a
+correctness one.
