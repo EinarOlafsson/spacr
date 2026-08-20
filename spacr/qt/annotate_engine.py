@@ -294,6 +294,109 @@ def _cellpose_foreground(channel_2d) -> "np.ndarray":
     return np.asarray(mask) > 0
 
 
+#: How many outline masks to keep. A montage tab is a few hundred crops and
+#: each mask is one bit per pixel; 512 covers a screenful several times over
+#: for well under a megabyte.
+_MASK_CACHE_SIZE = 512
+
+#: The cache itself: {(channel bytes, shape, sigma, factor): mask}.
+_MASK_CACHE: "OrderedDict" = None
+
+
+def _foreground_mask(channel, sigma: float, factor: float):
+    """The Otsu foreground of one channel, remembered.
+
+    WHY THIS IS CACHED AND THE REST IS NOT. Measured 2026-08-20 on a 128x128
+    crop: `draw_crop` costs 0.198 ms with the defaults and 4.464 ms with
+    outlines on -- twenty-two times as much -- so a 200-cell montage spends
+    ~0.9 s redrawing outlines and ~0.04 s on everything else. That is the
+    "seconds" in "it should take a verry shourt amoutn of time to change nd
+    reapply the settings" (188 A).
+
+    And almost all of it is recomputed for nothing. The mask depends on the
+    PIXELS and on two outline settings; it does not depend on
+    `normalize_channels`, `percentiles`, `edge_transparency`, `edge_image` or
+    the thickness. Changing any of those -- which is most of what a user
+    changes -- recomputed a gaussian blur, an Otsu threshold, a binary
+    closing and a hole fill that were going to come out identical.
+
+    Keyed on the channel's BYTES, not on its identity: the montage re-cuts
+    its crops on a reload, so an `id()` would miss every time and, worse,
+    could collide after a free. Hashing 16 KB costs a few microseconds
+    against the 1.5 ms it saves.
+    """
+    from collections import OrderedDict
+
+    global _MASK_CACHE
+    if _MASK_CACHE is None:
+        _MASK_CACHE = OrderedDict()
+
+    from scipy.ndimage import binary_closing, binary_fill_holes, gaussian_filter
+    from skimage.filters import threshold_otsu
+
+    contiguous = np.ascontiguousarray(channel)
+    key = (hash(contiguous.tobytes()), contiguous.shape, round(sigma, 4),
+           round(factor, 4))
+    cached = _MASK_CACHE.get(key)
+    if cached is not None:
+        _MASK_CACHE.move_to_end(key)
+        return cached
+
+    smoothed = gaussian_filter(contiguous.astype(np.float32), sigma=sigma)
+    try:
+        otsu = threshold_otsu(smoothed)
+    except Exception:
+        otsu = float(np.percentile(smoothed, 50.0))
+    threshold = float(min(255.0, max(0.0, otsu * factor)))
+    mask = smoothed > threshold
+    mask = binary_closing(mask, structure=np.ones((3, 3), dtype=bool))
+    mask = binary_fill_holes(mask)
+
+    _MASK_CACHE[key] = mask
+    while len(_MASK_CACHE) > _MASK_CACHE_SIZE:
+        _MASK_CACHE.popitem(last=False)
+    return mask
+
+
+#: {(mask bytes, shape, thickness): edge}
+_EDGE_CACHE: "OrderedDict" = None
+
+
+def _edge_of(mask, thickness: int):
+    """The boundary of ``mask``, dilated to ``thickness``, remembered."""
+    from collections import OrderedDict
+
+    from skimage.morphology import dilation, disk
+    from skimage.segmentation import find_boundaries
+
+    global _EDGE_CACHE
+    if _EDGE_CACHE is None:
+        _EDGE_CACHE = OrderedDict()
+
+    packed = np.packbits(np.ascontiguousarray(mask))
+    key = (hash(packed.tobytes()), tuple(np.shape(mask)), int(thickness))
+    cached = _EDGE_CACHE.get(key)
+    if cached is not None:
+        _EDGE_CACHE.move_to_end(key)
+        return cached
+
+    edge = find_boundaries(mask, mode="inner").astype(np.uint8)
+    if thickness > 0:
+        edge = dilation(edge > 0, disk(thickness)).astype(np.uint8)
+
+    _EDGE_CACHE[key] = edge
+    while len(_EDGE_CACHE) > _MASK_CACHE_SIZE:
+        _EDGE_CACHE.popitem(last=False)
+    return edge
+
+
+def forget_outline_masks() -> None:
+    """Drop every cached mask. For tests, and for a caller changing plates."""
+    global _MASK_CACHE, _EDGE_CACHE
+    _MASK_CACHE = None
+    _EDGE_CACHE = None
+
+
 def outline_image(
     base_img: Image.Image,
     full_img: Image.Image,
@@ -351,16 +454,8 @@ def outline_image(
                 # Fall back to Otsu if cellpose isn't available / fails.
                 outline_method = 'otsu'
         if outline_method != 'cellpose':
-            ch_sm = gaussian_filter(full_arr[:, :, idx].astype(np.float32),
-                                     sigma=float(edge_sigma))
-            try:
-                otsu = threshold_otsu(ch_sm)
-            except Exception:
-                otsu = float(np.percentile(ch_sm, 50.0))
-            thr = float(min(255.0, max(0.0, otsu * factor)))
-            fg_mask = (ch_sm > thr)
-            fg_mask = binary_closing(fg_mask, structure=np.ones((3, 3), dtype=bool))
-            fg_mask = binary_fill_holes(fg_mask)
+            fg_mask = _foreground_mask(full_arr[:, :, idx],
+                                       float(edge_sigma), factor)
         if (min_px and min_px > 0) or (max_px and max_px > 0):
             lbl, n = label(fg_mask)
             if n > 0:
@@ -372,10 +467,11 @@ def outline_image(
                     if lo <= counts[i] <= hi:
                         keep[i] = True
                 fg_mask = keep[lbl]
-        edge = find_boundaries(fg_mask, mode="inner").astype(np.uint8)
-        thick = int(max(0, round(edge_thickness))) - 1
-        if thick > 0:
-            edge = dilation(edge > 0, disk(thick)).astype(np.uint8)
+        # THE EDGE IS CACHED TOO, for the same reason as the mask: it is a
+        # function of the mask and the thickness alone, and neither moves
+        # when a user changes normalisation, percentiles or transparency.
+        # `find_boundaries` and `dilation` were the other half of the cost.
+        edge = _edge_of(fg_mask, int(max(0, round(edge_thickness))) - 1)
         alpha = np.clip(edge.astype(np.float32) * opacity, 0.0, 1.0)
         orig = base_arr[:, :, idx].astype(np.float32)
         blended = alpha * 255.0 + (1.0 - alpha) * orig
