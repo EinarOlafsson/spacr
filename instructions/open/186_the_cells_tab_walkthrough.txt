@@ -167,3 +167,36 @@ HOW TO KNOW IT WORKED
 * Choosing white in save styled writes a white PNG from a pyqtgraph plot.
 * The greyed size and resolution carry their reason on the LABEL.
 * "Colour by localisation" offers All, and it colours every compartment.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- ALL SIX SHIPPED.
+--------------------------------------------------------------------------------
+
+A. The effects grid is written beside the run by the sweep and read by the
+   montage; multivariate now asks what is missing and offers rank as a way
+   forward that is not Cancel. AUDIT FINDING, larger than the report:
+   `effects_grid` had NO caller ever, so multivariate could not run at all
+   and the fallback hid it. Also fixed a hard-coded "TGGT1_" in the effects
+   join, which would have handed a non-Toxoplasma screen an empty effects
+   map and, through it, the prior.
+B. Compare is a tab named for the button that opens it; the dialog and the
+   tab are one panel. A "show" box draws one class, with the statistics
+   still for the whole comparison. `nothing_to_compare_against` names the
+   picker and the setting when show_all_in_well leaves only one class.
+C. A zero-minimum filler, kept last, absorbs what folded sections give up,
+   so they collapse upward. Layouts stored before it are migrated.
+D. The chosen background reaches the page: `_export_ground` prefers it over
+   the global look. The greyed size/resolution carry their reason on the
+   LABEL, per 106.
+E. "all localisations" is offered second, built on the categorical path so it
+   does not pay the 40 ms the one-at-a-time rule was protecting.
+
+47 new tests across five files.
+
+STILL OWED
+  * A's prompt covers the SWEEP. "merge" is the other half the report names,
+    and the merge state was not audited -- the montage reads merged rows
+    already, so it is not clear a separate merge precondition exists. Read it
+    before adding a button for it.
+  * B2 filters the DRAW. Whether a one-class view should also offer its own
+    single-group summary statistics is a real question and was not decided.
