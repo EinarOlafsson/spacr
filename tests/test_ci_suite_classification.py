@@ -41,11 +41,29 @@ PARALLEL_MEMORY_AMPLIFIERS = {
     },
 }
 
+SERIAL_TIMING_NODES = {
+    "test_fast_plots.py": {
+        "test_the_plain_volcano_is_immediate",
+        "test_colouring_does_not_cost_a_brush_per_point",
+    },
+}
+
 
 def _is_heavy_marker(node):
     return (
         isinstance(node, ast.Attribute)
         and node.attr == "heavy"
+        and isinstance(node.value, ast.Attribute)
+        and node.value.attr == "mark"
+        and isinstance(node.value.value, ast.Name)
+        and node.value.value.id == "pytest"
+    )
+
+
+def _is_slow_marker(node):
+    return (
+        isinstance(node, ast.Attribute)
+        and node.attr == "slow"
         and isinstance(node.value, ast.Attribute)
         and node.value.attr == "mark"
         and isinstance(node.value.value, ast.Name)
@@ -136,6 +154,26 @@ def test_fast_suites_fit_on_a_standard_hosted_runner():
 
     assert workflow.count("-n 3 --dist loadfile") == 2
     assert "-n 4 --dist loadfile" not in workflow
+
+
+def test_wall_clock_measurements_run_in_the_serial_suite():
+    """Timing thresholds must not measure contention from xdist siblings."""
+    missing = []
+    for filename, expected_names in SERIAL_TIMING_NODES.items():
+        tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
+        functions = {
+            node.name: node
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        for name in expected_names:
+            function = functions.get(name)
+            if function is None or not any(
+                    _is_slow_marker(marker)
+                    for marker in function.decorator_list):
+                missing.append(f"{filename}::{name}")
+
+    assert not missing, "slow marker missing from: " + ", ".join(missing)
 
 
 def test_reusable_suite_auto_detects_resources_and_current_actions():

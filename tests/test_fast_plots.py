@@ -274,6 +274,7 @@ class TestTheLastGraphIsNotSlowAnyMore:
             plot.set_results(frame, **kwargs)
         return (time.perf_counter() - start) / 5 * 1000
 
+    @pytest.mark.slow
     def test_the_plain_volcano_is_immediate(self, qtbot, big):
         """matplotlib needed ~115 ms for this, on every redraw."""
         from spacr.qt.widgets.fast_plots import VolcanoPlot
@@ -283,6 +284,7 @@ class TestTheLastGraphIsNotSlowAnyMore:
         each = self._time(plot, big)
         assert each < 30, f"a plain volcano took {each:.0f} ms"
 
+    @pytest.mark.slow
     def test_colouring_does_not_cost_a_brush_per_point(self, qtbot, big):
         """pg.mkBrush() per point built 1,215 QBrush objects: 39.5 ms.
 
