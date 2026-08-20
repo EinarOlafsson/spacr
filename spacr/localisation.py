@@ -27,6 +27,16 @@ NOT_A_COMPARTMENT = ("unknown", "unassigned", "nan", "")
 MIN_GENES = 5
 
 
+#: Colour EVERY compartment at once rather than one against grey.
+#:
+#: Asked for on 2026-08-20: "Colour by lets me color by a single location,
+#: all should be an option." One-at-a-time is the house rule -- everything
+#: grey except what the sentence is about -- so this is offered beside it and
+#: never instead of it. A sentinel rather than a bare string so it can never
+#: collide with a real compartment name from the TAGM/LOPIT table.
+ALL = "\x00all-localisations"
+
+
 def _looks_numeric(text: str) -> bool:
     try:
         float(text)
