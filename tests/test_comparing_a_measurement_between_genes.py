@@ -254,3 +254,88 @@ def test_no_images_is_not_an_error(objects, tmp_path):
 
     assert "cells" not in written
     assert "data" in written
+
+
+# --------------------------------------------------- reachable from the tab
+
+
+def test_the_report_is_readable_not_a_field_dump(objects, qtbot):
+    """`sp_stats` returns a dozen fields per group, and dumping them made a
+    400-character line nobody reads. The verdict and its number survive; the
+    column name and the row count do not."""
+    from spacr.qt.widgets.measurement_compare_dialog import (
+        MeasurementCompareDialog)
+
+    dialog = MeasurementCompareDialog(objects,
+                                      {"220950": list(objects.index[:80])})
+    qtbot.addWidget(dialog)
+    lines = dialog.report.toPlainText().splitlines()
+
+    assert any(line.startswith("n: ") for line in lines)
+    assert any(line.startswith("normality: ") for line in lines)
+    assert any(line.startswith("equal variance: ") for line in lines)
+    assert any(line.startswith("test: ") for line in lines)
+    assert any(line.startswith("why: ") for line in lines)
+    for line in lines:
+        assert len(line) < 400, line[:80]
+
+
+def test_the_dialog_offers_measurements_from_the_data(objects, qtbot):
+    """Built from the screen, never typed -- the rule every other chooser in
+    spaCR follows."""
+    from spacr.qt.widgets.measurement_compare_dialog import (
+        MeasurementCompareDialog)
+
+    dialog = MeasurementCompareDialog(objects,
+                                      {"220950": list(objects.index[:80])})
+    qtbot.addWidget(dialog)
+    offered = {dialog.measurement.itemData(i)
+               for i in range(dialog.measurement.count())}
+
+    assert "pathogen_area" in offered
+    assert "plateID" not in offered, "an identifier was offered as a measurement"
+
+
+def test_it_opens_on_the_well_level(objects, qtbot):
+    """The unit the screen randomises, and the honest default."""
+    from spacr.qt.widgets.measurement_compare_dialog import (
+        MeasurementCompareDialog)
+
+    dialog = MeasurementCompareDialog(objects,
+                                      {"220950": list(objects.index[:80])})
+    qtbot.addWidget(dialog)
+
+    assert dialog.level.currentData() == "well"
+
+
+def test_the_cells_tab_groups_by_what_the_picker_chose(qtbot, tmp_path):
+    """The groups are the picker's answer, read off `montage_candidate` --
+    so whichever mode is in force is what the comparison compares."""
+    import sys
+    sys.path.insert(0, "tests/qt")
+    import pandas as pd
+    import test_cells_behind_the_dot_tab as T
+
+    root, db, csv = T._screen(tmp_path, with_png=True)
+    view = T.CellMontageView(frame_provider=lambda: pd.read_csv(csv),
+                             results_provider=lambda: csv,
+                             database_provider=lambda: T._rows(db),
+                             threaded=False)
+    qtbot.addWidget(view)
+    view.set_coefficient(T.GENE_KEY)
+    view.build()
+
+    groups = view.picked_groups()
+
+    assert groups, "the tab drew cells but named no group"
+    assert all(len(members) for members in groups.values())
+
+
+def test_comparing_with_nothing_picked_says_so(qtbot):
+    from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+    view = CellMontageView(threaded=False)
+    qtbot.addWidget(view)
+
+    assert view.compare_a_measurement() is None
+    assert "Show some cells first" in view.status_text()

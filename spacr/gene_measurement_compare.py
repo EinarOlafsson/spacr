@@ -204,18 +204,34 @@ def with_statistics(comparison: Comparison) -> Comparison:
     return comparison
 
 
+#: What an assumption check is worth saying, in the order a reader wants it.
+#: THE VERDICT FIRST: `sp_stats` already writes a sentence ("departs from
+#: normal ... p = 0.00326 < 0.05, Bonferroni"), and repeating the statistic,
+#: the column name and the row count beside it buries the one part that
+#: decided the test.
+_CHECK_KEYS = ("Verdict", "Test Name", "p-value")
+
+
 def _summarise(result) -> str:
-    """One line from whatever shape an assumption check came back as."""
+    """One readable line from whatever shape an assumption check came back as.
+
+    The engine returns a list of per-group dicts with a dozen fields each,
+    and dumping them makes a line no one reads -- measured at 400 characters
+    for a two-group normality check. This keeps the verdict and the number
+    behind it.
+    """
     if result is None:
         return "not computed"
-    if isinstance(result, dict):
-        return "; ".join(f"{k}={v}" for k, v in result.items())
-    if isinstance(result, (list, tuple)):
-        return "; ".join(_summarise(one) for one in result) or "not computed"
     if isinstance(result, pd.DataFrame):
-        return "; ".join(
-            f"{a}={b}" for a, b in result.iloc[0].items()) if len(result) \
-            else "not computed"
+        result = result.to_dict("records")
+    if isinstance(result, dict):
+        parts = [f"{result[k]}" for k in _CHECK_KEYS if result.get(k) not in
+                 (None, "")]
+        return " · ".join(parts) if parts else "; ".join(
+            f"{k}={v}" for k, v in result.items())
+    if isinstance(result, (list, tuple)):
+        lines = [_summarise(one) for one in result]
+        return " | ".join(x for x in lines if x) or "not computed"
     return str(result)
 
 
