@@ -937,6 +937,19 @@ def _probability_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _flow_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """A poorly-fitting mask is discarded -- as the threshold comes DOWN.
+
+    THE DIRECTION WAS BACKWARDS BY IMPLICATION, and that is worse than a faint
+    animation: `flow_threshold` is counter-intuitive -- LOWERING it discards
+    more masks -- while every animation in this set runs off -> on, so the
+    frame where the ragged mask vanishes was also the frame a viewer reads as
+    "the setting went up".
+
+    Nothing in the drawing said which way the value moved, so the viewer
+    supplied the only reading available. The bar below is the fix: it EMPTIES
+    as the discard happens, so the picture says "lower this and more is
+    thrown away" instead of leaving it to be guessed the wrong way round.
+    """
     _well(painter)
     kind = spec.params["kind"]
     color = OBJECT_COLORS[kind]
@@ -951,6 +964,17 @@ def _flow_scene(painter: Painter, spec: Spec, action: float) -> None:
         True,
         fill_closed=False,
     )
+    # THE VALUE, FALLING. A track with a fill that shrinks left as `action`
+    # runs -- the same direction the mask disappears in, which is the whole
+    # point: the two now agree, and they disagreed before.
+    left, right, y = 96, 264, 196
+    painter.line([(left, y), (right, y)], _mix(GRAY, 0.45), 1.0)
+    painter.line([(left, y), (left + (right - left) * (1.0 - action), y)],
+                 _mix(WHITE, 0.75), 2.6)
+    # A tick at each end so the track reads as a range rather than a bar
+    # chart: the left end is where the most is discarded.
+    for x in (left, right):
+        painter.line([(x, y - 5), (x, y + 5)], _mix(GRAY, 0.55), 0.9)
 
 
 def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:

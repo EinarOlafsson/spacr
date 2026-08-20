@@ -724,10 +724,10 @@
       "slug": "cell_FT",
       "title": "Cell flow threshold",
       "validation": {
-        "bytes": 124959,
-        "frames": 17,
-        "sha256": "ed5cf7c07aca6b5f1a0ac0ece519594798190d61f1fe84c3a41d15c8d840f6a4",
-        "unique_frames": 16
+        "bytes": 104407,
+        "frames": 18,
+        "sha256": "e3f26514e8907f1cf81d1584c0b22cfa27e75502a795181dfd686f07ce151940",
+        "unique_frames": 17
       }
     },
     {
@@ -820,10 +820,10 @@
       "slug": "nucleus_FT",
       "title": "Nucleus flow threshold",
       "validation": {
-        "bytes": 144743,
-        "frames": 17,
-        "sha256": "86dca3102129932a7bfd8ca77bc43ce8a12b5f83e4800e86f438dfaca39e796e",
-        "unique_frames": 16
+        "bytes": 90879,
+        "frames": 18,
+        "sha256": "3ada695d1240e2c42dc8d032bde882e4bc56a523619e63730009b4cbad9b5cb1",
+        "unique_frames": 17
       }
     },
     {
@@ -916,10 +916,10 @@
       "slug": "pathogen_FT",
       "title": "Pathogen flow threshold",
       "validation": {
-        "bytes": 203658,
-        "frames": 17,
-        "sha256": "60573817c2263a7bd6946817e02ed070eb9a6f7764a1c6f083876e1d56417f4d",
-        "unique_frames": 16
+        "bytes": 125379,
+        "frames": 18,
+        "sha256": "5209de227570d7a9deba87896761dcad94043203e7a1157a31a238aa029ed2d8",
+        "unique_frames": 17
       }
     },
     {
@@ -1031,10 +1031,10 @@
       "slug": "organelle_FT",
       "title": "Organelle flow threshold",
       "validation": {
-        "bytes": 270108,
-        "frames": 17,
-        "sha256": "41a5781cf3f55beb4068169ac2cdd1b12d286c70e0fae5a9ed8f4cdb0c4eacb3",
-        "unique_frames": 16
+        "bytes": 174269,
+        "frames": 18,
+        "sha256": "69b1f2bb7480a99313f35f625881a896ae89677251327eb1f065709d70c0a495",
+        "unique_frames": 17
       }
     },
     {
