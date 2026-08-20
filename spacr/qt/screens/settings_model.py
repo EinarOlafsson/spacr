@@ -3470,6 +3470,41 @@ _MODE_TITLES = {
     "rra": "MAGeCK alpha rank aggregation",
 }
 
+#: The backends that answer THIS question well, and why each one -- asked for
+#: on 2026-08-17: "the ones that are closest to answering a question in a
+#: screen like this should get a 'Recommended for CRISPR screens' in the text
+#: box" (instruction 133 A).
+#:
+#: THE REASON IS THE POINT, not the badge. A pooled screen is p >> n and
+#: sparse -- 823 guides estimated from 610 wells on the reference screen --
+#: and every entry here earns its place against that shape rather than
+#: against the general reputation of the method.
+RECOMMENDED_FOR_SCREENS = {
+    "mixed": "the only model here that says what a guide IS -- a replicate "
+             "of one perturbation, not a second variable",
+    "horseshoe": "a sparse prior: most guides do nothing and a few do a lot, "
+                 "which is what a screen is. Handles p >> n natively",
+    "elasticnet": "penalised, and it does not arbitrarily keep one guide out "
+                  "of a gene's correlated set the way lasso does",
+    "lasso": "the same family, sparser -- with lasso_n_boot and "
+             "lasso_selection_threshold it is stability selection",
+    "group_lasso": "a gene's guides are ONE block, selected or dropped "
+                   "together: the penalised analogue of the nesting",
+    "rra": "ranks guides and aggregates to the gene BY RANK, so it is immune "
+           "to the collinearity 132 exists to fix, and it makes this screen "
+           "comparable to published MAGeCK ones",
+}
+
+#: The caveat that belongs beside every one of them, because a badge without
+#: it reads as a promise. Stated once so it cannot drift between six entries.
+INFORMATION_LIMIT_NOTE = (
+    "With fewer wells than guides you are below the information limit for any "
+    "method estimating one parameter per guide. Penalisation, priors and "
+    "grouping do not create information -- they impose assumptions that make "
+    "an answer well defined. The permutation test is the exception: it tests "
+    "one guide at a time and never needs the joint fit.")
+
+
 #: One- or two-sentence descriptions of what each regression mode fits, based
 #: on :func:`spacr.ml.regression_model` rather than the general
 #: reputation of the method. Where a backend reads a setting from this panel it
@@ -4116,6 +4151,17 @@ def regression_model_explainer_html(regression_type: Any,
             "LIST from this model, and nothing guide-level to BH-correct. If "
             "a ranked, tested list of individual guides is what you need, "
             "choose any other model with level='grna'.", ink))
+        # 133 A. `mixed` takes its own branch above, so the flag every other
+        # backend gets from the shared path has to be added here too -- and
+        # missing it on the DEFAULT would have been the one place it mattered
+        # most.
+        parts.append(
+            f'<p style="margin:6px 0 2px 0;">'
+            f'{_ink("Recommended for CRISPR screens", ink["success"], bold=True)}'
+            f' — {escape(RECOMMENDED_FOR_SCREENS["mixed"])}</p>')
+        parts.append(
+            f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
+            f'{escape(INFORMATION_LIMIT_NOTE)}</p>')
         parts.append(_heading_html("WHAT IT COSTS", ink))
         parts.append(_prose_html(mixed_cost_note(), ink))
         parts.append(_heading_html("MULTIPLE TESTING", ink))
@@ -4164,6 +4210,18 @@ def regression_model_explainer_html(regression_type: Any,
                 "containing both.", ink))
         parts.append(_heading_html(f"WHAT {key.upper()} DOES", ink))
         parts.append(_prose_html(_MODE_NOTES[key], ink))
+        # 133 A: say WHICH backends answer this question well, and WHY each.
+        # In `success`, the same colour "TWO MODELS, TWO TABLES" uses, because
+        # both are affirmations about the model rather than caveats about it.
+        if key in RECOMMENDED_FOR_SCREENS:
+            parts.append(
+                f'<p style="margin:6px 0 2px 0;">'
+                f'{_ink("Recommended for CRISPR screens", ink["success"], bold=True)}'
+                f' — {escape(RECOMMENDED_FOR_SCREENS[key])}</p>')
+            # AND THE CAVEAT, because a badge without it reads as a promise.
+            parts.append(
+                f'<p style="margin:2px 0 8px 0; color:{ink["fg_muted"]};">'
+                f'{escape(INFORMATION_LIMIT_NOTE)}</p>')
         parts.append(_heading_html("MULTIPLE TESTING", ink))
         if key in NO_P_VALUE_TYPES:
             fits = "Each fit ranks" if chosen == "both" else "The fit ranks"
@@ -4405,6 +4463,10 @@ def regression_model_explainer(regression_type: Any,
         # WHAT IT COSTS, beside "what you do not get" and for the same
         # reason: both are things a user can only find out by having already
         # spent the afternoon. Instruction 140.
+        lines.append("RECOMMENDED FOR CRISPR SCREENS")
+        lines.append(_wrap_block(RECOMMENDED_FOR_SCREENS["mixed"]))
+        lines.append(_wrap_block(INFORMATION_LIMIT_NOTE))
+        lines.append("")
         lines.append("WHAT IT COSTS")
         lines.append(_wrap_block(mixed_cost_note()))
         lines.append("")
@@ -4450,6 +4512,11 @@ def regression_model_explainer(regression_type: Any,
                 "design containing both.", ""))
             lines.append("")
 
+        if key in RECOMMENDED_FOR_SCREENS:
+            lines.append("RECOMMENDED FOR CRISPR SCREENS")
+            lines.append(_wrap_block(RECOMMENDED_FOR_SCREENS[key]))
+            lines.append(_wrap_block(INFORMATION_LIMIT_NOTE))
+            lines.append("")
         lines.append(f"WHAT {key.upper()} DOES")
         lines.append(_wrap_block(_MODE_NOTES[key]))
         lines.append("")
