@@ -1,0 +1,66 @@
+================================================================================
+A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Reported:  2026-08-19, from a live run on the TSG101 screen --
+
+  ValueError: lasso shrank all 790 coefficients to exactly zero at alpha=1:
+  the penalty is far larger than the scale of this design, so the fit carries
+  no information about any gRNA. Lower alpha, or set it to 'auto' to choose
+  it by cross-validation.
+
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+THE GUARD IS RIGHT. THE DEFAULT IT FIRES ON IS NOT.
+--------------------------------------------------------------------------------
+
+Refusing the empty model is correct and must stay: a lasso that kept every
+coefficient at exactly zero would be written out as "0 significant gRNAs",
+which is a RESULT-SHAPED way of saying the fit told you nothing, and it is
+indistinguishable on the page from a screen with no hits.
+
+What is wrong is that `settings.py:2150` sets `alpha = 1` for the penalised
+families, and on this screen -- 790 guides, 606 wells, fractions in the range
+1e-5 to 0.8 -- alpha=1 is orders of magnitude above the scale of the design.
+The user's FIRST lasso run cannot succeed. A default whose only outcome is a
+refusal is not a default; it is a required argument spelled as one.
+
+Note the file already knows: line 2148 sets `alpha = 'auto'` on one branch
+and 2150 sets `1` on another. Whatever distinguished those two branches, the
+penalised regression path is on the wrong side of it.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+A. `alpha` DEFAULTS TO 'auto' FOR EVERY PENALISED FAMILY (lasso, ridge,
+   elasticnet, group lasso). Cross-validation chooses it from the data, which
+   is the only thing that can: the right penalty depends on the scale of the
+   design matrix, and spaCR knows the design and the user does not.
+
+B. THE CHOSEN alpha IS REPORTED, in the console and in the run summary --
+   "alpha=0.0037, chosen by 5-fold cross-validation over [range]". A number
+   picked for the user and never shown is a number they cannot defend in a
+   methods section.
+
+C. THE REFUSAL KEEPS ITS SEPARATE WORDING for the auto case, which already
+   exists and is correct: cross-validating to the empty model is a NULL
+   SCREEN, not a misconfiguration, and it must not tell the user to lower a
+   number they did not set.
+
+D. A LITERAL alpha STILL WORKS AND IS STILL REFUSED WHEN IT COLLAPSES. The
+   message keeps naming the scale of the design so the user can pick a
+   sensible one, rather than only saying "lower it".
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A fresh lasso run on the reference screen FITS, without the user touching
+  alpha, and the console names the alpha it chose and how.
+* `alpha=1` set explicitly still refuses, with the message naming the scale.
+* A genuinely null design still refuses under 'auto', with the null-screen
+  wording rather than the "lower alpha" wording.
+* The run summary carries the chosen alpha.
