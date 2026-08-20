@@ -611,13 +611,10 @@ def _require(frame: pd.DataFrame, columns: Sequence[str], what: str) -> None:
             f"{what} is missing {missing}; it has {list(frame.columns)[:15]}")
 
 
-def read_table(path, **kwargs):
-    """`spacr.tabular.read_table`, imported lazily. Instruction 145's funnel.
+def _read_table(path, **kwargs):
+    """Read a table while deferring the canonical reader import.
 
-    A thin name rather than an import at the top of the module: `tabular`
-    imports pandas and this module is reached from the GUI thread while a
-    panel is being built. The indirection costs one attribute lookup and buys
-    the module's import cost staying where it was.
+    Deferring the import preserves the module's lightweight GUI import path.
     """
     from .tabular import read_table as _read
 
@@ -1554,7 +1551,7 @@ def read_well_guide_fractions(path: str) -> pd.DataFrame:
     # it none of the three. It raised nothing; it produced a frame with no
     # well key, and the montage then drew nothing for wells holding 244
     # objects.
-    frame = read_table(target, report=None)
+    frame = _read_table(target, report=None)
     _well_key(frame, target)
     _require(frame, ["grna", "gene", "fraction"], target)
     return frame
@@ -1611,7 +1608,7 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
             # `column_name`, `grna_name` and NO plate column at all, so four
             # plates' r1/c1 pooled into one well -- 384 wells instead of
             # 1,536 -- and the fractions still summed to 1.
-            frame = read_table(text, report=None)
+            frame = _read_table(text, report=None)
         except Exception as error:                               # noqa: BLE001
             problems.append(f"{os.path.basename(text)}: {error}")
             continue
@@ -1717,7 +1714,7 @@ def _read_scores(scores: Any):
         if not text or not os.path.isfile(text):
             continue
         try:
-            frames.append(read_table(text, report=None))
+            frames.append(_read_table(text, report=None))
         except Exception:                                        # noqa: BLE001
             continue
     if not frames:

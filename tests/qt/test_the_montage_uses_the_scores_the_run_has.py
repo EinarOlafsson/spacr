@@ -92,17 +92,17 @@ def test_the_refusal_says_when_no_score_file_is_loaded_at_all():
     from spacr.qt.widgets.cell_montage_view import no_score_refusal
 
     said = no_score_refusal(())
-    assert "NO score file is loaded" in said
-    assert "without writing to any database" in said
+    assert "No score file is loaded" in said
+    assert "without modifying a database" in said
     # And it says where they WOULD come from, which is the actionable half.
-    assert "joined in memory" in said
+    assert "join it in memory" in said
 
 
 def test_many_score_files_are_summarised_rather_than_all_listed():
     from spacr.qt.widgets.cell_montage_view import no_score_refusal
 
     said = no_score_refusal([f"plate{i}_dv.csv" for i in range(9)])
-    assert "9 score file(s)" in said
+    assert "9 loaded score files" in said
     assert "+6 more" in said
 
 
@@ -147,10 +147,10 @@ def test_accepting_writes_the_scores_and_says_how_many_matched(qtbot, tmp_path):
         confirm=lambda dbs, files: True)
     assert written, "nothing was merged"
     assert _digest(database) != before
-    assert "row(s) matched" in view.status_text()
+    assert "rows matched" in view.status_text()
     # And it says the montage did not need it, so a user does not conclude
     # the picture depended on this.
-    assert "did not need this" in view.status_text()
+    assert "already uses loaded scores" in view.status_text()
 
 
 def test_with_nothing_to_merge_it_says_so_rather_than_opening_a_dialog(qtbot,
@@ -161,7 +161,7 @@ def test_with_nothing_to_merge_it_says_so_rather_than_opening_a_dialog(qtbot,
     assert view.write_scores_into_the_databases(
         confirm=lambda *_a: asked.append(1) or True) == {}
     assert asked == []
-    assert "nothing to merge" in view.status_text()
+    assert "nothing to merge" in view.status_text().lower()
 
 
 def test_a_database_that_will_not_take_them_is_named_and_the_rest_go_on(
