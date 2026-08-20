@@ -1124,9 +1124,9 @@ def gene_tile(feature: Any,
                 unresolved.append(
                     f"guide {guide} is not in the gRNA reference, so its "
                     "protospacer could not be checked for other genes "
-                    "carrying it. The bundled reference had eight guides "
-                    "removed for sharing a protospacer (instruction 100 D2); "
-                    "a guide missing here is the first thing to check.")
+                    "carrying it. References may exclude guides whose "
+                    "protospacers map to multiple genes; verify the guide "
+                    "identifier and reference version.")
         else:
             reported_accession = entry[0] or reported_accession
             protospacer = entry[1]

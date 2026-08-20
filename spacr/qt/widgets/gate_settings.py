@@ -803,16 +803,14 @@ class GateSettingsDialog(QDialog):
                               (self._spin, "Spin speed")):
             widget.setToolTip(
                 (widget.toolTip() + "\n\n" if widget.toolTip() else "")
-                + "NOT YET IN EFFECT: the 3D volume is not built (instruction "
-                  "52). The value is saved and will apply when it is.")
+                + "Not yet active: the 3D volume view is not available. "
+                  "This value is saved for future 3D volume support.")
 
         self._rules_button = QPushButton("Aggregation rules…", page)
         self._rules_button.setToolTip(
-            "Show the rule chosen for every measurement, and change any of "
-            "them. The rules follow what a column MEASURES — areas and counts "
-            "sum, a minimum takes the minimum — and a silent default that is "
-            "right 95% of the time is a wrong answer nobody can find the "
-            "other 5%.")
+            "Review or change the aggregation rule for each measurement. "
+            "Defaults follow the measurement type: areas and counts sum, "
+            "while minima retain the minimum value.")
         self._rules_button.clicked.connect(self.aggregation_rules_requested.emit)
         form.addRow("", self._rules_button)
 

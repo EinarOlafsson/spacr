@@ -357,9 +357,9 @@ def summary_text(model, regression_type=None, *, path=None,
         return _with_spacr_summary(
             path,
             f"this backend{named} is not a statsmodels fit, so it has none. "
-            f"The sklearn-backed types (lasso, ridge, elasticnet, hinge) "
-            f"report coefficients without standard errors, which is why they "
-            f"are ranked by bootstrap selection frequency instead -- see the "
+            f"Lasso, elastic net, and group lasso are ranked by bootstrap "
+            f"selection frequency because they do not report frequentist "
+            f"p-values. Ridge and hinge uncertainty is reported in the "
             f"Coefficients tab.",
             missing=True)
 
