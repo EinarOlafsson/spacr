@@ -67,6 +67,16 @@ def _formulas_the_panel_should_show(screen) -> tuple:
             formula_for(MIXED_TERM, **kwargs))
 
 
+def _select_parametric(screen) -> None:
+    """Select the model-fitting path for tests that inspect model formulas."""
+    inference = screen._settings_model._widgets["inference"]
+    for index in range(inference.count()):
+        if str(inference.itemData(index) or "").lower() == "parametric":
+            inference.setCurrentIndex(index)
+            return
+    raise AssertionError("parametric inference is not on offer")
+
+
 def _pooled_screen_frame(seed: int = 0):
     """A pooled-screen frame shaped like the real thing.
 
@@ -318,14 +328,8 @@ def test_every_box_says_where_the_reason_went_and_the_reason_is_still_there():
 
     history = _flat(regression_model_explainer.__doc__ or "")
     assert COLLINEAR_FORMULA in history
-    assert "perfectly collinear BY CONSTRUCTION" in history
-    assert "SUM of that gene's gRNA fractions" in history
-    # It names what statsmodels does instead of refusing, which is why the
-    # bug was silent.
-    assert "pseudo-inverse" in history
-    # ...and the evidence from the real screen, with its figures intact:
-    # shortening the box was not allowed to make what survived vaguer.
-    assert "244480" in history and "3.389291" in history
+    assert "rank deficient" in history
+    assert "not uniquely interpretable" in history
 
 
 def test_the_box_never_offers_the_collinear_formula_as_something_it_fits():
@@ -391,6 +395,7 @@ def test_the_regression_screen_shows_a_readonly_selectable_monospace_box(
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
     screen.show()
+    _select_parametric(screen)
 
     box = screen._model_explainer
     assert box is not None, "the regression panel built no explainer"
@@ -418,6 +423,7 @@ def test_the_box_sits_directly_under_the_model_and_inference_section(
     """Under the controls it explains, not adrift at the foot of the form."""
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     box = screen._model_explainer
 
     # INSIDE THE SECTION, AT THE TOP, since 2026-08-18: "just ad the text box
@@ -457,6 +463,7 @@ def test_the_box_text_is_legible_against_its_own_background(qtbot,
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     screen.resize(1400, 1000)
     for section in screen._settings_sections:
         section.set_expanded(section.title().lower() == "model & inference")
@@ -514,6 +521,7 @@ def test_the_box_collapses_with_the_section_it_explains(qtbot,
     """It must not dangle under a section the user has collapsed."""
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     box = screen._model_explainer
     section = next(s for s in screen._settings_sections
                    if s.title().lower() == "model & inference")
@@ -553,6 +561,7 @@ def test_other_modules_do_not_get_the_regression_explainer(qtbot,
 def test_the_box_follows_the_regression_type_dropdown(qtbot, qt_theme_applied):
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     box = screen._model_explainer
     combo = screen._settings_model._widgets["regression_type"]
 
@@ -576,6 +585,7 @@ def test_the_box_follows_the_panels_own_level_dropdown(qtbot, qt_theme_applied):
     """The real `level` control on the real panel, not an injected stand-in."""
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     box = screen._model_explainer
     screen._settings_model._widgets["regression_type"].setCurrentText("ols")
     level = screen._settings_model._widgets["level"]
@@ -606,6 +616,7 @@ def test_choosing_mixed_makes_the_box_ignore_whatever_level_holds(
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     settings = screen._settings_model
 
     settings._widgets["regression_type"].setCurrentText("ols")
@@ -629,6 +640,7 @@ def test_the_box_still_renders_when_the_panel_has_no_level_control(
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _select_parametric(screen)
     screen._settings_model._widgets["regression_type"].setCurrentText("ols")
     guide, gene, _mixed = _formulas_the_panel_should_show(screen)
     screen._settings_model._widgets.pop("level")

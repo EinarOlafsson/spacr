@@ -81,6 +81,11 @@ def _screen(qtbot):
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    inference = screen._settings_model._widgets["inference"]
+    for index in range(inference.count()):
+        if str(inference.itemData(index) or "").lower() == "parametric":
+            inference.setCurrentIndex(index)
+            break
     return screen
 
 

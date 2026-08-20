@@ -4136,19 +4136,10 @@ def _api_html(regression_type: Any, ink: Dict[str, str],
             f'{escape(name)}</a></p>')
 
 
-#: What the box says when the run will not fit a model at all.
-#:
-#: Asked for 2026-08-20: "non parametric should be represented in the Text
-#: box above: when chosen the text should explain nonparametric." The box
-#: described whatever `regression_type` held, which under nonparametric is a
-#: model that is READ, SAVED AND NEVER FITTED -- so the explainer was
-#: explaining something that would not happen.
-#: BRIEF, BECAUSE THE PERMUTATION TEST SECTION HAS ITS OWN BOX. That one
-#: explains what the test does; this one says only that a test is what will
-#: happen, and that the model settings around it are therefore inert. Saying
-#: it twice at length would make the longer copy the one nobody reads.
+#: Brief guidance shown when nonparametric inference bypasses model fitting.
+#: The separate Permutation Test section contains the full method description.
 NONPARAMETRIC_NOTE = (
-    "No model is fitted. Each guide is tested ON ITS OWN as a marginal "
+    "No model is fitted. Each guide is tested independently as a marginal "
     "association, with P values from plate-blocked permutations -- so there "
     "is no formula, no family, and no coefficient for a guide conditional "
     "on the others.",
@@ -4159,12 +4150,10 @@ NONPARAMETRIC_NOTE = (
 
 
 def _nonparametric_selected(inference: Any, analysis_mode: Any = "") -> bool:
-    """Whether the run will take the permutation path, as the run decides it.
+    """Return whether the current settings select permutation inference.
 
-    'auto' is NOT nonparametric here: its resolution counts guides and wells
-    (`spacr.ml.resolve_auto_inference`) and this cannot see them, so the box
-    goes on describing the model that would be fitted if it resolves that
-    way -- which is the more useful of the two guesses.
+    ``'auto'`` returns ``False`` because resolving it requires the data-dependent
+    guide and well counts used by :func:`spacr.ml.resolve_auto_inference`.
     """
     from spacr.settings import INFERENCE_MODES
 
@@ -4185,24 +4174,32 @@ def regression_model_explainer_html(regression_type: Any,
                                     inference: Any = "auto",
                                     analysis_mode: Any = "",
                                     ) -> str:
-    """The box's text, TYPESET -- the same content as the plain renderer.
+    """Render localized model or inference guidance as HTML.
 
-    :param palette: `spacr.qt.theme.active_palette()`. Omitted, the tokens
-        render under their own names, which is what a test that is not about
-        colour wants and is never what the widget passes.
-    :param language: UI language code. ``None`` uses the active language;
-        incomplete or stale records fall back to whole English sentences.
+    Parameters
+    ----------
+    regression_type : Any
+        Selected regression backend.
+    level : Any, default='both'
+        Coefficient level: guide, gene, or both.
+    plate_position : Any, default=False
+        Include fixed plate-position terms when true.
+    random_row_column : Any, default=False
+        Use row and column variance components when true.
+    palette : dict, optional
+        Resolved theme palette. The active semantic color names are used when
+        omitted.
+    language : str, optional
+        UI language. Missing or stale translations fall back by whole sentence.
+    inference : Any, default='auto'
+        Selected inference mode.
+    analysis_mode : Any, default=''
+        Compatibility value used to identify permutation inference.
 
-    WHAT IS COLOURED AND WHY, because the ceiling is four colours on screen
-    at once and not four as a target:
-
-    Section headings, model/level labels, and links use ``accent``; refusals
-    use ``error``; output paths use ``chip_value``; the two-model confirmation
-    uses ``success``; body text uses ``fg``; and caveats use ``fg_muted``.
-
-    The most any one box renders is four of the emphasis colours at once
-    (`lasso` at `level='both'`: accent, chip_value, success, error), which is
-    the ceiling rather than a coincidence -- there is a test on it.
+    Returns
+    -------
+    str
+        Rich text describing the run that the current settings will execute.
     """
     position = {"plate_position": bool(plate_position),
                 "random_row_column": bool(random_row_column)}
@@ -4356,14 +4353,19 @@ def regression_model_explainer_html(regression_type: Any,
 def permutation_test_explainer_html(
         palette: Optional[Dict[str, Any]] = None,
         language: Optional[str] = None) -> str:
-    """The Permutation Test box, typeset the same way the model box is.
+    """Render localized permutation-test guidance as HTML.
 
-    The two boxes sit on one panel, and one of them being rich text while the
-    other is a monospace dump is the same complaint one section further down.
+    Parameters
+    ----------
+    palette : dict, optional
+        Resolved theme palette.
+    language : str, optional
+        UI language. ``None`` uses the active language.
 
-    :param palette: Optional resolved theme palette.
-    :param language: UI language code. ``None`` uses the active language.
-    :returns: Rich text with exact translated prose and unchanged formulas.
+    Returns
+    -------
+    str
+        Rich text with translated prose and unchanged formulas.
     """
     ink = _colours(palette)
     return (f'<div style="color:{ink["fg"]};">'
@@ -4378,14 +4380,25 @@ def section_explainer_html(app_key: str, title: str,
                            settings: Optional[Dict[str, Any]] = None,
                            palette: Optional[Dict[str, Any]] = None,
                            language: Optional[str] = None) -> str:
-    """Return one localized section explainer as HTML.
+    """Return localized HTML guidance for a settings section.
 
-    :param app_key: Application whose settings section is being rendered.
-    :param title: Canonical English section title.
-    :param settings: Current setting values used to render model formulas.
-    :param palette: Optional resolved theme palette.
-    :param language: UI language code. ``None`` uses the active language.
-    :returns: Rich text, or ``""`` when the section has no explainer.
+    Parameters
+    ----------
+    app_key : str
+        Application whose settings section is rendered.
+    title : str
+        Canonical English section title.
+    settings : dict, optional
+        Current values used to render formulas and selected inference.
+    palette : dict, optional
+        Resolved theme palette.
+    language : str, optional
+        UI language. ``None`` uses the active language.
+
+    Returns
+    -------
+    str
+        Rich text, or ``""`` when the section has no explainer.
     """
     if not has_section_explainer(app_key, title):
         return ""
@@ -4402,15 +4415,10 @@ def section_explainer_html(app_key: str, title: str,
 
 
 def explainer_width() -> int:
-    """The narrowest the box may be, in monospace characters.
+    """Return the minimum explainer width in monospace characters.
 
-    THE LONGEST FORMULA, not a prose column. The prose wraps to whatever
-    width the box is given (see :func:`_wrap_block`); the formulas must never
-    wrap, so the floor is set by the longest line that cannot be broken.
-
-    Measured from the explainers themselves rather than declared, so a
-    formula added to one of them widens the floor with it instead of being
-    the first thing to wrap.
+    The width is derived from the longest unbreakable formula. Prose remains
+    free to wrap to the available panel width.
     """
     longest = _EXPLAINER_WIDTH
     for text in _every_explainer_line():
@@ -4460,11 +4468,10 @@ def _wrap_block(text: str, indent: str = "    ") -> str:
 
 
 def normalise_regression_level(level: Any) -> str:
-    """Coerce whatever the panel holds into one of :data:`REGRESSION_LEVELS`.
+    """Return a supported regression level, defaulting to ``'both'``.
 
-    The `level` widget may not be on the panel at all -- it is a new setting,
-    and an older settings CSV has no value for it -- so anything unrecognised
-    reads as the default rather than raising at paint time.
+    Missing or unrecognized values can occur in settings saved by older
+    versions and are handled without interrupting panel rendering.
     """
     text = str(level or "").strip().lower()
     return text if text in REGRESSION_LEVELS else "both"
@@ -4493,6 +4500,10 @@ def regression_model_explainer(regression_type: Any,
     language : str or None, default=None
         UI language code. ``None`` uses the active language. Only exact,
         source-current paragraph translations are used.
+    inference : Any, default='auto'
+        Selected inference mode.
+    analysis_mode : Any, default=''
+        Compatibility value used to identify permutation inference.
 
     Returns
     -------
@@ -4502,23 +4513,12 @@ def regression_model_explainer(regression_type: Any,
 
     Notes
     -----
-    Guide- and gene-level effects are described as separate fits. The retired
-    combined design
-
-    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
-
-    is rank deficient: ``gene_fraction`` is the SUM of that gene's gRNA
-    fractions, so the guide and gene coefficient blocks are perfectly
-    collinear BY CONSTRUCTION. Statsmodels can resolve this system with a
-    pseudo-inverse, but the resulting coefficients are not unique.
-
-    :data:`COLLINEAR_FORMULA` names this retired design;
-    :data:`spacr.ml.COLLINEAR_FORMULA_FRAGMENT` exposes the corresponding
-    fitting-side check. On the reference TSG101 screen (610 wells, 823 guides,
-    389 genes, 1945 rows), the combined design had 1248 parameters at rank 862,
-    a deficit of 386. The single-guide gene ``244480`` and guide ``244480_3``
-    both returned ``3.389291`` at p = 2.873149e-13. Separate fits were full
-    rank: 859 parameters at rank 859 for guides and 425 at 425 for genes.
+    Guide and gene effects are described as separate fits. The retired design,
+    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``, contains
+    both guide fractions and their gene-level sums. It is rank deficient, so
+    its individual coefficients are not uniquely interpretable.
+    :data:`COLLINEAR_FORMULA` stores the formula used by the compatibility
+    checks.
     """
     position = {"plate_position": bool(plate_position),
                 "random_row_column": bool(random_row_column)}
@@ -4681,7 +4681,7 @@ def regression_model_explainer(regression_type: Any,
 #: per-threshold family is the `for threshold in thresholds` loop that
 #: corrects each support level on its own.
 _PERMUTATION_NOTE = (
-    "Each guide is tested ON ITS OWN, as a marginal association rather "
+    "Each guide is tested independently, as a marginal association rather "
     "than as one coefficient in a design holding every guide at once. Its "
     "read fraction and the well phenotype are first residualised against "
     "the block (normally plateID) and any nuisance columns; the P value is "
@@ -4690,11 +4690,10 @@ _PERMUTATION_NOTE = (
     "one, so it is empirical and two-sided and can never be smaller than "
     "1/(permutations + 1). A guide becomes testable once it appears in "
     "guide_min_wells wells above guide_presence_threshold, and each of "
-    "those thresholds is corrected as its own family. That answer stays "
-    "valid however many guides the screen carries, which the simultaneous "
-    "fit does not: with more guides than wells its design is unidentified, "
-    "and it would report marginal associations as though they were "
-    "conditional coefficients."
+    "those thresholds is corrected as its own family. This avoids the rank "
+    "requirement of a simultaneous guide model and can be used when guides "
+    "outnumber wells; interpretation still depends on valid blocking, "
+    "exchangeability, and adequate guide support."
 )
 
 
@@ -4748,17 +4747,18 @@ _SETTINGS_MODEL_UI_SOURCES = frozenset({
 def permutation_test_explainer(
     language: Optional[str] = None,
 ) -> str:
-    """The Permutation Test section's box text.
+    """Return localized plain-text permutation-test guidance.
 
-    Pure text, wrapped to the same column as the model box, so the two boxes
-    on the regression panel line up and neither needs the widget to soft-wrap.
-    Takes no settings: unlike the model box, what this test does is the same
-    whatever the eight controls below it are set to -- they change its size,
-    its seed and its support cutoff, not its meaning.
+    Parameters
+    ----------
+    language : str, optional
+        UI language. ``None`` uses the active language.
 
-    :param language: UI language code. ``None`` uses the active language.
-    :returns: Localized plain text, or canonical English when a complete
-        translation is unavailable.
+    Returns
+    -------
+    str
+        Wrapped guidance, using canonical English when a complete translation
+        is unavailable.
     """
     return (_translated_ui_text("WHAT THIS TEST DOES", language) + "\n"
             + _wrap_block(
@@ -4776,22 +4776,30 @@ SECTION_EXPLAINERS: Dict[str, Tuple[str, ...]] = {
 
 
 def has_section_explainer(app_key: str, title: str) -> bool:
-    """True when this module's section opens with a prose box."""
+    """Return whether a settings section begins with explanatory prose."""
     return str(title or "") in SECTION_EXPLAINERS.get(str(app_key or ""), ())
 
 
 def section_explainer(app_key: str, title: str,
                       settings: Optional[Dict[str, Any]] = None,
                       language: Optional[str] = None) -> str:
-    """The text of one section's box, or "" when the section has none.
+    """Return localized plain-text guidance for a settings section.
 
-    :param app_key: the module being rendered.
-    :param title: the section heading, as rendered.
-    :param settings: the panel's CURRENT values, when the box depends on
-        them. The model box does -- it states the formula for the selected
-        `regression_type` and `level` -- and re-reading it on every change is
-        what keeps the formula and the controls from disagreeing.
-    :param language: UI language code. ``None`` uses the active language.
+    Parameters
+    ----------
+    app_key : str
+        Application whose section is rendered.
+    title : str
+        Section heading.
+    settings : dict, optional
+        Current values used to render formulas and selected inference.
+    language : str, optional
+        UI language. ``None`` uses the active language.
+
+    Returns
+    -------
+    str
+        Guidance text, or ``""`` when the section has no explainer.
     """
     if not has_section_explainer(app_key, title):
         return ""
