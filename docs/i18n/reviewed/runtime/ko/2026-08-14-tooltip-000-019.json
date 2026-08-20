@@ -109,13 +109,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "controls",
-      "source_sha256": "957b72b9cf4beab6495d882a8584d7b37cb614e3ec815ed1522a4343b47a5495",
-      "source": "gRNA identifiers treated as non-targeting controls in the regression. Their coefficients are tagged 'control', and their spread sets reg_threshold = mean + threshold_multiplier x (std or var, per threshold_method) - the effect-size cut-off drawn on the volcano plot. A noisier or wider control set raises that bar. None skips the threshold. Default the built-in list of 30 non-targeting IDs, '000000_1' to '000000_32' (without _2 and _7).",
-      "translation": "회귀에서 비표적 대조군으로 다룰 gRNA 식별자입니다. 계수에는 'control' 태그가 붙고 분산은 reg_threshold = mean + threshold_multiplier x (std or var, per threshold_method) 를 정합니다. 이는 화산 그림에 표시되는 효과 크기 절단값입니다. 대조군이 더 시끄럽거나 넓게 퍼지면 기준도 높아집니다. None 은 임계값을 생략합니다. 기본값은 내장된 비표적 ID 30 개인 '000000_1' 부터 '000000_32' 까지이며 _2 와 _7 은 제외됩니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "crop_mode",
       "source_sha256": "038a163474ddd490d5e0c1d36793c9196d51199982196cb5642bc970067ee680",
       "source": "Which mask each PNG crop is centred on: any of 'cell', 'nucleus', 'pathogen', 'cytoplasm' or 'organelle'. One crop set is written per entry into <mode>_png/ folders, so ['cell','nucleus'] doubles the images written and the rows added to png_list. A single png_size such as [224,224] is broadcast to every mode, and so are dialate_pngs and dialate_png_ratios - pass a list only when the modes need different values. A list shorter than crop_mode reuses its last entry for the rest and says so. Default ['cell'].",
