@@ -93,6 +93,32 @@ def test_shared_tooltips_do_not_depend_on_optional_module_imports():
     assert tool.tooltip_for("dst", "factory", {}) == expected
 
 
+def test_signature_docs_accept_scientific_python_parameter_sections():
+    """Notebook comments follow the API writer's numpydoc convention."""
+    tool = _tool()
+
+    def example(first, second=True):
+        """Example.
+
+        Parameters
+        ----------
+        first : str
+            Input table path.
+        second : bool, optional
+            Draw the result when true.
+
+        Returns
+        -------
+        object
+            The result.
+        """
+
+    assert tool.param_docs(example) == {
+        "first": "Input table path.",
+        "second": "Draw the result when true.",
+    }
+
+
 def test_every_notebook_has_a_settings_surface():
     """A notebook whose function nobody can enumerate is the defect itself."""
     tool = _tool()
