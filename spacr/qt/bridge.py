@@ -38,6 +38,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal
 
+from spacr.qt.gil_priority import responsive_gui
 from spacr.cancellation import (
     CancellationToken,
     PipelineCancelled,
@@ -1162,7 +1163,12 @@ class PipelineWorker(QObject):
 
         ok = False
         try:
-            with installed_token(self.cancel_token):
+            # INSTRUCTION 126. A pure-Python worker starves the GUI thread of
+            # the interpreter lock and the backdrop drops to 42 ms a frame,
+            # which is the reported lag; asking for the lock more often brings
+            # it back to 17.7. Scoped to the run and restored after, so a
+            # headless `spacr-run` in the same interpreter pays nothing.
+            with installed_token(self.cancel_token), responsive_gui():
                 self.cancel_token.checkpoint()
                 payload = self._fn(self._settings)
             ok = True
