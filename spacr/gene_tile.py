@@ -231,7 +231,8 @@ def _text(value: Any) -> str:
     :func:`_clean` reads the literal ``"none"`` as an empty cell, which is
     right for a curated export writing ``None`` under "product" and wrong for
     ``multiple_testing_method``, where ``none`` is the answer: it means no
-    correction was applied and the q-value column is uncorrected p-values.
+    correction was applied and the ``q_value`` column stores uncorrected
+    p-values.
     Passing that through :func:`_clean` silently deleted the one warning a
     reader of those q-values needs.
     """
@@ -527,10 +528,11 @@ class GeneTile:
     :param protospacer: the guide's sequence, when the reference had it.
     :param effect: the clicked term's coefficient.
     :param p_value: its p-value.
-    :param q_value: its q-value.
-    :param correction: the multiple-testing method the run recorded. Shown
-        because a run with ``none`` reports a "q-value" that is an uncorrected
-        p-value, and a tile that hid that would be laundering it.
+    :param q_value: Its q-value, or the uncorrected p-value stored in the
+        ``q_value`` column when :attr:`correction` is ``"none"``.
+    :param correction: The multiple-testing method recorded by the run. When
+        this is ``"none"``, the tile labels the stored ``q_value`` explicitly
+        as an uncorrected p-value.
     :param condition: ``control`` / ``pc`` / ``nc`` / ``other``, as fitted.
     :param n_obs: the observation count the results row carried.
     :param n_obs_column: which column that count came from, ``n_grna`` or
@@ -664,7 +666,7 @@ class GeneTile:
         if math.isfinite(self.q_value):
             label = "q-value"
             if self.correction and self.correction.lower() == "none":
-                label = "q-value (NO correction was applied)"
+                label = "uncorrected p-value (q_value column)"
             screen.append((label, f"{self.q_value:.3g}"))
         if self.condition:
             screen.append(("condition", self.condition))
