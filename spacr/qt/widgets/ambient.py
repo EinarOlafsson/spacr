@@ -11,8 +11,7 @@ as a re-skin of the same one:
 ``blobs``   (default)
     Big and small colour blobs drifting over the page, each pulsing in size on
     its own period. They overlap and blend, so the result reads as soft colour
-    *fields* rather than as a bag of circles. This is the one the feature was
-    asked for.
+    *fields* rather than as a bag of circles.
 ``aurora``
     Three overlapping curtains of vertical rays, folding along their own
     length. The folds are travelling waves — several superposed frequencies
@@ -36,44 +35,22 @@ as a re-skin of the same one:
     slightly brighter membrane where the edge is seen nearly edge-on, and a
     distinctly brighter nucleus set off centre.
 
-Two more were built and thrown away, on measurements rather than taste, and
-the numbers are recorded here so nobody spends the afternoon again:
-
-*a constellation of points with faint links between them*, and *a slowly
-branching mycelium*. Both are the same shape of thing — a few dozen short,
-thin, translucent, antialiased lines — and at 1920x1080 sixty points with
-196 links between them cost **8.2 ms** a frame drawn one at a time and
-**5.7 ms** batched into ``drawLines`` calls by alpha. That is four times what
-this entire module is allowed, for one theme, and it is the module's own rule
-about line work arriving again: a translucent antialiased line is a thousand
-one-pixel spans, and Qt's raster engine charges for every one. Painting them
-into the small buffer instead makes them affordable and also makes them not
-lines any more, which is the whole thing that would have made either theme
-worth having.
-
-*Caustics* and *a nebula / flow field* were not built. Both are per-pixel
-noise fields, so they cannot be drawn with Qt primitives at all and have to
-be evaluated in NumPy over the buffer — and the separable box blur measured
-for the blur control, which is the same shape of work over the same array,
-came to 12.8 ms on a 640x360 buffer. Evaluating them small enough to afford
-would put them back at the resolution this change exists to get away from.
-
-*Brownian diffusion of specks* was asked for and is here, but as ``drift``'s
-``random`` direction rather than as a theme. It would have been the starfield
-engine with one constant changed, and a theme menu that lists the same
-animation twice is a worse answer than a setting that says what differs.
+The ``random`` direction of ``drift`` produces Brownian-style motion without
+duplicating the starfield as a separate theme. Themes dominated by many
+antialiased lines or per-pixel noise are omitted because their raster cost is
+too high for an always-running backdrop.
 
 Palettes
 --------
 Every theme declares the palettes it offers (:func:`palettes_for`), because a
 palette that works as a 400 px blob does not necessarily work as a 2 px star.
-:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` is built from the
-three brand hues the user picked for the module-maturity legend, and ``okabe``
-is the Okabe–Ito set for red–green colour deficiency (see its note).
+:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` uses the three
+brand hues from the module-maturity legend, and ``okabe`` is the Okabe–Ito set
+for red–green colour deficiency (see its note).
 
 Both dark and light
 -------------------
-spaCR ships five themes, and a blob set tuned only for a near-black page turns
+spaCR ships six themes, and a blob set tuned only for a near-black page turns
 to mud on a white one. So the *composition mode follows the background*:
 
 * dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,
@@ -81,10 +58,9 @@ to mud on a white one. So the *composition mode follows the background*:
   light page just clips to white and the whole effect vanishes.
 * light page -> ``CompositionMode_Multiply``, with the palette colour mixed
   toward white first. Multiply is the exact dual: overlaps get *darker* and
-  still blend hue-wise, so the same geometry reads the same way. Plain
-  ``SourceOver`` was tried first and is wrong here — the later blob
-  covers the earlier one, so nothing blends and the field falls apart into
-  discrete discs.
+  still blend hue-wise, so the same geometry reads the same way.
+  ``SourceOver`` would let later blobs cover earlier ones, producing discrete
+  discs instead of a blended field.
 
 :func:`AmbientWidget.set_background_color` re-derives all of that, so a live
 theme switch is one call.
@@ -137,13 +113,12 @@ nothing in *this* module can help. What is left is **the interpreter lock**:
 identical drawing work, eleven times slower, because the shading pass is
 Python and numpy and something else is holding the lock.
 
-There is a fourth thing, which nobody named and which doubles the bill: **the
-frame-rate cap is not a cap.** The console sits on a translucent surface over
-this widget, so every line it prints exposes it and Qt asks for a whole frame
-— 0.99 ambient repaints per console line, measured with the animation timer
-*stopped*. Every one of those used to be a full shading pass.
+Translucent overlays can also trigger repaints outside the animation timer.
+The console sits over this widget, so each new line can expose it and request
+a full frame even while the animation timer is stopped. Expensive shading must
+therefore remain off the GUI thread even when the frame rate is capped.
 
-The fix is to split a frame at the seam where the cost actually is. Per
+The frame is split at the seam where the cost occurs. Per
 theme, milliseconds, idle against one Python thread, min of nine interleaved
 rounds:
 
@@ -158,33 +133,23 @@ rounds:
  drift      0.528 ->  1.084        (no buffer)
 =========  =====================  =====================
 
-The half that explodes under contention is exactly the half that does not
-have to be on the GUI thread, and the half that must stay there is bounded at
-1.2 ms even loaded, because it is Qt's C++ raster engine with the lock
-released. So :meth:`_BufferedEngine.shade` moves to :class:`_FrameProducer`
-and :meth:`_BufferedEngine.blit` stays. Before and after, in one process,
-HEAD's module exec'd from git beside the working tree's, interleaved:
-
-=============================  ====================  ====================
- condition (``cells``, 1080p)   before                after
-=============================  ====================  ====================
- idle                           24.9 fps / 2.53 ms    25.0 fps / 1.52 ms
- one Python thread              19.9 fps / 33.23 ms   24.9 fps / 1.76 ms
- worker + 20 lines a second     15.0 fps / 18.80 ms   25.7 fps / 1.49 ms
-=============================  ====================  ====================
+The shading pass is sensitive to interpreter-lock contention, whereas the Qt
+blit remains inexpensive. :meth:`_BufferedEngine.shade` therefore runs in
+:class:`_FrameProducer`, while :meth:`_BufferedEngine.blit` stays on the GUI
+thread. If a shaded frame is not ready, the widget repeats the previous frame
+instead of blocking the interface.
 
 ``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this
-does **not** fix is a genuinely chatty run: at 200 lines a second both land at
-about 4 fps, because by then the GUI thread is inside ``ConsolePanel`` and not
-in here at all. Two levers finish the job and neither is in this file —
-``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured on its own:
+does **not** address is a genuinely chatty run: at 200 lines a second both
+land at about 4 fps, because by then the GUI thread is inside ``ConsolePanel``
+and not in here at all. Two levers finish the job and neither is in this file —
+``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured independently:
 32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and
-coalescing ``PipelineWorker.line_ready``. Both want their own instruction.
+coalescing ``PipelineWorker.line_ready``.
 
-Three things this design deliberately is not:
+Three constraints shape the implementation:
 
-*Not a precomputed loop.* The instruction asked for one, and the reason it
-cannot exist is not memory: **there is no period.** Every element's period is
+*Not a precomputed loop.* Every element's period is
 drawn from ``rng.uniform`` over a continuous range —
 :data:`BLOB_DRIFT_PERIOD` (24-70 s), :data:`BLOB_PULSE_PERIOD` (7-19 s),
 :data:`AURORA_DRIFT_PERIOD` (30-90 s), :data:`RIPPLE_PERIOD` (14-26 s) and
@@ -204,11 +169,9 @@ rises to about a third of frames under a Python worker.
 
 *Not a second clock.* The animation clock stays on the GUI thread (two
 attribute stores; there is nothing to gain by moving it and a public contract
-to lose) and the thread only reads it. A frame is still a pure function of
-``(seed, clock, size)``, which is why the off-thread shade is byte-identical
-to the on-thread one for all five buffered themes —
-``tests/qt/test_the_backdrop_survives_a_run.py`` asserts it rather than
-claiming it.
+to lose) and the thread only reads it. A frame remains a pure function of
+``(seed, clock, size)``, so off-thread and on-thread shading are byte-identical
+for all five buffered themes.
 
 ``drift`` keeps the synchronous path, and its row above is the reason: it is
 the one engine with no buffer, it degrades the least of the six (2.1x against
@@ -216,111 +179,14 @@ the one engine with no buffer, it degrades the least of the six (2.1x against
 frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest
 improvement on the list.
 
-At 1920x1080, offscreen raster. The engine as it stood before this change
-is loaded into the same process out of git and every configuration is timed
-round-robin, best of thirteen — this machine is shared with four other test
-suites, so a run now and a run in ten minutes are not comparable and only the
-minimum of an interleaved set means anything.
-
-That also means the *absolute* frame figures in the previous edition of this
-table could not be reproduced honestly today: the same unchanged ``blobs``
-frame measured anywhere between 1.4 and 3.0 ms depending on what else the
-box was doing. What is stable under load is the **shading pass** — the part
-resolution and density actually move — because it is a few hundred thousand
-pixels rather than two million, so it is what is tabulated:
-
-=========  ==================  ==================  ============
- theme      shading was         shading now         full frame
-            (dark / light)      (dark / light)      (dark)
-=========  ==================  ==================  ============
- blobs      0.283 / 0.331 ms    0.283 / 0.324 ms    1.39 ms
- aurora     0.487 / 0.546 ms    1.782 / 2.270 ms    2.89 ms
- ripple     0.398 / 0.437 ms    0.394 / 0.442 ms    1.51 ms
- bokeh      —                   0.795 / 0.738 ms    1.91 ms
- cells      —                   0.748 / 0.761 ms    1.86 ms
- drift      0.747 / 0.727 ms    0.714 / 0.706 ms    0.71 ms
-=========  ==================  ==================  ============
-
-``drift`` has no buffer, so for it the first three columns are all the whole
-frame and the shading columns are the same measurement twice.
-
-The last column is the middle one plus the *fixed* part of a buffered frame
-— filling the page and blitting the buffer up to 1920x1080 — which measured
-**1.111 ms** and is bound by the destination pixels, so it is the same
-whatever was drawn into the source. (The page fill alone is 0.101 ms of it;
-the rest is the upscale.) Light adds the multiply penalty to that blit as it
-always did. Off screen the whole thing is 0 %, which remains the number that
-matters most.
-
-**The aurora is the one theme that moved, and it is the one shipped default
-this change spends anything on.** Its shading went from 0.487 ms to 1.782 —
-3.7 times — because its buffer went from 240x135 to 960x540 at 1080p. In
-frame terms that is 1.60 ms to 2.89, and it buys the thing the change is
-for: the ray comb, 36 screen pixels per ray, was being resolved at four and
-a half buffer pixels and had lost 23 % of its contrast (see
-:data:`AURORA_BUFFER_EDGE` for the table). Nothing else moved — blobs,
-ripples and the starfield render byte-for-byte what they did before, and the
-tests assert exactly that against the engine pulled out of git history.
-
-The user controls move the shading cost, deliberately, and reading this
-table is how to know which of them is worth turning down first (dark, best
-of nine interleaved, milliseconds of shading):
-
-===========================  ======  ======  ======  ======  ======
- setting                      blobs   auror   rippl   bokeh   cells
-===========================  ======  ======  ======  ======  ======
- detail 50 %                  0.191   0.829   0.194   0.412   0.409
- default                      0.282   1.656   0.354   0.685   0.605
- detail 200 %                 0.542   3.732   0.652   1.349   1.000
- blur 100 %                   0.267   1.753   0.350   0.775   0.810
- blur 300 %                   0.295   1.770   0.382   0.715   0.707
- blur 300 % + detail 200 %    0.579   3.979   0.720   1.501   1.195
- density 300 %                0.852   4.506   0.945   1.936   1.762
-===========================  ======  ======  ======  ======  ======
-
-Four things in that table are worth reading rather than skipping:
-
-* **Blur is nearly free.** Going from 0 % to 300 % costs 0.01-0.11 ms, which
-  on three of the five themes is inside the run-to-run spread. It is one
-  area-averaging pass over a buffer of half a megapixel at most, and the
-  blit that carries the result to the screen was going to happen anyway.
-  The honest alternative — a separable box blur over the buffer in NumPy,
-  two cumulative sums per axis — was written and measured at **12.8 ms** on
-  a 640x360 buffer, nine times this module's whole budget, which is why it
-  is not what ships. ``drift`` is the exception it always was: it has no
-  buffer, so its blur is a second wider pass per dot and it has a cap
-  (:data:`DRIFT_HALO_MAX_PX`).
-* **Detail costs roughly the square of what it says**, and that is the whole
-  reason it is a separate control from blur. Somebody who wants a softer
-  backdrop can now have one for nothing instead of paying for it in blocks
-  — and somebody who cannot afford the backdrop at all has a control that
-  actually reduces it, which "blur" used to be by accident.
-* **Density is linear**, as it should be: 300 % is 2.7-3.0 times the shading
-  on every theme. What it is *not* is brighter — see
-  :meth:`AmbientEngine.alpha_scale` for why three times the elements at a
-  third of the alpha is the only reading of the control that leaves the
-  backdrop legible at both ends of its range.
-* **The budget works.** Density 300 % with detail 200 % is twelve times the
-  default work; :data:`WORK_BUDGET` trims the density until it is four, and
-  the aurora lands at about 4 ms of shading rather than the 13 it would
-  otherwise ask for.
-
-The design was picked on measurements, not taste. For blobs at 1920x1080:
-full-resolution gradients 2.18 ms, buffered-and-upscaled 1.16 ms,
-pre-rendered sprite blits 3.28 ms — the sprite version is the slow one
-because a bilinear-sampled translucent blit costs more per pixel than
-shading the gradient does.
-
-Four candidate themes were cut on the same kind of numbers rather than
-shipped slow — a mesh lattice (3.2–8.1 ms), contour polylines (10.8 ms), a
-linked constellation and a branching mycelium (5.7–8.2 ms; see the theme
-list above). All four are crisp line work, and in Qt's raster engine a
-translucent antialiased line costs an order of magnitude more than the same
-pixels as a gradient — a vertical line is a thousand one-pixel spans.
-Painting them into the small buffer instead makes them cheap and also makes
-them not lines any more. The rule that fell out: *soft is cheap, crisp is
-expensive*, and ``drift`` is crisp only because a couple of hundred dots
-light 0.65 % of the page.
+Performance depends on hardware, display size, theme, and concurrent work.
+The settings have predictable relative costs: detail is approximately
+quadratic, density is approximately linear, and blur is inexpensive for the
+five buffered themes. ``drift`` has no buffer, so its blur is a second wider
+pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The
+:data:`WORK_BUDGET` limits combinations of density and detail that would make
+the backdrop compete with analysis work. Hidden widgets stop rendering
+entirely.
 """
 from __future__ import annotations
 

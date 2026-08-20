@@ -621,10 +621,10 @@ def solve_scrim_alpha(theme: str, role: str,
     as the picture can afford, and never thinner than legibility allows.
     Every alpha in that window satisfies both constraints, so the choice
     within it is which one to spend the slack on, and it goes to the
-    panel: the settings form sits on this surface and the user asked for
-    the grey categories to stay grey categories. Taking the floor
-    instead would show *more* picture — Cell's floor is 0.05, a panel
-    that is not there — at the cost of the form dissolving into the
+    panel: the settings form sits on this surface, and preserving its grey
+    category structure is more important than exposing additional wallpaper.
+    Taking the floor instead would show *more* picture — Cell's floor is 0.05,
+    a nearly transparent panel — at the cost of the form dissolving into the
     wallpaper.
 
     When the floor lands *above* the ceiling the theme cannot do both,

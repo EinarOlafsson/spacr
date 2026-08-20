@@ -708,15 +708,12 @@ class SweepRunsPanel(QWidget):
     def the_load_failed(self, why: str = "") -> bool:
         """The run that was just announced could not be shown: undo the mark.
 
-        THE MARK IS A CONSEQUENCE OF THE RUN BEING SHOWN (157). A mark on a
-        run whose results are not on screen is the same disagreement between
-        two views that this instruction is about, only pointing the other
-        way -- and it is the one a user cannot act on, because the run they
-        ARE looking at is no longer named anywhere.
+        A mark on a run whose results are not visible leaves the run list and
+        results view out of sync. Restore the previous mark so the list names
+        the run that remains on screen.
 
-        :param why: added to the status line, so the refusal is readable
-            rather than a mark that silently jumped back.
-        :returns: whether the mark moved back.
+        :param why: Reason added to the status line.
+        :returns: Whether the mark moved back.
         """
         previous = self._previous_loaded_key
         # ONLY THE ANNOUNCEMENT THIS ANSWERS. An asynchronous read reports back

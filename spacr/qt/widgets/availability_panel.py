@@ -8,7 +8,7 @@ picker and the Image UMAP's GPU acceleration ask exactly the same question
 and a second interactive tooltip is a second set of hover, focus and
 dismissal bugs.
 
-WHY IT IS NOT A QToolTip, measured 2026-08-18 on PySide6::
+Why this is not a ``QToolTip``: PySide6 reports::
 
     QToolTip has a linkActivated signal:  False
     QToolTip is a QWidget:                False
@@ -92,23 +92,21 @@ def install_word_for(action) -> str:
 
 
 def disable_combo_row(combo, index: int, *, tooltip: str = "") -> None:
-    """Make one combo row honestly dead -- greyed, unpressable, UNSELECTABLE.
+    """Disable a combo row and remove it from keyboard selection.
 
-    MEASURED 2026-08-18: ``QStandardItem.setEnabled(False)`` leaves
-    ``Qt.ItemIsSelectable`` set in the item's flags. Qt refuses to ACTIVATE a
-    disabled row from the popup, so the mouse route is closed -- but a
+    ``QStandardItem.setEnabled(False)`` leaves ``Qt.ItemIsSelectable`` set in
+    the item's flags. Qt refuses to activate a disabled row from the popup,
+    so the mouse route is closed, but a
     model-level selection (``setCurrentIndex``, a settings CSV round-trip, a
     view's own selection model) can still land on it. An unavailable entry
-    may never become the selected
-    value, not briefly and not by keyboard. So the flag is cleared too.
+    must not become the selected value, so this function clears both flags.
 
-    THE TOOLTIP SURVIVES, which is the half the whole design rests on: also
-    measured, a disabled item keeps its ``Qt.ToolTipRole`` and still shows
-    it on hover.
+    A disabled item retains its ``Qt.ToolTipRole``, so the explanatory tooltip
+    remains available on hover.
 
-    :param combo: a ``QComboBox`` whose model is a ``QStandardItemModel``.
-    :param index: the row to disable.
-    :param tooltip: set as the row's tooltip when non-empty.
+    :param combo: ``QComboBox`` backed by a ``QStandardItemModel``.
+    :param index: Row to disable.
+    :param tooltip: Explanatory tooltip; an empty string leaves it unchanged.
     """
     model = combo.model()
     item = model.item(index) if hasattr(model, "item") else None
