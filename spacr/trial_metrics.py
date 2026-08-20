@@ -160,27 +160,23 @@ _CONDITION_LABELS = {"positive": "pc", "negative": "nc"}
 
 
 def control_recovery(results: pd.DataFrame, settings: Mapping[str, Any]) -> dict:
-    """Where the named controls landed. The yardstick, when there is one.
+    """Summarize where configured controls rank in a result table.
 
-    A configuration that buries a gene known to be real has said something no
-    goodness-of-fit statistic will, and one that promotes a NEGATIVE control
-    has said something worse.
+    Both rank and percentile are returned because result tables can contain
+    different numbers of coefficients. Missing controls are reported with a
+    false ``*_control_found`` value and no invented rank.
 
-    RANK ALONE DOES NOT COMPARE ACROSS TRIALS, which is the trap this function
-    exists to avoid walking the user into. "Rank 3" out of 1,213 coefficients
-    and "rank 3" out of 400 are not the same recovery, and a sweep varies
-    exactly the settings that change how many coefficients there are -- the
-    unit of analysis, the aggregation, the filtration cutoffs. So the
-    percentile is reported beside the rank, and it is the percentile that is
-    comparable. Both are given because the rank is what a user reads and the
-    percentile is what a sort should trust.
+    Parameters
+    ----------
+    results : pandas.DataFrame
+        Coefficient table produced by a regression trial.
+    settings : mapping
+        Trial settings containing optional positive and negative controls.
 
-    When nothing matches the named control the row says so with
-    ``*_control_found = False`` and carries NO rank. An absent positive control
-    is a real and reportable state -- the default negative control does not
-    appear in the TSG101 screen at all -- and inventing a rank for it would
-    make the one column the sweep is meant to be judged on the one column that
-    lies.
+    Returns
+    -------
+    dict
+        Control presence, rank, percentile, effect, and significance fields.
     """
     out: dict[str, Any] = {}
     if results is None or not len(results):

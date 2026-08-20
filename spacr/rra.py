@@ -1,43 +1,20 @@
 """Aggregate guide-level scores into gene-level calls using alpha-RRA.
 
-RRA estimates which guides and genes are associated with a response without
-requiring a full-rank regression design.
-
-Unlike a gene-fraction regression term, RRA does not add guide fractions into
-a linearly dependent design column. It ranks guides and tests whether a gene's
-guides occupy unusually strong ranks, so it remains usable when an OLS design
+RRA ranks guides and tests whether a gene's guides occupy unusually strong
+positions. It therefore remains usable when a gene-fraction regression design
 is singular.
-
-It is also the field standard: this is MAGeCK's alpha-RRA, which is what a
-reviewer of a pooled screen expects to see, and running it makes this screen
-directly comparable to the published ones its phenotype scores come from.
 
 Statistic
 ---------
-Rank every guide in the screen by its score, worst first for
-the depleted direction. A gene with k guides occupies normalised ranks
-r_1 <= ... <= r_k in (0, 1]. Under the null -- this gene is no different from
-any other -- those are the order statistics of k draws from Uniform(0, 1), so
-r_i is Beta(i, k - i + 1). The statistic is
+Within each direction, rank every guide by score. A gene with ``k`` guides
+occupies normalized ranks ``r_1 <= ... <= r_k`` in ``(0, 1]``. Under the
+global null, ``r_i`` follows ``Beta(i, k - i + 1)``. The statistic is
 
     rho = min_i  Beta(i, k - i + 1).cdf(r_i)
 
-the smallest probability of seeing an i-th-best guide at least that good.
-alpha-RRA restricts the minimum to ranks in the top `alpha` fraction: a gene
-with one strong guide and three dead ones is a real hit in a library where a
-third of guides do not cut, and taking the minimum over all k lets the dead
-guides pull rho back toward 1.
-
-P values are estimated by permutation because `rho` is a minimum over k
-dependent order statistics, so its null distribution is not Beta and there is
-no closed form. Genes are permuted at the GUIDE level -- guides reassigned to
-genes of the same size -- which is the null "this gene's guides are an
-arbitrary set of k guides", i.e. exactly what a screen hit is a departure
-from. Genes with the same k share a null, so the cost is one permutation set
-per distinct guide count, not one per gene.
-
-Depletion and enrichment are reported separately, matching MAGeCK. This avoids
-calling a gene merely because its guides split between opposite directions.
+where the minimum is restricted to ranks in the top ``alpha`` fraction.
+Permutation p values are estimated by reassigning guides among genes with the
+same guide count. Depletion and enrichment are evaluated separately.
 """
 
 from __future__ import annotations
@@ -46,19 +23,14 @@ from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 
-#: The top fraction of the ranking a gene's guides are aggregated over.
-#: MAGeCK's default, and the reason a gene with one real guide out of four is
-#: still findable in a library where guides fail.
+#: Top fraction of ranked guides used by alpha-RRA. This is the MAGeCK default.
 DEFAULT_ALPHA = 0.25
 
-#: Permutations per distinct guide count. Ten thousand puts the resolution of
-#: the smallest reportable P value at 1e-4, which is finer than any FDR
-#: threshold a screen is read at and cheap because it is shared across every
-#: gene with that many guides.
+#: Permutations per distinct guide count. Ten thousand gives a minimum
+#: empirical p-value resolution of ``1e-4``.
 DEFAULT_PERMUTATIONS = 10000
 
-#: Which tail. "neg" is depletion (a low score is a hit), "pos" is
-#: enrichment, "both" reports each in its own columns.
+#: Supported tails: depletion, enrichment, or separate results for both.
 DIRECTIONS = ("neg", "pos", "both")
 
 
