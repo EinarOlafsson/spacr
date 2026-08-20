@@ -72,7 +72,7 @@ def test_the_results_are_beside_the_figures_not_behind_a_tab(screen):
     # `test_results_is_what_opens_first` in test_the_sweep_runs_are_a_tab.py
     # owns it; it is asserted here too because a layout test that quietly
     # stopped checking anything about the tabs is how it would be lost.
-    assert screen._results_tabs.currentWidget() is screen._results_panel, (
+    assert screen.showing_the_results(), (
         "Results is not what the screen opens on -- it is what a finished "
         "run opens into")
     assert split.widget(1) is screen._figures_stack
@@ -111,7 +111,7 @@ def test_a_module_without_results_is_untouched(qtbot):
 
 def test_the_grid_is_what_shows_first(screen):
     assert screen._figures_stack.currentIndex() == 0
-    assert screen._figures_stack.currentWidget() is screen._figure_grid
+    assert screen.showing_the_figure_grid()
 
 
 def test_pressing_a_tile_fills_the_container(screen):
@@ -157,7 +157,7 @@ def test_there_is_a_way_back_to_the_grid(screen):
 
     screen._show_figure_grid()
 
-    assert screen._figures_stack.currentWidget() is screen._figure_grid
+    assert screen.showing_the_figure_grid()
 
 
 # --------------------------------------------------------------------------- #
@@ -195,7 +195,7 @@ def test_showing_a_figure_does_not_draw_it_over_the_grid(screen):
     lives inside a wrapper."""
     screen._on_figure_ready(_figure(0))
 
-    assert screen._figures_stack.currentWidget() is screen._figure_grid
+    assert screen.showing_the_figure_grid()
     assert screen._figure_queue.parent() is screen._figure_detail
 
 
@@ -267,11 +267,11 @@ def test_pressing_the_pinned_tile_opens_the_live_graph_not_a_picture(screen):
     screen._results_panel.set_frame(_real_results())
     screen._refresh_figure_grid()
     screen._show_figure_grid()
-    assert screen._figures_stack.currentWidget() is screen._figure_grid
+    assert screen.showing_the_figure_grid()
 
     screen._figure_grid._pinned.clicked.emit(-1)
 
-    assert screen._figures_stack.currentWidget() is screen._volcano_page
+    assert screen.showing_the_live_graph()
 
 
 def test_the_pinned_tile_never_shifts_which_figure_a_tile_opens(screen):
@@ -381,11 +381,11 @@ def test_picking_a_guide_raises_the_graph_it_was_rung_on(screen):
     frame = _real_results()
     screen._results_panel.set_frame(frame)
     screen._show_figure_grid()
-    assert screen._figures_stack.currentWidget() is screen._figure_grid
+    assert screen.showing_the_figure_grid()
 
     screen._results_panel.table.table.selectRow(4)
 
-    assert screen._figures_stack.currentWidget() is screen._volcano_page
+    assert screen.showing_the_live_graph()
     assert screen._results_panel.volcano._selected_key is not None
 
 
