@@ -1,17 +1,9 @@
-"""Every regression panel, drawn in the house style.
+"""Regression result and diagnostic panels.
 
-One function per panel. Each takes an Axes and a results frame, draws into
-it, and returns a :class:`Panel` record saying what it drew and what the
-reader has to be told — so the sheet can caption it and the GUI can list it
-without a second copy of that knowledge.
-
-WHY THE PANELS ARE FUNCTIONS AND NOT A CLASS HIERARCHY: a panel is a pure
-drawing step with no state worth keeping. Making one is `panel(ax, frame)`,
-and the registry below is the only place that knows the full set.
-
-THE RULE EVERY PANEL FOLLOWS, from the skill: everything is grey except what
-the sentence is about. The volcano's non-significant guides are grey; the
-called ones carry the colour. A panel that colours everything has no claim.
+Each panel function draws into a supplied Matplotlib axes and returns a
+:class:`Panel` record containing its caption, input requirements, and plotted
+data. The shared registry lets reports and the desktop interface discover the
+same available panels without duplicating plotting rules.
 """
 
 from __future__ import annotations
@@ -27,10 +19,10 @@ from .style import (ROLES, TYPE_SCALE, Palette, annotate, descriptor,
 
 @dataclass
 class Panel:
-    """What a panel drew, and what a reader needs told about it."""
+    """Metadata describing a rendered or unavailable figure panel."""
 
     key: str
-    #: Two to four lower-case words. Not a sentence.
+    #: Short lower-case title, normally two to four words.
     title: str
     #: One sentence for the figure legend. States the test, the n and the
     #: significance convention where a statistic was drawn; a bare p-value is
@@ -44,17 +36,12 @@ class Panel:
     #: Columns the panel needed. Used by the registry to answer "what can I
     #: draw from this table" without drawing anything.
     needs: Sequence[str] = field(default_factory=tuple)
-    #: THE ROWS THIS PANEL ACTUALLY DREW, for export beside the figure.
-    #:
-    #: Not the frame it was handed. A volcano is given 1,213 coefficients and
-    #: draws 1,212 -- the nuisance terms are not hypotheses -- so exporting
-    #: the input would give a reader a CSV whose row count disagrees with the
-    #: n printed on the picture. The CSV is what a reviewer will believe.
+    #: Rows actually rendered, for export beside the figure. This can be a
+    #: filtered subset of the input, for example after nuisance terms are
+    #: excluded from a volcano plot.
     data: object = None
-    #: ``{label: values}`` for a panel that compares groups, so the export can
-    #: run the right test on the right thing. None where the panel is not a
-    #: comparison; a Q-Q is not two groups and inventing a test for it would
-    #: be worse than offering none.
+    #: ``{label: values}`` for a panel that compares groups, or ``None`` when
+    #: the panel does not define a group comparison.
     groups: object = None
 
 
@@ -208,20 +195,37 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
             highlight=None, label_top=8, colour_by=None,
             baseline_kind=None, baseline_name=None,
             compartment=None) -> Panel:
-    """Effect against significance. The panel the screen exists to produce.
+    """Plot fitted effect size against statistical significance.
 
-    Grey for everything that was not called, GREEN up, RUST down -- the
-    skill's rule for differential expression, which is structurally the same
-    question. A handful of the strongest are labelled; labelling all of them
-    is a word cloud.
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to draw into.
+    frame : pandas.DataFrame
+        Coefficient table containing effect and p- or q-value columns.
+    alpha : float, default=0.05
+        Significance threshold.
+    effect_threshold : float, "auto", or None, default="auto"
+        Minimum absolute effect. ``"auto"`` estimates a threshold from the
+        control-guide spread.
+    highlight : str or None, default=None
+        Coefficient label to outline.
+    label_top : int, default=8
+        Maximum number of called coefficients to label.
+    colour_by : str or None, default=None
+        Reserved for compatibility; currently ignored.
+    baseline_kind : str or None, default=None
+        Effect baseline understood by :mod:`spacr.baseline`. The default is
+        zero.
+    baseline_name : str or None, default=None
+        Optional name used to describe the selected baseline.
+    compartment : str or None, default=None
+        TAGM/LOPIT compartment to highlight against the remaining points.
 
-    :param baseline_kind: what the effects are measured FROM -- see
-        :mod:`spacr.baseline`. The caption always says which, because an
-        effect size with an unstated reference is not interpretable and a
-        reader of a screen volcano assumes the controls are the zero.
-    :param compartment: one TAGM/LOPIT compartment to pick out against grey.
-        ONE, not all of them: 27 hues is what the house style exists to
-        forbid, and the 27-entry legend also cost 40 ms of a 49 ms redraw.
+    Returns
+    -------
+    Panel
+        Rendering metadata, including the coefficient rows that were drawn.
     """
     from ..baseline import apply as apply_baseline
     from ..baseline import resolve as resolve_baseline
@@ -360,12 +364,23 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
 
 
 def effect_rank(ax, frame, *, alpha=0.05, top=14) -> Panel:
-    """Every gene ranked by effect, as a dot with its interval.
+    """Plot the largest fitted effects with available confidence intervals.
 
-    The skill's rule for n <= 8: individual points with a mean line, never a
-    bar. Here the same logic one level up -- a coefficient with a confidence
-    interval is a point with a range, and a bar chart of coefficients hides
-    the uncertainty that decides whether to believe any of them.
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to draw into.
+    frame : pandas.DataFrame
+        Coefficient table.
+    alpha : float, default=0.05
+        Adjusted-p-value threshold used to color called coefficients.
+    top : int, default=14
+        Maximum number of coefficients to display.
+
+    Returns
+    -------
+    Panel
+        Rendering metadata and the columns required by the panel.
     """
     effect = effect_column(frame)
     if effect is None:
@@ -497,11 +512,22 @@ def qq_plot(ax, frame) -> Panel:
 
 
 def control_separation(ax, frame) -> Panel:
-    """The assay window: do the controls actually separate?
+    """Plot coefficient distributions for the available control classes.
 
-    Individual points with a mean line, never a bar -- the skill is explicit,
-    and a bar for a handful of controls hides the spread that decides whether
-    the screen worked at all.
+    Each coefficient is shown as a point and each class median as a horizontal
+    line, preserving the within-class spread used to assess assay separation.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to draw into.
+    frame : pandas.DataFrame
+        Coefficient table with effect and condition columns.
+
+    Returns
+    -------
+    Panel
+        Rendering metadata and grouped values used by downstream statistics.
     """
     effect = effect_column(frame)
     condition = _column(frame, "condition", "control", "class")
