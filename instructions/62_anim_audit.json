@@ -3,8 +3,8 @@
   "audited_against": "fce4ef86",
   "animations_total": 94,
   "counts": {
-    "GOOD": 78,
-    "WEAK": 16
+    "GOOD": 86,
+    "WEAK": 8
   },
   "verdicts": {
     "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
@@ -53,9 +53,9 @@
       "settings": [
         "cell_max_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0531,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "cell_min_intensity_percentile",
@@ -63,9 +63,9 @@
       "settings": [
         "cell_min_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0523,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "nucleus_max_intensity_percentile",
@@ -73,9 +73,9 @@
       "settings": [
         "nucleus_max_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0497,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "nucleus_min_intensity_percentile",
@@ -83,9 +83,9 @@
       "settings": [
         "nucleus_min_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0482,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "organelle_max_intensity_percentile",
@@ -93,9 +93,9 @@
       "settings": [
         "organelle_max_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0541,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "organelle_min_intensity_percentile",
@@ -103,9 +103,9 @@
       "settings": [
         "organelle_min_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0533,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "pathogen_max_intensity_percentile",
@@ -113,9 +113,9 @@
       "settings": [
         "pathogen_max_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0862,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "pathogen_min_intensity_percentile",
@@ -123,9 +123,9 @@
       "settings": [
         "pathogen_min_intensity_percentile"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0851,
-      "note": "Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
+      "note": "RE-MEASURED 2026-08-20: THIS ROW WAS STALE. The note below describes the pre-2026-08-18 drawing, where the intensity animations kept the four different sizes the area animations use -- so objects differed in size AND brightness and the two families were the same picture. That was fixed at the time and the row was never updated: `_filter_scene` now gives every intensity variant ONE uniform size, leaving brightness as the only order there is, which is the criterion the setting reads. Measured across all nine frames of cell_max_area against cell_max_intensity_percentile: 59.8% of the drawn ink differs, against the 20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects fading in brightness order and four different-sized objects vanishing in size order are visibly different pictures. ORIGINAL NOTE: Correct order (dimmest or brightest first), but the drawn objects' size and brightness are correlated, so this is visually near-identical to the matching *_area animation. A viewer cannot tell area from intensity percentile by watching."
     },
     {
       "slug": "cell_FT",
