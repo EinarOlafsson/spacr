@@ -113,11 +113,17 @@ class SweepPanel(QWidget):
         self.run_button.clicked.connect(self.start)
         row.addWidget(self.run_button)
 
+        # THE HELP GOES ON A NAME, so there has to be one. This combo had
+        # no label at all, which is why its tooltip sat on the field:
+        # `retarget_field_tooltips` pairs a field with a sibling label and
+        # correctly leaves a field that has none alone (113).
+        self._level_label = QLabel("rank by")
+        row.addWidget(self._level_label)
         self.level = QComboBox()
         for value, label in (("gene", "genes"), ("guide", "guides"),
                              ("both", "genes and guides")):
             self.level.addItem(label, value)
-        self.level.setToolTip(
+        self._level_label.setToolTip(
             "A gene's fraction in a well is the SUM of its guides', which is "
             "the same rule the regression applies — so 'does this gene move "
             "this measurement' is not a different arithmetic from the fit "
@@ -128,12 +134,16 @@ class SweepPanel(QWidget):
         # "is this gene just over-represented", "what KIND of thing does it
         # move" or "do its own guides agree", and those are the questions
         # that decide whether a hit is worth following up.
-        row.addWidget(QLabel("picture"))
+        self._picture_label = QLabel("picture")
+        row.addWidget(self._picture_label)
         self.picture = QComboBox()
         for value, label in self.PICTURES:
             self.picture.addItem(label, value)
-        self.picture.setToolTip(
-            "Which view of the sweep to draw and to save beside the table.")
+        self._picture_label.setToolTip(
+            "Which view of the sweep to draw and to save beside the table. "
+            "Each answers a question the others cannot — the heatmap says "
+            "what survived, calibration says whether the screen is worth "
+            "reading at all, and the rest are in the list.")
         row.addWidget(self.picture)
 
         row.addWidget(QLabel("q <"))
@@ -283,6 +293,14 @@ class SweepPanel(QWidget):
             self.status.setText(
                 f"{self.status.text()}  Showing the first {len(shown):,} of "
                 f"{len(keep):,} — save the table for all of them.")
+
+        # HOVER HELP BELONGS ON THE SETTING'S NAME (instruction 113): a
+        # tooltip on the control fires while the user is using it, which is
+        # the one moment they did not ask for it. One call rather than a
+        # convention to remember -- see `retarget_field_tooltips`.
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
 
     def selected_gene(self):
         """The gene the profile picture is about, or ``None``.

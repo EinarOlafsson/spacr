@@ -126,8 +126,20 @@ def test_the_panel_offers_the_two_modes_and_not_auto():
             offered = value["annotate"].get("crop_source")
             break
 
-    assert offered == [LOAD_IMAGES, STREAM_IMAGES]
-    assert "auto" not in (offered or [])
+    # AN OPTION MAY NOW BE (value, label) -- instruction 171 wanted the two
+    # modes offered in the WORDS "load images" and "stream images" while the
+    # stored values stay 'png' and 'merged', so no settings file written
+    # before that changed meaning. What this test is about is which VALUES
+    # are offered and that 'auto' is not one of them.
+    stored = [o[0] if isinstance(o, tuple) else o for o in (offered or [])]
+
+    assert stored == [LOAD_IMAGES, STREAM_IMAGES]
+    assert "auto" not in stored
+    # And the labels really are the words, where labels are given.
+    labels = " ".join(o[1] for o in (offered or []) if isinstance(o, tuple))
+    if labels:
+        assert "load images" in labels.lower()
+        assert "stream images" in labels.lower()
 
 
 def test_auto_is_still_read_by_the_code():
