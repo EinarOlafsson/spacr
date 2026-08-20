@@ -126,3 +126,65 @@ HOW TO KNOW IT WORKED
 * Unmatched files are named and counted.
 * The accepted regex reaches `_get_regex`'s 'custom' branch, so the headless
   path and `spacr-run` are unchanged.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- B IS BUILT: `spacr/regex_infer.py`. A, C AND D ARE THE GUI.
+--------------------------------------------------------------------------------
+
+`propose(filenames)` returns ranked candidates. On the three cases that matter
+it reaches 100% coverage with the right group names, from the names alone:
+
+  cellvoyager  plate1_(?P<wellID>[A-Za-z0-9]+)_T0001F(?P<fieldID>\d+)
+               L01A01Z01C(?P<chanID>\d+)\.tif
+  cq1          W(?P<wellID>[A-Za-z0-9]+)F(?P<fieldID>\d+)T0001Z01C(?P<chanID>\d+)\.tif
+  unseen       exp7\-P(?P<plateID>\d+)\-(?P<wellID>[A-Za-z0-9]+)\-s(?P<fieldID>\d+)
+               \-ch(?P<chanID>\d+)\.png
+
+The third is a microscope nothing in spaCR has ever met, and it is the case
+the whole instruction is about.
+
+HOW, AND THE FOUR THINGS THAT HAD TO BE GOT RIGHT:
+
+  1. TWO GRAINS OF FAMILY. Grouping by the tokenised SHAPE put `plate1_A01_`
+     and `plate1_B01_` in different families -- the well letter is a non-digit
+     token and it differs -- so each matched a third of the drop and the
+     letter was folded into the literal where it could never become a group.
+     A coarser MASK (digits vs not) merges them. Both are tried; a mask family
+     varying in more than two non-digit positions is two microscopes rather
+     than one and is refused, because a regex that matches everything and
+     means nothing is worse than none.
+
+  2. THE CLASS IS DERIVED FROM THE VALUES. A non-digit slot is a separator
+     with a letter stuck to it -- `_A`, `_B` -- and a fixed `[^_.]+` could not
+     match its own observed values. The shared prefix and suffix are factored
+     back into the literal and the class is built from what is left.
+
+  3. ROLES ARE ASSIGNED IN TWO PASSES, STRONGEST EVIDENCE FIRST. A role can
+     only be used once, so naming each slot as it was walked meant the slot
+     after a literal 'C' -- unambiguously the channel -- arrived to find
+     `chanID` taken by an earlier slot that merely had few distinct values.
+     Wells first, then vendor literals, then value shape.
+
+  4. THE HINT READS THE TRAILING ALPHA RUN, stopping at the first non-letter.
+     Reading every letter made `plate1_` end in "PLATE" and claim the WELL
+     after it as a plate id. The separator is exactly what says the word is
+     not about that slot. And the words are matched longest first, so `ch`
+     beats `h` -- `-ch1` was an unnamed slot while a plate code two tokens
+     earlier took `chanID` on nothing but its value count.
+
+  Plus: a well number that never varies (a plate with one column) is absorbed
+  into the well group as a fixed tail, because `A` alone is not a well by any
+  test and the digits are still part of it.
+
+NOTHING IS EVER PICKED SILENTLY. Every proposal carries the count matched, the
+distinct values per group, WHICH files it leaves out, and WHY each role was
+guessed -- a guess presented without its reason is indistinguishable from a
+fact. `rename_preview` and `structure` answer "what would this do" without
+writing anything, which is the same question `_run_test_mode` answers today by
+copying real files.
+
+22 tests in tests/test_the_regex_is_worked_out_from_the_filenames.py.
+
+STILL OWED: A, C and D are the GUI -- the drop table, the role dropdowns and
+the live Test panel. The engine underneath them is done and headless, so that
+work is wiring rather than invention.
