@@ -1543,7 +1543,9 @@ class CellMontageView(QWidget):
 
         controls.addStretch(1)
         self._save = QPushButton("Save figure…")
-        self._save.clicked.connect(self.save)
+        # No argument: `clicked` carries a bool that `save` would read as its
+        # path. The guard in `save` covers it too; this says the intent.
+        self._save.clicked.connect(lambda: self.save())
         controls.addWidget(self._save)
         layout.addLayout(controls)
 
@@ -2360,6 +2362,13 @@ class CellMontageView(QWidget):
         if not self._plans:
             self._set_status("There is no montage to save yet.")
             return None
+        # `clicked` CARRIES A BOOL and this takes an optional first argument,
+        # so Qt hands the checked state into `path`. `False is None` is False,
+        # so the dialog never opened and `False` went on to the writer -- the
+        # same fault that reached the user out of FastPlotWidget.export as
+        # "QImage.save(bool)". See that method.
+        if isinstance(path, bool):
+            path = None
         if path is None:
             from PySide6.QtWidgets import QFileDialog
             from ...plot import figure_output_preferences

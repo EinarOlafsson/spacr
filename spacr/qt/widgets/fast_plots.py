@@ -1154,7 +1154,9 @@ class FastPlot(QWidget):
         reset.clicked.connect(self.auto_range_axes)
         controls.addWidget(reset)
         export = QPushButton("Export…")
-        export.clicked.connect(self.export)
+        # No argument: `clicked` carries a bool that `export` would read as
+        # its path. See `export`.
+        export.clicked.connect(lambda: self.export())
         controls.addWidget(export)
         layout.addLayout(controls)
 
@@ -2718,20 +2720,13 @@ class FastPlot(QWidget):
     def colour_by_column(self, column: str, colormap: str = "viridis") -> int:
         """Colour every point by ``column`` through ``colormap``. Returns n.
 
-        THIS IS NOT "SET THE POINT COLOUR". It maps a column onto a visual
-        channel, which is why it lives beside the shape control rather than
-        beside the colour picker: the picker states one value, this one hands
-        the picture over to the data and the reader then needs the range to
-        read it. So the range is written into the status line, and rows with
-        no value are drawn grey and COUNTED there rather than being painted
-        at the bottom of the scale, where a missing measurement would read as
-        a small one.
+        This maps a continuous data column to a visual channel rather than
+        assigning one fixed point colour. The status line reports the numeric
+        range and the number of missing values; missing values are drawn grey
+        instead of being placed at the bottom of the scale.
 
         :raises ValueError: for a column that is not there or not continuous,
-            and for a colormap this build does not have. Loudly, in the same
-            spirit as :meth:`GroupedPlot.set_mark`: the callers are this
-            class's own menu and a test, so a silent fallback would only ever
-            make a mistake look like a working option.
+            and for a colormap this build does not provide.
         """
         frame = self.frame()
         if frame is None:
@@ -3135,8 +3130,9 @@ class FastPlot(QWidget):
         # ink, background and grid are chosen FOR THE FILE (178 C.2). Keeping
         # both because the styled route is three more clicks for a user who
         # only wants the picture they are looking at.
-        menu.addAction("Export…", self.export)
-        menu.addAction("Save styled…", self.save_styled)
+        # Same bool, from `triggered` this time.
+        menu.addAction("Export…", lambda: self.export())
+        menu.addAction("Save styled…", lambda: self.save_styled())
 
         # ------------------------------------------------ what the plot CLAIMS
         claims = False
@@ -4286,17 +4282,26 @@ class FastPlot(QWidget):
     def export(self, path: Optional[str] = None) -> Optional[str]:
         """Write the plot out: PDF, SVG or PNG, by the name given.
 
-        BOTH VECTOR FORMATS GO THROUGH Qt rather than through pyqtgraph.
-        pyqtgraph ships no PDF exporter at all,
-        and its SVG exporter raises on every plot in this module; the whole
-        diagnosis is on :meth:`_export_svg`. A QPdfWriter and a QSvgGenerator
-        take the same QPainter the scene draws itself with, so the result is
-        true vector rather than a bitmap in a wrapper.
+        PDF and SVG use Qt's vector painters, producing vector output rather
+        than embedding a bitmap. PNG uses pyqtgraph's image exporter.
 
         The page is :meth:`export_size`, which the right-click menu sets. It
-        is deliberately NOT the size of the widget on screen: the two are
-        different quantities and are named separately on that menu.
+        is independent of the widget's on-screen size.
         """
+        # `clicked` AND `triggered` BOTH CARRY A BOOL, and this method takes
+        # an optional first argument, so Qt hands the checked state straight
+        # into `path`. `False is None` is False, the dialog never opened, and
+        # `False` travelled all the way to QImage.save -- which is where the
+        # user saw it:
+        #
+        #     TypeError: 'QImage.save' called with wrong argument types:
+        #       QImage.save(bool)
+        #
+        # The connections below now pass no argument, but this stays: `export`
+        # is public, and the next person to wire a button to it should not
+        # have to know that Qt's signal has an argument it does not want.
+        if isinstance(path, bool):
+            path = None
         if path is None:
             from PySide6.QtWidgets import QFileDialog
             path, _ = QFileDialog.getSaveFileName(
@@ -6973,9 +6978,8 @@ class GuideAgreementPlot(GroupedPlot):
 class ResultsTable(QWidget):
     """The coefficient table, sortable and searchable, wired to a plot.
 
-    A volcano answers "which points are extreme"; it cannot answer "what is
-    the q-value of TGGT1_233460_4". Reading numbers off a scatter is the wrong
-    tool, and until now the only way to see them was to open the CSV.
+    Use the table to inspect exact values that cannot be read reliably from a
+    scatter plot. Selecting a row can synchronize a linked plot.
 
     :ivar row_selected: emitted with the frame row index of the selected row.
     :ivar key_selected: emitted with the selected row's identifier. This is
