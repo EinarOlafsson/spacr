@@ -1,12 +1,11 @@
-"""What the example screen is made of, and how to know it arrived whole.
+"""Manifest for the downloadable example-screen data files.
 
-Generated from the maintainer's TSG101 screen. The sizes and hashes are
-recorded so a truncated or interrupted download is an ERROR NAMING THE
-FILE rather than a pandas parse failure three steps later, which is what a
-half-written CSV looks like otherwise.
+Each entry records an asset's role, plate, expected byte size, and SHA-256
+digest. Download validation uses these values to identify incomplete or
+corrupt files before they are opened as tables.
 """
 
-#: One entry per shipped file: what it is, how big, and its digest.
+#: Metadata used to download and validate each example-screen file.
 FILES = [
     {
         "name": "plate_1_unique_combinations.csv",
