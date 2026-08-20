@@ -106,6 +106,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "regex_infer",
     "portable_paths",
     "picture_settings",
+    "well_spec",
     "align",
     "convert",
     "foreign",
@@ -125,6 +126,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "train_compare",
     "hyperparam",
     "attribution",
+    "attribution_columns",
     "agreement",
     "active_learning",
     # Correcting a mask and a track by hand, on the record: every edit is
