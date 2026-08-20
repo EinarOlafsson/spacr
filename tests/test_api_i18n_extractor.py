@@ -479,7 +479,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # well_spec, 7 in plate_map_picker, 5 in attribution_columns, the public
     # AppScreen.pick_wells_for entry point, and annotate_engine's cache reset.
     # These are callable headless contracts as well as GUI implementation.
-    expected = 7822
+    # +4/-0 for sweep diagnostics and screen-state inspection:
+    # trial_metrics.qc_verdicts plus AppScreen.showing_the_figure_grid,
+    # showing_the_live_graph, and showing_the_results. Nothing retired.
+    expected = 7826
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -494,7 +497,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7941
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7945
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
