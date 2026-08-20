@@ -163,3 +163,35 @@ route is three more clicks for a user who only wants the picture in front of
 them.
 
 12 tests in tests/qt/test_a_pyqtgraph_plot_is_styled_for_the_file_too.py.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- D: THE ARROWS COME OFF, AND THE CONDITION FOR THAT WAS CHECKED.
+--------------------------------------------------------------------------------
+
+They had been STYLED rather than removed, on the reasoning that "a bar that
+genuinely overflows still needs a way along it". The ask already answered
+that: "the user can allways scrole and they should also be able to use the
+arrow keys". So the question was never whether to trust the claim -- it was
+whether the claim is TRUE.
+
+DRIVEN ON A 14-TAB BAR TOO NARROW TO HOLD ITS TABS:
+
+    two Right keys on the focused bar   ->  tab 0 to tab 2
+    one wheel notch over the bar        ->  tab 2 to tab 3
+    setCurrentIndex(19) of 20           ->  that tab is on the visible bar
+
+Qt scrolls the bar to reveal the current tab whichever way it moves, so a tab
+reached by key or wheel is a tab the user can SEE -- which is what made the
+arrows a third way to do what two already do.
+
+`theme.take_the_scroll_arrows_off(root)` turns them off across a whole widget
+tree, called by `AppScreen.__init__` and by `MainWindow`. Every QTabWidget on
+the regression screen reports `usesScrollButtons() == False`.
+
+THE STYLESHEET RULES STAY, deliberately. A bar built later, or one this sweep
+does not reach, still has arrows that belong to the theme rather than to Qt's
+default palette -- which is the thing that made them black in the first place.
+The styling is the floor and this is the improvement on it, and a test holds
+the floor so nobody removes it as now-dead code.
+
+7 tests in tests/qt/test_the_tab_arrows_are_gone_and_the_bar_is_still_navigable.py.
