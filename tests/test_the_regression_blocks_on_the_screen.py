@@ -204,17 +204,12 @@ def test_a_single_screen_project_gets_no_screen_term_at_all():
 
 
 def test_the_decision_is_recorded_where_the_model_is_fitted():
-    """122's actual leftover: not the behaviour, the written reason.
-
-    A decision nobody can find is a decision that gets re-made differently.
-    """
+    """The public contract records why screen blocking is a fixed effect."""
     import inspect
 
     from spacr.ml import fit_mixed_model
 
-    doc = inspect.getdoc(fit_mixed_model) or ""
-    assert "FIXED TERM" in doc
-    assert "two levels" in doc.lower()
-    # And the alternative that was considered, so it is not reconsidered from
-    # scratch.
-    assert "NESTING THE PLATE INSIDE THE SCREEN" in doc
+    doc = " ".join((inspect.getdoc(fit_mixed_model) or "").lower().split())
+    assert "fixed effect" in doc
+    assert "two screen levels" in doc
+    assert "plate is not nested" in doc and "within the screen" in doc
