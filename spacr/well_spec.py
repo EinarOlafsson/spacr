@@ -11,6 +11,31 @@ import re
 import string
 from typing import Iterable, Optional, Sequence, Set, Tuple
 
+#: EVERY SETTING THAT TAKES A ROW, A COLUMN OR A WELL -- 185 C, which asks
+#: for this audit to be written down rather than assumed, because "a button
+#: next to only some of them is worse than none".
+#:
+#: Found by reading spaCR's own tooltips for the spellings they document
+#: ("a column ('c12')", "a row ('r1')", "well locations") rather than by
+#: guessing from names: `filter_value` takes wells and does not say so in its
+#: name, and several *_loc keys do.
+WELL_SETTINGS = (
+    "cell_loc", "cell_plate_metadata", "class_metadata", "classes",
+    "control_wells", "filter_value", "metadata_item_1_value", "mix", "neg",
+    "negative_control", "pathogen_loc", "pathogen_plate_metadata", "pos",
+    "positive_control", "treatment_loc", "treatment_plate_metadata",
+)
+
+#: Of those, the ones whose value is ONLY wells, so a plate map can write the
+#: whole field. The rest mix wells with another vocabulary -- `classes` and
+#: `class_metadata` name classes, `negative_control` may name a gene or a
+#: guide (184) -- and a picker that overwrote one of those would destroy a
+#: value it does not understand.
+WELL_ONLY_SETTINGS = (
+    "cell_loc", "control_wells", "filter_value", "pathogen_loc",
+    "treatment_loc",
+)
+
 #: Supported well counts mapped to their standard row and column dimensions.
 LAYOUTS = {
     6: (2, 3),
