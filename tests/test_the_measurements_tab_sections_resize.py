@@ -125,10 +125,11 @@ def test_every_section_can_be_folded_away(qtbot):
     assert len(titles) >= 4, titles
     assert "Gene × measurement sweep" in titles
 
-    # WHICH ONE STARTS OPEN IS 176 A's business, not this test's: "only the
-    # attached databases tab in the measurements tab starts open". What this
-    # test is about is that each one CAN fold and reopen.
-    assert panel.is_section_expanded(panel.OPENS_EXPANDED)
+    # WHICH ONE STARTS OPEN IS NOT THIS TEST'S BUSINESS, as it said when it
+    # asserted "attached databases" -- and as of 2026-08-20 the answer is
+    # NONE of them: "measurment sections should all start closed". That is
+    # pinned in test_the_summary_buttons_are_not_stranded.py. What this test
+    # is about is that each one CAN fold and reopen.
     for title in titles:
         panel.set_section_expanded(title, True)
         assert panel.is_section_expanded(title), f"{title} would not open"
@@ -150,6 +151,10 @@ def test_a_folded_section_gives_its_height_back(qtbot):
     section = next(splitter.widget(i) for i in range(splitter.count())
                    if isinstance(splitter.widget(i), CollapsibleSection))
 
+    # OPENED FIRST, because as of 2026-08-20 they all start closed
+    # ("measurment sections should all start closed"). This test is about a
+    # section GIVING ITS HEIGHT BACK, which needs it to have some.
+    section.set_expanded(True)
     open_minimum = section.minimumHeight()
     section.set_expanded(False)
     assert section.maximumHeight() <= CollapsibleSection.FOLDED_HEIGHT

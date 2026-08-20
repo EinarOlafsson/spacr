@@ -597,7 +597,11 @@ def test_the_measurements_tab_shows_the_databases_without_a_scan(
     widget = MeasurementScanPanel(database_provider=lambda: _rows(two_plates))
     qtbot.addWidget(widget)
 
-    assert widget.databases.isVisibleTo(widget)
+    # THE SECTION IS SHOWN; whether it is FOLDED is a different question
+    # and, since 2026-08-20, folded is the default ("measurment sections
+    # should all start closed"). Asking the CONTENT whether it is visible
+    # answers both at once and so cannot tell "no databases" from "closed".
+    assert widget.section_is_shown("Attached databases")
     assert widget.databases.table.rowCount() == 2
 
 
@@ -608,7 +612,7 @@ def test_the_section_stays_out_of_the_way_when_no_plate_has_one(qtbot):
     widget = MeasurementScanPanel()
     qtbot.addWidget(widget)
 
-    assert not widget.databases.isVisibleTo(widget)
+    assert not widget.section_is_shown("Attached databases")
 
 
 def test_the_tab_re_reads_the_rows_rather_than_holding_a_copy(
@@ -625,7 +629,7 @@ def test_the_tab_re_reads_the_rows_rather_than_holding_a_copy(
     rows.extend(_rows(two_plates))
     assert widget.refresh_databases() == 2
     assert widget.databases.table.rowCount() == 2
-    assert widget.databases.isVisibleTo(widget)
+    assert widget.section_is_shown("Attached databases")
 
 
 def test_a_provider_that_raises_does_not_take_the_tab_down(qtbot):
@@ -703,7 +707,7 @@ def test_handing_the_tab_a_new_provider_re_reads_it(qtbot, two_plates):
     widget.set_database_provider(lambda: _rows(two_plates))
 
     assert widget.databases.table.rowCount() == 2
-    assert widget.databases.isVisibleTo(widget)
+    assert widget.section_is_shown("Attached databases")
 
 
 # --------------------------------------------------------------------------- #
