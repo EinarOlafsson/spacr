@@ -2107,12 +2107,11 @@ def _summary_filename() -> str:
 
 
 def _hyperparameter_report(kind, settings, run) -> dict:
-    """What to say about the chosen type's knobs: ``value`` or ``reason``.
+    """Describe the hyperparameters used by a fitted regression.
 
-    THE CROSS-VALIDATED VALUE, NOT 'auto'. `alpha='auto'` is what the user
-    asked for and not what was fitted; a reader cannot reproduce a run from
-    the word "auto". When the run recorded the alpha that won, that is the
-    number reported, and it says it was chosen rather than given.
+    The report includes only settings consumed by the selected regression
+    family. When cross-validation selected ``alpha``, the fitted value is
+    reported instead of the input value ``"auto"`` whenever it is available.
     """
     try:
         from .regression_spec import REGRESSION_SETTINGS_USED
