@@ -796,3 +796,45 @@ the wrong thing and is the next to take. `organelle_diameter` remains a
 SETTINGS question rather than a drawing one -- settings.py documents the key
 as DEPRECEATED with no effect on the Cellpose-SAM path, so an animation
 showing a visible effect is misleading by context however well it is drawn.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- `organelle_watershed_spots` FIXED. 28 -> 27, AND THE
+CATEGORY THAT MATTERED IS EMPTY.
+--------------------------------------------------------------------------------
+
+Both animations this file singled out as SHOWING THE WRONG THING rather than a
+faint one are now GOOD. That was the category worth clearing first and it is
+clear: a faint animation teaches nothing, a wrong one teaches something false,
+and the 27 that remain are all the first kind.
+
+THE WATERSHED. One blob 62 wide cross-faded into two 32 wide sitting 60 px
+apart, so every intermediate frame overlapped all three and the "after" state
+was one wide mush. Three changes, each about the same thing -- a split is only
+a split if you can see the gap:
+
+  1. THE HALVES MOVE APART rather than appearing where they will end up. They
+     start at the original's centre and separate as the action runs, which is
+     what a watershed DOES: it decides where one object becomes two.
+  2. THEY END 100 px APART, not 60, so two 32-wide glyphs have clear ground
+     between them.
+  3. THE RAMPS OVERLAP. A clean hand-off -- out by 0.5, in from 0.5 -- was
+     tried first and left a frame with NOTHING on it, measured left 0 centre 0
+     right 0. A blank frame reads as a BROKEN animation rather than an unclear
+     one, which is worse than the mush being replaced. Out over 0..0.6, in
+     over 0.4..1.0.
+
+And the watershed LINE is drawn, because a watershed is a boundary: drawing it
+is the difference between "two things now" and "here is where one became two".
+
+MEASURED ON THE REGENERATED GIF: 18 frames, none near-blank, four separate ink
+groups in the final frame where there was one mush.
+
+STILL OPEN: 27 WEAK, all of them faint rather than wrong -- eight
+intensity-percentile filters drawing the same composition as their matching
+area filter, four intensity splits that never draw what decides a split, four
+flow thresholds and three signal-to-noise ramps showing no DIRECTION (and
+flow_threshold's real direction is INVERTED: lowering it discards more), and
+eight one-offs. `organelle_diameter` stays a SETTINGS question rather than a
+drawing one: settings.py documents the key as DEPRECEATED with no effect on
+the Cellpose-SAM path, so an animation showing a visible effect is misleading
+by context however well it is drawn.

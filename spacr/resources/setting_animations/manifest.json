@@ -1088,9 +1088,9 @@
       "slug": "organelle_watershed_spots",
       "title": "Split touching organelle spots",
       "validation": {
-        "bytes": 235619,
+        "bytes": 177693,
         "frames": 18,
-        "sha256": "521e24fc77dbd9b34510d6a907b17a633fb599fb30d69720a25a9c219fa877ed",
+        "sha256": "15894de8dc775d97f31b896bdc7597b5b11d1d3e7d10099c0d073bd1f7fbfc1f",
         "unique_frames": 17
       }
     },
