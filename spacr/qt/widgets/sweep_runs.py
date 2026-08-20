@@ -48,8 +48,12 @@ from __future__ import annotations
 import os
 from typing import Optional
 
+import logging
+
 from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+
+LOG = logging.getLogger("spacr.qt.sweep_runs")
 
 #: What the sweep writes its table to, inside the destination folder.
 RESULTS_FILENAME = "sweep_results.csv"
@@ -304,6 +308,25 @@ class SweepRunsPanel(QWidget):
         self.table.table.doubleClicked.connect(self._on_double_click)
         self.table.table.installEventFilter(self)
         layout.addWidget(self.table, 1)
+
+        # THE STILL OF A RUN THAT IS NOT LIVE (instruction 116's last line).
+        # A run opened beside the loaded one is photographed when it closes;
+        # this is where that photograph is finally SHOWN, beside the row it
+        # belongs to. Hidden when there is none, which is most rows -- an
+        # empty frame under the table would read as a run that failed to draw
+        # rather than as one nobody has opened beside.
+        self._photo = QLabel()
+        self._photo.setAlignment(Qt.AlignCenter)
+        self._photo.setObjectName("RunPhotograph")
+        self._photo.setToolTip(
+            "This run's volcano as it last looked. A still, not a live plot: "
+            "open the run to hover, click and filter it.")
+        self._photo.hide()
+        layout.addWidget(self._photo)
+        #: Asked for the still of a run folder. Set by the screen that keeps
+        #: them -- a callable rather than a dict, so a photograph taken after
+        #: this panel was built is still found.
+        self._photo_provider = None
 
         self._frame = None
         self._folder = ""
@@ -1382,7 +1405,45 @@ class SweepRunsPanel(QWidget):
 
     # ------------------------------------------------------------- selection
 
+    def set_photo_provider(self, provider) -> None:
+        """Tell this panel where a run's still comes from.
+
+        :param provider: ``folder -> QPixmap or None``.
+        """
+        self._photo_provider = provider
+        self._show_photograph(self.selected_trial())
+
+    def photograph_shown(self):
+        """The still currently painted under the table, or ``None``.
+
+        Public because "is the still on screen" is what a caller and a test
+        both want, and reading `isVisible()` off a widget that has never been
+        shown answers a different question.
+        """
+        return self._photo.pixmap() if not self._photo.isHidden() else None
+
+    def _show_photograph(self, record) -> bool:
+        """Paint the selected run's still, or take the frame away."""
+        photo = None
+        folder = str((record or {}).get("folder") or "") if isinstance(
+            record, dict) else ""
+        if folder and callable(self._photo_provider):
+            try:
+                photo = self._photo_provider(folder)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not reach the run photograph", exc_info=True)
+        if photo is None or photo.isNull():
+            self._photo.clear()
+            self._photo.hide()
+            return False
+        width = max(160, min(self.width() - 12, photo.width()))
+        self._photo.setPixmap(photo.scaledToWidth(width,
+                                                  Qt.SmoothTransformation))
+        self._photo.show()
+        return True
+
     def _on_selection(self) -> None:
+        self._show_photograph(self.selected_trial())
         if self._rebuilding:
             # The re-select at the end of `_rebuild` is this panel putting
             # the highlight back, not the user choosing a run.

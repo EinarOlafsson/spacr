@@ -446,3 +446,10 @@ here fails rather than passing on pytest's more permissive default.
 
 WORTH KNOWING FOR ANY OTHER USER-FACING LINE IN spacr/qt: INFO does not
 arrive. Check the level before writing a message the user is meant to read.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- CLOSED. Every section above is marked SHIPPED with what it did.
+The items under "NOT DONE" are recorded scope decisions with their reasons,
+not outstanding work; anything among them that is later wanted is a new
+instruction rather than this one reopened.
+--------------------------------------------------------------------------------

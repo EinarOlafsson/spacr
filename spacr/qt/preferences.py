@@ -583,6 +583,9 @@ _KEY_FIG_TEXT_SIZE = "prefs/figure_text_size"
 #: Marker recording which generation of the un-freeze migration a store has
 #: been through — see :func:`_migrate_frozen_figure_colors`.
 _KEY_FIG_COLOR_SCALE = "prefs/figure_color_scale"
+#: Distinguishes a current explicit choice from the indistinguishable colour
+#: pair written by the retired dialog. Older stores do not carry this marker.
+_KEY_FIG_COLORS_EXPLICIT = "prefs/figure_colors_explicit"
 
 #: Bump when a *new* family of frozen values needs unfreezing; every store
 #: below this number is examined once and then marked.
@@ -769,6 +772,8 @@ def _unfreeze_figure_colors_that_fight_the_theme() -> None:
     """
     try:
         settings = _settings()
+        if _as_bool(settings.value(_KEY_FIG_COLORS_EXPLICIT, False), False):
+            return                      # chosen through the current dialog/API
         bg = str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR))
         fg = str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR))
         if figure_color_is_auto(bg) or figure_color_is_auto(fg):
@@ -872,6 +877,7 @@ def set_figure_colors(bg: str, fg: str) -> None:
     settings.setValue(_KEY_FIG_BG, bg)
     settings.setValue(_KEY_FIG_FG, fg)
     settings.setValue(_KEY_FIG_COLOR_SCALE, FIGURE_COLOR_SCALE)
+    settings.setValue(_KEY_FIG_COLORS_EXPLICIT, True)
     settings.sync()
 
 

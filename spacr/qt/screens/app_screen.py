@@ -2136,6 +2136,10 @@ class AppScreen(QWidget):
                 # PUT BACK WHAT THAT RUN HAD OPEN (180).
                 self._sweep_runs.workspace_restore_requested.connect(
                     self.restore_run_workspace)
+                # AND SHOW THE STILL OF A RUN THAT IS NOT LIVE (116). The
+                # photograph is taken when a run beside is closed; this is
+                # where it is finally seen.
+                self._sweep_runs.set_photo_provider(self.run_photograph)
                 left = QTabWidget(self._figures_card)
                 # RUNS FIRST, THEN RESULTS -- instruction 128 J, asked for on
                 # 2026-08-17: "the run tab should be before the results tab
