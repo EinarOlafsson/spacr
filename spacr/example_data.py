@@ -1,25 +1,9 @@
-"""Fetch the example screen on demand, and say what arrived.
+"""Download, validate, and cache the optional example-screen data.
 
-Instruction 191. Asked for on 2026-08-20 as "add my cound and dependent
-variable csvs to the datafolder in spacr and add a button that auto loads
-them into the correct slots", and settled -- once the numbers were on the
-table -- as a download:
-
-    the eight CSVs                      33 MB
-    github.com/EinarOlafsson/spacr      PUBLIC
-    setup.py package_data               ships resources/data/*
-
-Committing them would have put 33 MB into every ``pip install spacr`` and
-into public git history permanently, which deleting the files later does not
-undo. A RELEASE ASSET sits outside the git objects and outside the wheel, and
-is fetched only by someone who asks for it.
-
-THE CACHE IS NOT THE PACKAGE. A pip-installed spaCR can sit in a read-only
-site-packages, and writing 33 MB into someone's virtualenv is not a thing a
-button should do anyway. Downloads land in the user's own cache directory and
-are reused, so the second press costs nothing.
-
-Nothing here imports Qt. The button is a caller.
+The example CSV files are distributed as release assets rather than package
+data. They are downloaded only when requested, validated against the bundled
+manifest, and reused from the user's cache on subsequent runs. This module has
+no Qt dependency and can also be used from scripts.
 """
 from __future__ import annotations
 
@@ -31,16 +15,14 @@ from typing import Callable, Dict, List, Optional, Sequence
 
 from .example_data_manifest import FILES
 
-#: The release the assets hang off. A DEDICATED TAG, not a version tag:
-#: re-releasing spaCR must not orphan the data, and the URL has to stay valid
-#: across versions.
+#: Stable release tag that hosts the example assets across spaCR versions.
 RELEASE_TAG = "example-data"
 
-#: Where the assets are fetched from.
+#: Base URL for the downloadable example-screen assets.
 BASE_URL = (f"https://github.com/EinarOlafsson/spacr/releases/download/"
             f"{RELEASE_TAG}")
 
-#: What the two kinds of file are FOR, which is what the button fills in.
+#: User-facing descriptions of the two example input types.
 KINDS = {
     "counts": "the per-well gRNA read counts",
     "scores": "the per-cell classification scores",
@@ -48,12 +30,24 @@ KINDS = {
 
 
 class ExampleDataError(RuntimeError):
-    """The example screen could not be produced, and the message says why."""
+    """Raised when the example data cannot be downloaded or validated."""
 
 
 @dataclass(frozen=True)
 class Fetched:
-    """What a fetch produced: the files, and what had to be downloaded."""
+    """Paths and download status for a prepared example screen.
+
+    Parameters
+    ----------
+    counts : list of str
+        Cached per-well guide-count tables.
+    scores : list of str
+        Cached per-cell classification-score tables.
+    downloaded : list of str
+        Files downloaded during this fetch; other returned files were cached.
+    folder : str
+        Directory containing the validated files.
+    """
 
     counts: List[str]
     scores: List[str]
@@ -62,10 +56,11 @@ class Fetched:
 
     @property
     def files(self) -> List[str]:
+        """Return all validated count and score table paths."""
         return list(self.counts) + list(self.scores)
 
     def note(self) -> str:
-        """One line for the status bar."""
+        """Return a concise status message describing the fetch result."""
         if not self.files:
             return "No example data."
         cached = len(self.files) - len(self.downloaded)
@@ -78,11 +73,10 @@ class Fetched:
 
 
 def cache_folder() -> str:
-    """Where the example screen is kept between runs.
+    """Return the directory used to cache example-screen files.
 
-    Honours ``SPACR_EXAMPLE_DATA`` first, so a test -- or a user on a machine
-    that already holds the screen -- can point this anywhere without a
-    download.
+    ``SPACR_EXAMPLE_DATA`` overrides the location. Otherwise the function uses
+    ``XDG_CACHE_HOME`` or the platform-neutral ``~/.cache`` fallback.
     """
     override = os.environ.get("SPACR_EXAMPLE_DATA")
     if override:
@@ -101,11 +95,9 @@ def _digest(path) -> str:
 
 
 def is_whole(path, entry) -> bool:
-    """Whether the file on disk is the file the manifest describes.
+    """Return whether a file matches one manifest entry.
 
-    SIZE FIRST, because it rejects a truncated download for the price of a
-    stat, and a truncated download is the common failure. The digest is only
-    read when the size already agrees.
+    The inexpensive size check runs before the SHA-256 digest is calculated.
     """
     try:
         if os.path.getsize(path) != int(entry["bytes"]):
@@ -116,25 +108,23 @@ def is_whole(path, entry) -> bool:
 
 
 def missing(folder=None) -> List[dict]:
-    """The manifest entries not already present and whole in ``folder``."""
+    """Return manifest entries absent or invalid in ``folder``."""
     where = folder or cache_folder()
     return [entry for entry in FILES
             if not is_whole(os.path.join(where, entry["name"]), entry)]
 
 
 def total_bytes(entries: Optional[Sequence[dict]] = None) -> int:
-    """How much a fetch would move."""
+    """Return the total expected size of the selected manifest entries."""
     return sum(int(e["bytes"]) for e in (FILES if entries is None else entries))
 
 
 def _download(entry, folder, progress=None, cancelled=None) -> str:
-    """Fetch one asset. Returns the path written.
+    """Download and validate one asset, then return its final path.
 
-    WRITTEN BESIDE AND RENAMED, never in place: an interrupted download that
-    left a half file under the real name would be found by `is_whole` on the
-    next press, rejected, and downloaded again -- which is merely wasteful --
-    but a crash between the size check and the digest would hand a caller a
-    truncated CSV. A rename is atomic and cannot.
+    Data is written to a sibling ``.part`` file and atomically renamed only
+    after its size and digest match the manifest. Interrupted or invalid
+    downloads are removed.
     """
     from urllib.error import URLError
     from urllib.request import urlopen
@@ -189,15 +179,31 @@ def _forget(path) -> None:
 def fetch(folder=None, *, progress: Optional[Callable] = None,
           cancelled: Optional[Callable] = None,
           download: bool = True) -> Fetched:
-    """Make the example screen available, downloading only what is absent.
+    """Prepare the example screen, downloading only missing files.
 
-    :param progress: called ``(name, seen_bytes, total_bytes)`` while a file
-        is arriving. 33 MB on a slow connection is not instant, and a button
-        that appears to hang is worse than one that refuses.
-    :param cancelled: called with no arguments; a true answer stops the fetch.
-    :param download: when False, use only what is already cached and refuse
-        rather than reaching for the network.
-    :raises ExampleDataError: with a message naming the file and the reason.
+    Parameters
+    ----------
+    folder : path-like, optional
+        Cache directory. The standard example cache is used when omitted.
+    progress : callable, optional
+        Called as ``progress(name, received_bytes, total_bytes)`` while each
+        file downloads.
+    cancelled : callable, optional
+        Zero-argument callback. A true result cancels the active download.
+    download : bool, default=True
+        If false, require every file to be present in the cache and do not use
+        the network.
+
+    Returns
+    -------
+    Fetched
+        Validated count and score paths plus download status.
+
+    Raises
+    ------
+    ExampleDataError
+        If a file cannot be downloaded, validation fails, the operation is
+        cancelled, or downloading is disabled while files are missing.
     """
     where = folder or cache_folder()
     absent = missing(where)

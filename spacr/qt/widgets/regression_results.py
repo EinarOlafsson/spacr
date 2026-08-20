@@ -1113,12 +1113,16 @@ class RegressionResultsPanel(QWidget):
         return not text.startswith("No summary")
 
     def _name_the_model(self, model, regression_type=None) -> str:
-        """Put the model's identity under the graph. Returns what it says.
+        """Update the model identity shown below the volcano plot.
 
-        One implementation with the run summary
+        The label and run summary share
         (:func:`spacr.regression_summary.model_identity_line`), so the caption
-        under the figure and the text in the Summary tab cannot disagree
-        about what was fitted.
+        and Summary tab describe the same fitted model.
+
+        Returns
+        -------
+        str
+            Rendered identity text, or an empty string when unavailable.
         """
         label = getattr(self, "_model_line", None)
         if label is None:
