@@ -4923,6 +4923,39 @@ def get_setting_dependencies():
             "kept and saved."),
     )
 
+    # AND BATCH CORRECTION, for the same reason and by the same route
+    # (instruction 135's last open line). Correcting BETWEEN batches when
+    # there is one batch removes nothing -- the run already says so out loud
+    # ("fewer than two batches means there is nothing between batches to
+    # remove, and batch_correction='none' gives an identical result") -- but
+    # saying it AFTER the run is saying it too late. The control is greyed
+    # before the user chooses.
+    #
+    # THE SAME `_combined`, never an assignment: `batch_correction` may
+    # already carry a rule, and a setting is applicable only if EVERY rule
+    # that mentions it says so. Assigning here would silently drop the other.
+    #
+    # And the same "unknown greys nothing": `plate_count` is None with nothing
+    # loaded or with inputs too large to scan cheaply, and a control disabled
+    # because a file was big is indistinguishable from one disabled on
+    # purpose.
+    for _key in ('batch_correction', 'batch_column', 'batch_control_column',
+                 'batch_control_values', 'batch_covariate_column',
+                 'batch_combat_mean_only', 'batch_min_samples',
+                 'batch_missing_control'):
+        setting_dependencies[_key] = _combined(
+            setting_dependencies.get(_key),
+            ('paired_data', 'score_data', 'count_data'),
+            lambda settings, context: (
+                context.get('plate_count') is None
+                or context.get('plate_count') != 1),
+            lambda settings, context, key=_key: (
+                f"{key} configures correction BETWEEN batches, and the loaded "
+                f"inputs hold one plate. There is nothing between batches to "
+                f"remove: batch_correction='none' gives an identical result. "
+                f"The value is kept and saved."),
+        )
+
     return setting_dependencies
 
 # Categories shown only when a setting equals a specific value.

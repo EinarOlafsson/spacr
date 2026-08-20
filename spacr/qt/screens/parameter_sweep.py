@@ -397,13 +397,15 @@ def _make_screen(app_key=None, host=None):
             workers, reason = recommended_workers(
                 requested=int(self.workers.value()))
             self.worker_note.setText(reason)
-            # 60s is what one trial took on a real four-plate screen.
-            minutes = len(trials) * 60 / max(workers, 1) / 60
+            assumed_seconds_per_trial = 60
+            minutes = (len(trials) * assumed_seconds_per_trial
+                       / max(workers, 1) / 60)
             self.status.setText(
-                f"{space.size():,} legal combinations; {len(trials)} trials "
-                f"would run on {workers} worker(s) — roughly "
-                f"{minutes:.0f} minutes. Illegal combinations are rejected "
-                f"before they cost a run.")
+                f"{space.size():,} raw combinations; {len(trials)} valid "
+                f"trials would run on {workers} worker(s) — roughly "
+                f"{minutes:.0f} minutes if each trial takes about one "
+                f"minute. Invalid combinations are excluded before the "
+                f"sweep starts.")
             return len(trials)
 
         def start(self):
