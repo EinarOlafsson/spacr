@@ -439,12 +439,11 @@ MEMORY_BUDGET_FRACTION = 0.5
 
 
 def recommended_workers(*, measured_gib=None, requested=None):
-    """How many workers this machine can actually afford right now.
+    """Choose a worker count from available memory and CPU capacity.
 
-    Sized from FREE MEMORY, not from the core count. Picking 14 workers on a
-    32-core box because it had 32 cores is exactly what exhausted memory and
-    got the editor killed: the limiting resource is the several gigabytes
-    each trial needs for its own copy of the tables, not the CPU.
+    Memory is usually the limiting resource because each trial loads its own
+    tables and design matrix. The result therefore uses available memory as
+    well as the CPU count.
 
     :param measured_gib: peak resident size of one trial, if measured. Falls
         back to :data:`ASSUMED_TRIAL_GIB`.
@@ -589,15 +588,12 @@ def be_polite() -> None:
         pass
 
 
-#: Hard ceiling on a single trial, enforced by the kernel rather than by this
-#: module's own accounting. 24 GiB is above every well-level fit measured on a
-#: real four-plate screen (~1.8 GiB) and below the 57 GiB one cell-level
-#: permutation trial reached before it took the host down with it.
+#: Requested memory ceiling for one trial. The kernel enforces it only when
+#: :func:`containment_available` confirms a usable systemd user scope.
 TRIAL_MEMORY_MAX = "24G"
-#: Four cores per trial. A sweep is background work; it does not get the box.
+#: Requested CPU quota for a contained trial, equivalent to four cores.
 TRIAL_CPU_QUOTA = "400%"
-#: Refuse to START a trial below this. The point is to stop before the machine
-#: is in trouble, not to react once it is.
+#: Available-memory threshold below which a new trial is not started.
 FREE_MEMORY_FLOOR_GB = 20.0
 
 
@@ -679,19 +675,33 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
                         timeout: float = 1800.0,
                         memory_max: str = TRIAL_MEMORY_MAX,
                         cpu_quota: str = TRIAL_CPU_QUOTA) -> dict:
-    """Run one trial in a fresh, kernel-capped process. Never raises.
+    """Run one trial in a fresh child process and return a status row.
 
-    ACCOUNTING IS NOT CONTAINMENT, and this is the difference. Every earlier
-    attempt to make a sweep safe was a better estimate of what a trial would
-    use; each one was wrong in a way that took the user's desktop with it. A
-    cgroup does not estimate: a trial that asks for more than `memory_max`
-    is killed, alone, and the sweep records it and carries on.
+    When :func:`containment_available` is true, a systemd user scope enforces
+    ``memory_max``, disables swap, and applies ``cpu_quota``. Otherwise the
+    child still uses reduced priority and thread limits, but it has no hard
+    memory ceiling; a warning is printed before it starts.
 
-    Verified by running a deliberate memory hog under the same cap: it died
-    at the limit and free memory never moved.
+    Parameters
+    ----------
+    settings : mapping
+        Regression settings for the child process.
+    trial_id : optional
+        Identifier copied into the returned row.
+    controls : mapping, optional
+        Named control identifiers used to summarize the result.
+    timeout : float, default=1800
+        Maximum child runtime in seconds.
+    memory_max : str, default=TRIAL_MEMORY_MAX
+        Systemd memory limit used when kernel containment is available.
+    cpu_quota : str, default=TRIAL_CPU_QUOTA
+        Systemd CPU quota used when kernel containment is available.
 
-    :returns: the child's result dict, or a row with ``status`` of ``killed``
-        (hit its cap), ``timeout``, or ``failed``.
+    Returns
+    -------
+    dict
+        The child's result, or a row whose ``status`` is ``"killed"``,
+        ``"timeout"``, or ``"failed"``.
     """
     import json
     import subprocess
@@ -724,7 +734,9 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
         # a decision the user should get to make knowingly.
         print("WARNING: systemd-run is unavailable, so this trial runs "
               "WITHOUT a memory cap. A runaway fit can take the machine "
-              "down; consider running the sweep when the desktop is idle.")
+              "down. Reduce the worker count and search space, or start the "
+              "sweep from a systemd user session before running large "
+              "trials.")
         command = ["nice", "-n", "19"] + child
 
     environment = dict(os.environ)
@@ -908,13 +920,12 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     deterministic across workers, and a reproducible trial list matters more
     than the trials it would save.
 
-    :param contained: run each trial in a kernel-capped process
-        (:func:`run_trial_contained`) rather than inside the pool worker.
-        On by default, and matching :func:`run_sweep`, because a pool worker
-        holds no cap of its own: a single cell-level permutation trial was
-        measured at 57 GB of resident memory, and nothing in this function
-        could have stopped it. Pass ``False`` only when systemd is
-        unavailable and the trials are known to be small.
+    :param contained: Run each trial through
+        :func:`run_trial_contained` rather than directly in the pool worker.
+        The child receives hard memory and CPU limits when a usable systemd
+        user scope is available. Without one, it runs in a separate but
+        uncapped low-priority process and prints a warning. Pass ``False``
+        only for trials whose resource use is already known to be small.
     """
     # A CALLER WITHOUT A MAIN GUARD FORK-BOMBS ITSELF.
     #

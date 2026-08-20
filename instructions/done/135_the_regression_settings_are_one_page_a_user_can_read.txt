@@ -227,3 +227,39 @@ HOW TO KNOW IT WORKED
 * Every Estimator Tuning control is greyed out with its reason unless its
   family is chosen, and its tooltip names that family.
 * The batch-correction question has a MEASURED answer written down.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST OPEN LINE. 135 IS CLOSED.
+--------------------------------------------------------------------------------
+
+"STILL OPEN: greying the control out when the score table has one plate. The
+dependency rules see only the settings dict, and how many plates a run has is
+a fact about the DATA, so it needs a different mechanism."
+
+IT NEEDED NO NEW MECHANISM. `context['plate_count']` already exists, is filled
+by the panel from the inputs the user dropped in, and `guide_permutation_block`
+already uses it -- so the route was there and only this setting had not taken
+it. All eight batch controls take it now.
+
+Correcting BETWEEN batches when there is one batch removes nothing. The run
+already says so out loud; saying it AFTER the run is saying it too late, and
+the control is greyed before the user chooses.
+
+TWO PROPERTIES MATTER MORE THAN THE GREYING:
+
+  * UNKNOWN GREYS NOTHING. `plate_count` is None with nothing loaded or with
+    inputs too large to scan cheaply, and a control disabled because a file
+    was big is indistinguishable, to the person looking at it, from one
+    disabled on purpose.
+  * THE RULE COMBINES, never assigns. A setting is applicable only if EVERY
+    rule that mentions it says so, and assigning over an existing one silently
+    drops it -- which this file records happening once already, to
+    `guide_permutation_block`. A test drives four plates with correction
+    switched OFF and checks the OTHER reason comes back, not the plate one.
+
+FOUND WRITING THE TEST: `batch_control_column` and `batch_control_values` are
+read only by `control_center`, not by `combat`. Asking about them under combat
+measures the rule that was already there rather than the one added here, so
+each key is tested under the method that actually reads it.
+
+34 tests in tests/test_batch_correction_is_greyed_on_one_plate.py.

@@ -1,44 +1,23 @@
-"""The hit list: the ranked, annotated, filterable deliverable of a screen.
+"""Build ranked, annotated hit lists from regression results.
 
-A regression run leaves a folder of plots and four CSVs. None of them is the
-thing the experiment was for. ``results.csv`` is one row per model term
-including the intercept; ``results_significant.csv`` is that filtered at
-``p <= 0.05`` with no multiple-testing correction, no gene annotation and no
-indication of whether a gene's own guides agree with each other. What a user
-wants at the end of a screen is a single table they can sort, filter, act on
-and send to a collaborator, where each row is a GENE and carries:
+A regression run writes full, level-specific, and selected coefficient tables
+to a uniquely named ``results/<kind>[_n]`` directory. This module combines the
+available tables into one sortable row per gene, adds effect estimates and
+uncertainty when the backend provides them, calculates guide-direction
+agreement, and joins optional gene metadata.
 
-* **the effect size** — the fitted coefficient, with its standard error and a
-  95% interval when the backend reports one, because "significant" without a
-  magnitude is not a result;
-* **the significance** — the p-value AND a Benjamini-Hochberg q-value across
-  the genes actually tested, because a screen tests thousands of hypotheses
-  and an uncorrected 0.05 on 2000 genes is 100 expected false hits;
-* **gRNA agreement** — how many of the gene's own guides push the same way.
-  A gene called by one guide out of six is the single most common way a
-  pooled screen produces a confident artefact, and it is invisible in every
-  table spaCR wrote before this one;
-* **the metadata join** — gene name, product, location, whatever the curated
-  annotation file carries.
+Metadata joins are validated as many-to-one. Repeated transcript records are
+collapsed before the join so they cannot duplicate a gene in the hit list.
+Backends without frequentist p-values are ranked by bootstrap selection
+frequency; other supported backends are ranked by q-value.
 
-**One row per gene. Enforced, not assumed.** The bundled
-``toxoplasma_metadata.csv`` lists a gene once per transcript: 30 Gene IDs
-repeat between 2 and 32 times. Joined as-is, those genes came back two to
-thirty-two times and every consumer counted each copy as an independent hit.
-:func:`load_gene_metadata` collapses the annotation to one row per gene
-*before* the join and says how many rows it dropped, and :func:`join_metadata`
-asks pandas to ``validate="many_to_one"`` so a future annotation file that
-breaks the assumption fails loudly instead of silently multiplying the hits.
-:func:`build_hit_list` asserts the same invariant on its own output.
-
-The module is headless and imports neither Qt nor :mod:`spacr.ml` (which
-pulls torch). It reads the CSVs a regression run already wrote.
+The module is headless and reads files already written by a regression run.
 
 Public API::
 
     from spacr.hits import build_hit_list, load_results
 
-    hits = build_hit_list("/data/plate7/results/pred/ols/list")
+    hits = build_hit_list("/data/plate7/results/ols_2")
     strong = hits.filter(max_q=0.05, min_agreement=0.66, min_guides=2)
     strong.write_csv("/tmp/hits.csv")
     print(strong.to_markdown(limit=20))
@@ -391,8 +370,8 @@ def grna_agreement(gene_effects: Mapping[str, float],
 def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
     """Read the coefficient tables a regression results folder holds.
 
-    :param folder: the ``results/<score>/<type>[/list]`` folder
-        :func:`spacr.ml.perform_regression` writes into.
+    :param folder: A ``results/<kind>[_n]`` directory written by
+        :func:`spacr.ml.perform_regression`.
     :returns: ``{role: DataFrame}`` for whichever of :data:`RESULT_FILES`
         exist. A folder with none of them yields an empty dict rather than an
         exception — "that is not a results folder" is something the caller
