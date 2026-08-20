@@ -2716,7 +2716,60 @@ class MeasurementScanPanel(QWidget):
         section.toggled.connect(lambda *_: self.remember_section_layout())
         self._folders[title] = section
         self._sections.addWidget(section)
+        # THE FILLER STAYS LAST, so a section added later still folds upward.
+        self._keep_the_filler_last()
         return section
+
+    def sections(self) -> tuple:
+        """The folding sections, in order -- WITHOUT the layout filler.
+
+        The splitter's children are not all sections: `_keep_the_filler_last`
+        adds an expanding spacer so folds collapse upward, and it is
+        deliberately zero-minimum and has no header. A caller asking "what
+        are the sections" wants these, and asking the splitter directly gets
+        an answer that changes shape for reasons that are nothing to do with
+        sections.
+        """
+        from .collapsible_section import CollapsibleSection
+
+        return tuple(
+            self._sections.widget(i) for i in range(self._sections.count())
+            if isinstance(self._sections.widget(i), CollapsibleSection))
+
+    def _keep_the_filler_last(self) -> None:
+        """A splitter child that absorbs the space folded sections give up.
+
+        FOLDS GO UP, NOT TO THE MIDDLE. Reported 2026-08-20: "the
+        measurements sub tabs should not snap to the middle when closed but
+        the top."
+
+        Every folded section is pinned to `FOLDED_HEIGHT` at BOTH bounds --
+        which is right, and is what makes a fold really hand its height over
+        -- but it leaves a QSplitter with no child that can take the freed
+        space. Qt then spreads the leftover around the children, and a column
+        of folded headers ends up floating in the middle of the panel.
+
+        An expanding child with a zero minimum, always last, gives that space
+        somewhere to go: the headers stack at the top and the gap is beneath
+        them, which is where a reader expects it.
+        """
+        from PySide6.QtWidgets import QSizePolicy, QWidget
+
+        filler = getattr(self, "_filler", None)
+        if filler is None:
+            filler = QWidget(self)
+            filler.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+            filler.setMinimumHeight(0)
+            self._filler = filler
+        index = self._sections.indexOf(filler)
+        last = self._sections.count() - 1
+        if index != last or index < 0:
+            self._sections.addWidget(filler)
+        # Only the filler stretches; the sections keep the heights the user
+        # dragged them to.
+        for i in range(self._sections.count()):
+            self._sections.setStretchFactor(
+                i, 1 if self._sections.widget(i) is filler else 0)
 
     #: What this panel is called in the stored layout. A NAME, not the class,
     #: so renaming the class does not throw away every user's arrangement.
@@ -2756,6 +2809,13 @@ class MeasurementScanPanel(QWidget):
             # whatever the absent entry would imply.
             self.set_section_expanded(title, title not in folded)
         sizes = [int(size) for size in (layout.get("sizes") or ())]
+        # A LAYOUT STORED BEFORE THE FILLER EXISTED is one child short, and
+        # dropping it would throw away every arrangement a user already has.
+        # The filler takes whatever is left, so it is restored at zero and
+        # grows on the first layout pass. (Future-first: what is written from
+        # now on carries the filler's own size.)
+        if len(sizes) == self._sections.count() - 1:
+            sizes = sizes + [0]
         if len(sizes) == self._sections.count() and all(s >= 0 for s in sizes):
             self._sections.setSizes(sizes)
         return True

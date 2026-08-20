@@ -2245,9 +2245,23 @@ class CellMontageView(QWidget):
         return applied
 
     def compare_a_measurement(self, *_args):
-        """Open the comparison for the cells this tab picked. 177 F."""
-        from .measurement_compare_dialog import MeasurementCompareDialog
+        """Raise the Compare tab for the cells this tab picked. 177 F.
 
+        A TAB, NOT A WINDOW (186 B). Reported 2026-08-20: "when the Compare a
+        measurement pops up it is infrom to the other tabs. this should have
+        its own tab after summary."
+
+        There were two front doors onto one panel and they disagreed: this
+        opened a free-floating `MeasurementCompareDialog` over the tabs,
+        while `_ensure_graph_tab` had already been putting the SAME
+        `MeasurementComparePanel` in a tab at index 1. The panel always knew
+        how to live in a tab; the button just did not use it. Both doors now
+        lead to the same place, so there is one comparison and it cannot
+        drift from the montage behind it.
+
+        The dialog class is untouched and still works for a caller that
+        genuinely wants a separate window.
+        """
         rows = self._all_objects()
         groups = self.picked_groups()
         if rows is None or not len(rows) or not groups:
@@ -2255,11 +2269,13 @@ class CellMontageView(QWidget):
                 "Show some cells first — the comparison groups them by what "
                 "the picker chose, and nothing is picked yet.")
             return None
-        dialog = MeasurementCompareDialog(rows, groups, parent=self,
-                                          settings=self.picture_settings())
-        dialog.show()
-        self._comparisons.append(dialog)
-        return dialog
+        self._ensure_graph_tab()
+        if self._graph_panel is None:                    # pragma: no cover
+            return None
+        index = self._tabs.indexOf(self._graph_panel)
+        if index >= 0:
+            self._tabs.setCurrentIndex(index)
+        return self._graph_panel
 
     def _all_objects(self):
         """Every object row behind the montage, picked or not."""
@@ -2569,8 +2585,11 @@ class CellMontageView(QWidget):
                 rows, groups, parent=self._tabs,
                 settings=self.picture_settings())
             # AFTER Summary, which is index 0, and before any well tab.
+            # NAMED FOR THE BUTTON THAT OPENS IT. It was "Graph", and the
+            # control the user presses says "Compare a measurement" -- one
+            # thing under two names reads as two things.
             self._graph_tab = self._tabs.insertTab(1, self._graph_panel,
-                                                   "Graph")
+                                                   "Compare")
             self._hide_close_button(1)
         else:
             self._graph_panel.set_data(rows, groups,
