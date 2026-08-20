@@ -37,7 +37,20 @@ def picture_defaults() -> Dict[str, Any]:
         filled = {}
     from ...picture_settings import OWN_DEFAULTS
 
-    return {key: filled.get(key, OWN_DEFAULTS.get(key)) for key in ALL_KEYS}
+    # OWN_DEFAULTS WINS WHERE IT SPEAKS, and that is not a preference for
+    # our own table: it is where a shipped default is the wrong TYPE for a
+    # control. `set_annotate_default_settings` ships the STRING 'False' for
+    # `edge_image`, and a non-empty string is TRUE -- so the flag read as on
+    # everywhere it was used as one, and this dialog drew a text box
+    # containing the word False instead of a checkbox. The annotator's value
+    # is still what fills every key OWN_DEFAULTS does not name.
+    out = {}
+    for key in ALL_KEYS:
+        if key in OWN_DEFAULTS:
+            out[key] = OWN_DEFAULTS[key]
+        else:
+            out[key] = filled.get(key)
+    return out
 
 
 def _editor(value: Any, parent: Optional[QWidget] = None,
@@ -145,6 +158,28 @@ class PictureSettingsDialog(QDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
+        # THE SAME API HELP THE SETTINGS PANEL GIVES, not a plainer copy.
+        # Reported: "there are still no tooltips with api guides". These
+        # labels carried the description string and nothing else -- no
+        # `settingKey`, no rendered `apiTooltipHtml`, so no link to the API
+        # page and none of the typed metadata every other reader keys on.
+        #
+        # `api_dots=False` for the reason the Annotate settings dialog turns
+        # them off: twenty-five settings is twenty-five teal dots, which
+        # reads as a column of dots rather than a column of settings, and the
+        # link is in the hover text either way.
+        try:
+            from ..screens.settings_model import install_api_tooltips
+
+            install_api_tooltips(
+                self, "annotate",
+                {editor: key for key, editor in self._editors.items()},
+                api_dots=False)
+        except Exception:                                    # noqa: BLE001
+            # A dialog that cannot decorate its help is still a dialog that
+            # sets the picture. The plain descriptions installed below remain.
+            pass
+
         self.set_mode(self._mode)
 
     # ------------------------------------------------------------------ mode
@@ -163,9 +198,20 @@ class PictureSettingsDialog(QDialog):
             editor.setEnabled(usable)
             label = self._labels[key]
             label.setEnabled(usable)
-            explain = why_not(key, self._mode) if not usable else (
-                str(tooltips.get(key, "") or ""))
-            label.setToolTip(explain)
+            if not usable:
+                # THE REASON BEATS THE DESCRIPTION when the control is
+                # greyed: what the user is asking at that moment is why they
+                # cannot touch it, not what it would have done.
+                label.setToolTip(why_not(key, self._mode))
+                continue
+            # THE RICH API HELP IF IT WAS INSTALLED, and the plain
+            # description otherwise. This line used to write the plain text
+            # unconditionally, straight over the HTML `install_api_tooltips`
+            # had just rendered -- so every label carried the API metadata
+            # and showed none of it. Reported as "there are still no
+            # tooltips with api guides".
+            rich = str(label.property("apiTooltipHtml") or "")
+            label.setToolTip(rich or str(tooltips.get(key, "") or ""))
 
     def mode(self) -> str:
         return self._mode

@@ -427,6 +427,64 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
 #  The picture
 # --------------------------------------------------------------------------- #
 
+def _readable(figure, *axes) -> str:
+    """Put spaCR's house ink on ``axes`` so the labels can be read.
+
+    THE FIGURES WERE UNREADABLE WITHOUT THIS. Reported 2026-08-19: "i cannot
+    see any of the x or y axes, i do see some elements but not all so it is
+    difficult to interperet. any of them". These plots were built with bare
+    matplotlib, whose default ink is near-black -- which on spaCR's dark
+    theme is invisible against the panel it is drawn onto. Every other figure
+    in the application goes through `spacr.figures.style`; these ten did not.
+
+    SET ON THE AXIS BY HAND, not left to an rcParams context, for the reason
+    `regression_diagnostics` records: rcParams only reach an artist when it
+    is CREATED, so a style applied around a finished figure changes nothing
+    that is already drawn.
+
+    :returns: the ink colour, for a caller that has its own text to place.
+    """
+    from .figures.style import ROLES, TYPE_SCALE, WEIGHTS
+
+    ink = ROLES["reference"]
+    try:
+        from .figures.style import resolve_ink, theme_target
+
+        ink = resolve_ink(theme_target())
+    except Exception:                        # pragma: no cover - style absent
+        pass
+    # TRANSPARENT, not a colour of our own: the page the figure lands on is
+    # the application's, and painting white behind it is what makes a dark
+    # theme look broken.
+    try:
+        figure.patch.set_alpha(0.0)
+    except Exception:                        # pragma: no cover - defensive
+        pass
+    for axis in axes:
+        if axis is None:
+            continue
+        try:
+            axis.patch.set_alpha(0.0)
+            axis.title.set_color(ink)
+            axis.title.set_fontsize(TYPE_SCALE.get("label", 9))
+            axis.xaxis.label.set_color(ink)
+            axis.yaxis.label.set_color(ink)
+            axis.tick_params(color=ink, labelcolor=ink, which="both")
+            for spine in axis.spines.values():
+                spine.set_edgecolor(ink)
+                spine.set_linewidth(WEIGHTS.get("spine", 0.8))
+            axis.spines["top"].set_visible(False)
+            axis.spines["right"].set_visible(False)
+            axis.grid(False, which="both")
+            legend = axis.get_legend()
+            if legend is not None:
+                for text in legend.get_texts():
+                    text.set_color(ink)
+        except Exception:                    # pragma: no cover - defensive
+            continue
+    return ink
+
+
 def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
                alpha: float = 0.05, max_circularity: float = 1.0,
                top: int = 40, title: str = "", level: Optional[str] = None):
@@ -498,6 +556,7 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     bar = figure.colorbar(image, ax=axes, fraction=0.025, pad=0.01)
     bar.set_label("effect (partial correlation, plate-blocked)", fontsize=7)
     bar.ax.tick_params(labelsize=6)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -653,6 +712,7 @@ def plot_effect_against_representation(
     axes.set_ylabel(f"measurements moved past BH at {alpha:g}", fontsize=8)
     axes.tick_params(labelsize=7)
     axes.legend(fontsize=7, frameon=False)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -711,6 +771,7 @@ def plot_measurement_families(result: "SweepResult",
     axes.set_title(title or "what kind of measurement each gene moves",
                    fontsize=9)
     axes.legend(fontsize=7, frameon=False, ncol=min(4, len(families)))
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -793,6 +854,7 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
                     fontsize=8)
     axes.tick_params(labelsize=7)
     axes.set_title(title or "do a gene's own guides agree?", fontsize=9)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -889,6 +951,7 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
     axes.tick_params(labelsize=7)
     axes.set_title(title or f"{len(keep):,} gene x measurement pair(s)",
                    fontsize=9)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -952,6 +1015,7 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
                   f"{name} — NOTHING past BH at {alpha:g}; the strongest "
                   f"effects are shown"),
         fontsize=9)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -1007,6 +1071,7 @@ def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
     bar = figure.colorbar(image, ax=axes, fraction=0.035, pad=0.02)
     bar.set_label("correlation of effect profiles", fontsize=7)
     bar.ax.tick_params(labelsize=6)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -1056,6 +1121,7 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
                   + (f" — {promiscuous} moved by half the library or more, "
                      f"in red" if promiscuous else "")),
         fontsize=9)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -1105,6 +1171,7 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
     axes.set_title(
         title or (f"{above:,} of {len(keep):,} surviving pair(s) sit on a "
                   f"measurement the score already tracks"), fontsize=9)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")
@@ -1160,6 +1227,7 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
         title or (f"calibration — lambda = {lam:.2f} "
                   f"({'calibrated' if 0.9 <= lam <= 1.15 else 'inflated' if lam > 1.15 else 'conservative'})"),
         fontsize=9)
+    _readable(figure, axes)
     figure.tight_layout()
     if path:
         figure.savefig(path, dpi=200, bbox_inches="tight")

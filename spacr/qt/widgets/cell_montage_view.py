@@ -975,20 +975,33 @@ class _Thumb(QLabel):
     # -- the look ------------------------------------------------------
 
     def _colours(self):
+        """``(ring, hover)`` -- the one ring's colour, and what hover makes it.
+
+        ONE RING HERE, TWO IN THE ANNOTATE GRID, and the difference is not an
+        oversight. The annotator has to show the class AND the cursor at once
+        because the class is what you are assigning; this tile's ring is only
+        ever provenance, so the cursor can simply take it over. Asked for
+        directly: "the wite rim is to thick and should replace the blue".
+        """
         from ..screens.annotate import current_ring_color, resting_border_color
 
-        border = self.highlight or resting_border_color()
-        return border, current_ring_color()
+        return (self.highlight or resting_border_color()), current_ring_color()
 
     def paintEvent(self, event):            # noqa: N802 - Qt naming
         from .tile_chrome import paint_tile
 
-        border, ring = self._colours()
+        ring, hover = self._colours()
         painter = QPainter(self)
         try:
+            # `current=False` and the colour swapped instead: one ring, which
+            # hover RECOLOURS rather than surrounds. A picked cell therefore
+            # keeps its blue everywhere the cursor is not -- which is the
+            # whole of show-all, where the point is to compare the cells that
+            # carry the inference against the ones that do not.
             paint_tile(painter, float(self.width()), float(self.height()),
-                       self._pixmap, border_colour=border, ring_colour=ring,
-                       current=self._hovered)
+                       self._pixmap,
+                       border_colour=(hover if self._hovered else ring),
+                       ring_colour="", current=False)
         finally:
             painter.end()
 

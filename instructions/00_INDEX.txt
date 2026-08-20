@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-123 done / 46 open (72%).
+128 done / 42 open (75%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -126,29 +126,17 @@ OPEN
   152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
        152_the_axis_and_text_colour_follow_the_theme_and_the_user.txt
 
-  153  THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
-       153_the_model_summary_survives_being_loaded_from_disk.txt
-
   154  THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
        154_the_measurements_tab_is_a_workflow_not_a_report.txt
 
   155  THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
        155_the_montage_knows_its_own_run_and_says_how_it_chose.txt
 
-  157  THE LOADED MARK MOVES AND NOTHING RELOADS
-       157_the_loaded_mark_moves_and_nothing_reloads.txt
-
   158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
        158_an_unavailable_option_offers_to_make_itself_available.txt
 
-  166  RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
-       166_restyling_a_figure_while_a_run_draws_it.txt
-
   167  THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
        167_the_montage_uses_the_scores_the_run_already_has.txt
-
-  168  THE RUN SUMMARY IS READABLE AT A GLANCE
-       168_the_run_summary_is_readable_at_a_glance.txt
 
   172  HOW MANY CELLS, AND WHICH ONES
        172_the_count_and_the_choice_of_cells.txt
@@ -159,8 +147,8 @@ OPEN
   175  EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
        175_every_gene_against_every_measurement.txt
 
-  176  ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
-       176_one_channel_vocabulary_and_a_tab_that_opens_calm.txt
+  177  THE CELLS TAB COMPARES MEASUREMENTS, AND THE CHROME BEHAVES
+       177_the_cells_tab_compares_measurements_and_the_chrome_behaves.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -275,7 +263,9 @@ DONE
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
   146  DELETE A RUN FROM THE RUNS TAB, NOT ONLY FROM THE FIGURES
   151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
+  153  THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
+  157  THE LOADED MARK MOVES AND NOTHING RELOADS
   159  LOADING A RUN HANGS THE APPLICATION
   160  TWO REGRESSIONS HUNG THE MACHINE
   161  A REGRESSION THAT FAILS SAYS WHY
@@ -283,9 +273,12 @@ DONE
   163  A TIMER STARTED OFF THE GUI THREAD NEVER FIRES
   164  THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
   165  AN UPGRADE NEVER REPLACES THE CHECKOUT IT RUNS FROM
+  166  RESTYLING A FIGURE WHILE A RUN IS DRAWING ONE CRASHES spaCR
+  168  THE RUN SUMMARY IS READABLE AT A GLANCE
   169  THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
   170  THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
   171  ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
   174  BETA AS A RESPONSE TRANSFORM FOR THE REGRESSION
   176  A PANEL CANNOT WRITE AN IMPOSSIBLE NUMBER
+  176  ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
   177  ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW

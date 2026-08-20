@@ -1,0 +1,117 @@
+================================================================================
+THE CELLS TAB COMPARES MEASUREMENTS, AND THE CHROME BEHAVES
+================================================================================
+
+Status:    filed 2026-08-19.
+Requested: 2026-08-19, six things in one message.
+
+--------------------------------------------------------------------------------
+A. THE FIGURE SIZE SLIDER SITS ON ITS OWN BLACK RECTANGLE
+--------------------------------------------------------------------------------
+
+"there is a figure size slider that has a black background in regression
+module, it should be same color as container"
+
+The slider added for 169 B paints a black groove on a container that is not
+black. It has to take the container's colour, not assert one.
+
+--------------------------------------------------------------------------------
+B. r,g,b STILL DOES NOT WORK WHERE 0,1,2 DOES
+--------------------------------------------------------------------------------
+
+"still the settings in cell need 0,1,2 not r,g,b for normalize channels and
+channels"
+
+READ AS A DEFECT REPORT, NOT A REVERSAL. 176 C asked for r,g,b BECAUSE the
+annotation app spells them that way -- "i want this to be consistent" -- and
+this says the letters still are not honoured for `normalize_channels` and
+`channels`. Both must accept the letters and mean by them what the annotator
+means. An index form keeps working: it is unambiguous and every settings CSV
+written before 176 carries one.
+
+--------------------------------------------------------------------------------
+C. THE MEASURE CATEGORIES ARE BLACK BLOCKS; MAKE THEM SUBTABS
+--------------------------------------------------------------------------------
+
+"in measure i dont like the black categories. can we make them into
+measurement subtabs?"
+
+--------------------------------------------------------------------------------
+D. THE HOVER RIM IS TOO THICK, AND IT REPLACES THE BLUE
+--------------------------------------------------------------------------------
+
+"the wite rim is to thick and should replace the blue"
+
+So hover is not an ADDED outer ring here: it recolours the one ring the tile
+has. That is the opposite of the annotate grid's rule, and deliberately --
+the annotator needs to show class AND cursor at once because the class is
+what you are assigning; here the ring is only ever provenance.
+
+--------------------------------------------------------------------------------
+E. SHOW ALL CELLS MUST KEEP THE BLUE ON THE PICKED ONES
+--------------------------------------------------------------------------------
+
+"when i clicked show all cells, all the ones that were infered lost their
+blue rim. they need to keep it because the whole point is to be able to
+compare the ones that do not have the annotation and the ones that do."
+
+A REGRESSION AND THE FEATURE'S WHOLE POINT AT ONCE. `show_all_in_well` exists
+to put the picked cells beside the rest; if the picked ones lose their mark
+the mode shows a well with nothing distinguishing anything.
+
+--------------------------------------------------------------------------------
+F. COMPARE ANY MEASUREMENT: ANNOTATED GENE(S) vs THE REST
+--------------------------------------------------------------------------------
+
+"there should be the opertunity to show the any measurement comparing the
+values for the cells that have been annotated with a gene vs the rest, this
+should also work for several annotated genes at a time (as the cell picker
+has logic for doing this). the option to do this on the cell, well, and plate
+level should be available. the graphing options should be
+bar/box/jitter/jitter-box/ and violin plot. ther e should also be the ability
+to do statistics. where the variance and normality and n is noted and the
+correct test chosen. then the option to save should be available and this
+should save the graph as pdf and png, the data that underlies the graph, the
+settings that generated the regression and the graph, the images of cells if
+available in well folders, and the statistics. all of this in one folder upon
+saving."
+
+WHAT TO BUILD
+
+  1. THE GROUPS COME FROM THE CELL PICKER. It already decides which cells
+     carry which gene -- rank, attributed, assigned, multivariate -- so this
+     reads that answer rather than inventing a second one. Several genes at
+     once: each is its own group, and everything not picked is "the rest".
+
+  2. THE LEVEL IS CELL, WELL OR PLATE, and it changes what an observation IS.
+     A per-cell test on 60,000 cells from 12 wells has 60,000 rows and 12
+     independent units; saying so is the difference between a p-value and a
+     number. The chosen level must be stated beside the test.
+
+  3. FIVE PLOTS: bar, box, jitter, jitter over box, violin.
+
+  4. THE STATISTICS NAME THEMSELVES. n per group, a variance check and a
+     normality check, and the test CHOSEN FROM THOSE ANSWERS rather than
+     fixed: two groups normal with equal variance -> Welch is still the safe
+     default and t is offered; non-normal -> Mann-Whitney; more than two ->
+     ANOVA or Kruskal-Wallis, with the pairwise follow-up corrected. Every
+     one of those decisions is printed with the number that drove it.
+
+  5. ONE FOLDER ON SAVE, holding the figure as PDF and PNG, the plotted data,
+     the settings that produced the regression AND the graph, the statistics,
+     and the cell images per well where they exist.
+
+HOW TO KNOW IT WORKED
+
+* The slider is invisible against its container until you use it.
+* `normalize_channels='r,g,b'` visibly changes the picture, and so does '0,1,2'.
+* Measure's categories are tabs.
+* Hovering recolours one ring rather than adding a second, and the picked
+  cells keep their blue in show-all.
+* A comparison of one gene against the rest, at all three levels, with each
+  of the five plots, and a saved folder that holds every item in 5.
+
+RELATED
+  176 C -- B is the same vocabulary, still not landed for these two keys.
+  172 -- the picker whose answer F groups by.
+  169 B -- the slider A is about.
