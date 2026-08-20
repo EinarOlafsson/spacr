@@ -2106,6 +2106,50 @@ def _summary_filename() -> str:
         return _FALLBACK_SUMMARY_FILENAME
 
 
+def model_identity_line(regression_type, settings=None, model=None,
+                        backend=None) -> str:
+    """One line naming the model that drew a figure: type, backend, knobs.
+
+    ASKED FOR ON THE GRAPH, 2026-08-20: "in the summary under the volcano
+    graph please state which regression was used the backend and any
+    hyperparamiters used if applicable" -- and it is the answer to the unease
+    that came with it, "all the plots look the same no matter which
+    regression type i do".
+
+    THEY DO LOOK THE SAME IN ONE REAL CASE. Measured on the maintainer's
+    screen, glm and quasi_binomial agree on every coefficient to 1.5e-14,
+    because quasi-binomial IS the binomial family with a free dispersion
+    parameter and dispersion moves the standard errors rather than the point
+    estimates. Two volcanoes that share an x axis are then correct and
+    indistinguishable from a bug -- unless the figure says which one it is.
+
+    Shared with the run summary so the caption under a graph and the text in
+    the Summary tab cannot disagree about what was fitted.
+
+    :returns: the line, or ``""`` when the type is not known -- a caption
+        that guessed would be worse than none.
+    """
+    kind = _clean(regression_type) or _clean(_setting(settings or {},
+                                                      "regression_type"))
+    if not kind:
+        return ""
+    parts = [f"model: {kind}"]
+    where = _clean(backend) or _clean(_setting(settings or {}, "backend"))
+    if where:
+        parts.append(f"backend: {where}")
+
+    class _Holder:                       # what _hyperparameter_report reads
+        nonparametric = False
+
+    holder = _Holder()
+    holder.model = model
+    knobs = _hyperparameter_report(kind, settings or {}, holder)
+    said = knobs.get("value") or knobs.get("reason") or ""
+    if said and not said.startswith("none"):
+        parts.append(said)
+    return " · ".join(parts)
+
+
 def _hyperparameter_report(kind, settings, run) -> dict:
     """Describe the hyperparameters used by a fitted regression.
 
