@@ -129,35 +129,14 @@ CONTROL_GENE = "000000"
 #: site this module knows about rather than derived.
 TOXODB_GENE_URL = "https://toxodb.org/toxo/app/record/gene/{accession}"
 
-#: UniProt, as a RECORD when the accession is known and a search when it is
-#: not.
+#: UniProt record and search URL templates.
 #:
-#: THE ANNOTATION FILE CARRIES NO UNIPROT ACCESSION -- checked, all 48 columns
-#: of `toxoplasma_metadata.csv`. So the tile used to fall back to a free-text
-#: search for the gene NUMBER, and the maintainer reported the result plainly:
-#: "none of the uniprot links work". Searching UniProt for `224750` finds
-#: whatever happens to contain that string.
-#:
-#: The accessions are bundled instead, in `resources/data/uniprot.csv`, built
-#: from UniProt's own REST API over the ME49 REFERENCE PROTEOME
-#: (`UP000001529`): 7,886 genes, one accession each, keyed on the ToxoDB gene
-#: NUMBER because that suffix is shared across strains -- `TGGT1_224750` and
-#: `TGME49_224750` are the same gene and the screen uses the first while
-#: UniProt cross-references the second.
-#:
-#: WHY THE REFERENCE PROTEOME AND NOT "ANY ENTRY THAT MENTIONS THE GENE".
-#: 224750 has at least two UniProt entries: S8F0I0, in UP000001529 on an
-#: assembled Chromosome X, and A0A7J6K0I8, in an UNASSEMBLED WGS proteome.
-#: Both are real and both cross-reference TGME49_224750; only the first is
-#: the one a reader wants, and the maintainer's own example was S8F0I0.
-#: Filtering to the reference proteome is what makes the choice principled
-#: rather than a coin toss between two valid answers.
-#:
-#: A gene not in the mapping still gets a SEARCH link and is labelled as one.
-#: The rule from instruction 124 H is unchanged and is the reason this file
-#: exists rather than a URL built by string-formatting a gene id: a record
-#: URL invented from an id resolves to somebody else's protein, which is
-#: indistinguishable to the reader from a correct link.
+#: Accessions are resolved through the bundled ME49 reference-proteome table
+#: (``UP000001529``), keyed by the ToxoDB gene-number suffix shared across
+#: strains. Restricting records to the reference proteome avoids choosing an
+#: alternate unassembled-proteome entry for the same gene. Genes absent from
+#: the mapping use the search template and are labelled as searches rather
+#: than being presented as verified record links.
 UNIPROT_SEARCH_URL = (
     "https://www.uniprot.org/uniprotkb?query={query}")
 UNIPROT_RECORD_URL = "https://www.uniprot.org/uniprotkb/{accession}/entry"
