@@ -1,14 +1,8 @@
-"""The annotator's picture controls, offered wherever cells are shown.
+"""Picture-rendering controls shared by cell and image views.
 
-THE DEFAULTS COME FROM `set_annotate_default_settings`, not from a list here.
-That is the whole reason this dialog is thin: the annotator already decides
-what these settings are called, what they default to and what type they are,
-and a second declaration would be a second answer.
-
-WHAT APPLIES TO WHICH MODE IS `spacr.picture_settings`, for the same reason
-one level up: the greying rule has to hold when a settings CSV reaches the
-code without passing a panel, so the panel asks the table rather than being
-the table.
+Defaults come from :func:`spacr.settings.set_annotate_default_settings`, and
+mode applicability comes from :mod:`spacr.picture_settings`. The dialog thus
+uses the same values and availability rules as non-GUI callers.
 """
 from __future__ import annotations
 
@@ -26,7 +20,7 @@ __all__ = ["PictureSettingsDialog", "picture_defaults"]
 
 
 def picture_defaults() -> Dict[str, Any]:
-    """The annotator's defaults for the keys this dialog offers."""
+    """Return typed defaults for every setting offered by the dialog."""
     from ...settings import set_annotate_default_settings
 
     try:
@@ -124,7 +118,7 @@ def _value_of(widget: QWidget) -> Any:
 
 
 class PictureSettingsDialog(QDialog):
-    """How the cells are drawn, with what the mode cannot use greyed out."""
+    """Edit picture settings while retaining mode-inapplicable values."""
 
     def __init__(self, values: Optional[Dict[str, Any]] = None,
                  mode: str = "png", parent: Optional[QWidget] = None, *,
@@ -203,10 +197,10 @@ class PictureSettingsDialog(QDialog):
     # ------------------------------------------------------------------ mode
 
     def set_mode(self, mode: str) -> None:
-        """Grey what ``mode`` cannot use, and say why on each.
+        """Update control availability for an image-source mode.
 
-        GREYED, NEVER HIDDEN (INVARIANTS 6). A control that vanishes cannot
-        tell the user why their mode does not offer it.
+        Inapplicable controls remain visible and explain why they are disabled,
+        so switching modes does not hide or discard configured values.
         """
         self._mode = str(mode or "png")
         from ...settings import tooltips
@@ -237,12 +231,10 @@ class PictureSettingsDialog(QDialog):
     # ---------------------------------------------------------------- values
 
     def values(self) -> Dict[str, Any]:
-        """Every setting, including the greyed ones.
+        """Return every configured value, including disabled controls.
 
-        THE GREYED ONES ARE RETURNED UNCHANGED rather than dropped: a user who
-        set `object_array`, switched to load images and switched back must
-        find it where they left it, and a dialog that forgot it would be
-        indistinguishable from one that reset it.
+        Values for the current mode's disabled controls are preserved so that
+        switching away from a mode and back restores the prior configuration.
         """
         return {key: _value_of(editor)
                 for key, editor in self._editors.items()}

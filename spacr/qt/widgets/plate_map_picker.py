@@ -1,0 +1,203 @@
+"""Select one or more wells from a plate-shaped grid.
+
+Selections are parsed and serialized through :mod:`spacr.well_spec`, so rows,
+columns, and individual wells use the same validated vocabulary in the GUI and
+headless APIs. Rectangular selection is exposed through :meth:`select_region`
+for mouse-drag handling and programmatic use.
+"""
+from __future__ import annotations
+
+from typing import Optional, Set, Tuple
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QGridLayout,
+                               QHBoxLayout, QInputDialog, QLabel,
+                               QPushButton, QScrollArea, QVBoxLayout, QWidget)
+
+from ...well_spec import (DEFAULT_LAYOUT, LAYOUTS, WellSpecError, parse,
+                          row_label, shape, to_text, well_label)
+
+#: The blue a chosen well is filled with, and the ground it sits on.
+CHOSEN = "#4472C4"
+EMPTY = "rgba(255, 255, 255, 0.06)"
+
+
+class _Well(QPushButton):
+    """One well. Checkable, so its state IS the selection."""
+
+    def __init__(self, row: int, column: int, parent=None):
+        super().__init__(parent)
+        self.row, self.column = int(row), int(column)
+        self.setCheckable(True)
+        self.setFixedSize(18, 18)
+        self.setToolTip(well_label(row, column))
+        self._paint()
+        self.toggled.connect(lambda *_: self._paint())
+
+    def _paint(self) -> None:
+        colour = CHOSEN if self.isChecked() else EMPTY
+        self.setStyleSheet(
+            f"QPushButton {{ background: {colour}; border: 1px solid "
+            f"rgba(255,255,255,0.18); border-radius: 3px; }}")
+
+
+class PlateMapPicker(QDialog):
+    """Display a plate map and return its selection as a well specification."""
+
+    def __init__(self, value: str = "", layout: int = DEFAULT_LAYOUT,
+                 parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.setWindowTitle("Choose wells")
+        self._layout_size = int(layout)
+        self._wells = {}
+        self._anchor: Optional[Tuple[int, int]] = None
+
+        outer = QVBoxLayout(self)
+        self._caption = QLabel("", self)
+        self._caption.setObjectName("Muted")
+        outer.addWidget(self._caption)
+
+        self._holder = QWidget(self)
+        self._grid = QGridLayout(self._holder)
+        self._grid.setSpacing(2)
+        area = QScrollArea(self)
+        area.setWidgetResizable(True)
+        area.setWidget(self._holder)
+        outer.addWidget(area, 1)
+
+        # THE THREE BUTTONS THE ASK NAMED, bottom right and in that order.
+        row = QHBoxLayout()
+        row.addStretch(1)
+        self.plate_button = QPushButton("Plate", self)
+        self.plate_button.setToolTip("Choose the plate layout.")
+        self.plate_button.clicked.connect(lambda: self.ask_for_layout())
+        row.addWidget(self.plate_button)
+        buttons = QDialogButtonBox(self)
+        self.done_button = buttons.addButton("Done",
+                                             QDialogButtonBox.AcceptRole)
+        self.close_button = buttons.addButton("Close",
+                                              QDialogButtonBox.RejectRole)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        row.addWidget(buttons)
+        outer.addLayout(row)
+
+        self.set_layout_size(self._layout_size, keep=value)
+
+    # ------------------------------------------------------------ the grid
+
+    def set_layout_size(self, layout: int, keep: str = "") -> None:
+        """Rebuild the map for a plate layout and retain valid selections.
+
+        Wells outside the new layout are dropped and counted in the caption,
+        making a layout-induced selection change visible.
+        """
+        rows, columns = shape(layout)
+        self._layout_size = int(layout)
+        wanted = self.selection() if not keep else self._read(keep)
+
+        while self._grid.count():
+            item = self._grid.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+                widget.deleteLater()
+        self._wells = {}
+
+        for column in range(1, columns + 1):
+            self._grid.addWidget(QLabel(str(column), self._holder),
+                                 0, column, Qt.AlignCenter)
+        for row in range(1, rows + 1):
+            self._grid.addWidget(QLabel(row_label(row), self._holder),
+                                 row, 0, Qt.AlignCenter)
+            for column in range(1, columns + 1):
+                well = _Well(row, column, self._holder)
+                well.pressed.connect(
+                    lambda r=row, c=column: self._begin(r, c))
+                well.toggled.connect(lambda *_: self._say())
+                self._grid.addWidget(well, row, column)
+                self._wells[(row, column)] = well
+
+        kept = {cell for cell in wanted if cell in self._wells}
+        lost = len(wanted) - len(kept)
+        self.set_selection(kept)
+        self._say(lost)
+
+    def ask_for_layout(self, chosen: Optional[int] = None) -> int:
+        """Choose a supported plate size and return the active layout."""
+        sizes = sorted(LAYOUTS)
+        if chosen is None:
+            current = sizes.index(self._layout_size) \
+                if self._layout_size in sizes else sizes.index(DEFAULT_LAYOUT)
+            text, ok = QInputDialog.getItem(
+                self, "Plate layout", "How many wells?",
+                [str(size) for size in sizes], current, False)
+            if not ok:
+                return self._layout_size
+            chosen = int(text)
+        self.set_layout_size(int(chosen))
+        return self._layout_size
+
+    # ------------------------------------------------------- the selection
+
+    def _begin(self, row: int, column: int) -> None:
+        """A press starts a drag; the anchor is where it started."""
+        self._anchor = (row, column)
+
+    def select_region(self, start: Tuple[int, int], end: Tuple[int, int],
+                      choosing: Optional[bool] = None) -> None:
+        """Select or clear the rectangle between two plate coordinates.
+
+        Parameters
+        ----------
+        start, end : tuple of int
+            Inclusive one-based row and column coordinates.
+        choosing : bool, optional
+            ``True`` selects and ``False`` clears. ``None`` inverts the state
+            of the starting well, matching spreadsheet-style drag selection.
+        """
+        top, bottom = sorted((int(start[0]), int(end[0])))
+        left, right = sorted((int(start[1]), int(end[1])))
+        if choosing is None:
+            anchor = self._wells.get((int(start[0]), int(start[1])))
+            choosing = not (anchor is not None and anchor.isChecked())
+        for row in range(top, bottom + 1):
+            for column in range(left, right + 1):
+                well = self._wells.get((row, column))
+                if well is not None and well.isChecked() != choosing:
+                    well.setChecked(choosing)
+
+    def selection(self) -> Set[Tuple[int, int]]:
+        """Return selected wells as one-based ``(row, column)`` pairs."""
+        return {cell for cell, well in self._wells.items()
+                if well.isChecked()}
+
+    def set_selection(self, cells) -> None:
+        wanted = {(int(r), int(c)) for r, c in cells}
+        for cell, well in self._wells.items():
+            well.blockSignals(True)
+            well.setChecked(cell in wanted)
+            well.blockSignals(False)
+        self._say()
+
+    def _read(self, text) -> Set[Tuple[int, int]]:
+        try:
+            return parse(text, self._layout_size)
+        except WellSpecError:
+            # A FIELD THAT WILL NOT PARSE OPENS EMPTY rather than refusing to
+            # open: the picker is how a user fixes a value they typed wrong.
+            return set()
+
+    def value(self) -> str:
+        """Return the selection serialized for a well-specification field."""
+        return to_text(self.selection(), self._layout_size)
+
+    def _say(self, lost: int = 0) -> None:
+        chosen = len(self.selection())
+        rows, columns = shape(self._layout_size)
+        note = (f"{self._layout_size}-well plate ({rows} x {columns}) — "
+                f"{chosen} well(s) chosen")
+        if lost:
+            note += (f". {lost} well(s) from the previous selection are not "
+                     f"on this layout and were dropped")
+        self._caption.setText(note)
