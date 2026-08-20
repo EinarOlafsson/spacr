@@ -458,7 +458,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # +7/-0 for the control-name resolver: the module, ControlSpec, note,
     # common_prefix, matches, resolve_control, and resolve_controls. Measured
     # against 1e36a6f9 with this extractor; no existing symbol retired.
-    expected = 7771
+    # +8/-0 for the measurement-comparison follow-up, measured against the
+    # 7,890-entry snapshot: effects_grid_from_results, write_effects_grid,
+    # ControlNotFound, rows_for, clear_picking_override,
+    # multivariate_shortfall, nothing_to_compare_against, and the public
+    # MeasurementScanPanel.sections accessor.
+    expected = 7779
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -473,7 +478,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7890
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7898
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

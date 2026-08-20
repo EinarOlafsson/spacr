@@ -2737,21 +2737,10 @@ class MeasurementScanPanel(QWidget):
             if isinstance(self._sections.widget(i), CollapsibleSection))
 
     def _keep_the_filler_last(self) -> None:
-        """A splitter child that absorbs the space folded sections give up.
+        """Keep an expanding splitter child below all folding sections.
 
-        FOLDS GO UP, NOT TO THE MIDDLE. Reported 2026-08-20: "the
-        measurements sub tabs should not snap to the middle when closed but
-        the top."
-
-        Every folded section is pinned to `FOLDED_HEIGHT` at BOTH bounds --
-        which is right, and is what makes a fold really hand its height over
-        -- but it leaves a QSplitter with no child that can take the freed
-        space. Qt then spreads the leftover around the children, and a column
-        of folded headers ends up floating in the middle of the panel.
-
-        An expanding child with a zero minimum, always last, gives that space
-        somewhere to go: the headers stack at the top and the gap is beneath
-        them, which is where a reader expects it.
+        The filler absorbs height released by collapsed sections so their
+        headers remain stacked at the top of the panel.
         """
         from PySide6.QtWidgets import QSizePolicy, QWidget
 
