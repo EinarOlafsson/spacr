@@ -3558,7 +3558,10 @@ class AppScreen(QWidget):
         model = getattr(self, "_settings_model", None)
         if panel is None or self.app_key != "umap":
             return
-        enabled = bool(panel.request_gpu_enabled(bool(on)))
+        # THE SWITCH IS THE ANCHOR, so the panel opens under the control the
+        # user just pressed rather than under the search panel it belongs to.
+        enabled = bool(panel.request_gpu_enabled(
+            bool(on), anchor=getattr(self, "_gpu_switch", None)))
         if model is not None:
             model.set_hidden_value("gpu", enabled)
         switch = getattr(self, "_gpu_switch", None)

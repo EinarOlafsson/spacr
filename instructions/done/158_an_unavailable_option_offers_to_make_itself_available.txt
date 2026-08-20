@@ -388,3 +388,32 @@ the label, then sets the editor's role to "metadata" and clears both strings.
 So the test asserted that a mechanism the panel does not use was not being
 used. It reads the property now -- the same contract the API dot, the docs
 link and the localisation pass already read.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST WIRE. 158 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+"I want that for image UMAP as well" is done. `hyperparam.request_gpu_enabled`
+routes an unavailable GPU through `availability_panel.explain` with
+`gpu_reduce.availability_entry()`, and its own pair of QMessageBoxes is gone.
+
+IT IS NOT ONLY CONSISTENCY, and this is the part worth recording: the old path
+called `subprocess.run(install_command())` directly, with NO dry run and no
+protected-package refusal. Pressing GPU on a 3.11 machine installed
+`spacr[rapids]` with no report of what it was about to move -- numpy and scipy
+among them, in a process that has already imported both several times over.
+The panel's install shows the plan first and refuses the protected packages,
+so that route now has the safeguards the regression backends have had.
+
+THE SWITCH IS THE ANCHOR, so the panel opens under the control the user just
+pressed rather than under the search panel the method belongs to.
+
+The status line says it too, and that is deliberate: a hover panel closes and
+a status line is still there when the user comes back to wonder why the toggle
+would not stay down.
+
+TWO TESTS CHANGED, and both got stronger. They asserted that a QMessageBox had
+appeared; they assert the SENTENCE and the panel's current entry now -- a
+dialog existing is not the property, saying why is.
+
+9 tests in tests/qt/test_umap_gpu_button.py.

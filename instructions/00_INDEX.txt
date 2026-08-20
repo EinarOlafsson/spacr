@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-145 done / 31 open (82%).
+146 done / 30 open (82%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -95,9 +95,6 @@ OPEN
 
   150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
        150_a_saved_figure_is_for_paper_not_for_the_screen.txt
-
-  158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
-       158_an_unavailable_option_offers_to_make_itself_available.txt
 
   167  THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
        167_the_montage_uses_the_scores_the_run_already_has.txt
@@ -245,6 +242,7 @@ DONE
   155  THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
   156  EVERY REGRESSION MODE GETS A SUMMARY, NOT ONLY THE ONES STATSMODELS WRITES ONE FOR
   157  THE LOADED MARK MOVES AND NOTHING RELOADS
+  158  AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
   159  LOADING A RUN HANGS THE APPLICATION
   160  TWO REGRESSIONS HUNG THE MACHINE
   161  A REGRESSION THAT FAILS SAYS WHY
