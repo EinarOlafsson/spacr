@@ -2152,6 +2152,72 @@ class CellMontageView(QWidget):
                 out.setdefault(name, []).extend(list(chosen.index))
         return out
 
+    # -- instruction 180: what this panel contributes to a saved run --------
+
+    def workspace_state(self) -> dict:
+        """The montage the session had open, as data.
+
+        THE SETTINGS AND THE CHOICE, NOT THE PIXELS. A montage is tens of
+        megabytes of crops that the run's own images regenerate exactly; what
+        cannot be regenerated is which coefficient was on screen, how the
+        cells were picked, and how they were drawn. Those are what go in.
+
+        The picked groups ride along as a RECORD, not as an input --
+        `picked_groups()` is what the picker chose given these settings, and
+        restoring the settings reproduces it. Written down because a reader
+        of a saved run wants to know which cells the claim rested on without
+        re-running anything.
+        """
+        return {
+            "coefficient": str(self._key or ""),
+            "level": str(self._level or ""),
+            "results_path": self._results_path(),
+            "widgets": self._read_widgets(),
+            "picture_settings": dict(self._picture_settings),
+            "picture_mode": self.picture_mode(),
+            "picked_groups": {gene: list(values)
+                              for gene, values in self.picked_groups().items()},
+            "montage_shown": bool(self._plans),
+        }
+
+    def apply_workspace_state(self, state) -> bool:
+        """Put the montage's settings back. Does NOT rebuild it.
+
+        Returns whether anything was applied.
+
+        DELIBERATELY NOT REBUILT. Loading the crops is the slow half -- the
+        first montage of a run reads images off disk for seconds -- and a
+        restore that started it would freeze a window the user had just
+        opened to look around in. The settings are put back and the button is
+        there; 155's "the montage says how it chose" is on screen either way.
+        """
+        if not isinstance(state, dict):
+            return False
+        applied = False
+        picture = state.get("picture_settings")
+        if isinstance(picture, dict):
+            self._picture_settings = dict(picture)
+            self._write_back(self._picture_settings)
+            applied = True
+        widgets = state.get("widgets")
+        if isinstance(widgets, dict):
+            self._write_back(widgets)
+            applied = True
+        mode = state.get("picture_mode")
+        if mode:
+            index = self._source.findData(mode)
+            if index >= 0:
+                self._source.setCurrentIndex(index)
+                applied = True
+        key = state.get("coefficient")
+        if key:
+            # LAST, and through the setter. It re-reads the frame and rebuilds
+            # the level and the effect from it, so a coefficient applied
+            # before the widgets would be described by the old settings.
+            self.set_coefficient(str(key))
+            applied = True
+        return applied
+
     def compare_a_measurement(self, *_args):
         """Open the comparison for the cells this tab picked. 177 F."""
         from .measurement_compare_dialog import MeasurementCompareDialog

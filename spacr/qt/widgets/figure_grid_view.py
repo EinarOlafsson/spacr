@@ -759,6 +759,45 @@ class FigureGridView(QScrollArea):
         """
         return (str(label), int(start))
 
+    # -- instruction 180: what the grid contributes to a saved run ----------
+
+    def workspace_state(self) -> dict:
+        """How the grid is ARRANGED, not what is in it.
+
+        The figures themselves are files in the run's own results folder,
+        recorded by the sections that name that folder; copying seventeen
+        PNGs in here would be a second copy of something the run already
+        has. What dies with the process is the arrangement -- the tile size
+        the user settled on and which sections they folded away -- and a
+        sweep of sixty trials is unusable if that resets.
+        """
+        return {
+            "cell_width": int(self._target),
+            "collapsed": [list(key) for key in sorted(self._collapsed, key=str)],
+        }
+
+    def apply_workspace_state(self, state) -> bool:
+        """Put the arrangement back. Returns whether anything applied."""
+        if not isinstance(state, dict):
+            return False
+        applied = False
+        collapsed = state.get("collapsed")
+        if isinstance(collapsed, list):
+            self._collapsed = {tuple(key) if isinstance(key, (list, tuple))
+                               else key for key in collapsed}
+            applied = True
+        width = state.get("cell_width")
+        if width:
+            try:
+                # Through the setter: it clamps and relayouts, and a raw
+                # `_target` would leave the grid drawn at the old width until
+                # something else happened to trigger a relayout.
+                self.set_target_cell_width(int(width))
+                applied = True
+            except (TypeError, ValueError):
+                pass
+        return applied
+
     def is_section_collapsed(self, label, start) -> bool:
         """Whether this run's figures are folded away."""
         return self._section_key(label, start) in self._collapsed

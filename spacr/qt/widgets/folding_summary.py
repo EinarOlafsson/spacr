@@ -20,6 +20,7 @@ summary must not be chopped up by a guess.
 """
 import re
 import html
+import logging
 from typing import List, Tuple
 
 from PySide6.QtCore import Qt
@@ -29,6 +30,8 @@ from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPlainTextEdit,
                                QWidget)
 
 from .collapsible_section import CollapsibleSection
+
+LOG = logging.getLogger(__name__)
 
 #: The section that answers the question, and so the one left open.
 #: `format_run_summary` writes it first and quotes every line of it from the
@@ -270,6 +273,38 @@ class FoldingSummaryView(QScrollArea):
                 widget.setParent(None)
                 widget.deleteLater()
 
+    def _reading_surface(self) -> str:
+        """The ``rgba(...)`` a block of summary text is READ ON.
+
+        Reported 2026-08-19: "there seems to be something in the back of the
+        text in the summary." There was -- the animated backdrop. These views
+        were made fully transparent to stop them reading as black slabs, and
+        that traded one problem for a worse one: a moving picture directly
+        behind monospace type, which is the hardest thing there is to read
+        over.
+
+        The surface a card uses, at the user's own pane opacity, is the
+        answer to both. It is a surface rather than a slab, so the panel
+        still floats; it is opaque enough for text, because
+        :func:`panel_alpha` clamps every role at the point where its text
+        stops being legible. Falls back to plain transparency if the theme
+        cannot be reached -- a summary with an awkward background beats one
+        that failed to build.
+        """
+        try:
+            from ..preferences import get_pane_opacity, resolve_effective_theme
+            from ..theme import palette_for, panel_alpha
+
+            theme = resolve_effective_theme()
+            colour = str(palette_for(theme).get("surface_alt", "#161719"))
+            alpha = panel_alpha(theme, "card", get_pane_opacity())
+            r, g, b = (int(colour[i:i + 2], 16) for i in (1, 3, 5))
+            return f"rgba({r}, {g}, {b}, {max(0.0, min(1.0, float(alpha))):.3f})"
+        except Exception:                                   # noqa: BLE001
+            LOG.debug("could not resolve the summary reading surface",
+                      exc_info=True)
+            return "transparent"
+
     def _table(self, rows: list) -> QWidget:
         """One section as an aligned two-column table.
 
@@ -286,10 +321,13 @@ class FoldingSummaryView(QScrollArea):
         view = QTextBrowser(self._body)
         view.setOpenExternalLinks(True)
         view.setFrameShape(QTextBrowser.NoFrame)
-        # TRANSPARENT: the panel behind it is a translucent surface, and an
-        # opaque block is what made these read as black slabs.
+        # A SURFACE, not a slab and not a window onto the backdrop. See
+        # `_reading_surface` -- fully transparent put the animated
+        # background directly behind the type.
         view.viewport().setAutoFillBackground(False)
-        view.setStyleSheet("QTextBrowser { background: transparent; }")
+        view.setStyleSheet(
+            f"QTextBrowser {{ background: {self._reading_surface()};"
+            f" border-radius: 6px; }}")
         cells = []
         for label, value in rows:
             if label:
@@ -319,6 +357,13 @@ class FoldingSummaryView(QScrollArea):
         view.setReadOnly(True)
         view.setLineWrapMode(QPlainTextEdit.NoWrap)
         view.setFont(self._mono)
+        # The statsmodels summary is the longest thing in this panel and the
+        # hardest to read over a moving picture. Same surface as the tables,
+        # for the same reason.
+        view.viewport().setAutoFillBackground(False)
+        view.setStyleSheet(
+            f"QPlainTextEdit {{ background: {self._reading_surface()};"
+            f" border-radius: 6px; }}")
         view.setPlainText(text)
         rows = max(3, text.count("\n") + 2)
         view.setMinimumHeight(min(420, 18 * rows))

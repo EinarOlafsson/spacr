@@ -766,6 +766,14 @@ class AppScreen(QWidget):
         # QPalette.Window, not just paintEvent, or Qt's pre-paint erase
         # still uses `bg` and flashes black. See _sync_page_palette.
         self._sync_page_palette()
+        # Instruction 180: enrol with the workspace registry, so a run that
+        # finishes can record what this screen had open. LAST, and by
+        # callable, so a panel this screen may or may not build is asked for
+        # at collection time rather than captured now.
+        try:
+            self.register_workspace()
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not enrol the workspace sections", exc_info=True)
 
     # ------------------------------------------------------------------
     # Ambient backdrop
@@ -3897,6 +3905,14 @@ class AppScreen(QWidget):
         # child widget, so navigation destroying the panel never gives it a
         # close event of its own to shut that down from.
         self._shutdown_settings_widgets()
+        # Instruction 180: a screen that is gone contributes nothing to a
+        # saved run. Withdrawn HERE and not left to the registry's own
+        # callables to fail, because a provider that raises every time is
+        # reported as a problem in every workspace document afterwards.
+        try:
+            self.unregister_workspace()
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not withdraw the workspace sections", exc_info=True)
         # Clean up the figure queue's temp dir if present.
         fq = getattr(self, "_figure_queue", None)
         if fq is not None:
@@ -5512,6 +5528,76 @@ class AppScreen(QWidget):
         for note in notes:
             self._console.append_notice(
                 "[settings] {note}\n", note=note)
+
+    # -- instruction 180: the screen contributes, and enrols its panels -----
+
+    #: The workspace sections this screen owns, ``{name: attribute}``. Named
+    #: rather than discovered so a saved run's section names are stable
+    #: across releases -- a document written by one version is read back by
+    #: another, and a section keyed by a widget's class name would go missing
+    #: the first time a class was renamed.
+    _WORKSPACE_PANELS = {
+        "regression": "_results_panel",
+        "montage": "_cell_montage",
+        "figures": "_figure_grid",
+    }
+
+    def register_workspace(self) -> None:
+        """Enrol this screen and its panels with the workspace registry.
+
+        Registered as CALLABLES returning the attribute, never as the widget:
+        `_results_panel` is rebuilt when the module changes, and a captured
+        reference would hand a run journal a deleted C++ peer to ask.
+        """
+        from ...workspace import register
+
+        key = str(self.app_key)
+        register(f"{key}:settings", lambda: self)
+        for name, attribute in self._WORKSPACE_PANELS.items():
+            register(f"{key}:{name}",
+                     lambda attribute=attribute: getattr(self, attribute, None))
+
+    def unregister_workspace(self) -> None:
+        """Withdraw this screen's sections. Called when it is torn down."""
+        from ...workspace import unregister
+
+        key = str(self.app_key)
+        unregister(f"{key}:settings")
+        for name in self._WORKSPACE_PANELS:
+            unregister(f"{key}:{name}")
+
+    def workspace_state(self) -> dict:
+        """The settings AS EDITED, which is a superset of the run's dict.
+
+        `open_run` writes the settings the PIPELINE was given. Keys the run
+        did not consume -- a path typed into a module the user then switched
+        away from, a threshold set for the next run -- are still the user's
+        work and are not in that file. This is the screen's whole state.
+        """
+        try:
+            values = dict(self._settings_model.collect() or {})
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not collect the settings state", exc_info=True)
+            return {"app_key": str(self.app_key), "settings": {}}
+        return {"app_key": str(self.app_key), "settings": values}
+
+    def apply_workspace_state(self, state) -> bool:
+        """Put a screen's settings back. Returns whether any key applied.
+
+        Only into the module it came from. Settings keys are shared across
+        modules by name and mean different things -- `level` is the
+        regression's fit level and the proportion plots' unit -- so replaying
+        a measure screen's state into a regression screen would set keys that
+        happen to collide and leave the rest.
+        """
+        if not isinstance(state, dict):
+            return False
+        if str(state.get("app_key") or self.app_key) != str(self.app_key):
+            return False
+        settings = state.get("settings")
+        if not isinstance(settings, dict) or not settings:
+            return False
+        return bool(self.apply_settings_dict(settings))
 
     def apply_settings_dict(self, settings: dict) -> int:
         """Push key/value pairs from `settings` into whichever settings

@@ -1,0 +1,127 @@
+================================================================================
+A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS
+================================================================================
+
+Status:    filed 2026-08-19, not started.
+Requested: 2026-08-19 -- "when i save a run i want the option to allso save all
+           the things that are open in it so the imported files the opened cell
+           images, any graphs created, the settings state, everything."
+Owner:     run journal + the panels that hold state
+
+Related: 155 A settled that A RUN IS THE FOLDER, which is where this goes.
+         116 gave each run its own remembered plot state -- IN MEMORY ONLY,
+         which is the gap this closes.
+         109 is the multi-database import whose choices this must record.
+
+--------------------------------------------------------------------------------
+WHAT IS SAVED TODAY, AND WHAT IS LOST
+--------------------------------------------------------------------------------
+
+`open_run()` writes, per run:
+
+    settings.csv / settings.json    the settings dict the PIPELINE was given
+    manifest.json                   version, git hash, packages, hashes,
+                                    timings, status
+    log.txt                         the log tail
+    outputs/                        whatever the pipeline attached
+
+That is a reproducibility record and it is a good one. It is not the
+WORKSPACE. Everything the user assembled around the run is held in widgets
+and dies with the process:
+
+  * the attached databases and imported CSVs (the Measurements tab's set)
+  * the montage: which run, which coefficient, which genes were picked, the
+    picture settings, the channel string, the cells on screen
+  * the figures: the volcano's `plot_state()` -- level, colour column,
+    baseline, compartment, p-value kind, threshold, selection, pinned axes --
+    the figure grid, the Graph tab's measurement/operator/level/plot choice
+  * the settings AS EDITED IN THE SCREEN, which is a superset of the dict the
+    pipeline got: keys the run did not consume are still the user's work
+
+`regression_results._plot_states` is a dict on a widget. Close spaCR and the
+view a user built on a run is gone; the run folder they still have on disk
+says nothing about it.
+
+--------------------------------------------------------------------------------
+A. ONE DOCUMENT, CONTRIBUTED BY THE PANELS THAT OWN THE STATE
+--------------------------------------------------------------------------------
+
+`spacr/workspace.py` collects `workspace.json` beside the manifest:
+
+    {"version": 1, "saved": "<iso>", "app_key": "...",
+     "sections": {"<name>": {...}, ...},
+     "files": [{"role": ..., "path": ..., "sha256": ..., "copied": ...}]}
+
+NO PANEL IS INSPECTED FROM OUTSIDE. A collector that reached into widgets and
+read private attributes would be a second, silent copy of every panel's state
+model, and would rot the first time one of them changed. Instead a widget
+CONTRIBUTES: anything with `workspace_state()` -> dict and
+`apply_workspace_state(dict)` -> bool is picked up by name. The volcano's
+existing `plot_state()`/`apply_plot_state()` is exactly this shape already and
+is adapted, not duplicated.
+
+Restoring is best-effort and REPORTS. A section whose widget is not present,
+or whose file has moved, is skipped and NAMED in the returned report -- a
+workspace that silently restored four of six panels and said nothing would
+leave the user looking at a screen they think is the old one.
+
+--------------------------------------------------------------------------------
+B. REFERENCE ALWAYS, COPY ON REQUEST -- AND THE REASON
+--------------------------------------------------------------------------------
+
+"the imported files" is the ask, and the honest answer has two halves.
+
+RECORDED ALWAYS, for every file the workspace names: absolute path, size,
+mtime and sha256. That is what makes a restore able to say "this database is
+not where it was" instead of failing obscurely, and it costs kilobytes.
+
+COPIED ONLY WHEN ASKED, and never by surprise. A spaCR screen's source folder
+is tens to hundreds of gigabytes of TIFFs and a measurements database is
+routinely several GB; copying those into `~/.spacr/runs/` on every run would
+fill the user's disk with duplicates of data they already have. So:
+
+    save_workspace          off | reference (default) | copy
+    workspace_copy_limit_mb default 512, per file
+
+`reference` still copies what is SMALL AND UNRECOVERABLE -- the figures the
+session generated, the settings state, the picked-cell lists -- because those
+exist nowhere else. `copy` brings in the databases and CSVs under the limit
+and NAMES what it skipped for being over it. Nothing is ever skipped silently.
+
+--------------------------------------------------------------------------------
+C. WHAT MUST BE IN IT
+--------------------------------------------------------------------------------
+
+  settings     the screen's full settings state, not only the pipeline's dict
+  databases    the attached set, in order, with their table selections
+  montage      run folder, coefficient, level, picked groups, channel string,
+               picture settings, the cell ids on screen
+  figures      every remembered `plot_state()`, keyed by run folder, plus the
+               figure grid's layout and the Graph tab's comparison
+  files        everything named above, hashed
+
+--------------------------------------------------------------------------------
+D. GETTING IT BACK
+--------------------------------------------------------------------------------
+
+The Runs tab's "Load run…" loads a results table. A run folder that has a
+`workspace.json` offers to restore the WORKSPACE too, and says what it will
+put back before it does. The restore report is shown, not swallowed.
+
+`spacr workspace <run-folder>` prints the document's inventory from the CLI,
+so a bundle can be inspected without launching the GUI.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A run finishes with `save_workspace='reference'` and its folder holds a
+  `workspace.json` naming the databases, the montage and every figure state.
+* Restarting spaCR, loading that run, and choosing restore puts the volcano
+  back at the level, colouring, thresholds, pinned axes and selection it had.
+* With `save_workspace='copy'` the databases are inside the run folder and a
+  file over the limit is named in the manifest as skipped, with its size.
+* With `save_workspace='off'` no workspace.json is written and the run folder
+  is byte-for-byte what it is today.
+* A moved database produces a NAMED failure in the restore report, not a
+  traceback and not a silent half-restore.

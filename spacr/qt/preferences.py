@@ -2478,6 +2478,15 @@ def apply_preferences_to_app(app=None) -> None:
 
     app.setProperty("spacrLanguage", get_language())
 
+    # Instruction 180. Pushed on every preferences save and not only at
+    # startup: the run journal reads a module-level default it can see
+    # without Qt, and a user who changed the setting mid-session would
+    # otherwise not see it take effect until the next launch.
+    try:
+        apply_workspace_preference()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not push the workspace preference", exc_info=True)
+
     theme = resolve_effective_theme()
     scale = get_font_scale()
 
@@ -3462,6 +3471,59 @@ class PreferencesDialog:
         hash_check.setChecked(get_hash_inputs())
         performance.addRow(tr("Reproducibility"), hash_check)
 
+        # Instruction 180. On this tab and beside the hashing switch because
+        # it is the same kind of decision -- how much of the machine a saved
+        # run is allowed to use -- and the two are read together: a user who
+        # wants a run they can hand to somebody else wants both.
+        workspace_combo = QComboBox()
+        workspace_combo.setObjectName("SaveWorkspaceMode")
+        for value, label in (
+            ("off", tr("Nothing — settings and manifest only")),
+            ("reference", tr("What was open, and where its files are")),
+            ("copy", tr("What was open, and copies of its files")),
+        ):
+            workspace_combo.addItem(label, value)
+        workspace_combo.setToolTip(tr(
+            "What a finished run records about the workspace around it — the "
+            "databases attached, the montage, and the view built on every "
+            "figure.\n\n"
+            "Where its files are: the paths, sizes and checksums, so a "
+            "restore can say a database moved instead of failing obscurely. "
+            "Kilobytes.\n\n"
+            "Copies of its files: the databases and tables as well, up to the "
+            "per-file limit below. A source folder of images is tens to "
+            "hundreds of gigabytes, so anything over the limit is named in "
+            "the run's own record rather than copied — nothing is skipped "
+            "silently.\n\n"
+            "Figures the session generated are copied either way: they exist "
+            "nowhere else."))
+        index = workspace_combo.findData(get_save_workspace())
+        workspace_combo.setCurrentIndex(max(0, index))
+        performance.addRow(tr("Saved runs carry"), workspace_combo)
+
+        workspace_limit = QSpinBox()
+        workspace_limit.setObjectName("WorkspaceCopyLimitMb")
+        workspace_limit.setRange(0, 1024 * 1024)
+        workspace_limit.setSingleStep(64)
+        workspace_limit.setSuffix(" MB")
+        workspace_limit.setValue(int(get_workspace_copy_limit_mb()))
+        workspace_limit.setToolTip(tr(
+            "The largest single file a saved run copies in. Files over it are "
+            "recorded with their size and the limit that excluded them."))
+        performance.addRow(tr("Copy files up to"), workspace_limit)
+
+        def _workspace_copying(mode: str) -> None:
+            """The limit only means anything when files are being copied."""
+            copying = mode == "copy"
+            workspace_limit.setEnabled(copying)
+            # Instruction 106: disabled and SAYING WHY, never inert.
+            workspace_limit.setToolTip(workspace_limit.toolTip() if copying else tr(
+                "Only used when saved runs carry copies of their files."))
+
+        workspace_combo.currentIndexChanged.connect(
+            lambda _i: _workspace_copying(str(workspace_combo.currentData())))
+        _workspace_copying(str(workspace_combo.currentData()))
+
         _resource_button("ram", "Clear RAM", "Memory")
         _resource_button("vram", "Clear VRAM", "GPU memory")
         _resource_button("cpu", "Clear CPU", "Threads")
@@ -3631,6 +3693,12 @@ class PreferencesDialog:
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())
             set_hash_inputs(hash_check.isChecked())
+            # The limit FIRST: `set_save_workspace` pushes both down to
+            # spacr.workspace together, so setting the mode against a stale
+            # limit would leave the journal copying to the old ceiling until
+            # something else happened to push again.
+            set_workspace_copy_limit_mb(workspace_limit.value())
+            set_save_workspace(workspace_combo.currentData())
             set_color_blind_mode(cb_combo.currentData())
             set_verbose_logging(verbose_check.isChecked())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
@@ -3784,3 +3852,78 @@ def set_figure_grid_size(pixels: int) -> None:
 
     _settings().setValue(_KEY_FIGURE_GRID_SIZE,
                          max(MIN_CELL_PX, min(int(pixels), MAX_CELL_PX)))
+
+
+# ---------------------------------------------------------------------------
+# Instruction 180: how much of the workspace a saved run carries
+# ---------------------------------------------------------------------------
+
+_KEY_SAVE_WORKSPACE = "runs/save_workspace"
+_KEY_WORKSPACE_COPY_LIMIT = "runs/workspace_copy_limit_mb"
+
+
+def get_save_workspace() -> str:
+    """How much of the open workspace a finishing run records.
+
+    ``off`` / ``reference`` / ``copy`` — see :mod:`spacr.workspace`. A
+    READING-AND-DISK preference rather than a property of a run: a user with
+    a small disk wants ``reference`` on every run, and a user archiving a
+    screen wants ``copy`` on every run.
+    """
+    from ..workspace import resolve_mode
+
+    return resolve_mode(_settings().value(_KEY_SAVE_WORKSPACE, None))
+
+
+def set_save_workspace(mode) -> str:
+    """Remember the mode, and PUSH IT DOWN so the run journal can see it.
+
+    The journal is imported by pipelines and cannot import Qt to read
+    QSettings, so the answer travels through :mod:`spacr.workspace`'s process
+    default. Written in both places here rather than at startup only, or a
+    user who changed the setting mid-session would not see it take effect
+    until the next launch.
+    """
+    from ..workspace import resolve_mode, set_default_mode
+
+    resolved = resolve_mode(mode)
+    _settings().setValue(_KEY_SAVE_WORKSPACE, resolved)
+    set_default_mode(resolved, get_workspace_copy_limit_mb())
+    return resolved
+
+
+def get_workspace_copy_limit_mb() -> float:
+    """The per-file ceiling on what ``copy`` mode brings in, in megabytes."""
+    from ..workspace import DEFAULT_COPY_LIMIT_MB
+
+    raw = _settings().value(_KEY_WORKSPACE_COPY_LIMIT, DEFAULT_COPY_LIMIT_MB)
+    try:
+        limit = float(raw)
+    except (TypeError, ValueError):
+        return float(DEFAULT_COPY_LIMIT_MB)
+    return limit if limit >= 0 else float(DEFAULT_COPY_LIMIT_MB)
+
+
+def set_workspace_copy_limit_mb(limit) -> float:
+    """Remember the per-file copy limit, and push it down with the mode."""
+    from ..workspace import DEFAULT_COPY_LIMIT_MB, set_default_mode
+
+    try:
+        value = float(limit)
+    except (TypeError, ValueError):
+        value = float(DEFAULT_COPY_LIMIT_MB)
+    value = max(0.0, value)
+    _settings().setValue(_KEY_WORKSPACE_COPY_LIMIT, value)
+    set_default_mode(get_save_workspace(), value)
+    return value
+
+
+def apply_workspace_preference() -> str:
+    """Push the stored preference into :mod:`spacr.workspace`. Call at startup.
+
+    Without this the journal writes the module default on the first run of
+    every session, whatever the user chose last time.
+    """
+    from ..workspace import set_default_mode
+
+    return set_default_mode(get_save_workspace(), get_workspace_copy_limit_mb())
