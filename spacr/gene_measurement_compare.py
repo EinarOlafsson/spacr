@@ -188,6 +188,21 @@ def build(objects: pd.DataFrame, measurement: str, *,
         work[key] = objects[key].astype(str)
     work = work.dropna(subset=["value"])
 
+    # NOTHING LEFT IS AN ANSWER, NOT A CRASH. Every other empty case in this
+    # function returns a Comparison carrying the reason, and this one used to
+    # raise instead: on an empty frame `agg("_".join, axis=1)` hands back an
+    # empty DATAFRAME of the key columns rather than a Series, and assigning
+    # that to one column is a ValueError -- "Cannot set a DataFrame with
+    # multiple columns to the single column unit". It reached the user as a
+    # traceback out of the Cells tab's Compare dialog, from a measurement
+    # that simply held no numbers.
+    if not len(work):
+        return Comparison(
+            measurement=measurement, level=level,
+            frame=pd.DataFrame(columns=["group", "value"]),
+            note=(f"no object carries a numeric {measurement!r}: every value "
+                  f"is missing or could not be read as a number"))
+
     if level == "cell":
         work["unit"] = work.index.astype(str)
     else:
