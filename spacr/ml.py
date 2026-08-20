@@ -688,112 +688,45 @@ def _level_term(level):
 def prepare_formula(dependent_variable, random_row_column_effects=False,
                     block_screen=False, level='grna',
                     model_plate_position=True):
-    """Build the fixed-effects formula for ONE level of the screen model.
+    """Build a fixed-effects formula for one screen-analysis level.
 
-    ONE LEVEL PER FIT. This function used to return
+    Parameters
+    ----------
+    dependent_variable : str
+        Name of the response column.
+    random_row_column_effects : bool, default=False
+        Reserve ``rowID`` and ``columnID`` for variance components in
+        :func:`fit_mixed_model` instead of adding them as fixed effects.
+    block_screen : bool, default=False
+        Add ``screenID`` as a fixed effect. Use
+        :func:`screen_is_blockable` before enabling this for user data.
+    level : {'grna', 'gene'}, default='grna'
+        Resolution represented by the formula. ``'grna'`` uses
+        ``fraction:grna`` and ``'gene'`` uses ``gene_fraction:gene``.
+    model_plate_position : bool, default=True
+        Include plate position in the model. With
+        ``random_row_column_effects=False`` it is included as fixed row and
+        column terms; with ``random_row_column_effects=True`` it is reserved
+        for mixed-model variance components. New application settings default
+        to ``False`` even though this helper retains ``True`` for API
+        compatibility.
 
-        ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
+    Returns
+    -------
+    str
+        A patsy-compatible formula for one analysis level.
 
-    and that design is unidentifiable BY CONSTRUCTION -- see
-    :data:`COLLINEAR_FORMULA_FRAGMENT` for the measurement. It now emits
-    exactly one of
+    Raises
+    ------
+    ValueError
+        If ``level`` is unknown or ``'both'``, or if random plate-position
+        effects are requested while plate position is disabled.
 
-        ``level='grna'``   ``y ~ fraction:grna + rowID + columnID``
-        ``level='gene'``   ``y ~ gene_fraction:gene + rowID + columnID``
-
-    and ``level='both'`` is refused here because it is an instruction to fit
-    TWICE, which is :func:`regression_levels`'s job, not a formula.
-
-    Measured on the reference TSG101 screen (1945 rows): the guide design
-    is 859 parameters at rank 859, the gene design 425 at rank 425 -- both
-    full rank, against the combined design's 1248 parameters at rank 862.
-
-    PLATE POSITION HAS THREE STATES, AND ``model_plate_position`` CHOOSES THE
-    FIRST OF THEM:
-
-        ``model_plate_position=False``  out of the model entirely
-        ``model_plate_position=True``   in, as FIXED effects
-        ``+ random_row_column_effects=True``  in, as VARIANCE COMPONENTS
-
-    The third is :func:`fit_mixed_model`'s job -- the terms are left out of
-    the formula string so they are not also fixed -- and OUT plus RANDOM is a
-    fourth state that does not exist, so it is refused here rather than
-    resolved to one of the other two.
-
-    Direct calls to this helper still default to ON for API compatibility;
-    new regression settings default to OFF, so plate position is opt-in in
-    the application. The cost of either choice was measured by fitting the
-    reference TSG101 screen (regression_data.csv, 1945 rows, 610 wells, 823
-    guides, 389 genes) twice per level. The costs are asymmetric by more than
-    an order of magnitude:
-
-    * THE TERMS ARE REAL. Joint F test that all 35 of them are zero:
-      F = 5.781, p = 6.71e-23 at the guide level and F = 6.277, p = 2.33e-26
-      at the gene level. 23 of the 35 are individually p < 0.05 and 8 survive
-      Bonferroni. Not peculiar to this screen: of the nine real
-      reference ``regression_data.csv`` screens, eight
-      reject the joint null at p < 0.05 and seven at p < 1e-5. The one that
-      does not is the smallest, at 264 wells.
-    * DROPPING THEM COSTS ACCURACY, NOT JUST FIT. 8.4 points of R2
-      (0.5477 -> 0.4634) and 7.2% more residual sd (0.05268 -> 0.05647), so
-      standard errors come out 5.5% LARGER without the terms than with them
-      (median se_off/se_on 1.0552 at the guide level) -- the drop in residual
-      sd more than pays for the 35 degrees of freedom. Coefficients move a
-      median of 0.271 standard errors (guide) and 0.272 (gene); 429 of 823
-      guides move more than a quarter of an SE.
-    * THE HIT LIST CHANGES. At the pipeline default (BH q < 0.05 plus the
-      control-calibrated width cut) the gene level keeps 8 hits but swaps two
-      of them: 277230 leaves (q 0.0394 -> 0.4071) and 258462 enters
-      (q 0.1134 -> 0.0146). On synthetic data with the truth planted -- the
-      same real design, response re-simulated, position effect at the size
-      this plate actually carries -- leaving position out loses 17% of the
-      planted true hits at BH and 20% at raw p.
-    * CARRYING IT ON A PLATE THAT DOES NOT NEED IT IS NEARLY FREE. On the
-      synthetic arm with no position effect at all, the 35 terms cost 1.6% on
-      the standard errors (se_off/se_on 0.9842, which is sqrt(1121/1086)) and
-      0.02 hits out of 20. Coefficients move a median of 0.121 SE, which is
-      noise.
-
-    35 TERMS, NOT 36. The design counts a full 384-well plate: 16 rows
-    plus 24 columns is 38 levels less two references. This screen occupies 16
-    rows and 21 columns, so it spends 35, and its "6% of the residual degrees
-    of freedom" is 35/610 WELLS -- against residual df it is 3.1% at the
-    guide level (1121 -> 1086) and 2.3% at the gene level (1555 -> 1520).
-
-    AND THE INSTRUCTION'S LEAD EXAMPLE ALREADY COSTS NOTHING: a screen on one
-    plate row emits ZERO ``rowID`` columns, because patsy drops a single-level
-    factor into the intercept. Verified on a one-row subset of the real
-    screen: 20 ``columnID`` terms and no ``rowID`` term. The case the setting
-    is genuinely for is a RANDOMISED layout, where position is not a nuisance
-    the plate carries and the 1.6% is spent for nothing.
-
-    ``block_screen`` adds ``screenID``. Two screens sharing
-    a guide library can be stacked into one frame and fitted together, which
-    is worth twice the wells -- but only if the screen itself is in the model.
-    Without the term, a systematic difference between the two experiments is
-    charged to whichever guides happen to be over-represented in one of them.
-
-    IT DEFAULTS TO OFF, and the caller decides, because a single-screen
-    project's ``screenID`` column has ONE value. A constant term makes the
-    design rank-deficient: statsmodels answers with a pseudo-inverse rather
-    than refusing, so the run would appear to succeed and hand back standard
-    errors that mean nothing. :func:`screen_is_blockable` is the check.
-
-    :param dependent_variable: Name of the response column.
-    :param random_row_column_effects: Move ``rowID`` / ``columnID`` out of the
-        formula and into :func:`fit_mixed_model`'s variance components.
-        Default ``False``.
-    :param block_screen: Add ``screenID`` as a fixed effect. Default
-        ``False``.
-    :param level: ``'grna'`` (default) or ``'gene'``.
-    :param model_plate_position: Whether ``rowID`` and ``columnID`` are in the
-        model AT ALL. Direct calls default to ``True`` for API compatibility;
-        :func:`spacr.settings.get_perform_regression_default_settings` uses
-        ``False`` for new runs.
-    :returns: The formula string.
-    :raises ValueError: for ``level='both'``, an unknown level, or
-        ``model_plate_position=False`` with
-        ``random_row_column_effects=True``.
+    Notes
+    -----
+    Guide and gene effects are fitted separately because the gene fraction is
+    derived from its guide fractions; including both blocks in one design is
+    rank deficient. Use :func:`regression_levels` to request both fits.
     """
     from .schema import SCREEN_KEY
 
@@ -5430,20 +5363,21 @@ def _identifiability_warning(data, settings, *, well_column='prc',
     return (
         "\n"
         "  ###############################################################\n"
-        "  #  WARNING: this regression is not identifiable.              #\n"
+        "  #  WARNING: this fit is saturated or not identifiable.        #\n"
         "  ###############################################################\n"
         f"  {n_wells} analysed wells are being used to estimate "
         f"{parameters} parameters\n"
         f"  ({n_terms} {identifier}s + intercept + {blocks} block terms).\n"
         "\n"
-        "  With fewer wells than parameters the fit still returns a\n"
-        "  coefficient and a P value for every guide, but they are one\n"
-        "  arbitrary solution out of infinitely many: refitting the same\n"
-        "  data can give different numbers, and neither set is wrong.\n"
+        "  With at least as many parameters as wells, the model has no\n"
+        "  residual degrees of freedom and may also be rank deficient.\n"
+        "  Individual guide coefficients, standard errors and P values\n"
+        "  cannot be interpreted reliably.\n"
         "\n"
         "  Set inference='nonparametric' to test each guide as a\n"
-        "  plate-blocked marginal association, which stays valid at any\n"
-        "  width, or inference='auto' to let spaCR choose. The design\n"
+        "  plate-blocked marginal association without fitting all guide\n"
+        "  coefficients simultaneously, or inference='auto' to let spaCR\n"
+        "  choose. The design\n"
         "  diagnostics written beside the results show the rank, the\n"
         "  residual degrees of freedom and the collinear guide pairs.\n")
 
