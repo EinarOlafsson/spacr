@@ -38,8 +38,7 @@ __all__ = ["GeneTilePanel"]
 
 #: What the tile says before anything has been clicked. Not blank: a blank
 #: panel beside a plot reads as a panel that is broken rather than as one
-#: waiting, which is the same failure the instruction names for the tile
-#: itself.
+#: waiting for a selection.
 IDLE_TEXT = ("Click a point in the volcano, or a row in the results table, "
              "to see what that gene is.")
 

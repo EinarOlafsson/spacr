@@ -100,11 +100,7 @@ def _load_fonts() -> None:
 
 
 def available_themes() -> Tuple[str, ...]:
-    """Themes to render: dark + light, plus space when the palette exists.
-
-    ``space`` is another agent's work-in-progress; this probes for it
-    rather than depending on it.
-    """
+    """Return dark and light themes, plus space when its palette is available."""
     out = ["dark", "light"]
     try:
         from spacr.qt.theme import palette_for

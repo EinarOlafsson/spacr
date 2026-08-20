@@ -233,12 +233,10 @@ class MergePlan:
 
     @property
     def dropped_columns(self) -> Tuple[str, ...]:
-        """The measurements a ``columns='common'`` merge would DROP.
+        """Return measurements discarded by a ``columns='common'`` merge.
 
-        The instruction's words: "the user must be told which measurements
-        were dropped -- that set IS the analysis they are about to run".
-        Identity columns (:data:`_ALWAYS_KEPT`) are excluded because the merge
-        keeps them however few sources stored them.
+        Identity columns in :data:`_ALWAYS_KEPT` are excluded because the
+        merge retains them even when only some sources contain them.
         """
         return tuple(sorted(
             name for name in self.partial_columns if name not in _ALWAYS_KEPT))

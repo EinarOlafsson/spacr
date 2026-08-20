@@ -1,9 +1,9 @@
 """Everything a sweep row needs to be worth reading.
 
-A row that says "10 hits" and nothing else cannot be used to CHOOSE a
-configuration, which is the only reason to run a sweep. The nightly run over
-the TSG101 screen made that concrete: ``min_cell_count=50`` reported MORE hits
-than 100 while quietly losing GRA14, and no column in the table said so.
+A row that reports only a hit count is insufficient for choosing a sweep
+configuration: a larger count can coincide with losing a known positive
+control. Each row therefore records model quality, design diagnostics, and
+control recovery alongside its hit count.
 
 So a row carries four kinds of thing, and they answer different questions:
 

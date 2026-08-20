@@ -142,21 +142,9 @@ class ModuleHeader(QWidget):
     go on the same row through :meth:`add_trailing`, right-aligned past
     the stretch, so a screen that had its own header row keeps it.
 
-    This was written inline inside :class:`AppScreen` and stayed there,
-    which is the whole of the defect it now fixes. Roughly twenty-five
-    screens arrived in two days, none of them an ``AppScreen``, and each
-    rolled its own header: a ``QLabel`` tagged ``ScreenTitle`` — an object
-    name with **no rule anywhere in the stylesheet**, so it rendered at
-    body size — or, on four of them, a bare paragraph with no title at
-    all. Copying the styling into each of them would have set the same
-    trap for the twenty-sixth; a shared component cannot drift.
-
-    Transparent by construction. A header is a page region, not a card,
-    and an untagged ``QWidget`` inherits the blanket
-    ``QWidget {{ background-color: bg }}`` — the WINDOW colour, which no
-    page-opacity setting can reach — so it would sit as an opaque band
-    across the backdrop. ``AppScreen`` used to tag its header by hand in
-    ``_clear_page_surfaces``; every screen gets it here instead.
+    The shared component keeps headings and actions consistent across screens.
+    It is transparent because a header is a page region rather than a card;
+    this allows the configured page backdrop to remain visible.
 
     :param title: the module name, shown large.
     :param description: one line to the right of the name. Never wrapped —

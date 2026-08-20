@@ -939,11 +939,8 @@ class TotalsPanel(Panel):
 class StageLegend(Panel):
     """What the three hover colours mean. One row per stage.
 
-    Sits under the rest of the right-hand column because that is where
-    the user asked for it, and because it is the only panel there that
-    is not a number: it explains the tiles rather than reporting on the
-    machine, so it belongs at the end of the column rather than at the
-    top of it.
+    The legend follows the numeric status panels in the right-hand column
+    because it explains the module tiles rather than reporting machine state.
 
     Each row draws the stage's hue as a filled swatch *and* names the
     stage in words. Colour alone would fail WCAG 1.4.1 and would be
