@@ -14,6 +14,7 @@ the frame.
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -55,6 +56,13 @@ def test_a_real_segfault_lands_in_the_file(tmp_path):
         "ctypes.string_at(0)\n"
     )
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen")
+    # A developer may have another editable spacr checkout installed. A
+    # subprocess launched from this temporary script would otherwise import
+    # that checkout because its script directory, rather than the repository
+    # root, is first on sys.path.
+    repo_root = str(Path(__file__).resolve().parents[1])
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (repo_root, env.get("PYTHONPATH", "")) if part)
 
     result = subprocess.run([sys.executable, str(script)],
                             capture_output=True, env=env, timeout=300)
