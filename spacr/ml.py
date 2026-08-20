@@ -2855,7 +2855,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      hinge_threshold=None, huber_t=1.345, exposure=None,
                      group_lasso_lambda=0.05, rra_alpha=0.25,
                      rra_permutations=10000,
-                     regression_backend=DEFAULT_REGRESSION_BACKEND):
+                     regression_backend=DEFAULT_REGRESSION_BACKEND,
+                     verbose=False):
     """Dispatch to the requested regression backend and return the fitted model.
 
     Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
@@ -3466,8 +3467,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
     if regression_type in ['glm', 'poisson']:
         llf_model = model.llf
         llf_null = model.null_deviance / -2
-        print(f"McFadden's R²: {1 - (llf_model / llf_null):.4f}")
-        print(model.summary())
+        print(mcfadden_note(1 - (llf_model / llf_null)))
+        print(summary_for_console(model, verbose=verbose))
 
     if regression_type in ['lasso', 'ridge', 'elasticnet']:
         mse = mean_squared_error(y_flat, model.predict(X))
@@ -4054,7 +4055,8 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                draw_shared_panels=True, group_lasso_lambda=0.05,
                rra_alpha=0.25, rra_permutations=10000,
                model_plate_position=True,
-               regression_backend=DEFAULT_REGRESSION_BACKEND):
+               regression_backend=DEFAULT_REGRESSION_BACKEND,
+               verbose=False):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -4267,6 +4269,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             rra_alpha=rra_alpha,
             rra_permutations=rra_permutations,
             regression_backend=regression_backend,
+            verbose=verbose,
         )
 
         coef_df = process_model_coefficients(
@@ -4601,6 +4604,95 @@ def _write_regression_sheet(coef_df, dst):
 #: summary, never CSV. A name that does not follow the file is a path nobody
 #: can open, so the format is corrected going forward and the old names are
 #: still READ -- a run finished last month keeps its summary.
+#: How many coefficient rows the console will print before it stops and
+#: points at the file instead. The header of a statsmodels summary is about
+#: twenty lines; a screen's coefficient table is hundreds.
+CONSOLE_COEFFICIENT_LIMIT = 12
+
+
+def mcfadden_note(r2) -> str:
+    """McFadden's pseudo-R², and a HEADLINE when it is negative.
+
+    Instruction 182 B. A negative pseudo-R² means the fitted model predicts
+    the response WORSE than an intercept alone -- on the reference screen it
+    came back as -20.3 -- and printed as one number among numbers it reads
+    like any other diagnostic. It is not: it says the fit is not usable, and
+    the usual cause is a response that has been transformed twice (a log
+    transform handed to a family whose link logs it again).
+    """
+    try:
+        value = float(r2)
+    except (TypeError, ValueError):
+        return "McFadden's R²: not available for this fit"
+    if value < 0:
+        return (
+            f"McFadden's R²: {value:.4f}  <-- NEGATIVE. This fit predicts the "
+            f"response WORSE than its own intercept, so its coefficients and "
+            f"P values do not describe the data. The usual cause is a "
+            f"response transformed twice: check that `transform` is not "
+            f"applying a log or logit that the family's link already applies."
+        )
+    return f"McFadden's R²: {value:.4f}"
+
+
+def summary_for_console(model, *, verbose=False,
+                        limit=CONSOLE_COEFFICIENT_LIMIT) -> str:
+    """The statsmodels summary, TRIMMED FOR A CONSOLE. Instruction 183.
+
+    A screen's fit has hundreds of guides -- 790 on the reference screen,
+    about 80 000 characters -- and printing all of them buries the lines a
+    user has to read: the not-identifiable warning, the fraction filter's
+    retained fraction, the pairing counts and the family sentence are all
+    ABOVE it and all scrolled away.
+
+    THE HEADER IS PRINTED WHOLE and the coefficient table is replaced by a
+    pointer. Not "the first twenty coefficients": a sample of a table whose
+    interesting rows are wherever they happen to be tells a reader nothing
+    and invites them to believe they have seen the top of it. The header is
+    complete, the pointer is honest, and both better renderings already exist
+    -- the file beside the results, and the sortable Coefficients tab.
+
+    ``verbose`` prints the whole thing, because a user who asked for verbose
+    asked for exactly this.
+    """
+    try:
+        text = str(model.summary())
+    except Exception as error:                          # noqa: BLE001
+        return (f"statsmodels could not render a summary for this fit "
+                f"({type(error).__name__}: {error}).")
+    if verbose:
+        return text
+    # THE COEFFICIENT ROWS ONLY. Located from the column header -- the line
+    # carrying "coef" and "std err" -- and ended at the next '=' rule, rather
+    # than by taking everything after the last separator. That simpler cut
+    # swallowed the notes table with the rows and MISCOUNTED the coefficients
+    # by however many notes the family happens to print.
+    #
+    # The notes are KEPT. Durbin-Watson and, above all, the condition number
+    # are how a reader sees the collinearity that a screen's design has, and
+    # they are six lines.
+    lines = text.splitlines()
+    header = next((i for i, line in enumerate(lines)
+                   if "coef" in line and "std err" in line), None)
+    if header is None:
+        return text
+    rule = next((i for i in range(header + 1, len(lines))
+                 if set(lines[i].strip()) == {"-"}), None)
+    if rule is None:
+        return text
+    end = next((i for i in range(rule + 1, len(lines))
+                if set(lines[i].strip()) == {"="}), len(lines))
+    rows = [line for line in lines[rule + 1:end] if line.strip()]
+    if len(rows) <= limit:
+        return text
+    return "\n".join(
+        lines[:rule + 1]
+        + [f"  {len(rows)} coefficients — not printed here. They are in the "
+           f"run's model_summary.txt and in the Coefficients tab, which sorts "
+           f"and filters them. Set verbose=True to print them."]
+        + lines[end:])
+
+
 SUMMARY_FILENAME = 'model_summary.txt'
 SUMMARY_FILENAMES = (SUMMARY_FILENAME, 'mode_summary.csv', 'summary.csv')
 
@@ -7245,6 +7337,9 @@ def _perform_regression(settings):
         model_plate_position=settings.get('model_plate_position', True),
         nc=settings['negative_control'], pc=settings['positive_control'],
         controls=settings['controls'], dst=res_folder,
+        # 183: a quiet run gets the summary HEADER and a pointer at the file;
+        # verbose gets every coefficient, which is what verbose is for.
+        verbose=bool(settings.get('verbose')),
         cov_type=settings['cov_type'],
         l1_ratio=settings['l1_ratio'],
         quantile=settings['quantile'],

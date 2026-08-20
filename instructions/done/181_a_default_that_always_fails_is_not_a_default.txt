@@ -64,3 +64,40 @@ HOW TO KNOW IT WORKED
 * A genuinely null design still refuses under 'auto', with the null-screen
   wording rather than the "lower alpha" wording.
 * The run summary carries the chosen alpha.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE, and the cause was worse than the report.
+--------------------------------------------------------------------------------
+
+`setdefault('alpha', 'auto')` for the penalised families was ALREADY THERE and
+had never once fired, because a settings panel posts every key it shows: alpha
+arrived as the integer 1 -- the default belonging to the families that ignore
+it -- and `setdefault` correctly left it alone.
+
+AND THE CONTROL COULD NOT EXPRESS THE FIX. `alpha` ships as the integer 1, so
+the panel inferred an integer and built a QSpinBox. The documented 'auto'
+could not be typed. Neither could any value below 1. Every value the control
+could reach shrinks a fraction-scale design to nothing, so the penalised
+families were not merely badly defaulted -- they were unrunnable from the GUI.
+
+A. `alpha` is now a QDoubleSpinBox whose minimum READS "auto"
+   (`setSpecialValueText`). One control, both kinds of value, no second field
+   to keep in step -- and winding the box down toward a smaller penalty is
+   exactly where somebody hunting for one is already heading.
+
+B. THE POSTED DEFAULT COUNTS AS ABSENT. On a penalised family, an alpha that
+   is the INTEGER 1 resolves to 'auto' and says so out loud. 1 is not a
+   penalty anybody chooses for a design of fractions; it is the value the
+   panel had lying around. A float 1.0 is a choice and is kept.
+
+C. The refusals are untouched. Both wordings stay, including the separate
+   null-screen sentence for the 'auto' case, which must not tell a user to
+   lower a number they did not set.
+
+`PENALISED_REGRESSION_TYPES` names the three families once, because the GUI,
+the defaults and the refusal all have to agree about which they are.
+
+12 tests in tests/test_a_penalty_the_user_can_actually_set.py.
+
+STILL OWED (B of the original ask): the chosen alpha is printed by the
+cross-validation itself but is not yet carried into the run summary.

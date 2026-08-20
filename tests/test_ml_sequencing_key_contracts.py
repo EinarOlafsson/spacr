@@ -97,6 +97,10 @@ def base_settings(score, count, **over):
         "count_data": [count],
         "dependent_variable": "pred",
         "regression_type": "ols",
+        # These contracts inspect OLS regression tables and output paths. The
+        # application default is nonparametric and therefore writes the
+        # guide-permutation result shape instead of fitting OLS.
+        "inference": "parametric",
         "min_cell_count": 3,
         "fraction_threshold": 0.005,
         "toxo": False,

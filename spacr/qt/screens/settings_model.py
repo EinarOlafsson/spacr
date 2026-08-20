@@ -2998,6 +2998,54 @@ _UNIT_INTERVAL_PHRASES = (
 )
 
 
+#: Settings whose value is EITHER a positive number OR the word "auto".
+#: Built as a QDoubleSpinBox whose minimum reads "auto"
+#: (:meth:`QDoubleSpinBox.setSpecialValueText`) -- one control that expresses
+#: both, with no new widget class and no second field to keep in step.
+#:
+#: `alpha` is here because it was UNSETTABLE. Its shipped default is the
+#: integer 1, so the panel inferred an integer and built a QSpinBox: the
+#: documented 'auto' could not be typed, and neither could any value below 1.
+#: Every value the control could reach shrinks a fraction-scale design to
+#: nothing -- measured on the reference screen, alpha=1 sent all 790
+#: coefficients to exactly zero -- so the penalised families could not be run
+#: from the GUI at all.
+AUTO_OR_NUMBER_SETTINGS = ("alpha",)
+
+#: What the minimum of such a spin box means, and what it shows.
+AUTO_TEXT = "auto"
+
+
+def _auto_or_number_box(default):
+    """A spin box for a setting that takes a positive number or "auto"."""
+    box = QDoubleSpinBox()
+    box.setDecimals(6)
+    box.setRange(0.0, 1e6)
+    box.setSingleStep(0.001)
+    # Qt shows the SPECIAL TEXT in place of the minimum, so 0.0 is the
+    # spelling of "auto" and the user reaches it by winding the box down --
+    # which is also where somebody hunting for a smaller penalty is heading.
+    box.setSpecialValueText(AUTO_TEXT)
+    _set_auto_or_number(box, default)
+    return box
+
+
+def _set_auto_or_number(box, value) -> None:
+    """Put ``value`` -- a number, ``None``, or "auto" -- into such a box."""
+    if value is None or str(value).strip().lower() == AUTO_TEXT:
+        box.setValue(box.minimum())
+        return
+    try:
+        box.setValue(float(value))
+    except (TypeError, ValueError):
+        box.setValue(box.minimum())
+
+
+def _read_auto_or_number(box):
+    """"auto" when the box is at its minimum, otherwise the float."""
+    return AUTO_TEXT if box.value() <= box.minimum() else float(box.value())
+
+
 def _float_domain(key: str, default: float):
     """``(minimum, maximum, step)`` for the spin box of one float setting.
 
@@ -7012,6 +7060,12 @@ class SettingsWidgets:
                                    allow_none=allow_none,
                                    element_type=element_type,
                                    container=container)
+            # BY NAME, BEFORE THE TYPE SNIFF. These settings take a number
+            # or the word "auto", and the shipped default happens to be a
+            # number -- so inferring from it built a control that could not
+            # express half of what the setting accepts.
+            if key in AUTO_OR_NUMBER_SETTINGS:
+                return _auto_or_number_box(self._defaults.get(key, default))
             # Choose widget by inferred type from the DEFAULT value
             if isinstance(default, bool):
                 w = Toggle()
@@ -7129,7 +7183,10 @@ class SettingsWidgets:
             elif isinstance(w, QSpinBox):
                 w.setValue(int(value))
             elif isinstance(w, QDoubleSpinBox):
-                w.setValue(float(value))
+                if str(w.specialValueText() or "") == AUTO_TEXT:
+                    _set_auto_or_number(w, value)
+                else:
+                    w.setValue(float(value))
             elif isinstance(w, QComboBox):
                 idx = w.findData(value)
                 if idx < 0:
@@ -7583,6 +7640,8 @@ class SettingsWidgets:
         if isinstance(w, QSpinBox):
             return int(w.value())
         if isinstance(w, QDoubleSpinBox):
+            if str(w.specialValueText() or "") == AUTO_TEXT:
+                return _read_auto_or_number(w)
             return float(w.value())
         if isinstance(w, QComboBox):
             idx = w.currentIndex()

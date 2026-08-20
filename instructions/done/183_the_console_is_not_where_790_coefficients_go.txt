@@ -58,3 +58,33 @@ HOW TO KNOW IT WORKED
   are still visible above them.
 * The file still holds the whole summary, and the Summary tab still shows it.
 * `verbose=True` prints the whole thing.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE.
+--------------------------------------------------------------------------------
+
+`summary_for_console` prints the summary HEADER whole, replaces the
+coefficient rows with a count and a pointer, and KEEPS THE NOTES. The notes
+were nearly dropped with the rows and should not be: Durbin-Watson and above
+all the condition number are how a reader sees the collinearity a screen's
+design has, and they are six lines.
+
+THE CUT IS FOUND, NOT COUNTED. The coefficient block is located from its
+column header ("coef" ... "std err") and ended at the next '=' rule. A first
+attempt split on the last separator run, which swallowed the notes table with
+the rows and miscounted the coefficients by however many notes the family
+happens to print -- GLM prints a different number from OLS.
+
+NOT A TRUNCATION AT N ROWS, and that is the point. A sample of a table whose
+interesting rows are wherever they happen to be tells a reader nothing and
+invites them to believe they have seen the top of it. The header is complete,
+the count is exact, and both better renderings already exist.
+
+`verbose=True` prints everything, threaded from the settings through
+`regression` and `regression_model`.
+
+182 B rode along: `mcfadden_note` makes a NEGATIVE pseudo-R² a headline --
+"this fit predicts the response WORSE than its own intercept" -- and names
+the usual cause, a response transformed twice.
+
+12 tests in tests/test_the_console_is_not_where_790_coefficients_go.py.
