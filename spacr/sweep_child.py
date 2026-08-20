@@ -1,17 +1,11 @@
-"""Run ONE regression in a fresh process, under whatever cap the parent set.
+"""Run one regression trial in a fresh worker process.
 
     python -m spacr.sweep_child <settings.json> <result.json>
 
-This exists so a sweep trial can be contained by the kernel rather than by
-spaCR's own accounting. Seven attempts to sweep this screen took the user's
-desktop down, and each time the fix was a better ESTIMATE of what a trial
-would use. Estimates are not containment; a cgroup is.
-
-The thread environment is set at the very top, before anything imports numpy,
-because OpenBLAS reads OMP_NUM_THREADS exactly once -- when numpy first
-imports it -- and sizes its pool from the core count if the variable is not
-there yet. Measured: env-then-numpy gives one thread, numpy-then-env gives
-thirty-two, and thirty-two per process is what reached load 35 on 32 cores.
+The parent may place this process in a kernel-enforced resource scope. Thread
+limits are set before NumPy imports so BLAS libraries initialize with one
+thread per trial. Results and failures are returned through a JSON file,
+including when no in-memory return value is available.
 """
 
 import os
@@ -40,21 +34,17 @@ import traceback  # noqa: E402
 def main(argv=None) -> int:
     """Run one sweep trial in this process and write its result as JSON.
 
-    The entry point of a CONTAINED trial: the parent execs
-    ``python -m spacr.sweep_child <settings.json> <out.json>`` inside a
-    systemd-run cgroup with a memory cap, so a trial that would take the
-    machine down takes only itself down.
+    Parameters
+    ----------
+    argv : sequence of str, optional
+        Settings and output JSON paths. Defaults to ``sys.argv[1:]``.
 
-    Nothing comes back in memory -- the parent reads the result FILE, because
-    a child the kernel killed has no return value to give and the sweep still
-    needs a row for it.
-
-    :param argv: the arguments after the module name. Defaults to
-        ``sys.argv[1:]``.
-    :returns: a process exit status: 0 for a trial that produced a result, 2
-        for a usage error, non-zero for a trial that raised. The exception is
-        written into the result file as well, so the sweep table can carry the
-        reason instead of an empty row.
+    Returns
+    -------
+    int
+        ``0`` when a result was produced, ``2`` for invalid arguments, or a
+        nonzero status when the trial raised. Trial exceptions are also
+        written to the output file.
     """
     argv = list(sys.argv[1:] if argv is None else argv)
     if len(argv) != 2:

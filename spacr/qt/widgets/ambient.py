@@ -147,31 +147,13 @@ and not in here at all. Two levers finish the job and neither is in this file �
 32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and
 coalescing ``PipelineWorker.line_ready``.
 
-Three constraints shape the implementation:
-
-*Not a precomputed loop.* Every element's period is
-drawn from ``rng.uniform`` over a continuous range —
-:data:`BLOB_DRIFT_PERIOD` (24-70 s), :data:`BLOB_PULSE_PERIOD` (7-19 s),
-:data:`AURORA_DRIFT_PERIOD` (30-90 s), :data:`RIPPLE_PERIOD` (14-26 s) and
-the rest — so the composite period is irrational with probability 1 and a
-fixed-length loop is a visible *cut*, not a period: the picture jumps every
-time it wraps. Memory says the same thing more loudly. At 1080p and 24 fps a
-second of loop is 3.0 MiB for ``blobs``, 11.9 for ``bokeh`` and ``cells``,
-47.5 for the aurora and 190 for ``drift``, which has no buffer at all — a
-one-minute loop is 178 MiB of blobs or 2.85 GiB of aurora.
-
-*Not a faster shading pass.* The thread does not make anything quicker: same
-Python, same lock, same 26 ms for ``cells`` under load. It changes **who
-waits**. The GUI thread stops shading, and a frame that is not ready becomes
-a repeated frame rather than a blocked interface —
-:attr:`AmbientWidget.repeated_frames` is that promise as a number, and it
-rises to about a third of frames under a Python worker.
-
-*Not a second clock.* The animation clock stays on the GUI thread (two
-attribute stores; there is nothing to gain by moving it and a public contract
-to lose) and the thread only reads it. A frame remains a pure function of
-``(seed, clock, size)``, so off-thread and on-thread shading are byte-identical
-for all five buffered themes.
+Three constraints shape the implementation. Animation periods are sampled
+from continuous ranges rather than replayed from a precomputed loop, avoiding
+visible jumps and large frame caches. Shading runs outside the GUI thread; if
+a frame is late, the previous frame is repeated and counted by
+:attr:`AmbientWidget.repeated_frames`. The animation clock remains on the GUI
+thread, and rendered frames remain deterministic functions of
+``(seed, clock, size)``.
 
 ``drift`` keeps the synchronous path, and its row above is the reason: it is
 the one engine with no buffer, it degrades the least of the six (2.1x against
@@ -3705,17 +3687,11 @@ class AmbientWidget(QWidget):
         self._sync_run_state()
 
     def start(self) -> None:
-        """Start ticking, and with it the shading thread (no-op if already
-        running).
+        """Start the animation timer and shading worker if not already running.
 
-        The two are started and stopped *together*, and that is the whole
-        lifetime rule: every gate that already stops the timer — hidden,
-        another tab, a minimised window, the Preferences toggle — therefore
-        stops the thread for free, and "off screen is 0 %" stays literally
-        true rather than becoming "0 % of the GUI thread". It also means a
-        widget the tests never show has no thread and takes the synchronous
-        path, so nothing that drives ``advance_frame`` by hand goes
-        non-deterministic.
+        The timer and worker share one lifetime. Hiding the widget, switching
+        tabs, minimizing the window, or disabling ambient animation stops both.
+        A widget that is never shown uses the synchronous rendering path.
         """
         if not self._timer.isActive():
             self._clock.restart()

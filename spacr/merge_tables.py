@@ -149,8 +149,8 @@ class MergePolicy:
     def how_for(self, table: str) -> str:
         """Whether ``table`` keeps cells it contributed no rows for.
 
-        THE CARDINALITY IS WHY THIS IS NOT ONE ANSWER. A cell has exactly one
-        cytoplasm, and MANY nuclei, pathogens and organelles. The
+        A cell has exactly one cytoplasm and may have multiple nuclei,
+        pathogens, or organelles. The
         many-per-cell tables are rolled up to one row per cell first (see
         :func:`roll_up`), and ``consolidate_on_cell`` decides what happens to
         a cell the roll-up found nothing for:
@@ -160,14 +160,9 @@ class MergePolicy:
             consolidate_on_cell=False  keep the cell and leave the child's
                                        columns NA
 
-        WITH ONE EXCEPTION, which is the design) in full: an
-        UNINFECTED cell is a cell, and in a screen it is usually the control
-        population. Making pathogen inner silently conditions every result on
-        infection and deletes the comparison group from the denominator --
-        measured there as object p = 4e-39 against well p = 0.25 on the same
-        data. So pathogen and organelle follow ``keep_uninfected``, which
-        exists for exactly this and defaults to keeping them; setting it
-        False is how a caller deliberately restricts to infected cells.
+        Pathogen and organelle tables follow ``keep_uninfected`` so the
+        default retains uninfected control cells. Set it to ``False`` to
+        restrict the merged table to infected cells.
 
         A one-row-per-cell table keeps whatever :data:`object_roles.JOIN_HOW`
         declares, because there is no consolidation to decide about.

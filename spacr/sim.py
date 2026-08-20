@@ -1017,12 +1017,8 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
 def save_plot(fig, src, variable, i):
     """Save a Matplotlib figure to ``<src>/<variable>/<i>_figure``.
 
-    THE FORMAT IS THE USER'S, NOT THIS FUNCTION'S. It was
-    ``fig.savefig(..., format='pdf', dpi=600)``, which is one of the literal
-    formats the API is intended to remove: the "Figure format" and
-    "Resolution" preferences reached every other saved figure in spaCR and
-    not this one. ``.pdf`` is still what a default install writes, because
-    that is what the preference defaults to.
+    The output format and resolution follow the user's figure preferences.
+    A default installation writes PDF.
 
     :param fig: Figure to save.
     :param src: Root directory for outputs.

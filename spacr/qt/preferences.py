@@ -3816,7 +3816,7 @@ def set_figure_grid_size(pixels: int) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Instruction 180: how much of the workspace a saved run carries
+# Workspace content retained with a saved run
 # ---------------------------------------------------------------------------
 
 _KEY_SAVE_WORKSPACE = "runs/save_workspace"
@@ -3824,12 +3824,11 @@ _KEY_WORKSPACE_COPY_LIMIT = "runs/workspace_copy_limit_mb"
 
 
 def get_save_workspace() -> str:
-    """How much of the open workspace a finishing run records.
+    """Return how a completed run records its open workspace.
 
-    ``off`` / ``reference`` / ``copy`` — see :mod:`spacr.workspace`. A
-    READING-AND-DISK preference rather than a property of a run: a user with
-    a small disk wants ``reference`` on every run, and a user archiving a
-    screen wants ``copy`` on every run.
+    The result is ``"off"``, ``"reference"``, or ``"copy"``; see
+    :mod:`spacr.workspace`. This application preference applies to every run
+    until changed.
     """
     from ..workspace import resolve_mode
 
@@ -3837,13 +3836,10 @@ def get_save_workspace() -> str:
 
 
 def set_save_workspace(mode) -> str:
-    """Remember the mode, and PUSH IT DOWN so the run journal can see it.
+    """Store the workspace mode and update the process-wide default.
 
-    The journal is imported by pipelines and cannot import Qt to read
-    QSettings, so the answer travels through :mod:`spacr.workspace`'s process
-    default. Written in both places here rather than at startup only, or a
-    user who changed the setting mid-session would not see it take effect
-    until the next launch.
+    Updating both values makes the change available immediately to pipeline
+    code that cannot read Qt settings directly.
     """
     from ..workspace import resolve_mode, set_default_mode
 

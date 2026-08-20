@@ -4747,33 +4747,21 @@ class spacrGraph:
             for group in unique_groups}
 
     def perform_normality_tests(self):
-        """Report per-group normality, and say when the check had no power.
+        """Evaluate normality for each requested column and group.
 
-        The VERDICT and the reported ROWS both come from
-        :func:`spacr.figures.stats.check_normality`, the one engine that
-        decides which test applies, so a spacrGraph figure and a
-        :mod:`spacr.sp_stats` results table cannot disagree about the same
-        plate. That check is Shapiro-Wilk against a Bonferroni threshold
-        across the groups, and it refuses -- reporting NaN and
-        ``Informative=False`` -- when the smallest group is below
-        :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS`.
+        Shapiro-Wilk results and the overall verdict come from
+        :func:`spacr.figures.stats.check_normality`, including its Bonferroni
+        correction across groups. Groups with fewer than three observations
+        are reported as ``"Skipped"``. Checks below the configured
+        information threshold report ``Informative=False`` rather than
+        treating a failure to reject as evidence of normality.
 
-        This method used to run D'Agostino-Pearson (n >= 8) or Shapiro
-        per group and read ``all(p > 0.05)`` as "normal". On three
-        replicates neither test can reject anything, so "not rejected" was
-        being read as a licence to run a t-test -- and three replicates is
-        what a well-level spaCR figure usually has. A row whose statistic is
-        NaN is not a failed computation; it is the check saying it could not
-        see.
-
-        Groups with fewer than three observations are still reported as
-        ``'Skipped'``: Shapiro-Wilk genuinely cannot run on two points.
-
-        :returns: Tuple ``(is_normal, results)``. ``is_normal`` is True only
-            when every requested column passes. ``results`` is a list of
-            per-group dicts carrying ``Comparison``, ``Test Statistic``,
-            ``p-value``, ``Test Name``, ``Column``, ``n``, ``Informative``
-            and ``Verdict``.
+        Returns
+        -------
+        is_normal : bool
+            ``True`` only when every requested column passes.
+        results : list of dict
+            Per-group test statistics, sample sizes, and verdicts.
         """
         from .figures.stats import check_normality
 
@@ -4870,42 +4858,31 @@ class spacrGraph:
     }
 
     def perform_statistical_tests(self, unique_groups, is_normal):
-        """Run the group-comparison test the data supports, per data column.
+        """Run one supported group comparison per data column.
 
-        THE CHOICE IS NOT MADE HERE. :func:`spacr.figures.stats.compare` is
-        the one engine that makes it, and this method is a translation layer
-        onto it that keeps spacrGraph's report vocabulary ('T-test',
-        "Welch's T-test", 'Mann-Whitney U test', ...) and its ``n_object`` /
-        ``n_well`` columns. Two groups get Student's t, Welch's t or
-        Mann-Whitney U; three or more get one-way ANOVA, Welch's ANOVA or
-        Kruskal-Wallis; ``paired`` swaps in the paired t or the signed-rank
-        test.
+        Parameters
+        ----------
+        unique_groups : sequence
+            Groups to compare. Two groups produce a pairwise test; larger
+            sets produce an omnibus test.
+        is_normal : bool
+            External normality verdict. ``False`` forces a rank test; ``True``
+            still requires informative engine-level assumption checks.
 
-        AN ASSUMPTION CHECK THAT HAD NO POWER COUNTS AS FAILED. Below
-        :data:`spacr.figures.stats.MIN_N_FOR_ASSUMPTIONS` observations in the
-        smallest group, "Levene did not reject" means "we could not tell",
-        and this method used to read that as licence to run Student's t. On a
-        perfectly normal 3-vs-3 pair it returned ``T-test p = 0.1304`` where
-        the engine returns ``Mann-Whitney U p = 0.2000``; three replicates is
-        what a well-level spaCR figure usually has, so that gap was the
-        difference between a starred bar and an honest one.
+        Returns
+        -------
+        list of dict
+            Test name, statistic, p-value, sample counts, effect size, and
+            selection rationale for each data column. Untestable comparisons
+            use ``Test Name='not testable'`` and include the reason.
 
-        :param unique_groups: Groups to compare. Two groups get a pairwise
-            test, more get an omnibus test across all of them, but the
-            ``Comparison`` label always names only the first two.
-        :param is_normal: The caller's normality verdict, normally the one
-            :meth:`perform_normality_tests` returned. It can only VETO the
-            parametric branch, never grant it: passing True still gets a rank
-            test when the engine's own check had no power to accept normality,
-            because a caller cannot know something the data does not contain.
-        :returns: One result dict per data column, with keys ``Comparison``,
-            ``Test Statistic``, ``p-value``, ``Test Name``, ``Column``,
-            ``n_object`` and ``n_well``, plus -- so a saved table is
-            reportable rather than a bare p -- ``Effect Size``, ``Effect``
-            and ``Why This Test``. A comparison the engine refuses to make is
-            reported as ``Test Name='not testable'`` with the reason, the
-            same convention :func:`spacr.sp_stats.chi_pairwise` uses for an
-            undefined pair.
+        Notes
+        -----
+        Test selection is delegated to :func:`spacr.figures.stats.compare`.
+        Two-group comparisons may use Student's t, Welch's t, or
+        Mann-Whitney U; larger comparisons may use one-way ANOVA, Welch's
+        ANOVA, or Kruskal-Wallis. Paired data use the paired t-test or
+        Wilcoxon signed-rank test.
         """
         from .figures.stats import compare
         from .sp_stats import _ENGINE_TEST_NAMES

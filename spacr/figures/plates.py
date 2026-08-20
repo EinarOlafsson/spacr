@@ -87,21 +87,9 @@ def plate_ramp(target: str = "screen"):
 def plate_names(frame) -> List[str]:
     """The plates in this frame, in the order their identifiers give.
 
-    A ``prc`` key is read RIGHT TO LEFT: the last two tokens are the row and
-    the column, and EVERYTHING before them is the plate. That is not a choice
-    made here -- it is the rule :func:`spacr.ml._split_prc` and
-    :func:`spacr.schema.parse_prcf` already state, for the reason both give:
-    the plate id is the only component allowed to contain the separator, so
-    it is the only one that cannot be found by counting from the left.
-
-    THE LEFT-TO-RIGHT VERSION AVERAGED TWO PLATES INTO ONE PICTURE. Taking
-    the leading token made ``exp_plate1_r1_c1`` and ``exp_plate2_r1_c1`` both
-    the plate ``exp``, so a screen whose plate ids carry an experiment prefix
-    was drawn as a single grid with the two plates averaged well by well --
-    silently, and looking exactly like a plate that had been measured twice
-    as densely. A positional artefact on one plate and not the other, which
-    is the entire reason to look at a plate heatmap, disappeared into the
-    mean.
+    ``prc`` keys are parsed from the right: the final tokens are row and
+    column, while every preceding token belongs to the plate identifier.
+    This preserves plate identifiers that contain underscores.
 
     Screens whose keys are the plain three-token form -- which is every one
     this module has been run on -- are unaffected: the plate is still the

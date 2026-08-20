@@ -627,23 +627,12 @@ _THREAD_LIMITS = None
 
 
 def be_polite() -> None:
-    """Drop this process's CPU, I/O and OOM-kill priority.
+    """Lower the current worker's CPU, I/O, and OOM-kill priority.
 
-    A sweep must never win a scheduling contest against the user's editor.
-    Applied inside each worker so it is a property of the work, not of
-    however the sweep happened to be launched.
-
-    THE OOM HALF IS WHY VS CODE KEPT DYING. Nice and ionice decide who waits;
-    they say nothing about who gets KILLED when memory runs out. Left alone,
-    the kernel scores by resident size and picks the biggest process on the
-    box -- which during a sweep is an Electron editor holding a gigabyte,
-    not a worker holding six. The user loses their editor and the sweep
-    carries on, which is exactly backwards.
-
-    ``oom_score_adj`` is the knob that fixes it: a positive value volunteers
-    this process first. 800 of a possible 1000 puts every worker far ahead of
-    anything interactive without quite guaranteeing it is chosen over a
-    genuinely runaway process elsewhere.
+    The adjustments are best-effort and platform dependent. On Linux, the
+    worker uses the lowest CPU and I/O priorities and sets
+    ``oom_score_adj=800`` so it is preferred over interactive applications
+    when the system is under memory pressure.
     """
     try:
         os.nice(19)

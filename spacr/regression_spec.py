@@ -1,24 +1,8 @@
-"""What the regression backends are, and which settings each one reads.
+"""Regression backend vocabulary and setting dependencies.
 
-PURE DATA, AND THIS MODULE IMPORTS NOTHING. That is the point of it, not a
-coincidence.
-
-These tables used to live in :mod:`spacr.ml`, which imports
-:mod:`spacr.plot`, which imports torch, cv2 and IPython. Nothing in the GUI
-wanted any of that -- but `get_setting_dependencies` reads
-:data:`REGRESSION_SETTINGS_USED` to decide which widgets on a settings panel
-apply to each other, so BUILDING ANY SETTINGS PANEL paid 2.2 seconds and
-900 MB to look up a dict of strings. There is a test asserting the panel does
-not import the plotting stack (`tests/qt/test_gui_responsiveness.py`); it was
-written when that import cost 770 ms and was "the whole remaining cost of
-opening the first module", and torch made it four times worse.
-
-The same move `convert_settings_dict_for_gui` already made into
-`settings_spec.py`, for the same reason.
-
-:mod:`spacr.ml` re-exports every name here, so ``from spacr.ml import
-REGRESSION_TYPES`` keeps working and there is still one source of truth --
-this file.
+This dependency-light module contains the data needed to populate settings
+panels without importing plotting, machine-learning, or GUI stacks.
+:mod:`spacr.ml` re-exports its public names for API compatibility.
 """
 
 from __future__ import annotations

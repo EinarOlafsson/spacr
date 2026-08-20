@@ -451,7 +451,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # results/sweep runs, and 9 single-symbol modules. The two documented
     # workspace constants account for the assignment set growing 16 -> 18.
     # Nothing retired, and all target catalogs are regenerated with this bump.
-    expected = 7758
+    # +6 for the transform/link-family preflight: guide_attribution.Preflight
+    # (class, two documented attributes, and preflight), plus
+    # ml.fit_quality_note and ml.resolve_glm_transform_conflict. Nothing
+    # retired.
+    # +7/-0 for the control-name resolver: the module, ControlSpec, note,
+    # common_prefix, matches, resolve_control, and resolve_controls. Measured
+    # against 1e36a6f9 with this extractor; no existing symbol retired.
+    expected = 7771
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -466,7 +473,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7877
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7890
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:
