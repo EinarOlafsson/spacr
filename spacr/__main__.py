@@ -1,11 +1,8 @@
-"""Entry point for ``python -m spacr``.
+"""Command-line entry point for ``python -m spacr``.
 
-Builds the argument parser for the ``spacr`` CLI subcommands and
-dispatches to them. The GUI entry points live elsewhere, and the installed
-``spacr`` command is the PySide6 one (``spacr=spacr.qt:run`` in setup.py).
-``python -m spacr`` with no argument still defaults to ``gui``, which is the
-LEGACY Tk interface -- so it is not the way to launch or relaunch spaCR. Use
-``python -m spacr.qt``; `spacr.restart_state.command` does.
+The module builds and dispatches spaCR's command-line subcommands. With no
+subcommand it opens the legacy Tk interface; use ``python -m spacr.qt`` or the
+installed ``spacr`` command to open the PySide6 application.
 
 Copyright © 2025 olafsson lab
 """

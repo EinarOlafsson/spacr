@@ -261,21 +261,11 @@ def discard() -> bool:
 
 
 def command() -> List[str]:
-    """Return the command that restarts the current spaCR installation.
+    """Return the command used to restart the PySide6 application.
 
-    The command uses the active Python interpreter rather than resolving a
-    separate ``spacr`` executable from ``PATH``.
-
-    IT MUST NAME THE QT GUI, and it used to say ``-m spacr``. Reported
-    2026-08-20: "if i press stop and force restart i open the old tkinter
-    spacr". `spacr/__main__.py` is the CLI, and its `command` argument
-    DEFAULTS TO "gui", which dispatches to `spacr.gui.gui_app` -- the Tk
-    interface. So a force restart quit the Qt app and opened the old one,
-    which is not a restart of anything.
-
-    `spacr.qt.__main__` is the Qt entry point and is what the installed
-    `spacr` console script resolves to (`spacr=spacr.qt:run`), so this is the
-    same application the user was already in.
+    The command uses the active Python interpreter and the explicit
+    :mod:`spacr.qt` entry point, so a forced restart returns to the same GUI
+    without depending on an executable found through ``PATH``.
 
     Returns
     -------
