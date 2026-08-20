@@ -542,6 +542,80 @@ class HOUSE:
     REFERENCE = 0.6
 
 
+def _write(figure, path) -> None:
+    """Write a sweep figure FOR THE PAGE it is going onto (instruction 150).
+
+    THE SCREEN AND THE FILE ARE DIFFERENT PICTURES, and these ten wrote the
+    screen's one. `_readable` puts the THEME's ink on the axes so they can be
+    read on the application's dark panel -- which is right, and which on a
+    white page is #E8EDEE on #FFFFFF.
+
+    MEASURED 2026-08-20: `plot_calibration` and
+    `plot_effect_against_representation` saved with ZERO dark pixels. The
+    other eight passed a naive check only because their DATA is dark -- a
+    heatmap supplies its own ink -- so their axes were just as invisible and
+    nothing said so. That is the "i cannot see any of the x or y axes" report
+    reaching the file after it had been fixed on screen.
+
+    THE CHROME FLIPS, THE DATA DOES NOT, through the same `export_colour` both
+    renderers already use, so a mark coloured for its claim keeps its colour
+    (150 A). Restored afterwards in a `finally`, because the figure is
+    returned to the caller and may be shown.
+    """
+    if not path:
+        return
+    restore = []
+    try:
+        from .figure_style import export_colour, saved_figure_appearance
+
+        look = saved_figure_appearance()
+    except Exception:                        # pragma: no cover - style absent
+        look = None
+    if look is not None and getattr(look, "flip", False):
+        ground = getattr(look, "ground", None)
+        if ground:
+            before = figure.get_facecolor()
+            alpha = figure.patch.get_alpha()
+            figure.patch.set_facecolor(ground)
+            figure.patch.set_alpha(1.0)
+            restore.append(lambda: (figure.patch.set_facecolor(before),
+                                    figure.patch.set_alpha(alpha)))
+        for axes in figure.axes:
+            for artist, getter, setter in _chrome_of(axes):
+                replacement = export_colour(getter(), "chrome", look)
+                if replacement is None:
+                    continue
+                current = getter()
+                setter(replacement)
+                restore.append(lambda put=setter, old=current: put(old))
+    try:
+        figure.savefig(path, dpi=200, bbox_inches="tight",
+                       facecolor=figure.get_facecolor())
+    finally:
+        for undo in reversed(restore):
+            undo()
+
+
+def _chrome_of(axes):
+    """``(artist, get, set)`` for every piece of one axes' furniture."""
+    out = [(axes.title, axes.title.get_color, axes.title.set_color),
+           (axes.xaxis.label, axes.xaxis.label.get_color,
+            axes.xaxis.label.set_color),
+           (axes.yaxis.label, axes.yaxis.label.get_color,
+            axes.yaxis.label.set_color)]
+    for spine in axes.spines.values():
+        out.append((spine, spine.get_edgecolor, spine.set_edgecolor))
+    for label in list(axes.get_xticklabels()) + list(axes.get_yticklabels()):
+        out.append((label, label.get_color, label.set_color))
+    for text in axes.texts:
+        out.append((text, text.get_color, text.set_color))
+    legend = axes.get_legend()
+    if legend is not None:
+        for text in legend.get_texts():
+            out.append((text, text.get_color, text.set_color))
+    return out
+
+
 def _readable(figure, *axes) -> str:
     """Put spaCR's house ink on ``axes`` so the labels can be read.
 
@@ -677,8 +751,7 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     bar.ax.tick_params(labelsize=6)
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -844,8 +917,7 @@ def plot_effect_against_representation(
                   color=colour, va="top")
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -908,8 +980,7 @@ def plot_measurement_families(result: "SweepResult",
     axes.legend(fontsize=7, frameon=False, ncol=min(4, len(families)))
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1015,8 +1086,7 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
     axes.set_title(title or "do a gene's own guides agree?",
                    fontsize=HOUSE.LABEL)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1143,8 +1213,7 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
                    fontsize=HOUSE.LABEL)
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1216,8 +1285,7 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
         fontsize=9)
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1272,8 +1340,7 @@ def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
     bar.ax.tick_params(labelsize=6)
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1347,8 +1414,7 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
     axes.set_title(title or "which measurements discriminate",
                    fontsize=HOUSE.LABEL)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1403,8 +1469,7 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
                   f"measurement the score already tracks"), fontsize=9)
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
 
 
@@ -1461,6 +1526,5 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
         fontsize=9)
     _readable(figure, axes)
     figure.tight_layout()
-    if path:
-        figure.savefig(path, dpi=200, bbox_inches="tight")
+    _write(figure, path)
     return figure
