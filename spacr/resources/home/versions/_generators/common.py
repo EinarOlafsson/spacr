@@ -402,15 +402,15 @@ CATS_BROAD3 = _with_late_registrations([
                  "cellpose_masks", "model_zoo"]),
     ("Run", ["mask", "timelapse", "motility", "measure", "annotate",
              "classify_merged", "classify", "ml_analyze",
-             "map_barcodes", "regression",
+             "map_barcodes", "regression", "parameter_sweep",
              "queue", "batch", "distributed_jobs", "analyze_plaques",
              "recruitment", "invasion", "replication"]),
     ("Review", ["plate_view", "agreement", "umap", "activation",
                 "barcode_qc", "layer_viewer", "graph_builder",
-                "anndata_export", "run_compare",
+                "anndata_export", "pca", "tabulate", "run_compare",
                 "train_compare", "classifier_evaluation", "model_compare",
                 "run_history", "db_browser", "data_manager", "report",
-                "pipeline_graph", "hit_list", "profiler",
+                "pipeline_graph", "hit_list", "profiler", "volcano_explorer",
                 "methods_export", "image_scatter", "explain_cv",
                 "investigate_hit"]),
 ], fallback="Review")
@@ -484,6 +484,12 @@ CATS_BROAD3 = _with_late_registrations([
 #: CV sits beside Activation because both interpret a trained vision model,
 #: while Investigate Hit follows Regression in Analyse. The resulting
 #: 11/11/11/12/11 distribution has the required arithmetic floor of twelve.
+#:
+#: PCA, Tabulate, Parameter Sweep and Volcano Explorer take the registry to
+#: fifty-eight. All four now have deliberate homes rather than landing in the
+#: fallback Report band: PCA and Tabulate inspect measurements, Parameter
+#: Sweep varies a regression, and Volcano Explorer reads a finished result.
+#: The balanced 11/11/12/12/12 distribution keeps twelve as the exact floor.
 CATS_STAGE5 = _with_late_registrations([
     # Illumination is a correction of the sensor, applied to the pixels
     # before anything is segmented or measured — it belongs with the
@@ -555,9 +561,14 @@ CATS_STAGE5 = _with_late_registrations([
     # asked OF the measurements, which is what this band is. It had been
     # landing in Report, and Report is only where an uncategorised key
     # falls -- not an argument that a contingency table is a deliverable.
+    # PCA asks the same table for its principal directions. It belongs beside
+    # Image Scatter here rather than beside the screen fits below: neither
+    # consumes barcode counts or a regression result, and both help inspect
+    # whether the measured feature space is the one the user intended.
     ("Measure", ["measure", "annotate", "agreement", "motility",
                  "image_scatter", "lineage", "analyze_plaques",
-                 "recruitment", "invasion", "replication", "tabulate"]),
+                 "recruitment", "invasion", "replication", "tabulate",
+                 "pca"]),
     # Barcode QC sits beside Map Barcodes and Regression because the
     # number it derives — the abundance threshold — is what the
     # regression consumes as fraction_threshold. It is part of analysing
@@ -571,10 +582,10 @@ CATS_STAGE5 = _with_late_registrations([
     # input of the fitted model to see where the prediction goes is asking
     # the model a question, which is analysis — the reporting apps below
     # judge whether to believe a result, and this one produces results.
-    # PCA joins on the same grounds as Image UMAP, which is already here:
-    # both reduce the measurement table to a couple of components to see
-    # what separates, and neither is something you hand to anybody. It was
-    # falling through to Report for want of a line here.
+    # Parameter Sweep belongs beside Regression: it repeatedly fits that
+    # analysis under defensible alternatives and compares what survives. It
+    # was falling into Report only because this review table predated the
+    # standalone sweep screen.
     # Classify — the merged module — is here beside the two originals it
     # dispatches to, which is where every other table already files the
     # three together: CATS_BROAD3 under "Run", CATS_NARROW8 under
@@ -586,7 +597,8 @@ CATS_STAGE5 = _with_late_registrations([
     # Segment; the note there says why.
     ("Analyse", ["classify_merged", "classify", "ml_analyze", "map_barcodes",
                  "barcode_qc", "regression", "umap", "graph_builder",
-                 "anndata_export", "profiler", "pca", "investigate_hit"]),
+                 "anndata_export", "profiler", "parameter_sweep",
+                 "investigate_hit"]),
     # Report is "decide whether to believe it, then hand it on", which is
     # where the two model/provenance QC apps belong: Classifier Evaluation
     # judges the classifier the Analyse stage trained, Run History says what
@@ -605,10 +617,12 @@ CATS_STAGE5 = _with_late_registrations([
     # The QC Dashboard is the most literal member this band has: five
     # verdicts on one screen, none of them recomputed, which is "decide
     # whether to believe it" with nothing else in it.
+    # Volcano Explorer is equally literal: it opens a finished regression,
+    # runs no analysis and lets the user inspect and export the result.
     ("Report",  ["plate_view", "train_compare", "classifier_evaluation",
                  "run_history", "run_compare", "db_browser", "report",
                  "pipeline_graph", "hit_list", "methods_export",
-                 "qc_dashboard"]),
+                 "qc_dashboard", "volcano_explorer"]),
 ], fallback="Report")
 
 CATS_NARROW8 = _with_late_registrations([
@@ -621,7 +635,8 @@ CATS_NARROW8 = _with_late_registrations([
     ("Segment",          ["mask", "timelapse", "cellpose_masks"]),
     ("Train models",     ["make_masks", "train_cellpose", "model_zoo",
                           "model_compare"]),
-    ("Measure",          ["measure", "motility", "image_scatter"]),
+    ("Measure",          ["measure", "motility", "image_scatter", "pca",
+                          "tabulate"]),
     ("Label",            ["annotate", "agreement"]),
     # Classify (the merged module) is one of the apps that trains a
     # per-object classifier, so it is here with the two originals it
@@ -638,7 +653,8 @@ CATS_NARROW8 = _with_late_registrations([
                            "umap", "graph_builder", "layer_viewer",
                            "anndata_export", "plate_view", "report",
                            "hit_list", "methods_export", "pipeline_graph",
-                           "profiler", "investigate_hit"]),
+                           "profiler", "parameter_sweep", "volcano_explorer",
+                           "investigate_hit"]),
     # Power / Design and Run Compare are both "things you do around a run
     # rather than to the images": one decides how big the run has to be,
     # the other reads two of them against each other. This is variant 04's
@@ -663,14 +679,14 @@ CATS_QUESTIONS = _with_late_registrations([
     ("I have objects. What are they like?",
      ["measure", "annotate", "motility", "analyze_plaques", "recruitment",
       "invasion", "replication", "agreement", "layer_viewer",
-      "image_scatter"]),
+      "image_scatter", "pca", "tabulate"]),
     # Hit List answers this band's question in the most direct way there
     # is — it IS the list of genes that matter — and the Prediction
     # Profiler is how you interrogate the model that produced it.
     ("I have a screen. Which genes matter?",
      ["classify_merged", "classify", "ml_analyze", "map_barcodes",
       "regression", "umap", "activation", "graph_builder", "anndata_export",
-      "hit_list", "profiler", "investigate_hit"]),
+      "hit_list", "profiler", "parameter_sweep", "investigate_hit"]),
     # Pipeline Graph belongs here for the literal reason: it marks the
     # outputs that no longer follow from their inputs, which is the
     # question in the heading. Methods & Results is the other half — what
@@ -679,7 +695,7 @@ CATS_QUESTIONS = _with_late_registrations([
      ["plate_view", "barcode_qc", "train_compare", "classifier_evaluation",
       "report", "run_history", "run_compare", "db_browser", "data_manager",
       "queue", "batch", "distributed_jobs", "pipeline_graph",
-      "methods_export", "explain_cv"]),
+      "methods_export", "explain_cv", "volcano_explorer"]),
 ], fallback="Should I believe any of this?")
 
 CATS_INTENT4 = [

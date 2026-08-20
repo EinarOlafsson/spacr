@@ -63,7 +63,7 @@ def test_the_tooltip_names_the_new_default_and_what_changes():
     assert "'mixed'" in text
     # and what the choice actually changes
     assert "'level' greys out" in text
-    assert "nested" in text
+    assert "nests guides inside genes" in text
 
 
 # ---------------------------------------------------------------------------

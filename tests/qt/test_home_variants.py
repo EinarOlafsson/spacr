@@ -62,8 +62,8 @@ N_VARIANTS = 30
 SCROLLBARS_ALLOWED = {1, 25, 30}
 
 #: The variants that do NOT fit 1440x900 at the reference zoom, measured
-#: with fifty-six apps in the candidate bands (sixty-five in the launched
-#: registry). Depending on the supported Open Sans rasterizer, seventeen or
+#: with fifty-eight apps in the candidate bands. Depending on the supported
+#: Open Sans rasterizer, seventeen or
 #: nineteen of the thirty are clean and this records the other exact profile.
 #:
 #: It is a measurement, not a permission. ``test_no_variant_clips_elides_or_
@@ -109,6 +109,11 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: to the two additional rows. One supported font rasterizer records variants
 #: 19 and 24 at the vertical boundary; hosted Ubuntu fits both exactly.
 #:
+#: Re-measured at fifty-eight apps after PCA and Tabulate joined. Filing all
+#: four previously unfiled apps restores variant 19 to its one-pixel font
+#: boundary; the remaining increases are the two new rows on fixed-size review
+#: canvases. Variant 24 remains a rasterizer boundary and fits on hosted Ubuntu.
+#:
 #: Previously measured at fifty-four apps, the merged Classify module
 #: having joined the registry on 2026-08-06 (2d4da7df). Exactly one number
 #: moved and it is v22's, which is the interesting part: v22 is the A-to-Z
@@ -123,19 +128,19 @@ KNOWN_LAYOUT_DEFECTS: dict = {
     # New since the last record: v01 clips four descriptions and overflows.
     1:  {"clipped": 4, "overflow": 1},
     # Five bands of seven, all five now wrapping to a second row.
-    2:  {"elided": 23, "overflow": 1},
+    2:  {"elided": 25, "overflow": 1},
     3:  {"elided": 6, "overflow": 1},
     # Not names: one-line descriptions given less height than they need.
-    4:  {"clipped": 17},
-    5:  {"elided": 7},
+    4:  {"clipped": 23},
+    5:  {"elided": 8},
     13: {"clipped": 11},
     17: {"overflow": 1},
     19: {"clipped": 1},
     20: {"elided": 1, "overflow": 1},
-    # The A-to-Z index has no bands to absorb added rows; at fifty-six apps
+    # The A-to-Z index has no bands to absorb added rows; at fifty-eight apps
     # its fixed three-column canvas clips the descriptions below the fold.
-    22: {"clipped": 36},
-    24: {"clipped": 2},
+    22: {"clipped": 38},
+    24: {"clipped": 3},
     28: {"elided": 5, "overflow": 1},
     30: {"elided": 5},
 }
@@ -431,6 +436,11 @@ def test_no_stage_band_exceeds_the_seven_column_grid_by_more_than_a_row(
     their merits: model explanation beside Activation in Segment, and hit
     investigation beside Regression in Analyse. The resulting
     11/11/11/12/11 distribution remains at most two seven-column rows.
+
+    PCA, Tabulate, Parameter Sweep and Volcano Explorer take it to fifty-eight.
+    Filing them by function -- measurements, measurements, analysis and report
+    respectively -- balances the bands at 11/11/12/12/12, so twelve remains
+    the exact arithmetic floor rather than slack left behind by a fallback.
     """
     assert len(gen_common.CATS_STAGE5) == 5
     for title, keys in gen_common.CATS_STAGE5:
