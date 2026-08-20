@@ -1566,7 +1566,31 @@ def _design_column_groups(columns):
             for column in columns]
 
 
-def label_control_condition(features, guides, nc=None, pc=None, controls=None):
+def _say_when_a_control_matched_nothing(coef_df, nc, pc, controls) -> None:
+    """Warn, by name, about a control that selected no coefficient.
+
+    The consequence is named because the number is not obviously missing:
+    the run completes, the volcano draws, and the effect-size cut is simply
+    measured on nothing.
+    """
+    counts = coef_df['condition'].value_counts()
+    for value, tag, what in ((nc, 'nc', 'negative_control'),
+                             (pc, 'pc', 'positive_control')):
+        if value in (None, '') or int(counts.get(tag, 0)):
+            continue
+        print(f"  WARNING: {what}={value!r} matches no coefficient in this "
+              f"screen, so the baseline and the effect-size cut that read it "
+              f"have nothing to measure. Check it against the guide names in "
+              f"the count table -- spaCR reads a bare id as a GENE and one "
+              f"with an underscore as a GUIDE.")
+    if (controls or []) and not int(counts.get('control', 0)):
+        print(f"  WARNING: none of the {len(list(controls))} control(s) named "
+              f"matches a coefficient, so there is no control spread to "
+              f"measure an effect-size cut on.")
+
+
+def label_control_condition(features, guides, nc=None, pc=None, controls=None,
+                            *, strict: bool = False, verbose: bool = False):
     """Label every coefficient row ``'nc'``, ``'pc'``, ``'control'`` or ``'other'``.
 
     The ``condition`` column: what the volcano colours by, what the results
@@ -1593,6 +1617,12 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None):
         means "no control list" and labels nothing -- it is the value
         :func:`perform_regression` documents for a control-free screen, and
         the inline version this replaced raised ``TypeError`` on it.
+    :param strict: raise :class:`spacr.control_names.ControlNotFound` when a
+        NAMED ``nc`` or ``pc`` matches nothing. Off by default so a call on a
+        partial frame is not an error; the run turns it on, because there a
+        control matching nothing is a number computed against an empty set.
+    :param verbose: print what each control resolved to and how much it
+        matched.
     :returns: a :class:`pandas.Series` of labels aligned with ``features``.
     """
     features = pd.Series(features).astype(str)
@@ -1607,13 +1637,35 @@ def label_control_condition(features, guides, nc=None, pc=None, controls=None):
     pc_name = '' if pc is None else str(pc)
     control_names = {str(name) for name in (controls or [])}
 
+    # ONE MATCHER (184 C). `nc` and `pc` were matched as SUBSTRINGS of the
+    # model term, which is how `nc='23346'` claims `233460` AND `2334600` --
+    # and the rows it steals are then reported as controls, which is worse
+    # than missing them. `spacr.control_names` reads a typed control as a
+    # gene or a guide by the same rule `process_reads` already applies to the
+    # data, and matches WHOLE values at that level.
+    from .control_names import rows_for
+
     labels = pd.Series('other', index=features.index, dtype=object)
+    genes = guides.astype(str).str.split('_').str[0]
+    library = list(guides.astype(str).unique())
     if control_names:
-        labels[guides.isin(control_names)] = 'control'
-    if pc_name:
-        labels[features.str.contains(pc_name, regex=False)] = 'pc'
-    if nc_name:
-        labels[features.str.contains(nc_name, regex=False)] = 'nc'
+        for name in sorted(control_names):
+            mask, note = rows_for(name, guides, genes, names=library)
+            if verbose and note:
+                print(f"  {note}")
+            labels[mask.to_numpy()] = 'control'
+    # PRECEDENCE UNCHANGED: nc over pc over the list, so a guide named twice
+    # is reported once and always the same way.
+    for name, tag in ((pc_name, 'pc'), (nc_name, 'nc')):
+        if not name:
+            continue
+        mask, note = rows_for(name, guides, genes, names=library,
+                              strict=strict,
+                              label='positive control' if tag == 'pc'
+                              else 'negative control')
+        if verbose and note:
+            print(f"  {note}")
+        labels[mask.to_numpy()] = tag
     return labels
 
 
@@ -1716,8 +1768,22 @@ def process_model_coefficients(model, regression_type, X, y, nc, pc, controls,
     # copy the moment the permutation table needed a `condition` column too,
     # and two copies of "what counts as a control" is how the run and the
     # panel come to disagree about which coefficients the cut is measured on.
+    # LOUD, NOT FATAL (184 D). A control that matches nothing is not "no
+    # controls" -- it is every normalisation, every volcano baseline and the
+    # whole effect-size cut computed against an empty set, while the run
+    # finishes and the figures draw. So it has to be said.
+    #
+    # IT MUST NOT RAISE, AND THE INSTRUCTION SAID IT SHOULD. spaCR SHIPS
+    # nc='233460' and pc='220950' -- Toxoplasma gene ids -- so raising would
+    # make every screen that is not this one fail on a value the user never
+    # typed. "Error, not a silent zero" is right about the silence and wrong
+    # about the exception: the fix for silence is a sentence nobody can miss.
+    # `strict=True` remains available for a caller that knows the control was
+    # chosen rather than defaulted.
     coef_df['condition'] = label_control_condition(
-        coef_df['feature'], coef_df['grna'], nc=nc, pc=pc, controls=controls)
+        coef_df['feature'], coef_df['grna'], nc=nc, pc=pc, controls=controls,
+        verbose=True)
+    _say_when_a_control_matched_nothing(coef_df, nc, pc, controls)
 
     return coef_df[~coef_df['feature'].str.contains('row|column')]
 
@@ -5933,13 +5999,40 @@ def _level_control_rows(frame, level, controls):
     (:func:`spacr.hits.gene_of`: truncate at the first underscore), so the
     gene fit matches on that.
     """
-    names = {str(name) for name in (controls or [])}
-    if not names:
+    if not (controls or []):
         return frame.iloc[0:0]
-    if level == 'gene':
-        names |= {name.split('_')[0] for name in names}
-        return frame.loc[frame['gene'].astype(str).isin(names)]
-    return frame.loc[frame['grna'].astype(str).isin(names)]
+    # THE SAME MATCHER THE VOLCANO USES (184 C). This took
+    # `name.split('_')[0]` as the gene, which reads `TGGT1` as the gene of
+    # `TGGT1_000000_1` -- so a control pasted from a library file selected
+    # nothing at gene level and the gene table silently got no effect-size
+    # cut, which is the exact failure this function was written to fix, one
+    # spelling further along. `spacr.control_names` measures the organism
+    # prefix instead of assuming there is not one.
+    from .control_names import matches, resolve_controls
+
+    guides = frame['grna'] if 'grna' in frame.columns else frame.index
+    library = [str(g) for g in pd.Series(guides).astype(str).unique()]
+    genes = frame['gene'] if 'gene' in frame.columns else None
+    specs = resolve_controls(controls, names=library)
+    if not specs:
+        return frame.iloc[0:0]
+    keep = None
+    for spec in specs:
+        # AT THIS FIT'S OWN LEVEL. A gene fit has no guide column -- every
+        # `gene_fraction:gene[...]` row carries grna=None -- so a guide-level
+        # control is matched by the gene it belongs to there.
+        if level == 'gene':
+            from .control_names import GENE, ControlSpec
+
+            spec = ControlSpec(spec.typed, GENE,
+                               spec.value.split('_')[0] if not spec.is_gene
+                               else spec.value, spec.prefix)
+            mask = matches(spec, frame['gene'].astype(str),
+                           frame['gene'].astype(str))
+        else:
+            mask = matches(spec, pd.Series(guides).astype(str), genes)
+        keep = mask if keep is None else (keep | mask)
+    return frame.loc[keep.to_numpy()]
 
 
 #: Current and legacy keys for enabling bundled *Toxoplasma* annotation.
