@@ -290,9 +290,8 @@ NO_MODEL_FROM_DISK = (
     "run, so the fitted model is not here")
 NO_MODEL_AT_ALL = "no run in this session has fitted anything yet"
 
-#: The results table a run folder IS. Any other table in the same folder is a
-#: different run's worth of view -- see :meth:`_plot_state_key`.
-CANONICAL_TABLE = "results.csv"
+# Canonical results tables share the run folder's remembered plot state.
+_CANONICAL_TABLE = "results.csv"
 
 
 def _why_no_model(path, reason) -> str:
@@ -2040,38 +2039,19 @@ class RegressionResultsPanel(QWidget):
 
     @classmethod
     def _plot_state_key(cls, source) -> str:
-        """What a run's remembered view is filed under: ITS FOLDER.
+        """Return the key used to store a results table's plot state.
 
-        Instruction 116 says a run owns its plot state, and the run is the
-        folder (155 A). Filed under the raw source it was loaded from, one
-        run had TWO entries and got neither back: a live run arrives as
-        ``<results>/ols_3`` from ``perform_regression`` and the same run
-        picked in the Runs tab afterwards arrives as
-        ``<results>/ols_3/results.csv``. The user saw the view they had built
-        on the run reset when they came back to it -- which is the whole of
-        what 116 was asked to stop.
-
-        Falls back to the source itself for a table with no folder behind it,
-        so a frame handed straight in is still distinguishable from another.
-
-        AND THE FILE NAME, WHEN IT IS NOT THE CANONICAL ONE. The folder alone
-        made every table in one folder ONE run, which is wrong for the folder
-        a `level='both'` run writes: `results_gene.csv` and `results_grna.csv`
-        are two different multiple-testing families in the same directory
-        (132 C), and restoring the gene view onto the guide table is exactly
-        the "a mark on a point that means something else now" failure the
-        reset exists to prevent. Measured: two sources in one folder returned
-        the same key, and opening the second restored the first's selection.
-
-        `results.csv` IS the folder, which keeps 116's identity intact --
-        `<results>/ols_3` and `<results>/ols_3/results.csv` are still one run
-        and still share one view.
+        A live run path and its canonical ``results.csv`` file share the run
+        folder as their key. Alternative tables in the same folder include
+        their file name, which keeps gene- and guide-level plot selections
+        independent. Sources without a resolvable folder use their string
+        representation.
         """
         folder = cls._folder_of(source)
         if not folder:
             return str(source or "")
         name = os.path.basename(str(source or ""))
-        if name and name != os.path.basename(folder) and name != CANONICAL_TABLE:
+        if name and name != os.path.basename(folder) and name != _CANONICAL_TABLE:
             return f"{folder}::{name}"
         return folder
 
