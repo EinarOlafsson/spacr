@@ -111,7 +111,7 @@ def test_marker_expressions_partition_resource_and_structural_suites():
 
 
 def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
-    """Measured high-RSS nodes must not overlap in the four-worker fast job."""
+    """Measured high-RSS nodes must not overlap in the parallel fast job."""
     missing = []
     for filename, expected_names in PARALLEL_MEMORY_AMPLIFIERS.items():
         tree = ast.parse((ROOT / "tests" / filename).read_text(encoding="utf-8"))
@@ -128,6 +128,14 @@ def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
                 missing.append(f"{filename}::{name}")
 
     assert not missing, "heavy marker missing from: " + ", ".join(missing)
+
+
+def test_fast_suites_fit_on_a_standard_hosted_runner():
+    """Three xdist workers leave memory for imports and the runner service."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+
+    assert workflow.count("-n 3 --dist loadfile") == 2
+    assert "-n 4 --dist loadfile" not in workflow
 
 
 def test_reusable_suite_auto_detects_resources_and_current_actions():

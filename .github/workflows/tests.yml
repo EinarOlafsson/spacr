@@ -213,7 +213,7 @@ jobs:
         run: |
           python -m pytest tests/ \
             -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            -n 4 --dist loadfile -v --tb=short
+            -n 3 --dist loadfile -v --tb=short
 
   integration:
     name: Integration
@@ -411,7 +411,7 @@ jobs:
         run: |
           python -m pytest tests/ \
             -m "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            -n 4 --dist loadfile -v --tb=short
+            -n 3 --dist loadfile -v --tb=short
 
   release-gate:
     name: Release gate / zero unexpected failures
