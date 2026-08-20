@@ -516,3 +516,21 @@ regressable_columns, write_merged_frame, column_run_settings, ColumnFit,
 QueueCancelled, run_column_fits, ColumnRegressionPanel and its nine methods,
 DatabaseMergePanel.step_states / .merged_frame_path,
 MeasurementScanPanel.databases_frame, and sweep_runs.SOURCE_MEASUREMENT.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- 157 IS FOLDED INTO G, as 157's header asked.
+--------------------------------------------------------------------------------
+
+G's loaded mark had a defect of its own, filed separately on 2026-08-18 while
+this file was being edited concurrently: `SweepRuns.loaded_run_changed` was
+emitted from four places and connected to nothing, so the mark in the Runs
+table moved while the results, figures and summary stayed on the previous
+run. Reported as "i ran a mixed model and a ols model and eaven if the ols
+model is marked as loaded i think i still see the mixed results".
+
+Fixed by the one missing connection, at app_screen.py:2086:
+
+    self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+
+so the mark and what is on screen are one event. instructions/done/157 keeps
+the full diagnosis.

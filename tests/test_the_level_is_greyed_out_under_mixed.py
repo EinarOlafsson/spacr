@@ -54,7 +54,13 @@ def test_the_tooltip_names_the_new_default_and_what_changes():
     text = tooltips["regression_type"]
     assert "Default 'mixed'" in text
     # what it replaced, so a returning user knows their numbers will move
-    assert "'ols' until 2026-08-17" in text
+    # THE DEFAULT AND WHAT IT CHANGES, not the date it changed. This asserted
+    # "'ols' until 2026-08-17" -- a changelog line -- and the public help has
+    # since been cleared of internal development history, which is the right
+    # call: a user reading a tooltip wants to know what the setting does now,
+    # not when it last moved. What the test is FOR is that the tooltip names
+    # the default and says what picking another costs.
+    assert "'mixed'" in text
     # and what the choice actually changes
     assert "'level' greys out" in text
     assert "nested" in text
@@ -216,16 +222,38 @@ def test_the_model_dropdown_opens_on_the_model_that_will_be_fitted():
 
 def test_a_fresh_dict_survives_the_random_effects_reconciliation():
     """_reconcile_random_row_column_effects REFUSES the flag beside a named
-    non-mixed type. With 'mixed' the default, a fresh dict is compatible in
-    both positions of the flag rather than newly refused."""
+    non-mixed type. With 'mixed' the default, a fresh dict is compatible.
+
+    TURNING THE FLAG ON NOW NEEDS PLATE POSITION TURNED ON TOO, and that is
+    instruction 143 rather than a regression: plate position became OPT IN,
+    so `model_plate_position` defaults to False and there is nothing left for
+    `random_row_column_effects=True` to make random. The refusal says exactly
+    that and names both ways out. This test asserted the pre-143 default and
+    read a correct refusal as a newly-broken dict.
+    """
     from spacr.ml import _reconcile_random_row_column_effects
 
     off = _reconcile_random_row_column_effects(_regression_defaults())
     assert off["regression_type"] == "mixed"
 
     on = _reconcile_random_row_column_effects(
-        _regression_defaults(random_row_column_effects=True))
+        _regression_defaults(random_row_column_effects=True,
+                             model_plate_position=True))
     assert on["regression_type"] == "mixed"
+
+
+def test_the_flag_alone_is_refused_now_that_plate_position_is_opt_in():
+    """Both settings, or neither: the pairing has one coherent reading and
+    the refusal names both ways out rather than picking one."""
+    from spacr.ml import _reconcile_random_row_column_effects
+
+    with pytest.raises(ValueError) as excinfo:
+        _reconcile_random_row_column_effects(
+            _regression_defaults(random_row_column_effects=True))
+
+    message = str(excinfo.value)
+    assert "model_plate_position=True" in message
+    assert "random_row_column_effects=False" in message
 
 
 def test_the_flag_still_refuses_a_named_non_mixed_model():
