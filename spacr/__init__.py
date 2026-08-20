@@ -225,6 +225,11 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # built as a bare matplotlib.figure.Figure reaches the GUI too. That was
     # the whole ~19-panel regression QC report, on disk and invisible.
     "figure_sink",
+    # Canonical control identifiers and the optional example-data downloader
+    # are dependency-light public helpers used by both the GUI and notebooks.
+    "control_names",
+    "example_data_manifest",
+    "example_data",
     # A column that is not there offers the columns that are. Reads only the
     # header row, so it can populate a GUI dropdown on the GUI thread from a
     # score CSV that is hundreds of megabytes.
