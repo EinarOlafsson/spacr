@@ -774,6 +774,16 @@ class AppScreen(QWidget):
             self.register_workspace()
         except Exception:                                       # noqa: BLE001
             LOG.debug("could not enrol the workspace sections", exc_info=True)
+        # 178 D: no overflow arrows. The two ways along a bar the ask named --
+        # the wheel and the arrow keys -- were driven before this shipped and
+        # both work, which is the condition under which removing a control is
+        # safe. See `take_the_scroll_arrows_off`.
+        try:
+            from ..theme import take_the_scroll_arrows_off
+            take_the_scroll_arrows_off(self)
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not take the tab scroll arrows off",
+                      exc_info=True)
 
     # ------------------------------------------------------------------
     # Ambient backdrop

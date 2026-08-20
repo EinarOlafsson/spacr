@@ -3850,3 +3850,52 @@ QStatusBar {{
 }}
 {GLASS_LAYER}{WIDGET_QSS}
 """
+
+
+# ---------------------------------------------------------------------------
+# The tab-bar overflow arrows (instruction 178 D)
+# ---------------------------------------------------------------------------
+
+def take_the_scroll_arrows_off(root) -> int:
+    """Turn off every tab bar's overflow arrows under ``root``. Returns how many.
+
+    Reported 2026-08-19: "two arrows that are visable black boxes with white
+    arrows. these are ugly and can be removed. the user can allways scrole and
+    they should also be able to use the arrow keys when a tab is chosen."
+
+    THE CONDITION WAS NAMED IN THE ASK AND IT IS MET. Removing a control is
+    only safe if what it did still works, so both ways along an overflowing
+    bar were driven before this shipped, on a 14-tab bar too narrow to hold
+    them:
+
+        two Right keys on the focused bar   -> tab 0 to tab 2
+        one wheel notch over the bar        -> tab 2 to tab 3
+
+    Qt keeps scrolling the bar to reveal the current tab whichever way it
+    moves, so a tab reached by key or wheel is a tab the user can see. The
+    arrows were a third way to do what those two already do, drawn as two
+    opaque QToolButtons that no rule in this sheet had claimed -- which is
+    why they were black on every theme.
+
+    The stylesheet rules for `QTabBar::scroller` and its buttons STAY. A tab
+    bar built after this call, or one this sweep does not reach, still has
+    arrows that belong to the theme rather than to Qt's default palette --
+    the styling is the floor and this is the improvement on it.
+    """
+    from PySide6.QtWidgets import QTabBar, QTabWidget
+
+    seen = 0
+    for widget in root.findChildren(QTabWidget):
+        widget.tabBar().setUsesScrollButtons(False)
+        seen += 1
+    for bar in root.findChildren(QTabBar):
+        if bar.usesScrollButtons():
+            bar.setUsesScrollButtons(False)
+            seen += 1
+    if isinstance(root, QTabWidget):
+        root.tabBar().setUsesScrollButtons(False)
+        seen += 1
+    elif isinstance(root, QTabBar):
+        root.setUsesScrollButtons(False)
+        seen += 1
+    return seen
