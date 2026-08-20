@@ -228,6 +228,21 @@ def experiment_root(db_path: str) -> str:
     return folder
 
 
+def _colour_to_source() -> dict:
+    """``{'r': idx, 'g': idx, 'b': idx}`` -- which SOURCE channel each colour
+    holds, from spaCR's own mapping rather than from position."""
+    try:
+        from ...crops import DEFAULT_PNG_CHANNEL_MAPPING
+
+        return {k: int(v) for k, v in DEFAULT_PNG_CHANNEL_MAPPING.items()
+                if v is not None}
+    except Exception:                                        # noqa: BLE001
+        return {"r": 2, "g": 1, "b": 0}
+
+
+_COLOUR_TO_SOURCE = _colour_to_source()
+
+
 def parse_channels(text: str) -> Optional[Tuple[int, ...]]:
     """Read the channel box: ``"0,1,2"`` -> ``(0, 1, 2)``.
 
@@ -244,6 +259,31 @@ def parse_channels(text: str) -> Optional[Tuple[int, ...]]:
         return None
     out = []
     for part in parts:
+        # THE ANNOTATION APP'S SPELLING IS ACCEPTED HERE. It asks which
+        # COLOUR PLANES to show and writes them 'r,g,b' -- `_csv_to_list`
+        # keeps whatever strings it is given and `filter_channels_pil` reads
+        # the letters directly. This box asks a different question (which
+        # SOURCE channels to cut) and answers it in indices, so typing the
+        # annotator's answer here raised ValueError and the tab refused to
+        # draw anything at all: "'rgb' is not a list of channel indeces ...
+        # and this blocks the user from being able to spawn any images".
+        #
+        # THE LETTERS ARE TRANSLATED THROUGH THE MAPPING, never by position.
+        # spaCR's default is {r: 2, g: 1, b: 0}, so 'r' is source channel TWO;
+        # reading it as 0 would cut the planes in reverse and produce a crop
+        # that looks entirely plausible and is wrong.
+        letter = part.strip().lower()
+        if letter in _COLOUR_TO_SOURCE:
+            out.append(_COLOUR_TO_SOURCE[letter])
+            continue
+        # 'rgb' AND 'rg' TOO, not only 'r,g,b'. "the user should be able to
+        # type in r,g,b or any combination" -- and a token made only of
+        # colour letters has exactly one reading, so refusing it is pedantry
+        # with a blocked montage on the other end. This is the form the
+        # report actually used.
+        if letter and all(c in _COLOUR_TO_SOURCE for c in letter):
+            out.extend(_COLOUR_TO_SOURCE[c] for c in letter)
+            continue
         value = int(part)
         if value < 0:
             raise ValueError(f"{value} is not a channel index")
@@ -1491,8 +1531,12 @@ class CellMontageView(QWidget):
         self._channels.setPlaceholderText("as the run saved them")
         self._channels.setVisible(False)
         self._channels.setToolTip(
-            "Which intensity planes become the picture, e.g. 0,1,2. Left "
-            "empty, the run's own png_dims are read back out of "
+            "Which planes become the picture. Type the COLOUR LETTERS the "
+            "annotation application uses — r, g, b, or any combination such "
+            "as 'r,g,b', 'rg' or just 'b' — and each is resolved to the "
+            "source channel this screen put in that colour. Source channel "
+            "NUMBERS also work ('0,1,2') for anyone who knows them.\n\n"
+            "Left empty, the run's own png_dims are read back out of "
             "measurements.db, so the crops match the PNGs that run wrote.")
         self._channels.textChanged.connect(self._on_settings_changed)
 
@@ -1793,8 +1837,11 @@ class CellMontageView(QWidget):
         try:
             parse_channels(self._channels.text())
         except ValueError:
-            return (f"'{self._channels.text()}' is not a list of channel "
-                    "indices. Use numbers separated by commas, e.g. 0,1,2.")
+            return (f"'{self._channels.text()}' is not a channel list. Use "
+                    "the colour letters the annotation application uses — "
+                    "r, g, b or any combination of them — or source channel "
+                    "numbers, separated by commas. For example 'r,g,b', "
+                    "'r' or '0,1,2'.")
         if (str(self._baseline.currentData() or "median") == "intercept"
                 and intercept_from_frame(self._frame()) is None):
             # SAID, NEVER FALLEN BACK FROM. Quietly using the median while

@@ -159,3 +159,88 @@ def test_nonsense_channels_are_neither_letters_nor_indices():
     """Neither path claims it, so nothing reaches the crop layer to break on."""
     out = to_crop_settings({"crop_source": "merged", "channels": "wibble"})
     assert "png_dims" not in out and "png_channel_mapping" not in out
+
+
+# ------------------------------------ the channel box accepts the annotator's
+
+
+def test_the_channel_box_takes_the_annotation_apps_spelling():
+    """Reported 2026-08-19: "'rgb' is not a list of channel indeces ... and
+    this blocks the user from being able to spawn any images at all".
+
+    THE TWO PANELS ASK DIFFERENT QUESTIONS IN THE SAME WORDS. The annotation
+    app's `channels` is which COLOUR PLANES to show -- `_csv_to_list` keeps
+    whatever strings it is given and `filter_channels_pil` reads 'r'/'g'/'b'
+    directly. The Cells tab's box decides which SOURCE channels to cut, and
+    answered in indices, so the annotator's answer raised ValueError and the
+    whole tab refused to draw.
+    """
+    from spacr.qt.widgets.cell_montage_view import parse_channels
+
+    assert parse_channels("r,g,b") is not None
+    assert parse_channels("rgb") == parse_channels("r,g,b"), (
+        "the compact form is what the report actually typed")
+    assert parse_channels("RGB") == parse_channels("r,g,b")
+    assert parse_channels("rg") == parse_channels("r,g")
+    assert parse_channels("b") is not None
+
+
+def test_the_letters_go_through_the_mapping_not_by_position():
+    """spaCR's default is {r: 2, g: 1, b: 0}, so 'r' is source channel TWO.
+    Reading it as 0 cuts the planes in reverse and produces a crop that looks
+    entirely plausible and is wrong."""
+    from spacr.crops import DEFAULT_PNG_CHANNEL_MAPPING
+    from spacr.qt.widgets.cell_montage_view import parse_channels
+
+    assert parse_channels("r") == (DEFAULT_PNG_CHANNEL_MAPPING["r"],)
+    assert parse_channels("b") == (DEFAULT_PNG_CHANNEL_MAPPING["b"],)
+    assert parse_channels("r,g,b") != (0, 1, 2), (
+        "the letters were read positionally, which reverses the planes")
+
+
+def test_channel_numbers_still_work():
+    """Unambiguous, and anyone who knows their source channels can type them."""
+    from spacr.qt.widgets.cell_montage_view import parse_channels
+
+    assert parse_channels("0,1,2") == (0, 1, 2)
+
+
+def test_an_empty_box_still_means_the_runs_own_channels():
+    from spacr.qt.widgets.cell_montage_view import parse_channels
+
+    assert parse_channels("") is None
+
+
+def test_nonsense_is_still_refused():
+    """Forgiving is not the same as silent: a word that is not a channel has
+    no reading, and guessing one would draw the wrong planes."""
+    from spacr.qt.widgets.cell_montage_view import parse_channels
+
+    with pytest.raises(ValueError):
+        parse_channels("wibble")
+
+
+def test_the_tooltip_says_how_to_type_it(qtbot):
+    """"instructions for doing this wil be in the tool tip"."""
+    from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+    view = CellMontageView(threaded=False)
+    qtbot.addWidget(view)
+    hint = view._channels.toolTip()
+
+    assert "r, g, b" in hint or "r,g,b" in hint
+    assert "colour" in hint.lower()
+
+
+def test_the_refusal_names_both_spellings(qtbot):
+    """A refusal that only mentions numbers is what sent the user to numbers."""
+    from spacr.qt.widgets.cell_montage_view import CellMontageView
+
+    view = CellMontageView(threaded=False)
+    qtbot.addWidget(view)
+    view._channels.setText("wibble")
+    reason = view.reason()
+
+    if reason and "channel list" in reason:
+        assert "r, g, b" in reason
+        assert "0,1,2" in reason

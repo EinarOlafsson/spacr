@@ -3048,6 +3048,16 @@ QLabel#HintBar {{
  *  Sliders — blue (accent) handle + filled track, not the default
  *  dark-gray handle.
  * ----------------------------------------------------------------- */
+/* THE WIDGET'S OWN BACKGROUND, which no rule had claimed. The groove and
+   handle were styled and the QSlider behind them was not, so it painted the
+   palette's window colour as an opaque rectangle on a container that is a
+   translucent SURFACE -- reported as "there is a figure size slider that has
+   a black background in regression module, it should be same color as
+   container". A figure control is not a window (INVARIANTS 2); the same
+   omission is what made the tab overflow arrows black boxes. */
+QSlider {{
+    background: transparent;
+}}
 QSlider::groove:horizontal {{
     height: 4px;
     background: {P["border"]};

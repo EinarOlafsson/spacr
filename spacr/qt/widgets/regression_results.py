@@ -467,10 +467,25 @@ class RegressionResultsPanel(QWidget):
         self._run_label = QLabel(self.NO_RUN_NAMED)
         self._run_label.setObjectName("resultsRunName")
         header.addWidget(self._run_label)
-        header.addWidget(QLabel("colour by"))
+        # THE CONTROL BELONGS ON THE FIGURE IT CHANGES. Asked for 2026-08-19:
+        # "the color by in results can be removed as its alos in the right
+        # click for the volcano graph the only place it is used i think" --
+        # and it is: the volcano's own menu already offers "Colour by a
+        # column…" and "Colour by localisation", and the volcano is the only
+        # thing this combo redraws.
+        #
+        # HIDDEN, NOT DELETED, and the difference matters. `_redraw_volcano`
+        # reads `currentData()`, `_restore_plot_state` writes it back, and a
+        # saved run carries a `colour_by` key -- so the object stays and
+        # keeps answering, while the header loses a duplicate. Deleting it
+        # would have meant unpicking a saved-state field for a cosmetic win.
+        self._colour_by_label = QLabel("colour by")
+        self._colour_by_label.setVisible(False)
+        header.addWidget(self._colour_by_label)
         self._colour_by = QComboBox()
         self._colour_by.setMinimumWidth(140)
         self._colour_by.currentIndexChanged.connect(self._redraw_volcano)
+        self._colour_by.setVisible(False)
         header.addWidget(self._colour_by)
         layout.addLayout(header)
 
