@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Binomial GLM with a logit link on a fraction, weighted by the well's cell count as var_weights -- which is what tells the variance function that a fraction measured from 400 cells is firmer evidence than the same fraction measured from 30. Coefficients are log-odds.",
+      "source_sha256": "aa99feabe719efe9938d7d70b6006764ceebd07a8d9c66991de02faa5a7499c3",
+      "source": "Binomial GLM with a logit link on a fraction, weighted by the well's cell count as var_weights -- which is what tells the variance function that a fraction measured from 400 cells is firmer evidence than the same fraction measured from 30. Coefficients are log-odds.",
+      "translation": "GLM binomial com ligação logit para uma fração, ponderado por var_weights, que recebe o número de células de cada poço — isso informa à função de variância que uma fração medida em 400 células é uma evidência mais sólida do que a mesma fração medida em 30 células. Os coeficientes estão na escala de log-odds."
+    },
+    {
+      "table": "ui",
+      "key": "Binomial GLM with a probit link on a fraction, weighted by the well's cell count as var_weights. It differs from logit only in the link: the fitted probabilities are near-identical, and the coefficients are on a different scale and are not log-odds.",
+      "source_sha256": "2aa7a1c1214a28bac6e996b7a3930bf45d8e2003b67aa4c217b1d976060f75b8",
+      "source": "Binomial GLM with a probit link on a fraction, weighted by the well's cell count as var_weights. It differs from logit only in the link: the fitted probabilities are near-identical, and the coefficients are on a different scale and are not log-odds.",
+      "translation": "GLM binomial com ligação probit para uma fração, ponderado por var_weights, que recebe o número de células de cada poço. Ele difere do logit apenas na função de ligação: as probabilidades ajustadas são quase idênticas, e os coeficientes estão em uma escala diferente e não são log-odds."
+    }
+  ]
+}

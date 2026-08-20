@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "regression_qc",
+      "source_sha256": "45c1572d3313836cae4e5dffc5d04b13d7ab1de6aaa76a7893634f56003762fa",
+      "source": "Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
+      "translation": "Skrifar QC-gæðamatsgögn aðhvarfsins -- myndir um einsleitni dreifni, leifar, hönnun, áhrif og kvörðun -- í <res_folder>/regression_qc/ sem myndir, sameinað PDF og textaskýrslu. Um 5.8 sekúndur og 19 skrár fyrir hverja aðlögun: hentugt fyrir eina greiningu og því sjálfgefið virkt. Færibreytusóp slekkur sjálfkrafa á þessu, því hundrað tilraunir taka tíu mínútur og búa til tvö þúsund skrár sem enginn opnar; opnaðu eina tilraun aftur til að fá greiningargögnin. Á við um hvert regression_type, því allar gerðir geta verið rangt skilgreindar. Sjálfgefið True."
+    }
+  ]
+}
