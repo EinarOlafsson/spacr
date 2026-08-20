@@ -188,3 +188,45 @@ copying real files.
 STILL OWED: A, C and D are the GUI -- the drop table, the role dropdowns and
 the live Test panel. The engine underneath them is done and headless, so that
 work is wiring rather than invention.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- B REACHES THE AUTO-DETECT A USER ACTUALLY PRESSES.
+--------------------------------------------------------------------------------
+
+`regex_detect.auto_detect_regex` -- what the regex editor's "Auto detect"
+button calls -- tries `regex_infer.propose` before falling back to
+`_synthesise_regex`.
+
+THE DIFFERENCE IS WHAT THEY WORK FROM. The old synthesiser builds a template
+from ONE filename and routinely fails to match its siblings, which is why the
+hit count above it had to be corrected to stop it reporting "matched 3/3" for
+a regex that matched nothing. `propose` ALIGNS THE WHOLE SET.
+
+Measured through the button:
+
+    cellvoyager   cellvoyager   12/12     (the bundled pattern, untouched)
+    cq1           cq1           12/12     (the bundled pattern, untouched)
+    unseen        inferred      32/32     (was: synthesised, 16/32)
+    another       inferred      24/24
+
+A BUNDLED PATTERN THAT ALREADY FITS IS LEFT ALONE. Inference is tried against
+the best built-in rather than instead of it: a known-good answer does not need
+improving, and a user who recognises "cellvoyager" in that box learns
+something an inferred pattern cannot tell them.
+
+AND IT IS AN IMPROVEMENT ON THE FALLBACK, NEVER A REQUIREMENT. A failure
+inside `propose` leaves the old path exactly as it was, held by a test that
+makes it raise.
+
+FOUND ON THE WAY: the first wiring used `from ...regex_infer import propose`
+from `spacr/qt/regex_detect.py`, which is one level too far -- it resolved
+above the package, the `except` swallowed it, and the unseen microscope went
+on getting the 16/32 answer with nothing saying why. A guarded import that
+silently does nothing is the failure mode of every guarded import; the test
+that names the expected label is what caught it.
+
+26 tests in tests/test_the_regex_is_worked_out_from_the_filenames.py.
+
+STILL OWED: A, C and D -- the drop TABLE, the role dropdowns and the live
+Test panel. The engine is done, headless and now reachable from the existing
+dialog, so that work is a table widget rather than any more invention.

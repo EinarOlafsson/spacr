@@ -12,7 +12,7 @@
 .. |Python| image:: https://img.shields.io/badge/Python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white
    :target: https://pypi.org/project/spacr/
    :alt: Python 3.9~3.14
-.. |Tests| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg
+.. |Tests| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml/badge.svg?branch=nightly
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: 테스트 모음
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
@@ -415,7 +415,7 @@ spaCR 설치
 -------------
 
 데스크톱 애플리케이션
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 데스크톱 설치에는 개인 Python 환경이 포함되어 있으므로 콘다와 기존 Python 설치가 필요하지 않습니다.
 
@@ -451,9 +451,9 @@ On Linux, make the downloaded file executable and run it:
    chmod +x SpaCR-*-Linux-x86_64-Online.run
    ./SpaCR-*-Linux-x86_64-Online.run
 
-macOS에서는 ``.pkg``를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 선택하세요.
+macOS에서는 ``.pkg`` 파일을 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 다음 항목을 선택하세요: **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**.
 
-업데이트, 제거, 오프라인 및 문제 해결 지침을 위한 `설치 가이드 <../../source/installer_guide.rst>`_를 참조하십시오.
+업데이트, 제거, 오프라인 및 문제 해결 지침은 `설치 가이드 <../../source/installer_guide.rst>`_ 문서를 참조하십시오.
 
 Python 설치
 ~~~~~~~~~~~~~~~~~~~
@@ -477,7 +477,7 @@ For a server, cluster or CI runner, omit Qt:
    python -m pip install spacr
    spacr-run --list
 
-옵션 통합은 예를 들어 ``spacr[zarr]`` , ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``에서 별도로 설치됩니다. `설치 가이드 <../../source/installer_guide.rst>`_ 전체 엑스트라와 Python 버전의 호환성 테이블을 참조하십시오.
+선택적 통합 기능은 별도 extras로 설치합니다: ``spacr[zarr]``, ``spacr[omero]``, ``spacr[napari]``, ``spacr[czi,nd2,lif]``. 전체 extras 및 Python 버전 호환성 표는 `설치 가이드 <../../source/installer_guide.rst>`_ 문서를 참조하십시오.
 
 명령줄 진입점
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -493,7 +493,7 @@ For a server, cluster or CI runner, omit Qt:
        --settings settings.csv                # validate before running
    spacr-repro RUN_DIR                        # replay a recorded run
 
-문제 해결할 때 ``SPACR_LOG_LEVEL=DEBUG``를 설정합니다. 회전 기록은 ``~/.spacr/logs/spacr.log``로 작성됩니다. 클래식 Tk 인터페이스는 ``spacr-legacy``로 사용할 수 있지만 더 이상 개발되지 않습니다.
+문제를 해결할 때 환경 변수 ``SPACR_LOG_LEVEL=DEBUG`` 값을 설정합니다. 순환 로그 파일의 경로는 ``~/.spacr/logs/spacr.log`` 입니다. 클래식 Tk 인터페이스는 ``spacr-legacy`` 명령으로 사용할 수 있지만 더 이상 개발되지 않습니다.
 
 
 할 수 있는 일
@@ -521,7 +521,7 @@ For a server, cluster or CI runner, omit Qt:
 언어 및 번역
 ~~~~~~~~~~~~~~~~~~~~~~
 
-인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <../../source/localization.rst#contextual-help>`_을 참조하세요.
+인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어** 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <../../source/localization.rst#contextual-help>`_ 문서를 참조하세요.
 
 애니메이션 설정 안내
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -529,12 +529,14 @@ For a server, cluster or CI runner, omit Qt:
 시각적 설명이 있는 설정은 도구 설명에 **Animation** 컨트롤을 제공합니다. `설정 애니메이션 갤러리 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 또는 `설정 애니메이션 레지스트리 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_를 살펴보세요.
 
 데이터
-----
+--------
 
 참조 데이터세트
 ~~~~~~~~~~~~~~~~~~
 
-|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|의 경우
+참조 데이터는 다음 아이콘에서 열 수 있습니다:
+
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
 .. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
    :width: 72
@@ -578,11 +580,11 @@ spaCR 인용
 
 If spaCR contributes to your research, cite:
 
-Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.
+Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii* 기생충의 ESCRT 기능 탈취 조절 인자로 규명합니다.
 
 `BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343317>`_
 
 감사의 말
 ~~~~~~~~~~~~~~~
 
-spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <../TRANSLATION_MODELS.md>`_에서 확인할 수 있습니다.
+spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <../TRANSLATION_MODELS.md>`_ 문서에서 확인할 수 있습니다.
