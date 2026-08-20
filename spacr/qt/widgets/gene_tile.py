@@ -20,14 +20,13 @@ trip inside a mouse click.
 """
 from __future__ import annotations
 
-import logging
 import html
+import logging
 from typing import Callable, Optional
 
 from PySide6.QtCore import QSize, Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QPainter, QPixmap
-from PySide6.QtWidgets import (QLabel, QSizePolicy, QTextBrowser, QVBoxLayout,
-                               QWidget)
+from PySide6.QtWidgets import QLabel, QSizePolicy, QTextBrowser, QVBoxLayout, QWidget
 
 from ...gene_tile import GeneTile, _translated, gene_tile
 from ..i18n import tr
