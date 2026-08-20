@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-151 done / 25 open (85%).
+152 done / 24 open (86%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -77,9 +77,6 @@ OPEN
 
   145  ONE READER, ONE WRITER, ONE KEY VOCABULARY
        145_one_reader_one_writer_one_vocabulary.txt
-
-  150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
-       150_a_saved_figure_is_for_paper_not_for_the_screen.txt
 
   167  THE MONTAGE USES THE SCORES THE RUN ALREADY HAS
        167_the_montage_uses_the_scores_the_run_already_has.txt
@@ -225,6 +222,7 @@ DONE
   147  BOTH FITS ARE VISIBLE, A SQUARE IS A SQUARE, AND THE MENU HAS CATEGORIES
   148  THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
   149  THE VOLCANO'S Y AXIS IS CONTINUOUS AGAIN
+  150  A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
   151  CHANGING A LINE WIDTH SHOULD NOT TAKE A MINUTE
   152  TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
   153  THE MODEL SUMMARY SURVIVES BEING LOADED FROM DISK
