@@ -1539,6 +1539,18 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     save.triggered.connect(lambda: save_figure_as(parent, figure))
     menu.addAction(save)
 
+    # STYLE IT FOR THE FILE FIRST (178 C.2). "the user should be able to
+    # change all of theis for the saved graph, get a preview then save."
+    # Beside the direct save rather than replacing it: writing what is on
+    # screen is one click and remains one click.
+    styled = QAction("Save figure with a preview…", parent)
+    styled.setToolTip(
+        "Choose the ink, background, grid, size and resolution FOR THE FILE, "
+        "see exactly what will be written, then write it. The figure on "
+        "screen is not changed.")
+    styled.triggered.connect(lambda: _open_styled_save(parent, figure))
+    menu.addAction(styled)
+
     add_graph_style_file_entries(menu, parent, on_change=on_change)
 
     settings = QAction("Figure settings…", parent)
@@ -1591,6 +1603,35 @@ def _current_text_size(figure, default: int = 10) -> int:
     counts = Counter(sizes)
     best = max(counts.values())
     return min(size for size, count in counts.items() if count == best)
+
+
+def _open_styled_save(parent, figure):
+    """Open the style-preview-save dialog. Returns it, or ``None``.
+
+    Kept on the parent so Python does not collect it the moment this
+    returns -- the same reason every other window this application opens is
+    held somewhere.
+    """
+    if figure is None:
+        return None
+    try:
+        from .save_figure_dialog import SaveFigureDialog
+
+        dialog = SaveFigureDialog(figure, parent=parent)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not open the styled save", exc_info=True)
+        return None
+    dialog.show()
+    if parent is not None:
+        kept = getattr(parent, "_spacr_save_dialogs", None)
+        if kept is None:
+            kept = []
+            try:
+                parent._spacr_save_dialogs = kept
+            except Exception:                                # noqa: BLE001
+                return dialog
+        kept.append(dialog)
+    return dialog
 
 
 def save_figure_as(parent, figure, path: str = "") -> str:
