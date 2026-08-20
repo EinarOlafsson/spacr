@@ -558,3 +558,41 @@ not come from it.
 STILL INVENTORY: cuML (refused, H1), pymer4 (refused, H2), numpyro and gpytorch
 (untouched, and last for the reason section B gives -- a posterior is a
 different answer, not a faster one).
+
+--------------------------------------------------------------------------------
+2026-08-20 -- G's THREE LEFTOVERS, AUDITED. 141 IS CLOSED.
+--------------------------------------------------------------------------------
+
+1. "A backend the user picks is not yet written into the run summary, except
+   for `mixed`." IT IS. `regression_summary` reads `regression_backend` and
+   adds a `backend` row for every run, resolved through the spec's own label.
+
+   AND THE LABEL WAS DOUBLED: "statsmodels (statsmodels (CPU))". The spec's
+   label already CONTAINS the backend's name -- it is "pyfixest (CPU)", not
+   "(CPU)" -- so bracketing it after the name said everything twice. Reads
+   "statsmodels (CPU)" now, and a backend the spec does not know still reads
+   as its bare name rather than as "made_up (made_up)".
+
+2. The two tests this file reported red -- `test_every_settings_key_perform_
+   regression_indexes_has_a_default` and `test_the_only_keys_without_a_default_
+   are_derived_and_written_first` -- are GREEN. 37 pass in
+   tests/test_regression_entry_points.py. Whoever owned 156's module added it
+   to `_HELPER_MODULES`.
+
+3. NOT DONE, AND EACH FOR ITS OWN STATED REASON rather than for want of time:
+
+   * `poisson` through pyfixest's `fepois`. glum already covers poisson and an
+     IRLS-over-demeaned-data path is a SECOND implementation to hold to
+     section D's agreement standard. Worth it only if a screen turns up whose
+     Poisson design is wide enough for absorption to matter.
+   * The penalised families still have sklearn alone. cuML was the plan and
+     H1 refused it; glum could fit an L1/L2 GLM, but section D's agreement is
+     genuinely harder there -- two coordinate-descent paths at the same alpha
+     can select DIFFERENT SETS, which is what the cuML entry's `differs`
+     field already says. A backend that quietly picks other guides is not a
+     faster answer to the same question.
+   * numpyro and gpytorch stay untouched, for section B's reason: a posterior
+     is a different answer, not a faster one.
+
+   Anything among these that is later wanted is a new instruction with its own
+   agreement measurement, not this one reopened.
