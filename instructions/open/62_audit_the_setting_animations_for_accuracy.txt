@@ -929,3 +929,39 @@ RUNNING TOTAL: 29 WEAK -> 16 this session.
 
 STILL OPEN: 16. Eight intensity-percentile filters drawing the same
 composition as their matching area filter, and eight one-offs.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE EIGHT PERCENTILE FILTERS WERE ALREADY FIXED. 16 -> 8.
+--------------------------------------------------------------------------------
+
+These eight rows were STALE, not open. They describe the pre-2026-08-18
+drawing, where the intensity animations kept the four different sizes the area
+animations use -- so objects differed in size AND brightness and the two
+families were the same picture.
+
+That was fixed at the time, IN THIS FILE'S OWN CODE COMMENT, and the audit row
+was never updated: `_filter_scene` gives every intensity variant ONE uniform
+size, leaving brightness as the only order there is, which is the criterion
+the setting reads.
+
+RE-MEASURED across all nine frames of `cell_max_area` against
+`cell_max_intensity_percentile`: 59.8% OF THE DRAWN INK DIFFERS, against the
+20-22% the 2026-08-18 note recorded as the problem. Four equal-sized objects
+fading in brightness order and four different-sized objects vanishing in size
+order are visibly different pictures.
+
+Each row keeps its ORIGINAL NOTE after the correction, because a row that
+quietly changed its verdict would be indistinguishable from one that had been
+re-judged by eye -- and the point of this audit is that its verdicts are
+traceable.
+
+WORTH THE GENERAL LESSON: an audit whose rows are not re-run goes stale in the
+direction of pessimism, and a stale WEAK is as misleading as a stale GOOD. It
+cost nothing to re-measure and it removed eight of the sixteen.
+
+RUNNING TOTAL: 29 WEAK -> 8 this session.
+
+STILL OPEN: 8 one-offs -- use_bounding_box, organelle_diameter,
+organelle_skeletonize, stitch_threshold, t_link_threshold, n_neighbors,
+plot_by_cluster, remove_image_canvas. `organelle_diameter` remains a SETTINGS
+question rather than a drawing one.
