@@ -216,13 +216,23 @@ def test_the_compartments_are_a_submenu(qtbot):
 
 
 def test_only_this_screens_compartments_are_offered(qtbot):
+    """No entry that would colour nothing.
+
+    The first two entries are not compartments: "none" turns the colouring
+    off and "all localisations" (2026-08-20) colours every one at once. What
+    this test is actually about is the REST -- a menu offering the other 22
+    rows of the reference table would make a choice that colours nothing
+    indistinguishable from a broken one.
+    """
     from spacr import localisation
 
     frame = _lopit_frame()
     panel = _panel(qtbot, frame)
 
-    entries = set(_submenu(panel.volcano, "localisation")[1:])
-    assert entries == set(localisation.present(frame)), entries
+    entries = _submenu(panel.volcano, "localisation")
+    assert entries[0].startswith("none")
+    assert entries[1] == "all localisations"
+    assert set(entries[2:]) == set(localisation.present(frame)), entries
 
 
 def test_a_screen_with_no_annotations_is_offered_no_submenu(qtbot):

@@ -3356,14 +3356,69 @@ class FastPlot(QWidget):
                 mark.setExportMode(False)
 
     @staticmethod
-    def _export_ground():
+    def _all_compartments():
+        """The "colour every compartment" sentinel, or ``None``."""
+        try:
+            from ...localisation import ALL
+
+            return ALL
+        except Exception:                                # noqa: BLE001
+            return None
+
+    @staticmethod
+    def _categorical_brushes(values):
+        """``(brushes, legend)`` for one colour-per-value, counted.
+
+        SHARED BY TWO CALLERS, which is why it is a method: the condition
+        colouring and "Colour by localisation -> all" want exactly the same
+        thing, and the second was written as a Python loop over brushes
+        before this existed -- which is precisely the 45 ms of a 48 ms redraw
+        the first one was rewritten to avoid.
+
+        Categorical codes are computed in C. The counts come from
+        `np.bincount` over the CODES rather than a `value_counts` on the
+        frame, because this path exists to keep pandas out of the per-point
+        work and a group-by here would put a chunk of it straight back.
+        """
+        import pandas as _pd
+
+        categorical = _pd.Categorical(_pd.Series(values).astype(str))
+        names = list(categorical.categories)
+        palette = [pg.mkBrush(colour_for(i)) for i, _ in enumerate(names)]
+        unknown = pg.mkBrush(colour_for(0))
+        brushes = [palette[c] if c >= 0 else unknown
+                   for c in categorical.codes]
+        counts = np.bincount(categorical.codes[categorical.codes >= 0],
+                             minlength=len(names))
+        legend = {f"{name} ({int(counts[i])})": colour_for(i)
+                  for i, name in enumerate(names)}
+        return brushes, legend
+
+    def _export_ground(self):
         """The page colour a save writes onto, as a ``QColor``.
+
+        THE USER'S CHOICE WINS, and it did not before. `SaveFigureDialog`
+        passed its background all the way down -- `export_styled` restyled
+        the live scene with it -- and then this method, which was STATIC and
+        knew nothing about the dialog, overwrote the page with the global
+        saved-figure look on every raster export. So "white" changed the ink
+        and never the paper, which is what the maintainer reported on
+        2026-08-20: "in save styled the i cannot change the graphs background
+        color, only the lines". Two answers for one quantity and the one
+        nobody chose was winning.
+
+        `_dressed_for_the_file` records the chosen ground for the duration of
+        the render; outside that, or when the choice is "transparent", the
+        look decides exactly as it did.
 
         Fully transparent unless the saved-figure look names a ground, which
         only ``print`` does. Failing to read the look gives transparency --
         the behaviour before 150 -- because a save that refuses is worse than
         a save onto the wrong colour.
         """
+        chosen = getattr(self, "_chosen_ground", "")
+        if chosen:
+            return QColor(str(chosen))
         try:
             from ...figure_style import saved_figure_appearance
 
@@ -4368,14 +4423,22 @@ class FastPlot(QWidget):
         """
         before_bg, before_fg = self._background, self._foreground
         before_grid = self._grid_on
+        # THE PAGE, not just the scene. Restyling the scene colours what is
+        # DRAWN; the raster exporter fills the page behind it separately, and
+        # it reads `_export_ground`. Recording the choice here is what lets
+        # that method prefer it over the global look. Empty means the dialog
+        # said "transparent", which is not a colour and must not become one.
+        before_ground = getattr(self, "_chosen_ground", "")
         try:
             if ink or background:
                 self.restyle(background=background or before_bg,
                              foreground=ink or before_fg)
+            self._chosen_ground = str(background or "")
             if grid is not None:
                 self.set_grid(grid)
             yield self
         finally:
+            self._chosen_ground = before_ground
             if grid is not None:
                 self.set_grid(before_grid)
             if ink or background:
@@ -5168,6 +5231,22 @@ class VolcanoPlot(FastPlot):
                 displaced = f"the {category_column} colouring"
             else:
                 displaced = "the called/not-called colouring"
+        elif compartment and compartment == self._all_compartments():
+            # EVERY COMPARTMENT AT ONCE, asked for on 2026-08-20: "Colour by
+            # lets me color by a single location, all should be an option."
+            #
+            # ONE AT A TIME WAS A DECISION, NOT AN OVERSIGHT -- "everything is
+            # grey except what the sentence is about", and the 27-colour
+            # legend measured 40 ms of a 49 ms redraw. So this is offered
+            # BESIDE that, never instead of it, and it is built on the
+            # CATEGORICAL path below rather than a Python loop over brushes,
+            # which is where that 40 ms actually went.
+            from ...localisation import of as compartment_of
+
+            names = compartment_of(frame)
+            if len(names):
+                labelled = names.replace("", "elsewhere")
+                brush_list, legend = self._categorical_brushes(labelled)
         elif compartment:
             # ONE COMPARTMENT AGAINST GREY. Two brushes and a two-entry
             # legend: the 27-colour version is what the house style forbids
@@ -5187,12 +5266,8 @@ class VolcanoPlot(FastPlot):
             # which cost 45 ms of the 48 ms this used to take.
             import pandas as _pd
 
-            categorical = _pd.Categorical(frame[category_column].astype(str))
-            names = list(categorical.categories)
-            palette = [pg.mkBrush(colour_for(i)) for i, _ in enumerate(names)]
-            unknown = pg.mkBrush(colour_for(0))
-            brush_list = [palette[c] if c >= 0 else unknown
-                          for c in categorical.codes]
+            brush_list, legend = self._categorical_brushes(
+                frame[category_column])
 
             # THE COUNT BESIDE EACH LABEL. Asked for 2026-08-17: "beside the
             # label on the graph should be the count of each label".
@@ -5204,13 +5279,7 @@ class VolcanoPlot(FastPlot):
             # and the gene/guide menu already carry theirs.
             #
             # Counted with np.bincount over the CODES, not by grouping the
-            # frame: this path exists because a Python loop over 1,215 pandas
-            # values cost 45 ms of a 48 ms redraw, and a value_counts here
-            # would put a chunk of that straight back.
-            counts = np.bincount(categorical.codes[categorical.codes >= 0],
-                                 minlength=len(names))
-            legend = {f"{name} ({int(counts[i])})": colour_for(i)
-                      for i, name in enumerate(names)}
+            # frame -- see `_categorical_brushes`.
         elif called.any() or np.isfinite(q).any():
             # THE FIELD'S OWN VOLCANO: continuous height, binary colour, and
             # the colour carrying the claim. Only when nothing else has

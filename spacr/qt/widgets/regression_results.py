@@ -2753,8 +2753,15 @@ class RegressionResultsPanel(QWidget):
             names = present(self._frame) if self._frame is not None else []
         except Exception:                                        # noqa: BLE001
             names = []
+        from ...localisation import ALL as ALL_COMPARTMENTS
+
         options = [("none (up / down)", lambda: self.set_compartment(None),
                     self._compartment is None)]
+        # ALL, asked for on 2026-08-20. Second, so the one-at-a-time reading
+        # the house style prefers is still what a user lands on first.
+        options.append(("all localisations",
+                        lambda: self.set_compartment(ALL_COMPARTMENTS),
+                        self._compartment == ALL_COMPARTMENTS))
         options += [(name, (lambda n=name: self.set_compartment(n)),
                      name == self._compartment) for name in names]
         self.volcano.offer_compartments(options if names else [])
@@ -2769,7 +2776,29 @@ class RegressionResultsPanel(QWidget):
         self._compartment = name
         self._offer_compartments()
         self._redraw_volcano()
-        if name:
+        from ...localisation import ALL as ALL_COMPARTMENTS
+
+        if name == ALL_COMPARTMENTS:
+            # ITS OWN SENTENCE. `mask` takes ONE compartment, so the branch
+            # below would hand it the sentinel and report "0 annotated
+            # \x00all-localisations" -- a number about nothing, printed
+            # confidently.
+            from ...localisation import of as compartment_of
+
+            annotated = 0
+            total = 0
+            if self._frame is not None:
+                names = compartment_of(self._frame)
+                total = len(self._frame)
+                annotated = int((names.astype(str) != "").sum()) if len(names) else 0
+            self.say(
+                f"{annotated} of {total} coefficients carry a TAGM/LOPIT "
+                f"localisation and each is coloured by it; the rest are one "
+                f"colour marked 'elsewhere'."
+                if annotated else
+                "No coefficient in this screen carries a TAGM/LOPIT "
+                "localisation, so there is nothing to colour by.")
+        elif name:
             from ...localisation import mask
 
             found = int(mask(self._frame, name).sum()) if self._frame is not None else 0
