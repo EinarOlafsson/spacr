@@ -1972,19 +1972,17 @@ LINK_LIKE_TRANSFORMS = ('log', 'logit')
 
 
 def double_transform_warning(name, transform, family) -> str:
-    """Instruction 182 C. "" unless the response is transformed TWICE.
+    """Describe a response transform that is compounded by the model link.
 
-    Reported 2026-08-19: a run with ``transform='log'`` had its family chosen
-    by looking at the LOGGED values, found them inside (0, 1), and fitted
-    Binomial with a Logit link -- so the model was fitting logit(log(p)),
-    which is not a quantity the screen measures and not one any reader can
-    interpret. McFadden's R² came back at -20.3.
+    For example, a log-transformed response passed to a family with a logit
+    link fits ``logit(log(y))``. The function returns an actionable warning
+    before fitting; an identity link or a response without a link-like
+    transform returns an empty string.
 
-    SAID AT THE POINT IT HAPPENS, because by the time it reaches the summary
-    the fit has already run. Which of the two transforms to drop is the
-    maintainer's decision (182), so this warns rather than refusing: both
-    answers are defensible science and picking one silently would change every
-    glm result spaCR has produced.
+    :param name: Response name shown in the warning.
+    :param transform: Transform already applied to the response.
+    :param family: Statsmodels family whose link will be inspected.
+    :returns: Warning text, or ``""`` when the transforms do not compound.
     """
     kind = str(transform or '').strip().lower()
     if kind not in LINK_LIKE_TRANSFORMS:
@@ -2010,11 +2008,8 @@ def pick_glm_family_and_link(y, name="", transform=""):
     than from the user.
 
     :param y: Response vector.
-    :param name: what the response column is CALLED, printed with the choice.
-        The sniffer looks at the values it is given, which are the values
-        AFTER any transform -- so "Data strictly between 0 and 1" was true of
-        `log_pred` and said nothing about `pred`, and a reader had no way to
-        see which scale had been examined. Instruction 182 A.
+    :param name: Response-column name printed with the selected family. The
+        name makes clear whether the family was chosen from a derived scale.
     :param transform: the transform already applied, printed with the name and
         checked for the double transform of :func:`double_transform_warning`.
     :returns: A ``statsmodels`` family instance with its link set.
@@ -4684,14 +4679,15 @@ CONSOLE_COEFFICIENT_LIMIT = 12
 
 
 def mcfadden_note(r2) -> str:
-    """McFadden's pseudo-R², and a HEADLINE when it is negative.
+    """Format McFadden's pseudo-R² and flag a negative value.
 
-    Instruction 182 B. A negative pseudo-R² means the fitted model predicts
-    the response WORSE than an intercept alone -- on the reference screen it
-    came back as -20.3 -- and printed as one number among numbers it reads
-    like any other diagnostic. It is not: it says the fit is not usable, and
-    the usual cause is a response that has been transformed twice (a log
-    transform handed to a family whose link logs it again).
+    A negative value means the fitted model predicts the response worse than
+    an intercept-only model. The returned note explains that the coefficients
+    should not be interpreted and points to a common cause: applying a response
+    transform that duplicates the fitted family's link.
+
+    :param r2: Pseudo-R² value, or a value convertible to ``float``.
+    :returns: One-line diagnostic text suitable for a console or report.
     """
     try:
         value = float(r2)
@@ -4710,23 +4706,17 @@ def mcfadden_note(r2) -> str:
 
 def summary_for_console(model, *, verbose=False,
                         limit=CONSOLE_COEFFICIENT_LIMIT) -> str:
-    """The statsmodels summary, TRIMMED FOR A CONSOLE. Instruction 183.
+    """Return a statsmodels summary sized for terminal output.
 
-    A screen's fit has hundreds of guides -- 790 on the reference screen,
-    about 80 000 characters -- and printing all of them buries the lines a
-    user has to read: the not-identifiable warning, the fraction filter's
-    retained fraction, the pairing counts and the family sentence are all
-    ABOVE it and all scrolled away.
+    When the coefficient table exceeds ``limit``, the diagnostic header and
+    notes are retained while the table is replaced by a pointer to the saved
+    summary and the sortable Coefficients view. Set ``verbose=True`` to return
+    the complete statsmodels rendering.
 
-    THE HEADER IS PRINTED WHOLE and the coefficient table is replaced by a
-    pointer. Not "the first twenty coefficients": a sample of a table whose
-    interesting rows are wherever they happen to be tells a reader nothing
-    and invites them to believe they have seen the top of it. The header is
-    complete, the pointer is honest, and both better renderings already exist
-    -- the file beside the results, and the sortable Coefficients tab.
-
-    ``verbose`` prints the whole thing, because a user who asked for verbose
-    asked for exactly this.
+    :param model: Fitted model result with a ``summary()`` method.
+    :param verbose: Return the complete summary regardless of its size.
+    :param limit: Maximum coefficient rows printed in compact mode.
+    :returns: Complete or compact plain-text model summary.
     """
     try:
         text = str(model.summary())
