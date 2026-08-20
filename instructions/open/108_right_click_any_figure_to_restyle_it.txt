@@ -536,3 +536,45 @@ WHAT REMAINS OF 108: points 1 (the shared style base), 2 (the renderer
 contract) and 4 (a screen holding the Figure rather than a saved image), plus
 the one-line `offer_style` call in volcano_explorer.py. Point 5 is done on
 both sides that this territory can reach.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE `offer_style` LINE THIS FILE NAMED. THE EXPLORER HAS A MENU.
+--------------------------------------------------------------------------------
+
+It could not be a one-line `offer_style` call: that is a `FastPlot` method and
+`VolcanoExplorer` is a MATPLOTLIB canvas. What it needed was the two functions
+underneath -- `add_style_entries` and `add_style_file_entries` -- which are
+module-level in fast_plots precisely so a non-FastPlot host can use them, and
+a `CustomContextMenu` on the canvas, which it had none of.
+
+70 ENTRIES, built from `dataclasses.fields(VolcanoStyle)`, so a style that
+gains a field gains a menu entry with nobody remembering to add one. That is
+the property held by a test, because the alternative -- a hand-written list --
+silently stops covering the style and nothing says when.
+
+Everything the original ask named is there: legend, grid, colours, symbols,
+line width, font size, the axis transforms. Plus Save style, Load style, "Use
+as the default for every volcano" and Clear the default, which is the
+2026-08-16 restatement ("each figure should be editable and savable").
+
+THROUGH `set_style`, NOT `refresh`. The explorer's side panel offers the same
+settings, and a menu that redrew without moving the controls would be two ways
+to change one setting that disagree about what it now is -- worse than having
+only one of them.
+
+THE CLOSED SETS COME FROM THE DATA. `x_column` and the rest offer the columns
+the loaded frame actually has, read off the side panel's own combos, so the
+menu cannot offer a column the results do not carry.
+
+7 tests in tests/qt/test_the_volcano_explorer_has_a_style_menu.py.
+
+NOTED IN PASSING, not changed: the labels say "color" because `VolcanoStyle`'s
+fields do, and that spelling is also what a saved style FILE contains --
+renaming them would break every style already written. The prose around them
+says colour. The test accepts either and says why.
+
+WHAT REMAINS OF 108: points 1 (the shared style base), 2 (the renderer
+contract) and 4 (a screen holding the Figure rather than a saved image). All
+three are the same architectural change -- one style vocabulary under both
+renderers -- which is instruction 127's subject and wants deciding there
+rather than being done piecemeal here.
