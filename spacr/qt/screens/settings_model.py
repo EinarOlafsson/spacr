@@ -4136,12 +4136,54 @@ def _api_html(regression_type: Any, ink: Dict[str, str],
             f'{escape(name)}</a></p>')
 
 
+#: What the box says when the run will not fit a model at all.
+#:
+#: Asked for 2026-08-20: "non parametric should be represented in the Text
+#: box above: when chosen the text should explain nonparametric." The box
+#: described whatever `regression_type` held, which under nonparametric is a
+#: model that is READ, SAVED AND NEVER FITTED -- so the explainer was
+#: explaining something that would not happen.
+#: BRIEF, BECAUSE THE PERMUTATION TEST SECTION HAS ITS OWN BOX. That one
+#: explains what the test does; this one says only that a test is what will
+#: happen, and that the model settings around it are therefore inert. Saying
+#: it twice at length would make the longer copy the one nobody reads.
+NONPARAMETRIC_NOTE = (
+    "No model is fitted. Each guide is tested ON ITS OWN as a marginal "
+    "association, with P values from plate-blocked permutations -- so there "
+    "is no formula, no family, and no coefficient for a guide conditional "
+    "on the others.",
+    "The regression settings are greyed because this path never reads them. "
+    "Their values are kept, so switching back restores the model you chose. "
+    "The Permutation Test section explains the test itself.",
+)
+
+
+def _nonparametric_selected(inference: Any, analysis_mode: Any = "") -> bool:
+    """Whether the run will take the permutation path, as the run decides it.
+
+    'auto' is NOT nonparametric here: its resolution counts guides and wells
+    (`spacr.ml.resolve_auto_inference`) and this cannot see them, so the box
+    goes on describing the model that would be fitted if it resolves that
+    way -- which is the more useful of the two guesses.
+    """
+    from spacr.settings import INFERENCE_MODES
+
+    name = str(inference or "auto").strip().lower()
+    selected = INFERENCE_MODES.get(name)
+    if selected is not None:
+        return selected == "guide_permutation"
+    return (name != "auto"
+            and str(analysis_mode or "").strip().lower() == "guide_permutation")
+
+
 def regression_model_explainer_html(regression_type: Any,
                                     level: Any = "both",
                                     plate_position: Any = False,
                                     random_row_column: Any = False,
                                     palette: Optional[Dict[str, Any]] = None,
                                     language: Optional[str] = None,
+                                    inference: Any = "auto",
+                                    analysis_mode: Any = "",
                                     ) -> str:
     """The box's text, TYPESET -- the same content as the plain renderer.
 
@@ -4170,6 +4212,15 @@ def regression_model_explainer_html(regression_type: Any,
 
     def tx(source: str, **values: object) -> str:
         return _translated_ui_text(source, language, **values)
+
+    if _nonparametric_selected(inference, analysis_mode):
+        parts.append(
+            f'<p>{_ink(escape(tx("INFERENCE:")), ink["accent"], bold=True)} '
+            f'{escape(tx("nonparametric — guide permutation"))}</p>')
+        for line in NONPARAMETRIC_NOTE:
+            parts.append(_prose_html(tx(line), ink))
+        parts.append("</div>")
+        return "".join(parts)
 
     if key not in _MODE_NOTES:
         parts.append(f'<p>{_ink(escape(tx("MODEL:")), ink["accent"], bold=True)} '
@@ -4423,7 +4474,9 @@ def regression_model_explainer(regression_type: Any,
                                level: Any = "both",
                                plate_position: Any = False,
                                random_row_column: Any = False,
-                               language: Optional[str] = None) -> str:
+                               language: Optional[str] = None,
+                               inference: Any = "auto",
+                               analysis_mode: Any = "") -> str:
     """Describe the regression formula selected in the settings panel.
 
     Parameters
@@ -4473,6 +4526,13 @@ def regression_model_explainer(regression_type: Any,
 
     def tx(source: str, **values: object) -> str:
         return _translated_ui_text(source, language, **values)
+
+    if _nonparametric_selected(inference, analysis_mode):
+        # THE SAME WORDS AS THE TYPESET BOX, from the one constant, so the
+        # plain renderer and the HTML one cannot describe different runs.
+        return "\n\n".join(
+            [tx("INFERENCE: nonparametric — guide permutation")]
+            + [tx(line) for line in NONPARAMETRIC_NOTE])
 
     if key not in _MODE_NOTES:
         # An unknown name is the pipeline's error to raise, with its own list
@@ -7713,6 +7773,53 @@ class SettingsWidgets:
             else:
                 reason = str(rule['reason'](current, self._data_context))
                 _apply_greyed_note(control, reason)
+                self._show_the_value_it_will_have(key, current)
+
+    #: Settings whose value another setting DECIDES, and the translator that
+    #: decides it. A greyed control here shows the value the run will use.
+    _DECIDED_BY_ANOTHER = ("analysis_mode", "agg_type", "regression_type")
+
+    def _show_the_value_it_will_have(self, key, current) -> None:
+        """Put the resolved value into a control the run overrides anyway.
+
+        A GREYED CONTROL SHOWING THE WRONG VALUE IS WORSE THAN A GREYED ONE.
+        Asked 2026-08-20: "if nonparametric is chosen should guide permutation
+        be in analysis mode". It should, and it was not:
+        `_resolve_regression_analysis_choices` rewrites `analysis_mode` from
+        `inference` AT RUN TIME, so the panel showed 'regression' while the
+        run used 'guide_permutation' -- and the greyed note beside it said as
+        much in words. Words next to a contradicting value is the worst of
+        the three states.
+
+        Only the settings another setting genuinely decides, and only through
+        the SAME translator the run uses, so the panel cannot come to a
+        different answer than the fit.
+        """
+        if key not in self._DECIDED_BY_ANOTHER:
+            return
+        # NOT WHILE A SETTINGS FILE IS BEING POURED IN. `apply_settings_dict`
+        # sets one widget at a time, so `inference` may still hold the old
+        # value when `analysis_mode` arrives -- and forcing then would
+        # overwrite the file's value from an inference that is about to
+        # change. Caught by loading a file carrying inference='auto' and
+        # analysis_mode='guide_permutation': the mode was clobbered to
+        # 'regression' before 'auto' had landed. The refresh that runs once
+        # the whole dict is applied does the right thing.
+        if getattr(self, "_applying_settings", False):
+            return
+        try:
+            from spacr.settings import _resolve_regression_analysis_choices
+
+            resolved = dict(current)
+            _resolve_regression_analysis_choices(resolved)
+        except Exception:                                    # noqa: BLE001
+            return
+        value = resolved.get(key)
+        if value is None or value == current.get(key):
+            return
+        setter = getattr(self, "set_value_for_key", None)
+        if callable(setter):
+            setter(key, value)
 
     def _read_widget(self, w: QWidget) -> Any:
         if isinstance(w, QCheckBox):

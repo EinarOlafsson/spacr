@@ -24,6 +24,22 @@ from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import QTextBrowser
 
 from spacr.qt.screens.app_screen import AppScreen
+
+
+def _fit_a_model(screen):
+    """Put the panel on a parametric inference, so the box shows a FORMULA.
+
+    THE DEFAULT `inference` IS 'nonparametric' (measured 2026-08-20), and as
+    of that date the box says so rather than describing a model the default
+    settings never fit. Every test in this file is about how a formula is
+    TYPESET, so each one needs a run that has one.
+    """
+    combo = screen._settings_model._widgets.get("inference")
+    if combo is not None:
+        index = combo.findData("parametric")
+        if index >= 0:
+            combo.setCurrentIndex(index)
+
 from spacr.qt.screens.settings_model import (
     MODEL_API_LINKS,
     formula_for,
@@ -85,6 +101,7 @@ def test_the_box_is_a_rich_text_widget_whose_links_open(qtbot,
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     box = screen._model_explainer
     assert isinstance(box, QTextBrowser)
     assert box.openExternalLinks()
@@ -103,6 +120,7 @@ def test_what_survived_the_change_read_only_selectable_and_copyable(
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     box = screen._model_explainer
     flags = box.textInteractionFlags()
     assert flags & Qt.TextSelectableByMouse
@@ -135,6 +153,7 @@ def test_the_prose_reflows_and_the_formula_never_breaks(qtbot,
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     screen.show()
     # `mixed` is the default and carries no guide fit, so the two blocks this
     # measures are not on screen under it.
@@ -173,6 +192,7 @@ def test_every_colour_the_box_paints_is_a_palette_token(qtbot,
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     palette = active_palette()
     allowed = {str(value).lower() for value in palette.values()
                if isinstance(value, str) and value.startswith("#")}
@@ -243,6 +263,7 @@ def test_the_refusal_heading_is_the_one_that_is_not_accent():
 def test_the_maths_comes_first_and_the_code_second(qtbot, qt_theme_applied):
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     screen._settings_model._widgets["regression_type"].setCurrentText("mixed")
     screen._refresh_model_explainer()
     texts = [block.text().strip()
@@ -305,6 +326,7 @@ def test_the_box_follows_the_plate_settings_through_both_formulas(
     """Driven on the real panel: the toggle moves and BOTH lines move."""
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     widgets = screen._settings_model._widgets
     widgets["regression_type"].setCurrentText("ols")
     toggle = widgets.get("model_plate_position")
@@ -353,6 +375,7 @@ def test_the_link_reaches_the_document_as_an_anchor(qtbot, qt_theme_applied):
     """
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     screen._settings_model._widgets["regression_type"].setCurrentText("mixed")
     screen._refresh_model_explainer()
 
@@ -377,6 +400,7 @@ def test_the_permutation_box_is_typeset_too(qtbot, qt_theme_applied):
     """One rich box beside one monospace dump is the same complaint again."""
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     box = screen._section_explainers.get("Permutation Test")
     assert box is not None
     assert isinstance(box, QTextBrowser)
@@ -399,6 +423,7 @@ def test_a_theme_switch_re_inks_the_box(qtbot, qt_theme_applied,
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    _fit_a_model(screen)
     before = {c.lower() for c in _rendered_colours(screen._model_explainer)}
 
     other = "light" if theme.palette_for("dark")["fg"] in before else "dark"
