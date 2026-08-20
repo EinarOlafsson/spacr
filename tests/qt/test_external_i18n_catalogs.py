@@ -147,6 +147,14 @@ def test_dynamic_text_templates_enter_the_runtime_source_inventory():
         source.startswith("Kernel containment is unavailable because")
         for source in sources
     )
+    assert any(
+        source.startswith("Available memory could not be measured")
+        for source in sources
+    )
+    assert any(
+        source.startswith("{available:.0f} GiB available")
+        for source in sources
+    )
 
 
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(

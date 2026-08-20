@@ -69,7 +69,8 @@ def _make_screen(app_key=None, host=None):
     from ..job_runner import JobRunner
     from ..widgets.file_list import FilePathListWidget
     from ...parameter_sweep import (
-        DEFAULT_SWEEP_SPACE, SweepSpace, build_trials, recommended_workers,
+        DEFAULT_SWEEP_SPACE, SweepSpace, _recommended_worker_budget,
+        build_trials,
     )
 
     class ParameterSweepScreen(QWidget):
@@ -155,14 +156,16 @@ def _make_screen(app_key=None, host=None):
             self.seed.setValue(20260815)
             self.workers = QSpinBox(panel)
             self.workers.setRange(1, 32)
-            suggested, reason = recommended_workers()
+            worker_budget = _recommended_worker_budget()
+            suggested = int(worker_budget["workers"])
             self.workers.setValue(suggested)
             self.workers.setToolTip(
                 "Requested worker count. The sweep clamps it according to "
                 "available memory; see Containment below for whether "
                 "kernel-enforced per-trial limits are active.")
-            self.worker_note = QLabel(reason, panel)
+            self.worker_note = QLabel("", panel)
             self.worker_note.setWordWrap(True)
+            self._set_worker_note(worker_budget)
             # WHETHER THE KERNEL CAP IS ACTUALLY THERE (114 point 1). The
             # sweep took this user's desktop down seven times, and the only
             # thing that has ever held is the kernel enforcing a ceiling --
@@ -389,15 +392,47 @@ def _make_screen(app_key=None, host=None):
 
         # ---------------------------------------------------------- actions
 
+        def _set_worker_note(self, budget):
+            """Show the worker calculation through translatable templates."""
+            values = dict(budget)
+            if values.get("available") is None:
+                set_translatable_text(
+                    self.worker_note,
+                    "Available memory could not be measured, so the worker "
+                    "count is limited to {workers}.",
+                    workers=values["workers"],
+                )
+                return
+            requested = values.get("requested")
+            if requested and int(values["workers"]) < int(requested):
+                set_translatable_text(
+                    self.worker_note,
+                    "{available:.0f} GiB available; allowing about "
+                    "{per_trial:.1f} GiB per trial and "
+                    "{budget_fraction:.0%} of available memory gives a "
+                    "worker count of {workers}. The requested count was "
+                    "{requested}.",
+                    **values,
+                )
+                return
+            set_translatable_text(
+                self.worker_note,
+                "{available:.0f} GiB available; allowing about "
+                "{per_trial:.1f} GiB per trial and {budget_fraction:.0%} of "
+                "available memory gives a worker count of {workers}.",
+                **values,
+            )
+
         def estimate(self):
             space = self.space()
             trials = build_trials(
                 space, mode=self.mode.currentText(),
                 max_trials=int(self.max_trials.value()),
                 seed=int(self.seed.value()))
-            workers, reason = recommended_workers(
+            worker_budget = _recommended_worker_budget(
                 requested=int(self.workers.value()))
-            self.worker_note.setText(reason)
+            workers = int(worker_budget["workers"])
+            self._set_worker_note(worker_budget)
             assumed_seconds_per_trial = 60
             minutes = (len(trials) * assumed_seconds_per_trial
                        / max(workers, 1) / 60)
