@@ -3524,7 +3524,29 @@ class FastPlot(QWidget):
         height = float(height_mm) if height_mm else width_mm * aspect
 
         writer = QPdfWriter(str(path))
-        writer.setResolution(600)
+        # THE DEVICE SCALE MUST MATCH THE SCENE, and 600 was the bug.
+        #
+        # Reported 2026-08-20: "the png saving seems to work but the pdf still
+        # has ginormous text and on a tiny missaligned graph." Reproduced by
+        # rasterising the PDF beside the PNG: the tick labels came out several
+        # times the height of the plot and the axes sat off the page.
+        #
+        # WHY IT ONLY HITS THE PDF. `scene.render` maps the scene rect onto
+        # the page geometrically -- but pyqtgraph draws its tick labels with
+        # `ItemIgnoresTransformations`, which is what keeps them upright and
+        # legible while a user zooms. Those items render at the DEVICE's own
+        # scale, untouched by the mapping. At 600 dpi a 180 mm page is ~4250
+        # device units wide while the scene is ~900, so everything geometric
+        # was scaled 4.7x and the text was not -- it stayed device-sized and
+        # so came out 4.7x too big relative to everything around it. The PNG
+        # path never had this because ImageExporter renders at the item's own
+        # pixel size, 1:1.
+        #
+        # Resolution chosen so one scene unit is one device unit. A PDF is
+        # vector at any resolution -- this sets the coordinate scale, not the
+        # fidelity -- so the text stays text and the lines stay lines.
+        writer.setResolution(
+            max(int(round(source.width() * 25.4 / float(width_mm))), 72))
         size = QPageSize(QSizeF(width_mm, height), QPageSize.Millimeter)
         writer.setPageSize(size)
         writer.setPageMargins(QMarginsF(0, 0, 0, 0), QPageLayout.Millimeter)
