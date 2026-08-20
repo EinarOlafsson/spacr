@@ -94,3 +94,24 @@ HOW TO KNOW IT WORKED
 * On the reference screen it chooses a family and a level that a
   statistician would defend, and the reasons are checkable against the data.
 * The questions it asks are only the ones the data cannot answer.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- TWO ADDITIONS FROM THE SAME SESSION
+--------------------------------------------------------------------------------
+
+THE TRANSFORM IS PART OF WHAT IT DECIDES. "for the test regression button it
+should also test how to transform the data." It is the same question as the
+family (182): a link-carrying family and a link-like transform are two ways
+of doing one job, and applying both fits logit(log(y)). So the button decides
+`transform` and `glm_transform_conflict` TOGETHER with `regression_type`, and
+says which of the two is doing the transforming.
+
+THE INTERCEPT IS DEFINABLE. "i would also like if i could define the
+intercept." Today the intercept is whatever patsy puts in -- the reference
+level of the first categorical, which is an arbitrary guide. Naming it makes
+every coefficient a contrast against something the user CHOSE, which is what
+`spacr.baseline` already does for the volcano's y axis but not for the fit
+itself. Candidates: the non-targeting controls (which `control_names` can now
+resolve in four spellings, 184), a named guide or gene, or the grand mean.
+Worth checking against `baseline.py` before building anything -- if the
+volcano can already re-baseline a fitted table, the fit may not need to.
