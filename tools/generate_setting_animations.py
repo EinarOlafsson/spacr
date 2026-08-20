@@ -18,7 +18,7 @@ import textwrap
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageSequence
 
@@ -382,17 +382,29 @@ class Painter:
         color: Tuple[int, int, int],
         width: float = 0.5,
         radius: float = 0.0,
+        fill: Optional[Tuple[int, int, int]] = None,
     ) -> None:
+        """Draw a rectangle. ``fill`` paints its interior as well.
+
+        A FILL IS SOMETIMES THE SUBJECT. `remove_image_canvas` animates the
+        removal of a thumbnail's canvas, and a canvas drawn as a hairline
+        outline is almost invisible before it is removed -- so the animation
+        showed a change whose absence nobody could notice. A canvas is a
+        filled rectangle, and drawing it as one is what makes its removal
+        legible.
+        """
         values = self.box(box)
         if radius > 0:
             self.draw.rounded_rectangle(
                 values,
                 radius=int(round(radius * SCALE)),
                 outline=color,
+                fill=fill,
                 width=self.width(width),
             )
         else:
-            self.draw.rectangle(values, outline=color, width=self.width(width))
+            self.draw.rectangle(values, outline=color, fill=fill,
+                                width=self.width(width))
 
     def canvas_rectangle(
         self,
@@ -1016,6 +1028,9 @@ def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     kind = spec.params["kind"]
     color = OBJECT_COLORS[kind]
+    if kind == "organelle":
+        _organelle_diameter_scene(painter, action, color)
+        return
     center = (180, 120)
     radius = 64 if kind == "cell" else 40
     scale = 0.55 + 0.45 * action
@@ -1034,6 +1049,51 @@ def _diameter_scene(painter: Painter, spec: Spec, action: float) -> None:
             _mix(color, 0.78),
             0.5,
         )
+
+
+def _organelle_diameter_scene(painter: Painter, action: float,
+                              color: Tuple[int, int, int]) -> None:
+    """What `organelle_diameter` STILL does, which is not size the mask.
+
+    THE OTHER DIAMETERS SIZE THE OBJECT; THIS ONE DOES NOT. The organelle
+    path runs through Cellpose-SAM, which is called with ``diameter=None``,
+    and no classical method sizes its kernels from this value -- so an
+    animation of an organelle growing as the number rises showed an effect
+    the code does not have. The value is not dead, though: it is read by
+    :func:`spacr.organelle_types.OrganelleType.morphology_for`, which
+    switches the recommended morphology from spot to ring once the expected
+    diameter reaches ``RING_RESOLVABLE_PX``. So the masks hold still, the
+    caliper sweeps, and what changes at the threshold is the morphology the
+    preset picks -- a dot below it, a ring at or above it.
+    """
+    ring_at = 0.5  # RING_RESOLVABLE_PX, placed at the middle of the sweep
+    ringness = max(0.0, min(1.0, (action - ring_at) / 0.32))
+    centres = ((122, 92), (196, 76), (152, 154), (232, 142), (268, 96))
+    for index, centre in enumerate(centres):
+        outer = 13.0 + 1.5 * (index % 3)
+        painter.ellipse(
+            (centre[0] - outer, centre[1] - outer,
+             centre[0] + outer, centre[1] + outer),
+            _mix(color, 0.85), 0.55,
+        )
+        # Below the threshold the object is read as a solid spot; above it,
+        # the lumen is resolvable and the same object is read as a ring.
+        core = outer - 1.5 - (outer - 4.0) * ringness
+        if core > 0.8:
+            painter.dot(centre, core, _mix(color, 0.85 - 0.35 * ringness))
+    # The caliper is the expected diameter being dialled in. It is the
+    # annotation, not the subject -- but it is what the user is changing.
+    half = 8.0 + 26.0 * action
+    y = 196
+    painter.line(((180 - half, y), (180 + half, y)), _mix(WHITE, 0.72), 0.5)
+    for x in (180 - half, 180 + half):
+        painter.line(((x, y - 7), (x, y + 7)), _mix(WHITE, 0.72), 0.5)
+    # The threshold itself, so the flip has a visible cause.
+    mark = 8.0 + 26.0 * ring_at
+    painter.dashed(((180 - mark, y - 14), (180 - mark, y + 14)),
+                   _mix(WHITE, 0.30), 0.35)
+    painter.dashed(((180 + mark, y - 14), (180 + mark, y + 14)),
+                   _mix(WHITE, 0.30), 0.35)
 
 
 def _background_scene(painter: Painter, spec: Spec, action: float) -> None:
@@ -1167,13 +1227,25 @@ def _organelle_scene(painter: Painter, spec: Spec, action: float) -> None:
             painter.line([(180, 92), (180, 148)],
                          _mix(WHITE, 0.25 + 0.45 * arrived), 0.5)
     elif mode == "skeleton":
-        _object_outline(
-            painter, "organelle", (180, 120), (94, 38), 1.0 - action, 0.5,
+        # THE SKELETON HAS TO BE THE MEDIAL AXIS OF THE THING IT REPLACES.
+        # The old frame drew the organelle template and then, separately, a
+        # five-point zigzag that ran nowhere near its branches -- so it read
+        # as the object being erased and an unrelated line drawn, which is
+        # the opposite of what skeletonising does. The network is built from
+        # these branch paths, and the skeleton is drawn along the SAME paths,
+        # so the only thing that changes is the thickness.
+        branches = (
+            ((78, 138), (112, 120), (150, 118), (186, 110)),
+            ((186, 110), (222, 96), (258, 92), (288, 100)),
+            ((186, 110), (214, 132), (248, 146), (284, 148)),
+            ((150, 118), (140, 148), (128, 174), (104, 190)),
         )
-        skeleton = [
-            (88, 124), (126, 108), (164, 116), (205, 101), (272, 119),
-        ]
-        painter.line(skeleton, _mix(MAGENTA, action), 0.55)
+        for path in branches:
+            painter.line(path, _mix(WHITE, 0.32 + 0.50 * (1.0 - action)),
+                         1.0 + 5.6 * (1.0 - action))
+        if action > 0.04:
+            for path in branches:
+                painter.line(path, MAGENTA, 0.30 + 0.32 * action)
     elif mode == "rolling_ball":
         # The background being subtracted has to LOOK like background:
         # three hairlines were 0.6% of the frame and read as three lines.
@@ -1247,12 +1319,24 @@ def _normalization(painter: Painter, action: float) -> None:
 def _crop_scene(painter: Painter, spec: Spec, action: float) -> None:
     _well(painter)
     mode = spec.params["mode"]
+    if mode == "bounding_box":
+        # THE CONTRAST IS MASK-SHAPED VERSUS RECTANGULAR, so draw both shapes.
+        # The box growing and a neighbour arriving was the CONSEQUENCE of the
+        # setting, and it read as png_size, which grows a box for a different
+        # reason. What actually changes is which pixels survive the crop:
+        # off, only what the mask covers; on, everything the box encloses.
+        # Filling the box as it is switched on is that sentence in one image.
+        BOX = (95, 50, 278, 192)
+        if action > 0.03:
+            painter.rectangle(BOX, _mix(WHITE, 0.5 + 0.5 * action), 0.5, 5,
+                              fill=_mix(GRAY, 0.10 + 0.30 * action))
+        else:
+            painter.rectangle(BOX, _mix(WHITE, 0.5), 0.5, 5)
     _object_outline(painter, "cell", (180, 120), (72, 58), 1.0, 0.4)
     _object_outline(painter, "nucleus", (162, 110), (20, 16), 1.0, 0.7)
     _object_outline(painter, "pathogen", (211, 128), (15, 9), 1.0, 0.2)
     if mode == "bounding_box":
         _object_outline(painter, "cell", (265, 135), (43, 35), action, 1.2)
-        painter.rectangle((95, 50, 278, 192), _mix(WHITE, 0.5 + 0.5 * action), 0.5, 5)
     elif mode == "dilate":
         margin = 2 + 18 * action
         painter.line(
@@ -1398,18 +1482,79 @@ def _tracking_scene(painter: Painter, spec: Spec, action: float) -> None:
                 painter, center, (36, 28),
                 (1.0 - action) if missing else 1.0, idx * 0.6,
             )
-    elif mode in ("link", "stitch"):
-        first = (145, 120)
-        second = (190 + 38 * action, 120)
-        draw_cell = _draw_motile_cell if mode == "link" else _object_outline
-        if mode == "link":
-            draw_cell(painter, first, (42, 32), 0.6, 0.2)
-            draw_cell(painter, second, (42, 32), 1.0, 0.8)
-        else:
-            draw_cell(painter, "cell", first, (42, 32), 0.6, 0.2)
-            draw_cell(painter, "cell", second, (42, 32), 1.0, 0.8)
+    elif mode == "link":
+        # TWO TIMEPOINTS, DRAWN AS TWO TIMEPOINTS. The subject was right --
+        # a detection in one frame and a detection in the next, linked while
+        # they overlap enough -- but both were drawn on the same bare
+        # background, so nothing said "these are different frames" and the
+        # whole reading rested on one faint dashed line. Each detection now
+        # sits in its own panel, the earlier one drawn dimmer, and the link
+        # between them is a solid line that thins and breaks as the required
+        # overlap rises.
+        for left in (74, 196):
+            painter.rectangle((left, 62, left + 90, 178), _mix(WHITE, 0.30),
+                              0.4, 6)
+        first = (119, 120)
+        second = (241, 120)
+        _draw_motile_cell(painter, first, (42, 32), 0.55, 0.2)
+        _draw_motile_cell(painter, second, (42, 32), 1.0, 0.8)
+        # A BAND, NOT A HAIRLINE. The link either holds or it does not, and a
+        # half-pixel dashed line changing brightness is not a difference
+        # anyone reads in a 48 px tooltip. The link is a solid band whose
+        # thickness IS the overlap, so it visibly narrows and snaps.
         overlap = max(0.0, 1.0 - action * 1.15)
-        painter.dashed((first, second), _mix(WHITE, 0.25 + 0.65 * overlap), 0.45)
+        left_edge, right_edge = first[0] + 22, second[0] - 22
+        if overlap > 0.02:
+            half = 4.0 + 20.0 * overlap
+            painter.polygon(
+                ((left_edge, 120 - half), (right_edge, 120 - half),
+                 (right_edge, 120 + half), (left_edge, 120 + half)),
+                _mix(WHITE, 0.30 + 0.45 * overlap),
+            )
+        else:
+            # The link is GONE, and an absence needs to be drawn: two stubs
+            # reaching for each other with a gap between them read as broken,
+            # where an empty middle just reads as an empty middle.
+            for stub in ((left_edge, left_edge + 24),
+                         (right_edge - 24, right_edge)):
+                painter.line(((stub[0], 120), (stub[1], 120)),
+                             _mix(WHITE, 0.45), 0.6)
+    elif mode == "stitch":
+        # Z-PLANES, NOT NEIGHBOURS. Stitching joins masks BETWEEN adjacent
+        # z-slices, and drawing two objects side by side on one plane made
+        # this indistinguishable from the watershed-split animation. The two
+        # slices are now drawn as a stack seen at an angle -- an upper plane
+        # and a lower one -- so the join being tested is plainly vertical.
+        planes = ((96, 84, 262, 84), (72, 156, 238, 156))
+        for left, top, right, _bottom in planes:
+            painter.line(((left, top), (right, top)), _mix(WHITE, 0.52), 0.5)
+        painter.line(((planes[0][0], planes[0][1]),
+                      (planes[1][0], planes[1][1])), _mix(WHITE, 0.40), 0.45)
+        painter.line(((planes[0][2], planes[0][1]),
+                      (planes[1][2], planes[1][1])), _mix(WHITE, 0.40), 0.45)
+        upper = (179, 84)
+        lower = (155, 156)
+        _object_outline(painter, "cell", upper, (42, 32), 0.75, 0.2)
+        _object_outline(painter, "cell", lower, (42, 32), 1.0, 0.8)
+        # Same band, drawn vertically: when the two slices are stitched they
+        # are ONE label, and one label is one solid body, not two shapes with
+        # a thread between them.
+        stitched = max(0.0, 1.0 - action * 1.15)
+        if stitched > 0.02:
+            half = 5.0 + 24.0 * stitched
+            painter.polygon(
+                ((upper[0] - half, upper[1] + 14),
+                 (upper[0] + half, upper[1] + 14),
+                 (lower[0] + half, lower[1] - 14),
+                 (lower[0] - half, lower[1] - 14)),
+                _mix(WHITE, 0.30 + 0.45 * stitched),
+            )
+        else:
+            for stub in (((upper[0], upper[1] + 14),
+                          (upper[0] - 5, upper[1] + 36)),
+                         ((lower[0] + 5, lower[1] - 36),
+                          (lower[0], lower[1] - 14))):
+                painter.line(stub, _mix(WHITE, 0.45), 0.6)
     elif mode == "projection":
         for idx, offset in enumerate((-24, -12, 0, 12, 24)):
             _object_outline(
@@ -1517,7 +1662,14 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
                 for other in points if other != point)
             count = 1 + int(round(action * 3))
             for _distance, other in distances[:count]:
-                painter.line((point, other), _mix(WHITE, 0.12 + 0.08 * count), 0.35)
+                # LEGIBLE AT TOOLTIP SIZE. At 0.35 width and 0.12..0.36
+                # opacity these edges only became visible above about 300 px,
+                # and the tooltip is where they are actually looked at -- so
+                # the animation of a NEIGHBOUR GRAPH showed no graph in the
+                # place it is shown. The dots still lead: the edges are the
+                # thing that CHANGES, and they now change visibly.
+                painter.line((point, other),
+                             _mix(WHITE, 0.34 + 0.16 * count), 0.85)
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
                 painter.dot(point, DOT_RADIUS, color)
@@ -1543,10 +1695,18 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
     elif mode == "canvas":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster[::2]:
+                # A CANVAS THAT IS BARELY THERE CANNOT BE SEEN TO GO. This
+                # drew a thin 0.45-wide outline at 0.65 opacity, so the thing
+                # being removed was almost invisible before the removal and
+                # the animation showed a change nobody could miss the absence
+                # of. It is FILLED now -- a canvas is a filled rectangle
+                # behind a thumbnail, which is what makes it worth removing --
+                # and drawn BEFORE the cell so the cell sits on it.
                 painter.rectangle(
-                    (point[0] - 7, point[1] - 7,
-                     point[0] + 7, point[1] + 7),
-                    _mix(GRAY, 0.65 * (1.0 - action)), 0.45, 1,
+                    (point[0] - 8, point[1] - 8,
+                     point[0] + 8, point[1] + 8),
+                    _mix(GRAY, 0.85 * (1.0 - action)), 0.9, 1,
+                    fill=_mix(GRAY, 0.42 * (1.0 - action)),
                 )
                 _mini_cell(painter, point, 4.5, color)
     elif mode == "outlines":
@@ -1594,23 +1754,32 @@ def _umap_scene(painter: Painter, spec: Spec, action: float) -> None:
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
                 painter.dot(point, DOT_RADIUS, _mix(color, 0.5))
-        scattered = (
-            (CLUSTERS[0][0], CLUSTER_COLORS[0]),
-            (CLUSTERS[0][4], CLUSTER_COLORS[0]),
-            (CLUSTERS[0][9], CLUSTER_COLORS[0]),
-            (CLUSTERS[0][13], CLUSTER_COLORS[0]),
-            (CLUSTERS[1][6], CLUSTER_COLORS[1]),
-            (CLUSTERS[1][11], CLUSTER_COLORS[1]),
+        # OFF IS A PILE, ON IS A SPREAD. Sampling at random across the whole
+        # map over-represents the densest cluster, so the off state puts every
+        # thumbnail in one cluster; the on state puts the same number in each.
+        # Splitting the off state across two clusters made the two halves of
+        # the animation look like the same picture rearranged.
+        scattered = tuple(
+            (CLUSTERS[0][index], CLUSTER_COLORS[0])
+            for index in (0, 4, 7, 9, 11, 13)
         )
+        # FOUR PER CLUSTER, NOT TWO. The contrast was right -- one cluster
+        # unrepresented with the setting off, every cluster represented with
+        # it on -- and two thumbnails per cluster was too little difference to
+        # see at tooltip size, which is the size it is seen at. Six scattered
+        # against six per-cluster made the two states nearly the same amount
+        # of ink; twelve per-cluster makes "every cluster is sampled" the
+        # obvious reading.
         per_cluster = tuple(
             (cluster[index], color)
             for cluster, color in zip(CLUSTERS, CLUSTER_COLORS)
-            for index in (2, 10)
+            for index in (2, 6, 10, 13)
         )
+        # 9.5 was smaller than the dots it was meant to stand out from.
         for point, color in scattered:
-            _mini_cell(painter, point, 9.5, color, 1.0 - action)
+            _mini_cell(painter, point, 14.0, color, 1.0 - action)
         for point, color in per_cluster:
-            _mini_cell(painter, point, 9.5, color, action)
+            _mini_cell(painter, point, 14.0, color, action)
     elif mode == "dot_size":
         for cluster, color in zip(CLUSTERS, CLUSTER_COLORS):
             for point in cluster:
