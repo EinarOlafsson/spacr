@@ -94,6 +94,9 @@ class SweepPanel(QWidget):
         #: panel says so rather than showing zeros.
         self._scores_provider = scores_provider
         self._result = None
+        #: Picture windows this panel opened, kept so Python does not collect
+        #: them the moment `show_picture` returns.
+        self._pictures: list = []
         self._jobs = JobRunner(self, threaded=bool(threaded),
                                app_key="sweep every gene")
         self._jobs.job_failed.connect(self._failed)
@@ -152,6 +155,19 @@ class SweepPanel(QWidget):
         row.addWidget(self.hide_circular)
 
         row.addStretch(1)
+        # SHOW THE PICTURE. The chooser and the ten views existed with no way
+        # to look at any of them -- `figure()` was reachable only through
+        # Save, so the answer to "i ran a measurement sweep how do i see the
+        # graphs?" was "you write them to disk and open them yourself". A
+        # picture nobody can look at is the same defect as a setter nobody
+        # calls.
+        self.show_button = QPushButton("Show picture")
+        self.show_button.setToolTip(
+            "Draw the chosen view of this sweep in its own window.")
+        self.show_button.clicked.connect(self.show_picture)
+        self.show_button.setEnabled(False)
+        row.addWidget(self.show_button)
+
         self.save_button = QPushButton("Save table…")
         self.save_button.clicked.connect(self.save)
         self.save_button.setEnabled(False)
@@ -223,6 +239,7 @@ class SweepPanel(QWidget):
             self.status.setText("The sweep returned nothing.")
             return
         self.save_button.setEnabled(True)
+        self.show_button.setEnabled(True)
         self.status.setText(result.describe())
         self._refill()
         self.finished.emit(result)
@@ -371,6 +388,52 @@ class SweepPanel(QWidget):
                                           alpha=alpha)
         return plot_sweep(self._result, path=path, alpha=alpha,
                           max_circularity=bar, level=level)
+
+    def show_picture(self, *_args):
+        """Draw the chosen view in its own window. Returns the dialog, or None.
+
+        A WINDOW RATHER THAN A PANE, because the Measurements tab is already
+        four sections in a side panel -- "there are to many elements in the
+        measurements tab" -- and a heatmap of forty measurements needs more
+        width than that column has.
+        """
+        from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+        if self._result is None:
+            self.status.setText("Run the sweep first — there is nothing to "
+                                "draw yet.")
+            return None
+        kind = str(self.picture.currentData() or "heatmap")
+        label = dict(self.PICTURES).get(kind, kind)
+        try:
+            figure = self.figure(kind=kind)
+        except Exception as exc:                         # noqa: BLE001
+            LOG.debug("could not draw the sweep picture", exc_info=True)
+            self.status.setText(f"That picture could not be drawn: {exc}")
+            return None
+        if figure is None:
+            # NOTHING TO DRAW IS AN ANSWER, and it is said here rather than
+            # by opening an empty window -- which reads as a broken button.
+            self.status.setText(
+                f"Nothing to draw for “{label}” at q < "
+                f"{float(self.alpha.value()):g}. "
+                "Loosen the q filter, or pick another picture.")
+            return None
+
+        from .graph_builder import _canvas_class
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Sweep — {label}")
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(4, 4, 4, 4)
+        canvas = _canvas_class()(figure)
+        layout.addWidget(canvas)
+        dialog.resize(1000, 720)
+        dialog.show()
+        # KEPT, or Python collects the dialog the moment this returns and the
+        # window vanishes as it appears.
+        self._pictures.append(dialog)
+        return dialog
 
     def save(self, *_args) -> str:
         """Write the whole table -- not the page on screen."""

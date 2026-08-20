@@ -1602,7 +1602,7 @@ def fractions_from_counts(paths: Sequence[str]) -> pd.DataFrame:
         # not, which is exactly the "one vocabulary" failure instruction 145 is
         # about, introduced while fixing something else.
         try:
-            from .utils import correct_metadata_column_names
+            from .schema import correct_metadata_column_names
             frame = correct_metadata_column_names(frame)
         except Exception:                                        # noqa: BLE001
             pass
@@ -1771,7 +1771,7 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     # computed over all 226,467 objects -- which is what made it look like a
     # selection problem rather than a join one.
     try:
-        from .utils import correct_metadata_column_names
+        from .schema import correct_metadata_column_names
 
         frame = correct_metadata_column_names(frame)
     except Exception:                                            # noqa: BLE001
