@@ -84,7 +84,16 @@ def _read_cells(db_path: str, predictions_file: str,
 
 
 def _read_fractions(path: str) -> pd.DataFrame:
-    frame = pd.read_csv(path)
+    # THROUGH THE FUNNEL (145). Read raw, this required plateID/rowID/columnID
+    # and fell through to the `prc` split when the file spelled them
+    # row_name / column_name -- which the count CSVs on the maintainer's own
+    # screen do. With no `prc` either, it returned a frame MISSING THE KEYS
+    # and every join downstream matched nothing while raising nothing. That is
+    # 145's whole finding: a reader that does not canonicalise returns a
+    # number rather than an error.
+    from .tabular import read_table
+
+    frame = read_table(path)
     required = {"plateID", "rowID", "columnID"}
     if not required.issubset(frame) and "prc" in frame:
         pieces = frame["prc"].astype(str).str.rsplit("_", n=2, expand=True)
