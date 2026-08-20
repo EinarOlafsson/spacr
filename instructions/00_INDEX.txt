@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-165 done / 19 open (89%).
+165 done / 20 open (89%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -80,6 +80,9 @@ OPEN
 
   191  EXAMPLE DATA THAT DOWNLOADS ITSELF AND FILLS THE RIGHT SLOTS
        191_example_data_downloads_and_loads_itself.txt
+
+  192  A BUTTON THAT PICKS THE SETTINGS FOR YOUR DATA
+       192_a_button_that_picks_the_settings_for_your_data.txt
 
 --------------------------------------------------------------------------------
 DONE
