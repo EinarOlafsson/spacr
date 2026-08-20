@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-163 done / 15 open (91%).
+164 done / 14 open (92%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -59,9 +59,6 @@ OPEN
 
   178  EVERY FIGURE READS IN BOTH THEMES, THE SUMMARY IS A TABLE, AND A SAVED FIGURE
        178_every_figure_reads_in_both_themes_and_the_summary_is_a_table.txt
-
-  182  THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
-       182_the_family_is_chosen_on_the_untransformed_response.txt
 
   184  A CONTROL CAN BE NAMED AS A GENE OR AS A GUIDE
        184_a_control_can_be_named_as_a_gene_or_as_a_guide.txt
@@ -235,4 +232,5 @@ DONE
   179  A GRAPH TAB IN THE CELLS PANEL, AND MEASUREMENTS THAT COMBINE
   180  A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS
   181  A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
+  182  THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
   183  790 COEFFICIENTS DO NOT BELONG IN THE CONSOLE
