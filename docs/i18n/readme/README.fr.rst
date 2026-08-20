@@ -55,8 +55,6 @@ Langues: `English <../../../README.rst>`_ · `Svenska <README.sv.rst>`_ ·
 `Íslenska <README.is.rst>`_ ·
 `Français <README.fr.rst>`_
 
-`Informations sur les modèles de traduction <../TRANSLATION_MODELS.md>`_
-
 **Analyse spatiale des phénotypes de criblages CRISPR.**
 
 spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, associe chaque cellule au gRNA qu’elle a reçu et indique quels gènes ont modifié le phénotype. Les images de plaques et les lectures FASTQ constituent les entrées ; les mesures par objet, les classificateurs entraînés, les tailles d’effet par guide et par gène et une liste de résultats classés constituent les sorties.
@@ -71,13 +69,11 @@ Exécutez spaCR comme application de bureau ou sans interface graphique sur une 
 Vue d’ensemble du flux de travail
 ---------------------------------
 
-|Tutorials|
-
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
+.. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: Flux de travail spaCR et organisation des sorties
    :align: center
 
-Les images de microscopie (TIFF, OME-TIFF, LIF, CZI, ND2) et les lectures de séquençage (FASTQ) alimentent des flux complémentaires d’analyse d’images et d’association des codes-barres. Les tables d’objets, recadrages, annotations, prédictions, identités des guides, résultats de QC et résumés par puits sont ensuite analysés ensemble.
+Le chemin principal est **Masque → Mesure → Annoter → Classer → Codes barres de carte → Régression**. La grille ci-dessous contient toutes les autres applications dans les mêmes catégories et ordre utilisés sur l'écran d'accueil spaCR.
 
 
 Installer spaCR
@@ -92,22 +88,22 @@ Les installateurs de bureau comprennent un environnement privé Python, donc con
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11 : télécharger spaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel et Apple Silicon) : télécharger spaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: Linux 64 bits : télécharger spaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Anciens programmes d’installation de spaCR
-   :target: docs/source/installers.rst
+   :target: ../../source/installers.rst
 
 .. spacr-installer-links-end
 
@@ -122,7 +118,7 @@ Sur Linux, rendre l'exécutable du fichier téléchargé et l'exécuter :
 
 Sur macOS, ouvrez le ``.pkg``. La bêta actuelle n'est pas notariée; si Gatekeeper le bloque, choisissez **Paramètres du système → Confidentialité et sécurité → Ouvrez de toute façon**.
 
-Consultez les instructions `guide d'installation <https://einarolafsson.github.io/spacr/installers.html>`_ pour mettre à jour, désinstaller, déconnecter et dépanner.
+Consultez les instructions `guide d'installation <../../source/installers.rst>`_ pour mettre à jour, désinstaller, déconnecter et dépanner.
 
 Installation avec Python
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,7 +142,7 @@ Pour un serveur, un cluster ou un coureur CI, omettre Qt:
    python -m pip install spacr
    spacr-run --list
 
-Les intégrations optionnelles sont installées séparément, par exemple ``spacr[ome-zarr]``, ``spacr[omero]``,``spacr[napari]`` et ``spacr[czi,nd2,lif]``. Voir le `guide d'installation <https://einarolafsson.github.io/spacr/installers.html>`_ pour les extras complets et la table de compatibilité Python-version.
+Les intégrations optionnelles sont installées séparément, par exemple ``spacr[ome-zarr]``, ``spacr[omero]``,``spacr[napari]`` et ``spacr[czi,nd2,lif]``. Voir le `guide d'installation <../../source/installers.rst>`_ pour les extras complets et la table de compatibilité Python-version.
 
 Points d’entrée en ligne de commande
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,15 +178,15 @@ Le même projet peut également concevoir des plaques, estimer la puissance, cor
 Choisissez la page suivante par ce que vous voulez faire:
 
 - `Didacticiels interactifs <https://einarolafsson.github.io/spacr/tutorials/>`_ — 73 workflows guidés depuis l'installation jusqu'à l'enquête.
-- `Python API démarrage rapide <https://einarolafsson.github.io/spacr/python_api.html>`_ — lancez et validez des pipelines à partir de scripts, de cahiers ou d'un cluster.
-- `Guide des caractéristiques <https://einarolafsson.github.io/spacr/features.html>`_ — capacités, maturité et intégrations optionnelles.
+- `Python API démarrage rapide <../../source/python_api.rst>`_ — lancez et validez des pipelines à partir de scripts, de cahiers ou d'un cluster.
+- `Guide des caractéristiques <../../source/features.rst>`_ — capacités, maturité et intégrations optionnelles.
 - `Référence curée API <https://einarolafsson.github.io/spacr/api/index.html>`_ — points d'entrée pris en charge par tâche, avec la référence complète du module un niveau plus profond.
-- `Guide de localisation <https://einarolafsson.github.io/spacr/localization.html>`_ — langages d'interface, aide contextuelle et politique d'output scientifique.
+- `Guide de la langue et de la traduction <../../source/localization.rst>`_ — langages d'interface, aide contextuelle et politique d'output scientifique.
 
-Interface de bureau multilingue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Langue et traduction
+~~~~~~~~~~~~~~~~~~~~~~
 
-La localisation en dix langues couvre la navigation, les préférences, les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.
+L’interface prend en charge dix langues dans la navigation et les préférences. Les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée sont également traduites. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <../../source/localization.rst#contextual-help>`_.
 
 Guide animé des paramètres
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +198,29 @@ Données
 
 Jeux de données de référence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: Ouvrir le jeu de microscopie dans BioStudies
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Ouvrir le jeu de test sur Hugging Face
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: Ouvrir le jeu de séquençage dans NCBI
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: Ouvrir spaCRPower
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: Ouvrir la prépublication bioRxiv
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
 - `Ensemble de données complet de microscopie: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
 - `Ensemble de données d'essai: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
@@ -232,3 +251,8 @@ Si spaCR contribue à votre recherche, citez :
 Olafsson EB, *et al.* Un criblage d'image groupée CRISPR identifie EAF1 comme un modulateur *T. gondii* de la subversion ESCRT.
 
 `préimpression bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `archive logicielle <https://doi.org/10.5281/zenodo.21343317>`_
+
+Remerciements
+~~~~~~~~~~~~~~~
+
+spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’`attribution des modèles de traduction <../TRANSLATION_MODELS.md>`_ pour connaître les modèles utilisés dans la documentation multilingue et les catalogues de l’interface.

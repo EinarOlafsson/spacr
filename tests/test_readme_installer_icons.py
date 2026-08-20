@@ -160,10 +160,7 @@ def test_the_icons_are_committed_here_and_not_hotlinked():
     block = _block()
     urls = re.findall(r"image:: (\S+)", block)
     assert len(urls) == len(ALL_ICON_STEMS)
-    prefix = (
-        "https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly"
-        "/spacr/resources/icons/platforms/"
-    )
+    prefix = "spacr/resources/icons/platforms/"
     for url in urls:
         assert url.startswith(prefix), f"{url} is hotlinked from elsewhere"
         committed = ICON_DIR / url[len(prefix):]
@@ -174,7 +171,7 @@ def test_legacy_is_the_fourth_link_and_opens_the_version_archive():
     html, _messages = _render_readme(README.read_text(encoding="utf-8"))
     links = _linked_images(html)
     legacy = next(src for src in links if src.endswith("/legacy.png"))
-    assert links[legacy].endswith("/blob/nightly/docs/source/installers.rst")
+    assert links[legacy].endswith("docs/source/installers.rst")
     row = re.search(r"(?m)^\|Installer.+\|$", _block()).group(0)
     assert row.split() == [
         "|InstallerLinux|", "|InstallerMacOS|", "|InstallerWindows|",
@@ -300,8 +297,8 @@ def test_tiles_are_slate_squares_with_only_small_corner_rounding(stem):
     assert generator.CORNER_RADIUS < generator.CANVAS * 0.10
 
 
-def test_legacy_is_the_only_canvas_with_a_label_below_its_button():
-    """The spaCR mark fills its square; ``Legacy`` lives beneath the square."""
+def test_legacy_uses_the_spacr_mark_without_a_caption():
+    """The archive button is only the centered spaCR mark."""
     generator = _generator_module()
     image = _icon("legacy")
     button = image.crop((0, 0, generator.CANVAS, generator.CANVAS))
@@ -313,14 +310,11 @@ def test_legacy_is_the_only_canvas_with_a_label_below_its_button():
         <= generator.MARK_SIZE
     assert abs((top + bottom - 1) / 2 - (generator.CANVAS - 1) / 2) <= 1
 
-    caption = image.crop(
-        (0, generator.CANVAS, generator.CANVAS, generator.OUTPUT_HEIGHT))
-    assert caption.getbbox() is not None, "Legacy caption is missing"
-    for stem in PLATFORM_ASSETS:
-        platform_caption = _icon(stem).crop(
+    for stem in ALL_ICON_STEMS:
+        caption = _icon(stem).crop(
             (0, generator.CANVAS, generator.CANVAS,
              generator.OUTPUT_HEIGHT))
-        assert platform_caption.getbbox() is None, (
+        assert caption.getbbox() is None, (
             f"{stem}.png contains text or artwork below its button")
 
 

@@ -3073,13 +3073,20 @@ REVIEWED_README_BLOCKS = {
     },
 }
 
-_LOCALIZATION_SOURCE = (
-    "Ten-language localization covers navigation, Preferences, AI and LIVE "
-    "controls, module descriptions and reviewed contextual help. Change "
-    "language under **spaCR → Preferences → Language** without restarting. "
-    "Logs, paths, database values and measurements are never translated; "
-    "scientific output remains canonical English. See the `contextual-help "
-    "policy <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_."
+_LANGUAGE_SUPPORT_SOURCE = (
+    "The interface supports ten languages across navigation and Preferences. "
+    "AI and LIVE controls, module descriptions and reviewed contextual help "
+    "are also translated. Change the language under **spaCR → Preferences → "
+    "Language** without restarting. Logs, paths, database values and "
+    "measurements are never translated; scientific output remains canonical "
+    "English. See the `contextual-help policy "
+    "<docs/source/localization.rst#contextual-help>`_."
+)
+_ACKNOWLEDGMENTS_SOURCE = (
+    "spaCR builds on open scientific software including NumPy, pandas, "
+    "scikit-image, scikit-learn, Cellpose, PyTorch and Qt. See the `translation "
+    "model attribution <docs/i18n/TRANSLATION_MODELS.md>`_ for the models used "
+    "to prepare the multilingual documentation and interface catalogs."
 )
 _ANIMATION_SOURCE = (
     "Settings with a visual explanation offer an **Animation** control in "
@@ -3089,16 +3096,16 @@ _ANIMATION_SOURCE = (
     "<https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_."
 )
 REVIEWED_README_BLOCKS.update({
-    _LOCALIZATION_SOURCE: {
-        "de": "Die Lokalisierung in zehn Sprachen umfasst Navigation, Einstellungen, AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
-        "es": "La localización en diez idiomas abarca la navegación, las preferencias, los controles AI y LIVE, las descripciones de módulos y la ayuda contextual revisada. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
-        "fr": "La localisation en dix langues couvre la navigation, les préférences, les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
-        "hi": "दस भाषाओं में स्थानीयकरण नेविगेशन, प्राथमिकताएँ, AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता को शामिल करता है। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_ देखें।",
-        "is": "Staðfærsla á tíu tungumálum nær yfir leiðsögn, stillingar, AI- og LIVE-stýringar, lýsingar á einingum og yfirfarna samhengishjálp. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
-        "ko": "10개 언어 현지화는 탐색, 환경 설정, AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말을 포함합니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_을 참조하세요.",
-        "pt": "A localização em dez idiomas abrange navegação, preferências, controles AI e LIVE, descrições de módulos e ajuda contextual revisada. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
-        "sv": "Lokalisering på tio språk omfattar navigering, inställningar, AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_.",
-        "zh_CN": "十种语言的本地化涵盖导航、首选项、AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_。",
+    _LANGUAGE_SUPPORT_SOURCE: {
+        "de": "Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <docs/source/localization.rst#contextual-help>`_.",
+        "es": "La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <docs/source/localization.rst#contextual-help>`_.",
+        "fr": "L’interface prend en charge dix langues dans la navigation et les préférences. Les commandes AI et LIVE, les descriptions des modules et l’aide contextuelle révisée sont également traduites. Changez de langue sous **spaCR → Préférences → Langue** sans redémarrer. Les journaux, chemins, valeurs de base de données et mesures ne sont jamais traduits ; les résultats scientifiques restent en anglais canonique. Consultez la `politique d’aide contextuelle <docs/source/localization.rst#contextual-help>`_.",
+        "hi": "इंटरफ़ेस नेविगेशन और प्राथमिकताओं में दस भाषाओं का समर्थन करता है। AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता भी अनुवादित हैं। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <docs/source/localization.rst#contextual-help>`_ देखें।",
+        "is": "Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <docs/source/localization.rst#contextual-help>`_.",
+        "ko": "인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <docs/source/localization.rst#contextual-help>`_을 참조하세요.",
+        "pt": "A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <docs/source/localization.rst#contextual-help>`_.",
+        "sv": "Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <docs/source/localization.rst#contextual-help>`_.",
+        "zh_CN": "界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。",
     },
     _ANIMATION_SOURCE: {
         "de": "Einstellungen mit einer visuellen Erklärung bieten in ihrem Tooltip die Schaltfläche **Animation**. Durchsuchen Sie die `Galerie der Einstellungsanimationen <https://einarolafsson.github.io/spacr/setting_animations.html>`_ oder das `Register der Einstellungsanimationen <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
@@ -3110,6 +3117,17 @@ REVIEWED_README_BLOCKS.update({
         "pt": "As configurações com uma explicação visual oferecem um controle **Animation** na dica de ferramenta. Consulte a `galeria de animações de configurações <https://einarolafsson.github.io/spacr/setting_animations.html>`_ ou o `registro de animações de configurações <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "sv": "Inställningar med en visuell förklaring har kontrollen **Animation** i verktygstipset. Bläddra i `galleriet med inställningsanimationer <https://einarolafsson.github.io/spacr/setting_animations.html>`_ eller `registret över inställningsanimationer <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.",
         "zh_CN": "带有视觉说明的设置会在工具提示中提供 **Animation** 控件。浏览 `设置动画图库 <https://einarolafsson.github.io/spacr/setting_animations.html>`_ 或 `设置动画注册表 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_。",
+    },
+    _ACKNOWLEDGMENTS_SOURCE: {
+        "de": "spaCR baut auf offener wissenschaftlicher Software auf, darunter NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch und Qt. Die für die mehrsprachige Dokumentation und die Oberflächenkataloge verwendeten Modelle sind in der `Attribution der Übersetzungsmodelle <docs/i18n/TRANSLATION_MODELS.md>`_ aufgeführt.",
+        "es": "spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <docs/i18n/TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.",
+        "fr": "spaCR repose sur des logiciels scientifiques ouverts, notamment NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch et Qt. Consultez l’`attribution des modèles de traduction <docs/i18n/TRANSLATION_MODELS.md>`_ pour connaître les modèles utilisés dans la documentation multilingue et les catalogues de l’interface.",
+        "hi": "spaCR NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch और Qt सहित मुक्त वैज्ञानिक सॉफ़्टवेयर पर आधारित है। बहुभाषी दस्तावेज़ और इंटरफ़ेस कैटलॉग तैयार करने में उपयोग किए गए मॉडल के लिए `अनुवाद मॉडल श्रेय <docs/i18n/TRANSLATION_MODELS.md>`_ देखें।",
+        "is": "spaCR byggir á opnum vísindahugbúnaði, meðal annars NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch og Qt. Sjá `upplýsingar um þýðingarlíkön <docs/i18n/TRANSLATION_MODELS.md>`_ fyrir líkönin sem voru notuð við gerð fjöltyngdra skjala og viðmótsskráa.",
+        "ko": "spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <docs/i18n/TRANSLATION_MODELS.md>`_에서 확인할 수 있습니다.",
+        "pt": "O spaCR utiliza software científico aberto, incluindo NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch e Qt. Consulte a `atribuição dos modelos de tradução <docs/i18n/TRANSLATION_MODELS.md>`_ para ver os modelos usados na documentação multilíngue e nos catálogos da interface.",
+        "sv": "spaCR bygger på öppen vetenskaplig programvara, bland annat NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch och Qt. Se `information om översättningsmodellerna <docs/i18n/TRANSLATION_MODELS.md>`_ för modellerna som användes till den flerspråkiga dokumentationen och gränssnittskatalogerna.",
+        "zh_CN": "spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。",
     },
 })
 
@@ -3216,6 +3234,13 @@ _REVIEWED_README_HEADINGS_ARCHIVE = {
         "ko": "다국어 데스크톱 인터페이스", "is": "Fjöltyngt skjáborðsviðmót",
         "fr": "Interface de bureau multilingue",
     },
+    "Language & translation": {
+        "sv": "Språk och översättning", "de": "Sprache und Übersetzung",
+        "es": "Idioma y traducción", "zh_CN": "语言与翻译",
+        "pt": "Idioma e tradução", "hi": "भाषा और अनुवाद",
+        "ko": "언어 및 번역", "is": "Tungumál og þýðingar",
+        "fr": "Langue et traduction",
+    },
     "Animated setting guidance": {
         "sv": "Animerad hjälp för inställningar", "de": "Animierte Einstellungshilfe",
         "es": "Guía animada de ajustes", "zh_CN": "动画设置指南",
@@ -3261,6 +3286,11 @@ _REVIEWED_README_HEADINGS_ARCHIVE = {
         "zh_CN": "引用 spaCR", "pt": "Como citar o spaCR", "hi": "spaCR का संदर्भ",
         "ko": "spaCR 인용", "is": "Tilvísun í spaCR", "fr": "Citer spaCR",
     },
+    "Acknowledgments": {
+        "sv": "Tack", "de": "Danksagung", "es": "Agradecimientos",
+        "zh_CN": "致谢", "pt": "Agradecimentos", "hi": "आभार",
+        "ko": "감사의 말", "is": "Þakkir", "fr": "Remerciements",
+    },
 }
 
 # Keep the active registry aligned with headings that occur exactly once in
@@ -3271,7 +3301,7 @@ REVIEWED_README_HEADINGS = {
     for heading in (
         "Workflow at a glance",
         "Command-line entry points",
-        "Internationalized desktop interface",
+        "Language & translation",
         "Animated setting guidance",
         "Data",
         "Reference datasets",
@@ -3279,6 +3309,7 @@ REVIEWED_README_HEADINGS = {
         "Licensing",
         "Tutorials",
         "Citing spaCR",
+        "Acknowledgments",
     )
 }
 REVIEWED_README_HEADINGS.update({
@@ -3377,6 +3408,72 @@ REVIEWED_README_ALT_TEXT = {
     ),
 }
 
+REVIEWED_README_RESOURCE_ALT_TEXT = {
+    "de": (
+        "Mikroskopiedatensatz in BioStudies öffnen",
+        "Testdatensatz auf Hugging Face öffnen",
+        "Sequenzierungsdatensatz bei NCBI öffnen",
+        "spaCRPower öffnen",
+        "bioRxiv-Preprint öffnen",
+    ),
+    "es": (
+        "Abrir el conjunto de microscopía en BioStudies",
+        "Abrir el conjunto de prueba en Hugging Face",
+        "Abrir el conjunto de secuenciación en NCBI",
+        "Abrir spaCRPower",
+        "Abrir la prepublicación de bioRxiv",
+    ),
+    "fr": (
+        "Ouvrir le jeu de microscopie dans BioStudies",
+        "Ouvrir le jeu de test sur Hugging Face",
+        "Ouvrir le jeu de séquençage dans NCBI",
+        "Ouvrir spaCRPower",
+        "Ouvrir la prépublication bioRxiv",
+    ),
+    "hi": (
+        "BioStudies माइक्रोस्कोपी डेटासेट खोलें",
+        "Hugging Face परीक्षण डेटासेट खोलें",
+        "NCBI अनुक्रमण डेटासेट खोलें",
+        "spaCRPower खोलें",
+        "bioRxiv प्रीप्रिंट खोलें",
+    ),
+    "is": (
+        "Opna smásjárgagnasafnið í BioStudies",
+        "Opna prófunargagnasafnið á Hugging Face",
+        "Opna raðgreiningargagnasafnið hjá NCBI",
+        "Opna spaCRPower",
+        "Opna bioRxiv-forprentið",
+    ),
+    "ko": (
+        "BioStudies 현미경 데이터세트 열기",
+        "Hugging Face 테스트 데이터세트 열기",
+        "NCBI 시퀀싱 데이터세트 열기",
+        "spaCRPower 열기",
+        "bioRxiv 사전 인쇄본 열기",
+    ),
+    "pt": (
+        "Abrir o conjunto de microscopia no BioStudies",
+        "Abrir o conjunto de teste no Hugging Face",
+        "Abrir o conjunto de sequenciamento no NCBI",
+        "Abrir o spaCRPower",
+        "Abrir a pré-publicação no bioRxiv",
+    ),
+    "sv": (
+        "Öppna mikroskopidatamängden i BioStudies",
+        "Öppna testdatamängden på Hugging Face",
+        "Öppna sekvenseringsdatamängden hos NCBI",
+        "Öppna spaCRPower",
+        "Öppna bioRxiv-förhandsversionen",
+    ),
+    "zh_CN": (
+        "打开 BioStudies 显微镜数据集",
+        "打开 Hugging Face 测试数据集",
+        "打开 NCBI 测序数据集",
+        "打开 spaCRPower",
+        "打开 bioRxiv 预印本",
+    ),
+}
+
 REVIEWED_README_BADGE_ALT_TEXT = {
     "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "PolyForm-Noncommercial-Lizenz", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Rezept", "spaCR"),
     "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia PolyForm Noncommercial", "DOI de Zenodo", "Instaladores más recientes", "Receta de conda-forge", "spaCR"),
@@ -3412,6 +3509,10 @@ REVIEWED_README_LANGUAGE_OVERRIDES = {
     "zh_CN": {
         "The same project can also design plates, estimate power, correct batch effects, inspect segmentation quality, explore linked plots and crops, export AnnData, resume interrupted work and record the settings behind each result.":
             "同一项目还可以设计孔板、估算统计功效、校正批次效应、检查分割质量、探索相互关联的图表和图像裁剪、导出 AnnData、恢复中断的工作，并记录每项结果所使用的设置。",
+        "Feature guide": "功能指南",
+        "Language & translation guide": "语言与翻译指南",
+        "界面语言,背景援助和科学出口政策。":
+            "界面语言、上下文帮助和科学输出政策。",
     },
 }
 
@@ -5717,6 +5818,13 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
             ).replace(
                 "<../TRANSLATION_MODELS.md>",
                 "<docs/i18n/TRANSLATION_MODELS.md>",
+            ).replace(
+                " image:: ../../../spacr/resources/",
+                " image:: spacr/resources/",
+            ).replace(
+                "<../../source/", "<docs/source/",
+            ).replace(
+                ":target: ../../source/", ":target: docs/source/",
             )
             contract_readme = re.sub(
                 r"<README\.([A-Za-z_]+)\.rst>",
@@ -5849,6 +5957,13 @@ def main() -> int:
                 "docs/i18n/TRANSLATION_MODELS.md", "../TRANSLATION_MODELS.md"
             ).replace(
                 "<README.rst>", "<../../../README.rst>"
+            ).replace(
+                " image:: spacr/resources/",
+                " image:: ../../../spacr/resources/",
+            ).replace(
+                "<docs/source/", "<../../source/",
+            ).replace(
+                ":target: docs/source/", ":target: ../../source/",
             )
             for source_text, target_text in (
                 REVIEWED_README_LANGUAGE_OVERRIDES.get(language, {}).items()
@@ -5881,13 +5996,20 @@ def main() -> int:
                     localized_readme = localized_readme.replace(
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
                     )
-                canonical_alt = all_canonical_alt[-5:]
+                canonical_alt = all_canonical_alt[13:18]
                 localized_alt = [
                     value.format(version=version_match.group(1))
                     for value in REVIEWED_README_ALT_TEXT[language]
                 ]
                 for source_alt, target_alt in zip(
                     canonical_alt, localized_alt
+                ):
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
+                    )
+                for source_alt, target_alt in zip(
+                    all_canonical_alt[18:23],
+                    REVIEWED_README_RESOURCE_ALT_TEXT[language],
                 ):
                     localized_readme = localized_readme.replace(
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1

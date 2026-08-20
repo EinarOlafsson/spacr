@@ -1120,7 +1120,7 @@ def test_github_summary_has_reviewed_domain_translations():
         REVIEWED_README_HEADINGS,
     )
 
-    assert len(REVIEWED_README_BLOCKS) == 9
+    assert len(REVIEWED_README_BLOCKS) == 10
     for reviewed in REVIEWED_README_BLOCKS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -1133,7 +1133,7 @@ def test_github_summary_has_reviewed_domain_translations():
     assert "criblages CRISPR" in joined["fr"]
     assert "CRISPR 스크리닝" in joined["ko"]
     assert "CRISPR-skim" in joined["is"]
-    assert len(REVIEWED_README_HEADINGS) == 14
+    assert len(REVIEWED_README_HEADINGS) == 15
     for reviewed in REVIEWED_README_HEADINGS.values():
         assert set(reviewed) == {
             "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
@@ -2654,7 +2654,7 @@ def test_localized_readmes_do_not_leave_long_english_feature_copy():
     }
 
     forbidden = {
-        "Ten-language localization covers navigation",
+        "The interface supports ten languages",
         "Settings with a visual explanation offer",
         "Most screens follow six modules",
         "The same project can also design plates",
@@ -2708,9 +2708,9 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        # thirteen badges, the workflow diagram, three current-installer
-        # icons, and the legacy archive icon
-        assert len(alt_text) == 18
+        # thirteen badges, the workflow diagram, four installer/archive
+        # icons, and five linked data/resource icons
+        assert len(alt_text) == 23
         assert workflow_alt in alt_text
         assert "spaCR workflow and output organization" not in alt_text
         assert "Interactive tutorials" not in alt_text
@@ -2718,13 +2718,18 @@ def test_localized_readme_images_have_reviewed_accessible_text():
 
         # The download icons carry the only text a screen reader gets for
         # them, so it has to be this language's own, not English left behind.
-        installers = alt_text[-4:]
+        installers = alt_text[14:18]
         for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (
                 f"{language}: {alt!r} is not the {platform} download icon")
         assert "spaCR" in installers[3]
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
+
+        resources = alt_text[18:23]
+        assert all(any(name in alt for name in (
+            "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
+        )) for alt in resources)
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():

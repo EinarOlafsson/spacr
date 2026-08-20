@@ -55,8 +55,6 @@ spaCR
 `Íslenska <README.is.rst>`_ ·
 `Français <README.fr.rst>`_
 
-`번역 모델 정보 <../TRANSLATION_MODELS.md>`_
-
 **CRISPR 스크리닝의 공간 표현형 분석.**
 
 spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정하며, 각 세포를 전달받은 gRNA와 연결하고 어떤 유전자가 표현형을 바꾸었는지 보고합니다. 플레이트 영상과 FASTQ 리드를 입력하면 객체별 측정값, 학습된 분류기, 가이드별·유전자별 효과 크기와 우선순위가 지정된 후보 목록이 출력됩니다.
@@ -71,13 +69,11 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
 작업 흐름 개요
 --------------------
 
-|Tutorials|
-
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
+.. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: spaCR 작업 흐름 및 출력 구성
    :align: center
 
-현미경 영상(TIFF, OME-TIFF, LIF, CZI, ND2)과 시퀀싱 리드(FASTQ)는 서로 보완적인 영상 분석 및 바코드 매핑 작업 흐름으로 들어갑니다. 그런 다음 객체 테이블, 이미지 크롭, 주석, 예측, 가이드 식별 정보, QC 결과 및 웰 단위 요약을 함께 분석합니다.
+주요 경로는 **Mask → 측정 → Annotate → 분류 →지도 바코드 → Regression**입니다. 아래의 네트워크에는 spaCR 홈 화면에 사용되는 동일한 범주 및 순서의 다른 모든 응용 프로그램이 포함되어 있습니다.
 
 
 spaCR 설치
@@ -92,22 +88,22 @@ spaCR 설치
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: Windows 10/11용 spaCR 1.5.0.4 다운로드
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: macOS 11+ (Intel 및 Apple Silicon)용 spaCR 1.5.0.4 다운로드
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 64비트 Linux용 spaCR 1.5.0.4 다운로드
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: 이전 spaCR 설치 프로그램
-   :target: docs/source/installers.rst
+   :target: ../../source/installers.rst
 
 .. spacr-installer-links-end
 
@@ -122,7 +118,7 @@ On Linux, make the downloaded file executable and run it:
 
 macOS에서는 ``.pkg``를 여세요. 현재 베타는 공증되지 않았습니다. Gatekeeper가 차단하면 **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 선택하세요.
 
-See the `설치 가이드 <https://einarolafsson.github.io/spacr/installers.html>`_ for update, uninstall, offline and troubleshooting instructions.
+업데이트, 제거, 오프라인 및 문제 해결 지침을 위한 `설치 가이드 <../../source/installers.rst>`_를 참조하십시오.
 
 Python 설치
 ~~~~~~~~~~~~~~~~~~~
@@ -146,7 +142,7 @@ For a server, cluster or CI runner, omit Qt:
    python -m pip install spacr
    spacr-run --list
 
-옵션 통합은 예를 들어 ``spacr[ome-zarr]`` , ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``에서 별도로 설치됩니다. `설치 가이드 <https://einarolafsson.github.io/spacr/installers.html>`_ 전체 엑스트라와 Python 버전의 호환성 테이블을 참조하십시오.
+옵션 통합은 예를 들어 ``spacr[ome-zarr]`` , ``spacr[omero]``, ``spacr[napari]`` 및 ``spacr[czi,nd2,lif]``에서 별도로 설치됩니다. `설치 가이드 <../../source/installers.rst>`_ 전체 엑스트라와 Python 버전의 호환성 테이블을 참조하십시오.
 
 명령줄 진입점
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,15 +178,15 @@ For a server, cluster or CI runner, omit Qt:
 다음 페이지를 선택하십시오 당신이 원하는 것에 따라 :
 
 - `인터랙티브 튜토리얼 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 설치에서 히트 조사를 통해 73 개의 지시된 작업 흐름.
-- `Python API 빠른 시작 <https://einarolafsson.github.io/spacr/python_api.html>`_ - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.
-- `특징 가이드 <https://einarolafsson.github.io/spacr/features.html>`_ - 능력, 성숙성 및 선택적 통합.
+- `Python API 빠른 시작 <../../source/python_api.rst>`_ - 스크립트, 노트북 또는 클러스터에서 튜브를 실행하고 검증합니다.
+- `특징 가이드 <../../source/features.rst>`_ - 능력, 성숙성 및 선택적 통합.
 - `정리된 API 참조 <https://einarolafsson.github.io/spacr/api/index.html>`_ - 작업에 따라 지원되는 입력 포인트, 전체 모듈 참조 1 레벨 더 깊습니다.
-- `위치 가이드 <https://einarolafsson.github.io/spacr/localization.html>`_ - 인터페이스 언어, 컨텍스트 지원 및 과학 출력 정책.
+- `언어 & 번역 가이드 <../../source/localization.rst>`_ - 인터페이스 언어, 컨텍스트 지원 및 과학 출력 정책.
 
-다국어 데스크톱 인터페이스
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+언어 및 번역
+~~~~~~~~~~~~~~~~~~~~~~
 
-10개 언어 현지화는 탐색, 환경 설정, AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말을 포함합니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_을 참조하세요.
+인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어**에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <../../source/localization.rst#contextual-help>`_을 참조하세요.
 
 애니메이션 설정 안내
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +198,29 @@ For a server, cluster or CI runner, omit Qt:
 
 참조 데이터세트
 ~~~~~~~~~~~~~~~~~~
+
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|의 경우
+
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: BioStudies 현미경 데이터세트 열기
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: Hugging Face 테스트 데이터세트 열기
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: NCBI 시퀀싱 데이터세트 열기
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: spaCRPower 열기
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: bioRxiv 사전 인쇄본 열기
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
 - `전체 스크린 데이터셋: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
 - `테스트 데이터 세트: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
@@ -232,3 +251,8 @@ If spaCR contributes to your research, cite:
 Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. gondii*의 ESCRT 기능 탈취 조절 인자로 규명합니다.
 
 `BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343317>`_
+
+감사의 말
+~~~~~~~~~~~~~~~
+
+spaCR는 NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch 및 Qt를 비롯한 개방형 과학 소프트웨어를 기반으로 합니다. 다국어 문서와 인터페이스 카탈로그 작성에 사용된 모델은 `번역 모델 표기 <../TRANSLATION_MODELS.md>`_에서 확인할 수 있습니다.

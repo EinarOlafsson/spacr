@@ -55,8 +55,6 @@ spaCR
 `Íslenska <README.is.rst>`_ ·
 `Français <README.fr.rst>`_
 
-`翻译模型说明 <../TRANSLATION_MODELS.md>`_
-
 **CRISPR 筛选的空间表型分析。**
 
 spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将每个细胞与其获得的 gRNA 关联，并报告哪些基因改变了表型。输入为孔板图像和 FASTQ 读段；输出包括逐对象测量、训练后的分类器、逐向导 RNA 和逐基因效应量，以及按优先级排序的候选结果列表。
@@ -71,13 +69,11 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 工作流程概览
 --------------------
 
-|Tutorials|
-
-.. image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/main/spacr/resources/icons/flow_chart_v3.png
+.. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: spaCR 工作流程及输出结构
    :align: center
 
-显微镜图像（TIFF、OME-TIFF、LIF、CZI、ND2）和测序读段（FASTQ）分别进入互补的图像分析与条形码映射流程。随后对对象表、图像裁剪、标注、预测、向导 RNA 身份、QC 结果和孔位级汇总进行联合分析。
+主要路径是 **按 → 测量 → 标记 → 分类 → 地图条形码 → 退缩**. 下面的网格包含相同类别的所有其他应用程序,并在 spaCR 主界面上使用的顺序。
 
 
 安装 spaCR
@@ -92,22 +88,22 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 |InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerLegacy|
 
-.. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
+.. |InstallerWindows| image:: ../../../spacr/resources/icons/platforms/windows.png
    :width: 64
    :alt: 下载适用于 Windows 10/11 的 spaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Windows-Online-Setup.exe
-.. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
+.. |InstallerMacOS| image:: ../../../spacr/resources/icons/platforms/macos.png
    :width: 64
    :alt: 下载适用于 macOS 11+（Intel 和 Apple Silicon）的 spaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-macOS-Universal-Online.pkg
-.. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
+.. |InstallerLinux| image:: ../../../spacr/resources/icons/platforms/linux.png
    :width: 64
    :alt: 下载适用于 64 位 Linux 的 spaCR 1.5.0.4
    :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.4/SpaCR-1.5.0.4-Linux-x86_64-Online.run
-.. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
+.. |InstallerLegacy| image:: ../../../spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: 旧版 spaCR 安装程序
-   :target: docs/source/installers.rst
+   :target: ../../source/installers.rst
 
 .. spacr-installer-links-end
 
@@ -122,7 +118,7 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 
 在 macOS 中,打开 ``.pkg``. 目前的 beta 没有通知; 如果 Gatekeeper 阻止它,请选择 **系统设置 → 隐私和安全 → 打开 无论如何**。
 
-请参见 `安装导游 <https://einarolafsson.github.io/spacr/installers.html>`_ 更新、拆除、离线和解决问题的指示。
+请参见 `安装导游 <../../source/installers.rst>`_ 更新、拆除、离线和解决问题的指示。
 
 Python 安装
 ~~~~~~~~~~~~~~~~~~~
@@ -146,7 +142,7 @@ spaCR 支持 Python **3.9 至 3.14**,除 Python 3.14.1 外,除此之外, torchvi
    python -m pip install spacr
    spacr-run --list
 
-Optional integrations are installed separately, for example ``spacr[ome-zarr]``, ``spacr[omero]``, ``spacr[napari]`` and ``spacr[czi,nd2,lif]``. See the `安装导游 <https://einarolafsson.github.io/spacr/installers.html>`_ for the complete extras and Python-version compatibility table.
+可选集成单独安装,例如 ``spacr[ome-zarr]``、 ``spacr[omero]``、``spacr[napari]`` 和 ``spacr[czi,nd2,lif]``. 查看完整的附件和 Python 版本兼容性表的 `安装导游 <../../source/installers.rst>`_。
 
 命令行入口
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,15 +178,15 @@ Optional integrations are installed separately, for example ``spacr[ome-zarr]``,
 选择下一个页面,根据你想做的事情:
 
 - `互动教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到成功调查的73个导向工作流。
-- `Python API 快速启动 <https://einarolafsson.github.io/spacr/python_api.html>`_ - 从脚本、笔记本或集群运行和验证流程。
-- `Feature guide <https://einarolafsson.github.io/spacr/features.html>`_ - 能力、成熟度和可选集成。
+- `Python API 快速启动 <../../source/python_api.rst>`_ - 从脚本、笔记本或集群运行和验证流程。
+- `功能指南 <../../source/features.rst>`_ - 能力、成熟度和可选集成。
 - `清理 API 参考 <https://einarolafsson.github.io/spacr/api/index.html>`_ - 按任务支持输入点,完整的模块参考一个级别更深。
-- `Localization guide <https://einarolafsson.github.io/spacr/localization.html>`_ — 界面语言,背景援助和科学出口政策。
+- `语言与翻译指南 <../../source/localization.rst>`_ — 界面语言、上下文帮助和科学输出政策。
 
-多语言桌面界面
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+语言与翻译
+~~~~~~~~~~~~~~~~~~~~~~
 
-十种语言的本地化涵盖导航、首选项、AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <https://einarolafsson.github.io/spacr/localization.html#contextual-help>`_。
+界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <../../source/localization.rst#contextual-help>`_。
 
 动画设置指南
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,6 +198,29 @@ Optional integrations are installed separately, for example ``spacr[ome-zarr]``,
 
 参考数据集
 ~~~~~~~~~~~~~~~~~~
+
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+
+.. |DataBioStudies| image:: ../../../spacr/resources/icons/databanks/biostudies_button.png
+   :width: 72
+   :alt: 打开 BioStudies 显微镜数据集
+   :target: https://doi.org/10.6019/S-BIAD2135
+.. |DataHuggingFace| image:: ../../../spacr/resources/icons/databanks/huggingface_button.png
+   :width: 72
+   :alt: 打开 Hugging Face 测试数据集
+   :target: https://huggingface.co/datasets/einarolafsson/toxo_mito
+.. |DataNCBI| image:: ../../../spacr/resources/icons/databanks/ncbi_button.png
+   :width: 72
+   :alt: 打开 NCBI 测序数据集
+   :target: https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935
+.. |DataSpaCRPower| image:: ../../../spacr/resources/icons/databanks/spacrpower_button.png
+   :width: 72
+   :alt: 打开 spaCRPower
+   :target: https://github.com/maomlab/spaCRPower
+.. |DataBioRxiv| image:: ../../../spacr/resources/icons/databanks/biorxiv_button.png
+   :width: 72
+   :alt: 打开 bioRxiv 预印本
+   :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
 - `全微镜数据集:BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
 - `测试数据集:Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
@@ -232,3 +251,8 @@ Bug reports and focused feature requests are welcome through `GitHub 问题 <htt
 Olafsson EB, *et al.* 一张以图像为基础的 CRISPR 筛选将 EAF1 定义为 *T. gondii* ESCRT 模块化器。
 
 `生物Rxiv 预印 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `软件档案 <https://doi.org/10.5281/zenodo.21343317>`_
+
+致谢
+~~~~~~~~~~~~~~~
+
+spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <../TRANSLATION_MODELS.md>`_。
