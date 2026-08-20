@@ -128,6 +128,9 @@ __all__ = [
     "fractions_from_counts",
     "load_montage_objects",
     "resolve_montage_crop_source",
+    "effects_grid_from_results",
+    "write_effects_grid",
+    "EFFECTS_GRID_FILE",
 ]
 
 
@@ -264,6 +267,77 @@ def round_half_up(value: float) -> int:
 #:                cells its reads imply. Shows the cells assigned to this one.
 PICKING_MODES: Tuple[str, ...] = ("rank", "attributed", "assigned",
                                  "multivariate")
+
+
+#: What a sweep writes its per-measurement effects to, inside the run folder.
+#:
+#: ONE NAME, TWO MODULES. `gene_measurement_sweep` writes it and this reads
+#: it, and the montage finds it the same way it finds the results table --
+#: off `results_path`. A grid passed in memory between two panels would work
+#: exactly once, in the session that ran the sweep.
+EFFECTS_GRID_FILE = "gene_measurement_effects.csv"
+
+
+def effects_grid_from_results(path) -> Optional["pd.DataFrame"]:
+    """The gene x measurement effects grid beside a run, or ``None``.
+
+    WHY THIS EXISTS AT ALL. `select_montage` has taken an `effects_grid`
+    argument since option C shipped, and NOTHING EVER SET IT -- so the
+    multivariate picker could not run from the GUI at any point: it always
+    found `None`, fell back to the single-score attribution, and said so in
+    the caption. The fallback worked exactly as designed and hid the fact
+    that the thing it was falling back FROM was unreachable.
+
+    The sweep's own `SweepResult.effects` lived only in the sweep panel's
+    memory and was never written down, so there was nothing for the montage
+    to read even in the session that produced it.
+
+    :param path: the results CSV or the folder holding it -- whatever
+        `results_path` carries, same as :func:`effects_from_results`.
+    :returns: the grid indexed by guide, or ``None`` when there is no sweep.
+    """
+    import os
+
+    text = str(path or "")
+    if not text:
+        return None
+    folder = text if os.path.isdir(text) else os.path.dirname(text)
+    target = os.path.join(folder, EFFECTS_GRID_FILE)
+    if not os.path.isfile(target):
+        return None
+    try:
+        grid = pd.read_csv(target, index_col=0)
+    except Exception:                                            # noqa: BLE001
+        # Silent, like `effects_from_results` beside it: an unreadable grid
+        # means "no sweep to use", and the caller's own message says what
+        # that costs. Raising here would take the montage down over a file
+        # it can do without.
+        return None
+    if not len(grid) or not len(grid.columns):
+        return None
+    grid.index = [_guide_of_term(str(i)) or str(i) for i in grid.index]
+    return grid
+
+
+def write_effects_grid(effects, folder) -> str:
+    """Write a sweep's effects grid beside the run. Returns the path.
+
+    Written by the sweep so the montage can read it later -- and in another
+    session, which is the half a panel-to-panel handover cannot do.
+    """
+    import os
+
+    if effects is None or not len(effects) or not str(folder or ""):
+        return ""
+    target = os.path.join(str(folder), EFFECTS_GRID_FILE)
+    try:
+        os.makedirs(str(folder), exist_ok=True)
+        effects.to_csv(target)
+    except Exception:                                            # noqa: BLE001
+        # A sweep that produced its answer has not failed because the grid
+        # could not be filed beside it.
+        return ""
+    return target
 
 
 def effects_from_results(path) -> Dict[str, float]:

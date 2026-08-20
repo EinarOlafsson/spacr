@@ -2171,6 +2171,14 @@ class AppScreen(QWidget):
                 # ITS OWN SECTION, not appended to the layout: a widget
                 # added to the layout takes its height out of the others,
                 # which is how the tab came to overlap.
+                # THE GRID GOES BESIDE THE RUN (186 A). `SweepResult.effects`
+                # lived only in this panel's memory: the montage's
+                # multivariate picker takes an `effects_grid` and nothing had
+                # ever set it, so it fell back to the single-score
+                # attribution every time -- in this session and in every
+                # other. Written to the run folder, it is there for the next
+                # session too, which a panel-to-panel handover cannot manage.
+                self._sweep_panel.finished.connect(self._keep_the_effects_grid)
                 self._scan_panel.add_section(self._sweep_panel,
                                              "Gene × measurement sweep")
                 # AFTER the last section is added, not in the panel's
@@ -4528,6 +4536,27 @@ class AppScreen(QWidget):
             return str(panel.run_folder() or "")
         except AttributeError:
             return str(getattr(panel, "_path", "") or "")
+
+    def _keep_the_effects_grid(self, result) -> None:
+        """Write a finished sweep's effects grid beside the run.
+
+        Failure is logged and never raised: a sweep that produced its answer
+        has not failed because the montage could not be told about it.
+        """
+        import os
+
+        effects = getattr(result, "effects", None)
+        if effects is None or not len(effects):
+            return
+        try:
+            from ...cell_montage import write_effects_grid
+
+            source = str(self._results_source_path() or "")
+            folder = source if os.path.isdir(source) else os.path.dirname(source)
+            if folder:
+                write_effects_grid(effects, folder)
+        except Exception:                                        # noqa: BLE001
+            LOG.debug("could not keep the sweep's effects grid", exc_info=True)
 
     def _sweep_counts(self):
         """The per-well guide fractions the sweep needs.
