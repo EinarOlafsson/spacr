@@ -1965,21 +1965,81 @@ def _validate_poisson_response(y, X=None, minimum_samples=MIN_POISSON_SAMPLES,
     return counts
 
 
-def pick_glm_family_and_link(y):
+#: Transforms that are THEMSELVES a link function. Applying one and then
+#: handing the result to a family whose link does the same job transforms the
+#: response twice, and the model fits a quantity nothing measures.
+LINK_LIKE_TRANSFORMS = ('log', 'logit')
+
+
+def double_transform_warning(name, transform, family) -> str:
+    """Instruction 182 C. "" unless the response is transformed TWICE.
+
+    Reported 2026-08-19: a run with ``transform='log'`` had its family chosen
+    by looking at the LOGGED values, found them inside (0, 1), and fitted
+    Binomial with a Logit link -- so the model was fitting logit(log(p)),
+    which is not a quantity the screen measures and not one any reader can
+    interpret. McFadden's R² came back at -20.3.
+
+    SAID AT THE POINT IT HAPPENS, because by the time it reaches the summary
+    the fit has already run. Which of the two transforms to drop is the
+    maintainer's decision (182), so this warns rather than refusing: both
+    answers are defensible science and picking one silently would change every
+    glm result spaCR has produced.
+    """
+    kind = str(transform or '').strip().lower()
+    if kind not in LINK_LIKE_TRANSFORMS:
+        return ""
+    link = type(getattr(family, 'link', None)).__name__
+    if link in ('', 'NoneType', 'Identity', 'identity'):
+        return ""
+    return (
+        f"  WARNING: the response is transformed TWICE. transform={kind!r} "
+        f"was already applied to build {name or 'the response'}, and the "
+        f"family chosen for it carries a {link} link, which transforms it "
+        f"again. The model fits {link.lower()}({kind}(y)) -- a quantity "
+        f"nothing measured. Either drop the transform and let the link do the "
+        f"work, or keep it and fit an identity-link family "
+        f"(regression_type='ols'). A negative McFadden R² below is this."
+    )
+
+
+def pick_glm_family_and_link(y, name="", transform=""):
     """Select the GLM family and link that suit the response.
 
     Used by ``regression_type='glm'`` to choose a family from the data rather
     than from the user.
 
     :param y: Response vector.
+    :param name: what the response column is CALLED, printed with the choice.
+        The sniffer looks at the values it is given, which are the values
+        AFTER any transform -- so "Data strictly between 0 and 1" was true of
+        `log_pred` and said nothing about `pred`, and a reader had no way to
+        see which scale had been examined. Instruction 182 A.
+    :param transform: the transform already applied, printed with the name and
+        checked for the double transform of :func:`double_transform_warning`.
     :returns: A ``statsmodels`` family instance with its link set.
     :raises ValueError: only through :func:`_validate_poisson_response`, when
         the response looks like counts but cannot be one.
     """
+    family = _choose_glm_family(y, name=name, transform=transform)
+    # AFTER the choice, because the warning depends on which link was picked
+    # -- and BEFORE the fit, because by the time this reaches the summary the
+    # fit has already run on a doubly transformed response.
+    warning = double_transform_warning(name, transform, family)
+    if warning:
+        print(warning)
+    return family
+
+
+def _choose_glm_family(y, name="", transform=""):
+    """The family and link, and the sentence saying which scale was examined."""
     values = np.asarray(y, dtype=float).reshape(-1)
+    scale = str(name or 'the response')
+    if transform:
+        scale = f"{scale} (after transform={str(transform)!r})"
 
     if np.all((values == 0) | (values == 1)):
-        print("Binary data detected. Using Binomial family with Logit link.")
+        print(f"{scale} is binary. Using Binomial family with Logit link.")
         return sm.families.Binomial(link=sm.families.links.Logit())
 
     elif (values > 0).all() and (values < 1).all():
@@ -1992,39 +2052,44 @@ def pick_glm_family_and_link(y):
         # applicable" to "fine". Beta regression IS usually the better model
         # here - hence the recommendation - but it is a recommendation, and
         # regression_type='beta' is how you take it.
-        print("Data strictly between 0 and 1. Using Binomial family with "
-              "Logit link; consider regression_type='beta', which models the "
-              "variance of a bounded response directly, or 'quasi_binomial' "
-              "if the wells are overdispersed.")
+        print(f"{scale} is strictly between 0 and 1. Using Binomial family "
+              f"with Logit link; consider regression_type='beta', which models "
+              f"the variance of a bounded response directly, or "
+              f"'quasi_binomial' if the wells are overdispersed.")
         return sm.families.Binomial(link=sm.families.links.Logit())
 
     elif (values >= 0).all() and (values <= 1).all():
-        print("Data between 0 and 1 (including boundaries). Using Quasi-Binomial.")
+        print(f"{scale} is between 0 and 1 including the boundaries. "
+              f"Using Quasi-Binomial.")
         return sm.families.Binomial(link=sm.families.links.Logit())
 
     if (values >= 0).all() and np.all(values.astype(int) == values):
         # Family selection may be used for a short preview without fitting.
         # The actual GLM boundary below enforces the sample/design minimum.
         _validate_poisson_response(values, minimum_samples=1)
-        print("Count data detected. Using Poisson with Log link.")
+        print(f"{scale} looks like counts. Using Poisson with Log link.")
         return sm.families.Poisson(link=sm.families.links.Log())
 
     stat, p_value = normaltest(values)
     print(f"Normality test p-value: {p_value:.4f}")
     if p_value > 0.05:
-        print("Normally distributed data detected. Using Gaussian with Identity link.")
+        print(f"{scale} is normally distributed. Using Gaussian with "
+              f"Identity link.")
         return sm.families.Gaussian(link=sm.families.links.Identity())
 
     if ((values > 0).all()
             and kstest(values, 'invgauss', args=(1,)).pvalue > 0.05):
-        print("Inverse Gaussian distribution detected. Using InverseGaussian with Log link.")
+        print(f"{scale} looks inverse Gaussian. Using InverseGaussian "
+              f"with Log link.")
         return sm.families.InverseGaussian(link=sm.families.links.Log())
 
     if (values >= 0).all():
-        print("Overdispersed count data detected. Using Negative Binomial with Log link.")
+        print(f"{scale} looks like overdispersed counts. Using Negative "
+              f"Binomial with Log link.")
         return sm.families.NegativeBinomial(link=sm.families.links.Log())
 
-    print("Using default Gaussian family with Identity link.")
+    print(f"{scale}: no family fitted the shape, so Gaussian with an "
+          f"Identity link is used.")
     return sm.families.Gaussian(link=sm.families.links.Identity())
 
 # THE BACKEND TABLES LIVE IN A MODULE THAT IMPORTS NOTHING.
@@ -2856,7 +2921,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                      group_lasso_lambda=0.05, rra_alpha=0.25,
                      rra_permutations=10000,
                      regression_backend=DEFAULT_REGRESSION_BACKEND,
-                     verbose=False):
+                     verbose=False, response_name="", transform=""):
     """Dispatch to the requested regression backend and return the fitted model.
 
     Every name in :data:`REGRESSION_TYPES` is fittable here, and every one of
@@ -3061,7 +3126,8 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
         return np.log(n_total)
 
     def _glm_auto():
-        family = pick_glm_family_and_link(y)
+        family = pick_glm_family_and_link(y, name=response_name,
+                                          transform=transform)
         if isinstance(family, sm.families.Poisson):
             _validate_poisson_response(y, X)
             # Same exposure the explicit 'poisson' branch uses. A family chosen
@@ -4056,7 +4122,7 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
                rra_alpha=0.25, rra_permutations=10000,
                model_plate_position=True,
                regression_backend=DEFAULT_REGRESSION_BACKEND,
-               verbose=False):
+               verbose=False, transform=""):
     """Run the full regression pipeline: clean, fit, extract coefficients, optional volcano plot.
 
     :param df: Long-format DataFrame with gRNA/gene fractions and the
@@ -4270,6 +4336,13 @@ def regression(df, csv_path, dependent_variable='predictions', regression_type=N
             rra_permutations=rra_permutations,
             regression_backend=regression_backend,
             verbose=verbose,
+            # WHAT THE RESPONSE IS CALLED AND WHAT WAS DONE TO IT (182 A/C).
+            # The family sniffer sees values, not a column, so without these
+            # it said "Data strictly between 0 and 1" about a logged
+            # proportion and a reader could not tell which scale it had
+            # looked at.
+            response_name=str(y.name) if hasattr(y, 'name') else '',
+            transform=transform,
         )
 
         coef_df = process_model_coefficients(
@@ -7340,6 +7413,10 @@ def _perform_regression(settings):
         # 183: a quiet run gets the summary HEADER and a pointer at the file;
         # verbose gets every coefficient, which is what verbose is for.
         verbose=bool(settings.get('verbose')),
+        # 182 A/C: what was already done to the response, so the family
+        # sniffer can name the scale it examined and refuse to be quiet about
+        # a link stacked on a transform.
+        transform=str(settings.get('transform') or ''),
         cov_type=settings['cov_type'],
         l1_ratio=settings['l1_ratio'],
         quantile=settings['quantile'],
