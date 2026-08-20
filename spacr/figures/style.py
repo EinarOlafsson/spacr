@@ -1,25 +1,9 @@
-"""Apply spaCR's shared publication and on-screen figure style.
+"""Shared publication and on-screen styling for spaCR figures.
 
-The visual system is derived from Waldman *et al.* (Cell, 2020) and Giuliano
-*et al.* (Nature Microbiology, 2024). The same palette and type hierarchy are
-used across panels so a colour retains one meaning throughout a figure.
-
-THE ONE RULE THAT MATTERS MOST, restated here because every panel has to obey
-it: **everything is grey except what the sentence is about.** Grey is the
-default ink for data; colour is an argument. A highlight set is a small
-minority of the marks — if half the points are coloured, the figure has no
-claim.
-
-Two application-specific rules keep figures consistent and readable:
-
-1. **Do not write rcParams globally.** In a long-running GUI, a process-wide
-   update changes every figure drawn later in the session. Apply the style
-   through the context managers in this module.
-
-2. **The ink follows the theme.** The published palette is for paper: near
-   black on white. On spaCR's dark theme that is invisible axes on a
-   transparent page. The hues are fixed and never re-mapped; only the ink and
-   the ground resolve against where the figure is going — screen or file.
+The module provides a fixed data palette, theme-aware foreground colors, and
+scoped Matplotlib style contexts. Data colors retain the same meaning across
+panels, while text and axes adapt to screen or print backgrounds. Styles are
+applied without mutating process-wide ``rcParams``.
 """
 
 from __future__ import annotations
@@ -39,12 +23,7 @@ TRANSPARENT = "none"
 
 
 class Palette:
-    """The fixed hues. Sampled from the published figures; do not invent more.
-
-    Strain and condition colours are **fixed across every panel of a figure**.
-    Assign once and never re-map: a reader who has learned that blue is the
-    knockout in panel B must not find it means something else in panel E.
-    """
+    """Fixed data colors shared by all house-style figure panels."""
 
     GREY = "#B4B4B4"          # default data, non-significant, comparisons
     GREY_DARK = "#7F7F7F"     # secondary series, mean bars
@@ -103,33 +82,23 @@ def resolve_ink(target: str = "screen", ink: Optional[str] = None) -> str:
 
 
 def user_overrides(kind: Optional[str] = None) -> dict:
-    """The rcParams the user's OWN figure preferences lay over the house style.
+    """Return explicit preference changes that override the house style.
 
-    finding 3: spaCR has two figure-style systems --
-    :mod:`spacr.figure_style`, which is the user's preference (general plus
-    per-graph, the design), and this module, which is the publication
-    house style from the apicomplexan-figures skill. Both are legitimate; the
-    two being unaware of each other is not, and the bug that overlap hid is
-    that *a user preference could not reach a house-style panel at all*. Every
-    panel drawn through :func:`figure_style` -- the whole regression QC suite,
-    the toxo figures, the house-style sheet -- ignored the settings the
-    Preferences dialog offers.
+    Only settings that differ from spaCR's figure defaults are returned. This
+    preserves the house style for untouched preferences while allowing general
+    and graph-specific choices to take precedence.
 
-    THE HOUSE STYLE IS THE BASE AND THE PREFERENCE IS THE OVERRIDE. That
-    order matters and it is the reason this returns a DIFF rather than the
-    user's resolved style: :data:`spacr.figure_style.GENERAL_DEFAULTS` is a
-    complete style of its own -- 11 pt DejaVu Sans, gridlines on, a white
-    ground -- so laying the resolved style over the house style would replace
-    the house style for every user who has never opened Preferences. Only the
-    keys the user actually MOVED are returned, so a fresh install draws
-    exactly the published look and a user who set one thing changes one thing.
+    Parameters
+    ----------
+    kind : str or None, default=None
+        Graph kind from :data:`spacr.figure_style.GRAPH_KINDS`. ``None`` uses
+        only the general preference layer.
 
-    :param kind: a member of :data:`spacr.figure_style.GRAPH_KINDS`, when the
-        panel knows which kind of graph it is. None reads the general layer
-        only.
-    :returns: rcParams, possibly empty. Empty on every failure -- no display,
-        no settings store, a stored value of the wrong type -- because a
-        preference is never worth losing a figure over.
+    Returns
+    -------
+    dict
+        Matplotlib ``rcParams`` overrides. An empty dictionary is returned
+        when no preference differs or preferences cannot be read safely.
     """
     try:
         from ..qt.preferences import (get_figure_style,

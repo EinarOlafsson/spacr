@@ -1,50 +1,10 @@
-"""The two well-level distributions a run writes, in the house style.
+"""Well-level distribution panels for regression reports.
 
-`fraction_histogram.pdf` and `log_pred_histogram.pdf` are the last two figures
-the regression pipeline still drew in the old idiom -- a saturated teal
-`sns.histplot` at 60% alpha on a 10x10 inch canvas, titled "Histogram of
-fraction", y-axis "Frequency", followed by a `plt.show()` that pops a window
-out of a GUI run. Beside a panel from :mod:`spacr.figures.panels` they read as
-a mistake, which is the whole of the "the thumbnail ... looks off" complaint.
-
-WHY THESE TWO ARE NOT IN ``panels.REGISTRY``. Every panel in that module is a
-function of the COEFFICIENT table -- one row per fitted term. These two are
-functions of the WELL-LEVEL table, one row per guide-in-well, which is the
-input to the fit rather than its output. They cannot share a sheet built from
-`results.csv` because that table has neither a `fraction` column nor a
-response, so this module keeps its own registry and its own saver.
-
-A DISTRIBUTION IN THIS STYLE, from the skill: a pale solid fill
-(``ROLES['fill']``), never a translucent saturated colour; a thin grey dashed
-reference where one means something; the n stated in-panel; no gridlines, no
-frame around the note, no sentence title.
-
-SAYING SOMETHING. "Distribution of fraction" is what the axis label already
-says, so a panel that says only that has wasted itself. Each of these exists
-to answer one question:
-
-* the fraction histogram -- **is the library evenly represented?** A guide's
-  raw fraction cannot answer that on its own, because a well holding 2 guides
-  splits into shares near 1/2 and a well holding 15 into shares near 1/15;
-  pooling them measures how many guides landed per well, not how evenly. On
-  this screen the equal share ranges from 0.033 to 0.28 across the middle 90%
-  of wells, an eight-fold spread, so a single "even" line on the raw axis
-  would be a line drawn through eight different meanings. Each guide is
-  therefore shown against ITS OWN well's equal share, where 1 is exact
-  equality and the reference is exact.
-
-* the response histogram -- **is the fitted family's distributional
-  assumption plausible?** Not "what does the response look like": what a
-  reader does next depends on the skew and the tails, so those are the
-  numbers, and a normal with the same mean and SD is drawn over the bars so
-  the gap between assumption and data is visible rather than inferred.
-
-CONVENTIONS, stated once. Skewness and excess kurtosis are the moment
-estimators. ``abs(skew) < 0.5`` is read as near-symmetric, 0.5-1 as moderate and
-above 1 as strong -- the usual rule of thumb, named in the caption so a reader
-is never handed a bare adjective. The Gini coefficient is the standard
-evenness statistic and runs 0 (every guide equal) to 1 (one guide holds
-everything).
+This module plots normalized guide representation and response distributions
+from the table used to fit a model. These panels remain separate from
+:mod:`spacr.figures.panels`, whose registry consumes coefficient tables.
+Returned :class:`~spacr.figures.panels.Panel` records include the plotted data
+and the statistics needed to interpret each distribution.
 """
 
 from __future__ import annotations

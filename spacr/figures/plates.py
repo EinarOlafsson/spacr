@@ -1,57 +1,10 @@
-"""Draw every plate in a screen as one small-multiple heatmap panel.
+"""Small-multiple heatmaps for plate-layout measurements.
 
-A plate is 16 rows by 24 columns, so ONE plate is a wide, short picture.
-:func:`spacr.plot.plot_plates` drew the four plates of a screen side by side
-on a 40 x 5 inch figure -- an 8:1 strip. Letterboxed into a square tile of
-the figure grid that strip is one eighth of the tile high and uses about
-12% of its area, which is exactly what "super small" describes. The wells
-were not square either: 0.275 x 0.241 inches, a 1.14:1 rectangle.
-
-All plates are drawn as a small multiple inside one panel:
-
-* Four plates of one measurement are ONE figure, not four. They answer a
-  single question -- does this measurement depend on where a well sits --
-  and that question is only answerable by comparing plates.
-* Stacked 2 x 2 the composite is 1.3:1 instead of 8:1, so it fills a tile
-  instead of lying along the top of one. Same tile, same wells, ~6x the
-  area and ~2x the linear well size.
-* One panel means ONE COLOUR SCALE. Drawn per plate, as it was, the same
-  blue meant 0.24 on plate 1 and 0.28 on plate 3 -- a 16% difference,
-  adjacent, with four separate colour bars -- and comparing plates by eye
-  was not merely hard but wrong.
-
-THE WELLS STAY SQUARE. Every plate is drawn with ``aspect='equal'`` and the
-figure is SIZED FROM THE GRID rather than the grid squeezed into a figure,
-so square is what the layout produces rather than what it survives. A plate
-heatmap with rectangular wells is not a heatmap of a plate: positional
-artefacts, the whole reason to look at one, stop being visible. That is what
-the equal-aspect layout preserves.
-
-TWO THINGS THAT WERE WRONG WITH THE PICTURE, NOT JUST ITS SIZE
----------------------------------------------------------------
-
-1. **A well that was never measured was drawn as a measurement of zero.**
-   ``generate_plate_heatmap`` ends in ``.fillna(0)``, and on the tsg101
-   screen 155 of a plate's 384 wells carry data -- so 54% of every plate
-   panel was a solid block of "the lowest value there is", in the darkest
-   ink, indistinguishable from a real well that scored badly.
-
-2. **Those zeros then set the colour scale.** ``min_max='allq'`` takes the
-   2nd and 98th percentiles OF THE MATRIX, and a matrix that is 54% zeros
-   has a 2nd percentile of 0. Measured on the real screen the drawn range
-   was 0.000-0.243 where the range of the wells that exist is 0.060-0.273,
-   and on plate 3 the top of the scale was 0.281 against a real 98th
-   percentile of 0.408: the whole upper third of that plate's dynamic range
-   was saturated flat by wells that do not exist.
-
-   Here an absent well is absent -- painted as a neutral wash so a hole
-   reads as a hole -- and the colour scale is computed over the wells that
-   were measured.
-
-The style is applied with :func:`spacr.figures.style.figure_style`, a context
-manager, and never by writing rcParams globally. spaCR draws from a long-lived
-GUI, where a global style change would restyle every later figure in the
-session.
+All plates for one measurement share a color scale and are arranged in a
+compact grid with square wells. Missing wells remain distinct from measured
+zeros and are excluded from color-limit estimation. Styling is scoped through
+:func:`spacr.figures.style.figure_style` so drawing a plate does not change
+global Matplotlib settings.
 """
 
 from __future__ import annotations
@@ -103,23 +56,18 @@ EMPTY_WASH_ALPHA = 0.09
 # --------------------------------------------------------------------------- #
 
 def plate_ramp(target: str = "screen"):
-    """The single-hue ramp a plate is painted with, light to dark.
+    """Create the sequential blue color map used for plate measurements.
 
-    The skill is explicit: "Sequential encodings (a p-value, a score) use a
-    single-hue blue ramp, light→dark." Every internal call site passed
-    ``cmap='viridis'``, which is not in the palette and was never chosen --
-    it is the literal the first version was written with.
+    Parameters
+    ----------
+    target : {"screen", "print"}, default="screen"
+        Output surface. The screen ramp avoids the darkest print color so
+        high values remain distinct from a dark interface background.
 
-    ONLY THE DARK END RESOLVES AGAINST THE GROUND, exactly as the ink does
-    in :func:`spacr.figures.style.resolve_ink`. On paper the ramp runs to
-    NAVY; on spaCR's dark theme NAVY is within a hair of the background, so
-    a well at the top of the scale would be confusable with a well that has
-    no measurement at all. The hues are the palette's and do not change --
-    the ramp stops one step earlier where the page is dark.
-
-    :param target: ``'screen'`` or ``'print'``.
-    :returns: a matplotlib ``Colormap`` whose "bad" colour is transparent,
-        so masked (unmeasured) wells show the wash beneath them.
+    Returns
+    -------
+    matplotlib.colors.Colormap
+        Color map with a transparent bad-value color for unmeasured wells.
     """
     from matplotlib.colors import LinearSegmentedColormap
 
