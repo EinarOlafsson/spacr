@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-129 done / 43 open (75%).
+130 done / 43 open (75%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -150,8 +150,8 @@ OPEN
   178  EVERY FIGURE READS IN BOTH THEMES, THE SUMMARY IS A TABLE, AND A SAVED FIGURE
        178_every_figure_reads_in_both_themes_and_the_summary_is_a_table.txt
 
-  179  A GRAPH TAB IN THE CELLS PANEL, AND MEASUREMENTS THAT COMBINE
-       179_a_graph_tab_that_combines_two_measurements.txt
+  180  A SAVED RUN CAN CARRY THE WHOLE WORKSPACE, NOT ONLY THE SETTINGS
+       180_a_saved_run_can_carry_the_whole_workspace.txt
 
 --------------------------------------------------------------------------------
 DONE
@@ -286,3 +286,4 @@ DONE
   176  ONE CHANNEL VOCABULARY, TOOLTIPS ON EVERY CELL SETTING, AND A CALM TAB
   177  ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
   177  THE CELLS TAB COMPARES MEASUREMENTS, AND THE CHROME BEHAVES
+  179  A GRAPH TAB IN THE CELLS PANEL, AND MEASUREMENTS THAT COMBINE

@@ -271,6 +271,14 @@ UNIDENTIFIABLE_WARNING = (
 #: this into a methods section is entitled to know it is the run's own text,
 #: recovered from the run folder and not recomputed here -- and if the folder
 #: were ever pointed at the wrong run, this line is what would show it.
+#: The first line of a summary spaCR wrote itself, and the section heading it
+#: files the statsmodels text under. Both spelled by
+#: :func:`spacr.regression_summary.format_run_summary`; matched rather than
+#: re-derived, so a rename there shows up as the spaCR summary going missing
+#: from this tab rather than as a wrong-looking one.
+SPACR_SUMMARY_HEADING = "spaCR RUN SUMMARY"
+VERBATIM_HEADING = "THE STATSMODELS SUMMARY"
+
 SUMMARY_FROM_DISK = (
     "Read from {path}: this is the run's own summary, written when it was "
     "fitted, not recomputed here.")
@@ -343,20 +351,79 @@ def summary_text(model, regression_type=None, *, path=None,
     summary = getattr(model, "summary", None)
     if not callable(summary):
         named = f" ({regression_type})" if regression_type else ""
-        return (f"No summary: this backend{named} is not a statsmodels fit, "
-                f"so it has none. The sklearn-backed types (lasso, ridge, "
-                f"elasticnet, hinge) report coefficients without standard "
-                f"errors, which is why they are ranked by bootstrap "
-                f"selection frequency instead -- see the Coefficients tab.")
+        return _with_spacr_summary(
+            path,
+            f"this backend{named} is not a statsmodels fit, so it has none. "
+            f"The sklearn-backed types (lasso, ridge, elasticnet, hinge) "
+            f"report coefficients without standard errors, which is why they "
+            f"are ranked by bootstrap selection frequency instead -- see the "
+            f"Coefficients tab.",
+            missing=True)
 
     try:
         text = str(summary())
     except Exception as error:                                   # noqa: BLE001
-        return (f"No summary: statsmodels could not render one for this fit "
-                f"({type(error).__name__}: {error}).")
+        return _with_spacr_summary(
+            path,
+            f"statsmodels could not render one for this fit "
+            f"({type(error).__name__}: {error}).",
+            missing=True)
 
     warning = _identifiability_warning(model)
-    return f"{warning}\n{text}" if warning else text
+    return _with_spacr_summary(path, f"{warning}\n{text}" if warning else text)
+
+
+def _with_spacr_summary(path, statsmodels_text: str, *,
+                        missing: bool = False) -> str:
+    """The run's OWN summary first, the statsmodels one under it.
+
+    Reported 2026-08-19: "for the glm summary there is only the statsmodel
+    summary, there should also be a spacr summary." There was one -- the run
+    writes it to disk -- and this tab could not show it, because the disk was
+    only read when there was NO live model. So the case where spaCR knows
+    most about the fit was the one case where it said least.
+
+    THE STATSMODELS TEXT IS NEVER REPLACED, only preceded. It is the thing a
+    reader compares against every other tool, and the spaCR summary answers a
+    different question: what was fitted, on what, under which assumptions,
+    and which of them held. Both, in the order they are read.
+
+    The file already contains the verbatim summary as its last section (see
+    `write_run_summary`), so it is trimmed off rather than printed twice --
+    the live one is the fit on screen and is the one to keep.
+    """
+    spacr = _spacr_summary_text(path)
+    if not spacr:
+        # NOTHING AT ALL, and the tab says exactly that. "No summary" is the
+        # sentinel every caller tests for; the qualified wording below is
+        # only honest when there IS a spaCR summary above it.
+        return f"No summary: {statsmodels_text}" if missing else statsmodels_text
+    body = (f"No statsmodels summary: {statsmodels_text}" if missing
+            else statsmodels_text)
+    return f"{spacr}\n\n{VERBATIM_HEADING}\n{body}"
+
+
+def _spacr_summary_text(path) -> str:
+    """spaCR's own summary for a run, without its verbatim tail. "" if none.
+
+    The file already carries the statsmodels text as its last section (see
+    `write_run_summary`), so that tail is trimmed rather than printed twice --
+    the live fit is the one on screen and is the one to keep.
+    """
+    found = find_summary_file(path)
+    if not found:
+        return ""
+    try:
+        with open(found, "r", encoding="utf-8", errors="replace") as handle:
+            text = handle.read().strip()
+    except OSError:
+        return ""
+    # A file that is ONLY statsmodels text is a run from before spaCR wrote
+    # its own summary. Nothing to put in front.
+    if not text or not text.startswith(SPACR_SUMMARY_HEADING):
+        return ""
+    cut = text.find(VERBATIM_HEADING)
+    return text[:cut].rstrip() if cut > 0 else text
 
 
 def _identifiability_warning(model) -> str:
@@ -1877,6 +1944,52 @@ class RegressionResultsPanel(QWidget):
         first usually means it.
         """
         return tuple(self._plot_states)
+
+    # -- instruction 180: what this panel contributes to a saved run --------
+
+    def workspace_state(self) -> dict:
+        """EVERY run's view, not only the one on screen.
+
+        `plot_state()` answers "what is the volcano showing", which is one
+        run. A workspace is what the SESSION had open, and a user who built a
+        view on four runs and is looking at the fifth has four views worth
+        keeping -- they are exactly the ones that would otherwise die with
+        the process, since the fifth is at least still described by the
+        widgets.
+
+        The run on screen is folded in first, because it is live in the
+        widgets and not yet in the store.
+        """
+        self._remember_plot_state()
+        return {
+            "path": str(self._path or ""),
+            "level": self._level,
+            "runs": {key: dict(state) for key, state in self._plot_states.items()},
+        }
+
+    def apply_workspace_state(self, state) -> bool:
+        """Put the remembered views back, and reopen the run that was open.
+
+        Returns whether anything was put back. THE STORE IS MERGED, NOT
+        REPLACED: restoring a workspace into a session that already has runs
+        open must not silently drop the views the user built since. A run in
+        both is taken from the document, which is what the user asked to
+        restore.
+        """
+        if not isinstance(state, dict):
+            return False
+        runs = state.get("runs")
+        if isinstance(runs, dict):
+            for key, remembered in runs.items():
+                if isinstance(remembered, dict):
+                    self._plot_states[str(key)] = dict(remembered)
+        path = str(state.get("path") or "")
+        # LOADED, not just assigned. `_path` without the table behind it is a
+        # panel claiming to show a run it has not read, and every diagnostic
+        # tab would draw the previous run's numbers under the new run's name.
+        if path and os.path.exists(path):
+            return bool(self.load(path))
+        return bool(runs)
 
     def forget_plot_state(self, source) -> bool:
         """Drop one run's remembered plot. The design deletes a run.
