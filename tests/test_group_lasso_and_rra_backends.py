@@ -567,6 +567,12 @@ def test_group_lasso_runs_through_perform_regression(tmp_path, stubs):
     score, count = write_screen(tmp_path)
     settings = settings_for(
         score, count, regression_type="group_lasso",
+        # THE PATH THAT FITS THE THING UNDER TEST. `inference` defaults to
+        # 'nonparametric' (2026-08-19), which selects
+        # analysis_mode='guide_permutation' -- and the permutation test IS the
+        # analysis, so it fits no model at all and `regression_type` is never
+        # read. The run says so; the test has to ASK for the fit it is about.
+        inference="parametric",
         group_lasso_lambda=WORKING_LAMBDA,
         # Five resamples, not two hundred: this asserts that the stability
         # branch runs and fits the right model, and the frequency's precision
@@ -613,6 +619,12 @@ def test_group_lassos_stability_bootstrap_fits_the_group_lasso(tmp_path,
     score, count = write_screen(tmp_path)
     settings = settings_for(
         score, count, regression_type="group_lasso",
+        # THE PATH THAT FITS THE THING UNDER TEST. `inference` defaults to
+        # 'nonparametric' (2026-08-19), which selects
+        # analysis_mode='guide_permutation' -- and the permutation test IS the
+        # analysis, so it fits no model at all and `regression_type` is never
+        # read. The run says so; the test has to ASK for the fit it is about.
+        inference="parametric",
         group_lasso_lambda=WORKING_LAMBDA,
         lasso_n_boot=8, lasso_selection_threshold=0.5)
 
@@ -640,6 +652,9 @@ def test_rra_runs_through_perform_regression(tmp_path, stubs):
 
     score, count = write_screen(tmp_path)
     settings = settings_for(score, count, regression_type="rra",
+                            # See the note above: the default inference fits
+                            # no model, so `rra` would never be reached.
+                            inference="parametric",
                             rra_permutations=2000)
 
     out = perform_regression(settings)
