@@ -561,3 +561,27 @@ and should not be squeezed into a test-repair commit.
 The other honest option is instruction 106's rule: if the agreement plot
 cannot be clicked at the current level, it should SAY so rather than accept
 clicks that go nowhere.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE LAST FINDING IS FIXED, AND BY THE ROUTE THIS FILE PREFERRED.
+--------------------------------------------------------------------------------
+
+"A CLICK ON THE AGREEMENT PLOT CAN LAND NOWHERE" is closed, and by the option
+this file named as the right one rather than the fallback: the click MOVES THE
+FILTER, because a click is more specific than a standing filter.
+
+DEFERRED, WHICH IS THE WHOLE TRICK, and it is the thing the first attempt got
+wrong. Calling `set_level` inline rebuilds every view from INSIDE the click's
+own signal, invalidating the point objects Qt is still dispatching through --
+which is what broke ten other round-trips and got that attempt reverted. The
+level moves and the key is re-applied on the NEXT event-loop turn, after the
+rebuild has finished and the signal has unwound.
+
+Driven on a real panel: filter on `grna`, nothing selected, one click on a
+gene dot in the agreement plot -> level `gene`, key
+`gene_fraction:gene[100003]` selected. And nothing twitches on the ordinary
+path -- a click on the volcano, the Q-Q, the effect ranking or the control
+panel at its usual level finds its row already visible.
+
+WITH THAT, A THROUGH R ARE ALL SHIPPED, each recorded above with what it did.
+128 is closed; anything later wanted on this surface is a new instruction.

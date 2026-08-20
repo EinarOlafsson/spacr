@@ -40,6 +40,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import Dict, Optional
 
 from PySide6.QtCore import Qt, Signal
@@ -61,11 +62,9 @@ DEFAULT_THRESHOLD_MULTIPLIER = 3.0
 #: coefficient table; the gene/grna splits are views of it.
 RESULT_FILENAMES = ("results.csv", "results_grna.csv", "results_gene.csv")
 
-#: How far below the folder the user pointed at a results table is looked for.
-#: ``src`` is the screen folder and a table lands at
-#: ``results/<plate>/<regression_type>/list/results.csv``, which is four; the
-#: rest is headroom. A bound is the difference between "no results here" and
-#: walking a home directory.
+#: How far below the selected folder to search for a results table. Current
+#: runs write ``results/<kind>[_n]/results.csv``; the additional depth keeps
+#: older layouts discoverable without walking an entire home directory.
 MAX_SEARCH_DEPTH = 6
 
 #: Stop after this many candidates. Only the newest is shown and the rest are
@@ -260,11 +259,12 @@ def find_summary_file(path) -> Optional[str]:
 UNIDENTIFIABLE_WARNING = (
     "THIS FIT IS NOT IDENTIFIABLE: {wells} analysed observations are being "
     "used to estimate {params} parameters.\n"
-    "Every standard error and P value below is one arbitrary solution out of "
-    "infinitely many; refitting the same data can give different numbers and "
-    "neither set is wrong.\n"
+    "The individual coefficients, standard errors and P values are not "
+    "uniquely interpretable because multiple parameter vectors describe the "
+    "same fitted values.\n"
     "Set inference='nonparametric' to test each guide as a plate-blocked "
-    "marginal association, which stays valid at any width.\n")
+    "marginal association without fitting every guide coefficient at once, "
+    "or use inference='auto' to let spaCR choose.\n")
 
 
 #: Prefixed to a summary that was READ rather than rendered. A reader pasting
@@ -449,11 +449,9 @@ def _identifiability_warning(model) -> str:
 def backend_of(path) -> Optional[str]:
     """The regression type a results path was written under, if it says.
 
-    ``perform_regression`` writes to ``results/<screen>/<regression_type>/``,
-    so the folder names the backend. This is the only way the panel can tell a
-    lasso table from an OLS one: spacr.ml writes an OLS-style ``p_value``
-    into BOTH, and on the penalised branch that number is computed ignoring
-    the penalty and means nothing at all.
+    ``perform_regression`` writes to ``results/<kind>[_n]/``. The folder name
+    is therefore the only evidence available when a table does not record its
+    backend directly.
     """
     if not path:
         return None
@@ -461,8 +459,10 @@ def backend_of(path) -> Optional[str]:
         from ...hits import NO_P_VALUE_TYPES
     except Exception:                  # pragma: no cover - hits unavailable
         return None
-    parts = {part.strip().lower()
-             for part in str(path).replace("\\", "/").split("/")}
+    parts = {
+        re.sub(r"_\d+$", "", part.strip().lower())
+        for part in str(path).replace("\\", "/").split("/")
+    }
     for name in NO_P_VALUE_TYPES:
         if name in parts:
             return name
