@@ -61,3 +61,24 @@ HOW TO KNOW IT WORKED
 * The lock is held by BOTH functions -- a test greps for it, because a lock one
   side forgets is not a lock.
 * A restyle during a fit still takes effect rather than being dropped.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE, and verified on re-reading rather than assumed.
+--------------------------------------------------------------------------------
+
+`figure_queue.FIGURE_LOCK` is one re-entrant lock, and BOTH sides take it:
+
+  * `render_figure_to_png` (figure_queue.py:315) -- the worker's render, which
+    is what `qt/bridge.py`'s `_capture_show` calls;
+  * `_style_figure_colors` (figure_queue.py:134) -- every restyle, and
+    `FigureQueue._style_figure` is a thin wrapper over it rather than a
+    second implementation.
+
+RE-ENTRANT is load-bearing: `_prepare_for_display` styles a figure inside the
+render path, so a plain Lock would deadlock the first time one figure was
+styled and rendered in a single call.
+
+Covered by tests/test_a_restyle_during_a_run_does_not_crash.py -- four tests,
+including one that renders on one thread while restyling on another over the
+same Figure, and one that greps both call sites, because a lock one side
+forgets is not a lock.

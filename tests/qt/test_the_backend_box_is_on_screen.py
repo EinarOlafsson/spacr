@@ -396,11 +396,24 @@ def test_the_permutation_resolution_reaches_the_setting_on_screen(screen,
     # a setting first rather than only expanding the section.
     screen._settings_model._widgets["regression_type"].setCurrentText("ols")
     qtbot.wait(100)
+    # READ THE WAY THE HELP IS ACTUALLY DELIVERED. `install_api_tooltips`
+    # renders the rich HTML into the `apiTooltipHtml` property and shows it
+    # from an EVENT FILTER on the label; it then sets the editor's role to
+    # "metadata" and clears both `setToolTip` strings on purpose. So
+    # `toolTip()` is empty by design on this path, and reading it asserted
+    # that a mechanism the panel does not use was not being used.
+    #
+    # The property is the contract every other reader uses -- the API dot,
+    # the docs link and the localisation pass all read it.
     hint = ""
     for section in screen._settings_sections:
         for label, row in section._row_widgets:
             if row is widget:
-                hint = widget.toolTip() or label.toolTip()
+                hint = (str(row.property("apiTooltipHtml") or "")
+                        or str(label.property("apiTooltipHtml") or "")
+                        or widget.toolTip() or label.toolTip())
     assert hint, "guide_permutations carries no hover help at all"
-    assert "(exceedances + 1) / (permutations + 1)" in hint
+    assert "(exceedances + 1) / (permutations + 1)" in hint, (
+        "the hover help gives the P-value FLOOR but not the estimator, so a "
+        "reader cannot tell where their number came from")
     assert "1e-3" in hint

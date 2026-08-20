@@ -366,3 +366,25 @@ WHAT REMAINS, and it is one wire in someone else's file.
     (permutations + 1)" from `spacr/settings.py`'s `guide_permutations` entry,
     which is the string that test reads. Whoever owns that rewrite should
     either keep the formula or update the test.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- THE RED TEST NAMED ABOVE IS FIXED.
+--------------------------------------------------------------------------------
+
+`test_the_permutation_resolution_reaches_the_setting_on_screen` was red for
+TWO reasons, and only one of them was the tooltip rewrite.
+
+THE TEXT. `guide_permutations` documented the P-value FLOOR --
+"1 / (permutations + 1)" -- and not the estimator. The run computes
+`(exceedances + 1) / (n_permutations + 1)` (guide_permutation.py:312), so a
+reader could see how small a P could get but not where their own number came
+from. Both are stated now, with the floor explained as the case where nothing
+exceeded.
+
+THE READING. The test asked `widget.toolTip() or label.toolTip()`, and on
+this path BOTH are empty by design: `install_api_tooltips` renders the rich
+help into the `apiTooltipHtml` PROPERTY and shows it from an event filter on
+the label, then sets the editor's role to "metadata" and clears both strings.
+So the test asserted that a mechanism the panel does not use was not being
+used. It reads the property now -- the same contract the API dot, the docs
+link and the localisation pass already read.
