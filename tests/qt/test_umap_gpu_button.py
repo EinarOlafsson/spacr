@@ -71,17 +71,45 @@ def test_unavailable_gpu_cannot_leave_the_toggle_claiming_on(
     assert not screen._gpu_switch.isChecked()
     assert screen._hyperparam.gpu_backend() == "cpu"
     assert screen._settings_model.collect()["gpu"] is False
-    assert quiet
+    # IT SAYS WHY, and instruction 158 moved WHERE. This used to assert that a
+    # QMessageBox had appeared; the reason now goes to the shared availability
+    # panel -- which also carries the API link and an Install that dry-runs
+    # first -- and to the status line, which is the durable half. Asserting
+    # the sentence is a stronger claim than asserting a dialog existed.
+    said = screen._hyperparam._status.text().lower()
+    assert "gpu not available" in said
 
 
-def test_declining_install_changes_nothing(screen, monkeypatch, quiet):
-    installed = []
-    monkeypatch.setattr(
-        screen._hyperparam, "_install_cuml", lambda: installed.append(True))
+def test_nothing_is_installed_merely_by_pressing_the_toggle(screen, monkeypatch,
+                                                            quiet):
+    """The panel OFFERS the install; pressing GPU does not start one."""
+    ran = []
+    monkeypatch.setattr("subprocess.run", lambda *a, **k: ran.append(a))
     _plan(monkeypatch, "install")
     screen._gpu_switch.setChecked(True)
     assert not screen._gpu_switch.isChecked()
-    assert not installed
+    assert not ran
+
+
+def test_the_unavailable_toggle_opens_the_shared_panel_not_a_dialog_of_its_own(
+        screen, monkeypatch, quiet):
+    """158: one panel, with the API link and an install that dry-runs first.
+
+    The old path called `subprocess.run(install_command())` with no dry run
+    and no protected-package refusal, so pressing GPU on a 3.11 machine
+    installed `spacr[rapids]` with no report of what it was about to move --
+    numpy and scipy among them, in a process that has already imported both.
+    """
+    from spacr.qt.widgets.availability_panel import AvailabilityPanel
+
+    _plan(monkeypatch, "install")
+    screen._hyperparam.request_gpu_enabled(True)
+
+    entry = AvailabilityPanel.instance().current_entry()
+    assert entry is not None, "the toggle opened no availability panel"
+    assert entry["key"] == "cuml"
+    # And NOT through a dialog of its own.
+    assert not quiet
 
 
 def test_install_completion_requires_restart(screen, monkeypatch, quiet):

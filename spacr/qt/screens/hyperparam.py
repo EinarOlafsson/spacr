@@ -1534,19 +1534,28 @@ class HyperparamPanel(QWidget):
         """Set the shared action-strip GPU state without probing/installing."""
         self._gpu_enabled = bool(checked)
 
-    def request_gpu_enabled(self, checked: bool) -> bool:
+    def request_gpu_enabled(self, checked: bool, *, anchor=None) -> bool:
         """Apply the shared GPU toggle, or explain why it cannot turn on.
 
         The caller uses the returned state to keep the action-strip label and
         the hidden main-run setting synchronized with this search panel.
+
+        UNAVAILABLE GOES THROUGH THE SHARED PANEL (instruction 158), not
+        through a pair of QMessageBoxes of its own. The maintainer asked for
+        the same treatment here as for the regression backends -- "I want that
+        for image UMAP as well" -- and it is not only consistency: this path's
+        old `subprocess.run(install_command())` had NO dry run and no
+        protected-package refusal, so pressing GPU on a 3.11 machine installed
+        `spacr[rapids]` with no report of what it was about to move. numpy and
+        scipy are already imported in this process; an install that moves them
+        underneath it produces failures nobody can attribute.
         """
         if not checked:
             self._gpu_enabled = False
             self._set_status("GPU acceleration is off; CPU reducers will run.")
             return False
-        from PySide6.QtWidgets import QMessageBox
-
-        from ...gpu_reduce import install_command, install_plan
+        from ...gpu_reduce import availability_entry, install_plan
+        from ..widgets.availability_panel import explain
 
         plan = install_plan()
         if plan["action"] == "ready":
@@ -1555,15 +1564,12 @@ class HyperparamPanel(QWidget):
             return True
         # Not ready, so the toggle must not stay down claiming it is.
         self._gpu_enabled = False
-        if plan["action"] in ("wrong_python", "no_device"):
-            QMessageBox.information(self, "GPU not available", plan["message"])
-            return False
-        answer = QMessageBox.question(
-            self, "Install cuML?",
-            plan["message"] + "\n\n" + " ".join(install_command()))
-        if answer != QMessageBox.Yes:
-            return False
-        self._install_cuml()
+        self._set_status(f"GPU not available: {plan['message']}")
+        explain(anchor if anchor is not None else self,
+                [availability_entry()], parent=self,
+                on_installed=lambda _offer: self._set_status(
+                    "cuML was installed. Restart spaCR to use it — numpy and "
+                    "scipy are already loaded in this process."))
         return False
 
     def _install_cuml(self) -> None:
