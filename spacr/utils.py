@@ -7782,19 +7782,28 @@ def _style_plot_axes(fig, ax, colors):
 
 
 def setup_plot(figuresize, black_background, theme_colors=None):
-    """Return a themed ``(fig, ax)`` matching the active GUI container.
+    """Create a square Matplotlib figure using scoped theme colors.
 
-    SCOPED, NOT GLOBAL. This wrote the GUI theme's colours straight into
-    `plt.rcParams`, which is process-wide -- so every figure created
-    afterwards in the same process inherited them, including one being SAVED
-    FOR PAPER. A dark session therefore leaked white ink into files that had
-    nothing to do with this function, which is instruction 150's failure
-    reached by a different route, and instruction 136 asks by name that no
-    module write rcParams globally.
+    Parameters
+    ----------
+    figuresize : float
+        Figure width and height in inches.
+    black_background : bool
+        Use the legacy dark or light fallback when ``theme_colors`` is not
+        supplied.
+    theme_colors : mapping, optional
+        ``background``, ``foreground``, and ``border`` colors. Missing or
+        invalid entries use the fallback palette.
 
-    `rc_context` applies them to THIS figure and restores whatever was there.
-    `_style_plot_axes` below sets the same colours on the artists directly,
-    which is what makes the figure keep its look after the context exits.
+    Returns
+    -------
+    tuple
+        The ``(figure, axes)`` pair.
+
+    Notes
+    -----
+    Theme values are applied inside :func:`matplotlib.rc_context` and then to
+    the created artists. Global Matplotlib settings are not modified.
     """
     import matplotlib as mpl
 
