@@ -551,3 +551,40 @@ statistics and `score_panel` / `score_residuals` / `score_design` /
 `score_inference` would each give a row a column -- it is a
 `parameter_sweep.py` / `trial_metrics.py` change and belongs with 116's sweep
 table rather than here.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE SWEEP ROW CARRIES ITS VERDICT. 115 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+`qc_design`, `qc_inference` and `qc_verdict` are columns on every trial row.
+
+WHY A ROW NEEDS THEM. A sweep is a table ranked by hit count, and hit count is
+exactly the number a broken fit inflates -- a rank-deficient design will
+happily report more significant guides than an identifiable one. Without a
+verdict beside it, the trial that WINS a sweep is sometimes the trial that is
+most wrong, and nothing on the row said so.
+
+SCORED FROM THE ROW'S OWN STATISTICS, at no extra cost. `score_design` and
+`score_inference` read plain dicts -- `wells`, `wells_per_parameter`,
+`design_rank`, `condition_number`, `genomic_inflation`, `tests` -- and
+`summarise_trial` has already measured every one of those under spaCR's own
+column names. Only the names are translated, so the scorers stay the one
+judgement; re-deriving the verdicts with fresh rules would be a second
+opinion about the same numbers, which is what a sweep table can least afford.
+
+THE WORST, NOT A PASS RATE, for the reason `worst_verdict` already gives.
+And the OBJECTS are passed to it, not their levels: it asks each verdict
+`worse_than`, which a string cannot answer -- the string version lives in
+`qt/widgets/qc_summary.py` and importing it here would drag PySide6 into a
+deliberately headless module.
+
+ON `METRIC_COLUMNS` OR THEY BECOME SETTINGS. `settings_for_trial`'s rule is
+"anything not bookkeeping was a setting", so a column missing from that list
+is fed back into `perform_regression` as though the user had typed
+`qc_verdict='fail'`. A test asserts nothing is emitted that is not declared.
+
+RESIDUALS ARE NOT SCORED HERE, deliberately and said out loud: `score_residuals`
+reads a residual report the row does not carry, and computing one per trial
+would put the 5.8-second suite back into a sweep that exists to be fast.
+
+13 tests.
