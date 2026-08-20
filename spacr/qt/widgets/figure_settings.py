@@ -1327,6 +1327,64 @@ def add_graph_style_file_entries(menu, parent=None, *, on_change=None) -> None:
     menu.addAction(load)
 
 
+#: The plot types `create_grouped_plot` can draw the same data as, in the
+#: order the menu offers them. Asked for by name 2026-08-19: "line, bar,
+#: jitter-bar, jitter-box, jitter, box, violin".
+GROUPED_PLOT_TYPES = (
+    ("line", "Line"),
+    ("bar", "Bar"),
+    ("jitter_bar", "Jitter over bar"),
+    ("jitter_box", "Jitter over box"),
+    ("jitter", "Jitter"),
+    ("box", "Box"),
+    ("violin", "Violin"),
+)
+
+
+def _replot(figure, kind: str, on_change=None):
+    """Redraw ``figure`` in place as ``kind``. Returns whether it changed.
+
+    A NEW Figure, and that is not a choice: `create_grouped_plot` builds its
+    own -- spacrGraph makes one and draws into it -- so there is nothing to
+    draw "in place" onto. The caller is handed the new one through
+    ``on_change`` and is responsible for putting it where the old one was;
+    `FigureQueue.replace_figure` is what does that.
+
+    Never raises: a plot type that cannot show this data is a menu entry that
+    does nothing visible, not a crash in a right-click.
+
+    :param on_change: called with the NEW figure when it is drawn. A callable
+        taking no arguments is still accepted, for the toggles that only need
+        telling that something moved.
+    :returns: the new Figure, or ``None``.
+    """
+    recipe = dict(getattr(figure, "_spacr_replot", None) or {})
+    if recipe.get("df") is None:
+        return None
+    try:
+        from ...plot import create_grouped_plot
+
+        recipe["graph_type"] = str(kind)
+        drawn, _results = create_grouped_plot(save=False, **recipe)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not redraw the figure as %r", kind, exc_info=True)
+        return None
+    if drawn is None:
+        return None
+    drawn._spacr_replot = recipe
+    if callable(on_change):
+        try:
+            on_change(drawn)
+        except TypeError:
+            try:
+                on_change()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("redraw notification failed", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("redraw notification failed", exc_info=True)
+    return drawn
+
+
 def build_figure_context_menu(parent, figure, *, on_change=None,
                               open_settings=None) -> QMenu:
     """The right-click menu for a drawn figure.
@@ -1344,6 +1402,21 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         return menu
 
     axes = list(figure.axes)
+
+    # SHOW THE SAME DATA ANOTHER WAY (178 A). Offered only where the figure
+    # carries its own recipe -- `create_grouped_plot` attaches one -- because
+    # a menu entry that cannot redraw the figure it is on is worse than an
+    # absent one. Every other figure in spaCR simply does not get the group.
+    recipe = getattr(figure, "_spacr_replot", None)
+    if isinstance(recipe, dict) and recipe.get("df") is not None:
+        show_as = menu.addMenu("Show as")
+        current = str(recipe.get("graph_type") or "")
+        for kind, label in GROUPED_PLOT_TYPES:
+            action = show_as.addAction(label)
+            action.setCheckable(True)
+            action.setChecked(kind == current)
+            action.triggered.connect(
+                lambda _checked=False, k=kind: _replot(figure, k, on_change))
 
     def _notify() -> None:
         """Redraw after a menu toggle, CHEAPLY.
