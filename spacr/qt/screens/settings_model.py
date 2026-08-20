@@ -3285,6 +3285,16 @@ class _ApiTooltipFilter(QObject):
 #: once and removed cleanly rather than accumulating.
 _BASIS_NOTE_PROPERTY = "_spacr_basis_note"
 
+#: Where a label's own help is kept while a greyed-out reason is appended to
+#: it. Restored verbatim rather than stripped back off, because the note is
+#: rendered into HTML and un-rendering it is guesswork.
+_NOTE_BACKUP_PROPERTY = "_spacr_help_before_note"
+
+#: The reason a control is currently greyed, held on the CONTROL so it can be
+#: put on a label that does not exist yet, and removed from one that acquired
+#: it before there was anywhere to keep the original.
+_PENDING_NOTE_PROPERTY = "_spacr_greyed_reason"
+
 
 # ---------------------------------------------------------------------------
 # The Model & Inference explainer box (instruction 132)
@@ -4570,9 +4580,54 @@ def _apply_greyed_note(control, note: str) -> None:
     base = control.property("apiTooltipHtml") or control.toolTip()
     control.setProperty(_BASIS_NOTE_PROPERTY, True)
     control.setToolTip(f"{base}<br><i>{note}</i>" if base else note)
+    # REMEMBERED ON THE CONTROL, because the label may not exist yet. The
+    # first greying pass runs while the panel is being built and the labels
+    # are decorated afterwards, so a note written only where a label would be
+    # is a note that never appears. Held here, it can be put on the label the
+    # moment there is one.
+    control.setProperty(_PENDING_NOTE_PROPERTY, note)
     label = getattr(control, "_spacr_setting_label", None)
     if label is not None:
         label.setEnabled(False)
+        # ON THE LABEL, WHICH IS WHERE THE HELP ACTUALLY SHOWS. The editor is
+        # deliberately SILENT on hover -- decoration sets its display role to
+        # "metadata" and clears its tooltip so the panel does not show two
+        # tooltips for one setting -- so the note above went to a string
+        # nothing reads. EVERY greyed setting in spaCR was disabled WITHOUT
+        # saying why, which is the one thing instruction 106 asks of a greyed
+        # control, and it was invisible precisely because the reason was
+        # written where it could not be seen.
+        _note_on_label(label, note)
+
+
+def _note_on_label(label, note: str) -> None:
+    """Append the greyed-out reason to the help the LABEL shows on hover.
+
+    The original help is kept under its own property so
+    :func:`_clear_greyed_note` restores it exactly rather than trying to
+    strip the note back off a rendered string.
+    """
+    if label.property(_NOTE_BACKUP_PROPERTY) is None:
+        base = str(label.property("apiTooltipHtml") or label.toolTip() or "")
+        # A note may already be BAKED IN: the label's help was composed from
+        # the control's tooltip at decoration time, and that tooltip carried
+        # the note from the build-time greying pass. Stripped by its exact
+        # text, which is known, rather than by a pattern -- guessing where
+        # help ends and a note begins is how a restore loses a sentence.
+        base = _without_note(base, note)
+        label.setProperty(_NOTE_BACKUP_PROPERTY, base)
+    base = str(label.property(_NOTE_BACKUP_PROPERTY) or "")
+    text = f"{base}<br><i>{note}</i>" if base else note
+    label.setProperty("apiTooltipHtml", text)
+    label.setToolTip(text)
+
+
+def _without_note(text: str, note: str) -> str:
+    """``text`` with a trailing greyed-out ``note`` removed, if it has one."""
+    for suffix in (f"<br><i>{note}</i>", note):
+        if suffix and text.endswith(suffix):
+            return text[:-len(suffix)].rstrip()
+    return text
 
 
 def _clear_greyed_note(control) -> None:
@@ -4583,9 +4638,25 @@ def _clear_greyed_note(control) -> None:
     restored = control.property("apiTooltipHtml")
     if restored:
         control.setToolTip(restored)
+    pending = str(control.property(_PENDING_NOTE_PROPERTY) or "")
+    control.setProperty(_PENDING_NOTE_PROPERTY, None)
     label = getattr(control, "_spacr_setting_label", None)
     if label is not None:
         label.setEnabled(control.isEnabled())
+        backup = label.property(_NOTE_BACKUP_PROPERTY)
+        if backup is not None:
+            label.setProperty("apiTooltipHtml", backup)
+            label.setToolTip(str(backup))
+            label.setProperty(_NOTE_BACKUP_PROPERTY, None)
+        elif pending:
+            # No backup because the note was applied before this label
+            # existed and was baked into its help by decoration. Removed by
+            # its own text.
+            cleaned = _without_note(
+                str(label.property("apiTooltipHtml") or label.toolTip() or ""),
+                pending)
+            label.setProperty("apiTooltipHtml", cleaned)
+            label.setToolTip(cleaned)
 
 
 def attach_api_tooltip(

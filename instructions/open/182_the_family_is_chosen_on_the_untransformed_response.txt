@@ -1,0 +1,83 @@
+================================================================================
+THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
+================================================================================
+
+Status:    filed 2026-08-20, not started. NEEDS A DECISION FROM THE MAINTAINER
+           before the fix lands -- see WHAT IS UNCERTAIN.
+Found:     2026-08-19, in the console of a live glm run on the TSG101 screen.
+Owner:     regression module
+
+--------------------------------------------------------------------------------
+WHAT THE RUN PRINTED
+--------------------------------------------------------------------------------
+
+    transform                     log
+    ...
+    Dependent variable: pred  ->  log_pred
+    Data strictly between 0 and 1. Using Binomial family with Logit link;
+    consider regression_type='beta' ...
+    Dep. Variable: log_pred   Model Family: Binomial   Link Function: Logit
+    McFadden's R²: -20.2752
+
+The response was ALREADY log-transformed, and the family was then chosen by
+looking at the transformed values and finding them inside (0, 1). A logit link
+on a logged proportion applies a second transform to a response that has had
+one: the model is fitting logit(log(p)), which is not a quantity the screen
+measures and not one any reader can interpret.
+
+McFadden's R² of -20.3 is the symptom, not a separate problem. A negative
+pseudo-R² means the fitted model predicts the response WORSE than an
+intercept alone -- twenty times worse here -- which is what a doubly
+transformed response does.
+
+--------------------------------------------------------------------------------
+WHAT IS UNCERTAIN, AND WHY THIS IS NOT FIXED UNASKED
+--------------------------------------------------------------------------------
+
+There are two defensible fixes and they are different science:
+
+  1. CHOOSE THE FAMILY ON THE UNTRANSFORMED RESPONSE. `pred` is a proportion,
+     so Binomial/Logit is right for it and the log transform should not be
+     applied when a link function is already doing that job. `transform`
+     becomes inapplicable (greyed, per 106) for the families that carry their
+     own link.
+
+  2. KEEP THE TRANSFORM AND CHOOSE A FAMILY FOR THE TRANSFORMED SCALE.
+     log(p) is unbounded below and negative, so the family is Gaussian and
+     the link is identity -- an ordinary linear model on a logged proportion,
+     which is a perfectly standard thing to fit.
+
+Both are legitimate; they answer slightly different questions and give
+different coefficients. Picking one silently would change every glm result
+spaCR has produced, so it is asked rather than assumed.
+
+WHAT IS NOT UNCERTAIN: the current behaviour is neither of them, and the
+combination it produces is not defensible under either reading.
+
+--------------------------------------------------------------------------------
+INDEPENDENT OF THE CHOICE -- DO THESE
+--------------------------------------------------------------------------------
+
+A. THE FAMILY SNIFFER SAYS WHICH SCALE IT LOOKED AT. "Data strictly between 0
+   and 1" must read "log_pred (after transform='log') is strictly between 0
+   and 1", so a reader can see the mistake this instruction exists for.
+
+B. A NEGATIVE McFADDEN R² IS FLAGGED, not printed as a number among numbers.
+   It means the fit is worse than an intercept, and that is a headline.
+
+C. THE COMBINATION IS REFUSED OR WARNED. A transform that is itself a link
+   (log, logit) applied to a response then handed to a family with a
+   non-identity link is a double transform; spaCR should say so at the point
+   it happens, whichever fix is chosen.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The family sentence names the transformed column and the transform.
+* A run whose response is transformed AND whose family carries a link either
+  refuses or prints a warning that says which two transforms are stacking.
+* A negative McFadden R² is reported as a failure of fit, in the console and
+  in the run summary.
+* Once the maintainer chooses: the reference screen produces a McFadden R²
+  that is not negative.

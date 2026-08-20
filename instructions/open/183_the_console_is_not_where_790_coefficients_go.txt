@@ -1,0 +1,60 @@
+================================================================================
+790 COEFFICIENTS DO NOT BELONG IN THE CONSOLE
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Found:     2026-08-19, from a live glm run -- the pasted console output was
+           truncated at 50 000 characters and was still inside the coefficient
+           table.
+Owner:     regression module / console
+
+--------------------------------------------------------------------------------
+WHAT HAPPENS
+--------------------------------------------------------------------------------
+
+`perform_regression` prints `model.summary()` to stdout, which the Qt console
+captures. On the reference screen that is 790 coefficient rows plus the header
+-- roughly 80 000 characters -- emitted in one burst.
+
+Three costs, in order of how much they matter:
+
+1. IT BURIES EVERYTHING ELSE. The not-identifiable warning, the fraction
+   filter's "1.0% retained", the pairing summary and the family sentence are
+   all above it and all scrolled away. Those are the lines a user has to read;
+   the coefficient table is the one they will read in the Coefficients tab,
+   sorted, filtered and searchable.
+
+2. IT IS ALREADY SAVED. The same text goes to `model_summary.txt` in the run
+   folder, and the Summary tab reads it back. The console copy is a third
+   rendering of something two better ones exist for.
+
+3. IT COSTS. 80 000 characters through a QTextEdit, block by block, during a
+   fit -- and the console keeps them.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+The console prints the summary HEADER -- everything above the coefficient
+table: observations, model, family, link, df, log-likelihood, deviance,
+pseudo-R² -- and then one line saying where the rest is:
+
+    790 coefficients written to <run>/model_summary.txt — open the
+    Coefficients tab to sort and filter them.
+
+NOT A TRUNCATION AT N ROWS. "first 20 coefficients" is a sample of a table
+whose interesting rows are wherever they happen to be, and a reader who sees
+twenty has no way to know which twenty. The header is complete and the
+pointer is honest; twenty rows is neither.
+
+Verbose mode still prints everything, because a user who asked for verbose
+asked for exactly this.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* A 790-guide fit puts under 40 lines on the console and the run's warnings
+  are still visible above them.
+* The file still holds the whole summary, and the Summary tab still shows it.
+* `verbose=True` prints the whole thing.
