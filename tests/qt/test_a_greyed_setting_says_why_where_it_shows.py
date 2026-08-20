@@ -71,7 +71,12 @@ def test_the_settings_own_help_survives_the_note_coming_and_going(qtbot):
     _screen, model = _regression(qtbot)
     level, kind = model._widgets["level"], model._widgets["regression_type"]
     label = level._spacr_setting_label
-    own = "Which unit results are reported at"
+    # A PHRASE THE DESCRIPTION ACTUALLY OPENS WITH. This pinned "Which unit
+    # results are reported at", which `level`'s description has not said for
+    # some time -- so the test failed on the FIRST assertion and never
+    # reached the restore it exists to check. The machinery was fine; the
+    # expectation had rotted, which is the failure mode this file is about.
+    own = "Select the regression fit level"
 
     assert own in _help(label)               # greyed, note appended
     _choose(kind, "ols")
