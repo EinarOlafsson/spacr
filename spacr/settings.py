@@ -4705,6 +4705,37 @@ def get_setting_dependencies():
     # regression_spec lists 'group_lasso' there the generated rule -- which
     # cannot drift from the family table or from the tooltip generator that
     # reads the same table -- takes over and this one stops being used.
+    # INSTRUCTION 182: the transform is DEAD under 'untransformed'.
+    #
+    # `glm_transform_conflict='untransformed'` fits the response as measured
+    # and lets the family's own link do the transforming, so a `transform`
+    # that is itself a link -- 'log' or 'logit' -- is read and then ignored.
+    # A control the run silently discards has to say so; that is 106's rule
+    # and this is the case 182 named for it.
+    #
+    # ONLY the link-like transforms, and only on a glm. 'sqrt' and 'square'
+    # are not links and are applied normally under every resolution, and a
+    # regression type that does not choose its own family has no conflict to
+    # resolve. Greying `transform` for those would be a control disabled for
+    # a reason that is not true of it.
+    setting_dependencies['transform'] = _combined(
+        setting_dependencies.get('transform'),
+        ('glm_transform_conflict', 'regression_type'),
+        lambda settings, _context: not (
+            str(settings.get('regression_type') or '').lower() == 'glm'
+            and str(settings.get('glm_transform_conflict')
+                    or '').strip().lower() == 'untransformed'
+            and str(settings.get('transform') or '').strip().lower()
+            in ('log', 'logit')),
+        lambda settings, _context: (
+            f"transform={settings.get('transform')!r} is a link, and "
+            "glm_transform_conflict='untransformed' fits the response as "
+            "measured so the family's own link does that job -- applying "
+            "both would fit logit(log(y)). Choose 'transformed' to keep this "
+            "transform and fit an identity link instead. The value is kept "
+            "and saved."),
+    )
+
     setting_dependencies.setdefault('group_lasso_lambda', rule(
         ('regression_type',),
         lambda settings, context: str(
