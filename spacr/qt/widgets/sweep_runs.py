@@ -141,6 +141,23 @@ def _readable_size(total: int) -> str:
     return f"{size:.0f} GB"                        # pragma: no cover - loop
 
 
+def _has_workspace(folder: str) -> bool:
+    """Whether a run folder carries a workspace bundle to restore.
+
+    Asked of the FOLDER and not of a column, because the bundle is written
+    when the run closes and the row was built when it started -- a run that
+    finished this session would otherwise be offered no restore until the
+    list was reloaded.
+    """
+    if not folder:
+        return False
+    try:
+        from ...workspace import has_workspace
+        return bool(has_workspace(folder))
+    except Exception:                                       # noqa: BLE001
+        return False
+
+
 def _is_ok(row) -> bool:
     """Whether a run row has results behind it, so it can be the loaded run.
 
@@ -213,6 +230,13 @@ class SweepRunsPanel(QWidget):
     #: screen unusable, so it has its own gesture rather than happening on a
     #: click. The screen decides whether the bound allows it.
     compare_requested = Signal(dict)
+    #: Emitted with one run's row when the user asks to put the WORKSPACE it
+    #: saved back (instruction 180). Its own gesture and not part of loading:
+    #: a restore reattaches databases, re-points the montage and rewrites the
+    #: settings on screen, which is a great deal more than showing a table,
+    #: and a user who wanted to glance at a run's volcano would not expect
+    #: their current screen replaced.
+    workspace_restore_requested = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1196,6 +1220,25 @@ class SweepRunsPanel(QWidget):
             load.setData("load")
             load.setToolTip("Show this run's results, figures and summary.")
             menu.addSeparator()
+        if count == 1:
+            folder = str(records[0].get("folder") or "")
+            restore = menu.addAction("Restore what this run had open…")
+            restore.setData("restore")
+            if _has_workspace(folder):
+                restore.setToolTip(
+                    "Re-attach the databases, put the montage back on its "
+                    "coefficient, and restore the view built on every figure. "
+                    "Says what it put back and what it could not.")
+            else:
+                # Instruction 106: OFFERED AND DISABLED, saying why. An entry
+                # that appeared only for runs that happen to have a bundle is
+                # one nobody learns exists.
+                restore.setEnabled(False)
+                restore.setToolTip(
+                    "This run saved no workspace — it was run with 'Saved "
+                    "runs carry: Nothing', or before spaCR recorded one. "
+                    "Preferences ▸ Performance ▸ Saved runs carry.")
+            menu.addSeparator()
         remove = menu.addAction(f"Remove {count} run{plural} from the list")
         remove.setData("remove")
         remove.setToolTip("The folders on disk are untouched. Reload brings "
@@ -1306,6 +1349,11 @@ class SweepRunsPanel(QWidget):
             return bool(self.remove_runs(records))
         if verb == "beside" and records:
             self.compare_requested.emit(dict(records[0]))
+            return True
+        if verb == "restore" and records:
+            if not _has_workspace(str(records[0].get("folder") or "")):
+                return False
+            self.workspace_restore_requested.emit(dict(records[0]))
             return True
         if verb == "delete":
             return bool(self.delete_runs_from_disk(records))
