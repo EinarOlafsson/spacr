@@ -102,6 +102,19 @@ def _install_gui_stubs():
 
 _install_gui_stubs()
 
+# Fail collection if Python resolved ``spacr`` from another checkout.  The
+# assertion is intentionally based on this file's location so it works in a
+# developer clone, a git worktree, and GitHub Actions alike.
+import spacr as _spacr_under_test
+
+_EXPECTED_PACKAGE_ROOT = (_REPO_ROOT / "spacr").resolve()
+_IMPORTED_PACKAGE_ROOT = Path(_spacr_under_test.__file__).resolve().parent
+if _IMPORTED_PACKAGE_ROOT != _EXPECTED_PACKAGE_ROOT:
+    raise RuntimeError(
+        "pytest imported spaCR from the wrong checkout: "
+        f"{_IMPORTED_PACKAGE_ROOT} (expected {_EXPECTED_PACKAGE_ROOT})"
+    )
+
 
 # ---------------------------------------------------------------------------
 # QSettings sandbox

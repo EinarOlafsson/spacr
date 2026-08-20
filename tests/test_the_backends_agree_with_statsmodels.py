@@ -55,7 +55,6 @@ import spacr
 from spacr import ml
 from spacr.regression_spec import REGRESSION_BACKENDS
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 pyfixest = pytest.importorskip("pyfixest")
 glum = pytest.importorskip("glum")
