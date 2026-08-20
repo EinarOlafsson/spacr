@@ -2729,18 +2729,11 @@ class MeasurementScanPanel(QWidget):
         self.remember_section_layout()
 
     def _share_the_height(self) -> None:
-        """Give the open sections the room, and the gap what is left.
+        """Redistribute splitter height after a section opens or closes.
 
-        STRETCH FACTORS ARE NOT ENOUGH. `setStretchFactor` decides how EXTRA
-        space is handed out when the splitter is resized; it does nothing at
-        the moment a section folds or opens, so an opened section kept its
-        minimum and the filler kept the rest -- "when opened they just open a
-        tiny bit" (187 C).
-
-        The sizes are set outright instead: a folded section gets exactly its
-        header, the open ones divide what remains, and the filler takes the
-        slack only when nothing is open. That is both asks at once -- folds
-        collapse upward (186 C) and an opening section fills to the next one.
+        Hidden sections take no space and collapsed sections retain only their
+        header height. Expanded sections divide the remaining height; the
+        filler receives the unused space only when every section is collapsed.
         """
         sections = self.sections()
         if not sections:
@@ -2778,14 +2771,9 @@ class MeasurementScanPanel(QWidget):
         self._sections.setSizes(sizes)
 
     def sections(self) -> tuple:
-        """The folding sections, in order -- WITHOUT the layout filler.
+        """Return the folding sections in display order.
 
-        The splitter's children are not all sections: `_keep_the_filler_last`
-        adds an expanding spacer so folds collapse upward, and it is
-        deliberately zero-minimum and has no header. A caller asking "what
-        are the sections" wants these, and asking the splitter directly gets
-        an answer that changes shape for reasons that are nothing to do with
-        sections.
+        The expanding layout filler is excluded from the returned tuple.
         """
         from .collapsible_section import CollapsibleSection
 

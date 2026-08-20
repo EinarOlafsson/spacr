@@ -260,6 +260,7 @@ _PROTECT_PATTERNS = (
         # as ``:returns: dict of values``. There, ``dict`` is visible prose,
         # not a numpydoc declaration, and may be translated normally.
         r"(?<![:\w])(?<!:param )(?<!:type )(?<!:return )"
+        r"(?<!:ivar )(?<!:cvar )(?<!:var )"
         r"[A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*\s*:\s*(?:"
         # Choice declarations contain quoted literal values. Requiring the
         # quote prevents prose such as ``missing module: {module}`` from being
@@ -269,7 +270,7 @@ _PROTECT_PATTERNS = (
         r"array-like|path-like|color-like|callable|iterable|sequence|"
         r"collection|pandas\.DataFrame|pandas\.Series|numpy\.ndarray|"
         r"pathlib\.Path|ControlSpec"
-        r")"
+        r")(?![\w-])"
         r"(?:\s+of\s+(?:shape\s+\([^()\n]+\)|"
         r"(?:str|int|float|Any)(?:\s+to\s+(?:str|Any|mapping))?)|"
         r"\s+or\s+None)?"

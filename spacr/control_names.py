@@ -184,34 +184,50 @@ def matches(spec: Optional[ControlSpec], guides, genes=None):
 
 
 class ControlNotFound(ValueError):
-    """A control was named and nothing in the screen matched it.
+    """Raised when a named control does not match any screen row.
 
-    "A control that matches NOTHING must be an error, not a silent zero."
-
-    It is not a fussy error. Every normalisation, every volcano baseline and
-    every nc/pc reference is computed against the control rows, so zero of
-    them is not "no controls" -- it is those numbers quietly computed against
-    an empty set. The screen still runs and the figures still draw.
+    An empty control selection would invalidate normalization, reference
+    baselines, and volcano annotations. :func:`rows_for` raises this exception
+    when ``strict=True`` so callers can stop before computing those results.
     """
 
 
 def rows_for(typed, guides, genes=None, *, names=None, prefix=None,
              strict: bool = False, label: str = "control"):
-    """``(mask, note)`` -- the rows one typed control covers, and what it did.
+    """Resolve a typed control and select the matching screen rows.
 
-    THE ONE MATCHER. There were two, and they disagreed:
+    Guide controls use exact matches. Gene controls select every guide assigned
+    to the gene. When the data omits an organism prefix that is present in the
+    typed control, the prefix is removed before retrying the same whole-value
+    match.
 
-      * `label_control_condition` matched `nc`/`pc` as SUBSTRINGS of the
-        model term, so `nc='23346'` claimed `233460` and `2334600` alike;
-      * `_level_control_rows` matched the control list whole against the
-        guide, and at gene level took `name.split('_')[0]` -- which reads
-        `TGGT1` as the gene of `TGGT1_000000_1`.
+    Parameters
+    ----------
+    typed : object
+        Control name or value accepted by :func:`resolve_control`.
+    guides : array-like
+        Guide names for the screen rows.
+    genes : array-like, optional
+        Gene names aligned with ``guides``. Guide prefixes are used when this
+        column is unavailable.
+    names : iterable of str, optional
+        Reference names used to distinguish organism prefixes from gene names.
+    prefix : str, optional
+        Explicit organism prefix.
+    strict : bool, default=False
+        Raise :class:`ControlNotFound` when the control matches no rows.
+    label : str, default="control"
+        Name used in an error message when ``strict=True``.
 
-    Both are this function now, so the volcano's colouring and the effect-size
-    cut cannot disagree about which rows are controls.
+    Returns
+    -------
+    tuple of pandas.Series and str
+        Boolean row mask and a concise description of the resolved control.
 
-    :param strict: raise :class:`ControlNotFound` when nothing matches.
-    :returns: the boolean mask and a sentence for the console.
+    Raises
+    ------
+    ControlNotFound
+        If ``strict=True`` and no row matches the resolved control.
     """
     import pandas as pd
 
