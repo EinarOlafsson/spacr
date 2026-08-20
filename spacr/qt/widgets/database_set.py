@@ -196,6 +196,43 @@ class DatabaseSetWidget(QWidget):
         """The last :class:`spacr.multi_database.MergePlan`, or ``None``."""
         return self._plan
 
+    # -- instruction 180: what this widget contributes to a saved run -------
+
+    def workspace_state(self) -> dict:
+        """The attached set, IN ORDER, and the databases behind it.
+
+        Order is state, not presentation: a merge resolves a column
+        collision in favour of the first source that has it, so the same two
+        databases in the other order are a different merged table.
+
+        Both the sources and the databases they resolve to are written down.
+        A source is a folder the user chose; the database is the file the
+        merge opens, and it is the one whose absence or edit a restore has to
+        be able to report.
+        """
+        return {
+            "mode": str(self._mode),
+            "sources": self.sources(),
+            "databases": self.database_paths(),
+        }
+
+    def apply_workspace_state(self, state) -> bool:
+        """Re-attach the set. Returns whether anything was attached.
+
+        A source that is no longer there is left out and the rest are still
+        attached -- one moved plate must not cost the user the other three.
+        The workspace document names every missing one in its own report, so
+        nothing dropped here is dropped silently.
+        """
+        if not isinstance(state, dict):
+            return False
+        sources = [str(p) for p in (state.get("sources") or []) if p]
+        present = [p for p in sources if os.path.exists(p)]
+        if not present:
+            return False
+        self.set_value(present)
+        return True
+
     # -- editing -----------------------------------------------------------
     def choose_sources(self) -> None:
         """Open the picker and ADD what comes back."""

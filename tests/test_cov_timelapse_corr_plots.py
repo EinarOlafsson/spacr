@@ -497,7 +497,8 @@ def _motility_inputs():
 
 
 def test_motility_plots_empty_track_df(tmp_path, capsys):
-    from spacr.timelapse import _make_motility_plots
+    from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
+                                 _make_motility_plots)
 
     out_dir = tmp_path / "motility"
     assert (
@@ -512,7 +513,8 @@ def test_motility_plots_empty_track_df(tmp_path, capsys):
 
 
 def test_motility_plots_no_per_well_tracks(tmp_path, capsys):
-    from spacr.timelapse import _make_motility_plots
+    from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
+                                 _make_motility_plots)
 
     track_df, _, well_summary_df = _motility_inputs()
     out_dir = tmp_path / "motility"
@@ -530,7 +532,8 @@ def test_motility_plots_no_per_well_tracks(tmp_path, capsys):
 def test_motility_plots_physical_units_and_axis_limits(
     tmp_path, captured_figs, capsys
 ):
-    from spacr.timelapse import _make_motility_plots
+    from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
+                                 _make_motility_plots)
 
     track_df, per_well, well_summary_df = _motility_inputs()
     settings = {
@@ -570,7 +573,12 @@ def test_motility_plots_physical_units_and_axis_limits(
     # pixels are converted to µm with coord_scale = 1/4.
     assert combined["line_xdata"][0] == pytest.approx([0.0, 1.0, 2.0])
     assert combined["line_ydata"][0] == pytest.approx([0.0, 1.0, 3.0])
-    assert sorted(combined["line_colors"]) == ["green", "red", "red", "red"]
+    # THE NAMED ROLES, not two literals. The house style gives the condition
+    # the highlight and the control the dark grey every published control
+    # takes; asserting the hex here would break on the next palette change
+    # and say nothing about which line is which.
+    assert sorted(combined["line_colors"]) == sorted(
+        [UNINFECTED_COLOUR] + [INFECTED_COLOUR] * 3)
     # mean velocities: infected (1+5+7)/3 = 4.333..., uninfected 3.0
     assert combined["texts"] == [
         "Infected (4.33 µm/min)",
@@ -596,7 +604,7 @@ def test_motility_plots_physical_units_and_axis_limits(
 
     a01_uninf = captured_figs[3][0]
     assert a01_uninf["n_lines"] == 1
-    assert a01_uninf["line_colors"] == ["green"]
+    assert a01_uninf["line_colors"] == [UNINFECTED_COLOUR]
     # (20,24)px recentred -> (0,4)px -> /4 -> (0,1)
     assert a01_uninf["line_xdata"][0] == pytest.approx([0.0, 1.0])
 
@@ -606,7 +614,7 @@ def test_motility_plots_physical_units_and_axis_limits(
 
     a02_inf = captured_figs[5][0]
     assert a02_inf["n_lines"] == 2
-    assert a02_inf["line_colors"] == ["red", "red"]
+    assert a02_inf["line_colors"] == [INFECTED_COLOUR, INFECTED_COLOUR]
 
     out = capsys.readouterr().out
     assert "Velocity stats (µm/min): all=4.000" in out
@@ -619,7 +627,8 @@ def test_motility_plots_pixel_units_without_well_summary(
     tmp_path, captured_figs, capsys
 ):
     """No calibration, no axis limits, no well summary -> px labels and 'n/a'."""
-    from spacr.timelapse import _make_motility_plots
+    from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
+                                 _make_motility_plots)
 
     per_well = {
         ("p1", "B02"): [
@@ -676,7 +685,7 @@ def test_motility_plots_pixel_units_without_well_summary(
 
     origin_fig = captured_figs[2][0]
     assert origin_fig["n_lines"] == 1
-    assert origin_fig["line_colors"] == ["green"]
+    assert origin_fig["line_colors"] == [UNINFECTED_COLOUR]
     assert origin_fig["line_xdata"][0] == pytest.approx([0.0, 3.0])
     assert origin_fig["texts"] == []
 
@@ -686,7 +695,8 @@ def test_motility_plots_pixel_units_without_well_summary(
 
 def test_motility_plots_ignores_malformed_axis_limits(tmp_path, captured_figs):
     """xlim/ylim of the wrong length are ignored rather than raising."""
-    from spacr.timelapse import _make_motility_plots
+    from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
+                                 _make_motility_plots)
 
     track_df, per_well, well_summary_df = _motility_inputs()
     out_dir = tmp_path / "motility"

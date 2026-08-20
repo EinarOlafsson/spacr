@@ -973,6 +973,17 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
             # A manifest failure is never silent, but it also must not mask the
             # original pipeline exception during context-manager unwinding.
             LOG.exception("Could not finalize run manifest in %s", run.dir)
+        # Instruction 180: what was OPEN around the run, when anything was.
+        # Imported here and not at module scope so a pipeline that never
+        # touches the GUI does not import it at all, and inside its own try
+        # because a workspace bundle is a convenience -- a run that produced
+        # results must not be reported as failed because a panel could not
+        # describe itself.
+        try:
+            from .workspace import save_for_run
+            save_for_run(run.dir, run.settings, app_key=run.app_key)
+        except Exception:
+            LOG.exception("Could not save the workspace for %s", run.dir)
         # Macro recorder, half two: write the Python script that repeats
         # this run — and, when it continues one, the whole chain before it.
         finish_recording(macro, status=run.status, settings=run.settings)

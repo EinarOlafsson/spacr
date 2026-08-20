@@ -46,3 +46,24 @@ HOW TO KNOW IT WORKED
 RELATED
   177 F -- the engine, the plots, the statistics and the save this mounts.
   172 -- the picker whose answer decides the groups.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE.
+--------------------------------------------------------------------------------
+
+The tab is at index 1, beside Summary and ahead of the wells, and appears
+only once a montage exists. A re-run RE-POINTS it, so the measurement, the
+level, the operator and the plot type survive.
+
+`combine()` gives the four operators and NAMES the column for the expression
+(`pathogen_area / cell_area`), so the table, the legend and the saved
+settings agree without a key. Division by zero drops the row and COUNTS it in
+the note -- infinity would invent an extreme observation and zero an ordinary
+one, and a comparison computed on fewer rows than the user believes is a
+result that survives review and is wrong.
+
+The dialog and the tab are one implementation; the dialog is the panel in a
+QDialog. `save()` writes figure, data, statistics, settings and cells to one
+folder.
+
+18 tests in tests/test_the_graph_tab_and_combined_measurements.py.
