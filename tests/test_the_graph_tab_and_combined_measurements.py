@@ -189,7 +189,10 @@ def test_the_graph_tab_appears_after_a_montage(qtbot, tmp_path):
     qtbot.addWidget(view)
 
     before = [view._tabs.tabText(i) for i in range(view._tabs.count())]
-    assert "Graph" not in before, (
+    # RENAMED "Compare" (186 B): the button that opens it says
+    # "Compare a measurement", and one thing under two names reads
+    # as two things.
+    assert "Compare" not in before, (
         "a Graph tab before a montage offers to graph nothing")
 
     view.set_coefficient(T.GENE_KEY)
@@ -197,7 +200,7 @@ def test_the_graph_tab_appears_after_a_montage(qtbot, tmp_path):
 
     after = [view._tabs.tabText(i) for i in range(view._tabs.count())]
     assert after[0] == "Summary"
-    assert after[1] == "Graph", (
+    assert after[1] == "Compare", (
         "the Graph tab must sit beside Summary, before the well tabs")
 
 
@@ -218,4 +221,4 @@ def test_the_graph_tab_is_not_rebuilt_on_a_second_run(qtbot, tmp_path):
 
     assert view._graph_panel is first
     assert [view._tabs.tabText(i)
-            for i in range(view._tabs.count())].count("Graph") == 1
+            for i in range(view._tabs.count())].count("Compare") == 1

@@ -1199,7 +1199,7 @@ def test_the_tab_label_names_the_well_and_the_grna_both(qtbot, tmp_path):
     # 179 A and sits beside Summary; the WELL labels are what this test is
     # about, so they are taken from the well tabs rather than by position.
     assert labels[0] == "Summary"
-    assert labels[1] == "Graph"
+    assert labels[1] == "Compare"
     wells = tuple(view._tabs.tabText(i) for i in range(view._tabs.count())
                   if view._tabs.widget(i) in view.well_tabs())
     assert wells == ("plate1_r1_c1 · GRA14 (2 guides)",
