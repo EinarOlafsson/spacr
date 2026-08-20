@@ -1409,7 +1409,13 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     # absent one. Every other figure in spaCR simply does not get the group.
     recipe = getattr(figure, "_spacr_replot", None)
     if isinstance(recipe, dict) and recipe.get("df") is not None:
-        show_as = menu.addMenu("Show as")
+        # Give Python and C++ an explicit ownership chain. ``addMenu(str)``
+        # can leave the Python wrapper as the submenu's only live owner, so a
+        # caller retrieving it through the parent action gets an already
+        # deleted QMenu. This is the same lifetime rule used by Appearance
+        # and Axis scale below.
+        show_as = QMenu("Show as", menu)
+        menu.addMenu(show_as)
         current = str(recipe.get("graph_type") or "")
         for kind, label in GROUPED_PLOT_TYPES:
             action = show_as.addAction(label)
