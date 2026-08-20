@@ -104,3 +104,44 @@ HOW TO KNOW IT WORKED
   headless import graph, and this needs its own.
 * Every figure still saves in the user's chosen format, via save_figure.
 * Opening a run's figures shows one visual system, not twelve.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE COUNT HAS FLIPPED, AND BOTH CHECKS THIS FILE ASKS FOR EXIST.
+--------------------------------------------------------------------------------
+
+"A count of `plt.subplots(` / `plt.figure(` against `figure_style` uses is no
+longer 133 to 4." It is 145 raw against 209 style uses -- the other way round,
+and the second number more than fifty times what it was.
+
+THE RATCHET holds the direction, for the same reason 145's does: a partial
+conversion silently un-converts itself as new code is written, and a figure
+drawn outside the house style does not FAIL, it just looks like a different
+application. A new raw figure now has to go through `figure_style` or lower
+the ceiling deliberately.
+
+"No module writes rcParams globally; there is already a test asserting the
+headless import graph, and this needs its own." IT HAS ONE, AND IT FOUND A
+LEAK: `utils.setup_plot` wrote the GUI theme's colours straight into
+`plt.rcParams`, which is PROCESS-WIDE -- so every figure created afterwards in
+the same process inherited them, including one being SAVED FOR PAPER. That is
+instruction 150's failure reached by a different route, and it had been there
+the whole time.
+
+It uses `matplotlib.rc_context` now. The figure keeps its look because
+`_style_plot_axes` sets the same colours on the artists directly; what stops
+is the leak.
+
+`spacr.figure_style` is the one module allowed to write rcParams globally,
+because applying the house style process-wide is what `apply()` MEANS.
+
+AND THE TEST THAT WAS GUARDING THE LEAK. `test_setup_plot_applies_theme`
+asserted `plt.rcParams["figure.facecolor"]` AFTER the call -- so it was
+asserting the leak rather than the theming, and it passed for
+`black_background=False` only because white is already matplotlib's default.
+It asserts the figure and the axes now.
+
+6 tests in tests/test_one_visual_system_not_twelve.py.
+
+STILL OPEN: the 145 remaining raw call sites, 45 of them in plot.py. Each is
+mechanical and the ratchet stops the number growing while they are worked
+through.
