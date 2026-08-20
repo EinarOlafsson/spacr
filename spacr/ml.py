@@ -4868,8 +4868,17 @@ def resolve_auto_inference(data, settings, *, well_column='prc',
     # `analysis_unit`: some regression types force it to None themselves
     # (quantile fits objects by construction), so a user who set
     # analysis_unit='well' still ends up with object rows.
-    per_object = str(settings.get('analysis_unit', 'well')).lower() != 'well'
-    if per_object or settings.get('agg_type') is None:
+    # ABSENT IS THE DEFAULT, NOT THE OPPOSITE OF IT. `settings.get('agg_type')`
+    # returns None for a key that was never set as readily as for one set to
+    # None, and those are opposite answers: the shipped default is
+    # agg_type='mean' with analysis_unit='well', so a dict that has not been
+    # through `set_default_analysis_settings` -- a sweep trial, a refit, a
+    # caller that assembled its own -- was read as PER OBJECT and auto then
+    # chose the simultaneous model for a design it could not identify. That is
+    # the one outcome this function exists to prevent.
+    per_object = str(settings.get('analysis_unit') or 'well').lower() != 'well'
+    aggregated = settings['agg_type'] if 'agg_type' in settings else 'mean'
+    if per_object or aggregated is None:
         return 'regression', (
             "auto chose the simultaneous model: the rows are one per OBJECT "
             "(agg_type is None or analysis_unit is not 'well'), and the "
