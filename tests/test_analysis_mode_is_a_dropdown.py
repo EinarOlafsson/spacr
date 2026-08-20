@@ -253,7 +253,13 @@ def test_the_sentence_is_generated_from_the_same_table_as_the_greying():
 
     deps = get_setting_dependencies()
     for key, owners in _owned().items():
-        assert deps[key]["sources"] == ("regression_type",), key
+        # `in`, not `==`. A setting can be inapplicable for MORE THAN ONE
+        # reason at once and `_combined` ANDs them, carrying both rules'
+        # sources -- `cov_type` is now also dead under nonparametric
+        # inference, which fits no model at all (2026-08-20). What this test
+        # is about is that the FAMILY rule is one of them and comes from
+        # REGRESSION_SETTINGS_USED.
+        assert "regression_type" in deps[key]["sources"], key
         for family in owners:
             assert deps[key]["predicate"]({"regression_type": family}, {}), \
                 (key, family)
