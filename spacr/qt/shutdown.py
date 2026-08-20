@@ -44,10 +44,14 @@ RECHECK_MS = 5 * 60 * 1000
 GRACEFUL = "graceful"
 FORCE = "force"
 CANCEL = "cancel"
+#: Instruction 142. Save the module and its settings, leave, come back.
+RESTART = "restart"
 
 
 def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
-                    detail: str = "", verb: str = "Quit") -> str:
+                    detail: str = "", verb: str = "Quit",
+                    offer_restart: bool = False,
+                    restart_detail: str = "") -> str:
     """Ask whether to stop cooperatively or to kill.
 
     :param what: what is being quit, in the user's words -- "spaCR" or the
@@ -61,10 +65,20 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
     :param detail: appended under the question. Callers use it to name what
         is still running, because "something is still running" is not
         enough information to choose with.
-    :returns: :data:`GRACEFUL`, :data:`FORCE` or :data:`CANCEL`.
+    :param offer_restart: add the Force restart button (instruction 142).
+        Off by default, so a plain Quit dialog does not grow the most
+        destructive option in the application.
+    :param restart_detail: what Force restart will cost, from
+        :func:`spacr.restart_state.warning_text`. Shown only when the button
+        is offered, and REQUIRED to be meaningful when it is -- a button whose
+        consequences are not on screen beside it is one people press once.
+    :returns: :data:`GRACEFUL`, :data:`FORCE`, :data:`RESTART` or
+        :data:`CANCEL`.
 
     Cancel is the default button and the escape action. Force quit is
-    reachable in one click but is never what a stray Return key does.
+    reachable in one click but is never what a stray Return key does, and
+    Force restart is LAST because it is the most destructive thing on the
+    dialog.
     """
     box = QMessageBox(parent)
     box.setIcon(QMessageBox.Warning)
@@ -78,22 +92,83 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
           "Force quit stops immediately. Anything being written right now "
           "is left half-written."
     )
+    if offer_restart:
+        box.setInformativeText(
+            box.informativeText()
+            + "\n\nForce restart saves this module and its settings, closes "
+              "spaCR, starts it again and reopens the module where you left "
+              "it. Use it when Force stop does not stop.\n\n"
+            + (restart_detail or ""))
     graceful = box.addButton("Finish current work", QMessageBox.AcceptRole)
     force = box.addButton(f"Force {verb.lower()}", QMessageBox.DestructiveRole)
+    restart = (box.addButton("Force restart", QMessageBox.DestructiveRole)
+               if offer_restart else None)
     cancel = box.addButton("Cancel", QMessageBox.RejectRole)
     box.setDefaultButton(cancel)
     box.setEscapeButton(cancel)
     # Red, because it is the one that loses data. The role alone does not
     # colour it on every style.
     force.setObjectName("DangerButton")
+    if restart is not None:
+        restart.setObjectName("DangerButton")
     box.exec()
 
     clicked = box.clickedButton()
     if clicked is graceful:
         return GRACEFUL
+    if restart is not None and clicked is restart:
+        return RESTART
     if clicked is force:
         return FORCE
     return CANCEL
+
+
+def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
+                  launcher=None, exiter=None) -> bool:
+    """Save the state, start a fresh spaCR, and leave. Returns whether it did.
+
+    THE SAVE HAPPENS FIRST AND IS VERIFIED BEFORE ANYTHING IS KILLED. A
+    restart that loses the settings is worse than a stuck run, because a stuck
+    run can at least be waited out -- so a state that will not write cancels
+    the restart and this returns False with the reason in the log, rather than
+    leaving and hoping.
+
+    :param launcher: how to start the new process, for tests. Defaults to
+        `subprocess.Popen` DETACHED -- a child that dies with its parent would
+        be started and killed in the same breath by the exit below.
+    :param exiter: how to leave, for tests. Defaults to :func:`force_quit_now`,
+        because the reason this exists is that the ordinary paths can block on
+        the very thread that is already wedged.
+    """
+    from ..restart_state import command, save
+
+    if save(module=module, settings=settings, running=running,
+            run_folders=run_folders) is None:
+        LOG.error("the restart state could not be written; NOT restarting")
+        return False
+
+    started = command()
+    try:
+        if launcher is None:
+            import subprocess
+
+            # DETACHED. `start_new_session` puts the child in its own process
+            # group, so the signal that takes this process down does not
+            # follow it, and it survives the terminal that started us.
+            subprocess.Popen(started, start_new_session=True,
+                             close_fds=True)
+        else:
+            launcher(started)
+    except Exception as exc:                          # noqa: BLE001
+        # THE STATE IS LEFT ON DISK DELIBERATELY. spaCR did not restart, so
+        # the user will start it themselves, and when they do they should
+        # land back where they were.
+        LOG.error("could not start spaCR again (%s); NOT quitting", exc)
+        return False
+
+    LOG.warning("restarting spaCR: %s", " ".join(started))
+    (exiter or force_quit_now)(0)
+    return True
 
 
 def force_quit_now(exit_code: int = 1) -> None:

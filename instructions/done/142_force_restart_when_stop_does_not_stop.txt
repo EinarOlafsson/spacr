@@ -86,3 +86,56 @@ HOW TO KNOW IT WORKED
   write cancels the restart and says why.
 * Other running modules are named individually, with how long they have run.
 * The dialog says the settings come back and the runs do not.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE, A THROUGH C.
+--------------------------------------------------------------------------------
+
+FIRST, THE PREMISE MOVED. 140 C landed the same day: `spacr.ml` now checks
+`spacr.cancellation` on every objective evaluation, so most wedged mixed fits
+DO answer Stop. This is what is left for the ones that do not -- a fit
+somewhere the checkpoint cannot reach -- and it is offered from the module's
+Stop dialog, which is the button somebody presses when a fit will not stop.
+
+A. THE SAVE IS FIRST AND IS VERIFIED BEFORE ANYTHING IS KILLED, and that is
+   the property everything else rests on. `restart_state.save` writes,
+   re-reads and PARSES the file before returning its path; it returns None
+   rather than raising, because the caller's next step is to tell the user and
+   NOT restart, and a raise would arrive inside a dialog handler on the way
+   out of an application that is already in trouble. `force_restart` returns
+   False and says "Nothing was stopped".
+
+   The launch is checked too. If the new process will not start, this one does
+   not leave -- and the state is left ON DISK deliberately, because the user
+   will start spaCR themselves and should land back where they were.
+
+   THE RUNNING INTERPRETER, not `spacr` off the PATH: a user in a conda
+   environment, a checkout or a bundled build has a PATH entry that may point
+   at a different installation, and coming back as a different spaCR is worse
+   than not coming back.
+
+   TAKEN, NOT READ. `take()` deletes the state as it returns it, so a crash on
+   the way back up cannot leave spaCR reopening the same wedged module on
+   every launch afterwards -- which would turn one bad afternoon into a
+   permanently broken installation. A state older than a day is dropped for
+   the same reason.
+
+B. EVERY RUNNING MODULE IS NAMED with how long it has run -- "Mask (running
+   14 min), Measure (running 2 min)" -- and the dialog says the three losses
+   separately, because they are three different things a user weighs: which
+   runs stop, that the SETTINGS come back, and where the partial output is.
+
+C. THE RUNS DO NOT COME BACK and the dialog says so. The reopened module is
+   NOT restarted: starting a run unasked is the opposite of what somebody who
+   has just force-restarted wants. The run folders that hold whatever reached
+   disk are named.
+
+A MODULE NAMED ON THE COMMAND LINE WINS over a saved state. spaCR ignoring
+what it was just told would be a worse surprise than not resuming.
+
+FOUND ON THE WAY: `AppScreen._apply_value` is a SECOND settings writer beside
+the settings model's, and it did not know about 181's auto-or-number box --
+`float("auto")` raised into an `except` that left `alpha` showing 1, the one
+value a penalised fit cannot use. Both writers share the spelling now.
+
+21 tests in tests/qt/test_force_restart_comes_back_where_you_were.py.
