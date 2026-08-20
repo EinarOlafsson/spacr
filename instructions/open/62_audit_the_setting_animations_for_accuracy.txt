@@ -900,3 +900,32 @@ STILL OPEN: 20. Eight intensity-percentile filters drawing the same
 composition as their matching area filter, four intensity splits that never
 draw what decides a split, and eight one-offs. `organelle_diameter` among them
 stays a SETTINGS question rather than a drawing one.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE FOUR INTENSITY SPLITS. 20 -> 16.
+--------------------------------------------------------------------------------
+
+THE CONTROL WAS MISSING. Every object in the frame split, so the animation
+showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a
+viewer could not tell whether it splits everything or only some things, which
+is the only question a threshold setting raises.
+
+The audit prescribed the fix and it is the one taken: draw an object that is
+NOT split, rather than drawing an intensity valley the setting does not use.
+settings.py records the split as purely GEOMETRIC for pathogen, so an
+intensity picture would have illustrated a mechanism that is not there --
+which would have replaced an incomplete animation with a wrong one.
+
+A large object on the left comes apart; a small one on the right is left
+alone; both are on screen the whole time. THE DIFFERENCE BETWEEN THEM IS THE
+SETTING. And the cut is drawn where the halves part, because a split has a
+place it happens and showing it is the difference between "two now" and "cut
+here".
+
+MEASURED: the control's ink is 7391 pixels in EVERY frame -- byte-identical --
+while the splitting side moves 9655 -> 14448 -> 12997.
+
+RUNNING TOTAL: 29 WEAK -> 16 this session.
+
+STILL OPEN: 16. Eight intensity-percentile filters drawing the same
+composition as their matching area filter, and eight one-offs.
