@@ -147,3 +147,37 @@ WHAT THIS COST ELSEWHERE, so it is not rediscovered as a mystery:
 under 1,400 characters and the cost section takes `mixed` to 1,795. The ceiling
 is 1,900 now with the reason written into the constant, plus a second ceiling on
 `mixed` alone so the section that bought the raise cannot quietly grow past it.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- C IS DONE. 140 IS COMPLETE.
+--------------------------------------------------------------------------------
+
+`spacr.ml` now has a cancellation check, and the mixed fit answers Stop.
+
+THE HOOK IS `loglike`, NOT `fit(callback=)`, and that is the whole finding.
+statsmodels accepts a callback and calls it once per optimizer ATTEMPT rather
+than per iteration -- measured at TWO calls for an entire fit, on a
+2-predictor design and on a 30-predictor one. Two chances to notice Stop in an
+hour is the same silence this instruction exists about. `loglike` is evaluated
+by the optimiser on every step, which is the granularity a user pressing a
+button expects. The test counts the two against each other on the SAME model
+rather than against a number somebody picked.
+
+ON THE INSTANCE, NEVER ON THE CLASS. Patching statsmodels would put a spaCR
+checkpoint inside every model any library in the process fits.
+
+`PipelineCancelled` PROPAGATES OUT OF SCIPY UNCHANGED -- checked, not assumed,
+because an optimiser that swallowed it would leave the fit running with the
+user told it had stopped, which is worse than not offering to stop at all.
+
+AND THE FOLDER SAYS WHICH IT WAS. `open_run` recorded every BaseException as
+"failed", so a run the user deliberately stopped was indistinguishable in the
+manifest, the Runs tab and `recent_runs` from a screen that broke the model --
+and those are different things to do next. It records "cancelled" now, keeping
+the traceback, because where a long fit was interrupted is exactly what a user
+asks afterwards.
+
+`_force_stop` stays. It is the answer for a fit that is somewhere this check
+cannot reach, and it has always said it parks rather than claiming to stop.
+
+8 tests in tests/test_a_long_fit_can_be_stopped.py.
