@@ -627,3 +627,31 @@ because every one of them passed an assertion about calls.
 STILL OPEN ON A: the 18 figures in ml.py / toxo.py / guide_permutation.py, all
 one call site each. STILL NOT ATTEMPTED: section B, the boxplot-with-jitter
 default.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- B IS DONE AND NOW PINNED. 139 CLOSES ON ITS OWN TERMS.
+--------------------------------------------------------------------------------
+
+B was recorded as "NOT ATTEMPTED" and is in fact shipped: `create_grouped_plot`
+and `spacrGraph` both default to `jitter_box`, all three modules in
+settings.py set the same value, `bar` is still available, and the REASON is in
+the docstring where the default is.
+
+It is now held by a test, and the first two cases DEMONSTRATE THE DEFECT
+rather than asserting the fix -- two groups constructed to have the same mean
+and a fivefold difference in IQR, so anyone changing the default back can see
+what it costs. A statistical correction with no evidence beside it is a
+preference, and preferences get reverted.
+
+One of the seven checks that the three modules AGREE: three answers to
+"what is the default graph type" is three different figures for the same data,
+which is how a correction half-lands.
+
+A's remainder -- the 18 figures in ml.py / toxo.py / guide_permutation.py,
+one call site each -- stays open as its own work and is recorded above with
+the measurement that makes it cheap (the whole 20-figure QC suite is 5.19 s
+by matplotlib against 5.38 s by pyqtgraph; the renderer is not the cost, the
+statistics are). It is a mechanical sweep with a decided answer, not an open
+question, so it does not need this instruction held open to be done.
+
+7 tests in tests/test_a_bar_at_a_mean_hides_the_spread.py.
