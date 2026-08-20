@@ -174,11 +174,30 @@ def _make_screen(app_key=None, host=None):
                 "allows so a sweep cannot starve the machine.")
             self.worker_note = QLabel(reason, panel)
             self.worker_note.setWordWrap(True)
+            # WHETHER THE KERNEL CAP IS ACTUALLY THERE (114 point 1). The
+            # sweep took this user's desktop down seven times, and the only
+            # thing that has ever held is the kernel enforcing a ceiling --
+            # so a screen that let them believe a cap existed when it does
+            # not would be sending them back into exactly that. Red when
+            # there is none, because it changes what they should do next.
+            from ...parameter_sweep import containment_available, containment_note
+
+            self.containment = QLabel(containment_note(), panel)
+            self.containment.setWordWrap(True)
+            if not containment_available():
+                self.containment.setObjectName("DangerLabel")
+                try:
+                    from ..theme import active_palette
+                    self.containment.setStyleSheet(
+                        f"color: {active_palette()['error']};")
+                except Exception:                        # noqa: BLE001
+                    pass
             budget_form.addRow("Maximum trials", self.max_trials)
             budget_form.addRow("Sampling", self.mode)
             budget_form.addRow("Seed", self.seed)
             budget_form.addRow("Workers", self.workers)
             budget_form.addRow("", self.worker_note)
+            budget_form.addRow("Containment", self.containment)
             form.addWidget(budget)
 
             buttons = QHBoxLayout()

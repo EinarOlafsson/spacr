@@ -164,14 +164,28 @@ def test_be_polite_survives_a_kernel_that_refuses():
             raise PermissionError("refused")
         return real_open(path, *args, **kwargs)
 
-    before = os.nice(0)
+    # THE CALL, NOT THE RESULTING VALUE. `os.nice` SATURATES at 19 and the
+    # niceness is PROCESS-GLOBAL, so any earlier test in the same interpreter
+    # that called `be_polite` leaves this one unable to observe an increase:
+    # `before` is already 19 and `os.nice(19)` cannot raise it further. The
+    # property is that the rest of be_polite still runs after the refusal,
+    # and asking whether it ASKED is the isolation-proof way to hold it.
+    yielded = []
+    real_nice = os.nice
+
+    def _watch(increment):
+        yielded.append(increment)
+        return real_nice(0)
+
     builtins.open = _refuse
+    os.nice = _watch
     try:
         parameter_sweep.be_polite()      # must not raise
     finally:
         builtins.open = real_open
+        os.nice = real_nice
 
     assert attempted, "be_polite never tried to write oom_score_adj at all"
-    assert os.nice(0) > before, (
+    assert yielded, (
         "the refused write short-circuited be_polite before it could yield "
         "the CPU -- the trial keeps full scheduling priority")
