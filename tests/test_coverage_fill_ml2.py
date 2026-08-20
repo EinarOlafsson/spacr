@@ -206,6 +206,9 @@ def test_process_scores_none_agg():
 
 def test_process_scores_poisson():
     df = _scores_df()
+    # Poisson models per-well positive-cell counts, so their object-level
+    # response must be a binary call rather than an arbitrary score.
+    df["pred"] = (df["pred"] >= 0.5).astype(int)
     out, dv = ML.process_scores(
         df, "pred", plate="plate1", min_cell_count=2,
         regression_type="poisson")

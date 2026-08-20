@@ -88,7 +88,7 @@ def test_the_gene_list_is_still_produced():
     call would have silently removed two reports."""
     import spacr.ml
 
-    source = inspect.getsource(spacr.ml.perform_regression)
+    source = inspect.getsource(spacr.ml._perform_regression)
     assert "gene_list = custom_volcano_plot(" in source
     assert "gene_merged_df" in source
 
@@ -98,7 +98,7 @@ def test_the_legacy_gate_still_applies():
     must not have removed the boolean that suppresses it."""
     import spacr.ml
 
-    source = inspect.getsource(spacr.ml.perform_regression)
+    source = inspect.getsource(spacr.ml._perform_regression)
     assert "draw=draw_legacy_volcano" in source
 
 

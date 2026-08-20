@@ -616,7 +616,10 @@ def test_measure_crop_settings_respects_an_explicit_organelle_rollup():
 # ---------------------------------------------------------------------------
 
 def _regression(**over):
-    s = {"regression_type": "quantile"}
+    # These tests exercise a simultaneous regression backend.  The product
+    # default is intentionally nonparametric, where regression_type is not
+    # read, so request the parametric path explicitly.
+    s = {"inference": "parametric", "regression_type": "quantile"}
     s.update(over)
     return s
 
@@ -652,7 +655,8 @@ def test_quantile_regression_drops_well_aggregation(capsys):
 
 def test_non_quantile_regression_keeps_alpha_and_aggregation():
     got = S.get_perform_regression_default_settings(
-        {"regression_type": "ridge", "alpha": 0.9, "agg_type": "mean"})
+        {"inference": "parametric", "regression_type": "ridge",
+         "alpha": 0.9, "agg_type": "mean"})
     assert got["alpha"] == 0.9
     assert got["agg_type"] == "mean"
 

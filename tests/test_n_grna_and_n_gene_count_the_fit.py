@@ -78,9 +78,9 @@ def test_the_count_is_taken_from_the_merged_frame():
     called on `merged_df`, not on `independent_df`."""
     import inspect
 
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     call = "_count_variable_instances(\n        merged_df"
     assert call in source, (
         "the counts are no longer taken from merged_df, so they describe "
@@ -128,8 +128,8 @@ def test_the_meaning_is_written_down():
     why the maintainer had to ask."""
     import inspect
 
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     assert "wells MULTIPLIED BY guides" in source
     assert "n_grna  for a guide = the number of WELLS" in source

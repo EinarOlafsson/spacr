@@ -38,9 +38,9 @@ def test_the_derived_values_are_recorded():
 
 
 def test_both_automatic_settings_are_recorded_where_they_are_derived():
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     assert "_AUTOMATIC_SETTINGS['min_cell_count']" in source
     assert "_AUTOMATIC_SETTINGS['fraction_threshold']" in source
 
@@ -48,18 +48,18 @@ def test_both_automatic_settings_are_recorded_where_they_are_derived():
 def test_they_are_printed_under_a_heading_that_says_they_are_automatic():
     """"0.0168" in a wall of output is not an answer to "what did the run
     use"; "Chosen automatically" is."""
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     assert "Chosen automatically (not set by the user)" in source
 
 
 def test_the_settings_csv_is_re_saved_once_they_are_known():
     """It is written before either value exists, so the file on disk said
     None for both. Re-saving is what makes the run reproducible from it."""
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     body = source.split("Chosen automatically", 1)[1]
     assert "save_settings(settings, name='regression'" in body
 
@@ -67,9 +67,9 @@ def test_the_settings_csv_is_re_saved_once_they_are_known():
 def test_the_record_is_cleared_per_run():
     """A GUI session runs many. A second run must not report the first one's
     choices as its own."""
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     clear_at = source.index("_AUTOMATIC_SETTINGS.clear()")
     first_write = source.index("_AUTOMATIC_SETTINGS['min_cell_count']")
     assert clear_at < first_write, (
@@ -121,12 +121,15 @@ def test_the_well_unit_is_not_refused(tmp_path):
         pass          # any other failure is downstream, not this guard
 
 
-def test_the_default_unit_is_not_refused(tmp_path):
-    """`analysis_unit` absent means well."""
+def test_the_normalized_default_unit_is_not_refused(tmp_path):
+    """The public defaults produce the well-level input this helper needs."""
     from spacr.ml import _run_guide_permutation_analysis
+    from spacr.settings import get_perform_regression_default_settings
 
     try:
-        _run_guide_permutation_analysis(_frame(), "pred", str(tmp_path), {})
+        settings = get_perform_regression_default_settings({})
+        _run_guide_permutation_analysis(
+            _frame(), "pred", str(tmp_path), settings)
     except ValueError as error:
         assert "needs one row per well" not in str(error)
     except Exception:

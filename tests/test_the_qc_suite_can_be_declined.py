@@ -42,7 +42,9 @@ def test_perform_regression_actually_passes_it():
     # and the gene model SEPARATELY rather than putting both in one collinear
     # design. `regression_levels` forwards **kwargs to `regression`, so `qc=`
     # still has to be on the call for the switch to reach the suite.
-    source = inspect.getsource(ml.perform_regression)
+    # perform_regression is the failure-reporting boundary; the implementation
+    # it delegates to owns the model call this contract checks.
+    source = inspect.getsource(ml._perform_regression)
     call = re.search(r"regression_levels\(\s*merged_df.*?\n\s*\)", source, re.S)
     assert call, "could not find the regression_levels() call to check"
     assert "qc=" in call.group(0), (
