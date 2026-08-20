@@ -90,7 +90,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtGui import QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel,
@@ -928,30 +928,87 @@ def montage_figure(plans: Sequence[Any], images: Sequence[Sequence[Any]],
 # ---------------------------------------------------------------------------
 
 class _Thumb(QLabel):
-    """One crop, at :data:`THUMBNAIL_PX`, with its provenance on the tooltip.
+    """One crop, drawn the way the annotation app draws one.
 
-    A ``QLabel`` and not a button: the montage is something to read, and a
+    Rounded, ringed, and lit under the cursor -- through
+    :mod:`~.tile_chrome`, which is the annotate screen's own painting rather
+    than an imitation of it. Asked for by appearance: "when hovering over
+    images i should see the rim turn white and i should be able to click each
+    image to get its information. the images should have rounded edges like
+    in the annotation app".
+
+    IT IS CLICKABLE NOW, and the docstring used to argue the opposite: "a
     clickable thumbnail promises a drill-down that instruction 131 does not
-    ask for and that would need a second selection mechanism to deliver.
+    ask for". The maintainer has since asked for exactly that drill-down, and
+    what it shows is the provenance this tile already carries on its tooltip
+    -- so the promise is one the widget can keep without a second selection
+    mechanism.
     """
+
+    #: (tooltip). Emitted on a left click so the view can show the detail.
+    clicked = Signal(str)
 
     def __init__(self, pixmap: QPixmap, tooltip: str, parent=None,
                  size: int = 0, highlight: str = ""):
         super().__init__(parent)
-        self.setPixmap(pixmap)
+        self._pixmap = pixmap
         self.setToolTip(tooltip)
         self.setAlignment(Qt.AlignCenter)
         self.setFixedSize(int(size or THUMBNAIL_PX), int(size or THUMBNAIL_PX))
         self.setFrameShape(QFrame.NoFrame)
+        # Transparent, so the rounded tile sits on the grid without a grey
+        # square peeking out at the corners.
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setCursor(Qt.PointingHandCursor)
         # THE ANNOTATION APP'S OWN BORDER, asked for by appearance:
         # "highlight the cells most likely to be whatever gene is picked ...
         # as if they were annotated in the annotations app". `label_to_hex`
         # is where that colour is decided, and it is theme-aware because
         # contrast is -- so this borrows it rather than picking a blue.
         self.highlight = str(highlight or "")
-        if self.highlight:
-            self.setStyleSheet(
-                f"border: 2px solid {self.highlight}; border-radius: 2px;")
+        self._hovered = False
+
+    def pixmap(self):                       # noqa: D401 - Qt naming
+        """The crop, as handed in. Painted by hand, so QLabel never holds it."""
+        return self._pixmap
+
+    # -- the look ------------------------------------------------------
+
+    def _colours(self):
+        from ..screens.annotate import current_ring_color, resting_border_color
+
+        border = self.highlight or resting_border_color()
+        return border, current_ring_color()
+
+    def paintEvent(self, event):            # noqa: N802 - Qt naming
+        from .tile_chrome import paint_tile
+
+        border, ring = self._colours()
+        painter = QPainter(self)
+        try:
+            paint_tile(painter, float(self.width()), float(self.height()),
+                       self._pixmap, border_colour=border, ring_colour=ring,
+                       current=self._hovered)
+        finally:
+            painter.end()
+
+    # -- the cursor ----------------------------------------------------
+
+    def enterEvent(self, event):            # noqa: N802 - Qt naming
+        self._hovered = True
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):            # noqa: N802 - Qt naming
+        self._hovered = False
+        self.update()
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event):       # noqa: N802 - Qt naming
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit(self.toolTip())
+        else:
+            super().mousePressEvent(event)
 
 
 class _WellTab(QWidget):
@@ -1016,6 +1073,9 @@ class _WellTab(QWidget):
         self._page = 0
         #: How the crops are drawn -- the annotator's settings, or none.
         self._picture: dict = {}
+        #: Detail windows this tab opened, kept so Python does not
+        #: collect them the moment the click handler returns.
+        self._details: list = []
 
         self._pager = QWidget()
         pager = QHBoxLayout(self._pager)
@@ -1123,11 +1183,35 @@ class _WellTab(QWidget):
         for position, index in enumerate(shown):
             crop = self._crops[index]
             row = self._rows.iloc[index] if index < len(self._rows) else None
-            self._grid.addWidget(
-                _thumbnail(crop, row, self._body, size=self._thumb_px,
-                           picture=self._picture),
+            thumb = _thumbnail(crop, row, self._body, size=self._thumb_px,
+                               picture=self._picture)
+            # CLICK FOR THE PROVENANCE. The tile already carries it on its
+            # tooltip -- which well, which object, which route cut it -- and
+            # a tooltip is unreadable the moment you want to compare two of
+            # them or copy a number out.
+            if hasattr(thumb, "clicked"):
+                thumb.clicked.connect(self._show_cell_detail)
+            self._grid.addWidget(thumb,
                 position // self._columns, position % self._columns)
         self._refresh_pager()
+
+    def _show_cell_detail(self, text: str) -> None:
+        """What this crop is, in a window that stays until it is closed."""
+        from PySide6.QtWidgets import QDialog, QPlainTextEdit, QVBoxLayout
+
+        if not str(text or "").strip():
+            return
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Cell")
+        layout = QVBoxLayout(dialog)
+        view = QPlainTextEdit(str(text), dialog)
+        view.setReadOnly(True)
+        # SELECTABLE, because the reason to open this is usually to copy a
+        # path or an object id out of it.
+        layout.addWidget(view)
+        dialog.resize(560, 260)
+        dialog.show()
+        self._details.append(dialog)
 
     def _refresh_pager(self) -> None:
         """Say which page this is, and offer the others."""
