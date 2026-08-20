@@ -258,7 +258,10 @@ def test_a_channel_box_that_is_not_channels_says_so_instead_of_loading(
 
     view._channels.setText("red,green")
     assert not view._show.isEnabled()
-    assert "not a list of channel indices" in view.reason()
+    # THE REFUSAL NAMES BOTH SPELLINGS NOW. It used to say "use numbers"
+    # only, which is what sent a user typing the annotation app's own
+    # r,g,b to numbers -- and typing r,g,b blocked the tab entirely.
+    assert "not a channel list" in view.reason()
     assert view.build() is False
 
     view._channels.setText("0,1,2")
