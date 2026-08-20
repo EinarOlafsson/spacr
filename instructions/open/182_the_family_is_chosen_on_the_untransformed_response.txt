@@ -81,3 +81,55 @@ HOW TO KNOW IT WORKED
   in the run summary.
 * Once the maintainer chooses: the reference screen produces a McFadden R²
   that is not negative.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- A, B AND C DONE. THE CHOICE IS STILL THE MAINTAINER'S.
+--------------------------------------------------------------------------------
+
+A. The family sentence names the COLUMN and the TRANSFORM in every branch,
+   not only the one that was reported:
+
+       log_pred (after transform='log') is strictly between 0 and 1. Using
+       Binomial family with Logit link; ...
+
+   "Data strictly between 0 and 1" was true of `log_pred` and said so of
+   nothing. The sniffer sees values, never a column, so `pick_glm_family_and_link`
+   now takes `name` and `transform` and `regression` passes them down.
+
+B. `mcfadden_note` (landed with 183) makes a negative pseudo-R² a headline:
+   "this fit predicts the response WORSE than its own intercept", naming the
+   usual cause.
+
+C. `double_transform_warning` fires at the point the family is chosen -- before
+   the fit, because by the time it reaches the summary the fit has run on a
+   doubly transformed response:
+
+       WARNING: the response is transformed TWICE. transform='log' was already
+       applied to build log_pred, and the family chosen for it carries a Logit
+       link, which transforms it again. The model fits logit(log(y)) -- a
+       quantity nothing measured. Either drop the transform and let the link do
+       the work, or keep it and fit an identity-link family. A negative
+       McFadden R² below is this.
+
+   It WARNS and does not choose. Both ways out are named because both are
+   defensible and they are different science.
+
+14 tests in tests/test_the_family_says_which_scale_it_looked_at.py.
+
+--------------------------------------------------------------------------------
+STILL OWED -- ONE QUESTION FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+Which should a glm run do when the response has been log-transformed?
+
+  1. CHOOSE THE FAMILY ON THE UNTRANSFORMED RESPONSE, and grey out `transform`
+     for families that carry their own link. `pred` is a proportion, so
+     Binomial/Logit is right for it, and the log is redundant.
+
+  2. KEEP THE TRANSFORM AND FIT AN IDENTITY LINK. log(p) is an ordinary
+     continuous response and a Gaussian model of it is a standard thing to
+     fit; `regression_type='ols'` already is that.
+
+Not decided here because it changes every glm number spaCR has produced. Until
+it is decided the run says clearly that it is happening, which is the part
+that is unambiguously an improvement.
