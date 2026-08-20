@@ -64,15 +64,9 @@ screen outgrows one desktop.
 Applications and workflow
 -------------------------
 
-.. image:: ../../spacr/resources/icons/workflow_home_apps.png
-   :alt: The six-step spaCR workflow followed by all 58 applications grouped as they appear on the home screen
-   :align: center
+Every tile links to the API page used by that application's in-product help.
 
-Most screens follow **Mask → Measure → Annotate → Classify → Map Barcodes →
-Regression**. The remaining tiles are grouped exactly as they appear on the
-home screen: Data, Segmentation models, Results & QC, Explore, Toxoplasma and
-Design. Start with the :doc:`feature guide <features>` for capabilities or the
-:doc:`curated API reference <api/index>` for supported Python entry points.
+.. include:: _generated/workflow_grid.rst
 
 
 Installation
@@ -110,10 +104,11 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   installer_guide
    installers
    features
    python_api
-   localization
+   Language <localization>
    setting_animations
    checkpoint_resume
    reproducibility_manifests

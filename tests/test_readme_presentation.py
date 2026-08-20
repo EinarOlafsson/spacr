@@ -14,8 +14,12 @@ DOCS_CSS = ROOT / "docs" / "source" / "_static" / "custom.css"
 LOCALIZATION = ROOT / "docs" / "source" / "localization.rst"
 SETTING_ANIMATIONS = ROOT / "docs" / "source" / "setting_animations.rst"
 FEATURES = ROOT / "docs" / "source" / "features.rst"
-WORKFLOW_IMAGE = ROOT / "spacr" / "resources" / "icons" / "workflow_home_apps.png"
+INSTALLER_GUIDE = ROOT / "docs" / "source" / "installer_guide.rst"
+DOCS_INDEX = ROOT / "docs" / "source" / "index.rst"
+AUTOAPI_INDEX = ROOT / "docs" / "source" / "_autoapi_templates" / "index.rst"
+DOC_WORKFLOW = ROOT / "docs" / "source" / "_generated" / "workflow_grid.rst"
 WORKFLOW_DIR = ROOT / "spacr" / "resources" / "icons" / "workflow"
+APP_WORKFLOW_DIR = WORKFLOW_DIR / "apps"
 
 
 def _read(path: Path) -> str:
@@ -35,7 +39,10 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
     assert "What you can do\n---------------" in text
     assert "Most screens follow six modules" in text
     assert "docs/source/features.rst" in text
-    assert len(text.split()) < 1800
+    # Image substitutions carry accessibility text but are not visible prose.
+    before_workflow, _, rest = text.partition(".. spacr-workflow-begin")
+    _, _, after_workflow = rest.partition(".. spacr-workflow-end")
+    assert len((before_workflow + after_workflow).split()) < 1800
     for heading in (
         "Core screen workflow",
         "Planning, quality control and exploration",
@@ -47,12 +54,12 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
 
 def test_readme_uses_branch_safe_documentation_links():
     text = _read(README)
-    for page in ("installers", "python_api", "features"):
+    for page in ("installer_guide", "python_api", "features"):
         assert f"einarolafsson.github.io/spacr/{page}.html" not in text
         assert f"docs/source/{page}.rst" in text
 
 
-def test_workflow_picture_tracks_the_home_screen_registry():
+def test_every_workflow_button_tracks_the_home_screen_registry_and_api():
     from PIL import Image, ImageChops
 
     path = ROOT / "packaging" / "generate_readme_visuals.py"
@@ -61,15 +68,37 @@ def test_workflow_picture_tracks_the_home_screen_registry():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
 
-    committed = Image.open(WORKFLOW_IMAGE).convert("RGBA")
-    rendered = generator.render_app_catalog().convert("RGBA")
-    assert committed.size == rendered.size
-    assert ImageChops.difference(committed, rendered).getbbox() is None
-
     text = _read(README)
+    docs = _read(DOC_WORKFLOW)
+    registry = generator._registry()
+    urls = generator._api_urls()
+    pipeline = dict(generator.MAIN_PIPELINE)
+
+    assert len(registry) == 58
+    assert set(urls) == {key for key, _label, _description, _section in registry}
+    for key, label, _description, _section in registry:
+        if key in pipeline:
+            relative = f"spacr/resources/icons/workflow/{key}.png"
+            committed = Image.open(WORKFLOW_DIR / f"{key}.png").convert("RGBA")
+            rendered = generator.render_pipeline_tile(key, label).convert("RGBA")
+        else:
+            relative = f"spacr/resources/icons/workflow/apps/{key}.png"
+            committed = Image.open(APP_WORKFLOW_DIR / f"{key}.png").convert("RGBA")
+            rendered = generator.render_app_tile(key, label).convert("RGBA")
+        assert ImageChops.difference(committed, rendered).getbbox() is None
+        assert relative in text
+        assert urls[key] in text
+        docs_relative = relative.replace(
+            "spacr/resources/icons/workflow", "/_static/workflow"
+        )
+        assert docs_relative in docs
+        assert urls[key] in docs
+
     assert "flow_chart_v3" not in text
     assert "The spaCR workflow" not in text
     assert "Select a workflow module to open its API page" in text
+    assert "_generated/workflow_grid.rst" in _read(DOCS_INDEX)
+    assert "../_generated/workflow_grid.rst" in _read(AUTOAPI_INDEX)
 
 
 def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
@@ -87,10 +116,10 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         rendered = generator.render_pipeline_tile(key, label).convert("RGBA")
         assert ImageChops.difference(committed, rendered).getbbox() is None
         assert committed.getpixel(
-            (committed.width // 2, 0)
-        ) == generator.WORKFLOW_TILE
+            (committed.width // 2, 3)
+        ) == generator.WHITE
         assert f"workflow/{key}.png" in text
-        assert generator.PIPELINE_API[key] in text
+        assert generator._api_urls()[key] in text
 
     arrow = Image.open(WORKFLOW_DIR / "arrow.png").convert("RGBA")
     assert ImageChops.difference(
@@ -100,6 +129,34 @@ def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
         (arrow.width // 2, arrow.height // 2)
     ) == generator.WHITE
     assert str(generator._font(22).path).endswith("OpenSans-Light.ttf")
+    # With normal inline-image spacing, both rows occupy the same width.
+    top_width = (
+        6 * generator.PIPELINE_DISPLAY_WIDTH
+        + 5 * generator.ARROW_DISPLAY_WIDTH
+        + 10 * 4
+    )
+    app_width = 4 * generator.APP_DISPLAY_WIDTH + 3 * 4
+    assert top_width == app_width
+
+
+def test_installer_guide_is_distinct_from_the_version_archive():
+    readme = _read(README)
+    guide = _read(INSTALLER_GUIDE)
+    index = _read(DOCS_INDEX)
+
+    assert "docs/source/installer_guide.rst" in readme
+    assert ".. _installer-guide:" in guide
+    for heading in (
+        "Desktop installers",
+        "Updating",
+        "Uninstalling",
+        "Offline installation",
+        "Troubleshooting",
+    ):
+        assert heading in guide
+    assert ":target: docs/source/installers.rst" in readme
+    assert "   installer_guide" in index
+    assert "   installers" in index
 
 
 def test_reference_resources_are_linked_rounded_buttons():
@@ -139,6 +196,7 @@ def test_readme_contains_only_user_facing_installation_copy():
 def test_language_support_is_a_documented_output_safe_feature():
     readme = _read(README)
     guide = _read(LOCALIZATION)
+    index = _read(DOCS_INDEX)
 
     assert "Language & translation" in readme
     assert "The interface supports ten languages" in readme
@@ -147,6 +205,7 @@ def test_language_support_is_a_documented_output_safe_feature():
     assert re.search(r"scientific\s+output remains canonical English", readme)
 
     assert guide.startswith("Language & translation\n")
+    assert "Language <localization>" in index
     assert "What is translated" in guide
     assert "Contextual help" in guide
     assert "Raw worker stdout, logs, tracebacks" in guide

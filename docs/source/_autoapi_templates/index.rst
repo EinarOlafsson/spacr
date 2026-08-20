@@ -5,50 +5,12 @@ Start with the workflow you want to run. These pages contain the supported
 pipeline entry points; implementation modules remain available in the
 complete reference below.
 
-.. grid:: 2
-   :gutter: 3
+Applications and workflow
+-------------------------
 
-   .. grid-item-card:: Typed workflow API
-      :link: spacr/api/index
-      :link-type: doc
+Every tile links to the API page used by that application's in-product help.
 
-      Configure and run Mask or Measure from a lightweight interface.
-
-   .. grid-item-card:: Mask and image preparation
-      :link: spacr/core/index
-      :link-type: doc
-
-      Segment microscopy images and write mask stacks.
-
-   .. grid-item-card:: Measure and crop
-      :link: spacr/measure/index
-      :link-type: doc
-
-      Extract object features, build SQLite projects and save crops.
-
-   .. grid-item-card:: Classification
-      :link: spacr/deep_spacr/index
-      :link-type: doc
-
-      Train and apply image classifiers.
-
-   .. grid-item-card:: Barcode mapping
-      :link: spacr/sequencing/index
-      :link-type: doc
-
-      Decode FASTQ reads and connect guides to wells.
-
-   .. grid-item-card:: Regression and hits
-      :link: spacr/ml/index
-      :link-type: doc
-
-      Estimate guide and gene effects and inspect diagnostics.
-
-   .. grid-item-card:: Projects and provenance
-      :link: spacr/artifacts/index
-      :link-type: doc
-
-      Inspect runs, settings, outputs and reproducibility records.
+.. include:: ../_generated/workflow_grid.rst
 
 New to the Python interface? Follow the :doc:`../python_api` first.
 

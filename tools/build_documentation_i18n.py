@@ -5996,13 +5996,14 @@ def main() -> int:
                     localized_readme = localized_readme.replace(
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
                     )
-                # The six linked workflow tiles keep their canonical module
-                # names. The catalog image that follows them and the four
-                # installer buttons use reviewed localized descriptions.
-                canonical_alt = all_canonical_alt[19:24]
+                # All 58 workflow tiles keep their canonical application
+                # names so they match the API. The four installer/archive
+                # buttons use reviewed localized descriptions. The first
+                # legacy tuple entry described the retired catalog image.
+                canonical_alt = all_canonical_alt[71:75]
                 localized_alt = [
                     value.format(version=version_match.group(1))
-                    for value in REVIEWED_README_ALT_TEXT[language]
+                    for value in REVIEWED_README_ALT_TEXT[language][1:]
                 ]
                 for source_alt, target_alt in zip(
                     canonical_alt, localized_alt
@@ -6011,7 +6012,7 @@ def main() -> int:
                         f"   :alt: {source_alt}", f"   :alt: {target_alt}", 1
                     )
                 for source_alt, target_alt in zip(
-                    all_canonical_alt[24:29],
+                    all_canonical_alt[75:80],
                     REVIEWED_README_RESOURCE_ALT_TEXT[language],
                 ):
                     localized_readme = localized_readme.replace(

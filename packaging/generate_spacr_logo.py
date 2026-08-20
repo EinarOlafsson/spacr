@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate the lighter-weight spaCR logo from its preserved master.
 
-The master artwork is never edited. A circular alpha erosion moves every edge
-inward by ten pixels at the 3334 px source resolution, reducing each stroke by
-roughly twenty pixels while preserving the original geometry and white ink.
+The master artwork is never edited. Thick connected strokes receive a larger
+inward reduction than the already-fine grid and small motifs. This makes the
+change remain visible after GitHub scales the 3334 px artwork to README size
+without erasing the smallest details.
 
 Run::
 
@@ -27,17 +28,72 @@ OUTPUTS = (
     ROOT / "docs" / "source" / "_static" / "logo_spacr.png",
     ROOT / "docs" / "source" / "_extra" / "tutorials" / "logo_spacr.png",
 )
-EROSION_RADIUS = 10
+BASE_RADIUS = 10
+LARGE_STROKE_RADIUS = 20
+ELONGATED_STROKE_RADIUS = 14
+HALO_ALPHA = 60
+
+
+def _disk(radius: int) -> np.ndarray:
+    axis = np.arange(-radius, radius + 1)
+    yy, xx = np.meshgrid(axis, axis, indexing="ij")
+    return (xx * xx + yy * yy) <= radius * radius
+
+
+def _erode_component(
+    alpha: np.ndarray,
+    component: np.ndarray,
+    radius: int,
+) -> np.ndarray:
+    """Erode one component in a padded crop and return a full-size layer."""
+    output = np.zeros_like(alpha)
+    rows, columns = np.where(component)
+    if not len(rows):
+        return output
+    padding = radius + 2
+    top = max(0, int(rows.min()) - padding)
+    bottom = min(alpha.shape[0], int(rows.max()) + padding + 1)
+    left = max(0, int(columns.min()) - padding)
+    right = min(alpha.shape[1], int(columns.max()) + padding + 1)
+    crop = np.where(
+        component[top:bottom, left:right],
+        alpha[top:bottom, left:right],
+        0,
+    ).astype(np.uint8)
+    if radius:
+        crop = ndimage.grey_erosion(crop, footprint=_disk(radius))
+    output[top:bottom, left:right] = crop
+    return output
 
 
 def build_logo() -> Image.Image:
-    """Return the canonical logo with a uniformly lighter line weight."""
+    """Return the canonical logo with visibly lighter major strokes."""
     image = Image.open(SOURCE).convert("RGBA")
     alpha = np.asarray(image.getchannel("A"), dtype=np.uint8)
-    axis = np.arange(-EROSION_RADIUS, EROSION_RADIUS + 1)
-    yy, xx = np.meshgrid(axis, axis, indexing="ij")
-    footprint = (xx * xx + yy * yy) <= EROSION_RADIUS * EROSION_RADIUS
-    thinned = ndimage.grey_erosion(alpha, footprint=footprint)
+    base = ndimage.grey_erosion(alpha, footprint=_disk(BASE_RADIUS))
+    thinned = np.minimum(base, HALO_ALPHA)
+
+    labels, count = ndimage.label(alpha >= 128)
+    for component_id in range(1, count + 1):
+        component = labels == component_id
+        rows, columns = np.where(component)
+        area = int(component.sum())
+        height = int(rows.max() - rows.min() + 1)
+        width = int(columns.max() - columns.min() + 1)
+        extent = area / (height * width)
+        aspect = max(height, width) / min(height, width)
+        if extent > 0.7:
+            radius = 0  # filled dots are shapes, not strokes
+        elif area > 100_000:
+            radius = LARGE_STROKE_RADIUS
+        elif aspect > 3:
+            radius = ELONGATED_STROKE_RADIUS
+        else:
+            radius = BASE_RADIUS
+        thinned = np.maximum(
+            thinned,
+            _erode_component(alpha, component, radius),
+        )
     image.putalpha(Image.fromarray(thinned.astype(np.uint8)))
     return image
 

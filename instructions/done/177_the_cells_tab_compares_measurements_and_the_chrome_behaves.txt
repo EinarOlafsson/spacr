@@ -115,3 +115,42 @@ RELATED
   176 C -- B is the same vocabulary, still not landed for these two keys.
   172 -- the picker whose answer F groups by.
   169 B -- the slider A is about.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE. A to F.
+--------------------------------------------------------------------------------
+
+A. The QSlider's own background was never claimed by the stylesheet, so it
+   painted the palette's window colour as an opaque rectangle on a
+   translucent container. Transparent now -- the same omission that made the
+   tab overflow arrows black boxes.
+
+B. r,g,b works everywhere it is offered. `_as_channel_list` maps 0/1/2 onto
+   r/g/b so BOTH spellings reach `normalize_pil` and `filter_channels_pil`,
+   and `parse_channels` takes 'r,g,b', 'rgb', 'rg' and '0,1,2' -- resolving
+   the letters through the screen's own mapping, never by position, because
+   spaCR's default is {r: 2, g: 1, b: 0} and reading 'r' as 0 cuts the planes
+   in reverse and looks entirely plausible.
+
+   The controls became CHOOSERS. `normalize_channels`, `outline` and
+   `channels` were blank QLineEdits with nothing on screen saying the answer
+   is a channel list -- which is why "none of this works": typing nothing did
+   nothing, and typing the index form did nothing either.
+
+C. Measure's eight categories are tabs. The sections are unchanged and
+   `_settings_sections` still holds every one, so applicability greying and
+   tooltip retargeting work as before; only where they are mounted changed.
+
+D. The montage tile draws ONE ring that hover recolours, where the annotate
+   grid adds a second. Deliberate: the annotator must show class and cursor
+   at once because the class is what you are assigning, while this ring is
+   only ever provenance.
+
+E. The picked cells keep their blue in show-all. The mark was always in the
+   data; the thick white ring outside it was what the eye saw.
+
+F. `spacr.gene_measurement_compare` + `MeasurementComparePanel`: groups from
+   the picker, cell/well/plate levels, five plots, statistics through
+   `sp_stats` with the assumption checks reported, and one folder holding the
+   figure, the data, the statistics, the settings and the cells.
+   Instruction 179 mounts it as a tab and adds the two-measurement operators.

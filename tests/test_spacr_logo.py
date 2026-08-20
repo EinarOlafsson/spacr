@@ -43,5 +43,24 @@ def test_all_published_logo_copies_are_identical():
 
 def test_readme_uses_the_logo_from_the_current_branch():
     text = README.read_text(encoding="utf-8")
-    assert ".. image:: spacr/resources/icons/logo_spacr.png" in text
+    assert ".. image:: spacr/resources/icons/logo_spacr_readme.png" in text
+    assert "   :width: 920" in text
     assert "raw.githubusercontent.com/EinarOlafsson/spacr/main" not in text
+
+
+def test_readme_logo_is_centered_by_its_transparent_canvas():
+    image = Image.open(
+        ROOT / "spacr" / "resources" / "icons" / "logo_spacr_readme.png"
+    ).convert("RGBA")
+    bounds = image.getchannel("A").getbbox()
+
+    assert image.size == (920, 380)
+    assert bounds is not None
+    assert abs((bounds[0] + bounds[2]) - image.width) <= 1
+    assert abs((bounds[1] + bounds[3]) - image.height) <= 1
+
+
+def test_major_logo_strokes_use_the_stronger_thinning_pass():
+    generator = _generator()
+    assert generator.LARGE_STROKE_RADIUS > generator.ELONGATED_STROKE_RADIUS
+    assert generator.ELONGATED_STROKE_RADIUS > generator.BASE_RADIUS
