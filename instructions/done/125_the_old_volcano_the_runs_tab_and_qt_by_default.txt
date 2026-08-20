@@ -197,3 +197,38 @@ SO THIS FILE IS CLOSED ON AUDIT. If the ledger still counts it open, that is the
 ledger and not the code. Whoever moves it to `done/` should keep this section --
 "eight files have been wrong about themselves this week" is only useful if the
 ninth records how it was checked.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- AUDITED AND CLOSED. A THROUGH D ARE ALL SHIPPED.
+--------------------------------------------------------------------------------
+
+Checked against the code rather than against a status line, because this file
+was the one that got half-fixed by nobody counting the call sites.
+
+A. `draw_legacy_volcano` reaches every path -- the gated one at ml.py:4397,
+   the three toxo ones and the non-toxo fallback -- and a run that draws none
+   SAYS so ("...style figure are drawn instead. Set legacy_volcano=True to..."),
+   rather than the picture simply not appearing. 24 tests across
+   tests/test_the_old_volcano_is_off.py and
+   tests/test_no_run_draws_in_two_idioms.py, and the second is the one that
+   makes a FOURTH path impossible to add quietly.
+
+B. `_ClearFiguresLabel` rests on `palette["error"]` and flashes
+   `palette["accent"]` -- the app-wide "your click landed" mark, shared with
+   the console's copy glyph. Both from `active_palette()`, so this control
+   looks like the other negative ones rather than like a fourth opinion about
+   what destructive means, which is what the ask was.
+
+C. `_record_run_in_runs_tab` is called by the ORDINARY run path
+   (app_screen.py:3156), not only by the sweep, so the tab answers "what have
+   I run" and not "what did the sweep try". The figure grid's sections
+   collapse and stay collapsed when a run is added (`_collapsed` lives on the
+   grid, not on the header widgets -- see 180's note on why).
+
+D. PySide6, qtawesome and pyqtgraph are CORE dependencies. The wheel coverage
+   was checked rather than assumed, and the check is written into setup.py
+   where the next person to wonder will find it: PySide6 >=6.6,<7 resolves on
+   every interpreter in requires-python (6.11.1 declares <3.15,>=3.10; 6.6/6.7
+   cover 3.9), pyqtgraph >=0.13.3 for the same reason. The headless invariant
+   is untouched and still tested -- being a dependency is not being an import,
+   and a cluster install carries the wheel and never loads it.
