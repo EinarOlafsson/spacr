@@ -1,10 +1,10 @@
 {
-  "audited": "2026-08-18",
+  "audited": "2026-08-20",
   "audited_against": "fce4ef86",
   "animations_total": 94,
   "counts": {
-    "GOOD": 86,
-    "WEAK": 8
+    "GOOD": 94,
+    "WEAK": 0
   },
   "verdicts": {
     "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
@@ -14,7 +14,8 @@
     "Every animation was WATCHED: all stored frames of the SHIPPED GIF rendered as a contact sheet and read against that setting's own text in spacr/settings.py. A machine cannot make these 94 judgements; it can only keep the record honest.",
     "The pixel metric is a floor, never a verdict. It is blind in both directions: cytoplasm scores 13.5%, 13th highest of 94, and shows nothing of its setting, while crop_mode scores 1.8% and is one of the clearest in the set.",
     "The four border animations are measured, not judged by eye, with spacr.setting_animations.measure_border_object_removal: it reads the well edge off the DRAWN rule rather than the generator's own touches flag, and compares two frames at the same zoom rather than frame 0, which is zoomed out. All four report crossing=2 interior=0.",
-    "Two sessions audited this concurrently on 2026-08-18. This record is the union of both: an animation is WEAK if either pass found it weak."
+    "Two sessions audited this concurrently on 2026-08-18. This record is the union of both: an animation is WEAK if either pass found it weak.",
+    "2026-08-20: the eight WEAK animations were fixed rather than left recorded. Five were faint-at-tooltip-size and were redrawn heavier; three (use_bounding_box, organelle_diameter, organelle_skeletonize) were showing the wrong thing and were rebuilt around what the code actually does. Every one was re-watched as a contact sheet after regeneration, and the visible_change figures here are re-measured off the shipped GIF."
   ],
   "animations": [
     {
@@ -23,9 +24,9 @@
       "settings": [
         "use_bounding_box"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0257,
-      "note": "The box grows and a neighbouring cell appears -- the documented consequence -- but the mask-crop versus box-crop contrast itself is never drawn, and it reads much like png_size."
+      "verdict": "GOOD",
+      "visible_change": 0.2107,
+      "note": "REDRAWN 2026-08-20. The contrast the setting actually makes -- mask-shaped crop versus rectangular crop -- is now drawn: the box fills with a lifted ground as it is switched on, so the pixels the box keeps are visible as kept, and the neighbouring cell arrives inside that ground. No longer reads as png_size, which grows a box for an unrelated reason."
     },
     {
       "slug": "cytoplasm",
@@ -43,9 +44,9 @@
       "settings": [
         "organelle_diameter"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0329,
-      "note": "The drawing is right, but settings.py documents this key as DEPRECEATED and says the Cellpose-SAM path calls model.eval with diameter=None. An animation showing a visible effect for a setting with no effect is misleading by context."
+      "verdict": "GOOD",
+      "visible_change": 0.024,
+      "note": "REDRAWN 2026-08-20. The old frame showed an organelle growing, which the code does not do: the Cellpose-SAM path is called with diameter=None. The value is still read by OrganelleType.morphology_for, which flips the recommended morphology from spot to ring at RING_RESOLVABLE_PX, so the masks now hold still, the caliper sweeps, and the objects flip from filled spots to rings as it crosses the marked threshold. The animation and settings.py now say the same thing."
     },
     {
       "slug": "cell_max_intensity_percentile",
@@ -173,9 +174,9 @@
       "settings": [
         "organelle_skeletonize"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0561,
-      "note": "The network does thin to a one-pixel line, but the skeleton is a five-point zigzag that does not follow the branches it replaced. It reads as the object being erased and a line drawn, rather than as a medial axis."
+      "verdict": "GOOD",
+      "visible_change": 0.0313,
+      "note": "REDRAWN 2026-08-20. The network is built from an explicit branch graph and the skeleton is drawn along the SAME paths, so the only thing that changes is thickness. It now reads as a medial axis rather than as the object being erased and an unrelated zigzag drawn."
     },
     {
       "slug": "organelle_watershed_spots",
@@ -275,9 +276,9 @@
       "settings": [
         "stitch_threshold"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0231,
-      "note": "Two labels stop being treated as one and separate, with a faint dashed link. On topic, but there is no z-plane cue at all, so it looks like the watershed-split animation; and the link is drawn too faint to read at tooltip size."
+      "verdict": "GOOD",
+      "visible_change": 0.021,
+      "note": "REDRAWN 2026-08-20. Two z-slices are drawn as a stack seen at an angle, so the join being tested is plainly vertical and no longer looks like the watershed split. The link is a solid band whose thickness is the overlap; it narrows and snaps rather than a hairline changing brightness."
     },
     {
       "slug": "t_link_threshold",
@@ -285,9 +286,9 @@
       "settings": [
         "t_link_threshold"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0332,
-      "note": "Two timepoint detections drift apart as the required overlap rises. Correct subject, but the two frames are drawn identically so the 'one timepoint then the next' reading depends on the dashed link, which is faint."
+      "verdict": "GOOD",
+      "visible_change": 0.0307,
+      "note": "REDRAWN 2026-08-20. Each detection now sits in its own panel with the earlier one dimmer, so 'one timepoint then the next' is drawn rather than inferred, and the link is a band that narrows and breaks instead of a faint dashed line."
     },
     {
       "slug": "n_neighbors",
@@ -295,9 +296,9 @@
       "settings": [
         "n_neighbors"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0162,
-      "note": "A neighbour graph appears and thickens inside each cluster, which is exactly the setting -- but the edges are drawn so faint they are invisible at tooltip size; they only become legible above about 300 px."
+      "verdict": "GOOD",
+      "visible_change": 0.0236,
+      "note": "FIXED 2026-08-20. The neighbour edges are drawn at 0.85 width and 0.34..0.82 opacity instead of 0.35 and 0.12..0.36. The graph thickening inside each cluster is now legible at tooltip size; the subject was already right."
     },
     {
       "slug": "plot_by_cluster",
@@ -305,9 +306,9 @@
       "settings": [
         "plot_by_cluster"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0157,
-      "note": "The contrast is right: with the setting off one cluster carries no thumbnails, with it on every cluster does. But it is two thumbnails per cluster and the difference is hard to see small."
+      "verdict": "GOOD",
+      "visible_change": 0.0402,
+      "note": "FIXED 2026-08-20. Off puts every thumbnail in the densest cluster and on puts four in each, at 14 px instead of 9.5 -- so the pile-versus-spread reading survives at tooltip size. Previously six scattered against six per-cluster looked like the same picture rearranged."
     },
     {
       "slug": "remove_image_canvas",
@@ -315,9 +316,9 @@
       "settings": [
         "remove_image_canvas"
       ],
-      "verdict": "WEAK",
-      "visible_change": 0.0152,
-      "note": "The thumbnails do lose their dark canvas, but the canvas was barely visible to begin with, so the change is easy to miss."
+      "verdict": "GOOD",
+      "visible_change": 0.0516,
+      "note": "FIXED 2026-08-20. The canvas is drawn as a filled rectangle, which is what a canvas is, so its removal is a change anyone can see. Painter.rectangle gained a fill argument for this."
     },
     {
       "slug": "adjust_cells",
