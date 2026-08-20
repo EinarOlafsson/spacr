@@ -1,45 +1,23 @@
-"""
-Work the regex out from the filenames, instead of asking for one.
+"""Infer filename-parsing regexes for microscope image collections.
 
-Instruction 137 B. `spacr.utils._get_regex` is a four-branch lookup --
-'cellvoyager', 'cq1', 'auto' and 'custom' -- of which three are FIXED PATTERNS
-('auto' is not automatic; it is a fourth hard-coded regex) and the fourth means
-the user types a Python regex with the right named groups by hand::
+:func:`propose` groups filenames with a shared token structure and returns
+ranked regular expressions with named metadata groups. Each proposal reports
+its coverage, unmatched files, sampled values, and the evidence used to
+suggest roles such as ``wellID``, ``fieldID``, and ``chanID``. Review these
+suggestions before importing files from a new naming convention.
 
-    (?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)
-    L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif
+Use :func:`rename_preview` and :func:`structure` to inspect the proposed
+renaming and folder layout. These functions do not move, rename, or write
+files.
 
-So a microscope spaCR has not met is a wall before anything can be imported.
-This is what takes the wall down::
-
-    from spacr.regex_infer import propose
-
-    best, *rest = propose(filenames)
-    best.pattern          # a regex with named groups
-    best.matched          # how many of the names it matches
-    best.unmatched        # WHICH ones it does not -- the useful list
-    best.fields           # {group: FieldEvidence} -- distinct values, samples
-
-HOW IT WORKS. Every name is split into runs of digits and runs of non-digits.
-Names with the same SHAPE -- the same sequence of literal separators around the
-same number of variable slots -- form a family. Within a family the slots that
-never vary are folded back into the literal text and the ones that do become
-groups. The largest family wins, and the rest are offered behind it.
-
-WHAT IT NEVER DOES IS PICK SILENTLY. The whole failure being fixed is a regex
-that looked right and grouped the files wrong, so every proposal carries the
-evidence beside it: how many files it matches, how many distinct values each
-group takes, and which files it leaves out. An unmatched file is the most
-useful thing on that screen.
-
-ROLES ARE GUESSED AND SAID TO BE GUESSES. A slot matching a well pattern is
-offered as `wellID`, one taking two to eight distinct values as `chanID`, one
-following a literal 'F' as `fieldID`, and so on -- but the guess is a
-SUGGESTION carried on the field, and instruction 137 C has the user confirm it
-from a closed dropdown. A group name spaCR's importer does not read is a silent
-import of nothing, which is why nobody types one.
-
-Standard library only.
+Examples
+--------
+>>> names = ["WA01F001C1.tif", "WA01F002C1.tif"]
+>>> candidate = propose(names)[0]
+>>> candidate.matched, candidate.unmatched
+(2, ())
+>>> rename_preview(candidate, names)[0]["matched"]
+True
 """
 from __future__ import annotations
 
@@ -86,11 +64,19 @@ _HINT_ORDER = tuple(sorted(LITERAL_HINTS, key=len, reverse=True))
 
 
 def hint_for(before: str) -> str:
-    """The role the literal in front of a slot suggests, or "".
+    """Infer a metadata role from the literal preceding a value slot.
 
-    Read off the END of the literal run, because that is what abuts the slot:
-    in `exp7-P1-A01` the run before the plate number is `exp7-P`, and only its
-    last character is about the slot.
+    Parameters
+    ----------
+    before
+        Literal text immediately before the variable filename component. Only
+        its trailing alphabetic run is considered.
+
+    Returns
+    -------
+    str
+        A role from :data:`KNOWN_ROLES`, or an empty string when the literal
+        provides no recognized hint.
     """
     # THE TRAILING ALPHA RUN ONLY, stopping at the first non-letter. Reading
     # every letter in the run made `plate1_` end in "PLATE" and claim the well
@@ -113,7 +99,25 @@ def hint_for(before: str) -> str:
 
 @dataclass
 class FieldEvidence:
-    """What is known about one variable slot, so a user can judge the guess."""
+    """Describe the observed values and suggested role of one filename slot.
+
+    Attributes
+    ----------
+    index
+        Token position in the filename family.
+    values
+        Observed values for this slot, in input order.
+    numeric
+        Whether every observed value contains only digits.
+    before
+        Literal text immediately preceding the slot.
+    role
+        Suggested spaCR metadata role, or an empty string when unknown.
+    fixed_tail
+        Constant suffix included inside the slot's capture group.
+    because
+        Evidence supporting the suggested role.
+    """
 
     index: int
     values: Tuple[str, ...]
@@ -129,9 +133,22 @@ class FieldEvidence:
 
     @property
     def distinct(self) -> int:
+        """Return the number of distinct observed values."""
         return len(set(self.values))
 
     def samples(self, limit: int = 4) -> Tuple[str, ...]:
+        """Return unique example values in their first-seen order.
+
+        Parameters
+        ----------
+        limit
+            Maximum number of values to return.
+
+        Returns
+        -------
+        tuple of str
+            Up to ``limit`` unique values.
+        """
         seen, out = set(), []
         for value in self.values:
             if value not in seen:
@@ -144,7 +161,23 @@ class FieldEvidence:
 
 @dataclass
 class Proposal:
-    """One candidate regex, with everything needed to judge it."""
+    """Store a candidate filename regex and the evidence for reviewing it.
+
+    Attributes
+    ----------
+    pattern
+        Regular-expression pattern with named capture groups.
+    fields
+        Evidence indexed by proposed group name.
+    matched
+        Number of input basenames matched by ``pattern``.
+    total
+        Total number of non-empty input basenames evaluated.
+    unmatched
+        Input basenames not matched by ``pattern``.
+    suffix
+        Extension of the filename family, without a leading period.
+    """
 
     pattern: str
     fields: Dict[str, FieldEvidence] = field(default_factory=dict)
@@ -155,10 +188,11 @@ class Proposal:
 
     @property
     def coverage(self) -> float:
+        """Return the fraction of evaluated filenames that match."""
         return (self.matched / self.total) if self.total else 0.0
 
     def evidence(self) -> str:
-        """The sentence that goes beside the pattern on screen."""
+        """Format coverage, field samples, role evidence, and unmatched files."""
         lines = [f"{self.matched} of {self.total} files match "
                  f"({self.coverage:.0%})."]
         for name, info in self.fields.items():
@@ -175,6 +209,7 @@ class Proposal:
         return "\n".join(lines)
 
     def compiled(self):
+        """Compile and return :attr:`pattern`."""
         return re.compile(self.pattern)
 
 
@@ -182,10 +217,18 @@ _TOKEN = re.compile(r"\d+|\D+")
 
 
 def tokenise(name: str) -> List[str]:
-    """Split a filename into runs of digits and runs of everything else.
+    """Split a filename into alternating digit and non-digit runs.
 
-    The extension is left on: it is a literal like any other and dropping it
-    here would mean putting it back in three places.
+    Parameters
+    ----------
+    name
+        Filename or filename-like string. The extension remains part of the
+        final non-digit run.
+
+    Returns
+    -------
+    list of str
+        Token runs in their original order.
     """
     return _TOKEN.findall(str(name))
 
@@ -198,30 +241,39 @@ MAX_VARYING_LITERALS = 2
 
 
 def shape_of(tokens: Sequence[str]) -> Tuple[str, ...]:
-    """The name with its digit runs blanked — what makes two names a family.
+    """Replace digit tokens with placeholders to identify a filename family.
 
-    Two files from one microscope differ only in their numbers and in the odd
-    letter code, so the shape is what groups them, and a name whose shape
-    nobody else shares is exactly the "not matched" line the user needs to
-    see.
+    Parameters
+    ----------
+    tokens
+        Tokens returned by :func:`tokenise`.
+
+    Returns
+    -------
+    tuple of str
+        Tokens with each all-digit run replaced by ``"#"``.
     """
     return tuple("#" if token.isdigit() else token for token in tokens)
 
 
 def mask_of(tokens: Sequence[str]) -> Tuple[str, ...]:
-    """The shape with the LITERAL TEXT blanked too.
+    """Replace digit and non-digit tokens with coarse family placeholders.
 
-    A coarser family than :func:`shape_of`, and it is the one that gets
-    Yokogawa right. `plate1_A01_...` and `plate1_B01_...` have different
-    SHAPES -- the well letter is a non-digit token and it differs -- so they
-    landed in two families, each matching a third of the drop, and the well
-    letter was folded into the literal text where it could never become a
-    group. Under the mask they are one family and the letter is a slot, which
-    is what it is.
+    Parameters
+    ----------
+    tokens
+        Tokens returned by :func:`tokenise`.
 
-    Both are tried. A mask family that turns out to vary in more than
-    :data:`MAX_VARYING_LITERALS` non-digit positions is two microscopes rather
-    than one, and the shape families are the answer there.
+    Returns
+    -------
+    tuple of str
+        ``"#"`` for each digit run and ``"@"`` for each non-digit run.
+
+    Notes
+    -----
+    This coarser grouping lets changing well letters remain variable. Families
+    that exceed :data:`MAX_VARYING_LITERALS` are rejected later to avoid
+    merging unrelated naming conventions.
     """
     return tuple("#" if token.isdigit() else "@" for token in tokens)
 
@@ -443,16 +495,28 @@ def _assign_roles(slots: Sequence[FieldEvidence]) -> None:
 
 
 def propose(names: Iterable[str], limit: int = 4) -> List[Proposal]:
-    """Rank candidate regexes for ``names``, best first. ``[]`` for nothing.
+    """Infer and rank candidate regexes for a collection of filenames.
 
-    :param names: filenames, with or without directories. Only the basename
-        is read -- a user dropping a folder should not get a regex that
-        matches their home directory's spelling.
-    :param limit: how many proposals to return.
+    Parameters
+    ----------
+    names
+        Filenames or paths. Only each basename is inspected; empty names are
+        ignored.
+    limit
+        Maximum number of proposals to return.
 
-    THE LARGEST FAMILY WINS, and the others are offered behind it rather than
-    discarded: a drop that mixes two microscopes has two right answers and
-    picking one silently is the failure this exists to prevent.
+    Returns
+    -------
+    list of Proposal
+        Candidates ordered by matched-file count and then by the number of
+        inferred metadata fields. Returns an empty list when the input has no
+        comparable filename family.
+
+    Notes
+    -----
+    Mixed naming conventions can produce several proposals. Inspect
+    :attr:`Proposal.unmatched` and :meth:`Proposal.evidence` before choosing
+    one.
     """
     basenames = [os.path.basename(str(n)) for n in names if str(n).strip()]
     if not basenames:
@@ -487,14 +551,28 @@ def propose(names: Iterable[str], limit: int = 4) -> List[Proposal]:
 
 def rename_preview(proposal: Proposal, names: Iterable[str],
                    roles: Optional[Dict[str, str]] = None) -> List[dict]:
-    """What each file would become. Instruction 137 D: it SHOWS, never writes.
+    """Preview parsed metadata and destination folders without writing files.
 
-    :param roles: ``{group name: role}`` from the user's dropdowns, overriding
-        the suggested roles. 137 C: nobody types a group name.
-    :returns: one dict per file -- ``old``, ``matched``, ``values`` and the
-        ``folder`` the spaCR structure would put it in. A file that does not
-        match is in the list with ``matched=False``, because 412 files
-        appearing without comment is how half a plate goes missing.
+    Parameters
+    ----------
+    proposal
+        Candidate returned by :func:`propose`.
+    names
+        Filenames or paths to preview.
+    roles
+        Optional mapping from capture-group names to spaCR metadata roles.
+        Values override the roles suggested by ``proposal``.
+
+    Returns
+    -------
+    list of dict
+        One record per input with ``old``, ``matched``, ``values``, and
+        ``folder`` keys. Unmatched files remain in the result with
+        ``matched=False``.
+
+    Notes
+    -----
+    This function performs no file-system writes or renames.
     """
     compiled = proposal.compiled()
     mapping = dict(roles or {})
@@ -521,7 +599,19 @@ def _folder_for(values: Dict[str, str]) -> str:
 
 
 def structure(preview: Sequence[dict]) -> Dict[str, int]:
-    """``{folder: how many files}`` for a preview. The tree, with counts."""
+    """Count matched preview files by proposed destination folder.
+
+    Parameters
+    ----------
+    preview
+        Records returned by :func:`rename_preview`.
+
+    Returns
+    -------
+    dict of str to int
+        Sorted mapping from folder path to matched-file count. Unmatched files
+        and records without a folder are omitted.
+    """
     counts: Counter = Counter()
     for row in preview:
         if row.get("matched") and row.get("folder"):
