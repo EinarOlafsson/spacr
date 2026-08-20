@@ -1,38 +1,10 @@
-"""Compare a measurement between annotated genes and the rest.
+"""Compare measurements across annotated gene groups and remaining cells.
 
-Instruction 177 F, asked for 2026-08-19:
-
-    "there should be the opertunity to show the any measurement comparing the
-    values for the cells that have been annotated with a gene vs the rest,
-    this should also work for several annotated genes at a time (as the cell
-    picker has logic for doing this). the option to do this on the cell, well,
-    and plate level should be available. the graphing options should be
-    bar/box/jitter/jitter-box/ and violin plot. ther e should also be the
-    ability to do statistics. where the variance and normality and n is noted
-    and the correct test chosen. then the option to save should be available"
-
-THREE THINGS THIS MODULE DOES NOT DO, EACH ON PURPOSE.
-
-It does not decide which cells carry which gene. `spacr.cell_montage` already
-does -- rank, attributed, assigned, multivariate -- and a second answer here
-would be a second definition of "this cell is a 220950 cell".
-
-It does not choose the test. `spacr.sp_stats.perform_statistical_tests` does,
-from the normality and equal-variance checks, and it already reports n per
-group, the effect size and WHY THAT TEST. Writing a second chooser would be
-the one-vocabulary failure (145) in its most dangerous form: two functions
-that answer "which test" differently, in a figure legend.
-
-It does not invent a palette. `gene_measurement_sweep.HOUSE` carries the
-apicomplexan-genomics one, and the rule that everything is grey except the
-claim applies here exactly: the rest of the screen is grey and the annotated
-genes are the argument.
-
-THE LEVEL CHANGES WHAT AN OBSERVATION IS, and that is the whole reason it is
-a setting rather than a detail. A per-CELL test on 60,000 cells drawn from 12
-wells has 60,000 rows and 12 independent units; the p it produces is not
-about the genes. Every result carries the level it was computed at so a
-reader can see which one they are looking at.
+Comparisons can use cells, wells, or plates as observations. Statistical test
+selection is delegated to :mod:`spacr.sp_stats`, and each result records its
+normality, equal-variance, and sample-size evidence. Cell-level tests treat
+individual cells as observations and do not account for cells that share a
+well; use the well level when wells are the experimental units.
 """
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -40,7 +12,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-#: The levels an observation can be, and what one row means at each.
+#: Supported observation levels and the meaning of one result-table row.
 LEVELS: Tuple[Tuple[str, str], ...] = (
     ("cell", "one row per cell — the most rows and the fewest independent "
              "units, so a p-value here is about cells and not about wells"),
@@ -50,7 +22,7 @@ LEVELS: Tuple[Tuple[str, str], ...] = (
               "removes plate as a confounder entirely"),
 )
 
-#: How the comparison can be drawn.
+#: Supported plot types and their user-facing descriptions.
 PLOTS: Tuple[Tuple[str, str], ...] = (
     ("jitter_box", "jitter over box — every point, and the summary behind it"),
     ("box", "box"),
@@ -59,13 +31,11 @@ PLOTS: Tuple[Tuple[str, str], ...] = (
     ("bar", "bar — mean and error, and the least informative of the five"),
 )
 
-#: What the rest of the screen is called in the plot and in the table.
+#: Label assigned to observations that do not belong to a named gene group.
 REST = "the rest"
 
-#: How two measurements may be combined (179 B), and the symbol that names
-#: the result. The NAME IS THE EXPRESSION -- `pathogen_area / cell_area` --
-#: so a saved table, a figure legend and the settings file all say the same
-#: thing and none of them needs a key to decode.
+#: Arithmetic operators for combining two measurements. The expression, such
+#: as ``pathogen_area / cell_area``, becomes the result's display name.
 OPERATORS: Tuple[Tuple[str, str], ...] = (
     ("", "on its own"),
     ("+", "plus"),
@@ -77,16 +47,21 @@ OPERATORS: Tuple[Tuple[str, str], ...] = (
 
 def combine(objects: "pd.DataFrame", first: str, operator: str,
             second: str) -> Tuple["pd.Series", str, int]:
-    """``(values, name, dropped)`` for two measurements combined.
+    """Combine one or two measurement columns.
 
-    :returns: the combined column, the name that describes it, and how many
-        rows had to be dropped.
+    :param objects: table containing the measurement columns.
+    :param first: name of the first measurement column.
+    :param operator: one of ``''``, ``'+'``, ``'-'``, ``'*'``, or ``'/'``.
+        An empty string returns ``first`` unchanged.
+    :param second: name of the second measurement column. Required when
+        ``operator`` is not empty.
+    :returns: ``(values, name, dropped)``. ``name`` is the displayed
+        expression and ``dropped`` counts zero or non-finite denominators.
+    :raises KeyError: if a requested measurement column is absent.
+    :raises ValueError: if ``operator`` is unsupported.
 
-    DIVISION NEEDS A RULE AND IT IS STATED. A zero denominator is not an
-    error in the data and not a number in the result; those rows are dropped
-    and COUNTED, because turning them into infinity or into zero would each
-    change what the comparison found -- one invents an extreme observation,
-    the other invents an ordinary one.
+    Division by zero or a non-finite denominator produces a missing value;
+    it is never converted to zero or infinity.
     """
     left = pd.to_numeric(objects[first], errors="coerce")
     if not operator:
@@ -110,7 +85,16 @@ def combine(objects: "pd.DataFrame", first: str, operator: str,
 
 @dataclass
 class Comparison:
-    """One measurement compared between groups, at one level."""
+    """Store one grouped measurement comparison.
+
+    :param measurement: label for the measured value or arithmetic expression.
+    :param level: observation level used to build ``frame``.
+    :param frame: long-form table containing ``group``, ``value``, and the
+        observation identifier when available.
+    :param statistics: statistical-test records added by
+        :func:`with_statistics`.
+    :param note: warning or interpretation text that accompanies the result.
+    """
 
     measurement: str
     level: str
@@ -120,12 +104,13 @@ class Comparison:
 
     @property
     def groups(self) -> Tuple[str, ...]:
+        """Return group names in their first-occurrence order."""
         if not len(self.frame):
             return ()
         return tuple(self.frame["group"].astype(str).unique())
 
     def counts(self) -> Dict[str, int]:
-        """n per group -- the number the legend has to state."""
+        """Return the number of observations in each group."""
         if not len(self.frame):
             return {}
         return {str(k): int(v) for k, v in
@@ -147,21 +132,27 @@ def build(objects: pd.DataFrame, measurement: str, *,
           value_column: Optional[str] = None,
           operator: str = "",
           second: str = "") -> Comparison:
-    """Assemble the long frame this comparison is drawn and tested from.
+    """Build the long-form table used for plotting and statistical testing.
 
-    :param objects: per-object rows, carrying ``measurement`` and whichever
-        identity columns ``level`` needs.
-    :param groups: ``{name: the object index values that carry it}`` -- what
-        the cell picker decided. Everything not named lands in
-        :data:`REST`.
-    :param level: one of :data:`LEVELS`.
-    :param value_column: the column to read; ``measurement`` by default.
+    :param objects: per-object rows containing the requested measurements.
+        Well-level comparisons also require ``plateID``, ``rowID``, and
+        ``columnID``; plate-level comparisons require ``plateID``.
+    :param measurement: measurement column and default display label.
+    :param groups: mapping of group names to object-index values. Objects not
+        listed in any group are assigned to :data:`REST`. If an object occurs
+        in more than one group, the last matching mapping entry wins.
+    :param level: ``'cell'``, ``'well'``, or ``'plate'``. The default is
+        ``'well'``.
+    :param value_column: source column to read instead of ``measurement``.
+    :param operator: optional arithmetic operator from :data:`OPERATORS`.
+    :param second: second measurement column used with ``operator``.
+    :returns: comparison data and any explanation of rows that could not be
+        used. Missing measurement or identity columns produce an empty
+        comparison with the reason in :attr:`Comparison.note`.
 
-    :returns: a :class:`Comparison`. AGGREGATION IS THE MEAN at well and
-        plate level, and it is the mean of the cells IN THAT GROUP -- a well
-        holding both a 220950 cell and an unpicked one contributes a row to
-        each, because the alternative is to decide the well belongs to
-        whichever group happens to be larger.
+    Well- and plate-level values are means within each observation and group.
+    A well containing both a named and an unassigned cell therefore contributes
+    one row to each group.
     """
     column = str(value_column or measurement)
     wanted = [column] + ([str(second)] if operator and second else [])
@@ -223,19 +214,17 @@ def build(objects: pd.DataFrame, measurement: str, *,
 
 
 def with_statistics(comparison: Comparison) -> Comparison:
-    """Run the comparison spaCR's own engine chooses, and record why.
+    """Run the applicable statistical test and attach its evidence.
 
-    NOT CALLED `test`. A public function of that name is collected by pytest
-    the moment any test module imports it, and it then fails asking for a
-    `comparison` fixture -- an error in the library's own name, reported
-    against a file that is not a test.
+    :param comparison: grouped observations produced by :func:`build`.
+    :returns: the same comparison object with ``statistics`` replaced.
 
-    `sp_stats.perform_statistical_tests` picks between Student's t, Welch's t,
-    Mann-Whitney U, one-way ANOVA, Welch's ANOVA and Kruskal-Wallis from the
-    normality and equal-variance checks, and reports n per group, the effect
-    size and its own reason. NOTHING HERE SECOND-GUESSES IT: a second chooser
-    would answer "which test" differently in a figure legend, which is the
-    one-vocabulary failure at its most dangerous.
+    :func:`spacr.sp_stats.perform_statistical_tests` selects among Student's
+    t-test, Welch's t-test, Mann-Whitney U, one-way ANOVA, Welch's ANOVA, and
+    Kruskal-Wallis from the group count and assumption checks. Each result is
+    supplemented with the observation level, measurement, normality result,
+    equal-variance result, and sample size per group. Comparisons with fewer
+    than two groups receive no statistical records.
     """
     if len(comparison.frame) < 2 or len(comparison.groups) < 2:
         comparison.statistics = []
@@ -305,13 +294,21 @@ def _summarise(result) -> str:
 
 def plot(comparison: Comparison, path: Optional[str] = None, *,
          kind: str = "jitter_box", title: str = ""):
-    """Draw the comparison. Returns the Figure, or ``None`` if there is none.
+    """Draw a grouped measurement comparison.
 
-    THE APICOMPLEXAN IDIOM, from `gene_measurement_sweep.HOUSE`: the rest of
-    the screen is GREY and the annotated genes are the argument. And for
-    n <= 8 the skill is explicit that a bar chart is not done in these
-    papers -- so `bar` is offered because it was asked for, and it says on
-    the panel when the group is small enough that dots would be honest.
+    :param comparison: grouped observations, optionally with statistics.
+    :param path: output path for an additional saved copy, or ``None`` to keep
+        the figure in memory only.
+    :param kind: one of ``'jitter_box'``, ``'box'``, ``'jitter'``,
+        ``'violin'``, or ``'bar'``.
+    :param title: custom title. By default the title reports the observation
+        level, selected test, and P value when available.
+    :returns: a Matplotlib figure, or ``None`` when no finite values can be
+        drawn.
+
+    Named groups use the spaCR highlight palette and :data:`REST` is grey. A
+    bar plot warns on the figure when its smallest group has eight or fewer
+    observations, because individual points show those data more clearly.
     """
     import matplotlib.pyplot as plt
 
@@ -389,9 +386,8 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
 
     smallest = min((len(s) for s in series if len(s)), default=0)
     if kind == "bar" and 0 < smallest <= 8:
-        # SAID, NOT OVERRIDDEN. The user asked for a bar and gets one; the
-        # skill's rule -- "a bar for n = 3 is not done in these papers" -- is
-        # reported so the choice is informed rather than silently corrected.
+        # Preserve the requested bar plot but identify when the sample is so
+        # small that showing individual observations would be more informative.
         axes.text(0.02, 0.98,
                   f"n = {smallest} in the smallest group: individual points "
                   f"say more than a bar here",
@@ -424,24 +420,21 @@ def save(comparison: Comparison, folder: str, *, kind: str = "jitter_box",
          settings: Optional[Dict[str, Any]] = None,
          images: Optional[Dict[str, Sequence[Any]]] = None,
          title: str = "") -> Dict[str, str]:
-    """Write everything behind this comparison into ONE folder.
+    """Save a comparison and its supporting data in one folder.
 
-    Asked for in full: "this should save the graph as pdf and png, the data
-    that underlies the graph, the settings that generated the regression and
-    the graph, the images of cells if available in well folders, and the
-    statistics. all of this in one folder upon saving."
+    :param comparison: grouped observations, optionally with statistics.
+    :param folder: destination directory, created when necessary.
+    :param kind: plot type accepted by :func:`plot`.
+    :param settings: regression settings to include in ``settings.json``.
+    :param images: mapping from well identifiers to image arrays. Images are
+        written under ``cells/<well>/``; missing images are allowed.
+    :param title: optional title passed to :func:`plot`.
+    :returns: mapping from artifact type to each successfully written path.
 
-    ONE FOLDER, because the point of saving is to be able to come back to it
-    -- a figure in one place, its numbers in another and the settings that
-    produced both in a third is how a result becomes unreproducible six
-    months later. The PDF is the one to put in a paper; the PNG is the one to
-    paste into a message.
-
-    :param images: ``{well: [array, ...]}`` -- written under ``cells/<well>/``
-        where they exist. Absent or empty is normal and not an error: a
-        comparison run on a screen whose crops are not to hand is still a
-        comparison.
-    :returns: ``{what: path}`` for everything actually written.
+    The folder always receives ``settings.json``. When available, it also
+    receives PDF and PNG figures, ``data.csv``, ``statistics.csv``, and the
+    supplied cell images. The returned mapping lists only artifacts that were
+    written successfully.
     """
     import json
     import os

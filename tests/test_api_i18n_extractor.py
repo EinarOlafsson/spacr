@@ -434,11 +434,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # lands the next bump should name theirs the same way -- by set
     # difference, not by reading a diff.
     #
-    # THE CATALOGS FOR ALL 68 ARE NOT REGENERATED. The same debt the two
-    # bumps above record: tools/build_documentation_i18n.py behind a
-    # translation model is a separate job, and until it runs the localized
-    # API pages omit these contracts. The English ones do not.
-    expected = 7185
+    # +478/-1 through origin/nightly on 2026-08-20, measured against
+    # dad9195d with this extractor rather than inferred from diffs. The
+    # largest additions are 205 spacr.qt.widgets symbols, 26 in updater,
+    # 20 in gene_measurement_sweep, 15 each in regression_summary and
+    # qt.preferences, and the documented gene-measurement and lightweight
+    # png_list APIs. ``spacr.io.crop_rows_from_png_list`` is the one retired
+    # canonical body; the documented implementation now lives at
+    # ``spacr.png_list.crop_rows_from_png_list`` and remains re-exported for
+    # compatibility. The localized catalogs are regenerated with this bump.
+    expected = 7662
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -453,7 +458,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # different event from the API growing and is worth failing separately.
     # It was a bare number with no sentence beside it, which is how it came
     # to be the second thing to update and the first thing forgotten.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7304
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 7781
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # These are the only substantive audit bodies intentionally unresolved:

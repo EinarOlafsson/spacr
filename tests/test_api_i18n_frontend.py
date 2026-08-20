@@ -211,7 +211,11 @@ def test_frontend_source_has_failure_and_freshness_guards():
 def test_autoapi_emits_only_canonical_module_members():
     options = _conf_assignment("autoapi_options")
     ignored = _conf_assignment("autoapi_ignore")
-    assert "members" in options and "undoc-members" in options
+    assert "members" in options
+    # Undocumented objects are implementation surface, not a usable API.
+    # The API catalog contains source-bound public docstrings, so publishing
+    # undoc-members would also create visible objects that cannot be localized.
+    assert "undoc-members" not in options
     # Imported members are duplicate aliases. Their generated ids can be
     # noncanonical and therefore cannot be joined exactly to `spacr.*` catalog
     # keys without ambiguous suffix matching.
