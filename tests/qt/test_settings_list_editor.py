@@ -69,6 +69,12 @@ def test_every_default_round_trips_untouched(qapp, app_key):
         # reads back as None, and a float spin box keeps six decimals.
         if value == "" and got is None:
             continue
+        # UMAP's ``path`` is instructional placeholder text, not a plate
+        # literally named "path". DatabaseSetWidget cleans placeholders to
+        # the same empty source list a user sees before choosing data.
+        if app_key == "umap" and key == "src" \
+                and value == "path" and got == []:
+            continue
         if isinstance(value, float) and isinstance(got, float) \
                 and round(value, 6) == round(got, 6):
             continue

@@ -451,8 +451,13 @@ def test_correct_metadata_column_names_is_a_noop_for_canonical_names():
 
     df = pd.DataFrame({"plateID": ["p1"], "rowID": ["A"], "columnID": ["01"]})
     out = correct_metadata_column_names(df)
-    assert out is df
+    # canonicalise_frame promises a new frame even when no spelling changes.
+    # Callers can therefore add derived columns to the result without
+    # mutating the table they were handed.
+    assert out is not df
     assert list(out.columns) == ["plateID", "rowID", "columnID"]
+    assert out.to_dict("list") == df.to_dict("list")
+    assert "column_collisions" not in df.attrs
 
 
 # ---------------------------------------------------------------------------
