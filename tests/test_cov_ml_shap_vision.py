@@ -423,8 +423,10 @@ def test_calculate_similarity_accepts_list_valued_controls():
 
 
 def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatch):
-    """row/row_name and col/column are folded into rowID/columnID (later wins),
-    and a missing object_label is filled from 'object'."""
+    """Legacy row/column names map to the canonical object-join columns.
+
+    A missing ``object_label`` is also filled from ``object``.
+    """
     from spacr.ml import interperate_vision_model
 
     rng = np.random.default_rng(11)
@@ -435,13 +437,11 @@ def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
     src = tmp_path / "plateA"
     src.mkdir()
     scores_csv = tmp_path / "legacy_scores.csv"
-    # 'row'/'col' hold junk, 'row_name'/'column' hold the truth: the code
-    # applies them in that order, so only the second pair can make the join
-    # succeed.
+    # Use one supported legacy spelling for each coordinate.  Conflicting
+    # aliases are resolved centrally by the schema layer and are a separate
+    # collision-policy contract, not part of this merge test.
     _write_scores_csv(scores_csv, grid, labels, {
-        "row": ["WRONG"] * len(grid),
         "row_name": [g[1] for g in grid],
-        "col": ["WRONG"] * len(grid),
         "column": [g[2] for g in grid],
     })
 
@@ -460,7 +460,6 @@ def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
 
     assert len(merged) == len(grid)
     assert set(merged["rowID"]) == {g[1] for g in grid}
-    assert "WRONG" not in set(merged["rowID"])
     assert set(merged["columnID"]) == {g[2] for g in grid}
     # object_label was populated from the 'object' column and 'o'-stripped
     assert merged["object_label"].tolist() == [str(i) for i in range(1, len(grid) + 1)]
@@ -608,9 +607,12 @@ def test_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypa
     _install_fake_merge(monkeypatch, df, {})
     monkeypatch.chdir(tmp_path)
 
-    # 'scores' defaults to the placeholder 'path', which save_settings has just
-    # created as a directory -> reading it as a CSV is an OSError.
-    with pytest.raises(OSError):
+    # ``scores`` defaults to the placeholder ``path``.  The tabular reader
+    # rejects that suffix before attempting I/O, but the settings snapshot is
+    # still written first.
+    from spacr.tabular import TabularFormatError
+
+    with pytest.raises(TabularFormatError):
         interperate_vision_model(None)
 
     saved = tmp_path / "path" / "settings" / "interperate_vision_model.csv"
