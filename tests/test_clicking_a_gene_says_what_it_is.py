@@ -223,7 +223,7 @@ def test_a_run_with_no_correction_does_not_call_its_q_value_corrected(results):
         f"the correction method came back {tile.correction!r}; 'none' is a "
         "meaningful answer, not an empty cell")
     labels = [label for _, rows in tile.sections() for label, _ in rows]
-    assert any("NO correction" in label for label in labels), (
+    assert "uncorrected p-value (q_value column)" in labels, (
         f"nothing on the tile warns the q-values are uncorrected: {labels}")
 
 

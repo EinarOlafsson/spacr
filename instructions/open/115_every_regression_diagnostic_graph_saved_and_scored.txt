@@ -508,3 +508,46 @@ the first bullet is now smaller:
     manifest -- and the manifest now holds a verdict AND the renderer that
     drew each panel, which is the thing a caller would most want from it.
   * The GUI does not show the verdict anywhere. A `qt/` change.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE VERDICT LEAVES THE RUN AND REACHES THE SCREEN.
+--------------------------------------------------------------------------------
+
+Two of the four leftovers are done and one was already done.
+
+`perform_regression`'s DICT CARRIES THE MANIFEST. It was written to disk and
+nowhere else, so the dict a caller gets back could not say whether the fit it
+was holding is diagnosable -- and the manifest is the only thing in the run
+that knows: the per-panel verdict, the WORST of them, and the renderer that
+drew each one.
+
+`.attrs` OFF THE COEFFICIENT FRAME, and that is the design decision worth
+recording. `regression` returns a 3-tuple that `regression_levels` and every
+caller unpack POSITIONALLY, so growing it would be a change to all of them for
+one optional fact. `.attrs` is pandas' own place for exactly this, survives
+the frame being handed around, and a caller that does not know about it is
+unaffected. `_perform_regression` lifts it into `qc`, `qc_verdict` and
+`qc_verdict_level`.
+
+ABSENT RATHER THAN None when QC did not run: a key holding None is
+indistinguishable from a suite that ran and concluded nothing.
+
+THE SCREEN SAYS IT. `_say_the_qc_verdict` puts the WORST verdict on the
+console when a run finishes -- not a summary and not a count, for the reason
+`worst_verdict` already gives where it is computed: nineteen panels passing
+and one saying the design is rank deficient is a run whose "95% passed" hides
+exactly the panel the suite was run for. A failing verdict is said loudly and
+points at `regression_qc_report.txt`; a warning is said without shouting; and
+a run with NO verdict says nothing at all, because printing "unknown" after
+every QC-less run trains a reader to skip the line that matters.
+
+`qc=` was already wired (ml.py:7376), so a sweep trial can already decline the
+5.8-second suite.
+
+6 tests in tests/qt/test_the_qc_verdict_reaches_the_screen.py.
+
+STILL OWED: the sweep ROW's verdict column. `trial_metrics` computes the same
+statistics and `score_panel` / `score_residuals` / `score_design` /
+`score_inference` would each give a row a column -- it is a
+`parameter_sweep.py` / `trial_metrics.py` change and belongs with 116's sweep
+table rather than here.

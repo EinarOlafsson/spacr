@@ -5202,6 +5202,13 @@ class AppScreen(QWidget):
             folder=str(payload.get("res_folder") or "") or None,
             n_results=(len(payload["results"])
                        if payload.get("results") is not None else None))
+        # THE QC VERDICT, ON SCREEN (instruction 115). The suite computes it,
+        # the manifest carries it and the report writes it to a text file that
+        # nobody opens. A run whose design is rank deficient has coefficients
+        # that are ONE of infinitely many solutions, and a screen that shows
+        # the volcano without saying so is showing a picture of an arbitrary
+        # answer.
+        self._say_the_qc_verdict(payload)
         panel = getattr(self, "_results_panel", None)
         if panel is None:
             return
@@ -5639,6 +5646,41 @@ class AppScreen(QWidget):
                 "be saved, and restarting without them would lose more than "
                 "the stuck run. Nothing was stopped. The log says why.")
         return started
+
+    def _say_the_qc_verdict(self, payload) -> str:
+        """Put the run's worst QC verdict on the console. Returns what it said.
+
+        THE WORST, not a summary and not a count. Nineteen panels passing and
+        one saying the design is rank deficient is a run whose coefficients
+        are one of infinitely many solutions, and "95% passed" is a sentence
+        that hides exactly the panel the suite was run for --
+        `regression_qc.worst_verdict` says so where it is computed and this
+        is the other end of that.
+
+        SILENT WHEN THERE IS NOTHING TO SAY. A run with QC turned off, or one
+        whose suite could not build, has no verdict -- and printing "unknown"
+        after every such run would train a reader to skip the line that
+        matters.
+        """
+        if not isinstance(payload, dict):
+            return ""
+        verdict = payload.get("qc_verdict")
+        level = str(payload.get("qc_verdict_level") or "").lower()
+        if verdict is None:
+            return ""
+        detail = str(getattr(verdict, "detail", "") or verdict)
+        name = str(getattr(verdict, "name", "") or "")
+        where = f" ({name})" if name else ""
+        if level in ("fail", "failed", "bad"):
+            said = (f"\nREGRESSION QC: {level.upper()}{where} — {detail}\n"
+                    f"The full report is in the run folder as "
+                    f"regression_qc_report.txt.\n")
+        elif level in ("warn", "warning", "caution"):
+            said = (f"\nRegression QC: {level}{where} — {detail}\n")
+        else:
+            said = f"\nRegression QC: {level or 'ok'}{where} — {detail}\n"
+        self._say(said)
+        return said
 
     def restore_run_workspace(self, record) -> dict:
         """Restore the workspace recorded for a saved run.

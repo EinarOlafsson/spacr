@@ -21,6 +21,7 @@ trip inside a mouse click.
 from __future__ import annotations
 
 import logging
+import html
 from typing import Callable, Optional
 
 from PySide6.QtCore import QSize, Qt, QUrl, Signal
@@ -28,7 +29,8 @@ from PySide6.QtGui import QDesktopServices, QPainter, QPixmap
 from PySide6.QtWidgets import (QLabel, QSizePolicy, QTextBrowser, QVBoxLayout,
                                QWidget)
 
-from ...gene_tile import GeneTile, gene_tile
+from ...gene_tile import GeneTile, _translated, gene_tile
+from ..i18n import tr
 from ..theme import SPACING
 
 LOG = logging.getLogger("spacr.qt.gene_tile")
@@ -68,6 +70,7 @@ class GeneTilePanel(QWidget):
         self._frame_provider = frame_provider
         self._tile: Optional[GeneTile] = None
         self._feature = ""
+        self._error_feature = ""
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -106,8 +109,8 @@ class GeneTilePanel(QWidget):
         """Back to the waiting state, which says it is waiting."""
         self._tile = None
         self._feature = ""
-        self._view.setHtml(f"<p style='color:#888'>{IDLE_TEXT}</p>")
-        self._status.setText("")
+        self._error_feature = ""
+        self._render_content()
 
     def set_frame_provider(self, provider: Optional[Callable[[], object]]
                            ) -> None:
@@ -139,22 +142,55 @@ class GeneTilePanel(QWidget):
             LOG.exception("gene tile: could not resolve %r", key)
             self._tile = None
             self._feature = str(key)
-            self._view.setHtml(
-                f"<p style='color:#c66'>Could not build a tile for "
-                f"<b>{self._feature}</b>. The plot is unaffected; see the log "
-                "for what went wrong.</p>")
-            self._status.setText("")
+            self._error_feature = self._feature
+            self._render_content()
             return
 
         self._tile = tile
         self._feature = tile.feature
-        self._view.setHtml(tile.to_html())
-        self._status.setText(
-            "ambiguous mapping — every gene it could be is listed above"
-            if tile.ambiguous else
-            (tile.unresolved[0] if tile.unresolved and not tile.resolved
-             else ""))
+        self._error_feature = ""
+        self._render_content()
         self.tile_shown.emit(self._feature)
+
+    def _render_content(self, language: Optional[str] = None) -> None:
+        """Render application prose in ``language`` without changing data."""
+        translate = lambda source, **values: tr(  # noqa: E731
+            source, language, **values)
+        if self._error_feature:
+            message = translate(
+                "Could not build a tile for {feature}. The plot is "
+                "unaffected; see the log for details.",
+                feature=self._error_feature,
+            )
+            self._view.setHtml(
+                f"<p style='color:#c66'>{html.escape(message)}</p>")
+            self._status.setText("")
+            return
+        if self._tile is None:
+            self._view.setHtml(
+                "<p style='color:#888'>"
+                + html.escape(translate(IDLE_TEXT))
+                + "</p>"
+            )
+            self._status.setText("")
+            return
+        self._view.setHtml(self._tile.to_html(translate))
+        if self._tile.ambiguous:
+            status = translate(
+                "ambiguous mapping — every gene it could be is listed above"
+            )
+        elif self._tile.unresolved and not self._tile.resolved:
+            status = _translated(self._tile.unresolved[0], translate)
+        else:
+            status = ""
+        self._status.setText(status)
+
+    def retranslate_dynamic_content(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Refresh the structured tile after the application language changes."""
+        self._render_content(language)
 
     def _open(self, url: QUrl) -> None:
         """Follow an external reference — on the click, never on the render."""
