@@ -3,10 +3,9 @@
 One notebook per workflow, each with what it does, when to reach for it,
 what it leaves behind, and a runnable example.
 
-Every function name, signature and default in these notebooks was read out
-of the installed package rather than written by hand, so they describe the
-version you have. Where a notebook prints the settings, treat that output
-as the reference — not the prose around it.
+Every function name, default and setting description is read from the
+installed package rather than copied by hand. Each workflow therefore stays
+aligned with the spaCR version that generated it.
 
 ## The main pipeline, in order
 
@@ -72,19 +71,20 @@ already measured capture it.
 | `21_model_knowledge_transfer` | seed a new model from a trained one |
 | `22_model_fusion` | combine models whose errors differ |
 
-## Two shapes of notebook
+## How each notebook is organized
 
-Most workflows take a **settings dictionary**. Those notebooks write out
-the dictionary in full — every key the function accepts, on its own line,
-with its real default and a comment saying what it controls. Edit values
-in place and delete nothing: a key left at its default behaves exactly as
-if it were absent. About 630 settings are documented this way across the
-fourteen of them.
+The runnable part of every notebook uses the same three-cell sequence:
 
-The rest take **plain arguments**. Their notebooks show the real signature
-and leave the call commented out, deliberately: filling in arguments that
-were never verified against your data would be a notebook that looks
-runnable and is not. Read the signature, then write the call.
+1. A Markdown reference explains every setting and links directly to the
+   function's API page.
+2. A code cell contains only the editable settings and their current defaults.
+3. The next code cell calls the function with those settings.
+
+Functions that accept a settings dictionary receive it directly. Functions
+with ordinary keyword parameters use `**settings`, so the same readable
+sequence works for both API styles. Edit values in the middle cell, then run
+the function cell below it. Regenerate all references after an API change with
+`python tools/build_notebook_settings.py`.
 
 ## Before you run anything
 
@@ -101,4 +101,4 @@ point at it.
 
 * GUI, same workflows as forms — `python -m spacr`
 * Narrated walkthroughs — <https://einarolafsson.github.io/spacr/tutorials/>
-* API reference — <https://einarolafsson.github.io/spacr/>
+* API reference — <https://einarolafsson.github.io/spacr/api/>
