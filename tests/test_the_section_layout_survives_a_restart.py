@@ -56,7 +56,10 @@ def test_the_panel_puts_its_folds_back(qtbot, store):
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
     panel = screen._scan_panel
-    title = panel.section_titles()[1]
+    # THE ONE THAT STARTS OPEN, so folding it is a real change. Since 176 A
+    # only "Attached databases" opens, and asking an already-folded section
+    # to fold emits nothing and stores nothing.
+    title = panel.OPENS_EXPANDED
 
     panel.set_section_expanded(title, False)      # folding stores it
     stored = store.get_section_layout(panel.LAYOUT_KEY)
@@ -88,11 +91,14 @@ def test_restoring_does_not_write_the_half_restored_state_back(qtbot, store):
 
     first = AppScreen("regression")
     qtbot.addWidget(first)
-    titles = first._scan_panel.section_titles()
-    for title in titles[:2]:
-        first._scan_panel.set_section_expanded(title, False)
+    panel = first._scan_panel
+    titles = panel.section_titles()
+    # Fold everything, including the one that starts open, so the stored set
+    # is every section rather than depending on which began folded.
+    for title in titles:
+        panel.set_section_expanded(title, False)
     wanted = set(store.get_section_layout("measurements")["folded"])
-    assert wanted == set(titles[:2])
+    assert wanted == set(titles)
 
     second = AppScreen("regression")
     qtbot.addWidget(second)

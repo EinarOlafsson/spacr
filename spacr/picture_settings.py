@@ -196,6 +196,38 @@ CUT_SETTINGS: Dict[str, str] = {
 }
 
 
+def _as_channel_mapping(value, picture) -> Optional[Dict[str, object]]:
+    """Colour letters as an explicit ``{r, g, b}`` source-channel mapping.
+
+    ``None`` means "these are not colour letters" -- an index list, most
+    often -- and the caller falls through to the index path.
+
+    :param value: what the user chose, e.g. ``"r,g,b"`` or ``["r", "b"]``.
+    :param picture: the whole settings dict, consulted for this screen's own
+        ``png_channel_mapping`` before the default is used.
+    """
+    from .crops import DEFAULT_PNG_CHANNEL_MAPPING, PNG_COLOR_KEYS
+
+    if isinstance(value, str):
+        parts = [p.strip().lower() for p in value.replace(";", ",").split(",")]
+    elif isinstance(value, (list, tuple)):
+        parts = [str(p).strip().lower() for p in value]
+    else:
+        return None
+    parts = [p for p in parts if p]
+    if not parts or not all(p in PNG_COLOR_KEYS for p in parts):
+        return None
+
+    known = (picture or {}).get("png_channel_mapping")
+    base = dict(known) if isinstance(known, dict) else dict(
+        DEFAULT_PNG_CHANNEL_MAPPING)
+    # A COLOUR THE USER DID NOT PICK IS BLANK, not absent: an absent key
+    # would fall back to the default and quietly put a plane back that they
+    # turned off.
+    return {key: (base.get(key) if key in parts else None)
+            for key in PNG_COLOR_KEYS}
+
+
 def _as_indices(value) -> Optional[list]:
     """``value`` as a list of source-channel indices, or ``None``.
 
@@ -245,6 +277,22 @@ def to_crop_settings(picture) -> Dict[str, object]:
         if value in (None, "", [], ()):
             continue
         if theirs == "png_dims":
+            # COLOUR LETTERS ARE THE VOCABULARY, and they are translated
+            # rather than dropped. Asked for 2026-08-19: "in the anotation
+            # app, r,g,b is used. i want this to be consistent, so use r,g,b
+            # in the regression cell feature."
+            #
+            # THROUGH THE SCREEN'S OWN MAPPING, never by position. spaCR's
+            # default is {r: 2, g: 1, b: 0} -- 'r' is source channel TWO --
+            # so reading 'r,g,b' as 0,1,2 would hand the streamer the planes
+            # in reverse and produce a crop that looks plausible and is
+            # wrong. `png_channel_mapping` is emitted rather than a
+            # `png_dims` list because the list's positional convention is the
+            # legacy inverted one; the mapping says what it means.
+            mapping = _as_channel_mapping(value, items)
+            if mapping is not None:
+                out["png_channel_mapping"] = mapping
+                continue
             # THE ANNOTATOR'S `channels` IS NOT THE CROP LAYER'S `png_dims`,
             # and this mapping treated them as one thing. `channels` defaults
             # to 'r,g,b' -- which COLOUR PLANES OF AN EXISTING PNG to show,

@@ -88,7 +88,28 @@ def test_the_cut_settings_are_translated_to_the_crop_layers_names():
     got = to_crop_settings({"crop_source": LOAD_IMAGES, "img_size": 256,
                             "channels": [0, 1]})
 
-    assert got == {"png_size": 256, "png_dims": [0, 1]}
+    # `img_size` IS ONE NUMBER AND `png_size` IS A PAIR. Handed the scalar,
+    # `crop_spec_from_settings` reached size[0] and raised "'int' object is
+    # not subscriptable" from inside the montage worker -- surfacing as "The
+    # montage load failed" with no mention of a setting.
+    assert got == {"png_size": [256, 256], "png_dims": [0, 1]}
+
+
+def test_colour_letters_become_a_mapping_and_indices_stay_indices():
+    """Instruction 176 C. The annotation app spells channels r,g,b and the
+    Cells tab must ask the same question the same way -- but `png_dims` is
+    source ARRAY indices, so the letters are resolved through the screen's
+    own mapping rather than read as 0,1,2. spaCR's default is
+    {r: 2, g: 1, b: 0}, so guessing would reverse every crop.
+    """
+    from spacr.crops import DEFAULT_PNG_CHANNEL_MAPPING
+    from spacr.picture_settings import to_crop_settings
+
+    letters = to_crop_settings({"crop_source": "merged", "channels": "r,g,b"})
+    assert letters["png_channel_mapping"] == dict(DEFAULT_PNG_CHANNEL_MAPPING)
+
+    indices = to_crop_settings({"crop_source": "merged", "channels": "0,1,2"})
+    assert indices["png_dims"] == [0, 1, 2]
 
 
 def test_a_setting_the_mode_does_not_use_is_not_translated():

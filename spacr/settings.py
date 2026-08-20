@@ -3265,6 +3265,33 @@ DYNAMIC_ORGANELLE_SETTINGS = frozenset(
 # control is built) while an old settings CSV still runs unchanged.
 
 tooltips = {
+    # ---------------------------------------------------------------- #
+    #  The Cells tab's picture settings (instruction 176 B).            #
+    #                                                                   #
+    #  HERE AND NOT IN A NEW TABLE. The settings window already reads   #
+    #  this dict; seventeen of its twenty-five keys simply had no entry #
+    #  and so no hover help. A second table beside it would be a second #
+    #  answer to what "normalize" means, which is the 145 failure this  #
+    #  tab has already made once with the channel names.                #
+    # ---------------------------------------------------------------- #
+    "image_type": "(str) - Which exported crop folder to read: 'cell_png', 'nucleus_png', 'pathogen_png', 'cytoplasm_png'. LOAD IMAGES only - nothing is read off disk when the crops are streamed from merged/.",
+    "img_size": "(int) - How many pixels across each cell is drawn. One number: the crop is square. Larger fills the tab with fewer cells per page; the pagination follows it.",
+    "normalize_channels": "(bool/list) - Percentile-stretch each channel before drawing, so a dim stain is visible beside a bright one. Uses 'percentiles'. It changes the PICTURE only - the crop written to disk and every measurement made from it are untouched.",
+    "outline": "(bool/list) - Draw the object's own outline over the crop, the way the annotation app does. Computed BEFORE any channel is zeroed, or the outline would trace a channel that is no longer shown.",
+    "outline_threshold_factor": "(float) - How aggressively the outline is cut from the object channel. Above 1 tightens the outline onto the brightest core; below 1 loosens it outward. Only read when 'outline' is on.",
+    "outline_sigma": "(float) - Gaussian blur applied before the outline is found, in pixels. Larger gives a smoother, less speckled boundary at the cost of fine detail. Only read when 'outline' is on.",
+    "edge_thickness": "(int) - How many pixels wide the drawn outline is.",
+    "edge_transparency": "(float) - How much of the image shows through the outline, 0 (solid) to 1 (invisible).",
+    "edge_image": "(bool) - Draw the outline over the picture rather than on a blank field. Off gives the outline alone, which is how a shape is checked without the stain distracting from it.",
+    "object_size": "(int/list) - The smallest object, in pixels, that is outlined at all. Debris below it is skipped rather than traced.",
+    "show_all_in_well": "(bool) - Show EVERY cell in the well and highlight the chosen ones, instead of showing only the chosen ones. The highlight is the annotation app's, so a picked cell looks the way an annotated one does.",
+    "cells_per_page": "(int) - How many cells one page of a well's tab holds. A well with more gets pages rather than a grid too small to read.",
+    "half_widths": "(float) - How wide the score window is, in robust scales (1.4826 x MAD) either side of the score the coefficient implies. ONE NUMBER FOR THE WHOLE SCREEN AND EVERY COEFFICIENT - deliberately not a per-gene control. Since instruction 172 it decides what the caption REPORTS, not which cells are shown: the count comes from the fraction arithmetic so that a narrow window cannot starve a well.",
+    "baseline": "(str) - What the coefficient's effect is measured FROM when the implied score is worked out: 'screen_median' (every well), 'control_median' (the non-targeting controls) or 'zero'. The control baseline is the honest one when the screen's median is itself shifted.",
+    "cap": "(int) - The most objects to draw for one coefficient, across all its wells. A guard against a montage nobody can scroll; the caption says when it bit and how many were dropped.",
+    "cell_picking": "(str) - How the cells to show are chosen. 'rank' takes the top ones by score - the count the fraction implies. 'attributed' gives each cell a probability of carrying this guide and takes those above the threshold. 'assigned' hands every cell in the well exactly one guide, so each guide gets exactly the cells its reads imply. 'multivariate' does the same from EVERY measurement rather than the score alone, and needs the gene x measurement sweep's effects grid.",
+    "picking_threshold": "(float) - The probability a cell must reach before it is called for this guide, for the 'attributed' and 'multivariate' pickers. Below it a cell is ambiguous and is not shown. The other pickers compute no probability and ignore it.",
+
     "dst": "(str) - Folder receiving versioned tables, manifests and figures. Default '' uses a module-specific folder beside the primary input, keeping different analyses separated.",
     "db_path": "(str) - Exact measurements.db whose objects an analysis reads. Choosing another database is refused when object or crop identities do not match, preventing cross-experiment joins. Default '' requires selection.",
     "predictions_file": "(str) - Existing per-object prediction CSV joined to measured objects. Analysis modules read this exact output and do not silently rerun a model or substitute another run. Default '' requires selection.",
