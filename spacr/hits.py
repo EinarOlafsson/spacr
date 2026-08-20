@@ -113,29 +113,30 @@ NUISANCE_TERMS = re.compile(r"row|column|Intercept", re.IGNORECASE)
 
 
 def tested_family(features: Iterable[Any]) -> np.ndarray:
-    """Which coefficients are hypotheses, as a boolean mask over ``features``.
+    """Identify coefficient terms included in multiple testing.
 
-    The family being tested is the guide and gene coefficients. The intercept
-    and the row/column nuisance terms are covariates: they are fitted so the
-    real effects are estimated cleanly, not so that anyone can ask whether
-    they differ from zero. :func:`spacr.ml.perform_regression` already draws
-    that line — it excludes them from the multiple-testing correction, which
-    is why those rows leave the fit with ``q_value`` of NaN.
+    Parameters
+    ----------
+    features : iterable of Any
+        Design-matrix term names.
 
-    THIS FUNCTION EXISTS SO THERE IS EXACTLY ONE STATEMENT OF THAT LINE.
-    A volcano that plots a family the correction did not correct is drawing a
-    different experiment from the one the q-values describe, and the second
-    copy of a regex is how the two drift apart. It is also not academic: on
-    plate1_dv the intercept's p of 3e-46 is 3.6x the tallest real hit, so
-    plotting it flattens the entire screen into the bottom of the axis.
+    Returns
+    -------
+    numpy.ndarray of bool
+        Boolean mask aligned with ``features``. Guide and gene terms are
+        ``True``; intercept and row or column nuisance terms are ``False``.
 
-    :param features: design-matrix term names.
-    :returns: boolean array, ``True`` where the term is a hypothesis.
+    Notes
+    -----
+    The mask follows the family corrected by
+    :func:`spacr.ml.perform_regression`. Nuisance terms are fitted as
+    covariates but are excluded from hit plots and multiple-testing
+    correction.
 
-    ::
-
-        >>> tested_family(["Intercept", "fraction:grna[233460_1]"]).tolist()
-        [False, True]
+    Examples
+    --------
+    >>> tested_family(["Intercept", "fraction:grna[233460_1]"]).tolist()
+    [False, True]
     """
     series = pd.Series(list(features), dtype=object).astype(str)
     if series.empty:
@@ -143,30 +144,31 @@ def tested_family(features: Iterable[Any]) -> np.ndarray:
     return ~series.str.contains(NUISANCE_TERMS, regex=True).to_numpy(dtype=bool)
 
 def family_labels(features: Iterable[Any]) -> np.ndarray:
-    """Which multiple-testing FAMILY each coefficient belongs to.
+    """Label the multiple-testing family of each coefficient term.
 
-    :param features: design-matrix term names.
-    :returns: an array of ``'grna'``, ``'gene'`` or ``''`` -- the empty
-        string for a term that is not a hypothesis at all.
+    Parameters
+    ----------
+    features : iterable of Any
+        Design-matrix term names.
 
-    :func:`tested_family` says WHETHER a coefficient is a hypothesis. This
-    says WHICH FAMILY it is one of, and the two are not the same question.
-    A run at ``level='both'`` fits twice and writes two families; the
-    correction applies WITHIN a level, so pooling the
-    guide terms and the gene terms into one call to
-    :func:`spacr.multiple_testing.adjust_p_values` changes ``n`` and with it
-    every q value on the screen -- quietly, and in the direction that makes
-    the run look weaker than it is.
+    Returns
+    -------
+    numpy.ndarray of object
+        Labels aligned with ``features``. Values are ``'grna'`` for guide
+        terms, ``'gene'`` for gene terms, and ``''`` for nuisance terms.
 
-    It exists so that anything recomputing a correction -- the plot's own
-    "recorrect with Bonferroni", a re-export, a re-analysis -- splits the
-    family the same way the run did, from one statement of the rule.
+    Notes
+    -----
+    Runs with ``level='both'`` contain separate guide and gene testing
+    families. Corrections should be applied within each non-empty label rather
+    than across the pooled coefficient table. Explicit ``:gene[...]`` and
+    ``:grna[...]`` labels take precedence over identifier shape.
 
-    ::
-
-        >>> family_labels(["Intercept", "fraction:grna[233460_1]",
-        ...                "gene_fraction:gene[233460]"]).tolist()
-        ['', 'grna', 'gene']
+    Examples
+    --------
+    >>> family_labels(["Intercept", "fraction:grna[233460_1]",
+    ...                "gene_fraction:gene[233460]"]).tolist()
+    ['', 'grna', 'gene']
     """
     series = pd.Series(list(features), dtype=object).astype(str)
     if series.empty:
@@ -398,28 +400,38 @@ def load_results(folder: Union[str, os.PathLike]) -> Dict[str, pd.DataFrame]:
 def load_gene_metadata(path: Union[str, os.PathLike], *,
                        key: str = "Gene ID"
                        ) -> Tuple[pd.DataFrame, List[str]]:
-    """Read one annotation CSV as EXACTLY one row per gene.
+    """Read an annotation CSV with at most one row per gene.
 
-    A curated export lists a gene once per transcript. The bundled
-    ``toxoplasma_metadata.csv`` repeats 30 Gene IDs between 2 and 32 times,
-    each copy carrying a different protein length and GO-term set. Joined
-    as-is, every one of those genes multiplies in the results — which is a
-    hit list that counts the same gene as up to 32 independent findings.
+    Parameters
+    ----------
+    path : path-like
+        Annotation CSV to read.
+    key : str, default='Gene ID'
+        Column containing accessions such as ``TGME49_233460``. The component
+        after the first underscore is stored in a new ``gene`` column.
 
-    So the collapse happens HERE, before anything is joined, and it is
-    reported: the returned notes name how many rows were dropped and for how
-    many genes, and the annotations of the dropped rows are not carried over.
+    Returns
+    -------
+    frame : pandas.DataFrame
+        Annotation rows with a ``gene`` column and no duplicate gene values.
+        When several transcript rows map to one gene, the first row is kept.
+    notes : list of str
+        User-facing descriptions of unparsable rows and duplicate-gene rows
+        removed during normalization.
 
-    :param path: the metadata CSV.
-    :param key: the column holding the gene identifier; ``Gene ID`` in
-        spaCR's own files, where the value is ``TGME49_233460`` and the gene
-        is the part after the underscore.
-    :returns: ``(frame, notes)``. The frame carries a ``gene`` column and at
-        most one row per value in it.
-    :raises FileNotFoundError: when the file is not there.
-    :raises KeyError: when the key column is absent — a metadata file with no
-        gene identifier cannot be joined, and guessing which column meant to
-        be one is how the wrong annotation gets attached to a hit.
+    Raises
+    ------
+    FileNotFoundError
+        If ``path`` is not an existing file.
+    KeyError
+        If ``key`` is absent from the CSV.
+
+    Notes
+    -----
+    Duplicate transcript annotations are collapsed before metadata is joined
+    to results, preventing one gene from becoming several hit-list rows.
+    Annotations from discarded duplicate rows are not merged into the row
+    that is retained.
     """
     target = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if not os.path.isfile(target):

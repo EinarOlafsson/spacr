@@ -1,39 +1,16 @@
-"""Everything a finished regression produced, in one place and fast.
+"""Inspect coefficient tables and diagnostics from a finished regression.
 
-The module used to answer a run with a stack of matplotlib pictures, the last
-of which -- the volcano -- cost ~115 ms per redraw and made the whole window
-lag. Worse, the numbers behind it were only in a CSV, so "is EAF1 a hit" meant
-leaving the application.
+The results panel combines a clickable volcano plot, sortable coefficient
+table, p-value histogram, Q-Q calibration view, assay controls, guide-support
+view, model summary, and annotation for the selected gene. Selecting a
+coefficient in any linked plot or table highlights the same feature in the
+other views.
 
-This panel opens a finished run with a clickable volcano, sortable coefficient
-table, P-value histogram, Q-Q calibration view, assay controls, guide-support
-view, and annotation for the selected gene.
-
-Every plot whose marks are coefficients is clickable, not only the volcano.
-Clicking a point selects its row; selecting a row marks
-that point on every plot that drew it. They are views of one table, which is
-the thing that was missing.
-
-One gene/guide filter applies to all of them. `set_level` is
-read by every draw path, not by the volcano alone, because a filter that
-reaches four of six tabs is worse than one that reaches none: the two then
-disagree on screen at the same time and nothing says which is which. Filtering
-the family also CHANGES A DIAGNOSTIC rather than merely narrowing it -- on a
-table of 200 null gene terms and 600 enriched guide terms the Q-Q reports
-inflation at the median of 2.90, 0.97 and 4.07 for the whole fit, the genes
-and the guides, three answers to "is this screen calibrated" from one plot --
-so the family is written into the tab label and into the plot's own title.
-The three well-level tabs are NOT filtered, because a residual is one WELL and
-a well is neither a gene nor a guide; they say so rather than staying quiet.
-
-Joined on the KEY, never on a position. The Q-Q is sorted by p, the control
-panel is split into groups and the agreement plot has one point per gene from
-a frame with one row per guide, so a mark's position is not its row in any of
-them. Measured on the real screen: the second point on the Q-Q is the term
-``gene_fraction:gene[244480]`` (p = 2.9e-13, the strongest hit in the screen)
-while its drawing position names ``fraction:grna[000000_10]``, a control guide
-with p = 0.81. That is what a positional join would have selected, and nothing
-about it would have looked wrong.
+Gene and gRNA filters are applied to coefficient-level views, including their
+calibration diagnostics. Well-level residual and influence diagnostics remain
+unfiltered because wells do not belong to either coefficient family. Plot
+selections are joined by feature keys rather than drawing positions, so
+sorting or aggregation does not change which result is selected.
 """
 
 from __future__ import annotations
@@ -123,21 +100,28 @@ def _match_column(frame, wanted) -> Optional[str]:
 
 def find_results_tables(path, *, max_depth: int = MAX_SEARCH_DEPTH,
                         limit: int = MAX_CANDIDATES) -> list:
-    """Every results CSV under ``path``, NEWEST RUN FIRST.
+    """Find regression result tables beneath a path.
 
-    The first table in a sorted walk is not this run's results. ``glm`` sorts
-    before ``ols`` and ``2025`` before ``2026``, so a folder holding more than
-    one run answered with whichever one happened to win the alphabet -- which
-    is how a user watching a run finish reads last month's screen and never
-    finds out.
+    Parameters
+    ----------
+    path : path-like
+        Results CSV, run directory, or parent directory to search. A CSV is
+        returned directly; missing paths and non-CSV files return no matches.
+    max_depth : int, default=MAX_SEARCH_DEPTH
+        Maximum directory depth to descend below ``path``. The root directory
+        is still inspected when this value is zero.
+    limit : int, default=MAX_CANDIDATES
+        Stop walking after at least this many candidate tables have been
+        collected. All recognised tables in the final run directory are kept,
+        so the returned count can be slightly larger than this value.
 
-    ORDERED BY RUN, NOT BY FILE. ``perform_regression`` writes ``results.csv``,
-    then ``results_gene.csv``, then ``results_grna.csv``, milliseconds apart
-    into one folder -- so ranking individual files by modification time hands
-    back the guide split, which on the real screen is 823 rows of a 1,213-row
-    fit. The run folder's newest table dates the RUN; inside it,
-    :data:`RESULT_FILENAMES` order decides, and the full coefficient table
-    comes first because the gene and guide files are views of it.
+    Returns
+    -------
+    list of str
+        Recognised result-table paths. Run directories are ordered by the
+        newest modification time among their tables. Within a run,
+        ``results.csv`` precedes the gene and gRNA views according to
+        :data:`RESULT_FILENAMES`.
     """
     if not path:
         return []
@@ -312,21 +296,36 @@ def _why_no_model(path, reason) -> str:
 
 def summary_text(model, regression_type=None, *, path=None,
                  reason: str = "") -> str:
-    """The statsmodels summary for ``model``, or why there is none.
+    """Return a model summary or an explanation of its absence.
 
-    VERBATIM, not rebuilt. The point of asking for the statsmodels summary is
-    to get the statsmodels summary; a re-implementation would differ from
-    every textbook and every other tool a reader compares it against.
+    Parameters
+    ----------
+    model : object or None
+        Fitted model. Objects with a callable ``summary`` method use that
+        method; ``None`` triggers lookup of a summary saved with the run.
+    regression_type : str or None, optional
+        Backend name included when the fitted object has no statsmodels-style
+        summary.
+    path : path-like or None, optional
+        Results CSV, run directory, or parent directory. When ``model`` is
+        ``None``, the function looks beside the selected results table for a
+        summary written during fitting.
+    reason : str, optional
+        Known reason that no live model is available. When omitted, the
+        explanation is limited to what can be inferred from ``path``.
 
-    :param path: the results table or run folder this panel is showing. With
-        no live model the run's OWN summary is read back from beside it --
-        the file is already there, so "re-run to see it" was asking for GPU
-        minutes to recover something one ``open()`` away.
-    :param reason: why there is no model, when the caller knows. Without it
-        the absence is explained by what can actually be checked here.
-    :returns: the summary text, always a string -- a backend without one
-        comes back as a sentence naming the backend rather than as an
-        exception or an empty tab, both of which read as a bug.
+    Returns
+    -------
+    str
+        Saved or live summary text. If no summary is available, a message
+        names the relevant backend, path, or read failure instead of returning
+        an empty string.
+
+    Notes
+    -----
+    A live statsmodels summary is returned from the fitted model rather than
+    reconstructed. When the run summary is available on disk, it is included
+    with the model summary.
     """
     if model is None:
         found = find_summary_file(path)
@@ -493,13 +492,16 @@ class RegressionResultsPanel(QWidget):
     refit_requested = Signal(object)
 
     def __init__(self, parent=None, external_volcano: bool = False):
-        """
-        :param external_volcano: build the volcano but do not place it. The
-            caller takes it and gives it the room it deserves -- it is the
-            graph the maintainer asked to be interactive, and a thumbnail
-            above its own table is not that. All the wiring stays here, so
-            the key join, the redraw and the surviving selection work the
-            same wherever the widget ends up.
+        """Initialize the regression results panel.
+
+        Parameters
+        ----------
+        parent : QWidget or None, optional
+            Parent widget.
+        external_volcano : bool, default=False
+            Build and wire the interactive volcano plot without adding it to
+            this panel's layout. Use this when a host places the volcano in a
+            larger external view; selection and redraw behavior are unchanged.
         """
         super().__init__(parent)
         from .fast_plots import (ControlSeparation, EffectDistribution,

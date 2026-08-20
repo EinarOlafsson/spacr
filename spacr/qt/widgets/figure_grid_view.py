@@ -1,47 +1,15 @@
-"""A run's figures on a scrollable grid, each at its own aspect ratio.
+"""Display saved and interactive run figures in a scrollable grid.
 
-WHY THIS EXISTS
+Saved figures are placed in uniform grid cells and rendered at their original
+aspect ratios, preserving the geometry of views such as plate heatmaps. The
+number of columns follows the available panel width, and selecting a tile
+opens the corresponding figure in the full-size detail view.
 
-The figures panel shows ONE figure at a time, fitted into whatever shape the
-panel happens to be. A regression run produces seventeen; seeing the fourth
-means clicking to it, and every one is stretched to a container that has
-nothing to do with its own proportions.
-
-That is not merely untidy. A plate heatmap distorted into a square is no
-longer a heatmap of a plate -- the wells stop being square, and positional
-artefacts, the entire reason to look at one, become impossible to see. And a
-run's figures are meant to be read together: the fraction histogram explains
-the volcano, and one-at-a-time navigation hides the relationship.
-
-So: a grid that scrolls, cells sized from the panel width, and every figure
-drawn at the aspect ratio it was created with. Wide figures take a wide cell
-and fewer per row; square ones tile. Clicking a cell opens that figure full
-size, and the existing one-at-a-time view is that detail view.
-
-THE LIVE TILES ARE PICTURES, AND THAT IS A MEASURED CHOICE
-
-A tile could hold the live
-pyqtgraph widget, or a photograph of it taken by :meth:`FastPlot.snapshot`.
-The instruction says MEASURE IT before choosing, so it was measured, on the
-real widgets under the offscreen platform, at the volcano's 1,213 points:
-
-    per window-drag frame     3 tiles   6 tiles  12 tiles  18 tiles
-      live pyqtgraph widgets  11.98 ms  25.68 ms  48.55 ms  74.99 ms
-      snapshot pictures        1.08 ms   1.64 ms   3.59 ms   5.19 ms
-    resident memory
-      live pyqtgraph widgets   7.6 MB   13.7 MB   29.8 MB   44.0 MB
-      snapshot pictures        3.3 MB    5.8 MB    9.6 MB   14.7 MB
-
-A resize is a relayout and a window drag emits one per frame, so the budget
-is 16.7 ms: SIX live tiles already miss it, and the eighteen a full panel set
-would reach costs four and a half frames per frame. The hover hit-boxes the
-instruction worried about are real but much the smaller half -- 60 mouse-moves
-over one live volcano cost 12.31 ms against 0.52 ms over a picture of it, i.e.
-0.205 ms against 0.009 ms per move.
-
-So the grid holds pictures of the pyqtgraph panels, and pressing one raises
-the live widget on its own tab, which is what the numbers
-above confirm. :meth:`FigureGridView.set_live_tiles` is that section.
+Interactive pyqtgraph panels appear as snapshot thumbnails rather than live
+widgets. This keeps grid resizing responsive while the original widget retains
+its hover, selection, and restyling behavior on its own tab. Activating a live
+thumbnail raises that widget. Saved runs and interactive panels use the same
+collapsible-section and workspace-state mechanisms.
 """
 
 from __future__ import annotations
