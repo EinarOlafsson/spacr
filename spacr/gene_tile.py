@@ -797,7 +797,17 @@ def _parse(feature: Any) -> Tuple[str, str, str]:
         guide = guide_of(text) or ""
         if not gene:
             return "unresolved", "", ""
-        return ("guide", gene, guide) if guide else ("gene", gene, "")
+        # THE TERM SAYS WHICH IT IS, not the shape of the token inside it.
+        # `guide_of` returns the WHOLE bracketed token, so on a numeric screen
+        # a gene term's token has no underscore and guide == "" -- which is
+        # how "guide if there is a guide" happened to work. It stops working
+        # the moment the id itself contains an underscore:
+        # `gene_fraction:gene[TGGT1_231640]` is a GENE term whose token is
+        # `TGGT1_231640`, and it was reported as a guide of gene TGGT1.
+        if "gene_fraction:gene[" in text or ":gene[" in text:
+            return "gene", gene, ""
+        return ("guide", gene, guide) if guide and guide != gene \
+            else ("gene", gene, "")
 
     if not bool(tested_family([text])[0]):
         return "nuisance", "", ""

@@ -299,3 +299,60 @@ _FigureCell. Whoever owns app_screen.py can drop it in -- but see the index
 contract, `_FigureCell.index` is the enumerate index over the pixmap list and
 `figure_activated` forwards it straight to `FigureQueue.show_index()`, so a
 gene tile inserted into that list shifts every figure after it.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- THE TILE IS MOUNTED, AND ITS ID PARSE WAS WRONG FOR REAL GENES
+--------------------------------------------------------------------------------
+
+A AND B ARE WIRED: the Gene tab is beside the volcano and `table.key_selected`
+feeds it, so one click builds one tile.
+
+AND IT COULD NOT RESOLVE THE GENES THE INSTRUCTION IS ABOUT. `gene_of`
+truncates a bracketed token at the FIRST underscore -- right for `233460_1`,
+which is what these screens use, and wrong for every VEuPathDB accession,
+because the underscore is inside the gene NAME:
+
+    gene_fraction:gene[TGGT1_231640]  ->  kind=unresolved, gene='TGGT1'
+
+`TGGT1` is a STRAIN. Every gene in a Toxoplasma screen came back as the same
+one, unresolved, with no ToxoDB link -- and `gene_tile`'s own docstring
+already claimed the accession form was accepted.
+
+`hits.gene_id_of` is the rule in one place now, with `GENE_ID_PREFIXES`
+covering the VEuPathDB strains spaCR meets (Toxoplasma, Plasmodium,
+Cryptosporidium, Neospora, Babesia, Theileria, Eimeria). A numeric id with a
+guide suffix truncates exactly as it always did.
+
+AND THE TERM DECIDES GENE-VERSUS-GUIDE, not the shape of the token. `guide_of`
+returns the WHOLE bracketed token, so on a numeric screen a gene term's token
+has no underscore and the "guide if there is a guide" test happened to work.
+It stops the moment the id contains one: `gene_fraction:gene[TGGT1_231640]` is
+a GENE term and was reported as a guide.
+
+FOUND ON THE WAY, both pre-existing and both real:
+
+  * TWO TABLES IN ONE FOLDER SHARED ONE PLOT STATE. `_plot_state_key` was the
+    folder alone, which is right for `<results>/ols_3` versus
+    `<results>/ols_3/results.csv` (116's own fix) and WRONG for the folder a
+    `level='both'` run writes: `results_gene.csv` and `results_grna.csv` are
+    two different multiple-testing families in one directory (132 C), and
+    opening the second restored the first's selection -- a mark on a point
+    that means something else now. The canonical `results.csv` is still the
+    folder; any other table is `folder::name`.
+
+  * A RELOAD LEFT A KEY SELECTED. Clearing `_selected_key` and the rings was
+    not enough: rebuilding the table leaves a row highlighted, that row
+    re-emits `key_selected`, and the panel came back holding a key nobody
+    chose. The table's own selection is cleared with the rest.
+
+  * A test drove a synthetic click at HALF THE BAR'S HEIGHT in data units,
+    which mapped to y = -2621 in a 478-tall viewport -- so it was asserting
+    that a click above the plot selects nothing. The handler reads the x
+    only; it clicks inside the view range now, and pumps the event loop,
+    because pyqtgraph decides click-versus-drag in its own queued release.
+
+STILL OWED: the tile in the FIGURE GRID rather than only in a tab.
+`GeneTilePanel.to_pixmap()` exists and is tested for it, but `_FigureCell.index`
+is the enumerate index over the pixmap list and `figure_activated` forwards it
+to `FigureQueue.show_index()`, so inserting a tile shifts every figure after
+it. That contract has to move first.

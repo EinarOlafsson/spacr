@@ -290,6 +290,10 @@ NO_MODEL_FROM_DISK = (
     "run, so the fitted model is not here")
 NO_MODEL_AT_ALL = "no run in this session has fitted anything yet"
 
+#: The results table a run folder IS. Any other table in the same folder is a
+#: different run's worth of view -- see :meth:`_plot_state_key`.
+CANONICAL_TABLE = "results.csv"
+
 
 def _why_no_model(path, reason) -> str:
     """The TRUE reason there is no fitted model to summarise.
@@ -1765,6 +1769,20 @@ class RegressionResultsPanel(QWidget):
         # cheerfully re-rings the new run at the old key. Caught by exporting
         # the control panel after a reload and finding a ring still on it.
         self._selected_key = None
+        # AND THE TABLE'S OWN ROW, because the table is what re-establishes
+        # a selection. Clearing `_selected_key` and the rings was not enough:
+        # rebuilding the table leaves a row highlighted, that row re-emits
+        # `key_selected`, and the panel comes back from the reset holding a
+        # key -- on the new run, but one nobody chose, and a mark nobody
+        # chose is exactly what this reset exists to prevent. Blocked, so the
+        # clear itself does not emit a THIRD time.
+        try:
+            blocked = self.table.table.blockSignals(True)
+            self.table.table.clearSelection()
+            self.table.table.setCurrentCell(-1, -1)
+            self.table.table.blockSignals(blocked)
+        except (RuntimeError, AttributeError):   # pragma: no cover - no table
+            pass
         for plot in self._keyed_plots():
             plot.clear_highlight()
         for histogram in (self.p_values, self.effect_distribution):
@@ -2053,8 +2071,27 @@ class RegressionResultsPanel(QWidget):
 
         Falls back to the source itself for a table with no folder behind it,
         so a frame handed straight in is still distinguishable from another.
+
+        AND THE FILE NAME, WHEN IT IS NOT THE CANONICAL ONE. The folder alone
+        made every table in one folder ONE run, which is wrong for the folder
+        a `level='both'` run writes: `results_gene.csv` and `results_grna.csv`
+        are two different multiple-testing families in the same directory
+        (132 C), and restoring the gene view onto the guide table is exactly
+        the "a mark on a point that means something else now" failure the
+        reset exists to prevent. Measured: two sources in one folder returned
+        the same key, and opening the second restored the first's selection.
+
+        `results.csv` IS the folder, which keeps 116's identity intact --
+        `<results>/ols_3` and `<results>/ols_3/results.csv` are still one run
+        and still share one view.
         """
-        return cls._folder_of(source) or str(source or "")
+        folder = cls._folder_of(source)
+        if not folder:
+            return str(source or "")
+        name = os.path.basename(str(source or ""))
+        if name and name != os.path.basename(folder) and name != CANONICAL_TABLE:
+            return f"{folder}::{name}"
+        return folder
 
     def _remember_plot_state(self) -> None:
         """Save the run on screen, if it has a path to be saved under."""
