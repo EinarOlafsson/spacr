@@ -756,3 +756,43 @@ also flagged: the drawing is fine, but settings.py documents the key as
 DEPRECEATED with no effect on the Cellpose-SAM path, so an animation showing a
 visible effect is misleading by context -- that one is a settings question,
 not a drawing one.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- `cytoplasm` FIXED: 29 WEAK -> 28. The worst one is done.
+--------------------------------------------------------------------------------
+
+It was one of the two that SHOWED THE WRONG THING rather than a faint one,
+which is the category worth clearing first: a faint animation teaches nothing,
+a wrong one teaches something false.
+
+THE AUDIT'S ROOT CAUSE WAS EXACT and cost nothing to act on --
+`painter.line(..., fill_closed=True)` was the LAST call in the scene and
+painted an opaque polygon over all three compartments. 1988 blue / 1028 teal /
+300 magenta pixels before it, 0 / 0 / 0 after.
+
+AND FIXING THE ARGUMENT ALONE WOULD NOT HAVE FIXED THE ANIMATION. Three
+compartments floating on a fill is a picture of a cell, not of this setting.
+The cytoplasm IS the cell minus its compartments, so the ORDER is the fix: the
+region is filled first and the compartments are drawn on top, where they read
+as punched out of it.
+
+Two more things the drawing needed:
+  * THE FILL WAS DIMMED, 0.35..0.90 down to 0.18..0.48. A near-white slab is
+    not something a half-width outline can be seen against, and a cytoplasm is
+    a region rather than a highlight.
+  * THE COMPARTMENTS ARE DRAWN AT WIDTH 1.1 against the 0.5 everything else
+    uses, because here they are the SUBJECT rather than context.
+
+A false start worth recording: the sixth argument to `_object_outline` is a
+shape PHASE, not an opacity. Varying it with the action wobbles the outline
+and says nothing about the setting; the originals are kept.
+
+MEASURED ON THE REGENERATED GIF: at least 89 nucleus pixels in EVERY one of
+the 18 frames, against 0 before. `62_anim_audit.json` records it GOOD with the
+measurement, and the counts are recomputed rather than edited.
+
+STILL OPEN: 28 WEAK. `organelle_watershed_spots` is the other one that shows
+the wrong thing and is the next to take. `organelle_diameter` remains a
+SETTINGS question rather than a drawing one -- settings.py documents the key
+as DEPRECEATED with no effect on the Cellpose-SAM path, so an animation
+showing a visible effect is misleading by context however well it is drawn.
