@@ -214,6 +214,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # `analysis_unit` spells out the per-well/per-cell switch that agg_type
     # used to make silently by being set to None.
     "inference", "analysis_unit", "paired_data",
+    # Instruction 182, 2026-08-20 -- "for 182 i want both options to be
+    # available". Which of the two defensible fixes for a link stacked on a
+    # response transform a glm run should apply. It was not a setting before
+    # because spaCR did neither, and the combination it did instead is not
+    # defensible under either reading.
+    "glm_transform_conflict",
     # `toxo` renamed to `Toxoplasma` on 2026-08-17 (instruction 133). The old
     # name is in KEYS_RETIRED below; this is the same control under the name
     # the maintainer asked for.

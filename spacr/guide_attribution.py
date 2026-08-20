@@ -50,6 +50,8 @@ __all__ = [
     "Attribution",
     "attributable",
     "attribute_well",
+    "Preflight",
+    "preflight",
     "normalise_fractions",
     "posterior",
 ]
@@ -320,6 +322,85 @@ def attributable(effect: float, scale: float, prior: float, *,
     best = float(np.nanmax(ratio)) if ratio.size else 0.0
     best = min(max(best, 0.0), 1.0)
     return best >= float(threshold), best
+
+
+@dataclass(frozen=True)
+class Preflight:
+    """Whether a guide can produce a real assignment, BEFORE any is made."""
+
+    guide: str
+    wells: int
+    callable_wells: int
+    best: float
+    threshold: float
+
+    @property
+    def hopeless(self) -> bool:
+        """True when no well in the screen could ever call this guide."""
+        return self.wells > 0 and self.callable_wells == 0
+
+    def note(self) -> str:
+        """One line for a caption or a console."""
+        if not self.wells:
+            return f"{self.guide}: no well carries it."
+        wells = f"{self.wells} well" + ("" if self.wells == 1 else "s")
+        if self.hopeless:
+            return (
+                f"{self.guide} CANNOT BE ATTRIBUTED to a cell in any of its "
+                f"{wells}: the best posterior it could reach "
+                f"anywhere is {self.best:.3f}, under the {self.threshold:.2f} "
+                f"threshold. Its effect is too small against the spread of "
+                f"scores, which is arithmetic and not sample size -- more "
+                f"cells will not change it. Cells shown for it are picked by "
+                f"rank, not attributed.")
+        return (
+            f"{self.guide} can be attributed in {self.callable_wells} of its "
+            f"{wells} (best possible posterior {self.best:.3f} "
+            f"against a {self.threshold:.2f} threshold).")
+
+
+def preflight(guide, fractions_by_well, effects, *, scale, centre=0.0,
+              threshold=DEFAULT_THRESHOLD, likelihood="lognormal",
+              span=4.0) -> Preflight:
+    """Can ``guide`` ever be called, and in how many of its wells?
+
+    "WHICH GUIDES CAN BE ATTRIBUTED AT ALL, reported BEFORE anything is
+    assigned. A guide whose effect is small against the spread of scores can
+    never reach the threshold -- not with more cells, not with a better fit."
+    This is that report, and until it had a caller it was a library function
+    nobody saw.
+
+    :param guide: the guide being asked about.
+    :param fractions_by_well: ``{well: {guide: fraction}}`` -- every guide in
+        each well, because a ceiling is a comparison and comparing a guide
+        against nothing returns its prior.
+    :param effects: each guide's fitted effect.
+    :param scale: the spread of the scores, per plate.
+    :returns: a :class:`Preflight`.
+
+    A guide is counted callable in a well when :func:`attributable` says so
+    THERE -- the answer differs between wells because the prior does, and a
+    guide at 0.6 of one well and 0.02 of another is not the same question.
+    """
+    name = str(guide)
+    wells = 0
+    callable_wells = 0
+    best = 0.0
+    for fractions in (fractions_by_well or {}).values():
+        priors = normalise_fractions(fractions or {})
+        if name not in priors:
+            continue
+        wells += 1
+        can, ceiling = attributable(
+            float(effects.get(name, 0.0)), scale, priors[name],
+            threshold=threshold,
+            others=[(float(effects.get(other, 0.0)), weight)
+                    for other, weight in priors.items() if other != name],
+            centre=centre, likelihood=likelihood, span=span)
+        callable_wells += int(bool(can))
+        best = max(best, float(ceiling))
+    return Preflight(guide=name, wells=wells, callable_wells=callable_wells,
+                     best=best, threshold=float(threshold))
 
 
 # --------------------------------------------------------------------------- #

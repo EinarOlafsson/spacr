@@ -439,6 +439,22 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # reaches the pipeline and is silently ignored rather than applied.
         "agg_type": ["mean", "median", "quantile", None],
         "transform": [None, "log", "sqrt", "square", "beta"],
+        # Instruction 182, decided by the maintainer on 2026-08-20: "i want
+        # both options to be available". A transform that is itself a link
+        # stacked on a family that carries one fits logit(log(y)); there are
+        # two defensible ways out and they answer different questions, so the
+        # dropdown offers both rather than spaCR picking. The third value
+        # reproduces the old, indefensible behaviour and labels itself as
+        # such, because a run someone published under it still has to be
+        # reproducible.
+        "glm_transform_conflict": [
+            ("untransformed",
+             "fit the response as measured — let the family's link transform it"),
+            ("transformed",
+             "keep my transform — fit Gaussian with an identity link"),
+            ("warn",
+             "old behaviour — fit the transformed response and warn (not defensible)"),
+        ],
         "cov_type": [None, "HC0", "HC1", "HC2", "HC3"],
         "threshold_method": ["std", "var"],
         # WHICH P THE SIGNIFICANCE LINE IS DRAWN ON. Two values and no third
@@ -952,6 +968,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # way to disagree with it.
             "dependent_variable", "invert_dependent_variable",
             "analysis_unit", "agg_type", "transform",
+            # Instruction 182: it decides WHICH SCALE the model fits when
+            # `transform` is itself a link, so it belongs beside `transform`
+            # rather than three sections away among the estimator knobs.
+            "glm_transform_conflict",
         )),
         # `inference` leads because it decides whether "Estimator Tuning" or
         # "Permutation Test" below is the section that does anything.

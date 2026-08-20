@@ -2038,6 +2038,7 @@ def get_perform_regression_default_settings(settings):
     # that names a type still gets that type; only a dict that never chose one
     # moves.
     settings.setdefault('regression_type', 'mixed')
+    settings.setdefault('glm_transform_conflict', 'untransformed')
     # WHO FITS IT, as opposed to WHAT is fitted (instruction 141 A). The two
     # are independent: the same mixed model can be fitted by statsmodels on
     # the CPU or by spacr.mixed_gpu on the GPU, and the answer should be the
@@ -2810,6 +2811,7 @@ expected_types = {
     "lasso_selection_threshold": float,
     "regression_qc": bool,
     "transform": (str, type(None)),
+    "glm_transform_conflict": str,
     "agg_type": str,
     "min_cell_count": int,
     "denoise":bool,
@@ -3617,6 +3619,7 @@ tooltips = {
     "treatments": "(list) - Names of the drug or treatment conditions in the experiment, e.g. ['dmso','lovastatin']. Each name is written into the treatment column and folded into the combined condition label used for grouping and plotting; positionally paired with treatment_plate_metadata (or treatment_loc), which lists the wells for each. Default ['cm','lovastatin'].",
     "top_features": "(int) - Feature cap in the ML screen analysis: how many rows the feature-importance and permutation-importance bar plots show, and how many top-ranked features the SHAP refit and its summary plot use. It is also the k of the SelectKBest pruning applied before the model is fitted, but only when prune_features is True - with prune_features at its default False the classifier trains on every feature and this is reporting/SHAP scope only. Raise for a fuller picture, lower for readable plots. Default 30.",
     "train": "(bool) - Run the training stage. Turn OFF to apply an existing model_path to a dataset without retraining, which is the usual way to score a new plate with a model trained earlier. Default True.",
+    "glm_transform_conflict": "(str) - What a glm run should do when transform is itself a link ('log' or 'logit') and the family spaCR picks carries a link of its own. The combination fits logit(log(y)), which nothing measures. Two defensible answers, and they are different science, so you choose: 'untransformed' fits the response AS MEASURED and lets the family's link do the transforming, which is right when the response is a proportion; 'transformed' keeps your transform and fits a Gaussian family with an identity link, an ordinary linear model of log(y). 'warn' is the old behaviour, fitting the transformed response and picking the family from it, kept only so an earlier run can be reproduced; it is not defensible under either reading. Ignored when the transform is not link-like or the regression type is not glm. Default 'untransformed'.",
     "transform": "(str) - Optional transform applied to the aggregated per-well response before fitting: 'log' (log1p), 'sqrt', 'square', 'beta' (logit, for a response that is a proportion - the endpoints are squeezed off 0 and 1 first and the summary says so), or None for none. Reach for it when the response is skewed and the normality check fails; the fit then reports coefficients for the transformed column, named '<transform>_<dependent_variable>'. Default None.",
     "upscale": "(bool) - Legacy image-upscaling toggle: no code in spaCR reads this key (or upscale_factor), so enabling it changes nothing about image size, segmentation or measurements. Kept only for settings-file compatibility. To change the working resolution use the Cellpose resize / target_height / target_width settings instead. Default False.",
     "upscale_factor": "(float) - Scale factor that the inactive 'upscale' toggle would have applied. Nothing in spaCR reads this key, so changing it has no effect on image size, segmentation or measurements; use the Cellpose resize / target_height / target_width settings to change resolution. Default 2.0.",
@@ -4298,7 +4301,7 @@ categories = {
     "Regression: Response": [
         "dependent_variable", "invert_dependent_variable",
         "count_grna_column", "count_value_column",
-        "analysis_unit", "agg_type", "transform",
+        "analysis_unit", "agg_type", "transform", "glm_transform_conflict",
     ],
     # inference and regression_type lead: they decide whether anything in
     # "Model Tuning" or "Permutation Test" does anything at all.

@@ -243,11 +243,21 @@ def test_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
     assert type(model.model.family.link).__name__ == "Log"
     assert model.params["x"] == pytest.approx(0.6, abs=0.15)
     out = capsys.readouterr().out
-    assert "Count data detected" in out
+    # The sentence names the SCALE it examined (instruction 182 A), so it
+    # reads "the response looks like counts" rather than "Count data
+    # detected" -- the old wording said nothing about which column.
+    assert "looks like counts" in out
     assert "McFadden's R" in out
     assert "Generalized Linear Model Regression Results" in out
-    # The printed pseudo-R2 must match the formula the function uses.
-    mcfadden = 1 - (model.llf / (model.null_deviance / -2))
+    # THE PRINTED PSEUDO-R2 MUST MATCH THE FORMULA THE FUNCTION USES, and
+    # this pinned the wrong one. It was `1 - llf / (null_deviance / -2)`,
+    # which equals McFadden only when the SATURATED log-likelihood is zero.
+    # That is true of 0/1 binomial data and false of counts and of the
+    # per-well proportions the pipeline actually fits, so the expression
+    # mixed a likelihood with a deviance and reported negatives for
+    # correctly specified models -- -11.53 for one, measured while wiring
+    # instruction 182. `llnull` is the null model statsmodels fits.
+    mcfadden = 1 - (model.llf / model.llnull)
     printed = float([l for l in out.splitlines() if "McFadden" in l][0].split(":")[-1])
     assert printed == pytest.approx(mcfadden, abs=1e-4)
 

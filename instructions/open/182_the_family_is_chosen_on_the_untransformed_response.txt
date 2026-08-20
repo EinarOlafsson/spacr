@@ -133,3 +133,105 @@ Which should a glm run do when the response has been log-transformed?
 Not decided here because it changes every glm number spaCR has produced. Until
 it is decided the run says clearly that it is happening, which is the part
 that is unambiguously an improvement.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DECIDED: BOTH. "for 182 i want both options to be available".
+--------------------------------------------------------------------------------
+
+`glm_transform_conflict`, a new setting, offers both fixes and spaCR chooses
+neither. It only ever acts when there IS a conflict: a link-like transform
+('log' or 'logit') on a run whose regression_type is 'glm'. Anything else is
+returned untouched.
+
+  'untransformed'  (DEFAULT) fit the response AS MEASURED and let the
+                   family's own link do the transforming. On the reference
+                   fixture: Binomial/Logit, McFadden 0.0632.
+  'transformed'    keep the transform and fit Gaussian with an IDENTITY link.
+                   On the same fixture: ordinary R-squared 0.8517.
+  'warn'           the old behaviour. Kept ONLY so a run someone already
+                   published can be reproduced, and the console says exactly
+                   that when it is selected.
+
+DEFAULT IS 'untransformed', and this is an assumption, stated: the response
+these runs fit is a proportion, so a family that carries a logit link is the
+right model for it and the log is redundant. Any default changes existing
+numbers -- the old behaviour is not defensible under either reading, so there
+is no default that does not.
+
+WHERE IT IS RESOLVED, and this took a wrong turn first. The resolution is
+applied to the COLUMN NAME in `regression`, before the design matrices are
+built. A first attempt swapped the response inside the fitting branch, and
+the McFadden printed beside the summary was then computed on the OTHER
+response: the two disagreed by twelve units of pseudo-R-squared and neither
+was labelled. One response, decided once, read by the fit and by everything
+downstream of it.
+
+--------------------------------------------------------------------------------
+THE NEGATIVE McFADDEN WAS A SEPARATE BUG. This instruction said it was not.
+--------------------------------------------------------------------------------
+
+This instruction recorded "McFadden's R-squared of -20.3 is the symptom, not
+a separate problem". THAT WAS WRONG, and the fixture shows it:
+
+    fit                                deviance-null      llnull
+    double transform (old behaviour)        -20.9239      0.0368
+    response as measured (correct)          -11.5329      0.0632
+
+The correctly specified fit ALSO reported -11.53. The pseudo-R-squared
+divided the true log-likelihood by `null_deviance / -2`, which equals the
+null log-likelihood only when the SATURATED log-likelihood is zero -- true of
+0/1 binomial data, false of the per-well PROPORTIONS this pipeline fits. It
+mixed two conventions and condemned good models.
+
+`fit_quality_note` replaces it and does two things:
+
+  * takes the null log-likelihood from `llnull`, which statsmodels fits, so
+    the ratio is McFadden's and not a hybrid; and
+  * reports ORDINARY R-squared for a Gaussian identity fit and says which
+    number it is. McFadden is not defined for one -- a Gaussian
+    log-likelihood is a density, so the ratio is not bounded by 1. The
+    'transformed' option ships exactly that family, and the console reported
+    "McFadden's R-squared: 467.1217" for a fit whose real R-squared was 0.85.
+
+So the instruction's own success test -- "the reference screen produces a
+McFadden R-squared that is not negative" -- is met, but for a reason this
+instruction did not know about, and the double transform's real cost is much
+smaller than -20.3 suggested: it fits WORSE (0.0368 against 0.0632), not
+catastrophically.
+
+22 tests in tests/test_both_ways_out_of_the_double_transform.py.
+
+STILL OWED
+  * Greying `transform` under 'untransformed' for the families that carry
+    their own link (per 106), which the instruction names and which is now a
+    display question rather than a modelling one.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- AND THE TWO BACKENDS WOULD HAVE DISAGREED ABOUT IT.
+--------------------------------------------------------------------------------
+
+Changing the goodness-of-fit line to divide by `llnull` broke a guarantee
+that had a test which could not see it. `_GlumResults` carried `llf` and
+`null_deviance` and no `llnull`, so `fit_quality_note` fell back to the old
+expression for the glum backend only: THE SAME FIT WOULD HAVE PRINTED TWO
+DIFFERENT McFADDEN R-SQUARED depending on which backend ran it.
+
+`test_the_glum_fit_keeps_the_numbers_the_run_prints` exists precisely to stop
+that and would have stayed green, because it compares the INGREDIENTS --
+`llf`, `null_deviance`, `df_resid` -- and never the number they are printed
+as. A test on the inputs to a formula does not test the formula.
+
+Fixed: `_GlumResults` carries `llnull` from the null model it already fits,
+and `test_the_two_backends_print_the_same_goodness_of_fit` asserts the two
+backends produce the identical line rather than the identical inputs.
+
+TWO STALE TESTS were failing at HEAD before this work and are corrected here,
+both pinning message text that earlier parts of this instruction rewrote:
+
+  * `test_regression_model_glm_reports_mcfadden_pseudo_r2` expected "Count
+    data detected", which 182 A replaced with a sentence naming the scale.
+    It ALSO pinned the wrong pseudo-R-squared formula, asserting the printed
+    value matched `1 - llf / (null_deviance / -2)` -- so the test enforced
+    the bug.
+  * `test_an_unidentifiable_fit_says_so_above_its_own_table` expected "THIS
+    FIT IS NOT IDENTIFIABLE"; the banner now names the saturated case too.
