@@ -138,8 +138,11 @@ def test_a_control_is_drawn_and_not_dropped(screen, tmp_path):
     figure = plot_effect_against_representation(result)
 
     assert figure is not None
-    labels = " ".join(t.get_text() for t in figure.axes[0].get_legend().texts)
-    assert "control" in labels, labels
+    # A LEGEND AS COLOURED TEXT, no frame and no markers -- the idiom the
+    # apicomplexan-figures skill records from Waldman Fig 3B/C. So the words
+    # are among the axes' own texts, not in a legend object.
+    said = " ".join(t.get_text() for t in figure.axes[0].texts)
+    assert "control" in said, said
 
 
 def test_no_trend_line_is_drawn_through_two_points(tmp_path):
@@ -242,8 +245,13 @@ def test_two_guides_agreeing_are_drawn_as_agreeing(tmp_path):
     assert figure is not None
     labels = [t.get_text() for t in figure.axes[0].get_yticklabels()]
     assert any("444" in label for label in labels), labels
-    widths = [p.get_width() for p in figure.axes[0].patches]
-    assert widths and max(widths) == pytest.approx(1.0), widths
+    # DOTS AND A MEAN LINE, NOT BARS. A gene has two to four guides, and the
+    # apicomplexan-figures skill is explicit that n = 2-8 gets individual
+    # points with a mean line and never a bar. So there are no patches to
+    # measure: the marks are a scatter, and the mean is a short line.
+    assert not figure.axes[0].patches, "a bar came back for n <= 4 guides"
+    assert figure.axes[0].collections, "no points were drawn"
+    assert figure.axes[0].lines, "no mean line was drawn"
 
 
 def test_the_agreement_axis_cannot_exceed_one(tmp_path):
@@ -365,9 +373,18 @@ def test_the_volcano_draws_every_pair_not_just_survivors(screen, tmp_path):
 
     assert figure is not None
     axes = figure.axes[0]
-    drawn = sum(len(c.get_offsets()) for c in axes.collections)
-    assert drawn == len(result.table), (
-        f"{drawn} points for {len(result.table)} pairs")
+    # THE GREY LAYER IS EVERY PAIR. The coloured layers are drawn OVER the
+    # subset that passed, so counting every collection double-counts them --
+    # which is the point of the idiom: grey is the population, colour is the
+    # claim.
+    layers = [len(c.get_offsets()) for c in axes.collections]
+    assert layers, "nothing was drawn"
+    assert max(layers) == len(result.table), (
+        f"the background layer holds {max(layers)} of "
+        f"{len(result.table)} pairs")
+    assert sum(layers[1:]) < max(layers), (
+        "the highlight is not a minority of the marks, so the figure makes "
+        "no claim")
 
 
 def test_an_uncomputed_circularity_is_said_not_coloured(screen):
@@ -379,9 +396,11 @@ def test_an_uncomputed_circularity_is_said_not_coloured(screen):
     assert not result.circularity_known
     figure = plot_grid_volcano(result)
 
-    legend = figure.axes[0].get_legend()
-    assert legend is not None
-    assert "NOT computed" in " ".join(t.get_text() for t in legend.texts)
+    # A LEGEND AS COLOURED TEXT, no frame and no markers -- the Waldman
+    # Fig 3B/C idiom the skill records. So the sentence is in the axes' own
+    # texts rather than in a legend object.
+    said = " ".join(t.get_text() for t in figure.axes[0].texts)
+    assert "NOT computed" in said, said
 
 
 def test_the_volcano_draws_nothing_from_an_empty_table():
@@ -502,8 +521,14 @@ def test_the_measurements_are_ranked_by_how_many_genes_move_them(screen,
                                    path=str(tmp_path / "m.png"))
     if figure is None:
         pytest.skip("nothing survived on this fixture")
-    widths = [p.get_width() for p in figure.axes[0].patches]
-    assert widths == sorted(widths, reverse=True)
+    # A BUBBLE PLOT NOW, so there are no bar widths to compare -- and an
+    # empty list would have made this pass vacuously. The ordering claim is
+    # on the ROWS: the y ticks run most-moved first.
+    assert not figure.axes[0].patches, "a bar chart came back"
+    dots = figure.axes[0].collections
+    assert dots, "nothing was drawn"
+    sizes = dots[0].get_sizes()
+    assert len(sizes) == len(figure.axes[0].get_yticklabels())
 
 
 def test_a_measurement_moved_by_half_the_library_is_marked(tmp_path):
