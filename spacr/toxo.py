@@ -33,21 +33,10 @@ REFERENCE_WIDTH_IN = 7.09
 def _house(width, *, frame='L'):
     """The house style, with the type scaled to the canvas this module asks for.
 
-    THE STYLE IS A CONTEXT, NEVER A GLOBAL WRITE. spaCR draws from a
-    long-lived GUI, so an ``rcParams.update`` here would style every figure
-    drawn afterwards, in every other module, until the process exits. This
-    file already paid for that once: ``custom_volcano_plot`` set 18 pt
-    globally and every plot the session opened after a volcano came out at
-    the volcano's font size.
-
-    WHY THE SIZES ARE SCALED. ``figures.style`` pins absolute points -- 7 pt
-    axis labels, 6.2 pt ticks -- because the skill measured them on a 180 mm
-    page. These figures are not 180 mm: ``ml.perform_regression`` asks for a
-    20-inch square volcano with 600-point markers, and 7 pt text on a canvas
-    that wide is a footnote on a poster. The skill states the scale as
-    RATIOS (panel letter 1.9-2.2x the axis label, tick 0.85-0.9x); multiplying
-    every tier by one factor keeps those ratios, which is the look, where
-    pinning the points keeps only the numbers.
+    Apply styling through a context so a figure does not modify process-wide
+    ``rcParams``. Scale every typography tier by the same factor relative to
+    the 180 mm reference width; this preserves the house-style ratios on the
+    larger canvases used for volcano plots and related figures.
 
     :param width: the figure's width in inches.
     :param frame: ``'L'`` (left and bottom spines) or ``'box'``.
@@ -134,64 +123,64 @@ def custom_volcano_plot(
     draw=True,
     highlight_location=None,
 ):
-    """Render the screen's volcano: grey guides, coloured calls.
+    """Render a volcano plot and return the significant feature names.
 
-    Points are placed at ``(coefficient, -log10(p_value))``. THE COLOUR IS THE
-    CLAIM: everything the screen did not call is grey, a called guide is green
-    when its coefficient is positive and rust when it is negative, and that is
-    the whole vocabulary unless ``highlight_location`` asks for one more.
+    Plot each feature at ``(coefficient, -log10(p_value))``. Features that do
+    not pass the call rule are grey; called positive effects are green and
+    called negative or zero effects are rust. This direction-based palette
+    makes significance and effect direction the primary visual encoding.
+    Localization is optional: ``highlight_location`` overlays selected
+    compartments in blue instead of assigning simultaneous colours to every
+    category.
 
-    IT USED TO COLOUR BY LOCALISATION, all 27 LOPIT compartments at once, and
-    that was decoration rather than an argument. Eight of the 27 were the same
-    slategray and two more the same black, so the hues did not even separate
-    the compartments they claimed to name; the legend ran taller than the
-    figure ("I can't really see the results because the legend is way too
-    big"); and :mod:`spacr.localisation` records the cost of the same mistake
-    elsewhere -- a 27-entry volcano spent 40 ms of a 49 ms redraw and said
-    nothing, because no reader holds 27 hues apart. THE NUMBERS ARE
-    UNCHANGED: the same p and coefficient rule calls the same hits, the same
-    genes are labelled, and the returned list is byte-for-byte what it was.
-    Only which marks carry colour changed.
+    Parameters
+    ----------
+    data_path : pandas.DataFrame or path-like
+        Regression table containing ``feature``, ``coefficient``, and
+        ``p_value`` columns. DataFrame input is copied.
+    metadata_path : pandas.DataFrame or path-like
+        Gene metadata containing one row per ``gene_nr`` and the selected
+        metadata column. DataFrame input is copied.
+    metadata_column : str, optional
+        Localization or annotation column used by ``highlight_location``.
+    point_size : float, optional
+        Marker area passed to ``Axes.scatter``.
+    figsize : float, optional
+        Width and height of the square figure in inches. Typography scales
+        with this value.
+    threshold : float, optional
+        Absolute coefficient threshold for calls. A row is returned when
+        ``p_value <= 0.05`` and
+        ``abs(coefficient) >= abs(threshold)``.
+    save_path : path-like, optional
+        Destination passed to :func:`spacr.plot.save_figure`. The written
+        extension follows the configured figure format.
+    x_lim : sequence of float, optional
+        Two x-axis limits. The default is ``[-0.5, 0.5]``.
+    y_lims : sequence, optional
+        Use ``[low, high]`` for one axis or
+        ``[[lower_low, lower_high], [upper_low, upper_high]]`` for a broken
+        y-axis. By default, fit one axis to the finite values.
+    draw : bool, optional
+        Build, optionally save, and show the figure. If false, return the hit
+        list before constructing a figure.
+    highlight_location : str or sequence of str, optional
+        Values from ``metadata_column`` to overlay in the highlight colour and
+        name in the in-panel legend.
 
-    The compartments are still reachable, one at a time and against grey,
-    which is what :mod:`spacr.localisation` already decided is the readable
-    form of that question.
+    Returns
+    -------
+    list of str
+        Feature-derived ``variable`` names that satisfy the call rule, in
+        table order.
 
-    :param data_path: DataFrame or CSV path with ``feature``, ``coefficient``,
-        ``p_value`` columns.
-    :param metadata_path: DataFrame or CSV path with ``gene_nr`` and the
-        ``metadata_column`` values to merge on gene number.
-    :param metadata_column: Metadata column carrying each gene's localisation.
-        It is what ``highlight_location`` selects on; it no longer drives the
-        colour of every point.
-    :param point_size: Marker size passed to ``ax.scatter``.
-    :param figsize: Side length in inches of the (square) figure. The type
-        scale follows it -- see :func:`_house`.
-    :param threshold: Absolute coefficient threshold used to select hits.
-    :param save_path: Optional destination for the figure. Saving goes through
-        :func:`spacr.plot.save_figure`, so the format and the file extension
-        follow the figure preference rather than always being PDF.
-    :param x_lim: X-axis limits ``[low, high]``. Defaults to ``[-0.5, 0.5]``.
-    :param y_lims: None, ``[low, high]``, or ``[[low1, high1], [low2, high2]]``
-        for a broken axis.
-    :param draw: build the figure. ``False`` computes and returns the hit
-        list ONLY, with no figure built, saved or shown.
-
-        This function does two jobs -- it draws the volcano AND it decides
-        which genes are hits -- and `perform_regression` needs the second
-        whether or not the caller wants the first. The GT1 phenotype plot
-        and the ME49 transcription heatmap are both built from this return
-        value, so gating the CALL would have removed two reports nobody asked
-        to lose. Gating the DRAWING keeps them.
-
-        It is also the fast path, which is the point: "your new volcano plot
-        is much much faster than my old one". Skipping the figure skips the
-        whole build.
-    :param highlight_location: one compartment name, or a sequence of them,
-        from ``metadata_column``. Those genes are drawn in the highlight blue
-        on top of everything else and named in the in-panel legend. ``None``
-        (the default) colours nothing by localisation.
-    :returns: List of ``variable`` names that are significant hits.
+    Raises
+    ------
+    pandas.errors.MergeError
+        If the metadata contains duplicate ``gene_nr`` values and therefore
+        cannot be joined many-to-one.
+    ValueError
+        If ``y_lims`` does not match a supported form.
     """
     if x_lim is None:
         x_lim = [-0.5, 0.5]

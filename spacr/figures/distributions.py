@@ -275,14 +275,11 @@ def _ratio_ticks(ax, values) -> None:
 
 
 def _normal_reference(ax, values, bins_edges) -> None:
-    """A normal with the sample's own mean and SD, over the counts.
+    """Draw a normal reference scaled to the histogram's count axis.
 
-    Scaled by ``n * bin width`` rather than drawing the histogram as a
-    density, so the y-axis stays a count of wells -- a reader can still read
-    "how many" off it, which is what the axis label promises.
-
-    Grey, thin and dashed: it is a reference, not a result, and the skill is
-    explicit that a reference must never out-weigh the data it is drawn over.
+    Estimate the curve from the sample mean and standard deviation, then
+    multiply its density by ``n * bin_width``. The grey dashed line remains
+    visually subordinate to the observed counts.
     """
     from scipy import stats
 

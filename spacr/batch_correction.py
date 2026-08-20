@@ -88,25 +88,9 @@ class BatchCorrectionReport:
 def _as_controls(values: Any) -> List[Any]:
     """Normalize a scalar or iterable control specification.
 
-    A COMMA-SEPARATED STRING IS SEVERAL VALUES, not one with a comma in it.
-
-    Reported 2026-08-17: typing ``c1,c2`` into `batch_control_values` failed
-    the run with ``Only 0 total reference-control row(s) matched ['c1,c2'];
-    need at least 3`` -- the whole string had been wrapped into a
-    one-element list and then matched against well names, which of course
-    matched nothing.
-
-    It is the GUI widget underneath: `list_shape_for` gives a key a list
-    editor only when its declared type admits NOTHING BUT a list, and this
-    key admits ``str, int, float, list, tuple, None``, so it gets a plain
-    text box. Splitting here rather than widening that rule keeps the fix
-    where the meaning is, and matches what the user sees in the same panel --
-    `filter_value` and `control_wells` sit directly above it and are lists of
-    exactly these well names.
-
-    A value containing a comma AND meant literally is not a thing a plate
-    column holds, so there is nothing to lose by splitting. Pass a real list
-    to be unambiguous.
+    ``None`` and blank strings produce an empty list. Comma-separated strings
+    are split into trimmed values, including when such a string is nested one
+    level inside an iterable. Other scalar values become one-element lists.
     """
     if values is None:
         return []

@@ -1858,11 +1858,10 @@ def _skip_box(ax, title, reason):
 
 
 def _wells(n, unit="wells"):
-    """The n, in the words the sentence title used to carry.
+    """Format the sample size for a diagnostic panel annotation.
 
-    It moved off the title and into the panel's note: the skill forbids a
-    sentence title, and a diagnostic panel that does not say how many wells
-    it drew cannot be read on its own.
+    Keeping the count inside the panel lets an exported panel be interpreted
+    without relying on a surrounding report title.
     """
     return f"n = {n:,} {unit}"
 
@@ -2299,18 +2298,12 @@ _REPORT_TARGET = "print"
 def _house_axes(ax, text, xlabel, ylabel, target=None):
     """Ink, type and L-framing for a panel, and the resolved ink back.
 
-    Used instead of :func:`_finish`, which writes a two-line sentence title
-    (the skill forbids sentence titles) and leaves the library's own type
-    sizes in place.
+    Use a short descriptor and the shared type scale rather than inheriting
+    matplotlib's default title and label sizes.
 
-    WHY THE INK IS PUSHED ONTO THE AXES RATHER THAN LEFT TO THE CONTEXT
-    MANAGER: :func:`~spacr.figures.style.figure_style` is an ``rc_context``,
-    and rcParams colour an artist when it is CREATED. The axes a QC panel
-    draws into is created by the report driver, outside the ``with`` block and
-    before the panel is called at all, so its spines, its tick labels and the
-    ``Text`` objects behind ``set_xlabel``/``set_ylabel`` already exist
-    carrying matplotlib's defaults. Opening the style does not retro-colour
-    them; only what the panel draws inside the block picks the style up.
+    Apply ink directly because the report driver creates each axes before its
+    style context begins. An ``rc_context`` affects newly created artists but
+    does not recolour existing spines, tick labels, or axis-label objects.
 
     :param ax: The axes the panel is drawing into.
     :param text: The descriptor — 2-4 lower-case words, never a sentence.
@@ -2320,21 +2313,10 @@ def _house_axes(ax, text, xlabel, ylabel, target=None):
         :data:`_REPORT_TARGET` **at call time**.
     :returns: The resolved ink, for annotations that are not a warning.
 
-    Two clusters arrived the same day with their own copies of this
-    function, ``_distribution_axes`` and ``_scatter_axes``, each differing
-    only in that it resolved the ink from ``theme_target()`` — the answer
-    this module cannot use, see :data:`_REPORT_TARGET`. Both copies are gone
-    and all of their panels call this one.
-
-    WHY ``target`` DEFAULTS TO ``None`` AND NOT TO ``_REPORT_TARGET``: a
-    default argument is bound once, when the ``def`` executes. Writing
-    ``target=_REPORT_TARGET`` froze the string ``'print'`` into the function
-    at import, so re-pointing the module constant moved the ``figure_style``
-    contexts — which look the name up when they run — but left every spine,
-    tick and label inked for the old target. The panels would have drawn one
-    half of themselves in each theme, and the tests that derive the expected
-    ink from ``rq._REPORT_TARGET`` would have reported the split as a panel
-    failure rather than as the wiring bug it is.
+    ``target`` defaults to ``None`` so :data:`_REPORT_TARGET` is resolved at
+    call time. Using the module value as a default argument would freeze the
+    import-time target and could style an axes differently from the active
+    report context.
     """
     ink = resolve_ink(_REPORT_TARGET if target is None else target)
     descriptor(ax, text)
@@ -2949,31 +2931,16 @@ _POSITION_ALPHA = 0.05
 def _positional_effect_panel(ctx, ax, column, label, mark_edges):
     """Boxplot of residuals by plate/row/column, with an edge-effect statistic.
 
-    Drawn in the house style of :mod:`spacr.figures.style`, which implements
-    the ``apicomplexan-figures`` skill. Its one rule: **everything is grey
-    except what the sentence is about.** The sentence here is "does position
-    change the residual?", so every mark starts grey and colour is spent only
-    where the statistics this panel already computes say there is something to
-    look at:
+    Draw all groups in grey unless a computed statistic identifies a feature
+    to emphasize. Highlight the group with the largest absolute median in
+    blue when Kruskal–Wallis rejects at :data:`_POSITION_ALPHA`. Mark the two
+    outer groups in rust when their combined median differs from the interior
+    median by more than half a residual standard deviation.
 
-    * BLUE on the group with the largest ``|median|``, and only when
-      Kruskal-Wallis rejects at :data:`_POSITION_ALPHA`. With no rejection
-      there is no claim to make and the panel comes out entirely grey, which
-      is the honest picture of "no positional effect".
-    * RUST on the outer groups, and only when the edge statistic fires — the
-      same ``|edge - interior| > 0.5 x residual SD`` test that used to append
-      ``<-- edge artefact`` to the note. Colouring the wells states it; the
-      8%-alpha red ``axvspan`` this replaces was invisible at report size.
-
-    THE STYLE IS APPLIED WITH THE CONTEXT MANAGER, never by writing rcParams.
-    spaCR draws from a long-lived GUI process, and a global style change
-    restyles every later figure in the session. The axes itself is made by the
-    report driver before that context exists, so :func:`_house_axes` re-inks
-    what it inherited — only artists created inside the ``with`` block pick
-    the style up on their own.
-
-    THE STATISTICS ARE UNCHANGED. They are computed before the drawing rather
-    than during it, because what gets colour is decided by them.
+    Compute the statistics before drawing so the colours and annotations use
+    the same decisions. Apply the figure style through a context and re-ink
+    the existing axes with :func:`_house_axes`; the report driver creates the
+    axes before this function begins.
     """
     from scipy import stats as sps
 
@@ -3916,42 +3883,18 @@ def draw_panel(name, ctx, ax):
 
 
 def _save(fig, path, fmt=None, renderer=None, title=None):
-    """Write a figure with the run's renderer, MAKE IT VISIBLE, and say which.
+    """Write, publish, and clear a QC figure with the selected renderer.
 
     :param renderer: one of :data:`spacr.figures.scene.RENDERERS`, decided
-        ONCE for the whole report rather than per panel.
+        once for the whole report rather than per panel.
     :returns: ``(path, renderer, reason)`` -- the path actually written, the
         library that drew it, and, when that is not pyqtgraph, why not.
 
-    Never touches pyplot's registry -- and that is exactly why this suite was
-    invisible until 2026-08-18. Reported as "several graphs are saved but I
-    cannot see them in the software".
-
-    A figure used to reach the GUI by one route: `spacr/qt/bridge.py` replaces
-    `matplotlib.pyplot.show` and emits everything in `plt.get_fignums()`. This
-    module builds bare `matplotlib.figure.Figure` objects, which are not IN
-    that registry, and never calls `show` -- so every panel of the ~19-panel
-    report was on disk and none of it was in the application.
-
-    Building a Figure directly is the CORRECT thing for a library to do; the
-    delivery mechanism was what was wrong. `spacr.figure_sink.publish` saves
-    and announces as one event, through no global registry.
-
-    The format still follows the user's preference: `publish` writes through
-    `spacr.plot.save_figure` rather than calling `fig.savefig` with a literal
-    extension. An explicit ``fmt`` overrides that, for the caller that
-    genuinely needs one particular format -- and it is passed on rather than
-    baked into the file NAME, because the name has to follow whatever is
-    actually written or the manifest points at a file that is not there.
-
-    THE RENDERER IS pyqtgraph WHERE THAT IS POSSIBLE. The request was that the
-    generated graphs be drawn by the library the tabs are drawn by. The panel
-    is still COMPUTED here, exactly once, and
-    :func:`spacr.figures.scene.write_figure` translates its finished artists
-    into a scene rather than drawing the statistics a second time -- so the
-    file and the panel cannot come to different numbers, which is what a
-    second implementation would eventually do. A panel the translator cannot
-    carry completely is written by matplotlib exactly as before, and says so.
+    :func:`spacr.figures.scene.write_figure` translates the completed artists
+    without recomputing panel statistics and falls back to matplotlib when the
+    scene cannot represent the figure completely. The publication route does
+    not depend on pyplot's global figure registry. ``fmt`` overrides the
+    configured format, while the returned path always names the file written.
     """
     from .figures.scene import write_figure
 

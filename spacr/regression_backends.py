@@ -307,13 +307,11 @@ def backend_choices() -> list:
 
 
 def _first_sentence(text) -> str:
-    """The opening sentence of a summary, for the one-line entries.
+    """Return the opening sentence of a backend summary.
 
-    "briefly" is the maintainer's own word for what the box should say about
-    each package. Every ``summary`` in :data:`REGRESSION_BACKENDS` opens with
-    the sentence that answers "what is this", and the ones that follow
-    qualify it, so the split is where the brief version already is rather
-    than a truncation at a character count.
+    Backend summaries place the identifying sentence first and qualifications
+    afterward. Splitting at the first sentence therefore preserves a complete
+    description without truncating by character count.
     """
     body = " ".join(str(text or "").split())
     head, sep, _rest = body.partition(". ")

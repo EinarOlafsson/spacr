@@ -1,60 +1,16 @@
-"""Render generated figures with the same engine used on screen.
+"""Translate completed matplotlib figures into pyqtgraph scenes.
 
-:mod:`spacr.figures.fast_render` answers that for the SEVEN plots that have an
-interactive twin, and it answers it the strongest possible way: it renders the
-live widget, so the file IS the tab. This module is for the OTHER thirty-four
--- the nineteen-panel regression QC suite, the three multi-panel diagnostic
-sheets -- which have no twin and never will have one drawn by hand a second
-time. Counted 2026-08-18 and re-counted here: 41 matplotlib figures per
-regression run, 7 with a twin, 34 without.
+This module preserves the geometry and statistics already computed by a
+matplotlib panel while changing the renderer used for the saved file. Artist
+types listed in :data:`CARRIED` are translated; an unsupported artist marks
+the translation incomplete and causes the caller to retain the original
+matplotlib output.
 
-THE CHOICE THIS MODULE MAKES, AND WHY IT IS THE OBVIOUS ONE. Those 34 panels
-are hand-tuned statistics -- a Brown-Forsythe split at the quartiles of the
-fit, a Cook's-D bubble area, a DFFITS screening line at 2*sqrt(p/n). Drawing
-them a second time in pyqtgraph would be exactly the defect 139 A exists to
-remove, one library further along: two implementations of one picture, free to
-disagree. So the panel is COMPUTED once, by the code that already computes it,
-and its finished matplotlib artists are TRANSLATED into a pyqtgraph scene which
-is what gets written.
-
-    ONE GEOMETRY, ONE RENDERER.
-
-Every number on the page -- every bin edge, every whisker, every quantile --
-is the one the panel computed. What changes is who paints it, which is what
-the request asked for and all it asked for.
-
-WHAT IS TRANSLATED, measured rather than assumed. A census of the 23 QC panels
-on a real OLS fit produced exactly these artist types:
-
-    Line2D 161, Text 105, Rectangle 66, PathCollection 32, Annotation 22,
-    LineCollection 5, AxesImage 1
-
-plus the axis and spine chrome, which is configuration rather than content.
-:data:`CARRIED` is that list. Anything outside it makes the translation
-INCOMPLETE and the panel falls back to matplotlib WITH THE ARTIST NAMED --
-never a silently poorer picture, which is the one outcome worse than not
-converting at all.
-
-THE HEADLESS GUARANTEE IS NOT WEAKENED. `spacr-run regression` in a terminal
-still writes every figure: pyqtgraph renders offscreen (measured -- a real
-vector PDF and a PNG with no display at all), and if Qt cannot be imported the
-run writes the matplotlib page it always wrote and says which renderer drew it.
-A run never loses a figure over a renderer.
-
-AND THE SAVE IS STILL A SAVE. The format follows
-:func:`spacr.plot.figure_path` -- pyqtgraph branches on the file NAME, so the
-name is settled before the exporter sees it -- and the file is announced
-through :func:`spacr.figure_sink.publish_file`, because saved and visible are
-one event and moving a picture to a new renderer must
-not take it out of the gallery.
-
-The scene is print-ready. It is built for
-a FILE and never appears on screen, so the print rule is applied as it is
-built rather than applied and restored: every colour goes through
-:func:`spacr.figure_style.export_colour` with the kind this module knows for
-certain, because it is translating typed artists rather than guessing at
-pixels. A tick label is chrome; a scatter's brush is data; the two are told
-apart by what they ARE and not by what colour they happen to be.
+Scene exports support headless rendering when Qt is available and otherwise
+fall back to matplotlib. Output names follow :func:`spacr.plot.figure_path`,
+saved files are announced through :func:`spacr.figure_sink.publish_file`, and
+print colours are resolved by :func:`spacr.figure_style.export_colour` from
+each artist's role.
 """
 
 from __future__ import annotations
@@ -186,28 +142,10 @@ def scene_renderer(force: Optional[str] = None) -> Tuple[str, str]:
 def _the_gallery_could_not_show_it() -> str:
     """Why a rendered file would be invisible in this process, or ``''``.
 
-    A RENDERER WHOSE OUTPUT CANNOT REACH THE GALLERY IS NOT USED. Instruction
-    139 C's rule is that saved and visible are ONE event, and there are two
-    routes into the gallery: a matplotlib Figure through
-    :func:`spacr.figure_sink.publish`, and a finished FILE through
-    :func:`spacr.figure_sink.publish_file`. They are separate because a
-    consumer cannot fake one from the other -- a pyqtgraph export never was a
-    Figure and there is nothing for a figure sink to render.
-
-    MEASURED 2026-08-18: ``spacr/qt/bridge.py`` installs the figure sink and
-    NEVER installs a file sink. So in the running application, today, a
-    picture written by pyqtgraph is announced to nobody. Converting a
-    twenty-panel suite to that renderer would take all twenty out of the
-    gallery -- 139 C's exact bug, reintroduced by 139 A.
-
-    So the state "somebody is listening for figures and nobody is listening
-    for files" chooses matplotlib and says why. It is self-correcting: the
-    moment the bridge installs a file sink the renderer changes with no
-    further edit here, and it never fires for a headless run, which installs
-    neither and keeps the scene.
-
-    Forcing a renderer skips this. A person overruling the rule is not the
-    rule failing.
+    Matplotlib figures and completed scene files use separate publication
+    sinks. If a figure sink is active but no file sink is installed, choose
+    matplotlib so the result remains visible in the gallery. Headless runs,
+    which install neither sink, may continue to use the scene renderer.
     """
     from ..figure_sink import file_sink, sink
 
@@ -341,15 +279,11 @@ def _alpha(colour, artist_alpha=None) -> int:
 
 
 class _Look:
-    """The print decision, asked once per figure and applied per artist.
+    """Apply one saved-figure appearance consistently to translated artists.
 
-    Instruction 150 C names :func:`spacr.figure_style.export_colour` as the
-    rule both renderers must ask, "so that half does not invent a second
-    answer". This is the pyqtgraph half asking it. The KIND is the only
-    judgement, and this module is in the rare position of knowing it for
-    certain: it is translating a typed matplotlib artist, so a tick label is
-    chrome because it IS a tick label and a scatter's face is data because it
-    IS a scatter's face.
+    Delegate colour decisions to :func:`spacr.figure_style.export_colour`.
+    Each matplotlib artist's type determines whether its colour represents
+    chrome, data, a reference, or the figure ground.
     """
 
     def __init__(self, mode=None, dpi: float = 100.0):
@@ -904,11 +838,9 @@ def _font(points, look, *, bold: bool = False, italic: bool = False):
 def _add_text(plot, artist, axes, look, report) -> int:
     """Translate one ``Text`` or ``Annotation``.
 
-    TEXT IS ALWAYS CHROME. Section A of instruction 150 lists the title, the
-    axis labels, the tick labels, the legend text and every annotation as
-    things that flip for print; nothing in this suite writes a datum as a
-    glyph. So the ink goes through ``export_colour(..., 'chrome')`` and a
-    panel annotated in a dark theme's near-white comes out readable on paper.
+    Titles, axis labels, tick labels, legend text, and annotations are treated
+    as figure chrome. Their colours therefore pass through the print-colour
+    resolver instead of being copied as data colours.
     """
     import pyqtgraph as pg
 
@@ -953,10 +885,8 @@ def _add_text(plot, artist, axes, look, report) -> int:
 def _add_image(plot, artist, look) -> int:
     """Translate an ``imshow``, colour map and all.
 
-    The colour map is DATA -- it is what the panel is saying -- so it is
-    carried across unchanged and never flipped for print. That is instruction
-    150 A's line exactly: a heatmap's colour map does not invert, because
-    inverting it changes what the figure says.
+    Preserve the colour map because it encodes data values and must not be
+    inverted by print styling.
     """
     import numpy as np
     import pyqtgraph as pg
@@ -1548,13 +1478,11 @@ def write_figure(figure, path, *, fmt=None, dpi=None, renderer=None,
 
 
 def _warn_about_data_colours(report: SceneReport) -> None:
-    """Name a data colour that will not read on the page (instruction 150 D).
+    """Warn about data colours with poor contrast on the saved page.
 
-    Named, never substituted. The house style already has an accessible
-    palette; swapping a colour the user did not ask to swap changes what the
-    picture says, and a warning that fires on every figure is a warning nobody
-    reads -- which is why the floor is 1.8 and not WCAG's 3.0, measured
-    against the house style's own greys.
+    Name offending colours without replacing them. Use the figure-style
+    contrast floor, which is tuned to flag colours less legible than the
+    house-style reference greys without warning on every figure.
     """
     from ..figure_style import (illegible_colour_warning, illegible_colours,
                                 saved_figure_appearance)
