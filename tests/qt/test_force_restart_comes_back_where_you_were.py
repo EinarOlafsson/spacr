@@ -101,7 +101,12 @@ def test_the_command_uses_the_running_interpreter_not_the_path():
     import sys
 
     assert restart_state.command()[0] == sys.executable
-    assert restart_state.command()[1:] == ["-m", "spacr"]
+    # `spacr.qt`, NOT `spacr` (2026-08-20). `spacr/__main__.py` is the CLI
+    # and its command DEFAULTS TO "gui", which dispatches to the legacy Tk
+    # interface -- so `-m spacr` quit the Qt app and opened the old one.
+    # Reported as "if i press stop and force restart i open the old tkinter
+    # spacr", which is not a restart of anything.
+    assert restart_state.command()[1:] == ["-m", "spacr.qt"]
 
 
 # -- what the dialog says ----------------------------------------------------
