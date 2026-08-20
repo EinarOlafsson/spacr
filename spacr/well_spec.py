@@ -11,14 +11,9 @@ import re
 import string
 from typing import Iterable, Optional, Sequence, Set, Tuple
 
-#: EVERY SETTING THAT TAKES A ROW, A COLUMN OR A WELL -- 185 C, which asks
-#: for this audit to be written down rather than assumed, because "a button
-#: next to only some of them is worse than none".
-#:
-#: Found by reading spaCR's own tooltips for the spellings they document
-#: ("a column ('c12')", "a row ('r1')", "well locations") rather than by
-#: guessing from names: `filter_value` takes wells and does not say so in its
-#: name, and several *_loc keys do.
+#: Settings whose documented values may contain plate rows, columns, or wells.
+#: The list is derived from setting descriptions rather than key-name patterns,
+#: which ensures generic fields such as ``filter_value`` are included.
 WELL_SETTINGS = (
     "cell_loc", "cell_plate_metadata", "class_metadata", "classes",
     "control_wells", "filter_value", "metadata_item_1_value", "mix", "neg",
@@ -26,11 +21,9 @@ WELL_SETTINGS = (
     "positive_control", "treatment_loc", "treatment_plate_metadata",
 )
 
-#: Of those, the ones whose value is ONLY wells, so a plate map can write the
-#: whole field. The rest mix wells with another vocabulary -- `classes` and
-#: `class_metadata` name classes, `negative_control` may name a gene or a
-#: guide (184) -- and a picker that overwrote one of those would destroy a
-#: value it does not understand.
+#: Settings whose complete value is a well specification and can therefore be
+#: replaced safely by the plate-map picker. Mixed-vocabulary fields remain
+#: outside this subset so non-well values are preserved.
 WELL_ONLY_SETTINGS = (
     "cell_loc", "control_wells", "filter_value", "pathogen_loc",
     "treatment_loc",

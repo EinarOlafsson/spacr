@@ -1,21 +1,10 @@
-"""Write a guide attribution into ``png_list`` -- only when asked.
+"""Persist model-based guide attributions in ``png_list`` on explicit request.
 
-Instruction 173's last owed piece:
-
-    An OPT-IN write of the columns into `png_list`:
-        grna_attributed, grna_attributed_p, gene_attributed,
-        grna_attribution_entropy, grna_attribution_coverage
-    Never automatic. Writing into measurements.db is not something a viewer
-    does behind the user, which is the rule the montage already keeps.
-
-IT IS NOT A GENOTYPE, AND THE COLUMN NAMES SAY SO. The pooled design never
-observed which cell carried what; this is an attribution under a model, and a
-reader who takes `grna_attributed` for an observation has been misled by the
-name alone. `_attributed` is in every one of them for that reason, and
-`ATTRIBUTION_NOTE` is written into the database beside them so the claim
-travels with the data rather than living in a docstring.
-
-NOTHING HERE IMPORTS QT. The confirmation is the caller's to obtain.
+The pooled design does not observe which guide each individual cell carries.
+These columns therefore store inferred attributions, their probabilities, and
+coverage diagnostics rather than genotypes. A database note records that
+interpretation beside the values. The module is GUI-independent and requires
+the caller to confirm every write.
 """
 from __future__ import annotations
 
@@ -31,9 +20,9 @@ COLUMNS = {
     "grna_attribution_coverage": "REAL",
 }
 
-#: Recorded in the database so the claim travels with the numbers.
+#: Interpretation stored beside attributed values in the database.
 ATTRIBUTION_NOTE = (
-    "grna_attributed is an ATTRIBUTION UNDER A MODEL, not an observation. "
+    "grna_attributed is a model-based attribution, not an observation. "
     "This is a pooled screen: the sequencing reports what fraction of each "
     "well carried each guide, never which cells did. The value is the guide "
     "whose posterior was highest for that cell given the well's read "
@@ -48,7 +37,7 @@ NOTE_KEY = "grna_attribution_note"
 
 
 class AttributionWriteError(RuntimeError):
-    """The write could not be done, and the message says what stopped it."""
+    """Raised when an attribution write cannot be completed safely."""
 
 
 def _columns_of(cursor, table: str) -> set:
@@ -56,7 +45,7 @@ def _columns_of(cursor, table: str) -> set:
 
 
 def describe(rows: Sequence[Mapping]) -> str:
-    """What a write would do, for the confirmation the caller must obtain."""
+    """Summarize a proposed attribution write for user confirmation."""
     total = len(rows)
     called = sum(1 for row in rows
                  if str(row.get("grna_attributed") or "") not in
@@ -70,18 +59,30 @@ def describe(rows: Sequence[Mapping]) -> str:
 def write(db_path: str, rows: Iterable[Mapping], *,
           key_column: str = "prcfo",
           confirmed: bool = False) -> Dict[str, int]:
-    """Write the attribution columns for ``rows`` into ``db_path``.
+    """Write model-based cell attributions to a ``png_list`` table.
 
-    :param rows: mappings carrying ``key_column`` and any of :data:`COLUMNS`.
-    :param key_column: how a row is matched to ``png_list``. ``prcfo`` is the
-        per-object key every spaCR database carries; ``file_name`` also works
-        for a database written before it.
-    :param confirmed: MUST be True. The default refuses, because "never
-        automatic" is a property of this function rather than of every caller
-        remembering -- a viewer that wrote into a measurements database
-        behind the user is the failure this guards.
-    :returns: ``{"matched": n, "added": n_columns}``.
-    :raises AttributionWriteError: unconfirmed, no such table, or no key.
+    Parameters
+    ----------
+    db_path : str
+        Measurement database containing ``png_list``.
+    rows : iterable of mappings
+        Records carrying ``key_column`` and any fields in :data:`COLUMNS`.
+    key_column : str, default='prcfo'
+        Column used to match records to ``png_list``. ``file_name`` supports
+        databases created before the per-object ``prcfo`` key was available.
+    confirmed : bool, default=False
+        Must be ``True``. The function refuses automatic or implicit writes.
+
+    Returns
+    -------
+    dict
+        Counts of matched rows and newly added columns.
+
+    Raises
+    ------
+    AttributionWriteError
+        If confirmation is absent, ``png_list`` is missing, or the match key
+        is unavailable.
     """
     if not confirmed:
         raise AttributionWriteError(
@@ -141,15 +142,24 @@ def write(db_path: str, rows: Iterable[Mapping], *,
 
 def rows_from(attributions, keys, *, genes=None,
               coverage: Optional[float] = None) -> list:
-    """Turn :class:`~spacr.guide_attribution.Attribution` objects into rows.
+    """Convert guide-attribution results into database records.
 
-    :param attributions: one per cell, in the order ``keys`` came.
-    :param keys: the per-object key each attribution belongs to.
-    :param genes: ``{guide: gene}``. Absent, the gene is the guide's own
-        prefix, which is spaCR's rule everywhere else.
-    :param coverage: what share of the well's reads the attributed guides
-        covered -- the same number for every cell of a well, and recorded
-        per cell so a reader filtering the table keeps it.
+    Parameters
+    ----------
+    attributions : iterable
+        One attribution per cell, in the same order as ``keys``.
+    keys : iterable
+        Per-object database keys.
+    genes : mapping, optional
+        Guide-to-gene mapping. Without one, the guide prefix is used.
+    coverage : float, optional
+        Fraction of well reads covered by attributed guides. The well-level
+        value is repeated per cell so it remains available after filtering.
+
+    Returns
+    -------
+    list of dict
+        Records ready for :func:`write`.
     """
     out = []
     for call, key in zip(attributions, keys):
