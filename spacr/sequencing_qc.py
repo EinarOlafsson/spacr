@@ -166,7 +166,15 @@ def load_count_table(count_data, plate: Optional[str] = None) -> pd.DataFrame:
             df = source.copy()
             label = f"count_data[{index}]"
         else:
-            df = pd.read_csv(source)
+            # THROUGH THE FUNNEL (145). These are the COUNT CSVs, and they are
+            # the case that instruction measured: `row_name`, `column_name`,
+            # `grna_name` and NO plate column at all, so four plates' r1/c1
+            # pooled into one well -- 384 wells instead of 1,536 -- with the
+            # fractions still summing to 1, so nothing downstream could
+            # notice.
+            from .tabular import read_table
+
+            df = read_table(source, report=None)
             label = str(source)
 
         renames = {}
@@ -465,7 +473,10 @@ def unmapped_read_fractions(qc_data, counts: Optional[pd.DataFrame] = None
     else:
         sources = list(qc_data)
 
-    frames = [src if isinstance(src, pd.DataFrame) else pd.read_csv(src)
+    from .tabular import read_table
+
+    frames = [src if isinstance(src, pd.DataFrame)
+              else read_table(src, report=None)
               for src in sources]
     qc = pd.concat(frames, axis=0, ignore_index=True)
     if "total_reads" not in qc.columns:
@@ -526,6 +537,10 @@ def _read_reference(reference) -> Dict[str, str]:
         if name is not None:
             table[name] = "".join(chunks).upper()
         return table
+    # RAW, DELIBERATELY. This is a barcode table -- `name` and `sequence` --
+    # and carries no plate, row, column, field or well. Canonicalising it
+    # would be a no-op with an import behind it, and 145's rule is about
+    # readers of METADATA-bearing tables.
     df = pd.read_csv(path)
     missing = {"name", "sequence"}.difference(df.columns)
     if missing:
