@@ -112,3 +112,68 @@ HOW TO KNOW IT WORKED
   guide and `000000` as a gene.
 * The resolver is used by every control path, and a test asserts there is no
   second implementation.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- C AND D SHIPPED. ALL FOUR SPELLINGS REACH THE SAME 28 GUIDES.
+--------------------------------------------------------------------------------
+
+C. ONE MATCHER. `control_names.rows_for` is now the only implementation, and
+   both call sites go through it. They had been disagreeing:
+
+     label_control_condition   matched nc/pc as SUBSTRINGS of the model term,
+                               so nc='23346' claimed 233460 AND 2334600 --
+                               and the rows it stole were then REPORTED as
+                               controls, which is worse than missing them.
+     _level_control_rows       took name.split('_')[0] as the gene, which
+                               reads TGGT1 as the gene of TGGT1_000000_1, so
+                               a control pasted from a library file selected
+                               nothing at gene level and the gene table
+                               silently got no effect-size cut -- the exact
+                               failure that function was written to fix, one
+                               spelling further along.
+
+D. LOUD, NOT FATAL, AND THIS INSTRUCTION WAS WRONG TO ASK FOR AN EXCEPTION.
+   spaCR SHIPS nc='233460' and pc='220950', which are Toxoplasma gene ids.
+   Raising on a control that matches nothing would make every screen that is
+   not this one fail on a value the user never typed. "An error, not a silent
+   zero" is right about the silence and wrong about the exception: the fix
+   for silence is a sentence nobody can miss, naming the control and the
+   consequence. `strict=True` stays available for a caller that KNOWS the
+   control was chosen rather than defaulted.
+
+TWO BUGS THE REAL SCREEN FOUND, both in the prefix rule:
+
+  * A ONE-GUIDE LIBRARY HAS NO ORGANISM. `common_prefix(["000000_1"])`
+    returned "000000" -- a token on 100% of the names -- so the GENE was read
+    as the organism and the control matched nothing. Only a name with THREE
+    components can contribute a candidate prefix, which is spaCR's own
+    <org>_<gene>_<guide> convention and what `process_reads` splits on.
+
+  * THE DATA HAS ALREADY DROPPED THE PREFIX AND THE USER HAS NOT.
+    `process_reads` stores TGGT1_000000_11 as guide 000000_11, so the names
+    in hand carry no organism token and the measured prefix is correctly "".
+    A control pasted from the LIBRARY file still says TGGT1_000000, whose
+    head is then not a known prefix and which read as a two-part guide
+    matching nothing: 0 found where '000000' found 28. When nothing matches
+    and the first token appears in NO name in hand, it is dropped and tried
+    again -- still whole values, so this is not substring matching by another
+    route, and a control that is simply wrong is still not rescued.
+
+MEASURED ON THE MAINTAINER'S SCREEN
+
+    nc=000000             28 coefficients
+    nc=TGGT1_000000       28          -- the same control, library spelling
+    nc=000000_11           1
+    nc=TGGT1_000000_11     1
+    nc=23346               0          -- no longer claims 233460
+    nc=TGGT1_999999        0
+
+50 tests in tests/test_a_control_is_a_gene_or_a_guide.py; 196 pass across the
+control, cut, two-fit and montage suites.
+
+STILL OWED
+  * The audit named FOUR candidate call sites and two turned out to be the
+    same question; `clean_controls` and `_resolve_controls` are about
+    per-well control LOCATIONS (c1, c2), a different vocabulary, and were
+    left alone deliberately. Worth confirming that is right rather than
+    assumed.

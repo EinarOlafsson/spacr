@@ -69,10 +69,18 @@ def common_prefix(names: Iterable[str],
         return ""
     leading = Counter()
     for name in distinct:
-        head, sep, rest = name.partition(SEPARATOR)
-        # A token is only a candidate PREFIX if something follows it.
-        if sep and rest:
-            leading[head] += 1
+        # THREE COMPONENTS OR IT IS NOT A SPECIES TAG. Caught by pointing
+        # this at a one-guide library: "000000_1" made "000000" look like a
+        # prefix carried by 100% of the names, so the GENE was read as the
+        # organism and the control then matched nothing.
+        #
+        # spaCR's own convention is <org>_<gene>_<guide>, and `process_reads`
+        # splits on exactly that -- three parts, no fewer. So the gene is
+        # always the SECOND-TO-LAST component, and a two-part name's head is
+        # a gene, never a species. Only three-part names can contribute a
+        # candidate prefix.
+        if len(name.split(SEPARATOR)) >= 3:
+            leading[name.split(SEPARATOR)[0]] += 1
     if not leading:
         return ""
     token, count = leading.most_common(1)[0]
@@ -173,3 +181,80 @@ def matches(spec: Optional[ControlSpec], guides, genes=None):
         return gene_series == spec.value
     # No gene column: a guide belongs to the gene its name starts with.
     return series.str.startswith(spec.value + SEPARATOR) | (series == spec.value)
+
+
+class ControlNotFound(ValueError):
+    """A control was named and nothing in the screen matched it.
+
+    "A control that matches NOTHING must be an error, not a silent zero."
+
+    It is not a fussy error. Every normalisation, every volcano baseline and
+    every nc/pc reference is computed against the control rows, so zero of
+    them is not "no controls" -- it is those numbers quietly computed against
+    an empty set. The screen still runs and the figures still draw.
+    """
+
+
+def rows_for(typed, guides, genes=None, *, names=None, prefix=None,
+             strict: bool = False, label: str = "control"):
+    """``(mask, note)`` -- the rows one typed control covers, and what it did.
+
+    THE ONE MATCHER. There were two, and they disagreed:
+
+      * `label_control_condition` matched `nc`/`pc` as SUBSTRINGS of the
+        model term, so `nc='23346'` claimed `233460` and `2334600` alike;
+      * `_level_control_rows` matched the control list whole against the
+        guide, and at gene level took `name.split('_')[0]` -- which reads
+        `TGGT1` as the gene of `TGGT1_000000_1`.
+
+    Both are this function now, so the volcano's colouring and the effect-size
+    cut cannot disagree about which rows are controls.
+
+    :param strict: raise :class:`ControlNotFound` when nothing matches.
+    :returns: the boolean mask and a sentence for the console.
+    """
+    import pandas as pd
+
+    spec = resolve_control(typed, names=names, prefix=prefix)
+    series = pd.Series(guides).astype(str)
+    if spec is None:
+        return pd.Series(False, index=series.index), ""
+    mask = matches(spec, guides, genes)
+    found = int(mask.sum())
+
+    # THE DATA HAS ALREADY DROPPED THE PREFIX, and the user has not.
+    # `process_reads` stores `TGGT1_000000_11` as guide `000000_11`, so the
+    # names in hand carry no organism token at all and `common_prefix`
+    # measures "" from them -- correctly. A control pasted from the LIBRARY
+    # file still says `TGGT1_000000`, whose head is then not a known prefix
+    # and which reads as a two-part guide that matches nothing.
+    #
+    # Measured on the maintainer's screen: 'TGGT1_000000' found 0 where
+    # '000000' found 28, which is the same control written the way the
+    # library writes it.
+    #
+    # So: when nothing matched and the first token is absent from every name
+    # in hand, try again without it. Still WHOLE values -- this drops a
+    # leading token, it does not go back to substring matching.
+    if not found and SEPARATOR in spec.typed:
+        head, _, tail = spec.typed.partition(SEPARATOR)
+        library = {str(n) for n in (names or series)}
+        unused = not any(str(n).startswith(head + SEPARATOR) for n in library)
+        if tail and unused:
+            shorter = resolve_control(tail, prefix=prefix)
+            if shorter is not None:
+                retry = matches(shorter, guides, genes)
+                if int(retry.sum()):
+                    spec = ControlSpec(spec.typed, shorter.level,
+                                       shorter.value, head)
+                    mask, found = retry, int(retry.sum())
+    if not found and strict:
+        raise ControlNotFound(
+            f"{label} {spec.typed!r} was read as {'gene' if spec.is_gene else 'guide'} "
+            f"{spec.value!r} and matches nothing in this screen. Every "
+            f"normalisation and every baseline is computed against the "
+            f"control rows, so leaving this would compute them against "
+            f"nothing. Check the spelling against the count table"
+            + (f", or drop the {spec.prefix!r} prefix" if spec.prefix else "")
+            + ".")
+    return mask, spec.note(found)
