@@ -103,6 +103,7 @@ _TEXT_METHODS = {
     "setText", "setTitle", "setToolTip", "setStatusTip",
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
+    "set_translatable_text",
 }
 _TEXT_CONSTRUCTORS = {
     "QLabel", "QPushButton", "QToolButton", "QCheckBox", "QRadioButton",
@@ -2576,6 +2577,12 @@ def _literal_strings(
 
 
 def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
+    if name == "set_translatable_text" and len(node.args) >= 2:
+        # set_translatable_text(widget, source, language=None, **values).
+        # The first argument is a widget; the second is the canonical English
+        # template that must enter the runtime catalog.
+        yield node.args[1]
+        return
     if name == "addTab" and len(node.args) >= 2:
         yield node.args[1]
         return

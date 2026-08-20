@@ -129,6 +129,26 @@ def test_runtime_source_inventory_is_stable_after_runctx_import():
     assert "on_error" in sources["setting_tooltips"]
 
 
+def test_dynamic_text_templates_enter_the_runtime_source_inventory():
+    """Explicitly translatable status text must not bypass catalog building."""
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+
+    sources = set(builder.extract_static_ui_sources())
+    assert any(
+        source.startswith("Kernel containment is active for each trial:")
+        for source in sources
+    )
+    assert any(
+        source.startswith("Kernel containment is unavailable because")
+        for source in sources
+    )
+
+
 def test_runtime_rejects_a_localized_record_with_a_stale_source_hash(
     monkeypatch,
 ):
