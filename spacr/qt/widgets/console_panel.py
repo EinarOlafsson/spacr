@@ -1,51 +1,19 @@
-"""
-ConsolePanel — merged pipeline console + AI chat panel.
+"""Combine pipeline output, errors, and AI chat in one console panel.
 
-One vertical scrolling area shows both pipeline stdout AND AI chat
-messages, separated by dark-gray "topic" bars ("Mask", "Measure",
-"spaCR AI", …). Below the scroll sits an input row where the user
-can type at any time; a switch on the left decides whether the
-message goes to the AI or is ignored.
+Topic bars separate pipeline stages and AI conversations in a shared scrolling
+view. The input area and transcript form a vertical ``QSplitter``; when a
+``persist_key`` is supplied, its state is stored under ``console/split/<key>``
+and restored per screen.
 
-Resizing
---------
-The scrolling console box and the AI chat box below it are the two halves
-of a vertical ``QSplitter``, so the handle between them can be dragged to
-trade height: a taller chat box is a shorter console, pixel for pixel. The
-default seats the handle exactly where the old fixed-height layout drew it,
-so nothing moves for a user who never drags. When the panel is built with a
-``persist_key`` the position is saved per screen (``QSplitter.saveState``,
-under ``console/split/<key>``) and restored the next time that screen opens.
+:class:`ConsolePanel` can start a topic, append ordinary or error output,
+launch the AI error-explanation flow, and clear the transcript. It owns its AI
+worker so streamed state remains coherent while the active pipeline screen
+changes.
 
-Public API
-----------
-* begin_topic(label)          — insert a dark-gray divider bar
-                                (used at the start of every pipeline
-                                run and every time we switch to/from
-                                the AI)
-* append_stdout(text)         — append pipeline output; if the last
-                                entry isn't already a stdout block it
-                                starts a new one
-* append_error(traceback)     — same as stdout but red-tinted
-* open_error_flow(tb, app)    — inject the AI-explainer prompt for a
-                                traceback and stream the reply into
-                                a fresh spaCR-AI section
-* clear()                     — wipe every entry
-
-Streaming state
----------------
-The panel owns the AI thread+worker itself so state stays coherent
-even as the user switches between pipeline apps.
-
-Threading
----------
-Every entry in this console is a QWidget, so every method that appends
-one has to run on the GUI thread. Log records do not: Python's logging
-module calls handlers inline on whatever thread logged, and a pipeline
-worker logging a warning used to reach :meth:`ConsolePanel.append_stdout`
-directly. :meth:`ConsolePanel.append_stdout` and
-:meth:`ConsolePanel.append_error` therefore bounce off-thread calls back
-through a queued signal instead of building the widget where they stand.
+Widget creation always occurs on the GUI thread. Calls to
+:meth:`ConsolePanel.append_stdout` and :meth:`ConsolePanel.append_error` from
+logging or pipeline workers are relayed through queued Qt signals before they
+modify the transcript.
 """
 from __future__ import annotations
 
@@ -1486,12 +1454,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         return "\n".join(parts).strip() + "\n"
 
     def section_text(self, bar: "_TopicBar") -> str:
-        """One section: its header and everything under it.
-
-        A section runs from its own topic bar to the next one, which is what
-        a reader means by "this bit" — the header alone identifies nothing
-        and the whole console is more than was asked for.
-        """
+        """Return a topic bar and its content up to the next topic bar."""
         start = None
         last = self._entries.count() - 1
         boundaries = []
@@ -1711,22 +1674,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
                 yield widget, str(kind), widget.toPlainText()
 
     def _console_context_for_question(self, question: str):
-        """Read and package new console text at ask time.
+        """Package unsent console context when an AI question is submitted.
 
-        Returns ``(context, visible_status)``. Complete traceback blocks take
-        priority over ordinary stdout and may exceed the soft context budget.
-        Text is marked sent only when it is actually attached.
-
-        Gated on ONE preference, ``ai.settings.get_console_aware`` (default
-        on). This used to be a three-mode combo beside the input, where
-        "Include" always sent and "Auto" sent only when the question looked
-        diagnostic. Auto is gone deliberately, and not preserved as a hidden
-        state: a heuristic on the user's wording decides, silently and
-        sometimes wrongly, whether the model sees the error being asked
-        about -- and being wrong in the "no" direction produces exactly the
-        failure this whole instruction exists to end, an assistant that
-        cannot see the traceback on the screen in front of it. Console-aware
-        now means the console goes. How MUCH goes is still bounded below.
+        Return ``(context, visible_status)``. Complete traceback blocks take
+        priority over ordinary output and may exceed the soft context budget.
+        When the default-on console-aware preference is disabled, no context
+        is attached. Text is marked sent only after it is included.
         """
         from ..ai import settings as ai_settings
 

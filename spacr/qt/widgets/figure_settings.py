@@ -335,11 +335,10 @@ class FigureSettingsDialog(QDialog):
                 "Accent", "viridis", "plasma", "cividis", "coolwarm")
 
     def _add_series_rules(self, form, axis, series) -> None:
-        """Colouring rules for an axes with too many series to list.
+        """Add shared styling controls for axes with many series.
 
-        The user asked for "coloring rules, but not options for each
-        individual datapoint". This is that: one palette across the whole
-        series set, and single size/opacity controls that reach all of them.
+        A single palette, size, and opacity rule applies across the complete
+        series set instead of presenting one control per mark.
         """
         form.addRow(QLabel(f"— {len(series)} series —"))
         note = QLabel(
@@ -519,20 +518,12 @@ class FigureSettingsDialog(QDialog):
     # ----------------------------------------------------------------- tabs
 
     def _statistics_tab(self) -> QWidget:
-        """Which test, at what level, corrected how -- and what it chose.
+        """Build the statistical-test controls and show the resolved choice.
 
-        Asked for on 2026-08-16: "provide a statistics tab in the settings
-        for the graph upon right clicking".
-
-        ONLY OFFERED WHERE THERE IS SOMETHING TO COMPARE. The figure carries
-        its groups or it does not; a tab offering a t-test on a Q-Q plot
-        would invite a number that means nothing.
-
-        The default is AUTO, and the panel shows what auto chose and why.
-        Forcing a test is offered because a reader sometimes has a reason the
-        data cannot express -- a paired design, a pre-registered analysis --
-        but it is a deliberate override rather than the starting point, and
-        the automatic choice is the one that reads the assumption checks.
+        The tab is available only for figures that carry comparable groups.
+        Automatic selection is the default and reports the chosen test and
+        rationale; an explicit test remains available for design information
+        the data alone cannot infer.
         """
         from ...figures import stats as stats_module
 
@@ -2192,18 +2183,11 @@ class FigureStylePreferences(QWidget):
     # -- building one control ------------------------------------------------
 
     def _control(self, name: str, value):
-        """``(widget, getter, setter)`` for one style setting, from its VALUE.
+        """Build a widget, getter, and setter from one style value.
 
-        The value and not a declared type, for the reason instruction 108
-        records: a dataclass under ``from __future__ import annotations``
-        carries its type as a string, and these are plain dicts with no
-        annotation at all. The value is the only thing that is always there.
-
-        THE SETTER IS BUILT HERE, beside the getter, and that is deliberate.
-        "Reset to defaults" has to put every control back, and the
-        alternative -- working out from the widget's class how to write to it
-        -- misses exactly the newest control kind, which is the one nobody
-        remembers to add to the reset. Built together, they cannot disagree.
+        Runtime values determine the control type because annotations may be
+        strings or absent. Returning the setter beside the getter ensures
+        reset-to-default behavior uses the same control contract.
         """
         choices = style_choices_for(name)
         if name in TRANSPARENT_CAPABLE and (_looks_like_a_colour(value)

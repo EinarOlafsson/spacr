@@ -194,18 +194,19 @@ def _summary_filenames() -> tuple:
 
 
 def find_summary_file(path) -> Optional[str]:
-    """The statsmodels summary written beside ``path``, or ``None``.
+    """Find the model summary associated with a regression result.
 
-    ``path`` is whatever the panel was pointed at: a results CSV, the run
-    folder holding it, or a parent of one. THE SUMMARY IS ALREADY ON DISK --
-    ``perform_regression`` writes it into the run folder next to
-    ``results.csv`` -- so a panel opened from a table has it one ``open()``
-    away and never needs a re-fit to show it.
+    Parameters
+    ----------
+    path : path-like
+        Results CSV, run directory, or parent directory containing a
+        discoverable results table.
 
-    BOTH NAMES ARE ACCEPTED. Runs from before 2026-08-18 wrote
-    ``mode_summary.csv``; new ones write ``model_summary.txt``. Old runs keep
-    working, which is the standing rule: correct the format going forward and
-    migrate the old content rather than preserve the bug.
+    Returns
+    -------
+    str or None
+        Path to the first supported summary file, or ``None`` when no summary
+        is found. Both the current and legacy summary filenames are accepted.
     """
     names = _summary_filenames()
     if not path or not names:
@@ -280,14 +281,10 @@ _CANONICAL_TABLE = "results.csv"
 
 
 def _why_no_model(path, reason) -> str:
-    """The TRUE reason there is no fitted model to summarise.
+    """Return the verified reason that no fitted model is available.
 
-    A MESSAGE MUST NOT ASSERT A CAUSE IT HAS NOT CHECKED. This panel used to
-    say "opened from a results table on disk" for every absent model, with
-    equal confidence whether or not that had happened -- and the case the
-    maintainer hit was a LIVE run whose model had been discarded by a failure
-    in the diagnostics. The story was told, the user re-ran a fit that had
-    just finished, and the second run said the same thing.
+    Prefer an explicit reason. Otherwise distinguish a table loaded from disk
+    from a session in which no model has been fitted.
     """
     if reason:
         return str(reason)
@@ -378,22 +375,11 @@ def summary_text(model, regression_type=None, *, path=None,
 
 def _with_spacr_summary(path, statsmodels_text: str, *,
                         missing: bool = False) -> str:
-    """The run's OWN summary first, the statsmodels one under it.
+    """Prepend the spaCR run summary to the statsmodels summary.
 
-    Reported 2026-08-19: "for the glm summary there is only the statsmodel
-    summary, there should also be a spacr summary." There was one -- the run
-    writes it to disk -- and this tab could not show it, because the disk was
-    only read when there was NO live model. So the case where spaCR knows
-    most about the fit was the one case where it said least.
-
-    THE STATSMODELS TEXT IS NEVER REPLACED, only preceded. It is the thing a
-    reader compares against every other tool, and the spaCR summary answers a
-    different question: what was fitted, on what, under which assumptions,
-    and which of them held. Both, in the order they are read.
-
-    The file already contains the verbatim summary as its last section (see
-    `write_run_summary`), so it is trimmed off rather than printed twice --
-    the live one is the fit on screen and is the one to keep.
+    The saved summary's embedded statsmodels tail is removed so the live text
+    is not duplicated. When ``missing`` is true, the returned second section
+    explains why no statsmodels summary is available.
     """
     spacr = _spacr_summary_text(path)
     if not spacr:
@@ -1119,14 +1105,10 @@ class RegressionResultsPanel(QWidget):
         "summarise")
 
     def _no_model_reason(self) -> str:
-        """Why this panel has no fitted model, when it knows a real reason.
+        """Return a verified reason that this panel has no fitted model.
 
-        "" means nothing more specific than what :func:`summary_text` can
-        check for itself. EVERY REASON RETURNED HERE ACTUALLY HAPPENED, which
-        is the whole point of the method: the old message explained every
-        absence with "opened from a results table on disk" -- including the
-        live run whose diagnostics had thrown, which is the case the
-        maintainer hit.
+        Return an empty string when :func:`summary_text` should infer the
+        reason from the available path instead.
         """
         if self._model is not None:
             return ""
@@ -1371,24 +1353,11 @@ class RegressionResultsPanel(QWidget):
         return self._frame
 
     def run_folder(self) -> str:
-        """The FOLDER of the run on screen, or ``""`` when there is no run.
+        """Return the folder for the regression run shown by this panel.
 
-        ``perform_regression`` hands ``res_folder`` back
-        with the coefficients and writes ``regression_data.csv`` into it. What
-        was missing is that nothing here would ANSWER the question, so every
-        view that needed the folder had to reach for ``_path`` and guess
-        whether it was holding a CSV or a directory -- and a live run puts a
-        directory there while a load off disk puts a file. Both are answered
-        here, once.
-
-        A run RELOADED FROM DISK answers the same way, because the folder is
-        not a fact carried alongside the run: it is the run. That is what the
-        request's "this information should all be saved ... in the run" comes
-        to once the run IS a folder.
-
-        ``""`` for a table with no run behind it -- a bare CSV opened from
-        somewhere else, or a frame handed straight in -- which is a different
-        situation from "no results at all" and keeps its own sentence.
+        Live results may store a directory while results loaded from disk may
+        store a table path; both resolve to the containing run folder. Return
+        an empty string for an unassociated CSV or an in-memory frame.
         """
         return self._folder_of(self._path)
 
@@ -2474,23 +2443,10 @@ class RegressionResultsPanel(QWidget):
         return None
 
     def _offer_levels(self) -> None:
-        """Put genes / guides / both on the volcano, with the sentence.
+        """Add gene, guide, and combined level choices to the volcano plot.
 
-        THE NOTE TRAVELS WITH THE CONTROL, and that is the whole of it. The
-        sentence used to be written with `set_status_note`, which fast_plots
-        documents as "a sentence about the CLICKED thing" -- so the first
-        click on the plot erased the one line telling the user the other half
-        of the run existed. Measured on the real panel:
-
-            on load    "220 coefficients. Click a point for detail.
-                        guides only: 220 of 240 coefficients. ..."
-            one click  "220 coefficients. Click a point for detail.
-                        fraction:grna[g7_2]"
-
-        which is the half-the-run-invisible failure instruction 147 A exists
-        to fix, one click later. `offer_levels` has a slot of its own for
-        exactly this, and that slot survives a redraw AND a click, so both
-        sentences are on screen at once.
+        The level summary uses the plot's persistent option-note slot so point
+        selections cannot replace the explanation of hidden coefficients.
         """
         counts = self.level_counts()
         self.volcano.offer_levels(
@@ -2527,13 +2483,10 @@ class RegressionResultsPanel(QWidget):
         return menu
 
     def _level_menu_at(self, position) -> None:
-        """Right-click on the coefficients table: the same three choices.
+        """Open the coefficient-level menu for the results table.
 
-        Instruction 128 L, in the maintainer's words: "i should be able to
-        right click on the coeffisients table and only see grna or genes and
-        this should also filer the subsequent data/graphs in the subsequent
-        tabs". It sets the same `_level` the volcano's menu does, so the two
-        gestures cannot disagree about what the panel is showing.
+        The table and volcano menus update the same level state so every
+        downstream table and plot uses the same gene/guide filter.
         """
         self.build_level_menu().exec(
             self.table.table.viewport().mapToGlobal(position))
@@ -2680,13 +2633,10 @@ class RegressionResultsPanel(QWidget):
         return is_guide if self._level == "grna" else ~is_guide
 
     def _offer_p_values(self) -> None:
-        """Offer raw vs adjusted p-values, when there is a choice.
+        """Offer raw and adjusted p-values when correction was performed.
 
-        Asked for 2026-08-17. Offered ONLY when a corrected column exists:
-        a menu entry for "adjusted" on a run with no correction would promise
-        a number that is not there, and `multiple_testing_method='none'`
-        writes a q_value equal to the p_value, which is not the same thing as
-        having corrected.
+        A copied ``q_value`` from ``multiple_testing_method='none'`` does not
+        count as an adjusted value and does not enable the choice.
         """
         frame = self._frame
         corrected = (_match_column(frame, ("q_value", "adjusted_p_value"))
@@ -2723,14 +2673,7 @@ class RegressionResultsPanel(QWidget):
                  + (f" {self._p_value_note}" if self._p_value_note else ""))
 
     def _offer_thresholds(self) -> None:
-        """Put the effect-size cut on the volcano's right-click menu.
-
-        Asked for 2026-08-17: the multiplier and the mode, on the plot,
-        because the settings-panel controls for them GREY OUT under
-        `inference='nonparametric'` -- correctly, since the permutation path
-        does not use a control-spread cut -- and the maintainer could not
-        find them.
-        """
+        """Add effect-size threshold controls to the volcano plot menu."""
         from ...thresholds import METHODS
 
         self.volcano.offer_thresholds(
@@ -2958,29 +2901,22 @@ class RegressionResultsPanel(QWidget):
         "table without it is not a regression result.")
 
     def _draw_effects(self, frame, kind=None) -> None:
-        """Fill the Effect rank and Effect distribution tabs, or say why not.
+        """Fill the effect-rank and effect-distribution tabs.
 
-        :param frame: the coefficient table at the chosen gene/guide level.
-        :param kind: what orders this table -- :meth:`ranking`'s first item.
-            ``"p-value"`` lets the ranking colour its dots by the corrected
-            p; anything else says THIS TABLE HAS NO SIGNIFICANCE, which is not
-            the same instruction as "go and find one". A penalised fit carries
-            an OLS-style ``p_value`` computed as though there were no penalty,
-            and a plot left to search would colour its dots by a number nobody
-            tested -- the identical trap :meth:`_rank_by` documents.
+        Parameters
+        ----------
+        frame : pandas.DataFrame
+            Coefficient table at the selected gene or guide level.
+        kind : str or None, optional
+            Ranking type returned by :meth:`ranking`. Only ``"p-value"``
+            permits significance coloring; penalized rankings must not reuse
+            inferential p-values computed under a different model.
 
-        A TAB THAT CANNOT BE FILLED SAYS WHY, IN THE TAB. Instruction 129 B:
-        an absent tab is indistinguishable from a bug, and a present empty one
-        with no sentence is indistinguishable from a broken one.
-
-        THE NUISANCE TERMS COME OUT OF BOTH, and not for the reason one
-        expects. :class:`EffectRankPlot` drops them itself; the distribution
-        is handed values rather than a frame, so the drop happens here. It is
-        the FAMILY that requires it rather than the axis -- measured on the
-        TSG101 screen, the intercept's coefficient of 0.190 ranks 547 of 1,213
-        and moves σ (MAD) by 0.08% -- but its q-value is NaN, so it can never
-        be called, and a covariate among the hypotheses is a different
-        experiment from the one the q-values describe.
+        Notes
+        -----
+        Unsupported plots display their reason in the tab. Nuisance terms are
+        excluded from both views because they are not part of the multiple-
+        testing family represented by the reported q-values.
         """
         from .fast_plots import NO_SIGNIFICANCE
 
@@ -3061,30 +2997,12 @@ class RegressionResultsPanel(QWidget):
         return None
 
     def _select_from_a_plot(self, key: str) -> None:
-        """A point was clicked: reach its row, MOVING THE FILTER if it must.
+        """Select a clicked coefficient, changing level when required.
 
-        THE CLICK IS MORE SPECIFIC THAN THE STANDING FILTER, so it wins.
-
-        Instruction 128, found 2026-08-18. The gene/guide filter reaches every
-        tab, and the guide-agreement plot is ONE ROW PER GENE by construction
-        -- it is the plot that answers "do this gene's guides agree". While
-        the filter is on `grna` the coefficient table holds no row for
-        anything drawn on it, so a click landed nowhere: no ring, no selected
-        row, no gene tile, and nothing saying why, on a plot that still looked
-        clickable.
-
-        DEFERRED, AND THAT IS THE WHOLE TRICK. The obvious version -- call
-        `set_level` and then select -- was tried first and broke ten other
-        round-trips: `set_level` rebuilds every view from inside the click's
-        own signal, which invalidates the point objects Qt is still
-        dispatching through. The level moves now and the key is re-applied on
-        the NEXT event-loop turn, after the rebuild has finished and the
-        signal has unwound.
-
-        Nothing happens on the ordinary path. A click on the volcano, the
-        Q-Q, the effect ranking or the control panel at its usual level finds
-        its row already visible, so the filter does not twitch under a user
-        browsing within it.
+        Gene-only plots can be activated while the panel is filtered to
+        guides. In that case the level changes first and selection is applied
+        on the next event-loop turn, after the view rebuild and signal dispatch
+        finish. Clicks whose row is already visible do not change the filter.
         """
         if self._reachable(key):
             self.table.select_key(key)

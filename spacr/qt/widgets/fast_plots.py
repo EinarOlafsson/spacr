@@ -1,29 +1,15 @@
-"""Interactive regression plots drawn by Qt, not by matplotlib.
+"""Provide interactive Qt regression plots backed by pyqtgraph.
 
-WHY THIS EXISTS
+Pyqtgraph keeps marks in a ``QGraphicsScene`` so Qt can composite pan, zoom,
+selection, and hover updates without asking Python to redraw every artist. In
+the recorded 1,215-point volcano benchmark, a log-axis update took 4.7 ms and
+full point recoloring took 45 ms, compared with about 115 ms for a Matplotlib
+redraw.
 
-matplotlib redraws every artist, in Python, on every frame. On the screen's
-volcano -- 1,215 points scattered once per LOPIT compartment, with a 27-entry
-legend -- that is ~115 ms per redraw, and it is paid again for every pan, every
-zoom, and every style change. No amount of debouncing, threading or resolution
-capping removes it, because the cost is text layout and marker geometry rather
-than pixels.
-
-pyqtgraph draws into a QGraphicsScene. Pan, zoom and hover cost NOTHING, because
-the scene is composited by Qt rather than re-rendered by Python; a log-axis
-toggle is 4.7 ms against matplotlib's 115 ms; recolouring every point is 45 ms.
-The same reason the 3D UMAP viewer can spin 10,000 points with edges while a
-flat scatter plot stutters.
-
-THE SPLIT
-
-    on screen  -> pyqtgraph, because the user interacts with it
-    on disk    -> matplotlib, because it still makes the better vector page
-
-Publication figures are unchanged. This is only what the application shows.
-
-Every plot here takes a DataFrame and returns a widget. They are deliberately
-free of spaCR imports so they can be tested, and reused, on their own.
+The application uses these widgets for on-screen interaction and retains
+Matplotlib for publication-oriented vector exports. Each plot accepts a
+``pandas.DataFrame`` and returns a widget without importing other spaCR modules,
+which keeps the components independently testable and reusable.
 """
 
 from __future__ import annotations
@@ -939,19 +925,10 @@ def mark_advice(kind: str, counts) -> str:
 
 
 def _require_pyqtgraph() -> None:
-    """Raise for a caller that genuinely cannot degrade.
+    """Raise when a caller requires the optional pyqtgraph dependency.
 
-    NOT called from :class:`FastPlot` any more, and the reason is the bug
-    this replaced. `RegressionResultsPanel` builds five of these, the
-    parameter-sweep card builds that panel, and `_build_runtime_panel` builds
-    the card -- so a missing OPTIONAL plotting library raised out of the
-    screen factory and took down EVERY module in the application, mask and
-    measure included. Reported from a real install that had PySide6 and not
-    pyqtgraph.
-
-    The message it raised also named a fallback that does not exist ("or use
-    the matplotlib figures"). Telling a user there is another way and then
-    dying is worse than dying.
+    General plot construction uses an unavailable-state widget instead;
+    callers should use this guard only when no graceful fallback exists.
     """
     if not HAVE_PYQTGRAPH:
         raise RuntimeError(PYQTGRAPH_MISSING_MESSAGE)
@@ -1695,20 +1672,18 @@ class FastPlot(QWidget):
         return ""
 
     def line_reason(self) -> str:
-        """Why "line width" cannot act here, or ``""``.
+        """Return why line styling is unavailable, or an empty string.
 
-        Still the plot's OWN lines and not the axes: a spine's weight is not
-        what "line width" was asked for, so a plot with axes and no data
-        lines has nothing for the control to widen and says so.
+        Axis spines are excluded because the control applies to plot marks
+        and reference lines.
         """
         return "" if self.line_items() else "this plot has no lines on it"
 
     def line_colour_reason(self) -> str:
-        """Why "line colour" cannot act here, or ``""``.
+        """Return why line-colour styling is unavailable, or an empty string.
 
-        Almost never, and that is the point of the design: the control
-        reaches the AXES, and a drawn plot always has those. It was the
-        absence of any control over them that the first report named.
+        The control applies to data lines and axes, so it is available for
+        any rendered plot that contains either.
         """
         if not self.plots_available:
             return "this build has no pyqtgraph, so nothing is drawn"
@@ -1783,32 +1758,11 @@ class FastPlot(QWidget):
         self._pinned: dict = {"x": None, "y": None}
 
     def _install_axis_hooks(self) -> None:
-        """Catch every item and every label on its way onto the plot.
+        """Install central hooks that transform every item and axis label.
 
-        WHY A HOOK RATHER THAN TWENTY CALL SITES. Eighteen places in this
-        module put something on a plot -- scatters, threshold lines, box
-        rectangles, violin outlines, whisker segments, bars, the selection
-        ring -- and every one of them has to be transformed when an axis is
-        logged. A transform applied at each call site is one that gets
-        missed on the mark nobody tested, and a plot that logs its points
-        and not its threshold line is a WORSE lie than the one this fixes.
-
-        ``PlotItem.addItem`` and ``PlotItem.setLabel`` are the two funnels
-        everything already goes through: ``PlotItem.plot()`` builds its
-        ``PlotDataItem`` and then calls its own ``addItem``, and
-        ``PlotWidget`` forwards the rest.
-
-        AND THE WIDGET'S OWN COPY, WHICH IS THE TRAP. ``PlotWidget.__init__``
-        does ``setattr(self, m, getattr(self.plotItem, m))`` for a list that
-        includes ``addItem`` -- a bound method SNAPSHOT taken at
-        construction, not a ``__getattr__`` forward. Wrapping only the
-        ``PlotItem`` therefore catches ``self.plot.plot(...)`` and misses
-        every ``self.plot.addItem(...)``, which is every scatter and every
-        bar on every plot here. Measured that way once: the Q-Q reported
-        "1 of 2 values" on an axis carrying a hundred points.
-        ``setLabel`` is NOT in that list, so it forwards and needs no copy --
-        but it is given one anyway, because the list is pyqtgraph's and a
-        version that adds to it would silently reopen the same hole.
+        Both ``PlotItem`` and the bound methods copied onto ``PlotWidget``
+        are wrapped. This keeps data marks, annotations, thresholds, and
+        labels consistent when an axis uses a transformed scale.
         """
         plot_item = self.plot.plotItem
         add_item = plot_item.addItem
@@ -2682,31 +2636,24 @@ class FastPlot(QWidget):
 
     def set_line_style(self, colour=None,
                        width: Optional[float] = None) -> int:
-        """Recolour and re-weight every line. Returns how many it reached.
+        """Apply colour and width changes to plot lines.
 
-        Every line setting includes the axes. The design is based on what a
-        mark is rather than on which part of the
-        code draws it: one Line colour for the data's own lines, the
-        reference and threshold lines, the Q-Q diagonal, the trends, and the
-        axis spines and tick marks; one Font colour for every piece of text.
-        Tick marks are lines and tick labels are text, which is the one place
-        the two controls meet.
+        Existing dash patterns are preserved. Colour changes also reach axis
+        spines and tick marks, while width changes apply only to plot marks
+        and reference lines.
 
-        THE DASHES SURVIVE. Each pen is copied and only the colour and the
-        width are replaced, so the p=0.05 line stays dashed and the reference
-        line stays solid -- the dash pattern is what tells a reader which
-        line is a threshold and which is the data's own trend, and rebuilding
-        the pen from scratch would flatten that distinction on every restyle.
+        Parameters
+        ----------
+        colour : QColor-compatible, optional
+            New colour, ``None`` to retain each line's colour, or the internal
+            ``"\0theme"`` sentinel to restore theme colours.
+        width : float, optional
+            Pen width in pixels. ``None`` retains current widths.
 
-        THE WIDTH STOPS AT THE PLOT'S LINES. A spine three pixels thick is
-        not what "line width" was asked for, and the axes have no dash
-        pattern to preserve -- so the axes take the colour and keep their
-        weight.
-
-        :param colour: anything :class:`QColor` accepts, ``None`` to keep
-            each line's own, or the sentinel ``"\0theme"`` for "back to
-            automatic" -- which is not a colour and cannot be typed.
-        :param width: pen width in pixels, or None to keep it.
+        Returns
+        -------
+        int
+            Number of line items updated.
         """
         from PySide6.QtGui import QPen
 
@@ -2953,19 +2900,10 @@ class FastPlot(QWidget):
     # ------------------------------------------------------------ dimensions
 
     def set_screen_size(self, width: int, height: int) -> None:
-        """Make the plot exactly this many pixels ON SCREEN.
+        """Set the plot's fixed on-screen size in pixels.
 
-        A FIXED SIZE, NOT A RESIZE, and that is measured rather than assumed.
-        These plots live inside splitters, which own their children's
-        geometry: a `VolcanoPlot` in a 900-wide splitter stayed 900x674 after
-        ``resize(400, 300)`` and became 400x300 after ``setFixedSize``. The
-        same finding is written on :meth:`snapshot`, where it produced a
-        blank tile.
-
-        THIS DOES NOT CHANGE THE EXPORTED PAGE. See :meth:`set_export_size`;
-        the two are different quantities and the menu names them separately,
-        because a user who sets "dimensions" and finds the PDF unchanged has
-        been misled by the control rather than helped by it.
+        This does not change export dimensions; use :meth:`set_export_size`
+        to configure the exported page.
         """
         if self._size_bounds is None:
             self._size_bounds = (self.minimumWidth(), self.minimumHeight(),
@@ -2998,19 +2936,11 @@ class FastPlot(QWidget):
         return dict(CANVAS_SHAPES).get(self._canvas_shape)
 
     def set_canvas_shape(self, name: str) -> None:
-        """Hold the CANVAS at ``name``: square, wide, tall, or free.
+        """Set the canvas shape to square, wide, tall, or free.
 
-        THE CANVAS, NOT THE DATA. :meth:`set_aspect_ratio` locks one y unit
-        to n x units, which is a statement about the numbers and is what a
-        Q-Q needs; this is a statement about the PAGE, and it is what "there
-        should be an option to make the graph a perfect square" asked for.
-
-        IT REACHES THE EXPORT, which is the whole point of it: a square on
-        screen that is written out at the widget's accidental proportions has
-        not done the job. :meth:`export_size` derives the page height from
-        this, so the PDF, the SVG and the PNG all come out at the shape --
-        and the plot is held at the same shape on screen, so the two agree
-        and nothing is letterboxed into the difference.
+        The shape constrains both the on-screen canvas and exported page; it
+        does not alter the data-unit aspect ratio configured by
+        :meth:`set_aspect_ratio`.
         """
         name = str(name)
         if name not in dict(CANVAS_SHAPES):
@@ -3111,19 +3041,10 @@ class FastPlot(QWidget):
 
     @staticmethod
     def _gated(menu, label: str, callback, reason: str):
-        """Add an entry -- or the same entry, greyed, SAYING why it cannot act.
+        """Add an enabled menu action or a disabled action with its reason.
 
-        Instruction 106's rule for settings, applied to this menu because the
-        maintainer's own parenthetical asks for it: "(sometimes not
-        applicable on certain graph types)". The three wrong answers are all
-        worse than this one. Omitting it leaves a user hunting the menu for a
-        control they were told exists. Leaving it live leaves them clicking a
-        control that does nothing and concluding the plot is broken. A
-        tooltip alone hides the reason behind a hover nobody performs on a
-        menu they opened to click something.
-
-        So the reason is IN THE LABEL, where it cannot be missed, and in the
-        tooltip as well for the themes that elide a long entry.
+        Disabled actions include the reason in both the visible label and the
+        tooltip so unavailable plot controls remain discoverable.
         """
         if not reason:
             if callback is None:
@@ -3141,21 +3062,10 @@ class FastPlot(QWidget):
 
     @staticmethod
     def _group(menu, title: str):
-        """A named submenu that can also show a greyed entry's reason.
+        """Create a tooltip-enabled submenu owned by ``menu``.
 
-        ``setToolTipsVisible`` IS PER MENU. Setting it on the top-level menu
-        does nothing for an entry inside a group, so a gated control moved
-        into one would keep its reason in an invisible tooltip -- which is
-        exactly the present-but-inert control instruction 106 forbids. Every
-        group is built here so none can be built without it.
-
-        BUILT WITH AN EXPLICIT PARENT, not by ``menu.addMenu(title)``. That
-        overload hands PySide a QMenu it considers Python-owned, so the
-        submenu -- and every QAction in it -- is collected the moment the
-        local holding it goes out of scope, i.e. as soon as this method
-        returns. The failure is a *later* "Internal C++ object (QAction)
-        already deleted" from whoever reads the menu next, and it is
-        intermittent, because it depends on when the collector runs.
+        Explicit parent ownership keeps the submenu and its actions alive
+        after this helper returns.
         """
         from PySide6.QtWidgets import QMenu
 
@@ -3166,13 +3076,10 @@ class FastPlot(QWidget):
 
     @staticmethod
     def _checkable(menu, options) -> None:
-        """``[(label, callback, checked)]`` as ticked entries on ``menu``.
+        """Add checkable menu options, including disabled options with reasons.
 
-        A FOURTH ELEMENT IS THE REASON IT CANNOT ACT, and an option carrying
-        one is added greyed with the reason in its label -- instruction 106's
-        rule, reached here because "local FDR" is a real option that a family
-        of twelve tests genuinely cannot support. Three-element options are
-        unchanged, so every existing caller keeps working.
+        Each option is ``(label, callback, checked)`` with an optional fourth
+        item containing the reason the option is unavailable.
         """
         for option in options:
             label, callback, checked = option[0], option[1], option[2]
@@ -3750,16 +3657,10 @@ class FastPlot(QWidget):
             self.set_aspect_ratio(None if value <= 0 else value)
 
     def _ask_line_width(self) -> None:
-        """ONE question, applied when it is answered.
+        """Prompt for a line width and apply the accepted value.
 
-        This used to be half of "Line colour and width…", which asked for a
-        width and then chained a colour dialog nobody had asked for, applying
-        the width only AFTER that dialog closed. On a GNOME session the
-        colour dialog is brokered through xdg-desktop-portal and takes tens
-        of seconds, which is the whole of the reported "changing the line
-        width takes like 1 minute" -- so a user who wanted a width waited out
-        a picker they never opened. Measured: the restyle itself is free
-        (`set_line_style` 0.000 s on 1,200 points).
+        Colour selection is a separate action, so this method never opens a
+        platform colour dialog.
         """
         from PySide6.QtWidgets import QInputDialog
 
@@ -4451,23 +4352,12 @@ class FastPlot(QWidget):
     @contextmanager
     def _dressed_for_the_file(self, ink: str = "", background: str = "",
                               grid: Optional[bool] = None):
-        """Wear the FILE's styling for the length of one render, then undo it.
+        """Apply export styling for one synchronous render, then restore it.
 
-        Instruction 178 C.2's pyqtgraph half. The matplotlib side previews on
-        a pickled COPY, which is not available here: a pyqtgraph plot is a
-        live scene graph of Qt objects and does not pickle, and rebuilding one
-        from its data items would be a second implementation of every plot in
-        this module -- guaranteed to drift from the first.
-
-        SO THE LIVE PLOT IS DRESSED AND UNDRESSED, and the reason that is safe
-        is that nothing repaints in between. Both callers render the SCENE
-        into an offscreen image synchronously (`ImageExporter`, `QPainter`),
-        which needs no widget repaint, and no event loop runs inside this
-        block. `finally` restores unconditionally, so an export that raises
-        leaves the screen exactly as it was -- which is the property the
-        instruction is actually about: "a save that restyled the live figure
-        would change what the user is looking at as a side effect of writing
-        a file".
+        Pyqtgraph scenes cannot be copied safely, so the live scene is styled
+        only while an offscreen exporter or painter renders it. The original
+        colors and grid state are restored in ``finally``, including when the
+        export raises.
         """
         before_bg, before_fg = self._background, self._foreground
         before_grid = self._grid_on
@@ -4535,16 +4425,10 @@ class FastPlot(QWidget):
         return dialog.exec()
 
     def _shape_the_image(self, exporter) -> None:
-        """Hold a raster export at the canvas shape, KEEPING ITS WIDTH.
+        """Apply the canvas aspect ratio to a raster exporter.
 
-        The width is left alone deliberately: a shape is a statement about
-        the proportion, not about the resolution, and quietly rescaling every
-        PNG in the application to answer "make it square" would be a second
-        change nobody asked for.
-
-        pyqtgraph links the two parameters -- setting one recomputes the
-        other from the scene's aspect -- so each is set with the other's
-        handler blocked, which is what the exporter itself does internally.
+        Export width is preserved and height is adjusted. The linked width
+        and height handlers are blocked while both parameters are updated.
         """
         ratio = self.canvas_ratio()
         if ratio is None:
@@ -5650,12 +5534,10 @@ class VolcanoPlot(FastPlot):
         ])
 
     def _write_corrected_table(self) -> Optional[str]:
-        """Write the numbers ON SCREEN out, so the table can be made to agree.
+        """Write the displayed multiple-testing correction to a CSV file.
 
-        The alternative was to leave it ambiguous, which instruction 149 E
-        forbids: a plot recorrected to something other than the run's shows a
-        different analysis from the results.csv beside it, and a user who can
-        see the difference but not export it has to re-run to act on it.
+        Return the selected path, or ``None`` when no corrected values exist
+        or the save dialog is canceled.
         """
         from PySide6.QtWidgets import QFileDialog
 

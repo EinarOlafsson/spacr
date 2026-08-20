@@ -63,27 +63,11 @@ OUTPUT_OBJECT = "ControlChartOutput"
 
 
 def _control_chart_qss(palette: dict, opacity=None) -> str:
-    """This screen's QSS block, appended to every generated stylesheet.
+    """Return stylesheet rules for the control and output columns.
 
-    The control column is a named ``QWidget`` and had no rule of its own,
-    so it fell through to the blanket ``QWidget {{ background-color: bg }}``
-    -- the WINDOW colour, not a surface, which no page-opacity setting can
-    reach. It is a page surface now, the same one the Graph Builder's and
-    the Trellis's shelves take.
-
-    The output column under the chart was the region left over. It was an
-    ANONYMOUS ``QWidget``, so ``clear_container_surfaces`` tagged it
-    transparent as scaffolding -- and the report and the violations table
-    inside it are both ``QAbstractScrollArea``, which that sweep tags by
-    type as well. Three transparent things stacked: the whole lower right
-    of the page measured 1.000, the backdrop arriving untouched, which
-    over a dark window is the black rectangle that was reported.
-
-    The panel goes on the column rather than on the two widgets, which is
-    the treatment Classifier Evaluation's and Run History's tab panes
-    take: the container is the surface, and a read-only display sitting on
-    it shows it through instead of painting an opaque rectangle over the
-    thing that was just made translucent.
+    Each column owns one opacity-aware page surface. Child reports and tables
+    remain transparent so they do not stack opaque or translucent backgrounds
+    over their container.
     """
     surface = block_surface("surface_alt", palette.get("theme"), opacity)
     return f"""

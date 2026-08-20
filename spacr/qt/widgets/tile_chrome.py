@@ -1,24 +1,15 @@
-"""How a crop tile is drawn: rounded, ringed, and lit under the cursor.
+"""Draw rounded crop tiles with shared annotation-screen chrome.
 
-EXTRACTED FROM THE ANNOTATE SCREEN ON 2026-08-19 so the Cells tab can draw
-its crops the way the annotation app draws them, rather than approximately.
-Asked for by appearance: "when hovering over images i should see the rim turn
-white and i should be able to click each image to get its information. the
-images should have rounded edges like in the annotation app".
+The annotation and montage views use this module so their clipping and
+selection states stay visually consistent. A tile composes three layers:
 
-Approximately would have been the wrong answer twice over -- two
-implementations of one look drift apart, and the montage already borrows the
-annotator's SETTINGS names for exactly this reason (170 B). The composition
-rule below is the annotate screen's, unchanged:
-
-    ┌── current ring  (white) — ONLY on the tile the next action hits
+    ┌── current ring  (white) — the tile the next action targets
     │ ┌── state ring          — resting gray, or the crop's class colour
-    │ │ ┌── the crop itself, CLIPPED to a rounded rect (a real round
+    │ │ ┌── the crop itself, clipped to a rounded rect (a real round
     │ │ │   corner, not a rounded frame laid over a square image)
 
-The two rings sit at FIXED INSETS, so nothing moves or resizes when the
-cursor arrives: hover ADDS the outer ring, it never recolours the inner one,
-and a class colour never hides the fact that a tile is the current one.
+The rings use fixed insets, so hover adds the outer current ring without
+moving the crop or replacing its class-colored state ring.
 """
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap

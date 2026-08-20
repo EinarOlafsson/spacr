@@ -1,76 +1,22 @@
-"""Input fields dissolve to the right — container and outline, never the text.
+"""Fade form-field chrome to the right while keeping text fully opaque.
 
-The request this implements, verbatim::
+The fill and outline follow a cubic transparency ramp defined by
+:func:`spacr.qt.theme.field_fade_alpha`: the left edge uses the theme token's
+own alpha, the midpoint remains 87.5% opaque, and the right edge is fully
+transparent. Field chrome is independent of the page-opacity preference and
+the effect is enabled by default through the field-fade preference.
 
-    the fields should not be subject to the occupacy setting. the fields
-    could gradually become fully transparent (not the text in the field
-    but the container (0% to the left, 100% to the right)) with the
-    transparency growing faster towards the right. outlines should also
-    be subject to the same effect. this should be on by default but there
-    should be a preference to turn it off.
+A registered stylesheet makes each supported editor's background and border
+transparent while reserving its one-pixel border geometry. An application-
+wide paint-event filter then draws the ramped fill and outline before Qt draws
+the editor's text, selection, and cursor. Installing one filter on
+``QApplication`` covers fields created or rebuilt after startup without
+per-screen registration. Non-paint events add about 1.1 microseconds to Qt's
+normal delivery in the recorded benchmark.
 
-Four separate things, and each one decides part of the design:
-
-1. **Exempt from page opacity.** A field's left edge is painted at its
-   colour's own alpha — solid on the flat themes — whatever the page
-   slider says. The slider still moves the section card *behind* the
-   field; it no longer moves the field.
-2. **A ramp, accelerating right.** :func:`spacr.qt.theme.field_fade_alpha`
-   owns the curve: a cubic ease-in on transparency, 87.5 % opaque at the
-   midpoint and gone at the right edge.
-3. **Container and outline, not the text.** This is the constraint that
-   picks the rendering approach, below.
-4. **On by default, with a preference.**
-   :func:`spacr.qt.preferences.get_field_fade_enabled`.
-
-Why a paint hook and not QSS
-----------------------------
-QSS can express a horizontal ``qlineargradient`` fill, so requirement 2
-alone would be a one-line stylesheet change. It cannot express
-requirement 3. A QSS gradient paints the widget's *background*, and the
-widget then draws its text on top of it — but a QSS ``border`` takes a
-single colour, so the outline cannot ramp, and the two would visibly
-disagree at the right edge. The obvious alternatives fail the same test
-from the other side: a ``QGraphicsOpacityEffect`` with a gradient
-``opacityMask`` ramps the whole widget *including its text*, and an
-overlay child can only add ink, never subtract the fill underneath it.
-
-So the chrome is painted here, and the text is left to the widget:
-
-* A registered QSS block (see :func:`field_fade_qss`) makes every field's
-  own background and border ``transparent`` — the border keeps its 1 px
-  so no content shifts — leaving the widget painting **only its text,
-  selection and cursor**, at full alpha.
-* An application-wide event filter catches each field's ``QEvent.Paint``
-  *before* the widget handles it, draws the two ramped rounded rects, and
-  returns ``False`` so the widget then paints its text over them.
-
-Painting from an event filter is legal precisely here: Qt sets
-``WA_WState_InPaintEvent`` on the widget before it sends the paint event,
-and event filters run inside that send, so a ``QPainter`` opened on the
-widget is clipped to the update region like any other paint-event
-painter.
-
-The filter is installed on the ``QApplication``, not on individual
-widgets, for one reason worth stating: settings panels build their inputs
-deep inside :mod:`spacr.qt.screens.settings_model` and rebuild them
-whenever a module is re-selected. A sweep would have to be re-run from
-every one of those call sites and would silently miss the next one. One
-application filter covers every field that will ever exist, now and in
-whatever screen is written next.
-
-The price is an application-wide filter, so it was measured rather than
-assumed: 1.1 µs per event on top of Qt's own ~2.1 µs of delivery, for
-events that are not paints — one enum comparison and a return. A desktop
-session generating a few thousand events a second spends single-digit
-milliseconds a second on it.
-
-Known and deliberate: three inputs styled by an ID selector
-(``QWidget#UmapHyperparamControls QLineEdit`` and friends) outrank the
-blanket rules below on CSS specificity, so they keep their opaque fill
-and the ramp painted behind them never shows. They are a raised card's
-controls rather than settings fields, and leaving them alone is the
-conservative answer.
+Embedded line editors, item-view cell editors, multiline text widgets, and
+widgets carrying :data:`OPT_OUT_PROPERTY` are excluded. Higher-specificity
+ID-based styles can intentionally keep an opaque fill and hide the ramp.
 """
 from __future__ import annotations
 

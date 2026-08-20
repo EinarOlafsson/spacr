@@ -97,11 +97,8 @@ ObjectOpener = Callable[[ObjectRequest], Any]
 class NoObjectOpener(LookupError):
     """Nothing is registered to open objects of the requested kind.
 
-    Raised rather than returning quietly. A silent no-op here is a button that
-    does nothing on click, which is indistinguishable from a slow one and gets
-    reported as "the app froze". A caller that legitimately might have no
-    destination — a context-menu entry it wants to grey out rather than
-    offer — should ask :func:`has_object_opener` first.
+    A caller for which a missing destination is expected, such as an optional
+    context-menu action, should call :func:`has_object_opener` first.
     """
 
 

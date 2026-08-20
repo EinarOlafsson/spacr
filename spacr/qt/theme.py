@@ -1,60 +1,24 @@
-"""
-Themes (palettes + QSS stylesheet) for the spacr Qt GUI.
+"""Provide palettes, geometry tokens, and QSS for the spaCR Qt interface.
 
-Single source of truth for every color, radius, and font size used by the
-custom widgets and screens. Call :func:`active_palette` for the colours
-that are on screen right now and :func:`stylesheet` for the Qt StyleSheet
-string to hand to `QApplication.setStyleSheet`.
+Use :func:`active_palette` for colors shown by a live widget and
+:func:`stylesheet` for the application stylesheet. :data:`THEMES` contains
+the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, and ``"glass"``;
+the ``"system"`` preference resolves to dark or light before palette lookup.
+A legacy ``"space"`` palette can still be read from persisted settings but is
+not selectable.
 
 .. warning::
 
-   There is deliberately **no module-level ``PALETTE``**. The name used
-   to exist, held the *dark* palette, and nothing ever updated it — so
-   ``from .theme import PALETTE`` followed by
-   ``widget.setStyleSheet(f"background: {PALETTE['surface_alt']}")``
-   painted a near-black panel on the light theme's near-white page, and
-   any text the app stylesheet inked landed on it at 1.08:1. Black on
-   black, measured. The dark palette is now called
-   :data:`DARK_PALETTE`, which says what it is; ``theme.PALETTE`` still
-   resolves (read-only, with a ``DeprecationWarning``) so the modules
-   that have not been migrated yet keep working.
+   ``theme.PALETTE`` is a deprecated, read-only alias for the dark palette and
+   does not follow runtime theme changes. Use :func:`active_palette`, or
+   :data:`DARK_PALETTE` only when dark colors are explicitly required.
 
-Four themes ship: ``"dark"``, ``"light"``, ``"cell"`` and
-``"glass"``.
-(Preferences also offers ``"system"``, which resolves to dark or light
-at runtime — it is not a palette of its own.) They are *themes*, not
-"modes": "dark mode" stopped being accurate the moment a third one
-existed.
-
-Space, Cell and Glass are :data:`IMAGE_THEMES`: dark themes with a visual
-backdrop — a generated deep-space render or downloaded photograph for
-Space (see :mod:`spacr.qt.space`), one of the user's own micrographs for
-Cell (see :mod:`spacr.qt.imagery`), and a built-in neutral light field for
-Glass. Panels, cards and inputs are drawn as translucent scrims so
-text always lands on a readable surface while the backdrop shows through
-the chrome and empty areas.
-
-Legibility over a picture is checked two ways, because the two failure
-modes are different:
-
-* :func:`contrast_failures` judges every scrim against the worst case
-  *that theme's wallpaper pipeline can actually produce* — see
-  :func:`scrim_under`. Space's procedural sky keeps its sun blown out on
-  purpose, so Space is judged against a pure white pixel; every Cell
-  wallpaper goes through :func:`spacr.qt.imagery.render`, which
-  exposure-solves it, so Cell is judged against that ceiling.
-* :func:`image_contrast_failures` judges the roles that are painted
-  with **nothing** under them against a colour measured from the real
-  wallpaper. That is the case a scrim cannot help with, and
-  :func:`max_background_luma` is what the imagery pipeline dims to.
-
-The scrim opacities themselves are **solved from those two facts plus
-one more** — :data:`MIN_PICTURE_CONTRAST`, how much of the picture a
-panel must still transmit — rather than picked by eye. See
-:func:`solve_scrim_alpha`, and :func:`scrim_report` for the audit
-trail. Picking them by eye is what produced a set of panels that passed
-every contrast rule and showed 10 % of the photograph underneath, which
-users read, reasonably, as the image themes not working.
+Cell and Glass are :data:`IMAGE_THEMES`. Their panels use translucent scrims
+so the backdrop remains visible without sacrificing text contrast.
+:func:`contrast_failures` validates roles painted on scrims, while
+:func:`image_contrast_failures` validates roles painted directly over image
+content. :func:`solve_scrim_alpha` balances those contrast constraints against
+:data:`MIN_PICTURE_CONTRAST`, and :func:`scrim_report` exposes the result.
 """
 from __future__ import annotations
 
@@ -984,18 +948,23 @@ def field_fade_profile(stops: int = FIELD_FADE_STOPS):
 
 
 def field_chrome(theme: str = "dark") -> Dict[str, object]:
-    """Colours and geometry the field fade paints a field's container with.
+    """Return theme colors and geometry for faded field containers.
 
-    One place so the painter and the QSS that gets out of its way cannot
-    drift apart, and so a theme that restyles its inputs restyles the fade
-    with them. Every colour is ``(hex, alpha)``: the ramp is applied as a
-    **multiplier** on that alpha, so a theme whose border is intrinsically
-    translucent (Glass paints a white rim at 16 %) keeps its own material
-    and still reaches zero at the right edge, while the flat themes start
-    from a genuinely solid 1.0 exactly as the request asks.
+    Parameters
+    ----------
+    theme : str, default="dark"
+        Theme name accepted by :func:`palette_for`.
 
-    Note what is *not* here: :func:`panel_alpha`. Fields are exempt from
-    the page-opacity preference — see :func:`field_fade_alpha`.
+    Returns
+    -------
+    dict
+        Radius, fill, border, focus, and disabled-state tokens. Each color is
+        represented as ``(hex_color, alpha)``.
+
+    Notes
+    -----
+    The fade multiplies each token's alpha so translucent themes retain their
+    material. Field chrome is independent of the page-opacity preference.
     """
     base = palette_for(theme)
     glass = theme == "glass"

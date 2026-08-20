@@ -1,10 +1,8 @@
-"""A removable chip naming one table in the Gate Editor's working set.
+"""Display each table in the Gate Editor's working set as a removable chip.
 
-The working set is a combination, not a selection: picking nucleus adds
-nuclear measurements alongside the cell ones rather than replacing them. A
-combination needs to be VISIBLE -- otherwise the only way to know what is
-merged is to read the axis picker and infer it -- so each member gets a chip
-with an x.
+The working set is additive: selecting a nucleus table keeps existing cell
+measurements instead of replacing them. One chip per member makes the pending
+merge explicit and provides a direct removal control.
 """
 from __future__ import annotations
 
@@ -18,11 +16,7 @@ QSS_NAME = "TableChip"
 
 
 def _chip_qss(palette, opacity=None) -> str:
-    """Blue rounded box, per the request, in the theme's own accent.
-
-    The accent rather than a literal blue: a hard-coded colour is wrong in
-    whichever theme was not being looked at when it was written.
-    """
+    """Return rounded chip styling using the supplied theme accent."""
     # The theme's own text colour: white on the dark themes, as asked, and
     # dark on the light ones without a second rule. It was the WINDOW colour
     # before, which is black on dark -- black on a blue chip.

@@ -1,37 +1,19 @@
-"""Lay out a plate before it is acquired, and say what is wrong with it.
+"""Design plate layouts and validate position-related experimental risks.
 
-The design decisions this module exists for are the ones that cannot be
-undone after acquisition. Where the controls sit, whether a condition is
-confounded with a row, whether the edge of the plate is used at all -- none of
-those can be repaired by a better analysis, and all of them are cheap to fix
-the day before. The current alternative is a spreadsheet somebody types twice:
-once to tell the plate handler where things go, and again into
-``treatment_plate_metadata`` when the measurements come back.
+The module produces a single well-level artifact for acquisition and analysis.
+It uses :mod:`spacr.schema` identifiers such as ``r3``, ``c7``, and ``C07``,
+allowing exported layouts to join measurement tables on ``(rowID, columnID)``
+without a translation step.
 
-So this produces one artifact that both halves read. The IDs it writes are
-:mod:`spacr.schema`'s own -- ``r3``, ``c7``, ``C07`` -- which are the ids
-``schema.parse_field_stem`` recovers from an image file name, so the exported
-table joins to a measurements table on ``(rowID, columnID)`` with no
-translation step and nothing to get wrong.
+:func:`check_design` identifies conditions or controls that are confounded
+with rows, columns, or edge wells. Edge-only placement is flagged because
+evaporation and thermal gradients can make the outer ring systematically
+different from the plate interior.
 
-Edge wells
-----------
-The warning this module was asked for. Evaporation and thermal gradients make
-the outer ring of a plate behave differently from its interior, which is
-exactly why spaCR grew illumination correction. A control that lives only on
-the edge is not measuring what the interior wells are doing; it is measuring
-the edge. :func:`check_design` says so before the plate is poured, when the
-answer is to move four wells rather than to discount a whole run.
-
-What cannot be exported
------------------------
-``spacr.utils.annotate_conditions`` maps conditions onto wells through a
-vocabulary of whole rows and whole columns (``['r1']``, ``['c2', 'c3']``). A
-randomised layout -- which is the statistically correct one, since it is the
-only one that cannot be confounded with a position gradient -- has no
-expression in that vocabulary. :func:`to_settings_fragment` says so rather
-than emitting an approximation, and the long-form well table remains the
-artifact that carries a randomised design.
+Randomized layouts cannot be represented by the whole-row and whole-column
+vocabulary accepted by ``spacr.utils.annotate_conditions``.
+:func:`to_settings_fragment` therefore refuses to approximate them; the
+long-form well table remains the authoritative representation.
 """
 
 from __future__ import annotations

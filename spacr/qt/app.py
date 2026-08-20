@@ -86,34 +86,13 @@ class _UpdateWorker(QThread):
 
 
 class _PipelinePreloader:
-    """Warms up the heavy pipeline modules so the first click on
-    Mask/Measure/Classify/etc. doesn't stall the UI while
-    torch/cellpose/pandas/etc. resolve.
+    """Import pipeline modules incrementally on the GUI thread.
 
-    IMPORTANT: preloading runs on the MAIN (GUI) thread, one module
-    per event-loop tick, NOT on a background daemon thread. Importing
-    C-extension modules that initialise CUDA/GL (torch, cellpose) from
-    a non-main thread concurrent with Qt's own GPU init is a classic
-    cause of intermittent "Segmentation fault (core dumped)" at
-    startup. A QTimer tick between imports lets Qt process repaints and
-    clicks, so the UI recovers between them.
-
-    IT DOES NOT STAY RESPONSIVE DURING THEM, and this docstring claimed it
-    did until it was measured on a real windowed launch (2026-08-10). The
-    tick monitor sees three stalls the user feels, and they are these
-    imports:
-
-        spacr.core          1968 ms      seen as a 2164 ms freeze
-        spacr.deep_spacr     711 ms      seen as an 888 ms freeze
-        spacr.submodules     374 ms
-        ---------------------------
-        all seven           3140 ms      starting 1.5 s after the window
-
-    So the trade this class makes is not "brief pauses now for no pause
-    later" -- it is a ~2 s freeze while the user is reading the home
-    screen, bought to save the same wait on their first click. Whether
-    that is the right trade is instruction 55's open question; the
-    off-thread alternative is not available, for the reason above.
+    Each timer callback imports one module. Keeping C-extension imports on
+    the GUI thread avoids concurrent Qt, CUDA, and OpenGL initialization;
+    yielding between imports lets Qt repaint between unavoidable import-time
+    pauses. The work moves startup cost ahead of the first pipeline action,
+    but does not eliminate that cost.
     """
 
     _MODULES = (
@@ -1599,12 +1578,10 @@ class MainWindow(QMainWindow):
             pass
 
     def _install_loading_screen(self):
-        """Cover the window with the loading screen, or return ``None``.
+        """Cover the window with a loading screen when a display is active.
 
-        Returns ``None`` under the offscreen platform, which is how the test
-        suite runs: a full-window cover there would hide the widgets every qt
-        test reaches for, and the suite has only just been made to finish
-        (instruction 47). Headless callers therefore keep the old behaviour.
+        Return ``None`` for the offscreen platform or when the loading screen
+        cannot be created.
         """
         try:
             from PySide6.QtWidgets import QApplication

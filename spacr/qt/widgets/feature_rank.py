@@ -679,9 +679,9 @@ def _null_threshold(columns: Dict[str, np.ndarray], keys: np.ndarray,
                     notices: List[str]) -> Optional[float]:
     """The 95th percentile of the best-of-all-features score under shuffling.
 
-    The *maximum* per shuffle, not the mean: the question is "how big does the
-    winner of four hundred features get by chance", and the mean of a null
-    answers a question nobody asked.
+    The maximum score from each shuffle calibrates selection of the best
+    feature across all tested columns; using the mean would not control that
+    family-wise selection step.
     """
     if not spec.n_permutations or not columns:
         return None

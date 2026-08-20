@@ -551,13 +551,10 @@ class GateEditorScreen(QWidget):
 
     def _record_merge(self, plan, outcome: str, resolution: str, *,
                       paths=None, table: str = "") -> None:
-        """Write down what happened to this merge, and hold on to it.
+        """Persist a merge decision and retain it for the current view.
 
-        Instruction 109: the user is TOLD about a collision, "and what they
-        choose is RECORDED". A refusal the user resolves by dropping one of
-        two databases leaves no trace in the result -- the surviving frame
-        cannot say which ``plate1`` it is -- so the merge log is where that
-        answer lives.
+        The record preserves collision resolutions that cannot be recovered
+        from the merged table itself.
         """
         from ...multi_database import (MergeDecision, decision_for,
                                        record_decision)

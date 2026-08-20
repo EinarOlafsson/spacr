@@ -1,13 +1,12 @@
-"""Shared bootstrap + data for the Home-screen variant generators.
+"""Provide shared bootstrap data for the Home-screen variant generators.
 
-These modules render THIRTY candidate Home screens out of the real Qt
+These modules render thirty candidate Home screens from the real Qt
 widgets (``spacr.qt.widgets.tile.HTile``, ``Card``, ``Section``, …) and
 the real app registry (``spacr.qt.app.APPS``), then grab each one to a
 PNG under ``spacr/resources/home/versions/``.
 
-Nothing here is installed into the app. It is a review surface: the
-user picks a layout, and because every layout is built from real
-widgets, whatever they pick is known-buildable.
+Nothing here is installed into the app. The output is a layout-review surface,
+and using production widgets ensures each candidate is buildable.
 
 Determinism
 -----------
@@ -147,28 +146,17 @@ def all_keys() -> List[str]:
 
 
 def core_keys() -> List[str]:
-    """The Core-pipeline app keys, in registry order.
+    """Return Core-pipeline app keys in registry order.
 
-    Read from :data:`spacr.qt.app.SECTION_CORE` rather than compared
-    against a typed section name. The section used to be called "Core
-    pipeline"; it is now "Core", and the two variants that filtered on
-    the old string silently produced an empty list — variant 18, whose
-    entire content is the core nine, rendered nine missing tiles, and
-    variant 24 lost every Ctrl+N badge.
+    The registry's :data:`spacr.qt.app.SECTION_CORE` constant defines the
+    section identity so display-name changes cannot empty the result.
     """
     from spacr.qt.app import SECTION_CORE
     return [row[0] for row in apps() if row[3] == SECTION_CORE]
 
 
 def n_apps() -> int:
-    """How many apps the registry holds *right now*.
-
-    Every "N apps" the variants draw or write goes through here. The
-    count used to be typed into two dozen strings as ``29``; the
-    registry then grew Distributed Jobs, Classifier Evaluation and Run
-    History and every one of those strings became a lie that no test
-    could see, because a literal cannot disagree with itself.
-    """
+    """Return the current number of registered apps."""
     return len(all_keys())
 
 

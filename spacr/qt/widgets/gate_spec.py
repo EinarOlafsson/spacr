@@ -2026,11 +2026,10 @@ def best_cluster_candidate(candidates: Sequence[ClusterCandidate], *,
                            ) -> Optional[ClusterCandidate]:
     """Pick the candidate to recommend, or None when none is defensible.
 
-    Highest silhouette among those that found at least two clusters and did
-    not discard more than ``max_noise`` of the objects. The noise ceiling is
-    the important half: silhouette alone is maximised by a radius that keeps
-    a handful of tight points and calls everything else debris, which scores
-    near 1.0 and answers a question nobody asked.
+    Candidates must contain at least two clusters and discard no more than
+    ``max_noise`` of the objects. Among those candidates, the highest
+    silhouette wins. The noise ceiling prevents a small set of tight points
+    from scoring well while most observations are labelled as debris.
 
     Ties break toward the LARGER radius, which merges rather than splits --
     the conservative direction when two settings score alike.

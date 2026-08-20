@@ -3045,24 +3045,11 @@ def _read_auto_or_number(box):
 
 
 def _float_domain(key: str, default: float):
-    """``(minimum, maximum, step)`` for the spin box of one float setting.
+    """Return the minimum, maximum, and step for a float editor.
 
-    WHY THIS EXISTS, from a run that failed on the maintainer's own screen:
-
-        ValueError: alpha must be strictly between 0 and 1; got -0.95
-
-    `fdr_alpha` defaults to 0.05. A QDoubleSpinBox's default `singleStep` is
-    1.0, and the box was built with `setRange(-1e12, 1e12)` and no step -- so
-    ONE scroll of the wheel over that field wrote 0.05 - 1 = -0.95, and the
-    run got forty seconds in, wrote its figures and its regression_data.csv,
-    and then failed inside the permutation. The same single tick turns
-    `fraction_threshold` 0.02 into -0.98, `tolerance` 0.02 into -0.98 and
-    `l1_ratio` 0.5 into -0.5.
-
-    So the step follows the VALUE's magnitude, and the range follows the
-    setting's OWN DESCRIPTION where that description states a domain -- rather
-    than a hand-kept list of key names, which would be one more thing to fall
-    out of step with `spacr.settings`.
+    The range follows the setting's documented numeric domain. The step
+    follows the magnitude of the default so a single wheel event cannot move
+    fractional settings by a whole unit.
     """
     magnitude = abs(float(default))
     if magnitude and magnitude < 1:
@@ -4014,13 +4001,7 @@ _TOKEN_FALLBACK = {name: name for name in
 
 
 def _colours(palette: Optional[Dict[str, Any]]) -> Dict[str, str]:
-    """The six tokens the box paints with, from the theme or by name.
-
-    EVERY COLOUR COMES FROM THE THEME (instruction 144 B). The palette was
-    contrast-checked against `CONTRAST_RULES`; a hand-picked hex has not been,
-    and it would be a fourth opinion about what "negative" looks like in an
-    application that already has one.
-    """
+    """Return the six theme tokens used by the model explainer."""
     if not palette:
         return dict(_TOKEN_FALLBACK)
     return {name: str(palette.get(name) or _TOKEN_FALLBACK[name])
@@ -4058,13 +4039,7 @@ def _heading_html(text: str, ink: Dict[str, str], *,
 
 
 def _formula_html(maths: List[str], code: str, ink: Dict[str, str]) -> str:
-    """The maths, then the code, both unwrapped and both copyable.
-
-    ``<pre>`` rather than a widget-wide no-wrap setting, which is what makes
-    instruction 138 (the prose fills the box) and "a formula is never broken"
-    stop fighting each other: wrapping is per BLOCK in rich text and was
-    per WIDGET in plain text, so one of the two always lost.
-    """
+    """Render copyable, unwrapped formula and code blocks as HTML."""
     lines = "\n".join(escape(line) for line in maths)
     return (f'<pre style="margin:2px 0 2px 12px; color:{ink["fg"]};">'
             f'{lines}</pre>'
@@ -4287,10 +4262,9 @@ def explainer_width() -> int:
 
 
 def _every_explainer_line():
-    """Every line any explainer can render, for :func:`explainer_width`.
+    """Return every line that an explainer may render.
 
-    Cheap: these are dict lookups and f-strings over a handful of families,
-    and the result is asked for once when a panel is built.
+    The result supplies representative content to :func:`explainer_width`.
     """
     from spacr.regression_spec import REGRESSION_TYPES
 
@@ -4342,58 +4316,45 @@ def regression_model_explainer(regression_type: Any,
                                level: Any = "both",
                                plate_position: Any = False,
                                random_row_column: Any = False) -> str:
-    """The box's text for the current selection.
+    """Describe the regression formula selected in the settings panel.
 
-    :param plate_position: whether rowID and columnID are in the model at all
-        (`model_plate_position`).
-    :param random_row_column: whether they are variance components rather
-        than fixed effects (`random_row_column_effects`).
+    Parameters
+    ----------
+    regression_type : Any
+        Requested regression backend, such as ``"ols"`` or ``"mixed"``.
+    level : Any, default="both"
+        Coefficient level to describe: ``"grna"``, ``"gene"``, or ``"both"``.
+    plate_position : Any, default=False
+        Whether the formula includes row and column position terms.
+    random_row_column : Any, default=False
+        Whether row and column terms are variance components instead of fixed
+        effects.
 
-    THE FORMULA SHOWN IS THE FORMULA FITTED, and the last two parameters are
-    what makes that true. They were absent until 2026-08-18, so the box
-    printed `+ rowID + columnID` however the plate settings were set --
-    reported as "the state of the model plate possition and random row and
-    column effects should influence this equation".
+    Returns
+    -------
+    str
+        Plain text containing the selected model, fitted formula, output, and
+        interpretation notes. Unknown backends receive an explicit warning.
 
-    States THE FORMULA that will be fitted and WHAT IS MODELLED, plus what the
-    chosen mode does and how the results are corrected. Pure text: no Qt, no
-    settings lookup, so it can be asserted directly.
+    Notes
+    -----
+    Guide- and gene-level effects are described as separate fits. The retired
+    combined design
 
-    SHORT ON PURPOSE. `ols`/`both` came to 2,438 characters over 29 lines and
-    the design cut it to under 900 -- the box keeps what a reader needs
-    on EVERY visit (the model and level, each formula with the file it
-    writes, one sentence on what a coefficient IS, and one or two on what the
-    backend does) and drops what is read once. The longest of those
-    read-once blocks was the history below. It is kept HERE, and the last
-    line of every box points at it by name, because it is the evidence for
-    why this module fits one level at a time.
+    ``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``
 
-    WHY THE FORMULA CHANGED
-    -----------------------
-    Previously, split the fit in two, spaCR fitted ONE design
-    holding both blocks::
+    is rank deficient: ``gene_fraction`` is the SUM of that gene's gRNA
+    fractions, so the guide and gene coefficient blocks are perfectly
+    collinear BY CONSTRUCTION. Statsmodels can resolve this system with a
+    pseudo-inverse, but the resulting coefficients are not unique.
 
-        y ~ fraction:grna + gene_fraction:gene + rowID + columnID
-
-    `gene_fraction` is the SUM of that gene's gRNA fractions
-    (:func:`spacr.ml.check_and_clean_data`), so every gene column is an exact
-    linear combination of that gene's own guide columns. The two blocks are
-    perfectly collinear BY CONSTRUCTION -- not by accident of the data, and no
-    number of wells fixes it. statsmodels does not refuse: it takes a
-    pseudo-inverse and returns one arbitrary solution out of infinitely many.
-
-    Measured on the reference TSG101 screen (610 wells, 823 guides, 389
-    genes, 1945 rows): that design was 1248 parameters at rank 862 -- 386
-    short -- a single-guide gene came back identical to its own guide (244480
-    and 244480_3, both 3.389291 at p = 2.873149e-13), and the volcano drew
-    each gene once per guide plus once for itself. Fitting ONE LEVEL AT A
-    TIME is full rank on the same wells: 859 parameters at rank 859 for the
-    guide fit, 425 at 425 for the gene fit.
-
-    :data:`COLLINEAR_FORMULA` is that retired design, kept by name so neither
-    this module nor its tests has to re-type it, and
-    :data:`spacr.ml.COLLINEAR_FORMULA_FRAGMENT` carries the same measurement
-    from the fitting side.
+    :data:`COLLINEAR_FORMULA` names this retired design;
+    :data:`spacr.ml.COLLINEAR_FORMULA_FRAGMENT` exposes the corresponding
+    fitting-side check. On the reference TSG101 screen (610 wells, 823 guides,
+    389 genes, 1945 rows), the combined design had 1248 parameters at rank 862,
+    a deficit of 386. The single-guide gene ``244480`` and guide ``244480_3``
+    both returned ``3.389291`` at p = 2.873149e-13. Separate fits were full
+    rank: 859 parameters at rank 859 for guides and 425 at 425 for genes.
     """
     position = {"plate_position": bool(plate_position),
                 "random_row_column": bool(random_row_column)}
@@ -4629,22 +4590,10 @@ def _family_note(family: str) -> str:
 
 
 def _apply_greyed_note(control, note: str) -> None:
-    """Add the greyed-out note WITHOUT destroying the setting's API help.
+    """Append a disabled-state note without replacing the setting help.
 
-    This was a bare `setToolTip(note)`, which replaced linked documentation
-    with a plain sentence. The label's help is composed from the control's
-    tooltip, so greying a setting silently stripped its API link: measured
-    on `annotation_column`, whose LABEL help was the note alone while the
-    FIELD still held the full documentation. The smoke test reported it as
-    "label help has no API link" on classify, classify_merged, ml_analyze.
-
-    Both greying passes go through here -- training basis and classifier
-    family -- because the second had the identical bug and would have been
-    found the identical way, one test run later.
-
-    The note is appended to the help instead, and the help properties are
-    left untouched so nothing downstream mistakes the note for the
-    setting's own description.
+    Existing tooltip text and API-link properties remain intact so labels
+    and fields expose the same documentation while the control is disabled.
     """
     _clear_greyed_note(control)     # the reason may have changed; it is named
     base = control.property("apiTooltipHtml") or control.toolTip()
@@ -4997,17 +4946,13 @@ def build_setting_link_widget(
     body_source: str = "",
     parent: Optional[QWidget] = None,
 ) -> Tuple[QWidget, QWidget, None]:
-    """Build the one teal API dot that sits beside a setting label.
+    """Build the API-link indicator displayed beside a setting label.
 
-    A setting used to carry two dots: this one and a purple one that opened
-    the setting's animation in a popup of its own. The hover tooltip shows
-    that animation inline now, on request, so the purple dot was 585 coloured
-    marks of clutter for a window nothing else needed. It is gone, and so is
-    the stack that held the pair apart.
-
-    :returns: ``(layout_widget, api_dot, None)``. The third slot is kept —
-        always ``None`` — because ``AppScreen`` unpacks three values; there is
-        no second dot for it to receive any more.
+    Returns
+    -------
+    tuple
+        ``(layout_widget, api_dot, None)``. The final compatibility slot is
+        retained for callers that unpack three values.
     """
     from ..widgets.info_link import InfoLink
 
@@ -5550,12 +5495,10 @@ class _RegressionBackendField(QWidget):
         self.description.setHtml(html)
 
     def api_links(self) -> List[str]:
-        """Every URL the box renders AS A LINK, in document order.
+        """Return rendered anchor URLs in document order.
 
-        Read back off the laid-out document rather than off the HTML string,
-        because "the text contains a URL" and "Qt parsed an anchor a user can
-        click" are different claims and only the second is what was asked
-        for.
+        URLs are read from the laid-out document so the result contains only
+        anchors that Qt parsed as clickable links.
         """
         from PySide6.QtGui import QTextCursor
 
@@ -7338,21 +7281,12 @@ class SettingsWidgets:
         self.refresh_training_basis_enablement()
 
     def refresh_training_basis_enablement(self) -> None:
-        """Grey out the settings the chosen training basis does not read.
+        """Disable settings that the selected training basis does not use.
 
-        Seeing metadata controls while training on annotations is exactly the
-        confusion this was asked to remove: three sets of controls, only one
-        of which does anything, and nothing saying which.
-
-        GREYED, never removed. INVARIANTS 6: a key ABSENT from the settings
-        dict makes the pipeline fall back to its own default, which can
-        differ from the value the module needs and says nothing when it does.
-        A disabled widget keeps its value and still collects; it just stops
-        being editable.
-
-        The list of what each basis reads lives in
-        :mod:`spacr.training_basis`, not here, so the panel and the pipeline
-        cannot drift into disagreeing about which control matters.
+        Controls remain present so their values are still collected and the
+        pipeline does not substitute defaults for missing keys. Applicability
+        is read from :mod:`spacr.training_basis`, which is shared with the
+        pipeline.
         """
         self._refresh_classifier_family_enablement()
         widget = self._widgets.get("dataset_mode")
@@ -7471,19 +7405,11 @@ class SettingsWidgets:
         return current
 
     def _loaded_table_paths(self, current: Dict[str, Any]):
-        """The score/count CSVs the user has actually loaded, index-tagged.
+        """Return index-tagged score and count CSVs loaded by the user.
 
-        The index is the LOGICAL one, so that a score file and the count file
-        it is paired with share an identity: where neither carries a plate
-        column, they describe the same plate and must not be counted as two.
-
-        The regression panel takes its inputs as PAIRS, in a single
-        ``paired_data`` table (instruction 107) -- it has no ``score_data`` or
-        ``count_data`` widget at all. Reading only those two keys therefore
-        found nothing but the defaults, ``None``, and the plate context came
-        back "no plates loaded" no matter what the user had dropped in. The
-        paired table is read first for that reason, with the flat keys kept
-        for the panels that still use them.
+        Paired inputs share one logical index so a score file and its count
+        file represent one plate when neither contains a plate column. Legacy
+        flat input keys remain supported after the paired table.
         """
         return [(index, path)
                 for index, _role, path in self._input_tables(current)]
@@ -7766,30 +7692,22 @@ def _sibling_label_for(field: QWidget) -> Optional[QWidget]:
 
 
 def retarget_field_tooltips(root: QWidget) -> int:
-    """Move hover help off editors and onto the labels that name them.
+    """Move editor tooltips to the labels that identify their settings.
 
-    Call once at the end of a hand-built screen's construction. The generic
-    decorator (:func:`install_api_tooltips`) has done this since 2026-07-30 --
-    it ends with ``widget.setToolTip("")`` and the comment "the editor itself
-    remains quiet on hover" -- but screens that build their own rows never go
-    through it, and 155 editors across the Qt screens were still popping help
-    over the field the user was about to type into.
+    Parameters
+    ----------
+    root : QWidget
+        Constructed screen or dialog to inspect recursively.
 
-    A post-pass rather than 155 edits: the rule is one rule, and a screen
-    added next month gets it by calling one function instead of by remembering
-    a convention.
+    Returns
+    -------
+    int
+        Number of tooltips moved.
 
-    Left alone, deliberately:
-
-    * a field with no sibling label -- there the editor IS the setting's only
-      visible identity, so its tooltip is the only help there is;
-    * a label that already carries its own tooltip -- it has been decorated
-      properly already and overwriting it would lose the richer text;
-    * a tooltip marked :data:`DISABLED_REASON_TOOLTIP`, which explains why
-      THAT control does nothing and therefore belongs on it.
-
-    :param root: the built screen or dialog.
-    :returns: how many tooltips were moved.
+    Notes
+    -----
+    Tooltips stay on editors that have no sibling label, whose label already
+    has different help, or that carry :data:`DISABLED_REASON_TOOLTIP`.
     """
     moved = 0
     for field in root.findChildren(QWidget):

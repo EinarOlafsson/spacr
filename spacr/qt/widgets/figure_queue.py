@@ -1,33 +1,16 @@
-"""
-Figure queue — the panel that collects matplotlib figures a pipeline
-emits, shows them above the console, and lets the user scrub through
-them without blowing up RAM.
+"""Collect, navigate, and restyle figures emitted by a pipeline run.
 
-Behaviour (per the spec):
+The panel combines a thumbnail strip, forward/back controls, a position label,
+and a zoomable full-resolution view. Every arriving figure is written to a
+temporary PNG. The newest 100 full-resolution ``QPixmap`` objects remain in
+memory; older entries reload their PNG on demand, while thumbnails stay in
+memory. Clearing the queue or destroying its owner removes the temporary
+directory.
 
-* **Thumbnail strip** on the left — one small icon per figure, all
-  kept in memory (icons are tiny).
-* **Zoomable enlarged view** on the right — a QGraphicsView showing the
-  current figure's full-resolution render. Wheel = zoom, fit-on-load,
-  scales with the container (reuses the live-preview _ZoomView).
-* **Forward / back navigation** — ◀ / ▶ buttons plus the thumbnail
-  list, with an "N / total" position label.
-* **RAM cap + temp spill** — the 100 most-recent figures keep their
-  full-resolution QPixmap in RAM. When figure #101 arrives, figure #1's
-  pixmap is dropped from RAM (its PNG stays on disk in a temp dir);
-  #102 evicts #2, and so on — a 100-wide sliding window. Navigating
-  back to an evicted figure reloads it from its temp PNG on demand.
-* **Cleanup** — the temp directory is deleted when the queue is
-  cleared or the owning screen is destroyed.
-* **Progressive refinement in PDF mode** — the PNG-derived pixmap is shown
-  immediately and the true vector page is rasterised at 2200 px on a
-  worker thread, then swapped in. Doing that render inline used to freeze
-  the GUI thread for the better part of a second per figure (measured:
-  815 ms for a nine-panel 16x12" figure), on every arriving figure *and*
-  on every navigation click that reloaded a spilled one.
-
-Every figure is rendered to a temp PNG as soon as it arrives, so the
-spill copy always exists and the RAM pixmap is just a cache.
+In PDF mode, the PNG preview appears immediately and a worker rasterizes the
+vector page at 2,200 pixels before replacing it. This keeps the GUI responsive
+during expensive vector rendering; the recorded nine-panel, 16-by-12-inch
+figure required about 815 ms to rasterize synchronously.
 """
 from __future__ import annotations
 
@@ -131,48 +114,12 @@ FIGURE_LOCK = threading.RLock()
 
 def _style_figure_colors(fig, bg: str, fg: str, text_size: int = 0,
                          line: str = "") -> None:
-    """Recolour a figure's background, LINES and TEXT.
+    """Apply background, line, text color, and text size to a figure.
 
-    THE TWO CONTROLS ARE LINE AND FONT (instruction 152 B), and they divide
-    the figure by what a mark IS rather than by which part of the code drew
-    it:
-
-        ``line``   the axis spines and the tick MARKS.
-        ``fg``     every piece of text, the tick LABELS included.
-
-    TICK MARKS ARE LINES AND TICK LABELS ARE TEXT. That split is the one
-    place the two meet and the one a reader could take either way, so it is
-    written down here and in
-    :func:`spacr.qt.widgets.fast_plots.FastPlot.set_line_style`, which makes
-    the identical division on the pyqtgraph side. Anything else would make
-    "all font in the graph" untrue.
-
-    ``line`` empty means "the same ink as the text", which is what every
-    figure did before there were two controls -- so a store that has never
-    been touched renders exactly as it did.
-
-    WHAT THIS DOES NOT REPAINT, and both omissions are deliberate:
-
-    * the DATA's own lines. This runs on every render, from the theme, and a
-      theme that repainted every series in one ink would flatten every
-      multi-series figure in the package. The control that reaches them is
-      per-figure and a user asking for it --
-      :func:`spacr.qt.widgets.figure_settings.apply_line_colour`.
-    * the GRIDLINES. A grid repainted in the ink is a cage over the data;
-      :data:`spacr.figure_style.PRINT_GRID` already says so for the save
-      path and this agrees with it rather than arguing.
-
-    WHAT IT DOES REACH IS *EVERY* TEXT OBJECT, via
-    :func:`figure_text_items`. It used to build its own list here and that
-    list missed an annotation, the suptitle and a legend's title -- so the
-    size control shrank everything except the gene labels, which are the
-    largest text on a volcano, and the theme left a black suptitle on a black
-    page. GitHub issue #108, and both halves of it were this one list.
-
-    ``text_size`` of 0 means "whatever the figure already has". A per-figure
-    choice (:func:`set_figure_text_size_override`) is honoured then, because
-    a caller passing 0 is passing the global default and the figure's own
-    answer is more specific than that.
+    ``line`` colors axis spines and tick marks; ``fg`` colors every text item,
+    including tick labels. An empty line color reuses ``fg``. Data-series
+    lines and gridlines remain unchanged. A zero ``text_size`` preserves the
+    figure's existing size or its per-figure override.
     """
     with FIGURE_LOCK:
         ink = str(line) if str(line).strip() else fg
@@ -503,30 +450,11 @@ FIGURE_RESIZE_DEBOUNCE_MS = 220
 
 
 class _ClearFiguresLabel(QLabel):
-    """"Clear figures" as plain RED text, flashing the accent when clicked.
+    """Provide a low-chrome destructive control for clearing figures.
 
-    NOT a QPushButton, deliberately. Clearing is destructive and rare; button
-    chrome would give it the same visual weight as the controls beside it that
-    people use constantly, and it should sit quieter than those. The
-    pointing-hand cursor is what makes it discoverable as clickable without a
-    border having to say so -- the same trick the console's copy glyph uses.
-
-    RED BECAUSE IT IS DESTRUCTIVE, asked for on 2026-08-17: "just make it red
-    like other negative butons". It rests at the palette's `error` role --
-    the semantic token every theme defines and contrast-checks, #f85149 on
-    dark and #b81d1a on light -- rather than at a red typed in here. A hex
-    literal would be a fourth opinion about what destructive looks like, and
-    the point of the request is that this control should look like the
-    others rather than like itself.
-
-    Quiet chrome and a loud colour are not in tension: the weight argument
-    above is about BORDERS and padding, which still would make it compete for
-    attention with the controls beside it. The colour is what says the action
-    cannot be undone.
-
-    The flash is the whole feedback: clearing an already-empty queue looks
-    identical to a click that never landed, so the mark is what says the click
-    was received.
+    The label uses the active theme's error color and a pointing-hand cursor.
+    A brief accent flash confirms every click, including when the queue was
+    already empty.
     """
 
     #: Emitted on a completed click or keyboard activation.
@@ -2117,20 +2045,11 @@ class FigureQueue(QWidget):
 # ---------------------------------------------------------------------------
 
 class _FigureSettingsDialog(QDialog):
-    """Adjust a figure's background colour, text colour and text size, then
-    re-render. Only offered for vector (PDF) figures.
+    """Edit vector-figure colors and text size, then render the result.
 
-    An Image UMAP figure gets a second half: every Image UMAP setting, live
-    against the figure on screen (instruction 75). The section only appears
-    for a figure that carries ``_spacr_umap_payload`` — the embedding it was
-    drawn from — because without the embedding "live" would mean re-running
-    the reduction, and every point would move.
-
-    NO API DOTS. The three teal dots this dialog used to draw are gone; the
-    same help, with the same ``href``, is on the labels' hover tooltips, and
-    a form whose every row carries a dot reads as a column of dots rather
-    than a column of settings. Same change, same reason, as the Mask live
-    preview, the Annotate settings and the UMAP search dialog before it.
+    Image UMAP figures also expose live UMAP styling when the figure retains
+    its embedding payload. Setting labels carry the corresponding API links
+    in their hover help.
     """
 
     def __init__(self, fig, parent=None, propagate_callback=None,
