@@ -7,7 +7,7 @@ cannot overwrite the originals.
 
 All four buttons use the same treatment:
 
-* a square 512 px ``#2B2F3A`` tile;
+* a square 512 px ``#15181F`` tile;
 * a restrained 32 px corner radius (6.25% of the side);
 * a white, centered mark whose longest dimension is 80% of the tile;
 * no text inside or below any button.
@@ -38,7 +38,7 @@ SOURCE_DIR = OUT_DIR / "source"
 
 CANVAS = 512
 OUTPUT_HEIGHT = 600
-SLATE = (43, 47, 58, 255)  # #2B2F3A
+SLATE = (21, 24, 31, 255)  # #15181F
 WHITE = (255, 255, 255, 255)
 CORNER_RADIUS = 32
 MARK_FRACTION = 0.80

@@ -69,11 +69,47 @@ spaCR를 데스크톱 애플리케이션으로 실행하거나 워크스테이�
 작업 흐름 개요
 --------------------
 
+|WorkflowMask| |WorkflowArrow| |WorkflowMeasure| |WorkflowArrow| |WorkflowAnnotate| |WorkflowArrow| |WorkflowClassify| |WorkflowArrow| |WorkflowBarcodes| |WorkflowArrow| |WorkflowRegression|
+
+.. |WorkflowMask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 96
+   :alt: Mask API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |WorkflowMeasure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 96
+   :alt: Measure API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |WorkflowAnnotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 96
+   :alt: Annotate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/annotate_engine/index.html
+   :align: middle
+.. |WorkflowClassify| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 96
+   :alt: Classify API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |WorkflowBarcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 96
+   :alt: Map Barcodes API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |WorkflowRegression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 96
+   :alt: Regression API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |WorkflowArrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
+   :width: 18
+   :align: middle
+
 .. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: spaCR 작업 흐름 및 출력 구성
    :align: center
 
-주요 경로는 **Mask → 측정 → Annotate → 분류 →지도 바코드 → Regression**입니다. 아래의 네트워크에는 spaCR 홈 화면에 사용되는 동일한 범주 및 순서의 다른 모든 응용 프로그램이 포함되어 있습니다.
+주요 경로는 Mask → 측정 → Annotate → 분류 →지도 바코드 → Regression입니다. 아래의 네트워크에는 spaCR 홈 화면에 사용되는 동일한 범주 및 순서의 다른 모든 응용 프로그램이 포함되어 있습니다.
 
 
 spaCR 설치
@@ -221,11 +257,6 @@ For a server, cluster or CI runner, omit Qt:
    :width: 72
    :alt: bioRxiv 사전 인쇄본 열기
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
-- `전체 스크린 데이터셋: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `테스트 데이터 세트: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `추적 데이터: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `전원 분석 : spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
 
 기여 및 지원

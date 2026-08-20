@@ -79,13 +79,48 @@ module supports it.
 Workflow at a glance
 --------------------
 
+|WorkflowMask| |WorkflowArrow| |WorkflowMeasure| |WorkflowArrow| |WorkflowAnnotate| |WorkflowArrow| |WorkflowClassify| |WorkflowArrow| |WorkflowBarcodes| |WorkflowArrow| |WorkflowRegression|
+
+.. |WorkflowMask| image:: spacr/resources/icons/workflow/mask.png
+   :width: 96
+   :alt: Open the Mask API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |WorkflowMeasure| image:: spacr/resources/icons/workflow/measure.png
+   :width: 96
+   :alt: Open the Measure API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |WorkflowAnnotate| image:: spacr/resources/icons/workflow/annotate.png
+   :width: 96
+   :alt: Open the Annotate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/annotate_engine/index.html
+   :align: middle
+.. |WorkflowClassify| image:: spacr/resources/icons/workflow/classify_merged.png
+   :width: 96
+   :alt: Open the Classify API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |WorkflowBarcodes| image:: spacr/resources/icons/workflow/map_barcodes.png
+   :width: 96
+   :alt: Open the Map Barcodes API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |WorkflowRegression| image:: spacr/resources/icons/workflow/regression.png
+   :width: 96
+   :alt: Open the Regression API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |WorkflowArrow| image:: spacr/resources/icons/workflow/arrow.png
+   :width: 18
+   :align: middle
+
 .. image:: spacr/resources/icons/workflow_home_apps.png
-   :alt: The six-step spaCR workflow followed by all 58 applications grouped as they appear on the home screen
+   :alt: All other spaCR applications grouped as they appear on the home screen
    :align: center
 
-The main path is **Mask → Measure → Annotate → Classify → Map Barcodes →
-Regression**. The grid below it contains every other application in the same
-categories and order used on the spaCR home screen.
+Select a workflow module to open its API page. The grid contains every other
+application in the same categories and order used on the spaCR home screen.
 
 
 Install spaCR
@@ -270,11 +305,6 @@ Reference datasets
    :width: 72
    :alt: Open the bioRxiv preprint
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
-- `Full microscopy dataset: BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `Testing dataset: Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `Sequencing data: NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `Power analysis: spaCRPower <https://github.com/maomlab/spaCRPower>`_
 
 
 Contributing and support

@@ -2708,9 +2708,19 @@ def test_localized_readme_images_have_reviewed_accessible_text():
             encoding="utf-8"
         )
         alt_text = re.findall(r"(?m)^   :alt: (.+)$", text)
-        # thirteen badges, the workflow diagram, four installer/archive
-        # icons, and five linked data/resource icons
-        assert len(alt_text) == 23
+        # Thirteen badges, six linked workflow modules, the application
+        # catalog, four installer/archive icons and five resource icons.
+        assert len(alt_text) == 29
+        assert all(
+            module in alt
+            for module, alt in zip(
+                (
+                    "Mask", "Measure", "Annotate", "Classify",
+                    "Map Barcodes", "Regression",
+                ),
+                alt_text[13:19],
+            )
+        )
         assert workflow_alt in alt_text
         assert "spaCR workflow and output organization" not in alt_text
         assert "Interactive tutorials" not in alt_text
@@ -2718,7 +2728,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
 
         # The download icons carry the only text a screen reader gets for
         # them, so it has to be this language's own, not English left behind.
-        installers = alt_text[14:18]
+        installers = alt_text[20:24]
         for platform, alt in zip(("Windows", "macOS", "Linux"), installers[:3]):
             assert platform in alt, (
                 f"{language}: {alt!r} is not the {platform} download icon")
@@ -2726,7 +2736,7 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         assert not any(alt.startswith("Download spaCR") for alt in installers), (
             f"{language} kept the canonical English download alt text")
 
-        resources = alt_text[18:23]
+        resources = alt_text[24:29]
         assert all(any(name in alt for name in (
             "BioStudies", "Hugging Face", "NCBI", "spaCRPower", "bioRxiv"
         )) for alt in resources)

@@ -69,11 +69,47 @@ spaCR 可作为桌面应用程序运行，也可在工作站、服务器或集�
 工作流程概览
 --------------------
 
+|WorkflowMask| |WorkflowArrow| |WorkflowMeasure| |WorkflowArrow| |WorkflowAnnotate| |WorkflowArrow| |WorkflowClassify| |WorkflowArrow| |WorkflowBarcodes| |WorkflowArrow| |WorkflowRegression|
+
+.. |WorkflowMask| image:: ../../../spacr/resources/icons/workflow/mask.png
+   :width: 96
+   :alt: Mask API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/core/index.html
+   :align: middle
+.. |WorkflowMeasure| image:: ../../../spacr/resources/icons/workflow/measure.png
+   :width: 96
+   :alt: Measure API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/measure/index.html
+   :align: middle
+.. |WorkflowAnnotate| image:: ../../../spacr/resources/icons/workflow/annotate.png
+   :width: 96
+   :alt: Annotate API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/annotate_engine/index.html
+   :align: middle
+.. |WorkflowClassify| image:: ../../../spacr/resources/icons/workflow/classify_merged.png
+   :width: 96
+   :alt: Classify API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/classify/index.html
+   :align: middle
+.. |WorkflowBarcodes| image:: ../../../spacr/resources/icons/workflow/map_barcodes.png
+   :width: 96
+   :alt: Map Barcodes API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html
+   :align: middle
+.. |WorkflowRegression| image:: ../../../spacr/resources/icons/workflow/regression.png
+   :width: 96
+   :alt: Regression API
+   :target: https://einarolafsson.github.io/spacr/api/spacr/ml/index.html
+   :align: middle
+.. |WorkflowArrow| image:: ../../../spacr/resources/icons/workflow/arrow.png
+   :width: 18
+   :align: middle
+
 .. image:: ../../../spacr/resources/icons/workflow_home_apps.png
    :alt: spaCR 工作流程及输出结构
    :align: center
 
-主要路径是 **按 → 测量 → 标记 → 分类 → 地图条形码 → 退缩**. 下面的网格包含相同类别的所有其他应用程序,并在 spaCR 主界面上使用的顺序。
+主要路径是按 → 测量 → 标记 → 分类 → 地图条形码 → 退缩. 下面的网格包含相同类别的所有其他应用程序,并在 spaCR 主界面上使用的顺序。
 
 
 安装 spaCR
@@ -221,11 +257,6 @@ spaCR 支持 Python **3.9 至 3.14**,除 Python 3.14.1 外,除此之外, torchvi
    :width: 72
    :alt: 打开 bioRxiv 预印本
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
-
-- `全微镜数据集:BioStudies S-BIAD2135 <https://doi.org/10.6019/S-BIAD2135>`_
-- `测试数据集:Hugging Face toxo_mito <https://huggingface.co/datasets/einarolafsson/toxo_mito>`_
-- `序列数据:NCBI BioProject PRJNA1261935 <https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935>`_
-- `电源分析:spacrpower <https://github.com/maomlab/spaCRPower>`_
 
 
 贡献与支持

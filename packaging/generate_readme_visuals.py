@@ -27,13 +27,14 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
+WORKFLOW_DIR = ICON_DIR / "workflow"
 FONT_DIR = ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
 
-SLATE = (43, 47, 58, 255)  # #2B2F3A
-PAGE = (24, 27, 34, 255)
+RESOURCE_SLATE = (43, 47, 58, 255)  # #2B2F3A
+WORKFLOW_TILE = (18, 21, 28, 255)  # #12151C
+PAGE = (36, 40, 50, 255)  # #242832
 WHITE = (255, 255, 255, 255)
 MUTED = (196, 203, 216, 255)
-ACCENT = (74, 158, 255, 255)
 
 BUTTON_SIZE = 512
 BUTTON_RADIUS = 32
@@ -69,6 +70,23 @@ MAIN_PIPELINE = (
     ("map_barcodes", "Map Barcodes"),
     ("regression", "Regression"),
 )
+PIPELINE_API = {
+    "mask": "https://einarolafsson.github.io/spacr/api/spacr/core/index.html",
+    "measure": (
+        "https://einarolafsson.github.io/spacr/api/spacr/measure/index.html"
+    ),
+    "annotate": (
+        "https://einarolafsson.github.io/spacr/api/spacr/qt/"
+        "annotate_engine/index.html"
+    ),
+    "classify_merged": (
+        "https://einarolafsson.github.io/spacr/api/spacr/classify/index.html"
+    ),
+    "map_barcodes": (
+        "https://einarolafsson.github.io/spacr/api/spacr/sequencing/index.html"
+    ),
+    "regression": "https://einarolafsson.github.io/spacr/api/spacr/ml/index.html",
+}
 SECTION_ORDER = (
     "Core",
     "Data",
@@ -80,9 +98,8 @@ SECTION_ORDER = (
 )
 
 
-def _font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont:
-    name = "OpenSans-Bold.ttf" if bold else "OpenSans-Regular.ttf"
-    return ImageFont.truetype(str(FONT_DIR / name), size)
+def _font(size: int) -> ImageFont.FreeTypeFont:
+    return ImageFont.truetype(str(FONT_DIR / "OpenSans-Light.ttf"), size)
 
 
 def _trim(image: Image.Image) -> Image.Image:
@@ -148,7 +165,7 @@ def render_resource_button(name: str) -> Image.Image:
     ImageDraw.Draw(button).rounded_rectangle(
         (0, 0, BUTTON_SIZE - 1, BUTTON_SIZE - 1),
         radius=BUTTON_RADIUS,
-        fill=SLATE,
+        fill=RESOURCE_SLATE,
     )
     art = _fit(_resource_art(name), BUTTON_MARK)
     button.alpha_composite(
@@ -206,7 +223,7 @@ def _draw_tile(
     draw.rounded_rectangle(
         (x, y, x + width - 1, y + height - 1),
         radius=18,
-        fill=SLATE,
+        fill=WORKFLOW_TILE,
     )
     icon = _app_icon(key, icon_size)
     image.alpha_composite(icon, (x + (width - icon.width) // 2, y + 18))
@@ -214,8 +231,40 @@ def _draw_tile(
         draw,
         (x + 8, y + height - 49, x + width - 8, y + height - 10),
         label,
-        _font(22, bold=True),
+        _font(22),
     )
+
+
+def render_pipeline_tile(key: str, label: str) -> Image.Image:
+    """Render one linked workflow step as a standalone square tile."""
+    size = 512
+    tile = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(tile)
+    draw.rounded_rectangle(
+        (0, 0, size - 1, size - 1),
+        radius=28,
+        fill=WORKFLOW_TILE,
+    )
+    icon = _app_icon(key, 292)
+    tile.alpha_composite(icon, ((size - icon.width) // 2, 52))
+    _centered_text(
+        draw,
+        (24, 382, size - 24, 478),
+        label,
+        _font(42),
+    )
+    return tile
+
+
+def render_pipeline_arrow() -> Image.Image:
+    """Render a white arrow sized to remain inside the gap between tiles."""
+    width, height = 112, 512
+    arrow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(arrow)
+    y = height // 2
+    draw.line((8, y, 78, y), fill=WHITE, width=12)
+    draw.polygon(((72, y - 28), (104, y), (72, y + 28)), fill=WHITE)
+    return arrow
 
 
 def _registry() -> list[tuple[str, str, str, str]]:
@@ -241,11 +290,7 @@ def render_app_catalog() -> Image.Image:
     row_gap = 20
     section_gap = 44
     heading_height = 52
-    flow_tile_width = 164
-    flow_tile_height = 170
-    flow_gap = 34
-
-    content_height = 60 + heading_height + flow_tile_height + section_gap
+    content_height = 28
     for section in SECTION_ORDER:
         items = grouped[section]
         if not items:
@@ -256,44 +301,13 @@ def render_app_catalog() -> Image.Image:
     canvas = Image.new("RGBA", (canvas_width, content_height + 20), PAGE)
     draw = ImageDraw.Draw(canvas)
 
-    _centered_text(
-        draw,
-        (margin, 20, canvas_width - margin, 76),
-        "The spaCR workflow",
-        _font(34, bold=True),
-    )
-    y = 90
-    total_flow_width = len(MAIN_PIPELINE) * flow_tile_width + (
-        len(MAIN_PIPELINE) - 1) * flow_gap
-    x = (canvas_width - total_flow_width) // 2
-    for index, (key, label) in enumerate(MAIN_PIPELINE):
-        _draw_tile(
-            canvas, (x, y), key, label,
-            width=flow_tile_width, height=flow_tile_height, icon_size=94,
-        )
-        if index < len(MAIN_PIPELINE) - 1:
-            arrow_x = x + flow_tile_width + 5
-            arrow_y = y + flow_tile_height // 2
-            draw.line(
-                (arrow_x, arrow_y, arrow_x + flow_gap - 12, arrow_y),
-                fill=ACCENT,
-                width=5,
-            )
-            draw.polygon(
-                ((arrow_x + flow_gap - 12, arrow_y - 9),
-                 (arrow_x + flow_gap - 2, arrow_y),
-                 (arrow_x + flow_gap - 12, arrow_y + 9)),
-                fill=ACCENT,
-            )
-        x += flow_tile_width + flow_gap
-
-    y += flow_tile_height + section_gap
+    y = 28
     for section in SECTION_ORDER:
         items = grouped[section]
         if not items:
             continue
         title = "More core tools" if section == "Core" else section
-        draw.text((margin + 8, y), title, font=_font(29, bold=True), fill=WHITE)
+        draw.text((margin + 8, y), title, font=_font(29), fill=WHITE)
         y += heading_height
         for index, (key, label) in enumerate(items):
             row, column = divmod(index, 4)
@@ -317,6 +331,14 @@ def main() -> int:
         target = DATABANK_DIR / f"{name}_button.png"
         render_resource_button(name).save(target, "PNG", optimize=True)
         print(target.relative_to(ROOT))
+    WORKFLOW_DIR.mkdir(parents=True, exist_ok=True)
+    for key, label in MAIN_PIPELINE:
+        target = WORKFLOW_DIR / f"{key}.png"
+        render_pipeline_tile(key, label).save(target, "PNG", optimize=True)
+        print(target.relative_to(ROOT))
+    target = WORKFLOW_DIR / "arrow.png"
+    render_pipeline_arrow().save(target, "PNG", optimize=True)
+    print(target.relative_to(ROOT))
     target = ICON_DIR / "workflow_home_apps.png"
     render_app_catalog().save(target, "PNG", optimize=True)
     print(target.relative_to(ROOT))

@@ -15,6 +15,7 @@ LOCALIZATION = ROOT / "docs" / "source" / "localization.rst"
 SETTING_ANIMATIONS = ROOT / "docs" / "source" / "setting_animations.rst"
 FEATURES = ROOT / "docs" / "source" / "features.rst"
 WORKFLOW_IMAGE = ROOT / "spacr" / "resources" / "icons" / "workflow_home_apps.png"
+WORKFLOW_DIR = ROOT / "spacr" / "resources" / "icons" / "workflow"
 
 
 def _read(path: Path) -> str:
@@ -67,7 +68,38 @@ def test_workflow_picture_tracks_the_home_screen_registry():
 
     text = _read(README)
     assert "flow_chart_v3" not in text
-    assert "Mask → Measure → Annotate → Classify → Map Barcodes →" in text
+    assert "The spaCR workflow" not in text
+    assert "Select a workflow module to open its API page" in text
+
+
+def test_workflow_modules_are_dark_linked_tiles_with_separate_white_arrows():
+    from PIL import Image, ImageChops
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+
+    text = _read(README)
+    for key, label in generator.MAIN_PIPELINE:
+        committed = Image.open(WORKFLOW_DIR / f"{key}.png").convert("RGBA")
+        rendered = generator.render_pipeline_tile(key, label).convert("RGBA")
+        assert ImageChops.difference(committed, rendered).getbbox() is None
+        assert committed.getpixel(
+            (committed.width // 2, 0)
+        ) == generator.WORKFLOW_TILE
+        assert f"workflow/{key}.png" in text
+        assert generator.PIPELINE_API[key] in text
+
+    arrow = Image.open(WORKFLOW_DIR / "arrow.png").convert("RGBA")
+    assert ImageChops.difference(
+        arrow, generator.render_pipeline_arrow().convert("RGBA")
+    ).getbbox() is None
+    assert arrow.getpixel(
+        (arrow.width // 2, arrow.height // 2)
+    ) == generator.WHITE
+    assert str(generator._font(22).path).endswith("OpenSans-Light.ttf")
 
 
 def test_reference_resources_are_linked_rounded_buttons():
@@ -81,6 +113,14 @@ def test_reference_resources_are_linked_rounded_buttons():
         assert image.size == (512, 512)
         assert image.getpixel((0, 0))[3] == 0
         assert image.getpixel((256, 0)) == (43, 47, 58, 255)
+
+    for old_text_link in (
+        "Full microscopy dataset:",
+        "Testing dataset:",
+        "Sequencing data:",
+        "Power analysis: spaCRPower",
+    ):
+        assert old_text_link not in text
 
 
 def test_readme_contains_only_user_facing_installation_copy():
