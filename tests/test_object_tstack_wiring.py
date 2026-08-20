@@ -615,6 +615,7 @@ def test_plotting_is_skipped_rather_than_crashing_in_4d(tmp_path, fake_model,
     assert "volumetric" in out
 
 
+@pytest.mark.heavy
 def test_verbose_reports_what_the_4d_run_actually_did(tmp_path, fake_model,
                                                       capsys):
     """A number without the mode that produced it cannot be compared."""

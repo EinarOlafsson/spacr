@@ -536,6 +536,7 @@ def _screen_settings(src):
     }
 
 
+@pytest.mark.heavy
 def test_screen_graphs_over_two_sources_writes_three_result_sets(umap_src, tmp_path):
     """A list src produces one figure+CSV per source plus a combined one, and
     the combined pair is filed under the first source."""
