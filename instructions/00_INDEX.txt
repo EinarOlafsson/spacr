@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-146 done / 30 open (82%).
+147 done / 29 open (83%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -71,9 +71,6 @@ OPEN
 
   133  EVERY MODEL EXPLAINED AND FLAGGED, AND TOXOPLASMA ANNOTATION ON EVERY EXPORT
        133_every_model_explained_and_toxoplasma_annotation.txt
-
-  134  ANALYSIS MODE IS A DROPDOWN, NOT A TEXT BOX
-       134_analysis_mode_is_a_dropdown.txt
 
   135  THE REGRESSION SETTINGS ARE ONE PAGE A USER CAN READ
        135_the_regression_settings_are_one_page_a_user_can_read.txt
@@ -226,6 +223,7 @@ DONE
   124  FINISHING THE REGRESSION FIGURES: EVERY PLOT, EVERY RUN, EVERY POINT
   127  MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
   130  A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
+  134  ANALYSIS MODE IS A DROPDOWN, NOT A TEXT BOX
   138  THE EXPLAINER TEXT FILLS THE WIDTH OF ITS BOX
   140  A LONG FIT SAYS IT WILL BE LONG, AND SAYS WHERE IT HAS GOT TO
   142  FORCE RESTART, FOR WHEN STOP DOES NOT STOP
