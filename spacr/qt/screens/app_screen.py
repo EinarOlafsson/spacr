@@ -5554,14 +5554,11 @@ class AppScreen(QWidget):
                 "[settings] {note}\n", note=note)
 
     def running_modules(self) -> list:
-        """Every module with a run going, and for how long. Instruction 142 B.
+        """Return active modules across the application.
 
-        NAMED INDIVIDUALLY, with elapsed time, because "other modules are
-        running" is not enough to decide with: a user weighing up two hours of
-        segmentation needs to know that is what they are weighing up.
-
-        Asked of the whole application rather than of this screen, since the
-        point of the warning is the runs this screen is NOT showing.
+        Each result contains the module label, its application key, and the
+        elapsed run time in seconds when that information is available. The
+        list is used to identify work that a forced restart will interrupt.
         """
         import time
 
@@ -5608,11 +5605,19 @@ class AppScreen(QWidget):
             return ""
 
     def force_restart(self, *, launcher=None, exiter=None) -> bool:
-        """Save this module and its settings, then restart spaCR. 142 A.
+        """Save this module and its settings, then restart spaCR.
 
-        Returns whether the restart was started. FALSE MEANS NOTHING WAS
-        KILLED: the state is written and verified first, so a failure to save
-        cancels the restart and says why, rather than leaving and hoping.
+        Parameters
+        ----------
+        launcher, exiter
+            Optional process hooks forwarded to
+            :func:`spacr.qt.shutdown.restart_spacr`.
+
+        Returns
+        -------
+        bool
+            ``True`` when a replacement process was started. If saving fails,
+            returns ``False`` without stopping the current process.
         """
         from ..shutdown import restart_spacr
 
@@ -5637,14 +5642,22 @@ class AppScreen(QWidget):
         return started
 
     def restore_run_workspace(self, record) -> dict:
-        """Put back what a saved run had open. Returns the restore report.
+        """Restore the workspace recorded for a saved run.
 
-        THE REPORT REACHES THE USER, always. `spacr.workspace.restore` names
-        every section it could not put back and every file that moved or
-        changed, and a restore that swallowed that would leave the user
-        looking at a screen they believe is the old one -- which is worse
-        than not restoring at all. Written to the console, which is where
-        this screen says everything else about a run.
+        The console reports sections that could not be restored and files
+        that have moved or changed.
+
+        Parameters
+        ----------
+        record
+            Run record or run-folder path accepted by
+            :func:`spacr.workspace.load`.
+
+        Returns
+        -------
+        dict
+            Restore report with ``restored``, ``skipped``, and ``files``
+            entries.
         """
         from ...workspace import load, providers, report_text, restore
 

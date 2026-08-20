@@ -1,41 +1,13 @@
-"""
-Come back to where you were — the state a Force restart carries across.
+"""Persist GUI state across a forced spaCR restart.
 
-Instruction 142. A fit can be somewhere no cooperative check reaches: inside
-statsmodels' optimiser, in C, finishing an iteration whatever the GUI wants.
-Instruction 140 C put a checkpoint on the objective so most of that is now
-answered, but "most" is not "all", and the last thing left when Stop does not
-stop is killing the application from outside and losing the whole
-configuration.
+The restart record stores the current module, its settings, a summary of
+active runs, and the locations of any run folders. :func:`save` verifies the
+record before the current process exits, and :func:`take` consumes it when the
+new process starts so that stale state is not restored repeatedly.
 
-This is what makes that recoverable::
-
-    from spacr import restart_state
-
-    written = restart_state.save(module="regression", settings={...},
-                                 running=[{"module": "mask", "seconds": 840}])
-    if written is None:
-        ...                          # do NOT restart; say why
-    restart_state.command()          # what to launch
-    restart_state.take()             # on the next start: read it and DELETE it
-
-THE SAVE HAPPENS FIRST AND IS VERIFIED BEFORE ANYTHING IS KILLED, and
-:func:`save` returns ``None`` rather than raising when it cannot write. A
-restart that loses the settings is worse than a stuck run, because a stuck run
-can at least be waited out.
-
-IT IS TAKEN, NOT READ. :func:`take` deletes the file as it returns it, so a
-crash on the way back up does not leave a state that reopens the same wedged
-module on every launch afterwards -- which would turn one bad afternoon into a
-permanently broken installation.
-
-WHAT IS NOT PROMISED, and the dialog says so: the RUNS do not come back. Only
-the configuration does. A killed run's partial output is whatever reached
-disk, and the run folders are named so a user knows where to look rather than
-assuming everything is gone or everything is fine.
-
-Standard library only: this is imported on the way out of a process that is
-already in trouble.
+Only the interface configuration is restored. Active computations do not
+resume after a forced restart; output written before the restart remains in
+the recorded run folders.
 """
 from __future__ import annotations
 
@@ -60,18 +32,26 @@ MAX_AGE_SECONDS = 24 * 60 * 60
 
 
 def state_path() -> Path:
-    """Where the state is kept: beside the run journal, under ``~/.spacr``."""
+    """Return the path used for the pending restart record."""
     root = os.environ.get("SPACR_HOME") or os.path.join(
         os.path.expanduser("~"), ".spacr")
     return Path(root) / FILE_NAME
 
 
 def describe_running(running: Sequence[Mapping[str, Any]]) -> str:
-    """Name every module that is running, and for how long. "" if none.
+    """Format active module names and elapsed times for a restart prompt.
 
-    NAMED INDIVIDUALLY, because "other modules are running" is not enough
-    information to decide with: a user weighing up two hours of segmentation
-    needs to know that is what they are weighing up.
+    Parameters
+    ----------
+    running
+        Active-run records. Each record may contain ``module`` or ``name``
+        and an elapsed ``seconds`` value.
+
+    Returns
+    -------
+    str
+        A comma-separated summary, or an empty string when no named runs are
+        present.
     """
     parts = []
     for entry in running or ():
@@ -101,11 +81,22 @@ def _elapsed(seconds: Any) -> str:
 
 def warning_text(running: Sequence[Mapping[str, Any]],
                  run_folders: Sequence[str] = ()) -> str:
-    """What the dialog says before it restarts anything.
+    """Build the confirmation text shown before a forced restart.
 
-    Three separate facts, because they are three different losses and a user
-    weighs them separately: which runs stop, that the SETTINGS come back, and
-    where the partial output is.
+    The text identifies runs that will stop, explains that settings will be
+    restored, and lists the locations of partial output when available.
+
+    Parameters
+    ----------
+    running
+        Active-run records accepted by :func:`describe_running`.
+    run_folders
+        Paths that may contain output written before the restart.
+
+    Returns
+    -------
+    str
+        Paragraphs suitable for a restart confirmation dialog.
     """
     lines = []
     named = describe_running(running)
@@ -130,16 +121,32 @@ def save(*, module: str, settings: Optional[Mapping[str, Any]] = None,
          running: Sequence[Mapping[str, Any]] = (),
          run_folders: Sequence[str] = (),
          saved: str = "") -> Optional[Path]:
-    """Write the state. Returns the path, or ``None`` if it could not be.
+    """Write and verify a pending restart record.
 
-    ``None`` IS THE ANSWER, NOT AN EXCEPTION. The caller's next step is to
-    tell the user and NOT restart, and a raise here would arrive inside a
-    dialog handler on the way out of a wedged application -- the worst place
-    in the program to grow a second failure.
+    Parameters
+    ----------
+    module
+        Key of the module to reopen.
+    settings
+        Module settings to restore. Values that JSON cannot encode directly
+        are converted to strings.
+    running
+        Active-run records to display in the restart summary.
+    run_folders
+        Paths that may contain partial output from interrupted runs.
+    saved
+        Optional ISO 8601 timestamp. The current UTC time is used by default.
 
-    VERIFIED BY READING IT BACK, because "the write returned" and "the file is
-    there and parses" are different claims, and this one is only worth making
-    if it is the second.
+    Returns
+    -------
+    pathlib.Path or None
+        Path to the verified record, or ``None`` when it could not be written
+        and the restart must be cancelled.
+
+    Notes
+    -----
+    The function logs write errors instead of raising because it is called
+    during shutdown. Callers must not restart when ``None`` is returned.
     """
     document = {
         "version": SCHEMA_VERSION,
@@ -168,7 +175,7 @@ def save(*, module: str, settings: Optional[Mapping[str, Any]] = None,
 
 
 def _jsonable(value: Any, _depth: int = 0) -> Any:
-    """A JSON-writable copy. Settings hold Paths, tuples and numpy scalars."""
+    """Return a JSON-compatible copy of a settings value."""
     if _depth > 12:
         return str(value)
     if value is None or isinstance(value, (bool, int, float, str)):
@@ -183,7 +190,13 @@ def _jsonable(value: Any, _depth: int = 0) -> Any:
 
 
 def peek() -> Optional[Dict[str, Any]]:
-    """Read the state WITHOUT deleting it. For tests and for reporting."""
+    """Read the pending restart record without consuming it.
+
+    Returns
+    -------
+    dict or None
+        The saved record, or ``None`` when no valid record can be read.
+    """
     try:
         document = json.loads(state_path().read_text(encoding="utf-8"))
     except FileNotFoundError:
@@ -195,12 +208,15 @@ def peek() -> Optional[Dict[str, Any]]:
 
 
 def take() -> Optional[Dict[str, Any]]:
-    """Read the state and DELETE it. Returns ``None`` if there is none.
+    """Consume and return a recent restart record.
 
-    Deleted whatever happens next, including when it turns out to be too old
-    or unreadable: a state that survives its own use reopens the same wedged
-    module on every launch afterwards, which turns one bad afternoon into a
-    permanently broken installation.
+    The saved file is removed before this function returns, including when
+    the record is invalid or older than :data:`MAX_AGE_SECONDS`.
+
+    Returns
+    -------
+    dict or None
+        A recent restart record, or ``None`` when none is available.
     """
     document = peek()
     discard()
@@ -227,7 +243,13 @@ def _too_old(document: Mapping[str, Any]) -> bool:
 
 
 def discard() -> bool:
-    """Remove any saved state. Returns whether there was one."""
+    """Remove the pending restart record.
+
+    Returns
+    -------
+    bool
+        ``True`` when a record was removed; otherwise ``False``.
+    """
     try:
         state_path().unlink()
         return True
@@ -239,12 +261,14 @@ def discard() -> bool:
 
 
 def command() -> List[str]:
-    """The command line that starts spaCR again.
+    """Return the command that restarts the current spaCR installation.
 
-    THE RUNNING INTERPRETER, not "spacr" off the PATH. A user in a conda
-    environment, or running from a checkout, or from a bundled build, has a
-    PATH entry that may point at a different installation entirely -- and
-    coming back as a different spaCR than the one that was open is a worse
-    outcome than not coming back.
+    The command uses the active Python interpreter rather than resolving a
+    separate ``spacr`` executable from ``PATH``.
+
+    Returns
+    -------
+    list of str
+        Command arguments suitable for :class:`subprocess.Popen`.
     """
     return [sys.executable, "-m", "spacr"]

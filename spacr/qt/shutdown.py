@@ -1,26 +1,9 @@
-"""Quitting spaCR, and quitting one run, when asking nicely is not enough.
+"""Provide graceful-stop, force-quit, and force-restart controls for Qt.
 
-``RunRegistry.cancel_all`` is cooperative: it sets a flag, interrupts the
-thread, and waits. That is the right default -- a pipeline killed mid-write
-leaves a half-written ``.npy`` or a database row with no rows behind it, and
-recovering from that costs more than waiting. But cooperative cancellation
-has one failure mode with no way out from inside the application: a worker
-that is wedged in a C extension never checks the flag, so it never stops,
-and ``closeEvent`` refuses to close for as long as it lives.
-
-That is the state this module exists for. A user watching a run that will
-never finish, in a window that will not close, whose only remaining option
-is to find the process ID from a terminal the desktop entry never opened.
-
-Two things follow from that:
-
-* **Force is always offered, never taken silently.** Every entry point here
-  asks first, and the prompt says what force costs, because the caller is
-  the only one who knows whether the artefact being written matters.
-* **A graceful attempt is not a commitment to wait forever.** Choosing to
-  wait starts a watcher that comes back every :data:`RECHECK_MS`, so the
-  answer "give it another five minutes" can be given repeatedly and the
-  question never has to be remembered.
+Cooperative cancellation remains the default because it lets active writes
+finish safely. When a worker cannot respond, this module presents the user
+with the consequences of stopping immediately, supports a verified restart
+record, and can repeat the choice after :data:`RECHECK_MS`.
 """
 
 from __future__ import annotations
@@ -44,7 +27,7 @@ RECHECK_MS = 5 * 60 * 1000
 GRACEFUL = "graceful"
 FORCE = "force"
 CANCEL = "cancel"
-#: Instruction 142. Save the module and its settings, leave, come back.
+#: Save the current module and settings before starting a fresh process.
 RESTART = "restart"
 
 
@@ -65,9 +48,8 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
     :param detail: appended under the question. Callers use it to name what
         is still running, because "something is still running" is not
         enough information to choose with.
-    :param offer_restart: add the Force restart button (instruction 142).
-        Off by default, so a plain Quit dialog does not grow the most
-        destructive option in the application.
+    :param offer_restart: add a Force restart button. This option is disabled
+        by default for ordinary quit dialogs.
     :param restart_detail: what Force restart will cost, from
         :func:`spacr.restart_state.warning_text`. Shown only when the button
         is offered, and REQUIRED to be meaningful when it is -- a button whose
@@ -125,20 +107,20 @@ def ask_how_to_quit(parent: Optional[QWidget], *, what: str,
 
 def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
                   launcher=None, exiter=None) -> bool:
-    """Save the state, start a fresh spaCR, and leave. Returns whether it did.
+    """Save the current state and restart spaCR in a new process.
 
-    THE SAVE HAPPENS FIRST AND IS VERIFIED BEFORE ANYTHING IS KILLED. A
-    restart that loses the settings is worse than a stuck run, because a stuck
-    run can at least be waited out -- so a state that will not write cancels
-    the restart and this returns False with the reason in the log, rather than
-    leaving and hoping.
+    The restart is cancelled if the state cannot be written and verified.
 
-    :param launcher: how to start the new process, for tests. Defaults to
-        `subprocess.Popen` DETACHED -- a child that dies with its parent would
-        be started and killed in the same breath by the exit below.
-    :param exiter: how to leave, for tests. Defaults to :func:`force_quit_now`,
-        because the reason this exists is that the ordinary paths can block on
-        the very thread that is already wedged.
+    :param module: key of the module to reopen.
+    :param settings: module settings to restore after launch.
+    :param running: active-run records for the restart summary.
+    :param run_folders: paths that may contain interrupted-run output.
+    :param launcher: optional process-launch function. Defaults to a detached
+        :class:`subprocess.Popen` call.
+    :param exiter: optional exit function. Defaults to
+        :func:`force_quit_now`.
+    :returns: ``True`` when the replacement process was started; ``False``
+        when saving or launching failed and the current process remains open.
     """
     from ..restart_state import command, save
 
@@ -172,16 +154,13 @@ def restart_spacr(module: str, settings=None, *, running=(), run_folders=(),
 
 
 def force_quit_now(exit_code: int = 1) -> None:
-    """Leave immediately, without unwinding anything.
+    """Flush available logs and terminate the process immediately.
 
-    ``os._exit`` rather than ``sys.exit`` or ``QApplication.quit``, and the
-    difference is the entire point: both of those unwind: they run atexit
-    handlers, Python finalisation and Qt's own teardown, and every one of
-    those can block on the very thread that is already wedged. A force quit
-    that can hang is not a force quit.
+    This function uses :func:`os._exit`, so Python finalizers, ``atexit``
+    handlers, and Qt teardown do not run. Use it only after the user confirms
+    a force quit.
 
-    Logs are flushed first because the reason a run wedged is usually in
-    them, and this is the one exit path that will not flush them itself.
+    :param exit_code: process exit status.
     """
     LOG.warning("Force quit requested; leaving without cleanup")
     for handler in list(logging.getLogger().handlers):
