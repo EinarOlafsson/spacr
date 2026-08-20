@@ -375,7 +375,7 @@ REGRESSION_BACKENDS = {
         'label': 'pyfixest (CPU)',
         'device': 'cpu',
         'package': 'pyfixest',
-        'pip': 'pip install pyfixest',
+        'pip': "pip install 'spacr[pyfixest]'",
         'types': ('ols', 'wls'),
         'url': 'https://py-econometrics.github.io/pyfixest/',
         'summary': ("Absorbs the rowID and columnID fixed effects by "
@@ -403,7 +403,7 @@ REGRESSION_BACKENDS = {
         'label': 'glum (CPU)',
         'device': 'cpu',
         'package': 'glum',
-        'pip': 'pip install glum',
+        'pip': "pip install 'spacr[glum]'",
         # NOT probit AND NOT quasi_binomial, measured rather than dropped:
         # glum 3.4 ships identity, log, logit, cloglog and Tweedie links and
         # has NO probit, and it has no equivalent of statsmodels'
