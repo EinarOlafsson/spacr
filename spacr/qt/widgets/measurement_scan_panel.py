@@ -2729,6 +2729,17 @@ class MeasurementScanPanel(QWidget):
         scan_layout.addWidget(self.table, 1)
         self._add_folding_section(scan, "Measurement scan", minimum=140)
 
+    #: The only section this tab opens ON. Asked for 2026-08-19: "the
+    #: measurements tab is ok now as long as only the attached databases tab
+    #: in the measurements tab starts open" -- four panels open at once is
+    #: what "there are to many elements" was about, and 169 gave them folds
+    #: without changing what they start as.
+    #:
+    #: FIRST-RUN ONLY. `restore_section_layout` runs after this and wins, so
+    #: a user who folded databases away and opened the scan last session
+    #: gets that back (169 C).
+    OPENS_EXPANDED = "Attached databases"
+
     def _add_folding_section(self, widget, title: str, *, minimum: int):
         """One splitter child: ``widget`` under a header that folds it.
 
@@ -2739,7 +2750,9 @@ class MeasurementScanPanel(QWidget):
         from .collapsible_section import CollapsibleSection
 
         widget.setMinimumHeight(minimum)
-        section = CollapsibleSection(title, widget, parent=self)
+        section = CollapsibleSection(title, widget,
+                                     expanded=(title == self.OPENS_EXPANDED),
+                                     parent=self)
         section.set_open_minimum(minimum)
         section.toggled.connect(lambda *_: self.remember_section_layout())
         self._folders[title] = section
