@@ -54,6 +54,9 @@ DELIBERATELY_UNTRANSLATED = {
     "Live": {"de", "sv"},
     "Module": {"fr"},
     "Navigation": {"de", "fr"},
+    # The PCA screen keeps the standard scientific acronym in these locales;
+    # Chinese, French, Hindi, and Korean use localized names.
+    "PCA": {"de", "es", "is", "pt", "sv"},
     "Pause": {"de", "fr"},
     "Personal Access Token (ghp_… / github_pat_…)": {"hi"},
     "Regression": {"de", "sv"},
