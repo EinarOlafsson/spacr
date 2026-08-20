@@ -462,3 +462,30 @@ FOUR CONVERTED, chosen for damage rather than for count:
   * the score-CSV reader beside it.
 
 267 -> 263. The direction is the point.
+
+--------------------------------------------------------------------------------
+2026-08-20 (later) -- TWO MORE COUNT READERS, AND THE OTHER HALF OF THE RULE.
+--------------------------------------------------------------------------------
+
+`sequencing_qc` read the COUNT CSVs raw in two places -- the same files, and
+the same failure, as the `fractions_from_counts` case measured above: four
+plates' r1/c1 pooling into one well, 384 instead of 1,536, fractions still
+summing to 1. Both go through `read_table` now. 263 -> 261.
+
+AND THE OTHER HALF OF THE RULE IS WRITTEN DOWN WHERE IT APPLIES. Not every
+raw reader is a defect, and treating them all as one would make the ratchet a
+number nobody could ever bring to zero and therefore a number nobody would try
+to move:
+
+  * `sequencing_qc`'s barcode reader takes a table of `name` and `sequence`.
+    It carries no plate, row, column, field or well. Canonicalising it is a
+    no-op with an import behind it, and it is marked RAW, DELIBERATELY, with
+    that reason on the line.
+  * `gene_tile._read_csv` reads the gene ANNOTATION table, and
+    `hyperparam._default_read` reads a per-fold metrics CSV. Neither carries
+    plate metadata, and the first has a real risk the others do not:
+    canonicalising could rename a column the annotation index is built on.
+
+145's rule is about readers of METADATA-BEARING tables. A reader that touches
+none is not a door this instruction is trying to close, and saying so beside
+it is what stops the next person converting it and breaking something.
