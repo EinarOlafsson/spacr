@@ -583,6 +583,38 @@ def _crop_settings(request: "MontageRequest", root: str) -> Dict[str, Any]:
     return settings
 
 
+def no_score_refusal(score_csvs, troubles=()) -> str:
+    """Why no per-object score was found, NAMING BOTH PLACES (167 B).
+
+    This said only "No attached database yielded per-object rows with a
+    classification score. Run Classify and merge its predictions into the
+    database first." Both sentences were true and the advice was wrong: the
+    scores are in the score CSVs the regression module is already holding --
+    the run was fitted on exactly those numbers -- so the user was being told
+    to produce something they had had loaded the whole time, and to write it
+    into a database the montage does not need to touch.
+
+    A refusal that mentions only the databases is a refusal about the wrong
+    half. Named as a function so the sentence can be read without building a
+    whole screen to provoke it -- and because it is reasoning about the user's
+    situation rather than a string.
+    """
+    loaded = [str(path) for path in (score_csvs or ())]
+    if loaded:
+        shown = ", ".join(os.path.basename(path) for path in loaded[:3])
+        more = f", +{len(loaded) - 3} more" if len(loaded) > 3 else ""
+        where = (f"and the {len(loaded)} score file(s) this run was fitted on "
+                 f"({shown}{more}) carry no per-object score for these "
+                 f"objects either")
+    else:
+        where = ("and NO score file is loaded -- the run's own score CSVs "
+                 "carry a per-object 'pred' and are joined in memory when "
+                 "they are, without writing to any database")
+    return ("No per-object classification score was found. No attached "
+            "database yielded one, " + where + ". "
+            + " ".join(str(t) for t in troubles)).strip()
+
+
 def load(request: MontageRequest) -> MontageLoad:
     """Select the objects behind one coefficient and cut their crops.
 
@@ -703,11 +735,9 @@ def load(request: MontageRequest) -> MontageLoad:
         frames.append(objects)
 
     if not frames:
-        return MontageLoad(
-            request=request,
-            error="No attached database yielded per-object rows with a "
-                  "classification score. " + " ".join(troubles),
-            unavailable=True)
+        return MontageLoad(request=request, unavailable=True,
+                           error=no_score_refusal(request.score_csvs,
+                                                  troubles))
 
     objects = pd.concat(frames, ignore_index=True) if len(frames) > 1 \
         else frames[0]
@@ -2129,6 +2159,87 @@ class CellMontageView(QWidget):
         self._write_back(self._picture_settings)
         self._on_settings_changed()
         return True
+
+    def write_scores_into_the_databases(self, *, confirm=None) -> dict:
+        """Offer to put the run's scores into the databases. 167 C.
+
+        OFFERED, NEVER AUTOMATIC. `merge_cv_predictions` is exact -- measured
+        on the maintainer's plate1, 60816/60816 rows matched on `file_name` --
+        and the montage does not need it: it joins the same numbers in memory
+        and reads the database without touching it. But a user who WANTS the
+        scores in the database should be able to say so once, here, rather
+        than at a shell.
+
+        WRITING TO A MEASUREMENTS DATABASE IS NOT SOMETHING A MONTAGE DOES
+        BEHIND ANYONE, so nothing happens without ``confirm`` returning True.
+
+        :param confirm: ``(databases, score_files) -> bool``. ``None`` asks
+            the user with a dialog naming both.
+        :returns: ``{database: rows matched}`` for the ones written, empty
+            when the user declined or there was nothing to write.
+        """
+        import pandas as pd
+
+        databases = [str(p) for p in self.databases()]
+        score_files = [str(p) for p in self.score_csvs()]
+        if not databases or not score_files:
+            self._set_status(
+                "There is nothing to merge: this needs both an attached "
+                "database and a loaded score file.")
+            return {}
+        if confirm is None:
+            confirm = self._ask_before_writing
+        if not confirm(databases, score_files):
+            return {}
+
+        from ...predictions import merge_cv_predictions
+
+        frame = pd.concat([pd.read_csv(path) for path in score_files],
+                          ignore_index=True)
+        written: dict = {}
+        for database in databases:
+            try:
+                report = merge_cv_predictions(frame, database, verbose=False)
+            except Exception as error:                      # noqa: BLE001
+                LOG.debug("could not merge scores into %s", database,
+                          exc_info=True)
+                self._set_status(f"{os.path.basename(database)}: "
+                                 f"{type(error).__name__}: {error}")
+                continue
+            written[database] = getattr(report, "matched", 0) if report else 0
+        if written:
+            total = sum(written.values())
+            self._set_status(
+                f"Merged the run's scores into {len(written)} database(s): "
+                f"{total} row(s) matched. The montage did not need this -- it "
+                f"joins them in memory -- so nothing on screen changes.")
+        return written
+
+    def _ask_before_writing(self, databases, score_files) -> bool:
+        """The dialog, naming BOTH what is written and what it is written from."""
+        from PySide6.QtWidgets import QMessageBox
+
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Question)
+        box.setWindowTitle("Write the scores into the databases?")
+        box.setText(f"Merge the run's per-object scores into "
+                    f"{len(databases)} measurements database(s)?")
+        box.setInformativeText(
+            "FROM: " + ", ".join(os.path.basename(p) for p in score_files[:4])
+            + (f" (+{len(score_files) - 4} more)" if len(score_files) > 4
+               else "")
+            + "\n\nINTO: "
+            + ", ".join(os.path.basename(p) for p in databases[:4])
+            + (f" (+{len(databases) - 4} more)" if len(databases) > 4 else "")
+            + "\n\nThis MODIFIES the databases. The montage does not need it: "
+              "it already joins these scores in memory and reads the "
+              "databases without writing to them. Do this only if you want "
+              "the scores there for something else.")
+        box.addButton("Merge", QMessageBox.AcceptRole)
+        cancel = box.addButton("Cancel", QMessageBox.RejectRole)
+        box.setDefaultButton(cancel)
+        box.exec()
+        return box.clickedButton() is not cancel
 
     def picked_groups(self) -> dict:
         """``{gene: the object index values this tab picked for it}``.

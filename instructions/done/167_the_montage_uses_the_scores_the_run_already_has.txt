@@ -59,3 +59,45 @@ HOW TO KNOW IT WORKED
   pins it.
 * A screen with neither scores nor databases is refused in a sentence naming
   both places that were looked in.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- A, B AND C. 167 IS DONE.
+--------------------------------------------------------------------------------
+
+A WAS ALREADY BUILT and is wired end to end: `load_montage_objects` takes
+`scores=`, the view passes `request.score_csvs`, and the join happens IN
+MEMORY. No database is written by a montage -- the standing rule for the crop
+paths, and the same rule here, because a montage is a read.
+
+B. THE REFUSAL NAMES BOTH PLACES. It said only "No attached database yielded
+   per-object rows with a classification score. Run Classify and merge its
+   predictions into the database first." Both sentences were true and the
+   advice was wrong, which is the worst combination: the user was being sent
+   to produce something they had had loaded the whole time.
+
+   It now says which score files were looked in and what they carry, or --
+   when none is loaded -- that the run's own score CSVs carry a per-object
+   `pred` and are joined in memory WITHOUT writing to any database, which is
+   the actionable half. A test holds that "Run Classify" cannot come back.
+
+   PULLED OUT AS `no_score_refusal(score_csvs, troubles)`, because the
+   sentence is reasoning about the user's situation rather than a string, and
+   because provoking it through the whole loader needs a screen that refuses
+   for a DIFFERENT reason first -- guide fractions -- so the message could not
+   otherwise be read at all.
+
+C. THE OFFER. `write_scores_into_the_databases(confirm=...)` merges the run's
+   scores through `merge_cv_predictions`, which is exact -- 60816/60816 rows
+   matched on `file_name`, measured on the maintainer's plate1.
+
+   OFFERED, NEVER AUTOMATIC. Nothing happens unless `confirm` returns True,
+   and the dialog names FROM what and INTO what, says it MODIFIES the
+   databases, and says the montage does not need it. A user who accepts is
+   then told the montage did not need it either, so they do not conclude the
+   picture depended on the write. One database that will not take them is
+   named and the rest go on.
+
+   A test pins the checksum: declining leaves the file byte-identical.
+
+9 tests in tests/qt/test_the_montage_uses_the_scores_the_run_has.py, and the
+65 in tests/qt/test_cells_behind_the_dot_tab.py still pass.
