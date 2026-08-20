@@ -134,3 +134,26 @@ HOW TO KNOW IT WORKED
 * The caption states the wells, the score window, and that guide membership
   is INFERRED from a well-level fraction rather than observed.
 * A gene whose wells contribute zero objects says so instead of an empty tab.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- CLOSED. The tab, the picking, the captions and the saves ship.
+--------------------------------------------------------------------------------
+
+`CellMontageView` is the Cells tab, reached from `table.key_selected` -- the
+same funnel the gene tile is on, so one click drives both and there is no
+second selection. The load goes through a `JobRunner` with a bound-method
+handler (166's rule), the caption carries the sentence saying guide membership
+is INFERRED, controls that cannot act are greyed and say why, and the figure
+is written through `spacr.plot.save_figure`.
+
+Everything filed against it since has landed on top: 155 (the montage knows
+its own run), 167 (it uses the scores the run already has), 170 (loaded once,
+re-applied in under a second), 174 (r,g,b everywhere), 177 (the comparison),
+179 (the Graph tab).
+
+65 tests in tests/qt/test_cells_behind_the_dot_tab.py, plus the suites those
+later instructions brought with them.
+
+STILL OWED and tracked on THEIR OWN files, not this one: 172 (the count and
+the choice of cells) and 173 (a guide and a probability for every cell), both
+of which need the maintainer's real plates to verify.
