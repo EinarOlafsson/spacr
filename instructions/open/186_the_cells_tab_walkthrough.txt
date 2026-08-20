@@ -1,0 +1,169 @@
+================================================================================
+THE CELLS TAB, WALKED THROUGH: SIX THINGS FOUND IN ONE SITTING
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20, from a live session on the Cells tab. Six separate
+           reports, kept in one instruction because they are one screen and
+           one walkthrough; each is independently shippable.
+Owner:     Qt GUI (Cells tab, Compare dialog, save-styled dialog)
+
+Sections marked VERIFIED were confirmed against the running code before this
+was filed. Sections marked REPORTED are the maintainer's words and still need
+the code read.
+
+--------------------------------------------------------------------------------
+A. MULTIVARIATE PICKING MUST OFFER TO DO THE WORK IT NEEDS      [REPORTED]
+--------------------------------------------------------------------------------
+
+    "if the user has chosen multivariat cell picking and presses ok and the
+    measurements havnt been swept and or merged. they should be prompted with
+    a popup asking if they want to merge or sweep or both depending on what
+    has already been done."
+
+Option C needs the gene x measurement sweep's EFFECTS GRID -- one effect per
+measurement per guide -- and it needs the measurements merged onto the object
+rows. Today, when the grid is missing, `select_montage` falls back to the
+single-score attribution and says so in the caption (instruction 173). That
+is the right behaviour for a montage that must still draw, and it is the
+WRONG behaviour for a user who explicitly chose multivariate and pressed OK:
+they asked for something, and the answer is a quieter different thing.
+
+WHAT TO BUILD. On OK, before the montage runs, check the two preconditions
+separately and prompt for exactly what is missing:
+
+    neither done      "Multivariate picking needs the measurements merged and
+                       a gene x measurement sweep. Do both now?"
+                       [ Merge and sweep ] [ Pick by rank instead ] [ Cancel ]
+    merged, no sweep  "...needs a sweep. Run it now?"
+    swept, not merged "...needs the measurements merged onto the objects."
+
+THE THIRD BUTTON IS NOT OPTIONAL. A sweep is long, and a user who does not
+want to wait needs a way forward that is not Cancel -- which is what the
+silent fallback was trying to be, in the wrong place.
+
+The caption must still say which picker actually ran, whichever way out is
+taken. See 173's "A montage that quietly changed how it chose its cells
+would be the failure this tab is most careful about."
+
+--------------------------------------------------------------------------------
+B. "COMPARE A MEASUREMENT" IS A TAB, NOT A FLOATING WINDOW      [VERIFIED]
+--------------------------------------------------------------------------------
+
+    "when the Compare a measurement pops up it is infrom to the other tabs.
+    this should have its own tab after summary."
+
+Today there are TWO front doors onto the same panel and they disagree:
+
+  * `CellMontageView.compare_a_measurement` opens `MeasurementCompareDialog`,
+    a free-floating window over the tabs -- this is the one reported; and
+  * `_ensure_graph_tab` already builds a `MeasurementComparePanel` INSIDE a
+    tab, once there are objects and picked groups.
+
+So the panel already knows how to live in a tab. The dialog should become a
+tab placed AFTER Summary, and the two doors should lead to the same place.
+
+B2. SHOW ONE CLASS AT A TIME.
+
+    "in the Compare a measurement graphs it should be possible to show only
+    one class."
+
+A per-class toggle on the plot, not a rebuild: the comparison is already
+long-form with a `group` column.
+
+B3. SAY WHAT THERE IS TO COMPARE AGAINST.
+
+    "there should be text somwhere telling the user to check the show all in
+    well to have something to compare to if they have top by score or
+    attribiuted chosen"
+
+This is the sharp one. With `show_all_in_well` OFF, the montage holds ONLY
+the picked cells, so a comparison between "picked" and "the rest" has no
+rest -- every object in the frame is in one group and the graph is a single
+class with nothing beside it. The panel must say so AT THE POINT IT HAPPENS,
+naming the setting that fixes it, rather than drawing an empty contrast.
+
+Detectable exactly: one non-empty group and no REST rows.
+
+--------------------------------------------------------------------------------
+C. THE MEASUREMENTS SUB-TABS SNAP TO THE MIDDLE WHEN CLOSED     [REPORTED]
+--------------------------------------------------------------------------------
+
+    "the measurements sub tabs should not snap to the middle when closed but
+    the top."
+
+A folded section should collapse UPWARD, leaving the remaining sections at
+the top of the panel. Almost certainly a stretch missing above the fold, or
+a layout alignment defaulting to centre.
+
+--------------------------------------------------------------------------------
+D. SAVE STYLED CANNOT CHANGE A PYQTGRAPH PLOT'S BACKGROUND      [VERIFIED]
+--------------------------------------------------------------------------------
+
+    "in save styled the i cannot change the graphs background color, only the
+    lines."
+
+FOUND IT. Two things set the page colour and the static one wins.
+
+`SaveFigureDialog.save` passes the chosen background through:
+
+    self._source.export_styled(chosen, ink=..., background=..., grid=...)
+
+and `_dressed_for_the_file` does restyle the live scene with it. But
+`FastPlotWidget._write_export` then does, for the raster path:
+
+    exporter.parameters()["background"] = self._export_ground()
+
+`_export_ground` is a STATIC method that reads the global saved-figure look
+and knows nothing about the dialog -- so it overwrites the user's choice on
+every PNG. The ink survives because ink is applied to the scene's items,
+which the exporter does not touch.
+
+THE FIX IS TO HAVE ONE ANSWER. `_write_export` should take the background it
+was given and fall back to `_export_ground()` only when none was chosen.
+
+D2. SIZE AND RESOLUTION ARE GREYED, AND THE REASON IS INVISIBLE.
+
+    "size and resolution are grayed out"
+
+They are greyed DELIBERATELY and for good reasons -- a pyqtgraph plot's page
+is set in millimetres on its own right-click menu, and its PDF and SVG are
+true vector with no dpi at all. Both reasons are written. They are written
+to `setToolTip` ON THE DISABLED CONTROL, which is exactly the failure
+instruction 106 exists for: a greyed control's reason must go on the LABEL,
+through `_apply_greyed_note`, because that is where it can be read.
+
+So this is not "greyed out wrongly", it is "greyed out silently", and 106
+already has the mechanism.
+
+--------------------------------------------------------------------------------
+E. COLOUR BY LOCALISATION HAS NO "ALL"                          [VERIFIED]
+--------------------------------------------------------------------------------
+
+    "Colour by lets me color by a single location, all should be an option."
+
+`build_style_menu` builds "Colour by localisation" from `self._compartments`,
+one checkable entry per compartment the screen actually has. There is no
+"All localisations" entry, so a user who wants every compartment coloured at
+once has no way to ask for it.
+
+Add it as the first entry in that submenu. Whether the existing entries are
+genuinely exclusive or merely look it needs the callback read -- they are
+built checkable, so multi-select may already half-work, and a half-working
+multi-select is worth settling either way while adding "all".
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Choosing multivariate with nothing swept offers merge/sweep/both, names
+  which is missing, and always offers a way forward that is not Cancel.
+* Compare a measurement opens in a tab after Summary; the dialog and the
+  Graph tab are the same panel.
+* A single class can be shown alone.
+* With show_all_in_well off and a rank or attributed picker, the panel says
+  so and names the setting.
+* A folded measurements section leaves the rest at the TOP.
+* Choosing white in save styled writes a white PNG from a pyqtgraph plot.
+* The greyed size and resolution carry their reason on the LABEL.
+* "Colour by localisation" offers All, and it colours every compartment.
