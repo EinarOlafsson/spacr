@@ -3,8 +3,8 @@
   "audited_against": "fce4ef86",
   "animations_total": 94,
   "counts": {
-    "GOOD": 71,
-    "WEAK": 23
+    "GOOD": 74,
+    "WEAK": 20
   },
   "verdicts": {
     "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
@@ -193,9 +193,9 @@
       "settings": [
         "cell_Signal_to_noise"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0496,
-      "note": "A brightness ramp across five objects responds to the setting, which is the right subject, but the direction is not indicated: raising S/N raises the normalisation ceiling, which makes things dimmer, while the animation brightens."
+      "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
     },
     {
       "slug": "nucleus_Signal_to_noise",
@@ -203,9 +203,9 @@
       "settings": [
         "nucleus_Signal_to_noise"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0563,
-      "note": "A brightness ramp across five objects responds to the setting, which is the right subject, but the direction is not indicated: raising S/N raises the normalisation ceiling, which makes things dimmer, while the animation brightens."
+      "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
     },
     {
       "slug": "pathogen_Signal_to_noise",
@@ -213,9 +213,9 @@
       "settings": [
         "pathogen_Signal_to_noise"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.1121,
-      "note": "A brightness ramp across five objects responds to the setting, which is the right subject, but the direction is not indicated: raising S/N raises the normalisation ceiling, which makes things dimmer, while the animation brightens."
+      "note": "FIXED 2026-08-20. The subject was right -- a brightness ramp across five objects responding to the setting -- and the animation BRIGHTENED while raising Signal_to_noise raises the normalisation ceiling and makes things DIMMER. Same class as the flow thresholds and filed the same milder way: a picture that moves the wrong way is not undirected, it is directed wrongly, and a viewer will read it. The ramp dims now, and THE DIMMEST LOSES MOST -- each object's fall is scaled by its own base, so the faintest fades toward nothing while the brightest merely dulls, which is what raising the ceiling does to a field. The same track the flow thresholds use sits below, FILLING rather than emptying, because here the value goes up as the picture goes down. Measured on the regenerated GIF: 18 frames, brightest at index 0 (3002 bright pixels) and dimmest at index 11 (2563) -- and that is with the gauge ADDING ink as it fills."
     },
     {
       "slug": "cell_intensity_split",
