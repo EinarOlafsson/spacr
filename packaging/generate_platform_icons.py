@@ -10,8 +10,7 @@ All four buttons use the same treatment:
 * a square 512 px ``#2B2F3A`` tile;
 * a restrained 32 px corner radius (6.25% of the side);
 * a white, centered mark whose longest dimension is 80% of the tile;
-* no text inside any button. ``Legacy`` is drawn below its square, in the
-  transparent caption strip shared by all four output canvases.
+* no text inside or below any button.
 
 The supplied files do not share an alpha convention. Linux is black artwork
 on transparency, Windows is white artwork over a baked dark checkerboard, and
@@ -29,7 +28,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,9 +43,6 @@ WHITE = (255, 255, 255, 255)
 CORNER_RADIUS = 32
 MARK_FRACTION = 0.80
 MARK_SIZE = round(CANVAS * MARK_FRACTION)
-CAPTION_GAP = 10
-CAPTION_FONT_SIZE = 58
-CAPTION_STROKE = 6
 
 SOURCE_FILES = {
     "linux": SOURCE_DIR / "linux.png",
@@ -54,9 +50,6 @@ SOURCE_FILES = {
     "windows": SOURCE_DIR / "windows.png",
 }
 LEGACY_LOGO = ICON_DIR / "logo_spacr.png"
-LEGACY_FONT = (
-    ICON_DIR.parent / "font" / "open_sans" / "static" / "OpenSans-Bold.ttf"
-)
 
 
 def _alpha_mask(image: Image.Image) -> Image.Image:
@@ -151,32 +144,15 @@ def render_platform(name: str) -> Image.Image:
 
 
 def render_legacy() -> Image.Image:
-    """Render the spaCR mark at 80%, with ``Legacy`` below the button."""
+    """Render the spaCR mark at 80%, without an embedded caption."""
     image = _tile()
     logo = _trim_and_fit(_alpha_mask(Image.open(LEGACY_LOGO)), MARK_SIZE)
     _paste_white(image, logo)
-
-    font = ImageFont.truetype(str(LEGACY_FONT), CAPTION_FONT_SIZE)
-    label = "Legacy"
-    draw = ImageDraw.Draw(image)
-    left, top, right, _bottom = draw.textbbox(
-        (0, 0), label, font=font, stroke_width=CAPTION_STROKE)
-    label_width = right - left
-    text_x = (CANVAS - label_width) // 2 - left
-    text_y = CANVAS + CAPTION_GAP - top
-    draw.text(
-        (text_x, text_y),
-        label,
-        font=font,
-        fill=WHITE,
-        stroke_width=CAPTION_STROKE,
-        stroke_fill=SLATE,
-    )
     return image
 
 
 def main() -> int:
-    required = (*SOURCE_FILES.values(), LEGACY_LOGO, LEGACY_FONT)
+    required = (*SOURCE_FILES.values(), LEGACY_LOGO)
     missing = [str(path) for path in required if not path.is_file()]
     if missing:
         raise FileNotFoundError(
