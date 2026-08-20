@@ -195,3 +195,25 @@ reader has to handle both -- `find_summary_file` does, and so does
 `CellMontageView.loaded_run_name`. It is not a bug worth changing under this
 instruction, but it is a trap: `os.path.dirname(panel._path)` is right in one
 case and silently wrong in the other.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- CLOSED. The work is done; the ratchet is not this file's to bump.
+--------------------------------------------------------------------------------
+
+Every path in 153 ends in a summary or a checked sentence, and the Summary
+tab now folds it too (168 D). The one loose end recorded above -- the
+api-i18n public-surface ratchet -- is NOT bumped here, and deliberately.
+
+Measured 2026-08-19: the counter reads 7633 against a reviewed 7185, which is
++448. The six functions 153 and 154 G added are in there, and so are roughly
+forty from this session's sweep, attribution, tile-chrome and folding work --
+but the bulk is the concurrent public-API restructuring (typed MaskConfig and
+MeasureConfig, curated API navigation). Bumping the number here would absorb
+four hundred additions this instruction never made, under a comment claiming
+to name what it admitted. The ratchet's own message asks for the opposite:
+"name what it admitted in the comment above, and regenerate the target
+catalogs".
+
+So it stays for whoever owns that surface, together with the runtime i18n
+catalogs, which need regenerating for the seventeen picture-settings tooltips
+added under 176 B.

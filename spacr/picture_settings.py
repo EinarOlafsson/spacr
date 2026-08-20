@@ -82,6 +82,19 @@ OWN_DEFAULTS: Dict[str, object] = {
     # settings dict said None while the settings WINDOW showed "object" --
     # the user reads one thing and the crop is cut by another.
     "crop_shape": "object",
+    # "NOTHING NORMALISED" AND "NOTHING OUTLINED", spelled the way the
+    # chooser spells them. The annotator ships None for both and
+    # `_as_channel_list` reads None and '' identically, so this changes no
+    # behaviour -- it makes the dialog's default one of the options it
+    # offers, instead of a value that matches none of them and so opened the
+    # chooser on an entry the settings did not hold.
+    "normalize_channels": "",
+    "outline": "",
+    # A REAL BOOLEAN. `set_annotate_default_settings` ships the STRING
+    # 'False' for this, and a non-empty string is TRUE -- so "draw the
+    # outline over the picture" was on by default everywhere it was read as
+    # a flag, and the settings window drew a text box saying False.
+    "edge_image": False,
 }
 
 #: Settings that only mean something when the crops are read off disk.
@@ -347,8 +360,25 @@ DRAW_SETTINGS: Tuple[str, ...] = (
 )
 
 
+#: A displayed image's channel position -> the colour the annotator's own
+#: helpers name it by. `normalize_pil` and `filter_channels_pil` both key on
+#: 'r'/'g'/'b' and silently skip anything else, so a user who typed 0,1,2 --
+#: which is what every other channel setting in spaCR takes -- got a control
+#: that accepted their input and did nothing.
+#:
+#: NOT the source-channel mapping. These are positions in the RGB picture
+#: being drawn, which is why 0 is red here while `png_channel_mapping` may
+#: put source channel 2 in red.
+_POSITION_TO_COLOUR = {"0": "r", "1": "g", "2": "b"}
+
+
 def _as_channel_list(value):
-    """``['r','g']`` from whatever a settings field holds."""
+    """``['r','g']`` from whatever a settings field holds.
+
+    Accepts the annotator's letters AND the index form the rest of spaCR
+    uses, because a setting that quietly ignores half the spellings offered
+    to it is worse than one that refuses them.
+    """
     if value is None or value is False:
         return None
     if isinstance(value, str):
@@ -357,12 +387,14 @@ def _as_channel_list(value):
             return None
         if text.startswith("[") and text.endswith("]"):
             text = text[1:-1]
-        return [p.strip().strip("'\"").lower() for p in text.split(",")
-                if p.strip().strip("'\"")]
-    try:
-        return [str(v).strip().lower() for v in value if str(v).strip()]
-    except TypeError:
-        return None
+        parts = [p.strip().strip("'\"").lower() for p in text.split(",")
+                 if p.strip().strip("'\"")]
+    else:
+        try:
+            parts = [str(v).strip().lower() for v in value if str(v).strip()]
+        except TypeError:
+            return None
+    return [_POSITION_TO_COLOUR.get(p, p) for p in parts] or None
 
 
 def _as_pair(value, default=(1.0, 99.0)):
@@ -506,6 +538,41 @@ def offered_values(key: str, source=None, frame=None) -> Tuple[str, ...]:
         # what the user named it (instruction 171).
         return ((LOAD_IMAGES, f"{LOAD_IMAGES_LABEL} — crops already in data/"),
                 (STREAM_IMAGES, f"{STREAM_IMAGES_LABEL} — cut from merged/"))
+    if name == "channels":
+        # WHICH PLANES SURVIVE INTO THE PICTURE -- the annotator's own
+        # `filter_channels_pil` question. Offered for the same reason as the
+        # two below: "showing only one channel ... none of this works" was a
+        # free-text box with no statement of what it wanted.
+        return (
+            ("r,g,b", "all three"),
+            ("r", "red only"),
+            ("g", "green only"),
+            ("b", "blue only"),
+            ("r,g", "red and green"),
+            ("r,b", "red and blue"),
+            ("g,b", "green and blue"),
+        )
+    if name in ("normalize_channels", "outline"):
+        # OFFERED, NOT TYPED. These were blank QLineEdits: nothing on screen
+        # said that the answer is a channel list, so a user who typed
+        # nothing got nothing and a user who typed "0,1,2" -- which is what
+        # every other channel setting in spaCR takes -- got a control that
+        # accepted their input and did nothing. Reported twice.
+        #
+        # The stored value stays the annotator's comma-separated string, so
+        # a settings CSV written before this still means what it meant, and
+        # free text is still accepted by `_as_channel_list`.
+        what = ("normalised" if name == "normalize_channels" else "outlined")
+        return (
+            ("", f"none — nothing is {what}"),
+            ("r", f"red only"),
+            ("g", f"green only"),
+            ("b", f"blue only"),
+            ("r,g", "red and green"),
+            ("r,b", "red and blue"),
+            ("g,b", "green and blue"),
+            ("r,g,b", f"every channel"),
+        )
     if name == "object_type":
         return ("cell", "nucleus", "pathogen", "cytoplasm")
     if name == "baseline":
