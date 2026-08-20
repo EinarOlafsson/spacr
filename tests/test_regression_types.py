@@ -316,9 +316,18 @@ def test_the_entry_point_whitelist_is_the_dispatcher_list(tmp_path, stubs):
 
     from spacr.ml import REGRESSION_TYPES, perform_regression
 
-    source = inspect.getsource(perform_regression)
+    # BOTH HALVES OF THE ENTRY POINT. `perform_regression` became a thin
+    # wrapper that reports actionable detail on failure and delegates to
+    # `_perform_regression`; reading only the wrapper's source found no
+    # mention of REGRESSION_TYPES and reported a regression that had not
+    # happened. What the test is about is that NO hand-written list exists
+    # anywhere on the path, so it reads the path.
+    from spacr.ml import _perform_regression
+
+    source = "\n".join(inspect.getsource(fn)
+                       for fn in (perform_regression, _perform_regression))
     assert "reg_types = [" not in source, (
-        "perform_regression is carrying its own whitelist again")
+        "the entry point is carrying its own whitelist again")
     assert "REGRESSION_TYPES" in source
 
     score, count = write_screen(tmp_path)
