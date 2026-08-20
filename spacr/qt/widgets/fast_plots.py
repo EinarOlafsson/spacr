@@ -2409,6 +2409,23 @@ class FastPlot(QWidget):
         drawn = self._to_drawn(np.asarray([float(value)]), axis)
         return float(drawn[0])
 
+    def pinned_limits(self) -> dict:
+        """What the user TYPED as this plot's limits: ``{"x": ..., "y": ...}``.
+
+        ``None`` for an axis nobody pinned, which is not the same answer as
+        the range it happens to be showing -- and telling the two apart is
+        the whole reason a caller wants this. Instruction 116 stores a run's
+        view so it can be put back, and storing the AUTO-ranged limits would
+        freeze the plot at whatever it looked like the moment the user left
+        it, so a run returned to would stop following its own data.
+
+        Public because `RegressionResultsPanel.plot_state` was reaching
+        `_pinned` through `getattr`, which 116 named as the one private
+        coupling left in it. A copy, so a caller stashing this cannot reach
+        back through it and move the plot.
+        """
+        return {axis: self._pinned.get(axis) for axis in ("x", "y")}
+
     def _reapply_pinned(self) -> None:
         """Put the typed limits back, in whatever units are drawn now."""
         box = self.plot.getViewBox()
