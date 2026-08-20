@@ -457,25 +457,27 @@ def hit_counts(output: Mapping[str, Any], alpha: float = 0.05) -> dict:
 
 
 def qc_verdicts(row: Mapping[str, Any]) -> dict:
-    """The four diagnostic verdicts, as columns on a trial's row.
+    """Summarize design and inference diagnostics for one sweep trial.
 
-    115's last owed item: "the sweep ROW's verdict column".
+    Parameters
+    ----------
+    row : mapping
+        Trial metrics produced by :func:`summarise_trial`. Design scoring uses
+        well, parameter, rank, and condition-number fields. Inference scoring
+        uses the result count and genomic-inflation estimate.
 
-    WHY A ROW NEEDS THEM AT ALL. A sweep is a table of trials ranked by hit
-    count, and hit count is exactly the number a broken fit inflates: a
-    rank-deficient design will happily report more significant guides than an
-    identifiable one. Without a verdict beside it, the trial that wins a
-    sweep is sometimes the trial that is most wrong, and nothing on the row
-    says so.
+    Returns
+    -------
+    dict
+        Available ``qc_design`` and ``qc_inference`` levels, plus
+        ``qc_verdict`` containing the more severe available level. A diagnostic
+        is omitted when its required metrics are unavailable.
 
-    FOUR COLUMNS AND A WORST, not a pass rate. `worst_verdict`'s own reason
-    holds here: nineteen panels passing and one saying the design is rank
-    deficient is a run whose "95% passed" hides exactly the panel the suite
-    was run for. `qc_verdict` is the worst of the four, which is what a
-    reader sorts by.
-
-    Every block is guarded on its own, as the others here are: a model with
-    no residuals must still contribute its design verdict.
+    Notes
+    -----
+    The overall verdict is intentionally the worst available diagnostic rather
+    than a pass rate. This prevents a severe identifiability or calibration
+    problem from being hidden by otherwise acceptable checks.
     """
     from .regression_diagnostics import score_design, score_inference
 
@@ -569,25 +571,14 @@ def summarise_trial(output: Mapping[str, Any],
     return row
 
 
-#: Every column :func:`summarise_trial` can emit.
+#: Columns that :func:`summarise_trial` may add to a sweep row.
 #:
-#: THIS IS NOT DOCUMENTATION, IT IS LOAD-BEARING. A sweep row is also the
-#: record used to REBUILD that trial's settings
-#: (:func:`spacr.parameter_sweep.settings_for_trial`), and that function's rule
-#: is "anything not bookkeeping was a setting" -- which is the only rule that
-#: survives users adding their own sweep axes. Without this list every metric
-#: added here silently became a fabricated setting on the way back, so
-#: reopening a trial fed ``r_squared=0.42`` and ``genomic_inflation=1.07`` into
-#: perform_regression as if the user had typed them.
-#:
-#: tests/test_trial_metrics.py asserts this set covers what summarise_trial
-#: actually produces, so a metric added without listing it fails the suite
-#: instead of leaking.
+#: :func:`spacr.parameter_sweep.settings_for_trial` excludes these bookkeeping
+#: fields when reconstructing a trial's settings. Keeping the complete metric
+#: vocabulary here prevents diagnostic results such as ``r_squared`` or
+#: ``qc_verdict`` from being passed back to the regression API as settings.
 METRIC_COLUMNS: frozenset = frozenset({
-    # the diagnostic verdicts (115). ON THIS LIST OR THEY BECOME SETTINGS:
-    # `settings_for_trial`'s rule is "anything not bookkeeping was a setting",
-    # so a column missing here is fed back into perform_regression as though
-    # the user had typed `qc_verdict='fail'`.
+    # Diagnostic verdicts are results, not reconstructed regression settings.
     "qc_design", "qc_inference", "qc_verdict",
     # hit counts
     "n_results", "n_significant", "n_primary", "n_below_alpha",
