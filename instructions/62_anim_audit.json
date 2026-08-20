@@ -3,8 +3,8 @@
   "audited_against": "fce4ef86",
   "animations_total": 94,
   "counts": {
-    "GOOD": 74,
-    "WEAK": 20
+    "GOOD": 78,
+    "WEAK": 16
   },
   "verdicts": {
     "GOOD": "the visible difference is the difference the setting makes, and it is readable at the size a tooltip shows it",
@@ -226,9 +226,9 @@
         "cell_min_distance",
         "cell_min_object_area"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0504,
-      "note": "One oversized object is split into two, which is right, but the intensity valley the watershed cuts on is never drawn, and no object is left unsplit -- so nothing shows what decides a split. Concurrent-session finding, confirmed on re-watching. (settings.py notes the split is in fact purely geometric for pathogen, so the fix is to draw an object that is NOT split rather than to draw intensity.)"
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
     },
     {
       "slug": "nucleus_intensity_split",
@@ -239,9 +239,9 @@
         "nucleus_min_distance",
         "nucleus_min_object_area"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0376,
-      "note": "One oversized object is split into two, which is right, but the intensity valley the watershed cuts on is never drawn, and no object is left unsplit -- so nothing shows what decides a split. Concurrent-session finding, confirmed on re-watching. (settings.py notes the split is in fact purely geometric for pathogen, so the fix is to draw an object that is NOT split rather than to draw intensity.)"
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
     },
     {
       "slug": "organelle_intensity_split",
@@ -252,9 +252,9 @@
         "organelle_min_distance",
         "organelle_min_object_area"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.0788,
-      "note": "One oversized object is split into two, which is right, but the intensity valley the watershed cuts on is never drawn, and no object is left unsplit -- so nothing shows what decides a split. Concurrent-session finding, confirmed on re-watching. (settings.py notes the split is in fact purely geometric for pathogen, so the fix is to draw an object that is NOT split rather than to draw intensity.)"
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
     },
     {
       "slug": "pathogen_intensity_split",
@@ -265,9 +265,9 @@
         "pathogen_min_distance",
         "pathogen_min_object_area"
       ],
-      "verdict": "WEAK",
+      "verdict": "GOOD",
       "visible_change": 0.1097,
-      "note": "One oversized object is split into two, which is right, but the intensity valley the watershed cuts on is never drawn, and no object is left unsplit -- so nothing shows what decides a split. Concurrent-session finding, confirmed on re-watching. (settings.py notes the split is in fact purely geometric for pathogen, so the fix is to draw an object that is NOT split rather than to draw intensity.)"
+      "note": "FIXED 2026-08-20. THE CONTROL WAS MISSING: every object in the frame split, so the animation showed the CONSEQUENCE of the setting and nothing about what DECIDES it -- a viewer could not tell whether it splits everything or only some things, which is the only question a threshold setting raises. The audit prescribed the fix and it is the one taken: draw an object that is NOT split, rather than drawing an intensity valley the setting does not use (settings.py records the split as purely GEOMETRIC for pathogen). A large object on the left comes apart, a small one on the right is left alone, and both are on screen the whole time -- the difference between them IS the setting. The cut is drawn where the halves part, because a split has a place it happens and showing it is the difference between 'two now' and 'cut here'. Measured: the control's ink is 7391 pixels in EVERY frame while the splitting side moves 9655 -> 14448 -> 12997."
     },
     {
       "slug": "stitch_threshold",
