@@ -72,3 +72,28 @@ C. THE NOT-APPLICABLE BLOCK COLLAPSES. One line where they stood, NAMING them,
 STILL OWED
   * D. The Summary tab does not fold the sections. The file is right; the
     panel still shows it as one scroll.
+
+--------------------------------------------------------------------------------
+2026-08-19 (later) -- D SHIPPED. THE INSTRUCTION IS CLOSED.
+--------------------------------------------------------------------------------
+
+`spacr.qt.widgets.folding_summary.FoldingSummaryView` -- a drop-in for the
+QPlainTextEdit the Summary tab used (setPlainText, toPlainText, isReadOnly,
+font), so nothing that fills or reads the tab changed. THE ANSWER open, every
+other section folded, the headings as the outline.
+
+PARSED FROM THE TEXT rather than built from `RunSummary`, which looks like
+the wrong way round when the structure is right there. The tab does not
+always have it: what it shows may be the run's OWN file read back from beside
+a results table loaded from disk, a file written by another version of spaCR,
+or the statsmodels summary, which has no spaCR sections at all. Parsing
+serves all three and keeps the FILE as the source of truth rather than making
+the widget a second renderer that can disagree with it.
+
+A heading is a line whose successor is a rule of - or = THE SAME LENGTH, and
+that last clause is the whole parser: statsmodels draws rows of dashes all
+over its output, and without the length check every line above one becomes a
+heading and the tab folds itself into nonsense. Text with no headings is
+shown whole.
+
+The file on disk is unchanged and still reads top to bottom in a terminal.

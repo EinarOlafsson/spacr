@@ -60,3 +60,26 @@ RELATED
          applied to the channel names, and the third place it has bitten.
   169 -- the folds A adjusts the default of.
   113 -- hover help belongs on the setting's name.
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE. A, B AND C.
+--------------------------------------------------------------------------------
+
+A. `MeasurementScanPanel.OPENS_EXPANDED` is "Attached databases" and the other
+   three start folded. FIRST-RUN ONLY: `restore_section_layout` runs after and
+   wins, so a saved arrangement still comes back (169 C).
+
+B. Seventeen of the twenty-five picture-settings keys had no hover help at
+   all. They are in `spacr.settings.tooltips` -- the table the settings window
+   ALREADY reads -- and not in a new one beside it, which would have been a
+   second answer to what "normalize" means. On the setting's NAME (113).
+
+C. Colour letters are TRANSLATED, not dropped and not read positionally.
+   `picture_settings._as_channel_mapping` resolves r/g/b through the screen's
+   own `png_channel_mapping`, falling back to spaCR's default -- which is
+   {r: 2, g: 1, b: 0}, so 'r' is source channel TWO and a positional reading
+   would have reversed every streamed crop while looking entirely plausible.
+   It emits a MAPPING rather than a `png_dims` list, whose positional
+   convention is the legacy inverted one. A colour the user did not pick is
+   blank rather than absent, because an absent key falls back to the default
+   and quietly restores a plane they turned off. An index form still works.
