@@ -122,3 +122,47 @@ HOW TO KNOW IT WORKED
   right one when a tile is clicked, and still folds by run section.
 * A run still writes the matplotlib house-style figures to disk.
 * The panel is not slower than it is today -- measured, not asserted.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- AUDITED AGAINST THE RUNNING PANEL. A, B AND C ARE DONE.
+--------------------------------------------------------------------------------
+
+A. THE FILTER IS ON THE PLOT, WITH THE COUNTS IN THE MENU, exactly as asked.
+   Driven on a frame of 7 genes and 11 guides, the volcano's right-click menu
+   reads:
+
+       Show > genes and guides (18)
+       Show > genes only (7)
+       Show > guides only (11)
+
+   and the same state drives the "Level:" combo above the axes (147 A), so
+   there is one piece of state and two ways to reach it rather than two
+   answers. `settings['volcano']` did not disappear: a headless run still
+   needs to know which table to draw, and 125 A gates the legacy volcano on
+   it.
+
+B. EVERY PANEL THE SHEET DRAWS HAS A TAB. The registry is
+   {volcano, effect_rank, effect_distribution, controls, agreement,
+   p_histogram, qq}; the panel's tabs are
+
+       Volcano · Effect rank · Effect distribution · p-values · Q-Q ·
+       Controls · Residuals · Scale-location · Influence · Summary ·
+       Guide support · Gene
+
+   The two this file named as THE GAP -- `EffectRankPlot` and
+   `EffectDistribution` -- exist in fast_plots and are mounted. Residuals,
+   which 128 E asked for, is there too, with Scale-location and Influence
+   beside it. Each says why it is empty rather than being absent, because an
+   absent tab is indistinguishable from a bug.
+
+C. THE GRID STAYS AND HOLDS LIVE TILES. `FigureGridView.set_live_tiles` /
+   `live_tile_keys` are the pyqtgraph half, `PINNED_KEY` is the regression
+   graph among them, and the index mapping this file warned about is held by
+   a test. The bound on live tiles is 116's MAX_LIVE_RUNS = 2, carrying the
+   measurement that decided it -- about 75 ms a frame live against 5 ms for a
+   still on a 17 ms budget -- so "measure it before choosing" was done and the
+   answer was "live for the run you are reading, stills for the rest".
+
+The one assumption this file stated rather than asked -- pyqtgraph on screen,
+matplotlib on disk -- still holds, and 178 C.2 has since given the pyqtgraph
+plots a styled save of their own so the two are not a hierarchy.
