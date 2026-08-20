@@ -271,12 +271,10 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
     :param max_share: drop a guide whose median well fraction, where it is
         present, is above this.
     :param max_wells_fraction: drop a guide present in more than this share
-        of the wells. THE OVER-REPRESENTATION FILTER, and deliberately
-        separate from ``max_share``: measured on the maintainer's screen,
-        220950 is in ALL 1,536 wells at a median fraction of 0.176, so it is
-        extreme on both axes -- but a guide can be in every well at a low
-        fraction, or in a few at a high one, and those are different problems
-        with different reasons to exclude.
+        of wells. This prevalence filter is separate from ``max_share``, which
+        measures median abundance where the guide is present. A guide can be
+        common at low abundance or rare at high abundance, so the two filters
+        identify different forms of over-representation.
     :param min_wells: guides present in fewer wells than this are dropped --
         a correlation over three wells is not an effect.
     :param level: ``'guide'``, ``'gene'``, or ``'both'``. A gene's fraction in
@@ -489,23 +487,18 @@ def sweep(wells: pd.DataFrame, fractions: pd.DataFrame, *,
 # --------------------------------------------------------------------------- #
 
 class HOUSE:
-    """The apicomplexan-genomics palette, sampled from published figures.
+    """Define spaCR's scientific-figure palette and sizing constants.
 
-    Taken from the `apicomplexan-figures` skill, which derives it by direct
-    inspection of Waldman et al. Cell 2020 Fig 1/3 and Giuliano et al. Nature
-    Microbiology 2024 Fig 1 -- the Lourido lab idiom these screens are read
-    in. DO NOT INVENT HUES: a colour that is not in this list is a colour a
-    reader has to learn.
+    The palette follows recurring colors in published apicomplexan-genomics
+    figures, including Waldman et al. (Cell, 2020; Figures 1 and 3) and
+    Giuliano et al. (Nature Microbiology, 2024; Figure 1). Grey represents
+    background data, while accent colors identify the smaller subset being
+    interpreted. Family colors remain stable across panels so readers do not
+    have to relearn category mappings.
 
-    THE ONE RULE THAT MATTERS MOST: everything is grey except what the
-    sentence is about. In Giuliano Fig 1E some 8,000 genes are light grey and
-    about 100 are blue; grey is the default ink for DATA and colour is an
-    argument. A highlight that is half the marks is a figure with no claim.
-
-    INK IS NOT TAKEN FROM HERE. The skill's ink is #231F20, which is correct
-    for a white page and invisible on spaCR's dark themes, so text, spines
-    and ticks come from `_readable` instead. Data colour is the paper's;
-    chrome colour is the application's. That split is the whole adaptation.
+    Text, spines, and ticks use theme-aware colors selected by :func:`_readable`
+    rather than this palette, which keeps figures legible in spaCR's dark
+    interface while retaining consistent scientific data colors.
     """
 
     GREY = "#B4B4B4"          # default data, non-significant
