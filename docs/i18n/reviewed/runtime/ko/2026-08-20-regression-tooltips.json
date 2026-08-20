@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "alpha",
+      "source_sha256": "0a83ab496f322797c6bbb05f917cdbd3c81c4a7645eb1c26885914b398e0c00f",
+      "source": "Regularisation strength for the penalised models only: the L1 penalty for 'lasso', the L2 penalty for 'ridge', the combined penalty for 'elasticnet' and the inverse margin for 'hinge'. Larger values shrink more coefficients toward zero; set it to 'auto' or None to choose it by 5-fold cross-validation, which is usually what you want because the default 1 shrinks a fraction-scale design to nothing. Every other family refuses a non-default alpha rather than ignoring it. Default 1. Read by regression_type 'elasticnet', 'hinge', 'lasso', 'ridge'.",
+      "translation": "벌점 모델에만 적용되는 정규화 강도입니다. 'lasso' 에서는 L1 벌점, 'ridge' 에서는 L2 벌점, 'elasticnet' 에서는 두 벌점을 결합한 값, 'hinge' 에서는 역마진으로 사용합니다. 값이 클수록 더 많은 계수를 0 쪽으로 축소합니다. 'auto' 또는 None 으로 설정하면 5-fold 교차 검증으로 선택합니다. 기본값 1은 분수 척도 설계를 거의 0으로 축소하므로 보통 이 설정이 적절합니다. 다른 모든 모델 계열은 기본값이 아닌 alpha 를 무시하지 않고 거부합니다. 기본값 1. regression_type 이 'elasticnet', 'hinge', 'lasso', 'ridge' 일 때 사용됩니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "count_grna_column",
+      "source_sha256": "56ef1c206cd77004f18d97c16f3d4863b11ff457248a57b8d3e11fc5f79caea7",
+      "source": "Name of the column in the count CSV holding the guide identifier. It was hard-coded to 'grna', so a file naming it 'sgRNA' or 'guide' died on a message listing the four columns spaCR wanted and none of the ones the file actually had. Set it to whatever your sequencing pipeline wrote. Default 'grna'.",
+      "translation": "가이드 식별자가 들어 있는 카운트 CSV 열의 이름입니다. 이전에는 'grna' 로 고정되어 있어서 열 이름이 'sgRNA' 또는 'guide' 인 파일을 읽으면, spaCR 이 기대한 네 개 열만 나열하고 실제 파일의 열은 하나도 보여 주지 않는 오류로 종료되었습니다. 시퀀싱 파이프라인이 작성한 열 이름으로 설정하십시오. 기본값 'grna'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cov_type",
+      "source_sha256": "f7036ca5578bf5ba37cdc033079a71f06a51d82cb2c885a44801e5e9f37775a7",
+      "source": "Heteroscedasticity-robust covariance estimator passed to the likelihood fits: 'HC0', 'HC1', 'HC2' or 'HC3', or None for classical non-robust errors. It changes standard errors and p-values only, never the coefficients; reach for 'HC3' when residual variance grows with well cell count. The penalised, robust and quantile fits have no such estimator and refuse it rather than quietly reporting ordinary errors under a robust label. Default None. Read by regression_type 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'wls'.",
+      "translation": "우도 기반 적합에 전달되는 이분산성 강건 공분산 추정량입니다. 'HC0', 'HC1', 'HC2', 'HC3' 중 하나를 사용하거나, 고전적 비강건 오차를 쓰려면 None 을 사용합니다. 계수는 바꾸지 않고 표준 오차와 p값만 바꿉니다. 잔차 분산이 웰 세포 수와 함께 커질 때는 'HC3' 가 적합합니다. 벌점, 강건 및 분위수 적합에는 이런 추정량이 없으므로, 강건하다는 이름 아래 일반 오차를 조용히 보고하지 않고 이 설정을 거부합니다. 기본값 None. regression_type 이 'glm', 'logit', 'ols', 'poisson', 'probit', 'quasi_binomial', 'wls' 일 때 사용됩니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "min_cell_count",
+      "source_sha256": "41f3630bb2366d2eb69f9f6e3658671a0c8e83260bfa6d9de885a934fb261cbb",
+      "source": "Wells with fewer than this many scored objects are dropped before regression. Raising it removes noisy, sparsely imaged wells at the cost of statistical power. Set it to None and spaCR simulates the count at which a well's mean score stabilises within tolerance and uses that value instead. Default 100.",
+      "translation": "점수가 계산된 객체 수가 이 값보다 적은 웰은 회귀 전에 제외됩니다. 값을 높이면 잡음이 많고 촬영된 객체가 적은 웰을 제거하지만 통계적 검정력은 낮아집니다. None 으로 설정하면 spaCR 이 웰의 평균 점수가 허용 오차 안에서 안정화되는 객체 수를 시뮬레이션하여 그 값을 사용합니다. 기본값 100."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "model_plate_position",
+      "source_sha256": "b6d0e3a189ded805d61accad96b41c5f2082e2462c2722458cbfa53adda4e4ae",
+      "source": "Whether plate row and column (rowID, columnID) are terms in the model at all. random_row_column_effects then chooses fixed or random for them; turning this off while that is on is refused, because there is nothing left to make random. Measured on a real 610-well screen: the 35 position terms are jointly significant at p=6.7e-23, and dropping them inflates the residual sd 7.2%, moves the median guide coefficient 0.27 of a standard error and swaps genes in and out of the hit list. On a plate with no position effect, keeping them costs 1.6% on the standard errors. Default True.",
+      "translation": "플레이트 행과 열(rowID, columnID)을 모델 항으로 포함할지 결정합니다. random_row_column_effects 는 이 항들을 고정 효과 또는 임의 효과로 처리할지 선택합니다. 이 설정을 끈 상태에서 후자를 켜면 임의 효과로 만들 항이 없으므로 거부됩니다. 실제 610-웰 스크린에서 측정한 결과, 35개 위치 항은 함께 p=6.7e-23으로 유의했고, 이를 제거하면 잔차 sd가 7.2% 증가하고 가이드 계수 중앙값이 표준 오차의 0.27만큼 이동하며 히트 목록에 드나드는 유전자가 바뀌었습니다. 위치 효과가 없는 플레이트에서 이 항들을 유지할 때 표준 오차 비용은 1.6%입니다. 기본값 True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "p_threshold_alpha",
+      "source_sha256": "5b04ef954ef49937ac43572f61b7753b412b5b8bbac7bf52d9aeb30958a40c09",
+      "source": "The P value a coefficient has to beat to be called a hit, and the line the volcano draws. It cuts on whichever P p_threshold_kind names, so results_significant.csv and the figure printed beside it agree: until this existed the plot's own right-click raw/adjusted choice was the only say anyone had, and the table and the picture could mean two different things by 'significant'. A fraction, strictly between 0 and 1 -- 5 for '5%' is refused. Default 0.05.",
+      "translation": "계수를 히트로 판정하기 위해 넘어야 하는 P 값이며, 볼케이노 플롯에 그리는 기준선입니다. p_threshold_kind 가 지정한 P 에 적용되므로 results_significant.csv 와 옆에 출력되는 그림이 일치합니다. 이 설정이 생기기 전에는 플롯의 오른쪽 클릭 메뉴에서 고르는 raw/adjusted 옵션만 있었기 때문에 표와 그림이 'significant' 의 의미를 서로 다르게 사용할 수 있었습니다. 0과 1 사이의 엄격한 분수여야 하며, '5%' 를 뜻한다고 5를 넣으면 거부됩니다. 기본값 0.05."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "p_threshold_kind",
+      "source_sha256": "af1a6bbc195643ccd55993fdf714e9ed57517d1f6d82cd458141d1850f13ecfe",
+      "source": "Whether p_threshold_alpha cuts on the ADJUSTED P value ('adjusted' -- the multiple-testing-corrected column multiple_testing_method produces) or on the raw per-coefficient P ('raw'). The volcano's right-click menu offers the same two, and this is the one the RUN uses, so the exported hits and the plot cannot disagree. 'raw' calls far more genes on a screen of thousands of guides. Anything else is refused rather than falling back. Default 'adjusted'.",
+      "translation": "p_threshold_alpha 가 보정된 P 값('adjusted', multiple_testing_method 가 생성한 다중검정 보정 열)에 적용될지, 계수별 원시 P 값('raw')에 적용될지 선택합니다. 볼케이노 플롯의 오른쪽 클릭 메뉴에도 같은 두 옵션이 있으며, 실제 RUN 에서 사용하는 선택이므로 내보낸 히트와 플롯이 서로 어긋나지 않습니다. 수천 개 가이드를 스크리닝할 때 'raw' 는 훨씬 더 많은 유전자를 히트로 판정합니다. 다른 값은 대체값으로 넘어가지 않고 거부됩니다. 기본값 'adjusted'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "regression_qc",
+      "source_sha256": "45c1572d3313836cae4e5dffc5d04b13d7ab1de6aaa76a7893634f56003762fa",
+      "source": "Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
+      "translation": "회귀 QC 모음(분산 동질성, 잔차, 설계, 영향력 및 보정 패널)을 <res_folder>/regression_qc/ 에 개별 그림, 통합 PDF 및 텍스트 보고서로 저장합니다. 적합 한 번당 약 5.8초와 19개 파일이 필요합니다. 단일 분석에는 적절하므로 기본적으로 켜져 있습니다. 스윕은 이를 자동으로 끕니다. 시험 백 회면 십 분과 거의 아무도 열어 보지 않을 파일 이천 개가 생기기 때문입니다. 특정 시험을 다시 열면 해당 진단을 복원할 수 있습니다. 모든 regression_type 에 적용됩니다. 어떤 모델도 잘못 지정될 수 있기 때문입니다. 기본값 True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "regression_type",
+      "source_sha256": "b55fd689255cd36cfdc3be12b0ece84ff11ad231b33fbc64469d117a690a452e",
+      "source": "Model family. Default 'mixed' fits gene effects with guides nested as random effects, so guide disagreement widens the gene interval; it fits gene and guide levels together and disables level. Use 'ols', 'wls', 'rlm', 'huber', or 'quantile' for one continuous level; 'logit', 'probit', 'beta', or 'quasi_binomial' for fractions; 'poisson' for counts; and penalised families for many correlated predictors. Mixed fits both levels at once, so 'level' greys out. regression_type 'beta' selects a beta GLM, while transform 'beta' only transforms the response.",
+      "translation": "모델 계열입니다. 기본값 'mixed' 는 가이드가 임의 효과로 중첩된 유전자 효과를 적합하므로 가이드 간 불일치가 유전자 구간을 넓힙니다. 유전자와 가이드 수준을 함께 적합하고 level 을 비활성화합니다. 연속형 한 수준에는 'ols', 'wls', 'rlm', 'huber', 'quantile' 을 사용하고, 분수에는 'logit', 'probit', 'beta', 'quasi_binomial' 을, 카운트에는 'poisson' 을 사용합니다. 서로 연관된 예측변수가 많으면 벌점 모델 계열을 사용합니다. 혼합 모델은 두 수준을 한 번에 적합하므로 'level' 이 회색으로 비활성화됩니다. regression_type 의 'beta' 는 베타 GLM을 선택하지만 transform 의 'beta' 는 반응값만 변환합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "threshold_method",
+      "source_sha256": "461adae28e70e634ca843e042c16ff9b70eeb358f4ee75f79c144a76f5b27486",
+      "source": "Select the spread estimator for the control-based effect-size cutoff: 'std', legacy 'var' (squared units), 'mad', 'iqr', 'percentile' (the 95th percentile of absolute coefficients), or 'range'. 'none' disables the effect-size cutoff. Historical aliases such as 'standard_deveation', 'variance', and 'quantile' are accepted. Used only when controls are set. Default 'std'.",
+      "translation": "대조군 기반 효과크기 임계값에 사용할 산포 추정량을 선택합니다. 'std', 제곱 단위를 쓰는 기존 'var', 'mad', 'iqr', 'percentile'(계수 절댓값의 95번째 백분위수), 'range' 중 하나입니다. 'none' 은 효과크기 임계값을 끕니다. 'standard_deveation', 'variance', 'quantile' 같은 이전 별칭도 허용됩니다. controls 가 설정된 경우에만 사용됩니다. 기본값 'std'."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "regression_qc",
+      "source_sha256": "45c1572d3313836cae4e5dffc5d04b13d7ab1de6aaa76a7893634f56003762fa",
+      "source": "Write the regression QC suite -- variance homogeneity, residual, design, influence and calibration panels -- into <res_folder>/regression_qc/ as figures, a combined PDF and a text report. Roughly 5.8 seconds and 19 files per fit: right for one analysis, which is why it is on by default. A sweep turns it off on its own, since a hundred trials is ten minutes and two thousand files nobody opens; reopen a single trial to get its diagnostics back. Applies to every regression_type, because any of them can be badly specified. Default True.",
+      "translation": "将回归 QC 套件（方差齐性、残差、设计、影响度和校准面板）写入 <res_folder>/regression_qc/，包括各图、一个合并 PDF 和一份文本报告。每次拟合约需 5.8 秒并生成 19 个文件：对单次分析很合适，因此默认启用。参数扫描会自动将其关闭，因为一百次试验会耗时十分钟并产生两千个几乎无人查看的文件；重新打开某次单独试验即可恢复其诊断。适用于所有 regression_type，因为任何模型都可能设定不当。默认值为 True。"
+    }
+  ]
+}

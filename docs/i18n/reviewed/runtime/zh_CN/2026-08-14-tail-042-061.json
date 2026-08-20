@@ -74,13 +74,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "score_data",
-      "source_sha256": "6161168f1cd9cd5e8fc19e2dace34f889e8b699d7987d958537178fd4d36327c",
-      "source": "CSV(s) of per-object or per-well phenotype scores (typically the output of generate_ml_scores) supplying the regression's dependent variable; the column named by dependent_variable must be present or the run raises ValueError. Pass one path per plate, position-aligned with plates_score; the first file's name becomes the results subfolder. Default 'list of paths'.",
-      "translation": "提供回归因变量的逐对象或逐微孔表型分数 CSV，通常是 generate_ml_scores 的输出；必须存在 dependent_variable 指定的列，否则运行会抛出 ValueError。每个微孔板传入一个路径，并按位置与 plates_score 对齐；第一个文件的名称会成为结果子文件夹。默认值 'list of paths'。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "seg_qc",
       "source_sha256": "67455d542a75285465d57d880326ec81b70e8331e83248219cf72ec8358cd75e",
       "source": "Segmentation quality control, scored the moment masks are written and long before measure_crop spends hours on them. 'off' skips it; 'report' scores every field, writes qc/segmentation_qc_OBJECT.csv and prints a card naming what is wrong; 'flag' adds a per-field JSON for a downstream step; 'stop' adds a raise when the plate verdict is 'fail', after the scorecard is written so you still get the card. No mode deletes or silently skips a field, and 'stop' never fires on 'warn' - halting on an unsure verdict is how a gate gets switched off. Default 'report'.",
