@@ -514,6 +514,36 @@ def test_worker_is_not_scheduled_for_deletion(qtbot, qt_theme_applied,
     assert widget.plan() is not None
 
 
+def test_retirement_does_not_depend_on_the_finished_signals_sender(qtbot):
+    """A deleted QThread cannot be recovered through ``self.sender()``.
+
+    ``make_thread`` schedules the QThread for deletion before Align connects
+    its own retirement slot. Under load the queued retirement call can
+    therefore arrive after Qt has discarded the sender. The durable record is
+    the tuple Align already owns, so retirement must work when called without
+    any active signal context.
+    """
+    from PySide6.QtCore import QThread
+
+    widget = AlignScreen(threaded=True)
+    qtbot.addWidget(widget)
+    thread = QThread()
+    thread.start()
+    thread.quit()
+    assert thread.wait(5000)
+
+    worker = object()
+    widget._jobs = [(thread, worker)]
+    widget._thread = thread
+    widget._worker = worker
+
+    widget._retire_finished_jobs()
+
+    assert widget.active_jobs() == 0
+    assert widget._thread is None
+    assert widget._worker is None
+
+
 def test_controls_are_disabled_while_busy(qtbot, qt_theme_applied,
                                           tile_folder):
     widget = AlignScreen(threaded=True)
