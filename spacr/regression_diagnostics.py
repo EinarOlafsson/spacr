@@ -175,36 +175,31 @@ def collinear_guide_pairs(fractions: pd.DataFrame, *,
 
 def variance_inflation_factors(fractions: pd.DataFrame, *,
                                max_guides: int = 200) -> pd.DataFrame:
-    """Per-guide VIF: how much collinearity inflates that guide's variance.
+    """Compute per-guide variance inflation factors for a full-rank design.
 
-    VIF is only defined when the design is full rank, so this refuses rather
-    than returning infinities for a design that cannot support the simultaneous
-    model at all -- in that case :func:`design_report` is the answer.
+    All nonconstant guide columns participate in the calculation. The output
+    is then limited to the guides with the widest well support, so
+    ``max_guides`` controls reporting rather than the fitted design.
 
-    ONE VIF, COMPUTED ONCE. finding 4: this package computed
-    variance inflation factors in two modules, and "the duplicated VIF is a
-    small correctness risk of the same shape as finding 2". The numbers came
-    from :func:`spacr.regression_qc.variance_inflation_factors` now; what stays
-    here is the SCREEN's contract around them, which is a different thing from
-    the statistic and is why the two functions both exist.
+    Parameters
+    ----------
+    fractions : pandas.DataFrame
+        Well-by-guide design matrix.
+    max_guides : int, default=200
+        Maximum number of guides to return.
 
-    MEASURED BEFORE CONSOLIDATING, on 200x20, 400x60 and 96x30 designs each
-    carrying a near-collinear pair: the two implementations agreed to 2.3e-10
-    relative, and named the same columns ``inf`` under exact collinearity. So
-    unlike finding 2 there was no statistical disagreement to resolve -- which
-    is exactly why the duplication was worth removing rather than arbitrating.
-    Two routes to one number that agree today are two routes that can stop
-    agreeing, and nothing was comparing them.
+    Returns
+    -------
+    pandas.DataFrame
+        Columns ``guide``, ``vif``, and ``wells_with_guide``, ordered by
+        decreasing VIF.
 
-    THE SURVIVOR IS THE CORRELATION ROUTE, on cost. The auxiliary-regression
-    form this used ran one least-squares fit per guide, ``O(p^4)``; the
-    identity ``VIF_j = (R^-1)_jj`` is one ``O(p^3)`` decomposition. Timed here:
-    130.8 ms against 13.0 ms at 60 guides, and the gap widens with the fourth
-    power. A pooled screen has hundreds.
-
-    :param max_guides: how many guides to REPORT, widest support first. It was
-        never a limit on the computation -- each guide's VIF was always taken
-        against every other guide -- and it still is not.
+    Raises
+    ------
+    ValueError
+        If the number of wells is not greater than the number of nonconstant
+        guide columns. Use :func:`design_report` and
+        :func:`collinear_guide_pairs` to inspect that rank-deficient design.
     """
     frame = fractions.loc[:, fractions.std(axis=0) > 0]
     n_wells, n_guides = frame.shape
