@@ -201,10 +201,33 @@ catastrophically.
 
 22 tests in tests/test_both_ways_out_of_the_double_transform.py.
 
-STILL OWED
-  * Greying `transform` under 'untransformed' for the families that carry
-    their own link (per 106), which the instruction names and which is now a
-    display question rather than a modelling one.
+2026-08-20 -- AND THE LAST OWED ITEM IS DONE. `transform` greys itself under
+'untransformed', per 106: the run reads it and then ignores it, because the
+family's own link does that job, and a control the run silently discards has
+to say why.
+
+    transform='log' is a link, and glm_transform_conflict='untransformed'
+    fits the response as measured so the family's own link does that job --
+    applying both would fit logit(log(y)). Choose 'transformed' to keep this
+    transform and fit an identity link instead. The value is kept and saved.
+
+ONLY WHERE IT IS TRUE. 'sqrt' and 'square' are not links and are applied
+normally under every resolution, and a regression type that does not choose
+its own family has no conflict to resolve -- greying `transform` for those
+would disable a control for a reason that is not true of it. The rule
+declares both settings it reads in `sources`, so it never fires on a panel
+where the user cannot see the value that greyed it.
+
+37 tests in tests/test_both_ways_out_of_the_double_transform.py.
+
+A STALE TEST FOUND WHILE DOING IT, failing before this run and verified so
+against last night's tree: `test_the_settings_own_help_survives_the_note_
+coming_and_going` pinned "Which unit results are reported at", which
+`level`'s description has not said for some time. It failed on the FIRST
+assertion and so never reached the restore it exists to check -- the greying
+machinery was fine and had been going unverified.
+
+INSTRUCTION 182 IS COMPLETE.
 
 --------------------------------------------------------------------------------
 2026-08-20 -- AND THE TWO BACKENDS WOULD HAVE DISAGREED ABOUT IT.

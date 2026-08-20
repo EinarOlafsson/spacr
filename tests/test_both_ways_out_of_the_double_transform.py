@@ -29,6 +29,15 @@ from spacr.ml import (DEFAULT_GLM_TRANSFORM_CONFLICT, GLM_TRANSFORM_CONFLICTS,
 COLUMNS = ("pred", "log_pred", "fraction")
 
 
+@pytest.fixture(scope="module")
+def transform_rule():
+    """Module-scoped: a class-scoped fixture defined as an instance method
+    warns, and the rule table is the same object for every test here."""
+    from spacr.settings import get_setting_dependencies
+
+    return get_setting_dependencies()["transform"]
+
+
 @pytest.fixture
 def screen():
     """A proportion response and its log, the shape the fault was found on."""
@@ -213,3 +222,67 @@ class TestTheRightNumberForTheFamily:
             family = None
 
         assert "not available" in fit_quality_note(Bare())
+
+
+# --------------------------------------------- the transform goes grey (106)
+
+class TestTheTransformSaysWhenItIsDead:
+    """Instruction 182's last owed item, under 106's rule.
+
+    Under 'untransformed' the run reads `transform` and then ignores it,
+    because the family's own link does that job. A control the run silently
+    discards has to say so -- that is the whole of 106 -- and 182 named this
+    as the case for it.
+    """
+
+    @pytest.fixture
+    def rule(self, transform_rule):
+        return transform_rule
+
+    def _settings(self, **over):
+        base = {"regression_type": "glm",
+                "glm_transform_conflict": "untransformed",
+                "transform": "log"}
+        base.update(over)
+        return base
+
+    def test_it_greys_when_the_link_would_do_the_job_twice(self, rule):
+        assert not rule["predicate"](self._settings(), None)
+
+    @pytest.mark.parametrize("transform", ["log", "logit"])
+    def test_both_link_like_transforms_are_covered(self, rule, transform):
+        assert not rule["predicate"](self._settings(transform=transform), None)
+
+    @pytest.mark.parametrize("transform", ["sqrt", "square", None, ""])
+    def test_a_transform_that_is_not_a_link_stays_live(self, rule, transform):
+        """It is applied normally under every resolution, so greying it would
+        disable a control for a reason that is not true of it."""
+        assert rule["predicate"](self._settings(transform=transform), None)
+
+    def test_keeping_the_transform_keeps_the_control(self, rule):
+        assert rule["predicate"](
+            self._settings(glm_transform_conflict="transformed"), None)
+
+    def test_the_old_behaviour_keeps_the_control_too(self, rule):
+        """'warn' applies the transform, whatever else is wrong with it."""
+        assert rule["predicate"](
+            self._settings(glm_transform_conflict="warn"), None)
+
+    @pytest.mark.parametrize("kind", ["ols", "ridge", "mixed", "beta"])
+    def test_a_type_that_does_not_choose_its_family_has_no_conflict(
+            self, rule, kind):
+        assert rule["predicate"](self._settings(regression_type=kind), None)
+
+    def test_the_reason_names_both_settings_and_the_way_out(self, rule):
+        reason = rule["reason"](self._settings(), None)
+
+        assert "transform='log'" in reason
+        assert "untransformed" in reason
+        assert "'transformed'" in reason, "a greyed control must say the way out"
+        assert "kept and saved" in reason, "and that nothing was thrown away"
+
+    def test_the_rule_declares_the_settings_it_reads(self, rule):
+        """A predicate reading a setting absent from `sources` would be
+        evaluated against a default the user cannot see or change."""
+        assert "glm_transform_conflict" in rule["sources"]
+        assert "regression_type" in rule["sources"]
