@@ -13,27 +13,18 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Dict, List, Optional
 
-#: Compartment names in the bundled table that are not compartments. The CSV
-#: has a handful of malformed rows whose location cell holds a number, and
-#: "unknown" is the table's own way of saying it could not place the protein
-#: -- offering either as something to colour by would be offering to colour
-#: by "we do not know", which is not a claim anybody wants on a figure.
+#: Values excluded from the compartment selector because they do not identify
+#: a biological compartment. Numeric values are filtered separately.
 NOT_A_COMPARTMENT = ("unknown", "unassigned", "nan", "")
 
-#: Below this many genes IN THE SCREEN, a compartment is not offered. Not a
-#: style preference: colouring three dots out of twelve hundred produces a
-#: figure whose sentence rests on three points, and the eye reads the
-#: highlight as a finding rather than as three points.
+#: Minimum number of screen genes required before a compartment is offered for
+#: highlighting. This avoids presenting very small groups as robust patterns.
 MIN_GENES = 5
 
 
-#: Colour EVERY compartment at once rather than one against grey.
-#:
-#: Asked for on 2026-08-20: "Colour by lets me color by a single location,
-#: all should be an option." One-at-a-time is the house rule -- everything
-#: grey except what the sentence is about -- so this is offered beside it and
-#: never instead of it. A sentinel rather than a bare string so it can never
-#: collide with a real compartment name from the TAGM/LOPIT table.
+#: Sentinel for coloring every compartment at once instead of highlighting one
+#: compartment against grey. The non-printing prefix prevents collisions with
+#: compartment names in the bundled TAGM/LOPIT table.
 ALL = "\x00all-localisations"
 
 
