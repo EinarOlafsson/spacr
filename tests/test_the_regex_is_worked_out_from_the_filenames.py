@@ -199,3 +199,52 @@ def test_every_proposal_compiles():
     for names in (_cellvoyager(), _cq1(), _unseen(), _cellvoyager() + _cq1()):
         for proposal in propose(names):
             assert re.compile(proposal.pattern) is not None
+
+
+# --------------------------------------------------------------------------- #
+#  And it reaches the auto-detect a user actually presses
+# --------------------------------------------------------------------------- #
+
+def _another_microscope():
+    return [f"{d}_w{w}_f{f}_c{c}.tif"
+            for d in ("run1", "run2") for w in ("A01", "H12")
+            for f in (1, 2, 3) for c in (1, 2)]
+
+
+def test_a_bundled_pattern_that_already_fits_is_left_alone():
+    """A known-good answer does not need improving."""
+    from spacr.qt.regex_detect import auto_detect_regex
+
+    for names, expected in ((_cellvoyager(), "cellvoyager"), (_cq1(), "cq1")):
+        _pattern, label, hits = auto_detect_regex(names)
+        assert label == expected
+        assert hits == len(names)
+
+
+@pytest.mark.parametrize("names", [_unseen(), _another_microscope()])
+def test_a_microscope_spacr_has_never_met_is_inferred_not_guessed(names):
+    """The old fallback built a template from ONE filename and routinely
+    failed to match its siblings -- 16 of 32 on the first of these."""
+    from spacr.qt.regex_detect import auto_detect_regex
+
+    pattern, label, hits = auto_detect_regex(names)
+    assert label == "inferred"
+    assert hits == len(names)
+    assert re.compile(pattern) is not None
+
+
+def test_inference_is_an_improvement_on_the_fallback_never_a_requirement(
+        monkeypatch):
+    """A failure inside it leaves the old path exactly as it was."""
+    import spacr.regex_infer as infer
+    from spacr.qt import regex_detect
+
+    def explode(*_args, **_kwargs):
+        raise RuntimeError("no")
+
+    monkeypatch.setattr(infer, "propose", explode)
+    names = _cellvoyager()
+    pattern, label, hits = regex_detect.auto_detect_regex(names)
+    assert label == "cellvoyager"
+    assert hits == len(names)
+    assert pattern
