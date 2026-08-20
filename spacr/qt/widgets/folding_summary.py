@@ -133,7 +133,25 @@ class FoldingSummaryView(QScrollArea):
         # a summary they retype. Asked for 2026-08-19: "i should be able to
         # click a button to save them and also copy them with the
         # overlapping squares icon".
-        actions = QHBoxLayout()
+        # A WIDGET, NOT A BARE LAYOUT, and that is the whole bug.
+        #
+        # Reported 2026-08-20: "in the summary section there is a giant save
+        # button in the background that can only be pressed on the side of
+        # the summay text, presumably because the text is in front and
+        # blocking."
+        #
+        # `_clear` empties the body layout with takeAt and deletes what it
+        # finds -- but it only finds WIDGETS. A bare QHBoxLayout was taken
+        # out and dropped, while the buttons inside it stayed children of
+        # `_body` with nothing laying them out: still visible, still
+        # clickable, stuck at whatever geometry they last had, and painted
+        # UNDER the sections added afterwards. Hence a button in the
+        # background reachable only where no text covered it.
+        #
+        # Held as one widget, it is taken out and put back like everything
+        # else, and there is nothing left behind to strand.
+        self._actions = QWidget(self._body)
+        actions = QHBoxLayout(self._actions)
         actions.setContentsMargins(0, 0, 0, 0)
         self.copy_button = QPushButton("\u29c9  Copy")
         self.copy_button.setToolTip(
@@ -150,7 +168,7 @@ class FoldingSummaryView(QScrollArea):
         self.save_button.clicked.connect(self.save_to_file)
         actions.addWidget(self.save_button)
         actions.addStretch(1)
-        self._layout.addLayout(actions)
+        self._layout.addWidget(self._actions)
 
         self._text = ""
         self._sections: List[CollapsibleSection] = []
@@ -246,13 +264,23 @@ class FoldingSummaryView(QScrollArea):
     # ------------------------------------------------------------ internals
 
     def _clear(self) -> None:
+        """Empty the body, KEEPING the action row to put back.
+
+        It is taken out with everything else -- so a rebuild controls where
+        it sits -- but never deleted, because Copy and Save belong to the
+        panel rather than to whichever summary is currently in it.
+        """
         self._sections = []
+        keep = getattr(self, "_actions", None)
         while self._layout.count():
             item = self._layout.takeAt(0)
             widget = item.widget()
-            if widget is not None:
-                widget.setParent(None)
-                widget.deleteLater()
+            if widget is None or widget is keep:
+                continue
+            widget.setParent(None)
+            widget.deleteLater()
+        if keep is not None:
+            self._layout.addWidget(keep)
 
     def _reading_surface(self) -> str:
         """Return an ``rgba(...)`` surface that keeps summary text legible.

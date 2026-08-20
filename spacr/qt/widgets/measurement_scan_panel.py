@@ -2691,13 +2691,19 @@ class MeasurementScanPanel(QWidget):
         scan_layout.addWidget(self.table, 1)
         self._add_folding_section(scan, "Measurement scan", minimum=140)
 
-    #: The only section expanded on first use, keeping the initial workflow
-    #: focused on the attached databases.
+    #: Which section is expanded on first use. NONE, as of 2026-08-20:
+    #: "measurment sections should all start closed."
     #:
-    #: First-run only. `restore_section_layout` runs after this and wins, so
-    #: a user who folded databases away and opened the scan last session
-    #: gets that layout back.
-    OPENS_EXPANDED = "Attached databases"
+    #: The tab holds four panels and opening one of them chose a starting
+    #: point on the user's behalf -- which was the point when the fold was
+    #: added (169), and is no longer wanted now that a fold really hands its
+    #: height over (186 C) and an opened section fills the space (187 C).
+    #: All closed is a tab that shows its four headings and lets the user say
+    #: which one they are here for.
+    #:
+    #: First-run only either way. `restore_section_layout` runs after this
+    #: and wins, so a user who arranged the tab last session gets that back.
+    OPENS_EXPANDED = ""
 
     def _add_folding_section(self, widget, title: str, *, minimum: int):
         """One splitter child: ``widget`` under a header that folds it.
@@ -2880,6 +2886,20 @@ class MeasurementScanPanel(QWidget):
                                sizes=self._sections.sizes())
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not store the section layout", exc_info=True)
+
+    def section_is_shown(self, title: str) -> bool:
+        """Whether a section is on the tab at all -- FOLDED OR NOT.
+
+        TWO DIFFERENT QUESTIONS, and they used to be asked with one call.
+        `_show_section` HIDES a section that has nothing to show; a fold
+        merely closes one that does. Testing the content's visibility answers
+        both at once, so when the sections started closed (2026-08-20) three
+        tests about "the databases appear without a scan" began failing --
+        the databases were there, the section was shown, and its content was
+        simply folded away, which is what folded means.
+        """
+        section = self._folders.get(str(title))
+        return bool(section is not None and section.isVisibleTo(self))
 
     def _show_section(self, title: str, showing: bool) -> None:
         """Show or hide a whole section, HEADER INCLUDED.
