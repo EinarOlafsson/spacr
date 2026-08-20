@@ -148,9 +148,17 @@ def test_the_marked_cells_are_the_same_either_way():
 
 
 def test_the_pickers_are_named():
+    """Four since instruction 173's option C, and `rank` stays the default.
+
+    Pinned as a set plus a first element rather than an exact tuple: the
+    order is what the settings window offers and a new picker belongs at the
+    end, but which pickers EXIST is the contract.
+    """
     from spacr.cell_montage import PICKING_MODES
 
-    assert PICKING_MODES == ("rank", "attributed", "assigned")
+    assert PICKING_MODES[0] == "rank"
+    assert set(PICKING_MODES) == {"rank", "attributed", "assigned",
+                                  "multivariate"}
 
 
 def test_a_results_table_names_its_rows_as_the_DESIGN_did(tmp_path):
