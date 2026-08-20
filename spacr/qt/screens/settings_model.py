@@ -3470,39 +3470,31 @@ _MODE_TITLES = {
     "rra": "MAGeCK alpha rank aggregation",
 }
 
-#: The backends that answer THIS question well, and why each one -- asked for
-#: on 2026-08-17: "the ones that are closest to answering a question in a
-#: screen like this should get a 'Recommended for CRISPR screens' in the text
-#: box" (instruction 133 A).
-#:
-#: THE REASON IS THE POINT, not the badge. A pooled screen is p >> n and
-#: sparse -- 823 guides estimated from 610 wells on the reference screen --
-#: and every entry here earns its place against that shape rather than
-#: against the general reputation of the method.
+#: Backends suited to pooled CRISPR screens, with the reason each is
+#: recommended. The explanations focus on sparse, high-dimensional designs
+#: and correlated guides rather than on a method's general popularity.
 RECOMMENDED_FOR_SCREENS = {
-    "mixed": "the only model here that says what a guide IS -- a replicate "
-             "of one perturbation, not a second variable",
-    "horseshoe": "a sparse prior: most guides do nothing and a few do a lot, "
-                 "which is what a screen is. Handles p >> n natively",
-    "elasticnet": "penalised, and it does not arbitrarily keep one guide out "
-                  "of a gene's correlated set the way lasso does",
-    "lasso": "the same family, sparser -- with lasso_n_boot and "
-             "lasso_selection_threshold it is stability selection",
-    "group_lasso": "a gene's guides are ONE block, selected or dropped "
-                   "together: the penalised analogue of the nesting",
-    "rra": "ranks guides and aggregates to the gene BY RANK, so it is immune "
-           "to the collinearity 132 exists to fix, and it makes this screen "
-           "comparable to published MAGeCK ones",
+    "mixed": "models guides as repeated perturbations nested within genes, "
+             "matching the structure of a pooled screen",
+    "horseshoe": "uses a sparse prior suited to screens where most guides "
+                 "have small effects and a minority have large effects",
+    "elasticnet": "combines L1 and L2 penalties, which helps retain "
+                  "correlated guides from the same gene",
+    "lasso": "produces a sparse model and supports bootstrap stability "
+             "selection through lasso_n_boot and lasso_selection_threshold",
+    "group_lasso": "selects or drops a gene's guides as a group, preserving "
+                   "the perturbation structure in a penalised model",
+    "rra": "aggregates guide ranks at the gene level without estimating all "
+           "guide effects jointly, and follows the approach used by MAGeCK",
 }
 
-#: The caveat that belongs beside every one of them, because a badge without
-#: it reads as a promise. Stated once so it cannot drift between six entries.
+#: Information-limit caveat shown beside every recommended backend.
 INFORMATION_LIMIT_NOTE = (
     "With fewer wells than guides you are below the information limit for any "
     "method estimating one parameter per guide. Penalisation, priors and "
-    "grouping do not create information -- they impose assumptions that make "
-    "an answer well defined. The permutation test is the exception: it tests "
-    "one guide at a time and never needs the joint fit.")
+    "grouping add assumptions that make an estimate possible; they do not add "
+    "observations. The permutation test instead evaluates one guide at a time "
+    "and does not require a joint guide-level fit.")
 
 
 #: One- or two-sentence descriptions of what each regression mode fits, based
@@ -4320,27 +4312,11 @@ def _every_explainer_line():
 
 
 def _wrap_block(text: str, indent: str = "    ") -> str:
-    """One prose paragraph, indented and left for the WIDGET to wrap.
+    """Indent a paragraph while leaving line wrapping to the widget.
 
-    Asked for on 2026-08-18, once per box: "the text in the text box should
-    span the width of the textbox". It did not, because this function ran
-    `textwrap.wrap` at a fixed 54 columns -- so the paragraph was 54
-    characters wide whatever the pane was, and widening the settings pane
-    widened the box and left its right-hand side empty.
-
-    THE PARAGRAPH IS NOW ONE LOGICAL LINE and the box wraps it at its own
-    width. Two things that were true before stay true, and they are the
-    reason the old shape existed:
-
-    * A FORMULA IS NEVER BROKEN. Formulas are not sent through here; they are
-      emitted as their own lines, and the box's minimum width is the longest
-      of them (:func:`explainer_width`), so the widget can never be narrow
-      enough to wrap one. A formula split at an arbitrary column is not a
-      formula, and copying one into a methods section is the reason to have
-      it on screen at all.
-    * SOFT-WRAP ON TOP OF A HARD WRAP IS WHAT BROKE IT BEFORE -- every prose
-      line breaking a second time at a different column with no hanging
-      indent. There is only one wrap now, so that cannot happen.
+    Formula lines bypass this helper so they remain copyable as complete
+    expressions. Prose stays on one logical line and adapts to the current
+    width of the explainer pane.
     """
     out = []
     for paragraph in str(text).split("\n"):
@@ -5378,50 +5354,15 @@ CHANNEL_LIST_KEYS = frozenset({
 
 
 class _RegressionBackendField(QWidget):
-    """The backend dropdown, and the box that says what every backend IS.
+    """Backend selector with availability and compatibility guidance.
 
-    Instruction 141 asked for two things about `regression_backend` and only
-    the first of them was on screen: "the options that are available via that
-    method should be choosable the others grayed out, the text box should
-    discribe all of the packages that are available and what they do, briefly
-    and linkt the the API for each".
+    Every registered backend remains visible. Unavailable or incompatible
+    entries are disabled and show the reason in the menu, tooltip, and
+    description pane. Changing the regression family refreshes availability
+    without silently replacing the selected backend.
 
-    WHAT WAS ACTUALLY THERE, measured on 2026-08-18 before this widget
-    existed: a plain ``QComboBox`` with all eight labels, every one of them
-    enabled. `spacr.regression_backends.describe_backends` had been written
-    and tested and NOTHING IN spacr/qt CALLED IT, so the descriptions and the
-    API links existed only in the test suite; and a user could pick
-    ``numpyro (GPU)`` -- which spaCR routes no fit through and whose package
-    is not installed -- with nothing to say otherwise until
-    :func:`spacr.ml._require_backend` refused the run.
-
-    So the control is a combo plus a box:
-
-    * EVERY ENTRY IS PRESENT AND THE UNAVAILABLE ONES ARE DISABLED, per
-      instruction 106 and INVARIANTS 6 -- greyed, never absent. An entry that
-      vanished when the regression type changed would take the user's chosen
-      value with it.
-
-    * THE REASON IS WRITTEN WHERE IT CANNOT BE MISSED. Three places, because
-      the two obvious ones are each missable on their own: appended to the
-      entry's own text (a greyed row otherwise says only "not this one"), on
-      the entry's tooltip in full, and in the box below, which is on screen
-      whether or not the popup is open.
-
-    * THE BOX FOLLOWS `regression_type`. An entry greyed for one family is
-      choosable for another -- ``cuML (GPU)`` is refused under ``mixed`` and
-      offered under ``lasso`` -- so a static description would be wrong half
-      the time.
-
-    * THE SELECTED BACKEND IS NOT SILENTLY CHANGED when the regression type
-      moves under it. It stays selected, disabled, with the refusal at the
-      top of the box in the same words the run will use. Re-pointing the
-      setting at statsmodels would be the silent fallback instruction 141 C
-      forbids, one step earlier than the fit.
-
-    The text is :func:`spacr.regression_backends.describe_backends` in its
-    ``compact`` form; that function's docstring says why the full form does
-    not belong on a settings page.
+    Descriptions come from
+    :func:`spacr.regression_backends.describe_backends` in compact form.
     """
 
     #: Emitted when the chosen backend changes. Named `value_changed` because
