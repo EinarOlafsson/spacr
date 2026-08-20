@@ -102,6 +102,15 @@ class VolcanoExplorer(QWidget):
         self._canvas = _canvas_class()(self._figure)
         self._canvas.setMinimumSize(420, 320)
         self._canvas.mpl_connect("button_press_event", self._on_click)
+        # INSTRUCTION 108: RIGHT-CLICK THE FIGURE ITSELF. Every control this
+        # explorer offers is in the side panel, which is the right home for
+        # them -- but 108 is about reaching a figure's own style FROM the
+        # figure, and a matplotlib canvas had no menu at all. The entries are
+        # built from `dataclasses.fields(VolcanoStyle)` by the same two
+        # functions the pyqtgraph plots use, so a style that gains a field
+        # gains a menu entry here without anyone remembering to add one.
+        self._canvas.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._canvas.customContextMenuRequested.connect(self._style_menu)
 
         left = QWidget(self)
         left_layout = QVBoxLayout(left)
@@ -146,6 +155,51 @@ class VolcanoExplorer(QWidget):
         self._style = style
         self._push_style_to_controls()
         self.refresh()
+
+    def build_style_menu(self):
+        """The figure's own right-click menu. The seam a test drives.
+
+        Apart from :meth:`_style_menu` because that method ends in
+        ``QMenu.exec`` -- a C++ event loop -- so a test that wanted to know
+        what the menu OFFERS would either enter it and hang or re-implement
+        the construction and test its own copy.
+        """
+        from PySide6.QtWidgets import QMenu
+
+        from .fast_plots import add_style_entries, add_style_file_entries
+
+        menu = QMenu(self)
+        menu.setToolTipsVisible(True)
+        # ONE REDRAW PER CHANGE, and through `set_style` rather than
+        # `refresh`, so the side panel's controls follow the menu. Two ways to
+        # change one setting that disagree about what it now is would be worse
+        # than having only one of them.
+        def changed(_name=None, _value=None):
+            self.set_style(self._style)
+
+        add_style_entries(menu, self._style, changed,
+                          choices=self._style_choices())
+        menu.addSeparator()
+        add_style_file_entries(menu, self._style, changed, parent=self)
+        return menu
+
+    def _style_choices(self) -> dict:
+        """``{field: values}`` for the style fields that are a closed set."""
+        choices = {}
+        for name in ("x_column", "y_column", "colour_by", "shape_by",
+                     "label_by"):
+            combo = self._controls.get(name)
+            if combo is None or not hasattr(combo, "count"):
+                continue
+            values = [combo.itemData(i) if combo.itemData(i) is not None
+                      else combo.itemText(i) for i in range(combo.count())]
+            if values:
+                choices[name] = values
+        return choices
+
+    def _style_menu(self, position) -> None:
+        """Right-click on the canvas: build the menu and show it."""
+        self.build_style_menu().exec(self._canvas.mapToGlobal(position))
 
     def merge_annotation_file(self, path, *, on: str | None = None) -> int:
         """Merge a CSV/Excel of annotations onto the results.
