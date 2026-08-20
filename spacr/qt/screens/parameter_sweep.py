@@ -1,29 +1,15 @@
-"""Parameter Sweep — run the regression under many settings and compare.
+"""Interactive regression parameter sweeps.
 
-A pooled screen has no single correct analysis. It has a model family, an
-aggregation rule, a unit of analysis, nuisance structure, a multiple-testing
-correction and several filtration cutoffs, and the honest question is not
-"what did my settings say" but "which findings survive the settings I could
-defensibly have chosen".
+The screen runs a regression under multiple defensible settings combinations
+and compares the resulting hits and control ranks. Each trial writes to its
+own folder, and the results table is updated as trials finish so interrupted
+sweeps can be resumed.
 
-This screen asks that question. Tick the axes to vary, pin the rest, press
-Start: every trial runs into its own folder and one tidy row per trial lands
-in the table -- settings, whether it ran, how many hits it called, and where
-the named controls ended up.
-
-Three things it is careful about, each learned the hard way:
-
-* **It cannot take the machine down.** The worker count is sized from FREE
-  MEMORY, not the core count, and is clamped by
-  :func:`spacr.parameter_sweep.recommended_workers`. Trials run niced, at
-  idle I/O priority, and the pool stops growing when free memory falls below
-  a floor. A sweep sized from 32 cores exhausted memory and killed the
-  editor -- twice -- which is why none of this is optional.
-* **A failed trial is a result.** Many combinations are illegal by
-  construction; those are recorded with their reason and the sweep continues.
-* **It is resumable.** The results table is rewritten after every trial, so a
-  sweep that is stopped, or whose machine dies, still leaves everything it
-  learned.
+Worker recommendations account for available memory and trials run at low
+CPU and I/O priority. On systems that support ``systemd-run --user``, each
+trial also receives kernel-enforced resource limits. The Containment row
+states whether those limits are active; memory-based scheduling alone cannot
+guarantee containment.
 """
 from __future__ import annotations
 
@@ -41,9 +27,9 @@ APP_INTRO = (
     "analysis unit, how many hits were called, and the rank of your positive "
     "control in each. The spread across settings is the result — a screen "
     "whose hit count swings from 2 to 400 depending on the correction has "
-    "not been analysed, it has been chosen. Workers are sized from free "
-    "memory and run at low priority, so a sweep will not slow the machine "
-    "down or compete with anything else you are doing.")
+    "not been analysed, it has been chosen. Workers are sized from available "
+    "memory and run at low priority. The Containment row states whether "
+    "kernel-enforced per-trial limits are active on this machine.")
 APP_TRANSLATIONS = (
     "Parametersvep", "Parameter-Sweep", "Barrido de parámetros",
     "参数扫描", "Varredura de parâmetros", "पैरामीटर स्वीप",
@@ -78,6 +64,7 @@ def _make_screen(app_key=None, host=None):
         QSpinBox, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout,
         QWidget,
     )
+    from ..i18n import set_translatable_text
 
     from ..job_runner import JobRunner
     from ..widgets.file_list import FilePathListWidget
@@ -170,8 +157,9 @@ def _make_screen(app_key=None, host=None):
             suggested, reason = recommended_workers()
             self.workers.setValue(suggested)
             self.workers.setToolTip(
-                "A request, not a command: it is clamped to what free memory "
-                "allows so a sweep cannot starve the machine.")
+                "Requested worker count. The sweep clamps it according to "
+                "available memory; see Containment below for whether "
+                "kernel-enforced per-trial limits are active.")
             self.worker_note = QLabel(reason, panel)
             self.worker_note.setWordWrap(True)
             # WHETHER THE KERNEL CAP IS ACTUALLY THERE (114 point 1). The
@@ -180,9 +168,33 @@ def _make_screen(app_key=None, host=None):
             # so a screen that let them believe a cap existed when it does
             # not would be sending them back into exactly that. Red when
             # there is none, because it changes what they should do next.
-            from ...parameter_sweep import containment_available, containment_note
+            from ...parameter_sweep import (
+                TRIAL_CPU_QUOTA, TRIAL_MEMORY_MAX, containment_available,
+            )
 
-            self.containment = QLabel(containment_note(), panel)
+            self.containment = QLabel("", panel)
+            if containment_available():
+                set_translatable_text(
+                    self.containment,
+                    "Kernel containment is active for each trial: memory "
+                    "{memory}, swap disabled, and CPU quota {cpu}. If a trial "
+                    "exceeds a limit, only that trial is stopped and recorded "
+                    "as 'killed'; the sweep continues.",
+                    memory=TRIAL_MEMORY_MAX,
+                    cpu=TRIAL_CPU_QUOTA,
+                )
+            else:
+                set_translatable_text(
+                    self.containment,
+                    "Kernel containment is unavailable because systemd-run "
+                    "--user --scope could not be started. This is common in "
+                    "containers and SSH sessions without a user manager. "
+                    "Thread limits and the free-memory check still apply, "
+                    "but they cannot prevent a single trial from exhausting "
+                    "system memory. Reduce the worker count or run the sweep "
+                    "from a systemd user session before using a large search "
+                    "space.",
+                )
             self.containment.setWordWrap(True)
             if not containment_available():
                 self.containment.setObjectName("DangerLabel")
