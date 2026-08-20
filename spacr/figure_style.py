@@ -229,8 +229,8 @@ def _apply_palette(name: str) -> None:
 # A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN.
 #
 # Instruction 150, reported 2026-08-18: "when a graph is saved and the user is
-# in dark mode white elements are changed to black for saving (text lines,
-# etc)". In dark mode `spacr.qt.preferences.get_figure_colors()` hands both
+# on a dark theme white elements are changed to black for saving (text lines,
+# etc)". On a dark theme `spacr.qt.preferences.get_figure_colors()` hands both
 # renderers a WHITE foreground, so the axes, ticks, labels, title and legend
 # are white -- and nothing anywhere inverted them at export time. A PNG saved
 # with a transparent ground even looks right in a dark file manager and
@@ -437,7 +437,7 @@ def export_colour(current, kind: str, look=None) -> Optional[str]:
         :func:`saved_figure_appearance`.
     :returns: the replacement colour, or None for "leave this one as it is".
 
-    WHAT DECIDES WHETHER A PIECE OF CHROME MOVES IS LEGIBILITY, NOT DARK MODE.
+    WHAT DECIDES WHETHER A PIECE OF CHROME MOVES IS LEGIBILITY, NOT THE THEME.
     An artist is repainted only when it has less than
     :data:`CHROME_CONTRAST_FLOOR` contrast against the page, so a LIGHT-MODE
     save changes nothing at all -- which is the property that makes ``print``
@@ -574,7 +574,7 @@ def figure_save_mode() -> str:
 
 
 #: The ink a transparent figure takes in each theme, and the grid beside it.
-#: Light mode is the print pair exactly, so switching a light-mode user to
+#: The light theme is the print pair exactly, so switching a light-theme user to
 #: transparent changes nothing about the marks -- only the ground goes.
 DARK_INK = "#EDEDED"
 DARK_GRID = "#4A4A4A"
@@ -625,9 +625,9 @@ def saved_figure_appearance(mode: Optional[str] = None
         # THE INK FOLLOWS THE THEME HERE, and only here.
         #
         # Asked for twice: "the background of the figures should be
-        # transparent and the lines should be white in dark mode and black in
-        # light mode", and then reported as a fault -- "a lot of the text in
-        # the figures is black in dark mode and the axes as well".
+        # transparent and the lines should be white on a dark theme and black on
+        # a light one", and then reported as a fault -- "a lot of the text in
+        # the figures is black on the dark theme and the axes as well".
         #
         # This mode used to keep the PRINT ink on the ground that it removes,
         # on the argument that dark ink on a transparent ground is still

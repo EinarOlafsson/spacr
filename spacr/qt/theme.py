@@ -3562,6 +3562,30 @@ QTabWidget::pane {{
 QTabBar {{
     background: transparent;
 }}
+/* THE OVERFLOW ARROWS ARE NOT OURS AND LOOK IT. Qt draws a tab bar that does
+   not fit with two QToolButton scrollers, and no rule in this sheet claimed
+   them -- so they came out as opaque boxes with white arrows on every theme.
+   Reported 2026-08-19: "two arrows that are visable black boxes with white
+   arrows. these are ugly and can be removed."
+   Styled rather than hidden with a width of 0: a bar that genuinely
+   overflows still needs a way along it, and `setUsesScrollButtons` is where
+   a screen decides that. This makes them belong to the theme. */
+QTabBar::scroller {{
+    width: {S["lg"]}px;
+}}
+QTabBar QToolButton {{
+    background: transparent;
+    border: none;
+    color: {P["fg_muted"]};
+}}
+QTabBar QToolButton:hover {{
+    background: {P["surface"]};
+    border-radius: {R["sm"]}px;
+    color: {P["fg"]};
+}}
+QTabBar QToolButton:disabled {{
+    color: {P["border_soft"]};
+}}
 QTabBar::tab {{
     background-color: {P["surface"]};
     color: {P["fg_muted"]};

@@ -436,7 +436,7 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
     **The chrome is repainted for paper**, and only for the length of the
     write. A figure saved from a dark-themed session was white ink on a white
     page -- `spacr.qt.preferences.get_figure_colors` hands both renderers a
-    white foreground in dark mode and nothing inverted it at export time, so
+    white foreground on a dark theme and nothing inverted it at export time, so
     the file was a blank rectangle with some coloured dots in it, and a
     transparent PNG even looked right in a dark file manager and disappeared
     when it was pasted into a manuscript. :func:`print_ready` moves the
