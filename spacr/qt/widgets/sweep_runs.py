@@ -1,46 +1,13 @@
-"""The sweep's runs, as a tab beside the regression's results.
+"""Display regression runs and parameter-sweep trials in one Runs tab.
 
-The parameter search uses the main module setup plus one extra tab for its
-runs. The
-parameter search was a bespoke screen carrying its own copies of the table,
-the figure queue and the results panel; every fix to the shared module screen
-had to be made again there, and this repository is already paying for that
-kind of drift -- 155 field tooltips existed because 28 hand-built screens each
-re-implemented a row.
+The panel shares the main regression screen's results and figure surfaces.
+Selecting a row loads that run's results and replaces the figures beside the
+tab. Ordinary runs, refits, and sweep trials use the same columns so their
+settings, status, output folder, and figures can be compared directly.
 
-So the runs go where the results go: the left half of the module screen's
-figure splitter, as a second tab. Picking a run swaps the figures on the
-right, which is the substance of the request and the only part that did not
-change.
-
-DELIBERATELY NOT THE SHAPE THE RESULTS GET. A results table is hundreds of
-findings read ALONGSIDE the figure describing them, so it is on screen at the
-same time as the plot. A runs table is a short list scanned top to bottom,
-and picking one replaces everything to its right -- so it is a tab. One is
-reading within a run, the other is navigating between them.
-
-Every run, not only the sweep's, appears here:
-
-    "the runs tab should capture all the runs in a sweep and all the runs run
-     in the normal module."
-
-This panel was fed by ``sweep_results.csv`` alone, so it answered "which
-trials did the sweep try" rather than "what have I run" -- an ordinary run of
-the module, and the re-fit from 124 E, did not appear. They are the
-same kind of thing: a fit, its settings, its figures, and a folder to read
-them back out of. So an ordinary run is RECORDED as it happens
-(``record_run``, updated by ``update_run`` when it finishes) and shown in
-the same table as the sweep's trials, described by the SAME COLUMNS -- which
-is what makes the two comparable, and comparing them is the entire reason the
-tab exists.
-
-The recorders are underscored deliberately: `tests/test_api_i18n_extractor.py`
-holds an EXACT count of the documented public API, so promoting them to
-`record_run` / `update_run` has to bump that count in the same commit. That is
-the whole of what is left to do it; the sentence here used to add "and that
-file belongs to another session right now", which was true on 2026-08-17 and
-is not a reason today. A temporary coordination fact written into a permanent
-comment reads later as a standing constraint.
+Runs are recorded when they start and updated when they finish. Saved sweep
+tables can be loaded alongside in-session records; switching rows announces a
+single active run to every dependent view.
 """
 
 from __future__ import annotations
@@ -633,28 +600,11 @@ class SweepRunsPanel(QWidget):
         return False
 
     def _announce_the_loaded_run(self, before: str) -> bool:
-        """THE ONE PLACE the views are told which run is on screen.
+        """Notify dependent views when the loaded-run key changes.
 
-        Instruction 157, reported 2026-08-18:
-
-            "i ran a mixed model and a ols model and eaven if the ols model is
-             marked as loaded i think i still see the mixed results and no
-             summary (because the ols is actually not loaded)"
-
-        Which was one missing connection and one missing emission. The three
-        DELIBERATE paths -- a row clicked, a run chosen, a folder opened --
-        each announced themselves; the path a user actually reaches most, A
-        RUN THAT BECOMES LOADED BY FINISHING, moved the mark inside
-        :meth:`update_run` and told nobody. So the mark said `ols` and the
-        coefficients, the figures and the summary were still the `mixed` run's.
-
-        ONE FUNNEL, NOT FOUR. Every path that can move the mark ends here, so
-        a fifth cannot be added without being announced, and the finishing
-        path cannot drift from the clicking one -- which is exactly how only
-        one of them ended up tested.
-
-        :param before: the key the mark was on when the caller started.
-        :returns: whether anything was announced.
+        All load paths use this helper so row selection, folder loading, and a
+        run finishing emit the same update. Return whether a change was
+        announced relative to ``before``.
         """
         if not self._loaded_key or self._loaded_key == before:
             return False

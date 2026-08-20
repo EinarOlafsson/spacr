@@ -696,10 +696,9 @@ class ImageUmapExplorer(LinkedView, QWidget):
     def _apply_point_alpha(self) -> None:
         """Repaint opacity so filtered-out points recede without moving.
 
-        A scalar alpha is restored when nothing is filtered, rather than an
-        array of identical values: the display settings are read back from
-        the artist elsewhere, and ``get_alpha()`` returning an array where a
-        float was set is a difference nobody asked for.
+        A scalar alpha is restored when nothing is filtered because display
+        settings elsewhere read the value back from the artist and expect the
+        original scalar form.
         """
         if self._scatter is None:
             return

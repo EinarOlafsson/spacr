@@ -1,83 +1,21 @@
-"""The cells behind one dot on the volcano, and how they were picked.
+"""Show the measured cells represented by a regression coefficient.
 
-:mod:`spacr.cell_montage` decides which objects belong behind a coefficient
-and writes the whole reason into :meth:`~spacr.cell_montage.MontagePlan.caption`.
-Nothing of that is repeated here. This module loads the pixels for the objects
-that plan names, puts them on screen in the tab beside the run's figures, and
-says why when it cannot.
+:mod:`spacr.cell_montage` selects the objects and records the selection reason;
+this module resolves and displays their image crops beside the run's figures.
+Each attached database resolves its own exported-PNG or ``merged/<fov>.npy``
+source so multi-plate montages can combine experiments with different storage
+layouts. The crop mask plane and channels come from :class:`spacr.crops.CropSpec`
+or, by default, the run's ``measurements.db`` metadata.
 
-What this adds to the headless half
------------------------------------
-1. **The pixels.** :func:`spacr.crops.resolve_crop_source` already chooses
-   between the exported PNGs and ``merged/<fov>.npy`` AND says which it chose;
-   :func:`spacr.cell_montage.resolve_montage_crop_source` already turns "there
-   is no source at all" into a sentence rather than an exception. :func:`load`
-   calls them **once per attached database**, because two plates can be two
-   experiment folders with two different answers -- one with its crops still on
-   disk and one with only ``merged/`` -- and routes every selected object row
-   back to the source of the database it came from.
+Image reads run through :class:`spacr.qt.job_runner.JobRunner` and only the
+GUI-thread completion handler updates widgets. Converting at most 300 crops to
+``QPixmap`` remains on the GUI thread because QPixmap is not transferable
+across threads; the recorded 224-pixel thumbnail conversion takes about
+21 milliseconds for 300 crops.
 
-2. **The two settings the request names.** "the user needs to specify which
-   array the masks are in and which channels should be used to generate the
-   pictures". Those are :attr:`spacr.crops.CropSpec.object_type` (which mask
-   plane a crop is cut by) and :attr:`~spacr.crops.CropSpec.channels`
-   (``png_dims``), both already fields of the spec, so they are passed through
-   rather than reinvented. Left alone, ``resolve_crop_source`` reads them back
-   out of the run's own ``measurements.db`` and the tab says that is where they
-   came from -- which is the right default, because it reproduces the crops
-   that run would have written.
-
-3. **A worker, and a tab that says why.** Below.
-
-THE GUI THREAD NEVER READS AN IMAGE, AND HERE IS WHAT IT WOULD COST
---------------------------------------------------------------------
-Measured on this machine, 12 synthetic fields of 1080x1080x7 ``uint16``, crops
-cut through the real :mod:`spacr.crops` path:
-
-    ============================================  ==============
-    720 crops, 60 per field, ``merged/``            0.95 ms/crop
-    720 crops, 60 per field, exported PNGs          0.13 ms/crop
-    **12 crops, ONE per field, ``merged/``**       **13.36 ms/crop**
-    12 crops, one per field, exported PNGs          0.13 ms/crop
-    ============================================  ==============
-
-The third row is the montage's own shape: one coefficient spans dozens of
-wells and takes a handful of objects from each, so it touches many fields and
-cuts few crops from each of them. That is the same finding
-:data:`spacr.cell_montage.MAX_OBJECTS` was chosen against -- the merged source
-is priced by FIELDS TOUCHED, not by crops cut -- and at the 300-object cap it
-is ~4.0 s of blocking read. On the GUI thread that is a four-second frozen
-window with no cursor and no way to cancel, which is the single thing this
-application must never do.
-
-So every read goes through a :class:`~spacr.qt.job_runner.JobRunner`, which is
-where this project's threading rules are already written down: ``finished`` is
-emitted on the WORKER thread, and the only safe thing a slot there may do is
-re-emit a Signal whose receiver is a **bound method** of a GUI-thread object.
-:meth:`CellMontageView._on_loaded` is that bound method, and it is the only
-place the widgets are touched.
-
-What the GUI thread does keep is the numpy-to-``QPixmap`` conversion, and that
-was measured too rather than assumed: 300 crops of 224x224 scaled to
-:data:`THUMBNAIL_PX` cost **21.1 ms** -- one frame and a bit, once, at the end
-of a load that took seconds. Moving it off the thread would mean shipping
-QPixmaps across a thread boundary, which QPixmap does not allow.
-
-A tab that cannot be filled says why
-------------------------------------
-The tab is always present and the button is always visible. When there is
-nothing it can do it is DISABLED and :meth:`CellMontageView.reason` is on it,
-on its tooltip and in the status line. A screen with no exported PNGs and no
-``merged/`` folder gets that sentence, not an empty grid -- an empty grid is
-indistinguishable from a bug, and this feature's whole risk is producing
-something plausible and wrong.
-
-The one check that cannot be made up front is the crop source itself:
-``_has_png_folder`` walks up to three levels of ``data/``, which is a disk walk
-and not something to do on every click. So the button stays live until a load
-has actually looked, and the answer is REMEMBERED -- the button greys out with
-that reason afterwards, and un-greys the moment the coefficient, the databases
-or the crop settings change.
+The tab stays visible when crops are unavailable and reports the reason in its
+status, tooltip, and disabled action. Crop-source discovery is cached after a
+load and invalidated when the coefficient, databases, or crop settings change.
 """
 
 from __future__ import annotations
@@ -992,21 +930,11 @@ def montage_figure(plans: Sequence[Any], images: Sequence[Sequence[Any]],
 # ---------------------------------------------------------------------------
 
 class _Thumb(QLabel):
-    """One crop, drawn the way the annotation app draws one.
+    """Display a clickable crop with the annotation app's tile styling.
 
-    Rounded, ringed, and lit under the cursor -- through
-    :mod:`~.tile_chrome`, which is the annotate screen's own painting rather
-    than an imitation of it. Asked for by appearance: "when hovering over
-    images i should see the rim turn white and i should be able to click each
-    image to get its information. the images should have rounded edges like
-    in the annotation app".
-
-    IT IS CLICKABLE NOW, and the docstring used to argue the opposite: "a
-    clickable thumbnail promises a drill-down that instruction 131 does not
-    ask for". The maintainer has since asked for exactly that drill-down, and
-    what it shows is the provenance this tile already carries on its tooltip
-    -- so the promise is one the widget can keep without a second selection
-    mechanism.
+    Shared tile chrome supplies rounded clipping and the resting, state, and
+    hover rings. Activating the thumbnail opens the provenance details already
+    summarized by its tooltip.
     """
 
     #: (tooltip). Emitted on a left click so the view can show the detail.
@@ -1377,13 +1305,10 @@ def _is_candidate(row) -> bool:
 
 def _thumbnail(crop, row, parent=None, size: int = 0,
                picture=None) -> QWidget:
-    """One crop as a widget, or a labelled placeholder when it is missing.
+    """Build a crop widget or a labeled placeholder when data is missing.
 
-    :param picture: the annotator-named display settings. Applied through
-        `picture_settings.draw_crop`, which calls the ANNOTATION APP'S OWN
-        functions -- so a crop here and the same crop in the annotator look
-        the same, which is the entire reason this tab borrowed its setting
-        names (instruction 170 B).
+    ``picture`` contains the annotation display settings applied by
+    :func:`picture_settings.draw_crop`.
     """
     tooltip = _tooltip(row)
     px = int(size or THUMBNAIL_PX)
@@ -2504,18 +2429,11 @@ class CellMontageView(QWidget):
         self._status.setText(self._status_text)
 
     def _apply_shape_availability(self, result: MontageLoad) -> None:
-        """Grey the crop shapes this run's route cannot actually cut.
+        """Disable crop shapes that the loaded source cannot produce.
 
-        Instruction 155 E: "an object-shaped crop must not appear as a choice
-        that silently does something else". A route with no mask -- a
-        coordinate table, or exported PNGs that were cut when the run wrote
-        them -- cannot follow an outline, so the entry is DISABLED with the
-        reason on it rather than accepted and quietly served a box.
-
-        The check cannot be made before a load, because which source answers
-        is a fact about the disk. So the entries are all live until a load has
-        looked, and the answer is applied afterwards -- the same shape as the
-        remembered "this run has no crop source".
+        Sources without masks cannot create outline-following crops. Shape
+        availability is therefore applied after source discovery, with the
+        unavailable entries disabled and labeled with the reason.
         """
         model = self._shape.model()
         offered = tuple(result.shapes)
@@ -2743,15 +2661,10 @@ class CellMontageView(QWidget):
 
     def _open_well_tab(self, key: Tuple[str, ...], label: str,
                        tooltip: str) -> "_WellTab":
-        """Add one well tab, WITH ITS X IN THE TOP LEFT.
+        """Add a well tab with a close control on its left edge.
 
-        Qt puts the close button on whichever side
-        ``SH_TabBar_CloseButtonPosition`` names, and on this project's style
-        that is the RIGHT -- the request asks for "an x in the top left of
-        the tab", so the automatic button is removed and ours is placed on
-        the left. It closes by WIDGET and not by index, because a tab's index
-        moves whenever an earlier one is closed and an index captured at
-        creation time would close somebody else's tab.
+        The close handler captures the widget rather than its mutable tab
+        index, so closing an earlier tab cannot redirect a later button.
         """
         from PySide6.QtWidgets import QToolButton
 

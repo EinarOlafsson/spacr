@@ -64,21 +64,11 @@ LOG = logging.getLogger("spacr.qt.dnd_handlers")
 # ---------------------------------------------------------------------------
 
 def _add_to_source_set(screen, path):
-    """Add ``path`` to a multi-source ``src`` control, or ``None``.
+    """Add paths to a screen's multi-source control without replacing it.
 
-    ``None`` means "this screen's ``src`` is not a set" and the caller should
-    fall through to the single-valued paths below. A boolean means the set
-    answered.
-
-    WHY THIS COMES FIRST. Instruction 109 turned ``src`` into a SET of project
-    folders on the modules that merge databases -- Image UMAP is the first --
-    and its own "Add project folders…" button promises, in its tooltip, that
-    it "adds to the set rather than replacing it, so three plates can be
-    gathered in three trips". Dropping is the same gesture with the mouse, and
-    it went through ``set_value_for_key``, which calls ``set_value``, which
-    REPLACES. Measured before the fix: dropping plate1, plate2 and plate3 on
-    an Image UMAP screen left ``['plate3']``. Two of the three merges the user
-    asked for were discarded silently, which is worse than a refusal.
+    Return ``None`` when the screen has no multi-source ``src`` control so the
+    caller can try its single-source handling. Otherwise return whether every
+    supplied path is present after the add operation.
     """
     try:
         widget = screen._settings_model._widgets.get("src")

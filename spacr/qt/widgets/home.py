@@ -15,59 +15,25 @@
     │  Hover a tile to see what it does.                             │
     └────────────────────────────────────────────────────────────────┘
 
-Seven decisions worth knowing about before editing this file:
+The first tab displays every registered app grouped into the same sections as
+the category-filter tabs. :class:`AppTile` supplies one consistent icon-and-
+name tile in every view; tooltips and the hint bar provide descriptions.
+``categories`` and ``bands`` remain separate inputs so navigation and the
+all-app layout can evolve independently while both derive from
+:data:`spacr.qt.app.APPS`.
 
-1. **The first tab is everything, in the same categories as the rest.**
-   Home is not a summary of the other tabs — it holds every app, at a
-   density that fits one screen, banded by the *same* sections the
-   category tabs use. It used to band them into Prepare / Run / Review
-   instead, a second grouping that existed nowhere else: an app read as
-   "Prepare" on the first tab and "Data" on the second, and adding a
-   section meant editing two tables that could disagree. There is one
-   table now (:data:`spacr.qt.app.APPS`) and both the bands and the
-   tabs are computed from it, by the *registry*, and handed in — this
-   widget takes ``categories`` and ``bands`` already grouped and does
-   not know what a section means.
+Maturity is represented by each tile's ``stage`` property and the legend,
+using :data:`spacr.qt.app.APP_STAGE` and
+:data:`spacr.qt.theme.STAGE_HOVER`. The right column presents state rather
+than navigation: queued work, recent runs, system information, release news,
+totals, and maturity labels.
 
-   ``bands`` and ``categories`` are therefore the same list today, and
-   the two arguments are kept apart anyway: they answer different
-   questions ("what does Home list" and "what tabs are there"), and the
-   version of this file that assumed they could not differ is the one
-   that had to be undone.
-
-   The categories are a *filter*, not a hierarchy you have to descend;
-   category tabs with no "everything" view read as an empty page, which
-   is the version this one replaced.
-2. **One tile, everywhere.** :class:`AppTile` — icon over name, nothing
-   else — on Home and on every category tab alike. There used to be two
-   sizes: a dense icon-beside-name row on Home and a tall card carrying
-   the one-line description on the category tabs. That made the first
-   tab look like a list of links and the rest like a launcher, and the
-   description was a third copy of text already in the tooltip and in
-   the hint bar. The tiles are large, packed tight, and say the module's
-   name; :attr:`HomePage._hint_bar` and the tooltip say the rest.
-3. **Maturity is a colour, not a place.** Every tile carries a ``stage``
-   property (``stable`` / ``beta`` / ``alpha``) which the app
-   stylesheet turns into its hover colour, and the legend at the foot of
-   the right-hand column says what each colour means. #16i made staging
-   two extra TABS instead, which drained three of the five real
-   categories and gave "where is the format converter" two answers.
-   The classification lives in :data:`spacr.qt.app.APP_STAGE`; the
-   colours in :data:`spacr.qt.theme.STAGE_HOVER`. This widget only
-   passes them on.
-4. **The right-hand column is state, not navigation.** Queue, recent
-   runs, machine, release, then the legend. Putting it *beside* the apps
-   rather than under them is what stops it pushing the tiles off the
-   page. Three of those panels are marked ``(beta)`` — see
-   :data:`BETA_SUFFIX`.
-5. **A running job is shown here even though Home did not start it.**
-   ``spacr.qt.bridge.registry`` knows, because every screen goes through
-   ``make_thread``. Home subscribes; nothing had to report in.
-6. **Pause is disabled, on purpose, and says why.** See
-   :class:`RunningBanner` and :class:`spacr.qt.bridge.PauseGate`.
-7. **Every colour is resolved per instance, not imported.** See
-   :func:`active_palette` — ``theme.PALETTE`` is a frozen dark palette
-   and inlining it renders black-on-black in the light theme.
+Home subscribes to :data:`spacr.qt.bridge.registry` to display jobs started by
+any screen. :class:`RunningBanner` exposes only the controls supported by the
+worker; cooperative Pause remains disabled when the pipeline has no
+:class:`spacr.qt.bridge.PauseGate` checkpoints. Widget colors are resolved
+from :func:`spacr.qt.theme.active_palette` so runtime theme changes remain
+consistent.
 """
 from __future__ import annotations
 
@@ -1965,21 +1931,11 @@ class HomePage(QWidget):
 
 def _tab_qss(P: dict, pane_alpha: float = 1.0,
              glass: bool = False) -> str:
-    """QSS for the Home tab widget.
+    """Return styling for the transparent Home tab container.
 
-    :param pane_alpha: accepted so the call sites and their tests keep one
-        signature; the pane itself paints nothing.
-
-    The box behind the tiles is GONE, not dialled. This went back and forth:
-    it was a surface at the effective alpha, then transparent, then briefly
-    painted at the preference again on the reading that opacity should "apply
-    to the containers the tiles are in". The final instruction is the clearest
-    of the three — remove the black boxes behind the tiles and make the TILES
-    subject to opacity instead — so the container is transparent and the
-    dialling moved to the tile fill, where it is actually visible.
-
-    The 1px outline stays: it is what the selected tab joins onto, and without
-    it the tab strip floats with nothing under it.
+    ``pane_alpha`` controls only the selected tab's surface fill; the pane and
+    tab-bar backgrounds remain transparent. A one-pixel pane outline connects
+    the selected tab visually to its content.
     """
     from ..theme import css_color
     pane_border = (css_color("#ffffff", 0.27)

@@ -1,50 +1,18 @@
-"""Which measurement has genes with clear effect sizes.
+"""Compare gene effect sizes across measured features and attached databases.
 
-The pure logic is :mod:`spacr.measurement_scan`, which had no caller. This is
-the thin renderer over it, and it lives beside the sweep's runs because,
-structurally, this is the parameter search with a
-different thing varying -- the settings are held fixed and the DEPENDENT
-VARIABLE is swept.
+This panel renders :mod:`spacr.measurement_scan` beside regression runs. Model
+settings remain fixed while the dependent measurement changes. Each row shows
+both the within-measurement q-value and the correction across all scanned
+measurements; verdicts use the across-scan value, while ranking uses effect
+size. In the recorded permuted-label check, within-measurement correction
+flagged 83.5% of scans and across-scan correction flagged 5.0%.
 
-WHAT THIS PANEL EXISTS TO SHOW, and the reason a plain table would be wrong:
-
-    A MEASUREMENT SCAN IS A MULTIPLE-TESTING PROBLEM ACROSS MEASUREMENTS.
-
-spaCR measures hundreds of features per object. Scan 500 for "genes with a
-clear effect" and some look clear by chance, and they look exactly as
-convincing as the real ones -- because the per-measurement FDR was computed
-WITHIN each measurement and knows nothing about the other 499. So both
-numbers are on every row, and the across-scan one is what the verdict column
-reads. A panel that showed only the within-run q-value would have rebuilt the
-exact trap the module exists to close.
-
-Measured on plate1 of the tsg101 screen with the gene labels permuted, so no
-effect can exist: the within-run correction fired on 83.5% of those scans and
-the across-scan correction on 5.0%. That gap is the feature.
-
-Ranked by EFFECT SIZE, not by p-value: with two screens' worth of wells a
-trivial effect is significant, and "clear effect sizes" is what was asked for.
-
-THE MEASUREMENT DATABASES, AND WHY THEY LIVE HERE TOO
------------------------------------------------------
-A regression row is one plate, and a plate
-can now carry its measurements database beside its score and count CSVs. Those
-databases surface in this tab, with the join offered:
-:class:`DatabaseMergePanel` lists every attached database, its object tables
-and its plates, and merges the chosen ones onto one anchor.
-
-NOTHING ABOUT THAT MERGE IS DECIDED HERE. :mod:`spacr.multi_database` already
-merges several databases without pooling two plates that share a name;
-:mod:`spacr.merge_tables` already holds the per-measurement aggregation --
-areas SUM, perimeters MEAN, a minimum takes MIN, a label takes FIRST -- and
-``MergePolicy.how_for`` already decides the join PER TABLE from object
-cardinality. :func:`merge_across_databases` is the composition of those two and
-adds no arithmetic of its own, which is why there is no blanket "join type"
-control anywhere in this file: one ``how`` for every table would apply the
-wrong merge rule to some relationships.
-
-And it SAYS what the merge cost, because a merge that silently changed how a
-measurement was combined produces a number that is wrong and looks fine.
+:class:`DatabaseMergePanel` also exposes the measurement databases attached to
+each regression plate. :mod:`spacr.multi_database` prevents pooling colliding
+plate identities, and :mod:`spacr.merge_tables` chooses aggregation and join
+behavior per table from measurement type and object cardinality. The panel
+reports the selected sources, dropped columns, aggregation policy, collisions,
+and other merge consequences rather than applying one global join rule.
 """
 
 from __future__ import annotations
@@ -950,25 +918,28 @@ class QueueCancelled(Exception):
 def run_column_fits(columns: Sequence[str], settings_for, fit, *,
                     progress=None, cancelled=None,
                     on_result=None) -> List[ColumnFit]:
-    """Fit each column in turn. ONE FAILURE DOES NOT TAKE THE OTHERS.
+    """Fit response columns sequentially while isolating per-column failures.
 
-    :param columns: the responses to fit, in the order the user picked them.
-    :param settings_for: called with a column, returns that fit's settings.
-    :param fit: called with the settings; returns whatever the pipeline
-        returns. Injected rather than imported so this stays testable without
-        `spacr.ml`, and so the widget module does not drag statsmodels in.
-    :param progress: called ``(column, index, total)`` before each fit.
-    :param cancelled: called with no arguments between fits; True stops.
-    :param on_result: called with each :class:`ColumnFit` as it is decided,
-        so a queue of twelve fills the Runs tab as it goes rather than at the
-        end. A run that has finished is a run the user can open.
-    :returns: one :class:`ColumnFit` per column ATTEMPTED.
+    Parameters
+    ----------
+    columns : sequence of str
+        Response columns in execution order.
+    settings_for : callable
+        Called with a column and returns settings for that fit.
+    fit : callable
+        Called with the settings and returns the pipeline result.
+    progress : callable, optional
+        Called as ``progress(column, index, total)`` before each fit.
+    cancelled : callable, optional
+        Called between fits; a true result stops the queue.
+    on_result : callable, optional
+        Called with each :class:`ColumnFit` when it completes or fails.
 
-    A QUEUE OF N FITS IS A LONG JOB (154 F, and 140 for the same reason on a
-    single fit). The isolation is the part that matters: a queue where the
-    fourth column raises and the remaining eight never run is a queue that
-    silently did a third of what was asked, and the user finds out by
-    counting rows in the Runs tab.
+    Returns
+    -------
+    list of ColumnFit
+        One result for every attempted column. A failed fit does not prevent
+        later columns from running.
     """
     out: List[ColumnFit] = []
     total = len(columns)
@@ -1685,17 +1656,11 @@ class DatabaseMergePanel(QWidget):
         return (lines, evidence)
 
     def _table_notes(self, paths, table, policy) -> Tuple[List[str], List[str]]:
-        """The per-table ``(summary, evidence)`` lines.
+        """Return per-table ``(summary, evidence)`` notes.
 
-        CLASSIFIED BY DTYPE BEFORE IT IS COUNTED, which is instruction 154 C.
-        The old version matched column NAMES against
-        :data:`~spacr.merge_tables.AGGREGATION_RULES` and reported everything
-        left over as "would take the default (mean)" -- so ``file_name`` and
-        ``path_name``, which are TEXT and take
-        :data:`~spacr.merge_tables.TEXT_AGGREGATION`, were announced as taking
-        a mean that cannot happen to a string. Eighty-five columns that mix
-        eighty-three texture features with two filesystem paths is not one
-        bucket, and a user cannot approve a sentence about it.
+        Columns are classified by dtype before aggregation counts are formed,
+        so text paths are described with text aggregation rather than the
+        numeric default.
         """
         try:
             plan = describe_merge(paths, table, screens=self.screens())
@@ -2148,33 +2113,22 @@ def describe_key_overlap(left_name: str, left, right_name: str,
 
 
 class ColumnRegressionPanel(QWidget):
-    """STEP 4: pick a column of the merged frame and regress on it.
+    """Run one regression per selected column of a merged measurement table.
 
-    The tab is designed
-    for: "the point of the measurements tab is to merge measurements so that
-    regression can be run on any column in the databases ... 4b do regression
-    on a selection of columns each gets saved as a run that i can evaluate."
+    Each column produces an independent run folder and Runs-tab entry. Jobs
+    execute sequentially through :class:`~spacr.qt.job_runner.JobRunner`, can
+    be stopped between fits, and continue after individual fit failures.
 
-    THE PICKER IS MULTI-SELECT AND EACH COLUMN IS ONE RUN. Not one run fitted
-    against several responses -- that is not a thing a regression is -- and
-    not a scan (:class:`MeasurementScanPanel` above is the scan, and it
-    answers a different question with a correction across the measurements).
-    Each column here produces a run with its own folder and its own row in
-    the Runs tab, which is what makes them comparable afterwards and is the
-    entire reason the Runs tab exists.
-
-    A QUEUE OF N FITS IS A LONG JOB. It runs on a
-    :class:`~spacr.qt.job_runner.JobRunner`, says which column it is on and
-    how many are left, takes a Stop between fits, and -- the part that
-    matters -- A FIT THAT FAILS DOES NOT TAKE THE OTHER N-1 WITH IT. A queue
-    where the fourth column raises and the remaining eight never run is a
-    queue that silently did a third of what was asked.
-
-    :ivar fit_started: emitted ``(column, settings)`` as each fit begins, so
-        the host can put a row on the Runs tab BEFORE it finishes.
-    :ivar fit_finished: emitted ``(column, outcome)`` as each fit is decided.
-    :ivar queue_finished: emitted ``(fitted, failed)`` when the queue ends.
-    :ivar queue_progress: emitted ``(column, index, total)``.
+    Attributes
+    ----------
+    fit_started : Signal
+        Emits ``(column, settings)`` as each fit begins.
+    fit_finished : Signal
+        Emits ``(column, outcome)`` when a fit succeeds or fails.
+    queue_finished : Signal
+        Emits ``(fitted, failed)`` when the queue ends.
+    queue_progress : Signal
+        Emits ``(column, index, total)`` before each fit.
     """
 
     fit_started = Signal(str, dict)

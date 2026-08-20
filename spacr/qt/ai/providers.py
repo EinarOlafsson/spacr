@@ -128,12 +128,9 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
     user's ~/.claude/settings.json). Merges stderr into stdout so
     real errors show up inline.
 
-    If `provider` is passed we register the Popen on it so that
-    provider.cancel_stream() can terminate the subprocess and unblock
-    the caller's iteration. Without this, a stream that hangs on
-    a `for line in proc.stdout` read can never be cancelled and the
-    worker QThread will outlive its Python reference on quit — which
-    is exactly the crash the user reported.
+    When ``provider`` is supplied, its process reference is registered so
+    :meth:`ChatProvider.cancel_stream` can terminate a blocked read. This also
+    prevents the worker thread from outliving its Python owner during exit.
     """
     env = os.environ.copy()
     if env_extra:

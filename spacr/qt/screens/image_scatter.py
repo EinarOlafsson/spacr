@@ -667,11 +667,9 @@ class ImageScatterScreen(LinkedView, QWidget):
 
     # -- hover --------------------------------------------------------------
     def _on_hover(self, index: int) -> None:
-        """The cursor moved onto (or off) a point.
+        """Update the crop preview when the cursor enters or leaves a point.
 
-        A crop that is already decoded is shown immediately — waiting 70 ms to
-        blit a pixmap that is sitting in memory is a lag nobody asked for. One
-        that is not is left to the timer.
+        Decoded crops appear immediately; uncached crops use the hover timer.
         """
         self._pending_hover = int(index)
         if index < 0:

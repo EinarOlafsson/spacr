@@ -89,19 +89,10 @@ _HEADING_FALLBACK = "#4A9EFF"
 
 
 def _heading_style() -> str:
-    """The heading stylesheet, coloured from the live palette.
+    """Return the section-heading stylesheet from the active palette.
 
-    BLUE, NOT GREY. It was `color: palette(mid)`, which is Qt's mid role: a
-    mid-grey that is legible on the light theme and, in the maintainer's
-    words, "barely visable" on dark -- where every spaCR theme but one lives.
-    A heading that cannot be read is a fold control that cannot be found,
-    which is the second time this heading has been invisible for a different
-    reason.
-
-    Read at DRAW TIME rather than baked into a module constant, so the
-    heading follows a theme switch. `palette(mid)` at least had that
-    property and a hex literal would lose it; this keeps it. Same pattern as
-    the clear-figures control.
+    Resolving the accent at draw time keeps headings legible after a runtime
+    theme change.
     """
     try:
         from ..theme import active_palette
@@ -176,24 +167,11 @@ def live_tiles_from_panels(panels) -> list:
 
 
 class _SectionHeader(QFrame):
-    """A run's heading, and the control that folds that run's figures away.
+    """Provide a keyboard-accessible fold control for one figure section.
 
-    THE CONSOLE'S GESTURE, because the maintainer named the console as the
-    model: "each set should be in its own section that can be minimized like
-    in the console". So this is `_TopicBar` in every respect that a user can
-    see -- a disclosure chevron on the left of the heading text, a pointing
-    hand over the whole bar, strong focus so the keyboard reaches it, and
-    Return / Enter / Space doing what a click does. A control only a mouse can
-    reach is one some users cannot reach at all.
-
-    Only the CHEVRON and the click are new. The heading itself, its wording
-    and its styling are what 124 B already drew; making it a control must not
-    make it a different heading.
-
-    :ivar section_key: ``(label, start)`` -- which run this heads. The header
-        WIDGET is rebuilt on every relayout (a resize rebuilds the grid), so
-        the collapsed state cannot live on it; the key is what the view
-        remembers instead.
+    The full bar toggles on click, Return, Enter, or Space and displays a
+    disclosure chevron. ``section_key`` identifies the section as
+    ``(label, start)`` so collapse state survives header reconstruction.
     """
 
     def __init__(self, label: str, key, parent=None, expanded: bool = True):
@@ -465,42 +443,24 @@ class FigureGridView(QScrollArea):
         return [cell.live_key for cell in self._live]
 
     def set_live_tiles(self, tiles) -> int:
-        """The pyqtgraph panels, as pictures, in their own foldable section.
+        """Replace the foldable section of live-panel snapshots.
 
-        "i would still like to retain the grid to the right ... same grid
-        overview but pyqtgraph versions" -- the design. This is that
-        section: one tile per live panel, pressing one raises the real widget.
+        Parameters
+        ----------
+        tiles : iterable
+            ``(key, pixmap)`` or ``(key, pixmap, title)`` entries. Activating
+            a tile emits its key through :attr:`live_tile_activated`.
 
-        PICTURES, NOT WIDGETS, and the module docstring carries the numbers
-        that decided it -- eighteen live tiles cost 68.37 ms per window-drag
-        frame against 4.44 ms for eighteen pictures, on a 16.7 ms budget.
+        Returns
+        -------
+        int
+            Number of snapshots retained on the grid.
 
-        :param tiles: ``[(key, pixmap, title)]``, or ``[(key, pixmap)]``. The
-            key is what :attr:`live_tile_activated` carries back.
-        :returns: how many tiles are on the grid afterwards.
-
-        A TILE WITH NO PICTURE IS DROPPED, not drawn empty. A panel a run
-        cannot support -- residuals with no fitted model -- returns ``None``
-        from ``snapshot()``, and an empty tile invites a click that opens an
-        empty plot. It is absent from :meth:`live_tile_keys` too, so a caller
-        can tell the difference rather than guessing from a count.
-
-        THE PREVIOUS SET IS DESTROYED, ALL OF IT. This is the generalisation
-        of the stacked-volcano bug of 2026-08-17 ("the thumbnail iage of the
-        volcano plot looks like several volcano plot itterations pasted on top
-        of each other"): ``_relayout``'s ``takeAt`` removes a widget from the
-        LAYOUT and leaves it a visible child of the body at its old geometry,
-        and ``clear()`` cannot collect it because ``clear`` walks the layout.
-        Every caller of this method runs it on a REFRESH -- the regression
-        screen re-photographs its panels on a 250 ms debounce, on every return
-        to the grid and after every restyle -- so anything not destroyed here
-        accumulates once per refresh. With one tile that was a dozen
-        volcanoes; with a tile per panel it would be a dozen of each.
-
-        The set is replaced WHOLE rather than reconciled key by key, and that
-        is deliberate: a run whose panel set shrank (a re-fit that lost its
-        model) would otherwise leave the vanished panels' tiles on the grid,
-        photographs of a fit that no longer exists.
+        Notes
+        -----
+        Entries without a pixmap are omitted. Existing tile widgets are
+        destroyed before the complete set is rebuilt so refreshes cannot
+        stack stale snapshots or retain panels no longer available.
         """
         previous = self._live
         rebuilt: list = []
@@ -679,13 +639,17 @@ class FigureGridView(QScrollArea):
         self._headers = []
 
     def set_figures(self, pixmaps, titles=None, sections=None) -> int:
-        """Show these figures. Returns how many were added.
+        """Replace the grid contents and return the number of figures added.
 
-        :param sections: ``[(label, start, count)]`` -- one entry per run.
-            LETTERING RESTARTS IN EACH, because a panel letter belongs to a
-            figure and a figure is one run's worth of panels. Without this a
-            second run continues at L, which says nothing to a reader and
-            was reported as exactly that.
+        Parameters
+        ----------
+        pixmaps : iterable
+            Figure images to display.
+        titles : iterable, optional
+            Captions corresponding to ``pixmaps``.
+        sections : iterable, optional
+            ``(label, start, count)`` entries describing runs. Panel lettering
+            restarts within each section.
         """
         self.clear()
         titles = list(titles or [])
