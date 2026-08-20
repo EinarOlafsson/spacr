@@ -168,3 +168,115 @@ def test_the_panel_still_fills_it_the_same_way(qtbot):
 
     assert "1536" in panel._summary.toPlainText()
     assert panel._summary.is_section_expanded(ANSWER_HEADING)
+
+
+# =========================================================================== #
+#  Instruction 178 B -- the summary is a table, and it can be taken away      #
+# =========================================================================== #
+
+BODY = """  regression type              ols
+  inference                    parametric — the model was fitted and its
+                               standard errors are the model's own
+  wells                        1536
+"""
+
+
+def test_a_section_body_becomes_aligned_rows():
+    """"the left title in bold and then the text so they are all alligned"."""
+    from spacr.qt.widgets.folding_summary import split_rows
+
+    rows = split_rows(BODY)
+
+    assert [label for label, _ in rows] == [
+        "regression type", "inference", "wells"]
+    assert dict(rows)["regression type"] == "ols"
+
+
+def test_a_wrapped_value_is_joined_back_up():
+    """The FILE wraps at 88 characters whatever the window is, which is why
+    widening the tab gained nothing. The panel re-wraps, so it has to undo
+    the file's wrapping first."""
+    from spacr.qt.widgets.folding_summary import split_rows
+
+    value = dict(split_rows(BODY))["inference"]
+
+    assert "standard errors are the model's own" in value
+    assert "\n" not in value
+
+
+def test_text_that_is_not_rows_is_left_alone():
+    """A statsmodels block is column-aligned ASCII that carries its own
+    alignment; re-laying it out would destroy it."""
+    from spacr.qt.widgets.folding_summary import split_rows
+
+    assert split_rows("OLS Regression Results\n" + "=" * 78) == []
+    assert split_rows("") == []
+
+
+def test_the_lead_width_is_measured_not_assumed():
+    """A summary written by another version of spaCR has a different label
+    column, and the panel still has to read it."""
+    from spacr.qt.widgets.folding_summary import split_rows
+
+    narrow = "  type    ols\n  wells   1536\n"
+    rows = dict(split_rows(narrow))
+
+    assert rows["type"] == "ols"
+    assert rows["wells"] == "1536"
+
+
+def test_the_rows_are_drawn_as_a_table(view):
+    from PySide6.QtWidgets import QTextBrowser
+
+    view.setPlainText(SUMMARY)
+    tables = view.findChildren(QTextBrowser)
+
+    assert tables, "no section was laid out as a table"
+    html = tables[0].toHtml()
+    assert "<table" in html
+    # Qt normalises <b> into a weight on the span, so the tag itself is gone
+    # by the time the document is read back. 700 is bold; 400 is the body.
+    assert "font-weight:700" in html or "<b>" in html, "the label is not bold"
+
+
+def test_there_is_a_copy_and_a_save_button(view):
+    """"i should be able to click a button to save them and also copy them
+    with the overlapping squares icon"."""
+    view.setPlainText(SUMMARY)
+
+    assert view.copy_button is not None
+    assert view.save_button is not None
+    assert "⧉" in view.copy_button.text(), "no overlapping-squares icon"
+
+
+def test_copy_puts_the_whole_summary_on_the_clipboard(view, qtbot):
+    from PySide6.QtWidgets import QApplication
+
+    view.setPlainText(SUMMARY)
+    assert view.copy_to_clipboard() is True
+
+    assert QApplication.clipboard().text() == SUMMARY
+
+
+def test_copying_nothing_is_refused_rather_than_clearing_the_clipboard(view):
+    view.setPlainText("   ")
+    assert view.copy_to_clipboard() is False
+
+
+def test_save_writes_the_run_s_own_text(view, tmp_path):
+    """A COPY, NOT A RE-RENDER: rendering again would differ in the
+    statsmodels `Time:` header alone and invite the reader to wonder which
+    is authoritative."""
+    view.setPlainText(SUMMARY)
+    out = tmp_path / "summary.txt"
+
+    written = view.save_to_file(str(out))
+
+    assert written == str(out)
+    assert out.read_text() == SUMMARY
+
+
+def test_saving_nothing_writes_nothing(view, tmp_path):
+    view.setPlainText("")
+    assert view.save_to_file(str(tmp_path / "x.txt")) == ""
+    assert not (tmp_path / "x.txt").exists()

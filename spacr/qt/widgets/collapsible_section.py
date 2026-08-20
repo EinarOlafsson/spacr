@@ -47,6 +47,26 @@ class CollapsibleSection(QWidget):
         self._header.setAutoRaise(True)
         self._header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._header.setToolTip(f"Fold {self._title} away, or open it again")
+        # GRAY, TRANSPARENT, ROUNDED, BLUE ON HOVER. Asked for 2026-08-19:
+        # "the black dropdowns should be gray and they should have rounded
+        # edges when hovered blue, and they should be transparent". A
+        # QToolButton with no rule of its own paints the palette's button
+        # colour as an opaque block, which is the "black categories" in both
+        # this panel and the measure tab.
+        self._header.setStyleSheet(
+            "QToolButton {"
+            "  background: transparent;"
+            "  border: none;"
+            "  border-radius: 6px;"
+            "  padding: 3px 6px;"
+            "  text-align: left;"
+            "  color: palette(mid);"
+            "}"
+            "QToolButton:hover {"
+            "  background: rgba(45, 119, 188, 0.18);"
+            "  color: palette(highlight);"
+            "}"
+            "QToolButton:checked { color: palette(text); }")
         self._header.toggled.connect(self._apply)
         layout.addWidget(self._header)
 

@@ -18,12 +18,15 @@ length -- which is what :func:`spacr.regression_summary.format_run_summary`
 writes. Text with no headings is shown as it arrived; the statsmodels
 summary must not be chopped up by a guess.
 """
+import re
+import html
 from typing import List, Tuple
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFontDatabase
-from PySide6.QtWidgets import (QLabel, QPlainTextEdit, QScrollArea,
-                               QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPlainTextEdit,
+                               QPushButton, QScrollArea, QVBoxLayout,
+                               QWidget)
 
 from .collapsible_section import CollapsibleSection
 
@@ -74,6 +77,57 @@ def split_sections(text: str) -> Tuple[str, List[Tuple[str, str]]]:
     return preamble, sections
 
 
+def split_rows(body: str) -> list:
+    """A section body as ``[(label, value)]``, or ``[]`` if it is not rows.
+
+    `format_run_summary` lays each field out as a fixed-width label column
+    followed by wrapped text, with continuation lines indented to match. That
+    is right for the FILE -- 168 D keeps it readable in a terminal -- and
+    wrong for a panel: the column is 88 characters whatever the window is, so
+    widening the tab gains nothing and the explanation stays a narrow ribbon.
+    Reported as "its realluy hard to read".
+
+    So the panel re-reads the rows and lays them out itself. THE LEAD WIDTH
+    IS MEASURED, not assumed: it is taken from the first line that has one,
+    so a summary written by another version of spaCR with a different label
+    column still parses.
+
+    :returns: the rows, or ``[]`` when the body is not laid out this way --
+        a paragraph, a statsmodels block -- which the caller shows as it is.
+    """
+    lines = [line for line in str(body or "").splitlines() if line.strip()]
+    if not lines:
+        return []
+    lead = None
+    for line in lines:
+        if not line.startswith("  "):
+            continue
+        stripped = line[2:]
+        gap = len(stripped) - len(stripped.lstrip())
+        # A row is "  label" then at least two spaces then the text.
+        match = _ROW.match(line)
+        if match:
+            lead = len(match.group(1))
+            break
+    if lead is None:
+        return []
+    rows: list = []
+    for line in lines:
+        if len(line) > lead and line[:lead].strip():
+            rows.append([line[:lead].strip(), line[lead:].strip()])
+        elif rows and len(line) > lead:
+            # A continuation of the value above: joined, so the panel can
+            # re-wrap it to whatever width it actually has.
+            rows[-1][1] = (rows[-1][1] + " " + line[lead:].strip()).strip()
+        elif line.strip():
+            rows.append(["", line.strip()])
+    return [(label, value) for label, value in rows]
+
+
+#: A summary row: two spaces, a label, then at least two more spaces.
+_ROW = re.compile(r"^(  \S[^\s]*(?:[ \t]\S+)*?  +)\S")
+
+
 class FoldingSummaryView(QScrollArea):
     """A drop-in for the Summary tab's ``QPlainTextEdit``.
 
@@ -90,6 +144,30 @@ class FoldingSummaryView(QScrollArea):
         self._layout.setContentsMargins(6, 6, 6, 6)
         self._layout.setSpacing(4)
         self.setWidget(self._body)
+
+        # SAVE AND COPY, because a summary a reader cannot take with them is
+        # a summary they retype. Asked for 2026-08-19: "i should be able to
+        # click a button to save them and also copy them with the
+        # overlapping squares icon".
+        actions = QHBoxLayout()
+        actions.setContentsMargins(0, 0, 0, 0)
+        self.copy_button = QPushButton("\u29c9  Copy")
+        self.copy_button.setToolTip(
+            "Copy the whole summary to the clipboard, exactly as it is "
+            "written to the run folder.")
+        self.copy_button.setFlat(True)
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        actions.addWidget(self.copy_button)
+        self.save_button = QPushButton("Save\u2026")
+        self.save_button.setToolTip(
+            "Write the summary to a text file. It is the run's own summary, "
+            "so this is a copy rather than a new rendering.")
+        self.save_button.setFlat(True)
+        self.save_button.clicked.connect(self.save_to_file)
+        actions.addWidget(self.save_button)
+        actions.addStretch(1)
+        self._layout.addLayout(actions)
+
         self._text = ""
         self._sections: List[CollapsibleSection] = []
         self._mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -124,6 +202,47 @@ class FoldingSummaryView(QScrollArea):
         """
         return self._mono
 
+    # ------------------------------------------------------------- taking it
+
+    def copy_to_clipboard(self) -> bool:
+        """The whole summary, as the run wrote it. Returns whether it went."""
+        from PySide6.QtWidgets import QApplication
+
+        text = self.toPlainText()
+        if not text.strip():
+            return False
+        clipboard = QApplication.clipboard()
+        if clipboard is None:                       # pragma: no cover
+            return False
+        clipboard.setText(text)
+        return True
+
+    def save_to_file(self, path: str = "") -> str:
+        """Write the summary out. Returns the path written, or ``""``.
+
+        A COPY, NOT A RE-RENDER. The run wrote this text when it was fitted;
+        rendering it again here would differ in the statsmodels `Time:`
+        header alone and invite the reader to wonder which is authoritative.
+        """
+        from PySide6.QtWidgets import QFileDialog
+
+        text = self.toPlainText()
+        if not text.strip():
+            return ""
+        chosen = str(path or "")
+        if not chosen:
+            chosen, _filter = QFileDialog.getSaveFileName(
+                self, "Save the summary", "model_summary.txt",
+                "Text (*.txt)")
+        if not chosen:
+            return ""
+        try:
+            with open(chosen, "w", encoding="utf-8") as handle:
+                handle.write(text)
+        except OSError:
+            return ""
+        return chosen
+
     # ------------------------------------------------------------- folding
 
     def section_titles(self) -> tuple:
@@ -150,6 +269,45 @@ class FoldingSummaryView(QScrollArea):
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()
+
+    def _table(self, rows: list) -> QWidget:
+        """One section as an aligned two-column table.
+
+        THE LABEL IS BOLD AND THE COLUMNS LINE UP, which is what was asked
+        for -- "the left title in bold and then the text so they are all
+        alligned". Built as HTML in a QTextBrowser rather than a
+        QTableWidget: the value column has to WRAP to whatever width the
+        panel has ("the text lines in these summaries should be able to be
+        as wide as the container"), and a table widget would give it a fixed
+        column and a scroll bar instead.
+        """
+        from PySide6.QtWidgets import QTextBrowser
+
+        view = QTextBrowser(self._body)
+        view.setOpenExternalLinks(True)
+        view.setFrameShape(QTextBrowser.NoFrame)
+        # TRANSPARENT: the panel behind it is a translucent surface, and an
+        # opaque block is what made these read as black slabs.
+        view.viewport().setAutoFillBackground(False)
+        view.setStyleSheet("QTextBrowser { background: transparent; }")
+        cells = []
+        for label, value in rows:
+            if label:
+                cells.append(
+                    f"<tr><td style='padding:1px 14px 1px 0;"
+                    f"white-space:nowrap;vertical-align:top'><b>"
+                    f"{html.escape(label)}</b></td>"
+                    f"<td style='padding:1px 0'>{html.escape(value)}</td></tr>")
+            else:
+                cells.append(
+                    f"<tr><td colspan='2' style='padding:4px 0'>"
+                    f"{html.escape(value)}</td></tr>")
+        view.setHtml("<table style='border-collapse:collapse'>"
+                     + "".join(cells) + "</table>")
+        view.document().setDocumentMargin(2)
+        rows_shown = max(2, len(rows))
+        view.setMinimumHeight(min(460, 20 * rows_shown + 12))
+        return view
 
     def _block(self, text: str) -> QPlainTextEdit:
         """One body, in the fixed-width font the file was laid out for.
@@ -184,10 +342,15 @@ class FoldingSummaryView(QScrollArea):
             self._layout.addWidget(label)
 
         for heading, body in sections:
+            rows = split_rows(body)
             # THE VERDICT OPEN, EVERYTHING ELSE FOLDED -- the headings are
             # then the outline the instruction asks for.
             expanded = heading.upper() == ANSWER_HEADING
-            section = CollapsibleSection(heading, self._block(body),
+            # A TABLE WHERE THE BODY IS ROWS, the plain block otherwise --
+            # the statsmodels summary is column-aligned ASCII and re-laying
+            # it out would destroy the alignment it carries itself.
+            content = self._table(rows) if rows else self._block(body)
+            section = CollapsibleSection(heading, content,
                                          expanded=expanded, parent=self._body)
             self._layout.addWidget(section)
             self._sections.append(section)
