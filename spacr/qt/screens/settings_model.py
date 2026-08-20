@@ -424,7 +424,17 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         # in it survived until the run had read the whole database.
         # `_resolve_regression_analysis_choices` is what maps `inference` onto
         # this, and it accepts exactly these two.
-        "analysis_mode": ["regression", "guide_permutation"],
+        #
+        # (value, label) PAIRS: the key is called 'guide_permutation' and the
+        # dropdown says what that IS, the same way 132's model box explains
+        # what it fits. The stored values are unchanged, so every settings
+        # file already written goes on meaning what it meant.
+        "analysis_mode": [
+            ("regression",
+             "regression — fit every guide at once in the chosen model"),
+            ("guide_permutation",
+             "guide permutation — test each guide on its own, plate-blocked"),
+        ],
         "analysis_unit": ["well", "cell"],
         # Exactly the branches process_scores implements; anything else
         # reaches the pipeline and is silently ignored rather than applied.

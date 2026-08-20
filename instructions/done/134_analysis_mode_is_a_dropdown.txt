@@ -50,3 +50,35 @@ HOW TO KNOW IT WORKED
   two entries in both.
 * Choosing `nonparametric` for `inference` greys it out and says why.
 * A settings CSV carrying either value still loads.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- DONE. And the labels found a bug in the settings writer.
+--------------------------------------------------------------------------------
+
+A COMBO WITH TWO ENTRIES in both front ends, declared in `settings_spec`'s
+`special_cases` so Tk and Qt cannot offer different lists, greyed out with the
+reason whenever `inference` is choosing it -- naming which inference, and what
+it selected. Two controls that contradict each other is what 106 forbids.
+
+THE LABELS READ. The dropdown says "regression — fit every guide at once in
+the chosen model" and "guide permutation — test each guide on its own,
+plate-blocked", as (value, label) pairs, so the stored values are still the
+keys every settings file already written uses.
+
+AND THAT EXPOSED A REAL BUG, in a writer neither this instruction nor 171
+touched. `AppScreen._apply_value` matched a combo item by `itemText` alone:
+
+    for i in range(widget.count()):
+        if widget.itemText(i) == str(val): ...
+
+A combo built from (value, label) pairs shows the SENTENCE and stores the
+KEY, so importing a settings CSV that named the key found no match, the
+selection did not move, and NOTHING SAID SO -- the panel silently kept
+whatever it had. It matches on `findData` first now, falling back to the text.
+
+This was reachable before today: 171's `crop_source` is the same shape. That
+key is not a combo on the screens checked here, so the round trip could not be
+demonstrated on it -- but the writer was wrong for any labelled combo, and it
+is fixed for all of them rather than for this one.
+
+7 tests in tests/qt/test_analysis_mode_is_a_dropdown_that_reads.py.
