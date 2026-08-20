@@ -381,6 +381,7 @@ API_EXACT_BLOCK_SHA256_ALLOWLIST = frozenset({
     "429f6345c1f6b0d30acf6ff8aaed026ebbbf5df506280a11b662699d1b2e8f33",
     "dad752c61526a8407fc3793497731f5c989b6cfb1eb05d4177c317ee7fdfbfca",
     "a1b0b118e72f9ab34aedf8a8f00d1da31f02e6843e02de8f5ff7568f6c62ea2c",
+    "fe5b5050fded2d8cd1e1223089652833a23996c8061fd983069b170a9298da7e",
 })
 
 # Some terse API fragments are ambiguous noun labels, and general translation

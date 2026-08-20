@@ -371,13 +371,10 @@ class SweepPanel(QWidget):
                 f"{len(keep):,} — save the table for all of them.")
 
     def exclusions(self) -> dict:
-        """What the user asked to leave out, as `sweep` keyword arguments.
+        """Return active exclusion controls as :func:`sweep` arguments.
 
-        READ OFF THE BOXES rather than stored, so the answer is always the
-        one on screen. Empty values mean "exclude nothing", which is why a
-        blank box has to come back as an absent key and not as an empty list:
-        `sweep` distinguishes "no filter" from "a filter that matches
-        nothing".
+        Blank controls are omitted so they mean "no filter" rather than a
+        filter whose value matches nothing.
         """
         out: dict = {}
         columns = _names(self.drop_columns.text())
@@ -391,13 +388,11 @@ class SweepPanel(QWidget):
         return out
 
     def selected_gene(self):
-        """The gene the profile picture is about, or ``None``.
+        """Return the selected gene or the strongest surviving gene.
 
-        The row the user selected in the table, and failing that the
-        strongest survivor -- which is a DEFAULT, not a choice they made, so
-        `plot_gene_profile` puts the name in the title. Returning None when
-        there is nothing at all keeps the caller from drawing a picture of
-        a gene it invented.
+        ``None`` is returned when the table contains no suitable gene. The
+        profile title distinguishes the automatic fallback from a row selected
+        by the user.
         """
         rows = {index.row() for index in self.table.selectedIndexes()}
         if rows:

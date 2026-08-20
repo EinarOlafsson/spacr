@@ -1980,10 +1980,10 @@ class CellMontageView(QWidget):
         return True
 
     def clear_picking_override(self) -> None:
-        """Forget an agreed fallback, so the next Show asks again.
+        """Clear a temporary picking fallback.
 
-        Called when the picture settings change or a different coefficient is
-        selected: "rank, just this once" must not quietly become permanent.
+        The next montage request will ask again if the selected picking method
+        remains unavailable.
         """
         self._picking_override = ""
 

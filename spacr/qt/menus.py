@@ -1,37 +1,8 @@
-"""Menu-bar roles, which are a macOS problem that looks like a spaCR bug.
+"""Assign explicit Qt menu roles for consistent cross-platform menus.
 
-macOS does not draw an application's menu bar inside its window. Qt moves it
-to the system bar, and — this is the part that surprises people — it also
-moves *individual actions between menus*, based on each action's
-``QAction::menuRole``.
-
-Qt assigns that role automatically by **pattern-matching the action's text**.
-An action whose text contains ``about``, ``config``, ``options``, ``setup``,
-``settings``, ``preferences``, ``quit`` or ``exit`` is claimed, removed from
-the menu it was added to, and relocated to the application menu — the one
-named after the running executable, which for spaCR is ``python`` because it
-runs under the interpreter rather than as a bundled ``.app``.
-
-That single behaviour produced both halves of a bug report that read like
-two:
-
-* **"Preferences and Quit don't show up."** They were moved out of the spaCR
-  menu into the ``python`` menu. Nothing was hidden; they were relocated.
-* **"The python menu's Preferences opens the module recipes window."**
-  ``recipes.MENU_ACTION_TEXT`` is ``"Settings recipes…"``. It contains
-  *settings*, so Qt gave it ``PreferencesRole`` too — and with two actions
-  claiming one slot, the wrong one won.
-
-**The rule: set the role on every menu action, explicitly, always.** Never
-leave it to the text. An action that should not be relocated needs
-``NoRole`` — not "no setMenuRole call", which is what lets Qt guess. Renaming
-an action is otherwise enough to move it to a different menu on one platform,
-which is not a connection anybody makes while renaming a menu item.
-
-None of this is observable on Linux or Windows: Qt applies menu roles only on
-macOS. So the tests assert that the roles are *set correctly*, which is
-platform-independent and is the thing that was actually wrong. Where the item
-lands still has to be confirmed on a Mac.
+On macOS, Qt may relocate actions according to text such as "Preferences" or
+"Quit". Explicit roles prevent translated or renamed actions from moving to
+the wrong system-menu slot. Other platforms retain their normal menu layout.
 """
 from __future__ import annotations
 
@@ -39,14 +10,24 @@ from typing import Any, Iterable, Optional
 
 
 def set_menu_role(action: Any, role: str = "none") -> Any:
-    """Pin ``action``'s macOS menu role. Returns ``action``.
+    """Assign a macOS menu role and return ``action``.
 
-    :param action: the ``QAction``.
-    :param role: ``'none'`` (default — stay where you were put),
-        ``'preferences'``, ``'quit'`` or ``'about'``.
-    :returns: the same action, for use inline.
-    :raises ValueError: an unknown role name, because a typo here would
-        silently restore the guessing this function exists to stop.
+    Parameters
+    ----------
+    action : PySide6.QtGui.QAction
+        Action whose role is assigned.
+    role : {'none', 'preferences', 'quit', 'about'}, default='none'
+        Target system-menu role. ``'none'`` keeps the action in its menu.
+
+    Returns
+    -------
+    PySide6.QtGui.QAction
+        The input action.
+
+    Raises
+    ------
+    ValueError
+        If ``role`` is not supported.
     """
     try:
         from PySide6.QtGui import QAction
