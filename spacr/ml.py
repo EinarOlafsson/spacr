@@ -8236,6 +8236,45 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
         print(f'Using agg_type: {agg_type} for {regression_type} regression')
         dependent_df = grouped.sum().reset_index()
 
+        # REFUSED HERE, NOT AT THE END OF THE FIT. The comment above already
+        # says a continuous score hands a Poisson model a fraction and that
+        # `_validate_poisson_response` refuses it "loudly, but at the very
+        # end" -- and the end is after both input CSVs are read, the QC
+        # tables written and the diagnostic plots drawn. Measured on the
+        # maintainer's own run 2026-08-19: 19.2 seconds to be told that two
+        # settings could not both be honoured, which was checkable the
+        # moment the response was summed.
+        #
+        # The well SUM is what these models fit, so that is the number to
+        # judge: a per-well sum of counts is an integer, and a per-well sum
+        # of a classification score is not.
+        summed = pd.to_numeric(dependent_df.get(dependent_variable),
+                               errors='coerce')
+        if summed is not None and len(summed):
+            finite = summed[np.isfinite(summed)]
+            if len(finite) and not np.all(
+                    np.isclose(finite, np.rint(finite), rtol=0, atol=1e-8)):
+                # THE MESSAGE NAMES THE CAUSE, not the symptom. The one
+                # this replaces said "requires integer count data; use a
+                # continuous response model for fractional values" -- true,
+                # and it left the reader to work out WHY their counts were
+                # fractional. They are fractional because these models take
+                # the well's POSITIVE COUNT as the sum of a per-cell 0/1
+                # label, and a classification SCORE is a probability: summing
+                # 152 cells at ~0.14 gives 21.68, which is not a count of
+                # anything.
+                example = float(finite.iloc[0])
+                raise ValueError(
+                    f"regression_type={regression_type!r} models the well's "
+                    f"positive COUNT -- the number of cells called positive "
+                    f"-- and gets it by summing {dependent_variable!r} per "
+                    f"well. That column holds continuous scores, so the sum "
+                    f"is {example:.4g} rather than a whole number of cells. "
+                    f"Either fit a continuous model ('ols', 'mixed', or "
+                    f"'beta', which is built for a proportion), or give "
+                    f"dependent_variable a per-cell 0/1 label so its "
+                    f"per-well sum is a real count.")
+
     # Calculate cell_count for all cases
     cell_count = grouped.size().reset_index(name='cell_count')
 
