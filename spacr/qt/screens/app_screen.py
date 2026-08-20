@@ -17,7 +17,8 @@ import shutil
 import sys
 from functools import partial
 from html import escape
-from typing import Optional
+from typing import Callable, Optional
+from weakref import WeakMethod
 
 from PySide6.QtCore import QSize, QEvent, Qt, QTimer, QThread, Signal
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
@@ -33,6 +34,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
     QTabWidget,
+    QTextBrowser,
     QVBoxLayout,
     QWidget,
 )
@@ -58,6 +60,27 @@ SETTINGS_PANEL_NAME = "SettingsBox"
 
 #: The "Point <module> at some data" banner at the top of that column.
 EMPTY_STATE_NAME = "EmptyStateBanner"
+
+
+class _ExplainerBrowser(QTextBrowser):
+    """Text browser that asks its screen to rerender after a locale change."""
+
+    def __init__(
+        self,
+        refresh: Callable[[Optional[str]], None],
+        parent: Optional[QWidget] = None,
+    ) -> None:
+        super().__init__(parent)
+        self._refresh_explainers = WeakMethod(refresh)
+
+    def retranslate_dynamic_content(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Invoke the owning screen's exact-template renderer."""
+        refresh = self._refresh_explainers()
+        if refresh is not None:
+            refresh(language)
 
 
 def _settings_panel_qss(palette: dict, opacity=None) -> str:
@@ -939,8 +962,11 @@ class AppScreen(QWidget):
         self._sync_page_palette()
         self.update()
 
-    def _retheme_section_explainers(self) -> None:
-        """Re-render every prose box in the theme that is live now."""
+    def _retheme_section_explainers(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Re-render every prose box in the live theme and language."""
         from ..theme import active_palette
         from .settings_model import section_explainer_html
 
@@ -956,10 +982,11 @@ class AppScreen(QWidget):
                 continue
             try:
                 if box is getattr(self, "_model_explainer", None):
-                    self._refresh_model_explainer()
+                    self._refresh_model_explainer(language)
                 else:
                     box.setHtml(section_explainer_html(
-                        self.app_key, title, palette=palette))
+                        self.app_key, title, palette=palette,
+                        language=language))
             except (RuntimeError, AttributeError):
                 # A box whose C++ side has gone, on a screen being torn down.
                 LOG.debug("could not re-theme the %s box", title,
@@ -1404,7 +1431,7 @@ class AppScreen(QWidget):
         monospace styling through QSS.
         """
         from PySide6.QtGui import QFontDatabase, QFontMetrics
-        from PySide6.QtWidgets import QTextBrowser, QTextEdit
+        from PySide6.QtWidgets import QTextEdit
 
         from .settings_model import explainer_width
 
@@ -1414,7 +1441,7 @@ class AppScreen(QWidget):
         # nothing when clicked, which is worse than a module name -- a module
         # name can at least be searched. Everything else is inherited, so
         # read-only, selectable and the wrap mode are unchanged.
-        box = QTextBrowser()
+        box = _ExplainerBrowser(self._retheme_section_explainers)
         box.setObjectName("ModelExplainer")
         box.setReadOnly(True)
         box.setOpenExternalLinks(True)
@@ -1523,8 +1550,11 @@ class AppScreen(QWidget):
         """Re-render the explainer when the model or the level moves."""
         self._refresh_model_explainer()
 
-    def _refresh_model_explainer(self) -> None:
-        """Render the selected model's formula using the current palette."""
+    def _refresh_model_explainer(
+        self,
+        language: Optional[str] = None,
+    ) -> None:
+        """Render the selected model in the current palette and language."""
         box = self._model_explainer
         if box is None:
             return
@@ -1555,7 +1585,8 @@ class AppScreen(QWidget):
             value("regression_type", "auto"), value("level", "both"),
             plate_position=value("model_plate_position", False),
             random_row_column=value("random_row_column_effects", False),
-            palette=active_palette()))
+            palette=active_palette(),
+            language=language))
         box.verticalScrollBar().setValue(scroll)
 
     def refresh_maturity_visibility(self) -> None:
