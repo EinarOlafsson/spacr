@@ -76,9 +76,8 @@ ROLES = {
     "reference": Palette.GREY_DARK,   # thresholds, limits, 1:1 lines
 }
 
-#: Absolute type sizes that reproduce the published look at 300 dpi. The
-#: skill states these as a ratio; they are pinned here so a panel cannot
-#: drift.
+#: Absolute type sizes that reproduce the published hierarchy at 300 dpi.
+#: Centralising them prevents individual panels from drifting apart.
 TYPE_SCALE = {
     "tick": 6.2,
     "label": 7.0,        # the 1.0x reference

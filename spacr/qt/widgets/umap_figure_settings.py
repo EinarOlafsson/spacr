@@ -74,9 +74,7 @@ class Field(NamedTuple):
 #: The display half is exactly the "UMAP Display" group the settings panel
 #: builds (``settings_model._regroup`` for ``umap``), so the two surfaces
 #: cannot drift into offering different sets of knobs. The rest are the
-#: reduction and clustering settings, which are here because the user asked
-#: for "all the image UMAP settings" and a window that silently omitted the
-#: ones that matter most would be answering a different question.
+#: reduction and clustering settings needed to reproduce or rerun the view.
 IMAGE_UMAP_FIELDS: Tuple[Field, ...] = (
     # -- applies to the artists already drawn ------------------------------
     Field("dot_size",        "Dot size",        "int",   1, 4000, TIER_STYLE),

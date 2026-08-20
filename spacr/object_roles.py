@@ -44,11 +44,8 @@ from .schema import (ALL_ROLES, CHILD_ROLES, DERIVED_ROLES,
 #: itself. Each is many-rows-per-cell and carries its parent's label in a
 #: ``cell_id`` column, which is what makes them roll up the same way.
 #:
-#: `io._read_and_join_tables` and `io._read_and_merge_data` both used to spell
-#: this as the literal ``['nucleus', 'pathogen']``, so ORGANELLE WAS ABSENT
-#: FROM BOTH: asking for it returned a frame with no organelle columns and no
-#: message. Naming it once here is what lets a second organelle reach every
-#: reader by being added in one place -- which is the whole of instruction 76.
+#: Centralising these relationships lets additional organelle slots reach all
+#: table readers without duplicating role lists.
 def is_segmented(role: str) -> bool:
     """True when ``role`` is found in a channel rather than derived.
 

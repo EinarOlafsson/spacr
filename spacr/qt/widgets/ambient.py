@@ -388,7 +388,7 @@ NO_ANIMATION = "none"
 #: six animations.
 ANIMATION_CHOICES: Tuple[str, ...] = (NO_ANIMATION,) + AMBIENT_THEMES
 
-#: What the feature was asked for, so it is what you get by default.
+#: Default ambient animation theme.
 DEFAULT_THEME = "blobs"
 
 #: spaCR's own colours, likewise.
@@ -1744,11 +1744,9 @@ AURORA_COLUMNS = 40
 #: on a floor rather than on nothing, because the sheet between them still
 #: glows — rays are a modulation of a curtain, not a row of separate bars.
 #: ``(centre, half width, intensity)``, all as fractions of the tile.
-#: Sharper than the first version, on request ("the rays of light should be
-#: even sharper"). Two changes make an edge, and only together: the half
-#: widths come in by about a third, and the floor between the rays drops.
-#: Narrowing alone leaves thin rays sitting on a bright sheet, which reads
-#: as a lighter curtain rather than as a defined ray.
+#: Narrower half-widths and a lower floor create a sharper edge. Both are
+#: needed: narrowing alone leaves thin rays sitting on a bright sheet, which
+#: reads as a lighter curtain rather than as a defined ray.
 AURORA_TILE_RAYS = ((0.17, 0.075, 1.00), (0.49, 0.055, 0.86),
                     (0.80, 0.065, 0.94))
 AURORA_TILE_FLOOR = 0.34
@@ -1756,8 +1754,7 @@ AURORA_TILE_FLOOR = 0.34
 #: How long each ray in the tile is, as a fraction of the full ray length,
 #: and how fast it breathes. One entry per entry in AURORA_TILE_RAYS.
 #:
-#: "each ray should at different speeds be changing length" -- so the
-#: periods are deliberately not multiples of one another, or the three
+#: Periods are deliberately not multiples of one another, or the three
 #: would return to the same arrangement on a short cycle and the eye would
 #: find it. 11, 17 and 7 seconds beat against each other for 21 minutes.
 #:

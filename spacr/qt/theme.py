@@ -2249,29 +2249,10 @@ _WIDGET_QSS: Dict[str, object] = {}
 
 #: Every module that registers a widget QSS block **at import time**.
 #:
-#: This list exists because a rule that is not registered when the
-#: stylesheet is built simply is not in it, and the widget it was meant for
-#: then falls through to the blanket ``QWidget {{ background-color: bg }}``.
-#: ``bg`` is the WINDOW colour -- ``#000000`` on the dark theme -- so an
-#: unstyled container is not "slightly off", it is a solid black rectangle.
-#:
-#: That is the black box behind the settings categories, reported over and
-#: over across Mask, Measure, Timelapse, Motility, both Classify screens,
-#: Map Barcodes, Regression, External Masks, Illumination, Train Cellpose,
-#: Cellpose Masks, Image UMAP, Activation, Barcode QC, Replication,
-#: Invasion, Recruitment and Plaque. ``settings_search`` owns
-#: ``SettingsSearchPane``, the wrapper around the search strip AND the
-#: settings scroll area -- i.e. the entire left column -- and it registers
-#: its rules when it is imported, which is when the first module screen is
-#: built. The application stylesheet is composed and applied before that.
-#: So the first screen of a session opened onto a black column, and any
-#: later rebuild of the stylesheet -- switching theme, switching animation,
-#: opening enough screens that something re-applied it -- silently fixed
-#: it. Every one of those is exactly what was reported.
-#:
-#: Ordering, not styling: the rules were right the whole time and were not
-#: in the sheet yet. Fixing it by styling one more container would have
-#: fixed one screen and left the next.
+#: These modules must be imported before the application stylesheet is
+#: composed; otherwise their widgets fall through to the generic background
+#: rule until a later stylesheet rebuild. Order follows registration order,
+#: with later rules winning ties.
 WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.settings_search",
     "spacr.qt.screens.app_screen",

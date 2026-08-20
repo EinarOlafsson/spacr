@@ -1968,9 +1968,8 @@ class AppScreen(QWidget):
         self._compare_panel = None
         self._run_photographs = {}
         self._figures_stack = None
-        #: Instruction 131's tab. BORN HERE, like everything else a handler
-        #: reads: `_on_results_tab_changed` is connected below and runs on
-        #: every tab change, including on a screen that never built one.
+        #: Cell-montage tab, when this screen supports regression results.
+        #: Initialised before tab-change handlers can read it.
         self._cell_montage = None
         if self.app_key in ("regression", "ml_analyze_regression"):
             try:
