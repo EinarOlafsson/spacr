@@ -291,6 +291,7 @@ def _permutation_settings(**over):
         "multiple_testing_method": "fdr_bh",
         "fdr_alpha": 0.05,
         "analysis_unit": "well",
+        "agg_type": "mean",
         "guide_permutation_plot": False,
         "threshold_method": "std",
         "threshold_multiplier": 3.0,
