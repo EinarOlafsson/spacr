@@ -1889,37 +1889,35 @@ def double_transform_warning(name, transform, family) -> str:
     if link in ('', 'NoneType', 'Identity', 'identity'):
         return ""
     return (
-        f"  WARNING: the response is transformed TWICE. transform={kind!r} "
-        f"was already applied to build {name or 'the response'}, and the "
-        f"family chosen for it carries a {link} link, which transforms it "
-        f"again. The model fits {link.lower()}({kind}(y)) -- a quantity "
-        f"nothing measured. Either drop the transform and let the link do the "
-        f"work, or keep it and fit an identity-link family "
-        f"(regression_type='ols'). A negative McFadden R² below is this."
+        f"  Warning: transform={kind!r} was already applied to "
+        f"{name or 'the response'}, and the selected family also uses a "
+        f"{link} link. The model would therefore fit "
+        f"{link.lower()}({kind}(y)). Choose 'untransformed' to let the "
+        f"family link transform the measured response, or 'transformed' to "
+        f"keep the transformed response and use an identity link."
     )
 
 
-# --------------------------------------------------------------------------- #
-# Instruction 182 -- BOTH ways out of the double transform, and the user picks  #
-# --------------------------------------------------------------------------- #
+# A link-like transform combined with a non-identity family link transforms
+# the response twice.  The two valid resolutions answer different questions,
+# so the caller selects the response scale explicitly.
 #
 # A log-transformed response handed to a family with a logit link fits
 # logit(log(y)), which nothing measures. There are two defensible fixes and
 # they are different science, so spaCR offers both rather than choosing:
 #
-#   'untransformed'  choose the family on the RESPONSE AS MEASURED and let the
+#   'untransformed'  choose the family on the measured response and let the
 #                    link do the transforming. `pred` is a proportion, so
 #                    Binomial/Logit is right for it and the log is redundant.
 #
-#   'transformed'    keep the transform and fit an IDENTITY link. log(p) is an
+#   'transformed'    keep the transform and fit an identity link. log(p) is an
 #                    ordinary continuous response and a Gaussian model of it is
 #                    a standard thing to fit.
 #
 #   'warn'           what spaCR did before this setting existed: fit the
 #                    transformed response, choose the family from it, and print
-#                    the warning. Kept ONLY so a user can reproduce numbers from
-#                    an earlier run -- it is not defensible under either reading
-#                    above, and it says so when selected.
+#                    the warning. Retained for reproducibility of earlier runs;
+#                    new analyses should choose one of the two explicit scales.
 GLM_TRANSFORM_CONFLICTS = ('untransformed', 'transformed', 'warn')
 DEFAULT_GLM_TRANSFORM_CONFLICT = 'untransformed'
 
@@ -1927,14 +1925,7 @@ DEFAULT_GLM_TRANSFORM_CONFLICT = 'untransformed'
 def resolve_glm_transform_conflict(dependent_variable, transform='',
                                    resolution=DEFAULT_GLM_TRANSFORM_CONFLICT,
                                    available=(), regression_type='glm'):
-    """Which COLUMN the GLM fits, and whether to force an identity link.
-
-    Resolved on the column name, before the design matrices are built, so the
-    fit and everything downstream of it -- the coefficient table, McFadden,
-    the residual panels -- read one and the same response. An earlier draft
-    swapped the response inside the fitting branch and the McFadden printed
-    beside the summary was computed on the OTHER one; the two disagreed by
-    twelve units of pseudo-R-squared and neither was labelled.
+    """Resolve a transform/family-link conflict before fitting a GLM.
 
     :param dependent_variable: the response column as it stands -- already
         the transformed one, if a transform was asked for.
@@ -1946,15 +1937,13 @@ def resolve_glm_transform_conflict(dependent_variable, transform='',
         ``'glm'`` has this conflict to resolve. Everything else is returned
         unchanged.
     :returns: ``(column, transform_in_effect, force_identity, note)``.
-        ``note`` is printed by the caller and is never empty when anything
-        changed -- a run that quietly fitted a different response than the
-        settings asked for would be the failure this instruction is about.
+        ``note`` explains any scale change for the run log.
     :raises ValueError: on an unknown ``resolution``.
 
-    NO CONFLICT, NO CHANGE. A transform that is not link-like, or no
-    transform at all, returns the column untouched whatever the resolution
-    says. The setting resolves a conflict; it does not reach in when there
-    is none.
+    A transform that is not link-like, or a regression type other than
+    ``'glm'``, returns the response unchanged. Resolving the column before the
+    design matrices are built keeps the fit, coefficients, diagnostics, and
+    goodness-of-fit summary on the same scale.
     """
     choice = str(resolution or DEFAULT_GLM_TRANSFORM_CONFLICT).strip().lower()
     if choice not in GLM_TRANSFORM_CONFLICTS:
@@ -1970,16 +1959,16 @@ def resolve_glm_transform_conflict(dependent_variable, transform='',
         return column, transform, True, (
             f"  glm_transform_conflict='transformed': keeping transform="
             f"{kind!r} and fitting {column} with a Gaussian family and an "
-            f"IDENTITY link, so the transform is the only one applied. This "
+            f"identity link, so the transform is the only one applied. This "
             f"is an ordinary linear model of {kind}(y), which is what "
             f"regression_type='ols' already fits.")
     if choice == 'warn':
         return column, transform, False, (
-            f"  glm_transform_conflict='warn': fitting the TRANSFORMED "
+            f"  glm_transform_conflict='warn': retaining the legacy fit of "
             f"{column} and choosing the family from it. This is the "
-            f"behaviour that produced logit(log(y)) and a negative McFadden "
-            f"R-squared; it is kept only so an earlier run can be "
-            f"reproduced. Prefer 'untransformed' or 'transformed'.")
+            f"double-transform behavior kept so earlier results can be "
+            f"reproduced. Prefer 'untransformed' or 'transformed' for a new "
+            f"analysis.")
 
     # 'untransformed' -- fit the response as measured and let the link work.
     prefix = f"{kind}_"
@@ -1992,8 +1981,8 @@ def resolve_glm_transform_conflict(dependent_variable, transform='',
             f"{column} is fitted as it stands and the double transform "
             f"below still applies.")
     return raw, '', False, (
-        f"  glm_transform_conflict='untransformed': fitting {raw} AS "
-        f"MEASURED and ignoring transform={kind!r}, so the family's own link "
+        f"  glm_transform_conflict='untransformed': fitting measured response "
+        f"{raw} and ignoring transform={kind!r}, so the family's own link "
         f"does the transforming and it is applied once instead of twice.")
 
 
@@ -4650,22 +4639,16 @@ CONSOLE_COEFFICIENT_LIMIT = 12
 
 
 def fit_quality_note(model) -> str:
-    """The right goodness-of-fit number FOR THIS FAMILY, as one line.
+    """Return a one-line goodness-of-fit summary for a fitted GLM.
 
     McFadden's pseudo-R-squared compares log-likelihoods, and it is the
-    standard summary for a GLM with a discrete response. IT IS NOT ONE FOR A
-    GAUSSIAN FIT: an ordinary linear model's log-likelihood is a density, not
-    a probability, so it can be positive and the ratio stops being bounded by
-    1. Measured while wiring instruction 182's ``'transformed'`` option, which
-    fits exactly that family: the console reported "McFadden's R-squared:
-    467.1217" for a model whose ordinary R-squared was 0.86.
-
-    So a Gaussian identity fit reports ordinary R-squared and says which
-    number it is, and everything else reports McFadden through
-    :func:`mcfadden_note`, which keeps its negative-value warning.
+    appropriate summary for a GLM with a discrete response. A Gaussian
+    identity-link fit instead reports ordinary R-squared because its
+    likelihood is a density and the McFadden ratio is not interpretable on
+    the usual zero-to-one scale.
 
     :param model: a fitted statsmodels GLM result.
-    :returns: one line for the console.
+    :returns: A labelled goodness-of-fit line for the console.
     """
     family = getattr(model, 'family', None)
     if isinstance(family, sm.families.Gaussian):

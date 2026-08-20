@@ -68,7 +68,7 @@ class TestBothOptionsExist:
         assert column == "log_pred", "the user asked for the transform"
         assert transform == "log"
         assert identity, "so the family must not apply a second one"
-        assert "IDENTITY" in note
+        assert "identity link" in note
 
     def test_warn_is_the_old_behaviour_and_admits_it(self):
         column, transform, identity, note = resolve_glm_transform_conflict(

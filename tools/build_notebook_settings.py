@@ -262,13 +262,53 @@ def surface(func, dotted: str = "") -> Tuple[str, Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def param_docs(func) -> Dict[str, str]:
-    """``:param name:`` lines from the function's own docstring."""
+    """Return parameter descriptions from RST or numpydoc docstrings."""
     doc = inspect.getdoc(func) or ""
     out: Dict[str, str] = {}
     for match in re.finditer(
             r"^:param\s+(\w+):\s*(.+?)(?=^\s*:(?:param|returns|raises|rtype)\b|\Z)",
             doc, re.S | re.M):
         out[match.group(1)] = " ".join(match.group(2).split())
+
+    # Scientific-Python APIs use a ``Parameters`` section rather than RST
+    # fields.  Stop at the next underlined section heading so Returns/Raises
+    # entries cannot be mistaken for parameters.
+    lines = doc.splitlines()
+    section = next((
+        index for index in range(len(lines) - 1)
+        if lines[index].strip() == "Parameters"
+        and set(lines[index + 1].strip()) == {"-"}
+    ), None)
+    if section is None:
+        return out
+
+    parameter = re.compile(
+        r"^([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*:\s*.+$"
+    )
+    index = section + 2
+    while index < len(lines):
+        if (index + 1 < len(lines) and lines[index].strip()
+                and set(lines[index + 1].strip()) == {"-"}):
+            break
+        match = parameter.match(lines[index].strip())
+        if match is None:
+            index += 1
+            continue
+        names = [name.strip() for name in match.group(1).split(",")]
+        index += 1
+        description = []
+        while index < len(lines):
+            if (index + 1 < len(lines) and lines[index].strip()
+                    and set(lines[index + 1].strip()) == {"-"}):
+                break
+            if parameter.match(lines[index].strip()):
+                break
+            if lines[index].strip():
+                description.append(lines[index].strip())
+            index += 1
+        rendered = " ".join(description)
+        for name in names:
+            out.setdefault(name, rendered)
     return out
 
 
