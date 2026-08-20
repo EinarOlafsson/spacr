@@ -1,0 +1,73 @@
+================================================================================
+EXAMPLE DATA THAT DOWNLOADS ITSELF AND FILLS THE RIGHT SLOTS
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20 -- "add my cound and dependent variable csvs to the
+           datafolder in spacr and add a button that auto loads them into the
+           correct slots", then, on being shown the size and the packaging:
+           "can we add them to github and have them be downloaded when the
+           button is pressed and autoloaded?"
+Owner:     Qt GUI + packaging
+
+--------------------------------------------------------------------------------
+WHY NOT THE DATA FOLDER, WHICH WAS THE FIRST IDEA
+--------------------------------------------------------------------------------
+
+Measured before doing anything:
+
+    the four count tables + the four dv tables      34 MB
+    github.com/EinarOlafsson/spacr                  PUBLIC
+    setup.py package_data                           ships resources/data/*
+
+So committing them would have put 34 MB into every `pip install spacr`, and
+into public git history permanently -- which is not undone by deleting the
+files later. A RELEASE ASSET is the right home: outside the git objects,
+outside the wheel, fetched only by someone who asks for it.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+A. THE ASSETS. Upload the eight CSVs to a GitHub release -- a dedicated
+   `example-data` tag rather than a version tag, so re-releasing spaCR does
+   not orphan them and the URL is stable across versions.
+
+B. A DOWNLOADER, headless and testable: `spacr/example_data.py`.
+     * knows the asset names and the release URL;
+     * caches into a real user cache directory, not the package -- a
+       pip-installed spaCR may sit in a read-only site-packages;
+     * verifies what it got (size, and a recorded hash) before using it, so a
+       truncated download is an error rather than a confusing parse failure;
+     * is IDEMPOTENT: a second press uses the cache and costs nothing;
+     * returns paths, and never reaches into the GUI.
+
+C. THE BUTTON fills the slots the files belong in -- the count table and the
+   dependent-variable table -- and says which. Filling two file fields
+   silently is indistinguishable from a button that did nothing.
+
+D. IT SAYS WHAT IS HAPPENING. 34 MB on a slow connection is not instant:
+   progress, a cancel, and a clear message when there is no network. A button
+   that appears to hang is worse than one that refuses.
+
+--------------------------------------------------------------------------------
+WHAT IS UNCERTAIN
+--------------------------------------------------------------------------------
+
+  * WHETHER TO SHIP A SMALL SLICE TOO. A few thousand rows would make the
+    button work offline and in CI, with the full download as the opt-in. Not
+    decided; the maintainer chose the download, and a slice is an addition to
+    that rather than a replacement.
+  * THE DATA BECOMES PUBLIC either way -- this is the maintainer's own
+    unpublished TSG101 screen. Said plainly here because a release asset is
+    as public as a committed file; it is only cheaper.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* The button fills both slots and names what it put where.
+* A second press does not download again.
+* A truncated or missing file is an error naming the file, not a parse error.
+* With no network, the button says so and changes nothing.
+* `pip install spacr` is not measurably larger than before.
