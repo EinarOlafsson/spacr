@@ -164,3 +164,22 @@ WHAT REMAINS
     instruction only guarantees the panel is holding the right run.
   * MERGE THIS FILE INTO 154 G, as the header says, now that both have landed.
 
+
+--------------------------------------------------------------------------------
+2026-08-19 -- DONE. Verified by reading the connection, not by assuming it.
+--------------------------------------------------------------------------------
+
+    spacr/qt/screens/app_screen.py:2086
+        self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+
+The signal that says WHICH RUN IS LOADED now reaches the panel that draws it,
+so the mark in the Runs table and the results, figures and summary move
+together. That was the whole defect: it was emitted from four places and
+received nowhere, so the mark moved and nothing else did.
+
+Covered by tests/test_the_loaded_run_is_the_run_on_screen.py (17),
+tests/test_which_run_is_loaded.py and
+tests/test_a_run_can_be_loaded_on_demand.py.
+
+FOLDED INTO 154 G, as this file's header asked -- both have landed, so the
+loaded mark is documented in one place from here.
