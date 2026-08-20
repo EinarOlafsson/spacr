@@ -168,20 +168,23 @@ def _refuse_writes_under_test() -> Optional[str]:
 
 def find_issue_by_fingerprint(repo: str, fingerprint: str
                               ) -> Tuple[bool, Optional[dict]]:
-    """Find an OPEN issue whose body carries ``fingerprint``.
+    """Find an open GitHub issue containing a diagnostic fingerprint.
 
-    The fingerprint is the whole point of `_traceback_hash`: the same bug
-    hashes the same across runs and machines. Without this lookup nothing
-    consumes it, and one crash becomes one issue per occurrence -- ten of
-    them in a single day on 2026-08-11 (#79-#81, #84-#90), which buries the
-    reports that matter.
+    Parameters
+    ----------
+    repo : str
+        Repository slug in ``owner/name`` form.
+    fingerprint : str
+        Short diagnostic hash stored in the issue body.
 
-    :param repo: ``owner/name`` slug.
-    :param fingerprint: the short hash from the report body.
-    :returns: ``(True, issue_dict)`` when one is found, ``(True, None)`` when
-        the search ran and found nothing, ``(False, None)`` when it could not
-        run. The three are distinct because "no match" means CREATE and
-        "could not search" means fall back rather than risk losing the report.
+    Returns
+    -------
+    search_completed : bool
+        ``True`` when GitHub returned a search result, including no matches.
+        ``False`` when authentication is unavailable or the search fails.
+    issue : dict or None
+        First matching issue, or ``None`` when no issue was found or the
+        search could not be completed.
     """
     token, _src = resolve_token()
     if not token:

@@ -229,10 +229,9 @@ def run_power_sweep(payload: Dict[str, Any]) -> Dict[str, Any]:
     thread reads the result from an object it already owns rather than from a
     signal payload that would have to cross the thread boundary.
 
-    Two separate calls to :func:`spacr.power_model.scan_parameters`, one per
-    axis, rather than one call sweeping both: the Cartesian product of the two
-    grids is 20 fits where the two questions need 9, and nobody asked what
-    happens at a quarter of the wells *and* twice the cells.
+    The well-count and cell-count axes are scanned separately. This measures
+    each marginal response without evaluating the Cartesian product of both
+    grids.
 
     :param payload: mutable job dict with keys
 

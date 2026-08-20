@@ -1,23 +1,12 @@
-"""A settings widget for "one or more files": browse, drop, repeat.
+"""Edit ordered settings that accept one or more file paths.
 
-Several spaCR settings are lists of input paths -- ``score_data``,
-``count_data``, ``metadata_files``, ``grna_csv`` and friends. They used to
-render as a chip strip that the user typed absolute paths into, one character
-at a time, which is unusable for the four plate CSVs a screen actually has and
-silently accepted a path that did not exist.
+:class:`FilePathListWidget` appends files from a multi-select dialog or by
+dropping files and folders. A dropped folder contributes sorted matching files
+from one directory level. Duplicate paths are rejected, missing paths are
+marked before execution, and entries can be reordered when plate order matters.
 
-:class:`FilePathListWidget` replaces that with the two gestures people expect:
-
-* **Add files...** opens a file dialog with multi-selection enabled. Pressing
-  it again *appends*, so several sources can be gathered from different
-  folders in several trips rather than one impossible single selection.
-* **Dropping** files or folders anywhere on the widget adds them. A dropped
-  folder contributes its matching files, one directory level deep, sorted.
-
-Everything else follows from those: duplicates are refused, order is editable
-because a regression that reads ``plate1..plate4`` cares about it, missing
-paths are marked instead of being discovered at run time, and the value is a
-plain ``list[str]`` so the CLI, the settings CSV and the Qt panel all agree.
+The widget reads and writes a plain ``list[str]`` so Qt settings, settings CSVs,
+and command-line calls share the same value representation.
 """
 
 from __future__ import annotations
@@ -119,12 +108,10 @@ def _plate_label(tokens) -> str:
 
 
 def _best_unique(left: set, tokens: Sequence[set], unused: set):
-    """Index of the single best token match in ``unused``, or ``None``.
+    """Return the unique best token-match index in ``unused``.
 
-    The rule instruction 107 settled, kept in one function because all three
-    columns now obey it: a match must overlap at all, and must beat the
-    runner-up outright. A TIE LEAVES THE ROW UNPAIRED rather than guessing,
-    because a confident wrong pairing is the failure that has no symptom.
+    A candidate must overlap ``left`` and strictly beat the runner-up. Return
+    ``None`` for no overlap or a tie so ambiguous rows remain unpaired.
     """
     ranked = sorted(((len(left & tokens[index]), index) for index in unused),
                     reverse=True)

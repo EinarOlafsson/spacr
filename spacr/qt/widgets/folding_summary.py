@@ -1,22 +1,13 @@
-"""Show a run summary with its sections folded.
+"""Render plain-text run summaries as foldable sections.
 
-The Summary tab shows the verdict expanded and each later section collapsed,
-using the headings as an outline. The file on disk remains plain text and
-readable in a terminal because it is a run artefact before it is a widget.
+The verdict opens by default and later sections begin collapsed. Sections are
+parsed from underline-style headings in the text because the input may be a
+saved summary from another spaCR version or an unstructured statsmodels
+summary, not a live ``RunSummary`` object. Text without recognized headings is
+shown unchanged.
 
-PARSED FROM THE TEXT, NOT BUILT FROM `RunSummary`. That looks like the wrong
-way round -- the structure is right there -- but the tab does not always have
-it. The summary it shows may be the run's OWN file read back from beside a
-results table loaded from disk, written by a different version of spaCR, or
-the statsmodels summary, which has no spaCR sections at all. Parsing the text
-is the one route that works for all three, and it keeps the file as the
-source of truth rather than making the widget a second renderer that can
-disagree with it.
-
-A heading is a line whose successor is a rule of ``-`` or ``=`` the same
-length -- which is what :func:`spacr.regression_summary.format_run_summary`
-writes. Text with no headings is shown as it arrived; the statsmodels
-summary must not be chopped up by a guess.
+The source summary remains ordinary plain text suitable for terminals and run
+artifacts; this widget adds navigation without becoming a second serializer.
 """
 import re
 import html
@@ -83,20 +74,10 @@ def split_sections(text: str) -> Tuple[str, List[Tuple[str, str]]]:
 def split_rows(body: str) -> list:
     """A section body as ``[(label, value)]``, or ``[]`` if it is not rows.
 
-    `format_run_summary` lays each field out as a fixed-width label column
-    followed by wrapped text, with continuation lines indented to match. That
-    is right for the FILE -- 168 D keeps it readable in a terminal -- and
-    wrong for a panel: the column is 88 characters whatever the window is, so
-    widening the tab gains nothing and the explanation stays a narrow ribbon.
-    Reported as "its realluy hard to read".
-
-    So the panel re-reads the rows and lays them out itself. THE LEAD WIDTH
-    IS MEASURED, not assumed: it is taken from the first line that has one,
-    so a summary written by another version of spaCR with a different label
-    column still parses.
-
-    :returns: the rows, or ``[]`` when the body is not laid out this way --
-        a paragraph, a statsmodels block -- which the caller shows as it is.
+    ``format_run_summary`` uses a fixed-width label column for terminal and
+    file output. This parser recovers those rows so the Qt view can reflow the
+    value column to the available width. The label width is inferred from the
+    first labelled row for compatibility with summaries from other versions.
     """
     lines = [line for line in str(body or "").splitlines() if line.strip()]
     if not lines:
@@ -274,22 +255,11 @@ class FoldingSummaryView(QScrollArea):
                 widget.deleteLater()
 
     def _reading_surface(self) -> str:
-        """The ``rgba(...)`` a block of summary text is READ ON.
+        """Return an ``rgba(...)`` surface that keeps summary text legible.
 
-        Reported 2026-08-19: "there seems to be something in the back of the
-        text in the summary." There was -- the animated backdrop. These views
-        were made fully transparent to stop them reading as black slabs, and
-        that traded one problem for a worse one: a moving picture directly
-        behind monospace type, which is the hardest thing there is to read
-        over.
-
-        The surface a card uses, at the user's own pane opacity, is the
-        answer to both. It is a surface rather than a slab, so the panel
-        still floats; it is opaque enough for text, because
-        :func:`panel_alpha` clamps every role at the point where its text
-        stops being legible. Falls back to plain transparency if the theme
-        cannot be reached -- a summary with an awkward background beats one
-        that failed to build.
+        The active card surface and pane opacity separate text from the
+        animated background without making the panel fully opaque. Fall back
+        to transparency when the theme cannot be resolved.
         """
         try:
             from ..preferences import get_pane_opacity, resolve_effective_theme
@@ -306,15 +276,11 @@ class FoldingSummaryView(QScrollArea):
             return "transparent"
 
     def _table(self, rows: list) -> QWidget:
-        """One section as an aligned two-column table.
+        """Build an aligned two-column view for one summary section.
 
-        THE LABEL IS BOLD AND THE COLUMNS LINE UP, which is what was asked
-        for -- "the left title in bold and then the text so they are all
-        alligned". Built as HTML in a QTextBrowser rather than a
-        QTableWidget: the value column has to WRAP to whatever width the
-        panel has ("the text lines in these summaries should be able to be
-        as wide as the container"), and a table widget would give it a fixed
-        column and a scroll bar instead.
+        Labels are bold and values wrap to the available width. A text browser
+        is used so the value column can reflow without a horizontal scroll
+        bar.
         """
         from PySide6.QtWidgets import QTextBrowser
 

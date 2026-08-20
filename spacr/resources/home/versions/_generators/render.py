@@ -351,15 +351,10 @@ _CLEAN = ("clean — no elided or clipped text, no scrollbar, "
 
 
 def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
-    """``_OUTRO`` with the registry-derived numbers substituted in.
+    """Substitute registry and sidebar values into ``_OUTRO``.
 
-    ``str.replace`` rather than ``str.format``: the outro quotes a QSS
-    rule (``QPushButton { min-height: 22px }``) and a ``format`` call
-    would read those braces as a field and raise. The placeholders are
-    still filled from the live registry, because the version of this
-    text that hardcoded "29 app rows ... the last three apps (Plaque
-    Assay, Recruitment, Invasion Assay)" named the wrong three the
-    moment Replication Assay was registered.
+    Use ``str.replace`` because the generated text contains literal QSS
+    braces that ``str.format`` would interpret as replacement fields.
     """
     last_three = ", ".join(common.name_of(k) for k in common.all_keys()[-3:])
     return (_OUTRO
@@ -371,12 +366,13 @@ def _fill_outro(sidebar_h: int, sidebar_avail: int) -> str:
 
 def _scroll_finding(specs: Sequence[dict],
                     reports: Dict[Tuple[int, str], Dict[str, list]]) -> str:
-    """Summarize scrollbar audit results for all rendered variants.
+    """Summarize scrollbar coverage from the rendered-variant audit.
 
-    Count results from ``reports`` instead of embedding the number of app
-    variants in prose. When the audit is incomplete, describe only the
-    measured subset. A partial render normally retains full coverage because
-    :func:`render_all` seeds ``reports`` from the cached ``_audit.json``.
+    Count results from ``reports`` and return a coverage warning when the
+    audit does not include every requested variant. Otherwise, count the
+    variants with scrollbars across the available theme reports and name them
+    in the generated sentence. Partial renders normally retain full coverage
+    because :func:`render_all` seeds ``reports`` from cached audit results.
     """
     import textwrap
 

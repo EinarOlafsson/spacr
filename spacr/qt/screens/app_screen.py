@@ -61,46 +61,11 @@ EMPTY_STATE_NAME = "EmptyStateBanner"
 
 
 def _settings_panel_qss(palette: dict, opacity=None) -> str:
-    """The settings column paints nothing. The categories are the panels.
+    """Return transparent styling for the settings column and empty state.
 
-    Three positions were tried on this column, and the third is the one
-    that was asked for:
-
-    1. **An opaque slab.** A ``QScrollArea``'s viewport auto-fills with the
-       palette's **Window** brush — not a surface — so no page-opacity
-       setting could reach it and the column sat as a black rectangle over
-       the animated backdrop.
-    2. **A panel of its own.** Turning the auto-fill off left the column
-       with nothing, so it was given the console box's treatment: a
-       dark-grey rounded surface at the page opacity. That put a box round
-       a column of boxes, and every category then composited two
-       translucent greys — 0.51 at a requested 30 %, a shade no position of
-       the slider can produce.
-    3. **Nothing at all**, which is this. The categories float directly on
-       the theme as separate rounded panels with the backdrop visible in
-       the gaps between them. Most module screens are a list of categories
-       and a list needs no box round it; a container would be a box around
-       a box.
-
-    So the rules here are all subtractive, and the surface the user sees is
-    ``QFrame#SectionCard`` in the shared stylesheet, which already goes
-    through the page-opacity roles. Removing the column's fill is what lets
-    the slider reach the categories: they were never broken, they were
-    composited onto things that were.
-
-    An ID selector on the column anyway, rather than leaving it unstyled —
-    an unstyled ``QScrollArea`` inherits the blanket
-    ``QWidget {{ background-color: bg }}``, the WINDOW colour, which is
-    exactly position 1. Saying it explicitly also keeps the decision
-    findable, and the viewport keeps the container sweep's transparent tag.
-
-    The banner is the same story one layer in. "Point <module> at some
-    data" is an :class:`~spacr.qt.widgets.EmptyState` — a ``QWidget``
-    subclass, so the sweep's ``type(w) is QWidget`` test skips it — renamed
-    to ``EmptyStateBanner``, which also takes it out of the ``QFrame#Card``
-    rule it would otherwise have matched. Between the two it had no rule at
-    all and painted the window colour: a black box at the top of the
-    column. It is a line of type on the page, so it paints nothing.
+    Category cards provide the visible surfaces and apply the configured
+    page opacity. Explicit rules keep the surrounding scroll area, viewport,
+    and empty-state banner from inheriting the opaque window background.
     """
     return f"""
 QScrollArea#{SETTINGS_PANEL_NAME} {{
@@ -1431,41 +1396,12 @@ class AppScreen(QWidget):
         return scroll
 
     def _install_section_explainer(self, section, title) -> None:
-        """Add a section's read-only prose box, above its controls.
+        """Add a section's read-only explanatory panel above its controls.
 
-        INSTRUCTION 132: "it is important for the user to know all of this."
-        The Model & Inference box states the FORMULA for the current
-        selection and WHAT IS MODELLED, and it changes with `regression_type`
-        and `level`. Instruction 135 adds a shorter one to Permutation Test.
-
-        WHICH SECTIONS HAVE ONE IS `settings_model.SECTION_EXPLAINERS`, not a
-        chain of `if title ==` here. This method used to be
-        `_install_model_explainer` and named its one section inline, which is
-        why the second box had nowhere to go.
-
-        MONOSPACE, READ-ONLY AND SELECTABLE, following the Summary tab in
-        `qt/widgets/regression_results.py`: the reason to want a formula on
-        screen is usually to put it in a methods section, and a formula you
-        cannot copy is a formula you retype.
-
-        RICH TEXT SINCE 2026-08-18, WHICH MEANS A DIFFERENT WIDGET
-        (instruction 144): "actually my main problem was it dosnt look
-        great... i want you to use markdown and colors". A `QPlainTextEdit`
-        cannot render colour or weight at all, so a formula read exactly like
-        a caveat and 892 characters of one-colour monospace had nothing to
-        rest the eye on. It is a `QTextEdit` fed HTML.
-
-        THE THREE THINGS THAT SURVIVED THE CHANGE, because each was fixed at
-        some cost and a rewrite is where they get lost:
-
-        * READ-ONLY AND SELECTABLE, as above.
-        * MONOSPACE THROUGH QSS ON THE objectName, never `setFont` -- see
-          below.
-        * THE PROSE WRAPS AND THE FORMULA DOES NOT. This got EASIER rather
-          than harder: wrapping is per BLOCK in rich text and was per WIDGET
-          in plain text, so the prose is in ordinary paragraphs and the
-          formulas are in `<pre>`, and the two settings stopped fighting.
-          `explainer_width()`'s job shrinks to sizing the `<pre>`.
+        Sections listed in ``settings_model.SECTION_EXPLAINERS`` receive a
+        selectable rich-text panel. Prose wraps normally, formulas remain
+        unwrapped in ``<pre>`` blocks, and the object name supplies the
+        monospace styling through QSS.
         """
         from PySide6.QtGui import QFontDatabase, QFontMetrics
         from PySide6.QtWidgets import QTextBrowser, QTextEdit
@@ -1588,14 +1524,7 @@ class AppScreen(QWidget):
         self._refresh_model_explainer()
 
     def _refresh_model_explainer(self) -> None:
-        """Put the current selection's formula and description in the box.
-
-        HTML, AND THE COLOURS COME FROM THE LIVE PALETTE (instruction 144).
-        That is why `changeEvent` calls this: baked-in colours would keep the
-        old theme's ink after a runtime switch, which is the failure the old
-        comment here refused to risk by using no colour at all. Re-rendering
-        is the other way to be safe, and it is the one that can be seen.
-        """
+        """Render the selected model's formula using the current palette."""
         box = self._model_explainer
         if box is None:
             return
@@ -2883,20 +2812,10 @@ class AppScreen(QWidget):
     RUNTIME_SPLIT_SUFFIX = "::runtime"
 
     def _remember_runtime_splitter(self, splitter) -> None:
-        """Restore this screen's pane heights, and save them when dragged.
+        """Restore this screen's pane heights and persist each resize.
 
-        Instruction 162, reported as "the elements in measure need to be
-        modifiable in height". They already WERE draggable -- the Measure
-        branch builds a vertical QSplitter with three panes. What did not
-        happen is that the sizes were KEPT: `self._runtime_splitter` was
-        assigned in seven branches and READ IN NONE, so every launch went back
-        to the hard-coded `[420, 360, 300]`. A layout that snaps back is
-        indistinguishable from one that will not move, which is why the report
-        reads the way it does.
-
-        Saved on every drag rather than at shutdown: a crash, or a session
-        ended from the window manager, would otherwise discard the arrangement
-        the user had just made.
+        Saving on every splitter move preserves the layout even when the
+        application does not reach its normal shutdown path.
         """
         self._runtime_splitter = splitter
         if splitter is None:
@@ -3270,15 +3189,11 @@ class AppScreen(QWidget):
             LOG.debug("could not scan the design", exc_info=True)
 
     def _on_design_scanned(self, design) -> None:
-        """Put the size of the design in the console.
+        """Print the unfiltered count-file design size to the console.
 
-        SAYS WHICH NUMBER IT IS. This is the design as the COUNT FILES hold
-        it -- before the merge with the scores, before `fraction_threshold`
-        and before the well filters -- and the run prints its own
-        post-cleaning counts a few lines later. Two numbers that differ is
-        the filter having done something, which is exactly what instruction
-        140 wants this line to be able to reveal; two numbers that both claim
-        to be "the design" and disagree is a bug report.
+        These counts precede score merging, read-fraction filtering, and well
+        filtering, so they remain distinguishable from the run's cleaned
+        design counts.
         """
         if not isinstance(design, dict):
             return
@@ -4023,17 +3938,9 @@ class AppScreen(QWidget):
     # The Runs tab: every run, not only the sweep's trials
     # ------------------------------------------------------------------
     def _record_run_in_runs_tab(self, label, source, settings):
-        """Put a starting run on the Runs tab. Returns its handle, or None.
+        """Record a starting regression run on the Runs tab.
 
-        Instruction 125 C: "the runs tab should capture all the runs in a
-        sweep and all the runs run in the normal module." The tab was fed by
-        `sweep_results.csv` alone, so it answered "which trials did the sweep
-        try" rather than "what have I run" -- and a re-fit, which is a new run
-        by construction, did not appear at all.
-
-        Returns None where there is no tab to record on. The tab is built for
-        the regression screens (that is where the sweep and the re-fit live),
-        and every other module screen runs through this same method.
+        Return the run handle, or ``None`` when this screen has no Runs tab.
         """
         runs = getattr(self, "_sweep_runs", None)
         if runs is None:
@@ -4477,16 +4384,10 @@ class AppScreen(QWidget):
             LOG.debug("could not raise the results tab", exc_info=True)
 
     def _on_runs_removed(self, records) -> None:
-        """Runs left the Runs tab: take their retained views with them.
+        """Discard retained views for runs removed from the Runs tab.
 
-        Instruction 116 left this hook waiting, and `forget_run` is where
-        the ordering trap it wrote down is handled -- clearing the panel and
-        forgetting the state have to happen in one order and not the other.
-        This method's job is only to know WHICH runs left.
-
-        Without it, a later run written into the same folder inherits the
-        deleted one's level, colouring and effect cut, with nothing on screen
-        saying where they came from.
+        This prevents a later run at the same path from inheriting the removed
+        run's level, colors, limits, thresholds, selection, or figure tiles.
         """
         panel = getattr(self, "_results_panel", None)
         if panel is None or not records:
@@ -4575,28 +4476,11 @@ class AppScreen(QWidget):
             runs.load(folder)
 
     def _results_source_path(self) -> str:
-        """The FOLDER of the run every view on this screen is describing.
+        """Return the folder for the regression run shown on this screen.
 
-        The montage needs ``regression_data.csv``, which
-        ``perform_regression`` writes into the SAME folder as the coefficient
-        table -- so the run's folder is the whole of the answer, and reading
-        it live rather than storing a copy is what keeps the tab pointed at
-        whichever run the Runs tab last selected.
-
-        ASK THE RUN, NOT THE WIDGET HOLDING THE TABLE. Instruction 155 A,
-        2026-08-18: a regression run IN the application was reported as a
-        "coefficient table on screen [that] was not read from a run folder",
-        which is the sentence for a stray CSV -- about a folder the
-        application had made ten seconds earlier. This used to read
-        ``_results_panel._path``, which a live run leaves as a directory and
-        a load off disk leaves as a CSV, and which is empty for any path that
-        hands the frame over without a source. The loaded run knows its own
-        folder and answers the same way in a later session, because the run
-        IS the folder.
-
-        The panel is the FALLBACK, for results opened with "Load results…"
-        without going through the Runs tab -- there is no run row then, and
-        the table on screen is still a run's.
+        Prefer the selected Runs-tab entry so every view follows the active
+        run. Fall back to the results panel for tables loaded directly from
+        disk without a Runs-tab entry.
         """
         runs = getattr(self, "_sweep_runs", None)
         if runs is not None:
@@ -4705,31 +4589,11 @@ class AppScreen(QWidget):
             return ""
 
     def _show_trial(self, record: dict) -> None:
-        """A run was picked: show THAT trial's results and figures.
+        """Show a selected run's saved results, figures, and retained view.
 
-        A SAVED TRIAL IS INSTANT AND A RE-FIT IS A MINUTE, so the folder the
-        sweep already wrote is preferred over re-running anything. A trial
-        that failed says why rather than silently doing nothing -- a click
-        that produces no visible change reads as a broken table.
-
-        AND THE RESULTS TAB IS RAISED WHEN IT WORKS -- instruction 128 J,
-        "results should be shown for the chosen run". Loading the folder into
-        the panel was already here; what was missing is that the panel is
-        BEHIND the tab the user is standing on, so picking a run re-pointed a
-        page nobody was looking at and the visible effect of the click was the
-        figure grid changing on the far side of the screen. Only on success:
-        raising an empty Results tab over the run list, for a trial that has
-        no saved table, hides the row the user would pick next behind a page
-        that says nothing.
-
-        IT DOES REMEMBER NOW, and this paragraph used to say it did not.
-        Instruction 116's new section, requested 2026-08-18 -- "every
-        regression run should have its own interactive volcano plot" -- makes
-        the panel keep each run's level, colouring, axis limits, effect cut
-        and selection against that run's own path and hand them back when it
-        is opened again. A FIRST look at a run is still the table's own
-        defaults, which is what 128 J was about; what changed is the SECOND
-        look, where resetting threw away the view the user had built.
+        Saved output is loaded without refitting. The Results tab is raised
+        only after a table loads successfully; failed or incomplete trials
+        remain visible in the Runs tab with their diagnostic message.
         """
         from ..widgets.sweep_runs import STATUS_RUNNING
 
@@ -4983,51 +4847,13 @@ class AppScreen(QWidget):
         return pixmaps, titles
 
     def _load_trial_figures(self, folder: str) -> int:
-        """Put a trial's saved figures on the grid. Returns how many.
+        """Load a trial's saved figures into the grid and return their count.
 
-        The pictures on disk, not a re-fit: they are what that trial actually
-        drew, and re-fitting to see them again would be a minute of waiting
-        for an identical answer.
-
-        TWO SECTIONS, because a run's figures are not all in the run's folder.
-        Reported 2026-08-17: "for some reason now i dont see the grna
-        threshold graph". Three figures are written ABOVE the run folder
-        (``<src>/results/ols_12/``), and NOT all to the same place:
-
-            <src>/results/fraction_threshold.pdf        spacr.sequencing
-            <src>/results/cell_min_threshold.pdf        spacr.ml
-            <src>/plate_heatmap_unique_counts.pdf       plot_plates(dst=<src>)
-
-        The third is one level higher than the other two -- ``plot_plates``
-        saves to ``<dst>`` itself and ``graph_sequencing_stats`` hands it the
-        count-data folder. :func:`spacr.ml._screen_figure_folders` lists the
-        same two folders from the writing end; :meth:`_screen_folders_above`
-        reaches them from this one. The recursive walk added the same day
-        walks the run folder DOWNWARDS and cannot see any of them.
-
-        They are put in their own section, LABELLED as the screen's, rather
-        than mixed into this run's: they are per-screen preprocessing, drawn
-        once from the count data and shared by every run under that folder, so
-        captioning them as this trial's output would be a false claim about
-        what this trial produced. Those folders are listed FLAT for the same
-        reason -- ``<src>/results/``'s subfolders are the SIBLING RUNS, and a
-        recursive sweep would put ols_11's figures on ols_12's grid under
-        ols_12's heading, which is wrong rather than merely incomplete.
-
-        AND A FIGURE THE RUN ALREADY HAS IS NOT SHOWN TWICE.
-        :func:`spacr.ml._keep_figures_with_the_run`, landed the same day,
-        makes `perform_regression` COPY these into the run folder under the
-        same basename, so from now on a fresh run carries its own and the walk
-        above finds them. The screen sweep is what rescues the runs that
-        predate that copy -- the twelve already on the maintainer's screen --
-        and without the basename check a new run would show each of them once
-        as its own and once again as the screen's.
-
-        The grid is CLEARED when a trial has none, rather than left showing
-        the previous trial's: 128 J makes the results follow the selected run,
-        and a grid still holding the last run's pictures beside this run's
-        coefficient table is the exact disagreement that binding exists to
-        remove.
+        Run-specific figures are loaded recursively from the run folder.
+        Shared preprocessing figures are loaded non-recursively from the
+        screen-level folders and placed in a separate section. Basenames
+        already found in the run are skipped to prevent duplicates, and the
+        grid is cleared when the selected trial has no figures.
         """
         grid = getattr(self, "_figure_grid", None)
         if grid is None:
@@ -5115,12 +4941,7 @@ class AppScreen(QWidget):
             stack.setCurrentIndex(0)
 
     def _show_regression_graph(self) -> None:
-        """Fill the container with the LIVE volcano.
-
-        The one the maintainer named: "that is the slowest graph and the one i
-        want to be interactive". It is a widget, not a picture, so it hit-tests
-        -- click a point and it knows which guide it is.
-        """
+        """Fill the results container with the interactive volcano plot."""
         stack = getattr(self, "_figures_stack", None)
         page = getattr(self, "_volcano_page", None)
         if stack is not None and page is not None:
@@ -6039,14 +5860,10 @@ def QtGui_QListWidgetItem_helper(fig, idx: int):
 
 
 def _first_count_file(settings: dict) -> str:
-    """The first sgRNA-count CSV a run of ``settings`` would read, or ``""``.
+    """Return the first sgRNA-count CSV selected by ``settings``.
 
-    THE PAIR ROWS FIRST, because that is where a count lives today: the
-    regression panel's input table is one row per plate holding a score, a
-    count and (instruction 130) a database, and ``count_data`` is the older
-    flat list `perform_regression` migrates that into. Reading only the flat
-    list -- which is what this did first -- found nothing on every real
-    screen, because `collect()` never fills it.
+    Inspect paired score/count rows before the legacy flat ``count_data``
+    list. Return an empty string when neither source contains a count file.
     """
     for row in (settings.get("paired_data") or []):
         count = (row.get("count") if isinstance(row, dict)

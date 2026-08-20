@@ -349,34 +349,21 @@ class GateCanvas(GraphCanvas):
         return self._gates
 
     def set_gates(self, gates: GateSet, *, active: Optional[str] = None) -> None:
-        """Show ``gates``, with ``active`` as the population being drawn on."""
+        """Display ``gates`` and select ``active`` as the hierarchy parent."""
         self._gates = gates
         self._active = active
         self.render_now()
 
     @property
     def active_gate(self) -> Optional[str]:
-        """The gate whose population the canvas is showing."""
+        """Return the selected gate used as the next gate's parent."""
         return self._active
 
     def population(self) -> Optional[pd.DataFrame]:
-        """The rows on screen -- the whole table.
+        """Return the locally filtered table displayed beneath gate overlays.
 
-        This used to return the ACTIVE GATE'S population, and `render_now`
-        plots whatever this returns, so selecting or drawing a gate replotted
-        only the objects inside it. That is textbook hierarchical gating, and
-        it is not what was asked for: "draw a gate on the graph ... but never
-        zoom into the gated data ... be able to select this gate in the gate
-        panel and toggle it on and off."
-
-        It is also the whole of the stuck state -- "the only way to get back
-        to the main figure is to delete a gate" -- because clearing the active
-        name was the only thing that ever restored the full view, and deleting
-        was the only thing that cleared it.
-
-        Gates are overlays now: outlined on the full plot, highlighting their
-        own objects. `_active` survives only as the PARENT of the next gate
-        drawn, which is a statement about the hierarchy, not about the view.
+        Selecting a gate does not subset this frame; the selected gate only
+        determines the parent of the next gate drawn.
         """
         if self._frame is None:
             return None
@@ -384,15 +371,10 @@ class GateCanvas(GraphCanvas):
         return base
 
     def apply_settings(self, settings) -> None:
-        """Take the drawing settings and redraw once.
+        """Apply drawing settings and redraw the canvas once.
 
-        Every one of these has to reach the DRAWING. The settings window
-        shipped with fields the canvas never read, so the colour map said
-        viridis while the points stayed blue and nothing but the sampling
-        appeared to do anything.
-
-        Guarded with getattr so a partial settings object -- an older saved
-        set, a test double -- cannot stop the editor from drawing at all.
+        Missing attributes retain their defaults so older saved settings and
+        lightweight settings objects remain usable.
         """
         self._settings = settings
         tool = getattr(settings, "default_tool", None)
@@ -693,20 +675,11 @@ class GateCanvas(GraphCanvas):
     VOXEL_THRESHOLD = 20000
 
     def _draw_voxels(self, ax, x, y, z) -> bool:
-        """Draw the volume as occupancy voxels. False if it should not be.
+        """Draw a three-dimensional occupancy grid when the data supports it.
 
-        THIS IS WHAT `voxel_bins` IS FOR, and until now nothing read it --
-        the setting was declared, given a control, saved, reloaded and
-        ignored, which is the phantom-control defect instruction 77 swept
-        for.
-
-        A voxel is drawn where objects ARE, sized by how many. Occupancy
-        rather than a surface: a surface implies a boundary the data has not
-        got, while a cloud of sized markers says "this many here" and is the
-        same claim the 2D density plot makes.
-
-        :returns: False when the point count does not justify it, so the
-            caller scatters as before.
+        Voxel size represents the number of objects in each occupied bin.
+        Return ``False`` when too few points justify binning so the caller can
+        use the ordinary scatter representation.
         """
         bins = int(getattr(self._settings, "voxel_bins", 0) or 0)
         if bins < 2 or len(x) < self.VOXEL_THRESHOLD:
@@ -2108,12 +2081,9 @@ class GateCanvas(GraphCanvas):
             <= self.CLOSE_RADIUS_PX
 
     def close_polygon_now(self) -> None:
-        """Close the pending polygon.
+        """Close the pending polygon and emit at most one completed gate.
 
-        `close_polygon` ALREADY emits `gate_drawn`. Emitting again here made
-        one drawn polygon prompt for a name twice and create two identical
-        gates -- which is exactly what was reported. This wrapper exists only
-        so the click-the-first-vertex path and the Close button share a name.
+        The first-vertex shortcut and the Close button both use this method.
         """
         if self._mode in ("3D", "xD") and self._pending_plane:
             gate = self.close_polygon(emit=False)
@@ -2253,13 +2223,7 @@ class GateCanvas(GraphCanvas):
             self.gate_drawn.emit(gate)
 
     def _make_drag_patch(self, x0: float, y0: float):
-        """Preview the shape the armed tool will actually make.
-
-        A rectangular preview for an elliptical gate tells the user the wrong
-        thing about what they are about to draw -- reported as "the oval
-        looks like a square when dragged but does in fact generate an oval
-        gate".
-        """
+        """Create a drag preview matching the armed gate shape."""
         if self._tool == ELLIPSE:
             from matplotlib.patches import Ellipse
 
@@ -3311,31 +3275,11 @@ class GateEditorPanel(QWidget):
 
     # -- publishing -------------------------------------------------------
     def publish(self) -> Optional[DataFilter]:
-        """Push the selected gate onto the shared filter.
+        """Publish objects inside the selected gate as a shared selection.
 
-        Composed onto whatever the Local Data Filter already published rather
-        than replacing it: a gate and a filter are both ways of narrowing the
-        population, and a screen with both must not have one silently undo the
-        other.
-
-        NOTE, and the next thing to change here: the user has asked that
-        applying a gate HIGHLIGHT its points and leave the rest of the graph
-        on screen, rather than hide the rows outside it --
-
-            "i dont want it to zoom in the first place. i want it to
-             highlight the datapoints in the gate and show the gate but also
-             show the rest of the graph."
-
-        That is a SELECTION, not a filter, and the distinction already
-        exists: `link.set_selection` rings rows and keeps every one of them
-        on screen, while `link.set_filter` removes them. The Graph Builder's
-        own test states both behaviours side by side. Switching this to a
-        selection is what makes the axes stop moving for the right reason,
-        rather than because rescaling was suppressed.
-
-        Keep the filter available -- narrowing to a gate is a real thing to
-        want -- but it should be the explicit second action, not what the
-        primary button does.
+        Objects outside the gate remain visible. The status label reports
+        missing input, evaluation errors, and tables that lack shareable
+        object identifiers.
         """
         name = self.tree.active_gate()
         if not name:

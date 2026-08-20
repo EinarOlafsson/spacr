@@ -53,16 +53,13 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"space"`` | ``"cell"`` |
-  ``"glass"`` | ``"system"`` (default ``"dark"``). ``"system"`` follows
-  the reader's OS colour scheme. ``"space"`` is a dark theme over a
-  generated deep-space background or a deep-field photograph; ``"cell"``
-  uses one of the bundled fluorescence micrographs; ``"glass"`` uses
-  neutral layered materials over a built-in light field.
-  Space and Cell variants appear directly in the single Theme dropdown;
-  their existing persisted variant keys remain backward compatible.
-* ``space_seed``: int; the generated sky is deterministic in this.
-* ``font_scale``: float, 1.0 = 100 %. Clamped to [0.75, 2.0].
+* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
+  ``"system"`` (default ``"system"``). ``"system"`` follows the operating
+  system color scheme. ``"cell"`` uses fluorescence imagery and ``"glass"``
+  uses neutral layered materials over a built-in light field. Legacy Space
+  accessors remain for old settings, but Space is not a selectable theme.
+* ``space_seed``: int; retained for deterministic legacy Space backgrounds.
+* ``font_scale``: float, 1.0 = 100 % (default 1.5). Clamped to [0.75, 2.0].
 * ``color_blind_mode``: ``"off"`` | ``"deuteranopia"`` | ``"protanopia"``
   | ``"tritanopia"`` (default ``"off"``). Swaps matplotlib rainbow /
   red-green palettes for perceptually-uniform + colour-blind-safe
@@ -116,12 +113,9 @@ Values:
   to the ranges the engines declare
   (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).
 * ``ambient_blur``: float, default ``0.0`` — how much the finished picture
-  is softened, in units of eight screen pixels. **Its meaning changed**: it
-  used to run 0.25–3.0 with 1.0 as the shipped look and sharpened the
-  picture by enlarging the shading buffer, which made "sharp" and "not
-  blocky" the same slider. Sharpening is now ``ambient_resolution``'s job
-  and this one only softens. A value stored under the old scale is
-  translated once, on read — see :func:`_migrate_ambient_motion`.
+  is softened, in units of eight screen pixels. Image detail is controlled
+  separately by ``ambient_resolution``. Values stored under the legacy blur
+  scale are translated once on read by :func:`_migrate_ambient_motion`.
 * ``ambient_drift_direction``: ``"up"`` | ``"down"`` | ``"random"``
   (default ``"up"``). Which way the Starfield animation travels. A
   preference rather than three entries in the animation menu; see
@@ -129,11 +123,10 @@ Values:
 * ``spinner_delay``: float seconds, default ``2.0``. How long background
   work has to run before the activity spinner appears at all — see
   :func:`get_spinner_delay`.
-* ``setting_animations``: bool, default ``False``. Whether a setting's
-  hover tooltip plays its animation WITHOUT being asked. Off — the
-  default — leaves every hover text only until the reader presses the
-  **Animation** word in that tooltip's footer, which speaks for that one
-  setting; see :func:`get_setting_animations_enabled`.
+* ``setting_animations``: bool, default ``False``. Whether setting tooltips
+  play their animations automatically. When disabled, hover remains text-only
+  until the user activates **Animation** in that tooltip's footer; see
+  :func:`get_setting_animations_enabled`.
 * ``language``: one of the bundled language codes from
   :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a
   persisted value is invalid.
@@ -651,34 +644,13 @@ _FROZEN_FG_VALUES = frozenset({"#000000", "#ffffff"})
 
 
 def _migrate_frozen_figure_colors() -> None:
-    """Undo, once per store, a resolved default that was persisted.
+    """Restore persisted theme-derived figure colors to ``"auto"`` once.
 
-    The dialog used to seed from :func:`get_figure_colors` (already resolved)
-    and write the pair straight back, so pressing OK without changing
-    anything replaced "auto" with whatever the theme said at that moment.
-    Nothing downstream can tell that apart from a deliberate choice — the
-    maintainer's own store held ``bg='none'``/``fg='#ffffff'`` on a dark
-    theme, which is character-for-character the resolution — so the only
-    honest repair is to assume the bug and hand the tracking preference back:
-
-        a stored value equal to something "auto" resolves to on SOME theme
-        → back to "auto", once, with a line in the console.
-
-    A user who genuinely picked #ffffff loses one click they can repeat. A
-    user who picked nothing — every user who never opened the dialog with an
-    intent, which is nearly all of them — gets their theme back. Leaving it
-    alone would leave the reported "in white mode lots of graphs still have
-    white text and axes color" permanently true for exactly the people who
-    never asked for anything.
-
-    Both halves are examined together on purpose. Migrating the text but
-    keeping a frozen white BACKGROUND would give white-on-white again on a
-    dark theme, which is the same bug wearing the other colour.
-
-    Runs once, and writes the marker even when there was nothing to migrate,
-    so a fresh store is not re-examined on every read. Never raises: a
-    preference that cannot be migrated is a cosmetic loss, not a crash in a
-    figure render.
+    Older dialogs could store the resolved theme colors as explicit values.
+    Values that match a known automatic background, text, or line color are
+    therefore returned to automatic mode. A scale marker prevents repeated
+    migration, and preference-access failures are ignored because they must
+    not interrupt figure rendering.
     """
     settings = _settings()
     try:
@@ -746,27 +718,12 @@ def get_figure_color_tokens() -> tuple:
 
 
 def _unfreeze_figure_colors_that_fight_the_theme() -> None:
-    """Hand a frozen pair back to "auto" when it no longer fits the theme.
+    """Restore an implicit frozen color pair when it conflicts with the theme.
 
-    THE ONE-SHOT MIGRATION ABOVE IS NOT ENOUGH, and this is the hole it left.
-    It writes a marker and never looks again, so a store frozen AFTER it ran
-    -- by an older dialog, by a settings file copied between machines, by any
-    path that wrote a resolved pair back -- stays frozen for good. Measured
-    on the maintainer's own machine: theme 'dark', auto would give
-    ('none', '#ffffff'), and the store held ('#ffffff', '#000000'). Every
-    figure was therefore drawn with black ink whatever the theme said, which
-    is "all of the graphs need to be adapted to [the dark theme]. as it is now all
-    of them have black axees and lines the grid is black".
-
-    THE RULE IS NARROW ON PURPOSE. It only acts when BOTH halves look like a
-    resolution that was written back -- a value "auto" has itself produced on
-    some theme -- AND the pair disagrees with what "auto" means now. A user
-    who deliberately picked a colour "auto" never produces keeps it, and one
-    whose stored pair already matches the current theme is left alone, so
-    this is silent for everybody it does not help.
-
-    Never raises: a preference that cannot be repaired is a cosmetic loss,
-    not a crash in a figure render.
+    The repair applies only when neither color was explicitly selected, both
+    values are known automatic resolutions, and the pair differs from the
+    current theme. Explicit or custom colors remain unchanged. Preference
+    access failures are ignored so a cosmetic repair cannot stop rendering.
     """
     try:
         settings = _settings()

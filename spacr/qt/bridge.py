@@ -1,28 +1,15 @@
-"""
-Background execution + progress bridge between the Qt UI and the pipeline
-functions in spacr.core / spacr.deep_spacr / spacr.submodules / etc.
+"""Run spaCR pipelines in Qt workers and relay their progress to the GUI.
 
-Runs each pipeline call in a QThread so the UI stays responsive. The
-worker installs stdout/stderr shims that emit `line_ready(str)` on every
-print, so the caller can pipe them into a QPlainTextEdit console.
+:class:`PipelineWorker` executes a pipeline call in a ``QThread`` and routes
+captured standard output and errors through ``line_ready``. The process-wide
+:data:`registry` tracks active jobs for shared surfaces such as Home, while
+``make_thread`` centralizes worker registration and lifecycle setup.
 
-Three things live here beyond "run a function on a thread":
-
-* :class:`PipelineWorker` — the thread body, plus the stdout capture.
-* :data:`registry` — a process-wide list of the jobs that are running
-  right now, so a surface like the Home screen can say what spaCR is
-  doing without every screen having to report in. ``make_thread`` is the
-  single choke point every screen already goes through, so registration
-  happens there and nothing else has to change.
-* :class:`PauseGate` / :func:`checkpoint` — **cooperative** pause. Read
-  :class:`PauseGate`'s docstring before wiring a Pause button to
-  anything: as of today no shipped pipeline calls :func:`checkpoint`, so
-  :attr:`PipelineWorker.supports_pause` is ``False`` for every entry in
-  :func:`resolve_pipeline_entry` and a Pause control must render itself
-  disabled. That is deliberate, and it is asserted by the test suite.
-* :class:`spacr.cancellation.CancellationToken` — cooperative Stop, installed
-  for every worker. Shipped long workflows poll it at safe field/trial/job
-  boundaries without importing Qt.
+Stopping and pausing are cooperative. Every worker receives a
+:class:`spacr.cancellation.CancellationToken`, which long-running pipelines
+poll at safe boundaries. :class:`PauseGate` and :func:`checkpoint` provide the
+pause protocol, but pipeline entries that do not call ``checkpoint`` report
+``supports_pause=False`` and must expose Pause as unavailable.
 """
 from __future__ import annotations
 
@@ -222,30 +209,11 @@ _MPL_MODULE = None
 
 
 def _matplotlib_show_router(*args, **kwargs):
-    """Send ``plt.show()`` to this thread's capture, or drop it safely.
+    """Route ``plt.show()`` to the current thread's figure capture.
 
-    THE FALLBACK IS THE DANGEROUS PART. Targets are keyed by thread, so a
-    `plt.show()` on a thread with no registered capture used to reach
-    `_MPL_ORIGINAL_SHOW` -- the REAL matplotlib show. With the Qt backend that
-    calls `start_main_loop`, which enters a Qt event loop; on a worker thread
-    that is illegal, and Qt says so:
-
-        QBasicTimer::start: Timers cannot be started from another thread
-
-    and then the process dies. Measured 2026-08-19 on the maintainer's own
-    screen: the warning arrives 3-14 ms after "run closed [success]" and the
-    application is gone immediately after, every time. Reproduced headlessly
-    from their four plates -- `ml.minimum_cell_simulation` calls `plt.show()`
-    and the stack ends in `qt_compat._exec`, blocked forever.
-
-    A blocking GUI event loop on a worker thread is NEVER what a pipeline
-    wants, so off the main thread this drops the call instead. The figure is
-    not lost: everything a run draws is published by `figure_sink` and reaches
-    the gallery whether or not `show` is called (instruction 139 C -- saved and
-    visible are one event).
-
-    On the MAIN thread the fallback stands: a notebook or a script calling
-    `plt.show()` outside a run means it, and there is no worker to confuse.
+    Calls without a registered capture are discarded on worker threads so
+    Matplotlib cannot start a Qt event loop outside the GUI thread. Calls on
+    the main thread fall back to the original ``show`` implementation.
     """
     with _MPL_SHOW_LOCK:
         stack = _MPL_SHOW_TARGETS.get(threading.get_ident(), [])
@@ -788,21 +756,20 @@ def prune_job_pairs(pairs, finished=None) -> List[tuple]:
 
 
 def emit_safely(signal, *args) -> bool:
-    """Emit ``signal``, tolerating a receiver whose C++ half is already gone.
+    """Emit a Qt signal unless its C++ receiver has been destroyed.
 
-    A ``QThread.run`` override runs while its own widget may be torn down
-    underneath it, and a signal emitted at a destroyed C++ object raises
-    ``RuntimeError: Internal C++ object already deleted``. Raised inside
-    ``run``, that exception escapes a virtual override: PySide6 prints
-    "Error calling Python override of QThread::run()" and the process
-    ABORTS. It was caught doing exactly that in the full suite on
-    2026-08-19, with the worker mid-``PIL.Image.resize``.
+    Parameters
+    ----------
+    signal : PySide6.QtCore.SignalInstance
+        Bound signal to emit.
+    *args
+        Values passed to ``signal.emit``.
 
-    Nothing is lost by swallowing it -- the only thing the emit would do is
-    hand a result to a screen that no longer exists -- and the return value
-    lets a loop stop rather than go on working for nobody.
-
-    :returns: whether the signal was delivered.
+    Returns
+    -------
+    bool
+        ``True`` when emission succeeds; ``False`` when PySide raises
+        ``RuntimeError`` because the receiving object no longer exists.
     """
     try:
         signal.emit(*args)
@@ -1018,22 +985,11 @@ class PipelineWorker(QObject):
             fig_counter = [0]
 
             def _already_emitted(fig):
-                """Has this exact picture already gone to the gallery?
+                """Return whether this figure was emitted during this run.
 
-                ONE PICTURE, ONE TILE, whichever route delivered it. There are
-                two routes now -- ``plt.show()`` and
-                :func:`spacr.figure_sink.publish` -- and a module that saves a
-                figure it has also shown would otherwise get two tiles for one
-                picture. The acceptance for instruction 139 C is that the
-                gallery and the run folder hold the SAME number of figures, so
-                a double counts as loudly as a miss.
-
-                BOTH HALVES HAVE TO AGREE, and each is unsafe alone. ``id()``
-                alone is not: a closed figure's address is reused by the next
-                one, and dropping THAT figure loses a picture, which is worse
-                than showing one twice. The attribute alone is not either: it
-                lives on the figure and outlives the run, so a figure cached
-                across two runs would appear only in the first.
+                Both the object identity recorded for the run and the figure
+                marker must match. Requiring both avoids false matches when
+                Python reuses an object ID or a figure persists across runs.
                 """
                 return (id(fig) in emitted_ids
                         and getattr(fig, "_spacr_emitted", False))

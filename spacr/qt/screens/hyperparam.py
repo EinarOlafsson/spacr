@@ -17,7 +17,6 @@ band for the classifiers) and prints the spread, the within-noise flag and the
 failure count, because those are the parts that say whether the winner means
 anything. See :mod:`spacr.hyperparam` for why.
 
-:author: spaCR
 """
 from __future__ import annotations
 
