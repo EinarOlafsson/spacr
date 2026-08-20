@@ -3506,9 +3506,35 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                 "squares with unit weights is exactly OLS, so spaCR will not "
                 "fit it under the 'wls' label. Use 'ols', or run the scores "
                 "through process_scores so each well carries its cell count.")
-        model = _fit_absorbed_least_squares(
-            X, y, weights=weights if regression_type == 'wls' else None,
-            kind='WLS' if regression_type == 'wls' else 'OLS')
+        try:
+            model = _fit_absorbed_least_squares(
+                X, y, weights=weights if regression_type == 'wls' else None,
+                kind='WLS' if regression_type == 'wls' else 'OLS')
+        except ValueError as nothing_to_absorb:
+            # NOTHING TO ABSORB IS NOT A FAILURE, and this used to end the
+            # run 20 seconds in. Reported from a live fit on 2026-08-20:
+            # `model_plate_position=False` takes rowID and columnID out of
+            # the design, and the absorbing backend then refuses because it
+            # has no fixed effects to project out.
+            #
+            # ITS OWN REFUSAL SAYS WHY THAT IS THE WRONG ANSWER: "the fit
+            # would be the statsmodels fit with an extra projection in front
+            # of it". With nothing to absorb the two backends compute the
+            # SAME numbers, so falling back is not substituting a different
+            # method -- it is the identical fit by the only route left. That
+            # is what makes this fallback safe where the montage's
+            # multivariate one was not: there, the alternative answered a
+            # different question.
+            if 'nothing to absorb' not in str(nothing_to_absorb):
+                raise
+            print("  regression_backend='pyfixest' has nothing to absorb "
+                  "on this design -- there are no rowID or columnID terms in "
+                  "it, so either model_plate_position=False removed them or "
+                  "the screen sits on one row and one column. Fitting with "
+                  "statsmodels instead: with no factors to project out the "
+                  "two backends compute the same numbers, so this is the "
+                  "same fit by the only route left, not a different model.")
+            model = model_map[regression_type]()
     elif backend == 'glum':
         if cov_type is not None:
             raise ValueError(
