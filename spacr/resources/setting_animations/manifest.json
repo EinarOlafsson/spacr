@@ -1316,9 +1316,9 @@
       "slug": "cytoplasm",
       "title": "Derive cytoplasm compartment",
       "validation": {
-        "bytes": 114717,
+        "bytes": 126280,
         "frames": 18,
-        "sha256": "1860413709712e768b020ab244a03312c8f50ee3402636f74f57c8609658bef8",
+        "sha256": "2e2a51187148dc9e6166e1158c64d7d88b4e2f68cda62887bdeb58097f64f3bd",
         "unique_frames": 17
       }
     },

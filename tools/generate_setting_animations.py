@@ -1171,16 +1171,44 @@ def _crop_scene(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _cytoplasm(painter: Painter, action: float) -> None:
+    """The cytoplasm is the cell MINUS its compartments, so draw the minus.
+
+    THIS SHOWED THE WRONG THING, and the audit (62) has the measurement: a
+    grey blob pulsed in brightness and NO nucleus, pathogen or organelle
+    appeared in any frame -- so the subtraction that defines a cytoplasm was
+    never drawn at all. The cause was one argument: `painter.line(...,
+    fill_closed=True)` fills the polygon opaquely, and it was called last, so
+    it painted over all three. Measured: 1988 blue / 1028 teal / 300 magenta
+    pixels before that call, 0 / 0 / 0 after it.
+
+    Fixing the argument alone would have restored three compartments floating
+    on a fill, which is a picture of a cell rather than of this setting. The
+    ORDER is the fix: the cytoplasm region is filled first, then the three
+    compartments are drawn ON TOP -- so they read as punched out of it, which
+    is what the setting does.
+    """
     _well(painter)
     _object_outline(painter, "cell", (180, 120), (92, 69), 1.0, 0.3)
-    _object_outline(painter, "nucleus", (154, 111), (22, 18), 1.0, 0.4)
-    _object_outline(painter, "pathogen", (215, 128), (16, 10), 1.0, 0.8)
-    _object_outline(painter, "organelle", (193, 88), (10, 8), 1.0, 0.2)
+    # The region, FIRST, so it is a ground rather than a lid -- and DIMMER
+    # than it was. At 0.35..0.90 it was a near-white slab that a half-width
+    # outline cannot be seen against; the cytoplasm is a region, not a
+    # highlight, and it only has to be visible enough to be a ground.
     inset = 5 + 3 * action
     painter.line(
         _blob_points(180, 120, 92 - inset, 69 - inset, 0.3, 0.07),
-        _mix(WHITE, 0.35 + 0.55 * action), 0.45, True,
+        _mix(WHITE, 0.18 + 0.30 * action), 0.45, True,
     )
+    # And the compartments OVER it: what is taken out to leave a cytoplasm.
+    # The sixth argument is a shape PHASE, not an opacity -- the originals
+    # are kept, because varying it wobbles the outline and says nothing about
+    # the setting. What makes them read is the width: drawn at 1.1 against
+    # the 0.5 everything else uses, because they are the subject here rather
+    # than context.
+    for kind, centre, size, phase in (
+            ("nucleus", (154, 111), (22, 18), 0.4),
+            ("pathogen", (215, 128), (16, 10), 0.8),
+            ("organelle", (193, 88), (10, 8), 0.2)):
+        _object_outline(painter, kind, centre, size, 1.0, phase, width=1.1)
 
 
 def _radial(painter: Painter, action: float) -> None:
