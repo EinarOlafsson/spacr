@@ -22,10 +22,22 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox,
                                QDoubleSpinBox, QFileDialog, QHBoxLayout,
-                               QLabel, QPushButton, QTableWidget,
+                               QLabel, QLineEdit, QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
 
 LOG = logging.getLogger("spacr.qt.sweep_panel")
+
+
+def _names(text) -> list:
+    """A comma-separated box as a list of names, or ``[]``.
+
+    Empty means "exclude nothing", and the caller turns that into an ABSENT
+    keyword rather than an empty list: `sweep` distinguishes "no filter" from
+    "a filter that matches nothing", and the second would be a silent way to
+    keep everything while looking like a choice.
+    """
+    return [part.strip() for part in str(text or "").split(",")
+            if part.strip()]
 
 __all__ = ["SweepPanel", "sweep_inputs"]
 
@@ -146,6 +158,51 @@ class SweepPanel(QWidget):
             "reading at all, and the rest are in the list.")
         row.addWidget(self.picture)
 
+        # WHAT TO LEAVE OUT, on its own row. Asked for 2026-08-19: "there
+        # should be the option to remove columns befor the sweep and remove
+        # specific genes or guides and to remove over represented guides".
+        # Three separate controls because they are three different
+        # judgements -- a column you do not trust, a gene you already know
+        # about, and a guide whose breadth is doing the work its biology is
+        # being credited with.
+        leave_out = QHBoxLayout()
+        leave_out.addWidget(QLabel("leave out — measurements"))
+        self.drop_columns = QLineEdit()
+        self.drop_columns.setPlaceholderText("column names, comma separated")
+        self.drop_columns.setToolTip(
+            "Measurement columns to keep out of the sweep, by name and comma "
+            "separated. Naming the two or three that are wrong is easier "
+            "than listing the seven hundred that are not.")
+        leave_out.addWidget(self.drop_columns, 1)
+
+        leave_out.addWidget(QLabel("genes or guides"))
+        self.drop_genes = QLineEdit()
+        self.drop_genes.setPlaceholderText("e.g. 220950, 233460")
+        self.drop_genes.setToolTip(
+            "Genes or guides to keep out, by name and comma separated. "
+            "Matched at BOTH levels, so a gene id works whether the sweep is "
+            "running at gene or guide level.")
+        leave_out.addWidget(self.drop_genes, 1)
+
+        self.cap_wells = QCheckBox("drop guides in more than")
+        self.cap_wells.setToolTip(
+            "Leave out a guide present in more than this share of the wells. "
+            "THE OVER-REPRESENTATION FILTER: a guide in every well has the "
+            "statistical weight of the whole screen behind it, so it clears "
+            "the correction on measurements a rarer guide could never reach "
+            "— see the 'hits vs representation' picture for what that looks "
+            "like on your own screen.")
+        leave_out.addWidget(self.cap_wells)
+        self.cap_wells_value = QDoubleSpinBox()
+        self.cap_wells_value.setDecimals(2)
+        self.cap_wells_value.setRange(0.05, 1.0)
+        self.cap_wells_value.setSingleStep(0.05)
+        self.cap_wells_value.setValue(0.5)
+        self.cap_wells_value.setSuffix(" of wells")
+        leave_out.addWidget(self.cap_wells_value)
+        leave_out.addStretch(1)
+        layout.addLayout(leave_out)
+
         row.addWidget(QLabel("q <"))
         self.alpha = QDoubleSpinBox()
         self.alpha.setDecimals(3)
@@ -230,17 +287,19 @@ class SweepPanel(QWidget):
             except Exception:                            # noqa: BLE001
                 LOG.debug("could not read the scores", exc_info=True)
         level = str(self.level.currentData() or "gene")
+        exclusions = self.exclusions()
         return bool(self._jobs.submit(
-            lambda: self._work(cells, counts, scores, level), self._done))
+            lambda: self._work(cells, counts, scores, level, exclusions),
+            self._done))
 
     @staticmethod
-    def _work(cells, counts, scores=None, level="gene"):
+    def _work(cells, counts, scores=None, level="gene", exclusions=None):
         from ...gene_measurement_sweep import sweep
 
         wells, fractions, plates, found = sweep_inputs(cells, counts,
                                                        scores=scores)
         return sweep(wells, fractions, blocks=plates, scores=found,
-                     level=level)
+                     level=level, **dict(exclusions or {}))
 
     def _done(self, result) -> None:
         self.run_button.setEnabled(True)
@@ -301,6 +360,26 @@ class SweepPanel(QWidget):
         from ..screens.settings_model import retarget_field_tooltips
 
         retarget_field_tooltips(self)
+
+    def exclusions(self) -> dict:
+        """What the user asked to leave out, as `sweep` keyword arguments.
+
+        READ OFF THE BOXES rather than stored, so the answer is always the
+        one on screen. Empty values mean "exclude nothing", which is why a
+        blank box has to come back as an absent key and not as an empty list:
+        `sweep` distinguishes "no filter" from "a filter that matches
+        nothing".
+        """
+        out: dict = {}
+        columns = _names(self.drop_columns.text())
+        if columns:
+            out["drop_measurements"] = columns
+        genes = _names(self.drop_genes.text())
+        if genes:
+            out["drop_guides"] = genes
+        if self.cap_wells.isChecked():
+            out["max_wells_fraction"] = float(self.cap_wells_value.value())
+        return out
 
     def selected_gene(self):
         """The gene the profile picture is about, or ``None``.
