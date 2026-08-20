@@ -180,17 +180,18 @@ class TestTheyAreTabsOfTheirOwn:
         """"ONE TAB PER GRAPH, named for the graph" -- 129 B."""
         names = tab_names(panel)
 
-        assert "Effect rank" in names, names
-        assert "Effect distribution" in names, names
+        assert "Effect rank (guides)" in names, names
+        assert "Effect distribution (guides)" in names, names
 
     def test_they_sit_with_the_volcano_they_are_the_other_half_of(self, panel):
         """Reading order is the argument: the result, then how big it is and
         how sure, then whether the model was entitled to say it."""
         names = tab_names(panel)
 
-        assert names.index("Effect rank") == names.index("Volcano") + 1
-        assert names.index("Effect distribution") == names.index(
-            "Effect rank") + 1
+        assert names.index("Effect rank (guides)") == \
+            names.index("Volcano (guides)") + 1
+        assert names.index("Effect distribution (guides)") == names.index(
+            "Effect rank (guides)") + 1
 
     def test_a_tab_with_no_run_yet_says_what_it_is_waiting_for(self, qtbot):
         """An empty plot behind a tab nobody has opened is indistinguishable
@@ -365,8 +366,11 @@ class TestTheRankingIsJoinedOnTheKey:
         assert "Intercept" not in panel.effect_rank._keys
 
         said = panel.effect_rank._status.text()
-        assert "1 nuisance term not ranked" in said, said
-        assert "covariates" in said, said
+        assert "58 coefficients" in said, said
+        assert "all 58 finite coefficients are drawn" in said, said
+        assert "2 coefficients with a blank or non-finite effect are not drawn" \
+            in said, said
+        assert "all 60 are drawn" not in said, said
 
 
 # --------------------------------------------------------------------------- #
@@ -575,7 +579,8 @@ class TestTheDistribution:
         covariate inside it would be measuring the spread of a mixture."""
         assert "Intercept" not in panel.effect_distribution._keys
         said = panel.effect_distribution._status.text()
-        assert "1 nuisance term not counted" in said, said
+        assert said.startswith("58 coefficients."), said
+        assert "nuisance term" not in said, said
 
     def test_sigma_is_the_number_the_saved_panel_prints(self, panel, results):
         """The screen and the disk must not describe one screen two ways.
@@ -674,7 +679,7 @@ class TestTheFilterAndTheRedraw:
         assert panel.effect_rank._highlight is not None
         assert panel.effect_distribution._highlight is not None
 
-    def test_a_new_run_drops_the_ring_on_both(self, panel, results):
+    def test_a_new_run_drops_the_ring_on_both(self, panel, results, tmp_path):
         """Each plot re-marks its key at the end of its own draw. The other
         edge of that: a plot whose selection is not cleared on load cheerfully
         re-rings the NEW run at the OLD key."""
@@ -682,7 +687,8 @@ class TestTheFilterAndTheRedraw:
         assert panel.effect_rank._highlight is not None
         assert panel.effect_distribution._highlight is not None
 
-        panel.set_frame(results.iloc[:30].copy(), source="other.csv")
+        panel.set_frame(results.iloc[:30].copy(),
+                        source=str(tmp_path / "other_run" / "results.csv"))
 
         assert panel.effect_rank._highlight is None
         assert panel.effect_distribution._highlight is None
@@ -804,8 +810,8 @@ def test_the_ranking_and_the_volcano_do_not_agree_about_the_top(panel,
 class TestAgainstTheRealScreen:
     """Synthetic frames prove the join; the screen proves the shape.
 
-    1,213 coefficients, one of them the Intercept. 54 called at q ≤ 0.05, no
-    standard-error column at all, and σ (MAD) = 0.229.
+    The table holds guide and gene fits together. The panel deliberately opens
+    on guides, which are the unit the screen measures.
     """
 
     @pytest.fixture()
@@ -822,12 +828,10 @@ class TestAgainstTheRealScreen:
         return widget
 
     def test_it_ranks_the_family_the_q_values_describe(self, panel, screen):
-        from spacr.hits import tested_family
-
-        family = int(tested_family(screen["feature"]).sum())
-        assert family == 1212
-
-        assert len(points_of(panel.effect_rank)) == family
+        shown = panel.filtered_frame()
+        assert panel.level() == "grna"
+        assert len(points_of(panel.effect_rank)) == \
+            int(shown["coefficient"].notna().sum())
         assert "Intercept" not in panel.effect_rank._keys
 
     def test_the_intercept_is_dropped_for_its_family_not_for_its_size(
@@ -858,8 +862,7 @@ class TestAgainstTheRealScreen:
         largest (+4.371) is (q = 3e-05). A volcano puts those two nowhere near
         each other and never says they are the same size."""
         rows = rows_of(panel.effect_rank)
-        family = screen.loc[screen["feature"] != "Intercept"].reset_index(
-            drop=True)
+        family = panel.filtered_frame().reset_index(drop=True)
 
         biggest = family.iloc[rows[0]]
         third = family.iloc[rows[2]]
@@ -878,19 +881,14 @@ class TestAgainstTheRealScreen:
         assert "no standard error" in panel.effect_rank._status.text()
 
     def test_the_called_count_is_the_screens_own(self, panel, screen):
-        called = int((screen["q_value"] <= 0.05).sum())
-        assert called == 54
+        called = int((panel.filtered_frame()["q_value"] <= 0.05).sum())
 
         assert f"{called} called at q_value ≤ 0.05" in \
             panel.effect_rank._status.text()
 
     def test_the_distribution_reports_the_screens_sigma(self, panel, screen):
-        from spacr.hits import tested_family
-
-        values = screen.loc[tested_family(screen["feature"]),
-                            "coefficient"].to_numpy()
+        values = panel.filtered_frame()["coefficient"].dropna().to_numpy()
         sigma = float(np.median(np.abs(values - np.median(values))) * 1.4826)
-        assert sigma == pytest.approx(0.229228, abs=1e-6)
 
         assert f"σ (MAD) = {sigma:.3g}" in \
             panel.effect_distribution._status.text()

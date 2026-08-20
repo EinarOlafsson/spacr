@@ -47,11 +47,11 @@ def _flat(text: str) -> str:
 def _formulas_the_panel_should_show(screen) -> tuple:
     """``(guide, gene, mixed)`` formulas for the panel's OWN plate settings.
 
-    The constants are the formulas with plate position on. `model_plate_position`
-    now DEFAULTS OFF, and `formula_for` correctly leaves `+ rowID + columnID`
-    out when it is -- the box shows the formula the run fits, which is the whole
-    point of it (see `formula_for`: "the display asserts something the code does
-    not do, and nothing on screen says which to believe").
+    `model_plate_position` defaults off, and `formula_for` leaves `+ rowID +
+    columnID` out unless it is enabled. The box shows the formula the run fits,
+    which is the whole point of it (see `formula_for`: "the display asserts
+    something the code does not do, and nothing on screen says which to
+    believe").
 
     So the assertion has to ask the panel what it is set to rather than quote a
     constant. A test that pinned the constant would fail the moment the default
