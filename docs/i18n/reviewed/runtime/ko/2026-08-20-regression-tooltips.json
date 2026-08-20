@@ -33,9 +33,9 @@
     {
       "table": "setting_tooltips",
       "key": "model_plate_position",
-      "source_sha256": "b6d0e3a189ded805d61accad96b41c5f2082e2462c2722458cbfa53adda4e4ae",
-      "source": "Whether plate row and column (rowID, columnID) are terms in the model at all. random_row_column_effects then chooses fixed or random for them; turning this off while that is on is refused, because there is nothing left to make random. Measured on a real 610-well screen: the 35 position terms are jointly significant at p=6.7e-23, and dropping them inflates the residual sd 7.2%, moves the median guide coefficient 0.27 of a standard error and swaps genes in and out of the hit list. On a plate with no position effect, keeping them costs 1.6% on the standard errors. Default True.",
-      "translation": "플레이트 행과 열(rowID, columnID)을 모델 항으로 포함할지 결정합니다. random_row_column_effects 는 이 항들을 고정 효과 또는 임의 효과로 처리할지 선택합니다. 이 설정을 끈 상태에서 후자를 켜면 임의 효과로 만들 항이 없으므로 거부됩니다. 실제 610-웰 스크린에서 측정한 결과, 35개 위치 항은 함께 p=6.7e-23으로 유의했고, 이를 제거하면 잔차 sd가 7.2% 증가하고 가이드 계수 중앙값이 표준 오차의 0.27만큼 이동하며 히트 목록에 드나드는 유전자가 바뀌었습니다. 위치 효과가 없는 플레이트에서 이 항들을 유지할 때 표준 오차 비용은 1.6%입니다. 기본값 True."
+      "source_sha256": "582033004b790686d176fbbd19f07cb2eee449431913dd89d0d0a0538fbc1b5b",
+      "source": "Include plate row and column (rowID, columnID) in the model. random_row_column_effects then chooses fixed or random terms. Turning this off while random effects are on is refused because there is nothing left to make random. In a 610-well screen, the 35 position terms were jointly significant (p=6.7e-23); omitting them increased residual SD 7.2% and changed the hit list. With no position effect, including them increased standard errors 1.6%. Default False; enable it when edge, row, or column effects are plausible.",
+      "translation": "플레이트 행과 열(rowID, columnID)을 모델에 포함할지 결정합니다. random_row_column_effects 는 이 항들을 고정 효과 또는 임의 효과로 처리할지 선택합니다. 이 설정을 끈 상태에서 임의 효과를 켜면 임의 효과로 만들 항이 없으므로 거부됩니다. 610-웰 스크린에서 35개 위치 항은 함께 p=6.7e-23으로 유의했고, 이를 생략하면 잔차 SD가 7.2% 증가하고 히트 목록이 달라졌습니다. 위치 효과가 없는 플레이트에서는 이 항들을 포함할 때 표준 오차가 1.6% 증가했습니다. 기본값은 False 입니다. 가장자리, 행 또는 열 효과가 있을 가능성이 있으면 활성화하십시오."
     },
     {
       "table": "setting_tooltips",
@@ -61,9 +61,9 @@
     {
       "table": "setting_tooltips",
       "key": "regression_type",
-      "source_sha256": "b55fd689255cd36cfdc3be12b0ece84ff11ad231b33fbc64469d117a690a452e",
-      "source": "Model family. Default 'mixed' fits gene effects with guides nested as random effects, so guide disagreement widens the gene interval; it fits gene and guide levels together and disables level. Use 'ols', 'wls', 'rlm', 'huber', or 'quantile' for one continuous level; 'logit', 'probit', 'beta', or 'quasi_binomial' for fractions; 'poisson' for counts; and penalised families for many correlated predictors. Mixed fits both levels at once, so 'level' greys out. regression_type 'beta' selects a beta GLM, while transform 'beta' only transforms the response.",
-      "translation": "모델 계열입니다. 기본값 'mixed' 는 가이드가 임의 효과로 중첩된 유전자 효과를 적합하므로 가이드 간 불일치가 유전자 구간을 넓힙니다. 유전자와 가이드 수준을 함께 적합하고 level 을 비활성화합니다. 연속형 한 수준에는 'ols', 'wls', 'rlm', 'huber', 'quantile' 을 사용하고, 분수에는 'logit', 'probit', 'beta', 'quasi_binomial' 을, 카운트에는 'poisson' 을 사용합니다. 서로 연관된 예측변수가 많으면 벌점 모델 계열을 사용합니다. 혼합 모델은 두 수준을 한 번에 적합하므로 'level' 이 회색으로 비활성화됩니다. regression_type 의 'beta' 는 베타 GLM을 선택하지만 transform 의 'beta' 는 반응값만 변환합니다."
+      "source_sha256": "5fe2413ffa89d6b027255c9d2d301961c73ad44f51317d509346937569d866b1",
+      "source": "Model family. Default 'mixed' nests guides inside genes as random effects, so guides disagreeing widens that gene's interval; it answers both levels at once, which is why 'level' greys out. Otherwise: 'ols', 'wls', 'rlm', 'huber' or 'quantile' for a continuous response; 'logit', 'probit', 'beta' or 'quasi_binomial' for fractions; 'poisson' for counts; 'lasso', 'ridge', 'elasticnet' or 'horseshoe' when the predictors outnumber the wells. Note regression_type 'beta' fits a beta GLM, while transform 'beta' only transforms the response.",
+      "translation": "모델 계열입니다. 기본값 'mixed' 는 가이드를 유전자 안에 임의 효과로 중첩하므로, 가이드 결과가 다르면 해당 유전자의 구간이 넓어집니다. 두 수준을 동시에 분석하므로 'level' 은 비활성화됩니다. 그 밖에는 연속형 반응에 'ols', 'wls', 'rlm', 'huber', 'quantile' 을, 분수에 'logit', 'probit', 'beta', 'quasi_binomial' 을, 카운트에 'poisson' 을 사용합니다. 예측변수가 웰보다 많을 때는 'lasso', 'ridge', 'elasticnet', 'horseshoe' 를 사용합니다. regression_type 'beta' 는 베타 GLM을 적합하지만 transform 'beta' 는 반응값만 변환합니다."
     },
     {
       "table": "setting_tooltips",
