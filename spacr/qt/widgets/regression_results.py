@@ -478,13 +478,12 @@ class RegressionResultsPanel(QWidget):
     #: An asynchronous load finished. ``True`` when the run is on screen.
     #: Separate from :attr:`loaded`, which carries a path and predates the
     #: worker: a caller needs to know SUCCESS, and it arrives later than the
-    #: call that started it (instruction 159).
+    #: call that started it.
     load_finished = Signal(bool)
 
     #: What the run label says when the table on screen came from no run --
     #: a bare CSV, or a frame handed straight in. NOT blank: an empty label
-    #: reads as "the run has no name", and the difference between those two
-    #: is the whole of instruction 155 A.
+    #: reads as "the run has no name" rather than "this table has no run".
     NO_RUN_NAMED = "No run"
 
     #: Emitted with a settings dict when the user asks, from the plot, for
@@ -808,23 +807,14 @@ class RegressionResultsPanel(QWidget):
         self._frame = None
         self._path = None
         self._selected_key = None
-        #: EVERY RUN OWNS ITS PLOT STATE, keyed by the run's own source path.
-        #: Instruction 116's new section, requested 2026-08-18: "every
-        #: regression run should have its own interactive volcano plot."
+        #: Per-run plot state, keyed by the run's source path.
         #:
-        #: THE STATE, NOT N WIDGETS, and the measurement is why. 129 clocked
-        #: live pyqtgraph tiles at 74.99 ms per window-drag frame against
-        #: 5.19 ms for photographs, on a 16.7 ms budget -- so one live
-        #: volcano for whatever is on screen and retained state for the rest
-        #: is the only shape that both answers the ask and stays usable. The
-        #: state is small; the widget is not.
+        #: Only the visible run keeps a live volcano widget; other runs retain
+        #: lightweight state so switching runs does not multiply redraw cost.
         self._plot_states: Dict[str, dict] = {}
         self._status = "No regression loaded."
         self._ranking = (None, None)
-        #: The settings that produced the table on screen, when they are
-        #: known. BORN HERE rather than on first use: an attribute a menu
-        #: handler reads, created only by a code path that may not have run,
-        #: is the `_significance` crash that took the panel down at launch.
+        #: Settings that produced the table on screen, when known.
         self._run_settings = None
         #: ``(kind, name)`` -- what effects are measured FROM. Born here for
         #: the same reason as everything else in this block: `_redraw_volcano`
@@ -873,19 +863,15 @@ class RegressionResultsPanel(QWidget):
         # the level on which the two inference modes agree. Instruction 128 R
         # is the real repair: fit the two levels SEPARATELY.
         self._level = "grna"
-        #: The fitted model behind the table, when a run in this session
-        #: produced it. BORN HERE for the same reason as everything else in
-        #: this block.
+        #: Fitted model behind the table when the current process produced it.
         self._model = None
         #: What went wrong drawing the diagnostics, verbatim, or "". Kept so
         #: an absent summary can name the error that caused it rather than
         #: telling the "opened from disk" story regardless.
         self._diagnostics_error = ""
-        #: True once a run of this session has handed over its settings --
-        #: which only the live path does. It is how "there is no model
-        #: because this table was read off disk" is told apart from "there is
-        #: no model because the run came back without one", and both of those
-        #: used to be reported as the first.
+        #: Whether the table came directly from a run in the current process.
+        #: This distinguishes disk-loaded results from a live run that failed
+        #: to return a fitted model.
         self._from_live_run = False
         #: The :class:`spacr.regression_qc.RegressionQCContext` the residual
         #: tabs were drawn from, kept so the homogeneity verdict is read off
@@ -979,10 +965,9 @@ class RegressionResultsPanel(QWidget):
 
     # ------------------------------------------------------------ diagnostics
 
-    #: What the diagnostic tabs say before a run in this session has produced
-    #: a model. Not "no data": a user looking at a table they loaded off disk
-    #: needs to know that these three tabs are empty for a REASON they can act
-    #: on, and what the action is.
+    #: Message shown when diagnostics have no fitted model. It distinguishes
+    #: disk-loaded coefficient tables from a live fit and names the available
+    #: actions.
     NO_MODEL_MESSAGE = (
         "Residual diagnostics are computed from the fitted model, and only a "
         "run in this session hands one over -- a results table read from disk "
@@ -1126,10 +1111,7 @@ class RegressionResultsPanel(QWidget):
         self._summary.setPlainText(text)
         return not text.startswith("No summary")
 
-    #: Said when a run of this session came back with no fitted model at all.
-    #: CHECKED, not assumed: the panel knows this table came from a run
-    #: because the run handed over its settings, and it knows there is no
-    #: model because it was handed none.
+    #: Reason reported when a live run returns no fitted model.
     NO_MODEL_FROM_THIS_RUN = (
         "this run came back without a fitted model, so there is none to "
         "summarise")
@@ -2977,10 +2959,7 @@ class RegressionResultsPanel(QWidget):
         if self._selected_key is not None:
             self.volcano.highlight_key(self._selected_key)
 
-    #: What the two effect tabs say before a coefficient table reaches them.
-    #: A blank plot behind a tab nobody has opened is indistinguishable from a
-    #: broken one, which is the failure instruction 129 B names for an ABSENT
-    #: tab and which an empty present one commits just as quietly.
+    #: Message shown in effect tabs before a coefficient table is available.
     NO_EFFECTS_YET = (
         "No coefficient table yet. Both effect tabs are drawn from the fitted "
         "effects: run a regression, or open one with “Load results…”.")
