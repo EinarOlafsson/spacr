@@ -1,49 +1,20 @@
-"""
-Keep the interface responsive while a Python-bound worker runs.
+"""Keep the Qt interface responsive during Python-bound background work.
 
-Instruction 126: "when something is running after hitting run, the theme
-starts lagging."
+Python code that does not release the global interpreter lock can delay the
+GUI thread. :func:`claim` temporarily lowers the interpreter thread-switch
+interval to :data:`BUSY_INTERVAL`; :func:`release` restores the previous value
+after the last active worker finishes. Prefer the balanced
+:func:`responsive_gui` context manager for pipeline work.
 
-MEASURED FIRST, because the instruction says to and because three plausible
-causes want three different fixes. Offscreen, 1280x800, `blobs` backdrop with
-its shading already on `ambient._FrameProducer`, timer interval 16 ms, two
-worker threads:
+The setting is process-wide, so it is applied only while a Qt worker is
+active. Importing this module does not change the switch interval and headless
+runs incur no cost.
 
-    idle                                 median 16.00 ms   p95  16.04 ms
-    numpy worker (what a run mostly is)  median 16.00 ms   p95  20.05 ms
-    pure-Python worker                   median 42.42 ms   p95 118.63 ms
-    pure-Python, switchinterval 0.001    median 17.74 ms   p95  48.46 ms
-
-Three things follow, and only the third needed writing.
-
-THE PRODUCER THREAD ALREADY FIXED THE COMMON CASE. A numpy worker costs the
-animation NOTHING -- 16.00 ms against 16.00 ms idle -- because numpy releases
-the interpreter lock and the GUI thread's frame is now one `drawImage`.
-
-MOVING THE SHADING DOES NOT HELP A PURE-PYTHON WORKER, exactly as the
-instruction predicted: it is the same lock, and the GUI thread cannot even
-wake up to blit. 42 ms a frame is the lag that was reported.
-
-WHAT DOES HELP IS ASKING FOR THE LOCK MORE OFTEN. Python hands the GIL over
-every :func:`sys.getswitchinterval` seconds, 5 ms by default; a 60 Hz timer
-needs it every 16 ms and is competing with a thread that never blocks. At
-1 ms the GUI thread gets five times the chances and the median comes back to
-within 11% of idle.
-
-WHAT IT COSTS, stated because it is not free: more context switches, so a
-pure-Python worker runs marginally slower. That is the right trade for an
-interactive application -- the run is already the long pole, and a user
-watching a frozen window cannot tell it from a hang.
-
-SCOPED TO THE RUN, and restored after. A process-wide switch interval left at
-1 ms would slow every headless `spacr-run` for a GUI that is not there.
-
-Usage::
-
-    from spacr.qt.gil_priority import responsive_gui
-
-    with responsive_gui():
-        payload = pipeline(settings)
+Notes
+-----
+A shorter interval creates more context switches and can make pure-Python
+workers marginally slower. NumPy and similar compiled operations generally
+release the interpreter lock and are less affected.
 """
 from __future__ import annotations
 
@@ -66,11 +37,11 @@ _RESTORE = None
 
 
 def claim() -> None:
-    """Ask for the GUI's share of the interpreter lock. Idempotent, nesting.
+    """Request the responsive-GUI switch interval for one active worker.
 
-    COUNTED, because two modules can run at once -- Mask and Measure, or a
-    parameter search beside a fit -- and the first to finish must not hand
-    the interval back while the second is still going.
+    Calls are reference-counted and thread-safe. Each call should be paired
+    with :func:`release`; the original interval is restored only after the
+    final claim is released.
     """
     global _DEPTH, _RESTORE
     with _LOCK:
@@ -87,7 +58,10 @@ def claim() -> None:
 
 
 def release() -> None:
-    """Give it back when the last worker finishes."""
+    """Release one worker's claim and restore the interval when none remain.
+
+    Extra calls after the count reaches zero have no effect.
+    """
     global _DEPTH, _RESTORE
     with _LOCK:
         _DEPTH = max(0, _DEPTH - 1)
@@ -101,18 +75,22 @@ def release() -> None:
 
 
 def active() -> bool:
-    """Whether any worker currently holds the claim."""
+    """Return whether at least one worker holds a responsiveness claim."""
     with _LOCK:
         return _DEPTH > 0
 
 
 @contextmanager
 def responsive_gui():
-    """Hold the claim for the length of one run, whatever it ends as.
+    """Apply the responsive-GUI interval for the duration of a context.
 
-    `finally`, so a run that raises does not leave the process at 1 ms for as
-    long as it lives -- which would be a permanent tax on every later
-    headless call in the same interpreter.
+    The claim is released when the block exits, including when it raises an
+    exception. Nested and concurrent contexts are supported.
+
+    Yields
+    ------
+    None
+        Control returns to the context body while the claim is active.
     """
     claim()
     try:
