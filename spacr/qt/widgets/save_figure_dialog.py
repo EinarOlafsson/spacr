@@ -1,19 +1,8 @@
-"""Style a figure FOR THE FILE, see it, then write it (instruction 178 C.2).
+"""Preview and save a separately styled copy of a Matplotlib figure.
 
-    "when right clicking and saving a figure (matplotlib or pyqt6graph) the
-    user should be able to change all of theis for the saved graph, get a
-    preview then save."
-
-THE FIGURE ON SCREEN IS NOT TOUCHED, and that is the whole design. A saved
-figure is for paper and the one on screen is for the screen (instruction
-150); a save that restyled the live figure would change what the user is
-looking at as a side effect of writing a file, and they would have to undo it
-afterwards to carry on reading.
-
-So the preview is a COPY. The copy is made by pickling the figure -- the same
-mechanism `FigureQueue` already uses to spill figures to disk, so a figure
-that can be evicted and restored can be previewed -- and every control here
-acts on the copy alone.
+Export styling is applied to a detached copy, leaving the figure displayed in
+spaCR unchanged. Figures that cannot be copied still use the ordinary save
+path without a styled preview.
 """
 import logging
 from typing import Optional

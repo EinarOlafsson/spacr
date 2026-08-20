@@ -1,14 +1,9 @@
-"""Reading ``png_list`` -- the table that says where a crop was written.
+"""Resolve crop records stored in the ``png_list`` database table.
 
-SPLIT OUT OF :mod:`spacr.io` ON 2026-08-19, AND THE REASON IS THE POINT.
-Nothing here needs more than pandas, numpy and sqlite3, but `spacr/io.py`
-imports torch, torchvision and cv2 on its line 3 -- so
-``from .io import crop_rows_from_png_list`` cost the Cells tab thousands of
-modules and several seconds to show crops that were already on disk.
-Reported as "in the annotation app images load almost instintaniously while
-in the regression cell montage it takes way longer".
-
-`spacr.io` re-exports every name here, so no existing caller changes.
+The public helper joins ``png_list`` rows to measurement-table locations so
+the corresponding object can be cut from ``merged/*.npy``. This lightweight
+module avoids importing segmentation or model dependencies; :mod:`spacr.io`
+re-exports the helper for compatibility.
 """
 from __future__ import annotations
 
@@ -89,7 +84,7 @@ def _merged_field_paths(db_path, object_type='cell'):
 
 
 def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
-    """Give ``png_list`` rows the keys a crop has to be cut from ``merged/``.
+    """Add the locations and labels required to cut ``png_list`` objects.
 
     ``png_list`` records where a crop was *written* and which object it came
     from (``<object>_id``), but not which merged array produced it. This joins
@@ -100,10 +95,12 @@ def crop_rows_from_png_list(db_path, png_df, object_type='cell', verbose=True):
     several objects or none) cannot be cut from a single label and are
     dropped, with a count, rather than silently producing the wrong object.
 
-    :param db_path: the ``measurements.db`` ``png_df`` came from.
-    :param png_df: the ``png_list`` frame.
-    :param object_type: which crop mode the rows describe.
-    :param verbose: report dropped rows.
+    :param db_path: path to the ``measurements.db`` that contains ``png_df``.
+    :param png_df: rows read from ``png_list`` or a compatible object table.
+    :param object_type: crop mode used to select the object-id column. The
+        default is ``'cell'``; supported names are the keys of
+        :data:`PNG_LIST_ID_COLUMNS`.
+    :param verbose: print the number of unusable rows when ``True``.
     :returns: a copy of ``png_df`` with ``path_name``, ``object_label`` and
         ``object_type`` columns, minus the rows that cannot be cut.
     """
