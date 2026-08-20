@@ -228,11 +228,25 @@ def test_apply_cellpose_model_writes_measurements_and_summary(tmp_path, monkeypa
     assert first["min_size"] == 5
     assert first["augment"] is True
     assert first["tile_overlap"] == 0.2
-    # bsize is NOT configured: 990c8a3d stopped passing bsize=224, so cellpose
-    # uses its own 256 -- which is cpsam's native tile size. bsize is in
-    # model_compare.HONOURED_EVAL_ARGUMENTS, i.e. it changes the masks, so
-    # this is a segmentation change and not a dead-kwarg cleanup.
-    assert "bsize" not in record["eval_configured"][0]
+    # bsize is NOT configured: spaCR leaves the installed Cellpose release's
+    # native tile size alone. The recording double has Cellpose 4.0's
+    # ``bsize=256`` default, while Cellpose 4.2 defaults it to None; comparing
+    # the recorded value with the installed default therefore cannot tell an
+    # omitted keyword from an explicit one. Check the call itself with the
+    # AST so this contract stays valid at both supported ends of the range.
+    import ast
+    import inspect
+
+    tree = ast.parse(inspect.getsource(apply_cellpose_model))
+    eval_calls = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "eval"
+    ]
+    assert eval_calls
+    assert all("bsize" not in {word.arg for word in call.keywords}
+               for call in eval_calls)
     assert first["bsize"] == 256
     # the dataset hands cellpose float32 arrays resized to target_size
     for arr in first["x"]:

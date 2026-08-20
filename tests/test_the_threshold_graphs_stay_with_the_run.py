@@ -8,9 +8,10 @@ streamed: `find_and_visualize_fraction_threshold` calls `plt.show()` with the
 figure still open, and `spacr.qt.bridge._capture_show` emits every open figure
 to the queue, so the live all-figures grid still receives it. Nothing stopped
 that. `test_the_sweep_graph_is_open_at_plt_show` and
-`test_the_cell_count_graph_is_open_at_plt_show` pin that half so a future
-change that closes the figure before showing it fails here rather than
-silently emptying the grid.
+`test_the_cell_count_graph_is_published_after_saving` pins the cell-count
+delivery path, while the sweep test pins its existing ``plt.show`` bridge.
+That distinction matters because the saved cell-count figure must not block a
+headless command while waiting for a GUI event loop.
 
 WHAT IS MISSING IS EVERY VIEW BUILT FROM DISK. Both figures are written
 beside the COUNT DATA -- `<screen>/results/fraction_threshold.pdf`,
@@ -66,7 +67,8 @@ def _screen_on_disk(tmp_path, wells=4, cells=60, guides=8):
     pd.DataFrame(counts).to_csv(count_path, index=False)
     return {
         "score_data": [str(score_path)], "count_data": [str(count_path)],
-        "score_column": "pred", "tolerance": 0.02, "min_cell_count": None,
+        "dependent_variable": "pred", "tolerance": 0.02,
+        "min_cell_count": None,
         "target_unique_count": 5, "filter_column": "columnID",
         "control_wells": [], "log_x": False, "log_y": False,
     }, folder
@@ -101,18 +103,20 @@ def _title(figure):
 #  The premise: they were streamed, and still are
 # --------------------------------------------------------------------------- #
 
-def test_the_cell_count_graph_is_open_at_plt_show(tmp_path, monkeypatch):
-    """It reaches the LIVE figure queue, so the report is not "it stopped
-    being drawn" -- it is "it is not in the run folder"."""
+def test_the_cell_count_graph_is_published_after_saving(tmp_path, monkeypatch):
+    """It reaches the live gallery without blocking a headless command."""
     settings, _folder = _screen_on_disk(tmp_path)
-    recorder = _ShowRecorder()
-    monkeypatch.setattr(plt, "show", recorder)
+    published = []
+    monkeypatch.setattr(
+        "spacr.figure_sink.publish_file",
+        lambda path, **metadata: published.append((path, metadata)))
 
     minimum_cell_simulation(settings, num_repeats=3, increment=20)
 
-    assert recorder.calls, "minimum_cell_simulation drew nothing"
-    assert "Mean Absolute Difference vs. Sample Size" in " ".join(
-        recorder.newest)
+    assert len(published) == 1
+    path, metadata = published[0]
+    assert os.path.isfile(path)
+    assert metadata["title"] == "Minimum cell count"
     plt.close("all")
 
 
@@ -298,6 +302,7 @@ def test_a_run_leaves_both_threshold_graphs_in_its_own_folder(tmp_path):
     settings = get_perform_regression_default_settings({
         "score_data": [score], "count_data": [count],
         "dependent_variable": "pred", "regression_type": "ols",
+        "inference": "parametric",
         "min_cell_count": None, "fraction_threshold": None,
         "metadata_files": [], "toxo": False, "controls": None,
         "outlier_detection": False, "alpha": 1.0, "regression_qc": False,
@@ -325,9 +330,9 @@ def test_a_set_fraction_threshold_says_why_there_is_no_sweep_graph(tmp_path,
     figure having gone missing, which is how it was reported."""
     import inspect
 
-    from spacr.ml import perform_regression
+    from spacr.ml import _perform_regression
 
-    source = inspect.getsource(perform_regression)
+    source = inspect.getsource(_perform_regression)
     assert "the gRNA fraction-threshold sweep graph is not drawn" in source
     body = source.split("if settings['fraction_threshold'] is None:", 1)[1]
     assert "_keep_figures_with_the_run" in body
