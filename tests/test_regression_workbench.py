@@ -220,19 +220,34 @@ def test_inference_selects_the_analysis_mode():
     assert defaults({"inference": "auto"})["inference"] == "auto"
 
 
-def test_the_default_does_not_move_an_existing_run_onto_a_new_estimand():
-    """Defaulting to 'auto' would silently change what every old run does.
+def test_the_default_is_the_test_that_assumes_least():
+    """NONPARAMETRIC, at the maintainer's direction 2026-08-19.
 
-    A settings file written before this feature existed asks for the
-    simultaneous fit. Re-running it must still fit that model -- a different
-    estimand with different columns and different numbers, chosen by nobody,
-    is worse than a design warning.
+    This test used to assert 'parametric', on the reasoning that defaulting
+    to anything else moves an old settings file onto a different estimand.
+    That reasoning was answered rather than forgotten: the screens spaCR is
+    used on cannot identify the simultaneous fit at all -- 790 guides in 606
+    analysed wells on the reference screen -- so the old default was not
+    preserving an estimand, it was returning one arbitrary solution out of
+    infinitely many and calling it a result.
+
+    The plate-blocked permutation test assumes less: no normal residuals, no
+    equal variance, no leverage, and it stays valid at any width. What it
+    cannot do is express a P below 1/(permutations + 1), and the summary says
+    so -- which is what makes it a safe default rather than a silent one.
+
+    An explicit `inference` in a settings file still wins, so a run that
+    genuinely asked for the simultaneous fit still gets it.
     """
     from spacr.settings import get_perform_regression_default_settings as defaults
 
     resolved = defaults({})
-    assert resolved["inference"] == "parametric"
-    assert resolved["analysis_mode"] == "regression"
+    assert resolved["inference"] == "nonparametric"
+    assert resolved["analysis_mode"] == "guide_permutation"
+
+    kept = defaults({"inference": "parametric"})
+    assert kept["inference"] == "parametric"
+    assert kept["analysis_mode"] == "regression"
 
 
 def test_analysis_unit_cell_is_the_explicit_spelling_of_agg_type_none():

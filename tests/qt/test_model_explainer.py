@@ -20,10 +20,14 @@ from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.screens.settings_model import (
     COLLINEAR_FORMULA,
     GENE_FORMULA,
+    GENE_TERM,
     GRNA_FORMULA,
+    GRNA_TERM,
     MIXED_FORMULA,
+    MIXED_TERM,
     REGRESSION_LEVELS,
     explainer_width,
+    formula_for,
     normalise_regression_level,
     regression_model_explainer,
 )
@@ -38,6 +42,29 @@ def _flat(text: str) -> str:
     on the wrap.
     """
     return " ".join(str(text).split())
+
+
+def _formulas_the_panel_should_show(screen) -> tuple:
+    """``(guide, gene, mixed)`` formulas for the panel's OWN plate settings.
+
+    The constants are the formulas with plate position on. `model_plate_position`
+    now DEFAULTS OFF, and `formula_for` correctly leaves `+ rowID + columnID`
+    out when it is -- the box shows the formula the run fits, which is the whole
+    point of it (see `formula_for`: "the display asserts something the code does
+    not do, and nothing on screen says which to believe").
+
+    So the assertion has to ask the panel what it is set to rather than quote a
+    constant. A test that pinned the constant would fail the moment the default
+    moved -- as it did -- while saying nothing about whether the box was right.
+    """
+    values = screen._settings_model.collect() or {}
+    kwargs = dict(
+        plate_position=bool(values.get("model_plate_position", False)),
+        random_row_column=bool(values.get("random_row_column_effects", False)),
+    )
+    return (formula_for(GRNA_TERM, **kwargs),
+            formula_for(GENE_TERM, **kwargs),
+            formula_for(MIXED_TERM, **kwargs))
 
 
 def _pooled_screen_frame(seed: int = 0):
@@ -530,12 +557,13 @@ def test_the_box_follows_the_regression_type_dropdown(qtbot, qt_theme_applied):
     combo = screen._settings_model._widgets["regression_type"]
 
     combo.setCurrentText("ols")
-    assert GRNA_FORMULA in _flat(box.toPlainText())
-    assert MIXED_FORMULA not in _flat(box.toPlainText())
+    guide, _gene, mixed = _formulas_the_panel_should_show(screen)
+    assert guide in _flat(box.toPlainText())
+    assert mixed not in _flat(box.toPlainText())
 
     combo.setCurrentText("mixed")
     mixed_text = _flat(box.toPlainText())
-    assert MIXED_FORMULA in mixed_text
+    assert mixed in mixed_text
     assert "NO GUIDE-LEVEL HIT LIST" in mixed_text
 
     combo.setCurrentText("quantile")
@@ -554,17 +582,19 @@ def test_the_box_follows_the_panels_own_level_dropdown(qtbot, qt_theme_applied):
     assert [level.itemText(i) for i in range(level.count())] == list(
         REGRESSION_LEVELS)
 
+    guide, gene, _mixed = _formulas_the_panel_should_show(screen)
+
     level.setCurrentText("grna")
     text = _flat(box.toPlainText())
-    assert GRNA_FORMULA in text and GENE_FORMULA not in text
+    assert guide in text and gene not in text
 
     level.setCurrentText("gene")
     text = _flat(box.toPlainText())
-    assert GENE_FORMULA in text and GRNA_FORMULA not in text
+    assert gene in text and guide not in text
 
     level.setCurrentText("both")
     text = _flat(box.toPlainText())
-    assert GRNA_FORMULA in text and GENE_FORMULA in text
+    assert guide in text and gene in text
 
 
 def test_choosing_mixed_makes_the_box_ignore_whatever_level_holds(
@@ -600,9 +630,10 @@ def test_the_box_still_renders_when_the_panel_has_no_level_control(
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
     screen._settings_model._widgets["regression_type"].setCurrentText("ols")
+    guide, gene, _mixed = _formulas_the_panel_should_show(screen)
     screen._settings_model._widgets.pop("level")
 
     screen._refresh_model_explainer()
     text = _flat(screen._model_explainer.toPlainText())
     assert "LEVEL: both" in text
-    assert GRNA_FORMULA in text and GENE_FORMULA in text
+    assert guide in text and gene in text

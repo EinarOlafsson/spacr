@@ -254,6 +254,21 @@ class SweepPanel(QWidget):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.table, 1)
 
+        # HOVER HELP BELONGS ON THE SETTING'S NAME (instruction 113): a
+        # tooltip on the control fires while the user is using it, which is
+        # the one moment they did not ask for it.
+        #
+        # AT THE END OF `__init__`, which is the whole contract -- this call
+        # was at the end of `_refill`, so the panel's help moved only once a
+        # sweep had been loaded, and a user reading the controls BEFORE
+        # running anything (which is when a control's help is worth having)
+        # got the tooltip over the field they were typing into. The
+        # cross-screen audit found it as two QLineEdits on this panel and
+        # nowhere else, because every other screen calls it where it says to.
+        from ..screens.settings_model import retarget_field_tooltips
+
+        retarget_field_tooltips(self)
+
     # ------------------------------------------------------------- running
 
     def start(self, *_args) -> bool:
@@ -352,14 +367,6 @@ class SweepPanel(QWidget):
             self.status.setText(
                 f"{self.status.text()}  Showing the first {len(shown):,} of "
                 f"{len(keep):,} — save the table for all of them.")
-
-        # HOVER HELP BELONGS ON THE SETTING'S NAME (instruction 113): a
-        # tooltip on the control fires while the user is using it, which is
-        # the one moment they did not ask for it. One call rather than a
-        # convention to remember -- see `retarget_field_tooltips`.
-        from ..screens.settings_model import retarget_field_tooltips
-
-        retarget_field_tooltips(self)
 
     def exclusions(self) -> dict:
         """What the user asked to leave out, as `sweep` keyword arguments.
