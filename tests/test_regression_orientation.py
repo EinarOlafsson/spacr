@@ -957,8 +957,13 @@ def test_random_row_column_effects_names_the_results_folder_end_to_end(
     # components over two full plates is the slowest fit in the module.
     score, count = write_screen(tmp_path, plates=("plate1", "plate2"),
                                 n_cells=4)
-    settings = settings_for(score, count, regression_type="ols",
-                            random_row_column_effects=True)
+    settings = settings_for(
+        score,
+        count,
+        regression_type="ols",
+        model_plate_position=True,
+        random_row_column_effects=True,
+    )
     out = ML.perform_regression(settings)
 
     assert settings["regression_type"] == "mixed"
