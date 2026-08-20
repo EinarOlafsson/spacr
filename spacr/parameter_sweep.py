@@ -39,6 +39,7 @@ import random
 import time
 import traceback
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any, Callable, Mapping, Sequence
 
 import numpy as np
@@ -602,17 +603,26 @@ TRIAL_CPU_QUOTA = "400%"
 FREE_MEMORY_FLOOR_GB = 20.0
 
 
+@lru_cache(maxsize=1)
 def containment_available() -> bool:
-    """Whether the kernel can be asked to cap a trial."""
+    """Return whether a user scope accepts the trial memory limits.
+
+    Finding ``systemd-run`` is insufficient: hosted runners and containers
+    may ship the executable without a usable user manager or delegated memory
+    controller. A small no-op scope verifies the properties used for a real
+    trial without allocating meaningful memory.
+    """
     import shutil
 
     if not shutil.which("systemd-run"):
         return False
     try:
         import subprocess
-        return subprocess.run(
-            ["systemctl", "--user", "is-system-running"],
-            capture_output=True, timeout=5).returncode is not None
+        probe = subprocess.run(
+            ["systemd-run", "--user", "--scope", "--quiet",
+             "-p", "MemoryMax=64M", "-p", "MemorySwapMax=0", "true"],
+            capture_output=True, timeout=10)
+        return probe.returncode == 0
     except Exception:  # pragma: no cover - no user manager
         return False
 

@@ -25,17 +25,23 @@ class TestTheCapIsReal:
             pytest.skip("systemd-run is unavailable on this host")
 
         before = free_memory_gb()
+        # Keep the negative path safe too. An earlier version used a 2 GiB
+        # cap but allocated up to 12.5 GiB when a hosted runner accepted the
+        # systemd command without enforcing its memory controller. That
+        # terminated the runner instead of reporting a test failure. This
+        # probe exercises the same behaviour with a 128 MiB cap and cannot
+        # allocate more than 512 MiB if containment is broken.
         script = (
             "import numpy as np\n"
             "blocks = []\n"
-            "for i in range(200):\n"
-            "    blocks.append(np.ones((1024, 1024, 8)))\n"
+            "for i in range(64):\n"
+            "    blocks.append(np.ones((1024, 1024)))\n"
             "    print(i, flush=True)\n"
             "print('SURVIVED')\n"
         )
         finished = subprocess.run(
             ["systemd-run", "--user", "--scope", "--quiet",
-             "-p", "MemoryMax=2G", "-p", "MemorySwapMax=0",
+             "-p", "MemoryMax=128M", "-p", "MemorySwapMax=0",
              sys.executable, "-c", script],
             capture_output=True, text=True, timeout=180)
 
@@ -48,11 +54,12 @@ class TestTheCapIsReal:
         printed = (finished.stdout or "").split()
         assert printed, "the hog never allocated anything"
         blocks = int(printed[-1])
-        # ~64 MB each: it should reach roughly the 2 GiB cap and no further.
-        assert 20 <= blocks <= 40, \
+        # ~8 MiB each, plus the interpreter and NumPy: it should approach the
+        # 128 MiB cap and no further.
+        assert 4 <= blocks <= 20, \
             f"died after {blocks} blocks; the cap is not where it should be"
         # And the host never noticed.
-        assert free_memory_gb() > before - 4, \
+        assert free_memory_gb() > before - 2, \
             "free memory moved while a capped process ran"
 
     def test_the_command_carries_every_limit(self, tmp_path, monkeypatch):
