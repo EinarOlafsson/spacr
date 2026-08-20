@@ -1707,35 +1707,15 @@ REGRESSION_LEVELS = ('both', 'grna', 'gene')
 
 
 def _resolve_regression_backend(value):
-    """The stored ``regression_backend`` value for whatever was posted.
+    """Normalize a submitted regression backend to its display label.
 
-    THE STORED VALUE IS THE LABEL -- ``'statsmodels (CPU)'``, not
-    ``'statsmodels'`` -- and that is a deliberate choice with a reason.
-    Instruction 141 C requires every entry a user can pick to say ``(CPU)``
-    or ``(GPU)``, because whether a choice needs hardware has to be visible
-    before it is made. Both front ends render a combo's options verbatim and
-    both pre-select by matching the option against the module's default
-    (``qt/screens/settings_model.py`` inserts the default as an EXTRA item
-    when it matches nothing), so a short canonical value with labelled
-    options would put ``statsmodels`` and ``statsmodels (CPU)`` in the same
-    list. Storing the label is what makes one list.
+    Display labels retain the ``(CPU)`` or ``(GPU)`` suffix so saved settings
+    record their hardware requirement and both front ends can select the same
+    value they display. Short names and supported aliases remain valid input.
 
-    Nothing compares this string directly: :mod:`spacr.ml` puts every read
-    through ``regression_backends.resolve_backend_name``, which accepts the
-    label, the short name, the aliases people type (``lme4``, ``rapids``) and
-    ``None``. So the CSV is self-documenting -- it records that the run cost
-    a CPU fit -- and the code still works in short names.
-
-    A THIN WRAPPER otherwise, so :mod:`spacr.settings` carries no second copy
-    of the vocabulary. The table is :mod:`spacr.regression_spec` and the
-    normaliser :mod:`spacr.regression_backends`; neither imports anything
-    heavier than stdlib, which is what lets a settings panel read them
-    without pulling in torch
-    (``tests/test_a_settings_panel_does_not_import_torch.py``).
-
-    :param value: the label, the short name, or ``None`` for "not chosen".
-    :returns: the label of a key of ``regression_spec.REGRESSION_BACKENDS``.
-    :raises ValueError: naming the valid backends, on anything else.
+    :param value: display label, short backend name, alias, or ``None``.
+    :returns: a label from ``regression_spec.REGRESSION_BACKENDS``.
+    :raises ValueError: if ``value`` does not identify a supported backend.
     """
     from .regression_backends import backend_label
 
@@ -4032,20 +4012,9 @@ _clone_organelle_registry(tooltips, tooltip=True)
 def _name_the_family_in_every_estimator_tooltip():
     """Append "Read by: <families>" to each per-family estimator setting.
 
-    Instruction 135, asked for on 2026-08-17: "make sure the tooltips make
-    apparent which regression type each setting here is for".
-
-    GENERATED, NOT WRITTEN. Several of these tooltips already name their
-    family somewhere in a five-line paragraph -- `l1_ratio` says "elastic-net"
-    in its first clause, `cov_type` lists seven families in its third sentence
-    -- and a reader scanning the Estimator Tuning section has to read all of
-    it to find out whether the control applies to them. This puts the answer
-    in one place, in the same shape, at the end of every one.
-
-    Reading `REGRESSION_SETTINGS_USED` is the point. It is the same table the
-    greying rule is generated from, so the sentence and the enabled state
-    cannot disagree, and a family added there gets both without a second
-    edit. A hand-written list would drift the first time one did.
+    Read ownership from ``REGRESSION_SETTINGS_USED``, the same registry used
+    to enable each control. This keeps the concise footer consistent with the
+    visible state and automatically covers newly registered families.
     """
     from .regression_spec import REGRESSION_SETTINGS_USED
 
