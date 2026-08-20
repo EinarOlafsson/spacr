@@ -110,6 +110,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "foreign",
     "external_masks",
     "resume",
+    "restart_state",
     "checkpoint",
     "normalization",
     # Plate-wide intensity rescaling provenance and the desktop installer's
