@@ -5207,6 +5207,11 @@ class AppScreen(QWidget):
         if frame is None or not len(frame):
             return
         folder = payload.get("res_folder") or ""
+        # WHERE THIS SCREEN'S LAST RUN WROTE. 142 C: a Force restart names the
+        # folders that hold whatever reached disk, so a user knows where to
+        # look rather than assuming everything is gone or everything is fine.
+        if folder:
+            self._last_run_folder = str(folder)
         try:
             if panel.set_frame(frame, source=str(folder)):
                 # THE RUN'S OWN SETTINGS, handed over after the frame so they
@@ -5347,7 +5352,7 @@ class AppScreen(QWidget):
         if self._thread is None:
             return
         from ..button_roles import set_button_busy
-        from ..shutdown import (CANCEL, FORCE, GracefulQuitWatcher,
+        from ..shutdown import (CANCEL, FORCE, RESTART, GracefulQuitWatcher,
                                 ask_how_to_quit)
 
         name = APP_TITLES.get(self.app_key, self.app_key)
@@ -5355,8 +5360,17 @@ class AppScreen(QWidget):
             self, what=name, verb="Stop",
             detail="This run is still working. Stopping cooperatively lets "
                    "it finish the field, trial or job it is on and stop at "
-                   "the next point it can do so safely.")
+                   "the next point it can do so safely.",
+            # 142: the last resort, and offered from HERE rather than from the
+            # Quit dialog because this is the button somebody presses when a
+            # fit will not stop.
+            offer_restart=True,
+            restart_detail=self._restart_warning())
         if choice == CANCEL:
+            return
+
+        if choice == RESTART:
+            self.force_restart()
             return
 
         if choice == FORCE:
@@ -5536,6 +5550,89 @@ class AppScreen(QWidget):
             self._console.append_notice(
                 "[settings] {note}\n", note=note)
 
+    def running_modules(self) -> list:
+        """Every module with a run going, and for how long. Instruction 142 B.
+
+        NAMED INDIVIDUALLY, with elapsed time, because "other modules are
+        running" is not enough to decide with: a user weighing up two hours of
+        segmentation needs to know that is what they are weighing up.
+
+        Asked of the whole application rather than of this screen, since the
+        point of the warning is the runs this screen is NOT showing.
+        """
+        import time
+
+        out = []
+        for screen in self._sibling_screens():
+            thread = getattr(screen, "_thread", None)
+            if thread is None or not thread.isRunning():
+                continue
+            started = getattr(screen, "_run_started_at", None)
+            out.append({
+                "module": APP_TITLES.get(screen.app_key, screen.app_key),
+                "app_key": screen.app_key,
+                "seconds": (None if started is None
+                            else max(0.0, time.time() - float(started))),
+            })
+        return out
+
+    def _sibling_screens(self) -> list:
+        """Every AppScreen in this application, including this one."""
+        from PySide6.QtWidgets import QApplication
+
+        screens = []
+        for widget in QApplication.allWidgets():
+            if isinstance(widget, AppScreen):
+                screens.append(widget)
+        return screens or [self]
+
+    def _restart_warning(self) -> str:
+        """What Force restart will cost, in the dialog's own words."""
+        from ...restart_state import warning_text
+
+        folders = []
+        for screen in self._sibling_screens():
+            folder = getattr(screen, "_last_run_folder", "") or ""
+            if folder:
+                folders.append(str(folder))
+        try:
+            return warning_text(
+                [entry for entry in self.running_modules()
+                 if entry.get("app_key") != self.app_key],
+                folders)
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not describe the restart", exc_info=True)
+            return ""
+
+    def force_restart(self, *, launcher=None, exiter=None) -> bool:
+        """Save this module and its settings, then restart spaCR. 142 A.
+
+        Returns whether the restart was started. FALSE MEANS NOTHING WAS
+        KILLED: the state is written and verified first, so a failure to save
+        cancels the restart and says why, rather than leaving and hoping.
+        """
+        from ..shutdown import restart_spacr
+
+        try:
+            settings = dict(self._settings_model.collect() or {})
+        except Exception:                                       # noqa: BLE001
+            LOG.debug("could not collect the settings to restart with",
+                      exc_info=True)
+            settings = {}
+        folders = [str(getattr(screen, "_last_run_folder", "") or "")
+                   for screen in self._sibling_screens()]
+        started = restart_spacr(
+            self.app_key, settings,
+            running=self.running_modules(),
+            run_folders=[f for f in folders if f],
+            launcher=launcher, exiter=exiter)
+        if not started:
+            self._say(
+                "spaCR did NOT restart: the module and its settings could not "
+                "be saved, and restarting without them would lose more than "
+                "the stuck run. Nothing was stopped. The log says why.")
+        return started
+
     def restore_run_workspace(self, record) -> dict:
         """Put back what a saved run had open. Returns the restore report.
 
@@ -5673,10 +5770,20 @@ class AppScreen(QWidget):
             except (ValueError, TypeError):
                 pass
         elif isinstance(widget, QDoubleSpinBox):
-            try:
-                widget.setValue(float(val))
-            except (ValueError, TypeError):
-                pass
+            # A BOX THAT ALSO SAYS "auto" (181). `float("auto")` raises, and
+            # the `except` above would have swallowed it and left the control
+            # showing 1 -- the one value that cannot fit a penalised model.
+            # Two writers for one widget is why this needed saying twice; the
+            # spelling is shared so they cannot answer differently.
+            from .settings_model import AUTO_TEXT, _set_auto_or_number
+
+            if str(widget.specialValueText() or "") == AUTO_TEXT:
+                _set_auto_or_number(widget, val)
+            else:
+                try:
+                    widget.setValue(float(val))
+                except (ValueError, TypeError):
+                    pass
         elif isinstance(widget, QComboBox):
             for i in range(widget.count()):
                 if widget.itemText(i) == str(val):

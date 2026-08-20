@@ -1548,6 +1548,13 @@ class MainWindow(QMainWindow):
 
         if initial_app:
             self._on_nav_selected(initial_app)
+        else:
+            # INSTRUCTION 142: come back to where the Force restart left off.
+            # After an explicit `initial_app`, because a user who named a
+            # module on the command line is asking for that module, and a
+            # saved state that overrode it would be spaCR ignoring what it
+            # was just told.
+            self.resume_after_restart()
 
         # Apply the persisted language after every startup widget exists.
         # New lazy screens are translated separately when first constructed.
@@ -2499,6 +2506,39 @@ class MainWindow(QMainWindow):
         drawer = getattr(self, "_app_drawer", None)
         if drawer is not None:
             drawer.toggle()
+
+    def resume_after_restart(self) -> str:
+        """Reopen the module a Force restart saved. Returns its key, or "".
+
+        TAKEN, NOT READ: `restart_state.take` deletes the state as it hands it
+        over, so a crash on the way back up cannot leave spaCR reopening the
+        same wedged module on every launch afterwards -- which would turn one
+        bad afternoon into a permanently broken installation.
+
+        THE SETTINGS ARE APPLIED, THE RUN IS NOT STARTED. 142 C: the runs do
+        not come back, only the configuration, and starting one unasked would
+        be the opposite of what somebody who just force-restarted wants.
+        """
+        from ..restart_state import take
+
+        state = take()
+        if not isinstance(state, dict):
+            return ""
+        key = str(state.get("module") or "")
+        if not key:
+            return ""
+        try:
+            self._on_nav_selected(key)
+            screen = self._screens.get(key) if hasattr(self, "_screens") else None
+            settings = state.get("settings")
+            if screen is not None and isinstance(settings, dict) and settings:
+                applied = screen.apply_settings_dict(settings)
+                LOG.info("restored %s settings after a restart into %s",
+                         applied, key)
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not reopen %s after the restart", key)
+            return ""
+        return key
 
     def _on_drawer_navigated(self, _key: str) -> None:
         """A row in the drawer was clicked — it has done its job, close it.
