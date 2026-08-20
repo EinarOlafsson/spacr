@@ -187,6 +187,21 @@ def _derive_well_columns(frame: pd.DataFrame, well_column: str,
     return out, True
 
 
+def _resolved_source_column(
+        frame: pd.DataFrame,
+        requested: str,
+        column_map: Mapping[str, str]) -> str:
+    """Return the post-normalisation name of a selected source column."""
+    candidates = [str(requested), schema.canonical_column_name(requested)]
+    candidates.extend(
+        str(target)
+        for target, source in column_map.items()
+        if str(source) == str(requested)
+    )
+    return next((name for name in candidates if name in frame.columns),
+                str(requested))
+
+
 def _typed_value(value: Any) -> Tuple[str, str]:
     """A JSON-safe identity that keeps ``1`` distinct from ``'1'``."""
     return type(value).__name__, repr(value)
@@ -277,8 +292,10 @@ def resolve_metadata_columns(
     identity_missing = [column for column in missing
                         if column in (schema.ROW_KEY, schema.COLUMN_KEY)]
     if identity_missing and decision.well_column:
+        resolved_well_column = _resolved_source_column(
+            out, decision.well_column, decision.column_map)
         out, derived = _derive_well_columns(
-            out, decision.well_column, identity_missing)
+            out, resolved_well_column, identity_missing)
         if derived:
             derived_from = decision.well_column
 
@@ -286,8 +303,10 @@ def resolve_metadata_columns(
     identity_missing = [column for column in missing
                         if column in (schema.ROW_KEY, schema.COLUMN_KEY)]
     if identity_missing and decision.allow_pseudo and decision.pseudo_source:
+        resolved_pseudo_source = _resolved_source_column(
+            out, decision.pseudo_source, decision.column_map)
         out, pseudo_map = _pseudo_wells(
-            out, decision.pseudo_source, identity_missing)
+            out, resolved_pseudo_source, identity_missing)
 
     missing = [column for column in required if column not in out.columns]
     if missing and prompt is not None and cache_key not in _RUN_DECISIONS:

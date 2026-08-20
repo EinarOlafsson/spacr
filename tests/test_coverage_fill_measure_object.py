@@ -638,6 +638,7 @@ def test_process_meassure_crop_results(tmp_path):
 def test_process_measure_crop_results(tmp_path):
     settings = {"src": str(tmp_path / "merged")}
     M.process_measure_crop_results([None], settings)
+    assert not (tmp_path / "results").exists()
 
 
 # ---------------------------------------------------------------------------

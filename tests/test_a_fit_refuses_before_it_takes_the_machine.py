@@ -24,13 +24,17 @@ def test_the_size_is_exact_not_estimated():
     assert design_bytes(1000, 200, itemsize=4) == 1000 * 200 * 4
 
 
-def test_a_design_that_fits_is_not_refused():
-    from spacr.mixed_gpu import _refuse_if_too_large
+def test_a_design_that_fits_is_not_refused(monkeypatch):
+    from spacr import mixed_gpu
 
     # The maintainer's own merge: 226,467 cells x 1,212 random effects is
     # 2.2 GB, which is large and is NOT what took the machine down. A guard
     # that refused this would have broken a fit that works.
-    _refuse_if_too_large(226_467, 1_212, device="cpu")
+    available = 6 * 1024 ** 3
+    monkeypatch.setattr(mixed_gpu, "available_memory", lambda device="cpu": available)
+    wanted = mixed_gpu.design_bytes(226_467, 1_212)
+    assert wanted < available * mixed_gpu.MEMORY_HEADROOM
+    mixed_gpu._refuse_if_too_large(226_467, 1_212, device="cpu")
 
 
 def test_an_impossible_design_is_refused_with_both_numbers():

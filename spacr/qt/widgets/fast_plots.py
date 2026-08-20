@@ -29,6 +29,7 @@ free of spaCR imports so they can be tested, and reused, on their own.
 from __future__ import annotations
 
 from collections import namedtuple
+from contextlib import contextmanager
 from typing import Callable, Optional, Sequence
 
 import numpy as np
@@ -3172,7 +3173,13 @@ class FastPlot(QWidget):
         # instruction 106 forbids. Each group repeats it -- see `_group`.
         menu.setToolTipsVisible(True)
         menu.addAction("Reset view", self.auto_range_axes)
+        # TWO ENTRIES, and the difference is stated in their names. "Export"
+        # writes the plot as it looks; "Save styled" opens the preview where
+        # ink, background and grid are chosen FOR THE FILE (178 C.2). Keeping
+        # both because the styled route is three more clicks for a user who
+        # only wants the picture they are looking at.
         menu.addAction("Export…", self.export)
+        menu.addAction("Save styled…", self.save_styled)
 
         # ------------------------------------------------ what the plot CLAIMS
         claims = False
@@ -4254,6 +4261,71 @@ class FastPlot(QWidget):
             self._shape_the_image(exporter)
             exporter.export(path)
         return path
+
+    @contextmanager
+    def _dressed_for_the_file(self, ink: str = "", background: str = "",
+                              grid: Optional[bool] = None):
+        """Wear the FILE's styling for the length of one render, then undo it.
+
+        Instruction 178 C.2's pyqtgraph half. The matplotlib side previews on
+        a pickled COPY, which is not available here: a pyqtgraph plot is a
+        live scene graph of Qt objects and does not pickle, and rebuilding one
+        from its data items would be a second implementation of every plot in
+        this module -- guaranteed to drift from the first.
+
+        SO THE LIVE PLOT IS DRESSED AND UNDRESSED, and the reason that is safe
+        is that nothing repaints in between. Both callers render the SCENE
+        into an offscreen image synchronously (`ImageExporter`, `QPainter`),
+        which needs no widget repaint, and no event loop runs inside this
+        block. `finally` restores unconditionally, so an export that raises
+        leaves the screen exactly as it was -- which is the property the
+        instruction is actually about: "a save that restyled the live figure
+        would change what the user is looking at as a side effect of writing
+        a file".
+        """
+        before_bg, before_fg = self._background, self._foreground
+        before_grid = self._grid_on
+        try:
+            if ink or background:
+                self.restyle(background=background or before_bg,
+                             foreground=ink or before_fg)
+            if grid is not None:
+                self.set_grid(grid)
+            yield self
+        finally:
+            if grid is not None:
+                self.set_grid(before_grid)
+            if ink or background:
+                self.restyle(background=before_bg, foreground=before_fg)
+
+    def styled_snapshot(self, width: int = SNAPSHOT_PX[0], *, ink: str = "",
+                        background: str = "", grid: Optional[bool] = None):
+        """A picture of what :meth:`export_styled` would write. ``None`` if empty.
+
+        The PREVIEW the instruction asks for, and it is the same render the
+        file gets rather than an approximation of it -- a preview that came
+        from a different code path is a preview that can be wrong.
+        """
+        with self._dressed_for_the_file(ink, background, grid):
+            return self.snapshot(width)
+
+    def export_styled(self, path: str, *, ink: str = "", background: str = "",
+                      grid: Optional[bool] = None) -> Optional[str]:
+        """Write the plot with the FILE's styling, leaving the screen alone."""
+        with self._dressed_for_the_file(ink, background, grid):
+            return self.export(path)
+
+    def save_styled(self):
+        """Open the styling-and-preview dialog for this plot. Returns the path.
+
+        The same dialog matplotlib figures use, so the two backends offer one
+        experience rather than two -- which is what the ask says: "matplotlib
+        or pyqt6graph".
+        """
+        from .save_figure_dialog import SaveFigureDialog
+
+        dialog = SaveFigureDialog(self, parent=self)
+        return dialog.exec()
 
     def _shape_the_image(self, exporter) -> None:
         """Hold a raster export at the canvas shape, KEEPING ITS WIDTH.
