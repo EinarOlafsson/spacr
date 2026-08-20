@@ -738,9 +738,56 @@ def get_figure_color_tokens() -> tuple:
     one bit that matters: whether the user chose it.
     """
     _migrate_frozen_figure_colors()
+    _unfreeze_figure_colors_that_fight_the_theme()
     settings = _settings()
     return (str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR)),
             str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR)))
+
+
+def _unfreeze_figure_colors_that_fight_the_theme() -> None:
+    """Hand a frozen pair back to "auto" when it no longer fits the theme.
+
+    THE ONE-SHOT MIGRATION ABOVE IS NOT ENOUGH, and this is the hole it left.
+    It writes a marker and never looks again, so a store frozen AFTER it ran
+    -- by an older dialog, by a settings file copied between machines, by any
+    path that wrote a resolved pair back -- stays frozen for good. Measured
+    on the maintainer's own machine: theme 'dark', auto would give
+    ('none', '#ffffff'), and the store held ('#ffffff', '#000000'). Every
+    figure was therefore drawn with black ink whatever the theme said, which
+    is "all of the graphs need to be adapted to [the dark theme]. as it is now all
+    of them have black axees and lines the grid is black".
+
+    THE RULE IS NARROW ON PURPOSE. It only acts when BOTH halves look like a
+    resolution that was written back -- a value "auto" has itself produced on
+    some theme -- AND the pair disagrees with what "auto" means now. A user
+    who deliberately picked a colour "auto" never produces keeps it, and one
+    whose stored pair already matches the current theme is left alone, so
+    this is silent for everybody it does not help.
+
+    Never raises: a preference that cannot be repaired is a cosmetic loss,
+    not a crash in a figure render.
+    """
+    try:
+        settings = _settings()
+        bg = str(settings.value(_KEY_FIG_BG, AUTO_FIGURE_COLOR))
+        fg = str(settings.value(_KEY_FIG_FG, AUTO_FIGURE_COLOR))
+        if figure_color_is_auto(bg) or figure_color_is_auto(fg):
+            return                      # nothing frozen to hand back
+        if bg.lower() not in _FROZEN_BG_VALUES:
+            return                      # a colour "auto" never produced
+        if fg.lower() not in _FROZEN_FG_VALUES:
+            return
+        if (bg.lower(), fg.lower()) == tuple(
+                str(v).lower() for v in auto_figure_colors()):
+            return                      # frozen, but at today's answer anyway
+        settings.setValue(_KEY_FIG_BG, AUTO_FIGURE_COLOR)
+        settings.setValue(_KEY_FIG_FG, AUTO_FIGURE_COLOR)
+        print(f"Figure colours were pinned to {bg} / {fg}, which is what "
+              f"'follow the theme' resolved to on a different theme. They "
+              f"have been handed back to the theme; set them explicitly in "
+              f"Preferences > Figures if that was deliberate.")
+    except Exception:                                        # noqa: BLE001
+        return
 
 
 def get_figure_line_token() -> str:
