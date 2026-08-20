@@ -20,6 +20,7 @@ import queue
 import sqlite3
 import threading
 import time
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import (Any, Dict, Iterable, List, Mapping, Optional,
                     Sequence, Tuple)
@@ -304,29 +305,13 @@ _MASK_CACHE: "OrderedDict" = None
 
 
 def _foreground_mask(channel, sigma: float, factor: float):
-    """The Otsu foreground of one channel, remembered.
+    """Return and cache the Otsu foreground mask for one channel.
 
-    WHY THIS IS CACHED AND THE REST IS NOT. Measured 2026-08-20 on a 128x128
-    crop: `draw_crop` costs 0.198 ms with the defaults and 4.464 ms with
-    outlines on -- twenty-two times as much -- so a 200-cell montage spends
-    ~0.9 s redrawing outlines and ~0.04 s on everything else. That is the
-    "seconds" in "it should take a verry shourt amoutn of time to change nd
-    reapply the settings" (188 A).
-
-    And almost all of it is recomputed for nothing. The mask depends on the
-    PIXELS and on two outline settings; it does not depend on
-    `normalize_channels`, `percentiles`, `edge_transparency`, `edge_image` or
-    the thickness. Changing any of those -- which is most of what a user
-    changes -- recomputed a gaussian blur, an Otsu threshold, a binary
-    closing and a hole fill that were going to come out identical.
-
-    Keyed on the channel's BYTES, not on its identity: the montage re-cuts
-    its crops on a reload, so an `id()` would miss every time and, worse,
-    could collide after a free. Hashing 16 KB costs a few microseconds
-    against the 1.5 ms it saves.
+    The mask depends only on the pixel bytes, shape, smoothing width, and
+    threshold factor. Display-only changes such as normalization, opacity,
+    outline thickness, and percentiles can therefore reuse it. Content-based
+    keys also survive crop-object replacement during a montage reload.
     """
-    from collections import OrderedDict
-
     global _MASK_CACHE
     if _MASK_CACHE is None:
         _MASK_CACHE = OrderedDict()
@@ -364,8 +349,6 @@ _EDGE_CACHE: "OrderedDict" = None
 
 def _edge_of(mask, thickness: int):
     """The boundary of ``mask``, dilated to ``thickness``, remembered."""
-    from collections import OrderedDict
-
     from skimage.morphology import dilation, disk
     from skimage.segmentation import find_boundaries
 
