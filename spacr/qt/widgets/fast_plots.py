@@ -1155,11 +1155,22 @@ class FastPlot(QWidget):
         # window. See that method.
         reset.clicked.connect(self.auto_range_axes)
         controls.addWidget(reset)
-        export = QPushButton("Export…")
-        # No argument: `clicked` carries a bool that `export` would read as
-        # its path. See `export`.
-        export.clicked.connect(lambda: self.export())
-        controls.addWidget(export)
+        # NO EXPORT BUTTON (187 D). Reported 2026-08-20: "the export button
+        # dosnt cause any errors but the exported figure is broken, with
+        # massive text and so on ... actually remove the export button, save
+        # styled is enough."
+        #
+        # TWO DOORS AND ONE OF THEM WROTE BLIND. `export` writes with no
+        # preview and no styling pass, so a page sized in millimetres got
+        # text scaled for the screen -- which is the massive text. Save
+        # styled shows what it is about to write, which is the difference,
+        # and it is the door that stays.
+        save = QPushButton("Save figure…")
+        save.setToolTip(
+            "Choose the ink, the page and the size, see the result, then "
+            "write it.")
+        save.clicked.connect(lambda: self.save_styled())
+        controls.addWidget(save)
         layout.addLayout(controls)
 
         self._status = QLabel("")
@@ -3132,9 +3143,10 @@ class FastPlot(QWidget):
         # ink, background and grid are chosen FOR THE FILE (178 C.2). Keeping
         # both because the styled route is three more clicks for a user who
         # only wants the picture they are looking at.
-        # Same bool, from `triggered` this time.
-        menu.addAction("Export…", lambda: self.export())
-        menu.addAction("Save styled…", lambda: self.save_styled())
+        # ONE DOOR (187 D). "Export…" wrote with no preview and no styling
+        # pass; this one shows what it will write. `export` itself stays as
+        # the API both paths and every test use.
+        menu.addAction("Save figure…", lambda: self.save_styled())
 
         # ------------------------------------------------ what the plot CLAIMS
         claims = False

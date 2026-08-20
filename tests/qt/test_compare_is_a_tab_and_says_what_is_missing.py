@@ -203,3 +203,82 @@ class TestFoldsCollapseUpward:
         sizes = [120] * len(panel.sections())
 
         assert panel._apply_section_layout({"folded": [], "sizes": sizes})
+
+
+class TestAnOpenedSectionFillsItsSpace:
+    """187 C, reported right after the fold-upward fix landed.
+
+    "when opened they just open a tiny bit. have them fill the container to
+    the next subsection." Giving the filler the only stretch made it absorb
+    too well: an opened section took its minimum and the filler kept the rest.
+    """
+
+    @pytest.fixture
+    def panel(self, qtbot):
+        from PySide6.QtWidgets import QApplication
+        from spacr.qt.widgets.measurement_scan_panel import (
+            MeasurementScanPanel)
+
+        widget = MeasurementScanPanel()
+        qtbot.addWidget(widget)
+        widget.resize(600, 900)
+        widget.show()
+        QApplication.processEvents()
+        return widget
+
+    def _filler_height(self, panel):
+        return panel._sections.sizes()[
+            panel._sections.indexOf(panel._filler)]
+
+    def _visible(self, panel):
+        """A section the user can actually fold.
+
+        `_show_section` hides the ones with nothing to show, and a hidden
+        splitter child is forced to zero -- so driving one proves nothing
+        about how the space is shared.
+        """
+        shown = [s for s in panel.sections() if s.isVisible()]
+        if not shown:
+            pytest.skip("this panel has no visible section to fold")
+        return shown[0]
+
+    def test_opening_a_section_takes_the_space_back_from_the_gap(self, panel):
+        from PySide6.QtWidgets import QApplication
+
+        section = self._visible(panel)
+        panel.set_section_expanded(section.title(), False)
+        QApplication.processEvents()
+        folded_gap = self._filler_height(panel)
+
+        panel.set_section_expanded(section.title(), True)
+        QApplication.processEvents()
+
+        assert self._filler_height(panel) < folded_gap, (
+            "the opened section has to take the space, not open a sliver "
+            "while the gap keeps it")
+
+    def test_an_open_section_gets_more_than_its_minimum(self, panel):
+        from PySide6.QtWidgets import QApplication
+
+        section = self._visible(panel)
+        panel.set_section_expanded(section.title(), False)
+        QApplication.processEvents()
+        panel.set_section_expanded(section.title(), True)
+        QApplication.processEvents()
+
+        height = panel._sections.sizes()[panel._sections.indexOf(section)]
+        assert height > section.minimumHeight(), (
+            f"{height}px is its minimum -- it has not filled anything")
+
+    def test_folded_sections_still_give_their_height_up(self, panel):
+        """The fix for 186 C must survive the fix for 187 C."""
+        from PySide6.QtWidgets import QApplication
+
+        self._visible(panel)
+        for section in panel.sections():
+            panel.set_section_expanded(section.title(), False)
+        QApplication.processEvents()
+
+        sizes = panel._sections.sizes()
+        filler = sizes[panel._sections.indexOf(panel._filler)]
+        assert filler > sum(sizes) - filler

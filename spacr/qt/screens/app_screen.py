@@ -4773,8 +4773,17 @@ class AppScreen(QWidget):
                 f"{trial} saved a results table but no figures, so the grid "
                 "is empty rather than showing the last run's.\n")
         self._figures_card.show()
-        # THE PANEL IS ON A TAB, so re-pointing it is only half of showing it.
-        self._raise_the_results_tab()
+        # THE TAB DOES NOT MOVE ON ITS OWN (190). Reported 2026-08-20: "the
+        # user should have to click the results tab to go there, no auto
+        # switching tabs." A view that moves by itself takes the user
+        # somewhere they did not ask to go and loses whatever they were
+        # reading. The results arriving is fine; being MOVED to them is not.
+        #
+        # SO IT HAS TO SAY SO INSTEAD. Nothing raises the tab now, and a load
+        # that finished silently while the user is on another tab would look
+        # like a load that did not happen.
+        self._console.append_stdout(
+            f"{trial} is loaded — open the Results tab to see it.\n")
 
     @staticmethod
     def _same_run_folder(one, other) -> bool:
