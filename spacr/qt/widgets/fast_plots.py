@@ -1167,8 +1167,8 @@ class FastPlot(QWidget):
         # and it is the door that stays.
         save = QPushButton("Save figure…")
         save.setToolTip(
-            "Choose the ink, the page and the size, see the result, then "
-            "write it.")
+            "Preview the figure's colors, background, and dimensions before "
+            "saving it.")
         save.clicked.connect(lambda: self.save_styled())
         controls.addWidget(save)
         layout.addLayout(controls)

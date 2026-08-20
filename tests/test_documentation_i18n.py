@@ -866,6 +866,8 @@ def test_numpydoc_field_declarations_are_protected_before_identifiers():
         "colour : color-like or None, default=None Mark colour. "
         "error : FileNotFoundError Raised when the style file is absent. "
         ":param scores: array-like Values to normalize. "
+        ":ivar images: list of per-image tensors. "
+        ":ivar written: mappings created by this run. "
         "Missing module: {module}. "
         ":returns: dict of resolved values."
     )
@@ -880,6 +882,8 @@ def test_numpydoc_field_declarations_are_protected_before_identifiers():
         assert literal not in protected
     assert ":returns: dict of resolved values." in protected
     assert ":param scores: array-like Values to normalize." in protected
+    assert ":ivar images: list of per-image tensors." in protected
+    assert ":ivar written: mappings created by this run." in protected
     assert "Missing module:" in protected
     assert "{module}" in mapping.values()
     assert "module: {module}" not in mapping.values()
@@ -887,6 +891,7 @@ def test_numpydoc_field_declarations_are_protected_before_identifiers():
     contextual = _api_translation_source(source)
     assert contextual == (
         source.replace("Raised when", "Exception used when")
+        .replace("this run", "this processing session")
         .replace(
             ":returns: dict of resolved values.",
             ":returns: key-value mapping of resolved values.",
