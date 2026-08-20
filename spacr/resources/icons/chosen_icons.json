@@ -149,7 +149,11 @@
   },
   "logo_spacr": {
     "candidate": null,
-    "sha256": "67b904fbc8416dfcaa3608c363c2bbf637e9cddc64b552c38ed0d1144e19a3f2"
+    "sha256": "269fe8f2d7040ad1241c6f5110e5f1fa5cd1426141837edb7ad1d3ffde390761"
+  },
+  "logo_spacr_readme": {
+    "candidate": null,
+    "sha256": "695ff285f3bdc649bdd97db99567a2f2eac4b2aa82b2d953a213f8617fa312b3"
   },
   "logo_spacr_v1": {
     "candidate": null,
