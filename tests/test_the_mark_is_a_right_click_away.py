@@ -157,7 +157,11 @@ def test_a_plot_with_no_groups_is_not_offered_a_violin(qtbot):
 #  Every mark actually draws
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.parametrize("kind", ["points", "jitter", "box", "violin", "bar"])
+@pytest.mark.parametrize(
+    "kind",
+    ["points", "line", "bar", "jitter_bar", "jitter_box", "jitter", "box",
+     "violin"],
+)
 def test_every_offered_mark_draws_something_on_the_controls(controls, kind):
     groups = _groups()
     controls.set_groups(groups, keys=_keys(groups))
@@ -168,7 +172,11 @@ def test_every_offered_mark_draws_something_on_the_controls(controls, kind):
         f"{kind} left the plot with nothing on it")
 
 
-@pytest.mark.parametrize("kind", ["points", "jitter", "box", "violin", "bar"])
+@pytest.mark.parametrize(
+    "kind",
+    ["points", "line", "bar", "jitter_bar", "jitter_box", "jitter", "box",
+     "violin"],
+)
 def test_every_offered_mark_draws_something_on_guide_support(agreement, kind):
     """The plot named in the request."""
     agreement.set_support(_support())
@@ -185,7 +193,8 @@ def test_switching_marks_shows_the_same_observations_each_time(controls):
     groups = _groups()
     controls.set_groups(groups, keys=_keys(groups))
 
-    for kind in ("box", "violin", "bar", "points", "jitter"):
+    for kind in ("line", "bar", "jitter_bar", "jitter_box", "box", "violin",
+                 "points", "jitter"):
         controls.set_mark(kind)
         assert "negative n=40" in controls._status.text()
         assert "positive n=35" in controls._status.text()
@@ -234,15 +243,23 @@ def test_a_violin_over_few_points_says_the_density_is_not_there(controls):
     assert "draws a density that is not there" in said, said
 
 
-def test_points_and_jitter_are_never_accused_of_hiding_anything(controls):
+def test_observation_marks_are_never_accused_of_hiding_anything(controls):
     """They show every observation. A warning on the honest mark is noise, and
     noise is what makes the real warnings unreadable."""
     controls.set_groups(_groups(sizes=(3, 3)))
 
-    for kind in ("points", "jitter"):
+    for kind in ("points", "jitter", "jitter_box", "jitter_bar"):
         controls.set_mark(kind)
         said = controls._status.text()
         assert "hides" not in said and "not there" not in said, said
+
+
+def test_a_line_over_few_points_says_it_hides_the_observations(controls):
+    controls.set_groups(_groups(sizes=(4, 5, 6)))
+
+    controls.set_mark("line")
+
+    assert "line shows one summary per group" in controls._status.text().lower()
 
 
 def test_a_mark_that_does_not_mislead_for_this_n_is_not_warned_about(controls):
@@ -286,6 +303,17 @@ def test_a_bar_says_that_nothing_on_it_can_be_clicked(controls):
     said = controls._status.text()
     assert "Click a point for its coefficient" not in said
     assert "nothing on it can be clicked" in said, said
+
+
+@pytest.mark.parametrize("kind", ["jitter_box", "jitter_bar"])
+def test_a_composite_keeps_its_observations_clickable(controls, kind):
+    groups = _groups()
+    controls.set_groups(groups, keys=_keys(groups))
+
+    controls.set_mark(kind)
+
+    assert "Click a point for its coefficient" in controls._status.text()
+    assert controls._row_xy, f"{kind} did not retain source-row coordinates"
 
 
 def test_a_box_keeps_its_outliers_clickable_and_says_only_those(controls):
@@ -351,6 +379,44 @@ def test_the_control_panel_s_summary_line_stays_the_median(controls):
     drawn = [item.getData()[1] for item in lines if item.getData()[1] is not None]
     assert any(np.allclose(y, 0.0) for y in drawn), (
         f"no summary line at the median; drew {drawn}")
+
+
+def test_the_control_line_joins_the_medians_it_reports(controls):
+    groups = {
+        "negative": np.array([0.0, 0.0, 10.0]),
+        "positive": np.array([2.0, 2.0, 12.0]),
+    }
+    controls.set_groups(groups)
+
+    controls.set_mark("line")
+
+    series = [item.getData() for item in controls.plot.plotItem.items
+              if hasattr(item, "getData")]
+    assert any(
+        x is not None and y is not None
+        and np.allclose(x, [0.0, 1.0]) and np.allclose(y, [0.0, 2.0])
+        for x, y in series
+    ), f"no line joined the reported medians: {series}"
+
+
+def test_the_guide_support_line_joins_each_guide_count(agreement):
+    support = pd.DataFrame({
+        "feature": ["g1", "g2", "g3", "g4"],
+        "n_guides": [1, 1, 2, 2],
+        "concordance": [0.2, 0.4, 0.6, 0.8],
+        "single_guide": [True, True, False, False],
+    })
+    agreement.set_support(support)
+
+    agreement.set_mark("line")
+
+    series = [item.getData() for item in agreement.plot.plotItem.items
+              if hasattr(item, "getData")]
+    assert any(
+        x is not None and y is not None
+        and np.allclose(x, [1.0, 2.0]) and np.allclose(y, [0.3, 0.7])
+        for x, y in series
+    ), f"no line joined the guide-count means: {series}"
 
 
 def test_guide_support_keeps_its_single_guide_colouring_as_points(agreement):
