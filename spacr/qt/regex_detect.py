@@ -242,7 +242,30 @@ def auto_detect_regex(
     if best_hits >= n / 2:
         return best_pattern, best_label, best_hits
 
-    # 3: synthesise
+    # 3: INFER IT FROM THE NAMES (instruction 137 B, `spacr.regex_infer`).
+    #
+    # BEFORE the old synthesiser, and the difference is what it works from:
+    # `_synthesise_regex` builds a template from ONE filename and routinely
+    # fails to match its siblings, which is why the hit count above had to be
+    # corrected. `regex_infer.propose` aligns the whole set -- the slots that
+    # VARY become groups and the parts that never vary are literals -- so on
+    # cellvoyager, cq1 and a microscope spaCR has never met it reaches 100%
+    # coverage with the right group NAMES.
+    #
+    # It is tried against the best built-in rather than instead of it: a
+    # bundled pattern that already matches everything is a known-good answer
+    # and does not need improving.
+    try:
+        from ..regex_infer import propose
+
+        for proposal in propose(filenames):
+            if proposal.matched > best_hits:
+                return proposal.pattern, "inferred", proposal.matched
+    except Exception:                                # noqa: BLE001
+        # Inference is an improvement on the fallback, never a requirement:
+        # a failure here leaves the old path exactly as it was.
+        pass
+
     synth = _synthesise_regex(filenames)
     if synth is None:
         return best_pattern, best_label, best_hits
