@@ -48,9 +48,25 @@ BUTTON_RADIUS = 32
 BUTTON_MARK = round(BUTTON_SIZE * 0.80)
 README_LOGO_SIZE = (920, 380)
 README_LOGO_MARK = 340
-PIPELINE_DISPLAY_WIDTH = 132
-ARROW_DISPLAY_WIDTH = 20
-APP_DISPLAY_WIDTH = 183
+# Percentage widths keep the linked images responsive on both GitHub and the
+# Sphinx API. The rows leave a little rounding headroom so the browser never
+# moves the last tile onto a new line.
+PIPELINE_DISPLAY_PERCENT = 14.5
+ARROW_DISPLAY_PERCENT = 2.5
+APP_DISPLAY_PERCENT = 19.8
+PIPELINE_DISPLAY_WIDTH = f"{PIPELINE_DISPLAY_PERCENT}%"
+ARROW_DISPLAY_WIDTH = f"{ARROW_DISPLAY_PERCENT}%"
+APP_DISPLAY_WIDTH = f"{APP_DISPLAY_PERCENT}%"
+
+# Match the arrow canvas aspect ratio to its displayed width relative to a
+# square pipeline tile. Even renderers that ignore RST's ``:align: middle``
+# therefore show the arrow glyph halfway up the neighbouring tiles.
+ARROW_CANVAS_WIDTH = 100
+ARROW_CANVAS_HEIGHT = round(
+    ARROW_CANVAS_WIDTH
+    * PIPELINE_DISPLAY_PERCENT
+    / ARROW_DISPLAY_PERCENT
+)
 
 RESOURCE_SOURCES = {
     "biostudies": DATABANK_DIR / "bioimages.jpg",
@@ -266,9 +282,12 @@ def render_app_tile(key: str, label: str) -> Image.Image:
 
 
 def render_pipeline_arrow() -> Image.Image:
-    """Render U+2192 alone, centred inside its transparent inline asset."""
-    size = 112
-    arrow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    """Render U+2192 midway up a tile-height transparent inline asset."""
+    arrow = Image.new(
+        "RGBA",
+        (ARROW_CANVAS_WIDTH, ARROW_CANVAS_HEIGHT),
+        (0, 0, 0, 0),
+    )
     # Open Sans deliberately has no arrow glyph. DejaVu Sans is present in
     # the Linux documentation/build environments and contains the real
     # U+2192 glyph, avoiding both a hand-drawn approximation and a tofu box.
@@ -288,12 +307,20 @@ def render_pipeline_arrow() -> Image.Image:
     ImageDraw.Draw(glyph).text(
         (-bounds[0], -bounds[1]), "\u2192", font=font, fill=WHITE
     )
-    glyph = _fit(glyph, 96)
+    glyph = _fit(glyph, 82)
     arrow.alpha_composite(
         glyph,
-        ((size - glyph.width) // 2, (size - glyph.height) // 2),
+        (
+            (arrow.width - glyph.width) // 2,
+            (arrow.height - glyph.height) // 2,
+        ),
     )
     return arrow
+
+
+def _inline_image_row(names: list[str]) -> str:
+    """Join RST substitutions without browser whitespace between images."""
+    return r"\ ".join(names)
 
 
 def _registry() -> list[tuple[str, str, str, str]]:
@@ -332,7 +359,7 @@ def _readme_workflow(icon_prefix: str) -> str:
         if index:
             top.append("|Workflow_arrow|")
         top.append(f"|{pipeline_names[key]}|")
-    lines = [" ".join(top), ""]
+    lines = [_inline_image_row(top), ""]
     for key, label in MAIN_PIPELINE:
         lines.extend([
             f".. |{pipeline_names[key]}| image:: {icon_prefix}/workflow/{key}.png",
@@ -357,7 +384,10 @@ def _readme_workflow(icon_prefix: str) -> str:
         lines.extend([f"**{title}**", ""])
         for start in range(0, len(items), 5):
             row = items[start:start + 5]
-            lines.extend([" ".join(f"|App_{key}|" for key, _ in row), ""])
+            lines.extend([
+                _inline_image_row([f"|App_{key}|" for key, _ in row]),
+                "",
+            ])
         for key, label in items:
             definitions.extend([
                 f".. |App_{key}| image:: {icon_prefix}/workflow/apps/{key}.png",
@@ -384,7 +414,7 @@ def _documentation_workflow() -> str:
         "Core workflow",
         "~~~~~~~~~~~~~",
         "",
-        " ".join(top),
+        _inline_image_row(top),
         "",
     ]
     definitions: list[str] = []
@@ -416,7 +446,9 @@ def _documentation_workflow() -> str:
         for start in range(0, len(items), 5):
             row = items[start:start + 5]
             lines.extend([
-                " ".join(f"|DocApp_{key}|" for key, _label in row),
+                _inline_image_row(
+                    [f"|DocApp_{key}|" for key, _label in row]
+                ),
                 "",
             ])
         for key, label in items:
