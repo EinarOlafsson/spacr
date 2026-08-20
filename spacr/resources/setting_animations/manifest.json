@@ -497,9 +497,9 @@
       "slug": "cell_intensity_split",
       "title": "Cell watershed split",
       "validation": {
-        "bytes": 136485,
+        "bytes": 79385,
         "frames": 18,
-        "sha256": "6bf69a014139c2e6e49805fb324916c3d13d56ff585d14e7e7cbf385d6941f59",
+        "sha256": "120144ef9514e66388bb92f364dec14df8ac5bacea8dc90abc32821234212a27",
         "unique_frames": 17
       }
     },
@@ -560,9 +560,9 @@
       "slug": "nucleus_intensity_split",
       "title": "Nucleus watershed split",
       "validation": {
-        "bytes": 148239,
+        "bytes": 115787,
         "frames": 18,
-        "sha256": "d045bd6f2a12f3397c366e76669741975356bf637bb8be322b87c2e7fca636c3",
+        "sha256": "20a6ffa9ebdd0f408bc57acda9f85d2477ff49fe65be336ef2f582417b01874f",
         "unique_frames": 17
       }
     },
@@ -623,9 +623,9 @@
       "slug": "pathogen_intensity_split",
       "title": "Pathogen watershed split",
       "validation": {
-        "bytes": 264617,
+        "bytes": 229699,
         "frames": 18,
-        "sha256": "a91b2a989675f77b49734780e5975c2fdbb8e8ae01be49fb7e623b875344d377",
+        "sha256": "e8016b1c57498217dff28c8590b988896523a8f122e4cb3a537a537cf084e5f8",
         "unique_frames": 17
       }
     },
@@ -686,9 +686,9 @@
       "slug": "organelle_intensity_split",
       "title": "Organelle watershed split",
       "validation": {
-        "bytes": 294136,
+        "bytes": 263898,
         "frames": 18,
-        "sha256": "c4fe50bf915db99c6bee79d7f0df0e0b96f58258ef8a5726422b97cba5efad17",
+        "sha256": "fc18ff1b6c6670c09dcea4c33297cff571b586913348142b33fa6dac2bd413ff",
         "unique_frames": 17
       }
     },

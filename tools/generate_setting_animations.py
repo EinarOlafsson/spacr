@@ -909,18 +909,49 @@ def _generic_merge(painter: Painter, spec: Spec, action: float) -> None:
 
 
 def _split_scene(painter: Painter, spec: Spec, action: float) -> None:
+    """An oversized object is split -- and one that is not oversized is NOT.
+
+    THE CONTROL WAS MISSING. Every object in the frame split, so the animation
+    showed the CONSEQUENCE of the setting and nothing about what DECIDES it: a
+    viewer could not tell whether it splits everything or only some things,
+    which is the only question a threshold setting raises.
+
+    The audit prescribed the fix and it is the one taken here -- draw an
+    object that is not split. settings.py records that the split is purely
+    GEOMETRIC for pathogen, so drawing an intensity valley would have been a
+    picture of a mechanism this setting does not use.
+
+    So: a large object on the left splits, a small one on the right does not,
+    and both are on screen the whole time. The difference between them is the
+    thing the setting is about.
+    """
     _well(painter)
     kind = spec.params["kind"]
     scale = 1.45 if kind == "cell" else 1.0
+
+    # THE ONE THAT SPLITS -- oversized, so it comes apart.
     _object_outline(
-        painter, kind, (150, 120), (35 * scale, 39 * scale), action, 0.2,
+        painter, kind, (120, 120), (30 * scale, 34 * scale), action, 0.2,
     )
     _object_outline(
-        painter, kind, (210, 120), (35 * scale, 39 * scale), action, 0.9,
+        painter, kind, (172, 120), (30 * scale, 34 * scale), action, 0.9,
     )
     _object_outline(
-        painter, kind, (180, 120), (67 * scale, 42 * scale),
+        painter, kind, (146, 120), (58 * scale, 37 * scale),
         1.0 - action, 0.5,
+    )
+    # THE CUT, drawn where the two halves part. A split has a place it
+    # happens, and showing it is the difference between "two now" and "cut
+    # here".
+    if action > 0.05:
+        painter.line([(146, 120 - 34 * scale), (146, 120 + 34 * scale)],
+                     _mix(WHITE, 0.20 + 0.45 * action), 0.5)
+
+    # THE ONE THAT DOES NOT -- small enough to be left alone, unchanged in
+    # every frame. It is the control, and without it the animation says
+    # nothing about what decides a split.
+    _object_outline(
+        painter, kind, (268, 120), (30 * scale, 34 * scale), 1.0, 0.55,
     )
 
 
