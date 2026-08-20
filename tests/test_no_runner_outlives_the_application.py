@@ -16,7 +16,6 @@ widget is destroyed without ever being closed.
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 import pytest
 from PySide6.QtWidgets import QWidget

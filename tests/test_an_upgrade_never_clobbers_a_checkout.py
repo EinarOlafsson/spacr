@@ -19,7 +19,6 @@ import sys
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 
 def test_this_checkout_is_recognised_as_editable():

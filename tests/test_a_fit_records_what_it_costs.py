@@ -8,7 +8,6 @@ needs measurements taken WHILE the fit runs.
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 import pytest
 

@@ -13,7 +13,6 @@ and every one of those seventy lines is a tile that silently did not render.
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 import pytest
 

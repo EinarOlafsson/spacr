@@ -19,7 +19,6 @@ import logging
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 import pytest
 from PySide6.QtCore import qCritical, qWarning

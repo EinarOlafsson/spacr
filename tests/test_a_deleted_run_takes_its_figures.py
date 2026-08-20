@@ -12,7 +12,6 @@ down in all six and move every later section's start with them.
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 import pytest
 

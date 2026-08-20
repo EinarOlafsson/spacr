@@ -18,6 +18,7 @@ without pulling in pandas, Qt, torch, or Cellpose.
 from __future__ import annotations
 
 import contextlib
+import logging
 import os
 import queue
 import shutil
@@ -29,6 +30,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional, Sequence
 from urllib.parse import quote
+
+LOG = logging.getLogger(__name__)
 
 __all__ = [
     "ConcurrencyProbeResult",

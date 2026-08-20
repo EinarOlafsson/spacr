@@ -19,7 +19,7 @@ read, merged and tested without a display.
 
 from __future__ import annotations
 
-from typing import Any, Mapping, NamedTuple, Optional
+from typing import Any, Mapping, NamedTuple, Optional, Tuple
 
 #: Applied to every figure unless a graph kind overrides it.
 GENERAL_DEFAULTS: dict[str, Any] = {
