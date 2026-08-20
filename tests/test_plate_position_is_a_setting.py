@@ -350,16 +350,14 @@ def test_leaving_plate_position_out_costs_power_on_the_planted_hits(cleaned):
 # 3. The three states, and the fourth that does not exist
 # ---------------------------------------------------------------------------
 
-def test_the_default_is_on_because_the_measurement_said_so():
-    """Instruction 143 proposed OFF and asked for it to be measured first.
-
-    The measurement chose ON, so this is the assertion that a later edit
-    cannot flip without reading the reason.
-    """
-    assert S.get_perform_regression_default_settings({})[
-        "model_plate_position"] is True
-    assert "rowID" in prepare_formula("score")
-    assert "columnID" in prepare_formula("score")
+def test_new_runs_leave_plate_position_out_until_it_is_requested():
+    """The settings default is opt-in even though the API remains compatible."""
+    settings = S.get_perform_regression_default_settings({})
+    assert settings["model_plate_position"] is False
+    formula = prepare_formula(
+        "score", model_plate_position=settings["model_plate_position"])
+    assert "rowID" not in formula
+    assert "columnID" not in formula
 
 
 def test_the_three_states_are_three_different_formulas():
@@ -423,35 +421,28 @@ def test_position_in_the_model_is_not_refused(settings):
 # 4. An old settings CSV still loads and still MEANS what it meant
 # ---------------------------------------------------------------------------
 
-def test_a_settings_csv_written_before_today_still_fits_plate_position():
-    """No CSV written before 2026-08-18 carries this key, and every run those
-    files describe fitted rowID and columnID unconditionally. The default is
-    therefore the migration: absent means True, so the old file still means
-    what it meant."""
-    old = {"dependent_variable": "pred", "regression_type": "ols",
-           "random_row_column_effects": False}
-    assert "model_plate_position" not in old
+def test_an_unspecified_plate_position_choice_uses_the_opt_in_default():
+    supplied = {"dependent_variable": "pred", "regression_type": "ols",
+                "random_row_column_effects": False}
+    assert "model_plate_position" not in supplied
 
-    settings = S.get_perform_regression_default_settings(dict(old))
-    assert settings["model_plate_position"] is True
+    settings = S.get_perform_regression_default_settings(dict(supplied))
+    assert settings["model_plate_position"] is False
 
     formula = prepare_formula(
         settings["dependent_variable"],
         random_row_column_effects=settings["random_row_column_effects"],
         model_plate_position=settings["model_plate_position"])
-    assert "rowID" in formula and "columnID" in formula
+    assert "rowID" not in formula and "columnID" not in formula
 
 
-def test_an_old_csv_asking_for_random_effects_still_gets_them():
-    """The worst outcome of a default OFF would have been here: an old file
-    carrying ``random_row_column_effects=True`` would have landed in the
-    refused fourth state and stopped loading."""
+def test_random_position_effects_require_position_to_be_enabled():
     settings = S.get_perform_regression_default_settings(
         {"random_row_column_effects": True, "regression_type": "mixed"})
 
-    assert settings["model_plate_position"] is True
-    assert _reconcile_random_row_column_effects(settings)[
-        "regression_type"] == "mixed"
+    assert settings["model_plate_position"] is False
+    with pytest.raises(ValueError, match="model_plate_position=True"):
+        _reconcile_random_row_column_effects(settings)
 
 
 def test_an_explicit_choice_survives_the_defaults_factory():
@@ -469,7 +460,7 @@ def test_the_setting_is_declared_the_way_every_other_one_is():
     tip = S.tooltips["model_plate_position"]
     assert tip.startswith("(bool)")
     assert 80 <= len(tip) <= 600, len(tip)
-    assert "Default True" in tip
+    assert "Default False" in tip
     # The number that makes the claim checkable survives into the hover.
     assert "6.7e-23" in tip
 
@@ -489,7 +480,7 @@ def test_the_run_is_handed_the_setting_it_was_given():
 
     from spacr import ml
 
-    source = inspect.getsource(ml.perform_regression)
+    source = inspect.getsource(ml._perform_regression)
     assert "model_plate_position=settings.get('model_plate_position', True)" \
         in source
 

@@ -3452,7 +3452,7 @@ def resolve_crop_source(settings_or_src: Union[str, Mapping[str, Any]],
     spec = crop_spec_from_settings(merged_settings, object_type=object_type)
 
     if choice == "merged":
-        reason = STREAM_IMAGES_LABEL
+        reason = f"{STREAM_IMAGES_LABEL}: selected by the user"
     elif choice == "png":
         # Asked for by name, and `data/` is not there. The other route is,
         # so it draws -- and says that it is not what was asked for.
