@@ -28,11 +28,14 @@ free of spaCR imports so they can be tested, and reused, on their own.
 
 from __future__ import annotations
 
+import logging
 from collections import namedtuple
 from contextlib import contextmanager
 from typing import Callable, Optional, Sequence
 
 import numpy as np
+
+LOG = logging.getLogger(__name__)
 
 try:  # pragma: no cover - exercised by the import guard test
     import pyqtgraph as pg
