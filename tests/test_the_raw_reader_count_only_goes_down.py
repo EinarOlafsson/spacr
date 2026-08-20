@@ -49,7 +49,7 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: below is higher than that only because it counts writes and reads in
 #: modules the original census did not reach, not because anything regressed;
 #: what matters from here is the direction.
-CEILING = 263
+CEILING = 261
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {
