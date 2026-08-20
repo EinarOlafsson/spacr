@@ -37,7 +37,7 @@ pytest.importorskip("PySide6")
 pytestmark = pytest.mark.qt
 
 from spacr.qt.widgets.cell_montage_view import (          # noqa: E402
-    OBJECT_CHOICES, THUMBNAIL_PX, CellMontageView, MontageLoad,
+    OBJECT_CHOICES, THUMBNAIL_PX, CellMontageView, MontageLoad, _thumb_px_of,
     MontageRequest, coefficient_from_frame, experiment_root, load,
     montage_figure, parse_channels,
 )
@@ -368,13 +368,25 @@ def test_the_caption_always_says_membership_is_inferred(qtbot, tmp_path):
     assert not any("carries" in tip for tip in tips)
 
 
-def test_a_coefficient_whose_wells_contribute_nothing_says_so_not_a_blank_grid(
+def test_a_coefficient_no_cell_matches_is_said_not_silently_drawn(
         qtbot, tmp_path):
-    """An empty montage is an answer; an empty grid is indistinguishable from
-    a bug.
+    """An effect so large that the implied score lies outside everything this
+    screen observed.
 
-    Driven with an effect so large that the implied score lies far outside
-    anything this screen observed, which is the honest way to get zero.
+    THE ANSWER TO THIS CHANGED WITH INSTRUCTION 172 AND THE HONESTY DID NOT.
+    It used to come back EMPTY, because the score window decided which cells
+    were shown -- and that is the same rule that let a well expect 23 cells
+    and contribute 0, which 172 removed (see
+    tests/test_cell_montage.py::test_a_narrow_window_no_longer_starves_a_well).
+    Ranking shows the arithmetic's count from every well that has scored
+    cells, whatever the coefficient implies.
+
+    So the montage is no longer blank, and what carries the warning is the
+    CAPTION: no cell in any well falls inside the window, the implied score
+    is named as INFERRED and OUTSIDE the observed range, and the reader is
+    told they are looking at the closest cells rather than matching ones.
+    That is the property worth pinning -- "an empty grid is indistinguishable
+    from a bug" was always about the explanation, not about the emptiness.
     """
     root, db_path, results_csv = _screen(tmp_path, with_png=True)
     frame = pd.DataFrame([{"feature": GENE_KEY, "coefficient": 50.0}])
@@ -388,13 +400,13 @@ def test_a_coefficient_whose_wells_contribute_nothing_says_so_not_a_blank_grid(
     assert view.build() is True
 
     plan = view.plans()[0]
-    assert plan.is_empty
-    assert view.images()[0] == ()
-    # No well contributed, so no well tab was opened -- and the summary says
-    # so rather than leaving a blank rectangle to be read as a bug.
-    assert view.well_tabs() == ()
+    # NOT ONE CELL IS CONSISTENT WITH THE COEFFICIENT, and every well says so.
+    assert plan.wells
+    assert all(w.n_in_window == 0 for w in plan.wells), (
+        [(w.well, w.n_in_window) for w in plan.wells])
+    # And the arithmetic's count is still delivered, which is 172's promise.
+    assert plan.n_objects > 0
     caption = view.caption_text()
-    assert "no object was selected" in caption
     assert "INFERRED, not observed" in caption
     assert "OUTSIDE the observed range" in caption
 
@@ -623,9 +635,16 @@ def test_the_thumbnail_is_the_view_and_the_crop_underneath_is_untouched(
     view.set_coefficient(GENE_KEY)
     view.build()
     crop = view.images()[0][0]
-    assert max(crop.shape[:2]) != THUMBNAIL_PX or crop.shape[0] == crop.shape[1]
+    # THE SIZE IS THE USER'S NOW, not the module constant. `img_size` -- the
+    # annotator's name for it -- reached the montage when the Cells tab got
+    # its settings window ("in the settings there should also be a controll
+    # for iamge size"), so THUMBNAIL_PX is the fallback and not the answer.
+    # Asked of the view, so the test follows the setting rather than pinning
+    # a number the user can change.
+    drawn = _thumb_px_of(view.picture_settings()) or THUMBNAIL_PX
+    assert max(crop.shape[:2]) != drawn or crop.shape[0] == crop.shape[1]
     thumb = view.thumbnails()[0]
-    assert thumb.pixmap().width() <= THUMBNAIL_PX
+    assert thumb.pixmap().width() <= drawn
 
 
 # --------------------------------------------------------------------------- #
@@ -981,7 +1000,8 @@ def test_a_source_that_hands_back_the_wrong_thing_does_not_crash_the_grid(
     assert view.plans() == (plan,)
     thumbs = view.thumbnails()
     # The greyscale array is widened to RGB rather than refused...
-    assert thumbs and thumbs[0].pixmap().width() == THUMBNAIL_PX
+    drawn = _thumb_px_of(view.picture_settings()) or THUMBNAIL_PX
+    assert thumbs and thumbs[0].pixmap().width() == drawn
     # ...and the extra image, which pairs with no selected object, is NOT
     # drawn into some well it does not belong to. It is counted and said.
     assert len(thumbs) == plan.n_objects
@@ -1307,8 +1327,25 @@ def test_narrowing_the_window_changes_which_cells_appear_and_the_caption(
 
     view._half_widths.setValue(0.05)
     view.build()
-    assert view.plans()[0].n_objects < wide
-    assert view.plans()[0].window.half_widths == 0.05
+
+    # THE WINDOW IS RECORDED AND REPORTED; IT NO LONGER SELECTS.
+    #
+    # This asserted `n_objects < wide` until 2026-08-19, from when the window
+    # decided WHICH cells independently of how many were owed -- which is
+    # exactly the starvation instruction 172 removed: "a well could expect 23
+    # and contribute 0. Ranking cannot do that: x cells are shown whenever
+    # the well has x scored cells." See
+    # tests/test_cell_montage.py::test_a_narrow_window_no_longer_starves_a_well,
+    # which is the same decision from the other side.
+    #
+    # So what a narrower window changes is what the montage SAYS, and the
+    # count it promises is unaffected by design. Asserting the old drop made
+    # a deliberate design read as a bug.
+    plan = view.plans()[0]
+    assert plan.window.half_widths == 0.05
+    assert plan.n_objects == wide, (
+        "the window starved the selection — 172 says the count is the "
+        "arithmetic's, not the window's")
     assert "window half-width 0.05 instead of the default 1" in \
         view.caption_text()
 
