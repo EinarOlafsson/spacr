@@ -120,7 +120,22 @@ DEFAULT_SWEEP_SPACE: dict[str, list] = {
 
 @dataclass
 class SweepSpace:
-    """Axes to sweep, plus settings pinned for every trial."""
+    """Define variable and fixed settings for a parameter sweep.
+
+    Parameters
+    ----------
+    axes : dict of str to list, optional
+        Settings to vary. Each trial receives one value from every list.
+        Defaults to a copy of :data:`DEFAULT_SWEEP_SPACE`.
+    fixed : dict, optional
+        Settings copied into every trial after the Cartesian product is
+        formed and before filters are evaluated.
+    filters : list of callable, optional
+        Predicates called with a complete trial dictionary. A predicate
+        returns ``None`` to accept a trial or a reason string to reject it.
+        An empty list selects the built-in compatibility filters when trials
+        are built.
+    """
 
     axes: dict[str, list] = field(
         default_factory=lambda: dict(DEFAULT_SWEEP_SPACE))
@@ -217,14 +232,37 @@ def _default_filters() -> list[Callable[[dict], str | None]]:
 
 def build_trials(space: SweepSpace, *, mode: str = "grid",
                  max_trials: int = 5000, seed: int = 0) -> list[dict]:
-    """Enumerate the trials to run.
+    """Enumerate accepted trials from a sweep space.
 
-    ``mode='grid'`` walks the full product and truncates at ``max_trials``;
-    ``mode='random'`` samples without replacement, which covers a wide space
-    more evenly than an arbitrary prefix of its product.
+    Parameters
+    ----------
+    space : SweepSpace
+        Variable axes, fixed settings, and optional rejection predicates.
+    mode : {'grid', 'random'}, default='grid'
+        ``'grid'`` visits the Cartesian product in axis order. ``'random'``
+        shuffles that product without replacement before applying the limit.
+    max_trials : int, default=5000
+        Maximum number of accepted trials to return. Rejected combinations do
+        not count toward this limit.
+    seed : int, default=0
+        Seed used to shuffle combinations in ``'random'`` mode. It has no
+        effect in ``'grid'`` mode.
 
-    Rejected combinations never count toward ``max_trials`` -- the cap is on
-    analyses performed, not on tuples considered.
+    Returns
+    -------
+    list of dict
+        Complete setting dictionaries with one-based ``trial_id`` values.
+        Fixed settings are present when filters are evaluated.
+
+    Raises
+    ------
+    ValueError
+        If ``mode`` is not ``'grid'`` or ``'random'``.
+
+    Notes
+    -----
+    Random mode materializes the full Cartesian product before shuffling it.
+    Use narrower axes when the unfiltered product is very large.
     """
     if mode not in {"grid", "random"}:
         raise ValueError("mode must be 'grid' or 'random'")
@@ -477,15 +515,29 @@ def _recommended_worker_budget(*, measured_gib=None, requested=None) -> dict:
 def recommended_workers(*, measured_gib=None, requested=None):
     """Choose a worker count from available memory and CPU capacity.
 
-    Memory is usually the limiting resource because each trial loads its own
-    tables and design matrix. The result therefore uses available memory as
-    well as the CPU count.
+    Parameters
+    ----------
+    measured_gib : float or None, optional
+        Peak resident memory for one representative trial, in GiB. ``None``
+        uses :data:`ASSUMED_TRIAL_GIB`.
+    requested : int or None, optional
+        Preferred maximum worker count. The result is still limited by memory,
+        available CPU cores, and :data:`MAX_WORKERS`.
 
-    :param measured_gib: peak resident size of one trial, if measured. Falls
-        back to :data:`ASSUMED_TRIAL_GIB`.
-    :param requested: an explicit ask, still clamped to what is affordable.
-    :returns: ``(workers, reason)``. The reason is suitable for logs; the Qt
-        screen renders the same budget through localized templates.
+    Returns
+    -------
+    workers : int
+        Recommended number of worker processes, always at least one.
+    reason : str
+        Explanation of the memory estimate and any reduction from the
+        requested count, suitable for logs. The Qt screen renders the same
+        budget with localized templates.
+
+    Notes
+    -----
+    The calculation budgets :data:`MEMORY_BUDGET_FRACTION` of currently
+    available memory. If memory cannot be measured, at most two workers are
+    recommended.
     """
     budget = _recommended_worker_budget(
         measured_gib=measured_gib,
@@ -934,24 +986,60 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                         contained: bool = True,
                         qc: bool = False,
                         progress_every: int = 25) -> pd.DataFrame:
-    """Run the sweep across processes, writing results as they land.
+    """Run parameter-sweep trials concurrently in spawned processes.
 
-    One trial takes the better part of a minute on a real screen -- the cost
-    is reading and joining the inputs, which is per-process work with no
-    shared state -- so trials are embarrassingly parallel. Results are written
-    after each completion, so a killed sweep still leaves a usable table.
+    Parameters
+    ----------
+    base_settings : mapping
+        Regression settings shared by every trial, including the score and
+        count inputs.
+    destination : path-like
+        Directory for trial folders, ``sweep_trials.json``, and the incremental
+        ``sweep_results.csv`` table.
+    space : SweepSpace or None, optional
+        Search space. ``None`` uses :data:`DEFAULT_SWEEP_SPACE` and the built-in
+        compatibility filters.
+    mode : {'grid', 'random'}, default='random'
+        Trial enumeration order passed to :func:`build_trials`.
+    max_trials : int, default=1000
+        Maximum number of accepted trials.
+    seed : int, default=0
+        Random-order seed used when ``mode='random'``.
+    controls : mapping or None, optional
+        Mapping from control aliases to identifiers. Control recovery metrics
+        are added to each result row.
+    n_jobs : int, default=8
+        Requested pool size. :func:`recommended_workers` may reduce it based
+        on memory and CPU capacity.
+    contained : bool, default=True
+        Run each fit in a separate child through
+        :func:`run_trial_contained`. Hard memory, swap, task, and CPU limits
+        are enforced only when a usable systemd user scope is available;
+        otherwise the child is uncapped but uses reduced priority and thread
+        limits. Set to ``False`` only when trial resource use is known.
+    qc : bool, default=False
+        Generate the full regression diagnostic figure suite for every trial.
+    progress_every : int, default=25
+        Print progress after this many completed trials. Use zero to disable
+        periodic progress messages.
 
-    The adaptive skip that :func:`run_search` uses is deliberately absent
-    here: it depends on the order failures are observed in, which is not
-    deterministic across workers, and a reproducible trial list matters more
-    than the trials it would save.
+    Returns
+    -------
+    pandas.DataFrame
+        One status row per trial, sorted by ``trial_id``. The same rows are
+        written incrementally to ``sweep_results.csv``.
 
-    :param contained: Run each trial through
-        :func:`run_trial_contained` rather than directly in the pool worker.
-        The child receives hard memory and CPU limits when a usable systemd
-        user scope is available. Without one, it runs in a separate but
-        uncapped low-priority process and prints a warning. Pass ``False``
-        only for trials whose resource use is already known to be small.
+    Raises
+    ------
+    RuntimeError
+        If called from a worker process. Scripts must call this function under
+        an ``if __name__ == '__main__':`` guard.
+
+    Notes
+    -----
+    The pool uses the ``spawn`` start method because fitted models may import
+    torch and OpenMP runtimes. Only a bounded number of jobs are submitted at
+    once, allowing new submissions to pause when available memory is low.
     """
     # A CALLER WITHOUT A MAIN GUARD FORK-BOMBS ITSELF.
     #
@@ -1071,25 +1159,61 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
                qc: bool = False,
                memory_floor_gb: float = FREE_MEMORY_FLOOR_GB,
                runner: Callable | None = None) -> pd.DataFrame:
-    """Run every trial and return one tidy row per trial.
+    """Run parameter-sweep trials sequentially.
 
-    :param base_settings: settings shared by every trial -- at minimum the
-        score and count inputs.
-    :param destination: folder to write trial folders and the summary into.
-    :param space: what to sweep. Defaults to :data:`DEFAULT_SWEEP_SPACE`.
-    :param controls: ``{alias: identifier}`` looked up in each trial's results,
-        e.g. ``{"gra14": "239740", "eaf1": "225160"}``. Recovering the known
-        positive control is the yardstick a sweep is read against.
-    :param corrections: apply every one of these multiple-testing methods to
-        each fit and emit a row per method. A correction is computed FROM the
-        p-values and changes no part of the model, so sweeping it as an axis
-        refits the identical regression once per method. Passing it here
-        instead turns thirteen fits into one -- on this screen, ~24 hours into
-        ~2 for exactly the same answers.
-    :param runner: injected for testing; defaults to
-        :func:`spacr.ml.perform_regression`. An injected runner executes in
-        this process and is not subject to the contained-child memory floor.
-    :returns: the summary frame, also written as ``sweep_results.csv``.
+    Parameters
+    ----------
+    base_settings : mapping
+        Regression settings shared by every trial, including the score and
+        count inputs.
+    destination : path-like
+        Directory for trial folders, ``sweep_trials.json``, and
+        ``sweep_results.csv``.
+    space : SweepSpace or None, optional
+        Search space. ``None`` uses :data:`DEFAULT_SWEEP_SPACE` and the built-in
+        compatibility filters.
+    mode : {'grid', 'random'}, default='grid'
+        Trial enumeration order passed to :func:`build_trials`.
+    max_trials : int, default=5000
+        Maximum number of accepted trials.
+    seed : int, default=0
+        Random-order seed used when ``mode='random'``.
+    controls : mapping or None, optional
+        Mapping from control aliases to identifiers. Control recovery metrics
+        are added to each successful result row.
+    progress_every : int, default=10
+        Print and attempt an incremental CSV write after this many trials. Use
+        zero to disable periodic progress messages; a CSV is still written
+        after each completed in-process trial.
+    learn_from_failures : int, default=2
+        Skip later trials with the same model, inference, analysis-unit, and
+        penalty signature after this many matching failures. Use zero to run
+        every trial.
+    corrections : sequence of str or None, optional
+        Multiple-testing methods to apply to the p-values from one fitted
+        model, producing one row per method. This option applies to the
+        in-process path only; contained children return summary rows rather
+        than coefficient frames.
+    contained : bool, default=True
+        Run each trial through :func:`run_trial_contained`. Hard resource
+        limits are conditional on a usable systemd user scope; otherwise the
+        child is uncapped but uses reduced priority and thread limits.
+    qc : bool, default=False
+        Generate the full regression diagnostic figure suite for every trial.
+    memory_floor_gb : float, default=FREE_MEMORY_FLOOR_GB
+        Stop starting contained trials when available memory falls below this
+        threshold, in GB.
+    runner : callable or None, optional
+        In-process regression callable. ``None`` uses contained child trials
+        when ``contained=True`` and :func:`spacr.ml.perform_regression`
+        otherwise. Injected callables bypass child containment and the memory
+        floor.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Trial settings, status, timing, fit metrics, and control metrics. The
+        frame is also written to ``sweep_results.csv`` as trials finish.
     """
     if runner is None and contained:
         # Each trial in its own kernel-capped process. This is the default
@@ -1250,32 +1374,28 @@ def run_sweep(base_settings: Mapping[str, Any], destination,
 
 def rank_trials(results: pd.DataFrame, *, role: str = "positive"
                 ) -> pd.DataFrame:
-    """Order the sweep by how well each trial recovered the positive control.
+    """Order trials by recovery of a named control role.
 
-    This is what a sweep is FOR. "Which setting gave the most hits" rewards
-    whichever combination corrects least; "which setting recovered the gene I
-    already know is real, and how far up the list" is a question with a right
-    answer. The nightly run made the difference concrete -- ``min_cell_count``
-    of 50 reported MORE hits than 100 while quietly losing GRA14 -- and no
-    column in the table said so, because no column carried it.
+    Parameters
+    ----------
+    results : pandas.DataFrame
+        Sweep results containing ``<role>_control_percentile`` and optionally
+        ``status``.
+    role : {'positive', 'negative'}, default='positive'
+        Control role whose percentile determines the ordering.
 
-    Sorted by PERCENTILE, not by raw rank. A sweep varies the settings that
-    change how many coefficients exist, so rank 3 of 400 and rank 3 of 1,213
-    are not the same recovery and sorting on the raw number silently favours
-    trials that fitted fewer things. The raw rank stays in the table because it
-    is what a user reads.
+    Returns
+    -------
+    pandas.DataFrame
+        Copy ordered by increasing control percentile, with missing values and
+        failed trials last. The input object is returned unchanged if the
+        percentile column is absent or contains no finite values.
 
-    Trials that did not recover the control at all sort to the BOTTOM rather
-    than being dropped: "this configuration loses the positive control" is the
-    single most useful thing a sweep can tell you, and hiding those rows would
-    hide it.
-
-    :param results: a sweep results frame.
-    :param role: ``'positive'`` or ``'negative'``.
-    :returns: the frame, ordered best first. Returned unchanged when the
-        control was never annotated -- a screen with no named positive control
-        has nothing to sort on, and an arbitrary order presented as a ranking
-        would be worse than no ranking.
+    Notes
+    -----
+    Percentile is used instead of raw rank so trials that fit different
+    numbers of coefficients remain comparable. Trials that did not recover
+    the control remain in the table rather than being dropped.
     """
     percentile = f"{role}_control_percentile"
     if results is None or not len(results) or percentile not in results.columns:
@@ -1294,12 +1414,29 @@ def rank_trials(results: pd.DataFrame, *, role: str = "positive"
 
 def summarise_sweep(results: pd.DataFrame, *,
                      controls: Sequence[str] = ("gra14", "eaf1")) -> dict:
-    """Reduce a sweep to the statements worth reading.
+    """Summarize sweep completion, controls, and hit-count sensitivity.
 
-    The question a sweep answers is not "which setting gave the most hits" --
-    that rewards whichever combination corrects least. It is "which findings
-    survive the choices I could defensibly have made", so the summary is built
-    around agreement across trials, not around any single trial.
+    Parameters
+    ----------
+    results : pandas.DataFrame
+        Result rows produced by :func:`run_sweep` or
+        :func:`run_sweep_parallel`.
+    controls : sequence of str, default=('gra14', 'eaf1')
+        Control aliases whose presence and rank columns should be summarized
+        when available.
+
+    Returns
+    -------
+    dict
+        Trial counts, elapsed minutes, failure categories, control recovery,
+        and hit-count ranges. Median hit counts are also grouped by correction,
+        regression family, analysis unit, and inference mode when those
+        columns are present. An empty input returns ``{'trials': 0}``.
+
+    Notes
+    -----
+    The summary emphasizes consistency across defensible analysis choices.
+    Hit counts alone should not be used to select a model or correction.
     """
     if results.empty:
         return {"trials": 0}

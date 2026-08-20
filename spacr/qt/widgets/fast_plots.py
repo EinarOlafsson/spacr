@@ -2098,30 +2098,32 @@ class FastPlot(QWidget):
         return ""
 
     def set_y_split(self, low, high) -> str:
-        """Hide the band ``(low, high)`` on the y axis. Returns the refusal.
+        """Hide an empty interval on the y-axis.
 
-        WHAT IT FIXES, AND WHAT IT DOES NOT. Asked for by name -- "the option
-        to insert an axis split on the y axis" -- and it is worth having for
-        the reason it was asked for: a handful of hits at 1e-46 flatten every
-        other point into the bottom of the axis, and taking the empty stretch
-        out gives the rest of the screen its height back. It fixes DYNAMIC
-        RANGE.
+        Parameters
+        ----------
+        low : float
+            Lower boundary of the hidden interval, in data units.
+        high : float
+            Upper boundary of the hidden interval, in data units.
 
-        IT DOES NOT FIX THE DISCRETENESS, and this docstring says so because
-        the request hoped it would. Benjamini-Hochberg's adjusted P is a
-        cumulative minimum, so its ties are the procedure working and no axis
-        transform can separate two tests that genuinely hold the same number.
-        The answer to that is the raw P on the axis with the FDR deciding the
-        colour and the line -- see :meth:`VolcanoPlot.set_p_axis`.
+        Returns
+        -------
+        str
+            Empty string when the split is applied; otherwise, a user-facing
+            explanation of why it was refused.
 
-        THE TICK LABELS KEEP READING THE DATA'S OWN VALUES, which is what
-        makes this a broken axis rather than a lie: the ruler is piecewise
-        linear, and every number printed beside it is the number the mark
-        actually has.
+        Notes
+        -----
+        The split uses a piecewise-linear display transform while retaining
+        the original data values in tick labels. It is refused when a plotted
+        point lies inside the proposed interval, either boundary is non-finite,
+        ``high <= low``, or a logarithmic y-axis would receive a non-positive
+        lower boundary.
 
-        :param low: the bottom of the band to hide, IN DATA UNITS.
-        :param high: its top.
-        :returns: ``""`` when it was applied, or the reason it was refused.
+        Removing an empty interval can make the remaining dynamic range easier
+        to inspect. It does not separate tied p-values or adjusted p-values;
+        use :meth:`VolcanoPlot.set_p_axis` to choose which statistic is drawn.
         """
         reason = self.y_split_reason(low, high)
         if reason:
@@ -4441,11 +4443,31 @@ class FastPlot(QWidget):
 
     def styled_snapshot(self, width: int = SNAPSHOT_PX[0], *, ink: str = "",
                         background: str = "", grid: Optional[bool] = None):
-        """A picture of what :meth:`export_styled` would write. ``None`` if empty.
+        """Render a preview with the styling used for file export.
 
-        The PREVIEW the instruction asks for, and it is the same render the
-        file gets rather than an approximation of it -- a preview that came
-        from a different code path is a preview that can be wrong.
+        Parameters
+        ----------
+        width : int, default=SNAPSHOT_PX[0]
+            Preview width in pixels. Height follows the plot's aspect ratio.
+        ink : str, optional
+            Temporary foreground color. An empty string keeps the current
+            foreground.
+        background : str, optional
+            Temporary background color. An empty string keeps the current
+            background.
+        grid : bool or None, optional
+            Temporary grid visibility. ``None`` keeps the current setting.
+
+        Returns
+        -------
+        QPixmap or None
+            Styled plot image, or ``None`` when the plot has no content.
+
+        Notes
+        -----
+        The same temporary styling context is used by :meth:`export_styled`.
+        The on-screen plot is restored after rendering, including when export
+        raises an exception.
         """
         with self._dressed_for_the_file(ink, background, grid):
             return self.snapshot(width)

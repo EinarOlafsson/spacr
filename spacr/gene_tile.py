@@ -1,69 +1,17 @@
-"""Click a point in the regression, get everything spaCR knows about that gene.
+"""Resolve regression features to gene identities and screen statistics.
 
-A volcano answers "which guides moved". It cannot answer "what IS 411710",
-which is the question a user has the instant they click, and today they answer
-it by leaving spaCR for a browser tab.
+The :func:`gene_tile` function combines a regression feature with optional
+coefficient, gRNA-reference, annotation, and localisation data. It returns a
+:class:`GeneTile` that can be rendered by the GUI or used independently.
 
-This module is the answer, as data. :func:`gene_tile` takes the string the
-volcano and the results table both emit — the ``feature`` value, e.g.
-``fraction:grna[239740_3]`` — plus the results frame, and returns a
-:class:`GeneTile`: identity first, then this screen's own numbers, then what
-spaCR already knows about the gene, then a link out. The Qt tile is a thin
-renderer over it, so the part that has to be RIGHT is testable without a
-window.
+Guide identifiers are resolved with :func:`spacr.hits.gene_of`. When the same
+protospacer occurs under more than one gene in the supplied gRNA reference,
+all candidate genes are retained and the mapping is marked as ambiguous.
+Missing references or annotations are described in the returned record rather
+than represented by an empty panel.
 
-THE HARD PART IS THAT A GUIDE ID IS NOT A GENE ID
--------------------------------------------------
-
-The regression fits guides (``239740_3``) and the gene is a prefix of them,
-and the prefix rule is :func:`spacr.hits.gene_of` — reused here, never
-restated, because a second copy of that rule is how the volcano and the hit
-list start disagreeing about which gene a dot is.
-
-But the prefix is only the gene the COUNTING pipeline attributed the reads to.
-A guide is a 20-mer, and a 20-mer can sit in more than one gene. In the
-TSG101 screen's own reference three protospacers do exactly that::
-
-    GCCGGCGATAGAGCCCCGCCC   TGGT1_241310_2   TGGT1_411210_2   TGGT1_411710_2
-    GCGATAGAGCCCCGCCCTGG                     TGGT1_411210_3   TGGT1_411710_3
-    GTCGCTAGGACATCCTCCAAG   TGGT1_241310_10  TGGT1_411210_10  TGGT1_411710_10
-
-and all three appear in that screen's ``results.csv`` as ``411710_2``,
-``411710_3`` and ``411710_10``. A tile that printed "gene 411710" over those
-rows would be stating as fact a choice the data does not support: those reads
-are equally consistent with 241310 and 411210, and the effect cannot be
-assigned to one of the three. So the tile LISTS ALL THREE and says the mapping
-is ambiguous. The rule is to refuse or disambiguate ambiguous identifiers,
-never resolve them silently.
-
-The bundled ``resources/data/barcodes_grna.csv`` omits those eight rows, so
-against the shipped reference the
-same three guides resolve to a different honest answer — "this guide is not in
-the reference" — rather than to a wrong one. Both answers are produced here and
-both are tested against the real rows.
-
-A MISS IS AN ANSWER
--------------------
-
-A non-targeting control, a gene with no annotation row, an id from a screen
-that is not Toxoplasma: every one of those produces a tile that SAYS what it
-could not resolve. An empty panel reads as a bug; "no metadata row for
-TGGT1_411710" reads as a fact about the annotation file, which is what it is.
-
-NOTHING HERE TOUCHES THE NETWORK
---------------------------------
-
-:attr:`GeneTile.references` are URLs to show and to open on demand. They are
-built from the id by string formatting and are never fetched, so a click costs
-one cached CSV read and no round trip.
-
-Public API::
-
-    from spacr.gene_tile import gene_tile
-
-    tile = gene_tile("fraction:grna[239740_3]", results)
-    print(tile.title)        # 'GRA14'
-    print(tile.to_text())
+Bundled reference tables are read locally and cached. External database URLs
+are constructed for the user to open; this module does not fetch them.
 """
 from __future__ import annotations
 
@@ -1195,33 +1143,41 @@ def gene_tile(feature: Any,
               barcodes: Any = BUNDLED,
               metadata: Any = BUNDLED,
               localisation: Any = BUNDLED) -> GeneTile:
-    """Everything spaCR knows about the gene behind one clicked point.
+    """Build a gene record for a regression feature.
 
-    This is the whole of the feature that is worth testing; the Qt tile only
-    lays it out. Takes exactly what the volcano and the results table both
-    emit — the ``feature`` string — so the two ways of asking the question
-    reach the same answer.
+    Parameters
+    ----------
+    feature : Any
+        Model term such as ``fraction:grna[239740_3]`` or
+        ``gene_fraction:gene[239740]``. Bare gRNA accessions and gene
+        identifiers are also accepted.
+    results : pandas.DataFrame or None, optional
+        Regression coefficient table. When ``None``, identity and annotation
+        are still resolved and the missing screen statistics are recorded in
+        :attr:`GeneTile.unresolved`.
+    barcodes : {BUNDLED, None}, path-like, or pandas.DataFrame, optional
+        gRNA reference with ``name`` and ``sequence`` columns. Use
+        :data:`BUNDLED` for the packaged reference or ``None`` to skip
+        protospacer lookup. Ambiguous mappings can be detected only when this
+        reference contains the guide.
+    metadata : {BUNDLED, None}, path-like, or pandas.DataFrame, optional
+        Gene annotation keyed by ``Gene ID``. Use ``None`` to omit annotation.
+    localisation : {BUNDLED, None}, path-like, or pandas.DataFrame, optional
+        TAGM/LOPIT localisation table keyed by ``gene_nr``. Use ``None`` to
+        omit localisation data.
 
-    :param feature: the model term that was clicked, e.g.
-        ``fraction:grna[239740_3]`` or ``gene_fraction:gene[239740]``. A bare
-        accession (``TGGT1_239740_3``) or gene id (``239740``) is accepted too.
-    :param results: the regression coefficient table. ``None`` still resolves
-        the gene's identity; the tile then says the numbers are absent rather
-        than showing blanks.
-    :param barcodes: the gRNA reference (``name``, ``sequence``).
-        :data:`BUNDLED` for the shipped ``barcodes_grna.csv``, a path, a
-        frame, or ``None`` to skip it. THIS is the source that makes an
-        ambiguous protospacer visible; without it the tile says the mapping
-        was not checked rather than implying it is clean.
-    :param metadata: the curated annotation, keyed ``Gene ID``.
-    :param localisation: the TAGM/LOPIT table, keyed ``gene_nr``.
-    :returns: a :class:`GeneTile`. NEVER ``None`` and never empty: an
-        unrecognised id yields a tile whose :attr:`GeneTile.unresolved` says
-        so, because an empty panel reads as a bug and a sentence reads as an
-        answer.
+    Returns
+    -------
+    GeneTile
+        Resolved identity, screen statistics, annotations, references, and
+        explicit notes about missing or ambiguous data. Unrecognised features
+        return an unresolved record rather than ``None``.
 
-    Makes no network call. :attr:`GeneTile.references` are URLs to open, and
-    building one is string formatting.
+    Notes
+    -----
+    The function reads only local data. Values in
+    :attr:`GeneTile.references` are URLs for the caller to open and are not
+    fetched while building the record.
     """
     text = _clean(feature)
     kind, gene, guide = _parse(feature)

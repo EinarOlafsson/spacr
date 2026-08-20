@@ -2612,23 +2612,31 @@ class MeasurementScanPanel(QWidget):
     def __init__(self, frame_provider=None, parent=None,
                  database_provider=None, *, threaded: bool = True,
                  destination_provider=None, settings_provider=None, fit=None):
-        """
-        :param frame_provider: called with no arguments for the well-level
-            frame to scan. A callable rather than a stored frame, so the panel
-            cannot go on scanning the previous run's data after a new one is
-            loaded.
-        :param database_provider: called with no arguments for the regression
-            input table's rows, so the measurement databases attached to each
-            plate appear here (instruction 130). A callable for the same
-            reason: the tab must not go on showing the previous run's inputs.
-        :param threaded: whether the merge below runs off the GUI thread.
-            ``True`` in the application, which is the whole of instruction
-            154 A; ``False`` lets a test drive the same code path inline.
-        :param destination_provider: where the merged frame is written --
-            step 3's artefact, which step 4 fits against.
-        :param settings_provider: the regression screen's own settings, which
-            step 4 varies the response of and nothing else.
-        :param fit: what step 4 calls to fit one column. Injected for tests.
+        """Initialize the measurement scan and database-merge panel.
+
+        Parameters
+        ----------
+        frame_provider : callable or None, optional
+            Zero-argument callable returning the current well-level frame to
+            scan. It is evaluated when needed so a newly loaded run replaces
+            the previous frame.
+        parent : QWidget or None, optional
+            Parent widget.
+        database_provider : callable or None, optional
+            Zero-argument callable returning the regression input rows and
+            their attached measurement databases.
+        threaded : bool, default=True
+            Run database merges outside the GUI thread. Set to ``False`` for
+            synchronous use in tests or headless callers.
+        destination_provider : callable or None, optional
+            Zero-argument callable returning the directory where the merged
+            measurement frame is written.
+        settings_provider : callable or None, optional
+            Zero-argument callable returning the current regression settings.
+            Column fits copy these settings and vary only the response.
+        fit : callable or None, optional
+            Function used to fit one selected measurement column. ``None``
+            uses the standard regression implementation.
         """
         super().__init__(parent)
         from .fast_plots import ResultsTable
