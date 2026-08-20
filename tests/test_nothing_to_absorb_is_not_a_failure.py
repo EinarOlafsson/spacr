@@ -40,6 +40,35 @@ def design():
     return X, y
 
 
+@pytest.fixture(autouse=True)
+def pyfixest_backend_is_selectable(monkeypatch):
+    """Exercise the absorbing route without requiring the optional package."""
+    import sys
+    from types import ModuleType
+
+    import spacr.ml as ml
+
+    require_backend = ml._require_backend
+
+    def _available(regression_type, backend):
+        if ml.resolve_backend_name(backend) == "pyfixest":
+            return "pyfixest"
+        return require_backend(regression_type, backend)
+
+    monkeypatch.setattr(ml, "_require_backend", _available)
+    pyfixest = ModuleType("pyfixest")
+    core = ModuleType("pyfixest.core")
+    demean_module = ModuleType("pyfixest.core.demean")
+
+    def _unexpected_demean(*_args, **_kwargs):
+        raise AssertionError("a design with no fixed effects must not demean")
+
+    demean_module.demean = _unexpected_demean
+    monkeypatch.setitem(sys.modules, "pyfixest", pyfixest)
+    monkeypatch.setitem(sys.modules, "pyfixest.core", core)
+    monkeypatch.setitem(sys.modules, "pyfixest.core.demean", demean_module)
+
+
 class TestItFitsInsteadOfFailing:
 
     def test_the_run_no_longer_dies(self, design):
