@@ -1564,6 +1564,9 @@ class CellMontageView(QWidget):
         #: What the last load resolved, for the settings window's choosers.
         self._last_source = None
         self._last_objects = None
+        #: Comparison windows this tab opened, kept so Python does
+        #: not collect them the moment the handler returns.
+        self._comparisons: list = []
         self._picture_button = QPushButton("Picture settings…")
         self._picture_button.setToolTip(
             "How the cells are drawn: channels, size, normalisation, "
@@ -1572,6 +1575,21 @@ class CellMontageView(QWidget):
             "with the reason rather than hidden.")
         self._picture_button.clicked.connect(self.edit_picture_settings)
         controls.addWidget(self._picture_button)
+
+        # COMPARE THE CELLS THIS TAB PICKED against the rest (177 F). It sits
+        # beside the picture settings because it asks the same question of
+        # the same selection: these cells, versus the ones the picker did not
+        # choose.
+        self._compare_button = QPushButton("Compare a measurement…")
+        self._compare_button.setToolTip(
+            "Compare any measurement between the cells this tab picked for "
+            "each gene and the rest of the screen. Cell, well or plate "
+            "level; five ways of drawing it; the test chosen from the "
+            "normality and variance checks and reported with n; and one "
+            "folder holding the figure, the data, the statistics and the "
+            "settings.")
+        self._compare_button.clicked.connect(self.compare_a_measurement)
+        controls.addWidget(self._compare_button)
 
         self._per_guide = QComboBox()
         self._per_guide.addItem("guides summed", False)
@@ -2095,6 +2113,55 @@ class CellMontageView(QWidget):
         self._write_back(self._picture_settings)
         self._on_settings_changed()
         return True
+
+    def picked_groups(self) -> dict:
+        """``{gene: the object index values this tab picked for it}``.
+
+        THE PICKER'S OWN ANSWER, read off the plans rather than recomputed --
+        `montage_candidate` is the column `select_montage` marks, so
+        whichever mode is in force (rank, attributed, assigned,
+        multivariate) this is what the montage actually drew.
+        """
+        out: dict = {}
+        for plan in self.plans():
+            rows = getattr(plan, "objects", None)
+            if rows is None or not len(rows):
+                continue
+            name = str(getattr(plan.coefficient, "name", "") or "picked")
+            if "montage_candidate" in rows.columns:
+                chosen = rows.loc[rows["montage_candidate"].astype(bool)]
+            else:
+                chosen = rows
+            if len(chosen):
+                out.setdefault(name, []).extend(list(chosen.index))
+        return out
+
+    def compare_a_measurement(self, *_args):
+        """Open the comparison for the cells this tab picked. 177 F."""
+        from .measurement_compare_dialog import MeasurementCompareDialog
+
+        rows = self._all_objects()
+        groups = self.picked_groups()
+        if rows is None or not len(rows) or not groups:
+            self._set_status(
+                "Show some cells first — the comparison groups them by what "
+                "the picker chose, and nothing is picked yet.")
+            return None
+        dialog = MeasurementCompareDialog(rows, groups, parent=self,
+                                          settings=self.picture_settings())
+        dialog.show()
+        self._comparisons.append(dialog)
+        return dialog
+
+    def _all_objects(self):
+        """Every object row behind the montage, picked or not."""
+        frames = [getattr(plan, "objects", None) for plan in self.plans()]
+        frames = [f for f in frames if f is not None and len(f)]
+        if not frames:
+            return None
+        import pandas as pd
+
+        return pd.concat(frames) if len(frames) > 1 else frames[0]
 
     def remember_inventory(self, source=None, objects=None) -> None:
         """Keep what the last load resolved, so the settings window can offer
