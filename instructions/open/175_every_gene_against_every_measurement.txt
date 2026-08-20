@@ -205,3 +205,38 @@ INK from the theme, so they read in the application and would still print.
 
 STILL OWED
   * The maintainer's pick of which of the ten earn their place.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- "I CANNOT SEE ANY OF THE X OR Y AXES" REACHED THE FILE.
+--------------------------------------------------------------------------------
+
+`_readable` fixed it ON SCREEN and the ten figures went on writing the
+SCREEN's picture to disk. They all called `figure.savefig` directly, so none
+of them got instruction 150's chrome flip -- the theme's ink, #E8EDEE, onto a
+white page.
+
+MEASURED ON THE PIXELS. `plot_calibration` and
+`plot_effect_against_representation` saved with ZERO dark pixels: a white
+rectangle with an invisible plot on it. The other eight passed a naive check
+only because their DATA is dark -- a heatmap supplies its own ink -- so their
+AXES were just as invisible and nothing said so. That is the report reaching
+the file after it had been fixed on screen, which is the version nobody
+notices until they paste it into a manuscript.
+
+`_write(figure, path)` is the one writer now, and every one of the ten uses
+it. It wears the print look for the length of the write and restores in a
+`finally`, because the figure is RETURNED to the caller and may be shown.
+THE CHROME FLIPS AND THE DATA DOES NOT, through the same `export_colour` both
+renderers use, so a mark coloured for its claim keeps its colour.
+
+After: page (255,255,255), 6,922 and 8,589 dark pixels respectively.
+
+15 tests in tests/test_the_sweep_figures_have_readable_axes.py, and the pair
+of them is the point: one checks every figure LABELS both axes, the other
+checks the SAVED FILE is readable on paper. The screen half was already
+passing while the file half was not, which is exactly how this got out.
+
+STILL OWED -- and it is the only thing left on 175:
+  * The maintainer's pick of which of the ten earn their place. The test
+    above asserts there are ten, so cutting some is a deliberate edit rather
+    than a drift.
