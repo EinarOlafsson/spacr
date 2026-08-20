@@ -70,9 +70,11 @@ def test_screen_mode_repaints_nothing_at_all():
         assert style.export_colour("#FFFFFF", kind, look) is None
 
 
-def test_transparent_keeps_the_print_ink_and_drops_the_ground():
+def test_transparent_uses_the_theme_ink_and_drops_the_ground(monkeypatch):
+    monkeypatch.setattr(style, "theme_ink", lambda: ("#F2F2F2", "#555555"))
     look = style.saved_figure_appearance("transparent")
-    assert style.export_colour("#FFFFFF", "chrome", look) == style.PRINT_INK
+    assert style.export_colour("#FFFFFF", "chrome", look) == "#F2F2F2"
+    assert style.export_colour("#FFFFFF", "grid", look) == "#555555"
     assert style.export_colour("#1E1E1E", "ground", look) is None
 
 
