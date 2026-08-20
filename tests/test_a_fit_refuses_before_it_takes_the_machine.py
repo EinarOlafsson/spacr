@@ -12,7 +12,6 @@ user can read beats a machine they have to power-cycle.
 
 import spacr
 
-assert "/codex/repo/spacr/" in spacr.__file__, spacr.__file__
 
 import pytest
 

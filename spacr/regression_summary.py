@@ -2045,7 +2045,7 @@ def format_run_summary(summary: RunSummary) -> str:
         # where two would do, and that repetition is most of what "not very
         # accessable" was about. The fields sharing a reason are named
         # together and the reason is given once.
-        grouped: "collections.OrderedDict[str, List[str]]" = OrderedDict()
+        grouped: "OrderedDict[str, List[str]]" = OrderedDict()
         for _title, one in postponed:
             grouped.setdefault(str(one.text), []).append(one.label)
         for text, labels in grouped.items():

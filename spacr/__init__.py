@@ -102,6 +102,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "feature_dict",
     "image_colors",
     "crops",
+    "png_list",
     "portable_paths",
     "picture_settings",
     "align",
@@ -178,6 +179,7 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     "omero",
     "cli",
     "cli_database",
+    "cli_workspace",
     # Whole-installation diagnosis behind `spacr-doctor`.
     "doctor",
     # `spacr-crashreport`: everything a maintainer needs about a failed run
@@ -372,12 +374,14 @@ _SUBMODULES: Final[tuple[str, ...]] = (
     # built headless and tested without Qt.
     "gene_facts",
     "gene_tile",              # everything spaCR knows about one gene
+    "gene_measurement_compare",
     "gene_measurement_sweep",
     "guide_attribution",
     "fit_resources",
     "parameter_sweep",        # the settings sweep and its containment
     "sweep_child",            # one contained trial, exec'd in its own cgroup
     "trial_metrics",          # what makes a sweep row judgeable
+    "workspace",              # saved GUI context around a recorded run
     "figure_style",           # the older per-figure style store
 )
 

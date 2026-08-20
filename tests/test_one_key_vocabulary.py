@@ -29,8 +29,9 @@ PACKAGE = Path(schema.__file__).parent
 
 
 def test_the_checks_read_this_tree():
-    assert "/codex/repo/spacr/" in schema.__file__, schema.__file__
-    assert "/codex/repo/spacr/" in tabular.__file__, tabular.__file__
+    expected = Path(__file__).resolve().parents[1] / "spacr"
+    assert Path(schema.__file__).resolve().parent == expected
+    assert Path(tabular.__file__).resolve().parent == expected
 
 
 # ---------------------------------------------------------------------------
@@ -387,8 +388,9 @@ def test_the_frame_normalisers_all_answer_the_same():
 def test_tabular_imports_without_pandas_of_the_heavy_kind():
     """The picker must be able to import the reader without paying for torch."""
     code = (
-        "import sys, spacr.tabular as t;"
-        "assert '/codex/repo/spacr/' in t.__file__, t.__file__;"
+        "import sys; from pathlib import Path; import spacr.tabular as t;"
+        "assert Path(t.__file__).resolve().parent == Path.cwd() / 'spacr',"
+        " t.__file__;"
         "heavy = [m for m in ('torch', 'matplotlib', 'cellpose', 'skimage')"
         " if m in sys.modules];"
         "print(heavy)"
