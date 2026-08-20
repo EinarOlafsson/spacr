@@ -375,22 +375,24 @@ STYLE_FIELD_KINDS = ("flag", "colour", "choice", "number", "pair", "text",
 
 
 def style_field_kind(name: str, value, choices=None, declared: str = "") -> str:
-    """What ``name`` can be edited with: one of ``STYLE_FIELD_KINDS``.
+    """Return the editor type for a figure-style field.
 
-    THE VALUE FIRST, THE ANNOTATION SECOND. A dataclass under
-    ``from __future__ import annotations`` carries its type as a STRING --
-    ``"float | None"`` -- and resolving it needs the defining module's
-    namespace, which a general mechanism does not have. The value answers for
-    every field that has one; the annotation is read as text for the ones
-    that are ``None``, where the value says nothing at all.
+    Parameters
+    ----------
+    name : str
+        Field name. Colour-related suffixes select the colour editor.
+    value : Any
+        Current value. Its runtime type takes precedence when it is not
+        ``None``.
+    choices : collection, optional
+        Allowed values for a closed selection.
+    declared : str, optional
+        Type annotation used when ``value`` is ``None``.
 
-    Without that second read, ``effect_threshold: float | None = None`` comes
-    out as free text and the user types a number into a string field.
-
-    :param name: the field's name; its ending is read, to spot a colour.
-    :param value: what the style currently holds there.
-    :param choices: the values this field may take, if it is a closed set.
-    :param declared: the field's annotation, as text.
+    Returns
+    -------
+    str
+        One of :data:`STYLE_FIELD_KINDS`.
     """
     if choices:
         return "choice"

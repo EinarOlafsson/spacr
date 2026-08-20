@@ -1,4 +1,4 @@
-"""Which backend can fit which model HERE, and why the rest are greyed out.
+"""Report which regression backends are available in this environment.
 
 :mod:`spacr.regression_spec` says what the backends ARE -- pure data, no
 imports. This module is the only place that asks the environment about them:
@@ -6,20 +6,12 @@ is the package installed, is there a CUDA device, and can this backend fit the
 selected ``regression_type``? Each disabled entry includes its reason; an
 inapplicable control is never hidden or silently substituted.
 
-IT MUST NOT IMPORT TORCH. Deciding whether to grey out the GPU entry happens
-while a settings panel is being built, on the GUI thread, and
-``tests/test_a_settings_panel_does_not_import_torch.py`` exists because that
-kind of lookup once cost 2.2 seconds and 900 MB. So the CUDA question is
-answered by stat()-ing the driver's device nodes unless torch is ALREADY
-loaded, in which case asking it is free and exact. The probe can only be
-wrong in the permissive direction -- driver present, no usable device -- and
-:func:`spacr.mixed_gpu.resolve_device` corrects that at fit time by refusing
-with the real reason. A panel that offers an entry which later refuses is
-recoverable; a panel that greys out a GPU which works is not, because the
-user has no way to argue with it.
+The availability probe does not import torch while a settings panel is being
+built. It inspects driver device nodes unless torch is already loaded, then
+:func:`spacr.mixed_gpu.resolve_device` performs the definitive fit-time check.
 
-MAKING AN UNAVAILABLE BACKEND AVAILABLE
----------------------------------------
+Installing optional backends
+----------------------------
 
 Three optional backends cannot be enabled by pressing Install, so this section
 explains why and what
@@ -54,15 +46,10 @@ window is narrowing)::
     pip install spacr
     pip install cuml-cu12
 
-What it costs, measured: on the default 3.10 environment resolving it anyway
-moves numpy 1.26.4 -> 2.2.6 and downgrades numba and llvmlite; on a 3.12
-environment numpy is untouched but it still downgrades numba 0.66 -> 0.64 and
-llvmlite 0.48 -> 0.46, pins the CUDA runtime back to 12 (cuda-bindings
-13.3.1 -> 12.9.7, cuda-toolkit 13.0.3 -> 12.9.2) and moves pandas
-2.3.3 -> 3.0.3. And it can return a DIFFERENT answer rather than a faster one:
-two coordinate-descent implementations of a penalised path can select
-different variables at the same alpha, which is a different result and not a
-tolerance.
+Use a separate environment because cuML has narrower Python and CUDA wheel
+compatibility than spaCR's core installation. Its coordinate-descent results
+may also differ from another implementation at the same alpha; treat it as a
+backend choice, not only a speed switch.
 
 **numpyro and gpytorch install cleanly and answer a different question.**
 numpyro samples a posterior with NUTS and gpytorch fits a Gaussian process;

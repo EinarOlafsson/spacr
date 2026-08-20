@@ -256,6 +256,24 @@ def test_reviewed_api_blocks_are_exact_bound_accepted_only_evidence(
         builder.reviewed_api_block_translations(docs, "pt")
 
 
+def test_reviewed_api_validation_waives_only_copied_prose_heuristics():
+    import build_documentation_i18n as builder
+
+    source = "Return the groups variance distribution test."
+    reviewed = "Gibt den groups variance distribution test zurück."
+    assert not builder._api_block_valid(source, reviewed, "de")
+    assert builder._reviewed_api_block_valid(source, reviewed, "de")
+    assert not builder._reviewed_api_block_valid(source, source, "de")
+    assert not builder._reviewed_api_block_valid(
+        source, "Gibt den groups variance distribution test zurück. <broken>", "de"
+    )
+    assert not builder._reviewed_api_block_valid(
+        "The Qt screen shows settings.",
+        "Le criblage Qt affiche les paramètres.",
+        "fr",
+    )
+
+
 def test_reviewed_runtime_records_are_exact_bound_accepted_only_evidence(
     tmp_path, monkeypatch,
 ):
@@ -835,6 +853,32 @@ def test_unquoted_identifiers_inside_prose_table_cells_stay_exact():
     assert not _syntax_preserved(
         source, source.replace("deleteLater", "excluirDepois")
     )
+
+
+def test_numpydoc_field_declarations_are_protected_before_identifiers():
+    from build_documentation_i18n import _api_translation_source
+    from build_i18n_catalogs import _protect, _restore, _syntax_preserved
+
+    source = (
+        "general : dict General style overrides. "
+        "per_graph : mapping Non-default settings keyed by graph type. "
+        "error : FileNotFoundError Raised when the style file is absent."
+    )
+    protected, mapping = _protect(source)
+    for literal in (
+        "general : dict",
+        "per_graph : mapping",
+        "error : FileNotFoundError",
+    ):
+        assert literal not in protected
+    assert _restore(protected, mapping) == source
+    contextual = _api_translation_source(source)
+    assert contextual == source.replace(
+        "Raised when", "Exception used when"
+    )
+    translated = source.replace("General style overrides", "Allgemeine Stilwerte")
+    assert _syntax_preserved(source, translated)
+    assert not _syntax_preserved(source, translated.replace(" : dict", " : Wörterbuch"))
 
 
 def test_preview_contract_table_reassembles_prose_but_hides_code_cells():

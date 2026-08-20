@@ -137,19 +137,9 @@ def live_tiles_from_panels(panels) -> list:
         they should appear. The widget only has to answer ``snapshot()``.
     :returns: ``[(key, pixmap, title)]`` for the ones that photographed.
 
-    THE RULE FOR AN ABSENT PANEL LIVES HERE, ONCE. A panel a run cannot
-    support returns ``None`` from ``snapshot()`` -- a residual plot with no
-    fitted model, a control panel on a screen with no controls -- and the
-    answer is no tile rather than an empty one, because an empty tile invites
-    a click that opens an empty plot. That is a two-line rule and exactly the
-    kind that gets re-derived slightly differently at each call site; there
-    are eight panels and there will be more (129 B), so it is written down
-    once instead of eight times.
-
-    ``snapshot()`` IS NOT ALLOWED TO TAKE THE SCREEN DOWN. It renders through
-    pyqtgraph's image exporter, which reaches into a scene that the panel may
-    be part-way through rebuilding, and a photograph is never worth a
-    traceback: a panel that raises has no tile for that refresh.
+    Panels whose ``snapshot()`` returns ``None`` are omitted rather than shown
+    as empty, nonfunctional tiles. Snapshot errors also omit that panel for
+    the current refresh so an optional preview cannot interrupt the screen.
     """
     tiles = []
     for entry in panels or ():
@@ -433,12 +423,10 @@ class FigureGridView(QScrollArea):
         return None
 
     def live_tile_keys(self) -> list:
-        """Which pyqtgraph panels have a tile, in the order they are drawn.
+        """Return live-panel keys in display order.
 
-        Public because it is the only honest way to ask "is this panel on the
-        grid" -- a caller counting tiles cannot tell which ones they are, and
-        a panel that could not be photographed is silently absent by design
-        (see :meth:`set_live_tiles`).
+        Panels without a usable snapshot are omitted, matching
+        :meth:`set_live_tiles`.
         """
         return [cell.live_key for cell in self._live]
 
@@ -508,49 +496,22 @@ class FigureGridView(QScrollArea):
     def set_pinned(self, pixmap, title: str = "") -> bool:
         """A tile that is always first and is not one of the run's figures.
 
-        The regression graph is a LIVE widget, not a picture the pipeline
-        saved, and it is the interactive regression graph:
-        "the regression plot isnt shown in all figures (i want it also shown
-        there)". Pressing this tile opens the real widget, not a picture of
-        it.
+        The tile is a snapshot of the interactive regression graph. Activating
+        it opens the live widget. It occupies a separate slot from ``_cells``
+        so persisted figure indices remain aligned with
+        :meth:`FigureQueue.show_index`; activation uses
+        :attr:`pinned_activated` instead of a sentinel figure index.
 
-        THE INDEX MAPPING SURVIVES THIS, and that is the whole reason the
-        pinned tile is a separate slot rather than an extra entry in
-        ``_cells``. ``_FigureCell.index`` is the position in the pixmap list
-        the caller handed to :meth:`set_figures`, and ``figure_activated``
-        forwards it straight to ``FigureQueue.show_index``; anything INSERTED
-        into that list shifts every figure after it, so every tile would open
-        its neighbour. This cell carries ``-1``, is never in ``_cells``, and
-        emits :attr:`pinned_activated` instead -- a sentinel index down the
-        shared signal would be the same bug with an extra step.
+        Replacing the pinned tile destroys the previous cell before relayout,
+        preventing transparent snapshots from accumulating at the same grid
+        position.
 
-        THE TILE IT REPLACES IS DESTROYED, and that is the whole of the
-        stacked-volcano bug: "the thumbnail image of the
-        volcano plot looks like several volcano plot itterations pasted on top
-        of each other". This method used to rebind ``_pinned`` and relayout,
-        and `_relayout`'s `takeAt` removes a widget from the LAYOUT while
-        leaving it a visible child of the body at its old geometry -- exactly
-        the failure already written down for the section headings a few lines
-        below, re-derived here for the tiles. `clear()` could not collect the
-        strays either: it walks the layout, and a stray is no longer in it.
-        `_pin_regression_graph` runs on every grid refresh, so a screen that
-        had done twelve runs was painting a dozen tiles at (6, 6) at once --
-        and `FastPlot.snapshot` returns a TRANSPARENT pixmap, so every one of
-        them showed through the ones in front. Measured on the real widget:
-        five `set_pinned` calls left five visible cells at identical geometry
-        and all five volcanoes painted at once; one after the fix.
-
-        ONE TILE OF THE LIVE SECTION, since the design -- the
-        regression graph is no longer the only interactive panel on the grid,
-        and :meth:`set_live_tiles` is the general form. This method touches
-        only the regression tile and leaves any other panel's tile exactly
-        where it is: the screen re-photographs the volcano on a 250 ms
-        debounce and after every restyle, and a call that quietly cleared the
-        other seven panels each time would make the whole section flicker.
+        This method updates only the regression tile; other live-panel tiles
+        remain in place. Use :meth:`set_live_tiles` to replace the full live
+        section.
 
         :returns: True when a tile was pinned. A null or missing pixmap
-            REMOVES it, because an empty tile invites a click that opens an
-            empty plot.
+            removes it.
         """
         previous = self._pinned
         others = [cell for cell in self._live if cell is not previous]

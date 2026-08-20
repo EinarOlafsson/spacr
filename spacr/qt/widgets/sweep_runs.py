@@ -417,19 +417,22 @@ class SweepRunsPanel(QWidget):
         return True
 
     def load_run_from_disk(self, folder: str = "") -> bool:
-        """Open a run's results folder and make it the loaded run.
+        """Open a results folder and make that run active.
 
-        :param folder: the run folder. ``""`` asks for one -- which is the
-            button's path, and the reason a test always passes one: a static
-            file dialog runs its event loop in C++ and would hang a headless
-            run.
-        :returns: True when a run was opened.
+        Parameters
+        ----------
+        folder : str, optional
+            Run directory. An empty value opens a directory chooser.
 
-        A RUN ON DISK IS A FIRST-CLASS RUN (154 G). It gets a row beside this
-        session's own, described by the SAME columns -- its settings are read
-        back from beside its results, so an old run and a fresh one are
-        comparable, which is the entire reason this tab exists. It is not a
-        degraded mode of "re-run it and look again".
+        Returns
+        -------
+        bool
+            ``True`` when a valid run was opened.
+
+        Notes
+        -----
+        Saved settings are restored beside the results so imported and
+        current-session runs use the same table columns.
         """
         if not folder:
             from PySide6.QtWidgets import QFileDialog
@@ -1238,17 +1241,23 @@ class SweepRunsPanel(QWidget):
         self.load_this_run(record)
 
     def load_this_run(self, record) -> bool:
-        """Load ``record`` NOW, even if the mark already claims it.
+        """Load a run and announce it even when it is already selected.
 
-        THE DIFFERENCE FROM `set_loaded_run`, and the reason both exist: that
-        one is idempotent -- it returns early when the key has not changed,
-        which is right for a run announcing itself and wrong for a user asking
-        twice. If the mark and the screen have drifted apart for any reason,
-        an idempotent load is exactly the one that cannot repair it.
+        Parameters
+        ----------
+        record : mapping
+            Run record containing a resolvable row key.
 
-        So this always announces. Asking for the run already on screen costs a
-        redundant reload and gets a user out of a stuck state; refusing them
-        leaves them with a table that ignores clicks.
+        Returns
+        -------
+        bool
+            ``True`` when the record was accepted and announced.
+
+        Notes
+        -----
+        Unlike :meth:`set_loaded_run`, this method deliberately reloads the
+        current selection. This lets an explicit user action resynchronize
+        the run list and results view.
         """
         if not isinstance(record, dict):
             return False

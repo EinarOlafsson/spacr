@@ -201,43 +201,22 @@ class GenePanel(QWidget):
     # ------------------------------------------------------------- warming up
 
     def showEvent(self, event):                                 # noqa: N802
-        """Warm the annotation the first time the panel is actually shown.
+        """Start annotation warm-up when the panel first becomes visible.
 
-        THE WARM-UP USED TO START IN THE CONSTRUCTOR, AND THAT ABORTED THE
-        PROCESS. Qt calls `abort()` when a running QThread is destroyed, and
-        the two guards against that -- `closeEvent` and
-        `QApplication.aboutToQuit` -- both need something to happen:
-        `aboutToQuit` fires only when an EVENT LOOP quits, and a panel that
-        was built and dropped was never closed. So
-
-            QApplication([]); RegressionResultsPanel()
-
-        was enough to end the interpreter with SIGABRT, in any headless
-        script and in three tests that only wanted to know the panel builds.
-
-        Starting on first show fixes the class rather than the case: a panel
-        nobody looks at never starts a thread, and a panel somebody looks at
-        is inside a running event loop by definition, which is exactly the
-        state both guards need.
-
-        It costs nothing in the GUI. The tab is built with the screen and
-        shown when the user opens it, and the warm-up's whole purpose is to
-        have the tables ready before the first gene is clicked -- which
-        cannot happen before the tab is visible.
+        Deferring the worker until the panel is shown avoids creating a
+        background thread for panels that are constructed but never used.
         """
         super().showEvent(event)
         self._shown = True
         self.warm_now()
 
     def warm_now(self) -> bool:
-        """Start the pending warm-up. Returns whether one was started.
+        """Start the pending annotation warm-up.
 
-        Every start site funnels through here, so "a panel nobody shows never
-        starts a thread" is one condition in one place rather than three.
-
-        A caller that knows it wants the tables and will keep the panel alive
-        can call this directly -- and the tests do, because they need to
-        drive the threaded path without a window manager.
+        Returns
+        -------
+        bool
+            Whether a worker was started.
         """
         if self._warming_started:
             return False

@@ -1911,30 +1911,20 @@ class RegressionResultsPanel(QWidget):
         return True
 
     def remembered_runs(self) -> tuple:
-        """The run paths whose plot state this panel has STORED.
+        """Return run paths whose plot state has been stored.
 
-        The run on screen is not among them: it holds its state live, in the
-        widgets, and joins the store when it is left. Saying so rather than
-        folding the two together, because "what is retained" and "what is
-        being looked at" are different questions and a caller asking the
-        first usually means it.
+        The currently displayed run is omitted because its state remains
+        live in the widgets until the panel switches away from it.
         """
         return tuple(self._plot_states)
 
-    # -- instruction 180: what this panel contributes to a saved run --------
+    # -- State contributed to a saved workspace ------------------------------
 
     def workspace_state(self) -> dict:
-        """EVERY run's view, not only the one on screen.
+        """Return saved view state for every run opened in this panel.
 
-        `plot_state()` answers "what is the volcano showing", which is one
-        run. A workspace is what the SESSION had open, and a user who built a
-        view on four runs and is looking at the fifth has four views worth
-        keeping -- they are exactly the ones that would otherwise die with
-        the process, since the fifth is at least still described by the
-        widgets.
-
-        The run on screen is folded in first, because it is live in the
-        widgets and not yet in the store.
+        The currently displayed run is recorded before the stored run states
+        are copied into the returned workspace mapping.
         """
         self._remember_plot_state()
         return {

@@ -1,25 +1,11 @@
-"""The hyperparameter search, beside the filter instead of behind a modal.
+"""Inline hyperparameter search controls for interactive gate exploration.
 
-WHY IT WAS WORTH MOVING, and not just rearranging. A search is a thing you
-ITERATE on -- change a parameter, look at the plot, change it again. It lived
-in ``_ClusterSettingsDialog``, a modal, so *looking* meant closing the dialog
-and reopening it to change anything. Every loop cost two clicks and the loss
-of the previous view. Beside the filter it is one click away and the scatter
-stays on screen while the numbers move.
-
-ONE SOURCE OF TRUTH. Every control here reads and writes
-:class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`, which is what the
-modal already does. That is deliberate: the modal's own docstring records the
-bug from when it did NOT -- it opened on hardcoded 0.30/10 while Gate Settings
-offered 0.5/20, so values the user set were discarded and the two disagreed
-about the defaults as well. A second editor of the same numbers is only safe
-when both edit the same object.
-
-WHAT IS AND IS NOT HERE. DBSCAN's parameters and the Walk are, because they
-are the search. The xD projection's hyperparameters are NOT: they live in the
-settings dialog's xD tab beside the column picker they depend on, and a
-reduction is chosen once per table rather than iterated on per gate. Splitting
-them across two places would be the "two editors" mistake again.
+Controls read and write
+:class:`~spacr.qt.widgets.gate_settings.GateEditorSettings`, keeping the
+inline panel and modal settings dialog synchronized. The panel contains
+DBSCAN parameters and walk controls used during gate search. Projection
+hyperparameters remain in the settings dialog's xD tab, where they are
+configured once per table beside their column picker.
 """
 from __future__ import annotations
 

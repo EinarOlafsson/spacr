@@ -186,29 +186,32 @@ def perform_levene_test(df, grouping_column, data_column):
 
 
 def perform_statistical_tests(df, grouping_column, data_columns, paired=False):
-    """Run the group-comparison test the data supports, per data column.
+    """Run a supported group comparison for each data column.
 
-    The choice is made by :func:`spacr.figures.stats.compare` and nothing in
-    this module second-guesses it: two groups get Student's t, Welch's t or
-    Mann-Whitney U, and three or more get one-way ANOVA, Welch's ANOVA or
-    Kruskal-Wallis, from the normality and equal-variance checks. An assumption
-    check that had no power counts as FAILED, so three replicates buy a rank
-    test rather than a t-test.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Data containing the grouping and numeric value columns.
+    grouping_column : str
+        Column identifying each observation's group.
+    data_columns : iterable of str
+        Numeric columns to test.
+    paired : bool, default=False
+        Request paired analysis. Paired analysis is not implemented; when
+        enabled, no result rows are returned.
 
-    :param df: Input DataFrame containing the grouping and value columns.
-    :param grouping_column: Column name identifying the group of each row.
-    :param data_columns: Iterable of numeric column names to test.
-    :param paired: When True, paired-sample analysis is requested. Still not
-        implemented: the call prints and returns no rows. It used to be
-        honoured only on the two-group path, so asking for a paired test across
-        three groups silently ran an unpaired one; now every group count
-        refuses the same way.
-    :returns: List of per-column result dicts with ``Column``, ``Test Name``,
-        ``Test Statistic``, ``p-value``, ``Groups``, and -- so a saved table is
-        reportable rather than a bare p -- ``n`` per group, ``Effect Size``,
-        ``Effect`` and ``Why This Test``. A comparison the engine refuses to
-        make is reported as ``Test Name='not testable'`` with the reason,
-        the same convention :func:`chi_pairwise` uses for an undefined pair.
+    Returns
+    -------
+    list of dict
+        Per-column test name, statistic, p-value, sample counts, effect size,
+        and selection rationale. Refused comparisons use
+        ``Test Name='not testable'`` and include the reason.
+
+    Notes
+    -----
+    :func:`spacr.figures.stats.compare` selects Student's t, Welch's t,
+    Mann-Whitney U, one-way ANOVA, Welch's ANOVA, or Kruskal-Wallis from the
+    available groups and informative assumption checks.
     """
     from .figures.stats import compare
 

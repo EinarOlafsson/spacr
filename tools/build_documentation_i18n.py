@@ -366,6 +366,12 @@ API_DOC_ALIASES: Mapping[str, str] = {
 # it pass. Each allowed block is an API literal/example with no translatable
 # prose. New exceptions require reviewing and hashing the exact source block.
 API_EXACT_BLOCK_SHA256_ALLOWLIST = frozenset({
+    # Mathematical definitions are executable notation, not prose.  Keeping
+    # them byte-identical across languages also makes the surrounding
+    # translated explanation and the implementation use the same symbols.
+    "d2c60798869c42cd6d8ac21d4dd19eaaec6e29916ab569285c98f37d8759a37c",
+    "b5df51fec23b51c3460223ba0081f0cdd9667a74d11071d3341b2c58ed8d723f",
+    "bbb37555815f2dd2dee9f3e1d1c9fa2013673d3200b9cef40e76c1c8e6fba1c6",
     "fc1a080cac9c8a69250235e646f7d54c59232e73c664a392b6813e5abf088937",
     "a8356398b7efb4933388f52627f8426e5131037bde864f92cf70702d8febf0d8",
     "52e945ac179782227292ff5d8bd6ee111fee7c9d4af2507fbb4df88274f0530a",
@@ -5243,9 +5249,8 @@ def reviewed_api_block_translations(
             if _api_translation_source(source) != context:
                 raise ValueError(f"stale reviewed API context {label!r}: {path}")
             if not (
-                _syntax_preserved(source, target)
-                and _api_block_valid(source, target, language)
-                and _api_block_valid(context, target, language)
+                _reviewed_api_block_valid(source, target, language)
+                and _reviewed_api_block_valid(context, target, language)
             ):
                 raise ValueError(f"rejected reviewed API target {label!r}: {path}")
             previous = reviewed.setdefault(source, target)
@@ -5254,6 +5259,33 @@ def reviewed_api_block_translations(
                     f"conflicting reviewed API targets for {source!r}"
                 )
     return reviewed
+
+
+def _reviewed_api_block_valid(
+    source: str, value: str, language: str,
+) -> bool:
+    """Validate a source-bound API translation after language review.
+
+    Reviewed evidence may retain a cited name, an equation token or a
+    domain-standard English term that the generic copied-prose heuristic
+    cannot distinguish from an untranslated sentence.  The exemption is
+    deliberately limited to exact evidence records: syntax, semantics,
+    source context, target script and degeneracy checks remain mandatory.
+    """
+    if not str(value).strip() or not _syntax_preserved(source, value):
+        return False
+    if _looks_degenerate(source, value, language):
+        return False
+    if _semantic_false_friends(source, value, language):
+        return False
+    if language == "zh_CN" and _has_traditional_chinese_prose(value):
+        return False
+    if not _api_block_requires_translation(source):
+        return _normalized_block(source) == _normalized_block(value)
+    if _normalized_block(source) == _normalized_block(value):
+        return False
+    pattern = _TARGET_SCRIPT_PATTERN.get(language)
+    return pattern is None or bool(pattern.search(str(value)))
 
 
 def repair_api_translations(
@@ -5628,6 +5660,7 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
         english_residue_errors: list[str] = []
         copied_english_errors: list[str] = []
         semantic_false_friend_errors: list[str] = []
+        reviewed_blocks = reviewed_api_block_translations(docs, language)
         for key, source in docs.items():
             record = symbols.get(key, {})
             canonical = API_DOC_ALIASES.get(key)
@@ -5679,6 +5712,10 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                         zip(source_blocks, translated_blocks)
                     ):
                         label = f"{key}#{index}"
+                        is_reviewed = (
+                            reviewed_blocks.get(source_block)
+                            == translated_block
+                        )
                         if not _syntax_preserved(source_block, translated_block):
                             protected_block_errors.append(label)
                         contextualized = _contextualize(
@@ -5710,6 +5747,7 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                             )
                             if (
                                 contextual_source != source_block
+                                and not is_reviewed
                                 and not _api_block_valid(
                                     contextual_source,
                                     translated_block,
@@ -5717,11 +5755,11 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                                 )
                             ):
                                 contextual_translation_errors.append(label)
-                            if _has_english_residue(
+                            if not is_reviewed and _has_english_residue(
                                 source_block, translated_block, language,
                             ):
                                 english_residue_errors.append(label)
-                            if _copied_english_phrases(
+                            if not is_reviewed and _copied_english_phrases(
                                 source_block, translated_block, language,
                             ):
                                 copied_english_errors.append(label)

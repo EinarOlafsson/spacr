@@ -147,38 +147,21 @@ def load_crop_image(path: str, db_path: Optional[str] = None,
                     stored_channel_order: str = "auto",
                     display_order: str = "rgb",
                     display_primaries: str = "rgb") -> Image.Image:
-    """Open one object crop PNG as an 8-bit RGB image, in the corrected order.
+    """Open one object crop PNG as an 8-bit RGB image in display order.
 
-    Not ``Image.open(path).convert('RGB')``. Crop PNGs come in two formats:
-    anything spaCR wrote before the BGR fix has ``png_dims[0]`` in its *blue*
-    channel, so a plain PIL read shows the user's first stain as blue and
-    their third as red -- and the annotator's "r"/"g"/"b" channel filters then
-    address the wrong stains. :func:`spacr.crops.read_crop_png` resolves which
-    format the folder is in (sidecar marker, else the database column, else
-    legacy) and corrects it on load, so an old dataset and a new one look the
-    same here.
-
-    It also fixes the other half: a 16-bit single-channel crop opened with
-    ``convert('RGB')`` is CLIPPED at 255 by PIL and comes back solid white.
-    Every crop is narrowed the same way now -- by its high byte.
+    :func:`spacr.crops.read_crop_png` resolves the stored format from the
+    sidecar marker, database, or legacy fallback before applying the requested
+    display order. Sixteen-bit single-channel images are narrowed consistently
+    instead of being clipped by an RGB conversion.
 
     Two different questions are kept separate rather than combined into one
     control:
 
-        stored_channel_order   HOW WAS THIS FILE WRITTEN. A fact about the
-                               bytes, resolved from the sidecar marker or the
-                               database. Getting it wrong shows the wrong
-                               stain, so 'auto' is the right answer almost
-                               always.
-        display_order          HOW DO I WANT TO LOOK AT IT. A preference,
-                               making no claim about the file. Defaults to
-                               'rgb', the identity.
-
-    The second exists because a project authored before the crop-format fix
-    can want its ORIGINAL picture back -- its parasite stain in red rather
-    than blue -- and the only ways to get it were to re-run measurement for
-    hours, or to mark the folder as a format it is not. The second works and
-    then lies to every later reader. A display preference does neither.
+        stored_channel_order   Physical channel order in the file, resolved
+                               from its sidecar marker or database. ``'auto'``
+                               is recommended when metadata is available.
+        display_order          Preferred on-screen order, independent of file
+                               storage. Defaults to ``'rgb'``.
 
     :param path: the crop PNG.
     :param db_path: optional ``measurements.db``, consulted when the crop

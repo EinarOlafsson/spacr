@@ -1,12 +1,10 @@
-"""
-Photographic backgrounds for the image-backed themes.
+"""Photographic backgrounds for image-backed themes.
 
 Why this exists next to :mod:`spacr.qt.space`
 ---------------------------------------------
-:mod:`spacr.qt.space` *generates* a sky with numpy. This module does the
-same job for pixels that already exist: three photographs the user
-supplied — two of their own micrographs and one deep-field astronomy
-frame — turned into wallpapers for the Space and Cell themes.
+:mod:`spacr.qt.space` generates procedural backgrounds. This module prepares
+three bundled photographs—two microscopy images and one deep-field astronomy
+image—for the Space and Cell themes.
 
 It reuses ``space``'s cache directory, its size clamps and its
 "never raise, fall back to something" contract, so from the outside a
@@ -14,20 +12,15 @@ photo background and a generated one behave identically. What is new is
 the part that photographs need and procedural pixels do not: a decode
 budget, a crop policy, and a measured legibility check.
 
-The performance limit is decoded memory, not file size
-------------------------------------------------------
-``space_1.jpeg`` is 10.2 MB on disk and **281 MB decoded** as
-10000x7020 RGBA. Re-decoding that on a window resize would be brutal and
-holding it resident is worse. So:
+Decoded-image memory, not compressed file size, sets the performance limit.
+Large source photographs are therefore prepared as follows:
 
 * the masters shipped in ``spacr/resources/themes`` are already cropped
   and capped at :data:`MASTER_CAP` (3840x2400 — :data:`spacr.qt.space.MAX_DIM`),
   so the largest thing ever decoded at runtime is ~27 MB, not 281 MB;
 * each screen size is rendered **once** and cached as JPEG under
   ``~/.spacr/backgrounds``; and
-* :func:`decode_count` counts every master decode, so the claim "no
-  master is touched during a resize or a repaint" is a number the test
-  suite checks rather than a promise in a docstring.
+* :func:`decode_count` reports master decodes for diagnostics and tests.
 
 The crop policy
 ---------------

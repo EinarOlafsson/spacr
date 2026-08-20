@@ -342,11 +342,10 @@ def score_design(report: Mapping) -> "object":
     :param report: the dict :func:`design_report` returns.
     :returns: a ``PanelVerdict``.
 
-    RANK DEFICIENCY IS THE ONE FAIL AND IT IS NOT A MATTER OF DEGREE. A design
-    with fewer independent directions than parameters returns a coefficient per
-    guide that is ONE OF INFINITELY MANY solutions, and statsmodels answers
-    with a pseudo-inverse rather than refusing -- so the numbers look like any
-    other fit. Nothing else in the output says so.
+    Rank deficiency is a failure because a design with fewer independent
+    directions than parameters has no unique coefficient vector. A
+    pseudo-inverse can still return numbers, but individual effects are not
+    identifiable.
 
     The other two rules are the conventional ones and are cited in ``detail``:
     a design needs more wells than parameters to have any residual degrees of

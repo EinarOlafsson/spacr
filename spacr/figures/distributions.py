@@ -510,24 +510,12 @@ def save_distributions(frame, dst, *, response_variable: Optional[str] = None,
                        order: Sequence[str] = ORDER) -> Dict[str, str]:
     """Write both distributions into a run's results folder.
 
-    ``{key: path}`` for what was written; a key is absent when its
-    panel could not be drawn -- an empty figure in a results folder is worse
-    than a missing one, because the grid view will show it.
+    Returns ``{panel_name: path}`` for panels that were drawn; unavailable
+    panels are omitted. The function never opens an interactive window.
 
-    Replaces the two `plot_histogram` calls in
-    :func:`spacr.ml.regression_model`. It does NOT call `plt.show`: the old
-    one did, which pops a window out of a headless or GUI-driven run.
-
-    THE DEFAULT TARGET IS ``'print'``, NOT :func:`theme_target`. This function
-    writes a FILE, and a file is read on a page. ``theme_target()`` answers a
-    different question -- what is the GUI theme doing -- and returns
-    ``'screen'`` for every user who has not explicitly set a white figure
-    background, which resolves to ``INK_SCREEN`` (#E8EDEE) on a transparent
-    PDF: near-white axes, ticks and labels on a white page.
-    :data:`spacr.regression_qc._REPORT_TARGET` states the same rule for the QC
-    report, and :func:`spacr.ml._save_regression_figure` passes ``'print'``
-    for the sheet these two figures land beside on the grid. Passing
-    ``target`` explicitly still wins, for a caller drawing into the GUI.
+    The default ``target='print'`` produces page-readable ink for saved files.
+    Pass another target explicitly when the output will be embedded on a GUI
+    surface.
     """
     import os
 

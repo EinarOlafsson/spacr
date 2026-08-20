@@ -753,18 +753,9 @@ NORMALITY_TOO_FEW = f"normality test needs n >= {NORMALITY_MIN_N}"
 def residual_normality(resid, *, min_n=NORMALITY_MIN_N):
     """Skew, excess kurtosis and a normality P value for one residual vector.
 
-    ONE STATEMENT OF THE NORMALITY VERDICT, because there are now two readers
-    of it: :func:`_panel_residual_distribution` draws it, and
-    :func:`spacr.regression_summary.build_run_summary` prints it in the
-    assumptions section. A second copy of "skew, kurtosis, K-squared, and
-    refuse below eight" is how the picture and the prose come to disagree
-    about the same fit.
-
-    THE REFUSAL IS A RESULT, NOT AN ERROR. Below ``min_n`` residuals the
-    K-squared statistic has no usable null -- scipy raises -- so ``normality_p``
-    is ``NaN`` and ``test`` says :data:`NORMALITY_TOO_FEW`. A caller must print
-    ``test``; a caller that prints only the P value reports a blank for a
-    check that was made and declined.
+    Below ``min_n`` residuals, the K-squared test is not run. In that case
+    ``normality_p`` is ``NaN`` and ``test`` contains
+    :data:`NORMALITY_TOO_FEW`; callers should display both fields.
 
     :param resid: residuals; non-finite entries are dropped first.
     :param min_n: fewest residuals the test will run on. Default

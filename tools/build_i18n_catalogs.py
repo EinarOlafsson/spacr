@@ -249,7 +249,33 @@ _PROTECT_PATTERNS = (
         r"(?:\"[^\"\n]+\"|'[^'\n]+'|[^\s,.;:()]+)"
     ),
     re.compile(r"(?<!\w)(?:--[A-Za-z][\w-]*|-[A-Za-z](?!\w))"),
+    # Numpydoc parameter tables are extracted as prose blocks before model
+    # translation. Preserve the field name and its type declaration while
+    # translating the description that follows (``name : Any File name...``).
+    # Without this rule, models can translate ``Any`` or a simple parameter
+    # name and leave an API page whose displayed signature contradicts the
+    # callable it documents.
+    re.compile(
+        r"(?<!\w)[A-Za-z_]\w*\s*:\s*(?:"
+        r"Any|bool|int|float|str|bytes|dict|list|tuple|set|mapping|"
+        r"array-like|path-like|callable|pandas\.DataFrame|pathlib\.Path"
+        r")(?:,\s*optional|,\s*default\s*=\s*[^\s]+)?"
+    ),
+    # Keep this after the complete numpydoc declaration above.  Regex
+    # alternation chooses the first match at an offset, so putting the shorter
+    # snake_case rule first would protect only ``per_graph`` in
+    # ``per_graph : dict`` and expose the declared type to prose rewrites.
     re.compile(r"\b[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+\b"),
+    # Exception and framework class names sometimes occur without inline-code
+    # markup in legacy docstrings. They are identifiers, not translatable
+    # CamelCase prose. ASCII identifier boundaries are intentional: Korean
+    # case particles commonly attach directly to the class name and remain
+    # translatable prose rather than part of the Python identifier.
+    re.compile(
+        r"(?<![A-Za-z0-9_])[A-Z][A-Za-z0-9]*(?:Error|Exception|Warning|Dialog|Panel|"
+        r"View|Widget|Model|Result|Choice|DataFrame|Series|Renderer|Worker|"
+        r"Thread|Timer|Loop|Image|Pixmap|Document)(?![A-Za-z0-9_])"
+    ),
     # These two unquoted identifiers occur inside otherwise-human table cells.
     # Keep them exact without hiding every CamelCase English cue from the
     # semantic source classifier (``DataLoader`` and ``spaCR`` are meaningful

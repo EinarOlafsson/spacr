@@ -1,24 +1,11 @@
-"""Where each gene's protein lives, for colouring one compartment at a time.
+"""Protein-localization metadata for compartment-aware figure colouring.
 
 Interactive volcano plots can highlight genes from one selected LOPIT
 compartment while leaving the remaining genes grey.
 
-ONE COMPARTMENT AT A TIME, AGAINST GREY. The bundled TAGM/LOPIT table names
-27 real compartments, and a 27-colour volcano is precisely what the house
-style says not to draw -- "everything is grey except what the sentence is
-about". It is not only a style rule: a 27-entry legend cost 40 ms of a 49 ms
-redraw, so the version that breaks the rule is also the slow one.
-
-A screen showing "rhoptries" against grey answers a question. A screen
-showing all 27 at once answers none of them, because no reader can hold 27
-hues apart and the two that matter are not adjacent in the legend.
-
-THE JOIN IS ON THE GENE, PARSED FROM THE DESIGN TERM. A coefficient's
-`feature` is `gene_fraction:gene[244480]` or `fraction:grna[411710_2]`, and
-the LOPIT table is keyed on the bare gene number. :func:`spacr.hits.gene_of`
-is what already knows how to get from one to the other, and using it means
-this file cannot invent a second key space -- which is how a screen ends up
-colouring the wrong dots and looking entirely plausible while it does.
+Figures highlight one selected compartment against grey to keep the comparison
+legible. Coefficient feature names are resolved to bare gene identifiers with
+:func:`spacr.hits.gene_of` before joining the bundled TAGM/LOPIT table.
 """
 
 from __future__ import annotations

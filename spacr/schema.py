@@ -1,74 +1,17 @@
-"""The database contract: what a spaCR key is called, and what it means.
+"""Canonical database keys, filename identities, and table schemas.
 
-Why this module exists
-----------------------
-Every table spaCR writes is keyed on the same four strings — ``plateID``,
-``rowID``, ``columnID``, ``fieldID`` — plus ``timeID`` for a timelapse, and
-they are joined on the composed forms ``prc``, ``prcf`` and ``prcfo``. Those
-keys were derived by hand in at least five places, and **the copies disagreed
-about malformed wells**. One measured example, both halves written by the real
-writers into one database (see ``tests/test_schema.py``)::
+spaCR measurement tables share the ``plateID``, ``rowID``, ``columnID``, and
+``fieldID`` columns, with ``timeID`` added for time-lapse data. This module
+defines those names, their composed ``prc``/``prcf``/``prcfo`` forms, and the
+parsers used by database, image, and GUI code.
 
-    field 'plate1_AA01_1'          # AA is a real 1536-plate row
+Numeric tokens may include common vendor prefixes such as ``s3`` or ``T0003``.
+Unparseable but non-empty tokens remain distinct in permissive mode and raise
+:class:`KeyParseError` in strict mode; missing identity components always
+raise. Legacy helpers are retained for reading and testing older data.
 
-    utils._merge_and_save_to_database -> cell     : ('error','error','error','error')
-    utils.filepaths_to_database       -> png_list : ('plate1','r1','c0','f1')
-
-    png_list.merge(cell, on=[plateID,rowID,columnID,fieldID]) -> 0 rows
-
-Two rows describing the same objects, given two different identities by two
-functions in the same file, and the join between them silently returns
-nothing. That class of bug is not fixable one call site at a time — it is
-fixable only by there being one definition. This module is that definition.
-
-It is deliberately **declarative and additive**. Nothing here rewrites the
-existing call sites; :func:`legacy_map_wells` and :func:`legacy_well_ids`
-reproduce today's behaviour bit for bit so a migration can be done one call
-site at a time with a test pinning exactly what changed.
-
-The ``f0`` problem
-------------------
-``utils._safe_int_convert`` returns ``0`` when a token will not parse. That is
-the single most destructive line in the metadata path, because it is *silent*
-and it *collides*: three ImageXpress sites ``s1``/``s2``/``s3`` all become
-``f0`` and therefore one ``prcf``, and object 1 of each becomes the same
-``prcfo``. Three fields go in, one comes out, and nothing anywhere says so.
-
-This module never invents a number it did not read. :func:`parse_int_token`
-returns ``None``, not ``0``. Above it, key construction is graded:
-
-* **Parseable** — ``'3'``, ``'003'``, ``'s3'``, ``'T0003'``, ``'F003'`` all
-  mean field 3. A vendor prefix is a spelling, not a different field.
-* **Present but not a number** — ``'xy'`` becomes ``'fxy'``. Not a number, so
-  it cannot be mistaken for one and shows up immediately in QC; still
-  distinct per token, so three bad fields stay three fields; still a valid
-  join key, so the run continues and every table agrees on it.
-* **Absent** — ``''`` or ``None`` raises :class:`KeyParseError`. An empty
-  field id is not an identity, it is the absence of one, and every row so
-  keyed would merge with every other.
-
-``strict=True`` promotes the middle tier to an exception, which is what a
-preflight or QC pass wants. The default is the long-run path: a ten-hour
-``measure_crop`` must not die on field 8000 because one file was named
-badly, but it must not lie about it either. Both requirements are met by
-making the failure *representable in the data* instead of choosing between
-silence and death.
-
-Dependencies
-------------
-The standard library. Nothing else — not even pandas at module scope, let
-alone torch, cellpose or Qt, and no ``spacr`` import. Everything wants this
-module, including GUI paths and CLI preflights that must not pay for a torch
-import, so ``tests/test_schema.py`` asserts it imports clean in a subprocess
-(the same guard ``spacr.crops`` carries).
-
-``spacr.resume`` is the reason the last dependency went too. It runs at the
-top of ``measure_crop``, in a process that may never load a model, and
-``tests/test_resume.py`` asserts that importing it pulls in **no numpy and no
-pandas** — so a module-scope ``import pandas`` here would have made the one
-call site this module was written for the one call site that could not use
-it. The two frame helpers at the bottom import pandas themselves; everything
-above them is strings and integers and needs nothing.
+The module has no third-party import-time dependencies. Data-frame helpers
+import pandas only when called.
 """
 
 from __future__ import annotations
@@ -1716,36 +1659,30 @@ def parse_prcfo(text: Any) -> ObjectID:
 # ---------------------------------------------------------------------------
 
 def escape_field_stem_plate(name: Any, *, timelapse: bool = False) -> str:
-    """Return a field stem with its free-text plate component escaped.
+    """Escape the plate component of a merged-stack field stem.
 
-    Writers know the grammar and therefore know how many fixed tail tokens
-    belong to the well/field/time.  Joining everything before that tail is
-    the unambiguous plate id; escaping it before emitting a crop filename is
-    what lets the reader split the name without guessing.
+    Parameters
+    ----------
+    name : Any
+        File name, path, or stem in ``plate_well_field[_time]`` form.
+    timelapse : bool, default=False
+        Treat the final component as a timepoint. A numeric trailing
+        timepoint is also recognized in non-time-lapse merged-stack names.
 
-    **THE TAIL IS THREE WHENEVER THE STEM CARRIES A TIMEPOINT, TIMELAPSE OR
-    NOT**, and this function must agree with :func:`parse_field_stem` about
-    when that is, because the two are the write and read halves of one
-    grammar.  They did not.  ``spacr.io`` names every merged stack
-    ``plate_well_field_TIME`` whatever ``timelapse`` is set to -- the fact
-    :func:`parse_field_stem` already accounts for -- so ``_generate_names``,
-    which escapes the merged stem before cutting a crop out of it, escaped
-    ``'plate1_A01_1_1'`` with a tail of two and swallowed the WELL into the
-    plate.  Measured on the shipped Crop demo, an ordinary non-timelapse
-    plate: every crop landed as ``plate1%5FA01_1_1_<id>.png`` and its
-    ``png_list`` row read ``plateID='plate1_A01'``, ``rowID='2'``,
-    ``prcfo='plate1%5FA01_2_2_f1_o1'`` -- against ``prcf='plate1_r1_c2_f2'``
-    on the ``cell`` row for the same object.  The crop table and the object
-    tables carried different identities for the same cell, so nothing that
-    joins crops to measurements could match.
+    Returns
+    -------
+    str
+        The stem with only its plate component filename-escaped.
 
-    The allowance mirrors :func:`parse_field_stem`'s exactly: one trailing
-    component that reads as a timepoint belongs to the tail.  A four-part stem
-    whose plate genuinely holds an underscore and which carries no timepoint
-    (``'my_plate_A01_1'``) is ambiguous from the name alone and is resolved the
-    same way the reader resolves it -- which is why the plate is escaped at the
-    writer, where the components are still separate
-    (:func:`spacr.io._escaped_field_stem`), rather than recovered here.
+    Raises
+    ------
+    KeyParseError
+        If the stem does not contain a plate and the required tail fields.
+
+    Notes
+    -----
+    Escaping at write time preserves plate names that contain underscores.
+    The tail rules match :func:`parse_field_stem`.
     """
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
@@ -1765,55 +1702,37 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
                      strict: bool = False) -> FieldID:
     """Parse a merged-stack file name into a :class:`FieldID`.
 
-    The canonical replacement for ``utils._map_wells``. The name is
-    ``<plate>_<well>_<field>`` (``_<time>`` when ``timelapse``), with or
-    without a directory and an extension.
+    Parameters
+    ----------
+    name : Any
+        File name, path, or stem in ``plate_well_field[_time]`` form.
+    timelapse : bool, default=False
+        Parse a required trailing timepoint and include it in the identity.
+    strict : bool, default=False
+        Reject non-numeric field/time tokens and nonstandard wells.
 
-    Differences from ``_map_wells``, every one of them a case ``_map_wells``
-    gets wrong rather than a change of contract:
+    Returns
+    -------
+    FieldID
+        Parsed plate, well, field, and optional timepoint identity.
 
-    * ``'AA01'`` gives ``r27``; ``_map_wells`` raises and returns the
-      five-tuple ``('error',) * 5`` — losing the *plate* as well as the well.
-    * a lowercase well parses; ``_map_wells`` raises on it.
-    * a whitespace-padded well parses; ``_map_wells`` treats it as a
-      positional well and puts the padded text in both slots.
-    * a non-numeric field is preserved (``'s3'`` → ``f3``, ``'xy'`` →
-      ``'fxy'``); ``_map_wells`` returns ``f0`` for both.
-    * too few parts raises instead of returning ``'error'`` strings that
-      then get written into the database as if they were an identity.
+    Raises
+    ------
+    KeyParseError
+        If the stem has the wrong number of components.
+    WellParseError
+        If the well component cannot be parsed.
 
-    **A NON-TIMELAPSE STEM CARRIES A TIMEPOINT ANYWAY, AND ALWAYS HAS.**
-    :func:`spacr.io._rename_and_organize_image_files` names every stack
-    ``f'{plate}_{well}_{field}_{timeID}.tif'`` whatever ``timelapse`` is set
-    to — see ``tests/test_cov_io_organize_files.py``, where a plain ingest
-    produces ``stack/plate1_A01_1_1.npy`` — so ``merged/*.npy`` on an
-    ordinary plate has four components and is read back with
-    ``timelapse=False``. Refusing that name outright made ``_map_wells``
-    return ``'error'`` in every slot for every field of every ordinary run,
-    which :func:`spacr.utils._merge_and_save_to_database` then rejected as a
-    prcf disagreeing with its identity columns: ``measure_crop`` wrote **no
-    measurement tables at all**, 100 % of fields failed, and the demo test
-    that shows it is ``slow``-marked and therefore deselected in CI.
+    Notes
+    -----
+    A non-time-lapse call accepts one extra numeric timepoint emitted by the
+    merged-stack writer, but omits it from the returned identity. Other extra
+    components are rejected.
 
-    So exactly one surplus component is accepted, and only when it reads as
-    a timepoint (a bare or vendor-prefixed integer). ``'plate1_A01_3_junk'``
-    is still refused, which is what keeps a surplus component from being
-    silently dropped; a genuine timepoint on a plate the caller has declared
-    non-timelapse is dropped, because that is what ``timelapse=False``
-    means and what ``_map_wells`` has always done with it.
-
-    :param name: file name, path, or stem.
-    :param timelapse: expect and parse a trailing timepoint.
-    :param strict: reject unparseable field/time tokens and odd wells.
-    :returns: the :class:`FieldID`.
-    :raises KeyParseError: when the name has too few components.
-    :raises WellParseError: when the well cannot be parsed.
-
-    Example:
-        .. code-block:: python
-
-            >>> parse_field_stem('plate1_A01_3').prcf
-            'plate1_r1_c1_f3'
+    Examples
+    --------
+    >>> parse_field_stem('plate1_A01_3').prcf
+    'plate1_r1_c1_f3'
     """
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
@@ -1827,9 +1746,7 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
             ', or that plus the timepoint spacr.io names every stack with')
         raise KeyParseError(
             f'cannot identify a field from {stem!r}: expected {shape} '
-            f'({needed} parts{allowance}), got {len(parts)}. _map_wells '
-            f'returned the string "error" in every slot here, and those '
-            f'strings were then written into the database as an identity.')
+            f'({needed} parts{allowance}), got {len(parts)}.')
     return FieldID.build(unescape_filename_component(parts[0]),
                          well=parts[1], field=parts[2],
                          time=parts[3] if timelapse else None, strict=strict)
@@ -1839,31 +1756,27 @@ def parse_object_stem(name: Any, *, timelapse: bool = False,
                       strict: bool = False) -> ObjectID:
     """Parse a crop-PNG file name into an :class:`ObjectID`.
 
-    The canonical replacement for ``utils._map_wells_png``. The name is
-    ``<plate>_<well>_<field>[_<time>]_<object>``, with the object label
-    always last.
+    Parameters
+    ----------
+    name : Any
+        File name, path, or stem in
+        ``plate_well_field[_time]_object`` form.
+    timelapse : bool, default=False
+        Parse a timepoint between the field and object components.
+    strict : bool, default=False
+        Reject non-numeric identity tokens and nonstandard wells.
 
-    Differences from ``_map_wells_png``:
+    Returns
+    -------
+    ObjectID
+        Parsed field identity with the final object label attached.
 
-    * ``'AA01'`` gives ``('r27', 'c1')``; ``_map_wells_png`` gives
-      ``('r1', 'c0')`` — silently dropping the second row letter *and*
-      inventing column 0.
-    * a well with no column (``'A'``) raises; ``_map_wells_png`` gives
-      ``'c0'``.
-    * a lowercase well parses; ``_map_wells_png`` raises into
-      ``('error',) * 6``.
-    * a non-numeric field or object is preserved rather than collapsed to
-      ``f0`` / ``o0``.
-    * ``_map_wells_png`` reads the object from ``parts[-1]`` and the field
-      from ``parts[2]``, which are the same token in a three-part name —
-      ``'plate1_A01_5.png'`` becomes field 5 *and* object 5. Here a name
-      that short raises.
-
-    :param name: file name, path, or stem.
-    :param timelapse: expect a timepoint between field and object.
-    :param strict: reject unparseable tokens and odd wells.
-    :returns: the :class:`ObjectID`.
-    :raises KeyParseError: when the name has too few components.
+    Raises
+    ------
+    KeyParseError
+        If the stem has too few components.
+    WellParseError
+        If the well component cannot be parsed.
     """
     stem = os.path.splitext(os.path.basename(str(name)))[0]
     parts = stem.split(KEY_SEPARATOR)
@@ -2540,31 +2453,31 @@ def canonicalise_columns(df):
 
 
 def compose_prc_column(df, columns=None):
-    """``prc`` for a whole frame, escaped exactly as :func:`compose_prc` is.
+    """Compose escaped plate-row-column identifiers for a frame.
 
-    THE VECTORISED COMPOSER, AND WHY IT IS HERE. Ten sites across spaCR built
-    ``prc`` with a bare ``df['plateID'] + '_' + df['rowID'] + '_' +
-    df['columnID']``, which is correct only while no plate id contains the
-    separator or a ``%``. :func:`compose_prc` escapes both -- so a
-    hand-joined key and a composed key were two different strings for the
-    same well, and anything joining one to the other silently matched
-    nothing. One place composes a key; this is that place for frames, as
-    :func:`compose_prc` is for scalars.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Frame containing the well-key columns.
+    columns : sequence of str, optional
+        Plate, row, and column field names. Defaults to
+        :data:`WELL_KEY_COLUMNS`.
 
-    ESCAPING IS THE ONE SPELLING. A plate called ``exp1_plate2`` composes to
-    ``exp1%5Fplate2_rB_c3`` -- three components, always -- rather than to a
-    four-component key separated by the row/column guard. Databases written
-    before this hold the old four-component form and :func:`parse_prcf` still
-    reads it: unescaping is a no-op on a key that carries no escape. Old data
-    reads, new data is unambiguous.
+    Returns
+    -------
+    pandas.Series
+        Canonical ``prc`` identifiers aligned to ``df``.
 
-    :param df: frame carrying the well key columns.
-    :param columns: the three column names, in plate / row / column order.
-        Defaults to :data:`WELL_KEY_COLUMNS`.
-    :returns: the ``prc`` series.
-    :raises KeyError: when a key column is absent -- composing a key out of
-        columns that are not there is how a frame gets a ``prc`` of ``nan``
-        that joins to nothing.
+    Raises
+    ------
+    KeyError
+        If any required key column is absent.
+
+    Notes
+    -----
+    Plate values are escaped with the same rules as :func:`compose_prc`, so
+    separators and percent characters cannot create ambiguous keys. Legacy
+    unescaped identifiers remain readable through :func:`parse_prcf`.
     """
     plate, row, column = tuple(columns or WELL_KEY_COLUMNS)
     missing = [name for name in (plate, row, column) if name not in df.columns]

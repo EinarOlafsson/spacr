@@ -1158,27 +1158,9 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     marks the elbow point (or ``settings['min_cell_count']`` when it is
     set) and writes ``cell_min_threshold.pdf`` into ``dst``.
 
-    WHERE THE FIGURE GOES IS THE CALLER'S DECISION, because the two callers
-    want different folders and only one of them can be derived from the
-    settings. Without ``dst`` this drew into ``<count folder>/results/``, the
-    SCREEN folder -- one path shared by every run of that screen. Two things
-    followed from that, and the second is not a tidiness complaint:
-
-      * a run's own folder is the record of the run, and the picture was not
-        in it, so :func:`perform_regression` had to snapshot the shared
-        folder and copy back whatever appeared;
-      * :func:`spacr.parameter_sweep.run_sweep_parallel` fits ``n_jobs``
-        trials of ONE screen in a ``ProcessPoolExecutor``, and this figure is
-        drawn on every trial whether or not ``min_cell_count`` is being
-        chosen. Every worker therefore wrote the same path at the same time,
-        and the copy-back -- "every figure in the shared folder whose stamp
-        changed since I started" -- could not tell its own trial's curve from
-        the one the worker next to it had just written.
-
-    ``perform_regression`` now passes its run folder, so each trial's curve
-    is written once, where that trial's results are. ``dst=None`` keeps the
-    historical screen-folder path for a notebook or script that calls this
-    directly.
+    Pass ``dst`` to keep the figure in a specific run folder. When omitted,
+    the function uses the screen-level ``results`` folder derived from
+    ``count_data`` for compatibility with direct notebook and script calls.
 
     :param settings: Requires ``score_data`` (CSV path or list of paths),
         ``dependent_variable``, ``tolerance`` (int percent or float

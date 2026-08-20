@@ -1,20 +1,10 @@
-"""How wide a coefficient has to be before it counts as a hit.
+"""Calculate effect-size thresholds for regression coefficients.
 
-A p-value says an effect is distinguishable from zero. With a thousand wells
-that includes effects far too small to follow up, so the EFFECT-SIZE cut is
-what separates "detectable" from "worth doing an experiment about". This
-module is the one place that decides how wide the cut is.
-
-THE SPREAD IS MEASURED ON THE CONTROLS wherever there are any: guides that
-target nothing ARE the null, and that is the sentence a methods section
-wants. Measured on the tsg101 screen the control-based cut and the
-all-guide cut agree closely (0.83 against 0.84) -- but a screen with a
-strong signal pulls the all-guide spread up while leaving the controls where
-they are, and then only one of the two is still a null.
-
-The available estimators are exposed in the plot's right-click menu. Each
-returns a width in coefficient units except ``var``, retained as a documented
-legacy option even though it returns squared units.
+The estimators describe the spread around the coefficient centre. When
+negative-control guides are available, callers should estimate that spread
+from the controls so biological effects do not widen the null distribution.
+Each estimator returns a width in coefficient units except ``var``, which is
+retained for compatibility and returns squared units.
 """
 
 from __future__ import annotations

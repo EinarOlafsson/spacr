@@ -252,42 +252,19 @@ def attributable(effect: float, scale: float, prior: float, *,
                  grid: int = 513) -> Tuple[bool, float]:
     """``(can_it, best_possible)`` -- can this guide ever be called?
 
-    A guide whose effect is small against the spread of scores cannot reach
-    the threshold anywhere in the range of scores a screen actually produces:
-    not with more cells, not with a better fit. It is arithmetic and not
-    sample size, and a user deserves to know which of their hits support
-    cell-level work BEFORE any assignment runs.
+    Determine whether a guide can reach the assignment threshold within the
+    supplied score range.
 
     :param others: the competition, as ``(effect, prior)`` pairs. Omit it and
         the rest of the well is treated as one competitor with no effect,
-        which is the WEAKEST possible competition and so the most generous
-        reading of this guide.
+        which provides the most permissive comparison.
     :param span: how far out, in units of ``scale``, a score may plausibly
-        lie. The ceiling is a maximum over a RANGE, and it has to be, for the
-        reason below.
+        lie. The posterior ceiling is maximized across this finite range.
 
-    THE RANGE IS NOT OPTIONAL, and the first version of this function did not
-    have one. It evaluated the likelihood ratio at the guide's OWN CENTRE and
-    called that the best possible score. It is not: for a guide with a
-    positive effect the ratio against a flat competitor keeps growing as the
-    score rises, so the plain-Bayes posterior tends to 1 and there is no
-    finite ceiling over the whole real line at all. What actually bounds it
-    is that scores live in a range.
-
-    MEASURED ON A REAL SCREEN, 2026-08-20 -- four plates, 5,599 guide-well
-    pairs. The old form declared 230 of them impossible to call and the
-    shipped attribution called them anyway; 113 distinct guides, and one with
-    a stated ceiling of 0.09 reached 0.96. Two separate errors fed that:
-
-      * the centre-only evaluation above, wrong by 3x even against a
-        competitor with no effect, and
-      * competitors are not at their own centre. A guide competing against an
-        OPPOSITE-signed effect separates from it at twice the rate, which the
-        flat-competitor reading cannot see. Pass ``others`` and it can.
-
-    A ceiling that says "impossible" about a guide the run then calls is
-    worse than no ceiling, because a user drops a usable hit on the strength
-    of it.
+    The calculation evaluates competing guides at the same candidate score.
+    Opposite-signed effects can therefore separate more strongly than a flat
+    competitor. Without a finite ``span`` the plain-Bayes posterior may tend
+    to one, so no useful finite ceiling would exist.
     """
     p = min(max(float(prior), 0.0), 1.0)
     if p <= 0:
@@ -436,7 +413,7 @@ def preflight(guide, fractions_by_well, effects, *, scale, centre=0.0,
 
 @dataclass(frozen=True)
 class Assignment:
-    """Every cell's guide, with the counts exactly as sequenced."""
+    """Guide assignment for each cell with its observed sequencing counts."""
 
     guides: Tuple[str, ...]
     #: -log likelihood of this assignment; lower is better.

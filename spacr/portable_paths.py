@@ -1,34 +1,16 @@
-"""A crop path recorded on one computer, resolved on another.
+"""Resolve recorded crop paths after a dataset is moved or remounted.
 
-``png_list.png_path`` is written ABSOLUTE at crop time. Move the screen to
-another machine -- or mount the same NAS somewhere else -- and every one of
-those paths is dead while the files themselves are all present, because what
-the user preserved is the STRUCTURE BELOW THE SCREEN, not the prefix above it:
+``png_list.png_path`` is absolute when written. If the dataset later moves to
+another computer or mount point, the prefix changes while the directory
+structure below the screen remains the same::
 
     <recorded root>/plate1/data/single_nucleus/single_pathogen/plate1_H19/...
     <current  root>/plate1/data/single_nucleus/single_pathogen/plate1_H19/...
 
-Measured on the TSG101 screen: 0 of 60,816 recorded paths existed, and
-60,816 of 60,816 existed once the structure below the plate was rebuilt under
-the folder the database was opened from.
-
-THE DATABASE IS NEVER WRITTEN TO. Resolution happens on the frame a reader
-already holds, every time it is read. A screen can therefore be copied to a
-third machine, read there, and copied back without changing its recorded
-paths.
-
-THE RULE
---------
-Find the DEEPEST SUFFIX of the recorded path that exists under the current
-root, and use it. Not a fixed split on ``data/``: the root a caller has may
-be the plate folder, the screen folder above it, the ``measurements/`` folder
-the database sits in, or the database file itself, and one rule covers all of
-them rather than four special cases that each work somewhere else.
-
-AND ONLY WHAT LANDS ON A FILE THAT EXISTS. A path rewritten to somewhere
-equally absent is strictly worse than the original, because the error then
-names a folder the user never chose. Nothing here changes a path it cannot
-first confirm.
+Resolution selects the deepest recorded suffix that exists below the current
+root. The root may be a database file, measurements folder, plate folder, or
+screen folder. Paths are changed only when the reconstructed file exists, and
+the database itself is never modified.
 """
 from __future__ import annotations
 
