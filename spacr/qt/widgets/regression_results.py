@@ -257,11 +257,12 @@ def find_summary_file(path) -> Optional[str]:
 #: fit -- which a reader may paste into a methods section from one click
 #: away.
 UNIDENTIFIABLE_WARNING = (
-    "THIS FIT IS NOT IDENTIFIABLE: {wells} analysed observations are being "
+    "THIS FIT IS SATURATED OR NOT IDENTIFIABLE: {wells} analysed "
+    "observations are being "
     "used to estimate {params} parameters.\n"
-    "The individual coefficients, standard errors and P values are not "
-    "uniquely interpretable because multiple parameter vectors describe the "
-    "same fitted values.\n"
+    "With no residual degrees of freedom, and possible rank deficiency, "
+    "individual coefficients, standard errors and P values cannot be "
+    "interpreted reliably.\n"
     "Set inference='nonparametric' to test each guide as a plate-blocked "
     "marginal association without fitting every guide coefficient at once, "
     "or use inference='auto' to let spaCR choose.\n")
