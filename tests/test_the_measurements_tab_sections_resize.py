@@ -32,8 +32,11 @@ def test_a_section_cannot_be_collapsed_to_nothing(panel):
     """"make them not be able to overlap" -- a floor is what makes that true
     rather than merely unlikely."""
     assert panel._sections.childrenCollapsible() is False
-    for index in range(panel._sections.count()):
-        assert panel._sections.widget(index).minimumHeight() > 0
+    # `sections()` and not every splitter child: the last child is the layout
+    # filler that makes folds collapse upward (186 C), and it is zero-minimum
+    # on purpose -- it exists to give up all of its height.
+    for section in panel.sections():
+        assert section.minimumHeight() > 0
 
 
 def test_dragging_a_border_moves_height_between_neighbours(panel):
@@ -72,12 +75,12 @@ def test_dragging_a_border_moves_height_between_neighbours(panel):
 def test_anything_added_becomes_its_own_section(panel):
     """A widget appended to the layout takes its height out of the others,
     which is how the tab came to overlap."""
-    before = panel._sections.count()
+    before = len(panel.sections())
 
     panel.add_section(QLabel("extra"))
 
-    assert panel._sections.count() == before + 1
-    assert panel._sections.widget(before).minimumHeight() > 0
+    assert len(panel.sections()) == before + 1
+    assert panel.sections()[-1].minimumHeight() > 0
 
 
 def test_add_section_survives_being_handed_nothing(panel):

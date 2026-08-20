@@ -87,6 +87,20 @@ class MeasurementComparePanel(QWidget):
         self.kind.currentIndexChanged.connect(self.refresh)
         row.addWidget(self.kind)
 
+        # B2, asked for 2026-08-20: "it should be possible to show only one
+        # class". A FILTER ON THE DRAW, not on the build -- the statistics
+        # below still describe the whole comparison, because a test computed
+        # on one of two groups is not a comparison at all and a panel that
+        # quietly re-ran it on the visible half would be reporting a
+        # different question than the one on screen.
+        row.addWidget(QLabel("show"))
+        self.only = QComboBox()
+        self.only.setToolTip(
+            "Draw one class on its own. The statistics below are always for "
+            "the whole comparison — a test needs both sides.")
+        self.only.currentIndexChanged.connect(self._draw_and_report)
+        row.addWidget(self.only)
+
         self.save_button = QPushButton("Save…")
         self.save_button.setToolTip(
             "Write the figure, the plotted data, the statistics, the "
@@ -171,9 +185,68 @@ class MeasurementComparePanel(QWidget):
         self._comparison = with_statistics(
             build(self._objects, measurement, groups=self._groups,
                   level=level, operator=operator, second=second))
+        self._offer_classes()
         self._draw()
         self._report()
         return self._comparison
+
+    def _draw_and_report(self, *_args):
+        """Redraw for a changed VIEW, without rebuilding the comparison."""
+        if self._comparison is None:
+            return
+        self._draw()
+        self._report()
+
+    def _classes(self) -> list:
+        """The group labels in the comparison, in a stable order."""
+        if self._comparison is None or not len(self._comparison.frame):
+            return []
+        return [str(g) for g in
+                self._comparison.frame["group"].astype(str).unique()]
+
+    def _offer_classes(self) -> None:
+        """Refill the "show" box, keeping the choice when it still exists."""
+        names = self._classes()
+        before = str(self.only.currentData() or "")
+        self.only.blockSignals(True)
+        self.only.clear()
+        self.only.addItem("every class", "")
+        for name in names:
+            self.only.addItem(name, name)
+        index = self.only.findData(before)
+        self.only.setCurrentIndex(index if index >= 0 else 0)
+        self.only.blockSignals(False)
+        self.only.setEnabled(len(names) > 1)
+
+    def nothing_to_compare_against(self) -> str:
+        """Why this comparison has only one side, or ``""``.
+
+        B3, asked for 2026-08-20: "there should be text somwhere telling the
+        user to check the show all in well to have something to compare to if
+        they have top by score or attribiuted chosen".
+
+        WITH `show_all_in_well` OFF THE MONTAGE HOLDS ONLY THE PICKED CELLS,
+        so "picked" against "the rest" has no rest -- every object in the
+        frame is in one group and the graph is a single class with nothing
+        beside it. The panel has to say that where it happens, naming the
+        setting that fixes it, rather than drawing an empty contrast and
+        letting a reader take it for a result.
+        """
+        if self._comparison is None or not len(self._comparison.frame):
+            return ""
+        if len(self._classes()) > 1:
+            return ""
+        picker = str((self._settings or {}).get("cell_picking") or "rank")
+        if bool((self._settings or {}).get("show_all_in_well")):
+            return ("Every cell shown is in one class, so there is nothing to "
+                    "compare it against.")
+        return (
+            f"Only one class: with '{picker}' picking and 'show all in well' "
+            f"OFF, the montage holds ONLY the cells that were picked, so "
+            f"there is no unpicked group to compare them with. Switch on "
+            f"'show all in well' in the picture settings — every cell in the "
+            f"well is then drawn and the picked ones are highlighted, which "
+            f"gives this graph both sides.")
 
     def _draw(self):
         from .graph_builder import _canvas_class
@@ -184,7 +257,15 @@ class MeasurementComparePanel(QWidget):
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()
-        figure = plot(self._comparison,
+        showing = self._comparison
+        only = str(self.only.currentData() or "")
+        if only:
+            from dataclasses import replace
+
+            frame = showing.frame
+            showing = replace(showing,
+                              frame=frame[frame["group"].astype(str) == only])
+        figure = plot(showing,
                       kind=str(self.kind.currentData() or "jitter_box"))
         if figure is None:
             self._canvas = None
@@ -205,6 +286,15 @@ class MeasurementComparePanel(QWidget):
         lines = [f"{comparison.measurement} · {comparison.level} level"]
         if comparison.note:
             lines.append(comparison.note)
+        # FIRST AMONG THE REASONS, because it is the one the reader can act
+        # on and the one that explains an empty-looking graph.
+        one_sided = self.nothing_to_compare_against()
+        if one_sided:
+            lines.append(one_sided)
+        only = str(self.only.currentData() or "")
+        if only:
+            lines.append(f"Showing '{only}' only; the statistics below are "
+                         f"for the whole comparison.")
         counts = comparison.counts()
         if counts:
             lines.append("n: " + ", ".join(f"{k} = {v}"
