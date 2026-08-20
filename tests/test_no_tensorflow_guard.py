@@ -210,6 +210,7 @@ else:
 """
 
 
+@pytest.mark.heavy
 def test_importing_spacr_does_not_load_tensorflow():
     """No spaCR entry point may put TensorFlow or Keras into sys.modules.
 

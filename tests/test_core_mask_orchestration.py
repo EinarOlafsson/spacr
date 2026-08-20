@@ -330,6 +330,7 @@ def test_examples_to_plot_caps_the_overlay_count(run_dir, stubs):
         assert kwargs["save_pdf"] is True
 
 
+@pytest.mark.heavy
 def test_test_mode_plots_every_merged_field(run_dir, stubs):
     """BUG (fixed): test_mode set examples_to_plot to len() of the merged
     *path string*, a number that depends on how deep tmp_path is nested, not
@@ -364,6 +365,7 @@ def test_one_unplottable_field_does_not_cancel_the_rest(run_dir, stubs, capsys):
     assert "Successfully completed run" in printed
 
 
+@pytest.mark.heavy
 def test_missing_merged_folder_reports_and_continues(run_dir, stubs, capsys):
     """No merged/ at all → the listing failure is reported, no overlay is
     attempted, and the run still finishes."""

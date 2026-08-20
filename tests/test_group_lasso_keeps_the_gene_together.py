@@ -56,6 +56,7 @@ def _split_genes(beta, k=4):
                for i in range(0, beta.size, k))
 
 
+@pytest.mark.heavy
 def test_lasso_splits_a_gene_where_group_lasso_cannot():
     """The comparison, run rather than asserted from theory.
 
