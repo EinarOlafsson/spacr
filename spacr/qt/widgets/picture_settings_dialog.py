@@ -53,6 +53,10 @@ def picture_defaults() -> Dict[str, Any]:
     return out
 
 
+#: The two settings that name channels rather than choose from a list.
+CHANNEL_KEYS = ("channels", "normalize_channels")
+
+
 def _editor(value: Any, parent: Optional[QWidget] = None,
             choices: Any = ()) -> QWidget:
     """A control suited to ``value``'s type.
@@ -139,10 +143,24 @@ class PictureSettingsDialog(QDialog):
         form.setLabelAlignment(Qt.AlignRight)
         from ...picture_settings import offered_values
 
+        # THE R,G,B SYSTEM FOR THE TWO CHANNEL SETTINGS (188 B). A dropdown
+        # of the eight combinations made "which channels are on" a question
+        # you had to open a list to answer, and turning one channel off --
+        # the thing a user does constantly here -- two clicks.
+        from .channel_picker import ChannelPicker
+
         for key in ALL_KEYS:
-            editor = _editor(start.get(key), self,
-                             choices=offered_values(key, source=source,
-                                                    frame=objects))
+            if key in CHANNEL_KEYS:
+                editor = ChannelPicker(
+                    start.get(key), self,
+                    # `channels` with nothing on is a blank picture;
+                    # `normalize_channels` with nothing on means "normalise
+                    # nothing", which is a real answer.
+                    allow_none=(key != "channels"))
+            else:
+                editor = _editor(start.get(key), self,
+                                 choices=offered_values(key, source=source,
+                                                        frame=objects))
             label = QLabel(key.replace("_", " "), self)
             # THE TOOLTIP IS ON THE LABEL, not the field: a tooltip on the
             # control fires while the user is editing it, which is the one

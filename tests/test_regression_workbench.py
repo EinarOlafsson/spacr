@@ -295,6 +295,11 @@ def test_estimator_enablement_is_generated_from_the_runtime_inventory(qtbot):
 
     builder = SettingsWidgets("regression")
     builder.build_sections()
+    # A PARAMETRIC INFERENCE, so the FAMILY rule is what is measured.
+    # `inference` defaults to 'nonparametric' (2026-08-19) and that path fits
+    # no model, so every estimator setting is greyed whatever family is
+    # chosen -- correctly, and it hides the rule this test is about.
+    builder.set_value_for_key("inference", "parametric")
     owned = {key for keys in REGRESSION_SETTINGS_USED.values() for key in keys}
     for family, used in REGRESSION_SETTINGS_USED.items():
         assert builder.set_value_for_key("regression_type", family)

@@ -32,18 +32,25 @@ def store(tmp_path, monkeypatch):
     return preferences
 
 
-def test_only_the_attached_databases_section_starts_open(qtbot, store):
+def test_every_section_starts_closed(qtbot, store):
+    """"measurment sections should all start closed" (2026-08-20).
+
+    It used to open "Attached databases", choosing a starting point on the
+    user's behalf. That was the point when the fold was added (169) and is
+    no longer wanted now that a fold really hands its height over (186 C) and
+    an opened section fills the space up to the next one (187 C): the tab
+    shows its four headings and the user says which one they came for.
+    """
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
     panel = screen._scan_panel
 
-    assert panel.is_section_expanded("Attached databases")
-    folded = [t for t in panel.section_titles()
-              if not panel.is_section_expanded(t)]
-    assert set(folded) == set(panel.section_titles()) - {"Attached databases"}
-    assert len(folded) == 3, folded
+    opened = [t for t in panel.section_titles()
+              if panel.is_section_expanded(t)]
+    assert opened == [], f"these opened on their own: {opened}"
+    assert len(panel.section_titles()) == 4
 
 
 def test_the_stored_layout_still_wins(qtbot, store):
