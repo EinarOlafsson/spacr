@@ -176,3 +176,35 @@ say so rather than regrouping the proportion plots by accident.
 HOW TO KNOW IT WORKED: opening the regression module in `spacr-qt` shows
 `level` in "Model & Inference" and nothing in "Additional Settings" that has a
 home; the proportion-plot modules still show their own `level` where it was.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- AUDITED AGAINST THE RUNNING PANEL. ALL OF IT HOLDS. 132 CLOSES.
+--------------------------------------------------------------------------------
+
+Driven through the real screen and the real module, against this file's own
+"HOW TO KNOW IT WORKED" list:
+
+  * `regression_type` DEFAULTS TO `mixed`.
+  * `level` IS GREYED under mixed, and the reason is ON SCREEN -- which took
+    a fix of its own today: the note was being written to the editor's
+    tooltip, and the editor is deliberately silent on hover, so EVERY greyed
+    control in spaCR was disabled without saying why. See the 106 commit.
+  * `level` IS IN "Model & Inference", in `settings.py`'s category table and
+    in the Qt layout, beside the four controls it depends on -- the addendum's
+    ask. The proportion plots' own `level` is untouched.
+  * THE TEXT BOX states the formula for the current selection and changes with
+    it, in rich text with the palette's own colours (144), reflowing to the
+    box (138), and at 913 characters for ols/both (143 B).
+  * `level='both'` IS TWO FITS. `regression_levels` fits each separately and
+    BH-corrects each within itself, and `prepare_formula` REFUSES level='both'
+    by name:
+
+      "level='both' is TWO fits, not one design, so it has no single formula
+       ... Putting both terms in one design is the collinear model instruction
+       132 removed -- gene_fraction is the sum of the gene's gRNA fractions,
+       so the gene block is an exact linear combination of the gRNA block and
+       the fit is one arbitrary solution out of infinitely many."
+
+    That refusal is the test this file asked for, and it is stronger than a
+    test: the formula cannot be built at all, so no fourth path can quietly
+    reintroduce it.
