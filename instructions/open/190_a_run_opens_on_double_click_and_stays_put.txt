@@ -1,0 +1,39 @@
+================================================================================
+A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
+================================================================================
+
+Status:    filed 2026-08-20, not started.
+Requested: 2026-08-20 -- "for some reason clicking once on a run shows the
+           results. double click should loade the results, but the user
+           should have to click the results tab to go there, no auto
+           switching tabs."
+Owner:     Qt GUI (Runs tab)
+
+THREE SEPARATE BEHAVIOURS, and the report names all three:
+
+  SINGLE CLICK      selects. It must not load anything. Selecting a row to
+                    read its name, or to arrow down through a list, currently
+                    loads a whole run's results.
+  DOUBLE CLICK      loads. The standard gesture for "open this", and the one
+                    that should cost time.
+  NEITHER SWITCHES  the tab. "no auto switching tabs" -- a view that moves on
+  THE TAB           its own takes the user somewhere they did not ask to go,
+                    and loses whatever they were looking at.
+
+WHY IT IS WORTH DOING PROPERLY. Loading on selection means arrowing through
+five runs loads five runs; on a large screen that is five multi-second reads
+nobody asked for. And a tab that changes under you is the specific complaint
+-- the results arriving is fine, being MOVED to them is not.
+
+SAY IT LANDED, since the tab no longer moves to prove it. A run whose results
+have loaded while the user is on another tab needs to say so somewhere they
+will see -- the Results tab's own label, or the status line.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+* Selecting a run with one click, or with the arrow keys, loads nothing.
+* Double-clicking loads it.
+* The current tab is the same before and after, in both cases.
+* Something says the results are ready without moving the user to them.
