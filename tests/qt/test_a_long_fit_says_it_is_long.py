@@ -66,16 +66,19 @@ def test_the_mixed_box_states_the_measurement_and_the_way_out():
     assert "WHAT IT COSTS" in box
     # THE DIGITS, because "this may be slow" is what the console said by
     # saying nothing.
+    # THE NUMBERS, NOT THE SENTENCE AROUND THEM. Instruction 143 B halved
+    # this paragraph's words and said plainly "do not shorten by deleting the
+    # numbers" -- so the numbers are what this holds, and the phrasing is free
+    # to get shorter again. Asserting the prose made a legitimate trim look
+    # like a regression.
     for genes, wells, ols, mixed in MIXED_COST_ANCHORS:
-        assert f"{genes} genes over {wells} wells" in box or \
-            f"{genes} over {wells}" in box
-        assert f"{ols:g} s" in box
-        assert f"{mixed:g} s" in box
-    assert "single-threaded" in box
-    assert "RATIO RISES WITH THE SCREEN" in box
+        assert str(genes) in box and str(wells) in box
+        assert f"{ols:g}s" in box or f"{ols:g} s" in box
+        assert f"{mixed:g}s" in box or f"{mixed:g} s" in box
+        assert f"{round(mixed / ols):g}x" in box
+    assert "Single-threaded" in box or "single-threaded" in box
     # And what to choose when the answer is wanted now.
     assert "ols at level='both'" in box
-    assert "rra" in box
 
 
 def test_the_ratio_in_the_note_is_computed_from_the_measurement():
