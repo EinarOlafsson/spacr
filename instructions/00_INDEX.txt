@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-163 done / 13 open (92%).
+163 done / 15 open (91%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -62,6 +62,12 @@ OPEN
 
   182  THE GLM FAMILY MUST BE CHOSEN ON THE RESPONSE THE MODEL ACTUALLY FITS
        182_the_family_is_chosen_on_the_untransformed_response.txt
+
+  184  A CONTROL CAN BE NAMED AS A GENE OR AS A GUIDE
+       184_a_control_can_be_named_as_a_gene_or_as_a_guide.txt
+
+  185  PICK WELLS OFF A PLATE MAP, INSTEAD OF TYPING THEM
+       185_pick_wells_off_a_plate_map.txt
 
 --------------------------------------------------------------------------------
 DONE

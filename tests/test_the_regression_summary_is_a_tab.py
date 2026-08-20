@@ -75,7 +75,10 @@ def test_an_unidentifiable_fit_says_so_above_its_own_table():
     """statsmodels prints the table regardless and it looks well posed."""
     text = summary_text(_under_determined())
 
-    assert text.startswith("THIS FIT IS NOT IDENTIFIABLE")
+    # SATURATED IS THE OTHER WAY IN, and the banner names both because a
+    # reader cannot tell them apart from the table: n < p and n == p both
+    # give a perfect fit that statsmodels prints without complaint.
+    assert text.startswith("THIS FIT IS SATURATED OR NOT IDENTIFIABLE")
     # And the table is still there -- the warning annotates, it does not
     # replace. A reader who wants the numbers should still get them.
     assert "OLS Regression Results" in text
