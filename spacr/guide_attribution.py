@@ -242,29 +242,84 @@ def attribute_well(scores: Sequence[float], fractions: Mapping[str, float],
 
 
 def attributable(effect: float, scale: float, prior: float, *,
-                 threshold: float = DEFAULT_THRESHOLD) -> Tuple[bool, float]:
+                 threshold: float = DEFAULT_THRESHOLD,
+                 others: Optional[Sequence[Tuple[float, float]]] = None,
+                 span: float = 4.0,
+                 centre: float = 0.0,
+                 likelihood: str = "lognormal",
+                 grid: int = 513) -> Tuple[bool, float]:
     """``(can_it, best_possible)`` -- can this guide ever be called?
 
-    A guide whose effect is small against the spread of scores can NEVER reach
-    the threshold: not with more cells, not with a better fit. It is
-    arithmetic and not sample size, and a user deserves to know which of their
-    hits support cell-level work BEFORE any assignment runs.
+    A guide whose effect is small against the spread of scores cannot reach
+    the threshold anywhere in the range of scores a screen actually produces:
+    not with more cells, not with a better fit. It is arithmetic and not
+    sample size, and a user deserves to know which of their hits support
+    cell-level work BEFORE any assignment runs.
 
-    The bound is the posterior at the best possible score -- the one furthest
-    into this guide's own tail -- against a background of everything else at
-    its own centre. Anything below the threshold there is below it everywhere.
+    :param others: the competition, as ``(effect, prior)`` pairs. Omit it and
+        the rest of the well is treated as one competitor with no effect,
+        which is the WEAKEST possible competition and so the most generous
+        reading of this guide.
+    :param span: how far out, in units of ``scale``, a score may plausibly
+        lie. The ceiling is a maximum over a RANGE, and it has to be, for the
+        reason below.
+
+    THE RANGE IS NOT OPTIONAL, and the first version of this function did not
+    have one. It evaluated the likelihood ratio at the guide's OWN CENTRE and
+    called that the best possible score. It is not: for a guide with a
+    positive effect the ratio against a flat competitor keeps growing as the
+    score rises, so the plain-Bayes posterior tends to 1 and there is no
+    finite ceiling over the whole real line at all. What actually bounds it
+    is that scores live in a range.
+
+    MEASURED ON A REAL SCREEN, 2026-08-20 -- four plates, 5,599 guide-well
+    pairs. The old form declared 230 of them impossible to call and the
+    shipped attribution called them anyway; 113 distinct guides, and one with
+    a stated ceiling of 0.09 reached 0.96. Two separate errors fed that:
+
+      * the centre-only evaluation above, wrong by 3x even against a
+        competitor with no effect, and
+      * competitors are not at their own centre. A guide competing against an
+        OPPOSITE-signed effect separates from it at twice the rate, which the
+        flat-competitor reading cannot see. Pass ``others`` and it can.
+
+    A ceiling that says "impossible" about a guide the run then calls is
+    worse than no ceiling, because a user drops a usable hit on the strength
+    of it.
     """
-    sigma = float(scale) if scale and scale > 0 else 1.0
     p = min(max(float(prior), 0.0), 1.0)
     if p <= 0:
         return False, 0.0
     if p >= 1:
         return True, 1.0
-    # Likelihood ratio at the guide's own centre, against the rest at theirs.
-    separation = abs(float(effect)) / sigma
-    ratio = math.exp(0.5 * separation * separation)
-    best = (p * ratio) / (p * ratio + (1.0 - p))
-    return best >= float(threshold), float(best)
+    sigma = float(scale) if scale and scale > 0 else 1.0
+    mine = float(effect)
+    rest = [(float(e), float(w)) for e, w in (others or ())
+            if float(w) > 0.0] or [(0.0, 1.0 - p)]
+    total = sum(w for _, w in rest)
+    if total <= 0:
+        return False, 0.0
+    rest = [(e, w * (1.0 - p) / total) for e, w in rest]
+
+    # The range of scores a cell could plausibly take: `span` sigmas either
+    # side of the centre, widened to cover every component's own centre.
+    effects = [mine] + [e for e, _ in rest]
+    low = centre + min(effects) - span * sigma
+    high = centre + max(effects) + span * sigma
+    scores = np.linspace(low, high, max(int(grid), 3))
+
+    numerator = p * _density(likelihood, scores, mine, centre, sigma)
+    denominator = numerator.copy()
+    for other_effect, weight in rest:
+        denominator = denominator + weight * _density(
+            likelihood, scores, other_effect, centre, sigma)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        ratio = np.divide(numerator, denominator,
+                          out=np.zeros_like(numerator),
+                          where=denominator > 0)
+    best = float(np.nanmax(ratio)) if ratio.size else 0.0
+    best = min(max(best, 0.0), 1.0)
+    return best >= float(threshold), best
 
 
 # --------------------------------------------------------------------------- #

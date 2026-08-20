@@ -1277,8 +1277,21 @@ def select_montage(objects: pd.DataFrame, counts: pd.DataFrame,
         admissible = here[here["_montage_in_window"]]
         n_in_window = int(len(admissible))
         if expected == 0:
-            note = (f"round({n_objects} x {fraction:.4g}) rounds to zero, so "
-                    "the design expects no object from this well")
+            # THE SAME FOUR NUMBERS AS THE NON-ZERO CASE. This said
+            # round(n_objects x fraction), and the count is
+            # round(n_classified x share) -- a different count off a different
+            # base. It named the UN-NORMALISED fraction, which is the one
+            # number instruction 172 exists to stop anyone reading: on the
+            # maintainer's four plates the factor runs to 6.6x, so a reader
+            # checking this line would work out a share up to six times too
+            # small and conclude the montage had dropped their well. It
+            # covers 153 of 5,615 guide-well pairs that hold cells.
+            note = (f"round({share:.4g} x {n_classified}) rounds to zero, so "
+                    f"the design expects no object from this well "
+                    f"({share:.4g} is this guide's {fraction:.4g} normalised "
+                    f"by {factor:.4g}, the well's fractions summing to "
+                    f"{total_here:.4g}; {n_classified} of the well's "
+                    f"{n_objects} objects carry a score)")
             selections.append(WellSelection(
                 well=label, fraction=fraction, n_objects=n_objects,
                 n_reported=n_reported, n_expected=0, n_in_window=n_in_window,

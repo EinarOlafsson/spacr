@@ -165,12 +165,56 @@ def test_a_strong_guide_can_be_called():
     assert can and best > DEFAULT_THRESHOLD
 
 
-def test_a_guide_with_a_tiny_effect_can_NEVER_be_called():
-    """Arithmetic, not sample size: no number of cells rescues it."""
-    can, best = attributable(effect=0.3, scale=1.0, prior=0.4)
+def test_a_guide_with_no_effect_at_all_can_never_be_called():
+    """Arithmetic, not sample size: no number of cells rescues it.
+
+    THIS TEST USED TO ASK THE WRONG QUESTION. It pinned effect=0.3 at
+    prior=0.4 as impossible, and on a real screen the shipped attribution
+    called guides exactly like it -- 230 guide-well pairs across four plates.
+    A guide with a modest effect IS callable for a cell far enough into its
+    tail; what is impossible is a guide the likelihood cannot tell from the
+    others at any score, which is a zero effect.
+    """
+    can, best = attributable(effect=0.0, scale=1.0, prior=0.4)
 
     assert not can
-    assert best < DEFAULT_THRESHOLD
+    assert best == pytest.approx(0.4), "with no effect the ceiling is the prior"
+
+
+def test_a_modest_effect_is_callable_only_out_in_the_tail():
+    """And the ceiling has to say so, or a user drops a usable hit."""
+    can, best = attributable(effect=0.3, scale=1.0, prior=0.4)
+
+    assert can and best > DEFAULT_THRESHOLD
+    # ...but not when the range of scores a screen produces is narrow.
+    can_near, best_near = attributable(effect=0.3, scale=1.0, prior=0.4,
+                                       span=0.5)
+    assert not can_near and best_near < best
+
+
+def test_the_ceiling_is_a_ceiling_for_the_posterior_that_ships():
+    """The property the old closed form did not have.
+
+    It evaluated the ratio at the guide's own centre and called that the
+    best possible score, which understated it threefold even against a
+    competitor with no effect. Here the bound is checked against what
+    `posterior` actually produces over the same range.
+    """
+    priors = {"a": 0.1, "b": 0.9}
+    effects = {"a": 0.5, "b": -0.5}
+    _, ceiling = attributable(0.5, 1.0, 0.1,
+                              others=[(-0.5, 0.9)], span=4.0)
+    scores = np.linspace(-4.5, 4.5, 400)
+    r, guides = posterior(scores, priors, effects)
+    assert r[:, guides.index("a")].max() <= ceiling + 1e-9
+
+
+def test_ignoring_the_competition_is_the_generous_reading():
+    """A competitor pushing the other way makes a guide EASIER to call."""
+    _, flat = attributable(0.5, 1.0, 0.1)
+    _, opposed = attributable(0.5, 1.0, 0.1, others=[(-0.5, 0.9)])
+
+    assert opposed > flat
 
 
 def test_a_trace_guide_can_never_be_called_either():

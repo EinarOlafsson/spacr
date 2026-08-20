@@ -65,3 +65,53 @@ HOW TO KNOW IT WORKED
   and must not lose.
 * With `show_all_in_well`, every cell in the well is drawn and exactly x of
   them are encircled.
+
+--------------------------------------------------------------------------------
+2026-08-20 -- VALIDATED ON THE MAINTAINER'S OWN FOUR PLATES.
+--------------------------------------------------------------------------------
+
+Screen: /mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen, plates 1-4.
+Run it with `SPACR_SCREEN=<that folder> pytest -m slow
+tests/test_the_screen_validates_the_attribution.py`. 15 checks, all passing.
+
+EVERY NUMBER IN THIS INSTRUCTION REPRODUCED EXACTLY.
+
+    raw count tables      1,536 wells, fraction sum EXACTLY 1.000000  (1536/1536
+                          within 1e-9)
+    after fraction_threshold=0.02
+                          1,536 wells, sum median 0.5526, min 0.1515
+    normalisation factor  median 1.66x, max 6.60x
+
+WHAT THE NORMALISATION IS WORTH, measured rather than argued:
+
+    cells shown, normalised      226,444
+    cells shown, un-normalised   155,919      -- 45.2% fewer
+    guide-well pairs rounding to zero
+      with normalisation           153 of 5,615
+      without                      270        -- 117 wells silently emptied
+
+CONTRACTS THAT HOLD
+
+  * x never exceeds the cells a well has: 0 violations in 5,615 pairs.
+  * The worked example is exact: fraction 0.2, fractions summing to 0.5,
+    100 cells -> factor 2.0, x = 40.
+  * No well contributes zero because of a WINDOW -- the window is reported
+    (`n_in_window`) and no longer selects, so the failure the maintainer saw
+    cannot recur.
+
+ONE DEFECT FOUND AND FIXED
+
+  The x == 0 branch reported `round(n_objects x fraction)` while the count is
+  `round(n_classified x share)` -- a different count off a different base, and
+  it named the UN-NORMALISED fraction, the one number this instruction exists
+  to stop anyone reading. On these plates the factor runs to 6.6x, so a reader
+  checking that line would compute a share up to six times too small and
+  conclude the montage had dropped their well. It covered 153 of 5,615
+  guide-well pairs holding cells. The note now states the same four numbers
+  the non-zero case does.
+
+STILL OPEN
+  * sum over guides of x exceeds the well's cell count in 190 of 1,366 wells.
+    This is CORRECT for heuristic 1 -- guides sharing the top-ranked cells is
+    exactly the flaw instruction 173 exists to fix -- but it is worth a word
+    in the caption so a reader is not surprised by it.
