@@ -11,8 +11,7 @@ transparent while reserving its one-pixel border geometry. An application-
 wide paint-event filter then draws the ramped fill and outline before Qt draws
 the editor's text, selection, and cursor. Installing one filter on
 ``QApplication`` covers fields created or rebuilt after startup without
-per-screen registration. Non-paint events add about 1.1 microseconds to Qt's
-normal delivery in the recorded benchmark.
+per-screen registration. Non-paint events pass through without repaint work.
 
 Embedded line editors, item-view cell editors, multiline text widgets, and
 widgets carrying :data:`OPT_OUT_PROPERTY` are excluded. Higher-specificity

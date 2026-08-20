@@ -661,23 +661,27 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gondii GT1 CRISPR Phenotype - Mean Phenotype',error_column='T.gondii GT1 CRISPR Phenotype - Standard Error', save_path=None):
     """Plot ranked mean phenotype with SE shading and highlight selected genes.
 
-    THE RANKED CURVE IS THE BACKGROUND, THE SELECTED GENES ARE THE CLAIM. The
-    curve and its SE band are grey and the highlights are the house blue --
-    they were a saturated teal curve and purple points, two full-strength
-    hues for a panel whose sentence is only "here is where these genes fall".
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Gene identifiers and phenotype/error columns. The frame is copied
+        before numeric conversion.
+    gene_list : iterable of str
+        Gene names or ``TGGT1_<id>`` identifiers to highlight.
+    x_column : str, default='Gene ID'
+        Column used to match gene identifiers.
+    data_column : str
+        Mean phenotype column plotted on the y-axis.
+    error_column : str
+        Standard-error column used for the uncertainty band.
+    save_path : path-like, optional
+        Figure destination. The configured figure format controls the final
+        extension.
 
-    :param data: DataFrame with gene identifiers and phenotype/error columns.
-        Copied before use: this function coerces two columns to numeric, and
-        the coercion used to land in the CALLER's frame -- ``ml`` hands it the
-        GT1 metadata table it goes on to use afterwards.
-    :param gene_list: Gene names (or ``TGGT1_<id>`` tags) to highlight.
-    :param x_column: Column holding gene identifiers used for matching.
-    :param data_column: Numeric column plotted on the y-axis.
-    :param error_column: Numeric column used for the SE shading band.
-    :param save_path: Optional destination for the figure. Saving goes through
-        :func:`spacr.plot.save_figure`, so the format and the file extension
-        follow the figure preference rather than always being PDF.
-    :returns: None. Displays the Matplotlib figure.
+    Notes
+    -----
+    The complete ranked phenotype curve is drawn in grey and selected genes
+    use the spaCR accent colour. The figure is displayed after optional save.
     """
     # Ensure x_column is properly processed
     def extract_gene_id(gene):

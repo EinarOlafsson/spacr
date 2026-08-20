@@ -1515,18 +1515,14 @@ def select_montage_per_guide(objects: pd.DataFrame, counts: pd.DataFrame,
                              **kwargs) -> List[MontagePlan]:
     """Return one :class:`MontagePlan` per guide of a gene-level coefficient.
 
-    The other question. Summing a gene's guide fractions asks "which cells
-    are consistent with losing this gene"; keeping them apart asks "does each
-    guide pick out the same cells", which is how a real effect is told from
-    one guide's off-target. Neither answer is a substitute for the other, so
-    both are here and each plan says which it is.
+    Keeping guides separate shows whether each guide selects comparable cells,
+    complementing the gene-level montage built from summed guide fractions.
 
     :param objects: every object available, as for :func:`select_montage`.
     :param counts: the per-well count data.
     :param name: the gene (or guide) name.
-    :param effect: the fitted coefficient -- the SAME effect for every guide,
-        because a gene-level coefficient is one number; the guides differ in
-        which wells and which cells they select, not in what they imply.
+    :param effect: fitted gene-level coefficient shared by every guide plan;
+        guides differ only in the wells and cells they select.
     :param kwargs: forwarded to :func:`select_montage`.
     :returns: one plan per guide, in guide order. A guide whose wells report
         it nowhere is skipped, and the guides that produced a plan are on

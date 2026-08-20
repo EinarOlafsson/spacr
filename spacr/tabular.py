@@ -346,11 +346,9 @@ def read_database(db: Any, tables: Any, *, canonicalise: bool = True,
                   **kwargs) -> List[pd.DataFrame]:
     """Read one or more tables out of a SQLite database.
 
-    Behaviour preserved from ``io._read_db``, which this replaces for callers
-    that move over: ``~`` expansion, identifier validation *before* the
-    migration walks the file, the schema migration on open, a missing table
-    raising :class:`ValueError` naming it, and chunked reads so a large table
-    does not double its peak memory during the SQL-to-pandas conversion.
+    Expands ``~``, validates identifiers before opening the database, runs the
+    schema migration when requested, and reads in chunks to limit peak memory.
+    A missing table raises :class:`ValueError` with its name.
 
     :param db: path to the database.
     :param tables: a table name, or a sequence of them.

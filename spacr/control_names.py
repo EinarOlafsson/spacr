@@ -1,41 +1,10 @@
-"""Read a control the way the user wrote it: as a gene, or as a guide.
+"""Resolve user-entered controls as gene or guide identifiers.
 
-Instruction 184, asked for on 2026-08-20 -- "when adding controlls the user
-can add them as grna names (000000_1, 000000_2, ...), but they should also be
-able to add the grnas as a 'gene', which would be 000000 instead".
-
-WHY IT NEEDS A MODULE. A control that does not match is not an error anyone
-sees. It is silently zero controls, and every normalisation, every volcano
-baseline and every nc/pc reference is then computed against nothing. The
-defaults spaCR ships are bare gene ids (``nc='233460'``), and the names a
-user pastes out of their library file are full guide names
-(``TGGT1_233460_4``). Both have to work, and so does everything between.
-
-THE RULE, in the maintainer's words and implemented exactly:
-
-    TWO OR MORE underscores   everything after the FIRST underscore is the
-                              GUIDE.        TGGT1_000000_1 -> guide 000000_1
-    ONE underscore, and the
-    part before it is COMMON  the part after it is the GENE.
-                              TGGT1_000000   -> gene 000000
-    ONE underscore, not
-    common                    the whole string is the GUIDE.
-                              000000_1       -> guide 000000_1
-    NO underscore             the whole string is the GENE.
-                              000000         -> gene 000000
-
-IT IS THE SAME RULE SPACR ALREADY APPLIES TO THE DATA. `process_reads` splits
-a three-component guide name into org/gene/guide and stores the last two, so
-`TGGT1_000000_11` is held as gene ``000000`` and guide ``000000_11``. This
-module makes the TYPED control agree with that, which it previously did only
-by the accident of substring matching -- and substring matching is why
-``nc='23346'`` would have quietly claimed ``233460``.
-
-"COMMON" IS MEASURED, NEVER ASSUMED. It means a leading token shared by
-(nearly) every identifier in THIS screen: a species or strain tag that
-carries no information. On the maintainer's screen it is ``TGGT1``. The next
-screen will use a different organism, so a hard-coded list would be wrong the
-first time it was reused.
+Controls may be bare genes (``000000``), bare guides (``000000_1``),
+prefixed genes (``TGGT1_000000``), or prefixed guides
+(``TGGT1_000000_1``). A leading token is treated as an organism or strain
+prefix only when it occurs in the configured share of distinct library
+identifiers. Matching uses complete identifiers rather than substrings.
 """
 from __future__ import annotations
 
@@ -45,10 +14,8 @@ from typing import Iterable, Optional, Sequence, Tuple
 
 SEPARATOR = "_"
 
-#: How much of the library a leading token must cover before it counts as a
-#: species tag rather than a gene. Proposed in the instruction and kept:
-#: a prefix on 100% of guides is plainly common, and 90% leaves room for a
-#: handful of oddly-named controls without admitting a second organism.
+#: Minimum share of distinct identifiers that must carry a leading token for
+#: it to be treated as an organism or strain prefix.
 COMMON_PREFIX_SHARE = 0.9
 
 GENE = "gene"
@@ -57,7 +24,7 @@ GUIDE = "grna"
 
 @dataclass(frozen=True)
 class ControlSpec:
-    """What a typed control turned out to mean."""
+    """Resolved interpretation of a user-entered control."""
 
     typed: str
     level: str
@@ -69,7 +36,7 @@ class ControlSpec:
         return self.level == GENE
 
     def note(self, matched_guides: int = -1, matched_wells: int = -1) -> str:
-        """One line saying what it matched, for the console."""
+        """Return a console summary of the resolution and optional matches."""
         what = "gene" if self.is_gene else "guide"
         head = f"control {self.typed!r} resolved to {what} {self.value!r}"
         if self.prefix and self.typed.startswith(self.prefix + SEPARATOR):
@@ -82,17 +49,20 @@ class ControlSpec:
 
 def common_prefix(names: Iterable[str],
                   share: float = COMMON_PREFIX_SHARE) -> str:
-    """The leading token nearly every name carries, or ``''``.
+    """Return a leading token shared by enough distinct identifiers.
 
-    :param names: the guide identifiers present in the loaded data.
-    :param share: the fraction of DISTINCT names that must carry the token.
-    :returns: the token without its separator, or ``''`` when no token
-        reaches ``share`` -- which is the honest answer for a library whose
-        names are already bare, and for one holding two organisms.
+    Parameters
+    ----------
+    names : iterable of str
+        Guide identifiers in the loaded data.
+    share : float, default=COMMON_PREFIX_SHARE
+        Required fraction of distinct identifiers carrying the token.
 
-    Counted over DISTINCT names, not rows. A screen where one guide has a
-    million reads and the rest have ten would otherwise let that guide's
-    prefix speak for the library.
+    Returns
+    -------
+    str
+        Token without its separator, or an empty string when none reaches
+        ``share``.
     """
     distinct = {str(name) for name in names if str(name)}
     if not distinct:
@@ -113,13 +83,19 @@ def resolve_control(typed, names: Optional[Iterable[str]] = None,
                     prefix: Optional[str] = None) -> Optional[ControlSpec]:
     """Read one typed control as a gene or as a guide.
 
-    :param typed: what the user wrote. ``None`` or blank returns ``None`` --
-        "no control" is a legal answer and must not become a control named
-        ``''`` that matches every row.
-    :param names: the guide identifiers present, used to measure the common
-        prefix. Ignored when ``prefix`` is given.
-    :param prefix: the common prefix, when it has already been measured.
-    :returns: a :class:`ControlSpec`, or ``None`` for no control.
+    Parameters
+    ----------
+    typed : Any
+        Entered identifier. Blank values return ``None``.
+    names : iterable of str, optional
+        Library guide identifiers used to infer a common prefix.
+    prefix : str, optional
+        Previously inferred prefix. When supplied, ``names`` is ignored.
+
+    Returns
+    -------
+    ControlSpec or None
+        Resolved gene or guide identifier, or ``None`` for no control.
     """
     text = "" if typed is None else str(typed).strip()
     if not text:
@@ -149,11 +125,10 @@ def resolve_controls(typed: Optional[Sequence],
                      names: Optional[Iterable[str]] = None,
                      prefix: Optional[str] = None
                      ) -> Tuple[ControlSpec, ...]:
-    """Resolve a LIST of controls, each on its own.
+    """Resolve a sequence containing any mixture of genes and guides.
 
-    "MIXED FORMS IN ONE LIST are allowed" -- a user may give a gene and two
-    guides together, so the prefix is measured once and each entry is read
-    against it separately.
+    The common prefix is measured once and applied independently to each
+    nonblank entry.
     """
     if typed is None or len(typed) == 0:
         return ()
@@ -168,18 +143,22 @@ def resolve_controls(typed: Optional[Sequence],
 
 
 def matches(spec: Optional[ControlSpec], guides, genes=None):
-    """A boolean mask over ``guides`` for the rows this control covers.
+    """Return a Boolean mask for rows covered by a resolved control.
 
-    :param guides: the guide identifier per row.
-    :param genes: the gene identifier per row. When absent, a gene-level
-        control falls back to the guide's own prefix -- ``000000_1`` belongs
-        to gene ``000000`` -- so a frame that never got a gene column still
-        resolves rather than matching nothing.
+    Parameters
+    ----------
+    spec : ControlSpec or None
+        Control to match. ``None`` matches no rows.
+    guides : array-like
+        Guide identifier for each row.
+    genes : array-like, optional
+        Gene identifier for each row. If omitted, gene membership is inferred
+        from complete guide prefixes such as ``000000_1``.
 
-    WHOLE VALUES, NEVER SUBSTRINGS. The old path tested ``nc in feature``,
-    which makes ``23346`` claim ``233460`` and ``2334600`` alike. A control
-    that silently over-matches is worse than one that misses, because the
-    rows it steals are reported as controls.
+    Returns
+    -------
+    pandas.Series
+        Boolean mask aligned to ``guides``.
     """
     import pandas as pd
 

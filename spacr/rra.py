@@ -1,21 +1,20 @@
-"""Robust rank aggregation: guides ranked, then aggregated to a gene BY RANK.
+"""Aggregate guide-level scores into gene-level calls using alpha-RRA.
 
 RRA estimates which guides and genes are associated with a response without
 requiring a full-rank regression design.
 
-WHY THIS ONE IS RECOMMENDED FOR A CRISPR SCREEN, and it is not a preference.
-Every regression backend spaCR has answers the gene question by SUMMING the
-gene's guide fractions into a `gene_fraction` term, but the sum of a gene's guides
-is a linear combination of those guides by construction. RRA never forms that
-sum. It ranks guides against each other and asks a question about the RANKS a
-gene's guides occupy, so a design matrix that is singular for OLS is not a
-problem it can have.
+Unlike a gene-fraction regression term, RRA does not add guide fractions into
+a linearly dependent design column. It ranks guides and tests whether a gene's
+guides occupy unusually strong ranks, so it remains usable when an OLS design
+is singular.
 
 It is also the field standard: this is MAGeCK's alpha-RRA, which is what a
 reviewer of a pooled screen expects to see, and running it makes this screen
 directly comparable to the published ones its phenotype scores come from.
 
-THE STATISTIC. Rank every guide in the screen by its score, worst first for
+Statistic
+---------
+Rank every guide in the screen by its score, worst first for
 the depleted direction. A gene with k guides occupies normalised ranks
 r_1 <= ... <= r_k in (0, 1]. Under the null -- this gene is no different from
 any other -- those are the order statistics of k draws from Uniform(0, 1), so
@@ -29,7 +28,7 @@ with one strong guide and three dead ones is a real hit in a library where a
 third of guides do not cut, and taking the minimum over all k lets the dead
 guides pull rho back toward 1.
 
-THE P VALUE IS PERMUTED, NOT READ OFF A TABLE. `rho` is a minimum over k
+P values are estimated by permutation because `rho` is a minimum over k
 dependent order statistics, so its null distribution is not Beta and there is
 no closed form. Genes are permuted at the GUIDE level -- guides reassigned to
 genes of the same size -- which is the null "this gene's guides are an
@@ -37,10 +36,8 @@ arbitrary set of k guides", i.e. exactly what a screen hit is a departure
 from. Genes with the same k share a null, so the cost is one permutation set
 per distinct guide count, not one per gene.
 
-BOTH DIRECTIONS, SEPARATELY. Depletion and enrichment are two questions and
-MAGeCK reports them apart; a two-sided rank statistic would call a gene whose
-guides split half up and half down, which is the signature of a bad guide set
-rather than of a phenotype.
+Depletion and enrichment are reported separately, matching MAGeCK. This avoids
+calling a gene merely because its guides split between opposite directions.
 """
 
 from __future__ import annotations
@@ -130,10 +127,8 @@ def rank_aggregate(scores, groups, *, alpha: float = DEFAULT_ALPHA,
     :raises ValueError: ``scores`` and ``groups`` differ in length, ``alpha``
         is outside (0, 1], or ``direction`` is not one of :data:`DIRECTIONS`.
 
-    Guides whose score is not finite are DROPPED, not ranked last. A NaN
-    coefficient means the fit could not estimate that guide; ranking it worst
-    would turn "not measured" into "strongly depleted", which is the most
-    consequential silent error this function could make.
+    Guides with non-finite scores are omitted rather than ranked. This keeps an
+    unestimated guide from being interpreted as strongly depleted.
     """
     import pandas as pd
 

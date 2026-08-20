@@ -560,9 +560,8 @@ class ColumnPickerDialog(QDialog):
     1 500-table schema, all of it dead time between the click and the
     window.
 
-    Both modes run the *same* reads in the same order through the same
-    :func:`read_schema`; the runner is constructed without a thread in
-    the first, which makes it call its job inline.
+    Both modes perform the same :func:`read_schema` calls and preserve the
+    same result order. The synchronous runner executes its job inline.
 
     :param db_path: database file or run folder; may be empty.
     :param table: table to preselect (e.g. ``png_list`` for annotations).

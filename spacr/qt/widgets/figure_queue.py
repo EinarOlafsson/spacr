@@ -348,35 +348,18 @@ def render_pdf_to_image(pdf_path: str, max_px: int = PDF_DISPLAY_MAX_PX,
                         timeout_ms: int = 30000):
     """Rasterise page 0 of ``pdf_path`` and return it as a ``QImage``.
 
-    Touches no widget and builds no ``QPixmap`` — both are GUI-thread-only —
-    so this is SAFE TO CALL FROM A WORKER THREAD, which is the entire point.
-    The caller turns the returned QImage into a QPixmap on the GUI thread.
-
-    **Why this does not call** ``QPdfDocument.render()``. That call
-    does not release the GIL: PySide6 6.11 marks it blocking, so the Python
-    interpreter is held for its entire duration. Moving it to a worker thread
-    therefore moves the freeze without removing it — measured, on a nine-panel
-    16x12" figure whose page takes 640 ms to rasterise: with the render on a
-    QThread, a 1 ms QTimer on the GUI thread fired **twice** in 640 ms.
-    Rendering the page in horizontal strips does not help either (pdfium
-    re-walks the whole page per strip: 5 strips cost 2.1 s and the worst
-    single strip was still 643 ms).
-
-    :class:`QPdfPageRenderer` in ``MultiThreaded`` mode does the rasterising
-    inside Qt's own C++ thread, which no Python call is standing in — so the
-    GIL is free throughout. This function starts one, then waits on a
-    **nested QEventLoop** on the calling worker thread; ``QEventLoop.exec``
-    does release the GIL. Same 640 ms render, same pixels (verified equal to
-    the one-shot render), worst GUI-thread gap 1.7 ms.
+    The function touches no widget and builds no ``QPixmap``; the caller must
+    create any pixmap on the GUI thread. It uses
+    :class:`QPdfPageRenderer` in ``MultiThreaded`` mode and waits in a nested
+    event loop on the calling worker, allowing the GUI thread to remain
+    responsive.
 
     The wait is bounded twice over: by ``timeout_ms``, and by
     ``QThread.quit()`` — which exits *nested* event loops too, so
     :meth:`FigureQueue._shutdown_jobs` can still stop a render in flight.
 
-    Every QObject here is constructed with **no parent**. One parented to the
-    widget would be created with the worker thread's affinity but owned by a
-    GUI-thread object, and would then be destroyed from whichever thread got
-    there first.
+    Every QObject created here is unparented so its ownership does not cross
+    thread-affinity boundaries.
 
     Call this from a worker thread only. On the GUI thread the nested loop
     would re-enter the application's own event loop and deliver user input in
