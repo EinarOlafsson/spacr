@@ -72,7 +72,7 @@ import os
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
 
@@ -203,9 +203,120 @@ _PRODUCT = "Product Description"
 _SYMBOL = "Gene Name or Symbol"
 
 
+# Canonical English used when a structured gene record is rendered in Qt.
+# These strings live in the headless data model rather than in literal Qt
+# calls, so the runtime catalog builder imports this inventory explicitly.
+_GENE_TILE_UI_SOURCES = frozenset({
+    "non-targeting control",
+    "{feature} (model covariate)",
+    "unrecognised term",
+    "one protospacer, {count} genes — the effect cannot be assigned to any "
+    "one of them",
+    "no product description",
+    "no product description · {accession}",
+    "gene id",
+    "localisation (TAGM/LOPIT)",
+    "also known as",
+    "not resolved",
+    "identity",
+    "identity — {name}",
+    "the gene the counts were attributed to",
+    "effect (coefficient)",
+    "p-value",
+    "q-value",
+    "uncorrected p-value (q_value column)",
+    "condition",
+    "gene-level effect",
+    "gene-level p",
+    "guides fitted",
+    "guides agreeing in sign",
+    "this screen",
+    "opposes the gene effect",
+    "clicked",
+    "the guides behind it",
+    "protospacer",
+    "sequence",
+    "what could not be resolved",
+    "notes",
+    "external records",
+    "Ambiguous mapping",
+    "Click a point in the volcano, or a row in the results table, to see what "
+    "that gene is.",
+    "Could not build a tile for {feature}. The plot is unaffected; see the "
+    "log for details.",
+    "ambiguous mapping — every gene it could be is listed above",
+    "no annotation row for gene {gene} in the metadata file, so there is no "
+    "product description or symbol for it here.",
+    "no results table was supplied, so this screen's own numbers for the "
+    "gene are not on this tile.",
+    "{feature!r} is not a row in the results table, so its effect and p-value "
+    "are not shown.",
+    "{feature!r} is a model covariate — the intercept or a plate row/column "
+    "term — not a gene, so there is nothing to look up.",
+    "{feature!r} is not in a form spaCR recognises as a model term, a gRNA "
+    "accession or a gene id, so no gene could be resolved.",
+    "guide {identifier} is a non-targeting control, not a gene. It has no "
+    "gene record and no ToxoDB entry; it is in the fit so the screen has a "
+    "null to measure the real guides against.",
+    "the other {count} control guides are listed with it: they are the null "
+    "this screen measures every real guide against.",
+    "no gRNA reference was supplied, so it is not known whether this guide's "
+    "protospacer is unique to one gene.",
+    "guide {guide} is not in the gRNA reference, so its protospacer could not "
+    "be checked for other genes carrying it. References may exclude guides "
+    "whose protospacers map to multiple genes; verify the guide identifier "
+    "and reference version.",
+    "protospacer {protospacer} appears in the gRNA reference under {count} "
+    "gene names ({names}). Reads from this guide cannot be told apart between "
+    "them, so the effect below belongs to all {count} equally — the "
+    "regression attributed it to {gene} because that is the name the counting "
+    "pipeline saw last, which is a bookkeeping fact, not a result.",
+    "gene id {gene!r} is not shaped like a Toxoplasma accession, so no ToxoDB "
+    "record is offered for it. If this is a screen of another organism, spaCR "
+    "has no annotation for it.",
+    "no strain prefix was known for gene {gene}, so no ToxoDB link could be "
+    "built. Supply the gRNA reference the screen was counted against and the "
+    "accession will resolve.",
+}) | frozenset(label for _column, label in METADATA_FIELDS)
+
+
 # ---------------------------------------------------------------------------
 # Small helpers
 # ---------------------------------------------------------------------------
+
+
+class _TranslatableText(str):
+    """English text retaining the template and values used to build it."""
+
+    def __new__(cls, source: str, values: Dict[str, Any]):
+        rendered = str(source).format(**values)
+        instance = super().__new__(cls, rendered)
+        instance.source = str(source)
+        instance.values = dict(values)
+        return instance
+
+
+def _message(source: str, **values: Any) -> _TranslatableText:
+    """Format English text while retaining its localization template."""
+    return _TranslatableText(source, values)
+
+
+def _translated(
+    value: Any,
+    translator: Optional[Callable[..., str]] = None,
+) -> str:
+    """Translate a structured message, leaving scientific data untouched."""
+    if translator is not None and isinstance(value, _TranslatableText):
+        return str(translator(value.source, **value.values))
+    return str(value)
+
+
+def _label(
+    source: str,
+    translator: Optional[Callable[..., str]] = None,
+) -> str:
+    """Translate a presentation label when a translator is supplied."""
+    return str(translator(source)) if translator is not None else str(source)
 
 def _clean(value: Any) -> str:
     """A metadata cell as a printable string, or ``""`` for every kind of gap.
@@ -592,20 +703,31 @@ class GeneTile:
         if self.candidates:
             return self.candidates[0].name
         if self.kind == "control":
-            return "non-targeting control"
+            return _message("non-targeting control")
         if self.kind == "nuisance":
-            return f"{self.feature} (model covariate)"
-        return _clean(self.feature) or "unrecognised term"
+            return _message("{feature} (model covariate)",
+                            feature=self.feature)
+        return _clean(self.feature) or _message("unrecognised term")
 
     @property
     def subtitle(self) -> str:
         """The line under the title: what the thing IS, in words."""
         if self.ambiguous:
-            return (f"one protospacer, {len(self.candidates)} genes — the "
-                    "effect cannot be assigned to any one of them")
+            return _message(
+                "one protospacer, {count} genes — the effect cannot be "
+                "assigned to any one of them",
+                count=len(self.candidates),
+            )
         if self.candidates:
             candidate = self.candidates[0]
-            product = candidate.product or "no product description"
+            product = candidate.product
+            if not product and candidate.accession:
+                return _message(
+                    "no product description · {accession}",
+                    accession=candidate.accession,
+                )
+            if not product:
+                return _message("no product description")
             if candidate.symbol and candidate.accession:
                 return f"{product} · {candidate.accession}"
             return product
@@ -632,57 +754,84 @@ class GeneTile:
 
     # -- rendering --------------------------------------------------------
 
-    def sections(self) -> Tuple[Tuple[str, Tuple[Tuple[str, str], ...]], ...]:
+    def sections(
+        self,
+        translator: Optional[Callable[..., str]] = None,
+    ) -> Tuple[Tuple[str, Tuple[Tuple[str, str], ...]], ...]:
         """The tile as ``((heading, ((label, value), ...)), ...)``.
 
         The one ordering, defined once, so the Qt tile, the text form and the
         HTML form cannot drift into presenting the same record three ways.
+        ``translator`` localizes presentation labels and structured messages;
+        identifiers, measurements, annotations, and URLs remain unchanged.
         """
         out: List[Tuple[str, Tuple[Tuple[str, str], ...]]] = []
 
         for candidate in self.candidates:
-            rows: List[Tuple[str, str]] = [("gene id", candidate.accession
-                                            or candidate.gene)]
-            rows.extend(candidate.fields)
+            rows: List[Tuple[str, str]] = [(
+                _label("gene id", translator),
+                candidate.accession or candidate.gene,
+            )]
+            rows.extend(
+                (_label(label, translator), value)
+                for label, value in candidate.fields
+            )
             if candidate.localisation:
-                rows.append(("localisation (TAGM/LOPIT)",
+                rows.append((_label("localisation (TAGM/LOPIT)", translator),
                              candidate.localisation))
             if candidate.aliases:
-                rows.append(("also known as", ", ".join(candidate.aliases)))
+                rows.append((_label("also known as", translator),
+                             ", ".join(candidate.aliases)))
             for note in candidate.notes:
-                rows.append(("not resolved", note))
-            heading = "identity"
+                rows.append((_label("not resolved", translator),
+                             _translated(note, translator)))
+            heading = _label("identity", translator)
             if self.ambiguous:
-                heading = (f"identity — {candidate.name}"
-                           + (" (the gene the counts were attributed to)"
-                              if candidate.reported else ""))
+                heading = _translated(
+                    _message("identity — {name}", name=candidate.name),
+                    translator,
+                )
+                if candidate.reported:
+                    heading += (
+                        " ("
+                        + _label(
+                            "the gene the counts were attributed to",
+                            translator,
+                        )
+                        + ")"
+                    )
             out.append((heading, tuple(rows)))
 
         screen: List[Tuple[str, str]] = []
         if math.isfinite(self.effect):
-            screen.append(("effect (coefficient)", f"{self.effect:.4g}"))
+            screen.append((_label("effect (coefficient)", translator),
+                           f"{self.effect:.4g}"))
         if math.isfinite(self.p_value):
-            screen.append(("p-value", f"{self.p_value:.3g}"))
+            screen.append((_label("p-value", translator),
+                           f"{self.p_value:.3g}"))
         if math.isfinite(self.q_value):
             label = "q-value"
             if self.correction and self.correction.lower() == "none":
                 label = "uncorrected p-value (q_value column)"
-            screen.append((label, f"{self.q_value:.3g}"))
+            screen.append((_label(label, translator), f"{self.q_value:.3g}"))
         if self.condition:
-            screen.append(("condition", self.condition))
+            screen.append((_label("condition", translator), self.condition))
         if math.isfinite(self.n_obs) and self.n_obs_column:
             screen.append((self.n_obs_column, f"{self.n_obs:g}"))
         if math.isfinite(self.gene_effect):
-            screen.append(("gene-level effect", f"{self.gene_effect:.4g}"))
+            screen.append((_label("gene-level effect", translator),
+                           f"{self.gene_effect:.4g}"))
         if math.isfinite(self.gene_p_value):
-            screen.append(("gene-level p", f"{self.gene_p_value:.3g}"))
+            screen.append((_label("gene-level p", translator),
+                           f"{self.gene_p_value:.3g}"))
         if self.guides:
-            screen.append(("guides fitted", str(self.n_guides)))
+            screen.append((_label("guides fitted", translator),
+                           str(self.n_guides)))
             if math.isfinite(self.gene_effect):
-                screen.append(("guides agreeing in sign",
+                screen.append((_label("guides agreeing in sign", translator),
                                f"{self.n_agree} of {self.n_guides}"))
         if screen:
-            out.append(("this screen", tuple(screen)))
+            out.append((_label("this screen", translator), tuple(screen)))
 
         if self.guides:
             rows = []
@@ -691,54 +840,75 @@ class GeneTile:
                 if math.isfinite(row.p_value):
                     text += f"   p {row.p_value:.3g}"
                 if row.agrees is False:
-                    text += "   (opposes the gene effect)"
+                    text += (
+                        "   ("
+                        + _label("opposes the gene effect", translator)
+                        + ")"
+                    )
                 if row.clicked:
-                    text += "   <- clicked"
+                    text += "   <- " + _label("clicked", translator)
                 rows.append((row.guide, text))
-            out.append(("the guides behind it", tuple(rows)))
+            out.append((_label("the guides behind it", translator),
+                        tuple(rows)))
 
         if self.protospacer:
-            out.append(("protospacer", (("sequence", self.protospacer),)))
+            out.append((_label("protospacer", translator),
+                        ((_label("sequence", translator), self.protospacer),)))
 
         # A note already showing as the subtitle is not repeated: the tile
         # would otherwise print its own headline twice, which reads as two
         # different problems rather than one.
         rest = tuple(n for n in self.unresolved if n != self.subtitle)
         if rest:
-            out.append(("what could not be resolved",
-                        tuple(("", note) for note in rest)))
+            out.append((_label("what could not be resolved", translator),
+                        tuple(("", _translated(note, translator))
+                              for note in rest)))
         if self.notes:
-            out.append(("notes", tuple(("", note) for note in self.notes)))
+            out.append((_label("notes", translator),
+                        tuple(("", _translated(note, translator))
+                              for note in self.notes)))
         if self.references:
-            out.append(("external records",
+            out.append((_label("external records", translator),
                         tuple((r.label, r.url) for r in self.references)))
         return tuple(out)
 
-    def to_text(self) -> str:
+    def to_text(
+        self,
+        translator: Optional[Callable[..., str]] = None,
+    ) -> str:
         """The tile as plain text — what a test reads and a log records."""
-        lines = [self.title]
+        lines = [_translated(self.title, translator)]
         if self.subtitle:
-            lines.append(self.subtitle)
-        for heading, rows in self.sections():
+            lines.append(_translated(self.subtitle, translator))
+        for heading, rows in self.sections(translator):
             lines.append("")
             lines.append(heading.upper())
             for label, value in rows:
                 lines.append(f"  {label}: {value}" if label else f"  {value}")
         return "\n".join(lines)
 
-    def to_html(self) -> str:
+    def to_html(
+        self,
+        translator: Optional[Callable[..., str]] = None,
+    ) -> str:
         """The tile as HTML, for a Qt rich-text view."""
         import html as _html
 
-        parts = [f"<h2 style='margin-bottom:2px'>{_html.escape(self.title)}</h2>"]
+        title = _translated(self.title, translator)
+        parts = [f"<h2 style='margin-bottom:2px'>{_html.escape(title)}</h2>"]
         if self.subtitle:
             parts.append("<p style='margin-top:0;color:#999'>"
-                         f"{_html.escape(self.subtitle)}</p>")
+                         f"{_html.escape(_translated(self.subtitle, translator))}</p>")
         if self.ambiguity:
-            parts.append("<p style='color:#c9a227'><b>Ambiguous mapping</b> — "
-                         f"{_html.escape(self.ambiguity)}</p>")
-        for heading, rows in self.sections():
-            if heading == "external records":
+            parts.append(
+                "<p style='color:#c9a227'><b>"
+                f"{_html.escape(_label('Ambiguous mapping', translator))}"
+                "</b> — "
+                f"{_html.escape(_translated(self.ambiguity, translator))}</p>"
+            )
+        external_heading = _label("external records", translator)
+        for heading, rows in self.sections(translator):
+            if heading == external_heading:
                 links = " · ".join(
                     f"<a href='{_html.escape(url)}'>{_html.escape(label)}</a>"
                     for label, url in rows)
@@ -906,8 +1076,12 @@ def _candidate(gene: str, accession: str, annotations: Dict[str, Dict[str, Any]]
     if row is None:
         if metadata_named and is_toxoplasma_gene_id(gene) and gene != CONTROL_GENE:
             notes.append(
-                f"no annotation row for gene {gene} in the metadata file, so "
-                "there is no product description or symbol for it here.")
+                _message(
+                    "no annotation row for gene {gene} in the metadata file, "
+                    "so there is no product description or symbol for it "
+                    "here.",
+                    gene=gene,
+                ))
     else:
         key = next((c for c in ("Gene ID", "gene_id", "gene") if c in row), "")
         annotation_id = _clean(row.get(key)) if key else ""
@@ -943,8 +1117,10 @@ def _screen_numbers(results: Optional[pd.DataFrame], feature: str, gene: str,
     }
     if results is None or not len(results) or "feature" not in results.columns:
         out["missing"].append(
-            "no results table was supplied, so this screen's own numbers for "
-            "the gene are not on this tile.")
+            _message(
+                "no results table was supplied, so this screen's own numbers "
+                "for the gene are not on this tile."
+            ))
         return out
 
     # Deliberately not `results.copy()`: a click must not duplicate the whole
@@ -955,8 +1131,11 @@ def _screen_numbers(results: Optional[pd.DataFrame], feature: str, gene: str,
     clicked = frame[(terms == feature).to_numpy()]
     if clicked.empty:
         out["missing"].append(
-            f"{feature!r} is not a row in the results table, so its effect "
-            "and p-value are not shown.")
+            _message(
+                "{feature!r} is not a row in the results table, so its effect "
+                "and p-value are not shown.",
+                feature=feature,
+            ))
     else:
         row = clicked.iloc[0]
         out["effect"] = _number(row.get("coefficient"))
@@ -1070,21 +1249,32 @@ def gene_tile(feature: Any,
                   or (gene == CONTROL_GENE and kind in ("guide", "gene")))
     if kind == "nuisance":
         unresolved.append(
-            f"{text!r} is a model covariate — the intercept or a plate "
-            "row/column term — not a gene, so there is nothing to look up.")
+            _message(
+                "{feature!r} is a model covariate — the intercept or a plate "
+                "row/column term — not a gene, so there is nothing to look "
+                "up.",
+                feature=text,
+            ))
         return GeneTile(feature=text, kind="nuisance",
                         unresolved=tuple(unresolved), **numbers)
     if kind == "unresolved":
         unresolved.append(
-            f"{text!r} is not in a form spaCR recognises as a model term, a "
-            "gRNA accession or a gene id, so no gene could be resolved.")
+            _message(
+                "{feature!r} is not in a form spaCR recognises as a model "
+                "term, a gRNA accession or a gene id, so no gene could be "
+                "resolved.",
+                feature=text,
+            ))
         return GeneTile(feature=text, kind="unresolved", guide=guide, gene=gene,
                         unresolved=tuple(unresolved), **numbers)
     if is_control:
         unresolved.append(
-            f"guide {guide or gene} is a non-targeting control, not a gene. "
-            "It has no gene record and no ToxoDB entry; it is in the fit so "
-            "the screen has a null to measure the real guides against.")
+            _message(
+                "guide {identifier} is a non-targeting control, not a gene. "
+                "It has no gene record and no ToxoDB entry; it is in the fit "
+                "so the screen has a null to measure the real guides against.",
+                identifier=guide or gene,
+            ))
         # The control block is fitted as if it were one gene, so a "gene-level
         # effect" and a sign agreement exist for it arithmetically. Neither
         # means anything — there is no gene for the guides to agree ABOUT —
@@ -1101,9 +1291,11 @@ def gene_tile(feature: Any,
                      agrees=None, clicked=r.clicked)
             for r in numbers["guides"])
         notes.append(
-            f"the other {max(len(numbers['guides']) - 1, 0)} control guides "
-            "are listed with it: they are the null this screen measures every "
-            "real guide against.")
+            _message(
+                "the other {count} control guides are listed with it: they "
+                "are the null this screen measures every real guide against.",
+                count=max(len(numbers["guides"]) - 1, 0),
+            ))
         return GeneTile(feature=text, kind="control", guide=guide, gene=gene,
                         unresolved=tuple(unresolved), notes=tuple(notes),
                         **numbers)
@@ -1120,15 +1312,21 @@ def gene_tile(feature: Any,
         if entry is None:
             if reference is None:
                 unresolved.append(
-                    "no gRNA reference was supplied, so it is not known "
-                    "whether this guide's protospacer is unique to one gene.")
+                    _message(
+                        "no gRNA reference was supplied, so it is not known "
+                        "whether this guide's protospacer is unique to one "
+                        "gene."
+                    ))
             else:
                 unresolved.append(
-                    f"guide {guide} is not in the gRNA reference, so its "
-                    "protospacer could not be checked for other genes "
-                    "carrying it. References may exclude guides whose "
-                    "protospacers map to multiple genes; verify the guide "
-                    "identifier and reference version.")
+                    _message(
+                        "guide {guide} is not in the gRNA reference, so its "
+                        "protospacer could not be checked for other genes "
+                        "carrying it. References may exclude guides whose "
+                        "protospacers map to multiple genes; verify the guide "
+                        "identifier and reference version.",
+                        guide=guide,
+                    ))
         else:
             reported_accession = entry[0] or reported_accession
             protospacer = entry[1]
@@ -1163,24 +1361,35 @@ def gene_tile(feature: Any,
     ambiguity = ""
     if ambiguous:
         named = ", ".join(c.accession or c.gene for c in candidates)
-        ambiguity = (
-            f"protospacer {protospacer} appears in the gRNA reference under "
-            f"{len(candidates)} gene names ({named}). Reads from this guide "
-            f"cannot be told apart between them, so the effect below belongs "
-            f"to all {len(candidates)} equally — the regression attributed it "
-            f"to {gene} because that is the name the counting pipeline saw "
-            "last, which is a bookkeeping fact, not a result.")
+        ambiguity = _message(
+            "protospacer {protospacer} appears in the gRNA reference under "
+            "{count} gene names ({names}). Reads from this guide cannot be "
+            "told apart between them, so the effect below belongs to all "
+            "{count} equally — the regression attributed it to {gene} "
+            "because that is the name the counting pipeline saw last, which "
+            "is a bookkeeping fact, not a result.",
+            protospacer=protospacer,
+            count=len(candidates),
+            names=named,
+            gene=gene,
+        )
 
     if not is_toxoplasma_gene_id(gene):
         unresolved.append(
-            f"gene id {gene!r} is not shaped like a Toxoplasma accession, so "
-            "no ToxoDB record is offered for it. If this is a screen of "
-            "another organism, spaCR has no annotation for it.")
+            _message(
+                "gene id {gene!r} is not shaped like a Toxoplasma accession, "
+                "so no ToxoDB record is offered for it. If this is a screen "
+                "of another organism, spaCR has no annotation for it.",
+                gene=gene,
+            ))
     elif not any(c.references for c in candidates):
         notes.append(
-            f"no strain prefix was known for gene {gene}, so no ToxoDB link "
-            "could be built. Supply the gRNA reference the screen was counted "
-            "against and the accession will resolve.")
+            _message(
+                "no strain prefix was known for gene {gene}, so no ToxoDB "
+                "link could be built. Supply the gRNA reference the screen "
+                "was counted against and the accession will resolve.",
+                gene=gene,
+            ))
 
     if not candidates:
         kind = "unresolved"
