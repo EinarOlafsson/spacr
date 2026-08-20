@@ -23,6 +23,7 @@ margins behind it were not.
 """
 
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -90,17 +91,57 @@ class TestTheMeasurement:
         assert measure_border_artifact(path) == 0.0
 
 
+def _sliding_frames():
+    frames = []
+    for step in range(6):
+        frame = np.zeros((60, 60, 3))
+        frame[24:36, 20 + step:32 + step] = 200
+        frames.append(frame)
+    return frames
+
+
+def _encoder_crops_under_disposal_2():
+    """Does THIS Pillow still write cropped frames when disposal=2?
+
+    The ring needs both halves of the fault: disposal 2 says "clear to
+    background first", and optimize crops each later frame to the rectangle
+    that changed, so the cleared background shows everywhere outside it.
+    Pillow 12.3 suppresses the crop when disposal is 2 -- every frame is
+    written full-canvas and there is no background left showing -- so the
+    reproduction below cannot fire on it.
+
+    THIS IS NOT A REASON TO DELETE THE TESTS. spaCR does not pin Pillow, the
+    generator is still the thing choosing the save arguments, and on any
+    Pillow that does crop the fault is exactly as live as it was. The
+    reproduction is skipped where the encoder cannot produce it and asserted
+    where it can; what guards the shipped files either way is
+    TestTheShippedAssets, which measures the GIFs themselves.
+    """
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "probe.gif"
+        _gif(path, _sliding_frames(), disposal=2, optimize=True)
+        with Image.open(path) as probe:
+            probe.seek(1)
+            box = probe.tile[0][1] if probe.tile else None
+    return box is not None and tuple(box) != (0, 0, 60, 60)
+
+
+needs_a_cropping_encoder = pytest.mark.skipif(
+    not _encoder_crops_under_disposal_2(),
+    reason=(
+        f"Pillow {Image.__version__} writes full-canvas frames under "
+        "disposal=2, so the encoder fault cannot be reproduced on it"
+    ),
+)
+
+
 class TestTheEncodingThatCausedIt:
     """The bug reproduces from the save arguments alone."""
 
     def _frames(self):
-        frames = []
-        for step in range(6):
-            frame = np.zeros((60, 60, 3))
-            frame[24:36, 20 + step:32 + step] = 200
-            frames.append(frame)
-        return frames
+        return _sliding_frames()
 
+    @needs_a_cropping_encoder
     def test_disposal_2_with_optimize_leaves_a_ring(self, tmp_path):
         path = _gif(tmp_path / "d2.gif", self._frames(), disposal=2, optimize=True)
         assert measure_border_artifact(path) > MAX_BORDER_ARTIFACT
@@ -109,6 +150,7 @@ class TestTheEncodingThatCausedIt:
         path = _gif(tmp_path / "d1.gif", self._frames(), disposal=1, optimize=True)
         assert measure_border_artifact(path) == 0.0
 
+    @needs_a_cropping_encoder
     def test_the_ring_inflates_the_visible_change_measurement(self, tmp_path):
         """Which is why this was never noticed: it made the numbers better."""
         frames = self._frames()
@@ -117,6 +159,28 @@ class TestTheEncodingThatCausedIt:
         ringed = measure_visible_change(
             _gif(tmp_path / "r.gif", frames, disposal=2, optimize=True))
         assert ringed > clean * 2
+
+    def test_the_ring_inflates_the_measurement_wherever_it_appears(self, tmp_path):
+        """The claim the audit rests on, stated without needing the encoder.
+
+        `measure_visible_change` counting a border it should ignore is what
+        made nine animations look like they cleared the 1% bar by 10x. That
+        is a property of the MEASUREMENT, so it can be shown with a ring
+        drawn on purpose rather than one coaxed out of a particular Pillow.
+        """
+        size = 60
+        clean = [np.zeros((size, size, 3)), np.zeros((size, size, 3))]
+        clean[1][28:32, 28:32] = 255
+        ringed = [frame.copy() for frame in clean]
+        ringed[1][:6, :] = 237
+        ringed[1][-6:, :] = 237
+        ringed[1][:, :6] = 237
+        ringed[1][:, -6:] = 237
+        before = measure_visible_change(
+            _gif(tmp_path / "clean.gif", clean, disposal=1))
+        after = measure_visible_change(
+            _gif(tmp_path / "ringed.gif", ringed, disposal=1))
+        assert after > before * 2
 
 
 class TestTheGenerator:

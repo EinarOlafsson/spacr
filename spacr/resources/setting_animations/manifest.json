@@ -993,10 +993,10 @@
       "slug": "organelle_diameter",
       "title": "Organelle diameter",
       "validation": {
-        "bytes": 114748,
+        "bytes": 50279,
         "frames": 18,
-        "sha256": "33fc6e227cfbbf2cd20c08ce3768ff855391705a1c17e488f3a50416ae81ff4e",
-        "unique_frames": 17
+        "sha256": "5db5a0d7b8e2b6b5633e787cf482bfc263ce2fad26da5ea8b08dcd2d8517a480",
+        "unique_frames": 16
       }
     },
     {
@@ -1107,10 +1107,10 @@
       "slug": "organelle_skeletonize",
       "title": "Skeletonize organelle networks",
       "validation": {
-        "bytes": 201667,
+        "bytes": 84781,
         "frames": 18,
-        "sha256": "2ae2e6204ddf515ba1fb0fd26b9361910c5ca19f7dbedd50103e6940add833ac",
-        "unique_frames": 17
+        "sha256": "b2fd1b4be8ba43aa095e7244cd6e1b43300834aa931f3d340b8cd5c37010119e",
+        "unique_frames": 16
       }
     },
     {
@@ -1241,9 +1241,9 @@
       "slug": "use_bounding_box",
       "title": "Keep bounding-box context",
       "validation": {
-        "bytes": 173279,
+        "bytes": 136726,
         "frames": 18,
-        "sha256": "b2aed7d21021ad2bdc735d2110a4464b6cf141657cec3807c467a6458a548d61",
+        "sha256": "60a0458c45c4d49916f5761c76ed57597adc22662a99169ac47f180e407387f6",
         "unique_frames": 17
       }
     },
@@ -1431,10 +1431,10 @@
       "slug": "t_link_threshold",
       "title": "Timepoint overlap threshold",
       "validation": {
-        "bytes": 110717,
-        "frames": 18,
-        "sha256": "c394a73fba586b22a95da323c6d2487237163ab908e7808f57c808cda771341d",
-        "unique_frames": 17
+        "bytes": 25942,
+        "frames": 14,
+        "sha256": "15ba4db282b5a2ab747df11e20f7d6ea7fde18a329f3e6d4081a010fd85e5fee",
+        "unique_frames": 13
       }
     },
     {
@@ -1450,10 +1450,10 @@
       "slug": "stitch_threshold",
       "title": "Z-plane stitch threshold",
       "validation": {
-        "bytes": 104705,
-        "frames": 18,
-        "sha256": "8891bd3122f1fe328eceba18acd9829bcb8a32bb6eacc75734b4b29c7d08c833",
-        "unique_frames": 17
+        "bytes": 26321,
+        "frames": 14,
+        "sha256": "290203eaefd25f45fbd8af25613ce7ce5f9a62566863f98aed18d128a7eafc11",
+        "unique_frames": 13
       }
     },
     {
@@ -1584,9 +1584,9 @@
       "slug": "n_neighbors",
       "title": "UMAP neighborhood size",
       "validation": {
-        "bytes": 54778,
+        "bytes": 61807,
         "frames": 7,
-        "sha256": "be64077f410a6f5d079e9254bd6407c30dbbe76a74aeff7994e0209292b9fa3d",
+        "sha256": "c2afe702ea324bc84cb9a1cad52890156cec7e807cd4e76532ec0c045621b1d9",
         "unique_frames": 4
       }
     },
@@ -1641,9 +1641,9 @@
       "slug": "remove_image_canvas",
       "title": "Remove image canvas",
       "validation": {
-        "bytes": 86085,
+        "bytes": 129703,
         "frames": 18,
-        "sha256": "7c4384c8efabdcf71e331c45e2d6e5434115d0875136e7c42fa8ac57702cba15",
+        "sha256": "6f5328075519c4d14639b28187357aec697e42936eb4a3690ae7580a304e9866",
         "unique_frames": 17
       }
     },
@@ -1736,9 +1736,9 @@
       "slug": "plot_by_cluster",
       "title": "Sample images by cluster",
       "validation": {
-        "bytes": 108855,
+        "bytes": 166841,
         "frames": 18,
-        "sha256": "ddf83c2404520eb379028166c18f0a2291e6d500c3d1f8acd0472dfa4d4cb7d3",
+        "sha256": "3aec626c91fa2a49749921e77c8c3e9fb3111f012b004f9b0e63bda124ce9370",
         "unique_frames": 17
       }
     },
