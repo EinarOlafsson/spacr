@@ -14,6 +14,42 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QDialog, QDialogButtonBox,
 
 LOG = logging.getLogger("spacr.qt.save_figure")
 
+#: Why the page size is not editable here for a pyqtgraph plot.
+_SIZE_REASON = ("set on the plot's right-click menu, under Canvas: it is one "
+                "page size, read by every export this plot makes")
+
+#: Why there is no resolution to set for a pyqtgraph plot.
+_RESOLUTION_REASON = ("this plot writes true vector for PDF and SVG, which "
+                      "have no resolution, and sizes its PNG from the canvas "
+                      "shape on its own right-click menu")
+
+
+def _reason_label(text: str, reason: str = ""):
+    """A form-row label that CARRIES the reason its control is disabled.
+
+    INSTRUCTION 106, IN A DIALOG. Both reasons above were already written --
+    to `setToolTip` ON THE DISABLED WIDGET, where a user has to hover a greyed
+    box to find out why it is greyed, and where some styles decline to show a
+    tooltip at all. The maintainer read the result as "size and resolution are
+    grayed out", with no explanation reaching them, which is exactly the
+    complaint 106 exists to answer.
+
+    The settings panel's `_apply_greyed_note` cannot be reused here: it hangs
+    the note on `_spacr_setting_label`, which only that panel's decoration
+    creates. A form row's label is the same idea with a different owner, so
+    the reason goes into the LABEL, where it is read without hovering.
+    """
+    from PySide6.QtWidgets import QLabel
+
+    if not reason:
+        return QLabel(text)
+    label = QLabel(f"{text} — {reason}")
+    label.setEnabled(False)
+    label.setToolTip(reason)
+    label.setWordWrap(True)
+    return label
+
+
 #: What the file can be written as.
 FORMATS = (("png", "PNG image"), ("pdf", "PDF document"),
            ("svg", "SVG image"), ("tiff", "TIFF image"))
@@ -164,10 +200,7 @@ class SaveFigureDialog(QDialog):
             self.height.setValue(round(float(height_mm or width_mm) / 25.4, 2))
             for box in (self.width, self.height):
                 box.setEnabled(False)
-                box.setToolTip(
-                    "Set on the plot's own right-click menu, under Canvas — "
-                    "it is one page size, read by every export this plot "
-                    "makes.")
+                box.setToolTip(_SIZE_REASON)
         elif figure is not None:
             w, h = figure.get_size_inches()
             self.width.setValue(float(w))
@@ -177,7 +210,8 @@ class SaveFigureDialog(QDialog):
         size.addWidget(self.width)
         size.addWidget(QLabel("×"))
         size.addWidget(self.height)
-        form.addRow("size", size)
+        form.addRow(_reason_label("size", _SIZE_REASON if self._fast else ""),
+                    size)
 
         self.dpi = QSpinBox()
         self.dpi.setRange(72, 1200)
@@ -190,11 +224,10 @@ class SaveFigureDialog(QDialog):
             # all -- and its PNG is sized in pixels by the same canvas shape.
             # Instruction 106: disabled and SAYING why.
             self.dpi.setEnabled(False)
-            self.dpi.setToolTip(
-                "This plot writes true vector for PDF and SVG, which have no "
-                "resolution, and sizes its PNG from the canvas shape on its "
-                "own right-click menu.")
-        form.addRow("resolution", self.dpi)
+            self.dpi.setToolTip(_RESOLUTION_REASON)
+        form.addRow(_reason_label("resolution",
+                                  _RESOLUTION_REASON if self._fast else ""),
+                    self.dpi)
 
         self.format = QComboBox()
         for value, label in (FAST_PLOT_FORMATS if self._fast else FORMATS):
