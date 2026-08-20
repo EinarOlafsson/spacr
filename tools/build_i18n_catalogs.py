@@ -256,10 +256,25 @@ _PROTECT_PATTERNS = (
     # name and leave an API page whose displayed signature contradicts the
     # callable it documents.
     re.compile(
-        r"(?<!\w)[A-Za-z_]\w*\s*:\s*(?:"
+        # The colon exclusion prevents a false match inside an RST field such
+        # as ``:returns: dict of values``. There, ``dict`` is visible prose,
+        # not a numpydoc declaration, and may be translated normally.
+        r"(?<![:\w])(?<!:param )(?<!:type )(?<!:return )"
+        r"[A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*\s*:\s*(?:"
+        # Choice declarations contain quoted literal values. Requiring the
+        # quote prevents prose such as ``missing module: {module}`` from being
+        # mistaken for a numpydoc enumeration.
+        r"\{\s*['\"][^{}\n]+\}|"
         r"Any|bool|int|float|str|bytes|dict|list|tuple|set|mapping|"
-        r"array-like|path-like|callable|pandas\.DataFrame|pathlib\.Path"
-        r")(?:,\s*optional|,\s*default\s*=\s*[^\s]+)?"
+        r"array-like|path-like|color-like|callable|iterable|sequence|"
+        r"collection|pandas\.DataFrame|pandas\.Series|numpy\.ndarray|"
+        r"pathlib\.Path|ControlSpec"
+        r")"
+        r"(?:\s+of\s+(?:shape\s+\([^()\n]+\)|"
+        r"(?:str|int|float|Any)(?:\s+to\s+(?:str|Any|mapping))?)|"
+        r"\s+or\s+None)?"
+        r"(?:,\s*(?:optional|default(?:\s*=\s*|\s+)"
+        r"(?:'[^']*'|\"[^\"]*\"|[^\s]+)))?"
     ),
     # Keep this after the complete numpydoc declaration above.  Regex
     # alternation chooses the first match at an offset, so putting the shorter

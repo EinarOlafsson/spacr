@@ -1988,18 +1988,11 @@ class CellMontageView(QWidget):
         self._picking_override = ""
 
     def multivariate_shortfall(self, request=None) -> str:
-        """What multivariate picking is still missing, or ``""``.
+        """Return why multivariate picking is unavailable, or ``""``.
 
-        Instruction 186 A, asked for 2026-08-20: a user who chose
-        multivariate and pressed OK should be told what has not been done,
-        not quietly given a different picker.
-
-        THE FALLBACK IS RIGHT AND IT IS IN THE WRONG PLACE. `select_montage`
-        drops to the single-score attribution when there is no effects grid
-        and says so in the caption, which is correct for a montage that must
-        still draw. It is not correct as the answer to someone who asked for
-        multivariate on purpose -- they asked for something and got a
-        quieter different thing.
+        Multivariate picking requires a gene-by-measurement effects grid.
+        The message directs the user to create that grid or explicitly choose
+        rank-based picking rather than silently changing the selected method.
         """
         picture = self.picture_settings() or {}
         if str(picture.get("cell_picking") or "rank") != "multivariate":
@@ -2362,22 +2355,12 @@ class CellMontageView(QWidget):
         return applied
 
     def compare_a_measurement(self, *_args):
-        """Raise the Compare tab for the cells this tab picked. 177 F.
+        """Open the Compare tab for the cells selected by this montage.
 
-        A TAB, NOT A WINDOW (186 B). Reported 2026-08-20: "when the Compare a
-        measurement pops up it is infrom to the other tabs. this should have
-        its own tab after summary."
-
-        There were two front doors onto one panel and they disagreed: this
-        opened a free-floating `MeasurementCompareDialog` over the tabs,
-        while `_ensure_graph_tab` had already been putting the SAME
-        `MeasurementComparePanel` in a tab at index 1. The panel always knew
-        how to live in a tab; the button just did not use it. Both doors now
-        lead to the same place, so there is one comparison and it cannot
-        drift from the montage behind it.
-
-        The dialog class is untouched and still works for a caller that
-        genuinely wants a separate window.
+        Returns the shared comparison panel, or ``None`` when no cells have
+        been selected or the panel cannot be created. Reusing the tab keeps
+        the comparison synchronized with the montage and avoids duplicate
+        floating views.
         """
         rows = self._all_objects()
         groups = self.picked_groups()
