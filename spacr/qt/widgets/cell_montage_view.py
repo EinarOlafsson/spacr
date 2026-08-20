@@ -1480,6 +1480,8 @@ class CellMontageView(QWidget):
         self._effect: Optional[float] = None
         self._plans: Tuple[Any, ...] = ()
         self._images: Tuple[Tuple[Any, ...], ...] = ()
+        #: The load signature the crops in `_images` answer, or None.
+        self._loaded_signature = None
         self._sources: Dict[str, str] = {}
         #: The coefficient the montage on screen was built for. A montage of
         #: one gene under a selection that has moved to another is precisely
@@ -2033,6 +2035,11 @@ class CellMontageView(QWidget):
             return
         self._plans = result.plans
         self._images = result.images
+        # WHAT THESE CROPS ANSWER. A later settings change compares against
+        # it and redraws in place when only the DISPLAY settings moved --
+        # "if they have been loaded it should take a verry shourt amoutn of
+        # time to change nd reapply the settings".
+        self._loaded_signature = self._load_signature()
         self._sources = dict(result.sources)
         self._shown_key = self._key
         self._unavailable = ""
@@ -2395,9 +2402,59 @@ class CellMontageView(QWidget):
         # nothing said why -- indistinguishable from a control that does
         # nothing.
         if showing:
-            self.build()
+            # REDRAW FROM THE CROPS ALREADY IN HAND WHERE THAT IS ENOUGH.
+            # Reported 2026-08-19: "if they have been loaded it should take a
+            # verry shourt amoutn of time to change nd reapply the settings
+            # ... i think the current behaviour is that they are reloaded
+            # every time something changes" -- which it was.
+            #
+            # `picture_settings` already separates the settings that decide
+            # what is CUT from disk (channels, size, crop shape, object type,
+            # source) from the ones that only decide how an obtained crop is
+            # DRAWN (normalise, outline, edge, percentiles). Only the first
+            # kind can need new pixels.
+            if self._can_redraw_without_loading():
+                self._redraw_from_cache()
+            else:
+                self.build()
         self._refresh_controls()
         self._announce()
+
+    def _load_signature(self) -> tuple:
+        """Everything that decides WHICH PIXELS are read off disk.
+
+        The display settings are deliberately absent: two requests differing
+        only in `normalize_channels` want the same crops and a different
+        picture of them.
+        """
+        picture = self.picture_settings()
+        cut = {k: picture.get(k) for k in
+               ("crop_source", "image_type", "img_size", "channels",
+                "crop_shape", "object_array", "coordinate_columns")}
+        return (
+            str(self._name), str(self._level), repr(sorted(cut.items())),
+            str(self._object.currentData() or ""),
+            self._channels.text().strip(),
+            str(self._source.currentData() or ""),
+            str(self._score.text().strip()),
+            str(self._baseline.currentData() or ""),
+            float(self._half_widths.value()), int(self._cap.value()),
+            str(picture.get("cell_picking") or ""),
+            str(picture.get("picking_threshold") or ""),
+            bool(picture.get("show_all_in_well")),
+        )
+
+    def _can_redraw_without_loading(self) -> bool:
+        """Whether the crops in hand still answer the current settings."""
+        return (bool(self._plans) and bool(self._images)
+                and self._loaded_signature == self._load_signature())
+
+    def _redraw_from_cache(self) -> None:
+        """Draw the crops already loaded, with the display settings as they
+        are now. The whole point: no disk, no worker, no wait."""
+        self._fill()
+        self._set_status(self._summary())
+        self.montage_ready.emit(sum(len(row) for row in self._images))
 
     def _refresh_controls(self) -> None:
         """Disable controls that cannot act and show the reason."""
@@ -2453,6 +2510,7 @@ class CellMontageView(QWidget):
         must not survive it.
         """
         self._plans, self._images, self._sources = (), (), {}
+        self._loaded_signature = None
         self._shown_key = ""
         self._caption.setPlainText("")
 
