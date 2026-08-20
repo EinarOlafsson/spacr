@@ -45,6 +45,14 @@ matplotlib.use("Agg", force=True)
 SPACR = pathlib.Path(__file__).resolve().parents[1] / "spacr"
 
 
+@pytest.fixture(autouse=True)
+def _close_figures_after_each_test():
+    """Keep regression figures from accumulating in a shared CI worker."""
+    yield
+    import matplotlib.pyplot as plt
+    plt.close("all")
+
+
 # --------------------------------------------------------------------------- #
 #  A frame with the real shape: some single-guide genes, some multi-guide
 # --------------------------------------------------------------------------- #
@@ -212,7 +220,7 @@ def test_prepare_formula_emits_exactly_one_level(level, random_row_column_effect
 def test_prepare_formula_refuses_both_because_both_is_two_fits():
     from spacr.ml import prepare_formula
 
-    with pytest.raises(ValueError, match="TWO fits"):
+    with pytest.raises(ValueError, match="two fits"):
         prepare_formula("predictions", level="both")
 
 

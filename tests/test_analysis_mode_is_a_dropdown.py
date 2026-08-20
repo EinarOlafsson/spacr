@@ -15,11 +15,18 @@ from spacr.settings import INFERENCE_MODES, get_setting_dependencies
 from spacr.settings_spec import convert_settings_dict_for_gui
 
 
+def _values(options):
+    """Return stored values from plain or ``(value, label)`` combo entries."""
+    return [item[0] if isinstance(item, tuple) else item for item in options]
+
+
 def test_analysis_mode_is_a_combo_with_exactly_its_two_values():
     spec = convert_settings_dict_for_gui({"analysis_mode": "regression"})
     kind, options, default = spec["analysis_mode"]
     assert kind == "combo"
-    assert options == ["regression", "guide_permutation"]
+    assert _values(options) == ["regression", "guide_permutation"]
+    assert all(isinstance(item, tuple) and len(item[1]) > len(item[0])
+               for item in options)
     assert default == "regression"
 
 
@@ -33,14 +40,15 @@ def test_the_two_values_are_the_ones_inference_maps_onto():
     """
     _kind, options, _default = convert_settings_dict_for_gui(
         {"analysis_mode": "regression"})["analysis_mode"]
-    assert set(options) == {mode for mode in INFERENCE_MODES.values() if mode}
+    assert set(_values(options)) == {
+        mode for mode in INFERENCE_MODES.values() if mode}
 
 
 def test_the_qt_front_end_offers_the_same_two():
     """One list, two GUIs. Two lists is how they start disagreeing."""
     from spacr.qt.screens.settings_model import _APP_COMBO_OPTIONS
 
-    assert _APP_COMBO_OPTIONS["regression"]["analysis_mode"] == [
+    assert _values(_APP_COMBO_OPTIONS["regression"]["analysis_mode"]) == [
         "regression", "guide_permutation"]
 
 
