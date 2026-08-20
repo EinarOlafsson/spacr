@@ -149,11 +149,12 @@ def test_parallel_memory_amplifiers_are_assigned_to_the_serial_suite():
 
 
 def test_fast_suites_fit_on_a_standard_hosted_runner():
-    """Three xdist workers leave memory for imports and the runner service."""
+    """Small worker batches release accumulated scientific-library memory."""
     workflow = WORKFLOW.read_text(encoding="utf-8")
 
-    assert workflow.count("-n 3 --dist loadfile") == 2
-    assert "-n 4 --dist loadfile" not in workflow
+    assert workflow.count("tools/run_pytest_batches.py") == 2
+    assert workflow.count("--batch-size 32 --workers 2") == 2
+    assert "-n 3 --dist loadfile" not in workflow
 
 
 def test_wall_clock_measurements_run_in_the_serial_suite():
